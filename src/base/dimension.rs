@@ -22,8 +22,8 @@ pub struct Dynamic {
 impl Dynamic {
     /// A dynamic size equal to `value`.
     #[inline]
-    pub fn new(value: usize) -> Dynamic {
-        Dynamic { value: value }
+    pub fn new(value: usize) -> Self {
+        Self { value: value }
     }
 }
 
@@ -80,7 +80,7 @@ impl Dim for Dynamic {
 
     #[inline]
     fn from_usize(dim: usize) -> Self {
-        Dynamic::new(dim)
+        Self::new(dim)
     }
 
     #[inline]
@@ -93,8 +93,8 @@ impl Add<usize> for Dynamic {
     type Output = Dynamic;
 
     #[inline]
-    fn add(self, rhs: usize) -> Dynamic {
-        Dynamic::new(self.value + rhs)
+    fn add(self, rhs: usize) -> Self {
+        Self::new(self.value + rhs)
     }
 }
 
@@ -102,8 +102,8 @@ impl Sub<usize> for Dynamic {
     type Output = Dynamic;
 
     #[inline]
-    fn sub(self, rhs: usize) -> Dynamic {
-        Dynamic::new(self.value - rhs)
+    fn sub(self, rhs: usize) -> Self {
+        Self::new(self.value - rhs)
     }
 }
 
@@ -364,7 +364,8 @@ impl<
         G: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
     > IsNotStaticOne
     for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G>
-{}
+{
+}
 
 impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> NamedDim
     for UInt<U, B>
@@ -405,4 +406,5 @@ impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Syn
 
 impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> IsNotStaticOne
     for UInt<U, B>
-{}
+{
+}

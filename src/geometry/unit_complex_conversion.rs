@@ -5,10 +5,10 @@ use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation as AlgaRotation;
 
 use base::dimension::U2;
-use base::Matrix3;
+use base::{Matrix2, Matrix3};
 use geometry::{
     Isometry, Point2, Rotation2, Similarity, SuperTCategoryOf, TAffine, Transform, Translation,
-    UnitComplex,
+    UnitComplex
 };
 
 /*
@@ -74,7 +74,7 @@ impl<N1, N2, R> SubsetOf<Isometry<N2, U2, R>> for UnitComplex<N1>
 where
     N1: Real,
     N2: Real + SupersetOf<N1>,
-    R: AlgaRotation<Point2<N2>> + SupersetOf<UnitComplex<N1>>,
+    R: AlgaRotation<Point2<N2>> + SupersetOf<Self>,
 {
     #[inline]
     fn to_superset(&self) -> Isometry<N2, U2, R> {
@@ -96,7 +96,7 @@ impl<N1, N2, R> SubsetOf<Similarity<N2, U2, R>> for UnitComplex<N1>
 where
     N1: Real,
     N2: Real + SupersetOf<N1>,
-    R: AlgaRotation<Point2<N2>> + SupersetOf<UnitComplex<N1>>,
+    R: AlgaRotation<Point2<N2>> + SupersetOf<Self>,
 {
     #[inline]
     fn to_superset(&self) -> Similarity<N2, U2, R> {
@@ -151,5 +151,34 @@ impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix3<N2>> for UnitComplex<
     unsafe fn from_superset_unchecked(m: &Matrix3<N2>) -> Self {
         let rot: Rotation2<N1> = ::convert_ref_unchecked(m);
         Self::from_rotation_matrix(&rot)
+    }
+}
+
+
+impl<N: Real> From<UnitComplex<N>> for Rotation2<N> {
+    #[inline]
+    fn from(q: UnitComplex<N>) -> Self {
+        q.to_rotation_matrix()
+    }
+}
+
+impl<N: Real> From<Rotation2<N>> for UnitComplex<N> {
+    #[inline]
+    fn from(q: Rotation2<N>) -> Self {
+        Self::from_rotation_matrix(&q)
+    }
+}
+
+impl<N: Real> From<UnitComplex<N>> for Matrix3<N> {
+    #[inline]
+    fn from(q: UnitComplex<N>) -> Matrix3<N> {
+        q.to_homogeneous()
+    }
+}
+
+impl<N: Real> From<UnitComplex<N>> for Matrix2<N> {
+    #[inline]
+    fn from(q: UnitComplex<N>) -> Self {
+        q.to_rotation_matrix().into_inner()
     }
 }

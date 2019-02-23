@@ -1,6 +1,6 @@
 use alga::general::{
     AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
-    AbstractSemigroup, Id, Identity, Inverse, Multiplicative, Real,
+    AbstractSemigroup, Id, Identity, TwoSidedInverse, Multiplicative, Real,
 };
 use alga::linear::Isometry as AlgaIsometry;
 use alga::linear::{
@@ -30,18 +30,18 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> Inverse<Multiplicative> for Isometry<N, D, R>
+impl<N: Real, D: DimName, R> TwoSidedInverse<Multiplicative> for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
-    fn inverse(&self) -> Self {
+    fn two_sided_inverse(&self) -> Self {
         self.inverse()
     }
 
     #[inline]
-    fn inverse_mut(&mut self) {
+    fn two_sided_inverse_mut(&mut self) {
         self.inverse_mut()
     }
 }
@@ -121,7 +121,7 @@ where
     type Translation = Translation<N, D>;
 
     #[inline]
-    fn decompose(&self) -> (Translation<N, D>, R, Id, R) {
+    fn decompose(&self) -> (Self::Translation, R, Id, R) {
         (
             self.translation.clone(),
             self.rotation.clone(),

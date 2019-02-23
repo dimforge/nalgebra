@@ -45,7 +45,7 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(m: &Point<N2, D>) -> Self {
-        Point::from(Matrix::from_superset_unchecked(&m.coords))
+        Self::from(Matrix::from_superset_unchecked(&m.coords))
     }
 }
 

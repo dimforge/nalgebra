@@ -4,7 +4,16 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.17.0] - WIP
+## [0.18.0] - WIP
+
+### Added
+  * Add `.renormalize` to `Unit<...>` and `Rotation3` to correct potential drift due to repeated operations.
+    Those drifts can cause them not to be pure rotations anymore.
+  * Add the `::from_matrix` constructor too all rotation types to extract a rotation from a raw matrix.
+  * Add the `::from_matrix_eps` constructor too all rotation types to extract a rotation from a raw matrix. This takes
+    more argument than `::from_matrix` to control the convergence of the underlying optimization algorithm.
+
+## [0.17.0]
 
 ### Added
   * Add swizzling up to dimension 3 for vectors. For example, you can do `v.zxy()` as an equivalent to `Vector3::new(v.z, v.x, v.y)`.
@@ -35,7 +44,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Implement `Extend<Matrix<...>>` for matrices with dynamic storage. This will concatenate the columns of both matrices.
   * Implement `Into<Vec>` for the `MatrixVec` storage.
   * Implement `Hash` for all matrices.
-  
+  * Add a `.len()` method to retrieve the size of a `MatrixVec`.
+
 ### Modified
   * The orthographic projection no longer require that `bottom < top`, that `left < right`, and that `znear < zfar`. The
   only restriction now ith that they must not be equal (in which case the projection would be singular).
@@ -46,11 +56,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Renamed `.unwrap()` to `.into_inner()` for geometric types that wrap another type.
     This is for the case of `Unit`, `Transform`, `Orthographic3`, `Perspective3`, `Rotation`.
   * Deprecate several functions at the root of the crate (replaced by methods).
-  
+
+### Removed
+    * Remove the `Deref` impl for `MatrixVec` as it could cause hard-to-understand compilation errors.
+
 ### nalgebra-glm
   * Add several alternative projection computations, e.g., `ortho_lh`, `ortho_lh_no`, `perspective_lh`, etc.
   * Add features matching those of nalgebra, in particular: `serde-serialize`, `abmonation-serialize`, std` (enabled by default).
-  
+
 ## [0.16.0]
 All dependencies have been updated to their latest versions.
 

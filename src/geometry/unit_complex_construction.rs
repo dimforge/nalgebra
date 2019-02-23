@@ -9,7 +9,7 @@ use rand::Rng;
 use alga::general::Real;
 use base::dimension::{U1, U2};
 use base::storage::Storage;
-use base::{Unit, Vector};
+use base::{Unit, Vector, Matrix2};
 use geometry::{Rotation2, UnitComplex};
 
 impl<N: Real> UnitComplex<N> {
@@ -35,7 +35,6 @@ impl<N: Real> UnitComplex<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitComplex, Point2};
     /// let rot = UnitComplex::new(f32::consts::FRAC_PI_2);
@@ -56,7 +55,6 @@ impl<N: Real> UnitComplex<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitComplex, Point2};
     /// let rot = UnitComplex::from_angle(f32::consts::FRAC_PI_2);
@@ -78,7 +76,6 @@ impl<N: Real> UnitComplex<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitComplex, Vector2, Point2};
     /// let angle = f32::consts::FRAC_PI_2;
@@ -88,7 +85,7 @@ impl<N: Real> UnitComplex<N> {
     /// ```
     #[inline]
     pub fn from_cos_sin_unchecked(cos: N, sin: N) -> Self {
-        UnitComplex::new_unchecked(Complex::new(cos, sin))
+        Self::new_unchecked(Complex::new(cos, sin))
     }
 
     /// Builds a unit complex rotation from an angle in radian wrapped in a 1-dimensional vector.
@@ -132,13 +129,38 @@ impl<N: Real> UnitComplex<N> {
         Self::new_unchecked(Complex::new(rotmat[(0, 0)], rotmat[(1, 0)]))
     }
 
+    /// Builds an unit complex by extracting the rotation part of the given transformation `m`.
+    ///
+    /// This is an iterative method. See `.from_matrix_eps` to provide mover
+    /// convergence parameters and starting solution.
+    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    pub fn from_matrix(m: &Matrix2<N>) -> Self {
+        Rotation2::from_matrix(m).into()
+    }
+
+    /// Builds an unit complex by extracting the rotation part of the given transformation `m`.
+    ///
+    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    ///
+    /// # Parameters
+    ///
+    /// * `m`: the matrix from which the rotational part is to be extracted.
+    /// * `eps`: the angular errors tolerated between the current rotation and the optimal one.
+    /// * `max_iter`: the maximum number of iterations. Loops indefinitely until convergence if set to `0`.
+    /// * `guess`: an estimate of the solution. Convergence will be significantly faster if an initial solution close
+    ///           to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
+    ///           guesses come to mind.
+    pub fn from_matrix_eps(m: &Matrix2<N>, eps: N, max_iter: usize, guess: Self) -> Self {
+        let guess = Rotation2::from(guess);
+        Rotation2::from_matrix_eps(m, eps, max_iter, guess).into()
+    }
+
     /// The unit complex needed to make `a` and `b` be collinear and point toward the same
     /// direction.
     ///
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector2, UnitComplex};
     /// let a = Vector2::new(1.0, 2.0);
     /// let b = Vector2::new(2.0, 1.0);
@@ -161,7 +183,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector2, UnitComplex};
     /// let a = Vector2::new(1.0, 2.0);
     /// let b = Vector2::new(2.0, 1.0);
@@ -197,7 +218,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Unit, Vector2, UnitComplex};
     /// let a = Unit::new_normalize(Vector2::new(1.0, 2.0));
     /// let b = Unit::new_normalize(Vector2::new(2.0, 1.0));
@@ -223,7 +243,6 @@ impl<N: Real> UnitComplex<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Unit, Vector2, UnitComplex};
     /// let a = Unit::new_normalize(Vector2::new(1.0, 2.0));
     /// let b = Unit::new_normalize(Vector2::new(2.0, 1.0));

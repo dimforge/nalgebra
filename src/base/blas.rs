@@ -13,18 +13,18 @@ use base::dimension::{Dim, Dynamic, U1, U2, U3, U4};
 use base::storage::{Storage, StorageMut};
 use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector};
 
-impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
-    /// Computes the index of the vector component with the largest value.
+impl<N: Scalar + PartialOrd, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
+    /// Computes the index and value of the vector component with the largest value.
     ///
     /// # Examples:
     ///
     /// ```
     /// # use nalgebra::Vector3;
     /// let vec = Vector3::new(11, -15, 13);
-    /// assert_eq!(vec.imax(), 2);
+    /// assert_eq!(vec.argmax(), (2, 13));
     /// ```
     #[inline]
-    pub fn imax(&self) -> usize {
+    pub fn argmax(&self) -> (usize, N) {
         assert!(!self.is_empty(), "The input vector must not be empty.");
 
         let mut the_max = unsafe { self.vget_unchecked(0) };
@@ -39,7 +39,21 @@ impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> 
             }
         }
 
-        the_i
+        (the_i, *the_max)
+    }
+
+    /// Computes the index of the vector component with the largest value.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let vec = Vector3::new(11, -15, 13);
+    /// assert_eq!(vec.imax(), 2);
+    /// ```
+    #[inline]
+    pub fn imax(&self) -> usize {
+        self.argmax().0
     }
 
     /// Computes the index of the vector component with the largest absolute value.
@@ -52,7 +66,8 @@ impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> 
     /// assert_eq!(vec.iamax(), 1);
     /// ```
     #[inline]
-    pub fn iamax(&self) -> usize {
+    pub fn iamax(&self) -> usize
+        where N: Signed {
         assert!(!self.is_empty(), "The input vector must not be empty.");
 
         let mut the_max = unsafe { self.vget_unchecked(0).abs() };
@@ -68,6 +83,34 @@ impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> 
         }
 
         the_i
+    }
+
+    /// Computes the index and value of the vector component with the smallest value.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let vec = Vector3::new(11, -15, 13);
+    /// assert_eq!(vec.argmin(), (1, -15));
+    /// ```
+    #[inline]
+    pub fn argmin(&self) -> (usize, N) {
+        assert!(!self.is_empty(), "The input vector must not be empty.");
+
+        let mut the_min = unsafe { self.vget_unchecked(0) };
+        let mut the_i = 0;
+
+        for i in 1..self.nrows() {
+            let val = unsafe { self.vget_unchecked(i) };
+
+            if val < the_min {
+                the_min = val;
+                the_i = i;
+            }
+        }
+
+        (the_i, *the_min)
     }
 
     /// Computes the index of the vector component with the smallest value.
@@ -81,21 +124,7 @@ impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> 
     /// ```
     #[inline]
     pub fn imin(&self) -> usize {
-        assert!(!self.is_empty(), "The input vector must not be empty.");
-
-        let mut the_max = unsafe { self.vget_unchecked(0) };
-        let mut the_i = 0;
-
-        for i in 1..self.nrows() {
-            let val = unsafe { self.vget_unchecked(i) };
-
-            if val < the_max {
-                the_max = val;
-                the_i = i;
-            }
-        }
-
-        the_i
+        self.argmin().0
     }
 
     /// Computes the index of the vector component with the smallest absolute value.
@@ -108,17 +137,18 @@ impl<N: Scalar + PartialOrd + Signed, D: Dim, S: Storage<N, D>> Vector<N, D, S> 
     /// assert_eq!(vec.iamin(), 0);
     /// ```
     #[inline]
-    pub fn iamin(&self) -> usize {
+    pub fn iamin(&self) -> usize
+        where N: Signed {
         assert!(!self.is_empty(), "The input vector must not be empty.");
 
-        let mut the_max = unsafe { self.vget_unchecked(0).abs() };
+        let mut the_min = unsafe { self.vget_unchecked(0).abs() };
         let mut the_i = 0;
 
         for i in 1..self.nrows() {
             let val = unsafe { self.vget_unchecked(i).abs() };
 
-            if val < the_max {
-                the_max = val;
+            if val < the_min {
+                the_min = val;
                 the_i = i;
             }
         }
@@ -627,7 +657,6 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Matrix2x3, Matrix3x4, Matrix2x4};
     /// let mut mat1 = Matrix2x4::identity();
     /// let mat2 = Matrix2x3::new(1.0, 2.0, 3.0,
@@ -760,7 +789,6 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Matrix3x2, Matrix3x4, Matrix2x4};
     /// let mut mat1 = Matrix2x4::identity();
     /// let mat2 = Matrix3x2::new(1.0, 4.0,
@@ -879,7 +907,6 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{DMatrix, DVector};
     /// // Note that all those would also work with statically-sized matrices.
     /// // We use DMatrix/DVector since that's the only case where pre-allocating the
@@ -934,7 +961,6 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Matrix2, Matrix3, Matrix2x3, Vector2};
     /// let mut mat = Matrix2::identity();
     /// let lhs = Matrix2x3::new(1.0, 2.0, 3.0,
@@ -971,7 +997,6 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{DMatrix, DVector};
     /// // Note that all those would also work with statically-sized matrices.
     /// // We use DMatrix/DVector since that's the only case where pre-allocating the
@@ -1026,7 +1051,6 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Matrix2, Matrix3x2, Matrix3};
     /// let mut mat = Matrix2::identity();
     /// let rhs = Matrix3x2::new(1.0, 2.0,

@@ -68,7 +68,7 @@ impl<N: Real> Copy for Quaternion<N> {}
 impl<N: Real> Clone for Quaternion<N> {
     #[inline]
     fn clone(&self) -> Self {
-        Quaternion::from(self.coords.clone())
+        Self::from(self.coords.clone())
     }
 }
 
@@ -90,7 +90,7 @@ where Owned<N, U4>: Deserialize<'a>
     where Des: Deserializer<'a> {
         let coords = Vector4::<N>::deserialize(deserializer)?;
 
-        Ok(Quaternion::from(coords))
+        Ok(Self::from(coords))
     }
 }
 
@@ -98,15 +98,15 @@ impl<N: Real> Quaternion<N> {
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
     #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
-    pub fn into_owned(self) -> Quaternion<N> {
+    pub fn into_owned(self) -> Self {
         self
     }
 
     /// Clones this unit quaternion into one that owns its data.
     #[inline]
     #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
-    pub fn clone_owned(&self) -> Quaternion<N> {
-        Quaternion::from(self.coords.clone_owned())
+    pub fn clone_owned(&self) -> Self {
+        Self::from(self.coords.clone_owned())
     }
 
     /// Normalizes this quaternion.
@@ -114,15 +114,14 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// let q_normalized = q.normalize();
     /// relative_eq!(q_normalized.norm(), 1.0);
     /// ```
     #[inline]
-    pub fn normalize(&self) -> Quaternion<N> {
-        Quaternion::from(self.coords.normalize())
+    pub fn normalize(&self) -> Self {
+        Self::from(self.coords.normalize())
     }
 
     /// The conjugate of this quaternion.
@@ -135,14 +134,14 @@ impl<N: Real> Quaternion<N> {
     /// assert!(conj.i == -2.0 && conj.j == -3.0 && conj.k == -4.0 && conj.w == 1.0);
     /// ```
     #[inline]
-    pub fn conjugate(&self) -> Quaternion<N> {
+    pub fn conjugate(&self) -> Self {
         let v = Vector4::new(
             -self.coords[0],
             -self.coords[1],
             -self.coords[2],
             self.coords[3],
         );
-        Quaternion::from(v)
+        Self::from(v)
     }
 
     /// Inverts this quaternion if it is not zero.
@@ -150,7 +149,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// let inv_q = q.try_inverse();
@@ -165,8 +163,8 @@ impl<N: Real> Quaternion<N> {
     /// assert!(inv_q.is_none());
     /// ```
     #[inline]
-    pub fn try_inverse(&self) -> Option<Quaternion<N>> {
-        let mut res = Quaternion::from(self.coords.clone_owned());
+    pub fn try_inverse(&self) -> Option<Self> {
+        let mut res = Self::from(self.coords.clone_owned());
 
         if res.try_inverse_mut() {
             Some(res)
@@ -188,7 +186,7 @@ impl<N: Real> Quaternion<N> {
     /// assert_eq!(q1.lerp(&q2, 0.1), Quaternion::new(1.9, 3.8, 5.7, 7.6));
     /// ```
     #[inline]
-    pub fn lerp(&self, other: &Quaternion<N>, t: N) -> Quaternion<N> {
+    pub fn lerp(&self, other: &Self, t: N) -> Self {
         self * (N::one() - t) + other * t
     }
 
@@ -240,7 +238,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// assert_relative_eq!(q.norm(), 5.47722557, epsilon = 1.0e-6);
@@ -258,7 +255,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// assert_relative_eq!(q.magnitude(), 5.47722557, epsilon = 1.0e-6);
@@ -345,18 +341,17 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(2.0, 5.0, 0.0, 0.0);
     /// assert_relative_eq!(q.ln(), Quaternion::new(1.683647, 1.190289, 0.0, 0.0), epsilon = 1.0e-6)
     /// ```
     #[inline]
-    pub fn ln(&self) -> Quaternion<N> {
+    pub fn ln(&self) -> Self {
         let n = self.norm();
         let v = self.vector();
         let s = self.scalar();
 
-        Quaternion::from_parts(n.ln(), v.normalize() * (s / n).acos())
+        Self::from_parts(n.ln(), v.normalize() * (s / n).acos())
     }
 
     /// Compute the exponential of a quaternion.
@@ -364,13 +359,12 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.683647, 1.190289, 0.0, 0.0);
     /// assert_relative_eq!(q.exp(), Quaternion::new(2.0, 5.0, 0.0, 0.0), epsilon = 1.0e-5)
     /// ```
     #[inline]
-    pub fn exp(&self) -> Quaternion<N> {
+    pub fn exp(&self) -> Self {
         self.exp_eps(N::default_epsilon())
     }
 
@@ -380,7 +374,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.683647, 1.190289, 0.0, 0.0);
     /// assert_relative_eq!(q.exp_eps(1.0e-6), Quaternion::new(2.0, 5.0, 0.0, 0.0), epsilon = 1.0e-5);
@@ -390,18 +383,18 @@ impl<N: Real> Quaternion<N> {
     /// assert_eq!(q.exp_eps(1.0e-6), Quaternion::identity());
     /// ```
     #[inline]
-    pub fn exp_eps(&self, eps: N) -> Quaternion<N> {
+    pub fn exp_eps(&self, eps: N) -> Self {
         let v = self.vector();
         let nn = v.norm_squared();
 
         if nn <= eps * eps {
-            Quaternion::identity()
+            Self::identity()
         } else {
             let w_exp = self.scalar().exp();
             let n = nn.sqrt();
             let nv = v * (w_exp * n.sin() / n);
 
-            Quaternion::from_parts(w_exp * n.cos(), nv)
+            Self::from_parts(w_exp * n.cos(), nv)
         }
     }
 
@@ -410,13 +403,12 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// assert_relative_eq!(q.powf(1.5), Quaternion::new( -6.2576659, 4.1549037, 6.2323556, 8.3098075), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn powf(&self, n: N) -> Quaternion<N> {
+    pub fn powf(&self, n: N) -> Self {
         (self.ln() * n).exp()
     }
 
@@ -476,7 +468,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let mut q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     ///
@@ -506,7 +497,6 @@ impl<N: Real> Quaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::Quaternion;
     /// let mut q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// q.normalize_mut();
@@ -530,7 +520,7 @@ impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         self.as_vector().abs_diff_eq(other.as_vector(), epsilon) ||
         // Account for the double-covering of S², i.e. q = -q
-       self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.abs_diff_eq(&-*b, epsilon))
+        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.abs_diff_eq(&-*b, epsilon))
     }
 }
 
@@ -550,7 +540,7 @@ impl<N: Real + RelativeEq<Epsilon = N>> RelativeEq for Quaternion<N> {
     {
         self.as_vector().relative_eq(other.as_vector(), epsilon, max_relative) ||
         // Account for the double-covering of S², i.e. q = -q
-       self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.relative_eq(&-*b, epsilon, max_relative))
+        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.relative_eq(&-*b, epsilon, max_relative))
     }
 }
 
@@ -564,7 +554,7 @@ impl<N: Real + UlpsEq<Epsilon = N>> UlpsEq for Quaternion<N> {
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
         self.as_vector().ulps_eq(other.as_vector(), epsilon, max_ulps) ||
         // Account for the double-covering of S², i.e. q = -q.
-       self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.ulps_eq(&-*b, epsilon, max_ulps))
+        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.ulps_eq(&-*b, epsilon, max_ulps))
     }
 }
 
@@ -587,7 +577,7 @@ impl<N: Real> UnitQuaternion<N> {
     #[deprecated(
         note = "This method is unnecessary and will be removed in a future release. Use `.clone()` instead."
     )]
-    pub fn into_owned(self) -> UnitQuaternion<N> {
+    pub fn into_owned(self) -> Self {
         self
     }
 
@@ -596,7 +586,7 @@ impl<N: Real> UnitQuaternion<N> {
     #[deprecated(
         note = "This method is unnecessary and will be removed in a future release. Use `.clone()` instead."
     )]
-    pub fn clone_owned(&self) -> UnitQuaternion<N> {
+    pub fn clone_owned(&self) -> Self {
         *self
     }
 
@@ -647,8 +637,8 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_eq!(conj, UnitQuaternion::from_axis_angle(&-axis, 1.78));
     /// ```
     #[inline]
-    pub fn conjugate(&self) -> UnitQuaternion<N> {
-        UnitQuaternion::new_unchecked(self.as_ref().conjugate())
+    pub fn conjugate(&self) -> Self {
+        Self::new_unchecked(self.as_ref().conjugate())
     }
 
     /// Inverts this quaternion if it is not zero.
@@ -663,7 +653,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_eq!(inv * rot, UnitQuaternion::identity());
     /// ```
     #[inline]
-    pub fn inverse(&self) -> UnitQuaternion<N> {
+    pub fn inverse(&self) -> Self {
         self.conjugate()
     }
 
@@ -672,14 +662,13 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{UnitQuaternion, Vector3};
     /// let rot1 = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 1.0);
     /// let rot2 = UnitQuaternion::from_axis_angle(&Vector3::x_axis(), 0.1);
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.0045657, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn angle_to(&self, other: &UnitQuaternion<N>) -> N {
+    pub fn angle_to(&self, other: &Self) -> N {
         let delta = self.rotation_to(other);
         delta.angle()
     }
@@ -691,7 +680,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{UnitQuaternion, Vector3};
     /// let rot1 = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), 1.0);
     /// let rot2 = UnitQuaternion::from_axis_angle(&Vector3::x_axis(), 0.1);
@@ -699,7 +687,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_relative_eq!(rot_to * rot1, rot2, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn rotation_to(&self, other: &UnitQuaternion<N>) -> UnitQuaternion<N> {
+    pub fn rotation_to(&self, other: &Self) -> Self{
         other / self
     }
 
@@ -715,7 +703,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_eq!(q1.lerp(&q2, 0.1), Quaternion::new(0.9, 0.1, 0.0, 0.0));
     /// ```
     #[inline]
-    pub fn lerp(&self, other: &UnitQuaternion<N>, t: N) -> Quaternion<N> {
+    pub fn lerp(&self, other: &Self, t: N) -> Quaternion<N> {
         self.as_ref().lerp(other.as_ref(), t)
     }
 
@@ -731,11 +719,11 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_eq!(q1.nlerp(&q2, 0.1), UnitQuaternion::new_normalize(Quaternion::new(0.9, 0.1, 0.0, 0.0)));
     /// ```
     #[inline]
-    pub fn nlerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
+    pub fn nlerp(&self, other: &Self, t: N) -> Self {
         let mut res = self.lerp(other, t);
         let _ = res.normalize_mut();
 
-        UnitQuaternion::new_unchecked(res)
+        Self::new_unchecked(res)
     }
 
     /// Spherical linear interpolation between two unit quaternions.
@@ -743,7 +731,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// Panics if the angle between both quaternion is 180 degrees (in which case the interpolation
     /// is not well-defined). Use `.try_slerp` instead to avoid the panic.
     #[inline]
-    pub fn slerp(&self, other: &UnitQuaternion<N>, t: N) -> UnitQuaternion<N> {
+    pub fn slerp(&self, other: &Self, t: N) -> Self {
         Unit::new_unchecked(Quaternion::from(
             Unit::new_unchecked(self.coords)
                 .slerp(&Unit::new_unchecked(other.coords), t)
@@ -764,10 +752,10 @@ impl<N: Real> UnitQuaternion<N> {
     #[inline]
     pub fn try_slerp(
         &self,
-        other: &UnitQuaternion<N>,
+        other: &Self,
         t: N,
         epsilon: N,
-    ) -> Option<UnitQuaternion<N>>
+    ) -> Option<Self>
     {
         Unit::new_unchecked(self.coords)
             .try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
@@ -785,7 +773,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{UnitQuaternion, Vector3, Unit};
     /// let axisangle = Vector3::new(0.1, 0.2, 0.3);
     /// let mut rot = UnitQuaternion::new(axisangle);
@@ -828,7 +815,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{UnitQuaternion, Vector3, Unit};
     /// let axisangle = Vector3::new(0.1, 0.2, 0.3);
     /// let rot = UnitQuaternion::new(axisangle);
@@ -885,7 +871,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{Vector3, UnitQuaternion};
     /// let axisangle = Vector3::new(0.1, 0.2, 0.3);
     /// let q = UnitQuaternion::new(axisangle);
@@ -908,7 +893,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::{UnitQuaternion, Vector3, Unit};
     /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
     /// let angle = 1.2;
@@ -918,11 +902,11 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_eq!(pow.angle(), 2.4);
     /// ```
     #[inline]
-    pub fn powf(&self, n: N) -> UnitQuaternion<N> {
+    pub fn powf(&self, n: N) -> Self {
         if let Some(v) = self.axis() {
-            UnitQuaternion::from_axis_angle(&v, self.angle() * n)
+            Self::from_axis_angle(&v, self.angle() * n)
         } else {
-            UnitQuaternion::identity()
+            Self::identity()
         }
     }
 
@@ -932,7 +916,6 @@ impl<N: Real> UnitQuaternion<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Vector3, Matrix3};
     /// let q = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), f32::consts::FRAC_PI_6);
@@ -990,7 +973,6 @@ impl<N: Real> UnitQuaternion<N> {
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use nalgebra::UnitQuaternion;
     /// let rot = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3);
     /// let euler = rot.euler_angles();
@@ -1009,7 +991,6 @@ impl<N: Real> UnitQuaternion<N> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion, Vector3, Matrix4};
     /// let rot = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), f32::consts::FRAC_PI_6);

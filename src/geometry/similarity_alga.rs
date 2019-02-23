@@ -1,6 +1,6 @@
 use alga::general::{
     AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
-    AbstractSemigroup, Identity, Inverse, Multiplicative, Real,
+    AbstractSemigroup, Identity, TwoSidedInverse, Multiplicative, Real,
 };
 use alga::linear::Similarity as AlgaSimilarity;
 use alga::linear::{AffineTransformation, ProjectiveTransformation, Rotation, Transformation};
@@ -27,18 +27,18 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> Inverse<Multiplicative> for Similarity<N, D, R>
+impl<N: Real, D: DimName, R> TwoSidedInverse<Multiplicative> for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
-    fn inverse(&self) -> Self {
+    fn two_sided_inverse(&self) -> Self {
         self.inverse()
     }
 
     #[inline]
-    fn inverse_mut(&mut self) {
+    fn two_sided_inverse_mut(&mut self) {
         self.inverse_mut()
     }
 }

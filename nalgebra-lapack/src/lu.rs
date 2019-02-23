@@ -82,7 +82,7 @@ where
         );
         lapack_panic!(info);
 
-        LU { lu: m, p: ipiv }
+        Self { lu: m, p: ipiv }
     }
 
     /// Gets the lower-triangular matrix part of the decomposition.

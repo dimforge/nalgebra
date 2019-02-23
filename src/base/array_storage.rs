@@ -331,7 +331,7 @@ where
         let mut curr = 0;
 
         while let Some(value) = try!(visitor.next_element()) {
-            out[curr] = value;
+            *out.get_mut(curr).ok_or_else(|| V::Error::invalid_length(curr, &self))? = value;
             curr += 1;
         }
 

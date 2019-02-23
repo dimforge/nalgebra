@@ -3,8 +3,10 @@ use na::{DMatrix, Matrix6};
 
 #[cfg(feature = "arbitrary")]
 mod quickcheck_tests {
+    use na::{
+        DMatrix, DVector, Matrix2, Matrix2x5, Matrix3, Matrix3x5, Matrix4, Matrix5x2, Matrix5x3,
+    };
     use std::cmp;
-    use na::{DMatrix, Matrix2, Matrix3, Matrix4, Matrix5x2, Matrix5x3, Matrix2x5, Matrix3x5, DVector};
 
     quickcheck! {
         fn svd(m: DMatrix<f64>) -> bool {
@@ -257,7 +259,6 @@ fn svd_singular_horizontal() {
     assert!(s.iter().all(|e| *e >= 0.0));
     assert!(relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5));
 }
-
 
 #[test]
 fn svd_zeros() {

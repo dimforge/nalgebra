@@ -62,7 +62,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     pub fn new(m: MatrixN<N, D>) -> Self {
         let (vals, vecs) =
             Self::do_decompose(m, true).expect("SymmetricEigen: convergence failure.");
-        SymmetricEigen {
+        Self {
             eigenvalues: vals,
             eigenvectors: vecs.unwrap(),
         }

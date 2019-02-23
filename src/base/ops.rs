@@ -11,7 +11,7 @@ use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
-use base::dimension::{Dim, DimMul, DimName, DimProd};
+use base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
 use base::storage::{ContiguousStorageMut, Storage, StorageMut};
 use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar};
 
@@ -24,7 +24,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Index<usize> for Matrix<N, 
     type Output = N;
 
     #[inline]
-    fn index(&self, i: usize) -> &N {
+    fn index(&self, i: usize) -> &Self::Output {
         let ij = self.vector_to_matrix_index(i);
         &self[ij]
     }
@@ -38,7 +38,7 @@ where
     type Output = N;
 
     #[inline]
-    fn index(&self, ij: (usize, usize)) -> &N {
+    fn index(&self, ij: (usize, usize)) -> &Self::Output {
         let shape = self.shape();
         assert!(
             ij.0 < shape.0 && ij.1 < shape.1,
@@ -384,6 +384,36 @@ where
     }
 }
 
+impl<N, C: Dim> iter::Sum for MatrixMN<N, Dynamic, C>
+where
+    N: Scalar + ClosedAdd + Zero,
+    DefaultAllocator: Allocator<N, Dynamic, C>,
+{
+    /// # Example
+    /// ```
+    /// # use nalgebra::DVector;
+    /// assert_eq!(vec![DVector::repeat(3, 1.0f64),
+    ///                 DVector::repeat(3, 1.0f64),
+    ///                 DVector::repeat(3, 1.0f64)].into_iter().sum::<DVector<f64>>(),
+    ///            DVector::repeat(3, 1.0f64) + DVector::repeat(3, 1.0f64) + DVector::repeat(3, 1.0f64));
+    /// ```
+    ///
+    /// # Panics
+    /// Panics if the iterator is empty:
+    /// ```should_panic
+    /// # use std::iter;
+    /// # use nalgebra::DMatrix;
+    /// iter::empty::<DMatrix<f64>>().sum::<DMatrix<f64>>(); // panics!
+    /// ```
+    fn sum<I: Iterator<Item = MatrixMN<N, Dynamic, C>>>(mut iter: I) -> MatrixMN<N, Dynamic, C> {
+        if let Some(first) = iter.next() {
+            iter.fold(first, |acc, x| acc + x)
+        } else {
+            panic!("Cannot compute `sum` of empty iterator.")
+        }
+    }
+}
+
 impl<'a, N, R: DimName, C: DimName> iter::Sum<&'a MatrixMN<N, R, C>> for MatrixMN<N, R, C>
 where
     N: Scalar + ClosedAdd + Zero,
@@ -391,6 +421,36 @@ where
 {
     fn sum<I: Iterator<Item = &'a MatrixMN<N, R, C>>>(iter: I) -> MatrixMN<N, R, C> {
         iter.fold(Matrix::zero(), |acc, x| acc + x)
+    }
+}
+
+impl<'a, N, C: Dim> iter::Sum<&'a MatrixMN<N, Dynamic, C>> for MatrixMN<N, Dynamic, C>
+where
+    N: Scalar + ClosedAdd + Zero,
+    DefaultAllocator: Allocator<N, Dynamic, C>,
+{
+    /// # Example
+    /// ```
+    /// # use nalgebra::DVector;
+    /// let v = &DVector::repeat(3, 1.0f64);
+    ///
+    /// assert_eq!(vec![v, v, v].into_iter().sum::<DVector<f64>>(),
+    ///            v + v + v);
+    /// ```
+    ///
+    /// # Panics
+    /// Panics if the iterator is empty:
+    /// ```should_panic
+    /// # use std::iter;
+    /// # use nalgebra::DMatrix;
+    /// iter::empty::<&DMatrix<f64>>().sum::<DMatrix<f64>>(); // panics!
+    /// ```
+    fn sum<I: Iterator<Item = &'a MatrixMN<N, Dynamic, C>>>(mut iter: I) -> MatrixMN<N, Dynamic, C> {
+        if let Some(first) = iter.next() {
+            iter.fold(first.clone(), |acc, x| acc + x)
+        } else {
+            panic!("Cannot compute `sum` of empty iterator.")
+        }
     }
 }
 
@@ -761,7 +821,7 @@ where
 }
 
 impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// Returns the absolute value of the coefficient with the largest absolute value.
+    /// Returns the absolute value of the component with the largest absolute value.
     #[inline]
     pub fn amax(&self) -> N {
         let mut max = N::zero();
@@ -777,7 +837,7 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
         max
     }
 
-    /// Returns the absolute value of the coefficient with the smallest absolute value.
+    /// Returns the absolute value of the component with the smallest absolute value.
     #[inline]
     pub fn amin(&self) -> N {
         let mut it = self.iter();
@@ -795,5 +855,43 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
         }
 
         min
+    }
+
+    /// Returns the component with the largest value.
+    #[inline]
+    pub fn max(&self) -> N {
+        let mut it = self.iter();
+        let mut max = it
+            .next()
+            .expect("max: empty matrices not supported.");
+
+        for e in it {
+            let ae = e;
+
+            if ae > max {
+                max = ae;
+            }
+        }
+
+        *max
+    }
+
+    /// Returns the component with the smallest value.
+    #[inline]
+    pub fn min(&self) -> N {
+        let mut it = self.iter();
+        let mut min = it
+            .next()
+            .expect("min: empty matrices not supported.");
+
+        for e in it {
+            let ae = e;
+
+            if ae < min {
+                min = ae;
+            }
+        }
+
+        *min
     }
 }

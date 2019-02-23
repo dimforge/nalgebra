@@ -22,7 +22,7 @@ use alga::general::{ClosedAdd, ClosedMul, ClosedSub, Real, Ring};
 use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use base::dimension::{Dim, DimAdd, DimSum, IsNotStaticOne, U1, U2, U3};
-use base::iter::{MatrixIter, MatrixIterMut};
+use base::iter::{MatrixIter, MatrixIterMut, RowIter, RowIterMut, ColumnIter, ColumnIterMut};
 use base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
 };
@@ -152,7 +152,7 @@ impl<N: Scalar, R: Dim, C: Dim, S> Matrix<N, R, C, S> {
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Creates a new matrix with the given data.
     #[inline]
-    pub fn from_data(data: S) -> Matrix<N, R, C, S> {
+    pub fn from_data(data: S) -> Self {
         unsafe { Self::from_data_statically_unchecked(data) }
     }
 
@@ -247,6 +247,37 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         MatrixIter::new(&self.data)
     }
 
+    /// Iterate through the rows of this matrix.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut a = Matrix2x3::new(1, 2, 3,
+    ///                            4, 5, 6);
+    /// for (i, row) in a.row_iter().enumerate() {
+    ///     assert_eq!(row, a.row(i))
+    /// }
+    /// ```
+    #[inline]
+    pub fn row_iter(&self) -> RowIter<N, R, C, S> {
+        RowIter::new(self)
+    }
+
+    /// Iterate through the columns of this matrix.
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut a = Matrix2x3::new(1, 2, 3,
+    ///                            4, 5, 6);
+    /// for (i, column) in a.column_iter().enumerate() {
+    ///     assert_eq!(column, a.column(i))
+    /// }
+    /// ```
+    #[inline]
+    pub fn column_iter(&self) -> ColumnIter<N, R, C, S> {
+        ColumnIter::new(self)
+    }
+
     /// Computes the row and column coordinates of the i-th element of this matrix seen as a
     /// vector.
     #[inline]
@@ -262,6 +293,15 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         } else {
             (i % nrows, i / nrows)
         }
+    }
+
+    /// Returns a pointer to the start of the matrix.
+    ///
+    /// If the matrix is not empty, this pointer is guaranteed to be aligned
+    /// and non-null.
+    #[inline]
+    pub fn as_ptr(&self) -> *const N {
+        self.data.ptr()
     }
 
     /// Tests whether `self` and `rhs` are equal up to a given epsilon.
@@ -393,7 +433,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Returns a matrix containing the result of `f` applied to each of its entries. Unlike `map`,
-    /// `f` also gets passed the row and column index, i.e. `f(value, row, col)`.
+    /// `f` also gets passed the row and column index, i.e. `f(row, col, value)`.
     #[inline]
     pub fn map_with_location<N2: Scalar, F: FnMut(usize, usize, N) -> N2>(
         &self,
@@ -493,6 +533,57 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         res
     }
 
+    /// Folds a function `f` on each entry of `self`.
+    #[inline]
+    pub fn fold<Acc>(&self, init: Acc, mut f: impl FnMut(Acc, N) -> Acc) -> Acc {
+        let (nrows, ncols) = self.data.shape();
+
+        let mut res = init;
+
+        for j in 0..ncols.value() {
+            for i in 0..nrows.value() {
+                unsafe {
+                    let a = *self.data.get_unchecked(i, j);
+                    res = f(res, a)
+                }
+            }
+        }
+
+        res
+    }
+
+    /// Folds a function `f` on each pairs of entries from `self` and `rhs`.
+    #[inline]
+    pub fn zip_fold<N2, R2, C2, S2, Acc>(&self, rhs: &Matrix<N2, R2, C2, S2>, init: Acc, mut f: impl FnMut(Acc, N, N2) -> Acc) -> Acc
+        where
+            N2: Scalar,
+            R2: Dim,
+            C2: Dim,
+            S2: Storage<N2, R2, C2>,
+            ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>
+    {
+        let (nrows, ncols) = self.data.shape();
+
+        let mut res = init;
+
+        assert!(
+            (nrows.value(), ncols.value()) == rhs.shape(),
+            "Matrix simultaneous traversal error: dimension mismatch."
+        );
+
+        for j in 0..ncols.value() {
+            for i in 0..nrows.value() {
+                unsafe {
+                    let a = *self.data.get_unchecked(i, j);
+                    let b = *rhs.data.get_unchecked(i, j);
+                    res = f(res, a, b)
+                }
+            }
+        }
+
+        res
+    }
+
     /// Transposes `self` and store the result into `out`.
     #[inline]
     pub fn transpose_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
@@ -538,6 +629,55 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn iter_mut(&mut self) -> MatrixIterMut<N, R, C, S> {
         MatrixIterMut::new(&mut self.data)
+    }
+
+    /// Returns a mutable pointer to the start of the matrix.
+    ///
+    /// If the matrix is not empty, this pointer is guaranteed to be aligned
+    /// and non-null.
+    #[inline]
+    pub fn as_mut_ptr(&mut self) -> *mut N {
+        self.data.ptr_mut()
+    }
+
+    /// Mutably iterates through this matrix rows.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut a = Matrix2x3::new(1, 2, 3,
+    ///                            4, 5, 6);
+    /// for (i, mut row) in a.row_iter_mut().enumerate() {
+    ///     row *= (i + 1) * 10;
+    /// }
+    ///
+    /// let expected = Matrix2x3::new(10, 20, 30,
+    ///                               80, 100, 120);
+    /// assert_eq!(a, expected);
+    /// ```
+    #[inline]
+    pub fn row_iter_mut(&mut self) -> RowIterMut<N, R, C, S> {
+        RowIterMut::new(self)
+    }
+
+    /// Mutably iterates through this matrix columns.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut a = Matrix2x3::new(1, 2, 3,
+    ///                            4, 5, 6);
+    /// for (i, mut col) in a.column_iter_mut().enumerate() {
+    ///     col *= (i + 1) * 10;
+    /// }
+    ///
+    /// let expected = Matrix2x3::new(10, 40, 90,
+    ///                               40, 100, 180);
+    /// assert_eq!(a, expected);
+    /// ```
+    #[inline]
+    pub fn column_iter_mut(&mut self) -> ColumnIterMut<N, R, C, S> {
+        ColumnIterMut::new(self)
     }
 
     /// Swaps two entries without bound-checking.
@@ -633,8 +773,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
 
     /// Replaces each component of `self` by the result of a closure `f` applied on it.
     #[inline]
-    pub fn apply<F: FnMut(N) -> N>(&mut self, mut f: F)
-    where DefaultAllocator: Allocator<N, R, C> {
+    pub fn apply<F: FnMut(N) -> N>(&mut self, mut f: F) {
         let (nrows, ncols) = self.shape();
 
         for j in 0..ncols {
@@ -642,6 +781,71 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
                     *e = f(*e)
+                }
+            }
+        }
+    }
+
+    /// Replaces each component of `self` by the result of a closure `f` applied on its components
+    /// joined with the components from `rhs`.
+    #[inline]
+    pub fn zip_apply<N2, R2, C2, S2>(&mut self, rhs: &Matrix<N2, R2, C2, S2>, mut f: impl FnMut(N, N2) -> N)
+        where N2: Scalar,
+              R2: Dim,
+              C2: Dim,
+              S2: Storage<N2, R2, C2>,
+              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
+        let (nrows, ncols) = self.shape();
+
+        assert!(
+            (nrows, ncols) == rhs.shape(),
+            "Matrix simultaneous traversal error: dimension mismatch."
+        );
+
+        for j in 0..ncols {
+            for i in 0..nrows {
+                unsafe {
+                    let e = self.data.get_unchecked_mut(i, j);
+                    let rhs = rhs.get_unchecked((i, j));
+                    *e = f(*e, *rhs)
+                }
+            }
+        }
+    }
+
+
+    /// Replaces each component of `self` by the result of a closure `f` applied on its components
+    /// joined with the components from `b` and `c`.
+    #[inline]
+    pub fn zip_zip_apply<N2, R2, C2, S2, N3, R3, C3, S3>(&mut self, b: &Matrix<N2, R2, C2, S2>, c: &Matrix<N3, R3, C3, S3>, mut f: impl FnMut(N, N2, N3) -> N)
+        where N2: Scalar,
+              R2: Dim,
+              C2: Dim,
+              S2: Storage<N2, R2, C2>,
+              N3: Scalar,
+              R3: Dim,
+              C3: Dim,
+              S3: Storage<N3, R3, C3>,
+              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
+        let (nrows, ncols) = self.shape();
+
+        assert!(
+            (nrows, ncols) == b.shape(),
+            "Matrix simultaneous traversal error: dimension mismatch."
+        );
+        assert!(
+            (nrows, ncols) == c.shape(),
+            "Matrix simultaneous traversal error: dimension mismatch."
+        );
+
+        for j in 0..ncols {
+            for i in 0..nrows {
+                unsafe {
+                    let e = self.data.get_unchecked_mut(i, j);
+                    let b = b.get_unchecked((i, j));
+                    let c = c.get_unchecked((i, j));
+                    *e = f(*e, *b, *c)
                 }
             }
         }
@@ -832,14 +1036,7 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     #[inline]
     pub fn to_homogeneous(&self) -> VectorN<N, DimSum<D, U1>>
     where DefaultAllocator: Allocator<N, DimSum<D, U1>> {
-        let len = self.len();
-        let hnrows = DimSum::<D, U1>::from_usize(len + 1);
-        let mut res = unsafe { VectorN::<N, _>::new_uninitialized_generic(hnrows, U1) };
-        res.generic_slice_mut((0, 0), self.data.shape())
-            .copy_from(self);
-        res[(len, 0)] = N::zero();
-
-        res
+        self.push(N::zero())
     }
 
     /// Constructs a vector from coordinates in projective space, i.e., removes a `0` at the end of
@@ -856,6 +1053,22 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
         } else {
             None
         }
+    }
+}
+
+impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
+    /// Constructs a new vector of higher dimension by appending `element` to the end of `self`.
+    #[inline]
+    pub fn push(&self, element: N) -> VectorN<N, DimSum<D, U1>>
+    where DefaultAllocator: Allocator<N, DimSum<D, U1>> {
+        let len = self.len();
+        let hnrows = DimSum::<D, U1>::from_usize(len + 1);
+        let mut res = unsafe { VectorN::<N, _>::new_uninitialized_generic(hnrows, U1) };
+        res.generic_slice_mut((0, 0), self.data.shape())
+            .copy_from(self);
+        res[(len, 0)] = element;
+
+        res
     }
 }
 
@@ -1242,67 +1455,6 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// The squared L2 norm of this vector.
-    #[inline]
-    pub fn norm_squared(&self) -> N {
-        let mut res = N::zero();
-
-        for i in 0..self.ncols() {
-            let col = self.column(i);
-            res += col.dot(&col)
-        }
-
-        res
-    }
-
-    /// The L2 norm of this matrix.
-    #[inline]
-    pub fn norm(&self) -> N {
-        self.norm_squared().sqrt()
-    }
-
-    /// A synonym for the norm of this matrix.
-    ///
-    /// Aka the length.
-    ///
-    /// This function is simply implemented as a call to `norm()`
-    #[inline]
-    pub fn magnitude(&self) -> N {
-        self.norm()
-    }
-
-    /// A synonym for the squared norm of this matrix.
-    ///
-    /// Aka the squared length.
-    ///
-    /// This function is simply implemented as a call to `norm_squared()`
-    #[inline]
-    pub fn magnitude_squared(&self) -> N {
-        self.norm_squared()
-    }
-
-    /// Returns a normalized version of this matrix.
-    #[inline]
-    pub fn normalize(&self) -> MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
-        self / self.norm()
-    }
-
-    /// Returns a normalized version of this matrix unless its norm as smaller or equal to `eps`.
-    #[inline]
-    pub fn try_normalize(&self, min_norm: N) -> Option<MatrixMN<N, R, C>>
-    where DefaultAllocator: Allocator<N, R, C> {
-        let n = self.norm();
-
-        if n <= min_norm {
-            None
-        } else {
-            Some(self / n)
-        }
-    }
-}
-
 impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Storage<N, D>>
     Vector<N, D, S>
 {
@@ -1373,32 +1525,6 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
             let res = &**self * ta + &**rhs * tb;
 
             Some(Unit::new_unchecked(res))
-        }
-    }
-}
-
-impl<N: Real, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
-    /// Normalizes this matrix in-place and returns its norm.
-    #[inline]
-    pub fn normalize_mut(&mut self) -> N {
-        let n = self.norm();
-        *self /= n;
-
-        n
-    }
-
-    /// Normalizes this matrix in-place or does nothing if its norm is smaller or equal to `eps`.
-    ///
-    /// If the normalization succeeded, returns the old normal of this matrix.
-    #[inline]
-    pub fn try_normalize_mut(&mut self, min_norm: N) -> Option<N> {
-        let n = self.norm();
-
-        if n <= min_norm {
-            None
-        } else {
-            *self /= n;
-            Some(n)
         }
     }
 }

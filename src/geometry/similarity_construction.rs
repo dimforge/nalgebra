@@ -86,7 +86,6 @@ where
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Similarity2, Point2, UnitComplex};
     /// let rot = UnitComplex::new(f32::consts::FRAC_PI_2);
@@ -135,7 +134,6 @@ impl<N: Real> Similarity<N, U2, Rotation2<N>> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{SimilarityMatrix2, Vector2, Point2};
     /// let sim = SimilarityMatrix2::new(Vector2::new(1.0, 2.0), f32::consts::FRAC_PI_2, 3.0);
@@ -159,7 +157,6 @@ impl<N: Real> Similarity<N, U2, UnitComplex<N>> {
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # extern crate nalgebra;
     /// # use std::f32;
     /// # use nalgebra::{Similarity2, Vector2, Point2};
     /// let sim = Similarity2::new(Vector2::new(1.0, 2.0), f32::consts::FRAC_PI_2, 3.0);
@@ -187,7 +184,6 @@ macro_rules! similarity_construction_impl(
             ///
             /// ```
             /// # #[macro_use] extern crate approx;
-            /// # extern crate nalgebra;
             /// # use std::f32;
             /// # use nalgebra::{Similarity3, SimilarityMatrix3, Point3, Vector3};
             /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
@@ -227,7 +223,6 @@ macro_rules! similarity_construction_impl(
             ///
             /// ```
             /// # #[macro_use] extern crate approx;
-            /// # extern crate nalgebra;
             /// # use std::f32;
             /// # use nalgebra::{Similarity3, SimilarityMatrix3, Point3, Vector3};
             /// let eye = Point3::new(1.0, 2.0, 3.0);
@@ -235,22 +230,32 @@ macro_rules! similarity_construction_impl(
             /// let up = Vector3::y();
             ///
             /// // Similarity with its rotation part represented as a UnitQuaternion
-            /// let sim = Similarity3::new_observer_frame(&eye, &target, &up, 3.0);
+            /// let sim = Similarity3::face_towards(&eye, &target, &up, 3.0);
             /// assert_eq!(sim * Point3::origin(), eye);
             /// assert_relative_eq!(sim * Vector3::z(), Vector3::x() * 3.0, epsilon = 1.0e-6);
             ///
             /// // Similarity with its rotation part represented as Rotation3 (a 3x3 rotation matrix).
-            /// let sim = SimilarityMatrix3::new_observer_frame(&eye, &target, &up, 3.0);
+            /// let sim = SimilarityMatrix3::face_towards(&eye, &target, &up, 3.0);
             /// assert_eq!(sim * Point3::origin(), eye);
             /// assert_relative_eq!(sim * Vector3::z(), Vector3::x() * 3.0, epsilon = 1.0e-6);
             /// ```
             #[inline]
-            pub fn new_observer_frame(eye:    &Point3<N>,
+            pub fn face_towards(eye:    &Point3<N>,
                                       target: &Point3<N>,
                                       up:     &Vector3<N>,
                                       scaling: N)
                                       -> Self {
-                Self::from_isometry(Isometry::<_, U3, $Rot>::new_observer_frame(eye, target, up), scaling)
+                Self::from_isometry(Isometry::<_, U3, $Rot>::face_towards(eye, target, up), scaling)
+            }
+
+            /// Deprecated: Use [SimilarityMatrix3::face_towards] instead.
+            #[deprecated(note="renamed to `face_towards`")]
+            pub fn new_observer_frames(eye:    &Point3<N>,
+                                      target: &Point3<N>,
+                                      up:     &Vector3<N>,
+                                      scaling: N)
+                                      -> Self {
+                Self::face_towards(eye, target, up, scaling)
             }
 
             /// Builds a right-handed look-at view matrix including scaling factor.
@@ -268,7 +273,6 @@ macro_rules! similarity_construction_impl(
             ///
             /// ```
             /// # #[macro_use] extern crate approx;
-            /// # extern crate nalgebra;
             /// # use std::f32;
             /// # use nalgebra::{Similarity3, SimilarityMatrix3, Point3, Vector3};
             /// let eye = Point3::new(1.0, 2.0, 3.0);
@@ -307,7 +311,6 @@ macro_rules! similarity_construction_impl(
             ///
             /// ```
             /// # #[macro_use] extern crate approx;
-            /// # extern crate nalgebra;
             /// # use std::f32;
             /// # use nalgebra::{Similarity3, SimilarityMatrix3, Point3, Vector3};
             /// let eye = Point3::new(1.0, 2.0, 3.0);

@@ -13,6 +13,8 @@ use abomonation::Abomonation;
 use alga::general::SubsetOf;
 use alga::linear::NormedSpace;
 
+use ::Real;
+
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///
 /// Use `.as_ref()` or `.into_inner()` to obtain the underlying value by-reference or by-move.
@@ -91,10 +93,23 @@ impl<T: NormedSpace> Unit<T> {
     /// Normalizes this value again. This is useful when repeated computations
     /// might cause a drift in the norm because of float inaccuracies.
     ///
-    /// Returns the norm before re-normalization (should be close to `1.0`).
+    /// Returns the norm before re-normalization. See `.renormalize_fast` for a faster alternative
+    /// that may be slightly less accurate if `self` drifted significantly from having a unit length.
     #[inline]
     pub fn renormalize(&mut self) -> T::Field {
         self.value.normalize_mut()
+    }
+
+    /// Normalizes this value again using a first-order Taylor approximation.
+    /// This is useful when repeated computations might cause a drift in the norm
+    /// because of float inaccuracies.
+    #[inline]
+    pub fn renormalize_fast(&mut self)
+        where T::Field: Real {
+        let sq_norm = self.value.norm_squared();
+        let _3: T::Field = ::convert(3.0);
+        let _0_5: T::Field = ::convert(0.5);
+        self.value *= _0_5 * (_3 - sq_norm);
     }
 }
 
