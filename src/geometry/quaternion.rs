@@ -570,7 +570,7 @@ impl<N: Real> Quaternion<N> {
         Self::from_parts(self.w.sin() * z.cosh(), self.imag() * w)
     }
 
-    /// Calculates quaternion arcsinus.
+    /// Calculates the quaternionic arcsinus.
     #[inline]
     pub fn asin(&self) -> Self {
         let u = Quaternion::from_parts(N::zero(), self.imag().normalize());
@@ -579,6 +579,28 @@ impl<N: Real> Quaternion<N> {
         let z = ((u * self) + (identity - self.squared()).sqrt()).ln();
 
         -(u * z)
+    }
+
+    /// Calculates the quaternionic tangent.
+    #[inline]
+    pub fn tan(&self) -> Self {
+        let s = self.sin();
+        let c = self.cos();
+
+        let ci = c.try_inverse().unwrap();
+        s * ci
+
+    }
+
+    /// Calculates the quaternionic arctangent.
+    #[inline]
+    pub fn atan(&self) -> Self {
+        let u = Quaternion::from_parts(N::zero(), self.imag().normalize());
+        let num = (u + self);
+        let den = (u - self);
+        let fr = num * den.try_inverse().unwrap();
+        let ln = fr.ln();
+        (u / 2.0) * ln
     }
 }
 
@@ -596,6 +618,14 @@ fn test_sin() {
     let result = input.sin().asin();
     assert!(input.abs_diff_eq(&result, 1.0e-7))
 }
+
+#[test]
+fn test_tan() {
+    let input: Quaternion<f64> = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    let result = input.tan().atan();
+    assert!(input.abs_diff_eq(&result, 1.0e-7))
+}
+
 
 impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
     type Epsilon = N;
