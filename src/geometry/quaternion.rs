@@ -596,11 +596,11 @@ impl<N: Real> Quaternion<N> {
     #[inline]
     pub fn atan(&self) -> Self {
         let u = Quaternion::from_parts(N::zero(), self.imag().normalize());
-        let num = (u + self);
-        let den = (u - self);
+        let num = u + self;
+        let den = u - self;
         let fr = num * den.try_inverse().unwrap();
         let ln = fr.ln();
-        (u / 2.0) * ln
+        (u / ::convert(2.0f64)) * ln
     }
 }
 
