@@ -263,4 +263,14 @@ quickcheck!(
         uqMuv ==  uq * &uv &&
         uqMuv == &uq *  uv
     }
+
+    fn sin(q: Quaternion<f64>) {
+        let b = q.sin().asin();
+        relative_eq!(q, b, epsilon = 1.0e-7)
+    }
+
+    fn cos(q: Quaternion<f64>) {
+        let b = q.cos().acos();
+        relative_eq!(q, b, epsilon = 1.0e-7)
+    }
 );
