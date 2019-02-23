@@ -160,7 +160,7 @@ use alga::linear::SquareMatrix as AlgaSquareMatrix;
 use alga::linear::{EuclideanSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace};
 use num::Signed;
 
-pub use alga::general::{Id, Real};
+pub use alga::general::{Id, Real, Complex};
 
 /*
  *
@@ -481,7 +481,7 @@ pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
 /// Or, use [NormedSpace::norm](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm).
 #[deprecated(note = "use `Matrix::norm` or `Quaternion::norm` instead")]
 #[inline]
-pub fn norm<V: NormedSpace>(v: &V) -> V::Field {
+pub fn norm<V: NormedSpace>(v: &V) -> V::Real {
     v.norm()
 }
 
@@ -501,7 +501,7 @@ pub fn norm<V: NormedSpace>(v: &V) -> V::Field {
 /// Or, use [NormedSpace::norm_squared](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm_squared).
 #[deprecated(note = "use `Matrix::norm_squared` or `Quaternion::norm_squared` instead")]
 #[inline]
-pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Field {
+pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Real {
     v.norm_squared()
 }
 
@@ -521,7 +521,7 @@ pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Field {
 /// Or, use [NormedSpace::norm](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm).
 #[deprecated(note = "use `Matrix::magnitude` or `Quaternion::magnitude` instead")]
 #[inline]
-pub fn magnitude<V: NormedSpace>(v: &V) -> V::Field {
+pub fn magnitude<V: NormedSpace>(v: &V) -> V::Real {
     v.norm()
 }
 
@@ -542,7 +542,7 @@ pub fn magnitude<V: NormedSpace>(v: &V) -> V::Field {
 /// Or, use [NormedSpace::norm_squared](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm_squared).
 #[deprecated(note = "use `Matrix::magnitude_squared` or `Quaternion::magnitude_squared` instead")]
 #[inline]
-pub fn magnitude_squared<V: NormedSpace>(v: &V) -> V::Field {
+pub fn magnitude_squared<V: NormedSpace>(v: &V) -> V::Real {
     v.norm_squared()
 }
 
@@ -570,7 +570,7 @@ pub fn normalize<V: NormedSpace>(v: &V) -> V {
 /// Or, use [NormedSpace::try_normalize](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.try_normalize).
 #[deprecated(note = "use `Matrix::try_normalize` or `Quaternion::try_normalize` instead")]
 #[inline]
-pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::Field) -> Option<V> {
+pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::Real) -> Option<V> {
     v.try_normalize(min_norm)
 }
 

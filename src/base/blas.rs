@@ -1,4 +1,4 @@
-use alga::general::{ClosedAdd, ClosedMul};
+use alga::general::{ClosedAdd, ClosedMul, Complex};
 #[cfg(feature = "std")]
 use matrixmultiply;
 use num::{One, Signed, Zero};
@@ -187,6 +187,111 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
         }
 
         the_ij
+    }
+}
+
+impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+    /// The dot product between two complex or real vectors or matrices (seen as vectors).
+    ///
+    /// This is the same as `.dot` except that the conjugate of each component of `self` is taken
+    /// before performing the products.
+    #[inline]
+    pub fn cdot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> N
+        where
+            SB: Storage<N, R2, C2>,
+            ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
+    {
+        assert!(
+            self.nrows() == rhs.nrows(),
+            "Dot product dimensions mismatch."
+        );
+
+        // So we do some special cases for common fixed-size vectors of dimension lower than 8
+        // because the `for` loop below won't be very efficient on those.
+        if (R::is::<U2>() || R2::is::<U2>()) && (C::is::<U1>() || C2::is::<U1>()) {
+            unsafe {
+                let a = self.get_unchecked((0, 0)).conjugate() * *rhs.get_unchecked((0, 0));
+                let b = self.get_unchecked((1, 0)).conjugate() * *rhs.get_unchecked((1, 0));
+
+                return a + b;
+            }
+        }
+        if (R::is::<U3>() || R2::is::<U3>()) && (C::is::<U1>() || C2::is::<U1>()) {
+            unsafe {
+                let a = self.get_unchecked((0, 0)).conjugate() * *rhs.get_unchecked((0, 0));
+                let b = self.get_unchecked((1, 0)).conjugate() * *rhs.get_unchecked((1, 0));
+                let c = self.get_unchecked((2, 0)).conjugate() * *rhs.get_unchecked((2, 0));
+
+                return a + b + c;
+            }
+        }
+        if (R::is::<U4>() || R2::is::<U4>()) && (C::is::<U1>() || C2::is::<U1>()) {
+            unsafe {
+                let mut a = self.get_unchecked((0, 0)).conjugate() * *rhs.get_unchecked((0, 0));
+                let mut b = self.get_unchecked((1, 0)).conjugate() * *rhs.get_unchecked((1, 0));
+                let c = self.get_unchecked((2, 0)).conjugate() * *rhs.get_unchecked((2, 0));
+                let d = self.get_unchecked((3, 0)).conjugate() * *rhs.get_unchecked((3, 0));
+
+                a += c;
+                b += d;
+
+                return a + b;
+            }
+        }
+
+        // All this is inspired from the "unrolled version" discussed in:
+        // http://blog.theincredibleholk.org/blog/2012/12/10/optimizing-dot-product/
+        //
+        // And this comment from bluss:
+        // https://users.rust-lang.org/t/how-to-zip-two-slices-efficiently/2048/12
+        let mut res = N::zero();
+
+        // We have to define them outside of the loop (and not inside at first assignment)
+        // otherwise vectorization won't kick in for some reason.
+        let mut acc0;
+        let mut acc1;
+        let mut acc2;
+        let mut acc3;
+        let mut acc4;
+        let mut acc5;
+        let mut acc6;
+        let mut acc7;
+
+        for j in 0..self.ncols() {
+            let mut i = 0;
+
+            acc0 = N::zero();
+            acc1 = N::zero();
+            acc2 = N::zero();
+            acc3 = N::zero();
+            acc4 = N::zero();
+            acc5 = N::zero();
+            acc6 = N::zero();
+            acc7 = N::zero();
+
+            while self.nrows() - i >= 8 {
+                acc0 += unsafe { self.get_unchecked((i + 0, j)).conjugate() * *rhs.get_unchecked((i + 0, j)) };
+                acc1 += unsafe { self.get_unchecked((i + 1, j)).conjugate() * *rhs.get_unchecked((i + 1, j)) };
+                acc2 += unsafe { self.get_unchecked((i + 2, j)).conjugate() * *rhs.get_unchecked((i + 2, j)) };
+                acc3 += unsafe { self.get_unchecked((i + 3, j)).conjugate() * *rhs.get_unchecked((i + 3, j)) };
+                acc4 += unsafe { self.get_unchecked((i + 4, j)).conjugate() * *rhs.get_unchecked((i + 4, j)) };
+                acc5 += unsafe { self.get_unchecked((i + 5, j)).conjugate() * *rhs.get_unchecked((i + 5, j)) };
+                acc6 += unsafe { self.get_unchecked((i + 6, j)).conjugate() * *rhs.get_unchecked((i + 6, j)) };
+                acc7 += unsafe { self.get_unchecked((i + 7, j)).conjugate() * *rhs.get_unchecked((i + 7, j)) };
+                i += 8;
+            }
+
+            res += acc0 + acc4;
+            res += acc1 + acc5;
+            res += acc2 + acc6;
+            res += acc3 + acc7;
+
+            for k in i..self.nrows() {
+                res += unsafe { self.get_unchecked((k, j)).conjugate() * *rhs.get_unchecked((k, j)) }
+            }
+        }
+
+        res
     }
 }
 

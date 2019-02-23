@@ -10,7 +10,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::SubsetOf;
+use alga::general::{SubsetOf, Complex};
 use alga::linear::NormedSpace;
 
 use ::Real;
@@ -66,13 +66,13 @@ impl<T: NormedSpace> Unit<T> {
     ///
     /// Returns `None` if the norm was smaller or equal to `min_norm`.
     #[inline]
-    pub fn try_new(value: T, min_norm: T::Field) -> Option<Self> {
+    pub fn try_new(value: T, min_norm: T::Real) -> Option<Self> {
         Self::try_new_and_get(value, min_norm).map(|res| res.0)
     }
 
     /// Normalize the given value and return it wrapped on a `Unit` structure and its norm.
     #[inline]
-    pub fn new_and_get(mut value: T) -> (Self, T::Field) {
+    pub fn new_and_get(mut value: T) -> (Self, T::Real) {
         let n = value.normalize_mut();
 
         (Unit { value: value }, n)
@@ -82,7 +82,7 @@ impl<T: NormedSpace> Unit<T> {
     ///
     /// Returns `None` if the norm was smaller or equal to `min_norm`.
     #[inline]
-    pub fn try_new_and_get(mut value: T, min_norm: T::Field) -> Option<(Self, T::Field)> {
+    pub fn try_new_and_get(mut value: T, min_norm: T::Real) -> Option<(Self, T::Real)> {
         if let Some(n) = value.try_normalize_mut(min_norm) {
             Some((Unit { value: value }, n))
         } else {
@@ -96,7 +96,7 @@ impl<T: NormedSpace> Unit<T> {
     /// Returns the norm before re-normalization. See `.renormalize_fast` for a faster alternative
     /// that may be slightly less accurate if `self` drifted significantly from having a unit length.
     #[inline]
-    pub fn renormalize(&mut self) -> T::Field {
+    pub fn renormalize(&mut self) -> T::Real {
         self.value.normalize_mut()
     }
 
@@ -104,12 +104,11 @@ impl<T: NormedSpace> Unit<T> {
     /// This is useful when repeated computations might cause a drift in the norm
     /// because of float inaccuracies.
     #[inline]
-    pub fn renormalize_fast(&mut self)
-        where T::Field: Real {
+    pub fn renormalize_fast(&mut self) {
         let sq_norm = self.value.norm_squared();
-        let _3: T::Field = ::convert(3.0);
-        let _0_5: T::Field = ::convert(0.5);
-        self.value *= _0_5 * (_3 - sq_norm);
+        let _3: T::Real = ::convert(3.0);
+        let _0_5: T::Real = ::convert(0.5);
+        self.value *= T::Complex::from_real(_0_5 * (_3 - sq_norm));
     }
 }
 

@@ -1,8 +1,9 @@
-use ::{Real, Dim, Matrix, VectorN, RowVectorN, DefaultAllocator, U1, VectorSliceN};
+use ::{Scalar, Dim, Matrix, VectorN, RowVectorN, DefaultAllocator, U1, VectorSliceN};
+use alga::general::{Field, SupersetOf};
 use storage::Storage;
 use allocator::Allocator;
 
-impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a row vector where each element is the result of the application of `f` on the
     /// corresponding column of the original matrix.
     #[inline]
@@ -53,7 +54,7 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /*
      *
      * Sum computation.

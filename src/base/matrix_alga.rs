@@ -7,7 +7,7 @@ use alga::general::{
     AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma, AbstractModule,
     AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, Additive, ClosedAdd, ClosedMul,
     ClosedNeg, Field, Identity, TwoSidedInverse, JoinSemilattice, Lattice, MeetSemilattice, Module,
-    Multiplicative, Real, RingCommutative,
+    Multiplicative, Real, RingCommutative, Complex
 };
 use alga::linear::{
     FiniteDimInnerSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace, VectorSpace,
@@ -145,16 +145,19 @@ where
     }
 }
 
-impl<N: Real, R: DimName, C: DimName> NormedSpace for MatrixMN<N, R, C>
+impl<N: Complex, R: DimName, C: DimName> NormedSpace for MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
+    type Real = N::Real;
+    type Complex = N;
+
     #[inline]
-    fn norm_squared(&self) -> N {
+    fn norm_squared(&self) -> N::Real {
         self.norm_squared()
     }
 
     #[inline]
-    fn norm(&self) -> N {
+    fn norm(&self) -> N::Real {
         self.norm()
     }
 
@@ -164,34 +167,32 @@ where DefaultAllocator: Allocator<N, R, C>
     }
 
     #[inline]
-    fn normalize_mut(&mut self) -> N {
+    fn normalize_mut(&mut self) -> N::Real {
         self.normalize_mut()
     }
 
     #[inline]
-    fn try_normalize(&self, min_norm: N) -> Option<Self> {
+    fn try_normalize(&self, min_norm: N::Real) -> Option<Self> {
         self.try_normalize(min_norm)
     }
 
     #[inline]
-    fn try_normalize_mut(&mut self, min_norm: N) -> Option<N> {
+    fn try_normalize_mut(&mut self, min_norm: N::Real) -> Option<N::Real> {
         self.try_normalize_mut(min_norm)
     }
 }
 
-impl<N: Real, R: DimName, C: DimName> InnerSpace for MatrixMN<N, R, C>
+impl<N: Complex, R: DimName, C: DimName> InnerSpace for MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
-    type Real = N;
-
     #[inline]
-    fn angle(&self, other: &Self) -> N {
+    fn angle(&self, other: &Self) -> N::Real {
         self.angle(other)
     }
 
     #[inline]
     fn inner_product(&self, other: &Self) -> N {
-        self.dot(other)
+        self.cdot(other)
     }
 }
 
@@ -199,7 +200,7 @@ where DefaultAllocator: Allocator<N, R, C>
 // In particular:
 //   − use `x()` instead of `::canonical_basis_element`
 //   − use `::new(x, y, z)` instead of `::from_slice`
-impl<N: Real, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
+impl<N: Complex, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
     #[inline]
@@ -215,7 +216,7 @@ where DefaultAllocator: Allocator<N, R, C>
                 }
             }
 
-            if vs[i].try_normalize_mut(N::zero()).is_some() {
+            if vs[i].try_normalize_mut(N::Real::zero()).is_some() {
                 // FIXME: this will be efficient on dynamically-allocated vectors but for
                 // statically-allocated ones, `.clone_from` would be better.
                 vs.swap(nbasis_elements, i);
@@ -268,7 +269,7 @@ where DefaultAllocator: Allocator<N, R, C>
                     let v = &vs[0];
                     let mut a;
 
-                    if v[0].abs() > v[1].abs() {
+                    if v[0].modulus() > v[1].modulus() {
                         a = Self::from_column_slice(&[v[2], N::zero(), -v[0]]);
                     } else {
                         a = Self::from_column_slice(&[N::zero(), -v[2], v[1]]);
@@ -300,7 +301,7 @@ where DefaultAllocator: Allocator<N, R, C>
                             elt -= v * elt.dot(v)
                         }
 
-                        if let Some(subsp_elt) = elt.try_normalize(N::zero()) {
+                        if let Some(subsp_elt) = elt.try_normalize(N::Real::zero()) {
                             if !f(&subsp_elt) {
                                 return;
                             };

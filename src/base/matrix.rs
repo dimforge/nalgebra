@@ -1,5 +1,4 @@
 use num::{One, Zero};
-use num_complex::Complex;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
 
@@ -17,7 +16,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{ClosedAdd, ClosedMul, ClosedSub, Real, Ring};
+use alga::general::{ClosedAdd, ClosedMul, ClosedSub, Real, Ring, Complex, Field};
 
 use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
@@ -906,14 +905,14 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     }
 }
 
-impl<N: Real, R: Dim, C: Dim, S: Storage<Complex<N>, R, C>> Matrix<Complex<N>, R, C, S> {
+impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Takes the conjugate and transposes `self` and store the result into `out`.
     #[inline]
-    pub fn conjugate_transpose_to<R2, C2, SB>(&self, out: &mut Matrix<Complex<N>, R2, C2, SB>)
+    pub fn conjugate_transpose_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
     where
         R2: Dim,
         C2: Dim,
-        SB: StorageMut<Complex<N>, R2, C2>,
+        SB: StorageMut<N, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, C2> + SameNumberOfColumns<C, R2>,
     {
         let (nrows, ncols) = self.shape();
@@ -926,7 +925,7 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<Complex<N>, R, C>> Matrix<Complex<N>, R
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {
-                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).conj();
+                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).conjugate();
                 }
             }
         }
@@ -934,8 +933,8 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<Complex<N>, R, C>> Matrix<Complex<N>, R
 
     /// The conjugate transposition of `self`.
     #[inline]
-    pub fn conjugate_transpose(&self) -> MatrixMN<Complex<N>, C, R>
-    where DefaultAllocator: Allocator<Complex<N>, C, R> {
+    pub fn conjugate_transpose(&self) -> MatrixMN<N, C, R>
+    where DefaultAllocator: Allocator<N, C, R> {
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
@@ -947,7 +946,7 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<Complex<N>, R, C>> Matrix<Complex<N>, R
     }
 }
 
-impl<N: Real, D: Dim, S: StorageMut<Complex<N>, D, D>> Matrix<Complex<N>, D, D, S> {
+impl<N: Complex, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     /// Sets `self` to its conjugate transpose.
     pub fn conjugate_transpose_mut(&mut self) {
         assert!(
@@ -960,10 +959,10 @@ impl<N: Real, D: Dim, S: StorageMut<Complex<N>, D, D>> Matrix<Complex<N>, D, D, 
         for i in 1..dim {
             for j in 0..i {
                 unsafe {
-                    let ref_ij = self.get_unchecked_mut((i, j)) as *mut Complex<N>;
-                    let ref_ji = self.get_unchecked_mut((j, i)) as *mut Complex<N>;
-                    let conj_ij = (*ref_ij).conj();
-                    let conj_ji = (*ref_ji).conj();
+                    let ref_ij = self.get_unchecked_mut((i, j)) as *mut N;
+                    let ref_ji = self.get_unchecked_mut((j, i)) as *mut N;
+                    let conj_ij = (*ref_ij).conjugate();
+                    let conj_ji = (*ref_ji).conjugate();
                     *ref_ij = conj_ji;
                     *ref_ji = conj_ij;
                 }
@@ -1407,7 +1406,7 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Real, S: Storage<N, U3>> Vector<N, U3, S>
+impl<N: Scalar + Field, S: Storage<N, U3>> Vector<N, U3, S>
 where DefaultAllocator: Allocator<N, U3>
 {
     /// Computes the matrix `M` such that for all vector `v` we have `M * v == self.cross(&v)`.
@@ -1427,27 +1426,27 @@ where DefaultAllocator: Allocator<N, U3>
     }
 }
 
-impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The smallest angle between two vectors.
     #[inline]
-    pub fn angle<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> N
+    pub fn angle<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> N::Real
     where
         SB: Storage<N, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
-        let prod = self.dot(other);
+        let prod = self.cdot(other);
         let n1 = self.norm();
         let n2 = other.norm();
 
         if n1.is_zero() || n2.is_zero() {
-            N::zero()
+            N::Real::zero()
         } else {
-            let cang = prod / (n1 * n2);
+            let cang = prod.real() / (n1 * n2);
 
-            if cang > N::one() {
-                N::zero()
-            } else if cang < -N::one() {
-                N::pi()
+            if cang > N::Real::one() {
+                N::Real::zero()
+            } else if cang < -N::Real::one() {
+                N::Real::pi()
             } else {
                 cang.acos()
             }
@@ -1478,18 +1477,18 @@ impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     }
 }
 
-impl<N: Real, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
+impl<N: Complex, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     /// Computes the spherical linear interpolation between two unit vectors.
     pub fn slerp<S2: Storage<N, D>>(
         &self,
         rhs: &Unit<Vector<N, D, S2>>,
-        t: N,
+        t: N::Real,
     ) -> Unit<VectorN<N, D>>
     where
         DefaultAllocator: Allocator<N, D>,
     {
         // FIXME: the result is wrong when self and rhs are collinear with opposite direction.
-        self.try_slerp(rhs, t, N::default_epsilon())
+        self.try_slerp(rhs, t, N::Real::default_epsilon())
             .unwrap_or(Unit::new_unchecked(self.clone_owned()))
     }
 
@@ -1500,29 +1499,29 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     pub fn try_slerp<S2: Storage<N, D>>(
         &self,
         rhs: &Unit<Vector<N, D, S2>>,
-        t: N,
-        epsilon: N,
+        t: N::Real,
+        epsilon: N::Real,
     ) -> Option<Unit<VectorN<N, D>>>
     where
         DefaultAllocator: Allocator<N, D>,
     {
-        let c_hang = self.dot(rhs);
+        let c_hang = self.cdot(rhs).real();
 
         // self == other
-        if c_hang.abs() >= N::one() {
+        if c_hang.abs() >= N::Real::one() {
             return Some(Unit::new_unchecked(self.clone_owned()));
         }
 
         let hang = c_hang.acos();
-        let s_hang = (N::one() - c_hang * c_hang).sqrt();
+        let s_hang = (N::Real::one() - c_hang * c_hang).sqrt();
 
         // FIXME: what if s_hang is 0.0 ? The result is not well-defined.
-        if relative_eq!(s_hang, N::zero(), epsilon = epsilon) {
+        if relative_eq!(s_hang, N::Real::zero(), epsilon = epsilon) {
             None
         } else {
-            let ta = ((N::one() - t) * hang).sin() / s_hang;
+            let ta = ((N::Real::one() - t) * hang).sin() / s_hang;
             let tb = (t * hang).sin() / s_hang;
-            let res = &**self * ta + &**rhs * tb;
+            let res = &**self * N::from_real(ta) + &**rhs * N::from_real(tb);
 
             Some(Unit::new_unchecked(res))
         }
