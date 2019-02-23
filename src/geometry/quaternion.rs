@@ -124,34 +124,10 @@ impl<N: Real> Quaternion<N> {
         Self::from(self.coords.normalize())
     }
 
-    /// The scalar part of this quaternion.
-    #[inline]
-    pub fn r(&self) -> N {
-        self.coords[3]
-    }
-
-    /// The i element of the imaginary part of this quaternion.
-    #[inline]
-    pub fn i(&self) -> N {
-        self.coords[0]
-    }
-
-    /// The j element of the imaginary part of this quaternion.
-    #[inline]
-    pub fn j(&self) -> N {
-        self.coords[1]
-    }
-
-    /// The k element of the imaginary part of this quaternion.
-    #[inline]
-    pub fn k(&self) -> N {
-        self.coords[2]
-    }
-
     /// The imaginary part of this quaternion.
     #[inline]
     pub fn imag(&self) -> Vector3<N> {
-        Vector3::new(self.i(), self.j(), self.k())
+        self.coords.xyz()
     }
 
     /// The conjugate of this quaternion.
@@ -165,7 +141,7 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn conjugate(&self) -> Self {
-        Self::from_parts(self.r(), -self.imag())
+        Self::from_parts(self.w, -self.imag())
     }
 
     /// Inverts this quaternion if it is not zero.
@@ -530,6 +506,95 @@ impl<N: Real> Quaternion<N> {
     pub fn normalize_mut(&mut self) -> N {
         self.coords.normalize_mut()
     }
+
+    /// Calculates the wedge product.
+    #[inline]
+    pub fn wedge(&self, other: &Self) -> Self {
+        (self * other - other * self) / ::convert(2.0f64)
+    }
+
+    /// Calculates the antiwedge product.
+    #[inline]
+    pub fn antiwedge(&self, other: &Self) -> Self {
+        (self * other + other * self) / ::convert(2.0f64)
+    }
+
+    /// Calculates the parallel bisector.
+    #[inline]
+    pub fn para(&self, other: &Self) -> Self {
+        (self - other * self * other) / ::convert(2.0f64)
+    }
+
+    /// Calculates the perpendicular bisector.
+    #[inline]
+    pub fn perp(&self, other: &Self) -> Self {
+        (self + other * self * other) / ::convert(2.0f64)
+    }
+
+    /// Calculates square.
+    #[inline]
+    pub fn squared(&self) -> Self {
+        self * self
+    }
+
+    /// Calculates square root.
+    #[inline]
+    pub fn sqrt(&self) -> Self {
+        self.powf(::convert(0.5))
+    }
+
+    /// Calculates the quaternionic cosinus.
+    #[inline]
+    pub fn cos(&self) -> Self {
+        let z = self.imag().magnitude();
+        let w = -self.w.sin() * z.sinhc();
+        Self::from_parts(self.w.cos() * z.cosh(), self.imag() * w)
+    }
+
+    /// Calculates the quaternionic arccosinus.
+    #[inline]
+    pub fn acos(&self) -> Self {
+        let u = Quaternion::from_parts(N::zero(), self.imag().normalize());
+        let identity = Quaternion::identity();
+
+        let z = (self + (self.squared() - identity).sqrt()).ln();
+
+        -(u * z)
+    }
+
+    /// Calculates the quaternionic sinus.
+    #[inline]
+    pub fn sin(&self) -> Self {
+        let z = self.imag().magnitude();
+        let w = self.w.cos() * z.sinhc();
+        Self::from_parts(self.w.sin() * z.cosh(), self.imag() * w)
+    }
+
+    /// Calculates quaternion arcsinus.
+    #[inline]
+    pub fn asin(&self) -> Self {
+        let u = Quaternion::from_parts(N::zero(), self.imag().normalize());
+        let identity = Quaternion::identity();
+
+        let z = ((u * self) + (identity - self.squared()).sqrt()).ln();
+
+        -(u * z)
+    }
+}
+
+#[test]
+fn wedge() {
+    let input: Quaternion<f64> = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    let expected: Quaternion<f64> = Quaternion::zero();
+    let result = input.wedge(&input);
+    assert_eq!(expected, result)
+}
+
+#[test]
+fn test_sin() {
+    let input: Quaternion<f64> = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    let result = input.sin().asin();
+    assert!(input.abs_diff_eq(&result, 1.0e-7))
 }
 
 impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
