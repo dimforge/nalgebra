@@ -124,6 +124,12 @@ impl<N: Real> Quaternion<N> {
         Self::from(self.coords.normalize())
     }
 
+    /// The imaginary part of this quaternion.
+    #[inline]
+    pub fn imag(&self) -> Vector3<N> {
+        self.coords.xyz()
+    }
+
     /// The conjugate of this quaternion.
     ///
     /// # Example
@@ -135,13 +141,7 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn conjugate(&self) -> Self {
-        let v = Vector4::new(
-            -self.coords[0],
-            -self.coords[1],
-            -self.coords[2],
-            self.coords[3],
-        );
-        Self::from(v)
+        Self::from_parts(self.w, -self.imag())
     }
 
     /// Inverts this quaternion if it is not zero.
