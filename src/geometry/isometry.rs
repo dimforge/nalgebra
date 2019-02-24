@@ -17,7 +17,7 @@ use alga::linear::Rotation;
 use base::allocator::Allocator;
 use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use base::storage::Owned;
-use base::{DefaultAllocator, MatrixN};
+use base::{DefaultAllocator, MatrixN, VectorN};
 use geometry::{Point, Translation};
 
 /// A direct isometry, i.e., a rotation followed by a translation, aka. a rigid-body motion, aka. an element of a Special Euclidean (SE) group.
@@ -253,6 +253,93 @@ where DefaultAllocator: Allocator<N, D>
     #[inline]
     pub fn append_rotation_wrt_center_mut(&mut self, r: &R) {
         self.rotation = self.rotation.append_rotation(r);
+    }
+
+    /// Transform the given point by this isometry.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry3, Translation3, UnitQuaternion, Vector3, Point3};
+    /// let tra = Translation3::new(0.0, 0.0, 3.0);
+    /// let rot = UnitQuaternion::from_scaled_axis(Vector3::y() * f32::consts::FRAC_PI_2);
+    /// let iso = Isometry3::from_parts(tra, rot);
+    ///
+    /// let transformed_point = iso.transform_point(&Point3::new(1.0, 2.0, 3.0));
+    /// assert_relative_eq!(transformed_point, Point3::new(3.0, 2.0, 2.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        self * pt
+    }
+
+    /// Transform the given vector by this isometry, ignoring the translation
+    /// component of the isometry.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry3, Translation3, UnitQuaternion, Vector3};
+    /// let tra = Translation3::new(0.0, 0.0, 3.0);
+    /// let rot = UnitQuaternion::from_scaled_axis(Vector3::y() * f32::consts::FRAC_PI_2);
+    /// let iso = Isometry3::from_parts(tra, rot);
+    ///
+    /// let transformed_point = iso.transform_vector(&Vector3::new(1.0, 2.0, 3.0));
+    /// assert_relative_eq!(transformed_point, Vector3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+        self * v
+    }
+
+    /// Transform the given point by the inverse of this isometry. This may be
+    /// less expensive than computing the entire isometry inverse and then
+    /// transforming the point.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry3, Translation3, UnitQuaternion, Vector3, Point3};
+    /// let tra = Translation3::new(0.0, 0.0, 3.0);
+    /// let rot = UnitQuaternion::from_scaled_axis(Vector3::y() * f32::consts::FRAC_PI_2);
+    /// let iso = Isometry3::from_parts(tra, rot);
+    ///
+    /// let transformed_point = iso.inverse_transform_point(&Point3::new(1.0, 2.0, 3.0));
+    /// assert_relative_eq!(transformed_point, Point3::new(0.0, 2.0, 1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        self.rotation
+            .inverse_transform_point(&(pt - &self.translation.vector))
+    }
+
+    /// Transform the given vector by the inverse of this isometry, ignoring the
+    /// translation component of the isometry. This may be
+    /// less expensive than computing the entire isometry inverse and then
+    /// transforming the point.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry3, Translation3, UnitQuaternion, Vector3};
+    /// let tra = Translation3::new(0.0, 0.0, 3.0);
+    /// let rot = UnitQuaternion::from_scaled_axis(Vector3::y() * f32::consts::FRAC_PI_2);
+    /// let iso = Isometry3::from_parts(tra, rot);
+    ///
+    /// let transformed_point = iso.inverse_transform_vector(&Vector3::new(1.0, 2.0, 3.0));
+    /// assert_relative_eq!(transformed_point, Vector3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+        self.rotation.inverse_transform_vector(v)
     }
 }
 

@@ -63,12 +63,12 @@ where DefaultAllocator: Allocator<N, U2>
 {
     #[inline]
     fn transform_point(&self, pt: &Point2<N>) -> Point2<N> {
-        self * pt
+        self.transform_point(pt)
     }
 
     #[inline]
     fn transform_vector(&self, v: &Vector2<N>) -> Vector2<N> {
-        self * v
+        self.transform_vector(v)
     }
 }
 
@@ -77,14 +77,12 @@ where DefaultAllocator: Allocator<N, U2>
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point2<N>) -> Point2<N> {
-        // FIXME: would it be useful performancewise not to call inverse explicitly (i-e. implement
-        // the inverse transformation explicitly here) ?
-        self.inverse() * pt
+        self.inverse_transform_point(pt)
     }
 
     #[inline]
     fn inverse_transform_vector(&self, v: &Vector2<N>) -> Vector2<N> {
-        self.inverse() * v
+        self.inverse_transform_vector(v)
     }
 }
 

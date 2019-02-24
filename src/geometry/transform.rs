@@ -6,12 +6,14 @@ use std::marker::PhantomData;
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use alga::general::Real;
+use alga::general::{Real, TwoSidedInverse};
 
 use base::allocator::Allocator;
 use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use base::storage::Owned;
-use base::{DefaultAllocator, MatrixN};
+use base::{DefaultAllocator, MatrixN, VectorN};
+
+use geometry::Point;
 
 /// Trait implemented by phantom types identifying the projective transformation type.
 ///
@@ -449,6 +451,53 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
     pub fn inverse_mut(&mut self)
     where C: SubTCategoryOf<TProjective> {
         let _ = self.matrix.try_inverse_mut();
+    }
+}
+
+impl<N, D: DimNameAdd<U1>, C> Transform<N, D, C>
+where
+    N: Real,
+    C: TCategory,
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<N, DimNameSum<D, U1>>
+        + Allocator<N, D, D>
+        + Allocator<N, D>,
+{
+    /// Transform the given point by this transformation.
+    #[inline]
+    pub fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        self * pt
+    }
+
+    /// Transform the given vector by this transformation, ignoring the
+    /// translational component of the transformation.
+    #[inline]
+    pub fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+        self * v
+    }
+}
+
+impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
+where C: SubTCategoryOf<TProjective>,
+      DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+        + Allocator<N, DimNameSum<D, U1>>
+        + Allocator<N, D, D>
+        + Allocator<N, D>,
+{
+    /// Transform the given point by the inverse of this transformation.
+    /// This may be cheaper than inverting the transformation and transforming
+    /// the point.
+    #[inline]
+    pub fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        self.two_sided_inverse() * pt
+    }
+
+    /// Transform the given vector by the inverse of this transformation.
+    /// This may be cheaper than inverting the transformation and transforming
+    /// the vector.
+    #[inline]
+    pub fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+        self.two_sided_inverse() * v
     }
 }
 

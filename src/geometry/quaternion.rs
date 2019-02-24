@@ -19,7 +19,7 @@ use base::dimension::{U1, U3, U4};
 use base::storage::{CStride, RStride};
 use base::{Matrix3, MatrixN, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4};
 
-use geometry::Rotation;
+use geometry::{Point3, Rotation};
 
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
@@ -1004,6 +1004,84 @@ impl<N: Real> UnitQuaternion<N> {
     #[inline]
     pub fn to_homogeneous(&self) -> MatrixN<N, U4> {
         self.to_rotation_matrix().to_homogeneous()
+    }
+
+    /// Rotate a point by this unit quaternion.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Vector3, Point3};
+    /// let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), f32::consts::FRAC_PI_2);
+    /// let transformed_point = rot.transform_point(&Point3::new(1.0, 2.0, 3.0));
+    ///
+    /// assert_relative_eq!(transformed_point, Point3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn transform_point(&self, pt: &Point3<N>) -> Point3<N> {
+        self * pt
+    }
+
+    /// Rotate a vector by this unit quaternion.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Vector3};
+    /// let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), f32::consts::FRAC_PI_2);
+    /// let transformed_vector = rot.transform_vector(&Vector3::new(1.0, 2.0, 3.0));
+    ///
+    /// assert_relative_eq!(transformed_vector, Vector3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn transform_vector(&self, v: &Vector3<N>) -> Vector3<N> {
+        self * v
+    }
+
+    /// Rotate a point by the inverse of this unit quaternion. This may be
+    /// cheaper than inverting the unit quaternion and transforming the
+    /// point.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Vector3, Point3};
+    /// let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), f32::consts::FRAC_PI_2);
+    /// let transformed_point = rot.inverse_transform_point(&Point3::new(1.0, 2.0, 3.0));
+    ///
+    /// assert_relative_eq!(transformed_point, Point3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_point(&self, pt: &Point3<N>) -> Point3<N> {
+        // FIXME: would it be useful performancewise not to call inverse explicitly (i-e. implement
+        // the inverse transformation explicitly here) ?
+        self.inverse() * pt
+    }
+
+    /// Rotate a vector by the inverse of this unit quaternion. This may be
+    /// cheaper than inverting the unit quaternion and transforming the
+    /// vector.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Vector3};
+    /// let rot = UnitQuaternion::from_axis_angle(&Vector3::y_axis(), f32::consts::FRAC_PI_2);
+    /// let transformed_vector = rot.inverse_transform_vector(&Vector3::new(1.0, 2.0, 3.0));
+    ///
+    /// assert_relative_eq!(transformed_vector, Vector3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_vector(&self, v: &Vector3<N>) -> Vector3<N> {
+        self.inverse() * v
     }
 }
 
