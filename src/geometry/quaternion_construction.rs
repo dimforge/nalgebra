@@ -15,7 +15,7 @@ use base::dimension::U3;
 use base::storage::Storage;
 #[cfg(feature = "arbitrary")]
 use base::Vector3;
-use base::{Unit, Vector, Vector4, Matrix3};
+use base::{Unit, Vector, Vector3, Vector4, Matrix3};
 
 use geometry::{Quaternion, Rotation3, UnitQuaternion};
 
@@ -26,6 +26,12 @@ impl<N: Real> Quaternion<N> {
     #[deprecated(note = "Use `::from` instead.")]
     pub fn from_vector(vector: Vector4<N>) -> Self {
         Self { coords: vector }
+    }
+
+    /// Construct from imaginary part.
+    #[inline]
+    pub fn from_imag(imag: Vector3<N>) -> Self {
+        Self::from_parts(N::zero(), imag)
     }
 
     /// Creates a new quaternion from its individual components. Note that the arguments order does

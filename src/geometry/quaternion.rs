@@ -543,6 +543,17 @@ impl<N: Real> Quaternion<N> {
         self.powf(::convert(0.5))
     }
 
+    /// Check if the quaternion is pure.
+    pub fn is_pure(&self) -> bool {
+        self.w == N::zero()
+    }
+
+    /// Convert quaternion to pure quaternion.
+    #[inline]
+    pub fn pure(&self) -> Self {
+        Self::from_imag(self.imag())
+    }
+
     /// Calculates the quaternionic cosinus.
     #[inline]
     pub fn cos(&self) -> Self {
