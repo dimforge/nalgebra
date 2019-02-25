@@ -28,7 +28,7 @@ impl<N: Real> Quaternion<N> {
         Self { coords: vector }
     }
 
-    /// Construct from imaginary part.
+    /// Construct a pure quaternion from imaginary part.
     #[inline]
     pub fn from_imag(imag: Vector3<N>) -> Self {
         Self::from_parts(N::zero(), imag)

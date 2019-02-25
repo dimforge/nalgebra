@@ -643,7 +643,7 @@ impl<N: Float + Real> Quaternion<N> {
         let mag = self.imag().magnitude();
         let c = Complex::new(self.w, mag).cos();
         if mag == N::zero() {
-            Self::from_parts(c.re, self.imag() *  c.im)
+            Self::from_parts(c.re, self.imag() * c.im)
         }
         else {
             Self::from_parts(c.re, self.imag() * (c.im / mag))
@@ -658,9 +658,14 @@ impl<N: Float + Real> Quaternion<N> {
 
     ///
     pub fn sinh(&self) -> Self {
-        let n = self.imag().magnitude();
-        let z = Complex::new(self.w, n).cos();
-        unimplemented!()
+        let mag = self.imag().magnitude();
+        let c = Complex::new(self.w, mag).sinh();
+        if mag == N::zero() {
+            Self::from_parts(c.re, self.imag() * c.im)
+        }
+        else {
+            Self::from_parts(c.re, self.imag() * (c.im / mag))
+        }
     }
 
     ///
@@ -670,7 +675,14 @@ impl<N: Float + Real> Quaternion<N> {
 
     ///
     pub fn cosh(&self) -> Self {
-        unimplemented!()
+        let mag = self.imag().magnitude();
+        let c = Complex::new(self.w, mag).cosh();
+        if mag == N::zero() {
+            Self::from_parts(c.re, self.imag() * c.im)
+        }
+        else {
+            Self::from_parts(c.re, self.imag() * (c.im / mag))
+        }
     }
 
     ///
