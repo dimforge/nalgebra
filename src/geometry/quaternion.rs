@@ -618,6 +618,7 @@ impl<N: Real> Quaternion<N> {
 }
 
 // https://github.com/sjhalayka/qjs-isosurface/blob/437ad39d00f38290da84095e7644060662fbafe6/quaternion_math.cpp
+// https://github.com/pasenor/NumberSystems/blob/master/quaternion.cpp
 #[cfg(feature = "std")]
 impl<N: Float + Real> Quaternion<N> {
 
@@ -636,13 +637,20 @@ impl<N: Float + Real> Quaternion<N> {
 //        let w = -(self.w as Real).sin() * z.sinhc();
 //        Self::from_parts(self.w.cos() * <z as Real>.cosh(), self.imag() * w)
 //    }
+
     ///
-    pub fn cos1(&self) -> Self {
-        let absI = self.imag().magnitude();
-//        let z = Complex::new(self.w, absI);
-//        let c = z.co
-        unimplemented!()
+    pub fn cos_v2(&self) -> Self {
+        let mag = self.imag().magnitude();
+        let c = Complex::new(self.w, mag).cos();
+        if mag == N::zero() {
+            Self::from_parts(c.re, self.imag() *  c.im)
+        }
+        else {
+            Self::from_parts(c.re, self.imag() * (c.im / mag))
+        }
     }
+    ///
+
     ///
     pub fn atan2(&self) -> Self {
         unimplemented!()
@@ -699,6 +707,15 @@ fn test_sin() {
     let input: Quaternion<f64> = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     let result = input.sin().asin();
     assert!(input.abs_diff_eq(&result, 1.0e-7))
+}
+
+#[test]
+fn test_cos() {
+    let input: Quaternion<f64> = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    let result = input.cos().acos();
+    let result2 = input.cos_v2().acos();
+    assert!(input.abs_diff_eq(&result, 1.0e-7));
+    assert!(input.abs_diff_eq(&result2, 1.0e-7));
 }
 
 #[test]
