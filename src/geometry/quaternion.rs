@@ -636,7 +636,7 @@ impl<N: Float + Real> Quaternion<N> {
 
     ///
     pub fn sinh(&self) -> Self {
-        (self.exp() - (-self).neg().exp()).half()
+        (self.exp() - (-self).exp()).half()
     }
 
     ///
@@ -717,11 +717,11 @@ fn test_tan() {
 #[test]
 fn test_cosh() {
     let q: Quaternion<f64> = Quaternion::new(1.0, 2.0, 3.0, 4.0);
-    let res1 = q.cosh();
-    let res2 = q.cosh_v2();
-    println!("{:?}", res1);
+    let res1 = q.sinh().asinh();
+//    let res2 = q.acosh();
+//    println!("{:?}", res1);
 //    let result = input.tan().atan();
-//    assert!(res1.abs_diff_eq(&res2, 1.0e-7));
+    assert!(q.abs_diff_eq(&res1, 1.0e-7));
 }
 
 impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
