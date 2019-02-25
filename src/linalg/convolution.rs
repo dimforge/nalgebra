@@ -1,20 +1,19 @@
 use base::allocator::Allocator;
 use base::default_allocator::DefaultAllocator;
-use base::dimension::{DimAdd, DimDiff, DimMax, DimMaximum, DimName, DimSub, DimSum,Dim};
+use base::dimension::{Dim, DimAdd, DimDiff, DimMax, DimMaximum, DimSub, DimSum};
 use std::cmp;
 use storage::Storage;
 use {zero, Real, Vector, VectorN, U1};
 
-/// Returns the convolution of the vector and a kernel
+/// Returns the convolution of the target vector and a kernel
 ///
 /// # Arguments
 ///
 /// * `vector` - A Vector with size > 0
 /// * `kernel` - A Vector with size > 0
 ///
-///  This function is commutative. If kernel > vector,
-///  they will swap their roles as in
-///  (self, kernel) = (kernel,self)
+/// # Errors
+/// Inputs must statisfy `vector.len() >= kernel.len() > 0`.
 ///
 pub fn convolve_full<N, D1, D2, S1, S2>(
     vector: Vector<N, D1, S1>,
@@ -27,18 +26,13 @@ where
     DimSum<D1, D2>: DimSub<U1>,
     S1: Storage<N, D1>,
     S2: Storage<N, D2>,
-    DimSum<D1, D2>: Dim,
     DefaultAllocator: Allocator<N, DimDiff<DimSum<D1, D2>, U1>>,
 {
     let vec = vector.len();
     let ker = kernel.len();
 
-    if vec == 0 || ker == 0 {
-        panic!("Convolve's inputs must not be 0-sized. ");
-    }
-
-    if ker > vec {
-        return convolve_full(kernel, vector);
+    if ker == 0 || ker > vec {
+        panic!("convolve_full expects `vector.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
     }
 
     let result_len = vector.data.shape().0.add(kernel.data.shape().0).sub(U1);
@@ -61,45 +55,38 @@ where
     conv
 }
 
-
-
 /// Returns the convolution of the vector and a kernel
 /// The output convolution consists only of those elements that do not rely on the zero-padding.
 /// # Arguments
 ///
 /// * `vector` - A Vector with size > 0
 /// * `kernel` - A Vector with size > 0
-/// 
-/// This function is commutative. If kernel > vector,
-/// they will swap their roles as in
-/// (self, kernel) = (kernel,self)
+///
+///
+/// # Errors
+/// Inputs must statisfy `vector.len() >= kernel.len() > 0`.
 ///
 pub fn convolve_valid<N, D1, D2, S1, S2>(
     vector: Vector<N, D1, S1>,
     kernel: Vector<N, D2, S2>,
-) -> VectorN<N, DimSum<DimDiff<D1, D2>, U1>>
+) -> VectorN<N, DimDiff<DimSum<D1, U1>, D2>>
 where
     N: Real,
-    D1: DimSub<D2>,
-    D2: DimSub<D1, Output = DimDiff<D1, D2>>,
-    DimDiff<D1, D2>: DimAdd<U1>,
+    D1: DimAdd<U1>,
+    D2: Dim,
+    DimSum<D1, U1>: DimSub<D2>,
     S1: Storage<N, D1>,
     S2: Storage<N, D2>,
-    DimDiff<D1, D2>: DimName,
-    DefaultAllocator: Allocator<N, DimSum<DimDiff<D1, D2>, U1>>
+    DefaultAllocator: Allocator<N, DimDiff<DimSum<D1, U1>, D2>>,
 {
-
     let vec = vector.len();
     let ker = kernel.len();
 
-    if vec == 0 || ker == 0 {
-        panic!("Convolve's inputs must not be 0-sized. ");
+    if ker == 0 || ker > vec {
+        panic!("convolve_valid expects `vector.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
     }
 
-    if ker > vec {
-        return convolve_valid(kernel, vector);
-    }
-    let result_len = vector.data.shape().0.sub(kernel.data.shape().0).add(U1);
+    let result_len = vector.data.shape().0.add(U1).sub(kernel.data.shape().0);
     let mut conv = VectorN::zeros_generic(result_len, U1);
 
     for i in 0..(vec - ker + 1) {
@@ -117,10 +104,8 @@ where
 /// * `vector` - A Vector with size > 0
 /// * `kernel` - A Vector with size > 0
 ///
-/// This function is commutative. If kernel > vector,
-/// they will swap their roles as in
-/// (self, kernel) = (kernel,self)
-///
+/// # Errors
+/// Inputs must statisfy `vector.len() >= kernel.len() > 0`.
 pub fn convolve_same<N, D1, D2, S1, S2>(
     vector: Vector<N, D1, S1>,
     kernel: Vector<N, D2, S2>,
@@ -131,18 +116,13 @@ where
     D2: DimMax<D1, Output = DimMaximum<D1, D2>>,
     S1: Storage<N, D1>,
     S2: Storage<N, D2>,
-    DimMaximum<D1, D2>: Dim,
     DefaultAllocator: Allocator<N, DimMaximum<D1, D2>>,
 {
     let vec = vector.len();
     let ker = kernel.len();
 
-    if vec == 0 || ker == 0 {
-        panic!("Convolve's inputs must not be 0-sized. ");
-    }
-
-    if ker > vec {
-        return convolve_same(kernel, vector);
+    if ker == 0 || ker > vec {
+        panic!("convolve_same expects `vector.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
     }
 
     let result_len = vector.data.shape().0.max(kernel.data.shape().0);
