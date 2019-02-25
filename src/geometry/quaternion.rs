@@ -21,6 +21,9 @@ use base::{Matrix3, MatrixN, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4
 
 use geometry::Rotation;
 
+use num_complex::Complex;
+use num::Float;
+
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
@@ -600,7 +603,6 @@ impl<N: Real> Quaternion<N> {
 
         let ci = c.try_inverse().unwrap();
         s * ci
-
     }
 
     /// Calculates the quaternionic arctangent.
@@ -613,31 +615,72 @@ impl<N: Real> Quaternion<N> {
         let ln = fr.ln();
         (u / ::convert(2.0f64)) * ln
     }
+}
 
+// https://github.com/sjhalayka/qjs-isosurface/blob/437ad39d00f38290da84095e7644060662fbafe6/quaternion_math.cpp
+#[cfg(feature = "std")]
+impl<N: Float + Real> Quaternion<N> {
+
+//    /// Computes the cosine of `self`.
+//    #[inline]
+//    pub fn cos(&self) -> Complex<T> {
+//        // formula: cos(a + bi) = cos(a)cosh(b) - i*sin(a)sinh(b)
+//        Complex::new(
+//            self.re.cos() * self.im.cosh(),
+//            -self.re.sin() * self.im.sinh(),
+//        )
+//    }
+//    #[inline]
+//    pub fn cos_orig(&self) -> Self {
+//        let z = self.imag().magnitude();
+//        let w = -(self.w as Real).sin() * z.sinhc();
+//        Self::from_parts(self.w.cos() * <z as Real>.cosh(), self.imag() * w)
+//    }
+    ///
+    pub fn cos1(&self) -> Self {
+        let absI = self.imag().magnitude();
+//        let z = Complex::new(self.w, absI);
+//        let c = z.co
+        unimplemented!()
+    }
+    ///
     pub fn atan2(&self) -> Self {
         unimplemented!()
     }
 
+    ///
     pub fn sinh(&self) -> Self {
+        let n = self.imag().magnitude();
+        let z = Complex::new(self.w, n).cos();
         unimplemented!()
     }
 
+    ///
     pub fn asinh(&self) -> Self {
         unimplemented!()
     }
 
+    ///
     pub fn cosh(&self) -> Self {
         unimplemented!()
     }
 
+    ///
     pub fn acosh(&self) -> Self {
         unimplemented!()
     }
 
+    ///
     pub fn tanh(&self) -> Self {
         unimplemented!()
+//        let s = self.sinh();
+//        let c = self.cosh();
+//
+//        let ci = c.try_inverse().unwrap();
+//        s * ci
     }
 
+    ///
     pub fn atanh(&self) -> Self {
         unimplemented!()
     }

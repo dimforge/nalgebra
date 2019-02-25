@@ -20,7 +20,7 @@ path = "src/lib.rs"
 
 [features]
 default         = [ "std" ]
-std             = [ "matrixmultiply", "rand/std", "alga/std" ]
+std             = [ "matrixmultiply", "rand/std", "alga/std", "num-traits/std", "num-complex/std" ]
 stdweb          = [ "rand/stdweb" ]
 arbitrary       = [ "quickcheck" ]
 serde-serialize = [ "serde", "serde_derive", "num-complex/serde" ]
