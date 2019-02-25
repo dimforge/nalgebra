@@ -856,7 +856,7 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// Compute the exponential of a quaternion.
     ///
-    /// Note that this function yields a `Quaternion<N>` because it looses the unit property.
+    /// Note that this function yields a `Quaternion<N>` because it loses the unit property.
     #[inline]
     pub fn exp(&self) -> Quaternion<N> {
         self.as_ref().exp()
@@ -864,7 +864,7 @@ impl<N: Real> UnitQuaternion<N> {
 
     /// Compute the natural logarithm of a quaternion.
     ///
-    /// Note that this function yields a `Quaternion<N>` because it looses the unit property.
+    /// Note that this function yields a `Quaternion<N>` because it loses the unit property.
     /// The vector part of the return value corresponds to the axis-angle representation (divided
     /// by 2.0) of this unit quaternion.
     ///
