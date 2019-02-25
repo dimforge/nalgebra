@@ -98,7 +98,7 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn identity() -> Self {
-        Self::new(N::one(), N::zero(), N::zero(), N::zero())
+        Self::from_parts(N::one(), Vector3::zero())
     }
 }
 
@@ -112,7 +112,7 @@ impl<N: Real> One for Quaternion<N> {
 impl<N: Real> Zero for Quaternion<N> {
     #[inline]
     fn zero() -> Self {
-        Self::new(N::zero(), N::zero(), N::zero(), N::zero())
+        Self{coords: Vector4::zero()}
     }
 
     #[inline]
