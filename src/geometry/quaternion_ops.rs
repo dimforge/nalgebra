@@ -495,7 +495,7 @@ macro_rules! scalar_op_impl(
 
             #[inline]
             fn $op(self, n: N) -> Self::Output {
-                Quaternion::from(self.coords.$op(n))
+                Self::Output::from(self.coords.$op(n))
             }
         }
 
@@ -504,7 +504,7 @@ macro_rules! scalar_op_impl(
 
             #[inline]
             fn $op(self, n: N) -> Self::Output {
-                Quaternion::from((&self.coords).$op(n))
+                Self::Output::from((&self.coords).$op(n))
             }
         }
 
@@ -530,7 +530,7 @@ macro_rules! left_scalar_mul_impl(
 
             #[inline]
             fn mul(self, right: Quaternion<$T>) -> Self::Output {
-                Quaternion::from(self * right.coords)
+                Self::Output::from(self * right.coords)
             }
         }
 
@@ -539,7 +539,7 @@ macro_rules! left_scalar_mul_impl(
 
             #[inline]
             fn mul(self, right: &'b Quaternion<$T>) -> Self::Output {
-                Quaternion::from(self * &right.coords)
+                Self::Output::from(self * &right.coords)
             }
         }
     )*}
@@ -548,11 +548,11 @@ macro_rules! left_scalar_mul_impl(
 left_scalar_mul_impl!(f32, f64);
 
 impl<N: Real> Neg for Quaternion<N> {
-    type Output = Quaternion<N>;
+    type Output = Self;
 
     #[inline]
     fn neg(self) -> Self::Output {
-        Quaternion::from(-self.coords)
+        Self::Output::from(-self.coords)
     }
 }
 
@@ -561,7 +561,7 @@ impl<'a, N: Real> Neg for &'a Quaternion<N> {
 
     #[inline]
     fn neg(self) -> Self::Output {
-        Quaternion::from(-&self.coords)
+        Self::Output::from(-&self.coords)
     }
 }
 

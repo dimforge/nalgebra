@@ -568,8 +568,8 @@ impl<N: Real> Quaternion<N> {
     /// Calculates the quaternionic arccosinus.
     #[inline]
     pub fn acos(&self) -> Self {
-        let u = Quaternion::from_imag(self.imag().normalize());
-        let identity = Quaternion::identity();
+        let u = Self::from_imag(self.imag().normalize());
+        let identity = Self::identity();
 
         let z = (self + (self.squared() - identity).sqrt()).ln();
 
@@ -587,8 +587,8 @@ impl<N: Real> Quaternion<N> {
     /// Calculates the quaternionic arcsinus.
     #[inline]
     pub fn asin(&self) -> Self {
-        let u = Quaternion::from_imag(self.imag().normalize());
-        let identity = Quaternion::identity();
+        let u = Self::from_imag(self.imag().normalize());
+        let identity = Self::identity();
 
         let z = ((u * self) + (identity - self.squared()).sqrt()).ln();
 
@@ -608,7 +608,7 @@ impl<N: Real> Quaternion<N> {
     /// Calculates the quaternionic arctangent.
     #[inline]
     pub fn atan(&self) -> Self {
-        let u = Quaternion::from_imag(self.imag().normalize());
+        let u = Self::from_imag(self.imag().normalize());
         let num = u + self;
         let den = u - self;
         let fr = num * den.try_inverse().unwrap();
@@ -619,8 +619,13 @@ impl<N: Real> Quaternion<N> {
 
 // https://github.com/sjhalayka/qjs-isosurface/blob/437ad39d00f38290da84095e7644060662fbafe6/quaternion_math.cpp
 // https://github.com/pasenor/NumberSystems/blob/master/quaternion.cpp
+
+/// formulas https://franz.com/support/documentation/ansicl.94/dictentr/sinhcosh.htm
 #[cfg(feature = "std")]
 impl<N: Float + Real> Quaternion<N> {
+    fn isocomplex(&self) -> Complex<N> {
+        unimplemented!()
+    }
 
 //    /// Computes the cosine of `self`.
 //    #[inline]
@@ -638,17 +643,24 @@ impl<N: Float + Real> Quaternion<N> {
 //        Self::from_parts(self.w.cos() * <z as Real>.cosh(), self.imag() * w)
 //    }
 
+    //#[inline]
+    //pub fn cos(&self) -> Self {
+    //    let z = self.imag().magnitude(); // c.real
+    //    let w = -self.w.sin() * z.sinhc(); // c.imag
+    //    Self::from_parts(self.w.cos() * z.cosh(), self.imag() * w)
+    //}
+
     ///
-    pub fn cos_v2(&self) -> Self {
-        let mag = self.imag().magnitude();
-        let c = Complex::new(self.w, mag).cos();
-        if mag == N::zero() {
-            Self::from_parts(c.re, self.imag() * c.im)
-        }
-        else {
-            Self::from_parts(c.re, self.imag() * (c.im / mag))
-        }
-    }
+//    pub fn cos_v2(&self) -> Self {
+//        let mag = self.imag().magnitude();
+//        let c = Complex::new(self.w, mag).cos();
+//        if mag == N::zero() {
+//            Self::from_parts(c.re, self.imag() * c.im)
+//        }
+//        else {
+//            Self::from_parts(c.re, self.imag() * (c.im / mag))
+//        }
+//    }
     ///
 
     ///
@@ -656,52 +668,71 @@ impl<N: Float + Real> Quaternion<N> {
         unimplemented!()
     }
 
+//    fn neg(&self) -> Self {
+//        unimplemented!()
+//    }
     ///
     pub fn sinh(&self) -> Self {
-        let mag = self.imag().magnitude();
-        let c = Complex::new(self.w, mag).sinh();
-        if mag == N::zero() {
-            Self::from_parts(c.re, self.imag() * c.im)
-        }
-        else {
-            Self::from_parts(c.re, self.imag() * (c.im / mag))
-        }
+
+//        (self.exp() - *self.neg().exp()) / ::convert(2.0f64)
+        unimplemented!()
+//        let mag = self.imag().magnitude();
+//        let c = Complex::new(self.w, mag).sinh();
+//        if mag == N::zero() {
+//            Self::from_parts(c.re, self.imag() * c.im)
+//        }
+//        else {
+//            Self::from_parts(c.re, self.imag() * (c.im / mag))
+//        }
     }
 
     ///
+    ///
     pub fn asinh(&self) -> Self {
-        unimplemented!()
+        // log (x+sqrt(1+x2))
+        let identity = Self::identity();
+        (self + (identity + self.squared()).sqrt()).ln()
     }
+
+    ///
+//    pub fn cosh_v2(&self) -> Self {
+//        let mag = self.imag().magnitude();
+//        let c = Complex::new(self.w, mag).cosh();
+//        if mag == N::zero() {
+//            Self::from_parts(c.re, self.imag() * c.im)
+//        }
+//        else {
+//            Self::from_parts(c.re, self.imag() * (c.im / mag))
+//        }
+//    }
 
     ///
     pub fn cosh(&self) -> Self {
-        let mag = self.imag().magnitude();
-        let c = Complex::new(self.w, mag).cosh();
-        if mag == N::zero() {
-            Self::from_parts(c.re, self.imag() * c.im)
-        }
-        else {
-            Self::from_parts(c.re, self.imag() * (c.im / mag))
-        }
+//        (self.exp() + self.neg().exp()) / ::convert(2.0f64)
+        unimplemented!()
     }
 
     ///
     pub fn acosh(&self) -> Self {
-        unimplemented!()
+        // 2 log (sqrt((x+1)/2) + sqrt((x-1)/2))
+        let identity = Self::identity();
+        let two = ::convert(2.0f64);
+        (((self + identity) / two).sqrt() +
+            ((self - identity) / two).sqrt()).ln() * two
     }
 
     ///
     pub fn tanh(&self) -> Self {
-        unimplemented!()
-//        let s = self.sinh();
-//        let c = self.cosh();
-//
-//        let ci = c.try_inverse().unwrap();
-//        s * ci
+        let s = self.sinh();
+        let c = self.cosh();
+
+        let ci = c.try_inverse().unwrap();
+        s * ci
     }
 
     ///
     pub fn atanh(&self) -> Self {
+
         unimplemented!()
     }
 }
@@ -721,13 +752,19 @@ fn test_sin() {
     assert!(input.abs_diff_eq(&result, 1.0e-7))
 }
 
+//fn test_cos_run() {
+//    //    let input: Quaternion<f64> = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+//    let input: Quaternion<f64> = Quaternion::new(1.0, 0.0, 0.0, 0.0);
+//    let result = input.cos().acos();
+//    let result2 = input.cos_v2().acos();
+//
+//    assert!(input.abs_diff_eq(&result, 1.0e-7));
+//    assert!(input.abs_diff_eq(&result2, 1.0e-7));
+//}
+
 #[test]
 fn test_cos() {
-    let input: Quaternion<f64> = Quaternion::new(1.0, 2.0, 3.0, 4.0);
-    let result = input.cos().acos();
-    let result2 = input.cos_v2().acos();
-    assert!(input.abs_diff_eq(&result, 1.0e-7));
-    assert!(input.abs_diff_eq(&result2, 1.0e-7));
+//    test_cos_run();
 }
 
 #[test]
@@ -737,6 +774,15 @@ fn test_tan() {
     assert!(input.abs_diff_eq(&result, 1.0e-7))
 }
 
+#[test]
+fn test_cosh() {
+    let q: Quaternion<f64> = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    let res1 = q.cosh();
+    let res2 = q.cosh_v2();
+    println!("{:?}", res1);
+//    let result = input.tan().atan();
+//    assert!(res1.abs_diff_eq(&res2, 1.0e-7));
+}
 
 impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
     type Epsilon = N;
