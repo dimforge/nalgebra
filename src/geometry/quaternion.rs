@@ -568,7 +568,7 @@ impl<N: Real> Quaternion<N> {
     /// Calculates the quaternionic arccosinus.
     #[inline]
     pub fn acos(&self) -> Self {
-        let u = Quaternion::from_parts(N::zero(), self.imag().normalize());
+        let u = Quaternion::from_imag(self.imag().normalize());
         let identity = Quaternion::identity();
 
         let z = (self + (self.squared() - identity).sqrt()).ln();
@@ -587,7 +587,7 @@ impl<N: Real> Quaternion<N> {
     /// Calculates the quaternionic arcsinus.
     #[inline]
     pub fn asin(&self) -> Self {
-        let u = Quaternion::from_parts(N::zero(), self.imag().normalize());
+        let u = Quaternion::from_imag(self.imag().normalize());
         let identity = Quaternion::identity();
 
         let z = ((u * self) + (identity - self.squared()).sqrt()).ln();
@@ -608,7 +608,7 @@ impl<N: Real> Quaternion<N> {
     /// Calculates the quaternionic arctangent.
     #[inline]
     pub fn atan(&self) -> Self {
-        let u = Quaternion::from_parts(N::zero(), self.imag().normalize());
+        let u = Quaternion::from_imag(self.imag().normalize());
         let num = u + self;
         let den = u - self;
         let fr = num * den.try_inverse().unwrap();
@@ -1097,7 +1097,7 @@ impl<N: Real> UnitQuaternion<N> {
     #[inline]
     pub fn ln(&self) -> Quaternion<N> {
         if let Some(v) = self.axis() {
-            Quaternion::from_parts(N::zero(), v.into_inner() * self.angle())
+            Quaternion::from_imag(v.into_inner() * self.angle())
         } else {
             Quaternion::zero()
         }
