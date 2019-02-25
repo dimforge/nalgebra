@@ -630,26 +630,13 @@ impl<N: Real> Quaternion<N> {
 #[cfg(feature = "std")]
 impl<N: Float + Real> Quaternion<N> {
     ///
-    pub fn atan2(&self) -> Self {
-        unimplemented!()
-    }
-
-//    fn neg(&self) -> Self {
+//    pub fn atan2(&self) -> Self {
 //        unimplemented!()
 //    }
+
     ///
     pub fn sinh(&self) -> Self {
-
-//        (self.exp() - *self.neg().exp()) / ::convert(2.0f64)
-        unimplemented!()
-//        let mag = self.imag().magnitude();
-//        let c = Complex::new(self.w, mag).sinh();
-//        if mag == N::zero() {
-//            Self::from_parts(c.re, self.imag() * c.im)
-//        }
-//        else {
-//            Self::from_parts(c.re, self.imag() * (c.im / mag))
-//        }
+        (self.exp() - (-self).neg().exp()).half()
     }
 
     ///
@@ -661,21 +648,8 @@ impl<N: Float + Real> Quaternion<N> {
     }
 
     ///
-//    pub fn cosh_v2(&self) -> Self {
-//        let mag = self.imag().magnitude();
-//        let c = Complex::new(self.w, mag).cosh();
-//        if mag == N::zero() {
-//            Self::from_parts(c.re, self.imag() * c.im)
-//        }
-//        else {
-//            Self::from_parts(c.re, self.imag() * (c.im / mag))
-//        }
-//    }
-
-    ///
     pub fn cosh(&self) -> Self {
-//        (self.exp() + self.neg().exp()) / ::convert(2.0f64)
-        unimplemented!()
+        (self.exp() + (-self).exp()).half()
     }
 
     ///
@@ -698,8 +672,8 @@ impl<N: Float + Real> Quaternion<N> {
 
     ///
     pub fn atanh(&self) -> Self {
-
-        unimplemented!()
+        let identity = Self::identity();
+        ((identity + self).ln() - (identity - self).ln()).half()
     }
 }
 
