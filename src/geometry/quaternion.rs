@@ -613,6 +613,34 @@ impl<N: Real> Quaternion<N> {
         let ln = fr.ln();
         (u / ::convert(2.0f64)) * ln
     }
+
+    pub fn atan2(&self) -> Self {
+        unimplemented!()
+    }
+
+    pub fn sinh(&self) -> Self {
+        unimplemented!()
+    }
+
+    pub fn asinh(&self) -> Self {
+        unimplemented!()
+    }
+
+    pub fn cosh(&self) -> Self {
+        unimplemented!()
+    }
+
+    pub fn acosh(&self) -> Self {
+        unimplemented!()
+    }
+
+    pub fn tanh(&self) -> Self {
+        unimplemented!()
+    }
+
+    pub fn atanh(&self) -> Self {
+        unimplemented!()
+    }
 }
 
 #[test]
