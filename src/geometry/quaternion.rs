@@ -513,31 +513,37 @@ impl<N: Real> Quaternion<N> {
     /// Calculates the wedge product.
     #[inline]
     pub fn wedge(&self, other: &Self) -> Self {
-        (self * other - other * self) / ::convert(2.0f64)
+        (self * other - other * self).half()
     }
 
     /// Calculates the antiwedge product.
     #[inline]
     pub fn antiwedge(&self, other: &Self) -> Self {
-        (self * other + other * self) / ::convert(2.0f64)
+        (self * other + other * self).half()
     }
 
     /// Calculates the parallel bisector.
     #[inline]
     pub fn para(&self, other: &Self) -> Self {
-        (self - other * self * other) / ::convert(2.0f64)
+        (self - other * self * other).half()
     }
 
     /// Calculates the perpendicular bisector.
     #[inline]
     pub fn perp(&self, other: &Self) -> Self {
-        (self + other * self * other) / ::convert(2.0f64)
+        (self + other * self * other).half()
     }
 
     /// Calculates square.
     #[inline]
     pub fn squared(&self) -> Self {
         self * self
+    }
+
+    /// Divides quaternion into two.
+    #[inline]
+    pub fn half(&self) -> Self {
+        self / ::convert(2.0f64)
     }
 
     /// Calculates square root.
@@ -613,7 +619,7 @@ impl<N: Real> Quaternion<N> {
         let den = u - self;
         let fr = num * den.try_inverse().unwrap();
         let ln = fr.ln();
-        (u / ::convert(2.0f64)) * ln
+        (u.half()) * ln
     }
 }
 
@@ -623,46 +629,6 @@ impl<N: Real> Quaternion<N> {
 /// formulas https://franz.com/support/documentation/ansicl.94/dictentr/sinhcosh.htm
 #[cfg(feature = "std")]
 impl<N: Float + Real> Quaternion<N> {
-    fn isocomplex(&self) -> Complex<N> {
-        unimplemented!()
-    }
-
-//    /// Computes the cosine of `self`.
-//    #[inline]
-//    pub fn cos(&self) -> Complex<T> {
-//        // formula: cos(a + bi) = cos(a)cosh(b) - i*sin(a)sinh(b)
-//        Complex::new(
-//            self.re.cos() * self.im.cosh(),
-//            -self.re.sin() * self.im.sinh(),
-//        )
-//    }
-//    #[inline]
-//    pub fn cos_orig(&self) -> Self {
-//        let z = self.imag().magnitude();
-//        let w = -(self.w as Real).sin() * z.sinhc();
-//        Self::from_parts(self.w.cos() * <z as Real>.cosh(), self.imag() * w)
-//    }
-
-    //#[inline]
-    //pub fn cos(&self) -> Self {
-    //    let z = self.imag().magnitude(); // c.real
-    //    let w = -self.w.sin() * z.sinhc(); // c.imag
-    //    Self::from_parts(self.w.cos() * z.cosh(), self.imag() * w)
-    //}
-
-    ///
-//    pub fn cos_v2(&self) -> Self {
-//        let mag = self.imag().magnitude();
-//        let c = Complex::new(self.w, mag).cos();
-//        if mag == N::zero() {
-//            Self::from_parts(c.re, self.imag() * c.im)
-//        }
-//        else {
-//            Self::from_parts(c.re, self.imag() * (c.im / mag))
-//        }
-//    }
-    ///
-
     ///
     pub fn atan2(&self) -> Self {
         unimplemented!()
