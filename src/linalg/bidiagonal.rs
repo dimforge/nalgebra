@@ -1,7 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Real;
+use alga::general::Complex;
 use allocator::Allocator;
 use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
 use constraint::{DimEq, ShapeConstraint};
@@ -38,7 +38,7 @@ use linalg::householder;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct Bidiagonal<N: Real, R: DimMin<C>, C: Dim>
+pub struct Bidiagonal<N: Complex, R: DimMin<C>, C: Dim>
 where
     DimMinimum<R, C>: DimSub<U1>,
     DefaultAllocator: Allocator<N, R, C>
@@ -55,7 +55,7 @@ where
     upper_diagonal: bool,
 }
 
-impl<N: Real, R: DimMin<C>, C: Dim> Copy for Bidiagonal<N, R, C>
+impl<N: Complex, R: DimMin<C>, C: Dim> Copy for Bidiagonal<N, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>,
     DefaultAllocator: Allocator<N, R, C>
@@ -66,7 +66,7 @@ where
     VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: Copy,
 {}
 
-impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
+impl<N: Complex, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>,
     DefaultAllocator: Allocator<N, R, C>
@@ -273,7 +273,7 @@ where
     }
 }
 
-// impl<N: Real, D: DimMin<D, Output = D> + DimSub<Dynamic>> Bidiagonal<N, D, D>
+// impl<N: Complex, D: DimMin<D, Output = D> + DimSub<Dynamic>> Bidiagonal<N, D, D>
 //     where DefaultAllocator: Allocator<N, D, D> +
 //                             Allocator<N, D> {
 //     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
@@ -346,7 +346,7 @@ where
 //     // }
 // }
 
-impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+impl<N: Complex, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 where
     DimMinimum<R, C>: DimSub<U1>,
     DefaultAllocator: Allocator<N, R, C>

@@ -1,4 +1,4 @@
-use alga::general::Real;
+use alga::general::Complex;
 use base::allocator::Allocator;
 use base::constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
 use base::{DefaultAllocator, Matrix, Scalar, Unit, Vector};
@@ -13,7 +13,7 @@ pub struct Reflection<N: Scalar, D: Dim, S: Storage<N, D>> {
     bias: N,
 }
 
-impl<N: Real, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
+impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
     /// Creates a new reflection wrt the plane orthogonal to the given axis and bias.
     ///
     /// The bias is the position of the plane on the axis. In particular, a bias equal to zero
@@ -21,7 +21,7 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
     pub fn new(axis: Unit<Vector<N, D, S>>, bias: N) -> Self {
         Self {
             axis: axis.into_inner(),
-            bias: bias,
+            bias,
         }
     }
 
@@ -35,7 +35,7 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         D: DimName,
         DefaultAllocator: Allocator<N, D>,
     {
-        let bias = pt.coords.dot(axis.as_ref());
+        let bias = axis.cdot(&pt.coords);
         Self::new(axis, bias)
     }
 
@@ -56,7 +56,7 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
             // dot product, and then mutably. Somehow, this allows significantly
             // better optimizations of the dot product from the compiler.
             let m_two: N = ::convert(-2.0f64);
-            let factor = (rhs.column(i).dot(&self.axis) - self.bias) * m_two;
+            let factor = (self.axis.cdot(&rhs.column(i)) - self.bias) * m_two;
             rhs.column_mut(i).axpy(factor, &self.axis, N::one());
         }
     }
@@ -70,8 +70,9 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         S2: StorageMut<N, R2, C2>,
         S3: StorageMut<N, R2>,
         ShapeConstraint: DimEq<C2, D> + AreMultipliable<R2, C2, D, U1>,
+        DefaultAllocator: Allocator<N, D>
     {
-        rhs.mul_to(&self.axis, work);
+        rhs.mul_to(&self.axis.conjugate(), work);
 
         if !self.bias.is_zero() {
             work.add_scalar_mut(-self.bias);

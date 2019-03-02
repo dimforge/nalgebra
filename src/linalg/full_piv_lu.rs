@@ -1,7 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Real;
+use alga::general::Complex;
 use allocator::Allocator;
 use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN};
 use constraint::{SameNumberOfRows, ShapeConstraint};
@@ -32,7 +32,7 @@ use linalg::PermutationSequence;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct FullPivLU<N: Real, R: DimMin<C>, C: Dim>
+pub struct FullPivLU<N: Complex, R: DimMin<C>, C: Dim>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
 {
     lu: MatrixMN<N, R, C>,
@@ -40,14 +40,14 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimu
     q: PermutationSequence<DimMinimum<R, C>>,
 }
 
-impl<N: Real, R: DimMin<C>, C: Dim> Copy for FullPivLU<N, R, C>
+impl<N: Complex, R: DimMin<C>, C: Dim> Copy for FullPivLU<N, R, C>
 where
     DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
     PermutationSequence<DimMinimum<R, C>>: Copy,
 {}
 
-impl<N: Real, R: DimMin<C>, C: Dim> FullPivLU<N, R, C>
+impl<N: Complex, R: DimMin<C>, C: Dim> FullPivLU<N, R, C>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
 {
     /// Computes the LU decomposition with full pivoting of `matrix`.
@@ -69,7 +69,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimu
         }
 
         for i in 0..min_nrows_ncols.value() {
-            let piv = matrix.slice_range(i.., i..).iamax_full();
+            let piv = matrix.slice_range(i.., i..).icamax_full();
             let row_piv = piv.0 + i;
             let col_piv = piv.1 + i;
             let diag = matrix[(row_piv, col_piv)];
@@ -156,7 +156,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimu
     }
 }
 
-impl<N: Real, D: DimMin<D, Output = D>> FullPivLU<N, D, D>
+impl<N: Complex, D: DimMin<D, Output = D>> FullPivLU<N, D, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
@@ -261,7 +261,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
     }
 }
 
-impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+impl<N: Complex, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
 {
     /// Computes the LU decomposition with full pivoting of `matrix`.

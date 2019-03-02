@@ -5,7 +5,7 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-use alga::general::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
+use alga::general::{Complex, ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
 use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use base::constraint::{
@@ -757,6 +757,25 @@ where
 {
     fn product<I: Iterator<Item = &'a MatrixN<N, D>>>(iter: I) -> MatrixN<N, D> {
         iter.fold(Matrix::one(), |acc, x| acc * x)
+    }
+}
+
+// XXX: avoid code duplication.
+impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+    /// Returns the absolute value of the component with the largest absolute value.
+    #[inline]
+    pub fn camax(&self) -> N::Real {
+        let mut max = N::Real::zero();
+
+        for e in self.iter() {
+            let ae = e.asum();
+
+            if ae > max {
+                max = ae;
+            }
+        }
+
+        max
     }
 }
 

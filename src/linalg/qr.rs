@@ -1,7 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Real;
+use alga::general::Complex;
 use allocator::{Allocator, Reallocator};
 use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
 use constraint::{SameNumberOfRows, ShapeConstraint};
@@ -32,21 +32,21 @@ use linalg::householder;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct QR<N: Real, R: DimMin<C>, C: Dim>
+pub struct QR<N: Complex, R: DimMin<C>, C: Dim>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>
 {
     qr: MatrixMN<N, R, C>,
     diag: VectorN<N, DimMinimum<R, C>>,
 }
 
-impl<N: Real, R: DimMin<C>, C: Dim> Copy for QR<N, R, C>
+impl<N: Complex, R: DimMin<C>, C: Dim> Copy for QR<N, R, C>
 where
     DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
     VectorN<N, DimMinimum<R, C>>: Copy,
 {}
 
-impl<N: Real, R: DimMin<C>, C: Dim> QR<N, R, C>
+impl<N: Complex, R: DimMin<C>, C: Dim> QR<N, R, C>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>
 {
     /// Computes the QR decomposition using householder reflections.
@@ -162,7 +162,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
     }
 }
 
-impl<N: Real, D: DimMin<D, Output = D>> QR<N, D, D>
+impl<N: Complex, D: DimMin<D, Output = D>> QR<N, D, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
@@ -294,7 +294,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     // }
 }
 
-impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+impl<N: Complex, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>
 {
     /// Computes the QR decomposition of this matrix.

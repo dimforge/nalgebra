@@ -1,4 +1,4 @@
-use alga::general::Real;
+use alga::general::Complex;
 
 use base::allocator::Allocator;
 use base::constraint::{SameNumberOfRows, ShapeConstraint};
@@ -6,7 +6,7 @@ use base::dimension::{Dim, U1};
 use base::storage::{Storage, StorageMut};
 use base::{DefaultAllocator, Matrix, MatrixMN, SquareMatrix, Vector};
 
-impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the solution of the linear system `self . x = b` where `x` is the unknown and only
     /// the lower-triangular part of `self` (including the diagonal) is considered not-zero.
     #[inline]

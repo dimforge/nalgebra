@@ -1,7 +1,8 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Real;
+use num::Zero;
+use alga::general::Complex;
 
 use allocator::Allocator;
 use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
@@ -26,19 +27,19 @@ use storage::{Storage, StorageMut};
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct Cholesky<N: Real, D: Dim>
+pub struct Cholesky<N: Complex, D: Dim>
 where DefaultAllocator: Allocator<N, D, D>
 {
     chol: MatrixN<N, D>,
 }
 
-impl<N: Real, D: Dim> Copy for Cholesky<N, D>
+impl<N: Complex, D: Dim> Copy for Cholesky<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
 {}
 
-impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
+impl<N: Complex, D: DimSub<Dynamic>> Cholesky<N, D>
 where DefaultAllocator: Allocator<N, D, D>
 {
     /// Attempts to compute the Cholesky decomposition of `matrix`.
@@ -62,7 +63,7 @@ where DefaultAllocator: Allocator<N, D, D>
             }
 
             let diag = unsafe { *matrix.get_unchecked((j, j)) };
-            if diag > N::zero() {
+            if diag.real() > N::Real::zero() {
                 let denom = diag.sqrt();
                 unsafe {
                     *matrix.get_unchecked_mut((j, j)) = denom;
@@ -144,7 +145,7 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
-impl<N: Real, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: Complex, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D>
 {
     /// Attempts to compute the Cholesky decomposition of this matrix.

@@ -8,3 +8,7 @@ mod matrix_slice;
 #[cfg(feature = "mint")]
 mod mint;
 mod serde;
+
+
+#[cfg(feature = "arbitrary")]
+pub mod helper;

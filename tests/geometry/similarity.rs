@@ -19,7 +19,7 @@ quickcheck!(
     fn inverse_is_parts_inversion(
         t: Translation3<f64>,
         r: UnitQuaternion<f64>,
-        scaling: f64,
+        scaling: f64
     ) -> bool
     {
         if relative_eq!(scaling, 0.0) {
@@ -33,7 +33,7 @@ quickcheck!(
     fn multiply_equals_alga_transform(
         s: Similarity3<f64>,
         v: Vector3<f64>,
-        p: Point3<f64>,
+        p: Point3<f64>
     ) -> bool
     {
         s * v == s.transform_vector(&v)
@@ -56,7 +56,7 @@ quickcheck!(
         t: Translation3<f64>,
         v: Vector3<f64>,
         p: Point3<f64>,
-        scaling: f64,
+        scaling: f64
     ) -> bool
     {
         if relative_eq!(scaling, 0.0) {
@@ -152,7 +152,7 @@ quickcheck!(
         uq: UnitQuaternion<f64>,
         t: Translation3<f64>,
         v: Vector3<f64>,
-        p: Point3<f64>,
+        p: Point3<f64>
     ) -> bool
     {
         let sMs = s * s;

@@ -1,8 +1,9 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Real;
-use num_complex::Complex;
+use approx::AbsDiffEq;
+use alga::general::{Complex, Real};
+use num_complex::Complex as NumComplex;
 use std::cmp;
 
 use allocator::Allocator;
@@ -14,6 +15,7 @@ use constraint::{DimEq, ShapeConstraint};
 use geometry::{Reflection, UnitComplex};
 use linalg::householder;
 use linalg::Hessenberg;
+use linalg::givens::GivensRotation;
 
 /// Real Schur decomposition of a square matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -32,20 +34,20 @@ use linalg::Hessenberg;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct RealSchur<N: Real, D: Dim>
+pub struct RealSchur<N: Complex, D: Dim>
 where DefaultAllocator: Allocator<N, D, D>
 {
     q: MatrixN<N, D>,
     t: MatrixN<N, D>,
 }
 
-impl<N: Real, D: Dim> Copy for RealSchur<N, D>
+impl<N: Complex, D: Dim> Copy for RealSchur<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
 {}
 
-impl<N: Real, D: Dim> RealSchur<N, D>
+impl<N: Complex, D: Dim> RealSchur<N, D>
 where
     D: DimSub<U1>,                                   // For Hessenberg.
     ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>>, // For Hessenberg.
@@ -56,7 +58,7 @@ where
 {
     /// Computes the Schur decomposition of a square matrix.
     pub fn new(m: MatrixN<N, D>) -> Self {
-        Self::try_new(m, N::default_epsilon(), 0).unwrap()
+        Self::try_new(m, N::Real::default_epsilon(), 0).unwrap()
     }
 
     /// Attempts to compute the Schur decomposition of a square matrix.
@@ -70,7 +72,7 @@ where
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_new(m: MatrixN<N, D>, eps: N, max_niter: usize) -> Option<Self> {
+    pub fn try_new(m: MatrixN<N, D>, eps: N::Real, max_niter: usize) -> Option<Self> {
         let mut work = unsafe { VectorN::new_uninitialized_generic(m.data.shape().0, U1) };
 
         Self::do_decompose(m, &mut work, eps, max_niter, true).map(|(q, t)| RealSchur {
@@ -82,7 +84,7 @@ where
     fn do_decompose(
         mut m: MatrixN<N, D>,
         work: &mut VectorN<N, D>,
-        eps: N,
+        eps: N::Real,
         max_niter: usize,
         compute_q: bool,
     ) -> Option<(Option<MatrixN<N, D>>, MatrixN<N, D>)>
@@ -111,8 +113,8 @@ where
             return decompose_2x2(m, compute_q);
         }
 
-        let amax_m = m.amax();
-        m /= amax_m;
+        let amax_m = m.camax();
+        m.unscale_mut(amax_m);
 
         let hess = Hessenberg::new_with_workspace(m, work);
         let mut q;
@@ -259,7 +261,7 @@ where
             }
         }
 
-        t *= amax_m;
+        t.scale_mut(amax_m);
 
         Some((q, t))
     }
@@ -289,8 +291,9 @@ where
     }
 
     /// Computes the complex eigenvalues of the decomposed matrix.
-    fn do_complex_eigenvalues(t: &MatrixN<N, D>, out: &mut VectorN<Complex<N>, D>)
-    where DefaultAllocator: Allocator<Complex<N>, D> {
+    fn do_complex_eigenvalues(t: &MatrixN<N, D>, out: &mut VectorN<NumComplex<N>, D>)
+    where N: Real,
+          DefaultAllocator: Allocator<NumComplex<N>, D> {
         let dim = t.nrows();
         let mut m = 0;
 
@@ -298,7 +301,7 @@ where
             let n = m + 1;
 
             if t[(n, m)].is_zero() {
-                out[m] = Complex::new(t[(m, m)], N::zero());
+                out[m] = NumComplex::new(t[(m, m)], N::zero());
                 m += 1;
             } else {
                 // Solve the 2x2 eigenvalue subproblem.
@@ -313,21 +316,21 @@ where
 
                 // All 2x2 blocks have negative discriminant because we already decoupled those
                 // with positive eigenvalues..
-                let sqrt_discr = Complex::new(N::zero(), (-discr).sqrt());
+                let sqrt_discr = NumComplex::new(N::zero(), (-discr).sqrt());
 
-                out[m] = Complex::new(tra * ::convert(0.5), N::zero()) + sqrt_discr;
-                out[m + 1] = Complex::new(tra * ::convert(0.5), N::zero()) - sqrt_discr;
+                out[m] = NumComplex::new(tra * ::convert(0.5), N::zero()) + sqrt_discr;
+                out[m + 1] = NumComplex::new(tra * ::convert(0.5), N::zero()) - sqrt_discr;
 
                 m += 2;
             }
         }
 
         if m == dim - 1 {
-            out[m] = Complex::new(t[(m, m)], N::zero());
+            out[m] = NumComplex::new(t[(m, m)], N::zero());
         }
     }
 
-    fn delimit_subproblem(t: &mut MatrixN<N, D>, eps: N, end: usize) -> (usize, usize)
+    fn delimit_subproblem(t: &mut MatrixN<N, D>, eps: N::Real, end: usize) -> (usize, usize)
     where
         D: DimSub<U1>,
         DefaultAllocator: Allocator<N, DimDiff<D, U1>>,
@@ -337,7 +340,7 @@ where
         while n > 0 {
             let m = n - 1;
 
-            if t[(n, m)].abs() <= eps * (t[(n, n)].abs() + t[(m, m)].abs()) {
+            if t[(n, m)].modulus() <= eps * (t[(n, n)].modulus() + t[(m, m)].modulus()) {
                 t[(n, m)] = N::zero();
             } else {
                 break;
@@ -356,7 +359,7 @@ where
 
             let off_diag = t[(new_start, m)];
             if off_diag.is_zero()
-                || off_diag.abs() <= eps * (t[(new_start, new_start)].abs() + t[(m, m)].abs())
+                || off_diag.modulus() <= eps * (t[(new_start, new_start)].modulus() + t[(m, m)].modulus())
             {
                 t[(new_start, m)] = N::zero();
                 break;
@@ -387,15 +390,16 @@ where
     }
 
     /// Computes the complex eigenvalues of the decomposed matrix.
-    pub fn complex_eigenvalues(&self) -> VectorN<Complex<N>, D>
-    where DefaultAllocator: Allocator<Complex<N>, D> {
+    pub fn complex_eigenvalues(&self) -> VectorN<NumComplex<N>, D>
+    where N: Real,
+          DefaultAllocator: Allocator<NumComplex<N>, D> {
         let mut out = unsafe { VectorN::new_uninitialized_generic(self.t.data.shape().0, U1) };
         Self::do_complex_eigenvalues(&self.t, &mut out);
         out
     }
 }
 
-fn decompose_2x2<N: Real, D: Dim>(
+fn decompose_2x2<N: Complex, D: Dim>(
     mut m: MatrixN<N, D>,
     compute_q: bool,
 ) -> Option<(Option<MatrixN<N, D>>, MatrixN<N, D>)>
@@ -412,13 +416,12 @@ where
             rot.rotate_rows(&mut m);
 
             if compute_q {
-                let c = rot.into_inner();
                 // XXX: we have to build the matrix manually because
                 // rot.to_rotation_matrix().unwrap() causes an ICE.
                 q = Some(MatrixN::from_column_slice_generic(
                     dim,
                     dim,
-                    &[c.re, c.im, -c.im, c.re],
+                    &[rot.c(), rot.s(), -rot.s().conjugate(), rot.c().conjugate()],
                 ));
             }
         }
@@ -432,7 +435,7 @@ where
     Some((q, m))
 }
 
-fn compute_2x2_eigvals<N: Real, S: Storage<N, U2, U2>>(
+fn compute_2x2_eigvals<N: Complex, S: Storage<N, U2, U2>>(
     m: &SquareMatrix<N, U2, S>,
 ) -> Option<(N, N)> {
     // Solve the 2x2 eigenvalue subproblem.
@@ -447,13 +450,10 @@ fn compute_2x2_eigvals<N: Real, S: Storage<N, U2, U2>>(
     let val = (h00 - h11) * ::convert(0.5);
     let discr = h10 * h01 + val * val;
 
-    if discr >= N::zero() {
-        let sqrt_discr = discr.sqrt();
+    discr.try_sqrt().map(|sqrt_discr| {
         let half_tra = (h00 + h11) * ::convert(0.5);
-        Some((half_tra + sqrt_discr, half_tra - sqrt_discr))
-    } else {
-        None
-    }
+        (half_tra + sqrt_discr, half_tra - sqrt_discr)
+    })
 }
 
 // Computes the 2x2 transformation that upper-triangulates a 2x2 matrix with real eigenvalues.
@@ -461,9 +461,9 @@ fn compute_2x2_eigvals<N: Real, S: Storage<N, U2, U2>>(
 ///
 /// Returns `None` if the matrix has complex eigenvalues, or is upper-triangular. In both case,
 /// the basis is the identity.
-fn compute_2x2_basis<N: Real, S: Storage<N, U2, U2>>(
+fn compute_2x2_basis<N: Complex, S: Storage<N, U2, U2>>(
     m: &SquareMatrix<N, U2, S>,
-) -> Option<UnitComplex<N>> {
+) -> Option<GivensRotation<N>> {
     let h10 = m[(1, 0)];
 
     if h10.is_zero() {
@@ -477,19 +477,17 @@ fn compute_2x2_basis<N: Real, S: Storage<N, U2, U2>>(
         // NOTE: Choose the one that yields a larger x component.
         // This is necessary for numerical stability of the normalization of the complex
         // number.
-        let basis = if x1.abs() > x2.abs() {
-            Complex::new(x1, -h10)
+        if x1.modulus() > x2.modulus() {
+            Some(GivensRotation::new(x1, -h10))
         } else {
-            Complex::new(x2, -h10)
-        };
-
-        Some(UnitComplex::from_complex(basis))
+            Some(GivensRotation::new(x2, -h10))
+        }
     } else {
         None
     }
 }
 
-impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where
     D: DimSub<U1>,                                   // For Hessenberg.
     ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>>, // For Hessenberg.
@@ -514,7 +512,7 @@ where
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_real_schur(self, eps: N, max_niter: usize) -> Option<RealSchur<N, D>> {
+    pub fn try_real_schur(self, eps: N::Real, max_niter: usize) -> Option<RealSchur<N, D>> {
         RealSchur::try_new(self.into_owned(), eps, max_niter)
     }
 
@@ -546,7 +544,7 @@ where
         let schur = RealSchur::do_decompose(
             self.clone_owned(),
             &mut work,
-            N::default_epsilon(),
+            N::Real::default_epsilon(),
             0,
             false,
         )
@@ -559,9 +557,10 @@ where
     }
 
     /// Computes the eigenvalues of this matrix.
-    pub fn complex_eigenvalues(&self) -> VectorN<Complex<N>, D>
+    pub fn complex_eigenvalues(&self) -> VectorN<NumComplex<N>, D>
     // FIXME: add balancing?
-    where DefaultAllocator: Allocator<Complex<N>, D> {
+    where N: Real,
+          DefaultAllocator: Allocator<NumComplex<N>, D> {
         let dim = self.data.shape().0;
         let mut work = unsafe { VectorN::new_uninitialized_generic(dim, U1) };
 

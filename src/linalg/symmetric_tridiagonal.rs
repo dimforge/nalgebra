@@ -1,7 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Real;
+use alga::general::Complex;
 use allocator::Allocator;
 use base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
 use dimension::{DimDiff, DimSub, U1};
@@ -30,21 +30,21 @@ use linalg::householder;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct SymmetricTridiagonal<N: Real, D: DimSub<U1>>
+pub struct SymmetricTridiagonal<N: Complex, D: DimSub<U1>>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     tri: MatrixN<N, D>,
     off_diagonal: VectorN<N, DimDiff<D, U1>>,
 }
 
-impl<N: Real, D: DimSub<U1>> Copy for SymmetricTridiagonal<N, D>
+impl<N: Complex, D: DimSub<U1>> Copy for SymmetricTridiagonal<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
     MatrixN<N, D>: Copy,
     VectorN<N, DimDiff<D, U1>>: Copy,
 {}
 
-impl<N: Real, D: DimSub<U1>> SymmetricTridiagonal<N, D>
+impl<N: Complex, D: DimSub<U1>> SymmetricTridiagonal<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the tridiagonalization of the symmetric matrix `m`.
@@ -75,17 +75,18 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
             if not_zero {
                 let mut p = p.rows_range_mut(i..);
 
-                p.gemv_symm(::convert(2.0), &m, &axis, N::zero());
+                p.gemv_symm(::convert(2.0), &m, &axis.conjugate(), N::zero());
                 let dot = axis.dot(&p);
-                p.axpy(-dot, &axis, N::one());
-                m.ger_symm(-N::one(), &p, &axis, N::one());
+//                p.axpy(-dot, &axis.conjugate(), N::one());
+                m.ger_symm(-N::one(), &p, &axis.conjugate(), N::one());
                 m.ger_symm(-N::one(), &axis, &p, N::one());
+                m.ger_symm(dot * ::convert(2.0), &axis, &axis.conjugate(), N::one());
             }
         }
 
         Self {
             tri: m,
-            off_diagonal: off_diagonal,
+            off_diagonal,
         }
     }
 
@@ -138,14 +139,14 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 
         for i in 0..self.off_diagonal.len() {
             self.tri[(i + 1, i)] = self.off_diagonal[i];
-            self.tri[(i, i + 1)] = self.off_diagonal[i];
+            self.tri[(i, i + 1)] = self.off_diagonal[i].conjugate();
         }
 
-        &q * self.tri * q.transpose()
+        &q * self.tri * q.conjugate_transpose()
     }
 }
 
-impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: Complex, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the tridiagonalization of this symmetric matrix.

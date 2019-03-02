@@ -1,7 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Real;
+use alga::general::Complex;
 use allocator::Allocator;
 use base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
 use constraint::{DimEq, ShapeConstraint};
@@ -31,21 +31,21 @@ use linalg::householder;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct Hessenberg<N: Real, D: DimSub<U1>>
+pub struct Hessenberg<N: Complex, D: DimSub<U1>>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     hess: MatrixN<N, D>,
     subdiag: VectorN<N, DimDiff<D, U1>>,
 }
 
-impl<N: Real, D: DimSub<U1>> Copy for Hessenberg<N, D>
+impl<N: Complex, D: DimSub<U1>> Copy for Hessenberg<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
     MatrixN<N, D>: Copy,
     VectorN<N, DimDiff<D, U1>>: Copy,
 {}
 
-impl<N: Real, D: DimSub<U1>> Hessenberg<N, D>
+impl<N: Complex, D: DimSub<U1>> Hessenberg<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the Hessenberg decomposition using householder reflections.
@@ -137,7 +137,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimD
     }
 }
 
-impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: Complex, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the Hessenberg decomposition of this matrix using householder reflections.

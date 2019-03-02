@@ -1,4 +1,4 @@
-use alga::general::Real;
+use alga::general::Complex;
 
 use base::allocator::Allocator;
 use base::dimension::DimMin;
@@ -7,7 +7,7 @@ use base::{DefaultAllocator, SquareMatrix};
 
 use linalg::LU;
 
-impl<N: Real, D: DimMin<D, Output = D>, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: Complex, D: DimMin<D, Output = D>, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the matrix determinant.
     ///
     /// If the matrix has a dimension larger than 3, an LU decomposition is used.

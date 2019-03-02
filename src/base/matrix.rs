@@ -944,6 +944,47 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             res
         }
     }
+
+    /// The conjugate of `self`.
+    #[inline]
+    pub fn conjugate(&self) -> MatrixMN<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
+        self.map(|e| e.conjugate())
+    }
+
+    /// Divides each component of `self` by the given real.
+    #[inline]
+    pub fn unscale(&self, real: N::Real) -> MatrixMN<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
+        self.map(|e| e.unscale(real))
+    }
+
+    /// Multiplies each component of `self` by the given real.
+    #[inline]
+    pub fn scale(&self, real: N::Real) -> MatrixMN<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
+        self.map(|e| e.scale(real))
+    }
+}
+
+impl<N: Complex, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+    /// The conjugate of `self` computed in-place.
+    #[inline]
+    pub fn conjugate_mut(&mut self) {
+        self.apply(|e| e.conjugate())
+    }
+
+    /// Divides each component of `self` by the given real.
+    #[inline]
+    pub fn unscale_mut(&mut self, real: N::Real) {
+        self.apply(|e| e.unscale(real))
+    }
+
+    /// Multiplies each component of `self` by the given real.
+    #[inline]
+    pub fn scale_mut(&mut self, real: N::Real) {
+        self.apply(|e| e.scale(real))
+    }
 }
 
 impl<N: Complex, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
@@ -975,7 +1016,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
     #[inline]
     pub fn diagonal(&self) -> VectorN<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+        where DefaultAllocator: Allocator<N, D> {
         assert!(
             self.is_square(),
             "Unable to get the diagonal of a non-square matrix."
@@ -996,7 +1037,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes a trace of a square matrix, i.e., the sum of its diagonal elements.
     #[inline]
     pub fn trace(&self) -> N
-    where N: Ring {
+        where N: Ring {
         assert!(
             self.is_square(),
             "Cannot compute the trace of non-square matrix."
@@ -1010,6 +1051,34 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         }
 
         res
+    }
+}
+
+impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+    /// The symmetric part of `self`, i.e., `0.5 * (self + self.transpose())`.
+    #[inline]
+    pub fn symmetric_part(&self) -> MatrixMN<N, D, D>
+        where DefaultAllocator: Allocator<N, D, D> {
+        assert!(self.is_square(), "Cannot compute the symmetric part of a non-square matrix.");
+        let mut tr = self.transpose();
+        tr += self;
+        tr *= ::convert::<_, N>(0.5);
+        tr
+    }
+
+    /// The hermitian part of `self`, i.e., `0.5 * (self + self.conjugate_transpose())`.
+    #[inline]
+    pub fn hermitian_part(&self) -> MatrixMN<N, D, D>
+        where DefaultAllocator: Allocator<N, D, D> {
+        assert!(self.is_square(), "Cannot compute the hermitian part of a non-square matrix.");
+        let nrows = self.data.shape().0;
+
+        unsafe {
+            let mut tr = self.conjugate_transpose();
+            tr += self;
+            tr *= ::convert::<_, N>(0.5);
+            tr
+        }
     }
 }
 

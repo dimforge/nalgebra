@@ -1,6 +1,7 @@
 //! Construction of householder elementary reflections.
 
-use alga::general::Real;
+use num::Zero;
+use alga::general::Complex;
 use allocator::Allocator;
 use base::{DefaultAllocator, MatrixMN, MatrixN, Unit, Vector, VectorN};
 use dimension::Dim;
@@ -15,35 +16,34 @@ use geometry::Reflection;
 /// `column` after reflection and `false` if no reflection was necessary.
 #[doc(hidden)]
 #[inline(always)]
-pub fn reflection_axis_mut<N: Real, D: Dim, S: StorageMut<N, D>>(
+pub fn reflection_axis_mut<N: Complex, D: Dim, S: StorageMut<N, D>>(
     column: &mut Vector<N, D, S>,
 ) -> (N, bool) {
     let reflection_sq_norm = column.norm_squared();
-    let mut reflection_norm = reflection_sq_norm.sqrt();
+    let reflection_norm = reflection_sq_norm.sqrt();
 
     let factor;
-    unsafe {
-        if *column.vget_unchecked(0) > N::zero() {
-            reflection_norm = -reflection_norm;
-        }
+    let scaled_norm;
 
-        factor =
-            (reflection_sq_norm - *column.vget_unchecked(0) * reflection_norm) * ::convert(2.0);
-        *column.vget_unchecked_mut(0) -= reflection_norm;
-    }
+    unsafe {
+        let (modulus, exp) = column.vget_unchecked(0).to_exp();
+        scaled_norm = exp.scale(reflection_norm);
+        factor = (reflection_sq_norm + modulus * reflection_norm) * ::convert(2.0);
+        *column.vget_unchecked_mut(0) += scaled_norm;
+    };
 
     if !factor.is_zero() {
-        *column /= factor.sqrt();
-        (reflection_norm, true)
+        column.unscale_mut(factor.sqrt());
+        (-scaled_norm, true)
     } else {
-        (reflection_norm, false)
+        (-scaled_norm, false)
     }
 }
 
 /// Uses an householder reflection to zero out the `icol`-th column, starting with the `shift + 1`-th
 /// subdiagonal element.
 #[doc(hidden)]
-pub fn clear_column_unchecked<N: Real, R: Dim, C: Dim>(
+pub fn clear_column_unchecked<N: Complex, R: Dim, C: Dim>(
     matrix: &mut MatrixMN<N, R, C>,
     diag_elt: &mut N,
     icol: usize,
@@ -70,7 +70,7 @@ pub fn clear_column_unchecked<N: Real, R: Dim, C: Dim>(
 /// Uses an hoseholder reflection to zero out the `irow`-th row, ending before the `shift + 1`-th
 /// superdiagonal element.
 #[doc(hidden)]
-pub fn clear_row_unchecked<N: Real, R: Dim, C: Dim>(
+pub fn clear_row_unchecked<N: Complex, R: Dim, C: Dim>(
     matrix: &mut MatrixMN<N, R, C>,
     diag_elt: &mut N,
     axis_packed: &mut VectorN<N, C>,
@@ -94,7 +94,7 @@ pub fn clear_row_unchecked<N: Real, R: Dim, C: Dim>(
             &mut work.rows_range_mut(irow + 1..),
         );
         top.columns_range_mut(irow + shift..)
-            .tr_copy_from(refl.axis());
+            .tr_copy_from(&refl.axis());
     } else {
         top.columns_range_mut(irow + shift..).tr_copy_from(&axis);
     }
@@ -104,7 +104,7 @@ pub fn clear_row_unchecked<N: Real, R: Dim, C: Dim>(
 /// the lower-diagonal element of the given matrix.
 /// matrices.
 #[doc(hidden)]
-pub fn assemble_q<N: Real, D: Dim>(m: &MatrixN<N, D>) -> MatrixN<N, D>
+pub fn assemble_q<N: Complex, D: Dim>(m: &MatrixN<N, D>) -> MatrixN<N, D>
 where DefaultAllocator: Allocator<N, D, D> {
     assert!(m.is_square());
     let dim = m.data.shape().0;

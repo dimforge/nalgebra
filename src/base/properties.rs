@@ -2,7 +2,7 @@
 use approx::RelativeEq;
 use num::{One, Zero};
 
-use alga::general::{ClosedAdd, ClosedMul, Real};
+use alga::general::{ClosedAdd, ClosedMul, Real, Complex};
 
 use base::allocator::Allocator;
 use base::dimension::{Dim, DimMin};
@@ -82,20 +82,23 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         true
     }
+}
 
+impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Checks that `Mᵀ × M = Id`.
     ///
     /// In this definition `Id` is approximately equal to the identity matrix with a relative error
     /// equal to `eps`.
     #[inline]
     pub fn is_orthogonal(&self, eps: N::Epsilon) -> bool
-    where
-        N: Zero + One + ClosedAdd + ClosedMul + RelativeEq,
-        S: Storage<N, R, C>,
-        N::Epsilon: Copy,
-        DefaultAllocator: Allocator<N, C, C>,
+        where
+            N: Zero + One + ClosedAdd + ClosedMul + RelativeEq,
+            S: Storage<N, R, C>,
+            N::Epsilon: Copy,
+            DefaultAllocator: Allocator<N, R, C> + Allocator<N, C, C>,
     {
-        (self.tr_mul(self)).is_identity(eps)
+        // FIXME: add a conjugate-transpose-mul
+        (self.conjugate().tr_mul(self)).is_identity(eps)
     }
 }
 

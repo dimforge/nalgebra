@@ -13,6 +13,39 @@ use base::dimension::{Dim, Dynamic, U1, U2, U3, U4};
 use base::storage::{Storage, StorageMut};
 use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector};
 
+
+// FIXME: find a way to avoid code duplication just for complex number support.
+impl<N: Complex, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
+    /// Computes the index of the vector component with the largest complex or real absolute value.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use num_complex::Complex;
+    /// # use nalgebra::Vector3;
+    /// let vec = Vector3::new(Complex::new(11.0, 3.0), Complex::new(-15.0, 0.0), Complex::new(13.0, 5.0));
+    /// assert_eq!(vec.icamax(), 2);
+    /// ```
+    #[inline]
+    pub fn icamax(&self) -> usize {
+        assert!(!self.is_empty(), "The input vector must not be empty.");
+
+        let mut the_max = unsafe { self.vget_unchecked(0).asum() };
+        let mut the_i = 0;
+
+        for i in 1..self.nrows() {
+            let val = unsafe { self.vget_unchecked(i).asum() };
+
+            if val > the_max {
+                the_max = val;
+                the_i = i;
+            }
+        }
+
+        the_i
+    }
+}
+
 impl<N: Scalar + PartialOrd, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     /// Computes the index and value of the vector component with the largest value.
     ///
@@ -156,6 +189,41 @@ impl<N: Scalar + PartialOrd, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
         the_i
     }
 }
+
+// FIXME: find a way to avoid code duplication just for complex number support.
+impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+    /// Computes the index of the matrix component with the largest absolute value.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mat = Matrix2x3::new(Complex::new(11.0, 1.0), Complex::new(-12.0, 2.0), Complex::new(13.0, 3.0),
+    ///                          Complex::new(21.0, 43.0), Complex::new(22.0, 5.0), Complex::new(-23.0, 0.0);
+    /// assert_eq!(mat.iamax_full(), (1, 0));
+    /// ```
+    #[inline]
+    pub fn icamax_full(&self) -> (usize, usize) {
+        assert!(!self.is_empty(), "The input matrix must not be empty.");
+
+        let mut the_max = unsafe { self.get_unchecked((0, 0)).asum() };
+        let mut the_ij = (0, 0);
+
+        for j in 0..self.ncols() {
+            for i in 0..self.nrows() {
+                let val = unsafe { self.get_unchecked((i, j)).asum() };
+
+                if val > the_max {
+                    the_max = val;
+                    the_ij = (i, j);
+                }
+            }
+        }
+
+        the_ij
+    }
+}
+
 
 impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Computes the index of the matrix component with the largest absolute value.
@@ -701,6 +769,56 @@ where
                 let val = unsafe { self.vget_unchecked_mut(j) };
                 *val = alpha * a.column(j).dot(x) + beta * *val;
             }
+        }
+    }
+}
+
+// FIXME: duplicate code
+impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
+    where N: Complex + Zero + ClosedAdd + ClosedMul
+{
+    /// Computes `self = alpha * x * y.transpose() + beta * self`.
+    ///
+    /// If `beta` is zero, `self` is never read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Vector2, Vector3};
+    /// let mut mat = Matrix2x3::repeat(4.0);
+    /// let vec1 = Vector2::new(1.0, 2.0);
+    /// let vec2 = Vector3::new(0.1, 0.2, 0.3);
+    /// let expected = vec1 * vec2.transpose() * 10.0 + mat * 5.0;
+    ///
+    /// mat.ger(10.0, &vec1, &vec2, 5.0);
+    /// assert_eq!(mat, expected);
+    /// ```
+    #[inline]
+    pub fn gerc<D2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: N,
+        x: &Vector<N, D2, SB>,
+        y: &Vector<N, D3, SC>,
+        beta: N,
+    ) where
+        N: One,
+        SB: Storage<N, D2>,
+        SC: Storage<N, D3>,
+        ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
+    {
+        let (nrows1, ncols1) = self.shape();
+        let dim2 = x.nrows();
+        let dim3 = y.nrows();
+
+        assert!(
+            nrows1 == dim2 && ncols1 == dim3,
+            "ger: dimensions mismatch."
+        );
+
+        for j in 0..ncols1 {
+            // FIXME: avoid bound checks.
+            let val = unsafe { y.vget_unchecked(j).conjugate() };
+            self.column_mut(j).axpy(alpha * val, x, beta);
         }
     }
 }
