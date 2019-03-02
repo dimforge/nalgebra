@@ -11,3 +11,4 @@ mod real_schur;
 mod solve;
 mod svd;
 mod tridiagonal;
+mod convolution;
