@@ -13,9 +13,7 @@ use alga::general::Real;
 
 use base::dimension::U3;
 use base::storage::Storage;
-#[cfg(feature = "arbitrary")]
-use base::Vector3;
-use base::{Unit, Vector, Vector4, Matrix3};
+use base::{Unit, Vector, Vector3, Vector4, Matrix3};
 
 use geometry::{Quaternion, Rotation3, UnitQuaternion};
 
@@ -43,8 +41,13 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn new(w: N, i: N, j: N, k: N) -> Self {
-        let v = Vector4::<N>::new(i, j, k, w);
-        Self::from(v)
+        Self::from(Vector4::new(i, j, k, w))
+    }
+
+    /// Constructs a pure quaternion.
+    #[inline]
+    pub fn from_imag(vector: Vector3<N>) -> Self {
+        Self::from_parts(N::zero(), vector)
     }
 
     /// Creates a new quaternion from its scalar and vector parts. Note that the arguments order does
@@ -92,7 +95,7 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn identity() -> Self {
-        Self::new(N::one(), N::zero(), N::zero(), N::zero())
+        Self::from_parts(N::one(), Vector3::zero())
     }
 }
 
@@ -106,7 +109,7 @@ impl<N: Real> One for Quaternion<N> {
 impl<N: Real> Zero for Quaternion<N> {
     #[inline]
     fn zero() -> Self {
-        Self::new(N::zero(), N::zero(), N::zero(), N::zero())
+        Self::from(Vector4::zero())
     }
 
     #[inline]
@@ -579,7 +582,7 @@ impl<N: Real> UnitQuaternion<N> {
     pub fn new<SB>(axisangle: Vector<N, U3, SB>) -> Self
     where SB: Storage<N, U3> {
         let two: N = ::convert(2.0f64);
-        let q = Quaternion::<N>::from_parts(N::zero(), axisangle / two).exp();
+        let q = Quaternion::<N>::from_imag(axisangle / two).exp();
         Self::new_unchecked(q)
     }
 
@@ -608,7 +611,7 @@ impl<N: Real> UnitQuaternion<N> {
     pub fn new_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
     where SB: Storage<N, U3> {
         let two: N = ::convert(2.0f64);
-        let q = Quaternion::<N>::from_parts(N::zero(), axisangle / two).exp_eps(eps);
+        let q = Quaternion::<N>::from_imag(axisangle / two).exp_eps(eps);
         Self::new_unchecked(q)
     }
 

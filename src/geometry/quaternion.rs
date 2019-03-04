@@ -506,6 +506,255 @@ impl<N: Real> Quaternion<N> {
     pub fn normalize_mut(&mut self) -> N {
         self.coords.normalize_mut()
     }
+
+    /// Calculates square of a quaternion.
+    #[inline]
+    pub fn squared(&self) -> Self {
+        self * self
+    }
+
+    /// Divides quaternion into two.
+    #[inline]
+    pub fn half(&self) -> Self {
+        self / ::convert(2.0f64)
+    }
+
+    /// Calculates square root.
+    #[inline]
+    pub fn sqrt(&self) -> Self {
+        self.powf(::convert(0.5))
+    }
+
+    /// Check if the quaternion is pure.
+    #[inline]
+    pub fn is_pure(&self) -> bool {
+        self.w == N::zero()
+    }
+
+    /// Convert quaternion to pure quaternion.
+    #[inline]
+    pub fn pure(&self) -> Self {
+        Self::from_imag(self.imag())
+    }
+
+    /// Calculates the quaternionic cosinus.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let input = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let expected = Quaternion::new(58.93364616794395, -34.086183690465596, -51.1292755356984, -68.17236738093119);
+    /// let result = input.cos();
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn cos(&self) -> Self {
+        let z = self.imag().magnitude();
+        let w = -self.w.sin() * z.sinhc();
+        Self::from_parts(self.w.cos() * z.cosh(), self.imag() * w)
+    }
+
+    /// Calculates the quaternionic arccosinus.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let input = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let result = input.cos().acos();
+    /// assert_relative_eq!(input, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn acos(&self) -> Self {
+        let u = Self::from_imag(self.imag().normalize());
+        let identity = Self::identity();
+
+        let z = (self + (self.squared() - identity).sqrt()).ln();
+
+        -(u * z)
+    }
+
+    /// Calculates the quaternionic sinus.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let input = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let expected = Quaternion::new(91.78371578403467, 21.886486853029176, 32.82973027954377, 43.77297370605835);
+    /// let result = input.sin();
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn sin(&self) -> Self {
+        let z = self.imag().magnitude();
+        let w = self.w.cos() * z.sinhc();
+        Self::from_parts(self.w.sin() * z.cosh(), self.imag() * w)
+    }
+
+    /// Calculates the quaternionic arcsinus.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let input = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let result = input.sin().asin();
+    /// assert_relative_eq!(input, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn asin(&self) -> Self {
+        let u = Self::from_imag(self.imag().normalize());
+        let identity = Self::identity();
+
+        let z = ((u * self) + (identity - self.squared()).sqrt()).ln();
+
+        -(u * z)
+    }
+
+    /// Calculates the quaternionic tangent.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let input = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let expected = Quaternion::new(0.00003821631725009489, 0.3713971716439371, 0.5570957574659058, 0.7427943432878743);
+    /// let result = input.tan();
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn tan(&self) -> Self {
+        let s = self.sin();
+        let c = self.cos();
+
+        let ci = c.try_inverse().unwrap();
+        s * ci
+    }
+
+    /// Calculates the quaternionic arctangent.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let input = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let result = input.tan().atan();
+    /// assert_relative_eq!(input, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn atan(&self) -> Self {
+        let u = Self::from_imag(self.imag().normalize());
+        let num = u + self;
+        let den = u - self;
+        let fr = num * den.try_inverse().unwrap();
+        let ln = fr.ln();
+        (u.half()) * ln
+    }
+
+    /// Calculates the hyperbolic quaternionic sinus.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let input = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let expected = Quaternion::new(0.7323376060463428, -0.4482074499805421, -0.6723111749708133, -0.8964148999610843);
+    /// let result = input.sinh();
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn sinh(&self) -> Self {
+        (self.exp() - (-self).exp()).half()
+    }
+
+    /// Calculates the hyperbolic quaternionic arcsinus.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let input = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let expected = Quaternion::new(2.385889902585242, 0.514052600662788, 0.7710789009941821, 1.028105201325576);
+    /// let result = input.asinh();
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn asinh(&self) -> Self {
+        let identity = Self::identity();
+        (self + (identity + self.squared()).sqrt()).ln()
+    }
+
+    /// Calculates the hyperbolic quaternionic cosinus.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let input = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let expected = Quaternion::new(0.9615851176369566, -0.3413521745610167, -0.5120282618415251, -0.6827043491220334);
+    /// let result = input.cosh();
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn cosh(&self) -> Self {
+        (self.exp() + (-self).exp()).half()
+    }
+
+    /// Calculates the hyperbolic quaternionic arccosinus.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let input = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let expected = Quaternion::new(2.4014472020074007, 0.5162761016176176, 0.7744141524264264, 1.0325522032352352);
+    /// let result = input.acosh();
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn acosh(&self) -> Self {
+        let identity = Self::identity();
+        (self + (self + identity).sqrt() * (self - identity).sqrt()).ln()
+    }
+
+    /// Calculates the hyperbolic quaternionic tangent.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let input = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let expected = Quaternion::new(1.0248695360556623, -0.10229568178876419, -0.1534435226831464, -0.20459136357752844);
+    /// let result = input.tanh();
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn tanh(&self) -> Self {
+        let s = self.sinh();
+        let c = self.cosh();
+
+        let ci = c.try_inverse().unwrap();
+        s * ci
+    }
+
+    /// Calculates the hyperbolic quaternionic arctangent.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let input = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let expected = Quaternion::new(0.03230293287000163, 0.5173453683196951, 0.7760180524795426, 1.0346907366393903);
+    /// let result = input.atanh();
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn atanh(&self) -> Self {
+        let identity = Self::identity();
+        ((identity + self).ln() - (identity - self).ln()).half()
+    }
 }
 
 impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
@@ -879,7 +1128,7 @@ impl<N: Real> UnitQuaternion<N> {
     #[inline]
     pub fn ln(&self) -> Quaternion<N> {
         if let Some(v) = self.axis() {
-            Quaternion::from_parts(N::zero(), v.into_inner() * self.angle())
+            Quaternion::from_imag(v.into_inner() * self.angle())
         } else {
             Quaternion::zero()
         }
@@ -1073,3 +1322,4 @@ impl<N: Real + UlpsEq<Epsilon = N>> UlpsEq for UnitQuaternion<N> {
         self.as_ref().ulps_eq(other.as_ref(), epsilon, max_ulps)
     }
 }
+
