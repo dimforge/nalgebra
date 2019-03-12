@@ -684,7 +684,7 @@ where
 
         assert!(
             a.is_square(),
-            "Syetric gemv: the input matrix must be square."
+            "Symmetric gemv: the input matrix must be square."
         );
         assert!(
             dim2 == dim3 && dim1 == dim2,
@@ -704,6 +704,83 @@ where
         for j in 1..dim2 {
             let col2 = a.column(j);
             let dot = x.rows_range(j..).dot(&col2.rows_range(j..));
+
+            let val;
+            unsafe {
+                val = *x.vget_unchecked(j);
+                *self.vget_unchecked_mut(j) += alpha * dot;
+            }
+            self.rows_range_mut(j + 1..)
+                .axpy(alpha * val, &col2.rows_range(j + 1..), N::one());
+        }
+    }
+
+    /// Computes `self = alpha * a * x + beta * self`, where `a` is a **symmetric** matrix, `x` a
+    /// vector, and `alpha, beta` two scalars.
+    ///
+    /// If `beta` is zero, `self` is never read. If `self` is read, only its lower-triangular part
+    /// (including the diagonal) is actually read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Vector2};
+    /// let mat = Matrix2::new(1.0, 2.0,
+    ///                        2.0, 4.0);
+    /// let mut vec1 = Vector2::new(1.0, 2.0);
+    /// let vec2 = Vector2::new(0.1, 0.2);
+    /// vec1.gemv_symm(10.0, &mat, &vec2, 5.0);
+    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
+    ///
+    ///
+    /// // The matrix upper-triangular elements can be garbage because it is never
+    /// // read by this method. Therefore, it is not necessary for the caller to
+    /// // fill the matrix struct upper-triangle.
+    /// let mat = Matrix2::new(1.0, 9999999.9999999,
+    ///                        2.0, 4.0);
+    /// let mut vec1 = Vector2::new(1.0, 2.0);
+    /// vec1.gemv_symm(10.0, &mat, &vec2, 5.0);
+    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
+    /// ```
+    #[inline]
+    pub fn cgemv_symm<D2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: N,
+        a: &SquareMatrix<N, D2, SB>,
+        x: &Vector<N, D3, SC>,
+        beta: N,
+    ) where
+        N: Complex,
+        SB: Storage<N, D2, D2>,
+        SC: Storage<N, D3>,
+        ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
+    {
+        let dim1 = self.nrows();
+        let dim2 = a.nrows();
+        let dim3 = x.nrows();
+
+        assert!(
+            a.is_square(),
+            "Symmetric cgemv: the input matrix must be square."
+        );
+        assert!(
+            dim2 == dim3 && dim1 == dim2,
+            "Symmetric cgemv: dimensions mismatch."
+        );
+
+        if dim2 == 0 {
+            return;
+        }
+
+        // FIXME: avoid bound checks.
+        let col2 = a.column(0);
+        let val = unsafe { *x.vget_unchecked(0) };
+        self.axpy(alpha * val, &col2, beta);
+        self[0] += alpha * a.slice_range(1.., 0).cdot(&x.rows_range(1..));
+
+        for j in 1..dim2 {
+            let col2 = a.column(j);
+            let dot = col2.rows_range(j..).cdot(&x.rows_range(j..));
 
             let val;
             unsafe {

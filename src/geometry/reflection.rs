@@ -72,13 +72,13 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         ShapeConstraint: DimEq<C2, D> + AreMultipliable<R2, C2, D, U1>,
         DefaultAllocator: Allocator<N, D>
     {
-        rhs.mul_to(&self.axis.conjugate(), work);
+        rhs.mul_to(&self.axis, work);
 
         if !self.bias.is_zero() {
             work.add_scalar_mut(-self.bias);
         }
 
         let m_two: N = ::convert(-2.0f64);
-        rhs.ger(m_two, &work, &self.axis, N::one());
+        rhs.ger(m_two, &work, &self.axis.conjugate(), N::one());
     }
 }

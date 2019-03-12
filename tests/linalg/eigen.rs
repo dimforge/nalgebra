@@ -9,6 +9,7 @@ mod quickcheck_tests {
     use std::cmp;
 
     quickcheck! {
+    /*
         fn symmetric_eigen(n: usize) -> bool {
             let n      = cmp::max(1, cmp::min(n, 10));
             let m      = DMatrix::<RandComplex<f64>>::new_random(n, n).map(|e| e.0);
@@ -42,29 +43,36 @@ mod quickcheck_tests {
 
             relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5)
         }
+        */
 
         fn symmetric_eigen_static_square_3x3(m: Matrix3<RandComplex<f64>>) -> bool {
-            let m      = m.map(|e| e.0);
+            let m      = m.map(|e| e.0).hermitian_part();
             let eig    = m.symmetric_eigen();
             let recomp = eig.recompose();
 
+            println!("Eigenvectors: {}", eig.eigenvectors);
+            println!("Eigenvalues: {}", eig.eigenvalues);
             println!("{}{}", m.lower_triangle(), recomp.lower_triangle());
 
             relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5)
         }
 
+/*
         fn symmetric_eigen_static_square_2x2(m: Matrix2<RandComplex<f64>>) -> bool {
-            let m      = m.map(|e| e.0);
+            let m      = m.map(|e| e.0).hermitian_part();
             let eig    = m.symmetric_eigen();
             let recomp = eig.recompose();
 
+            println!("Eigenvectors: {}", eig.eigenvectors);
             println!("{}{}", m.lower_triangle(), recomp.lower_triangle());
 
             relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5)
         }
+        */
     }
 }
 
+/*
 // Test proposed on the issue #176 of rulinalg.
 #[test]
 fn symmetric_eigen_singular_24x24() {
@@ -107,7 +115,7 @@ fn symmetric_eigen_singular_24x24() {
         recomp.lower_triangle(),
         epsilon = 1.0e-5
     ));
-}
+}*/
 
 //  #[cfg(feature = "arbitrary")]
 //  quickcheck! {

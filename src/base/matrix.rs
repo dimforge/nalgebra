@@ -997,7 +997,12 @@ impl<N: Complex, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
 
         let dim = self.shape().0;
 
-        for i in 1..dim {
+        for i in 0..dim {
+            {
+                let diag = unsafe { self.get_unchecked_mut((i, i)) };
+                *diag = diag.conjugate();
+            }
+
             for j in 0..i {
                 unsafe {
                     let ref_ij = self.get_unchecked_mut((i, j)) as *mut N;

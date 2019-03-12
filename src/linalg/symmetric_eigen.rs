@@ -43,6 +43,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     /// The eigenvectors of the decomposed matrix.
     pub eigenvectors: MatrixN<N, D>,
 
+    // FIXME: this should be a VectorN<N::Real, D>
     /// The unsorted eigenvalues of the decomposed matrix.
     pub eigenvalues: VectorN<N, D>,
 }
@@ -159,14 +160,14 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
                         let mij = off_diag[i];
 
                         let cc = rot.c() * rot.c();
-                        let ss = rot.s() * rot.s();
+                        let ss = rot.s() * rot.s().conjugate();
                         let cs = rot.c() * rot.s();
 
-                        let b = cs * ::convert(2.0) * mij;
+                        let b = cs * mij.conjugate() + cs.conjugate() * mij;
 
                         diag[i] = (cc * mii + ss * mjj) - b;
                         diag[j] = (ss * mii + cc * mjj) + b;
-                        off_diag[i] = cs * (mii - mjj) + mij * (cc - ss);
+                        off_diag[i] = cs * (mii - mjj) + mij * cc - mij.conjugate() * rot.s() * rot.s();
 
                         if i != n - 1 {
                             v.x = off_diag[i];
@@ -187,16 +188,18 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
                 }
             } else if subdim == 2 {
                 let m = Matrix2::new(
-                    diag[start],
-                    off_diag[start],
-                    off_diag[start],
-                    diag[start + 1],
+                    diag[start], off_diag[start].conjugate(),
+                    off_diag[start], diag[start + 1],
                 );
                 let eigvals = m.eigenvalues().unwrap();
                 let basis = Vector2::new(eigvals.x - diag[start + 1], off_diag[start]);
 
                 diag[start + 0] = eigvals[0];
                 diag[start + 1] = eigvals[1];
+
+                println!("Eigvals: {:?}", eigvals);
+                println!("m: {}", m);
+                println!("Curr q: {:?}", q);
 
                 if let Some(ref mut q) = q {
                     if let Some(rot) = GivensRotation::try_new(basis.x, basis.y, eps) {

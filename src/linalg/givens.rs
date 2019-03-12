@@ -1,6 +1,7 @@
 //! Construction of givens rotations.
 
 use alga::general::{Complex, Real};
+use num::Zero;
 use num_complex::Complex as NumComplex;
 
 use base::dimension::{Dim, U2};
@@ -11,7 +12,9 @@ use base::{Vector, Matrix};
 use geometry::UnitComplex;
 
 /// A Givens rotation.
+#[derive(Debug)]
 pub struct GivensRotation<N: Complex> {
+    // FIXME: c should be a `N::Real`.
     c: N,
     s: N
 }
@@ -47,24 +50,22 @@ pub fn cancel_x<N: Real, S: Storage<N, U2>>(v: &Vector<N, U2, S>) -> Option<(Uni
 
 // Matrix = UnitComplex * Matrix
 impl<N: Complex> GivensRotation<N> {
-    /// Initializes a Givens rotation form its non-normalized cosine an sine components.
+    /// Initializes a Givens rotation from its non-normalized cosine an sine components.
     pub fn new(c: N, s: N) -> Self {
-        let denom = (c.modulus_squared() + s.modulus_squared()).sqrt();
-        Self {
-            c: c.unscale(denom),
-            s: s.unscale(denom)
-        }
+        let res = Self::try_new(c, s, N::Real::zero()).unwrap();
+        println!("The rot: {:?}", res);
+        res
     }
 
     /// Initializes a Givens rotation form its non-normalized cosine an sine components.
     pub fn try_new(c: N, s: N, eps: N::Real) -> Option<Self> {
-        let denom = (c.modulus_squared() + s.modulus_squared()).sqrt();
+        let (mod0, sign0) = c.to_exp();
+        let denom = (mod0 * mod0 + s.modulus_squared()).sqrt();
 
         if denom > eps {
-            Some(Self {
-                c: c.unscale(denom),
-                s: s.unscale(denom)
-            })
+            let c = N::from_real(mod0 / denom);
+            let s = s / sign0.scale(denom);
+            Some(Self { c, s })
         } else {
             None
         }
@@ -116,7 +117,7 @@ impl<N: Complex> GivensRotation<N> {
 
     /// The inverse of this givens rotation.
     pub fn inverse(&self) -> Self {
-        Self { c: self.c, s: -self.s.conjugate() }
+        Self { c: self.c, s: -self.s }
     }
 
     /// Performs the multiplication `rhs = self * rhs` in-place.
@@ -139,8 +140,8 @@ impl<N: Complex> GivensRotation<N> {
                 let a = *rhs.get_unchecked((0, j));
                 let b = *rhs.get_unchecked((1, j));
 
-                *rhs.get_unchecked_mut((0, j)) = c * a - s.conjugate() * b;
-                *rhs.get_unchecked_mut((1, j)) = s * a + c.conjugate() * b;
+                *rhs.get_unchecked_mut((0, j)) = c * a + -s.conjugate() * b;
+                *rhs.get_unchecked_mut((1, j)) = s * a + c * b;
             }
         }
     }
@@ -167,7 +168,7 @@ impl<N: Complex> GivensRotation<N> {
                 let b = *lhs.get_unchecked((j, 1));
 
                 *lhs.get_unchecked_mut((j, 0)) = c * a + s * b;
-                *lhs.get_unchecked_mut((j, 1)) = -s.conjugate() * a + c.conjugate() * b;
+                *lhs.get_unchecked_mut((j, 1)) = -s.conjugate() * a + c * b;
             }
         }
     }

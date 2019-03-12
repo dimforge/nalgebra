@@ -53,6 +53,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
     pub fn new(mut m: MatrixN<N, D>) -> Self {
         let dim = m.data.shape().0;
 
+        println!("Input m: {}", m.index((0.., 0..)));
+
         assert!(
             m.is_square(),
             "Unable to compute the symmetric tridiagonal decomposition of a non-square matrix."
@@ -75,11 +77,11 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
             if not_zero {
                 let mut p = p.rows_range_mut(i..);
 
-                p.gemv_symm(::convert(2.0), &m, &axis.conjugate(), N::zero());
-                let dot = axis.dot(&p);
+                p.cgemv_symm(::convert(2.0), &m, &axis, N::zero());
+                let dot = axis.cdot(&p);
 //                p.axpy(-dot, &axis.conjugate(), N::one());
                 m.ger_symm(-N::one(), &p, &axis.conjugate(), N::one());
-                m.ger_symm(-N::one(), &axis, &p, N::one());
+                m.ger_symm(-N::one(), &axis, &p.conjugate(), N::one());
                 m.ger_symm(dot * ::convert(2.0), &axis, &axis.conjugate(), N::one());
             }
         }

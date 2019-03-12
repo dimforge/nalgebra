@@ -2,7 +2,6 @@
 
 use na::{DMatrix, Matrix3, Matrix4};
 
-
 #[test]
 fn schur_simpl_mat3() {
     let m = Matrix3::new(-2.0, -4.0, 2.0,
@@ -19,48 +18,53 @@ fn schur_simpl_mat3() {
 mod quickcheck_tests {
     use std::cmp;
     use na::{DMatrix, Matrix2, Matrix3, Matrix4};
+    use core::helper::{RandScalar, RandComplex};
 
     quickcheck! {
         fn schur(n: usize) -> bool {
             let n = cmp::max(1, cmp::min(n, 10));
-            let m = DMatrix::<f64>::new_random(n, n);
+            let m = DMatrix::<RandComplex<f64>>::new_random(n, n).map(|e| e.0);
 
             let (vecs, vals) = m.clone().real_schur().unpack();
 
-            if !relative_eq!(&vecs * &vals * vecs.transpose(), m, epsilon = 1.0e-7) {
-                println!("{:.5}{:.5}", m, &vecs * &vals * vecs.transpose());
+            if !relative_eq!(&vecs * &vals * vecs.conjugate_transpose(), m, epsilon = 1.0e-7) {
+                println!("{:.5}{:.5}", m, &vecs * &vals * vecs.conjugate_transpose());
             }
 
-            relative_eq!(&vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7)
+            relative_eq!(&vecs * vals * vecs.conjugate_transpose(), m, epsilon = 1.0e-7)
         }
 
-        fn schur_static_mat2(m: Matrix2<f64>) -> bool {
+        fn schur_static_mat2(m: Matrix2<RandComplex<f64>>) -> bool {
+            let m = m.map(|e| e.0);
             let (vecs, vals) = m.clone().real_schur().unpack();
 
-            let ok = relative_eq!(vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7);
+            let ok = relative_eq!(vecs * vals * vecs.conjugate_transpose(), m, epsilon = 1.0e-7);
             if !ok {
-                println!("{:.5}{:.5}", vecs, vals);
-                println!("Reconstruction:{}{}", m, &vecs * &vals * vecs.transpose());
-            }
-            ok
-        }
-
-        fn schur_static_mat3(m: Matrix3<f64>) -> bool {
-            let (vecs, vals) = m.clone().real_schur().unpack();
-
-            let ok = relative_eq!(vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7);
-            if !ok {
-                println!("{:.5}{:.5}", m, &vecs * &vals * vecs.transpose());
+                println!("Vecs: {:.5} Vals: {:.5}", vecs, vals);
+                println!("Reconstruction:{}{}", m, &vecs * &vals * vecs.conjugate_transpose());
             }
             ok
         }
 
-        fn schur_static_mat4(m: Matrix4<f64>) -> bool {
+        fn schur_static_mat3(m: Matrix3<RandComplex<f64>>) -> bool {
+            let m = m.map(|e| e.0);
             let (vecs, vals) = m.clone().real_schur().unpack();
 
-            let ok = relative_eq!(vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7);
+            let ok = relative_eq!(vecs * vals * vecs.conjugate_transpose(), m, epsilon = 1.0e-7);
             if !ok {
-                println!("{:.5}{:.5}", m, &vecs * &vals * vecs.transpose());
+                println!("Vecs: {:.5} Vals: {:.5}", vecs, vals);
+                println!("{:.5}{:.5}", m, &vecs * &vals * vecs.conjugate_transpose());
+            }
+            ok
+        }
+
+        fn schur_static_mat4(m: Matrix4<RandComplex<f64>>) -> bool {
+            let m = m.map(|e| e.0);
+            let (vecs, vals) = m.clone().real_schur().unpack();
+
+            let ok = relative_eq!(vecs * vals * vecs.conjugate_transpose(), m, epsilon = 1.0e-7);
+            if !ok {
+                println!("{:.5}{:.5}", m, &vecs * &vals * vecs.conjugate_transpose());
             }
             ok
         }

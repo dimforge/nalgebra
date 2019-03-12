@@ -96,6 +96,7 @@ where
 
         let dim = m.data.shape().0;
 
+        // Specialization would make this easier.
         if dim.value() == 0 {
             let vecs = Some(MatrixN::from_element_generic(dim, dim, N::zero()));
             let vals = MatrixN::from_element_generic(dim, dim, N::zero());
@@ -107,9 +108,7 @@ where
             } else {
                 return Some((None, m));
             }
-        }
-        // Specialization would make this easier.
-        else if dim.value() == 2 {
+        } else if dim.value() == 2 {
             return decompose_2x2(m, compute_q);
         }
 
@@ -421,7 +420,7 @@ where
                 q = Some(MatrixN::from_column_slice_generic(
                     dim,
                     dim,
-                    &[rot.c(), rot.s(), -rot.s().conjugate(), rot.c().conjugate()],
+                    &[rot.c(), rot.s(), -rot.s().conjugate(), rot.c()],
                 ));
             }
         }
@@ -444,9 +443,9 @@ fn compute_2x2_eigvals<N: Complex, S: Storage<N, U2, U2>>(
     let h01 = m[(0, 1)];
     let h11 = m[(1, 1)];
 
-    // NOTE: this discriminant computation is mor stable than the
+    // NOTE: this discriminant computation is more stable than the
     // one based on the trace and determinant: 0.25 * tra * tra - det
-    // because et ensures positiveness for symmetric matrices.
+    // because it ensures positiveness for symmetric matrices.
     let val = (h00 - h11) * ::convert(0.5);
     let discr = h10 * h01 + val * val;
 
@@ -471,16 +470,18 @@ fn compute_2x2_basis<N: Complex, S: Storage<N, U2, U2>>(
     }
 
     if let Some((eigval1, eigval2)) = compute_2x2_eigvals(m) {
-        let x1 = m[(1, 1)] - eigval1;
-        let x2 = m[(1, 1)] - eigval2;
+        let x1 = eigval1 - m[(1, 1)];
+        let x2 = eigval2 - m[(1, 1)];
+
+        println!("eigval1: {}, eigval2: {}, h10: {}", eigval1, eigval2, h10);
 
         // NOTE: Choose the one that yields a larger x component.
         // This is necessary for numerical stability of the normalization of the complex
         // number.
         if x1.modulus() > x2.modulus() {
-            Some(GivensRotation::new(x1, -h10))
+            Some(GivensRotation::new(x1, h10))
         } else {
-            Some(GivensRotation::new(x2, -h10))
+            Some(GivensRotation::new(x2, h10))
         }
     } else {
         None
