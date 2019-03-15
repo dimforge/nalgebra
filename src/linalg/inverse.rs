@@ -36,7 +36,7 @@ impl<N: Real, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
                 0 => true,
                 1 => {
                     let determinant = self.get_unchecked((0, 0)).clone();
-                    if determinant == N::zero() {
+                    if determinant.is_zero() {
                         false
                     } else {
                         *self.get_unchecked_mut((0, 0)) = N::one() / determinant;
@@ -51,7 +51,7 @@ impl<N: Real, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
 
                     let determinant = m11 * m22 - m21 * m12;
 
-                    if determinant == N::zero() {
+                    if determinant.is_zero() {
                         false
                     } else {
                         *self.get_unchecked_mut((0, 0)) = m22 / determinant;
@@ -83,7 +83,7 @@ impl<N: Real, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
                     let determinant =
                         m11 * minor_m12_m23 - m12 * minor_m11_m23 + m13 * minor_m11_m22;
 
-                    if determinant == N::zero() {
+                    if determinant.is_zero() {
                         false
                     } else {
                         *self.get_unchecked_mut((0, 0)) = minor_m12_m23 / determinant;
