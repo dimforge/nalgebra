@@ -254,6 +254,8 @@ impl<N: Real> UnitComplex<N> {
 
     /// Rotate the given point by this unit complex number.
     ///
+    /// This is the same as the multiplication `self * pt`.
+    ///
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
@@ -269,6 +271,8 @@ impl<N: Real> UnitComplex<N> {
     }
 
     /// Rotate the given vector by this unit complex number.
+    ///
+    /// This is the same as the multiplication `self * v`.
     ///
     /// # Example
     /// ```

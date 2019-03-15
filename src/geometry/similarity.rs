@@ -241,6 +241,8 @@ where
 
     /// Transform the given point by this similarity.
     ///
+    /// This is the same as the multiplication `self * pt`.
+    ///
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
@@ -259,6 +261,8 @@ where
 
     /// Transform the given vector by this similarity, ignoring the translational
     /// component.
+    ///
+    /// This is the same as the multiplication `self * t`.
     ///
     /// # Example
     /// ```

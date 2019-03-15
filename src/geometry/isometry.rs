@@ -257,6 +257,8 @@ where DefaultAllocator: Allocator<N, D>
 
     /// Transform the given point by this isometry.
     ///
+    /// This is the same as the multiplication `self * pt`.
+    ///
     /// # Example
     ///
     /// ```
@@ -277,6 +279,8 @@ where DefaultAllocator: Allocator<N, D>
 
     /// Transform the given vector by this isometry, ignoring the translation
     /// component of the isometry.
+    ///
+    /// This is the same as the multiplication `self * v`.
     ///
     /// # Example
     ///

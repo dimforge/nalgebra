@@ -358,6 +358,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Rotate the given point.
     ///
+    /// This is the same as the multiplication `self * pt`.
+    ///
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
@@ -374,6 +376,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     }
 
     /// Rotate the given vector.
+    ///
+    /// This is the same as the multiplication `self * v`.
     ///
     /// # Example
     /// ```

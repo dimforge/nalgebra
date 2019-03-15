@@ -464,6 +464,8 @@ where
         + Allocator<N, D>,
 {
     /// Transform the given point by this transformation.
+    ///
+    /// This is the same as the multiplication `self * pt`.
     #[inline]
     pub fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
         self * pt
@@ -471,6 +473,8 @@ where
 
     /// Transform the given vector by this transformation, ignoring the
     /// translational component of the transformation.
+    ///
+    /// This is the same as the multiplication `self * v`.
     #[inline]
     pub fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         self * v

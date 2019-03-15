@@ -197,6 +197,8 @@ where DefaultAllocator: Allocator<N, D>
 {
     /// Translate the given point.
     ///
+    /// This is the same as the multiplication `self * pt`.
+    ///
     /// # Example
     /// ```
     /// # use nalgebra::{Translation3, Point3};
