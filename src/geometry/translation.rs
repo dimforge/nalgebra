@@ -11,12 +11,14 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{ClosedNeg, Real};
+use alga::general::{ClosedAdd, ClosedNeg, ClosedSub, Real};
 
 use base::allocator::Allocator;
 use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use base::storage::Owned;
 use base::{DefaultAllocator, MatrixN, Scalar, VectorN};
+
+use geometry::Point;
 
 /// A translation.
 #[repr(C)]
@@ -187,6 +189,42 @@ where DefaultAllocator: Allocator<N, D>
     pub fn inverse_mut(&mut self)
     where N: ClosedNeg {
         self.vector.neg_mut()
+    }
+}
+
+impl<N: Scalar + ClosedAdd, D: DimName> Translation<N, D>
+where DefaultAllocator: Allocator<N, D>
+{
+    /// Translate the given point.
+    ///
+    /// This is the same as the multiplication `self * pt`.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Translation3, Point3};
+    /// let t = Translation3::new(1.0, 2.0, 3.0);
+    /// let transformed_point = t.transform_point(&Point3::new(4.0, 5.0, 6.0));
+    /// assert_eq!(transformed_point, Point3::new(5.0, 7.0, 9.0));
+    #[inline]
+    pub fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        pt + &self.vector
+    }
+}
+
+impl<N: Scalar + ClosedSub, D: DimName> Translation<N, D>
+where DefaultAllocator: Allocator<N, D>
+{
+    /// Translate the given point by the inverse of this translation.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Translation3, Point3};
+    /// let t = Translation3::new(1.0, 2.0, 3.0);
+    /// let transformed_point = t.inverse_transform_point(&Point3::new(4.0, 5.0, 6.0));
+    /// assert_eq!(transformed_point, Point3::new(3.0, 3.0, 3.0));
+    #[inline]
+    pub fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        pt - &self.vector
     }
 }
 
