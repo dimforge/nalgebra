@@ -528,13 +528,40 @@ impl<N: Real> Quaternion<N> {
     /// Check if the quaternion is pure.
     #[inline]
     pub fn is_pure(&self) -> bool {
-        self.w == N::zero()
+        self.w.is_zero()
     }
 
     /// Convert quaternion to pure quaternion.
     #[inline]
     pub fn pure(&self) -> Self {
         Self::from_imag(self.imag())
+    }
+
+    /// Left quaternionic division.
+    ///
+    /// Calculates B<sup>-1</sup> * A where A = self, B = other.
+    #[inline]
+    pub fn left_div(&self, other: &Self) -> Option<Self> {
+        other.try_inverse().map(|inv| inv * self)
+    }
+
+    /// Right quaternionic division.
+    ///
+    /// Calculates A * B<sup>-1</sup> where A = self, B = other.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let a = Quaternion::new(0.0, 1.0, 2.0, 3.0);
+    /// let b = Quaternion::new(0.0, 5.0, 2.0, 1.0);
+    /// let result = a.right_div(&b).unwrap();
+    /// let expected = Quaternion::new(0.4, 0.13333333333333336, -0.4666666666666667, 0.26666666666666666);
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
+    /// ```
+    #[inline]
+    pub fn right_div(&self, other: &Self) -> Option<Self> {
+        other.try_inverse().map(|inv| self * inv)
     }
 
     /// Calculates the quaternionic cosinus.
@@ -626,11 +653,7 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn tan(&self) -> Self {
-        let s = self.sin();
-        let c = self.cos();
-
-        let ci = c.try_inverse().unwrap();
-        s * ci
+        self.sin().right_div(&self.cos()).unwrap()
     }
 
     /// Calculates the quaternionic arctangent.
@@ -648,7 +671,7 @@ impl<N: Real> Quaternion<N> {
         let u = Self::from_imag(self.imag().normalize());
         let num = u + self;
         let den = u - self;
-        let fr = num * den.try_inverse().unwrap();
+        let fr = num.right_div(&den).unwrap();
         let ln = fr.ln();
         (u.half()) * ln
     }
@@ -732,11 +755,7 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn tanh(&self) -> Self {
-        let s = self.sinh();
-        let c = self.cosh();
-
-        let ci = c.try_inverse().unwrap();
-        s * ci
+        self.sinh().right_div(&self.cosh()).unwrap()
     }
 
     /// Calculates the hyperbolic quaternionic arctangent.
@@ -1096,11 +1115,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// ```
     #[inline]
     pub fn axis_angle(&self) -> Option<(Unit<Vector3<N>>, N)> {
-        if let Some(axis) = self.axis() {
-            Some((axis, self.angle()))
-        } else {
-            None
-        }
+        self.axis().map(|axis| (axis, self.angle()))
     }
 
     /// Compute the exponential of a quaternion.

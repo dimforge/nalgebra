@@ -71,6 +71,12 @@ impl<N: Real> Quaternion<N> {
         Self::new(scalar, vector[0], vector[1], vector[2])
     }
 
+    /// Constructs a real quaternion.
+    #[inline]
+    pub fn from_real(r: N) -> Self {
+        Self::from_parts(r, Vector3::zero())
+    }
+
     /// Creates a new quaternion from its polar decomposition.
     ///
     /// Note that `axis` is assumed to be a unit vector.
@@ -95,7 +101,7 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn identity() -> Self {
-        Self::from_parts(N::one(), Vector3::zero())
+        Self::from_real(N::one())
     }
 }
 
