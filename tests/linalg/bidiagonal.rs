@@ -41,6 +41,7 @@ quickcheck! {
         relative_eq!(m, &u * d * &v_t, epsilon = 1.0e-7)
     }
 
+
     fn bidiagonal_static_square(m: Matrix4<RandComplex<f64>>) -> bool {
         let m = m.map(|e| e.0);
         let bidiagonal = m.bidiagonalize();

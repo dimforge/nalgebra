@@ -7,8 +7,11 @@ mod quickcheck_tests {
         DMatrix, DVector, Matrix2, Matrix2x5, Matrix3, Matrix3x5, Matrix4, Matrix5x2, Matrix5x3,
     };
     use std::cmp;
+    use core::helper::{RandScalar, RandComplex};
+
 
     quickcheck! {
+    /*
         fn svd(m: DMatrix<f64>) -> bool {
             if m.len() > 0 {
                 let svd = m.clone().svd(true, true);
@@ -68,6 +71,7 @@ mod quickcheck_tests {
             relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5)
         }
 
+
         fn svd_static_square(m: Matrix4<f64>) -> bool {
             let svd = m.svd(true, true);
             let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
@@ -78,18 +82,27 @@ mod quickcheck_tests {
             u.is_orthogonal(1.0e-5) &&
             v_t.is_orthogonal(1.0e-5)
         }
+                        */
 
-        fn svd_static_square_2x2(m: Matrix2<f64>) -> bool {
+
+        fn svd_static_square_2x2(m: Matrix2<RandComplex<f64>>) -> bool {
+            let m = m.map(|e| e.0);
             let svd = m.svd(true, true);
             let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
             let ds = Matrix2::from_diagonal(&s);
 
-            s.iter().all(|e| *e >= 0.0) &&
+            println!("u, s, v_t: {}{}{}", u, s, v_t);
+            println!("m: {}", m);
+            println!("recomp: {}", u * ds * v_t);
+            println!("uu_t, vv_t: {}{}", u * u.conjugate_transpose(), v_t.conjugate_transpose() * v_t);
+
+            s.iter().all(|e| e.re >= 0.0) &&
             relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5) &&
             u.is_orthogonal(1.0e-5) &&
             v_t.is_orthogonal(1.0e-5)
         }
 
+/*
         fn svd_pseudo_inverse(m: DMatrix<f64>) -> bool {
             if m.len() > 0 {
                 let svd = m.clone().svd(true, true);
@@ -140,9 +153,11 @@ mod quickcheck_tests {
 
             true
         }
+        */
     }
 }
 
+/*
 // Test proposed on the issue #176 of rulinalg.
 #[test]
 fn svd_singular() {
@@ -342,3 +357,5 @@ fn svd_err() {
     assert_eq!(Err("SVD recomposition: U and V^t have not been computed."), svd.clone().recompose());
     assert_eq!(Err("SVD pseudo inverse: the epsilon must be non-negative."), svd.clone().pseudo_inverse(-1.0));
 }
+
+*/

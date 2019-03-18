@@ -1,7 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use num::Zero;
+use num::{Zero, One};
 use num_complex::Complex as NumComplex;
 use approx::AbsDiffEq;
 use std::ops::MulAssign;
@@ -119,6 +119,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
             q = Some(res.0);
             diag = res.1;
             off_diag = res.2;
+
+            println!("Tridiagonalization q: {:.5?}", q);
         } else {
             let res = SymmetricTridiagonal::new(m).unpack_tridiagonal();
             q = None;
@@ -150,6 +152,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
                     let j = i + 1;
 
                     if let Some((rot, norm)) = GivensRotation::cancel_y(&v) {
+                        println!("Canceling: {:.5?} with norm: {:.5?}", rot, norm);
                         if i > start {
                             // Not the first iteration.
                             off_diag[i - 1] = norm;
@@ -160,19 +163,33 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
                         let mij = off_diag[i];
 
                         let cc = rot.c() * rot.c();
-                        let ss = rot.s() * rot.s().conjugate();
-                        let cs = rot.c() * rot.s();
+                        let ss = rot.s().modulus_squared(); // rot.s() * rot.s().conjugate()
+                        let cs = rot.s().scale(rot.c());
 
-                        let b = cs * mij.conjugate() + cs.conjugate() * mij;
+                        // b = cs * mij.conjugate() + cs.conjugate() * mij
+                        let b = N::from_real((cs * mij.conjugate()).real() * ::convert(2.0));
 
-                        diag[i] = (cc * mii + ss * mjj) - b;
-                        diag[j] = (ss * mii + cc * mjj) + b;
-                        off_diag[i] = cs * (mii - mjj) + mij * cc - mij.conjugate() * rot.s() * rot.s();
+                        diag[i] = (mii.scale(cc) + mjj.scale(ss)) - b;
+                        diag[j] = (mii.scale(ss) + mjj.scale(cc)) + b;
+                        off_diag[i] = cs * (mii - mjj) + mij.scale(cc) - mij.conjugate() * rot.s() * rot.s();
+
+                        let mut mat = Matrix2::new(
+                            mii, mij.conjugate(),
+                            mij, mjj);
+                        println!("The mat before rotate: {:.5}", mat);
+                        println!("The v before rotate: {:.5?}", v);
+                        rot.rotate(&mut mat);
+                        rot.inverse().rotate_rows(&mut mat);
+                        let mut v2 = v.clone();
+                        rot.rotate(&mut v2);
+                        println!("The v: {:.5?}", v2);
+                        println!("The mat: {:.5}", mat);
+                        println!("Its components: {:.5}, {:.5}, {:.5}", diag[i], diag[j], off_diag[i]);
 
                         if i != n - 1 {
                             v.x = off_diag[i];
                             v.y = -rot.s() * off_diag[i + 1];
-                            off_diag[i + 1] *= rot.c();
+                            off_diag[i + 1] = off_diag[i + 1].scale(rot.c());
                         }
 
                         if let Some(ref mut q) = q {
@@ -197,12 +214,12 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
                 diag[start + 0] = eigvals[0];
                 diag[start + 1] = eigvals[1];
 
-                println!("Eigvals: {:?}", eigvals);
-                println!("m: {}", m);
-                println!("Curr q: {:?}", q);
+                println!("Eigvals: {:.5?}", eigvals);
+                println!("m: {:.5}", m);
+                println!("Curr q: {:.5?}", q);
 
                 if let Some(ref mut q) = q {
-                    if let Some(rot) = GivensRotation::try_new(basis.x, basis.y, eps) {
+                    if let Some((rot, _)) = GivensRotation::try_new(basis.x, basis.y, eps) {
                         rot.rotate_rows(&mut q.fixed_columns_mut::<U2>(start));
                     }
                 }

@@ -30,6 +30,6 @@ pub use self::lu::*;
 pub use self::permutation_sequence::*;
 pub use self::qr::*;
 pub use self::schur::*;
-pub use self::svd::*;
+//pub use self::svd::*;
 pub use self::symmetric_eigen::*;
 pub use self::symmetric_tridiagonal::*;

@@ -23,20 +23,20 @@ pub fn reflection_axis_mut<N: Complex, D: Dim, S: StorageMut<N, D>>(
     let reflection_norm = reflection_sq_norm.sqrt();
 
     let factor;
-    let scaled_norm;
+    let signed_norm;
 
     unsafe {
-        let (modulus, exp) = column.vget_unchecked(0).to_exp();
-        scaled_norm = exp.scale(reflection_norm);
+        let (modulus, sign) = column.vget_unchecked(0).to_exp();
+        signed_norm = sign.scale(reflection_norm);
         factor = (reflection_sq_norm + modulus * reflection_norm) * ::convert(2.0);
-        *column.vget_unchecked_mut(0) += scaled_norm;
+        *column.vget_unchecked_mut(0) += signed_norm;
     };
 
     if !factor.is_zero() {
         column.unscale_mut(factor.sqrt());
-        (-scaled_norm, true)
+        (-signed_norm, true)
     } else {
-        (-scaled_norm, false)
+        (-signed_norm, false)
     }
 }
 
@@ -67,7 +67,7 @@ pub fn clear_column_unchecked<N: Complex, R: Dim, C: Dim>(
     }
 }
 
-/// Uses an hoseholder reflection to zero out the `irow`-th row, ending before the `shift + 1`-th
+/// Uses an householder reflection to zero out the `irow`-th row, ending before the `shift + 1`-th
 /// superdiagonal element.
 #[doc(hidden)]
 pub fn clear_row_unchecked<N: Complex, R: Dim, C: Dim>(
@@ -85,6 +85,7 @@ pub fn clear_row_unchecked<N: Complex, R: Dim, C: Dim>(
     axis.tr_copy_from(&top.columns_range(irow + shift..));
 
     let (reflection_norm, not_zero) = reflection_axis_mut(&mut axis);
+    axis.conjugate_mut(); // So that reflect_rows actually cancels the first row.
     *diag_elt = reflection_norm;
 
     if not_zero {

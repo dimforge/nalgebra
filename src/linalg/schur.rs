@@ -417,10 +417,11 @@ where
             if compute_q {
                 // XXX: we have to build the matrix manually because
                 // rot.to_rotation_matrix().unwrap() causes an ICE.
+                let c = N::from_real(rot.c());
                 q = Some(MatrixN::from_column_slice_generic(
                     dim,
                     dim,
-                    &[rot.c(), rot.s(), -rot.s().conjugate(), rot.c()],
+                    &[c, rot.s(), -rot.s().conjugate(), c],
                 ));
             }
         }
@@ -479,9 +480,9 @@ fn compute_2x2_basis<N: Complex, S: Storage<N, U2, U2>>(
         // This is necessary for numerical stability of the normalization of the complex
         // number.
         if x1.modulus() > x2.modulus() {
-            Some(GivensRotation::new(x1, h10))
+            Some(GivensRotation::new(x1, h10).0)
         } else {
-            Some(GivensRotation::new(x2, h10))
+            Some(GivensRotation::new(x2, h10).0)
         }
     } else {
         None

@@ -83,6 +83,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
                 m.ger_symm(-N::one(), &p, &axis.conjugate(), N::one());
                 m.ger_symm(-N::one(), &axis, &p.conjugate(), N::one());
                 m.ger_symm(dot * ::convert(2.0), &axis, &axis.conjugate(), N::one());
+                println!("The m: {}", m);
             }
         }
 

@@ -61,10 +61,10 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         }
     }
 
-    /// Applies the reflection to the rows of `rhs`.
+    /// Applies the reflection to the rows of `lhs`.
     pub fn reflect_rows<R2: Dim, C2: Dim, S2, S3>(
         &self,
-        rhs: &mut Matrix<N, R2, C2, S2>,
+        lhs: &mut Matrix<N, R2, C2, S2>,
         work: &mut Vector<N, R2, S3>,
     ) where
         S2: StorageMut<N, R2, C2>,
@@ -72,13 +72,13 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         ShapeConstraint: DimEq<C2, D> + AreMultipliable<R2, C2, D, U1>,
         DefaultAllocator: Allocator<N, D>
     {
-        rhs.mul_to(&self.axis, work);
+        lhs.mul_to(&self.axis, work);
 
         if !self.bias.is_zero() {
             work.add_scalar_mut(-self.bias);
         }
 
         let m_two: N = ::convert(-2.0f64);
-        rhs.ger(m_two, &work, &self.axis.conjugate(), N::one());
+        lhs.ger(m_two, &work, &self.axis.conjugate(), N::one());
     }
 }

@@ -49,9 +49,9 @@ where
     // contiguous. This prevents some useless copies.
     uv: MatrixMN<N, R, C>,
     /// The diagonal elements of the decomposed matrix.
-    pub diagonal: VectorN<N, DimMinimum<R, C>>,
+    diagonal: VectorN<N, DimMinimum<R, C>>,
     /// The off-diagonal elements of the decomposed matrix.
-    pub off_diagonal: VectorN<N, DimDiff<DimMinimum<R, C>, U1>>,
+    off_diagonal: VectorN<N, DimDiff<DimMinimum<R, C>, U1>>,
     upper_diagonal: bool,
 }
 
@@ -143,9 +143,9 @@ where
 
         Bidiagonal {
             uv: matrix,
-            diagonal: diagonal,
-            off_diagonal: off_diagonal,
-            upper_diagonal: upper_diagonal,
+            diagonal,
+            off_diagonal,
+            upper_diagonal,
         }
     }
 
@@ -231,7 +231,7 @@ where
         res
     }
 
-    /// Computes the orthogonal matrix `V` of this `U * D * V` decomposition.
+    /// Computes the orthogonal matrix `V_t` of this `U * D * V_t` decomposition.
     pub fn v_t(&self) -> MatrixMN<N, DimMinimum<R, C>, C>
     where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C> {
         let (nrows, ncols) = self.uv.data.shape();
@@ -258,13 +258,13 @@ where
     }
 
     /// The diagonal part of this decomposed matrix.
-    pub fn diagonal(&self) -> &VectorN<N, DimMinimum<R, C>> {
-        &self.diagonal
+    pub fn diagonal(&self) -> VectorN<N, DimMinimum<R, C>> {
+        self.diagonal.map(|e| N::from_real(e.modulus()))
     }
 
     /// The off-diagonal part of this decomposed matrix.
-    pub fn off_diagonal(&self) -> &VectorN<N, DimDiff<DimMinimum<R, C>, U1>> {
-        &self.off_diagonal
+    pub fn off_diagonal(&self) -> VectorN<N, DimDiff<DimMinimum<R, C>, U1>> {
+        self.off_diagonal.map(|e| N::from_real(e.modulus()))
     }
 
     #[doc(hidden)]

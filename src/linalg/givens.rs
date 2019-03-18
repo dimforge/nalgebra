@@ -1,7 +1,7 @@
 //! Construction of givens rotations.
 
 use alga::general::{Complex, Real};
-use num::Zero;
+use num::{Zero, One};
 use num_complex::Complex as NumComplex;
 
 use base::dimension::{Dim, U2};
@@ -12,60 +12,37 @@ use base::{Vector, Matrix};
 use geometry::UnitComplex;
 
 /// A Givens rotation.
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct GivensRotation<N: Complex> {
-    // FIXME: c should be a `N::Real`.
-    c: N,
+    c: N::Real,
     s: N
 }
 
-// XXX: remove this
-/// Computes the rotation `R` required such that the `y` component of `R * v` is zero.
-///
-/// Returns `None` if no rotation is needed (i.e. if `v.y == 0`). Otherwise, this returns the norm
-/// of `v` and the rotation `r` such that `R * v = [ |v|, 0.0 ]^t` where `|v|` is the norm of `v`.
-pub fn cancel_y<N: Real, S: Storage<N, U2>>(v: &Vector<N, U2, S>) -> Option<(UnitComplex<N>, N)> {
-    if !v[1].is_zero() {
-        let c = NumComplex::new(v[0], -v[1]);
-        Some(UnitComplex::from_complex_and_get(c))
-    } else {
-        None
-    }
-}
-
-// XXX: remove this
-/// Computes the rotation `R` required such that the `x` component of `R * v` is zero.
-///
-/// Returns `None` if no rotation is needed (i.e. if `v.x == 0`). Otherwise, this returns the norm
-/// of `v` and the rotation `r` such that `R * v = [ 0.0, |v| ]^t` where `|v|` is the norm of `v`.
-pub fn cancel_x<N: Real, S: Storage<N, U2>>(v: &Vector<N, U2, S>) -> Option<(UnitComplex<N>, N)> {
-    if !v[0].is_zero() {
-        let c = NumComplex::new(v[1], v[0]);
-        Some(UnitComplex::from_complex_and_get(c))
-    } else {
-        None
-    }
-}
-
-
 // Matrix = UnitComplex * Matrix
 impl<N: Complex> GivensRotation<N> {
+    /// The Givents rotation that does nothing.
+    pub fn identity() -> Self {
+        Self {
+            c: N::Real::one(),
+            s: N::zero()
+        }
+    }
+
     /// Initializes a Givens rotation from its non-normalized cosine an sine components.
-    pub fn new(c: N, s: N) -> Self {
-        let res = Self::try_new(c, s, N::Real::zero()).unwrap();
-        println!("The rot: {:?}", res);
-        res
+    pub fn new(c: N, s: N) -> (Self, N) {
+        Self::try_new(c, s, N::Real::zero()).unwrap()
     }
 
     /// Initializes a Givens rotation form its non-normalized cosine an sine components.
-    pub fn try_new(c: N, s: N, eps: N::Real) -> Option<Self> {
+    pub fn try_new(c: N, s: N, eps: N::Real) -> Option<(Self, N)> {
         let (mod0, sign0) = c.to_exp();
         let denom = (mod0 * mod0 + s.modulus_squared()).sqrt();
 
         if denom > eps {
-            let c = N::from_real(mod0 / denom);
-            let s = s / sign0.scale(denom);
-            Some(Self { c, s })
+            let norm = sign0.scale(denom);
+            let c = mod0 / denom;
+            let s = s / norm;
+            Some((Self { c, s }, norm))
         } else {
             None
         }
@@ -79,8 +56,8 @@ impl<N: Complex> GivensRotation<N> {
         if !v[1].is_zero() {
             let (mod0, sign0) = v[0].to_exp();
             let denom = (mod0 * mod0 + v[1].modulus_squared()).sqrt();
-            let c = N::from_real(mod0 / denom);
-            let s = (sign0 * v[1].conjugate()).unscale(-denom);
+            let c = mod0 / denom;
+            let s = -v[1] / sign0.scale(denom);
             let r = sign0.scale(denom);
             Some((Self { c, s }, r))
         } else {
@@ -94,11 +71,11 @@ impl<N: Complex> GivensRotation<N> {
     /// of `v` and the rotation `r` such that `R * v = [ 0.0, |v| ]^t` where `|v|` is the norm of `v`.
     pub fn cancel_x<S: Storage<N, U2>>(v: &Vector<N, U2, S>) -> Option<(Self, N)> {
         if !v[0].is_zero() {
-            let (mod0, sign0) = v[0].to_exp();
-            let denom = (mod0 * mod0 + v[1].modulus_squared()).sqrt();
-            let c = N::from_real(mod0 / denom);
-            let s = (sign0 * v[1].conjugate()).unscale(denom);
-            let r = sign0.scale(denom);
+            let (mod1, sign1) = v[1].to_exp();
+            let denom = (mod1 * mod1 + v[0].modulus_squared()).sqrt();
+            let c = mod1 / denom;
+            let s = (v[0].conjugate() * sign1).unscale(denom);
+            let r = sign1.scale(denom);
             Some((Self { c, s }, r))
         } else {
             None
@@ -106,7 +83,7 @@ impl<N: Complex> GivensRotation<N> {
     }
 
     /// The cos part of this roration.
-    pub fn c(&self) -> N {
+    pub fn c(&self) -> N::Real {
         self.c
     }
 
@@ -140,8 +117,8 @@ impl<N: Complex> GivensRotation<N> {
                 let a = *rhs.get_unchecked((0, j));
                 let b = *rhs.get_unchecked((1, j));
 
-                *rhs.get_unchecked_mut((0, j)) = c * a + -s.conjugate() * b;
-                *rhs.get_unchecked_mut((1, j)) = s * a + c * b;
+                *rhs.get_unchecked_mut((0, j)) = a.scale(c) - s.conjugate() * b;
+                *rhs.get_unchecked_mut((1, j)) = s * a + b.scale(c);
             }
         }
     }
@@ -167,8 +144,8 @@ impl<N: Complex> GivensRotation<N> {
                 let a = *lhs.get_unchecked((j, 0));
                 let b = *lhs.get_unchecked((j, 1));
 
-                *lhs.get_unchecked_mut((j, 0)) = c * a + s * b;
-                *lhs.get_unchecked_mut((j, 1)) = -s.conjugate() * a + c * b;
+                *lhs.get_unchecked_mut((j, 0)) = a.scale(c) + s * b;
+                *lhs.get_unchecked_mut((j, 1)) = -s.conjugate() * a + b.scale(c);
             }
         }
     }
