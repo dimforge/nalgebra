@@ -58,7 +58,7 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols.value() {
             // FIXME: use unchecked column indexing
             let mut res = res.column_mut(j);
-            let mut src = self.column(j);
+            let src = self.column(j);
 
             for (destination, source) in irows.clone().enumerate() {
                 unsafe {
