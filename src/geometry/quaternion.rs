@@ -539,7 +539,7 @@ impl<N: Real> Quaternion<N> {
 
     /// Left quaternionic division.
     ///
-    /// Calculates B<sup>-1</sup> * A.
+    /// Calculates B<sup>-1</sup> * A where A = self, B = other.
     #[inline]
     pub fn left_div(&self, other: &Self) -> Option<Self> {
         other.try_inverse().map(|inv| inv * self)
@@ -547,7 +547,7 @@ impl<N: Real> Quaternion<N> {
 
     /// Right quaternionic division.
     ///
-    /// Calculates A * B<sup>-1</sup>.
+    /// Calculates A * B<sup>-1</sup> where A = self, B = other.
     ///
     /// # Example
     /// ```
