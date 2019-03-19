@@ -197,9 +197,10 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// # Examples:
     ///
     /// ```
+    /// # use num_complex::Complex;
     /// # use nalgebra::Matrix2x3;
     /// let mat = Matrix2x3::new(Complex::new(11.0, 1.0), Complex::new(-12.0, 2.0), Complex::new(13.0, 3.0),
-    ///                          Complex::new(21.0, 43.0), Complex::new(22.0, 5.0), Complex::new(-23.0, 0.0);
+    ///                          Complex::new(21.0, 43.0), Complex::new(22.0, 5.0), Complex::new(-23.0, 0.0));
     /// assert_eq!(mat.iamax_full(), (1, 0));
     /// ```
     #[inline]
