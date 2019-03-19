@@ -1026,10 +1026,19 @@ impl<N: Complex, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
 }
 
 impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
-    /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
+    /// The diagonal of this matrix.
     #[inline]
     pub fn diagonal(&self) -> VectorN<N, D>
         where DefaultAllocator: Allocator<N, D> {
+        self.map_diagonal(|e| e)
+    }
+
+    /// Apply the given function to this matrix's diagonal and returns it.
+    ///
+    /// This is a more efficient version of `self.diagonal().map(f)` since this
+    /// allocates only once.
+    pub fn map_diagonal<N2: Scalar>(&self, mut f: impl FnMut(N) -> N2) -> VectorN<N2, D>
+        where DefaultAllocator: Allocator<N2, D> {
         assert!(
             self.is_square(),
             "Unable to get the diagonal of a non-square matrix."
@@ -1040,7 +1049,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
         for i in 0..dim.value() {
             unsafe {
-                *res.vget_unchecked_mut(i) = *self.get_unchecked((i, i));
+                *res.vget_unchecked_mut(i) = f(*self.get_unchecked((i, i)));
             }
         }
 

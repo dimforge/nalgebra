@@ -22,8 +22,8 @@ use linalg::SymmetricTridiagonal;
     feature = "serde-serialize",
     serde(bound(
         serialize = "DefaultAllocator: Allocator<N, D, D> +
-                           Allocator<N, D>,
-         VectorN<N, D>: Serialize,
+                           Allocator<N::Real, D>,
+         VectorN<N::Real, D>: Serialize,
          MatrixN<N, D>: Serialize"
     ))
 )]
@@ -31,32 +31,31 @@ use linalg::SymmetricTridiagonal;
     feature = "serde-serialize",
     serde(bound(
         deserialize = "DefaultAllocator: Allocator<N, D, D> +
-                           Allocator<N, D>,
-         VectorN<N, D>: Deserialize<'de>,
+                           Allocator<N::Real, D>,
+         VectorN<N::Real, D>: Deserialize<'de>,
          MatrixN<N, D>: Deserialize<'de>"
     ))
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Complex, D: Dim>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
 {
     /// The eigenvectors of the decomposed matrix.
     pub eigenvectors: MatrixN<N, D>,
 
-    // FIXME: this should be a VectorN<N::Real, D>
     /// The unsorted eigenvalues of the decomposed matrix.
-    pub eigenvalues: VectorN<N, D>,
+    pub eigenvalues: VectorN<N::Real, D>,
 }
 
 impl<N: Complex, D: Dim> Copy for SymmetricEigen<N, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>,
     MatrixN<N, D>: Copy,
-    VectorN<N, D>: Copy,
+    VectorN<N::Real, D>: Copy,
 {}
 
 impl<N: Complex, D: Dim> SymmetricEigen<N, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
 {
     /// Computes the eigendecomposition of the given symmetric matrix.
     ///
@@ -64,7 +63,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     pub fn new(m: MatrixN<N, D>) -> Self
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<N, DimDiff<D, U1>> + // For tridiagonalization
+        Allocator<N::Real, DimDiff<D, U1>>,
     {
         Self::try_new(m, N::Real::default_epsilon(), 0).unwrap()
     }
@@ -83,7 +83,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     pub fn try_new(m: MatrixN<N, D>, eps: N::Real, max_niter: usize) -> Option<Self>
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<N, DimDiff<D, U1>> + // For tridiagonalization
+                          Allocator<N::Real, DimDiff<D, U1>>,
     {
         Self::do_decompose(m, true, eps, max_niter).map(|(vals, vecs)| SymmetricEigen {
             eigenvectors: vecs.unwrap(),
@@ -96,10 +97,11 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
         eigenvectors: bool,
         eps: N::Real,
         max_niter: usize,
-    ) -> Option<(VectorN<N, D>, Option<MatrixN<N, D>>)>
+    ) -> Option<(VectorN<N::Real, D>, Option<MatrixN<N, D>>)>
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<N, DimDiff<D, U1>> + // For tridiagonalization
+                          Allocator<N::Real, DimDiff<D, U1>>,
     {
         assert!(
             m.is_square(),
@@ -158,41 +160,29 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
                             off_diag[i - 1] = norm;
                         }
 
+
                         let mii = diag[i];
                         let mjj = diag[j];
                         let mij = off_diag[i];
 
                         let cc = rot.c() * rot.c();
-                        let ss = rot.s().modulus_squared(); // rot.s() * rot.s().conjugate()
-                        let cs = rot.s().scale(rot.c());
+                        let ss = rot.s() * rot.s();
+                        let cs = rot.c() * rot.s();
 
-                        // b = cs * mij.conjugate() + cs.conjugate() * mij
-                        let b = N::from_real((cs * mij.conjugate()).real() * ::convert(2.0));
+                        let b = cs * ::convert(2.0) * mij;
 
-                        diag[i] = (mii.scale(cc) + mjj.scale(ss)) - b;
-                        diag[j] = (mii.scale(ss) + mjj.scale(cc)) + b;
-                        off_diag[i] = cs * (mii - mjj) + mij.scale(cc) - mij.conjugate() * rot.s() * rot.s();
-
-                        let mut mat = Matrix2::new(
-                            mii, mij.conjugate(),
-                            mij, mjj);
-                        println!("The mat before rotate: {:.5}", mat);
-                        println!("The v before rotate: {:.5?}", v);
-                        rot.rotate(&mut mat);
-                        rot.inverse().rotate_rows(&mut mat);
-                        let mut v2 = v.clone();
-                        rot.rotate(&mut v2);
-                        println!("The v: {:.5?}", v2);
-                        println!("The mat: {:.5}", mat);
-                        println!("Its components: {:.5}, {:.5}, {:.5}", diag[i], diag[j], off_diag[i]);
+                        diag[i] = (cc * mii + ss * mjj) - b;
+                        diag[j] = (ss * mii + cc * mjj) + b;
+                        off_diag[i] = cs * (mii - mjj) + mij * (cc - ss);
 
                         if i != n - 1 {
                             v.x = off_diag[i];
                             v.y = -rot.s() * off_diag[i + 1];
-                            off_diag[i + 1] = off_diag[i + 1].scale(rot.c());
+                            off_diag[i + 1] *= rot.c();
                         }
 
                         if let Some(ref mut q) = q {
+                            let rot = GivensRotation::new_unchecked(rot.c(), N::from_real(rot.s()));
                             rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<U2>(i));
                         }
                     } else {
@@ -220,6 +210,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 
                 if let Some(ref mut q) = q {
                     if let Some((rot, _)) = GivensRotation::try_new(basis.x, basis.y, eps) {
+                        let rot = GivensRotation::new_unchecked(rot.c(), N::from_real(rot.s()));
                         rot.rotate_rows(&mut q.fixed_columns_mut::<U2>(start));
                     }
                 }
@@ -245,14 +236,14 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     }
 
     fn delimit_subproblem(
-        diag: &VectorN<N, D>,
-        off_diag: &mut VectorN<N, DimDiff<D, U1>>,
+        diag: &VectorN<N::Real, D>,
+        off_diag: &mut VectorN<N::Real, DimDiff<D, U1>>,
         end: usize,
         eps: N::Real,
     ) -> (usize, usize)
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<N::Real, DimDiff<D, U1>>,
     {
         let mut n = end;
 
@@ -277,7 +268,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
             if off_diag[m].is_zero()
                 || off_diag[m].modulus() <= eps * (diag[new_start].modulus() + diag[m].modulus())
             {
-                off_diag[m] = N::zero();
+                off_diag[m] = N::Real::zero();
                 break;
             }
 
@@ -294,7 +285,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
         let mut u_t = self.eigenvectors.clone();
         for i in 0..self.eigenvalues.len() {
             let val = self.eigenvalues[i];
-            u_t.column_mut(i).mul_assign(val);
+            u_t.column_mut(i).scale_mut(val);
         }
         u_t.conjugate_transpose_mut();
         &self.eigenvectors * u_t
@@ -324,7 +315,8 @@ pub fn wilkinson_shift<N: Complex>(tmm: N, tnn: N, tmn: N) -> N {
  *
  */
 impl<N: Complex, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>> +
+                        Allocator<N::Real, D> + Allocator<N::Real, DimDiff<D, U1>>
 {
     /// Computes the eigendecomposition of this symmetric matrix.
     ///
@@ -351,7 +343,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimD
     /// Computes the eigenvalues of this symmetric matrix.
     ///
     /// Only the lower-triangular part of the matrix is read.
-    pub fn symmetric_eigenvalues(&self) -> VectorN<N, D> {
+    pub fn symmetric_eigenvalues(&self) -> VectorN<N::Real, D> {
         SymmetricEigen::do_decompose(self.clone_owned(), false, N::Real::default_epsilon(), 0)
             .unwrap()
             .0

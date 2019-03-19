@@ -28,6 +28,16 @@ impl<N: Complex> GivensRotation<N> {
         }
     }
 
+    /// Initializes a Givens rotation from its components.
+    ///
+    /// The components are copies as-is. It is not checked whether they describe
+    /// an actually valid Givens rotation.
+    pub fn new_unchecked(c: N::Real, s: N) -> Self {
+       Self {
+           c, s
+       }
+    }
+
     /// Initializes a Givens rotation from its non-normalized cosine an sine components.
     pub fn new(c: N, s: N) -> (Self, N) {
         Self::try_new(c, s, N::Real::zero()).unwrap()

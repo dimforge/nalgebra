@@ -102,30 +102,30 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 
     /// Retrieve the orthogonal transformation, diagonal, and off diagonal elements of this
     /// decomposition.
-    pub fn unpack(self) -> (MatrixN<N, D>, VectorN<N, D>, VectorN<N, DimDiff<D, U1>>)
-    where DefaultAllocator: Allocator<N, D> {
+    pub fn unpack(self) -> (MatrixN<N, D>, VectorN<N::Real, D>, VectorN<N::Real, DimDiff<D, U1>>)
+    where DefaultAllocator: Allocator<N::Real, D>
+                          + Allocator<N::Real, DimDiff<D, U1>> {
         let diag = self.diagonal();
         let q = self.q();
 
-        (q, diag, self.off_diagonal.apply_into(|e| N::from_real(e.modulus())))
+        (q, diag, self.off_diagonal.map(N::modulus))
     }
 
     /// Retrieve the diagonal, and off diagonal elements of this decomposition.
-    pub fn unpack_tridiagonal(mut self) -> (VectorN<N, D>, VectorN<N, DimDiff<D, U1>>)
-    where DefaultAllocator: Allocator<N, D> {
-        let diag = self.diagonal();
-
-        (diag, self.off_diagonal.apply_into(|e| N::from_real(e.modulus())))
+    pub fn unpack_tridiagonal(mut self) -> (VectorN<N::Real, D>, VectorN<N::Real, DimDiff<D, U1>>)
+        where DefaultAllocator: Allocator<N::Real, D>
+                              + Allocator<N::Real, DimDiff<D, U1>> {
+        (self.diagonal(), self.off_diagonal.map(N::modulus))
     }
 
     /// The diagonal components of this decomposition.
-    pub fn diagonal(&self) -> VectorN<N, D>
-    where DefaultAllocator: Allocator<N, D> { self.tri.diagonal() }
+    pub fn diagonal(&self) -> VectorN<N::Real, D>
+    where DefaultAllocator: Allocator<N::Real, D> { self.tri.map_diagonal(|e| e.real()) }
 
     /// The off-diagonal components of this decomposition.
-    pub fn off_diagonal(&self) -> VectorN<N, DimDiff<D, U1>>
-    where DefaultAllocator: Allocator<N, D> {
-        self.off_diagonal.map(|e| N::from_real(e.modulus()))
+    pub fn off_diagonal(&self) -> VectorN<N::Real, DimDiff<D, U1>>
+    where DefaultAllocator: Allocator<N::Real, DimDiff<D, U1>> {
+        self.off_diagonal.map(N::modulus)
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.

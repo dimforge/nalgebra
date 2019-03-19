@@ -272,13 +272,15 @@ where
     }
 
     /// The diagonal part of this decomposed matrix.
-    pub fn diagonal(&self) -> VectorN<N, DimMinimum<R, C>> {
-        self.diagonal.map(|e| N::from_real(e.modulus()))
+    pub fn diagonal(&self) -> VectorN<N::Real, DimMinimum<R, C>>
+        where DefaultAllocator: Allocator<N::Real, DimMinimum<R, C>> {
+        self.diagonal.map(|e| e.modulus())
     }
 
     /// The off-diagonal part of this decomposed matrix.
-    pub fn off_diagonal(&self) -> VectorN<N, DimDiff<DimMinimum<R, C>, U1>> {
-        self.off_diagonal.map(|e| N::from_real(e.modulus()))
+    pub fn off_diagonal(&self) -> VectorN<N::Real, DimDiff<DimMinimum<R, C>, U1>>
+        where DefaultAllocator: Allocator<N::Real, DimDiff<DimMinimum<R, C>, U1>> {
+        self.off_diagonal.map(|e| e.modulus())
     }
 
     #[doc(hidden)]

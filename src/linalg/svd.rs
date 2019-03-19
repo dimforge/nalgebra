@@ -2,11 +2,11 @@
 use serde::{Deserialize, Serialize};
 
 use num_complex::Complex as NumComplex;
-use num::Zero;
+use num::{Zero, One};
 use std::ops::MulAssign;
 use approx::AbsDiffEq;
 
-use alga::general::Complex;
+use alga::general::{Real, Complex};
 use allocator::Allocator;
 use base::{DefaultAllocator, Matrix, Matrix2x3, MatrixMN, Vector2, VectorN};
 use constraint::{SameNumberOfRows, ShapeConstraint};
@@ -23,51 +23,47 @@ use linalg::givens::GivensRotation;
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, R, C>    +
-                           Allocator<N, DimMinimum<R, C>>    +
+        serialize = "DefaultAllocator: Allocator<N::Real, DimMinimum<R, C>>    +
                            Allocator<N, DimMinimum<R, C>, C> +
                            Allocator<N, R, DimMinimum<R, C>>,
          MatrixMN<N, R, DimMinimum<R, C>>: Serialize,
          MatrixMN<N, DimMinimum<R, C>, C>: Serialize,
-         VectorN<N, DimMinimum<R, C>>: Serialize"
+         VectorN<N::Real, DimMinimum<R, C>>: Serialize"
     ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, R, C>  +
-                           Allocator<N, DimMinimum<R, C>>    +
+        deserialize = "DefaultAllocator: Allocator<N::Real, DimMinimum<R, C>>    +
                            Allocator<N, DimMinimum<R, C>, C> +
                            Allocator<N, R, DimMinimum<R, C>>,
          MatrixMN<N, R, DimMinimum<R, C>>: Deserialize<'de>,
          MatrixMN<N, DimMinimum<R, C>, C>: Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"
+         VectorN<N::Real, DimMinimum<R, C>>: Deserialize<'de>"
     ))
 )]
 #[derive(Clone, Debug)]
 pub struct SVD<N: Complex, R: DimMin<C>, C: Dim>
 where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
-        + Allocator<N, DimMinimum<R, C>>
+        + Allocator<N::Real, DimMinimum<R, C>>
 {
     /// The left-singular vectors `U` of this SVD.
     pub u: Option<MatrixMN<N, R, DimMinimum<R, C>>>,
     /// The right-singular vectors `V^t` of this SVD.
     pub v_t: Option<MatrixMN<N, DimMinimum<R, C>, C>>,
-    // FIXME: this should a vector of N::Real
-    // because singular values are necessarily real.
     /// The singular values of this SVD.
-    pub singular_values: VectorN<N, DimMinimum<R, C>>,
+    pub singular_values: VectorN<N::Real, DimMinimum<R, C>>,
 }
 
 impl<N: Complex, R: DimMin<C>, C: Dim> Copy for SVD<N, R, C>
 where
     DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
-        + Allocator<N, DimMinimum<R, C>>,
+        + Allocator<N::Real, DimMinimum<R, C>>,
     MatrixMN<N, R, DimMinimum<R, C>>: Copy,
     MatrixMN<N, DimMinimum<R, C>, C>: Copy,
-    VectorN<N, DimMinimum<R, C>>: Copy,
+    VectorN<N::Real, DimMinimum<R, C>>: Copy,
 {}
 
 impl<N: Complex, R: DimMin<C>, C: Dim> SVD<N, R, C>
@@ -79,7 +75,9 @@ where
         + Allocator<N, DimDiff<DimMinimum<R, C>, U1>>
         + Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
-        + Allocator<N, DimMinimum<R, C>>,
+        + Allocator<N, DimMinimum<R, C>>
+        + Allocator<N::Real, DimMinimum<R, C>>
+        + Allocator<N::Real, DimDiff<DimMinimum<R, C>, U1>>,
 {
     /// Computes the Singular Value Decomposition of `matrix` using implicit shift.
     pub fn new(matrix: MatrixMN<N, R, C>, compute_u: bool, compute_v: bool) -> Self {
@@ -155,7 +153,7 @@ where
 
                 for k in start..n {
                     let m12 = if k == n - 1 {
-                        N::zero()
+                        N::Real::zero()
                     } else {
                         off_diagonal[k + 1]
                     };
@@ -163,15 +161,15 @@ where
                     let mut subm = Matrix2x3::new(
                         diagonal[k],
                         off_diagonal[k],
-                        N::zero(),
-                        N::zero(),
+                        N::Real::zero(),
+                        N::Real::zero(),
                         diagonal[k + 1],
                         m12,
                     );
 
                     if let Some((rot1, norm1)) = GivensRotation::cancel_y(&vec) {
-                        rot1.inverse()
-                            .rotate_rows(&mut subm.fixed_columns_mut::<U2>(0));
+                        rot1.inverse().rotate_rows(&mut subm.fixed_columns_mut::<U2>(0));
+                        let rot1 = GivensRotation::new_unchecked(rot1.c(), N::from_real(rot1.s()));
 
                         if k > start {
                             // This is not the first iteration.
@@ -182,7 +180,10 @@ where
                         // FIXME: does the case `v.y == 0` ever happen?
                         let (rot2, norm2) =
                             GivensRotation::cancel_y(&v).unwrap_or((GivensRotation::identity(), subm[(0, 0)]));
+
                         rot2.rotate(&mut subm.fixed_columns_mut::<U2>(1));
+                        let rot2 = GivensRotation::new_unchecked(rot2.c(), N::from_real(rot2.s()));
+
                         subm[(0, 0)] = norm2;
 
                         if let Some(ref mut v_t) = v_t {
@@ -219,17 +220,19 @@ where
                 }
             } else if subdim == 2 {
                 // Solve the remaining 2x2 subproblem.
-                let (u2, s, v2) = Self::compute_2x2_uptrig_svd(
+                let (u2, s, v2) = compute_2x2_uptrig_svd(
                     diagonal[start],
                     off_diagonal[start],
                     diagonal[start + 1],
                     compute_u && b.is_upper_diagonal() || compute_v && !b.is_upper_diagonal(),
                     compute_v && b.is_upper_diagonal() || compute_u && !b.is_upper_diagonal(),
                 );
+                let u2 = u2.map(|u2| GivensRotation::new_unchecked(u2.c(), N::from_real(u2.s())));
+                let v2 = v2.map(|v2| GivensRotation::new_unchecked(v2.c(), N::from_real(v2.s())));
 
                 diagonal[start + 0] = s[0];
                 diagonal[start + 1] = s[1];
-                off_diagonal[start] = N::zero();
+                off_diagonal[start] = N::Real::zero();
 
                 if let Some(ref mut u) = u {
                     let rot = if b.is_upper_diagonal() {
@@ -263,17 +266,17 @@ where
             }
         }
 
-        diagonal.scale_mut(m_amax);
+        diagonal *= m_amax;
 
         // Ensure all singular value are non-negative.
         for i in 0..dim {
             let sval = diagonal[i];
-            let (modulus, sign) = sval.to_exp();
-            if modulus != N::Real::zero() {
-                diagonal[i] = N::from_real(modulus);
+
+            if sval < N::Real::zero() {
+                diagonal[i] = -sval;
 
                 if let Some(ref mut u) = u {
-                    u.column_mut(i).mul_assign(sign);
+                    u.column_mut(i).neg_mut();
                 }
             }
         }
@@ -283,55 +286,6 @@ where
             v_t,
             singular_values: diagonal,
         })
-    }
-
-    // Explicit formulaes inspired from the paper "Computing the Singular Values of 2-by-2 Complex
-    // Matrices", Sanzheng Qiao and Xiaohong Wang.
-    // http://www.cas.mcmaster.ca/sqrl/papers/sqrl5.pdf
-    fn compute_2x2_uptrig_svd(
-        m11: N,
-        m12: N,
-        m22: N,
-        compute_u: bool,
-        compute_v: bool,
-    ) -> (Option<GivensRotation<N>>, Vector2<N>, Option<GivensRotation<N>>)
-    {
-        let two: N::Real = ::convert(2.0f64);
-        let half: N::Real = ::convert(0.5f64);
-
-        let denom = (m11 + m22).hypot(m12) + (m11 - m22).hypot(m12);
-
-        // NOTE: v1 is the singular value that is the closest to m22.
-        // This prevents cancellation issues when constructing the vector `csv` below. If we chose
-        // otherwise, we would have v1 ~= m11 when m12 is small. This would cause catastrophic
-        // cancellation on `v1 * v1 - m11 * m11` below.
-        let mut v1 = (m11 * m22).scale(two / denom);
-        let mut v2 = N::from_real(half * denom);
-
-        let mut u = None;
-        let mut v_t = None;
-
-        if compute_u || compute_v {
-            let (csv, sgn_v) = GivensRotation::new(m11 * m12, v1 * v1 - m11 * m11);
-            v1 *= sgn_v;
-            v2 *= sgn_v;
-
-            if compute_v {
-                v_t = Some(csv);
-            }
-
-            if compute_u {
-                let cu = (m11.scale(csv.c()) + m12 * csv.s()) / v1;
-                let su = (m22 * csv.s()) / v1;
-                let (csu, sgn_u) = GivensRotation::new(cu, su);
-
-                v1 *= sgn_u;
-                v2 *= sgn_u;
-                u = Some(csu);
-            }
-        }
-
-        (u, Vector2::new(v1, v2), v_t)
     }
 
     /*
@@ -350,8 +304,8 @@ where
     */
 
     fn delimit_subproblem(
-        diagonal: &mut VectorN<N, DimMinimum<R, C>>,
-        off_diagonal: &mut VectorN<N, DimDiff<DimMinimum<R, C>, U1>>,
+        diagonal: &mut VectorN<N::Real, DimMinimum<R, C>>,
+        off_diagonal: &mut VectorN<N::Real, DimDiff<DimMinimum<R, C>, U1>>,
         u: &mut Option<MatrixMN<N, R, DimMinimum<R, C>>>,
         v_t: &mut Option<MatrixMN<N, DimMinimum<R, C>, C>>,
         is_upper_diagonal: bool,
@@ -367,16 +321,16 @@ where
             if off_diagonal[m].is_zero()
                 || off_diagonal[m].modulus() <= eps * (diagonal[n].modulus() + diagonal[m].modulus())
             {
-                off_diagonal[m] = N::zero();
+                off_diagonal[m] = N::Real::zero();
             } else if diagonal[m].modulus() <= eps {
-                diagonal[m] = N::zero();
+                diagonal[m] = N::Real::zero();
                 Self::cancel_horizontal_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m, m + 1);
 
                 if m != 0 {
                     Self::cancel_vertical_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m - 1);
                 }
             } else if diagonal[n].modulus() <= eps {
-                diagonal[n] = N::zero();
+                diagonal[n] = N::Real::zero();
                 Self::cancel_vertical_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m);
             } else {
                 break;
@@ -395,12 +349,12 @@ where
 
             if off_diagonal[m].modulus() <= eps * (diagonal[new_start].modulus() + diagonal[m].modulus())
             {
-                off_diagonal[m] = N::zero();
+                off_diagonal[m] = N::Real::zero();
                 break;
             }
             // FIXME: write a test that enters this case.
             else if diagonal[m].modulus() <= eps {
-                diagonal[m] = N::zero();
+                diagonal[m] = N::Real::zero();
                 Self::cancel_horizontal_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m, n);
 
                 if m != 0 {
@@ -417,8 +371,8 @@ where
 
     // Cancels the i-th off-diagonal element using givens rotations.
     fn cancel_horizontal_off_diagonal_elt(
-        diagonal: &mut VectorN<N, DimMinimum<R, C>>,
-        off_diagonal: &mut VectorN<N, DimDiff<DimMinimum<R, C>, U1>>,
+        diagonal: &mut VectorN<N::Real, DimMinimum<R, C>>,
+        off_diagonal: &mut VectorN<N::Real, DimDiff<DimMinimum<R, C>, U1>>,
         u: &mut Option<MatrixMN<N, R, DimMinimum<R, C>>>,
         v_t: &mut Option<MatrixMN<N, DimMinimum<R, C>, C>>,
         is_upper_diagonal: bool,
@@ -427,10 +381,11 @@ where
     )
     {
         let mut v = Vector2::new(off_diagonal[i], diagonal[i + 1]);
-        off_diagonal[i] = N::zero();
+        off_diagonal[i] = N::Real::zero();
 
         for k in i..end {
             if let Some((rot, norm)) = GivensRotation::cancel_x(&v) {
+                let rot = GivensRotation::new_unchecked(rot.c(), N::from_real(rot.s()));
                 diagonal[k + 1] = norm;
 
                 if is_upper_diagonal {
@@ -443,9 +398,9 @@ where
                 }
 
                 if k + 1 != end {
-                    v.x = -rot.s() * off_diagonal[k + 1];
+                    v.x = -rot.s().real() * off_diagonal[k + 1];
                     v.y = diagonal[k + 2];
-                    off_diagonal[k + 1] = off_diagonal[k + 1].scale(rot.c());
+                    off_diagonal[k + 1] *= rot.c();
                 }
             } else {
                 break;
@@ -455,8 +410,8 @@ where
 
     // Cancels the i-th off-diagonal element using givens rotations.
     fn cancel_vertical_off_diagonal_elt(
-        diagonal: &mut VectorN<N, DimMinimum<R, C>>,
-        off_diagonal: &mut VectorN<N, DimDiff<DimMinimum<R, C>, U1>>,
+        diagonal: &mut VectorN<N::Real, DimMinimum<R, C>>,
+        off_diagonal: &mut VectorN<N::Real, DimDiff<DimMinimum<R, C>, U1>>,
         u: &mut Option<MatrixMN<N, R, DimMinimum<R, C>>>,
         v_t: &mut Option<MatrixMN<N, DimMinimum<R, C>, C>>,
         is_upper_diagonal: bool,
@@ -464,10 +419,11 @@ where
     )
     {
         let mut v = Vector2::new(diagonal[i], off_diagonal[i]);
-        off_diagonal[i] = N::zero();
+        off_diagonal[i] = N::Real::zero();
 
         for k in (0..i + 1).rev() {
             if let Some((rot, norm)) = GivensRotation::cancel_y(&v) {
+                let rot = GivensRotation::new_unchecked(rot.c(), N::from_real(rot.s()));
                 diagonal[k] = norm;
 
                 if is_upper_diagonal {
@@ -481,8 +437,8 @@ where
 
                 if k > 0 {
                     v.x = diagonal[k - 1];
-                    v.y = rot.s() * off_diagonal[k - 1];
-                    off_diagonal[k - 1] = off_diagonal[k - 1].scale(rot.c());
+                    v.y = rot.s().real() * off_diagonal[k - 1];
+                    off_diagonal[k - 1] *= rot.c();
                 }
             } else {
                 break;
@@ -497,7 +453,7 @@ where
             eps >= N::Real::zero(),
             "SVD rank: the epsilon must be non-negative."
         );
-        self.singular_values.iter().filter(|e| e.asum() > eps).count()
+        self.singular_values.iter().filter(|e| **e > eps).count()
     }
 
     /// Rebuild the original matrix.
@@ -510,7 +466,7 @@ where
             (Some(mut u), Some(v_t)) => {
                 for i in 0..self.singular_values.len() {
                     let val = self.singular_values[i];
-                    u.column_mut(i).mul_assign(val);
+                    u.column_mut(i).scale_mut(val);
                 }
                 Ok(u * v_t)
             }
@@ -536,10 +492,10 @@ where
             for i in 0..self.singular_values.len() {
                 let val = self.singular_values[i];
 
-                if val.asum() > eps {
-                    self.singular_values[i] = N::one() / val;
+                if val > eps {
+                    self.singular_values[i] = N::Real::one() / val;
                 } else {
-                    self.singular_values[i] = N::zero();
+                    self.singular_values[i] = N::Real::zero();
                 }
             }
 
@@ -575,8 +531,8 @@ where
 
                         for i in 0..self.singular_values.len() {
                             let val = self.singular_values[i];
-                            if val.asum() > eps {
-                                col[i] /= val;
+                            if val > eps {
+                                col[i] = col[i].unscale(val);
                             } else {
                                 col[i] = N::zero();
                             }
@@ -602,7 +558,9 @@ where
         + Allocator<N, DimDiff<DimMinimum<R, C>, U1>>
         + Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
-        + Allocator<N, DimMinimum<R, C>>,
+        + Allocator<N, DimMinimum<R, C>>
+        + Allocator<N::Real, DimMinimum<R, C>>
+        + Allocator<N::Real, DimDiff<DimMinimum<R, C>, U1>>,
 {
     /// Computes the Singular Value Decomposition using implicit shift.
     pub fn svd(self, compute_u: bool, compute_v: bool) -> SVD<N, R, C> {
@@ -631,7 +589,7 @@ where
     }
 
     /// Computes the singular values of this matrix.
-    pub fn singular_values(&self) -> VectorN<N, DimMinimum<R, C>> {
+    pub fn singular_values(&self) -> VectorN<N::Real, DimMinimum<R, C>> {
         SVD::new(self.clone_owned(), false, false).singular_values
     }
 
@@ -652,4 +610,54 @@ where
     {
         SVD::new(self.clone_owned(), true, true).pseudo_inverse(eps)
     }
+}
+
+
+// Explicit formulae inspired from the paper "Computing the Singular Values of 2-by-2 Complex
+// Matrices", Sanzheng Qiao and Xiaohong Wang.
+// http://www.cas.mcmaster.ca/sqrl/papers/sqrl5.pdf
+fn compute_2x2_uptrig_svd<N: Real>(
+    m11: N,
+    m12: N,
+    m22: N,
+    compute_u: bool,
+    compute_v: bool,
+) -> (Option<GivensRotation<N>>, Vector2<N>, Option<GivensRotation<N>>)
+{
+    let two: N::Real = ::convert(2.0f64);
+    let half: N::Real = ::convert(0.5f64);
+
+    let denom = (m11 + m22).hypot(m12) + (m11 - m22).hypot(m12);
+
+    // NOTE: v1 is the singular value that is the closest to m22.
+    // This prevents cancellation issues when constructing the vector `csv` below. If we chose
+    // otherwise, we would have v1 ~= m11 when m12 is small. This would cause catastrophic
+    // cancellation on `v1 * v1 - m11 * m11` below.
+    let mut v1 = m11 * m22 * two / denom;
+    let mut v2 = half * denom;
+
+    let mut u = None;
+    let mut v_t = None;
+
+    if compute_u || compute_v {
+        let (csv, sgn_v) = GivensRotation::new(m11 * m12, v1 * v1 - m11 * m11);
+        v1 *= sgn_v;
+        v2 *= sgn_v;
+
+        if compute_v {
+            v_t = Some(csv);
+        }
+
+        if compute_u {
+            let cu = (m11.scale(csv.c()) + m12 * csv.s()) / v1;
+            let su = (m22 * csv.s()) / v1;
+            let (csu, sgn_u) = GivensRotation::new(cu, su);
+
+            v1 *= sgn_u;
+            v2 *= sgn_u;
+            u = Some(csu);
+        }
+    }
+
+    (u, Vector2::new(v1, v2), v_t)
 }

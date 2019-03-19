@@ -18,11 +18,11 @@ mod quickcheck_tests {
                 let svd = m.clone().svd(true, true);
                 let recomp_m = svd.clone().recompose().unwrap();
                 let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-                let ds = DMatrix::from_diagonal(&s);
+                let ds = DMatrix::from_diagonal(&s.map(|e| Complex::from_real(e)));
 
                 println!("{}{}", &m, &u * &ds * &v_t);
 
-                s.iter().all(|e| e.real() >= 0.0) &&
+                s.iter().all(|e| *e >= 0.0) &&
                 relative_eq!(&u * ds * &v_t, recomp_m, epsilon = 1.0e-5) &&
                 relative_eq!(m, recomp_m, epsilon = 1.0e-5)
             }
@@ -35,9 +35,9 @@ mod quickcheck_tests {
             let m = m.map(|e| e.0);
             let svd = m.svd(true, true);
             let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-            let ds = Matrix3::from_diagonal(&s);
+            let ds = Matrix3::from_diagonal(&s.map(|e| Complex::from_real(e)));
 
-            s.iter().all(|e| e.real() >= 0.0) &&
+            s.iter().all(|e| *e >= 0.0) &&
             relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5) &&
             u.is_orthogonal(1.0e-5) &&
             v_t.is_orthogonal(1.0e-5)
@@ -47,9 +47,9 @@ mod quickcheck_tests {
             let m = m.map(|e| e.0);
             let svd = m.svd(true, true);
             let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-            let ds = Matrix2::from_diagonal(&s);
+            let ds = Matrix2::from_diagonal(&s.map(|e| Complex::from_real(e)));
 
-            s.iter().all(|e| e.real() >= 0.0) &&
+            s.iter().all(|e| *e >= 0.0) &&
             relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5) &&
             u.is_orthogonal(1.0e-5) &&
             v_t.is_orthogonal(1.0e-5)
@@ -60,9 +60,9 @@ mod quickcheck_tests {
             let svd = m.svd(true, true);
             let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
 
-            let ds = Matrix3::from_diagonal(&s);
+            let ds = Matrix3::from_diagonal(&s.map(|e| Complex::from_real(e)));
 
-            s.iter().all(|e| e.real() >= 0.0) &&
+            s.iter().all(|e| *e >= 0.0) &&
             relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5)
         }
 
@@ -70,9 +70,9 @@ mod quickcheck_tests {
             let m = m.map(|e| e.0);
             let svd = m.svd(true, true);
             let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-            let ds = Matrix2::from_diagonal(&s);
+            let ds = Matrix2::from_diagonal(&s.map(|e| Complex::from_real(e)));
 
-            s.iter().all(|e| e.real() >= 0.0) &&
+            s.iter().all(|e| *e >= 0.0) &&
             relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5)
         }
 
@@ -80,9 +80,9 @@ mod quickcheck_tests {
             let m = m.map(|e| e.0);
             let svd = m.svd(true, true);
             let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-            let ds = Matrix4::from_diagonal(&s);
+            let ds = Matrix4::from_diagonal(&s.map(|e| Complex::from_real(e)));
 
-            s.iter().all(|e| e.real() >= 0.0) &&
+            s.iter().all(|e| *e >= 0.0) &&
             relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5) &&
             u.is_orthogonal(1.0e-5) &&
             v_t.is_orthogonal(1.0e-5)
@@ -92,14 +92,14 @@ mod quickcheck_tests {
             let m = m.map(|e| e.0);
             let svd = m.svd(true, true);
             let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-            let ds = Matrix2::from_diagonal(&s);
+            let ds = Matrix2::from_diagonal(&s.map(|e| Complex::from_real(e)));
 
             println!("u, s, v_t: {}{}{}", u, s, v_t);
             println!("m: {}", m);
             println!("recomp: {}", u * ds * v_t);
             println!("uu_t, vv_t: {}{}", u * u.conjugate_transpose(), v_t.conjugate_transpose() * v_t);
 
-            s.iter().all(|e| e.re >= 0.0) &&
+            s.iter().all(|e| *e >= 0.0) &&
             relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5) &&
             u.is_orthogonal(1.0e-5) &&
             v_t.is_orthogonal(1.0e-5)
