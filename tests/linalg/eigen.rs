@@ -105,11 +105,11 @@ fn symmetric_eigen_singular_24x24() {
     let eig = m.clone().symmetric_eigen();
     let recomp = eig.recompose();
 
-    assert!(relative_eq!(
+    assert_relative_eq!(
         m.lower_triangle(),
         recomp.lower_triangle(),
         epsilon = 1.0e-5
-    ));
+    );
 }
 
 //  #[cfg(feature = "arbitrary")]

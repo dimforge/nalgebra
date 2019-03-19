@@ -3,6 +3,7 @@
 use na::{DMatrix, Matrix2, Matrix3x5, Matrix4, Matrix5x3};
 use core::helper::{RandScalar, RandComplex};
 
+
 quickcheck! {
     fn bidiagonal(m: DMatrix<RandComplex<f64>>) -> bool {
         let m = m.map(|e| e.0);
@@ -62,4 +63,27 @@ quickcheck! {
 
         relative_eq!(m, &u * d * &v_t, epsilon = 1.0e-7)
     }
+}
+
+
+#[test]
+fn bidiagonal_identity() {
+    let m = DMatrix::<f64>::identity(10, 10);
+    let bidiagonal = m.clone().bidiagonalize();
+    let (u, d, v_t) = bidiagonal.unpack();
+    println!("u, s, v_t: {}{}{}", u, d, v_t);
+    println!("recomp: {}", &u * &d * &v_t);
+    assert_eq!(m, &u * d * &v_t);
+
+    let m = DMatrix::<f64>::identity(10, 15);
+    let bidiagonal = m.clone().bidiagonalize();
+    let (u, d, v_t) = bidiagonal.unpack();
+    println!("u, s, v_t: {}{}{}", u, d, v_t);
+    assert_eq!(m, &u * d * &v_t);
+
+    let m = DMatrix::<f64>::identity(15, 10);
+    let bidiagonal = m.clone().bidiagonalize();
+    let (u, d, v_t) = bidiagonal.unpack();
+    println!("u, s, v_t: {}{}{}", u, d, v_t);
+    assert_eq!(m, &u * d * &v_t);
 }

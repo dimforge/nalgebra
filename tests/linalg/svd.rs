@@ -199,7 +199,7 @@ fn svd_singular() {
     assert!(s.iter().all(|e| *e >= 0.0));
     assert!(u.is_orthogonal(1.0e-5));
     assert!(v_t.is_orthogonal(1.0e-5));
-    assert!(relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5));
+    assert_relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5);
 }
 
 // Same as the previous test but with one additional row.
@@ -238,7 +238,7 @@ fn svd_singular_vertical() {
     let ds = DMatrix::from_diagonal(&s);
 
     assert!(s.iter().all(|e| *e >= 0.0));
-    assert!(relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5));
+    assert_relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5);
 }
 
 // Same as the previous test but with one additional column.
@@ -275,7 +275,7 @@ fn svd_singular_horizontal() {
     let ds = DMatrix::from_diagonal(&s);
 
     assert!(s.iter().all(|e| *e >= 0.0));
-    assert!(relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5));
+    assert_relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5);
 }
 
 #[test]
@@ -314,7 +314,7 @@ fn svd_with_delimited_subproblem() {
     m[(8,8)] = 16.0; m[(3,9)] = 17.0;
     m[(9,9)] = 18.0;
     let svd = m.clone().svd(true, true);
-    assert!(relative_eq!(m, svd.recompose().unwrap(), epsilon = 1.0e-7));
+    assert_relative_eq!(m, svd.recompose().unwrap(), epsilon = 1.0e-7);
 
     // Rectangular versions.
     let mut m = DMatrix::<f64>::from_element(15, 10, 0.0);
@@ -329,10 +329,10 @@ fn svd_with_delimited_subproblem() {
     m[(8,8)] = 16.0; m[(3,9)] = 17.0;
     m[(9,9)] = 18.0;
     let svd = m.clone().svd(true, true);
-    assert!(relative_eq!(m, svd.recompose().unwrap(), epsilon = 1.0e-7));
+    assert_relative_eq!(m, svd.recompose().unwrap(), epsilon = 1.0e-7);
 
     let svd = m.transpose().svd(true, true);
-    assert!(relative_eq!(m.transpose(), svd.recompose().unwrap(), epsilon = 1.0e-7));
+    assert_relative_eq!(m.transpose(), svd.recompose().unwrap(), epsilon = 1.0e-7);
 }
 
 #[test]
@@ -350,7 +350,7 @@ fn svd_fail() {
     println!("v: {:.5}", svd.v_t.unwrap());
     let recomp = svd.recompose().unwrap();
     println!("{:.5}{:.5}", m, recomp);
-    assert!(relative_eq!(m, recomp, epsilon = 1.0e-5));
+    assert_relative_eq!(m, recomp, epsilon = 1.0e-5);
 }
 
 #[test]
