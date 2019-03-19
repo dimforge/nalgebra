@@ -60,10 +60,11 @@ pub fn clear_column_unchecked<N: Complex, R: Dim, C: Dim>(
 
     if not_zero {
         let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
+        let sign = reflection_norm.signum();
         if let Some(mut work) = bilateral {
-            refl.reflect_rows(&mut right, &mut work);
+            refl.reflect_rows_with_sign(&mut right, &mut work, sign);
         }
-        refl.reflect(&mut right.rows_range_mut(icol + shift..));
+        refl.reflect_with_sign(&mut right.rows_range_mut(icol + shift..), sign.conjugate());
     }
 }
 
@@ -90,9 +91,10 @@ pub fn clear_row_unchecked<N: Complex, R: Dim, C: Dim>(
 
     if not_zero {
         let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
-        refl.reflect_rows(
+        refl.reflect_rows_with_sign(
             &mut bottom.columns_range_mut(irow + shift..),
             &mut work.rows_range_mut(irow + 1..),
+            reflection_norm.signum().conjugate(),
         );
         top.columns_range_mut(irow + shift..)
             .tr_copy_from(&refl.axis());
@@ -101,11 +103,11 @@ pub fn clear_row_unchecked<N: Complex, R: Dim, C: Dim>(
     }
 }
 
-/// Computes the orthogonal transformation described by the elementary reflector axices stored on
+/// Computes the orthogonal transformation described by the elementary reflector axii stored on
 /// the lower-diagonal element of the given matrix.
 /// matrices.
 #[doc(hidden)]
-pub fn assemble_q<N: Complex, D: Dim>(m: &MatrixN<N, D>) -> MatrixN<N, D>
+pub fn assemble_q<N: Complex, D: Dim>(m: &MatrixN<N, D>, signs: &[N]) -> MatrixN<N, D>
 where DefaultAllocator: Allocator<N, D, D> {
     assert!(m.is_square());
     let dim = m.data.shape().0;
@@ -119,7 +121,7 @@ where DefaultAllocator: Allocator<N, D, D> {
         let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
 
         let mut res_rows = res.slice_range_mut(i + 1.., i..);
-        refl.reflect(&mut res_rows);
+        refl.reflect_with_sign(&mut res_rows, signs[i].signum());
     }
 
     res

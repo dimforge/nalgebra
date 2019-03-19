@@ -1,5 +1,6 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
+use num::Zero;
 
 use alga::general::Complex;
 use allocator::{Allocator, Reallocator};
@@ -83,7 +84,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
     {
         let (nrows, ncols) = self.qr.data.shape();
         let mut res = self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle();
-        res.set_diagonal(&self.diag);
+        res.set_diagonal(&self.diag.map(|e| N::from_real(e.modulus())));
         res
     }
 
@@ -100,7 +101,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
         let (nrows, ncols) = self.qr.data.shape();
         let mut res = self.qr.resize_generic(nrows.min(ncols), ncols, N::zero());
         res.fill_lower_triangle(N::zero(), 1);
-        res.set_diagonal(&self.diag);
+        res.set_diagonal(&self.diag.map(|e| N::from_real(e.modulus())));
         res
     }
 
@@ -120,7 +121,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
             let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
 
             let mut res_rows = res.slice_range_mut(i.., i..);
-            refl.reflect(&mut res_rows);
+            refl.reflect_with_sign(&mut res_rows, self.diag[i].signum());
         }
 
         res
@@ -157,7 +158,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
             let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
 
             let mut rhs_rows = rhs.rows_range_mut(i..);
-            refl.reflect(&mut rhs_rows);
+            refl.reflect_with_sign(&mut rhs_rows, self.diag[i].signum().conjugate());
         }
     }
 }
@@ -226,13 +227,13 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
                 let coeff;
 
                 unsafe {
-                    let diag = *self.diag.vget_unchecked(i);
+                    let diag = self.diag.vget_unchecked(i).modulus();
 
                     if diag.is_zero() {
                         return false;
                     }
 
-                    coeff = *b.vget_unchecked(i) / diag;
+                    coeff = b.vget_unchecked(i).unscale(diag);
                     *b.vget_unchecked_mut(i) = coeff;
                 }
 

@@ -79,6 +79,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 
                 p.cgemv_symm(::convert(2.0), &m, &axis, N::zero());
                 let dot = axis.cdot(&p);
+
 //                p.axpy(-dot, &axis.conjugate(), N::one());
                 m.ger_symm(-N::one(), &p, &axis.conjugate(), N::one());
                 m.ger_symm(-N::one(), &axis, &p.conjugate(), N::one());
@@ -106,32 +107,30 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
         let diag = self.diagonal();
         let q = self.q();
 
-        (q, diag, self.off_diagonal)
+        (q, diag, self.off_diagonal.apply_into(|e| N::from_real(e.modulus())))
     }
 
     /// Retrieve the diagonal, and off diagonal elements of this decomposition.
-    pub fn unpack_tridiagonal(self) -> (VectorN<N, D>, VectorN<N, DimDiff<D, U1>>)
+    pub fn unpack_tridiagonal(mut self) -> (VectorN<N, D>, VectorN<N, DimDiff<D, U1>>)
     where DefaultAllocator: Allocator<N, D> {
         let diag = self.diagonal();
 
-        (diag, self.off_diagonal)
+        (diag, self.off_diagonal.apply_into(|e| N::from_real(e.modulus())))
     }
 
     /// The diagonal components of this decomposition.
     pub fn diagonal(&self) -> VectorN<N, D>
-    where DefaultAllocator: Allocator<N, D> {
-        self.tri.diagonal()
-    }
+    where DefaultAllocator: Allocator<N, D> { self.tri.diagonal() }
 
     /// The off-diagonal components of this decomposition.
-    pub fn off_diagonal(&self) -> &VectorN<N, DimDiff<D, U1>>
+    pub fn off_diagonal(&self) -> VectorN<N, DimDiff<D, U1>>
     where DefaultAllocator: Allocator<N, D> {
-        &self.off_diagonal
+        self.off_diagonal.map(|e| N::from_real(e.modulus()))
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
     pub fn q(&self) -> MatrixN<N, D> {
-        householder::assemble_q(&self.tri)
+        householder::assemble_q(&self.tri, self.off_diagonal.as_slice())
     }
 
     /// Recomputes the original symmetric matrix.
@@ -141,8 +140,9 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
         self.tri.fill_upper_triangle(N::zero(), 2);
 
         for i in 0..self.off_diagonal.len() {
-            self.tri[(i + 1, i)] = self.off_diagonal[i];
-            self.tri[(i, i + 1)] = self.off_diagonal[i].conjugate();
+            let val = N::from_real(self.off_diagonal[i].modulus());
+            self.tri[(i + 1, i)] = val;
+            self.tri[(i, i + 1)] = val;
         }
 
         &q * self.tri * q.conjugate_transpose()

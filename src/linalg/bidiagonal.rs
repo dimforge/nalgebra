@@ -200,11 +200,11 @@ where
 
         let d = nrows.min(ncols);
         let mut res = MatrixN::identity_generic(d, d);
-        res.set_diagonal(&self.diagonal);
+        res.set_diagonal(&self.diagonal.map(|e| N::from_real(e.modulus())));
 
         let start = self.axis_shift();
         res.slice_mut(start, (d.value() - 1, d.value() - 1))
-            .set_diagonal(&self.off_diagonal);
+            .set_diagonal(&self.off_diagonal.map(|e| N::from_real(e.modulus())));
         res
     }
 
@@ -225,7 +225,14 @@ where
             let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
 
             let mut res_rows = res.slice_range_mut(i + shift.., i..);
-            refl.reflect(&mut res_rows);
+
+            let sign = if self.upper_diagonal {
+                self.diagonal[i].signum()
+            } else {
+                self.off_diagonal[i].signum()
+            };
+
+            refl.reflect_with_sign(&mut res_rows, sign);
         }
 
         res
@@ -251,7 +258,14 @@ where
             let refl = Reflection::new(Unit::new_unchecked(axis_packed), N::zero());
 
             let mut res_rows = res.slice_range_mut(i.., i + shift..);
-            refl.reflect_rows(&mut res_rows, &mut work.rows_range_mut(i..));
+
+            let sign = if self.upper_diagonal {
+                self.off_diagonal[i].signum()
+            } else {
+                self.diagonal[i].signum()
+            };
+
+            refl.reflect_rows_with_sign(&mut res_rows, &mut work.rows_range_mut(i..), sign);
         }
 
         res

@@ -770,6 +770,14 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         }
     }
 
+    // FIXME: rename `apply` to `apply_mut` and `apply_into` to `apply`?
+    /// Returns `self` with each of its components replaced by the result of a closure `f` applied on it.
+    #[inline]
+    pub fn apply_into<F: FnMut(N) -> N>(mut self, mut f: F) -> Self{
+        self.apply(f);
+        self
+    }
+
     /// Replaces each component of `self` by the result of a closure `f` applied on it.
     #[inline]
     pub fn apply<F: FnMut(N) -> N>(&mut self, mut f: F) {

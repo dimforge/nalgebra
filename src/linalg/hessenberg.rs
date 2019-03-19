@@ -107,7 +107,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimD
         self.hess.fill_lower_triangle(N::zero(), 2);
         self.hess
             .slice_mut((1, 0), (dim - 1, dim - 1))
-            .set_diagonal(&self.subdiag);
+            .set_diagonal(&self.subdiag.map(|e| N::from_real(e.modulus())));
         self.hess
     }
 
@@ -122,13 +122,13 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimD
         let mut res = self.hess.clone();
         res.fill_lower_triangle(N::zero(), 2);
         res.slice_mut((1, 0), (dim - 1, dim - 1))
-            .set_diagonal(&self.subdiag);
+            .set_diagonal(&self.subdiag.map(|e| N::from_real(e.modulus())));
         res
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
     pub fn q(&self) -> MatrixN<N, D> {
-        householder::assemble_q(&self.hess)
+        householder::assemble_q(&self.hess, self.subdiag.as_slice())
     }
 
     #[doc(hidden)]
