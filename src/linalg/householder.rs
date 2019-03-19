@@ -36,7 +36,8 @@ pub fn reflection_axis_mut<N: Complex, D: Dim, S: StorageMut<N, D>>(
         column.unscale_mut(factor.sqrt());
         (-signed_norm, true)
     } else {
-        (-signed_norm, false)
+        // FIXME: not sure why we don't have a - sign here.
+        (signed_norm, false)
     }
 }
 
