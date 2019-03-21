@@ -17,7 +17,7 @@ use alga::general::Real;
 
 use base::dimension::{U1, U3, U4};
 use base::storage::{CStride, RStride};
-use base::{Matrix3, MatrixN, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4};
+use base::{Matrix3, Matrix4, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4};
 
 use geometry::{Point3, Rotation};
 
@@ -1341,7 +1341,7 @@ impl<N: Real> UnitQuaternion<N> {
     /// assert_relative_eq!(rot.to_homogeneous(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn to_homogeneous(&self) -> MatrixN<N, U4> {
+    pub fn to_homogeneous(&self) -> Matrix4<N> {
         self.to_rotation_matrix().to_homogeneous()
     }
 
