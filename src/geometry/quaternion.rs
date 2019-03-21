@@ -307,6 +307,81 @@ impl<N: Real> Quaternion<N> {
         self.coords.dot(&rhs.coords)
     }
 
+    /// Calculates the inner product (also known as the dot product).
+    /// See "Foundations of Game Engine Development, Volume 1: Mathematics" by Lengyel
+    /// Formula 4.89.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let a = Quaternion::new(0.0, 2.0, 3.0, 4.0);
+    /// let b = Quaternion::new(0.0, 5.0, 2.0, 1.0);
+    /// let expected = Quaternion::new(-20.0, 0.0, 0.0, 0.0);
+    /// let result = a.inner(&b);
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-5);
+    #[inline]
+    pub fn inner(&self, other: &Self) -> Self {
+        (self * other + other * self).half()
+    }
+
+    /// Calculates the outer product (also known as the wedge product).
+    /// See "Foundations of Game Engine Development, Volume 1: Mathematics" by Lengyel
+    /// Formula 4.89.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let a = Quaternion::new(0.0, 2.0, 3.0, 4.0);
+    /// let b = Quaternion::new(0.0, 5.0, 2.0, 1.0);
+    /// let expected = Quaternion::new(0.0, -5.0, 18.0, -11.0);
+    /// let result = a.outer(&b);
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-5);
+    /// ```
+    #[inline]
+    pub fn outer(&self, other: &Self) -> Self {
+        (self * other - other * self).half()
+    }
+
+    /// Calculates the projection of `self` onto `other` (also known as the parallel).
+    /// See "Foundations of Game Engine Development, Volume 1: Mathematics" by Lengyel
+    /// Formula 4.94.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let a = Quaternion::new(0.0, 2.0, 3.0, 4.0);
+    /// let b = Quaternion::new(0.0, 5.0, 2.0, 1.0);
+    /// let expected = Quaternion::new(0.0, 3.333333333333333, 1.3333333333333333, 0.6666666666666666);
+    /// let result = a.project(&b).unwrap();
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-5);
+    /// ```
+    #[inline]
+    pub fn project(&self, other: &Self) -> Option<Self> {
+        self.inner(other).right_div(other)
+    }
+
+    /// Calculates the rejection of `self` from `other` (also known as the perpendicular).
+    /// See "Foundations of Game Engine Development, Volume 1: Mathematics" by Lengyel
+    /// Formula 4.94.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let a = Quaternion::new(0.0, 2.0, 3.0, 4.0);
+    /// let b = Quaternion::new(0.0, 5.0, 2.0, 1.0);
+    /// let expected = Quaternion::new(0.0, -1.3333333333333333, 1.6666666666666665, 3.3333333333333335);
+    /// let result = a.reject(&b).unwrap();
+    /// assert_relative_eq!(expected, result, epsilon = 1.0e-5);
+    /// ```
+    #[inline]
+    pub fn reject(&self, other: &Self) -> Option<Self> {
+        self.outer(other).right_div(other)
+    }
+
     /// The polar decomposition of this quaternion.
     ///
     /// Returns, from left to right: the quaternion norm, the half rotation angle, the rotation
