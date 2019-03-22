@@ -1513,7 +1513,7 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
             return Some(Unit::new_unchecked(self.clone_owned()));
         }
 
-        let hang = c_hang.acos();
+        let hang = c_hang.abs().acos();
         let s_hang = (N::one() - c_hang * c_hang).sqrt();
 
         // FIXME: what if s_hang is 0.0 ? The result is not well-defined.
@@ -1522,7 +1522,7 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
         } else {
             let ta = ((N::one() - t) * hang).sin() / s_hang;
             let tb = (t * hang).sin() / s_hang;
-            let res = &**self * ta + &**rhs * tb;
+            let res = &**self * ta + &**rhs * tb * c_hang.signum();
 
             Some(Unit::new_unchecked(res))
         }
