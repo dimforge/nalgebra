@@ -170,6 +170,7 @@ pub use alga::general::{Id, Real, Complex};
 /// Gets the ubiquitous multiplicative identity element.
 ///
 /// Same as `Id::new()`.
+#[deprecated(note = "use `Id::new()` instead.")]
 #[inline]
 pub fn id() -> Id {
     Id::new()
@@ -416,6 +417,7 @@ pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'
 /// # See also:
 ///
 /// * [`inverse`](fn.inverse.html)
+#[deprecated(note = "use the `.try_inverse()` method instead")]
 #[inline]
 pub fn try_inverse<M: AlgaSquareMatrix>(m: &M) -> Option<M> {
     m.try_inverse()
@@ -426,6 +428,7 @@ pub fn try_inverse<M: AlgaSquareMatrix>(m: &M) -> Option<M> {
 /// # See also:
 ///
 /// * [`try_inverse`](fn.try_inverse.html)
+#[deprecated(note = "use the `.inverse()` method instead")]
 #[inline]
 pub fn inverse<M: TwoSidedInverse<Multiplicative>>(m: &M) -> M {
     m.two_sided_inverse()

@@ -97,8 +97,7 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             N::Epsilon: Copy,
             DefaultAllocator: Allocator<N, R, C> + Allocator<N, C, C>,
     {
-        // FIXME: add a conjugate-transpose-mul
-        (self.conjugate().tr_mul(self)).is_identity(eps)
+        (self.ad_mul(self)).is_identity(eps)
     }
 }
 

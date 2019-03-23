@@ -33,7 +33,7 @@ impl<N: Complex> Norm<N> for EuclideanNorm {
     #[inline]
     fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::Real
         where R: Dim, C: Dim, S: Storage<N, R, C> {
-        m.cdot(m).real().sqrt()
+        m.dotc(m).real().sqrt()
     }
 
     #[inline]
@@ -101,7 +101,7 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         for i in 0..self.ncols() {
             let col = self.column(i);
-            res += col.cdot(&col).real()
+            res += col.dotc(&col).real()
         }
 
         res

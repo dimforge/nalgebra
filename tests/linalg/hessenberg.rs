@@ -27,21 +27,21 @@ macro_rules! gen_tests(
 
                     let hess = m.clone().hessenberg();
                     let (p, h) = hess.unpack();
-                    relative_eq!(m, &p * h * p.conjugate_transpose(), epsilon = 1.0e-7)
+                    relative_eq!(m, &p * h * p.adjoint(), epsilon = 1.0e-7)
                 }
 
                 fn hessenberg_static_mat2(m: Matrix2<$scalar>) -> bool {
                     let m = m.map(|e| e.0);
                     let hess = m.hessenberg();
                     let (p, h) = hess.unpack();
-                    relative_eq!(m, p * h * p.conjugate_transpose(), epsilon = 1.0e-7)
+                    relative_eq!(m, p * h * p.adjoint(), epsilon = 1.0e-7)
                 }
 
                 fn hessenberg_static(m: Matrix4<$scalar>) -> bool {
                     let m = m.map(|e| e.0);
                     let hess = m.hessenberg();
                     let (p, h) = hess.unpack();
-                    relative_eq!(m, p * h * p.conjugate_transpose(), epsilon = 1.0e-7)
+                    relative_eq!(m, p * h * p.adjoint(), epsilon = 1.0e-7)
                 }
             }
          }

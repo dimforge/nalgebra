@@ -914,9 +914,9 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
 }
 
 impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// Takes the conjugate and transposes `self` and store the result into `out`.
+    /// Takes the adjoint (aka. conjugate-transpose) of `self` and store the result into `out`.
     #[inline]
-    pub fn conjugate_transpose_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
+    pub fn adjoint_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
     where
         R2: Dim,
         C2: Dim,
@@ -939,18 +939,39 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         }
     }
 
-    /// The conjugate transposition of `self`.
+    /// The adjoint (aka. conjugate-transpose) of `self`.
     #[inline]
-    pub fn conjugate_transpose(&self) -> MatrixMN<N, C, R>
+    pub fn adjoint(&self) -> MatrixMN<N, C, R>
     where DefaultAllocator: Allocator<N, C, R> {
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
             let mut res: MatrixMN<_, C, R> = Matrix::new_uninitialized_generic(ncols, nrows);
-            self.conjugate_transpose_to(&mut res);
+            self.adjoint_to(&mut res);
 
             res
         }
+    }
+
+    /// Takes the conjugate and transposes `self` and store the result into `out`.
+    #[deprecated(note = "Renamed `self.adjoint_to(out)`.")]
+    #[inline]
+    pub fn conjugate_transpose_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
+        where
+            R2: Dim,
+            C2: Dim,
+            SB: StorageMut<N, R2, C2>,
+            ShapeConstraint: SameNumberOfRows<R, C2> + SameNumberOfColumns<C, R2>,
+    {
+        self.adjoint_to(out)
+    }
+
+    /// The conjugate transposition of `self`.
+    #[deprecated(note = "Renamed `self.adjoint()`.")]
+    #[inline]
+    pub fn conjugate_transpose(&self) -> MatrixMN<N, C, R>
+        where DefaultAllocator: Allocator<N, C, R> {
+        self.adjoint()
     }
 
     /// The conjugate of `self`.
@@ -1088,13 +1109,13 @@ impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         tr
     }
 
-    /// The hermitian part of `self`, i.e., `0.5 * (self + self.conjugate_transpose())`.
+    /// The hermitian part of `self`, i.e., `0.5 * (self + self.adjoint())`.
     #[inline]
     pub fn hermitian_part(&self) -> MatrixMN<N, D, D>
         where DefaultAllocator: Allocator<N, D, D> {
         assert!(self.is_square(), "Cannot compute the hermitian part of a non-square matrix.");
 
-        let mut tr = self.conjugate_transpose();
+        let mut tr = self.adjoint();
         tr += self;
         tr *= ::convert::<_, N>(0.5);
         tr
@@ -1522,7 +1543,7 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         SB: Storage<N, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
-        let prod = self.cdot(other);
+        let prod = self.dotc(other);
         let n1 = self.norm();
         let n2 = other.norm();
 
@@ -1593,7 +1614,7 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     where
         DefaultAllocator: Allocator<N, D>,
     {
-        let c_hang = self.cdot(rhs).real();
+        let c_hang = self.dotc(rhs).real();
 
         // self == other
         if c_hang.abs() >= N::Real::one() {

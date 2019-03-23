@@ -121,7 +121,7 @@ where DefaultAllocator: Allocator<N, D, D>
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let _ = self.chol.solve_lower_triangular_mut(b);
-        let _ = self.chol.conjugate().tr_solve_lower_triangular_mut(b);
+        let _ = self.chol.ad_solve_lower_triangular_mut(b);
     }
 
     /// Returns the solution of the system `self * x = b` where `self` is the decomposed matrix and

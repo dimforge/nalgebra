@@ -214,7 +214,7 @@ where
         }
     }
 
-    /// Solves the linear system `self.conjugate_transpose() * x = b`, where `x` is the unknown to
+    /// Solves the linear system `self.adjoint() * x = b`, where `x` is the unknown to
     /// be determined.
     pub fn solve_conjugate_transpose<R2: Dim, C2: Dim, S2>(
         &self,
@@ -249,7 +249,7 @@ where
         self.generic_solve_mut(b'T', b)
     }
 
-    /// Solves in-place the linear system `self.conjugate_transpose() * x = b`, where `x` is the unknown to
+    /// Solves in-place the linear system `self.adjoint() * x = b`, where `x` is the unknown to
     /// be determined.
     ///
     /// Returns `false` if no solution was found (the decomposed matrix is singular).

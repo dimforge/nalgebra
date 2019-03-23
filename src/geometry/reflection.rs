@@ -35,7 +35,7 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         D: DimName,
         DefaultAllocator: Allocator<N, D>,
     {
-        let bias = axis.cdot(&pt.coords);
+        let bias = axis.dotc(&pt.coords);
         Self::new(axis, bias)
     }
 
@@ -56,7 +56,7 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
             // dot product, and then mutably. Somehow, this allows significantly
             // better optimizations of the dot product from the compiler.
             let m_two: N = ::convert(-2.0f64);
-            let factor = (self.axis.cdot(&rhs.column(i)) - self.bias) * m_two;
+            let factor = (self.axis.dotc(&rhs.column(i)) - self.bias) * m_two;
             rhs.column_mut(i).axpy(factor, &self.axis, N::one());
         }
     }
@@ -73,7 +73,7 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
             // dot product, and then mutably. Somehow, this allows significantly
             // better optimizations of the dot product from the compiler.
             let m_two = sign.scale(::convert(-2.0f64));
-            let factor = (self.axis.cdot(&rhs.column(i)) - self.bias) * m_two;
+            let factor = (self.axis.dotc(&rhs.column(i)) - self.bias) * m_two;
             rhs.column_mut(i).axpy(factor, &self.axis, sign);
         }
     }

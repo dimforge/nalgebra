@@ -10,7 +10,7 @@ macro_rules! gen_tests(
 
             fn unzero_diagonal<N: Complex>(a: &mut Matrix4<N>) {
                 for i in 0..4 {
-                    if a[(i, i)].asum() < na::convert(1.0e-7) {
+                    if a[(i, i)].norm1() < na::convert(1.0e-7) {
                         a[(i, i)] = N::one();
                     }
                 }

@@ -16,7 +16,7 @@ macro_rules! gen_tests(
                 fn cholesky(n: usize) -> bool {
                     let m = RandomSDP::new(Dynamic::new(n.max(1).min(50)), || random::<$scalar>().0).unwrap();
                     let l = m.clone().cholesky().unwrap().unpack();
-                    relative_eq!(m, &l * l.conjugate_transpose(), epsilon = 1.0e-7)
+                    relative_eq!(m, &l * l.adjoint(), epsilon = 1.0e-7)
                 }
 
                 fn cholesky_static(_m: RandomSDP<f64, U4>) -> bool {
@@ -24,7 +24,7 @@ macro_rules! gen_tests(
                     let chol = m.cholesky().unwrap();
                     let l    = chol.unpack();
 
-                    if !relative_eq!(m, &l * l.conjugate_transpose(), epsilon = 1.0e-7) {
+                    if !relative_eq!(m, &l * l.adjoint(), epsilon = 1.0e-7) {
                         false
                     }
                     else {

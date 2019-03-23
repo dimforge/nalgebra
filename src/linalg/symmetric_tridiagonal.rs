@@ -75,13 +75,13 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
             if not_zero {
                 let mut p = p.rows_range_mut(i..);
 
-                p.cgemv_symm(::convert(2.0), &m, &axis, N::zero());
-                let dot = axis.cdot(&p);
+                p.hegemv(::convert(2.0), &m, &axis, N::zero());
+                let dot = axis.dotc(&p);
 
 //                p.axpy(-dot, &axis.conjugate(), N::one());
-                m.ger_symm(-N::one(), &p, &axis.conjugate(), N::one());
-                m.ger_symm(-N::one(), &axis, &p.conjugate(), N::one());
-                m.ger_symm(dot * ::convert(2.0), &axis, &axis.conjugate(), N::one());
+                m.hegerc(-N::one(), &p, &axis, N::one());
+                m.hegerc(-N::one(), &axis, &p, N::one());
+                m.hegerc(dot * ::convert(2.0), &axis, &axis, N::one());
             }
         }
 
@@ -142,7 +142,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
             self.tri[(i, i + 1)] = val;
         }
 
-        &q * self.tri * q.conjugate_transpose()
+        &q * self.tri * q.adjoint()
     }
 }
 

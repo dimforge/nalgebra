@@ -496,7 +496,7 @@ where
                 }
             }
 
-            self.recompose().map(|m| m.conjugate_transpose())
+            self.recompose().map(|m| m.adjoint())
         }
     }
 
@@ -521,7 +521,7 @@ where
         else {
             match (&self.u, &self.v_t) {
                 (Some(u), Some(v_t)) => {
-                    let mut ut_b = u.conjugate().tr_mul(b);
+                    let mut ut_b = u.ad_mul(b);
 
                     for j in 0..ut_b.ncols() {
                         let mut col = ut_b.column_mut(j);
@@ -536,7 +536,7 @@ where
                         }
                     }
 
-                    Ok(v_t.conjugate().tr_mul(&ut_b))
+                    Ok(v_t.ad_mul(&ut_b))
                 }
                 (None, None) => Err("SVD solve: U and V^t have not been computed."),
                 (None, _) => Err("SVD solve: U has not been computed."),

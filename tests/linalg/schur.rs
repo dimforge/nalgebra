@@ -31,21 +31,21 @@ mod quickcheck_tests {
 
                         let (vecs, vals) = m.clone().schur().unpack();
 
-                        if !relative_eq!(&vecs * &vals * vecs.conjugate_transpose(), m, epsilon = 1.0e-7) {
-                            println!("{:.5}{:.5}", m, &vecs * &vals * vecs.conjugate_transpose());
+                        if !relative_eq!(&vecs * &vals * vecs.adjoint(), m, epsilon = 1.0e-7) {
+                            println!("{:.5}{:.5}", m, &vecs * &vals * vecs.adjoint());
                         }
 
-                        relative_eq!(&vecs * vals * vecs.conjugate_transpose(), m, epsilon = 1.0e-7)
+                        relative_eq!(&vecs * vals * vecs.adjoint(), m, epsilon = 1.0e-7)
                     }
 
                     fn schur_static_mat2(m: Matrix2<$scalar>) -> bool {
                         let m = m.map(|e| e.0);
                         let (vecs, vals) = m.clone().schur().unpack();
 
-                        let ok = relative_eq!(vecs * vals * vecs.conjugate_transpose(), m, epsilon = 1.0e-7);
+                        let ok = relative_eq!(vecs * vals * vecs.adjoint(), m, epsilon = 1.0e-7);
                         if !ok {
                             println!("Vecs: {:.5} Vals: {:.5}", vecs, vals);
-                            println!("Reconstruction:{}{}", m, &vecs * &vals * vecs.conjugate_transpose());
+                            println!("Reconstruction:{}{}", m, &vecs * &vals * vecs.adjoint());
                         }
                         ok
                     }
@@ -54,10 +54,10 @@ mod quickcheck_tests {
                         let m = m.map(|e| e.0);
                         let (vecs, vals) = m.clone().schur().unpack();
 
-                        let ok = relative_eq!(vecs * vals * vecs.conjugate_transpose(), m, epsilon = 1.0e-7);
+                        let ok = relative_eq!(vecs * vals * vecs.adjoint(), m, epsilon = 1.0e-7);
                         if !ok {
                             println!("Vecs: {:.5} Vals: {:.5}", vecs, vals);
-                            println!("{:.5}{:.5}", m, &vecs * &vals * vecs.conjugate_transpose());
+                            println!("{:.5}{:.5}", m, &vecs * &vals * vecs.adjoint());
                         }
                         ok
                     }
@@ -66,9 +66,9 @@ mod quickcheck_tests {
                         let m = m.map(|e| e.0);
                         let (vecs, vals) = m.clone().schur().unpack();
 
-                        let ok = relative_eq!(vecs * vals * vecs.conjugate_transpose(), m, epsilon = 1.0e-7);
+                        let ok = relative_eq!(vecs * vals * vecs.adjoint(), m, epsilon = 1.0e-7);
                         if !ok {
-                            println!("{:.5}{:.5}", m, &vecs * &vals * vecs.conjugate_transpose());
+                            println!("{:.5}{:.5}", m, &vecs * &vals * vecs.adjoint());
                         }
 
                         ok

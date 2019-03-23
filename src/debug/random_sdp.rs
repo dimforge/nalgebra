@@ -31,7 +31,7 @@ where DefaultAllocator: Allocator<N, D, D>
     /// random reals generators.
     pub fn new<Rand: FnMut() -> N>(dim: D, mut rand: Rand) -> Self {
         let mut m = RandomOrthogonal::new(dim, || rand()).unwrap();
-        let mt = m.conjugate_transpose();
+        let mt = m.adjoint();
 
         for i in 0..dim.value() {
             let mut col = m.column_mut(i);

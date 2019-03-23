@@ -11,7 +11,7 @@ use base::constraint::{
 };
 use base::dimension::{Dim, Dynamic, U1, U2, U3, U4};
 use base::storage::{Storage, StorageMut};
-use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector};
+use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, DVectorSlice};
 
 
 // FIXME: find a way to avoid code duplication just for complex number support.
@@ -32,11 +32,11 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     pub fn icamax(&self) -> usize {
         assert!(!self.is_empty(), "The input vector must not be empty.");
 
-        let mut the_max = unsafe { self.vget_unchecked(0).asum() };
+        let mut the_max = unsafe { self.vget_unchecked(0).norm1() };
         let mut the_i = 0;
 
         for i in 1..self.nrows() {
-            let val = unsafe { self.vget_unchecked(i).asum() };
+            let val = unsafe { self.vget_unchecked(i).norm1() };
 
             if val > the_max {
                 the_max = val;
@@ -211,12 +211,12 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     pub fn icamax_full(&self) -> (usize, usize) {
         assert!(!self.is_empty(), "The input matrix must not be empty.");
 
-        let mut the_max = unsafe { self.get_unchecked((0, 0)).asum() };
+        let mut the_max = unsafe { self.get_unchecked((0, 0)).norm1() };
         let mut the_ij = (0, 0);
 
         for j in 0..self.ncols() {
             for i in 0..self.nrows() {
-                let val = unsafe { self.get_unchecked((i, j)).asum() };
+                let val = unsafe { self.get_unchecked((i, j)).norm1() };
 
                 if val > the_max {
                     the_max = val;
@@ -263,13 +263,11 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
     }
 }
 
-impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// The dot product between two complex or real vectors or matrices (seen as vectors).
-    ///
-    /// This is the same as `.dot` except that the conjugate of each component of `self` is taken
-    /// before performing the products.
-    #[inline]
-    pub fn cdot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> N
+impl<N, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+where N: Scalar + Zero + ClosedAdd + ClosedMul
+{
+    #[inline(always)]
+    fn dotx<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>, conjugate: impl Fn(N) -> N) -> N
         where
             SB: Storage<N, R2, C2>,
             ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
@@ -283,27 +281,27 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         // because the `for` loop below won't be very efficient on those.
         if (R::is::<U2>() || R2::is::<U2>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = self.get_unchecked((0, 0)).conjugate() * *rhs.get_unchecked((0, 0));
-                let b = self.get_unchecked((1, 0)).conjugate() * *rhs.get_unchecked((1, 0));
+                let a = conjugate(*self.get_unchecked((0, 0))) * *rhs.get_unchecked((0, 0));
+                let b = conjugate(*self.get_unchecked((1, 0))) * *rhs.get_unchecked((1, 0));
 
                 return a + b;
             }
         }
         if (R::is::<U3>() || R2::is::<U3>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = self.get_unchecked((0, 0)).conjugate() * *rhs.get_unchecked((0, 0));
-                let b = self.get_unchecked((1, 0)).conjugate() * *rhs.get_unchecked((1, 0));
-                let c = self.get_unchecked((2, 0)).conjugate() * *rhs.get_unchecked((2, 0));
+                let a = conjugate(*self.get_unchecked((0, 0))) * *rhs.get_unchecked((0, 0));
+                let b = conjugate(*self.get_unchecked((1, 0))) * *rhs.get_unchecked((1, 0));
+                let c = conjugate(*self.get_unchecked((2, 0))) * *rhs.get_unchecked((2, 0));
 
                 return a + b + c;
             }
         }
         if (R::is::<U4>() || R2::is::<U4>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let mut a = self.get_unchecked((0, 0)).conjugate() * *rhs.get_unchecked((0, 0));
-                let mut b = self.get_unchecked((1, 0)).conjugate() * *rhs.get_unchecked((1, 0));
-                let c = self.get_unchecked((2, 0)).conjugate() * *rhs.get_unchecked((2, 0));
-                let d = self.get_unchecked((3, 0)).conjugate() * *rhs.get_unchecked((3, 0));
+                let mut a = conjugate(*self.get_unchecked((0, 0))) * *rhs.get_unchecked((0, 0));
+                let mut b = conjugate(*self.get_unchecked((1, 0))) * *rhs.get_unchecked((1, 0));
+                let c = conjugate(*self.get_unchecked((2, 0))) * *rhs.get_unchecked((2, 0));
+                let d = conjugate(*self.get_unchecked((3, 0))) * *rhs.get_unchecked((3, 0));
 
                 a += c;
                 b += d;
@@ -343,14 +341,14 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             acc7 = N::zero();
 
             while self.nrows() - i >= 8 {
-                acc0 += unsafe { self.get_unchecked((i + 0, j)).conjugate() * *rhs.get_unchecked((i + 0, j)) };
-                acc1 += unsafe { self.get_unchecked((i + 1, j)).conjugate() * *rhs.get_unchecked((i + 1, j)) };
-                acc2 += unsafe { self.get_unchecked((i + 2, j)).conjugate() * *rhs.get_unchecked((i + 2, j)) };
-                acc3 += unsafe { self.get_unchecked((i + 3, j)).conjugate() * *rhs.get_unchecked((i + 3, j)) };
-                acc4 += unsafe { self.get_unchecked((i + 4, j)).conjugate() * *rhs.get_unchecked((i + 4, j)) };
-                acc5 += unsafe { self.get_unchecked((i + 5, j)).conjugate() * *rhs.get_unchecked((i + 5, j)) };
-                acc6 += unsafe { self.get_unchecked((i + 6, j)).conjugate() * *rhs.get_unchecked((i + 6, j)) };
-                acc7 += unsafe { self.get_unchecked((i + 7, j)).conjugate() * *rhs.get_unchecked((i + 7, j)) };
+                acc0 += unsafe { conjugate(*self.get_unchecked((i + 0, j))) * *rhs.get_unchecked((i + 0, j)) };
+                acc1 += unsafe { conjugate(*self.get_unchecked((i + 1, j))) * *rhs.get_unchecked((i + 1, j)) };
+                acc2 += unsafe { conjugate(*self.get_unchecked((i + 2, j))) * *rhs.get_unchecked((i + 2, j)) };
+                acc3 += unsafe { conjugate(*self.get_unchecked((i + 3, j))) * *rhs.get_unchecked((i + 3, j)) };
+                acc4 += unsafe { conjugate(*self.get_unchecked((i + 4, j))) * *rhs.get_unchecked((i + 4, j)) };
+                acc5 += unsafe { conjugate(*self.get_unchecked((i + 5, j))) * *rhs.get_unchecked((i + 5, j)) };
+                acc6 += unsafe { conjugate(*self.get_unchecked((i + 6, j))) * *rhs.get_unchecked((i + 6, j)) };
+                acc7 += unsafe { conjugate(*self.get_unchecked((i + 7, j))) * *rhs.get_unchecked((i + 7, j)) };
                 i += 8;
             }
 
@@ -360,17 +358,14 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             res += acc3 + acc7;
 
             for k in i..self.nrows() {
-                res += unsafe { self.get_unchecked((k, j)).conjugate() * *rhs.get_unchecked((k, j)) }
+                res += unsafe { conjugate(*self.get_unchecked((k, j))) * *rhs.get_unchecked((k, j)) }
             }
         }
 
         res
     }
-}
 
-impl<N, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where N: Scalar + Zero + ClosedAdd + ClosedMul
-{
+
     /// The dot product between two vectors or matrices (seen as vectors).
     ///
     /// Note that this is **not** the matrix multiplication as in, e.g., numpy. For matrix
@@ -396,97 +391,36 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         SB: Storage<N, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
-        assert!(
-            self.nrows() == rhs.nrows(),
-            "Dot product dimensions mismatch."
-        );
+        self.dotx(rhs, |e| e)
+    }
 
-        // So we do some special cases for common fixed-size vectors of dimension lower than 8
-        // because the `for` loop below won't be very efficient on those.
-        if (R::is::<U2>() || R2::is::<U2>()) && (C::is::<U1>() || C2::is::<U1>()) {
-            unsafe {
-                let a = *self.get_unchecked((0, 0)) * *rhs.get_unchecked((0, 0));
-                let b = *self.get_unchecked((1, 0)) * *rhs.get_unchecked((1, 0));
-
-                return a + b;
-            }
-        }
-        if (R::is::<U3>() || R2::is::<U3>()) && (C::is::<U1>() || C2::is::<U1>()) {
-            unsafe {
-                let a = *self.get_unchecked((0, 0)) * *rhs.get_unchecked((0, 0));
-                let b = *self.get_unchecked((1, 0)) * *rhs.get_unchecked((1, 0));
-                let c = *self.get_unchecked((2, 0)) * *rhs.get_unchecked((2, 0));
-
-                return a + b + c;
-            }
-        }
-        if (R::is::<U4>() || R2::is::<U4>()) && (C::is::<U1>() || C2::is::<U1>()) {
-            unsafe {
-                let mut a = *self.get_unchecked((0, 0)) * *rhs.get_unchecked((0, 0));
-                let mut b = *self.get_unchecked((1, 0)) * *rhs.get_unchecked((1, 0));
-                let c = *self.get_unchecked((2, 0)) * *rhs.get_unchecked((2, 0));
-                let d = *self.get_unchecked((3, 0)) * *rhs.get_unchecked((3, 0));
-
-                a += c;
-                b += d;
-
-                return a + b;
-            }
-        }
-
-        // All this is inspired from the "unrolled version" discussed in:
-        // http://blog.theincredibleholk.org/blog/2012/12/10/optimizing-dot-product/
-        //
-        // And this comment from bluss:
-        // https://users.rust-lang.org/t/how-to-zip-two-slices-efficiently/2048/12
-        let mut res = N::zero();
-
-        // We have to define them outside of the loop (and not inside at first assignment)
-        // otherwise vectorization won't kick in for some reason.
-        let mut acc0;
-        let mut acc1;
-        let mut acc2;
-        let mut acc3;
-        let mut acc4;
-        let mut acc5;
-        let mut acc6;
-        let mut acc7;
-
-        for j in 0..self.ncols() {
-            let mut i = 0;
-
-            acc0 = N::zero();
-            acc1 = N::zero();
-            acc2 = N::zero();
-            acc3 = N::zero();
-            acc4 = N::zero();
-            acc5 = N::zero();
-            acc6 = N::zero();
-            acc7 = N::zero();
-
-            while self.nrows() - i >= 8 {
-                acc0 += unsafe { *self.get_unchecked((i + 0, j)) * *rhs.get_unchecked((i + 0, j)) };
-                acc1 += unsafe { *self.get_unchecked((i + 1, j)) * *rhs.get_unchecked((i + 1, j)) };
-                acc2 += unsafe { *self.get_unchecked((i + 2, j)) * *rhs.get_unchecked((i + 2, j)) };
-                acc3 += unsafe { *self.get_unchecked((i + 3, j)) * *rhs.get_unchecked((i + 3, j)) };
-                acc4 += unsafe { *self.get_unchecked((i + 4, j)) * *rhs.get_unchecked((i + 4, j)) };
-                acc5 += unsafe { *self.get_unchecked((i + 5, j)) * *rhs.get_unchecked((i + 5, j)) };
-                acc6 += unsafe { *self.get_unchecked((i + 6, j)) * *rhs.get_unchecked((i + 6, j)) };
-                acc7 += unsafe { *self.get_unchecked((i + 7, j)) * *rhs.get_unchecked((i + 7, j)) };
-                i += 8;
-            }
-
-            res += acc0 + acc4;
-            res += acc1 + acc5;
-            res += acc2 + acc6;
-            res += acc3 + acc7;
-
-            for k in i..self.nrows() {
-                res += unsafe { *self.get_unchecked((k, j)) * *rhs.get_unchecked((k, j)) }
-            }
-        }
-
-        res
+    /// The dot product between two vectors or matrices (seen as vectors).
+    ///
+    /// Note that this is **not** the matrix multiplication as in, e.g., numpy. For matrix
+    /// multiplication, use one of: `.gemm`, `.mul_to`, `.mul`, the `*` operator.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Vector3, Matrix2x3};
+    /// let vec1 = Vector3::new(1.0, 2.0, 3.0);
+    /// let vec2 = Vector3::new(0.1, 0.2, 0.3);
+    /// assert_eq!(vec1.dot(&vec2), 1.4);
+    ///
+    /// let mat1 = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                           4.0, 5.0, 6.0);
+    /// let mat2 = Matrix2x3::new(0.1, 0.2, 0.3,
+    ///                           0.4, 0.5, 0.6);
+    /// assert_eq!(mat1.dot(&mat2), 9.1);
+    /// ```
+    #[inline]
+    pub fn dotc<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> N
+        where
+            N: Complex,
+            SB: Storage<N, R2, C2>,
+            ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
+    {
+        self.dotx(rhs, Complex::conjugate)
     }
 
     /// The dot product between the transpose of `self` and `rhs`.
@@ -643,119 +577,17 @@ where
         }
     }
 
-    /// Computes `self = alpha * a * x + beta * self`, where `a` is a **symmetric** matrix, `x` a
-    /// vector, and `alpha, beta` two scalars.
-    ///
-    /// If `beta` is zero, `self` is never read. If `self` is read, only its lower-triangular part
-    /// (including the diagonal) is actually read.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::{Matrix2, Vector2};
-    /// let mat = Matrix2::new(1.0, 2.0,
-    ///                        2.0, 4.0);
-    /// let mut vec1 = Vector2::new(1.0, 2.0);
-    /// let vec2 = Vector2::new(0.1, 0.2);
-    /// vec1.gemv_symm(10.0, &mat, &vec2, 5.0);
-    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
-    ///
-    ///
-    /// // The matrix upper-triangular elements can be garbage because it is never
-    /// // read by this method. Therefore, it is not necessary for the caller to
-    /// // fill the matrix struct upper-triangle.
-    /// let mat = Matrix2::new(1.0, 9999999.9999999,
-    ///                        2.0, 4.0);
-    /// let mut vec1 = Vector2::new(1.0, 2.0);
-    /// vec1.gemv_symm(10.0, &mat, &vec2, 5.0);
-    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
-    /// ```
-    #[inline]
-    pub fn gemv_symm<D2: Dim, D3: Dim, SB, SC>(
+
+    #[inline(always)]
+    fn xgemv<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
         alpha: N,
         a: &SquareMatrix<N, D2, SB>,
         x: &Vector<N, D3, SC>,
         beta: N,
+        dotc: impl Fn(&DVectorSlice<N, SB::RStride, SB::CStride>, &DVectorSlice<N, SC::RStride, SC::CStride>) -> N,
     ) where
         N: One,
-        SB: Storage<N, D2, D2>,
-        SC: Storage<N, D3>,
-        ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
-    {
-        let dim1 = self.nrows();
-        let dim2 = a.nrows();
-        let dim3 = x.nrows();
-
-        assert!(
-            a.is_square(),
-            "Symmetric gemv: the input matrix must be square."
-        );
-        assert!(
-            dim2 == dim3 && dim1 == dim2,
-            "Symmetric gemv: dimensions mismatch."
-        );
-
-        if dim2 == 0 {
-            return;
-        }
-
-        // FIXME: avoid bound checks.
-        let col2 = a.column(0);
-        let val = unsafe { *x.vget_unchecked(0) };
-        self.axpy(alpha * val, &col2, beta);
-        self[0] += alpha * x.rows_range(1..).dot(&a.slice_range(1.., 0));
-
-        for j in 1..dim2 {
-            let col2 = a.column(j);
-            let dot = x.rows_range(j..).dot(&col2.rows_range(j..));
-
-            let val;
-            unsafe {
-                val = *x.vget_unchecked(j);
-                *self.vget_unchecked_mut(j) += alpha * dot;
-            }
-            self.rows_range_mut(j + 1..)
-                .axpy(alpha * val, &col2.rows_range(j + 1..), N::one());
-        }
-    }
-
-    /// Computes `self = alpha * a * x + beta * self`, where `a` is a **symmetric** matrix, `x` a
-    /// vector, and `alpha, beta` two scalars.
-    ///
-    /// If `beta` is zero, `self` is never read. If `self` is read, only its lower-triangular part
-    /// (including the diagonal) is actually read.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::{Matrix2, Vector2};
-    /// let mat = Matrix2::new(1.0, 2.0,
-    ///                        2.0, 4.0);
-    /// let mut vec1 = Vector2::new(1.0, 2.0);
-    /// let vec2 = Vector2::new(0.1, 0.2);
-    /// vec1.gemv_symm(10.0, &mat, &vec2, 5.0);
-    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
-    ///
-    ///
-    /// // The matrix upper-triangular elements can be garbage because it is never
-    /// // read by this method. Therefore, it is not necessary for the caller to
-    /// // fill the matrix struct upper-triangle.
-    /// let mat = Matrix2::new(1.0, 9999999.9999999,
-    ///                        2.0, 4.0);
-    /// let mut vec1 = Vector2::new(1.0, 2.0);
-    /// vec1.gemv_symm(10.0, &mat, &vec2, 5.0);
-    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
-    /// ```
-    #[inline]
-    pub fn cgemv_symm<D2: Dim, D3: Dim, SB, SC>(
-        &mut self,
-        alpha: N,
-        a: &SquareMatrix<N, D2, SB>,
-        x: &Vector<N, D3, SC>,
-        beta: N,
-    ) where
-        N: Complex,
         SB: Storage<N, D2, D2>,
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
@@ -781,11 +613,11 @@ where
         let col2 = a.column(0);
         let val = unsafe { *x.vget_unchecked(0) };
         self.axpy(alpha * val, &col2, beta);
-        self[0] += alpha * a.slice_range(1.., 0).cdot(&x.rows_range(1..));
+        self[0] += alpha * dotc(&a.slice_range(1.., 0), &x.rows_range(1..));
 
         for j in 1..dim2 {
             let col2 = a.column(j);
-            let dot = col2.rows_range(j..).cdot(&x.rows_range(j..));
+            let dot = dotc(&col2.rows_range(j..), &x.rows_range(j..));
 
             let val;
             unsafe {
@@ -795,6 +627,111 @@ where
             self.rows_range_mut(j + 1..)
                 .axpy(alpha * val, &col2.rows_range(j + 1..), N::one());
         }
+    }
+
+    /// Computes `self = alpha * a * x + beta * self`, where `a` is a **symmetric** matrix, `x` a
+    /// vector, and `alpha, beta` two scalars. DEPRECATED: use `sygemv` instead.
+    #[inline]
+    #[deprecated(note = "This is renamed `sygemv` to match the original BLAS terminology.")]
+    pub fn gemv_symm<D2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: N,
+        a: &SquareMatrix<N, D2, SB>,
+        x: &Vector<N, D3, SC>,
+        beta: N,
+    ) where
+        N: One,
+        SB: Storage<N, D2, D2>,
+        SC: Storage<N, D3>,
+        ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
+    {
+        self.sygemv(alpha, a, x, beta)
+    }
+
+    /// Computes `self = alpha * a * x + beta * self`, where `a` is a **symmetric** matrix, `x` a
+    /// vector, and `alpha, beta` two scalars.
+    ///
+    /// If `beta` is zero, `self` is never read. If `self` is read, only its lower-triangular part
+    /// (including the diagonal) is actually read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Vector2};
+    /// let mat = Matrix2::new(1.0, 2.0,
+    ///                        2.0, 4.0);
+    /// let mut vec1 = Vector2::new(1.0, 2.0);
+    /// let vec2 = Vector2::new(0.1, 0.2);
+    /// vec1.sygemv(10.0, &mat, &vec2, 5.0);
+    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
+    ///
+    ///
+    /// // The matrix upper-triangular elements can be garbage because it is never
+    /// // read by this method. Therefore, it is not necessary for the caller to
+    /// // fill the matrix struct upper-triangle.
+    /// let mat = Matrix2::new(1.0, 9999999.9999999,
+    ///                        2.0, 4.0);
+    /// let mut vec1 = Vector2::new(1.0, 2.0);
+    /// vec1.sygemv(10.0, &mat, &vec2, 5.0);
+    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
+    /// ```
+    #[inline]
+    pub fn sygemv<D2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: N,
+        a: &SquareMatrix<N, D2, SB>,
+        x: &Vector<N, D3, SC>,
+        beta: N,
+    ) where
+        N: One,
+        SB: Storage<N, D2, D2>,
+        SC: Storage<N, D3>,
+        ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
+    {
+        self.xgemv(alpha, a, x, beta, |a, b| a.dot(b))
+    }
+
+    /// Computes `self = alpha * a * x + beta * self`, where `a` is an **hermitian** matrix, `x` a
+    /// vector, and `alpha, beta` two scalars.
+    ///
+    /// If `beta` is zero, `self` is never read. If `self` is read, only its lower-triangular part
+    /// (including the diagonal) is actually read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Vector2};
+    /// let mat = Matrix2::new(1.0, 2.0,
+    ///                        2.0, 4.0);
+    /// let mut vec1 = Vector2::new(1.0, 2.0);
+    /// let vec2 = Vector2::new(0.1, 0.2);
+    /// vec1.sygemv(10.0, &mat, &vec2, 5.0);
+    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
+    ///
+    ///
+    /// // The matrix upper-triangular elements can be garbage because it is never
+    /// // read by this method. Therefore, it is not necessary for the caller to
+    /// // fill the matrix struct upper-triangle.
+    /// let mat = Matrix2::new(1.0, 9999999.9999999,
+    ///                        2.0, 4.0);
+    /// let mut vec1 = Vector2::new(1.0, 2.0);
+    /// vec1.sygemv(10.0, &mat, &vec2, 5.0);
+    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
+    /// ```
+    #[inline]
+    pub fn hegemv<D2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: N,
+        a: &SquareMatrix<N, D2, SB>,
+        x: &Vector<N, D3, SC>,
+        beta: N,
+    ) where
+        N: Complex,
+        SB: Storage<N, D2, D2>,
+        SC: Storage<N, D3>,
+        ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
+    {
+        self.xgemv(alpha, a, x, beta, |a, b| a.dotc(b))
     }
 
     /// Computes `self = alpha * a.transpose() * x + beta * self`, where `a` is a matrix, `x` a vector, and
@@ -855,33 +792,17 @@ where
     }
 }
 
-// FIXME: duplicate code
 impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
-    where N: Complex + Zero + ClosedAdd + ClosedMul
+where N: Scalar + Zero + ClosedAdd + ClosedMul
 {
-    /// Computes `self = alpha * x * y.transpose() + beta * self`.
-    ///
-    /// If `beta` is zero, `self` is never read.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::{Matrix2x3, Vector2, Vector3};
-    /// let mut mat = Matrix2x3::repeat(4.0);
-    /// let vec1 = Vector2::new(1.0, 2.0);
-    /// let vec2 = Vector3::new(0.1, 0.2, 0.3);
-    /// let expected = vec1 * vec2.transpose() * 10.0 + mat * 5.0;
-    ///
-    /// mat.ger(10.0, &vec1, &vec2, 5.0);
-    /// assert_eq!(mat, expected);
-    /// ```
-    #[inline]
-    pub fn gerc<D2: Dim, D3: Dim, SB, SC>(
+    #[inline(always)]
+    fn gerx<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
         alpha: N,
         x: &Vector<N, D2, SB>,
         y: &Vector<N, D3, SC>,
         beta: N,
+        conjugate: impl Fn(N) -> N,
     ) where
         N: One,
         SB: Storage<N, D2>,
@@ -899,15 +820,11 @@ impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
 
         for j in 0..ncols1 {
             // FIXME: avoid bound checks.
-            let val = unsafe { y.vget_unchecked(j).conjugate() };
+            let val = unsafe { conjugate(*y.vget_unchecked(j)) };
             self.column_mut(j).axpy(alpha * val, x, beta);
         }
     }
-}
 
-impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
-where N: Scalar + Zero + ClosedAdd + ClosedMul
-{
     /// Computes `self = alpha * x * y.transpose() + beta * self`.
     ///
     /// If `beta` is zero, `self` is never read.
@@ -937,20 +854,39 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
-        let (nrows1, ncols1) = self.shape();
-        let dim2 = x.nrows();
-        let dim3 = y.nrows();
+        self.gerx(alpha, x, y, beta, |e| e)
+    }
 
-        assert!(
-            nrows1 == dim2 && ncols1 == dim3,
-            "ger: dimensions mismatch."
-        );
-
-        for j in 0..ncols1 {
-            // FIXME: avoid bound checks.
-            let val = unsafe { *y.vget_unchecked(j) };
-            self.column_mut(j).axpy(alpha * val, x, beta);
-        }
+    /// Computes `self = alpha * x * y.transpose() + beta * self`.
+    ///
+    /// If `beta` is zero, `self` is never read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Vector2, Vector3};
+    /// let mut mat = Matrix2x3::repeat(4.0);
+    /// let vec1 = Vector2::new(1.0, 2.0);
+    /// let vec2 = Vector3::new(0.1, 0.2, 0.3);
+    /// let expected = vec1 * vec2.transpose() * 10.0 + mat * 5.0;
+    ///
+    /// mat.ger(10.0, &vec1, &vec2, 5.0);
+    /// assert_eq!(mat, expected);
+    /// ```
+    #[inline]
+    pub fn gerc<D2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: N,
+        x: &Vector<N, D2, SB>,
+        y: &Vector<N, D3, SC>,
+        beta: N,
+    ) where
+        N: Complex,
+        SB: Storage<N, D2>,
+        SC: Storage<N, D3>,
+        ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
+    {
+        self.gerx(alpha, x, y, beta, Complex::conjugate)
     }
 
     /// Computes `self = alpha * a * b + beta * self`, where `a, b, self` are matrices.
@@ -1146,6 +1082,42 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
 where N: Scalar + Zero + ClosedAdd + ClosedMul
 {
+    #[inline(always)]
+    fn sygerx<D2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: N,
+        x: &Vector<N, D2, SB>,
+        y: &Vector<N, D3, SC>,
+        beta: N,
+        conjugate: impl Fn(N) -> N,
+    ) where
+        N: One,
+        SB: Storage<N, D2>,
+        SC: Storage<N, D3>,
+        ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
+    {
+        let dim1 = self.nrows();
+        let dim2 = x.nrows();
+        let dim3 = y.nrows();
+
+        assert!(
+            self.is_square(),
+            "Symmetric ger: the input matrix must be square."
+        );
+        assert!(dim1 == dim2 && dim1 == dim3, "ger: dimensions mismatch.");
+
+        for j in 0..dim1 {
+            let val = unsafe { conjugate(*y.vget_unchecked(j)) };
+            let subdim = Dynamic::new(dim1 - j);
+            // FIXME: avoid bound checks.
+            self.generic_slice_mut((j, j), (subdim, U1)).axpy(
+                alpha * val,
+                &x.rows_range(j..),
+                beta,
+            );
+        }
+    }
+
     /// Computes `self = alpha * x * y.transpose() + beta * self`, where `self` is a **symmetric**
     /// matrix.
     ///
@@ -1166,6 +1138,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     /// assert_eq!(mat.lower_triangle(), expected.lower_triangle());
     /// assert_eq!(mat.m12, 99999.99999); // This was untouched.
     #[inline]
+    #[deprecated(note = "This is renamed `syger` to match the original BLAS terminology.")]
     pub fn ger_symm<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
         alpha: N,
@@ -1178,26 +1151,77 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
-        let dim1 = self.nrows();
-        let dim2 = x.nrows();
-        let dim3 = y.nrows();
+        self.syger(alpha, x, y, beta)
+    }
 
-        assert!(
-            self.is_square(),
-            "Symmetric ger: the input matrix must be square."
-        );
-        assert!(dim1 == dim2 && dim1 == dim3, "ger: dimensions mismatch.");
+    /// Computes `self = alpha * x * y.transpose() + beta * self`, where `self` is a **symmetric**
+    /// matrix.
+    ///
+    /// If `beta` is zero, `self` is never read. The result is symmetric. Only the lower-triangular
+    /// (including the diagonal) part of `self` is read/written.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Vector2};
+    /// let mut mat = Matrix2::identity();
+    /// let vec1 = Vector2::new(1.0, 2.0);
+    /// let vec2 = Vector2::new(0.1, 0.2);
+    /// let expected = vec1 * vec2.transpose() * 10.0 + mat * 5.0;
+    /// mat.m12 = 99999.99999; // This component is on the upper-triangular part and will not be read/written.
+    ///
+    /// mat.ger_symm(10.0, &vec1, &vec2, 5.0);
+    /// assert_eq!(mat.lower_triangle(), expected.lower_triangle());
+    /// assert_eq!(mat.m12, 99999.99999); // This was untouched.
+    #[inline]
+    pub fn syger<D2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: N,
+        x: &Vector<N, D2, SB>,
+        y: &Vector<N, D3, SC>,
+        beta: N,
+    ) where
+        N: One,
+        SB: Storage<N, D2>,
+        SC: Storage<N, D3>,
+        ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
+    {
+        self.sygerx(alpha, x, y, beta, |e| e)
+    }
 
-        for j in 0..dim1 {
-            let val = unsafe { *y.vget_unchecked(j) };
-            let subdim = Dynamic::new(dim1 - j);
-            // FIXME: avoid bound checks.
-            self.generic_slice_mut((j, j), (subdim, U1)).axpy(
-                alpha * val,
-                &x.rows_range(j..),
-                beta,
-            );
-        }
+    /// Computes `self = alpha * x * y.transpose() + beta * self`, where `self` is a **symmetric**
+    /// matrix.
+    ///
+    /// If `beta` is zero, `self` is never read. The result is symmetric. Only the lower-triangular
+    /// (including the diagonal) part of `self` is read/written.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Vector2};
+    /// let mut mat = Matrix2::identity();
+    /// let vec1 = Vector2::new(1.0, 2.0);
+    /// let vec2 = Vector2::new(0.1, 0.2);
+    /// let expected = vec1 * vec2.transpose() * 10.0 + mat * 5.0;
+    /// mat.m12 = 99999.99999; // This component is on the upper-triangular part and will not be read/written.
+    ///
+    /// mat.ger_symm(10.0, &vec1, &vec2, 5.0);
+    /// assert_eq!(mat.lower_triangle(), expected.lower_triangle());
+    /// assert_eq!(mat.m12, 99999.99999); // This was untouched.
+    #[inline]
+    pub fn hegerc<D2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: N,
+        x: &Vector<N, D2, SB>,
+        y: &Vector<N, D3, SC>,
+        beta: N,
+    ) where
+        N: Complex,
+        SB: Storage<N, D2>,
+        SC: Storage<N, D3>,
+        ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
+    {
+        self.sygerx(alpha, x, y, beta, Complex::conjugate)
     }
 }
 

@@ -192,7 +192,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
     #[inline]
     fn inner_product(&self, other: &Self) -> N {
-        self.cdot(other)
+        self.dotc(other)
     }
 }
 
