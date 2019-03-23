@@ -54,7 +54,7 @@ fn vec10000_axpy_f64(bh: &mut criterion::Criterion) {
     let b = DVector::new_random(10000);
     let n = rng.gen::<f64>();
 
-    bh.bench_function("", move |bh| bh.iter(|| a.axpy(n, &b, 1.0)));
+    bh.bench_function("vec10000_axpy_f64", move |bh| bh.iter(|| a.axpy(n, &b, 1.0)));
 }
 
 fn vec10000_axpy_beta_f64(bh: &mut criterion::Criterion) {
@@ -65,7 +65,7 @@ fn vec10000_axpy_beta_f64(bh: &mut criterion::Criterion) {
     let n = rng.gen::<f64>();
     let beta = rng.gen::<f64>();
 
-    bh.bench_function("", move |bh| bh.iter(|| a.axpy(n, &b, beta)));
+    bh.bench_function("vec10000_axpy_beta_f64", move |bh| bh.iter(|| a.axpy(n, &b, beta)));
 }
 
 fn vec10000_axpy_f64_slice(bh: &mut criterion::Criterion) {
@@ -75,7 +75,7 @@ fn vec10000_axpy_f64_slice(bh: &mut criterion::Criterion) {
     let b = DVector::new_random(10000);
     let n = rng.gen::<f64>();
 
-    bh.bench_function("", move |bh| bh.iter(|| {
+    bh.bench_function("vec10000_axpy_f64_slice", move |bh| bh.iter(|| {
         let mut a = a.fixed_rows_mut::<U10000>(0);
         let b = b.fixed_rows::<U10000>(0);
 
@@ -91,7 +91,7 @@ fn vec10000_axpy_f64_static(bh: &mut criterion::Criterion) {
     let n = rng.gen::<f64>();
 
     // NOTE: for some reasons, it is much faster if the arument are boxed (Box::new(VectorN...)).
-    bh.bench_function("", move |bh| bh.iter(|| a.axpy(n, &b, 1.0)));
+    bh.bench_function("vec10000_axpy_f64_static", move |bh| bh.iter(|| a.axpy(n, &b, 1.0)));
 }
 
 fn vec10000_axpy_f32(bh: &mut criterion::Criterion) {
@@ -101,7 +101,7 @@ fn vec10000_axpy_f32(bh: &mut criterion::Criterion) {
     let b = DVector::new_random(10000);
     let n = rng.gen::<f32>();
 
-    bh.bench_function("", move |bh| bh.iter(|| a.axpy(n, &b, 1.0)));
+    bh.bench_function("vec10000_axpy_f32", move |bh| bh.iter(|| a.axpy(n, &b, 1.0)));
 }
 
 fn vec10000_axpy_beta_f32(bh: &mut criterion::Criterion) {
@@ -112,7 +112,55 @@ fn vec10000_axpy_beta_f32(bh: &mut criterion::Criterion) {
     let n = rng.gen::<f32>();
     let beta = rng.gen::<f32>();
 
-    bh.bench_function("", move |bh| bh.iter(|| a.axpy(n, &b, beta)));
+    bh.bench_function("vec10000_axpy_beta_f32", move |bh| bh.iter(|| a.axpy(n, &b, beta)));
 }
 
-criterion_group!(vector, vec10000_axpy_f64_static);
+criterion_group!(vector,
+    vec2_add_v_f32,
+    vec3_add_v_f32,
+    vec4_add_v_f32,
+
+    vec2_add_v_f64,
+    vec3_add_v_f64,
+    vec4_add_v_f64,
+
+    vec2_sub_v,
+    vec3_sub_v,
+    vec4_sub_v,
+
+    vec2_mul_s,
+    vec3_mul_s,
+    vec4_mul_s,
+
+    vec2_div_s,
+    vec3_div_s,
+    vec4_div_s,
+
+    vec2_dot_f32,
+    vec3_dot_f32,
+    vec4_dot_f32,
+
+    vec2_dot_f64,
+    vec3_dot_f64,
+    vec4_dot_f64,
+
+    vec3_cross,
+
+    vec2_norm,
+    vec3_norm,
+    vec4_norm,
+
+    vec2_normalize,
+    vec3_normalize,
+    vec4_normalize,
+
+    vec10000_dot_f64,
+    vec10000_dot_f32,
+
+    vec10000_axpy_f64,
+    vec10000_axpy_beta_f64,
+    vec10000_axpy_f64_slice,
+    vec10000_axpy_f64_static,
+    vec10000_axpy_f32,
+    vec10000_axpy_beta_f32
+);

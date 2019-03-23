@@ -67,9 +67,9 @@ criterion_group!(bidiagonal,
     bidiagonalize_100x500,
     bidiagonalize_4x4,
     bidiagonalize_500x100,
-    bidiagonalize_500x500,
+//    bidiagonalize_500x500, // too long
     bidiagonalize_unpack_100x100,
     bidiagonalize_unpack_100x500,
     bidiagonalize_unpack_500x100,
-    bidiagonalize_unpack_500x500
+//    bidiagonalize_unpack_500x500 // too long
 );

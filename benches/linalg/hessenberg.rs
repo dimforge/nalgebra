@@ -1,58 +1,60 @@
 use na::{DMatrix, Hessenberg, Matrix4};
-use test::{self, Bencher};
 
 #[path = "../common/macros.rs"]
 mod macros;
 
 // Without unpack.
-#[bench]
-fn hessenberg_decompose_4x4(bh: &mut Bencher) {
+fn hessenberg_decompose_4x4(bh: &mut criterion::Criterion) {
     let m = Matrix4::<f64>::new_random();
-    bh.iter(|| test::black_box(Hessenberg::new(m.clone())))
+    bh.bench_function("hessenberg_decompose_4x4", move |bh| bh.iter(|| test::black_box(Hessenberg::new(m.clone()))));
 }
 
-#[bench]
-fn hessenberg_decompose_100x100(bh: &mut Bencher) {
+fn hessenberg_decompose_100x100(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(100, 100);
-    bh.iter(|| test::black_box(Hessenberg::new(m.clone())))
+    bh.bench_function("hessenberg_decompose_100x100", move |bh| bh.iter(|| test::black_box(Hessenberg::new(m.clone()))));
 }
 
-#[bench]
-fn hessenberg_decompose_200x200(bh: &mut Bencher) {
+fn hessenberg_decompose_200x200(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(200, 200);
-    bh.iter(|| test::black_box(Hessenberg::new(m.clone())))
+    bh.bench_function("hessenberg_decompose_200x200", move |bh| bh.iter(|| test::black_box(Hessenberg::new(m.clone()))));
 }
 
-#[bench]
-fn hessenberg_decompose_500x500(bh: &mut Bencher) {
+fn hessenberg_decompose_500x500(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(500, 500);
-    bh.iter(|| test::black_box(Hessenberg::new(m.clone())))
+    bh.bench_function("hessenberg_decompose_500x500", move |bh| bh.iter(|| test::black_box(Hessenberg::new(m.clone()))));
 }
 
 // With unpack.
-#[bench]
-fn hessenberg_decompose_unpack_100x100(bh: &mut Bencher) {
+fn hessenberg_decompose_unpack_100x100(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(100, 100);
-    bh.iter(|| {
+    bh.bench_function("hessenberg_decompose_unpack_100x100", move |bh| bh.iter(|| {
         let hess = Hessenberg::new(m.clone());
         let _ = hess.unpack();
-    })
+    }));
 }
 
-#[bench]
-fn hessenberg_decompose_unpack_200x200(bh: &mut Bencher) {
+fn hessenberg_decompose_unpack_200x200(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(200, 200);
-    bh.iter(|| {
+    bh.bench_function("hessenberg_decompose_unpack_200x200", move |bh| bh.iter(|| {
         let hess = Hessenberg::new(m.clone());
         let _ = hess.unpack();
-    })
+    }));
 }
 
-#[bench]
-fn hessenberg_decompose_unpack_500x500(bh: &mut Bencher) {
+fn hessenberg_decompose_unpack_500x500(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(500, 500);
-    bh.iter(|| {
+    bh.bench_function("hessenberg_decompose_unpack_500x500", move |bh| bh.iter(|| {
         let hess = Hessenberg::new(m.clone());
         let _ = hess.unpack();
-    })
+    }));
 }
+
+criterion_group!(hessenberg,
+    hessenberg_decompose_4x4,
+    hessenberg_decompose_100x100,
+    hessenberg_decompose_200x200,
+//    hessenberg_decompose_500x500,
+    hessenberg_decompose_unpack_100x100,
+    hessenberg_decompose_unpack_200x200,
+//    hessenberg_decompose_unpack_500x500
+);

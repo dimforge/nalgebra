@@ -22,4 +22,18 @@ fn reproductible_dmatrix(nrows: usize, ncols: usize) -> DMatrix<f64> {
     DMatrix::<f64>::from_fn(nrows, ncols, |_, _| rng.gen())
 }
 
-criterion_main!(core::matrix::matrix, core::vector::vector, linalg::bidiagonal);
+criterion_main!(
+    core::matrix,
+    core::vector,
+    geometry::quaternion,
+    linalg::bidiagonal,
+    linalg::cholesky,
+    linalg::full_piv_lu,
+    linalg::hessenberg,
+    linalg::lu,
+    linalg::qr,
+    linalg::schur,
+    linalg::solve,
+    linalg::svd,
+    linalg::symmetric_eigen,
+);

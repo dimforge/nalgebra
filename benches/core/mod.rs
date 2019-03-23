@@ -1,2 +1,5 @@
-pub mod matrix;
-pub mod vector;
+pub use self::matrix::matrix;
+pub use self::vector::vector;
+
+mod matrix;
+mod vector;
