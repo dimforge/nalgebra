@@ -196,3 +196,5 @@ fn mat100_from_fn(bench: &mut Bencher) {
 fn mat500_from_fn(bench: &mut Bencher) {
     bench.iter(|| DMatrix::from_fn(500, 500, |a, b| a + b))
 }
+
+criterion_group!(matrix, mat2_transpose);
