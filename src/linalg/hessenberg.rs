@@ -92,8 +92,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimD
     /// Retrieves `(q, h)` with `q` the orthogonal matrix of this decomposition and `h` the
     /// hessenberg matrix.
     #[inline]
-    pub fn unpack(self) -> (MatrixN<N, D>, MatrixN<N, D>)
-    where ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>> {
+    pub fn unpack(self) -> (MatrixN<N, D>, MatrixN<N, D>) {
         let q = self.q();
 
         (q, self.unpack_h())
@@ -101,13 +100,12 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimD
 
     /// Retrieves the upper trapezoidal submatrix `H` of this decomposition.
     #[inline]
-    pub fn unpack_h(mut self) -> MatrixN<N, D>
-    where ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>> {
+    pub fn unpack_h(mut self) -> MatrixN<N, D> {
         let dim = self.hess.nrows();
         self.hess.fill_lower_triangle(N::zero(), 2);
         self.hess
             .slice_mut((1, 0), (dim - 1, dim - 1))
-            .set_diagonal(&self.subdiag.map(|e| N::from_real(e.modulus())));
+            .set_partial_diagonal(self.subdiag.iter().map(|e| N::from_real(e.modulus())));
         self.hess
     }
 
@@ -116,13 +114,12 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimD
     ///
     /// This is less efficient than `.unpack_h()` as it allocates a new matrix.
     #[inline]
-    pub fn h(&self) -> MatrixN<N, D>
-    where ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>> {
+    pub fn h(&self) -> MatrixN<N, D> {
         let dim = self.hess.nrows();
         let mut res = self.hess.clone();
         res.fill_lower_triangle(N::zero(), 2);
         res.slice_mut((1, 0), (dim - 1, dim - 1))
-            .set_diagonal(&self.subdiag.map(|e| N::from_real(e.modulus())));
+            .set_partial_diagonal(self.subdiag.iter().map(|e| N::from_real(e.modulus())));
         res
     }
 

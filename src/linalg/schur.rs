@@ -52,7 +52,6 @@ where
 impl<N: Complex, D: Dim> Schur<N, D>
 where
     D: DimSub<U1>,                                   // For Hessenberg.
-    ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>>, // For Hessenberg.
     DefaultAllocator: Allocator<N, D, DimDiff<D, U1>>
         + Allocator<N, DimDiff<D, U1>>
         + Allocator<N, D, D>
@@ -341,7 +340,7 @@ where
         while n > 0 {
             let m = n - 1;
 
-            if t[(n, m)].modulus() <= eps * (t[(n, n)].modulus() + t[(m, m)].modulus()) {
+            if t[(n, m)].norm1() <= eps * (t[(n, n)].norm1() + t[(m, m)].norm1()) {
                 t[(n, m)] = N::zero();
             } else {
                 break;
@@ -360,7 +359,7 @@ where
 
             let off_diag = t[(new_start, m)];
             if off_diag.is_zero()
-                || off_diag.modulus() <= eps * (t[(new_start, new_start)].modulus() + t[(m, m)].modulus())
+                || off_diag.norm1() <= eps * (t[(new_start, new_start)].norm1() + t[(m, m)].norm1())
             {
                 t[(new_start, m)] = N::zero();
                 break;
@@ -479,7 +478,7 @@ fn compute_2x2_basis<N: Complex, S: Storage<N, U2, U2>>(
         // NOTE: Choose the one that yields a larger x component.
         // This is necessary for numerical stability of the normalization of the complex
         // number.
-        if x1.modulus() > x2.modulus() {
+        if x1.norm1() > x2.norm1() {
             Some(GivensRotation::new(x1, h10).0)
         } else {
             Some(GivensRotation::new(x2, h10).0)
@@ -492,7 +491,6 @@ fn compute_2x2_basis<N: Complex, S: Storage<N, U2, U2>>(
 impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where
     D: DimSub<U1>,                                   // For Hessenberg.
-    ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>>, // For Hessenberg.
     DefaultAllocator: Allocator<N, D, DimDiff<D, U1>>
         + Allocator<N, DimDiff<D, U1>>
         + Allocator<N, D, D>

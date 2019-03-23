@@ -76,9 +76,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
                 let mut p = p.rows_range_mut(i..);
 
                 p.hegemv(::convert(2.0), &m, &axis, N::zero());
-                let dot = axis.dotc(&p);
 
-//                p.axpy(-dot, &axis.conjugate(), N::one());
+                let dot = axis.dotc(&p);
                 m.hegerc(-N::one(), &p, &axis, N::one());
                 m.hegerc(-N::one(), &axis, &p, N::one());
                 m.hegerc(dot * ::convert(2.0), &axis, &axis, N::one());

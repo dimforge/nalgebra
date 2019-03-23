@@ -316,17 +316,17 @@ where
             let m = n - 1;
 
             if off_diagonal[m].is_zero()
-                || off_diagonal[m].modulus() <= eps * (diagonal[n].modulus() + diagonal[m].modulus())
+                || off_diagonal[m].norm1() <= eps * (diagonal[n].norm1() + diagonal[m].norm1())
             {
                 off_diagonal[m] = N::Real::zero();
-            } else if diagonal[m].modulus() <= eps {
+            } else if diagonal[m].norm1() <= eps {
                 diagonal[m] = N::Real::zero();
                 Self::cancel_horizontal_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m, m + 1);
 
                 if m != 0 {
                     Self::cancel_vertical_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m - 1);
                 }
-            } else if diagonal[n].modulus() <= eps {
+            } else if diagonal[n].norm1() <= eps {
                 diagonal[n] = N::Real::zero();
                 Self::cancel_vertical_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m);
             } else {
@@ -344,13 +344,13 @@ where
         while new_start > 0 {
             let m = new_start - 1;
 
-            if off_diagonal[m].modulus() <= eps * (diagonal[new_start].modulus() + diagonal[m].modulus())
+            if off_diagonal[m].norm1() <= eps * (diagonal[new_start].norm1() + diagonal[m].norm1())
             {
                 off_diagonal[m] = N::Real::zero();
                 break;
             }
             // FIXME: write a test that enters this case.
-            else if diagonal[m].modulus() <= eps {
+            else if diagonal[m].norm1() <= eps {
                 diagonal[m] = N::Real::zero();
                 Self::cancel_horizontal_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m, n);
 

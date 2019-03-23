@@ -179,9 +179,6 @@ where
         DefaultAllocator: Allocator<N, DimMinimum<R, C>, DimMinimum<R, C>>
             + Allocator<N, R, DimMinimum<R, C>>
             + Allocator<N, DimMinimum<R, C>, C>,
-        // FIXME: the following bounds are ugly.
-        DimMinimum<R, C>: DimMin<DimMinimum<R, C>, Output = DimMinimum<R, C>>,
-        ShapeConstraint: DimEq<Dynamic, DimDiff<DimMinimum<R, C>, U1>>,
     {
         // FIXME: optimize by calling a reallocator.
         (self.u(), self.d(), self.v_t())
@@ -192,19 +189,16 @@ where
     pub fn d(&self) -> MatrixN<N, DimMinimum<R, C>>
     where
         DefaultAllocator: Allocator<N, DimMinimum<R, C>, DimMinimum<R, C>>,
-        // FIXME: the following bounds are ugly.
-        DimMinimum<R, C>: DimMin<DimMinimum<R, C>, Output = DimMinimum<R, C>>,
-        ShapeConstraint: DimEq<Dynamic, DimDiff<DimMinimum<R, C>, U1>>,
     {
         let (nrows, ncols) = self.uv.data.shape();
 
         let d = nrows.min(ncols);
         let mut res = MatrixN::identity_generic(d, d);
-        res.set_diagonal(&self.diagonal.map(|e| N::from_real(e.modulus())));
+        res.set_partial_diagonal(self.diagonal.iter().map(|e| N::from_real(e.modulus())));
 
         let start = self.axis_shift();
         res.slice_mut(start, (d.value() - 1, d.value() - 1))
-            .set_diagonal(&self.off_diagonal.map(|e| N::from_real(e.modulus())));
+            .set_partial_diagonal(self.off_diagonal.iter().map(|e| N::from_real(e.modulus())));
         res
     }
 

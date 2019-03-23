@@ -79,12 +79,10 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
     pub fn r(&self) -> MatrixMN<N, DimMinimum<R, C>, C>
     where
         DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>,
-        // FIXME: the following bound is ugly.
-        DimMinimum<R, C>: DimMin<C, Output = DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.qr.data.shape();
         let mut res = self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle();
-        res.set_diagonal(&self.diag.map(|e| N::from_real(e.modulus())));
+        res.set_partial_diagonal(self.diag.iter().map(|e| N::from_real(e.modulus())));
         res
     }
 
@@ -95,13 +93,11 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
     pub fn unpack_r(self) -> MatrixMN<N, DimMinimum<R, C>, C>
     where
         DefaultAllocator: Reallocator<N, R, C, DimMinimum<R, C>, C>,
-        // FIXME: the following bound is ugly (needed by `set_diagonal`).
-        DimMinimum<R, C>: DimMin<C, Output = DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.qr.data.shape();
         let mut res = self.qr.resize_generic(nrows.min(ncols), ncols, N::zero());
         res.fill_lower_triangle(N::zero(), 1);
-        res.set_diagonal(&self.diag.map(|e| N::from_real(e.modulus())));
+        res.set_partial_diagonal(self.diag.iter().map(|e| N::from_real(e.modulus())));
         res
     }
 

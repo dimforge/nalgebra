@@ -184,7 +184,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
                     }
                 }
 
-                if off_diag[m].modulus() <= eps * (diag[m].modulus() + diag[n].modulus()) {
+                if off_diag[m].norm1() <= eps * (diag[m].norm1() + diag[n].norm1()) {
                     end -= 1;
                 }
             } else if subdim == 2 {
@@ -240,7 +240,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
         while n > 0 {
             let m = n - 1;
 
-            if off_diag[m].modulus() > eps * (diag[n].modulus() + diag[m].modulus()) {
+            if off_diag[m].norm1() > eps * (diag[n].norm1() + diag[m].norm1()) {
                 break;
             }
 
@@ -256,7 +256,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
             let m = new_start - 1;
 
             if off_diag[m].is_zero()
-                || off_diag[m].modulus() <= eps * (diag[new_start].modulus() + diag[m].modulus())
+                || off_diag[m].norm1() <= eps * (diag[new_start].norm1() + diag[m].norm1())
             {
                 off_diag[m] = N::Real::zero();
                 break;
@@ -277,7 +277,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
             let val = self.eigenvalues[i];
             u_t.column_mut(i).scale_mut(val);
         }
-        u_t.conjugate_transpose_mut();
+        u_t.adjoint_mut();
         &self.eigenvectors * u_t
     }
 }

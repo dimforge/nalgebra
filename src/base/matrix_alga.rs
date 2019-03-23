@@ -269,7 +269,7 @@ where DefaultAllocator: Allocator<N, R, C>
                     let v = &vs[0];
                     let mut a;
 
-                    if v[0].modulus() > v[1].modulus() {
+                    if v[0].norm1() > v[1].norm1() {
                         a = Self::from_column_slice(&[v[2], N::zero(), -v[0]]);
                     } else {
                         a = Self::from_column_slice(&[N::zero(), -v[2], v[1]]);

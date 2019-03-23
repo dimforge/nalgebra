@@ -33,7 +33,7 @@ impl<N: Complex> Norm<N> for EuclideanNorm {
     #[inline]
     fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::Real
         where R: Dim, C: Dim, S: Storage<N, R, C> {
-        m.dotc(m).real().sqrt()
+        m.norm_squared().sqrt()
     }
 
     #[inline]
@@ -43,7 +43,7 @@ impl<N: Complex> Norm<N> for EuclideanNorm {
               ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
         m1.zip_fold(m2, N::Real::zero(), |acc, a, b| {
             let diff = a - b;
-            acc + (diff.conjugate() * diff).real()
+            acc + diff.modulus_squared()
         }).sqrt()
     }
 }
@@ -73,6 +73,8 @@ impl<N: Complex> Norm<N> for UniformNorm {
     #[inline]
     fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::Real
         where R: Dim, C: Dim, S: Storage<N, R, C> {
+        // NOTE: we don't use `m.amax()` here because for the complex
+        // numbers this will return the max norm1 instead of the modulus.
         m.fold(N::Real::zero(), |acc, a| acc.max(a.modulus()))
     }
 
@@ -187,7 +189,7 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn normalize(&self) -> MatrixMN<N, R, C>
         where DefaultAllocator: Allocator<N, R, C> {
-        self.map(|e| e.unscale(self.norm()))
+        self.unscale(self.norm())
     }
 
     /// Returns a normalized version of this matrix unless its norm as smaller or equal to `eps`.
@@ -199,7 +201,7 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         if n <= min_norm {
             None
         } else {
-            Some(self.map(|e| e.unscale(n)))
+            Some(self.unscale(n))
         }
     }
 
@@ -216,7 +218,7 @@ impl<N: Complex, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn normalize_mut(&mut self) -> N::Real {
         let n = self.norm();
-        self.apply(|e| e.unscale(n));
+        self.unscale_mut(n);
 
         n
     }
@@ -231,7 +233,7 @@ impl<N: Complex, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         if n <= min_norm {
             None
         } else {
-            self.apply(|e| e.unscale(n));
+            self.unscale_mut(n);
             Some(n)
         }
     }

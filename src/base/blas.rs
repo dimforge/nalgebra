@@ -585,7 +585,7 @@ where
         a: &SquareMatrix<N, D2, SB>,
         x: &Vector<N, D3, SC>,
         beta: N,
-        dotc: impl Fn(&DVectorSlice<N, SB::RStride, SB::CStride>, &DVectorSlice<N, SC::RStride, SC::CStride>) -> N,
+        dot: impl Fn(&DVectorSlice<N, SB::RStride, SB::CStride>, &DVectorSlice<N, SC::RStride, SC::CStride>) -> N,
     ) where
         N: One,
         SB: Storage<N, D2, D2>,
@@ -613,11 +613,11 @@ where
         let col2 = a.column(0);
         let val = unsafe { *x.vget_unchecked(0) };
         self.axpy(alpha * val, &col2, beta);
-        self[0] += alpha * dotc(&a.slice_range(1.., 0), &x.rows_range(1..));
+        self[0] += alpha * dot(&a.slice_range(1.., 0), &x.rows_range(1..));
 
         for j in 1..dim2 {
             let col2 = a.column(j);
-            let dot = dotc(&col2.rows_range(j..), &x.rows_range(j..));
+            let dot = dot(&col2.rows_range(j..), &x.rows_range(j..));
 
             let val;
             unsafe {
@@ -1083,7 +1083,7 @@ impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
 where N: Scalar + Zero + ClosedAdd + ClosedMul
 {
     #[inline(always)]
-    fn sygerx<D2: Dim, D3: Dim, SB, SC>(
+    fn xxgerx<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
         alpha: N,
         x: &Vector<N, D2, SB>,
@@ -1186,7 +1186,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
-        self.sygerx(alpha, x, y, beta, |e| e)
+        self.xxgerx(alpha, x, y, beta, |e| e)
     }
 
     /// Computes `self = alpha * x * y.transpose() + beta * self`, where `self` is a **symmetric**
@@ -1221,7 +1221,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
-        self.sygerx(alpha, x, y, beta, Complex::conjugate)
+        self.xxgerx(alpha, x, y, beta, Complex::conjugate)
     }
 }
 

@@ -96,7 +96,7 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         }
 
         let m_two: N = ::convert(-2.0f64);
-        lhs.ger(m_two, &work, &self.axis.conjugate(), N::one());
+        lhs.gerc(m_two, &work, &self.axis, N::one());
     }
 
     /// Applies the reflection to the rows of `lhs`.
@@ -118,6 +118,6 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         }
 
         let m_two = sign.scale(::convert(-2.0f64));
-        lhs.ger(m_two, &work, &self.axis.conjugate(), sign);
+        lhs.gerc(m_two, &work, &self.axis, sign);
     }
 }

@@ -253,7 +253,7 @@ where
     /// be determined.
     ///
     /// Returns `false` if no solution was found (the decomposed matrix is singular).
-    pub fn solve_conjugate_transpose_mut<R2: Dim, C2: Dim>(
+    pub fn solve_adjoint_mut<R2: Dim, C2: Dim>(
         &self,
         b: &mut MatrixMN<N, R2, C2>,
     ) -> bool

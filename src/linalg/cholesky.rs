@@ -70,11 +70,12 @@ where DefaultAllocator: Allocator<N, D, D>
 
                     let mut col = matrix.slice_range_mut(j + 1.., j);
                     col /= denom;
-
                     continue;
                 }
             }
 
+            // The diagonal element is either zero or its square root could not
+            // be taken (e.g. for negative real numbers).
             return None;
         }
 

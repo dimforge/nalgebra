@@ -981,14 +981,14 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.map(|e| e.conjugate())
     }
 
-    /// Divides each component of `self` by the given real.
+    /// Divides each component of the complex matrix `self` by the given real.
     #[inline]
     pub fn unscale(&self, real: N::Real) -> MatrixMN<N, R, C>
         where DefaultAllocator: Allocator<N, R, C> {
         self.map(|e| e.unscale(real))
     }
 
-    /// Multiplies each component of `self` by the given real.
+    /// Multiplies each component of the complex matrix `self` by the given real.
     #[inline]
     pub fn scale(&self, real: N::Real) -> MatrixMN<N, R, C>
         where DefaultAllocator: Allocator<N, R, C> {
@@ -997,19 +997,19 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 }
 
 impl<N: Complex, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
-    /// The conjugate of `self` computed in-place.
+    /// The conjugate of the complex matrix `self` computed in-place.
     #[inline]
     pub fn conjugate_mut(&mut self) {
         self.apply(|e| e.conjugate())
     }
 
-    /// Divides each component of `self` by the given real.
+    /// Divides each component of the complex matrix `self` by the given real.
     #[inline]
     pub fn unscale_mut(&mut self, real: N::Real) {
         self.apply(|e| e.unscale(real))
     }
 
-    /// Multiplies each component of `self` by the given real.
+    /// Multiplies each component of the complex matrix `self` by the given real.
     #[inline]
     pub fn scale_mut(&mut self, real: N::Real) {
         self.apply(|e| e.scale(real))
@@ -1017,8 +1017,14 @@ impl<N: Complex, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
 }
 
 impl<N: Complex, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
-    /// Sets `self` to its conjugate transpose.
-    pub fn conjugate_transpose_mut(&mut self) {
+    /// Sets `self` to its adjoint.
+    #[deprecated(note = "Renamed to `self.adjoint_mut()`.")]
+    pub fn conjugate_transform_mut(&mut self) {
+        self.adjoint_mut()
+    }
+
+    /// Sets `self` to its adjoint (aka. conjugate-transpose).
+    pub fn adjoint_mut(&mut self) {
         assert!(
             self.is_square(),
             "Unable to transpose a non-square matrix in-place."
@@ -1027,11 +1033,6 @@ impl<N: Complex, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
         let dim = self.shape().0;
 
         for i in 0..dim {
-            {
-                let diag = unsafe { self.get_unchecked_mut((i, i)) };
-                *diag = diag.conjugate();
-            }
-
             for j in 0..i {
                 unsafe {
                     let ref_ij = self.get_unchecked_mut((i, j)) as *mut N;
@@ -1041,6 +1042,11 @@ impl<N: Complex, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
                     *ref_ij = conj_ji;
                     *ref_ji = conj_ij;
                 }
+            }
+
+            {
+                let diag = unsafe { self.get_unchecked_mut((i, i)) };
+                *diag = diag.conjugate();
             }
         }
     }
@@ -1614,10 +1620,10 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     where
         DefaultAllocator: Allocator<N, D>,
     {
-        let c_hang = self.dotc(rhs).real();
+        let (c_hang, c_hang_sign) = self.dotc(rhs).to_exp();
 
         // self == other
-        if c_hang.abs() >= N::Real::one() {
+        if c_hang >= N::Real::one() {
             return Some(Unit::new_unchecked(self.clone_owned()));
         }
 
@@ -1630,7 +1636,8 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
         } else {
             let ta = ((N::Real::one() - t) * hang).sin() / s_hang;
             let tb = (t * hang).sin() / s_hang;
-            let res = &**self * N::from_real(ta) + &**rhs * N::from_real(tb);
+            let mut res = self.scale(ta);
+            res.axpy(c_hang_sign.scale(tb), &**rhs, N::one());
 
             Some(Unit::new_unchecked(res))
         }

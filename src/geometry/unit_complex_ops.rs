@@ -2,10 +2,9 @@ use std::ops::{Div, DivAssign, Mul, MulAssign};
 
 use alga::general::Real;
 use base::allocator::Allocator;
-use base::constraint::{DimEq, ShapeConstraint};
-use base::dimension::{Dim, U1, U2};
-use base::storage::{Storage, StorageMut};
-use base::{DefaultAllocator, Matrix, Unit, Vector, Vector2};
+use base::dimension::{U1, U2};
+use base::storage::Storage;
+use base::{DefaultAllocator, Unit, Vector, Vector2};
 use geometry::{Isometry, Point2, Rotation, Similarity, Translation, UnitComplex};
 
 /*
@@ -403,61 +402,5 @@ where DefaultAllocator: Allocator<N, U2, U2>
     #[inline]
     fn div_assign(&mut self, rhs: &'b UnitComplex<N>) {
         self.div_assign(rhs.to_rotation_matrix())
-    }
-}
-
-// Matrix = UnitComplex * Matrix
-impl<N: Real> UnitComplex<N> {
-    /// Performs the multiplication `rhs = self * rhs` in-place.
-    pub fn rotate<R2: Dim, C2: Dim, S2: StorageMut<N, R2, C2>>(
-        &self,
-        rhs: &mut Matrix<N, R2, C2, S2>,
-    ) where
-        ShapeConstraint: DimEq<R2, U2>,
-    {
-        assert_eq!(
-            rhs.nrows(),
-            2,
-            "Unit complex rotation: the input matrix must have exactly two rows."
-        );
-        let i = self.as_ref().im;
-        let r = self.as_ref().re;
-
-        for j in 0..rhs.ncols() {
-            unsafe {
-                let a = *rhs.get_unchecked((0, j));
-                let b = *rhs.get_unchecked((1, j));
-
-                *rhs.get_unchecked_mut((0, j)) = r * a - i * b;
-                *rhs.get_unchecked_mut((1, j)) = i * a + r * b;
-            }
-        }
-    }
-
-    /// Performs the multiplication `lhs = lhs * self` in-place.
-    pub fn rotate_rows<R2: Dim, C2: Dim, S2: StorageMut<N, R2, C2>>(
-        &self,
-        lhs: &mut Matrix<N, R2, C2, S2>,
-    ) where
-        ShapeConstraint: DimEq<C2, U2>,
-    {
-        assert_eq!(
-            lhs.ncols(),
-            2,
-            "Unit complex rotation: the input matrix must have exactly two columns."
-        );
-        let i = self.as_ref().im;
-        let r = self.as_ref().re;
-
-        // FIXME: can we optimize that to iterate on one column at a time ?
-        for j in 0..lhs.nrows() {
-            unsafe {
-                let a = *lhs.get_unchecked((j, 0));
-                let b = *lhs.get_unchecked((j, 1));
-
-                *lhs.get_unchecked_mut((j, 0)) = r * a + i * b;
-                *lhs.get_unchecked_mut((j, 1)) = -i * a + r * b;
-            }
-        }
     }
 }
