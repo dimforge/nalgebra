@@ -1,3 +1,5 @@
+pub use self::bidiagonal::bidiagonal;
+
 mod bidiagonal;
 mod cholesky;
 mod full_piv_lu;
