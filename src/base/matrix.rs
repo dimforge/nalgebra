@@ -773,7 +773,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     // FIXME: rename `apply` to `apply_mut` and `apply_into` to `apply`?
     /// Returns `self` with each of its components replaced by the result of a closure `f` applied on it.
     #[inline]
-    pub fn apply_into<F: FnMut(N) -> N>(mut self, mut f: F) -> Self{
+    pub fn apply_into<F: FnMut(N) -> N>(mut self, f: F) -> Self{
         self.apply(f);
         self
     }
@@ -1093,14 +1093,11 @@ impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     pub fn hermitian_part(&self) -> MatrixMN<N, D, D>
         where DefaultAllocator: Allocator<N, D, D> {
         assert!(self.is_square(), "Cannot compute the hermitian part of a non-square matrix.");
-        let nrows = self.data.shape().0;
 
-        unsafe {
-            let mut tr = self.conjugate_transpose();
-            tr += self;
-            tr *= ::convert::<_, N>(0.5);
-            tr
-        }
+        let mut tr = self.conjugate_transpose();
+        tr += self;
+        tr *= ::convert::<_, N>(0.5);
+        tr
     }
 }
 

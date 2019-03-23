@@ -53,8 +53,6 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
     pub fn new(mut m: MatrixN<N, D>) -> Self {
         let dim = m.data.shape().0;
 
-        println!("Input m: {}", m.index((0.., 0..)));
-
         assert!(
             m.is_square(),
             "Unable to compute the symmetric tridiagonal decomposition of a non-square matrix."
@@ -84,7 +82,6 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
                 m.ger_symm(-N::one(), &p, &axis.conjugate(), N::one());
                 m.ger_symm(-N::one(), &axis, &p.conjugate(), N::one());
                 m.ger_symm(dot * ::convert(2.0), &axis, &axis.conjugate(), N::one());
-                println!("The m: {}", m);
             }
         }
 
@@ -112,7 +109,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
     }
 
     /// Retrieve the diagonal, and off diagonal elements of this decomposition.
-    pub fn unpack_tridiagonal(mut self) -> (VectorN<N::Real, D>, VectorN<N::Real, DimDiff<D, U1>>)
+    pub fn unpack_tridiagonal(self) -> (VectorN<N::Real, D>, VectorN<N::Real, DimDiff<D, U1>>)
         where DefaultAllocator: Allocator<N::Real, D>
                               + Allocator<N::Real, DimDiff<D, U1>> {
         (self.diagonal(), self.off_diagonal.map(N::modulus))

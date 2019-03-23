@@ -12,12 +12,14 @@ use base::storage::Storage;
 use base::{DefaultAllocator, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN};
 use constraint::{DimEq, ShapeConstraint};
 
-use geometry::{Reflection, UnitComplex};
+use geometry::Reflection;
 use linalg::householder;
 use linalg::Hessenberg;
 use linalg::givens::GivensRotation;
 
-/// Real Schur decomposition of a square matrix.
+/// Schur decomposition of a square matrix.
+///
+/// If this is a real matrix, this will be a Real Schur decomposition.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
@@ -34,20 +36,20 @@ use linalg::givens::GivensRotation;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct RealSchur<N: Complex, D: Dim>
+pub struct Schur<N: Complex, D: Dim>
 where DefaultAllocator: Allocator<N, D, D>
 {
     q: MatrixN<N, D>,
     t: MatrixN<N, D>,
 }
 
-impl<N: Complex, D: Dim> Copy for RealSchur<N, D>
+impl<N: Complex, D: Dim> Copy for Schur<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
 {}
 
-impl<N: Complex, D: Dim> RealSchur<N, D>
+impl<N: Complex, D: Dim> Schur<N, D>
 where
     D: DimSub<U1>,                                   // For Hessenberg.
     ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>>, // For Hessenberg.
@@ -75,7 +77,7 @@ where
     pub fn try_new(m: MatrixN<N, D>, eps: N::Real, max_niter: usize) -> Option<Self> {
         let mut work = unsafe { VectorN::new_uninitialized_generic(m.data.shape().0, U1) };
 
-        Self::do_decompose(m, &mut work, eps, max_niter, true).map(|(q, t)| RealSchur {
+        Self::do_decompose(m, &mut work, eps, max_niter, true).map(|(q, t)| Schur {
             q: q.unwrap(),
             t: t,
         })
@@ -474,8 +476,6 @@ fn compute_2x2_basis<N: Complex, S: Storage<N, U2, U2>>(
         let x1 = eigval1 - m[(1, 1)];
         let x2 = eigval2 - m[(1, 1)];
 
-        println!("eigval1: {}, eigval2: {}, h10: {}", eigval1, eigval2, h10);
-
         // NOTE: Choose the one that yields a larger x component.
         // This is necessary for numerical stability of the normalization of the complex
         // number.
@@ -499,8 +499,8 @@ where
         + Allocator<N, D>,
 {
     /// Computes the Schur decomposition of a square matrix.
-    pub fn real_schur(self) -> RealSchur<N, D> {
-        RealSchur::new(self.into_owned())
+    pub fn schur(self) -> Schur<N, D> {
+        Schur::new(self.into_owned())
     }
 
     /// Attempts to compute the Schur decomposition of a square matrix.
@@ -514,8 +514,8 @@ where
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_real_schur(self, eps: N::Real, max_niter: usize) -> Option<RealSchur<N, D>> {
-        RealSchur::try_new(self.into_owned(), eps, max_niter)
+    pub fn try_schur(self, eps: N::Real, max_niter: usize) -> Option<Schur<N, D>> {
+        Schur::try_new(self.into_owned(), eps, max_niter)
     }
 
     /// Computes the eigenvalues of this matrix.
@@ -543,7 +543,7 @@ where
         }
 
         // FIXME: add balancing?
-        let schur = RealSchur::do_decompose(
+        let schur = Schur::do_decompose(
             self.clone_owned(),
             &mut work,
             N::Real::default_epsilon(),
@@ -551,7 +551,7 @@ where
             false,
         )
         .unwrap();
-        if RealSchur::do_eigenvalues(&schur.1, &mut work) {
+        if Schur::do_eigenvalues(&schur.1, &mut work) {
             Some(work)
         } else {
             None
@@ -566,7 +566,7 @@ where
         let dim = self.data.shape().0;
         let mut work = unsafe { VectorN::new_uninitialized_generic(dim, U1) };
 
-        let schur = RealSchur::do_decompose(
+        let schur = Schur::do_decompose(
             self.clone_owned(),
             &mut work,
             N::default_epsilon(),
@@ -575,7 +575,7 @@ where
         )
         .unwrap();
         let mut eig = unsafe { VectorN::new_uninitialized_generic(dim, U1) };
-        RealSchur::do_complex_eigenvalues(&schur.1, &mut eig);
+        Schur::do_complex_eigenvalues(&schur.1, &mut eig);
         eig
     }
 }

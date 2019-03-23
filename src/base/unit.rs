@@ -13,8 +13,6 @@ use abomonation::Abomonation;
 use alga::general::{SubsetOf, Complex};
 use alga::linear::NormedSpace;
 
-use ::Real;
-
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///
 /// Use `.as_ref()` or `.into_inner()` to obtain the underlying value by-reference or by-move.

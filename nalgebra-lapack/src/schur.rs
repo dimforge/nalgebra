@@ -33,7 +33,7 @@ use lapack;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct RealSchur<N: Scalar, D: Dim>
+pub struct Schur<N: Scalar, D: Dim>
 where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
 {
     re: VectorN<N, D>,
@@ -42,21 +42,21 @@ where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
     q: MatrixN<N, D>,
 }
 
-impl<N: Scalar, D: Dim> Copy for RealSchur<N, D>
+impl<N: Scalar, D: Dim> Copy for Schur<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
     MatrixN<N, D>: Copy,
     VectorN<N, D>: Copy,
 {}
 
-impl<N: RealSchurScalar + Real, D: Dim> RealSchur<N, D>
+impl<N: SchurScalar + Real, D: Dim> Schur<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Computes the eigenvalues and real Schur form of the matrix `m`.
     ///
     /// Panics if the method did not converge.
     pub fn new(m: MatrixN<N, D>) -> Self {
-        Self::try_new(m).expect("RealSchur decomposition: convergence failed.")
+        Self::try_new(m).expect("Schur decomposition: convergence failed.")
     }
 
     /// Computes the eigenvalues and real Schur form of the matrix `m`.
@@ -118,7 +118,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
         );
         lapack_check!(info);
 
-        Some(RealSchur {
+        Some(Schur {
             re: wr,
             im: wi,
             t: m,
@@ -162,7 +162,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
  *
  */
 /// Trait implemented by scalars for which Lapack implements the Real Schur decomposition.
-pub trait RealSchurScalar: Scalar {
+pub trait SchurScalar: Scalar {
     #[allow(missing_docs)]
     fn xgees(
         jobvs: u8,
@@ -202,7 +202,7 @@ pub trait RealSchurScalar: Scalar {
 
 macro_rules! real_eigensystem_scalar_impl (
     ($N: ty, $xgees: path) => (
-        impl RealSchurScalar for $N {
+        impl SchurScalar for $N {
             #[inline]
             fn xgees(jobvs:  u8,
                      sort:   u8,

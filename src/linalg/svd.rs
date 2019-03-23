@@ -1,9 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use num_complex::Complex as NumComplex;
 use num::{Zero, One};
-use std::ops::MulAssign;
 use approx::AbsDiffEq;
 
 use alga::general::{Real, Complex};
@@ -13,7 +11,6 @@ use constraint::{SameNumberOfRows, ShapeConstraint};
 use dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1, U2};
 use storage::Storage;
 
-use linalg::givens;
 use linalg::symmetric_eigen;
 use linalg::Bidiagonal;
 use linalg::givens::GivensRotation;
@@ -116,7 +113,7 @@ where
             matrix.unscale_mut(m_amax);
         }
 
-        let mut b = Bidiagonal::new(matrix);
+        let b = Bidiagonal::new(matrix);
         let mut u = if compute_u { Some(b.u()) } else { None };
         let mut v_t = if compute_v { Some(b.v_t()) } else { None };
         let mut diagonal = b.diagonal();

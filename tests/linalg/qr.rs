@@ -1,12 +1,12 @@
 #![cfg(feature = "arbitrary")]
 
-use core::helper::{RandScalar, RandComplex};
 
 macro_rules! gen_tests(
     ($module: ident, $scalar: ty) => {
         mod $module {
             use na::{DMatrix, DVector, Matrix3x5, Matrix4, Matrix4x3, Matrix5x3, Vector4};
             use std::cmp;
+            #[allow(unused_imports)]
             use core::helper::{RandScalar, RandComplex};
 
             quickcheck! {

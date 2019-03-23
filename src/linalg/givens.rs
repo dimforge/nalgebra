@@ -1,15 +1,13 @@
 //! Construction of givens rotations.
 
-use alga::general::{Complex, Real};
+use alga::general::Complex;
 use num::{Zero, One};
-use num_complex::Complex as NumComplex;
 
 use base::dimension::{Dim, U2};
 use base::constraint::{ShapeConstraint, DimEq};
 use base::storage::{Storage, StorageMut};
 use base::{Vector, Matrix};
 
-use geometry::UnitComplex;
 
 /// A Givens rotation.
 #[derive(Debug, Clone, Copy)]

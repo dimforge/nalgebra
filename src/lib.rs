@@ -66,7 +66,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * General transformations that does not have to be invertible, stored as an homogeneous matrix:
   `Transform2`, `Transform3`.
 * 3D projections for computer graphics: `Perspective3`, `Orthographic3`.
-* Matrix factorizations: `Cholesky`, `QR`, `LU`, `FullPivLU`, `SVD`, `RealSchur`, `Hessenberg`, `SymmetricEigen`.
+* Matrix factorizations: `Cholesky`, `QR`, `LU`, `FullPivLU`, `SVD`, `Schur`, `Hessenberg`, `SymmetricEigen`.
 * Insertion and removal of rows of columns of a matrix.
 * Implements traits from the [alga](https://crates.io/crates/alga) crate for
   generic programming.

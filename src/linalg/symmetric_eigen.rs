@@ -1,10 +1,8 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use num::{Zero, One};
-use num_complex::Complex as NumComplex;
+use num::Zero;
 use approx::AbsDiffEq;
-use std::ops::MulAssign;
 
 use alga::general::Complex;
 use allocator::Allocator;
@@ -12,7 +10,6 @@ use base::{DefaultAllocator, Matrix2, MatrixN, SquareMatrix, Vector2, VectorN};
 use dimension::{Dim, DimDiff, DimSub, U1, U2};
 use storage::Storage;
 
-use geometry::UnitComplex;
 use linalg::givens::GivensRotation;
 use linalg::SymmetricTridiagonal;
 
@@ -121,8 +118,6 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
             q = Some(res.0);
             diag = res.1;
             off_diag = res.2;
-
-            println!("Tridiagonalization q: {:.5?}", q);
         } else {
             let res = SymmetricTridiagonal::new(m).unpack_tridiagonal();
             q = None;
@@ -154,7 +149,6 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
                     let j = i + 1;
 
                     if let Some((rot, norm)) = GivensRotation::cancel_y(&v) {
-                        println!("Canceling: {:.5?} with norm: {:.5?}", rot, norm);
                         if i > start {
                             // Not the first iteration.
                             off_diag[i - 1] = norm;
@@ -203,10 +197,6 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
 
                 diag[start + 0] = eigvals[0];
                 diag[start + 1] = eigvals[1];
-
-                println!("Eigvals: {:.5?}", eigvals);
-                println!("m: {:.5}", m);
-                println!("Curr q: {:.5?}", q);
 
                 if let Some(ref mut q) = q {
                     if let Some((rot, _)) = GivensRotation::try_new(basis.x, basis.y, eps) {
@@ -372,7 +362,6 @@ mod test {
 
             let expected = expected_shift(m);
             let computed = super::wilkinson_shift(m.m11, m.m22, m.m12);
-            println!("{} {}", expected, computed);
             assert!(relative_eq!(expected, computed, epsilon = 1.0e-7));
         }
     }

@@ -1,8 +1,7 @@
-use num::{Signed, Zero};
-use std::cmp::PartialOrd;
+use num::Zero;
 
 use allocator::Allocator;
-use ::{Real, Complex, Scalar};
+use ::{Real, Complex};
 use storage::{Storage, StorageMut};
 use base::{DefaultAllocator, Matrix, Dim, MatrixMN};
 use constraint::{SameNumberOfRows, SameNumberOfColumns, ShapeConstraint};

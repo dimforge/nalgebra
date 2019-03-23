@@ -40,6 +40,7 @@ fn lu_simple_with_pivot() {
 
 #[cfg(feature = "arbitrary")]
 mod quickcheck_tests {
+    #[allow(unused_imports)]
     use core::helper::{RandScalar, RandComplex};
 
     macro_rules! gen_tests(

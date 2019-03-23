@@ -1,28 +1,28 @@
-use na::{Matrix4, RealSchur};
+use na::{Matrix4, Schur};
 use test::{self, Bencher};
 
 #[bench]
 fn schur_decompose_4x4(bh: &mut Bencher) {
     let m = Matrix4::<f64>::new_random();
-    bh.iter(|| test::black_box(RealSchur::new(m.clone())))
+    bh.iter(|| test::black_box(Schur::new(m.clone())))
 }
 
 #[bench]
 fn schur_decompose_10x10(bh: &mut Bencher) {
     let m = ::reproductible_dmatrix(10, 10);
-    bh.iter(|| test::black_box(RealSchur::new(m.clone())))
+    bh.iter(|| test::black_box(Schur::new(m.clone())))
 }
 
 #[bench]
 fn schur_decompose_100x100(bh: &mut Bencher) {
     let m = ::reproductible_dmatrix(100, 100);
-    bh.iter(|| test::black_box(RealSchur::new(m.clone())))
+    bh.iter(|| test::black_box(Schur::new(m.clone())))
 }
 
 #[bench]
 fn schur_decompose_200x200(bh: &mut Bencher) {
     let m = ::reproductible_dmatrix(200, 200);
-    bh.iter(|| test::black_box(RealSchur::new(m.clone())))
+    bh.iter(|| test::black_box(Schur::new(m.clone())))
 }
 
 #[bench]

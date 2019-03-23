@@ -15,7 +15,7 @@ use constraint::{DimEq, ShapeConstraint};
 
 use geometry::{Reflection, UnitComplex};
 use linalg::householder;
-use linalg::RealSchur;
+use linalg::Schur;
 
 /// Eigendecomposition of a real matrix with real eigenvalues (or complex eigen values for complex matrices).
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -76,7 +76,7 @@ where
         );
 
         let dim = m.nrows();
-        let (mut eigenvectors, mut eigenvalues) = RealSchur::new(m, 0).unwrap().unpack();
+        let (mut eigenvectors, mut eigenvalues) = Schur::new(m, 0).unwrap().unpack();
 
         println!("Schur eigenvalues: {}", eigenvalues);
 

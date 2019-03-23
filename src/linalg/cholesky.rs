@@ -1,7 +1,6 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use num::Zero;
 use alga::general::Complex;
 
 use allocator::Allocator;
@@ -59,21 +58,24 @@ where DefaultAllocator: Allocator<N, D, D>
                 let mut col_j = col_j.rows_range_mut(j..);
                 let col_k = col_k.rows_range(j..);
 
-                col_j.axpy(factor, &col_k, N::one());
+                col_j.axpy(factor.conjugate(), &col_k, N::one());
             }
 
             let diag = unsafe { *matrix.get_unchecked((j, j)) };
-            if diag.real() > N::Real::zero() {
-                let denom = diag.sqrt();
-                unsafe {
-                    *matrix.get_unchecked_mut((j, j)) = denom;
-                }
+            if !diag.is_zero() {
+                if let Some(denom) = diag.try_sqrt() {
+                    unsafe {
+                        *matrix.get_unchecked_mut((j, j)) = denom;
+                    }
 
-                let mut col = matrix.slice_range_mut(j + 1.., j);
-                col /= denom;
-            } else {
-                return None;
+                    let mut col = matrix.slice_range_mut(j + 1.., j);
+                    col /= denom;
+
+                    continue;
+                }
             }
+
+            return None;
         }
 
         Some(Cholesky { chol: matrix })
@@ -119,7 +121,7 @@ where DefaultAllocator: Allocator<N, D, D>
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let _ = self.chol.solve_lower_triangular_mut(b);
-        let _ = self.chol.tr_solve_lower_triangular_mut(b);
+        let _ = self.chol.conjugate().tr_solve_lower_triangular_mut(b);
     }
 
     /// Returns the solution of the system `self * x = b` where `self` is the decomposed matrix and
