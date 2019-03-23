@@ -3,8 +3,8 @@ use num_complex::Complex;
 use std::fmt;
 
 use alga::general::Real;
-use base::{Matrix2, Matrix3, Unit, Vector1};
-use geometry::Rotation2;
+use crate::base::{Matrix2, Matrix3, Unit, Vector1};
+use crate::geometry::Rotation2;
 
 /// A complex number with a norm equal to 1.
 pub type UnitComplex<N> = Unit<Complex<N>>;

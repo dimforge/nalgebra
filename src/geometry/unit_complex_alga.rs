@@ -7,10 +7,10 @@ use alga::linear::{
     ProjectiveTransformation, Rotation, Similarity, Transformation,
 };
 
-use base::allocator::Allocator;
-use base::dimension::U2;
-use base::{DefaultAllocator, Vector2};
-use geometry::{Point2, UnitComplex};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::U2;
+use crate::base::{DefaultAllocator, Vector2};
+use crate::geometry::{Point2, UnitComplex};
 
 /*
  *

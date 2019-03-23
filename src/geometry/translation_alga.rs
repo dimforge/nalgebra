@@ -8,11 +8,11 @@ use alga::linear::{
     Transformation,
 };
 
-use base::allocator::Allocator;
-use base::dimension::DimName;
-use base::{DefaultAllocator, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::DimName;
+use crate::base::{DefaultAllocator, VectorN};
 
-use geometry::{Point, Translation};
+use crate::geometry::{Point, Translation};
 
 /*
  *

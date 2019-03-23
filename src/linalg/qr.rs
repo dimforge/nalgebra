@@ -3,14 +3,14 @@ use serde::{Deserialize, Serialize};
 use num::Zero;
 
 use alga::general::Complex;
-use allocator::{Allocator, Reallocator};
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
-use constraint::{SameNumberOfRows, ShapeConstraint};
-use dimension::{Dim, DimMin, DimMinimum, U1};
-use storage::{Storage, StorageMut};
+use crate::allocator::{Allocator, Reallocator};
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
+use crate::constraint::{SameNumberOfRows, ShapeConstraint};
+use crate::dimension::{Dim, DimMin, DimMinimum, U1};
+use crate::storage::{Storage, StorageMut};
 
-use geometry::Reflection;
-use linalg::householder;
+use crate::geometry::Reflection;
+use crate::linalg::householder;
 
 /// The QR decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

@@ -21,11 +21,11 @@ use abomonation::Abomonation;
 use generic_array::{ArrayLength, GenericArray};
 use typenum::Prod;
 
-use base::allocator::Allocator;
-use base::default_allocator::DefaultAllocator;
-use base::dimension::{DimName, U1};
-use base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
-use base::Scalar;
+use crate::base::allocator::Allocator;
+use crate::base::default_allocator::DefaultAllocator;
+use crate::base::dimension::{DimName, U1};
+use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
+use crate::base::Scalar;
 
 /*
  *
@@ -330,7 +330,7 @@ where
         let mut out: Self::Value = unsafe { mem::uninitialized() };
         let mut curr = 0;
 
-        while let Some(value) = try!(visitor.next_element()) {
+        while let Some(value) = visitor.next_element()? {
             *out.get_mut(curr).ok_or_else(|| V::Error::invalid_length(curr, &self))? = value;
             curr += 1;
         }

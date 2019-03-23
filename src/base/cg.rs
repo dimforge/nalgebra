@@ -7,14 +7,14 @@
 
 use num::One;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameDiff, DimNameSub, U1};
-use base::storage::{Storage, StorageMut};
-use base::{
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameDiff, DimNameSub, U1};
+use crate::base::storage::{Storage, StorageMut};
+use crate::base::{
     DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector, Vector3,
     VectorN,
 };
-use geometry::{
+use crate::geometry::{
     Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point3, Rotation2, Rotation3,
 };
 

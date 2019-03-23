@@ -1,6 +1,6 @@
 use na::Real;
 
-use aliases::TVec3;
+use crate::aliases::TVec3;
 
 /// The normal vector of the given triangle.
 ///

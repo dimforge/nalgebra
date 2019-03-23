@@ -49,7 +49,7 @@ mod quickcheck_tests {
                 use num::One;
                 use na::{DMatrix, Matrix4, Matrix4x3, Matrix5x3, Matrix3x5, DVector, Vector4};
                 #[allow(unused_imports)]
-                use core::helper::{RandScalar, RandComplex};
+                use crate::core::helper::{RandScalar, RandComplex};
 
                 quickcheck! {
                     fn full_piv_lu(m: DMatrix<$scalar>) -> bool {

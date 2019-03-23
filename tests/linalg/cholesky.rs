@@ -9,7 +9,7 @@ macro_rules! gen_tests(
             use na::{DMatrix, DVector, Matrix4x3, Vector4};
             use rand::random;
             #[allow(unused_imports)]
-            use core::helper::{RandScalar, RandComplex};
+            use crate::core::helper::{RandScalar, RandComplex};
             use std::cmp;
 
             quickcheck! {

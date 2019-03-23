@@ -11,6 +11,7 @@ readme = "../README.md"
 categories = [ "science" ]
 keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
 license = "BSD-3-Clause"
+edition = "2018"
 
 [features]
 default         = [ "std" ]

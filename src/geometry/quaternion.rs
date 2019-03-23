@@ -6,7 +6,7 @@ use std::hash;
 use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize")]
-use base::storage::Owned;
+use crate::base::storage::Owned;
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -15,11 +15,11 @@ use abomonation::Abomonation;
 
 use alga::general::Real;
 
-use base::dimension::{U1, U3, U4};
-use base::storage::{CStride, RStride};
-use base::{Matrix3, MatrixN, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4};
+use crate::base::dimension::{U1, U3, U4};
+use crate::base::storage::{CStride, RStride};
+use crate::base::{Matrix3, MatrixN, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4};
 
-use geometry::Rotation;
+use crate::geometry::Rotation;
 
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
@@ -225,7 +225,7 @@ impl<N: Real> Quaternion<N> {
     /// # use nalgebra::{Vector4, Quaternion};
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// // Recall that the quaternion is stored internally as (i, j, k, w)
-    /// // while the ::new constructor takes the arguments as (w, i, j, k).
+    /// // while the crate::new constructor takes the arguments as (w, i, j, k).
     /// assert_eq!(*q.as_vector(), Vector4::new(2.0, 3.0, 4.0, 1.0));
     /// ```
     #[inline]
@@ -325,7 +325,7 @@ impl<N: Real> Quaternion<N> {
     pub fn polar_decomposition(&self) -> (N, N, Option<Unit<Vector3<N>>>) {
         if let Some((q, n)) = Unit::try_new_and_get(*self, N::zero()) {
             if let Some(axis) = Unit::try_new(self.vector().clone_owned(), N::zero()) {
-                let angle = q.angle() / ::convert(2.0f64);
+                let angle = q.angle() / crate::convert(2.0f64);
 
                 (n, angle, Some(axis))
             } else {
@@ -607,7 +607,7 @@ impl<N: Real> UnitQuaternion<N> {
         if w >= N::one() {
             N::zero()
         } else {
-            w.acos() * ::convert(2.0f64)
+            w.acos() * crate::convert(2.0f64)
         }
     }
 
@@ -937,12 +937,12 @@ impl<N: Real> UnitQuaternion<N> {
         let ii = i * i;
         let jj = j * j;
         let kk = k * k;
-        let ij = i * j * ::convert(2.0f64);
-        let wk = w * k * ::convert(2.0f64);
-        let wj = w * j * ::convert(2.0f64);
-        let ik = i * k * ::convert(2.0f64);
-        let jk = j * k * ::convert(2.0f64);
-        let wi = w * i * ::convert(2.0f64);
+        let ij = i * j * crate::convert(2.0f64);
+        let wk = w * k * crate::convert(2.0f64);
+        let wj = w * j * crate::convert(2.0f64);
+        let ik = i * k * crate::convert(2.0f64);
+        let jk = j * k * crate::convert(2.0f64);
+        let wi = w * i * crate::convert(2.0f64);
 
         Rotation::from_matrix_unchecked(Matrix3::new(
             ww + ii - jj - kk,

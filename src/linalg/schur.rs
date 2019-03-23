@@ -6,16 +6,15 @@ use alga::general::{Complex, Real};
 use num_complex::Complex as NumComplex;
 use std::cmp;
 
-use allocator::Allocator;
-use base::dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3};
-use base::storage::Storage;
-use base::{DefaultAllocator, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN};
-use constraint::{DimEq, ShapeConstraint};
+use crate::allocator::Allocator;
+use crate::base::dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3};
+use crate::base::storage::Storage;
+use crate::base::{DefaultAllocator, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN};
 
-use geometry::Reflection;
-use linalg::householder;
-use linalg::Hessenberg;
-use linalg::givens::GivensRotation;
+use crate::geometry::Reflection;
+use crate::linalg::householder;
+use crate::linalg::Hessenberg;
+use crate::linalg::givens::GivensRotation;
 
 /// Schur decomposition of a square matrix.
 ///
@@ -312,14 +311,14 @@ where
 
                 let tra = hnn + hmm;
                 let det = hnn * hmm - hnm * hmn;
-                let discr = tra * tra * ::convert(0.25) - det;
+                let discr = tra * tra * crate::convert(0.25) - det;
 
                 // All 2x2 blocks have negative discriminant because we already decoupled those
                 // with positive eigenvalues..
                 let sqrt_discr = NumComplex::new(N::zero(), (-discr).sqrt());
 
-                out[m] = NumComplex::new(tra * ::convert(0.5), N::zero()) + sqrt_discr;
-                out[m + 1] = NumComplex::new(tra * ::convert(0.5), N::zero()) - sqrt_discr;
+                out[m] = NumComplex::new(tra * crate::convert(0.5), N::zero()) + sqrt_discr;
+                out[m + 1] = NumComplex::new(tra * crate::convert(0.5), N::zero()) - sqrt_discr;
 
                 m += 2;
             }
@@ -448,11 +447,11 @@ fn compute_2x2_eigvals<N: Complex, S: Storage<N, U2, U2>>(
     // NOTE: this discriminant computation is more stable than the
     // one based on the trace and determinant: 0.25 * tra * tra - det
     // because it ensures positiveness for symmetric matrices.
-    let val = (h00 - h11) * ::convert(0.5);
+    let val = (h00 - h11) * crate::convert(0.5);
     let discr = h10 * h01 + val * val;
 
     discr.try_sqrt().map(|sqrt_discr| {
-        let half_tra = (h00 + h11) * ::convert(0.5);
+        let half_tra = (h00 + h11) * crate::convert(0.5);
         (half_tra + sqrt_discr, half_tra - sqrt_discr)
     })
 }

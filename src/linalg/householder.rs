@@ -2,12 +2,12 @@
 
 use num::Zero;
 use alga::general::Complex;
-use allocator::Allocator;
-use base::{DefaultAllocator, MatrixMN, MatrixN, Unit, Vector, VectorN};
-use dimension::Dim;
-use storage::{Storage, StorageMut};
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Unit, Vector, VectorN};
+use crate::dimension::Dim;
+use crate::storage::{Storage, StorageMut};
 
-use geometry::Reflection;
+use crate::geometry::Reflection;
 
 /// Replaces `column` by the axis of the householder reflection that transforms `column` into
 /// `(+/-|column|, 0, ..., 0)`.
@@ -28,7 +28,7 @@ pub fn reflection_axis_mut<N: Complex, D: Dim, S: StorageMut<N, D>>(
     unsafe {
         let (modulus, sign) = column.vget_unchecked(0).to_exp();
         signed_norm = sign.scale(reflection_norm);
-        factor = (reflection_sq_norm + modulus * reflection_norm) * ::convert(2.0);
+        factor = (reflection_sq_norm + modulus * reflection_norm) * crate::convert(2.0);
         *column.vget_unchecked_mut(0) += signed_norm;
     };
 

@@ -1,6 +1,6 @@
 use na::Real;
 
-use aliases::Qua;
+use crate::aliases::Qua;
 
 /// Multiplies two quaternions.
 pub fn quat_cross<N: Real>(q1: &Qua<N>, q2: &Qua<N>) -> Qua<N> {

@@ -10,7 +10,7 @@ use na::allocator::Allocator;
 use na::dimension::{Dim, U1};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
-use ComplexHelper;
+use crate::ComplexHelper;
 
 use lapack;
 
@@ -98,7 +98,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
         );
         lapack_check!(info);
 
-        let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
+        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
         N::xgees(
             b'V',

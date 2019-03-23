@@ -5,15 +5,15 @@ use num::{Zero, One};
 use approx::AbsDiffEq;
 
 use alga::general::{Real, Complex};
-use allocator::Allocator;
-use base::{DefaultAllocator, Matrix, Matrix2x3, MatrixMN, Vector2, VectorN};
-use constraint::{SameNumberOfRows, ShapeConstraint};
-use dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1, U2};
-use storage::Storage;
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, Matrix, Matrix2x3, MatrixMN, Vector2, VectorN};
+use crate::constraint::{SameNumberOfRows, ShapeConstraint};
+use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1, U2};
+use crate::storage::Storage;
 
-use linalg::symmetric_eigen;
-use linalg::Bidiagonal;
-use linalg::givens::GivensRotation;
+use crate::linalg::symmetric_eigen;
+use crate::linalg::Bidiagonal;
+use crate::linalg::givens::GivensRotation;
 
 /// Singular Value Decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -621,8 +621,8 @@ fn compute_2x2_uptrig_svd<N: Real>(
     compute_v: bool,
 ) -> (Option<GivensRotation<N>>, Vector2<N>, Option<GivensRotation<N>>)
 {
-    let two: N::Real = ::convert(2.0f64);
-    let half: N::Real = ::convert(0.5f64);
+    let two: N::Real = crate::convert(2.0f64);
+    let half: N::Real = crate::convert(0.5f64);
 
     let denom = (m11 + m22).hypot(m12) + (m11 - m22).hypot(m12);
 

@@ -1,4 +1,4 @@
-use aliases::TMat4;
+use crate::aliases::TMat4;
 use na::{Real};
 
 //pub fn frustum<N: Real>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
@@ -95,7 +95,7 @@ pub fn ortho_lh<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N
 /// * `zfar` - Distance from the viewer to the far clipping plane
 ///
 pub fn ortho_lh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
-    let two    : N =  ::convert(2.0);
+    let two    : N =  crate::convert(2.0);
     let mut mat : TMat4<N> = TMat4::<N>::identity();
 
     mat[(0, 0)] = two / (right - left);
@@ -121,7 +121,7 @@ pub fn ortho_lh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
 ///
 pub fn ortho_lh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     let one    : N = N::one();
-    let two    : N = ::convert(2.0);
+    let two    : N = crate::convert(2.0);
     let mut mat : TMat4<N> = TMat4::<N>::identity();
 
     mat[(0, 0)] = two / (right - left);
@@ -176,7 +176,7 @@ pub fn ortho_rh<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N
 /// * `zfar` - Distance from the viewer to the far clipping plane
 ///
 pub fn ortho_rh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
-    let two    : N =  ::convert(2.0);
+    let two    : N =  crate::convert(2.0);
     let mut mat : TMat4<N> = TMat4::<N>::identity();
 
     mat[(0, 0)] = two / (right - left);
@@ -202,7 +202,7 @@ pub fn ortho_rh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
 ///
 pub fn ortho_rh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     let one    : N = N::one();
-    let two    : N =  ::convert(2.0);
+    let two    : N =  crate::convert(2.0);
     let mut mat : TMat4<N> = TMat4::<N>::identity();
 
     mat[(0, 0)] = two / (right - left);
@@ -285,13 +285,13 @@ pub fn perspective_fov_lh_no<N: Real>(fov: N, width: N, height: N, near: N, far:
     let mut mat = TMat4::zeros();
 
     let rad = fov;
-    let h = (rad * ::convert(0.5)).cos() / (rad * ::convert(0.5)).sin();
+    let h = (rad * crate::convert(0.5)).cos() / (rad * crate::convert(0.5)).sin();
     let w = h * height / width;
 
     mat[(0, 0)] = w;
     mat[(1, 1)] = h;
     mat[(2, 2)] = (far + near) / (far - near);
-    mat[(2, 3)] = - (far * near * ::convert(2.0)) / (far - near);
+    mat[(2, 3)] = - (far * near * crate::convert(2.0)) / (far - near);
     mat[(3, 2)] = N::one();
 
     mat
@@ -324,7 +324,7 @@ pub fn perspective_fov_lh_zo<N: Real>(fov: N, width: N, height: N, near: N, far:
     let mut mat = TMat4::zeros();
 
     let rad = fov;
-    let h = (rad * ::convert(0.5)).cos() / (rad * ::convert(0.5)).sin();
+    let h = (rad * crate::convert(0.5)).cos() / (rad * crate::convert(0.5)).sin();
     let w = h * height / width;
 
     mat[(0, 0)] = w;
@@ -391,13 +391,13 @@ pub fn perspective_fov_rh_no<N: Real>(fov: N, width: N, height: N, near: N, far:
     let mut mat = TMat4::zeros();
 
     let rad = fov;
-    let h = (rad * ::convert(0.5)).cos() / (rad * ::convert(0.5)).sin();
+    let h = (rad * crate::convert(0.5)).cos() / (rad * crate::convert(0.5)).sin();
     let w = h * height / width;
 
     mat[(0, 0)] = w;
     mat[(1, 1)] = h;
     mat[(2, 2)] = - (far + near) / (far - near);
-    mat[(2, 3)] = - (far * near * ::convert(2.0)) / (far - near);
+    mat[(2, 3)] = - (far * near * crate::convert(2.0)) / (far - near);
     mat[(3, 2)] = -N::one();
 
     mat
@@ -430,7 +430,7 @@ pub fn perspective_fov_rh_zo<N: Real>(fov: N, width: N, height: N, near: N, far:
     let mut mat = TMat4::zeros();
 
     let rad = fov;
-    let h = (rad * ::convert(0.5)).cos() / (rad * ::convert(0.5)).sin();
+    let h = (rad * crate::convert(0.5)).cos() / (rad * crate::convert(0.5)).sin();
     let w = h * height / width;
 
     mat[(0, 0)] = w;
@@ -522,7 +522,7 @@ pub fn perspective_lh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
     );
 
     let one = N::one();
-    let two: N = ::convert( 2.0);
+    let two: N = crate::convert( 2.0);
     let mut mat : TMat4<N> = TMat4::zeros();
 
     let tan_half_fovy = (fovy / two).tan();
@@ -558,7 +558,7 @@ pub fn perspective_lh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
     );
 
     let one = N::one();
-    let two: N = ::convert( 2.0);
+    let two: N = crate::convert( 2.0);
     let mut mat: TMat4<N> = TMat4::zeros();
 
     let tan_half_fovy = (fovy / two).tan();
@@ -625,7 +625,7 @@ pub fn perspective_rh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
 
     let negone = -N::one();
     let one =  N::one();
-    let two: N =   ::convert( 2.0);
+    let two: N =   crate::convert( 2.0);
     let mut mat = TMat4::zeros();
 
     let tan_half_fovy = (fovy / two).tan();
@@ -662,7 +662,7 @@ pub fn perspective_rh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
 
     let negone = -N::one();
     let one =  N::one();
-    let two =   ::convert( 2.0);
+    let two =   crate::convert( 2.0);
     let mut mat = TMat4::zeros();
 
     let tan_half_fovy = (fovy / two).tan();

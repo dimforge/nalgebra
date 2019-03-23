@@ -10,12 +10,13 @@ repository    = "https://github.com/rustsim/nalgebra"
 readme        = "README.md"
 keywords      = [ "linear", "algebra", "matrix", "vector" ]
 license       = "BSD-3-Clause"
+edition       = "2018"
 
 [features]
 serde-serialize = [ "serde", "serde_derive" ]
 
 # For BLAS/LAPACK
-default    = ["openblas"]
+default    = ["accelerate"]
 openblas   = ["lapack-src/openblas"]
 netlib     = ["lapack-src/netlib"]
 accelerate = ["lapack-src/accelerate"]

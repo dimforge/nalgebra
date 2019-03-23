@@ -2,13 +2,12 @@
 use serde::{Deserialize, Serialize};
 
 use alga::general::Complex;
-use allocator::Allocator;
-use base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
-use constraint::{DimEq, ShapeConstraint};
-use dimension::{DimDiff, DimSub, Dynamic, U1};
-use storage::Storage;
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
+use crate::dimension::{DimDiff, DimSub, U1};
+use crate::storage::Storage;
 
-use linalg::householder;
+use crate::linalg::householder;
 
 /// Hessenberg decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

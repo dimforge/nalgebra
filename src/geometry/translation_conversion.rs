@@ -3,11 +3,11 @@ use num::{One, Zero};
 use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::{DefaultAllocator, MatrixN, Scalar, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 
-use geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
+use crate::geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
 
 /*
  * This file provides the following conversions:
@@ -33,7 +33,7 @@ where
 
     #[inline]
     fn is_in_subset(rot: &Translation<N2, D>) -> bool {
-        ::is_convertible::<_, VectorN<N1, D>>(&rot.vector)
+        crate::is_convertible::<_, VectorN<N1, D>>(&rot.vector)
     }
 
     #[inline]
@@ -148,7 +148,7 @@ where
     unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let t = m.fixed_slice::<D, U1>(0, D::dim());
         Self {
-            vector: ::convert_unchecked(t.into_owned()),
+            vector: crate::convert_unchecked(t.into_owned()),
         }
     }
 }

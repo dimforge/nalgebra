@@ -1,7 +1,7 @@
 use na::{Real, Rotation2, Rotation3, Unit};
 
-use aliases::{TMat3, TMat4, TVec2, TVec3};
-use traits::Number;
+use crate::aliases::{TMat3, TMat4, TVec2, TVec3};
+use crate::traits::Number;
 
 /// A rotation 4 * 4 matrix created from an axis of 3 scalars and an angle expressed in radians.
 ///

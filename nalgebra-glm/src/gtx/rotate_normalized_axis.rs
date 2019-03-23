@@ -1,6 +1,6 @@
 use na::{Real, Rotation3, Unit, UnitQuaternion};
 
-use aliases::{Qua, TMat4, TVec3};
+use crate::aliases::{Qua, TMat4, TVec3};
 
 /// Builds a rotation 4 * 4 matrix created from a normalized axis and an angle.
 ///

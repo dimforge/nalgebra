@@ -1,6 +1,6 @@
 use na::{Real, Rotation3, Unit, UnitQuaternion, U3};
 
-use aliases::{Qua, TMat3, TMat4, TVec3, TVec4};
+use crate::aliases::{Qua, TMat3, TMat4, TVec3, TVec4};
 
 /// Rotate the vector `v` by the quaternion `q` assumed to be normalized.
 pub fn quat_cross_vec<N: Real>(q: &Qua<N>, v: &TVec3<N>) -> TVec3<N> {

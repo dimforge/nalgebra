@@ -4,11 +4,11 @@ use alga::general::{
 };
 use alga::linear::{ProjectiveTransformation, Transformation};
 
-use base::allocator::Allocator;
-use base::dimension::{DimNameAdd, DimNameSum, U1};
-use base::{DefaultAllocator, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
+use crate::base::{DefaultAllocator, VectorN};
 
-use geometry::{Point, SubTCategoryOf, TCategory, TProjective, Transform};
+use crate::geometry::{Point, SubTCategoryOf, TCategory, TProjective, Transform};
 
 /*
  *

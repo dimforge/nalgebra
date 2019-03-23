@@ -1,11 +1,11 @@
 use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
-use base::allocator::Allocator;
-use base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
-use base::{DefaultAllocator, MatrixN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::{DefaultAllocator, MatrixN};
 
-use geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
+use crate::geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
 
 /*
  * This file provides the following conversions:
@@ -32,8 +32,8 @@ where
 
     #[inline]
     fn is_in_subset(iso: &Isometry<N2, D, R2>) -> bool {
-        ::is_convertible::<_, Translation<N1, D>>(&iso.translation)
-            && ::is_convertible::<_, R1>(&iso.rotation)
+        crate::is_convertible::<_, Translation<N1, D>>(&iso.translation)
+            && crate::is_convertible::<_, R1>(&iso.rotation)
     }
 
     #[inline]
@@ -60,12 +60,12 @@ where
 
     #[inline]
     fn is_in_subset(sim: &Similarity<N2, D, R2>) -> bool {
-        ::is_convertible::<_, Isometry<N1, D, R1>>(&sim.isometry) && sim.scaling() == N2::one()
+        crate::is_convertible::<_, Isometry<N1, D, R1>>(&sim.isometry) && sim.scaling() == N2::one()
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(sim: &Similarity<N2, D, R2>) -> Self {
-        ::convert_ref_unchecked(&sim.isometry)
+        crate::convert_ref_unchecked(&sim.isometry)
     }
 }
 
@@ -133,7 +133,7 @@ where
         // Scalar types agree.
         m.iter().all(|e| SupersetOf::<N1>::is_in_subset(e)) &&
         // The block part is a rotation.
-        rot.is_special_orthogonal(N2::default_epsilon() * ::convert(100.0)) &&
+        rot.is_special_orthogonal(N2::default_epsilon() * crate::convert(100.0)) &&
         // The bottom row is (0, 0, ..., 1)
         bottom.iter().all(|e| e.is_zero()) && m[(D::dim(), D::dim())] == N2::one()
     }
@@ -142,10 +142,10 @@ where
     unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let t = m.fixed_slice::<D, U1>(0, D::dim()).into_owned();
         let t = Translation {
-            vector: ::convert_unchecked(t),
+            vector: crate::convert_unchecked(t),
         };
 
-        Self::from_parts(t, ::convert_unchecked(m.clone_owned()))
+        Self::from_parts(t, crate::convert_unchecked(m.clone_owned()))
     }
 }
 

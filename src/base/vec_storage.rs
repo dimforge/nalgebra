@@ -4,12 +4,12 @@ use std::io::{Result as IOResult, Write};
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 
-use base::allocator::Allocator;
-use base::default_allocator::DefaultAllocator;
-use base::dimension::{Dim, DimName, Dynamic, U1};
-use base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
-use base::{Scalar, Vector};
-use base::constraint::{SameNumberOfRows, ShapeConstraint};
+use crate::base::allocator::Allocator;
+use crate::base::default_allocator::DefaultAllocator;
+use crate::base::dimension::{Dim, DimName, Dynamic, U1};
+use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
+use crate::base::{Scalar, Vector};
+use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;

@@ -1,6 +1,6 @@
 use na::{self, Real, Unit};
 
-use aliases::Qua;
+use crate::aliases::Qua;
 
 /// The conjugate of `q`.
 pub fn quat_conjugate<N: Real>(q: &Qua<N>) -> Qua<N> {

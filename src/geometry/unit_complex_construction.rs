@@ -7,10 +7,10 @@ use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
 use alga::general::Real;
-use base::dimension::{U1, U2};
-use base::storage::Storage;
-use base::{Unit, Vector, Matrix2};
-use geometry::{Rotation2, UnitComplex};
+use crate::base::dimension::{U1, U2};
+use crate::base::storage::Storage;
+use crate::base::{Unit, Vector, Matrix2};
+use crate::geometry::{Rotation2, UnitComplex};
 
 impl<N: Real> UnitComplex<N> {
     /// The unit complex number multiplicative identity.

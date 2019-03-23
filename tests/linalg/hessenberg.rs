@@ -18,7 +18,7 @@ macro_rules! gen_tests(
             use na::{DMatrix, Matrix2, Matrix4};
             use std::cmp;
             #[allow(unused_imports)]
-            use core::helper::{RandScalar, RandComplex};
+            use crate::core::helper::{RandScalar, RandComplex};
 
             quickcheck! {
                 fn hessenberg(n: usize) -> bool {

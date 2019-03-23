@@ -1,11 +1,11 @@
 use alga::general::Complex;
 
-use base::allocator::Allocator;
-use base::dimension::Dim;
-use base::storage::{Storage, StorageMut};
-use base::{DefaultAllocator, MatrixN, SquareMatrix};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::Dim;
+use crate::base::storage::{Storage, StorageMut};
+use crate::base::{DefaultAllocator, MatrixN, SquareMatrix};
 
-use linalg::lu;
+use crate::linalg::lu;
 
 impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Attempts to invert this matrix.

@@ -1,5 +1,5 @@
 #[cfg(feature = "arbitrary")]
-use base::storage::Owned;
+use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -10,11 +10,11 @@ use rand::Rng;
 use alga::general::Real;
 use alga::linear::Rotation as AlgaRotation;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, U2, U3};
-use base::{DefaultAllocator, Vector2, Vector3};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, U2, U3};
+use crate::base::{DefaultAllocator, Vector2, Vector3};
 
-use geometry::{
+use crate::geometry::{
     Isometry, Point, Point3, Rotation, Rotation2, Rotation3, Translation, UnitComplex,
     UnitQuaternion, Translation2, Translation3
 };

@@ -1,10 +1,10 @@
 use alga::general::Complex;
 
-use base::allocator::Allocator;
-use base::constraint::{SameNumberOfRows, ShapeConstraint};
-use base::dimension::{Dim, U1};
-use base::storage::{Storage, StorageMut};
-use base::{DefaultAllocator, Matrix, MatrixMN, SquareMatrix, Vector, DVectorSlice};
+use crate::base::allocator::Allocator;
+use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
+use crate::base::dimension::{Dim, U1};
+use crate::base::storage::{Storage, StorageMut};
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, SquareMatrix, Vector, DVectorSlice};
 
 impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the solution of the linear system `self . x = b` where `x` is the unknown and only

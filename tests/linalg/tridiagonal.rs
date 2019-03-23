@@ -8,7 +8,7 @@ macro_rules! gen_tests(
 
             use na::{DMatrix, Matrix2, Matrix4};
             #[allow(unused_imports)]
-            use core::helper::{RandScalar, RandComplex};
+            use crate::core::helper::{RandScalar, RandComplex};
 
             quickcheck! {
                 fn symm_tridiagonal(n: usize) -> bool {

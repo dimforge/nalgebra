@@ -13,10 +13,10 @@ use abomonation::Abomonation;
 
 use alga::general::{ClosedNeg, Real};
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::storage::Owned;
-use base::{DefaultAllocator, MatrixN, Scalar, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::storage::Owned;
+use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 
 /// A translation.
 #[repr(C)]
@@ -269,8 +269,8 @@ where DefaultAllocator: Allocator<N, D> + Allocator<usize, D>
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        try!(writeln!(f, "Translation {{"));
-        try!(write!(f, "{:.*}", precision, self.vector));
+        writeln!(f, "Translation {{")?;
+        write!(f, "{:.*}", precision, self.vector)?;
         writeln!(f, "}}")
     }
 }

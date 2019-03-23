@@ -41,7 +41,7 @@ fn lu_simple_with_pivot() {
 #[cfg(feature = "arbitrary")]
 mod quickcheck_tests {
     #[allow(unused_imports)]
-    use core::helper::{RandScalar, RandComplex};
+    use crate::core::helper::{RandScalar, RandComplex};
 
     macro_rules! gen_tests(
         ($module: ident, $scalar: ty) => {
@@ -49,7 +49,7 @@ mod quickcheck_tests {
                 use std::cmp;
                 use na::{DMatrix, Matrix4, Matrix4x3, Matrix5x3, Matrix3x5, DVector, Vector4};
                 #[allow(unused_imports)]
-                use core::helper::{RandScalar, RandComplex};
+                use crate::core::helper::{RandScalar, RandComplex};
 
                 quickcheck! {
                     fn lu(m: DMatrix<$scalar>) -> bool {

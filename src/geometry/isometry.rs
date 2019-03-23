@@ -14,11 +14,11 @@ use abomonation::Abomonation;
 use alga::general::{Real, SubsetOf};
 use alga::linear::Rotation;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::storage::Owned;
-use base::{DefaultAllocator, MatrixN};
-use geometry::{Point, Translation};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::storage::Owned;
+use crate::base::{DefaultAllocator, MatrixN};
+use crate::geometry::{Point, Translation};
 
 /// A direct isometry, i.e., a rotation followed by a translation, aka. a rigid-body motion, aka. an element of a Special Euclidean (SE) group.
 #[repr(C)]
@@ -285,7 +285,7 @@ where DefaultAllocator: Allocator<N, D>
         R: SubsetOf<MatrixN<N, DimNameSum<D, U1>>>,
         DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
     {
-        let mut res: MatrixN<N, _> = ::convert_ref(&self.rotation);
+        let mut res: MatrixN<N, _> = crate::convert_ref(&self.rotation);
         res.fixed_slice_mut::<D, U1>(0, D::dim())
             .copy_from(&self.translation.vector);
 
@@ -390,9 +390,9 @@ where
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        try!(writeln!(f, "Isometry {{"));
-        try!(write!(f, "{:.*}", precision, self.translation));
-        try!(write!(f, "{:.*}", precision, self.rotation));
+        writeln!(f, "Isometry {{")?;
+        write!(f, "{:.*}", precision, self.translation)?;
+        write!(f, "{:.*}", precision, self.rotation)?;
         writeln!(f, "}}")
     }
 }

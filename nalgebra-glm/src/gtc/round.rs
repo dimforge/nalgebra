@@ -1,7 +1,7 @@
 use na::{Scalar, Real, U3, DefaultAllocator};
 
-use traits::{Number, Alloc, Dimension};
-use aliases::TVec;
+use crate::traits::{Number, Alloc, Dimension};
+use crate::aliases::TVec;
 
 
 pub fn ceilMultiple<T>(v: T, Multiple: T) -> T {

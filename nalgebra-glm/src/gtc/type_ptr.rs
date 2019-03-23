@@ -1,10 +1,10 @@
 use na::{DefaultAllocator, Quaternion, Real, Scalar};
 
-use aliases::{
+use crate::aliases::{
     Qua, TMat, TMat2, TMat2x3, TMat2x4, TMat3, TMat3x2, TMat3x4, TMat4, TMat4x2, TMat4x3, TVec1,
     TVec2, TVec3, TVec4,
 };
-use traits::{Alloc, Dimension, Number};
+use crate::traits::{Alloc, Dimension, Number};
 
 /// Creates a 2x2 matrix from a slice arranged in column-major order.
 pub fn make_mat2<N: Scalar>(ptr: &[N]) -> TMat2<N> {

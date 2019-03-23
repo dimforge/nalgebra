@@ -18,14 +18,14 @@ use abomonation::Abomonation;
 
 use alga::general::{ClosedAdd, ClosedMul, ClosedSub, Real, Ring, Complex, Field};
 
-use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
-use base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use base::dimension::{Dim, DimAdd, DimSum, IsNotStaticOne, U1, U2, U3};
-use base::iter::{MatrixIter, MatrixIterMut, RowIter, RowIterMut, ColumnIter, ColumnIterMut};
-use base::storage::{
+use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
+use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use crate::base::dimension::{Dim, DimAdd, DimSum, IsNotStaticOne, U1, U2, U3};
+use crate::base::iter::{MatrixIter, MatrixIterMut, RowIter, RowIterMut, ColumnIter, ColumnIterMut};
+use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
 };
-use base::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
+use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
 
 /// A square matrix.
 pub type SquareMatrix<N, D, S> = Matrix<N, D, D, S>;
@@ -1111,7 +1111,7 @@ impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         assert!(self.is_square(), "Cannot compute the symmetric part of a non-square matrix.");
         let mut tr = self.transpose();
         tr += self;
-        tr *= ::convert::<_, N>(0.5);
+        tr *= crate::convert::<_, N>(0.5);
         tr
     }
 
@@ -1123,7 +1123,7 @@ impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
         let mut tr = self.adjoint();
         tr += self;
-        tr *= ::convert::<_, N>(0.5);
+        tr *= crate::convert::<_, N>(0.5);
         tr
     }
 }
@@ -1392,40 +1392,40 @@ where
         for i in 0..nrows {
             for j in 0..ncols {
                 lengths[(i, j)] = val_width(self[(i, j)], f);
-                max_length = ::max(max_length, lengths[(i, j)]);
+                max_length = crate::max(max_length, lengths[(i, j)]);
             }
         }
 
         let max_length_with_space = max_length + 1;
 
-        try!(writeln!(f));
-        try!(writeln!(
+        writeln!(f)?;
+        writeln!(
             f,
             "  ┌ {:>width$} ┐",
             "",
             width = max_length_with_space * ncols - 1
-        ));
+        )?;
 
         for i in 0..nrows {
-            try!(write!(f, "  │"));
+            write!(f, "  │")?;
             for j in 0..ncols {
                 let number_length = lengths[(i, j)] + 1;
                 let pad = max_length_with_space - number_length;
-                try!(write!(f, " {:>thepad$}", "", thepad = pad));
+                write!(f, " {:>thepad$}", "", thepad = pad)?;
                 match f.precision() {
-                    Some(precision) => try!(write!(f, "{:.1$}", (*self)[(i, j)], precision)),
-                    None => try!(write!(f, "{}", (*self)[(i, j)])),
+                    Some(precision) => write!(f, "{:.1$}", (*self)[(i, j)], precision)?,
+                    None => write!(f, "{}", (*self)[(i, j)])?,
                 }
             }
-            try!(writeln!(f, " │"));
+            writeln!(f, " │")?;
         }
 
-        try!(writeln!(
+        writeln!(
             f,
             "  └ {:>width$} ┘",
             "",
             width = max_length_with_space * ncols - 1
-        ));
+        )?;
         writeln!(f)
     }
 }

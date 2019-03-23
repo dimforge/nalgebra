@@ -10,7 +10,7 @@ use na::allocator::Allocator;
 use na::dimension::{Dim, U1};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
-use ComplexHelper;
+use crate::ComplexHelper;
 
 use lapack;
 
@@ -102,7 +102,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
         let lwork = N::xsyev_work_size(jobz, b'L', n as i32, m.as_mut_slice(), lda, &mut info);
         lapack_check!(info);
 
-        let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
+        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
         N::xsyev(
             jobz,

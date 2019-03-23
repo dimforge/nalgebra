@@ -9,7 +9,7 @@ mod quickcheck_tests {
             mod $module {
                 use na::{DMatrix, Matrix2, Matrix3, Matrix4};
                 #[allow(unused_imports)]
-                use core::helper::{RandScalar, RandComplex};
+                use crate::core::helper::{RandScalar, RandComplex};
                 use std::cmp;
 
                 quickcheck! {

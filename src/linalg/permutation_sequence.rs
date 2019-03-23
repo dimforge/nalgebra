@@ -4,12 +4,12 @@ use serde::{Deserialize, Serialize};
 use alga::general::ClosedNeg;
 use num::One;
 
-use allocator::Allocator;
-use base::{DefaultAllocator, Matrix, Scalar, VectorN};
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, Matrix, Scalar, VectorN};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use dimension::Dynamic;
-use dimension::{Dim, DimName, U1};
-use storage::StorageMut;
+use crate::dimension::Dynamic;
+use crate::dimension::{Dim, DimName, U1};
+use crate::storage::StorageMut;
 
 /// A sequence of row or column permutations.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

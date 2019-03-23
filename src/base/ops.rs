@@ -7,13 +7,13 @@ use std::ops::{
 
 use alga::general::{Complex, ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
-use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
-use base::constraint::{
+use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
+use crate::base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
-use base::dimension::{Dim, DimMul, DimName, DimProd};
-use base::storage::{ContiguousStorageMut, Storage, StorageMut};
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar, VectorSliceN};
+use crate::base::dimension::{Dim, DimMul, DimName, DimProd};
+use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar, VectorSliceN};
 
 /*
  *

@@ -2,8 +2,8 @@ use na::{self, DefaultAllocator, Real};
 use num::FromPrimitive;
 use std::mem;
 
-use aliases::{TMat, TVec};
-use traits::{Alloc, Dimension, Number};
+use crate::aliases::{TMat, TVec};
+use crate::traits::{Alloc, Dimension, Number};
 
 /// For each matrix or vector component `x` if `x >= 0`; otherwise, it returns `-x`.
 ///

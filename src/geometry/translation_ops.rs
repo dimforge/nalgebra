@@ -2,12 +2,12 @@ use std::ops::{Div, DivAssign, Mul, MulAssign};
 
 use alga::general::{ClosedAdd, ClosedSub};
 
-use base::allocator::{Allocator, SameShapeAllocator};
-use base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use base::dimension::{DimName, U1};
-use base::{DefaultAllocator, Scalar};
+use crate::base::allocator::{Allocator, SameShapeAllocator};
+use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use crate::base::dimension::{DimName, U1};
+use crate::base::{DefaultAllocator, Scalar};
 
-use geometry::{Point, Translation};
+use crate::geometry::{Point, Translation};
 
 // Translation × Translation
 add_sub_impl!(Mul, mul, ClosedAdd;

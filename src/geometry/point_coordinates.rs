@@ -1,12 +1,12 @@
 use std::mem;
 use std::ops::{Deref, DerefMut};
 
-use base::allocator::Allocator;
-use base::coordinates::{X, XY, XYZ, XYZW, XYZWA, XYZWAB};
-use base::dimension::{U1, U2, U3, U4, U5, U6};
-use base::{DefaultAllocator, Scalar};
+use crate::base::allocator::Allocator;
+use crate::base::coordinates::{X, XY, XYZ, XYZW, XYZWA, XYZWAB};
+use crate::base::dimension::{U1, U2, U3, U4, U5, U6};
+use crate::base::{DefaultAllocator, Scalar};
 
-use geometry::Point;
+use crate::geometry::Point;
 
 /*
  *

@@ -13,10 +13,10 @@ use alga::linear::{
     FiniteDimInnerSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace, VectorSpace,
 };
 
-use base::allocator::Allocator;
-use base::dimension::{Dim, DimName};
-use base::storage::{Storage, StorageMut};
-use base::{DefaultAllocator, MatrixMN, MatrixN, Scalar};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{Dim, DimName};
+use crate::base::storage::{Storage, StorageMut};
+use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar};
 
 /*
  *

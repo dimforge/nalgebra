@@ -2,11 +2,11 @@ use num::One;
 
 use alga::general::Real;
 
-use base::allocator::Allocator;
-use base::dimension::{DimNameAdd, DimNameSum, U1};
-use base::{DefaultAllocator, MatrixN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
+use crate::base::{DefaultAllocator, MatrixN};
 
-use geometry::{TCategory, Transform};
+use crate::geometry::{TCategory, Transform};
 
 impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
 where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>

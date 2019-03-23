@@ -1,11 +1,11 @@
 use alga::general::Complex;
-use base::allocator::Allocator;
-use base::constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
-use base::{DefaultAllocator, Matrix, Scalar, Unit, Vector};
-use dimension::{Dim, DimName, U1};
-use storage::{Storage, StorageMut};
+use crate::base::allocator::Allocator;
+use crate::base::constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
+use crate::base::{DefaultAllocator, Matrix, Scalar, Unit, Vector};
+use crate::dimension::{Dim, DimName, U1};
+use crate::storage::{Storage, StorageMut};
 
-use geometry::Point;
+use crate::geometry::Point;
 
 /// A reflection wrt. a plane.
 pub struct Reflection<N: Scalar, D: Dim, S: Storage<N, D>> {
@@ -55,7 +55,7 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
             // NOTE: we borrow the column twice here. First it is borrowed immutably for the
             // dot product, and then mutably. Somehow, this allows significantly
             // better optimizations of the dot product from the compiler.
-            let m_two: N = ::convert(-2.0f64);
+            let m_two: N = crate::convert(-2.0f64);
             let factor = (self.axis.dotc(&rhs.column(i)) - self.bias) * m_two;
             rhs.column_mut(i).axpy(factor, &self.axis, N::one());
         }
@@ -72,7 +72,7 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
             // NOTE: we borrow the column twice here. First it is borrowed immutably for the
             // dot product, and then mutably. Somehow, this allows significantly
             // better optimizations of the dot product from the compiler.
-            let m_two = sign.scale(::convert(-2.0f64));
+            let m_two = sign.scale(crate::convert(-2.0f64));
             let factor = (self.axis.dotc(&rhs.column(i)) - self.bias) * m_two;
             rhs.column_mut(i).axpy(factor, &self.axis, sign);
         }
@@ -95,7 +95,7 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
             work.add_scalar_mut(-self.bias);
         }
 
-        let m_two: N = ::convert(-2.0f64);
+        let m_two: N = crate::convert(-2.0f64);
         lhs.gerc(m_two, &work, &self.axis, N::one());
     }
 
@@ -117,7 +117,7 @@ impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
             work.add_scalar_mut(-self.bias);
         }
 
-        let m_two = sign.scale(::convert(-2.0f64));
+        let m_two = sign.scale(crate::convert(-2.0f64));
         lhs.gerc(m_two, &work, &self.axis, sign);
     }
 }

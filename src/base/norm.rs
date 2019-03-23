@@ -1,10 +1,10 @@
 use num::Zero;
 
-use allocator::Allocator;
-use ::{Real, Complex};
-use storage::{Storage, StorageMut};
-use base::{DefaultAllocator, Matrix, Dim, MatrixMN};
-use constraint::{SameNumberOfRows, SameNumberOfColumns, ShapeConstraint};
+use crate::allocator::Allocator;
+use crate::{Real, Complex};
+use crate::storage::{Storage, StorageMut};
+use crate::base::{DefaultAllocator, Matrix, Dim, MatrixMN};
+use crate::constraint::{SameNumberOfRows, SameNumberOfColumns, ShapeConstraint};
 
 
 // FIXME: this should be be a trait on alga?
@@ -54,7 +54,7 @@ impl<N: Complex> Norm<N> for LpNorm {
         where R: Dim, C: Dim, S: Storage<N, R, C> {
         m.fold(N::Real::zero(), |a, b| {
             a + b.modulus().powi(self.0)
-        }).powf(::convert(1.0 / (self.0 as f64)))
+        }).powf(crate::convert(1.0 / (self.0 as f64)))
     }
 
     #[inline]
@@ -65,7 +65,7 @@ impl<N: Complex> Norm<N> for LpNorm {
         m1.zip_fold(m2, N::Real::zero(), |acc, a, b| {
             let diff = a - b;
             acc + diff.modulus().powi(self.0)
-        }).powf(::convert(1.0 / (self.0 as f64)))
+        }).powf(crate::convert(1.0 / (self.0 as f64)))
     }
 }
 

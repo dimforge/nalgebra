@@ -227,7 +227,7 @@ pub fn root_three<N: Real>() -> N {
 /// * [`root_five`](fn.root_five.html)
 /// * [`root_three`](fn.root_three.html)
 pub fn root_two<N: Real>() -> N {
-    // FIXME: there should be a ::sqrt_2() on the Real trait.
+    // FIXME: there should be a crate::sqrt_2() on the Real trait.
     na::convert::<_, N>(2.0).sqrt()
 }
 

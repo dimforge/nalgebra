@@ -1,7 +1,7 @@
 use na::{DefaultAllocator, Real};
 
-use aliases::TVec;
-use traits::{Alloc, Dimension};
+use crate::aliases::TVec;
+use crate::traits::{Alloc, Dimension};
 
 /// The angle between two vectors.
 pub fn angle<N: Real, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N

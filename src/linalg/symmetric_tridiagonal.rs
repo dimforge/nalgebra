@@ -2,12 +2,12 @@
 use serde::{Deserialize, Serialize};
 
 use alga::general::Complex;
-use allocator::Allocator;
-use base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
-use dimension::{DimDiff, DimSub, U1};
-use storage::Storage;
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
+use crate::dimension::{DimDiff, DimSub, U1};
+use crate::storage::Storage;
 
-use linalg::householder;
+use crate::linalg::householder;
 
 /// Tridiagonalization of a symmetric matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -75,12 +75,12 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
             if not_zero {
                 let mut p = p.rows_range_mut(i..);
 
-                p.hegemv(::convert(2.0), &m, &axis, N::zero());
+                p.hegemv(crate::convert(2.0), &m, &axis, N::zero());
 
                 let dot = axis.dotc(&p);
                 m.hegerc(-N::one(), &p, &axis, N::one());
                 m.hegerc(-N::one(), &axis, &p, N::one());
-                m.hegerc(dot * ::convert(2.0), &axis, &axis, N::one());
+                m.hegerc(dot * crate::convert(2.0), &axis, &axis, N::one());
             }
         }
 

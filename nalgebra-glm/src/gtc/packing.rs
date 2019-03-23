@@ -1,7 +1,7 @@
 use na::{Scalar, Real, DefaultAllocator, U3, U4};
 
-use traits::{Alloc, Dimension};
-use aliases::*;
+use crate::traits::{Alloc, Dimension};
+use crate::aliases::*;
 
 
 pub fn packF2x11_1x10(v: &Vec3) -> i32 {

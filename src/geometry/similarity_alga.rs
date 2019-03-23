@@ -5,11 +5,11 @@ use alga::general::{
 use alga::linear::Similarity as AlgaSimilarity;
 use alga::linear::{AffineTransformation, ProjectiveTransformation, Rotation, Transformation};
 
-use base::allocator::Allocator;
-use base::dimension::DimName;
-use base::{DefaultAllocator, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::DimName;
+use crate::base::{DefaultAllocator, VectorN};
 
-use geometry::{Point, Similarity, Translation};
+use crate::geometry::{Point, Similarity, Translation};
 
 /*
  *

@@ -10,12 +10,12 @@ use std::mem;
 
 use alga::general::Real;
 
-use base::dimension::U3;
-use base::helper;
-use base::storage::Storage;
-use base::{Matrix4, Scalar, Vector, Vector3};
+use crate::base::dimension::U3;
+use crate::base::helper;
+use crate::base::storage::Storage;
+use crate::base::{Matrix4, Scalar, Vector, Vector3};
 
-use geometry::{Point3, Projective3};
+use crate::geometry::{Point3, Projective3};
 
 /// A 3D perspective projection stored as an homogeneous 4x4 matrix.
 pub struct Perspective3<N: Scalar> {
@@ -162,7 +162,7 @@ impl<N: Real> Perspective3<N> {
     /// Gets the y field of view of the view frustum.
     #[inline]
     pub fn fovy(&self) -> N {
-        (N::one() / self.matrix[(1, 1)]).atan() * ::convert(2.0)
+        (N::one() / self.matrix[(1, 1)]).atan() * crate::convert(2.0)
     }
 
     /// Gets the near plane offset of the view frustum.
@@ -170,7 +170,7 @@ impl<N: Real> Perspective3<N> {
     pub fn znear(&self) -> N {
         let ratio = (-self.matrix[(2, 2)] + N::one()) / (-self.matrix[(2, 2)] - N::one());
 
-        self.matrix[(2, 3)] / (ratio * ::convert(2.0)) - self.matrix[(2, 3)] / ::convert(2.0)
+        self.matrix[(2, 3)] / (ratio * crate::convert(2.0)) - self.matrix[(2, 3)] / crate::convert(2.0)
     }
 
     /// Gets the far plane offset of the view frustum.
@@ -178,7 +178,7 @@ impl<N: Real> Perspective3<N> {
     pub fn zfar(&self) -> N {
         let ratio = (-self.matrix[(2, 2)] + N::one()) / (-self.matrix[(2, 2)] - N::one());
 
-        (self.matrix[(2, 3)] - ratio * self.matrix[(2, 3)]) / ::convert(2.0)
+        (self.matrix[(2, 3)] - ratio * self.matrix[(2, 3)]) / crate::convert(2.0)
     }
 
     // FIXME: add a method to retrieve znear and zfar simultaneously?
@@ -235,7 +235,7 @@ impl<N: Real> Perspective3<N> {
     #[inline]
     pub fn set_fovy(&mut self, fovy: N) {
         let old_m22 = self.matrix[(1, 1)];
-        self.matrix[(1, 1)] = N::one() / (fovy / ::convert(2.0)).tan();
+        self.matrix[(1, 1)] = N::one() / (fovy / crate::convert(2.0)).tan();
         self.matrix[(0, 0)] = self.matrix[(0, 0)] * (self.matrix[(1, 1)] / old_m22);
     }
 
@@ -257,7 +257,7 @@ impl<N: Real> Perspective3<N> {
     #[inline]
     pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
         self.matrix[(2, 2)] = (zfar + znear) / (znear - zfar);
-        self.matrix[(2, 3)] = zfar * znear * ::convert(2.0) / (znear - zfar);
+        self.matrix[(2, 3)] = zfar * znear * crate::convert(2.0) / (znear - zfar);
     }
 }
 

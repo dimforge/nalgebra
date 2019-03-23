@@ -4,10 +4,10 @@ use num::{One, Zero};
 
 use alga::general::{ClosedAdd, ClosedMul, Real, Complex};
 
-use base::allocator::Allocator;
-use base::dimension::{Dim, DimMin};
-use base::storage::Storage;
-use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{Dim, DimMin};
+use crate::base::storage::Storage;
+use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Indicates if this is an empty matrix.

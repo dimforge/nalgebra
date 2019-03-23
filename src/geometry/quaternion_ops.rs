@@ -56,12 +56,12 @@ use std::ops::{
 
 use alga::general::Real;
 
-use base::allocator::Allocator;
-use base::dimension::{U1, U3, U4};
-use base::storage::Storage;
-use base::{DefaultAllocator, Unit, Vector, Vector3};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{U1, U3, U4};
+use crate::base::storage::Storage;
+use crate::base::{DefaultAllocator, Unit, Vector, Vector3};
 
-use geometry::{Point3, Quaternion, Rotation, UnitQuaternion};
+use crate::geometry::{Point3, Quaternion, Rotation, UnitQuaternion};
 
 impl<N: Real> Index<usize> for Quaternion<N> {
     type Output = N;
@@ -390,7 +390,7 @@ quaternion_op_impl!(
     self: &'a UnitQuaternion<N>, rhs: &'b Vector<N, U3, SB>,
     Output = Vector3<N> => U3, U4;
     {
-        let two: N = ::convert(2.0f64);
+        let two: N = crate::convert(2.0f64);
         let t = self.as_ref().vector().cross(rhs) * two;
         let cross = self.as_ref().vector().cross(&t);
 

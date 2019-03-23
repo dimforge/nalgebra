@@ -9,16 +9,16 @@ use std::io::{Result as IOResult, Write};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "serde-serialize")]
-use base::storage::Owned;
+use crate::base::storage::Owned;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
 use alga::general::Real;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::{DefaultAllocator, MatrixN, Scalar};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::{DefaultAllocator, MatrixN, Scalar};
 
 /// A rotation matrix.
 #[repr(C)]
@@ -435,8 +435,8 @@ where
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        try!(writeln!(f, "Rotation matrix {{"));
-        try!(write!(f, "{:.*}", precision, self.matrix));
+        writeln!(f, "Rotation matrix {{")?;
+        write!(f, "{:.*}", precision, self.matrix)?;
         writeln!(f, "}}")
     }
 }

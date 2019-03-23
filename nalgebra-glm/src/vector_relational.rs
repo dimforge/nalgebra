@@ -1,7 +1,7 @@
 use na::DefaultAllocator;
 
-use aliases::TVec;
-use traits::{Alloc, Dimension, Number};
+use crate::aliases::TVec;
+use crate::traits::{Alloc, Dimension, Number};
 
 /// Checks that all the vector components are `true`.
 ///

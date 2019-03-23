@@ -1,6 +1,6 @@
 use na::{self, Real, U3};
 
-use aliases::{TMat4, TVec2, TVec3, TVec4};
+use crate::aliases::{TMat4, TVec2, TVec3, TVec4};
 
 /// Define a picking region.
 ///

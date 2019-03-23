@@ -6,17 +6,17 @@ use std::iter::ExactSizeIterator;
 #[cfg(any(feature = "std", feature = "alloc"))]
 use std::mem;
 
-use base::allocator::{Allocator, Reallocator};
-use base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use base::dimension::{
+use crate::base::allocator::{Allocator, Reallocator};
+use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use crate::base::dimension::{
     Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimName, DimSub, DimSum, U1,
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
-use base::dimension::Dynamic;
-use base::storage::{Storage, StorageMut};
+use crate::base::dimension::Dynamic;
+use crate::base::storage::{Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use base::DMatrix;
-use base::{DefaultAllocator, Matrix, MatrixMN, RowVector, Scalar, Vector};
+use crate::base::DMatrix;
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, RowVector, Scalar, Vector};
 
 impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Extracts the upper triangular part of this matrix (including the diagonal).

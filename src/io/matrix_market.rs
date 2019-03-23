@@ -2,8 +2,8 @@ use std::fs;
 use std::path::Path;
 
 use pest::Parser;
-use sparse::CsMatrix;
-use Real;
+use crate::sparse::CsMatrix;
+use crate::Real;
 
 #[derive(Parser)]
 #[grammar = "io/matrix_market.pest"]
@@ -41,7 +41,7 @@ pub fn cs_matrix_from_matrix_market_str<N: Real>(data: &str) -> Option<CsMatrix<
                 // NOTE: indices are 1-based.
                 rows.push(inner.next()?.as_str().parse::<usize>().ok()? - 1);
                 cols.push(inner.next()?.as_str().parse::<usize>().ok()? - 1);
-                data.push(::convert(inner.next()?.as_str().parse::<f64>().ok()?));
+                data.push(crate::convert(inner.next()?.as_str().parse::<f64>().ok()?));
             }
             _ => return None, // FIXME: return an Err instead.
         }

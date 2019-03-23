@@ -6,9 +6,9 @@ use alga::linear::Rotation as AlgaRotation;
 #[cfg(feature = "mint")]
 use mint;
 
-use base::dimension::U3;
-use base::{Matrix3, Matrix4, Vector4};
-use geometry::{
+use crate::base::dimension::U3;
+use crate::base::{Matrix3, Matrix4, Vector4};
+use crate::geometry::{
     Isometry, Point3, Quaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf, TAffine,
     Transform, Translation, UnitQuaternion,
 };
@@ -44,7 +44,7 @@ where
 
     #[inline]
     fn is_in_subset(q: &Quaternion<N2>) -> bool {
-        ::is_convertible::<_, Vector4<N1>>(&q.coords)
+        crate::is_convertible::<_, Vector4<N1>>(&q.coords)
     }
 
     #[inline]
@@ -67,12 +67,12 @@ where
 
     #[inline]
     fn is_in_subset(uq: &UnitQuaternion<N2>) -> bool {
-        ::is_convertible::<_, Quaternion<N1>>(uq.as_ref())
+        crate::is_convertible::<_, Quaternion<N1>>(uq.as_ref())
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(uq: &UnitQuaternion<N2>) -> Self {
-        Self::new_unchecked(::convert_ref_unchecked(uq.as_ref()))
+        Self::new_unchecked(crate::convert_ref_unchecked(uq.as_ref()))
     }
 }
 
@@ -89,13 +89,13 @@ where
 
     #[inline]
     fn is_in_subset(rot: &Rotation3<N2>) -> bool {
-        ::is_convertible::<_, Rotation3<N1>>(rot)
+        crate::is_convertible::<_, Rotation3<N1>>(rot)
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(rot: &Rotation3<N2>) -> Self {
         let q = UnitQuaternion::<N2>::from_rotation_matrix(rot);
-        ::convert_unchecked(q)
+        crate::convert_unchecked(q)
     }
 }
 
@@ -107,7 +107,7 @@ where
 {
     #[inline]
     fn to_superset(&self) -> Isometry<N2, U3, R> {
-        Isometry::from_parts(Translation::identity(), ::convert_ref(self))
+        Isometry::from_parts(Translation::identity(), crate::convert_ref(self))
     }
 
     #[inline]
@@ -117,7 +117,7 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(iso: &Isometry<N2, U3, R>) -> Self {
-        ::convert_ref_unchecked(&iso.rotation)
+        crate::convert_ref_unchecked(&iso.rotation)
     }
 }
 
@@ -129,7 +129,7 @@ where
 {
     #[inline]
     fn to_superset(&self) -> Similarity<N2, U3, R> {
-        Similarity::from_isometry(::convert_ref(self), N2::one())
+        Similarity::from_isometry(crate::convert_ref(self), N2::one())
     }
 
     #[inline]
@@ -139,7 +139,7 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(sim: &Similarity<N2, U3, R>) -> Self {
-        ::convert_ref_unchecked(&sim.isometry)
+        crate::convert_ref_unchecked(&sim.isometry)
     }
 }
 
@@ -173,12 +173,12 @@ impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitQuaterni
 
     #[inline]
     fn is_in_subset(m: &Matrix4<N2>) -> bool {
-        ::is_convertible::<_, Rotation3<N1>>(m)
+        crate::is_convertible::<_, Rotation3<N1>>(m)
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(m: &Matrix4<N2>) -> Self {
-        let rot: Rotation3<N1> = ::convert_ref_unchecked(m);
+        let rot: Rotation3<N1> = crate::convert_ref_unchecked(m);
         Self::from_rotation_matrix(&rot)
     }
 }

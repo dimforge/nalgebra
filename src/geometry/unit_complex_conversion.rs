@@ -4,9 +4,9 @@ use num_complex::Complex;
 use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation as AlgaRotation;
 
-use base::dimension::U2;
-use base::{Matrix2, Matrix3};
-use geometry::{
+use crate::base::dimension::U2;
+use crate::base::{Matrix2, Matrix3};
+use crate::geometry::{
     Isometry, Point2, Rotation2, Similarity, SuperTCategoryOf, TAffine, Transform, Translation,
     UnitComplex
 };
@@ -38,12 +38,12 @@ where
 
     #[inline]
     fn is_in_subset(uq: &UnitComplex<N2>) -> bool {
-        ::is_convertible::<_, Complex<N1>>(uq.as_ref())
+        crate::is_convertible::<_, Complex<N1>>(uq.as_ref())
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(uq: &UnitComplex<N2>) -> Self {
-        Self::new_unchecked(::convert_ref_unchecked(uq.as_ref()))
+        Self::new_unchecked(crate::convert_ref_unchecked(uq.as_ref()))
     }
 }
 
@@ -60,13 +60,13 @@ where
 
     #[inline]
     fn is_in_subset(rot: &Rotation2<N2>) -> bool {
-        ::is_convertible::<_, Rotation2<N1>>(rot)
+        crate::is_convertible::<_, Rotation2<N1>>(rot)
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(rot: &Rotation2<N2>) -> Self {
         let q = UnitComplex::<N2>::from_rotation_matrix(rot);
-        ::convert_unchecked(q)
+        crate::convert_unchecked(q)
     }
 }
 
@@ -78,7 +78,7 @@ where
 {
     #[inline]
     fn to_superset(&self) -> Isometry<N2, U2, R> {
-        Isometry::from_parts(Translation::identity(), ::convert_ref(self))
+        Isometry::from_parts(Translation::identity(), crate::convert_ref(self))
     }
 
     #[inline]
@@ -88,7 +88,7 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(iso: &Isometry<N2, U2, R>) -> Self {
-        ::convert_ref_unchecked(&iso.rotation)
+        crate::convert_ref_unchecked(&iso.rotation)
     }
 }
 
@@ -100,7 +100,7 @@ where
 {
     #[inline]
     fn to_superset(&self) -> Similarity<N2, U2, R> {
-        Similarity::from_isometry(::convert_ref(self), N2::one())
+        Similarity::from_isometry(crate::convert_ref(self), N2::one())
     }
 
     #[inline]
@@ -110,7 +110,7 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(sim: &Similarity<N2, U2, R>) -> Self {
-        ::convert_ref_unchecked(&sim.isometry)
+        crate::convert_ref_unchecked(&sim.isometry)
     }
 }
 
@@ -144,12 +144,12 @@ impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix3<N2>> for UnitComplex<
 
     #[inline]
     fn is_in_subset(m: &Matrix3<N2>) -> bool {
-        ::is_convertible::<_, Rotation2<N1>>(m)
+        crate::is_convertible::<_, Rotation2<N1>>(m)
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(m: &Matrix3<N2>) -> Self {
-        let rot: Rotation2<N1> = ::convert_ref_unchecked(m);
+        let rot: Rotation2<N1> = crate::convert_ref_unchecked(m);
         Self::from_rotation_matrix(&rot)
     }
 }

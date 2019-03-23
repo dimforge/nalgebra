@@ -1,6 +1,6 @@
 use na::{Real, UnitQuaternion, U4};
 
-use aliases::{Qua, TMat4, TVec, TVec3};
+use crate::aliases::{Qua, TMat4, TVec, TVec3};
 
 /// Euler angles of the quaternion `q` as (pitch, yaw, roll).
 pub fn quat_euler_angles<N: Real>(x: &Qua<N>) -> TVec3<N> {
@@ -11,27 +11,27 @@ pub fn quat_euler_angles<N: Real>(x: &Qua<N>) -> TVec3<N> {
 
 /// Component-wise `>` comparison between two quaternions.
 pub fn quat_greater_than<N: Real>(x: &Qua<N>, y: &Qua<N>) -> TVec<bool, U4> {
-    ::greater_than(&x.coords, &y.coords)
+    crate::greater_than(&x.coords, &y.coords)
 }
 
 /// Component-wise `>=` comparison between two quaternions.
 pub fn quat_greater_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> TVec<bool, U4> {
-    ::greater_than_equal(&x.coords, &y.coords)
+    crate::greater_than_equal(&x.coords, &y.coords)
 }
 
 /// Component-wise `<` comparison between two quaternions.
 pub fn quat_less_than<N: Real>(x: &Qua<N>, y: &Qua<N>) -> TVec<bool, U4> {
-    ::less_than(&x.coords, &y.coords)
+    crate::less_than(&x.coords, &y.coords)
 }
 
 /// Component-wise `<=` comparison between two quaternions.
 pub fn quat_less_than_equal<N: Real>(x: &Qua<N>, y: &Qua<N>) -> TVec<bool, U4> {
-    ::less_than_equal(&x.coords, &y.coords)
+    crate::less_than_equal(&x.coords, &y.coords)
 }
 
 /// Convert a quaternion to a rotation matrix in homogeneous coordinates.
 pub fn quat_cast<N: Real>(x: &Qua<N>) -> TMat4<N> {
-    ::quat_to_mat4(x)
+    crate::quat_to_mat4(x)
 }
 
 /// Computes a right hand look-at quaternion

@@ -3,10 +3,10 @@
 use alga::general::Real;
 use std::ops::{DivAssign, MulAssign};
 
-use allocator::Allocator;
-use base::dimension::{Dim, U1};
-use base::storage::Storage;
-use base::{DefaultAllocator, MatrixN, VectorN};
+use crate::allocator::Allocator;
+use crate::base::dimension::{Dim, U1};
+use crate::base::storage::Storage;
+use crate::base::{DefaultAllocator, MatrixN, VectorN};
 
 /// Applies in-place a modified Parlett and Reinsch matrix balancing with 2-norm to the matrix `m` and returns
 /// the corresponding diagonal transformation.
@@ -17,7 +17,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> {
     assert!(m.is_square(), "Unable to balance a non-square matrix.");
 
     let dim = m.data.shape().0;
-    let radix: N = ::convert(2.0f64);
+    let radix: N = crate::convert(2.0f64);
     let mut d = VectorN::from_element_generic(dim, U1, N::one());
 
     let mut converged = false;
@@ -50,7 +50,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> {
                 f /= radix;
             }
 
-            let eps: N = ::convert(0.95);
+            let eps: N = crate::convert(0.95);
             if c * c + r * r < eps * s {
                 converged = false;
                 d[i] *= f;

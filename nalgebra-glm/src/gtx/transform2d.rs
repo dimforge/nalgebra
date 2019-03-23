@@ -1,7 +1,7 @@
 use na::{Real, UnitComplex};
 
-use aliases::{TMat3, TVec2};
-use traits::Number;
+use crate::aliases::{TMat3, TVec2};
+use crate::traits::Number;
 
 /// Builds a 2D rotation matrix from an angle and right-multiply it to `m`.
 ///

@@ -1,7 +1,7 @@
 use na::{Scalar, DefaultAllocator};
 
-use traits::{Alloc, Dimension};
-use aliases::*;
+use crate::traits::{Alloc, Dimension};
+use crate::aliases::*;
 
 pub fn bitfieldDeinterleave(x: u16) -> U8Vec2 {
     unimplemented!()

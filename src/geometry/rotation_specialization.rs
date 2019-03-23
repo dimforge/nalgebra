@@ -1,5 +1,5 @@
 #[cfg(feature = "arbitrary")]
-use base::storage::Owned;
+use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -9,11 +9,11 @@ use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 use std::ops::Neg;
 
-use base::dimension::{U1, U2, U3};
-use base::storage::Storage;
-use base::{Matrix2, Matrix3, MatrixN, Unit, Vector, Vector1, Vector3, VectorN};
+use crate::base::dimension::{U1, U2, U3};
+use crate::base::storage::Storage;
+use crate::base::{Matrix2, Matrix3, MatrixN, Unit, Vector, Vector1, Vector3, VectorN};
 
-use geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
+use crate::geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 
 /*
  *
@@ -113,7 +113,7 @@ impl<N: Real> Rotation2<N> {
         SB: Storage<N, U2>,
         SC: Storage<N, U2>,
     {
-        ::convert(UnitComplex::rotation_between(a, b).to_rotation_matrix())
+        crate::convert(UnitComplex::rotation_between(a, b).to_rotation_matrix())
     }
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
@@ -140,7 +140,7 @@ impl<N: Real> Rotation2<N> {
         SB: Storage<N, U2>,
         SC: Storage<N, U2>,
     {
-        ::convert(UnitComplex::scaled_rotation_between(a, b, s).to_rotation_matrix())
+        crate::convert(UnitComplex::scaled_rotation_between(a, b, s).to_rotation_matrix())
     }
 
     /// The rotation angle.
@@ -682,7 +682,7 @@ impl<N: Real> Rotation3<N> {
     #[inline]
     pub fn angle(&self) -> N {
         ((self.matrix()[(0, 0)] + self.matrix()[(1, 1)] + self.matrix()[(2, 2)] - N::one())
-            / ::convert(2.0))
+            / crate::convert(2.0))
         .acos()
     }
 

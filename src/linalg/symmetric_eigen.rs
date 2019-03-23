@@ -5,13 +5,13 @@ use num::Zero;
 use approx::AbsDiffEq;
 
 use alga::general::Complex;
-use allocator::Allocator;
-use base::{DefaultAllocator, Matrix2, MatrixN, SquareMatrix, Vector2, VectorN};
-use dimension::{Dim, DimDiff, DimSub, U1, U2};
-use storage::Storage;
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, Matrix2, MatrixN, SquareMatrix, Vector2, VectorN};
+use crate::dimension::{Dim, DimDiff, DimSub, U1, U2};
+use crate::storage::Storage;
 
-use linalg::givens::GivensRotation;
-use linalg::SymmetricTridiagonal;
+use crate::linalg::givens::GivensRotation;
+use crate::linalg::SymmetricTridiagonal;
 
 /// Eigendecomposition of a symmetric matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -163,7 +163,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
                         let ss = rot.s() * rot.s();
                         let cs = rot.c() * rot.s();
 
-                        let b = cs * ::convert(2.0) * mij;
+                        let b = cs * crate::convert(2.0) * mij;
 
                         diag[i] = (cc * mii + ss * mjj) - b;
                         diag[j] = (ss * mii + cc * mjj) + b;
@@ -292,7 +292,7 @@ pub fn wilkinson_shift<N: Complex>(tmm: N, tnn: N, tmn: N) -> N {
     let sq_tmn = tmn * tmn;
     if !sq_tmn.is_zero() {
         // We have the guarantee that the denominator won't be zero.
-        let d = (tmm - tnn) * ::convert(0.5);
+        let d = (tmm - tnn) * crate::convert(0.5);
         tnn - sq_tmn / (d + d.signum() * (d * d + sq_tmn).sqrt())
     } else {
         tnn
@@ -342,7 +342,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>> +
 
 #[cfg(test)]
 mod test {
-    use base::Matrix2;
+    use crate::base::Matrix2;
 
     fn expected_shift(m: Matrix2<f64>) -> f64 {
         let vals = m.eigenvalues().unwrap();

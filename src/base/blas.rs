@@ -5,13 +5,13 @@ use num::{One, Signed, Zero};
 #[cfg(feature = "std")]
 use std::mem;
 
-use base::allocator::Allocator;
-use base::constraint::{
+use crate::base::allocator::Allocator;
+use crate::base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
-use base::dimension::{Dim, Dynamic, U1, U2, U3, U4};
-use base::storage::{Storage, StorageMut};
-use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, DVectorSlice};
+use crate::base::dimension::{Dim, Dynamic, U1, U2, U3, U4};
+use crate::base::storage::{Storage, StorageMut};
+use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, DVectorSlice};
 
 
 // FIXME: find a way to avoid code duplication just for complex number support.

@@ -2,14 +2,13 @@
 use serde::{Deserialize, Serialize};
 
 use alga::general::Complex;
-use allocator::Allocator;
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
-use constraint::{DimEq, ShapeConstraint};
-use dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, Dynamic, U1};
-use storage::Storage;
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
+use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1};
+use crate::storage::Storage;
 
-use geometry::Reflection;
-use linalg::householder;
+use crate::geometry::Reflection;
+use crate::linalg::householder;
 
 /// The bidiagonalization of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

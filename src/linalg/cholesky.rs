@@ -3,11 +3,11 @@ use serde::{Deserialize, Serialize};
 
 use alga::general::Complex;
 
-use allocator::Allocator;
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
-use constraint::{SameNumberOfRows, ShapeConstraint};
-use dimension::{Dim, DimSub, Dynamic};
-use storage::{Storage, StorageMut};
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
+use crate::constraint::{SameNumberOfRows, ShapeConstraint};
+use crate::dimension::{Dim, DimSub, Dynamic};
+use crate::storage::{Storage, StorageMut};
 
 /// The Cholesky decomposition of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

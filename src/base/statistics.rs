@@ -1,7 +1,7 @@
-use ::{Scalar, Dim, Matrix, VectorN, RowVectorN, DefaultAllocator, U1, VectorSliceN};
+use crate::{Scalar, Dim, Matrix, VectorN, RowVectorN, DefaultAllocator, U1, VectorSliceN};
 use alga::general::{Field, SupersetOf};
-use storage::Storage;
-use allocator::Allocator;
+use crate::storage::Storage;
+use crate::allocator::Allocator;
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a row vector where each element is the result of the application of `f` on the
@@ -155,7 +155,7 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
             N::zero()
         } else {
             let val = self.iter().cloned().fold((N::zero(), N::zero()), |a, b| (a.0 + b * b, a.1 + b));
-            let denom = N::one() / ::convert::<_, N>(self.len() as f64);
+            let denom = N::one() / crate::convert::<_, N>(self.len() as f64);
             val.0 * denom - (val.1 * denom) * (val.1 * denom)
         }
     }
@@ -215,7 +215,7 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
         let mut mean = self.column_mean();
         mean.apply(|e| -(e * e));
 
-        let denom = N::one() / ::convert::<_, N>(ncols.value() as f64);
+        let denom = N::one() / crate::convert::<_, N>(ncols.value() as f64);
         self.compress_columns(mean, |out, col| {
             for i in 0..nrows.value() {
                 unsafe {
@@ -247,7 +247,7 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
         if self.len() == 0 {
             N::zero()
         } else {
-            self.sum() / ::convert(self.len() as f64)
+            self.sum() / crate::convert(self.len() as f64)
         }
     }
 
@@ -302,7 +302,7 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     pub fn column_mean(&self) -> VectorN<N, R>
         where DefaultAllocator: Allocator<N, R> {
         let (nrows, ncols) = self.data.shape();
-        let denom = N::one() / ::convert::<_, N>(ncols.value() as f64);
+        let denom = N::one() / crate::convert::<_, N>(ncols.value() as f64);
         self.compress_columns(VectorN::zeros_generic(nrows, U1), |out, col| {
             out.axpy(denom, &col, N::one())
         })

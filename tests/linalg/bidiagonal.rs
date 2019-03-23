@@ -5,7 +5,7 @@ macro_rules! gen_tests(
         mod $module {
             use na::{DMatrix, Matrix2, Matrix3x5, Matrix4, Matrix5x3};
             #[allow(unused_imports)]
-            use core::helper::{RandScalar, RandComplex};
+            use crate::core::helper::{RandScalar, RandComplex};
 
             quickcheck! {
                 fn bidiagonal(m: DMatrix<$scalar>) -> bool {

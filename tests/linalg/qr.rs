@@ -7,7 +7,7 @@ macro_rules! gen_tests(
             use na::{DMatrix, DVector, Matrix3x5, Matrix4, Matrix4x3, Matrix5x3, Vector4};
             use std::cmp;
             #[allow(unused_imports)]
-            use core::helper::{RandScalar, RandComplex};
+            use crate::core::helper::{RandScalar, RandComplex};
 
             quickcheck! {
                 fn qr(m: DMatrix<$scalar>) -> bool {

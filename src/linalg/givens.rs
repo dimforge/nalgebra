@@ -3,10 +3,10 @@
 use alga::general::Complex;
 use num::{Zero, One};
 
-use base::dimension::{Dim, U2};
-use base::constraint::{ShapeConstraint, DimEq};
-use base::storage::{Storage, StorageMut};
-use base::{Vector, Matrix};
+use crate::base::dimension::{Dim, U2};
+use crate::base::constraint::{ShapeConstraint, DimEq};
+use crate::base::storage::{Storage, StorageMut};
+use crate::base::{Vector, Matrix};
 
 
 /// A Givens rotation.

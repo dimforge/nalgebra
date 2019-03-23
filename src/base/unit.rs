@@ -104,8 +104,8 @@ impl<T: NormedSpace> Unit<T> {
     #[inline]
     pub fn renormalize_fast(&mut self) {
         let sq_norm = self.value.norm_squared();
-        let _3: T::Real = ::convert(3.0);
-        let _0_5: T::Real = ::convert(0.5);
+        let _3: T::Real = crate::convert(3.0);
+        let _0_5: T::Real = crate::convert(0.5);
         self.value *= T::Complex::from_real(_0_5 * (_3 - sq_norm));
     }
 }
@@ -168,7 +168,7 @@ where T::Field: RelativeEq
 
     #[inline]
     fn is_in_subset(value: &T) -> bool {
-        relative_eq!(value.norm_squared(), ::one())
+        relative_eq!(value.norm_squared(), crate::one())
     }
 
     #[inline]

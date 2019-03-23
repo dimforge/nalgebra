@@ -1,9 +1,9 @@
 use std::iter;
 use std::mem;
 
-use allocator::Allocator;
-use sparse::{CsMatrix, CsStorage, CsStorageIter, CsStorageIterMut, CsVecStorage};
-use {DefaultAllocator, Dim, Real, VectorN, U1};
+use crate::allocator::Allocator;
+use crate::sparse::{CsMatrix, CsStorage, CsStorageIter, CsStorageIterMut, CsVecStorage};
+use crate::{DefaultAllocator, Dim, Real, VectorN, U1};
 
 /// The cholesky decomposition of a column compressed sparse matrix.
 pub struct CsCholesky<N: Real, D: Dim>

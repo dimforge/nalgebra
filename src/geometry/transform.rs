@@ -8,10 +8,10 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use alga::general::Real;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::storage::Owned;
-use base::{DefaultAllocator, MatrixN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::storage::Owned;
+use crate::base::{DefaultAllocator, MatrixN};
 
 /// Trait implemented by phantom types identifying the projective transformation type.
 ///
@@ -523,7 +523,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use base::Matrix4;
+    use crate::base::Matrix4;
 
     #[test]
     fn checks_homogeneous_invariants_of_square_identity_matrix() {

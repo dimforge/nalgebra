@@ -7,11 +7,11 @@ use alga::linear::{
     ProjectiveTransformation, Similarity, Transformation,
 };
 
-use base::allocator::Allocator;
-use base::dimension::DimName;
-use base::{DefaultAllocator, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::DimName;
+use crate::base::{DefaultAllocator, VectorN};
 
-use geometry::{Point, Rotation};
+use crate::geometry::{Point, Rotation};
 
 /*
  *
@@ -251,7 +251,7 @@ impl<N: Real> SquareMatrix for Rotation<N> {
 
     #[inline]
     fn determinant(&self) -> Self::Field {
-        ::one()
+        crate::one()
     }
 
     #[inline]

@@ -1,14 +1,14 @@
 #[cfg(feature = "arbitrary")]
-use base::storage::Owned;
+use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
 use alga::general::Complex;
-use base::Scalar;
-use base::allocator::Allocator;
-use base::dimension::{Dim, Dynamic, U2};
-use base::{DefaultAllocator, MatrixN};
-use linalg::givens::GivensRotation;
+use crate::base::Scalar;
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{Dim, Dynamic, U2};
+use crate::base::{DefaultAllocator, MatrixN};
+use crate::linalg::givens::GivensRotation;
 
 /// A random orthogonal matrix.
 #[derive(Clone, Debug)]

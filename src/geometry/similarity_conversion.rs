@@ -1,11 +1,11 @@
 use alga::general::{Real, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
-use base::allocator::Allocator;
-use base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
-use base::{DefaultAllocator, MatrixN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::{DefaultAllocator, MatrixN};
 
-use geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
+use crate::geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
 
 /*
  * This file provides the following conversions:
@@ -31,8 +31,8 @@ where
 
     #[inline]
     fn is_in_subset(sim: &Similarity<N2, D, R2>) -> bool {
-        ::is_convertible::<_, Isometry<N1, D, R1>>(&sim.isometry)
-            && ::is_convertible::<_, N1>(&sim.scaling())
+        crate::is_convertible::<_, Isometry<N1, D, R1>>(&sim.isometry)
+            && crate::is_convertible::<_, N1>(&sim.scaling())
     }
 
     #[inline]
@@ -143,7 +143,7 @@ where
         let nb = mm.fixed_slice_mut::<D, U1>(0, 1).normalize_mut();
         let nc = mm.fixed_slice_mut::<D, U1>(0, 2).normalize_mut();
 
-        let mut scale = (na + nb + nc) / ::convert(3.0); // We take the mean, for robustness.
+        let mut scale = (na + nb + nc) / crate::convert(3.0); // We take the mean, for robustness.
 
         // FIXME: could we avoid the explicit computation of the determinant?
         // (its sign is needed to see if the scaling factor is negative).
@@ -156,10 +156,10 @@ where
 
         let t = m.fixed_slice::<D, U1>(0, D::dim()).into_owned();
         let t = Translation {
-            vector: ::convert_unchecked(t),
+            vector: crate::convert_unchecked(t),
         };
 
-        Self::from_parts(t, ::convert_unchecked(mm), ::convert_unchecked(scale))
+        Self::from_parts(t, crate::convert_unchecked(mm), crate::convert_unchecked(scale))
     }
 }
 

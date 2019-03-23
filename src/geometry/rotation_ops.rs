@@ -22,13 +22,13 @@ use std::ops::{Div, DivAssign, Index, Mul, MulAssign};
 
 use alga::general::{ClosedAdd, ClosedMul};
 
-use base::allocator::Allocator;
-use base::constraint::{AreMultipliable, ShapeConstraint};
-use base::dimension::{Dim, DimName, U1};
-use base::storage::Storage;
-use base::{DefaultAllocator, Matrix, MatrixMN, Scalar, Unit, Vector, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::constraint::{AreMultipliable, ShapeConstraint};
+use crate::base::dimension::{Dim, DimName, U1};
+use crate::base::storage::Storage;
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, Scalar, Unit, Vector, VectorN};
 
-use geometry::{Point, Rotation};
+use crate::geometry::{Point, Rotation};
 
 impl<N: Scalar, D: DimName> Index<(usize, usize)> for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D>

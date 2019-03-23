@@ -12,7 +12,7 @@ mod quickcheck_tests {
                 };
                 use std::cmp;
                 #[allow(unused_imports)]
-                use core::helper::{RandScalar, RandComplex};
+                use crate::core::helper::{RandScalar, RandComplex};
 
                 quickcheck! {
                     fn svd(m: DMatrix<$scalar>) -> bool {

@@ -6,7 +6,7 @@ macro_rules! gen_tests(
         mod $module {
             use na::{Matrix4, Matrix4x5, Complex};
             #[allow(unused_imports)]
-            use core::helper::{RandScalar, RandComplex};
+            use crate::core::helper::{RandScalar, RandComplex};
 
             fn unzero_diagonal<N: Complex>(a: &mut Matrix4<N>) {
                 for i in 0..4 {

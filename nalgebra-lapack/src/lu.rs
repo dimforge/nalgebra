@@ -5,7 +5,7 @@ use na::allocator::Allocator;
 use na::dimension::{Dim, DimMin, DimMinimum, U1};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, VectorN};
-use ComplexHelper;
+use crate::ComplexHelper;
 
 use lapack;
 
@@ -283,7 +283,7 @@ where
         );
         lapack_check!(info);
 
-        let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
+        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
         N::xgetri(
             dim,

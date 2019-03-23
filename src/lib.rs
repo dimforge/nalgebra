@@ -51,7 +51,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
   allocated on the heap.
 * Convenient aliases for low-dimensional matrices and vectors: `Vector1` to `Vector6` and
   `Matrix1x1` to `Matrix6x6`, including rectangular matrices like `Matrix2x5`.
-* Points sizes known at compile time, and convenience aliases: `Point1` to `Point6`.
+* Points sizes known at compile time, and convenience aliases:: `Point1` to `Point6`.
 * Translation (seen as a transformation that composes by multiplication): `Translation2`,
   `Translation3`.
 * Rotation matrices: `Rotation2`, `Rotation3`.
@@ -144,11 +144,11 @@ pub mod sparse;
     note = "The 'core' module is being renamed to 'base' to avoid conflicts with the 'core' crate."
 )]
 pub use base as core;
-pub use base::*;
-pub use geometry::*;
-pub use linalg::*;
+pub use crate::base::*;
+pub use crate::geometry::*;
+pub use crate::linalg::*;
 #[cfg(feature = "sparse")]
-pub use sparse::*;
+pub use crate::sparse::*;
 
 use std::cmp::{self, Ordering, PartialOrd};
 

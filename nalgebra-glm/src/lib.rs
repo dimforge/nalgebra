@@ -119,7 +119,7 @@ extern crate approx;
 extern crate alga;
 extern crate nalgebra as na;
 
-pub use aliases::*;
+pub use crate::aliases::*;
 pub use common::{
     abs, ceil, clamp, clamp_scalar, clamp_vec, float_bits_to_int, float_bits_to_int_vec,
     float_bits_to_uint, float_bits_to_uint_vec, floor, fract, int_bits_to_float,
@@ -133,7 +133,7 @@ pub use geometric::{
     cross, distance, dot, faceforward, length, magnitude, normalize, reflect_vec, refract_vec,
 };
 pub use matrix::{determinant, inverse, matrix_comp_mult, outer_product, transpose};
-pub use traits::{Alloc, Dimension, Number};
+pub use crate::traits::{Alloc, Dimension, Number};
 pub use trigonometric::{
     acos, acosh, asin, asinh, atan, atan2, atanh, cos, cosh, degrees, radians, sin, sinh, tan, tanh,
 };

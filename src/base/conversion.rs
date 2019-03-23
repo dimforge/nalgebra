@@ -9,18 +9,18 @@ use generic_array::ArrayLength;
 use std::ops::Mul;
 use typenum::Prod;
 
-use base::allocator::{Allocator, SameShapeAllocator};
-use base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use base::dimension::{
+use crate::base::allocator::{Allocator, SameShapeAllocator};
+use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use crate::base::dimension::{
     Dim, DimName, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
-use base::dimension::Dynamic;
-use base::iter::{MatrixIter, MatrixIterMut};
-use base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
+use crate::base::dimension::Dynamic;
+use crate::base::iter::{MatrixIter, MatrixIterMut};
+use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use base::VecStorage;
-use base::{DefaultAllocator, Matrix, ArrayStorage, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar};
+use crate::base::VecStorage;
+use crate::base::{DefaultAllocator, Matrix, ArrayStorage, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar};
 
 // FIXME: too bad this won't work allo slice conversions.
 impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1, C1>

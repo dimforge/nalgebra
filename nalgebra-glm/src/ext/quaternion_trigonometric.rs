@@ -1,6 +1,6 @@
 use na::{Real, Unit, UnitQuaternion};
 
-use aliases::{Qua, TVec3};
+use crate::aliases::{Qua, TVec3};
 
 /// The rotation angle of this quaternion assumed to be normalized.
 pub fn quat_angle<N: Real>(x: &Qua<N>) -> N {

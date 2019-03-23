@@ -1,10 +1,10 @@
 use alga::general::{Real, SubsetOf};
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::{DefaultAllocator, MatrixN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::{DefaultAllocator, MatrixN};
 
-use geometry::{SuperTCategoryOf, TCategory, Transform};
+use crate::geometry::{SuperTCategoryOf, TCategory, Transform};
 
 impl<N1, N2, D: DimName, C1, C2> SubsetOf<Transform<N2, D, C2>> for Transform<N1, D, C1>
 where
@@ -57,7 +57,7 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
-        Self::from_matrix_unchecked(::convert_ref_unchecked(m))
+        Self::from_matrix_unchecked(crate::convert_ref_unchecked(m))
     }
 }
 

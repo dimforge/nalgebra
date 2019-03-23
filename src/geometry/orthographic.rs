@@ -9,12 +9,12 @@ use std::mem;
 
 use alga::general::Real;
 
-use base::dimension::U3;
-use base::helper;
-use base::storage::Storage;
-use base::{Matrix4, Vector, Vector3};
+use crate::base::dimension::U3;
+use crate::base::helper;
+use crate::base::storage::Storage;
+use crate::base::{Matrix4, Vector, Vector3};
 
-use geometry::{Point3, Projective3};
+use crate::geometry::{Point3, Projective3};
 
 /// A 3D orthographic projection stored as an homogeneous 4x4 matrix.
 pub struct Orthographic3<N: Real> {
@@ -150,7 +150,7 @@ impl<N: Real> Orthographic3<N> {
             "The apsect ratio must not be zero."
         );
 
-        let half: N = ::convert(0.5);
+        let half: N = crate::convert(0.5);
         let width = zfar * (vfov * half).tan();
         let height = width / aspect;
 
@@ -623,7 +623,7 @@ impl<N: Real> Orthographic3<N> {
             left != right,
             "The left corner must not be equal to the right corner."
         );
-        self.matrix[(0, 0)] = ::convert::<_, N>(2.0) / (right - left);
+        self.matrix[(0, 0)] = crate::convert::<_, N>(2.0) / (right - left);
         self.matrix[(0, 3)] = -(right + left) / (right - left);
     }
 
@@ -648,7 +648,7 @@ impl<N: Real> Orthographic3<N> {
             bottom != top,
             "The top corner must not be equal to the bottom corner."
         );
-        self.matrix[(1, 1)] = ::convert::<_, N>(2.0) / (top - bottom);
+        self.matrix[(1, 1)] = crate::convert::<_, N>(2.0) / (top - bottom);
         self.matrix[(1, 3)] = -(top + bottom) / (top - bottom);
     }
 
@@ -673,7 +673,7 @@ impl<N: Real> Orthographic3<N> {
             zfar != znear,
             "The near-plane and far-plane must not be superimposed."
         );
-        self.matrix[(2, 2)] = -::convert::<_, N>(2.0) / (zfar - znear);
+        self.matrix[(2, 2)] = -crate::convert::<_, N>(2.0) / (zfar - znear);
         self.matrix[(2, 3)] = -(zfar + znear) / (zfar - znear);
     }
 }

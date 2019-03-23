@@ -1,7 +1,7 @@
 use na::{DefaultAllocator, Real};
 
-use aliases::TVec;
-use traits::{Alloc, Dimension};
+use crate::aliases::TVec;
+use crate::traits::{Alloc, Dimension};
 
 /// The squared distance between two points.
 ///
@@ -37,7 +37,7 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`l2_norm`](fn.l2_norm.html)
 pub fn l1_norm<N: Real, D: Dimension>(v: &TVec<N, D>) -> N
 where DefaultAllocator: Alloc<N, D> {
-    ::comp_add(&v.abs())
+    crate::comp_add(&v.abs())
 }
 
 /// The l2-norm of `x - y`.

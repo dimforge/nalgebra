@@ -2,14 +2,14 @@
 use serde::{Deserialize, Serialize};
 
 use alga::general::Complex;
-use allocator::Allocator;
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN};
-use constraint::{SameNumberOfRows, ShapeConstraint};
-use dimension::{Dim, DimMin, DimMinimum};
-use storage::{Storage, StorageMut};
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN};
+use crate::constraint::{SameNumberOfRows, ShapeConstraint};
+use crate::dimension::{Dim, DimMin, DimMinimum};
+use crate::storage::{Storage, StorageMut};
 
-use linalg::lu;
-use linalg::PermutationSequence;
+use crate::linalg::lu;
+use crate::linalg::PermutationSequence;
 
 /// LU decomposition with full row and column pivoting.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

@@ -13,11 +13,11 @@ use abomonation::Abomonation;
 use alga::general::{Real, SubsetOf};
 use alga::linear::Rotation;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::storage::Owned;
-use base::{DefaultAllocator, MatrixN};
-use geometry::{Isometry, Point, Translation};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::storage::Owned;
+use crate::base::{DefaultAllocator, MatrixN};
+use crate::geometry::{Isometry, Point, Translation};
 
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
@@ -361,9 +361,9 @@ where
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        try!(writeln!(f, "Similarity {{"));
-        try!(write!(f, "{:.*}", precision, self.isometry));
-        try!(write!(f, "Scaling: {:.*}", precision, self.scaling));
+        writeln!(f, "Similarity {{")?;
+        write!(f, "{:.*}", precision, self.isometry)?;
+        write!(f, "Scaling: {:.*}", precision, self.scaling)?;
         writeln!(f, "}}")
     }
 }

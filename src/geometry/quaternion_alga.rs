@@ -11,8 +11,8 @@ use alga::linear::{
     VectorSpace,
 };
 
-use base::{Vector3, Vector4};
-use geometry::{Point3, Quaternion, UnitQuaternion};
+use crate::base::{Vector3, Vector4};
+use crate::geometry::{Point3, Quaternion, UnitQuaternion};
 
 impl<N: Real> Identity<Multiplicative> for Quaternion<N> {
     #[inline]

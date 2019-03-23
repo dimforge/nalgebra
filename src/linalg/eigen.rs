@@ -7,15 +7,15 @@ use std::cmp;
 use std::fmt::Display;
 use std::ops::MulAssign;
 
-use allocator::Allocator;
-use base::dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3};
-use base::storage::Storage;
-use base::{DefaultAllocator, Hessenberg, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN};
-use constraint::{DimEq, ShapeConstraint};
+use crate::allocator::Allocator;
+use crate::base::dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3};
+use crate::base::storage::Storage;
+use crate::base::{DefaultAllocator, Hessenberg, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN};
+use crate::constraint::{DimEq, ShapeConstraint};
 
-use geometry::{Reflection, UnitComplex};
-use linalg::householder;
-use linalg::Schur;
+use crate::geometry::{Reflection, UnitComplex};
+use crate::linalg::householder;
+use crate::linalg::Schur;
 
 /// Eigendecomposition of a real matrix with real eigenvalues (or complex eigen values for complex matrices).
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

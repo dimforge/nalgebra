@@ -1,11 +1,11 @@
 use alga::general::Complex;
 
-use base::allocator::Allocator;
-use base::dimension::DimMin;
-use base::storage::Storage;
-use base::{DefaultAllocator, SquareMatrix};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::DimMin;
+use crate::base::storage::Storage;
+use crate::base::{DefaultAllocator, SquareMatrix};
 
-use linalg::LU;
+use crate::linalg::LU;
 
 impl<N: Complex, D: DimMin<D, Output = D>, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the matrix determinant.

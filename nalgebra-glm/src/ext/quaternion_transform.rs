@@ -1,6 +1,6 @@
 use na::{Real, Unit, UnitQuaternion};
 
-use aliases::{Qua, TVec3};
+use crate::aliases::{Qua, TVec3};
 
 /// Computes the quaternion exponential.
 pub fn quat_exp<N: Real>(q: &Qua<N>) -> Qua<N> {

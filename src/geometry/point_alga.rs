@@ -1,11 +1,11 @@
 use alga::general::{Field, JoinSemilattice, Lattice, MeetSemilattice, Real};
 use alga::linear::{AffineSpace, EuclideanSpace};
 
-use base::allocator::Allocator;
-use base::dimension::DimName;
-use base::{DefaultAllocator, Scalar, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::DimName;
+use crate::base::{DefaultAllocator, Scalar, VectorN};
 
-use geometry::Point;
+use crate::geometry::Point;
 
 impl<N: Scalar + Field, D: DimName> AffineSpace for Point<N, D>
 where
