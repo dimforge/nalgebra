@@ -1,4 +1,4 @@
-use alga::general::{Field, JoinSemilattice, Lattice, MeetSemilattice, Real};
+use alga::general::{Field, JoinSemilattice, Lattice, MeetSemilattice, RealField};
 use alga::linear::{AffineSpace, EuclideanSpace};
 
 use crate::base::allocator::Allocator;
@@ -15,11 +15,11 @@ where
     type Translation = VectorN<N, D>;
 }
 
-impl<N: Real, D: DimName> EuclideanSpace for Point<N, D>
+impl<N: RealField, D: DimName> EuclideanSpace for Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     type Coordinates = VectorN<N, D>;
-    type Real = N;
+    type RealField = N;
 
     #[inline]
     fn origin() -> Self {

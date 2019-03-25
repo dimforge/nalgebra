@@ -191,7 +191,7 @@ pub use gtx::{
 pub use na::{
     convert, convert_ref, convert_ref_unchecked, convert_unchecked, try_convert, try_convert_ref,
 };
-pub use na::{DefaultAllocator, Real, Scalar, U1, U2, U3, U4};
+pub use na::{DefaultAllocator, RealField, Scalar, U1, U2, U3, U4};
 
 mod aliases;
 mod common;

@@ -12,7 +12,7 @@ use std::iter;
 use typenum::{self, Cmp, Greater};
 
 #[cfg(feature = "std")]
-use alga::general::Real;
+use alga::general::RealField;
 use alga::general::{ClosedAdd, ClosedMul};
 
 use crate::base::allocator::Allocator;
@@ -795,7 +795,7 @@ where
 }
 
 #[cfg(feature = "std")]
-impl<N: Real, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
+impl<N: RealField, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,
     StandardNormal: Distribution<N>,

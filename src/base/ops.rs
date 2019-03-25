@@ -832,7 +832,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
     /// Returns the the 1-norm of the complex component with the largest 1-norm.
     #[inline]
-    pub fn camax(&self) -> N::Real
+    pub fn camax(&self) -> N::RealField
         where N: ComplexField {
         self.xcmp(|e| e.norm1(), |a, b| a > b)
     }
@@ -853,7 +853,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
     /// Returns the the 1-norm of the complex component with the smallest 1-norm.
     #[inline]
-    pub fn camin(&self) -> N::Real
+    pub fn camin(&self) -> N::RealField
         where N: ComplexField {
         self.xcmp(|e| e.norm1(), |a, b| a < b)
     }

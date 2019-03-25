@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use num::Zero;
 use num_complex::Complex;
 
-use alga::general::Real;
+use alga::general::RealField;
 
 use na::allocator::Allocator;
 use na::dimension::{Dim, U1};
@@ -49,7 +49,7 @@ where
     VectorN<N, D>: Copy,
 {}
 
-impl<N: SchurScalar + Real, D: Dim> Schur<N, D>
+impl<N: SchurScalar + RealField, D: Dim> Schur<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Computes the eigenvalues and real Schur form of the matrix `m`.
@@ -161,7 +161,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
  * Lapack functions dispatch.
  *
  */
-/// Trait implemented by scalars for which Lapack implements the Real Schur decomposition.
+/// Trait implemented by scalars for which Lapack implements the RealField Schur decomposition.
 pub trait SchurScalar: Scalar {
     #[allow(missing_docs)]
     fn xgees(

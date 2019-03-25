@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use num::Zero;
 use num_complex::Complex;
 
-use alga::general::Real;
+use alga::general::RealField;
 
 use na::allocator::Allocator;
 use na::dimension::{Dim, U1};
@@ -51,7 +51,7 @@ where
     MatrixN<N, D>: Copy,
 {}
 
-impl<N: EigenScalar + Real, D: Dim> Eigen<N, D>
+impl<N: EigenScalar + RealField, D: Dim> Eigen<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Computes the eigenvalues and eigenvectors of the square matrix `m`.

@@ -1,4 +1,4 @@
-use na::{Scalar, Real, U3, DefaultAllocator};
+use na::{Scalar, RealField, U3, DefaultAllocator};
 
 use crate::traits::{Number, Alloc, Dimension};
 use crate::aliases::TVec;

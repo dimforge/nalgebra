@@ -1,4 +1,4 @@
-use alga::general::{Real, SubsetOf, SupersetOf};
+use alga::general::{RealField, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
 use crate::base::allocator::Allocator;
@@ -18,8 +18,8 @@ use crate::geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Tr
 
 impl<N1, N2, D: DimName, R1, R2> SubsetOf<Similarity<N2, D, R2>> for Similarity<N1, D, R1>
 where
-    N1: Real + SubsetOf<N2>,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField + SubsetOf<N2>,
+    N2: RealField + SupersetOf<N1>,
     R1: Rotation<Point<N1, D>> + SubsetOf<R2>,
     R2: Rotation<Point<N2, D>>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
@@ -46,8 +46,8 @@ where
 
 impl<N1, N2, D, R, C> SubsetOf<Transform<N2, D, C>> for Similarity<N1, D, R>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
     R: Rotation<Point<N1, D>>
         + SubsetOf<MatrixN<N1, DimNameSum<D, U1>>>
@@ -80,8 +80,8 @@ where
 
 impl<N1, N2, D, R> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Similarity<N1, D, R>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: Rotation<Point<N1, D>>
         + SubsetOf<MatrixN<N1, DimNameSum<D, U1>>>
         + SubsetOf<MatrixN<N2, DimNameSum<D, U1>>>,
@@ -163,7 +163,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> From<Similarity<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
+impl<N: RealField, D: DimName, R> From<Similarity<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
 where
     D: DimNameAdd<U1>,
     R: SubsetOf<MatrixN<N, DimNameSum<D, U1>>>,

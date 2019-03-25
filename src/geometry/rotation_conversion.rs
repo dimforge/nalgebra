@@ -1,6 +1,6 @@
 use num::Zero;
 
-use alga::general::{Real, SubsetOf, SupersetOf};
+use alga::general::{RealField, SubsetOf, SupersetOf};
 use alga::linear::Rotation as AlgaRotation;
 
 #[cfg(feature = "mint")]
@@ -32,8 +32,8 @@ use crate::geometry::{
 
 impl<N1, N2, D: DimName> SubsetOf<Rotation<N2, D>> for Rotation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D, D>,
 {
     #[inline]
@@ -54,8 +54,8 @@ where
 
 impl<N1, N2> SubsetOf<UnitQuaternion<N2>> for Rotation3<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> UnitQuaternion<N2> {
@@ -77,8 +77,8 @@ where
 
 impl<N1, N2> SubsetOf<UnitComplex<N2>> for Rotation2<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> UnitComplex<N2> {
@@ -100,8 +100,8 @@ where
 
 impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Rotation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: AlgaRotation<Point<N2, D>> + SupersetOf<Self>,
     DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
 {
@@ -123,8 +123,8 @@ where
 
 impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Rotation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: AlgaRotation<Point<N2, D>> + SupersetOf<Self>,
     DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
 {
@@ -146,8 +146,8 @@ where
 
 impl<N1, N2, D, C> SubsetOf<Transform<N2, D, C>> for Rotation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
     D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .is_special_orthogonal()
     DefaultAllocator: Allocator<N1, D, D>
@@ -175,8 +175,8 @@ where
 
 impl<N1, N2, D> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Rotation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .is_special_orthogonal()
     DefaultAllocator: Allocator<N1, D, D>
         + Allocator<N2, D, D>
@@ -211,34 +211,34 @@ where
 }
 
 #[cfg(feature = "mint")]
-impl<N: Real> From<mint::EulerAngles<N, mint::IntraXYZ>> for Rotation3<N> {
+impl<N: RealField> From<mint::EulerAngles<N, mint::IntraXYZ>> for Rotation3<N> {
     fn from(euler: mint::EulerAngles<N, mint::IntraXYZ>) -> Self {
         Self::from_euler_angles(euler.a, euler.b, euler.c)
     }
 }
 
-impl<N: Real> From<Rotation2<N>> for Matrix3<N> {
+impl<N: RealField> From<Rotation2<N>> for Matrix3<N> {
     #[inline]
     fn from(q: Rotation2<N>) ->Self {
         q.to_homogeneous()
     }
 }
 
-impl<N: Real> From<Rotation2<N>> for Matrix2<N> {
+impl<N: RealField> From<Rotation2<N>> for Matrix2<N> {
     #[inline]
     fn from(q: Rotation2<N>) -> Self {
         q.into_inner()
     }
 }
 
-impl<N: Real> From<Rotation3<N>> for Matrix4<N> {
+impl<N: RealField> From<Rotation3<N>> for Matrix4<N> {
     #[inline]
     fn from(q: Rotation3<N>) -> Self {
         q.to_homogeneous()
     }
 }
 
-impl<N: Real> From<Rotation3<N>> for Matrix3<N> {
+impl<N: RealField> From<Rotation3<N>> for Matrix3<N> {
     #[inline]
     fn from(q: Rotation3<N>) -> Self {
         q.into_inner()

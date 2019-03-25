@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use num::{Zero, One};
 use approx::AbsDiffEq;
 
-use alga::general::{Real, ComplexField};
+use alga::general::{RealField, ComplexField};
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, Matrix2x3, MatrixMN, Vector2, VectorN};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
@@ -20,47 +20,47 @@ use crate::linalg::givens::GivensRotation;
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(
-        serialize = "DefaultAllocator: Allocator<N::Real, DimMinimum<R, C>>    +
+        serialize = "DefaultAllocator: Allocator<N::RealField, DimMinimum<R, C>>    +
                            Allocator<N, DimMinimum<R, C>, C> +
                            Allocator<N, R, DimMinimum<R, C>>,
          MatrixMN<N, R, DimMinimum<R, C>>: Serialize,
          MatrixMN<N, DimMinimum<R, C>, C>: Serialize,
-         VectorN<N::Real, DimMinimum<R, C>>: Serialize"
+         VectorN<N::RealField, DimMinimum<R, C>>: Serialize"
     ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N::Real, DimMinimum<R, C>>    +
+        deserialize = "DefaultAllocator: Allocator<N::RealField, DimMinimum<R, C>>    +
                            Allocator<N, DimMinimum<R, C>, C> +
                            Allocator<N, R, DimMinimum<R, C>>,
          MatrixMN<N, R, DimMinimum<R, C>>: Deserialize<'de>,
          MatrixMN<N, DimMinimum<R, C>, C>: Deserialize<'de>,
-         VectorN<N::Real, DimMinimum<R, C>>: Deserialize<'de>"
+         VectorN<N::RealField, DimMinimum<R, C>>: Deserialize<'de>"
     ))
 )]
 #[derive(Clone, Debug)]
 pub struct SVD<N: ComplexField, R: DimMin<C>, C: Dim>
 where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
-        + Allocator<N::Real, DimMinimum<R, C>>
+        + Allocator<N::RealField, DimMinimum<R, C>>
 {
     /// The left-singular vectors `U` of this SVD.
     pub u: Option<MatrixMN<N, R, DimMinimum<R, C>>>,
     /// The right-singular vectors `V^t` of this SVD.
     pub v_t: Option<MatrixMN<N, DimMinimum<R, C>, C>>,
     /// The singular values of this SVD.
-    pub singular_values: VectorN<N::Real, DimMinimum<R, C>>,
+    pub singular_values: VectorN<N::RealField, DimMinimum<R, C>>,
 }
 
 impl<N: ComplexField, R: DimMin<C>, C: Dim> Copy for SVD<N, R, C>
 where
     DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
-        + Allocator<N::Real, DimMinimum<R, C>>,
+        + Allocator<N::RealField, DimMinimum<R, C>>,
     MatrixMN<N, R, DimMinimum<R, C>>: Copy,
     MatrixMN<N, DimMinimum<R, C>, C>: Copy,
-    VectorN<N::Real, DimMinimum<R, C>>: Copy,
+    VectorN<N::RealField, DimMinimum<R, C>>: Copy,
 {}
 
 impl<N: ComplexField, R: DimMin<C>, C: Dim> SVD<N, R, C>
@@ -73,12 +73,12 @@ where
         + Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
         + Allocator<N, DimMinimum<R, C>>
-        + Allocator<N::Real, DimMinimum<R, C>>
-        + Allocator<N::Real, DimDiff<DimMinimum<R, C>, U1>>,
+        + Allocator<N::RealField, DimMinimum<R, C>>
+        + Allocator<N::RealField, DimDiff<DimMinimum<R, C>, U1>>,
 {
     /// Computes the Singular Value Decomposition of `matrix` using implicit shift.
     pub fn new(matrix: MatrixMN<N, R, C>, compute_u: bool, compute_v: bool) -> Self {
-        Self::try_new(matrix, compute_u, compute_v, N::Real::default_epsilon(), 0).unwrap()
+        Self::try_new(matrix, compute_u, compute_v, N::RealField::default_epsilon(), 0).unwrap()
     }
 
     /// Attempts to compute the Singular Value Decomposition of `matrix` using implicit shift.
@@ -95,7 +95,7 @@ where
         mut matrix: MatrixMN<N, R, C>,
         compute_u: bool,
         compute_v: bool,
-        eps: N::Real,
+        eps: N::RealField,
         max_niter: usize,
     ) -> Option<Self>
     {
@@ -150,7 +150,7 @@ where
 
                 for k in start..n {
                     let m12 = if k == n - 1 {
-                        N::Real::zero()
+                        N::RealField::zero()
                     } else {
                         off_diagonal[k + 1]
                     };
@@ -158,8 +158,8 @@ where
                     let mut subm = Matrix2x3::new(
                         diagonal[k],
                         off_diagonal[k],
-                        N::Real::zero(),
-                        N::Real::zero(),
+                        N::RealField::zero(),
+                        N::RealField::zero(),
                         diagonal[k + 1],
                         m12,
                     );
@@ -229,7 +229,7 @@ where
 
                 diagonal[start + 0] = s[0];
                 diagonal[start + 1] = s[1];
-                off_diagonal[start] = N::Real::zero();
+                off_diagonal[start] = N::RealField::zero();
 
                 if let Some(ref mut u) = u {
                     let rot = if b.is_upper_diagonal() {
@@ -269,7 +269,7 @@ where
         for i in 0..dim {
             let sval = diagonal[i];
 
-            if sval < N::Real::zero() {
+            if sval < N::RealField::zero() {
                 diagonal[i] = -sval;
 
                 if let Some(ref mut u) = u {
@@ -301,13 +301,13 @@ where
     */
 
     fn delimit_subproblem(
-        diagonal: &mut VectorN<N::Real, DimMinimum<R, C>>,
-        off_diagonal: &mut VectorN<N::Real, DimDiff<DimMinimum<R, C>, U1>>,
+        diagonal: &mut VectorN<N::RealField, DimMinimum<R, C>>,
+        off_diagonal: &mut VectorN<N::RealField, DimDiff<DimMinimum<R, C>, U1>>,
         u: &mut Option<MatrixMN<N, R, DimMinimum<R, C>>>,
         v_t: &mut Option<MatrixMN<N, DimMinimum<R, C>, C>>,
         is_upper_diagonal: bool,
         end: usize,
-        eps: N::Real,
+        eps: N::RealField,
     ) -> (usize, usize)
     {
         let mut n = end;
@@ -318,16 +318,16 @@ where
             if off_diagonal[m].is_zero()
                 || off_diagonal[m].norm1() <= eps * (diagonal[n].norm1() + diagonal[m].norm1())
             {
-                off_diagonal[m] = N::Real::zero();
+                off_diagonal[m] = N::RealField::zero();
             } else if diagonal[m].norm1() <= eps {
-                diagonal[m] = N::Real::zero();
+                diagonal[m] = N::RealField::zero();
                 Self::cancel_horizontal_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m, m + 1);
 
                 if m != 0 {
                     Self::cancel_vertical_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m - 1);
                 }
             } else if diagonal[n].norm1() <= eps {
-                diagonal[n] = N::Real::zero();
+                diagonal[n] = N::RealField::zero();
                 Self::cancel_vertical_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m);
             } else {
                 break;
@@ -346,12 +346,12 @@ where
 
             if off_diagonal[m].norm1() <= eps * (diagonal[new_start].norm1() + diagonal[m].norm1())
             {
-                off_diagonal[m] = N::Real::zero();
+                off_diagonal[m] = N::RealField::zero();
                 break;
             }
             // FIXME: write a test that enters this case.
             else if diagonal[m].norm1() <= eps {
-                diagonal[m] = N::Real::zero();
+                diagonal[m] = N::RealField::zero();
                 Self::cancel_horizontal_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m, n);
 
                 if m != 0 {
@@ -368,8 +368,8 @@ where
 
     // Cancels the i-th off-diagonal element using givens rotations.
     fn cancel_horizontal_off_diagonal_elt(
-        diagonal: &mut VectorN<N::Real, DimMinimum<R, C>>,
-        off_diagonal: &mut VectorN<N::Real, DimDiff<DimMinimum<R, C>, U1>>,
+        diagonal: &mut VectorN<N::RealField, DimMinimum<R, C>>,
+        off_diagonal: &mut VectorN<N::RealField, DimDiff<DimMinimum<R, C>, U1>>,
         u: &mut Option<MatrixMN<N, R, DimMinimum<R, C>>>,
         v_t: &mut Option<MatrixMN<N, DimMinimum<R, C>, C>>,
         is_upper_diagonal: bool,
@@ -378,7 +378,7 @@ where
     )
     {
         let mut v = Vector2::new(off_diagonal[i], diagonal[i + 1]);
-        off_diagonal[i] = N::Real::zero();
+        off_diagonal[i] = N::RealField::zero();
 
         for k in i..end {
             if let Some((rot, norm)) = GivensRotation::cancel_x(&v) {
@@ -407,8 +407,8 @@ where
 
     // Cancels the i-th off-diagonal element using givens rotations.
     fn cancel_vertical_off_diagonal_elt(
-        diagonal: &mut VectorN<N::Real, DimMinimum<R, C>>,
-        off_diagonal: &mut VectorN<N::Real, DimDiff<DimMinimum<R, C>, U1>>,
+        diagonal: &mut VectorN<N::RealField, DimMinimum<R, C>>,
+        off_diagonal: &mut VectorN<N::RealField, DimDiff<DimMinimum<R, C>, U1>>,
         u: &mut Option<MatrixMN<N, R, DimMinimum<R, C>>>,
         v_t: &mut Option<MatrixMN<N, DimMinimum<R, C>, C>>,
         is_upper_diagonal: bool,
@@ -416,7 +416,7 @@ where
     )
     {
         let mut v = Vector2::new(diagonal[i], off_diagonal[i]);
-        off_diagonal[i] = N::Real::zero();
+        off_diagonal[i] = N::RealField::zero();
 
         for k in (0..i + 1).rev() {
             if let Some((rot, norm)) = GivensRotation::cancel_y(&v) {
@@ -445,9 +445,9 @@ where
 
     /// Computes the rank of the decomposed matrix, i.e., the number of singular values greater
     /// than `eps`.
-    pub fn rank(&self, eps: N::Real) -> usize {
+    pub fn rank(&self, eps: N::RealField) -> usize {
         assert!(
-            eps >= N::Real::zero(),
+            eps >= N::RealField::zero(),
             "SVD rank: the epsilon must be non-negative."
         );
         self.singular_values.iter().filter(|e| **e > eps).count()
@@ -478,11 +478,11 @@ where
     /// Any singular value smaller than `eps` is assumed to be zero.
     /// Returns `Err` if the right- and left- singular vectors have not
     /// been computed at construction-time.
-    pub fn pseudo_inverse(mut self, eps: N::Real) -> Result<MatrixMN<N, C, R>, &'static str>
+    pub fn pseudo_inverse(mut self, eps: N::RealField) -> Result<MatrixMN<N, C, R>, &'static str>
     where
         DefaultAllocator: Allocator<N, C, R>,
     {
-        if eps < N::Real::zero() {
+        if eps < N::RealField::zero() {
             Err("SVD pseudo inverse: the epsilon must be non-negative.")
         }
         else {
@@ -490,9 +490,9 @@ where
                 let val = self.singular_values[i];
 
                 if val > eps {
-                    self.singular_values[i] = N::Real::one() / val;
+                    self.singular_values[i] = N::RealField::one() / val;
                 } else {
-                    self.singular_values[i] = N::Real::zero();
+                    self.singular_values[i] = N::RealField::zero();
                 }
             }
 
@@ -508,14 +508,14 @@ where
     pub fn solve<R2: Dim, C2: Dim, S2>(
         &self,
         b: &Matrix<N, R2, C2, S2>,
-        eps: N::Real,
+        eps: N::RealField,
     ) -> Result<MatrixMN<N, C, C2>, &'static str>
     where
         S2: Storage<N, R2, C2>,
         DefaultAllocator: Allocator<N, C, C2> + Allocator<N, DimMinimum<R, C>, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2>,
     {
-        if eps < N::Real::zero() {
+        if eps < N::RealField::zero() {
             Err("SVD solve: the epsilon must be non-negative.")
         }
         else {
@@ -556,8 +556,8 @@ where
         + Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
         + Allocator<N, DimMinimum<R, C>>
-        + Allocator<N::Real, DimMinimum<R, C>>
-        + Allocator<N::Real, DimDiff<DimMinimum<R, C>, U1>>,
+        + Allocator<N::RealField, DimMinimum<R, C>>
+        + Allocator<N::RealField, DimDiff<DimMinimum<R, C>, U1>>,
 {
     /// Computes the Singular Value Decomposition using implicit shift.
     pub fn svd(self, compute_u: bool, compute_v: bool) -> SVD<N, R, C> {
@@ -578,7 +578,7 @@ where
         self,
         compute_u: bool,
         compute_v: bool,
-        eps: N::Real,
+        eps: N::RealField,
         max_niter: usize,
     ) -> Option<SVD<N, R, C>>
     {
@@ -586,14 +586,14 @@ where
     }
 
     /// Computes the singular values of this matrix.
-    pub fn singular_values(&self) -> VectorN<N::Real, DimMinimum<R, C>> {
+    pub fn singular_values(&self) -> VectorN<N::RealField, DimMinimum<R, C>> {
         SVD::new(self.clone_owned(), false, false).singular_values
     }
 
     /// Computes the rank of this matrix.
     ///
     /// All singular values below `eps` are considered equal to 0.
-    pub fn rank(&self, eps: N::Real) -> usize {
+    pub fn rank(&self, eps: N::RealField) -> usize {
         let svd = SVD::new(self.clone_owned(), false, false);
         svd.rank(eps)
     }
@@ -601,7 +601,7 @@ where
     /// Computes the pseudo-inverse of this matrix.
     ///
     /// All singular values below `eps` are considered equal to 0.
-    pub fn pseudo_inverse(self, eps: N::Real) -> Result<MatrixMN<N, C, R>, &'static str>
+    pub fn pseudo_inverse(self, eps: N::RealField) -> Result<MatrixMN<N, C, R>, &'static str>
     where
         DefaultAllocator: Allocator<N, C, R>,
     {
@@ -613,7 +613,7 @@ where
 // Explicit formulae inspired from the paper "Computing the Singular Values of 2-by-2 Complex
 // Matrices", Sanzheng Qiao and Xiaohong Wang.
 // http://www.cas.mcmaster.ca/sqrl/papers/sqrl5.pdf
-fn compute_2x2_uptrig_svd<N: Real>(
+fn compute_2x2_uptrig_svd<N: RealField>(
     m11: N,
     m12: N,
     m22: N,
@@ -621,8 +621,8 @@ fn compute_2x2_uptrig_svd<N: Real>(
     compute_v: bool,
 ) -> (Option<GivensRotation<N>>, Vector2<N>, Option<GivensRotation<N>>)
 {
-    let two: N::Real = crate::convert(2.0f64);
-    let half: N::Real = crate::convert(0.5f64);
+    let two: N::RealField = crate::convert(2.0f64);
+    let half: N::RealField = crate::convert(0.5f64);
 
     let denom = (m11 + m22).hypot(m12) + (m11 - m22).hypot(m12);
 

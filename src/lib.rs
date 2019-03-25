@@ -4,8 +4,8 @@
 **nalgebra** is a linear algebra library written for Rust targeting:
 
 * General-purpose linear algebra (still lacks a lot of features…)
-* Real time computer graphics.
-* Real time computer physics.
+* RealField time computer graphics.
+* RealField time computer physics.
 
 ## Using **nalgebra**
 You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
@@ -160,7 +160,7 @@ use alga::linear::SquareMatrix as AlgaSquareMatrix;
 use alga::linear::{EuclideanSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace};
 use num::Signed;
 
-pub use alga::general::{Id, Real, ComplexField};
+pub use alga::general::{Id, RealField, ComplexField};
 
 /*
  *
@@ -297,8 +297,8 @@ pub fn min<T: Ord>(a: T, b: T) -> T {
 
 /// The absolute value of `a`.
 ///
-/// Deprecated: Use [Matrix::abs] or [Real::abs] instead.
-#[deprecated(note = "use `Matrix::abs` or `Real::abs` instead")]
+/// Deprecated: Use [Matrix::abs] or [RealField::abs] instead.
+#[deprecated(note = "use `Matrix::abs` or `RealField::abs` instead")]
 #[inline]
 pub fn abs<T: Signed>(a: &T) -> T {
     a.abs()
@@ -460,7 +460,7 @@ pub fn dot<V: FiniteDimVectorSpace>(a: &V, b: &V) -> V::Field {
 /// Or, use [InnerSpace::angle](https://docs.rs/alga/0.7.2/alga/linear/trait.InnerSpace.html#method.angle).
 #[deprecated(note = "use `Matrix::angle` instead")]
 #[inline]
-pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
+pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::RealField {
     a.angle(b)
 }
 
@@ -484,7 +484,7 @@ pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
 /// Or, use [NormedSpace::norm](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm).
 #[deprecated(note = "use `Matrix::norm` or `Quaternion::norm` instead")]
 #[inline]
-pub fn norm<V: NormedSpace>(v: &V) -> V::Real {
+pub fn norm<V: NormedSpace>(v: &V) -> V::RealField {
     v.norm()
 }
 
@@ -504,7 +504,7 @@ pub fn norm<V: NormedSpace>(v: &V) -> V::Real {
 /// Or, use [NormedSpace::norm_squared](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm_squared).
 #[deprecated(note = "use `Matrix::norm_squared` or `Quaternion::norm_squared` instead")]
 #[inline]
-pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Real {
+pub fn norm_squared<V: NormedSpace>(v: &V) -> V::RealField {
     v.norm_squared()
 }
 
@@ -524,7 +524,7 @@ pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Real {
 /// Or, use [NormedSpace::norm](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm).
 #[deprecated(note = "use `Matrix::magnitude` or `Quaternion::magnitude` instead")]
 #[inline]
-pub fn magnitude<V: NormedSpace>(v: &V) -> V::Real {
+pub fn magnitude<V: NormedSpace>(v: &V) -> V::RealField {
     v.norm()
 }
 
@@ -545,7 +545,7 @@ pub fn magnitude<V: NormedSpace>(v: &V) -> V::Real {
 /// Or, use [NormedSpace::norm_squared](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm_squared).
 #[deprecated(note = "use `Matrix::magnitude_squared` or `Quaternion::magnitude_squared` instead")]
 #[inline]
-pub fn magnitude_squared<V: NormedSpace>(v: &V) -> V::Real {
+pub fn magnitude_squared<V: NormedSpace>(v: &V) -> V::RealField {
     v.norm_squared()
 }
 
@@ -573,7 +573,7 @@ pub fn normalize<V: NormedSpace>(v: &V) -> V {
 /// Or, use [NormedSpace::try_normalize](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.try_normalize).
 #[deprecated(note = "use `Matrix::try_normalize` or `Quaternion::try_normalize` instead")]
 #[inline]
-pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::Real) -> Option<V> {
+pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::RealField) -> Option<V> {
     v.try_normalize(min_norm)
 }
 
@@ -600,7 +600,7 @@ pub fn center<P: EuclideanSpace>(p1: &P, p2: &P) -> P {
 /// * [center](fn.center.html)
 /// * [distance_squared](fn.distance_squared.html)
 #[inline]
-pub fn distance<P: EuclideanSpace>(p1: &P, p2: &P) -> P::Real {
+pub fn distance<P: EuclideanSpace>(p1: &P, p2: &P) -> P::RealField {
     (p2.coordinates() - p1.coordinates()).norm()
 }
 
@@ -611,7 +611,7 @@ pub fn distance<P: EuclideanSpace>(p1: &P, p2: &P) -> P::Real {
 /// * [center](fn.center.html)
 /// * [distance](fn.distance.html)
 #[inline]
-pub fn distance_squared<P: EuclideanSpace>(p1: &P, p2: &P) -> P::Real {
+pub fn distance_squared<P: EuclideanSpace>(p1: &P, p2: &P) -> P::RealField {
     (p2.coordinates() - p1.coordinates()).norm_squared()
 }
 

@@ -98,9 +98,9 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 
     /// Retrieve the orthogonal transformation, diagonal, and off diagonal elements of this
     /// decomposition.
-    pub fn unpack(self) -> (MatrixN<N, D>, VectorN<N::Real, D>, VectorN<N::Real, DimDiff<D, U1>>)
-    where DefaultAllocator: Allocator<N::Real, D>
-                          + Allocator<N::Real, DimDiff<D, U1>> {
+    pub fn unpack(self) -> (MatrixN<N, D>, VectorN<N::RealField, D>, VectorN<N::RealField, DimDiff<D, U1>>)
+    where DefaultAllocator: Allocator<N::RealField, D>
+                          + Allocator<N::RealField, DimDiff<D, U1>> {
         let diag = self.diagonal();
         let q = self.q();
 
@@ -108,19 +108,19 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
     }
 
     /// Retrieve the diagonal, and off diagonal elements of this decomposition.
-    pub fn unpack_tridiagonal(self) -> (VectorN<N::Real, D>, VectorN<N::Real, DimDiff<D, U1>>)
-        where DefaultAllocator: Allocator<N::Real, D>
-                              + Allocator<N::Real, DimDiff<D, U1>> {
+    pub fn unpack_tridiagonal(self) -> (VectorN<N::RealField, D>, VectorN<N::RealField, DimDiff<D, U1>>)
+        where DefaultAllocator: Allocator<N::RealField, D>
+                              + Allocator<N::RealField, DimDiff<D, U1>> {
         (self.diagonal(), self.off_diagonal.map(N::modulus))
     }
 
     /// The diagonal components of this decomposition.
-    pub fn diagonal(&self) -> VectorN<N::Real, D>
-    where DefaultAllocator: Allocator<N::Real, D> { self.tri.map_diagonal(|e| e.real()) }
+    pub fn diagonal(&self) -> VectorN<N::RealField, D>
+    where DefaultAllocator: Allocator<N::RealField, D> { self.tri.map_diagonal(|e| e.real()) }
 
     /// The off-diagonal components of this decomposition.
-    pub fn off_diagonal(&self) -> VectorN<N::Real, DimDiff<D, U1>>
-    where DefaultAllocator: Allocator<N::Real, DimDiff<D, U1>> {
+    pub fn off_diagonal(&self) -> VectorN<N::RealField, DimDiff<D, U1>>
+    where DefaultAllocator: Allocator<N::RealField, DimDiff<D, U1>> {
         self.off_diagonal.map(N::modulus)
     }
 

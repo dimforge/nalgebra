@@ -1,4 +1,4 @@
-use na::{DefaultAllocator, Real};
+use na::{DefaultAllocator, RealField};
 
 use crate::aliases::{TVec, TVec3};
 use crate::traits::{Alloc, Dimension, Number};
@@ -13,7 +13,7 @@ pub fn cross<N: Number, D: Dimension>(x: &TVec3<N>, y: &TVec3<N>) -> TVec3<N> {
 /// # See also:
 ///
 /// * [`distance2`](fn.distance2.html)
-pub fn distance<N: Real, D: Dimension>(p0: &TVec<N, D>, p1: &TVec<N, D>) -> N
+pub fn distance<N: RealField, D: Dimension>(p0: &TVec<N, D>, p1: &TVec<N, D>) -> N
 where DefaultAllocator: Alloc<N, D> {
     (p1 - p0).norm()
 }
@@ -49,7 +49,7 @@ where
 /// * [`length2`](fn.length2.html)
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
-pub fn length<N: Real, D: Dimension>(x: &TVec<N, D>) -> N
+pub fn length<N: RealField, D: Dimension>(x: &TVec<N, D>) -> N
 where DefaultAllocator: Alloc<N, D> {
     x.norm()
 }
@@ -63,13 +63,13 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`length`](fn.length.html)
 /// * [`magnitude2`](fn.magnitude2.html)
 /// * [`nalgebra::norm`](../nalgebra/fn.norm.html)
-pub fn magnitude<N: Real, D: Dimension>(x: &TVec<N, D>) -> N
+pub fn magnitude<N: RealField, D: Dimension>(x: &TVec<N, D>) -> N
 where DefaultAllocator: Alloc<N, D> {
     x.norm()
 }
 
 /// Normalizes a vector.
-pub fn normalize<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
+pub fn normalize<N: RealField, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 where DefaultAllocator: Alloc<N, D> {
     x.normalize()
 }
@@ -82,7 +82,7 @@ where DefaultAllocator: Alloc<N, D> {
 }
 
 /// For the incident vector `i` and surface normal `n`, and the ratio of indices of refraction `eta`, return the refraction vector.
-pub fn refract_vec<N: Real, D: Dimension>(i: &TVec<N, D>, n: &TVec<N, D>, eta: N) -> TVec<N, D>
+pub fn refract_vec<N: RealField, D: Dimension>(i: &TVec<N, D>, n: &TVec<N, D>, eta: N) -> TVec<N, D>
 where DefaultAllocator: Alloc<N, D> {
     let ni = n.dot(i);
     let k = N::one() - eta * eta * (N::one() - ni * ni);

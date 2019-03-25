@@ -2,14 +2,14 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num_complex::Complex;
 use std::fmt;
 
-use alga::general::Real;
+use alga::general::RealField;
 use crate::base::{Matrix2, Matrix3, Unit, Vector1};
 use crate::geometry::Rotation2;
 
 /// A complex number with a norm equal to 1.
 pub type UnitComplex<N> = Unit<Complex<N>>;
 
-impl<N: Real> UnitComplex<N> {
+impl<N: RealField> UnitComplex<N> {
     /// The rotation angle in `]-pi; pi]` of this unit complex number.
     ///
     /// # Example
@@ -253,13 +253,13 @@ impl<N: Real> UnitComplex<N> {
     }
 }
 
-impl<N: Real + fmt::Display> fmt::Display for UnitComplex<N> {
+impl<N: RealField + fmt::Display> fmt::Display for UnitComplex<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "UnitComplex angle: {}", self.angle())
     }
 }
 
-impl<N: Real> AbsDiffEq for UnitComplex<N> {
+impl<N: RealField> AbsDiffEq for UnitComplex<N> {
     type Epsilon = N;
 
     #[inline]
@@ -273,7 +273,7 @@ impl<N: Real> AbsDiffEq for UnitComplex<N> {
     }
 }
 
-impl<N: Real> RelativeEq for UnitComplex<N> {
+impl<N: RealField> RelativeEq for UnitComplex<N> {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
@@ -292,7 +292,7 @@ impl<N: Real> RelativeEq for UnitComplex<N> {
     }
 }
 
-impl<N: Real> UlpsEq for UnitComplex<N> {
+impl<N: RealField> UlpsEq for UnitComplex<N> {
     #[inline]
     fn default_max_ulps() -> u32 {
         N::default_max_ulps()

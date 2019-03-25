@@ -5,12 +5,12 @@ use quickcheck::{Arbitrary, Gen};
 use rand::distributions::{Standard, Distribution};
 use rand::Rng;
 use num_complex::Complex;
-use na::Real;
+use na::RealField;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct RandComplex<N>(pub Complex<N>);
 
-impl<N: Arbitrary + Real> Arbitrary for RandComplex<N> {
+impl<N: Arbitrary + RealField> Arbitrary for RandComplex<N> {
     #[inline]
     fn arbitrary<G: Gen>(rng: &mut G) -> Self {
         let im = Arbitrary::arbitrary(rng);
@@ -19,7 +19,7 @@ impl<N: Arbitrary + Real> Arbitrary for RandComplex<N> {
     }
 }
 
-impl<N: Real> Distribution<RandComplex<N>> for Standard
+impl<N: RealField> Distribution<RandComplex<N>> for Standard
     where
         Standard: Distribution<N>,
 {
@@ -43,7 +43,7 @@ impl<N: Arbitrary> Arbitrary for RandScalar<N> {
     }
 }
 
-impl<N: Real> Distribution<RandScalar<N>> for Standard
+impl<N: RealField> Distribution<RandScalar<N>> for Standard
     where
         Standard: Distribution<N>,
 {

@@ -3,7 +3,7 @@ use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
-use alga::general::Real;
+use alga::general::RealField;
 use num::Zero;
 use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
@@ -20,7 +20,7 @@ use crate::geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
  * 2D Rotation matrix.
  *
  */
-impl<N: Real> Rotation2<N> {
+impl<N: RealField> Rotation2<N> {
     /// Builds a 2 dimensional rotation matrix from an angle in radian.
     ///
     /// # Example
@@ -232,7 +232,7 @@ impl<N: Real> Rotation2<N> {
     }
 }
 
-impl<N: Real> Distribution<Rotation2<N>> for Standard
+impl<N: RealField> Distribution<Rotation2<N>> for Standard
 where OpenClosed01: Distribution<N>
 {
     /// Generate a uniformly distributed random rotation.
@@ -243,7 +243,7 @@ where OpenClosed01: Distribution<N>
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Real + Arbitrary> Arbitrary for Rotation2<N>
+impl<N: RealField + Arbitrary> Arbitrary for Rotation2<N>
 where Owned<N, U2, U2>: Send
 {
     #[inline]
@@ -257,7 +257,7 @@ where Owned<N, U2, U2>: Send
  * 3D Rotation matrix.
  *
  */
-impl<N: Real> Rotation3<N> {
+impl<N: RealField> Rotation3<N> {
     /// Builds a 3 dimensional rotation matrix from an axis and an angle.
     ///
     /// # Arguments
@@ -819,7 +819,7 @@ impl<N: Real> Rotation3<N> {
     }
 }
 
-impl<N: Real> Distribution<Rotation3<N>> for Standard
+impl<N: RealField> Distribution<Rotation3<N>> for Standard
 where OpenClosed01: Distribution<N>
 {
     /// Generate a uniformly distributed random rotation.
@@ -859,7 +859,7 @@ where OpenClosed01: Distribution<N>
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Real + Arbitrary> Arbitrary for Rotation3<N>
+impl<N: RealField + Arbitrary> Arbitrary for Rotation3<N>
 where
     Owned<N, U3, U3>: Send,
     Owned<N, U3>: Send,

@@ -1,7 +1,7 @@
 use num::Zero;
 use num_complex::Complex;
 
-use alga::general::{Real, SubsetOf, SupersetOf};
+use alga::general::{RealField, SubsetOf, SupersetOf};
 use alga::linear::Rotation as AlgaRotation;
 
 use crate::base::dimension::U2;
@@ -28,8 +28,8 @@ use crate::geometry::{
 
 impl<N1, N2> SubsetOf<UnitComplex<N2>> for UnitComplex<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> UnitComplex<N2> {
@@ -49,8 +49,8 @@ where
 
 impl<N1, N2> SubsetOf<Rotation2<N2>> for UnitComplex<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> Rotation2<N2> {
@@ -72,8 +72,8 @@ where
 
 impl<N1, N2, R> SubsetOf<Isometry<N2, U2, R>> for UnitComplex<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: AlgaRotation<Point2<N2>> + SupersetOf<Self>,
 {
     #[inline]
@@ -94,8 +94,8 @@ where
 
 impl<N1, N2, R> SubsetOf<Similarity<N2, U2, R>> for UnitComplex<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: AlgaRotation<Point2<N2>> + SupersetOf<Self>,
 {
     #[inline]
@@ -116,8 +116,8 @@ where
 
 impl<N1, N2, C> SubsetOf<Transform<N2, U2, C>> for UnitComplex<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
 {
     #[inline]
@@ -136,7 +136,7 @@ where
     }
 }
 
-impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix3<N2>> for UnitComplex<N1> {
+impl<N1: RealField, N2: RealField + SupersetOf<N1>> SubsetOf<Matrix3<N2>> for UnitComplex<N1> {
     #[inline]
     fn to_superset(&self) -> Matrix3<N2> {
         self.to_homogeneous().to_superset()
@@ -155,28 +155,28 @@ impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix3<N2>> for UnitComplex<
 }
 
 
-impl<N: Real> From<UnitComplex<N>> for Rotation2<N> {
+impl<N: RealField> From<UnitComplex<N>> for Rotation2<N> {
     #[inline]
     fn from(q: UnitComplex<N>) -> Self {
         q.to_rotation_matrix()
     }
 }
 
-impl<N: Real> From<Rotation2<N>> for UnitComplex<N> {
+impl<N: RealField> From<Rotation2<N>> for UnitComplex<N> {
     #[inline]
     fn from(q: Rotation2<N>) -> Self {
         Self::from_rotation_matrix(&q)
     }
 }
 
-impl<N: Real> From<UnitComplex<N>> for Matrix3<N> {
+impl<N: RealField> From<UnitComplex<N>> for Matrix3<N> {
     #[inline]
     fn from(q: UnitComplex<N>) -> Matrix3<N> {
         q.to_homogeneous()
     }
 }
 
-impl<N: Real> From<UnitComplex<N>> for Matrix2<N> {
+impl<N: RealField> From<UnitComplex<N>> for Matrix2<N> {
     #[inline]
     fn from(q: UnitComplex<N>) -> Self {
         q.to_rotation_matrix().into_inner()

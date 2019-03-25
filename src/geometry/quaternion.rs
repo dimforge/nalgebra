@@ -13,7 +13,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::Real;
+use alga::general::RealField;
 
 use crate::base::dimension::{U1, U3, U4};
 use crate::base::storage::{CStride, RStride};
@@ -25,13 +25,13 @@ use crate::geometry::Rotation;
 /// that may be used as a rotation.
 #[repr(C)]
 #[derive(Debug)]
-pub struct Quaternion<N: Real> {
+pub struct Quaternion<N: RealField> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<N>,
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: Real> Abomonation for Quaternion<N>
+impl<N: RealField> Abomonation for Quaternion<N>
 where Vector4<N>: Abomonation
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
@@ -47,9 +47,9 @@ where Vector4<N>: Abomonation
     }
 }
 
-impl<N: Real + Eq> Eq for Quaternion<N> {}
+impl<N: RealField + Eq> Eq for Quaternion<N> {}
 
-impl<N: Real> PartialEq for Quaternion<N> {
+impl<N: RealField> PartialEq for Quaternion<N> {
     fn eq(&self, rhs: &Self) -> bool {
         self.coords == rhs.coords ||
         // Account for the double-covering of S², i.e. q = -q
@@ -57,15 +57,15 @@ impl<N: Real> PartialEq for Quaternion<N> {
     }
 }
 
-impl<N: Real + hash::Hash> hash::Hash for Quaternion<N> {
+impl<N: RealField + hash::Hash> hash::Hash for Quaternion<N> {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.coords.hash(state)
     }
 }
 
-impl<N: Real> Copy for Quaternion<N> {}
+impl<N: RealField> Copy for Quaternion<N> {}
 
-impl<N: Real> Clone for Quaternion<N> {
+impl<N: RealField> Clone for Quaternion<N> {
     #[inline]
     fn clone(&self) -> Self {
         Self::from(self.coords.clone())
@@ -73,7 +73,7 @@ impl<N: Real> Clone for Quaternion<N> {
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Real> Serialize for Quaternion<N>
+impl<N: RealField> Serialize for Quaternion<N>
 where Owned<N, U4>: Serialize
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -83,7 +83,7 @@ where Owned<N, U4>: Serialize
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Real> Deserialize<'a> for Quaternion<N>
+impl<'a, N: RealField> Deserialize<'a> for Quaternion<N>
 where Owned<N, U4>: Deserialize<'a>
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
@@ -94,7 +94,7 @@ where Owned<N, U4>: Deserialize<'a>
     }
 }
 
-impl<N: Real> Quaternion<N> {
+impl<N: RealField> Quaternion<N> {
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
     #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
@@ -508,7 +508,7 @@ impl<N: Real> Quaternion<N> {
     }
 }
 
-impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
+impl<N: RealField + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
     type Epsilon = N;
 
     #[inline]
@@ -524,7 +524,7 @@ impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
     }
 }
 
-impl<N: Real + RelativeEq<Epsilon = N>> RelativeEq for Quaternion<N> {
+impl<N: RealField + RelativeEq<Epsilon = N>> RelativeEq for Quaternion<N> {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
@@ -544,7 +544,7 @@ impl<N: Real + RelativeEq<Epsilon = N>> RelativeEq for Quaternion<N> {
     }
 }
 
-impl<N: Real + UlpsEq<Epsilon = N>> UlpsEq for Quaternion<N> {
+impl<N: RealField + UlpsEq<Epsilon = N>> UlpsEq for Quaternion<N> {
     #[inline]
     fn default_max_ulps() -> u32 {
         N::default_max_ulps()
@@ -558,7 +558,7 @@ impl<N: Real + UlpsEq<Epsilon = N>> UlpsEq for Quaternion<N> {
     }
 }
 
-impl<N: Real + fmt::Display> fmt::Display for Quaternion<N> {
+impl<N: RealField + fmt::Display> fmt::Display for Quaternion<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -571,7 +571,7 @@ impl<N: Real + fmt::Display> fmt::Display for Quaternion<N> {
 /// A unit quaternions. May be used to represent a rotation.
 pub type UnitQuaternion<N> = Unit<Quaternion<N>>;
 
-impl<N: Real> UnitQuaternion<N> {
+impl<N: RealField> UnitQuaternion<N> {
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
     #[deprecated(
@@ -1007,7 +1007,7 @@ impl<N: Real> UnitQuaternion<N> {
     }
 }
 
-impl<N: Real + fmt::Display> fmt::Display for UnitQuaternion<N> {
+impl<N: RealField + fmt::Display> fmt::Display for UnitQuaternion<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(axis) = self.axis() {
             let axis = axis.into_inner();
@@ -1029,7 +1029,7 @@ impl<N: Real + fmt::Display> fmt::Display for UnitQuaternion<N> {
     }
 }
 
-impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for UnitQuaternion<N> {
+impl<N: RealField + AbsDiffEq<Epsilon = N>> AbsDiffEq for UnitQuaternion<N> {
     type Epsilon = N;
 
     #[inline]
@@ -1043,7 +1043,7 @@ impl<N: Real + AbsDiffEq<Epsilon = N>> AbsDiffEq for UnitQuaternion<N> {
     }
 }
 
-impl<N: Real + RelativeEq<Epsilon = N>> RelativeEq for UnitQuaternion<N> {
+impl<N: RealField + RelativeEq<Epsilon = N>> RelativeEq for UnitQuaternion<N> {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
@@ -1062,7 +1062,7 @@ impl<N: Real + RelativeEq<Epsilon = N>> RelativeEq for UnitQuaternion<N> {
     }
 }
 
-impl<N: Real + UlpsEq<Epsilon = N>> UlpsEq for UnitQuaternion<N> {
+impl<N: RealField + UlpsEq<Epsilon = N>> UlpsEq for UnitQuaternion<N> {
     #[inline]
     fn default_max_ulps() -> u32 {
         N::default_max_ulps()

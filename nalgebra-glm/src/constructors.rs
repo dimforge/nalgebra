@@ -1,6 +1,6 @@
 #![cfg_attr(rustfmt, rustfmt_skip)]
 
-use na::{Scalar, Real, U2, U3, U4};
+use na::{Scalar, RealField, U2, U3, U4};
 use crate::aliases::{TMat, Qua, TVec1, TVec2, TVec3, TVec4, TMat2, TMat2x3, TMat2x4, TMat3, TMat3x2, TMat3x4,
               TMat4, TMat4x2, TMat4x3};
 
@@ -168,6 +168,6 @@ pub fn mat4<N: Scalar>(m11: N, m12: N, m13: N, m14: N,
 }
 
 /// Creates a new quaternion.
-pub fn quat<N: Real>(x: N, y: N, z: N, w: N) -> Qua<N> {
+pub fn quat<N: RealField>(x: N, y: N, z: N, w: N) -> Qua<N> {
     Qua::new(w, x, y, z)
 }

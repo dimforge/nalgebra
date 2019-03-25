@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{Real, SubsetOf};
+use alga::general::{RealField, SubsetOf};
 use alga::linear::Rotation;
 
 use crate::base::allocator::Allocator;
@@ -36,7 +36,7 @@ use crate::geometry::{Point, Translation};
                        DefaultAllocator: Allocator<N, D>,
                        Owned<N, D>: Deserialize<'de>"))
 )]
-pub struct Isometry<N: Real, D: DimName, R>
+pub struct Isometry<N: RealField, D: DimName, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// The pure rotational part of this isometry.
@@ -55,7 +55,7 @@ where DefaultAllocator: Allocator<N, D>
 #[cfg(feature = "abomonation-serialize")]
 impl<N, D, R> Abomonation for Isometry<N, D, R>
 where
-    N: Real,
+    N: RealField,
     D: DimName,
     R: Abomonation,
     Translation<N, D>: Abomonation,
@@ -77,7 +77,7 @@ where
     }
 }
 
-impl<N: Real + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash for Isometry<N, D, R>
+impl<N: RealField + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash for Isometry<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: hash::Hash,
@@ -88,14 +88,14 @@ where
     }
 }
 
-impl<N: Real, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Isometry<N, D, R>
+impl<N: RealField, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Isometry<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
 {
 }
 
-impl<N: Real, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Isometry<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -104,7 +104,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName, R: Rotation<Point<N, D>>> Isometry<N, D, R>
+impl<N: RealField, D: DimName, R: Rotation<Point<N, D>>> Isometry<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new isometry from its rotational and translational parts.
@@ -260,7 +260,7 @@ where DefaultAllocator: Allocator<N, D>
 // and makes it hard to use it, e.g., for Transform × Isometry implementation.
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the dummy ZST field).
-impl<N: Real, D: DimName, R> Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> Isometry<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Converts this isometry into its equivalent homogeneous transformation matrix.
@@ -293,14 +293,14 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName, R> Eq for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> Eq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + Eq,
     DefaultAllocator: Allocator<N, D>,
 {
 }
 
-impl<N: Real, D: DimName, R> PartialEq for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> PartialEq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + PartialEq,
     DefaultAllocator: Allocator<N, D>,
@@ -311,7 +311,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> AbsDiffEq for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> AbsDiffEq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + AbsDiffEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
@@ -331,7 +331,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> RelativeEq for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> RelativeEq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + RelativeEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
@@ -358,7 +358,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> UlpsEq for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> UlpsEq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + UlpsEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
@@ -382,7 +382,7 @@ where
  * Display
  *
  */
-impl<N: Real + fmt::Display, D: DimName, R> fmt::Display for Isometry<N, D, R>
+impl<N: RealField + fmt::Display, D: DimName, R> fmt::Display for Isometry<N, D, R>
 where
     R: fmt::Display,
     DefaultAllocator: Allocator<N, D> + Allocator<usize, D>,

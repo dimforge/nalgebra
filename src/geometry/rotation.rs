@@ -14,7 +14,7 @@ use crate::base::storage::Owned;
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::Real;
+use alga::general::RealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -429,7 +429,7 @@ where
  */
 impl<N, D: DimName> fmt::Display for Rotation<N, D>
 where
-    N: Real + fmt::Display,
+    N: RealField + fmt::Display,
     DefaultAllocator: Allocator<N, D, D> + Allocator<usize, D, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

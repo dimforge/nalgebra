@@ -4,7 +4,7 @@ use std::cmp::Ordering;
 use na::dimension::{U15, U8};
 use na::{
     self, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4, Matrix4,
-    Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, Real, RowVector3, RowVector4, RowVector5,
+    Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RealField, RowVector3, RowVector4, RowVector5,
     Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
 };
 
@@ -1022,7 +1022,7 @@ mod finite_dim_inner_space_tests {
      *
      */
     #[cfg(feature = "arbitrary")]
-    fn is_subspace_basis<T: FiniteDimInnerSpace<Real = f64, ComplexField = f64> + Display>(vs: &[T]) -> bool {
+    fn is_subspace_basis<T: FiniteDimInnerSpace<RealField = f64, ComplexField = f64> + Display>(vs: &[T]) -> bool {
         for i in 0..vs.len() {
             // Basis elements must be normalized.
             if !relative_eq!(vs[i].norm(), 1.0, epsilon = 1.0e-7) {

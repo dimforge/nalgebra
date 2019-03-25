@@ -1,4 +1,4 @@
-use na::{self, Real, U3};
+use na::{self, RealField, U3};
 
 use crate::aliases::{TMat4, TVec2, TVec3, TVec4};
 
@@ -9,7 +9,7 @@ use crate::aliases::{TMat4, TVec2, TVec3, TVec4};
 /// * `center` - Specify the center of a picking region in window coordinates.
 /// * `delta` - Specify the width and height, respectively, of the picking region in window coordinates.
 /// * `viewport` - Rendering viewport.
-pub fn pick_matrix<N: Real>(center: &TVec2<N>, delta: &TVec2<N>, viewport: &TVec4<N>) -> TMat4<N> {
+pub fn pick_matrix<N: RealField>(center: &TVec2<N>, delta: &TVec2<N>, viewport: &TVec4<N>) -> TMat4<N> {
     let shift = TVec3::new(
         (viewport.z - (center.x - viewport.x) * na::convert(2.0)) / delta.x,
         (viewport.w - (center.y - viewport.y) * na::convert(2.0)) / delta.y,
@@ -41,7 +41,7 @@ pub fn pick_matrix<N: Real>(center: &TVec2<N>, delta: &TVec2<N>, viewport: &TVec
 /// * [`unproject`](fn.unproject.html)
 /// * [`unproject_no`](fn.unproject_no.html)
 /// * [`unproject_zo`](fn.unproject_zo.html)
-pub fn project<N: Real>(
+pub fn project<N: RealField>(
     obj: &TVec3<N>,
     model: &TMat4<N>,
     proj: &TMat4<N>,
@@ -69,7 +69,7 @@ pub fn project<N: Real>(
 /// * [`unproject`](fn.unproject.html)
 /// * [`unproject_no`](fn.unproject_no.html)
 /// * [`unproject_zo`](fn.unproject_zo.html)
-pub fn project_no<N: Real>(
+pub fn project_no<N: RealField>(
     obj: &TVec3<N>,
     model: &TMat4<N>,
     proj: &TMat4<N>,
@@ -98,7 +98,7 @@ pub fn project_no<N: Real>(
 /// * [`unproject`](fn.unproject.html)
 /// * [`unproject_no`](fn.unproject_no.html)
 /// * [`unproject_zo`](fn.unproject_zo.html)
-pub fn project_zo<N: Real>(
+pub fn project_zo<N: RealField>(
     obj: &TVec3<N>,
     model: &TMat4<N>,
     proj: &TMat4<N>,
@@ -132,7 +132,7 @@ pub fn project_zo<N: Real>(
 /// * [`project_zo`](fn.project_zo.html)
 /// * [`unproject_no`](fn.unproject_no.html)
 /// * [`unproject_zo`](fn.unproject_zo.html)
-pub fn unproject<N: Real>(
+pub fn unproject<N: RealField>(
     win: &TVec3<N>,
     model: &TMat4<N>,
     proj: &TMat4<N>,
@@ -160,7 +160,7 @@ pub fn unproject<N: Real>(
 /// * [`project_zo`](fn.project_zo.html)
 /// * [`unproject`](fn.unproject.html)
 /// * [`unproject_zo`](fn.unproject_zo.html)
-pub fn unproject_no<N: Real>(
+pub fn unproject_no<N: RealField>(
     win: &TVec3<N>,
     model: &TMat4<N>,
     proj: &TMat4<N>,
@@ -198,7 +198,7 @@ pub fn unproject_no<N: Real>(
 /// * [`project_zo`](fn.project_zo.html)
 /// * [`unproject`](fn.unproject.html)
 /// * [`unproject_no`](fn.unproject_no.html)
-pub fn unproject_zo<N: Real>(
+pub fn unproject_zo<N: RealField>(
     win: &TVec3<N>,
     model: &TMat4<N>,
     proj: &TMat4<N>,

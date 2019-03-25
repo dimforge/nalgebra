@@ -12,7 +12,7 @@ use crate::base::{Vector, Matrix};
 /// A Givens rotation.
 #[derive(Debug, Clone, Copy)]
 pub struct GivensRotation<N: ComplexField> {
-    c: N::Real,
+    c: N::RealField,
     s: N
 }
 
@@ -21,7 +21,7 @@ impl<N: ComplexField> GivensRotation<N> {
     /// The Givents rotation that does nothing.
     pub fn identity() -> Self {
         Self {
-            c: N::Real::one(),
+            c: N::RealField::one(),
             s: N::zero()
         }
     }
@@ -30,7 +30,7 @@ impl<N: ComplexField> GivensRotation<N> {
     ///
     /// The components are copies as-is. It is not checked whether they describe
     /// an actually valid Givens rotation.
-    pub fn new_unchecked(c: N::Real, s: N) -> Self {
+    pub fn new_unchecked(c: N::RealField, s: N) -> Self {
        Self {
            c, s
        }
@@ -38,11 +38,11 @@ impl<N: ComplexField> GivensRotation<N> {
 
     /// Initializes a Givens rotation from its non-normalized cosine an sine components.
     pub fn new(c: N, s: N) -> (Self, N) {
-        Self::try_new(c, s, N::Real::zero()).unwrap()
+        Self::try_new(c, s, N::RealField::zero()).unwrap()
     }
 
     /// Initializes a Givens rotation form its non-normalized cosine an sine components.
-    pub fn try_new(c: N, s: N, eps: N::Real) -> Option<(Self, N)> {
+    pub fn try_new(c: N, s: N, eps: N::RealField) -> Option<(Self, N)> {
         let (mod0, sign0) = c.to_exp();
         let denom = (mod0 * mod0 + s.modulus_squared()).sqrt();
 
@@ -91,7 +91,7 @@ impl<N: ComplexField> GivensRotation<N> {
     }
 
     /// The cos part of this roration.
-    pub fn c(&self) -> N::Real {
+    pub fn c(&self) -> N::RealField {
         self.c
     }
 

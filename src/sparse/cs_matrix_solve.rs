@@ -2,9 +2,9 @@ use crate::allocator::Allocator;
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::sparse::{CsMatrix, CsStorage, CsVector};
 use crate::storage::{Storage, StorageMut};
-use crate::{DefaultAllocator, Dim, Matrix, MatrixMN, Real, VectorN, U1};
+use crate::{DefaultAllocator, Dim, Matrix, MatrixMN, RealField, VectorN, U1};
 
-impl<N: Real, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
+impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
     /// Solve a lower-triangular system with a dense right-hand-side.
     pub fn solve_lower_triangular<R2: Dim, C2: Dim, S2>(
         &self,

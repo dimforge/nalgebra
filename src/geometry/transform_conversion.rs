@@ -1,4 +1,4 @@
-use alga::general::{Real, SubsetOf};
+use alga::general::{RealField, SubsetOf};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -8,8 +8,8 @@ use crate::geometry::{SuperTCategoryOf, TCategory, Transform};
 
 impl<N1, N2, D: DimName, C1, C2> SubsetOf<Transform<N2, D, C2>> for Transform<N1, D, C1>
 where
-    N1: Real + SubsetOf<N2>,
-    N2: Real,
+    N1: RealField + SubsetOf<N2>,
+    N2: RealField,
     C1: TCategory,
     C2: SuperTCategoryOf<C1>,
     D: DimNameAdd<U1>,
@@ -36,8 +36,8 @@ where
 
 impl<N1, N2, D: DimName, C> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Transform<N1, D, C>
 where
-    N1: Real + SubsetOf<N2>,
-    N2: Real,
+    N1: RealField + SubsetOf<N2>,
+    N2: RealField,
     C: TCategory,
     D: DimNameAdd<U1>,
     DefaultAllocator: Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>
@@ -61,7 +61,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, C> From<Transform<N, D, C>> for MatrixN<N, DimNameSum<D, U1>>
+impl<N: RealField, D: DimName, C> From<Transform<N, D, C>> for MatrixN<N, DimNameSum<D, U1>>
 where
     D: DimNameAdd<U1>,
     C: TCategory,

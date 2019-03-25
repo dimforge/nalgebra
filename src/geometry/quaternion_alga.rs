@@ -3,7 +3,7 @@ use num::Zero;
 use alga::general::{
     AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma, AbstractModule,
     AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, Additive, Id, Identity, TwoSidedInverse, Module,
-    Multiplicative, Real,
+    Multiplicative, RealField,
 };
 use alga::linear::{
     AffineTransformation, DirectIsometry, FiniteDimVectorSpace, Isometry, NormedSpace,
@@ -14,35 +14,35 @@ use alga::linear::{
 use crate::base::{Vector3, Vector4};
 use crate::geometry::{Point3, Quaternion, UnitQuaternion};
 
-impl<N: Real> Identity<Multiplicative> for Quaternion<N> {
+impl<N: RealField> Identity<Multiplicative> for Quaternion<N> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N: Real> Identity<Additive> for Quaternion<N> {
+impl<N: RealField> Identity<Additive> for Quaternion<N> {
     #[inline]
     fn identity() -> Self {
         Self::zero()
     }
 }
 
-impl<N: Real> AbstractMagma<Multiplicative> for Quaternion<N> {
+impl<N: RealField> AbstractMagma<Multiplicative> for Quaternion<N> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
     }
 }
 
-impl<N: Real> AbstractMagma<Additive> for Quaternion<N> {
+impl<N: RealField> AbstractMagma<Additive> for Quaternion<N> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self + rhs
     }
 }
 
-impl<N: Real> TwoSidedInverse<Additive> for Quaternion<N> {
+impl<N: RealField> TwoSidedInverse<Additive> for Quaternion<N> {
     #[inline]
     fn two_sided_inverse(&self) -> Self {
         -self
@@ -51,7 +51,7 @@ impl<N: Real> TwoSidedInverse<Additive> for Quaternion<N> {
 
 macro_rules! impl_structures(
     ($Quaternion: ident; $($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N: Real> $marker<$operator> for $Quaternion<N> { }
+        impl<N: RealField> $marker<$operator> for $Quaternion<N> { }
     )*}
 );
 
@@ -73,7 +73,7 @@ impl_structures!(
  * Vector space.
  *
  */
-impl<N: Real> AbstractModule for Quaternion<N> {
+impl<N: RealField> AbstractModule for Quaternion<N> {
     type AbstractRing = N;
 
     #[inline]
@@ -82,15 +82,15 @@ impl<N: Real> AbstractModule for Quaternion<N> {
     }
 }
 
-impl<N: Real> Module for Quaternion<N> {
+impl<N: RealField> Module for Quaternion<N> {
     type Ring = N;
 }
 
-impl<N: Real> VectorSpace for Quaternion<N> {
+impl<N: RealField> VectorSpace for Quaternion<N> {
     type Field = N;
 }
 
-impl<N: Real> FiniteDimVectorSpace for Quaternion<N> {
+impl<N: RealField> FiniteDimVectorSpace for Quaternion<N> {
     #[inline]
     fn dimension() -> usize {
         4
@@ -117,8 +117,8 @@ impl<N: Real> FiniteDimVectorSpace for Quaternion<N> {
     }
 }
 
-impl<N: Real> NormedSpace for Quaternion<N> {
-    type Real = N;
+impl<N: RealField> NormedSpace for Quaternion<N> {
+    type RealField = N;
     type ComplexField = N;
 
     #[inline]
@@ -162,21 +162,21 @@ impl<N: Real> NormedSpace for Quaternion<N> {
  * Implementations for UnitQuaternion.
  *
  */
-impl<N: Real> Identity<Multiplicative> for UnitQuaternion<N> {
+impl<N: RealField> Identity<Multiplicative> for UnitQuaternion<N> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N: Real> AbstractMagma<Multiplicative> for UnitQuaternion<N> {
+impl<N: RealField> AbstractMagma<Multiplicative> for UnitQuaternion<N> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
     }
 }
 
-impl<N: Real> TwoSidedInverse<Multiplicative> for UnitQuaternion<N> {
+impl<N: RealField> TwoSidedInverse<Multiplicative> for UnitQuaternion<N> {
     #[inline]
     fn two_sided_inverse(&self) -> Self {
         self.inverse()
@@ -197,7 +197,7 @@ impl_structures!(
     AbstractGroup<Multiplicative>
 );
 
-impl<N: Real> Transformation<Point3<N>> for UnitQuaternion<N> {
+impl<N: RealField> Transformation<Point3<N>> for UnitQuaternion<N> {
     #[inline]
     fn transform_point(&self, pt: &Point3<N>) -> Point3<N> {
         self * pt
@@ -209,7 +209,7 @@ impl<N: Real> Transformation<Point3<N>> for UnitQuaternion<N> {
     }
 }
 
-impl<N: Real> ProjectiveTransformation<Point3<N>> for UnitQuaternion<N> {
+impl<N: RealField> ProjectiveTransformation<Point3<N>> for UnitQuaternion<N> {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point3<N>) -> Point3<N> {
         // FIXME: would it be useful performancewise not to call inverse explicitly (i-e. implement
@@ -223,7 +223,7 @@ impl<N: Real> ProjectiveTransformation<Point3<N>> for UnitQuaternion<N> {
     }
 }
 
-impl<N: Real> AffineTransformation<Point3<N>> for UnitQuaternion<N> {
+impl<N: RealField> AffineTransformation<Point3<N>> for UnitQuaternion<N> {
     type Rotation = Self;
     type NonUniformScaling = Id;
     type Translation = Id;
@@ -264,7 +264,7 @@ impl<N: Real> AffineTransformation<Point3<N>> for UnitQuaternion<N> {
     }
 }
 
-impl<N: Real> Similarity<Point3<N>> for UnitQuaternion<N> {
+impl<N: RealField> Similarity<Point3<N>> for UnitQuaternion<N> {
     type Scaling = Id;
 
     #[inline]
@@ -285,13 +285,13 @@ impl<N: Real> Similarity<Point3<N>> for UnitQuaternion<N> {
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N: Real> $Trait<Point3<N>> for UnitQuaternion<N> { }
+        impl<N: RealField> $Trait<Point3<N>> for UnitQuaternion<N> { }
     )*}
 );
 
 marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
 
-impl<N: Real> Rotation<Point3<N>> for UnitQuaternion<N> {
+impl<N: RealField> Rotation<Point3<N>> for UnitQuaternion<N> {
     #[inline]
     fn powf(&self, n: N) -> Option<Self> {
         Some(self.powf(n))

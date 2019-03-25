@@ -9,7 +9,7 @@ use num::{One, Zero};
 use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
-use alga::general::Real;
+use alga::general::RealField;
 
 use crate::base::dimension::U3;
 use crate::base::storage::Storage;
@@ -19,7 +19,7 @@ use crate::base::{Unit, Vector, Vector4, Matrix3};
 
 use crate::geometry::{Quaternion, Rotation3, UnitQuaternion};
 
-impl<N: Real> Quaternion<N> {
+impl<N: RealField> Quaternion<N> {
     /// Creates a quaternion from a 4D vector. The quaternion scalar part corresponds to the `w`
     /// vector component.
     #[inline]
@@ -96,14 +96,14 @@ impl<N: Real> Quaternion<N> {
     }
 }
 
-impl<N: Real> One for Quaternion<N> {
+impl<N: RealField> One for Quaternion<N> {
     #[inline]
     fn one() -> Self {
         Self::identity()
     }
 }
 
-impl<N: Real> Zero for Quaternion<N> {
+impl<N: RealField> Zero for Quaternion<N> {
     #[inline]
     fn zero() -> Self {
         Self::new(N::zero(), N::zero(), N::zero(), N::zero())
@@ -115,7 +115,7 @@ impl<N: Real> Zero for Quaternion<N> {
     }
 }
 
-impl<N: Real> Distribution<Quaternion<N>> for Standard
+impl<N: RealField> Distribution<Quaternion<N>> for Standard
 where Standard: Distribution<N>
 {
     #[inline]
@@ -125,7 +125,7 @@ where Standard: Distribution<N>
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Real + Arbitrary> Arbitrary for Quaternion<N>
+impl<N: RealField + Arbitrary> Arbitrary for Quaternion<N>
 where Owned<N, U4>: Send
 {
     #[inline]
@@ -139,7 +139,7 @@ where Owned<N, U4>: Send
     }
 }
 
-impl<N: Real> UnitQuaternion<N> {
+impl<N: RealField> UnitQuaternion<N> {
     /// The rotation identity.
     ///
     /// # Example
@@ -669,14 +669,14 @@ impl<N: Real> UnitQuaternion<N> {
     }
 }
 
-impl<N: Real> One for UnitQuaternion<N> {
+impl<N: RealField> One for UnitQuaternion<N> {
     #[inline]
     fn one() -> Self {
         Self::identity()
     }
 }
 
-impl<N: Real> Distribution<UnitQuaternion<N>> for Standard
+impl<N: RealField> Distribution<UnitQuaternion<N>> for Standard
 where OpenClosed01: Distribution<N>
 {
     /// Generate a uniformly distributed random rotation quaternion.
@@ -701,7 +701,7 @@ where OpenClosed01: Distribution<N>
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Real + Arbitrary> Arbitrary for UnitQuaternion<N>
+impl<N: RealField + Arbitrary> Arbitrary for UnitQuaternion<N>
 where
     Owned<N, U4>: Send,
     Owned<N, U3>: Send,

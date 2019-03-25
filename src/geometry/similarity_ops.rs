@@ -1,6 +1,6 @@
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
-use alga::general::Real;
+use alga::general::RealField;
 use alga::linear::Rotation as AlgaRotation;
 
 use crate::base::allocator::Allocator;
@@ -66,7 +66,7 @@ macro_rules! similarity_binop_impl(
     ($Op: ident, $op: ident;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N: Real, D: DimName, R> $Op<$Rhs> for $Lhs
+        impl<$($lives ,)* N: RealField, D: DimName, R> $Op<$Rhs> for $Lhs
             where R: AlgaRotation<Point<N, D>>,
                   DefaultAllocator: Allocator<N, D> {
             type Output = $Output;
@@ -113,7 +113,7 @@ macro_rules! similarity_binop_assign_impl_all(
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty;
      [val] => $action_val: expr;
      [ref] => $action_ref: expr;) => {
-        impl<N: Real, D: DimName, R> $OpAssign<$Rhs> for $Lhs
+        impl<N: RealField, D: DimName, R> $OpAssign<$Rhs> for $Lhs
             where R: AlgaRotation<Point<N, D>>,
                   DefaultAllocator: Allocator<N, D> {
             #[inline]
@@ -122,7 +122,7 @@ macro_rules! similarity_binop_assign_impl_all(
             }
         }
 
-        impl<'b, N: Real, D: DimName, R> $OpAssign<&'b $Rhs> for $Lhs
+        impl<'b, N: RealField, D: DimName, R> $OpAssign<&'b $Rhs> for $Lhs
             where R: AlgaRotation<Point<N, D>>,
                   DefaultAllocator: Allocator<N, D> {
             #[inline]
@@ -379,7 +379,7 @@ macro_rules! similarity_from_composition_impl(
      ($R1: ty, $C1: ty),($R2: ty, $C2: ty) $(for $Dims: ident: $DimsBound: ident),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N: Real $(, $Dims: $DimsBound)*> $Op<$Rhs> for $Lhs
+        impl<$($lives ,)* N: RealField $(, $Dims: $DimsBound)*> $Op<$Rhs> for $Lhs
             where DefaultAllocator: Allocator<N, $R1, $C1> +
                                     Allocator<N, $R2, $C2> {
             type Output = $Output;

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use num::Zero;
 use std::ops::MulAssign;
 
-use alga::general::Real;
+use alga::general::RealField;
 
 use na::allocator::Allocator;
 use na::dimension::{Dim, U1};
@@ -52,7 +52,7 @@ where
     VectorN<N, D>: Copy,
 {}
 
-impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
+impl<N: SymmetricEigenScalar + RealField, D: Dim> SymmetricEigen<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Computes the eigenvalues and eigenvectors of the symmetric matrix `m`.

@@ -1,4 +1,4 @@
-use na::{DefaultAllocator, Quaternion, Real, Scalar};
+use na::{DefaultAllocator, Quaternion, RealField, Scalar};
 
 use crate::aliases::{
     Qua, TMat, TMat2, TMat2x3, TMat2x4, TMat3, TMat3x2, TMat3x4, TMat4, TMat4x2, TMat4x3, TVec1,
@@ -112,7 +112,7 @@ pub fn mat4_to_mat2<N: Scalar>(m: &TMat4<N>) -> TMat2<N> {
 }
 
 /// Creates a quaternion from a slice arranged as `[x, y, z, w]`.
-pub fn make_quat<N: Real>(ptr: &[N]) -> Qua<N> {
+pub fn make_quat<N: RealField>(ptr: &[N]) -> Qua<N> {
     Quaternion::from(TVec4::from_column_slice(ptr))
 }
 

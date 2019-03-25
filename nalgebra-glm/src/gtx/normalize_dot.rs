@@ -1,4 +1,4 @@
-use na::{DefaultAllocator, Real};
+use na::{DefaultAllocator, RealField};
 
 use crate::aliases::TVec;
 use crate::traits::{Alloc, Dimension};
@@ -10,7 +10,7 @@ use crate::traits::{Alloc, Dimension};
 /// # See also:
 ///
 /// * [`normalize_dot`](fn.normalize_dot.html`)
-pub fn fast_normalize_dot<N: Real, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
+pub fn fast_normalize_dot<N: RealField, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
 where DefaultAllocator: Alloc<N, D> {
     // XXX: improve those.
     x.normalize().dot(&y.normalize())
@@ -21,7 +21,7 @@ where DefaultAllocator: Alloc<N, D> {
 /// # See also:
 ///
 /// * [`fast_normalize_dot`](fn.fast_normalize_dot.html`)
-pub fn normalize_dot<N: Real, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
+pub fn normalize_dot<N: RealField, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
 where DefaultAllocator: Alloc<N, D> {
     // XXX: improve those.
     x.normalize().dot(&y.normalize())

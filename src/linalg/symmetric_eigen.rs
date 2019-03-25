@@ -19,8 +19,8 @@ use crate::linalg::SymmetricTridiagonal;
     feature = "serde-serialize",
     serde(bound(
         serialize = "DefaultAllocator: Allocator<N, D, D> +
-                           Allocator<N::Real, D>,
-         VectorN<N::Real, D>: Serialize,
+                           Allocator<N::RealField, D>,
+         VectorN<N::RealField, D>: Serialize,
          MatrixN<N, D>: Serialize"
     ))
 )]
@@ -28,31 +28,31 @@ use crate::linalg::SymmetricTridiagonal;
     feature = "serde-serialize",
     serde(bound(
         deserialize = "DefaultAllocator: Allocator<N, D, D> +
-                           Allocator<N::Real, D>,
-         VectorN<N::Real, D>: Deserialize<'de>,
+                           Allocator<N::RealField, D>,
+         VectorN<N::RealField, D>: Deserialize<'de>,
          MatrixN<N, D>: Deserialize<'de>"
     ))
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: ComplexField, D: Dim>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>
 {
     /// The eigenvectors of the decomposed matrix.
     pub eigenvectors: MatrixN<N, D>,
 
     /// The unsorted eigenvalues of the decomposed matrix.
-    pub eigenvalues: VectorN<N::Real, D>,
+    pub eigenvalues: VectorN<N::RealField, D>,
 }
 
 impl<N: ComplexField, D: Dim> Copy for SymmetricEigen<N, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>,
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>,
     MatrixN<N, D>: Copy,
-    VectorN<N::Real, D>: Copy,
+    VectorN<N::RealField, D>: Copy,
 {}
 
 impl<N: ComplexField, D: Dim> SymmetricEigen<N, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>
 {
     /// Computes the eigendecomposition of the given symmetric matrix.
     ///
@@ -61,9 +61,9 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
     where
         D: DimSub<U1>,
         DefaultAllocator: Allocator<N, DimDiff<D, U1>> + // For tridiagonalization
-        Allocator<N::Real, DimDiff<D, U1>>,
+        Allocator<N::RealField, DimDiff<D, U1>>,
     {
-        Self::try_new(m, N::Real::default_epsilon(), 0).unwrap()
+        Self::try_new(m, N::RealField::default_epsilon(), 0).unwrap()
     }
 
     /// Computes the eigendecomposition of the given symmetric matrix with user-specified
@@ -77,11 +77,11 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_new(m: MatrixN<N, D>, eps: N::Real, max_niter: usize) -> Option<Self>
+    pub fn try_new(m: MatrixN<N, D>, eps: N::RealField, max_niter: usize) -> Option<Self>
     where
         D: DimSub<U1>,
         DefaultAllocator: Allocator<N, DimDiff<D, U1>> + // For tridiagonalization
-                          Allocator<N::Real, DimDiff<D, U1>>,
+                          Allocator<N::RealField, DimDiff<D, U1>>,
     {
         Self::do_decompose(m, true, eps, max_niter).map(|(vals, vecs)| SymmetricEigen {
             eigenvectors: vecs.unwrap(),
@@ -92,13 +92,13 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
     fn do_decompose(
         mut m: MatrixN<N, D>,
         eigenvectors: bool,
-        eps: N::Real,
+        eps: N::RealField,
         max_niter: usize,
-    ) -> Option<(VectorN<N::Real, D>, Option<MatrixN<N, D>>)>
+    ) -> Option<(VectorN<N::RealField, D>, Option<MatrixN<N, D>>)>
     where
         D: DimSub<U1>,
         DefaultAllocator: Allocator<N, DimDiff<D, U1>> + // For tridiagonalization
-                          Allocator<N::Real, DimDiff<D, U1>>,
+                          Allocator<N::RealField, DimDiff<D, U1>>,
     {
         assert!(
             m.is_square(),
@@ -226,14 +226,14 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
     }
 
     fn delimit_subproblem(
-        diag: &VectorN<N::Real, D>,
-        off_diag: &mut VectorN<N::Real, DimDiff<D, U1>>,
+        diag: &VectorN<N::RealField, D>,
+        off_diag: &mut VectorN<N::RealField, DimDiff<D, U1>>,
         end: usize,
-        eps: N::Real,
+        eps: N::RealField,
     ) -> (usize, usize)
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N::Real, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<N::RealField, DimDiff<D, U1>>,
     {
         let mut n = end;
 
@@ -258,7 +258,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
             if off_diag[m].is_zero()
                 || off_diag[m].norm1() <= eps * (diag[new_start].norm1() + diag[m].norm1())
             {
-                off_diag[m] = N::Real::zero();
+                off_diag[m] = N::RealField::zero();
                 break;
             }
 
@@ -306,7 +306,7 @@ pub fn wilkinson_shift<N: ComplexField>(tmm: N, tnn: N, tmn: N) -> N {
  */
 impl<N: ComplexField, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>> +
-                        Allocator<N::Real, D> + Allocator<N::Real, DimDiff<D, U1>>
+                        Allocator<N::RealField, D> + Allocator<N::RealField, DimDiff<D, U1>>
 {
     /// Computes the eigendecomposition of this symmetric matrix.
     ///
@@ -326,15 +326,15 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>> +
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_symmetric_eigen(self, eps: N::Real, max_niter: usize) -> Option<SymmetricEigen<N, D>> {
+    pub fn try_symmetric_eigen(self, eps: N::RealField, max_niter: usize) -> Option<SymmetricEigen<N, D>> {
         SymmetricEigen::try_new(self.into_owned(), eps, max_niter)
     }
 
     /// Computes the eigenvalues of this symmetric matrix.
     ///
     /// Only the lower-triangular part of the matrix is read.
-    pub fn symmetric_eigenvalues(&self) -> VectorN<N::Real, D> {
-        SymmetricEigen::do_decompose(self.clone_owned(), false, N::Real::default_epsilon(), 0)
+    pub fn symmetric_eigenvalues(&self) -> VectorN<N::RealField, D> {
+        SymmetricEigen::do_decompose(self.clone_owned(), false, N::RealField::default_epsilon(), 0)
             .unwrap()
             .0
     }

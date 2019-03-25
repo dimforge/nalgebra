@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{Real, SubsetOf};
+use alga::general::{RealField, SubsetOf};
 use alga::linear::Rotation;
 
 use crate::base::allocator::Allocator;
@@ -41,7 +41,7 @@ use crate::geometry::{Isometry, Point, Translation};
                        Owned<N, D>: Deserialize<'de>"
     ))
 )]
-pub struct Similarity<N: Real, D: DimName, R>
+pub struct Similarity<N: RealField, D: DimName, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// The part of this similarity that does not include the scaling factor.
@@ -50,7 +50,7 @@ where DefaultAllocator: Allocator<N, D>
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: Real, D: DimName, R> Abomonation for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> Abomonation for Similarity<N, D, R>
 where
     Isometry<N, D, R>: Abomonation,
     DefaultAllocator: Allocator<N, D>,
@@ -68,7 +68,7 @@ where
     }
 }
 
-impl<N: Real + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
+impl<N: RealField + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
     for Similarity<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
@@ -80,13 +80,13 @@ where
     }
 }
 
-impl<N: Real, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Similarity<N, D, R>
+impl<N: RealField, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Similarity<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
 {}
 
-impl<N: Real, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Similarity<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -95,7 +95,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName, R> Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -244,7 +244,7 @@ where
 // and makes it harder to use it, e.g., for Transform × Isometry implementation.
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the private scaling factor).
-impl<N: Real, D: DimName, R> Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> Similarity<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Converts this similarity into its equivalent homogeneous transformation matrix.
@@ -265,13 +265,13 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName, R> Eq for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> Eq for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>> + Eq,
     DefaultAllocator: Allocator<N, D>,
 {}
 
-impl<N: Real, D: DimName, R> PartialEq for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> PartialEq for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>> + PartialEq,
     DefaultAllocator: Allocator<N, D>,
@@ -282,7 +282,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> AbsDiffEq for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> AbsDiffEq for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>> + AbsDiffEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
@@ -302,7 +302,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> RelativeEq for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> RelativeEq for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>> + RelativeEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
@@ -329,7 +329,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> UlpsEq for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> UlpsEq for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>> + UlpsEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
@@ -354,7 +354,7 @@ where
  */
 impl<N, D: DimName, R> fmt::Display for Similarity<N, D, R>
 where
-    N: Real + fmt::Display,
+    N: RealField + fmt::Display,
     R: Rotation<Point<N, D>> + fmt::Display,
     DefaultAllocator: Allocator<N, D> + Allocator<usize, D>,
 {

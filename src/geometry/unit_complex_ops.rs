@@ -1,6 +1,6 @@
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
-use alga::general::Real;
+use alga::general::RealField;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{U1, U2};
 use crate::base::storage::Storage;
@@ -44,7 +44,7 @@ use crate::geometry::{Isometry, Point2, Rotation, Similarity, Translation, UnitC
  */
 
 // UnitComplex × UnitComplex
-impl<N: Real> Mul<Self> for UnitComplex<N> {
+impl<N: RealField> Mul<Self> for UnitComplex<N> {
     type Output = Self;
 
     #[inline]
@@ -53,7 +53,7 @@ impl<N: Real> Mul<Self> for UnitComplex<N> {
     }
 }
 
-impl<'a, N: Real> Mul<UnitComplex<N>> for &'a UnitComplex<N> {
+impl<'a, N: RealField> Mul<UnitComplex<N>> for &'a UnitComplex<N> {
     type Output = UnitComplex<N>;
 
     #[inline]
@@ -62,7 +62,7 @@ impl<'a, N: Real> Mul<UnitComplex<N>> for &'a UnitComplex<N> {
     }
 }
 
-impl<'b, N: Real> Mul<&'b UnitComplex<N>> for UnitComplex<N> {
+impl<'b, N: RealField> Mul<&'b UnitComplex<N>> for UnitComplex<N> {
     type Output = Self;
 
     #[inline]
@@ -71,7 +71,7 @@ impl<'b, N: Real> Mul<&'b UnitComplex<N>> for UnitComplex<N> {
     }
 }
 
-impl<'a, 'b, N: Real> Mul<&'b UnitComplex<N>> for &'a UnitComplex<N> {
+impl<'a, 'b, N: RealField> Mul<&'b UnitComplex<N>> for &'a UnitComplex<N> {
     type Output = UnitComplex<N>;
 
     #[inline]
@@ -81,7 +81,7 @@ impl<'a, 'b, N: Real> Mul<&'b UnitComplex<N>> for &'a UnitComplex<N> {
 }
 
 // UnitComplex ÷ UnitComplex
-impl<N: Real> Div<Self> for UnitComplex<N> {
+impl<N: RealField> Div<Self> for UnitComplex<N> {
     type Output = Self;
 
     #[inline]
@@ -90,7 +90,7 @@ impl<N: Real> Div<Self> for UnitComplex<N> {
     }
 }
 
-impl<'a, N: Real> Div<UnitComplex<N>> for &'a UnitComplex<N> {
+impl<'a, N: RealField> Div<UnitComplex<N>> for &'a UnitComplex<N> {
     type Output = UnitComplex<N>;
 
     #[inline]
@@ -99,7 +99,7 @@ impl<'a, N: Real> Div<UnitComplex<N>> for &'a UnitComplex<N> {
     }
 }
 
-impl<'b, N: Real> Div<&'b UnitComplex<N>> for UnitComplex<N> {
+impl<'b, N: RealField> Div<&'b UnitComplex<N>> for UnitComplex<N> {
     type Output = Self;
 
     #[inline]
@@ -108,7 +108,7 @@ impl<'b, N: Real> Div<&'b UnitComplex<N>> for UnitComplex<N> {
     }
 }
 
-impl<'a, 'b, N: Real> Div<&'b UnitComplex<N>> for &'a UnitComplex<N> {
+impl<'a, 'b, N: RealField> Div<&'b UnitComplex<N>> for &'a UnitComplex<N> {
     type Output = UnitComplex<N>;
 
     #[inline]
@@ -122,7 +122,7 @@ macro_rules! complex_op_impl(
      ($RDim: ident, $CDim: ident) $(for $Storage: ident: $StoragesBound: ident $(<$($BoundParam: ty),*>)*),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N: Real $(, $Storage: $StoragesBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
+        impl<$($lives ,)* N: RealField $(, $Storage: $StoragesBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
             where DefaultAllocator: Allocator<N, $RDim, $CDim> {
             type Output = $Result;
 
@@ -300,14 +300,14 @@ complex_op_impl_all!(
 );
 
 // UnitComplex ×= UnitComplex
-impl<N: Real> MulAssign<UnitComplex<N>> for UnitComplex<N> {
+impl<N: RealField> MulAssign<UnitComplex<N>> for UnitComplex<N> {
     #[inline]
     fn mul_assign(&mut self, rhs: UnitComplex<N>) {
         *self = &*self * rhs
     }
 }
 
-impl<'b, N: Real> MulAssign<&'b UnitComplex<N>> for UnitComplex<N> {
+impl<'b, N: RealField> MulAssign<&'b UnitComplex<N>> for UnitComplex<N> {
     #[inline]
     fn mul_assign(&mut self, rhs: &'b UnitComplex<N>) {
         *self = &*self * rhs
@@ -315,14 +315,14 @@ impl<'b, N: Real> MulAssign<&'b UnitComplex<N>> for UnitComplex<N> {
 }
 
 // UnitComplex /= UnitComplex
-impl<N: Real> DivAssign<UnitComplex<N>> for UnitComplex<N> {
+impl<N: RealField> DivAssign<UnitComplex<N>> for UnitComplex<N> {
     #[inline]
     fn div_assign(&mut self, rhs: UnitComplex<N>) {
         *self = &*self / rhs
     }
 }
 
-impl<'b, N: Real> DivAssign<&'b UnitComplex<N>> for UnitComplex<N> {
+impl<'b, N: RealField> DivAssign<&'b UnitComplex<N>> for UnitComplex<N> {
     #[inline]
     fn div_assign(&mut self, rhs: &'b UnitComplex<N>) {
         *self = &*self / rhs
@@ -330,7 +330,7 @@ impl<'b, N: Real> DivAssign<&'b UnitComplex<N>> for UnitComplex<N> {
 }
 
 // UnitComplex ×= Rotation
-impl<N: Real> MulAssign<Rotation<N, U2>> for UnitComplex<N>
+impl<N: RealField> MulAssign<Rotation<N, U2>> for UnitComplex<N>
 where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
@@ -339,7 +339,7 @@ where DefaultAllocator: Allocator<N, U2, U2>
     }
 }
 
-impl<'b, N: Real> MulAssign<&'b Rotation<N, U2>> for UnitComplex<N>
+impl<'b, N: RealField> MulAssign<&'b Rotation<N, U2>> for UnitComplex<N>
 where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
@@ -349,7 +349,7 @@ where DefaultAllocator: Allocator<N, U2, U2>
 }
 
 // UnitComplex ÷= Rotation
-impl<N: Real> DivAssign<Rotation<N, U2>> for UnitComplex<N>
+impl<N: RealField> DivAssign<Rotation<N, U2>> for UnitComplex<N>
 where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
@@ -358,7 +358,7 @@ where DefaultAllocator: Allocator<N, U2, U2>
     }
 }
 
-impl<'b, N: Real> DivAssign<&'b Rotation<N, U2>> for UnitComplex<N>
+impl<'b, N: RealField> DivAssign<&'b Rotation<N, U2>> for UnitComplex<N>
 where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
@@ -368,7 +368,7 @@ where DefaultAllocator: Allocator<N, U2, U2>
 }
 
 // Rotation ×= UnitComplex
-impl<N: Real> MulAssign<UnitComplex<N>> for Rotation<N, U2>
+impl<N: RealField> MulAssign<UnitComplex<N>> for Rotation<N, U2>
 where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
@@ -377,7 +377,7 @@ where DefaultAllocator: Allocator<N, U2, U2>
     }
 }
 
-impl<'b, N: Real> MulAssign<&'b UnitComplex<N>> for Rotation<N, U2>
+impl<'b, N: RealField> MulAssign<&'b UnitComplex<N>> for Rotation<N, U2>
 where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
@@ -387,7 +387,7 @@ where DefaultAllocator: Allocator<N, U2, U2>
 }
 
 // Rotation ÷= UnitComplex
-impl<N: Real> DivAssign<UnitComplex<N>> for Rotation<N, U2>
+impl<N: RealField> DivAssign<UnitComplex<N>> for Rotation<N, U2>
 where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]
@@ -396,7 +396,7 @@ where DefaultAllocator: Allocator<N, U2, U2>
     }
 }
 
-impl<'b, N: Real> DivAssign<&'b UnitComplex<N>> for Rotation<N, U2>
+impl<'b, N: RealField> DivAssign<&'b UnitComplex<N>> for Rotation<N, U2>
 where DefaultAllocator: Allocator<N, U2, U2>
 {
     #[inline]

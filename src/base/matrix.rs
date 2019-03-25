@@ -16,7 +16,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{ClosedAdd, ClosedMul, ClosedSub, Real, Ring, ComplexField, Field};
+use alga::general::{ClosedAdd, ClosedMul, ClosedSub, RealField, Ring, ComplexField, Field};
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
@@ -983,14 +983,14 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
     /// Divides each component of the complex matrix `self` by the given real.
     #[inline]
-    pub fn unscale(&self, real: N::Real) -> MatrixMN<N, R, C>
+    pub fn unscale(&self, real: N::RealField) -> MatrixMN<N, R, C>
         where DefaultAllocator: Allocator<N, R, C> {
         self.map(|e| e.unscale(real))
     }
 
     /// Multiplies each component of the complex matrix `self` by the given real.
     #[inline]
-    pub fn scale(&self, real: N::Real) -> MatrixMN<N, R, C>
+    pub fn scale(&self, real: N::RealField) -> MatrixMN<N, R, C>
         where DefaultAllocator: Allocator<N, R, C> {
         self.map(|e| e.scale(real))
     }
@@ -1005,13 +1005,13 @@ impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S>
 
     /// Divides each component of the complex matrix `self` by the given real.
     #[inline]
-    pub fn unscale_mut(&mut self, real: N::Real) {
+    pub fn unscale_mut(&mut self, real: N::RealField) {
         self.apply(|e| e.unscale(real))
     }
 
     /// Multiplies each component of the complex matrix `self` by the given real.
     #[inline]
-    pub fn scale_mut(&mut self, real: N::Real) {
+    pub fn scale_mut(&mut self, real: N::RealField) {
         self.apply(|e| e.scale(real))
     }
 }
@@ -1544,7 +1544,7 @@ where DefaultAllocator: Allocator<N, U3>
 impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The smallest angle between two vectors.
     #[inline]
-    pub fn angle<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> N::Real
+    pub fn angle<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> N::RealField
     where
         SB: Storage<N, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
@@ -1554,14 +1554,14 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         let n2 = other.norm();
 
         if n1.is_zero() || n2.is_zero() {
-            N::Real::zero()
+            N::RealField::zero()
         } else {
             let cang = prod.real() / (n1 * n2);
 
-            if cang > N::Real::one() {
-                N::Real::zero()
-            } else if cang < -N::Real::one() {
-                N::Real::pi()
+            if cang > N::RealField::one() {
+                N::RealField::zero()
+            } else if cang < -N::RealField::one() {
+                N::RealField::pi()
             } else {
                 cang.acos()
             }
@@ -1597,13 +1597,13 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     pub fn slerp<S2: Storage<N, D>>(
         &self,
         rhs: &Unit<Vector<N, D, S2>>,
-        t: N::Real,
+        t: N::RealField,
     ) -> Unit<VectorN<N, D>>
     where
         DefaultAllocator: Allocator<N, D>,
     {
         // FIXME: the result is wrong when self and rhs are collinear with opposite direction.
-        self.try_slerp(rhs, t, N::Real::default_epsilon())
+        self.try_slerp(rhs, t, N::RealField::default_epsilon())
             .unwrap_or(Unit::new_unchecked(self.clone_owned()))
     }
 
@@ -1614,8 +1614,8 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     pub fn try_slerp<S2: Storage<N, D>>(
         &self,
         rhs: &Unit<Vector<N, D, S2>>,
-        t: N::Real,
-        epsilon: N::Real,
+        t: N::RealField,
+        epsilon: N::RealField,
     ) -> Option<Unit<VectorN<N, D>>>
     where
         DefaultAllocator: Allocator<N, D>,
@@ -1623,18 +1623,18 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
         let (c_hang, c_hang_sign) = self.dotc(rhs).to_exp();
 
         // self == other
-        if c_hang >= N::Real::one() {
+        if c_hang >= N::RealField::one() {
             return Some(Unit::new_unchecked(self.clone_owned()));
         }
 
         let hang = c_hang.acos();
-        let s_hang = (N::Real::one() - c_hang * c_hang).sqrt();
+        let s_hang = (N::RealField::one() - c_hang * c_hang).sqrt();
 
         // FIXME: what if s_hang is 0.0 ? The result is not well-defined.
-        if relative_eq!(s_hang, N::Real::zero(), epsilon = epsilon) {
+        if relative_eq!(s_hang, N::RealField::zero(), epsilon = epsilon) {
             None
         } else {
-            let ta = ((N::Real::one() - t) * hang).sin() / s_hang;
+            let ta = ((N::RealField::one() - t) * hang).sin() / s_hang;
             let tb = (t * hang).sin() / s_hang;
             let mut res = self.scale(ta);
             res.axpy(c_hang_sign.scale(tb), &**rhs, N::one());

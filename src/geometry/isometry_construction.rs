@@ -7,7 +7,7 @@ use num::One;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
-use alga::general::Real;
+use alga::general::RealField;
 use alga::linear::Rotation as AlgaRotation;
 
 use crate::base::allocator::Allocator;
@@ -19,7 +19,7 @@ use crate::geometry::{
     UnitQuaternion, Translation2, Translation3
 };
 
-impl<N: Real, D: DimName, R: AlgaRotation<Point<N, D>>> Isometry<N, D, R>
+impl<N: RealField, D: DimName, R: AlgaRotation<Point<N, D>>> Isometry<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new identity isometry.
@@ -65,7 +65,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName, R: AlgaRotation<Point<N, D>>> One for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R: AlgaRotation<Point<N, D>>> One for Isometry<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new identity isometry.
@@ -75,7 +75,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName, R> Distribution<Isometry<N, D, R>> for Standard
+impl<N: RealField, D: DimName, R> Distribution<Isometry<N, D, R>> for Standard
 where
     R: AlgaRotation<Point<N, D>>,
     Standard: Distribution<N> + Distribution<R>,
@@ -90,7 +90,7 @@ where
 #[cfg(feature = "arbitrary")]
 impl<N, D: DimName, R> Arbitrary for Isometry<N, D, R>
 where
-    N: Real + Arbitrary + Send,
+    N: RealField + Arbitrary + Send,
     R: AlgaRotation<Point<N, D>> + Arbitrary + Send,
     Owned<N, D>: Send,
     DefaultAllocator: Allocator<N, D>,
@@ -108,7 +108,7 @@ where
  */
 
 // 2D rotation.
-impl<N: Real> Isometry<N, U2, Rotation2<N>> {
+impl<N: RealField> Isometry<N, U2, Rotation2<N>> {
     /// Creates a new 2D isometry from a translation and a rotation angle.
     ///
     /// Its rotational part is represented as a 2x2 rotation matrix.
@@ -143,7 +143,7 @@ impl<N: Real> Isometry<N, U2, Rotation2<N>> {
     }
 }
 
-impl<N: Real> Isometry<N, U2, UnitComplex<N>> {
+impl<N: RealField> Isometry<N, U2, UnitComplex<N>> {
     /// Creates a new 2D isometry from a translation and a rotation angle.
     ///
     /// Its rotational part is represented as an unit complex number.
@@ -181,7 +181,7 @@ impl<N: Real> Isometry<N, U2, UnitComplex<N>> {
 // 3D rotation.
 macro_rules! isometry_construction_impl(
     ($RotId: ident < $($RotParams: ident),*>, $RRDim: ty, $RCDim: ty) => {
-        impl<N: Real> Isometry<N, U3, $RotId<$($RotParams),*>> {
+        impl<N: RealField> Isometry<N, U3, $RotId<$($RotParams),*>> {
             /// Creates a new isometry from a translation and a rotation axis-angle.
             ///
             /// # Example

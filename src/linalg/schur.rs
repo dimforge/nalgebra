@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use approx::AbsDiffEq;
-use alga::general::{ComplexField, Real};
+use alga::general::{ComplexField, RealField};
 use num_complex::Complex as NumComplex;
 use std::cmp;
 
@@ -18,7 +18,7 @@ use crate::linalg::givens::GivensRotation;
 
 /// Schur decomposition of a square matrix.
 ///
-/// If this is a real matrix, this will be a Real Schur decomposition.
+/// If this is a real matrix, this will be a RealField Schur decomposition.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
@@ -58,7 +58,7 @@ where
 {
     /// Computes the Schur decomposition of a square matrix.
     pub fn new(m: MatrixN<N, D>) -> Self {
-        Self::try_new(m, N::Real::default_epsilon(), 0).unwrap()
+        Self::try_new(m, N::RealField::default_epsilon(), 0).unwrap()
     }
 
     /// Attempts to compute the Schur decomposition of a square matrix.
@@ -72,7 +72,7 @@ where
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_new(m: MatrixN<N, D>, eps: N::Real, max_niter: usize) -> Option<Self> {
+    pub fn try_new(m: MatrixN<N, D>, eps: N::RealField, max_niter: usize) -> Option<Self> {
         let mut work = unsafe { VectorN::new_uninitialized_generic(m.data.shape().0, U1) };
 
         Self::do_decompose(m, &mut work, eps, max_niter, true).map(|(q, t)| Schur {
@@ -84,7 +84,7 @@ where
     fn do_decompose(
         mut m: MatrixN<N, D>,
         work: &mut VectorN<N, D>,
-        eps: N::Real,
+        eps: N::RealField,
         max_niter: usize,
         compute_q: bool,
     ) -> Option<(Option<MatrixN<N, D>>, MatrixN<N, D>)>
@@ -291,7 +291,7 @@ where
 
     /// Computes the complex eigenvalues of the decomposed matrix.
     fn do_complex_eigenvalues(t: &MatrixN<N, D>, out: &mut VectorN<NumComplex<N>, D>)
-    where N: Real,
+    where N: RealField,
           DefaultAllocator: Allocator<NumComplex<N>, D> {
         let dim = t.nrows();
         let mut m = 0;
@@ -329,7 +329,7 @@ where
         }
     }
 
-    fn delimit_subproblem(t: &mut MatrixN<N, D>, eps: N::Real, end: usize) -> (usize, usize)
+    fn delimit_subproblem(t: &mut MatrixN<N, D>, eps: N::RealField, end: usize) -> (usize, usize)
     where
         D: DimSub<U1>,
         DefaultAllocator: Allocator<N, DimDiff<D, U1>>,
@@ -390,7 +390,7 @@ where
 
     /// Computes the complex eigenvalues of the decomposed matrix.
     pub fn complex_eigenvalues(&self) -> VectorN<NumComplex<N>, D>
-    where N: Real,
+    where N: RealField,
           DefaultAllocator: Allocator<NumComplex<N>, D> {
         let mut out = unsafe { VectorN::new_uninitialized_generic(self.t.data.shape().0, U1) };
         Self::do_complex_eigenvalues(&self.t, &mut out);
@@ -511,7 +511,7 @@ where
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_schur(self, eps: N::Real, max_niter: usize) -> Option<Schur<N, D>> {
+    pub fn try_schur(self, eps: N::RealField, max_niter: usize) -> Option<Schur<N, D>> {
         Schur::try_new(self.into_owned(), eps, max_niter)
     }
 
@@ -543,7 +543,7 @@ where
         let schur = Schur::do_decompose(
             self.clone_owned(),
             &mut work,
-            N::Real::default_epsilon(),
+            N::RealField::default_epsilon(),
             0,
             false,
         )
@@ -558,7 +558,7 @@ where
     /// Computes the eigenvalues of this matrix.
     pub fn complex_eigenvalues(&self) -> VectorN<NumComplex<N>, D>
     // FIXME: add balancing?
-    where N: Real,
+    where N: RealField,
           DefaultAllocator: Allocator<NumComplex<N>, D> {
         let dim = self.data.shape().0;
         let mut work = unsafe { VectorN::new_uninitialized_generic(dim, U1) };

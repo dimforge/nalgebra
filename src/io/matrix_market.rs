@@ -3,7 +3,7 @@ use std::path::Path;
 
 use pest::Parser;
 use crate::sparse::CsMatrix;
-use crate::Real;
+use crate::RealField;
 
 #[derive(Parser)]
 #[grammar = "io/matrix_market.pest"]
@@ -11,14 +11,14 @@ struct MatrixMarketParser;
 
 // FIXME: return an Error instead of an Option.
 /// Parses a Matrix Market file at the given path, and returns the corresponding sparse matrix.
-pub fn cs_matrix_from_matrix_market<N: Real, P: AsRef<Path>>(path: P) -> Option<CsMatrix<N>> {
+pub fn cs_matrix_from_matrix_market<N: RealField, P: AsRef<Path>>(path: P) -> Option<CsMatrix<N>> {
     let file = fs::read_to_string(path).ok()?;
     cs_matrix_from_matrix_market_str(&file)
 }
 
 // FIXME: return an Error instead of an Option.
 /// Parses a Matrix Market file described by the given string, and returns the corresponding sparse matrix.
-pub fn cs_matrix_from_matrix_market_str<N: Real>(data: &str) -> Option<CsMatrix<N>> {
+pub fn cs_matrix_from_matrix_market_str<N: RealField>(data: &str) -> Option<CsMatrix<N>> {
     let file = MatrixMarketParser::parse(Rule::Document, data)
         .unwrap()
         .next()?;

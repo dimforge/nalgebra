@@ -11,7 +11,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{ClosedNeg, Real};
+use alga::general::{ClosedNeg, RealField};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -263,7 +263,7 @@ where
  * Display
  *
  */
-impl<N: Real + fmt::Display, D: DimName> fmt::Display for Translation<N, D>
+impl<N: RealField + fmt::Display, D: DimName> fmt::Display for Translation<N, D>
 where DefaultAllocator: Allocator<N, D> + Allocator<usize, D>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

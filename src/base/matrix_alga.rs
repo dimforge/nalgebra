@@ -148,16 +148,16 @@ where
 impl<N: ComplexField, R: DimName, C: DimName> NormedSpace for MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
-    type Real = N::Real;
+    type RealField = N::RealField;
     type ComplexField = N;
 
     #[inline]
-    fn norm_squared(&self) -> N::Real {
+    fn norm_squared(&self) -> N::RealField {
         self.norm_squared()
     }
 
     #[inline]
-    fn norm(&self) -> N::Real {
+    fn norm(&self) -> N::RealField {
         self.norm()
     }
 
@@ -167,17 +167,17 @@ where DefaultAllocator: Allocator<N, R, C>
     }
 
     #[inline]
-    fn normalize_mut(&mut self) -> N::Real {
+    fn normalize_mut(&mut self) -> N::RealField {
         self.normalize_mut()
     }
 
     #[inline]
-    fn try_normalize(&self, min_norm: N::Real) -> Option<Self> {
+    fn try_normalize(&self, min_norm: N::RealField) -> Option<Self> {
         self.try_normalize(min_norm)
     }
 
     #[inline]
-    fn try_normalize_mut(&mut self, min_norm: N::Real) -> Option<N::Real> {
+    fn try_normalize_mut(&mut self, min_norm: N::RealField) -> Option<N::RealField> {
         self.try_normalize_mut(min_norm)
     }
 }
@@ -186,7 +186,7 @@ impl<N: ComplexField, R: DimName, C: DimName> InnerSpace for MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
     #[inline]
-    fn angle(&self, other: &Self) -> N::Real {
+    fn angle(&self, other: &Self) -> N::RealField {
         self.angle(other)
     }
 
@@ -216,7 +216,7 @@ where DefaultAllocator: Allocator<N, R, C>
                 }
             }
 
-            if vs[i].try_normalize_mut(N::Real::zero()).is_some() {
+            if vs[i].try_normalize_mut(N::RealField::zero()).is_some() {
                 // FIXME: this will be efficient on dynamically-allocated vectors but for
                 // statically-allocated ones, `.clone_from` would be better.
                 vs.swap(nbasis_elements, i);
@@ -301,7 +301,7 @@ where DefaultAllocator: Allocator<N, R, C>
                             elt -= v * elt.dot(v)
                         }
 
-                        if let Some(subsp_elt) = elt.try_normalize(N::Real::zero()) {
+                        if let Some(subsp_elt) = elt.try_normalize(N::RealField::zero()) {
                             if !f(&subsp_elt) {
                                 return;
                             };

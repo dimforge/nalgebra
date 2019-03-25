@@ -2,7 +2,7 @@
 use approx::RelativeEq;
 use num::{One, Zero};
 
-use alga::general::{ClosedAdd, ClosedMul, Real, ComplexField};
+use alga::general::{ClosedAdd, ClosedMul, RealField, ComplexField};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimMin};
@@ -101,7 +101,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: RealField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D>
 {
     /// Checks that this matrix is orthogonal and has a determinant equal to 1.

@@ -1,6 +1,6 @@
 use num::{One, Zero};
 
-use alga::general::{Real, SubsetOf, SupersetOf};
+use alga::general::{RealField, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
 use crate::base::allocator::Allocator;
@@ -46,8 +46,8 @@ where
 
 impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Translation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: Rotation<Point<N2, D>>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
@@ -69,8 +69,8 @@ where
 
 impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Translation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: Rotation<Point<N2, D>>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
@@ -92,8 +92,8 @@ where
 
 impl<N1, N2, D, C> SubsetOf<Transform<N2, D, C>> for Translation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
     D: DimNameAdd<U1>,
     DefaultAllocator: Allocator<N1, D>
@@ -119,8 +119,8 @@ where
 
 impl<N1, N2, D> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Translation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     D: DimNameAdd<U1>,
     DefaultAllocator: Allocator<N1, D>
         + Allocator<N2, D>

@@ -1,6 +1,6 @@
 use num::Zero;
 
-use alga::general::{Real, SubsetOf, SupersetOf};
+use alga::general::{RealField, SubsetOf, SupersetOf};
 use alga::linear::Rotation as AlgaRotation;
 
 #[cfg(feature = "mint")]
@@ -34,8 +34,8 @@ use crate::geometry::{
 
 impl<N1, N2> SubsetOf<Quaternion<N2>> for Quaternion<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> Quaternion<N2> {
@@ -57,8 +57,8 @@ where
 
 impl<N1, N2> SubsetOf<UnitQuaternion<N2>> for UnitQuaternion<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> UnitQuaternion<N2> {
@@ -78,8 +78,8 @@ where
 
 impl<N1, N2> SubsetOf<Rotation<N2, U3>> for UnitQuaternion<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> Rotation3<N2> {
@@ -101,8 +101,8 @@ where
 
 impl<N1, N2, R> SubsetOf<Isometry<N2, U3, R>> for UnitQuaternion<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: AlgaRotation<Point3<N2>> + SupersetOf<Self>,
 {
     #[inline]
@@ -123,8 +123,8 @@ where
 
 impl<N1, N2, R> SubsetOf<Similarity<N2, U3, R>> for UnitQuaternion<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: AlgaRotation<Point3<N2>> + SupersetOf<Self>,
 {
     #[inline]
@@ -145,8 +145,8 @@ where
 
 impl<N1, N2, C> SubsetOf<Transform<N2, U3, C>> for UnitQuaternion<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
 {
     #[inline]
@@ -165,7 +165,7 @@ where
     }
 }
 
-impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitQuaternion<N1> {
+impl<N1: RealField, N2: RealField + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitQuaternion<N1> {
     #[inline]
     fn to_superset(&self) -> Matrix4<N2> {
         self.to_homogeneous().to_superset()
@@ -184,14 +184,14 @@ impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitQuaterni
 }
 
 #[cfg(feature = "mint")]
-impl<N: Real> From<mint::Quaternion<N>> for Quaternion<N> {
+impl<N: RealField> From<mint::Quaternion<N>> for Quaternion<N> {
     fn from(q: mint::Quaternion<N>) -> Self {
         Self::new(q.s, q.v.x, q.v.y, q.v.z)
     }
 }
 
 #[cfg(feature = "mint")]
-impl<N: Real> Into<mint::Quaternion<N>> for Quaternion<N> {
+impl<N: RealField> Into<mint::Quaternion<N>> for Quaternion<N> {
     fn into(self) -> mint::Quaternion<N> {
         mint::Quaternion {
             v: mint::Vector3 {
@@ -205,7 +205,7 @@ impl<N: Real> Into<mint::Quaternion<N>> for Quaternion<N> {
 }
 
 #[cfg(feature = "mint")]
-impl<N: Real> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
+impl<N: RealField> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
     fn into(self) -> mint::Quaternion<N> {
         mint::Quaternion {
             v: mint::Vector3 {
@@ -218,35 +218,35 @@ impl<N: Real> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
     }
 }
 
-impl<N: Real> From<UnitQuaternion<N>> for Matrix4<N> {
+impl<N: RealField> From<UnitQuaternion<N>> for Matrix4<N> {
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {
         q.to_homogeneous()
     }
 }
 
-impl<N: Real> From<UnitQuaternion<N>> for Rotation3<N> {
+impl<N: RealField> From<UnitQuaternion<N>> for Rotation3<N> {
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {
         q.to_rotation_matrix()
     }
 }
 
-impl<N: Real> From<Rotation3<N>> for UnitQuaternion<N> {
+impl<N: RealField> From<Rotation3<N>> for UnitQuaternion<N> {
     #[inline]
     fn from(q: Rotation3<N>) -> Self {
         Self::from_rotation_matrix(&q)
     }
 }
 
-impl<N: Real> From<UnitQuaternion<N>> for Matrix3<N> {
+impl<N: RealField> From<UnitQuaternion<N>> for Matrix3<N> {
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {
         q.to_rotation_matrix().into_inner()
     }
 }
 
-impl<N: Real> From<Vector4<N>> for Quaternion<N> {
+impl<N: RealField> From<Vector4<N>> for Quaternion<N> {
     #[inline]
     fn from(coords: Vector4<N>) -> Self {
         Self { coords }

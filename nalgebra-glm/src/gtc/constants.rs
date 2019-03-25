@@ -1,14 +1,14 @@
-use na::{self, Real};
+use na::{self, RealField};
 
 /// The Euler constant.
 ///
 /// This is a shorthand alias for [`euler`](fn.euler.html).
-pub fn e<N: Real>() -> N {
+pub fn e<N: RealField>() -> N {
     N::e()
 }
 
 /// The Euler constant.
-pub fn euler<N: Real>() -> N {
+pub fn euler<N: RealField>() -> N {
     N::e()
 }
 
@@ -28,12 +28,12 @@ pub fn euler<N: Real>() -> N {
 /// * [`two_over_pi`](fn.two_over_pi.html)
 /// * [`two_over_root_pi`](fn.two_over_root_pi.html)
 /// * [`two_pi`](fn.two_pi.html)
-pub fn four_over_pi<N: Real>() -> N {
+pub fn four_over_pi<N: RealField>() -> N {
     na::convert::<_, N>(4.0) / N::pi()
 }
 
 /// Returns the golden ratio.
-pub fn golden_ratio<N: Real>() -> N {
+pub fn golden_ratio<N: RealField>() -> N {
     (N::one() + root_five()) / na::convert(2.0)
 }
 
@@ -53,7 +53,7 @@ pub fn golden_ratio<N: Real>() -> N {
 /// * [`two_over_pi`](fn.two_over_pi.html)
 /// * [`two_over_root_pi`](fn.two_over_root_pi.html)
 /// * [`two_pi`](fn.two_pi.html)
-pub fn half_pi<N: Real>() -> N {
+pub fn half_pi<N: RealField>() -> N {
     N::frac_pi_2()
 }
 
@@ -63,7 +63,7 @@ pub fn half_pi<N: Real>() -> N {
 ///
 /// * [`ln_ten`](fn.ln_ten.html)
 /// * [`ln_two`](fn.ln_two.html)
-pub fn ln_ln_two<N: Real>() -> N {
+pub fn ln_ln_two<N: RealField>() -> N {
     N::ln_2().ln()
 }
 
@@ -73,7 +73,7 @@ pub fn ln_ln_two<N: Real>() -> N {
 ///
 /// * [`ln_ln_two`](fn.ln_ln_two.html)
 /// * [`ln_two`](fn.ln_two.html)
-pub fn ln_ten<N: Real>() -> N {
+pub fn ln_ten<N: RealField>() -> N {
     N::ln_10()
 }
 
@@ -83,7 +83,7 @@ pub fn ln_ten<N: Real>() -> N {
 ///
 /// * [`ln_ln_two`](fn.ln_ln_two.html)
 /// * [`ln_ten`](fn.ln_ten.html)
-pub fn ln_two<N: Real>() -> N {
+pub fn ln_two<N: RealField>() -> N {
     N::ln_2()
 }
 
@@ -106,12 +106,12 @@ pub use na::one;
 /// * [`two_over_pi`](fn.two_over_pi.html)
 /// * [`two_over_root_pi`](fn.two_over_root_pi.html)
 /// * [`two_pi`](fn.two_pi.html)
-pub fn one_over_pi<N: Real>() -> N {
+pub fn one_over_pi<N: RealField>() -> N {
     N::frac_1_pi()
 }
 
 /// Returns `1 / sqrt(2)`.
-pub fn one_over_root_two<N: Real>() -> N {
+pub fn one_over_root_two<N: RealField>() -> N {
     N::one() / root_two()
 }
 
@@ -131,7 +131,7 @@ pub fn one_over_root_two<N: Real>() -> N {
 /// * [`two_over_pi`](fn.two_over_pi.html)
 /// * [`two_over_root_pi`](fn.two_over_root_pi.html)
 /// * [`two_pi`](fn.two_pi.html)
-pub fn one_over_two_pi<N: Real>() -> N {
+pub fn one_over_two_pi<N: RealField>() -> N {
     N::frac_1_pi() * na::convert(0.5)
 }
 
@@ -151,7 +151,7 @@ pub fn one_over_two_pi<N: Real>() -> N {
 /// * [`two_over_pi`](fn.two_over_pi.html)
 /// * [`two_over_root_pi`](fn.two_over_root_pi.html)
 /// * [`two_pi`](fn.two_pi.html)
-pub fn quarter_pi<N: Real>() -> N {
+pub fn quarter_pi<N: RealField>() -> N {
     N::frac_pi_4()
 }
 
@@ -161,7 +161,7 @@ pub fn quarter_pi<N: Real>() -> N {
 ///
 /// * [`root_three`](fn.root_three.html)
 /// * [`root_two`](fn.root_two.html)
-pub fn root_five<N: Real>() -> N {
+pub fn root_five<N: RealField>() -> N {
     na::convert::<_, N>(5.0).sqrt()
 }
 
@@ -181,12 +181,12 @@ pub fn root_five<N: Real>() -> N {
 /// * [`two_over_pi`](fn.two_over_pi.html)
 /// * [`two_over_root_pi`](fn.two_over_root_pi.html)
 /// * [`two_pi`](fn.two_pi.html)
-pub fn root_half_pi<N: Real>() -> N {
+pub fn root_half_pi<N: RealField>() -> N {
     (N::pi() / na::convert(2.0)).sqrt()
 }
 
 /// Returns `sqrt(ln(4))`.
-pub fn root_ln_four<N: Real>() -> N {
+pub fn root_ln_four<N: RealField>() -> N {
     na::convert::<_, N>(4.0).ln().sqrt()
 }
 
@@ -206,7 +206,7 @@ pub fn root_ln_four<N: Real>() -> N {
 /// * [`two_over_pi`](fn.two_over_pi.html)
 /// * [`two_over_root_pi`](fn.two_over_root_pi.html)
 /// * [`two_pi`](fn.two_pi.html)
-pub fn root_pi<N: Real>() -> N {
+pub fn root_pi<N: RealField>() -> N {
     N::pi().sqrt()
 }
 
@@ -216,7 +216,7 @@ pub fn root_pi<N: Real>() -> N {
 ///
 /// * [`root_five`](fn.root_five.html)
 /// * [`root_two`](fn.root_two.html)
-pub fn root_three<N: Real>() -> N {
+pub fn root_three<N: RealField>() -> N {
     na::convert::<_, N>(3.0).sqrt()
 }
 
@@ -226,8 +226,8 @@ pub fn root_three<N: Real>() -> N {
 ///
 /// * [`root_five`](fn.root_five.html)
 /// * [`root_three`](fn.root_three.html)
-pub fn root_two<N: Real>() -> N {
-    // FIXME: there should be a crate::sqrt_2() on the Real trait.
+pub fn root_two<N: RealField>() -> N {
+    // FIXME: there should be a crate::sqrt_2() on the RealField trait.
     na::convert::<_, N>(2.0).sqrt()
 }
 
@@ -247,7 +247,7 @@ pub fn root_two<N: Real>() -> N {
 /// * [`two_over_pi`](fn.two_over_pi.html)
 /// * [`two_over_root_pi`](fn.two_over_root_pi.html)
 /// * [`two_pi`](fn.two_pi.html)
-pub fn root_two_pi<N: Real>() -> N {
+pub fn root_two_pi<N: RealField>() -> N {
     N::two_pi().sqrt()
 }
 
@@ -256,7 +256,7 @@ pub fn root_two_pi<N: Real>() -> N {
 /// # See also:
 ///
 /// * [`two_thirds`](fn.two_thirds.html)
-pub fn third<N: Real>() -> N {
+pub fn third<N: RealField>() -> N {
     na::convert(1.0 / 3.0)
 }
 
@@ -276,7 +276,7 @@ pub fn third<N: Real>() -> N {
 /// * [`two_over_pi`](fn.two_over_pi.html)
 /// * [`two_over_root_pi`](fn.two_over_root_pi.html)
 /// * [`two_pi`](fn.two_pi.html)
-pub fn three_over_two_pi<N: Real>() -> N {
+pub fn three_over_two_pi<N: RealField>() -> N {
     na::convert::<_, N>(3.0) / N::two_pi()
 }
 
@@ -295,7 +295,7 @@ pub fn three_over_two_pi<N: Real>() -> N {
 /// * [`three_over_two_pi`](fn.three_over_two_pi.html)
 /// * [`two_over_root_pi`](fn.two_over_root_pi.html)
 /// * [`two_pi`](fn.two_pi.html)
-pub fn two_over_pi<N: Real>() -> N {
+pub fn two_over_pi<N: RealField>() -> N {
     N::frac_2_pi()
 }
 
@@ -315,7 +315,7 @@ pub fn two_over_pi<N: Real>() -> N {
 /// * [`three_over_two_pi`](fn.three_over_two_pi.html)
 /// * [`two_over_pi`](fn.two_over_pi.html)
 /// * [`two_pi`](fn.two_pi.html)
-pub fn two_over_root_pi<N: Real>() -> N {
+pub fn two_over_root_pi<N: RealField>() -> N {
     N::frac_2_sqrt_pi()
 }
 
@@ -335,7 +335,7 @@ pub fn two_over_root_pi<N: Real>() -> N {
 /// * [`three_over_two_pi`](fn.three_over_two_pi.html)
 /// * [`two_over_pi`](fn.two_over_pi.html)
 /// * [`two_over_root_pi`](fn.two_over_root_pi.html)
-pub fn two_pi<N: Real>() -> N {
+pub fn two_pi<N: RealField>() -> N {
     N::two_pi()
 }
 
@@ -344,7 +344,7 @@ pub fn two_pi<N: Real>() -> N {
 /// # See also:
 ///
 /// * [`third`](fn.third.html)
-pub fn two_thirds<N: Real>() -> N {
+pub fn two_thirds<N: RealField>() -> N {
     na::convert(2.0 / 3.0)
 }
 
