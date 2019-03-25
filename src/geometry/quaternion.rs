@@ -602,13 +602,7 @@ impl<N: Real> UnitQuaternion<N> {
     #[inline]
     pub fn angle(&self) -> N {
         let w = self.quaternion().scalar().abs();
-
-        // Handle inaccuracies that make break `.acos`.
-        if w >= N::one() {
-            N::zero()
-        } else {
-            w.acos() * ::convert(2.0f64)
-        }
+	self.quaternion().imag().norm().atan2(w) * ::convert(2.0f64)
     }
 
     /// The underlying quaternion.
