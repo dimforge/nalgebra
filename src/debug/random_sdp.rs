@@ -3,7 +3,7 @@ use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
-use alga::general::Complex;
+use alga::general::ComplexField;
 use crate::base::Scalar;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, Dynamic};
@@ -19,7 +19,7 @@ where DefaultAllocator: Allocator<N, D, D>
     m: MatrixN<N, D>,
 }
 
-impl<N: Complex, D: Dim> RandomSDP<N, D>
+impl<N: ComplexField, D: Dim> RandomSDP<N, D>
 where DefaultAllocator: Allocator<N, D, D>
 {
     /// Retrieve the generated matrix.
@@ -44,7 +44,7 @@ where DefaultAllocator: Allocator<N, D, D>
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Complex + Arbitrary + Send, D: Dim> Arbitrary for RandomSDP<N, D>
+impl<N: ComplexField + Arbitrary + Send, D: Dim> Arbitrary for RandomSDP<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     Owned<N, D, D>: Clone + Send,

@@ -10,7 +10,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{SubsetOf, Complex};
+use alga::general::{SubsetOf, ComplexField};
 use alga::linear::NormedSpace;
 
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
@@ -106,7 +106,7 @@ impl<T: NormedSpace> Unit<T> {
         let sq_norm = self.value.norm_squared();
         let _3: T::Real = crate::convert(3.0);
         let _0_5: T::Real = crate::convert(0.5);
-        self.value *= T::Complex::from_real(_0_5 * (_3 - sq_norm));
+        self.value *= T::ComplexField::from_real(_0_5 * (_3 - sq_norm));
     }
 }
 

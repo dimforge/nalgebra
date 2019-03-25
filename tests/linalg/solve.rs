@@ -4,11 +4,11 @@
 macro_rules! gen_tests(
     ($module: ident, $scalar: ty) => {
         mod $module {
-            use na::{Matrix4, Matrix4x5, Complex};
+            use na::{Matrix4, Matrix4x5, ComplexField};
             #[allow(unused_imports)]
             use crate::core::helper::{RandScalar, RandComplex};
 
-            fn unzero_diagonal<N: Complex>(a: &mut Matrix4<N>) {
+            fn unzero_diagonal<N: ComplexField>(a: &mut Matrix4<N>) {
                 for i in 0..4 {
                     if a[(i, i)].norm1() < na::convert(1.0e-7) {
                         a[(i, i)] = N::one();

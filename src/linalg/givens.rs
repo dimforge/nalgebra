@@ -1,6 +1,6 @@
 //! Construction of givens rotations.
 
-use alga::general::Complex;
+use alga::general::ComplexField;
 use num::{Zero, One};
 
 use crate::base::dimension::{Dim, U2};
@@ -11,13 +11,13 @@ use crate::base::{Vector, Matrix};
 
 /// A Givens rotation.
 #[derive(Debug, Clone, Copy)]
-pub struct GivensRotation<N: Complex> {
+pub struct GivensRotation<N: ComplexField> {
     c: N::Real,
     s: N
 }
 
 // Matrix = UnitComplex * Matrix
-impl<N: Complex> GivensRotation<N> {
+impl<N: ComplexField> GivensRotation<N> {
     /// The Givents rotation that does nothing.
     pub fn identity() -> Self {
         Self {

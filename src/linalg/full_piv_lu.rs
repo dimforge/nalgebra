@@ -1,7 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Complex;
+use alga::general::ComplexField;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
@@ -32,7 +32,7 @@ use crate::linalg::PermutationSequence;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct FullPivLU<N: Complex, R: DimMin<C>, C: Dim>
+pub struct FullPivLU<N: ComplexField, R: DimMin<C>, C: Dim>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
 {
     lu: MatrixMN<N, R, C>,
@@ -40,14 +40,14 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimu
     q: PermutationSequence<DimMinimum<R, C>>,
 }
 
-impl<N: Complex, R: DimMin<C>, C: Dim> Copy for FullPivLU<N, R, C>
+impl<N: ComplexField, R: DimMin<C>, C: Dim> Copy for FullPivLU<N, R, C>
 where
     DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
     PermutationSequence<DimMinimum<R, C>>: Copy,
 {}
 
-impl<N: Complex, R: DimMin<C>, C: Dim> FullPivLU<N, R, C>
+impl<N: ComplexField, R: DimMin<C>, C: Dim> FullPivLU<N, R, C>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
 {
     /// Computes the LU decomposition with full pivoting of `matrix`.
@@ -156,7 +156,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimu
     }
 }
 
-impl<N: Complex, D: DimMin<D, Output = D>> FullPivLU<N, D, D>
+impl<N: ComplexField, D: DimMin<D, Output = D>> FullPivLU<N, D, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
@@ -261,7 +261,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
     }
 }
 
-impl<N: Complex, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
 {
     /// Computes the LU decomposition with full pivoting of `matrix`.

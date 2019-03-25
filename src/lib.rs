@@ -160,7 +160,7 @@ use alga::linear::SquareMatrix as AlgaSquareMatrix;
 use alga::linear::{EuclideanSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace};
 use num::Signed;
 
-pub use alga::general::{Id, Real, Complex};
+pub use alga::general::{Id, Real, ComplexField};
 
 /*
  *

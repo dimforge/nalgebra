@@ -5,7 +5,7 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-use alga::general::{Complex, ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
+use alga::general::{ComplexField, ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use crate::base::constraint::{
@@ -633,7 +633,7 @@ where
     #[inline]
     pub fn ad_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> MatrixMN<N, C1, C2>
         where
-            N: Complex,
+            N: ComplexField,
             SB: Storage<N, R2, C2>,
             DefaultAllocator: Allocator<N, C1, C2>,
             ShapeConstraint: SameNumberOfRows<R1, R2>,
@@ -700,7 +700,7 @@ where
         rhs: &Matrix<N, R2, C2, SB>,
         out: &mut Matrix<N, R3, C3, SC>,
     ) where
-        N: Complex,
+        N: ComplexField,
         SB: Storage<N, R2, C2>,
         SC: StorageMut<N, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, R2> + DimEq<C1, R3> + DimEq<C2, C3>,
@@ -833,7 +833,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns the the 1-norm of the complex component with the largest 1-norm.
     #[inline]
     pub fn camax(&self) -> N::Real
-        where N: Complex {
+        where N: ComplexField {
         self.xcmp(|e| e.norm1(), |a, b| a > b)
     }
 
@@ -854,7 +854,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns the the 1-norm of the complex component with the smallest 1-norm.
     #[inline]
     pub fn camin(&self) -> N::Real
-        where N: Complex {
+        where N: ComplexField {
         self.xcmp(|e| e.norm1(), |a, b| a < b)
     }
 

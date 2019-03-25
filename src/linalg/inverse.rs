@@ -1,4 +1,4 @@
-use alga::general::Complex;
+use alga::general::ComplexField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::Dim;
@@ -7,7 +7,7 @@ use crate::base::{DefaultAllocator, MatrixN, SquareMatrix};
 
 use crate::linalg::lu;
 
-impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Attempts to invert this matrix.
     #[inline]
     pub fn try_inverse(self) -> Option<MatrixN<N, D>>
@@ -21,7 +21,7 @@ impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 }
 
-impl<N: Complex, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
     /// Attempts to invert this matrix in-place. Returns `false` and leaves `self` untouched if
     /// inversion fails.
     #[inline]
@@ -115,7 +115,7 @@ impl<N: Complex, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
 }
 
 // NOTE: this is an extremely efficient, loop-unrolled matrix inverse from MESA (MIT licensed).
-fn do_inverse4<N: Complex, D: Dim, S: StorageMut<N, D, D>>(
+fn do_inverse4<N: ComplexField, D: Dim, S: StorageMut<N, D, D>>(
     m: &MatrixN<N, D>,
     out: &mut SquareMatrix<N, D, S>,
 ) -> bool

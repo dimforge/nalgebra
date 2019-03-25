@@ -1,7 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Serialize, Deserialize};
 
-use alga::general::Complex;
+use alga::general::ComplexField;
 use num_complex::Complex;
 use std::cmp;
 use std::fmt::Display;
@@ -40,7 +40,7 @@ use crate::linalg::Schur;
     )
 )]
 #[derive(Clone, Debug)]
-pub struct Eigen<N: Complex, D: Dim>
+pub struct Eigen<N: ComplexField, D: Dim>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
@@ -48,7 +48,7 @@ where
     pub eigenvalues: VectorN<N, D>,
 }
 
-impl<N: Complex, D: Dim> Copy for Eigen<N, D>
+impl<N: ComplexField, D: Dim> Copy for Eigen<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
     MatrixN<N, D>: Copy,
@@ -56,7 +56,7 @@ where
 {
 }
 
-impl<N: Complex, D: Dim> Eigen<N, D>
+impl<N: ComplexField, D: Dim> Eigen<N, D>
 where
     D: DimSub<U1>,                                   // For Hessenberg.
     ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>>, // For Hessenberg.

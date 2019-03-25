@@ -7,7 +7,7 @@ use alga::general::{
     AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma, AbstractModule,
     AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, Additive, ClosedAdd, ClosedMul,
     ClosedNeg, Field, Identity, TwoSidedInverse, JoinSemilattice, Lattice, MeetSemilattice, Module,
-    Multiplicative, RingCommutative, Complex
+    Multiplicative, RingCommutative, ComplexField
 };
 use alga::linear::{
     FiniteDimInnerSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace, VectorSpace,
@@ -145,11 +145,11 @@ where
     }
 }
 
-impl<N: Complex, R: DimName, C: DimName> NormedSpace for MatrixMN<N, R, C>
+impl<N: ComplexField, R: DimName, C: DimName> NormedSpace for MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
     type Real = N::Real;
-    type Complex = N;
+    type ComplexField = N;
 
     #[inline]
     fn norm_squared(&self) -> N::Real {
@@ -182,7 +182,7 @@ where DefaultAllocator: Allocator<N, R, C>
     }
 }
 
-impl<N: Complex, R: DimName, C: DimName> InnerSpace for MatrixMN<N, R, C>
+impl<N: ComplexField, R: DimName, C: DimName> InnerSpace for MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
     #[inline]
@@ -200,7 +200,7 @@ where DefaultAllocator: Allocator<N, R, C>
 // In particular:
 //   − use `x()` instead of `::canonical_basis_element`
 //   − use `::new(x, y, z)` instead of `::from_slice`
-impl<N: Complex, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
+impl<N: ComplexField, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
     #[inline]

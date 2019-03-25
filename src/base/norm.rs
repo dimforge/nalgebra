@@ -1,7 +1,7 @@
 use num::Zero;
 
 use crate::allocator::Allocator;
-use crate::{Real, Complex};
+use crate::{Real, ComplexField};
 use crate::storage::{Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, Dim, MatrixMN};
 use crate::constraint::{SameNumberOfRows, SameNumberOfColumns, ShapeConstraint};
@@ -11,7 +11,7 @@ use crate::constraint::{SameNumberOfRows, SameNumberOfColumns, ShapeConstraint};
 /// A trait for abstract matrix norms.
 ///
 /// This may be moved to the alga crate in the future.
-pub trait Norm<N: Complex> {
+pub trait Norm<N: ComplexField> {
     /// Apply this norm to the given matrix.
     fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::Real
         where R: Dim, C: Dim, S: Storage<N, R, C>;
@@ -29,7 +29,7 @@ pub struct LpNorm(pub i32);
 /// L-infinite norm aka. Chebytchev norm aka. uniform norm aka. suppremum norm.
 pub struct UniformNorm;
 
-impl<N: Complex> Norm<N> for EuclideanNorm {
+impl<N: ComplexField> Norm<N> for EuclideanNorm {
     #[inline]
     fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::Real
         where R: Dim, C: Dim, S: Storage<N, R, C> {
@@ -48,7 +48,7 @@ impl<N: Complex> Norm<N> for EuclideanNorm {
     }
 }
 
-impl<N: Complex> Norm<N> for LpNorm {
+impl<N: ComplexField> Norm<N> for LpNorm {
     #[inline]
     fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::Real
         where R: Dim, C: Dim, S: Storage<N, R, C> {
@@ -69,7 +69,7 @@ impl<N: Complex> Norm<N> for LpNorm {
     }
 }
 
-impl<N: Complex> Norm<N> for UniformNorm {
+impl<N: ComplexField> Norm<N> for UniformNorm {
     #[inline]
     fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::Real
         where R: Dim, C: Dim, S: Storage<N, R, C> {
@@ -95,7 +95,7 @@ impl<N: Complex> Norm<N> for UniformNorm {
 }
 
 
-impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The squared L2 norm of this vector.
     #[inline]
     pub fn norm_squared(&self) -> N::Real {
@@ -213,7 +213,7 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 }
 
 
-impl<N: Complex, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Normalizes this matrix in-place and returns its norm.
     #[inline]
     pub fn normalize_mut(&mut self) -> N::Real {

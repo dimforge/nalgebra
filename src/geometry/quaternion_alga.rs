@@ -119,7 +119,7 @@ impl<N: Real> FiniteDimVectorSpace for Quaternion<N> {
 
 impl<N: Real> NormedSpace for Quaternion<N> {
     type Real = N;
-    type Complex = N;
+    type ComplexField = N;
 
     #[inline]
     fn norm_squared(&self) -> N {

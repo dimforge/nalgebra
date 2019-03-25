@@ -1,7 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Complex;
+use alga::general::ComplexField;
 
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
@@ -26,19 +26,19 @@ use crate::storage::{Storage, StorageMut};
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct Cholesky<N: Complex, D: Dim>
+pub struct Cholesky<N: ComplexField, D: Dim>
 where DefaultAllocator: Allocator<N, D, D>
 {
     chol: MatrixN<N, D>,
 }
 
-impl<N: Complex, D: Dim> Copy for Cholesky<N, D>
+impl<N: ComplexField, D: Dim> Copy for Cholesky<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
 {}
 
-impl<N: Complex, D: DimSub<Dynamic>> Cholesky<N, D>
+impl<N: ComplexField, D: DimSub<Dynamic>> Cholesky<N, D>
 where DefaultAllocator: Allocator<N, D, D>
 {
     /// Attempts to compute the Cholesky decomposition of `matrix`.
@@ -148,7 +148,7 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
-impl<N: Complex, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: ComplexField, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D>
 {
     /// Attempts to compute the Cholesky decomposition of this matrix.

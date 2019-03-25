@@ -16,7 +16,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{ClosedAdd, ClosedMul, ClosedSub, Real, Ring, Complex, Field};
+use alga::general::{ClosedAdd, ClosedMul, ClosedSub, Real, Ring, ComplexField, Field};
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
@@ -913,7 +913,7 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     }
 }
 
-impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Takes the adjoint (aka. conjugate-transpose) of `self` and store the result into `out`.
     #[inline]
     pub fn adjoint_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
@@ -996,7 +996,7 @@ impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Complex, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// The conjugate of the complex matrix `self` computed in-place.
     #[inline]
     pub fn conjugate_mut(&mut self) {
@@ -1016,7 +1016,7 @@ impl<N: Complex, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Complex, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
+impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     /// Sets `self` to its adjoint.
     #[deprecated(note = "Renamed to `self.adjoint_mut()`.")]
     pub fn conjugate_transform_mut(&mut self) {
@@ -1103,7 +1103,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 }
 
-impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// The symmetric part of `self`, i.e., `0.5 * (self + self.transpose())`.
     #[inline]
     pub fn symmetric_part(&self) -> MatrixMN<N, D, D>
@@ -1541,7 +1541,7 @@ where DefaultAllocator: Allocator<N, U3>
     }
 }
 
-impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The smallest angle between two vectors.
     #[inline]
     pub fn angle<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> N::Real
@@ -1592,7 +1592,7 @@ impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     }
 }
 
-impl<N: Complex, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
+impl<N: ComplexField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     /// Computes the spherical linear interpolation between two unit vectors.
     pub fn slerp<S2: Storage<N, D>>(
         &self,

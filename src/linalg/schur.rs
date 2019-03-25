@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use approx::AbsDiffEq;
-use alga::general::{Complex, Real};
+use alga::general::{ComplexField, Real};
 use num_complex::Complex as NumComplex;
 use std::cmp;
 
@@ -35,20 +35,20 @@ use crate::linalg::givens::GivensRotation;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct Schur<N: Complex, D: Dim>
+pub struct Schur<N: ComplexField, D: Dim>
 where DefaultAllocator: Allocator<N, D, D>
 {
     q: MatrixN<N, D>,
     t: MatrixN<N, D>,
 }
 
-impl<N: Complex, D: Dim> Copy for Schur<N, D>
+impl<N: ComplexField, D: Dim> Copy for Schur<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
 {}
 
-impl<N: Complex, D: Dim> Schur<N, D>
+impl<N: ComplexField, D: Dim> Schur<N, D>
 where
     D: DimSub<U1>,                                   // For Hessenberg.
     DefaultAllocator: Allocator<N, D, DimDiff<D, U1>>
@@ -398,7 +398,7 @@ where
     }
 }
 
-fn decompose_2x2<N: Complex, D: Dim>(
+fn decompose_2x2<N: ComplexField, D: Dim>(
     mut m: MatrixN<N, D>,
     compute_q: bool,
 ) -> Option<(Option<MatrixN<N, D>>, MatrixN<N, D>)>
@@ -435,7 +435,7 @@ where
     Some((q, m))
 }
 
-fn compute_2x2_eigvals<N: Complex, S: Storage<N, U2, U2>>(
+fn compute_2x2_eigvals<N: ComplexField, S: Storage<N, U2, U2>>(
     m: &SquareMatrix<N, U2, S>,
 ) -> Option<(N, N)> {
     // Solve the 2x2 eigenvalue subproblem.
@@ -461,7 +461,7 @@ fn compute_2x2_eigvals<N: Complex, S: Storage<N, U2, U2>>(
 ///
 /// Returns `None` if the matrix has complex eigenvalues, or is upper-triangular. In both case,
 /// the basis is the identity.
-fn compute_2x2_basis<N: Complex, S: Storage<N, U2, U2>>(
+fn compute_2x2_basis<N: ComplexField, S: Storage<N, U2, U2>>(
     m: &SquareMatrix<N, U2, S>,
 ) -> Option<GivensRotation<N>> {
     let h10 = m[(1, 0)];
@@ -487,7 +487,7 @@ fn compute_2x2_basis<N: Complex, S: Storage<N, U2, U2>>(
     }
 }
 
-impl<N: Complex, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where
     D: DimSub<U1>,                                   // For Hessenberg.
     DefaultAllocator: Allocator<N, D, DimDiff<D, U1>>

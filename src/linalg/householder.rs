@@ -1,7 +1,7 @@
 //! Construction of householder elementary reflections.
 
 use num::Zero;
-use alga::general::Complex;
+use alga::general::ComplexField;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Unit, Vector, VectorN};
 use crate::dimension::Dim;
@@ -16,7 +16,7 @@ use crate::geometry::Reflection;
 /// `column` after reflection and `false` if no reflection was necessary.
 #[doc(hidden)]
 #[inline(always)]
-pub fn reflection_axis_mut<N: Complex, D: Dim, S: StorageMut<N, D>>(
+pub fn reflection_axis_mut<N: ComplexField, D: Dim, S: StorageMut<N, D>>(
     column: &mut Vector<N, D, S>,
 ) -> (N, bool) {
     let reflection_sq_norm = column.norm_squared();
@@ -44,7 +44,7 @@ pub fn reflection_axis_mut<N: Complex, D: Dim, S: StorageMut<N, D>>(
 /// Uses an householder reflection to zero out the `icol`-th column, starting with the `shift + 1`-th
 /// subdiagonal element.
 #[doc(hidden)]
-pub fn clear_column_unchecked<N: Complex, R: Dim, C: Dim>(
+pub fn clear_column_unchecked<N: ComplexField, R: Dim, C: Dim>(
     matrix: &mut MatrixMN<N, R, C>,
     diag_elt: &mut N,
     icol: usize,
@@ -72,7 +72,7 @@ pub fn clear_column_unchecked<N: Complex, R: Dim, C: Dim>(
 /// Uses an householder reflection to zero out the `irow`-th row, ending before the `shift + 1`-th
 /// superdiagonal element.
 #[doc(hidden)]
-pub fn clear_row_unchecked<N: Complex, R: Dim, C: Dim>(
+pub fn clear_row_unchecked<N: ComplexField, R: Dim, C: Dim>(
     matrix: &mut MatrixMN<N, R, C>,
     diag_elt: &mut N,
     axis_packed: &mut VectorN<N, C>,
@@ -108,7 +108,7 @@ pub fn clear_row_unchecked<N: Complex, R: Dim, C: Dim>(
 /// the lower-diagonal element of the given matrix.
 /// matrices.
 #[doc(hidden)]
-pub fn assemble_q<N: Complex, D: Dim>(m: &MatrixN<N, D>, signs: &[N]) -> MatrixN<N, D>
+pub fn assemble_q<N: ComplexField, D: Dim>(m: &MatrixN<N, D>, signs: &[N]) -> MatrixN<N, D>
 where DefaultAllocator: Allocator<N, D, D> {
     assert!(m.is_square());
     let dim = m.data.shape().0;

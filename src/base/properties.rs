@@ -2,7 +2,7 @@
 use approx::RelativeEq;
 use num::{One, Zero};
 
-use alga::general::{ClosedAdd, ClosedMul, Real, Complex};
+use alga::general::{ClosedAdd, ClosedMul, Real, ComplexField};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimMin};
@@ -84,7 +84,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Checks that `Mᵀ × M = Id`.
     ///
     /// In this definition `Id` is approximately equal to the identity matrix with a relative error

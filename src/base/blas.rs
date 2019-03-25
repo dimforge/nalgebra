@@ -1,4 +1,4 @@
-use alga::general::{ClosedAdd, ClosedMul, Complex};
+use alga::general::{ClosedAdd, ClosedMul, ComplexField};
 #[cfg(feature = "std")]
 use matrixmultiply;
 use num::{One, Signed, Zero};
@@ -15,7 +15,7 @@ use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, DVecto
 
 
 // FIXME: find a way to avoid code duplication just for complex number support.
-impl<N: Complex, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
+impl<N: ComplexField, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     /// Computes the index of the vector component with the largest complex or real absolute value.
     ///
     /// # Examples:
@@ -193,7 +193,7 @@ impl<N: Scalar + PartialOrd, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
 }
 
 // FIXME: find a way to avoid code duplication just for complex number support.
-impl<N: Complex, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Computes the index of the matrix component with the largest absolute value.
     ///
     /// # Examples:
@@ -416,11 +416,11 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     #[inline]
     pub fn dotc<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> N
         where
-            N: Complex,
+            N: ComplexField,
             SB: Storage<N, R2, C2>,
             ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
-        self.dotx(rhs, Complex::conjugate)
+        self.dotx(rhs, ComplexField::conjugate)
     }
 
     /// The dot product between the transpose of `self` and `rhs`.
@@ -726,7 +726,7 @@ where
         x: &Vector<N, D3, SC>,
         beta: N,
     ) where
-        N: Complex,
+        N: ComplexField,
         SB: Storage<N, D2, D2>,
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
@@ -881,12 +881,12 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         y: &Vector<N, D3, SC>,
         beta: N,
     ) where
-        N: Complex,
+        N: ComplexField,
         SB: Storage<N, D2>,
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
-        self.gerx(alpha, x, y, beta, Complex::conjugate)
+        self.gerx(alpha, x, y, beta, ComplexField::conjugate)
     }
 
     /// Computes `self = alpha * a * b + beta * self`, where `a, b, self` are matrices.
@@ -1216,12 +1216,12 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         y: &Vector<N, D3, SC>,
         beta: N,
     ) where
-        N: Complex,
+        N: ComplexField,
         SB: Storage<N, D2>,
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
-        self.xxgerx(alpha, x, y, beta, Complex::conjugate)
+        self.xxgerx(alpha, x, y, beta, ComplexField::conjugate)
     }
 }
 

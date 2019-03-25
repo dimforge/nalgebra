@@ -1,3 +1,3 @@
-pub use quaternion::quaternion;
+pub use self::quaternion::quaternion;
 
 mod quaternion;

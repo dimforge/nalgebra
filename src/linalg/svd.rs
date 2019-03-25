@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use num::{Zero, One};
 use approx::AbsDiffEq;
 
-use alga::general::{Real, Complex};
+use alga::general::{Real, ComplexField};
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, Matrix2x3, MatrixMN, Vector2, VectorN};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
@@ -40,7 +40,7 @@ use crate::linalg::givens::GivensRotation;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct SVD<N: Complex, R: DimMin<C>, C: Dim>
+pub struct SVD<N: ComplexField, R: DimMin<C>, C: Dim>
 where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
         + Allocator<N::Real, DimMinimum<R, C>>
@@ -53,7 +53,7 @@ where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
     pub singular_values: VectorN<N::Real, DimMinimum<R, C>>,
 }
 
-impl<N: Complex, R: DimMin<C>, C: Dim> Copy for SVD<N, R, C>
+impl<N: ComplexField, R: DimMin<C>, C: Dim> Copy for SVD<N, R, C>
 where
     DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
@@ -63,7 +63,7 @@ where
     VectorN<N::Real, DimMinimum<R, C>>: Copy,
 {}
 
-impl<N: Complex, R: DimMin<C>, C: Dim> SVD<N, R, C>
+impl<N: ComplexField, R: DimMin<C>, C: Dim> SVD<N, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
     DefaultAllocator: Allocator<N, R, C>
@@ -546,7 +546,7 @@ where
     }
 }
 
-impl<N: Complex, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 where
     DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
     DefaultAllocator: Allocator<N, R, C>

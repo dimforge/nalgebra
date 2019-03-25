@@ -1,4 +1,4 @@
-use alga::general::Complex;
+use alga::general::ComplexField;
 use crate::base::allocator::Allocator;
 use crate::base::constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
 use crate::base::{DefaultAllocator, Matrix, Scalar, Unit, Vector};
@@ -13,7 +13,7 @@ pub struct Reflection<N: Scalar, D: Dim, S: Storage<N, D>> {
     bias: N,
 }
 
-impl<N: Complex, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
+impl<N: ComplexField, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
     /// Creates a new reflection wrt the plane orthogonal to the given axis and bias.
     ///
     /// The bias is the position of the plane on the axis. In particular, a bias equal to zero

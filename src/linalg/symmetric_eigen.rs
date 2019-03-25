@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use num::Zero;
 use approx::AbsDiffEq;
 
-use alga::general::Complex;
+use alga::general::ComplexField;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix2, MatrixN, SquareMatrix, Vector2, VectorN};
 use crate::dimension::{Dim, DimDiff, DimSub, U1, U2};
@@ -34,7 +34,7 @@ use crate::linalg::SymmetricTridiagonal;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct SymmetricEigen<N: Complex, D: Dim>
+pub struct SymmetricEigen<N: ComplexField, D: Dim>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
 {
     /// The eigenvectors of the decomposed matrix.
@@ -44,14 +44,14 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
     pub eigenvalues: VectorN<N::Real, D>,
 }
 
-impl<N: Complex, D: Dim> Copy for SymmetricEigen<N, D>
+impl<N: ComplexField, D: Dim> Copy for SymmetricEigen<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>,
     MatrixN<N, D>: Copy,
     VectorN<N::Real, D>: Copy,
 {}
 
-impl<N: Complex, D: Dim> SymmetricEigen<N, D>
+impl<N: ComplexField, D: Dim> SymmetricEigen<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
 {
     /// Computes the eigendecomposition of the given symmetric matrix.
@@ -288,7 +288,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::Real, D>
 /// The inputs are interpreted as the 2x2 matrix:
 ///     tmm  tmn
 ///     tmn  tnn
-pub fn wilkinson_shift<N: Complex>(tmm: N, tnn: N, tmn: N) -> N {
+pub fn wilkinson_shift<N: ComplexField>(tmm: N, tnn: N, tmn: N) -> N {
     let sq_tmn = tmn * tmn;
     if !sq_tmn.is_zero() {
         // We have the guarantee that the denominator won't be zero.
@@ -304,7 +304,7 @@ pub fn wilkinson_shift<N: Complex>(tmm: N, tnn: N, tmn: N) -> N {
  * Computations of eigenvalues for symmetric matrices.
  *
  */
-impl<N: Complex, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: ComplexField, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>> +
                         Allocator<N::Real, D> + Allocator<N::Real, DimDiff<D, U1>>
 {

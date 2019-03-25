@@ -1,7 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::{Field, Complex};
+use alga::general::{Field, ComplexField};
 use crate::allocator::{Allocator, Reallocator};
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
@@ -32,14 +32,14 @@ use crate::linalg::PermutationSequence;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct LU<N: Complex, R: DimMin<C>, C: Dim>
+pub struct LU<N: ComplexField, R: DimMin<C>, C: Dim>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
 {
     lu: MatrixMN<N, R, C>,
     p: PermutationSequence<DimMinimum<R, C>>,
 }
 
-impl<N: Complex, R: DimMin<C>, C: Dim> Copy for LU<N, R, C>
+impl<N: ComplexField, R: DimMin<C>, C: Dim> Copy for LU<N, R, C>
 where
     DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
@@ -49,7 +49,7 @@ where
 /// Performs a LU decomposition to overwrite `out` with the inverse of `matrix`.
 ///
 /// If `matrix` is not invertible, `false` is returned and `out` may contain invalid data.
-pub fn try_invert_to<N: Complex, D: Dim, S>(
+pub fn try_invert_to<N: ComplexField, D: Dim, S>(
     mut matrix: MatrixN<N, D>,
     out: &mut Matrix<N, D, D, S>,
 ) -> bool
@@ -86,7 +86,7 @@ where
     matrix.solve_upper_triangular_mut(out)
 }
 
-impl<N: Complex, R: DimMin<C>, C: Dim> LU<N, R, C>
+impl<N: ComplexField, R: DimMin<C>, C: Dim> LU<N, R, C>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
 {
     /// Computes the LU decomposition with partial (row) pivoting of `matrix`.
@@ -197,7 +197,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimu
     }
 }
 
-impl<N: Complex, D: DimMin<D, Output = D>> LU<N, D, D>
+impl<N: ComplexField, D: DimMin<D, Output = D>> LU<N, D, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
@@ -368,7 +368,7 @@ pub fn gauss_step_swap<N, R: Dim, C: Dim, S>(
     }
 }
 
-impl<N: Complex, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
 {
     /// Computes the LU decomposition with partial (row) pivoting of `matrix`.

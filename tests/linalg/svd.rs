@@ -8,7 +8,7 @@ mod quickcheck_tests {
             mod $module {
                 use na::{
                     DMatrix, DVector, Matrix2, Matrix2x5, Matrix3, Matrix3x5, Matrix4, Matrix5x2, Matrix5x3,
-                    Complex
+                    ComplexField
                 };
                 use std::cmp;
                 #[allow(unused_imports)]
@@ -21,7 +21,7 @@ mod quickcheck_tests {
                             let svd = m.clone().svd(true, true);
                             let recomp_m = svd.clone().recompose().unwrap();
                             let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-                            let ds = DMatrix::from_diagonal(&s.map(|e| Complex::from_real(e)));
+                            let ds = DMatrix::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
                             s.iter().all(|e| *e >= 0.0) &&
                             relative_eq!(&u * ds * &v_t, recomp_m, epsilon = 1.0e-5) &&
@@ -36,7 +36,7 @@ mod quickcheck_tests {
                         let m = m.map(|e| e.0);
                         let svd = m.svd(true, true);
                         let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-                        let ds = Matrix3::from_diagonal(&s.map(|e| Complex::from_real(e)));
+                        let ds = Matrix3::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
                         s.iter().all(|e| *e >= 0.0) &&
                         relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5) &&
@@ -48,7 +48,7 @@ mod quickcheck_tests {
                         let m = m.map(|e| e.0);
                         let svd = m.svd(true, true);
                         let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-                        let ds = Matrix2::from_diagonal(&s.map(|e| Complex::from_real(e)));
+                        let ds = Matrix2::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
                         s.iter().all(|e| *e >= 0.0) &&
                         relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5) &&
@@ -61,7 +61,7 @@ mod quickcheck_tests {
                         let svd = m.svd(true, true);
                         let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
 
-                        let ds = Matrix3::from_diagonal(&s.map(|e| Complex::from_real(e)));
+                        let ds = Matrix3::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
                         s.iter().all(|e| *e >= 0.0) &&
                         relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5)
@@ -71,7 +71,7 @@ mod quickcheck_tests {
                         let m = m.map(|e| e.0);
                         let svd = m.svd(true, true);
                         let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-                        let ds = Matrix2::from_diagonal(&s.map(|e| Complex::from_real(e)));
+                        let ds = Matrix2::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
                         s.iter().all(|e| *e >= 0.0) &&
                         relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5)
@@ -81,7 +81,7 @@ mod quickcheck_tests {
                         let m = m.map(|e| e.0);
                         let svd = m.svd(true, true);
                         let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-                        let ds = Matrix4::from_diagonal(&s.map(|e| Complex::from_real(e)));
+                        let ds = Matrix4::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
                         s.iter().all(|e| *e >= 0.0) &&
                         relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5) &&
@@ -93,7 +93,7 @@ mod quickcheck_tests {
                         let m = m.map(|e| e.0);
                         let svd = m.svd(true, true);
                         let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-                        let ds = Matrix2::from_diagonal(&s.map(|e| Complex::from_real(e)));
+                        let ds = Matrix2::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
                         s.iter().all(|e| *e >= 0.0) &&
                         relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5) &&

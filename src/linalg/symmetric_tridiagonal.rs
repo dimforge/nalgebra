@@ -1,7 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Complex;
+use alga::general::ComplexField;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
 use crate::dimension::{DimDiff, DimSub, U1};
@@ -30,21 +30,21 @@ use crate::linalg::householder;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct SymmetricTridiagonal<N: Complex, D: DimSub<U1>>
+pub struct SymmetricTridiagonal<N: ComplexField, D: DimSub<U1>>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     tri: MatrixN<N, D>,
     off_diagonal: VectorN<N, DimDiff<D, U1>>,
 }
 
-impl<N: Complex, D: DimSub<U1>> Copy for SymmetricTridiagonal<N, D>
+impl<N: ComplexField, D: DimSub<U1>> Copy for SymmetricTridiagonal<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
     MatrixN<N, D>: Copy,
     VectorN<N, DimDiff<D, U1>>: Copy,
 {}
 
-impl<N: Complex, D: DimSub<U1>> SymmetricTridiagonal<N, D>
+impl<N: ComplexField, D: DimSub<U1>> SymmetricTridiagonal<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the tridiagonalization of the symmetric matrix `m`.
@@ -145,7 +145,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
     }
 }
 
-impl<N: Complex, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: ComplexField, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the tridiagonalization of this symmetric matrix.
