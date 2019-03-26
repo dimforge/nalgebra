@@ -11,7 +11,7 @@ use crate::base::constraint::{
 };
 use crate::base::dimension::{Dim, Dynamic, U1, U2, U3, U4};
 use crate::base::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, DVectorSlice};
+use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, DVectorSlice, VectorSliceN};
 
 
 // FIXME: find a way to avoid code duplication just for complex number support.
@@ -368,6 +368,9 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
     /// The dot product between two vectors or matrices (seen as vectors).
     ///
+    /// This is equal to `self.transpose() * rhs`. For the sesquilinear complex dot product, use
+    /// `self.dotc(rhs)`.
+    ///
     /// Note that this is **not** the matrix multiplication as in, e.g., numpy. For matrix
     /// multiplication, use one of: `.gemm`, `.mul_to`, `.mul`, the `*` operator.
     ///
@@ -385,6 +388,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     ///                           0.4, 0.5, 0.6);
     /// assert_eq!(mat1.dot(&mat2), 9.1);
     /// ```
+    ///
     #[inline]
     pub fn dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> N
     where
@@ -394,24 +398,24 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         self.dotx(rhs, |e| e)
     }
 
-    /// The dot product between two vectors or matrices (seen as vectors).
+    /// The conjugate-linear dot product between two vectors or matrices (seen as vectors).
     ///
+    /// This is equal to `self.adjoint() * rhs`.
+    /// For real vectors, this is identical to `self.dot(&rhs)`.
     /// Note that this is **not** the matrix multiplication as in, e.g., numpy. For matrix
     /// multiplication, use one of: `.gemm`, `.mul_to`, `.mul`, the `*` operator.
     ///
     /// # Examples:
     ///
     /// ```
-    /// # use nalgebra::{Vector3, Matrix2x3};
-    /// let vec1 = Vector3::new(1.0, 2.0, 3.0);
-    /// let vec2 = Vector3::new(0.1, 0.2, 0.3);
-    /// assert_eq!(vec1.dot(&vec2), 1.4);
+    /// # use nalgebra::{Vector2, Complex};
+    /// let vec1 = Vector2::new(Complex::new(1.0, 2.0), Complex::new(3.0, 4.0));
+    /// let vec2 = Vector2::new(Complex::new(0.4, 0.3), Complex::new(0.2, 0.1));
+    /// assert_eq!(vec1.dotc(&vec2), Complex::new(2.0, -1.0));
     ///
-    /// let mat1 = Matrix2x3::new(1.0, 2.0, 3.0,
-    ///                           4.0, 5.0, 6.0);
-    /// let mat2 = Matrix2x3::new(0.1, 0.2, 0.3,
-    ///                           0.4, 0.5, 0.6);
-    /// assert_eq!(mat1.dot(&mat2), 9.1);
+    /// // Note that for complex vectors, we generally have:
+    /// // vec1.dotc(&vec2) != vec2.dot(&vec2)
+    /// assert_ne!(vec1.dotc(&vec2), vec1.dot(&vec2));
     /// ```
     #[inline]
     pub fn dotc<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> N
@@ -579,7 +583,7 @@ where
 
 
     #[inline(always)]
-    fn xgemv<D2: Dim, D3: Dim, SB, SC>(
+    fn xxgemv<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
         alpha: N,
         a: &SquareMatrix<N, D2, SB>,
@@ -651,6 +655,7 @@ where
     /// Computes `self = alpha * a * x + beta * self`, where `a` is a **symmetric** matrix, `x` a
     /// vector, and `alpha, beta` two scalars.
     ///
+    /// For hermitian matrices, use `.hegemv` instead.
     /// If `beta` is zero, `self` is never read. If `self` is read, only its lower-triangular part
     /// (including the diagonal) is actually read.
     ///
@@ -688,7 +693,7 @@ where
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
     {
-        self.xgemv(alpha, a, x, beta, |a, b| a.dot(b))
+        self.xxgemv(alpha, a, x, beta, |a, b| a.dot(b))
     }
 
     /// Computes `self = alpha * a * x + beta * self`, where `a` is an **hermitian** matrix, `x` a
@@ -700,23 +705,25 @@ where
     /// # Examples:
     ///
     /// ```
-    /// # use nalgebra::{Matrix2, Vector2};
-    /// let mat = Matrix2::new(1.0, 2.0,
-    ///                        2.0, 4.0);
-    /// let mut vec1 = Vector2::new(1.0, 2.0);
-    /// let vec2 = Vector2::new(0.1, 0.2);
-    /// vec1.sygemv(10.0, &mat, &vec2, 5.0);
-    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
+    /// # use nalgebra::{Matrix2, Vector2, Complex};
+    /// let mat = Matrix2::new(Complex::new(1.0, 0.0), Complex::new(2.0, -0.1),
+    ///                        Complex::new(2.0, 1.0), Complex::new(4.0, 0.0));
+    /// let mut vec1 = Vector2::new(Complex::new(1.0, 2.0), Complex::new(3.0, 4.0));
+    /// let vec2 = Vector2::new(Complex::new(0.1, 0.2), Complex::new(0.3, 0.4));
+    /// vec1.sygemv(Complex::new(10.0, 20.0), &mat, &vec2, Complex::new(5.0, 15.0));
+    /// assert_eq!(vec1, Vector2::new(Complex::new(-48.0, 44.0), Complex::new(-75.0, 110.0)));
     ///
     ///
     /// // The matrix upper-triangular elements can be garbage because it is never
     /// // read by this method. Therefore, it is not necessary for the caller to
     /// // fill the matrix struct upper-triangle.
-    /// let mat = Matrix2::new(1.0, 9999999.9999999,
-    ///                        2.0, 4.0);
-    /// let mut vec1 = Vector2::new(1.0, 2.0);
-    /// vec1.sygemv(10.0, &mat, &vec2, 5.0);
-    /// assert_eq!(vec1, Vector2::new(10.0, 20.0));
+    ///
+    /// let mat = Matrix2::new(Complex::new(1.0, 0.0), Complex::new(99999999.9, 999999999.9),
+    ///                        Complex::new(2.0, 1.0), Complex::new(4.0, 0.0));
+    /// let mut vec1 = Vector2::new(Complex::new(1.0, 2.0), Complex::new(3.0, 4.0));
+    /// let vec2 = Vector2::new(Complex::new(0.1, 0.2), Complex::new(0.3, 0.4));
+    /// vec1.sygemv(Complex::new(10.0, 20.0), &mat, &vec2, Complex::new(5.0, 15.0));
+    /// assert_eq!(vec1, Vector2::new(Complex::new(-48.0, 44.0), Complex::new(-75.0, 110.0)));
     /// ```
     #[inline]
     pub fn hegemv<D2: Dim, D3: Dim, SB, SC>(
@@ -731,8 +738,50 @@ where
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
     {
-        self.xgemv(alpha, a, x, beta, |a, b| a.dotc(b))
+        self.xxgemv(alpha, a, x, beta, |a, b| a.dotc(b))
     }
+
+
+    #[inline(always)]
+    fn gemv_xx<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: N,
+        a: &Matrix<N, R2, C2, SB>,
+        x: &Vector<N, D3, SC>,
+        beta: N,
+        dot: impl Fn(&VectorSliceN<N, R2, SB::RStride, SB::CStride>, &Vector<N, D3, SC>) -> N,
+    ) where
+        N: One,
+        SB: Storage<N, R2, C2>,
+        SC: Storage<N, D3>,
+        ShapeConstraint: DimEq<D, C2> + AreMultipliable<C2, R2, D3, U1>,
+    {
+        let dim1 = self.nrows();
+        let (nrows2, ncols2) = a.shape();
+        let dim3 = x.nrows();
+
+        assert!(
+            nrows2 == dim3 && dim1 == ncols2,
+            "Gemv: dimensions mismatch."
+        );
+
+        if ncols2 == 0 {
+            return;
+        }
+
+        if beta.is_zero() {
+            for j in 0..ncols2 {
+                let val = unsafe { self.vget_unchecked_mut(j) };
+                *val = alpha * dot(&a.column(j), x)
+            }
+        } else {
+            for j in 0..ncols2 {
+                let val = unsafe { self.vget_unchecked_mut(j) };
+                *val = alpha * dot(&a.column(j), x) + beta * *val;
+            }
+        }
+    }
+
 
     /// Computes `self = alpha * a.transpose() * x + beta * self`, where `a` is a matrix, `x` a vector, and
     /// `alpha, beta` two scalars.
@@ -765,30 +814,42 @@ where
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<D, C2> + AreMultipliable<C2, R2, D3, U1>,
     {
-        let dim1 = self.nrows();
-        let (nrows2, ncols2) = a.shape();
-        let dim3 = x.nrows();
+        self.gemv_xx(alpha, a, x, beta, |a, b| a.dot(b))
+    }
 
-        assert!(
-            nrows2 == dim3 && dim1 == ncols2,
-            "Gemv: dimensions mismatch."
-        );
-
-        if ncols2 == 0 {
-            return;
-        }
-
-        if beta.is_zero() {
-            for j in 0..ncols2 {
-                let val = unsafe { self.vget_unchecked_mut(j) };
-                *val = alpha * a.column(j).dot(x)
-            }
-        } else {
-            for j in 0..ncols2 {
-                let val = unsafe { self.vget_unchecked_mut(j) };
-                *val = alpha * a.column(j).dot(x) + beta * *val;
-            }
-        }
+    /// Computes `self = alpha * a.adjoint() * x + beta * self`, where `a` is a matrix, `x` a vector, and
+    /// `alpha, beta` two scalars.
+    ///
+    /// For real matrices, this is the same as `.gemv_tr`.
+    /// If `beta` is zero, `self` is never read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2, Vector2, Complex};
+    /// let mat = Matrix2::new(Complex::new(1.0, 2.0), Complex::new(3.0, 4.0),
+    ///                        Complex::new(5.0, 6.0), Complex::new(7.0, 8.0));
+    /// let mut vec1 = Vector2::new(Complex::new(1.0, 2.0), Complex::new(3.0, 4.0));
+    /// let vec2 = Vector2::new(Complex::new(0.1, 0.2), Complex::new(0.3, 0.4));
+    /// let expected = mat.adjoint() * vec2 * Complex::new(10.0, 20.0) + vec1 * Complex::new(5.0, 15.0);
+    ///
+    /// vec1.gemv_ad(Complex::new(10.0, 20.0), &mat, &vec2, Complex::new(5.0, 15.0));
+    /// assert_eq!(vec1, expected);
+    /// ```
+    #[inline]
+    pub fn gemv_ad<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: N,
+        a: &Matrix<N, R2, C2, SB>,
+        x: &Vector<N, D3, SC>,
+        beta: N,
+    ) where
+        N: ComplexField,
+        SB: Storage<N, R2, C2>,
+        SC: Storage<N, D3>,
+        ShapeConstraint: DimEq<D, C2> + AreMultipliable<C2, R2, D3, U1>,
+    {
+        self.gemv_xx(alpha, a, x, beta, |a, b| a.dotc(b))
     }
 }
 
@@ -857,20 +918,21 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         self.gerx(alpha, x, y, beta, |e| e)
     }
 
-    /// Computes `self = alpha * x * y.transpose() + beta * self`.
+    /// Computes `self = alpha * x * y.adjoint() + beta * self`.
     ///
     /// If `beta` is zero, `self` is never read.
     ///
     /// # Examples:
     ///
     /// ```
-    /// # use nalgebra::{Matrix2x3, Vector2, Vector3};
-    /// let mut mat = Matrix2x3::repeat(4.0);
-    /// let vec1 = Vector2::new(1.0, 2.0);
-    /// let vec2 = Vector3::new(0.1, 0.2, 0.3);
-    /// let expected = vec1 * vec2.transpose() * 10.0 + mat * 5.0;
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Matrix2x3, Vector2, Vector3, Complex};
+    /// let mut mat = Matrix2x3::repeat(Complex::new(4.0, 5.0));
+    /// let vec1 = Vector2::new(Complex::new(1.0, 2.0), Complex::new(3.0, 4.0));
+    /// let vec2 = Vector3::new(Complex::new(0.6, 0.5), Complex::new(0.4, 0.5), Complex::new(0.2, 0.1));
+    /// let expected = vec1 * vec2.adjoint() * Complex::new(10.0, 20.0) + mat * Complex::new(5.0, 15.0);
     ///
-    /// mat.ger(10.0, &vec1, &vec2, 5.0);
+    /// mat.gerc(Complex::new(10.0, 20.0), &vec1, &vec2, Complex::new(5.0, 15.0));
     /// assert_eq!(mat, expected);
     /// ```
     #[inline]
@@ -1041,7 +1103,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     /// let expected = mat2.transpose() * mat3 * 10.0 + mat1 * 5.0;
     ///
     /// mat1.gemm_tr(10.0, &mat2, &mat3, 5.0);
-    /// assert_relative_eq!(mat1, expected);
+    /// assert_eq!(mat1, expected);
     /// ```
     #[inline]
     pub fn gemm_tr<R2: Dim, C2: Dim, R3: Dim, C3: Dim, SB, SC>(
@@ -1075,6 +1137,64 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         for j1 in 0..ncols1 {
             // FIXME: avoid bound checks.
             self.column_mut(j1).gemv_tr(alpha, a, &b.column(j1), beta);
+        }
+    }
+
+
+    /// Computes `self = alpha * a.adjoint() * b + beta * self`, where `a, b, self` are matrices.
+    /// `alpha` and `beta` are scalar.
+    ///
+    /// If `beta` is zero, `self` is never read.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Matrix3x2, Matrix3x4, Matrix2x4, Complex};
+    /// let mut mat1 = Matrix2x4::identity();
+    /// let mat2 = Matrix3x2::new(Complex::new(1.0, 4.0), Complex::new(7.0, 8.0),
+    ///                           Complex::new(2.0, 5.0), Complex::new(9.0, 10.0),
+    ///                           Complex::new(3.0, 6.0), Complex::new(11.0, 12.0));
+    /// let mat3 = Matrix3x4::new(Complex::new(0.1, 1.3), Complex::new(0.2, 1.4), Complex::new(0.3, 1.5), Complex::new(0.4, 1.6),
+    ///                           Complex::new(0.5, 1.7), Complex::new(0.6, 1.8), Complex::new(0.7, 1.9), Complex::new(0.8, 2.0),
+    ///                           Complex::new(0.9, 2.1), Complex::new(1.0, 2.2), Complex::new(1.1, 2.3), Complex::new(1.2, 2.4));
+    /// let expected = mat2.adjoint() * mat3 * Complex::new(10.0, 20.0) + mat1 * Complex::new(5.0, 15.0);
+    ///
+    /// mat1.gemm_ad(Complex::new(10.0, 20.0), &mat2, &mat3, Complex::new(5.0, 15.0));
+    /// assert_eq!(mat1, expected);
+    /// ```
+    #[inline]
+    pub fn gemm_ad<R2: Dim, C2: Dim, R3: Dim, C3: Dim, SB, SC>(
+        &mut self,
+        alpha: N,
+        a: &Matrix<N, R2, C2, SB>,
+        b: &Matrix<N, R3, C3, SC>,
+        beta: N,
+    ) where
+        N: ComplexField,
+        SB: Storage<N, R2, C2>,
+        SC: Storage<N, R3, C3>,
+        ShapeConstraint: SameNumberOfRows<R1, C2>
+        + SameNumberOfColumns<C1, C3>
+        + AreMultipliable<C2, R2, R3, C3>,
+    {
+        let (nrows1, ncols1) = self.shape();
+        let (nrows2, ncols2) = a.shape();
+        let (nrows3, ncols3) = b.shape();
+
+        assert_eq!(
+            nrows2, nrows3,
+            "gemm: dimensions mismatch for multiplication."
+        );
+        assert_eq!(
+            (nrows1, ncols1),
+            (ncols2, ncols3),
+            "gemm: dimensions mismatch for addition."
+        );
+
+        for j1 in 0..ncols1 {
+            // FIXME: avoid bound checks.
+            self.column_mut(j1).gemv_ad(alpha, a, &b.column(j1), beta);
         }
     }
 }
@@ -1157,6 +1277,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     /// Computes `self = alpha * x * y.transpose() + beta * self`, where `self` is a **symmetric**
     /// matrix.
     ///
+    /// For hermitian complex matrices, use `.hegerc` instead.
     /// If `beta` is zero, `self` is never read. The result is symmetric. Only the lower-triangular
     /// (including the diagonal) part of `self` is read/written.
     ///
@@ -1170,7 +1291,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     /// let expected = vec1 * vec2.transpose() * 10.0 + mat * 5.0;
     /// mat.m12 = 99999.99999; // This component is on the upper-triangular part and will not be read/written.
     ///
-    /// mat.ger_symm(10.0, &vec1, &vec2, 5.0);
+    /// mat.syger(10.0, &vec1, &vec2, 5.0);
     /// assert_eq!(mat.lower_triangle(), expected.lower_triangle());
     /// assert_eq!(mat.m12, 99999.99999); // This was untouched.
     #[inline]
@@ -1189,7 +1310,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         self.xxgerx(alpha, x, y, beta, |e| e)
     }
 
-    /// Computes `self = alpha * x * y.transpose() + beta * self`, where `self` is a **symmetric**
+    /// Computes `self = alpha * x * y.adjoint() + beta * self`, where `self` is an **hermitian**
     /// matrix.
     ///
     /// If `beta` is zero, `self` is never read. The result is symmetric. Only the lower-triangular
@@ -1198,16 +1319,16 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     /// # Examples:
     ///
     /// ```
-    /// # use nalgebra::{Matrix2, Vector2};
+    /// # use nalgebra::{Matrix2, Vector2, Complex};
     /// let mut mat = Matrix2::identity();
-    /// let vec1 = Vector2::new(1.0, 2.0);
-    /// let vec2 = Vector2::new(0.1, 0.2);
-    /// let expected = vec1 * vec2.transpose() * 10.0 + mat * 5.0;
-    /// mat.m12 = 99999.99999; // This component is on the upper-triangular part and will not be read/written.
+    /// let vec1 = Vector2::new(Complex::new(1.0, 3.0), Complex::new(2.0, 4.0));
+    /// let vec2 = Vector2::new(Complex::new(0.2, 0.4), Complex::new(0.1, 0.3));
+    /// let expected = vec1 * vec2.adjoint() * Complex::new(10.0, 20.0) + mat * Complex::new(5.0, 15.0);
+    /// mat.m12 = Complex::new(99999.99999, 88888.88888); // This component is on the upper-triangular part and will not be read/written.
     ///
-    /// mat.ger_symm(10.0, &vec1, &vec2, 5.0);
+    /// mat.hegerc(Complex::new(10.0, 20.0), &vec1, &vec2, Complex::new(5.0, 15.0));
     /// assert_eq!(mat.lower_triangle(), expected.lower_triangle());
-    /// assert_eq!(mat.m12, 99999.99999); // This was untouched.
+    /// assert_eq!(mat.m12, Complex::new(99999.99999, 88888.88888)); // This was untouched.
     #[inline]
     pub fn hegerc<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
