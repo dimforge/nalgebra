@@ -4,19 +4,47 @@ documented here.
 
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.18.0] - WIP
+## [0.18.0]
 This release adds full complex number support to nalgebra. This includes all common vector/matrix operations as well
 as matrix decomposition. This excludes geometric type (like `Isometry`, `Rotation`, `Translation`, etc.) from the
 `geometry` module.
 
 ### Added
+#### Quaternion and geometric operations
+  * Add trigonometric functions for quaternions: `.cos, .sin, .tan, .acos, .asin, .atan, .cosh, .sinh, .tanh, .acosh, .asinh, .atanh`.
+  * Add geometric algebra operations for quaternions: `.inner, .outer, .project, .rejection`
   * Add `.renormalize` to `Unit<...>` and `Rotation3` to correct potential drift due to repeated operations.
-    Those drifts can cause them not to be pure rotations anymore.
+    Those drifts could cause them not to be pure rotations anymore.
+  
+#### Convolution
+  * `.convolve_full(kernel)` returns the convolution of `self` by `kernel`.
+  * `.convolve_valid(kernel)` returns the convolution of `self` by `kernel` after removal of all the elements relying on zero-padding.
+  * `.convolve_same(kernel)` returns the convolution of `self` by `kernel` with a result of the same size as `self`.
+  
+#### Complex number support
   * Add the `::from_matrix` constructor too all rotation types to extract a rotation from a raw matrix.
   * Add the `::from_matrix_eps` constructor too all rotation types to extract a rotation from a raw matrix. This takes
     more argument than `::from_matrix` to control the convergence of the underlying optimization algorithm.
-  * Add trigonometric functions for quaternions: `.cos, .sin, .tan, .acos, .asin, .atan, .cosh, .sinh, .tanh, .acosh, .asinh, .atanh`.
-  * Add geometric algebra operations for quaternions: `.inner, .outer, .project, .rejection`
+  * Add `.camax()` which returns the matrix component with the greatest L1-norm.
+  * Add `.camin()` which returns the matrix component with the smallest L1-norm.
+  * Add `.ad_mul(b)` for matrix-multiplication of `self.adjoint() * b`.
+  * Add `.ad_mul_to(b)` which is the same as `.ad_mul` but with a provided matrix to be filled with the result of the multiplication.
+  * Add BLAS operations involving complex conjugation (following similar names as the original BLAS spec):
+      * `.dotc(rhs)` equal to  `self.adjoint() * rhs`.
+      * `.gerc(alpha, x, y, beta)` equivalent to `self = alpha * x * y.adjoint() + beta * self`
+      * `.hegerc` which is like `gerc` but for Hermitian matrices.
+      * `.syger` which is the new name of `.ger_symm` which is equivalent to `self = alpha * x * y.transpose() + beta * self`.
+      * `.sygemv` which is the new name of `.gemv_symm` which is equivalent to `self = alpha * a * x + beta * self` with `a` symmetric.
+      * `.hegemv(alpha, a, x, beta)` which is like `.sygemv` but with `a` Hermitian.
+      * `.gemv_ad(alpha, a, x, beta)` which is equivalent to `self = alpha * a.adjoint() * x + beta * self`.
+      * `.gemm_ad(alpha, a, b, beta)` which is equivalent to `self = alpha * a.adjoint() * b + beta * self`.
+      * `.icamax()` which returns the index of the complex vector component with the greatest L1-norm.
+
+Note that all the existing BLAS operation will still work for all fields, including floats and complex numbers.
+
+### Renamed
+  * `RealSchur` has been renamed `Schur` because it can now work with complex matrices.
+
 
 ## [0.17.0]
 
