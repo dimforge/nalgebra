@@ -1,6 +1,6 @@
 use na::Scalar;
 
-use aliases::{Vec2, Vec4, UVec2};
+use crate::aliases::{Vec2, Vec4, UVec2};
 
 
 pub fn packDouble2x32<N: Scalar>(v: &UVec2) -> f64 {

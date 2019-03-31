@@ -40,7 +40,7 @@ fn assert_encode_and_decode<T: Abomonation + PartialEq + Clone>(original_data: T
     // Encode
     let mut bytes = Vec::new();
     unsafe {
-        encode(&original_data, &mut bytes);
+        let _ = encode(&original_data, &mut bytes);
     }
 
     // Drop the original, so that dangling pointers are revealed by the test

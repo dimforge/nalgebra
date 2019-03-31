@@ -6,13 +6,13 @@ use num_complex::Complex;
 use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
-use alga::general::Real;
-use base::dimension::{U1, U2};
-use base::storage::Storage;
-use base::{Unit, Vector, Matrix2};
-use geometry::{Rotation2, UnitComplex};
+use alga::general::RealField;
+use crate::base::dimension::{U1, U2};
+use crate::base::storage::Storage;
+use crate::base::{Unit, Vector, Matrix2};
+use crate::geometry::{Rotation2, UnitComplex};
 
-impl<N: Real> UnitComplex<N> {
+impl<N: RealField> UnitComplex<N> {
     /// The unit complex number multiplicative identity.
     ///
     /// # Example
@@ -268,14 +268,14 @@ impl<N: Real> UnitComplex<N> {
     }
 }
 
-impl<N: Real> One for UnitComplex<N> {
+impl<N: RealField> One for UnitComplex<N> {
     #[inline]
     fn one() -> Self {
         Self::identity()
     }
 }
 
-impl<N: Real> Distribution<UnitComplex<N>> for Standard
+impl<N: RealField> Distribution<UnitComplex<N>> for Standard
 where OpenClosed01: Distribution<N>
 {
     /// Generate a uniformly distributed random `UnitComplex`.
@@ -286,7 +286,7 @@ where OpenClosed01: Distribution<N>
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Real + Arbitrary> Arbitrary for UnitComplex<N> {
+impl<N: RealField + Arbitrary> Arbitrary for UnitComplex<N> {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         UnitComplex::from_angle(N::arbitrary(g))

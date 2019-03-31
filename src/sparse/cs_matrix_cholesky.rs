@@ -1,12 +1,12 @@
 use std::iter;
 use std::mem;
 
-use allocator::Allocator;
-use sparse::{CsMatrix, CsStorage, CsStorageIter, CsStorageIterMut, CsVecStorage};
-use {DefaultAllocator, Dim, Real, VectorN, U1};
+use crate::allocator::Allocator;
+use crate::sparse::{CsMatrix, CsStorage, CsStorageIter, CsStorageIterMut, CsVecStorage};
+use crate::{DefaultAllocator, Dim, RealField, VectorN, U1};
 
 /// The cholesky decomposition of a column compressed sparse matrix.
-pub struct CsCholesky<N: Real, D: Dim>
+pub struct CsCholesky<N: RealField, D: Dim>
 where DefaultAllocator: Allocator<usize, D> + Allocator<N, D>
 {
     // Non-zero pattern of the original matrix upper-triangular part.
@@ -25,7 +25,7 @@ where DefaultAllocator: Allocator<usize, D> + Allocator<N, D>
     work_c: VectorN<usize, D>,
 }
 
-impl<N: Real, D: Dim> CsCholesky<N, D>
+impl<N: RealField, D: Dim> CsCholesky<N, D>
 where DefaultAllocator: Allocator<usize, D> + Allocator<N, D>
 {
     /// Computes the cholesky decomposition of the sparse matrix `m`.

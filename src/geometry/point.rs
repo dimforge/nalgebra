@@ -12,10 +12,10 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::iter::{MatrixIter, MatrixIterMut};
-use base::{DefaultAllocator, Scalar, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::iter::{MatrixIter, MatrixIterMut};
+use crate::base::{DefaultAllocator, Scalar, VectorN};
 
 /// A point in a n-dimensional euclidean space.
 #[repr(C)]
@@ -316,14 +316,14 @@ impl<N: Scalar + fmt::Display, D: DimName> fmt::Display for Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        try!(write!(f, "{{"));
+        write!(f, "{{")?;
 
         let mut it = self.coords.iter();
 
-        try!(write!(f, "{}", *it.next().unwrap()));
+        write!(f, "{}", *it.next().unwrap())?;
 
         for comp in it {
-            try!(write!(f, ", {}", *comp));
+            write!(f, ", {}", *comp)?;
         }
 
         write!(f, "}}")

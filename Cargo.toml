@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.17.3"
+version = "0.18.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "Linear algebra library with transformations and statically-sized or dynamically-sized matrices."
@@ -11,6 +11,7 @@ readme = "README.md"
 categories = [ "science" ]
 keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
 license = "BSD-3-Clause"
+edition = "2018"
 
 exclude = ["/ci/*", "/.travis.yml", "/Makefile"]
 
@@ -26,7 +27,7 @@ arbitrary       = [ "quickcheck" ]
 serde-serialize = [ "serde", "serde_derive", "num-complex/serde" ]
 abomonation-serialize = [ "abomonation" ]
 sparse = [ ]
-debug = [ ]
+debug = [ "approx/num-complex", "rand/std" ]
 alloc = [ ]
 io = [ "pest", "pest_derive" ]
 
@@ -37,7 +38,7 @@ rand           = { version = "0.6", default-features = false }
 num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.2", default-features = false }
 approx         = { version = "0.3", default-features = false }
-alga           = { version = "0.8", default-features = false }
+alga           = { version = "0.9", default-features = false }
 matrixmultiply = { version = "0.2", optional = true }
 serde          = { version = "1.0", optional = true }
 serde_derive   = { version = "1.0", optional = true }
@@ -47,9 +48,25 @@ quickcheck     = { version = "0.8", optional = true }
 pest           = { version = "2.0", optional = true }
 pest_derive    = { version = "2.0", optional = true }
 
+#[patch.crates-io]
+#alga = { git = "https://github.com/rustsim/alga", branch = "dev" }
+
 [dev-dependencies]
 serde_json = "1.0"
 rand_xorshift = "0.1"
+### Uncomment this line before running benchmarks.
+### We can't just let this uncommented because that would breack
+### compilation for #[no-std] because of the terrible Cargo bug
+### https://github.com/rust-lang/cargo/issues/4866
+#criterion = "0.2.10"
 
 [workspace]
 members = [ "nalgebra-lapack", "nalgebra-glm" ]
+
+[[bench]]
+name = "nalgebra_bench"
+harness = false
+path = "benches/lib.rs"
+
+[profile.bench]
+lto = true

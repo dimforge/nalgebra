@@ -1,15 +1,15 @@
 use alga::general::{ClosedDiv, SubsetOf, SupersetOf};
 use num::{One, Zero};
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::{DefaultAllocator, Matrix, Scalar, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::{DefaultAllocator, Matrix, Scalar, VectorN};
 
 #[cfg(feature = "mint")]
-use base::dimension::{U2, U3};
+use crate::base::dimension::{U2, U3};
 #[cfg(feature = "mint")]
-use base::storage::{Storage, StorageMut};
-use geometry::Point;
+use crate::base::storage::{Storage, StorageMut};
+use crate::geometry::Point;
 #[cfg(feature = "mint")]
 use mint;
 #[cfg(feature = "mint")]
@@ -67,14 +67,14 @@ where
 
     #[inline]
     fn is_in_subset(v: &VectorN<N2, DimNameSum<D, U1>>) -> bool {
-        ::is_convertible::<_, VectorN<N1, DimNameSum<D, U1>>>(v) && !v[D::dim()].is_zero()
+        crate::is_convertible::<_, VectorN<N1, DimNameSum<D, U1>>>(v) && !v[D::dim()].is_zero()
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(v: &VectorN<N2, DimNameSum<D, U1>>) -> Self {
         let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()];
         Self {
-            coords: ::convert_unchecked(coords)
+            coords: crate::convert_unchecked(coords)
         }
     }
 }

@@ -1,7 +1,7 @@
 use na::DefaultAllocator;
 
-use aliases::{TMat, TVec};
-use traits::{Alloc, Dimension, Number};
+use crate::aliases::{TMat, TVec};
+use crate::traits::{Alloc, Dimension, Number};
 
 /// Perform a component-wise equal-to comparison of two matrices.
 ///

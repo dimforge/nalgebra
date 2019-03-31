@@ -7,16 +7,16 @@ use alga::general::{
     AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma, AbstractModule,
     AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, Additive, ClosedAdd, ClosedMul,
     ClosedNeg, Field, Identity, TwoSidedInverse, JoinSemilattice, Lattice, MeetSemilattice, Module,
-    Multiplicative, Real, RingCommutative,
+    Multiplicative, RingCommutative, ComplexField
 };
 use alga::linear::{
     FiniteDimInnerSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace, VectorSpace,
 };
 
-use base::allocator::Allocator;
-use base::dimension::{Dim, DimName};
-use base::storage::{Storage, StorageMut};
-use base::{DefaultAllocator, MatrixMN, MatrixN, Scalar};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{Dim, DimName};
+use crate::base::storage::{Storage, StorageMut};
+use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar};
 
 /*
  *
@@ -145,16 +145,19 @@ where
     }
 }
 
-impl<N: Real, R: DimName, C: DimName> NormedSpace for MatrixMN<N, R, C>
+impl<N: ComplexField, R: DimName, C: DimName> NormedSpace for MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
+    type RealField = N::RealField;
+    type ComplexField = N;
+
     #[inline]
-    fn norm_squared(&self) -> N {
+    fn norm_squared(&self) -> N::RealField {
         self.norm_squared()
     }
 
     #[inline]
-    fn norm(&self) -> N {
+    fn norm(&self) -> N::RealField {
         self.norm()
     }
 
@@ -164,34 +167,32 @@ where DefaultAllocator: Allocator<N, R, C>
     }
 
     #[inline]
-    fn normalize_mut(&mut self) -> N {
+    fn normalize_mut(&mut self) -> N::RealField {
         self.normalize_mut()
     }
 
     #[inline]
-    fn try_normalize(&self, min_norm: N) -> Option<Self> {
+    fn try_normalize(&self, min_norm: N::RealField) -> Option<Self> {
         self.try_normalize(min_norm)
     }
 
     #[inline]
-    fn try_normalize_mut(&mut self, min_norm: N) -> Option<N> {
+    fn try_normalize_mut(&mut self, min_norm: N::RealField) -> Option<N::RealField> {
         self.try_normalize_mut(min_norm)
     }
 }
 
-impl<N: Real, R: DimName, C: DimName> InnerSpace for MatrixMN<N, R, C>
+impl<N: ComplexField, R: DimName, C: DimName> InnerSpace for MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
-    type Real = N;
-
     #[inline]
-    fn angle(&self, other: &Self) -> N {
+    fn angle(&self, other: &Self) -> N::RealField {
         self.angle(other)
     }
 
     #[inline]
     fn inner_product(&self, other: &Self) -> N {
-        self.dot(other)
+        self.dotc(other)
     }
 }
 
@@ -199,7 +200,7 @@ where DefaultAllocator: Allocator<N, R, C>
 // In particular:
 //   − use `x()` instead of `::canonical_basis_element`
 //   − use `::new(x, y, z)` instead of `::from_slice`
-impl<N: Real, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
+impl<N: ComplexField, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
     #[inline]
@@ -215,7 +216,7 @@ where DefaultAllocator: Allocator<N, R, C>
                 }
             }
 
-            if vs[i].try_normalize_mut(N::zero()).is_some() {
+            if vs[i].try_normalize_mut(N::RealField::zero()).is_some() {
                 // FIXME: this will be efficient on dynamically-allocated vectors but for
                 // statically-allocated ones, `.clone_from` would be better.
                 vs.swap(nbasis_elements, i);
@@ -268,7 +269,7 @@ where DefaultAllocator: Allocator<N, R, C>
                     let v = &vs[0];
                     let mut a;
 
-                    if v[0].abs() > v[1].abs() {
+                    if v[0].norm1() > v[1].norm1() {
                         a = Self::from_column_slice(&[v[2], N::zero(), -v[0]]);
                     } else {
                         a = Self::from_column_slice(&[N::zero(), -v[2], v[1]]);
@@ -300,7 +301,7 @@ where DefaultAllocator: Allocator<N, R, C>
                             elt -= v * elt.dot(v)
                         }
 
-                        if let Some(subsp_elt) = elt.try_normalize(N::zero()) {
+                        if let Some(subsp_elt) = elt.try_normalize(N::RealField::zero()) {
                             if !f(&subsp_elt) {
                                 return;
                             };

@@ -8,36 +8,36 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::mem;
 
-use alga::general::Real;
+use alga::general::RealField;
 
-use base::dimension::U3;
-use base::helper;
-use base::storage::Storage;
-use base::{Matrix4, Scalar, Vector, Vector3};
+use crate::base::dimension::U3;
+use crate::base::helper;
+use crate::base::storage::Storage;
+use crate::base::{Matrix4, Scalar, Vector, Vector3};
 
-use geometry::{Point3, Projective3};
+use crate::geometry::{Point3, Projective3};
 
 /// A 3D perspective projection stored as an homogeneous 4x4 matrix.
 pub struct Perspective3<N: Scalar> {
     matrix: Matrix4<N>,
 }
 
-impl<N: Real> Copy for Perspective3<N> {}
+impl<N: RealField> Copy for Perspective3<N> {}
 
-impl<N: Real> Clone for Perspective3<N> {
+impl<N: RealField> Clone for Perspective3<N> {
     #[inline]
     fn clone(&self) -> Self {
         Self::from_matrix_unchecked(self.matrix.clone())
     }
 }
 
-impl<N: Real> fmt::Debug for Perspective3<N> {
+impl<N: RealField> fmt::Debug for Perspective3<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         self.matrix.fmt(f)
     }
 }
 
-impl<N: Real> PartialEq for Perspective3<N> {
+impl<N: RealField> PartialEq for Perspective3<N> {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.matrix == right.matrix
@@ -45,7 +45,7 @@ impl<N: Real> PartialEq for Perspective3<N> {
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Real + Serialize> Serialize for Perspective3<N> {
+impl<N: RealField + Serialize> Serialize for Perspective3<N> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where S: Serializer {
         self.matrix.serialize(serializer)
@@ -53,7 +53,7 @@ impl<N: Real + Serialize> Serialize for Perspective3<N> {
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Real + Deserialize<'a>> Deserialize<'a> for Perspective3<N> {
+impl<'a, N: RealField + Deserialize<'a>> Deserialize<'a> for Perspective3<N> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where Des: Deserializer<'a> {
         let matrix = Matrix4::<N>::deserialize(deserializer)?;
@@ -62,7 +62,7 @@ impl<'a, N: Real + Deserialize<'a>> Deserialize<'a> for Perspective3<N> {
     }
 }
 
-impl<N: Real> Perspective3<N> {
+impl<N: RealField> Perspective3<N> {
     /// Creates a new perspective matrix from the aspect ratio, y field of view, and near/far planes.
     pub fn new(aspect: N, fovy: N, znear: N, zfar: N) -> Self {
         assert!(
@@ -162,7 +162,7 @@ impl<N: Real> Perspective3<N> {
     /// Gets the y field of view of the view frustum.
     #[inline]
     pub fn fovy(&self) -> N {
-        (N::one() / self.matrix[(1, 1)]).atan() * ::convert(2.0)
+        (N::one() / self.matrix[(1, 1)]).atan() * crate::convert(2.0)
     }
 
     /// Gets the near plane offset of the view frustum.
@@ -170,7 +170,7 @@ impl<N: Real> Perspective3<N> {
     pub fn znear(&self) -> N {
         let ratio = (-self.matrix[(2, 2)] + N::one()) / (-self.matrix[(2, 2)] - N::one());
 
-        self.matrix[(2, 3)] / (ratio * ::convert(2.0)) - self.matrix[(2, 3)] / ::convert(2.0)
+        self.matrix[(2, 3)] / (ratio * crate::convert(2.0)) - self.matrix[(2, 3)] / crate::convert(2.0)
     }
 
     /// Gets the far plane offset of the view frustum.
@@ -178,7 +178,7 @@ impl<N: Real> Perspective3<N> {
     pub fn zfar(&self) -> N {
         let ratio = (-self.matrix[(2, 2)] + N::one()) / (-self.matrix[(2, 2)] - N::one());
 
-        (self.matrix[(2, 3)] - ratio * self.matrix[(2, 3)]) / ::convert(2.0)
+        (self.matrix[(2, 3)] - ratio * self.matrix[(2, 3)]) / crate::convert(2.0)
     }
 
     // FIXME: add a method to retrieve znear and zfar simultaneously?
@@ -235,7 +235,7 @@ impl<N: Real> Perspective3<N> {
     #[inline]
     pub fn set_fovy(&mut self, fovy: N) {
         let old_m22 = self.matrix[(1, 1)];
-        self.matrix[(1, 1)] = N::one() / (fovy / ::convert(2.0)).tan();
+        self.matrix[(1, 1)] = N::one() / (fovy / crate::convert(2.0)).tan();
         self.matrix[(0, 0)] = self.matrix[(0, 0)] * (self.matrix[(1, 1)] / old_m22);
     }
 
@@ -257,11 +257,11 @@ impl<N: Real> Perspective3<N> {
     #[inline]
     pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
         self.matrix[(2, 2)] = (zfar + znear) / (znear - zfar);
-        self.matrix[(2, 3)] = zfar * znear * ::convert(2.0) / (znear - zfar);
+        self.matrix[(2, 3)] = zfar * znear * crate::convert(2.0) / (znear - zfar);
     }
 }
 
-impl<N: Real> Distribution<Perspective3<N>> for Standard
+impl<N: RealField> Distribution<Perspective3<N>> for Standard
 where Standard: Distribution<N>
 {
     fn sample<'a, R: Rng + ?Sized>(&self, r: &'a mut R) -> Perspective3<N> {
@@ -274,7 +274,7 @@ where Standard: Distribution<N>
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Real + Arbitrary> Arbitrary for Perspective3<N> {
+impl<N: RealField + Arbitrary> Arbitrary for Perspective3<N> {
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let znear = Arbitrary::arbitrary(g);
         let zfar = helper::reject(g, |&x: &N| !(x - znear).is_zero());
@@ -284,7 +284,7 @@ impl<N: Real + Arbitrary> Arbitrary for Perspective3<N> {
     }
 }
 
-impl<N: Real> From<Perspective3<N>> for Matrix4<N> {
+impl<N: RealField> From<Perspective3<N>> for Matrix4<N> {
     #[inline]
     fn from(orth: Perspective3<N>) -> Self {
         orth.into_inner()

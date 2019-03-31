@@ -4,13 +4,13 @@ use serde::{Deserialize, Serialize};
 use num::Zero;
 use num_complex::Complex;
 
-use alga::general::Real;
+use alga::general::RealField;
 
 use na::allocator::Allocator;
 use na::dimension::{Dim, U1};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
-use ComplexHelper;
+use crate::ComplexHelper;
 
 use lapack;
 
@@ -51,7 +51,7 @@ where
     MatrixN<N, D>: Copy,
 {}
 
-impl<N: EigenScalar + Real, D: Dim> Eigen<N, D>
+impl<N: EigenScalar + RealField, D: Dim> Eigen<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Computes the eigenvalues and eigenvectors of the square matrix `m`.
@@ -101,7 +101,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 
         lapack_check!(info);
 
-        let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
+        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
         match (left_eigenvectors, eigenvectors) {
             (true, true) => {
@@ -263,7 +263,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 
         lapack_panic!(info);
 
-        let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
+        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
         N::xgeev(
             b'N',

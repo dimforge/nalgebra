@@ -1,6 +1,6 @@
 use na;
 
-use traits::Number;
+use crate::traits::Number;
 
 /// Returns the maximum among three values.
 ///

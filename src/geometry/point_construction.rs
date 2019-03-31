@@ -6,11 +6,11 @@ use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
 use alga::general::ClosedDiv;
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1, U2, U3, U4, U5, U6};
-use base::{DefaultAllocator, Scalar, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1, U2, U3, U4, U5, U6};
+use crate::base::{DefaultAllocator, Scalar, VectorN};
 
-use geometry::Point;
+use crate::geometry::Point;
 
 impl<N: Scalar, D: DimName> Point<N, D>
 where DefaultAllocator: Allocator<N, D>
@@ -28,7 +28,7 @@ where DefaultAllocator: Allocator<N, D>
     /// ```
     /// # use nalgebra::{Point2, Point3};
     /// // This works in any dimension.
-    /// // The explicit ::<f32> type annotation may not always be needed,
+    /// // The explicit crate::<f32> type annotation may not always be needed,
     /// // depending on the context of type inference.
     /// let pt = Point2::<f32>::origin();
     /// assert!(pt.x == 0.0 && pt.y == 0.0);

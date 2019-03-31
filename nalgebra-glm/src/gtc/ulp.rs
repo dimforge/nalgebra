@@ -1,6 +1,6 @@
 use na::{Scalar, U2};
 
-use aliases::TVec;
+use crate::aliases::TVec;
 
 
 pub fn float_distance<T>(x: T, y: T) -> u64 {

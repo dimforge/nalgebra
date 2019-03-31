@@ -1,10 +1,10 @@
 #[cfg(any(feature = "alloc", feature = "std"))]
-use base::dimension::Dynamic;
-use base::dimension::{U1, U2, U3, U4, U5, U6};
+use crate::base::dimension::Dynamic;
+use crate::base::dimension::{U1, U2, U3, U4, U5, U6};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use base::vec_storage::VecStorage;
-use base::storage::Owned;
-use base::Matrix;
+use crate::base::vec_storage::VecStorage;
+use crate::base::storage::Owned;
+use crate::base::Matrix;
 
 /*
  *

@@ -10,14 +10,14 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{Real, SubsetOf};
+use alga::general::{RealField, SubsetOf};
 use alga::linear::Rotation;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::storage::Owned;
-use base::{DefaultAllocator, MatrixN};
-use geometry::{Isometry, Point, Translation};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::storage::Owned;
+use crate::base::{DefaultAllocator, MatrixN, VectorN};
+use crate::geometry::{Isometry, Point, Translation};
 
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
@@ -41,7 +41,7 @@ use geometry::{Isometry, Point, Translation};
                        Owned<N, D>: Deserialize<'de>"
     ))
 )]
-pub struct Similarity<N: Real, D: DimName, R>
+pub struct Similarity<N: RealField, D: DimName, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// The part of this similarity that does not include the scaling factor.
@@ -50,7 +50,7 @@ where DefaultAllocator: Allocator<N, D>
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: Real, D: DimName, R> Abomonation for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> Abomonation for Similarity<N, D, R>
 where
     Isometry<N, D, R>: Abomonation,
     DefaultAllocator: Allocator<N, D>,
@@ -68,7 +68,7 @@ where
     }
 }
 
-impl<N: Real + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
+impl<N: RealField + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
     for Similarity<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
@@ -80,13 +80,13 @@ where
     }
 }
 
-impl<N: Real, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Similarity<N, D, R>
+impl<N: RealField, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Similarity<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
 {}
 
-impl<N: Real, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Similarity<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -95,7 +95,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName, R> Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -238,13 +238,94 @@ where
     pub fn append_rotation_wrt_center_mut(&mut self, r: &R) {
         self.isometry.append_rotation_wrt_center_mut(r)
     }
+
+    /// Transform the given point by this similarity.
+    ///
+    /// This is the same as the multiplication `self * pt`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Point3, Similarity3, Vector3};
+    /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
+    /// let translation = Vector3::new(1.0, 2.0, 3.0);
+    /// let sim = Similarity3::new(translation, axisangle, 3.0);
+    /// let transformed_point = sim.transform_point(&Point3::new(4.0, 5.0, 6.0));
+    /// assert_relative_eq!(transformed_point, Point3::new(19.0, 17.0, -9.0), epsilon = 1.0e-5);
+    /// ```
+    #[inline]
+    pub fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        self * pt
+    }
+
+    /// Transform the given vector by this similarity, ignoring the translational
+    /// component.
+    ///
+    /// This is the same as the multiplication `self * t`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Similarity3, Vector3};
+    /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
+    /// let translation = Vector3::new(1.0, 2.0, 3.0);
+    /// let sim = Similarity3::new(translation, axisangle, 3.0);
+    /// let transformed_vector = sim.transform_vector(&Vector3::new(4.0, 5.0, 6.0));
+    /// assert_relative_eq!(transformed_vector, Vector3::new(18.0, 15.0, -12.0), epsilon = 1.0e-5);
+    /// ```
+    #[inline]
+    pub fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+        self * v
+    }
+
+    /// Transform the given point by the inverse of this similarity. This may
+    /// be cheaper than inverting the similarity and then transforming the
+    /// given point.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Point3, Similarity3, Vector3};
+    /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
+    /// let translation = Vector3::new(1.0, 2.0, 3.0);
+    /// let sim = Similarity3::new(translation, axisangle, 2.0);
+    /// let transformed_point = sim.inverse_transform_point(&Point3::new(4.0, 5.0, 6.0));
+    /// assert_relative_eq!(transformed_point, Point3::new(-1.5, 1.5, 1.5), epsilon = 1.0e-5);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        self.isometry.inverse_transform_point(pt) / self.scaling()
+    }
+
+    /// Transform the given vector by the inverse of this similarity,
+    /// ignoring the translational component. This may be cheaper than
+    /// inverting the similarity and then transforming the given vector.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Similarity3, Vector3};
+    /// let axisangle = Vector3::y() * f32::consts::FRAC_PI_2;
+    /// let translation = Vector3::new(1.0, 2.0, 3.0);
+    /// let sim = Similarity3::new(translation, axisangle, 2.0);
+    /// let transformed_vector = sim.inverse_transform_vector(&Vector3::new(4.0, 5.0, 6.0));
+    /// assert_relative_eq!(transformed_vector, Vector3::new(-3.0, 2.5, 2.0), epsilon = 1.0e-5);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+        self.isometry.inverse_transform_vector(v) / self.scaling()
+    }
 }
 
 // NOTE: we don't require `R: Rotation<...>` here because this is not useful for the implementation
 // and makes it harder to use it, e.g., for Transform × Isometry implementation.
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the private scaling factor).
-impl<N: Real, D: DimName, R> Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> Similarity<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Converts this similarity into its equivalent homogeneous transformation matrix.
@@ -265,13 +346,13 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName, R> Eq for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> Eq for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>> + Eq,
     DefaultAllocator: Allocator<N, D>,
 {}
 
-impl<N: Real, D: DimName, R> PartialEq for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> PartialEq for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>> + PartialEq,
     DefaultAllocator: Allocator<N, D>,
@@ -282,7 +363,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> AbsDiffEq for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> AbsDiffEq for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>> + AbsDiffEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
@@ -302,7 +383,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> RelativeEq for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> RelativeEq for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>> + RelativeEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
@@ -329,7 +410,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> UlpsEq for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> UlpsEq for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>> + UlpsEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
@@ -354,16 +435,16 @@ where
  */
 impl<N, D: DimName, R> fmt::Display for Similarity<N, D, R>
 where
-    N: Real + fmt::Display,
+    N: RealField + fmt::Display,
     R: Rotation<Point<N, D>> + fmt::Display,
     DefaultAllocator: Allocator<N, D> + Allocator<usize, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        try!(writeln!(f, "Similarity {{"));
-        try!(write!(f, "{:.*}", precision, self.isometry));
-        try!(write!(f, "Scaling: {:.*}", precision, self.scaling));
+        writeln!(f, "Similarity {{")?;
+        write!(f, "{:.*}", precision, self.isometry)?;
+        write!(f, "Scaling: {:.*}", precision, self.scaling)?;
         writeln!(f, "}}")
     }
 }

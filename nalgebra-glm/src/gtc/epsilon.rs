@@ -4,8 +4,8 @@
 use approx::AbsDiffEq;
 use na::DefaultAllocator;
 
-use traits::{Alloc, Number, Dimension};
-use aliases::TVec;
+use crate::traits::{Alloc, Number, Dimension};
+use crate::aliases::TVec;
 
 /// Component-wise approximate equality beween two vectors.
 pub fn epsilon_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>, epsilon: N) -> TVec<bool, D>

@@ -5,7 +5,7 @@ use na::allocator::Allocator;
 use na::dimension::{Dim, DimMin, DimMinimum, U1};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, VectorN};
-use ComplexHelper;
+use crate::ComplexHelper;
 
 use lapack;
 
@@ -214,7 +214,7 @@ where
         }
     }
 
-    /// Solves the linear system `self.conjugate_transpose() * x = b`, where `x` is the unknown to
+    /// Solves the linear system `self.adjoint() * x = b`, where `x` is the unknown to
     /// be determined.
     pub fn solve_conjugate_transpose<R2: Dim, C2: Dim, S2>(
         &self,
@@ -249,11 +249,11 @@ where
         self.generic_solve_mut(b'T', b)
     }
 
-    /// Solves in-place the linear system `self.conjugate_transpose() * x = b`, where `x` is the unknown to
+    /// Solves in-place the linear system `self.adjoint() * x = b`, where `x` is the unknown to
     /// be determined.
     ///
     /// Returns `false` if no solution was found (the decomposed matrix is singular).
-    pub fn solve_conjugate_transpose_mut<R2: Dim, C2: Dim>(
+    pub fn solve_adjoint_mut<R2: Dim, C2: Dim>(
         &self,
         b: &mut MatrixMN<N, R2, C2>,
     ) -> bool
@@ -283,7 +283,7 @@ where
         );
         lapack_check!(info);
 
-        let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
+        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
         N::xgetri(
             dim,

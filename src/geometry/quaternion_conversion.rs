@@ -1,14 +1,14 @@
 use num::Zero;
 
-use alga::general::{Real, SubsetOf, SupersetOf};
+use alga::general::{RealField, SubsetOf, SupersetOf};
 use alga::linear::Rotation as AlgaRotation;
 
 #[cfg(feature = "mint")]
 use mint;
 
-use base::dimension::U3;
-use base::{Matrix3, Matrix4, Vector4};
-use geometry::{
+use crate::base::dimension::U3;
+use crate::base::{Matrix3, Matrix4, Vector4};
+use crate::geometry::{
     Isometry, Point3, Quaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf, TAffine,
     Transform, Translation, UnitQuaternion,
 };
@@ -34,8 +34,8 @@ use geometry::{
 
 impl<N1, N2> SubsetOf<Quaternion<N2>> for Quaternion<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> Quaternion<N2> {
@@ -44,7 +44,7 @@ where
 
     #[inline]
     fn is_in_subset(q: &Quaternion<N2>) -> bool {
-        ::is_convertible::<_, Vector4<N1>>(&q.coords)
+        crate::is_convertible::<_, Vector4<N1>>(&q.coords)
     }
 
     #[inline]
@@ -57,8 +57,8 @@ where
 
 impl<N1, N2> SubsetOf<UnitQuaternion<N2>> for UnitQuaternion<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> UnitQuaternion<N2> {
@@ -67,19 +67,19 @@ where
 
     #[inline]
     fn is_in_subset(uq: &UnitQuaternion<N2>) -> bool {
-        ::is_convertible::<_, Quaternion<N1>>(uq.as_ref())
+        crate::is_convertible::<_, Quaternion<N1>>(uq.as_ref())
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(uq: &UnitQuaternion<N2>) -> Self {
-        Self::new_unchecked(::convert_ref_unchecked(uq.as_ref()))
+        Self::new_unchecked(crate::convert_ref_unchecked(uq.as_ref()))
     }
 }
 
 impl<N1, N2> SubsetOf<Rotation<N2, U3>> for UnitQuaternion<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> Rotation3<N2> {
@@ -89,25 +89,25 @@ where
 
     #[inline]
     fn is_in_subset(rot: &Rotation3<N2>) -> bool {
-        ::is_convertible::<_, Rotation3<N1>>(rot)
+        crate::is_convertible::<_, Rotation3<N1>>(rot)
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(rot: &Rotation3<N2>) -> Self {
         let q = UnitQuaternion::<N2>::from_rotation_matrix(rot);
-        ::convert_unchecked(q)
+        crate::convert_unchecked(q)
     }
 }
 
 impl<N1, N2, R> SubsetOf<Isometry<N2, U3, R>> for UnitQuaternion<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: AlgaRotation<Point3<N2>> + SupersetOf<Self>,
 {
     #[inline]
     fn to_superset(&self) -> Isometry<N2, U3, R> {
-        Isometry::from_parts(Translation::identity(), ::convert_ref(self))
+        Isometry::from_parts(Translation::identity(), crate::convert_ref(self))
     }
 
     #[inline]
@@ -117,19 +117,19 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(iso: &Isometry<N2, U3, R>) -> Self {
-        ::convert_ref_unchecked(&iso.rotation)
+        crate::convert_ref_unchecked(&iso.rotation)
     }
 }
 
 impl<N1, N2, R> SubsetOf<Similarity<N2, U3, R>> for UnitQuaternion<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: AlgaRotation<Point3<N2>> + SupersetOf<Self>,
 {
     #[inline]
     fn to_superset(&self) -> Similarity<N2, U3, R> {
-        Similarity::from_isometry(::convert_ref(self), N2::one())
+        Similarity::from_isometry(crate::convert_ref(self), N2::one())
     }
 
     #[inline]
@@ -139,14 +139,14 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(sim: &Similarity<N2, U3, R>) -> Self {
-        ::convert_ref_unchecked(&sim.isometry)
+        crate::convert_ref_unchecked(&sim.isometry)
     }
 }
 
 impl<N1, N2, C> SubsetOf<Transform<N2, U3, C>> for UnitQuaternion<N1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
 {
     #[inline]
@@ -165,7 +165,7 @@ where
     }
 }
 
-impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitQuaternion<N1> {
+impl<N1: RealField, N2: RealField + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitQuaternion<N1> {
     #[inline]
     fn to_superset(&self) -> Matrix4<N2> {
         self.to_homogeneous().to_superset()
@@ -173,25 +173,25 @@ impl<N1: Real, N2: Real + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitQuaterni
 
     #[inline]
     fn is_in_subset(m: &Matrix4<N2>) -> bool {
-        ::is_convertible::<_, Rotation3<N1>>(m)
+        crate::is_convertible::<_, Rotation3<N1>>(m)
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(m: &Matrix4<N2>) -> Self {
-        let rot: Rotation3<N1> = ::convert_ref_unchecked(m);
+        let rot: Rotation3<N1> = crate::convert_ref_unchecked(m);
         Self::from_rotation_matrix(&rot)
     }
 }
 
 #[cfg(feature = "mint")]
-impl<N: Real> From<mint::Quaternion<N>> for Quaternion<N> {
+impl<N: RealField> From<mint::Quaternion<N>> for Quaternion<N> {
     fn from(q: mint::Quaternion<N>) -> Self {
         Self::new(q.s, q.v.x, q.v.y, q.v.z)
     }
 }
 
 #[cfg(feature = "mint")]
-impl<N: Real> Into<mint::Quaternion<N>> for Quaternion<N> {
+impl<N: RealField> Into<mint::Quaternion<N>> for Quaternion<N> {
     fn into(self) -> mint::Quaternion<N> {
         mint::Quaternion {
             v: mint::Vector3 {
@@ -205,7 +205,7 @@ impl<N: Real> Into<mint::Quaternion<N>> for Quaternion<N> {
 }
 
 #[cfg(feature = "mint")]
-impl<N: Real> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
+impl<N: RealField> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
     fn into(self) -> mint::Quaternion<N> {
         mint::Quaternion {
             v: mint::Vector3 {
@@ -218,35 +218,35 @@ impl<N: Real> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
     }
 }
 
-impl<N: Real> From<UnitQuaternion<N>> for Matrix4<N> {
+impl<N: RealField> From<UnitQuaternion<N>> for Matrix4<N> {
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {
         q.to_homogeneous()
     }
 }
 
-impl<N: Real> From<UnitQuaternion<N>> for Rotation3<N> {
+impl<N: RealField> From<UnitQuaternion<N>> for Rotation3<N> {
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {
         q.to_rotation_matrix()
     }
 }
 
-impl<N: Real> From<Rotation3<N>> for UnitQuaternion<N> {
+impl<N: RealField> From<Rotation3<N>> for UnitQuaternion<N> {
     #[inline]
     fn from(q: Rotation3<N>) -> Self {
         Self::from_rotation_matrix(&q)
     }
 }
 
-impl<N: Real> From<UnitQuaternion<N>> for Matrix3<N> {
+impl<N: RealField> From<UnitQuaternion<N>> for Matrix3<N> {
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {
         q.to_rotation_matrix().into_inner()
     }
 }
 
-impl<N: Real> From<Vector4<N>> for Quaternion<N> {
+impl<N: RealField> From<Vector4<N>> for Quaternion<N> {
     #[inline]
     fn from(coords: Vector4<N>) -> Self {
         Self { coords }

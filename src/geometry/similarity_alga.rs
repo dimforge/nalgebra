@@ -1,22 +1,22 @@
 use alga::general::{
     AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
-    AbstractSemigroup, Identity, TwoSidedInverse, Multiplicative, Real,
+    AbstractSemigroup, Identity, TwoSidedInverse, Multiplicative, RealField,
 };
 use alga::linear::Similarity as AlgaSimilarity;
 use alga::linear::{AffineTransformation, ProjectiveTransformation, Rotation, Transformation};
 
-use base::allocator::Allocator;
-use base::dimension::DimName;
-use base::{DefaultAllocator, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::DimName;
+use crate::base::{DefaultAllocator, VectorN};
 
-use geometry::{Point, Similarity, Translation};
+use crate::geometry::{Point, Similarity, Translation};
 
 /*
  *
  * Algebraic structures.
  *
  */
-impl<N: Real, D: DimName, R> Identity<Multiplicative> for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> Identity<Multiplicative> for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -27,7 +27,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> TwoSidedInverse<Multiplicative> for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> TwoSidedInverse<Multiplicative> for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -43,7 +43,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> AbstractMagma<Multiplicative> for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> AbstractMagma<Multiplicative> for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -56,7 +56,7 @@ where
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N: Real, D: DimName, R> $marker<$operator> for Similarity<N, D, R>
+        impl<N: RealField, D: DimName, R> $marker<$operator> for Similarity<N, D, R>
             where R: Rotation<Point<N, D>>,
                   DefaultAllocator: Allocator<N, D> { }
     )*}
@@ -75,39 +75,39 @@ impl_multiplicative_structures!(
  * Transformation groups.
  *
  */
-impl<N: Real, D: DimName, R> Transformation<Point<N, D>> for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> Transformation<Point<N, D>> for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
-        self * pt
+        self.transform_point(pt)
     }
 
     #[inline]
     fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
-        self * v
+        self.transform_vector(v)
     }
 }
 
-impl<N: Real, D: DimName, R> ProjectiveTransformation<Point<N, D>> for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> ProjectiveTransformation<Point<N, D>> for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
-        self.isometry.inverse_transform_point(pt) / self.scaling()
+        self.inverse_transform_point(pt)
     }
 
     #[inline]
     fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
-        self.isometry.inverse_transform_vector(v) / self.scaling()
+        self.inverse_transform_vector(v)
     }
 }
 
-impl<N: Real, D: DimName, R> AffineTransformation<Point<N, D>> for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> AffineTransformation<Point<N, D>> for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -164,7 +164,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> AlgaSimilarity<Point<N, D>> for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> AlgaSimilarity<Point<N, D>> for Similarity<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,

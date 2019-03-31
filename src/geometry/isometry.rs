@@ -11,14 +11,14 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{Real, SubsetOf};
+use alga::general::{RealField, SubsetOf};
 use alga::linear::Rotation;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::storage::Owned;
-use base::{DefaultAllocator, MatrixN};
-use geometry::{Point, Translation};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::storage::Owned;
+use crate::base::{DefaultAllocator, MatrixN, VectorN};
+use crate::geometry::{Point, Translation};
 
 /// A direct isometry, i.e., a rotation followed by a translation, aka. a rigid-body motion, aka. an element of a Special Euclidean (SE) group.
 #[repr(C)]
@@ -36,7 +36,7 @@ use geometry::{Point, Translation};
                        DefaultAllocator: Allocator<N, D>,
                        Owned<N, D>: Deserialize<'de>"))
 )]
-pub struct Isometry<N: Real, D: DimName, R>
+pub struct Isometry<N: RealField, D: DimName, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// The pure rotational part of this isometry.
@@ -55,7 +55,7 @@ where DefaultAllocator: Allocator<N, D>
 #[cfg(feature = "abomonation-serialize")]
 impl<N, D, R> Abomonation for Isometry<N, D, R>
 where
-    N: Real,
+    N: RealField,
     D: DimName,
     R: Abomonation,
     Translation<N, D>: Abomonation,
@@ -77,7 +77,7 @@ where
     }
 }
 
-impl<N: Real + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash for Isometry<N, D, R>
+impl<N: RealField + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash for Isometry<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: hash::Hash,
@@ -88,14 +88,14 @@ where
     }
 }
 
-impl<N: Real, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Isometry<N, D, R>
+impl<N: RealField, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Isometry<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
 {
 }
 
-impl<N: Real, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Isometry<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -104,7 +104,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName, R: Rotation<Point<N, D>>> Isometry<N, D, R>
+impl<N: RealField, D: DimName, R: Rotation<Point<N, D>>> Isometry<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new isometry from its rotational and translational parts.
@@ -254,13 +254,104 @@ where DefaultAllocator: Allocator<N, D>
     pub fn append_rotation_wrt_center_mut(&mut self, r: &R) {
         self.rotation = self.rotation.append_rotation(r);
     }
+
+    /// Transform the given point by this isometry.
+    ///
+    /// This is the same as the multiplication `self * pt`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry3, Translation3, UnitQuaternion, Vector3, Point3};
+    /// let tra = Translation3::new(0.0, 0.0, 3.0);
+    /// let rot = UnitQuaternion::from_scaled_axis(Vector3::y() * f32::consts::FRAC_PI_2);
+    /// let iso = Isometry3::from_parts(tra, rot);
+    ///
+    /// let transformed_point = iso.transform_point(&Point3::new(1.0, 2.0, 3.0));
+    /// assert_relative_eq!(transformed_point, Point3::new(3.0, 2.0, 2.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        self * pt
+    }
+
+    /// Transform the given vector by this isometry, ignoring the translation
+    /// component of the isometry.
+    ///
+    /// This is the same as the multiplication `self * v`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry3, Translation3, UnitQuaternion, Vector3};
+    /// let tra = Translation3::new(0.0, 0.0, 3.0);
+    /// let rot = UnitQuaternion::from_scaled_axis(Vector3::y() * f32::consts::FRAC_PI_2);
+    /// let iso = Isometry3::from_parts(tra, rot);
+    ///
+    /// let transformed_point = iso.transform_vector(&Vector3::new(1.0, 2.0, 3.0));
+    /// assert_relative_eq!(transformed_point, Vector3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+        self * v
+    }
+
+    /// Transform the given point by the inverse of this isometry. This may be
+    /// less expensive than computing the entire isometry inverse and then
+    /// transforming the point.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry3, Translation3, UnitQuaternion, Vector3, Point3};
+    /// let tra = Translation3::new(0.0, 0.0, 3.0);
+    /// let rot = UnitQuaternion::from_scaled_axis(Vector3::y() * f32::consts::FRAC_PI_2);
+    /// let iso = Isometry3::from_parts(tra, rot);
+    ///
+    /// let transformed_point = iso.inverse_transform_point(&Point3::new(1.0, 2.0, 3.0));
+    /// assert_relative_eq!(transformed_point, Point3::new(0.0, 2.0, 1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        self.rotation
+            .inverse_transform_point(&(pt - &self.translation.vector))
+    }
+
+    /// Transform the given vector by the inverse of this isometry, ignoring the
+    /// translation component of the isometry. This may be
+    /// less expensive than computing the entire isometry inverse and then
+    /// transforming the point.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry3, Translation3, UnitQuaternion, Vector3};
+    /// let tra = Translation3::new(0.0, 0.0, 3.0);
+    /// let rot = UnitQuaternion::from_scaled_axis(Vector3::y() * f32::consts::FRAC_PI_2);
+    /// let iso = Isometry3::from_parts(tra, rot);
+    ///
+    /// let transformed_point = iso.inverse_transform_vector(&Vector3::new(1.0, 2.0, 3.0));
+    /// assert_relative_eq!(transformed_point, Vector3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+        self.rotation.inverse_transform_vector(v)
+    }
 }
 
 // NOTE: we don't require `R: Rotation<...>` here because this is not useful for the implementation
 // and makes it hard to use it, e.g., for Transform × Isometry implementation.
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the dummy ZST field).
-impl<N: Real, D: DimName, R> Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> Isometry<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Converts this isometry into its equivalent homogeneous transformation matrix.
@@ -285,7 +376,7 @@ where DefaultAllocator: Allocator<N, D>
         R: SubsetOf<MatrixN<N, DimNameSum<D, U1>>>,
         DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
     {
-        let mut res: MatrixN<N, _> = ::convert_ref(&self.rotation);
+        let mut res: MatrixN<N, _> = crate::convert_ref(&self.rotation);
         res.fixed_slice_mut::<D, U1>(0, D::dim())
             .copy_from(&self.translation.vector);
 
@@ -293,14 +384,14 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName, R> Eq for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> Eq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + Eq,
     DefaultAllocator: Allocator<N, D>,
 {
 }
 
-impl<N: Real, D: DimName, R> PartialEq for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> PartialEq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + PartialEq,
     DefaultAllocator: Allocator<N, D>,
@@ -311,7 +402,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> AbsDiffEq for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> AbsDiffEq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + AbsDiffEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
@@ -331,7 +422,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> RelativeEq for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> RelativeEq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + RelativeEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
@@ -358,7 +449,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> UlpsEq for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> UlpsEq for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>> + UlpsEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
@@ -382,7 +473,7 @@ where
  * Display
  *
  */
-impl<N: Real + fmt::Display, D: DimName, R> fmt::Display for Isometry<N, D, R>
+impl<N: RealField + fmt::Display, D: DimName, R> fmt::Display for Isometry<N, D, R>
 where
     R: fmt::Display,
     DefaultAllocator: Allocator<N, D> + Allocator<usize, D>,
@@ -390,9 +481,9 @@ where
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        try!(writeln!(f, "Isometry {{"));
-        try!(write!(f, "{:.*}", precision, self.translation));
-        try!(write!(f, "{:.*}", precision, self.rotation));
+        writeln!(f, "Isometry {{")?;
+        write!(f, "{:.*}", precision, self.translation)?;
+        write!(f, "{:.*}", precision, self.rotation)?;
         writeln!(f, "}}")
     }
 }

@@ -109,7 +109,7 @@ macro_rules! svd_impl(
                 let mut work  = [ 0.0 ];
                 let mut lwork = -1 as i32;
                 let mut info  = 0;
-                let mut iwork = unsafe { ::uninitialized_vec(8 * cmp::min(nrows.value(), ncols.value())) };
+                let mut iwork = unsafe { crate::uninitialized_vec(8 * cmp::min(nrows.value(), ncols.value())) };
 
                 unsafe {
                     $lapack_func(job, nrows.value() as i32, ncols.value() as i32, m.as_mut_slice(),
@@ -119,7 +119,7 @@ macro_rules! svd_impl(
                 lapack_check!(info);
 
                 lwork = work[0] as i32;
-                let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
+                let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
                 unsafe {
                 $lapack_func(job, nrows.value() as i32, ncols.value() as i32, m.as_mut_slice(),

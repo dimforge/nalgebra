@@ -1,4 +1,4 @@
-use na::{Quaternion, Real, UnitQuaternion, Vector2, Vector3};
+use na::{Quaternion, RealField, UnitQuaternion, Vector2, Vector3};
 
 #[test]
 fn angle_2() {
@@ -32,7 +32,7 @@ fn quaternion_euler_angles_issue_494() {
 
 #[cfg(feature = "arbitrary")]
 mod quickcheck_tests {
-    use alga::general::Real;
+    use alga::general::RealField;
     use na::{self, Rotation2, Rotation3, Unit, Vector2, Vector3};
     use std::f64;
 

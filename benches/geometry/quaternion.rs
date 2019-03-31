@@ -1,7 +1,6 @@
 use na::{Quaternion, UnitQuaternion, Vector3};
 use rand::{IsaacRng, Rng};
 use std::ops::{Add, Div, Mul, Sub};
-use test::{self, Bencher};
 
 #[path = "../common/macros.rs"]
 mod macros;
@@ -25,3 +24,14 @@ bench_unop!(unit_quaternion_inv, UnitQuaternion<f32>, inverse);
 
 // bench_unop_self!(quaternion_conjugate, Quaternion<f32>, conjugate);
 // bench_unop!(quaternion_normalize, Quaternion<f32>, normalize);
+
+criterion_group!(quaternion,
+    quaternion_add_q,
+    quaternion_sub_q,
+    quaternion_mul_q,
+    unit_quaternion_mul_v,
+    quaternion_mul_s,
+    quaternion_div_s,
+    quaternion_inv,
+    unit_quaternion_inv
+);
