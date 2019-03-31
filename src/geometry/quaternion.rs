@@ -945,13 +945,7 @@ impl<N: RealField> UnitQuaternion<N> {
     #[inline]
     pub fn angle(&self) -> N {
         let w = self.quaternion().scalar().abs();
-
-        // Handle inaccuracies that make break `.acos`.
-        if w >= N::one() {
-            N::zero()
-        } else {
-            w.acos() * crate::convert(2.0f64)
-        }
+	    self.quaternion().imag().norm().atan2(w) * crate::convert(2.0f64)
     }
 
     /// The underlying quaternion.
