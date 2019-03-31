@@ -161,6 +161,8 @@ use alga::linear::{EuclideanSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace
 use num::Signed;
 
 pub use alga::general::{Id, RealField, ComplexField};
+#[allow(deprecated)]
+pub use alga::general::Real;
 pub use num_complex::Complex;
 
 /*
