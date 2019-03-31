@@ -193,7 +193,6 @@ impl<N: RealField> Rotation2<N> {
     }
 
 
-    /* FIXME: requires alga v0.9 to be released so that Complex implements VectorSpace.
     /// Ensure this rotation is an orthonormal rotation matrix. This is useful when repeated
     /// computations might cause the matrix from progressively not being orthonormal anymore.
     #[inline]
@@ -203,7 +202,6 @@ impl<N: RealField> Rotation2<N> {
 
         *self = Self::from_matrix_eps(self.matrix(), N::default_epsilon(), 0, c.into())
     }
-    */
 
 
     /// Raise the quaternion to a given floating power, i.e., returns the rotation with the angle
