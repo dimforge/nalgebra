@@ -13,6 +13,7 @@ as matrix decomposition. This excludes geometric type (like `Isometry`, `Rotatio
 #### Quaternion and geometric operations
   * Add trigonometric functions for quaternions: `.cos, .sin, .tan, .acos, .asin, .atan, .cosh, .sinh, .tanh, .acosh, .asinh, .atanh`.
   * Add geometric algebra operations for quaternions: `.inner, .outer, .project, .rejection`
+  * Add `.left_div, .right_div` for quaternions.
   * Add `.renormalize` to `Unit<...>` and `Rotation3` to correct potential drift due to repeated operations.
     Those drifts could cause them not to be pure rotations anymore.
   
