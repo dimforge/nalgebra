@@ -40,7 +40,7 @@ as matrix decomposition. This excludes geometric type (like `Isometry`, `Rotatio
       * `.gemm_ad(alpha, a, b, beta)` which is equivalent to `self = alpha * a.adjoint() * b + beta * self`.
       * `.icamax()` which returns the index of the complex vector component with the greatest L1-norm.
 
-Note that all the existing BLAS operation will still work for all fields, including floats and complex numbers.
+Note that all the other BLAS operation will continue to work for all fields, including floats and complex numbers.
 
 ### Renamed
   * `RealSchur` has been renamed `Schur` because it can now work with complex matrices.
