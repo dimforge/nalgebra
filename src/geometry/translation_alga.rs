@@ -1,6 +1,6 @@
 use alga::general::{
     AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
-    AbstractSemigroup, Id, Identity, TwoSidedInverse, Multiplicative, Real,
+    AbstractSemigroup, Id, Identity, TwoSidedInverse, Multiplicative, RealField,
 };
 use alga::linear::Translation as AlgaTranslation;
 use alga::linear::{
@@ -8,18 +8,18 @@ use alga::linear::{
     Transformation,
 };
 
-use base::allocator::Allocator;
-use base::dimension::DimName;
-use base::{DefaultAllocator, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::DimName;
+use crate::base::{DefaultAllocator, VectorN};
 
-use geometry::{Point, Translation};
+use crate::geometry::{Point, Translation};
 
 /*
  *
  * Algebraic structures.
  *
  */
-impl<N: Real, D: DimName> Identity<Multiplicative> for Translation<N, D>
+impl<N: RealField, D: DimName> Identity<Multiplicative> for Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -28,7 +28,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName> TwoSidedInverse<Multiplicative> for Translation<N, D>
+impl<N: RealField, D: DimName> TwoSidedInverse<Multiplicative> for Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -42,7 +42,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName> AbstractMagma<Multiplicative> for Translation<N, D>
+impl<N: RealField, D: DimName> AbstractMagma<Multiplicative> for Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -53,7 +53,7 @@ where DefaultAllocator: Allocator<N, D>
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N: Real, D: DimName> $marker<$operator> for Translation<N, D>
+        impl<N: RealField, D: DimName> $marker<$operator> for Translation<N, D>
             where DefaultAllocator: Allocator<N, D> { }
     )*}
 );
@@ -71,7 +71,7 @@ impl_multiplicative_structures!(
  * Transformation groups.
  *
  */
-impl<N: Real, D: DimName> Transformation<Point<N, D>> for Translation<N, D>
+impl<N: RealField, D: DimName> Transformation<Point<N, D>> for Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -85,7 +85,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName> ProjectiveTransformation<Point<N, D>> for Translation<N, D>
+impl<N: RealField, D: DimName> ProjectiveTransformation<Point<N, D>> for Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -99,7 +99,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName> AffineTransformation<Point<N, D>> for Translation<N, D>
+impl<N: RealField, D: DimName> AffineTransformation<Point<N, D>> for Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     type Rotation = Id;
@@ -142,7 +142,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName> Similarity<Point<N, D>> for Translation<N, D>
+impl<N: RealField, D: DimName> Similarity<Point<N, D>> for Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     type Scaling = Id;
@@ -165,7 +165,7 @@ where DefaultAllocator: Allocator<N, D>
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N: Real, D: DimName> $Trait<Point<N, D>> for Translation<N, D>
+        impl<N: RealField, D: DimName> $Trait<Point<N, D>> for Translation<N, D>
             where DefaultAllocator: Allocator<N, D> { }
     )*}
 );
@@ -173,7 +173,7 @@ macro_rules! marker_impl(
 marker_impl!(Isometry, DirectIsometry);
 
 /// Subgroups of the n-dimensional translation group `T(n)`.
-impl<N: Real, D: DimName> AlgaTranslation<Point<N, D>> for Translation<N, D>
+impl<N: RealField, D: DimName> AlgaTranslation<Point<N, D>> for Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]

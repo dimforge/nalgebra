@@ -14,15 +14,15 @@ use alloc::vec::Vec;
 use generic_array::ArrayLength;
 use typenum::Prod;
 
-use base::allocator::{Allocator, Reallocator};
+use crate::base::allocator::{Allocator, Reallocator};
 #[cfg(any(feature = "alloc", feature = "std"))]
-use base::dimension::Dynamic;
-use base::dimension::{Dim, DimName};
-use base::array_storage::ArrayStorage;
+use crate::base::dimension::Dynamic;
+use crate::base::dimension::{Dim, DimName};
+use crate::base::array_storage::ArrayStorage;
 #[cfg(any(feature = "std", feature = "alloc"))]
-use base::vec_storage::VecStorage;
-use base::storage::{Storage, StorageMut};
-use base::Scalar;
+use crate::base::vec_storage::VecStorage;
+use crate::base::storage::{Storage, StorageMut};
+use crate::base::Scalar;
 
 /*
  *

@@ -5,15 +5,15 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-use alga::general::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
+use alga::general::{ComplexField, ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
-use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
-use base::constraint::{
+use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
+use crate::base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
-use base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
-use base::storage::{ContiguousStorageMut, Storage, StorageMut};
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar};
+use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
+use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar, VectorSliceN};
 
 /*
  *
@@ -689,13 +689,28 @@ where
         res
     }
 
-    /// Equivalent to `self.transpose() * rhs` but stores the result into `out` to avoid
-    /// allocations.
+    /// Equivalent to `self.adjoint() * rhs`.
     #[inline]
-    pub fn tr_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
+    pub fn ad_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> MatrixMN<N, C1, C2>
+        where
+            N: ComplexField,
+            SB: Storage<N, R2, C2>,
+            DefaultAllocator: Allocator<N, C1, C2>,
+            ShapeConstraint: SameNumberOfRows<R1, R2>,
+    {
+        let mut res =
+            unsafe { Matrix::new_uninitialized_generic(self.data.shape().1, rhs.data.shape().1) };
+
+        self.ad_mul_to(rhs, &mut res);
+        res
+    }
+
+    #[inline(always)]
+    fn xx_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
         rhs: &Matrix<N, R2, C2, SB>,
         out: &mut Matrix<N, R3, C3, SC>,
+        dot: impl Fn(&VectorSliceN<N, R1, SA::RStride, SA::CStride>, &VectorSliceN<N, R2, SB::RStride, SB::CStride>) -> N,
     ) where
         SB: Storage<N, R2, C2>,
         SC: StorageMut<N, R3, C3>,
@@ -716,10 +731,41 @@ where
 
         for i in 0..ncols1 {
             for j in 0..ncols2 {
-                let dot = self.column(i).dot(&rhs.column(j));
+                let dot = dot(&self.column(i), &rhs.column(j));
                 unsafe { *out.get_unchecked_mut((i, j)) = dot };
             }
         }
+    }
+
+    /// Equivalent to `self.transpose() * rhs` but stores the result into `out` to avoid
+    /// allocations.
+    #[inline]
+    pub fn tr_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
+        &self,
+        rhs: &Matrix<N, R2, C2, SB>,
+        out: &mut Matrix<N, R3, C3, SC>,
+    ) where
+        SB: Storage<N, R2, C2>,
+        SC: StorageMut<N, R3, C3>,
+        ShapeConstraint: SameNumberOfRows<R1, R2> + DimEq<C1, R3> + DimEq<C2, C3>,
+    {
+        self.xx_mul_to(rhs, out, |a, b| a.dot(b))
+    }
+
+    /// Equivalent to `self.adjoint() * rhs` but stores the result into `out` to avoid
+    /// allocations.
+    #[inline]
+    pub fn ad_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
+        &self,
+        rhs: &Matrix<N, R2, C2, SB>,
+        out: &mut Matrix<N, R3, C3, SC>,
+    ) where
+        N: ComplexField,
+        SB: Storage<N, R2, C2>,
+        SC: StorageMut<N, R3, C3>,
+        ShapeConstraint: SameNumberOfRows<R1, R2> + DimEq<C1, R3> + DimEq<C2, C3>,
+    {
+        self.xx_mul_to(rhs, out, |a, b| a.dotc(b))
     }
 
     /// Equivalent to `self * rhs` but stores the result into `out` to avoid allocations.
@@ -820,16 +866,16 @@ where
     }
 }
 
-impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// Returns the absolute value of the component with the largest absolute value.
-    #[inline]
-    pub fn amax(&self) -> N {
-        let mut max = N::zero();
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+    #[inline(always)]
+    fn xcmp<N2>(&self, abs: impl Fn(N) -> N2, cmp: impl Fn(N2, N2) -> bool) -> N2
+        where N2: Scalar + PartialOrd + Zero {
+        let mut max = N2::zero();
 
         for e in self.iter() {
-            let ae = e.abs();
+            let ae = abs(*e);
 
-            if ae > max {
+            if cmp(ae, max) {
                 max = ae;
             }
         }
@@ -837,61 +883,45 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
         max
     }
 
-    /// Returns the absolute value of the component with the smallest absolute value.
+    /// Returns the absolute value of the component with the largest absolute value.
     #[inline]
-    pub fn amin(&self) -> N {
-        let mut it = self.iter();
-        let mut min = it
-            .next()
-            .expect("amin: empty matrices not supported.")
-            .abs();
+    pub fn amax(&self) -> N
+        where N: PartialOrd + Signed {
+        self.xcmp(|e| e.abs(), |a, b| a > b)
+    }
 
-        for e in it {
-            let ae = e.abs();
-
-            if ae < min {
-                min = ae;
-            }
-        }
-
-        min
+    /// Returns the the 1-norm of the complex component with the largest 1-norm.
+    #[inline]
+    pub fn camax(&self) -> N::RealField
+        where N: ComplexField {
+        self.xcmp(|e| e.norm1(), |a, b| a > b)
     }
 
     /// Returns the component with the largest value.
     #[inline]
-    pub fn max(&self) -> N {
-        let mut it = self.iter();
-        let mut max = it
-            .next()
-            .expect("max: empty matrices not supported.");
+    pub fn max(&self) -> N
+        where N: PartialOrd + Signed {
+        self.xcmp(|e| e, |a, b| a > b)
+    }
 
-        for e in it {
-            let ae = e;
+    /// Returns the absolute value of the component with the smallest absolute value.
+    #[inline]
+    pub fn amin(&self) -> N
+        where N: PartialOrd + Signed {
+        self.xcmp(|e| e.abs(), |a, b| a < b)
+    }
 
-            if ae > max {
-                max = ae;
-            }
-        }
-
-        *max
+    /// Returns the the 1-norm of the complex component with the smallest 1-norm.
+    #[inline]
+    pub fn camin(&self) -> N::RealField
+        where N: ComplexField {
+        self.xcmp(|e| e.norm1(), |a, b| a < b)
     }
 
     /// Returns the component with the smallest value.
     #[inline]
-    pub fn min(&self) -> N {
-        let mut it = self.iter();
-        let mut min = it
-            .next()
-            .expect("min: empty matrices not supported.");
-
-        for e in it {
-            let ae = e;
-
-            if ae < min {
-                min = ae;
-            }
-        }
-
-        *min
+    pub fn min(&self) -> N
+        where N: PartialOrd + Signed {
+        self.xcmp(|e| e, |a, b| a < b)
     }
 }

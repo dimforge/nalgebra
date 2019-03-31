@@ -5,7 +5,7 @@ use na::allocator::Allocator;
 use na::dimension::{DimDiff, DimSub, U1};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
-use ComplexHelper;
+use crate::ComplexHelper;
 
 use lapack;
 
@@ -66,7 +66,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
         let mut info = 0;
         let lwork =
             N::xgehrd_work_size(n, 1, n, m.as_mut_slice(), n, tau.as_mut_slice(), &mut info);
-        let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
+        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
         lapack_panic!(info);
 

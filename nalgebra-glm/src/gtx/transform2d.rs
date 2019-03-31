@@ -1,7 +1,7 @@
-use na::{Real, UnitComplex};
+use na::{RealField, UnitComplex};
 
-use aliases::{TMat3, TVec2};
-use traits::Number;
+use crate::aliases::{TMat3, TVec2};
+use crate::traits::Number;
 
 /// Builds a 2D rotation matrix from an angle and right-multiply it to `m`.
 ///
@@ -12,7 +12,7 @@ use traits::Number;
 /// * [`scaling2d`](fn.scaling2d.html)
 /// * [`translate2d`](fn.translate2d.html)
 /// * [`translation2d`](fn.translation2d.html)
-pub fn rotate2d<N: Real>(m: &TMat3<N>, angle: N) -> TMat3<N> {
+pub fn rotate2d<N: RealField>(m: &TMat3<N>, angle: N) -> TMat3<N> {
     m * UnitComplex::new(angle).to_homogeneous()
 }
 

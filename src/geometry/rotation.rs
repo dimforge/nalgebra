@@ -9,18 +9,17 @@ use std::io::{Result as IOResult, Write};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "serde-serialize")]
-use base::storage::Owned;
+use crate::base::storage::Owned;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::Real;
+use alga::general::RealField;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::{DefaultAllocator, MatrixN, Scalar, VectorN};
-
-use geometry::Point;
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
+use crate::geometry::Point;
 
 /// A rotation matrix.
 #[repr(C)]
@@ -353,7 +352,7 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
-impl<N: Real, D: DimName> Rotation<N, D>
+impl<N: RealField, D: DimName> Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Rotate the given point.
@@ -511,14 +510,14 @@ where
  */
 impl<N, D: DimName> fmt::Display for Rotation<N, D>
 where
-    N: Real + fmt::Display,
+    N: RealField + fmt::Display,
     DefaultAllocator: Allocator<N, D, D> + Allocator<usize, D, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        try!(writeln!(f, "Rotation matrix {{"));
-        try!(write!(f, "{:.*}", precision, self.matrix));
+        writeln!(f, "Rotation matrix {{")?;
+        write!(f, "{:.*}", precision, self.matrix)?;
         writeln!(f, "}}")
     }
 }

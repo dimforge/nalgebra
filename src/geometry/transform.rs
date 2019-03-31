@@ -6,14 +6,14 @@ use std::marker::PhantomData;
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use alga::general::{Real, TwoSidedInverse};
+use alga::general::{RealField, TwoSidedInverse};
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::storage::Owned;
-use base::{DefaultAllocator, MatrixN, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::storage::Owned;
+use crate::base::{DefaultAllocator, MatrixN, VectorN};
 
-use geometry::Point;
+use crate::geometry::Point;
 
 /// Trait implemented by phantom types identifying the projective transformation type.
 ///
@@ -28,7 +28,7 @@ pub trait TCategory: Any + Debug + Copy + PartialEq + Send {
 
     /// Checks that the given matrix is a valid homogeneous representation of an element of the
     /// category `Self`.
-    fn check_homogeneous_invariants<N: Real, D: DimName>(mat: &MatrixN<N, D>) -> bool
+    fn check_homogeneous_invariants<N: RealField, D: DimName>(mat: &MatrixN<N, D>) -> bool
     where
         N::Epsilon: Copy,
         DefaultAllocator: Allocator<N, D, D>;
@@ -71,7 +71,7 @@ pub enum TAffine {}
 
 impl TCategory for TGeneral {
     #[inline]
-    fn check_homogeneous_invariants<N: Real, D: DimName>(_: &MatrixN<N, D>) -> bool
+    fn check_homogeneous_invariants<N: RealField, D: DimName>(_: &MatrixN<N, D>) -> bool
     where
         N::Epsilon: Copy,
         DefaultAllocator: Allocator<N, D, D>,
@@ -82,7 +82,7 @@ impl TCategory for TGeneral {
 
 impl TCategory for TProjective {
     #[inline]
-    fn check_homogeneous_invariants<N: Real, D: DimName>(mat: &MatrixN<N, D>) -> bool
+    fn check_homogeneous_invariants<N: RealField, D: DimName>(mat: &MatrixN<N, D>) -> bool
     where
         N::Epsilon: Copy,
         DefaultAllocator: Allocator<N, D, D>,
@@ -98,7 +98,7 @@ impl TCategory for TAffine {
     }
 
     #[inline]
-    fn check_homogeneous_invariants<N: Real, D: DimName>(mat: &MatrixN<N, D>) -> bool
+    fn check_homogeneous_invariants<N: RealField, D: DimName>(mat: &MatrixN<N, D>) -> bool
     where
         N::Epsilon: Copy,
         DefaultAllocator: Allocator<N, D, D>,
@@ -157,7 +157,7 @@ super_tcategory_impl!(
 /// 3D transformation.
 #[repr(C)]
 #[derive(Debug)]
-pub struct Transform<N: Real, D: DimNameAdd<U1>, C: TCategory>
+pub struct Transform<N: RealField, D: DimNameAdd<U1>, C: TCategory>
 where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 {
     matrix: MatrixN<N, DimNameSum<D, U1>>,
@@ -165,7 +165,7 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 }
 
 // FIXME
-// impl<N: Real + hash::Hash, D: DimNameAdd<U1> + hash::Hash, C: TCategory> hash::Hash for Transform<N, D, C>
+// impl<N: RealField + hash::Hash, D: DimNameAdd<U1> + hash::Hash, C: TCategory> hash::Hash for Transform<N, D, C>
 //     where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
 //           Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: hash::Hash {
 //     fn hash<H: hash::Hasher>(&self, state: &mut H) {
@@ -173,14 +173,14 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 //     }
 // }
 
-impl<N: Real, D: DimNameAdd<U1> + Copy, C: TCategory> Copy for Transform<N, D, C>
+impl<N: RealField, D: DimNameAdd<U1> + Copy, C: TCategory> Copy for Transform<N, D, C>
 where
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
     Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Copy,
 {
 }
 
-impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Clone for Transform<N, D, C>
+impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> Clone for Transform<N, D, C>
 where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 {
     #[inline]
@@ -190,7 +190,7 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Serialize for Transform<N, D, C>
+impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> Serialize for Transform<N, D, C>
 where
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
     Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Serialize,
@@ -202,7 +202,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Real, D: DimNameAdd<U1>, C: TCategory> Deserialize<'a> for Transform<N, D, C>
+impl<'a, N: RealField, D: DimNameAdd<U1>, C: TCategory> Deserialize<'a> for Transform<N, D, C>
 where
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
     Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Deserialize<'a>,
@@ -215,10 +215,10 @@ where
     }
 }
 
-impl<N: Real + Eq, D: DimNameAdd<U1>, C: TCategory> Eq for Transform<N, D, C> where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+impl<N: RealField + Eq, D: DimNameAdd<U1>, C: TCategory> Eq for Transform<N, D, C> where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 {}
 
-impl<N: Real, D: DimNameAdd<U1>, C: TCategory> PartialEq for Transform<N, D, C>
+impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> PartialEq for Transform<N, D, C>
 where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 {
     #[inline]
@@ -227,7 +227,7 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
     }
 }
 
-impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
+impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
 where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 {
     /// Creates a new transformation from the given homogeneous matrix. The transformation category
@@ -456,7 +456,7 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 
 impl<N, D: DimNameAdd<U1>, C> Transform<N, D, C>
 where
-    N: Real,
+    N: RealField,
     C: TCategory,
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
         + Allocator<N, DimNameSum<D, U1>>
@@ -481,7 +481,7 @@ where
     }
 }
 
-impl<N: Real, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
+impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
 where C: SubTCategoryOf<TProjective>,
       DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
         + Allocator<N, DimNameSum<D, U1>>
@@ -505,7 +505,7 @@ where C: SubTCategoryOf<TProjective>,
     }
 }
 
-impl<N: Real, D: DimNameAdd<U1>> Transform<N, D, TGeneral>
+impl<N: RealField, D: DimNameAdd<U1>> Transform<N, D, TGeneral>
 where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 {
     /// A mutable reference to underlying matrix. Use `.matrix_mut_unchecked` instead if this
@@ -516,7 +516,7 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
     }
 }
 
-impl<N: Real, D: DimNameAdd<U1>, C: TCategory> AbsDiffEq for Transform<N, D, C>
+impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> AbsDiffEq for Transform<N, D, C>
 where
     N::Epsilon: Copy,
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
@@ -534,7 +534,7 @@ where
     }
 }
 
-impl<N: Real, D: DimNameAdd<U1>, C: TCategory> RelativeEq for Transform<N, D, C>
+impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> RelativeEq for Transform<N, D, C>
 where
     N::Epsilon: Copy,
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
@@ -557,7 +557,7 @@ where
     }
 }
 
-impl<N: Real, D: DimNameAdd<U1>, C: TCategory> UlpsEq for Transform<N, D, C>
+impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> UlpsEq for Transform<N, D, C>
 where
     N::Epsilon: Copy,
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
@@ -576,7 +576,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use base::Matrix4;
+    use crate::base::Matrix4;
 
     #[test]
     fn checks_homogeneous_invariants_of_square_identity_matrix() {

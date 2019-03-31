@@ -8,7 +8,7 @@ use na::allocator::Allocator;
 use na::dimension::{Dim, DimMin, DimMinimum, U1};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, MatrixMN, Scalar, VectorN};
-use ComplexHelper;
+use crate::ComplexHelper;
 
 use lapack;
 
@@ -73,7 +73,7 @@ where DefaultAllocator: Allocator<N, R, C>
             &mut info,
         );
 
-        let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
+        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
         N::xgeqrf(
             nrows.value() as i32,

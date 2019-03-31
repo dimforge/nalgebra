@@ -2,12 +2,12 @@
 use approx::RelativeEq;
 use num::{One, Zero};
 
-use alga::general::{ClosedAdd, ClosedMul, Real};
+use alga::general::{ClosedAdd, ClosedMul, RealField, ComplexField};
 
-use base::allocator::Allocator;
-use base::dimension::{Dim, DimMin};
-use base::storage::Storage;
-use base::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{Dim, DimMin};
+use crate::base::storage::Storage;
+use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Indicates if this is an empty matrix.
@@ -82,24 +82,26 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         true
     }
+}
 
+impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Checks that `Mᵀ × M = Id`.
     ///
     /// In this definition `Id` is approximately equal to the identity matrix with a relative error
     /// equal to `eps`.
     #[inline]
     pub fn is_orthogonal(&self, eps: N::Epsilon) -> bool
-    where
-        N: Zero + One + ClosedAdd + ClosedMul + RelativeEq,
-        S: Storage<N, R, C>,
-        N::Epsilon: Copy,
-        DefaultAllocator: Allocator<N, C, C>,
+        where
+            N: Zero + One + ClosedAdd + ClosedMul + RelativeEq,
+            S: Storage<N, R, C>,
+            N::Epsilon: Copy,
+            DefaultAllocator: Allocator<N, R, C> + Allocator<N, C, C>,
     {
-        (self.tr_mul(self)).is_identity(eps)
+        (self.ad_mul(self)).is_identity(eps)
     }
 }
 
-impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: RealField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D>
 {
     /// Checks that this matrix is orthogonal and has a determinant equal to 1.

@@ -1,6 +1,6 @@
-use na::{Real, Rotation3, Unit, UnitQuaternion};
+use na::{RealField, Rotation3, Unit, UnitQuaternion};
 
-use aliases::{Qua, TMat4, TVec3};
+use crate::aliases::{Qua, TMat4, TVec3};
 
 /// Builds a rotation 4 * 4 matrix created from a normalized axis and an angle.
 ///
@@ -9,7 +9,7 @@ use aliases::{Qua, TMat4, TVec3};
 /// * `m` - Input matrix multiplied by this rotation matrix.
 /// * `angle` - Rotation angle expressed in radians.
 /// * `axis` - Rotation axis, must be normalized.
-pub fn rotate_normalized_axis<N: Real>(m: &TMat4<N>, angle: N, axis: &TVec3<N>) -> TMat4<N> {
+pub fn rotate_normalized_axis<N: RealField>(m: &TMat4<N>, angle: N, axis: &TVec3<N>) -> TMat4<N> {
     m * Rotation3::from_axis_angle(&Unit::new_unchecked(*axis), angle).to_homogeneous()
 }
 
@@ -20,6 +20,6 @@ pub fn rotate_normalized_axis<N: Real>(m: &TMat4<N>, angle: N, axis: &TVec3<N>) 
 /// * `q` - Source orientation.
 /// * `angle` - Angle expressed in radians.
 /// * `axis` - Normalized axis of the rotation, must be normalized.
-pub fn quat_rotate_normalized_axis<N: Real>(q: &Qua<N>, angle: N, axis: &TVec3<N>) -> Qua<N> {
+pub fn quat_rotate_normalized_axis<N: RealField>(q: &Qua<N>, angle: N, axis: &TVec3<N>) -> Qua<N> {
     q * UnitQuaternion::from_axis_angle(&Unit::new_unchecked(*axis), angle).into_inner()
 }

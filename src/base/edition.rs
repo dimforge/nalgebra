@@ -6,17 +6,17 @@ use std::iter::ExactSizeIterator;
 #[cfg(any(feature = "std", feature = "alloc"))]
 use std::mem;
 
-use base::allocator::{Allocator, Reallocator};
-use base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use base::dimension::{
+use crate::base::allocator::{Allocator, Reallocator};
+use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use crate::base::dimension::{
     Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimName, DimSub, DimSum, U1,
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
-use base::dimension::Dynamic;
-use base::storage::{Storage, StorageMut};
+use crate::base::dimension::Dynamic;
+use crate::base::storage::{Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use base::DMatrix;
-use base::{DefaultAllocator, Matrix, MatrixMN, RowVector, Scalar, Vector};
+use crate::base::DMatrix;
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, RowVector, Scalar, Vector};
 
 impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Extracts the upper triangular part of this matrix (including the diagonal).
@@ -58,7 +58,7 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols.value() {
             // FIXME: use unchecked column indexing
             let mut res = res.column_mut(j);
-            let mut src = self.column(j);
+            let src = self.column(j);
 
             for (destination, source) in irows.clone().enumerate() {
                 unsafe {
@@ -137,10 +137,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Fills the diagonal of this matrix with the content of the given vector.
     #[inline]
     pub fn set_diagonal<R2: Dim, S2>(&mut self, diag: &Vector<N, R2, S2>)
-    where
-        R: DimMin<C>,
-        S2: Storage<N, R2>,
-        ShapeConstraint: DimEq<DimMinimum<R, C>, R2>,
+        where
+            R: DimMin<C>,
+            S2: Storage<N, R2>,
+            ShapeConstraint: DimEq<DimMinimum<R, C>, R2>,
     {
         let (nrows, ncols) = self.shape();
         let min_nrows_ncols = cmp::min(nrows, ncols);
@@ -148,6 +148,21 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
 
         for i in 0..min_nrows_ncols {
             unsafe { *self.get_unchecked_mut((i, i)) = *diag.vget_unchecked(i) }
+        }
+    }
+
+    /// Fills the diagonal of this matrix with the content of the given iterator.
+    ///
+    /// This will fill as many diagonal elements as the iterator yields, up to the
+    /// minimum of the number of rows and columns of `self`, and starting with the
+    /// diagonal element at index (0, 0).
+    #[inline]
+    pub fn set_partial_diagonal(&mut self, diag: impl Iterator<Item = N>) {
+        let (nrows, ncols) = self.shape();
+        let min_nrows_ncols = cmp::min(nrows, ncols);
+
+        for (i, val) in diag.enumerate().take(min_nrows_ncols) {
+            unsafe { *self.get_unchecked_mut((i, i)) = val }
         }
     }
 

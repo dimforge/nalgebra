@@ -1,5 +1,5 @@
-use base::{DimName, Scalar, Vector, Vector2, Vector3};
-use storage::Storage;
+use crate::base::{DimName, Scalar, Vector, Vector2, Vector3};
+use crate::storage::Storage;
 use typenum::{self, Cmp, Greater};
 
 macro_rules! impl_swizzle {

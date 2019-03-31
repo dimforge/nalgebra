@@ -1,9 +1,9 @@
-use na::{self, DefaultAllocator, Real};
+use na::{self, DefaultAllocator, RealField};
 use num::FromPrimitive;
 use std::mem;
 
-use aliases::{TMat, TVec};
-use traits::{Alloc, Dimension, Number};
+use crate::aliases::{TMat, TVec};
+use crate::traits::{Alloc, Dimension, Number};
 
 /// For each matrix or vector component `x` if `x >= 0`; otherwise, it returns `-x`.
 ///
@@ -43,7 +43,7 @@ where DefaultAllocator: Alloc<N, R, C> {
 /// * [`fract`](fn.fract.html)
 /// * [`round`](fn.round.html)
 /// * [`trunc`](fn.trunc.html)
-pub fn ceil<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
+pub fn ceil<N: RealField, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 where DefaultAllocator: Alloc<N, D> {
     x.map(|x| x.ceil())
 }
@@ -222,7 +222,7 @@ where DefaultAllocator: Alloc<f32, D> {
 /// * [`fract`](fn.fract.html)
 /// * [`round`](fn.round.html)
 /// * [`trunc`](fn.trunc.html)
-pub fn floor<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
+pub fn floor<N: RealField, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 where DefaultAllocator: Alloc<N, D> {
     x.map(|x| x.floor())
 }
@@ -249,14 +249,14 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`floor`](fn.floor.html)
 /// * [`round`](fn.round.html)
 /// * [`trunc`](fn.trunc.html)
-pub fn fract<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
+pub fn fract<N: RealField, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 where DefaultAllocator: Alloc<N, D> {
     x.map(|x| x.fract())
 }
 
 //// FIXME: should be implemented for TVec/TMat?
 ///// Returns the (significant, exponent) of this float number.
-//pub fn frexp<N: Real>(x: N, exp: N) -> (N, N) {
+//pub fn frexp<N: RealField>(x: N, exp: N) -> (N, N) {
 //    // FIXME: is there a better approach?
 //    let e = x.log2().ceil();
 //    (x * (-e).exp2(), e)
@@ -310,7 +310,7 @@ where DefaultAllocator: Alloc<f32, D> {
 //}
 
 ///// Returns the (significant, exponent) of this float number.
-//pub fn ldexp<N: Real>(x: N, exp: N) -> N {
+//pub fn ldexp<N: RealField>(x: N, exp: N) -> N {
 //    // FIXME: is there a better approach?
 //    x * (exp).exp2()
 //}
@@ -499,7 +499,7 @@ pub fn modf<N: Number>(x: N, i: N) -> N {
 /// * [`floor`](fn.floor.html)
 /// * [`fract`](fn.fract.html)
 /// * [`trunc`](fn.trunc.html)
-pub fn round<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
+pub fn round<N: RealField, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 where DefaultAllocator: Alloc<N, D> {
     x.map(|x| x.round())
 }
@@ -576,7 +576,7 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`floor`](fn.floor.html)
 /// * [`fract`](fn.fract.html)
 /// * [`round`](fn.round.html)
-pub fn trunc<N: Real, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
+pub fn trunc<N: RealField, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 where DefaultAllocator: Alloc<N, D> {
     x.map(|x| x.trunc())
 }

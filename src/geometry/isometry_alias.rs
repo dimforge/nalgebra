@@ -1,6 +1,6 @@
-use base::dimension::{U2, U3};
+use crate::base::dimension::{U2, U3};
 
-use geometry::{Isometry, Rotation2, Rotation3, UnitComplex, UnitQuaternion};
+use crate::geometry::{Isometry, Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 
 /// A 2-dimensional direct isometry using a unit complex number for its rotational part. Also known as a rigid-body motion, or as an element of SE(2).
 pub type Isometry2<N> = Isometry<N, U2, UnitComplex<N>>;

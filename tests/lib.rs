@@ -12,9 +12,10 @@ extern crate num_traits as num;
 extern crate quickcheck;
 extern crate rand;
 extern crate serde_json;
+extern crate num_complex;
 
 mod core;
 mod geometry;
 mod linalg;
-#[cfg(feature = "sparse")]
-mod sparse;
+//#[cfg(feature = "sparse")]
+//mod sparse;

@@ -7,7 +7,7 @@ mod hessenberg;
 mod inverse;
 mod lu;
 mod qr;
-mod real_schur;
+mod schur;
 mod solve;
 mod svd;
 mod tridiagonal;

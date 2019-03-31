@@ -1,5 +1,5 @@
 #[cfg(feature = "arbitrary")]
-use base::storage::Owned;
+use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -9,11 +9,11 @@ use rand::Rng;
 
 use alga::general::ClosedAdd;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, U1, U2, U3, U4, U5, U6};
-use base::{DefaultAllocator, Scalar, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, U1, U2, U3, U4, U5, U6};
+use crate::base::{DefaultAllocator, Scalar, VectorN};
 
-use geometry::Translation;
+use crate::geometry::Translation;
 
 impl<N: Scalar + Zero, D: DimName> Translation<N, D>
 where DefaultAllocator: Allocator<N, D>

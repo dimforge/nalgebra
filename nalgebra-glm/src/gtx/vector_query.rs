@@ -1,7 +1,7 @@
-use na::{DefaultAllocator, Real};
+use na::{DefaultAllocator, RealField};
 
-use aliases::{TVec, TVec2, TVec3};
-use traits::{Alloc, Dimension, Number};
+use crate::aliases::{TVec, TVec2, TVec3};
+use crate::traits::{Alloc, Dimension, Number};
 
 /// Returns `true` if two vectors are collinear (up to an epsilon).
 ///
@@ -45,7 +45,7 @@ where DefaultAllocator: Alloc<N, D> {
 }
 
 /// Returns `true` if `v` has a magnitude of 1 (up to an epsilon).
-pub fn is_normalized<N: Real, D: Dimension>(v: &TVec<N, D>, epsilon: N) -> bool
+pub fn is_normalized<N: RealField, D: Dimension>(v: &TVec<N, D>, epsilon: N) -> bool
 where DefaultAllocator: Alloc<N, D> {
     abs_diff_eq!(v.norm_squared(), N::one(), epsilon = epsilon * epsilon)
 }

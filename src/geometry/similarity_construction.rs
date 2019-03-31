@@ -1,5 +1,5 @@
 #[cfg(feature = "arbitrary")]
-use base::storage::Owned;
+use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -7,19 +7,19 @@ use num::One;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
-use alga::general::Real;
+use alga::general::RealField;
 use alga::linear::Rotation as AlgaRotation;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, U2, U3};
-use base::{DefaultAllocator, Vector2, Vector3};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, U2, U3};
+use crate::base::{DefaultAllocator, Vector2, Vector3};
 
-use geometry::{
+use crate::geometry::{
     Isometry, Point, Point3, Rotation2, Rotation3, Similarity, Translation, UnitComplex,
     UnitQuaternion,
 };
 
-impl<N: Real, D: DimName, R> Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> Similarity<N, D, R>
 where
     R: AlgaRotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -45,7 +45,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> One for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> One for Similarity<N, D, R>
 where
     R: AlgaRotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -57,7 +57,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> Distribution<Similarity<N, D, R>> for Standard
+impl<N: RealField, D: DimName, R> Distribution<Similarity<N, D, R>> for Standard
 where
     R: AlgaRotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -74,7 +74,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> Similarity<N, D, R>
+impl<N: RealField, D: DimName, R> Similarity<N, D, R>
 where
     R: AlgaRotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -104,7 +104,7 @@ where
 #[cfg(feature = "arbitrary")]
 impl<N, D: DimName, R> Arbitrary for Similarity<N, D, R>
 where
-    N: Real + Arbitrary + Send,
+    N: RealField + Arbitrary + Send,
     R: AlgaRotation<Point<N, D>> + Arbitrary + Send,
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Send,
@@ -127,7 +127,7 @@ where
  */
 
 // 2D rotation.
-impl<N: Real> Similarity<N, U2, Rotation2<N>> {
+impl<N: RealField> Similarity<N, U2, Rotation2<N>> {
     /// Creates a new similarity from a translation, a rotation, and an uniform scaling factor.
     ///
     /// # Example
@@ -150,7 +150,7 @@ impl<N: Real> Similarity<N, U2, Rotation2<N>> {
     }
 }
 
-impl<N: Real> Similarity<N, U2, UnitComplex<N>> {
+impl<N: RealField> Similarity<N, U2, UnitComplex<N>> {
     /// Creates a new similarity from a translation and a rotation angle.
     ///
     /// # Example
@@ -176,7 +176,7 @@ impl<N: Real> Similarity<N, U2, UnitComplex<N>> {
 // 3D rotation.
 macro_rules! similarity_construction_impl(
     ($Rot: ty) => {
-        impl<N: Real> Similarity<N, U3, $Rot> {
+        impl<N: RealField> Similarity<N, U3, $Rot> {
             /// Creates a new similarity from a translation, rotation axis-angle, and scaling
             /// factor.
             ///

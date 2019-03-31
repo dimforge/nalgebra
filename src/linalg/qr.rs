@@ -1,15 +1,16 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
+use num::Zero;
 
-use alga::general::Real;
-use allocator::{Allocator, Reallocator};
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
-use constraint::{SameNumberOfRows, ShapeConstraint};
-use dimension::{Dim, DimMin, DimMinimum, U1};
-use storage::{Storage, StorageMut};
+use alga::general::ComplexField;
+use crate::allocator::{Allocator, Reallocator};
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
+use crate::constraint::{SameNumberOfRows, ShapeConstraint};
+use crate::dimension::{Dim, DimMin, DimMinimum, U1};
+use crate::storage::{Storage, StorageMut};
 
-use geometry::Reflection;
-use linalg::householder;
+use crate::geometry::Reflection;
+use crate::linalg::householder;
 
 /// The QR decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -32,21 +33,21 @@ use linalg::householder;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct QR<N: Real, R: DimMin<C>, C: Dim>
+pub struct QR<N: ComplexField, R: DimMin<C>, C: Dim>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>
 {
     qr: MatrixMN<N, R, C>,
     diag: VectorN<N, DimMinimum<R, C>>,
 }
 
-impl<N: Real, R: DimMin<C>, C: Dim> Copy for QR<N, R, C>
+impl<N: ComplexField, R: DimMin<C>, C: Dim> Copy for QR<N, R, C>
 where
     DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
     VectorN<N, DimMinimum<R, C>>: Copy,
 {}
 
-impl<N: Real, R: DimMin<C>, C: Dim> QR<N, R, C>
+impl<N: ComplexField, R: DimMin<C>, C: Dim> QR<N, R, C>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>
 {
     /// Computes the QR decomposition using householder reflections.
@@ -78,12 +79,10 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
     pub fn r(&self) -> MatrixMN<N, DimMinimum<R, C>, C>
     where
         DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>,
-        // FIXME: the following bound is ugly.
-        DimMinimum<R, C>: DimMin<C, Output = DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.qr.data.shape();
         let mut res = self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle();
-        res.set_diagonal(&self.diag);
+        res.set_partial_diagonal(self.diag.iter().map(|e| N::from_real(e.modulus())));
         res
     }
 
@@ -94,13 +93,11 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
     pub fn unpack_r(self) -> MatrixMN<N, DimMinimum<R, C>, C>
     where
         DefaultAllocator: Reallocator<N, R, C, DimMinimum<R, C>, C>,
-        // FIXME: the following bound is ugly (needed by `set_diagonal`).
-        DimMinimum<R, C>: DimMin<C, Output = DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.qr.data.shape();
         let mut res = self.qr.resize_generic(nrows.min(ncols), ncols, N::zero());
         res.fill_lower_triangle(N::zero(), 1);
-        res.set_diagonal(&self.diag);
+        res.set_partial_diagonal(self.diag.iter().map(|e| N::from_real(e.modulus())));
         res
     }
 
@@ -120,7 +117,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
             let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
 
             let mut res_rows = res.slice_range_mut(i.., i..);
-            refl.reflect(&mut res_rows);
+            refl.reflect_with_sign(&mut res_rows, self.diag[i].signum());
         }
 
         res
@@ -157,12 +154,12 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
             let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
 
             let mut rhs_rows = rhs.rows_range_mut(i..);
-            refl.reflect(&mut rhs_rows);
+            refl.reflect_with_sign(&mut rhs_rows, self.diag[i].signum().conjugate());
         }
     }
 }
 
-impl<N: Real, D: DimMin<D, Output = D>> QR<N, D, D>
+impl<N: ComplexField, D: DimMin<D, Output = D>> QR<N, D, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
@@ -226,13 +223,13 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
                 let coeff;
 
                 unsafe {
-                    let diag = *self.diag.vget_unchecked(i);
+                    let diag = self.diag.vget_unchecked(i).modulus();
 
                     if diag.is_zero() {
                         return false;
                     }
 
-                    coeff = *b.vget_unchecked(i) / diag;
+                    coeff = b.vget_unchecked(i).unscale(diag);
                     *b.vget_unchecked_mut(i) = coeff;
                 }
 
@@ -294,7 +291,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     // }
 }
 
-impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>
 {
     /// Computes the QR decomposition of this matrix.

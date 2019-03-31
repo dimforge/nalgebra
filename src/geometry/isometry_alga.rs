@@ -1,6 +1,6 @@
 use alga::general::{
     AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
-    AbstractSemigroup, Id, Identity, TwoSidedInverse, Multiplicative, Real,
+    AbstractSemigroup, Id, Identity, TwoSidedInverse, Multiplicative, RealField,
 };
 use alga::linear::Isometry as AlgaIsometry;
 use alga::linear::{
@@ -8,18 +8,18 @@ use alga::linear::{
     Transformation,
 };
 
-use base::allocator::Allocator;
-use base::dimension::DimName;
-use base::{DefaultAllocator, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::DimName;
+use crate::base::{DefaultAllocator, VectorN};
 
-use geometry::{Isometry, Point, Translation};
+use crate::geometry::{Isometry, Point, Translation};
 
 /*
  *
  * Algebraic structures.
  *
  */
-impl<N: Real, D: DimName, R> Identity<Multiplicative> for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> Identity<Multiplicative> for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -30,7 +30,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> TwoSidedInverse<Multiplicative> for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> TwoSidedInverse<Multiplicative> for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -46,7 +46,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> AbstractMagma<Multiplicative> for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> AbstractMagma<Multiplicative> for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -59,7 +59,7 @@ where
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N: Real, D: DimName, R> $marker<$operator> for Isometry<N, D, R>
+        impl<N: RealField, D: DimName, R> $marker<$operator> for Isometry<N, D, R>
             where R: Rotation<Point<N, D>>,
                   DefaultAllocator: Allocator<N, D> { }
     )*}
@@ -78,7 +78,7 @@ impl_multiplicative_structures!(
  * Transformation groups.
  *
  */
-impl<N: Real, D: DimName, R> Transformation<Point<N, D>> for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> Transformation<Point<N, D>> for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -94,7 +94,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> ProjectiveTransformation<Point<N, D>> for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> ProjectiveTransformation<Point<N, D>> for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -110,7 +110,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> AffineTransformation<Point<N, D>> for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> AffineTransformation<Point<N, D>> for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -168,7 +168,7 @@ where
     }
 }
 
-impl<N: Real, D: DimName, R> Similarity<Point<N, D>> for Isometry<N, D, R>
+impl<N: RealField, D: DimName, R> Similarity<Point<N, D>> for Isometry<N, D, R>
 where
     R: Rotation<Point<N, D>>,
     DefaultAllocator: Allocator<N, D>,
@@ -193,7 +193,7 @@ where
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N: Real, D: DimName, R> $Trait<Point<N, D>> for Isometry<N, D, R>
+        impl<N: RealField, D: DimName, R> $Trait<Point<N, D>> for Isometry<N, D, R>
         where R: Rotation<Point<N, D>>,
               DefaultAllocator: Allocator<N, D> { }
     )*}

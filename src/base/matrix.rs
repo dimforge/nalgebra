@@ -1,5 +1,4 @@
 use num::{One, Zero};
-use num_complex::Complex;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
 
@@ -17,16 +16,16 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{ClosedAdd, ClosedMul, ClosedSub, Real, Ring};
+use alga::general::{ClosedAdd, ClosedMul, ClosedSub, RealField, Ring, ComplexField, Field};
 
-use base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
-use base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use base::dimension::{Dim, DimAdd, DimSum, IsNotStaticOne, U1, U2, U3};
-use base::iter::{MatrixIter, MatrixIterMut, RowIter, RowIterMut, ColumnIter, ColumnIterMut};
-use base::storage::{
+use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
+use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use crate::base::dimension::{Dim, DimAdd, DimSum, IsNotStaticOne, U1, U2, U3};
+use crate::base::iter::{MatrixIter, MatrixIterMut, RowIter, RowIterMut, ColumnIter, ColumnIterMut};
+use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
 };
-use base::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
+use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
 
 /// A square matrix.
 pub type SquareMatrix<N, D, S> = Matrix<N, D, D, S>;
@@ -771,6 +770,14 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         }
     }
 
+    // FIXME: rename `apply` to `apply_mut` and `apply_into` to `apply`?
+    /// Returns `self` with each of its components replaced by the result of a closure `f` applied on it.
+    #[inline]
+    pub fn apply_into<F: FnMut(N) -> N>(mut self, f: F) -> Self{
+        self.apply(f);
+        self
+    }
+
     /// Replaces each component of `self` by the result of a closure `f` applied on it.
     #[inline]
     pub fn apply<F: FnMut(N) -> N>(&mut self, mut f: F) {
@@ -906,14 +913,14 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     }
 }
 
-impl<N: Real, R: Dim, C: Dim, S: Storage<Complex<N>, R, C>> Matrix<Complex<N>, R, C, S> {
-    /// Takes the conjugate and transposes `self` and store the result into `out`.
+impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+    /// Takes the adjoint (aka. conjugate-transpose) of `self` and store the result into `out`.
     #[inline]
-    pub fn conjugate_transpose_to<R2, C2, SB>(&self, out: &mut Matrix<Complex<N>, R2, C2, SB>)
+    pub fn adjoint_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
     where
         R2: Dim,
         C2: Dim,
-        SB: StorageMut<Complex<N>, R2, C2>,
+        SB: StorageMut<N, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, C2> + SameNumberOfColumns<C, R2>,
     {
         let (nrows, ncols) = self.shape();
@@ -926,30 +933,98 @@ impl<N: Real, R: Dim, C: Dim, S: Storage<Complex<N>, R, C>> Matrix<Complex<N>, R
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {
-                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).conj();
+                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).conjugate();
                 }
             }
         }
     }
 
-    /// The conjugate transposition of `self`.
+    /// The adjoint (aka. conjugate-transpose) of `self`.
     #[inline]
-    pub fn conjugate_transpose(&self) -> MatrixMN<Complex<N>, C, R>
-    where DefaultAllocator: Allocator<Complex<N>, C, R> {
+    pub fn adjoint(&self) -> MatrixMN<N, C, R>
+    where DefaultAllocator: Allocator<N, C, R> {
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
             let mut res: MatrixMN<_, C, R> = Matrix::new_uninitialized_generic(ncols, nrows);
-            self.conjugate_transpose_to(&mut res);
+            self.adjoint_to(&mut res);
 
             res
         }
     }
+
+    /// Takes the conjugate and transposes `self` and store the result into `out`.
+    #[deprecated(note = "Renamed `self.adjoint_to(out)`.")]
+    #[inline]
+    pub fn conjugate_transpose_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
+        where
+            R2: Dim,
+            C2: Dim,
+            SB: StorageMut<N, R2, C2>,
+            ShapeConstraint: SameNumberOfRows<R, C2> + SameNumberOfColumns<C, R2>,
+    {
+        self.adjoint_to(out)
+    }
+
+    /// The conjugate transposition of `self`.
+    #[deprecated(note = "Renamed `self.adjoint()`.")]
+    #[inline]
+    pub fn conjugate_transpose(&self) -> MatrixMN<N, C, R>
+        where DefaultAllocator: Allocator<N, C, R> {
+        self.adjoint()
+    }
+
+    /// The conjugate of `self`.
+    #[inline]
+    pub fn conjugate(&self) -> MatrixMN<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
+        self.map(|e| e.conjugate())
+    }
+
+    /// Divides each component of the complex matrix `self` by the given real.
+    #[inline]
+    pub fn unscale(&self, real: N::RealField) -> MatrixMN<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
+        self.map(|e| e.unscale(real))
+    }
+
+    /// Multiplies each component of the complex matrix `self` by the given real.
+    #[inline]
+    pub fn scale(&self, real: N::RealField) -> MatrixMN<N, R, C>
+        where DefaultAllocator: Allocator<N, R, C> {
+        self.map(|e| e.scale(real))
+    }
 }
 
-impl<N: Real, D: Dim, S: StorageMut<Complex<N>, D, D>> Matrix<Complex<N>, D, D, S> {
-    /// Sets `self` to its conjugate transpose.
-    pub fn conjugate_transpose_mut(&mut self) {
+impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+    /// The conjugate of the complex matrix `self` computed in-place.
+    #[inline]
+    pub fn conjugate_mut(&mut self) {
+        self.apply(|e| e.conjugate())
+    }
+
+    /// Divides each component of the complex matrix `self` by the given real.
+    #[inline]
+    pub fn unscale_mut(&mut self, real: N::RealField) {
+        self.apply(|e| e.unscale(real))
+    }
+
+    /// Multiplies each component of the complex matrix `self` by the given real.
+    #[inline]
+    pub fn scale_mut(&mut self, real: N::RealField) {
+        self.apply(|e| e.scale(real))
+    }
+}
+
+impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
+    /// Sets `self` to its adjoint.
+    #[deprecated(note = "Renamed to `self.adjoint_mut()`.")]
+    pub fn conjugate_transform_mut(&mut self) {
+        self.adjoint_mut()
+    }
+
+    /// Sets `self` to its adjoint (aka. conjugate-transpose).
+    pub fn adjoint_mut(&mut self) {
         assert!(
             self.is_square(),
             "Unable to transpose a non-square matrix in-place."
@@ -957,26 +1032,40 @@ impl<N: Real, D: Dim, S: StorageMut<Complex<N>, D, D>> Matrix<Complex<N>, D, D, 
 
         let dim = self.shape().0;
 
-        for i in 1..dim {
+        for i in 0..dim {
             for j in 0..i {
                 unsafe {
-                    let ref_ij = self.get_unchecked_mut((i, j)) as *mut Complex<N>;
-                    let ref_ji = self.get_unchecked_mut((j, i)) as *mut Complex<N>;
-                    let conj_ij = (*ref_ij).conj();
-                    let conj_ji = (*ref_ji).conj();
+                    let ref_ij = self.get_unchecked_mut((i, j)) as *mut N;
+                    let ref_ji = self.get_unchecked_mut((j, i)) as *mut N;
+                    let conj_ij = (*ref_ij).conjugate();
+                    let conj_ji = (*ref_ji).conjugate();
                     *ref_ij = conj_ji;
                     *ref_ji = conj_ij;
                 }
+            }
+
+            {
+                let diag = unsafe { self.get_unchecked_mut((i, i)) };
+                *diag = diag.conjugate();
             }
         }
     }
 }
 
 impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
-    /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
+    /// The diagonal of this matrix.
     #[inline]
     pub fn diagonal(&self) -> VectorN<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+        where DefaultAllocator: Allocator<N, D> {
+        self.map_diagonal(|e| e)
+    }
+
+    /// Apply the given function to this matrix's diagonal and returns it.
+    ///
+    /// This is a more efficient version of `self.diagonal().map(f)` since this
+    /// allocates only once.
+    pub fn map_diagonal<N2: Scalar>(&self, mut f: impl FnMut(N) -> N2) -> VectorN<N2, D>
+        where DefaultAllocator: Allocator<N2, D> {
         assert!(
             self.is_square(),
             "Unable to get the diagonal of a non-square matrix."
@@ -987,7 +1076,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
         for i in 0..dim.value() {
             unsafe {
-                *res.vget_unchecked_mut(i) = *self.get_unchecked((i, i));
+                *res.vget_unchecked_mut(i) = f(*self.get_unchecked((i, i)));
             }
         }
 
@@ -997,7 +1086,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes a trace of a square matrix, i.e., the sum of its diagonal elements.
     #[inline]
     pub fn trace(&self) -> N
-    where N: Ring {
+        where N: Ring {
         assert!(
             self.is_square(),
             "Cannot compute the trace of non-square matrix."
@@ -1011,6 +1100,31 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         }
 
         res
+    }
+}
+
+impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+    /// The symmetric part of `self`, i.e., `0.5 * (self + self.transpose())`.
+    #[inline]
+    pub fn symmetric_part(&self) -> MatrixMN<N, D, D>
+        where DefaultAllocator: Allocator<N, D, D> {
+        assert!(self.is_square(), "Cannot compute the symmetric part of a non-square matrix.");
+        let mut tr = self.transpose();
+        tr += self;
+        tr *= crate::convert::<_, N>(0.5);
+        tr
+    }
+
+    /// The hermitian part of `self`, i.e., `0.5 * (self + self.adjoint())`.
+    #[inline]
+    pub fn hermitian_part(&self) -> MatrixMN<N, D, D>
+        where DefaultAllocator: Allocator<N, D, D> {
+        assert!(self.is_square(), "Cannot compute the hermitian part of a non-square matrix.");
+
+        let mut tr = self.adjoint();
+        tr += self;
+        tr *= crate::convert::<_, N>(0.5);
+        tr
     }
 }
 
@@ -1278,40 +1392,40 @@ where
         for i in 0..nrows {
             for j in 0..ncols {
                 lengths[(i, j)] = val_width(self[(i, j)], f);
-                max_length = ::max(max_length, lengths[(i, j)]);
+                max_length = crate::max(max_length, lengths[(i, j)]);
             }
         }
 
         let max_length_with_space = max_length + 1;
 
-        try!(writeln!(f));
-        try!(writeln!(
+        writeln!(f)?;
+        writeln!(
             f,
             "  ┌ {:>width$} ┐",
             "",
             width = max_length_with_space * ncols - 1
-        ));
+        )?;
 
         for i in 0..nrows {
-            try!(write!(f, "  │"));
+            write!(f, "  │")?;
             for j in 0..ncols {
                 let number_length = lengths[(i, j)] + 1;
                 let pad = max_length_with_space - number_length;
-                try!(write!(f, " {:>thepad$}", "", thepad = pad));
+                write!(f, " {:>thepad$}", "", thepad = pad)?;
                 match f.precision() {
-                    Some(precision) => try!(write!(f, "{:.1$}", (*self)[(i, j)], precision)),
-                    None => try!(write!(f, "{}", (*self)[(i, j)])),
+                    Some(precision) => write!(f, "{:.1$}", (*self)[(i, j)], precision)?,
+                    None => write!(f, "{}", (*self)[(i, j)])?,
                 }
             }
-            try!(writeln!(f, " │"));
+            writeln!(f, " │")?;
         }
 
-        try!(writeln!(
+        writeln!(
             f,
             "  └ {:>width$} ┘",
             "",
             width = max_length_with_space * ncols - 1
-        ));
+        )?;
         writeln!(f)
     }
 }
@@ -1407,7 +1521,7 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Real, S: Storage<N, U3>> Vector<N, U3, S>
+impl<N: Scalar + Field, S: Storage<N, U3>> Vector<N, U3, S>
 where DefaultAllocator: Allocator<N, U3>
 {
     /// Computes the matrix `M` such that for all vector `v` we have `M * v == self.cross(&v)`.
@@ -1427,27 +1541,27 @@ where DefaultAllocator: Allocator<N, U3>
     }
 }
 
-impl<N: Real, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The smallest angle between two vectors.
     #[inline]
-    pub fn angle<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> N
+    pub fn angle<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> N::RealField
     where
         SB: Storage<N, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
-        let prod = self.dot(other);
+        let prod = self.dotc(other);
         let n1 = self.norm();
         let n2 = other.norm();
 
         if n1.is_zero() || n2.is_zero() {
-            N::zero()
+            N::RealField::zero()
         } else {
-            let cang = prod / (n1 * n2);
+            let cang = prod.real() / (n1 * n2);
 
-            if cang > N::one() {
-                N::zero()
-            } else if cang < -N::one() {
-                N::pi()
+            if cang > N::RealField::one() {
+                N::RealField::zero()
+            } else if cang < -N::RealField::one() {
+                N::RealField::pi()
             } else {
                 cang.acos()
             }
@@ -1478,18 +1592,18 @@ impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     }
 }
 
-impl<N: Real, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
+impl<N: ComplexField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     /// Computes the spherical linear interpolation between two unit vectors.
     pub fn slerp<S2: Storage<N, D>>(
         &self,
         rhs: &Unit<Vector<N, D, S2>>,
-        t: N,
+        t: N::RealField,
     ) -> Unit<VectorN<N, D>>
     where
         DefaultAllocator: Allocator<N, D>,
     {
         // FIXME: the result is wrong when self and rhs are collinear with opposite direction.
-        self.try_slerp(rhs, t, N::default_epsilon())
+        self.try_slerp(rhs, t, N::RealField::default_epsilon())
             .unwrap_or(Unit::new_unchecked(self.clone_owned()))
     }
 
@@ -1500,29 +1614,30 @@ impl<N: Real, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     pub fn try_slerp<S2: Storage<N, D>>(
         &self,
         rhs: &Unit<Vector<N, D, S2>>,
-        t: N,
-        epsilon: N,
+        t: N::RealField,
+        epsilon: N::RealField,
     ) -> Option<Unit<VectorN<N, D>>>
     where
         DefaultAllocator: Allocator<N, D>,
     {
-        let c_hang = self.dot(rhs);
+        let (c_hang, c_hang_sign) = self.dotc(rhs).to_exp();
 
         // self == other
-        if c_hang.abs() >= N::one() {
+        if c_hang >= N::RealField::one() {
             return Some(Unit::new_unchecked(self.clone_owned()));
         }
 
         let hang = c_hang.acos();
-        let s_hang = (N::one() - c_hang * c_hang).sqrt();
+        let s_hang = (N::RealField::one() - c_hang * c_hang).sqrt();
 
         // FIXME: what if s_hang is 0.0 ? The result is not well-defined.
-        if relative_eq!(s_hang, N::zero(), epsilon = epsilon) {
+        if relative_eq!(s_hang, N::RealField::zero(), epsilon = epsilon) {
             None
         } else {
-            let ta = ((N::one() - t) * hang).sin() / s_hang;
+            let ta = ((N::RealField::one() - t) * hang).sin() / s_hang;
             let tb = (t * hang).sin() / s_hang;
-            let res = &**self * ta + &**rhs * tb;
+            let mut res = self.scale(ta);
+            res.axpy(c_hang_sign.scale(tb), &**rhs, N::one());
 
             Some(Unit::new_unchecked(res))
         }

@@ -1,55 +1,55 @@
-use aliases::TMat4;
-use na::{Real};
+use crate::aliases::TMat4;
+use na::{RealField};
 
-//pub fn frustum<N: Real>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
-//    unimplemented!()
-//}
-
-//pub fn frustum_lh<N: Real>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
-//    unimplemented!()
-//}
-//
-//pub fn frustum_lr_no<N: Real>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
-//    unimplemented!()
-//}
-//
-//pub fn frustum_lh_zo<N: Real>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
-//    unimplemented!()
-//}
-//
-//pub fn frustum_no<N: Real>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
-//    unimplemented!()
-//}
-//
-//pub fn frustum_rh<N: Real>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
-//    unimplemented!()
-//}
-//
-//pub fn frustum_rh_no<N: Real>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
-//    unimplemented!()
-//}
-//
-//pub fn frustum_rh_zo<N: Real>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
-//    unimplemented!()
-//}
-//
-//pub fn frustum_zo<N: Real>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
+//pub fn frustum<N: RealField>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
 //    unimplemented!()
 //}
 
-//pub fn infinite_perspective<N: Real>(fovy: N, aspect: N, near: N) -> TMat4<N> {
+//pub fn frustum_lh<N: RealField>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
 //    unimplemented!()
 //}
 //
-//pub fn infinite_perspective_lh<N: Real>(fovy: N, aspect: N, near: N) -> TMat4<N> {
+//pub fn frustum_lr_no<N: RealField>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
 //    unimplemented!()
 //}
 //
-//pub fn infinite_perspective_rh<N: Real>(fovy: N, aspect: N, near: N) -> TMat4<N> {
+//pub fn frustum_lh_zo<N: RealField>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
 //    unimplemented!()
 //}
 //
-//pub fn infinite_ortho<N: Real>(left: N, right: N, bottom: N, top: N) -> TMat4<N> {
+//pub fn frustum_no<N: RealField>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
+//    unimplemented!()
+//}
+//
+//pub fn frustum_rh<N: RealField>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
+//    unimplemented!()
+//}
+//
+//pub fn frustum_rh_no<N: RealField>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
+//    unimplemented!()
+//}
+//
+//pub fn frustum_rh_zo<N: RealField>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
+//    unimplemented!()
+//}
+//
+//pub fn frustum_zo<N: RealField>(left: N, right: N, bottom: N, top: N, near: N, far: N) -> TMat4<N> {
+//    unimplemented!()
+//}
+
+//pub fn infinite_perspective<N: RealField>(fovy: N, aspect: N, near: N) -> TMat4<N> {
+//    unimplemented!()
+//}
+//
+//pub fn infinite_perspective_lh<N: RealField>(fovy: N, aspect: N, near: N) -> TMat4<N> {
+//    unimplemented!()
+//}
+//
+//pub fn infinite_perspective_rh<N: RealField>(fovy: N, aspect: N, near: N) -> TMat4<N> {
+//    unimplemented!()
+//}
+//
+//pub fn infinite_ortho<N: RealField>(left: N, right: N, bottom: N, top: N) -> TMat4<N> {
 //    unimplemented!()
 //}
 
@@ -64,7 +64,7 @@ use na::{Real};
 /// * `znear` - Distance from the viewer to the near clipping plane
 /// * `zfar` - Distance from the viewer to the far clipping plane
 ///
-pub fn ortho<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
+pub fn ortho<N: RealField>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     ortho_rh_no(left, right, bottom, top, znear, zfar)
 }
 
@@ -79,7 +79,7 @@ pub fn ortho<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -
 /// * `znear` - Distance from the viewer to the near clipping plane
 /// * `zfar` - Distance from the viewer to the far clipping plane
 ///
-pub fn ortho_lh<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
+pub fn ortho_lh<N: RealField>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     ortho_lh_no(left, right, bottom, top, znear, zfar)
 }
 
@@ -94,8 +94,8 @@ pub fn ortho_lh<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N
 /// * `znear` - Distance from the viewer to the near clipping plane
 /// * `zfar` - Distance from the viewer to the far clipping plane
 ///
-pub fn ortho_lh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
-    let two    : N =  ::convert(2.0);
+pub fn ortho_lh_no<N: RealField>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
+    let two    : N =  crate::convert(2.0);
     let mut mat : TMat4<N> = TMat4::<N>::identity();
 
     mat[(0, 0)] = two / (right - left);
@@ -119,9 +119,9 @@ pub fn ortho_lh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
 /// * `znear` - Distance from the viewer to the near clipping plane
 /// * `zfar` - Distance from the viewer to the far clipping plane
 ///
-pub fn ortho_lh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
+pub fn ortho_lh_zo<N: RealField>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     let one    : N = N::one();
-    let two    : N = ::convert(2.0);
+    let two    : N = crate::convert(2.0);
     let mut mat : TMat4<N> = TMat4::<N>::identity();
 
     mat[(0, 0)] = two / (right - left);
@@ -145,7 +145,7 @@ pub fn ortho_lh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
 /// * `znear` - Distance from the viewer to the near clipping plane
 /// * `zfar` - Distance from the viewer to the far clipping plane
 ///
-pub fn ortho_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
+pub fn ortho_no<N: RealField>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     ortho_rh_no(left, right, bottom, top, znear, zfar)
 }
 
@@ -160,7 +160,7 @@ pub fn ortho_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N
 /// * `znear` - Distance from the viewer to the near clipping plane
 /// * `zfar` - Distance from the viewer to the far clipping plane
 ///
-pub fn ortho_rh<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
+pub fn ortho_rh<N: RealField>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     ortho_rh_no(left, right, bottom, top, znear, zfar)
 }
 
@@ -175,8 +175,8 @@ pub fn ortho_rh<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N
 /// * `znear` - Distance from the viewer to the near clipping plane
 /// * `zfar` - Distance from the viewer to the far clipping plane
 ///
-pub fn ortho_rh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
-    let two    : N =  ::convert(2.0);
+pub fn ortho_rh_no<N: RealField>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
+    let two    : N =  crate::convert(2.0);
     let mut mat : TMat4<N> = TMat4::<N>::identity();
 
     mat[(0, 0)] = two / (right - left);
@@ -200,9 +200,9 @@ pub fn ortho_rh_no<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
 /// * `znear` - Distance from the viewer to the near clipping plane
 /// * `zfar` - Distance from the viewer to the far clipping plane
 ///
-pub fn ortho_rh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
+pub fn ortho_rh_zo<N: RealField>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     let one    : N = N::one();
-    let two    : N =  ::convert(2.0);
+    let two    : N =  crate::convert(2.0);
     let mut mat : TMat4<N> = TMat4::<N>::identity();
 
     mat[(0, 0)] = two / (right - left);
@@ -226,7 +226,7 @@ pub fn ortho_rh_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar
 /// * `znear` - Distance from the viewer to the near clipping plane
 /// * `zfar` - Distance from the viewer to the far clipping plane
 ///
-pub fn ortho_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
+pub fn ortho_zo<N: RealField>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N) -> TMat4<N> {
     ortho_rh_zo(left, right, bottom, top, znear, zfar)
 }
 
@@ -240,7 +240,7 @@ pub fn ortho_zo<N: Real>(left: N, right: N, bottom: N, top: N, znear: N, zfar: N
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
-pub fn perspective_fov<N: Real>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_fov<N: RealField>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
     perspective_fov_rh_no(fov, width, height, near, far)
 }
 
@@ -254,7 +254,7 @@ pub fn perspective_fov<N: Real>(fov: N, width: N, height: N, near: N, far: N) ->
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
-pub fn perspective_fov_lh<N: Real>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_fov_lh<N: RealField>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
     perspective_fov_lh_no(fov, width, height, near, far)
 }
 
@@ -268,7 +268,7 @@ pub fn perspective_fov_lh<N: Real>(fov: N, width: N, height: N, near: N, far: N)
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
-pub fn perspective_fov_lh_no<N: Real>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_fov_lh_no<N: RealField>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
     assert!(
         width > N::zero(),
         "The width must be greater than zero"
@@ -285,13 +285,13 @@ pub fn perspective_fov_lh_no<N: Real>(fov: N, width: N, height: N, near: N, far:
     let mut mat = TMat4::zeros();
 
     let rad = fov;
-    let h = (rad * ::convert(0.5)).cos() / (rad * ::convert(0.5)).sin();
+    let h = (rad * crate::convert(0.5)).cos() / (rad * crate::convert(0.5)).sin();
     let w = h * height / width;
 
     mat[(0, 0)] = w;
     mat[(1, 1)] = h;
     mat[(2, 2)] = (far + near) / (far - near);
-    mat[(2, 3)] = - (far * near * ::convert(2.0)) / (far - near);
+    mat[(2, 3)] = - (far * near * crate::convert(2.0)) / (far - near);
     mat[(3, 2)] = N::one();
 
     mat
@@ -307,7 +307,7 @@ pub fn perspective_fov_lh_no<N: Real>(fov: N, width: N, height: N, near: N, far:
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
-pub fn perspective_fov_lh_zo<N: Real>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_fov_lh_zo<N: RealField>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
     assert!(
         width > N::zero(),
         "The width must be greater than zero"
@@ -324,7 +324,7 @@ pub fn perspective_fov_lh_zo<N: Real>(fov: N, width: N, height: N, near: N, far:
     let mut mat = TMat4::zeros();
 
     let rad = fov;
-    let h = (rad * ::convert(0.5)).cos() / (rad * ::convert(0.5)).sin();
+    let h = (rad * crate::convert(0.5)).cos() / (rad * crate::convert(0.5)).sin();
     let w = h * height / width;
 
     mat[(0, 0)] = w;
@@ -346,7 +346,7 @@ pub fn perspective_fov_lh_zo<N: Real>(fov: N, width: N, height: N, near: N, far:
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
-pub fn perspective_fov_no<N: Real>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_fov_no<N: RealField>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
     perspective_fov_rh_no(fov, width, height, near, far)
 }
 
@@ -360,7 +360,7 @@ pub fn perspective_fov_no<N: Real>(fov: N, width: N, height: N, near: N, far: N)
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
-pub fn perspective_fov_rh<N: Real>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_fov_rh<N: RealField>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
     perspective_fov_rh_no(fov, width, height, near, far)
 }
 
@@ -374,7 +374,7 @@ pub fn perspective_fov_rh<N: Real>(fov: N, width: N, height: N, near: N, far: N)
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
-pub fn perspective_fov_rh_no<N: Real>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_fov_rh_no<N: RealField>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
     assert!(
         width > N::zero(),
         "The width must be greater than zero"
@@ -391,13 +391,13 @@ pub fn perspective_fov_rh_no<N: Real>(fov: N, width: N, height: N, near: N, far:
     let mut mat = TMat4::zeros();
 
     let rad = fov;
-    let h = (rad * ::convert(0.5)).cos() / (rad * ::convert(0.5)).sin();
+    let h = (rad * crate::convert(0.5)).cos() / (rad * crate::convert(0.5)).sin();
     let w = h * height / width;
 
     mat[(0, 0)] = w;
     mat[(1, 1)] = h;
     mat[(2, 2)] = - (far + near) / (far - near);
-    mat[(2, 3)] = - (far * near * ::convert(2.0)) / (far - near);
+    mat[(2, 3)] = - (far * near * crate::convert(2.0)) / (far - near);
     mat[(3, 2)] = -N::one();
 
     mat
@@ -413,7 +413,7 @@ pub fn perspective_fov_rh_no<N: Real>(fov: N, width: N, height: N, near: N, far:
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
-pub fn perspective_fov_rh_zo<N: Real>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_fov_rh_zo<N: RealField>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
     assert!(
         width > N::zero(),
         "The width must be greater than zero"
@@ -430,7 +430,7 @@ pub fn perspective_fov_rh_zo<N: Real>(fov: N, width: N, height: N, near: N, far:
     let mut mat = TMat4::zeros();
 
     let rad = fov;
-    let h = (rad * ::convert(0.5)).cos() / (rad * ::convert(0.5)).sin();
+    let h = (rad * crate::convert(0.5)).cos() / (rad * crate::convert(0.5)).sin();
     let w = h * height / width;
 
     mat[(0, 0)] = w;
@@ -452,7 +452,7 @@ pub fn perspective_fov_rh_zo<N: Real>(fov: N, width: N, height: N, near: N, far:
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
-pub fn perspective_fov_zo<N: Real>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_fov_zo<N: RealField>(fov: N, width: N, height: N, near: N, far: N) -> TMat4<N> {
     perspective_fov_rh_zo(fov, width, height, near, far)
 }
 
@@ -467,7 +467,7 @@ pub fn perspective_fov_zo<N: Real>(fov: N, width: N, height: N, near: N, far: N)
 ///
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
-pub fn perspective<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     // TODO: Breaking change - revert back to proper glm conventions?
     //
     //       Prior to changes to support configuring the behaviour of this function it was simply
@@ -496,7 +496,7 @@ pub fn perspective<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
 ///
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
-pub fn perspective_lh<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_lh<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     perspective_lh_no(aspect, fovy, near, far)
 }
 
@@ -511,7 +511,7 @@ pub fn perspective_lh<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> 
 ///
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
-pub fn perspective_lh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_lh_no<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     assert!(
         !relative_eq!(far - near, N::zero()),
         "The near-plane and far-plane must not be superimposed."
@@ -522,7 +522,7 @@ pub fn perspective_lh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
     );
 
     let one = N::one();
-    let two: N = ::convert( 2.0);
+    let two: N = crate::convert( 2.0);
     let mut mat : TMat4<N> = TMat4::zeros();
 
     let tan_half_fovy = (fovy / two).tan();
@@ -547,7 +547,7 @@ pub fn perspective_lh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
 ///
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
-pub fn perspective_lh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_lh_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     assert!(
         !relative_eq!(far - near, N::zero()),
         "The near-plane and far-plane must not be superimposed."
@@ -558,7 +558,7 @@ pub fn perspective_lh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
     );
 
     let one = N::one();
-    let two: N = ::convert( 2.0);
+    let two: N = crate::convert( 2.0);
     let mut mat: TMat4<N> = TMat4::zeros();
 
     let tan_half_fovy = (fovy / two).tan();
@@ -583,7 +583,7 @@ pub fn perspective_lh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
 ///
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
-pub fn perspective_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_no<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     perspective_rh_no(aspect, fovy, near, far)
 }
 
@@ -598,7 +598,7 @@ pub fn perspective_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> 
 ///
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
-pub fn perspective_rh<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_rh<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     perspective_rh_no(aspect, fovy, near, far)
 }
 
@@ -613,7 +613,7 @@ pub fn perspective_rh<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> 
 ///
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
-pub fn perspective_rh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     assert!(
         !relative_eq!(far - near, N::zero()),
         "The near-plane and far-plane must not be superimposed."
@@ -625,7 +625,7 @@ pub fn perspective_rh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
 
     let negone = -N::one();
     let one =  N::one();
-    let two: N =   ::convert( 2.0);
+    let two: N =   crate::convert( 2.0);
     let mut mat = TMat4::zeros();
 
     let tan_half_fovy = (fovy / two).tan();
@@ -650,7 +650,7 @@ pub fn perspective_rh_no<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
 ///
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
-pub fn perspective_rh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     assert!(
         !relative_eq!(far - near, N::zero()),
         "The near-plane and far-plane must not be superimposed."
@@ -662,7 +662,7 @@ pub fn perspective_rh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
 
     let negone = -N::one();
     let one =  N::one();
-    let two =   ::convert( 2.0);
+    let two =   crate::convert( 2.0);
     let mut mat = TMat4::zeros();
 
     let tan_half_fovy = (fovy / two).tan();
@@ -687,14 +687,14 @@ pub fn perspective_rh_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<
 ///
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
-pub fn perspective_zo<N: Real>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
+pub fn perspective_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     perspective_rh_zo(aspect, fovy, near, far)
 }
 
-//pub fn tweaked_infinite_perspective<N: Real>(fovy: N, aspect: N, near: N) -> TMat4<N> {
+//pub fn tweaked_infinite_perspective<N: RealField>(fovy: N, aspect: N, near: N) -> TMat4<N> {
 //    unimplemented!()
 //}
 //
-//pub fn tweaked_infinite_perspective_ep<N: Real>(fovy: N, aspect: N, near: N, ep: N) -> TMat4<N> {
+//pub fn tweaked_infinite_perspective_ep<N: RealField>(fovy: N, aspect: N, near: N, ep: N) -> TMat4<N> {
 //    unimplemented!()
 //}

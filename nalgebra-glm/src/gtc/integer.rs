@@ -1,7 +1,7 @@
 //use na::{Scalar, DefaultAllocator};
 //
-//use traits::{Alloc, Dimension};
-//use aliases::TVec;
+//use crate::traits::{Alloc, Dimension};
+//use crate::aliases::TVec;
 
 //pub fn iround<N: Scalar, D: Dimension>(x: &TVec<N, D>) -> TVec<i32, D>
 //    where DefaultAllocator: Alloc<N, D> {

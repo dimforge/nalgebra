@@ -19,14 +19,14 @@ quickcheck! {
         let mut y2 = y1.clone();
 
         y1.gemv(alpha, &a, &x, beta);
-        y2.gemv_symm(alpha, &a.lower_triangle(), &x, beta);
+        y2.sygemv(alpha, &a.lower_triangle(), &x, beta);
 
         if !relative_eq!(y1, y2, epsilon = 1.0e-10) {
             return false;
         }
 
         y1.gemv(alpha, &a, &x, 0.0);
-        y2.gemv_symm(alpha, &a.lower_triangle(), &x, 0.0);
+        y2.sygemv(alpha, &a.lower_triangle(), &x, 0.0);
 
         relative_eq!(y1, y2, epsilon = 1.0e-10)
     }
@@ -61,14 +61,14 @@ quickcheck! {
         let y = DVector::new_random(n);
 
         a1.ger(alpha, &x, &y, beta);
-        a2.ger_symm(alpha, &x, &y, beta);
+        a2.syger(alpha, &x, &y, beta);
 
         if !relative_eq!(a1.lower_triangle(), a2) {
             return false;
         }
 
         a1.ger(alpha, &x, &y, 0.0);
-        a2.ger_symm(alpha, &x, &y, 0.0);
+        a2.syger(alpha, &x, &y, 0.0);
 
         relative_eq!(a1.lower_triangle(), a2)
     }

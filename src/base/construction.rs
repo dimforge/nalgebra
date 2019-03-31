@@ -1,5 +1,5 @@
 #[cfg(feature = "arbitrary")]
-use base::storage::Owned;
+use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -12,13 +12,13 @@ use std::iter;
 use typenum::{self, Cmp, Greater};
 
 #[cfg(feature = "std")]
-use alga::general::Real;
+use alga::general::RealField;
 use alga::general::{ClosedAdd, ClosedMul};
 
-use base::allocator::Allocator;
-use base::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
-use base::storage::Storage;
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
+use crate::base::storage::Storage;
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN};
 
 /*
  *
@@ -131,7 +131,7 @@ where DefaultAllocator: Allocator<N, R, C>
     where N: Zero + One {
         let mut res = Self::zeros_generic(nrows, ncols);
 
-        for i in 0..::min(nrows.value(), ncols.value()) {
+        for i in 0..crate::min(nrows.value(), ncols.value()) {
             unsafe { *res.get_unchecked_mut((i, i)) = elt }
         }
 
@@ -147,7 +147,7 @@ where DefaultAllocator: Allocator<N, R, C>
     where N: Zero {
         let mut res = Self::zeros_generic(nrows, ncols);
         assert!(
-            elts.len() <= ::min(nrows.value(), ncols.value()),
+            elts.len() <= crate::min(nrows.value(), ncols.value()),
             "Too many diagonal elements provided."
         );
 
@@ -795,7 +795,7 @@ where
 }
 
 #[cfg(feature = "std")]
-impl<N: Real, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
+impl<N: RealField, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,
     StandardNormal: Distribution<N>,

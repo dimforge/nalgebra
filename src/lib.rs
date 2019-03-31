@@ -4,8 +4,8 @@
 **nalgebra** is a linear algebra library written for Rust targeting:
 
 * General-purpose linear algebra (still lacks a lot of features…)
-* Real time computer graphics.
-* Real time computer physics.
+* RealField time computer graphics.
+* RealField time computer physics.
 
 ## Using **nalgebra**
 You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
@@ -51,7 +51,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
   allocated on the heap.
 * Convenient aliases for low-dimensional matrices and vectors: `Vector1` to `Vector6` and
   `Matrix1x1` to `Matrix6x6`, including rectangular matrices like `Matrix2x5`.
-* Points sizes known at compile time, and convenience aliases: `Point1` to `Point6`.
+* Points sizes known at compile time, and convenience aliases:: `Point1` to `Point6`.
 * Translation (seen as a transformation that composes by multiplication): `Translation2`,
   `Translation3`.
 * Rotation matrices: `Rotation2`, `Rotation3`.
@@ -66,7 +66,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * General transformations that does not have to be invertible, stored as an homogeneous matrix:
   `Transform2`, `Transform3`.
 * 3D projections for computer graphics: `Perspective3`, `Orthographic3`.
-* Matrix factorizations: `Cholesky`, `QR`, `LU`, `FullPivLU`, `SVD`, `RealSchur`, `Hessenberg`, `SymmetricEigen`.
+* Matrix factorizations: `Cholesky`, `QR`, `LU`, `FullPivLU`, `SVD`, `Schur`, `Hessenberg`, `SymmetricEigen`.
 * Insertion and removal of rows of columns of a matrix.
 * Implements traits from the [alga](https://crates.io/crates/alga) crate for
   generic programming.
@@ -144,11 +144,11 @@ pub mod sparse;
     note = "The 'core' module is being renamed to 'base' to avoid conflicts with the 'core' crate."
 )]
 pub use base as core;
-pub use base::*;
-pub use geometry::*;
-pub use linalg::*;
+pub use crate::base::*;
+pub use crate::geometry::*;
+pub use crate::linalg::*;
 #[cfg(feature = "sparse")]
-pub use sparse::*;
+pub use crate::sparse::*;
 
 use std::cmp::{self, Ordering, PartialOrd};
 
@@ -160,7 +160,10 @@ use alga::linear::SquareMatrix as AlgaSquareMatrix;
 use alga::linear::{EuclideanSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace};
 use num::Signed;
 
-pub use alga::general::{Id, Real};
+pub use alga::general::{Id, RealField, ComplexField};
+#[allow(deprecated)]
+pub use alga::general::Real;
+pub use num_complex::Complex;
 
 /*
  *
@@ -170,6 +173,7 @@ pub use alga::general::{Id, Real};
 /// Gets the ubiquitous multiplicative identity element.
 ///
 /// Same as `Id::new()`.
+#[deprecated(note = "use `Id::new()` instead.")]
 #[inline]
 pub fn id() -> Id {
     Id::new()
@@ -296,8 +300,8 @@ pub fn min<T: Ord>(a: T, b: T) -> T {
 
 /// The absolute value of `a`.
 ///
-/// Deprecated: Use [Matrix::abs] or [Real::abs] instead.
-#[deprecated(note = "use `Matrix::abs` or `Real::abs` instead")]
+/// Deprecated: Use [Matrix::abs] or [RealField::abs] instead.
+#[deprecated(note = "use `Matrix::abs` or `RealField::abs` instead")]
 #[inline]
 pub fn abs<T: Signed>(a: &T) -> T {
     a.abs()
@@ -416,6 +420,7 @@ pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'
 /// # See also:
 ///
 /// * [`inverse`](fn.inverse.html)
+#[deprecated(note = "use the `.try_inverse()` method instead")]
 #[inline]
 pub fn try_inverse<M: AlgaSquareMatrix>(m: &M) -> Option<M> {
     m.try_inverse()
@@ -426,6 +431,7 @@ pub fn try_inverse<M: AlgaSquareMatrix>(m: &M) -> Option<M> {
 /// # See also:
 ///
 /// * [`try_inverse`](fn.try_inverse.html)
+#[deprecated(note = "use the `.inverse()` method instead")]
 #[inline]
 pub fn inverse<M: TwoSidedInverse<Multiplicative>>(m: &M) -> M {
     m.two_sided_inverse()
@@ -457,7 +463,7 @@ pub fn dot<V: FiniteDimVectorSpace>(a: &V, b: &V) -> V::Field {
 /// Or, use [InnerSpace::angle](https://docs.rs/alga/0.7.2/alga/linear/trait.InnerSpace.html#method.angle).
 #[deprecated(note = "use `Matrix::angle` instead")]
 #[inline]
-pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
+pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::RealField {
     a.angle(b)
 }
 
@@ -481,7 +487,7 @@ pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::Real {
 /// Or, use [NormedSpace::norm](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm).
 #[deprecated(note = "use `Matrix::norm` or `Quaternion::norm` instead")]
 #[inline]
-pub fn norm<V: NormedSpace>(v: &V) -> V::Field {
+pub fn norm<V: NormedSpace>(v: &V) -> V::RealField {
     v.norm()
 }
 
@@ -501,7 +507,7 @@ pub fn norm<V: NormedSpace>(v: &V) -> V::Field {
 /// Or, use [NormedSpace::norm_squared](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm_squared).
 #[deprecated(note = "use `Matrix::norm_squared` or `Quaternion::norm_squared` instead")]
 #[inline]
-pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Field {
+pub fn norm_squared<V: NormedSpace>(v: &V) -> V::RealField {
     v.norm_squared()
 }
 
@@ -521,7 +527,7 @@ pub fn norm_squared<V: NormedSpace>(v: &V) -> V::Field {
 /// Or, use [NormedSpace::norm](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm).
 #[deprecated(note = "use `Matrix::magnitude` or `Quaternion::magnitude` instead")]
 #[inline]
-pub fn magnitude<V: NormedSpace>(v: &V) -> V::Field {
+pub fn magnitude<V: NormedSpace>(v: &V) -> V::RealField {
     v.norm()
 }
 
@@ -542,7 +548,7 @@ pub fn magnitude<V: NormedSpace>(v: &V) -> V::Field {
 /// Or, use [NormedSpace::norm_squared](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm_squared).
 #[deprecated(note = "use `Matrix::magnitude_squared` or `Quaternion::magnitude_squared` instead")]
 #[inline]
-pub fn magnitude_squared<V: NormedSpace>(v: &V) -> V::Field {
+pub fn magnitude_squared<V: NormedSpace>(v: &V) -> V::RealField {
     v.norm_squared()
 }
 
@@ -570,7 +576,7 @@ pub fn normalize<V: NormedSpace>(v: &V) -> V {
 /// Or, use [NormedSpace::try_normalize](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.try_normalize).
 #[deprecated(note = "use `Matrix::try_normalize` or `Quaternion::try_normalize` instead")]
 #[inline]
-pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::Field) -> Option<V> {
+pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::RealField) -> Option<V> {
     v.try_normalize(min_norm)
 }
 
@@ -597,7 +603,7 @@ pub fn center<P: EuclideanSpace>(p1: &P, p2: &P) -> P {
 /// * [center](fn.center.html)
 /// * [distance_squared](fn.distance_squared.html)
 #[inline]
-pub fn distance<P: EuclideanSpace>(p1: &P, p2: &P) -> P::Real {
+pub fn distance<P: EuclideanSpace>(p1: &P, p2: &P) -> P::RealField {
     (p2.coordinates() - p1.coordinates()).norm()
 }
 
@@ -608,7 +614,7 @@ pub fn distance<P: EuclideanSpace>(p1: &P, p2: &P) -> P::Real {
 /// * [center](fn.center.html)
 /// * [distance](fn.distance.html)
 #[inline]
-pub fn distance_squared<P: EuclideanSpace>(p1: &P, p2: &P) -> P::Real {
+pub fn distance_squared<P: EuclideanSpace>(p1: &P, p2: &P) -> P::RealField {
     (p2.coordinates() - p1.coordinates()).norm_squared()
 }
 

@@ -1,13 +1,13 @@
 use num::{One, Zero};
 
-use alga::general::{Real, SubsetOf, SupersetOf};
+use alga::general::{RealField, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::{DefaultAllocator, MatrixN, Scalar, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 
-use geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
+use crate::geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
 
 /*
  * This file provides the following conversions:
@@ -33,7 +33,7 @@ where
 
     #[inline]
     fn is_in_subset(rot: &Translation<N2, D>) -> bool {
-        ::is_convertible::<_, VectorN<N1, D>>(&rot.vector)
+        crate::is_convertible::<_, VectorN<N1, D>>(&rot.vector)
     }
 
     #[inline]
@@ -46,8 +46,8 @@ where
 
 impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Translation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: Rotation<Point<N2, D>>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
@@ -69,8 +69,8 @@ where
 
 impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Translation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: Rotation<Point<N2, D>>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
@@ -92,8 +92,8 @@ where
 
 impl<N1, N2, D, C> SubsetOf<Transform<N2, D, C>> for Translation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
     D: DimNameAdd<U1>,
     DefaultAllocator: Allocator<N1, D>
@@ -119,8 +119,8 @@ where
 
 impl<N1, N2, D> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Translation<N1, D>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     D: DimNameAdd<U1>,
     DefaultAllocator: Allocator<N1, D>
         + Allocator<N2, D>
@@ -148,7 +148,7 @@ where
     unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let t = m.fixed_slice::<D, U1>(0, D::dim());
         Self {
-            vector: ::convert_unchecked(t.into_owned()),
+            vector: crate::convert_unchecked(t.into_owned()),
         }
     }
 }
