@@ -87,7 +87,6 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         S2: StorageMut<N, R2, C2>,
         S3: StorageMut<N, R2>,
         ShapeConstraint: DimEq<C2, D> + AreMultipliable<R2, C2, D, U1>,
-        DefaultAllocator: Allocator<N, D>
     {
         lhs.mul_to(&self.axis, work);
 
@@ -109,7 +108,6 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         S2: StorageMut<N, R2, C2>,
         S3: StorageMut<N, R2>,
         ShapeConstraint: DimEq<C2, D> + AreMultipliable<R2, C2, D, U1>,
-        DefaultAllocator: Allocator<N, D>
     {
         lhs.mul_to(&self.axis, work);
 
