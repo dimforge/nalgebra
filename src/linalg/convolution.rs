@@ -7,14 +7,14 @@ use crate::storage::Storage;
 use crate::{zero, RealField, Vector, VectorN, U1};
 
 impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
-    /// Returns the convolution of the target vector and a kernel
+    /// Returns the convolution of the target vector and a kernel.
     ///
     /// # Arguments
     ///
     /// * `kernel` - A Vector with size > 0
     ///
     /// # Errors
-    /// Inputs must statisfy `vector.len() >= kernel.len() > 0`.
+    /// Inputs must satisfy `vector.len() >= kernel.len() > 0`.
     ///
     pub fn convolve_full<D2, S2>(
         &self,
@@ -53,7 +53,8 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
         }
         conv
     }
-    /// Returns the convolution of the target vector and a kernel
+    /// Returns the convolution of the target vector and a kernel.
+    ///
     /// The output convolution consists only of those elements that do not rely on the zero-padding.
     /// # Arguments
     ///
@@ -61,10 +62,9 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
     ///
     ///
     /// # Errors
-    /// Inputs must statisfy `self.len() >= kernel.len() > 0`.
+    /// Inputs must satisfy `self.len() >= kernel.len() > 0`.
     ///
-    pub fn convolve_valid<D2, S2>(&self, kernel: Vector<N, D2, S2>,
-    ) -> VectorN<N, DimDiff<DimSum<D1, U1>, D2>>
+    pub fn convolve_valid<D2, S2>(&self, kernel: Vector<N, D2, S2>) -> VectorN<N, DimDiff<DimSum<D1, U1>, D2>>
     where
         D1: DimAdd<U1>,
         D2: Dim,
@@ -90,20 +90,20 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
         conv
     }
 
-    /// Returns the convolution of the targetvector and a kernel
+    /// Returns the convolution of the target vector and a kernel.
+    ///
     /// The output convolution is the same size as vector, centered with respect to the ‘full’ output.
     /// # Arguments
     ///
     /// * `kernel` - A Vector with size > 0
     ///
     /// # Errors
-    /// Inputs must statisfy `self.len() >= kernel.len() > 0`.
-    pub fn convolve_same<D2, S2>(&self, kernel: Vector<N, D2, S2>) -> VectorN<N, DimMaximum<D1, D2>>
+    /// Inputs must satisfy `self.len() >= kernel.len() > 0`.
+    pub fn convolve_same<D2, S2>(&self, kernel: Vector<N, D2, S2>) -> VectorN<N, D1>
     where
-        D1: DimMax<D2>,
-        D2: DimMax<D1, Output = DimMaximum<D1, D2>>,
+        D2: Dim,
         S2: Storage<N, D2>,
-        DefaultAllocator: Allocator<N, DimMaximum<D1, D2>>,
+        DefaultAllocator: Allocator<N, D1>,
     {
         let vec = self.len();
         let ker = kernel.len();
@@ -112,8 +112,7 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
             panic!("convolve_same expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
         }
 
-        let result_len = self.data.shape().0.max(kernel.data.shape().0);
-        let mut conv = VectorN::zeros_generic(result_len, U1);
+        let mut conv = VectorN::zeros_generic(self.data.shape().0, U1);
 
         for i in 0..vec {
             for j in 0..ker {
@@ -125,6 +124,7 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
                 conv[i] += val * kernel[ker - j - 1];
             }
         }
+
         conv
     }
 }
