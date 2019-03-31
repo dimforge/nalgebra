@@ -7,18 +7,18 @@
 
 use num::One;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameDiff, DimNameSub, U1};
-use base::storage::{Storage, StorageMut};
-use base::{
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameDiff, DimNameSub, U1};
+use crate::base::storage::{Storage, StorageMut};
+use crate::base::{
     DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector, Vector3,
     VectorN,
 };
-use geometry::{
+use crate::geometry::{
     Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point3, Rotation2, Rotation3,
 };
 
-use alga::general::{Real, Ring};
+use alga::general::{RealField, Ring};
 use alga::linear::Transformation;
 
 impl<N, D: DimName> MatrixN<N, D>
@@ -65,7 +65,7 @@ where
     }
 }
 
-impl<N: Real> Matrix3<N> {
+impl<N: RealField> Matrix3<N> {
     /// Builds a 2 dimensional homogeneous rotation matrix from an angle in radian.
     #[inline]
     pub fn new_rotation(angle: N) -> Self {
@@ -73,7 +73,7 @@ impl<N: Real> Matrix3<N> {
     }
 }
 
-impl<N: Real> Matrix4<N> {
+impl<N: RealField> Matrix4<N> {
     /// Builds a 3D homogeneous rotation matrix from an axis and an angle (multiplied together).
     ///
     /// Returns the identity matrix if the given argument is zero.
@@ -321,7 +321,7 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     }
 }
 
-impl<N: Real, D: DimNameSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: RealField, D: DimNameSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D>
         + Allocator<N, DimNameDiff<D, U1>>
         + Allocator<N, DimNameDiff<D, U1>, DimNameDiff<D, U1>>
@@ -365,7 +365,7 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
-impl<N: Real, D: DimNameSub<U1>> Transformation<Point<N, DimNameDiff<D, U1>>> for MatrixN<N, D>
+impl<N: RealField, D: DimNameSub<U1>> Transformation<Point<N, DimNameDiff<D, U1>>> for MatrixN<N, D>
 where DefaultAllocator: Allocator<N, D, D>
         + Allocator<N, DimNameDiff<D, U1>>
         + Allocator<N, DimNameDiff<D, U1>, DimNameDiff<D, U1>>

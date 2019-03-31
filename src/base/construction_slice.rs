@@ -1,6 +1,6 @@
-use base::dimension::{Dim, DimName, Dynamic, U1};
-use base::matrix_slice::{SliceStorage, SliceStorageMut};
-use base::{MatrixSliceMN, MatrixSliceMutMN, Scalar};
+use crate::base::dimension::{Dim, DimName, Dynamic, U1};
+use crate::base::matrix_slice::{SliceStorage, SliceStorageMut};
+use crate::base::{MatrixSliceMN, MatrixSliceMutMN, Scalar};
 
 /*
  *

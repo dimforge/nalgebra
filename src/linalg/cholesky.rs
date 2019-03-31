@@ -1,13 +1,13 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Real;
+use alga::general::ComplexField;
 
-use allocator::Allocator;
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
-use constraint::{SameNumberOfRows, ShapeConstraint};
-use dimension::{Dim, DimSub, Dynamic};
-use storage::{Storage, StorageMut};
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
+use crate::constraint::{SameNumberOfRows, ShapeConstraint};
+use crate::dimension::{Dim, DimSub, Dynamic};
+use crate::storage::{Storage, StorageMut};
 
 /// The Cholesky decomposition of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -26,19 +26,19 @@ use storage::{Storage, StorageMut};
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct Cholesky<N: Real, D: Dim>
+pub struct Cholesky<N: ComplexField, D: Dim>
 where DefaultAllocator: Allocator<N, D, D>
 {
     chol: MatrixN<N, D>,
 }
 
-impl<N: Real, D: Dim> Copy for Cholesky<N, D>
+impl<N: ComplexField, D: Dim> Copy for Cholesky<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
 {}
 
-impl<N: Real, D: DimSub<Dynamic>> Cholesky<N, D>
+impl<N: ComplexField, D: DimSub<Dynamic>> Cholesky<N, D>
 where DefaultAllocator: Allocator<N, D, D>
 {
     /// Attempts to compute the Cholesky decomposition of `matrix`.
@@ -58,21 +58,25 @@ where DefaultAllocator: Allocator<N, D, D>
                 let mut col_j = col_j.rows_range_mut(j..);
                 let col_k = col_k.rows_range(j..);
 
-                col_j.axpy(factor, &col_k, N::one());
+                col_j.axpy(factor.conjugate(), &col_k, N::one());
             }
 
             let diag = unsafe { *matrix.get_unchecked((j, j)) };
-            if diag > N::zero() {
-                let denom = diag.sqrt();
-                unsafe {
-                    *matrix.get_unchecked_mut((j, j)) = denom;
-                }
+            if !diag.is_zero() {
+                if let Some(denom) = diag.try_sqrt() {
+                    unsafe {
+                        *matrix.get_unchecked_mut((j, j)) = denom;
+                    }
 
-                let mut col = matrix.slice_range_mut(j + 1.., j);
-                col /= denom;
-            } else {
-                return None;
+                    let mut col = matrix.slice_range_mut(j + 1.., j);
+                    col /= denom;
+                    continue;
+                }
             }
+
+            // The diagonal element is either zero or its square root could not
+            // be taken (e.g. for negative real numbers).
+            return None;
         }
 
         Some(Cholesky { chol: matrix })
@@ -118,7 +122,7 @@ where DefaultAllocator: Allocator<N, D, D>
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let _ = self.chol.solve_lower_triangular_mut(b);
-        let _ = self.chol.tr_solve_lower_triangular_mut(b);
+        let _ = self.chol.ad_solve_lower_triangular_mut(b);
     }
 
     /// Returns the solution of the system `self * x = b` where `self` is the decomposed matrix and
@@ -144,7 +148,7 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
-impl<N: Real, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: ComplexField, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D>
 {
     /// Attempts to compute the Cholesky decomposition of this matrix.

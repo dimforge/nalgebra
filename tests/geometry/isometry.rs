@@ -1,7 +1,6 @@
 #![cfg(feature = "arbitrary")]
 #![allow(non_snake_case)]
 
-use alga::linear::{ProjectiveTransformation, Transformation};
 use na::{
     Isometry2, Isometry3, Point2, Point3, Rotation2, Rotation3, Translation2, Translation3,
     UnitComplex, UnitQuaternion, Vector2, Vector3,
@@ -82,7 +81,7 @@ quickcheck!(
         r: Rotation2<f64>,
         t: Translation2<f64>,
         v: Vector2<f64>,
-        p: Point2<f64>,
+        p: Point2<f64>
     ) -> bool
     {
         // (rotation × translation) * point = rotation × (translation * point)
@@ -120,7 +119,7 @@ quickcheck!(
         r: Rotation3<f64>,
         t: Translation3<f64>,
         v: Vector3<f64>,
-        p: Point3<f64>,
+        p: Point3<f64>
     ) -> bool
     {
         // (rotation × translation) * point = rotation × (translation * point)
@@ -158,7 +157,7 @@ quickcheck!(
         t: Translation3<f64>,
         v: Vector3<f64>,
         p: Point3<f64>,
-        r: Rotation3<f64>,
+        r: Rotation3<f64>
     ) -> bool
     {
         let iMi = i * i;

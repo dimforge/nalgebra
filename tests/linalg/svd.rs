@@ -3,145 +3,163 @@ use na::{DMatrix, Matrix6};
 
 #[cfg(feature = "arbitrary")]
 mod quickcheck_tests {
-    use na::{
-        DMatrix, DVector, Matrix2, Matrix2x5, Matrix3, Matrix3x5, Matrix4, Matrix5x2, Matrix5x3,
-    };
-    use std::cmp;
+    macro_rules! gen_tests(
+        ($module: ident, $scalar: ty) => {
+            mod $module {
+                use na::{
+                    DMatrix, DVector, Matrix2, Matrix2x5, Matrix3, Matrix3x5, Matrix4, Matrix5x2, Matrix5x3,
+                    ComplexField
+                };
+                use std::cmp;
+                #[allow(unused_imports)]
+                use crate::core::helper::{RandScalar, RandComplex};
 
-    quickcheck! {
-        fn svd(m: DMatrix<f64>) -> bool {
-            if m.len() > 0 {
-                let svd = m.clone().svd(true, true);
-                let recomp_m = svd.clone().recompose().unwrap();
-                let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-                let ds = DMatrix::from_diagonal(&s);
+                quickcheck! {
+                    fn svd(m: DMatrix<$scalar>) -> bool {
+                        let m = m.map(|e| e.0);
+                        if m.len() > 0 {
+                            let svd = m.clone().svd(true, true);
+                            let recomp_m = svd.clone().recompose().unwrap();
+                            let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
+                            let ds = DMatrix::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
-                println!("{}{}", &m, &u * &ds * &v_t);
+                            s.iter().all(|e| *e >= 0.0) &&
+                            relative_eq!(&u * ds * &v_t, recomp_m, epsilon = 1.0e-5) &&
+                            relative_eq!(m, recomp_m, epsilon = 1.0e-5)
+                        }
+                        else {
+                            true
+                        }
+                    }
 
-                s.iter().all(|e| *e >= 0.0) &&
-                relative_eq!(&u * ds * &v_t, recomp_m, epsilon = 1.0e-5) &&
-                relative_eq!(m, recomp_m, epsilon = 1.0e-5)
-            }
-            else {
-                true
-            }
-        }
+                    fn svd_static_5_3(m: Matrix5x3<$scalar>) -> bool {
+                        let m = m.map(|e| e.0);
+                        let svd = m.svd(true, true);
+                        let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
+                        let ds = Matrix3::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
-        fn svd_static_5_3(m: Matrix5x3<f64>) -> bool {
-            let svd = m.svd(true, true);
-            let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-            let ds = Matrix3::from_diagonal(&s);
+                        s.iter().all(|e| *e >= 0.0) &&
+                        relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5) &&
+                        u.is_orthogonal(1.0e-5) &&
+                        v_t.is_orthogonal(1.0e-5)
+                    }
 
-            s.iter().all(|e| *e >= 0.0) &&
-            relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5) &&
-            u.is_orthogonal(1.0e-5) &&
-            v_t.is_orthogonal(1.0e-5)
-        }
+                    fn svd_static_5_2(m: Matrix5x2<$scalar>) -> bool {
+                        let m = m.map(|e| e.0);
+                        let svd = m.svd(true, true);
+                        let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
+                        let ds = Matrix2::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
-        fn svd_static_5_2(m: Matrix5x2<f64>) -> bool {
-            let svd = m.svd(true, true);
-            let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-            let ds = Matrix2::from_diagonal(&s);
+                        s.iter().all(|e| *e >= 0.0) &&
+                        relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5) &&
+                        u.is_orthogonal(1.0e-5) &&
+                        v_t.is_orthogonal(1.0e-5)
+                    }
 
-            s.iter().all(|e| *e >= 0.0) &&
-            relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5) &&
-            u.is_orthogonal(1.0e-5) &&
-            v_t.is_orthogonal(1.0e-5)
-        }
+                    fn svd_static_3_5(m: Matrix3x5<$scalar>) -> bool {
+                        let m = m.map(|e| e.0);
+                        let svd = m.svd(true, true);
+                        let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
 
-        fn svd_static_3_5(m: Matrix3x5<f64>) -> bool {
-            let svd = m.svd(true, true);
-            let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
+                        let ds = Matrix3::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
-            let ds = Matrix3::from_diagonal(&s);
+                        s.iter().all(|e| *e >= 0.0) &&
+                        relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5)
+                    }
 
-            s.iter().all(|e| *e >= 0.0) &&
-            relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5)
-        }
+                    fn svd_static_2_5(m: Matrix2x5<$scalar>) -> bool {
+                        let m = m.map(|e| e.0);
+                        let svd = m.svd(true, true);
+                        let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
+                        let ds = Matrix2::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
-        fn svd_static_2_5(m: Matrix2x5<f64>) -> bool {
-            let svd = m.svd(true, true);
-            let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-            let ds = Matrix2::from_diagonal(&s);
+                        s.iter().all(|e| *e >= 0.0) &&
+                        relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5)
+                    }
 
-            s.iter().all(|e| *e >= 0.0) &&
-            relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5)
-        }
+                    fn svd_static_square(m: Matrix4<$scalar>) -> bool {
+                        let m = m.map(|e| e.0);
+                        let svd = m.svd(true, true);
+                        let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
+                        let ds = Matrix4::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
-        fn svd_static_square(m: Matrix4<f64>) -> bool {
-            let svd = m.svd(true, true);
-            let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-            let ds = Matrix4::from_diagonal(&s);
+                        s.iter().all(|e| *e >= 0.0) &&
+                        relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5) &&
+                        u.is_orthogonal(1.0e-5) &&
+                        v_t.is_orthogonal(1.0e-5)
+                    }
 
-            s.iter().all(|e| *e >= 0.0) &&
-            relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5) &&
-            u.is_orthogonal(1.0e-5) &&
-            v_t.is_orthogonal(1.0e-5)
-        }
+                    fn svd_static_square_2x2(m: Matrix2<$scalar>) -> bool {
+                        let m = m.map(|e| e.0);
+                        let svd = m.svd(true, true);
+                        let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
+                        let ds = Matrix2::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
 
-        fn svd_static_square_2x2(m: Matrix2<f64>) -> bool {
-            let svd = m.svd(true, true);
-            let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
-            let ds = Matrix2::from_diagonal(&s);
+                        s.iter().all(|e| *e >= 0.0) &&
+                        relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5) &&
+                        u.is_orthogonal(1.0e-5) &&
+                        v_t.is_orthogonal(1.0e-5)
+                    }
 
-            s.iter().all(|e| *e >= 0.0) &&
-            relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5) &&
-            u.is_orthogonal(1.0e-5) &&
-            v_t.is_orthogonal(1.0e-5)
-        }
+                    fn svd_pseudo_inverse(m: DMatrix<$scalar>) -> bool {
+                        let m = m.map(|e| e.0);
 
-        fn svd_pseudo_inverse(m: DMatrix<f64>) -> bool {
-            if m.len() > 0 {
-                let svd = m.clone().svd(true, true);
-                let pinv = svd.pseudo_inverse(1.0e-10).unwrap();
+                        if m.len() > 0 {
+                            let svd = m.clone().svd(true, true);
+                            let pinv = svd.pseudo_inverse(1.0e-10).unwrap();
 
-                if m.nrows() > m.ncols() {
-                    println!("{}", &pinv * &m);
-                    (pinv * m).is_identity(1.0e-5)
+                            if m.nrows() > m.ncols() {
+                                (pinv * m).is_identity(1.0e-5)
+                            }
+                            else {
+                                (m * pinv).is_identity(1.0e-5)
+                            }
+                        }
+                        else {
+                            true
+                        }
+                    }
+
+                    fn svd_solve(n: usize, nb: usize) -> bool {
+                        let n = cmp::max(1, cmp::min(n, 10));
+                        let nb = cmp::min(nb, 10);
+                        let m  = DMatrix::<$scalar>::new_random(n, n).map(|e| e.0);
+
+                        let svd = m.clone().svd(true, true);
+
+                        if svd.rank(1.0e-7) == n {
+                            let b1 = DVector::<$scalar>::new_random(n).map(|e| e.0);
+                            let b2 = DMatrix::<$scalar>::new_random(n, nb).map(|e| e.0);
+
+                            let sol1 = svd.solve(&b1, 1.0e-7).unwrap();
+                            let sol2 = svd.solve(&b2, 1.0e-7).unwrap();
+
+                            let recomp = svd.recompose().unwrap();
+                            if !relative_eq!(m, recomp, epsilon = 1.0e-6) {
+                                println!("{}{}", m, recomp);
+                            }
+
+                            if !relative_eq!(&m * &sol1, b1, epsilon = 1.0e-6) {
+                                println!("Problem 1: {:.6}{:.6}", b1, &m * sol1);
+                                return false;
+                            }
+                            if !relative_eq!(&m * &sol2, b2, epsilon = 1.0e-6) {
+                                println!("Problem 2: {:.6}{:.6}", b2, &m * sol2);
+                                return false;
+                            }
+                        }
+
+                        true
+                    }
                 }
-                else {
-                    println!("{}", &m * &pinv);
-                    (m * pinv).is_identity(1.0e-5)
-                }
-            }
-            else {
-                true
             }
         }
+    );
 
-        fn svd_solve(n: usize, nb: usize) -> bool {
-            let n = cmp::max(1, cmp::min(n, 10));
-            let nb = cmp::min(nb, 10);
-            let m  = DMatrix::<f64>::new_random(n, n);
-
-            let svd = m.clone().svd(true, true);
-
-            if svd.rank(1.0e-7) == n {
-                let b1 = DVector::new_random(n);
-                let b2 = DMatrix::new_random(n, nb);
-
-                let sol1 = svd.solve(&b1, 1.0e-7).unwrap();
-                let sol2 = svd.solve(&b2, 1.0e-7).unwrap();
-
-                let recomp = svd.recompose().unwrap();
-                if !relative_eq!(m, recomp, epsilon = 1.0e-6) {
-                    println!("{}{}", m, recomp);
-                }
-
-                if !relative_eq!(&m * &sol1, b1, epsilon = 1.0e-6) {
-                    println!("Problem 1: {:.6}{:.6}", b1, &m * sol1);
-                    return false;
-                }
-                if !relative_eq!(&m * &sol2, b2, epsilon = 1.0e-6) {
-                    println!("Problem 2: {:.6}{:.6}", b2, &m * sol2);
-                    return false;
-                }
-            }
-
-            true
-        }
-    }
+    gen_tests!(complex, RandComplex<f64>);
+    gen_tests!(f64, RandScalar<f64>);
 }
+
 
 // Test proposed on the issue #176 of rulinalg.
 #[test]
@@ -176,12 +194,10 @@ fn svd_singular() {
     let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
     let ds = DMatrix::from_diagonal(&s);
 
-    println!("{:.5}", &u * &ds * &v_t);
-
     assert!(s.iter().all(|e| *e >= 0.0));
     assert!(u.is_orthogonal(1.0e-5));
     assert!(v_t.is_orthogonal(1.0e-5));
-    assert!(relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5));
+    assert_relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5);
 }
 
 // Same as the previous test but with one additional row.
@@ -220,7 +236,7 @@ fn svd_singular_vertical() {
     let ds = DMatrix::from_diagonal(&s);
 
     assert!(s.iter().all(|e| *e >= 0.0));
-    assert!(relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5));
+    assert_relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5);
 }
 
 // Same as the previous test but with one additional column.
@@ -257,7 +273,7 @@ fn svd_singular_horizontal() {
     let ds = DMatrix::from_diagonal(&s);
 
     assert!(s.iter().all(|e| *e >= 0.0));
-    assert!(relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5));
+    assert_relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5);
 }
 
 #[test]
@@ -296,7 +312,7 @@ fn svd_with_delimited_subproblem() {
     m[(8,8)] = 16.0; m[(3,9)] = 17.0;
     m[(9,9)] = 18.0;
     let svd = m.clone().svd(true, true);
-    assert!(relative_eq!(m, svd.recompose().unwrap(), epsilon = 1.0e-7));
+    assert_relative_eq!(m, svd.recompose().unwrap(), epsilon = 1.0e-7);
 
     // Rectangular versions.
     let mut m = DMatrix::<f64>::from_element(15, 10, 0.0);
@@ -311,10 +327,10 @@ fn svd_with_delimited_subproblem() {
     m[(8,8)] = 16.0; m[(3,9)] = 17.0;
     m[(9,9)] = 18.0;
     let svd = m.clone().svd(true, true);
-    assert!(relative_eq!(m, svd.recompose().unwrap(), epsilon = 1.0e-7));
+    assert_relative_eq!(m, svd.recompose().unwrap(), epsilon = 1.0e-7);
 
     let svd = m.transpose().svd(true, true);
-    assert!(relative_eq!(m.transpose(), svd.recompose().unwrap(), epsilon = 1.0e-7));
+    assert_relative_eq!(m.transpose(), svd.recompose().unwrap(), epsilon = 1.0e-7);
 }
 
 #[test]
@@ -327,12 +343,8 @@ fn svd_fail() {
         0.12293810556077789,   0.6617084679545999,   0.9002240700227326, 0.027153062135304884,   0.3630189466989524,  0.18207502727558866,
         0.843196731466686,  0.08951878746549924,   0.7533450877576973, 0.009558876499740077,   0.9429679490873482,   0.9355764454129878);
     let svd = m.clone().svd(true, true);
-    println!("Singular values: {}", svd.singular_values);
-    println!("u: {:.5}", svd.u.unwrap());
-    println!("v: {:.5}", svd.v_t.unwrap());
     let recomp = svd.recompose().unwrap();
-    println!("{:.5}{:.5}", m, recomp);
-    assert!(relative_eq!(m, recomp, epsilon = 1.0e-5));
+    assert_relative_eq!(m, recomp, epsilon = 1.0e-5);
 }
 
 #[test]

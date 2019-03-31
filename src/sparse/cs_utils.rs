@@ -1,5 +1,5 @@
-use allocator::Allocator;
-use {DefaultAllocator, Dim, VectorN};
+use crate::allocator::Allocator;
+use crate::{DefaultAllocator, Dim, VectorN};
 
 pub fn cumsum<D: Dim>(a: &mut VectorN<usize, D>, b: &mut VectorN<usize, D>) -> usize
 where DefaultAllocator: Allocator<usize, D> {

@@ -3,10 +3,10 @@
 use std::fmt::Debug;
 use std::mem;
 
-use base::allocator::{Allocator, SameShapeC, SameShapeR};
-use base::default_allocator::DefaultAllocator;
-use base::dimension::{Dim, U1};
-use base::Scalar;
+use crate::base::allocator::{Allocator, SameShapeC, SameShapeR};
+use crate::base::default_allocator::DefaultAllocator;
+use crate::base::dimension::{Dim, U1};
+use crate::base::Scalar;
 
 /*
  * Aliases for allocation results.

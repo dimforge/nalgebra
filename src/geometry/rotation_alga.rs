@@ -1,24 +1,24 @@
 use alga::general::{
     AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
-    AbstractSemigroup, Id, Identity, TwoSidedInverse, Multiplicative, Real,
+    AbstractSemigroup, Id, Identity, TwoSidedInverse, Multiplicative, RealField,
 };
 use alga::linear::{
     self, AffineTransformation, DirectIsometry, Isometry, OrthogonalTransformation,
     ProjectiveTransformation, Similarity, Transformation,
 };
 
-use base::allocator::Allocator;
-use base::dimension::DimName;
-use base::{DefaultAllocator, VectorN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::DimName;
+use crate::base::{DefaultAllocator, VectorN};
 
-use geometry::{Point, Rotation};
+use crate::geometry::{Point, Rotation};
 
 /*
  *
  * Algebraic structures.
  *
  */
-impl<N: Real, D: DimName> Identity<Multiplicative> for Rotation<N, D>
+impl<N: RealField, D: DimName> Identity<Multiplicative> for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D>
 {
     #[inline]
@@ -27,7 +27,7 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
-impl<N: Real, D: DimName> TwoSidedInverse<Multiplicative> for Rotation<N, D>
+impl<N: RealField, D: DimName> TwoSidedInverse<Multiplicative> for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D>
 {
     #[inline]
@@ -41,7 +41,7 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
-impl<N: Real, D: DimName> AbstractMagma<Multiplicative> for Rotation<N, D>
+impl<N: RealField, D: DimName> AbstractMagma<Multiplicative> for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D>
 {
     #[inline]
@@ -52,7 +52,7 @@ where DefaultAllocator: Allocator<N, D, D>
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N: Real, D: DimName> $marker<$operator> for Rotation<N, D>
+        impl<N: RealField, D: DimName> $marker<$operator> for Rotation<N, D>
             where DefaultAllocator: Allocator<N, D, D> { }
     )*}
 );
@@ -70,35 +70,35 @@ impl_multiplicative_structures!(
  * Transformation groups.
  *
  */
-impl<N: Real, D: DimName> Transformation<Point<N, D>> for Rotation<N, D>
+impl<N: RealField, D: DimName> Transformation<Point<N, D>> for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     #[inline]
     fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
-        self * pt
+        self.transform_point(pt)
     }
 
     #[inline]
     fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
-        self * v
+        self.transform_vector(v)
     }
 }
 
-impl<N: Real, D: DimName> ProjectiveTransformation<Point<N, D>> for Rotation<N, D>
+impl<N: RealField, D: DimName> ProjectiveTransformation<Point<N, D>> for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
-        Point::from(self.inverse_transform_vector(&pt.coords))
+        self.inverse_transform_point(pt)
     }
 
     #[inline]
     fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
-        self.matrix().tr_mul(v)
+        self.inverse_transform_vector(v)
     }
 }
 
-impl<N: Real, D: DimName> AffineTransformation<Point<N, D>> for Rotation<N, D>
+impl<N: RealField, D: DimName> AffineTransformation<Point<N, D>> for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     type Rotation = Self;
@@ -141,7 +141,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     }
 }
 
-impl<N: Real, D: DimName> Similarity<Point<N, D>> for Rotation<N, D>
+impl<N: RealField, D: DimName> Similarity<Point<N, D>> for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     type Scaling = Id;
@@ -164,7 +164,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N: Real, D: DimName> $Trait<Point<N, D>> for Rotation<N, D>
+        impl<N: RealField, D: DimName> $Trait<Point<N, D>> for Rotation<N, D>
         where DefaultAllocator: Allocator<N, D, D> +
                                 Allocator<N, D> { }
     )*}
@@ -173,7 +173,7 @@ macro_rules! marker_impl(
 marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
 
 /// Subgroups of the n-dimensional rotation group `SO(n)`.
-impl<N: Real, D: DimName> linear::Rotation<Point<N, D>> for Rotation<N, D>
+impl<N: RealField, D: DimName> linear::Rotation<Point<N, D>> for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     #[inline]
@@ -199,7 +199,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 }
 
 /*
-impl<N: Real> Matrix for Rotation<N> {
+impl<N: RealField> Matrix for Rotation<N> {
     type Field     = N;
     type Row       = Matrix<N>;
     type Column    = Matrix<N>;
@@ -241,7 +241,7 @@ impl<N: Real> Matrix for Rotation<N> {
     }
 }
 
-impl<N: Real> SquareMatrix for Rotation<N> {
+impl<N: RealField> SquareMatrix for Rotation<N> {
     type Vector = Matrix<N>;
 
     #[inline]
@@ -251,7 +251,7 @@ impl<N: Real> SquareMatrix for Rotation<N> {
 
     #[inline]
     fn determinant(&self) -> Self::Field {
-        ::one()
+        crate::one()
     }
 
     #[inline]
@@ -271,5 +271,5 @@ impl<N: Real> SquareMatrix for Rotation<N> {
     }
 }
 
-impl<N: Real> InversibleSquareMatrix for Rotation<N> { }
+impl<N: RealField> InversibleSquareMatrix for Rotation<N> { }
 */

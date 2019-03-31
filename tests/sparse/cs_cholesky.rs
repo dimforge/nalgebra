@@ -35,12 +35,12 @@ fn cs_cholesky() {
         1.0, 1.0, 0.0, 0.0, 2.0
     );
     a.fill_upper_triangle_with_lower_triangle();
-    // Test ::new, left_looking, and up_looking implementations.
+    // Test crate::new, left_looking, and up_looking implementations.
     test_cholesky(a);
 }
 
 fn test_cholesky(a: Matrix5<f32>) {
-    // Test ::new
+    // Test crate::new
     test_cholesky_variant(a, 0);
     // Test up-looking
     test_cholesky_variant(a, 1);

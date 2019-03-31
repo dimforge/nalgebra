@@ -1,15 +1,14 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Real;
-use allocator::Allocator;
-use base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
-use constraint::{DimEq, ShapeConstraint};
-use dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, Dynamic, U1};
-use storage::Storage;
+use alga::general::ComplexField;
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
+use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1};
+use crate::storage::Storage;
 
-use geometry::Reflection;
-use linalg::householder;
+use crate::geometry::Reflection;
+use crate::linalg::householder;
 
 /// The bidiagonalization of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -38,7 +37,7 @@ use linalg::householder;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct Bidiagonal<N: Real, R: DimMin<C>, C: Dim>
+pub struct Bidiagonal<N: ComplexField, R: DimMin<C>, C: Dim>
 where
     DimMinimum<R, C>: DimSub<U1>,
     DefaultAllocator: Allocator<N, R, C>
@@ -49,13 +48,13 @@ where
     // contiguous. This prevents some useless copies.
     uv: MatrixMN<N, R, C>,
     /// The diagonal elements of the decomposed matrix.
-    pub diagonal: VectorN<N, DimMinimum<R, C>>,
+    diagonal: VectorN<N, DimMinimum<R, C>>,
     /// The off-diagonal elements of the decomposed matrix.
-    pub off_diagonal: VectorN<N, DimDiff<DimMinimum<R, C>, U1>>,
+    off_diagonal: VectorN<N, DimDiff<DimMinimum<R, C>, U1>>,
     upper_diagonal: bool,
 }
 
-impl<N: Real, R: DimMin<C>, C: Dim> Copy for Bidiagonal<N, R, C>
+impl<N: ComplexField, R: DimMin<C>, C: Dim> Copy for Bidiagonal<N, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>,
     DefaultAllocator: Allocator<N, R, C>
@@ -66,7 +65,7 @@ where
     VectorN<N, DimDiff<DimMinimum<R, C>, U1>>: Copy,
 {}
 
-impl<N: Real, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
+impl<N: ComplexField, R: DimMin<C>, C: Dim> Bidiagonal<N, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>,
     DefaultAllocator: Allocator<N, R, C>
@@ -143,9 +142,9 @@ where
 
         Bidiagonal {
             uv: matrix,
-            diagonal: diagonal,
-            off_diagonal: off_diagonal,
-            upper_diagonal: upper_diagonal,
+            diagonal,
+            off_diagonal,
+            upper_diagonal,
         }
     }
 
@@ -179,9 +178,6 @@ where
         DefaultAllocator: Allocator<N, DimMinimum<R, C>, DimMinimum<R, C>>
             + Allocator<N, R, DimMinimum<R, C>>
             + Allocator<N, DimMinimum<R, C>, C>,
-        // FIXME: the following bounds are ugly.
-        DimMinimum<R, C>: DimMin<DimMinimum<R, C>, Output = DimMinimum<R, C>>,
-        ShapeConstraint: DimEq<Dynamic, DimDiff<DimMinimum<R, C>, U1>>,
     {
         // FIXME: optimize by calling a reallocator.
         (self.u(), self.d(), self.v_t())
@@ -192,19 +188,16 @@ where
     pub fn d(&self) -> MatrixN<N, DimMinimum<R, C>>
     where
         DefaultAllocator: Allocator<N, DimMinimum<R, C>, DimMinimum<R, C>>,
-        // FIXME: the following bounds are ugly.
-        DimMinimum<R, C>: DimMin<DimMinimum<R, C>, Output = DimMinimum<R, C>>,
-        ShapeConstraint: DimEq<Dynamic, DimDiff<DimMinimum<R, C>, U1>>,
     {
         let (nrows, ncols) = self.uv.data.shape();
 
         let d = nrows.min(ncols);
         let mut res = MatrixN::identity_generic(d, d);
-        res.set_diagonal(&self.diagonal);
+        res.set_partial_diagonal(self.diagonal.iter().map(|e| N::from_real(e.modulus())));
 
         let start = self.axis_shift();
         res.slice_mut(start, (d.value() - 1, d.value() - 1))
-            .set_diagonal(&self.off_diagonal);
+            .set_partial_diagonal(self.off_diagonal.iter().map(|e| N::from_real(e.modulus())));
         res
     }
 
@@ -225,13 +218,20 @@ where
             let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
 
             let mut res_rows = res.slice_range_mut(i + shift.., i..);
-            refl.reflect(&mut res_rows);
+
+            let sign = if self.upper_diagonal {
+                self.diagonal[i].signum()
+            } else {
+                self.off_diagonal[i].signum()
+            };
+
+            refl.reflect_with_sign(&mut res_rows, sign);
         }
 
         res
     }
 
-    /// Computes the orthogonal matrix `V` of this `U * D * V` decomposition.
+    /// Computes the orthogonal matrix `V_t` of this `U * D * V_t` decomposition.
     pub fn v_t(&self) -> MatrixMN<N, DimMinimum<R, C>, C>
     where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C> {
         let (nrows, ncols) = self.uv.data.shape();
@@ -251,20 +251,29 @@ where
             let refl = Reflection::new(Unit::new_unchecked(axis_packed), N::zero());
 
             let mut res_rows = res.slice_range_mut(i.., i + shift..);
-            refl.reflect_rows(&mut res_rows, &mut work.rows_range_mut(i..));
+
+            let sign = if self.upper_diagonal {
+                self.off_diagonal[i].signum()
+            } else {
+                self.diagonal[i].signum()
+            };
+
+            refl.reflect_rows_with_sign(&mut res_rows, &mut work.rows_range_mut(i..), sign);
         }
 
         res
     }
 
     /// The diagonal part of this decomposed matrix.
-    pub fn diagonal(&self) -> &VectorN<N, DimMinimum<R, C>> {
-        &self.diagonal
+    pub fn diagonal(&self) -> VectorN<N::RealField, DimMinimum<R, C>>
+        where DefaultAllocator: Allocator<N::RealField, DimMinimum<R, C>> {
+        self.diagonal.map(|e| e.modulus())
     }
 
     /// The off-diagonal part of this decomposed matrix.
-    pub fn off_diagonal(&self) -> &VectorN<N, DimDiff<DimMinimum<R, C>, U1>> {
-        &self.off_diagonal
+    pub fn off_diagonal(&self) -> VectorN<N::RealField, DimDiff<DimMinimum<R, C>, U1>>
+        where DefaultAllocator: Allocator<N::RealField, DimDiff<DimMinimum<R, C>, U1>> {
+        self.off_diagonal.map(|e| e.modulus())
     }
 
     #[doc(hidden)]
@@ -273,7 +282,7 @@ where
     }
 }
 
-// impl<N: Real, D: DimMin<D, Output = D> + DimSub<Dynamic>> Bidiagonal<N, D, D>
+// impl<N: ComplexField, D: DimMin<D, Output = D> + DimSub<Dynamic>> Bidiagonal<N, D, D>
 //     where DefaultAllocator: Allocator<N, D, D> +
 //                             Allocator<N, D> {
 //     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
@@ -346,7 +355,7 @@ where
 //     // }
 // }
 
-impl<N: Real, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 where
     DimMinimum<R, C>: DimSub<U1>,
     DefaultAllocator: Allocator<N, R, C>

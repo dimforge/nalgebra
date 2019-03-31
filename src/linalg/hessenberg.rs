@@ -1,14 +1,13 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Real;
-use allocator::Allocator;
-use base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
-use constraint::{DimEq, ShapeConstraint};
-use dimension::{DimDiff, DimSub, Dynamic, U1};
-use storage::Storage;
+use alga::general::ComplexField;
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
+use crate::dimension::{DimDiff, DimSub, U1};
+use crate::storage::Storage;
 
-use linalg::householder;
+use crate::linalg::householder;
 
 /// Hessenberg decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -31,21 +30,21 @@ use linalg::householder;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct Hessenberg<N: Real, D: DimSub<U1>>
+pub struct Hessenberg<N: ComplexField, D: DimSub<U1>>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     hess: MatrixN<N, D>,
     subdiag: VectorN<N, DimDiff<D, U1>>,
 }
 
-impl<N: Real, D: DimSub<U1>> Copy for Hessenberg<N, D>
+impl<N: ComplexField, D: DimSub<U1>> Copy for Hessenberg<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
     MatrixN<N, D>: Copy,
     VectorN<N, DimDiff<D, U1>>: Copy,
 {}
 
-impl<N: Real, D: DimSub<U1>> Hessenberg<N, D>
+impl<N: ComplexField, D: DimSub<U1>> Hessenberg<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the Hessenberg decomposition using householder reflections.
@@ -92,8 +91,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimD
     /// Retrieves `(q, h)` with `q` the orthogonal matrix of this decomposition and `h` the
     /// hessenberg matrix.
     #[inline]
-    pub fn unpack(self) -> (MatrixN<N, D>, MatrixN<N, D>)
-    where ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>> {
+    pub fn unpack(self) -> (MatrixN<N, D>, MatrixN<N, D>) {
         let q = self.q();
 
         (q, self.unpack_h())
@@ -101,13 +99,12 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimD
 
     /// Retrieves the upper trapezoidal submatrix `H` of this decomposition.
     #[inline]
-    pub fn unpack_h(mut self) -> MatrixN<N, D>
-    where ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>> {
+    pub fn unpack_h(mut self) -> MatrixN<N, D> {
         let dim = self.hess.nrows();
         self.hess.fill_lower_triangle(N::zero(), 2);
         self.hess
             .slice_mut((1, 0), (dim - 1, dim - 1))
-            .set_diagonal(&self.subdiag);
+            .set_partial_diagonal(self.subdiag.iter().map(|e| N::from_real(e.modulus())));
         self.hess
     }
 
@@ -116,19 +113,18 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimD
     ///
     /// This is less efficient than `.unpack_h()` as it allocates a new matrix.
     #[inline]
-    pub fn h(&self) -> MatrixN<N, D>
-    where ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>> {
+    pub fn h(&self) -> MatrixN<N, D> {
         let dim = self.hess.nrows();
         let mut res = self.hess.clone();
         res.fill_lower_triangle(N::zero(), 2);
         res.slice_mut((1, 0), (dim - 1, dim - 1))
-            .set_diagonal(&self.subdiag);
+            .set_partial_diagonal(self.subdiag.iter().map(|e| N::from_real(e.modulus())));
         res
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
     pub fn q(&self) -> MatrixN<N, D> {
-        householder::assemble_q(&self.hess)
+        householder::assemble_q(&self.hess, self.subdiag.as_slice())
     }
 
     #[doc(hidden)]
@@ -137,7 +133,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimD
     }
 }
 
-impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: ComplexField, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the Hessenberg decomposition of this matrix using householder reflections.

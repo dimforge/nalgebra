@@ -1,11 +1,11 @@
-use alga::general::{Real, SubsetOf, SupersetOf};
+use alga::general::{RealField, SubsetOf, SupersetOf};
 use alga::linear::Rotation;
 
-use base::allocator::Allocator;
-use base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
-use base::{DefaultAllocator, MatrixN};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::{DefaultAllocator, MatrixN};
 
-use geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
+use crate::geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
 
 /*
  * This file provides the following conversions:
@@ -19,8 +19,8 @@ use geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform
 
 impl<N1, N2, D: DimName, R1, R2> SubsetOf<Isometry<N2, D, R2>> for Isometry<N1, D, R1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R1: Rotation<Point<N1, D>> + SubsetOf<R2>,
     R2: Rotation<Point<N2, D>>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
@@ -32,8 +32,8 @@ where
 
     #[inline]
     fn is_in_subset(iso: &Isometry<N2, D, R2>) -> bool {
-        ::is_convertible::<_, Translation<N1, D>>(&iso.translation)
-            && ::is_convertible::<_, R1>(&iso.rotation)
+        crate::is_convertible::<_, Translation<N1, D>>(&iso.translation)
+            && crate::is_convertible::<_, R1>(&iso.rotation)
     }
 
     #[inline]
@@ -47,8 +47,8 @@ where
 
 impl<N1, N2, D: DimName, R1, R2> SubsetOf<Similarity<N2, D, R2>> for Isometry<N1, D, R1>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R1: Rotation<Point<N1, D>> + SubsetOf<R2>,
     R2: Rotation<Point<N2, D>>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
@@ -60,19 +60,19 @@ where
 
     #[inline]
     fn is_in_subset(sim: &Similarity<N2, D, R2>) -> bool {
-        ::is_convertible::<_, Isometry<N1, D, R1>>(&sim.isometry) && sim.scaling() == N2::one()
+        crate::is_convertible::<_, Isometry<N1, D, R1>>(&sim.isometry) && sim.scaling() == N2::one()
     }
 
     #[inline]
     unsafe fn from_superset_unchecked(sim: &Similarity<N2, D, R2>) -> Self {
-        ::convert_ref_unchecked(&sim.isometry)
+        crate::convert_ref_unchecked(&sim.isometry)
     }
 }
 
 impl<N1, N2, D, R, C> SubsetOf<Transform<N2, D, C>> for Isometry<N1, D, R>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
     R: Rotation<Point<N1, D>>
         + SubsetOf<MatrixN<N1, DimNameSum<D, U1>>>
@@ -105,8 +105,8 @@ where
 
 impl<N1, N2, D, R> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Isometry<N1, D, R>
 where
-    N1: Real,
-    N2: Real + SupersetOf<N1>,
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>,
     R: Rotation<Point<N1, D>>
         + SubsetOf<MatrixN<N1, DimNameSum<D, U1>>>
         + SubsetOf<MatrixN<N2, DimNameSum<D, U1>>>,
@@ -133,7 +133,7 @@ where
         // Scalar types agree.
         m.iter().all(|e| SupersetOf::<N1>::is_in_subset(e)) &&
         // The block part is a rotation.
-        rot.is_special_orthogonal(N2::default_epsilon() * ::convert(100.0)) &&
+        rot.is_special_orthogonal(N2::default_epsilon() * crate::convert(100.0)) &&
         // The bottom row is (0, 0, ..., 1)
         bottom.iter().all(|e| e.is_zero()) && m[(D::dim(), D::dim())] == N2::one()
     }
@@ -142,14 +142,14 @@ where
     unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let t = m.fixed_slice::<D, U1>(0, D::dim()).into_owned();
         let t = Translation {
-            vector: ::convert_unchecked(t),
+            vector: crate::convert_unchecked(t),
         };
 
-        Self::from_parts(t, ::convert_unchecked(m.clone_owned()))
+        Self::from_parts(t, crate::convert_unchecked(m.clone_owned()))
     }
 }
 
-impl<N: Real, D: DimName, R> From<Isometry<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
+impl<N: RealField, D: DimName, R> From<Isometry<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
 where
     D: DimNameAdd<U1>,
     R: SubsetOf<MatrixN<N, DimNameSum<D, U1>>>,

@@ -5,9 +5,9 @@ use std::marker::PhantomData;
 use std::ops::Range;
 use std::slice;
 
-use allocator::Allocator;
-use sparse::cs_utils;
-use {
+use crate::allocator::Allocator;
+use crate::sparse::cs_utils;
+use crate::{
     DefaultAllocator, Dim, Dynamic, Scalar, Vector, VectorN, U1
 };
 

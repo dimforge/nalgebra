@@ -9,16 +9,17 @@ use std::io::{Result as IOResult, Write};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "serde-serialize")]
-use base::storage::Owned;
+use crate::base::storage::Owned;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::Real;
+use alga::general::RealField;
 
-use base::allocator::Allocator;
-use base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use base::{DefaultAllocator, MatrixN, Scalar};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
+use crate::geometry::Point;
 
 /// A rotation matrix.
 #[repr(C)]
@@ -351,6 +352,86 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
+impl<N: RealField, D: DimName> Rotation<N, D>
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
+{
+    /// Rotate the given point.
+    ///
+    /// This is the same as the multiplication `self * pt`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Point3, Rotation2, Rotation3, UnitQuaternion, Vector3};
+    /// let rot = Rotation3::new(Vector3::y() * f32::consts::FRAC_PI_2);
+    /// let transformed_point = rot.transform_point(&Point3::new(1.0, 2.0, 3.0));
+    ///
+    /// assert_relative_eq!(transformed_point, Point3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        self * pt
+    }
+
+    /// Rotate the given vector.
+    ///
+    /// This is the same as the multiplication `self * v`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Rotation2, Rotation3, UnitQuaternion, Vector3};
+    /// let rot = Rotation3::new(Vector3::y() * f32::consts::FRAC_PI_2);
+    /// let transformed_vector = rot.transform_vector(&Vector3::new(1.0, 2.0, 3.0));
+    ///
+    /// assert_relative_eq!(transformed_vector, Vector3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+        self * v
+    }
+
+    /// Rotate the given point by the inverse of this rotation. This may be
+    /// cheaper than inverting the rotation and then transforming the given
+    /// point.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Point3, Rotation2, Rotation3, UnitQuaternion, Vector3};
+    /// let rot = Rotation3::new(Vector3::y() * f32::consts::FRAC_PI_2);
+    /// let transformed_point = rot.inverse_transform_point(&Point3::new(1.0, 2.0, 3.0));
+    ///
+    /// assert_relative_eq!(transformed_point, Point3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+        Point::from(self.inverse_transform_vector(&pt.coords))
+    }
+
+    /// Rotate the given vector by the inverse of this rotation. This may be
+    /// cheaper than inverting the rotation and then transforming the given
+    /// vector.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Rotation2, Rotation3, UnitQuaternion, Vector3};
+    /// let rot = Rotation3::new(Vector3::y() * f32::consts::FRAC_PI_2);
+    /// let transformed_vector = rot.inverse_transform_vector(&Vector3::new(1.0, 2.0, 3.0));
+    ///
+    /// assert_relative_eq!(transformed_vector, Vector3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+        self.matrix().tr_mul(v)
+    }
+}
+
 impl<N: Scalar + Eq, D: DimName> Eq for Rotation<N, D> where DefaultAllocator: Allocator<N, D, D> {}
 
 impl<N: Scalar + PartialEq, D: DimName> PartialEq for Rotation<N, D>
@@ -429,14 +510,14 @@ where
  */
 impl<N, D: DimName> fmt::Display for Rotation<N, D>
 where
-    N: Real + fmt::Display,
+    N: RealField + fmt::Display,
     DefaultAllocator: Allocator<N, D, D> + Allocator<usize, D, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        try!(writeln!(f, "Rotation matrix {{"));
-        try!(write!(f, "{:.*}", precision, self.matrix));
+        writeln!(f, "Rotation matrix {{")?;
+        write!(f, "{:.*}", precision, self.matrix)?;
         writeln!(f, "}}")
     }
 }

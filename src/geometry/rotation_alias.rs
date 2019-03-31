@@ -1,6 +1,6 @@
-use base::dimension::{U2, U3};
+use crate::base::dimension::{U2, U3};
 
-use geometry::Rotation;
+use crate::geometry::Rotation;
 
 /// A 2-dimensional rotation matrix.
 pub type Rotation2<N> = Rotation<N, U2>;

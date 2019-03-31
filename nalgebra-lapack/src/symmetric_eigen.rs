@@ -4,13 +4,13 @@ use serde::{Deserialize, Serialize};
 use num::Zero;
 use std::ops::MulAssign;
 
-use alga::general::Real;
+use alga::general::RealField;
 
 use na::allocator::Allocator;
 use na::dimension::{Dim, U1};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
-use ComplexHelper;
+use crate::ComplexHelper;
 
 use lapack;
 
@@ -52,7 +52,7 @@ where
     VectorN<N, D>: Copy,
 {}
 
-impl<N: SymmetricEigenScalar + Real, D: Dim> SymmetricEigen<N, D>
+impl<N: SymmetricEigenScalar + RealField, D: Dim> SymmetricEigen<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Computes the eigenvalues and eigenvectors of the symmetric matrix `m`.
@@ -102,7 +102,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
         let lwork = N::xsyev_work_size(jobz, b'L', n as i32, m.as_mut_slice(), lda, &mut info);
         lapack_check!(info);
 
-        let mut work = unsafe { ::uninitialized_vec(lwork as usize) };
+        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
         N::xsyev(
             jobz,

@@ -1,13 +1,13 @@
-use alga::general::Real;
+use alga::general::ComplexField;
 
-use base::allocator::Allocator;
-use base::dimension::Dim;
-use base::storage::{Storage, StorageMut};
-use base::{DefaultAllocator, MatrixN, SquareMatrix};
+use crate::base::allocator::Allocator;
+use crate::base::dimension::Dim;
+use crate::base::storage::{Storage, StorageMut};
+use crate::base::{DefaultAllocator, MatrixN, SquareMatrix};
 
-use linalg::lu;
+use crate::linalg::lu;
 
-impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Attempts to invert this matrix.
     #[inline]
     pub fn try_inverse(self) -> Option<MatrixN<N, D>>
@@ -21,7 +21,7 @@ impl<N: Real, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 }
 
-impl<N: Real, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
     /// Attempts to invert this matrix in-place. Returns `false` and leaves `self` untouched if
     /// inversion fails.
     #[inline]
@@ -36,7 +36,7 @@ impl<N: Real, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
                 0 => true,
                 1 => {
                     let determinant = self.get_unchecked((0, 0)).clone();
-                    if determinant == N::zero() {
+                    if determinant.is_zero() {
                         false
                     } else {
                         *self.get_unchecked_mut((0, 0)) = N::one() / determinant;
@@ -51,7 +51,7 @@ impl<N: Real, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
 
                     let determinant = m11 * m22 - m21 * m12;
 
-                    if determinant == N::zero() {
+                    if determinant.is_zero() {
                         false
                     } else {
                         *self.get_unchecked_mut((0, 0)) = m22 / determinant;
@@ -83,7 +83,7 @@ impl<N: Real, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
                     let determinant =
                         m11 * minor_m12_m23 - m12 * minor_m11_m23 + m13 * minor_m11_m22;
 
-                    if determinant == N::zero() {
+                    if determinant.is_zero() {
                         false
                     } else {
                         *self.get_unchecked_mut((0, 0)) = minor_m12_m23 / determinant;
@@ -115,7 +115,7 @@ impl<N: Real, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
 }
 
 // NOTE: this is an extremely efficient, loop-unrolled matrix inverse from MESA (MIT licensed).
-fn do_inverse4<N: Real, D: Dim, S: StorageMut<N, D, D>>(
+fn do_inverse4<N: ComplexField, D: Dim, S: StorageMut<N, D, D>>(
     m: &MatrixN<N, D>,
     out: &mut SquareMatrix<N, D, S>,
 ) -> bool

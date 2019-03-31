@@ -1,5 +1,5 @@
 use approx::AbsDiffEq;
-use na::Real;
+use na::RealField;
 
 /// Default epsilon value used for approximate comparison.
 pub fn epsilon<N: AbsDiffEq<Epsilon = N>>() -> N {
@@ -22,6 +22,6 @@ pub fn epsilon<N: AbsDiffEq<Epsilon = N>>() -> N {
 /// * [`two_over_pi`](fn.two_over_pi.html)
 /// * [`two_over_root_pi`](fn.two_over_root_pi.html)
 /// * [`two_pi`](fn.two_pi.html)
-pub fn pi<N: Real>() -> N {
+pub fn pi<N: RealField>() -> N {
     N::pi()
 }

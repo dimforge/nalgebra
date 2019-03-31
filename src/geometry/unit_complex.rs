@@ -2,14 +2,14 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num_complex::Complex;
 use std::fmt;
 
-use alga::general::Real;
-use base::{Matrix2, Matrix3, Unit, Vector1};
-use geometry::Rotation2;
+use alga::general::RealField;
+use crate::base::{Matrix2, Matrix3, Unit, Vector1, Vector2};
+use crate::geometry::{Rotation2, Point2};
 
 /// A complex number with a norm equal to 1.
 pub type UnitComplex<N> = Unit<Complex<N>>;
 
-impl<N: Real> UnitComplex<N> {
+impl<N: RealField> UnitComplex<N> {
     /// The rotation angle in `]-pi; pi]` of this unit complex number.
     ///
     /// # Example
@@ -251,15 +251,85 @@ impl<N: Real> UnitComplex<N> {
     pub fn to_homogeneous(&self) -> Matrix3<N> {
         self.to_rotation_matrix().to_homogeneous()
     }
+
+    /// Rotate the given point by this unit complex number.
+    ///
+    /// This is the same as the multiplication `self * pt`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{UnitComplex, Point2};
+    /// # use std::f32;
+    /// let rot = UnitComplex::new(f32::consts::FRAC_PI_2);
+    /// let transformed_point = rot.transform_point(&Point2::new(1.0, 2.0));
+    /// assert_relative_eq!(transformed_point, Point2::new(-2.0, 1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn transform_point(&self, pt: &Point2<N>) -> Point2<N> {
+        self * pt
+    }
+
+    /// Rotate the given vector by this unit complex number.
+    ///
+    /// This is the same as the multiplication `self * v`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{UnitComplex, Vector2};
+    /// # use std::f32;
+    /// let rot = UnitComplex::new(f32::consts::FRAC_PI_2);
+    /// let transformed_vector = rot.transform_vector(&Vector2::new(1.0, 2.0));
+    /// assert_relative_eq!(transformed_vector, Vector2::new(-2.0, 1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn transform_vector(&self, v: &Vector2<N>) -> Vector2<N> {
+        self * v
+    }
+
+    /// Rotate the given point by the inverse of this unit complex number.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{UnitComplex, Point2};
+    /// # use std::f32;
+    /// let rot = UnitComplex::new(f32::consts::FRAC_PI_2);
+    /// let transformed_point = rot.inverse_transform_point(&Point2::new(1.0, 2.0));
+    /// assert_relative_eq!(transformed_point, Point2::new(2.0, -1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_point(&self, pt: &Point2<N>) -> Point2<N> {
+        // FIXME: would it be useful performancewise not to call inverse explicitly (i-e. implement
+        // the inverse transformation explicitly here) ?
+        self.inverse() * pt
+    }
+
+    /// Rotate the given vector by the inverse of this unit complex number.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{UnitComplex, Vector2};
+    /// # use std::f32;
+    /// let rot = UnitComplex::new(f32::consts::FRAC_PI_2);
+    /// let transformed_vector = rot.inverse_transform_vector(&Vector2::new(1.0, 2.0));
+    /// assert_relative_eq!(transformed_vector, Vector2::new(2.0, -1.0), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_vector(&self, v: &Vector2<N>) -> Vector2<N> {
+        self.inverse() * v
+    }
 }
 
-impl<N: Real + fmt::Display> fmt::Display for UnitComplex<N> {
+impl<N: RealField + fmt::Display> fmt::Display for UnitComplex<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "UnitComplex angle: {}", self.angle())
     }
 }
 
-impl<N: Real> AbsDiffEq for UnitComplex<N> {
+impl<N: RealField> AbsDiffEq for UnitComplex<N> {
     type Epsilon = N;
 
     #[inline]
@@ -273,7 +343,7 @@ impl<N: Real> AbsDiffEq for UnitComplex<N> {
     }
 }
 
-impl<N: Real> RelativeEq for UnitComplex<N> {
+impl<N: RealField> RelativeEq for UnitComplex<N> {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
         N::default_max_relative()
@@ -292,7 +362,7 @@ impl<N: Real> RelativeEq for UnitComplex<N> {
     }
 }
 
-impl<N: Real> UlpsEq for UnitComplex<N> {
+impl<N: RealField> UlpsEq for UnitComplex<N> {
     #[inline]
     fn default_max_ulps() -> u32 {
         N::default_max_ulps()

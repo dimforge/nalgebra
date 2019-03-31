@@ -1,13 +1,13 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::Real;
-use allocator::Allocator;
-use base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
-use dimension::{DimDiff, DimSub, U1};
-use storage::Storage;
+use alga::general::ComplexField;
+use crate::allocator::Allocator;
+use crate::base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
+use crate::dimension::{DimDiff, DimSub, U1};
+use crate::storage::Storage;
 
-use linalg::householder;
+use crate::linalg::householder;
 
 /// Tridiagonalization of a symmetric matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -30,21 +30,21 @@ use linalg::householder;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct SymmetricTridiagonal<N: Real, D: DimSub<U1>>
+pub struct SymmetricTridiagonal<N: ComplexField, D: DimSub<U1>>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     tri: MatrixN<N, D>,
     off_diagonal: VectorN<N, DimDiff<D, U1>>,
 }
 
-impl<N: Real, D: DimSub<U1>> Copy for SymmetricTridiagonal<N, D>
+impl<N: ComplexField, D: DimSub<U1>> Copy for SymmetricTridiagonal<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
     MatrixN<N, D>: Copy,
     VectorN<N, DimDiff<D, U1>>: Copy,
 {}
 
-impl<N: Real, D: DimSub<U1>> SymmetricTridiagonal<N, D>
+impl<N: ComplexField, D: DimSub<U1>> SymmetricTridiagonal<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the tridiagonalization of the symmetric matrix `m`.
@@ -75,17 +75,18 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
             if not_zero {
                 let mut p = p.rows_range_mut(i..);
 
-                p.gemv_symm(::convert(2.0), &m, &axis, N::zero());
-                let dot = axis.dot(&p);
-                p.axpy(-dot, &axis, N::one());
-                m.ger_symm(-N::one(), &p, &axis, N::one());
-                m.ger_symm(-N::one(), &axis, &p, N::one());
+                p.hegemv(crate::convert(2.0), &m, &axis, N::zero());
+
+                let dot = axis.dotc(&p);
+                m.hegerc(-N::one(), &p, &axis, N::one());
+                m.hegerc(-N::one(), &axis, &p, N::one());
+                m.hegerc(dot * crate::convert(2.0), &axis, &axis, N::one());
             }
         }
 
         Self {
             tri: m,
-            off_diagonal: off_diagonal,
+            off_diagonal,
         }
     }
 
@@ -97,37 +98,35 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 
     /// Retrieve the orthogonal transformation, diagonal, and off diagonal elements of this
     /// decomposition.
-    pub fn unpack(self) -> (MatrixN<N, D>, VectorN<N, D>, VectorN<N, DimDiff<D, U1>>)
-    where DefaultAllocator: Allocator<N, D> {
+    pub fn unpack(self) -> (MatrixN<N, D>, VectorN<N::RealField, D>, VectorN<N::RealField, DimDiff<D, U1>>)
+    where DefaultAllocator: Allocator<N::RealField, D>
+                          + Allocator<N::RealField, DimDiff<D, U1>> {
         let diag = self.diagonal();
         let q = self.q();
 
-        (q, diag, self.off_diagonal)
+        (q, diag, self.off_diagonal.map(N::modulus))
     }
 
     /// Retrieve the diagonal, and off diagonal elements of this decomposition.
-    pub fn unpack_tridiagonal(self) -> (VectorN<N, D>, VectorN<N, DimDiff<D, U1>>)
-    where DefaultAllocator: Allocator<N, D> {
-        let diag = self.diagonal();
-
-        (diag, self.off_diagonal)
+    pub fn unpack_tridiagonal(self) -> (VectorN<N::RealField, D>, VectorN<N::RealField, DimDiff<D, U1>>)
+        where DefaultAllocator: Allocator<N::RealField, D>
+                              + Allocator<N::RealField, DimDiff<D, U1>> {
+        (self.diagonal(), self.off_diagonal.map(N::modulus))
     }
 
     /// The diagonal components of this decomposition.
-    pub fn diagonal(&self) -> VectorN<N, D>
-    where DefaultAllocator: Allocator<N, D> {
-        self.tri.diagonal()
-    }
+    pub fn diagonal(&self) -> VectorN<N::RealField, D>
+    where DefaultAllocator: Allocator<N::RealField, D> { self.tri.map_diagonal(|e| e.real()) }
 
     /// The off-diagonal components of this decomposition.
-    pub fn off_diagonal(&self) -> &VectorN<N, DimDiff<D, U1>>
-    where DefaultAllocator: Allocator<N, D> {
-        &self.off_diagonal
+    pub fn off_diagonal(&self) -> VectorN<N::RealField, DimDiff<D, U1>>
+    where DefaultAllocator: Allocator<N::RealField, DimDiff<D, U1>> {
+        self.off_diagonal.map(N::modulus)
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
     pub fn q(&self) -> MatrixN<N, D> {
-        householder::assemble_q(&self.tri)
+        householder::assemble_q(&self.tri, self.off_diagonal.as_slice())
     }
 
     /// Recomputes the original symmetric matrix.
@@ -137,15 +136,16 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
         self.tri.fill_upper_triangle(N::zero(), 2);
 
         for i in 0..self.off_diagonal.len() {
-            self.tri[(i + 1, i)] = self.off_diagonal[i];
-            self.tri[(i, i + 1)] = self.off_diagonal[i];
+            let val = N::from_real(self.off_diagonal[i].modulus());
+            self.tri[(i + 1, i)] = val;
+            self.tri[(i, i + 1)] = val;
         }
 
-        &q * self.tri * q.transpose()
+        &q * self.tri * q.adjoint()
     }
 }
 
-impl<N: Real, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: ComplexField, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     /// Computes the tridiagonalization of this symmetric matrix.

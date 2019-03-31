@@ -1,5 +1,5 @@
-use aliases::TVec3;
-use traits::Number;
+use crate::aliases::TVec3;
+use crate::traits::Number;
 
 /// Returns `true` if `{a, b, c}` forms a left-handed trihedron.
 ///

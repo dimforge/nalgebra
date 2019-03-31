@@ -1,16 +1,16 @@
-use na::{DefaultAllocator, Real, Scalar};
+use na::{DefaultAllocator, RealField, Scalar};
 
-use aliases::{TMat, TVec};
-use traits::{Alloc, Dimension, Number};
+use crate::aliases::{TMat, TVec};
+use crate::traits::{Alloc, Dimension, Number};
 
 /// The determinant of the matrix `m`.
-pub fn determinant<N: Real, D: Dimension>(m: &TMat<N, D, D>) -> N
+pub fn determinant<N: RealField, D: Dimension>(m: &TMat<N, D, D>) -> N
 where DefaultAllocator: Alloc<N, D, D> {
     m.determinant()
 }
 
 /// The inverse of the matrix `m`.
-pub fn inverse<N: Real, D: Dimension>(m: &TMat<N, D, D>) -> TMat<N, D, D>
+pub fn inverse<N: RealField, D: Dimension>(m: &TMat<N, D, D>) -> TMat<N, D, D>
 where DefaultAllocator: Alloc<N, D, D> {
     m.clone()
         .try_inverse()

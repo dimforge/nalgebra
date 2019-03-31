@@ -1,7 +1,7 @@
 #[cfg(feature = "arbitrary")]
-use base::dimension::U4;
+use crate::base::dimension::U4;
 #[cfg(feature = "arbitrary")]
-use base::storage::Owned;
+use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -9,17 +9,15 @@ use num::{One, Zero};
 use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
-use alga::general::Real;
+use alga::general::RealField;
 
-use base::dimension::U3;
-use base::storage::Storage;
-#[cfg(feature = "arbitrary")]
-use base::Vector3;
-use base::{Unit, Vector, Vector4, Matrix3};
+use crate::base::dimension::U3;
+use crate::base::storage::Storage;
+use crate::base::{Unit, Vector, Vector3, Vector4, Matrix3};
 
-use geometry::{Quaternion, Rotation3, UnitQuaternion};
+use crate::geometry::{Quaternion, Rotation3, UnitQuaternion};
 
-impl<N: Real> Quaternion<N> {
+impl<N: RealField> Quaternion<N> {
     /// Creates a quaternion from a 4D vector. The quaternion scalar part corresponds to the `w`
     /// vector component.
     #[inline]
@@ -43,8 +41,13 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn new(w: N, i: N, j: N, k: N) -> Self {
-        let v = Vector4::<N>::new(i, j, k, w);
-        Self::from(v)
+        Self::from(Vector4::new(i, j, k, w))
+    }
+
+    /// Constructs a pure quaternion.
+    #[inline]
+    pub fn from_imag(vector: Vector3<N>) -> Self {
+        Self::from_parts(N::zero(), vector)
     }
 
     /// Creates a new quaternion from its scalar and vector parts. Note that the arguments order does
@@ -68,13 +71,19 @@ impl<N: Real> Quaternion<N> {
         Self::new(scalar, vector[0], vector[1], vector[2])
     }
 
+    /// Constructs a real quaternion.
+    #[inline]
+    pub fn from_real(r: N) -> Self {
+        Self::from_parts(r, Vector3::zero())
+    }
+
     /// Creates a new quaternion from its polar decomposition.
     ///
     /// Note that `axis` is assumed to be a unit vector.
     // FIXME: take a reference to `axis`?
     pub fn from_polar_decomposition<SB>(scale: N, theta: N, axis: Unit<Vector<N, U3, SB>>) -> Self
     where SB: Storage<N, U3> {
-        let rot = UnitQuaternion::<N>::from_axis_angle(&axis, theta * ::convert(2.0f64));
+        let rot = UnitQuaternion::<N>::from_axis_angle(&axis, theta * crate::convert(2.0f64));
 
         rot.into_inner() * scale
     }
@@ -92,21 +101,21 @@ impl<N: Real> Quaternion<N> {
     /// ```
     #[inline]
     pub fn identity() -> Self {
-        Self::new(N::one(), N::zero(), N::zero(), N::zero())
+        Self::from_real(N::one())
     }
 }
 
-impl<N: Real> One for Quaternion<N> {
+impl<N: RealField> One for Quaternion<N> {
     #[inline]
     fn one() -> Self {
         Self::identity()
     }
 }
 
-impl<N: Real> Zero for Quaternion<N> {
+impl<N: RealField> Zero for Quaternion<N> {
     #[inline]
     fn zero() -> Self {
-        Self::new(N::zero(), N::zero(), N::zero(), N::zero())
+        Self::from(Vector4::zero())
     }
 
     #[inline]
@@ -115,7 +124,7 @@ impl<N: Real> Zero for Quaternion<N> {
     }
 }
 
-impl<N: Real> Distribution<Quaternion<N>> for Standard
+impl<N: RealField> Distribution<Quaternion<N>> for Standard
 where Standard: Distribution<N>
 {
     #[inline]
@@ -125,7 +134,7 @@ where Standard: Distribution<N>
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Real + Arbitrary> Arbitrary for Quaternion<N>
+impl<N: RealField + Arbitrary> Arbitrary for Quaternion<N>
 where Owned<N, U4>: Send
 {
     #[inline]
@@ -139,7 +148,7 @@ where Owned<N, U4>: Send
     }
 }
 
-impl<N: Real> UnitQuaternion<N> {
+impl<N: RealField> UnitQuaternion<N> {
     /// The rotation identity.
     ///
     /// # Example
@@ -186,7 +195,7 @@ impl<N: Real> UnitQuaternion<N> {
     #[inline]
     pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
     where SB: Storage<N, U3> {
-        let (sang, cang) = (angle / ::convert(2.0f64)).sin_cos();
+        let (sang, cang) = (angle / crate::convert(2.0f64)).sin_cos();
 
         let q = Quaternion::from_parts(cang, axis.as_ref() * sang);
         Self::new_unchecked(q)
@@ -216,9 +225,9 @@ impl<N: Real> UnitQuaternion<N> {
     /// ```
     #[inline]
     pub fn from_euler_angles(roll: N, pitch: N, yaw: N) -> Self {
-        let (sr, cr) = (roll * ::convert(0.5f64)).sin_cos();
-        let (sp, cp) = (pitch * ::convert(0.5f64)).sin_cos();
-        let (sy, cy) = (yaw * ::convert(0.5f64)).sin_cos();
+        let (sr, cr) = (roll * crate::convert(0.5f64)).sin_cos();
+        let (sp, cp) = (pitch * crate::convert(0.5f64)).sin_cos();
+        let (sy, cy) = (yaw * crate::convert(0.5f64)).sin_cos();
 
         let q = Quaternion::new(
             cr * cp * cy + sr * sp * sy,
@@ -251,10 +260,10 @@ impl<N: Real> UnitQuaternion<N> {
         let tr = rotmat[(0, 0)] + rotmat[(1, 1)] + rotmat[(2, 2)];
         let res;
 
-        let _0_25: N = ::convert(0.25);
+        let _0_25: N = crate::convert(0.25);
 
         if tr > N::zero() {
-            let denom = (tr + N::one()).sqrt() * ::convert(2.0);
+            let denom = (tr + N::one()).sqrt() * crate::convert(2.0);
             res = Quaternion::new(
                 _0_25 * denom,
                 (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
@@ -263,7 +272,7 @@ impl<N: Real> UnitQuaternion<N> {
             );
         } else if rotmat[(0, 0)] > rotmat[(1, 1)] && rotmat[(0, 0)] > rotmat[(2, 2)] {
             let denom = (N::one() + rotmat[(0, 0)] - rotmat[(1, 1)] - rotmat[(2, 2)]).sqrt()
-                * ::convert(2.0);
+                * crate::convert(2.0);
             res = Quaternion::new(
                 (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
                 _0_25 * denom,
@@ -272,7 +281,7 @@ impl<N: Real> UnitQuaternion<N> {
             );
         } else if rotmat[(1, 1)] > rotmat[(2, 2)] {
             let denom = (N::one() + rotmat[(1, 1)] - rotmat[(0, 0)] - rotmat[(2, 2)]).sqrt()
-                * ::convert(2.0);
+                * crate::convert(2.0);
             res = Quaternion::new(
                 (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
                 (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
@@ -281,7 +290,7 @@ impl<N: Real> UnitQuaternion<N> {
             );
         } else {
             let denom = (N::one() + rotmat[(2, 2)] - rotmat[(0, 0)] - rotmat[(1, 1)]).sqrt()
-                * ::convert(2.0);
+                * crate::convert(2.0);
             res = Quaternion::new(
                 (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
                 (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
@@ -578,8 +587,8 @@ impl<N: Real> UnitQuaternion<N> {
     #[inline]
     pub fn new<SB>(axisangle: Vector<N, U3, SB>) -> Self
     where SB: Storage<N, U3> {
-        let two: N = ::convert(2.0f64);
-        let q = Quaternion::<N>::from_parts(N::zero(), axisangle / two).exp();
+        let two: N = crate::convert(2.0f64);
+        let q = Quaternion::<N>::from_imag(axisangle / two).exp();
         Self::new_unchecked(q)
     }
 
@@ -607,8 +616,8 @@ impl<N: Real> UnitQuaternion<N> {
     #[inline]
     pub fn new_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
     where SB: Storage<N, U3> {
-        let two: N = ::convert(2.0f64);
-        let q = Quaternion::<N>::from_parts(N::zero(), axisangle / two).exp_eps(eps);
+        let two: N = crate::convert(2.0f64);
+        let q = Quaternion::<N>::from_imag(axisangle / two).exp_eps(eps);
         Self::new_unchecked(q)
     }
 
@@ -669,14 +678,14 @@ impl<N: Real> UnitQuaternion<N> {
     }
 }
 
-impl<N: Real> One for UnitQuaternion<N> {
+impl<N: RealField> One for UnitQuaternion<N> {
     #[inline]
     fn one() -> Self {
         Self::identity()
     }
 }
 
-impl<N: Real> Distribution<UnitQuaternion<N>> for Standard
+impl<N: RealField> Distribution<UnitQuaternion<N>> for Standard
 where OpenClosed01: Distribution<N>
 {
     /// Generate a uniformly distributed random rotation quaternion.
@@ -701,7 +710,7 @@ where OpenClosed01: Distribution<N>
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Real + Arbitrary> Arbitrary for UnitQuaternion<N>
+impl<N: RealField + Arbitrary> Arbitrary for UnitQuaternion<N>
 where
     Owned<N, U4>: Send,
     Owned<N, U3>: Send,

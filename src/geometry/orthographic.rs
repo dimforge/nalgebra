@@ -7,36 +7,36 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::mem;
 
-use alga::general::Real;
+use alga::general::RealField;
 
-use base::dimension::U3;
-use base::helper;
-use base::storage::Storage;
-use base::{Matrix4, Vector, Vector3};
+use crate::base::dimension::U3;
+use crate::base::helper;
+use crate::base::storage::Storage;
+use crate::base::{Matrix4, Vector, Vector3};
 
-use geometry::{Point3, Projective3};
+use crate::geometry::{Point3, Projective3};
 
 /// A 3D orthographic projection stored as an homogeneous 4x4 matrix.
-pub struct Orthographic3<N: Real> {
+pub struct Orthographic3<N: RealField> {
     matrix: Matrix4<N>,
 }
 
-impl<N: Real> Copy for Orthographic3<N> {}
+impl<N: RealField> Copy for Orthographic3<N> {}
 
-impl<N: Real> Clone for Orthographic3<N> {
+impl<N: RealField> Clone for Orthographic3<N> {
     #[inline]
     fn clone(&self) -> Self {
         Self::from_matrix_unchecked(self.matrix.clone())
     }
 }
 
-impl<N: Real> fmt::Debug for Orthographic3<N> {
+impl<N: RealField> fmt::Debug for Orthographic3<N> {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         self.matrix.fmt(f)
     }
 }
 
-impl<N: Real> PartialEq for Orthographic3<N> {
+impl<N: RealField> PartialEq for Orthographic3<N> {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.matrix == right.matrix
@@ -44,7 +44,7 @@ impl<N: Real> PartialEq for Orthographic3<N> {
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Real + Serialize> Serialize for Orthographic3<N> {
+impl<N: RealField + Serialize> Serialize for Orthographic3<N> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where S: Serializer {
         self.matrix.serialize(serializer)
@@ -52,7 +52,7 @@ impl<N: Real + Serialize> Serialize for Orthographic3<N> {
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Real + Deserialize<'a>> Deserialize<'a> for Orthographic3<N> {
+impl<'a, N: RealField + Deserialize<'a>> Deserialize<'a> for Orthographic3<N> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where Des: Deserializer<'a> {
         let matrix = Matrix4::<N>::deserialize(deserializer)?;
@@ -61,7 +61,7 @@ impl<'a, N: Real + Deserialize<'a>> Deserialize<'a> for Orthographic3<N> {
     }
 }
 
-impl<N: Real> Orthographic3<N> {
+impl<N: RealField> Orthographic3<N> {
     /// Creates a new orthographic projection matrix.
     ///
     /// This follows the OpenGL convention, so this will flip the `z` axis.
@@ -150,7 +150,7 @@ impl<N: Real> Orthographic3<N> {
             "The apsect ratio must not be zero."
         );
 
-        let half: N = ::convert(0.5);
+        let half: N = crate::convert(0.5);
         let width = zfar * (vfov * half).tan();
         let height = width / aspect;
 
@@ -623,7 +623,7 @@ impl<N: Real> Orthographic3<N> {
             left != right,
             "The left corner must not be equal to the right corner."
         );
-        self.matrix[(0, 0)] = ::convert::<_, N>(2.0) / (right - left);
+        self.matrix[(0, 0)] = crate::convert::<_, N>(2.0) / (right - left);
         self.matrix[(0, 3)] = -(right + left) / (right - left);
     }
 
@@ -648,7 +648,7 @@ impl<N: Real> Orthographic3<N> {
             bottom != top,
             "The top corner must not be equal to the bottom corner."
         );
-        self.matrix[(1, 1)] = ::convert::<_, N>(2.0) / (top - bottom);
+        self.matrix[(1, 1)] = crate::convert::<_, N>(2.0) / (top - bottom);
         self.matrix[(1, 3)] = -(top + bottom) / (top - bottom);
     }
 
@@ -673,12 +673,12 @@ impl<N: Real> Orthographic3<N> {
             zfar != znear,
             "The near-plane and far-plane must not be superimposed."
         );
-        self.matrix[(2, 2)] = -::convert::<_, N>(2.0) / (zfar - znear);
+        self.matrix[(2, 2)] = -crate::convert::<_, N>(2.0) / (zfar - znear);
         self.matrix[(2, 3)] = -(zfar + znear) / (zfar - znear);
     }
 }
 
-impl<N: Real> Distribution<Orthographic3<N>> for Standard
+impl<N: RealField> Distribution<Orthographic3<N>> for Standard
 where Standard: Distribution<N>
 {
     fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Orthographic3<N> {
@@ -694,7 +694,7 @@ where Standard: Distribution<N>
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Real + Arbitrary> Arbitrary for Orthographic3<N>
+impl<N: RealField + Arbitrary> Arbitrary for Orthographic3<N>
 where Matrix4<N>: Send
 {
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
@@ -709,7 +709,7 @@ where Matrix4<N>: Send
     }
 }
 
-impl<N: Real> From<Orthographic3<N>> for Matrix4<N> {
+impl<N: RealField> From<Orthographic3<N>> for Matrix4<N> {
     #[inline]
     fn from(orth: Orthographic3<N>) -> Self {
         orth.into_inner()

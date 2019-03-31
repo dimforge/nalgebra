@@ -1,6 +1,6 @@
-use base::dimension::{U2, U3};
+use crate::base::dimension::{U2, U3};
 
-use geometry::{TAffine, TGeneral, TProjective, Transform};
+use crate::geometry::{TAffine, TGeneral, TProjective, Transform};
 
 /// A 2D general transformation that may not be invertible. Stored as an homogeneous 3x3 matrix.
 pub type Transform2<N> = Transform<N, U2, TGeneral>;

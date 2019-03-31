@@ -98,7 +98,7 @@ pub use self::eigen::Eigen;
 pub use self::hessenberg::Hessenberg;
 pub use self::lu::{LUScalar, LU};
 pub use self::qr::QR;
-pub use self::schur::RealSchur;
+pub use self::schur::Schur;
 pub use self::svd::SVD;
 pub use self::symmetric_eigen::SymmetricEigen;
 
