@@ -11,7 +11,7 @@ use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShap
 use crate::base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
-use crate::base::dimension::{Dim, DimMul, DimName, DimProd};
+use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
 use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar, VectorSliceN};
 
@@ -384,6 +384,36 @@ where
     }
 }
 
+impl<N, C: Dim> iter::Sum for MatrixMN<N, Dynamic, C>
+where
+    N: Scalar + ClosedAdd + Zero,
+    DefaultAllocator: Allocator<N, Dynamic, C>,
+{
+    /// # Example
+    /// ```
+    /// # use nalgebra::DVector;
+    /// assert_eq!(vec![DVector::repeat(3, 1.0f64),
+    ///                 DVector::repeat(3, 1.0f64),
+    ///                 DVector::repeat(3, 1.0f64)].into_iter().sum::<DVector<f64>>(),
+    ///            DVector::repeat(3, 1.0f64) + DVector::repeat(3, 1.0f64) + DVector::repeat(3, 1.0f64));
+    /// ```
+    ///
+    /// # Panics
+    /// Panics if the iterator is empty:
+    /// ```should_panic
+    /// # use std::iter;
+    /// # use nalgebra::DMatrix;
+    /// iter::empty::<DMatrix<f64>>().sum::<DMatrix<f64>>(); // panics!
+    /// ```
+    fn sum<I: Iterator<Item = MatrixMN<N, Dynamic, C>>>(mut iter: I) -> MatrixMN<N, Dynamic, C> {
+        if let Some(first) = iter.next() {
+            iter.fold(first, |acc, x| acc + x)
+        } else {
+            panic!("Cannot compute `sum` of empty iterator.")
+        }
+    }
+}
+
 impl<'a, N, R: DimName, C: DimName> iter::Sum<&'a MatrixMN<N, R, C>> for MatrixMN<N, R, C>
 where
     N: Scalar + ClosedAdd + Zero,
@@ -391,6 +421,36 @@ where
 {
     fn sum<I: Iterator<Item = &'a MatrixMN<N, R, C>>>(iter: I) -> MatrixMN<N, R, C> {
         iter.fold(Matrix::zero(), |acc, x| acc + x)
+    }
+}
+
+impl<'a, N, C: Dim> iter::Sum<&'a MatrixMN<N, Dynamic, C>> for MatrixMN<N, Dynamic, C>
+where
+    N: Scalar + ClosedAdd + Zero,
+    DefaultAllocator: Allocator<N, Dynamic, C>,
+{
+    /// # Example
+    /// ```
+    /// # use nalgebra::DVector;
+    /// let v = &DVector::repeat(3, 1.0f64);
+    ///
+    /// assert_eq!(vec![v, v, v].into_iter().sum::<DVector<f64>>(),
+    ///            v + v + v);
+    /// ```
+    ///
+    /// # Panics
+    /// Panics if the iterator is empty:
+    /// ```should_panic
+    /// # use std::iter;
+    /// # use nalgebra::DMatrix;
+    /// iter::empty::<&DMatrix<f64>>().sum::<DMatrix<f64>>(); // panics!
+    /// ```
+    fn sum<I: Iterator<Item = &'a MatrixMN<N, Dynamic, C>>>(mut iter: I) -> MatrixMN<N, Dynamic, C> {
+        if let Some(first) = iter.next() {
+            iter.fold(first.clone(), |acc, x| acc + x)
+        } else {
+            panic!("Cannot compute `sum` of empty iterator.")
+        }
     }
 }
 

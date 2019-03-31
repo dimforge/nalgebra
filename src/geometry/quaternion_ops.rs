@@ -552,7 +552,7 @@ impl<N: RealField> Neg for Quaternion<N> {
 
     #[inline]
     fn neg(self) -> Self::Output {
-        Quaternion::from(-self.coords)
+        Self::Output::from(-self.coords)
     }
 }
 
@@ -561,7 +561,7 @@ impl<'a, N: RealField> Neg for &'a Quaternion<N> {
 
     #[inline]
     fn neg(self) -> Self::Output {
-        Quaternion::from(-&self.coords)
+        Self::Output::from(-&self.coords)
     }
 }
 

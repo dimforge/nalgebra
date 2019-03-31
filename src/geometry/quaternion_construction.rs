@@ -13,9 +13,7 @@ use alga::general::RealField;
 
 use crate::base::dimension::U3;
 use crate::base::storage::Storage;
-#[cfg(feature = "arbitrary")]
-use crate::base::Vector3;
-use crate::base::{Unit, Vector, Vector4, Matrix3};
+use crate::base::{Unit, Vector, Vector3, Vector4, Matrix3};
 
 use crate::geometry::{Quaternion, Rotation3, UnitQuaternion};
 
@@ -43,8 +41,13 @@ impl<N: RealField> Quaternion<N> {
     /// ```
     #[inline]
     pub fn new(w: N, i: N, j: N, k: N) -> Self {
-        let v = Vector4::<N>::new(i, j, k, w);
-        Self::from(v)
+        Self::from(Vector4::new(i, j, k, w))
+    }
+
+    /// Constructs a pure quaternion.
+    #[inline]
+    pub fn from_imag(vector: Vector3<N>) -> Self {
+        Self::from_parts(N::zero(), vector)
     }
 
     /// Creates a new quaternion from its scalar and vector parts. Note that the arguments order does
@@ -66,6 +69,12 @@ impl<N: RealField> Quaternion<N> {
     pub fn from_parts<SB>(scalar: N, vector: Vector<N, U3, SB>) -> Self
     where SB: Storage<N, U3> {
         Self::new(scalar, vector[0], vector[1], vector[2])
+    }
+
+    /// Constructs a real quaternion.
+    #[inline]
+    pub fn from_real(r: N) -> Self {
+        Self::from_parts(r, Vector3::zero())
     }
 
     /// Creates a new quaternion from its polar decomposition.
@@ -92,7 +101,7 @@ impl<N: RealField> Quaternion<N> {
     /// ```
     #[inline]
     pub fn identity() -> Self {
-        Self::new(N::one(), N::zero(), N::zero(), N::zero())
+        Self::from_real(N::one())
     }
 }
 
@@ -106,7 +115,7 @@ impl<N: RealField> One for Quaternion<N> {
 impl<N: RealField> Zero for Quaternion<N> {
     #[inline]
     fn zero() -> Self {
-        Self::new(N::zero(), N::zero(), N::zero(), N::zero())
+        Self::from(Vector4::zero())
     }
 
     #[inline]
@@ -579,7 +588,7 @@ impl<N: RealField> UnitQuaternion<N> {
     pub fn new<SB>(axisangle: Vector<N, U3, SB>) -> Self
     where SB: Storage<N, U3> {
         let two: N = crate::convert(2.0f64);
-        let q = Quaternion::<N>::from_parts(N::zero(), axisangle / two).exp();
+        let q = Quaternion::<N>::from_imag(axisangle / two).exp();
         Self::new_unchecked(q)
     }
 
@@ -608,7 +617,7 @@ impl<N: RealField> UnitQuaternion<N> {
     pub fn new_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
     where SB: Storage<N, U3> {
         let two: N = crate::convert(2.0f64);
-        let q = Quaternion::<N>::from_parts(N::zero(), axisangle / two).exp_eps(eps);
+        let q = Quaternion::<N>::from_imag(axisangle / two).exp_eps(eps);
         Self::new_unchecked(q)
     }
 

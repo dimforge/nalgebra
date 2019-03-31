@@ -494,7 +494,7 @@ where
 {
     /// Computes `self = a * x + b * self`.
     ///
-    /// If be is zero, `self` is never read from.
+    /// If `b` is zero, `self` is never read from.
     ///
     /// # Examples:
     ///

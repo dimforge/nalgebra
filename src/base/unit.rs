@@ -222,7 +222,7 @@ impl<T: Neg> Neg for Unit<T> {
 
     #[inline]
     fn neg(self) -> Self::Output {
-        Unit::new_unchecked(-self.value)
+        Self::Output::new_unchecked(-self.value)
     }
 }
 

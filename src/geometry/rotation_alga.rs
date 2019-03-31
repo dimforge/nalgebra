@@ -75,12 +75,12 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     #[inline]
     fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
-        self * pt
+        self.transform_point(pt)
     }
 
     #[inline]
     fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
-        self * v
+        self.transform_vector(v)
     }
 }
 
@@ -89,12 +89,12 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
-        Point::from(self.inverse_transform_vector(&pt.coords))
+        self.inverse_transform_point(pt)
     }
 
     #[inline]
     fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
-        self.matrix().tr_mul(v)
+        self.inverse_transform_vector(v)
     }
 }
 

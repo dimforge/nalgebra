@@ -76,7 +76,7 @@ where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
-        pt + &self.vector
+        self.transform_point(pt)
     }
 
     #[inline]
@@ -90,7 +90,7 @@ where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
-        pt - &self.vector
+        self.inverse_transform_point(pt)
     }
 
     #[inline]

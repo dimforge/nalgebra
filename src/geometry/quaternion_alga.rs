@@ -200,26 +200,24 @@ impl_structures!(
 impl<N: RealField> Transformation<Point3<N>> for UnitQuaternion<N> {
     #[inline]
     fn transform_point(&self, pt: &Point3<N>) -> Point3<N> {
-        self * pt
+        self.transform_point(pt)
     }
 
     #[inline]
     fn transform_vector(&self, v: &Vector3<N>) -> Vector3<N> {
-        self * v
+        self.transform_vector(v)
     }
 }
 
 impl<N: RealField> ProjectiveTransformation<Point3<N>> for UnitQuaternion<N> {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point3<N>) -> Point3<N> {
-        // FIXME: would it be useful performancewise not to call inverse explicitly (i-e. implement
-        // the inverse transformation explicitly here) ?
-        self.inverse() * pt
+        self.inverse_transform_point(pt)
     }
 
     #[inline]
     fn inverse_transform_vector(&self, v: &Vector3<N>) -> Vector3<N> {
-        self.inverse() * v
+        self.inverse_transform_vector(v)
     }
 }
 
