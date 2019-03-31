@@ -4,7 +4,7 @@ use std::cmp::Ordering;
 use na::dimension::{U15, U8};
 use na::{
     self, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4, Matrix4,
-    Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RealField, RowVector3, RowVector4, RowVector5,
+    Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RowVector3, RowVector4, RowVector5,
     Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
 };
 
@@ -417,7 +417,7 @@ fn simple_scalar_conversion() {
 #[test]
 fn apply() {
     let mut a = Matrix4::new(
-        1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 8.8, 7.7, 6.6, 5.5, 4.4, 3.3, 2.2,
+        1.1f32, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 8.8, 7.7, 6.6, 5.5, 4.4, 3.3, 2.2,
     );
 
     let expected = Matrix4::new(
