@@ -5,6 +5,9 @@ documented here.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.18.0] - WIP
+This release adds full complex number support to nalgebra. This includes all common vector/matrix operations as well
+as matrix decomposition. This excludes geometric type (like `Isometry`, `Rotation`, `Translation`, etc.) from the
+`geometry` module.
 
 ### Added
   * Add `.renormalize` to `Unit<...>` and `Rotation3` to correct potential drift due to repeated operations.
@@ -12,6 +15,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * Add the `::from_matrix` constructor too all rotation types to extract a rotation from a raw matrix.
   * Add the `::from_matrix_eps` constructor too all rotation types to extract a rotation from a raw matrix. This takes
     more argument than `::from_matrix` to control the convergence of the underlying optimization algorithm.
+  * Add trigonometric functions for quaternions: `.cos, .sin, .tan, .acos, .asin, .atan, .cosh, .sinh, .tanh, .acosh, .asinh, .atanh`.
+  * Add geometric algebra operations for quaternions: `.inner, .outer, .project, .rejection`
 
 ## [0.17.0]
 
