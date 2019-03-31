@@ -78,7 +78,8 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
                 }
 
                 for (i, val) in column {
-                    b[i] -= b[j] * val;
+                    let bj = b[j];
+                    b[i] -= bj * val;
                 }
             }
         }
@@ -119,7 +120,8 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
 
                 if let Some(diag) = diag {
                     for (i, val) in column {
-                        b[j] -= val * b[i];
+                        let bi = b[i];
+                        b[j] -= val * bi;
                     }
 
                     b[j] /= diag;
@@ -178,7 +180,8 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
             }
 
             for (i, val) in column {
-                workspace[i] -= workspace[j] * val;
+                let wj = workspace[j];
+                workspace[i] -= wj * val;
             }
         }
 

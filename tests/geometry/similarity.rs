@@ -1,7 +1,6 @@
 #![cfg(feature = "arbitrary")]
 #![allow(non_snake_case)]
 
-use alga::linear::{ProjectiveTransformation, Transformation};
 use na::{Isometry3, Point3, Similarity3, Translation3, UnitQuaternion, Vector3};
 
 quickcheck!(
