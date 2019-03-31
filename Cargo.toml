@@ -64,8 +64,5 @@ name = "nalgebra_bench"
 harness = false
 path = "benches/lib.rs"
 
-[patch.crates-io]
-alga = { path = "../alga/alga" }
-
 [profile.bench]
 lto = true

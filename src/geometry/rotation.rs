@@ -352,7 +352,7 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
-impl<N: Real, D: DimName> Rotation<N, D>
+impl<N: RealField, D: DimName> Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     /// Rotate the given point.

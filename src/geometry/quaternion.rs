@@ -591,13 +591,13 @@ impl<N: RealField> Quaternion<N> {
     /// Divides quaternion into two.
     #[inline]
     pub fn half(&self) -> Self {
-        self / ::convert(2.0f64)
+        self / crate::convert(2.0f64)
     }
 
     /// Calculates square root.
     #[inline]
     pub fn sqrt(&self) -> Self {
-        self.powf(::convert(0.5))
+        self.powf(crate::convert(0.5))
     }
 
     /// Check if the quaternion is pure.
