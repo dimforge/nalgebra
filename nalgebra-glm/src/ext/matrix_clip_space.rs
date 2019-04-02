@@ -749,15 +749,6 @@ pub fn infinite_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N) -> 
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 pub fn reversed_perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
-    assert!(
-        !relative_eq!(far - near, N::zero()),
-        "The near-plane and far-plane must not be superimposed."
-    );
-    assert!(
-        !relative_eq!(aspect, N::zero()),
-        "The apsect ratio must not be zero."
-    );
-
     let one =  N::one();
     let two: N = crate::convert(2.0);
     let mut mat = TMat4::zeros();
@@ -787,15 +778,6 @@ pub fn reversed_perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N, far
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 pub fn reversed_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
-    assert!(
-        !relative_eq!(far - near, N::zero()),
-        "The near-plane and far-plane must not be superimposed."
-    );
-    assert!(
-        !relative_eq!(aspect, N::zero()),
-        "The apsect ratio must not be zero."
-    );
-
     let one = N::one();
     let two = crate::convert(2.0);
     let mut mat = TMat4::zeros();
