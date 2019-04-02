@@ -720,6 +720,8 @@ pub fn infinite_perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N) -> 
 ///
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
+///
+// https://discourse.nphysics.org/t/reversed-z-and-infinite-zfar-in-projections/341/2
 pub fn infinite_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N) -> TMat4<N> {
     let f = N::one() / (fovy * na::convert(0.5)).tan();
     let mut mat = TMat4::zeros();
@@ -733,7 +735,9 @@ pub fn infinite_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N) -> 
     mat
 }
 
-/// Creates a matrix for a right hand perspective-view frustum with a depth range of -1 to 1
+/// Creates a matrix for a right hand perspective-view frustum with a depth range of -1 to 1.
+///
+/// Note that when using reversed perspective, it is best to use a depth buffer based on floating points.
 ///
 /// # Parameters
 ///
@@ -769,7 +773,9 @@ pub fn reversed_perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N, far
     mat
 }
 
-/// Creates a matrix for a right hand perspective-view frustum with a reversed depth range of 0 to 1
+/// Creates a matrix for a right hand perspective-view frustum with a reversed depth range of 0 to 1.
+///
+/// Note that when using reversed perspective, it is best to use a depth buffer based on floating points.
 ///
 /// # Parameters
 ///
@@ -807,6 +813,8 @@ pub fn reversed_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N, far
 
 /// Build reverted infinite perspective projection matrix with [-1, 1] depth range.
 ///
+/// Note that when using reversed perspective, it is best to use a depth buffer based on floating points.
+///
 /// # Parameters
 ///
 /// * `fovy` - Field of view, in radians
@@ -829,6 +837,8 @@ pub fn reversed_infinite_perspective_rh_no<N: RealField>(aspect: N, fovy: N, nea
 
 /// Build reverted infinite perspective projection matrix with [0, 1] depth range.
 ///
+/// Note that when using reversed perspective, it is best to use a depth buffer based on floating points.
+///
 /// # Parameters
 ///
 /// * `fovy` - Field of view, in radians
@@ -837,6 +847,7 @@ pub fn reversed_infinite_perspective_rh_no<N: RealField>(aspect: N, fovy: N, nea
 ///
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
+// Credit: https://discourse.nphysics.org/t/reversed-z-and-infinite-zfar-in-projections/341/2
 pub fn reversed_infinite_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N) -> TMat4<N> {
     let f = N::one() / (fovy * na::convert(0.5)).tan();
     let mut mat = TMat4::zeros();
