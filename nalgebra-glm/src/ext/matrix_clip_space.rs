@@ -811,7 +811,7 @@ pub fn reversed_infinite_perspective_rh_no<N: RealField>(aspect: N, fovy: N, nea
 
     mat[(0, 0)] = f / aspect;
     mat[(1, 1)] = f;
-    mat[(2, 3)] = two * near;
+    mat[(2, 3)] = near * crate::convert(2.0);
     mat[(3, 2)] = -N::one();
 
     mat
