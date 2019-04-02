@@ -43,11 +43,7 @@ use na::{RealField};
 //
 //pub fn infinite_perspective_lh<N: RealField>(fovy: N, aspect: N, near: N) -> TMat4<N> {
 //    unimplemented!()
-//}
-//
-//pub fn infinite_perspective_rh<N: RealField>(fovy: N, aspect: N, near: N) -> TMat4<N> {
-//    unimplemented!()
-//}
+//}ç
 //
 //pub fn infinite_ortho<N: RealField>(left: N, right: N, bottom: N, top: N) -> TMat4<N> {
 //    unimplemented!()
@@ -689,6 +685,168 @@ pub fn perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> T
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 pub fn perspective_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     perspective_rh_zo(aspect, fovy, near, far)
+}
+
+/// Build infinite right-handed perspective projection matrix with [-1,1] depth range.
+///
+/// # Parameters
+///
+/// * `fovy` - Field of view, in radians
+/// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `near` - Distance from the viewer to the near clipping plane.
+///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
+pub fn infinite_perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N) -> TMat4<N> {
+    let f = N::one() / (fovy * na::convert(0.5)).tan();
+    let mut mat = TMat4::zeros();
+
+    mat[(0, 0)] = f / aspect;
+    mat[(1, 1)] = f;
+    mat[(2, 2)] = -N::one();
+    mat[(2, 3)] = -near * na::convert(2.0);
+    mat[(3, 2)] = -N::one();
+
+    mat
+}
+
+/// Build infinite right-handed perspective projection matrix with [0,1] depth range.
+///
+/// # Parameters
+///
+/// * `fovy` - Field of view, in radians
+/// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `near` - Distance from the viewer to the near clipping plane.
+///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
+pub fn infinite_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N) -> TMat4<N> {
+    let f = N::one() / (fovy * na::convert(0.5)).tan();
+    let mut mat = TMat4::zeros();
+
+    mat[(0, 0)] = f / aspect;
+    mat[(1, 1)] = f;
+    mat[(2, 2)] = -N::one();
+    mat[(2, 3)] = -near;
+    mat[(3, 2)] = -N::one();
+
+    mat
+}
+
+/// Creates a matrix for a right hand perspective-view frustum with a depth range of -1 to 1
+///
+/// # Parameters
+///
+/// * `fovy` - Field of view, in radians
+/// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `near` - Distance from the viewer to the near clipping plane
+/// * `far` - Distance from the viewer to the far clipping plane
+///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
+pub fn reversed_perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
+    assert!(
+        !relative_eq!(far - near, N::zero()),
+        "The near-plane and far-plane must not be superimposed."
+    );
+    assert!(
+        !relative_eq!(aspect, N::zero()),
+        "The apsect ratio must not be zero."
+    );
+
+    let one =  N::one();
+    let two: N = crate::convert(2.0);
+    let mut mat = TMat4::zeros();
+
+    let tan_half_fovy = (fovy / two).tan();
+
+    mat[(0, 0)] = one / (aspect * tan_half_fovy);
+    mat[(1, 1)] = one / tan_half_fovy;
+    mat[(2, 2)] = (far + near) / (far - near) - one;
+    mat[(2, 3)] = (two * far * near) / (far - near);
+    mat[(3, 2)] = -one;
+
+    mat
+}
+
+/// Creates a matrix for a right hand perspective-view frustum with a reversed depth range of 0 to 1
+///
+/// # Parameters
+///
+/// * `fovy` - Field of view, in radians
+/// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `near` - Distance from the viewer to the near clipping plane
+/// * `far` - Distance from the viewer to the far clipping plane
+///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
+pub fn reversed_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
+    assert!(
+        !relative_eq!(far - near, N::zero()),
+        "The near-plane and far-plane must not be superimposed."
+    );
+    assert!(
+        !relative_eq!(aspect, N::zero()),
+        "The apsect ratio must not be zero."
+    );
+
+    let one = N::one();
+    let two = crate::convert(2.0);
+    let mut mat = TMat4::zeros();
+
+    let tan_half_fovy = (fovy / two).tan();
+
+    mat[(0, 0)] = one / (aspect * tan_half_fovy);
+    mat[(1, 1)] = one / tan_half_fovy;
+    mat[(2, 2)] = -far / (near - far) - one;
+    mat[(2, 3)] = (far * near) / (far - near);
+    mat[(3, 2)] = -one;
+
+    mat
+}
+
+/// Build reverted infinite perspective projection matrix with [-1, 1] depth range.
+///
+/// # Parameters
+///
+/// * `fovy` - Field of view, in radians
+/// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `near` - Distance from the viewer to the near clipping plane
+///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
+pub fn reversed_infinite_perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N) -> TMat4<N> {
+    let f = N::one() / (fovy * na::convert(0.5)).tan();
+    let mut mat = TMat4::zeros();
+
+    mat[(0, 0)] = f / aspect;
+    mat[(1, 1)] = f;
+    mat[(2, 3)] = two * near;
+    mat[(3, 2)] = -N::one();
+
+    mat
+}
+
+/// Build reverted infinite perspective projection matrix with [0, 1] depth range.
+///
+/// # Parameters
+///
+/// * `fovy` - Field of view, in radians
+/// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `near` - Distance from the viewer to the near clipping plane.
+///
+/// # Important note
+/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
+pub fn reversed_infinite_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N) -> TMat4<N> {
+    let f = N::one() / (fovy * na::convert(0.5)).tan();
+    let mut mat = TMat4::zeros();
+
+    mat[(0, 0)] = f / aspect;
+    mat[(1, 1)] = f;
+    mat[(2, 3)] = near;
+    mat[(3, 2)] = -N::one();
+
+    mat
 }
 
 //pub fn tweaked_infinite_perspective<N: RealField>(fovy: N, aspect: N, near: N) -> TMat4<N> {
