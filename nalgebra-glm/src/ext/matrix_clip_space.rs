@@ -43,7 +43,7 @@ use na::{RealField};
 //
 //pub fn infinite_perspective_lh<N: RealField>(fovy: N, aspect: N, near: N) -> TMat4<N> {
 //    unimplemented!()
-//}ç
+//}
 //
 //pub fn infinite_ortho<N: RealField>(left: N, right: N, bottom: N, top: N) -> TMat4<N> {
 //    unimplemented!()
@@ -735,7 +735,7 @@ pub fn infinite_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N) -> 
     mat
 }
 
-/// Creates a matrix for a right hand perspective-view frustum with a depth range of -1 to 1.
+/// Creates a matrix for a right hand perspective-view frustum with a reversed depth range of -1 to 1.
 ///
 /// Note that when using reversed perspective, it is best to use a depth buffer based on floating points.
 ///
@@ -811,7 +811,7 @@ pub fn reversed_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N, far
     mat
 }
 
-/// Build reverted infinite perspective projection matrix with [-1, 1] depth range.
+/// Build an infinite perspective projection matrix with a reversed [-1, 1] depth range.
 ///
 /// Note that when using reversed perspective, it is best to use a depth buffer based on floating points.
 ///
@@ -835,7 +835,7 @@ pub fn reversed_infinite_perspective_rh_no<N: RealField>(aspect: N, fovy: N, nea
     mat
 }
 
-/// Build reverted infinite perspective projection matrix with [0, 1] depth range.
+/// Build an infinite perspective projection matrix with a reversed [0, 1] depth range.
 ///
 /// Note that when using reversed perspective, it is best to use a depth buffer based on floating points.
 ///
