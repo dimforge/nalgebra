@@ -737,8 +737,6 @@ pub fn infinite_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N) -> 
 
 /// Creates a matrix for a right hand perspective-view frustum with a reversed depth range of -1 to 1.
 ///
-/// Note that when using reversed perspective, it is best to use a depth buffer based on floating points.
-///
 /// # Parameters
 ///
 /// * `fovy` - Field of view, in radians
@@ -765,8 +763,6 @@ pub fn reversed_perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N, far
 }
 
 /// Creates a matrix for a right hand perspective-view frustum with a reversed depth range of 0 to 1.
-///
-/// Note that when using reversed perspective, it is best to use a depth buffer based on floating points.
 ///
 /// # Parameters
 ///
@@ -795,8 +791,6 @@ pub fn reversed_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N, far
 
 /// Build an infinite perspective projection matrix with a reversed [-1, 1] depth range.
 ///
-/// Note that when using reversed perspective, it is best to use a depth buffer based on floating points.
-///
 /// # Parameters
 ///
 /// * `fovy` - Field of view, in radians
@@ -818,8 +812,6 @@ pub fn reversed_infinite_perspective_rh_no<N: RealField>(aspect: N, fovy: N, nea
 }
 
 /// Build an infinite perspective projection matrix with a reversed [0, 1] depth range.
-///
-/// Note that when using reversed perspective, it is best to use a depth buffer based on floating points.
 ///
 /// # Parameters
 ///
