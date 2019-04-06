@@ -2,7 +2,8 @@
 
 use na::{
     DMatrix, Isometry3, IsometryMatrix3, Matrix3x4, Point3, Quaternion, Rotation3, Similarity3,
-    SimilarityMatrix3, Translation3, Unit,
+    SimilarityMatrix3, Translation3, Unit, Point2, Translation2, Rotation2, Isometry2, IsometryMatrix2,
+    Similarity2, SimilarityMatrix2,
 };
 use rand;
 use serde_json;
@@ -35,6 +36,13 @@ test_serde!(
     serde_similarity3,        Similarity3;
     serde_similarity_matrix3, SimilarityMatrix3;
     serde_quaternion,         Quaternion;
+    serde_point2,             Point2;
+    serde_translation2,       Translation2;
+    serde_rotation2,          Rotation2;
+    serde_isometry2,          Isometry2;
+    serde_isometry_matrix2,   IsometryMatrix2;
+    serde_similarity2,        Similarity2;
+    serde_similarity_matrix2, SimilarityMatrix2;
 );
 
 #[test]
