@@ -735,33 +735,6 @@ pub fn infinite_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N) -> 
     mat
 }
 
-/// Creates a matrix for a right hand perspective-view frustum with a reversed depth range of -1 to 1.
-///
-/// # Parameters
-///
-/// * `fovy` - Field of view, in radians
-/// * `aspect` - Ratio of viewport width to height (width/height)
-/// * `near` - Distance from the viewer to the near clipping plane
-/// * `far` - Distance from the viewer to the far clipping plane
-///
-/// # Important note
-/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
-pub fn reversed_perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
-    let one =  N::one();
-    let two: N = crate::convert(2.0);
-    let mut mat = TMat4::zeros();
-
-    let tan_half_fovy = (fovy / two).tan();
-
-    mat[(0, 0)] = one / (aspect * tan_half_fovy);
-    mat[(1, 1)] = one / tan_half_fovy;
-    mat[(2, 2)] = (far + near) / (far - near) - one;
-    mat[(2, 3)] = (two * far * near) / (far - near);
-    mat[(3, 2)] = -one;
-
-    mat
-}
-
 /// Creates a matrix for a right hand perspective-view frustum with a reversed depth range of 0 to 1.
 ///
 /// # Parameters
@@ -773,6 +746,7 @@ pub fn reversed_perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N, far
 ///
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
+// NOTE: The variants `_no` of reversed perspective are not useful.
 pub fn reversed_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N> {
     let one = N::one();
     let two = crate::convert(2.0);
@@ -789,28 +763,6 @@ pub fn reversed_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N, far
     mat
 }
 
-/// Build an infinite perspective projection matrix with a reversed [-1, 1] depth range.
-///
-/// # Parameters
-///
-/// * `fovy` - Field of view, in radians
-/// * `aspect` - Ratio of viewport width to height (width/height)
-/// * `near` - Distance from the viewer to the near clipping plane
-///
-/// # Important note
-/// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
-pub fn reversed_infinite_perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N) -> TMat4<N> {
-    let f = N::one() / (fovy * na::convert(0.5)).tan();
-    let mut mat = TMat4::zeros();
-
-    mat[(0, 0)] = f / aspect;
-    mat[(1, 1)] = f;
-    mat[(2, 3)] = near * crate::convert(2.0);
-    mat[(3, 2)] = -N::one();
-
-    mat
-}
-
 /// Build an infinite perspective projection matrix with a reversed [0, 1] depth range.
 ///
 /// # Parameters
@@ -822,6 +774,7 @@ pub fn reversed_infinite_perspective_rh_no<N: RealField>(aspect: N, fovy: N, nea
 /// # Important note
 /// The `aspect` and `fovy` argument are interchanged compared to the original GLM API.
 // Credit: https://discourse.nphysics.org/t/reversed-z-and-infinite-zfar-in-projections/341/2
+// NOTE: The variants `_no` of reversed perspective are not useful.
 pub fn reversed_infinite_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N) -> TMat4<N> {
     let f = N::one() / (fovy * na::convert(0.5)).tan();
     let mut mat = TMat4::zeros();
