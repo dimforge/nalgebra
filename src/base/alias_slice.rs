@@ -202,7 +202,7 @@ pub type VectorSlice6<'a, N, RStride = U1, CStride = U6> = VectorSliceN<'a, N, U
  *
  */
 /// A column-major mutable matrix slice with `R` rows and `C` columns.
-pub type MatrixSliceMutMN<'a, N, R, C, RStride = U1, CStride = R> =
+pub type MatrixSliceMutMN<'a, N, R, C, RStride = U1, CStride = C> =
     Matrix<N, R, C, SliceStorageMut<'a, N, R, C, RStride, CStride>>;
 
 /// A column-major mutable matrix slice with `D` rows and columns.
