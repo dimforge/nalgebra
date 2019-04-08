@@ -260,6 +260,63 @@ fn remove_columns() {
     assert!(computed.eq(&expected2));
 }
 
+#[test]
+fn remove_columns_at() {
+    let m = DMatrix::from_row_slice(5, 5, &[
+        11, 12, 13, 14, 15,
+        21, 22, 23, 24, 25,
+        31, 32, 33, 34, 35,
+        41, 42, 43, 44, 45,
+        51, 52, 53, 54, 55
+    ]);
+
+    let expected1 = DMatrix::from_row_slice(5, 4, &[
+        12, 13, 14, 15,
+        22, 23, 24, 25,
+        32, 33, 34, 35,
+        42, 43, 44, 45,
+        52, 53, 54, 55
+    ]);
+
+    assert_eq!(m.remove_columns_at(&[0]), expected1);
+
+    let m = DMatrix::from_row_slice(5, 5, &[
+        11, 12, 13, 14, 15,
+        21, 22, 23, 24, 25,
+        31, 32, 33, 34, 35,
+        41, 42, 43, 44, 45,
+        51, 52, 53, 54, 55
+    ]);
+
+    let expected2 = DMatrix::from_row_slice(5, 3, &[
+        11, 13, 15,
+        21, 23, 25,
+        31, 33, 35,
+        41, 43, 45,
+        51, 53, 55
+    ]);
+    
+    assert_eq!(m.remove_columns_at(&[1,3]), expected2);
+
+    let m = DMatrix::from_row_slice(5, 5, &[
+        11, 12, 13, 14, 15,
+        21, 22, 23, 24, 25,
+        31, 32, 33, 34, 35,
+        41, 42, 43, 44, 45,
+        51, 52, 53, 54, 55
+    ]);
+
+    let expected3 = DMatrix::from_row_slice(5, 2, &[
+        12, 13,
+        22, 23,
+        32, 33,
+        42, 43,
+        52, 53, 
+    ]);
+
+    assert_eq!(m.remove_columns_at(&[0,3,4]), expected3);
+}
+
 
 #[test]
 fn remove_rows() {
@@ -314,6 +371,57 @@ fn remove_rows() {
     // The following is just to verify that the return type dimensions is correctly inferred.
     let computed: Matrix<_, Dynamic, U3, _> = m.remove_rows(3, 2);
     assert!(computed.eq(&expected2));
+}
+
+#[test]
+fn remove_rows_at() {
+    let m = DMatrix::from_row_slice(5, 5, &[
+        11, 12, 13, 14, 15,
+        21, 22, 23, 24, 25,
+        31, 32, 33, 34, 35,
+        41, 42, 43, 44, 45,
+        51, 52, 53, 54, 55
+    ]);
+
+    let expected1 = DMatrix::from_row_slice(4, 5, &[
+        21, 22, 23, 24, 25,
+        31, 32, 33, 34, 35,
+        41, 42, 43, 44, 45,
+        51, 52, 53, 54, 55
+    ]);
+
+    assert_eq!(m.remove_rows_at(&[0]), expected1);
+
+    let m = DMatrix::from_row_slice(5, 5, &[
+        11, 12, 13, 14, 15,
+        21, 22, 23, 24, 25,
+        31, 32, 33, 34, 35,
+        41, 42, 43, 44, 45,
+        51, 52, 53, 54, 55
+    ]);
+
+    let expected2 = DMatrix::from_row_slice(3, 5, &[
+        11, 12, 13, 14, 15,
+        31, 32, 33, 34, 35,
+        51, 52, 53, 54, 55
+    ]);
+    
+    assert_eq!(m.remove_rows_at(&[1,3]), expected2);
+
+    let m = DMatrix::from_row_slice(5, 5, &[
+        11, 12, 13, 14, 15,
+        21, 22, 23, 24, 25,
+        31, 32, 33, 34, 35,
+        41, 42, 43, 44, 45,
+        51, 52, 53, 54, 55
+    ]);
+
+    let expected3 = DMatrix::from_row_slice(2, 5, &[
+        21, 22, 23, 24, 25,
+        31, 32, 33, 34, 35
+    ]);
+
+    assert_eq!(m.remove_rows_at(&[0,3,4]), expected3);
 }
 
 
