@@ -315,12 +315,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         DefaultAllocator: Reallocator<N, R, C, R, Dynamic>,
     {
         let mut m = self.into_owned();
-        let mut v: Vec<usize> = indices.to_vec();
         let (nrows, ncols) = m.data.shape();
         let mut offset: usize = 0;
         let mut target: usize = 0;
         while offset + target < ncols.value() {
-            if v.contains(&(target + offset)) {
+            if indices.contains(&(target + offset)) {
                 offset += 1;
             } else {
                 unsafe {
@@ -339,26 +338,25 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         unsafe {
             Matrix::from_data(DefaultAllocator::reallocate_copy(
                 nrows,
-                ncols.sub(Dynamic::from_usize(v.len())),
+                ncols.sub(Dynamic::from_usize(offset)),
                 m.data,
             ))
         }
     }
 
-    /// Removes all columns in `indices`   
+    /// Removes all rows in `indices`   
     #[cfg(any(feature = "std", feature = "alloc"))]
     pub fn remove_rows_at(self, indices: &[usize]) -> MatrixMN<N, Dynamic, C>
     where
         R: DimSub<Dynamic, Output = Dynamic>,
         DefaultAllocator: Reallocator<N, R, C, Dynamic, C>,
-    {
+    {        
         let mut m = self.into_owned();
-        let mut v: Vec<usize> = indices.to_vec();
         let (nrows, ncols) = m.data.shape();
         let mut offset: usize = 0;
         let mut target: usize = 0;
         while offset + target < nrows.value() * ncols.value() {
-            if v.contains(&((target + offset) % nrows.value())) {
+            if indices.contains(&((target + offset) % nrows.value())) {
                 offset += 1;
             } else {
                 unsafe {
@@ -373,7 +371,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         unsafe {
             Matrix::from_data(DefaultAllocator::reallocate_copy(
-                nrows.sub(Dynamic::from_usize(v.len())),
+                nrows.sub(Dynamic::from_usize(offset / ncols.value ())),
                 ncols,
                 m.data,
             ))
