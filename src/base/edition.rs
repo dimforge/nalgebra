@@ -308,7 +308,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Removes all columns in `indices`   
-    #[inline]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     pub fn remove_columns_at(self, indices: &[usize]) -> MatrixMN<N, R, Dynamic>
     where
         C: DimSub<Dynamic, Output = Dynamic>,
@@ -346,7 +346,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Removes all columns in `indices`   
-    #[inline]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     pub fn remove_rows_at(self, indices: &[usize]) -> MatrixMN<N, Dynamic, C>
     where
         R: DimSub<Dynamic, Output = Dynamic>,
