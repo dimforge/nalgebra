@@ -37,6 +37,7 @@ generic-array  = "0.12"
 rand           = { version = "0.6", default-features = false }
 num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.2", default-features = false }
+num-rational   = { version = "0.2", default-features = false }
 approx         = { version = "0.3", default-features = false }
 alga           = { version = "0.9", default-features = false }
 matrixmultiply = { version = "0.2", optional = true }

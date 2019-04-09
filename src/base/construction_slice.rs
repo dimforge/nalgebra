@@ -2,6 +2,7 @@ use crate::base::dimension::{Dim, DimName, Dynamic, U1};
 use crate::base::matrix_slice::{SliceStorage, SliceStorageMut};
 use crate::base::{MatrixSliceMN, MatrixSliceMutMN, Scalar};
 
+use num_rational::Ratio;
 /*
  *
  * Slice constructors.
@@ -106,6 +107,37 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
                 >= ncols.value() * cstride.value() + nrows.value() * rstride.value() + 1,
             "Matrix slice: input data buffer to small."
         );
+
+        assert!({
+            let nrows = nrows.value();
+            let ncols = ncols.value();
+            let rstride = rstride.value();
+            let cstride = cstride.value();
+
+            // `Storage::linear_index`
+            let index = |i, j| (i * rstride) + (j * cstride);
+
+            // The final condition of each arm is an expression in the form:
+            //    index(i₀, j₀) != index(i₁, j₁)
+            // If this expression is `false`, then the values (i₀, j₀)
+            // and (i₁, j₁) are concrete examples of indices that would
+            // collide if the matrix was actually constructed. 
+            nrows * ncols <= 1 ||
+                match (rstride, cstride) {
+                    (0, 0) => index(0, 0) != index(nrows - 1, ncols - 1),
+                    (0, _) => nrows <= 1 || index(0, 0) != index(nrows - 1, 0),
+                    (_, 0) => ncols <= 1 || index(0, 0) != index(0, ncols - 1),
+                    (_, _) => {
+                        let ratio = Ratio::new(rstride, cstride);
+                        let numer = *ratio.numer();
+                        let denom = *ratio.denom();
+
+                        nrows <= denom || ncols <= numer
+                            || index(0, numer) != index(denom, 0)
+                    }
+                }
+            },
+            "Matrix slice: dimensions and strides result in aliased indices.");
 
         unsafe {
             Self::from_slice_with_strides_generic_unchecked(data, 0, nrows, ncols, rstride, cstride)
