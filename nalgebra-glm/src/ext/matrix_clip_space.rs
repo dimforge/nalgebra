@@ -456,8 +456,8 @@ pub fn perspective_fov_zo<N: RealField>(fov: N, width: N, height: N, near: N, fa
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
@@ -485,8 +485,8 @@ pub fn perspective<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat4<N
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
@@ -500,8 +500,8 @@ pub fn perspective_lh<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
@@ -536,8 +536,8 @@ pub fn perspective_lh_no<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> T
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
@@ -572,8 +572,8 @@ pub fn perspective_lh_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> T
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
@@ -587,8 +587,8 @@ pub fn perspective_no<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
@@ -602,8 +602,8 @@ pub fn perspective_rh<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
@@ -639,8 +639,8 @@ pub fn perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> T
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
@@ -676,8 +676,8 @@ pub fn perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> T
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
@@ -691,8 +691,8 @@ pub fn perspective_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> TMat
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane.
 ///
 /// # Important note
@@ -714,8 +714,8 @@ pub fn infinite_perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N) -> 
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane.
 ///
 /// # Important note
@@ -739,8 +739,8 @@ pub fn infinite_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N) -> 
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane
 /// * `far` - Distance from the viewer to the far clipping plane
 ///
@@ -767,8 +767,8 @@ pub fn reversed_perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N, far
 ///
 /// # Parameters
 ///
-/// * `fovy` - Field of view, in radians
 /// * `aspect` - Ratio of viewport width to height (width/height)
+/// * `fovy` - Field of view, in radians
 /// * `near` - Distance from the viewer to the near clipping plane.
 ///
 /// # Important note
