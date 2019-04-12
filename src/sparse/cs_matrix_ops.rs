@@ -1,12 +1,16 @@
-use alga::general::{ClosedAdd, ClosedMul};
-use num::{One, Zero};
-use std::ops::{Add, Mul};
+use {
+    alga::general::{ClosedAdd, ClosedMul},
+    num::{One, Zero},
+    std::ops::{Add, Mul},
 
-use crate::allocator::Allocator;
-use crate::constraint::{AreMultipliable, DimEq, ShapeConstraint};
-use crate::sparse::{CsMatrix, CsStorage, CsStorageMut, CsVector};
-use crate::storage::StorageMut;
-use crate::{DefaultAllocator, Dim, Scalar, Vector, VectorN, U1};
+    crate::{
+        allocator::Allocator,
+        constraint::{AreMultipliable, DimEq, ShapeConstraint},
+        sparse::{CsMatrix, CsStorage, CsStorageMut, CsVector},
+        storage::StorageMut,
+        DefaultAllocator, Dim, Scalar, Vector, VectorN, U1
+    }
+};
 
 impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
     fn scatter<R2: Dim, C2: Dim>(

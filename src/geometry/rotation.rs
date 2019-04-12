@@ -1,18 +1,6 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
-use std::fmt;
-use std::hash;
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
-
-#[cfg(feature = "serde-serialize")]
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-#[cfg(feature = "serde-serialize")]
-use crate::base::storage::Owned;
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
+use std::{hash, fmt};
 
 use alga::general::RealField;
 
@@ -20,6 +8,18 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 use crate::geometry::Point;
+
+#[cfg(feature = "abomonation-serialize")]
+use {
+    std::io::{Result as IOResult, Write},
+    abomonation::Abomonation
+};
+
+#[cfg(feature = "serde-serialize")]
+use {
+    serde::{Deserialize, Deserializer, Serialize, Serializer},
+    crate::base::storage::Owned
+};
 
 /// A rotation matrix.
 #[repr(C)]

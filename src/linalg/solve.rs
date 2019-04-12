@@ -1,10 +1,13 @@
-use alga::general::ComplexField;
-
-use crate::base::allocator::Allocator;
-use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::base::dimension::{Dim, U1};
-use crate::base::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, SquareMatrix, Vector, DVectorSlice};
+use {
+    alga::general::ComplexField,
+    crate::base::{
+        allocator::Allocator,
+        constraint::{SameNumberOfRows, ShapeConstraint},
+        dimension::{Dim, U1},
+        storage::{Storage, StorageMut},
+        DefaultAllocator, Matrix, MatrixMN, SquareMatrix, Vector, DVectorSlice
+    }
+};
 
 impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the solution of the linear system `self . x = b` where `x` is the unknown and only

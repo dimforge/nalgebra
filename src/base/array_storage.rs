@@ -1,31 +1,35 @@
-use std::fmt::{self, Debug, Formatter};
-use std::hash::{Hash, Hasher};
+use {
+    std::{
+        hash::{Hash, Hasher},
+        fmt::{self, Debug, Formatter},
+        ops::{Deref, DerefMut, Mul}
+    },
+    generic_array::{ArrayLength, GenericArray},
+    typenum::Prod,
+    crate::base::{
+        allocator::Allocator,
+        default_allocator::DefaultAllocator,
+        dimension::{DimName, U1},
+        storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut},
+        Scalar
+    }
+};
+
+#[cfg(feature = "serde-serialize")]
+use {
+    serde::{
+        de::{Error, SeqAccess, Visitor},
+        ser::SerializeSeq,
+        Deserialize, Deserializer, Serialize, Serializer
+    },
+    std::{marker::PhantomData, mem}
+};
+
 #[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
-use std::ops::{Deref, DerefMut, Mul};
-
-#[cfg(feature = "serde-serialize")]
-use serde::de::{Error, SeqAccess, Visitor};
-#[cfg(feature = "serde-serialize")]
-use serde::ser::SerializeSeq;
-#[cfg(feature = "serde-serialize")]
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-#[cfg(feature = "serde-serialize")]
-use std::marker::PhantomData;
-#[cfg(feature = "serde-serialize")]
-use std::mem;
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
-
-use generic_array::{ArrayLength, GenericArray};
-use typenum::Prod;
-
-use crate::base::allocator::Allocator;
-use crate::base::default_allocator::DefaultAllocator;
-use crate::base::dimension::{DimName, U1};
-use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
-use crate::base::Scalar;
+use {
+    abomonation::Abomonation,
+    std::io::{Result as IOResult, Write}
+};
 
 /*
  *

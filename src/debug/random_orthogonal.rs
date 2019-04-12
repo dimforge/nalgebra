@@ -4,11 +4,15 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use alga::general::ComplexField;
-use crate::base::Scalar;
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{Dim, Dynamic, U2};
-use crate::base::{DefaultAllocator, MatrixN};
-use crate::linalg::givens::GivensRotation;
+
+use crate::{
+    base::{
+        Scalar, DefaultAllocator, MatrixN
+        allocator::Allocator,
+        dimension::{Dim, Dynamic, U2},
+    },
+    linalg::givens::GivensRotation
+}
 
 /// A random orthogonal matrix.
 #[derive(Clone, Debug)]
@@ -36,7 +40,7 @@ where DefaultAllocator: Allocator<N, D, D>
             rot.rotate(&mut res.fixed_rows_mut::<U2>(i));
         }
 
-        RandomOrthogonal { m: res }
+        Self { m: res }
     }
 }
 

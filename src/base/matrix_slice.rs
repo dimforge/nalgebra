@@ -1,13 +1,18 @@
-use std::marker::PhantomData;
-use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
-use std::slice;
-
-use crate::base::allocator::Allocator;
-use crate::base::default_allocator::DefaultAllocator;
-use crate::base::dimension::{Dim, DimName, Dynamic, U1, IsNotStaticOne};
-use crate::base::iter::MatrixIter;
-use crate::base::storage::{Owned, Storage, StorageMut, ContiguousStorage, ContiguousStorageMut};
-use crate::base::{Matrix, Scalar};
+use {
+    std::{
+        marker::PhantomData,
+        ops::{Range, RangeFrom, RangeFull, RangeTo},
+        slice
+    },
+    crate::base::{
+        allocator::Allocator,
+        default_allocator::DefaultAllocator,
+        dimension::{Dim, DimName, Dynamic, U1, IsNotStaticOne},
+        iter::MatrixIter,
+        storage::{Owned, Storage, StorageMut, ContiguousStorage, ContiguousStorageMut},
+        Matrix, Scalar
+    }
+};
 
 macro_rules! slice_storage_impl(
     ($doc: expr; $Storage: ident as $SRef: ty; $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {

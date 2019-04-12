@@ -1,24 +1,29 @@
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use std::fmt;
-use std::hash;
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
-use std::marker::PhantomData;
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    std::{fmt, hash, marker::PhantomData},
+    alga::{
+        general::{RealField, SubsetOf},
+        linear::Rotation
+    },
+    crate::{
+        base::{
+            allocator::Allocator,
+            dimension::{DimName, DimNameAdd, DimNameSum, U1},
+            storage::Owned,
+            DefaultAllocator, MatrixN, VectorN
+        },
+        geometry::{Point, Translation}
+    }
+};
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
-
-use alga::general::{RealField, SubsetOf};
-use alga::linear::Rotation;
-
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use crate::base::storage::Owned;
-use crate::base::{DefaultAllocator, MatrixN, VectorN};
-use crate::geometry::{Point, Translation};
+use {
+    std::io::{Result as IOResult, Write},
+    abomonation::Abomonation
+};
 
 /// A direct isometry, i.e., a rotation followed by a translation, aka. a rigid-body motion, aka. an element of a Special Euclidean (SE) group.
 #[repr(C)]

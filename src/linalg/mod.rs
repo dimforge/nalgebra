@@ -22,16 +22,17 @@ mod convolution;
 //// FIXME: Not complete enough for publishing.
 //// This handles only cases where each eigenvalue has multiplicity one.
 // mod eigen;
-
-pub use self::bidiagonal::*;
-pub use self::cholesky::*;
-pub use self::full_piv_lu::*;
-pub use self::hessenberg::*;
-pub use self::lu::*;
-pub use self::permutation_sequence::*;
-pub use self::qr::*;
-pub use self::schur::*;
-pub use self::svd::*;
-pub use self::symmetric_eigen::*;
-pub use self::symmetric_tridiagonal::*;
-pub use self::convolution::*;
+pub use {
+    self::bidiagonal::*,
+    self::cholesky::*,
+    self::full_piv_lu::*,
+    self::hessenberg::*,
+    self::lu::*,
+    self::permutation_sequence::*,
+    self::qr::*,
+    self::schur::*,
+    self::svd::*,
+    self::symmetric_eigen::*,
+    self::symmetric_tridiagonal::*,
+    self::convolution::*
+};

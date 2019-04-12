@@ -1,17 +1,20 @@
-use num::{One, Zero};
-use std::ops::{
-    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+use {
+    num::{One, Zero},
+    std::ops::{
+        Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+    },
+    alga::general::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub},
+    crate::{
+        base::{
+            allocator::{Allocator, SameShapeAllocator},
+            constraint::{AreMultipliable, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint},
+            dimension::{Dim, DimName, U1},
+            storage::Storage,
+            DefaultAllocator, Matrix, Scalar, Vector, VectorSum
+        },
+        geometry::Point
+    }
 };
-
-use alga::general::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
-
-use crate::base::allocator::{Allocator, SameShapeAllocator};
-use crate::base::constraint::{AreMultipliable, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use crate::base::dimension::{Dim, DimName, U1};
-use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, Matrix, Scalar, Vector, VectorSum};
-
-use crate::geometry::Point;
 
 /*
  *

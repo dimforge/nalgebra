@@ -1,7 +1,11 @@
-use crate::{Scalar, Dim, Matrix, VectorN, RowVectorN, DefaultAllocator, U1, VectorSliceN};
-use alga::general::{Field, SupersetOf};
-use crate::storage::Storage;
-use crate::allocator::Allocator;
+use {
+    alga::general::{Field, SupersetOf},
+    crate::{
+        storage::Storage,
+        allocator::Allocator,
+        Scalar, Dim, Matrix, VectorN, RowVectorN, DefaultAllocator, U1, VectorSliceN
+    }
+};
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a row vector where each element is the result of the application of `f` on the

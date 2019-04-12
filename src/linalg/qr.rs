@@ -1,16 +1,21 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
-use num::Zero;
 
-use alga::general::ComplexField;
-use crate::allocator::{Allocator, Reallocator};
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
-use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimMin, DimMinimum, U1};
-use crate::storage::{Storage, StorageMut};
+use {
+    num::Zero,
 
-use crate::geometry::Reflection;
-use crate::linalg::householder;
+    alga::general::ComplexField,
+    crate::{
+        allocator::{Allocator, Reallocator},
+        base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN},
+        constraint::{SameNumberOfRows, ShapeConstraint},
+        dimension::{Dim, DimMin, DimMinimum, U1},
+        storage::{Storage, StorageMut},
+
+        geometry::Reflection,
+        linalg::householder
+    }
+};
 
 /// The QR decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

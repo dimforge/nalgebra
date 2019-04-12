@@ -1,24 +1,27 @@
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use num::{One, Zero};
-use std::fmt;
-use std::hash;
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    num::{One, Zero},
+    std::{hash, fmt},
+    alga::general::{ClosedAdd, ClosedNeg, ClosedSub, RealField},
+    crate::{
+        base::{
+            allocator::Allocator,
+            dimension::{DimName, DimNameAdd, DimNameSum, U1},
+            storage::Owned,
+            DefaultAllocator, MatrixN, Scalar, VectorN
+        },
+        geometry::Point
+    }
+};
+
 #[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
+use {
+    std::io::{Result as IOResult, Write},
+    abomonation::Abomonation
+};
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
-
-use alga::general::{ClosedAdd, ClosedNeg, ClosedSub, RealField};
-
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use crate::base::storage::Owned;
-use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
-
-use crate::geometry::Point;
 
 /// A translation.
 #[repr(C)]

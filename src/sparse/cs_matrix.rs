@@ -1,14 +1,12 @@
-use alga::general::ClosedAdd;
-use num::Zero;
-use std::iter;
-use std::marker::PhantomData;
-use std::ops::Range;
-use std::slice;
-
-use crate::allocator::Allocator;
-use crate::sparse::cs_utils;
-use crate::{
-    DefaultAllocator, Dim, Dynamic, Scalar, Vector, VectorN, U1
+use {
+    alga::general::ClosedAdd,
+    num::Zero,
+    std::{iter, marker::PhantomData, ops::Range, slide},
+    crate::{
+        allocator::Allocator,
+        sparse::cs_utils,
+        DefaultAllocator, Dim, Dynamic, Scalar, Vector, VectorN, U1
+    }
 };
 
 pub struct ColumnEntries<'a, N> {

@@ -1,11 +1,10 @@
-use alga::general::ComplexField;
-
-use crate::base::allocator::Allocator;
-use crate::base::dimension::DimMin;
-use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, SquareMatrix};
-
-use crate::linalg::LU;
+use {
+    alga::general::ComplexField,
+    crate::{
+        base::{allocator::Allocator, dimension::DimMin, storage::Storage, DefaultAllocator, SquareMatrix},
+        linalg::LU
+    }
+};
 
 impl<N: ComplexField, D: DimMin<D, Output = D>, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the matrix determinant.

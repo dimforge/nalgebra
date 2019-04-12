@@ -1,10 +1,15 @@
-use std::cmp;
-
-use crate::base::allocator::Allocator;
-use crate::base::default_allocator::DefaultAllocator;
-use crate::base::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum};
-use crate::storage::Storage;
-use crate::{zero, RealField, Vector, VectorN, U1};
+use {
+    std::cmp,
+    crate::{
+        base::{
+            allocator::Allocator,
+            default_allocator::DefaultAllocator,
+            dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum}
+        },
+        storage::Storage,
+        zero, RealField, Vector, VectorN, U1
+    }
+};
 
 impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
     /// Returns the convolution of the target vector and a kernel.

@@ -1,13 +1,14 @@
 //! Construction of givens rotations.
-
-use alga::general::ComplexField;
-use num::{Zero, One};
-
-use crate::base::dimension::{Dim, U2};
-use crate::base::constraint::{ShapeConstraint, DimEq};
-use crate::base::storage::{Storage, StorageMut};
-use crate::base::{Vector, Matrix};
-
+use {
+    alga::general::ComplexField,
+    num::{Zero, One},
+    crate::base::{
+        dimension::{Dim, U2},
+        constraint::{ShapeConstraint, DimEq},
+        storage::{Storage, StorageMut},
+        {Vector, Matrix}
+    }
+};
 
 /// A Givens rotation.
 #[derive(Debug, Clone, Copy)]

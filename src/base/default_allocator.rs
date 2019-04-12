@@ -3,26 +3,24 @@
 //! This will use stack-allocated buffers for matrices with dimensions known at compile-time, and
 //! heap-allocated buffers for matrices with at least one dimension unknown at compile-time.
 
-use std::cmp;
-use std::mem;
-use std::ops::Mul;
-use std::ptr;
+use {
+    std::{cmp, mem, ops::Mul, ptr},
+    generic_array::ArrayLength,
+    typenum::Prod,
+    crate::base::{
+        allocator::{Allocator, Reallocator},
+        dimension::{Dim, DimName},
+        array_storage::ArrayStorage,
+        storage::{Storage, StorageMut},
+        Scalar
+    }
+};
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 
-use generic_array::ArrayLength;
-use typenum::Prod;
-
-use crate::base::allocator::{Allocator, Reallocator};
-#[cfg(any(feature = "alloc", feature = "std"))]
-use crate::base::dimension::Dynamic;
-use crate::base::dimension::{Dim, DimName};
-use crate::base::array_storage::ArrayStorage;
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::vec_storage::VecStorage;
-use crate::base::storage::{Storage, StorageMut};
-use crate::base::Scalar;
+use crate::base::{dimension::Dynamic, vec_storage::VecStorage};
 
 /*
  *

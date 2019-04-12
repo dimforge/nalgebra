@@ -1,20 +1,21 @@
 // Matrix properties checks.
-use approx::RelativeEq;
-use num::{One, Zero};
-
-use alga::general::{ClosedAdd, ClosedMul, RealField, ComplexField};
-
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{Dim, DimMin};
-use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
+use {
+    approx::RelativeEq,
+    num::{One, Zero},
+    alga::general::{ClosedAdd, ClosedMul, RealField, ComplexField},
+    crate::base::{
+        allocator::Allocator,
+        dimension::{Dim, DimMin},
+        storage::Storage,
+        DefaultAllocator, Matrix, Scalar, SquareMatrix
+    }
+};
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Indicates if this is an empty matrix.
     #[inline]
     pub fn is_empty(&self) -> bool {
-        let (nrows, ncols) = self.shape();
-        nrows == 0 || ncols == 0
+        self.shape() == (0, 0)
     }
 
     /// Indicates if this is a square matrix.

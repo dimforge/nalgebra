@@ -4,12 +4,13 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use alga::general::ComplexField;
-use crate::base::Scalar;
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{Dim, Dynamic};
-use crate::base::{DefaultAllocator, MatrixN};
 
-use crate::debug::RandomOrthogonal;
+use crate::{
+    base::{Scalar, DefaultAllocator, MatrixN}
+    allocator::Allocator,
+    dimension::{Dim, Dynamic},
+    debug::RandomOrthogonal
+};
 
 /// A random, well-conditioned, symmetric definite-positive matrix.
 #[derive(Clone, Debug)]
@@ -39,7 +40,7 @@ where DefaultAllocator: Allocator<N, D, D>
             col *= eigenval;
         }
 
-        RandomSDP { m: m * mt }
+        Self { m: m * mt }
     }
 }
 

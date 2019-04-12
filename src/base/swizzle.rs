@@ -1,6 +1,13 @@
-use crate::base::{DimName, Scalar, Vector, Vector2, Vector3};
-use crate::storage::Storage;
-use typenum::{self, Cmp, Greater};
+use {
+    typenum::{self, Cmp, Greater},
+    crate::{
+        base::{DimName, Scalar, Vector, Vector2, Vector3},
+        storage::Storage
+    }
+};
+// use crate::base::{DimName, Scalar, Vector, Vector2, Vector3};
+// use crate::storage::Storage;
+// use typenum::{self, Cmp, Greater};
 
 macro_rules! impl_swizzle {
     ($( where $BaseDim: ident: $( $name: ident() -> $Result: ident[$($i: expr),+] ),+ ;)* ) => {

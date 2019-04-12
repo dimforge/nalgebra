@@ -1,11 +1,12 @@
 //! Matrix iterators.
-
-use std::marker::PhantomData;
-use std::mem;
-
-use crate::base::dimension::{Dim, U1};
-use crate::base::storage::{Storage, StorageMut};
-use crate::base::{Scalar, Matrix, MatrixSlice, MatrixSliceMut};
+use {
+    std::{mem, marker::PhantomData},
+    crate::base::{
+        dimension::{Dim, U1},
+        storage::{Storage, StorageMut},
+        Scalar, Matrix, MatrixSlice, MatrixSliceMut
+    }  
+};
 
 macro_rules! iterator {
     (struct $Name:ident for $Storage:ident.$ptr: ident -> $Ptr:ty, $Ref:ty, $SRef: ty) => {

@@ -1,24 +1,28 @@
+use {
+    num::{Bounded, One, Zero},
+    rand::{Rng, distributions::{Distribution, Standard}},
+    std::iter,
+    typenum::{self, Cmp, Greater},
+    alga::general::{ClosedAdd, ClosedMul},
+    crate::base::{
+        allocator::Allocator,
+        dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6},
+        storage::Storage,
+        DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN
+    }
+};
+
 #[cfg(feature = "arbitrary")]
-use crate::base::storage::Owned;
-#[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
-
-use num::{Bounded, One, Zero};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
-#[cfg(feature = "std")]
-use rand::{self, distributions::StandardNormal};
-use std::iter;
-use typenum::{self, Cmp, Greater};
+use {
+    quickcheck::{Arbitrary, Gen},
+    crate::base::storage::Owned
+};
 
 #[cfg(feature = "std")]
-use alga::general::RealField;
-use alga::general::{ClosedAdd, ClosedMul};
-
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
-use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN};
+use {
+    alga::general::RealField,
+    rand::{self, distributions::StandardNormal}
+};
 
 /*
  *

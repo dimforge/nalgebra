@@ -1,21 +1,22 @@
+use {
+    alga::general::ComplexField,
+    num_complex::Complex,
+    std::{cmp, fmt::Display, ops::MulAssign},
+    crate::{
+        allocator::Allocator,
+        base::{
+            dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3},
+            storage::Storage
+            DefaultAllocator, Hessenberg, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN
+        },
+        constraint::{DimEq, ShapeConstraint},
+        geometry::{Reflection, UnitComplex},
+        linalg::{householder, Schur}
+    }
+};
+
 #[cfg(feature = "serde-serialize")]
 use serde::{Serialize, Deserialize};
-
-use alga::general::ComplexField;
-use num_complex::Complex;
-use std::cmp;
-use std::fmt::Display;
-use std::ops::MulAssign;
-
-use crate::allocator::Allocator;
-use crate::base::dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3};
-use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, Hessenberg, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN};
-use crate::constraint::{DimEq, ShapeConstraint};
-
-use crate::geometry::{Reflection, UnitComplex};
-use crate::linalg::householder;
-use crate::linalg::Schur;
 
 /// Eigendecomposition of a real matrix with real eigenvalues (or complex eigen values for complex matrices).
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

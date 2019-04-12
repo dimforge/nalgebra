@@ -1,7 +1,3 @@
-#[cfg(feature = "arbitrary")]
-use crate::base::storage::Owned;
-#[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
 
 use alga::general::RealField;
 use num::Zero;
@@ -14,6 +10,12 @@ use crate::base::storage::Storage;
 use crate::base::{Matrix2, Matrix3, MatrixN, Unit, Vector, Vector1, Vector3, VectorN};
 
 use crate::geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
+
+#[cfg(feature = "arbitrary")]
+use {
+    crate::base::storage::Owned,
+    quickcheck::{Arbitrary, Gen}
+};
 
 /*
  *

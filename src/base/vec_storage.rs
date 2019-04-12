@@ -1,18 +1,22 @@
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
+
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 
-use crate::base::allocator::Allocator;
-use crate::base::default_allocator::DefaultAllocator;
-use crate::base::dimension::{Dim, DimName, Dynamic, U1};
-use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
-use crate::base::{Scalar, Vector};
-use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
+use crate::base::{
+    allocator::Allocator,
+    default_allocator::DefaultAllocator,
+    dimension::{Dim, DimName, Dynamic, U1},
+    storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut},
+    Scalar, Vector,
+    constraint::{SameNumberOfRows, ShapeConstraint}
+};
 
 #[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
+use {
+    std::io::{Result as IOResult, Write},
+    abomonation::Abomonation
+};
 
 /*
  *

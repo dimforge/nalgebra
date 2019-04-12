@@ -1,15 +1,17 @@
+use {
+    alga::general::ComplexField,
+    crate::{
+        allocator::Allocator,
+        base::{DefaultAllocator, Matrix, MatrixMN, MatrixN},
+        constraint::{SameNumberOfRows, ShapeConstraint},
+        dimension::{Dim, DimMin, DimMinimum},
+        storage::{Storage, StorageMut},
+        linalg::{lu, PermutationSequence}
+    }
+};
+
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
-
-use alga::general::ComplexField;
-use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN};
-use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimMin, DimMinimum};
-use crate::storage::{Storage, StorageMut};
-
-use crate::linalg::lu;
-use crate::linalg::PermutationSequence;
 
 /// LU decomposition with full row and column pivoting.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

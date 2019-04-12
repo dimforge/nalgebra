@@ -1,16 +1,15 @@
-#[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
-
 use num::One;
 use num_complex::Complex;
-use rand::distributions::{Distribution, OpenClosed01, Standard};
-use rand::Rng;
+use rand::{Rng, distributions::{Distribution, OpenClosed01, Standard}};
 
 use alga::general::RealField;
 use crate::base::dimension::{U1, U2};
 use crate::base::storage::Storage;
 use crate::base::{Unit, Vector, Matrix2};
 use crate::geometry::{Rotation2, UnitComplex};
+
+#[cfg(feature = "arbitrary")]
+use quickcheck::{Arbitrary, Gen};
 
 impl<N: RealField> UnitComplex<N> {
     /// The unit complex number multiplicative identity.

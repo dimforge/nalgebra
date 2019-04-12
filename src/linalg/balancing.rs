@@ -1,12 +1,12 @@
 //! Functions for balancing a matrix.
-
-use alga::general::RealField;
-use std::ops::{DivAssign, MulAssign};
-
-use crate::allocator::Allocator;
-use crate::base::dimension::{Dim, U1};
-use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, MatrixN, VectorN};
+use {
+    alga::general::RealField,
+    std::ops::{DivAssign, MulAssign},
+    crate::{
+        allocator::Allocator,
+        base::{dimension::{Dim, U1}, storage::Storage, DefaultAllocator, MatrixN, VectorN}
+    }
+};
 
 /// Applies in-place a modified Parlett and Reinsch matrix balancing with 2-norm to the matrix `m` and returns
 /// the corresponding diagonal transformation.

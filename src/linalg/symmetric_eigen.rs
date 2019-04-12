@@ -1,17 +1,22 @@
+use {
+    num::Zero,
+    approx::AbsDiffEq,
+
+    alga::general::ComplexField,
+    crate::{
+        allocator::Allocator,
+        base::{DefaultAllocator, Matrix2, MatrixN, SquareMatrix, Vector2, VectorN},
+        dimension::{Dim, DimDiff, DimSub, U1, U2},
+        storage::Storage,
+        linalg::{
+            givens::GivensRotation,
+            SymmetricTridiagonal
+        }
+    }
+};
+
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
-
-use num::Zero;
-use approx::AbsDiffEq;
-
-use alga::general::ComplexField;
-use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Matrix2, MatrixN, SquareMatrix, Vector2, VectorN};
-use crate::dimension::{Dim, DimDiff, DimSub, U1, U2};
-use crate::storage::Storage;
-
-use crate::linalg::givens::GivensRotation;
-use crate::linalg::SymmetricTridiagonal;
 
 /// Eigendecomposition of a symmetric matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

@@ -1,11 +1,11 @@
-use std::mem;
-use std::ops::{Deref, DerefMut};
-
-use alga::general::RealField;
-
-use crate::base::coordinates::IJKW;
-
-use crate::geometry::Quaternion;
+use {
+    alga::general::RealField,
+    std::{mem, ops::{Deref, DerefMut}},
+    crate::{
+        base::coordinates::IJKW,
+        geometry::Quaternion
+    }
+};
 
 impl<N: RealField> Deref for Quaternion<N> {
     type Target = IJKW<N>;

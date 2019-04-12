@@ -5,21 +5,25 @@
  *
  */
 
-use num::One;
-
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameDiff, DimNameSub, U1};
-use crate::base::storage::{Storage, StorageMut};
-use crate::base::{
-    DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector, Vector3,
-    VectorN,
+use {
+    num::One,
+    alga::{
+        general::{RealField, Ring},
+        linear::Transformation
+    },
+    crate::{
+        base::{
+            allocator::Allocator,
+            dimension::{DimName, DimNameDiff, DimNameSub, U1},
+            storage::{Storage, StorageMut},
+            DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector, Vector3,
+            VectorN,
+        },
+        geometry::{
+            Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point3, Rotation2, Rotation3,
+        }
+    }
 };
-use crate::geometry::{
-    Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point3, Rotation2, Rotation3,
-};
-
-use alga::general::{RealField, Ring};
-use alga::linear::Transformation;
 
 impl<N, D: DimName> MatrixN<N, D>
 where

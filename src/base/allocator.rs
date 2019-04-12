@@ -1,11 +1,14 @@
 //! Abstract definition of a matrix data storage allocator.
 
-use std::any::Any;
-
-use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use crate::base::dimension::{Dim, U1};
-use crate::base::storage::ContiguousStorageMut;
-use crate::base::{DefaultAllocator, Scalar};
+use {
+    std::any::Any,
+    crate::base::{
+        constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint},
+        dimension::{Dim, U1},
+        storage::ContiguousStorageMut,
+        DefaultAllocator, Scalar
+    }
+};
 
 /// A matrix allocator of a memory buffer that may contain `R::to_usize() * C::to_usize()`
 /// elements of type `N`.

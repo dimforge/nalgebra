@@ -1,14 +1,17 @@
+use {
+    alga::general::ComplexField,
+    crate::{
+        allocator::Allocator,
+        base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN},
+        dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1},
+        storage::Storage,
+        linalg::householder,
+        geometry::Reflection
+    }
+};
+
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
-
-use alga::general::ComplexField;
-use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
-use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1};
-use crate::storage::Storage;
-
-use crate::geometry::Reflection;
-use crate::linalg::householder;
 
 /// The bidiagonalization of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -140,7 +143,7 @@ where
             );
         }
 
-        Bidiagonal {
+        Self {
             uv: matrix,
             diagonal,
             off_diagonal,

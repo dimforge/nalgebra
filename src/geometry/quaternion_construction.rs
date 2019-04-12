@@ -1,21 +1,18 @@
+use {
+    num::{One, Zero},
+    rand::{Rng, distributions::{Distribution, OpenClosed01, Standard}},
+    alga::general::RealField,
+    crate::{
+        base::{dimension::U3, storage::Storage, Unit, Vector, Vector3, Vector4, Matrix3},
+        geometry::{Quaternion, Rotation3, UnitQuaternion}
+    }
+};
+
 #[cfg(feature = "arbitrary")]
-use crate::base::dimension::U4;
-#[cfg(feature = "arbitrary")]
-use crate::base::storage::Owned;
-#[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
-
-use num::{One, Zero};
-use rand::distributions::{Distribution, OpenClosed01, Standard};
-use rand::Rng;
-
-use alga::general::RealField;
-
-use crate::base::dimension::U3;
-use crate::base::storage::Storage;
-use crate::base::{Unit, Vector, Vector3, Vector4, Matrix3};
-
-use crate::geometry::{Quaternion, Rotation3, UnitQuaternion};
+use {
+    crate::base::{storage::Owned, dimension::U4},
+    quickcheck::{Arbitrary, Gen}
+};
 
 impl<N: RealField> Quaternion<N> {
     /// Creates a quaternion from a 4D vector. The quaternion scalar part corresponds to the `w`

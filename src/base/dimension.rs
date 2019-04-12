@@ -2,12 +2,16 @@
 
 //! Traits and tags for identifying the dimension of all algebraic entities.
 
-use std::any::{Any, TypeId};
-use std::cmp;
-use std::fmt::Debug;
-use std::ops::{Add, Div, Mul, Sub};
-use typenum::{
-    self, Bit, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, UInt, UTerm, Unsigned, B1,
+use {
+    std::{
+        cmp,
+        any::{Any, TypeId},
+        fmt::Debug,
+        ops::{Add, Div, Mul, Sub}
+    },
+    typenum::{
+        self, Bit, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, UInt, UTerm, Unsigned, B1,
+    }
 };
 
 #[cfg(feature = "serde-serialize")]
@@ -23,7 +27,7 @@ impl Dynamic {
     /// A dynamic size equal to `value`.
     #[inline]
     pub fn new(value: usize) -> Self {
-        Self { value: value }
+        Self { value }
     }
 }
 

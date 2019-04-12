@@ -1,15 +1,16 @@
 // Non-conventional component-wise operators.
-
-use num::{Signed, Zero};
-use std::ops::{Add, Mul};
-
-use alga::general::{ClosedDiv, ClosedMul};
-
-use crate::base::allocator::{Allocator, SameShapeAllocator};
-use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use crate::base::dimension::Dim;
-use crate::base::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixSum, Scalar};
+use {
+    num::{Signed, Zero},
+    std::ops::{Add, Mul},
+    alga::general::{ClosedDiv, ClosedMul},
+    crate::base::{
+        allocator::{Allocator, SameShapeAllocator},
+        constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint},
+        dimension::Dim,
+        storage::{Storage, StorageMut},
+        DefaultAllocator, Matrix, MatrixMN, MatrixSum, Scalar
+    }
+};
 
 /// The type of the result of a matrix component-wise operation.
 pub type MatrixComponentOp<N, R1, C1, R2, C2> = MatrixSum<N, R1, C1, R2, C2>;

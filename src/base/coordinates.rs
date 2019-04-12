@@ -4,12 +4,14 @@
 //! components using their names. For example, if `v` is a 3D vector, one can write `v.z` instead
 //! of `v[2]`.
 
-use std::mem;
-use std::ops::{Deref, DerefMut};
-
-use crate::base::dimension::{U1, U2, U3, U4, U5, U6};
-use crate::base::storage::{ContiguousStorage, ContiguousStorageMut};
-use crate::base::{Matrix, Scalar};
+use {
+    std::{mem, ops::{Deref, DerefMut}},
+    crate::base::{
+        dimension::{U1, U2, U3, U4, U5, U6},
+        storage::{ContiguousStorage, ContiguousStorageMut},
+        Matrix, Scalar
+    }
+};
 
 /*
  *

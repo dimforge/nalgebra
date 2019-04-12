@@ -1,13 +1,16 @@
 //! Construction of householder elementary reflections.
 
-use num::Zero;
-use alga::general::ComplexField;
-use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Unit, Vector, VectorN};
-use crate::dimension::Dim;
-use crate::storage::{Storage, StorageMut};
-
-use crate::geometry::Reflection;
+use {
+    num::Zero,
+    alga::general::ComplexField,
+    crate::{
+        allocator::Allocator,
+        base::{DefaultAllocator, MatrixMN, MatrixN, Unit, Vector, VectorN},
+        dimension::Dim,
+        storage::{Storage, StorageMut},
+        geometry::Reflection
+    }
+};
 
 /// Replaces `column` by the axis of the householder reflection that transforms `column` into
 /// `(+/-|column|, 0, ..., 0)`.

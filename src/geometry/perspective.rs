@@ -1,21 +1,18 @@
+use {
+    std::{mem, fmt},
+    rand::{Rng, distributions::{Distribution, Standard}},
+    alga::general::RealField,
+    crate::{
+        base::{dimension::U3, helper, storage::Storage, Matrix4, Scalar, Vector, Vector3},
+        geometry::{Point3, Projective3}
+    }
+};
+
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::fmt;
-use std::mem;
-
-use alga::general::RealField;
-
-use crate::base::dimension::U3;
-use crate::base::helper;
-use crate::base::storage::Storage;
-use crate::base::{Matrix4, Scalar, Vector, Vector3};
-
-use crate::geometry::{Point3, Projective3};
 
 /// A 3D perspective projection stored as an homogeneous 4x4 matrix.
 pub struct Perspective3<N: Scalar> {

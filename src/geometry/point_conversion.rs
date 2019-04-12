@@ -1,19 +1,26 @@
-use alga::general::{ClosedDiv, SubsetOf, SupersetOf};
-use num::{One, Zero};
+use {
+    num::{One, Zero},
+    alga::general::{ClosedDiv, SubsetOf, SupersetOf},
+    crate::{
+        base::{
+            allocator::Allocator,
+            dimension::{DimName, DimNameAdd, DimNameSum, U1},
+            DefaultAllocator, Matrix, Scalar, VectorN
+        },
+        geometry::Point
+    }
+};
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use crate::base::{DefaultAllocator, Matrix, Scalar, VectorN};
+#[cfg(feature = "mint")]
+use {
+    std::convert::{AsMut, AsRef, From, Into},
+    mint,
+    crate::base::{
+        dimension::{U2, U3},
+        storage::{Storage, StorageMut}
+    }
+};
 
-#[cfg(feature = "mint")]
-use crate::base::dimension::{U2, U3};
-#[cfg(feature = "mint")]
-use crate::base::storage::{Storage, StorageMut};
-use crate::geometry::Point;
-#[cfg(feature = "mint")]
-use mint;
-#[cfg(feature = "mint")]
-use std::convert::{AsMut, AsRef, From, Into};
 /*
  * This file provides the following conversions:
  * =============================================

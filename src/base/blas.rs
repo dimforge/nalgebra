@@ -1,18 +1,22 @@
-use alga::general::{ClosedAdd, ClosedMul, ComplexField};
-#[cfg(feature = "std")]
-use matrixmultiply;
-use num::{One, Signed, Zero};
-#[cfg(feature = "std")]
-use std::mem;
-
-use crate::base::allocator::Allocator;
-use crate::base::constraint::{
-    AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
+use {
+    crate::base::{
+        allocator::Allocator,
+        constraint::{
+            AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
+        },
+        dimension::{Dim, Dynamic, U1, U2, U3, U4},
+        storage::{Storage, StorageMut},
+        DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, DVectorSlice, VectorSliceN
+    },
+    alga::general::{ClosedAdd, ClosedMul, ComplexField},
+    num::{One, Signed, Zero}
 };
-use crate::base::dimension::{Dim, Dynamic, U1, U2, U3, U4};
-use crate::base::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, DVectorSlice, VectorSliceN};
 
+#[cfg(feature = "std")]
+use {
+    matrixmultiply,
+    std::mem
+};
 
 // FIXME: find a way to avoid code duplication just for complex number support.
 impl<N: ComplexField, D: Dim, S: Storage<N, D>> Vector<N, D, S> {

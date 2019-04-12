@@ -68,29 +68,31 @@ mod reflection;
 mod orthographic;
 mod perspective;
 
-pub use self::point::*;
-pub use self::point_alias::*;
+pub use {
+    self::point::*,
+    self::point_alias::*,
 
-pub use self::rotation::*;
-pub use self::rotation_alias::*;
+    self::rotation::*,
+    self::rotation_alias::*,
 
-pub use self::quaternion::*;
+    self::quaternion::*,
 
-pub use self::unit_complex::*;
+    self::unit_complex::*,
 
-pub use self::translation::*;
-pub use self::translation_alias::*;
+    self::translation::*,
+    self::translation_alias::*,
 
-pub use self::isometry::*;
-pub use self::isometry_alias::*;
+    self::isometry::*,
+    self::isometry_alias::*,
 
-pub use self::similarity::*;
-pub use self::similarity_alias::*;
+    self::similarity::*,
+    self::similarity_alias::*,
 
-pub use self::transform::*;
-pub use self::transform_alias::*;
+    self::transform::*,
+    self::transform_alias::*,
 
-pub use self::reflection::*;
+    self::reflection::*,
 
-pub use self::orthographic::Orthographic3;
-pub use self::perspective::Perspective3;
+    self::orthographic::Orthographic3,
+    self::perspective::Perspective3
+};

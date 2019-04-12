@@ -1,25 +1,32 @@
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use num::Zero;
-use std::fmt;
-use std::hash;
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    num::Zero,
+    std::{fmt, hash},
+
+    alga::general::RealField,
+    crate::{
+        base::{
+            dimension::{U1, U3, U4},
+            storage::{CStride, RStride},
+            Matrix3, Matrix4, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4
+        },
+        geometry::{
+            Point3, Rotation
+        }
+    }
+};
 
 #[cfg(feature = "serde-serialize")]
-use crate::base::storage::Owned;
-#[cfg(feature = "serde-serialize")]
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use {
+    serde::{Deserialize, Deserializer, Serialize, Serializer},
+    crate::base::storage::Owned
+};
 
 #[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
-
-use alga::general::RealField;
-
-use crate::base::dimension::{U1, U3, U4};
-use crate::base::storage::{CStride, RStride};
-use crate::base::{Matrix3, Matrix4, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4};
-
-use crate::geometry::{Point3, Rotation};
+use {
+    abomonation::Abomonation,
+    std::io::{Result as IOResult, Write}
+};
 
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.

@@ -1,21 +1,23 @@
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use num::One;
-use std::cmp::Ordering;
-use std::fmt;
-use std::hash;
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    num::One,
+    std::{fmt, cmp::Ordering, hash},
+    crate::base::{
+        allocator::Allocator,
+        dimension::{DimName, DimNameAdd, DimNameSum, U1},
+        iter::{MatrixIter, MatrixIterMut},
+        DefaultAllocator, Scalar, VectorN
+    }
+};
+
 #[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
+use {
+    std::io::{Result as IOResult, Write},
+    abomonation::Abomonation
+};
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
-
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use crate::base::iter::{MatrixIter, MatrixIterMut};
-use crate::base::{DefaultAllocator, Scalar, VectorN};
 
 /// A point in a n-dimensional euclidean space.
 #[repr(C)]

@@ -1,19 +1,24 @@
+use {
+    num::{Zero, One},
+    approx::AbsDiffEq,
+
+    alga::general::{RealField, ComplexField},
+    crate::{
+        allocator::Allocator,
+        base::{DefaultAllocator, Matrix, Matrix2x3, MatrixMN, Vector2, VectorN},
+        constraint::{SameNumberOfRows, ShapeConstraint},
+        dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1, U2},
+        storage::Storage,
+        linalg::{
+            symmetric_eigen,
+            Bidiagonal,
+            givens::GivensRotation
+        }
+    }
+};
+
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
-
-use num::{Zero, One};
-use approx::AbsDiffEq;
-
-use alga::general::{RealField, ComplexField};
-use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Matrix, Matrix2x3, MatrixMN, Vector2, VectorN};
-use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1, U2};
-use crate::storage::Storage;
-
-use crate::linalg::symmetric_eigen;
-use crate::linalg::Bidiagonal;
-use crate::linalg::givens::GivensRotation;
 
 /// Singular Value Decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

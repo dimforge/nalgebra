@@ -1,20 +1,28 @@
+use {
+    approx::AbsDiffEq,
+    alga::general::{ComplexField, RealField},
+    num_complex::Complex as NumComplex,
+    std::cmp,
+
+    crate::{
+        allocator::Allocator,
+        base::{
+            storage::Storage,
+            dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3},
+            DefaultAllocator, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN
+        },
+
+        geometry::Reflection,
+        linalg::{
+            householder,
+            Hessenberg,
+            givens::GivensRotation
+        }
+    }
+};
+
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
-
-use approx::AbsDiffEq;
-use alga::general::{ComplexField, RealField};
-use num_complex::Complex as NumComplex;
-use std::cmp;
-
-use crate::allocator::Allocator;
-use crate::base::dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3};
-use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN};
-
-use crate::geometry::Reflection;
-use crate::linalg::householder;
-use crate::linalg::Hessenberg;
-use crate::linalg::givens::GivensRotation;
 
 /// Schur decomposition of a square matrix.
 ///

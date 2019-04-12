@@ -1,31 +1,35 @@
-use num::{One, Zero};
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
+use {
+    num::{One, Zero},
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    std::{
+        any::TypeId,
+        cmp::Ordering,
+        fmt, mem,
+        hash::{Hash, Hasher},
+        marker::PhantomData,
+    },
+    alga::general::{ClosedAdd, ClosedMul, ClosedSub, RealField, Ring, ComplexField, Field},
 
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use std::any::TypeId;
-use std::cmp::Ordering;
-use std::fmt;
-use std::hash::{Hash, Hasher};
-use std::marker::PhantomData;
-use std::mem;
+    crate::base::{
+        allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR},
+        constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint},
+        dimension::{Dim, DimAdd, DimSum, IsNotStaticOne, U1, U2, U3},
+        iter::{MatrixIter, MatrixIterMut, RowIter, RowIterMut, ColumnIter, ColumnIterMut},
+        storage::{
+            ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
+        },
+        DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN
+    },
+};
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
-
-use alga::general::{ClosedAdd, ClosedMul, ClosedSub, RealField, Ring, ComplexField, Field};
-
-use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
-use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use crate::base::dimension::{Dim, DimAdd, DimSum, IsNotStaticOne, U1, U2, U3};
-use crate::base::iter::{MatrixIter, MatrixIterMut, RowIter, RowIterMut, ColumnIter, ColumnIterMut};
-use crate::base::storage::{
-    ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
+use {
+    std::io::{Result as IOResult, Write},
+    abomonation::Abomonation
 };
-use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
 
 /// A square matrix.
 pub type SquareMatrix<N, D, S> = Matrix<N, D, D, S>;

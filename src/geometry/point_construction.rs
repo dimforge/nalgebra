@@ -1,16 +1,19 @@
+use {
+    alga::general::ClosedDiv,
+    num::{Bounded, One, Zero},
+    rand::{Rng, distributions::{Distribution, Standard}},
+    crate::{
+        base::{
+            allocator::Allocator,
+            dimension::{DimName, DimNameAdd, DimNameSum, U1, U2, U3, U4, U5, U6},
+            DefaultAllocator, Scalar, VectorN
+        },
+        geometry::Point
+    }
+};
+
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
-
-use num::{Bounded, One, Zero};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
-
-use alga::general::ClosedDiv;
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1, U2, U3, U4, U5, U6};
-use crate::base::{DefaultAllocator, Scalar, VectorN};
-
-use crate::geometry::Point;
 
 impl<N: Scalar, D: DimName> Point<N, D>
 where DefaultAllocator: Allocator<N, D>

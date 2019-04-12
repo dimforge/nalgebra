@@ -1,17 +1,18 @@
-use approx::RelativeEq;
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
-use std::mem;
-use std::ops::{Deref, Neg};
+use {
+    approx::RelativeEq,
+    std::{mem, ops::{Deref, Neg}},
+    alga::{linear::NormedSpace, general::{SubsetOf, ComplexField}}
+};
+
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
-
-use alga::general::{SubsetOf, ComplexField};
-use alga::linear::NormedSpace;
+use {
+    std::io::{Result as IOResult, Write},
+    abomonation::Abomonation
+};
 
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///

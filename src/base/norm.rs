@@ -1,11 +1,13 @@
-use num::Zero;
-
-use crate::allocator::Allocator;
-use crate::{RealField, ComplexField};
-use crate::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, Matrix, Dim, MatrixMN};
-use crate::constraint::{SameNumberOfRows, SameNumberOfColumns, ShapeConstraint};
-
+use {
+    num::Zero,
+    crate::{
+        RealField, ComplexField,
+        allocator::Allocator,
+        storage::{Storage, StorageMut},
+        base::{DefaultAllocator, Matrix, Dim, MatrixMN},
+        constraint::{SameNumberOfRows, SameNumberOfColumns, ShapeConstraint}
+    }
+};
 
 // FIXME: this should be be a trait on alga?
 /// A trait for abstract matrix norms.

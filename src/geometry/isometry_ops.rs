@@ -1,13 +1,18 @@
-use std::ops::{Div, DivAssign, Mul, MulAssign};
-
-use alga::general::RealField;
-use alga::linear::Rotation as AlgaRotation;
-
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, U1, U3, U4};
-use crate::base::{DefaultAllocator, Unit, VectorN};
-
-use crate::geometry::{Isometry, Point, Rotation, Translation, UnitQuaternion};
+use {
+    std::ops::{Div, DivAssign, Mul, MulAssign},
+    alga::{
+        general::RealField,
+        linear::Rotation as AlgaRotation
+    },
+    crate::{
+        base::{
+            allocator::Allocator,
+            dimension::{DimName, U1, U3, U4},
+            DefaultAllocator, Unit, VectorN
+        },
+        geometry::{Isometry, Point, Rotation, Translation, UnitQuaternion}
+    }
+};
 
 // FIXME: there are several cloning of rotations that we could probably get rid of (but we didn't
 // yet because that would require to add a bound like `where for<'a, 'b> &'a R: Mul<&'b R, Output = R>`

@@ -1,9 +1,12 @@
 //! Indexing
 
-use crate::base::{Dim, DimName, DimDiff, DimSub, Dynamic, Matrix, MatrixSlice, MatrixSliceMut, Scalar, U1};
-use crate::base::storage::{Storage, StorageMut};
-
-use std::ops;
+use {
+    std::ops,
+    crate::base::{
+        Dim, DimName, DimDiff, DimSub, Dynamic, Matrix, MatrixSlice, MatrixSliceMut, Scalar, U1,
+        storage::{Storage, StorageMut}
+    }
+};
 
 // N.B.: Not a public trait!
 trait DimRange<D: Dim>

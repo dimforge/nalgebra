@@ -1,6 +1,7 @@
-use crate::base::dimension::{U1, U2, U3, U4, U5, U6};
-
-use crate::geometry::Point;
+use crate::{
+    base::dimension::{U1, U2, U3, U4, U5, U6},
+    geometry::Point
+};
 
 /// A statically sized 1-dimensional column point.
 pub type Point1<N> = Point<N, U1>;

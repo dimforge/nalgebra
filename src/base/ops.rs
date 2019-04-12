@@ -1,19 +1,23 @@
-use num::{One, Signed, Zero};
-use std::cmp::PartialOrd;
-use std::iter;
-use std::ops::{
-    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+use {
+    num::{One, Signed, Zero},
+    std::{
+        iter,
+        cmp::PartialOrd,
+        ops::{
+            Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
+        }
+    },
+    alga::general::{ComplexField, ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub},
+    crate::base::{
+        allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR},
+        constraint::{
+            AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
+        },
+        dimension::{Dim, DimMul, DimName, DimProd, Dynamic},
+        storage::{ContiguousStorageMut, Storage, StorageMut},
+        DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar, VectorSliceN
+    }
 };
-
-use alga::general::{ComplexField, ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
-
-use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
-use crate::base::constraint::{
-    AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
-};
-use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
-use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar, VectorSliceN};
 
 /*
  *

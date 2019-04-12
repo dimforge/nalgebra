@@ -1,11 +1,15 @@
-use alga::general::ComplexField;
-
-use crate::base::allocator::Allocator;
-use crate::base::dimension::Dim;
-use crate::base::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, MatrixN, SquareMatrix};
-
-use crate::linalg::lu;
+use {
+    alga::general::ComplexField,
+    crate::{
+        base::{
+            allocator::Allocator,
+            dimension::Dim,
+            storage::{Storage, StorageMut},
+            DefaultAllocator, MatrixN, SquareMatrix
+        },
+        linalg::lu
+    }
+};
 
 impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Attempts to invert this matrix.

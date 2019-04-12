@@ -1,15 +1,20 @@
+use {
+    alga::general::ClosedNeg,
+    num::One,
+
+    crate::{
+        allocator::Allocator,
+        base::{DefaultAllocator, Matrix, Scalar, VectorN},
+        dimension::{Dim, DimName, U1},
+        storage::StorageMut
+    }
+};
+
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::ClosedNeg;
-use num::One;
-
-use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Matrix, Scalar, VectorN};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::dimension::Dynamic;
-use crate::dimension::{Dim, DimName, U1};
-use crate::storage::StorageMut;
 
 /// A sequence of row or column permutations.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]

@@ -1,13 +1,17 @@
+use {
+    alga::general::ComplexField,
+
+    crate::{
+        allocator::Allocator,
+        base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix},
+        constraint::{SameNumberOfRows, ShapeConstraint},
+        dimension::{Dim, DimSub, Dynamic},
+        storage::{Storage, StorageMut}
+    }
+};
+
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
-
-use alga::general::ComplexField;
-
-use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
-use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimSub, Dynamic};
-use crate::storage::{Storage, StorageMut};
 
 /// The Cholesky decomposition of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
