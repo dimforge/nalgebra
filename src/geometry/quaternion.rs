@@ -1,7 +1,6 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::Zero;
 use std::fmt;
-use std::hash;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
 
@@ -24,7 +23,7 @@ use crate::geometry::{Point3, Rotation};
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Quaternion<N: RealField> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<N>,
@@ -44,31 +43,6 @@ where Vector4<N>: Abomonation
 
     unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
         self.coords.exhume(bytes)
-    }
-}
-
-impl<N: RealField + Eq> Eq for Quaternion<N> {}
-
-impl<N: RealField> PartialEq for Quaternion<N> {
-    fn eq(&self, rhs: &Self) -> bool {
-        self.coords == rhs.coords ||
-        // Account for the double-covering of S², i.e. q = -q
-        self.as_vector().iter().zip(rhs.as_vector().iter()).all(|(a, b)| *a == -*b)
-    }
-}
-
-impl<N: RealField + hash::Hash> hash::Hash for Quaternion<N> {
-    fn hash<H: hash::Hasher>(&self, state: &mut H) {
-        self.coords.hash(state)
-    }
-}
-
-impl<N: RealField> Copy for Quaternion<N> {}
-
-impl<N: RealField> Clone for Quaternion<N> {
-    #[inline]
-    fn clone(&self) -> Self {
-        Self::from(self.coords.clone())
     }
 }
 
