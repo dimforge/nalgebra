@@ -114,26 +114,14 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
             let rstride = rstride.value();
             let cstride = cstride.value();
 
-            // `Storage::linear_index`
-            let index = |i, j| (i * rstride) + (j * cstride);
-
-            // The final condition of each arm is an expression in the form:
-            //    index(i₀, j₀) != index(i₁, j₁)
-            // If this expression is `false`, then the values (i₀, j₀)
-            // and (i₁, j₁) are concrete examples of indices that would
-            // collide if the matrix was actually constructed. 
             nrows * ncols <= 1 ||
                 match (rstride, cstride) {
-                    (0, 0) => index(0, 0) != index(nrows - 1, ncols - 1),
-                    (0, _) => nrows <= 1 || index(0, 0) != index(nrows - 1, 0),
-                    (_, 0) => ncols <= 1 || index(0, 0) != index(0, ncols - 1),
-                    (_, _) => {
+                    (0, 0) => false,      // otherwise: matrix[(0, 0)] == index[(nrows - 1, ncols - 1)],
+                    (0, _) => nrows <= 1, // otherwise: matrix[(0, 0)] == index[(nrows - 1, 0)],
+                    (_, 0) => ncols <= 1, // otherwise: matrix[(0, 0)] == index[(0, ncols - 1)],
+                    (_, _) => {           // otherwise: matrix[(0, numer)] == index[(denom, 0)]
                         let ratio = Ratio::new(rstride, cstride);
-                        let numer = *ratio.numer();
-                        let denom = *ratio.denom();
-
-                        nrows <= denom || ncols <= numer
-                            || index(0, numer) != index(denom, 0)
+                        nrows <= *ratio.denom() || ncols <= *ratio.numer()
                     }
                 }
             },
