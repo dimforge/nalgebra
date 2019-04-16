@@ -30,6 +30,14 @@ pub struct Quaternion<N: RealField> {
     pub coords: Vector4<N>,
 }
 
+impl<N: RealField> Default for Quaternion<N> {
+    fn default() -> Self {
+        Quaternion {
+            coords: Vector4::zeros()
+        }
+    }
+}
+
 #[cfg(feature = "abomonation-serialize")]
 impl<N: RealField> Abomonation for Quaternion<N>
 where Vector4<N>: Abomonation
@@ -1419,6 +1427,12 @@ impl<N: RealField> UnitQuaternion<N> {
     #[inline]
     pub fn inverse_transform_vector(&self, v: &Vector3<N>) -> Vector3<N> {
         self.inverse() * v
+    }
+}
+
+impl<N: RealField> Default for UnitQuaternion<N> {
+    fn default() -> Self {
+        Self::identity()
     }
 }
 
