@@ -90,6 +90,21 @@ impl<N: Scalar, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<N, R, C, S>
     }
 }
 
+impl<N, R, C, S> Default for Matrix<N, R, C, S>
+where
+    N: Scalar,
+    R: Dim,
+    C: Dim,
+    S: Default,
+{
+    fn default() -> Self {
+        Matrix {
+            data: Default::default(),
+            _phantoms: PhantomData,
+        }
+    }
+}
+
 #[cfg(feature = "serde-serialize")]
 impl<N, R, C, S> Serialize for Matrix<N, R, C, S>
 where
