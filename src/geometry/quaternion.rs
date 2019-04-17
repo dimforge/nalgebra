@@ -968,6 +968,28 @@ impl<N: RealField> UnitQuaternion<N> {
         self.conjugate()
     }
 
+    /// Check if the quaternion represents the same rotation as another.
+    ///
+    /// Returns true when `q1 == q2`, or when `q1 == -q2`, to account for the
+    /// double-covering of S², i.e. q = -q.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Unit, UnitQuaternion, Quaternion};
+    /// let q1 = Unit::new_normalize(Quaternion::new(0.6, 0.8, 0.0, 0.0));
+    /// let q2 = Unit::new_normalize(Quaternion::new(-0.6, -0.8, 0.0, 0.0));
+    /// assert!(q1.eq_rotation(&q1));
+    /// assert!(q1.eq_rotation(&q2));
+    /// assert!(q2.eq_rotation(&q1));
+    /// assert!(!q1.eq_rotation(&UnitQuaternion::identity()));
+    /// ```
+    #[inline]
+    pub fn eq_rotation(&self, other: &Self) -> bool {
+        self.coords == other.coords ||
+        self.coords.iter().zip(&other.coords).all(|(a, b)| *a == -*b)
+    }
+
+
     /// The rotation angle needed to make `self` and `other` coincide.
     ///
     /// # Example

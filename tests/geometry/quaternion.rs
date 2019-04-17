@@ -110,7 +110,7 @@ quickcheck!(
     fn unit_quaternion_double_covering(q: UnitQuaternion<f64>) -> bool {
         let mq = -q;
 
-        mq == q && mq.angle() == q.angle() && mq.axis() == q.axis()
+        mq.eq_rotation(&q) && mq.angle() == q.angle() && mq.axis() == q.axis()
     }
 
     // Test that all operators (incl. all combinations of references) work.
