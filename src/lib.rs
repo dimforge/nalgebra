@@ -4,8 +4,8 @@
 **nalgebra** is a linear algebra library written for Rust targeting:
 
 * General-purpose linear algebra (still lacks a lot of features…)
-* RealField time computer graphics.
-* RealField time computer physics.
+* Real-time computer graphics.
+* Real-time computer physics.
 
 ## Using **nalgebra**
 You will need the last stable build of the [rust compiler](http://www.rust-lang.org)
