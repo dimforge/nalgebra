@@ -835,9 +835,7 @@ impl<N: RealField + AbsDiffEq<Epsilon = N>> AbsDiffEq for Quaternion<N> {
 
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
-        self.as_vector().abs_diff_eq(other.as_vector(), epsilon) ||
-        // Account for the double-covering of S², i.e. q = -q
-        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.abs_diff_eq(&-*b, epsilon))
+        self.as_vector().abs_diff_eq(other.as_vector(), epsilon)
     }
 }
 
@@ -855,9 +853,7 @@ impl<N: RealField + RelativeEq<Epsilon = N>> RelativeEq for Quaternion<N> {
         max_relative: Self::Epsilon,
     ) -> bool
     {
-        self.as_vector().relative_eq(other.as_vector(), epsilon, max_relative) ||
-        // Account for the double-covering of S², i.e. q = -q
-        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.relative_eq(&-*b, epsilon, max_relative))
+        self.as_vector().relative_eq(other.as_vector(), epsilon, max_relative)
     }
 }
 
@@ -869,9 +865,7 @@ impl<N: RealField + UlpsEq<Epsilon = N>> UlpsEq for Quaternion<N> {
 
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        self.as_vector().ulps_eq(other.as_vector(), epsilon, max_ulps) ||
-        // Account for the double-covering of S², i.e. q = -q.
-        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.ulps_eq(&-*b, epsilon, max_ulps))
+        self.as_vector().ulps_eq(other.as_vector(), epsilon, max_ulps)
     }
 }
 
