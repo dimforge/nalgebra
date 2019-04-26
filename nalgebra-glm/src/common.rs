@@ -1,6 +1,6 @@
 use na::{self, DefaultAllocator, RealField};
 use num::FromPrimitive;
-use std::mem;
+use core::mem;
 
 use crate::aliases::{TMat, TVec};
 use crate::traits::{Alloc, Dimension, Number};
