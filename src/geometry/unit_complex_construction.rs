@@ -3,8 +3,11 @@ use quickcheck::{Arbitrary, Gen};
 
 use num::One;
 use num_complex::Complex;
-use rand::distributions::{Distribution, OpenClosed01, Standard};
-use rand::Rng;
+#[cfg(feature = "rand")]
+use rand::{
+    distributions::{Distribution, OpenClosed01, Standard},
+    Rng,
+};
 
 use alga::general::RealField;
 use crate::base::dimension::{U1, U2};
@@ -275,6 +278,7 @@ impl<N: RealField> One for UnitComplex<N> {
     }
 }
 
+#[cfg(feature = "rand")]
 impl<N: RealField> Distribution<UnitComplex<N>> for Standard
 where OpenClosed01: Distribution<N>
 {

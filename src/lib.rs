@@ -113,6 +113,7 @@ extern crate matrixmultiply;
 extern crate num_complex;
 extern crate num_traits as num;
 extern crate num_rational;
+#[cfg(feature = "rand")]
 extern crate rand;
 extern crate typenum;
 

@@ -1,7 +1,10 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+#[cfg(feature = "rand")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
@@ -10,6 +13,7 @@ use std::mem;
 use alga::general::RealField;
 
 use crate::base::dimension::U3;
+#[cfg(feature = "rand")]
 use crate::base::helper;
 use crate::base::storage::Storage;
 use crate::base::{Matrix4, Vector, Vector3};
@@ -678,6 +682,7 @@ impl<N: RealField> Orthographic3<N> {
     }
 }
 
+#[cfg(feature = "rand")]
 impl<N: RealField> Distribution<Orthographic3<N>> for Standard
 where Standard: Distribution<N>
 {

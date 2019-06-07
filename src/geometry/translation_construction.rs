@@ -4,8 +4,11 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{One, Zero};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+#[cfg(feature = "rand")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
 use alga::general::ClosedAdd;
 
@@ -47,6 +50,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
+#[cfg(feature = "rand")]
 impl<N: Scalar, D: DimName> Distribution<Translation<N, D>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,

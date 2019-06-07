@@ -4,8 +4,11 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::One;
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+#[cfg(feature = "rand")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
 use alga::general::RealField;
 use alga::linear::Rotation as AlgaRotation;
@@ -75,6 +78,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
+#[cfg(feature = "rand")]
 impl<N: RealField, D: DimName, R> Distribution<Isometry<N, D, R>> for Standard
 where
     R: AlgaRotation<Point<N, D>>,

@@ -4,9 +4,12 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{Bounded, One, Zero};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
-#[cfg(feature = "std")]
+#[cfg(feature = "rand")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
+#[cfg(all(feature = "std", feature = "rand"))]
 use rand::{self, distributions::StandardNormal};
 use std::iter;
 use typenum::{self, Cmp, Greater};
@@ -240,7 +243,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
     /// Creates a matrix filled with random values.
     #[inline]
-    #[cfg(feature = "std")]
+    #[cfg(all(feature = "std", feature = "rand"))]
     pub fn new_random_generic(nrows: R, ncols: C) -> Self
     where Standard: Distribution<N> {
         Self::from_fn_generic(nrows, ncols, |_, _| rand::random())
@@ -248,6 +251,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
     /// Creates a matrix filled with random values from the given distribution.
     #[inline]
+    #[cfg(feature = "rand")]
     pub fn from_distribution_generic<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
         nrows: R,
         ncols: C,
@@ -548,6 +552,7 @@ macro_rules! impl_constructors(
 
             /// Creates a matrix or vector filled with random values from the given distribution.
             #[inline]
+            #[cfg(feature = "rand")]
             pub fn from_distribution<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
                 $($args: usize,)*
                 distribution: &Distr,
@@ -557,6 +562,7 @@ macro_rules! impl_constructors(
             }
         }
 
+        #[cfg(all(feature = "rand", feature = "std"))]
         impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
             where
             DefaultAllocator: Allocator<N $(, $Dims)*>,
@@ -564,7 +570,6 @@ macro_rules! impl_constructors(
 
             /// Creates a matrix filled with random values.
             #[inline]
-            #[cfg(feature = "std")]
             pub fn new_random($($args: usize),*) -> Self {
                 Self::new_random_generic($($gargs),*)
             }
@@ -760,6 +765,7 @@ where
     }
 }
 
+#[cfg(feature = "rand")]
 impl<N: Scalar, R: Dim, C: Dim> Distribution<MatrixMN<N, R, C>> for Standard
 where
     DefaultAllocator: Allocator<N, R, C>,
@@ -794,7 +800,7 @@ where
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", feature = "rand"))]
 impl<N: RealField, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,

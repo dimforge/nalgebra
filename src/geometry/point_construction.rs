@@ -2,8 +2,11 @@
 use quickcheck::{Arbitrary, Gen};
 
 use num::{Bounded, One, Zero};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+#[cfg(feature = "rand")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
 use alga::general::ClosedDiv;
 use crate::base::allocator::Allocator;
@@ -126,6 +129,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
+#[cfg(feature = "rand")]
 impl<N: Scalar, D: DimName> Distribution<Point<N, D>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,
