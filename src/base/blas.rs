@@ -311,7 +311,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         }
 
         // All this is inspired from the "unrolled version" discussed in:
-        // http://blog.theincredibleholk.org/blog/2012/12/10/optimizing-dot-product/
+        // https://blog.theincredibleholk.org/blog/2012/12/10/optimizing-dot-product/
         //
         // And this comment from bluss:
         // https://users.rust-lang.org/t/how-to-zip-two-slices-efficiently/2048/12

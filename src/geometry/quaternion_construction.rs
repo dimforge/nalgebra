@@ -256,7 +256,7 @@ impl<N: RealField> UnitQuaternion<N> {
     #[inline]
     pub fn from_rotation_matrix(rotmat: &Rotation3<N>) -> Self {
         // Robust matrix to quaternion transformation.
-        // See http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion
+        // See https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion
         let tr = rotmat[(0, 0)] + rotmat[(1, 1)] + rotmat[(2, 2)];
         let res;
 
