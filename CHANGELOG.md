@@ -2,7 +2,7 @@
 All notable changes to `nalgebra`, starting with the version 0.6.0 will be
 documented here.
 
-This project adheres to [Semantic Versioning](http://semver.org/).
+This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [0.18.0]
 This release adds full complex number support to nalgebra. This includes all common vector/matrix operations as well
@@ -111,7 +111,7 @@ All dependencies have been updated to their latest versions.
 
 ## [0.15.0]
 The most notable change of this release is the support for using part of the library without the rust standard
-library (i.e. it supports `#![no_std]`). See the corresponding [documentation](http://nalgebra.org/wasm_and_embedded_programming/).
+library (i.e. it supports `#![no_std]`). See the corresponding [documentation](https://nalgebra.org/wasm_and_embedded_programming/).
 ### Modified
   * Rename the `core` module to `base` to avoid conflicts with the `core` crate implicitly imported when
     `#![no_std]` is enabled.
@@ -276,7 +276,7 @@ The main change of this release is the update of the dependency serde to 1.0.
    elements.)
 
 ## [0.11.0]
-The [website](http://nalgebra.org) has been fully rewritten and gives a good
+The [website](https://nalgebra.org) has been fully rewritten and gives a good
 overview of all the added/modified features.
 
 This version is a major rewrite of the library. Major changes are:
@@ -298,9 +298,9 @@ This version is a major rewrite of the library. Major changes are:
 
 ### Added
 Lots of features including rectangular matrices, slices, and Serde
-serialization. Refer to the brand new [website](http://nalgebra.org) for more
+serialization. Refer to the brand new [website](https://nalgebra.org) for more
 details. The following free-functions have been added as well:
-  * `::id()` that returns the universal [identity element](http://nalgebra.org/performance_tricks/#the-id-type)
+  * `::id()` that returns the universal [identity element](https://nalgebra.org/performance_tricks/#the-id-type)
     of type `Id`.
   * `::inf_sup()` that returns both the infimum and supremum of a value at the
     same time.
@@ -459,7 +459,7 @@ crate for vectors, rotations and points. To enable them, activate the
 
 ## [0.6.0]
 **Announcement:** a users forum has been created for `nalgebra`, `ncollide`, and `nphysics`. See
-you [there](http://users.nphysics.org)!
+you [there](https://users.nphysics.org)!
 
 ### Added
   * Added a dependency to [generic-array](https://crates.io/crates/generic-array). Feature-gated:

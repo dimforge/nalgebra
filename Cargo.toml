@@ -4,8 +4,8 @@ version = "0.18.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "Linear algebra library with transformations and statically-sized or dynamically-sized matrices."
-documentation = "http://nalgebra.org/rustdoc/nalgebra/index.html"
-homepage = "http://nalgebra.org"
+documentation = "https://nalgebra.org/rustdoc/nalgebra/index.html"
+homepage = "https://nalgebra.org"
 repository = "https://github.com/rustsim/nalgebra"
 readme = "README.md"
 categories = [ "science" ]
