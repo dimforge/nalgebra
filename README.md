@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="http://nalgebra.org/img/logo_nalgebra.svg" alt="crates.io">
+  <img src="https://nalgebra.org/img/logo_nalgebra.svg" alt="crates.io">
 </p>
 <p align="center">
     <a href="https://discord.gg/vt9DJSW">
@@ -9,7 +9,7 @@
         <img src="https://travis-ci.org/rustsim/nalgebra.svg?branch=master" alt="Build status">
     </a>
     <a href="https://crates.io/crates/nalgebra">
-         <img src="http://meritbadge.herokuapp.com/nalgebra?style=flat-square" alt="crates.io">
+         <img src="https://meritbadge.herokuapp.com/nalgebra?style=flat-square" alt="crates.io">
     </a>
     <a href="https://opensource.org/licenses/BSD-3-Clause">
         <img src="https://img.shields.io/badge/license-BSD%203--Clause-blue.svg?style=flat">
@@ -17,7 +17,7 @@
 </p>
 <p align = "center">
     <strong>
-        <a href="http://nalgebra.org">Users guide</a> | <a href="http://nalgebra.org/rustdoc/nalgebra/index.html">Documentation</a> | <a href="https://discourse.nphysics.org/c/nalgebra">Forum</a>
+        <a href="https://nalgebra.org">Users guide</a> | <a href="https://nalgebra.org/rustdoc/nalgebra/index.html">Documentation</a> | <a href="https://discourse.nphysics.org/c/nalgebra">Forum</a>
     </strong>
 </p>
 

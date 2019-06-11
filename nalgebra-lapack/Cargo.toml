@@ -4,8 +4,8 @@ version = "0.10.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>" ]
 
 description   = "Linear algebra library with transformations and satically-sized or dynamically-sized matrices."
-documentation = "http://nalgebra.org/doc/nalgebra/index.html"
-homepage      = "http://nalgebra.org"
+documentation = "https://nalgebra.org/doc/nalgebra/index.html"
+homepage      = "https://nalgebra.org"
 repository    = "https://github.com/rustsim/nalgebra"
 readme        = "README.md"
 keywords      = [ "linear", "algebra", "matrix", "vector" ]

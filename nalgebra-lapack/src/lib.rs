@@ -14,7 +14,7 @@
 //!
 //! Like the [lapack crate](https://crates.io/crates/lapack) from which this
 //! behavior is inherited, nalgebra-lapack uses [cargo
-//! features](http://doc.crates.io/manifest.html#the-[features]-section) to select
+//! features](https://doc.crates.io/manifest.html#the-[features]-section) to select
 //! which lapack provider (or implementation) is used. Command line arguments to
 //! cargo are the easiest way to do this, and the best provider depends on your
 //! particular system. In some cases, the providers can be further tuned with
@@ -69,8 +69,8 @@
 #![deny(unused_results)]
 #![deny(missing_docs)]
 #![doc(
-    html_favicon_url = "http://nalgebra.org/img/favicon.ico",
-    html_root_url = "http://nalgebra.org/rustdoc"
+    html_favicon_url = "https://nalgebra.org/img/favicon.ico",
+    html_root_url = "https://nalgebra.org/rustdoc"
 )]
 
 extern crate alga;
