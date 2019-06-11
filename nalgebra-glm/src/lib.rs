@@ -7,7 +7,7 @@
    seamless inter-operability between both.
 
    ## Getting started
-   First of all, you should start by taking a look at the official [GLM API documentation](http://glm.g-truc.net/0.9.9/api/index.html)
+   First of all, you should start by taking a look at the official [GLM API documentation](https://glm.g-truc.net/0.9.9/api/index.html)
    since **nalgebra-glm** implements a large subset of it. To use **nalgebra-glm** to your project, you
    should add it as a dependency to your `Crates.toml`:
 
@@ -110,7 +110,7 @@
    and keep in mind it is possible to convert, e.g., an `Isometry3` to a `Mat4` and vice-versa (see the [conversions section](#conversions)).
 */
 
-#![doc(html_favicon_url = "http://nalgebra.org/img/favicon.ico")]
+#![doc(html_favicon_url = "https://nalgebra.org/img/favicon.ico")]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 extern crate num_traits as num;
