@@ -11,10 +11,7 @@ use crate::storage::{Storage, StorageMut};
 
 use crate::geometry::Reflection;
 use crate::linalg::householder;
-
-//=============================================================================
 use crate::linalg::PermutationSequence;
-//=============================================================================
 
 /// The QRP decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -65,7 +62,9 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
         let (nrows, ncols) = matrix.data.shape();
         let min_nrows_ncols = nrows.min(ncols);
         let mut p = PermutationSequence::identity_generic(min_nrows_ncols);
+
         let mut diag = unsafe { MatrixMN::new_uninitialized_generic(min_nrows_ncols, U1) };
+        println!("diag: {:?}", &diag);
 
         if min_nrows_ncols.value() == 0 {
             return QRP {
@@ -76,12 +75,18 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
         }
 
         for ite in 0..min_nrows_ncols.value() {
+            let mut col_norm = Vec::new();
+            for column in matrix.column_iter() {
+                col_norm.push(column.norm_squared());
+            }
+            
             let piv = matrix.slice_range(ite.., ite..).icamax_full();
             let col_piv = piv.1 + ite;
             matrix.swap_columns(ite, col_piv);
             p.append_permutation(ite, col_piv);
 
             householder::clear_column_unchecked(&mut matrix, &mut diag[ite], ite, 0, None);
+            println!("matrix: {:?}", &matrix.data);
         }
 
         QRP {
@@ -139,7 +144,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
 
         res
     }
-    /// The column permutations of this decomposition.
+    /// Retrieves the column permutation of this decomposition.
     #[inline]
     pub fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.p
@@ -151,13 +156,14 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
     ) -> (
         MatrixMN<N, R, DimMinimum<R, C>>,
         MatrixMN<N, DimMinimum<R, C>, C>,
+        PermutationSequence<DimMinimum<R, C>>,
     )
     where
         DimMinimum<R, C>: DimMin<C, Output = DimMinimum<R, C>>,
         DefaultAllocator:
-            Allocator<N, R, DimMinimum<R, C>> + Reallocator<N, R, C, DimMinimum<R, C>, C>,
+            Allocator<N, R, DimMinimum<R, C>> + Reallocator<N, R, C, DimMinimum<R, C>, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
     {
-        (self.q(), self.unpack_r())
+        (self.q(), self.r(), self.p)
     }
 
     #[doc(hidden)]
@@ -300,18 +306,18 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> +
         true
     }
 
-    // /// Computes the determinant of the decomposed matrix.
-    // pub fn determinant(&self) -> N {
-    //     let dim = self.qrp.nrows();
-    //     assert!(self.qrp.is_square(), "QRP determinant: unable to compute the determinant of a non-square matrix.");
+     /// Computes the determinant of the decomposed matrix.
+     pub fn determinant(&self) -> N {
+         let dim = self.qrp.nrows();
+         assert!(self.qrp.is_square(), "QRP determinant: unable to compute the determinant of a non-square matrix.");
 
-    //     let mut res = N::one();
-    //     for i in 0 .. dim {
-    //         res *= unsafe { *self.diag.vget_unchecked(i) };
-    //     }
+         let mut res = N::one();
+         for i in 0 .. dim {
+             res *= unsafe { *self.diag.vget_unchecked(i) };
+         }
 
-    //     res self.q_determinant()
-    // }
+         res * self.p.determinant()
+     }
 }
 
 impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
