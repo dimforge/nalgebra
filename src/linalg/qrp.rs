@@ -13,11 +13,7 @@ use crate::geometry::Reflection;
 use crate::linalg::householder;
 
 //=============================================================================
-use alga::general::RealField;
 use crate::linalg::PermutationSequence;
-use crate::base::VecStorage;
-use crate::base::Dynamic;
-use crate::base::DVector;
 //=============================================================================
 
 /// The QRP decomposition of a general matrix.
