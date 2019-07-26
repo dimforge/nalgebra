@@ -33,6 +33,7 @@ impl<N: RealField> Distribution<RandComplex<N>> for Standard
 
 // This is a wrapper similar to RandComplex, but for non-complex.
 // This exists only to make generic tests easier to write.
+// Generates variates in the range [0, 1). Do we want this? E.g. we could use standard normal samples instead.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct RandScalar<N>(pub N);
 

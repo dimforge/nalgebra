@@ -3,7 +3,7 @@ use quickcheck::{Arbitrary, Gen};
 
 use num::One;
 use num_complex::Complex;
-use rand::distributions::{Distribution, OpenClosed01, Standard};
+use rand::distributions::{Distribution, Standard, uniform::SampleUniform};
 use rand::Rng;
 
 use alga::general::RealField;
@@ -276,12 +276,12 @@ impl<N: RealField> One for UnitComplex<N> {
 }
 
 impl<N: RealField> Distribution<UnitComplex<N>> for Standard
-where OpenClosed01: Distribution<N>
+where N: SampleUniform
 {
     /// Generate a uniformly distributed random `UnitComplex`.
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> UnitComplex<N> {
-        UnitComplex::from_angle(rng.sample(OpenClosed01) * N::two_pi())
+        UnitComplex::from_angle(rng.gen_range(N::zero(), N::two_pi()))
     }
 }
 

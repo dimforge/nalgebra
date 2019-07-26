@@ -7,7 +7,7 @@ use num::{Bounded, One, Zero};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 #[cfg(feature = "std")]
-use rand::{self, distributions::StandardNormal};
+use rand_distr::StandardNormal;
 use std::iter;
 use typenum::{self, Cmp, Greater};
 
@@ -243,7 +243,8 @@ where DefaultAllocator: Allocator<N, R, C>
     #[cfg(feature = "std")]
     pub fn new_random_generic(nrows: R, ncols: C) -> Self
     where Standard: Distribution<N> {
-        Self::from_fn_generic(nrows, ncols, |_, _| rand::random())
+        let mut rng = rand::thread_rng();
+        Self::from_fn_generic(nrows, ncols, |_, _| rng.gen())
     }
 
     /// Creates a matrix filled with random values from the given distribution.
@@ -794,6 +795,7 @@ where
     }
 }
 
+// TODO(specialization): faster impls possible for D≤4 (see rand_distr::{UnitCircle, UnitSphere})
 #[cfg(feature = "std")]
 impl<N: RealField, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
 where

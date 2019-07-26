@@ -21,7 +21,7 @@ path = "src/lib.rs"
 
 [features]
 default         = [ "std" ]
-std             = [ "matrixmultiply", "rand/std", "alga/std" ]
+std             = [ "matrixmultiply", "rand/std", "alga/std", "rand_distr" ]
 stdweb          = [ "rand/stdweb" ]
 arbitrary       = [ "quickcheck" ]
 serde-serialize = [ "serde", "serde_derive", "num-complex/serde" ]
@@ -34,7 +34,8 @@ io = [ "pest", "pest_derive" ]
 [dependencies]
 typenum        = "1.10"
 generic-array  = "0.12"
-rand           = { version = "0.6", default-features = false }
+rand           = { version = "0.7", default-features = false }
+rand_distr     = { version = "0.2", optional = true }
 num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.2", default-features = false }
 num-rational   = { version = "0.2", default-features = false }
@@ -54,7 +55,9 @@ pest_derive    = { version = "2.0", optional = true }
 
 [dev-dependencies]
 serde_json = "1.0"
-rand_xorshift = "0.1"
+rand = { version = "0.7", features = ["small_rng"] }
+# IsaacRng is used by benches; keep for reproducibility?
+rand_isaac = "0.2"
 ### Uncomment this line before running benchmarks.
 ### We can't just let this uncommented because that would break
 ### compilation for #[no-std] because of the terrible Cargo bug

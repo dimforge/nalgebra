@@ -5,7 +5,7 @@ use quickcheck::{Arbitrary, Gen};
 
 use alga::general::RealField;
 use num::Zero;
-use rand::distributions::{Distribution, OpenClosed01, Standard};
+use rand::distributions::{Distribution, OpenClosed01, Standard, uniform::SampleUniform};
 use rand::Rng;
 use std::ops::Neg;
 
@@ -231,12 +231,12 @@ impl<N: RealField> Rotation2<N> {
 }
 
 impl<N: RealField> Distribution<Rotation2<N>> for Standard
-where OpenClosed01: Distribution<N>
+where N: SampleUniform
 {
     /// Generate a uniformly distributed random rotation.
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Rotation2<N> {
-        Rotation2::new(rng.sample(OpenClosed01) * N::two_pi())
+        Rotation2::new(rng.gen_range(N::zero(), N::two_pi()))
     }
 }
 
@@ -818,7 +818,7 @@ impl<N: RealField> Rotation3<N> {
 }
 
 impl<N: RealField> Distribution<Rotation3<N>> for Standard
-where OpenClosed01: Distribution<N>
+where OpenClosed01: Distribution<N>, N: SampleUniform
 {
     /// Generate a uniformly distributed random rotation.
     #[inline]
@@ -828,7 +828,7 @@ where OpenClosed01: Distribution<N>
         // In D. Kirk, editor, Graphics Gems III, pages 117-120. Academic, New York, 1992.
 
         // Compute a random rotation around Z
-        let theta = N::two_pi() * rng.sample(OpenClosed01);
+        let theta = rng.gen_range(N::zero(), N::two_pi());
         let (ts, tc) = theta.sin_cos();
         let a = MatrixN::<N, U3>::new(
             tc,
@@ -843,7 +843,7 @@ where OpenClosed01: Distribution<N>
         );
 
         // Compute a random rotation *of* Z
-        let phi = N::two_pi() * rng.sample(OpenClosed01);
+        let phi = rng.gen_range(N::zero(), N::two_pi());
         let z = rng.sample(OpenClosed01);
         let (ps, pc) = phi.sin_cos();
         let sqrt_z = z.sqrt();

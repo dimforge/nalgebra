@@ -681,6 +681,7 @@ impl<N: RealField> Orthographic3<N> {
 impl<N: RealField> Distribution<Orthographic3<N>> for Standard
 where Standard: Distribution<N>
 {
+    /// Generate an arbitrary random variate for testing purposes.
     fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Orthographic3<N> {
         let left = r.gen();
         let right = helper::reject_rand(r, |x: &N| *x > left);
