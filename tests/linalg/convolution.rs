@@ -43,6 +43,43 @@ fn convolve_same_check(){
     );
 }
 
+//// >>> convolve([1,2,3,4],[1,2],"same")
+//// array([ 1,  4,  7, 10])
+//#[test]
+//fn convolve_same_integers_check(){
+//    // Static Tests
+//    let actual_s =  Vector4::new(1, 4, 7, 10);
+//    let expected_s = Vector4::new(1, 2, 3, 4).convolve_same(Vector2::new(1, 2));
+//
+//    assert!(relative_eq!(actual_s, expected_s, epsilon = 1.0e-7));
+//
+//    // Dynamic Tests
+//    let actual_d =  DVector::from_vec(vec![1, 4, 7, 10]);
+//    let expected_d = DVector::from_vec(vec![1, 2, 3, 4]).convolve_same(DVector::from_vec(vec![1, 2]));
+//
+//    assert!(relative_eq!(actual_d, expected_d, epsilon = 1.0e-7));
+//
+//    // Panic Tests
+//    // These really only apply to dynamic sized vectors
+//    assert!(
+//        panic::catch_unwind(|| {
+//            DVector::from_vec(vec![1, 2]).convolve_same(DVector::from_vec(vec![1, 2, 3, 4]));
+//        }).is_err()
+//    );
+//
+//    assert!(
+//        panic::catch_unwind(|| {
+//            DVector::<usize>::from_vec(vec![]).convolve_same(DVector::from_vec(vec![1, 2, 3, 4]));
+//        }).is_err()
+//    );
+//
+//    assert!(
+//        panic::catch_unwind(|| {
+//            DVector::from_vec(vec![1, 2, 3, 4]).convolve_same(DVector::<usize>::from_vec(vec![]));
+//        }).is_err()
+//    );
+//}
+
 // >>> convolve([1,2,3,4],[1,2],"full")
 // array([ 1, 4,  7, 10, 8])
 #[test]

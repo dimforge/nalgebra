@@ -4,10 +4,11 @@ use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum};
 use crate::storage::Storage;
-use crate::{zero, RealField, Vector, VectorN, U1};
+use crate::{zero, RealField, Vector, VectorN, U1, Scalar, Matrix, DMatrix};
+use crate::alga::general::Field;
 
 impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
-    /// Returns the convolution of the target vector and a kernel.
+    /// Returns the convolution of the target vector and a kernel.s
     ///
     /// # Arguments
     ///
@@ -127,4 +128,63 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
 
         conv
     }
+}
+
+// TODO: @Investigate -> Only implemented for DMatrix for now as images are usually DMatrix
+impl<N: RealField> DMatrix<N>  {
+    /// Returns the convolution of the target vector and a kernel.
+    ///
+    /// # Arguments
+    ///
+    /// * `kernel` - A Matrix with rows > 0 and cols > 0
+    ///
+    /// # Errors
+    /// Inputs must satisfy `self.shape() >= kernel.shape() > 0`.
+    ///
+    pub fn mat_convolve_full<R1, C1, S1>(
+        &self,
+        kernel: Matrix<N, R1, C1, S1>, //TODO: Would be nice to have an IsOdd trait. As kernels could be of even size atm
+    ) -> DMatrix<N>
+    where
+        R1: Dim,
+        C1: Dim,
+        S1: Storage<N, R1, C1>
+    {
+        let mat_rows = self.nrows();
+        let mat_cols = self.ncols();
+        let ker_rows =  kernel.data.shape().0.value();
+        let ker_cols = kernel.data.shape().1.value();
+
+        if ker_rows == 0 || ker_rows > mat_rows || ker_cols == 0||  ker_cols > mat_cols {
+            panic!(
+                "convolve_full expects `self.nrows() >= kernel.nrows() > 0 and self.ncols() >= kernel.ncols() > 0 `, \
+                rows received {} and {} respectively. \
+                cols received {} and {} respectively.",
+                mat_rows, ker_rows, mat_cols, ker_cols);
+        }
+
+        let zero = zero::<N>();
+        let mut conv = DMatrix::from_diagonal_element(mat_cols, mat_rows, zero);
+//
+//        for i in 0..(vec + ker - 1) {
+//            let u_i = if i > vec { i - ker } else { 0 };
+//            let u_f = cmp::min(i, vec - 1);
+//
+//            if u_i == u_f {
+//                conv[i] += self[u_i] * kernel[(i - u_i)];
+//            } else {
+//                for u in u_i..(u_f + 1) {
+//                    if i - u < ker {
+//                        conv[i] += self[u] * kernel[(i - u)];
+//                    }
+//                }
+//            }
+//        }
+
+        conv
+    }
+
+    //TODO: rest
+
+
 }
