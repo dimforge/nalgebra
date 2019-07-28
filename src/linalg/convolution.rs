@@ -162,10 +162,9 @@ impl<N: RealField> DMatrix<N>  {
 
     //TODO: rest ?
 
-
 }
 
-impl<N: RealField, R1: Dim +DimName, C1: Dim +DimName> MatrixMN<N, R1, C1> where DefaultAllocator: Allocator<N, R1, C1>  {
+impl<N: RealField, R1: Dim + DimName, C1: Dim + DimName> MatrixMN<N, R1, C1> where DefaultAllocator: Allocator<N, R1, C1>  {
     /// Returns the convolution of the target vector and a kernel.
     ///
     /// # Arguments
@@ -184,8 +183,6 @@ impl<N: RealField, R1: Dim +DimName, C1: Dim +DimName> MatrixMN<N, R1, C1> where
             C2: Dim,
             S2: Storage<N, R2, C2>
     {
-
-
         let mat_rows = self.nrows() as i32;
         let mat_cols = self.ncols() as i32;
 
@@ -193,12 +190,10 @@ impl<N: RealField, R1: Dim +DimName, C1: Dim +DimName> MatrixMN<N, R1, C1> where
 
         convolve(&self, &kernel,&mut conv,mat_rows,mat_cols);
 
-
         conv
     }
 
     //TODO: rest ?
-
 
 }
 
@@ -213,7 +208,6 @@ fn convolve<N, R1, C1, R2, C2, S2>(mat: &MatrixMN<N,R1,C1>, kernel: &Matrix<N, R
         S2: Storage<N, R2, C2>,
         DefaultAllocator: Allocator<N, R1, C1>
     {
-
         let ker_rows =  kernel.data.shape().0.value() as i32;
         let ker_cols = kernel.data.shape().1.value() as i32;
 
@@ -224,7 +218,6 @@ fn convolve<N, R1, C1, R2, C2, S2>(mat: &MatrixMN<N,R1,C1>, kernel: &Matrix<N, R
                 cols received {} and {} respectively.",
                 mat_rows, ker_rows, mat_cols, ker_cols);
         }
-
 
         let kernel_size = ker_rows;
         let kernel_min = kernel_size/2;
