@@ -167,25 +167,9 @@ impl<N: RealField> DMatrix<N>  {
         let kernel_min = kernel_size/2;
         let zero = zero::<N>();
         let mut conv = DMatrix::from_element(mat_cols, mat_rows, zero);
-//
-//        for i in 0..(vec + ker - 1) {
-//            let u_i = if i > vec { i - ker } else { 0 };
-//            let u_f = cmp::min(i, vec - 1);
-//
-//            if u_i == u_f {
-//                conv[i] += self[u_i] * kernel[(i - u_i)];
-//            } else {
-//                for u in u_i..(u_f + 1) {
-//                    if i - u < ker {
-//                        conv[i] += self[u] * kernel[(i - u)];
-//                    }
-//                }
-//            }
-//        }
 
         for i in 0..mat_rows {
             for j in 0..mat_cols {
-                let val = *self.index((i,j));
                 for k_i in 0..kernel_size {
                     for k_j in 0..kernel_size {
                         let i_matrix  = (i + k_i - kernel_min) as i32;
@@ -195,7 +179,7 @@ impl<N: RealField> DMatrix<N>  {
                         let is_j_in_range = j_matrix >=0 && j_matrix < mat_cols as i32;
 
                         let convolved_value =
-                            match is_i_in_range && is_i_in_range {
+                            match is_i_in_range && is_j_in_range {
                                 true => {
                                     let pixel_value = *self.index((i_matrix as usize, j_matrix as usize));
                                     let kernel_value = *kernel.index((k_i,k_j));
