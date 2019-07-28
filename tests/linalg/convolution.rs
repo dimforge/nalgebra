@@ -1,4 +1,4 @@
-use na::{Vector2,Vector3,Vector4,Vector5,DVector, DMatrix};
+use na::{Vector2,Vector3,Vector4,Vector5,DVector, DMatrix, Matrix5, Matrix3};
 use std::panic;
 
 //
@@ -163,29 +163,34 @@ fn convolve_valid_check(){
 // >>> convolve([1,2,3,4],[1,2],"same")
 // array([ 1,  4,  7, 10])
 #[test]
-fn convolve_same_dmat_check(){
+fn convolve_same_mat_check(){
+    let actual_s =  Matrix5::from_vec( vec![3.0,4.0,4.0,4.0,3.0,4.0,5.0,5.0,5.0,4.0,4.0,5.0,5.0,5.0,4.0,4.0,5.0,5.0,5.0,4.0,3.0,4.0,4.0,4.0,3.0]);
+    let expected_s = Matrix5::from_element(1.0).smat_convolve_full(Matrix3::from_vec(vec![0.0,1.0,0.0,1.0,1.0,1.0,0.0,1.0,0.0]));
+
+    assert!(relative_eq!(actual_s, expected_s, epsilon = 1.0e-7));
+
     let actual_d =  DMatrix::from_vec(5,5, vec![3.0,4.0,4.0,4.0,3.0,4.0,5.0,5.0,5.0,4.0,4.0,5.0,5.0,5.0,4.0,4.0,5.0,5.0,5.0,4.0,3.0,4.0,4.0,4.0,3.0]);
-    let expected_d = DMatrix::from_element(5,5,1.0).mat_convolve_full(DMatrix::from_vec(3,3,vec![0.0,1.0,0.0,1.0,1.0,1.0,0.0,1.0,0.0]));
+    let expected_d = DMatrix::from_element(5,5,1.0).dmat_convolve_full(DMatrix::from_vec(3,3,vec![0.0,1.0,0.0,1.0,1.0,1.0,0.0,1.0,0.0]));
 
     assert!(relative_eq!(actual_d, expected_d, epsilon = 1.0e-7));
 
-//    // Panic Tests
-//    // These really only apply to dynamic sized vectors
-//    assert!(
-//        panic::catch_unwind(|| {
-//            DVector::from_vec(vec![1.0, 2.0]).convolve_same(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
-//        }).is_err()
-//    );
-//
-//    assert!(
-//        panic::catch_unwind(|| {
-//            DVector::<f32>::from_vec(vec![]).convolve_same(DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]));
-//        }).is_err()
-//    );
-//
-//    assert!(
-//        panic::catch_unwind(|| {
-//            DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0]).convolve_same(DVector::<f32>::from_vec(vec![]));
-//        }).is_err()
-//    );
+    // Panic Tests
+    // These really only apply to dynamic sized vectors
+    assert!(
+        panic::catch_unwind(|| {
+            DMatrix::from_element(2,2,1.0).dmat_convolve_full(DMatrix::from_vec(3,3,vec![0.0,1.0,0.0,1.0,1.0,1.0,0.0,1.0,0.0]));
+        }).is_err()
+    );
+
+    assert!(
+        panic::catch_unwind(|| {
+            DMatrix::from_element(0,0,1.0).dmat_convolve_full(DMatrix::from_vec(3,3,vec![0.0,1.0,0.0,1.0,1.0,1.0,0.0,1.0,0.0]));
+        }).is_err()
+    );
+
+    assert!(
+        panic::catch_unwind(|| {
+            DMatrix::from_element(5,5,1.0).dmat_convolve_full(DMatrix::from_vec(0,0,vec![]));
+        }).is_err()
+    );
 }
