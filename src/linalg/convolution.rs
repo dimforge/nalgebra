@@ -130,13 +130,12 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
     }
 }
 
-
 impl<N: RealField> DMatrix<N>  {
     /// Returns the convolution of the target vector and a kernel.
     ///
     /// # Arguments
     ///
-    /// * `kernel` - A Matrix with rows > 0 and cols > 0
+    /// * `kernel` - A Matrix with rows > 0 and cols > 0 rows == cols
     ///
     /// # Errors
     /// Inputs must satisfy `self.shape() >= kernel.shape() > 0`.
@@ -152,49 +151,11 @@ impl<N: RealField> DMatrix<N>  {
     {
         let mat_rows = self.nrows() as i32;
         let mat_cols = self.ncols() as i32;
-        let ker_rows =  kernel.data.shape().0.value() as i32;
-        let ker_cols = kernel.data.shape().1.value() as i32;
 
-        if ker_rows == 0 || ker_rows > mat_rows || ker_cols == 0||  ker_cols > mat_cols {
-            panic!(
-                "convolve_full expects `self.nrows() >= kernel.nrows() > 0 and self.ncols() >= kernel.ncols() > 0 `, \
-                rows received {} and {} respectively. \
-                cols received {} and {} respectively.",
-                mat_rows, ker_rows, mat_cols, ker_cols);
-        }
-
-        let kernel_size = ker_rows;
-        let kernel_min = kernel_size/2;
-        let zero = zero::<N>();
         let mut conv = DMatrix::<N>::zeros(mat_cols as usize, mat_rows as usize);
 
-        for i in 0..mat_rows {
-            for j in 0..mat_cols {
-                for k_i in 0..kernel_size {
-                    for k_j in 0..kernel_size {
-                        let i_matrix  = i + k_i - kernel_min;
-                        let j_matrix = j + k_j - kernel_min;
 
-                        let is_i_in_range = i_matrix >=0 && i_matrix < mat_rows;
-                        let is_j_in_range = j_matrix >=0 && j_matrix < mat_cols;
-
-                        let convolved_value =
-                            match is_i_in_range && is_j_in_range {
-                                true => {
-                                    let pixel_value = *self.index((i_matrix as usize, j_matrix as usize));
-                                    let kernel_value = *kernel.index((k_i as usize,k_j as usize));
-                                    kernel_value*pixel_value
-                                }
-                                //TODO: More behaviour on borders
-                                false => zero
-                            };
-
-                        *conv.index_mut((i as usize,j as usize)) += convolved_value;
-                    }
-                }
-
-            }
-        }
+        convolve(&self, &kernel,&mut conv,mat_rows,mat_cols);
 
         conv
     }
@@ -209,37 +170,65 @@ impl<N: RealField, R1: Dim +DimName, C1: Dim +DimName> MatrixMN<N, R1, C1> where
     ///
     /// # Arguments
     ///
-    /// * `kernel` - A Matrix with rows > 0 and cols > 0
+    /// * `kernel` - A Matrix with rows > 0 and cols > 0 and rows == cols
     ///
     /// # Errors
     /// Inputs must satisfy `self.shape() >= kernel.shape() > 0`.
     ///
-    pub fn smat_convolve_full<R2, C2, S1>(
+    pub fn smat_convolve_full<R2, C2, S2>(
         &self,
-        kernel: Matrix<N, R2, C2, S1>, //TODO: Would be nice to have an IsOdd trait. As kernels could be of even size atm
+        kernel: Matrix<N, R2, C2, S2>, //TODO: Would be nice to have an IsOdd trait. As kernels could be of even size atm
     ) -> MatrixMN<N, R1, C1>
         where
             R2: Dim,
             C2: Dim,
-            S1: Storage<N, R2, C2>
+            S2: Storage<N, R2, C2>
     {
+
+
         let mat_rows = self.nrows() as i32;
         let mat_cols = self.ncols() as i32;
+
+        let mut conv = MatrixMN::<N,R1,C1>::zeros();
+
+        convolve(&self, &kernel,&mut conv,mat_rows,mat_cols);
+
+
+        conv
+    }
+
+    //TODO: rest ?
+
+
+}
+
+
+fn convolve<N, R1, C1, R2, C2, S2>(mat: &MatrixMN<N,R1,C1>, kernel: &Matrix<N, R2, C2, S2>, target: &mut MatrixMN<N,R1,C1>, mat_rows: i32, mat_cols: i32)
+    where
+        N: RealField,
+        R1: Dim,
+        C1: Dim,
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<N, R2, C2>,
+        DefaultAllocator: Allocator<N, R1, C1>
+    {
+
         let ker_rows =  kernel.data.shape().0.value() as i32;
         let ker_cols = kernel.data.shape().1.value() as i32;
 
-        if ker_rows == 0 || ker_rows > mat_rows || ker_cols == 0||  ker_cols > mat_cols {
+        if ker_rows == 0 || ker_rows > mat_rows || ker_cols == 0 ||  ker_cols > mat_cols || ker_cols != ker_rows {
             panic!(
-                "convolve_full expects `self.nrows() >= kernel.nrows() > 0 and self.ncols() >= kernel.ncols() > 0 `, \
+                "convolve_full expects `self.nrows() >= kernel.nrows() > 0 and self.ncols() >= kernel.ncols() > 0 and kernel.nrows() == kernel.ncols() `, \
                 rows received {} and {} respectively. \
                 cols received {} and {} respectively.",
                 mat_rows, ker_rows, mat_cols, ker_cols);
         }
 
+
         let kernel_size = ker_rows;
         let kernel_min = kernel_size/2;
         let zero = zero::<N>();
-        let mut conv = MatrixMN::<N,R1,C1>::zeros();
 
         for i in 0..mat_rows {
             for j in 0..mat_cols {
@@ -254,7 +243,7 @@ impl<N: RealField, R1: Dim +DimName, C1: Dim +DimName> MatrixMN<N, R1, C1> where
                         let convolved_value =
                             match is_i_in_range && is_j_in_range {
                                 true => {
-                                    let pixel_value = *self.index((i_matrix as usize, j_matrix as usize));
+                                    let pixel_value = *mat.index((i_matrix as usize, j_matrix as usize));
                                     let kernel_value = *kernel.index((k_i as usize,k_j as usize));
                                     kernel_value*pixel_value
                                 }
@@ -262,17 +251,9 @@ impl<N: RealField, R1: Dim +DimName, C1: Dim +DimName> MatrixMN<N, R1, C1> where
                                 false => zero
                             };
 
-                        *conv.index_mut((i as usize,j as usize)) += convolved_value;
+                        *target.index_mut((i as usize,j as usize)) += convolved_value;
                     }
                 }
-
             }
         }
-
-        conv
     }
-
-    //TODO: rest ?
-
-
-}
