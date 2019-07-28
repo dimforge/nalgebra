@@ -2,9 +2,9 @@ use std::cmp;
 
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
-use crate::base::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum, DimName, DimMul};
+use crate::base::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum, DimName};
 use crate::storage::Storage;
-use crate::{zero, RealField, Vector, VectorN, U1, Scalar, Matrix, MatrixMN, DMatrix};
+use crate::{zero, RealField, Vector, VectorN, U1, Matrix, MatrixMN, DMatrix};
 use crate::alga::general::Field;
 
 impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
