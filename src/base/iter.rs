@@ -27,12 +27,30 @@ macro_rules! iterator {
                 let shape = storage.shape();
                 let strides = storage.strides();
                 let inner_offset = shape.0.value() * strides.0.value();
+                let size = shape.0.value() * shape.1.value();
                 let ptr = storage.$ptr();
+
+                // If we have a size of 0, 'ptr' must be
+                // dangling. Howver, 'inner_offset' might
+                // not be zero if only one dimension is zero, so
+                // we don't want to call 'offset'.
+                // This pointer will never actually get used
+                // if our size is '0', so it's fine to use
+                // 'ptr' for both the start and end.
+                let inner_end = if size == 0 {
+                    ptr
+                } else {
+                    // Safety:
+                    // If 'size' is non-zero, we know that 'ptr'
+                    // is not dangling, and 'inner_offset' must lie
+                    // within the allocation
+                    unsafe { ptr.offset(inner_offset as isize) }
+                };
 
                 $Name {
                     ptr: ptr,
                     inner_ptr: ptr,
-                    inner_end: unsafe { ptr.offset(inner_offset as isize) },
+                    inner_end,
                     size: shape.0.value() * shape.1.value(),
                     strides: strides,
                     _phantoms: PhantomData,
