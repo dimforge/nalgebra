@@ -4,10 +4,11 @@ use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum, DimName};
 use crate::storage::Storage;
-use crate::{zero, RealField, Vector, VectorN, U1, Matrix, MatrixMN, DMatrix};
-use crate::alga::general::Field;
+use crate::{RealField, Vector, VectorN, U1, Matrix, MatrixMN, DMatrix, Scalar, zero};
+use crate::alga::general::{ClosedMul, ClosedAdd, Identity, Additive};
+use crate::num::Zero;
 
-impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
+impl<N: Scalar + ClosedMul<N> + ClosedAdd<N> + Zero + Identity<Additive>, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
     /// Returns the convolution of the target vector and a kernel.s
     ///
     /// # Arguments
@@ -130,7 +131,7 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
     }
 }
 
-impl<N: RealField> DMatrix<N>  {
+impl<N:  Scalar + ClosedMul<N> + ClosedAdd<N> + Zero + Identity<Additive>> DMatrix<N>  {
     /// Returns the convolution of the target vector and a kernel.
     ///
     /// # Arguments
@@ -164,7 +165,7 @@ impl<N: RealField> DMatrix<N>  {
 
 }
 
-impl<N: RealField, R1: Dim + DimName, C1: Dim + DimName> MatrixMN<N, R1, C1> where DefaultAllocator: Allocator<N, R1, C1>  {
+impl<N:  Scalar + ClosedMul<N> + ClosedAdd<N> + Zero + Identity<Additive>, R1: Dim + DimName, C1: Dim + DimName> MatrixMN<N, R1, C1> where DefaultAllocator: Allocator<N, R1, C1>  {
     /// Returns the convolution of the target vector and a kernel.
     ///
     /// # Arguments
@@ -200,7 +201,7 @@ impl<N: RealField, R1: Dim + DimName, C1: Dim + DimName> MatrixMN<N, R1, C1> whe
 
 fn convolve<N, R1, C1, R2, C2, S2>(mat: &MatrixMN<N,R1,C1>, kernel: &Matrix<N, R2, C2, S2>, target: &mut MatrixMN<N,R1,C1>, mat_rows: i32, mat_cols: i32)
     where
-        N: RealField,
+        N:  Scalar + ClosedMul<N> + ClosedAdd<N> + Zero + Identity<Additive>,
         R1: Dim,
         C1: Dim,
         R2: Dim,
