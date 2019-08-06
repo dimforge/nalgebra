@@ -92,6 +92,27 @@ add_sub_impl!(Sub, sub, ClosedSub;
     self: Point<N, D>, right: Point<N, D>, Output = VectorSum<N, D, D>;
     self.coords - right.coords; );
 
+// Point + Point
+add_sub_impl!(Add, add, ClosedAdd;
+    (D, U1), (D, U1) for D: DimName;
+    self: &'a Point<N, D>, right: &'b Point<N, D>, Output = VectorSum<N, D, D>;
+    &self.coords + &right.coords; 'a, 'b);
+
+add_sub_impl!(Add, add, ClosedAdd;
+    (D, U1), (D, U1) for D: DimName;
+    self: &'a Point<N, D>, right: Point<N, D>, Output = VectorSum<N, D, D>;
+    &self.coords + right.coords; 'a);
+
+add_sub_impl!(Add, add, ClosedAdd;
+    (D, U1), (D, U1) for D: DimName;
+    self: Point<N, D>, right: &'b Point<N, D>, Output = VectorSum<N, D, D>;
+    self.coords + &right.coords; 'b);
+
+add_sub_impl!(Add, add, ClosedAdd;
+    (D, U1), (D, U1) for D: DimName;
+    self: Point<N, D>, right: Point<N, D>, Output = VectorSum<N, D, D>;
+    self.coords + right.coords; );
+
 // Point - Vector
 add_sub_impl!(Sub, sub, ClosedSub;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
