@@ -889,7 +889,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         max
     }
 
-    /// Returns the absolute value of the component with the largest absolute value. Propagates NaN.
+    /// Returns the absolute value of the component with the largest absolute value.
+    /// If the matrix contains any value for which `PartialOrd::partial_cmp` returns
+    /// `None`, the first encountered value that causes this is returned instead
+    /// (e.g. a `NaN` value).
     /// # Example
     /// ```
     /// # use nalgebra::Vector3;
@@ -910,7 +913,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.xcmp(|e| e.abs(), Ordering::Greater)
     }
 
-    /// Returns the the 1-norm of the complex component with the largest 1-norm. Propagates NaN.
+    /// Returns the the 1-norm of the complex component with the largest 1-norm.
+    /// If the matrix contains any value for which `PartialOrd::partial_cmp` returns
+    /// `None`, the first encountered value that causes this is returned instead
+    /// (e.g. a `NaN` value).
     /// # Example
     /// ```
     /// # use nalgebra::{Vector3, Complex};
@@ -936,7 +942,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.xcmp(|e| e.norm1(), Ordering::Greater)
     }
 
-    /// Returns the component with the largest value. Propagates NaN.
+    /// Returns the component with the largest value.
+    /// If the matrix contains any value for which `PartialOrd::partial_cmp` returns
+    /// `None`, the first encountered value that causes this is returned instead
+    /// (e.g. a `NaN` value).
     /// # Example
     /// ```
     /// # use nalgebra::Vector3;
@@ -957,7 +966,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.xcmp(|e| e, Ordering::Greater)
     }
 
-    /// Returns the absolute value of the component with the smallest absolute value. Propagates NaN.
+    /// Returns the absolute value of the component with the smallest absolute value.
+    /// If the matrix contains any value for which `PartialOrd::partial_cmp` returns
+    /// `None`, the first encountered value that causes this is returned instead
+    /// (e.g. a `NaN` value).
     /// # Example
     /// ```
     /// # use nalgebra::Vector3;
@@ -978,7 +990,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.xcmp(|e| e.abs(), Ordering::Less)
     }
 
-    /// Returns the the 1-norm of the complex component with the smallest 1-norm. Propagates NaN.
+    /// Returns the the 1-norm of the complex component with the smallest 1-norm.
+    /// If the matrix contains any value for which `PartialOrd::partial_cmp` returns
+    /// `None`, the first encountered value that causes this is returned instead
+    /// (e.g. a `NaN` value).
     /// # Example
     /// ```
     /// # use nalgebra::{Vector3, Complex};
@@ -1004,7 +1019,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.xcmp(|e| e.norm1(), Ordering::Less)
     }
 
-    /// Returns the component with the smallest value. Propagates NaN.
+    /// Returns the component with the smallest value.
+    /// If the matrix contains any value for which `PartialOrd::partial_cmp` returns
+    /// `None`, the first encountered value that causes this is returned instead
+    /// (e.g. a `NaN` value).
     /// # Example
     /// ```
     /// # use nalgebra::Vector3;
