@@ -10,5 +10,8 @@ mod matrix_slice;
 mod mint;
 mod serde;
 
+#[cfg(feature = "compare")]
+mod matrixcompare;
+
 #[cfg(feature = "arbitrary")]
 pub mod helper;

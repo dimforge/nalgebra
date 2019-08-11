@@ -159,6 +159,30 @@ impl<N: Scalar, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<N, R, C, 
     }
 }
 
+#[cfg(feature = "compare")]
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>>
+    matrixcompare_core::Matrix<N> for Matrix<N, R, C, S> {
+    fn rows(&self) -> usize {
+        self.nrows()
+    }
+
+    fn cols(&self) -> usize {
+        self.ncols()
+    }
+
+    fn access(&self) -> matrixcompare_core::Access<N> {
+        matrixcompare_core::Access::Dense(self)
+    }
+}
+
+#[cfg(feature = "compare")]
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>>
+    matrixcompare_core::DenseAccess<N> for Matrix<N, R, C, S> {
+    fn fetch_single(&self, row: usize, col: usize) -> N {
+        self.index((row, col)).clone()
+    }
+}
+
 impl<N: Scalar, R: Dim, C: Dim, S> Matrix<N, R, C, S> {
     /// Creates a new matrix with the given data without statically checking that the matrix
     /// dimension matches the storage dimension.
