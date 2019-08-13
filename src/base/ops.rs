@@ -876,10 +876,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for e in iter {
             let ae = abs(*e);
 
-            if let Some(ae_ordering) = ae.partial_cmp(&max) {
-                if ae_ordering == ordering {
+            if ae.partial_cmp(&max) == Some(ordering) {
                     max = ae;
-                }
             }
         }
 
