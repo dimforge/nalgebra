@@ -871,10 +871,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     fn xcmp<N2>(&self, abs: impl Fn(N) -> N2, ordering: Ordering) -> N2
         where N2: Scalar + PartialOrd + Zero {
         let mut iter = self.iter();
-        let mut max = match iter.next() {
-            Some(first) => abs(*first),
-            None => { return N2::zero(); }
-        };
+        let mut max = iter.next().cloned().map_or(N2::zero(), &abs);
 
         for e in iter {
             let ae = abs(*e);
