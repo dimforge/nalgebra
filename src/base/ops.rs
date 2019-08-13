@@ -870,9 +870,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline(always)]
     fn xcmp<N2>(&self, abs: impl Fn(N) -> N2, ordering: Ordering) -> N2
         where N2: Scalar + PartialOrd + Zero {
-        assert!(self.len() > 0, "Empty matrix supplied to min/max function.");
         let mut iter = self.iter();
-        let mut max = abs(iter.next().cloned().unwrap());
+        let mut max = match iter.next() {
+            Some(first) => abs(*first),
+            None => { return N2::zero(); }
+        };
 
         for e in iter {
             let ae = abs(*e);
@@ -881,8 +883,6 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                 if ae_ordering == ordering {
                     max = ae;
                 }
-            } else {
-                return ae;
             }
         }
 
@@ -890,22 +890,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Returns the absolute value of the component with the largest absolute value.
-    /// If the matrix contains any value for which `PartialOrd::partial_cmp` returns
-    /// `None`, the first encountered value that causes this is returned instead
-    /// (e.g. a `NaN` value).
     /// # Example
     /// ```
     /// # use nalgebra::Vector3;
     /// assert_eq!(Vector3::new(-1.0, 2.0, 3.0).amax(), 3.0);
     /// assert_eq!(Vector3::new(-1.0, -2.0, -3.0).amax(), 3.0);
-    /// assert!(Vector3::new(1.0, std::f64::NAN, 3.0).amax().is_nan());
-    /// ```
-    ///
-    /// # Panics
-    /// Panics if the matrix is empty:
-    /// ```should_panic
-    /// # use nalgebra::DMatrix;
-    /// let min = DMatrix::<f64>::zeros(0,1).amax(); // panics!
     /// ```
     #[inline]
     pub fn amax(&self) -> N
@@ -914,9 +903,6 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Returns the the 1-norm of the complex component with the largest 1-norm.
-    /// If the matrix contains any value for which `PartialOrd::partial_cmp` returns
-    /// `None`, the first encountered value that causes this is returned instead
-    /// (e.g. a `NaN` value).
     /// # Example
     /// ```
     /// # use nalgebra::{Vector3, Complex};
@@ -924,17 +910,6 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///     Complex::new(-3.0, -2.0),
     ///     Complex::new(1.0, 2.0),
     ///     Complex::new(1.0, 3.0)).camax(), 5.0);
-    /// assert!(Vector3::new(
-    ///     Complex::new(-3.0, -2.0),
-    ///     Complex::new(1.0, std::f64::NAN),
-    ///     Complex::new(1.0, 3.0)).camax().is_nan());
-    /// ```
-    ///
-    /// # Panics
-    /// Panics if the matrix is empty:
-    /// ```should_panic
-    /// # use nalgebra::{DMatrix, Complex};
-    /// let min = DMatrix::<Complex<f64>>::zeros(0,1).camax(); // panics!
     /// ```
     #[inline]
     pub fn camax(&self) -> N::RealField
@@ -943,22 +918,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Returns the component with the largest value.
-    /// If the matrix contains any value for which `PartialOrd::partial_cmp` returns
-    /// `None`, the first encountered value that causes this is returned instead
-    /// (e.g. a `NaN` value).
     /// # Example
     /// ```
     /// # use nalgebra::Vector3;
     /// assert_eq!(Vector3::new(-1.0, 2.0, 3.0).max(), 3.0);
     /// assert_eq!(Vector3::new(-1.0, -2.0, -3.0).max(), -1.0);
-    /// assert!(Vector3::new(1.0, std::f64::NAN, 3.0).max().is_nan());
-    /// ```
-    ///
-    /// # Panics
-    /// Panics if the matrix is empty:
-    /// ```should_panic
-    /// # use nalgebra::DMatrix;
-    /// let min = DMatrix::<f64>::zeros(0,1).max(); // panics!
     /// ```
     #[inline]
     pub fn max(&self) -> N
@@ -967,22 +931,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Returns the absolute value of the component with the smallest absolute value.
-    /// If the matrix contains any value for which `PartialOrd::partial_cmp` returns
-    /// `None`, the first encountered value that causes this is returned instead
-    /// (e.g. a `NaN` value).
     /// # Example
     /// ```
     /// # use nalgebra::Vector3;
     /// assert_eq!(Vector3::new(-1.0, 2.0, -3.0).amin(), 1.0);
     /// assert_eq!(Vector3::new(10.0, 2.0, 30.0).amin(), 2.0);
-    /// assert!(Vector3::new(-1.0, std::f64::NAN, 3.0).amin().is_nan());
-    /// ```
-    ///
-    /// # Panics
-    /// Panics if the matrix is empty:
-    /// ```should_panic
-    /// # use nalgebra::DMatrix;
-    /// let min = DMatrix::<f64>::zeros(0,1).amin(); // panics!
     /// ```
     #[inline]
     pub fn amin(&self) -> N
@@ -991,9 +944,6 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Returns the the 1-norm of the complex component with the smallest 1-norm.
-    /// If the matrix contains any value for which `PartialOrd::partial_cmp` returns
-    /// `None`, the first encountered value that causes this is returned instead
-    /// (e.g. a `NaN` value).
     /// # Example
     /// ```
     /// # use nalgebra::{Vector3, Complex};
@@ -1001,17 +951,6 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///     Complex::new(-3.0, -2.0),
     ///     Complex::new(1.0, 2.0),
     ///     Complex::new(1.0, 3.0)).camin(), 3.0);
-    /// assert!(Vector3::new(
-    ///     Complex::new(-3.0, -2.0),
-    ///     Complex::new(1.0, std::f64::NAN),
-    ///     Complex::new(1.0, 3.0)).camin().is_nan());
-    /// ```
-    ///
-    /// # Panics
-    /// Panics if the matrix is empty:
-    /// ```should_panic
-    /// # use nalgebra::{DMatrix, Complex};
-    /// let min = DMatrix::<Complex<f64>>::zeros(0,1).camin(); // panics!
     /// ```
     #[inline]
     pub fn camin(&self) -> N::RealField
@@ -1020,22 +959,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Returns the component with the smallest value.
-    /// If the matrix contains any value for which `PartialOrd::partial_cmp` returns
-    /// `None`, the first encountered value that causes this is returned instead
-    /// (e.g. a `NaN` value).
     /// # Example
     /// ```
     /// # use nalgebra::Vector3;
     /// assert_eq!(Vector3::new(-1.0, 2.0, 3.0).min(), -1.0);
     /// assert_eq!(Vector3::new(1.0, 2.0, 3.0).min(), 1.0);
-    /// assert!(Vector3::new(1.0, std::f64::NAN, 3.0).min().is_nan());
-    /// ```
-    ///
-    /// # Panics
-    /// Panics if the matrix is empty:
-    /// ```should_panic
-    /// # use nalgebra::DMatrix;
-    /// let min = DMatrix::<f64>::zeros(0,1).min(); // panics!
     /// ```
     #[inline]
     pub fn min(&self) -> N
