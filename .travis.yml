@@ -15,8 +15,8 @@ addons:
   apt:
     packages:
       - gfortran
-      - libblas3gf
-      - liblapack3gf
+      - libblas-dev
+      - liblapack-dev
 script:
     - rustc --version
     - cargo --version
