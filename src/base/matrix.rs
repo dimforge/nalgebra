@@ -1430,6 +1430,89 @@ where
     }
 }
 
+impl<N, R: Dim, C: Dim, S> fmt::LowerExp for Matrix<N, R, C, S>
+    where
+        N: Scalar + fmt::LowerExp,
+        S: Storage<N, R, C>,
+        DefaultAllocator: Allocator<usize, R, C>,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        #[cfg(feature = "std")]
+        fn val_width<N: Scalar + fmt::LowerExp>(val: N, f: &mut fmt::Formatter) -> usize {
+            match f.precision() {
+                Some(precision) => format!("{:.1$e}", val, precision).chars().count(),
+                None => format!("{:e}", val).chars().count(),
+            }
+        }
+
+        #[cfg(not(feature = "std"))]
+        fn val_width<N: Scalar + fmt::LowerExp>(_: N, _: &mut fmt::Formatter) -> usize {
+            4
+        }
+
+        let (nrows, ncols) = self.data.shape();
+
+        if nrows.value() == 0 || ncols.value() == 0 {
+            return write!(f, "[ ]");
+        }
+
+        let mut max_length = 0;
+        let mut lengths: MatrixMN<usize, R, C> = Matrix::zeros_generic(nrows, ncols);
+        let (nrows, ncols) = self.shape();
+
+        for i in 0..nrows {
+            for j in 0..ncols {
+                lengths[(i, j)] = val_width(self[(i, j)], f);
+                max_length = crate::max(max_length, lengths[(i, j)]);
+            }
+        }
+
+        let max_length_with_space = max_length + 1;
+
+        writeln!(f)?;
+        writeln!(
+            f,
+            "  ┌ {:>width$} ┐",
+            "",
+            width = max_length_with_space * ncols - 1
+        )?;
+
+        for i in 0..nrows {
+            write!(f, "  │")?;
+            for j in 0..ncols {
+                let number_length = lengths[(i, j)] + 1;
+                let pad = max_length_with_space - number_length;
+                write!(f, " {:>thepad$}", "", thepad = pad)?;
+                match f.precision() {
+                    Some(precision) => write!(f, "{:.1$e}", (*self)[(i, j)], precision)?,
+                    None => write!(f, "{:e}", (*self)[(i, j)])?,
+                }
+            }
+            writeln!(f, " │")?;
+        }
+
+        writeln!(
+            f,
+            "  └ {:>width$} ┘",
+            "",
+            width = max_length_with_space * ncols - 1
+        )?;
+        writeln!(f)
+    }
+}
+
+#[test]
+fn lower_exp() {
+    let test = crate::Matrix2::new(1e6, 2e5, 2e-5, 1.);
+    assert_eq!(format!("{:e}", test), r"
+  ┌           ┐
+  │  1e6  2e5 │
+  │ 2e-5  1e0 │
+  └           ┘
+
+")
+}
+
 impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The perpendicular product between two 2D column vectors, i.e. `a.x * b.y - a.y * b.x`.
     #[inline]
