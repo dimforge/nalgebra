@@ -1359,147 +1359,88 @@ where
     }
 }
 
-impl<N, R: Dim, C: Dim, S> fmt::Display for Matrix<N, R, C, S>
-where
-    N: Scalar + fmt::Display,
-    S: Storage<N, R, C>,
-    DefaultAllocator: Allocator<usize, R, C>,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        #[cfg(feature = "std")]
-        fn val_width<N: Scalar + fmt::Display>(val: N, f: &mut fmt::Formatter) -> usize {
-            match f.precision() {
-                Some(precision) => format!("{:.1$}", val, precision).chars().count(),
-                None => format!("{}", val).chars().count(),
-            }
-        }
-
-        #[cfg(not(feature = "std"))]
-        fn val_width<N: Scalar + fmt::Display>(_: N, _: &mut fmt::Formatter) -> usize {
-            4
-        }
-
-        let (nrows, ncols) = self.data.shape();
-
-        if nrows.value() == 0 || ncols.value() == 0 {
-            return write!(f, "[ ]");
-        }
-
-        let mut max_length = 0;
-        let mut lengths: MatrixMN<usize, R, C> = Matrix::zeros_generic(nrows, ncols);
-        let (nrows, ncols) = self.shape();
-
-        for i in 0..nrows {
-            for j in 0..ncols {
-                lengths[(i, j)] = val_width(self[(i, j)], f);
-                max_length = crate::max(max_length, lengths[(i, j)]);
-            }
-        }
-
-        let max_length_with_space = max_length + 1;
-
-        writeln!(f)?;
-        writeln!(
-            f,
-            "  ┌ {:>width$} ┐",
-            "",
-            width = max_length_with_space * ncols - 1
-        )?;
-
-        for i in 0..nrows {
-            write!(f, "  │")?;
-            for j in 0..ncols {
-                let number_length = lengths[(i, j)] + 1;
-                let pad = max_length_with_space - number_length;
-                write!(f, " {:>thepad$}", "", thepad = pad)?;
-                match f.precision() {
-                    Some(precision) => write!(f, "{:.1$}", (*self)[(i, j)], precision)?,
-                    None => write!(f, "{}", (*self)[(i, j)])?,
+macro_rules! impl_fmt {
+    ($trait: path, $fmt_str_without_precision: expr, $fmt_str_with_precision: expr) => {
+        impl<N, R: Dim, C: Dim, S> $trait for Matrix<N, R, C, S>
+        where
+            N: Scalar + $trait,
+            S: Storage<N, R, C>,
+            DefaultAllocator: Allocator<usize, R, C>,
+        {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                #[cfg(feature = "std")]
+                fn val_width<N: Scalar + $trait>(val: N, f: &mut fmt::Formatter) -> usize {
+                    match f.precision() {
+                        Some(precision) => format!($fmt_str_with_precision, val, precision).chars().count(),
+                        None => format!($fmt_str_without_precision, val).chars().count(),
+                    }
                 }
-            }
-            writeln!(f, " │")?;
-        }
 
-        writeln!(
-            f,
-            "  └ {:>width$} ┘",
-            "",
-            width = max_length_with_space * ncols - 1
-        )?;
-        writeln!(f)
-    }
-}
-
-impl<N, R: Dim, C: Dim, S> fmt::LowerExp for Matrix<N, R, C, S>
-    where
-        N: Scalar + fmt::LowerExp,
-        S: Storage<N, R, C>,
-        DefaultAllocator: Allocator<usize, R, C>,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        #[cfg(feature = "std")]
-        fn val_width<N: Scalar + fmt::LowerExp>(val: N, f: &mut fmt::Formatter) -> usize {
-            match f.precision() {
-                Some(precision) => format!("{:.1$e}", val, precision).chars().count(),
-                None => format!("{:e}", val).chars().count(),
-            }
-        }
-
-        #[cfg(not(feature = "std"))]
-        fn val_width<N: Scalar + fmt::LowerExp>(_: N, _: &mut fmt::Formatter) -> usize {
-            4
-        }
-
-        let (nrows, ncols) = self.data.shape();
-
-        if nrows.value() == 0 || ncols.value() == 0 {
-            return write!(f, "[ ]");
-        }
-
-        let mut max_length = 0;
-        let mut lengths: MatrixMN<usize, R, C> = Matrix::zeros_generic(nrows, ncols);
-        let (nrows, ncols) = self.shape();
-
-        for i in 0..nrows {
-            for j in 0..ncols {
-                lengths[(i, j)] = val_width(self[(i, j)], f);
-                max_length = crate::max(max_length, lengths[(i, j)]);
-            }
-        }
-
-        let max_length_with_space = max_length + 1;
-
-        writeln!(f)?;
-        writeln!(
-            f,
-            "  ┌ {:>width$} ┐",
-            "",
-            width = max_length_with_space * ncols - 1
-        )?;
-
-        for i in 0..nrows {
-            write!(f, "  │")?;
-            for j in 0..ncols {
-                let number_length = lengths[(i, j)] + 1;
-                let pad = max_length_with_space - number_length;
-                write!(f, " {:>thepad$}", "", thepad = pad)?;
-                match f.precision() {
-                    Some(precision) => write!(f, "{:.1$e}", (*self)[(i, j)], precision)?,
-                    None => write!(f, "{:e}", (*self)[(i, j)])?,
+                #[cfg(not(feature = "std"))]
+                fn val_width<N: Scalar + $trait>(_: N, _: &mut fmt::Formatter) -> usize {
+                    4
                 }
-            }
-            writeln!(f, " │")?;
-        }
 
-        writeln!(
-            f,
-            "  └ {:>width$} ┘",
-            "",
-            width = max_length_with_space * ncols - 1
-        )?;
-        writeln!(f)
-    }
+                let (nrows, ncols) = self.data.shape();
+
+                if nrows.value() == 0 || ncols.value() == 0 {
+                    return write!(f, "[ ]");
+                }
+
+                let mut max_length = 0;
+                let mut lengths: MatrixMN<usize, R, C> = Matrix::zeros_generic(nrows, ncols);
+                let (nrows, ncols) = self.shape();
+
+                for i in 0..nrows {
+                    for j in 0..ncols {
+                        lengths[(i, j)] = val_width(self[(i, j)], f);
+                        max_length = crate::max(max_length, lengths[(i, j)]);
+                    }
+                }
+
+                let max_length_with_space = max_length + 1;
+
+                writeln!(f)?;
+                writeln!(
+                    f,
+                    "  ┌ {:>width$} ┐",
+                    "",
+                    width = max_length_with_space * ncols - 1
+                )?;
+
+                for i in 0..nrows {
+                    write!(f, "  │")?;
+                    for j in 0..ncols {
+                        let number_length = lengths[(i, j)] + 1;
+                        let pad = max_length_with_space - number_length;
+                        write!(f, " {:>thepad$}", "", thepad = pad)?;
+                        match f.precision() {
+                            Some(precision) => write!(f, $fmt_str_with_precision, (*self)[(i, j)], precision)?,
+                            None => write!(f, $fmt_str_without_precision, (*self)[(i, j)])?,
+                        }
+                    }
+                    writeln!(f, " │")?;
+                }
+
+                writeln!(
+                    f,
+                    "  └ {:>width$} ┘",
+                    "",
+                    width = max_length_with_space * ncols - 1
+                )?;
+                writeln!(f)
+            }
+        }
+    };
 }
+impl_fmt!(fmt::Display, "{}", "{:.1$}");
+impl_fmt!(fmt::LowerExp, "{:e}", "{:.1$e}");
+impl_fmt!(fmt::UpperExp, "{:E}", "{:.1$E}");
+impl_fmt!(fmt::Octal, "{:o}", "{:1$o}");
+impl_fmt!(fmt::LowerHex, "{:x}", "{:1$x}");
+impl_fmt!(fmt::UpperHex, "{:X}", "{:1$X}");
+impl_fmt!(fmt::Binary, "{:b}", "{:.1$b}");
+impl_fmt!(fmt::Pointer, "{:p}", "{:.1$p}");
 
 #[test]
 fn lower_exp() {
