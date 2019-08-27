@@ -4,6 +4,10 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.19.0] - WIP
+### Added
+  * `.remove_rows_at` and `remove_columns_at` which removes a set of rows or columns (specified by indices) from a matrix.
+
 ## [0.18.0]
 This release adds full complex number support to nalgebra. This includes all common vector/matrix operations as well
 as matrix decomposition. This excludes geometric type (like `Isometry`, `Rotation`, `Translation`, etc.) from the
