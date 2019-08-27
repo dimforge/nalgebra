@@ -10,6 +10,10 @@ pub use self::matrix_clip_space::{
     perspective_fov, perspective_fov_lh,perspective_fov_lh_no, perspective_fov_lh_zo,
     perspective_fov_no, perspective_fov_rh, perspective_fov_rh_no, perspective_fov_rh_zo,
     perspective_fov_zo,
+
+    infinite_perspective_rh_no, infinite_perspective_rh_zo,
+
+    reversed_perspective_rh_zo, reversed_infinite_perspective_rh_zo,
 };
 pub use self::matrix_projection::{
     pick_matrix, project, project_no, project_zo, unproject, unproject_no, unproject_zo,
