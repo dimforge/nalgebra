@@ -358,10 +358,10 @@ where DefaultAllocator: Allocator<N, D, D>
             + unsafe { *self.get_unchecked((D::dim() - 1, D::dim() - 1)) };
 
         if !n.is_zero() {
-            return transform * (pt / n) + translation;
+            (transform * pt + translation) / n
+        } else {
+            transform * pt + translation
         }
-
-        transform * pt + translation
     }
 }
 
