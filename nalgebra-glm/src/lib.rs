@@ -155,7 +155,8 @@ pub use ext::{
     quat_equal, quat_equal_eps, quat_exp, quat_inverse, quat_length, quat_lerp, quat_log,
     quat_magnitude, quat_normalize, quat_not_equal, quat_not_equal_eps, quat_pow, quat_rotate,
     quat_slerp, rotate, rotate_x, rotate_y, rotate_z, scale, translate, unproject, unproject_no,
-    unproject_zo,
+    unproject_zo, infinite_perspective_rh_no, infinite_perspective_rh_zo,
+    reversed_perspective_rh_zo, reversed_infinite_perspective_rh_zo,
 };
 pub use gtc::{
     affine_inverse, column, e, euler, four_over_pi, golden_ratio, half_pi, inverse_transpose,
