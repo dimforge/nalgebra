@@ -918,10 +918,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// # use nalgebra::Vector3;
     /// assert_eq!(Vector3::new(-1.0, 2.0, 3.0).max(), 3.0);
     /// assert_eq!(Vector3::new(-1.0, -2.0, -3.0).max(), -1.0);
+    /// assert_eq!(Vector3::<u32>::new(5, 2, 3).max(), 5);
     /// ```
     #[inline]
     pub fn max(&self) -> N
-        where N: PartialOrd + Signed {
+        where N: PartialOrd + Zero {
         self.xcmp(|e| e, Ordering::Greater)
     }
 
@@ -959,10 +960,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// # use nalgebra::Vector3;
     /// assert_eq!(Vector3::new(-1.0, 2.0, 3.0).min(), -1.0);
     /// assert_eq!(Vector3::new(1.0, 2.0, 3.0).min(), 1.0);
+    /// assert_eq!(Vector3::<u32>::new(5, 2, 3).min(), 2);
     /// ```
     #[inline]
     pub fn min(&self) -> N
-        where N: PartialOrd + Signed {
+        where N: PartialOrd + Zero {
         self.xcmp(|e| e, Ordering::Less)
     }
 }
