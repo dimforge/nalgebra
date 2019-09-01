@@ -565,7 +565,14 @@ where
         );
 
         if ncols2 == 0 {
-            self.fill(N::zero());
+            // NOTE: we can't just always multiply by beta
+            // because we documented the guaranty that `self` is
+            // never read if `beta` is zero.
+            if beta.is_zero() {
+                self.fill(N::zero());
+            } else {
+                *self *= beta;
+            }
             return;
         }
 
@@ -992,97 +999,108 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
         #[cfg(feature = "std")]
         {
-            // matrixmultiply can be used only if the std feature is available.
-            let nrows1 = self.nrows();
-            let (nrows2, ncols2) = a.shape();
-            let (nrows3, ncols3) = b.shape();
-
-            assert_eq!(
-                ncols2, nrows3,
-                "gemm: dimensions mismatch for multiplication."
-            );
-            assert_eq!(
-                (nrows1, ncols1),
-                (nrows2, ncols3),
-                "gemm: dimensions mismatch for addition."
-            );
-
-
-            if a.ncols() == 0 {
-                self.fill(N::zero());
-                return;
-            }
-
             // We assume large matrices will be Dynamic but small matrices static.
             // We could use matrixmultiply for large statically-sized matrices but the performance
             // threshold to activate it would be different from SMALL_DIM because our code optimizes
             // better for statically-sized matrices.
-            let is_dynamic = R1::is::<Dynamic>()
+            if R1::is::<Dynamic>()
                 || C1::is::<Dynamic>()
                 || R2::is::<Dynamic>()
                 || C2::is::<Dynamic>()
                 || R3::is::<Dynamic>()
-                || C3::is::<Dynamic>();
-            // Threshold determined empirically.
-            const SMALL_DIM: usize = 5;
+                || C3::is::<Dynamic>() {
+                // matrixmultiply can be used only if the std feature is available.
+                let nrows1 = self.nrows();
+                let (nrows2, ncols2) = a.shape();
+                let (nrows3, ncols3) = b.shape();
 
-            if is_dynamic
-                && nrows1 > SMALL_DIM
-                && ncols1 > SMALL_DIM
-                && nrows2 > SMALL_DIM
-                && ncols2 > SMALL_DIM
-            {
-                if N::is::<f32>() {
-                    let (rsa, csa) = a.strides();
-                    let (rsb, csb) = b.strides();
-                    let (rsc, csc) = self.strides();
+                // Threshold determined empirically.
+                const SMALL_DIM: usize = 5;
 
-                    unsafe {
-                        matrixmultiply::sgemm(
-                            nrows2,
-                            ncols2,
-                            ncols3,
-                            mem::transmute_copy(&alpha),
-                            a.data.ptr() as *const f32,
-                            rsa as isize,
-                            csa as isize,
-                            b.data.ptr() as *const f32,
-                            rsb as isize,
-                            csb as isize,
-                            mem::transmute_copy(&beta),
-                            self.data.ptr_mut() as *mut f32,
-                            rsc as isize,
-                            csc as isize,
-                        );
+                if nrows1 > SMALL_DIM
+                    && ncols1 > SMALL_DIM
+                    && nrows2 > SMALL_DIM
+                    && ncols2 > SMALL_DIM
+                {
+                    assert_eq!(
+                        ncols2, nrows3,
+                        "gemm: dimensions mismatch for multiplication."
+                    );
+                    assert_eq!(
+                        (nrows1, ncols1),
+                        (nrows2, ncols3),
+                        "gemm: dimensions mismatch for addition."
+                    );
+
+                    // NOTE: this case should never happen because we enter this
+                    // codepath only when ncols2 > SMALL_DIM. Though we keep this
+                    // here just in case if in the future we change the conditions to
+                    // enter this codepath.
+                    if ncols2 == 0 {
+                        // NOTE: we can't just always multiply by beta
+                        // because we documented the guaranty that `self` is
+                        // never read if `beta` is zero.
+                        if beta.is_zero() {
+                            self.fill(N::zero());
+                        } else {
+                            *self *= beta;
+                        }
+                        return;
                     }
-                    return;
-                } else if N::is::<f64>() {
-                    let (rsa, csa) = a.strides();
-                    let (rsb, csb) = b.strides();
-                    let (rsc, csc) = self.strides();
 
-                    unsafe {
-                        matrixmultiply::dgemm(
-                            nrows2,
-                            ncols2,
-                            ncols3,
-                            mem::transmute_copy(&alpha),
-                            a.data.ptr() as *const f64,
-                            rsa as isize,
-                            csa as isize,
-                            b.data.ptr() as *const f64,
-                            rsb as isize,
-                            csb as isize,
-                            mem::transmute_copy(&beta),
-                            self.data.ptr_mut() as *mut f64,
-                            rsc as isize,
-                            csc as isize,
-                        );
+                    if N::is::<f32>() {
+                        let (rsa, csa) = a.strides();
+                        let (rsb, csb) = b.strides();
+                        let (rsc, csc) = self.strides();
+
+                        unsafe {
+                            matrixmultiply::sgemm(
+                                nrows2,
+                                ncols2,
+                                ncols3,
+                                mem::transmute_copy(&alpha),
+                                a.data.ptr() as *const f32,
+                                rsa as isize,
+                                csa as isize,
+                                b.data.ptr() as *const f32,
+                                rsb as isize,
+                                csb as isize,
+                                mem::transmute_copy(&beta),
+                                self.data.ptr_mut() as *mut f32,
+                                rsc as isize,
+                                csc as isize,
+                            );
+                        }
+                        return;
+                    } else if N::is::<f64>() {
+                        let (rsa, csa) = a.strides();
+                        let (rsb, csb) = b.strides();
+                        let (rsc, csc) = self.strides();
+
+                        unsafe {
+                            matrixmultiply::dgemm(
+                                nrows2,
+                                ncols2,
+                                ncols3,
+                                mem::transmute_copy(&alpha),
+                                a.data.ptr() as *const f64,
+                                rsa as isize,
+                                csa as isize,
+                                b.data.ptr() as *const f64,
+                                rsb as isize,
+                                csb as isize,
+                                mem::transmute_copy(&beta),
+                                self.data.ptr_mut() as *mut f64,
+                                rsc as isize,
+                                csc as isize,
+                            );
+                        }
+                        return;
                     }
-                    return;
                 }
             }
         }
+
 
         for j1 in 0..ncols1 {
             // FIXME: avoid bound checks.
