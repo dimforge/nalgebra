@@ -565,6 +565,7 @@ where
         );
 
         if ncols2 == 0 {
+            self.fill(N::zero());
             return;
         }
 
@@ -1005,6 +1006,12 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
                 (nrows2, ncols3),
                 "gemm: dimensions mismatch for addition."
             );
+
+
+            if a.ncols() == 0 {
+                self.fill(N::zero());
+                return;
+            }
 
             // We assume large matrices will be Dynamic but small matrices static.
             // We could use matrixmultiply for large statically-sized matrices but the performance
