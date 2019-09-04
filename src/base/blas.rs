@@ -473,7 +473,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul {
     for i in 0..len {
         unsafe {
             let y = y.get_unchecked_mut(i * stride1);
-            *y = a * *x.get_unchecked(i * stride2) + beta * *y;
+            *y = *x.get_unchecked(i * stride2) * a + *y * beta;
         }
     }
 }
@@ -482,7 +482,7 @@ fn array_ax<N>(y: &mut [N], a: N, x: &[N], stride1: usize, stride2: usize, len: 
 where N: Scalar + Zero + ClosedAdd + ClosedMul {
     for i in 0..len {
         unsafe {
-            *y.get_unchecked_mut(i * stride1) = a * *x.get_unchecked(i * stride2);
+            *y.get_unchecked_mut(i * stride1) = *x.get_unchecked(i * stride2) * a;
         }
     }
 }
@@ -579,13 +579,13 @@ where
         // FIXME: avoid bound checks.
         let col2 = a.column(0);
         let val = unsafe { *x.vget_unchecked(0) };
-        self.axpy(alpha * val, &col2, beta);
+        self.axpy(val * alpha, &col2, beta);
 
         for j in 1..ncols2 {
             let col2 = a.column(j);
             let val = unsafe { *x.vget_unchecked(j) };
 
-            self.axpy(alpha * val, &col2, N::one());
+            self.axpy(val * alpha, &col2, N::one());
         }
     }
 
@@ -624,7 +624,7 @@ where
         // FIXME: avoid bound checks.
         let col2 = a.column(0);
         let val = unsafe { *x.vget_unchecked(0) };
-        self.axpy(alpha * val, &col2, beta);
+        self.axpy(val * alpha, &col2, beta);
         self[0] += alpha * dot(&a.slice_range(1.., 0), &x.rows_range(1..));
 
         for j in 1..dim2 {
@@ -637,7 +637,7 @@ where
                 *self.vget_unchecked_mut(j) += alpha * dot;
             }
             self.rows_range_mut(j + 1..)
-                .axpy(alpha * val, &col2.rows_range(j + 1..), N::one());
+                .axpy(val * alpha, &col2.rows_range(j + 1..), N::one());
         }
     }
 
@@ -890,7 +890,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         for j in 0..ncols1 {
             // FIXME: avoid bound checks.
             let val = unsafe { conjugate(*y.vget_unchecked(j)) };
-            self.column_mut(j).axpy(alpha * val, x, beta);
+            self.column_mut(j).axpy(val * alpha, x, beta);
         }
     }
 
@@ -1256,7 +1256,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
             let subdim = Dynamic::new(dim1 - j);
             // FIXME: avoid bound checks.
             self.generic_slice_mut((j, j), (subdim, U1)).axpy(
-                alpha * val,
+                val * alpha,
                 &x.rows_range(j..),
                 beta,
             );
