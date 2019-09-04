@@ -696,7 +696,7 @@ impl<N: RealField> UnitQuaternion<N> {
     /// let q3 = UnitQuaternion::from_euler_angles(0.1, 0.0, 0.0);
     ///
     /// let quat_vec = vec![q1, q2, q3];
-    /// let q_mean = UnitQuaternion::mean_of(zero_vec);
+    /// let q_mean = UnitQuaternion::mean_of(quat_vec);
     ///
     /// let euler_angles_mean = q_mean.euler_angles();
     /// assert_relative_eq!(euler_angles_mean.0, 0.0, epsilon = 1.0e-7)
