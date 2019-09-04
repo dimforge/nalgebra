@@ -677,7 +677,10 @@ impl<N: RealField> UnitQuaternion<N> {
         Self::new_eps(axisangle, eps)
     }
 
-    /// Create the mean unit quaternion from a vector of unit quaternions.
+    /// Create the mean unit quaternion from a data structure implementing IntoIterator
+    /// returning unit quaternions.
+    ///
+    /// The method will panic if the iterator does not return any quaternions.
     ///
     /// Algorithm from: Oshman, Yaakov, and Avishy Carmi. "Attitude estimation from vector
     /// observations using a genetic-algorithm-embedded quaternion particle filter." Journal of
@@ -693,22 +696,23 @@ impl<N: RealField> UnitQuaternion<N> {
     /// let q3 = UnitQuaternion::from_euler_angles(0.1, 0.0, 0.0);
     ///
     /// let quat_vec = vec![q1, q2, q3];
-    /// let q_mean = UnitQuaternion::quaternions_mean(&quat_vec);
+    /// let q_mean = UnitQuaternion::mean_of(zero_vec);
     ///
     /// let euler_angles_mean = q_mean.euler_angles();
     /// assert_relative_eq!(euler_angles_mean.0, 0.0, epsilon = 1.0e-7)
     /// ```
     #[inline]
-    pub fn quaternions_mean(unit_quaternions: &Vec<Self>) -> Self {
-        assert!(unit_quaternions.len() > 0);
+    pub fn mean_of(unit_quaternions: impl IntoIterator<Item = Self>) -> Self {
         let quaternions_matrix: Matrix4<N> = unit_quaternions
-            .iter()
+            .into_iter()
             .map(|q| q.as_vector() * q.as_vector().transpose())
             .sum();
 
+        assert!(!quaternions_matrix.is_zero());
+        
         let eigen_matrix = quaternions_matrix
             .try_symmetric_eigen(N::RealField::default_epsilon(), 10)
-            .expect("Could not perform eigen decomposition when averaging quaternions.");
+            .expect("Quaternions matrix could not be diagonalized. This behavior should not be possible.");
 
         let max_eigenvalue_index = eigen_matrix
             .eigenvalues
