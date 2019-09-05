@@ -288,7 +288,8 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     {
         for i in 0..D::dim() {
             for j in 0..D::dim() - 1 {
-                self[(j, i)] += shift[j] * self[(D::dim() - 1, i)];
+                let add = shift[j] * self[(D::dim() - 1, i)];
+                self[(j, i)] += add;
             }
         }
     }
