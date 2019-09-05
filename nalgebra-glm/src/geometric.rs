@@ -4,7 +4,7 @@ use crate::aliases::{TVec, TVec3};
 use crate::traits::{Alloc, Dimension, Number};
 
 /// The cross product of two vectors.
-pub fn cross<N: Number, D: Dimension>(x: &TVec3<N>, y: &TVec3<N>) -> TVec3<N> {
+pub fn cross<N: Number>(x: &TVec3<N>, y: &TVec3<N>) -> TVec3<N> {
     x.cross(y)
 }
 
