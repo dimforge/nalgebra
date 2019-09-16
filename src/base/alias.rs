@@ -1,7 +1,7 @@
-#[cfg(any(feature = "alloc", feature = "std"))]
+#[cfg(feature = "alloc")]
 use crate::base::dimension::Dynamic;
 use crate::base::dimension::{U1, U2, U3, U4, U5, U6};
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 use crate::base::vec_storage::VecStorage;
 use crate::base::storage::Owned;
 use crate::base::Matrix;
@@ -24,7 +24,7 @@ pub type MatrixMN<N, R, C> = Matrix<N, R, C, Owned<N, R, C>>;
 pub type MatrixN<N, D> = MatrixMN<N, D, D>;
 
 /// A dynamically sized column-major matrix.
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 pub type DMatrix<N> = MatrixN<N, Dynamic>;
 
 /// A stack-allocated, column-major, 1x1 square matrix.
@@ -118,7 +118,7 @@ pub type Matrix6x5<N> = MatrixMN<N, U6, U5>;
  *
  */
 /// A dynamically sized column vector.
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 pub type DVector<N> = Matrix<N, Dynamic, U1, VecStorage<N, Dynamic, U1>>;
 
 /// A statically sized D-dimensional column vector.
@@ -145,7 +145,7 @@ pub type Vector6<N> = VectorN<N, U6>;
  *
  */
 /// A dynamically sized row vector.
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 pub type RowDVector<N> = Matrix<N, U1, Dynamic, VecStorage<N, U1, Dynamic>>;
 
 /// A statically sized D-dimensional row vector.

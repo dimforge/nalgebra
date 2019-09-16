@@ -14,11 +14,11 @@ use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstr
 use crate::base::dimension::{
     Dim, DimName, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
 };
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 use crate::base::dimension::Dynamic;
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 use crate::base::VecStorage;
 use crate::base::{DefaultAllocator, Matrix, ArrayStorage, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar};
 
@@ -353,7 +353,7 @@ where
     }
 }
 
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl<'a, N, C, RStride, CStride> From<MatrixSlice<'a, N, Dynamic, C, RStride, CStride>>
     for Matrix<N, Dynamic, C, VecStorage<N, Dynamic, C>>
 where
@@ -367,7 +367,7 @@ where
     }
 }
 
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl<'a, N, R, RStride, CStride> From<MatrixSlice<'a, N, R, Dynamic, RStride, CStride>>
     for Matrix<N, R, Dynamic, VecStorage<N, R, Dynamic>>
 where
@@ -397,7 +397,7 @@ where
     }
 }
 
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl<'a, N, C, RStride, CStride> From<MatrixSliceMut<'a, N, Dynamic, C, RStride, CStride>>
     for Matrix<N, Dynamic, C, VecStorage<N, Dynamic, C>>
 where
@@ -411,7 +411,7 @@ where
     }
 }
 
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl<'a, N, R, RStride, CStride> From<MatrixSliceMut<'a, N, R, Dynamic, RStride, CStride>>
     for Matrix<N, R, Dynamic, VecStorage<N, R, Dynamic>>
 where

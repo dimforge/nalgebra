@@ -21,7 +21,7 @@ path = "src/lib.rs"
 
 [features]
 default         = [ "std", "rand_with_std" ]
-std             = [ "matrixmultiply", "alga/std" ]
+std             = [ "matrixmultiply", "alga/std", "alloc" ]
 # Since Cargo doesn't support multiplicitave features, use this to enable rand+std:
 rand_with_std   = [ "rand/std", "std", "rand_distr" ]
 stdweb          = [ "rand", "rand/stdweb" ]

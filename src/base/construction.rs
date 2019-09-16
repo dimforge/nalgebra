@@ -777,7 +777,7 @@ where
     }
 }
 
-#[cfg(feature = "arbitrary")]
+#[cfg(all(feature = "arbitrary", feature = "rand"))]
 impl<N, R, C> Arbitrary for MatrixMN<N, R, C>
 where
     R: Dim,
