@@ -89,10 +89,6 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
 
-#[cfg(feature = "serde")]
-#[macro_use]
-extern crate serde_derive;
-
 #[macro_use]
 extern crate approx;
 extern crate num_traits as num;

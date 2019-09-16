@@ -13,7 +13,8 @@ license       = "BSD-3-Clause"
 edition       = "2018"
 
 [features]
-serde-serialize = [ "serde", "serde_derive" ]
+serde-serialize = [ "serde" ]   # kept to avoid breakage; prefer to use serde feature directly
+serde_derive = []   # dummy feature to avoid breakage
 
 # For BLAS/LAPACK
 default    = ["openblas"]
@@ -27,8 +28,7 @@ nalgebra      = { version = "0.18", path = ".." }
 num-traits    = "0.2"
 num-complex   = { version = "0.2", default-features = false }
 alga          = { version = "0.9", default-features = false }
-serde         = { version = "1.0", optional = true }
-serde_derive  = { version = "1.0", optional = true }
+serde         = { version = "1.0", optional = true, features = ["derive"] }
 lapack        = { version = "0.16", default-features = false }
 lapack-src    = { version = "0.2", default-features = false }
 # clippy = "*"
