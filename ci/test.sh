@@ -4,7 +4,6 @@ set -ev
 
 if [ -z "$NO_STD" ]; then
     if [ -z "$LAPACK" ]; then
-        cargo test --verbose --no-default-features --lib;
         cargo test --verbose --no-default-features --features "std" --tests;
         cargo test --verbose;
         cargo test --verbose --features "arbitrary";
