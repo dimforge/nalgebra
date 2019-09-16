@@ -89,32 +89,13 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
 
-#[cfg(feature = "arbitrary")]
-extern crate quickcheck;
-
-#[cfg(feature = "serde")]
-extern crate serde;
 #[cfg(feature = "serde")]
 #[macro_use]
 extern crate serde_derive;
 
-#[cfg(feature = "abomonation-serialize")]
-extern crate abomonation;
-
-#[cfg(feature = "mint")]
-extern crate mint;
-
 #[macro_use]
 extern crate approx;
-extern crate generic_array;
-#[cfg(feature = "std")]
-extern crate matrixmultiply;
-extern crate num_complex;
 extern crate num_traits as num;
-extern crate num_rational;
-extern crate typenum;
-
-extern crate alga;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 extern crate alloc;
@@ -122,8 +103,6 @@ extern crate alloc;
 #[cfg(not(feature = "std"))]
 extern crate core as std;
 
-#[cfg(feature = "io")]
-extern crate pest;
 #[macro_use]
 #[cfg(feature = "io")]
 extern crate pest_derive;

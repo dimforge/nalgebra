@@ -21,8 +21,6 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     /// # Examples:
     ///
     /// ```
-    /// # extern crate num_complex;
-    /// # extern crate nalgebra;
     /// # use num_complex::Complex;
     /// # use nalgebra::Vector3;
     /// let vec = Vector3::new(Complex::new(11.0, 3.0), Complex::new(-15.0, 0.0), Complex::new(13.0, 5.0));

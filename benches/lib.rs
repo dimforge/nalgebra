@@ -2,9 +2,6 @@
 #![allow(unused_macros)]
 
 extern crate nalgebra as na;
-extern crate rand;
-extern crate test;
-extern crate typenum;
 
 #[macro_use]
 extern crate criterion;
