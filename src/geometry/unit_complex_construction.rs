@@ -3,7 +3,9 @@ use quickcheck::{Arbitrary, Gen};
 
 use num::One;
 use num_complex::Complex;
+#[cfg(feature = "rand_distr")]
 use rand::distributions::{Distribution, Standard};
+#[cfg(feature = "rand_distr")]
 use rand::Rng;
 
 use alga::general::RealField;
@@ -275,7 +277,7 @@ impl<N: RealField> One for UnitComplex<N> {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "rand_distr")]
 impl<N: RealField> Distribution<UnitComplex<N>> for Standard
 where rand_distr::UnitCircle: Distribution<[N; 2]>
 {
@@ -284,17 +286,6 @@ where rand_distr::UnitCircle: Distribution<[N; 2]>
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> UnitComplex<N> {
         let x = rand_distr::UnitCircle.sample(rng);
         UnitComplex::new_unchecked(Complex::new(x[0], x[1]))
-    }
-}
-
-#[cfg(not(feature = "std"))]
-impl<N: RealField> Distribution<UnitComplex<N>> for Standard
-where N: rand::distributions::uniform::SampleUniform
-{
-    /// Generate a uniformly distributed random `UnitComplex`.
-    #[inline]
-    fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> UnitComplex<N> {
-        UnitComplex::from_angle(rng.gen_range(N::zero(), N::two_pi()))
     }
 }
 

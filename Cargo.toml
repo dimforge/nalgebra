@@ -20,9 +20,11 @@ name = "nalgebra"
 path = "src/lib.rs"
 
 [features]
-default         = [ "std" ]
-std             = [ "matrixmultiply", "rand/std", "alga/std", "rand_distr" ]
-stdweb          = [ "rand/stdweb" ]
+default         = [ "std", "rand_with_std" ]
+std             = [ "matrixmultiply", "alga/std" ]
+# Since Cargo doesn't support multiplicitave features, use this to enable rand+std:
+rand_with_std   = [ "rand/std", "std", "rand_distr" ]
+stdweb          = [ "rand", "rand/stdweb" ]
 arbitrary       = [ "quickcheck" ]
 serde-serialize = [ "serde", "serde_derive", "num-complex/serde" ]
 abomonation-serialize = [ "abomonation" ]
@@ -34,7 +36,7 @@ io = [ "pest", "pest_derive" ]
 [dependencies]
 typenum        = "1.10"
 generic-array  = "0.12"
-rand           = { version = "0.7", default-features = false }
+rand           = { version = "0.7", optional = true, default-features = false }
 rand_distr     = { version = "0.2", optional = true }
 num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.2", default-features = false }

@@ -466,6 +466,7 @@ fn zip_map() {
     assert_eq!(computed, expected);
 }
 
+#[cfg(feature = "rand_with_std")]
 #[test]
 #[should_panic]
 fn trace_panic() {

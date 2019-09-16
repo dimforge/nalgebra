@@ -6,8 +6,8 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{One, Zero};
-use rand::distributions::{Distribution, OpenClosed01, Standard};
-use rand::Rng;
+#[cfg(feature = "rand")]
+use rand::{Rng, distributions::{Distribution, OpenClosed01, Standard}};
 
 use alga::general::RealField;
 
@@ -124,6 +124,7 @@ impl<N: RealField> Zero for Quaternion<N> {
     }
 }
 
+#[cfg(feature = "rand")]
 impl<N: RealField> Distribution<Quaternion<N>> for Standard
 where Standard: Distribution<N>
 {
@@ -685,6 +686,7 @@ impl<N: RealField> One for UnitQuaternion<N> {
     }
 }
 
+#[cfg(feature = "rand")]
 impl<N: RealField> Distribution<UnitQuaternion<N>> for Standard
 where OpenClosed01: Distribution<N>
 {
@@ -722,10 +724,10 @@ where
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature="rand"))]
 mod tests {
     use super::*;
-    use rand::{SeedableRng, rngs::SmallRng};
+    use rand::{Rng, SeedableRng, rngs::SmallRng};
 
     #[test]
     fn random_unit_quats_are_unit() {
