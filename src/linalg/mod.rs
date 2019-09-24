@@ -32,6 +32,7 @@ pub use self::permutation_sequence::*;
 pub use self::qr::*;
 pub use self::schur::*;
 pub use self::svd::*;
+pub use self::polar::*;
 pub use self::symmetric_eigen::*;
 pub use self::symmetric_tridiagonal::*;
 pub use self::convolution::*;
