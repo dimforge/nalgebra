@@ -15,6 +15,7 @@ mod qr;
 mod schur;
 mod solve;
 mod svd;
+mod polar;
 mod symmetric_eigen;
 mod symmetric_tridiagonal;
 mod convolution;
