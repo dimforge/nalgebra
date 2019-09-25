@@ -65,22 +65,24 @@ where
         if let Some(svd) = svd_opt {
 
             let r: Option<DMatrix<N>> =
-                if let (Some(u), Some(v_t)) = (svd.u, svd.v_t) {
+                if let (Some(u), Some(v_t)) = (&svd.u, &svd.v_t) {
                     Some(u*v_t)
                 } else {
                     None
                 };
 
+            let sigma: DMatrix<N> = DMatrix::from_diagonal(&svd.singular_values.map(|e| N::from_real(e)));;
+
             let p_r =
-                if let Some(v_t) = svd.v_t {
-                    Some(v_t.adjoint()*DMatrix::from_diagonal(&svd.singular_values)*v_t)
+                if let Some(v_t)  = &svd.v_t {
+                    Some(v_t.adjoint()*&sigma*v_t)
                 } else {
                     None
                 };
 
             let p_l =
-                if let Some(u) = svd.u{
-                    Some(u.adjoint()*DMatrix::from_diagonal(&svd.singular_values)*u)
+                if let Some(u) = svd.u {
+                    Some(u.adjoint()*&sigma*u)
                 } else {
                     None
                 };
