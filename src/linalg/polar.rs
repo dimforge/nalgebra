@@ -8,7 +8,7 @@ use crate::linalg::SVD;
 use alga::general::{ComplexField};
 
 /// Polar Decomposition of a general matrix.
-// #[derive(Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Polar<N: ComplexField>
 {
     /// The rotation matrix
@@ -18,18 +18,6 @@ pub struct Polar<N: ComplexField>
     /// The right hermitian matrix (A = RP)
     pub p_r: Option<DMatrix<N>>
 }
-
-// impl<N: ComplexField, R: DimMin<C>, C: DimName> Copy for Polar<N, R, C>
-// where
-//     DefaultAllocator: Allocator<N, R, C>
-//     + Allocator<N, R, R>
-//     + Allocator<N, C, C>,
-
-//     DMatrix<N, R, C>: Copy,
-//     DMatrix<N, R, R>: Copy,
-//     DMatrix<N, C, C>: Copy,
-// {
-// }
 
 impl<N: ComplexField> Polar<N>
 where
@@ -95,30 +83,27 @@ where
     }
 }
 
-//impl<N: ComplexField, R: DimMin<C>, C: DimName, S: Storage<N, R, C>> Matrix<N, R, C, S>
-//where
-//    DefaultAllocator: Allocator<N, R, C>
-//        + Allocator<N, R, R>
-//        + Allocator<N, C, C>,
-//{
-//    /// Computes the Polar Decomposition of the matrix using its SVD
-//    pub fn polar(self) -> Polar<N, R, C> {
-//        Polar::new(self.into_owned())
-//    }
+impl<N: ComplexField> DMatrix<N>
+where
+{
+    /// Computes the Polar Decomposition of the matrix using its SVD
+    pub fn polar(self) -> Polar<N> {
+        Polar::new(self.into_owned())
+    }
 
-//    /// Attempts to compute the Polar Decomposition using the SVD of the matrix
-//    ///
-//    /// # Arguments
-//    ///
-//    /// * `eps`       − tolerance used to determine when a value converged to 0.
-//    /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-//    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-//    /// continues indefinitely until convergence.
-//    pub fn try_polar(
-//        self,
-//        eps: N::RealField,
-//        max_niter: usize,
-//    ) -> Option<Polar<N, R, C>> {
-//        Polar::try_new(self.into_owned(), eps, max_niter)
-//    }
-//}
+    /// Attempts to compute the Polar Decomposition using the SVD of the matrix
+    ///
+    /// # Arguments
+    ///
+    /// * `eps`       − tolerance used to determine when a value converged to 0.
+    /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
+    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    /// continues indefinitely until convergence.
+    pub fn try_polar(
+        self,
+        eps: N::RealField,
+        max_niter: usize,
+    ) -> Option<Polar<N>> {
+        Polar::try_new(self.into_owned(), eps, max_niter)
+    }
+}
