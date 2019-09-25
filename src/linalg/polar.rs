@@ -3,10 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use approx::AbsDiffEq;
 
-use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator};
 use crate::{DMatrix};
-use crate::dimension::{DimName, DimMin, DimMinimum, NamedDim};
 use crate::linalg::SVD;
 use alga::general::{ComplexField};
 
@@ -55,7 +52,7 @@ where
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
     pub fn try_new(
-        mut matrix: DMatrix<N>,
+        matrix: DMatrix<N>,
         eps: N::RealField,
         max_niter: usize
     ) -> Option<Self> {
