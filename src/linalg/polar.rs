@@ -8,6 +8,23 @@ use crate::linalg::SVD;
 use alga::general::{ComplexField};
 
 /// Polar Decomposition of a general matrix.
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(bound(
+            serialize = "MatrixD<N>: Serialize,
+                        MatrixD<N>: Serialize,
+                        MatrixD<N>: Serialize"
+    ))
+)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    serde(bound(
+            deserialize = "MatrixD<N>: Serialize,
+                        MatrixD<N>: Serialize,
+                        MatrixD<N>: Serialize"
+    ))
+)]
 #[derive(Clone, Debug)]
 pub struct Polar<N: ComplexField>
 {
