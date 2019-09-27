@@ -35,5 +35,6 @@ criterion_main!(
     linalg::schur,
     linalg::solve,
     linalg::svd,
+    linalg::polar,
     linalg::symmetric_eigen,
 );

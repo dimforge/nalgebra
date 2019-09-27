@@ -7,6 +7,7 @@ pub use self::qr::qr;
 pub use self::schur::schur;
 pub use self::solve::solve;
 pub use self::svd::svd;
+pub use self::polar::polar;
 pub use self::symmetric_eigen::symmetric_eigen;
 
 mod bidiagonal;
@@ -18,5 +19,6 @@ mod qr;
 mod schur;
 mod solve;
 mod svd;
+mod polar;
 mod symmetric_eigen;
 // mod eigen;
