@@ -12,3 +12,4 @@ mod solve;
 mod svd;
 mod tridiagonal;
 mod convolution;
+mod polar;
