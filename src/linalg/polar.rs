@@ -12,17 +12,17 @@ use alga::general::{ComplexField};
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(
-            serialize = "MatrixD<N>: Serialize,
-                        MatrixD<N>: Serialize,
-                        MatrixD<N>: Serialize"
+            serialize = "DMatrix<N>: Serialize,
+                        DMatrix<N>: Serialize,
+                        DMatrix<N>: Serialize"
     ))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(
-            deserialize = "MatrixD<N>: Serialize,
-                        MatrixD<N>: Serialize,
-                        MatrixD<N>: Serialize"
+            deserialize = "DMatrix<N>: Serialize,
+                        DMatrix<N>: Serialize,
+                        DMatrix<N>: Serialize"
     ))
 )]
 #[derive(Clone, Debug)]
@@ -96,6 +96,38 @@ where
             })
         } else {
             None
+        }
+    }
+
+    /// Rebuild the original matrix usign the left decompositon (A=PR)
+    ///
+    /// This is useful if some of the values have been manually modified.
+    /// Returns `Err` if the right- and left- singular vectors have not been
+    /// computed at construction-time.
+    pub fn recompose_left(self) -> Result<DMatrix<N>, &'static str> {
+        match (&self.r, &self.p_l) {
+            (Some(r), Some(p_l)) => {
+                Ok(p_l*r)
+            }
+            (None, None) => Err("Polar recomposition: P and R have not been computed."),
+            (None, _) => Err("Polar recomposition: P has not been computed."),
+            (_, None) => Err("Polar recomposition: R has not been computed."),
+        }
+    }
+
+    /// Rebuild the original matrix usign the right decompositon (A=RP)
+    ///
+    /// This is useful if some of the values have been manually modified.
+    /// Returns `Err` if the right- and left- singular vectors have not been
+    /// computed at construction-time.
+    pub fn recompose_right(self) -> Result<DMatrix<N>, &'static str> {
+        match (&self.r, &self.p_r) {
+            (Some(r), Some(p_r)) => {
+                Ok(r*p_r)
+            }
+            (None, None) => Err("Polar recomposition: P and R have not been computed."),
+            (None, _) => Err("Polar recomposition: P has not been computed."),
+            (_, None) => Err("Polar recomposition: R has not been computed."),
         }
     }
 }
