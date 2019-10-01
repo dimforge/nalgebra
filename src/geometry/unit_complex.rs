@@ -84,7 +84,6 @@ impl<N: RealField> UnitComplex<N> {
     ///
     /// # Example
     /// ```
-    /// # extern crate num_complex;
     /// # use num_complex::Complex;
     /// # use nalgebra::UnitComplex;
     /// let angle = 1.78f32;

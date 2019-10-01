@@ -116,7 +116,6 @@
 extern crate num_traits as num;
 #[macro_use]
 extern crate approx;
-extern crate alga;
 extern crate nalgebra as na;
 
 pub use crate::aliases::*;

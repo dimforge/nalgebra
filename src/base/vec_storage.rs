@@ -4,6 +4,9 @@ use std::io::{Result as IOResult, Write};
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Serialize, Deserialize};
+
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, DimName, Dynamic, U1};

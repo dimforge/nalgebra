@@ -4,7 +4,9 @@ set -ev
 
 if [ -z "$NO_STD" ]; then
     if [ -z "$LAPACK" ]; then
+        cargo build --verbose -p nalgebra --no-default-features --lib;
         cargo build --verbose -p nalgebra;
+        cargo build --verbose -p nalgebra --features "rand";
         cargo build --verbose -p nalgebra --features "arbitrary";
         cargo build --verbose -p nalgebra --features "mint";
         cargo build --verbose -p nalgebra --features "alloc";

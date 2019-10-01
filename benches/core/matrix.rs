@@ -1,5 +1,4 @@
 use na::{DMatrix, DVector, Matrix2, Matrix3, Matrix4, MatrixN, Vector2, Vector3, Vector4, U10};
-use rand::{IsaacRng, Rng};
 use std::ops::{Add, Div, Mul, Sub};
 
 #[path = "../common/macros.rs"]

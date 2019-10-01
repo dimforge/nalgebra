@@ -1,5 +1,6 @@
 use na::{DVector, Vector2, Vector3, Vector4, VectorN};
-use rand::{IsaacRng, Rng};
+use rand::{Rng, SeedableRng};
+use rand_isaac::IsaacRng;
 use std::ops::{Add, Div, Mul, Sub};
 use typenum::U10000;
 
@@ -48,7 +49,6 @@ bench_binop_ref!(vec10000_dot_f64, VectorN<f64, U10000>, VectorN<f64, U10000>, d
 bench_binop_ref!(vec10000_dot_f32, VectorN<f32, U10000>, VectorN<f32, U10000>, dot);
 
 fn vec10000_axpy_f64(bh: &mut criterion::Criterion) {
-    use rand::SeedableRng;
     let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
@@ -58,7 +58,6 @@ fn vec10000_axpy_f64(bh: &mut criterion::Criterion) {
 }
 
 fn vec10000_axpy_beta_f64(bh: &mut criterion::Criterion) {
-    use rand::SeedableRng;
     let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
@@ -69,7 +68,6 @@ fn vec10000_axpy_beta_f64(bh: &mut criterion::Criterion) {
 }
 
 fn vec10000_axpy_f64_slice(bh: &mut criterion::Criterion) {
-    use rand::SeedableRng;
     let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
@@ -84,7 +82,6 @@ fn vec10000_axpy_f64_slice(bh: &mut criterion::Criterion) {
 }
 
 fn vec10000_axpy_f64_static(bh: &mut criterion::Criterion) {
-    use rand::SeedableRng;
     let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = VectorN::<f64, U10000>::new_random();
     let b = VectorN::<f64, U10000>::new_random();
@@ -95,7 +92,6 @@ fn vec10000_axpy_f64_static(bh: &mut criterion::Criterion) {
 }
 
 fn vec10000_axpy_f32(bh: &mut criterion::Criterion) {
-    use rand::SeedableRng;
     let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
@@ -105,7 +101,6 @@ fn vec10000_axpy_f32(bh: &mut criterion::Criterion) {
 }
 
 fn vec10000_axpy_beta_f32(bh: &mut criterion::Criterion) {
-    use rand::SeedableRng;
     let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);

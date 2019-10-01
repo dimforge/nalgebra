@@ -4,14 +4,12 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{Bounded, One, Zero};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
-#[cfg(feature = "std")]
-use rand::{self, distributions::StandardNormal};
+#[cfg(feature = "rand")]
+use rand::{Rng, distributions::{Distribution, Standard}};
 use std::iter;
 use typenum::{self, Cmp, Greater};
 
-#[cfg(feature = "std")]
+#[cfg(feature = "rand_distr")]
 use alga::general::RealField;
 use alga::general::{ClosedAdd, ClosedMul};
 
@@ -240,13 +238,15 @@ where DefaultAllocator: Allocator<N, R, C>
 
     /// Creates a matrix filled with random values.
     #[inline]
-    #[cfg(feature = "std")]
+    #[cfg(feature = "rand_with_std")]
     pub fn new_random_generic(nrows: R, ncols: C) -> Self
     where Standard: Distribution<N> {
-        Self::from_fn_generic(nrows, ncols, |_, _| rand::random())
+        let mut rng = rand::thread_rng();
+        Self::from_fn_generic(nrows, ncols, |_, _| rng.gen())
     }
 
     /// Creates a matrix filled with random values from the given distribution.
+    #[cfg(feature = "rand")]
     #[inline]
     pub fn from_distribution_generic<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
         nrows: R,
@@ -547,6 +547,7 @@ macro_rules! impl_constructors(
             }
 
             /// Creates a matrix or vector filled with random values from the given distribution.
+            #[cfg(feature = "rand")]
             #[inline]
             pub fn from_distribution<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
                 $($args: usize,)*
@@ -557,6 +558,7 @@ macro_rules! impl_constructors(
             }
         }
 
+        #[cfg(feature = "rand")]
         impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
             where
             DefaultAllocator: Allocator<N $(, $Dims)*>,
@@ -564,7 +566,7 @@ macro_rules! impl_constructors(
 
             /// Creates a matrix filled with random values.
             #[inline]
-            #[cfg(feature = "std")]
+            #[cfg(feature = "rand_with_std")]
             pub fn new_random($($args: usize),*) -> Self {
                 Self::new_random_generic($($gargs),*)
             }
@@ -760,6 +762,7 @@ where
     }
 }
 
+#[cfg(feature = "rand")]
 impl<N: Scalar, R: Dim, C: Dim> Distribution<MatrixMN<N, R, C>> for Standard
 where
     DefaultAllocator: Allocator<N, R, C>,
@@ -774,7 +777,7 @@ where
     }
 }
 
-#[cfg(feature = "arbitrary")]
+#[cfg(all(feature = "arbitrary", feature = "rand"))]
 impl<N, R, C> Arbitrary for MatrixMN<N, R, C>
 where
     R: Dim,
@@ -794,11 +797,12 @@ where
     }
 }
 
-#[cfg(feature = "std")]
+// TODO(specialization): faster impls possible for D≤4 (see rand_distr::{UnitCircle, UnitSphere})
+#[cfg(feature = "rand_distr")]
 impl<N: RealField, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,
-    StandardNormal: Distribution<N>,
+    rand_distr::StandardNormal: Distribution<N>,
 {
     /// Generate a uniformly distributed random unit vector.
     #[inline]
@@ -806,7 +810,7 @@ where
         Unit::new_normalize(VectorN::from_distribution_generic(
             D::name(),
             U1,
-            &StandardNormal,
+            &rand_distr::StandardNormal,
             rng,
         ))
     }

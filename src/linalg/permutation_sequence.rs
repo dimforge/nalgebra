@@ -6,7 +6,7 @@ use num::One;
 
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, Scalar, VectorN};
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 use crate::dimension::Dynamic;
 use crate::dimension::{Dim, DimName, U1};
 use crate::storage::StorageMut;
@@ -51,7 +51,7 @@ where DefaultAllocator: Allocator<(usize, usize), D>
     }
 }
 
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl PermutationSequence<Dynamic>
 where DefaultAllocator: Allocator<(usize, usize), Dynamic>
 {

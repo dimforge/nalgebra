@@ -4,8 +4,8 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{One, Zero};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+#[cfg(feature = "rand")]
+use rand::{Rng, distributions::{Distribution, Standard}};
 
 use alga::general::ClosedAdd;
 
@@ -47,11 +47,13 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
+#[cfg(feature = "rand")]
 impl<N: Scalar, D: DimName> Distribution<Translation<N, D>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,
     Standard: Distribution<N>,
 {
+    /// Generate an arbitrary random variate for testing purposes.
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Translation<N, D> {
         Translation::from(rng.gen::<VectorN<N, D>>())

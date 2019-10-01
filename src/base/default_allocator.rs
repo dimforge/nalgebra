@@ -15,11 +15,11 @@ use generic_array::ArrayLength;
 use typenum::Prod;
 
 use crate::base::allocator::{Allocator, Reallocator};
-#[cfg(any(feature = "alloc", feature = "std"))]
+#[cfg(feature = "alloc")]
 use crate::base::dimension::Dynamic;
 use crate::base::dimension::{Dim, DimName};
 use crate::base::array_storage::ArrayStorage;
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 use crate::base::vec_storage::VecStorage;
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::Scalar;
@@ -75,7 +75,7 @@ where
 
 // Dynamic - Static
 // Dynamic - Dynamic
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl<N: Scalar, C: Dim> Allocator<N, Dynamic, C> for DefaultAllocator {
     type Buffer = VecStorage<N, Dynamic, C>;
 
@@ -106,7 +106,7 @@ impl<N: Scalar, C: Dim> Allocator<N, Dynamic, C> for DefaultAllocator {
 }
 
 // Static - Dynamic
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl<N: Scalar, R: DimName> Allocator<N, R, Dynamic> for DefaultAllocator {
     type Buffer = VecStorage<N, R, Dynamic>;
 
@@ -172,7 +172,7 @@ where
 }
 
 // Static × Static -> Dynamic × Any
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl<N: Scalar, RFrom, CFrom, CTo> Reallocator<N, RFrom, CFrom, Dynamic, CTo> for DefaultAllocator
 where
     RFrom: DimName,
@@ -201,7 +201,7 @@ where
 }
 
 // Static × Static -> Static × Dynamic
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl<N: Scalar, RFrom, CFrom, RTo> Reallocator<N, RFrom, CFrom, RTo, Dynamic> for DefaultAllocator
 where
     RFrom: DimName,
@@ -230,7 +230,7 @@ where
 }
 
 // All conversion from a dynamic buffer to a dynamic buffer.
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl<N: Scalar, CFrom: Dim, CTo: Dim> Reallocator<N, Dynamic, CFrom, Dynamic, CTo>
     for DefaultAllocator
 {
@@ -246,7 +246,7 @@ impl<N: Scalar, CFrom: Dim, CTo: Dim> Reallocator<N, Dynamic, CFrom, Dynamic, CT
     }
 }
 
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl<N: Scalar, CFrom: Dim, RTo: DimName> Reallocator<N, Dynamic, CFrom, RTo, Dynamic>
     for DefaultAllocator
 {
@@ -262,7 +262,7 @@ impl<N: Scalar, CFrom: Dim, RTo: DimName> Reallocator<N, Dynamic, CFrom, RTo, Dy
     }
 }
 
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl<N: Scalar, RFrom: DimName, CTo: Dim> Reallocator<N, RFrom, Dynamic, Dynamic, CTo>
     for DefaultAllocator
 {
@@ -278,7 +278,7 @@ impl<N: Scalar, RFrom: DimName, CTo: Dim> Reallocator<N, RFrom, Dynamic, Dynamic
     }
 }
 
-#[cfg(any(feature = "std", feature = "alloc"))]
+#[cfg(feature = "alloc")]
 impl<N: Scalar, RFrom: DimName, RTo: DimName> Reallocator<N, RFrom, Dynamic, RTo, Dynamic>
     for DefaultAllocator
 {

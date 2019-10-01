@@ -2,8 +2,8 @@
 use quickcheck::{Arbitrary, Gen};
 
 use num::{Bounded, One, Zero};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+#[cfg(feature = "rand")]
+use rand::{Rng, distributions::{Distribution, Standard}};
 
 use alga::general::ClosedDiv;
 use crate::base::allocator::Allocator;
@@ -126,11 +126,13 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
+#[cfg(feature = "rand")]
 impl<N: Scalar, D: DimName> Distribution<Point<N, D>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,
     Standard: Distribution<N>,
 {
+    /// Generates a `Point` where each coordinate is an independent variate from `[0, 1)`.
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Point<N, D> {
         Point::from(rng.gen::<VectorN<N, D>>())

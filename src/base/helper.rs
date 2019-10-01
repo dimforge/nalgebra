@@ -1,3 +1,4 @@
+#![cfg(feature = "rand")]
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 use rand::distributions::{Distribution, Standard};
