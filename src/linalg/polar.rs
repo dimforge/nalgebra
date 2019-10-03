@@ -84,7 +84,7 @@ where
 
             let p_l =
                 if let Some(u) = svd.u {
-                    Some(u.adjoint()*&sigma*u)
+                    Some(&u*&sigma*u.adjoint())
                 } else {
                     None
                 };
