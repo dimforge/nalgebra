@@ -1,6 +1,5 @@
 #![cfg_attr(rustfmt, rustfmt_skip)]
 
-#[cfg(test)]
 #[cfg(feature = "arbitrary")]
 mod quickcheck_tests {
     macro_rules! gen_tests(
@@ -14,7 +13,7 @@ mod quickcheck_tests {
                 use crate::core::helper::{RandScalar, RandComplex};
 
                 quickcheck! {
-                    fn polar(m: DMatrix<$scalar>) -> bool {
+                    fn polar_recompose(m: DMatrix<$scalar>) -> bool {
                         let m = m.map(|e| e.0);
                         if m.len() > 0 {
                             let polar = m.clone().polar();
@@ -22,14 +21,12 @@ mod quickcheck_tests {
                             let recomp_m_r = polar.clone().recompose_right().unwrap();
 
                             relative_eq!(m, recomp_m_l, epsilon = 1.0e-5) &&
-                            relative_eq!(m, recomp_m_r, epsilon = 1.0e-5) &&
-                            false
+                            relative_eq!(m, recomp_m_r, epsilon = 1.0e-5) 
                         }
                         else {
-                            true && false
+                            true 
                         }
                     }
-
                 }
             }
         }
