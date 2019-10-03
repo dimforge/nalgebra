@@ -20,9 +20,9 @@ use alga::general::{ComplexField};
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(
-            deserialize = "DMatrix<N>: Serialize,
-                        DMatrix<N>: Serialize,
-                        DMatrix<N>: Serialize"
+            deserialize = "DMatrix<N>: Deserialize<'de>,
+                        DMatrix<N>: Deserialize<'de>,
+                        DMatrix<N>: Deserialize<'de>"
     ))
 )]
 #[derive(Clone, Debug)]
