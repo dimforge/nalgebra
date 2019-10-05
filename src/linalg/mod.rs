@@ -15,6 +15,7 @@ mod qr;
 mod schur;
 mod solve;
 mod svd;
+#[cfg(any(feature = "std", feature = "alloc"))]
 mod polar;
 mod symmetric_eigen;
 mod symmetric_tridiagonal;
@@ -33,6 +34,7 @@ pub use self::permutation_sequence::*;
 pub use self::qr::*;
 pub use self::schur::*;
 pub use self::svd::*;
+#[cfg(any(feature = "std", feature = "alloc"))]
 pub use self::polar::*;
 pub use self::symmetric_eigen::*;
 pub use self::symmetric_tridiagonal::*;
