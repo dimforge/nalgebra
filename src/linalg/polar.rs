@@ -7,8 +7,6 @@ use crate::{DMatrix};
 use crate::linalg::SVD;
 use alga::general::{ComplexField};
 
-use std::marker::PhantomData;
-
 /// Polar Decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
