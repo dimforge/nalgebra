@@ -7,7 +7,9 @@ use num::{Bounded, One, Zero};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 #[cfg(feature = "std")]
-use rand::{self, distributions::StandardNormal};
+use rand;
+#[cfg(feature = "std")]
+use rand_distr::StandardNormal;
 use std::iter;
 use typenum::{self, Cmp, Greater};
 
