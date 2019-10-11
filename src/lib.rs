@@ -114,6 +114,8 @@ extern crate num_complex;
 extern crate num_traits as num;
 extern crate num_rational;
 extern crate rand;
+#[cfg(feature = "std")]
+extern crate rand_distr;
 extern crate typenum;
 
 extern crate alga;

@@ -21,7 +21,7 @@ path = "src/lib.rs"
 
 [features]
 default         = [ "std" ]
-std             = [ "matrixmultiply", "rand/std", "alga/std" ]
+std             = [ "matrixmultiply", "rand/std", "rand_distr", "alga/std" ]
 stdweb          = [ "rand/stdweb" ]
 arbitrary       = [ "quickcheck" ]
 serde-serialize = [ "serde", "serde_derive", "num-complex/serde" ]
@@ -34,18 +34,19 @@ io = [ "pest", "pest_derive" ]
 [dependencies]
 typenum        = "1.10"
 generic-array  = "0.12"
-rand           = { version = "0.6", default-features = false }
+rand           = { version = "0.7", default-features = false }
 num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.2", default-features = false }
 num-rational   = { version = "0.2", default-features = false }
 approx         = { version = "0.3", default-features = false }
 alga           = { version = "0.9", default-features = false }
+rand_distr     = { version = "0.2", optional = true }
 matrixmultiply = { version = "0.2", optional = true }
 serde          = { version = "1.0", optional = true }
 serde_derive   = { version = "1.0", optional = true }
 abomonation    = { version = "0.7", optional = true }
 mint           = { version = "0.5", optional = true }
-quickcheck     = { version = "0.8", optional = true }
+quickcheck     = { version = "0.9", optional = true }
 pest           = { version = "2.0", optional = true }
 pest_derive    = { version = "2.0", optional = true }
 
@@ -54,7 +55,7 @@ pest_derive    = { version = "2.0", optional = true }
 
 [dev-dependencies]
 serde_json = "1.0"
-rand_xorshift = "0.1"
+rand_xorshift = "0.2"
 ### Uncomment this line before running benchmarks.
 ### We can't just let this uncommented because that would break
 ### compilation for #[no-std] because of the terrible Cargo bug
