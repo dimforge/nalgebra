@@ -62,42 +62,25 @@ where
         max_niter: usize
     ) -> Option<Self> {
 
-        let svd_opt = SVD::try_new(matrix, true, true, eps, max_niter);
+        let svd = SVD::try_new(matrix, true, true, eps, max_niter)?;
 
-        if let Some(svd) = svd_opt {
+        let r: Option<DMatrix<N>> =
+            if let (Some(u), Some(v_t)) = (&svd.u, &svd.v_t) {
+                Some(u*v_t)
+            } else {
+                None
+            };
 
-            let r: Option<DMatrix<N>> =
-                if let (Some(u), Some(v_t)) = (&svd.u, &svd.v_t) {
-                    Some(u*v_t)
-                } else {
-                    None
-                };
+        let sigma: DMatrix<N> = DMatrix::from_diagonal(&svd.singular_values.map(|e| N::from_real(e)));;
+        let p_r = svd.u.as_ref().map(|v_t| v_t.adjoint() * &sigma * v_t);
+        let p_l = svd.u.as_ref().map(|u| u * &sigma * u.adjoint());
 
-            let sigma: DMatrix<N> = DMatrix::from_diagonal(&svd.singular_values.map(|e| N::from_real(e)));;
-
-            let p_r =
-                if let Some(v_t)  = &svd.v_t {
-                    Some(v_t.adjoint()*&sigma*v_t)
-                } else {
-                    None
-                };
-
-            let p_l =
-                if let Some(u) = svd.u {
-                    Some(&u*&sigma*u.adjoint())
-                } else {
-                    None
-                };
-
-            Some(Self {
-                r,
-                p_l,
-                p_r,
-            })
-        } else {
-            None
-        }
-    }
+        Some(Self {
+            r,
+            p_l,
+            p_r,
+        })
+    } 
 
     /// Rebuild the original matrix usign the left decompositon (A=PR)
     ///
