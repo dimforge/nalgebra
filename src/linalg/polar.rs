@@ -72,7 +72,7 @@ where
             };
 
         let sigma: DMatrix<N> = DMatrix::from_diagonal(&svd.singular_values.map(|e| N::from_real(e)));;
-        let p_r = svd.u.as_ref().map(|v_t| v_t.adjoint() * &sigma * v_t);
+        let p_r = svd.v_t.as_ref().map(|v_t| v_t.adjoint() * &sigma * v_t);
         let p_l = svd.u.as_ref().map(|u| u * &sigma * u.adjoint());
 
         Some(Self {
@@ -90,7 +90,7 @@ where
     pub fn recompose_left(self) -> Result<DMatrix<N>, &'static str> {
         match (&self.r, &self.p_l) {
             (Some(r), Some(p_l)) => {
-                Ok(p_l*r)
+                Ok(p_l * r)
             }
             (None, None) => Err("Polar recomposition: P and R have not been computed."),
             (None, _) => Err("Polar recomposition: P has not been computed."),
@@ -106,7 +106,7 @@ where
     pub fn recompose_right(self) -> Result<DMatrix<N>, &'static str> {
         match (&self.r, &self.p_r) {
             (Some(r), Some(p_r)) => {
-                Ok(r*p_r)
+                Ok(r * p_r)
             }
             (None, None) => Err("Polar recomposition: P and R have not been computed."),
             (None, _) => Err("Polar recomposition: P has not been computed."),
