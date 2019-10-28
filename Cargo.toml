@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.18.2"
+version = "0.19.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "Linear algebra library with transformations and statically-sized or dynamically-sized matrices."
@@ -32,7 +32,7 @@ alloc = [ ]
 io = [ "pest", "pest_derive" ]
 
 [dependencies]
-typenum        = "1.10"
+typenum        = "1.11"
 generic-array  = "0.13"
 rand           = { version = "0.7", default-features = false }
 num-traits     = { version = "0.2", default-features = false }

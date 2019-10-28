@@ -1,6 +1,6 @@
 [package]
 name = "nalgebra-glm"
-version = "0.4.2"
+version = "0.5.0"
 authors = ["sebcrozet <developer@crozet.re>"]
 
 description = "A computer-graphics oriented API for nalgebra, inspired by the C++ GLM library."
@@ -25,4 +25,4 @@ abomonation-serialize = [ "nalgebra/abomonation-serialize" ]
 num-traits = { version = "0.2", default-features = false }
 approx = { version = "0.3", default-features = false }
 alga = { version = "0.9", default-features = false }
-nalgebra = { path =  "..", version = "0.18", default-features = false }
+nalgebra = { path =  "..", version = "0.19", default-features = false }
