@@ -82,7 +82,6 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![deny(unused_qualifications)]
 #![deny(unused_results)]
 #![deny(missing_docs)]
-#![warn(incoherent_fundamental_impls)]
 #![doc(
     html_favicon_url = "https://nalgebra.org/img/favicon.ico",
     html_root_url = "https://nalgebra.org/rustdoc"

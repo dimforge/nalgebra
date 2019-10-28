@@ -33,7 +33,7 @@ io = [ "pest", "pest_derive" ]
 
 [dependencies]
 typenum        = "1.10"
-generic-array  = "0.12"
+generic-array  = "0.13"
 rand           = { version = "0.7", default-features = false }
 num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.2", default-features = false }
