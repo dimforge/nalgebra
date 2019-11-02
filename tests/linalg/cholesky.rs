@@ -82,13 +82,13 @@ macro_rules! gen_tests(
                     let mut m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
                     let x = Vector4::<$scalar>::new_random().map(|e| e.0);
 
-                    // TODO this is dirty but $scalar appears to not be a scalar type in this file
+                    // this is dirty but $scalar is not a scalar type (its a Rand) in this file
                     let zero = random::<$scalar>().0 * 0.;
                     let one = zero + 1.;
                     let sigma = random::<f64>(); // needs to be a real
                     let sigma_scalar = zero + sigma;
 
-                    // updates cholesky decomposition and reconstructs m
+                    // updates cholesky decomposition and reconstructs m updated
                     let mut chol = m.clone().cholesky().unwrap();
                     chol.rank_one_update(&x, sigma);
                     let m_chol_updated = chol.l() * chol.l().adjoint();
