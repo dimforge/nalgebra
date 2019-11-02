@@ -147,12 +147,10 @@ where
         res
     }
 
-    /// Performs a rank one update of the current decomposition.
-    /// If `M = L * L^T` before the rank one update, then after it we have `L*L^T = M + sigma * v*v^T` where v must be a vector of same dimension.
-    /// TODO rewrite comment (current version is taken verbatim from eigen)
+    /// Given the Cholesky decomposition of a matrix `M`, a scalar `sigma` and a vector `v`,
+    /// performs a rank one update such that we end up with the decomposition of `M + sigma * v*v^*`.
     /// TODO insures that code is correct for complex numbers, eigen uses abs2 and conj
     /// https://eigen.tuxfamily.org/dox/LLT_8h_source.html
-    /// TODO insure that sigma is a real
     pub fn rank_one_update<R2: Dim, S2, N2: RealField>(
         &mut self,
         x: &Matrix<N, R2, U1, S2>,
