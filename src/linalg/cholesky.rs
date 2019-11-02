@@ -159,6 +159,7 @@ where
         let mut x = x.clone_owned();
         let mut beta = crate::one::<N::RealField>();
         for j in 0..n {
+            // updates the diagonal
             let diag = N::real(unsafe { *self.chol.get_unchecked((j, j)) });
             let diag2 = diag * diag;
             let xj = unsafe { *x.get_unchecked(j) };
@@ -167,20 +168,18 @@ where
             let new_diag = (diag2 + sigma_xj2 / beta).sqrt();
             unsafe { *self.chol.get_unchecked_mut((j, j)) = N::from_real(new_diag) };
             beta += sigma_xj2 / diag2;
-            // Update the terms of L
-            if j < n {
-                let mut xjplus = x.rows_range_mut(j + 1..);
-                let mut col_j = self.chol.slice_range_mut(j + 1.., j);
-                // temp_jplus -= (wj / N::from_real(diag)) * col_j;
-                xjplus.axpy(-xj / N::from_real(diag), &col_j, N::one());
-                if gamma != crate::zero::<N::RealField>() {
-                    // col_j = N::from_real(nljj / diag) * col_j  + (N::from_real(nljj * sigma / gamma) * N::conjugate(wj)) * temp_jplus;
-                    col_j.axpy(
-                        N::from_real(new_diag * sigma / gamma) * N::conjugate(xj),
-                        &xjplus,
-                        N::from_real(new_diag / diag),
-                    );
-                }
+            // updates the terms of L
+            let mut xjplus = x.rows_range_mut(j + 1..);
+            let mut col_j = self.chol.slice_range_mut(j + 1.., j);
+            // temp_jplus -= (wj / N::from_real(diag)) * col_j;
+            xjplus.axpy(-xj / N::from_real(diag), &col_j, N::one());
+            if gamma != crate::zero::<N::RealField>() {
+                // col_j = N::from_real(nljj / diag) * col_j  + (N::from_real(nljj * sigma / gamma) * N::conjugate(wj)) * temp_jplus;
+                col_j.axpy(
+                    N::from_real(new_diag * sigma / gamma) * N::conjugate(xj),
+                    &xjplus,
+                    N::from_real(new_diag / diag),
+                );
             }
         }
     }
