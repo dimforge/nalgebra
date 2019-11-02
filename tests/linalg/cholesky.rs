@@ -79,10 +79,13 @@ macro_rules! gen_tests(
                 }
 
                 fn cholesky_rank_one_update(_n: usize) -> bool {
-                    let mut m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
-                    let x = Vector4::<$scalar>::new_random().map(|e| e.0);
-                    let sigma = random::<$scalar>().0; // random::<$scalar>().0;
-                    let one = sigma*0. + 1.; // TODO this is dirty but $scalar appears to not be a scalar type
+                    use nalgebra::dimension::U3;
+                    use nalgebra::Vector3;
+                    let mut m = RandomSDP::new(U3, || random::<$scalar>().0).unwrap();
+                    let x = Vector3::<$scalar>::new_random().map(|e| e.0);
+                    let mut sigma = random::<$scalar>().0; // random::<$scalar>().0;
+                    let one = sigma*0. + 1.; // TODO this is dirty but $scalar appears to not be a scalar type in this file
+                    sigma = one; // TODO placeholder
 
                     // updates cholesky decomposition and reconstructs m
                     let mut chol = m.clone().cholesky().unwrap();
@@ -90,9 +93,11 @@ macro_rules! gen_tests(
                     let m_chol_updated = chol.l() * chol.l().adjoint();
 
                     // updates m manually
-                    m.syger(sigma, &x, &x, one); // m += sigma * x * x.adjoint()
+                    m.ger(sigma, &x, &x, one); // m += sigma * x * x.adjoint()
 
-                    println!("m : {:?}", m);
+                    println!("sigma : {}", sigma);
+                    println!("m updated : {}", m);
+                    println!("chol : {}", m_chol_updated);
 
                     relative_eq!(m, m_chol_updated, epsilon = 1.0e-7)
                 }
