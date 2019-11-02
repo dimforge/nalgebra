@@ -79,19 +79,22 @@ macro_rules! gen_tests(
                 }
 
                 fn cholesky_rank_one_update(_n: usize) -> bool {
-                    let m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
+                    let mut m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
                     let x = Vector4::<$scalar>::new_random().map(|e| e.0);
-                    let sigma : $scalar = 1.;
+                    let sigma = random::<$scalar>().0; // random::<$scalar>().0;
+                    let one = sigma*0. + 1.; // TODO this is dirty but $scalar appears to not be a scalar type
+
+                    // updates cholesky decomposition and reconstructs m
+                    let mut chol = m.clone().cholesky().unwrap();
+                    chol.rank_one_update(&x, sigma);
+                    let m_chol_updated = chol.l() * chol.l().adjoint();
 
                     // updates m manually
-                    let m_updated = m + sigma * x * x.transpose();
+                    m.syger(sigma, &x, &x, one); // m += sigma * x * x.adjoint()
 
-                    // updates cholesky deomposition and reconstruct m
-                    let mut chol = m.clone().cholesky().unwrap();
-                    chol.rank_one_update(x, sigma);
-                    let m_chol_updated = chol.l() * chol.l().transpose();
+                    println!("m : {:?}", m);
 
-                    relative_eq!(m_updated, m_chol_updated, epsilon = 1.0e-7)
+                    relative_eq!(m, m_chol_updated, epsilon = 1.0e-7)
                 }
             }
         }
