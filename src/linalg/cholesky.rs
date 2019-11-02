@@ -151,7 +151,7 @@ where
     /// TODO rewrite comment (current version is taken verbatim from eigen)
     /// TODO insures that code is correct for complex numbers, eigen uses abs2 and conj
     /// https://eigen.tuxfamily.org/dox/LLT_8h_source.html
-    pub fn rank_one_update<R2: Dim, C2: Dim, S2>(&mut self, x: &Matrix<N, R2, U1, S2>, sigma: N)
+    pub fn rank_one_update<R2: Dim, S2>(&mut self, x: &Matrix<N, R2, U1, S2>, sigma: N)
     where
         S2: Storage<N, R2, U1>,
         DefaultAllocator: Allocator<N, R2, U1>,
