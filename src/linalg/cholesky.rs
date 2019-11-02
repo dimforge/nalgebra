@@ -154,8 +154,7 @@ where
         DefaultAllocator: Allocator<N, R2, U1>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
-        // for a description of the operation, see https://en.wikipedia.org/wiki/Cholesky_decomposition#Updating_the_decomposition
-        // heavily inspired by Eigen's implementation https://eigen.tuxfamily.org/dox/LLT_8h_source.html
+        // heavily inspired by Eigen's `llt_rank_update_lower` implementation https://eigen.tuxfamily.org/dox/LLT_8h_source.html
         let n = x.nrows();
         let mut x = x.clone_owned();
         let mut beta = crate::one::<N::RealField>();
