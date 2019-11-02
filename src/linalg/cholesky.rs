@@ -6,28 +6,25 @@ use alga::general::ComplexField;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimSub, Dynamic};
+use crate::dimension::{Dim, DimSub, Dynamic, U1};
 use crate::storage::{Storage, StorageMut};
 
 /// The Cholesky decomposition of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: Serialize"
-    ))
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: Deserialize<'de>"
-    ))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct Cholesky<N: ComplexField, D: Dim>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     chol: MatrixN<N, D>,
 }
@@ -36,10 +33,12 @@ impl<N: ComplexField, D: Dim> Copy for Cholesky<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
-{}
+{
+}
 
 impl<N: ComplexField, D: DimSub<Dynamic>> Cholesky<N, D>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     /// Attempts to compute the Cholesky decomposition of `matrix`.
     ///
@@ -129,7 +128,7 @@ where DefaultAllocator: Allocator<N, D, D>
     /// `x` the unknown.
     pub fn solve<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<N, R2, C2, S2>) -> MatrixMN<N, R2, C2>
     where
-        S2: StorageMut<N, R2, C2>,
+        S2: Storage<N, R2, C2>,
         DefaultAllocator: Allocator<N, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
@@ -146,10 +145,41 @@ where DefaultAllocator: Allocator<N, D, D>
         self.solve_mut(&mut res);
         res
     }
+
+    /// Performs a rank one update of the current decomposition.
+    /// If `M = L * L^T` before the rank one update, then after it we have `L*L^T = M + sigma * v*v^T` where v must be a vector of same dimension.
+    /// TODO rewrite comment (current version is taken verbatim from eigen)
+    /// TODO insures that code is correct for complex numbers, eigen uses abs2 and conj
+    /// https://eigen.tuxfamily.org/dox/LLT_8h_source.html
+    pub fn rank_one_update<R2: Dim, C2: Dim, S2>(&mut self, x: &Matrix<N, R2, U1, S2>, sigma: N)
+    where
+        S2: Storage<N, R2, U1>,
+        DefaultAllocator: Allocator<N, R2, U1>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
+    {
+        let n = x.nrows();
+        let mut temp = x.clone_owned();
+        for k in 0..n {
+            let lkk = self.chol[(k, k)]; // TODO unsafe { *matrix.get_unchecked((j, j)) }
+            let xk = temp[k];
+            let r = (lkk * lkk + sigma * xk * xk).sqrt();
+            let c = r / lkk;
+            let s = xk / lkk;
+            self.chol[(k, k)] = r;
+            // Update the terms of L
+            if k < n {
+                for k2 in (k + 1)..n {
+                    self.chol[(k2, k)] = (self.chol[(k2, k)] + sigma * s * temp[k2]) / c;
+                    temp[k2] = c * temp[k2] - s * self.chol[(k2, k)];
+                }
+            }
+        }
+    }
 }
 
 impl<N: ComplexField, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     /// Attempts to compute the Cholesky decomposition of this matrix.
     ///
