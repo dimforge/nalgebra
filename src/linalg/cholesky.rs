@@ -8,6 +8,7 @@ use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimSub, Dynamic, U1};
 use crate::storage::{Storage, StorageMut};
+use crate::RealField;
 
 /// The Cholesky decomposition of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -151,12 +152,18 @@ where
     /// TODO rewrite comment (current version is taken verbatim from eigen)
     /// TODO insures that code is correct for complex numbers, eigen uses abs2 and conj
     /// https://eigen.tuxfamily.org/dox/LLT_8h_source.html
-    pub fn rank_one_update<R2: Dim, S2>(&mut self, x: &Matrix<N, R2, U1, S2>, sigma: N)
-    where
+    /// TODO insure that sigma is a real
+    pub fn rank_one_update<R2: Dim, S2, N2: RealField>(
+        &mut self,
+        x: &Matrix<N, R2, U1, S2>,
+        sigma: N2,
+    ) where
+        N: From<N2>,
         S2: Storage<N, R2, U1>,
         DefaultAllocator: Allocator<N, R2, U1>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
+        let sigma = <N>::from(sigma);
         let n = x.nrows();
         let mut temp = x.clone_owned();
         for k in 0..n {

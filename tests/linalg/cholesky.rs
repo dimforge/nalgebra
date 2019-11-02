@@ -83,9 +83,12 @@ macro_rules! gen_tests(
                     use nalgebra::Vector3;
                     let mut m = RandomSDP::new(U3, || random::<$scalar>().0).unwrap();
                     let x = Vector3::<$scalar>::new_random().map(|e| e.0);
-                    let mut sigma = random::<$scalar>().0; // random::<$scalar>().0;
-                    let one = sigma*0. + 1.; // TODO this is dirty but $scalar appears to not be a scalar type in this file
-                    sigma = one; // TODO placeholder
+
+                    // TODO this is dirty but $scalar appears to not be a scalar type in this file
+                    let zero = random::<$scalar>().0 * 0.;
+                    let one = zero + 1.;
+                    let sigma = random::<f64>(); // needs to be a real
+                    let sigma_scalar = zero + sigma;
 
                     // updates cholesky decomposition and reconstructs m
                     let mut chol = m.clone().cholesky().unwrap();
@@ -93,7 +96,7 @@ macro_rules! gen_tests(
                     let m_chol_updated = chol.l() * chol.l().adjoint();
 
                     // updates m manually
-                    m.ger(sigma, &x, &x, one); // m += sigma * x * x.adjoint()
+                    m.ger(sigma_scalar, &x, &x, one); // m += sigma * x * x.adjoint()
 
                     println!("sigma : {}", sigma);
                     println!("m updated : {}", m);
