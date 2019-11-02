@@ -79,10 +79,8 @@ macro_rules! gen_tests(
                 }
 
                 fn cholesky_rank_one_update(_n: usize) -> bool {
-                    use nalgebra::dimension::U3;
-                    use nalgebra::Vector3;
-                    let mut m = RandomSDP::new(U3, || random::<$scalar>().0).unwrap();
-                    let x = Vector3::<$scalar>::new_random().map(|e| e.0);
+                    let mut m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
+                    let x = Vector4::<$scalar>::new_random().map(|e| e.0);
 
                     // TODO this is dirty but $scalar appears to not be a scalar type in this file
                     let zero = random::<$scalar>().0 * 0.;
@@ -96,11 +94,7 @@ macro_rules! gen_tests(
                     let m_chol_updated = chol.l() * chol.l().adjoint();
 
                     // updates m manually
-                    m.ger(sigma_scalar, &x, &x, one); // m += sigma * x * x.adjoint()
-
-                    println!("sigma : {}", sigma);
-                    println!("m updated : {}", m);
-                    println!("chol : {}", m_chol_updated);
+                    m.gerc(sigma_scalar, &x, &x, one); // m += sigma * x * x.adjoint()
 
                     relative_eq!(m, m_chol_updated, epsilon = 1.0e-7)
                 }

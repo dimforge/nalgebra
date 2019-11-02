@@ -8,7 +8,6 @@ use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimSub, Dynamic, U1};
 use crate::storage::{Storage, StorageMut};
-use crate::RealField;
 
 /// The Cholesky decomposition of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -149,33 +148,35 @@ where
 
     /// Given the Cholesky decomposition of a matrix `M`, a scalar `sigma` and a vector `v`,
     /// performs a rank one update such that we end up with the decomposition of `M + sigma * v*v^*`.
-    /// TODO insures that code is correct for complex numbers, eigen uses abs2 and conj
-    /// https://eigen.tuxfamily.org/dox/LLT_8h_source.html
-    pub fn rank_one_update<R2: Dim, S2, N2: RealField>(
-        &mut self,
-        x: &Matrix<N, R2, U1, S2>,
-        sigma: N2,
-    ) where
-        N: From<N2>,
+    pub fn rank_one_update<R2: Dim, S2>(&mut self, x: &Matrix<N, R2, U1, S2>, sigma: N::RealField)
+    where
         S2: Storage<N, R2, U1>,
         DefaultAllocator: Allocator<N, R2, U1>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
-        let sigma = <N>::from(sigma);
+        // for a description of the operation, see https://en.wikipedia.org/wiki/Cholesky_decomposition#Updating_the_decomposition
+        // heavily inspired by Eigen's implementation https://eigen.tuxfamily.org/dox/LLT_8h_source.html
+        // TODO use unsafe { *matrix.get_unchecked((j, j)) }
         let n = x.nrows();
         let mut temp = x.clone_owned();
-        for k in 0..n {
-            let lkk = self.chol[(k, k)]; // TODO unsafe { *matrix.get_unchecked((j, j)) }
-            let xk = temp[k];
-            let r = (lkk * lkk + sigma * xk * xk).sqrt();
-            let c = r / lkk;
-            let s = xk / lkk;
-            self.chol[(k, k)] = r;
+        let mut beta = crate::one::<N::RealField>();
+        for j in 0..n {
+            let ljj = N::real(self.chol[(j, j)]);
+            let dj = ljj * ljj;
+            let wj = temp[j];
+            let swj2 = sigma * N::modulus_squared(wj);
+            let gamma = dj * beta + swj2;
+            let nljj = (dj + swj2 / beta).sqrt();
+            self.chol[(j, j)] = N::from_real(nljj);
+            beta += swj2 / dj;
             // Update the terms of L
-            if k < n {
-                for k2 in (k + 1)..n {
-                    self.chol[(k2, k)] = (self.chol[(k2, k)] + sigma * s * temp[k2]) / c;
-                    temp[k2] = c * temp[k2] - s * self.chol[(k2, k)];
+            if j < n {
+                for k in (j + 1)..n {
+                    temp[k] -= (wj / N::from_real(ljj)) * self.chol[(k, j)];
+                    if gamma != crate::zero::<N::RealField>() {
+                        self.chol[(k, j)] = N::from_real(nljj / ljj) * self.chol[(k, j)]
+                            + (N::from_real(nljj * sigma / gamma) * N::conjugate(wj)) * temp[k];
+                    }
                 }
             }
         }
