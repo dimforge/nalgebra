@@ -414,6 +414,7 @@ where
             let inv_rot = rot.inverse();
             inv_rot.rotate(&mut m);
             rot.rotate_rows(&mut m);
+            m[(1, 0)] = N::zero();
 
             if compute_q {
                 // XXX: we have to build the matrix manually because
