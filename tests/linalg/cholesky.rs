@@ -1,6 +1,5 @@
 #![cfg(all(feature = "arbitrary", feature = "debug"))]
 
-
 macro_rules! gen_tests(
     ($module: ident, $scalar: ty) => {
         mod $module {
@@ -77,6 +76,22 @@ macro_rules! gen_tests(
                     let id2 = &m1 * &m;
 
                     id1.is_identity(1.0e-7) && id2.is_identity(1.0e-7)
+                }
+
+                fn cholesky_rank_one_update(_n: usize) -> bool {
+                    let m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
+                    let x = Vector4::<$scalar>::new_random().map(|e| e.0);
+                    let sigma : $scalar = 1.;
+
+                    // updates m manually
+                    let m_updated = m + sigma * x * x.transpose();
+
+                    // updates cholesky deomposition and reconstruct m
+                    let mut chol = m.clone().cholesky().unwrap();
+                    chol.rank_one_update(x, sigma);
+                    let m_chol_updated = chol.l() * chol.l().transpose();
+
+                    relative_eq!(m_updated, m_chol_updated, epsilon = 1.0e-7)
                 }
             }
         }
