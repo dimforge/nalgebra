@@ -156,6 +156,11 @@ where
     {
         // heavily inspired by Eigen's `llt_rank_update_lower` implementation https://eigen.tuxfamily.org/dox/LLT_8h_source.html
         let n = x.nrows();
+        assert_eq!(
+            n,
+            self.chol.nrows(),
+            "The input vector must be of the same size as the factorized matrix."
+        );
         let mut x = x.clone_owned();
         let mut beta = crate::one::<N::RealField>();
         for j in 0..n {
