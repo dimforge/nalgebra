@@ -6,8 +6,9 @@ use alga::general::ComplexField;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimSub, Dynamic, U1};
+use crate::dimension::{Dim, DimAdd, DimSum, DimSub, Dynamic, U1};
 use crate::storage::{Storage, StorageMut};
+use crate::base::allocator::Reallocator;
 
 /// The Cholesky decomposition of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -187,6 +188,34 @@ where
                 );
             }
         }
+    }
+
+    /// Updates the decomposition such that we get the decomposition of a matrix with the given column `c` in the `j`th position.
+    /// Since the matrix is square, an identical row will be added in the `j`th row.
+    pub fn insert_column<R2: Dim, S2>(
+        self,
+        j: usize,
+        c: &Matrix<N, R2, U1, S2>,
+    ) -> Cholesky<N, DimSum<D, U1>>
+    where
+        D: DimAdd<U1>,
+        DefaultAllocator: Reallocator<N, D, D, D, DimSum<D, U1>> + Reallocator<N, D, DimSum<D, U1>, DimSum<D, U1>, DimSum<D, U1>>,
+        S2: Storage<N, R2, U1>,
+        ShapeConstraint: SameNumberOfRows<R2, DimSum<D, U1>>,
+    {
+        let n = c.nrows();
+        assert_eq!(
+            n,
+            self.chol.nrows() + 1,
+            "The new column must have the size of the factored matrix plus one."
+        );
+        assert!(j < n, "j needs to be within the bound of the new matrix.");
+        // TODO what is the fastest way to produce the new matrix ?
+        let chol= self.chol.insert_column(j, N::zero()).insert_row(j, N::zero());
+
+        // TODO see https://en.wikipedia.org/wiki/Cholesky_decomposition#Updating_the_decomposition
+        unimplemented!();
+        Cholesky { chol }
     }
 }
 
