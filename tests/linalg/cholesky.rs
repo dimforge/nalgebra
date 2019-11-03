@@ -100,7 +100,7 @@ macro_rules! gen_tests(
                 }
 
                 fn cholesky_insert_column(n: usize) -> bool {
-                    let n = n.max(1).min(5);
+                    let n = n.max(1).min(50);
                     let j = random::<usize>() % n;
                     let m_updated = RandomSDP::new(Dynamic::new(n), || random::<$scalar>().0).unwrap();
 

@@ -216,18 +216,21 @@ where
         let mut chol= self.chol.clone().insert_column(j, N::zero()).insert_row(j, N::zero());
 
         // update the jth row
-        let top_left_corner = chol.slice_range(..j-1, ..j-1);
-        let colj_minus = col.rows_range(..j-1);
+        let top_left_corner = chol.slice_range(..j, ..j);
+        let colj_minus = col.rows_range(..j);
         let rowj = top_left_corner.solve_lower_triangular(&colj_minus).unwrap().adjoint(); // TODO both the row and its adjoint seem to be usefull
-        chol.slice_range_mut(j, ..j-1).copy_from(&rowj);
+        chol.slice_range_mut(j, ..j).copy_from(&rowj);
+
+        // TODO
+        //println!("dotc:{} norm2:{}", rowj.dotc(&rowj), rowj.norm_squared());
 
         // update the center element
-        let center_element = N::sqrt(col[j] + rowj.dot(&rowj.adjoint())); // TODO is there a better way to multiply a vector by its adjoint ? norm_squared ?
+        let center_element = N::sqrt(col[j] - rowj.dotc(&rowj) );
         chol[(j,j)] = center_element;
 
         // update the jth column
         let colj_plus = col.rows_range(j+1..);
-        let bottom_left_corner = chol.slice_range(j+1.., ..j-1);
+        let bottom_left_corner = chol.slice_range(j+1.., ..j);
         let colj = (colj_plus - bottom_left_corner*rowj.adjoint()) / center_element; // TODO that can probably be done with a single optimized operation
         chol.slice_range_mut(j+1.., j).copy_from(&colj);
 
