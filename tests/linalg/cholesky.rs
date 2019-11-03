@@ -100,7 +100,7 @@ macro_rules! gen_tests(
                 }
 
                 fn cholesky_insert_column(n: usize) -> bool {
-                    let n = n.max(1).min(50);
+                    let n = n.max(1).min(10);
                     let j = random::<usize>() % n;
                     let m_updated = RandomSDP::new(Dynamic::new(n), || random::<$scalar>().0).unwrap();
 
@@ -112,15 +112,11 @@ macro_rules! gen_tests(
                     let chol = m.clone().cholesky().unwrap().insert_column(j, &col);
                     let m_chol_updated = chol.l() * chol.l().adjoint();
 
-                    println!("n={} j={}", n, j);
-                    println!("chol updated:{}", m_chol_updated);
-                    println!("m updated:{}", m_updated);
-
                     relative_eq!(m_updated, m_chol_updated, epsilon = 1.0e-7)
                 }
 
                 fn cholesky_remove_column(n: usize) -> bool {
-                    let n = n.max(1).min(5);
+                    let n = n.max(1).min(10);
                     let j = random::<usize>() % n;
                     let m = RandomSDP::new(Dynamic::new(n), || random::<$scalar>().0).unwrap();
 
