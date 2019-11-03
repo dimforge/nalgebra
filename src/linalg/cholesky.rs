@@ -6,7 +6,7 @@ use alga::general::ComplexField;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimAdd, DimSum, DimSub, Dynamic, U1};
+use crate::dimension::{Dim, DimAdd, DimSum, DimDiff, DimSub, Dynamic, U1};
 use crate::storage::{Storage, StorageMut};
 use crate::base::allocator::Reallocator;
 
@@ -212,6 +212,26 @@ where
         assert!(j < n, "j needs to be within the bound of the new matrix.");
         // TODO what is the fastest way to produce the new matrix ?
         let chol= self.chol.insert_column(j, N::zero()).insert_row(j, N::zero());
+
+        // TODO see https://en.wikipedia.org/wiki/Cholesky_decomposition#Updating_the_decomposition
+        unimplemented!();
+        Cholesky { chol }
+    }
+
+    /// Updates the decomposition such that we get the decomposition of the factored matrix with its `j`th column removed.
+    /// Since the matrix is square, the `j`th row will also be removed.
+    pub fn remove_column(
+        self,
+        j: usize,
+    ) -> Cholesky<N, DimDiff<D, U1>>
+        where
+            D: DimSub<U1>,
+            DefaultAllocator: Reallocator<N, D, D, D, DimDiff<D, U1>> + Reallocator<N, D, DimDiff<D, U1>, DimDiff<D, U1>, DimDiff<D, U1>>,
+    {
+        let n = self.chol.nrows();
+        assert!(j < n, "j needs to be within the bound of the matrix.");
+        // TODO what is the fastest way to produce the new matrix ?
+        let chol= self.chol.remove_column(j).remove_row(j);
 
         // TODO see https://en.wikipedia.org/wiki/Cholesky_decomposition#Updating_the_decomposition
         unimplemented!();
