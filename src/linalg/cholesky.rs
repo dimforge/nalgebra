@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 use alga::general::ComplexField;
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix, Vector};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimName, DimAdd, DimSum, DimDiff, DimSub, Dynamic, U1};
+use crate::dimension::{Dim, DimAdd, DimSum, DimDiff, DimSub, Dynamic, U1};
 use crate::storage::{Storage, StorageMut};
 use crate::base::allocator::Reallocator;
 
@@ -149,7 +149,7 @@ where
 
     /// Given the Cholesky decomposition of a matrix `M`, a scalar `sigma` and a vector `v`,
     /// performs a rank one update such that we end up with the decomposition of `M + sigma * v*v.adjoint()`.
-    pub fn rank_one_update<R2: Dim, S2>(&mut self, x: &Matrix<N, R2, U1, S2>, sigma: N::RealField)
+    pub fn rank_one_update<R2: Dim, S2>(&mut self, x: &Vector<N, R2, S2>, sigma: N::RealField)
     where
         S2: Storage<N, R2, U1>,
         DefaultAllocator: Allocator<N, R2, U1>,
@@ -192,17 +192,19 @@ where
 
     /// Updates the decomposition such that we get the decomposition of a matrix with the given column `c` in the `j`th position.
     /// Since the matrix is square, an identical row will be added in the `j`th row.
-    pub fn insert_column<R2: Dim, S2>(
+    pub fn insert_column<R2, S2>(
         self,
         j: usize,
-        col: &Matrix<N, R2, U1, S2>,
+        col: &Vector<N, R2, S2>,
     ) -> Cholesky<N, DimSum<D, U1>>
     where
         D: DimAdd<U1>,
-        DefaultAllocator: Reallocator<N, D, D, D, DimSum<D, U1>> + Reallocator<N, D, DimSum<D, U1>, DimSum<D, U1>, DimSum<D, U1>>,
+        R2: Dim,
         S2: Storage<N, R2, U1>,
+        DefaultAllocator: Reallocator<N, D, D, D, DimSum<D, U1>> + Reallocator<N, D, DimSum<D, U1>, DimSum<D, U1>, DimSum<D, U1>>,
         ShapeConstraint: SameNumberOfRows<R2, DimSum<D, U1>>,
     {
+        // for an explanation of the formulas, see https://en.wikipedia.org/wiki/Cholesky_decomposition#Updating_the_decomposition
         let n = col.nrows();
         assert_eq!(
             n,
@@ -211,7 +213,6 @@ where
         );
         assert!(j < n, "j needs to be within the bound of the new matrix.");
         // TODO what is the fastest way to produce the new matrix ?
-        // TODO check for adjoint problems
         let mut chol= self.chol.clone().insert_column(j, N::zero()).insert_row(j, N::zero());
 
         // update the jth row
@@ -225,16 +226,15 @@ where
         chol[(j,j)] = center_element;
 
         // update the jth column
-        let colj_plus = col.rows_range(j+1..).adjoint();
-        let bottom_left_corner = chol.slice_range(j+1, ..j-1);
-        let colj = (colj_plus - bottom_left_corner*rowj.adjoint()) / center_element;
+        let colj_plus = col.rows_range(j+1..);
+        let bottom_left_corner = chol.slice_range(j+1.., ..j-1);
+        let colj = (colj_plus - bottom_left_corner*rowj.adjoint()) / center_element; // TODO that can probably be done with a single optimized operation
         chol.slice_range_mut(j+1.., j).copy_from(&colj);
 
         // update the bottom right corner
-        let mut bottom_right_corner = chol.slice_range_mut(j.., j..);
+        let mut bottom_right_corner = chol.slice_range_mut(j+1.., j+1..);
         rank_one_update_helper(&mut bottom_right_corner, &colj, -N::real(N::one()));
 
-        // TODO see https://en.wikipedia.org/wiki/Cholesky_decomposition#Updating_the_decomposition
         Cholesky { chol }
     }
 
@@ -278,15 +278,14 @@ where
 
 /// Given the Cholesky decomposition of a matrix `M`, a scalar `sigma` and a vector `v`,
 /// performs a rank one update such that we end up with the decomposition of `M + sigma * v*v.adjoint()`.
-fn rank_one_update_helper<N, D, S, R2, S2>(chol : &mut Matrix<N, D, D, S>, x: &Matrix<N, R2, U1, S2>, sigma: N::RealField)
+fn rank_one_update_helper<N, D, S, Rx, Sx>(chol : &mut Matrix<N, D, D, S>, x: &Vector<N, Rx, Sx>, sigma: N::RealField)
     where
         N: ComplexField,
-        D: DimSub<Dynamic>,
-        R2: Dim,
+        D: Dim,
+        Rx: Dim,
         S: StorageMut<N, D, D>,
-        S2: Storage<N, R2, U1>,
-        DefaultAllocator: Allocator<N, D, D> + Allocator<N, R2, U1>,
-        ShapeConstraint: SameNumberOfRows<R2, D>,
+        Sx: Storage<N, Rx, U1>,
+        DefaultAllocator: Allocator<N, Rx, U1>,
 {
     // heavily inspired by Eigen's `llt_rank_update_lower` implementation https://eigen.tuxfamily.org/dox/LLT_8h_source.html
     let n = x.nrows();
