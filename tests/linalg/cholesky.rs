@@ -98,6 +98,25 @@ macro_rules! gen_tests(
 
                     relative_eq!(m, m_chol_updated, epsilon = 1.0e-7)
                 }
+
+                fn cholesky_remove_column(n: usize) -> bool {
+                    let n = n.max(1).min(5);
+                    let j = random::<usize>() % n;
+                    let m = RandomSDP::new(Dynamic::new(n), || random::<$scalar>().0).unwrap();
+
+                    // remove column from cholesky decomposition and rebuild m
+                    let chol = m.clone().cholesky().unwrap().remove_column(j);
+                    let m_chol_updated = chol.l() * chol.l().adjoint();
+
+                    // remove column from m
+                    let m_updated = m.remove_column(j).remove_row(j);
+
+                    println!("n={} j={}", n, j);
+                    println!("chol:{}", m_chol_updated);
+                    println!("m up:{}", m_updated);
+
+                    relative_eq!(m_updated, m_chol_updated, epsilon = 1.0e-7)
+                }
             }
         }
     }
