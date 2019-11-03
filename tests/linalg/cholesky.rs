@@ -99,6 +99,26 @@ macro_rules! gen_tests(
                     relative_eq!(m, m_chol_updated, epsilon = 1.0e-7)
                 }
 
+                fn cholesky_insert_column(n: usize) -> bool {
+                    let n = n.max(1).min(5);
+                    let j = random::<usize>() % n;
+                    let m_updated = RandomSDP::new(Dynamic::new(n), || random::<$scalar>().0).unwrap();
+
+                    // build m and col from m_updated
+                    let col = m_updated.column(j);
+                    let m = m_updated.clone().remove_column(j).remove_row(j);
+
+                    // remove column from cholesky decomposition and rebuild m
+                    let chol = m.clone().cholesky().unwrap().insert_column(j, &col);
+                    let m_chol_updated = chol.l() * chol.l().adjoint();
+
+                    println!("n={} j={}", n, j);
+                    println!("chol updated:{}", m_chol_updated);
+                    println!("m updated:{}", m_updated);
+
+                    relative_eq!(m_updated, m_chol_updated, epsilon = 1.0e-7)
+                }
+
                 fn cholesky_remove_column(n: usize) -> bool {
                     let n = n.max(1).min(5);
                     let j = random::<usize>() % n;
@@ -110,10 +130,6 @@ macro_rules! gen_tests(
 
                     // remove column from m
                     let m_updated = m.remove_column(j).remove_row(j);
-
-                    println!("n={} j={}", n, j);
-                    println!("chol:{}", m_chol_updated);
-                    println!("m up:{}", m_updated);
 
                     relative_eq!(m_updated, m_chol_updated, epsilon = 1.0e-7)
                 }
