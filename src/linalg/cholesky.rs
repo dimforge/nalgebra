@@ -195,7 +195,7 @@ where
     pub fn insert_column<R2: Dim, S2>(
         self,
         j: usize,
-        c: &Matrix<N, R2, U1, S2>,
+        col: &Matrix<N, R2, U1, S2>,
     ) -> Cholesky<N, DimSum<D, U1>>
     where
         D: DimAdd<U1>,
@@ -203,7 +203,7 @@ where
         S2: Storage<N, R2, U1>,
         ShapeConstraint: SameNumberOfRows<R2, DimSum<D, U1>>,
     {
-        let n = c.nrows();
+        let n = col.nrows();
         assert_eq!(
             n,
             self.chol.nrows() + 1,
@@ -211,10 +211,26 @@ where
         );
         assert!(j < n, "j needs to be within the bound of the new matrix.");
         // TODO what is the fastest way to produce the new matrix ?
-        let chol= self.chol.clone().insert_column(j, N::zero()).insert_row(j, N::zero());
+        // TODO check for adjoint problems
+        let mut chol= self.chol.clone().insert_column(j, N::zero()).insert_row(j, N::zero());
+
+        // update the top center element S12
+        let top_left_corner = chol.slice_range(..j-1, ..j-1);
+        let colj = col.rows_range(..j-1); // clone_owned needed to get storage mut for b in solve
+        let new_colj = top_left_corner.ad_solve_lower_triangular(&colj).unwrap();
+        chol.slice_range_mut(..j-1, j).copy_from(&new_colj);
+
+        // update the center element S22
+        let rowj = chol.slice_range(j, ..j-1);
+        let center_element = N::sqrt(col[j] + rowj.dot(&rowj.adjoint())); // TODO is there a better way to multiply a vector by its adjoint ? norm_squared ?
+        chol[(j,j)] = center_element;
+
+        // update the right center element S23
+        //chol.slice_range_mut(j+1.., j).copy_from(&new_rowj);
+
+        // update the bottom right corner
 
         // TODO see https://en.wikipedia.org/wiki/Cholesky_decomposition#Updating_the_decomposition
-        unimplemented!();
         Cholesky { chol }
     }
 
@@ -234,7 +250,7 @@ where
         // TODO what is the fastest way to produce the new matrix ?
         let mut chol= self.chol.clone().remove_column(j).remove_row(j);
 
-        // updates the corner
+        // updates the bottom right corner
         let mut corner = chol.slice_range_mut(j.., j..);
         let colj = self.chol.slice_range(j+1.., j);
         rank_one_update_helper(&mut corner, &colj, N::real(N::one()));
