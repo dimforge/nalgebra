@@ -6,7 +6,7 @@ use alga::general::ComplexField;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimAdd, DimSum, DimDiff, DimSub, Dynamic, U1};
+use crate::dimension::{Dim, DimName, DimAdd, DimSum, DimDiff, DimSub, Dynamic, U1};
 use crate::storage::{Storage, StorageMut};
 use crate::base::allocator::Reallocator;
 
@@ -214,21 +214,25 @@ where
         // TODO check for adjoint problems
         let mut chol= self.chol.clone().insert_column(j, N::zero()).insert_row(j, N::zero());
 
-        // update the top center element S12
+        // update the jth row
         let top_left_corner = chol.slice_range(..j-1, ..j-1);
-        let colj = col.rows_range(..j-1); // clone_owned needed to get storage mut for b in solve
-        let new_colj = top_left_corner.ad_solve_lower_triangular(&colj).unwrap();
-        chol.slice_range_mut(..j-1, j).copy_from(&new_colj);
+        let colj_minus = col.rows_range(..j-1);
+        let rowj = top_left_corner.solve_lower_triangular(&colj_minus).unwrap().adjoint(); // TODO both the row and its adjoint seem to be usefull
+        chol.slice_range_mut(j, ..j-1).copy_from(&rowj);
 
-        // update the center element S22
-        let rowj = chol.slice_range(j, ..j-1);
+        // update the center element
         let center_element = N::sqrt(col[j] + rowj.dot(&rowj.adjoint())); // TODO is there a better way to multiply a vector by its adjoint ? norm_squared ?
         chol[(j,j)] = center_element;
 
-        // update the right center element S23
-        //chol.slice_range_mut(j+1.., j).copy_from(&new_rowj);
+        // update the jth column
+        let colj_plus = col.rows_range(j+1..).adjoint();
+        let bottom_left_corner = chol.slice_range(j+1, ..j-1);
+        let colj = (colj_plus - bottom_left_corner*rowj.adjoint()) / center_element;
+        chol.slice_range_mut(j+1.., j).copy_from(&colj);
 
         // update the bottom right corner
+        let mut bottom_right_corner = chol.slice_range_mut(j.., j..);
+        rank_one_update_helper(&mut bottom_right_corner, &colj, -N::real(N::one()));
 
         // TODO see https://en.wikipedia.org/wiki/Cholesky_decomposition#Updating_the_decomposition
         Cholesky { chol }
@@ -276,7 +280,9 @@ where
 /// performs a rank one update such that we end up with the decomposition of `M + sigma * v*v.adjoint()`.
 fn rank_one_update_helper<N, D, S, R2, S2>(chol : &mut Matrix<N, D, D, S>, x: &Matrix<N, R2, U1, S2>, sigma: N::RealField)
     where
-        N: ComplexField, D: DimSub<Dynamic>, R2: Dim,
+        N: ComplexField,
+        D: DimSub<Dynamic>,
+        R2: Dim,
         S: StorageMut<N, D, D>,
         S2: Storage<N, R2, U1>,
         DefaultAllocator: Allocator<N, D, D> + Allocator<N, R2, U1>,
