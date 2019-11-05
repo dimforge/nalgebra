@@ -309,16 +309,17 @@ where
                 let hmn = t[(m, n)];
                 let hnn = t[(n, n)];
 
-                let tra = hnn + hmm;
-                let det = hnn * hmm - hnm * hmn;
-                let discr = tra * tra * crate::convert(0.25) - det;
+                // NOTE: use the same algorithm as in compute_2x2_eigvals.
+                let val = (hmm - hnn) * crate::convert(0.5);
+                let discr = hnm * hmn + val * val;
 
                 // All 2x2 blocks have negative discriminant because we already decoupled those
-                // with positive eigenvalues..
+                // with positive eigenvalues.
                 let sqrt_discr = NumComplex::new(N::zero(), (-discr).sqrt());
 
-                out[m] = NumComplex::new(tra * crate::convert(0.5), N::zero()) + sqrt_discr;
-                out[m + 1] = NumComplex::new(tra * crate::convert(0.5), N::zero()) - sqrt_discr;
+                let half_tra = (hnn + hmm) * crate::convert(0.5);
+                out[m] = NumComplex::new(half_tra, N::zero()) + sqrt_discr;
+                out[m + 1] = NumComplex::new(half_tra, N::zero()) - sqrt_discr;
 
                 m += 2;
             }
