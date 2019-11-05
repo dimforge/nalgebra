@@ -20,6 +20,7 @@ use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::VecStorage;
+use crate::base::{SliceStorage, SliceStorageMut};
 use crate::base::{DefaultAllocator, Matrix, ArrayStorage, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar};
 use crate::constraint::DimEq;
 
@@ -426,59 +427,101 @@ where
     }
 }
 
-impl<'a, N, R, C, RSlice, CSlice, S> From<&'a Matrix<N, R, C, S>>
-for MatrixSlice<'a, N, RSlice, CSlice, S::RStride, S::CStride>
+impl<'a, N, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a Matrix<N, R, C, S>>
+for MatrixSlice<'a, N, RSlice, CSlice, RStride, CStride>
     where
         N: Scalar,
         R: Dim,
         C: Dim,
         RSlice: Dim,
         CSlice: Dim,
+        RStride: Dim,
+        CStride: Dim,
         S: Storage<N, R, C>,
         ShapeConstraint: DimEq<R, RSlice> + DimEq<C, CSlice>
+            + DimEq<RStride, S::RStride> + DimEq<CStride, S::CStride>
 {
     fn from(m: &'a Matrix<N, R, C, S>) -> Self {
         let (row, col) = m.data.shape();
         let row_slice = RSlice::from_usize(row.value());
         let col_slice = CSlice::from_usize(col.value());
-        m.generic_slice((0, 0), (row_slice, col_slice))
+
+        let (rstride, cstride) = m.strides();
+
+        let rstride_slice = RStride::from_usize(rstride);
+        let cstride_slice = CStride::from_usize(cstride);
+
+        unsafe {
+            let data = SliceStorage::from_raw_parts(m.data.ptr(),
+                                                    (row_slice, col_slice),
+                                                    (rstride_slice, cstride_slice));
+            Matrix::from_data_statically_unchecked(data)
+        }
     }
 }
 
-impl<'a, N, R, C, RSlice, CSlice, S> From<&'a mut Matrix<N, R, C, S>>
-for MatrixSlice<'a, N, RSlice, CSlice, S::RStride, S::CStride>
+impl<'a, N, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a mut Matrix<N, R, C, S>>
+for MatrixSlice<'a, N, RSlice, CSlice, RStride, CStride>
     where
         N: Scalar,
         R: Dim,
         C: Dim,
         RSlice: Dim,
         CSlice: Dim,
+        RStride: Dim,
+        CStride: Dim,
         S: Storage<N, R, C>,
         ShapeConstraint: DimEq<R, RSlice> + DimEq<C, CSlice>
+            + DimEq<RStride, S::RStride> + DimEq<CStride, S::CStride>
 {
     fn from(m: &'a mut Matrix<N, R, C, S>) -> Self {
         let (row, col) = m.data.shape();
         let row_slice = RSlice::from_usize(row.value());
         let col_slice = CSlice::from_usize(col.value());
-        m.generic_slice((0, 0), (row_slice, col_slice))
+
+        let (rstride, cstride) = m.strides();
+
+        let rstride_slice = RStride::from_usize(rstride);
+        let cstride_slice = CStride::from_usize(cstride);
+
+        unsafe {
+            let data = SliceStorage::from_raw_parts(m.data.ptr(),
+                                                    (row_slice, col_slice),
+                                                    (rstride_slice, cstride_slice));
+            Matrix::from_data_statically_unchecked(data)
+        }
     }
 }
 
-impl<'a, N, R, C, RSlice, CSlice, S> From<&'a mut Matrix<N, R, C, S>>
-for MatrixSliceMut<'a, N, RSlice, CSlice, S::RStride, S::CStride>
+impl<'a, N, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a mut Matrix<N, R, C, S>>
+for MatrixSliceMut<'a, N, RSlice, CSlice, RStride, CStride>
     where
         N: Scalar,
         R: Dim,
         C: Dim,
         RSlice: Dim,
         CSlice: Dim,
+        RStride: Dim,
+        CStride: Dim,
         S: StorageMut<N, R, C>,
         ShapeConstraint: DimEq<R, RSlice> + DimEq<C, CSlice>
+            + DimEq<RStride, S::RStride> + DimEq<CStride, S::CStride>
 {
     fn from(m: &'a mut Matrix<N, R, C, S>) -> Self {
         let (row, col) = m.data.shape();
         let row_slice = RSlice::from_usize(row.value());
         let col_slice = CSlice::from_usize(col.value());
-        m.generic_slice_mut((0, 0), (row_slice, col_slice))
+
+        let (rstride, cstride) = m.strides();
+
+        let rstride_slice = RStride::from_usize(rstride);
+        let cstride_slice = CStride::from_usize(cstride);
+
+        unsafe {
+            let data = SliceStorageMut::from_raw_parts(m.data.ptr_mut(),
+                                                    (row_slice, col_slice),
+                                                    (rstride_slice, cstride_slice));
+            Matrix::from_data_statically_unchecked(data)
+        }
     }
 }

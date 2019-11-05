@@ -8,7 +8,7 @@ use na::{
     RowVector4, RowVector5, RowVector6, Similarity3, Transform3, Translation3, UnitQuaternion,
     Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
 };
-use na::{U3, U4};
+use na::{U1, U3, U4};
 use na::{DMatrix, MatrixSlice, MatrixSliceMut, DMatrixSlice, DMatrixSliceMut};
 
 quickcheck!{
@@ -265,11 +265,11 @@ fn matrix_slice_from_matrix_ref() {
     // Note: these have to be macros, and not functions, because the input type is different
     // across the different tests. Moreover, the output type depends on the stride of the input,
     // which is different for static and dynamic matrices.
-    macro_rules! dynamic_slice { ($mref:expr) => { DMatrixSlice::from($mref) } }
-    macro_rules! dynamic_slice_mut { ($mref:expr) => { DMatrixSliceMut::from($mref) } }
-    macro_rules! fixed_slice { ($mref:expr) => { MatrixSlice::<_, U3, U4, _, _>::from($mref)} };
+    macro_rules! dynamic_slice { ($mref:expr) => { DMatrixSlice::<_>::from($mref) } }
+    macro_rules! dynamic_slice_mut { ($mref:expr) => { DMatrixSliceMut::<_>::from($mref) } }
+    macro_rules! fixed_slice { ($mref:expr) => { MatrixSlice::<_, U3, U4, U1, U3>::from($mref)} };
     macro_rules! fixed_slice_mut {
-        ($mref:expr) => { MatrixSliceMut::<_, U3, U4, _, _>::from($mref) }
+        ($mref:expr) => { MatrixSliceMut::<_, U3, U4, U1, U3>::from($mref) }
     };
 
     // TODO: The `into_owned()` is a result of `PartialEq` not being implemented for different
