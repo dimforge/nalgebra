@@ -1,5 +1,6 @@
 use na::{DVector, Vector2, Vector3, Vector4, VectorN};
-use rand::{IsaacRng, Rng};
+use rand::Rng;
+use rand_isaac::IsaacRng;
 use std::ops::{Add, Div, Mul, Sub};
 use typenum::U10000;
 

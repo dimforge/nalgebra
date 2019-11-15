@@ -1,5 +1,6 @@
 use na::{Quaternion, UnitQuaternion, Vector3};
-use rand::{IsaacRng, Rng};
+use rand::Rng;
+use rand_isaac::IsaacRng;
 use std::ops::{Add, Div, Mul, Sub};
 
 #[path = "../common/macros.rs"]
