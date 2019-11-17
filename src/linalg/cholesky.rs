@@ -1,6 +1,7 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
+use num::One;
 use alga::general::ComplexField;
 
 use crate::allocator::Allocator;
@@ -155,23 +156,24 @@ where
         DefaultAllocator: Allocator<N, R2, U1>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
-        Self::xx_rank_one_update(&mut self.chol, x, sigma)
+        Self::xx_rank_one_update(&mut self.chol, &mut x.clone_owned(), sigma)
     }
 
     /// Updates the decomposition such that we get the decomposition of a matrix with the given column `col` in the `j`th position.
     /// Since the matrix is square, an identical row will be added in the `j`th row.
     pub fn insert_column<R2, S2>(
-        self,
+        &self,
         j: usize,
-        col: &Vector<N, R2, S2>,
+        col: Vector<N, R2, S2>,
     ) -> Cholesky<N, DimSum<D, U1>>
     where
         D: DimAdd<U1>,
         R2: Dim,
         S2: Storage<N, R2, U1>,
-        DefaultAllocator: Allocator<N, DimSum<D, U1>, DimSum<D, U1>>,
+        DefaultAllocator: Allocator<N, DimSum<D, U1>, DimSum<D, U1>> + Allocator<N, R2>,
         ShapeConstraint: SameNumberOfRows<R2, DimSum<D, U1>>,
     {
+        let mut col = col.into_owned();
         // for an explanation of the formulas, see https://en.wikipedia.org/wiki/Cholesky_decomposition#Updating_the_decomposition
         let n = col.nrows();
         assert_eq!(n, self.chol.nrows() + 1, "The new column must have the size of the factored matrix plus one.");
@@ -186,24 +188,26 @@ where
 
         // update the jth row
         let top_left_corner = self.chol.slice_range(..j, ..j);
-        let col_jminus = col.rows_range(..j);
-        let new_rowj_adjoint = top_left_corner.solve_lower_triangular(&col_jminus).expect("Cholesky::insert_column : Unable to solve lower triangular system!");
+
+        let col_j = col[j];
+        let (mut new_rowj_adjoint, mut new_colj) = col.rows_range_pair_mut(..j, j + 1..);
+        assert!(top_left_corner.solve_lower_triangular_mut(&mut new_rowj_adjoint), "Cholesky::insert_column : Unable to solve lower triangular system!");
+
         new_rowj_adjoint.adjoint_to(&mut chol.slice_range_mut(j, ..j));
 
         // update the center element
-        let center_element = N::sqrt(col[j] - N::from_real(new_rowj_adjoint.norm_squared()));
-        chol[(j,j)] = center_element;
+        let center_element = N::sqrt(col_j - N::from_real(new_rowj_adjoint.norm_squared()));
+        chol[(j, j)] = center_element;
 
         // update the jth column
         let bottom_left_corner = self.chol.slice_range(j.., ..j);
         // new_colj = (col_jplus - bottom_left_corner * new_rowj.adjoint()) / center_element;
-        let mut new_colj = col.rows_range(j+1..).clone_owned();
-        new_colj.gemm(-N::one() / center_element, &bottom_left_corner, &new_rowj_adjoint, N::one() / center_element );
+        new_colj.gemm(-N::one() / center_element, &bottom_left_corner, &new_rowj_adjoint, N::one() / center_element);
         chol.slice_range_mut(j+1.., j).copy_from(&new_colj);
 
         // update the bottom right corner
         let mut bottom_right_corner = chol.slice_range_mut(j+1.., j+1..);
-        Self::xx_rank_one_update(&mut bottom_right_corner, &new_colj, -N::real(N::one()));
+        Self::xx_rank_one_update(&mut bottom_right_corner, &mut new_colj, -N::RealField::one());
 
         Cholesky { chol }
     }
@@ -216,7 +220,7 @@ where
     ) -> Cholesky<N, DimDiff<D, U1>>
         where
             D: DimSub<U1>,
-            DefaultAllocator: Allocator<N, DimDiff<D, U1>, DimDiff<D, U1>>
+            DefaultAllocator: Allocator<N, DimDiff<D, U1>, DimDiff<D, U1>> + Allocator<N, D>
     {
         let n = self.chol.nrows();
         assert!(n > 0, "The matrix needs at least one column.");
@@ -231,25 +235,25 @@ where
 
         // updates the bottom right corner
         let mut bottom_right_corner = chol.slice_range_mut(j.., j..);
-        let old_colj = self.chol.slice_range(j+1.., j);
-        Self::xx_rank_one_update(&mut bottom_right_corner, &old_colj, N::real(N::one()));
+        let mut workspace = self.chol.column(j).clone_owned();
+        let mut old_colj = workspace.rows_range_mut(j+1..);
+        Self::xx_rank_one_update(&mut bottom_right_corner, &mut old_colj, N::RealField::one());
 
         Cholesky { chol }
     }
 
     /// Given the Cholesky decomposition of a matrix `M`, a scalar `sigma` and a vector `v`,
-    /// performs a rank one update such that we end up with the decomposition of `M + sigma * v*v.adjoint()`.
+    /// performs a rank one update such that we end up with the decomposition of `M + sigma * x*x.adjoint()`.
     ///
     /// This helper method is calling for by `rank_one_update` but also `insert_column` and `remove_column`
     /// where it is used on a square slice of the decomposition
-    fn xx_rank_one_update<Dm, Sm, Rx, Sx>(chol : &mut Matrix<N, Dm, Dm, Sm>, x: &Vector<N, Rx, Sx>, sigma: N::RealField)
+    fn xx_rank_one_update<Dm, Sm, Rx, Sx>(chol : &mut Matrix<N, Dm, Dm, Sm>, x: &mut Vector<N, Rx, Sx>, sigma: N::RealField)
         where
             //N: ComplexField,
             Dm: Dim,
             Rx: Dim,
             Sm: StorageMut<N, Dm, Dm>,
-            Sx: Storage<N, Rx, U1>,
-            DefaultAllocator: Allocator<N, Rx, U1>,
+            Sx: StorageMut<N, Rx, U1>,
     {
         // heavily inspired by Eigen's `llt_rank_update_lower` implementation https://eigen.tuxfamily.org/dox/LLT_8h_source.html
         let n = x.nrows();
@@ -258,8 +262,9 @@ where
             chol.nrows(),
             "The input vector must be of the same size as the factorized matrix."
         );
-        let mut x = x.clone_owned();
+
         let mut beta = crate::one::<N::RealField>();
+
         for j in 0..n {
             // updates the diagonal
             let diag = N::real(unsafe { *chol.get_unchecked((j, j)) });

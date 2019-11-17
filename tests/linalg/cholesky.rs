@@ -109,7 +109,7 @@ macro_rules! gen_tests(
                     let m = m_updated.clone().remove_column(j).remove_row(j);
 
                     // remove column from cholesky decomposition and rebuild m
-                    let chol = m.clone().cholesky().unwrap().insert_column(j, &col);
+                    let chol = m.clone().cholesky().unwrap().insert_column(j, col);
                     let m_chol_updated = chol.l() * chol.l().adjoint();
 
                     relative_eq!(m_updated, m_chol_updated, epsilon = 1.0e-7)
