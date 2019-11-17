@@ -148,7 +148,7 @@ where
     }
 
     /// Given the Cholesky decomposition of a matrix `M`, a scalar `sigma` and a vector `v`,
-    /// performs a rank one update such that we end up with the decomposition of `M + sigma * v*v.adjoint()`.
+    /// performs a rank one update such that we end up with the decomposition of `M + sigma * (v * v.adjoint())`.
     #[inline]
     pub fn rank_one_update<R2: Dim, S2>(&mut self, x: &Vector<N, R2, S2>, sigma: N::RealField)
     where
@@ -182,9 +182,9 @@ where
         // loads the data into a new matrix with an additional jth row/column
         let mut chol = unsafe { Matrix::new_uninitialized_generic(self.chol.data.shape().0.add(U1), self.chol.data.shape().1.add(U1)) };
         chol.slice_range_mut(..j, ..j).copy_from(&self.chol.slice_range(..j, ..j));
-        chol.slice_range_mut(..j, j+1..).copy_from(&self.chol.slice_range(..j, j..));
-        chol.slice_range_mut(j+1.., ..j).copy_from(&self.chol.slice_range(j.., ..j));
-        chol.slice_range_mut(j+1.., j+1..).copy_from(&self.chol.slice_range(j.., j..));
+        chol.slice_range_mut(..j, j + 1..).copy_from(&self.chol.slice_range(..j, j..));
+        chol.slice_range_mut(j + 1.., ..j).copy_from(&self.chol.slice_range(j.., ..j));
+        chol.slice_range_mut(j + 1.., j + 1..).copy_from(&self.chol.slice_range(j.., j..));
 
         // update the jth row
         let top_left_corner = self.chol.slice_range(..j, ..j);
@@ -203,10 +203,10 @@ where
         let bottom_left_corner = self.chol.slice_range(j.., ..j);
         // new_colj = (col_jplus - bottom_left_corner * new_rowj.adjoint()) / center_element;
         new_colj.gemm(-N::one() / center_element, &bottom_left_corner, &new_rowj_adjoint, N::one() / center_element);
-        chol.slice_range_mut(j+1.., j).copy_from(&new_colj);
+        chol.slice_range_mut(j + 1.., j).copy_from(&new_colj);
 
         // update the bottom right corner
-        let mut bottom_right_corner = chol.slice_range_mut(j+1.., j+1..);
+        let mut bottom_right_corner = chol.slice_range_mut(j + 1.., j + 1..);
         Self::xx_rank_one_update(&mut bottom_right_corner, &mut new_colj, -N::RealField::one());
 
         Cholesky { chol }
@@ -229,21 +229,21 @@ where
         // loads the data into a new matrix except for the jth row/column
         let mut chol = unsafe { Matrix::new_uninitialized_generic(self.chol.data.shape().0.sub(U1), self.chol.data.shape().1.sub(U1)) };
         chol.slice_range_mut(..j, ..j).copy_from(&self.chol.slice_range(..j, ..j));
-        chol.slice_range_mut(..j, j..).copy_from(&self.chol.slice_range(..j, j+1..));
-        chol.slice_range_mut(j.., ..j).copy_from(&self.chol.slice_range(j+1.., ..j));
-        chol.slice_range_mut(j.., j..).copy_from(&self.chol.slice_range(j+1.., j+1..));
+        chol.slice_range_mut(..j, j..).copy_from(&self.chol.slice_range(..j, j + 1..));
+        chol.slice_range_mut(j.., ..j).copy_from(&self.chol.slice_range(j + 1.., ..j));
+        chol.slice_range_mut(j.., j..).copy_from(&self.chol.slice_range(j + 1.., j + 1..));
 
         // updates the bottom right corner
         let mut bottom_right_corner = chol.slice_range_mut(j.., j..);
         let mut workspace = self.chol.column(j).clone_owned();
-        let mut old_colj = workspace.rows_range_mut(j+1..);
+        let mut old_colj = workspace.rows_range_mut(j + 1..);
         Self::xx_rank_one_update(&mut bottom_right_corner, &mut old_colj, N::RealField::one());
 
         Cholesky { chol }
     }
 
     /// Given the Cholesky decomposition of a matrix `M`, a scalar `sigma` and a vector `v`,
-    /// performs a rank one update such that we end up with the decomposition of `M + sigma * x*x.adjoint()`.
+    /// performs a rank one update such that we end up with the decomposition of `M + sigma * (x * x.adjoint())`.
     ///
     /// This helper method is calling for by `rank_one_update` but also `insert_column` and `remove_column`
     /// where it is used on a square slice of the decomposition
