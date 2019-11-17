@@ -15,7 +15,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         b: &Matrix<N, R2, C2, S2>,
     ) -> Option<MatrixMN<N, R2, C2>>
     where
-        S2: StorageMut<N, R2, C2>,
+        S2: Storage<N, R2, C2>,
         DefaultAllocator: Allocator<N, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
@@ -35,7 +35,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         b: &Matrix<N, R2, C2, S2>,
     ) -> Option<MatrixMN<N, R2, C2>>
     where
-        S2: StorageMut<N, R2, C2>,
+        S2: Storage<N, R2, C2>,
         DefaultAllocator: Allocator<N, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
@@ -191,7 +191,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         b: &Matrix<N, R2, C2, S2>,
     ) -> Option<MatrixMN<N, R2, C2>>
         where
-            S2: StorageMut<N, R2, C2>,
+            S2: Storage<N, R2, C2>,
             DefaultAllocator: Allocator<N, R2, C2>,
             ShapeConstraint: SameNumberOfRows<R2, D>,
     {
@@ -211,7 +211,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         b: &Matrix<N, R2, C2, S2>,
     ) -> Option<MatrixMN<N, R2, C2>>
         where
-            S2: StorageMut<N, R2, C2>,
+            S2: Storage<N, R2, C2>,
             DefaultAllocator: Allocator<N, R2, C2>,
             ShapeConstraint: SameNumberOfRows<R2, D>,
     {
@@ -273,7 +273,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         b: &Matrix<N, R2, C2, S2>,
     ) -> Option<MatrixMN<N, R2, C2>>
         where
-            S2: StorageMut<N, R2, C2>,
+            S2: Storage<N, R2, C2>,
             DefaultAllocator: Allocator<N, R2, C2>,
             ShapeConstraint: SameNumberOfRows<R2, D>,
     {
@@ -293,7 +293,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         b: &Matrix<N, R2, C2, S2>,
     ) -> Option<MatrixMN<N, R2, C2>>
         where
-            S2: StorageMut<N, R2, C2>,
+            S2: Storage<N, R2, C2>,
             DefaultAllocator: Allocator<N, R2, C2>,
             ShapeConstraint: SameNumberOfRows<R2, D>,
     {
