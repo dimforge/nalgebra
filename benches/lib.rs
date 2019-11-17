@@ -3,6 +3,7 @@
 
 extern crate nalgebra as na;
 extern crate rand;
+extern crate rand_isaac;
 extern crate test;
 extern crate typenum;
 
@@ -10,7 +11,8 @@ extern crate typenum;
 extern crate criterion;
 
 use na::DMatrix;
-use rand::{IsaacRng, Rng};
+use rand::Rng;
+use rand_isaac::IsaacRng;
 
 pub mod core;
 pub mod geometry;
