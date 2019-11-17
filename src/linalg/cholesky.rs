@@ -242,10 +242,10 @@ where
         Cholesky { chol }
     }
 
-    /// Given the Cholesky decomposition of a matrix `M`, a scalar `sigma` and a vector `v`,
+    /// Given the Cholesky decomposition of a matrix `M`, a scalar `sigma` and a vector `x`,
     /// performs a rank one update such that we end up with the decomposition of `M + sigma * (x * x.adjoint())`.
     ///
-    /// This helper method is calling for by `rank_one_update` but also `insert_column` and `remove_column`
+    /// This helper method is called by `rank_one_update` but also `insert_column` and `remove_column`
     /// where it is used on a square slice of the decomposition
     fn xx_rank_one_update<Dm, Sm, Rx, Sx>(chol : &mut Matrix<N, Dm, Dm, Sm>, x: &mut Vector<N, Rx, Sx>, sigma: N::RealField)
         where
