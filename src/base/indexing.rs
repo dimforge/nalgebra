@@ -267,7 +267,7 @@ fn dimrange_rangetoinclusive_usize() {
 }
 
 /// A helper trait used for indexing operations.
-pub trait MatrixIndex<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>>: Sized {
+pub trait MatrixIndex<'a, N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>>: Sized {
 
     /// The output type returned by methods.
     type Output : 'a;
@@ -303,7 +303,7 @@ pub trait MatrixIndex<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>>: Sized
 }
 
 /// A helper trait used for indexing operations.
-pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>: MatrixIndex<'a, N, R, C, S> {
+pub trait MatrixIndexMut<'a, N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>>: MatrixIndex<'a, N, R, C, S> {
     /// The output type returned by methods.
     type OutputMut : 'a;
 
@@ -432,7 +432,7 @@ pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
 ///                         4, 7,
 ///                         5, 8)));
 /// ```
-impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 {
     /// Produces a view of the data at the given index, or
     /// `None` if the index is out of bounds.
@@ -502,7 +502,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 
 impl<'a, N, R, C, S> MatrixIndex<'a, N, R, C, S> for usize
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: Dim,
     C: Dim,
     S: Storage<N, R, C>
@@ -524,7 +524,7 @@ where
 
 impl<'a, N, R, C, S> MatrixIndexMut<'a, N, R, C, S> for usize
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: Dim,
     C: Dim,
     S: StorageMut<N, R, C>
@@ -544,7 +544,7 @@ where
 
 impl<'a, N, R, C, S> MatrixIndex<'a, N, R, C, S> for (usize, usize)
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: Dim,
     C: Dim,
     S: Storage<N, R, C>
@@ -569,7 +569,7 @@ where
 
 impl<'a, N, R, C, S> MatrixIndexMut<'a, N, R, C, S> for (usize, usize)
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: Dim,
     C: Dim,
     S: StorageMut<N, R, C>
@@ -607,7 +607,7 @@ macro_rules! impl_index_pair {
     {
         impl<'a, N, $R, $C, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*> MatrixIndex<'a, N, $R, $C, S> for ($RIdx, $CIdx)
         where
-            N: Scalar,
+            N: Scalar + Copy,
             $R: Dim,
             $C: Dim,
             S: Storage<N, R, C>,
@@ -643,7 +643,7 @@ macro_rules! impl_index_pair {
 
         impl<'a, N, $R, $C, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*> MatrixIndexMut<'a, N, $R, $C, S> for ($RIdx, $CIdx)
         where
-            N: Scalar,
+            N: Scalar + Copy,
             $R: Dim,
             $C: Dim,
             S: StorageMut<N, R, C>,

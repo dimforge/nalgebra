@@ -36,7 +36,7 @@ pub type CStride<N, R, C = U1> =
 /// should **not** allow the user to modify the size of the underlying buffer with safe methods
 /// (for example the `VecStorage::data_mut` method is unsafe because the user could change the
 /// vector's size so that it no longer contains enough elements: this will lead to UB.
-pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
+pub unsafe trait Storage<N: Scalar + Copy, R: Dim, C: Dim = U1>: Debug + Sized {
     /// The static stride of this storage's rows.
     type RStride: Dim;
 
@@ -117,7 +117,7 @@ pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
 /// Note that a mutable access does not mean that the matrix owns its data. For example, a mutable
 /// matrix slice can provide mutable access to its elements even if it does not own its data (it
 /// contains only an internal reference to them).
-pub unsafe trait StorageMut<N: Scalar, R: Dim, C: Dim = U1>: Storage<N, R, C> {
+pub unsafe trait StorageMut<N: Scalar + Copy, R: Dim, C: Dim = U1>: Storage<N, R, C> {
     /// The matrix mutable data pointer.
     fn ptr_mut(&mut self) -> *mut N;
 
@@ -175,7 +175,7 @@ pub unsafe trait StorageMut<N: Scalar, R: Dim, C: Dim = U1>: Storage<N, R, C> {
 /// The storage requirement means that for any value of `i` in `[0, nrows * ncols[`, the value
 /// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because
 /// failing to comply to this may cause Undefined Behaviors.
-pub unsafe trait ContiguousStorage<N: Scalar, R: Dim, C: Dim = U1>:
+pub unsafe trait ContiguousStorage<N: Scalar + Copy, R: Dim, C: Dim = U1>:
     Storage<N, R, C>
 {
 }
@@ -185,7 +185,7 @@ pub unsafe trait ContiguousStorage<N: Scalar, R: Dim, C: Dim = U1>:
 /// The storage requirement means that for any value of `i` in `[0, nrows * ncols[`, the value
 /// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because
 /// failing to comply to this may cause Undefined Behaviors.
-pub unsafe trait ContiguousStorageMut<N: Scalar, R: Dim, C: Dim = U1>:
+pub unsafe trait ContiguousStorageMut<N: Scalar + Copy, R: Dim, C: Dim = U1>:
     ContiguousStorage<N, R, C> + StorageMut<N, R, C>
 {
 }

@@ -18,7 +18,7 @@ use crate::geometry::Point;
  * Indexing.
  *
  */
-impl<N: Scalar, D: DimName> Index<usize> for Point<N, D>
+impl<N: Scalar + Copy, D: DimName> Index<usize> for Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     type Output = N;
@@ -29,7 +29,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Scalar, D: DimName> IndexMut<usize> for Point<N, D>
+impl<N: Scalar + Copy, D: DimName> IndexMut<usize> for Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -43,7 +43,7 @@ where DefaultAllocator: Allocator<N, D>
  * Neg.
  *
  */
-impl<N: Scalar + ClosedNeg, D: DimName> Neg for Point<N, D>
+impl<N: Scalar + Copy + ClosedNeg, D: DimName> Neg for Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     type Output = Self;
@@ -54,7 +54,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<'a, N: Scalar + ClosedNeg, D: DimName> Neg for &'a Point<N, D>
+impl<'a, N: Scalar + Copy + ClosedNeg, D: DimName> Neg for &'a Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     type Output = Point<N, D>;
@@ -138,7 +138,7 @@ add_sub_impl!(Add, add, ClosedAdd;
 macro_rules! op_assign_impl(
     ($($TraitAssign: ident, $method_assign: ident, $bound: ident);* $(;)*) => {$(
         impl<'b, N, D1: DimName, D2: Dim, SB> $TraitAssign<&'b Vector<N, D2, SB>> for Point<N, D1>
-            where N:  Scalar + $bound,
+            where N: Scalar + Copy + $bound,
                   SB: Storage<N, D2>,
                   DefaultAllocator: Allocator<N, D1>,
                   ShapeConstraint: SameNumberOfRows<D1, D2> {
@@ -150,7 +150,7 @@ macro_rules! op_assign_impl(
         }
 
         impl<N, D1: DimName, D2: Dim, SB> $TraitAssign<Vector<N, D2, SB>> for Point<N, D1>
-            where N:  Scalar + $bound,
+            where N: Scalar + Copy + $bound,
                   SB: Storage<N, D2>,
                   DefaultAllocator: Allocator<N, D1>,
                   ShapeConstraint: SameNumberOfRows<D1, D2> {
@@ -192,7 +192,7 @@ md_impl_all!(
 macro_rules! componentwise_scalarop_impl(
     ($Trait: ident, $method: ident, $bound: ident;
      $TraitAssign: ident, $method_assign: ident) => {
-        impl<N: Scalar + $bound, D: DimName> $Trait<N> for Point<N, D>
+        impl<N: Scalar + Copy + $bound, D: DimName> $Trait<N> for Point<N, D>
             where DefaultAllocator: Allocator<N, D> {
             type Output = Point<N, D>;
 
@@ -202,7 +202,7 @@ macro_rules! componentwise_scalarop_impl(
             }
         }
 
-        impl<'a, N: Scalar + $bound, D: DimName> $Trait<N> for &'a Point<N, D>
+        impl<'a, N: Scalar + Copy + $bound, D: DimName> $Trait<N> for &'a Point<N, D>
             where DefaultAllocator: Allocator<N, D> {
             type Output = Point<N, D>;
 
@@ -212,7 +212,7 @@ macro_rules! componentwise_scalarop_impl(
             }
         }
 
-        impl<N: Scalar + $bound, D: DimName> $TraitAssign<N> for Point<N, D>
+        impl<N: Scalar + Copy + $bound, D: DimName> $TraitAssign<N> for Point<N, D>
             where DefaultAllocator: Allocator<N, D> {
             #[inline]
             fn $method_assign(&mut self, right: N) {
