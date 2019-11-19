@@ -25,7 +25,7 @@ use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar};
  */
 impl<N, R: DimName, C: DimName> Identity<Additive> for MatrixMN<N, R, C>
 where
-    N: Scalar + Zero,
+    N: Scalar + Copy + Zero,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
@@ -36,7 +36,7 @@ where
 
 impl<N, R: DimName, C: DimName> AbstractMagma<Additive> for MatrixMN<N, R, C>
 where
-    N: Scalar + ClosedAdd,
+    N: Scalar + Copy + ClosedAdd,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
@@ -47,7 +47,7 @@ where
 
 impl<N, R: DimName, C: DimName> TwoSidedInverse<Additive> for MatrixMN<N, R, C>
 where
-    N: Scalar + ClosedNeg,
+    N: Scalar + Copy + ClosedNeg,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
@@ -64,7 +64,7 @@ where
 macro_rules! inherit_additive_structure(
     ($($marker: ident<$operator: ident> $(+ $bounds: ident)*),* $(,)*) => {$(
         impl<N, R: DimName, C: DimName> $marker<$operator> for MatrixMN<N, R, C>
-            where N: Scalar + $marker<$operator> $(+ $bounds)*,
+            where N: Scalar + Copy + $marker<$operator> $(+ $bounds)*,
                   DefaultAllocator: Allocator<N, R, C> { }
     )*}
 );
@@ -80,7 +80,7 @@ inherit_additive_structure!(
 
 impl<N, R: DimName, C: DimName> AbstractModule for MatrixMN<N, R, C>
 where
-    N: Scalar + RingCommutative,
+    N: Scalar + Copy + RingCommutative,
     DefaultAllocator: Allocator<N, R, C>,
 {
     type AbstractRing = N;
@@ -93,7 +93,7 @@ where
 
 impl<N, R: DimName, C: DimName> Module for MatrixMN<N, R, C>
 where
-    N: Scalar + RingCommutative,
+    N: Scalar + Copy + RingCommutative,
     DefaultAllocator: Allocator<N, R, C>,
 {
     type Ring = N;
@@ -101,7 +101,7 @@ where
 
 impl<N, R: DimName, C: DimName> VectorSpace for MatrixMN<N, R, C>
 where
-    N: Scalar + Field,
+    N: Scalar + Copy + Field,
     DefaultAllocator: Allocator<N, R, C>,
 {
     type Field = N;
@@ -109,7 +109,7 @@ where
 
 impl<N, R: DimName, C: DimName> FiniteDimVectorSpace for MatrixMN<N, R, C>
 where
-    N: Scalar + Field,
+    N: Scalar + Copy + Field,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
@@ -329,7 +329,7 @@ where DefaultAllocator: Allocator<N, R, C>
  */
 impl<N, D: DimName> Identity<Multiplicative> for MatrixN<N, D>
 where
-    N: Scalar + Zero + One,
+    N: Scalar + Copy + Zero + One,
     DefaultAllocator: Allocator<N, D, D>,
 {
     #[inline]
@@ -340,7 +340,7 @@ where
 
 impl<N, D: DimName> AbstractMagma<Multiplicative> for MatrixN<N, D>
 where
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    N: Scalar + Copy + Zero + One + ClosedAdd + ClosedMul,
     DefaultAllocator: Allocator<N, D, D>,
 {
     #[inline]
@@ -352,7 +352,7 @@ where
 macro_rules! impl_multiplicative_structure(
     ($($marker: ident<$operator: ident> $(+ $bounds: ident)*),* $(,)*) => {$(
         impl<N, D: DimName> $marker<$operator> for MatrixN<N, D>
-            where N: Scalar + Zero + One + ClosedAdd + ClosedMul + $marker<$operator> $(+ $bounds)*,
+            where N: Scalar + Copy + Zero + One + ClosedAdd + ClosedMul + $marker<$operator> $(+ $bounds)*,
                   DefaultAllocator: Allocator<N, D, D> { }
     )*}
 );
@@ -369,7 +369,7 @@ impl_multiplicative_structure!(
  */
 impl<N, R: Dim, C: Dim> MeetSemilattice for MatrixMN<N, R, C>
 where
-    N: Scalar + MeetSemilattice,
+    N: Scalar + Copy + MeetSemilattice,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
@@ -380,7 +380,7 @@ where
 
 impl<N, R: Dim, C: Dim> JoinSemilattice for MatrixMN<N, R, C>
 where
-    N: Scalar + JoinSemilattice,
+    N: Scalar + Copy + JoinSemilattice,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
@@ -391,7 +391,7 @@ where
 
 impl<N, R: Dim, C: Dim> Lattice for MatrixMN<N, R, C>
 where
-    N: Scalar + Lattice,
+    N: Scalar + Copy + Lattice,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]

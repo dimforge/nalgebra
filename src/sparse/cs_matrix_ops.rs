@@ -8,7 +8,7 @@ use crate::sparse::{CsMatrix, CsStorage, CsStorageMut, CsVector};
 use crate::storage::StorageMut;
 use crate::{DefaultAllocator, Dim, Scalar, Vector, VectorN, U1};
 
-impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
+impl<N: Scalar + Copy, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
     fn scatter<R2: Dim, C2: Dim>(
         &self,
         j: usize,
@@ -39,7 +39,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
 }
 
 /*
-impl<N: Scalar, R, S> CsVector<N, R, S> {
+impl<N: Scalar + Copy, R, S> CsVector<N, R, S> {
     pub fn axpy(&mut self, alpha: N, x: CsVector<N, R, S>, beta: N) {
         // First, compute the number of non-zero entries.
         let mut nnzero = 0;
@@ -76,7 +76,7 @@ impl<N: Scalar, R, S> CsVector<N, R, S> {
 }
 */
 
-impl<N: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
+impl<N: Scalar + Copy + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
     /// Perform a sparse axpy operation: `self = alpha * x + beta * self` operation.
     pub fn axpy_cs<D2: Dim, S2>(&mut self, alpha: N, x: &CsVector<N, D2, S2>, beta: N)
     where
@@ -126,7 +126,7 @@ impl<N: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D>> Vect
 impl<'a, 'b, N, R1, R2, C1, C2, S1, S2> Mul<&'b CsMatrix<N, R2, C2, S2>>
     for &'a CsMatrix<N, R1, C1, S1>
 where
-    N: Scalar + ClosedAdd + ClosedMul + Zero,
+    N: Scalar + Copy + ClosedAdd + ClosedMul + Zero,
     R1: Dim,
     C1: Dim,
     R2: Dim,
@@ -219,7 +219,7 @@ where
 impl<'a, 'b, N, R1, R2, C1, C2, S1, S2> Add<&'b CsMatrix<N, R2, C2, S2>>
     for &'a CsMatrix<N, R1, C1, S1>
 where
-    N: Scalar + ClosedAdd + ClosedMul + One,
+    N: Scalar + Copy + ClosedAdd + ClosedMul + One,
     R1: Dim,
     C1: Dim,
     R2: Dim,
@@ -287,7 +287,7 @@ where
 
 impl<'a, 'b, N, R, C, S> Mul<N> for CsMatrix<N, R, C, S>
 where
-    N: Scalar + ClosedAdd + ClosedMul + Zero,
+    N: Scalar + Copy + ClosedAdd + ClosedMul + Zero,
     R: Dim,
     C: Dim,
     S: CsStorageMut<N, R, C>,

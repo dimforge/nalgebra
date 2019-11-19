@@ -5,7 +5,7 @@ use std::fmt::Debug;
 /// The basic scalar type for all structures of `nalgebra`.
 ///
 /// This does not make any assumption on the algebraic properties of `Self`.
-pub trait Scalar: Copy + PartialEq + Debug + Any {
+pub trait Scalar: PartialEq + Debug + Any {
     #[inline]
     /// Tests if `Self` the same as the type `T`
     ///

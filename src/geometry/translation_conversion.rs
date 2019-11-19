@@ -22,8 +22,8 @@ use crate::geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Tr
 
 impl<N1, N2, D: DimName> SubsetOf<Translation<N2, D>> for Translation<N1, D>
 where
-    N1: Scalar,
-    N2: Scalar + SupersetOf<N1>,
+    N1: Scalar + Copy,
+    N2: Scalar + Copy + SupersetOf<N1>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
@@ -153,7 +153,7 @@ where
     }
 }
 
-impl<N: Scalar + Zero + One, D: DimName> From<Translation<N, D>> for MatrixN<N, DimNameSum<D, U1>>
+impl<N: Scalar + Copy + Zero + One, D: DimName> From<Translation<N, D>> for MatrixN<N, DimNameSum<D, U1>>
 where
     D: DimNameAdd<U1>,
     DefaultAllocator: Allocator<N, D> + Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
@@ -164,7 +164,7 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> From<VectorN<N, D>> for Translation<N, D>
+impl<N: Scalar + Copy, D: DimName> From<VectorN<N, D>> for Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]

@@ -27,7 +27,7 @@ use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vec
  * Generic constructors.
  *
  */
-impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
+impl<N: Scalar + Copy, R: Dim, C: Dim> MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
     /// Creates a new uninitialized matrix. If the matrix has a compile-time dimension, this panics
@@ -286,7 +286,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
 impl<N, D: Dim> MatrixN<N, D>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     DefaultAllocator: Allocator<N, D, D>,
 {
     /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
@@ -330,7 +330,7 @@ where
  */
 macro_rules! impl_constructors(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
+        impl<N: Scalar + Copy, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
             where DefaultAllocator: Allocator<N $(, $Dims)*> {
 
             /// Creates a new uninitialized matrix or vector.
@@ -559,7 +559,7 @@ macro_rules! impl_constructors(
             }
         }
 
-        impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
+        impl<N: Scalar + Copy, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
             where
             DefaultAllocator: Allocator<N $(, $Dims)*>,
             Standard: Distribution<N> {
@@ -603,7 +603,7 @@ impl_constructors!(Dynamic, Dynamic;
  */
 macro_rules! impl_constructors_from_data(
     ($data: ident; $($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
+        impl<N: Scalar + Copy, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
         where DefaultAllocator: Allocator<N $(, $Dims)*> {
             /// Creates a matrix with its elements filled with the components provided by a slice
             /// in row-major order.
@@ -721,7 +721,7 @@ impl_constructors_from_data!(data; Dynamic, Dynamic;
  */
 impl<N, R: DimName, C: DimName> Zero for MatrixMN<N, R, C>
 where
-    N: Scalar + Zero + ClosedAdd,
+    N: Scalar + Copy + Zero + ClosedAdd,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
@@ -737,7 +737,7 @@ where
 
 impl<N, D: DimName> One for MatrixN<N, D>
 where
-    N: Scalar + Zero + One + ClosedMul + ClosedAdd,
+    N: Scalar + Copy + Zero + One + ClosedMul + ClosedAdd,
     DefaultAllocator: Allocator<N, D, D>,
 {
     #[inline]
@@ -748,7 +748,7 @@ where
 
 impl<N, R: DimName, C: DimName> Bounded for MatrixMN<N, R, C>
 where
-    N: Scalar + Bounded,
+    N: Scalar + Copy + Bounded,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
@@ -762,7 +762,7 @@ where
     }
 }
 
-impl<N: Scalar, R: Dim, C: Dim> Distribution<MatrixMN<N, R, C>> for Standard
+impl<N: Scalar + Copy, R: Dim, C: Dim> Distribution<MatrixMN<N, R, C>> for Standard
 where
     DefaultAllocator: Allocator<N, R, C>,
     Standard: Distribution<N>,
@@ -822,7 +822,7 @@ where
 macro_rules! componentwise_constructors_impl(
     ($($R: ty, $C: ty, $($args: ident:($irow: expr,$icol: expr)),*);* $(;)*) => {$(
         impl<N> MatrixMN<N, $R, $C>
-            where N: Scalar,
+            where N: Scalar + Copy,
                   DefaultAllocator: Allocator<N, $R, $C> {
             /// Initializes this matrix from its components.
             #[inline]
@@ -990,7 +990,7 @@ componentwise_constructors_impl!(
  */
 impl<N, R: DimName> VectorN<N, R>
 where
-    N: Scalar + Zero + One,
+    N: Scalar + Copy + Zero + One,
     DefaultAllocator: Allocator<N, R>,
 {
     /// The column vector with a 1 as its first component, and zero elsewhere.

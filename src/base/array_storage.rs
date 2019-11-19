@@ -154,7 +154,7 @@ where
 
 unsafe impl<N, R, C> Storage<N, R, C> for ArrayStorage<N, R, C>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -206,7 +206,7 @@ where
 
 unsafe impl<N, R, C> StorageMut<N, R, C> for ArrayStorage<N, R, C>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -226,7 +226,7 @@ where
 
 unsafe impl<N, R, C> ContiguousStorage<N, R, C> for ArrayStorage<N, R, C>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -236,7 +236,7 @@ where
 
 unsafe impl<N, R, C> ContiguousStorageMut<N, R, C> for ArrayStorage<N, R, C>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -295,7 +295,7 @@ struct ArrayStorageVisitor<N, R, C> {
 #[cfg(feature = "serde-serialize")]
 impl<N, R, C> ArrayStorageVisitor<N, R, C>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
