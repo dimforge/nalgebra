@@ -138,7 +138,7 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Scalar + Arbitrary + Send, D: DimName> Arbitrary for Point<N, D>
+impl<N: Scalar + Copy + Arbitrary + Send, D: DimName> Arbitrary for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     <DefaultAllocator as Allocator<N, D>>::Buffer: Send,

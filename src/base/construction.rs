@@ -781,7 +781,7 @@ impl<N, R, C> Arbitrary for MatrixMN<N, R, C>
 where
     R: Dim,
     C: Dim,
-    N: Scalar + Arbitrary + Send,
+    N: Scalar + Copy + Arbitrary + Send,
     DefaultAllocator: Allocator<N, R, C>,
     Owned<N, R, C>: Clone + Send,
 {

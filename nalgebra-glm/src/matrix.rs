@@ -40,7 +40,7 @@ where
 }
 
 /// The transpose of the matrix `m`.
-pub fn transpose<N: Scalar, R: Dimension, C: Dimension>(x: &TMat<N, R, C>) -> TMat<N, C, R>
+pub fn transpose<N: Scalar + Copy, R: Dimension, C: Dimension>(x: &TMat<N, R, C>) -> TMat<N, C, R>
 where DefaultAllocator: Alloc<N, R, C> {
     x.transpose()
 }

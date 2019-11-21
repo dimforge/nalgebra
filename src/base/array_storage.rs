@@ -253,7 +253,7 @@ where
 #[cfg(feature = "serde-serialize")]
 impl<N, R, C> Serialize for ArrayStorage<N, R, C>
 where
-    N: Scalar + Serialize,
+    N: Scalar + Copy + Serialize,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -274,7 +274,7 @@ where
 #[cfg(feature = "serde-serialize")]
 impl<'a, N, R, C> Deserialize<'a> for ArrayStorage<N, R, C>
 where
-    N: Scalar + Deserialize<'a>,
+    N: Scalar + Copy + Deserialize<'a>,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -312,7 +312,7 @@ where
 #[cfg(feature = "serde-serialize")]
 impl<'a, N, R, C> Visitor<'a> for ArrayStorageVisitor<N, R, C>
 where
-    N: Scalar + Deserialize<'a>,
+    N: Scalar + Copy + Deserialize<'a>,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
