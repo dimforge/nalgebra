@@ -35,7 +35,7 @@ use lapack;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct SymmetricEigen<N: Scalar, D: Dim>
+pub struct SymmetricEigen<N: Scalar + Copy, D: Dim>
 where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
 {
     /// The eigenvectors of the decomposed matrix.
@@ -45,7 +45,7 @@ where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
     pub eigenvalues: VectorN<N, D>,
 }
 
-impl<N: Scalar, D: Dim> Copy for SymmetricEigen<N, D>
+impl<N: Scalar + Copy, D: Dim> Copy for SymmetricEigen<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
     MatrixN<N, D>: Copy,
@@ -169,7 +169,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
  */
 /// Trait implemented by scalars for which Lapack implements the eigendecomposition of symmetric
 /// real matrices.
-pub trait SymmetricEigenScalar: Scalar {
+pub trait SymmetricEigenScalar: Scalar + Copy {
     #[allow(missing_docs)]
     fn xsyev(
         jobz: u8,
