@@ -59,7 +59,7 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Scalar + Arbitrary, D: DimName> Arbitrary for Translation<N, D>
+impl<N: Scalar + Copy + Arbitrary, D: DimName> Arbitrary for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Send,
