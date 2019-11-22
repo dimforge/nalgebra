@@ -74,7 +74,12 @@ macro_rules! iterator {
                         // Jump to the next outer dimension if needed.
                         if self.ptr == self.inner_end {
                             let stride = self.strides.1.value() as isize;
-                            self.inner_end = self.ptr.offset(stride);
+                            // This might go past the end of the allocation,
+                            // depending on the value of 'size'. We use
+                            // `wrapping_offset` to avoid UB
+                            self.inner_end = self.ptr.wrapping_offset(stride);
+                            // This will always be in bounds, since
+                            // we're going to dereference it
                             self.ptr = self.inner_ptr.offset(stride);
                             self.inner_ptr = self.ptr;
                         }
@@ -83,8 +88,13 @@ macro_rules! iterator {
                         let old = self.ptr;
 
                         let stride = self.strides.0.value() as isize;
-                        self.ptr = self.ptr.offset(stride);
-
+                        // Don't offset `self.ptr` for the last element,
+                        // as this will be out of bounds. Iteration is done
+                        // at this point (the next call to `next` will return `None`)
+                        // so this is not observable.
+                        if self.size != 0 {
+                            self.ptr = self.ptr.offset(stride);
+                        }
                         Some(mem::transmute(old))
                     }
                 }
