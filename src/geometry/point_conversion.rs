@@ -27,8 +27,8 @@ use std::convert::{AsMut, AsRef, From, Into};
 impl<N1, N2, D> SubsetOf<Point<N2, D>> for Point<N1, D>
 where
     D: DimName,
-    N1: Scalar,
-    N2: Scalar + SupersetOf<N1>,
+    N1: Scalar + Copy,
+    N2: Scalar + Copy + SupersetOf<N1>,
     DefaultAllocator: Allocator<N2, D> + Allocator<N1, D>,
 {
     #[inline]
@@ -52,8 +52,8 @@ where
 impl<N1, N2, D> SubsetOf<VectorN<N2, DimNameSum<D, U1>>> for Point<N1, D>
 where
     D: DimNameAdd<U1>,
-    N1: Scalar,
-    N2: Scalar + Zero + One + ClosedDiv + SupersetOf<N1>,
+    N1: Scalar + Copy,
+    N2: Scalar + Copy + Zero + One + ClosedDiv + SupersetOf<N1>,
     DefaultAllocator: Allocator<N1, D>
         + Allocator<N1, DimNameSum<D, U1>>
         + Allocator<N2, DimNameSum<D, U1>>
@@ -83,7 +83,7 @@ where
 macro_rules! impl_from_into_mint_1D(
     ($($NRows: ident => $PT:ident, $VT:ident [$SZ: expr]);* $(;)*) => {$(
         impl<N> From<mint::$PT<N>> for Point<N, $NRows>
-        where N: Scalar {
+        where N: Scalar + Copy {
             #[inline]
             fn from(p: mint::$PT<N>) -> Self {
                 Self {
@@ -93,7 +93,7 @@ macro_rules! impl_from_into_mint_1D(
         }
 
         impl<N> Into<mint::$PT<N>> for Point<N, $NRows>
-        where N: Scalar {
+        where N: Scalar + Copy {
             #[inline]
             fn into(self) -> mint::$PT<N> {
                 let mint_vec: mint::$VT<N> = self.coords.into();
@@ -102,7 +102,7 @@ macro_rules! impl_from_into_mint_1D(
         }
 
         impl<N> AsRef<mint::$PT<N>> for Point<N, $NRows>
-        where N: Scalar {
+        where N: Scalar + Copy {
             #[inline]
             fn as_ref(&self) -> &mint::$PT<N> {
                 unsafe {
@@ -112,7 +112,7 @@ macro_rules! impl_from_into_mint_1D(
         }
 
         impl<N> AsMut<mint::$PT<N>> for Point<N, $NRows>
-        where N: Scalar {
+        where N: Scalar + Copy {
             #[inline]
             fn as_mut(&mut self) -> &mut mint::$PT<N> {
                 unsafe {
@@ -130,7 +130,7 @@ impl_from_into_mint_1D!(
     U3 => Point3, Vector3[3];
 );
 
-impl<N: Scalar + Zero + One, D: DimName> From<Point<N, D>> for VectorN<N, DimNameSum<D, U1>>
+impl<N: Scalar + Copy + Zero + One, D: DimName> From<Point<N, D>> for VectorN<N, DimNameSum<D, U1>>
 where
     D: DimNameAdd<U1>,
     DefaultAllocator: Allocator<N, D> + Allocator<N, DimNameSum<D, U1>>,
@@ -141,7 +141,7 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> From<VectorN<N, D>> for Point<N, D>
+impl<N: Scalar + Copy, D: DimName> From<VectorN<N, D>> for Point<N, D>
     where
         DefaultAllocator: Allocator<N, D>,
 {

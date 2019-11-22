@@ -73,7 +73,7 @@ pub type MatrixCross<N, R1, C1, R2, C2> =
 /// some concrete types for `N` and a compatible data storage type `S`).
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct Matrix<N: Scalar, R: Dim, C: Dim, S> {
+pub struct Matrix<N: Scalar + Copy, R: Dim, C: Dim, S> {
     /// The data storage that contains all the matrix components and informations about its number
     /// of rows and column (if needed).
     pub data: S,
@@ -81,7 +81,7 @@ pub struct Matrix<N: Scalar, R: Dim, C: Dim, S> {
     _phantoms: PhantomData<(N, R, C)>,
 }
 
-impl<N: Scalar, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<N, R, C, S> {
+impl<N: Scalar + Copy, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<N, R, C, S> {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         formatter
             .debug_struct("Matrix")
@@ -93,7 +93,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<N, R, C, S>
 #[cfg(feature = "serde-serialize")]
 impl<N, R, C, S> Serialize for Matrix<N, R, C, S>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: Dim,
     C: Dim,
     S: Serialize,
@@ -107,7 +107,7 @@ where
 #[cfg(feature = "serde-serialize")]
 impl<'de, N, R, C, S> Deserialize<'de> for Matrix<N, R, C, S>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: Dim,
     C: Dim,
     S: Deserialize<'de>,
@@ -122,7 +122,7 @@ where
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: Scalar, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<N, R, C, S> {
+impl<N: Scalar + Copy, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<N, R, C, S> {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.data.entomb(writer)
     }
@@ -136,7 +136,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<N, R, C, 
     }
 }
 
-impl<N: Scalar, R: Dim, C: Dim, S> Matrix<N, R, C, S> {
+impl<N: Scalar + Copy, R: Dim, C: Dim, S> Matrix<N, R, C, S> {
     /// Creates a new matrix with the given data without statically checking that the matrix
     /// dimension matches the storage dimension.
     #[inline]
@@ -148,7 +148,7 @@ impl<N: Scalar, R: Dim, C: Dim, S> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Creates a new matrix with the given data.
     #[inline]
     pub fn from_data(data: S) -> Self {
@@ -413,7 +413,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
     /// Returns a matrix containing the result of `f` applied to each of its entries.
     #[inline]
-    pub fn map<N2: Scalar, F: FnMut(N) -> N2>(&self, mut f: F) -> MatrixMN<N2, R, C>
+    pub fn map<N2: Scalar + Copy, F: FnMut(N) -> N2>(&self, mut f: F) -> MatrixMN<N2, R, C>
     where DefaultAllocator: Allocator<N2, R, C> {
         let (nrows, ncols) = self.data.shape();
 
@@ -434,7 +434,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a matrix containing the result of `f` applied to each of its entries. Unlike `map`,
     /// `f` also gets passed the row and column index, i.e. `f(row, col, value)`.
     #[inline]
-    pub fn map_with_location<N2: Scalar, F: FnMut(usize, usize, N) -> N2>(
+    pub fn map_with_location<N2: Scalar + Copy, F: FnMut(usize, usize, N) -> N2>(
         &self,
         mut f: F,
     ) -> MatrixMN<N2, R, C>
@@ -462,8 +462,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn zip_map<N2, N3, S2, F>(&self, rhs: &Matrix<N2, R, C, S2>, mut f: F) -> MatrixMN<N3, R, C>
     where
-        N2: Scalar,
-        N3: Scalar,
+        N2: Scalar + Copy,
+        N3: Scalar + Copy,
         S2: Storage<N2, R, C>,
         F: FnMut(N, N2) -> N3,
         DefaultAllocator: Allocator<N3, R, C>,
@@ -500,9 +500,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         mut f: F,
     ) -> MatrixMN<N4, R, C>
     where
-        N2: Scalar,
-        N3: Scalar,
-        N4: Scalar,
+        N2: Scalar + Copy,
+        N3: Scalar + Copy,
+        N4: Scalar + Copy,
         S2: Storage<N2, R, C>,
         S3: Storage<N3, R, C>,
         F: FnMut(N, N2, N3) -> N4,
@@ -555,7 +555,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn zip_fold<N2, R2, C2, S2, Acc>(&self, rhs: &Matrix<N2, R2, C2, S2>, init: Acc, mut f: impl FnMut(Acc, N, N2) -> Acc) -> Acc
         where
-            N2: Scalar,
+            N2: Scalar + Copy,
             R2: Dim,
             C2: Dim,
             S2: Storage<N2, R2, C2>,
@@ -623,7 +623,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Mutably iterates through this matrix coordinates.
     #[inline]
     pub fn iter_mut(&mut self) -> MatrixIterMut<N, R, C, S> {
@@ -797,7 +797,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// joined with the components from `rhs`.
     #[inline]
     pub fn zip_apply<N2, R2, C2, S2>(&mut self, rhs: &Matrix<N2, R2, C2, S2>, mut f: impl FnMut(N, N2) -> N)
-        where N2: Scalar,
+        where N2: Scalar + Copy,
               R2: Dim,
               C2: Dim,
               S2: Storage<N2, R2, C2>,
@@ -825,11 +825,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// joined with the components from `b` and `c`.
     #[inline]
     pub fn zip_zip_apply<N2, R2, C2, S2, N3, R3, C3, S3>(&mut self, b: &Matrix<N2, R2, C2, S2>, c: &Matrix<N3, R3, C3, S3>, mut f: impl FnMut(N, N2, N3) -> N)
-        where N2: Scalar,
+        where N2: Scalar + Copy,
               R2: Dim,
               C2: Dim,
               S2: Storage<N2, R2, C2>,
-              N3: Scalar,
+              N3: Scalar + Copy,
               R3: Dim,
               C3: Dim,
               S3: Storage<N3, R3, C3>,
@@ -859,7 +859,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
+impl<N: Scalar + Copy, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     /// Gets a reference to the i-th element of this column vector without bound checking.
     #[inline]
     pub unsafe fn vget_unchecked(&self, i: usize) -> &N {
@@ -869,7 +869,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     }
 }
 
-impl<N: Scalar, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
+impl<N: Scalar + Copy, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
     /// Gets a mutable reference to the i-th element of this column vector without bound checking.
     #[inline]
     pub unsafe fn vget_unchecked_mut(&mut self, i: usize) -> &mut N {
@@ -879,7 +879,7 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
     }
 }
 
-impl<N: Scalar, R: Dim, C: Dim, S: ContiguousStorage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorage<N, R, C>> Matrix<N, R, C, S> {
     /// Extracts a slice containing the entire matrix entries ordered column-by-columns.
     #[inline]
     pub fn as_slice(&self) -> &[N] {
@@ -887,7 +887,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: ContiguousStorage<N, R, C>> Matrix<N, R, C, S
     }
 }
 
-impl<N: Scalar, R: Dim, C: Dim, S: ContiguousStorageMut<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Extracts a mutable slice containing the entire matrix entries ordered column-by-columns.
     #[inline]
     pub fn as_mut_slice(&mut self) -> &mut [N] {
@@ -895,7 +895,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: ContiguousStorageMut<N, R, C>> Matrix<N, R, C
     }
 }
 
-impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
+impl<N: Scalar + Copy, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     /// Transposes the square matrix `self` in-place.
     pub fn transpose_mut(&mut self) {
         assert!(
@@ -1052,7 +1052,7 @@ impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     }
 }
 
-impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: Scalar + Copy, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// The diagonal of this matrix.
     #[inline]
     pub fn diagonal(&self) -> VectorN<N, D>
@@ -1064,7 +1064,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     ///
     /// This is a more efficient version of `self.diagonal().map(f)` since this
     /// allocates only once.
-    pub fn map_diagonal<N2: Scalar>(&self, mut f: impl FnMut(N) -> N2) -> VectorN<N2, D>
+    pub fn map_diagonal<N2: Scalar + Copy>(&self, mut f: impl FnMut(N) -> N2) -> VectorN<N2, D>
         where DefaultAllocator: Allocator<N2, D> {
         assert!(
             self.is_square(),
@@ -1128,7 +1128,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 }
 
-impl<N: Scalar + One + Zero, D: DimAdd<U1> + IsNotStaticOne, S: Storage<N, D, D>> Matrix<N, D, D, S> {
+impl<N: Scalar + Copy + Zero + One, D: DimAdd<U1> + IsNotStaticOne, S: Storage<N, D, D>> Matrix<N, D, D, S> {
 
     /// Yields the homogeneous matrix for this matrix, i.e., appending an additional dimension and
     /// and setting the diagonal element to `1`.
@@ -1144,7 +1144,7 @@ impl<N: Scalar + One + Zero, D: DimAdd<U1> + IsNotStaticOne, S: Storage<N, D, D>
 
 }
 
-impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
+impl<N: Scalar + Copy + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     /// Computes the coordinates in projective space of this vector, i.e., appends a `0` to its
     /// coordinates.
     #[inline]
@@ -1170,7 +1170,7 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     }
 }
 
-impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
+impl<N: Scalar + Copy + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     /// Constructs a new vector of higher dimension by appending `element` to the end of `self`.
     #[inline]
     pub fn push(&self, element: N) -> VectorN<N, DimSum<D, U1>>
@@ -1188,7 +1188,7 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
 
 impl<N, R: Dim, C: Dim, S> AbsDiffEq for Matrix<N, R, C, S>
 where
-    N: Scalar + AbsDiffEq,
+    N: Scalar + Copy + AbsDiffEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1209,7 +1209,7 @@ where
 
 impl<N, R: Dim, C: Dim, S> RelativeEq for Matrix<N, R, C, S>
 where
-    N: Scalar + RelativeEq,
+    N: Scalar + Copy + RelativeEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1232,7 +1232,7 @@ where
 
 impl<N, R: Dim, C: Dim, S> UlpsEq for Matrix<N, R, C, S>
 where
-    N: Scalar + UlpsEq,
+    N: Scalar + Copy + UlpsEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1252,7 +1252,7 @@ where
 
 impl<N, R: Dim, C: Dim, S> PartialOrd for Matrix<N, R, C, S>
 where
-    N: Scalar + PartialOrd,
+    N: Scalar + Copy + PartialOrd,
     S: Storage<N, R, C>,
 {
     #[inline]
@@ -1340,13 +1340,13 @@ where
 
 impl<N, R: Dim, C: Dim, S> Eq for Matrix<N, R, C, S>
 where
-    N: Scalar + Eq,
+    N: Scalar + Copy + Eq,
     S: Storage<N, R, C>,
 {}
 
 impl<N, R: Dim, C: Dim, S> PartialEq for Matrix<N, R, C, S>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     S: Storage<N, R, C>,
 {
     #[inline]
@@ -1363,13 +1363,13 @@ macro_rules! impl_fmt {
     ($trait: path, $fmt_str_without_precision: expr, $fmt_str_with_precision: expr) => {
         impl<N, R: Dim, C: Dim, S> $trait for Matrix<N, R, C, S>
         where
-            N: Scalar + $trait,
+            N: Scalar + Copy + $trait,
             S: Storage<N, R, C>,
             DefaultAllocator: Allocator<usize, R, C>,
         {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 #[cfg(feature = "std")]
-                fn val_width<N: Scalar + $trait>(val: N, f: &mut fmt::Formatter) -> usize {
+                fn val_width<N: Scalar + Copy + $trait>(val: N, f: &mut fmt::Formatter) -> usize {
                     match f.precision() {
                         Some(precision) => format!($fmt_str_with_precision, val, precision).chars().count(),
                         None => format!($fmt_str_without_precision, val).chars().count(),
@@ -1377,7 +1377,7 @@ macro_rules! impl_fmt {
                 }
 
                 #[cfg(not(feature = "std"))]
-                fn val_width<N: Scalar + $trait>(_: N, _: &mut fmt::Formatter) -> usize {
+                fn val_width<N: Scalar + Copy + $trait>(_: N, _: &mut fmt::Formatter) -> usize {
                     4
                 }
 
@@ -1454,7 +1454,7 @@ fn lower_exp() {
 ")
 }
 
-impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Copy + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The perpendicular product between two 2D column vectors, i.e. `a.x * b.y - a.y * b.x`.
     #[inline]
     pub fn perp<R2, C2, SB>(&self, b: &Matrix<N, R2, C2, SB>) -> N
@@ -1545,7 +1545,7 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar + Field, S: Storage<N, U3>> Vector<N, U3, S>
+impl<N: Scalar + Copy + Field, S: Storage<N, U3>> Vector<N, U3, S>
 where DefaultAllocator: Allocator<N, U3>
 {
     /// Computes the matrix `M` such that for all vector `v` we have `M * v == self.cross(&v)`.
@@ -1593,7 +1593,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Storage<N, D>>
+impl<N: Scalar + Copy + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Storage<N, D>>
     Vector<N, D, S>
 {
     /// Returns `self * (1.0 - t) + rhs * t`, i.e., the linear blend of the vectors x and y using the scalar value a.
@@ -1683,7 +1683,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
 
 impl<N, R: Dim, C: Dim, S> AbsDiffEq for Unit<Matrix<N, R, C, S>>
 where
-    N: Scalar + AbsDiffEq,
+    N: Scalar + Copy + AbsDiffEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1702,7 +1702,7 @@ where
 
 impl<N, R: Dim, C: Dim, S> RelativeEq for Unit<Matrix<N, R, C, S>>
 where
-    N: Scalar + RelativeEq,
+    N: Scalar + Copy + RelativeEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1726,7 +1726,7 @@ where
 
 impl<N, R: Dim, C: Dim, S> UlpsEq for Unit<Matrix<N, R, C, S>>
 where
-    N: Scalar + UlpsEq,
+    N: Scalar + Copy + UlpsEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1743,7 +1743,7 @@ where
 
 impl<N, R, C, S> Hash for Matrix<N, R, C, S>
 where
-    N: Scalar + Hash,
+    N: Scalar + Copy + Hash,
     R: Dim,
     C: Dim,
     S: Storage<N, R, C>,

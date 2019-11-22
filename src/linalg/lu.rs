@@ -318,7 +318,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
 /// element `matrix[(i, i)]` is provided as argument.
 pub fn gauss_step<N, R: Dim, C: Dim, S>(matrix: &mut Matrix<N, R, C, S>, diag: N, i: usize)
 where
-    N: Scalar + Field,
+    N: Scalar + Copy + Field,
     S: StorageMut<N, R, C>,
 {
     let mut submat = matrix.slice_range_mut(i.., i..);
@@ -346,7 +346,7 @@ pub fn gauss_step_swap<N, R: Dim, C: Dim, S>(
     i: usize,
     piv: usize,
 ) where
-    N: Scalar + Field,
+    N: Scalar + Copy + Field,
     S: StorageMut<N, R, C>,
 {
     let piv = piv - i;

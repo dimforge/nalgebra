@@ -3,7 +3,7 @@ use alga::general::{Field, SupersetOf};
 use crate::storage::Storage;
 use crate::allocator::Allocator;
 
-impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a row vector where each element is the result of the application of `f` on the
     /// corresponding column of the original matrix.
     #[inline]
@@ -54,7 +54,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Copy + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /*
      *
      * Sum computation.

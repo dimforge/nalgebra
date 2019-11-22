@@ -24,13 +24,13 @@ use crate::geometry::Point;
 /// A rotation matrix.
 #[repr(C)]
 #[derive(Debug)]
-pub struct Rotation<N: Scalar, D: DimName>
+pub struct Rotation<N: Scalar + Copy, D: DimName>
 where DefaultAllocator: Allocator<N, D, D>
 {
     matrix: MatrixN<N, D>,
 }
 
-impl<N: Scalar + hash::Hash, D: DimName + hash::Hash> hash::Hash for Rotation<N, D>
+impl<N: Scalar + Copy + hash::Hash, D: DimName + hash::Hash> hash::Hash for Rotation<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     <DefaultAllocator as Allocator<N, D, D>>::Buffer: hash::Hash,
@@ -40,14 +40,14 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> Copy for Rotation<N, D>
+impl<N: Scalar + Copy, D: DimName> Copy for Rotation<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     <DefaultAllocator as Allocator<N, D, D>>::Buffer: Copy,
 {
 }
 
-impl<N: Scalar, D: DimName> Clone for Rotation<N, D>
+impl<N: Scalar + Copy, D: DimName> Clone for Rotation<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     <DefaultAllocator as Allocator<N, D, D>>::Buffer: Clone,
@@ -61,7 +61,7 @@ where
 #[cfg(feature = "abomonation-serialize")]
 impl<N, D> Abomonation for Rotation<N, D>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     D: DimName,
     MatrixN<N, D>: Abomonation,
     DefaultAllocator: Allocator<N, D, D>,
@@ -80,7 +80,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Scalar, D: DimName> Serialize for Rotation<N, D>
+impl<N: Scalar + Copy, D: DimName> Serialize for Rotation<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     Owned<N, D, D>: Serialize,
@@ -92,7 +92,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Scalar, D: DimName> Deserialize<'a> for Rotation<N, D>
+impl<'a, N: Scalar + Copy, D: DimName> Deserialize<'a> for Rotation<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     Owned<N, D, D>: Deserialize<'a>,
@@ -105,7 +105,7 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> Rotation<N, D>
+impl<N: Scalar + Copy, D: DimName> Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D>
 {
     /// A reference to the underlying matrix representation of this rotation.
@@ -432,9 +432,9 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     }
 }
 
-impl<N: Scalar + Eq, D: DimName> Eq for Rotation<N, D> where DefaultAllocator: Allocator<N, D, D> {}
+impl<N: Scalar + Copy + Eq, D: DimName> Eq for Rotation<N, D> where DefaultAllocator: Allocator<N, D, D> {}
 
-impl<N: Scalar + PartialEq, D: DimName> PartialEq for Rotation<N, D>
+impl<N: Scalar + Copy + PartialEq, D: DimName> PartialEq for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D>
 {
     #[inline]
@@ -445,7 +445,7 @@ where DefaultAllocator: Allocator<N, D, D>
 
 impl<N, D: DimName> AbsDiffEq for Rotation<N, D>
 where
-    N: Scalar + AbsDiffEq,
+    N: Scalar + Copy + AbsDiffEq,
     DefaultAllocator: Allocator<N, D, D>,
     N::Epsilon: Copy,
 {
@@ -464,7 +464,7 @@ where
 
 impl<N, D: DimName> RelativeEq for Rotation<N, D>
 where
-    N: Scalar + RelativeEq,
+    N: Scalar + Copy + RelativeEq,
     DefaultAllocator: Allocator<N, D, D>,
     N::Epsilon: Copy,
 {
@@ -488,7 +488,7 @@ where
 
 impl<N, D: DimName> UlpsEq for Rotation<N, D>
 where
-    N: Scalar + UlpsEq,
+    N: Scalar + Copy + UlpsEq,
     DefaultAllocator: Allocator<N, D, D>,
     N::Epsilon: Copy,
 {

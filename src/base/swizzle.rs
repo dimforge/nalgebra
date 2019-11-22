@@ -5,7 +5,7 @@ use typenum::{self, Cmp, Greater};
 macro_rules! impl_swizzle {
     ($( where $BaseDim: ident: $( $name: ident() -> $Result: ident[$($i: expr),+] ),+ ;)* ) => {
         $(
-            impl<N: Scalar, D: DimName, S: Storage<N, D>> Vector<N, D, S>
+            impl<N: Scalar + Copy, D: DimName, S: Storage<N, D>> Vector<N, D, S>
             where D::Value: Cmp<typenum::$BaseDim, Output=Greater>
             {
                 $(

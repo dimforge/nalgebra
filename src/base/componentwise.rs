@@ -14,7 +14,7 @@ use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixSum, Scalar};
 /// The type of the result of a matrix component-wise operation.
 pub type MatrixComponentOp<N, R1, C1, R2, C2> = MatrixSum<N, R1, C1, R2, C2>;
 
-impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Computes the component-wise absolute value.
     ///
     /// # Example
@@ -45,7 +45,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
 macro_rules! component_binop_impl(
     ($($binop: ident, $binop_mut: ident, $binop_assign: ident, $cmpy: ident, $Trait: ident . $op: ident . $op_assign: ident, $desc:expr, $desc_cmpy:expr, $desc_mut:expr);* $(;)*) => {$(
-        impl<N: Scalar, R1: Dim, C1: Dim, SA: Storage<N, R1, C1>> Matrix<N, R1, C1, SA> {
+        impl<N: Scalar + Copy, R1: Dim, C1: Dim, SA: Storage<N, R1, C1>> Matrix<N, R1, C1, SA> {
             #[doc = $desc]
             #[inline]
             pub fn $binop<R2, C2, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> MatrixComponentOp<N, R1, C1, R2, C2>
@@ -70,7 +70,7 @@ macro_rules! component_binop_impl(
             }
         }
 
-        impl<N: Scalar, R1: Dim, C1: Dim, SA: StorageMut<N, R1, C1>> Matrix<N, R1, C1, SA> {
+        impl<N: Scalar + Copy, R1: Dim, C1: Dim, SA: StorageMut<N, R1, C1>> Matrix<N, R1, C1, SA> {
             // componentwise binop plus Y.
             #[doc = $desc_cmpy]
             #[inline]

@@ -33,7 +33,7 @@ use lapack;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct Schur<N: Scalar, D: Dim>
+pub struct Schur<N: Scalar + Copy, D: Dim>
 where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
 {
     re: VectorN<N, D>,
@@ -42,7 +42,7 @@ where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
     q: MatrixN<N, D>,
 }
 
-impl<N: Scalar, D: Dim> Copy for Schur<N, D>
+impl<N: Scalar + Copy, D: Dim> Copy for Schur<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
     MatrixN<N, D>: Copy,
@@ -162,7 +162,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
  *
  */
 /// Trait implemented by scalars for which Lapack implements the RealField Schur decomposition.
-pub trait SchurScalar: Scalar {
+pub trait SchurScalar: Scalar + Copy {
     #[allow(missing_docs)]
     fn xgees(
         jobvs: u8,
