@@ -13,7 +13,7 @@ use crate::debug::RandomOrthogonal;
 
 /// A random, well-conditioned, symmetric definite-positive matrix.
 #[derive(Clone, Debug)]
-pub struct RandomSDP<N: Scalar, D: Dim = Dynamic>
+pub struct RandomSDP<N: Scalar + Copy, D: Dim = Dynamic>
 where DefaultAllocator: Allocator<N, D, D>
 {
     m: MatrixN<N, D>,

@@ -15,7 +15,7 @@ use crate::base::{DefaultAllocator, Scalar, VectorN};
 
 use crate::geometry::Translation;
 
-impl<N: Scalar + Zero, D: DimName> Translation<N, D>
+impl<N: Scalar + Copy + Zero, D: DimName> Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new identity translation.
@@ -38,7 +38,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Scalar + Zero + ClosedAdd, D: DimName> One for Translation<N, D>
+impl<N: Scalar + Copy + Zero + ClosedAdd, D: DimName> One for Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -47,7 +47,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Scalar, D: DimName> Distribution<Translation<N, D>> for Standard
+impl<N: Scalar + Copy, D: DimName> Distribution<Translation<N, D>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,
     Standard: Distribution<N>,
@@ -59,7 +59,7 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Scalar + Arbitrary, D: DimName> Arbitrary for Translation<N, D>
+impl<N: Scalar + Copy + Arbitrary, D: DimName> Arbitrary for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Send,
@@ -78,7 +78,7 @@ where
  */
 macro_rules! componentwise_constructors_impl(
     ($($doc: expr; $D: ty, $($args: ident:$irow: expr),*);* $(;)*) => {$(
-        impl<N: Scalar> Translation<N, $D>
+        impl<N: Scalar + Copy> Translation<N, $D>
             where DefaultAllocator: Allocator<N, $D> {
             #[doc = "Initializes this translation from its components."]
             #[doc = "# Example\n```"]

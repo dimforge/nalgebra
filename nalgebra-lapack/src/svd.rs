@@ -36,7 +36,7 @@ use lapack;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct SVD<N: Scalar, R: DimMin<C>, C: Dim>
+pub struct SVD<N: Scalar + Copy, R: DimMin<C>, C: Dim>
 where DefaultAllocator: Allocator<N, R, R> + Allocator<N, DimMinimum<R, C>> + Allocator<N, C, C>
 {
     /// The left-singular vectors `U` of this SVD.
@@ -47,7 +47,7 @@ where DefaultAllocator: Allocator<N, R, R> + Allocator<N, DimMinimum<R, C>> + Al
     pub singular_values: VectorN<N, DimMinimum<R, C>>,
 }
 
-impl<N: Scalar, R: DimMin<C>, C: Dim> Copy for SVD<N, R, C>
+impl<N: Scalar + Copy, R: DimMin<C>, C: Dim> Copy for SVD<N, R, C>
 where
     DefaultAllocator: Allocator<N, C, C> + Allocator<N, R, R> + Allocator<N, DimMinimum<R, C>>,
     MatrixMN<N, R, R>: Copy,
@@ -57,7 +57,7 @@ where
 
 /// Trait implemented by floats (`f32`, `f64`) and complex floats (`Complex<f32>`, `Complex<f64>`)
 /// supported by the Singular Value Decompotition.
-pub trait SVDScalar<R: DimMin<C>, C: Dim>: Scalar
+pub trait SVDScalar<R: DimMin<C>, C: Dim>: Scalar + Copy
 where DefaultAllocator: Allocator<Self, R, R>
         + Allocator<Self, R, C>
         + Allocator<Self, DimMinimum<R, C>>

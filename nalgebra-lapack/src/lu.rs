@@ -37,14 +37,14 @@ use lapack;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct LU<N: Scalar, R: DimMin<C>, C: Dim>
+pub struct LU<N: Scalar + Copy, R: DimMin<C>, C: Dim>
 where DefaultAllocator: Allocator<i32, DimMinimum<R, C>> + Allocator<N, R, C>
 {
     lu: MatrixMN<N, R, C>,
     p: VectorN<i32, DimMinimum<R, C>>,
 }
 
-impl<N: Scalar, R: DimMin<C>, C: Dim> Copy for LU<N, R, C>
+impl<N: Scalar + Copy, R: DimMin<C>, C: Dim> Copy for LU<N, R, C>
 where
     DefaultAllocator: Allocator<N, R, C> + Allocator<i32, DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
@@ -306,7 +306,7 @@ where
  *
  */
 /// Trait implemented by scalars for which Lapack implements the LU decomposition.
-pub trait LUScalar: Scalar {
+pub trait LUScalar: Scalar + Copy {
     #[allow(missing_docs)]
     fn xgetrf(m: i32, n: i32, a: &mut [Self], lda: i32, ipiv: &mut [i32], info: &mut i32);
     #[allow(missing_docs)]

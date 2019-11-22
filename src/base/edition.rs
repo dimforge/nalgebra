@@ -18,7 +18,7 @@ use crate::base::storage::{Storage, StorageMut};
 use crate::base::DMatrix;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, RowVector, Scalar, Vector};
 
-impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Copy + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Extracts the upper triangular part of this matrix (including the diagonal).
     #[inline]
     pub fn upper_triangle(&self) -> MatrixMN<N, R, C>
@@ -92,7 +92,7 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Sets all the elements of this matrix to `val`.
     #[inline]
     pub fn fill(&mut self, val: N) {
@@ -253,7 +253,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
+impl<N: Scalar + Copy, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     /// Copies the upper-triangle of this matrix to its lower-triangular part.
     ///
     /// This makes the matrix symmetric. Panics if the matrix is not square.
@@ -291,7 +291,7 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
  * FIXME: specialize all the following for slices.
  *
  */
-impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /*
      *
      * Column removal.
@@ -797,7 +797,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar> DMatrix<N> {
+impl<N: Scalar + Copy> DMatrix<N> {
     /// Resizes this matrix in-place.
     ///
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
@@ -814,7 +814,7 @@ impl<N: Scalar> DMatrix<N> {
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar, C: Dim> MatrixMN<N, Dynamic, C>
+impl<N: Scalar + Copy, C: Dim> MatrixMN<N, Dynamic, C>
 where DefaultAllocator: Allocator<N, Dynamic, C>
 {
     /// Changes the number of rows of this matrix in-place.
@@ -835,7 +835,7 @@ where DefaultAllocator: Allocator<N, Dynamic, C>
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar, R: Dim> MatrixMN<N, R, Dynamic>
+impl<N: Scalar + Copy, R: Dim> MatrixMN<N, R, Dynamic>
 where DefaultAllocator: Allocator<N, R, Dynamic>
 {
     /// Changes the number of column of this matrix in-place.
@@ -855,7 +855,7 @@ where DefaultAllocator: Allocator<N, R, Dynamic>
     }
 }
 
-unsafe fn compress_rows<N: Scalar>(
+unsafe fn compress_rows<N: Scalar + Copy>(
     data: &mut [N],
     nrows: usize,
     ncols: usize,
@@ -895,7 +895,7 @@ unsafe fn compress_rows<N: Scalar>(
 
 // Moves entries of a matrix buffer to make place for `ninsert` emty rows starting at the `i-th` row index.
 // The `data` buffer is assumed to contained at least `(nrows + ninsert) * ncols` elements.
-unsafe fn extend_rows<N: Scalar>(
+unsafe fn extend_rows<N: Scalar + Copy>(
     data: &mut [N],
     nrows: usize,
     ncols: usize,
@@ -938,7 +938,7 @@ unsafe fn extend_rows<N: Scalar>(
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<N, R, S> Extend<N> for Matrix<N, R, Dynamic, S>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: Dim,
     S: Extend<N>,
 {
@@ -986,7 +986,7 @@ where
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<N, S> Extend<N> for Matrix<N, Dynamic, U1, S>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     S: Extend<N>,
 {
     /// Extend the number of rows of a `Vector` with elements
@@ -1007,7 +1007,7 @@ where
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<N, R, S, RV, SV> Extend<Vector<N, RV, SV>> for Matrix<N, R, Dynamic, S>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     R: Dim,
     S: Extend<Vector<N, RV, SV>>,
     RV: Dim,

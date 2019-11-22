@@ -20,14 +20,14 @@ use crate::base::{DefaultAllocator, Scalar, VectorN};
 /// A point in a n-dimensional euclidean space.
 #[repr(C)]
 #[derive(Debug, Clone)]
-pub struct Point<N: Scalar, D: DimName>
+pub struct Point<N: Scalar + Copy, D: DimName>
 where DefaultAllocator: Allocator<N, D>
 {
     /// The coordinates of this point, i.e., the shift from the origin.
     pub coords: VectorN<N, D>,
 }
 
-impl<N: Scalar + hash::Hash, D: DimName + hash::Hash> hash::Hash for Point<N, D>
+impl<N: Scalar + Copy + hash::Hash, D: DimName + hash::Hash> hash::Hash for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     <DefaultAllocator as Allocator<N, D>>::Buffer: hash::Hash,
@@ -37,7 +37,7 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> Copy for Point<N, D>
+impl<N: Scalar + Copy, D: DimName> Copy for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     <DefaultAllocator as Allocator<N, D>>::Buffer: Copy,
@@ -45,7 +45,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Scalar, D: DimName> Serialize for Point<N, D>
+impl<N: Scalar + Copy, D: DimName> Serialize for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     <DefaultAllocator as Allocator<N, D>>::Buffer: Serialize,
@@ -57,7 +57,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Scalar, D: DimName> Deserialize<'a> for Point<N, D>
+impl<'a, N: Scalar + Copy, D: DimName> Deserialize<'a> for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     <DefaultAllocator as Allocator<N, D>>::Buffer: Deserialize<'a>,
@@ -73,7 +73,7 @@ where
 #[cfg(feature = "abomonation-serialize")]
 impl<N, D> Abomonation for Point<N, D>
 where
-    N: Scalar,
+    N: Scalar + Copy,
     D: DimName,
     VectorN<N, D>: Abomonation,
     DefaultAllocator: Allocator<N, D>,
@@ -91,7 +91,7 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> Point<N, D>
+impl<N: Scalar + Copy, D: DimName> Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Converts this point into a vector in homogeneous coordinates, i.e., appends a `1` at the
@@ -210,7 +210,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Scalar + AbsDiffEq, D: DimName> AbsDiffEq for Point<N, D>
+impl<N: Scalar + Copy + AbsDiffEq, D: DimName> AbsDiffEq for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
@@ -228,7 +228,7 @@ where
     }
 }
 
-impl<N: Scalar + RelativeEq, D: DimName> RelativeEq for Point<N, D>
+impl<N: Scalar + Copy + RelativeEq, D: DimName> RelativeEq for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
@@ -251,7 +251,7 @@ where
     }
 }
 
-impl<N: Scalar + UlpsEq, D: DimName> UlpsEq for Point<N, D>
+impl<N: Scalar + Copy + UlpsEq, D: DimName> UlpsEq for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
@@ -267,9 +267,9 @@ where
     }
 }
 
-impl<N: Scalar + Eq, D: DimName> Eq for Point<N, D> where DefaultAllocator: Allocator<N, D> {}
+impl<N: Scalar + Copy + Eq, D: DimName> Eq for Point<N, D> where DefaultAllocator: Allocator<N, D> {}
 
-impl<N: Scalar, D: DimName> PartialEq for Point<N, D>
+impl<N: Scalar + Copy, D: DimName> PartialEq for Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -278,7 +278,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Scalar + PartialOrd, D: DimName> PartialOrd for Point<N, D>
+impl<N: Scalar + Copy + PartialOrd, D: DimName> PartialOrd for Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -312,7 +312,7 @@ where DefaultAllocator: Allocator<N, D>
  * Display
  *
  */
-impl<N: Scalar + fmt::Display, D: DimName> fmt::Display for Point<N, D>
+impl<N: Scalar + Copy + fmt::Display, D: DimName> fmt::Display for Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
