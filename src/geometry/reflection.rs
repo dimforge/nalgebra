@@ -8,7 +8,7 @@ use crate::storage::{Storage, StorageMut};
 use crate::geometry::Point;
 
 /// A reflection wrt. a plane.
-pub struct Reflection<N: Scalar + Copy, D: Dim, S: Storage<N, D>> {
+pub struct Reflection<N: Scalar + Clone, D: Dim, S: Storage<N, D>> {
     axis: Vector<N, D, S>,
     bias: N,
 }

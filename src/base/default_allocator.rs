@@ -36,7 +36,7 @@ pub struct DefaultAllocator;
 // Static - Static
 impl<N, R, C> Allocator<N, R, C> for DefaultAllocator
 where
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -76,7 +76,7 @@ where
 // Dynamic - Static
 // Dynamic - Dynamic
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar + Copy, C: Dim> Allocator<N, Dynamic, C> for DefaultAllocator {
+impl<N: Scalar + Clone, C: Dim> Allocator<N, Dynamic, C> for DefaultAllocator {
     type Buffer = VecStorage<N, Dynamic, C>;
 
     #[inline]
@@ -107,7 +107,7 @@ impl<N: Scalar + Copy, C: Dim> Allocator<N, Dynamic, C> for DefaultAllocator {
 
 // Static - Dynamic
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar + Copy, R: DimName> Allocator<N, R, Dynamic> for DefaultAllocator {
+impl<N: Scalar + Clone, R: DimName> Allocator<N, R, Dynamic> for DefaultAllocator {
     type Buffer = VecStorage<N, R, Dynamic>;
 
     #[inline]
@@ -142,7 +142,7 @@ impl<N: Scalar + Copy, R: DimName> Allocator<N, R, Dynamic> for DefaultAllocator
  *
  */
 // Anything -> Static × Static
-impl<N: Scalar + Copy, RFrom, CFrom, RTo, CTo> Reallocator<N, RFrom, CFrom, RTo, CTo> for DefaultAllocator
+impl<N: Scalar + Clone, RFrom, CFrom, RTo, CTo> Reallocator<N, RFrom, CFrom, RTo, CTo> for DefaultAllocator
 where
     RFrom: Dim,
     CFrom: Dim,
@@ -173,7 +173,7 @@ where
 
 // Static × Static -> Dynamic × Any
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar + Copy, RFrom, CFrom, CTo> Reallocator<N, RFrom, CFrom, Dynamic, CTo> for DefaultAllocator
+impl<N: Scalar + Clone, RFrom, CFrom, CTo> Reallocator<N, RFrom, CFrom, Dynamic, CTo> for DefaultAllocator
 where
     RFrom: DimName,
     CFrom: DimName,
@@ -202,7 +202,7 @@ where
 
 // Static × Static -> Static × Dynamic
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar + Copy, RFrom, CFrom, RTo> Reallocator<N, RFrom, CFrom, RTo, Dynamic> for DefaultAllocator
+impl<N: Scalar + Clone, RFrom, CFrom, RTo> Reallocator<N, RFrom, CFrom, RTo, Dynamic> for DefaultAllocator
 where
     RFrom: DimName,
     CFrom: DimName,
@@ -231,7 +231,7 @@ where
 
 // All conversion from a dynamic buffer to a dynamic buffer.
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar + Copy, CFrom: Dim, CTo: Dim> Reallocator<N, Dynamic, CFrom, Dynamic, CTo>
+impl<N: Scalar + Clone, CFrom: Dim, CTo: Dim> Reallocator<N, Dynamic, CFrom, Dynamic, CTo>
     for DefaultAllocator
 {
     #[inline]
@@ -247,7 +247,7 @@ impl<N: Scalar + Copy, CFrom: Dim, CTo: Dim> Reallocator<N, Dynamic, CFrom, Dyna
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar + Copy, CFrom: Dim, RTo: DimName> Reallocator<N, Dynamic, CFrom, RTo, Dynamic>
+impl<N: Scalar + Clone, CFrom: Dim, RTo: DimName> Reallocator<N, Dynamic, CFrom, RTo, Dynamic>
     for DefaultAllocator
 {
     #[inline]
@@ -263,7 +263,7 @@ impl<N: Scalar + Copy, CFrom: Dim, RTo: DimName> Reallocator<N, Dynamic, CFrom, 
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar + Copy, RFrom: DimName, CTo: Dim> Reallocator<N, RFrom, Dynamic, Dynamic, CTo>
+impl<N: Scalar + Clone, RFrom: DimName, CTo: Dim> Reallocator<N, RFrom, Dynamic, Dynamic, CTo>
     for DefaultAllocator
 {
     #[inline]
@@ -279,7 +279,7 @@ impl<N: Scalar + Copy, RFrom: DimName, CTo: Dim> Reallocator<N, RFrom, Dynamic, 
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar + Copy, RFrom: DimName, RTo: DimName> Reallocator<N, RFrom, Dynamic, RTo, Dynamic>
+impl<N: Scalar + Clone, RFrom: DimName, RTo: DimName> Reallocator<N, RFrom, Dynamic, RTo, Dynamic>
     for DefaultAllocator
 {
     #[inline]

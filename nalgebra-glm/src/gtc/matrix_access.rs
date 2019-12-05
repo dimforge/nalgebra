@@ -10,7 +10,7 @@ use crate::traits::{Alloc, Dimension};
 /// * [`row`](fn.row.html)
 /// * [`set_column`](fn.set_column.html)
 /// * [`set_row`](fn.set_row.html)
-pub fn column<N: Scalar + Copy, R: Dimension, C: Dimension>(
+pub fn column<N: Scalar + Clone, R: Dimension, C: Dimension>(
     m: &TMat<N, R, C>,
     index: usize,
 ) -> TVec<N, R>
@@ -27,7 +27,7 @@ where
 /// * [`column`](fn.column.html)
 /// * [`row`](fn.row.html)
 /// * [`set_row`](fn.set_row.html)
-pub fn set_column<N: Scalar + Copy, R: Dimension, C: Dimension>(
+pub fn set_column<N: Scalar + Clone, R: Dimension, C: Dimension>(
     m: &TMat<N, R, C>,
     index: usize,
     x: &TVec<N, R>,
@@ -47,7 +47,7 @@ where
 /// * [`column`](fn.column.html)
 /// * [`set_column`](fn.set_column.html)
 /// * [`set_row`](fn.set_row.html)
-pub fn row<N: Scalar + Copy, R: Dimension, C: Dimension>(m: &TMat<N, R, C>, index: usize) -> TVec<N, C>
+pub fn row<N: Scalar + Clone, R: Dimension, C: Dimension>(m: &TMat<N, R, C>, index: usize) -> TVec<N, C>
 where DefaultAllocator: Alloc<N, R, C> {
     m.row(index).into_owned().transpose()
 }
@@ -59,7 +59,7 @@ where DefaultAllocator: Alloc<N, R, C> {
 /// * [`column`](fn.column.html)
 /// * [`row`](fn.row.html)
 /// * [`set_column`](fn.set_column.html)
-pub fn set_row<N: Scalar + Copy, R: Dimension, C: Dimension>(
+pub fn set_row<N: Scalar + Clone, R: Dimension, C: Dimension>(
     m: &TMat<N, R, C>,
     index: usize,
     x: &TVec<N, C>,

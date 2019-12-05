@@ -25,7 +25,7 @@ impl<'a, N> ColumnEntries<'a, N> {
     }
 }
 
-impl<'a, N: Copy> Iterator for ColumnEntries<'a, N> {
+impl<'a, N: Clone> Iterator for ColumnEntries<'a, N> {
     type Item = (usize, N);
 
     #[inline]
@@ -33,8 +33,8 @@ impl<'a, N: Copy> Iterator for ColumnEntries<'a, N> {
         if self.curr >= self.i.len() {
             None
         } else {
-            let res = Some((unsafe { *self.i.get_unchecked(self.curr) }, unsafe {
-                *self.v.get_unchecked(self.curr)
+            let res = Some((unsafe { self.i.get_unchecked(self.curr).clone() }, unsafe {
+                self.v.get_unchecked(self.curr).clone()
             }));
             self.curr += 1;
             res
@@ -105,7 +105,7 @@ pub trait CsStorageMut<N, R, C = U1>:
 
 /// A storage of column-compressed sparse matrix based on a Vec.
 #[derive(Clone, Debug, PartialEq)]
-pub struct CsVecStorage<N: Scalar + Copy, R: Dim, C: Dim>
+pub struct CsVecStorage<N: Scalar + Clone, R: Dim, C: Dim>
 where DefaultAllocator: Allocator<usize, C>
 {
     pub(crate) shape: (R, C),
@@ -114,7 +114,7 @@ where DefaultAllocator: Allocator<usize, C>
     pub(crate) vals: Vec<N>,
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim> CsVecStorage<N, R, C>
+impl<N: Scalar + Clone, R: Dim, C: Dim> CsVecStorage<N, R, C>
 where DefaultAllocator: Allocator<usize, C>
 {
     /// The value buffer of this storage.
@@ -133,9 +133,9 @@ where DefaultAllocator: Allocator<usize, C>
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim> CsVecStorage<N, R, C> where DefaultAllocator: Allocator<usize, C> {}
+impl<N: Scalar + Clone, R: Dim, C: Dim> CsVecStorage<N, R, C> where DefaultAllocator: Allocator<usize, C> {}
 
-impl<'a, N: Scalar + Copy, R: Dim, C: Dim> CsStorageIter<'a, N, R, C> for CsVecStorage<N, R, C>
+impl<'a, N: Scalar + Clone, R: Dim, C: Dim> CsStorageIter<'a, N, R, C> for CsVecStorage<N, R, C>
 where DefaultAllocator: Allocator<usize, C>
 {
     type ColumnEntries = ColumnEntries<'a, N>;
@@ -154,7 +154,7 @@ where DefaultAllocator: Allocator<usize, C>
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim> CsStorage<N, R, C> for CsVecStorage<N, R, C>
+impl<N: Scalar + Clone, R: Dim, C: Dim> CsStorage<N, R, C> for CsVecStorage<N, R, C>
 where DefaultAllocator: Allocator<usize, C>
 {
     #[inline]
@@ -199,7 +199,7 @@ where DefaultAllocator: Allocator<usize, C>
     }
 }
 
-impl<'a, N: Scalar + Copy, R: Dim, C: Dim> CsStorageIterMut<'a, N, R, C> for CsVecStorage<N, R, C>
+impl<'a, N: Scalar + Clone, R: Dim, C: Dim> CsStorageIterMut<'a, N, R, C> for CsVecStorage<N, R, C>
 where DefaultAllocator: Allocator<usize, C>
 {
     type ValuesMut = slice::IterMut<'a, N>;
@@ -220,11 +220,11 @@ where DefaultAllocator: Allocator<usize, C>
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim> CsStorageMut<N, R, C> for CsVecStorage<N, R, C> where DefaultAllocator: Allocator<usize, C>
+impl<N: Scalar + Clone, R: Dim, C: Dim> CsStorageMut<N, R, C> for CsVecStorage<N, R, C> where DefaultAllocator: Allocator<usize, C>
 {}
 
 /*
-pub struct CsSliceStorage<'a, N: Scalar + Copy, R: Dim, C: DimAdd<U1>> {
+pub struct CsSliceStorage<'a, N: Scalar + Clone, R: Dim, C: DimAdd<U1>> {
     shape: (R, C),
     p: VectorSlice<usize, DimSum<C, U1>>,
     i: VectorSlice<usize, Dynamic>,
@@ -234,7 +234,7 @@ pub struct CsSliceStorage<'a, N: Scalar + Copy, R: Dim, C: DimAdd<U1>> {
 /// A compressed sparse column matrix.
 #[derive(Clone, Debug, PartialEq)]
 pub struct CsMatrix<
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     R: Dim = Dynamic,
     C: Dim = Dynamic,
     S: CsStorage<N, R, C> = CsVecStorage<N, R, C>,
@@ -246,7 +246,7 @@ pub struct CsMatrix<
 /// A column compressed sparse vector.
 pub type CsVector<N, R = Dynamic, S = CsVecStorage<N, R, U1>> = CsMatrix<N, R, U1, S>;
 
-impl<N: Scalar + Copy, R: Dim, C: Dim> CsMatrix<N, R, C>
+impl<N: Scalar + Clone, R: Dim, C: Dim> CsMatrix<N, R, C>
 where DefaultAllocator: Allocator<usize, C>
 {
     /// Creates a new compressed sparse column matrix with the specified dimension and
@@ -323,7 +323,7 @@ where DefaultAllocator: Allocator<usize, C>
 }
 
 /*
-impl<N: Scalar + Copy + Zero + ClosedAdd> CsMatrix<N> {
+impl<N: Scalar + Clone + Zero + ClosedAdd> CsMatrix<N> {
     pub(crate) fn from_parts(
         nrows: usize,
         ncols: usize,
@@ -340,7 +340,7 @@ impl<N: Scalar + Copy + Zero + ClosedAdd> CsMatrix<N> {
 }
 */
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
     pub(crate) fn from_data(data: S) -> Self {
         CsMatrix {
             data,
@@ -433,7 +433,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, 
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: CsStorageMut<N, R, C>> CsMatrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: CsStorageMut<N, R, C>> CsMatrix<N, R, C, S> {
     /// Iterator through all the mutable values of this sparse matrix.
     #[inline]
     pub fn values_mut(&mut self) -> impl Iterator<Item = &mut N> {
@@ -441,7 +441,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: CsStorageMut<N, R, C>> CsMatrix<N, R, 
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim> CsMatrix<N, R, C>
+impl<N: Scalar + Clone, R: Dim, C: Dim> CsMatrix<N, R, C>
 where DefaultAllocator: Allocator<usize, C>
 {
     pub(crate) fn sort(&mut self)
@@ -470,7 +470,7 @@ where DefaultAllocator: Allocator<usize, C>
 
             // Permute the values too.
             for (i, irow) in range.clone().zip(self.data.i[range].iter().cloned()) {
-                self.data.vals[i] = workspace[irow];
+                self.data.vals[i] = workspace[irow].inlined_clone();
             }
         }
     }
@@ -492,11 +492,11 @@ where DefaultAllocator: Allocator<usize, C>
                     let curr_irow = self.data.i[idx];
 
                     if curr_irow == irow {
-                        value += self.data.vals[idx];
+                        value += self.data.vals[idx].inlined_clone();
                     } else {
                         self.data.i[curr_i] = irow;
                         self.data.vals[curr_i] = value;
-                        value = self.data.vals[idx];
+                        value = self.data.vals[idx].inlined_clone();
                         irow = curr_irow;
                         curr_i += 1;
                     }

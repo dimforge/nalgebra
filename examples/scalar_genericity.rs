@@ -4,11 +4,11 @@ extern crate nalgebra as na;
 use alga::general::{RealField, RingCommutative};
 use na::{Scalar, Vector3};
 
-fn print_vector<N: Scalar + Copy>(m: &Vector3<N>) {
+fn print_vector<N: Scalar + Clone>(m: &Vector3<N>) {
     println!("{:?}", m)
 }
 
-fn print_squared_norm<N: Scalar + Copy + RingCommutative>(v: &Vector3<N>) {
+fn print_squared_norm<N: Scalar + Clone + RingCommutative>(v: &Vector3<N>) {
     // NOTE: alternatively, nalgebra already defines `v.squared_norm()`.
     let sqnorm = v.dot(v);
     println!("{:?}", sqnorm);

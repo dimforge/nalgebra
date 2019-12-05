@@ -24,7 +24,7 @@ macro_rules! coords_impl(
         #[repr(C)]
         #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
         #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-        pub struct $T<N: Scalar + Copy> {
+        pub struct $T<N: Scalar + Clone> {
             $(pub $comps: N),*
         }
     }
@@ -32,7 +32,7 @@ macro_rules! coords_impl(
 
 macro_rules! deref_impl(
     ($R: ty, $C: ty; $Target: ident) => {
-        impl<N: Scalar + Copy, S> Deref for Matrix<N, $R, $C, S>
+        impl<N: Scalar + Clone, S> Deref for Matrix<N, $R, $C, S>
             where S: ContiguousStorage<N, $R, $C> {
             type Target = $Target<N>;
 
@@ -42,7 +42,7 @@ macro_rules! deref_impl(
             }
         }
 
-        impl<N: Scalar + Copy, S> DerefMut for Matrix<N, $R, $C, S>
+        impl<N: Scalar + Clone, S> DerefMut for Matrix<N, $R, $C, S>
             where S: ContiguousStorageMut<N, $R, $C> {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {

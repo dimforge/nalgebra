@@ -5,14 +5,14 @@ use typenum::{self, Cmp, Greater};
 macro_rules! impl_swizzle {
     ($( where $BaseDim: ident: $( $name: ident() -> $Result: ident[$($i: expr),+] ),+ ;)* ) => {
         $(
-            impl<N: Scalar + Copy, D: DimName, S: Storage<N, D>> Vector<N, D, S>
+            impl<N: Scalar + Clone, D: DimName, S: Storage<N, D>> Vector<N, D, S>
             where D::Value: Cmp<typenum::$BaseDim, Output=Greater>
             {
                 $(
                     /// Builds a new vector from components of `self`.
                     #[inline]
                     pub fn $name(&self) -> $Result<N> {
-                        $Result::new($(self[$i]),*)
+                        $Result::new($(self[$i].inlined_clone()),*)
                     }
                 )*
             }

@@ -18,7 +18,7 @@ use crate::base::storage::{Storage, StorageMut};
 use crate::base::DMatrix;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, RowVector, Scalar, Vector};
 
-impl<N: Scalar + Copy + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Clone + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Extracts the upper triangular part of this matrix (including the diagonal).
     #[inline]
     pub fn upper_triangle(&self) -> MatrixMN<N, R, C>
@@ -64,7 +64,7 @@ impl<N: Scalar + Copy + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, 
             let src = self.column(j);
 
             for (destination, source) in irows.clone().enumerate() {
-                unsafe { *res.vget_unchecked_mut(destination) = *src.vget_unchecked(*source) }
+                unsafe { *res.vget_unchecked_mut(destination) = src.vget_unchecked(*source).inlined_clone() }
             }
         }
 
@@ -92,12 +92,12 @@ impl<N: Scalar + Copy + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, 
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Sets all the elements of this matrix to `val`.
     #[inline]
     pub fn fill(&mut self, val: N) {
         for e in self.iter_mut() {
-            *e = val
+            *e = val.inlined_clone()
         }
     }
 
@@ -116,7 +116,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
         let n = cmp::min(nrows, ncols);
 
         for i in 0..n {
-            unsafe { *self.get_unchecked_mut((i, i)) = val }
+            unsafe { *self.get_unchecked_mut((i, i)) = val.inlined_clone() }
         }
     }
 
@@ -125,7 +125,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
     pub fn fill_row(&mut self, i: usize, val: N) {
         assert!(i < self.nrows(), "Row index out of bounds.");
         for j in 0..self.ncols() {
-            unsafe { *self.get_unchecked_mut((i, j)) = val }
+            unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
         }
     }
 
@@ -134,7 +134,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
     pub fn fill_column(&mut self, j: usize, val: N) {
         assert!(j < self.ncols(), "Row index out of bounds.");
         for i in 0..self.nrows() {
-            unsafe { *self.get_unchecked_mut((i, j)) = val }
+            unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
         }
     }
 
@@ -151,7 +151,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
         assert_eq!(diag.len(), min_nrows_ncols, "Mismatched dimensions.");
 
         for i in 0..min_nrows_ncols {
-            unsafe { *self.get_unchecked_mut((i, i)) = *diag.vget_unchecked(i) }
+            unsafe { *self.get_unchecked_mut((i, i)) = diag.vget_unchecked(i).inlined_clone() }
         }
     }
 
@@ -201,7 +201,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
     pub fn fill_lower_triangle(&mut self, val: N, shift: usize) {
         for j in 0..self.ncols() {
             for i in (j + shift)..self.nrows() {
-                unsafe { *self.get_unchecked_mut((i, j)) = val }
+                unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
             }
         }
     }
@@ -219,7 +219,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
             // FIXME: is there a more efficient way to avoid the min ?
             // (necessary for rectangular matrices)
             for i in 0..cmp::min(j + 1 - shift, self.nrows()) {
-                unsafe { *self.get_unchecked_mut((i, j)) = val }
+                unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
             }
         }
     }
@@ -253,7 +253,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
     }
 }
 
-impl<N: Scalar + Copy, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
+impl<N: Scalar + Clone, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     /// Copies the upper-triangle of this matrix to its lower-triangular part.
     ///
     /// This makes the matrix symmetric. Panics if the matrix is not square.
@@ -264,7 +264,7 @@ impl<N: Scalar + Copy, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
         for j in 0..dim {
             for i in j + 1..dim {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = *self.get_unchecked((j, i));
+                    *self.get_unchecked_mut((i, j)) = self.get_unchecked((j, i)).inlined_clone();
                 }
             }
         }
@@ -279,7 +279,7 @@ impl<N: Scalar + Copy, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
         for j in 1..self.ncols() {
             for i in 0..j {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = *self.get_unchecked((j, i));
+                    *self.get_unchecked_mut((i, j)) = self.get_unchecked((j, i)).inlined_clone();
                 }
             }
         }
@@ -291,7 +291,7 @@ impl<N: Scalar + Copy, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
  * FIXME: specialize all the following for slices.
  *
  */
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /*
      *
      * Column removal.
@@ -783,7 +783,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             }
 
             if new_ncols.value() > ncols {
-                res.columns_range_mut(ncols..).fill(val);
+                res.columns_range_mut(ncols..).fill(val.inlined_clone());
             }
 
             if new_nrows.value() > nrows {
@@ -797,7 +797,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar + Copy> DMatrix<N> {
+impl<N: Scalar + Clone> DMatrix<N> {
     /// Resizes this matrix in-place.
     ///
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
@@ -814,7 +814,7 @@ impl<N: Scalar + Copy> DMatrix<N> {
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar + Copy, C: Dim> MatrixMN<N, Dynamic, C>
+impl<N: Scalar + Clone, C: Dim> MatrixMN<N, Dynamic, C>
 where DefaultAllocator: Allocator<N, Dynamic, C>
 {
     /// Changes the number of rows of this matrix in-place.
@@ -835,7 +835,7 @@ where DefaultAllocator: Allocator<N, Dynamic, C>
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<N: Scalar + Copy, R: Dim> MatrixMN<N, R, Dynamic>
+impl<N: Scalar + Clone, R: Dim> MatrixMN<N, R, Dynamic>
 where DefaultAllocator: Allocator<N, R, Dynamic>
 {
     /// Changes the number of column of this matrix in-place.
@@ -855,7 +855,7 @@ where DefaultAllocator: Allocator<N, R, Dynamic>
     }
 }
 
-unsafe fn compress_rows<N: Scalar + Copy>(
+unsafe fn compress_rows<N: Scalar + Clone>(
     data: &mut [N],
     nrows: usize,
     ncols: usize,
@@ -895,7 +895,7 @@ unsafe fn compress_rows<N: Scalar + Copy>(
 
 // Moves entries of a matrix buffer to make place for `ninsert` emty rows starting at the `i-th` row index.
 // The `data` buffer is assumed to contained at least `(nrows + ninsert) * ncols` elements.
-unsafe fn extend_rows<N: Scalar + Copy>(
+unsafe fn extend_rows<N: Scalar + Clone>(
     data: &mut [N],
     nrows: usize,
     ncols: usize,
@@ -938,7 +938,7 @@ unsafe fn extend_rows<N: Scalar + Copy>(
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<N, R, S> Extend<N> for Matrix<N, R, Dynamic, S>
 where
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     R: Dim,
     S: Extend<N>,
 {
@@ -986,7 +986,7 @@ where
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<N, S> Extend<N> for Matrix<N, Dynamic, U1, S>
 where
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     S: Extend<N>,
 {
     /// Extend the number of rows of a `Vector` with elements
@@ -1007,7 +1007,7 @@ where
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<N, R, S, RV, SV> Extend<Vector<N, RV, SV>> for Matrix<N, R, Dynamic, S>
 where
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     R: Dim,
     S: Extend<Vector<N, RV, SV>>,
     RV: Dim,
