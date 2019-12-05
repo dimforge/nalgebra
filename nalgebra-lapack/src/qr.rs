@@ -33,7 +33,7 @@ use lapack;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct QR<N: Scalar + Copy, R: DimMin<C>, C: Dim>
+pub struct QR<N: Scalar + Clone, R: DimMin<C>, C: Dim>
 where DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>
 {
     qr: MatrixMN<N, R, C>,

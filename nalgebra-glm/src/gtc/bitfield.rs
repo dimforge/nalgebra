@@ -19,7 +19,7 @@ pub fn bitfieldFillOne<IU>(Value: IU, FirstBit: i32, BitCount: i32) -> IU {
     unimplemented!()
 }
 
-pub fn bitfieldFillOne2<N: Scalar + Copy, D: Dimension>(Value: &TVec<N, D>, FirstBit: i32, BitCount: i32) -> TVec<N, D>
+pub fn bitfieldFillOne2<N: Scalar + Clone, D: Dimension>(Value: &TVec<N, D>, FirstBit: i32, BitCount: i32) -> TVec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     unimplemented!()
 }
@@ -28,7 +28,7 @@ pub fn bitfieldFillZero<IU>(Value: IU, FirstBit: i32, BitCount: i32) -> IU {
     unimplemented!()
 }
 
-pub fn bitfieldFillZero2<N: Scalar + Copy, D: Dimension>(Value: &TVec<N, D>, FirstBit: i32, BitCount: i32) -> TVec<N, D>
+pub fn bitfieldFillZero2<N: Scalar + Clone, D: Dimension>(Value: &TVec<N, D>, FirstBit: i32, BitCount: i32) -> TVec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     unimplemented!()
 }
@@ -113,7 +113,7 @@ pub fn bitfieldRotateLeft<IU>(In: IU, Shift: i32) -> IU {
     unimplemented!()
 }
 
-pub fn bitfieldRotateLeft2<N: Scalar + Copy, D: Dimension>(In: &TVec<N, D>, Shift: i32) -> TVec<N, D>
+pub fn bitfieldRotateLeft2<N: Scalar + Clone, D: Dimension>(In: &TVec<N, D>, Shift: i32) -> TVec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     unimplemented!()
 }
@@ -122,7 +122,7 @@ pub fn bitfieldRotateRight<IU>(In: IU, Shift: i32) -> IU {
     unimplemented!()
 }
 
-pub fn bitfieldRotateRight2<N: Scalar + Copy, D: Dimension>(In: &TVec<N, D>, Shift: i32) -> TVec<N, D>
+pub fn bitfieldRotateRight2<N: Scalar + Clone, D: Dimension>(In: &TVec<N, D>, Shift: i32) -> TVec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     unimplemented!()
 }
@@ -131,7 +131,7 @@ pub fn mask<IU>(Bits: IU) -> IU {
     unimplemented!()
 }
 
-pub fn mask2<N: Scalar + Copy, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
+pub fn mask2<N: Scalar + Clone, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     unimplemented!()
 }

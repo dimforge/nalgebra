@@ -13,22 +13,22 @@ macro_rules! slice_storage_impl(
     ($doc: expr; $Storage: ident as $SRef: ty; $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {
         #[doc = $doc]
         #[derive(Debug)]
-        pub struct $T<'a, N: Scalar + Copy, R: Dim, C: Dim, RStride: Dim, CStride: Dim> {
+        pub struct $T<'a, N: Scalar + Clone, R: Dim, C: Dim, RStride: Dim, CStride: Dim> {
             ptr:       $Ptr,
             shape:     (R, C),
             strides:   (RStride, CStride),
             _phantoms: PhantomData<$Ref>,
         }
 
-        unsafe impl<'a, N: Scalar + Copy + Send, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Send
+        unsafe impl<'a, N: Scalar + Clone + Send, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Send
             for $T<'a, N, R, C, RStride, CStride>
         {}
 
-        unsafe impl<'a, N: Scalar + Copy + Sync, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Sync
+        unsafe impl<'a, N: Scalar + Clone + Sync, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Sync
             for $T<'a, N, R, C, RStride, CStride>
         {}
 
-        impl<'a, N: Scalar + Copy, R: Dim, C: Dim, RStride: Dim, CStride: Dim> $T<'a, N, R, C, RStride, CStride> {
+        impl<'a, N: Scalar + Clone, R: Dim, C: Dim, RStride: Dim, CStride: Dim> $T<'a, N, R, C, RStride, CStride> {
             /// Create a new matrix slice without bound checking and from a raw pointer.
             #[inline]
             pub unsafe fn from_raw_parts(ptr:     $Ptr,
@@ -48,7 +48,7 @@ macro_rules! slice_storage_impl(
         }
 
         // Dynamic is arbitrary. It's just to be able to call the constructors with `Slice::`
-        impl<'a, N: Scalar + Copy, R: Dim, C: Dim> $T<'a, N, R, C, Dynamic, Dynamic> {
+        impl<'a, N: Scalar + Clone, R: Dim, C: Dim> $T<'a, N, R, C, Dynamic, Dynamic> {
             /// Create a new matrix slice without bound checking.
             #[inline]
             pub unsafe fn new_unchecked<RStor, CStor, S>(storage: $SRef, start: (usize, usize), shape: (R, C))
@@ -89,12 +89,12 @@ slice_storage_impl!("A mutable matrix data storage for mutable matrix slice. Onl
     StorageMut as &'a mut S; SliceStorageMut.get_address_unchecked_mut(*mut N as &'a mut N)
 );
 
-impl<'a, N: Scalar + Copy, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Copy
+impl<'a, N: Scalar + Clone, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Copy
     for SliceStorage<'a, N, R, C, RStride, CStride>
 {
 }
 
-impl<'a, N: Scalar + Copy, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
+impl<'a, N: Scalar + Clone, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
     for SliceStorage<'a, N, R, C, RStride, CStride>
 {
     #[inline]
@@ -110,7 +110,7 @@ impl<'a, N: Scalar + Copy, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
 
 macro_rules! storage_impl(
     ($($T: ident),* $(,)*) => {$(
-        unsafe impl<'a, N: Scalar + Copy, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Storage<N, R, C>
+        unsafe impl<'a, N: Scalar + Clone, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Storage<N, R, C>
             for $T<'a, N, R, C, RStride, CStride> {
 
             type RStride = RStride;
@@ -178,7 +178,7 @@ macro_rules! storage_impl(
 
 storage_impl!(SliceStorage, SliceStorageMut);
 
-unsafe impl<'a, N: Scalar + Copy, R: Dim, C: Dim, RStride: Dim, CStride: Dim> StorageMut<N, R, C>
+unsafe impl<'a, N: Scalar + Clone, R: Dim, C: Dim, RStride: Dim, CStride: Dim> StorageMut<N, R, C>
     for SliceStorageMut<'a, N, R, C, RStride, CStride>
 {
     #[inline]
@@ -198,15 +198,15 @@ unsafe impl<'a, N: Scalar + Copy, R: Dim, C: Dim, RStride: Dim, CStride: Dim> St
     }
 }
 
-unsafe impl<'a, N: Scalar + Copy, R: Dim, CStride: Dim> ContiguousStorage<N, R, U1> for SliceStorage<'a, N, R, U1, U1, CStride> { }
-unsafe impl<'a, N: Scalar + Copy, R: Dim, CStride: Dim> ContiguousStorage<N, R, U1> for SliceStorageMut<'a, N, R, U1, U1, CStride> { }
-unsafe impl<'a, N: Scalar + Copy, R: Dim, CStride: Dim> ContiguousStorageMut<N, R, U1> for SliceStorageMut<'a, N, R, U1, U1, CStride> { }
+unsafe impl<'a, N: Scalar + Clone, R: Dim, CStride: Dim> ContiguousStorage<N, R, U1> for SliceStorage<'a, N, R, U1, U1, CStride> { }
+unsafe impl<'a, N: Scalar + Clone, R: Dim, CStride: Dim> ContiguousStorage<N, R, U1> for SliceStorageMut<'a, N, R, U1, U1, CStride> { }
+unsafe impl<'a, N: Scalar + Clone, R: Dim, CStride: Dim> ContiguousStorageMut<N, R, U1> for SliceStorageMut<'a, N, R, U1, U1, CStride> { }
 
-unsafe impl<'a, N: Scalar + Copy, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorage<N, R, C> for SliceStorage<'a, N, R, C, U1, R> { }
-unsafe impl<'a, N: Scalar + Copy, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorage<N, R, C> for SliceStorageMut<'a, N, R, C, U1, R> { }
-unsafe impl<'a, N: Scalar + Copy, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorageMut<N, R, C> for SliceStorageMut<'a, N, R, C, U1, R> { }
+unsafe impl<'a, N: Scalar + Clone, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorage<N, R, C> for SliceStorage<'a, N, R, C, U1, R> { }
+unsafe impl<'a, N: Scalar + Clone, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorage<N, R, C> for SliceStorageMut<'a, N, R, C, U1, R> { }
+unsafe impl<'a, N: Scalar + Clone, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorageMut<N, R, C> for SliceStorageMut<'a, N, R, C, U1, R> { }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     fn assert_slice_index(
         &self,
@@ -261,7 +261,7 @@ macro_rules! matrix_slice_impl(
         pub type $MatrixSlice<'a, N, R, C, RStride, CStride>
         = Matrix<N, R, C, $SliceStorage<'a, N, R, C, RStride, CStride>>;
 
-        impl<N: Scalar + Copy, R: Dim, C: Dim, S: $Storage<N, R, C>> Matrix<N, R, C, S> {
+        impl<N: Scalar + Clone, R: Dim, C: Dim, S: $Storage<N, R, C>> Matrix<N, R, C, S> {
             /*
              *
              * Row slicing.
@@ -786,7 +786,7 @@ impl<D: Dim> SliceRange<D> for RangeFull {
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Slices a sub-matrix containing the rows indexed by the range `rows` and the columns indexed
     /// by the range `cols`.
     #[inline]
@@ -827,7 +827,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Slices a mutable sub-matrix containing the rows indexed by the range `rows` and the columns
     /// indexed by the range `cols`.
     pub fn slice_range_mut<RowRange, ColRange>(
@@ -871,7 +871,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
 impl<'a, N, R, C, RStride, CStride> From<MatrixSliceMut<'a, N, R, C, RStride, CStride>>
 for MatrixSlice<'a, N, R, C, RStride, CStride>
     where
-        N: Scalar + Copy,
+        N: Scalar + Clone,
         R: Dim,
         C: Dim,
         RStride: Dim,

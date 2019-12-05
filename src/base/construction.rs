@@ -27,7 +27,7 @@ use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vec
  * Generic constructors.
  *
  */
-impl<N: Scalar + Copy, R: Dim, C: Dim> MatrixMN<N, R, C>
+impl<N: Scalar + Clone, R: Dim, C: Dim> MatrixMN<N, R, C>
 where DefaultAllocator: Allocator<N, R, C>
 {
     /// Creates a new uninitialized matrix. If the matrix has a compile-time dimension, this panics
@@ -84,7 +84,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
         for i in 0..nrows.value() {
             for j in 0..ncols.value() {
-                unsafe { *res.get_unchecked_mut((i, j)) = *iter.next().unwrap() }
+                unsafe { *res.get_unchecked_mut((i, j)) = iter.next().unwrap().inlined_clone() }
             }
         }
 
@@ -134,7 +134,7 @@ where DefaultAllocator: Allocator<N, R, C>
         let mut res = Self::zeros_generic(nrows, ncols);
 
         for i in 0..crate::min(nrows.value(), ncols.value()) {
-            unsafe { *res.get_unchecked_mut((i, i)) = elt }
+            unsafe { *res.get_unchecked_mut((i, i)) = elt.inlined_clone() }
         }
 
         res
@@ -154,7 +154,7 @@ where DefaultAllocator: Allocator<N, R, C>
         );
 
         for (i, elt) in elts.iter().enumerate() {
-            unsafe { *res.get_unchecked_mut((i, i)) = *elt }
+            unsafe { *res.get_unchecked_mut((i, i)) = elt.inlined_clone() }
         }
 
         res
@@ -196,7 +196,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
         // FIXME: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
-            rows[i][(0, j)]
+            rows[i][(0, j)].inlined_clone()
         })
     }
 
@@ -236,7 +236,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
         // FIXME: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
-            columns[j][i]
+            columns[j][i].inlined_clone()
         })
     }
 
@@ -286,7 +286,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
 impl<N, D: Dim> MatrixN<N, D>
 where
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     DefaultAllocator: Allocator<N, D, D>,
 {
     /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
@@ -315,7 +315,7 @@ where
 
         for i in 0..diag.len() {
             unsafe {
-                *res.get_unchecked_mut((i, i)) = *diag.vget_unchecked(i);
+                *res.get_unchecked_mut((i, i)) = diag.vget_unchecked(i).inlined_clone();
             }
         }
 
@@ -330,7 +330,7 @@ where
  */
 macro_rules! impl_constructors(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<N: Scalar + Copy, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
+        impl<N: Scalar + Clone, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
             where DefaultAllocator: Allocator<N $(, $Dims)*> {
 
             /// Creates a new uninitialized matrix or vector.
@@ -559,7 +559,7 @@ macro_rules! impl_constructors(
             }
         }
 
-        impl<N: Scalar + Copy, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
+        impl<N: Scalar + Clone, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
             where
             DefaultAllocator: Allocator<N $(, $Dims)*>,
             Standard: Distribution<N> {
@@ -603,7 +603,7 @@ impl_constructors!(Dynamic, Dynamic;
  */
 macro_rules! impl_constructors_from_data(
     ($data: ident; $($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<N: Scalar + Copy, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
+        impl<N: Scalar + Clone, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
         where DefaultAllocator: Allocator<N $(, $Dims)*> {
             /// Creates a matrix with its elements filled with the components provided by a slice
             /// in row-major order.
@@ -721,7 +721,7 @@ impl_constructors_from_data!(data; Dynamic, Dynamic;
  */
 impl<N, R: DimName, C: DimName> Zero for MatrixMN<N, R, C>
 where
-    N: Scalar + Copy + Zero + ClosedAdd,
+    N: Scalar + Clone + Zero + ClosedAdd,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
@@ -737,7 +737,7 @@ where
 
 impl<N, D: DimName> One for MatrixN<N, D>
 where
-    N: Scalar + Copy + Zero + One + ClosedMul + ClosedAdd,
+    N: Scalar + Clone + Zero + One + ClosedMul + ClosedAdd,
     DefaultAllocator: Allocator<N, D, D>,
 {
     #[inline]
@@ -748,7 +748,7 @@ where
 
 impl<N, R: DimName, C: DimName> Bounded for MatrixMN<N, R, C>
 where
-    N: Scalar + Copy + Bounded,
+    N: Scalar + Clone + Bounded,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
@@ -762,7 +762,7 @@ where
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim> Distribution<MatrixMN<N, R, C>> for Standard
+impl<N: Scalar + Clone, R: Dim, C: Dim> Distribution<MatrixMN<N, R, C>> for Standard
 where
     DefaultAllocator: Allocator<N, R, C>,
     Standard: Distribution<N>,
@@ -781,7 +781,7 @@ impl<N, R, C> Arbitrary for MatrixMN<N, R, C>
 where
     R: Dim,
     C: Dim,
-    N: Scalar + Copy + Arbitrary + Send,
+    N: Scalar + Clone + Arbitrary + Send,
     DefaultAllocator: Allocator<N, R, C>,
     Owned<N, R, C>: Clone + Send,
 {
@@ -822,7 +822,7 @@ where
 macro_rules! componentwise_constructors_impl(
     ($($R: ty, $C: ty, $($args: ident:($irow: expr,$icol: expr)),*);* $(;)*) => {$(
         impl<N> MatrixMN<N, $R, $C>
-            where N: Scalar + Copy,
+            where N: Scalar + Clone,
                   DefaultAllocator: Allocator<N, $R, $C> {
             /// Initializes this matrix from its components.
             #[inline]
@@ -990,7 +990,7 @@ componentwise_constructors_impl!(
  */
 impl<N, R: DimName> VectorN<N, R>
 where
-    N: Scalar + Copy + Zero + One,
+    N: Scalar + Clone + Zero + One,
     DefaultAllocator: Allocator<N, R>,
 {
     /// The column vector with a 1 as its first component, and zero elsewhere.

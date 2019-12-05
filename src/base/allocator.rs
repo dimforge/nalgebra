@@ -16,7 +16,7 @@ use crate::base::{DefaultAllocator, Scalar};
 ///
 /// Every allocator must be both static and dynamic. Though not all implementations may share the
 /// same `Buffer` type.
-pub trait Allocator<N: Scalar + Copy, R: Dim, C: Dim = U1>: Any + Sized {
+pub trait Allocator<N: Scalar + Clone, R: Dim, C: Dim = U1>: Any + Sized {
     /// The type of buffer this allocator can instanciate.
     type Buffer: ContiguousStorageMut<N, R, C> + Clone;
 
@@ -33,7 +33,7 @@ pub trait Allocator<N: Scalar + Copy, R: Dim, C: Dim = U1>: Any + Sized {
 
 /// A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
 /// CFrom) elements to a smaller or larger size (RTo, CTo).
-pub trait Reallocator<N: Scalar + Copy, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
+pub trait Reallocator<N: Scalar + Clone, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
     Allocator<N, RFrom, CFrom> + Allocator<N, RTo, CTo>
 {
     /// Reallocates a buffer of shape `(RTo, CTo)`, possibly reusing a previously allocated buffer
@@ -65,7 +65,7 @@ where
     R2: Dim,
     C1: Dim,
     C2: Dim,
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
 {
 }
@@ -76,7 +76,7 @@ where
     R2: Dim,
     C1: Dim,
     C2: Dim,
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     DefaultAllocator: Allocator<N, R1, C1> + Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
 {}
@@ -88,7 +88,7 @@ pub trait SameShapeVectorAllocator<N, R1, R2>:
 where
     R1: Dim,
     R2: Dim,
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     ShapeConstraint: SameNumberOfRows<R1, R2>,
 {
 }
@@ -97,7 +97,7 @@ impl<N, R1, R2> SameShapeVectorAllocator<N, R1, R2> for DefaultAllocator
 where
     R1: Dim,
     R2: Dim,
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     DefaultAllocator: Allocator<N, R1, U1> + Allocator<N, SameShapeR<R1, R2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2>,
 {}

@@ -16,7 +16,7 @@ use crate::geometry::Translation;
 
 macro_rules! deref_impl(
     ($D: ty, $Target: ident $(, $comps: ident)*) => {
-        impl<N: Scalar + Copy> Deref for Translation<N, $D>
+        impl<N: Scalar + Clone> Deref for Translation<N, $D>
             where DefaultAllocator: Allocator<N, $D> {
             type Target = $Target<N>;
 
@@ -26,7 +26,7 @@ macro_rules! deref_impl(
             }
         }
 
-        impl<N: Scalar + Copy> DerefMut for Translation<N, $D>
+        impl<N: Scalar + Clone> DerefMut for Translation<N, $D>
             where DefaultAllocator: Allocator<N, $D> {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {

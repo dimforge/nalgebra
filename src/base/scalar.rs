@@ -13,5 +13,17 @@ pub trait Scalar: PartialEq + Debug + Any {
     fn is<T: Scalar>() -> bool {
         TypeId::of::<Self>() == TypeId::of::<T>()
     }
+
+    #[inline(always)]
+    /// Performance hack: Clone doesn't get inlined for Copy types in debug mode, so make it inline anyway.
+    ///
+    /// Downstream crates need to implement this on any Clone Scalars, as a blanket impl would conflict with with the blanket Copy impl.
+    fn inlined_clone(&self) -> Self;
 }
-impl<T: Copy + PartialEq + Debug + Any> Scalar for T {}
+
+impl<T: Copy + PartialEq + Debug + Any> Scalar for T {
+    #[inline(always)]
+    fn inlined_clone(&self) -> T {
+        *self
+    }
+}

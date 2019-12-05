@@ -30,7 +30,7 @@ use lapack;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct Hessenberg<N: Scalar + Copy, D: DimSub<U1>>
+pub struct Hessenberg<N: Scalar + Clone, D: DimSub<U1>>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 {
     h: MatrixN<N, D>,

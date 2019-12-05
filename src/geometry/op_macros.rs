@@ -18,7 +18,7 @@ macro_rules! md_impl(
      // Lifetime.
      $($lives: tt),*) => {
         impl<$($lives ,)* N $(, $Dims: $DimsBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
-            where N: Scalar + Copy + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
+            where N: Scalar + Clone + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
                   DefaultAllocator: Allocator<N, $R1, $C1> +
                                     Allocator<N, $R2, $C2> +
                                     Allocator<N, $R1, $C2>,
@@ -96,7 +96,7 @@ macro_rules! md_assign_impl(
      // Actual implementation and lifetimes.
      $action: expr; $($lives: tt),*) => {
         impl<$($lives ,)* N $(, $Dims: $DimsBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
-            where N: Scalar + Copy + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
+            where N: Scalar + Clone + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
                   DefaultAllocator: Allocator<N, $R1, $C1> +
                                     Allocator<N, $R2, $C2>,
                   $( $ConstraintType: $ConstraintBound $(<$( $ConstraintBoundParams $( = $EqBound )*),*>)* ),*
@@ -148,7 +148,7 @@ macro_rules! add_sub_impl(
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty;
      $action: expr; $($lives: tt),*) => {
         impl<$($lives ,)* N $(, $Dims: $DimsBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
-            where N: Scalar + Copy + $bound,
+            where N: Scalar + Clone + $bound,
                   DefaultAllocator: Allocator<N, $R1, $C1> +
                                     Allocator<N, $R2, $C2> +
                                     SameShapeAllocator<N, $R1, $C1, $R2, $C2>,
@@ -172,7 +172,7 @@ macro_rules! add_sub_assign_impl(
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty;
      $action: expr; $($lives: tt),*) => {
         impl<$($lives ,)* N $(, $Dims: $DimsBound)*> $Op<$Rhs> for $Lhs
-            where N: Scalar + Copy + $bound,
+            where N: Scalar + Clone + $bound,
                   DefaultAllocator: Allocator<N, $R1, $C1> +
                                     Allocator<N, $R2, $C2>,
                   ShapeConstraint: SameNumberOfRows<$R1, $R2> + SameNumberOfColumns<$C1, $C2> {

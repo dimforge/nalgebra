@@ -28,7 +28,7 @@ use lapack;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct Cholesky<N: Scalar + Copy, D: Dim>
+pub struct Cholesky<N: Scalar + Clone, D: Dim>
 where DefaultAllocator: Allocator<N, D, D>
 {
     l: MatrixN<N, D>,

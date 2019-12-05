@@ -73,7 +73,7 @@ pub type MatrixCross<N, R1, C1, R2, C2> =
 /// some concrete types for `N` and a compatible data storage type `S`).
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct Matrix<N: Scalar + Copy, R: Dim, C: Dim, S> {
+pub struct Matrix<N: Scalar + Clone, R: Dim, C: Dim, S> {
     /// The data storage that contains all the matrix components and informations about its number
     /// of rows and column (if needed).
     pub data: S,
@@ -81,7 +81,7 @@ pub struct Matrix<N: Scalar + Copy, R: Dim, C: Dim, S> {
     _phantoms: PhantomData<(N, R, C)>,
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<N, R, C, S> {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         formatter
             .debug_struct("Matrix")
@@ -93,7 +93,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<N, R
 #[cfg(feature = "serde-serialize")]
 impl<N, R, C, S> Serialize for Matrix<N, R, C, S>
 where
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     R: Dim,
     C: Dim,
     S: Serialize,
@@ -107,7 +107,7 @@ where
 #[cfg(feature = "serde-serialize")]
 impl<'de, N, R, C, S> Deserialize<'de> for Matrix<N, R, C, S>
 where
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     R: Dim,
     C: Dim,
     S: Deserialize<'de>,
@@ -122,7 +122,7 @@ where
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<N, R, C, S> {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.data.entomb(writer)
     }
@@ -136,7 +136,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<N,
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S> Matrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S> Matrix<N, R, C, S> {
     /// Creates a new matrix with the given data without statically checking that the matrix
     /// dimension matches the storage dimension.
     #[inline]
@@ -148,7 +148,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Creates a new matrix with the given data.
     #[inline]
     pub fn from_data(data: S) -> Self {
@@ -403,7 +403,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..res.ncols() {
             for i in 0..res.nrows() {
                 unsafe {
-                    *res.get_unchecked_mut((i, j)) = *self.get_unchecked((i, j));
+                    *res.get_unchecked_mut((i, j)) = self.get_unchecked((i, j)).inlined_clone();
                 }
             }
         }
@@ -413,7 +413,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
     /// Returns a matrix containing the result of `f` applied to each of its entries.
     #[inline]
-    pub fn map<N2: Scalar + Copy, F: FnMut(N) -> N2>(&self, mut f: F) -> MatrixMN<N2, R, C>
+    pub fn map<N2: Scalar + Clone, F: FnMut(N) -> N2>(&self, mut f: F) -> MatrixMN<N2, R, C>
     where DefaultAllocator: Allocator<N2, R, C> {
         let (nrows, ncols) = self.data.shape();
 
@@ -422,7 +422,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = *self.data.get_unchecked(i, j);
+                    let a = self.data.get_unchecked(i, j).inlined_clone();
                     *res.data.get_unchecked_mut(i, j) = f(a)
                 }
             }
@@ -434,7 +434,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a matrix containing the result of `f` applied to each of its entries. Unlike `map`,
     /// `f` also gets passed the row and column index, i.e. `f(row, col, value)`.
     #[inline]
-    pub fn map_with_location<N2: Scalar + Copy, F: FnMut(usize, usize, N) -> N2>(
+    pub fn map_with_location<N2: Scalar + Clone, F: FnMut(usize, usize, N) -> N2>(
         &self,
         mut f: F,
     ) -> MatrixMN<N2, R, C>
@@ -448,7 +448,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = *self.data.get_unchecked(i, j);
+                    let a = self.data.get_unchecked(i, j).inlined_clone();
                     *res.data.get_unchecked_mut(i, j) = f(i, j, a)
                 }
             }
@@ -462,8 +462,8 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn zip_map<N2, N3, S2, F>(&self, rhs: &Matrix<N2, R, C, S2>, mut f: F) -> MatrixMN<N3, R, C>
     where
-        N2: Scalar + Copy,
-        N3: Scalar + Copy,
+        N2: Scalar + Clone,
+        N3: Scalar + Clone,
         S2: Storage<N2, R, C>,
         F: FnMut(N, N2) -> N3,
         DefaultAllocator: Allocator<N3, R, C>,
@@ -480,8 +480,8 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = *self.data.get_unchecked(i, j);
-                    let b = *rhs.data.get_unchecked(i, j);
+                    let a = self.data.get_unchecked(i, j).inlined_clone();
+                    let b = rhs.data.get_unchecked(i, j).inlined_clone();
                     *res.data.get_unchecked_mut(i, j) = f(a, b)
                 }
             }
@@ -500,9 +500,9 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         mut f: F,
     ) -> MatrixMN<N4, R, C>
     where
-        N2: Scalar + Copy,
-        N3: Scalar + Copy,
-        N4: Scalar + Copy,
+        N2: Scalar + Clone,
+        N3: Scalar + Clone,
+        N4: Scalar + Clone,
         S2: Storage<N2, R, C>,
         S3: Storage<N3, R, C>,
         F: FnMut(N, N2, N3) -> N4,
@@ -521,9 +521,9 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = *self.data.get_unchecked(i, j);
-                    let b = *b.data.get_unchecked(i, j);
-                    let c = *c.data.get_unchecked(i, j);
+                    let a = self.data.get_unchecked(i, j).inlined_clone();
+                    let b = b.data.get_unchecked(i, j).inlined_clone();
+                    let c = c.data.get_unchecked(i, j).inlined_clone();
                     *res.data.get_unchecked_mut(i, j) = f(a, b, c)
                 }
             }
@@ -542,7 +542,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = *self.data.get_unchecked(i, j);
+                    let a = self.data.get_unchecked(i, j).inlined_clone();
                     res = f(res, a)
                 }
             }
@@ -555,7 +555,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn zip_fold<N2, R2, C2, S2, Acc>(&self, rhs: &Matrix<N2, R2, C2, S2>, init: Acc, mut f: impl FnMut(Acc, N, N2) -> Acc) -> Acc
         where
-            N2: Scalar + Copy,
+            N2: Scalar + Clone,
             R2: Dim,
             C2: Dim,
             S2: Storage<N2, R2, C2>,
@@ -573,8 +573,8 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = *self.data.get_unchecked(i, j);
-                    let b = *rhs.data.get_unchecked(i, j);
+                    let a = self.data.get_unchecked(i, j).inlined_clone();
+                    let b = rhs.data.get_unchecked(i, j).inlined_clone();
                     res = f(res, a, b)
                 }
             }
@@ -602,7 +602,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {
-                    *out.get_unchecked_mut((j, i)) = *self.get_unchecked((i, j));
+                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).inlined_clone();
                 }
             }
         }
@@ -623,7 +623,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Mutably iterates through this matrix coordinates.
     #[inline]
     pub fn iter_mut(&mut self) -> MatrixIterMut<N, R, C, S> {
@@ -717,7 +717,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
         for j in 0..ncols {
             for i in 0..nrows {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = *slice.get_unchecked(i + j * nrows);
+                    *self.get_unchecked_mut((i, j)) = slice.get_unchecked(i + j * nrows).inlined_clone();
                 }
             }
         }
@@ -740,7 +740,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
         for j in 0..self.ncols() {
             for i in 0..self.nrows() {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = *other.get_unchecked((i, j));
+                    *self.get_unchecked_mut((i, j)) = other.get_unchecked((i, j)).inlined_clone();
                 }
             }
         }
@@ -764,7 +764,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
         for j in 0..ncols {
             for i in 0..nrows {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = *other.get_unchecked((j, i));
+                    *self.get_unchecked_mut((i, j)) = other.get_unchecked((j, i)).inlined_clone();
                 }
             }
         }
@@ -787,7 +787,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
             for i in 0..nrows {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
-                    *e = f(*e)
+                    *e = f(e.inlined_clone())
                 }
             }
         }
@@ -797,7 +797,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
     /// joined with the components from `rhs`.
     #[inline]
     pub fn zip_apply<N2, R2, C2, S2>(&mut self, rhs: &Matrix<N2, R2, C2, S2>, mut f: impl FnMut(N, N2) -> N)
-        where N2: Scalar + Copy,
+        where N2: Scalar + Clone,
               R2: Dim,
               C2: Dim,
               S2: Storage<N2, R2, C2>,
@@ -813,8 +813,8 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
             for i in 0..nrows {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
-                    let rhs = rhs.get_unchecked((i, j));
-                    *e = f(*e, *rhs)
+                    let rhs = rhs.get_unchecked((i, j)).inlined_clone();
+                    *e = f(e.inlined_clone(), rhs)
                 }
             }
         }
@@ -825,11 +825,11 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
     /// joined with the components from `b` and `c`.
     #[inline]
     pub fn zip_zip_apply<N2, R2, C2, S2, N3, R3, C3, S3>(&mut self, b: &Matrix<N2, R2, C2, S2>, c: &Matrix<N3, R3, C3, S3>, mut f: impl FnMut(N, N2, N3) -> N)
-        where N2: Scalar + Copy,
+        where N2: Scalar + Clone,
               R2: Dim,
               C2: Dim,
               S2: Storage<N2, R2, C2>,
-              N3: Scalar + Copy,
+              N3: Scalar + Clone,
               R3: Dim,
               C3: Dim,
               S3: Storage<N3, R3, C3>,
@@ -850,16 +850,16 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S
             for i in 0..nrows {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
-                    let b = b.get_unchecked((i, j));
-                    let c = c.get_unchecked((i, j));
-                    *e = f(*e, *b, *c)
+                    let b = b.get_unchecked((i, j)).inlined_clone();
+                    let c = c.get_unchecked((i, j)).inlined_clone();
+                    *e = f(e.inlined_clone(), b, c)
                 }
             }
         }
     }
 }
 
-impl<N: Scalar + Copy, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
+impl<N: Scalar + Clone, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     /// Gets a reference to the i-th element of this column vector without bound checking.
     #[inline]
     pub unsafe fn vget_unchecked(&self, i: usize) -> &N {
@@ -869,7 +869,7 @@ impl<N: Scalar + Copy, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     }
 }
 
-impl<N: Scalar + Copy, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
+impl<N: Scalar + Clone, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
     /// Gets a mutable reference to the i-th element of this column vector without bound checking.
     #[inline]
     pub unsafe fn vget_unchecked_mut(&mut self, i: usize) -> &mut N {
@@ -879,7 +879,7 @@ impl<N: Scalar + Copy, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: ContiguousStorage<N, R, C>> Matrix<N, R, C, S> {
     /// Extracts a slice containing the entire matrix entries ordered column-by-columns.
     #[inline]
     pub fn as_slice(&self) -> &[N] {
@@ -887,7 +887,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorage<N, R, C>> Matrix<N, 
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorageMut<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Clone, R: Dim, C: Dim, S: ContiguousStorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Extracts a mutable slice containing the entire matrix entries ordered column-by-columns.
     #[inline]
     pub fn as_mut_slice(&mut self) -> &mut [N] {
@@ -895,7 +895,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorageMut<N, R, C>> Matrix<
     }
 }
 
-impl<N: Scalar + Copy, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
+impl<N: Scalar + Clone, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     /// Transposes the square matrix `self` in-place.
     pub fn transpose_mut(&mut self) {
         assert!(
@@ -1052,7 +1052,7 @@ impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     }
 }
 
-impl<N: Scalar + Copy, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: Scalar + Clone, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// The diagonal of this matrix.
     #[inline]
     pub fn diagonal(&self) -> VectorN<N, D>
@@ -1064,7 +1064,7 @@ impl<N: Scalar + Copy, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     ///
     /// This is a more efficient version of `self.diagonal().map(f)` since this
     /// allocates only once.
-    pub fn map_diagonal<N2: Scalar + Copy>(&self, mut f: impl FnMut(N) -> N2) -> VectorN<N2, D>
+    pub fn map_diagonal<N2: Scalar + Clone>(&self, mut f: impl FnMut(N) -> N2) -> VectorN<N2, D>
         where DefaultAllocator: Allocator<N2, D> {
         assert!(
             self.is_square(),
@@ -1076,7 +1076,7 @@ impl<N: Scalar + Copy, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
         for i in 0..dim.value() {
             unsafe {
-                *res.vget_unchecked_mut(i) = f(*self.get_unchecked((i, i)));
+                *res.vget_unchecked_mut(i) = f(self.get_unchecked((i, i)).inlined_clone());
             }
         }
 
@@ -1096,7 +1096,7 @@ impl<N: Scalar + Copy, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         let mut res = N::zero();
 
         for i in 0..dim.value() {
-            res += unsafe { *self.get_unchecked((i, i)) };
+            res += unsafe { self.get_unchecked((i, i)).inlined_clone() };
         }
 
         res
@@ -1128,7 +1128,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 }
 
-impl<N: Scalar + Copy + Zero + One, D: DimAdd<U1> + IsNotStaticOne, S: Storage<N, D, D>> Matrix<N, D, D, S> {
+impl<N: Scalar + Clone + Zero + One, D: DimAdd<U1> + IsNotStaticOne, S: Storage<N, D, D>> Matrix<N, D, D, S> {
 
     /// Yields the homogeneous matrix for this matrix, i.e., appending an additional dimension and
     /// and setting the diagonal element to `1`.
@@ -1144,7 +1144,7 @@ impl<N: Scalar + Copy + Zero + One, D: DimAdd<U1> + IsNotStaticOne, S: Storage<N
 
 }
 
-impl<N: Scalar + Copy + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
+impl<N: Scalar + Clone + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     /// Computes the coordinates in projective space of this vector, i.e., appends a `0` to its
     /// coordinates.
     #[inline]
@@ -1170,7 +1170,7 @@ impl<N: Scalar + Copy + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     }
 }
 
-impl<N: Scalar + Copy + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
+impl<N: Scalar + Clone + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     /// Constructs a new vector of higher dimension by appending `element` to the end of `self`.
     #[inline]
     pub fn push(&self, element: N) -> VectorN<N, DimSum<D, U1>>
@@ -1188,7 +1188,7 @@ impl<N: Scalar + Copy + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
 
 impl<N, R: Dim, C: Dim, S> AbsDiffEq for Matrix<N, R, C, S>
 where
-    N: Scalar + Copy + AbsDiffEq,
+    N: Scalar + Clone + AbsDiffEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1209,7 +1209,7 @@ where
 
 impl<N, R: Dim, C: Dim, S> RelativeEq for Matrix<N, R, C, S>
 where
-    N: Scalar + Copy + RelativeEq,
+    N: Scalar + Clone + RelativeEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1232,7 +1232,7 @@ where
 
 impl<N, R: Dim, C: Dim, S> UlpsEq for Matrix<N, R, C, S>
 where
-    N: Scalar + Copy + UlpsEq,
+    N: Scalar + Clone + UlpsEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1252,7 +1252,7 @@ where
 
 impl<N, R: Dim, C: Dim, S> PartialOrd for Matrix<N, R, C, S>
 where
-    N: Scalar + Copy + PartialOrd,
+    N: Scalar + Clone + PartialOrd,
     S: Storage<N, R, C>,
 {
     #[inline]
@@ -1340,13 +1340,13 @@ where
 
 impl<N, R: Dim, C: Dim, S> Eq for Matrix<N, R, C, S>
 where
-    N: Scalar + Copy + Eq,
+    N: Scalar + Clone + Eq,
     S: Storage<N, R, C>,
 {}
 
 impl<N, R: Dim, C: Dim, S> PartialEq for Matrix<N, R, C, S>
 where
-    N: Scalar + Copy,
+    N: Scalar + Clone,
     S: Storage<N, R, C>,
 {
     #[inline]
@@ -1363,13 +1363,13 @@ macro_rules! impl_fmt {
     ($trait: path, $fmt_str_without_precision: expr, $fmt_str_with_precision: expr) => {
         impl<N, R: Dim, C: Dim, S> $trait for Matrix<N, R, C, S>
         where
-            N: Scalar + Copy + $trait,
+            N: Scalar + Clone + $trait,
             S: Storage<N, R, C>,
             DefaultAllocator: Allocator<usize, R, C>,
         {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 #[cfg(feature = "std")]
-                fn val_width<N: Scalar + Copy + $trait>(val: N, f: &mut fmt::Formatter) -> usize {
+                fn val_width<N: Scalar + Clone + $trait>(val: &N, f: &mut fmt::Formatter) -> usize {
                     match f.precision() {
                         Some(precision) => format!($fmt_str_with_precision, val, precision).chars().count(),
                         None => format!($fmt_str_without_precision, val).chars().count(),
@@ -1377,7 +1377,7 @@ macro_rules! impl_fmt {
                 }
 
                 #[cfg(not(feature = "std"))]
-                fn val_width<N: Scalar + Copy + $trait>(_: N, _: &mut fmt::Formatter) -> usize {
+                fn val_width<N: Scalar + Clone + $trait>(_: &N, _: &mut fmt::Formatter) -> usize {
                     4
                 }
 
@@ -1393,7 +1393,7 @@ macro_rules! impl_fmt {
 
                 for i in 0..nrows {
                     for j in 0..ncols {
-                        lengths[(i, j)] = val_width(self[(i, j)], f);
+                        lengths[(i, j)] = val_width(&self[(i, j)], f);
                         max_length = crate::max(max_length, lengths[(i, j)]);
                     }
                 }
@@ -1454,7 +1454,7 @@ fn lower_exp() {
 ")
 }
 
-impl<N: Scalar + Copy + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Clone + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The perpendicular product between two 2D column vectors, i.e. `a.x * b.y - a.y * b.x`.
     #[inline]
     pub fn perp<R2, C2, SB>(&self, b: &Matrix<N, R2, C2, SB>) -> N
@@ -1470,8 +1470,8 @@ impl<N: Scalar + Copy + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, 
         assert!(self.shape() == (2, 1), "2D perpendicular product ");
 
         unsafe {
-            *self.get_unchecked((0, 0)) * *b.get_unchecked((1, 0))
-                - *self.get_unchecked((1, 0)) * *b.get_unchecked((0, 0))
+            self.get_unchecked((0, 0)).inlined_clone() * b.get_unchecked((1, 0)).inlined_clone()
+                - self.get_unchecked((1, 0)).inlined_clone() * b.get_unchecked((0, 0)).inlined_clone()
         }
     }
 
@@ -1506,17 +1506,17 @@ impl<N: Scalar + Copy + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, 
                 let ncols = SameShapeC::<C, C2>::from_usize(1);
                 let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
 
-                let ax = *self.get_unchecked((0, 0));
-                let ay = *self.get_unchecked((1, 0));
-                let az = *self.get_unchecked((2, 0));
+                let ax = self.get_unchecked((0, 0));
+                let ay = self.get_unchecked((1, 0));
+                let az = self.get_unchecked((2, 0));
 
-                let bx = *b.get_unchecked((0, 0));
-                let by = *b.get_unchecked((1, 0));
-                let bz = *b.get_unchecked((2, 0));
+                let bx = b.get_unchecked((0, 0));
+                let by = b.get_unchecked((1, 0));
+                let bz = b.get_unchecked((2, 0));
 
-                *res.get_unchecked_mut((0, 0)) = ay * bz - az * by;
-                *res.get_unchecked_mut((1, 0)) = az * bx - ax * bz;
-                *res.get_unchecked_mut((2, 0)) = ax * by - ay * bx;
+                *res.get_unchecked_mut((0, 0)) = ay.inlined_clone() * bz.inlined_clone() - az.inlined_clone() * by.inlined_clone();
+                *res.get_unchecked_mut((1, 0)) = az.inlined_clone() * bx.inlined_clone() - ax.inlined_clone() * bz.inlined_clone();
+                *res.get_unchecked_mut((2, 0)) = ax.inlined_clone() * by.inlined_clone() - ay.inlined_clone() * bx.inlined_clone();
 
                 res
             }
@@ -1527,17 +1527,17 @@ impl<N: Scalar + Copy + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, 
                 let ncols = SameShapeC::<C, C2>::from_usize(3);
                 let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
 
-                let ax = *self.get_unchecked((0, 0));
-                let ay = *self.get_unchecked((0, 1));
-                let az = *self.get_unchecked((0, 2));
+                let ax = self.get_unchecked((0, 0));
+                let ay = self.get_unchecked((0, 1));
+                let az = self.get_unchecked((0, 2));
 
-                let bx = *b.get_unchecked((0, 0));
-                let by = *b.get_unchecked((0, 1));
-                let bz = *b.get_unchecked((0, 2));
+                let bx = b.get_unchecked((0, 0));
+                let by = b.get_unchecked((0, 1));
+                let bz = b.get_unchecked((0, 2));
 
-                *res.get_unchecked_mut((0, 0)) = ay * bz - az * by;
-                *res.get_unchecked_mut((0, 1)) = az * bx - ax * bz;
-                *res.get_unchecked_mut((0, 2)) = ax * by - ay * bx;
+                *res.get_unchecked_mut((0, 0)) = ay.inlined_clone() * bz.inlined_clone() - az.inlined_clone() * by.inlined_clone();
+                *res.get_unchecked_mut((0, 1)) = az.inlined_clone() * bx.inlined_clone() - ax.inlined_clone() * bz.inlined_clone();
+                *res.get_unchecked_mut((0, 2)) = ax.inlined_clone() * by.inlined_clone() - ay.inlined_clone() * bx.inlined_clone();
 
                 res
             }
@@ -1545,7 +1545,7 @@ impl<N: Scalar + Copy + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, 
     }
 }
 
-impl<N: Scalar + Copy + Field, S: Storage<N, U3>> Vector<N, U3, S>
+impl<N: Scalar + Clone + Field, S: Storage<N, U3>> Vector<N, U3, S>
 where DefaultAllocator: Allocator<N, U3>
 {
     /// Computes the matrix `M` such that for all vector `v` we have `M * v == self.cross(&v)`.
@@ -1553,13 +1553,13 @@ where DefaultAllocator: Allocator<N, U3>
     pub fn cross_matrix(&self) -> MatrixN<N, U3> {
         MatrixN::<N, U3>::new(
             N::zero(),
-            -self[2],
-            self[1],
-            self[2],
+            -self[2].inlined_clone(),
+            self[1].inlined_clone(),
+            self[2].inlined_clone(),
             N::zero(),
-            -self[0],
-            -self[1],
-            self[0],
+            -self[0].inlined_clone(),
+            -self[1].inlined_clone(),
+            self[0].inlined_clone(),
             N::zero(),
         )
     }
@@ -1593,7 +1593,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar + Copy + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Storage<N, D>>
+impl<N: Scalar + Clone + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Storage<N, D>>
     Vector<N, D, S>
 {
     /// Returns `self * (1.0 - t) + rhs * t`, i.e., the linear blend of the vectors x and y using the scalar value a.
@@ -1611,7 +1611,7 @@ impl<N: Scalar + Copy + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, 
     pub fn lerp<S2: Storage<N, D>>(&self, rhs: &Vector<N, D, S2>, t: N) -> VectorN<N, D>
     where DefaultAllocator: Allocator<N, D> {
         let mut res = self.clone_owned();
-        res.axpy(t, rhs, N::one() - t);
+        res.axpy(t.inlined_clone(), rhs, N::one() - t);
         res
     }
 }
@@ -1683,7 +1683,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
 
 impl<N, R: Dim, C: Dim, S> AbsDiffEq for Unit<Matrix<N, R, C, S>>
 where
-    N: Scalar + Copy + AbsDiffEq,
+    N: Scalar + Clone + AbsDiffEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1702,7 +1702,7 @@ where
 
 impl<N, R: Dim, C: Dim, S> RelativeEq for Unit<Matrix<N, R, C, S>>
 where
-    N: Scalar + Copy + RelativeEq,
+    N: Scalar + Clone + RelativeEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1726,7 +1726,7 @@ where
 
 impl<N, R: Dim, C: Dim, S> UlpsEq for Unit<Matrix<N, R, C, S>>
 where
-    N: Scalar + Copy + UlpsEq,
+    N: Scalar + Clone + UlpsEq,
     S: Storage<N, R, C>,
     N::Epsilon: Copy,
 {
@@ -1743,7 +1743,7 @@ where
 
 impl<N, R, C, S> Hash for Matrix<N, R, C, S>
 where
-    N: Scalar + Copy + Hash,
+    N: Scalar + Clone + Hash,
     R: Dim,
     C: Dim,
     S: Storage<N, R, C>,

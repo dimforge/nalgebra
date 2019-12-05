@@ -8,7 +8,7 @@ use num_rational::Ratio;
  * Slice constructors.
  *
  */
-impl<'a, N: Scalar + Copy, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
+impl<'a, N: Scalar + Clone, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     MatrixSliceMN<'a, N, R, C, RStride, CStride>
 {
     /// Creates, without bound-checking, a matrix slice from an array and with dimensions and strides specified by generic types instances.
@@ -61,7 +61,7 @@ impl<'a, N: Scalar + Copy, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     }
 }
 
-impl<'a, N: Scalar + Copy, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
+impl<'a, N: Scalar + Clone, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     MatrixSliceMutMN<'a, N, R, C, RStride, CStride>
 {
     /// Creates, without bound-checking, a mutable matrix slice from an array and with dimensions and strides specified by generic types instances.
@@ -133,7 +133,7 @@ impl<'a, N: Scalar + Copy, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     }
 }
 
-impl<'a, N: Scalar + Copy, R: Dim, C: Dim> MatrixSliceMN<'a, N, R, C> {
+impl<'a, N: Scalar + Clone, R: Dim, C: Dim> MatrixSliceMN<'a, N, R, C> {
     /// Creates, without bound-checking, a matrix slice from an array and with dimensions specified by generic types instances.
     ///
     /// This method is unsafe because the input data array is not checked to contain enough elements.
@@ -159,7 +159,7 @@ impl<'a, N: Scalar + Copy, R: Dim, C: Dim> MatrixSliceMN<'a, N, R, C> {
     }
 }
 
-impl<'a, N: Scalar + Copy, R: Dim, C: Dim> MatrixSliceMutMN<'a, N, R, C> {
+impl<'a, N: Scalar + Clone, R: Dim, C: Dim> MatrixSliceMutMN<'a, N, R, C> {
     /// Creates, without bound-checking, a mutable matrix slice from an array and with dimensions specified by generic types instances.
     ///
     /// This method is unsafe because the input data array is not checked to contain enough elements.
@@ -187,7 +187,7 @@ impl<'a, N: Scalar + Copy, R: Dim, C: Dim> MatrixSliceMutMN<'a, N, R, C> {
 
 macro_rules! impl_constructors(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<'a, N: Scalar + Copy, $($DimIdent: $DimBound),*> MatrixSliceMN<'a, N, $($Dims),*> {
+        impl<'a, N: Scalar + Clone, $($DimIdent: $DimBound),*> MatrixSliceMN<'a, N, $($Dims),*> {
             /// Creates a new matrix slice from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
@@ -203,7 +203,7 @@ macro_rules! impl_constructors(
             }
         }
 
-        impl<'a, N: Scalar + Copy, $($DimIdent: $DimBound, )*> MatrixSliceMN<'a, N, $($Dims,)* Dynamic, Dynamic> {
+        impl<'a, N: Scalar + Clone, $($DimIdent: $DimBound, )*> MatrixSliceMN<'a, N, $($Dims,)* Dynamic, Dynamic> {
             /// Creates a new matrix slice with the specified strides from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
@@ -244,7 +244,7 @@ impl_constructors!(Dynamic, Dynamic;
 
 macro_rules! impl_constructors_mut(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<'a, N: Scalar + Copy, $($DimIdent: $DimBound),*> MatrixSliceMutMN<'a, N, $($Dims),*> {
+        impl<'a, N: Scalar + Clone, $($DimIdent: $DimBound),*> MatrixSliceMutMN<'a, N, $($Dims),*> {
             /// Creates a new mutable matrix slice from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
@@ -260,7 +260,7 @@ macro_rules! impl_constructors_mut(
             }
         }
 
-        impl<'a, N: Scalar + Copy, $($DimIdent: $DimBound, )*> MatrixSliceMutMN<'a, N, $($Dims,)* Dynamic, Dynamic> {
+        impl<'a, N: Scalar + Clone, $($DimIdent: $DimBound, )*> MatrixSliceMutMN<'a, N, $($Dims,)* Dynamic, Dynamic> {
             /// Creates a new mutable matrix slice with the specified strides from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
