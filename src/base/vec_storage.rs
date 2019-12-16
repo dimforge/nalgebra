@@ -102,7 +102,7 @@ impl<N, R: Dim, C: Dim> Into<Vec<N>> for VecStorage<N, R, C>
  * Dynamic − Dynamic
  *
  */
-unsafe impl<N: Scalar + Clone, C: Dim> Storage<N, Dynamic, C> for VecStorage<N, Dynamic, C>
+unsafe impl<N: Scalar, C: Dim> Storage<N, Dynamic, C> for VecStorage<N, Dynamic, C>
 where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 {
     type RStride = U1;
@@ -146,7 +146,7 @@ where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
     }
 }
 
-unsafe impl<N: Scalar + Clone, R: DimName> Storage<N, R, Dynamic> for VecStorage<N, R, Dynamic>
+unsafe impl<N: Scalar, R: DimName> Storage<N, R, Dynamic> for VecStorage<N, R, Dynamic>
 where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {
     type RStride = U1;
@@ -195,7 +195,7 @@ where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
  * StorageMut, ContiguousStorage.
  *
  */
-unsafe impl<N: Scalar + Clone, C: Dim> StorageMut<N, Dynamic, C> for VecStorage<N, Dynamic, C>
+unsafe impl<N: Scalar, C: Dim> StorageMut<N, Dynamic, C> for VecStorage<N, Dynamic, C>
 where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 {
     #[inline]
@@ -209,13 +209,13 @@ where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
     }
 }
 
-unsafe impl<N: Scalar + Clone, C: Dim> ContiguousStorage<N, Dynamic, C> for VecStorage<N, Dynamic, C> where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
+unsafe impl<N: Scalar, C: Dim> ContiguousStorage<N, Dynamic, C> for VecStorage<N, Dynamic, C> where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 {}
 
-unsafe impl<N: Scalar + Clone, C: Dim> ContiguousStorageMut<N, Dynamic, C> for VecStorage<N, Dynamic, C> where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
+unsafe impl<N: Scalar, C: Dim> ContiguousStorageMut<N, Dynamic, C> for VecStorage<N, Dynamic, C> where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 {}
 
-unsafe impl<N: Scalar + Clone, R: DimName> StorageMut<N, R, Dynamic> for VecStorage<N, R, Dynamic>
+unsafe impl<N: Scalar, R: DimName> StorageMut<N, R, Dynamic> for VecStorage<N, R, Dynamic>
 where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {
     #[inline]
@@ -244,10 +244,10 @@ impl<N: Abomonation, R: Dim, C: Dim> Abomonation for VecStorage<N, R, C> {
     }
 }
 
-unsafe impl<N: Scalar + Clone, R: DimName> ContiguousStorage<N, R, Dynamic> for VecStorage<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
+unsafe impl<N: Scalar, R: DimName> ContiguousStorage<N, R, Dynamic> for VecStorage<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {}
 
-unsafe impl<N: Scalar + Clone, R: DimName> ContiguousStorageMut<N, R, Dynamic> for VecStorage<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
+unsafe impl<N: Scalar, R: DimName> ContiguousStorageMut<N, R, Dynamic> for VecStorage<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {}
 
 impl<N, R: Dim> Extend<N> for VecStorage<N, R, Dynamic>
@@ -270,7 +270,7 @@ impl<N, R: Dim> Extend<N> for VecStorage<N, R, Dynamic>
 
 impl<N, R, RV, SV> Extend<Vector<N, RV, SV>> for VecStorage<N, R, Dynamic>
 where
-    N: Scalar + Clone,
+    N: Scalar,
     R: Dim,
     RV: Dim,
     SV: Storage<N, RV>,

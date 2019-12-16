@@ -33,7 +33,7 @@ use lapack;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct Eigen<N: Scalar + Clone, D: Dim>
+pub struct Eigen<N: Scalar, D: Dim>
 where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
 {
     /// The eigenvalues of the decomposed matrix.
@@ -311,7 +311,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
  */
 /// Trait implemented by scalar type for which Lapack function exist to compute the
 /// eigendecomposition.
-pub trait EigenScalar: Scalar + Clone {
+pub trait EigenScalar: Scalar {
     #[allow(missing_docs)]
     fn xgeev(
         jobvl: u8,

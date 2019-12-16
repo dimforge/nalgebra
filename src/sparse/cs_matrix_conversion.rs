@@ -7,7 +7,7 @@ use crate::sparse::{CsMatrix, CsStorage};
 use crate::storage::Storage;
 use crate::{DefaultAllocator, Dim, Dynamic, Matrix, MatrixMN, Scalar};
 
-impl<'a, N: Scalar + Clone + Zero + ClosedAdd> CsMatrix<N> {
+impl<'a, N: Scalar + Zero + ClosedAdd> CsMatrix<N> {
     /// Creates a column-compressed sparse matrix from a sparse matrix in triplet form.
     pub fn from_triplet(
         nrows: usize,
@@ -21,7 +21,7 @@ impl<'a, N: Scalar + Clone + Zero + ClosedAdd> CsMatrix<N> {
     }
 }
 
-impl<'a, N: Scalar + Clone + Zero + ClosedAdd, R: Dim, C: Dim> CsMatrix<N, R, C>
+impl<'a, N: Scalar + Zero + ClosedAdd, R: Dim, C: Dim> CsMatrix<N, R, C>
 where DefaultAllocator: Allocator<usize, C> + Allocator<N, R>
 {
     /// Creates a column-compressed sparse matrix from a sparse matrix in triplet form.
@@ -66,7 +66,7 @@ where DefaultAllocator: Allocator<usize, C> + Allocator<N, R>
     }
 }
 
-impl<'a, N: Scalar + Clone + Zero, R: Dim, C: Dim, S> From<CsMatrix<N, R, C, S>> for MatrixMN<N, R, C>
+impl<'a, N: Scalar + Zero, R: Dim, C: Dim, S> From<CsMatrix<N, R, C, S>> for MatrixMN<N, R, C>
 where
     S: CsStorage<N, R, C>,
     DefaultAllocator: Allocator<N, R, C>,
@@ -85,7 +85,7 @@ where
     }
 }
 
-impl<'a, N: Scalar + Clone + Zero, R: Dim, C: Dim, S> From<Matrix<N, R, C, S>> for CsMatrix<N, R, C>
+impl<'a, N: Scalar + Zero, R: Dim, C: Dim, S> From<Matrix<N, R, C, S>> for CsMatrix<N, R, C>
 where
     S: Storage<N, R, C>,
     DefaultAllocator: Allocator<N, R, C> + Allocator<usize, C>,

@@ -49,7 +49,7 @@ pub fn packInt4x8(v: &I8Vec4) -> i32 {
     unimplemented!()
 }
 
-pub fn packRGBM<N: Scalar + Clone>(rgb: &TVec3<N>) -> TVec4<N> {
+pub fn packRGBM<N: Scalar>(rgb: &TVec3<N>) -> TVec4<N> {
     unimplemented!()
 }
 
@@ -155,7 +155,7 @@ pub fn unpackF3x9_E1x5(p: i32) -> Vec3 {
     unimplemented!()
 }
 
-pub fn unpackHalf<N: Scalar + Clone, D: Dimension>(p: TVec<i16, D>) -> TVec<N, D>
+pub fn unpackHalf<N: Scalar, D: Dimension>(p: TVec<i16, D>) -> TVec<N, D>
     where DefaultAllocator: Alloc<N, D> {
     unimplemented!()
 }
@@ -192,7 +192,7 @@ pub fn unpackInt4x8(p: i32) -> I8Vec4 {
     unimplemented!()
 }
 
-pub fn unpackRGBM<N: Scalar + Clone>(rgbm: &TVec4<N>) -> TVec3<N> {
+pub fn unpackRGBM<N: Scalar>(rgbm: &TVec4<N>) -> TVec3<N> {
     unimplemented!()
 }
 
