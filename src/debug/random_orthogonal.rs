@@ -12,7 +12,7 @@ use crate::linalg::givens::GivensRotation;
 
 /// A random orthogonal matrix.
 #[derive(Clone, Debug)]
-pub struct RandomOrthogonal<N: Scalar + Clone, D: Dim = Dynamic>
+pub struct RandomOrthogonal<N: Scalar, D: Dim = Dynamic>
 where DefaultAllocator: Allocator<N, D, D>
 {
     m: MatrixN<N, D>,

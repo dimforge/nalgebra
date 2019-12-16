@@ -10,7 +10,7 @@ use crate::geometry::Rotation;
 
 impl<N, D: DimName> Rotation<N, D>
 where
-    N: Scalar + Clone + Zero + One,
+    N: Scalar + Zero + One,
     DefaultAllocator: Allocator<N, D, D>,
 {
     /// Creates a new square identity rotation of the given `dimension`.
@@ -32,7 +32,7 @@ where
 
 impl<N, D: DimName> One for Rotation<N, D>
 where
-    N: Scalar + Clone + Zero + One + ClosedAdd + ClosedMul,
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
     DefaultAllocator: Allocator<N, D, D>,
 {
     #[inline]

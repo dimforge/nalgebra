@@ -48,7 +48,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     }
 }
 
-impl<N: Scalar + Clone + PartialOrd, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
+impl<N: Scalar + PartialOrd, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     /// Computes the index and value of the vector component with the largest value.
     ///
     /// # Examples:
@@ -230,7 +230,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 }
 
 
-impl<N: Scalar + Clone + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Computes the index of the matrix component with the largest absolute value.
     ///
     /// # Examples:
@@ -264,7 +264,7 @@ impl<N: Scalar + Clone + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C
 }
 
 impl<N, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where N: Scalar + Clone + Zero + ClosedAdd + ClosedMul
+where N: Scalar + Zero + ClosedAdd + ClosedMul
 {
     #[inline(always)]
     fn dotx<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>, conjugate: impl Fn(N) -> N) -> N
@@ -469,7 +469,7 @@ where N: Scalar + Clone + Zero + ClosedAdd + ClosedMul
 }
 
 fn array_axcpy<N>(y: &mut [N], a: N, x: &[N], c: N, beta: N, stride1: usize, stride2: usize, len: usize)
-where N: Scalar + Clone + Zero + ClosedAdd + ClosedMul {
+where N: Scalar + Zero + ClosedAdd + ClosedMul {
     for i in 0..len {
         unsafe {
             let y = y.get_unchecked_mut(i * stride1);
@@ -479,7 +479,7 @@ where N: Scalar + Clone + Zero + ClosedAdd + ClosedMul {
 }
 
 fn array_axc<N>(y: &mut [N], a: N, x: &[N], c: N, stride1: usize, stride2: usize, len: usize)
-where N: Scalar + Clone + Zero + ClosedAdd + ClosedMul {
+where N: Scalar + Zero + ClosedAdd + ClosedMul {
     for i in 0..len {
         unsafe {
             *y.get_unchecked_mut(i * stride1) = a.inlined_clone() * x.get_unchecked(i * stride2).inlined_clone() * c.inlined_clone();
@@ -489,7 +489,7 @@ where N: Scalar + Clone + Zero + ClosedAdd + ClosedMul {
 
 impl<N, D: Dim, S> Vector<N, D, S>
 where
-    N: Scalar + Clone + Zero + ClosedAdd + ClosedMul,
+    N: Scalar + Zero + ClosedAdd + ClosedMul,
     S: StorageMut<N, D>,
 {
     /// Computes `self = a * x * c + b * self`.
@@ -886,7 +886,7 @@ where
 }
 
 impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
-where N: Scalar + Clone + Zero + ClosedAdd + ClosedMul
+where N: Scalar + Zero + ClosedAdd + ClosedMul
 {
     #[inline(always)]
     fn gerx<D2: Dim, D3: Dim, SB, SC>(
@@ -1249,7 +1249,7 @@ where N: Scalar + Clone + Zero + ClosedAdd + ClosedMul
 }
 
 impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
-where N: Scalar + Clone + Zero + ClosedAdd + ClosedMul
+where N: Scalar + Zero + ClosedAdd + ClosedMul
 {
     #[inline(always)]
     fn xxgerx<D2: Dim, D3: Dim, SB, SC>(
@@ -1396,7 +1396,7 @@ where N: Scalar + Clone + Zero + ClosedAdd + ClosedMul
 }
 
 impl<N, D1: Dim, S: StorageMut<N, D1, D1>> SquareMatrix<N, D1, S>
-where N: Scalar + Clone + Zero + One + ClosedAdd + ClosedMul
+where N: Scalar + Zero + One + ClosedAdd + ClosedMul
 {
     /// Computes the quadratic form `self = alpha * lhs * mid * lhs.transpose() + beta * self`.
     ///

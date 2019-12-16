@@ -154,7 +154,7 @@ where
 
 unsafe impl<N, R, C> Storage<N, R, C> for ArrayStorage<N, R, C>
 where
-    N: Scalar + Clone,
+    N: Scalar,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -206,7 +206,7 @@ where
 
 unsafe impl<N, R, C> StorageMut<N, R, C> for ArrayStorage<N, R, C>
 where
-    N: Scalar + Clone,
+    N: Scalar,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -226,7 +226,7 @@ where
 
 unsafe impl<N, R, C> ContiguousStorage<N, R, C> for ArrayStorage<N, R, C>
 where
-    N: Scalar + Clone,
+    N: Scalar,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -236,7 +236,7 @@ where
 
 unsafe impl<N, R, C> ContiguousStorageMut<N, R, C> for ArrayStorage<N, R, C>
 where
-    N: Scalar + Clone,
+    N: Scalar,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -253,7 +253,7 @@ where
 #[cfg(feature = "serde-serialize")]
 impl<N, R, C> Serialize for ArrayStorage<N, R, C>
 where
-    N: Scalar + Clone + Serialize,
+    N: Scalar + Serialize,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -274,7 +274,7 @@ where
 #[cfg(feature = "serde-serialize")]
 impl<'a, N, R, C> Deserialize<'a> for ArrayStorage<N, R, C>
 where
-    N: Scalar + Clone + Deserialize<'a>,
+    N: Scalar + Deserialize<'a>,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -295,7 +295,7 @@ struct ArrayStorageVisitor<N, R, C> {
 #[cfg(feature = "serde-serialize")]
 impl<N, R, C> ArrayStorageVisitor<N, R, C>
 where
-    N: Scalar + Clone,
+    N: Scalar,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
@@ -312,7 +312,7 @@ where
 #[cfg(feature = "serde-serialize")]
 impl<'a, N, R, C> Visitor<'a> for ArrayStorageVisitor<N, R, C>
 where
-    N: Scalar + Clone + Deserialize<'a>,
+    N: Scalar + Deserialize<'a>,
     R: DimName,
     C: DimName,
     R::Value: Mul<C::Value>,
