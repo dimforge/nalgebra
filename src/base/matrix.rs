@@ -1622,10 +1622,10 @@ impl<N: RealField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     /// # Examples:
     ///
     /// ```
-    /// # use nalgebra::Vector2;
+    /// # use nalgebra::{Unit, Vector2};
     ///
-    /// let v1 = Vector2::new(1.0, 2.0);
-    /// let v2 = Vector2::new(2.0, -3.0);
+    /// let v1 = Unit::new_normalize(Vector2::new(1.0, 2.0));
+    /// let v2 = Unit::new_normalize(Vector2::new(2.0, -3.0));
     ///
     /// let v = v1.slerp(&v2, 1.0);
     ///
