@@ -21,7 +21,7 @@ use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, Sto
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::VecStorage;
 use crate::base::{SliceStorage, SliceStorageMut};
-use crate::base::{DefaultAllocator, Matrix, ArrayStorage, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar};
+use crate::base::{DefaultAllocator, Matrix, ArrayStorage, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar, DVectorSlice, DVectorSliceMut};
 use crate::constraint::DimEq;
 
 // FIXME: too bad this won't work allo slice conversions.
@@ -523,5 +523,34 @@ for MatrixSliceMut<'a, N, RSlice, CSlice, RStride, CStride>
                                                     (rstride_slice, cstride_slice));
             Matrix::from_data_statically_unchecked(data)
         }
+    }
+}
+
+impl<'a, N: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorage<N, R, C>> Into<&'a [N]> for &'a Matrix<N, R, C, S> {
+    #[inline]
+    fn into(self) -> &'a [N] {
+        self.as_slice()
+    }
+}
+
+impl<'a, N: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorageMut<N, R, C>> Into<&'a mut [N]> for &'a mut Matrix<N, R, C, S> {
+    #[inline]
+    fn into(self) -> &'a mut [N] {
+        self.as_mut_slice()
+    }
+}
+
+
+impl<'a, N: Scalar + Copy> From<&'a [N]> for DVectorSlice<'a, N> {
+    #[inline]
+    fn from(slice: &'a [N]) -> Self {
+        Self::from_slice(slice, slice.len())
+    }
+}
+
+impl<'a, N: Scalar + Copy> From<&'a mut [N]> for DVectorSliceMut<'a, N> {
+    #[inline]
+    fn from(slice: &'a mut [N]) -> Self {
+        Self::from_slice(slice, slice.len())
     }
 }
