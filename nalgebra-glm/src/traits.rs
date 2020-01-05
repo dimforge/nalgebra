@@ -20,7 +20,7 @@ impl<T: Scalar + Copy + Ring + Lattice + AbsDiffEq<Epsilon = Self> + Signed + Fr
 {}
 
 #[doc(hidden)]
-pub trait Alloc<N: Scalar + Copy, R: Dimension, C: Dimension = U1>:
+pub trait Alloc<N: Scalar, R: Dimension, C: Dimension = U1>:
     Allocator<N, R>
     + Allocator<N, C>
     + Allocator<N, U1, R>
@@ -50,7 +50,7 @@ pub trait Alloc<N: Scalar + Copy, R: Dimension, C: Dimension = U1>:
 {
 }
 
-impl<N: Scalar + Copy, R: Dimension, C: Dimension, T> Alloc<N, R, C> for T where T: Allocator<N, R>
+impl<N: Scalar, R: Dimension, C: Dimension, T> Alloc<N, R, C> for T where T: Allocator<N, R>
         + Allocator<N, C>
         + Allocator<N, U1, R>
         + Allocator<N, U1, C>

@@ -30,7 +30,7 @@ use crate::base::{DefaultAllocator, Matrix, MatrixMN, Scalar, Unit, Vector, Vect
 
 use crate::geometry::{Point, Rotation};
 
-impl<N: Scalar + Copy, D: DimName> Index<(usize, usize)> for Rotation<N, D>
+impl<N: Scalar, D: DimName> Index<(usize, usize)> for Rotation<N, D>
 where DefaultAllocator: Allocator<N, D, D>
 {
     type Output = N;

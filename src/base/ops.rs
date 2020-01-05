@@ -20,7 +20,7 @@ use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar
  * Indexing.
  *
  */
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Index<usize> for Matrix<N, R, C, S> {
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Index<usize> for Matrix<N, R, C, S> {
     type Output = N;
 
     #[inline]
@@ -32,7 +32,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Index<usize> for Mat
 
 impl<N, R: Dim, C: Dim, S> Index<(usize, usize)> for Matrix<N, R, C, S>
 where
-    N: Scalar + Copy,
+    N: Scalar,
     S: Storage<N, R, C>,
 {
     type Output = N;
@@ -50,7 +50,7 @@ where
 }
 
 // Mutable versions.
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> IndexMut<usize> for Matrix<N, R, C, S> {
+impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> IndexMut<usize> for Matrix<N, R, C, S> {
     #[inline]
     fn index_mut(&mut self, i: usize) -> &mut N {
         let ij = self.vector_to_matrix_index(i);
@@ -60,7 +60,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> IndexMut<usize> f
 
 impl<N, R: Dim, C: Dim, S> IndexMut<(usize, usize)> for Matrix<N, R, C, S>
 where
-    N: Scalar + Copy,
+    N: Scalar,
     S: StorageMut<N, R, C>,
 {
     #[inline]
@@ -82,7 +82,7 @@ where
  */
 impl<N, R: Dim, C: Dim, S> Neg for Matrix<N, R, C, S>
 where
-    N: Scalar + Copy + ClosedNeg,
+    N: Scalar + ClosedNeg,
     S: Storage<N, R, C>,
     DefaultAllocator: Allocator<N, R, C>,
 {
@@ -98,7 +98,7 @@ where
 
 impl<'a, N, R: Dim, C: Dim, S> Neg for &'a Matrix<N, R, C, S>
 where
-    N: Scalar + Copy + ClosedNeg,
+    N: Scalar + ClosedNeg,
     S: Storage<N, R, C>,
     DefaultAllocator: Allocator<N, R, C>,
 {
@@ -112,14 +112,14 @@ where
 
 impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
 where
-    N: Scalar + Copy + ClosedNeg,
+    N: Scalar + ClosedNeg,
     S: StorageMut<N, R, C>,
 {
     /// Negates `self` in-place.
     #[inline]
     pub fn neg_mut(&mut self) {
         for e in self.iter_mut() {
-            *e = -*e
+            *e = -e.inlined_clone()
         }
     }
 }
@@ -137,7 +137,7 @@ macro_rules! componentwise_binop_impl(
      $method_to: ident, $method_to_statically_unchecked: ident) => {
 
         impl<N, R1: Dim, C1: Dim, SA: Storage<N, R1, C1>> Matrix<N, R1, C1, SA>
-            where N: Scalar + Copy + $bound {
+            where N: Scalar + $bound {
 
             /*
              *
@@ -164,7 +164,7 @@ macro_rules! componentwise_binop_impl(
                     let out  = out.data.as_mut_slice();
                     for i in 0 .. arr1.len() {
                         unsafe {
-                            *out.get_unchecked_mut(i) = arr1.get_unchecked(i).$method(*arr2.get_unchecked(i));
+                            *out.get_unchecked_mut(i) = arr1.get_unchecked(i).inlined_clone().$method(arr2.get_unchecked(i).inlined_clone());
                         }
                     }
                 }
@@ -172,7 +172,7 @@ macro_rules! componentwise_binop_impl(
                     for j in 0 .. self.ncols() {
                         for i in 0 .. self.nrows() {
                             unsafe {
-                                let val = self.get_unchecked((i, j)).$method(*rhs.get_unchecked((i, j)));
+                                let val = self.get_unchecked((i, j)).inlined_clone().$method(rhs.get_unchecked((i, j)).inlined_clone());
                                 *out.get_unchecked_mut((i, j)) = val;
                             }
                         }
@@ -196,7 +196,7 @@ macro_rules! componentwise_binop_impl(
                     let arr2 = rhs.data.as_slice();
                     for i in 0 .. arr2.len() {
                         unsafe {
-                            arr1.get_unchecked_mut(i).$method_assign(*arr2.get_unchecked(i));
+                            arr1.get_unchecked_mut(i).$method_assign(arr2.get_unchecked(i).inlined_clone());
                         }
                     }
                 }
@@ -204,7 +204,7 @@ macro_rules! componentwise_binop_impl(
                     for j in 0 .. rhs.ncols() {
                         for i in 0 .. rhs.nrows() {
                             unsafe {
-                                self.get_unchecked_mut((i, j)).$method_assign(*rhs.get_unchecked((i, j)))
+                                self.get_unchecked_mut((i, j)).$method_assign(rhs.get_unchecked((i, j)).inlined_clone())
                             }
                         }
                     }
@@ -226,7 +226,7 @@ macro_rules! componentwise_binop_impl(
                     let arr2 = rhs.data.as_mut_slice();
                     for i in 0 .. arr1.len() {
                         unsafe {
-                            let res = arr1.get_unchecked(i).$method(*arr2.get_unchecked(i));
+                            let res = arr1.get_unchecked(i).inlined_clone().$method(arr2.get_unchecked(i).inlined_clone());
                             *arr2.get_unchecked_mut(i) = res;
                         }
                     }
@@ -236,7 +236,7 @@ macro_rules! componentwise_binop_impl(
                         for i in 0 .. self.nrows() {
                             unsafe {
                                 let r = rhs.get_unchecked_mut((i, j));
-                                *r = self.get_unchecked((i, j)).$method(*r)
+                                *r = self.get_unchecked((i, j)).inlined_clone().$method(r.inlined_clone())
                             }
                         }
                     }
@@ -267,7 +267,7 @@ macro_rules! componentwise_binop_impl(
 
         impl<'b, N, R1, C1, R2, C2, SA, SB> $Trait<&'b Matrix<N, R2, C2, SB>> for Matrix<N, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + Copy + $bound,
+                  N: Scalar + $bound,
                   SA: Storage<N, R1, C1>,
                   SB: Storage<N, R2, C2>,
                   DefaultAllocator: SameShapeAllocator<N, R1, C1, R2, C2>,
@@ -285,7 +285,7 @@ macro_rules! componentwise_binop_impl(
 
         impl<'a, N, R1, C1, R2, C2, SA, SB> $Trait<Matrix<N, R2, C2, SB>> for &'a Matrix<N, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + Copy + $bound,
+                  N: Scalar + $bound,
                   SA: Storage<N, R1, C1>,
                   SB: Storage<N, R2, C2>,
                   DefaultAllocator: SameShapeAllocator<N, R2, C2, R1, C1>,
@@ -303,7 +303,7 @@ macro_rules! componentwise_binop_impl(
 
         impl<N, R1, C1, R2, C2, SA, SB> $Trait<Matrix<N, R2, C2, SB>> for Matrix<N, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + Copy + $bound,
+                  N: Scalar + $bound,
                   SA: Storage<N, R1, C1>,
                   SB: Storage<N, R2, C2>,
                   DefaultAllocator: SameShapeAllocator<N, R1, C1, R2, C2>,
@@ -318,7 +318,7 @@ macro_rules! componentwise_binop_impl(
 
         impl<'a, 'b, N, R1, C1, R2, C2, SA, SB> $Trait<&'b Matrix<N, R2, C2, SB>> for &'a Matrix<N, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + Copy + $bound,
+                  N: Scalar + $bound,
                   SA: Storage<N, R1, C1>,
                   SB: Storage<N, R2, C2>,
                   DefaultAllocator: SameShapeAllocator<N, R1, C1, R2, C2>,
@@ -341,7 +341,7 @@ macro_rules! componentwise_binop_impl(
 
         impl<'b, N, R1, C1, R2, C2, SA, SB> $TraitAssign<&'b Matrix<N, R2, C2, SB>> for Matrix<N, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + Copy + $bound,
+                  N: Scalar + $bound,
                   SA: StorageMut<N, R1, C1>,
                   SB: Storage<N, R2, C2>,
                   ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
@@ -354,7 +354,7 @@ macro_rules! componentwise_binop_impl(
 
         impl<N, R1, C1, R2, C2, SA, SB> $TraitAssign<Matrix<N, R2, C2, SB>> for Matrix<N, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + Copy + $bound,
+                  N: Scalar + $bound,
                   SA: StorageMut<N, R1, C1>,
                   SB: Storage<N, R2, C2>,
                   ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
@@ -376,7 +376,7 @@ componentwise_binop_impl!(Sub, sub, ClosedSub;
 
 impl<N, R: DimName, C: DimName> iter::Sum for MatrixMN<N, R, C>
 where
-    N: Scalar + Copy + ClosedAdd + Zero,
+    N: Scalar + ClosedAdd + Zero,
     DefaultAllocator: Allocator<N, R, C>,
 {
     fn sum<I: Iterator<Item = MatrixMN<N, R, C>>>(iter: I) -> MatrixMN<N, R, C> {
@@ -386,7 +386,7 @@ where
 
 impl<N, C: Dim> iter::Sum for MatrixMN<N, Dynamic, C>
 where
-    N: Scalar + Copy + ClosedAdd + Zero,
+    N: Scalar + ClosedAdd + Zero,
     DefaultAllocator: Allocator<N, Dynamic, C>,
 {
     /// # Example
@@ -416,7 +416,7 @@ where
 
 impl<'a, N, R: DimName, C: DimName> iter::Sum<&'a MatrixMN<N, R, C>> for MatrixMN<N, R, C>
 where
-    N: Scalar + Copy + ClosedAdd + Zero,
+    N: Scalar + ClosedAdd + Zero,
     DefaultAllocator: Allocator<N, R, C>,
 {
     fn sum<I: Iterator<Item = &'a MatrixMN<N, R, C>>>(iter: I) -> MatrixMN<N, R, C> {
@@ -426,7 +426,7 @@ where
 
 impl<'a, N, C: Dim> iter::Sum<&'a MatrixMN<N, Dynamic, C>> for MatrixMN<N, Dynamic, C>
 where
-    N: Scalar + Copy + ClosedAdd + Zero,
+    N: Scalar + ClosedAdd + Zero,
     DefaultAllocator: Allocator<N, Dynamic, C>,
 {
     /// # Example
@@ -466,7 +466,7 @@ macro_rules! componentwise_scalarop_impl(
     ($Trait: ident, $method: ident, $bound: ident;
      $TraitAssign: ident, $method_assign: ident) => {
         impl<N, R: Dim, C: Dim, S> $Trait<N> for Matrix<N, R, C, S>
-            where N: Scalar + Copy + $bound,
+            where N: Scalar + $bound,
                   S: Storage<N, R, C>,
                   DefaultAllocator: Allocator<N, R, C> {
             type Output = MatrixMN<N, R, C>;
@@ -482,7 +482,7 @@ macro_rules! componentwise_scalarop_impl(
 
                 // for left in res.iter_mut() {
                 for left in res.as_mut_slice().iter_mut() {
-                    *left = left.$method(rhs)
+                    *left = left.inlined_clone().$method(rhs.inlined_clone())
                 }
 
                 res
@@ -490,7 +490,7 @@ macro_rules! componentwise_scalarop_impl(
         }
 
         impl<'a, N, R: Dim, C: Dim, S> $Trait<N> for &'a Matrix<N, R, C, S>
-            where N: Scalar + Copy + $bound,
+            where N: Scalar + $bound,
                   S: Storage<N, R, C>,
                   DefaultAllocator: Allocator<N, R, C> {
             type Output = MatrixMN<N, R, C>;
@@ -502,13 +502,13 @@ macro_rules! componentwise_scalarop_impl(
         }
 
         impl<N, R: Dim, C: Dim, S> $TraitAssign<N> for Matrix<N, R, C, S>
-            where N: Scalar + Copy + $bound,
+            where N: Scalar + $bound,
                   S: StorageMut<N, R, C> {
             #[inline]
             fn $method_assign(&mut self, rhs: N) {
                 for j in 0 .. self.ncols() {
                     for i in 0 .. self.nrows() {
-                        unsafe { self.get_unchecked_mut((i, j)).$method_assign(rhs) };
+                        unsafe { self.get_unchecked_mut((i, j)).$method_assign(rhs.inlined_clone()) };
                     }
                 }
             }
@@ -561,7 +561,7 @@ left_scalar_mul_impl!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f32, f
 impl<'a, 'b, N, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<&'b Matrix<N, R2, C2, SB>>
     for &'a Matrix<N, R1, C1, SA>
 where
-    N: Scalar + Copy + Zero + One + ClosedAdd + ClosedMul,
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SA: Storage<N, R1, C1>,
     SB: Storage<N, R2, C2>,
     DefaultAllocator: Allocator<N, R1, C2>,
@@ -582,7 +582,7 @@ where
 impl<'a, N, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<Matrix<N, R2, C2, SB>>
     for &'a Matrix<N, R1, C1, SA>
 where
-    N: Scalar + Copy + Zero + One + ClosedAdd + ClosedMul,
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<N, R2, C2>,
     SA: Storage<N, R1, C1>,
     DefaultAllocator: Allocator<N, R1, C2>,
@@ -599,7 +599,7 @@ where
 impl<'b, N, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<&'b Matrix<N, R2, C2, SB>>
     for Matrix<N, R1, C1, SA>
 where
-    N: Scalar + Copy + Zero + One + ClosedAdd + ClosedMul,
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<N, R2, C2>,
     SA: Storage<N, R1, C1>,
     DefaultAllocator: Allocator<N, R1, C2>,
@@ -616,7 +616,7 @@ where
 impl<N, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<Matrix<N, R2, C2, SB>>
     for Matrix<N, R1, C1, SA>
 where
-    N: Scalar + Copy + Zero + One + ClosedAdd + ClosedMul,
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<N, R2, C2>,
     SA: Storage<N, R1, C1>,
     DefaultAllocator: Allocator<N, R1, C2>,
@@ -638,7 +638,7 @@ where
     R1: Dim,
     C1: Dim,
     R2: Dim,
-    N: Scalar + Copy + Zero + One + ClosedAdd + ClosedMul,
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<N, R2, C1>,
     SA: ContiguousStorageMut<N, R1, C1> + Clone,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
@@ -655,7 +655,7 @@ where
     R1: Dim,
     C1: Dim,
     R2: Dim,
-    N: Scalar + Copy + Zero + One + ClosedAdd + ClosedMul,
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<N, R2, C1>,
     SA: ContiguousStorageMut<N, R1, C1> + Clone,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
@@ -671,7 +671,7 @@ where
 // Transpose-multiplication.
 impl<N, R1: Dim, C1: Dim, SA> Matrix<N, R1, C1, SA>
 where
-    N: Scalar + Copy + Zero + One + ClosedAdd + ClosedMul,
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SA: Storage<N, R1, C1>,
 {
     /// Equivalent to `self.transpose() * rhs`.
@@ -810,10 +810,10 @@ where
                 for j2 in 0..ncols2.value() {
                     for i1 in 0..nrows1.value() {
                         unsafe {
-                            let coeff = *self.get_unchecked((i1, j1));
+                            let coeff = self.get_unchecked((i1, j1)).inlined_clone();
 
                             for i2 in 0..nrows2.value() {
-                                *data_res = coeff * *rhs.get_unchecked((i2, j2));
+                                *data_res = coeff.inlined_clone() * rhs.get_unchecked((i2, j2)).inlined_clone();
                                 data_res = data_res.offset(1);
                             }
                         }
@@ -826,7 +826,7 @@ where
     }
 }
 
-impl<N: Scalar + Copy + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Adds a scalar to `self`.
     #[inline]
     pub fn add_scalar(&self, rhs: N) -> MatrixMN<N, R, C>
@@ -841,14 +841,14 @@ impl<N: Scalar + Copy + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N
     pub fn add_scalar_mut(&mut self, rhs: N)
     where S: StorageMut<N, R, C> {
         for e in self.iter_mut() {
-            *e += rhs
+            *e += rhs.inlined_clone()
         }
     }
 }
 
 impl<N, D: DimName> iter::Product for MatrixN<N, D>
 where
-    N: Scalar + Copy + Zero + One + ClosedMul + ClosedAdd,
+    N: Scalar + Zero + One + ClosedMul + ClosedAdd,
     DefaultAllocator: Allocator<N, D, D>,
 {
     fn product<I: Iterator<Item = MatrixN<N, D>>>(iter: I) -> MatrixN<N, D> {
@@ -858,7 +858,7 @@ where
 
 impl<'a, N, D: DimName> iter::Product<&'a MatrixN<N, D>> for MatrixN<N, D>
 where
-    N: Scalar + Copy + Zero + One + ClosedMul + ClosedAdd,
+    N: Scalar + Zero + One + ClosedMul + ClosedAdd,
     DefaultAllocator: Allocator<N, D, D>,
 {
     fn product<I: Iterator<Item = &'a MatrixN<N, D>>>(iter: I) -> MatrixN<N, D> {
@@ -866,7 +866,7 @@ where
     }
 }
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline(always)]
     fn xcmp<N2>(&self, abs: impl Fn(N) -> N2, ordering: Ordering) -> N2
         where N2: Scalar + PartialOrd + Zero {
@@ -874,7 +874,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         let mut max = iter.next().cloned().map_or(N2::zero(), &abs);
 
         for e in iter {
-            let ae = abs(*e);
+            let ae = abs(e.inlined_clone());
 
             if ae.partial_cmp(&max) == Some(ordering) {
                     max = ae;

@@ -8,7 +8,7 @@ use crate::sparse::{CsMatrix, CsStorage, CsStorageMut, CsVector};
 use crate::storage::StorageMut;
 use crate::{DefaultAllocator, Dim, Scalar, Vector, VectorN, U1};
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
+impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
     fn scatter<R2: Dim, C2: Dim>(
         &self,
         j: usize,
@@ -28,9 +28,9 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, 
                 timestamps[i] = timestamp;
                 res.data.i[nz] = i;
                 nz += 1;
-                workspace[i] = val * beta;
+                workspace[i] = val * beta.inlined_clone();
             } else {
-                workspace[i] += val * beta;
+                workspace[i] += val * beta.inlined_clone();
             }
         }
 
@@ -39,7 +39,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, 
 }
 
 /*
-impl<N: Scalar + Copy, R, S> CsVector<N, R, S> {
+impl<N: Scalar, R, S> CsVector<N, R, S> {
     pub fn axpy(&mut self, alpha: N, x: CsVector<N, R, S>, beta: N) {
         // First, compute the number of non-zero entries.
         let mut nnzero = 0;
@@ -76,7 +76,7 @@ impl<N: Scalar + Copy, R, S> CsVector<N, R, S> {
 }
 */
 
-impl<N: Scalar + Copy + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
+impl<N: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
     /// Perform a sparse axpy operation: `self = alpha * x + beta * self` operation.
     pub fn axpy_cs<D2: Dim, S2>(&mut self, alpha: N, x: &CsVector<N, D2, S2>, beta: N)
     where
@@ -88,18 +88,18 @@ impl<N: Scalar + Copy + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D
                 unsafe {
                     let k = x.data.row_index_unchecked(i);
                     let y = self.vget_unchecked_mut(k);
-                    *y = alpha * *x.data.get_value_unchecked(i);
+                    *y = alpha.inlined_clone() * x.data.get_value_unchecked(i).inlined_clone();
                 }
             }
         } else {
             // Needed to be sure even components not present on `x` are multiplied.
-            *self *= beta;
+            *self *= beta.inlined_clone();
 
             for i in 0..x.len() {
                 unsafe {
                     let k = x.data.row_index_unchecked(i);
                     let y = self.vget_unchecked_mut(k);
-                    *y += alpha * *x.data.get_value_unchecked(i);
+                    *y += alpha.inlined_clone() * x.data.get_value_unchecked(i).inlined_clone();
                 }
             }
         }
@@ -126,7 +126,7 @@ impl<N: Scalar + Copy + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D
 impl<'a, 'b, N, R1, R2, C1, C2, S1, S2> Mul<&'b CsMatrix<N, R2, C2, S2>>
     for &'a CsMatrix<N, R1, C1, S1>
 where
-    N: Scalar + Copy + ClosedAdd + ClosedMul + Zero,
+    N: Scalar + ClosedAdd + ClosedMul + Zero,
     R1: Dim,
     C1: Dim,
     R2: Dim,
@@ -159,14 +159,14 @@ where
 
             for (i, beta) in rhs.data.column_entries(j) {
                 for (k, val) in self.data.column_entries(i) {
-                    workspace[k] += val * beta;
+                    workspace[k] += val.inlined_clone() * beta.inlined_clone();
                 }
             }
 
             for (i, val) in workspace.as_mut_slice().iter_mut().enumerate() {
                 if !val.is_zero() {
                     res.data.i[nz] = i;
-                    res.data.vals[nz] = *val;
+                    res.data.vals[nz] = val.inlined_clone();
                     *val = N::zero();
                     nz += 1;
                 }
@@ -219,7 +219,7 @@ where
 impl<'a, 'b, N, R1, R2, C1, C2, S1, S2> Add<&'b CsMatrix<N, R2, C2, S2>>
     for &'a CsMatrix<N, R1, C1, S1>
 where
-    N: Scalar + Copy + ClosedAdd + ClosedMul + One,
+    N: Scalar + ClosedAdd + ClosedMul + One,
     R1: Dim,
     C1: Dim,
     R2: Dim,
@@ -273,7 +273,7 @@ where
             res.data.i[range.clone()].sort();
 
             for p in range {
-                res.data.vals[p] = workspace[res.data.i[p]]
+                res.data.vals[p] = workspace[res.data.i[p]].inlined_clone()
             }
         }
 
@@ -287,7 +287,7 @@ where
 
 impl<'a, 'b, N, R, C, S> Mul<N> for CsMatrix<N, R, C, S>
 where
-    N: Scalar + Copy + ClosedAdd + ClosedMul + Zero,
+    N: Scalar + ClosedAdd + ClosedMul + Zero,
     R: Dim,
     C: Dim,
     S: CsStorageMut<N, R, C>,
@@ -296,7 +296,7 @@ where
 
     fn mul(mut self, rhs: N) -> Self::Output {
         for e in self.values_mut() {
-            *e *= rhs
+            *e *= rhs.inlined_clone()
         }
 
         self

@@ -297,13 +297,13 @@ where DefaultAllocator: Alloc<f32, D> {
     v.map(int_bits_to_float)
 }
 
-//pub fn isinf<N: Scalar + Copy, D: Dimension>(x: &TVec<N, D>) -> TVec<bool, D>
+//pub fn isinf<N: Scalar, D: Dimension>(x: &TVec<N, D>) -> TVec<bool, D>
 //    where DefaultAllocator: Alloc<N, D> {
 //        unimplemented!()
 //
 //}
 //
-//pub fn isnan<N: Scalar + Copy, D: Dimension>(x: &TVec<N, D>) -> TVec<bool, D>
+//pub fn isnan<N: Scalar, D: Dimension>(x: &TVec<N, D>) -> TVec<bool, D>
 //    where DefaultAllocator: Alloc<N, D> {
 //        unimplemented!()
 //
@@ -504,7 +504,7 @@ where DefaultAllocator: Alloc<N, D> {
     x.map(|x| x.round())
 }
 
-//pub fn roundEven<N: Scalar + Copy, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
+//pub fn roundEven<N: Scalar, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
 //    where DefaultAllocator: Alloc<N, D> {
 //        unimplemented!()
 //}
