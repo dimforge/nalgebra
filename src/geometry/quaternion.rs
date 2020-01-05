@@ -1067,13 +1067,22 @@ impl<N: RealField> UnitQuaternion<N> {
     ///
     /// Panics if the angle between both quaternion is 180 degrees (in which case the interpolation
     /// is not well-defined). Use `.try_slerp` instead to avoid the panic.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::geometry::UnitQuaternion;
+    ///
+    /// let q1 = UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
+    /// let q2 = UnitQuaternion::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
+    ///
+    /// let q = q1.slerp(&q2, 1.0 / 3.0);
+    ///
+    /// assert_eq!(q.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
+    /// ```
     #[inline]
     pub fn slerp(&self, other: &Self, t: N) -> Self {
-        Unit::new_unchecked(Quaternion::from(
-            Unit::new_unchecked(self.coords)
-                .slerp(&Unit::new_unchecked(other.coords), t)
-                .into_inner(),
-        ))
+        self.try_slerp(other, t, N::default_epsilon()).expect("Quaternion slerp: ambiguous configuration.")
     }
 
     /// Computes the spherical linear interpolation between two unit quaternions or returns `None`
@@ -1094,9 +1103,16 @@ impl<N: RealField> UnitQuaternion<N> {
         epsilon: N,
     ) -> Option<Self>
     {
-        Unit::new_unchecked(self.coords)
-            .try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
-            .map(|q| Unit::new_unchecked(Quaternion::from(q.into_inner())))
+        let coords = if self.coords.dot(&other.coords) < N::zero() {
+            Unit::new_unchecked(self.coords)
+                .try_slerp(&Unit::new_unchecked(-other.coords), t, epsilon)
+        } else {
+            Unit::new_unchecked(self.coords)
+                .try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
+        };
+
+
+        coords.map(|q| Unit::new_unchecked(Quaternion::from(q.into_inner())))
     }
 
     /// Compute the conjugate of this unit quaternion in-place.

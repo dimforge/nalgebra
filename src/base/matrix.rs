@@ -1616,31 +1616,31 @@ impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     }
 }
 
-impl<N: ComplexField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
+impl<N: RealField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     /// Computes the spherical linear interpolation between two unit vectors.
     ///
     /// # Examples:
     ///
     /// ```
-    /// # use nalgebra::geometry::UnitQuaternion;
+    /// # use nalgebra::{Unit, Vector2};
     ///
-    /// let q1 = UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
-    /// let q2 = UnitQuaternion::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
+    /// let v1 = Unit::new_normalize(Vector2::new(1.0, 2.0));
+    /// let v2 = Unit::new_normalize(Vector2::new(2.0, -3.0));
     ///
-    /// let q = q1.slerp(&q2, 1.0 / 3.0);
+    /// let v = v1.slerp(&v2, 1.0);
     ///
-    /// assert_eq!(q.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
+    /// assert_eq!(v, v2);
     /// ```
     pub fn slerp<S2: Storage<N, D>>(
         &self,
         rhs: &Unit<Vector<N, D, S2>>,
-        t: N::RealField,
+        t: N,
     ) -> Unit<VectorN<N, D>>
     where
         DefaultAllocator: Allocator<N, D>,
     {
         // FIXME: the result is wrong when self and rhs are collinear with opposite direction.
-        self.try_slerp(rhs, t, N::RealField::default_epsilon())
+        self.try_slerp(rhs, t, N::default_epsilon())
             .unwrap_or(Unit::new_unchecked(self.clone_owned()))
     }
 
@@ -1651,30 +1651,30 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     pub fn try_slerp<S2: Storage<N, D>>(
         &self,
         rhs: &Unit<Vector<N, D, S2>>,
-        t: N::RealField,
-        epsilon: N::RealField,
+        t: N,
+        epsilon: N,
     ) -> Option<Unit<VectorN<N, D>>>
     where
         DefaultAllocator: Allocator<N, D>,
     {
-        let (c_hang, c_hang_sign) = self.dotc(rhs).to_exp();
+        let c_hang = self.dot(rhs);
 
         // self == other
-        if c_hang >= N::RealField::one() {
+        if c_hang >= N::one() {
             return Some(Unit::new_unchecked(self.clone_owned()));
         }
 
         let hang = c_hang.acos();
-        let s_hang = (N::RealField::one() - c_hang * c_hang).sqrt();
+        let s_hang = (N::one() - c_hang * c_hang).sqrt();
 
         // FIXME: what if s_hang is 0.0 ? The result is not well-defined.
-        if relative_eq!(s_hang, N::RealField::zero(), epsilon = epsilon) {
+        if relative_eq!(s_hang, N::zero(), epsilon = epsilon) {
             None
         } else {
-            let ta = ((N::RealField::one() - t) * hang).sin() / s_hang;
+            let ta = ((N::one() - t) * hang).sin() / s_hang;
             let tb = (t * hang).sin() / s_hang;
             let mut res = self.scale(ta);
-            res.axpy(c_hang_sign.scale(tb), &**rhs, N::one());
+            res.axpy(tb, &**rhs, N::one());
 
             Some(Unit::new_unchecked(res))
         }
