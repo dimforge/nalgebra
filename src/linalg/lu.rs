@@ -318,7 +318,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
 /// element `matrix[(i, i)]` is provided as argument.
 pub fn gauss_step<N, R: Dim, C: Dim, S>(matrix: &mut Matrix<N, R, C, S>, diag: N, i: usize)
 where
-    N: Scalar + Copy + Field,
+    N: Scalar + Field,
     S: StorageMut<N, R, C>,
 {
     let mut submat = matrix.slice_range_mut(i.., i..);
@@ -333,7 +333,7 @@ where
     let (pivot_row, mut down) = submat.rows_range_pair_mut(0, 1..);
 
     for k in 0..pivot_row.ncols() {
-        down.column_mut(k).axpy(-pivot_row[k], &coeffs, N::one());
+        down.column_mut(k).axpy(-pivot_row[k].inlined_clone(), &coeffs, N::one());
     }
 }
 
@@ -346,7 +346,7 @@ pub fn gauss_step_swap<N, R: Dim, C: Dim, S>(
     i: usize,
     piv: usize,
 ) where
-    N: Scalar + Copy + Field,
+    N: Scalar + Field,
     S: StorageMut<N, R, C>,
 {
     let piv = piv - i;
@@ -364,7 +364,7 @@ pub fn gauss_step_swap<N, R: Dim, C: Dim, S>(
 
     for k in 0..pivot_row.ncols() {
         mem::swap(&mut pivot_row[k], &mut down[(piv - 1, k)]);
-        down.column_mut(k).axpy(-pivot_row[k], &coeffs, N::one());
+        down.column_mut(k).axpy(-pivot_row[k].inlined_clone(), &coeffs, N::one());
     }
 }
 

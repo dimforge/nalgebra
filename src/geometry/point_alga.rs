@@ -7,9 +7,9 @@ use crate::base::{DefaultAllocator, Scalar, VectorN};
 
 use crate::geometry::Point;
 
-impl<N: Scalar + Copy + Field, D: DimName> AffineSpace for Point<N, D>
+impl<N: Scalar + Field, D: DimName> AffineSpace for Point<N, D>
 where
-    N: Scalar + Copy + Field,
+    N: Scalar + Field,
     DefaultAllocator: Allocator<N, D>,
 {
     type Translation = VectorN<N, D>;
@@ -49,7 +49,7 @@ where DefaultAllocator: Allocator<N, D>
  */
 impl<N, D: DimName> MeetSemilattice for Point<N, D>
 where
-    N: Scalar + Copy + MeetSemilattice,
+    N: Scalar + MeetSemilattice,
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
@@ -60,7 +60,7 @@ where
 
 impl<N, D: DimName> JoinSemilattice for Point<N, D>
 where
-    N: Scalar + Copy + JoinSemilattice,
+    N: Scalar + JoinSemilattice,
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
@@ -71,7 +71,7 @@ where
 
 impl<N, D: DimName> Lattice for Point<N, D>
 where
-    N: Scalar + Copy + Lattice,
+    N: Scalar + Lattice,
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]

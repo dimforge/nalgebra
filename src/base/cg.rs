@@ -23,7 +23,7 @@ use alga::linear::Transformation;
 
 impl<N, D: DimName> MatrixN<N, D>
 where
-    N: Scalar + Copy + Ring,
+    N: Scalar + Ring,
     DefaultAllocator: Allocator<N, D, D>,
 {
     /// Creates a new homogeneous matrix that applies the same scaling factor on each dimension.
@@ -44,7 +44,7 @@ where
     {
         let mut res = Self::one();
         for i in 0..scaling.len() {
-            res[(i, i)] = scaling[i];
+            res[(i, i)] = scaling[i].inlined_clone();
         }
 
         res
@@ -153,7 +153,7 @@ impl<N: RealField> Matrix4<N> {
     }
 }
 
-impl<N: Scalar + Copy + Ring, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: Scalar + Ring, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the transformation equal to `self` followed by an uniform scaling factor.
     #[inline]
     pub fn append_scaling(&self, scaling: N) -> MatrixN<N, D>
@@ -240,7 +240,7 @@ impl<N: Scalar + Copy + Ring, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D
     }
 }
 
-impl<N: Scalar + Copy + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes in-place the transformation equal to `self` followed by an uniform scaling factor.
     #[inline]
     pub fn append_scaling_mut(&mut self, scaling: N)
@@ -266,7 +266,7 @@ impl<N: Scalar + Copy + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N
     {
         for i in 0..scaling.len() {
             let mut to_scale = self.fixed_rows_mut::<U1>(i);
-            to_scale *= scaling[i];
+            to_scale *= scaling[i].inlined_clone();
         }
     }
 
@@ -281,7 +281,7 @@ impl<N: Scalar + Copy + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N
     {
         for i in 0..scaling.len() {
             let mut to_scale = self.fixed_columns_mut::<U1>(i);
-            to_scale *= scaling[i];
+            to_scale *= scaling[i].inlined_clone();
         }
     }
 
@@ -294,7 +294,7 @@ impl<N: Scalar + Copy + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N
     {
         for i in 0..D::dim() {
             for j in 0..D::dim() - 1 {
-                let add = shift[j] * self[(D::dim() - 1, i)];
+                let add = shift[j].inlined_clone() * self[(D::dim() - 1, i)].inlined_clone();
                 self[(j, i)] += add;
             }
         }

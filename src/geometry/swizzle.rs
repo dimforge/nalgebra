@@ -6,7 +6,7 @@ use typenum::{self, Cmp, Greater};
 macro_rules! impl_swizzle {
     ($( where $BaseDim: ident: $( $name: ident() -> $Result: ident[$($i: expr),+] ),+ ;)* ) => {
         $(
-            impl<N: Scalar + Copy, D: DimName> Point<N, D>
+            impl<N: Scalar, D: DimName> Point<N, D>
             where
                 DefaultAllocator: Allocator<N, D>,
                 D::Value: Cmp<typenum::$BaseDim, Output=Greater>
@@ -15,7 +15,7 @@ macro_rules! impl_swizzle {
                     /// Builds a new point from components of `self`.
                     #[inline]
                     pub fn $name(&self) -> $Result<N> {
-                        $Result::new($(self[$i]),*)
+                        $Result::new($(self[$i].inlined_clone()),*)
                     }
                 )*
             }

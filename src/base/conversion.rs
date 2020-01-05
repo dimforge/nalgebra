@@ -31,8 +31,8 @@ where
     C1: Dim,
     R2: Dim,
     C2: Dim,
-    N1: Scalar + Copy,
-    N2: Scalar + Copy + SupersetOf<N1>,
+    N1: Scalar,
+    N2: Scalar + SupersetOf<N1>,
     DefaultAllocator:
         Allocator<N2, R2, C2> + Allocator<N1, R1, C1> + SameShapeAllocator<N1, R1, C1, R2, C2>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
@@ -75,7 +75,7 @@ where
     }
 }
 
-impl<'a, N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> IntoIterator for &'a Matrix<N, R, C, S> {
+impl<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> IntoIterator for &'a Matrix<N, R, C, S> {
     type Item = &'a N;
     type IntoIter = MatrixIter<'a, N, R, C, S>;
 
@@ -85,7 +85,7 @@ impl<'a, N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> IntoIterator for
     }
 }
 
-impl<'a, N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> IntoIterator
+impl<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> IntoIterator
     for &'a mut Matrix<N, R, C, S>
 {
     type Item = &'a mut N;
@@ -100,7 +100,7 @@ impl<'a, N: Scalar + Copy, R: Dim, C: Dim, S: StorageMut<N, R, C>> IntoIterator
 macro_rules! impl_from_into_asref_1D(
     ($(($NRows: ident, $NCols: ident) => $SZ: expr);* $(;)*) => {$(
         impl<N> From<[N; $SZ]> for MatrixMN<N, $NRows, $NCols>
-        where N: Scalar + Copy,
+        where N: Scalar,
               DefaultAllocator: Allocator<N, $NRows, $NCols> {
             #[inline]
             fn from(arr: [N; $SZ]) -> Self {
@@ -114,7 +114,7 @@ macro_rules! impl_from_into_asref_1D(
         }
 
         impl<N, S> Into<[N; $SZ]> for Matrix<N, $NRows, $NCols, S>
-        where N: Scalar + Copy,
+        where N: Scalar,
               S: ContiguousStorage<N, $NRows, $NCols> {
             #[inline]
             fn into(self) -> [N; $SZ] {
@@ -128,7 +128,7 @@ macro_rules! impl_from_into_asref_1D(
         }
 
         impl<N, S> AsRef<[N; $SZ]> for Matrix<N, $NRows, $NCols, S>
-        where N: Scalar + Copy,
+        where N: Scalar,
               S: ContiguousStorage<N, $NRows, $NCols> {
             #[inline]
             fn as_ref(&self) -> &[N; $SZ] {
@@ -139,7 +139,7 @@ macro_rules! impl_from_into_asref_1D(
         }
 
         impl<N, S> AsMut<[N; $SZ]> for Matrix<N, $NRows, $NCols, S>
-        where N: Scalar + Copy,
+        where N: Scalar,
               S: ContiguousStorageMut<N, $NRows, $NCols> {
             #[inline]
             fn as_mut(&mut self) -> &mut [N; $SZ] {
@@ -168,7 +168,7 @@ impl_from_into_asref_1D!(
 
 macro_rules! impl_from_into_asref_2D(
     ($(($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr));* $(;)*) => {$(
-        impl<N: Scalar + Copy> From<[[N; $SZRows]; $SZCols]> for MatrixMN<N, $NRows, $NCols>
+        impl<N: Scalar> From<[[N; $SZRows]; $SZCols]> for MatrixMN<N, $NRows, $NCols>
         where DefaultAllocator: Allocator<N, $NRows, $NCols> {
             #[inline]
             fn from(arr: [[N; $SZRows]; $SZCols]) -> Self {
@@ -181,7 +181,7 @@ macro_rules! impl_from_into_asref_2D(
             }
         }
 
-        impl<N: Scalar + Copy, S> Into<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
+        impl<N: Scalar, S> Into<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
         where S: ContiguousStorage<N, $NRows, $NCols> {
             #[inline]
             fn into(self) -> [[N; $SZRows]; $SZCols] {
@@ -194,7 +194,7 @@ macro_rules! impl_from_into_asref_2D(
             }
         }
 
-        impl<N: Scalar + Copy, S> AsRef<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
+        impl<N: Scalar, S> AsRef<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
         where S: ContiguousStorage<N, $NRows, $NCols> {
             #[inline]
             fn as_ref(&self) -> &[[N; $SZRows]; $SZCols] {
@@ -204,7 +204,7 @@ macro_rules! impl_from_into_asref_2D(
             }
         }
 
-        impl<N: Scalar + Copy, S> AsMut<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
+        impl<N: Scalar, S> AsMut<[[N; $SZRows]; $SZCols]> for Matrix<N, $NRows, $NCols, S>
         where S: ContiguousStorageMut<N, $NRows, $NCols> {
             #[inline]
             fn as_mut(&mut self) -> &mut [[N; $SZRows]; $SZCols] {
@@ -229,7 +229,7 @@ impl_from_into_asref_2D!(
 macro_rules! impl_from_into_mint_1D(
     ($($NRows: ident => $VT:ident [$SZ: expr]);* $(;)*) => {$(
         impl<N> From<mint::$VT<N>> for MatrixMN<N, $NRows, U1>
-        where N: Scalar + Copy,
+        where N: Scalar,
               DefaultAllocator: Allocator<N, $NRows, U1> {
             #[inline]
             fn from(v: mint::$VT<N>) -> Self {
@@ -243,7 +243,7 @@ macro_rules! impl_from_into_mint_1D(
         }
 
         impl<N, S> Into<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
-        where N: Scalar + Copy,
+        where N: Scalar,
               S: ContiguousStorage<N, $NRows, U1> {
             #[inline]
             fn into(self) -> mint::$VT<N> {
@@ -257,7 +257,7 @@ macro_rules! impl_from_into_mint_1D(
         }
 
         impl<N, S> AsRef<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
-        where N: Scalar + Copy,
+        where N: Scalar,
               S: ContiguousStorage<N, $NRows, U1> {
             #[inline]
             fn as_ref(&self) -> &mint::$VT<N> {
@@ -268,7 +268,7 @@ macro_rules! impl_from_into_mint_1D(
         }
 
         impl<N, S> AsMut<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
-        where N: Scalar + Copy,
+        where N: Scalar,
               S: ContiguousStorageMut<N, $NRows, U1> {
             #[inline]
             fn as_mut(&mut self) -> &mut mint::$VT<N> {
@@ -292,7 +292,7 @@ impl_from_into_mint_1D!(
 macro_rules! impl_from_into_mint_2D(
     ($(($NRows: ty, $NCols: ty) => $MV:ident{ $($component:ident),* }[$SZRows: expr]);* $(;)*) => {$(
         impl<N> From<mint::$MV<N>> for MatrixMN<N, $NRows, $NCols>
-        where N: Scalar + Copy,
+        where N: Scalar,
               DefaultAllocator: Allocator<N, $NRows, $NCols> {
             #[inline]
             fn from(m: mint::$MV<N>) -> Self {
@@ -310,7 +310,7 @@ macro_rules! impl_from_into_mint_2D(
         }
 
         impl<N> Into<mint::$MV<N>> for MatrixMN<N, $NRows, $NCols>
-        where N: Scalar + Copy,
+        where N: Scalar,
               DefaultAllocator: Allocator<N, $NRows, $NCols> {
             #[inline]
             fn into(self) -> mint::$MV<N> {
@@ -342,7 +342,7 @@ impl_from_into_mint_2D!(
 impl<'a, N, R, C, RStride, CStride> From<MatrixSlice<'a, N, R, C, RStride, CStride>>
     for Matrix<N, R, C, ArrayStorage<N, R, C>>
 where
-    N: Scalar + Copy,
+    N: Scalar,
     R: DimName,
     C: DimName,
     RStride: Dim,
@@ -359,7 +359,7 @@ where
 impl<'a, N, C, RStride, CStride> From<MatrixSlice<'a, N, Dynamic, C, RStride, CStride>>
     for Matrix<N, Dynamic, C, VecStorage<N, Dynamic, C>>
 where
-    N: Scalar + Copy,
+    N: Scalar,
     C: Dim,
     RStride: Dim,
     CStride: Dim,
@@ -373,7 +373,7 @@ where
 impl<'a, N, R, RStride, CStride> From<MatrixSlice<'a, N, R, Dynamic, RStride, CStride>>
     for Matrix<N, R, Dynamic, VecStorage<N, R, Dynamic>>
 where
-    N: Scalar + Copy,
+    N: Scalar,
     R: DimName,
     RStride: Dim,
     CStride: Dim,
@@ -386,7 +386,7 @@ where
 impl<'a, N, R, C, RStride, CStride> From<MatrixSliceMut<'a, N, R, C, RStride, CStride>>
     for Matrix<N, R, C, ArrayStorage<N, R, C>>
 where
-    N: Scalar + Copy,
+    N: Scalar,
     R: DimName,
     C: DimName,
     RStride: Dim,
@@ -403,7 +403,7 @@ where
 impl<'a, N, C, RStride, CStride> From<MatrixSliceMut<'a, N, Dynamic, C, RStride, CStride>>
     for Matrix<N, Dynamic, C, VecStorage<N, Dynamic, C>>
 where
-    N: Scalar + Copy,
+    N: Scalar,
     C: Dim,
     RStride: Dim,
     CStride: Dim,
@@ -417,7 +417,7 @@ where
 impl<'a, N, R, RStride, CStride> From<MatrixSliceMut<'a, N, R, Dynamic, RStride, CStride>>
     for Matrix<N, R, Dynamic, VecStorage<N, R, Dynamic>>
 where
-    N: Scalar + Copy,
+    N: Scalar,
     R: DimName,
     RStride: Dim,
     CStride: Dim,
@@ -430,7 +430,7 @@ where
 impl<'a, N, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a Matrix<N, R, C, S>>
 for MatrixSlice<'a, N, RSlice, CSlice, RStride, CStride>
     where
-        N: Scalar + Copy,
+        N: Scalar,
         R: Dim,
         C: Dim,
         RSlice: Dim,
@@ -463,7 +463,7 @@ for MatrixSlice<'a, N, RSlice, CSlice, RStride, CStride>
 impl<'a, N, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a mut Matrix<N, R, C, S>>
 for MatrixSlice<'a, N, RSlice, CSlice, RStride, CStride>
     where
-        N: Scalar + Copy,
+        N: Scalar,
         R: Dim,
         C: Dim,
         RSlice: Dim,
@@ -496,7 +496,7 @@ for MatrixSlice<'a, N, RSlice, CSlice, RStride, CStride>
 impl<'a, N, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a mut Matrix<N, R, C, S>>
 for MatrixSliceMut<'a, N, RSlice, CSlice, RStride, CStride>
     where
-        N: Scalar + Copy,
+        N: Scalar,
         R: Dim,
         C: Dim,
         RSlice: Dim,

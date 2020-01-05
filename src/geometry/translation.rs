@@ -23,7 +23,7 @@ use crate::geometry::Point;
 /// A translation.
 #[repr(C)]
 #[derive(Debug)]
-pub struct Translation<N: Scalar + Copy, D: DimName>
+pub struct Translation<N: Scalar, D: DimName>
 where DefaultAllocator: Allocator<N, D>
 {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
@@ -31,7 +31,7 @@ where DefaultAllocator: Allocator<N, D>
     pub vector: VectorN<N, D>,
 }
 
-impl<N: Scalar + Copy + hash::Hash, D: DimName + hash::Hash> hash::Hash for Translation<N, D>
+impl<N: Scalar + hash::Hash, D: DimName + hash::Hash> hash::Hash for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: hash::Hash,
@@ -47,7 +47,7 @@ where
     Owned<N, D>: Copy,
 {}
 
-impl<N: Scalar + Copy, D: DimName> Clone for Translation<N, D>
+impl<N: Scalar, D: DimName> Clone for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Clone,
@@ -61,7 +61,7 @@ where
 #[cfg(feature = "abomonation-serialize")]
 impl<N, D> Abomonation for Translation<N, D>
 where
-    N: Scalar + Copy,
+    N: Scalar,
     D: DimName,
     VectorN<N, D>: Abomonation,
     DefaultAllocator: Allocator<N, D>,
@@ -80,7 +80,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Scalar + Copy, D: DimName> Serialize for Translation<N, D>
+impl<N: Scalar, D: DimName> Serialize for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Serialize,
@@ -92,7 +92,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Scalar + Copy, D: DimName> Deserialize<'a> for Translation<N, D>
+impl<'a, N: Scalar, D: DimName> Deserialize<'a> for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Deserialize<'a>,
@@ -105,7 +105,7 @@ where
     }
 }
 
-impl<N: Scalar + Copy, D: DimName> Translation<N, D>
+impl<N: Scalar, D: DimName> Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new translation from the given vector.
@@ -192,7 +192,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Scalar + Copy + ClosedAdd, D: DimName> Translation<N, D>
+impl<N: Scalar + ClosedAdd, D: DimName> Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Translate the given point.
@@ -211,7 +211,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Scalar + Copy + ClosedSub, D: DimName> Translation<N, D>
+impl<N: Scalar + ClosedSub, D: DimName> Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Translate the given point by the inverse of this translation.
@@ -228,9 +228,9 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Scalar + Copy + Eq, D: DimName> Eq for Translation<N, D> where DefaultAllocator: Allocator<N, D> {}
+impl<N: Scalar + Eq, D: DimName> Eq for Translation<N, D> where DefaultAllocator: Allocator<N, D> {}
 
-impl<N: Scalar + Copy + PartialEq, D: DimName> PartialEq for Translation<N, D>
+impl<N: Scalar + PartialEq, D: DimName> PartialEq for Translation<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -239,7 +239,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Scalar + Copy + AbsDiffEq, D: DimName> AbsDiffEq for Translation<N, D>
+impl<N: Scalar + AbsDiffEq, D: DimName> AbsDiffEq for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
@@ -257,7 +257,7 @@ where
     }
 }
 
-impl<N: Scalar + Copy + RelativeEq, D: DimName> RelativeEq for Translation<N, D>
+impl<N: Scalar + RelativeEq, D: DimName> RelativeEq for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
@@ -280,7 +280,7 @@ where
     }
 }
 
-impl<N: Scalar + Copy + UlpsEq, D: DimName> UlpsEq for Translation<N, D>
+impl<N: Scalar + UlpsEq, D: DimName> UlpsEq for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,

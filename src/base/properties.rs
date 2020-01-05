@@ -9,7 +9,7 @@ use crate::base::dimension::{Dim, DimMin};
 use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Indicates if this is an empty matrix.
     #[inline]
     pub fn is_empty(&self) -> bool {

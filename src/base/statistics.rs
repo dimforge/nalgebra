@@ -3,7 +3,7 @@ use alga::general::{Field, SupersetOf};
 use crate::storage::Storage;
 use crate::allocator::Allocator;
 
-impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a row vector where each element is the result of the application of `f` on the
     /// corresponding column of the original matrix.
     #[inline]
@@ -54,7 +54,7 @@ impl<N: Scalar + Copy, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar + Copy + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /*
      *
      * Sum computation.
@@ -154,9 +154,10 @@ impl<N: Scalar + Copy + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R
         if self.len() == 0 {
             N::zero()
         } else {
-            let val = self.iter().cloned().fold((N::zero(), N::zero()), |a, b| (a.0 + b * b, a.1 + b));
+            let val = self.iter().cloned().fold((N::zero(), N::zero()), |a, b| (a.0 + b.inlined_clone() * b.inlined_clone(), a.1 + b));
             let denom = N::one() / crate::convert::<_, N>(self.len() as f64);
-            val.0 * denom - (val.1 * denom) * (val.1 * denom)
+            let vd = val.1 * denom.inlined_clone();
+            val.0 * denom - vd.inlined_clone() * vd
         }
     }
 
@@ -213,14 +214,14 @@ impl<N: Scalar + Copy + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R
         let (nrows, ncols) = self.data.shape();
 
         let mut mean = self.column_mean();
-        mean.apply(|e| -(e * e));
+        mean.apply(|e| -(e.inlined_clone() * e));
 
         let denom = N::one() / crate::convert::<_, N>(ncols.value() as f64);
         self.compress_columns(mean, |out, col| {
             for i in 0..nrows.value() {
                 unsafe {
                     let val = col.vget_unchecked(i);
-                    *out.vget_unchecked_mut(i) += denom * *val * *val
+                    *out.vget_unchecked_mut(i) += denom.inlined_clone() * val.inlined_clone() * val.inlined_clone()
                 }
             }
         })
@@ -304,7 +305,7 @@ impl<N: Scalar + Copy + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R
         let (nrows, ncols) = self.data.shape();
         let denom = N::one() / crate::convert::<_, N>(ncols.value() as f64);
         self.compress_columns(VectorN::zeros_generic(nrows, U1), |out, col| {
-            out.axpy(denom, &col, N::one())
+            out.axpy(denom.inlined_clone(), &col, N::one())
         })
     }
 }

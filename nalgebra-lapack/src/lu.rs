@@ -37,7 +37,7 @@ use lapack;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct LU<N: Scalar + Copy, R: DimMin<C>, C: Dim>
+pub struct LU<N: Scalar, R: DimMin<C>, C: Dim>
 where DefaultAllocator: Allocator<i32, DimMinimum<R, C>> + Allocator<N, R, C>
 {
     lu: MatrixMN<N, R, C>,

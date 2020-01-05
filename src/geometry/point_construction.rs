@@ -12,7 +12,7 @@ use crate::base::{DefaultAllocator, Scalar, VectorN};
 
 use crate::geometry::Point;
 
-impl<N: Scalar + Copy, D: DimName> Point<N, D>
+impl<N: Scalar, D: DimName> Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new point with uninitialized coordinates.
@@ -94,12 +94,12 @@ where DefaultAllocator: Allocator<N, D>
     #[inline]
     pub fn from_homogeneous(v: VectorN<N, DimNameSum<D, U1>>) -> Option<Self>
     where
-        N: Scalar + Copy + Zero + One + ClosedDiv,
+        N: Scalar + Zero + One + ClosedDiv,
         D: DimNameAdd<U1>,
         DefaultAllocator: Allocator<N, DimNameSum<D, U1>>,
     {
         if !v[D::dim()].is_zero() {
-            let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()];
+            let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()].inlined_clone();
             Some(Self::from(coords))
         } else {
             None
@@ -112,7 +112,7 @@ where DefaultAllocator: Allocator<N, D>
  * Traits that build points.
  *
  */
-impl<N: Scalar + Copy + Bounded, D: DimName> Bounded for Point<N, D>
+impl<N: Scalar + Bounded, D: DimName> Bounded for Point<N, D>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -126,7 +126,7 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Scalar + Copy, D: DimName> Distribution<Point<N, D>> for Standard
+impl<N: Scalar, D: DimName> Distribution<Point<N, D>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,
     Standard: Distribution<N>,
@@ -138,7 +138,7 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Scalar + Copy + Arbitrary + Send, D: DimName> Arbitrary for Point<N, D>
+impl<N: Scalar + Arbitrary + Send, D: DimName> Arbitrary for Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     <DefaultAllocator as Allocator<N, D>>::Buffer: Send,
@@ -156,7 +156,7 @@ where
  */
 macro_rules! componentwise_constructors_impl(
     ($($doc: expr; $D: ty, $($args: ident:$irow: expr),*);* $(;)*) => {$(
-        impl<N: Scalar + Copy> Point<N, $D>
+        impl<N: Scalar> Point<N, $D>
             where DefaultAllocator: Allocator<N, $D> {
             #[doc = "Initializes this point from its components."]
             #[doc = "# Example\n```"]
@@ -192,7 +192,7 @@ componentwise_constructors_impl!(
 
 macro_rules! from_array_impl(
     ($($D: ty, $len: expr);*) => {$(
-      impl <N: Scalar + Copy> From<[N; $len]> for Point<N, $D> {
+      impl <N: Scalar> From<[N; $len]> for Point<N, $D> {
           fn from (coords: [N; $len]) -> Self {
               Self {
                 coords: coords.into()
