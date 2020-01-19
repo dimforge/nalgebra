@@ -1,7 +1,7 @@
 use num::{One, Zero};
 use std::cmp::Ordering;
 
-use na::dimension::{U15, U8};
+use na::dimension::{U15, U8, U2};
 use na::{
     self, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4, Matrix4,
     Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RowVector3, RowVector4, RowVector5,
@@ -1046,4 +1046,29 @@ mod finite_dim_inner_space_tests {
 
         true
     }
+}
+
+#[test]
+fn partial_eq() {
+    let dynamic_mat = DMatrix::from_row_slice(2, 4, &[1, 2, 3, 4, 5, 6, 7, 8]);
+    let static_mat = Matrix2x4::new(1, 2, 3, 4, 5, 6, 7, 8);
+
+    let dyn_static_slice = dynamic_mat.fixed_slice::<U2, U2>(0, 0);
+    let dyn_dyn_slice = dynamic_mat.slice((0, 0), (2, 2));
+    let static_static_slice = static_mat.fixed_slice::<U2, U2>(0, 0);
+    let static_dyn_slice = static_mat.slice((0, 0), (2, 2));
+
+    let larger_slice = static_mat.slice((0, 0), (2, 3));
+    
+    assert_eq!(dynamic_mat, static_mat);
+
+    assert_eq!(dyn_static_slice, dyn_dyn_slice);
+    assert_eq!(dyn_static_slice, static_static_slice);
+    assert_eq!(dyn_static_slice, static_dyn_slice);
+    assert_eq!(dyn_dyn_slice, static_static_slice);
+    assert_eq!(dyn_dyn_slice, static_dyn_slice);
+    assert_eq!(static_static_slice, static_dyn_slice);
+
+    assert_ne!(dynamic_mat, static_dyn_slice);
+    assert_ne!(static_dyn_slice, larger_slice);
 }
