@@ -14,7 +14,7 @@ use typenum::{
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Dim of dynamically-sized algebraic entities.
-#[derive(Clone, Copy, Eq, PartialEq, Debug)]
+#[derive(Clone, Copy, Eq, Debug)]
 pub struct Dynamic {
     value: usize,
 }
@@ -104,6 +104,12 @@ impl Sub<usize> for Dynamic {
     #[inline]
     fn sub(self, rhs: usize) -> Self {
         Self::new(self.value - rhs)
+    }
+}
+
+impl<T: Dim> PartialEq<T> for Dynamic {
+    fn eq(&self, other: &T) -> bool {
+        self.value() == other.value()
     }
 }
 
@@ -244,7 +250,7 @@ impl NamedDim for typenum::U1 {
 macro_rules! named_dimension(
     ($($D: ident),* $(,)*) => {$(
         /// A type level dimension.
-        #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+        #[derive(Debug, Copy, Clone, Hash, Eq)]
         #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
         pub struct $D;
 
@@ -280,6 +286,12 @@ macro_rules! named_dimension(
         }
 
         impl IsNotStaticOne for $D { }
+
+        impl<T: Dim> PartialEq<T> for $D {
+            fn eq(&self, other: &T) -> bool {
+                self.value() == other.value()
+            }
+        }
     )*}
 );
 
@@ -367,6 +379,23 @@ impl<
 {
 }
 
+impl<
+        T: Dim,
+        A: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
+        B: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
+        C: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
+        D: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
+        E: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
+        F: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
+        G: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
+    > PartialEq<T>
+    for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G>
+{
+    fn eq(&self, other: &T) -> bool {
+        self.value() == other.value()
+    }
+}
+
 impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> NamedDim
     for UInt<U, B>
 {
@@ -407,4 +436,16 @@ impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Syn
 impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> IsNotStaticOne
     for UInt<U, B>
 {
+}
+
+impl<
+        T: Dim,
+        U: Unsigned + DimName,
+        B: Bit + Any + Debug + Copy + PartialEq + Send + Sync
+    > PartialEq<T>
+    for UInt<U, B>
+{
+    fn eq(&self, other: &T) -> bool {
+        self.value() == other.value()
+    }
 }
