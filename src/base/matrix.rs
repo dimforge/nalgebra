@@ -1350,12 +1350,11 @@ where
     S: Storage<N, R, C>,
 {
     #[inline]
-    fn eq(&self, right: &Matrix<N, R, C, S>) -> bool {
-        assert!(
-            self.shape() == right.shape(),
-            "Matrix equality test dimension mismatch."
-        );
-        self.iter().zip(right.iter()).all(|(l, r)| l == r)
+    fn eq(&self, right: &Matrix<N, R2, C2, S2>) -> bool {
+        if self.shape() == right.shape() {
+            return self.iter().zip(right.iter()).all(|(l, r)| l == r)
+        }
+        false
     }
 }
 
