@@ -1065,27 +1065,47 @@ fn partial_eq_different_types() {
     let dynamic_mat = DMatrix::from_row_slice(2, 4, &[1, 2, 3, 4, 5, 6, 7, 8]);
     let static_mat = Matrix2x4::new(1, 2, 3, 4, 5, 6, 7, 8);
 
-    type TypeNumInt = typenum::UInt<UInt<UTerm, B0>, B1>;
-    let typenum_static_mat = MatrixMN::<u8, typenum::U1024, U4>::new(1, 2, 3, 4, 5, 6, 7, 8);
+    let mut typenum_static_mat = MatrixMN::<u8, typenum::U1024, U4>::zeros();
+    let mut slice = typenum_static_mat.slice_mut((0,0), (2, 4));
+    slice += static_mat;
 
-    let dyn_static_slice = dynamic_mat.fixed_slice::<U2, U2>(0, 0);
-    let dyn_dyn_slice = dynamic_mat.slice((0, 0), (2, 2));
-    let static_static_slice = static_mat.fixed_slice::<U2, U2>(0, 0);
-    let static_dyn_slice = static_mat.slice((0, 0), (2, 2));
+    let fslice_of_dmat = dynamic_mat.fixed_slice::<U2, U2>(0, 0);
+    let dslice_of_dmat = dynamic_mat.slice((0, 0), (2, 2));
+    let fslice_of_smat = static_mat.fixed_slice::<U2, U2>(0, 0);
+    let dslice_of_smat = static_mat.slice((0, 0), (2, 2));
 
-    let larger_slice = static_mat.slice((0, 0), (2, 3));
-    
     assert_eq!(dynamic_mat, static_mat);
-    assert_eq!(dynamic_mat, typenum_static_mat);
-    assert_eq!(typenum_static_mat, static_mat);
+    assert_eq!(static_mat, dynamic_mat);
 
-    assert_eq!(dyn_static_slice, dyn_dyn_slice);
-    assert_eq!(dyn_static_slice, static_static_slice);
-    assert_eq!(dyn_static_slice, static_dyn_slice);
-    assert_eq!(dyn_dyn_slice, static_static_slice);
-    assert_eq!(dyn_dyn_slice, static_dyn_slice);
-    assert_eq!(static_static_slice, static_dyn_slice);
+    assert_eq!(dynamic_mat, slice);
+    assert_eq!(slice, dynamic_mat);
 
-    assert_ne!(dynamic_mat, static_dyn_slice);
-    assert_ne!(static_dyn_slice, larger_slice);
+    assert_eq!(static_mat, slice);
+    assert_eq!(slice, static_mat);
+
+    assert_eq!(fslice_of_dmat, dslice_of_dmat);
+    assert_eq!(dslice_of_dmat, fslice_of_dmat);
+
+    assert_eq!(fslice_of_dmat, fslice_of_smat);
+    assert_eq!(fslice_of_smat, fslice_of_dmat);
+
+    assert_eq!(fslice_of_dmat, dslice_of_smat);
+    assert_eq!(dslice_of_smat, fslice_of_dmat);
+
+    assert_eq!(dslice_of_dmat, fslice_of_smat);
+    assert_eq!(fslice_of_smat, dslice_of_dmat);
+
+    assert_eq!(dslice_of_dmat, dslice_of_smat);
+    assert_eq!(dslice_of_smat, dslice_of_dmat);
+
+    assert_eq!(fslice_of_smat, dslice_of_smat);
+    assert_eq!(dslice_of_smat, fslice_of_smat);
+
+    assert_ne!(dynamic_mat, dslice_of_smat);
+    assert_ne!(dslice_of_smat, dynamic_mat);
+
+    // TODO - implement those comparisons
+    // assert_ne!(static_mat, typenum_static_mat);
+    //assert_ne!(typenum_static_mat, static_mat);
+
 }
