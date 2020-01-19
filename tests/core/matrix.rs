@@ -1,7 +1,7 @@
 use num::{One, Zero};
 use std::cmp::Ordering;
 
-use na::dimension::{U15, U8, U2};
+use na::dimension::{U15, U8, U2, U4};
 use na::{
     self, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4, Matrix4,
     Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RowVector3, RowVector4, RowVector5,
@@ -1052,7 +1052,16 @@ mod finite_dim_inner_space_tests {
 }
 
 #[test]
-fn partial_eq() {
+fn partial_eq_shape_mismatch() {
+    let a = Matrix2::new(1, 2, 3, 4);
+    let b = Matrix2x3::new(1, 2, 3, 4, 5, 6);
+    assert_ne!(a, b);
+    assert_ne!(b, a);
+}
+
+#[test]
+fn partial_eq_different_types() {
+    // Ensure comparability of several types of Matrices
     let dynamic_mat = DMatrix::from_row_slice(2, 4, &[1, 2, 3, 4, 5, 6, 7, 8]);
     let static_mat = Matrix2x4::new(1, 2, 3, 4, 5, 6, 7, 8);
 
