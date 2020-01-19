@@ -13,7 +13,7 @@ if [ -z "$NO_STD" ]; then
         cargo build --verbose -p nalgebra --features "debug";
         cargo build --verbose -p nalgebra --all-features
     else
-        cargo build -p nalgebra-lapack;
+        cargo build --manifest-path nalgebra-lapack/Cargo.toml --features "netlib" --no-default-features;
     fi
 else
     if [ "$CARGO_FEATURES" == "alloc" ]; then
