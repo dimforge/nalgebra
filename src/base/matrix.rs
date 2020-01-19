@@ -1344,10 +1344,15 @@ where
     S: Storage<N, R, C>,
 {}
 
-impl<N, R: Dim, C: Dim, S> PartialEq for Matrix<N, R, C, S>
+impl<N, R, R2, C, C2, S, S2> PartialEq<Matrix<N, R2, C2, S2>> for Matrix<N, R, C, S>
 where
-    N: Scalar,
+    N: Scalar + PartialEq,
+    C: Dim + PartialEq<C2>,
+    C2: Dim,
+    R: Dim + PartialEq<R2>,
+    R2: Dim,
     S: Storage<N, R, C>,
+    S2: Storage<N, R2, C2>
 {
     #[inline]
     fn eq(&self, right: &Matrix<N, R2, C2, S2>) -> bool {
