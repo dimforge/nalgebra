@@ -7,6 +7,9 @@ use na::{
     Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RowVector3, RowVector4, RowVector5,
     Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
 };
+use typenum::{UInt, UTerm};
+use serde_json::error::Category::Data;
+use typenum::bit::{B0, B1};
 
 #[test]
 fn iter() {
@@ -1053,6 +1056,9 @@ fn partial_eq() {
     let dynamic_mat = DMatrix::from_row_slice(2, 4, &[1, 2, 3, 4, 5, 6, 7, 8]);
     let static_mat = Matrix2x4::new(1, 2, 3, 4, 5, 6, 7, 8);
 
+    type TypeNumInt = typenum::UInt<UInt<UTerm, B0>, B1>;
+    let typenum_static_mat = MatrixMN::<u8, typenum::U1024, U4>::new(1, 2, 3, 4, 5, 6, 7, 8);
+
     let dyn_static_slice = dynamic_mat.fixed_slice::<U2, U2>(0, 0);
     let dyn_dyn_slice = dynamic_mat.slice((0, 0), (2, 2));
     let static_static_slice = static_mat.fixed_slice::<U2, U2>(0, 0);
@@ -1061,6 +1067,8 @@ fn partial_eq() {
     let larger_slice = static_mat.slice((0, 0), (2, 3));
     
     assert_eq!(dynamic_mat, static_mat);
+    assert_eq!(dynamic_mat, typenum_static_mat);
+    assert_eq!(typenum_static_mat, static_mat);
 
     assert_eq!(dyn_static_slice, dyn_dyn_slice);
     assert_eq!(dyn_static_slice, static_static_slice);
