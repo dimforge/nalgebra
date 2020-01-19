@@ -9,6 +9,6 @@ if [ -z "$NO_STD" ]; then
         cargo test --verbose --all-features;
         cd nalgebra-glm; cargo test --verbose;
     else
-        cd nalgebra-lapack; cargo test --verbose;
+        cd nalgebra-lapack; cargo test --features "netlib" --no-default-features --verbose;
     fi
 fi
