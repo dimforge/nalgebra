@@ -14,7 +14,8 @@ macro_rules! test_serde(
         fn $test() {
             let v: $ty<f32> = rand::random();
             let serialized = serde_json::to_string(&v).unwrap();
-            assert_eq!(v, serde_json::from_str(&serialized).unwrap());
+            let deserialized: $ty<f32> = serde_json::from_str(&serialized).unwrap();
+            assert_eq!(v, deserialized);
         }
     )*}
 );
@@ -23,7 +24,8 @@ macro_rules! test_serde(
 fn serde_dmatrix() {
     let v: DMatrix<f32> = DMatrix::new_random(3, 4);
     let serialized = serde_json::to_string(&v).unwrap();
-    assert_eq!(v, serde_json::from_str(&serialized).unwrap());
+    let deserialized: DMatrix<f32> = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(v, deserialized);
 }
 
 test_serde!(
