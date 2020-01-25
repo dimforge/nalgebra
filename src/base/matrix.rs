@@ -1137,7 +1137,7 @@ impl<N: Scalar + Zero + One, D: DimAdd<U1> + IsNotStaticOne, S: Storage<N, D, D>
     where DefaultAllocator: Allocator<N, DimSum<D, U1>, DimSum<D, U1>> {
         assert!(self.is_square(), "Only square matrices can currently be transformed to homogeneous coordinates.");
         let dim = DimSum::<D, U1>::from_usize(self.nrows() + 1);
-        let mut res = MatrixN::identity_generic(dim, dim); 
+        let mut res = MatrixN::identity_generic(dim, dim);
         res.generic_slice_mut::<D, D>((0, 0), self.data.shape()).copy_from(&self);
         res
     }
@@ -1344,18 +1344,19 @@ where
     S: Storage<N, R, C>,
 {}
 
-impl<N, R: Dim, C: Dim, S> PartialEq for Matrix<N, R, C, S>
+impl<N, R, R2, C, C2, S, S2> PartialEq<Matrix<N, R2, C2, S2>> for Matrix<N, R, C, S>
 where
-    N: Scalar,
+    N: Scalar + PartialEq,
+    C: Dim,
+    C2: Dim,
+    R: Dim,
+    R2: Dim,
     S: Storage<N, R, C>,
+    S2: Storage<N, R2, C2>
 {
     #[inline]
-    fn eq(&self, right: &Matrix<N, R, C, S>) -> bool {
-        assert!(
-            self.shape() == right.shape(),
-            "Matrix equality test dimension mismatch."
-        );
-        self.iter().zip(right.iter()).all(|(l, r)| l == r)
+    fn eq(&self, right: &Matrix<N, R2, C2, S2>) -> bool {
+        self.shape() == right.shape() && self.iter().zip(right.iter()).all(|(l, r)| l == r)
     }
 }
 
