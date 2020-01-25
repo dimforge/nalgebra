@@ -1347,9 +1347,9 @@ where
 impl<N, R, R2, C, C2, S, S2> PartialEq<Matrix<N, R2, C2, S2>> for Matrix<N, R, C, S>
 where
     N: Scalar + PartialEq,
-    C: Dim + PartialEq<C2>,
+    C: Dim,
     C2: Dim,
-    R: Dim + PartialEq<R2>,
+    R: Dim,
     R2: Dim,
     S: Storage<N, R, C>,
     S2: Storage<N, R2, C2>
