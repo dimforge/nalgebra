@@ -1356,10 +1356,7 @@ where
 {
     #[inline]
     fn eq(&self, right: &Matrix<N, R2, C2, S2>) -> bool {
-        if self.shape() == right.shape() {
-            return self.iter().zip(right.iter()).all(|(l, r)| l == r)
-        }
-        false
+        self.shape() == right.shape() && self.iter().zip(right.iter()).all(|(l, r)| l == r)
     }
 }
 
