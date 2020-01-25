@@ -14,7 +14,7 @@ use typenum::{
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Dim of dynamically-sized algebraic entities.
-#[derive(Clone, Copy, Eq, Debug)]
+#[derive(Clone, Copy, Eq, PartialEq, Debug)]
 pub struct Dynamic {
     value: usize,
 }
@@ -104,12 +104,6 @@ impl Sub<usize> for Dynamic {
     #[inline]
     fn sub(self, rhs: usize) -> Self {
         Self::new(self.value - rhs)
-    }
-}
-
-impl<T: Dim> PartialEq<T> for Dynamic {
-    fn eq(&self, other: &T) -> bool {
-        self.value() == other.value()
     }
 }
 
@@ -247,6 +241,60 @@ impl NamedDim for typenum::U1 {
     type Name = U1;
 }
 
+macro_rules! named_dimension (
+    ($($D: ident),* $(,)*) => {$(
+        /// A type level dimension.
+        #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+        #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+        pub struct $D;
+
+        impl Dim for $D {
+            #[inline]
+            fn try_to_usize() -> Option<usize> {
+                Some(typenum::$D::to_usize())
+            }
+
+            #[inline]
+            fn from_usize(dim: usize) -> Self {
+                assert!(dim == typenum::$D::to_usize(), "Mismatched dimension.");
+                $D
+            }
+
+            #[inline]
+            fn value(&self) -> usize {
+                typenum::$D::to_usize()
+            }
+        }
+
+        impl DimName for $D {
+            type Value = typenum::$D;
+
+            #[inline]
+            fn name() -> Self {
+                $D
+            }
+        }
+
+        impl NamedDim for typenum::$D {
+            type Name = $D;
+        }
+
+        impl IsNotStaticOne for $D { }
+    )*}
+);
+
+// We give explicit names to all Unsigned in [0, 128[
+named_dimension!(
+    U0, /*U1,*/ U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18,
+    U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, U32, U33, U34, U35, U36, U37,
+    U38, U39, U40, U41, U42, U43, U44, U45, U46, U47, U48, U49, U50, U51, U52, U53, U54, U55, U56,
+    U57, U58, U59, U60, U61, U62, U63, U64, U65, U66, U67, U68, U69, U70, U71, U72, U73, U74, U75,
+    U76, U77, U78, U79, U80, U81, U82, U83, U84, U85, U86, U87, U88, U89, U90, U91, U92, U93, U94,
+    U95, U96, U97, U98, U99, U100, U101, U102, U103, U104, U105, U106, U107, U108, U109, U110,
+    U111, U112, U113, U114, U115, U116, U117, U118, U119, U120, U121, U122, U123, U124, U125, U126,
+    U127
+);
+
 // For values greater than U1023, just use the typenum binary representation directly.
 impl<
         A: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
@@ -360,63 +408,3 @@ impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Syn
     for UInt<U, B>
 {
 }
-
-macro_rules! named_dimension(
-    ($($D: ident),* $(,)*) => {$(
-        /// A type level dimension.
-        #[derive(Debug, Copy, Clone, Hash, Eq)]
-        #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-        pub struct $D;
-
-        impl Dim for $D {
-            #[inline]
-            fn try_to_usize() -> Option<usize> {
-                Some(typenum::$D::to_usize())
-            }
-
-            #[inline]
-            fn from_usize(dim: usize) -> Self {
-                assert!(dim == typenum::$D::to_usize(), "Mismatched dimension.");
-                $D
-            }
-
-            #[inline]
-            fn value(&self) -> usize {
-                typenum::$D::to_usize()
-            }
-        }
-
-        impl DimName for $D {
-            type Value = typenum::$D;
-
-            #[inline]
-            fn name() -> Self {
-                $D
-            }
-        }
-
-        impl NamedDim for typenum::$D {
-            type Name = $D;
-        }
-
-        impl IsNotStaticOne for $D { }
-
-        impl<T: Dim> PartialEq<T> for $D {
-            fn eq(&self, other: &T) -> bool {
-                self.value() == other.value()
-            }
-        }
-    )*}
-);
-
-// We give explicit names to all Unsigned in [0, 128[
-named_dimension!(
-    U0, /*U1,*/ U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18,
-    U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, U32, U33, U34, U35, U36, U37,
-    U38, U39, U40, U41, U42, U43, U44, U45, U46, U47, U48, U49, U50, U51, U52, U53, U54, U55, U56,
-    U57, U58, U59, U60, U61, U62, U63, U64, U65, U66, U67, U68, U69, U70, U71, U72, U73, U74, U75,
-    U76, U77, U78, U79, U80, U81, U82, U83, U84, U85, U86, U87, U88, U89, U90, U91, U92, U93, U94,
-    U95, U96, U97, U98, U99, U100, U101, U102, U103, U104, U105, U106, U107, U108, U109, U110,
-    U111, U112, U113, U114, U115, U116, U117, U118, U119, U120, U121, U122, U123, U124, U125, U126,
-    U127,
-);
