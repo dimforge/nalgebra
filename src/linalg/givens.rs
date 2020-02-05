@@ -38,7 +38,8 @@ impl<N: ComplexField> GivensRotation<N> {
 
     /// Initializes a Givens rotation from its non-normalized cosine an sine components.
     pub fn new(c: N, s: N) -> (Self, N) {
-        Self::try_new(c, s, N::RealField::zero()).unwrap()
+        Self::try_new(c, s, N::RealField::zero())
+            .unwrap_or_else(|| (GivensRotation::identity(), N::zero()))
     }
 
     /// Initializes a Givens rotation form its non-normalized cosine an sine components.
