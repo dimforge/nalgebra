@@ -185,8 +185,24 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.norm_squared()
     }
 
+
+    /// Sets the magnitude of this vector unless it is smaller than `min_magnitude`.
+    ///
+    /// If `self.magnitude()` is smaller than `min_magnitude`, it will be left unchanged.
+    /// Otherwise this is equivalent to: `*self = self.normalize() * magnitude.
+    #[inline]
+    pub fn try_set_magnitude(&mut self, magnitude: N::RealField, min_magnitude: N::RealField)
+        where S: StorageMut<N, R, C> {
+        let n = self.norm();
+
+        if n >= min_magnitude {
+            self.scale_mut(magnitude / n)
+        }
+    }
+
     /// Returns a normalized version of this matrix.
     #[inline]
+    #[must_use = "Did you mean to use normalize_mut()?"]
     pub fn normalize(&self) -> MatrixMN<N, R, C>
         where DefaultAllocator: Allocator<N, R, C> {
         self.unscale(self.norm())
@@ -194,6 +210,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
     /// Returns a normalized version of this matrix unless its norm as smaller or equal to `eps`.
     #[inline]
+    #[must_use = "Did you mean to use try_normalize_mut()?"]
     pub fn try_normalize(&self, min_norm: N::RealField) -> Option<MatrixMN<N, R, C>>
         where DefaultAllocator: Allocator<N, R, C> {
         let n = self.norm();
@@ -225,7 +242,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S>
 
     /// Normalizes this matrix in-place or does nothing if its norm is smaller or equal to `eps`.
     ///
-    /// If the normalization succeeded, returns the old normal of this matrix.
+    /// If the normalization succeeded, returns the old norm of this matrix.
     #[inline]
     pub fn try_normalize_mut(&mut self, min_norm: N::RealField) -> Option<N::RealField> {
         let n = self.norm();

@@ -268,6 +268,21 @@ impl<N, R: Dim> Extend<N> for VecStorage<N, R, Dynamic>
     }
 }
 
+impl<'a, N: 'a + Copy, R: Dim> Extend<&'a N> for VecStorage<N, R, Dynamic>
+{
+    /// Extends the number of columns of the `VecStorage` with elements
+    /// from the given iterator.
+    ///
+    /// # Panics
+    /// This function panics if the number of elements yielded by the
+    /// given iterator is not a multiple of the number of rows of the
+    /// `VecStorage`.
+    fn extend<I: IntoIterator<Item=&'a N>>(&mut self, iter: I)
+    {
+        self.extend(iter.into_iter().copied())
+    }
+}
+
 impl<N, R, RV, SV> Extend<Vector<N, RV, SV>> for VecStorage<N, R, Dynamic>
 where
     N: Scalar,
@@ -291,7 +306,7 @@ where
         self.data.reserve(nrows * lower);
         for vector in iter {
             assert_eq!(nrows, vector.shape().0);
-            self.data.extend(vector.iter());
+            self.data.extend(vector.iter().cloned());
         }
         self.ncols = Dynamic::new(self.data.len() / nrows);
     }

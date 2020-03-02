@@ -34,7 +34,7 @@ where DefaultAllocator: Allocator<N, D, D>
     l: MatrixN<N, D>,
 }
 
-impl<N: Scalar, D: Dim> Copy for Cholesky<N, D>
+impl<N: Scalar + Copy, D: Dim> Copy for Cholesky<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
@@ -175,7 +175,7 @@ where DefaultAllocator: Allocator<N, D, D>
  */
 /// Trait implemented by floats (`f32`, `f64`) and complex floats (`Complex<f32>`, `Complex<f64>`)
 /// supported by the cholesky decomposition.
-pub trait CholeskyScalar: Scalar {
+pub trait CholeskyScalar: Scalar + Copy {
     #[allow(missing_docs)]
     fn xpotrf(uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32);
     #[allow(missing_docs)]

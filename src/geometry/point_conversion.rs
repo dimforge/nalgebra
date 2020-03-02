@@ -72,7 +72,7 @@ where
 
     #[inline]
     unsafe fn from_superset_unchecked(v: &VectorN<N2, DimNameSum<D, U1>>) -> Self {
-        let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()];
+        let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()].inlined_clone();
         Self {
             coords: crate::convert_unchecked(coords)
         }

@@ -120,6 +120,7 @@ impl<N: RealField> Quaternion<N> {
     /// relative_eq!(q_normalized.norm(), 1.0);
     /// ```
     #[inline]
+    #[must_use = "Did you mean to use normalize_mut()?"]
     pub fn normalize(&self) -> Self {
         Self::from(self.coords.normalize())
     }
@@ -140,6 +141,7 @@ impl<N: RealField> Quaternion<N> {
     /// assert!(conj.i == -2.0 && conj.j == -3.0 && conj.k == -4.0 && conj.w == 1.0);
     /// ```
     #[inline]
+    #[must_use = "Did you mean to use conjugate_mut()?"]
     pub fn conjugate(&self) -> Self {
         Self::from_parts(self.w, -self.imag())
     }
@@ -163,6 +165,7 @@ impl<N: RealField> Quaternion<N> {
     /// assert!(inv_q.is_none());
     /// ```
     #[inline]
+    #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(&self) -> Option<Self> {
         let mut res = Self::from(self.coords.clone_owned());
 
@@ -974,6 +977,7 @@ impl<N: RealField> UnitQuaternion<N> {
     /// assert_eq!(conj, UnitQuaternion::from_axis_angle(&-axis, 1.78));
     /// ```
     #[inline]
+    #[must_use = "Did you mean to use conjugate_mut()?"]
     pub fn conjugate(&self) -> Self {
         Self::new_unchecked(self.as_ref().conjugate())
     }
@@ -990,6 +994,7 @@ impl<N: RealField> UnitQuaternion<N> {
     /// assert_eq!(inv * rot, UnitQuaternion::identity());
     /// ```
     #[inline]
+    #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(&self) -> Self {
         self.conjugate()
     }
@@ -1067,13 +1072,22 @@ impl<N: RealField> UnitQuaternion<N> {
     ///
     /// Panics if the angle between both quaternion is 180 degrees (in which case the interpolation
     /// is not well-defined). Use `.try_slerp` instead to avoid the panic.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::geometry::UnitQuaternion;
+    ///
+    /// let q1 = UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
+    /// let q2 = UnitQuaternion::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
+    ///
+    /// let q = q1.slerp(&q2, 1.0 / 3.0);
+    ///
+    /// assert_eq!(q.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
+    /// ```
     #[inline]
     pub fn slerp(&self, other: &Self, t: N) -> Self {
-        Unit::new_unchecked(Quaternion::from(
-            Unit::new_unchecked(self.coords)
-                .slerp(&Unit::new_unchecked(other.coords), t)
-                .into_inner(),
-        ))
+        self.try_slerp(other, t, N::default_epsilon()).expect("Quaternion slerp: ambiguous configuration.")
     }
 
     /// Computes the spherical linear interpolation between two unit quaternions or returns `None`
@@ -1094,9 +1108,16 @@ impl<N: RealField> UnitQuaternion<N> {
         epsilon: N,
     ) -> Option<Self>
     {
-        Unit::new_unchecked(self.coords)
-            .try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
-            .map(|q| Unit::new_unchecked(Quaternion::from(q.into_inner())))
+        let coords = if self.coords.dot(&other.coords) < N::zero() {
+            Unit::new_unchecked(self.coords)
+                .try_slerp(&Unit::new_unchecked(-other.coords), t, epsilon)
+        } else {
+            Unit::new_unchecked(self.coords)
+                .try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
+        };
+
+
+        coords.map(|q| Unit::new_unchecked(Quaternion::from(q.into_inner())))
     }
 
     /// Compute the conjugate of this unit quaternion in-place.

@@ -99,7 +99,7 @@ where DefaultAllocator: Allocator<N, D>
         DefaultAllocator: Allocator<N, DimNameSum<D, U1>>,
     {
         if !v[D::dim()].is_zero() {
-            let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()];
+            let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()].inlined_clone();
             Some(Self::from(coords))
         } else {
             None

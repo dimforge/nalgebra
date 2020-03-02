@@ -5,7 +5,7 @@ use std::fmt::Debug;
 /// The basic scalar type for all structures of `nalgebra`.
 ///
 /// This does not make any assumption on the algebraic properties of `Self`.
-pub trait Scalar: Copy + PartialEq + Debug + Any {
+pub trait Scalar: Clone + PartialEq + Debug + Any {
     #[inline]
     /// Tests if `Self` the same as the type `T`
     ///
@@ -13,5 +13,17 @@ pub trait Scalar: Copy + PartialEq + Debug + Any {
     fn is<T: Scalar>() -> bool {
         TypeId::of::<Self>() == TypeId::of::<T>()
     }
+
+    #[inline(always)]
+    /// Performance hack: Clone doesn't get inlined for Copy types in debug mode, so make it inline anyway.
+    fn inlined_clone(&self) -> Self {
+        self.clone()
+    }
 }
-impl<T: Copy + PartialEq + Debug + Any> Scalar for T {}
+
+impl<T: Copy + PartialEq + Debug + Any> Scalar for T {
+    #[inline(always)]
+    fn inlined_clone(&self) -> T {
+        *self
+    }
+}

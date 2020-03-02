@@ -61,7 +61,7 @@ macro_rules! component_binop_impl(
                 for j in 0 .. res.ncols() {
                     for i in 0 .. res.nrows() {
                         unsafe {
-                            res.get_unchecked_mut((i, j)).$op_assign(*rhs.get_unchecked((i, j)));
+                            res.get_unchecked_mut((i, j)).$op_assign(rhs.get_unchecked((i, j)).inlined_clone());
                         }
                     }
                 }
@@ -89,7 +89,7 @@ macro_rules! component_binop_impl(
                     for j in 0 .. self.ncols() {
                         for i in 0 .. self.nrows() {
                             unsafe {
-                                let res = alpha * a.get_unchecked((i, j)).$op(*b.get_unchecked((i, j)));
+                                let res = alpha.inlined_clone() * a.get_unchecked((i, j)).inlined_clone().$op(b.get_unchecked((i, j)).inlined_clone());
                                 *self.get_unchecked_mut((i, j)) = res;
                             }
                         }
@@ -99,8 +99,8 @@ macro_rules! component_binop_impl(
                     for j in 0 .. self.ncols() {
                         for i in 0 .. self.nrows() {
                             unsafe {
-                                let res = alpha * a.get_unchecked((i, j)).$op(*b.get_unchecked((i, j)));
-                                *self.get_unchecked_mut((i, j)) = beta * *self.get_unchecked((i, j)) + res;
+                                let res = alpha.inlined_clone() * a.get_unchecked((i, j)).inlined_clone().$op(b.get_unchecked((i, j)).inlined_clone());
+                                *self.get_unchecked_mut((i, j)) = beta.inlined_clone() * self.get_unchecked((i, j)).inlined_clone() + res;
                             }
                         }
                     }
@@ -121,7 +121,7 @@ macro_rules! component_binop_impl(
                 for j in 0 .. self.ncols() {
                     for i in 0 .. self.nrows() {
                         unsafe {
-                            self.get_unchecked_mut((i, j)).$op_assign(*rhs.get_unchecked((i, j)));
+                            self.get_unchecked_mut((i, j)).$op_assign(rhs.get_unchecked((i, j)).inlined_clone());
                         }
                     }
                 }

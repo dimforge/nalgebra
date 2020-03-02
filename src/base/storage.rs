@@ -72,7 +72,7 @@ pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
     /// Gets the address of the i-th matrix component without performing bound-checking.
     #[inline]
     unsafe fn get_address_unchecked_linear(&self, i: usize) -> *const N {
-        self.ptr().offset(i as isize)
+        self.ptr().wrapping_offset(i as isize)
     }
 
     /// Gets the address of the i-th matrix component without performing bound-checking.
@@ -124,7 +124,7 @@ pub unsafe trait StorageMut<N: Scalar, R: Dim, C: Dim = U1>: Storage<N, R, C> {
     /// Gets the mutable address of the i-th matrix component without performing bound-checking.
     #[inline]
     unsafe fn get_address_unchecked_linear_mut(&mut self, i: usize) -> *mut N {
-        self.ptr_mut().offset(i as isize)
+        self.ptr_mut().wrapping_offset(i as isize)
     }
 
     /// Gets the mutable address of the i-th matrix component without performing bound-checking.

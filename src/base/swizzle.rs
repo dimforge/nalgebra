@@ -12,7 +12,7 @@ macro_rules! impl_swizzle {
                     /// Builds a new vector from components of `self`.
                     #[inline]
                     pub fn $name(&self) -> $Result<N> {
-                        $Result::new($(self[$i]),*)
+                        $Result::new($(self[$i].inlined_clone()),*)
                     }
                 )*
             }

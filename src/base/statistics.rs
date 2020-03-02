@@ -1,5 +1,5 @@
 use crate::{Scalar, Dim, Matrix, VectorN, RowVectorN, DefaultAllocator, U1, VectorSliceN};
-use alga::general::{Field, SupersetOf};
+use alga::general::{AdditiveMonoid, Field, SupersetOf};
 use crate::storage::Storage;
 use crate::allocator::Allocator;
 
@@ -54,7 +54,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + AdditiveMonoid, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /*
      *
      * Sum computation.
@@ -83,11 +83,15 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     /// # Example
     ///
     /// ```
-    /// # use nalgebra::{Matrix2x3, RowVector3};
+    /// # use nalgebra::{Matrix2x3, Matrix3x2};
+    /// # use nalgebra::{RowVector2, RowVector3};
     ///
     /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
     ///                        4.0, 5.0, 6.0);
     /// assert_eq!(m.row_sum(), RowVector3::new(5.0, 7.0, 9.0));
+    ///
+    /// let mint = Matrix3x2::new(1,2,3,4,5,6);
+    /// assert_eq!(mint.row_sum(), RowVector2::new(9,12));
     /// ```
     #[inline]
     pub fn row_sum(&self) -> RowVectorN<N, C>
@@ -100,11 +104,15 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     /// # Example
     ///
     /// ```
-    /// # use nalgebra::{Matrix2x3, Vector3};
+    /// # use nalgebra::{Matrix2x3, Matrix3x2};
+    /// # use nalgebra::{Vector2, Vector3};
     ///
     /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
     ///                        4.0, 5.0, 6.0);
     /// assert_eq!(m.row_sum_tr(), Vector3::new(5.0, 7.0, 9.0));
+    ///
+    /// let mint = Matrix3x2::new(1,2,3,4,5,6);
+    /// assert_eq!(mint.row_sum_tr(), Vector2::new(9,12));
     /// ```
     #[inline]
     pub fn row_sum_tr(&self) -> VectorN<N, C>
@@ -117,21 +125,27 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     /// # Example
     ///
     /// ```
-    /// # use nalgebra::{Matrix2x3, Vector2};
+    /// # use nalgebra::{Matrix2x3, Matrix3x2};
+    /// # use nalgebra::{Vector2, Vector3};
     ///
     /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
     ///                        4.0, 5.0, 6.0);
     /// assert_eq!(m.column_sum(), Vector2::new(6.0, 15.0));
+    ///
+    /// let mint = Matrix3x2::new(1,2,3,4,5,6);
+    /// assert_eq!(mint.column_sum(), Vector3::new(3,7,11));
     /// ```
     #[inline]
     pub fn column_sum(&self) -> VectorN<N, R>
         where DefaultAllocator: Allocator<N, R> {
         let nrows = self.data.shape().0;
         self.compress_columns(VectorN::zeros_generic(nrows, U1), |out, col| {
-            out.axpy(N::one(), &col, N::one())
+            *out += col;
         })
     }
+}
 
+impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /*
      *
      * Variance computation.
@@ -154,9 +168,10 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
         if self.len() == 0 {
             N::zero()
         } else {
-            let val = self.iter().cloned().fold((N::zero(), N::zero()), |a, b| (a.0 + b * b, a.1 + b));
+            let val = self.iter().cloned().fold((N::zero(), N::zero()), |a, b| (a.0 + b.inlined_clone() * b.inlined_clone(), a.1 + b));
             let denom = N::one() / crate::convert::<_, N>(self.len() as f64);
-            val.0 * denom - (val.1 * denom) * (val.1 * denom)
+            let vd = val.1 * denom.inlined_clone();
+            val.0 * denom - vd.inlined_clone() * vd
         }
     }
 
@@ -213,14 +228,14 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
         let (nrows, ncols) = self.data.shape();
 
         let mut mean = self.column_mean();
-        mean.apply(|e| -(e * e));
+        mean.apply(|e| -(e.inlined_clone() * e));
 
         let denom = N::one() / crate::convert::<_, N>(ncols.value() as f64);
         self.compress_columns(mean, |out, col| {
             for i in 0..nrows.value() {
                 unsafe {
                     let val = col.vget_unchecked(i);
-                    *out.vget_unchecked_mut(i) += denom * *val * *val
+                    *out.vget_unchecked_mut(i) += denom.inlined_clone() * val.inlined_clone() * val.inlined_clone()
                 }
             }
         })
@@ -304,7 +319,7 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
         let (nrows, ncols) = self.data.shape();
         let denom = N::one() / crate::convert::<_, N>(ncols.value() as f64);
         self.compress_columns(VectorN::zeros_generic(nrows, U1), |out, col| {
-            out.axpy(denom, &col, N::one())
+            out.axpy(denom.inlined_clone(), &col, N::one())
         })
     }
 }

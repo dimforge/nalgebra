@@ -40,7 +40,7 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>
     tau: VectorN<N, DimMinimum<R, C>>,
 }
 
-impl<N: Scalar, R: DimMin<C>, C: Dim> Copy for QR<N, R, C>
+impl<N: Scalar + Copy, R: DimMin<C>, C: Dim> Copy for QR<N, R, C>
 where
     DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
@@ -166,7 +166,7 @@ where DefaultAllocator: Allocator<N, R, C>
  */
 /// Trait implemented by scalar types for which Lapack function exist to compute the
 /// QR decomposition.
-pub trait QRScalar: Scalar {
+pub trait QRScalar: Scalar + Copy {
     fn xgeqrf(
         m: i32,
         n: i32,

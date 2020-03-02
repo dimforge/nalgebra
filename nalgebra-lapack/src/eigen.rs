@@ -44,7 +44,7 @@ where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
     pub left_eigenvectors: Option<MatrixN<N, D>>,
 }
 
-impl<N: Scalar, D: Dim> Copy for Eigen<N, D>
+impl<N: Scalar + Copy, D: Dim> Copy for Eigen<N, D>
 where
     DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
     VectorN<N, D>: Copy,

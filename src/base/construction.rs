@@ -84,7 +84,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
         for i in 0..nrows.value() {
             for j in 0..ncols.value() {
-                unsafe { *res.get_unchecked_mut((i, j)) = *iter.next().unwrap() }
+                unsafe { *res.get_unchecked_mut((i, j)) = iter.next().unwrap().inlined_clone() }
             }
         }
 
@@ -134,7 +134,7 @@ where DefaultAllocator: Allocator<N, R, C>
         let mut res = Self::zeros_generic(nrows, ncols);
 
         for i in 0..crate::min(nrows.value(), ncols.value()) {
-            unsafe { *res.get_unchecked_mut((i, i)) = elt }
+            unsafe { *res.get_unchecked_mut((i, i)) = elt.inlined_clone() }
         }
 
         res
@@ -154,7 +154,7 @@ where DefaultAllocator: Allocator<N, R, C>
         );
 
         for (i, elt) in elts.iter().enumerate() {
-            unsafe { *res.get_unchecked_mut((i, i)) = *elt }
+            unsafe { *res.get_unchecked_mut((i, i)) = elt.inlined_clone() }
         }
 
         res
@@ -196,7 +196,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
         // FIXME: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
-            rows[i][(0, j)]
+            rows[i][(0, j)].inlined_clone()
         })
     }
 
@@ -236,7 +236,7 @@ where DefaultAllocator: Allocator<N, R, C>
 
         // FIXME: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
-            columns[j][i]
+            columns[j][i].inlined_clone()
         })
     }
 
@@ -315,7 +315,7 @@ where
 
         for i in 0..diag.len() {
             unsafe {
-                *res.get_unchecked_mut((i, i)) = *diag.vget_unchecked(i);
+                *res.get_unchecked_mut((i, i)) = diag.vget_unchecked(i).inlined_clone();
             }
         }
 

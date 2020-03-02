@@ -333,7 +333,7 @@ where
     let (pivot_row, mut down) = submat.rows_range_pair_mut(0, 1..);
 
     for k in 0..pivot_row.ncols() {
-        down.column_mut(k).axpy(-pivot_row[k], &coeffs, N::one());
+        down.column_mut(k).axpy(-pivot_row[k].inlined_clone(), &coeffs, N::one());
     }
 }
 
@@ -364,7 +364,7 @@ pub fn gauss_step_swap<N, R: Dim, C: Dim, S>(
 
     for k in 0..pivot_row.ncols() {
         mem::swap(&mut pivot_row[k], &mut down[(piv - 1, k)]);
-        down.column_mut(k).axpy(-pivot_row[k], &coeffs, N::one());
+        down.column_mut(k).axpy(-pivot_row[k].inlined_clone(), &coeffs, N::one());
     }
 }
 

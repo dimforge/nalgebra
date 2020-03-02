@@ -119,7 +119,7 @@ where
     #[inline]
     pub fn neg_mut(&mut self) {
         for e in self.iter_mut() {
-            *e = -*e
+            *e = -e.inlined_clone()
         }
     }
 }
@@ -164,7 +164,7 @@ macro_rules! componentwise_binop_impl(
                     let out  = out.data.as_mut_slice();
                     for i in 0 .. arr1.len() {
                         unsafe {
-                            *out.get_unchecked_mut(i) = arr1.get_unchecked(i).$method(*arr2.get_unchecked(i));
+                            *out.get_unchecked_mut(i) = arr1.get_unchecked(i).inlined_clone().$method(arr2.get_unchecked(i).inlined_clone());
                         }
                     }
                 }
@@ -172,7 +172,7 @@ macro_rules! componentwise_binop_impl(
                     for j in 0 .. self.ncols() {
                         for i in 0 .. self.nrows() {
                             unsafe {
-                                let val = self.get_unchecked((i, j)).$method(*rhs.get_unchecked((i, j)));
+                                let val = self.get_unchecked((i, j)).inlined_clone().$method(rhs.get_unchecked((i, j)).inlined_clone());
                                 *out.get_unchecked_mut((i, j)) = val;
                             }
                         }
@@ -196,7 +196,7 @@ macro_rules! componentwise_binop_impl(
                     let arr2 = rhs.data.as_slice();
                     for i in 0 .. arr2.len() {
                         unsafe {
-                            arr1.get_unchecked_mut(i).$method_assign(*arr2.get_unchecked(i));
+                            arr1.get_unchecked_mut(i).$method_assign(arr2.get_unchecked(i).inlined_clone());
                         }
                     }
                 }
@@ -204,7 +204,7 @@ macro_rules! componentwise_binop_impl(
                     for j in 0 .. rhs.ncols() {
                         for i in 0 .. rhs.nrows() {
                             unsafe {
-                                self.get_unchecked_mut((i, j)).$method_assign(*rhs.get_unchecked((i, j)))
+                                self.get_unchecked_mut((i, j)).$method_assign(rhs.get_unchecked((i, j)).inlined_clone())
                             }
                         }
                     }
@@ -226,7 +226,7 @@ macro_rules! componentwise_binop_impl(
                     let arr2 = rhs.data.as_mut_slice();
                     for i in 0 .. arr1.len() {
                         unsafe {
-                            let res = arr1.get_unchecked(i).$method(*arr2.get_unchecked(i));
+                            let res = arr1.get_unchecked(i).inlined_clone().$method(arr2.get_unchecked(i).inlined_clone());
                             *arr2.get_unchecked_mut(i) = res;
                         }
                     }
@@ -236,7 +236,7 @@ macro_rules! componentwise_binop_impl(
                         for i in 0 .. self.nrows() {
                             unsafe {
                                 let r = rhs.get_unchecked_mut((i, j));
-                                *r = self.get_unchecked((i, j)).$method(*r)
+                                *r = self.get_unchecked((i, j)).inlined_clone().$method(r.inlined_clone())
                             }
                         }
                     }
@@ -482,7 +482,7 @@ macro_rules! componentwise_scalarop_impl(
 
                 // for left in res.iter_mut() {
                 for left in res.as_mut_slice().iter_mut() {
-                    *left = left.$method(rhs)
+                    *left = left.inlined_clone().$method(rhs.inlined_clone())
                 }
 
                 res
@@ -508,7 +508,7 @@ macro_rules! componentwise_scalarop_impl(
             fn $method_assign(&mut self, rhs: N) {
                 for j in 0 .. self.ncols() {
                     for i in 0 .. self.nrows() {
-                        unsafe { self.get_unchecked_mut((i, j)).$method_assign(rhs) };
+                        unsafe { self.get_unchecked_mut((i, j)).$method_assign(rhs.inlined_clone()) };
                     }
                 }
             }
@@ -810,10 +810,10 @@ where
                 for j2 in 0..ncols2.value() {
                     for i1 in 0..nrows1.value() {
                         unsafe {
-                            let coeff = *self.get_unchecked((i1, j1));
+                            let coeff = self.get_unchecked((i1, j1)).inlined_clone();
 
                             for i2 in 0..nrows2.value() {
-                                *data_res = coeff * *rhs.get_unchecked((i2, j2));
+                                *data_res = coeff.inlined_clone() * rhs.get_unchecked((i2, j2)).inlined_clone();
                                 data_res = data_res.offset(1);
                             }
                         }
@@ -829,6 +829,7 @@ where
 impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Adds a scalar to `self`.
     #[inline]
+    #[must_use = "Did you mean to use add_scalar_mut()?"]
     pub fn add_scalar(&self, rhs: N) -> MatrixMN<N, R, C>
     where DefaultAllocator: Allocator<N, R, C> {
         let mut res = self.clone_owned();
@@ -841,7 +842,7 @@ impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C,
     pub fn add_scalar_mut(&mut self, rhs: N)
     where S: StorageMut<N, R, C> {
         for e in self.iter_mut() {
-            *e += rhs
+            *e += rhs.inlined_clone()
         }
     }
 }
@@ -874,7 +875,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         let mut max = iter.next().cloned().map_or(N2::zero(), &abs);
 
         for e in iter {
-            let ae = abs(*e);
+            let ae = abs(e.inlined_clone());
 
             if ae.partial_cmp(&max) == Some(ordering) {
                     max = ae;

@@ -47,7 +47,7 @@ where DefaultAllocator: Allocator<N, R, R> + Allocator<N, DimMinimum<R, C>> + Al
     pub singular_values: VectorN<N, DimMinimum<R, C>>,
 }
 
-impl<N: Scalar, R: DimMin<C>, C: Dim> Copy for SVD<N, R, C>
+impl<N: Scalar + Copy, R: DimMin<C>, C: Dim> Copy for SVD<N, R, C>
 where
     DefaultAllocator: Allocator<N, C, C> + Allocator<N, R, R> + Allocator<N, DimMinimum<R, C>>,
     MatrixMN<N, R, R>: Copy,

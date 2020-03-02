@@ -11,11 +11,11 @@ impl<D: DimName + DimMin<D, Output = Self>> Dimension for D {}
 
 /// A number that can either be an integer or a float.
 pub trait Number:
-    Scalar + Ring + Lattice + AbsDiffEq<Epsilon = Self> + Signed + FromPrimitive + Bounded
+    Scalar + Copy + Ring + Lattice + AbsDiffEq<Epsilon = Self> + Signed + FromPrimitive + Bounded
 {
 }
 
-impl<T: Scalar + Ring + Lattice + AbsDiffEq<Epsilon = Self> + Signed + FromPrimitive + Bounded>
+impl<T: Scalar + Copy + Ring + Lattice + AbsDiffEq<Epsilon = Self> + Signed + FromPrimitive + Bounded>
     Number for T
 {}
 

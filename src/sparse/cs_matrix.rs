@@ -25,7 +25,7 @@ impl<'a, N> ColumnEntries<'a, N> {
     }
 }
 
-impl<'a, N: Copy> Iterator for ColumnEntries<'a, N> {
+impl<'a, N: Clone> Iterator for ColumnEntries<'a, N> {
     type Item = (usize, N);
 
     #[inline]
@@ -33,8 +33,8 @@ impl<'a, N: Copy> Iterator for ColumnEntries<'a, N> {
         if self.curr >= self.i.len() {
             None
         } else {
-            let res = Some((unsafe { *self.i.get_unchecked(self.curr) }, unsafe {
-                *self.v.get_unchecked(self.curr)
+            let res = Some((unsafe { self.i.get_unchecked(self.curr).clone() }, unsafe {
+                self.v.get_unchecked(self.curr).clone()
             }));
             self.curr += 1;
             res
@@ -470,7 +470,7 @@ where DefaultAllocator: Allocator<usize, C>
 
             // Permute the values too.
             for (i, irow) in range.clone().zip(self.data.i[range].iter().cloned()) {
-                self.data.vals[i] = workspace[irow];
+                self.data.vals[i] = workspace[irow].inlined_clone();
             }
         }
     }
@@ -492,11 +492,11 @@ where DefaultAllocator: Allocator<usize, C>
                     let curr_irow = self.data.i[idx];
 
                     if curr_irow == irow {
-                        value += self.data.vals[idx];
+                        value += self.data.vals[idx].inlined_clone();
                     } else {
                         self.data.i[curr_i] = irow;
                         self.data.vals[curr_i] = value;
-                        value = self.data.vals[idx];
+                        value = self.data.vals[idx].inlined_clone();
                         irow = curr_irow;
                         curr_i += 1;
                     }

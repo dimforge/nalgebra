@@ -37,7 +37,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
     tau: VectorN<N, DimDiff<D, U1>>,
 }
 
-impl<N: Scalar, D: DimSub<U1>> Copy for Hessenberg<N, D>
+impl<N: Scalar + Copy, D: DimSub<U1>> Copy for Hessenberg<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
     MatrixN<N, D>: Copy,
@@ -137,7 +137,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
  * Lapack functions dispatch.
  *
  */
-pub trait HessenbergScalar: Scalar {
+pub trait HessenbergScalar: Scalar + Copy {
     fn xgehrd(
         n: i32,
         ilo: i32,

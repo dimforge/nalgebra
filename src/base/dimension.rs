@@ -241,7 +241,7 @@ impl NamedDim for typenum::U1 {
     type Name = U1;
 }
 
-macro_rules! named_dimension(
+macro_rules! named_dimension (
     ($($D: ident),* $(,)*) => {$(
         /// A type level dimension.
         #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]

@@ -44,7 +44,7 @@ where
     {
         let mut res = Self::one();
         for i in 0..scaling.len() {
-            res[(i, i)] = scaling[i];
+            res[(i, i)] = scaling[i].inlined_clone();
         }
 
         res
@@ -156,6 +156,7 @@ impl<N: RealField> Matrix4<N> {
 impl<N: Scalar + Ring, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the transformation equal to `self` followed by an uniform scaling factor.
     #[inline]
+    #[must_use = "Did you mean to use append_scaling_mut()?"]
     pub fn append_scaling(&self, scaling: N) -> MatrixN<N, D>
     where
         D: DimNameSub<U1>,
@@ -168,6 +169,7 @@ impl<N: Scalar + Ring, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
     /// Computes the transformation equal to an uniform scaling factor followed by `self`.
     #[inline]
+    #[must_use = "Did you mean to use prepend_scaling_mut()?"]
     pub fn prepend_scaling(&self, scaling: N) -> MatrixN<N, D>
     where
         D: DimNameSub<U1>,
@@ -180,6 +182,7 @@ impl<N: Scalar + Ring, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
     /// Computes the transformation equal to `self` followed by a non-uniform scaling factor.
     #[inline]
+    #[must_use = "Did you mean to use append_nonuniform_scaling_mut()?"]
     pub fn append_nonuniform_scaling<SB>(
         &self,
         scaling: &Vector<N, DimNameDiff<D, U1>, SB>,
@@ -196,6 +199,7 @@ impl<N: Scalar + Ring, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
     /// Computes the transformation equal to a non-uniform scaling factor followed by `self`.
     #[inline]
+    #[must_use = "Did you mean to use prepend_nonuniform_scaling_mut()?"]
     pub fn prepend_nonuniform_scaling<SB>(
         &self,
         scaling: &Vector<N, DimNameDiff<D, U1>, SB>,
@@ -212,6 +216,7 @@ impl<N: Scalar + Ring, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
     /// Computes the transformation equal to `self` followed by a translation.
     #[inline]
+    #[must_use = "Did you mean to use append_translation_mut()?"]
     pub fn append_translation<SB>(&self, shift: &Vector<N, DimNameDiff<D, U1>, SB>) -> MatrixN<N, D>
     where
         D: DimNameSub<U1>,
@@ -225,6 +230,7 @@ impl<N: Scalar + Ring, D: DimName, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
     /// Computes the transformation equal to a translation followed by `self`.
     #[inline]
+    #[must_use = "Did you mean to use prepend_translation_mut()?"]
     pub fn prepend_translation<SB>(
         &self,
         shift: &Vector<N, DimNameDiff<D, U1>, SB>,
@@ -266,7 +272,7 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     {
         for i in 0..scaling.len() {
             let mut to_scale = self.fixed_rows_mut::<U1>(i);
-            to_scale *= scaling[i];
+            to_scale *= scaling[i].inlined_clone();
         }
     }
 
@@ -281,7 +287,7 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     {
         for i in 0..scaling.len() {
             let mut to_scale = self.fixed_columns_mut::<U1>(i);
-            to_scale *= scaling[i];
+            to_scale *= scaling[i].inlined_clone();
         }
     }
 
@@ -294,7 +300,7 @@ impl<N: Scalar + Ring, D: DimName, S: StorageMut<N, D, D>> SquareMatrix<N, D, S>
     {
         for i in 0..D::dim() {
             for j in 0..D::dim() - 1 {
-                let add = shift[j] * self[(D::dim() - 1, i)];
+                let add = shift[j].inlined_clone() * self[(D::dim() - 1, i)].inlined_clone();
                 self[(j, i)] += add;
             }
         }

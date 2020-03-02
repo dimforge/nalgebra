@@ -1,105 +1,129 @@
-#![cfg(feature = "arbitrary")]
+use na::{geometry::Quaternion, Matrix2, Vector3};
+use num_traits::{One, Zero};
 
-use na::{DMatrix, DVector};
-use std::cmp;
+#[test]
+fn gemm_noncommutative() {
+    type Qf64 = Quaternion<f64>;
+    let i = Qf64::from_imag(Vector3::new(1.0, 0.0, 0.0));
+    let j = Qf64::from_imag(Vector3::new(0.0, 1.0, 0.0));
+    let k = Qf64::from_imag(Vector3::new(0.0, 0.0, 1.0));
 
-quickcheck! {
-    /*
-     *
-     * Symmetric operators.
-     *
-     */
-    fn gemv_symm(n: usize, alpha: f64, beta: f64) -> bool {
-        let n = cmp::max(1, cmp::min(n, 50));
-        let a = DMatrix::<f64>::new_random(n, n);
-        let a = &a * a.transpose();
+    let m1 = Matrix2::new(k, Qf64::zero(), j, i);
+    // this is the inverse of m1
+    let m2 = Matrix2::new(-k, Qf64::zero(), Qf64::one(), -i);
 
-        let x = DVector::new_random(n);
-        let mut y1 = DVector::new_random(n);
-        let mut y2 = y1.clone();
+    let mut res: Matrix2<Qf64> = Matrix2::zero();
+    res.gemm(Qf64::one(), &m1, &m2, Qf64::zero());
+    assert_eq!(res, Matrix2::identity());
 
-        y1.gemv(alpha, &a, &x, beta);
-        y2.sygemv(alpha, &a.lower_triangle(), &x, beta);
+    let mut res: Matrix2<Qf64> = Matrix2::identity();
+    res.gemm(k, &m1, &m2, -k);
+    assert_eq!(res, Matrix2::zero());
+}
 
-        if !relative_eq!(y1, y2, epsilon = 1.0e-10) {
-            return false;
+#[cfg(feature = "arbitrary")]
+mod blas_quickcheck {
+    use na::{DMatrix, DVector};
+    use std::cmp;
+
+    quickcheck! {
+        /*
+         *
+         * Symmetric operators.
+         *
+         */
+        fn gemv_symm(n: usize, alpha: f64, beta: f64) -> bool {
+            let n = cmp::max(1, cmp::min(n, 50));
+            let a = DMatrix::<f64>::new_random(n, n);
+            let a = &a * a.transpose();
+
+            let x = DVector::new_random(n);
+            let mut y1 = DVector::new_random(n);
+            let mut y2 = y1.clone();
+
+            y1.gemv(alpha, &a, &x, beta);
+            y2.sygemv(alpha, &a.lower_triangle(), &x, beta);
+
+            if !relative_eq!(y1, y2, epsilon = 1.0e-10) {
+                return false;
+            }
+
+            y1.gemv(alpha, &a, &x, 0.0);
+            y2.sygemv(alpha, &a.lower_triangle(), &x, 0.0);
+
+            relative_eq!(y1, y2, epsilon = 1.0e-10)
         }
 
-        y1.gemv(alpha, &a, &x, 0.0);
-        y2.sygemv(alpha, &a.lower_triangle(), &x, 0.0);
+        fn gemv_tr(n: usize, alpha: f64, beta: f64) -> bool {
+            let n = cmp::max(1, cmp::min(n, 50));
+            let a = DMatrix::<f64>::new_random(n, n);
+            let x = DVector::new_random(n);
+            let mut y1 = DVector::new_random(n);
+            let mut y2 = y1.clone();
 
-        relative_eq!(y1, y2, epsilon = 1.0e-10)
-    }
+            y1.gemv(alpha, &a, &x, beta);
+            y2.gemv_tr(alpha, &a.transpose(), &x, beta);
 
-    fn gemv_tr(n: usize, alpha: f64, beta: f64) -> bool {
-        let n = cmp::max(1, cmp::min(n, 50));
-        let a = DMatrix::<f64>::new_random(n, n);
-        let x = DVector::new_random(n);
-        let mut y1 = DVector::new_random(n);
-        let mut y2 = y1.clone();
+            if !relative_eq!(y1, y2, epsilon = 1.0e-10) {
+                return false;
+            }
 
-        y1.gemv(alpha, &a, &x, beta);
-        y2.gemv_tr(alpha, &a.transpose(), &x, beta);
+            y1.gemv(alpha, &a, &x, 0.0);
+            y2.gemv_tr(alpha, &a.transpose(), &x, 0.0);
 
-        if !relative_eq!(y1, y2, epsilon = 1.0e-10) {
-            return false;
+            relative_eq!(y1, y2, epsilon = 1.0e-10)
         }
 
-        y1.gemv(alpha, &a, &x, 0.0);
-        y2.gemv_tr(alpha, &a.transpose(), &x, 0.0);
+        fn ger_symm(n: usize, alpha: f64, beta: f64) -> bool {
+            let n = cmp::max(1, cmp::min(n, 50));
+            let a = DMatrix::<f64>::new_random(n, n);
+            let mut a1 = &a * a.transpose();
+            let mut a2 = a1.lower_triangle();
 
-        relative_eq!(y1, y2, epsilon = 1.0e-10)
-    }
+            let x = DVector::new_random(n);
+            let y = DVector::new_random(n);
 
-    fn ger_symm(n: usize, alpha: f64, beta: f64) -> bool {
-        let n = cmp::max(1, cmp::min(n, 50));
-        let a = DMatrix::<f64>::new_random(n, n);
-        let mut a1 = &a * a.transpose();
-        let mut a2 = a1.lower_triangle();
+            a1.ger(alpha, &x, &y, beta);
+            a2.syger(alpha, &x, &y, beta);
 
-        let x = DVector::new_random(n);
-        let y = DVector::new_random(n);
+            if !relative_eq!(a1.lower_triangle(), a2) {
+                return false;
+            }
 
-        a1.ger(alpha, &x, &y, beta);
-        a2.syger(alpha, &x, &y, beta);
+            a1.ger(alpha, &x, &y, 0.0);
+            a2.syger(alpha, &x, &y, 0.0);
 
-        if !relative_eq!(a1.lower_triangle(), a2) {
-            return false;
+            relative_eq!(a1.lower_triangle(), a2)
         }
 
-        a1.ger(alpha, &x, &y, 0.0);
-        a2.syger(alpha, &x, &y, 0.0);
+        fn quadform(n: usize, alpha: f64, beta: f64) -> bool {
+            let n       = cmp::max(1, cmp::min(n, 50));
+            let rhs     = DMatrix::<f64>::new_random(6, n);
+            let mid     = DMatrix::<f64>::new_random(6, 6);
+            let mut res = DMatrix::new_random(n, n);
 
-        relative_eq!(a1.lower_triangle(), a2)
-    }
+            let expected = &res * beta + rhs.transpose() * &mid * &rhs * alpha;
 
-    fn quadform(n: usize, alpha: f64, beta: f64) -> bool {
-        let n       = cmp::max(1, cmp::min(n, 50));
-        let rhs     = DMatrix::<f64>::new_random(6, n);
-        let mid     = DMatrix::<f64>::new_random(6, 6);
-        let mut res = DMatrix::new_random(n, n);
+            res.quadform(alpha, &mid, &rhs, beta);
 
-        let expected = &res * beta + rhs.transpose() * &mid * &rhs * alpha;
+            println!("{}{}", res, expected);
 
-        res.quadform(alpha, &mid, &rhs, beta);
+            relative_eq!(res, expected, epsilon = 1.0e-7)
+        }
 
-        println!("{}{}", res, expected);
+        fn quadform_tr(n: usize, alpha: f64, beta: f64) -> bool {
+            let n       = cmp::max(1, cmp::min(n, 50));
+            let lhs     = DMatrix::<f64>::new_random(6, n);
+            let mid     = DMatrix::<f64>::new_random(n, n);
+            let mut res = DMatrix::new_random(6, 6);
 
-        relative_eq!(res, expected, epsilon = 1.0e-7)
-    }
+            let expected = &res * beta + &lhs * &mid * lhs.transpose() * alpha;
 
-    fn quadform_tr(n: usize, alpha: f64, beta: f64) -> bool {
-        let n       = cmp::max(1, cmp::min(n, 50));
-        let lhs     = DMatrix::<f64>::new_random(6, n);
-        let mid     = DMatrix::<f64>::new_random(n, n);
-        let mut res = DMatrix::new_random(6, 6);
+            res.quadform_tr(alpha, &lhs, &mid , beta);
 
-        let expected = &res * beta + &lhs * &mid * lhs.transpose() * alpha;
+            println!("{}{}", res, expected);
 
-        res.quadform_tr(alpha, &lhs, &mid , beta);
-
-        println!("{}{}", res, expected);
-
-        relative_eq!(res, expected, epsilon = 1.0e-7)
+            relative_eq!(res, expected, epsilon = 1.0e-7)
+        }
     }
 }

@@ -40,7 +40,7 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> Copy for Rotation<N, D>
+impl<N: Scalar + Copy, D: DimName> Copy for Rotation<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     <DefaultAllocator as Allocator<N, D, D>>::Buffer: Copy,
@@ -270,6 +270,7 @@ where DefaultAllocator: Allocator<N, D, D>
     /// assert_relative_eq!(tr_rot * rot, Rotation2::identity(), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "Did you mean to use transpose_mut()?"]
     pub fn transpose(&self) -> Self {
         Self::from_matrix_unchecked(self.matrix.transpose())
     }
@@ -293,6 +294,7 @@ where DefaultAllocator: Allocator<N, D, D>
     /// assert_relative_eq!(inv * rot, Rotation2::identity(), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(&self) -> Self {
         self.transpose()
     }

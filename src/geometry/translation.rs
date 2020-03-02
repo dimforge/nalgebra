@@ -41,7 +41,7 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> Copy for Translation<N, D>
+impl<N: Scalar + Copy, D: DimName> Copy for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
@@ -130,6 +130,7 @@ where DefaultAllocator: Allocator<N, D>
     /// assert_eq!(t.inverse() * t, Translation2::identity());
     /// ```
     #[inline]
+    #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(&self) -> Translation<N, D>
     where N: ClosedNeg {
         Translation::from(-&self.vector)

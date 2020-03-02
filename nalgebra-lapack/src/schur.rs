@@ -42,7 +42,7 @@ where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
     q: MatrixN<N, D>,
 }
 
-impl<N: Scalar, D: Dim> Copy for Schur<N, D>
+impl<N: Scalar + Copy, D: Dim> Copy for Schur<N, D>
 where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
     MatrixN<N, D>: Copy,

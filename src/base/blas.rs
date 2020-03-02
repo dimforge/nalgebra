@@ -74,7 +74,7 @@ impl<N: Scalar + PartialOrd, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
             }
         }
 
-        (the_i, *the_max)
+        (the_i, the_max.inlined_clone())
     }
 
     /// Computes the index of the vector component with the largest value.
@@ -145,7 +145,7 @@ impl<N: Scalar + PartialOrd, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
             }
         }
 
-        (the_i, *the_min)
+        (the_i, the_min.inlined_clone())
     }
 
     /// Computes the index of the vector component with the smallest value.
@@ -281,27 +281,27 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         // because the `for` loop below won't be very efficient on those.
         if (R::is::<U2>() || R2::is::<U2>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = conjugate(*self.get_unchecked((0, 0))) * *rhs.get_unchecked((0, 0));
-                let b = conjugate(*self.get_unchecked((1, 0))) * *rhs.get_unchecked((1, 0));
+                let a = conjugate(self.get_unchecked((0, 0)).inlined_clone()) * rhs.get_unchecked((0, 0)).inlined_clone();
+                let b = conjugate(self.get_unchecked((1, 0)).inlined_clone()) * rhs.get_unchecked((1, 0)).inlined_clone();
 
                 return a + b;
             }
         }
         if (R::is::<U3>() || R2::is::<U3>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = conjugate(*self.get_unchecked((0, 0))) * *rhs.get_unchecked((0, 0));
-                let b = conjugate(*self.get_unchecked((1, 0))) * *rhs.get_unchecked((1, 0));
-                let c = conjugate(*self.get_unchecked((2, 0))) * *rhs.get_unchecked((2, 0));
+                let a = conjugate(self.get_unchecked((0, 0)).inlined_clone()) * rhs.get_unchecked((0, 0)).inlined_clone();
+                let b = conjugate(self.get_unchecked((1, 0)).inlined_clone()) * rhs.get_unchecked((1, 0)).inlined_clone();
+                let c = conjugate(self.get_unchecked((2, 0)).inlined_clone()) * rhs.get_unchecked((2, 0)).inlined_clone();
 
                 return a + b + c;
             }
         }
         if (R::is::<U4>() || R2::is::<U4>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let mut a = conjugate(*self.get_unchecked((0, 0))) * *rhs.get_unchecked((0, 0));
-                let mut b = conjugate(*self.get_unchecked((1, 0))) * *rhs.get_unchecked((1, 0));
-                let c = conjugate(*self.get_unchecked((2, 0))) * *rhs.get_unchecked((2, 0));
-                let d = conjugate(*self.get_unchecked((3, 0))) * *rhs.get_unchecked((3, 0));
+                let mut a = conjugate(self.get_unchecked((0, 0)).inlined_clone()) * rhs.get_unchecked((0, 0)).inlined_clone();
+                let mut b = conjugate(self.get_unchecked((1, 0)).inlined_clone()) * rhs.get_unchecked((1, 0)).inlined_clone();
+                let c = conjugate(self.get_unchecked((2, 0)).inlined_clone()) * rhs.get_unchecked((2, 0)).inlined_clone();
+                let d = conjugate(self.get_unchecked((3, 0)).inlined_clone()) * rhs.get_unchecked((3, 0)).inlined_clone();
 
                 a += c;
                 b += d;
@@ -341,14 +341,14 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
             acc7 = N::zero();
 
             while self.nrows() - i >= 8 {
-                acc0 += unsafe { conjugate(*self.get_unchecked((i + 0, j))) * *rhs.get_unchecked((i + 0, j)) };
-                acc1 += unsafe { conjugate(*self.get_unchecked((i + 1, j))) * *rhs.get_unchecked((i + 1, j)) };
-                acc2 += unsafe { conjugate(*self.get_unchecked((i + 2, j))) * *rhs.get_unchecked((i + 2, j)) };
-                acc3 += unsafe { conjugate(*self.get_unchecked((i + 3, j))) * *rhs.get_unchecked((i + 3, j)) };
-                acc4 += unsafe { conjugate(*self.get_unchecked((i + 4, j))) * *rhs.get_unchecked((i + 4, j)) };
-                acc5 += unsafe { conjugate(*self.get_unchecked((i + 5, j))) * *rhs.get_unchecked((i + 5, j)) };
-                acc6 += unsafe { conjugate(*self.get_unchecked((i + 6, j))) * *rhs.get_unchecked((i + 6, j)) };
-                acc7 += unsafe { conjugate(*self.get_unchecked((i + 7, j))) * *rhs.get_unchecked((i + 7, j)) };
+                acc0 += unsafe { conjugate(self.get_unchecked((i + 0, j)).inlined_clone()) * rhs.get_unchecked((i + 0, j)).inlined_clone() };
+                acc1 += unsafe { conjugate(self.get_unchecked((i + 1, j)).inlined_clone()) * rhs.get_unchecked((i + 1, j)).inlined_clone() };
+                acc2 += unsafe { conjugate(self.get_unchecked((i + 2, j)).inlined_clone()) * rhs.get_unchecked((i + 2, j)).inlined_clone() };
+                acc3 += unsafe { conjugate(self.get_unchecked((i + 3, j)).inlined_clone()) * rhs.get_unchecked((i + 3, j)).inlined_clone() };
+                acc4 += unsafe { conjugate(self.get_unchecked((i + 4, j)).inlined_clone()) * rhs.get_unchecked((i + 4, j)).inlined_clone() };
+                acc5 += unsafe { conjugate(self.get_unchecked((i + 5, j)).inlined_clone()) * rhs.get_unchecked((i + 5, j)).inlined_clone() };
+                acc6 += unsafe { conjugate(self.get_unchecked((i + 6, j)).inlined_clone()) * rhs.get_unchecked((i + 6, j)).inlined_clone() };
+                acc7 += unsafe { conjugate(self.get_unchecked((i + 7, j)).inlined_clone()) * rhs.get_unchecked((i + 7, j)).inlined_clone() };
                 i += 8;
             }
 
@@ -358,7 +358,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
             res += acc3 + acc7;
 
             for k in i..self.nrows() {
-                res += unsafe { conjugate(*self.get_unchecked((k, j))) * *rhs.get_unchecked((k, j)) }
+                res += unsafe { conjugate(self.get_unchecked((k, j)).inlined_clone()) * rhs.get_unchecked((k, j)).inlined_clone() }
             }
         }
 
@@ -460,7 +460,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
         for j in 0..self.nrows() {
             for i in 0..self.ncols() {
-                res += unsafe { *self.get_unchecked((j, i)) * *rhs.get_unchecked((i, j)) }
+                res += unsafe { self.get_unchecked((j, i)).inlined_clone() * rhs.get_unchecked((i, j)).inlined_clone() }
             }
         }
 
@@ -468,21 +468,21 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     }
 }
 
-fn array_axpy<N>(y: &mut [N], a: N, x: &[N], beta: N, stride1: usize, stride2: usize, len: usize)
+fn array_axcpy<N>(y: &mut [N], a: N, x: &[N], c: N, beta: N, stride1: usize, stride2: usize, len: usize)
 where N: Scalar + Zero + ClosedAdd + ClosedMul {
     for i in 0..len {
         unsafe {
             let y = y.get_unchecked_mut(i * stride1);
-            *y = a * *x.get_unchecked(i * stride2) + beta * *y;
+            *y = a.inlined_clone() * x.get_unchecked(i * stride2).inlined_clone() * c.inlined_clone() + beta.inlined_clone() * y.inlined_clone();
         }
     }
 }
 
-fn array_ax<N>(y: &mut [N], a: N, x: &[N], stride1: usize, stride2: usize, len: usize)
+fn array_axc<N>(y: &mut [N], a: N, x: &[N], c: N, stride1: usize, stride2: usize, len: usize)
 where N: Scalar + Zero + ClosedAdd + ClosedMul {
     for i in 0..len {
         unsafe {
-            *y.get_unchecked_mut(i * stride1) = a * *x.get_unchecked(i * stride2);
+            *y.get_unchecked_mut(i * stride1) = a.inlined_clone() * x.get_unchecked(i * stride2).inlined_clone() * c.inlined_clone();
         }
     }
 }
@@ -492,6 +492,40 @@ where
     N: Scalar + Zero + ClosedAdd + ClosedMul,
     S: StorageMut<N, D>,
 {
+    /// Computes `self = a * x * c + b * self`.
+    ///
+    /// If `b` is zero, `self` is never read from.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let mut vec1 = Vector3::new(1.0, 2.0, 3.0);
+    /// let vec2 = Vector3::new(0.1, 0.2, 0.3);
+    /// vec1.axcpy(5.0, &vec2, 2.0, 5.0);
+    /// assert_eq!(vec1, Vector3::new(6.0, 12.0, 18.0));
+    /// ```
+    #[inline]
+    pub fn axcpy<D2: Dim, SB>(&mut self, a: N, x: &Vector<N, D2, SB>, c: N, b: N)
+    where
+        SB: Storage<N, D2>,
+        ShapeConstraint: DimEq<D, D2>,
+    {
+        assert_eq!(self.nrows(), x.nrows(), "Axcpy: mismatched vector shapes.");
+
+        let rstride1 = self.strides().0;
+        let rstride2 = x.strides().0;
+
+        let y = self.data.as_mut_slice();
+        let x = x.data.as_slice();
+
+        if !b.is_zero() {
+            array_axcpy(y, a, x, c, b, rstride1, rstride2, x.len());
+        } else {
+            array_axc(y, a, x, c, rstride1, rstride2, x.len());
+        }
+    }
+
     /// Computes `self = a * x + b * self`.
     ///
     /// If `b` is zero, `self` is never read from.
@@ -508,22 +542,12 @@ where
     #[inline]
     pub fn axpy<D2: Dim, SB>(&mut self, a: N, x: &Vector<N, D2, SB>, b: N)
     where
+        N: One,
         SB: Storage<N, D2>,
         ShapeConstraint: DimEq<D, D2>,
     {
         assert_eq!(self.nrows(), x.nrows(), "Axpy: mismatched vector shapes.");
-
-        let rstride1 = self.strides().0;
-        let rstride2 = x.strides().0;
-
-        let y = self.data.as_mut_slice();
-        let x = x.data.as_slice();
-
-        if !b.is_zero() {
-            array_axpy(y, a, x, b, rstride1, rstride2, x.len());
-        } else {
-            array_ax(y, a, x, rstride1, rstride2, x.len());
-        }
+        self.axcpy(a, x, N::one(), b)
     }
 
     /// Computes `self = alpha * a * x + beta * self`, where `a` is a matrix, `x` a vector, and
@@ -578,14 +602,14 @@ where
 
         // FIXME: avoid bound checks.
         let col2 = a.column(0);
-        let val = unsafe { *x.vget_unchecked(0) };
-        self.axpy(alpha * val, &col2, beta);
+        let val = unsafe { x.vget_unchecked(0).inlined_clone() };
+        self.axcpy(alpha.inlined_clone(), &col2, val, beta);
 
         for j in 1..ncols2 {
             let col2 = a.column(j);
-            let val = unsafe { *x.vget_unchecked(j) };
+            let val = unsafe { x.vget_unchecked(j).inlined_clone() };
 
-            self.axpy(alpha * val, &col2, N::one());
+            self.axcpy(alpha.inlined_clone(), &col2, val, N::one());
         }
     }
 
@@ -623,9 +647,9 @@ where
 
         // FIXME: avoid bound checks.
         let col2 = a.column(0);
-        let val = unsafe { *x.vget_unchecked(0) };
-        self.axpy(alpha * val, &col2, beta);
-        self[0] += alpha * dot(&a.slice_range(1.., 0), &x.rows_range(1..));
+        let val = unsafe { x.vget_unchecked(0).inlined_clone() };
+        self.axpy(alpha.inlined_clone() * val, &col2, beta);
+        self[0] += alpha.inlined_clone() * dot(&a.slice_range(1.., 0), &x.rows_range(1..));
 
         for j in 1..dim2 {
             let col2 = a.column(j);
@@ -633,11 +657,11 @@ where
 
             let val;
             unsafe {
-                val = *x.vget_unchecked(j);
-                *self.vget_unchecked_mut(j) += alpha * dot;
+                val = x.vget_unchecked(j).inlined_clone();
+                *self.vget_unchecked_mut(j) += alpha.inlined_clone() * dot;
             }
             self.rows_range_mut(j + 1..)
-                .axpy(alpha * val, &col2.rows_range(j + 1..), N::one());
+                .axpy(alpha.inlined_clone() * val, &col2.rows_range(j + 1..), N::one());
         }
     }
 
@@ -780,12 +804,12 @@ where
         if beta.is_zero() {
             for j in 0..ncols2 {
                 let val = unsafe { self.vget_unchecked_mut(j) };
-                *val = alpha * dot(&a.column(j), x)
+                *val = alpha.inlined_clone() * dot(&a.column(j), x)
             }
         } else {
             for j in 0..ncols2 {
                 let val = unsafe { self.vget_unchecked_mut(j) };
-                *val = alpha * dot(&a.column(j), x) + beta * *val;
+                *val = alpha.inlined_clone() * dot(&a.column(j), x) + beta.inlined_clone() * val.inlined_clone();
             }
         }
     }
@@ -889,8 +913,8 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
         for j in 0..ncols1 {
             // FIXME: avoid bound checks.
-            let val = unsafe { conjugate(*y.vget_unchecked(j)) };
-            self.column_mut(j).axpy(alpha * val, x, beta);
+            let val = unsafe { conjugate(y.vget_unchecked(j).inlined_clone()) };
+            self.column_mut(j).axpy(alpha.inlined_clone() * val, x, beta.inlined_clone());
         }
     }
 
@@ -1104,7 +1128,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
         for j1 in 0..ncols1 {
             // FIXME: avoid bound checks.
-            self.column_mut(j1).gemv(alpha, a, &b.column(j1), beta);
+            self.column_mut(j1).gemv(alpha.inlined_clone(), a, &b.column(j1), beta.inlined_clone());
         }
     }
 
@@ -1161,7 +1185,7 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
         for j1 in 0..ncols1 {
             // FIXME: avoid bound checks.
-            self.column_mut(j1).gemv_tr(alpha, a, &b.column(j1), beta);
+            self.column_mut(j1).gemv_tr(alpha.inlined_clone(), a, &b.column(j1), beta.inlined_clone());
         }
     }
 
@@ -1252,13 +1276,13 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         assert!(dim1 == dim2 && dim1 == dim3, "ger: dimensions mismatch.");
 
         for j in 0..dim1 {
-            let val = unsafe { conjugate(*y.vget_unchecked(j)) };
+            let val = unsafe { conjugate(y.vget_unchecked(j).inlined_clone()) };
             let subdim = Dynamic::new(dim1 - j);
             // FIXME: avoid bound checks.
             self.generic_slice_mut((j, j), (subdim, U1)).axpy(
-                alpha * val,
+                alpha.inlined_clone() * val,
                 &x.rows_range(j..),
-                beta,
+                beta.inlined_clone(),
             );
         }
     }
@@ -1418,11 +1442,11 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
         ShapeConstraint: DimEq<D1, D2> + DimEq<D1, R3> + DimEq<D2, R3> + DimEq<C3, D4>,
     {
         work.gemv(N::one(), lhs, &mid.column(0), N::zero());
-        self.ger(alpha, work, &lhs.column(0), beta);
+        self.ger(alpha.inlined_clone(), work, &lhs.column(0), beta);
 
         for j in 1..mid.ncols() {
             work.gemv(N::one(), lhs, &mid.column(j), N::zero());
-            self.ger(alpha, work, &lhs.column(j), N::one());
+            self.ger(alpha.inlined_clone(), work, &lhs.column(j), N::one());
         }
     }
 
@@ -1510,11 +1534,11 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
             DimEq<D3, R4> + DimEq<D1, C4> + DimEq<D2, D3> + AreMultipliable<C4, R4, D2, U1>,
     {
         work.gemv(N::one(), mid, &rhs.column(0), N::zero());
-        self.column_mut(0).gemv_tr(alpha, &rhs, work, beta);
+        self.column_mut(0).gemv_tr(alpha.inlined_clone(), &rhs, work, beta.inlined_clone());
 
         for j in 1..rhs.ncols() {
             work.gemv(N::one(), mid, &rhs.column(j), N::zero());
-            self.column_mut(j).gemv_tr(alpha, &rhs, work, beta);
+            self.column_mut(j).gemv_tr(alpha.inlined_clone(), &rhs, work, beta.inlined_clone());
         }
     }
 

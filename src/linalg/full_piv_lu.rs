@@ -167,7 +167,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
         b: &Matrix<N, R2, C2, S2>,
     ) -> Option<MatrixMN<N, R2, C2>>
     where
-        S2: StorageMut<N, R2, C2>,
+        S2: Storage<N, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
         DefaultAllocator: Allocator<N, R2, C2>,
     {

@@ -96,7 +96,7 @@ macro_rules! md_assign_impl(
      // Actual implementation and lifetimes.
      $action: expr; $($lives: tt),*) => {
         impl<$($lives ,)* N $(, $Dims: $DimsBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
-            where N:  Scalar + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
+            where N: Scalar + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
                   DefaultAllocator: Allocator<N, $R1, $C1> +
                                     Allocator<N, $R2, $C2>,
                   $( $ConstraintType: $ConstraintBound $(<$( $ConstraintBoundParams $( = $EqBound )*),*>)* ),*

@@ -8,6 +8,8 @@ use na::{
     RowVector4, RowVector5, RowVector6, Similarity3, Transform3, Translation3, UnitQuaternion,
     Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
 };
+use na::{U1, U3, U4};
+use na::{DMatrix, MatrixSlice, MatrixSliceMut, DMatrixSlice, DMatrixSliceMut};
 
 quickcheck!{
     fn translation_conversion(t: Translation3<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {
@@ -250,3 +252,90 @@ array_matrix_conversion!(
     array_matrix_conversion_6_5, Matrix6x5, (6, 5);
     array_matrix_conversion_6_6, Matrix6,   (6, 6);
 );
+
+#[test]
+fn matrix_slice_from_matrix_ref() {
+    let a = Matrix3x4::new(11.0, 12.0, 13.0, 14.0,
+                           21.0, 22.0, 23.0, 24.0,
+                           31.0, 32.0, 33.0, 34.0);
+
+    // TODO: What's a more idiomatic/better way to convert a static matrix to a dynamic one?
+    let d = DMatrix::from(a.get((0..a.nrows(), 0..a.ncols())).unwrap());
+
+    // Note: these have to be macros, and not functions, because the input type is different
+    // across the different tests. Moreover, the output type depends on the stride of the input,
+    // which is different for static and dynamic matrices.
+    macro_rules! dynamic_slice { ($mref:expr) => { DMatrixSlice::<_>::from($mref) } }
+    macro_rules! dynamic_slice_mut { ($mref:expr) => { DMatrixSliceMut::<_>::from($mref) } }
+    macro_rules! fixed_slice { ($mref:expr) => { MatrixSlice::<_, U3, U4, U1, U3>::from($mref)} };
+    macro_rules! fixed_slice_mut {
+        ($mref:expr) => { MatrixSliceMut::<_, U3, U4, U1, U3>::from($mref) }
+    };
+
+    // TODO: The `into_owned()` is a result of `PartialEq` not being implemented for different
+    // Self and RHS. See issue #674. Once this is implemented, we can remove `into_owned`
+    // from the below tests.
+
+    // Construct slices from reference to a
+    {
+        assert_eq!(a, fixed_slice!(&a).into_owned());
+        assert_eq!(d, dynamic_slice!(&a).into_owned());
+    }
+
+    // Construct slices from mutable reference to a
+    {
+        let mut a_clone = a.clone();
+        assert_eq!(a, fixed_slice!(&mut a_clone).into_owned());
+        assert_eq!(d, dynamic_slice!(&mut a_clone).into_owned());
+    }
+
+    // Construct mutable slices from mutable reference to a
+    {
+        let mut a_clone = a.clone();
+        assert_eq!(a, fixed_slice_mut!(&mut a_clone).into_owned());
+        assert_eq!(d, dynamic_slice_mut!(&mut a_clone).into_owned());
+    }
+
+    // Construct slices from reference to d
+    {
+        assert_eq!(a, fixed_slice!(&d).into_owned());
+        assert_eq!(d, dynamic_slice!(&d).into_owned());
+    }
+
+    // Construct slices from mutable reference to d
+    {
+        let mut d_clone = a.clone();
+        assert_eq!(a, fixed_slice!(&mut d_clone).into_owned());
+        assert_eq!(d, dynamic_slice!(&mut d_clone).into_owned());
+    }
+
+    // Construct mutable slices from mutable reference to d
+    {
+        let mut d_clone = d.clone();
+        assert_eq!(a, fixed_slice_mut!(&mut d_clone).into_owned());
+        assert_eq!(d, dynamic_slice_mut!(&mut d_clone).into_owned());
+    }
+
+    // Construct slices from a slice of a
+    {
+        let mut a_slice = fixed_slice!(&a);
+        assert_eq!(a, fixed_slice!(&a_slice).into_owned());
+        assert_eq!(a, fixed_slice!(&mut a_slice).into_owned());
+        assert_eq!(d, dynamic_slice!(&a_slice).into_owned());
+        assert_eq!(d, dynamic_slice!(&mut a_slice).into_owned());
+    }
+
+    // Construct slices from a slice mut of a
+    {
+        // Need a clone of a here, so that we can both have a mutable borrow and compare equality
+        let mut a_clone = a.clone();
+        let mut a_slice = fixed_slice_mut!(&mut a_clone);
+
+        assert_eq!(a, fixed_slice!(&a_slice).into_owned());
+        assert_eq!(a, fixed_slice!(&mut a_slice).into_owned());
+        assert_eq!(d, dynamic_slice!(&a_slice).into_owned());
+        assert_eq!(d, dynamic_slice!(&mut a_slice).into_owned());
+        assert_eq!(a, fixed_slice_mut!(&mut a_slice).into_owned());
+        assert_eq!(d, dynamic_slice_mut!(&mut a_slice).into_owned());
+    }
+}

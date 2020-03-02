@@ -138,7 +138,7 @@ add_sub_impl!(Add, add, ClosedAdd;
 macro_rules! op_assign_impl(
     ($($TraitAssign: ident, $method_assign: ident, $bound: ident);* $(;)*) => {$(
         impl<'b, N, D1: DimName, D2: Dim, SB> $TraitAssign<&'b Vector<N, D2, SB>> for Point<N, D1>
-            where N:  Scalar + $bound,
+            where N: Scalar + $bound,
                   SB: Storage<N, D2>,
                   DefaultAllocator: Allocator<N, D1>,
                   ShapeConstraint: SameNumberOfRows<D1, D2> {
@@ -150,7 +150,7 @@ macro_rules! op_assign_impl(
         }
 
         impl<N, D1: DimName, D2: Dim, SB> $TraitAssign<Vector<N, D2, SB>> for Point<N, D1>
-            where N:  Scalar + $bound,
+            where N: Scalar + $bound,
                   SB: Storage<N, D2>,
                   DefaultAllocator: Allocator<N, D1>,
                   ShapeConstraint: SameNumberOfRows<D1, D2> {
