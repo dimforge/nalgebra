@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   * `cholesky.rank_one_update(...)` which performs a rank-one update on the cholesky decomposition of a matrix.
   * `From<&Matrix>` is now implemented for matrix slices.
   * `.try_set_magnitude(...)` which sets the magnitude of a vector, while keeping its direction.
-  * Implementetanions of `From` and `Into` for the conversion between matrix slices and standard (`&[N]` `&mut [N]`) slices.
+  * Implementations of `From` and `Into` for the conversion between matrix slices and standard (`&[N]` `&mut [N]`) slices.
   
 ### Modified
   * We started some major changes in order to allow non-Copy types to be used as scalar types inside of matrices/vectors.
