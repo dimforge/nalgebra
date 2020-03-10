@@ -190,7 +190,6 @@ pub trait DimName: Dim {
     type Value: NamedDim<Name = Self>;
 
     /// The name of this dimension, i.e., the singleton `Self`.
-    #[inline]
     fn name() -> Self;
 
     // FIXME: this is not a very idiomatic name.

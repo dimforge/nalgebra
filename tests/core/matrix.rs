@@ -7,9 +7,6 @@ use na::{
     Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RowVector3, RowVector4, RowVector5,
     Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
 };
-use typenum::{UInt, UTerm};
-use serde_json::error::Category::Data;
-use typenum::bit::{B0, B1};
 
 #[test]
 fn iter() {

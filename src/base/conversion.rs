@@ -119,7 +119,7 @@ macro_rules! impl_from_into_asref_1D(
             #[inline]
             fn into(self) -> [N; $SZ] {
                 unsafe {
-                    let mut res: [N; $SZ] = mem::uninitialized();
+                    let mut res: [N; $SZ] = mem::MaybeUninit::uninit().assume_init();
                     ptr::copy_nonoverlapping(self.data.ptr(), &mut res[0], $SZ);
 
                     res
@@ -186,7 +186,7 @@ macro_rules! impl_from_into_asref_2D(
             #[inline]
             fn into(self) -> [[N; $SZRows]; $SZCols] {
                 unsafe {
-                    let mut res: [[N; $SZRows]; $SZCols] = mem::uninitialized();
+                    let mut res: [[N; $SZRows]; $SZCols] = mem::MaybeUninit::uninit().assume_init();
                     ptr::copy_nonoverlapping(self.data.ptr(), &mut res[0][0], $SZRows * $SZCols);
 
                     res
