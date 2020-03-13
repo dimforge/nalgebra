@@ -37,7 +37,7 @@ where
 {
 }
 
-impl<N: ComplexField, D: DimSub<Dynamic>> Cholesky<N, D>
+impl<N: ComplexField, D: Dim> Cholesky<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
 {
