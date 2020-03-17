@@ -1,25 +1,37 @@
 use num::Zero;
 
 use crate::allocator::Allocator;
-use crate::{RealField, ComplexField};
+use crate::base::{DefaultAllocator, Dim, Matrix, MatrixMN};
+use crate::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, Matrix, Dim, MatrixMN};
-use crate::constraint::{SameNumberOfRows, SameNumberOfColumns, ShapeConstraint};
-
+use crate::{ComplexField, RealField, SimdComplexField, SimdRealField};
+use alga::simd::SimdPartialOrd;
 
 // FIXME: this should be be a trait on alga?
 /// A trait for abstract matrix norms.
 ///
 /// This may be moved to the alga crate in the future.
-pub trait Norm<N: ComplexField> {
+pub trait Norm<N: SimdComplexField> {
     /// Apply this norm to the given matrix.
-    fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::RealField
-        where R: Dim, C: Dim, S: Storage<N, R, C>;
+    fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::SimdRealField
+    where
+        R: Dim,
+        C: Dim,
+        S: Storage<N, R, C>;
     /// Use the metric induced by this norm to compute the metric distance between the two given matrices.
-    fn metric_distance<R1, C1, S1, R2, C2, S2>(&self, m1: &Matrix<N, R1, C1, S1>, m2: &Matrix<N, R2, C2, S2>) -> N::RealField
-        where R1: Dim, C1: Dim, S1: Storage<N, R1, C1>,
-              R2: Dim, C2: Dim, S2: Storage<N, R2, C2>,
-              ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>;
+    fn metric_distance<R1, C1, S1, R2, C2, S2>(
+        &self,
+        m1: &Matrix<N, R1, C1, S1>,
+        m2: &Matrix<N, R2, C2, S2>,
+    ) -> N::SimdRealField
+    where
+        R1: Dim,
+        C1: Dim,
+        S1: Storage<N, R1, C1>,
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>;
 }
 
 /// Euclidean norm.
@@ -29,81 +41,123 @@ pub struct LpNorm(pub i32);
 /// L-infinite norm aka. Chebytchev norm aka. uniform norm aka. suppremum norm.
 pub struct UniformNorm;
 
-impl<N: ComplexField> Norm<N> for EuclideanNorm {
+impl<N: SimdComplexField> Norm<N> for EuclideanNorm {
     #[inline]
-    fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::RealField
-        where R: Dim, C: Dim, S: Storage<N, R, C> {
-        m.norm_squared().sqrt()
+    fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::SimdRealField
+    where
+        R: Dim,
+        C: Dim,
+        S: Storage<N, R, C>,
+    {
+        m.norm_squared().simd_sqrt()
     }
 
     #[inline]
-    fn metric_distance<R1, C1, S1, R2, C2, S2>(&self, m1: &Matrix<N, R1, C1, S1>, m2: &Matrix<N, R2, C2, S2>) -> N::RealField
-        where R1: Dim, C1: Dim, S1: Storage<N, R1, C1>,
-              R2: Dim, C2: Dim, S2: Storage<N, R2, C2>,
-              ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
-        m1.zip_fold(m2, N::RealField::zero(), |acc, a, b| {
+    fn metric_distance<R1, C1, S1, R2, C2, S2>(
+        &self,
+        m1: &Matrix<N, R1, C1, S1>,
+        m2: &Matrix<N, R2, C2, S2>,
+    ) -> N::SimdRealField
+    where
+        R1: Dim,
+        C1: Dim,
+        S1: Storage<N, R1, C1>,
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
+    {
+        m1.zip_fold(m2, N::SimdRealField::zero(), |acc, a, b| {
             let diff = a - b;
-            acc + diff.modulus_squared()
-        }).sqrt()
+            acc + diff.simd_modulus_squared()
+        })
+        .simd_sqrt()
     }
 }
 
-impl<N: ComplexField> Norm<N> for LpNorm {
+impl<N: SimdComplexField> Norm<N> for LpNorm {
     #[inline]
-    fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::RealField
-        where R: Dim, C: Dim, S: Storage<N, R, C> {
-        m.fold(N::RealField::zero(), |a, b| {
-            a + b.modulus().powi(self.0)
-        }).powf(crate::convert(1.0 / (self.0 as f64)))
+    fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::SimdRealField
+    where
+        R: Dim,
+        C: Dim,
+        S: Storage<N, R, C>,
+    {
+        m.fold(N::SimdRealField::zero(), |a, b| {
+            a + b.simd_modulus().simd_powi(self.0)
+        })
+        .simd_powf(crate::convert(1.0 / (self.0 as f64)))
     }
 
     #[inline]
-    fn metric_distance<R1, C1, S1, R2, C2, S2>(&self, m1: &Matrix<N, R1, C1, S1>, m2: &Matrix<N, R2, C2, S2>) -> N::RealField
-        where R1: Dim, C1: Dim, S1: Storage<N, R1, C1>,
-              R2: Dim, C2: Dim, S2: Storage<N, R2, C2>,
-              ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
-        m1.zip_fold(m2, N::RealField::zero(), |acc, a, b| {
+    fn metric_distance<R1, C1, S1, R2, C2, S2>(
+        &self,
+        m1: &Matrix<N, R1, C1, S1>,
+        m2: &Matrix<N, R2, C2, S2>,
+    ) -> N::SimdRealField
+    where
+        R1: Dim,
+        C1: Dim,
+        S1: Storage<N, R1, C1>,
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
+    {
+        m1.zip_fold(m2, N::SimdRealField::zero(), |acc, a, b| {
             let diff = a - b;
-            acc + diff.modulus().powi(self.0)
-        }).powf(crate::convert(1.0 / (self.0 as f64)))
+            acc + diff.simd_modulus().simd_powi(self.0)
+        })
+        .simd_powf(crate::convert(1.0 / (self.0 as f64)))
     }
 }
 
-impl<N: ComplexField> Norm<N> for UniformNorm {
+impl<N: SimdComplexField> Norm<N> for UniformNorm {
     #[inline]
-    fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::RealField
-        where R: Dim, C: Dim, S: Storage<N, R, C> {
+    fn norm<R, C, S>(&self, m: &Matrix<N, R, C, S>) -> N::SimdRealField
+    where
+        R: Dim,
+        C: Dim,
+        S: Storage<N, R, C>,
+    {
         // NOTE: we don't use `m.amax()` here because for the complex
         // numbers this will return the max norm1 instead of the modulus.
-        m.fold(N::RealField::zero(), |acc, a| acc.max(a.modulus()))
+        m.fold(N::SimdRealField::zero(), |acc, a| {
+            acc.simd_max(a.simd_modulus())
+        })
     }
 
     #[inline]
-    fn metric_distance<R1, C1, S1, R2, C2, S2>(&self, m1: &Matrix<N, R1, C1, S1>, m2: &Matrix<N, R2, C2, S2>) -> N::RealField
-        where R1: Dim, C1: Dim, S1: Storage<N, R1, C1>,
-              R2: Dim, C2: Dim, S2: Storage<N, R2, C2>,
-              ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
-        m1.zip_fold(m2, N::RealField::zero(), |acc, a, b| {
-            let val = (a - b).modulus();
-            if val > acc {
-                val
-            } else {
-                acc
-            }
+    fn metric_distance<R1, C1, S1, R2, C2, S2>(
+        &self,
+        m1: &Matrix<N, R1, C1, S1>,
+        m2: &Matrix<N, R2, C2, S2>,
+    ) -> N::SimdRealField
+    where
+        R1: Dim,
+        C1: Dim,
+        S1: Storage<N, R1, C1>,
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
+    {
+        m1.zip_fold(m2, N::SimdRealField::zero(), |acc, a, b| {
+            let val = (a - b).simd_modulus();
+            acc.simd_max(val)
         })
     }
 }
 
-
-impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The squared L2 norm of this vector.
     #[inline]
-    pub fn norm_squared(&self) -> N::RealField {
-        let mut res = N::RealField::zero();
+    pub fn norm_squared(&self) -> N::SimdRealField {
+        let mut res = N::SimdRealField::zero();
 
         for i in 0..self.ncols() {
             let col = self.column(i);
-            res += col.dotc(&col).real()
+            res += col.dotc(&col).simd_real()
         }
 
         res
@@ -113,17 +167,21 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///
     /// Use `.apply_norm` to apply a custom norm.
     #[inline]
-    pub fn norm(&self) -> N::RealField {
-        self.norm_squared().sqrt()
+    pub fn norm(&self) -> N::SimdRealField {
+        self.norm_squared().simd_sqrt()
     }
 
     /// Compute the distance between `self` and `rhs` using the metric induced by the euclidean norm.
     ///
     /// Use `.apply_metric_distance` to apply a custom norm.
     #[inline]
-    pub fn metric_distance<R2, C2, S2>(&self, rhs: &Matrix<N, R2, C2, S2>) -> N::RealField
-        where R2: Dim, C2: Dim, S2: Storage<N, R2, C2>,
-              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
+    pub fn metric_distance<R2, C2, S2>(&self, rhs: &Matrix<N, R2, C2, S2>) -> N::SimdRealField
+    where
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+    {
         self.apply_metric_distance(rhs, &EuclideanNorm)
     }
 
@@ -140,7 +198,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// assert_eq!(v.apply_norm(&EuclideanNorm), v.norm());
     /// ```
     #[inline]
-    pub fn apply_norm(&self, norm: &impl Norm<N>) -> N::RealField {
+    pub fn apply_norm(&self, norm: &impl Norm<N>) -> N::SimdRealField {
         norm.norm(self)
     }
 
@@ -159,9 +217,17 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// assert_eq!(v1.apply_metric_distance(&v2, &EuclideanNorm), (v1 - v2).norm());
     /// ```
     #[inline]
-    pub fn apply_metric_distance<R2, C2, S2>(&self, rhs: &Matrix<N, R2, C2, S2>, norm: &impl Norm<N>) -> N::RealField
-        where R2: Dim, C2: Dim, S2: Storage<N, R2, C2>,
-              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
+    pub fn apply_metric_distance<R2, C2, S2>(
+        &self,
+        rhs: &Matrix<N, R2, C2, S2>,
+        norm: &impl Norm<N>,
+    ) -> N::SimdRealField
+    where
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+    {
         norm.metric_distance(self, rhs)
     }
 
@@ -171,7 +237,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///
     /// This function is simply implemented as a call to `norm()`
     #[inline]
-    pub fn magnitude(&self) -> N::RealField {
+    pub fn magnitude(&self) -> N::SimdRealField {
         self.norm()
     }
 
@@ -181,18 +247,41 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///
     /// This function is simply implemented as a call to `norm_squared()`
     #[inline]
-    pub fn magnitude_squared(&self) -> N::RealField {
+    pub fn magnitude_squared(&self) -> N::SimdRealField {
         self.norm_squared()
     }
 
+    /// Sets the magnitude of this vector.
+    #[inline]
+    pub fn set_magnitude(&mut self, magnitude: N::SimdRealField)
+    where S: StorageMut<N, R, C> {
+        let n = self.norm();
+        self.scale_mut(magnitude / n)
+    }
 
+    /// Returns a normalized version of this matrix.
+    #[inline]
+    #[must_use = "Did you mean to use normalize_mut()?"]
+    pub fn normalize(&self) -> MatrixMN<N, R, C>
+    where DefaultAllocator: Allocator<N, R, C> {
+        self.unscale(self.norm())
+    }
+
+    /// The Lp norm of this matrix.
+    #[inline]
+    pub fn lp_norm(&self, p: i32) -> N::SimdRealField {
+        self.apply_norm(&LpNorm(p))
+    }
+}
+
+impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Sets the magnitude of this vector unless it is smaller than `min_magnitude`.
     ///
     /// If `self.magnitude()` is smaller than `min_magnitude`, it will be left unchanged.
     /// Otherwise this is equivalent to: `*self = self.normalize() * magnitude.
     #[inline]
     pub fn try_set_magnitude(&mut self, magnitude: N::RealField, min_magnitude: N::RealField)
-        where S: StorageMut<N, R, C> {
+    where S: StorageMut<N, R, C> {
         let n = self.norm();
 
         if n >= min_magnitude {
@@ -200,19 +289,11 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         }
     }
 
-    /// Returns a normalized version of this matrix.
-    #[inline]
-    #[must_use = "Did you mean to use normalize_mut()?"]
-    pub fn normalize(&self) -> MatrixMN<N, R, C>
-        where DefaultAllocator: Allocator<N, R, C> {
-        self.unscale(self.norm())
-    }
-
     /// Returns a normalized version of this matrix unless its norm as smaller or equal to `eps`.
     #[inline]
     #[must_use = "Did you mean to use try_normalize_mut()?"]
     pub fn try_normalize(&self, min_norm: N::RealField) -> Option<MatrixMN<N, R, C>>
-        where DefaultAllocator: Allocator<N, R, C> {
+    where DefaultAllocator: Allocator<N, R, C> {
         let n = self.norm();
 
         if n <= min_norm {
@@ -221,30 +302,26 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             Some(self.unscale(n))
         }
     }
-
-    /// The Lp norm of this matrix.
-    #[inline]
-    pub fn lp_norm(&self, p: i32) -> N::RealField {
-        self.apply_norm(&LpNorm(p))
-    }
 }
 
-
-impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+impl<N: SimdComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Normalizes this matrix in-place and returns its norm.
     #[inline]
-    pub fn normalize_mut(&mut self) -> N::RealField {
+    pub fn normalize_mut(&mut self) -> N::SimdRealField {
         let n = self.norm();
         self.unscale_mut(n);
 
         n
     }
+}
 
+impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Normalizes this matrix in-place or does nothing if its norm is smaller or equal to `eps`.
     ///
     /// If the normalization succeeded, returns the old norm of this matrix.
     #[inline]
-    pub fn try_normalize_mut(&mut self, min_norm: N::RealField) -> Option<N::RealField> {
+    pub fn try_normalize_mut(&mut self, min_norm: N::RealField) -> Option<N::RealField>
+    where N: ComplexField {
         let n = self.norm();
 
         if n <= min_norm {

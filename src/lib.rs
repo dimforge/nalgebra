@@ -110,8 +110,8 @@ extern crate generic_array;
 #[cfg(feature = "std")]
 extern crate matrixmultiply;
 extern crate num_complex;
-extern crate num_traits as num;
 extern crate num_rational;
+extern crate num_traits as num;
 extern crate rand;
 #[cfg(feature = "std")]
 extern crate rand_distr;
@@ -141,30 +141,31 @@ pub mod linalg;
 #[cfg(feature = "sparse")]
 pub mod sparse;
 
-#[cfg(feature = "std")]
-#[deprecated(
-    note = "The 'core' module is being renamed to 'base' to avoid conflicts with the 'core' crate."
-)]
-pub use base as core;
 pub use crate::base::*;
 pub use crate::geometry::*;
 pub use crate::linalg::*;
 #[cfg(feature = "sparse")]
 pub use crate::sparse::*;
+#[cfg(feature = "std")]
+#[deprecated(
+    note = "The 'core' module is being renamed to 'base' to avoid conflicts with the 'core' crate."
+)]
+pub use base as core;
 
 use std::cmp::{self, Ordering, PartialOrd};
 
 use alga::general::{
-    Additive, AdditiveGroup, Identity, TwoSidedInverse, JoinSemilattice, Lattice, MeetSemilattice,
-    Multiplicative, SupersetOf,
+    Additive, AdditiveGroup, Identity, JoinSemilattice, Lattice, MeetSemilattice, Multiplicative,
+    SupersetOf, TwoSidedInverse,
 };
 use alga::linear::SquareMatrix as AlgaSquareMatrix;
 use alga::linear::{EuclideanSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace};
 use num::Signed;
 
-pub use alga::general::{Id, RealField, ComplexField};
 #[allow(deprecated)]
 pub use alga::general::Real;
+pub use alga::general::{ComplexField, Id, RealField};
+pub use alga::simd::{SimdComplexField, SimdRealField};
 pub use num_complex::Complex;
 
 /*

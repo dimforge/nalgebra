@@ -1,11 +1,12 @@
 use num::{One, Signed, Zero};
-use std::cmp::{PartialOrd, Ordering};
+use std::cmp::{Ordering, PartialOrd};
 use std::iter;
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-use alga::general::{ComplexField, ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
+use alga::general::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
+use alga::simd::{SimdPartialOrd, SimdSigned};
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use crate::base::constraint::{
@@ -14,6 +15,7 @@ use crate::base::constraint::{
 use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
 use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar, VectorSliceN};
+use crate::SimdComplexField;
 
 /*
  *
@@ -445,7 +447,9 @@ where
     /// # use nalgebra::DMatrix;
     /// iter::empty::<&DMatrix<f64>>().sum::<DMatrix<f64>>(); // panics!
     /// ```
-    fn sum<I: Iterator<Item = &'a MatrixMN<N, Dynamic, C>>>(mut iter: I) -> MatrixMN<N, Dynamic, C> {
+    fn sum<I: Iterator<Item = &'a MatrixMN<N, Dynamic, C>>>(
+        mut iter: I,
+    ) -> MatrixMN<N, Dynamic, C> {
         if let Some(first) = iter.next() {
             iter.fold(first.clone(), |acc, x| acc + x)
         } else {
@@ -692,11 +696,11 @@ where
     /// Equivalent to `self.adjoint() * rhs`.
     #[inline]
     pub fn ad_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> MatrixMN<N, C1, C2>
-        where
-            N: ComplexField,
-            SB: Storage<N, R2, C2>,
-            DefaultAllocator: Allocator<N, C1, C2>,
-            ShapeConstraint: SameNumberOfRows<R1, R2>,
+    where
+        N: SimdComplexField,
+        SB: Storage<N, R2, C2>,
+        DefaultAllocator: Allocator<N, C1, C2>,
+        ShapeConstraint: SameNumberOfRows<R1, R2>,
     {
         let mut res =
             unsafe { Matrix::new_uninitialized_generic(self.data.shape().1, rhs.data.shape().1) };
@@ -710,7 +714,10 @@ where
         &self,
         rhs: &Matrix<N, R2, C2, SB>,
         out: &mut Matrix<N, R3, C3, SC>,
-        dot: impl Fn(&VectorSliceN<N, R1, SA::RStride, SA::CStride>, &VectorSliceN<N, R2, SB::RStride, SB::CStride>) -> N,
+        dot: impl Fn(
+            &VectorSliceN<N, R1, SA::RStride, SA::CStride>,
+            &VectorSliceN<N, R2, SB::RStride, SB::CStride>,
+        ) -> N,
     ) where
         SB: Storage<N, R2, C2>,
         SC: StorageMut<N, R3, C3>,
@@ -760,7 +767,7 @@ where
         rhs: &Matrix<N, R2, C2, SB>,
         out: &mut Matrix<N, R3, C3, SC>,
     ) where
-        N: ComplexField,
+        N: SimdComplexField,
         SB: Storage<N, R2, C2>,
         SC: StorageMut<N, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, R2> + DimEq<C1, R3> + DimEq<C2, C3>,
@@ -813,7 +820,8 @@ where
                             let coeff = self.get_unchecked((i1, j1)).inlined_clone();
 
                             for i2 in 0..nrows2.value() {
-                                *data_res = coeff.inlined_clone() * rhs.get_unchecked((i2, j2)).inlined_clone();
+                                *data_res = coeff.inlined_clone()
+                                    * rhs.get_unchecked((i2, j2)).inlined_clone();
                                 data_res = data_res.offset(1);
                             }
                         }
@@ -868,23 +876,6 @@ where
 }
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    #[inline(always)]
-    fn xcmp<N2>(&self, abs: impl Fn(N) -> N2, ordering: Ordering) -> N2
-        where N2: Scalar + PartialOrd + Zero {
-        let mut iter = self.iter();
-        let mut max = iter.next().cloned().map_or(N2::zero(), &abs);
-
-        for e in iter {
-            let ae = abs(e.inlined_clone());
-
-            if ae.partial_cmp(&max) == Some(ordering) {
-                    max = ae;
-            }
-        }
-
-        max
-    }
-
     /// Returns the absolute value of the component with the largest absolute value.
     /// # Example
     /// ```
@@ -894,8 +885,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// ```
     #[inline]
     pub fn amax(&self) -> N
-        where N: PartialOrd + Signed {
-        self.xcmp(|e| e.abs(), Ordering::Greater)
+    where N: Zero + SimdSigned + SimdPartialOrd {
+        self.fold_with(
+            |e| e.unwrap_or(&N::zero()).simd_abs(),
+            |a, b| a.simd_max(b.simd_abs()),
+        )
     }
 
     /// Returns the the 1-norm of the complex component with the largest 1-norm.
@@ -908,9 +902,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///     Complex::new(1.0, 3.0)).camax(), 5.0);
     /// ```
     #[inline]
-    pub fn camax(&self) -> N::RealField
-        where N: ComplexField {
-        self.xcmp(|e| e.norm1(), Ordering::Greater)
+    pub fn camax(&self) -> N::SimdRealField
+    where N: SimdComplexField {
+        self.fold_with(
+            |e| e.unwrap_or(&N::zero()).simd_norm1(),
+            |a, b| a.simd_max(b.simd_norm1()),
+        )
     }
 
     /// Returns the component with the largest value.
@@ -923,8 +920,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// ```
     #[inline]
     pub fn max(&self) -> N
-        where N: PartialOrd + Zero {
-        self.xcmp(|e| e, Ordering::Greater)
+    where N: SimdPartialOrd + Zero {
+        self.fold_with(
+            |e| e.map(|e| e.inlined_clone()).unwrap_or(N::zero()),
+            |a, b| a.simd_max(b.inlined_clone()),
+        )
     }
 
     /// Returns the absolute value of the component with the smallest absolute value.
@@ -936,8 +936,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// ```
     #[inline]
     pub fn amin(&self) -> N
-        where N: PartialOrd + Signed {
-        self.xcmp(|e| e.abs(), Ordering::Less)
+    where N: Zero + SimdPartialOrd + SimdSigned {
+        self.fold_with(
+            |e| e.map(|e| e.simd_abs()).unwrap_or(N::zero()),
+            |a, b| a.simd_min(b.simd_abs()),
+        )
     }
 
     /// Returns the the 1-norm of the complex component with the smallest 1-norm.
@@ -950,9 +953,15 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///     Complex::new(1.0, 3.0)).camin(), 3.0);
     /// ```
     #[inline]
-    pub fn camin(&self) -> N::RealField
-        where N: ComplexField {
-        self.xcmp(|e| e.norm1(), Ordering::Less)
+    pub fn camin(&self) -> N::SimdRealField
+    where N: SimdComplexField {
+        self.fold_with(
+            |e| {
+                e.map(|e| e.simd_norm1())
+                    .unwrap_or(N::SimdRealField::zero())
+            },
+            |a, b| a.simd_min(b.simd_norm1()),
+        )
     }
 
     /// Returns the component with the smallest value.
@@ -965,7 +974,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// ```
     #[inline]
     pub fn min(&self) -> N
-        where N: PartialOrd + Zero {
-        self.xcmp(|e| e, Ordering::Less)
+    where N: SimdPartialOrd + Zero {
+        self.fold_with(
+            |e| e.map(|e| e.inlined_clone()).unwrap_or(N::zero()),
+            |a, b| a.simd_min(b.inlined_clone()),
+        )
     }
 }
