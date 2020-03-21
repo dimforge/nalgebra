@@ -1,11 +1,12 @@
-use alga::general::{RealField, SubsetOf, SupersetOf};
-use alga::linear::Rotation;
+use simba::scalar::{RealField, SubsetOf, SupersetOf};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::{DefaultAllocator, MatrixN};
 
-use crate::geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
+use crate::geometry::{
+    AbstractRotation, Isometry, Similarity, SuperTCategoryOf, TAffine, Transform, Translation,
+};
 
 /*
  * This file provides the following conversions:
@@ -20,8 +21,8 @@ impl<N1, N2, D: DimName, R1, R2> SubsetOf<Similarity<N2, D, R2>> for Similarity<
 where
     N1: RealField + SubsetOf<N2>,
     N2: RealField + SupersetOf<N1>,
-    R1: Rotation<Point<N1, D>> + SubsetOf<R2>,
-    R2: Rotation<Point<N2, D>>,
+    R1: AbstractRotation<N1, D> + SubsetOf<R2>,
+    R2: AbstractRotation<N2, D>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
@@ -36,7 +37,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(sim: &Similarity<N2, D, R2>) -> Self {
+    fn from_superset_unchecked(sim: &Similarity<N2, D, R2>) -> Self {
         Similarity::from_isometry(
             sim.isometry.to_subset_unchecked(),
             sim.scaling().to_subset_unchecked(),
@@ -49,7 +50,7 @@ where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
-    R: Rotation<Point<N1, D>>
+    R: AbstractRotation<N1, D>
         + SubsetOf<MatrixN<N1, DimNameSum<D, U1>>>
         + SubsetOf<MatrixN<N2, DimNameSum<D, U1>>>,
     D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .determinant()
@@ -73,7 +74,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
+    fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
@@ -82,7 +83,7 @@ impl<N1, N2, D, R> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Similarity<N1, D
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: Rotation<Point<N1, D>>
+    R: AbstractRotation<N1, D>
         + SubsetOf<MatrixN<N1, DimNameSum<D, U1>>>
         + SubsetOf<MatrixN<N2, DimNameSum<D, U1>>>,
     D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .determinant()
@@ -137,7 +138,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
+    fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let mut mm = m.clone_owned();
         let na = mm.fixed_slice_mut::<D, U1>(0, 0).normalize_mut();
         let nb = mm.fixed_slice_mut::<D, U1>(0, 1).normalize_mut();
@@ -159,7 +160,11 @@ where
             vector: crate::convert_unchecked(t),
         };
 
-        Self::from_parts(t, crate::convert_unchecked(mm), crate::convert_unchecked(scale))
+        Self::from_parts(
+            t,
+            crate::convert_unchecked(mm),
+            crate::convert_unchecked(scale),
+        )
     }
 }
 

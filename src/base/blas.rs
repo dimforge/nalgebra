@@ -1,8 +1,8 @@
 use crate::SimdComplexField;
-use alga::general::{ClosedAdd, ClosedMul, ComplexField};
 #[cfg(feature = "std")]
 use matrixmultiply;
 use num::{One, Signed, Zero};
+use simba::scalar::{ClosedAdd, ClosedMul, ComplexField};
 #[cfg(feature = "std")]
 use std::mem;
 

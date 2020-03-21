@@ -1,4 +1,4 @@
-use alga::general::ComplexField;
+use simba::scalar::ComplexField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::DimMin;

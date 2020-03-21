@@ -1,7 +1,6 @@
 use num::Zero;
 
-use alga::general::{RealField, SubsetOf, SupersetOf};
-use alga::linear::Rotation as AlgaRotation;
+use simba::scalar::{RealField, SubsetOf, SupersetOf};
 
 #[cfg(feature = "mint")]
 use mint;
@@ -11,8 +10,8 @@ use crate::base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::{DefaultAllocator, Matrix2, Matrix3, Matrix4, MatrixN};
 
 use crate::geometry::{
-    Isometry, Point, Rotation, Rotation2, Rotation3, Similarity, SuperTCategoryOf, TAffine,
-    Transform, Translation, UnitComplex, UnitQuaternion,
+    AbstractRotation, Isometry, Rotation, Rotation2, Rotation3, Similarity, SuperTCategoryOf,
+    TAffine, Transform, Translation, UnitComplex, UnitQuaternion,
 };
 
 /*
@@ -47,7 +46,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(rot: &Rotation<N2, D>) -> Self {
+    fn from_superset_unchecked(rot: &Rotation<N2, D>) -> Self {
         Rotation::from_matrix_unchecked(rot.matrix().to_subset_unchecked())
     }
 }
@@ -69,7 +68,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(q: &UnitQuaternion<N2>) -> Self {
+    fn from_superset_unchecked(q: &UnitQuaternion<N2>) -> Self {
         let q: UnitQuaternion<N1> = crate::convert_ref_unchecked(q);
         q.to_rotation_matrix()
     }
@@ -92,7 +91,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(q: &UnitComplex<N2>) -> Self {
+    fn from_superset_unchecked(q: &UnitComplex<N2>) -> Self {
         let q: UnitComplex<N1> = crate::convert_ref_unchecked(q);
         q.to_rotation_matrix()
     }
@@ -102,7 +101,7 @@ impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Rotation<N1, D>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: AlgaRotation<Point<N2, D>> + SupersetOf<Self>,
+    R: AbstractRotation<N2, D> + SupersetOf<Self>,
     DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
 {
     #[inline]
@@ -116,7 +115,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(iso: &Isometry<N2, D, R>) -> Self {
+    fn from_superset_unchecked(iso: &Isometry<N2, D, R>) -> Self {
         crate::convert_ref_unchecked(&iso.rotation)
     }
 }
@@ -125,7 +124,7 @@ impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Rotation<N1, D>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: AlgaRotation<Point<N2, D>> + SupersetOf<Self>,
+    R: AbstractRotation<N2, D> + SupersetOf<Self>,
     DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
 {
     #[inline]
@@ -139,7 +138,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(sim: &Similarity<N2, D, R>) -> Self {
+    fn from_superset_unchecked(sim: &Similarity<N2, D, R>) -> Self {
         crate::convert_ref_unchecked(&sim.isometry.rotation)
     }
 }
@@ -168,7 +167,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
+    fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
@@ -204,7 +203,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
+    fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let r = m.fixed_slice::<D, D>(0, 0);
         Self::from_matrix_unchecked(crate::convert_unchecked(r.into_owned()))
     }
@@ -219,7 +218,7 @@ impl<N: RealField> From<mint::EulerAngles<N, mint::IntraXYZ>> for Rotation3<N> {
 
 impl<N: RealField> From<Rotation2<N>> for Matrix3<N> {
     #[inline]
-    fn from(q: Rotation2<N>) ->Self {
+    fn from(q: Rotation2<N>) -> Self {
         q.to_homogeneous()
     }
 }

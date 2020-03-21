@@ -3,7 +3,7 @@
 use num::{Signed, Zero};
 use std::ops::{Add, Mul};
 
-use alga::general::{ClosedDiv, ClosedMul};
+use simba::scalar::{ClosedDiv, ClosedMul};
 
 use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};

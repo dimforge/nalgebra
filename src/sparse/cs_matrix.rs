@@ -1,5 +1,5 @@
-use alga::general::ClosedAdd;
 use num::Zero;
+use simba::scalar::ClosedAdd;
 use std::iter;
 use std::marker::PhantomData;
 use std::ops::Range;
@@ -7,9 +7,7 @@ use std::slice;
 
 use crate::allocator::Allocator;
 use crate::sparse::cs_utils;
-use crate::{
-    DefaultAllocator, Dim, Dynamic, Scalar, Vector, VectorN, U1
-};
+use crate::{DefaultAllocator, Dim, Dynamic, Scalar, Vector, VectorN, U1};
 
 pub struct ColumnEntries<'a, N> {
     curr: usize,
@@ -33,9 +31,11 @@ impl<'a, N: Clone> Iterator for ColumnEntries<'a, N> {
         if self.curr >= self.i.len() {
             None
         } else {
-            let res = Some((unsafe { self.i.get_unchecked(self.curr).clone() }, unsafe {
-                self.v.get_unchecked(self.curr).clone()
-            }));
+            let res = Some(
+                (unsafe { self.i.get_unchecked(self.curr).clone() }, unsafe {
+                    self.v.get_unchecked(self.curr).clone()
+                }),
+            );
             self.curr += 1;
             res
         }

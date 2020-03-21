@@ -1,6 +1,6 @@
 //! Functions for balancing a matrix.
 
-use alga::general::RealField;
+use simba::scalar::RealField;
 use std::ops::{DivAssign, MulAssign};
 
 use crate::allocator::Allocator;

@@ -13,11 +13,12 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::RealField;
+use simba::scalar::RealField;
+use simba::simd::SimdRealField;
 
 use crate::base::dimension::{U1, U3, U4};
 use crate::base::storage::{CStride, RStride};
-use crate::base::{Matrix3, Matrix4, MatrixSlice, MatrixSliceMut, Unit, Vector3, Vector4};
+use crate::base::{Matrix3, Matrix4, MatrixSlice, MatrixSliceMut, Normed, Unit, Vector3, Vector4};
 
 use crate::geometry::{Point3, Rotation};
 
@@ -25,13 +26,13 @@ use crate::geometry::{Point3, Rotation};
 /// that may be used as a rotation.
 #[repr(C)]
 #[derive(Debug)]
-pub struct Quaternion<N: RealField> {
+pub struct Quaternion<N: SimdRealField> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<N>,
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: RealField> Abomonation for Quaternion<N>
+impl<N: SimdRealField> Abomonation for Quaternion<N>
 where Vector4<N>: Abomonation
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
@@ -47,9 +48,9 @@ where Vector4<N>: Abomonation
     }
 }
 
-impl<N: RealField + Eq> Eq for Quaternion<N> {}
+impl<N: SimdRealField + Eq> Eq for Quaternion<N> {}
 
-impl<N: RealField> PartialEq for Quaternion<N> {
+impl<N: SimdRealField> PartialEq for Quaternion<N> {
     fn eq(&self, rhs: &Self) -> bool {
         self.coords == rhs.coords ||
         // Account for the double-covering of S², i.e. q = -q
@@ -57,15 +58,15 @@ impl<N: RealField> PartialEq for Quaternion<N> {
     }
 }
 
-impl<N: RealField + hash::Hash> hash::Hash for Quaternion<N> {
+impl<N: SimdRealField + hash::Hash> hash::Hash for Quaternion<N> {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.coords.hash(state)
     }
 }
 
-impl<N: RealField> Copy for Quaternion<N> {}
+impl<N: SimdRealField> Copy for Quaternion<N> {}
 
-impl<N: RealField> Clone for Quaternion<N> {
+impl<N: SimdRealField> Clone for Quaternion<N> {
     #[inline]
     fn clone(&self) -> Self {
         Self::from(self.coords.clone())
@@ -73,7 +74,7 @@ impl<N: RealField> Clone for Quaternion<N> {
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: RealField> Serialize for Quaternion<N>
+impl<N: SimdRealField> Serialize for Quaternion<N>
 where Owned<N, U4>: Serialize
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -83,7 +84,7 @@ where Owned<N, U4>: Serialize
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: RealField> Deserialize<'a> for Quaternion<N>
+impl<'a, N: SimdRealField> Deserialize<'a> for Quaternion<N>
 where Owned<N, U4>: Deserialize<'a>
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
@@ -94,7 +95,7 @@ where Owned<N, U4>: Deserialize<'a>
     }
 }
 
-impl<N: RealField> Quaternion<N> {
+impl<N: SimdRealField> Quaternion<N> {
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
     #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
@@ -144,36 +145,6 @@ impl<N: RealField> Quaternion<N> {
     #[must_use = "Did you mean to use conjugate_mut()?"]
     pub fn conjugate(&self) -> Self {
         Self::from_parts(self.w, -self.imag())
-    }
-
-    /// Inverts this quaternion if it is not zero.
-    ///
-    /// # Example
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::Quaternion;
-    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
-    /// let inv_q = q.try_inverse();
-    ///
-    /// assert!(inv_q.is_some());
-    /// assert_relative_eq!(inv_q.unwrap() * q, Quaternion::identity());
-    ///
-    /// //Non-invertible case
-    /// let q = Quaternion::new(0.0, 0.0, 0.0, 0.0);
-    /// let inv_q = q.try_inverse();
-    ///
-    /// assert!(inv_q.is_none());
-    /// ```
-    #[inline]
-    #[must_use = "Did you mean to use try_inverse_mut()?"]
-    pub fn try_inverse(&self) -> Option<Self> {
-        let mut res = Self::from(self.coords.clone_owned());
-
-        if res.try_inverse_mut() {
-            Some(res)
-        } else {
-            None
-        }
     }
 
     /// Linear interpolation between two quaternion.
@@ -308,6 +279,38 @@ impl<N: RealField> Quaternion<N> {
     #[inline]
     pub fn dot(&self, rhs: &Self) -> N {
         self.coords.dot(&rhs.coords)
+    }
+}
+
+impl<N: RealField> Quaternion<N> {
+    /// Inverts this quaternion if it is not zero.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let inv_q = q.try_inverse();
+    ///
+    /// assert!(inv_q.is_some());
+    /// assert_relative_eq!(inv_q.unwrap() * q, Quaternion::identity());
+    ///
+    /// //Non-invertible case
+    /// let q = Quaternion::new(0.0, 0.0, 0.0, 0.0);
+    /// let inv_q = q.try_inverse();
+    ///
+    /// assert!(inv_q.is_none());
+    /// ```
+    #[inline]
+    #[must_use = "Did you mean to use try_inverse_mut()?"]
+    pub fn try_inverse(&self) -> Option<Self> {
+        let mut res = self.clone();
+
+        if res.try_inverse_mut() {
+            Some(res)
+        } else {
+            None
+        }
     }
 
     /// Calculates the inner product (also known as the dot product).
@@ -917,6 +920,30 @@ impl<N: RealField + fmt::Display> fmt::Display for Quaternion<N> {
 /// A unit quaternions. May be used to represent a rotation.
 pub type UnitQuaternion<N> = Unit<Quaternion<N>>;
 
+impl<N: SimdRealField> Normed for Quaternion<N> {
+    type Norm = N::SimdRealField;
+
+    #[inline]
+    fn norm(&self) -> N::SimdRealField {
+        self.coords.norm()
+    }
+
+    #[inline]
+    fn norm_squared(&self) -> N::SimdRealField {
+        self.coords.norm_squared()
+    }
+
+    #[inline]
+    fn scale_mut(&mut self, n: Self::Norm) {
+        self.coords.scale_mut(n)
+    }
+
+    #[inline]
+    fn unscale_mut(&mut self, n: Self::Norm) {
+        self.coords.unscale_mut(n)
+    }
+}
+
 impl<N: RealField> UnitQuaternion<N> {
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
@@ -948,7 +975,7 @@ impl<N: RealField> UnitQuaternion<N> {
     #[inline]
     pub fn angle(&self) -> N {
         let w = self.quaternion().scalar().abs();
-	    self.quaternion().imag().norm().atan2(w) * crate::convert(2.0f64)
+        self.quaternion().imag().norm().atan2(w) * crate::convert(2.0f64)
     }
 
     /// The underlying quaternion.
@@ -1029,7 +1056,7 @@ impl<N: RealField> UnitQuaternion<N> {
     /// assert_relative_eq!(rot_to * rot1, rot2, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn rotation_to(&self, other: &Self) -> Self{
+    pub fn rotation_to(&self, other: &Self) -> Self {
         other / self
     }
 
@@ -1087,7 +1114,8 @@ impl<N: RealField> UnitQuaternion<N> {
     /// ```
     #[inline]
     pub fn slerp(&self, other: &Self, t: N) -> Self {
-        self.try_slerp(other, t, N::default_epsilon()).expect("Quaternion slerp: ambiguous configuration.")
+        self.try_slerp(other, t, N::default_epsilon())
+            .expect("Quaternion slerp: ambiguous configuration.")
     }
 
     /// Computes the spherical linear interpolation between two unit quaternions or returns `None`
@@ -1101,21 +1129,20 @@ impl<N: RealField> UnitQuaternion<N> {
     /// * `epsilon`: the value below which the sinus of the angle separating both quaternion
     /// must be to return `None`.
     #[inline]
-    pub fn try_slerp(
-        &self,
-        other: &Self,
-        t: N,
-        epsilon: N,
-    ) -> Option<Self>
-    {
+    pub fn try_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self> {
         let coords = if self.coords.dot(&other.coords) < N::zero() {
-            Unit::new_unchecked(self.coords)
-                .try_slerp(&Unit::new_unchecked(-other.coords), t, epsilon)
+            Unit::new_unchecked(self.coords).try_slerp(
+                &Unit::new_unchecked(-other.coords),
+                t,
+                epsilon,
+            )
         } else {
-            Unit::new_unchecked(self.coords)
-                .try_slerp(&Unit::new_unchecked(other.coords), t, epsilon)
+            Unit::new_unchecked(self.coords).try_slerp(
+                &Unit::new_unchecked(other.coords),
+                t,
+                epsilon,
+            )
         };
-
 
         coords.map(|q| Unit::new_unchecked(Quaternion::from(q.into_inner())))
     }

@@ -1,11 +1,13 @@
 use num::Zero;
+use std::ops::Neg;
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Dim, Matrix, MatrixMN};
+use crate::base::{DefaultAllocator, Dim, Matrix, MatrixMN, Normed};
 use crate::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::storage::{Storage, StorageMut};
-use crate::{ComplexField, RealField, SimdComplexField, SimdRealField};
-use alga::simd::SimdPartialOrd;
+use crate::{ComplexField, Scalar, SimdComplexField, Unit};
+use simba::scalar::ClosedNeg;
+use simba::simd::{SimdOption, SimdPartialOrd};
 
 // FIXME: this should be be a trait on alga?
 /// A trait for abstract matrix norms.
@@ -272,6 +274,19 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     pub fn lp_norm(&self, p: i32) -> N::SimdRealField {
         self.apply_norm(&LpNorm(p))
     }
+
+    #[inline]
+    #[must_use = "Did you mean to use simd_try_normalize_mut()?"]
+    pub fn simd_try_normalize(&self, min_norm: N::SimdRealField) -> SimdOption<MatrixMN<N, R, C>>
+    where
+        N::Element: Scalar,
+        DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+    {
+        let n = self.norm();
+        let le = n.simd_le(min_norm);
+        let val = self.unscale(n);
+        SimdOption::new(val, le)
+    }
 }
 
 impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
@@ -313,6 +328,22 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C
 
         n
     }
+
+    #[inline]
+    #[must_use = "Did you mean to use simd_try_normalize_mut()?"]
+    pub fn simd_try_normalize_mut(
+        &mut self,
+        min_norm: N::SimdRealField,
+    ) -> SimdOption<N::SimdRealField>
+    where
+        N::Element: Scalar,
+        DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+    {
+        let n = self.norm();
+        let le = n.simd_le(min_norm);
+        self.apply(|e| e.simd_unscale(n).select(le, e));
+        SimdOption::new(n, le)
+    }
 }
 
 impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
@@ -320,8 +351,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S>
     ///
     /// If the normalization succeeded, returns the old norm of this matrix.
     #[inline]
-    pub fn try_normalize_mut(&mut self, min_norm: N::RealField) -> Option<N::RealField>
-    where N: ComplexField {
+    pub fn try_normalize_mut(&mut self, min_norm: N::RealField) -> Option<N::RealField> {
         let n = self.norm();
 
         if n <= min_norm {
@@ -330,5 +360,42 @@ impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S>
             self.unscale_mut(n);
             Some(n)
         }
+    }
+}
+
+impl<N: SimdComplexField, R: Dim, C: Dim> Normed for MatrixMN<N, R, C>
+where DefaultAllocator: Allocator<N, R, C>
+{
+    type Norm = N::SimdRealField;
+
+    #[inline]
+    fn norm(&self) -> N::SimdRealField {
+        self.norm()
+    }
+
+    #[inline]
+    fn norm_squared(&self) -> N::SimdRealField {
+        self.norm_squared()
+    }
+
+    #[inline]
+    fn scale_mut(&mut self, n: Self::Norm) {
+        self.scale_mut(n)
+    }
+
+    #[inline]
+    fn unscale_mut(&mut self, n: Self::Norm) {
+        self.unscale_mut(n)
+    }
+}
+
+impl<N: Scalar + ClosedNeg, R: Dim, C: Dim> Neg for Unit<MatrixMN<N, R, C>>
+where DefaultAllocator: Allocator<N, R, C>
+{
+    type Output = Unit<MatrixMN<N, R, C>>;
+
+    #[inline]
+    fn neg(self) -> Self::Output {
+        Unit::new_unchecked(-self.value)
     }
 }

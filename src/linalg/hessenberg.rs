@@ -1,11 +1,11 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::ComplexField;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
 use crate::dimension::{DimDiff, DimSub, U1};
 use crate::storage::Storage;
+use simba::scalar::ComplexField;
 
 use crate::linalg::householder;
 
@@ -13,21 +13,17 @@ use crate::linalg::householder;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
          MatrixN<N, D>: Serialize,
-         VectorN<N, DimDiff<D, U1>>: Serialize"
-    ))
+         VectorN<N, DimDiff<D, U1>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, DimDiff<D, U1>>,
          MatrixN<N, D>: Deserialize<'de>,
-         VectorN<N, DimDiff<D, U1>>: Deserialize<'de>"
-    ))
+         VectorN<N, DimDiff<D, U1>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct Hessenberg<N: ComplexField, D: DimSub<U1>>
@@ -42,7 +38,8 @@ where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
     MatrixN<N, D>: Copy,
     VectorN<N, DimDiff<D, U1>>: Copy,
-{}
+{
+}
 
 impl<N: ComplexField, D: DimSub<U1>> Hessenberg<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>

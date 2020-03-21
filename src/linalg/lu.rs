@@ -1,13 +1,13 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::{Field, ComplexField};
 use crate::allocator::{Allocator, Reallocator};
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimMin, DimMinimum};
-use std::mem;
 use crate::storage::{Storage, StorageMut};
+use simba::scalar::{ComplexField, Field};
+use std::mem;
 
 use crate::linalg::PermutationSequence;
 
@@ -15,21 +15,17 @@ use crate::linalg::PermutationSequence;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Serialize,
-         PermutationSequence<DimMinimum<R, C>>: Serialize"
-    ))
+         PermutationSequence<DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
          MatrixMN<N, R, C>: Deserialize<'de>,
-         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"
-    ))
+         PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct LU<N: ComplexField, R: DimMin<C>, C: Dim>
@@ -44,7 +40,8 @@ where
     DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
     MatrixMN<N, R, C>: Copy,
     PermutationSequence<DimMinimum<R, C>>: Copy,
-{}
+{
+}
 
 /// Performs a LU decomposition to overwrite `out` with the inverse of `matrix`.
 ///
@@ -333,7 +330,8 @@ where
     let (pivot_row, mut down) = submat.rows_range_pair_mut(0, 1..);
 
     for k in 0..pivot_row.ncols() {
-        down.column_mut(k).axpy(-pivot_row[k].inlined_clone(), &coeffs, N::one());
+        down.column_mut(k)
+            .axpy(-pivot_row[k].inlined_clone(), &coeffs, N::one());
     }
 }
 
@@ -364,7 +362,8 @@ pub fn gauss_step_swap<N, R: Dim, C: Dim, S>(
 
     for k in 0..pivot_row.ncols() {
         mem::swap(&mut pivot_row[k], &mut down[(piv - 1, k)]);
-        down.column_mut(k).axpy(-pivot_row[k].inlined_clone(), &coeffs, N::one());
+        down.column_mut(k)
+            .axpy(-pivot_row[k].inlined_clone(), &coeffs, N::one());
     }
 }
 

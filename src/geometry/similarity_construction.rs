@@ -7,21 +7,20 @@ use num::One;
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
-use alga::general::RealField;
-use alga::linear::Rotation as AlgaRotation;
+use simba::scalar::RealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, U2, U3};
 use crate::base::{DefaultAllocator, Vector2, Vector3};
 
 use crate::geometry::{
-    Isometry, Point, Point3, Rotation2, Rotation3, Similarity, Translation, UnitComplex,
-    UnitQuaternion,
+    AbstractRotation, Isometry, Point, Point3, Rotation2, Rotation3, Similarity, Translation,
+    UnitComplex, UnitQuaternion,
 };
 
 impl<N: RealField, D: DimName, R> Similarity<N, D, R>
 where
-    R: AlgaRotation<Point<N, D>>,
+    R: AbstractRotation<N, D>,
     DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity similarity.
@@ -47,7 +46,7 @@ where
 
 impl<N: RealField, D: DimName, R> One for Similarity<N, D, R>
 where
-    R: AlgaRotation<Point<N, D>>,
+    R: AbstractRotation<N, D>,
     DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity similarity.
@@ -59,7 +58,7 @@ where
 
 impl<N: RealField, D: DimName, R> Distribution<Similarity<N, D, R>> for Standard
 where
-    R: AlgaRotation<Point<N, D>>,
+    R: AbstractRotation<N, D>,
     DefaultAllocator: Allocator<N, D>,
     Standard: Distribution<N> + Distribution<R>,
 {
@@ -76,7 +75,7 @@ where
 
 impl<N: RealField, D: DimName, R> Similarity<N, D, R>
 where
-    R: AlgaRotation<Point<N, D>>,
+    R: AbstractRotation<N, D>,
     DefaultAllocator: Allocator<N, D>,
 {
     /// The similarity that applies the scaling factor `scaling`, followed by the rotation `r` with
@@ -105,7 +104,7 @@ where
 impl<N, D: DimName, R> Arbitrary for Similarity<N, D, R>
 where
     N: RealField + Arbitrary + Send,
-    R: AlgaRotation<Point<N, D>> + Arbitrary + Send,
+    R: AbstractRotation<N, D> + Arbitrary + Send,
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Send,
 {

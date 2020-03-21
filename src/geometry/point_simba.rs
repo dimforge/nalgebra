@@ -2,17 +2,16 @@ use simba::simd::SimdValue;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::DimName;
-use crate::base::{DefaultAllocator, VectorN};
-use crate::Scalar;
+use crate::base::{DefaultAllocator, Scalar, VectorN};
 
-use crate::geometry::Translation;
+use crate::geometry::Point;
 
-impl<N: Scalar + SimdValue, D: DimName> SimdValue for Translation<N, D>
+impl<N: Scalar + SimdValue, D: DimName> SimdValue for Point<N, D>
 where
     N::Element: Scalar,
     DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
-    type Element = Translation<N::Element, D>;
+    type Element = Point<N::Element, D>;
     type SimdBool = N::SimdBool;
 
     #[inline]
@@ -22,31 +21,31 @@ where
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
-        VectorN::splat(val.vector).into()
+        VectorN::splat(val.coords).into()
     }
 
     #[inline]
     fn extract(&self, i: usize) -> Self::Element {
-        self.vector.extract(i).into()
+        self.coords.extract(i).into()
     }
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        self.vector.extract_unchecked(i).into()
+        self.coords.extract_unchecked(i).into()
     }
 
     #[inline]
     fn replace(&mut self, i: usize, val: Self::Element) {
-        self.vector.replace(i, val.vector)
+        self.coords.replace(i, val.coords)
     }
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.vector.replace_unchecked(i, val.vector)
+        self.coords.replace_unchecked(i, val.coords)
     }
 
     #[inline]
     fn select(self, cond: Self::SimdBool, other: Self) -> Self {
-        self.vector.select(cond, other.vector).into()
+        self.coords.select(cond, other.coords).into()
     }
 }

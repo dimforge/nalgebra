@@ -1,7 +1,7 @@
 use num::Zero;
 
-use alga::general::{RealField, SubsetOf, SupersetOf};
-use alga::linear::Rotation as AlgaRotation;
+use simba::scalar::{RealField, SubsetOf, SupersetOf};
+use simba::simd::SimdRealField;
 
 #[cfg(feature = "mint")]
 use mint;
@@ -9,8 +9,8 @@ use mint;
 use crate::base::dimension::U3;
 use crate::base::{Matrix3, Matrix4, Vector4};
 use crate::geometry::{
-    Isometry, Point3, Quaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf, TAffine,
-    Transform, Translation, UnitQuaternion,
+    AbstractRotation, Isometry, Quaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf,
+    TAffine, Transform, Translation, UnitQuaternion,
 };
 
 /*
@@ -34,8 +34,8 @@ use crate::geometry::{
 
 impl<N1, N2> SubsetOf<Quaternion<N2>> for Quaternion<N1>
 where
-    N1: RealField,
-    N2: RealField + SupersetOf<N1>,
+    N1: SimdRealField,
+    N2: SimdRealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> Quaternion<N2> {
@@ -48,7 +48,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(q: &Quaternion<N2>) -> Self {
+    fn from_superset_unchecked(q: &Quaternion<N2>) -> Self {
         Self {
             coords: q.coords.to_subset_unchecked(),
         }
@@ -57,8 +57,8 @@ where
 
 impl<N1, N2> SubsetOf<UnitQuaternion<N2>> for UnitQuaternion<N1>
 where
-    N1: RealField,
-    N2: RealField + SupersetOf<N1>,
+    N1: SimdRealField,
+    N2: SimdRealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> UnitQuaternion<N2> {
@@ -71,7 +71,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(uq: &UnitQuaternion<N2>) -> Self {
+    fn from_superset_unchecked(uq: &UnitQuaternion<N2>) -> Self {
         Self::new_unchecked(crate::convert_ref_unchecked(uq.as_ref()))
     }
 }
@@ -93,7 +93,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(rot: &Rotation3<N2>) -> Self {
+    fn from_superset_unchecked(rot: &Rotation3<N2>) -> Self {
         let q = UnitQuaternion::<N2>::from_rotation_matrix(rot);
         crate::convert_unchecked(q)
     }
@@ -103,7 +103,7 @@ impl<N1, N2, R> SubsetOf<Isometry<N2, U3, R>> for UnitQuaternion<N1>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: AlgaRotation<Point3<N2>> + SupersetOf<Self>,
+    R: AbstractRotation<N2, U3> + SupersetOf<Self>,
 {
     #[inline]
     fn to_superset(&self) -> Isometry<N2, U3, R> {
@@ -116,7 +116,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(iso: &Isometry<N2, U3, R>) -> Self {
+    fn from_superset_unchecked(iso: &Isometry<N2, U3, R>) -> Self {
         crate::convert_ref_unchecked(&iso.rotation)
     }
 }
@@ -125,7 +125,7 @@ impl<N1, N2, R> SubsetOf<Similarity<N2, U3, R>> for UnitQuaternion<N1>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: AlgaRotation<Point3<N2>> + SupersetOf<Self>,
+    R: AbstractRotation<N2, U3> + SupersetOf<Self>,
 {
     #[inline]
     fn to_superset(&self) -> Similarity<N2, U3, R> {
@@ -138,7 +138,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(sim: &Similarity<N2, U3, R>) -> Self {
+    fn from_superset_unchecked(sim: &Similarity<N2, U3, R>) -> Self {
         crate::convert_ref_unchecked(&sim.isometry)
     }
 }
@@ -160,7 +160,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(t: &Transform<N2, U3, C>) -> Self {
+    fn from_superset_unchecked(t: &Transform<N2, U3, C>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
@@ -177,7 +177,7 @@ impl<N1: RealField, N2: RealField + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for Un
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &Matrix4<N2>) -> Self {
+    fn from_superset_unchecked(m: &Matrix4<N2>) -> Self {
         let rot: Rotation3<N1> = crate::convert_ref_unchecked(m);
         Self::from_rotation_matrix(&rot)
     }
@@ -246,7 +246,7 @@ impl<N: RealField> From<UnitQuaternion<N>> for Matrix3<N> {
     }
 }
 
-impl<N: RealField> From<Vector4<N>> for Quaternion<N> {
+impl<N: SimdRealField> From<Vector4<N>> for Quaternion<N> {
     #[inline]
     fn from(coords: Vector4<N>) -> Self {
         Self { coords }

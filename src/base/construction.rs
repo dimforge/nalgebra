@@ -4,18 +4,18 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{Bounded, One, Zero};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
 #[cfg(feature = "std")]
 use rand;
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
 #[cfg(feature = "std")]
 use rand_distr::StandardNormal;
 use std::iter;
 use typenum::{self, Cmp, Greater};
 
 #[cfg(feature = "std")]
-use alga::general::RealField;
-use alga::general::{ClosedAdd, ClosedMul};
+use simba::scalar::RealField;
+use simba::scalar::{ClosedAdd, ClosedMul};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
@@ -576,9 +576,9 @@ macro_rules! impl_constructors(
 
 // FIXME: this is not very pretty. We could find a better call syntax.
 impl_constructors!(R, C;                         // Arguments for Matrix<N, ..., S>
-                   => R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
-                   R::name(), C::name();         // Arguments for `_generic` constructors.
-                   ); // Arguments for non-generic constructors.
+=> R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
+R::name(), C::name();         // Arguments for `_generic` constructors.
+); // Arguments for non-generic constructors.
 
 impl_constructors!(R, Dynamic;
                    => R: DimName;
@@ -693,26 +693,24 @@ macro_rules! impl_constructors_from_data(
 
 // FIXME: this is not very pretty. We could find a better call syntax.
 impl_constructors_from_data!(data; R, C;                  // Arguments for Matrix<N, ..., S>
-                            => R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
-                            R::name(), C::name();         // Arguments for `_generic` constructors.
-                            ); // Arguments for non-generic constructors.
+=> R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
+R::name(), C::name();         // Arguments for `_generic` constructors.
+); // Arguments for non-generic constructors.
 
 impl_constructors_from_data!(data; R, Dynamic;
-                            => R: DimName;
-                            R::name(), Dynamic::new(data.len() / R::dim());
-                            );
+=> R: DimName;
+R::name(), Dynamic::new(data.len() / R::dim());
+);
 
 impl_constructors_from_data!(data; Dynamic, C;
-                            => C: DimName;
-                            Dynamic::new(data.len() / C::dim()), C::name();
-                            );
+=> C: DimName;
+Dynamic::new(data.len() / C::dim()), C::name();
+);
 
 impl_constructors_from_data!(data; Dynamic, Dynamic;
                             ;
                             Dynamic::new(nrows), Dynamic::new(ncols);
                             nrows, ncols);
-
-
 
 /*
  *

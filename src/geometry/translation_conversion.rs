@@ -1,13 +1,14 @@
 use num::{One, Zero};
 
-use alga::general::{RealField, SubsetOf, SupersetOf};
-use alga::linear::Rotation;
+use simba::scalar::{RealField, SubsetOf, SupersetOf};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 
-use crate::geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
+use crate::geometry::{
+    AbstractRotation, Isometry, Similarity, SuperTCategoryOf, TAffine, Transform, Translation,
+};
 
 /*
  * This file provides the following conversions:
@@ -37,7 +38,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(rot: &Translation<N2, D>) -> Self {
+    fn from_superset_unchecked(rot: &Translation<N2, D>) -> Self {
         Translation {
             vector: rot.vector.to_subset_unchecked(),
         }
@@ -48,7 +49,7 @@ impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Translation<N1, D>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: Rotation<Point<N2, D>>,
+    R: AbstractRotation<N2, D>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
@@ -62,7 +63,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(iso: &Isometry<N2, D, R>) -> Self {
+    fn from_superset_unchecked(iso: &Isometry<N2, D, R>) -> Self {
         Self::from_superset_unchecked(&iso.translation)
     }
 }
@@ -71,7 +72,7 @@ impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Translation<N1, D
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: Rotation<Point<N2, D>>,
+    R: AbstractRotation<N2, D>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
@@ -85,7 +86,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(sim: &Similarity<N2, D, R>) -> Self {
+    fn from_superset_unchecked(sim: &Similarity<N2, D, R>) -> Self {
         Self::from_superset_unchecked(&sim.isometry.translation)
     }
 }
@@ -112,7 +113,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
+    fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
@@ -145,7 +146,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
+    fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let t = m.fixed_slice::<D, U1>(0, D::dim());
         Self {
             vector: crate::convert_unchecked(t.into_owned()),

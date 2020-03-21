@@ -54,16 +54,15 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-use alga::general::RealField;
-
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{U1, U3, U4};
 use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, Unit, Vector, Vector3};
+use crate::SimdRealField;
 
 use crate::geometry::{Point3, Quaternion, Rotation, UnitQuaternion};
 
-impl<N: RealField> Index<usize> for Quaternion<N> {
+impl<N: SimdRealField> Index<usize> for Quaternion<N> {
     type Output = N;
 
     #[inline]
@@ -72,7 +71,7 @@ impl<N: RealField> Index<usize> for Quaternion<N> {
     }
 }
 
-impl<N: RealField> IndexMut<usize> for Quaternion<N> {
+impl<N: SimdRealField> IndexMut<usize> for Quaternion<N> {
     #[inline]
     fn index_mut(&mut self, i: usize) -> &mut N {
         &mut self.coords[i]
@@ -85,7 +84,7 @@ macro_rules! quaternion_op_impl(
      $(for $Storage: ident: $StoragesBound: ident $(<$($BoundParam: ty),*>)*),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty $(=> $VDimA: ty, $VDimB: ty)*;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N: RealField $(, $Storage: $StoragesBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
+        impl<$($lives ,)* N: SimdRealField $(, $Storage: $StoragesBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
             where DefaultAllocator: Allocator<N, $LhsRDim, $LhsCDim> +
                                     Allocator<N, $RhsRDim, $RhsCDim> {
             type Output = $Result;
@@ -121,11 +120,11 @@ quaternion_op_impl!(
     'b);
 
 quaternion_op_impl!(
-    Add, add;
-    (U4, U1), (U4, U1);
-    self: Quaternion<N>, rhs: Quaternion<N>, Output = Quaternion<N>;
-    Quaternion::from(self.coords + rhs.coords);
-    );
+Add, add;
+(U4, U1), (U4, U1);
+self: Quaternion<N>, rhs: Quaternion<N>, Output = Quaternion<N>;
+Quaternion::from(self.coords + rhs.coords);
+);
 
 // Quaternion - Quaternion
 quaternion_op_impl!(
@@ -150,11 +149,11 @@ quaternion_op_impl!(
     'b);
 
 quaternion_op_impl!(
-    Sub, sub;
-    (U4, U1), (U4, U1);
-    self: Quaternion<N>, rhs: Quaternion<N>, Output = Quaternion<N>;
-    Quaternion::from(self.coords - rhs.coords);
-    );
+Sub, sub;
+(U4, U1), (U4, U1);
+self: Quaternion<N>, rhs: Quaternion<N>, Output = Quaternion<N>;
+Quaternion::from(self.coords - rhs.coords);
+);
 
 // Quaternion × Quaternion
 quaternion_op_impl!(
@@ -183,11 +182,11 @@ quaternion_op_impl!(
     'b);
 
 quaternion_op_impl!(
-    Mul, mul;
-    (U4, U1), (U4, U1);
-    self: Quaternion<N>, rhs: Quaternion<N>, Output = Quaternion<N>;
-    &self * &rhs;
-    );
+Mul, mul;
+(U4, U1), (U4, U1);
+self: Quaternion<N>, rhs: Quaternion<N>, Output = Quaternion<N>;
+&self * &rhs;
+);
 
 // UnitQuaternion × UnitQuaternion
 quaternion_op_impl!(
@@ -212,11 +211,11 @@ quaternion_op_impl!(
     'b);
 
 quaternion_op_impl!(
-    Mul, mul;
-    (U4, U1), (U4, U1);
-    self: UnitQuaternion<N>, rhs: UnitQuaternion<N>, Output = UnitQuaternion<N>;
-    &self * &rhs;
-    );
+Mul, mul;
+(U4, U1), (U4, U1);
+self: UnitQuaternion<N>, rhs: UnitQuaternion<N>, Output = UnitQuaternion<N>;
+&self * &rhs;
+);
 
 // UnitQuaternion ÷ UnitQuaternion
 quaternion_op_impl!(
@@ -241,11 +240,11 @@ quaternion_op_impl!(
     'b);
 
 quaternion_op_impl!(
-    Div, div;
-    (U4, U1), (U4, U1);
-    self: UnitQuaternion<N>, rhs: UnitQuaternion<N>, Output = UnitQuaternion<N>;
-    &self / &rhs;
-    );
+Div, div;
+(U4, U1), (U4, U1);
+self: UnitQuaternion<N>, rhs: UnitQuaternion<N>, Output = UnitQuaternion<N>;
+&self / &rhs;
+);
 
 // UnitQuaternion × Rotation
 quaternion_op_impl!(
@@ -274,12 +273,12 @@ quaternion_op_impl!(
     'b);
 
 quaternion_op_impl!(
-    Mul, mul;
-    (U4, U1), (U3, U3);
-    self: UnitQuaternion<N>, rhs: Rotation<N, U3>,
-    Output = UnitQuaternion<N> => U3, U3;
-    self * UnitQuaternion::<N>::from_rotation_matrix(&rhs);
-    );
+Mul, mul;
+(U4, U1), (U3, U3);
+self: UnitQuaternion<N>, rhs: Rotation<N, U3>,
+Output = UnitQuaternion<N> => U3, U3;
+self * UnitQuaternion::<N>::from_rotation_matrix(&rhs);
+);
 
 // UnitQuaternion ÷ Rotation
 quaternion_op_impl!(
@@ -308,12 +307,12 @@ quaternion_op_impl!(
     'b);
 
 quaternion_op_impl!(
-    Div, div;
-    (U4, U1), (U3, U3);
-    self: UnitQuaternion<N>, rhs: Rotation<N, U3>,
-    Output = UnitQuaternion<N> => U3, U3;
-    self / UnitQuaternion::<N>::from_rotation_matrix(&rhs);
-    );
+Div, div;
+(U4, U1), (U3, U3);
+self: UnitQuaternion<N>, rhs: Rotation<N, U3>,
+Output = UnitQuaternion<N> => U3, U3;
+self / UnitQuaternion::<N>::from_rotation_matrix(&rhs);
+);
 
 // Rotation × UnitQuaternion
 quaternion_op_impl!(
@@ -342,12 +341,12 @@ quaternion_op_impl!(
     'b);
 
 quaternion_op_impl!(
-    Mul, mul;
-    (U3, U3), (U4, U1);
-    self: Rotation<N, U3>, rhs: UnitQuaternion<N>,
-    Output = UnitQuaternion<N> => U3, U3;
-    UnitQuaternion::<N>::from_rotation_matrix(&self) * rhs;
-    );
+Mul, mul;
+(U3, U3), (U4, U1);
+self: Rotation<N, U3>, rhs: UnitQuaternion<N>,
+Output = UnitQuaternion<N> => U3, U3;
+UnitQuaternion::<N>::from_rotation_matrix(&self) * rhs;
+);
 
 // Rotation ÷ UnitQuaternion
 quaternion_op_impl!(
@@ -376,12 +375,12 @@ quaternion_op_impl!(
     'b);
 
 quaternion_op_impl!(
-    Div, div;
-    (U3, U3), (U4, U1);
-    self: Rotation<N, U3>, rhs: UnitQuaternion<N>,
-    Output = UnitQuaternion<N> => U3, U3;
-    UnitQuaternion::<N>::from_rotation_matrix(&self) / rhs;
-    );
+Div, div;
+(U3, U3), (U4, U1);
+self: Rotation<N, U3>, rhs: UnitQuaternion<N>,
+Output = UnitQuaternion<N> => U3, U3;
+UnitQuaternion::<N>::from_rotation_matrix(&self) / rhs;
+);
 
 // UnitQuaternion × Vector
 quaternion_op_impl!(
@@ -415,12 +414,12 @@ quaternion_op_impl!(
     'b);
 
 quaternion_op_impl!(
-    Mul, mul;
-    (U4, U1), (U3, U1) for SB: Storage<N, U3> ;
-    self: UnitQuaternion<N>, rhs: Vector<N, U3, SB>,
-    Output = Vector3<N> => U3, U4;
-    &self * &rhs;
-    );
+Mul, mul;
+(U4, U1), (U3, U1) for SB: Storage<N, U3> ;
+self: UnitQuaternion<N>, rhs: Vector<N, U3, SB>,
+Output = Vector3<N> => U3, U4;
+&self * &rhs;
+);
 
 // UnitQuaternion × Point
 quaternion_op_impl!(
@@ -448,12 +447,12 @@ quaternion_op_impl!(
     'b);
 
 quaternion_op_impl!(
-    Mul, mul;
-    (U4, U1), (U3, U1);
-    self: UnitQuaternion<N>, rhs: Point3<N>,
-    Output = Point3<N> => U3, U4;
-    Point3::from(self * rhs.coords);
-    );
+Mul, mul;
+(U4, U1), (U3, U1);
+self: UnitQuaternion<N>, rhs: Point3<N>,
+Output = Point3<N> => U3, U4;
+Point3::from(self * rhs.coords);
+);
 
 // UnitQuaternion × Unit<Vector>
 quaternion_op_impl!(
@@ -481,16 +480,16 @@ quaternion_op_impl!(
     'b);
 
 quaternion_op_impl!(
-    Mul, mul;
-    (U4, U1), (U3, U1) for SB: Storage<N, U3> ;
-    self: UnitQuaternion<N>, rhs: Unit<Vector<N, U3, SB>>,
-    Output = Unit<Vector3<N>> => U3, U4;
-    Unit::new_unchecked(self * rhs.into_inner());
-    );
+Mul, mul;
+(U4, U1), (U3, U1) for SB: Storage<N, U3> ;
+self: UnitQuaternion<N>, rhs: Unit<Vector<N, U3, SB>>,
+Output = Unit<Vector3<N>> => U3, U4;
+Unit::new_unchecked(self * rhs.into_inner());
+);
 
 macro_rules! scalar_op_impl(
     ($($Op: ident, $op: ident, $OpAssign: ident, $op_assign: ident);* $(;)*) => {$(
-        impl<N: RealField> $Op<N> for Quaternion<N> {
+        impl<N: SimdRealField> $Op<N> for Quaternion<N> {
             type Output = Quaternion<N>;
 
             #[inline]
@@ -499,7 +498,7 @@ macro_rules! scalar_op_impl(
             }
         }
 
-        impl<'a, N: RealField> $Op<N> for &'a Quaternion<N> {
+        impl<'a, N: SimdRealField> $Op<N> for &'a Quaternion<N> {
             type Output = Quaternion<N>;
 
             #[inline]
@@ -508,7 +507,7 @@ macro_rules! scalar_op_impl(
             }
         }
 
-        impl<N: RealField> $OpAssign<N> for Quaternion<N> {
+        impl<N: SimdRealField> $OpAssign<N> for Quaternion<N> {
 
             #[inline]
             fn $op_assign(&mut self, n: N) {
@@ -547,7 +546,7 @@ macro_rules! left_scalar_mul_impl(
 
 left_scalar_mul_impl!(f32, f64);
 
-impl<N: RealField> Neg for Quaternion<N> {
+impl<N: SimdRealField> Neg for Quaternion<N> {
     type Output = Quaternion<N>;
 
     #[inline]
@@ -556,7 +555,7 @@ impl<N: RealField> Neg for Quaternion<N> {
     }
 }
 
-impl<'a, N: RealField> Neg for &'a Quaternion<N> {
+impl<'a, N: SimdRealField> Neg for &'a Quaternion<N> {
     type Output = Quaternion<N>;
 
     #[inline]
@@ -570,7 +569,7 @@ macro_rules! quaternion_op_impl(
      ($LhsRDim: ident, $LhsCDim: ident), ($RhsRDim: ident, $RhsCDim: ident);
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty $(=> $VDimA: ty, $VDimB: ty)*;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N: RealField> $OpAssign<$Rhs> for $Lhs
+        impl<$($lives ,)* N: SimdRealField> $OpAssign<$Rhs> for $Lhs
             where DefaultAllocator: Allocator<N, $LhsRDim, $LhsCDim> +
                                     Allocator<N, $RhsRDim, $RhsCDim> {
 

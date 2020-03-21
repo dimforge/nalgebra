@@ -8,7 +8,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::mem;
 
-use alga::general::RealField;
+use simba::scalar::RealField;
 
 use crate::base::dimension::U3;
 use crate::base::helper;
@@ -147,7 +147,7 @@ impl<N: RealField> Perspective3<N> {
 
     /// Retrieves the underlying homogeneous matrix.
     /// Deprecated: Use [Perspective3::into_inner] instead.
-    #[deprecated(note="use `.into_inner()` instead")]
+    #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> Matrix4<N> {
         self.matrix
@@ -170,7 +170,8 @@ impl<N: RealField> Perspective3<N> {
     pub fn znear(&self) -> N {
         let ratio = (-self.matrix[(2, 2)] + N::one()) / (-self.matrix[(2, 2)] - N::one());
 
-        self.matrix[(2, 3)] / (ratio * crate::convert(2.0)) - self.matrix[(2, 3)] / crate::convert(2.0)
+        self.matrix[(2, 3)] / (ratio * crate::convert(2.0))
+            - self.matrix[(2, 3)] / crate::convert(2.0)
     }
 
     /// Gets the far plane offset of the view frustum.

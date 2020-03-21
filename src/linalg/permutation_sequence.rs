@@ -1,8 +1,8 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use alga::general::ClosedNeg;
 use num::One;
+use simba::scalar::ClosedNeg;
 
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, Scalar, VectorN};
@@ -15,17 +15,13 @@ use crate::storage::StorageMut;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<(usize, usize), D>,
-         VectorN<(usize, usize), D>: Serialize"
-    ))
+    serde(bound(serialize = "DefaultAllocator: Allocator<(usize, usize), D>,
+         VectorN<(usize, usize), D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<(usize, usize), D>,
-         VectorN<(usize, usize), D>: Deserialize<'de>"
-    ))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<(usize, usize), D>,
+         VectorN<(usize, usize), D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct PermutationSequence<D: Dim>
@@ -39,7 +35,8 @@ impl<D: Dim> Copy for PermutationSequence<D>
 where
     DefaultAllocator: Allocator<(usize, usize), D>,
     VectorN<(usize, usize), D>: Copy,
-{}
+{
+}
 
 impl<D: DimName> PermutationSequence<D>
 where DefaultAllocator: Allocator<(usize, usize), D>

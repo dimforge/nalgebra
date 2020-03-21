@@ -10,14 +10,13 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{RealField, SubsetOf};
-use alga::linear::Rotation;
+use simba::scalar::{RealField, SubsetOf};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
 use crate::base::{DefaultAllocator, MatrixN, VectorN};
-use crate::geometry::{Isometry, Point, Translation};
+use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
@@ -25,21 +24,17 @@ use crate::geometry::{Isometry, Point, Translation};
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "N: Serialize,
+    serde(bound(serialize = "N: Serialize,
                      R: Serialize,
                      DefaultAllocator: Allocator<N, D>,
-                     Owned<N, D>: Serialize"
-    ))
+                     Owned<N, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "N: Deserialize<'de>,
+    serde(bound(deserialize = "N: Deserialize<'de>,
                        R: Deserialize<'de>,
                        DefaultAllocator: Allocator<N, D>,
-                       Owned<N, D>: Deserialize<'de>"
-    ))
+                       Owned<N, D>: Deserialize<'de>"))
 )]
 pub struct Similarity<N: RealField, D: DimName, R>
 where DefaultAllocator: Allocator<N, D>
@@ -80,13 +75,14 @@ where
     }
 }
 
-impl<N: RealField, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Similarity<N, D, R>
+impl<N: RealField, D: DimName + Copy, R: AbstractRotation<N, D> + Copy> Copy for Similarity<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
-{}
+{
+}
 
-impl<N: RealField, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Similarity<N, D, R>
+impl<N: RealField, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Similarity<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
@@ -97,17 +93,12 @@ where DefaultAllocator: Allocator<N, D>
 
 impl<N: RealField, D: DimName, R> Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>>,
+    R: AbstractRotation<N, D>,
     DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new similarity from its rotational and translational parts.
     #[inline]
-    pub fn from_parts(
-        translation: Translation<N, D>,
-        rotation: R,
-        scaling: N,
-    ) -> Self
-    {
+    pub fn from_parts(translation: Translation<N, D>, rotation: R, scaling: N) -> Self {
         Self::from_isometry(Isometry::from_parts(translation, rotation), scaling)
     }
 
@@ -119,10 +110,7 @@ where
             "The scaling factor must not be zero."
         );
 
-        Self {
-            isometry: isometry,
-            scaling: scaling,
-        }
+        Self { isometry, scaling }
     }
 
     /// Creates a new similarity that applies only a scaling factor.
@@ -351,13 +339,14 @@ where DefaultAllocator: Allocator<N, D>
 
 impl<N: RealField, D: DimName, R> Eq for Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>> + Eq,
+    R: AbstractRotation<N, D> + Eq,
     DefaultAllocator: Allocator<N, D>,
-{}
+{
+}
 
 impl<N: RealField, D: DimName, R> PartialEq for Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>> + PartialEq,
+    R: AbstractRotation<N, D> + PartialEq,
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
@@ -368,7 +357,7 @@ where
 
 impl<N: RealField, D: DimName, R> AbsDiffEq for Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>> + AbsDiffEq<Epsilon = N::Epsilon>,
+    R: AbstractRotation<N, D> + AbsDiffEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
@@ -388,7 +377,7 @@ where
 
 impl<N: RealField, D: DimName, R> RelativeEq for Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>> + RelativeEq<Epsilon = N::Epsilon>,
+    R: AbstractRotation<N, D> + RelativeEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
@@ -415,7 +404,7 @@ where
 
 impl<N: RealField, D: DimName, R> UlpsEq for Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>> + UlpsEq<Epsilon = N::Epsilon>,
+    R: AbstractRotation<N, D> + UlpsEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
@@ -439,7 +428,7 @@ where
 impl<N, D: DimName, R> fmt::Display for Similarity<N, D, R>
 where
     N: RealField + fmt::Display,
-    R: Rotation<Point<N, D>> + fmt::Display,
+    R: AbstractRotation<N, D> + fmt::Display,
     DefaultAllocator: Allocator<N, D> + Allocator<usize, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

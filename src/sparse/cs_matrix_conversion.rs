@@ -1,5 +1,5 @@
-use alga::general::ClosedAdd;
 use num::Zero;
+use simba::scalar::ClosedAdd;
 
 use crate::allocator::Allocator;
 use crate::sparse::cs_utils;

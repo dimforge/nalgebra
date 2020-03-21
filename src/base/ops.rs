@@ -1,12 +1,11 @@
-use num::{One, Signed, Zero};
-use std::cmp::{Ordering, PartialOrd};
+use num::{One, Zero};
 use std::iter;
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-use alga::general::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
-use alga::simd::{SimdPartialOrd, SimdSigned};
+use simba::scalar::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
+use simba::simd::{SimdPartialOrd, SimdSigned};
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use crate::base::constraint::{

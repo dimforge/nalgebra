@@ -2,7 +2,7 @@
 use approx::RelativeEq;
 use num::{One, Zero};
 
-use alga::general::{ClosedAdd, ClosedMul, RealField, ComplexField};
+use simba::scalar::{ClosedAdd, ClosedMul, ComplexField, RealField};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimMin};
@@ -91,11 +91,11 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// equal to `eps`.
     #[inline]
     pub fn is_orthogonal(&self, eps: N::Epsilon) -> bool
-        where
-            N: Zero + One + ClosedAdd + ClosedMul + RelativeEq,
-            S: Storage<N, R, C>,
-            N::Epsilon: Copy,
-            DefaultAllocator: Allocator<N, R, C> + Allocator<N, C, C>,
+    where
+        N: Zero + One + ClosedAdd + ClosedMul + RelativeEq,
+        S: Storage<N, R, C>,
+        N::Epsilon: Copy,
+        DefaultAllocator: Allocator<N, R, C> + Allocator<N, C, C>,
     {
         (self.ad_mul(self)).is_identity(eps)
     }

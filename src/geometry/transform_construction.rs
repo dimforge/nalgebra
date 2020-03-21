@@ -1,6 +1,6 @@
 use num::One;
 
-use alga::general::RealField;
+use simba::scalar::RealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};

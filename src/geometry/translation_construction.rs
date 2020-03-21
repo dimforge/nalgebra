@@ -7,7 +7,7 @@ use num::{One, Zero};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
-use alga::general::ClosedAdd;
+use simba::scalar::ClosedAdd;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, U1, U2, U3, U4, U5, U6};

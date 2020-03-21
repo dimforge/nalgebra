@@ -3,10 +3,12 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-use alga::general::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
+use simba::scalar::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
 use crate::base::allocator::{Allocator, SameShapeAllocator};
-use crate::base::constraint::{AreMultipliable, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+use crate::base::constraint::{
+    AreMultipliable, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
+};
 use crate::base::dimension::{Dim, DimName, U1};
 use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, Matrix, Scalar, Vector, VectorSum};

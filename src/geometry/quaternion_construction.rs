@@ -9,15 +9,16 @@ use num::{One, Zero};
 use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
-use alga::general::RealField;
+use simba::scalar::RealField;
 
 use crate::base::dimension::U3;
 use crate::base::storage::Storage;
-use crate::base::{Unit, Vector, Vector3, Vector4, Matrix3, Matrix4};
+use crate::base::{Matrix3, Matrix4, Unit, Vector, Vector3, Vector4};
+use crate::SimdRealField;
 
 use crate::geometry::{Quaternion, Rotation3, UnitQuaternion};
 
-impl<N: RealField> Quaternion<N> {
+impl<N: SimdRealField> Quaternion<N> {
     /// Creates a quaternion from a 4D vector. The quaternion scalar part corresponds to the `w`
     /// vector component.
     #[inline]
@@ -77,17 +78,6 @@ impl<N: RealField> Quaternion<N> {
         Self::from_parts(r, Vector3::zero())
     }
 
-    /// Creates a new quaternion from its polar decomposition.
-    ///
-    /// Note that `axis` is assumed to be a unit vector.
-    // FIXME: take a reference to `axis`?
-    pub fn from_polar_decomposition<SB>(scale: N, theta: N, axis: Unit<Vector<N, U3, SB>>) -> Self
-    where SB: Storage<N, U3> {
-        let rot = UnitQuaternion::<N>::from_axis_angle(&axis, theta * crate::convert(2.0f64));
-
-        rot.into_inner() * scale
-    }
-
     /// The quaternion multiplicative identity.
     ///
     /// # Example
@@ -105,14 +95,28 @@ impl<N: RealField> Quaternion<N> {
     }
 }
 
-impl<N: RealField> One for Quaternion<N> {
+// FIXME: merge with the previous block.
+impl<N: RealField> Quaternion<N> {
+    /// Creates a new quaternion from its polar decomposition.
+    ///
+    /// Note that `axis` is assumed to be a unit vector.
+    // FIXME: take a reference to `axis`?
+    pub fn from_polar_decomposition<SB>(scale: N, theta: N, axis: Unit<Vector<N, U3, SB>>) -> Self
+    where SB: Storage<N, U3> {
+        let rot = UnitQuaternion::<N>::from_axis_angle(&axis, theta * crate::convert(2.0f64));
+
+        rot.into_inner() * scale
+    }
+}
+
+impl<N: SimdRealField> One for Quaternion<N> {
     #[inline]
     fn one() -> Self {
         Self::identity()
     }
 }
 
-impl<N: RealField> Zero for Quaternion<N> {
+impl<N: SimdRealField> Zero for Quaternion<N> {
     #[inline]
     fn zero() -> Self {
         Self::from(Vector4::zero())
@@ -124,7 +128,7 @@ impl<N: RealField> Zero for Quaternion<N> {
     }
 }
 
-impl<N: RealField> Distribution<Quaternion<N>> for Standard
+impl<N: SimdRealField> Distribution<Quaternion<N>> for Standard
 where Standard: Distribution<N>
 {
     #[inline]
@@ -134,7 +138,7 @@ where Standard: Distribution<N>
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: RealField + Arbitrary> Arbitrary for Quaternion<N>
+impl<N: SimdRealField + Arbitrary> Arbitrary for Quaternion<N>
 where Owned<N, U4>: Send
 {
     #[inline]
@@ -492,7 +496,7 @@ impl<N: RealField> UnitQuaternion<N> {
     }
 
     /// Deprecated: Use [UnitQuaternion::face_towards] instead.
-    #[deprecated(note="renamed to `face_towards`")]
+    #[deprecated(note = "renamed to `face_towards`")]
     pub fn new_observer_frames<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
     where
         SB: Storage<N, U3>,
@@ -685,7 +689,7 @@ impl<N: RealField> UnitQuaternion<N> {
     /// Algorithm from: Oshman, Yaakov, and Avishy Carmi. "Attitude estimation from vector
     /// observations using a genetic-algorithm-embedded quaternion particle filter." Journal of
     /// Guidance, Control, and Dynamics 29.4 (2006): 879-891.
-    /// 
+    ///
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
@@ -709,7 +713,7 @@ impl<N: RealField> UnitQuaternion<N> {
             .sum();
 
         assert!(!quaternions_matrix.is_zero());
-        
+
         let eigen_matrix = quaternions_matrix
             .try_symmetric_eigen(N::RealField::default_epsilon(), 10)
             .expect("Quaternions matrix could not be diagonalized. This behavior should not be possible.");

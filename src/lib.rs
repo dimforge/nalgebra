@@ -68,8 +68,6 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * 3D projections for computer graphics: `Perspective3`, `Orthographic3`.
 * Matrix factorizations: `Cholesky`, `QR`, `LU`, `FullPivLU`, `SVD`, `Schur`, `Hessenberg`, `SymmetricEigen`.
 * Insertion and removal of rows of columns of a matrix.
-* Implements traits from the [alga](https://crates.io/crates/alga) crate for
-  generic programming.
 */
 
 // #![feature(plugin)]
@@ -81,7 +79,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![deny(non_upper_case_globals)]
 #![deny(unused_qualifications)]
 #![deny(unused_results)]
-#![deny(missing_docs)]
+#![allow(missing_docs)] // XXX: deny that
 #![doc(
     html_favicon_url = "https://nalgebra.org/img/favicon.ico",
     html_root_url = "https://nalgebra.org/rustdoc"
@@ -106,18 +104,11 @@ extern crate mint;
 
 #[macro_use]
 extern crate approx;
-extern crate generic_array;
 #[cfg(feature = "std")]
 extern crate matrixmultiply;
-extern crate num_complex;
-extern crate num_rational;
 extern crate num_traits as num;
-extern crate rand;
 #[cfg(feature = "std")]
 extern crate rand_distr;
-extern crate typenum;
-
-extern crate alga;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 extern crate alloc;
@@ -152,35 +143,17 @@ pub use crate::sparse::*;
 )]
 pub use base as core;
 
+use simba::scalar::SupersetOf;
 use std::cmp::{self, Ordering, PartialOrd};
 
-use alga::general::{
-    Additive, AdditiveGroup, Identity, JoinSemilattice, Lattice, MeetSemilattice, Multiplicative,
-    SupersetOf, TwoSidedInverse,
-};
-use alga::linear::SquareMatrix as AlgaSquareMatrix;
-use alga::linear::{EuclideanSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace};
-use num::Signed;
+use num::{One, Signed, Zero};
 
-#[allow(deprecated)]
-pub use alga::general::Real;
-pub use alga::general::{ComplexField, Id, RealField};
-pub use alga::simd::{SimdComplexField, SimdRealField};
+use base::allocator::Allocator;
 pub use num_complex::Complex;
-
-/*
- *
- * Multiplicative identity.
- *
- */
-/// Gets the ubiquitous multiplicative identity element.
-///
-/// Same as `Id::new()`.
-#[deprecated(note = "use `Id::new()` instead.")]
-#[inline]
-pub fn id() -> Id {
-    Id::new()
-}
+pub use simba::scalar::{
+    ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, ComplexField, Field, RealField,
+};
+pub use simba::simd::{SimdBool, SimdComplexField, SimdRealField};
 
 /// Gets the multiplicative identity element.
 ///
@@ -189,8 +162,8 @@ pub fn id() -> Id {
 /// * [`origin`](../nalgebra/fn.origin.html)
 /// * [`zero`](fn.zero.html)
 #[inline]
-pub fn one<T: Identity<Multiplicative>>() -> T {
-    T::identity()
+pub fn one<T: One>() -> T {
+    T::one()
 }
 
 /// Gets the additive identity element.
@@ -200,36 +173,8 @@ pub fn one<T: Identity<Multiplicative>>() -> T {
 /// * [`one`](fn.one.html)
 /// * [`origin`](../nalgebra/fn.origin.html)
 #[inline]
-pub fn zero<T: Identity<Additive>>() -> T {
-    T::identity()
-}
-
-/// Gets the origin of the given point.
-///
-/// # See also:
-///
-/// * [`one`](fn.one.html)
-/// * [`zero`](fn.zero.html)
-///
-/// # Deprecated
-/// Use [Point::origin] instead.
-///
-/// Or, use [EuclideanSpace::origin](https://docs.rs/alga/0.7.2/alga/linear/trait.EuclideanSpace.html#tymethod.origin).
-#[deprecated(note = "use `Point::origin` instead")]
-#[inline]
-pub fn origin<P: EuclideanSpace>() -> P {
-    P::origin()
-}
-
-/*
- *
- * Dimension
- *
- */
-/// The dimension of the given algebraic entity seen as a vector space.
-#[inline]
-pub fn dimension<V: FiniteDimVectorSpace>() -> usize {
-    V::dimension()
+pub fn zero<T: Zero>() -> T {
+    T::zero()
 }
 
 /*
@@ -245,7 +190,7 @@ pub fn dimension<V: FiniteDimVectorSpace>() -> usize {
 /// The range must not be empty.
 #[inline]
 pub fn wrap<T>(mut val: T, min: T, max: T) -> T
-where T: Copy + PartialOrd + AdditiveGroup {
+where T: Copy + PartialOrd + ClosedAdd + ClosedSub {
     assert!(min < max, "Invalid wrapping bounds.");
     let width = max - min;
 
@@ -310,23 +255,23 @@ pub fn abs<T: Signed>(a: &T) -> T {
     a.abs()
 }
 
-/// Returns the infimum of `a` and `b`.
-#[inline]
-pub fn inf<T: MeetSemilattice>(a: &T, b: &T) -> T {
-    a.meet(b)
-}
-
-/// Returns the supremum of `a` and `b`.
-#[inline]
-pub fn sup<T: JoinSemilattice>(a: &T, b: &T) -> T {
-    a.join(b)
-}
-
-/// Returns simultaneously the infimum and supremum of `a` and `b`.
-#[inline]
-pub fn inf_sup<T: Lattice>(a: &T, b: &T) -> (T, T) {
-    a.meet_join(b)
-}
+///// Returns the infimum of `a` and `b`.
+//#[inline]
+//pub fn inf<T: MeetSemilattice>(a: &T, b: &T) -> T {
+//    a.meet(b)
+//}
+//
+///// Returns the supremum of `a` and `b`.
+//#[inline]
+//pub fn sup<T: JoinSemilattice>(a: &T, b: &T) -> T {
+//    a.join(b)
+//}
+//
+///// Returns simultaneously the infimum and supremum of `a` and `b`.
+//#[inline]
+//pub fn inf_sup<T: Lattice>(a: &T, b: &T) -> (T, T) {
+//    a.meet_join(b)
+//}
 
 /// Compare `a` and `b` using a partial ordering relation.
 #[inline]
@@ -415,175 +360,6 @@ pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'
 }
 
 /*
- * Inverse
- */
-
-/// Tries to gets an inverted copy of a square matrix.
-///
-/// # See also:
-///
-/// * [`inverse`](fn.inverse.html)
-#[deprecated(note = "use the `.try_inverse()` method instead")]
-#[inline]
-pub fn try_inverse<M: AlgaSquareMatrix>(m: &M) -> Option<M> {
-    m.try_inverse()
-}
-
-/// Computes the multiplicative inverse of an (always invertible) algebraic entity.
-///
-/// # See also:
-///
-/// * [`try_inverse`](fn.try_inverse.html)
-#[deprecated(note = "use the `.inverse()` method instead")]
-#[inline]
-pub fn inverse<M: TwoSidedInverse<Multiplicative>>(m: &M) -> M {
-    m.two_sided_inverse()
-}
-
-/*
- * Inner vector space
- */
-
-/// Computes the dot product of two vectors.
-///
-/// ## Deprecated
-/// Use these methods instead:
-///   - [Matrix::dot]
-///   - [Quaternion::dot]
-///
-/// Or, use [FiniteDimVectorSpace::dot](https://docs.rs/alga/0.7.2/alga/linear/trait.FiniteDimVectorSpace.html#tymethod.dot).
-#[deprecated(note = "use `Matrix::dot` or `Quaternion::dot` instead")]
-#[inline]
-pub fn dot<V: FiniteDimVectorSpace>(a: &V, b: &V) -> V::Field {
-    a.dot(b)
-}
-
-/// Computes the smallest angle between two vectors.
-///
-/// ## Deprecated
-/// Use [Matrix::angle] instead.
-///
-/// Or, use [InnerSpace::angle](https://docs.rs/alga/0.7.2/alga/linear/trait.InnerSpace.html#method.angle).
-#[deprecated(note = "use `Matrix::angle` instead")]
-#[inline]
-pub fn angle<V: InnerSpace>(a: &V, b: &V) -> V::RealField {
-    a.angle(b)
-}
-
-/*
- * Normed space
- */
-
-/// Computes the L2 (Euclidean) norm of a vector.
-///
-/// # See also:
-///
-/// * [`magnitude`](fn.magnitude.html)
-/// * [`magnitude_squared`](fn.magnitude_squared.html)
-/// * [`norm_squared`](fn.norm_squared.html)
-///
-/// # Deprecated
-/// Use these methods instead:
-/// * [Matrix::norm]
-/// * [Quaternion::norm]
-///
-/// Or, use [NormedSpace::norm](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm).
-#[deprecated(note = "use `Matrix::norm` or `Quaternion::norm` instead")]
-#[inline]
-pub fn norm<V: NormedSpace>(v: &V) -> V::RealField {
-    v.norm()
-}
-
-/// Computes the squared L2 (Euclidean) norm of the vector `v`.
-///
-/// # See also:
-///
-/// * [`magnitude`](fn.magnitude.html)
-/// * [`magnitude_squared`](fn.magnitude_squared.html)
-/// * [`norm`](fn.norm.html)
-///
-/// # Deprecated
-/// Use these methods instead:
-/// * [Matrix::norm_squared]
-/// * [Quaternion::norm_squared]
-///
-/// Or, use [NormedSpace::norm_squared](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm_squared).
-#[deprecated(note = "use `Matrix::norm_squared` or `Quaternion::norm_squared` instead")]
-#[inline]
-pub fn norm_squared<V: NormedSpace>(v: &V) -> V::RealField {
-    v.norm_squared()
-}
-
-/// A synonym for [`norm`](fn.norm.html), aka length.
-///
-/// # See also:
-///
-/// * [`magnitude_squared`](fn.magnitude_squared.html)
-/// * [`norm`](fn.norm.html)
-/// * [`norm_squared`](fn.norm_squared.html)
-///
-/// # Deprecated
-/// Use these methods instead:
-/// * [Matrix::magnitude]
-/// * [Quaternion::magnitude]
-///
-/// Or, use [NormedSpace::norm](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm).
-#[deprecated(note = "use `Matrix::magnitude` or `Quaternion::magnitude` instead")]
-#[inline]
-pub fn magnitude<V: NormedSpace>(v: &V) -> V::RealField {
-    v.norm()
-}
-
-/// A synonym for [`norm_squared`](fn.norm_squared.html),
-///  aka length squared.
-///
-/// # See also:
-///
-/// * [`magnitude`](fn.magnitude.html)
-/// * [`norm`](fn.norm.html)
-/// * [`norm_squared`](fn.norm_squared.html)
-///
-/// # Deprecated
-/// Use these methods instead:
-/// * [Matrix::magnitude_squared]
-/// * [Quaternion::magnitude_squared]
-///
-/// Or, use [NormedSpace::norm_squared](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.norm_squared).
-#[deprecated(note = "use `Matrix::magnitude_squared` or `Quaternion::magnitude_squared` instead")]
-#[inline]
-pub fn magnitude_squared<V: NormedSpace>(v: &V) -> V::RealField {
-    v.norm_squared()
-}
-
-/// Computes the normalized version of the vector `v`.
-///
-/// # Deprecated
-/// Use these methods instead:
-/// * [Matrix::normalize]
-/// * [Quaternion::normalize]
-///
-/// Or, use [NormedSpace::normalize](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.normalize).
-#[deprecated(note = "use `Matrix::normalize` or `Quaternion::normalize` instead")]
-#[inline]
-pub fn normalize<V: NormedSpace>(v: &V) -> V {
-    v.normalize()
-}
-
-/// Computes the normalized version of the vector `v` or returns `None` if its norm is smaller than `min_norm`.
-///
-/// # Deprecated
-/// Use these methods instead:
-/// * [Matrix::try_normalize]
-/// * [Quaternion::try_normalize]
-///
-/// Or, use [NormedSpace::try_normalize](https://docs.rs/alga/0.7.2/alga/linear/trait.NormedSpace.html#tymethod.try_normalize).
-#[deprecated(note = "use `Matrix::try_normalize` or `Quaternion::try_normalize` instead")]
-#[inline]
-pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::RealField) -> Option<V> {
-    v.try_normalize(min_norm)
-}
-
-/*
  *
  * Point operations.
  *
@@ -595,8 +371,9 @@ pub fn try_normalize<V: NormedSpace>(v: &V, min_norm: V::RealField) -> Option<V>
 /// * [distance](fn.distance.html)
 /// * [distance_squared](fn.distance_squared.html)
 #[inline]
-pub fn center<P: EuclideanSpace>(p1: &P, p2: &P) -> P {
-    P::from_coordinates((p1.coordinates() + p2.coordinates()) * convert(0.5))
+pub fn center<N: SimdComplexField, D: DimName>(p1: &Point<N, D>, p2: &Point<N, D>) -> Point<N, D>
+where DefaultAllocator: Allocator<N, D> {
+    ((&p1.coords + &p2.coords) * convert::<_, N>(0.5)).into()
 }
 
 /// The distance between two points.
@@ -606,8 +383,14 @@ pub fn center<P: EuclideanSpace>(p1: &P, p2: &P) -> P {
 /// * [center](fn.center.html)
 /// * [distance_squared](fn.distance_squared.html)
 #[inline]
-pub fn distance<P: EuclideanSpace>(p1: &P, p2: &P) -> P::RealField {
-    (p2.coordinates() - p1.coordinates()).norm()
+pub fn distance<N: SimdComplexField, D: DimName>(
+    p1: &Point<N, D>,
+    p2: &Point<N, D>,
+) -> N::SimdRealField
+where
+    DefaultAllocator: Allocator<N, D>,
+{
+    (&p2.coords - &p1.coords).norm()
 }
 
 /// The squared distance between two points.
@@ -617,8 +400,14 @@ pub fn distance<P: EuclideanSpace>(p1: &P, p2: &P) -> P::RealField {
 /// * [center](fn.center.html)
 /// * [distance](fn.distance.html)
 #[inline]
-pub fn distance_squared<P: EuclideanSpace>(p1: &P, p2: &P) -> P::RealField {
-    (p2.coordinates() - p1.coordinates()).norm_squared()
+pub fn distance_squared<N: SimdComplexField, D: DimName>(
+    p1: &Point<N, D>,
+    p2: &Point<N, D>,
+) -> N::SimdRealField
+where
+    DefaultAllocator: Allocator<N, D>,
+{
+    (&p2.coords - &p1.coords).norm_squared()
 }
 
 /*
@@ -683,7 +472,7 @@ pub fn is_convertible<From: SupersetOf<To>, To>(t: &From) -> bool {
 /// * [try_convert](fn.try_convert.html)
 /// * [try_convert_ref](fn.try_convert_ref.html)
 #[inline]
-pub unsafe fn convert_unchecked<From: SupersetOf<To>, To>(t: From) -> To {
+pub fn convert_unchecked<From: SupersetOf<To>, To>(t: From) -> To {
     t.to_subset_unchecked()
 }
 
@@ -726,6 +515,6 @@ pub fn try_convert_ref<From: SupersetOf<To>, To>(t: &From) -> Option<To> {
 /// * [try_convert](fn.try_convert.html)
 /// * [try_convert_ref](fn.try_convert_ref.html)
 #[inline]
-pub unsafe fn convert_ref_unchecked<From: SupersetOf<To>, To>(t: &From) -> To {
+pub fn convert_ref_unchecked<From: SupersetOf<To>, To>(t: &From) -> To {
     t.to_subset_unchecked()
 }

@@ -1,6 +1,5 @@
 #![macro_use]
 
-
 // FIXME: merge with `md_impl`.
 /// Macro for the implementation of multiplication and division.
 macro_rules! md_impl(
@@ -88,7 +87,7 @@ macro_rules! md_assign_impl(
      // Operator, operator method, and scalar bounds.
      $Op: ident, $op: ident $(where N: $($ScalarBounds: ident),*)*;
      // Storage dimensions, and dimension bounds.
-     ($R1: ty, $C1: ty),($R2: ty, $C2: ty) for $($Dims: ident: $DimsBound: ident $(<$($BoundParam: ty),*>)*),+
+     ($R1: ty, $C1: ty),($R2: ty, $C2: ty) for $($Dims: ident: $DimsBound: ident $(<$($BoundParam: ty),*>)*),*
      // [Optional] Extra allocator bounds.
      $(where $ConstraintType: ty: $ConstraintBound: ident $(<$($ConstraintBoundParams: ty $( = $EqBound: ty )*),*>)* )*;
      // Argument identifiers and types.
@@ -116,7 +115,7 @@ macro_rules! md_assign_impl_all(
      // Operator, operator method, and scalar bounds.
      $Op: ident, $op: ident $(where N: $($ScalarBounds: ident),*)*;
      // Storage dimensions, and dimension bounds.
-     ($R1: ty, $C1: ty),($R2: ty, $C2: ty) for $($Dims: ident: $DimsBound: ident $(<$($BoundParam: ty),*>)*),+
+     ($R1: ty, $C1: ty),($R2: ty, $C2: ty) for $($Dims: ident: $DimsBound: ident $(<$($BoundParam: ty),*>)*),*
      // [Optional] Extra allocator bounds.
      $(where $ConstraintType: ty: $ConstraintBound: ident$(<$($ConstraintBoundParams: ty $( = $EqBound: ty )*),*>)* )*;
      // Argument identifiers and types.
@@ -126,14 +125,14 @@ macro_rules! md_assign_impl_all(
      [ref] => $action_ref: expr;) => {
         md_assign_impl!(
             $Op, $op $(where N: $($ScalarBounds),*)*;
-            ($R1, $C1),($R2, $C2) for $($Dims: $DimsBound $(<$($BoundParam),*>)*),+
+            ($R1, $C1),($R2, $C2) for $($Dims: $DimsBound $(<$($BoundParam),*>)*),*
             $(where $ConstraintType: $ConstraintBound $(<$($ConstraintBoundParams $( = $EqBound )*),*>)*)*;
             $lhs: $Lhs, $rhs: $Rhs;
             $action_val; );
 
         md_assign_impl!(
             $Op, $op $(where N: $($ScalarBounds),*)*;
-            ($R1, $C1),($R2, $C2) for $($Dims: $DimsBound $(<$($BoundParam),*>)*),+
+            ($R1, $C1),($R2, $C2) for $($Dims: $DimsBound $(<$($BoundParam),*>)*),*
             $(where $ConstraintType: $ConstraintBound $(<$($ConstraintBoundParams $( = $EqBound )*),*>)*)*;
             $lhs: $Lhs, $rhs: &'b $Rhs;
             $action_ref; 'b);

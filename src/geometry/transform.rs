@@ -6,7 +6,7 @@ use std::marker::PhantomData;
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use alga::general::{RealField, TwoSidedInverse};
+use simba::scalar::RealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -259,7 +259,7 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 
     /// Retrieves the underlying matrix.
     /// Deprecated: Use [Transform::into_inner] instead.
-    #[deprecated(note="use `.into_inner()` instead")]
+    #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> MatrixN<N, DimNameSum<D, U1>> {
         self.matrix
@@ -484,8 +484,9 @@ where
 }
 
 impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
-where C: SubTCategoryOf<TProjective>,
-      DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+where
+    C: SubTCategoryOf<TProjective>,
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
         + Allocator<N, DimNameSum<D, U1>>
         + Allocator<N, D, D>
         + Allocator<N, D>,
@@ -495,7 +496,7 @@ where C: SubTCategoryOf<TProjective>,
     /// the point.
     #[inline]
     pub fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
-        self.two_sided_inverse() * pt
+        self.clone().inverse() * pt
     }
 
     /// Transform the given vector by the inverse of this transformation.
@@ -503,7 +504,7 @@ where C: SubTCategoryOf<TProjective>,
     /// the vector.
     #[inline]
     pub fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
-        self.two_sided_inverse() * v
+        self.clone().inverse() * v
     }
 }
 

@@ -2,8 +2,8 @@
 use serde::{Deserialize, Serialize};
 
 use approx::AbsDiffEq;
-use alga::general::{ComplexField, RealField};
 use num_complex::Complex as NumComplex;
+use simba::scalar::{ComplexField, RealField};
 use std::cmp;
 
 use crate::allocator::Allocator;
@@ -12,9 +12,9 @@ use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN};
 
 use crate::geometry::Reflection;
+use crate::linalg::givens::GivensRotation;
 use crate::linalg::householder;
 use crate::linalg::Hessenberg;
-use crate::linalg::givens::GivensRotation;
 
 /// Schur decomposition of a square matrix.
 ///
@@ -22,17 +22,13 @@ use crate::linalg::givens::GivensRotation;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, D, D>,
-         MatrixN<N, D>: Serialize"
-    ))
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D>,
+         MatrixN<N, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, D, D>,
-         MatrixN<N, D>: Deserialize<'de>"
-    ))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D>,
+         MatrixN<N, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct Schur<N: ComplexField, D: Dim>
@@ -46,11 +42,12 @@ impl<N: ComplexField, D: Dim> Copy for Schur<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
-{}
+{
+}
 
 impl<N: ComplexField, D: Dim> Schur<N, D>
 where
-    D: DimSub<U1>,                                   // For Hessenberg.
+    D: DimSub<U1>, // For Hessenberg.
     DefaultAllocator: Allocator<N, D, DimDiff<D, U1>>
         + Allocator<N, DimDiff<D, U1>>
         + Allocator<N, D, D>
@@ -291,8 +288,10 @@ where
 
     /// Computes the complex eigenvalues of the decomposed matrix.
     fn do_complex_eigenvalues(t: &MatrixN<N, D>, out: &mut VectorN<NumComplex<N>, D>)
-    where N: RealField,
-          DefaultAllocator: Allocator<NumComplex<N>, D> {
+    where
+        N: RealField,
+        DefaultAllocator: Allocator<NumComplex<N>, D>,
+    {
         let dim = t.nrows();
         let mut m = 0;
 
@@ -391,8 +390,10 @@ where
 
     /// Computes the complex eigenvalues of the decomposed matrix.
     pub fn complex_eigenvalues(&self) -> VectorN<NumComplex<N>, D>
-    where N: RealField,
-          DefaultAllocator: Allocator<NumComplex<N>, D> {
+    where
+        N: RealField,
+        DefaultAllocator: Allocator<NumComplex<N>, D>,
+    {
         let mut out = unsafe { VectorN::new_uninitialized_generic(self.t.data.shape().0, U1) };
         Self::do_complex_eigenvalues(&self.t, &mut out);
         out
@@ -491,7 +492,7 @@ fn compute_2x2_basis<N: ComplexField, S: Storage<N, U2, U2>>(
 
 impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where
-    D: DimSub<U1>,                                   // For Hessenberg.
+    D: DimSub<U1>, // For Hessenberg.
     DefaultAllocator: Allocator<N, D, DimDiff<D, U1>>
         + Allocator<N, DimDiff<D, U1>>
         + Allocator<N, D, D>
@@ -560,8 +561,10 @@ where
     /// Computes the eigenvalues of this matrix.
     pub fn complex_eigenvalues(&self) -> VectorN<NumComplex<N>, D>
     // FIXME: add balancing?
-    where N: RealField,
-          DefaultAllocator: Allocator<NumComplex<N>, D> {
+    where
+        N: RealField,
+        DefaultAllocator: Allocator<NumComplex<N>, D>,
+    {
         let dim = self.data.shape().0;
         let mut work = unsafe { VectorN::new_uninitialized_generic(dim, U1) };
 

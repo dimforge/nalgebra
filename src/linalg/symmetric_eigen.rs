@@ -1,14 +1,14 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use num::Zero;
 use approx::AbsDiffEq;
+use num::Zero;
 
-use alga::general::ComplexField;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix2, MatrixN, SquareMatrix, Vector2, VectorN};
 use crate::dimension::{Dim, DimDiff, DimSub, U1, U2};
 use crate::storage::Storage;
+use simba::scalar::ComplexField;
 
 use crate::linalg::givens::GivensRotation;
 use crate::linalg::SymmetricTridiagonal;
@@ -17,21 +17,17 @@ use crate::linalg::SymmetricTridiagonal;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N::RealField, D>,
          VectorN<N::RealField, D>: Serialize,
-         MatrixN<N, D>: Serialize"
-    ))
+         MatrixN<N, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N::RealField, D>,
          VectorN<N::RealField, D>: Deserialize<'de>,
-         MatrixN<N, D>: Deserialize<'de>"
-    ))
+         MatrixN<N, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: ComplexField, D: Dim>
@@ -49,7 +45,8 @@ where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>,
     MatrixN<N, D>: Copy,
     VectorN<N::RealField, D>: Copy,
-{}
+{
+}
 
 impl<N: ComplexField, D: Dim> SymmetricEigen<N, D>
 where DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>
@@ -60,8 +57,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>
     pub fn new(m: MatrixN<N, D>) -> Self
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N, DimDiff<D, U1>> + // For tridiagonalization
-        Allocator<N::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<N, DimDiff<D, U1>> + Allocator<N::RealField, DimDiff<D, U1>>,
     {
         Self::try_new(m, N::RealField::default_epsilon(), 0).unwrap()
     }
@@ -80,8 +76,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>
     pub fn try_new(m: MatrixN<N, D>, eps: N::RealField, max_niter: usize) -> Option<Self>
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N, DimDiff<D, U1>> + // For tridiagonalization
-                          Allocator<N::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<N, DimDiff<D, U1>> + Allocator<N::RealField, DimDiff<D, U1>>,
     {
         Self::do_decompose(m, true, eps, max_niter).map(|(vals, vecs)| SymmetricEigen {
             eigenvectors: vecs.unwrap(),
@@ -97,8 +92,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>
     ) -> Option<(VectorN<N::RealField, D>, Option<MatrixN<N, D>>)>
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N, DimDiff<D, U1>> + // For tridiagonalization
-                          Allocator<N::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<N, DimDiff<D, U1>> + Allocator<N::RealField, DimDiff<D, U1>>,
     {
         assert!(
             m.is_square(),
@@ -154,7 +148,6 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>
                             off_diag[i - 1] = norm;
                         }
 
-
                         let mii = diag[i];
                         let mjj = diag[j];
                         let mij = off_diag[i];
@@ -189,8 +182,10 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>
                 }
             } else if subdim == 2 {
                 let m = Matrix2::new(
-                    diag[start], off_diag[start].conjugate(),
-                    off_diag[start], diag[start + 1],
+                    diag[start],
+                    off_diag[start].conjugate(),
+                    off_diag[start],
+                    diag[start + 1],
                 );
                 let eigvals = m.eigenvalues().unwrap();
                 let basis = Vector2::new(eigvals.x - diag[start + 1], off_diag[start]);
@@ -305,8 +300,10 @@ pub fn wilkinson_shift<N: ComplexField>(tmm: N, tnn: N, tmn: N) -> N {
  *
  */
 impl<N: ComplexField, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>> +
-                        Allocator<N::RealField, D> + Allocator<N::RealField, DimDiff<D, U1>>
+where DefaultAllocator: Allocator<N, D, D>
+        + Allocator<N, DimDiff<D, U1>>
+        + Allocator<N::RealField, D>
+        + Allocator<N::RealField, DimDiff<D, U1>>
 {
     /// Computes the eigendecomposition of this symmetric matrix.
     ///
@@ -326,7 +323,12 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>> +
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_symmetric_eigen(self, eps: N::RealField, max_niter: usize) -> Option<SymmetricEigen<N, D>> {
+    pub fn try_symmetric_eigen(
+        self,
+        eps: N::RealField,
+        max_niter: usize,
+    ) -> Option<SymmetricEigen<N, D>>
+    {
         SymmetricEigen::try_new(self.into_owned(), eps, max_niter)
     }
 
@@ -334,9 +336,14 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>> +
     ///
     /// Only the lower-triangular part of the matrix is read.
     pub fn symmetric_eigenvalues(&self) -> VectorN<N::RealField, D> {
-        SymmetricEigen::do_decompose(self.clone_owned(), false, N::RealField::default_epsilon(), 0)
-            .unwrap()
-            .0
+        SymmetricEigen::do_decompose(
+            self.clone_owned(),
+            false,
+            N::RealField::default_epsilon(),
+            0,
+        )
+        .unwrap()
+        .0
     }
 }
 

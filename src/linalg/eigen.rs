@@ -1,8 +1,8 @@
 #[cfg(feature = "serde-serialize")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use alga::general::ComplexField;
 use num_complex::Complex;
+use simba::scalar::ComplexField;
 use std::cmp;
 use std::fmt::Display;
 use std::ops::MulAssign;
@@ -10,7 +10,9 @@ use std::ops::MulAssign;
 use crate::allocator::Allocator;
 use crate::base::dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3};
 use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, Hessenberg, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN};
+use crate::base::{
+    DefaultAllocator, Hessenberg, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN,
+};
 use crate::constraint::{DimEq, ShapeConstraint};
 
 use crate::geometry::{Reflection, UnitComplex};
@@ -21,28 +23,19 @@ use crate::linalg::Schur;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            serialize = "DefaultAllocator: Allocator<N, D>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, D>,
          VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Serialize"
-        )
-    )
+         MatrixN<N, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(
-            deserialize = "DefaultAllocator: Allocator<N, D>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D>,
          VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Deserialize<'de>"
-        )
-    )
+         MatrixN<N, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct Eigen<N: ComplexField, D: Dim>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 {
     pub eigenvectors: MatrixN<N, D>,
     pub eigenvalues: VectorN<N, D>,

@@ -94,13 +94,11 @@ pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
     }
 
     /// Indicates whether this data buffer stores its elements contiguously.
-    #[inline]
     fn is_contiguous(&self) -> bool;
 
     /// Retrieves the data buffer as a contiguous slice.
     ///
     /// The matrix components may not be stored in a contiguous way, depending on the strides.
-    #[inline]
     fn as_slice(&self) -> &[N];
 
     /// Builds a matrix data storage that does not contain any reference.
@@ -166,7 +164,6 @@ pub unsafe trait StorageMut<N: Scalar, R: Dim, C: Dim = U1>: Storage<N, R, C> {
     /// Retrieves the mutable data buffer as a contiguous slice.
     ///
     /// Matrix components may not be contiguous, depending on its strides.
-    #[inline]
     fn as_mut_slice(&mut self) -> &mut [N];
 }
 

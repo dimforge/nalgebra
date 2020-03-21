@@ -1,9 +1,9 @@
-use alga::general::ComplexField;
 use crate::base::allocator::Allocator;
 use crate::base::constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
 use crate::base::{DefaultAllocator, Matrix, Scalar, Unit, Vector};
 use crate::dimension::{Dim, DimName, U1};
 use crate::storage::{Storage, StorageMut};
+use simba::scalar::ComplexField;
 
 use crate::geometry::Point;
 
@@ -27,10 +27,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
 
     /// Creates a new reflection wrt. the plane orthogonal to the given axis and that contains the
     /// point `pt`.
-    pub fn new_containing_point(
-        axis: Unit<Vector<N, D, S>>,
-        pt: &Point<N, D>,
-    ) -> Self
+    pub fn new_containing_point(axis: Unit<Vector<N, D, S>>, pt: &Point<N, D>) -> Self
     where
         D: DimName,
         DefaultAllocator: Allocator<N, D>,
@@ -64,9 +61,9 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
     // FIXME: naming convention: reflect_to, reflect_assign ?
     /// Applies the reflection to the columns of `rhs`.
     pub fn reflect_with_sign<R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>, sign: N)
-        where
-            S2: StorageMut<N, R2, C2>,
-            ShapeConstraint: SameNumberOfRows<R2, D>,
+    where
+        S2: StorageMut<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         for i in 0..rhs.ncols() {
             // NOTE: we borrow the column twice here. First it is borrowed immutably for the

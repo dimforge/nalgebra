@@ -14,7 +14,7 @@ use crate::base::storage::Owned;
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::RealField;
+use simba::scalar::RealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -175,7 +175,7 @@ where DefaultAllocator: Allocator<N, D, D>
 
     /// Unwraps the underlying matrix.
     /// Deprecated: Use [Rotation::into_inner] instead.
-    #[deprecated(note="use `.into_inner()` instead")]
+    #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> MatrixN<N, D> {
         self.matrix

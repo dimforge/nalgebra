@@ -1,5 +1,5 @@
-use alga::general::{ClosedDiv, SubsetOf, SupersetOf};
 use num::{One, Zero};
+use simba::scalar::{ClosedDiv, SubsetOf, SupersetOf};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -44,7 +44,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &Point<N2, D>) -> Self {
+    fn from_superset_unchecked(m: &Point<N2, D>) -> Self {
         Self::from(Matrix::from_superset_unchecked(&m.coords))
     }
 }
@@ -71,10 +71,10 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(v: &VectorN<N2, DimNameSum<D, U1>>) -> Self {
+    fn from_superset_unchecked(v: &VectorN<N2, DimNameSum<D, U1>>) -> Self {
         let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()].inlined_clone();
         Self {
-            coords: crate::convert_unchecked(coords)
+            coords: crate::convert_unchecked(coords),
         }
     }
 }
@@ -142,13 +142,10 @@ where
 }
 
 impl<N: Scalar, D: DimName> From<VectorN<N, D>> for Point<N, D>
-    where
-        DefaultAllocator: Allocator<N, D>,
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn from(coords: VectorN<N, D>) -> Self {
-        Point {
-            coords
-        }
+        Point { coords }
     }
 }

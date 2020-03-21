@@ -1,8 +1,8 @@
 extern crate alga;
 extern crate nalgebra as na;
 
-use alga::general::{RealField, RingCommutative};
 use na::{Scalar, Vector3};
+use simba::scalar::{RealField, RingCommutative};
 
 fn print_vector<N: Scalar>(m: &Vector3<N>) {
     println!("{:?}", m)

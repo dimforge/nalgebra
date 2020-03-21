@@ -16,8 +16,8 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{ClosedAdd, ClosedMul, ClosedSub, Field, RealField, Ring};
-use alga::simd::SimdPartialOrd;
+use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, Field, RealField};
+use simba::simd::SimdPartialOrd;
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
@@ -29,7 +29,7 @@ use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
 };
 use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
-use crate::{SimdComplexField, SimdRealField};
+use crate::SimdComplexField;
 
 /// A square matrix.
 pub type SquareMatrix<N, D, S> = Matrix<N, D, D, S>;
@@ -1130,7 +1130,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes a trace of a square matrix, i.e., the sum of its diagonal elements.
     #[inline]
     pub fn trace(&self) -> N
-    where N: Ring {
+    where N: Scalar + Zero + ClosedAdd {
         assert!(
             self.is_square(),
             "Cannot compute the trace of non-square matrix."
@@ -1517,7 +1517,9 @@ fn lower_exp() {
     )
 }
 
-impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N, R, C>>
+    Matrix<N, R, C, S>
+{
     /// The perpendicular product between two 2D column vectors, i.e. `a.x * b.y - a.y * b.x`.
     #[inline]
     pub fn perp<R2, C2, SB>(&self, b: &Matrix<N, R2, C2, SB>) -> N
