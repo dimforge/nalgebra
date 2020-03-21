@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use abomonation::Abomonation;
 
 use simba::scalar::{RealField, SubsetOf};
+use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -35,26 +36,19 @@ use crate::geometry::{AbstractRotation, Point, Translation};
                        DefaultAllocator: Allocator<N, D>,
                        Owned<N, D>: Deserialize<'de>"))
 )]
-pub struct Isometry<N: RealField, D: DimName, R>
+pub struct Isometry<N: SimdRealField, D: DimName, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// The pure rotational part of this isometry.
     pub rotation: R,
     /// The pure translational part of this isometry.
     pub translation: Translation<N, D>,
-
-    // One dummy private field just to prevent explicit construction.
-    #[cfg_attr(
-        feature = "serde-serialize",
-        serde(skip_serializing, skip_deserializing)
-    )]
-    _noconstruct: PhantomData<N>,
 }
 
 #[cfg(feature = "abomonation-serialize")]
 impl<N, D, R> Abomonation for Isometry<N, D, R>
 where
-    N: RealField,
+    N: SimdRealField,
     D: DimName,
     R: Abomonation,
     Translation<N, D>: Abomonation,
@@ -76,7 +70,7 @@ where
     }
 }
 
-impl<N: RealField + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
+impl<N: SimdRealField + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
     for Isometry<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
@@ -88,15 +82,19 @@ where
     }
 }
 
-impl<N: RealField, D: DimName + Copy, R: AbstractRotation<N, D> + Copy> Copy for Isometry<N, D, R>
+impl<N: SimdRealField, D: DimName + Copy, R: AbstractRotation<N, D> + Copy> Copy
+    for Isometry<N, D, R>
 where
+    N::Element: SimdRealField,
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
 {
 }
 
-impl<N: RealField, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Isometry<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Isometry<N, D, R>
+where
+    N::Element: SimdRealField,
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -104,8 +102,10 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: RealField, D: DimName, R: AbstractRotation<N, D>> Isometry<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D>> Isometry<N, D, R>
+where
+    N::Element: SimdRealField,
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new isometry from its rotational and translational parts.
     ///
@@ -124,9 +124,8 @@ where DefaultAllocator: Allocator<N, D>
     #[inline]
     pub fn from_parts(translation: Translation<N, D>, rotation: R) -> Self {
         Self {
-            rotation: rotation,
-            translation: translation,
-            _noconstruct: PhantomData,
+            rotation,
+            translation,
         }
     }
 
@@ -352,7 +351,7 @@ where DefaultAllocator: Allocator<N, D>
 // and makes it hard to use it, e.g., for Transform × Isometry implementation.
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the dummy ZST field).
-impl<N: RealField, D: DimName, R> Isometry<N, D, R>
+impl<N: SimdRealField, D: DimName, R> Isometry<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Converts this isometry into its equivalent homogeneous transformation matrix.
@@ -385,14 +384,14 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: RealField, D: DimName, R> Eq for Isometry<N, D, R>
+impl<N: SimdRealField, D: DimName, R> Eq for Isometry<N, D, R>
 where
     R: AbstractRotation<N, D> + Eq,
     DefaultAllocator: Allocator<N, D>,
 {
 }
 
-impl<N: RealField, D: DimName, R> PartialEq for Isometry<N, D, R>
+impl<N: SimdRealField, D: DimName, R> PartialEq for Isometry<N, D, R>
 where
     R: AbstractRotation<N, D> + PartialEq,
     DefaultAllocator: Allocator<N, D>,

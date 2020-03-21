@@ -1,7 +1,8 @@
 use num::{One, Zero};
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
-use simba::scalar::{ClosedAdd, ClosedMul, RealField};
+use simba::scalar::{ClosedAdd, ClosedMul};
+use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, U1, U3, U4};
@@ -68,8 +69,9 @@ macro_rules! similarity_binop_impl(
     ($Op: ident, $op: ident;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N: RealField, D: DimName, R> $Op<$Rhs> for $Lhs
-            where R: AbstractRotation<N, D>,
+        impl<$($lives ,)* N: SimdRealField, D: DimName, R> $Op<$Rhs> for $Lhs
+            where N::Element: SimdRealField,
+                  R: AbstractRotation<N, D>,
                   DefaultAllocator: Allocator<N, D> {
             type Output = $Output;
 
@@ -115,8 +117,9 @@ macro_rules! similarity_binop_assign_impl_all(
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty;
      [val] => $action_val: expr;
      [ref] => $action_ref: expr;) => {
-        impl<N: RealField, D: DimName, R> $OpAssign<$Rhs> for $Lhs
-            where R: AbstractRotation<N, D>,
+        impl<N: SimdRealField, D: DimName, R> $OpAssign<$Rhs> for $Lhs
+            where N::Element: SimdRealField,
+                  R: AbstractRotation<N, D>,
                   DefaultAllocator: Allocator<N, D> {
             #[inline]
             fn $op_assign(&mut $lhs, $rhs: $Rhs) {
@@ -124,8 +127,9 @@ macro_rules! similarity_binop_assign_impl_all(
             }
         }
 
-        impl<'b, N: RealField, D: DimName, R> $OpAssign<&'b $Rhs> for $Lhs
-            where R: AbstractRotation<N, D>,
+        impl<'b, N: SimdRealField, D: DimName, R> $OpAssign<&'b $Rhs> for $Lhs
+            where N::Element: SimdRealField,
+                  R: AbstractRotation<N, D>,
                   DefaultAllocator: Allocator<N, D> {
             #[inline]
             fn $op_assign(&mut $lhs, $rhs: &'b $Rhs) {
@@ -161,6 +165,7 @@ similarity_binop_impl_all!(
 
 // Similarity ×= Translation
 similarity_binop_assign_impl_all!(
+
     MulAssign, mul_assign;
     self: Similarity<N, D, R>, rhs: Translation<N, D>;
     [val] => *self *= &rhs;
@@ -214,7 +219,7 @@ similarity_binop_assign_impl_all!(
 // Similarity ×= R
 // Similarity ÷= R
 md_assign_impl_all!(
-    MulAssign, mul_assign where N: RealField;
+    MulAssign, mul_assign where N: SimdRealField for N::Element: SimdRealField;
     (D, U1), (D, D) for D: DimName;
     self: Similarity<N, D, Rotation<N, D>>, rhs: Rotation<N, D>;
     [val] => self.isometry.rotation *= rhs;
@@ -222,7 +227,7 @@ md_assign_impl_all!(
 );
 
 md_assign_impl_all!(
-    DivAssign, div_assign where N: RealField;
+    DivAssign, div_assign where N: SimdRealField for N::Element: SimdRealField;
     (D, U1), (D, D) for D: DimName;
     self: Similarity<N, D, Rotation<N, D>>, rhs: Rotation<N, D>;
     // FIXME: don't invert explicitly?
@@ -231,7 +236,7 @@ md_assign_impl_all!(
 );
 
 md_assign_impl_all!(
-    MulAssign, mul_assign where N: RealField;
+    MulAssign, mul_assign where N: SimdRealField for N::Element: SimdRealField;
     (U3, U3), (U3, U3) for;
     self: Similarity<N, U3, UnitQuaternion<N>>, rhs: UnitQuaternion<N>;
     [val] => self.isometry.rotation *= rhs;
@@ -239,7 +244,7 @@ md_assign_impl_all!(
 );
 
 md_assign_impl_all!(
-    DivAssign, div_assign where N: RealField;
+    DivAssign, div_assign where N: SimdRealField for N::Element: SimdRealField;
     (U3, U3), (U3, U3) for;
     self: Similarity<N, U3, UnitQuaternion<N>>, rhs: UnitQuaternion<N>;
     // FIXME: don't invert explicitly?
@@ -368,8 +373,9 @@ macro_rules! similarity_from_composition_impl(
      ($R1: ty, $C1: ty),($R2: ty, $C2: ty) $(for $Dims: ident: $DimsBound: ident),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N: RealField $(, $Dims: $DimsBound)*> $Op<$Rhs> for $Lhs
-            where DefaultAllocator: Allocator<N, $R1, $C1> +
+        impl<$($lives ,)* N: SimdRealField $(, $Dims: $DimsBound)*> $Op<$Rhs> for $Lhs
+            where N::Element: SimdRealField,
+                  DefaultAllocator: Allocator<N, $R1, $C1> +
                                     Allocator<N, $R2, $C2> {
             type Output = $Output;
 

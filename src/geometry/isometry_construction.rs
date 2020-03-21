@@ -8,6 +8,7 @@ use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
 use simba::scalar::RealField;
+use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, U2, U3};
@@ -18,8 +19,10 @@ use crate::geometry::{
     Translation2, Translation3, UnitComplex, UnitQuaternion,
 };
 
-impl<N: RealField, D: DimName, R: AbstractRotation<N, D>> Isometry<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D>> Isometry<N, D, R>
+where
+    N::Element: SimdRealField,
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity isometry.
     ///
@@ -64,8 +67,10 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: RealField, D: DimName, R: AbstractRotation<N, D>> One for Isometry<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D>> One for Isometry<N, D, R>
+where
+    N::Element: SimdRealField,
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity isometry.
     #[inline]
@@ -89,7 +94,8 @@ where
 #[cfg(feature = "arbitrary")]
 impl<N, D: DimName, R> Arbitrary for Isometry<N, D, R>
 where
-    N: RealField + Arbitrary + Send,
+    N: SimdRealField + Arbitrary + Send,
+    N::Element: SimdRealField,
     R: AbstractRotation<N, D> + Arbitrary + Send,
     Owned<N, D>: Send,
     DefaultAllocator: Allocator<N, D>,
@@ -107,7 +113,9 @@ where
  */
 
 // 2D rotation.
-impl<N: RealField> Isometry<N, U2, Rotation2<N>> {
+impl<N: SimdRealField> Isometry<N, U2, Rotation2<N>>
+where N::Element: SimdRealField
+{
     /// Creates a new 2D isometry from a translation and a rotation angle.
     ///
     /// Its rotational part is represented as a 2x2 rotation matrix.
@@ -142,7 +150,9 @@ impl<N: RealField> Isometry<N, U2, Rotation2<N>> {
     }
 }
 
-impl<N: RealField> Isometry<N, U2, UnitComplex<N>> {
+impl<N: SimdRealField> Isometry<N, U2, UnitComplex<N>>
+where N::Element: SimdRealField
+{
     /// Creates a new 2D isometry from a translation and a rotation angle.
     ///
     /// Its rotational part is represented as an unit complex number.
@@ -180,7 +190,8 @@ impl<N: RealField> Isometry<N, U2, UnitComplex<N>> {
 // 3D rotation.
 macro_rules! isometry_construction_impl(
     ($RotId: ident < $($RotParams: ident),*>, $RRDim: ty, $RCDim: ty) => {
-        impl<N: RealField> Isometry<N, U3, $RotId<$($RotParams),*>> {
+        impl<N: SimdRealField> Isometry<N, U3, $RotId<$($RotParams),*>>
+        where N::Element: SimdRealField {
             /// Creates a new isometry from a translation and a rotation axis-angle.
             ///
             /// # Example

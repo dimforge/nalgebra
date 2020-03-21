@@ -4,7 +4,7 @@ use crate::base::Vector4;
 use crate::geometry::Quaternion;
 use crate::{RealField, Scalar};
 
-impl<N: RealField> SimdValue for Quaternion<N>
+impl<N: Scalar + SimdValue> SimdValue for Quaternion<N>
 where N::Element: Scalar
 {
     type Element = Quaternion<N::Element>;

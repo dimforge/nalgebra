@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use abomonation::Abomonation;
 
 use simba::scalar::{RealField, SubsetOf};
+use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -36,7 +37,7 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
                        DefaultAllocator: Allocator<N, D>,
                        Owned<N, D>: Deserialize<'de>"))
 )]
-pub struct Similarity<N: RealField, D: DimName, R>
+pub struct Similarity<N: SimdRealField, D: DimName, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// The part of this similarity that does not include the scaling factor.
@@ -45,7 +46,7 @@ where DefaultAllocator: Allocator<N, D>
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: RealField, D: DimName, R> Abomonation for Similarity<N, D, R>
+impl<N: SimdRealField, D: DimName, R> Abomonation for Similarity<N, D, R>
 where
     Isometry<N, D, R>: Abomonation,
     DefaultAllocator: Allocator<N, D>,
@@ -63,7 +64,7 @@ where
     }
 }
 
-impl<N: RealField + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
+impl<N: SimdRealField + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
     for Similarity<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
@@ -75,15 +76,19 @@ where
     }
 }
 
-impl<N: RealField, D: DimName + Copy, R: AbstractRotation<N, D> + Copy> Copy for Similarity<N, D, R>
+impl<N: SimdRealField, D: DimName + Copy, R: AbstractRotation<N, D> + Copy> Copy
+    for Similarity<N, D, R>
 where
+    N::Element: SimdRealField,
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
 {
 }
 
-impl<N: RealField, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Similarity<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Similarity<N, D, R>
+where
+    N::Element: SimdRealField,
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -91,8 +96,9 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: RealField, D: DimName, R> Similarity<N, D, R>
+impl<N: SimdRealField, D: DimName, R> Similarity<N, D, R>
 where
+    N::Element: SimdRealField,
     R: AbstractRotation<N, D>,
     DefaultAllocator: Allocator<N, D>,
 {
@@ -105,10 +111,7 @@ where
     /// Creates a new similarity from its rotational and translational parts.
     #[inline]
     pub fn from_isometry(isometry: Isometry<N, D, R>, scaling: N) -> Self {
-        assert!(
-            !relative_eq!(scaling, N::zero()),
-            "The scaling factor must not be zero."
-        );
+        assert!(!scaling.is_zero(), "The scaling factor must not be zero.");
 
         Self { isometry, scaling }
     }
@@ -140,7 +143,7 @@ where
     #[inline]
     pub fn set_scaling(&mut self, scaling: N) {
         assert!(
-            !relative_eq!(scaling, N::zero()),
+            !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
         );
 
@@ -158,7 +161,7 @@ where
     #[must_use = "Did you mean to use prepend_scaling_mut()?"]
     pub fn prepend_scaling(&self, scaling: N) -> Self {
         assert!(
-            !relative_eq!(scaling, N::zero()),
+            !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
         );
 
@@ -170,7 +173,7 @@ where
     #[must_use = "Did you mean to use append_scaling_mut()?"]
     pub fn append_scaling(&self, scaling: N) -> Self {
         assert!(
-            !relative_eq!(scaling, N::zero()),
+            !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
         );
 
@@ -185,7 +188,7 @@ where
     #[inline]
     pub fn prepend_scaling_mut(&mut self, scaling: N) {
         assert!(
-            !relative_eq!(scaling, N::zero()),
+            !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
         );
 
@@ -196,7 +199,7 @@ where
     #[inline]
     pub fn append_scaling_mut(&mut self, scaling: N) {
         assert!(
-            !relative_eq!(scaling, N::zero()),
+            !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
         );
 
@@ -316,7 +319,7 @@ where
 // and makes it harder to use it, e.g., for Transform × Isometry implementation.
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the private scaling factor).
-impl<N: RealField, D: DimName, R> Similarity<N, D, R>
+impl<N: SimdRealField, D: DimName, R> Similarity<N, D, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// Converts this similarity into its equivalent homogeneous transformation matrix.
@@ -337,14 +340,14 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: RealField, D: DimName, R> Eq for Similarity<N, D, R>
+impl<N: SimdRealField, D: DimName, R> Eq for Similarity<N, D, R>
 where
     R: AbstractRotation<N, D> + Eq,
     DefaultAllocator: Allocator<N, D>,
 {
 }
 
-impl<N: RealField, D: DimName, R> PartialEq for Similarity<N, D, R>
+impl<N: SimdRealField, D: DimName, R> PartialEq for Similarity<N, D, R>
 where
     R: AbstractRotation<N, D> + PartialEq,
     DefaultAllocator: Allocator<N, D>,

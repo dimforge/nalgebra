@@ -2,6 +2,7 @@ use num::Zero;
 use num_complex::Complex;
 
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
+use simba::simd::SimdRealField;
 
 use crate::base::dimension::U2;
 use crate::base::{Matrix2, Matrix3};
@@ -153,28 +154,36 @@ impl<N1: RealField, N2: RealField + SupersetOf<N1>> SubsetOf<Matrix3<N2>> for Un
     }
 }
 
-impl<N: RealField> From<UnitComplex<N>> for Rotation2<N> {
+impl<N: SimdRealField> From<UnitComplex<N>> for Rotation2<N>
+where N::Element: SimdRealField
+{
     #[inline]
     fn from(q: UnitComplex<N>) -> Self {
         q.to_rotation_matrix()
     }
 }
 
-impl<N: RealField> From<Rotation2<N>> for UnitComplex<N> {
+impl<N: SimdRealField> From<Rotation2<N>> for UnitComplex<N>
+where N::Element: SimdRealField
+{
     #[inline]
     fn from(q: Rotation2<N>) -> Self {
         Self::from_rotation_matrix(&q)
     }
 }
 
-impl<N: RealField> From<UnitComplex<N>> for Matrix3<N> {
+impl<N: SimdRealField> From<UnitComplex<N>> for Matrix3<N>
+where N::Element: SimdRealField
+{
     #[inline]
     fn from(q: UnitComplex<N>) -> Matrix3<N> {
         q.to_homogeneous()
     }
 }
 
-impl<N: RealField> From<UnitComplex<N>> for Matrix2<N> {
+impl<N: SimdRealField> From<UnitComplex<N>> for Matrix2<N>
+where N::Element: SimdRealField
+{
     #[inline]
     fn from(q: UnitComplex<N>) -> Self {
         q.to_rotation_matrix().into_inner()

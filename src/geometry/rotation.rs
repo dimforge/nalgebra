@@ -15,6 +15,7 @@ use crate::base::storage::Owned;
 use abomonation::Abomonation;
 
 use simba::scalar::RealField;
+use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -354,8 +355,10 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
-impl<N: RealField, D: DimName> Rotation<N, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
+impl<N: SimdRealField, D: DimName> Rotation<N, D>
+where
+    N::Element: SimdRealField,
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
     /// Rotate the given point.
     ///

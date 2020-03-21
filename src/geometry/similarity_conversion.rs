@@ -1,4 +1,5 @@
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
+use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
@@ -168,7 +169,7 @@ where
     }
 }
 
-impl<N: RealField, D: DimName, R> From<Similarity<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
+impl<N: SimdRealField, D: DimName, R> From<Similarity<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
 where
     D: DimNameAdd<U1>,
     R: SubsetOf<MatrixN<N, DimNameSum<D, U1>>>,

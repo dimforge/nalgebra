@@ -11,8 +11,11 @@ use crate::base::storage::Storage;
 use crate::base::{Matrix2, Unit, Vector};
 use crate::geometry::{Rotation2, UnitComplex};
 use simba::scalar::RealField;
+use simba::simd::SimdRealField;
 
-impl<N: RealField> UnitComplex<N> {
+impl<N: SimdRealField> UnitComplex<N>
+where N::Element: SimdRealField
+{
     /// The unit complex number multiplicative identity.
     ///
     /// # Example
@@ -43,7 +46,7 @@ impl<N: RealField> UnitComplex<N> {
     /// ```
     #[inline]
     pub fn new(angle: N) -> Self {
-        let (sin, cos) = angle.sin_cos();
+        let (sin, cos) = angle.simd_sin_cos();
         Self::from_cos_sin_unchecked(cos, sin)
     }
 
@@ -110,7 +113,7 @@ impl<N: RealField> UnitComplex<N> {
     /// The input complex number will be normalized. Returns the norm of the complex number as well.
     #[inline]
     pub fn from_complex_and_get(q: Complex<N>) -> (Self, N) {
-        let norm = (q.im * q.im + q.re * q.re).sqrt();
+        let norm = (q.im * q.im + q.re * q.re).simd_sqrt();
         (Self::new_unchecked(q / norm), norm)
     }
 
@@ -134,7 +137,8 @@ impl<N: RealField> UnitComplex<N> {
     /// This is an iterative method. See `.from_matrix_eps` to provide mover
     /// convergence parameters and starting solution.
     /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
-    pub fn from_matrix(m: &Matrix2<N>) -> Self {
+    pub fn from_matrix(m: &Matrix2<N>) -> Self
+    where N: RealField {
         Rotation2::from_matrix(m).into()
     }
 
@@ -150,7 +154,8 @@ impl<N: RealField> UnitComplex<N> {
     /// * `guess`: an estimate of the solution. Convergence will be significantly faster if an initial solution close
     ///           to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
     ///           guesses come to mind.
-    pub fn from_matrix_eps(m: &Matrix2<N>, eps: N, max_iter: usize, guess: Self) -> Self {
+    pub fn from_matrix_eps(m: &Matrix2<N>, eps: N, max_iter: usize, guess: Self) -> Self
+    where N: RealField {
         let guess = Rotation2::from(guess);
         Rotation2::from_matrix_eps(m, eps, max_iter, guess).into()
     }
@@ -171,6 +176,7 @@ impl<N: RealField> UnitComplex<N> {
     #[inline]
     pub fn rotation_between<SB, SC>(a: &Vector<N, U2, SB>, b: &Vector<N, U2, SC>) -> Self
     where
+        N: RealField,
         SB: Storage<N, U2>,
         SC: Storage<N, U2>,
     {
@@ -198,6 +204,7 @@ impl<N: RealField> UnitComplex<N> {
         s: N,
     ) -> Self
     where
+        N: RealField,
         SB: Storage<N, U2>,
         SC: Storage<N, U2>,
     {
@@ -264,29 +271,35 @@ impl<N: RealField> UnitComplex<N> {
         let sang = na.perp(&nb);
         let cang = na.dot(&nb);
 
-        Self::from_angle(sang.atan2(cang) * s)
+        Self::from_angle(sang.simd_atan2(cang) * s)
     }
 }
 
-impl<N: RealField> One for UnitComplex<N> {
+impl<N: SimdRealField> One for UnitComplex<N>
+where N::Element: SimdRealField
+{
     #[inline]
     fn one() -> Self {
         Self::identity()
     }
 }
 
-impl<N: RealField> Distribution<UnitComplex<N>> for Standard
-where OpenClosed01: Distribution<N>
+impl<N: SimdRealField> Distribution<UnitComplex<N>> for Standard
+where
+    N::Element: SimdRealField,
+    OpenClosed01: Distribution<N>,
 {
     /// Generate a uniformly distributed random `UnitComplex`.
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> UnitComplex<N> {
-        UnitComplex::from_angle(rng.sample(OpenClosed01) * N::two_pi())
+        UnitComplex::from_angle(rng.sample(OpenClosed01) * N::simd_two_pi())
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: RealField + Arbitrary> Arbitrary for UnitComplex<N> {
+impl<N: SimdRealField + Arbitrary> Arbitrary for UnitComplex<N>
+where N::Element: SimdRealField
+{
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         UnitComplex::from_angle(N::arbitrary(g))

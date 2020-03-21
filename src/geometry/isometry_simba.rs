@@ -3,16 +3,16 @@ use simba::simd::SimdValue;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::DimName;
 use crate::base::{DefaultAllocator, Scalar};
-use crate::RealField;
+use crate::SimdRealField;
 
 use crate::geometry::{AbstractRotation, Isometry, Translation};
 
-impl<N: RealField, D: DimName, R> SimdValue for Isometry<N, D, R>
+impl<N: SimdRealField, D: DimName, R> SimdValue for Isometry<N, D, R>
 where
-    N::Element: Scalar,
+    N::Element: SimdRealField,
     R: SimdValue<SimdBool = N::SimdBool> + AbstractRotation<N, D>,
-    R::Element: AbstractRotation<N, D>,
-    DefaultAllocator: Allocator<N, D>,
+    R::Element: AbstractRotation<N::Element, D>,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
     type Element = Isometry<N::Element, D, R::Element>;
     type SimdBool = N::SimdBool;

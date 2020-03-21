@@ -1,6 +1,6 @@
 use crate::allocator::Allocator;
 use crate::geometry::{Rotation, UnitComplex, UnitQuaternion};
-use crate::{DefaultAllocator, DimName, Point, RealField, Scalar, VectorN, U2, U3};
+use crate::{DefaultAllocator, DimName, Point, Scalar, SimdRealField, VectorN, U2, U3};
 
 use simba::scalar::ClosedMul;
 
@@ -18,8 +18,10 @@ pub trait AbstractRotation<N: Scalar, D: DimName>: PartialEq + ClosedMul + Clone
     where DefaultAllocator: Allocator<N, D>;
 }
 
-impl<N: RealField, D: DimName> AbstractRotation<N, D> for Rotation<N, D>
-where DefaultAllocator: Allocator<N, D, D>
+impl<N: SimdRealField, D: DimName> AbstractRotation<N, D> for Rotation<N, D>
+where
+    N::Element: SimdRealField,
+    DefaultAllocator: Allocator<N, D, D>,
 {
     #[inline]
     fn identity() -> Self {
@@ -61,7 +63,9 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
-impl<N: RealField> AbstractRotation<N, U3> for UnitQuaternion<N> {
+impl<N: SimdRealField> AbstractRotation<N, U3> for UnitQuaternion<N>
+where N::Element: SimdRealField
+{
     #[inline]
     fn identity() -> Self {
         Self::identity()
@@ -98,7 +102,9 @@ impl<N: RealField> AbstractRotation<N, U3> for UnitQuaternion<N> {
     }
 }
 
-impl<N: RealField> AbstractRotation<N, U2> for UnitComplex<N> {
+impl<N: SimdRealField> AbstractRotation<N, U2> for UnitComplex<N>
+where N::Element: SimdRealField
+{
     #[inline]
     fn identity() -> Self {
         Self::identity()

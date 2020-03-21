@@ -8,6 +8,7 @@ use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
 use simba::scalar::RealField;
+use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, U2, U3};
@@ -18,8 +19,9 @@ use crate::geometry::{
     UnitComplex, UnitQuaternion,
 };
 
-impl<N: RealField, D: DimName, R> Similarity<N, D, R>
+impl<N: SimdRealField, D: DimName, R> Similarity<N, D, R>
 where
+    N::Element: SimdRealField,
     R: AbstractRotation<N, D>,
     DefaultAllocator: Allocator<N, D>,
 {
@@ -44,8 +46,9 @@ where
     }
 }
 
-impl<N: RealField, D: DimName, R> One for Similarity<N, D, R>
+impl<N: SimdRealField, D: DimName, R> One for Similarity<N, D, R>
 where
+    N::Element: SimdRealField,
     R: AbstractRotation<N, D>,
     DefaultAllocator: Allocator<N, D>,
 {
@@ -73,8 +76,9 @@ where
     }
 }
 
-impl<N: RealField, D: DimName, R> Similarity<N, D, R>
+impl<N: SimdRealField, D: DimName, R> Similarity<N, D, R>
 where
+    N::Element: SimdRealField,
     R: AbstractRotation<N, D>,
     DefaultAllocator: Allocator<N, D>,
 {
@@ -103,7 +107,8 @@ where
 #[cfg(feature = "arbitrary")]
 impl<N, D: DimName, R> Arbitrary for Similarity<N, D, R>
 where
-    N: RealField + Arbitrary + Send,
+    N: SimdRealField + Arbitrary + Send,
+    N::Element: SimdRealField,
     R: AbstractRotation<N, D> + Arbitrary + Send,
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Send,
@@ -111,7 +116,7 @@ where
     #[inline]
     fn arbitrary<G: Gen>(rng: &mut G) -> Self {
         let mut s = Arbitrary::arbitrary(rng);
-        while relative_eq!(s, N::zero()) {
+        while s.is_zero() {
             s = Arbitrary::arbitrary(rng)
         }
 
@@ -125,8 +130,10 @@ where
  *
  */
 
-// 2D rotation.
-impl<N: RealField> Similarity<N, U2, Rotation2<N>> {
+// 2D similarity.
+impl<N: SimdRealField> Similarity<N, U2, Rotation2<N>>
+where N::Element: SimdRealField
+{
     /// Creates a new similarity from a translation, a rotation, and an uniform scaling factor.
     ///
     /// # Example
@@ -149,7 +156,9 @@ impl<N: RealField> Similarity<N, U2, Rotation2<N>> {
     }
 }
 
-impl<N: RealField> Similarity<N, U2, UnitComplex<N>> {
+impl<N: SimdRealField> Similarity<N, U2, UnitComplex<N>>
+where N::Element: SimdRealField
+{
     /// Creates a new similarity from a translation and a rotation angle.
     ///
     /// # Example
@@ -175,7 +184,8 @@ impl<N: RealField> Similarity<N, U2, UnitComplex<N>> {
 // 3D rotation.
 macro_rules! similarity_construction_impl(
     ($Rot: ty) => {
-        impl<N: RealField> Similarity<N, U3, $Rot> {
+        impl<N: SimdRealField> Similarity<N, U3, $Rot>
+        where N::Element: SimdRealField {
             /// Creates a new similarity from a translation, rotation axis-angle, and scaling
             /// factor.
             ///
@@ -202,7 +212,8 @@ macro_rules! similarity_construction_impl(
             /// assert_relative_eq!(sim * vec, Vector3::new(18.0, 15.0, -12.0), epsilon = 1.0e-5);
             /// ```
             #[inline]
-            pub fn new(translation: Vector3<N>, axisangle: Vector3<N>, scaling: N) -> Self {
+            pub fn new(translation: Vector3<N>, axisangle: Vector3<N>, scaling: N) -> Self
+            {
                 Self::from_isometry(Isometry::<_, U3, $Rot>::new(translation, axisangle), scaling)
             }
 

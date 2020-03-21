@@ -40,7 +40,9 @@ impl<N: SimdRealField> Normed for Complex<N> {
     }
 }
 
-impl<N: RealField> UnitComplex<N> {
+impl<N: SimdRealField> UnitComplex<N>
+where N::Element: SimdRealField
+{
     /// The rotation angle in `]-pi; pi]` of this unit complex number.
     ///
     /// # Example
@@ -51,7 +53,7 @@ impl<N: RealField> UnitComplex<N> {
     /// ```
     #[inline]
     pub fn angle(&self) -> N {
-        self.im.atan2(self.re)
+        self.im.simd_atan2(self.re)
     }
 
     /// The sine of the rotation angle.
@@ -97,7 +99,8 @@ impl<N: RealField> UnitComplex<N> {
     /// the `.angle()` method instead is more common.
     /// Returns `None` if the angle is zero.
     #[inline]
-    pub fn axis_angle(&self) -> Option<(Unit<Vector1<N>>, N)> {
+    pub fn axis_angle(&self) -> Option<(Unit<Vector1<N>>, N)>
+    where N: RealField {
         let ang = self.angle();
 
         if ang.is_zero() {

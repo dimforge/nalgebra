@@ -85,7 +85,8 @@ macro_rules! quaternion_op_impl(
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty $(=> $VDimA: ty, $VDimB: ty)*;
      $action: expr; $($lives: tt),*) => {
         impl<$($lives ,)* N: SimdRealField $(, $Storage: $StoragesBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
-            where DefaultAllocator: Allocator<N, $LhsRDim, $LhsCDim> +
+            where N::Element: SimdRealField,
+                  DefaultAllocator: Allocator<N, $LhsRDim, $LhsCDim> +
                                     Allocator<N, $RhsRDim, $RhsCDim> {
             type Output = $Result;
 
@@ -489,7 +490,8 @@ Unit::new_unchecked(self * rhs.into_inner());
 
 macro_rules! scalar_op_impl(
     ($($Op: ident, $op: ident, $OpAssign: ident, $op_assign: ident);* $(;)*) => {$(
-        impl<N: SimdRealField> $Op<N> for Quaternion<N> {
+        impl<N: SimdRealField> $Op<N> for Quaternion<N>
+         where N::Element: SimdRealField {
             type Output = Quaternion<N>;
 
             #[inline]
@@ -498,7 +500,8 @@ macro_rules! scalar_op_impl(
             }
         }
 
-        impl<'a, N: SimdRealField> $Op<N> for &'a Quaternion<N> {
+        impl<'a, N: SimdRealField> $Op<N> for &'a Quaternion<N>
+         where N::Element: SimdRealField {
             type Output = Quaternion<N>;
 
             #[inline]
@@ -507,7 +510,8 @@ macro_rules! scalar_op_impl(
             }
         }
 
-        impl<N: SimdRealField> $OpAssign<N> for Quaternion<N> {
+        impl<N: SimdRealField> $OpAssign<N> for Quaternion<N>
+         where N::Element: SimdRealField {
 
             #[inline]
             fn $op_assign(&mut self, n: N) {
@@ -546,7 +550,9 @@ macro_rules! left_scalar_mul_impl(
 
 left_scalar_mul_impl!(f32, f64);
 
-impl<N: SimdRealField> Neg for Quaternion<N> {
+impl<N: SimdRealField> Neg for Quaternion<N>
+where N::Element: SimdRealField
+{
     type Output = Quaternion<N>;
 
     #[inline]
@@ -555,7 +561,9 @@ impl<N: SimdRealField> Neg for Quaternion<N> {
     }
 }
 
-impl<'a, N: SimdRealField> Neg for &'a Quaternion<N> {
+impl<'a, N: SimdRealField> Neg for &'a Quaternion<N>
+where N::Element: SimdRealField
+{
     type Output = Quaternion<N>;
 
     #[inline]
@@ -570,7 +578,8 @@ macro_rules! quaternion_op_impl(
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty $(=> $VDimA: ty, $VDimB: ty)*;
      $action: expr; $($lives: tt),*) => {
         impl<$($lives ,)* N: SimdRealField> $OpAssign<$Rhs> for $Lhs
-            where DefaultAllocator: Allocator<N, $LhsRDim, $LhsCDim> +
+            where N::Element: SimdRealField,
+                  DefaultAllocator: Allocator<N, $LhsRDim, $LhsCDim> +
                                     Allocator<N, $RhsRDim, $RhsCDim> {
 
             #[inline]

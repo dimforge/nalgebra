@@ -4,10 +4,10 @@ use std::ops::Deref;
 
 use crate::base::{Scalar, Unit};
 use crate::geometry::UnitComplex;
-use crate::RealField;
+use crate::SimdRealField;
 
-impl<N: RealField> SimdValue for UnitComplex<N>
-where N::Element: Scalar
+impl<N: SimdRealField> SimdValue for UnitComplex<N>
+where N::Element: SimdRealField
 {
     type Element = UnitComplex<N::Element>;
     type SimdBool = N::SimdBool;

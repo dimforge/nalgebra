@@ -1,13 +1,13 @@
 use num::Zero;
 
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
-use simba::simd::SimdRealField;
+use simba::simd::{SimdRealField, SimdValue};
 
 #[cfg(feature = "mint")]
 use mint;
 
 use crate::base::dimension::U3;
-use crate::base::{Matrix3, Matrix4, Vector4};
+use crate::base::{Matrix3, Matrix4, Scalar, Vector4};
 use crate::geometry::{
     AbstractRotation, Isometry, Quaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf,
     TAffine, Transform, Translation, UnitQuaternion,
@@ -184,14 +184,14 @@ impl<N1: RealField, N2: RealField + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for Un
 }
 
 #[cfg(feature = "mint")]
-impl<N: RealField> From<mint::Quaternion<N>> for Quaternion<N> {
+impl<N: SimdRealField> From<mint::Quaternion<N>> for Quaternion<N> {
     fn from(q: mint::Quaternion<N>) -> Self {
         Self::new(q.s, q.v.x, q.v.y, q.v.z)
     }
 }
 
 #[cfg(feature = "mint")]
-impl<N: RealField> Into<mint::Quaternion<N>> for Quaternion<N> {
+impl<N: SimdRealField> Into<mint::Quaternion<N>> for Quaternion<N> {
     fn into(self) -> mint::Quaternion<N> {
         mint::Quaternion {
             v: mint::Vector3 {
@@ -205,7 +205,7 @@ impl<N: RealField> Into<mint::Quaternion<N>> for Quaternion<N> {
 }
 
 #[cfg(feature = "mint")]
-impl<N: RealField> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
+impl<N: SimdRealField> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
     fn into(self) -> mint::Quaternion<N> {
         mint::Quaternion {
             v: mint::Vector3 {
@@ -218,35 +218,43 @@ impl<N: RealField> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
     }
 }
 
-impl<N: RealField> From<UnitQuaternion<N>> for Matrix4<N> {
+impl<N: SimdRealField> From<UnitQuaternion<N>> for Matrix4<N>
+where N::Element: SimdRealField
+{
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {
         q.to_homogeneous()
     }
 }
 
-impl<N: RealField> From<UnitQuaternion<N>> for Rotation3<N> {
+impl<N: SimdRealField> From<UnitQuaternion<N>> for Rotation3<N>
+where N::Element: SimdRealField
+{
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {
         q.to_rotation_matrix()
     }
 }
 
-impl<N: RealField> From<Rotation3<N>> for UnitQuaternion<N> {
+impl<N: SimdRealField> From<Rotation3<N>> for UnitQuaternion<N>
+where N::Element: SimdRealField
+{
     #[inline]
     fn from(q: Rotation3<N>) -> Self {
         Self::from_rotation_matrix(&q)
     }
 }
 
-impl<N: RealField> From<UnitQuaternion<N>> for Matrix3<N> {
+impl<N: SimdRealField> From<UnitQuaternion<N>> for Matrix3<N>
+where N::Element: SimdRealField
+{
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {
         q.to_rotation_matrix().into_inner()
     }
 }
 
-impl<N: SimdRealField> From<Vector4<N>> for Quaternion<N> {
+impl<N: Scalar + SimdValue> From<Vector4<N>> for Quaternion<N> {
     #[inline]
     fn from(coords: Vector4<N>) -> Self {
         Self { coords }
