@@ -130,7 +130,7 @@ fn matrix5_try_inverse_scaled_identity() {
                                             0.0, 1.0e+20,     0.0,     0.0,     0.0,
                                             0.0,     0.0, 1.0e+20,     0.0,     0.0,
                                             0.0,     0.0,     0.0, 1.0e+20,     0.0,
-                                            0.0,     0.0,     0.0,     0.0, 1.0e+20);;
+                                            0.0,     0.0,     0.0,     0.0, 1.0e+20);
     let a_inv = a.try_inverse().expect("Matrix should be invertible");
 
     assert_relative_eq!(a_inv, expected_inverse);

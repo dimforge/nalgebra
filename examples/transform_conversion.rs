@@ -18,6 +18,6 @@ fn main() {
     assert!(iso_fail.is_none());
 
     // Similarity -> Isometry conversion can be forced at your own risks.
-    let iso_forced: Isometry2<f32> = unsafe { na::convert_unchecked(sim_with_scaling) };
+    let iso_forced: Isometry2<f32> = na::convert_unchecked(sim_with_scaling);
     assert_eq!(iso_success.unwrap(), iso_forced);
 }

@@ -571,13 +571,13 @@ where N::Element: SimdRealField
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Quaternion;
-    /// let mut q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// let mut q = Quaternion::new(1.0f32, 2.0, 3.0, 4.0);
     ///
     /// assert!(q.try_inverse_mut());
     /// assert_relative_eq!(q * Quaternion::new(1.0, 2.0, 3.0, 4.0), Quaternion::identity());
     ///
     /// //Non-invertible case
-    /// let mut q = Quaternion::new(0.0, 0.0, 0.0, 0.0);
+    /// let mut q = Quaternion::new(0.0f32, 0.0, 0.0, 0.0);
     /// assert!(!q.try_inverse_mut());
     /// ```
     #[inline]
