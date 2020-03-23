@@ -1,13 +1,14 @@
 use num::Zero;
 
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
+use simba::simd::{PrimitiveSimdValue, SimdValue};
 
 #[cfg(feature = "mint")]
 use mint;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
-use crate::base::{DefaultAllocator, Matrix2, Matrix3, Matrix4, MatrixN};
+use crate::base::{DefaultAllocator, Matrix2, Matrix3, Matrix4, MatrixN, Scalar};
 
 use crate::geometry::{
     AbstractRotation, Isometry, Rotation, Rotation2, Rotation3, Similarity, SuperTCategoryOf,
@@ -241,5 +242,91 @@ impl<N: RealField> From<Rotation3<N>> for Matrix3<N> {
     #[inline]
     fn from(q: Rotation3<N>) -> Self {
         q.into_inner()
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Rotation<N::Element, D>; 2]>
+    for Rotation<N, D>
+where
+    N: From<[<N as SimdValue>::Element; 2]>,
+    N::Element: Scalar + Copy,
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
+{
+    #[inline]
+    fn from(arr: [Rotation<N::Element, D>; 2]) -> Self {
+        Self::from_matrix_unchecked(MatrixN::from([
+            arr[0].clone().into_inner(),
+            arr[1].clone().into_inner(),
+        ]))
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Rotation<N::Element, D>; 4]>
+    for Rotation<N, D>
+where
+    N: From<[<N as SimdValue>::Element; 4]>,
+    N::Element: Scalar + Copy,
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
+{
+    #[inline]
+    fn from(arr: [Rotation<N::Element, D>; 4]) -> Self {
+        Self::from_matrix_unchecked(MatrixN::from([
+            arr[0].clone().into_inner(),
+            arr[1].clone().into_inner(),
+            arr[2].clone().into_inner(),
+            arr[3].clone().into_inner(),
+        ]))
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Rotation<N::Element, D>; 8]>
+    for Rotation<N, D>
+where
+    N: From<[<N as SimdValue>::Element; 8]>,
+    N::Element: Scalar + Copy,
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
+{
+    #[inline]
+    fn from(arr: [Rotation<N::Element, D>; 8]) -> Self {
+        Self::from_matrix_unchecked(MatrixN::from([
+            arr[0].clone().into_inner(),
+            arr[1].clone().into_inner(),
+            arr[2].clone().into_inner(),
+            arr[3].clone().into_inner(),
+            arr[4].clone().into_inner(),
+            arr[5].clone().into_inner(),
+            arr[6].clone().into_inner(),
+            arr[7].clone().into_inner(),
+        ]))
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Rotation<N::Element, D>; 16]>
+    for Rotation<N, D>
+where
+    N: From<[<N as SimdValue>::Element; 16]>,
+    N::Element: Scalar + Copy,
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
+{
+    #[inline]
+    fn from(arr: [Rotation<N::Element, D>; 16]) -> Self {
+        Self::from_matrix_unchecked(MatrixN::from([
+            arr[0].clone().into_inner(),
+            arr[1].clone().into_inner(),
+            arr[2].clone().into_inner(),
+            arr[3].clone().into_inner(),
+            arr[4].clone().into_inner(),
+            arr[5].clone().into_inner(),
+            arr[6].clone().into_inner(),
+            arr[7].clone().into_inner(),
+            arr[8].clone().into_inner(),
+            arr[9].clone().into_inner(),
+            arr[10].clone().into_inner(),
+            arr[11].clone().into_inner(),
+            arr[12].clone().into_inner(),
+            arr[13].clone().into_inner(),
+            arr[14].clone().into_inner(),
+            arr[15].clone().into_inner(),
+        ]))
     }
 }

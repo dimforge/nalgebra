@@ -9,7 +9,9 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use crate::{RealField, SimdComplexField, SimdRealField};
+use crate::allocator::Allocator;
+use crate::base::DefaultAllocator;
+use crate::{Dim, MatrixMN, RealField, Scalar, SimdComplexField, SimdRealField};
 
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///
@@ -238,5 +240,94 @@ impl<T> Deref for Unit<T> {
     #[inline]
     fn deref(&self) -> &T {
         unsafe { mem::transmute(self) }
+    }
+}
+
+// NOTE: we can't use a generic implementation for `Unit<T>` because
+// num_complex::Complex does not implement `From[Complex<...>...]` (and can't
+// because of the orphan rules).
+impl<N: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
+    From<[Unit<MatrixMN<N::Element, R, C>>; 2]> for Unit<MatrixMN<N, R, C>>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 2]>,
+    N::Element: Scalar,
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+{
+    #[inline]
+    fn from(arr: [Unit<MatrixMN<N::Element, R, C>>; 2]) -> Self {
+        Self::new_unchecked(MatrixMN::from([
+            arr[0].clone().into_inner(),
+            arr[1].clone().into_inner(),
+        ]))
+    }
+}
+
+impl<N: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
+    From<[Unit<MatrixMN<N::Element, R, C>>; 4]> for Unit<MatrixMN<N, R, C>>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 4]>,
+    N::Element: Scalar,
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+{
+    #[inline]
+    fn from(arr: [Unit<MatrixMN<N::Element, R, C>>; 4]) -> Self {
+        Self::new_unchecked(MatrixMN::from([
+            arr[0].clone().into_inner(),
+            arr[1].clone().into_inner(),
+            arr[2].clone().into_inner(),
+            arr[3].clone().into_inner(),
+        ]))
+    }
+}
+
+impl<N: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
+    From<[Unit<MatrixMN<N::Element, R, C>>; 8]> for Unit<MatrixMN<N, R, C>>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 8]>,
+    N::Element: Scalar,
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+{
+    #[inline]
+    fn from(arr: [Unit<MatrixMN<N::Element, R, C>>; 8]) -> Self {
+        Self::new_unchecked(MatrixMN::from([
+            arr[0].clone().into_inner(),
+            arr[1].clone().into_inner(),
+            arr[2].clone().into_inner(),
+            arr[3].clone().into_inner(),
+            arr[4].clone().into_inner(),
+            arr[5].clone().into_inner(),
+            arr[6].clone().into_inner(),
+            arr[7].clone().into_inner(),
+        ]))
+    }
+}
+
+impl<N: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
+    From<[Unit<MatrixMN<N::Element, R, C>>; 16]> for Unit<MatrixMN<N, R, C>>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 16]>,
+    N::Element: Scalar,
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+{
+    #[inline]
+    fn from(arr: [Unit<MatrixMN<N::Element, R, C>>; 16]) -> Self {
+        Self::new_unchecked(MatrixMN::from([
+            arr[0].clone().into_inner(),
+            arr[1].clone().into_inner(),
+            arr[2].clone().into_inner(),
+            arr[3].clone().into_inner(),
+            arr[4].clone().into_inner(),
+            arr[5].clone().into_inner(),
+            arr[6].clone().into_inner(),
+            arr[7].clone().into_inner(),
+            arr[8].clone().into_inner(),
+            arr[9].clone().into_inner(),
+            arr[10].clone().into_inner(),
+            arr[11].clone().into_inner(),
+            arr[12].clone().into_inner(),
+            arr[13].clone().into_inner(),
+            arr[14].clone().into_inner(),
+            arr[15].clone().into_inner(),
+        ]))
     }
 }

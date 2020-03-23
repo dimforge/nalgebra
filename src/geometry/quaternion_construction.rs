@@ -10,16 +10,16 @@ use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
 use simba::scalar::RealField;
-use simba::simd::SimdBool;
+use simba::simd::{SimdBool, SimdValue};
 
 use crate::base::dimension::U3;
 use crate::base::storage::Storage;
 use crate::base::{Matrix3, Matrix4, Unit, Vector, Vector3, Vector4};
-use crate::SimdRealField;
+use crate::{Scalar, SimdRealField};
 
 use crate::geometry::{Quaternion, Rotation3, UnitQuaternion};
 
-impl<N: SimdRealField> Quaternion<N> {
+impl<N: Scalar + SimdValue> Quaternion<N> {
     /// Creates a quaternion from a 4D vector. The quaternion scalar part corresponds to the `w`
     /// vector component.
     #[inline]
@@ -45,7 +45,9 @@ impl<N: SimdRealField> Quaternion<N> {
     pub fn new(w: N, i: N, j: N, k: N) -> Self {
         Self::from(Vector4::new(i, j, k, w))
     }
+}
 
+impl<N: SimdRealField> Quaternion<N> {
     /// Constructs a pure quaternion.
     #[inline]
     pub fn from_imag(vector: Vector3<N>) -> Self {

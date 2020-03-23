@@ -9,6 +9,8 @@ use generic_array::ArrayLength;
 use std::ops::Mul;
 use typenum::Prod;
 
+use simba::simd::{PrimitiveSimdValue, SimdValue};
+
 use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 #[cfg(any(feature = "std", feature = "alloc"))]
@@ -574,5 +576,110 @@ impl<'a, N: Scalar + Copy> From<&'a mut [N]> for DVectorSliceMut<'a, N> {
     #[inline]
     fn from(slice: &'a mut [N]) -> Self {
         Self::from_slice(slice, slice.len())
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[MatrixMN<N::Element, R, C>; 2]>
+    for MatrixMN<N, R, C>
+where
+    N: From<[<N as SimdValue>::Element; 2]>,
+    N::Element: Scalar + SimdValue,
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+{
+    #[inline]
+    fn from(arr: [MatrixMN<N::Element, R, C>; 2]) -> Self {
+        let (nrows, ncols) = arr[0].data.shape();
+
+        Self::from_fn_generic(nrows, ncols, |i, j| {
+            [
+                arr[0][(i, j)].inlined_clone(),
+                arr[1][(i, j)].inlined_clone(),
+            ]
+            .into()
+        })
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[MatrixMN<N::Element, R, C>; 4]>
+    for MatrixMN<N, R, C>
+where
+    N: From<[<N as SimdValue>::Element; 4]>,
+    N::Element: Scalar + SimdValue,
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+{
+    #[inline]
+    fn from(arr: [MatrixMN<N::Element, R, C>; 4]) -> Self {
+        let (nrows, ncols) = arr[0].data.shape();
+
+        Self::from_fn_generic(nrows, ncols, |i, j| {
+            [
+                arr[0][(i, j)].inlined_clone(),
+                arr[1][(i, j)].inlined_clone(),
+                arr[2][(i, j)].inlined_clone(),
+                arr[3][(i, j)].inlined_clone(),
+            ]
+            .into()
+        })
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[MatrixMN<N::Element, R, C>; 8]>
+    for MatrixMN<N, R, C>
+where
+    N: From<[<N as SimdValue>::Element; 8]>,
+    N::Element: Scalar + SimdValue,
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+{
+    #[inline]
+    fn from(arr: [MatrixMN<N::Element, R, C>; 8]) -> Self {
+        let (nrows, ncols) = arr[0].data.shape();
+
+        Self::from_fn_generic(nrows, ncols, |i, j| {
+            [
+                arr[0][(i, j)].inlined_clone(),
+                arr[1][(i, j)].inlined_clone(),
+                arr[2][(i, j)].inlined_clone(),
+                arr[3][(i, j)].inlined_clone(),
+                arr[4][(i, j)].inlined_clone(),
+                arr[5][(i, j)].inlined_clone(),
+                arr[6][(i, j)].inlined_clone(),
+                arr[7][(i, j)].inlined_clone(),
+            ]
+            .into()
+        })
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[MatrixMN<N::Element, R, C>; 16]>
+    for MatrixMN<N, R, C>
+where
+    N: From<[<N as SimdValue>::Element; 16]>,
+    N::Element: Scalar + SimdValue,
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+{
+    fn from(arr: [MatrixMN<N::Element, R, C>; 16]) -> Self {
+        let (nrows, ncols) = arr[0].data.shape();
+
+        Self::from_fn_generic(nrows, ncols, |i, j| {
+            [
+                arr[0][(i, j)].inlined_clone(),
+                arr[1][(i, j)].inlined_clone(),
+                arr[2][(i, j)].inlined_clone(),
+                arr[3][(i, j)].inlined_clone(),
+                arr[4][(i, j)].inlined_clone(),
+                arr[5][(i, j)].inlined_clone(),
+                arr[6][(i, j)].inlined_clone(),
+                arr[7][(i, j)].inlined_clone(),
+                arr[8][(i, j)].inlined_clone(),
+                arr[9][(i, j)].inlined_clone(),
+                arr[10][(i, j)].inlined_clone(),
+                arr[11][(i, j)].inlined_clone(),
+                arr[12][(i, j)].inlined_clone(),
+                arr[13][(i, j)].inlined_clone(),
+                arr[14][(i, j)].inlined_clone(),
+                arr[15][(i, j)].inlined_clone(),
+            ]
+            .into()
+        })
     }
 }

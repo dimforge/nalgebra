@@ -1,7 +1,7 @@
 use num::Zero;
 
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
-use simba::simd::{SimdRealField, SimdValue};
+use simba::simd::{PrimitiveSimdValue, SimdRealField, SimdValue};
 
 #[cfg(feature = "mint")]
 use mint;
@@ -258,5 +258,159 @@ impl<N: Scalar + SimdValue> From<Vector4<N>> for Quaternion<N> {
     #[inline]
     fn from(coords: Vector4<N>) -> Self {
         Self { coords }
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue> From<[Quaternion<N::Element>; 2]> for Quaternion<N>
+where
+    N: From<[<N as SimdValue>::Element; 2]>,
+    N::Element: Scalar + Copy,
+{
+    #[inline]
+    fn from(arr: [Quaternion<N::Element>; 2]) -> Self {
+        Self::from(Vector4::from([arr[0].coords, arr[1].coords]))
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue> From<[Quaternion<N::Element>; 4]> for Quaternion<N>
+where
+    N: From<[<N as SimdValue>::Element; 4]>,
+    N::Element: Scalar + Copy,
+{
+    #[inline]
+    fn from(arr: [Quaternion<N::Element>; 4]) -> Self {
+        Self::from(Vector4::from([
+            arr[0].coords,
+            arr[1].coords,
+            arr[2].coords,
+            arr[3].coords,
+        ]))
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue> From<[Quaternion<N::Element>; 8]> for Quaternion<N>
+where
+    N: From<[<N as SimdValue>::Element; 8]>,
+    N::Element: Scalar + Copy,
+{
+    #[inline]
+    fn from(arr: [Quaternion<N::Element>; 8]) -> Self {
+        Self::from(Vector4::from([
+            arr[0].coords,
+            arr[1].coords,
+            arr[2].coords,
+            arr[3].coords,
+            arr[4].coords,
+            arr[5].coords,
+            arr[6].coords,
+            arr[7].coords,
+        ]))
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue> From<[Quaternion<N::Element>; 16]> for Quaternion<N>
+where
+    N: From<[<N as SimdValue>::Element; 16]>,
+    N::Element: Scalar + Copy,
+{
+    #[inline]
+    fn from(arr: [Quaternion<N::Element>; 16]) -> Self {
+        Self::from(Vector4::from([
+            arr[0].coords,
+            arr[1].coords,
+            arr[2].coords,
+            arr[3].coords,
+            arr[4].coords,
+            arr[5].coords,
+            arr[6].coords,
+            arr[7].coords,
+            arr[8].coords,
+            arr[9].coords,
+            arr[10].coords,
+            arr[11].coords,
+            arr[12].coords,
+            arr[13].coords,
+            arr[14].coords,
+            arr[15].coords,
+        ]))
+    }
+}
+
+impl<N: Scalar + Copy + PrimitiveSimdValue> From<[UnitQuaternion<N::Element>; 2]>
+    for UnitQuaternion<N>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 2]>,
+    N::Element: Scalar + Copy,
+{
+    #[inline]
+    fn from(arr: [UnitQuaternion<N::Element>; 2]) -> Self {
+        Self::new_unchecked(Quaternion::from([arr[0].into_inner(), arr[1].into_inner()]))
+    }
+}
+
+impl<N: Scalar + Copy + PrimitiveSimdValue> From<[UnitQuaternion<N::Element>; 4]>
+    for UnitQuaternion<N>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 4]>,
+    N::Element: Scalar + Copy,
+{
+    #[inline]
+    fn from(arr: [UnitQuaternion<N::Element>; 4]) -> Self {
+        Self::new_unchecked(Quaternion::from([
+            arr[0].into_inner(),
+            arr[1].into_inner(),
+            arr[2].into_inner(),
+            arr[3].into_inner(),
+        ]))
+    }
+}
+
+impl<N: Scalar + Copy + PrimitiveSimdValue> From<[UnitQuaternion<N::Element>; 8]>
+    for UnitQuaternion<N>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 8]>,
+    N::Element: Scalar + Copy,
+{
+    #[inline]
+    fn from(arr: [UnitQuaternion<N::Element>; 8]) -> Self {
+        Self::new_unchecked(Quaternion::from([
+            arr[0].into_inner(),
+            arr[1].into_inner(),
+            arr[2].into_inner(),
+            arr[3].into_inner(),
+            arr[4].into_inner(),
+            arr[5].into_inner(),
+            arr[6].into_inner(),
+            arr[7].into_inner(),
+        ]))
+    }
+}
+
+impl<N: Scalar + Copy + PrimitiveSimdValue> From<[UnitQuaternion<N::Element>; 16]>
+    for UnitQuaternion<N>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 16]>,
+    N::Element: Scalar + Copy,
+{
+    #[inline]
+    fn from(arr: [UnitQuaternion<N::Element>; 16]) -> Self {
+        Self::new_unchecked(Quaternion::from([
+            arr[0].into_inner(),
+            arr[1].into_inner(),
+            arr[2].into_inner(),
+            arr[3].into_inner(),
+            arr[4].into_inner(),
+            arr[5].into_inner(),
+            arr[6].into_inner(),
+            arr[7].into_inner(),
+            arr[8].into_inner(),
+            arr[9].into_inner(),
+            arr[10].into_inner(),
+            arr[11].into_inner(),
+            arr[12].into_inner(),
+            arr[13].into_inner(),
+            arr[14].into_inner(),
+            arr[15].into_inner(),
+        ]))
     }
 }

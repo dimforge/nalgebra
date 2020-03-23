@@ -68,9 +68,9 @@ impl<N: SimdRealField + hash::Hash> hash::Hash for Quaternion<N> {
     }
 }
 
-impl<N: SimdRealField> Copy for Quaternion<N> {}
+impl<N: Scalar + Copy + SimdValue> Copy for Quaternion<N> {}
 
-impl<N: SimdRealField> Clone for Quaternion<N> {
+impl<N: Scalar + SimdValue> Clone for Quaternion<N> {
     #[inline]
     fn clone(&self) -> Self {
         Self::from(self.coords.clone())

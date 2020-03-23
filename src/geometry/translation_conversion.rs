@@ -1,6 +1,7 @@
 use num::{One, Zero};
 
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
+use simba::simd::PrimitiveSimdValue;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -171,5 +172,92 @@ where DefaultAllocator: Allocator<N, D>
     #[inline]
     fn from(vector: VectorN<N, D>) -> Self {
         Translation { vector }
+    }
+}
+
+impl<N: Scalar + Copy + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 2]>
+    for Translation<N, D>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 2]>,
+    N::Element: Scalar + Copy,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+    <DefaultAllocator as Allocator<N::Element, D>>::Buffer: Copy,
+{
+    #[inline]
+    fn from(arr: [Translation<N::Element, D>; 2]) -> Self {
+        Self::from(VectorN::from([arr[0].vector, arr[1].vector]))
+    }
+}
+
+impl<N: Scalar + Copy + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 4]>
+    for Translation<N, D>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 4]>,
+    N::Element: Scalar + Copy,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+    <DefaultAllocator as Allocator<N::Element, D>>::Buffer: Copy,
+{
+    #[inline]
+    fn from(arr: [Translation<N::Element, D>; 4]) -> Self {
+        Self::from(VectorN::from([
+            arr[0].vector,
+            arr[1].vector,
+            arr[2].vector,
+            arr[3].vector,
+        ]))
+    }
+}
+
+impl<N: Scalar + Copy + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 8]>
+    for Translation<N, D>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 8]>,
+    N::Element: Scalar + Copy,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+    <DefaultAllocator as Allocator<N::Element, D>>::Buffer: Copy,
+{
+    #[inline]
+    fn from(arr: [Translation<N::Element, D>; 8]) -> Self {
+        Self::from(VectorN::from([
+            arr[0].vector,
+            arr[1].vector,
+            arr[2].vector,
+            arr[3].vector,
+            arr[4].vector,
+            arr[5].vector,
+            arr[6].vector,
+            arr[7].vector,
+        ]))
+    }
+}
+
+impl<N: Scalar + Copy + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 16]>
+    for Translation<N, D>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 16]>,
+    N::Element: Scalar + Copy,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+    <DefaultAllocator as Allocator<N::Element, D>>::Buffer: Copy,
+{
+    #[inline]
+    fn from(arr: [Translation<N::Element, D>; 16]) -> Self {
+        Self::from(VectorN::from([
+            arr[0].vector,
+            arr[1].vector,
+            arr[2].vector,
+            arr[3].vector,
+            arr[4].vector,
+            arr[5].vector,
+            arr[6].vector,
+            arr[7].vector,
+            arr[8].vector,
+            arr[9].vector,
+            arr[10].vector,
+            arr[11].vector,
+            arr[12].vector,
+            arr[13].vector,
+            arr[14].vector,
+            arr[15].vector,
+        ]))
     }
 }

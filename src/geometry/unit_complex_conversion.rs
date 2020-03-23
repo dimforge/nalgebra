@@ -2,10 +2,10 @@ use num::Zero;
 use num_complex::Complex;
 
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
-use simba::simd::SimdRealField;
+use simba::simd::{PrimitiveSimdValue, SimdRealField, SimdValue};
 
 use crate::base::dimension::U2;
-use crate::base::{Matrix2, Matrix3};
+use crate::base::{Matrix2, Matrix3, Scalar};
 use crate::geometry::{
     AbstractRotation, Isometry, Rotation2, Similarity, SuperTCategoryOf, TAffine, Transform,
     Translation, UnitComplex,
@@ -187,5 +187,75 @@ where N::Element: SimdRealField
     #[inline]
     fn from(q: UnitComplex<N>) -> Self {
         q.to_rotation_matrix().into_inner()
+    }
+}
+
+impl<N: Scalar + Copy + PrimitiveSimdValue> From<[UnitComplex<N::Element>; 2]> for UnitComplex<N>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 2]>,
+    N::Element: Scalar + Copy,
+{
+    #[inline]
+    fn from(arr: [UnitComplex<N::Element>; 2]) -> Self {
+        Self::new_unchecked(Complex {
+            re: N::from([arr[0].re, arr[1].re]),
+            im: N::from([arr[0].im, arr[1].im]),
+        })
+    }
+}
+
+impl<N: Scalar + Copy + PrimitiveSimdValue> From<[UnitComplex<N::Element>; 4]> for UnitComplex<N>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 4]>,
+    N::Element: Scalar + Copy,
+{
+    #[inline]
+    fn from(arr: [UnitComplex<N::Element>; 4]) -> Self {
+        Self::new_unchecked(Complex {
+            re: N::from([arr[0].re, arr[1].re, arr[2].re, arr[3].re]),
+            im: N::from([arr[0].im, arr[1].im, arr[2].im, arr[3].im]),
+        })
+    }
+}
+
+impl<N: Scalar + Copy + PrimitiveSimdValue> From<[UnitComplex<N::Element>; 8]> for UnitComplex<N>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 8]>,
+    N::Element: Scalar + Copy,
+{
+    #[inline]
+    fn from(arr: [UnitComplex<N::Element>; 8]) -> Self {
+        Self::new_unchecked(Complex {
+            re: N::from([
+                arr[0].re, arr[1].re, arr[2].re, arr[3].re, arr[4].re, arr[5].re, arr[6].re,
+                arr[7].re,
+            ]),
+            im: N::from([
+                arr[0].im, arr[1].im, arr[2].im, arr[3].im, arr[4].im, arr[5].im, arr[6].im,
+                arr[7].im,
+            ]),
+        })
+    }
+}
+
+impl<N: Scalar + Copy + PrimitiveSimdValue> From<[UnitComplex<N::Element>; 16]> for UnitComplex<N>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 16]>,
+    N::Element: Scalar + Copy,
+{
+    #[inline]
+    fn from(arr: [UnitComplex<N::Element>; 16]) -> Self {
+        Self::new_unchecked(Complex {
+            re: N::from([
+                arr[0].re, arr[1].re, arr[2].re, arr[3].re, arr[4].re, arr[5].re, arr[6].re,
+                arr[7].re, arr[8].re, arr[9].re, arr[10].re, arr[11].re, arr[12].re, arr[13].re,
+                arr[14].re, arr[15].re,
+            ]),
+            im: N::from([
+                arr[0].im, arr[1].im, arr[2].im, arr[3].im, arr[4].im, arr[5].im, arr[6].im,
+                arr[7].im, arr[8].im, arr[9].im, arr[10].im, arr[11].im, arr[12].im, arr[13].im,
+                arr[14].im, arr[15].im,
+            ]),
+        })
     }
 }

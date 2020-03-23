@@ -1,5 +1,5 @@
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
-use simba::simd::SimdRealField;
+use simba::simd::{PrimitiveSimdValue, SimdRealField, SimdValue};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
@@ -162,3 +162,21 @@ where
         iso.to_homogeneous()
     }
 }
+
+//impl<N: Scalar + PrimitiveSimdValue, D: DimName, R> From<[Isometry<N::Element, D, R>; 2]>
+//    for Rotation<N, D>
+//where
+//    N: From<[<N as SimdValue>::Element; 2]>,
+//    R: From<[R::Element; 2]>,
+//    N::Element: Scalar + Copy,
+//    R::Element: Scalar + Copy,
+//    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+//{
+//    #[inline]
+//    fn from(arr: [Isometry<N::Element, D, R>; 2]) -> Self {
+//        Self::from_parts(MatrixN::from([
+//            arr[0].clone().into_inner(),
+//            arr[1].clone().into_inner(),
+//        ]))
+//    }
+//}
