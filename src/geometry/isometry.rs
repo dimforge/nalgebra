@@ -17,7 +17,7 @@ use simba::simd::SimdRealField;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
-use crate::base::{DefaultAllocator, MatrixN, VectorN};
+use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 use crate::geometry::{AbstractRotation, Point, Translation};
 
 /// A direct isometry, i.e., a rotation followed by a translation, aka. a rigid-body motion, aka. an element of a Special Euclidean (SE) group.
@@ -36,7 +36,7 @@ use crate::geometry::{AbstractRotation, Point, Translation};
                        DefaultAllocator: Allocator<N, D>,
                        Owned<N, D>: Deserialize<'de>"))
 )]
-pub struct Isometry<N: SimdRealField, D: DimName, R>
+pub struct Isometry<N: Scalar, D: DimName, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// The pure rotational part of this isometry.
@@ -70,7 +70,7 @@ where
     }
 }
 
-impl<N: SimdRealField + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
+impl<N: Scalar + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
     for Isometry<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
@@ -82,19 +82,16 @@ where
     }
 }
 
-impl<N: SimdRealField, D: DimName + Copy, R: AbstractRotation<N, D> + Copy> Copy
+impl<N: Scalar + Copy, D: DimName + Copy, R: AbstractRotation<N, D> + Copy> Copy
     for Isometry<N, D, R>
 where
-    N::Element: SimdRealField,
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
 {
 }
 
-impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Isometry<N, D, R>
-where
-    N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, D>,
+impl<N: Scalar, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Isometry<N, D, R>
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -102,10 +99,8 @@ where
     }
 }
 
-impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D>> Isometry<N, D, R>
-where
-    N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, D>,
+impl<N: Scalar, D: DimName, R: AbstractRotation<N, D>> Isometry<N, D, R>
+where DefaultAllocator: Allocator<N, D>
 {
     /// Creates a new isometry from its rotational and translational parts.
     ///
@@ -128,7 +123,13 @@ where
             translation,
         }
     }
+}
 
+impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D>> Isometry<N, D, R>
+where
+    N::Element: SimdRealField,
+    DefaultAllocator: Allocator<N, D>,
+{
     /// Inverts `self`.
     ///
     /// # Example

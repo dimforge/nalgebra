@@ -1,6 +1,8 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use num::Zero;
 use std::fmt;
 use std::hash;
+
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
 
@@ -16,7 +18,7 @@ use simba::simd::SimdRealField;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
-use crate::base::{DefaultAllocator, MatrixN, VectorN};
+use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
@@ -37,7 +39,7 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
                        DefaultAllocator: Allocator<N, D>,
                        Owned<N, D>: Deserialize<'de>"))
 )]
-pub struct Similarity<N: SimdRealField, D: DimName, R>
+pub struct Similarity<N: Scalar, D: DimName, R>
 where DefaultAllocator: Allocator<N, D>
 {
     /// The part of this similarity that does not include the scaling factor.
@@ -46,7 +48,7 @@ where DefaultAllocator: Allocator<N, D>
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: SimdRealField, D: DimName, R> Abomonation for Similarity<N, D, R>
+impl<N: Scalar, D: DimName, R> Abomonation for Similarity<N, D, R>
 where
     Isometry<N, D, R>: Abomonation,
     DefaultAllocator: Allocator<N, D>,
@@ -64,7 +66,7 @@ where
     }
 }
 
-impl<N: SimdRealField + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
+impl<N: Scalar + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
     for Similarity<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
@@ -76,29 +78,25 @@ where
     }
 }
 
-impl<N: SimdRealField, D: DimName + Copy, R: AbstractRotation<N, D> + Copy> Copy
+impl<N: Scalar + Copy + Zero, D: DimName + Copy, R: AbstractRotation<N, D> + Copy> Copy
     for Similarity<N, D, R>
 where
-    N::Element: SimdRealField,
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
 {
 }
 
-impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Similarity<N, D, R>
-where
-    N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, D>,
+impl<N: Scalar + Zero, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Similarity<N, D, R>
+where DefaultAllocator: Allocator<N, D>
 {
     #[inline]
     fn clone(&self) -> Self {
-        Similarity::from_isometry(self.isometry.clone(), self.scaling)
+        Similarity::from_isometry(self.isometry.clone(), self.scaling.clone())
     }
 }
 
-impl<N: SimdRealField, D: DimName, R> Similarity<N, D, R>
+impl<N: Scalar + Zero, D: DimName, R> Similarity<N, D, R>
 where
-    N::Element: SimdRealField,
     R: AbstractRotation<N, D>,
     DefaultAllocator: Allocator<N, D>,
 {
@@ -116,6 +114,30 @@ where
         Self { isometry, scaling }
     }
 
+    /// The scaling factor of this similarity transformation.
+    #[inline]
+    pub fn set_scaling(&mut self, scaling: N) {
+        assert!(
+            !scaling.is_zero(),
+            "The similarity scaling factor must not be zero."
+        );
+
+        self.scaling = scaling;
+    }
+
+    /// The scaling factor of this similarity transformation.
+    #[inline]
+    pub fn scaling(&self) -> N {
+        self.scaling.clone()
+    }
+}
+
+impl<N: SimdRealField, D: DimName, R> Similarity<N, D, R>
+where
+    N::Element: SimdRealField,
+    R: AbstractRotation<N, D>,
+    DefaultAllocator: Allocator<N, D>,
+{
     /// Creates a new similarity that applies only a scaling factor.
     #[inline]
     pub fn from_scaling(scaling: N) -> Self {
@@ -137,23 +159,6 @@ where
         self.scaling = N::one() / self.scaling;
         self.isometry.inverse_mut();
         self.isometry.translation.vector *= self.scaling;
-    }
-
-    /// The scaling factor of this similarity transformation.
-    #[inline]
-    pub fn set_scaling(&mut self, scaling: N) {
-        assert!(
-            !scaling.is_zero(),
-            "The similarity scaling factor must not be zero."
-        );
-
-        self.scaling = scaling;
-    }
-
-    /// The scaling factor of this similarity transformation.
-    #[inline]
-    pub fn scaling(&self) -> N {
-        self.scaling
     }
 
     /// The similarity transformation that applies a scaling factor `scaling` before `self`.

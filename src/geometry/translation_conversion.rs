@@ -175,89 +175,88 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: Scalar + Copy + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 2]>
+impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 2]>
     for Translation<N, D>
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 2]>,
-    N::Element: Scalar + Copy,
+    N::Element: Scalar,
     DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
-    <DefaultAllocator as Allocator<N::Element, D>>::Buffer: Copy,
 {
     #[inline]
     fn from(arr: [Translation<N::Element, D>; 2]) -> Self {
-        Self::from(VectorN::from([arr[0].vector, arr[1].vector]))
+        Self::from(VectorN::from([
+            arr[0].vector.clone(),
+            arr[1].vector.clone(),
+        ]))
     }
 }
 
-impl<N: Scalar + Copy + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 4]>
+impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 4]>
     for Translation<N, D>
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 4]>,
-    N::Element: Scalar + Copy,
+    N::Element: Scalar,
     DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
-    <DefaultAllocator as Allocator<N::Element, D>>::Buffer: Copy,
 {
     #[inline]
     fn from(arr: [Translation<N::Element, D>; 4]) -> Self {
         Self::from(VectorN::from([
-            arr[0].vector,
-            arr[1].vector,
-            arr[2].vector,
-            arr[3].vector,
+            arr[0].vector.clone(),
+            arr[1].vector.clone(),
+            arr[2].vector.clone(),
+            arr[3].vector.clone(),
         ]))
     }
 }
 
-impl<N: Scalar + Copy + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 8]>
+impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 8]>
     for Translation<N, D>
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 8]>,
-    N::Element: Scalar + Copy,
+    N::Element: Scalar,
     DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
-    <DefaultAllocator as Allocator<N::Element, D>>::Buffer: Copy,
 {
     #[inline]
     fn from(arr: [Translation<N::Element, D>; 8]) -> Self {
         Self::from(VectorN::from([
-            arr[0].vector,
-            arr[1].vector,
-            arr[2].vector,
-            arr[3].vector,
-            arr[4].vector,
-            arr[5].vector,
-            arr[6].vector,
-            arr[7].vector,
+            arr[0].vector.clone(),
+            arr[1].vector.clone(),
+            arr[2].vector.clone(),
+            arr[3].vector.clone(),
+            arr[4].vector.clone(),
+            arr[5].vector.clone(),
+            arr[6].vector.clone(),
+            arr[7].vector.clone(),
         ]))
     }
 }
 
-impl<N: Scalar + Copy + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 16]>
+impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 16]>
     for Translation<N, D>
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 16]>,
-    N::Element: Scalar + Copy,
+    N::Element: Scalar,
     DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
-    <DefaultAllocator as Allocator<N::Element, D>>::Buffer: Copy,
 {
     #[inline]
     fn from(arr: [Translation<N::Element, D>; 16]) -> Self {
         Self::from(VectorN::from([
-            arr[0].vector,
-            arr[1].vector,
-            arr[2].vector,
-            arr[3].vector,
-            arr[4].vector,
-            arr[5].vector,
-            arr[6].vector,
-            arr[7].vector,
-            arr[8].vector,
-            arr[9].vector,
-            arr[10].vector,
-            arr[11].vector,
-            arr[12].vector,
-            arr[13].vector,
-            arr[14].vector,
-            arr[15].vector,
+            arr[0].vector.clone(),
+            arr[1].vector.clone(),
+            arr[2].vector.clone(),
+            arr[3].vector.clone(),
+            arr[4].vector.clone(),
+            arr[5].vector.clone(),
+            arr[6].vector.clone(),
+            arr[7].vector.clone(),
+            arr[8].vector.clone(),
+            arr[9].vector.clone(),
+            arr[10].vector.clone(),
+            arr[11].vector.clone(),
+            arr[12].vector.clone(),
+            arr[13].vector.clone(),
+            arr[14].vector.clone(),
+            arr[15].vector.clone(),
         ]))
     }
 }
