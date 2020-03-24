@@ -2,7 +2,7 @@ use num::Zero;
 use std::ops::Neg;
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Dim, Matrix, MatrixMN, Normed};
+use crate::base::{DefaultAllocator, Dim, DimName, Matrix, MatrixMN, Normed, VectorN};
 use crate::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::storage::{Storage, StorageMut};
 use crate::{ComplexField, Scalar, SimdComplexField, Unit};
@@ -397,5 +397,149 @@ where DefaultAllocator: Allocator<N, R, C>
     #[inline]
     fn neg(self) -> Self::Output {
         Unit::new_unchecked(-self.value)
+    }
+}
+
+// FIXME: specialization will greatly simplify this implementation in the future.
+// In particular:
+//   − use `x()` instead of `::canonical_basis_element`
+//   − use `::new(x, y, z)` instead of `::from_slice`
+impl<N: ComplexField, D: DimName> VectorN<N, D>
+where DefaultAllocator: Allocator<N, D>
+{
+    /// The i-the canonical basis element.
+    #[inline]
+    fn canonical_basis_element(i: usize) -> Self {
+        assert!(i < D::dim(), "Index out of bound.");
+
+        let mut res = Self::zero();
+        unsafe {
+            *res.data.get_unchecked_linear_mut(i) = N::one();
+        }
+
+        res
+    }
+
+    /// Orthonormalizes the given family of vectors. The largest free family of vectors is moved at
+    /// the beginning of the array and its size is returned. Vectors at an indices larger or equal to
+    /// this length can be modified to an arbitrary value.
+    #[inline]
+    pub fn orthonormalize(vs: &mut [Self]) -> usize {
+        let mut nbasis_elements = 0;
+
+        for i in 0..vs.len() {
+            {
+                let (elt, basis) = vs[..i + 1].split_last_mut().unwrap();
+
+                for basis_element in &basis[..nbasis_elements] {
+                    *elt -= &*basis_element * elt.dot(basis_element)
+                }
+            }
+
+            if vs[i].try_normalize_mut(N::RealField::zero()).is_some() {
+                // FIXME: this will be efficient on dynamically-allocated vectors but for
+                // statically-allocated ones, `.clone_from` would be better.
+                vs.swap(nbasis_elements, i);
+                nbasis_elements += 1;
+
+                // All the other vectors will be dependent.
+                if nbasis_elements == D::dim() {
+                    break;
+                }
+            }
+        }
+
+        nbasis_elements
+    }
+
+    /// Applies the given closure to each element of the orthonormal basis of the subspace
+    /// orthogonal to free family of vectors `vs`. If `vs` is not a free family, the result is
+    /// unspecified.
+    // FIXME: return an iterator instead when `-> impl Iterator` will be supported by Rust.
+    #[inline]
+    pub fn orthonormal_subspace_basis<F>(vs: &[Self], mut f: F)
+    where F: FnMut(&Self) -> bool {
+        // FIXME: is this necessary?
+        assert!(
+            vs.len() <= D::dim(),
+            "The given set of vectors has no chance of being a free family."
+        );
+
+        match D::dim() {
+            1 => {
+                if vs.len() == 0 {
+                    let _ = f(&Self::canonical_basis_element(0));
+                }
+            }
+            2 => {
+                if vs.len() == 0 {
+                    let _ = f(&Self::canonical_basis_element(0))
+                        && f(&Self::canonical_basis_element(1));
+                } else if vs.len() == 1 {
+                    let v = &vs[0];
+                    let res = Self::from_column_slice(&[-v[1], v[0]]);
+
+                    let _ = f(&res.normalize());
+                }
+
+                // Otherwise, nothing.
+            }
+            3 => {
+                if vs.len() == 0 {
+                    let _ = f(&Self::canonical_basis_element(0))
+                        && f(&Self::canonical_basis_element(1))
+                        && f(&Self::canonical_basis_element(2));
+                } else if vs.len() == 1 {
+                    let v = &vs[0];
+                    let mut a;
+
+                    if v[0].norm1() > v[1].norm1() {
+                        a = Self::from_column_slice(&[v[2], N::zero(), -v[0]]);
+                    } else {
+                        a = Self::from_column_slice(&[N::zero(), -v[2], v[1]]);
+                    };
+
+                    let _ = a.normalize_mut();
+
+                    if f(&a.cross(v)) {
+                        let _ = f(&a);
+                    }
+                } else if vs.len() == 2 {
+                    let _ = f(&vs[0].cross(&vs[1]).normalize());
+                }
+            }
+            _ => {
+                #[cfg(any(feature = "std", feature = "alloc"))]
+                {
+                    // XXX: use a GenericArray instead.
+                    let mut known_basis = Vec::new();
+
+                    for v in vs.iter() {
+                        known_basis.push(v.normalize())
+                    }
+
+                    for i in 0..D::dim() - vs.len() {
+                        let mut elt = Self::canonical_basis_element(i);
+
+                        for v in &known_basis {
+                            elt -= v * elt.dot(v)
+                        }
+
+                        if let Some(subsp_elt) = elt.try_normalize(N::RealField::zero()) {
+                            if !f(&subsp_elt) {
+                                return;
+                            };
+
+                            known_basis.push(subsp_elt);
+                        }
+                    }
+                }
+                #[cfg(all(not(feature = "std"), not(feature = "alloc")))]
+                {
+                    panic!("Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
+                            if #![no_std] is enabled and the 'alloc' feature is not enabled.")
+                }
+            }
+        }
     }
 }
