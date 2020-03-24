@@ -153,7 +153,7 @@ pub use num_complex::Complex;
 pub use simba::scalar::{
     ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, ComplexField, Field, RealField,
 };
-pub use simba::simd::{SimdBool, SimdComplexField, SimdRealField};
+pub use simba::simd::{SimdBool, SimdComplexField, SimdPartialOrd, SimdRealField};
 
 /// Gets the multiplicative identity element.
 ///
@@ -249,29 +249,47 @@ pub fn min<T: Ord>(a: T, b: T) -> T {
 /// The absolute value of `a`.
 ///
 /// Deprecated: Use [Matrix::abs] or [RealField::abs] instead.
-#[deprecated(note = "use `Matrix::abs` or `RealField::abs` instead")]
+#[deprecated(note = "use the inherent method `Matrix::abs` or `RealField::abs` instead")]
 #[inline]
 pub fn abs<T: Signed>(a: &T) -> T {
     a.abs()
 }
 
-///// Returns the infimum of `a` and `b`.
-//#[inline]
-//pub fn inf<T: MeetSemilattice>(a: &T, b: &T) -> T {
-//    a.meet(b)
-//}
-//
-///// Returns the supremum of `a` and `b`.
-//#[inline]
-//pub fn sup<T: JoinSemilattice>(a: &T, b: &T) -> T {
-//    a.join(b)
-//}
-//
-///// Returns simultaneously the infimum and supremum of `a` and `b`.
-//#[inline]
-//pub fn inf_sup<T: Lattice>(a: &T, b: &T) -> (T, T) {
-//    a.meet_join(b)
-//}
+/// Returns the infimum of `a` and `b`.
+#[deprecated(note = "use the inherent method `Matrix::inf` instead")]
+#[inline]
+pub fn inf<N, R: Dim, C: Dim>(a: &MatrixMN<N, R, C>, b: &MatrixMN<N, R, C>) -> MatrixMN<N, R, C>
+where
+    N: Scalar + SimdPartialOrd,
+    DefaultAllocator: Allocator<N, R, C>,
+{
+    a.inf(b)
+}
+
+/// Returns the supremum of `a` and `b`.
+#[deprecated(note = "use the inherent method `Matrix::sup` instead")]
+#[inline]
+pub fn sup<N, R: Dim, C: Dim>(a: &MatrixMN<N, R, C>, b: &MatrixMN<N, R, C>) -> MatrixMN<N, R, C>
+where
+    N: Scalar + SimdPartialOrd,
+    DefaultAllocator: Allocator<N, R, C>,
+{
+    a.sup(b)
+}
+
+/// Returns simultaneously the infimum and supremum of `a` and `b`.
+#[deprecated(note = "use the inherent method `Matrix::inf_sup` instead")]
+#[inline]
+pub fn inf_sup<N, R: Dim, C: Dim>(
+    a: &MatrixMN<N, R, C>,
+    b: &MatrixMN<N, R, C>,
+) -> (MatrixMN<N, R, C>, MatrixMN<N, R, C>)
+where
+    N: Scalar + SimdPartialOrd,
+    DefaultAllocator: Allocator<N, R, C>,
+{
+    a.inf_sup(b)
+}
 
 /// Compare `a` and `b` using a partial ordering relation.
 #[inline]

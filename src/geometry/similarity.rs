@@ -124,11 +124,15 @@ where
 
         self.scaling = scaling;
     }
+}
 
+impl<N: Scalar, D: DimName, R> Similarity<N, D, R>
+where DefaultAllocator: Allocator<N, D>
+{
     /// The scaling factor of this similarity transformation.
     #[inline]
     pub fn scaling(&self) -> N {
-        self.scaling.clone()
+        self.scaling.inlined_clone()
     }
 }
 

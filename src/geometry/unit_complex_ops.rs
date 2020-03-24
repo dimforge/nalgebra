@@ -29,8 +29,6 @@ use simba::simd::SimdRealField;
  * UnitComplex × Similarity<UnitComplex>
  * UnitComplex × Translation -> Isometry<UnitComplex>
  *
- * NOTE: -UnitComplex is already provided by `Unit<T>`.
- *
  * (Assignment Operators)
  *
  * UnitComplex  ×= UnitComplex

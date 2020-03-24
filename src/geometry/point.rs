@@ -12,6 +12,8 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
+use simba::simd::SimdPartialOrd;
+
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
@@ -304,6 +306,32 @@ where DefaultAllocator: Allocator<N, D>
     #[inline]
     fn ge(&self, right: &Self) -> bool {
         self.coords.ge(&right.coords)
+    }
+}
+
+/*
+ * inf/sup
+ */
+impl<N: Scalar + SimdPartialOrd, D: DimName> Point<N, D>
+where DefaultAllocator: Allocator<N, D>
+{
+    /// Computes the infimum (aka. componentwise min) of two points.
+    #[inline]
+    pub fn inf(&self, other: &Self) -> Point<N, D> {
+        self.coords.inf(&other.coords).into()
+    }
+
+    /// Computes the supremum (aka. componentwise max) of two points.
+    #[inline]
+    pub fn sup(&self, other: &Self) -> Point<N, D> {
+        self.coords.sup(&other.coords).into()
+    }
+
+    /// Computes the (infimum, supremum) of two points.
+    #[inline]
+    pub fn inf_sup(&self, other: &Self) -> (Point<N, D>, Point<N, D>) {
+        let (inf, sup) = self.coords.inf_sup(&other.coords);
+        (inf.into(), sup.into())
     }
 }
 

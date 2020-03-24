@@ -5,11 +5,13 @@ use simba::scalar::{ClosedAdd, ClosedMul};
 use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, U1, U3, U4};
+use crate::base::dimension::{DimName, U1, U2, U3, U4};
 use crate::base::{DefaultAllocator, Unit, VectorN};
 use crate::Scalar;
 
-use crate::geometry::{AbstractRotation, Isometry, Point, Rotation, Translation, UnitQuaternion};
+use crate::geometry::{
+    AbstractRotation, Isometry, Point, Rotation, Translation, UnitComplex, UnitQuaternion,
+};
 
 // FIXME: there are several cloning of rotations that we could probably get rid of (but we didn't
 // yet because that would require to add a bound like `where for<'a, 'b> &'a R: Mul<&'b R, Output = R>`
@@ -223,6 +225,23 @@ md_assign_impl_all!(
     DivAssign, div_assign where N: SimdRealField for N::Element: SimdRealField;
     (U3, U3), (U3, U3) for;
     self: Isometry<N, U3, UnitQuaternion<N>>, rhs: UnitQuaternion<N>;
+    // FIXME: don't invert explicitly?
+    [val] => *self *= rhs.inverse();
+    [ref] => *self *= rhs.inverse();
+);
+
+md_assign_impl_all!(
+    MulAssign, mul_assign where N: SimdRealField for N::Element: SimdRealField;
+    (U2, U2), (U2, U2) for;
+    self: Isometry<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>;
+    [val] => self.rotation *= rhs;
+    [ref] => self.rotation *= rhs.clone();
+);
+
+md_assign_impl_all!(
+    DivAssign, div_assign where N: SimdRealField for N::Element: SimdRealField;
+    (U2, U2), (U2, U2) for;
+    self: Isometry<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>;
     // FIXME: don't invert explicitly?
     [val] => *self *= rhs.inverse();
     [ref] => *self *= rhs.inverse();
@@ -486,4 +505,28 @@ isometry_from_composition_impl_all!(
     [ref val] => Isometry::from_parts(self.clone(), right);
     [val ref] => Isometry::from_parts(self, right.clone());
     [ref ref] => Isometry::from_parts(self.clone(), right.clone());
+);
+
+// Isometry × UnitComplex
+isometry_from_composition_impl_all!(
+    Mul, mul;
+    (U2, U1), (U2, U1);
+    self: Isometry<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>,
+    Output = Isometry<N, U2, UnitComplex<N>>;
+    [val val] => Isometry::from_parts(self.translation, self.rotation * rhs);
+    [ref val] => Isometry::from_parts(self.translation.clone(), self.rotation.clone() * rhs); // FIXME: do not clone.
+    [val ref] => Isometry::from_parts(self.translation, self.rotation * rhs.clone());
+    [ref ref] => Isometry::from_parts(self.translation.clone(), self.rotation.clone() * rhs.clone());
+);
+
+// Isometry ÷ UnitComplex
+isometry_from_composition_impl_all!(
+    Div, div;
+    (U2, U1), (U2, U1);
+    self: Isometry<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>,
+    Output = Isometry<N, U2, UnitComplex<N>>;
+    [val val] => Isometry::from_parts(self.translation, self.rotation / rhs);
+    [ref val] => Isometry::from_parts(self.translation.clone(), self.rotation.clone() / rhs); // FIXME: do not clone.
+    [val ref] => Isometry::from_parts(self.translation, self.rotation / rhs.clone());
+    [ref ref] => Isometry::from_parts(self.translation.clone(), self.rotation.clone() / rhs.clone());
 );

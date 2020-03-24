@@ -5,11 +5,12 @@ use simba::scalar::{ClosedAdd, ClosedMul};
 use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, U1, U3, U4};
+use crate::base::dimension::{DimName, U1, U2, U3, U4};
 use crate::base::{DefaultAllocator, Scalar, VectorN};
 
 use crate::geometry::{
-    AbstractRotation, Isometry, Point, Rotation, Similarity, Translation, UnitQuaternion,
+    AbstractRotation, Isometry, Point, Rotation, Similarity, Translation, UnitComplex,
+    UnitQuaternion,
 };
 
 // FIXME: there are several cloning of rotations that we could probably get rid of (but we didn't
@@ -247,6 +248,23 @@ md_assign_impl_all!(
     DivAssign, div_assign where N: SimdRealField for N::Element: SimdRealField;
     (U3, U3), (U3, U3) for;
     self: Similarity<N, U3, UnitQuaternion<N>>, rhs: UnitQuaternion<N>;
+    // FIXME: don't invert explicitly?
+    [val] => *self *= rhs.inverse();
+    [ref] => *self *= rhs.inverse();
+);
+
+md_assign_impl_all!(
+    MulAssign, mul_assign where N: SimdRealField for N::Element: SimdRealField;
+    (U2, U2), (U2, U2) for;
+    self: Similarity<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>;
+    [val] => self.isometry.rotation *= rhs;
+    [ref] => self.isometry.rotation *= rhs.clone();
+);
+
+md_assign_impl_all!(
+    DivAssign, div_assign where N: SimdRealField for N::Element: SimdRealField;
+    (U2, U2), (U2, U2) for;
+    self: Similarity<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>;
     // FIXME: don't invert explicitly?
     [val] => *self *= rhs.inverse();
     [ref] => *self *= rhs.inverse();
@@ -513,7 +531,7 @@ similarity_from_composition_impl_all!(
     [ref ref] => Similarity::from_isometry(self * &right.isometry, right.scaling());
 );
 
-// Similarity ÷ Rotation
+// Similarity ÷ UnitQuaternion
 similarity_from_composition_impl_all!(
     Div, div;
     (U4, U1), (U3, U1);
@@ -542,4 +560,40 @@ similarity_from_composition_impl_all!(
     [ref val] => self * right.inverse();
     [val ref] => self * right.inverse();
     [ref ref] => self * right.inverse();
+);
+
+// Similarity × UnitComplex
+similarity_from_composition_impl_all!(
+    Mul, mul;
+    (U2, U1), (U2, U1);
+    self: Similarity<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>,
+    Output = Similarity<N, U2, UnitComplex<N>>;
+    [val val] => {
+        let scaling = self.scaling();
+        Similarity::from_isometry(self.isometry * rhs, scaling)
+    };
+    [ref val] => Similarity::from_isometry(&self.isometry * rhs, self.scaling());
+    [val ref] => {
+        let scaling = self.scaling();
+        Similarity::from_isometry(self.isometry * rhs, scaling)
+    };
+    [ref ref] => Similarity::from_isometry(&self.isometry * rhs, self.scaling());
+);
+
+// Similarity ÷ UnitComplex
+similarity_from_composition_impl_all!(
+    Div, div;
+    (U2, U1), (U2, U1);
+    self: Similarity<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>,
+    Output = Similarity<N, U2, UnitComplex<N>>;
+    [val val] => {
+        let scaling = self.scaling();
+        Similarity::from_isometry(self.isometry / rhs, scaling)
+    };
+    [ref val] => Similarity::from_isometry(&self.isometry / rhs, self.scaling());
+    [val ref] => {
+        let scaling = self.scaling();
+        Similarity::from_isometry(self.isometry / rhs, scaling)
+    };
+    [ref ref] => Similarity::from_isometry(&self.isometry / rhs, self.scaling());
 );
