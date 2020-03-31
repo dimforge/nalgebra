@@ -118,12 +118,13 @@ macro_rules! impl_from_into_asref_1D(
               S: ContiguousStorage<N, $NRows, $NCols> {
             #[inline]
             fn into(self) -> [N; $SZ] {
-                unsafe {
-                    let mut res: [N; $SZ] = mem::MaybeUninit::uninit().assume_init();
-                    ptr::copy_nonoverlapping(self.data.ptr(), &mut res[0], $SZ);
+                let mut res = mem::MaybeUninit::<[N; $SZ]>::uninit();
 
-                    res
-                }
+                unsafe { ptr::copy_nonoverlapping(self.data.ptr(), res.as_mut_ptr() as *mut N, $SZ); }
+
+                let res: [N; $SZ] = unsafe { res.assume_init() };
+                
+                res
             }
         }
 
@@ -185,12 +186,13 @@ macro_rules! impl_from_into_asref_2D(
         where S: ContiguousStorage<N, $NRows, $NCols> {
             #[inline]
             fn into(self) -> [[N; $SZRows]; $SZCols] {
-                unsafe {
-                    let mut res: [[N; $SZRows]; $SZCols] = mem::MaybeUninit::uninit().assume_init();
-                    ptr::copy_nonoverlapping(self.data.ptr(), &mut res[0][0], $SZRows * $SZCols);
+                let mut res = mem::MaybeUninit::<[[N; $SZRows]; $SZCols]>::uninit();
 
-                    res
-                }
+                unsafe { ptr::copy_nonoverlapping(self.data.ptr(), res.as_mut_ptr() as *mut N, $SZRows * $SZCols); }
+                
+                let res: [[N; $SZRows]; $SZCols] = unsafe { res.assume_init() };
+                
+                res
             }
         }
 
