@@ -46,7 +46,7 @@ where
 
     #[inline]
     unsafe fn allocate_uninitialized(_: R, _: C) -> Self::Buffer {
-        mem::MaybeUninit::uninit().assume_init()
+        mem::MaybeUninit::<Self::Buffer>::uninit().assume_init()
     }
 
     #[inline]
