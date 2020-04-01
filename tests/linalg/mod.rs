@@ -1,7 +1,9 @@
 mod balancing;
 mod bidiagonal;
 mod cholesky;
+mod convolution;
 mod eigen;
+mod exp;
 mod full_piv_lu;
 mod hessenberg;
 mod inverse;

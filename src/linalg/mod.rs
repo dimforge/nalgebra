@@ -5,6 +5,7 @@ mod bidiagonal;
 mod cholesky;
 mod convolution;
 mod determinant;
+mod exp;
 mod full_piv_lu;
 pub mod givens;
 mod hessenberg;
