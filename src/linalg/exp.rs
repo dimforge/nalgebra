@@ -378,7 +378,7 @@ where
     q.lu().solve(&p).unwrap()
 }
 
-pub fn one_norm<N, R>(m: &MatrixN<N, R>) -> N
+fn one_norm<N, R>(m: &MatrixN<N, R>) -> N
 where
     N: RealField,
     R: DimName,
