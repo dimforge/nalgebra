@@ -320,31 +320,32 @@ fn factorial(n: u128) -> u128 {
     n * factorial(n - 1)
 }
 
-fn onenorm_matrix_power_nnm<N, R>(a: &MatrixN<N, R>, p: u64) -> N
+/// Compute the 1-norm of a non-negative integer power of a non-negative matrix.
+fn onenorm_matrix_power_nonm<N, R>(a: &MatrixN<N, R>, p: u64) -> N
 where
     N: RealField,
     R: DimName,
-    DefaultAllocator: Allocator<N, R, R>,
+    DefaultAllocator: Allocator<N, R, R> + Allocator<N, R>,
 {
-    let mut v = MatrixN::<N, R>::repeat(N::from_f64(1.0).unwrap());
+    let mut v = crate::VectorN::<N, R>::repeat(N::from_f64(1.0).unwrap());
     let m = a.transpose();
 
     for _ in 0..p {
         v = &m * v;
     }
 
-    one_norm(&v)
+    v.max()
 }
 
 fn ell<N, R>(a: &MatrixN<N, R>, m: u64) -> u64
 where
     N: RealField,
     R: DimName,
-    DefaultAllocator: Allocator<N, R, R>,
+    DefaultAllocator: Allocator<N, R, R> + Allocator<N, R>,
 {
     // 2m choose m = (2m)!/(m! * (2m-m)!)
 
-    let a_abs_onenorm = onenorm_matrix_power_nnm(&a.abs(), 2 * m + 1);
+    let a_abs_onenorm = onenorm_matrix_power_nonm(&a.abs(), 2 * m + 1);
 
     if a_abs_onenorm == N::zero() {
         return 0;
@@ -396,9 +397,11 @@ where
     max
 }
 
-impl<N: RealField, R: DimMin<R, Output = R> + DimName> MatrixN<N, R>
+impl<N: RealField, R> MatrixN<N, R>
 where
-    DefaultAllocator: Allocator<N, R, R> + Allocator<(usize, usize), DimMinimum<R, R>>,
+    R: DimMin<R, Output = R> + DimName,
+    DefaultAllocator:
+        Allocator<N, R, R> + Allocator<(usize, usize), DimMinimum<R, R>> + Allocator<N, R>,
 {
     /// Computes exp of this matrix
     pub fn exp(&self) -> Self {
