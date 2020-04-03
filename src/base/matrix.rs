@@ -308,6 +308,15 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///
     /// If the matrix is not empty, this pointer is guaranteed to be aligned
     /// and non-null.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    /// let ptr = m.as_ptr();
+    /// assert_eq!(unsafe { *ptr }, m[0]);
+    /// ```
     #[inline]
     pub fn as_ptr(&self) -> *const N {
         self.data.ptr()
