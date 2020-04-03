@@ -1,3 +1,5 @@
+//! This module provides the matrix exponent (exp) function to square matrices.
+//!
 use crate::{
     base::{
         allocator::Allocator,
@@ -403,14 +405,14 @@ where
     DefaultAllocator:
         Allocator<N, R, R> + Allocator<(usize, usize), DimMinimum<R, R>> + Allocator<N, R>,
 {
-    /// Computes exp of this matrix
+    /// Computes exponential of this matrix
     pub fn exp(&self) -> Self {
         // Simple case
         if self.nrows() == 1 {
             return self.clone().map(|v| v.exp());
         }
 
-        let mut h = ExpmPadeHelper::new(self.clone(), false);
+        let mut h = ExpmPadeHelper::new(self.clone(), true);
 
         let eta_1 = N::max(h.d4_loose(), h.d6_loose());
         if eta_1 < N::from_f64(1.495585217958292e-002).unwrap() && ell(&h.a, 3) == 0 {

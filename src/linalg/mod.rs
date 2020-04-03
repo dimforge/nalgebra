@@ -27,6 +27,7 @@ mod symmetric_tridiagonal;
 pub use self::bidiagonal::*;
 pub use self::cholesky::*;
 pub use self::convolution::*;
+pub use self::exp::*;
 pub use self::full_piv_lu::*;
 pub use self::hessenberg::*;
 pub use self::lu::*;
