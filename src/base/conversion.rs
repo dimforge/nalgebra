@@ -196,7 +196,7 @@ macro_rules! impl_from_into_asref_2D(
                 let mut res = mem::MaybeUninit::<[[N; $SZRows]; $SZCols]>::uninit();
 
                 unsafe { ptr::copy_nonoverlapping(self.data.ptr(), res.as_mut_ptr() as *mut N, $SZRows * $SZCols) };
-                
+
                 unsafe { res.assume_init() }
             }
         }
