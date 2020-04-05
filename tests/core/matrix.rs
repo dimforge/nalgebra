@@ -1,15 +1,12 @@
 use num::{One, Zero};
 use std::cmp::Ordering;
 
-use na::dimension::{U15, U8, U2, U4};
+use na::dimension::{U15, U2, U4, U8};
 use na::{
     self, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4, Matrix4,
-    Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RowVector3, RowVector4, RowVector5,
-    Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
+    Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RowVector3, RowVector4, RowVector5, Vector1,
+    Vector2, Vector3, Vector4, Vector5, Vector6,
 };
-use typenum::{UInt, UTerm};
-use serde_json::error::Category::Data;
-use typenum::bit::{B0, B1};
 
 #[test]
 fn iter() {
@@ -1025,7 +1022,9 @@ mod finite_dim_inner_space_tests {
      *
      */
     #[cfg(feature = "arbitrary")]
-    fn is_subspace_basis<T: FiniteDimInnerSpace<RealField = f64, ComplexField = f64> + Display>(vs: &[T]) -> bool {
+    fn is_subspace_basis<T: FiniteDimInnerSpace<RealField = f64, ComplexField = f64> + Display>(
+        vs: &[T],
+    ) -> bool {
         for i in 0..vs.len() {
             // Basis elements must be normalized.
             if !relative_eq!(vs[i].norm(), 1.0, epsilon = 1.0e-7) {
@@ -1066,7 +1065,7 @@ fn partial_eq_different_types() {
     let static_mat = Matrix2x4::new(1, 2, 3, 4, 5, 6, 7, 8);
 
     let mut typenum_static_mat = MatrixMN::<u8, typenum::U1024, U4>::zeros();
-    let mut slice = typenum_static_mat.slice_mut((0,0), (2, 4));
+    let mut slice = typenum_static_mat.slice_mut((0, 0), (2, 4));
     slice += static_mat;
 
     let fslice_of_dmat = dynamic_mat.fixed_slice::<U2, U2>(0, 0);
@@ -1107,5 +1106,4 @@ fn partial_eq_different_types() {
     // TODO - implement those comparisons
     // assert_ne!(static_mat, typenum_static_mat);
     //assert_ne!(typenum_static_mat, static_mat);
-
 }
