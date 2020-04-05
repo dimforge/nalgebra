@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra-lapack"
-version = "0.12.0"
+version = "0.13.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>" ]
 
 description   = "Linear algebra library with transformations and satically-sized or dynamically-sized matrices."
@@ -34,7 +34,7 @@ lapack-src    = { version = "0.5", default-features = false }
 # clippy = "*"
 
 [dev-dependencies]
-nalgebra   = { version = "0.20", path = "..", features = [ "arbitrary" ] }
+nalgebra   = { version = "0.21", path = "..", features = [ "arbitrary" ] }
 quickcheck = "0.9"
 approx     = "0.3"
 rand       = "0.7"
