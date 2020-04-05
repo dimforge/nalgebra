@@ -35,7 +35,8 @@ pub struct Quaternion<N: Scalar + SimdValue> {
 
 #[cfg(feature = "abomonation-serialize")]
 impl<N: SimdRealField> Abomonation for Quaternion<N>
-where Vector4<N>: Abomonation
+where
+    Vector4<N>: Abomonation,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.coords.entomb(writer)
@@ -53,7 +54,8 @@ where Vector4<N>: Abomonation
 impl<N: SimdRealField + Eq> Eq for Quaternion<N> where N::Element: SimdRealField {}
 
 impl<N: SimdRealField> PartialEq for Quaternion<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     fn eq(&self, rhs: &Self) -> bool {
         self.coords == rhs.coords ||
@@ -79,20 +81,26 @@ impl<N: Scalar + SimdValue> Clone for Quaternion<N> {
 
 #[cfg(feature = "serde-serialize")]
 impl<N: SimdRealField> Serialize for Quaternion<N>
-where Owned<N, U4>: Serialize
+where
+    Owned<N, U4>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where S: Serializer {
+    where
+        S: Serializer,
+    {
         self.coords.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: SimdRealField> Deserialize<'a> for Quaternion<N>
-where Owned<N, U4>: Deserialize<'a>
+where
+    Owned<N, U4>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-    where Des: Deserializer<'a> {
+    where
+        Des: Deserializer<'a>,
+    {
         let coords = Vector4::<N>::deserialize(deserializer)?;
 
         Ok(Self::from(coords))
@@ -100,7 +108,8 @@ where Owned<N, U4>: Deserialize<'a>
 }
 
 impl<N: SimdRealField> Quaternion<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
@@ -289,9 +298,12 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> Quaternion<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     /// Inverts this quaternion if it is not zero.
+    ///
+    /// This method also does not works with SIMD components (see `simd_try_inverse` instead).
     ///
     /// # Example
     /// ```
@@ -312,7 +324,9 @@ where N::Element: SimdRealField
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(&self) -> Option<Self>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         let mut res = self.clone();
 
         if res.try_inverse_mut() {
@@ -322,6 +336,9 @@ where N::Element: SimdRealField
         }
     }
 
+    /// Attempt to inverse this quaternion.
+    ///
+    /// This method also works with SIMD components.
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn simd_try_inverse(&self) -> SimdOption<Self> {
@@ -383,7 +400,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn project(&self, other: &Self) -> Option<Self>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         self.inner(other).right_div(other)
     }
 
@@ -403,7 +422,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn reject(&self, other: &Self) -> Option<Self>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         self.outer(other).right_div(other)
     }
 
@@ -423,7 +444,9 @@ where N::Element: SimdRealField
     /// assert_eq!(axis, Some(Vector3::x_axis()));
     /// ```
     pub fn polar_decomposition(&self) -> (N, N, Option<Unit<Vector3<N>>>)
-    where N: RealField {
+    where
+        N: RealField,
+    {
         if let Some((q, n)) = Unit::try_new_and_get(*self, N::zero()) {
             if let Some(axis) = Unit::try_new(self.vector().clone_owned(), N::zero()) {
                 let angle = q.angle() / crate::convert(2.0f64);
@@ -640,7 +663,9 @@ where N::Element: SimdRealField
     /// Calculates B<sup>-1</sup> * A where A = self, B = other.
     #[inline]
     pub fn left_div(&self, other: &Self) -> Option<Self>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         other.try_inverse().map(|inv| inv * self)
     }
 
@@ -660,7 +685,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn right_div(&self, other: &Self) -> Option<Self>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         other.try_inverse().map(|inv| self * inv)
     }
 
@@ -753,7 +780,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn tan(&self) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         self.sin().right_div(&self.cos()).unwrap()
     }
 
@@ -769,7 +798,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn atan(&self) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         let u = Self::from_imag(self.imag().normalize());
         let num = u + self;
         let den = u - self;
@@ -857,7 +888,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn tanh(&self) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         self.sinh().right_div(&self.cosh()).unwrap()
     }
 
@@ -907,8 +940,7 @@ impl<N: RealField + RelativeEq<Epsilon = N>> RelativeEq for Quaternion<N> {
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.as_vector().relative_eq(other.as_vector(), epsilon, max_relative) ||
         // Account for the double-covering of S², i.e. q = -q
         self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.relative_eq(&-*b, epsilon, max_relative))
@@ -967,7 +999,8 @@ impl<N: SimdRealField> Normed for Quaternion<N> {
 }
 
 impl<N: SimdRealField> UnitQuaternion<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     /// The rotation angle in [0; pi] of this unit quaternion.
     ///
@@ -1120,7 +1153,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn slerp(&self, other: &Self, t: N) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         self.try_slerp(other, t, N::default_epsilon())
             .expect("Quaternion slerp: ambiguous configuration.")
     }
@@ -1137,7 +1172,9 @@ where N::Element: SimdRealField
     /// must be to return `None`.
     #[inline]
     pub fn try_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         let coords = if self.coords.dot(&other.coords) < N::zero() {
             Unit::new_unchecked(self.coords).try_slerp(
                 &Unit::new_unchecked(-other.coords),
@@ -1194,7 +1231,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn axis(&self) -> Option<Unit<Vector3<N>>>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         let v = if self.quaternion().scalar() >= N::zero() {
             self.as_ref().vector().clone_owned()
         } else {
@@ -1216,7 +1255,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn scaled_axis(&self) -> Vector3<N>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         if let Some(axis) = self.axis() {
             axis.into_inner() * self.angle()
         } else {
@@ -1242,7 +1283,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn axis_angle(&self) -> Option<(Unit<Vector3<N>>, N)>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         self.axis().map(|axis| (axis, self.angle()))
     }
 
@@ -1270,7 +1313,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn ln(&self) -> Quaternion<N>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         if let Some(v) = self.axis() {
             Quaternion::from_imag(v.into_inner() * self.angle())
         } else {
@@ -1296,7 +1341,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn powf(&self, n: N) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         if let Some(v) = self.axis() {
             Self::from_axis_angle(&v, self.angle() * n)
         } else {
@@ -1357,7 +1404,9 @@ where N::Element: SimdRealField
     #[inline]
     #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
     pub fn to_euler_angles(&self) -> (N, N, N)
-    where N: RealField {
+    where
+        N: RealField,
+    {
         self.euler_angles()
     }
 
@@ -1377,7 +1426,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn euler_angles(&self) -> (N, N, N)
-    where N: RealField {
+    where
+        N: RealField,
+    {
         self.to_rotation_matrix().euler_angles()
     }
 
@@ -1533,8 +1584,7 @@ impl<N: RealField + RelativeEq<Epsilon = N>> RelativeEq for UnitQuaternion<N> {
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.as_ref()
             .relative_eq(other.as_ref(), epsilon, max_relative)
     }

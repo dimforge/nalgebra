@@ -25,7 +25,9 @@ pub struct Unit<T> {
 #[cfg(feature = "serde-serialize")]
 impl<T: Serialize> Serialize for Unit<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where S: Serializer {
+    where
+        S: Serializer,
+    {
         self.value.serialize(serializer)
     }
 }
@@ -33,7 +35,9 @@ impl<T: Serialize> Serialize for Unit<T> {
 #[cfg(feature = "serde-serialize")]
 impl<'de, T: Deserialize<'de>> Deserialize<'de> for Unit<T> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where D: Deserializer<'de> {
+    where
+        D: Deserializer<'de>,
+    {
         T::deserialize(deserializer).map(|x| Unit { value: x })
     }
 }
@@ -53,11 +57,17 @@ impl<T: Abomonation> Abomonation for Unit<T> {
     }
 }
 
+/// Trait implemented by entities scan be be normalized and put in an `Unit` struct.
 pub trait Normed {
+    /// The type of the norm.
     type Norm: SimdRealField;
+    /// Computes the norm.
     fn norm(&self) -> Self::Norm;
+    /// Computes the squared norm.
     fn norm_squared(&self) -> Self::Norm;
+    /// Multiply `self` by n.
     fn scale_mut(&mut self, n: Self::Norm);
+    /// Divides `self` by n.
     fn unscale_mut(&mut self, n: Self::Norm);
 }
 
@@ -73,7 +83,9 @@ impl<T: Normed> Unit<T> {
     /// Returns `None` if the norm was smaller or equal to `min_norm`.
     #[inline]
     pub fn try_new(value: T, min_norm: T::Norm) -> Option<Self>
-    where T::Norm: RealField {
+    where
+        T::Norm: RealField,
+    {
         Self::try_new_and_get(value, min_norm).map(|res| res.0)
     }
 
@@ -90,7 +102,9 @@ impl<T: Normed> Unit<T> {
     /// Returns `None` if the norm was smaller or equal to `min_norm`.
     #[inline]
     pub fn try_new_and_get(mut value: T, min_norm: T::Norm) -> Option<(Self, T::Norm)>
-    where T::Norm: RealField {
+    where
+        T::Norm: RealField,
+    {
         let sq_norm = value.norm_squared();
 
         if sq_norm > min_norm * min_norm {

@@ -256,7 +256,9 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     /// Sets the magnitude of this vector.
     #[inline]
     pub fn set_magnitude(&mut self, magnitude: N::SimdRealField)
-    where S: StorageMut<N, R, C> {
+    where
+        S: StorageMut<N, R, C>,
+    {
         let n = self.norm();
         self.scale_mut(magnitude / n)
     }
@@ -265,7 +267,9 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     #[inline]
     #[must_use = "Did you mean to use normalize_mut()?"]
     pub fn normalize(&self) -> MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
         self.unscale(self.norm())
     }
 
@@ -275,6 +279,9 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
         self.apply_norm(&LpNorm(p))
     }
 
+    /// Attempts to normalize `self`.
+    ///
+    /// The components of this matrix can be SIMD types.
     #[inline]
     #[must_use = "Did you mean to use simd_try_normalize_mut()?"]
     pub fn simd_try_normalize(&self, min_norm: N::SimdRealField) -> SimdOption<MatrixMN<N, R, C>>
@@ -296,7 +303,9 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Otherwise this is equivalent to: `*self = self.normalize() * magnitude.
     #[inline]
     pub fn try_set_magnitude(&mut self, magnitude: N::RealField, min_magnitude: N::RealField)
-    where S: StorageMut<N, R, C> {
+    where
+        S: StorageMut<N, R, C>,
+    {
         let n = self.norm();
 
         if n >= min_magnitude {
@@ -305,10 +314,14 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 
     /// Returns a normalized version of this matrix unless its norm as smaller or equal to `eps`.
+    ///
+    /// The components of this matrix cannot be SIMD types (see `simd_try_normalize`) instead.
     #[inline]
     #[must_use = "Did you mean to use try_normalize_mut()?"]
     pub fn try_normalize(&self, min_norm: N::RealField) -> Option<MatrixMN<N, R, C>>
-    where DefaultAllocator: Allocator<N, R, C> {
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
         let n = self.norm();
 
         if n <= min_norm {
@@ -321,6 +334,8 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
 impl<N: SimdComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Normalizes this matrix in-place and returns its norm.
+    ///
+    /// The components of the matrix cannot be SIMD types (see `simd_try_normalize_mut` instead).
     #[inline]
     pub fn normalize_mut(&mut self) -> N::SimdRealField {
         let n = self.norm();
@@ -329,6 +344,9 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C
         n
     }
 
+    /// Normalizes this matrix in-place and return its norm.
+    ///
+    /// The components of the matrix can be SIMD types.
     #[inline]
     #[must_use = "Did you mean to use simd_try_normalize_mut()?"]
     pub fn simd_try_normalize_mut(
@@ -364,7 +382,8 @@ impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S>
 }
 
 impl<N: SimdComplexField, R: Dim, C: Dim> Normed for MatrixMN<N, R, C>
-where DefaultAllocator: Allocator<N, R, C>
+where
+    DefaultAllocator: Allocator<N, R, C>,
 {
     type Norm = N::SimdRealField;
 
@@ -390,7 +409,8 @@ where DefaultAllocator: Allocator<N, R, C>
 }
 
 impl<N: Scalar + ClosedNeg, R: Dim, C: Dim> Neg for Unit<MatrixMN<N, R, C>>
-where DefaultAllocator: Allocator<N, R, C>
+where
+    DefaultAllocator: Allocator<N, R, C>,
 {
     type Output = Unit<MatrixMN<N, R, C>>;
 
@@ -405,7 +425,8 @@ where DefaultAllocator: Allocator<N, R, C>
 //   − use `x()` instead of `::canonical_basis_element`
 //   − use `::new(x, y, z)` instead of `::from_slice`
 impl<N: ComplexField, D: DimName> VectorN<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// The i-the canonical basis element.
     #[inline]
@@ -458,7 +479,9 @@ where DefaultAllocator: Allocator<N, D>
     // FIXME: return an iterator instead when `-> impl Iterator` will be supported by Rust.
     #[inline]
     pub fn orthonormal_subspace_basis<F>(vs: &[Self], mut f: F)
-    where F: FnMut(&Self) -> bool {
+    where
+        F: FnMut(&Self) -> bool,
+    {
         // FIXME: is this necessary?
         assert!(
             vs.len() <= D::dim(),
