@@ -4,6 +4,28 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+
+## [0.21.0]
+In this release, we are no longer relying on traits from the __alga__ crate for our generic code.
+Instead, we use traits from the new [simba](https://crates.io/crates/simba) crate which are both
+simpler, and allow for significant optimizations like AoSoA SIMD. 
+
+Refer to the [monthly Rustsim blogpost](https://www.rustsim.org/blog/2020/04/01/this-month-in-rustsim/)
+for details about this switch and its benefits.
+
+### Added
+ * It is now possible to use SIMD types like `simba::f32x4` as scalar types for nalgebra's matrices and
+   geometric types.
+### Modified
+ * Use of traits like `alga::general::{RealField, ComplexField}` have now been replaced by
+  `simba::scalar::{RealField, ComplexField}`.
+ * The implementation of traits from the __alga__ crate (and well as the dependency to _alga__) are now
+   omitted unless the `alga` cargo feature is activated.
+### Removed
+ * The `Neg` unary operator is no longer implemented for `UnitComplex` and `UnitQuaternion`. This caused
+   hard-to-track errors when we mistakenly write, e.g., `-q * v` instead of `-(q * v)`.
+ * The `na::convert_unchecked` is no longer marked as unsafe.
+ 
 ## [0.20.0]
 ### Added
   * `cholesky.rank_one_update(...)` which performs a rank-one update on the cholesky decomposition of a matrix.

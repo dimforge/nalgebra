@@ -4,7 +4,7 @@ version = "0.0.0"
 authors = [ "You" ]
 
 [dependencies]
-nalgebra = "0.20.0"
+nalgebra = "0.21.0"
 
 [[bin]]
 name = "example"
