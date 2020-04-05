@@ -35,12 +35,12 @@ mod unit_complex_ops;
 mod unit_complex_simba;
 
 mod translation;
-mod translation_alga;
 mod translation_alias;
 mod translation_construction;
 mod translation_conversion;
 mod translation_coordinates;
 mod translation_ops;
+mod translation_simba;
 
 mod isometry;
 mod isometry_alias;
