@@ -17,8 +17,10 @@ use crate::traits::{Alloc, Dimension, Number};
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
 pub fn max<N: Number, D: Dimension>(a: &TVec<N, D>, b: N) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
-    a.map(|a| na::sup(&a, &b))
+where
+    DefaultAllocator: Alloc<N, D>,
+{
+    a.map(|a| crate::max2_scalar(a, b))
 }
 
 /// Component-wise maximum between two vectors.
@@ -35,8 +37,10 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
 pub fn max2<N: Number, D: Dimension>(a: &TVec<N, D>, b: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
-    na::sup(a, b)
+where
+    DefaultAllocator: Alloc<N, D>,
+{
+    a.zip_map(b, |a, b| crate::max2_scalar(a, b))
 }
 
 /// Component-wise maximum between three vectors.
@@ -53,7 +57,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
 pub fn max3<N: Number, D: Dimension>(a: &TVec<N, D>, b: &TVec<N, D>, c: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     max2(&max2(a, b), c)
 }
 
@@ -96,8 +102,10 @@ where
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
 pub fn min<N: Number, D: Dimension>(x: &TVec<N, D>, y: N) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
-    x.map(|x| na::inf(&x, &y))
+where
+    DefaultAllocator: Alloc<N, D>,
+{
+    x.map(|x| crate::min2_scalar(x, y))
 }
 
 /// Component-wise minimum between two vectors.
@@ -114,8 +122,10 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
 pub fn min2<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
-    na::inf(x, y)
+where
+    DefaultAllocator: Alloc<N, D>,
+{
+    x.zip_map(y, |a, b| crate::min2_scalar(a, b))
 }
 
 /// Component-wise minimum between three vectors.
@@ -132,7 +142,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`min2`](fn.min2.html)
 /// * [`min4`](fn.min4.html)
 pub fn min3<N: Number, D: Dimension>(a: &TVec<N, D>, b: &TVec<N, D>, c: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     min2(&min2(a, b), c)
 }
 

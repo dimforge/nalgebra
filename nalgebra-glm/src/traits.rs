@@ -3,7 +3,8 @@ use num::{Bounded, FromPrimitive, Signed};
 
 use na::allocator::Allocator;
 use na::{DimMin, DimName, Scalar, U1};
-use simba::scalar::{Lattice, Ring};
+use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub};
+use std::cmp::PartialOrd;
 
 /// A type-level number representing a vector, matrix row, or matrix column, dimension.
 pub trait Dimension: DimName + DimMin<Self, Output = Self> {}
@@ -11,15 +12,26 @@ impl<D: DimName + DimMin<D, Output = Self>> Dimension for D {}
 
 /// A number that can either be an integer or a float.
 pub trait Number:
-    Scalar + Copy + Ring + Lattice + AbsDiffEq<Epsilon = Self> + Signed + FromPrimitive + Bounded
+    Scalar
+    + Copy
+    + PartialOrd
+    + ClosedAdd
+    + ClosedSub
+    + ClosedMul
+    + AbsDiffEq<Epsilon = Self>
+    + Signed
+    + FromPrimitive
+    + Bounded
 {
 }
 
 impl<
         T: Scalar
             + Copy
-            + Ring
-            + Lattice
+            + PartialOrd
+            + ClosedAdd
+            + ClosedSub
+            + ClosedMul
             + AbsDiffEq<Epsilon = Self>
             + Signed
             + FromPrimitive

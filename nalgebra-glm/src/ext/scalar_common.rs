@@ -1,6 +1,50 @@
-use na;
-
 use crate::traits::Number;
+
+/// Returns the maximum among two values.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// assert_eq!(2.0, glm::max2_scalar(1.0, 2.0));
+/// assert_eq!(1, glm::max2_scalar(0, 1));
+/// ```
+///
+/// # See also:
+///
+/// * [`max4_scalar`](fn.max4_scalar.html)
+/// * [`min3_scalar`](fn.min3_scalar.html)
+/// * [`min4_scalar`](fn.min4_scalar.html)
+pub fn max2_scalar<N: Number>(a: N, b: N) -> N {
+    if a >= b {
+        a
+    } else {
+        b
+    }
+}
+
+/// Returns the maximum among two values.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra_glm as glm;
+/// assert_eq!(1.0, glm::min2_scalar(1.0, 2.0));
+/// assert_eq!(0, glm::min2_scalar(0, 1));
+/// ```
+///
+/// # See also:
+///
+/// * [`max4_scalar`](fn.max4_scalar.html)
+/// * [`min3_scalar`](fn.min3_scalar.html)
+/// * [`min4_scalar`](fn.min4_scalar.html)
+pub fn min2_scalar<N: Number>(a: N, b: N) -> N {
+    if a <= b {
+        a
+    } else {
+        b
+    }
+}
 
 /// Returns the maximum among three values.
 ///
@@ -18,7 +62,7 @@ use crate::traits::Number;
 /// * [`min3_scalar`](fn.min3_scalar.html)
 /// * [`min4_scalar`](fn.min4_scalar.html)
 pub fn max3_scalar<N: Number>(a: N, b: N, c: N) -> N {
-    na::sup(&na::sup(&a, &b), &c)
+    max2_scalar(max2_scalar(a, b), c)
 }
 
 /// Returns the maximum among four values.
@@ -37,7 +81,7 @@ pub fn max3_scalar<N: Number>(a: N, b: N, c: N) -> N {
 /// * [`min3_scalar`](fn.min3_scalar.html)
 /// * [`min4_scalar`](fn.min4_scalar.html)
 pub fn max4_scalar<N: Number>(a: N, b: N, c: N, d: N) -> N {
-    na::sup(&na::sup(&a, &b), &na::sup(&c, &d))
+    max2_scalar(max2_scalar(a, b), max2_scalar(c, d))
 }
 
 /// Returns the minimum among three values.
@@ -56,7 +100,7 @@ pub fn max4_scalar<N: Number>(a: N, b: N, c: N, d: N) -> N {
 /// * [`max4_scalar`](fn.max4_scalar.html)
 /// * [`min4_scalar`](fn.min4_scalar.html)
 pub fn min3_scalar<N: Number>(a: N, b: N, c: N) -> N {
-    na::inf(&na::inf(&a, &b), &c)
+    min2_scalar(min2_scalar(a, b), c)
 }
 
 /// Returns the minimum among four values.
@@ -75,5 +119,5 @@ pub fn min3_scalar<N: Number>(a: N, b: N, c: N) -> N {
 /// * [`max4_scalar`](fn.max4_scalar.html)
 /// * [`min3_scalar`](fn.min3_scalar.html)
 pub fn min4_scalar<N: Number>(a: N, b: N, c: N, d: N) -> N {
-    na::inf(&na::inf(&a, &b), &na::inf(&c, &d))
+    min2_scalar(min2_scalar(a, b), min2_scalar(c, d))
 }
