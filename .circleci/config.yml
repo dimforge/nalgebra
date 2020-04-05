@@ -25,7 +25,7 @@ jobs:
     steps:
       - checkout
       - run: apt-get update
-      - run: apt-get install -y cmake
+      - run: apt-get install -y cmake gfortran libblas-dev liblapack-dev
       - run:
           name: build --no-default-feature
           command: cargo build --no-default-features;
