@@ -3,7 +3,7 @@ use std::cmp;
 use na::{DMatrix, Matrix4};
 use nl::SymmetricEigen;
 
-quickcheck!{
+quickcheck! {
     fn symmetric_eigen(n: usize) -> bool {
         let n = cmp::max(1, cmp::min(n, 10));
         let m = DMatrix::<f64>::new_random(n, n);

@@ -4,13 +4,13 @@ use serde::{Deserialize, Serialize};
 use num::Zero;
 use num_complex::Complex;
 
-use alga::general::RealField;
+use simba::scalar::RealField;
 
+use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Dim, U1};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
-use crate::ComplexHelper;
 
 use lapack;
 
@@ -18,23 +18,24 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    serde(
+        bound(serialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
          VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Serialize"
-    ))
+         MatrixN<N, D>: Serialize")
+    )
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    serde(
+        bound(deserialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
          VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Deserialize<'de>"
-    ))
+         MatrixN<N, D>: Deserialize<'de>")
+    )
 )]
 #[derive(Clone, Debug)]
 pub struct Schur<N: Scalar, D: Dim>
-where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
 {
     re: VectorN<N, D>,
     im: VectorN<N, D>,
@@ -47,10 +48,12 @@ where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
     MatrixN<N, D>: Copy,
     VectorN<N, D>: Copy,
-{}
+{
+}
 
 impl<N: SchurScalar + RealField, D: Dim> Schur<N, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
     /// Computes the eigenvalues and real Schur form of the matrix `m`.
     ///
@@ -145,7 +148,9 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 
     /// Computes the complex eigenvalues of the decomposed matrix.
     pub fn complex_eigenvalues(&self) -> VectorN<Complex<N>, D>
-    where DefaultAllocator: Allocator<Complex<N>, D> {
+    where
+        DefaultAllocator: Allocator<Complex<N>, D>,
+    {
         let mut out = unsafe { VectorN::new_uninitialized_generic(self.t.data.shape().0, U1) };
 
         for i in 0..out.len() {

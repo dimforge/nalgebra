@@ -1,19 +1,19 @@
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
-use num::{Zero, One};
 use approx::AbsDiffEq;
+use num::{One, Zero};
 
-use alga::general::{RealField, ComplexField};
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, Matrix2x3, MatrixMN, Vector2, VectorN};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1, U2};
 use crate::storage::Storage;
+use simba::scalar::{ComplexField, RealField};
 
+use crate::linalg::givens::GivensRotation;
 use crate::linalg::symmetric_eigen;
 use crate::linalg::Bidiagonal;
-use crate::linalg::givens::GivensRotation;
 
 /// Singular Value Decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -41,9 +41,10 @@ use crate::linalg::givens::GivensRotation;
 )]
 #[derive(Clone, Debug)]
 pub struct SVD<N: ComplexField, R: DimMin<C>, C: Dim>
-where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
+where
+    DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
-        + Allocator<N::RealField, DimMinimum<R, C>>
+        + Allocator<N::RealField, DimMinimum<R, C>>,
 {
     /// The left-singular vectors `U` of this SVD.
     pub u: Option<MatrixMN<N, R, DimMinimum<R, C>>>,
@@ -61,7 +62,8 @@ where
     MatrixMN<N, R, DimMinimum<R, C>>: Copy,
     MatrixMN<N, DimMinimum<R, C>, C>: Copy,
     VectorN<N::RealField, DimMinimum<R, C>>: Copy,
-{}
+{
+}
 
 impl<N: ComplexField, R: DimMin<C>, C: Dim> SVD<N, R, C>
 where
@@ -78,7 +80,14 @@ where
 {
     /// Computes the Singular Value Decomposition of `matrix` using implicit shift.
     pub fn new(matrix: MatrixMN<N, R, C>, compute_u: bool, compute_v: bool) -> Self {
-        Self::try_new(matrix, compute_u, compute_v, N::RealField::default_epsilon(), 0).unwrap()
+        Self::try_new(
+            matrix,
+            compute_u,
+            compute_v,
+            N::RealField::default_epsilon(),
+            0,
+        )
+        .unwrap()
     }
 
     /// Attempts to compute the Singular Value Decomposition of `matrix` using implicit shift.
@@ -97,8 +106,7 @@ where
         compute_v: bool,
         eps: N::RealField,
         max_niter: usize,
-    ) -> Option<Self>
-    {
+    ) -> Option<Self> {
         assert!(
             matrix.len() != 0,
             "Cannot compute the SVD of an empty matrix."
@@ -120,7 +128,15 @@ where
         let mut off_diagonal = b.off_diagonal();
 
         let mut niter = 0;
-        let (mut start, mut end) = Self::delimit_subproblem(&mut diagonal, &mut off_diagonal, &mut u, &mut v_t, b.is_upper_diagonal(), dim - 1, eps);
+        let (mut start, mut end) = Self::delimit_subproblem(
+            &mut diagonal,
+            &mut off_diagonal,
+            &mut u,
+            &mut v_t,
+            b.is_upper_diagonal(),
+            dim - 1,
+            eps,
+        );
 
         while end != start {
             let subdim = end - start + 1;
@@ -165,7 +181,8 @@ where
                     );
 
                     if let Some((rot1, norm1)) = GivensRotation::cancel_y(&vec) {
-                        rot1.inverse().rotate_rows(&mut subm.fixed_columns_mut::<U2>(0));
+                        rot1.inverse()
+                            .rotate_rows(&mut subm.fixed_columns_mut::<U2>(0));
                         let rot1 = GivensRotation::new_unchecked(rot1.c(), N::from_real(rot1.s()));
 
                         if k > start {
@@ -175,8 +192,8 @@ where
 
                         let v = Vector2::new(subm[(0, 0)], subm[(1, 0)]);
                         // FIXME: does the case `v.y == 0` ever happen?
-                        let (rot2, norm2) =
-                            GivensRotation::cancel_y(&v).unwrap_or((GivensRotation::identity(), subm[(0, 0)]));
+                        let (rot2, norm2) = GivensRotation::cancel_y(&v)
+                            .unwrap_or((GivensRotation::identity(), subm[(0, 0)]));
 
                         rot2.rotate(&mut subm.fixed_columns_mut::<U2>(1));
                         let rot2 = GivensRotation::new_unchecked(rot2.c(), N::from_real(rot2.s()));
@@ -253,7 +270,15 @@ where
             }
 
             // Re-delimit the subproblem in case some decoupling occurred.
-            let sub = Self::delimit_subproblem(&mut diagonal, &mut off_diagonal, &mut u, &mut v_t, b.is_upper_diagonal(), end, eps);
+            let sub = Self::delimit_subproblem(
+                &mut diagonal,
+                &mut off_diagonal,
+                &mut u,
+                &mut v_t,
+                b.is_upper_diagonal(),
+                end,
+                eps,
+            );
             start = sub.0;
             end = sub.1;
 
@@ -308,8 +333,7 @@ where
         is_upper_diagonal: bool,
         end: usize,
         eps: N::RealField,
-    ) -> (usize, usize)
-    {
+    ) -> (usize, usize) {
         let mut n = end;
 
         while n > 0 {
@@ -321,14 +345,36 @@ where
                 off_diagonal[m] = N::RealField::zero();
             } else if diagonal[m].norm1() <= eps {
                 diagonal[m] = N::RealField::zero();
-                Self::cancel_horizontal_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m, m + 1);
+                Self::cancel_horizontal_off_diagonal_elt(
+                    diagonal,
+                    off_diagonal,
+                    u,
+                    v_t,
+                    is_upper_diagonal,
+                    m,
+                    m + 1,
+                );
 
                 if m != 0 {
-                    Self::cancel_vertical_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m - 1);
+                    Self::cancel_vertical_off_diagonal_elt(
+                        diagonal,
+                        off_diagonal,
+                        u,
+                        v_t,
+                        is_upper_diagonal,
+                        m - 1,
+                    );
                 }
             } else if diagonal[n].norm1() <= eps {
                 diagonal[n] = N::RealField::zero();
-                Self::cancel_vertical_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m);
+                Self::cancel_vertical_off_diagonal_elt(
+                    diagonal,
+                    off_diagonal,
+                    u,
+                    v_t,
+                    is_upper_diagonal,
+                    m,
+                );
             } else {
                 break;
             }
@@ -352,10 +398,25 @@ where
             // FIXME: write a test that enters this case.
             else if diagonal[m].norm1() <= eps {
                 diagonal[m] = N::RealField::zero();
-                Self::cancel_horizontal_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m, n);
+                Self::cancel_horizontal_off_diagonal_elt(
+                    diagonal,
+                    off_diagonal,
+                    u,
+                    v_t,
+                    is_upper_diagonal,
+                    m,
+                    n,
+                );
 
                 if m != 0 {
-                    Self::cancel_vertical_off_diagonal_elt(diagonal, off_diagonal, u, v_t, is_upper_diagonal, m - 1);
+                    Self::cancel_vertical_off_diagonal_elt(
+                        diagonal,
+                        off_diagonal,
+                        u,
+                        v_t,
+                        is_upper_diagonal,
+                        m - 1,
+                    );
                 }
                 break;
             }
@@ -375,8 +436,7 @@ where
         is_upper_diagonal: bool,
         i: usize,
         end: usize,
-    )
-    {
+    ) {
         let mut v = Vector2::new(off_diagonal[i], diagonal[i + 1]);
         off_diagonal[i] = N::RealField::zero();
 
@@ -413,8 +473,7 @@ where
         v_t: &mut Option<MatrixMN<N, DimMinimum<R, C>, C>>,
         is_upper_diagonal: bool,
         i: usize,
-    )
-    {
+    ) {
         let mut v = Vector2::new(diagonal[i], off_diagonal[i]);
         off_diagonal[i] = N::RealField::zero();
 
@@ -469,7 +528,7 @@ where
             }
             (None, None) => Err("SVD recomposition: U and V^t have not been computed."),
             (None, _) => Err("SVD recomposition: U has not been computed."),
-            (_, None) => Err("SVD recomposition: V^t has not been computed.")
+            (_, None) => Err("SVD recomposition: V^t has not been computed."),
         }
     }
 
@@ -484,8 +543,7 @@ where
     {
         if eps < N::RealField::zero() {
             Err("SVD pseudo inverse: the epsilon must be non-negative.")
-        }
-        else {
+        } else {
             for i in 0..self.singular_values.len() {
                 let val = self.singular_values[i];
 
@@ -517,8 +575,7 @@ where
     {
         if eps < N::RealField::zero() {
             Err("SVD solve: the epsilon must be non-negative.")
-        }
-        else {
+        } else {
             match (&self.u, &self.v_t) {
                 (Some(u), Some(v_t)) => {
                     let mut ut_b = u.ad_mul(b);
@@ -540,7 +597,7 @@ where
                 }
                 (None, None) => Err("SVD solve: U and V^t have not been computed."),
                 (None, _) => Err("SVD solve: U has not been computed."),
-                (_, None) => Err("SVD solve: V^t has not been computed.")
+                (_, None) => Err("SVD solve: V^t has not been computed."),
             }
         }
     }
@@ -580,8 +637,7 @@ where
         compute_v: bool,
         eps: N::RealField,
         max_niter: usize,
-    ) -> Option<SVD<N, R, C>>
-    {
+    ) -> Option<SVD<N, R, C>> {
         SVD::try_new(self.into_owned(), compute_u, compute_v, eps, max_niter)
     }
 
@@ -609,7 +665,6 @@ where
     }
 }
 
-
 // Explicit formulae inspired from the paper "Computing the Singular Values of 2-by-2 Complex
 // Matrices", Sanzheng Qiao and Xiaohong Wang.
 // http://www.cas.mcmaster.ca/sqrl/papers/sqrl5.pdf
@@ -619,8 +674,11 @@ fn compute_2x2_uptrig_svd<N: RealField>(
     m22: N,
     compute_u: bool,
     compute_v: bool,
-) -> (Option<GivensRotation<N>>, Vector2<N>, Option<GivensRotation<N>>)
-{
+) -> (
+    Option<GivensRotation<N>>,
+    Vector2<N>,
+    Option<GivensRotation<N>>,
+) {
     let two: N::RealField = crate::convert(2.0f64);
     let half: N::RealField = crate::convert(0.5f64);
 

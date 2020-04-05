@@ -3,6 +3,7 @@
 pub mod balancing;
 mod bidiagonal;
 mod cholesky;
+mod convolution;
 mod determinant;
 mod full_piv_lu;
 pub mod givens;
@@ -17,7 +18,6 @@ mod solve;
 mod svd;
 mod symmetric_eigen;
 mod symmetric_tridiagonal;
-mod convolution;
 
 //// FIXME: Not complete enough for publishing.
 //// This handles only cases where each eigenvalue has multiplicity one.
@@ -25,6 +25,7 @@ mod convolution;
 
 pub use self::bidiagonal::*;
 pub use self::cholesky::*;
+pub use self::convolution::*;
 pub use self::full_piv_lu::*;
 pub use self::hessenberg::*;
 pub use self::lu::*;
@@ -34,4 +35,3 @@ pub use self::schur::*;
 pub use self::svd::*;
 pub use self::symmetric_eigen::*;
 pub use self::symmetric_tridiagonal::*;
-pub use self::convolution::*;

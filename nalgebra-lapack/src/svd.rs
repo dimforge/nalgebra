@@ -15,29 +15,26 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, R, R> +
                            Allocator<N, C, C>,
          MatrixN<N, R>: Serialize,
          MatrixN<N, C>: Serialize,
-         VectorN<N, DimMinimum<R, C>>: Serialize"
-    ))
+         VectorN<N, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
                            Allocator<N, R, R> +
                            Allocator<N, C, C>,
          MatrixN<N, R>: Deserialize<'de>,
          MatrixN<N, C>: Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"
-    ))
+         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct SVD<N: Scalar, R: DimMin<C>, C: Dim>
-where DefaultAllocator: Allocator<N, R, R> + Allocator<N, DimMinimum<R, C>> + Allocator<N, C, C>
+where
+    DefaultAllocator: Allocator<N, R, R> + Allocator<N, DimMinimum<R, C>> + Allocator<N, C, C>,
 {
     /// The left-singular vectors `U` of this SVD.
     pub u: MatrixN<N, R>, // FIXME: should be MatrixMN<N, R, DimMinimum<R, C>>
@@ -53,25 +50,28 @@ where
     MatrixMN<N, R, R>: Copy,
     MatrixMN<N, C, C>: Copy,
     VectorN<N, DimMinimum<R, C>>: Copy,
-{}
+{
+}
 
 /// Trait implemented by floats (`f32`, `f64`) and complex floats (`Complex<f32>`, `Complex<f64>`)
 /// supported by the Singular Value Decompotition.
 pub trait SVDScalar<R: DimMin<C>, C: Dim>: Scalar
-where DefaultAllocator: Allocator<Self, R, R>
+where
+    DefaultAllocator: Allocator<Self, R, R>
         + Allocator<Self, R, C>
         + Allocator<Self, DimMinimum<R, C>>
-        + Allocator<Self, C, C>
+        + Allocator<Self, C, C>,
 {
     /// Computes the SVD decomposition of `m`.
     fn compute(m: MatrixMN<Self, R, C>) -> Option<SVD<Self, R, C>>;
 }
 
 impl<N: SVDScalar<R, C>, R: DimMin<C>, C: Dim> SVD<N, R, C>
-where DefaultAllocator: Allocator<N, R, R>
+where
+    DefaultAllocator: Allocator<N, R, R>
         + Allocator<N, R, C>
         + Allocator<N, DimMinimum<R, C>>
-        + Allocator<N, C, C>
+        + Allocator<N, C, C>,
 {
     /// Computes the Singular Value Decomposition of `matrix`.
     pub fn new(m: MatrixMN<N, R, C>) -> Option<Self> {

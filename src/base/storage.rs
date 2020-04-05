@@ -103,11 +103,13 @@ pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
 
     /// Builds a matrix data storage that does not contain any reference.
     fn into_owned(self) -> Owned<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C>;
+    where
+        DefaultAllocator: Allocator<N, R, C>;
 
     /// Clones this data storage to one that does not contain any reference.
     fn clone_owned(&self) -> Owned<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C>;
+    where
+        DefaultAllocator: Allocator<N, R, C>;
 }
 
 /// Trait implemented by matrix data storage that can provide a mutable access to its elements.

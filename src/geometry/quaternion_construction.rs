@@ -9,15 +9,17 @@ use num::{One, Zero};
 use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
-use alga::general::RealField;
+use simba::scalar::RealField;
+use simba::simd::{SimdBool, SimdValue};
 
 use crate::base::dimension::U3;
 use crate::base::storage::Storage;
-use crate::base::{Unit, Vector, Vector3, Vector4, Matrix3, Matrix4};
+use crate::base::{Matrix3, Matrix4, Unit, Vector, Vector3, Vector4};
+use crate::{Scalar, SimdRealField};
 
 use crate::geometry::{Quaternion, Rotation3, UnitQuaternion};
 
-impl<N: RealField> Quaternion<N> {
+impl<N: Scalar + SimdValue> Quaternion<N> {
     /// Creates a quaternion from a 4D vector. The quaternion scalar part corresponds to the `w`
     /// vector component.
     #[inline]
@@ -43,7 +45,9 @@ impl<N: RealField> Quaternion<N> {
     pub fn new(w: N, i: N, j: N, k: N) -> Self {
         Self::from(Vector4::new(i, j, k, w))
     }
+}
 
+impl<N: SimdRealField> Quaternion<N> {
     /// Constructs a pure quaternion.
     #[inline]
     pub fn from_imag(vector: Vector3<N>) -> Self {
@@ -67,7 +71,9 @@ impl<N: RealField> Quaternion<N> {
     #[inline]
     // FIXME: take a reference to `vector`?
     pub fn from_parts<SB>(scalar: N, vector: Vector<N, U3, SB>) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         Self::new(scalar, vector[0], vector[1], vector[2])
     }
 
@@ -75,17 +81,6 @@ impl<N: RealField> Quaternion<N> {
     #[inline]
     pub fn from_real(r: N) -> Self {
         Self::from_parts(r, Vector3::zero())
-    }
-
-    /// Creates a new quaternion from its polar decomposition.
-    ///
-    /// Note that `axis` is assumed to be a unit vector.
-    // FIXME: take a reference to `axis`?
-    pub fn from_polar_decomposition<SB>(scale: N, theta: N, axis: Unit<Vector<N, U3, SB>>) -> Self
-    where SB: Storage<N, U3> {
-        let rot = UnitQuaternion::<N>::from_axis_angle(&axis, theta * crate::convert(2.0f64));
-
-        rot.into_inner() * scale
     }
 
     /// The quaternion multiplicative identity.
@@ -105,14 +100,39 @@ impl<N: RealField> Quaternion<N> {
     }
 }
 
-impl<N: RealField> One for Quaternion<N> {
+// FIXME: merge with the previous block.
+impl<N: SimdRealField> Quaternion<N>
+where
+    N::Element: SimdRealField,
+{
+    /// Creates a new quaternion from its polar decomposition.
+    ///
+    /// Note that `axis` is assumed to be a unit vector.
+    // FIXME: take a reference to `axis`?
+    pub fn from_polar_decomposition<SB>(scale: N, theta: N, axis: Unit<Vector<N, U3, SB>>) -> Self
+    where
+        SB: Storage<N, U3>,
+    {
+        let rot = UnitQuaternion::<N>::from_axis_angle(&axis, theta * crate::convert(2.0f64));
+
+        rot.into_inner() * scale
+    }
+}
+
+impl<N: SimdRealField> One for Quaternion<N>
+where
+    N::Element: SimdRealField,
+{
     #[inline]
     fn one() -> Self {
         Self::identity()
     }
 }
 
-impl<N: RealField> Zero for Quaternion<N> {
+impl<N: SimdRealField> Zero for Quaternion<N>
+where
+    N::Element: SimdRealField,
+{
     #[inline]
     fn zero() -> Self {
         Self::from(Vector4::zero())
@@ -124,8 +144,9 @@ impl<N: RealField> Zero for Quaternion<N> {
     }
 }
 
-impl<N: RealField> Distribution<Quaternion<N>> for Standard
-where Standard: Distribution<N>
+impl<N: SimdRealField> Distribution<Quaternion<N>> for Standard
+where
+    Standard: Distribution<N>,
 {
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Quaternion<N> {
@@ -134,8 +155,9 @@ where Standard: Distribution<N>
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: RealField + Arbitrary> Arbitrary for Quaternion<N>
-where Owned<N, U4>: Send
+impl<N: SimdRealField + Arbitrary> Arbitrary for Quaternion<N>
+where
+    Owned<N, U4>: Send,
 {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
@@ -148,7 +170,10 @@ where Owned<N, U4>: Send
     }
 }
 
-impl<N: RealField> UnitQuaternion<N> {
+impl<N: SimdRealField> UnitQuaternion<N>
+where
+    N::Element: SimdRealField,
+{
     /// The rotation identity.
     ///
     /// # Example
@@ -194,8 +219,10 @@ impl<N: RealField> UnitQuaternion<N> {
     /// ```
     #[inline]
     pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
-    where SB: Storage<N, U3> {
-        let (sang, cang) = (angle / crate::convert(2.0f64)).sin_cos();
+    where
+        SB: Storage<N, U3>,
+    {
+        let (sang, cang) = (angle / crate::convert(2.0f64)).simd_sin_cos();
 
         let q = Quaternion::from_parts(cang, axis.as_ref() * sang);
         Self::new_unchecked(q)
@@ -225,9 +252,9 @@ impl<N: RealField> UnitQuaternion<N> {
     /// ```
     #[inline]
     pub fn from_euler_angles(roll: N, pitch: N, yaw: N) -> Self {
-        let (sr, cr) = (roll * crate::convert(0.5f64)).sin_cos();
-        let (sp, cp) = (pitch * crate::convert(0.5f64)).sin_cos();
-        let (sy, cy) = (yaw * crate::convert(0.5f64)).sin_cos();
+        let (sr, cr) = (roll * crate::convert(0.5f64)).simd_sin_cos();
+        let (sp, cp) = (pitch * crate::convert(0.5f64)).simd_sin_cos();
+        let (sy, cy) = (yaw * crate::convert(0.5f64)).simd_sin_cos();
 
         let q = Quaternion::new(
             cr * cp * cy + sr * sp * sy,
@@ -258,46 +285,58 @@ impl<N: RealField> UnitQuaternion<N> {
         // Robust matrix to quaternion transformation.
         // See https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion
         let tr = rotmat[(0, 0)] + rotmat[(1, 1)] + rotmat[(2, 2)];
-        let res;
-
         let _0_25: N = crate::convert(0.25);
 
-        if tr > N::zero() {
-            let denom = (tr + N::one()).sqrt() * crate::convert(2.0);
-            res = Quaternion::new(
-                _0_25 * denom,
-                (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
-                (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
-                (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
-            );
-        } else if rotmat[(0, 0)] > rotmat[(1, 1)] && rotmat[(0, 0)] > rotmat[(2, 2)] {
-            let denom = (N::one() + rotmat[(0, 0)] - rotmat[(1, 1)] - rotmat[(2, 2)]).sqrt()
-                * crate::convert(2.0);
-            res = Quaternion::new(
-                (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
-                _0_25 * denom,
-                (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
-                (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
-            );
-        } else if rotmat[(1, 1)] > rotmat[(2, 2)] {
-            let denom = (N::one() + rotmat[(1, 1)] - rotmat[(0, 0)] - rotmat[(2, 2)]).sqrt()
-                * crate::convert(2.0);
-            res = Quaternion::new(
-                (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
-                (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
-                _0_25 * denom,
-                (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
-            );
-        } else {
-            let denom = (N::one() + rotmat[(2, 2)] - rotmat[(0, 0)] - rotmat[(1, 1)]).sqrt()
-                * crate::convert(2.0);
-            res = Quaternion::new(
-                (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
-                (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
-                (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
-                _0_25 * denom,
-            );
-        }
+        let res = tr.simd_gt(N::zero()).if_else3(
+            || {
+                let denom = (tr + N::one()).simd_sqrt() * crate::convert(2.0);
+                Quaternion::new(
+                    _0_25 * denom,
+                    (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
+                    (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
+                    (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
+                )
+            },
+            (
+                || rotmat[(0, 0)].simd_gt(rotmat[(1, 1)]) & rotmat[(0, 0)].simd_gt(rotmat[(2, 2)]),
+                || {
+                    let denom = (N::one() + rotmat[(0, 0)] - rotmat[(1, 1)] - rotmat[(2, 2)])
+                        .simd_sqrt()
+                        * crate::convert(2.0);
+                    Quaternion::new(
+                        (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
+                        _0_25 * denom,
+                        (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
+                        (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
+                    )
+                },
+            ),
+            (
+                || rotmat[(1, 1)].simd_gt(rotmat[(2, 2)]),
+                || {
+                    let denom = (N::one() + rotmat[(1, 1)] - rotmat[(0, 0)] - rotmat[(2, 2)])
+                        .simd_sqrt()
+                        * crate::convert(2.0);
+                    Quaternion::new(
+                        (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
+                        (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
+                        _0_25 * denom,
+                        (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
+                    )
+                },
+            ),
+            || {
+                let denom = (N::one() + rotmat[(2, 2)] - rotmat[(0, 0)] - rotmat[(1, 1)])
+                    .simd_sqrt()
+                    * crate::convert(2.0);
+                Quaternion::new(
+                    (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
+                    (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
+                    (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
+                    _0_25 * denom,
+                )
+            },
+        );
 
         Self::new_unchecked(res)
     }
@@ -307,7 +346,10 @@ impl<N: RealField> UnitQuaternion<N> {
     /// This is an iterative method. See `.from_matrix_eps` to provide mover
     /// convergence parameters and starting solution.
     /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
-    pub fn from_matrix(m: &Matrix3<N>) -> Self {
+    pub fn from_matrix(m: &Matrix3<N>) -> Self
+    where
+        N: RealField,
+    {
         Rotation3::from_matrix(m).into()
     }
 
@@ -323,7 +365,10 @@ impl<N: RealField> UnitQuaternion<N> {
     /// * `guess`: an estimate of the solution. Convergence will be significantly faster if an initial solution close
     ///           to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
     ///           guesses come to mind.
-    pub fn from_matrix_eps(m: &Matrix3<N>, eps: N, max_iter: usize, guess: Self) -> Self {
+    pub fn from_matrix_eps(m: &Matrix3<N>, eps: N, max_iter: usize, guess: Self) -> Self
+    where
+        N: RealField,
+    {
         let guess = Rotation3::from(guess);
         Rotation3::from_matrix_eps(m, eps, max_iter, guess).into()
     }
@@ -344,6 +389,7 @@ impl<N: RealField> UnitQuaternion<N> {
     #[inline]
     pub fn rotation_between<SB, SC>(a: &Vector<N, U3, SB>, b: &Vector<N, U3, SC>) -> Option<Self>
     where
+        N: RealField,
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
@@ -371,6 +417,7 @@ impl<N: RealField> UnitQuaternion<N> {
         s: N,
     ) -> Option<Self>
     where
+        N: RealField,
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
@@ -404,6 +451,7 @@ impl<N: RealField> UnitQuaternion<N> {
         b: &Unit<Vector<N, U3, SC>>,
     ) -> Option<Self>
     where
+        N: RealField,
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
@@ -431,6 +479,7 @@ impl<N: RealField> UnitQuaternion<N> {
         s: N,
     ) -> Option<Self>
     where
+        N: RealField,
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
@@ -492,7 +541,7 @@ impl<N: RealField> UnitQuaternion<N> {
     }
 
     /// Deprecated: Use [UnitQuaternion::face_towards] instead.
-    #[deprecated(note="renamed to `face_towards`")]
+    #[deprecated(note = "renamed to `face_towards`")]
     pub fn new_observer_frames<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
     where
         SB: Storage<N, U3>,
@@ -586,7 +635,9 @@ impl<N: RealField> UnitQuaternion<N> {
     /// ```
     #[inline]
     pub fn new<SB>(axisangle: Vector<N, U3, SB>) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         let two: N = crate::convert(2.0f64);
         let q = Quaternion::<N>::from_imag(axisangle / two).exp();
         Self::new_unchecked(q)
@@ -615,7 +666,9 @@ impl<N: RealField> UnitQuaternion<N> {
     /// ```
     #[inline]
     pub fn new_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         let two: N = crate::convert(2.0f64);
         let q = Quaternion::<N>::from_imag(axisangle / two).exp_eps(eps);
         Self::new_unchecked(q)
@@ -645,7 +698,9 @@ impl<N: RealField> UnitQuaternion<N> {
     /// ```
     #[inline]
     pub fn from_scaled_axis<SB>(axisangle: Vector<N, U3, SB>) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         Self::new(axisangle)
     }
 
@@ -673,7 +728,9 @@ impl<N: RealField> UnitQuaternion<N> {
     /// ```
     #[inline]
     pub fn from_scaled_axis_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         Self::new_eps(axisangle, eps)
     }
 
@@ -685,7 +742,7 @@ impl<N: RealField> UnitQuaternion<N> {
     /// Algorithm from: Oshman, Yaakov, and Avishy Carmi. "Attitude estimation from vector
     /// observations using a genetic-algorithm-embedded quaternion particle filter." Journal of
     /// Guidance, Control, and Dynamics 29.4 (2006): 879-891.
-    /// 
+    ///
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
@@ -702,14 +759,17 @@ impl<N: RealField> UnitQuaternion<N> {
     /// assert_relative_eq!(euler_angles_mean.0, 0.0, epsilon = 1.0e-7)
     /// ```
     #[inline]
-    pub fn mean_of(unit_quaternions: impl IntoIterator<Item = Self>) -> Self {
+    pub fn mean_of(unit_quaternions: impl IntoIterator<Item = Self>) -> Self
+    where
+        N: RealField,
+    {
         let quaternions_matrix: Matrix4<N> = unit_quaternions
             .into_iter()
             .map(|q| q.as_vector() * q.as_vector().transpose())
             .sum();
 
         assert!(!quaternions_matrix.is_zero());
-        
+
         let eigen_matrix = quaternions_matrix
             .try_symmetric_eigen(N::RealField::default_epsilon(), 10)
             .expect("Quaternions matrix could not be diagonalized. This behavior should not be possible.");
@@ -730,15 +790,20 @@ impl<N: RealField> UnitQuaternion<N> {
     }
 }
 
-impl<N: RealField> One for UnitQuaternion<N> {
+impl<N: SimdRealField> One for UnitQuaternion<N>
+where
+    N::Element: SimdRealField,
+{
     #[inline]
     fn one() -> Self {
         Self::identity()
     }
 }
 
-impl<N: RealField> Distribution<UnitQuaternion<N>> for Standard
-where OpenClosed01: Distribution<N>
+impl<N: SimdRealField> Distribution<UnitQuaternion<N>> for Standard
+where
+    N::Element: SimdRealField,
+    OpenClosed01: Distribution<N>,
 {
     /// Generate a uniformly distributed random rotation quaternion.
     #[inline]
@@ -749,14 +814,14 @@ where OpenClosed01: Distribution<N>
         let x0 = rng.sample(OpenClosed01);
         let x1 = rng.sample(OpenClosed01);
         let x2 = rng.sample(OpenClosed01);
-        let theta1 = N::two_pi() * x1;
-        let theta2 = N::two_pi() * x2;
-        let s1 = theta1.sin();
-        let c1 = theta1.cos();
-        let s2 = theta2.sin();
-        let c2 = theta2.cos();
-        let r1 = (N::one() - x0).sqrt();
-        let r2 = x0.sqrt();
+        let theta1 = N::simd_two_pi() * x1;
+        let theta2 = N::simd_two_pi() * x2;
+        let s1 = theta1.simd_sin();
+        let c1 = theta1.simd_cos();
+        let s2 = theta2.simd_sin();
+        let c2 = theta2.simd_cos();
+        let r1 = (N::one() - x0).simd_sqrt();
+        let r2 = x0.simd_sqrt();
         Unit::new_unchecked(Quaternion::new(s1 * r1, c1 * r1, s2 * r2, c2 * r2))
     }
 }

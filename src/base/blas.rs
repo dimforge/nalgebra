@@ -1,7 +1,8 @@
-use alga::general::{ClosedAdd, ClosedMul, ComplexField};
+use crate::SimdComplexField;
 #[cfg(feature = "std")]
 use matrixmultiply;
 use num::{One, Signed, Zero};
+use simba::scalar::{ClosedAdd, ClosedMul, ComplexField};
 #[cfg(feature = "std")]
 use std::mem;
 
@@ -11,8 +12,9 @@ use crate::base::constraint::{
 };
 use crate::base::dimension::{Dim, Dynamic, U1, U2, U3, U4};
 use crate::base::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, DVectorSlice, VectorSliceN};
-
+use crate::base::{
+    DVectorSlice, DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, VectorSliceN,
+};
 
 // FIXME: find a way to avoid code duplication just for complex number support.
 impl<N: ComplexField, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
@@ -102,7 +104,9 @@ impl<N: Scalar + PartialOrd, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     /// ```
     #[inline]
     pub fn iamax(&self) -> usize
-        where N: Signed {
+    where
+        N: Signed,
+    {
         assert!(!self.is_empty(), "The input vector must not be empty.");
 
         let mut the_max = unsafe { self.vget_unchecked(0).abs() };
@@ -173,7 +177,9 @@ impl<N: Scalar + PartialOrd, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     /// ```
     #[inline]
     pub fn iamin(&self) -> usize
-        where N: Signed {
+    where
+        N: Signed,
+    {
         assert!(!self.is_empty(), "The input vector must not be empty.");
 
         let mut the_min = unsafe { self.vget_unchecked(0).abs() };
@@ -229,7 +235,6 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-
 impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Computes the index of the matrix component with the largest absolute value.
     ///
@@ -264,13 +269,18 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
 }
 
 impl<N, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where N: Scalar + Zero + ClosedAdd + ClosedMul
+where
+    N: Scalar + Zero + ClosedAdd + ClosedMul,
 {
     #[inline(always)]
-    fn dotx<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>, conjugate: impl Fn(N) -> N) -> N
-        where
-            SB: Storage<N, R2, C2>,
-            ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
+    fn dotx<R2: Dim, C2: Dim, SB>(
+        &self,
+        rhs: &Matrix<N, R2, C2, SB>,
+        conjugate: impl Fn(N) -> N,
+    ) -> N
+    where
+        SB: Storage<N, R2, C2>,
+        ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
         assert!(
             self.nrows() == rhs.nrows(),
@@ -281,27 +291,36 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         // because the `for` loop below won't be very efficient on those.
         if (R::is::<U2>() || R2::is::<U2>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = conjugate(self.get_unchecked((0, 0)).inlined_clone()) * rhs.get_unchecked((0, 0)).inlined_clone();
-                let b = conjugate(self.get_unchecked((1, 0)).inlined_clone()) * rhs.get_unchecked((1, 0)).inlined_clone();
+                let a = conjugate(self.get_unchecked((0, 0)).inlined_clone())
+                    * rhs.get_unchecked((0, 0)).inlined_clone();
+                let b = conjugate(self.get_unchecked((1, 0)).inlined_clone())
+                    * rhs.get_unchecked((1, 0)).inlined_clone();
 
                 return a + b;
             }
         }
         if (R::is::<U3>() || R2::is::<U3>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = conjugate(self.get_unchecked((0, 0)).inlined_clone()) * rhs.get_unchecked((0, 0)).inlined_clone();
-                let b = conjugate(self.get_unchecked((1, 0)).inlined_clone()) * rhs.get_unchecked((1, 0)).inlined_clone();
-                let c = conjugate(self.get_unchecked((2, 0)).inlined_clone()) * rhs.get_unchecked((2, 0)).inlined_clone();
+                let a = conjugate(self.get_unchecked((0, 0)).inlined_clone())
+                    * rhs.get_unchecked((0, 0)).inlined_clone();
+                let b = conjugate(self.get_unchecked((1, 0)).inlined_clone())
+                    * rhs.get_unchecked((1, 0)).inlined_clone();
+                let c = conjugate(self.get_unchecked((2, 0)).inlined_clone())
+                    * rhs.get_unchecked((2, 0)).inlined_clone();
 
                 return a + b + c;
             }
         }
         if (R::is::<U4>() || R2::is::<U4>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let mut a = conjugate(self.get_unchecked((0, 0)).inlined_clone()) * rhs.get_unchecked((0, 0)).inlined_clone();
-                let mut b = conjugate(self.get_unchecked((1, 0)).inlined_clone()) * rhs.get_unchecked((1, 0)).inlined_clone();
-                let c = conjugate(self.get_unchecked((2, 0)).inlined_clone()) * rhs.get_unchecked((2, 0)).inlined_clone();
-                let d = conjugate(self.get_unchecked((3, 0)).inlined_clone()) * rhs.get_unchecked((3, 0)).inlined_clone();
+                let mut a = conjugate(self.get_unchecked((0, 0)).inlined_clone())
+                    * rhs.get_unchecked((0, 0)).inlined_clone();
+                let mut b = conjugate(self.get_unchecked((1, 0)).inlined_clone())
+                    * rhs.get_unchecked((1, 0)).inlined_clone();
+                let c = conjugate(self.get_unchecked((2, 0)).inlined_clone())
+                    * rhs.get_unchecked((2, 0)).inlined_clone();
+                let d = conjugate(self.get_unchecked((3, 0)).inlined_clone())
+                    * rhs.get_unchecked((3, 0)).inlined_clone();
 
                 a += c;
                 b += d;
@@ -341,14 +360,38 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
             acc7 = N::zero();
 
             while self.nrows() - i >= 8 {
-                acc0 += unsafe { conjugate(self.get_unchecked((i + 0, j)).inlined_clone()) * rhs.get_unchecked((i + 0, j)).inlined_clone() };
-                acc1 += unsafe { conjugate(self.get_unchecked((i + 1, j)).inlined_clone()) * rhs.get_unchecked((i + 1, j)).inlined_clone() };
-                acc2 += unsafe { conjugate(self.get_unchecked((i + 2, j)).inlined_clone()) * rhs.get_unchecked((i + 2, j)).inlined_clone() };
-                acc3 += unsafe { conjugate(self.get_unchecked((i + 3, j)).inlined_clone()) * rhs.get_unchecked((i + 3, j)).inlined_clone() };
-                acc4 += unsafe { conjugate(self.get_unchecked((i + 4, j)).inlined_clone()) * rhs.get_unchecked((i + 4, j)).inlined_clone() };
-                acc5 += unsafe { conjugate(self.get_unchecked((i + 5, j)).inlined_clone()) * rhs.get_unchecked((i + 5, j)).inlined_clone() };
-                acc6 += unsafe { conjugate(self.get_unchecked((i + 6, j)).inlined_clone()) * rhs.get_unchecked((i + 6, j)).inlined_clone() };
-                acc7 += unsafe { conjugate(self.get_unchecked((i + 7, j)).inlined_clone()) * rhs.get_unchecked((i + 7, j)).inlined_clone() };
+                acc0 += unsafe {
+                    conjugate(self.get_unchecked((i + 0, j)).inlined_clone())
+                        * rhs.get_unchecked((i + 0, j)).inlined_clone()
+                };
+                acc1 += unsafe {
+                    conjugate(self.get_unchecked((i + 1, j)).inlined_clone())
+                        * rhs.get_unchecked((i + 1, j)).inlined_clone()
+                };
+                acc2 += unsafe {
+                    conjugate(self.get_unchecked((i + 2, j)).inlined_clone())
+                        * rhs.get_unchecked((i + 2, j)).inlined_clone()
+                };
+                acc3 += unsafe {
+                    conjugate(self.get_unchecked((i + 3, j)).inlined_clone())
+                        * rhs.get_unchecked((i + 3, j)).inlined_clone()
+                };
+                acc4 += unsafe {
+                    conjugate(self.get_unchecked((i + 4, j)).inlined_clone())
+                        * rhs.get_unchecked((i + 4, j)).inlined_clone()
+                };
+                acc5 += unsafe {
+                    conjugate(self.get_unchecked((i + 5, j)).inlined_clone())
+                        * rhs.get_unchecked((i + 5, j)).inlined_clone()
+                };
+                acc6 += unsafe {
+                    conjugate(self.get_unchecked((i + 6, j)).inlined_clone())
+                        * rhs.get_unchecked((i + 6, j)).inlined_clone()
+                };
+                acc7 += unsafe {
+                    conjugate(self.get_unchecked((i + 7, j)).inlined_clone())
+                        * rhs.get_unchecked((i + 7, j)).inlined_clone()
+                };
                 i += 8;
             }
 
@@ -358,13 +401,15 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
             res += acc3 + acc7;
 
             for k in i..self.nrows() {
-                res += unsafe { conjugate(self.get_unchecked((k, j)).inlined_clone()) * rhs.get_unchecked((k, j)).inlined_clone() }
+                res += unsafe {
+                    conjugate(self.get_unchecked((k, j)).inlined_clone())
+                        * rhs.get_unchecked((k, j)).inlined_clone()
+                }
             }
         }
 
         res
     }
-
 
     /// The dot product between two vectors or matrices (seen as vectors).
     ///
@@ -419,12 +464,12 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     /// ```
     #[inline]
     pub fn dotc<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> N
-        where
-            N: ComplexField,
-            SB: Storage<N, R2, C2>,
-            ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
+    where
+        N: SimdComplexField,
+        SB: Storage<N, R2, C2>,
+        ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
-        self.dotx(rhs, ComplexField::conjugate)
+        self.dotx(rhs, N::simd_conjugate)
     }
 
     /// The dot product between the transpose of `self` and `rhs`.
@@ -460,7 +505,10 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
         for j in 0..self.nrows() {
             for i in 0..self.ncols() {
-                res += unsafe { self.get_unchecked((j, i)).inlined_clone() * rhs.get_unchecked((i, j)).inlined_clone() }
+                res += unsafe {
+                    self.get_unchecked((j, i)).inlined_clone()
+                        * rhs.get_unchecked((i, j)).inlined_clone()
+                }
             }
         }
 
@@ -468,21 +516,38 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
     }
 }
 
-fn array_axcpy<N>(y: &mut [N], a: N, x: &[N], c: N, beta: N, stride1: usize, stride2: usize, len: usize)
-where N: Scalar + Zero + ClosedAdd + ClosedMul {
+fn array_axcpy<N>(
+    y: &mut [N],
+    a: N,
+    x: &[N],
+    c: N,
+    beta: N,
+    stride1: usize,
+    stride2: usize,
+    len: usize,
+) where
+    N: Scalar + Zero + ClosedAdd + ClosedMul,
+{
     for i in 0..len {
         unsafe {
             let y = y.get_unchecked_mut(i * stride1);
-            *y = a.inlined_clone() * x.get_unchecked(i * stride2).inlined_clone() * c.inlined_clone() + beta.inlined_clone() * y.inlined_clone();
+            *y = a.inlined_clone()
+                * x.get_unchecked(i * stride2).inlined_clone()
+                * c.inlined_clone()
+                + beta.inlined_clone() * y.inlined_clone();
         }
     }
 }
 
 fn array_axc<N>(y: &mut [N], a: N, x: &[N], c: N, stride1: usize, stride2: usize, len: usize)
-where N: Scalar + Zero + ClosedAdd + ClosedMul {
+where
+    N: Scalar + Zero + ClosedAdd + ClosedMul,
+{
     for i in 0..len {
         unsafe {
-            *y.get_unchecked_mut(i * stride1) = a.inlined_clone() * x.get_unchecked(i * stride2).inlined_clone() * c.inlined_clone();
+            *y.get_unchecked_mut(i * stride1) = a.inlined_clone()
+                * x.get_unchecked(i * stride2).inlined_clone()
+                * c.inlined_clone();
         }
     }
 }
@@ -613,7 +678,6 @@ where
         }
     }
 
-
     #[inline(always)]
     fn xxgemv<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
@@ -621,7 +685,10 @@ where
         a: &SquareMatrix<N, D2, SB>,
         x: &Vector<N, D3, SC>,
         beta: N,
-        dot: impl Fn(&DVectorSlice<N, SB::RStride, SB::CStride>, &DVectorSlice<N, SC::RStride, SC::CStride>) -> N,
+        dot: impl Fn(
+            &DVectorSlice<N, SB::RStride, SB::CStride>,
+            &DVectorSlice<N, SC::RStride, SC::CStride>,
+        ) -> N,
     ) where
         N: One,
         SB: Storage<N, D2, D2>,
@@ -660,8 +727,11 @@ where
                 val = x.vget_unchecked(j).inlined_clone();
                 *self.vget_unchecked_mut(j) += alpha.inlined_clone() * dot;
             }
-            self.rows_range_mut(j + 1..)
-                .axpy(alpha.inlined_clone() * val, &col2.rows_range(j + 1..), N::one());
+            self.rows_range_mut(j + 1..).axpy(
+                alpha.inlined_clone() * val,
+                &col2.rows_range(j + 1..),
+                N::one(),
+            );
         }
     }
 
@@ -765,14 +835,13 @@ where
         x: &Vector<N, D3, SC>,
         beta: N,
     ) where
-        N: ComplexField,
+        N: SimdComplexField,
         SB: Storage<N, D2, D2>,
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
     {
         self.xxgemv(alpha, a, x, beta, |a, b| a.dotc(b))
     }
-
 
     #[inline(always)]
     fn gemv_xx<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
@@ -809,11 +878,11 @@ where
         } else {
             for j in 0..ncols2 {
                 let val = unsafe { self.vget_unchecked_mut(j) };
-                *val = alpha.inlined_clone() * dot(&a.column(j), x) + beta.inlined_clone() * val.inlined_clone();
+                *val = alpha.inlined_clone() * dot(&a.column(j), x)
+                    + beta.inlined_clone() * val.inlined_clone();
             }
         }
     }
-
 
     /// Computes `self = alpha * a.transpose() * x + beta * self`, where `a` is a matrix, `x` a vector, and
     /// `alpha, beta` two scalars.
@@ -876,7 +945,7 @@ where
         x: &Vector<N, D3, SC>,
         beta: N,
     ) where
-        N: ComplexField,
+        N: SimdComplexField,
         SB: Storage<N, R2, C2>,
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<D, C2> + AreMultipliable<C2, R2, D3, U1>,
@@ -886,7 +955,8 @@ where
 }
 
 impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
-where N: Scalar + Zero + ClosedAdd + ClosedMul
+where
+    N: Scalar + Zero + ClosedAdd + ClosedMul,
 {
     #[inline(always)]
     fn gerx<D2: Dim, D3: Dim, SB, SC>(
@@ -914,7 +984,8 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         for j in 0..ncols1 {
             // FIXME: avoid bound checks.
             let val = unsafe { conjugate(y.vget_unchecked(j).inlined_clone()) };
-            self.column_mut(j).axpy(alpha.inlined_clone() * val, x, beta.inlined_clone());
+            self.column_mut(j)
+                .axpy(alpha.inlined_clone() * val, x, beta.inlined_clone());
         }
     }
 
@@ -975,12 +1046,12 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         y: &Vector<N, D3, SC>,
         beta: N,
     ) where
-        N: ComplexField,
+        N: SimdComplexField,
         SB: Storage<N, D2>,
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
-        self.gerx(alpha, x, y, beta, ComplexField::conjugate)
+        self.gerx(alpha, x, y, beta, SimdComplexField::simd_conjugate)
     }
 
     /// Computes `self = alpha * a * b + beta * self`, where `a, b, self` are matrices.
@@ -1032,7 +1103,8 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
                 || R2::is::<Dynamic>()
                 || C2::is::<Dynamic>()
                 || R3::is::<Dynamic>()
-                || C3::is::<Dynamic>() {
+                || C3::is::<Dynamic>()
+            {
                 // matrixmultiply can be used only if the std feature is available.
                 let nrows1 = self.nrows();
                 let (nrows2, ncols2) = a.shape();
@@ -1125,10 +1197,14 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
             }
         }
 
-
         for j1 in 0..ncols1 {
             // FIXME: avoid bound checks.
-            self.column_mut(j1).gemv(alpha.inlined_clone(), a, &b.column(j1), beta.inlined_clone());
+            self.column_mut(j1).gemv(
+                alpha.inlined_clone(),
+                a,
+                &b.column(j1),
+                beta.inlined_clone(),
+            );
         }
     }
 
@@ -1185,10 +1261,14 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 
         for j1 in 0..ncols1 {
             // FIXME: avoid bound checks.
-            self.column_mut(j1).gemv_tr(alpha.inlined_clone(), a, &b.column(j1), beta.inlined_clone());
+            self.column_mut(j1).gemv_tr(
+                alpha.inlined_clone(),
+                a,
+                &b.column(j1),
+                beta.inlined_clone(),
+            );
         }
     }
-
 
     /// Computes `self = alpha * a.adjoint() * b + beta * self`, where `a, b, self` are matrices.
     /// `alpha` and `beta` are scalar.
@@ -1220,12 +1300,12 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         b: &Matrix<N, R3, C3, SC>,
         beta: N,
     ) where
-        N: ComplexField,
+        N: SimdComplexField,
         SB: Storage<N, R2, C2>,
         SC: Storage<N, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, C2>
-        + SameNumberOfColumns<C1, C3>
-        + AreMultipliable<C2, R2, R3, C3>,
+            + SameNumberOfColumns<C1, C3>
+            + AreMultipliable<C2, R2, R3, C3>,
     {
         let (nrows1, ncols1) = self.shape();
         let (nrows2, ncols2) = a.shape();
@@ -1249,7 +1329,8 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
 }
 
 impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
-where N: Scalar + Zero + ClosedAdd + ClosedMul
+where
+    N: Scalar + Zero + ClosedAdd + ClosedMul,
 {
     #[inline(always)]
     fn xxgerx<D2: Dim, D3: Dim, SB, SC>(
@@ -1386,17 +1467,18 @@ where N: Scalar + Zero + ClosedAdd + ClosedMul
         y: &Vector<N, D3, SC>,
         beta: N,
     ) where
-        N: ComplexField,
+        N: SimdComplexField,
         SB: Storage<N, D2>,
         SC: Storage<N, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
-        self.xxgerx(alpha, x, y, beta, ComplexField::conjugate)
+        self.xxgerx(alpha, x, y, beta, SimdComplexField::simd_conjugate)
     }
 }
 
 impl<N, D1: Dim, S: StorageMut<N, D1, D1>> SquareMatrix<N, D1, S>
-where N: Scalar + Zero + One + ClosedAdd + ClosedMul
+where
+    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
 {
     /// Computes the quadratic form `self = alpha * lhs * mid * lhs.transpose() + beta * self`.
     ///
@@ -1534,11 +1616,13 @@ where N: Scalar + Zero + One + ClosedAdd + ClosedMul
             DimEq<D3, R4> + DimEq<D1, C4> + DimEq<D2, D3> + AreMultipliable<C4, R4, D2, U1>,
     {
         work.gemv(N::one(), mid, &rhs.column(0), N::zero());
-        self.column_mut(0).gemv_tr(alpha.inlined_clone(), &rhs, work, beta.inlined_clone());
+        self.column_mut(0)
+            .gemv_tr(alpha.inlined_clone(), &rhs, work, beta.inlined_clone());
 
         for j in 1..rhs.ncols() {
             work.gemv(N::one(), mid, &rhs.column(j), N::zero());
-            self.column_mut(j).gemv_tr(alpha.inlined_clone(), &rhs, work, beta.inlined_clone());
+            self.column_mut(j)
+                .gemv_tr(alpha.inlined_clone(), &rhs, work, beta.inlined_clone());
         }
     }
 

@@ -179,20 +179,27 @@ pub type VectorSliceN<'a, N, D, RStride = U1, CStride = D> =
     Matrix<N, D, U1, SliceStorage<'a, N, D, U1, RStride, CStride>>;
 
 /// A column vector slice dynamic numbers of rows and columns.
-pub type DVectorSlice<'a, N, RStride = U1, CStride = Dynamic> = VectorSliceN<'a, N, Dynamic, RStride, CStride>;
+pub type DVectorSlice<'a, N, RStride = U1, CStride = Dynamic> =
+    VectorSliceN<'a, N, Dynamic, RStride, CStride>;
 
 /// A 1D column vector slice.
-pub type VectorSlice1<'a, N, RStride = U1, CStride = U1> = VectorSliceN<'a, N, U1, RStride, CStride>;
+pub type VectorSlice1<'a, N, RStride = U1, CStride = U1> =
+    VectorSliceN<'a, N, U1, RStride, CStride>;
 /// A 2D column vector slice.
-pub type VectorSlice2<'a, N, RStride = U1, CStride = U2> = VectorSliceN<'a, N, U2, RStride, CStride>;
+pub type VectorSlice2<'a, N, RStride = U1, CStride = U2> =
+    VectorSliceN<'a, N, U2, RStride, CStride>;
 /// A 3D column vector slice.
-pub type VectorSlice3<'a, N, RStride = U1, CStride = U3> = VectorSliceN<'a, N, U3, RStride, CStride>;
+pub type VectorSlice3<'a, N, RStride = U1, CStride = U3> =
+    VectorSliceN<'a, N, U3, RStride, CStride>;
 /// A 4D column vector slice.
-pub type VectorSlice4<'a, N, RStride = U1, CStride = U4> = VectorSliceN<'a, N, U4, RStride, CStride>;
+pub type VectorSlice4<'a, N, RStride = U1, CStride = U4> =
+    VectorSliceN<'a, N, U4, RStride, CStride>;
 /// A 5D column vector slice.
-pub type VectorSlice5<'a, N, RStride = U1, CStride = U5> = VectorSliceN<'a, N, U5, RStride, CStride>;
+pub type VectorSlice5<'a, N, RStride = U1, CStride = U5> =
+    VectorSliceN<'a, N, U5, RStride, CStride>;
 /// A 6D column vector slice.
-pub type VectorSlice6<'a, N, RStride = U1, CStride = U6> = VectorSliceN<'a, N, U6, RStride, CStride>;
+pub type VectorSlice6<'a, N, RStride = U1, CStride = U6> =
+    VectorSliceN<'a, N, U6, RStride, CStride>;
 
 /*
  *
@@ -371,17 +378,24 @@ pub type VectorSliceMutN<'a, N, D, RStride = U1, CStride = D> =
     Matrix<N, D, U1, SliceStorageMut<'a, N, D, U1, RStride, CStride>>;
 
 /// A mutable column vector slice dynamic numbers of rows and columns.
-pub type DVectorSliceMut<'a, N, RStride = U1, CStride = Dynamic> = VectorSliceMutN<'a, N, Dynamic, RStride, CStride>;
+pub type DVectorSliceMut<'a, N, RStride = U1, CStride = Dynamic> =
+    VectorSliceMutN<'a, N, Dynamic, RStride, CStride>;
 
 /// A 1D mutable column vector slice.
-pub type VectorSliceMut1<'a, N, RStride = U1, CStride = U1> = VectorSliceMutN<'a, N, U1, RStride, CStride>;
+pub type VectorSliceMut1<'a, N, RStride = U1, CStride = U1> =
+    VectorSliceMutN<'a, N, U1, RStride, CStride>;
 /// A 2D mutable column vector slice.
-pub type VectorSliceMut2<'a, N, RStride = U1, CStride = U2> = VectorSliceMutN<'a, N, U2, RStride, CStride>;
+pub type VectorSliceMut2<'a, N, RStride = U1, CStride = U2> =
+    VectorSliceMutN<'a, N, U2, RStride, CStride>;
 /// A 3D mutable column vector slice.
-pub type VectorSliceMut3<'a, N, RStride = U1, CStride = U3> = VectorSliceMutN<'a, N, U3, RStride, CStride>;
+pub type VectorSliceMut3<'a, N, RStride = U1, CStride = U3> =
+    VectorSliceMutN<'a, N, U3, RStride, CStride>;
 /// A 4D mutable column vector slice.
-pub type VectorSliceMut4<'a, N, RStride = U1, CStride = U4> = VectorSliceMutN<'a, N, U4, RStride, CStride>;
+pub type VectorSliceMut4<'a, N, RStride = U1, CStride = U4> =
+    VectorSliceMutN<'a, N, U4, RStride, CStride>;
 /// A 5D mutable column vector slice.
-pub type VectorSliceMut5<'a, N, RStride = U1, CStride = U5> = VectorSliceMutN<'a, N, U5, RStride, CStride>;
+pub type VectorSliceMut5<'a, N, RStride = U1, CStride = U5> =
+    VectorSliceMutN<'a, N, U5, RStride, CStride>;
 /// A 6D mutable column vector slice.
-pub type VectorSliceMut6<'a, N, RStride = U1, CStride = U6> = VectorSliceMutN<'a, N, U6, RStride, CStride>;
+pub type VectorSliceMut6<'a, N, RStride = U1, CStride = U6> =
+    VectorSliceMutN<'a, N, U6, RStride, CStride>;

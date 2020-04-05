@@ -51,6 +51,5 @@ macro_rules! gen_tests(
     }
 );
 
-
 gen_tests!(complex, RandComplex<f64>);
 gen_tests!(f64, RandScalar<f64>);

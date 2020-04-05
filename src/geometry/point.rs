@@ -12,6 +12,8 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
+use simba::simd::SimdPartialOrd;
+
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
@@ -21,7 +23,8 @@ use crate::base::{DefaultAllocator, Scalar, VectorN};
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct Point<N: Scalar, D: DimName>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// The coordinates of this point, i.e., the shift from the origin.
     pub coords: VectorN<N, D>,
@@ -51,7 +54,9 @@ where
     <DefaultAllocator as Allocator<N, D>>::Buffer: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where S: Serializer {
+    where
+        S: Serializer,
+    {
         self.coords.serialize(serializer)
     }
 }
@@ -63,7 +68,9 @@ where
     <DefaultAllocator as Allocator<N, D>>::Buffer: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-    where Des: Deserializer<'a> {
+    where
+        Des: Deserializer<'a>,
+    {
         let coords = VectorN::<N, D>::deserialize(deserializer)?;
 
         Ok(Self::from(coords))
@@ -92,7 +99,8 @@ where
 }
 
 impl<N: Scalar, D: DimName> Point<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Converts this point into a vector in homogeneous coordinates, i.e., appends a `1` at the
     /// end of it.
@@ -244,8 +252,7 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.coords
             .relative_eq(&other.coords, epsilon, max_relative)
     }
@@ -270,7 +277,8 @@ where
 impl<N: Scalar + Eq, D: DimName> Eq for Point<N, D> where DefaultAllocator: Allocator<N, D> {}
 
 impl<N: Scalar, D: DimName> PartialEq for Point<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
@@ -279,7 +287,8 @@ where DefaultAllocator: Allocator<N, D>
 }
 
 impl<N: Scalar + PartialOrd, D: DimName> PartialOrd for Point<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
@@ -308,12 +317,40 @@ where DefaultAllocator: Allocator<N, D>
 }
 
 /*
+ * inf/sup
+ */
+impl<N: Scalar + SimdPartialOrd, D: DimName> Point<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
+{
+    /// Computes the infimum (aka. componentwise min) of two points.
+    #[inline]
+    pub fn inf(&self, other: &Self) -> Point<N, D> {
+        self.coords.inf(&other.coords).into()
+    }
+
+    /// Computes the supremum (aka. componentwise max) of two points.
+    #[inline]
+    pub fn sup(&self, other: &Self) -> Point<N, D> {
+        self.coords.sup(&other.coords).into()
+    }
+
+    /// Computes the (infimum, supremum) of two points.
+    #[inline]
+    pub fn inf_sup(&self, other: &Self) -> (Point<N, D>, Point<N, D>) {
+        let (inf, sup) = self.coords.inf_sup(&other.coords);
+        (inf.into(), sup.into())
+    }
+}
+
+/*
  *
  * Display
  *
  */
 impl<N: Scalar + fmt::Display, D: DimName> fmt::Display for Point<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{{")?;

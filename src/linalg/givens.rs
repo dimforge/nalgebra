@@ -1,19 +1,18 @@
 //! Construction of givens rotations.
 
-use alga::general::ComplexField;
-use num::{Zero, One};
+use num::{One, Zero};
+use simba::scalar::ComplexField;
 
+use crate::base::constraint::{DimEq, ShapeConstraint};
 use crate::base::dimension::{Dim, U2};
-use crate::base::constraint::{ShapeConstraint, DimEq};
 use crate::base::storage::{Storage, StorageMut};
-use crate::base::{Vector, Matrix};
-
+use crate::base::{Matrix, Vector};
 
 /// A Givens rotation.
 #[derive(Debug, Clone, Copy)]
 pub struct GivensRotation<N: ComplexField> {
     c: N::RealField,
-    s: N
+    s: N,
 }
 
 // Matrix = UnitComplex * Matrix
@@ -22,7 +21,7 @@ impl<N: ComplexField> GivensRotation<N> {
     pub fn identity() -> Self {
         Self {
             c: N::RealField::one(),
-            s: N::zero()
+            s: N::zero(),
         }
     }
 
@@ -31,9 +30,7 @@ impl<N: ComplexField> GivensRotation<N> {
     /// The components are copies as-is. It is not checked whether they describe
     /// an actually valid Givens rotation.
     pub fn new_unchecked(c: N::RealField, s: N) -> Self {
-       Self {
-           c, s
-       }
+        Self { c, s }
     }
 
     /// Initializes a Givens rotation from its non-normalized cosine an sine components.
@@ -103,7 +100,10 @@ impl<N: ComplexField> GivensRotation<N> {
 
     /// The inverse of this givens rotation.
     pub fn inverse(&self) -> Self {
-        Self { c: self.c, s: -self.s }
+        Self {
+            c: self.c,
+            s: -self.s,
+        }
     }
 
     /// Performs the multiplication `rhs = self * rhs` in-place.
@@ -159,4 +159,3 @@ impl<N: ComplexField> GivensRotation<N> {
         }
     }
 }
-

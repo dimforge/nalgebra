@@ -3,23 +3,25 @@ use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
-use alga::general::ComplexField;
-use crate::base::Scalar;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, Dynamic, U2};
+use crate::base::Scalar;
 use crate::base::{DefaultAllocator, MatrixN};
 use crate::linalg::givens::GivensRotation;
+use simba::scalar::ComplexField;
 
 /// A random orthogonal matrix.
 #[derive(Clone, Debug)]
 pub struct RandomOrthogonal<N: Scalar, D: Dim = Dynamic>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     m: MatrixN<N, D>,
 }
 
 impl<N: ComplexField, D: Dim> RandomOrthogonal<N, D>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     /// Retrieve the generated matrix.
     pub fn unwrap(self) -> MatrixN<N, D> {

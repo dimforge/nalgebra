@@ -1,4 +1,3 @@
-extern crate alga;
 extern crate nalgebra as na;
 
 use na::{Matrix4, Point3, Vector3, Vector4};

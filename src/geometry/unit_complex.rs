@@ -2,14 +2,48 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num_complex::Complex;
 use std::fmt;
 
-use alga::general::RealField;
-use crate::base::{Matrix2, Matrix3, Unit, Vector1, Vector2};
-use crate::geometry::{Rotation2, Point2};
+use crate::base::{Matrix2, Matrix3, Normed, Unit, Vector1, Vector2};
+use crate::geometry::{Point2, Rotation2};
+use simba::scalar::RealField;
+use simba::simd::SimdRealField;
 
 /// A complex number with a norm equal to 1.
 pub type UnitComplex<N> = Unit<Complex<N>>;
 
-impl<N: RealField> UnitComplex<N> {
+impl<N: SimdRealField> Normed for Complex<N> {
+    type Norm = N::SimdRealField;
+
+    #[inline]
+    fn norm(&self) -> N::SimdRealField {
+        // We don't use `.norm_sqr()` because it requires
+        // some very strong Num trait requirements.
+        (self.re * self.re + self.im * self.im).simd_sqrt()
+    }
+
+    #[inline]
+    fn norm_squared(&self) -> N::SimdRealField {
+        // We don't use `.norm_sqr()` because it requires
+        // some very strong Num trait requirements.
+        self.re * self.re + self.im * self.im
+    }
+
+    #[inline]
+    fn scale_mut(&mut self, n: Self::Norm) {
+        self.re *= n;
+        self.im *= n;
+    }
+
+    #[inline]
+    fn unscale_mut(&mut self, n: Self::Norm) {
+        self.re /= n;
+        self.im /= n;
+    }
+}
+
+impl<N: SimdRealField> UnitComplex<N>
+where
+    N::Element: SimdRealField,
+{
     /// The rotation angle in `]-pi; pi]` of this unit complex number.
     ///
     /// # Example
@@ -20,7 +54,7 @@ impl<N: RealField> UnitComplex<N> {
     /// ```
     #[inline]
     pub fn angle(&self) -> N {
-        self.im.atan2(self.re)
+        self.im.simd_atan2(self.re)
     }
 
     /// The sine of the rotation angle.
@@ -66,7 +100,10 @@ impl<N: RealField> UnitComplex<N> {
     /// the `.angle()` method instead is more common.
     /// Returns `None` if the angle is zero.
     #[inline]
-    pub fn axis_angle(&self) -> Option<(Unit<Vector1<N>>, N)> {
+    pub fn axis_angle(&self) -> Option<(Unit<Vector1<N>>, N)>
+    where
+        N: RealField,
+    {
         let ang = self.angle();
 
         if ang.is_zero() {
@@ -357,8 +394,7 @@ impl<N: RealField> RelativeEq for UnitComplex<N> {
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.re.relative_eq(&other.re, epsilon, max_relative)
             && self.im.relative_eq(&other.im, epsilon, max_relative)
     }

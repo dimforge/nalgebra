@@ -1,7 +1,7 @@
 use na::{DMatrix, Matrix4x3};
 use nl::QR;
 
-quickcheck!{
+quickcheck! {
     fn qr(m: DMatrix<f64>) -> bool {
         let qr = QR::new(m.clone());
         let q  = qr.q();

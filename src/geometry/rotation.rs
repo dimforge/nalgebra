@@ -14,7 +14,8 @@ use crate::base::storage::Owned;
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::RealField;
+use simba::scalar::RealField;
+use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -25,7 +26,8 @@ use crate::geometry::Point;
 #[repr(C)]
 #[derive(Debug)]
 pub struct Rotation<N: Scalar, D: DimName>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     matrix: MatrixN<N, D>,
 }
@@ -86,7 +88,9 @@ where
     Owned<N, D, D>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where S: Serializer {
+    where
+        S: Serializer,
+    {
         self.matrix.serialize(serializer)
     }
 }
@@ -98,7 +102,9 @@ where
     Owned<N, D, D>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-    where Des: Deserializer<'a> {
+    where
+        Des: Deserializer<'a>,
+    {
         let matrix = MatrixN::<N, D>::deserialize(deserializer)?;
 
         Ok(Self::from_matrix_unchecked(matrix))
@@ -106,7 +112,8 @@ where
 }
 
 impl<N: Scalar, D: DimName> Rotation<N, D>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     /// A reference to the underlying matrix representation of this rotation.
     ///
@@ -175,7 +182,7 @@ where DefaultAllocator: Allocator<N, D, D>
 
     /// Unwraps the underlying matrix.
     /// Deprecated: Use [Rotation::into_inner] instead.
-    #[deprecated(note="use `.into_inner()` instead")]
+    #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> MatrixN<N, D> {
         self.matrix
@@ -354,8 +361,10 @@ where DefaultAllocator: Allocator<N, D, D>
     }
 }
 
-impl<N: RealField, D: DimName> Rotation<N, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
+impl<N: SimdRealField, D: DimName> Rotation<N, D>
+where
+    N::Element: SimdRealField,
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
     /// Rotate the given point.
     ///
@@ -437,7 +446,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 impl<N: Scalar + Eq, D: DimName> Eq for Rotation<N, D> where DefaultAllocator: Allocator<N, D, D> {}
 
 impl<N: Scalar + PartialEq, D: DimName> PartialEq for Rotation<N, D>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
@@ -481,8 +491,7 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.matrix
             .relative_eq(&other.matrix, epsilon, max_relative)
     }

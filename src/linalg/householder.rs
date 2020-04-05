@@ -1,11 +1,11 @@
 //! Construction of householder elementary reflections.
 
-use num::Zero;
-use alga::general::ComplexField;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Unit, Vector, VectorN};
 use crate::dimension::Dim;
 use crate::storage::{Storage, StorageMut};
+use num::Zero;
+use simba::scalar::ComplexField;
 
 use crate::geometry::Reflection;
 
@@ -109,7 +109,9 @@ pub fn clear_row_unchecked<N: ComplexField, R: Dim, C: Dim>(
 /// matrices.
 #[doc(hidden)]
 pub fn assemble_q<N: ComplexField, D: Dim>(m: &MatrixN<N, D>, signs: &[N]) -> MatrixN<N, D>
-where DefaultAllocator: Allocator<N, D, D> {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     assert!(m.is_square());
     let dim = m.data.shape().0;
 

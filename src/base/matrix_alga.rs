@@ -6,8 +6,8 @@ use num::{One, Zero};
 use alga::general::{
     AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma, AbstractModule,
     AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, Additive, ClosedAdd, ClosedMul,
-    ClosedNeg, Field, Identity, TwoSidedInverse, JoinSemilattice, Lattice, MeetSemilattice, Module,
-    Multiplicative, RingCommutative, ComplexField
+    ClosedNeg, ComplexField, Field, Identity, JoinSemilattice, Lattice, MeetSemilattice, Module,
+    Multiplicative, RingCommutative, TwoSidedInverse,
 };
 use alga::linear::{
     FiniteDimInnerSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace, VectorSpace,
@@ -146,19 +146,25 @@ where
     }
 }
 
-impl<N: ComplexField, R: DimName, C: DimName> NormedSpace for MatrixMN<N, R, C>
-where DefaultAllocator: Allocator<N, R, C>
+impl<
+        N: ComplexField + simba::scalar::ComplexField<RealField = <N as ComplexField>::RealField>,
+        R: DimName,
+        C: DimName,
+    > NormedSpace for MatrixMN<N, R, C>
+where
+    <N as ComplexField>::RealField: simba::scalar::RealField,
+    DefaultAllocator: Allocator<N, R, C>,
 {
-    type RealField = N::RealField;
+    type RealField = <N as ComplexField>::RealField;
     type ComplexField = N;
 
     #[inline]
-    fn norm_squared(&self) -> N::RealField {
+    fn norm_squared(&self) -> <N as ComplexField>::RealField {
         self.norm_squared()
     }
 
     #[inline]
-    fn norm(&self) -> N::RealField {
+    fn norm(&self) -> <N as ComplexField>::RealField {
         self.norm()
     }
 
@@ -169,27 +175,36 @@ where DefaultAllocator: Allocator<N, R, C>
     }
 
     #[inline]
-    fn normalize_mut(&mut self) -> N::RealField {
+    fn normalize_mut(&mut self) -> <N as ComplexField>::RealField {
         self.normalize_mut()
     }
 
     #[inline]
     #[must_use = "Did you mean to use try_normalize_mut()?"]
-    fn try_normalize(&self, min_norm: N::RealField) -> Option<Self> {
+    fn try_normalize(&self, min_norm: <N as ComplexField>::RealField) -> Option<Self> {
         self.try_normalize(min_norm)
     }
 
     #[inline]
-    fn try_normalize_mut(&mut self, min_norm: N::RealField) -> Option<N::RealField> {
+    fn try_normalize_mut(
+        &mut self,
+        min_norm: <N as ComplexField>::RealField,
+    ) -> Option<<N as ComplexField>::RealField> {
         self.try_normalize_mut(min_norm)
     }
 }
 
-impl<N: ComplexField, R: DimName, C: DimName> InnerSpace for MatrixMN<N, R, C>
-where DefaultAllocator: Allocator<N, R, C>
+impl<
+        N: ComplexField + simba::scalar::ComplexField<RealField = <N as ComplexField>::RealField>,
+        R: DimName,
+        C: DimName,
+    > InnerSpace for MatrixMN<N, R, C>
+where
+    <N as ComplexField>::RealField: simba::scalar::RealField,
+    DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
-    fn angle(&self, other: &Self) -> N::RealField {
+    fn angle(&self, other: &Self) -> <N as ComplexField>::RealField {
         self.angle(other)
     }
 
@@ -203,8 +218,14 @@ where DefaultAllocator: Allocator<N, R, C>
 // In particular:
 //   − use `x()` instead of `::canonical_basis_element`
 //   − use `::new(x, y, z)` instead of `::from_slice`
-impl<N: ComplexField, R: DimName, C: DimName> FiniteDimInnerSpace for MatrixMN<N, R, C>
-where DefaultAllocator: Allocator<N, R, C>
+impl<
+        N: ComplexField + simba::scalar::ComplexField<RealField = <N as ComplexField>::RealField>,
+        R: DimName,
+        C: DimName,
+    > FiniteDimInnerSpace for MatrixMN<N, R, C>
+where
+    <N as ComplexField>::RealField: simba::scalar::RealField,
+    DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
     fn orthonormalize(vs: &mut [Self]) -> usize {
@@ -219,7 +240,10 @@ where DefaultAllocator: Allocator<N, R, C>
                 }
             }
 
-            if vs[i].try_normalize_mut(N::RealField::zero()).is_some() {
+            if vs[i]
+                .try_normalize_mut(<N as ComplexField>::RealField::zero())
+                .is_some()
+            {
                 // FIXME: this will be efficient on dynamically-allocated vectors but for
                 // statically-allocated ones, `.clone_from` would be better.
                 vs.swap(nbasis_elements, i);
@@ -237,7 +261,9 @@ where DefaultAllocator: Allocator<N, R, C>
 
     #[inline]
     fn orthonormal_subspace_basis<F>(vs: &[Self], mut f: F)
-    where F: FnMut(&Self) -> bool {
+    where
+        F: FnMut(&Self) -> bool,
+    {
         // FIXME: is this necessary?
         assert!(
             vs.len() <= Self::dimension(),
@@ -272,7 +298,7 @@ where DefaultAllocator: Allocator<N, R, C>
                     let v = &vs[0];
                     let mut a;
 
-                    if v[0].norm1() > v[1].norm1() {
+                    if ComplexField::norm1(v[0]) > ComplexField::norm1(v[1]) {
                         a = Self::from_column_slice(&[v[2], N::zero(), -v[0]]);
                     } else {
                         a = Self::from_column_slice(&[N::zero(), -v[2], v[1]]);
@@ -304,7 +330,9 @@ where DefaultAllocator: Allocator<N, R, C>
                             elt -= v * elt.dot(v)
                         }
 
-                        if let Some(subsp_elt) = elt.try_normalize(N::RealField::zero()) {
+                        if let Some(subsp_elt) =
+                            elt.try_normalize(<N as ComplexField>::RealField::zero())
+                        {
                             if !f(&subsp_elt) {
                                 return;
                             };

@@ -26,7 +26,8 @@ bench_unop!(unit_quaternion_inv, UnitQuaternion<f32>, inverse);
 // bench_unop_self!(quaternion_conjugate, Quaternion<f32>, conjugate);
 // bench_unop!(quaternion_normalize, Quaternion<f32>, normalize);
 
-criterion_group!(quaternion,
+criterion_group!(
+    quaternion,
     quaternion_add_q,
     quaternion_sub_q,
     quaternion_mul_q,

@@ -264,8 +264,7 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         visited: &mut [bool],
         stack: &mut Vec<usize>,
         xi: &mut Vec<usize>,
-    )
-    {
+    ) {
         if !visited[start] {
             stack.clear();
             stack.push(start);

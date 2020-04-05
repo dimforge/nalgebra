@@ -73,11 +73,7 @@
     html_root_url = "https://nalgebra.org/rustdoc"
 )]
 
-extern crate alga;
-extern crate lapack;
-extern crate lapack_src;
 extern crate nalgebra as na;
-extern crate num_complex;
 extern crate num_traits as num;
 
 mod lapack_check;

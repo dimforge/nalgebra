@@ -20,7 +20,7 @@
 use num::{One, Zero};
 use std::ops::{Div, DivAssign, Index, Mul, MulAssign};
 
-use alga::general::{ClosedAdd, ClosedMul};
+use simba::scalar::{ClosedAdd, ClosedMul};
 
 use crate::base::allocator::Allocator;
 use crate::base::constraint::{AreMultipliable, ShapeConstraint};
@@ -31,7 +31,8 @@ use crate::base::{DefaultAllocator, Matrix, MatrixMN, Scalar, Unit, Vector, Vect
 use crate::geometry::{Point, Rotation};
 
 impl<N: Scalar, D: DimName> Index<(usize, usize)> for Rotation<N, D>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     type Output = N;
 
