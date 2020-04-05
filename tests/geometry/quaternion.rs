@@ -1,6 +1,5 @@
 #![cfg(feature = "arbitrary")]
 #![allow(non_snake_case)]
-#![cfg_attr(rustfmt, rustfmt_skip)]
 
 use na::{Point3, Quaternion, Rotation3, Unit, UnitQuaternion, Vector3};
 
@@ -56,12 +55,12 @@ quickcheck!(
      *
      */
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     fn unit_quaternion_transformation(
         q: UnitQuaternion<f64>,
         v: Vector3<f64>,
         p: Point3<f64>
-    ) -> bool
-    {
+    ) -> bool {
         let r = q.to_rotation_matrix();
         let rv = r * v;
         let rp = r * p;
@@ -122,6 +121,7 @@ quickcheck!(
     // Test that all operators (incl. all combinations of references) work.
     // See the top comment on `geometry/quaternion_ops.rs` for details on which operations are
     // supported.
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     fn all_op_exist(
         q: Quaternion<f64>,
         uq: UnitQuaternion<f64>,
@@ -129,8 +129,7 @@ quickcheck!(
         p: Point3<f64>,
         r: Rotation3<f64>,
         s: f64
-    ) -> bool
-    {
+    ) -> bool {
         let uv = Unit::new_normalize(v);
 
         let qpq = q + q;

@@ -15,10 +15,11 @@ quickcheck!(
             && relative_eq!((ii * i) * v, v, epsilon = 1.0e-7)
     }
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     fn inverse_is_parts_inversion(
         t: Translation3<f64>,
         r: UnitQuaternion<f64>,
-        scaling: f64,
+        scaling: f64
     ) -> bool {
         if relative_eq!(scaling, 0.0) {
             true
@@ -28,10 +29,11 @@ quickcheck!(
         }
     }
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     fn multiply_equals_alga_transform(
         s: Similarity3<f64>,
         v: Vector3<f64>,
-        p: Point3<f64>,
+        p: Point3<f64>
     ) -> bool {
         s * v == s.transform_vector(&v)
             && s * p == s.transform_point(&p)
@@ -47,13 +49,14 @@ quickcheck!(
             )
     }
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     fn composition(
         i: Isometry3<f64>,
         uq: UnitQuaternion<f64>,
         t: Translation3<f64>,
         v: Vector3<f64>,
         p: Point3<f64>,
-        scaling: f64,
+        scaling: f64
     ) -> bool {
         if relative_eq!(scaling, 0.0) {
             return true;
@@ -142,13 +145,14 @@ quickcheck!(
         relative_eq!((s * i * t) * p, scaling * (i * (t * p)), epsilon = 1.0e-7)
     }
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     fn all_op_exist(
         s: Similarity3<f64>,
         i: Isometry3<f64>,
         uq: UnitQuaternion<f64>,
         t: Translation3<f64>,
         v: Vector3<f64>,
-        p: Point3<f64>,
+        p: Point3<f64>
     ) -> bool {
         let sMs = s * s;
         let sMuq = s * uq;

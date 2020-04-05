@@ -68,11 +68,12 @@ quickcheck!(
     // Test that all operators (incl. all combinations of references) work.
     // See the top comment on `geometry/quaternion_ops.rs` for details on which operations are
     // supported.
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     fn all_op_exist(
         uc: UnitComplex<f64>,
         v: Vector2<f64>,
         p: Point2<f64>,
-        r: Rotation2<f64>,
+        r: Rotation2<f64>
     ) -> bool {
         let uv = Unit::new_normalize(v);
 

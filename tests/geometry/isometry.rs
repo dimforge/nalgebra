@@ -75,13 +75,14 @@ quickcheck!(
             )
     }
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     fn composition2(
         i: Isometry2<f64>,
         uc: UnitComplex<f64>,
         r: Rotation2<f64>,
         t: Translation2<f64>,
         v: Vector2<f64>,
-        p: Point2<f64>,
+        p: Point2<f64>
     ) -> bool {
         // (rotation × translation) * point = rotation × (translation * point)
         relative_eq!((uc * t) * v, uc * v, epsilon = 1.0e-7)       &&
@@ -112,13 +113,14 @@ quickcheck!(
         relative_eq!((i * t) * p, i * (t * p), epsilon = 1.0e-7)
     }
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     fn composition3(
         i: Isometry3<f64>,
         uq: UnitQuaternion<f64>,
         r: Rotation3<f64>,
         t: Translation3<f64>,
         v: Vector3<f64>,
-        p: Point3<f64>,
+        p: Point3<f64>
     ) -> bool {
         // (rotation × translation) * point = rotation × (translation * point)
         relative_eq!((uq * t) * v, uq * v, epsilon = 1.0e-7)       &&
@@ -149,13 +151,14 @@ quickcheck!(
         relative_eq!((i * t) * p, i * (t * p), epsilon = 1.0e-7)
     }
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     fn all_op_exist(
         i: Isometry3<f64>,
         uq: UnitQuaternion<f64>,
         t: Translation3<f64>,
         v: Vector3<f64>,
         p: Point3<f64>,
-        r: Rotation3<f64>,
+        r: Rotation3<f64>
     ) -> bool {
         let iMi = i * i;
         let iMuq = i * uq;
