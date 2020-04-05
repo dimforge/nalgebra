@@ -24,6 +24,8 @@ jobs:
     executor: rust-executor
     steps:
       - checkout
+      - run: apt-get update
+      - run: apt-get install -y cmake
       - run:
           name: build --no-default-feature
           command: cargo build --no-default-features;
