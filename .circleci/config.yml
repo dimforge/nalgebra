@@ -40,7 +40,7 @@ jobs:
           command: cargo build -p nalgebra-glm --all-features
       - run:
           name: build nalgebra-lapack
-          command: cd nalgebra-lapack; cargo build --features netlib
+          command: cd nalgebra-lapack; cargo build
   test-native:
     executor: rust-executor
     steps:
