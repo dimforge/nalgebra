@@ -71,7 +71,7 @@ jobs:
       - checkout
       - run:
           name: install xargo
-          command: cargo install -f xargo;
+          command: rustup component add rust-src; cargo install -f xargo;
       - run:
           name: build
           command: xargo build --verbose --no-default-features --target=x86_64-unknown-linux-gnu;
