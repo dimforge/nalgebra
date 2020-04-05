@@ -45,17 +45,12 @@ jobs:
     executor: rust-executor
     steps:
       - checkout
-      - run: apt-get update
-      - run: apt-get install -y cmake gfortran libblas-dev liblapack-dev
       - run:
           name: test
           command: cargo test --all-features
       - run:
           name: test nalgebra-glm
           command: cargo test -p nalgebra-glm --all-features
-      - run:
-          name: test nalgebra-lapack
-          command: cd nalgebra-lapack; cargo test
   build-wasm:
     executor: rust-executor
     steps:
