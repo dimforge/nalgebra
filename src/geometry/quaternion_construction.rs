@@ -71,7 +71,9 @@ impl<N: SimdRealField> Quaternion<N> {
     #[inline]
     // FIXME: take a reference to `vector`?
     pub fn from_parts<SB>(scalar: N, vector: Vector<N, U3, SB>) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         Self::new(scalar, vector[0], vector[1], vector[2])
     }
 
@@ -100,14 +102,17 @@ impl<N: SimdRealField> Quaternion<N> {
 
 // FIXME: merge with the previous block.
 impl<N: SimdRealField> Quaternion<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     /// Creates a new quaternion from its polar decomposition.
     ///
     /// Note that `axis` is assumed to be a unit vector.
     // FIXME: take a reference to `axis`?
     pub fn from_polar_decomposition<SB>(scale: N, theta: N, axis: Unit<Vector<N, U3, SB>>) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         let rot = UnitQuaternion::<N>::from_axis_angle(&axis, theta * crate::convert(2.0f64));
 
         rot.into_inner() * scale
@@ -115,7 +120,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> One for Quaternion<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn one() -> Self {
@@ -124,7 +130,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> Zero for Quaternion<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn zero() -> Self {
@@ -138,7 +145,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> Distribution<Quaternion<N>> for Standard
-where Standard: Distribution<N>
+where
+    Standard: Distribution<N>,
 {
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Quaternion<N> {
@@ -148,7 +156,8 @@ where Standard: Distribution<N>
 
 #[cfg(feature = "arbitrary")]
 impl<N: SimdRealField + Arbitrary> Arbitrary for Quaternion<N>
-where Owned<N, U4>: Send
+where
+    Owned<N, U4>: Send,
 {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
@@ -162,7 +171,8 @@ where Owned<N, U4>: Send
 }
 
 impl<N: SimdRealField> UnitQuaternion<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     /// The rotation identity.
     ///
@@ -209,7 +219,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         let (sang, cang) = (angle / crate::convert(2.0f64)).simd_sin_cos();
 
         let q = Quaternion::from_parts(cang, axis.as_ref() * sang);
@@ -335,7 +347,9 @@ where N::Element: SimdRealField
     /// convergence parameters and starting solution.
     /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
     pub fn from_matrix(m: &Matrix3<N>) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         Rotation3::from_matrix(m).into()
     }
 
@@ -352,7 +366,9 @@ where N::Element: SimdRealField
     ///           to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
     ///           guesses come to mind.
     pub fn from_matrix_eps(m: &Matrix3<N>, eps: N, max_iter: usize, guess: Self) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         let guess = Rotation3::from(guess);
         Rotation3::from_matrix_eps(m, eps, max_iter, guess).into()
     }
@@ -619,7 +635,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn new<SB>(axisangle: Vector<N, U3, SB>) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         let two: N = crate::convert(2.0f64);
         let q = Quaternion::<N>::from_imag(axisangle / two).exp();
         Self::new_unchecked(q)
@@ -648,7 +666,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn new_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         let two: N = crate::convert(2.0f64);
         let q = Quaternion::<N>::from_imag(axisangle / two).exp_eps(eps);
         Self::new_unchecked(q)
@@ -678,7 +698,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn from_scaled_axis<SB>(axisangle: Vector<N, U3, SB>) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         Self::new(axisangle)
     }
 
@@ -706,7 +728,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn from_scaled_axis_eps<SB>(axisangle: Vector<N, U3, SB>, eps: N) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         Self::new_eps(axisangle, eps)
     }
 
@@ -736,7 +760,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn mean_of(unit_quaternions: impl IntoIterator<Item = Self>) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         let quaternions_matrix: Matrix4<N> = unit_quaternions
             .into_iter()
             .map(|q| q.as_vector() * q.as_vector().transpose())
@@ -765,7 +791,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> One for UnitQuaternion<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn one() -> Self {
@@ -800,7 +827,7 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: SimdRealField + Arbitrary> Arbitrary for UnitQuaternion<N>
+impl<N: RealField + Arbitrary> Arbitrary for UnitQuaternion<N>
 where
     Owned<N, U4>: Send,
     Owned<N, U3>: Send,

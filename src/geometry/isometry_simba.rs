@@ -2,7 +2,7 @@ use simba::simd::SimdValue;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::DimName;
-use crate::base::{DefaultAllocator, Scalar};
+use crate::base::DefaultAllocator;
 use crate::SimdRealField;
 
 use crate::geometry::{AbstractRotation, Isometry, Translation};

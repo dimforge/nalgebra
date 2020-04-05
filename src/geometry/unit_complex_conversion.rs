@@ -2,7 +2,7 @@ use num::Zero;
 use num_complex::Complex;
 
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
-use simba::simd::{PrimitiveSimdValue, SimdRealField, SimdValue};
+use simba::simd::{PrimitiveSimdValue, SimdRealField};
 
 use crate::base::dimension::U2;
 use crate::base::{Matrix2, Matrix3, Scalar};
@@ -155,7 +155,8 @@ impl<N1: RealField, N2: RealField + SupersetOf<N1>> SubsetOf<Matrix3<N2>> for Un
 }
 
 impl<N: SimdRealField> From<UnitComplex<N>> for Rotation2<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn from(q: UnitComplex<N>) -> Self {
@@ -164,7 +165,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> From<Rotation2<N>> for UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn from(q: Rotation2<N>) -> Self {
@@ -173,7 +175,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> From<UnitComplex<N>> for Matrix3<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn from(q: UnitComplex<N>) -> Matrix3<N> {
@@ -182,7 +185,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> From<UnitComplex<N>> for Matrix2<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn from(q: UnitComplex<N>) -> Self {

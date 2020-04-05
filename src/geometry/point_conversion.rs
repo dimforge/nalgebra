@@ -1,6 +1,6 @@
 use num::{One, Zero};
 use simba::scalar::{ClosedDiv, SubsetOf, SupersetOf};
-use simba::simd::{PrimitiveSimdValue, SimdValue};
+use simba::simd::PrimitiveSimdValue;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -143,7 +143,8 @@ where
 }
 
 impl<N: Scalar, D: DimName> From<VectorN<N, D>> for Point<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn from(coords: VectorN<N, D>) -> Self {

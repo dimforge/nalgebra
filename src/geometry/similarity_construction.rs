@@ -107,15 +107,15 @@ where
 #[cfg(feature = "arbitrary")]
 impl<N, D: DimName, R> Arbitrary for Similarity<N, D, R>
 where
-    N: SimdRealField + Arbitrary + Send,
-    N::Element: SimdRealField,
+    N: RealField + Arbitrary + Send,
+    N::Element: RealField,
     R: AbstractRotation<N, D> + Arbitrary + Send,
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Send,
 {
     #[inline]
     fn arbitrary<G: Gen>(rng: &mut G) -> Self {
-        let mut s = Arbitrary::arbitrary(rng);
+        let mut s: N = Arbitrary::arbitrary(rng);
         while s.is_zero() {
             s = Arbitrary::arbitrary(rng)
         }
@@ -132,7 +132,8 @@ where
 
 // 2D similarity.
 impl<N: SimdRealField> Similarity<N, U2, Rotation2<N>>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     /// Creates a new similarity from a translation, a rotation, and an uniform scaling factor.
     ///
@@ -157,7 +158,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> Similarity<N, U2, UnitComplex<N>>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     /// Creates a new similarity from a translation and a rotation angle.
     ///

@@ -2,12 +2,13 @@ use num_complex::Complex;
 use simba::simd::SimdValue;
 use std::ops::Deref;
 
-use crate::base::{Scalar, Unit};
+use crate::base::Unit;
 use crate::geometry::UnitComplex;
 use crate::SimdRealField;
 
 impl<N: SimdRealField> SimdValue for UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     type Element = UnitComplex<N::Element>;
     type SimdBool = N::SimdBool;

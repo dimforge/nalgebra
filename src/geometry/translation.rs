@@ -11,7 +11,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use simba::scalar::{ClosedAdd, ClosedNeg, ClosedSub, RealField};
+use simba::scalar::{ClosedAdd, ClosedNeg, ClosedSub};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -24,7 +24,8 @@ use crate::geometry::Point;
 #[repr(C)]
 #[derive(Debug)]
 pub struct Translation<N: Scalar, D: DimName>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
     /// translated.
@@ -87,7 +88,9 @@ where
     Owned<N, D>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where S: Serializer {
+    where
+        S: Serializer,
+    {
         self.vector.serialize(serializer)
     }
 }
@@ -99,7 +102,9 @@ where
     Owned<N, D>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-    where Des: Deserializer<'a> {
+    where
+        Des: Deserializer<'a>,
+    {
         let matrix = VectorN::<N, D>::deserialize(deserializer)?;
 
         Ok(Translation::from(matrix))
@@ -107,7 +112,8 @@ where
 }
 
 impl<N: Scalar, D: DimName> Translation<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new translation from the given vector.
     #[inline]
@@ -133,7 +139,9 @@ where DefaultAllocator: Allocator<N, D>
     #[inline]
     #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(&self) -> Translation<N, D>
-    where N: ClosedNeg {
+    where
+        N: ClosedNeg,
+    {
         Translation::from(-&self.vector)
     }
 
@@ -189,13 +197,16 @@ where DefaultAllocator: Allocator<N, D>
     /// ```
     #[inline]
     pub fn inverse_mut(&mut self)
-    where N: ClosedNeg {
+    where
+        N: ClosedNeg,
+    {
         self.vector.neg_mut()
     }
 }
 
 impl<N: Scalar + ClosedAdd, D: DimName> Translation<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Translate the given point.
     ///
@@ -214,7 +225,8 @@ where DefaultAllocator: Allocator<N, D>
 }
 
 impl<N: Scalar + ClosedSub, D: DimName> Translation<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Translate the given point by the inverse of this translation.
     ///
@@ -233,7 +245,8 @@ where DefaultAllocator: Allocator<N, D>
 impl<N: Scalar + Eq, D: DimName> Eq for Translation<N, D> where DefaultAllocator: Allocator<N, D> {}
 
 impl<N: Scalar + PartialEq, D: DimName> PartialEq for Translation<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn eq(&self, right: &Translation<N, D>) -> bool {
@@ -275,8 +288,7 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.vector
             .relative_eq(&other.vector, epsilon, max_relative)
     }
@@ -304,7 +316,8 @@ where
  *
  */
 impl<N: Scalar + fmt::Display, D: DimName> fmt::Display for Translation<N, D>
-where DefaultAllocator: Allocator<N, D> + Allocator<usize, D>
+where
+    DefaultAllocator: Allocator<N, D> + Allocator<usize, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);

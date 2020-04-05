@@ -2,10 +2,11 @@ use simba::simd::SimdValue;
 
 use crate::base::Vector4;
 use crate::geometry::{Quaternion, UnitQuaternion};
-use crate::{RealField, Scalar};
+use crate::Scalar;
 
 impl<N: Scalar + SimdValue> SimdValue for Quaternion<N>
-where N::Element: Scalar
+where
+    N::Element: Scalar,
 {
     type Element = Quaternion<N::Element>;
     type SimdBool = N::SimdBool;
@@ -47,7 +48,8 @@ where N::Element: Scalar
 }
 
 impl<N: Scalar + SimdValue> SimdValue for UnitQuaternion<N>
-where N::Element: Scalar
+where
+    N::Element: Scalar,
 {
     type Element = UnitQuaternion<N::Element>;
     type SimdBool = N::SimdBool;

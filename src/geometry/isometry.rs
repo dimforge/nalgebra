@@ -3,7 +3,6 @@ use std::fmt;
 use std::hash;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
-use std::marker::PhantomData;
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
@@ -37,7 +36,8 @@ use crate::geometry::{AbstractRotation, Point, Translation};
                        Owned<N, D>: Deserialize<'de>"))
 )]
 pub struct Isometry<N: Scalar, D: DimName, R>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// The pure rotational part of this isometry.
     pub rotation: R,
@@ -91,7 +91,8 @@ where
 }
 
 impl<N: Scalar, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Isometry<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -100,7 +101,8 @@ where DefaultAllocator: Allocator<N, D>
 }
 
 impl<N: Scalar, D: DimName, R: AbstractRotation<N, D>> Isometry<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new isometry from its rotational and translational parts.
     ///
@@ -353,7 +355,8 @@ where
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the dummy ZST field).
 impl<N: SimdRealField, D: DimName, R> Isometry<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Converts this isometry into its equivalent homogeneous transformation matrix.
     ///
@@ -440,8 +443,7 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.translation
             .relative_eq(&other.translation, epsilon, max_relative)
             && self

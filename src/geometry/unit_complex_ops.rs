@@ -5,7 +5,6 @@ use crate::base::dimension::{U1, U2};
 use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, Unit, Vector, Vector2};
 use crate::geometry::{Isometry, Point2, Rotation, Similarity, Translation, UnitComplex};
-use simba::scalar::RealField;
 use simba::simd::SimdRealField;
 
 /*
@@ -53,7 +52,8 @@ impl<N: SimdRealField> Mul<Self> for UnitComplex<N> {
 }
 
 impl<'a, N: SimdRealField> Mul<UnitComplex<N>> for &'a UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     type Output = UnitComplex<N>;
 
@@ -64,7 +64,8 @@ where N::Element: SimdRealField
 }
 
 impl<'b, N: SimdRealField> Mul<&'b UnitComplex<N>> for UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     type Output = Self;
 
@@ -75,7 +76,8 @@ where N::Element: SimdRealField
 }
 
 impl<'a, 'b, N: SimdRealField> Mul<&'b UnitComplex<N>> for &'a UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     type Output = UnitComplex<N>;
 
@@ -87,7 +89,8 @@ where N::Element: SimdRealField
 
 // UnitComplex ÷ UnitComplex
 impl<N: SimdRealField> Div<Self> for UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     type Output = Self;
 
@@ -98,7 +101,8 @@ where N::Element: SimdRealField
 }
 
 impl<'a, N: SimdRealField> Div<UnitComplex<N>> for &'a UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     type Output = UnitComplex<N>;
 
@@ -109,7 +113,8 @@ where N::Element: SimdRealField
 }
 
 impl<'b, N: SimdRealField> Div<&'b UnitComplex<N>> for UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     type Output = Self;
 
@@ -120,7 +125,8 @@ where N::Element: SimdRealField
 }
 
 impl<'a, 'b, N: SimdRealField> Div<&'b UnitComplex<N>> for &'a UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     type Output = UnitComplex<N>;
 
@@ -315,7 +321,8 @@ complex_op_impl_all!(
 
 // UnitComplex ×= UnitComplex
 impl<N: SimdRealField> MulAssign<UnitComplex<N>> for UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn mul_assign(&mut self, rhs: UnitComplex<N>) {
@@ -324,7 +331,8 @@ where N::Element: SimdRealField
 }
 
 impl<'b, N: SimdRealField> MulAssign<&'b UnitComplex<N>> for UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn mul_assign(&mut self, rhs: &'b UnitComplex<N>) {
@@ -334,7 +342,8 @@ where N::Element: SimdRealField
 
 // UnitComplex /= UnitComplex
 impl<N: SimdRealField> DivAssign<UnitComplex<N>> for UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn div_assign(&mut self, rhs: UnitComplex<N>) {
@@ -343,7 +352,8 @@ where N::Element: SimdRealField
 }
 
 impl<'b, N: SimdRealField> DivAssign<&'b UnitComplex<N>> for UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn div_assign(&mut self, rhs: &'b UnitComplex<N>) {
