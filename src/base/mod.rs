@@ -21,6 +21,8 @@ mod conversion;
 mod edition;
 pub mod indexing;
 mod matrix;
+#[cfg(feature = "alga")]
+mod matrix_alga;
 mod matrix_simba;
 mod matrix_slice;
 mod norm;
