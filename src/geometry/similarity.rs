@@ -40,7 +40,8 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
                        Owned<N, D>: Deserialize<'de>"))
 )]
 pub struct Similarity<N: Scalar, D: DimName, R>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// The part of this similarity that does not include the scaling factor.
     pub isometry: Isometry<N, D, R>,
@@ -87,7 +88,8 @@ where
 }
 
 impl<N: Scalar + Zero, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Similarity<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -127,7 +129,8 @@ where
 }
 
 impl<N: Scalar, D: DimName, R> Similarity<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// The scaling factor of this similarity transformation.
     #[inline]
@@ -329,7 +332,8 @@ where
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the private scaling factor).
 impl<N: SimdRealField, D: DimName, R> Similarity<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Converts this similarity into its equivalent homogeneous transformation matrix.
     #[inline]
@@ -404,8 +408,7 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.isometry
             .relative_eq(&other.isometry, epsilon, max_relative)
             && self

@@ -103,7 +103,9 @@ where
     S: Serialize,
 {
     fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
-    where T: Serializer {
+    where
+        T: Serializer,
+    {
         self.data.serialize(serializer)
     }
 }
@@ -117,7 +119,9 @@ where
     S: Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where D: Deserializer<'de> {
+    where
+        D: Deserializer<'de>,
+    {
         S::deserialize(deserializer).map(|x| Matrix {
             data: x,
             _phantoms: PhantomData,
@@ -348,7 +352,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Moves this matrix into one that owns its data.
     #[inline]
     pub fn into_owned(self) -> MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
         Matrix::from_data(self.data.into_owned())
     }
 
@@ -382,7 +388,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Clones this matrix to one that owns its data.
     #[inline]
     pub fn clone_owned(&self) -> MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
         Matrix::from_data(self.data.clone_owned())
     }
 
@@ -418,7 +426,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a matrix containing the result of `f` applied to each of its entries.
     #[inline]
     pub fn map<N2: Scalar, F: FnMut(N) -> N2>(&self, mut f: F) -> MatrixMN<N2, R, C>
-    where DefaultAllocator: Allocator<N2, R, C> {
+    where
+        DefaultAllocator: Allocator<N2, R, C>,
+    {
         let (nrows, ncols) = self.data.shape();
 
         let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
@@ -447,8 +457,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         &self,
         init_f: impl FnOnce(Option<&N>) -> N2,
         f: impl FnMut(N2, &N) -> N2,
-    ) -> N2
-    {
+    ) -> N2 {
         let mut it = self.iter();
         let init = init_f(it.next());
         it.fold(init, f)
@@ -640,7 +649,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     #[must_use = "Did you mean to use transpose_mut()?"]
     pub fn transpose(&self) -> MatrixMN<N, C, R>
-    where DefaultAllocator: Allocator<N, C, R> {
+    where
+        DefaultAllocator: Allocator<N, C, R>,
+    {
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
@@ -983,7 +994,9 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     #[inline]
     #[must_use = "Did you mean to use adjoint_mut()?"]
     pub fn adjoint(&self) -> MatrixMN<N, C, R>
-    where DefaultAllocator: Allocator<N, C, R> {
+    where
+        DefaultAllocator: Allocator<N, C, R>,
+    {
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
@@ -1011,7 +1024,9 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     #[deprecated(note = "Renamed `self.adjoint()`.")]
     #[inline]
     pub fn conjugate_transpose(&self) -> MatrixMN<N, C, R>
-    where DefaultAllocator: Allocator<N, C, R> {
+    where
+        DefaultAllocator: Allocator<N, C, R>,
+    {
         self.adjoint()
     }
 
@@ -1019,7 +1034,9 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     #[inline]
     #[must_use = "Did you mean to use conjugate_mut()?"]
     pub fn conjugate(&self) -> MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
         self.map(|e| e.simd_conjugate())
     }
 
@@ -1027,7 +1044,9 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     #[inline]
     #[must_use = "Did you mean to use unscale_mut()?"]
     pub fn unscale(&self, real: N::SimdRealField) -> MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
         self.map(|e| e.simd_unscale(real))
     }
 
@@ -1035,7 +1054,9 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     #[inline]
     #[must_use = "Did you mean to use scale_mut()?"]
     pub fn scale(&self, real: N::SimdRealField) -> MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
         self.map(|e| e.simd_scale(real))
     }
 }
@@ -1100,7 +1121,9 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// The diagonal of this matrix.
     #[inline]
     pub fn diagonal(&self) -> VectorN<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+    where
+        DefaultAllocator: Allocator<N, D>,
+    {
         self.map_diagonal(|e| e)
     }
 
@@ -1109,7 +1132,9 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// This is a more efficient version of `self.diagonal().map(f)` since this
     /// allocates only once.
     pub fn map_diagonal<N2: Scalar>(&self, mut f: impl FnMut(N) -> N2) -> VectorN<N2, D>
-    where DefaultAllocator: Allocator<N2, D> {
+    where
+        DefaultAllocator: Allocator<N2, D>,
+    {
         assert!(
             self.is_square(),
             "Unable to get the diagonal of a non-square matrix."
@@ -1130,7 +1155,9 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes a trace of a square matrix, i.e., the sum of its diagonal elements.
     #[inline]
     pub fn trace(&self) -> N
-    where N: Scalar + Zero + ClosedAdd {
+    where
+        N: Scalar + Zero + ClosedAdd,
+    {
         assert!(
             self.is_square(),
             "Cannot compute the trace of non-square matrix."
@@ -1151,7 +1178,9 @@ impl<N: SimdComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// The symmetric part of `self`, i.e., `0.5 * (self + self.transpose())`.
     #[inline]
     pub fn symmetric_part(&self) -> MatrixMN<N, D, D>
-    where DefaultAllocator: Allocator<N, D, D> {
+    where
+        DefaultAllocator: Allocator<N, D, D>,
+    {
         assert!(
             self.is_square(),
             "Cannot compute the symmetric part of a non-square matrix."
@@ -1165,7 +1194,9 @@ impl<N: SimdComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// The hermitian part of `self`, i.e., `0.5 * (self + self.adjoint())`.
     #[inline]
     pub fn hermitian_part(&self) -> MatrixMN<N, D, D>
-    where DefaultAllocator: Allocator<N, D, D> {
+    where
+        DefaultAllocator: Allocator<N, D, D>,
+    {
         assert!(
             self.is_square(),
             "Cannot compute the hermitian part of a non-square matrix."
@@ -1185,7 +1216,9 @@ impl<N: Scalar + Zero + One, D: DimAdd<U1> + IsNotStaticOne, S: Storage<N, D, D>
     /// and setting the diagonal element to `1`.
     #[inline]
     pub fn to_homogeneous(&self) -> MatrixN<N, DimSum<D, U1>>
-    where DefaultAllocator: Allocator<N, DimSum<D, U1>, DimSum<D, U1>> {
+    where
+        DefaultAllocator: Allocator<N, DimSum<D, U1>, DimSum<D, U1>>,
+    {
         assert!(
             self.is_square(),
             "Only square matrices can currently be transformed to homogeneous coordinates."
@@ -1203,7 +1236,9 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     /// coordinates.
     #[inline]
     pub fn to_homogeneous(&self) -> VectorN<N, DimSum<D, U1>>
-    where DefaultAllocator: Allocator<N, DimSum<D, U1>> {
+    where
+        DefaultAllocator: Allocator<N, DimSum<D, U1>>,
+    {
         self.push(N::zero())
     }
 
@@ -1228,7 +1263,9 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     /// Constructs a new vector of higher dimension by appending `element` to the end of `self`.
     #[inline]
     pub fn push(&self, element: N) -> VectorN<N, DimSum<D, U1>>
-    where DefaultAllocator: Allocator<N, DimSum<D, U1>> {
+    where
+        DefaultAllocator: Allocator<N, DimSum<D, U1>>,
+    {
         let len = self.len();
         let hnrows = DimSum::<D, U1>::from_usize(len + 1);
         let mut res = unsafe { VectorN::<N, _>::new_uninitialized_generic(hnrows, U1) };
@@ -1278,8 +1315,7 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.relative_eq(other, epsilon, max_relative)
     }
 }
@@ -1618,7 +1654,8 @@ impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N
 }
 
 impl<N: Scalar + Field, S: Storage<N, U3>> Vector<N, U3, S>
-where DefaultAllocator: Allocator<N, U3>
+where
+    DefaultAllocator: Allocator<N, U3>,
 {
     /// Computes the matrix `M` such that for all vector `v` we have `M * v == self.cross(&v)`.
     #[inline]
@@ -1675,7 +1712,9 @@ impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     /// assert_eq!(x.lerp(&y, 0.1), Vector3::new(1.9, 3.8, 5.7));
     /// ```
     pub fn lerp<S2: Storage<N, D>>(&self, rhs: &Vector<N, D, S2>, t: N) -> VectorN<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+    where
+        DefaultAllocator: Allocator<N, D>,
+    {
         let mut res = self.clone_owned();
         res.axpy(t.inlined_clone(), rhs, N::one() - t);
         res
@@ -1783,8 +1822,7 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.as_ref()
             .relative_eq(other.as_ref(), epsilon, max_relative)
     }

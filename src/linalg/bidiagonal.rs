@@ -171,9 +171,11 @@ where
         MatrixN<N, DimMinimum<R, C>>,
         MatrixMN<N, DimMinimum<R, C>, C>,
     )
-    where DefaultAllocator: Allocator<N, DimMinimum<R, C>, DimMinimum<R, C>>
+    where
+        DefaultAllocator: Allocator<N, DimMinimum<R, C>, DimMinimum<R, C>>
             + Allocator<N, R, DimMinimum<R, C>>
-            + Allocator<N, DimMinimum<R, C>, C> {
+            + Allocator<N, DimMinimum<R, C>, C>,
+    {
         // FIXME: optimize by calling a reallocator.
         (self.u(), self.d(), self.v_t())
     }
@@ -181,7 +183,9 @@ where
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
     #[inline]
     pub fn d(&self) -> MatrixN<N, DimMinimum<R, C>>
-    where DefaultAllocator: Allocator<N, DimMinimum<R, C>, DimMinimum<R, C>> {
+    where
+        DefaultAllocator: Allocator<N, DimMinimum<R, C>, DimMinimum<R, C>>,
+    {
         let (nrows, ncols) = self.uv.data.shape();
 
         let d = nrows.min(ncols);
@@ -198,7 +202,9 @@ where
     // FIXME: code duplication with householder::assemble_q.
     // Except that we are returning a rectangular matrix here.
     pub fn u(&self) -> MatrixMN<N, R, DimMinimum<R, C>>
-    where DefaultAllocator: Allocator<N, R, DimMinimum<R, C>> {
+    where
+        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>>,
+    {
         let (nrows, ncols) = self.uv.data.shape();
 
         let mut res = Matrix::identity_generic(nrows, nrows.min(ncols));
@@ -226,7 +232,9 @@ where
 
     /// Computes the orthogonal matrix `V_t` of this `U * D * V_t` decomposition.
     pub fn v_t(&self) -> MatrixMN<N, DimMinimum<R, C>, C>
-    where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C> {
+    where
+        DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>,
+    {
         let (nrows, ncols) = self.uv.data.shape();
         let min_nrows_ncols = nrows.min(ncols);
 
@@ -259,13 +267,17 @@ where
 
     /// The diagonal part of this decomposed matrix.
     pub fn diagonal(&self) -> VectorN<N::RealField, DimMinimum<R, C>>
-    where DefaultAllocator: Allocator<N::RealField, DimMinimum<R, C>> {
+    where
+        DefaultAllocator: Allocator<N::RealField, DimMinimum<R, C>>,
+    {
         self.diagonal.map(|e| e.modulus())
     }
 
     /// The off-diagonal part of this decomposed matrix.
     pub fn off_diagonal(&self) -> VectorN<N::RealField, DimDiff<DimMinimum<R, C>, U1>>
-    where DefaultAllocator: Allocator<N::RealField, DimDiff<DimMinimum<R, C>, U1>> {
+    where
+        DefaultAllocator: Allocator<N::RealField, DimDiff<DimMinimum<R, C>, U1>>,
+    {
         self.off_diagonal.map(|e| e.modulus())
     }
 

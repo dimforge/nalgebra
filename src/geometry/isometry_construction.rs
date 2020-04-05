@@ -114,7 +114,8 @@ where
 
 // 2D rotation.
 impl<N: SimdRealField> Isometry<N, U2, Rotation2<N>>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     /// Creates a new 2D isometry from a translation and a rotation angle.
     ///
@@ -151,7 +152,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> Isometry<N, U2, UnitComplex<N>>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     /// Creates a new 2D isometry from a translation and a rotation angle.
     ///

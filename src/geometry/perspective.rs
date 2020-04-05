@@ -47,7 +47,9 @@ impl<N: RealField> PartialEq for Perspective3<N> {
 #[cfg(feature = "serde-serialize")]
 impl<N: RealField + Serialize> Serialize for Perspective3<N> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where S: Serializer {
+    where
+        S: Serializer,
+    {
         self.matrix.serialize(serializer)
     }
 }
@@ -55,7 +57,9 @@ impl<N: RealField + Serialize> Serialize for Perspective3<N> {
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: RealField + Deserialize<'a>> Deserialize<'a> for Perspective3<N> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-    where Des: Deserializer<'a> {
+    where
+        Des: Deserializer<'a>,
+    {
         let matrix = Matrix4::<N>::deserialize(deserializer)?;
 
         Ok(Self::from_matrix_unchecked(matrix))
@@ -212,7 +216,9 @@ impl<N: RealField> Perspective3<N> {
     /// Projects a vector. Faster than matrix multiplication.
     #[inline]
     pub fn project_vector<SB>(&self, p: &Vector<N, U3, SB>) -> Vector3<N>
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         let inverse_denom = -N::one() / p[2];
         Vector3::new(
             self.matrix[(0, 0)] * p[0] * inverse_denom,
@@ -263,7 +269,8 @@ impl<N: RealField> Perspective3<N> {
 }
 
 impl<N: RealField> Distribution<Perspective3<N>> for Standard
-where Standard: Distribution<N>
+where
+    Standard: Distribution<N>,
 {
     fn sample<'a, R: Rng + ?Sized>(&self, r: &'a mut R) -> Perspective3<N> {
         let znear = r.gen();

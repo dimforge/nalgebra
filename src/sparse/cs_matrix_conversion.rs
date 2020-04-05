@@ -15,14 +15,14 @@ impl<'a, N: Scalar + Zero + ClosedAdd> CsMatrix<N> {
         irows: &[usize],
         icols: &[usize],
         vals: &[N],
-    ) -> Self
-    {
+    ) -> Self {
         Self::from_triplet_generic(Dynamic::new(nrows), Dynamic::new(ncols), irows, icols, vals)
     }
 }
 
 impl<'a, N: Scalar + Zero + ClosedAdd, R: Dim, C: Dim> CsMatrix<N, R, C>
-where DefaultAllocator: Allocator<usize, C> + Allocator<N, R>
+where
+    DefaultAllocator: Allocator<usize, C> + Allocator<N, R>,
 {
     /// Creates a column-compressed sparse matrix from a sparse matrix in triplet form.
     pub fn from_triplet_generic(
@@ -31,8 +31,7 @@ where DefaultAllocator: Allocator<usize, C> + Allocator<N, R>
         irows: &[usize],
         icols: &[usize],
         vals: &[N],
-    ) -> Self
-    {
+    ) -> Self {
         assert!(vals.len() == irows.len());
         assert!(vals.len() == icols.len());
 

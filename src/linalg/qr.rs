@@ -30,7 +30,8 @@ use crate::linalg::householder;
 )]
 #[derive(Clone, Debug)]
 pub struct QR<N: ComplexField, R: DimMin<C>, C: Dim>
-where DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>
+where
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
 {
     qr: MatrixMN<N, R, C>,
     diag: VectorN<N, DimMinimum<R, C>>,
@@ -45,7 +46,8 @@ where
 }
 
 impl<N: ComplexField, R: DimMin<C>, C: Dim> QR<N, R, C>
-where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>
+where
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>,
 {
     /// Computes the QR decomposition using householder reflections.
     pub fn new(mut matrix: MatrixMN<N, R, C>) -> Self {
@@ -74,7 +76,9 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
     #[inline]
     pub fn r(&self) -> MatrixMN<N, DimMinimum<R, C>, C>
-    where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C> {
+    where
+        DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>,
+    {
         let (nrows, ncols) = self.qr.data.shape();
         let mut res = self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle();
         res.set_partial_diagonal(self.diag.iter().map(|e| N::from_real(e.modulus())));
@@ -86,7 +90,9 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
     /// This is usually faster than `r` but consumes `self`.
     #[inline]
     pub fn unpack_r(self) -> MatrixMN<N, DimMinimum<R, C>, C>
-    where DefaultAllocator: Reallocator<N, R, C, DimMinimum<R, C>, C> {
+    where
+        DefaultAllocator: Reallocator<N, R, C, DimMinimum<R, C>, C>,
+    {
         let (nrows, ncols) = self.qr.data.shape();
         let mut res = self.qr.resize_generic(nrows.min(ncols), ncols, N::zero());
         res.fill_lower_triangle(N::zero(), 1);
@@ -96,7 +102,9 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
     pub fn q(&self) -> MatrixMN<N, R, DimMinimum<R, C>>
-    where DefaultAllocator: Allocator<N, R, DimMinimum<R, C>> {
+    where
+        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>>,
+    {
         let (nrows, ncols) = self.qr.data.shape();
 
         // NOTE: we could build the identity matrix and call q_mul on it.
@@ -139,7 +147,9 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
     /// Multiplies the provided matrix by the transpose of the `Q` matrix of this decomposition.
     pub fn q_tr_mul<R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
     // FIXME: do we need a static constraint on the number of rows of rhs?
-    where S2: StorageMut<N, R2, C2> {
+    where
+        S2: StorageMut<N, R2, C2>,
+    {
         let dim = self.diag.len();
 
         for i in 0..dim {
@@ -153,7 +163,8 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimM
 }
 
 impl<N: ComplexField, D: DimMin<D, Output = D>> QR<N, D, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
@@ -285,7 +296,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 }
 
 impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>
+where
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>,
 {
     /// Computes the QR decomposition of this matrix.
     pub fn qr(self) -> QR<N, R, C> {

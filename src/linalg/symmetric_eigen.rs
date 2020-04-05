@@ -31,7 +31,8 @@ use crate::linalg::SymmetricTridiagonal;
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: ComplexField, D: Dim>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>,
 {
     /// The eigenvectors of the decomposed matrix.
     pub eigenvectors: MatrixN<N, D>,
@@ -49,7 +50,8 @@ where
 }
 
 impl<N: ComplexField, D: Dim> SymmetricEigen<N, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>,
 {
     /// Computes the eigendecomposition of the given symmetric matrix.
     ///
@@ -300,10 +302,11 @@ pub fn wilkinson_shift<N: ComplexField>(tmm: N, tnn: N, tmn: N) -> N {
  *
  */
 impl<N: ComplexField, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>
         + Allocator<N, DimDiff<D, U1>>
         + Allocator<N::RealField, D>
-        + Allocator<N::RealField, DimDiff<D, U1>>
+        + Allocator<N::RealField, DimDiff<D, U1>>,
 {
     /// Computes the eigendecomposition of this symmetric matrix.
     ///
@@ -327,8 +330,7 @@ where DefaultAllocator: Allocator<N, D, D>
         self,
         eps: N::RealField,
         max_niter: usize,
-    ) -> Option<SymmetricEigen<N, D>>
-    {
+    ) -> Option<SymmetricEigen<N, D>> {
         SymmetricEigen::try_new(self.into_owned(), eps, max_niter)
     }
 

@@ -219,7 +219,8 @@ impl<N: SimdRealField> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
 }
 
 impl<N: SimdRealField> From<UnitQuaternion<N>> for Matrix4<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {
@@ -228,7 +229,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> From<UnitQuaternion<N>> for Rotation3<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {
@@ -237,7 +239,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> From<Rotation3<N>> for UnitQuaternion<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn from(q: Rotation3<N>) -> Self {
@@ -246,7 +249,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> From<UnitQuaternion<N>> for Matrix3<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn from(q: UnitQuaternion<N>) -> Self {

@@ -23,8 +23,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         ncols: C,
         rstride: RStride,
         cstride: CStride,
-    ) -> Self
-    {
+    ) -> Self {
         let data = SliceStorage::from_raw_parts(
             data.as_ptr().offset(start as isize),
             (nrows, ncols),
@@ -44,8 +43,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         ncols: C,
         rstride: RStride,
         cstride: CStride,
-    ) -> Self
-    {
+    ) -> Self {
         // NOTE: The assertion implements the following formula, but without subtractions to avoid
         // underflow panics:
         //      len >= (ncols - 1) * cstride + (nrows - 1) * rstride + 1
@@ -76,8 +74,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         ncols: C,
         rstride: RStride,
         cstride: CStride,
-    ) -> Self
-    {
+    ) -> Self {
         let data = SliceStorageMut::from_raw_parts(
             data.as_mut_ptr().offset(start as isize),
             (nrows, ncols),
@@ -97,8 +94,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         ncols: C,
         rstride: RStride,
         cstride: CStride,
-    ) -> Self
-    {
+    ) -> Self {
         // NOTE: The assertion implements the following formula, but without subtractions to avoid
         // underflow panics:
         //      len >= (ncols - 1) * cstride + (nrows - 1) * rstride + 1
@@ -108,24 +104,27 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
             "Matrix slice: input data buffer to small."
         );
 
-        assert!({
-            let nrows = nrows.value();
-            let ncols = ncols.value();
-            let rstride = rstride.value();
-            let cstride = cstride.value();
+        assert!(
+            {
+                let nrows = nrows.value();
+                let ncols = ncols.value();
+                let rstride = rstride.value();
+                let cstride = cstride.value();
 
-            nrows * ncols <= 1 ||
-                match (rstride, cstride) {
-                    (0, 0) => false,      // otherwise: matrix[(0, 0)] == index[(nrows - 1, ncols - 1)],
-                    (0, _) => nrows <= 1, // otherwise: matrix[(0, 0)] == index[(nrows - 1, 0)],
-                    (_, 0) => ncols <= 1, // otherwise: matrix[(0, 0)] == index[(0, ncols - 1)],
-                    (_, _) => {           // otherwise: matrix[(0, numer)] == index[(denom, 0)]
-                        let ratio = Ratio::new(rstride, cstride);
-                        nrows <= *ratio.denom() || ncols <= *ratio.numer()
+                nrows * ncols <= 1
+                    || match (rstride, cstride) {
+                        (0, 0) => false,      // otherwise: matrix[(0, 0)] == index[(nrows - 1, ncols - 1)],
+                        (0, _) => nrows <= 1, // otherwise: matrix[(0, 0)] == index[(nrows - 1, 0)],
+                        (_, 0) => ncols <= 1, // otherwise: matrix[(0, 0)] == index[(0, ncols - 1)],
+                        (_, _) => {
+                            // otherwise: matrix[(0, numer)] == index[(denom, 0)]
+                            let ratio = Ratio::new(rstride, cstride);
+                            nrows <= *ratio.denom() || ncols <= *ratio.numer()
+                        }
                     }
-                }
             },
-            "Matrix slice: dimensions and strides result in aliased indices.");
+            "Matrix slice: dimensions and strides result in aliased indices."
+        );
 
         unsafe {
             Self::from_slice_with_strides_generic_unchecked(data, 0, nrows, ncols, rstride, cstride)
@@ -144,8 +143,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMN<'a, N, R, C> {
         start: usize,
         nrows: R,
         ncols: C,
-    ) -> Self
-    {
+    ) -> Self {
         Self::from_slice_with_strides_generic_unchecked(data, start, nrows, ncols, U1, nrows)
     }
 
@@ -170,8 +168,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, N, R, C> {
         start: usize,
         nrows: R,
         ncols: C,
-    ) -> Self
-    {
+    ) -> Self {
         Self::from_slice_with_strides_generic_unchecked(data, start, nrows, ncols, U1, nrows)
     }
 

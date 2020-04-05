@@ -41,9 +41,10 @@ use crate::linalg::Bidiagonal;
 )]
 #[derive(Clone, Debug)]
 pub struct SVD<N: ComplexField, R: DimMin<C>, C: Dim>
-where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
+where
+    DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>
         + Allocator<N, R, DimMinimum<R, C>>
-        + Allocator<N::RealField, DimMinimum<R, C>>
+        + Allocator<N::RealField, DimMinimum<R, C>>,
 {
     /// The left-singular vectors `U` of this SVD.
     pub u: Option<MatrixMN<N, R, DimMinimum<R, C>>>,
@@ -105,8 +106,7 @@ where
         compute_v: bool,
         eps: N::RealField,
         max_niter: usize,
-    ) -> Option<Self>
-    {
+    ) -> Option<Self> {
         assert!(
             matrix.len() != 0,
             "Cannot compute the SVD of an empty matrix."
@@ -333,8 +333,7 @@ where
         is_upper_diagonal: bool,
         end: usize,
         eps: N::RealField,
-    ) -> (usize, usize)
-    {
+    ) -> (usize, usize) {
         let mut n = end;
 
         while n > 0 {
@@ -437,8 +436,7 @@ where
         is_upper_diagonal: bool,
         i: usize,
         end: usize,
-    )
-    {
+    ) {
         let mut v = Vector2::new(off_diagonal[i], diagonal[i + 1]);
         off_diagonal[i] = N::RealField::zero();
 
@@ -475,8 +473,7 @@ where
         v_t: &mut Option<MatrixMN<N, DimMinimum<R, C>, C>>,
         is_upper_diagonal: bool,
         i: usize,
-    )
-    {
+    ) {
         let mut v = Vector2::new(diagonal[i], off_diagonal[i]);
         off_diagonal[i] = N::RealField::zero();
 
@@ -541,7 +538,9 @@ where
     /// Returns `Err` if the right- and left- singular vectors have not
     /// been computed at construction-time.
     pub fn pseudo_inverse(mut self, eps: N::RealField) -> Result<MatrixMN<N, C, R>, &'static str>
-    where DefaultAllocator: Allocator<N, C, R> {
+    where
+        DefaultAllocator: Allocator<N, C, R>,
+    {
         if eps < N::RealField::zero() {
             Err("SVD pseudo inverse: the epsilon must be non-negative.")
         } else {
@@ -638,8 +637,7 @@ where
         compute_v: bool,
         eps: N::RealField,
         max_niter: usize,
-    ) -> Option<SVD<N, R, C>>
-    {
+    ) -> Option<SVD<N, R, C>> {
         SVD::try_new(self.into_owned(), compute_u, compute_v, eps, max_niter)
     }
 
@@ -660,7 +658,9 @@ where
     ///
     /// All singular values below `eps` are considered equal to 0.
     pub fn pseudo_inverse(self, eps: N::RealField) -> Result<MatrixMN<N, C, R>, &'static str>
-    where DefaultAllocator: Allocator<N, C, R> {
+    where
+        DefaultAllocator: Allocator<N, C, R>,
+    {
         SVD::new(self.clone_owned(), true, true).pseudo_inverse(eps)
     }
 }
@@ -678,8 +678,7 @@ fn compute_2x2_uptrig_svd<N: RealField>(
     Option<GivensRotation<N>>,
     Vector2<N>,
     Option<GivensRotation<N>>,
-)
-{
+) {
     let two: N::RealField = crate::convert(2.0f64);
     let half: N::RealField = crate::convert(0.5f64);
 

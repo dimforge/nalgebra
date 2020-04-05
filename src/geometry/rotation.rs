@@ -26,7 +26,8 @@ use crate::geometry::Point;
 #[repr(C)]
 #[derive(Debug)]
 pub struct Rotation<N: Scalar, D: DimName>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     matrix: MatrixN<N, D>,
 }
@@ -87,7 +88,9 @@ where
     Owned<N, D, D>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where S: Serializer {
+    where
+        S: Serializer,
+    {
         self.matrix.serialize(serializer)
     }
 }
@@ -99,7 +102,9 @@ where
     Owned<N, D, D>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-    where Des: Deserializer<'a> {
+    where
+        Des: Deserializer<'a>,
+    {
         let matrix = MatrixN::<N, D>::deserialize(deserializer)?;
 
         Ok(Self::from_matrix_unchecked(matrix))
@@ -107,7 +112,8 @@ where
 }
 
 impl<N: Scalar, D: DimName> Rotation<N, D>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     /// A reference to the underlying matrix representation of this rotation.
     ///
@@ -440,7 +446,8 @@ where
 impl<N: Scalar + Eq, D: DimName> Eq for Rotation<N, D> where DefaultAllocator: Allocator<N, D, D> {}
 
 impl<N: Scalar + PartialEq, D: DimName> PartialEq for Rotation<N, D>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
@@ -484,8 +491,7 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.matrix
             .relative_eq(&other.matrix, epsilon, max_relative)
     }

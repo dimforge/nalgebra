@@ -551,7 +551,8 @@ macro_rules! left_scalar_mul_impl(
 left_scalar_mul_impl!(f32, f64);
 
 impl<N: SimdRealField> Neg for Quaternion<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     type Output = Quaternion<N>;
 
@@ -562,7 +563,8 @@ where N::Element: SimdRealField
 }
 
 impl<'a, N: SimdRealField> Neg for &'a Quaternion<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     type Output = Quaternion<N>;
 

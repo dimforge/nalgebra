@@ -29,7 +29,8 @@ use crate::linalg::PermutationSequence;
 )]
 #[derive(Clone, Debug)]
 pub struct FullPivLU<N: ComplexField, R: DimMin<C>, C: Dim>
-where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
+where
+    DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
 {
     lu: MatrixMN<N, R, C>,
     p: PermutationSequence<DimMinimum<R, C>>,
@@ -45,7 +46,8 @@ where
 }
 
 impl<N: ComplexField, R: DimMin<C>, C: Dim> FullPivLU<N, R, C>
-where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
+where
+    DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
 {
     /// Computes the LU decomposition with full pivoting of `matrix`.
     ///
@@ -103,7 +105,9 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimu
     /// The lower triangular matrix of this decomposition.
     #[inline]
     pub fn l(&self) -> MatrixMN<N, R, DimMinimum<R, C>>
-    where DefaultAllocator: Allocator<N, R, DimMinimum<R, C>> {
+    where
+        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>>,
+    {
         let (nrows, ncols) = self.lu.data.shape();
         let mut m = self.lu.columns_generic(0, nrows.min(ncols)).into_owned();
         m.fill_upper_triangle(N::zero(), 1);
@@ -114,7 +118,9 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimu
     /// The upper triangular matrix of this decomposition.
     #[inline]
     pub fn u(&self) -> MatrixMN<N, DimMinimum<R, C>, C>
-    where DefaultAllocator: Allocator<N, DimMinimum<R, C>, C> {
+    where
+        DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>,
+    {
         let (nrows, ncols) = self.lu.data.shape();
         self.lu.rows_generic(0, nrows.min(ncols)).upper_triangle()
     }
@@ -141,7 +147,8 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimu
         MatrixMN<N, DimMinimum<R, C>, C>,
         PermutationSequence<DimMinimum<R, C>>,
     )
-    where DefaultAllocator: Allocator<N, R, DimMinimum<R, C>> + Allocator<N, DimMinimum<R, C>, C>
+    where
+        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>> + Allocator<N, DimMinimum<R, C>, C>,
     {
         // Use reallocation for either l or u.
         let l = self.l();
@@ -154,7 +161,8 @@ where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimu
 }
 
 impl<N: ComplexField, D: DimMin<D, Output = D>> FullPivLU<N, D, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>,
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
@@ -259,7 +267,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>
 }
 
 impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>
+where
+    DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
 {
     /// Computes the LU decomposition with full pivoting of `matrix`.
     ///

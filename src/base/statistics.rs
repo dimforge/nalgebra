@@ -114,7 +114,9 @@ impl<N: Scalar + ClosedAdd + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N
     /// ```
     #[inline]
     pub fn row_sum(&self) -> RowVectorN<N, C>
-    where DefaultAllocator: Allocator<N, U1, C> {
+    where
+        DefaultAllocator: Allocator<N, U1, C>,
+    {
         self.compress_rows(|col| col.sum())
     }
 
@@ -135,7 +137,9 @@ impl<N: Scalar + ClosedAdd + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N
     /// ```
     #[inline]
     pub fn row_sum_tr(&self) -> VectorN<N, C>
-    where DefaultAllocator: Allocator<N, C> {
+    where
+        DefaultAllocator: Allocator<N, C>,
+    {
         self.compress_rows_tr(|col| col.sum())
     }
 
@@ -156,7 +160,9 @@ impl<N: Scalar + ClosedAdd + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N
     /// ```
     #[inline]
     pub fn column_sum(&self) -> VectorN<N, R>
-    where DefaultAllocator: Allocator<N, R> {
+    where
+        DefaultAllocator: Allocator<N, R>,
+    {
         let nrows = self.data.shape().0;
         self.compress_columns(VectorN::zeros_generic(nrows, U1), |out, col| {
             *out += col;
@@ -210,7 +216,9 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     /// ```
     #[inline]
     pub fn row_variance(&self) -> RowVectorN<N, C>
-    where DefaultAllocator: Allocator<N, U1, C> {
+    where
+        DefaultAllocator: Allocator<N, U1, C>,
+    {
         self.compress_rows(|col| col.variance())
     }
 
@@ -227,7 +235,9 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     /// ```
     #[inline]
     pub fn row_variance_tr(&self) -> VectorN<N, C>
-    where DefaultAllocator: Allocator<N, C> {
+    where
+        DefaultAllocator: Allocator<N, C>,
+    {
         self.compress_rows_tr(|col| col.variance())
     }
 
@@ -245,7 +255,9 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     /// ```
     #[inline]
     pub fn column_variance(&self) -> VectorN<N, R>
-    where DefaultAllocator: Allocator<N, R> {
+    where
+        DefaultAllocator: Allocator<N, R>,
+    {
         let (nrows, ncols) = self.data.shape();
 
         let mut mean = self.column_mean();
@@ -303,7 +315,9 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     /// ```
     #[inline]
     pub fn row_mean(&self) -> RowVectorN<N, C>
-    where DefaultAllocator: Allocator<N, U1, C> {
+    where
+        DefaultAllocator: Allocator<N, U1, C>,
+    {
         self.compress_rows(|col| col.mean())
     }
 
@@ -320,7 +334,9 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     /// ```
     #[inline]
     pub fn row_mean_tr(&self) -> VectorN<N, C>
-    where DefaultAllocator: Allocator<N, C> {
+    where
+        DefaultAllocator: Allocator<N, C>,
+    {
         self.compress_rows_tr(|col| col.mean())
     }
 
@@ -337,7 +353,9 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     /// ```
     #[inline]
     pub fn column_mean(&self) -> VectorN<N, R>
-    where DefaultAllocator: Allocator<N, R> {
+    where
+        DefaultAllocator: Allocator<N, R>,
+    {
         let (nrows, ncols) = self.data.shape();
         let denom = N::one() / crate::convert::<_, N>(ncols.value() as f64);
         self.compress_columns(VectorN::zeros_generic(nrows, U1), |out, col| {

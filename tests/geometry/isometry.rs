@@ -81,9 +81,8 @@ quickcheck!(
         r: Rotation2<f64>,
         t: Translation2<f64>,
         v: Vector2<f64>,
-        p: Point2<f64>
-    ) -> bool
-    {
+        p: Point2<f64>,
+    ) -> bool {
         // (rotation × translation) * point = rotation × (translation * point)
         relative_eq!((uc * t) * v, uc * v, epsilon = 1.0e-7)       &&
         relative_eq!((r  * t) * v, r  * v, epsilon = 1.0e-7)       &&
@@ -119,9 +118,8 @@ quickcheck!(
         r: Rotation3<f64>,
         t: Translation3<f64>,
         v: Vector3<f64>,
-        p: Point3<f64>
-    ) -> bool
-    {
+        p: Point3<f64>,
+    ) -> bool {
         // (rotation × translation) * point = rotation × (translation * point)
         relative_eq!((uq * t) * v, uq * v, epsilon = 1.0e-7)       &&
         relative_eq!((r  * t) * v, r  * v, epsilon = 1.0e-7)       &&
@@ -157,9 +155,8 @@ quickcheck!(
         t: Translation3<f64>,
         v: Vector3<f64>,
         p: Point3<f64>,
-        r: Rotation3<f64>
-    ) -> bool
-    {
+        r: Rotation3<f64>,
+    ) -> bool {
         let iMi = i * i;
         let iMuq = i * uq;
         let iDi = i / i;

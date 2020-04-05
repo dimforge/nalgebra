@@ -3,7 +3,7 @@ use std::cmp;
 use na::{DMatrix, Matrix4};
 use nl::Eigen;
 
-quickcheck!{
+quickcheck! {
     fn eigensystem(n: usize) -> bool {
         if n != 0 {
             let n = cmp::min(n, 25);

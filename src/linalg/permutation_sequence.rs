@@ -25,7 +25,8 @@ use crate::storage::StorageMut;
 )]
 #[derive(Clone, Debug)]
 pub struct PermutationSequence<D: Dim>
-where DefaultAllocator: Allocator<(usize, usize), D>
+where
+    DefaultAllocator: Allocator<(usize, usize), D>,
 {
     len: usize,
     ipiv: VectorN<(usize, usize), D>,
@@ -39,7 +40,8 @@ where
 }
 
 impl<D: DimName> PermutationSequence<D>
-where DefaultAllocator: Allocator<(usize, usize), D>
+where
+    DefaultAllocator: Allocator<(usize, usize), D>,
 {
     /// Creates a new statically-allocated sequence of `D` identity permutations.
     #[inline]
@@ -50,7 +52,8 @@ where DefaultAllocator: Allocator<(usize, usize), D>
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl PermutationSequence<Dynamic>
-where DefaultAllocator: Allocator<(usize, usize), Dynamic>
+where
+    DefaultAllocator: Allocator<(usize, usize), Dynamic>,
 {
     /// Creates a new dynamically-allocated sequence of `n` identity permutations.
     #[inline]
@@ -60,7 +63,8 @@ where DefaultAllocator: Allocator<(usize, usize), Dynamic>
 }
 
 impl<D: Dim> PermutationSequence<D>
-where DefaultAllocator: Allocator<(usize, usize), D>
+where
+    DefaultAllocator: Allocator<(usize, usize), D>,
 {
     /// Creates a new sequence of D identity permutations.
     #[inline]
@@ -90,7 +94,9 @@ where DefaultAllocator: Allocator<(usize, usize), D>
     /// Applies this sequence of permutations to the rows of `rhs`.
     #[inline]
     pub fn permute_rows<N: Scalar, R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
-    where S2: StorageMut<N, R2, C2> {
+    where
+        S2: StorageMut<N, R2, C2>,
+    {
         for i in self.ipiv.rows_range(..self.len).iter() {
             rhs.swap_rows(i.0, i.1)
         }
@@ -98,10 +104,8 @@ where DefaultAllocator: Allocator<(usize, usize), D>
 
     /// Applies this sequence of permutations in reverse to the rows of `rhs`.
     #[inline]
-    pub fn inv_permute_rows<N: Scalar, R2: Dim, C2: Dim, S2>(
-        &self,
-        rhs: &mut Matrix<N, R2, C2, S2>,
-    ) where
+    pub fn inv_permute_rows<N: Scalar, R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
+    where
         S2: StorageMut<N, R2, C2>,
     {
         for i in 0..self.len {
@@ -112,10 +116,8 @@ where DefaultAllocator: Allocator<(usize, usize), D>
 
     /// Applies this sequence of permutations to the columns of `rhs`.
     #[inline]
-    pub fn permute_columns<N: Scalar, R2: Dim, C2: Dim, S2>(
-        &self,
-        rhs: &mut Matrix<N, R2, C2, S2>,
-    ) where
+    pub fn permute_columns<N: Scalar, R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
+    where
         S2: StorageMut<N, R2, C2>,
     {
         for i in self.ipiv.rows_range(..self.len).iter() {

@@ -32,7 +32,8 @@ use lapack;
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Scalar, D: Dim>
-where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
 {
     /// The eigenvectors of the decomposed matrix.
     pub eigenvectors: MatrixN<N, D>,
@@ -50,7 +51,8 @@ where
 }
 
 impl<N: SymmetricEigenScalar + RealField, D: Dim> SymmetricEigen<N, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
     /// Computes the eigenvalues and eigenvectors of the symmetric matrix `m`.
     ///
@@ -79,8 +81,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     fn do_decompose(
         mut m: MatrixN<N, D>,
         eigenvectors: bool,
-    ) -> Option<(VectorN<N, D>, Option<MatrixN<N, D>>)>
-    {
+    ) -> Option<(VectorN<N, D>, Option<MatrixN<N, D>>)> {
         assert!(
             m.is_square(),
             "Unable to compute the eigenvalue decomposition of a non-square matrix."

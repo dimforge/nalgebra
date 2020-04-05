@@ -167,7 +167,8 @@ where
 }
 
 impl<N: Scalar, D: DimName> From<VectorN<N, D>> for Translation<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn from(vector: VectorN<N, D>) -> Self {

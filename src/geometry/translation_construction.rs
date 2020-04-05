@@ -16,7 +16,8 @@ use crate::base::{DefaultAllocator, Scalar, VectorN};
 use crate::geometry::Translation;
 
 impl<N: Scalar + Zero, D: DimName> Translation<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity translation.
     ///
@@ -39,7 +40,8 @@ where DefaultAllocator: Allocator<N, D>
 }
 
 impl<N: Scalar + Zero + ClosedAdd, D: DimName> One for Translation<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn one() -> Self {

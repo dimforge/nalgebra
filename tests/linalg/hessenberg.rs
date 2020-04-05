@@ -2,7 +2,6 @@
 
 use na::Matrix2;
 
-
 #[test]
 fn hessenberg_simple() {
     let m = Matrix2::new(1.0, 0.0, 1.0, 3.0);
@@ -10,7 +9,6 @@ fn hessenberg_simple() {
     let (p, h) = hess.unpack();
     assert!(relative_eq!(m, p * h * p.transpose(), epsilon = 1.0e-7))
 }
-
 
 macro_rules! gen_tests(
     ($module: ident, $scalar: ty) => {

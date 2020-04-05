@@ -13,7 +13,8 @@ use simba::scalar::ClosedDiv;
 use crate::geometry::Point;
 
 impl<N: Scalar, D: DimName> Point<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new point with uninitialized coordinates.
     #[inline]
@@ -38,7 +39,9 @@ where DefaultAllocator: Allocator<N, D>
     /// ```
     #[inline]
     pub fn origin() -> Self
-    where N: Zero {
+    where
+        N: Zero,
+    {
         Self::from(VectorN::from_element(N::zero()))
     }
 
@@ -113,7 +116,8 @@ where DefaultAllocator: Allocator<N, D>
  *
  */
 impl<N: Scalar + Bounded, D: DimName> Bounded for Point<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn max_value() -> Self {

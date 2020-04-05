@@ -158,7 +158,8 @@ super_tcategory_impl!(
 #[repr(C)]
 #[derive(Debug)]
 pub struct Transform<N: RealField, D: DimNameAdd<U1>, C: TCategory>
-where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
 {
     matrix: MatrixN<N, DimNameSum<D, U1>>,
     _phantom: PhantomData<C>,
@@ -181,7 +182,8 @@ where
 }
 
 impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> Clone for Transform<N, D, C>
-where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -196,7 +198,9 @@ where
     Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where S: Serializer {
+    where
+        S: Serializer,
+    {
         self.matrix.serialize(serializer)
     }
 }
@@ -208,18 +212,23 @@ where
     Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-    where Des: Deserializer<'a> {
+    where
+        Des: Deserializer<'a>,
+    {
         let matrix = MatrixN::<N, DimNameSum<D, U1>>::deserialize(deserializer)?;
 
         Ok(Transform::from_matrix_unchecked(matrix))
     }
 }
 
-impl<N: RealField + Eq, D: DimNameAdd<U1>, C: TCategory> Eq for Transform<N, D, C> where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
-{}
+impl<N: RealField + Eq, D: DimNameAdd<U1>, C: TCategory> Eq for Transform<N, D, C> where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+{
+}
 
 impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> PartialEq for Transform<N, D, C>
-where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
 {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
@@ -228,7 +237,8 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 }
 
 impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
-where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
 {
     /// Creates a new transformation from the given homogeneous matrix. The transformation category
     /// of `Self` is not checked to be verified by the given matrix.
@@ -398,7 +408,9 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
     #[inline]
     #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(self) -> Transform<N, D, C>
-    where C: SubTCategoryOf<TProjective> {
+    where
+        C: SubTCategoryOf<TProjective>,
+    {
         // FIXME: specialize for TAffine?
         Transform::from_matrix_unchecked(self.matrix.try_inverse().unwrap())
     }
@@ -451,7 +463,9 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
     /// ```
     #[inline]
     pub fn inverse_mut(&mut self)
-    where C: SubTCategoryOf<TProjective> {
+    where
+        C: SubTCategoryOf<TProjective>,
+    {
         let _ = self.matrix.try_inverse_mut();
     }
 }
@@ -509,7 +523,8 @@ where
 }
 
 impl<N: RealField, D: DimNameAdd<U1>> Transform<N, D, TGeneral>
-where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
 {
     /// A mutable reference to underlying matrix. Use `.matrix_mut_unchecked` instead if this
     /// transformation category is not `TGeneral`.
@@ -553,8 +568,7 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.matrix
             .relative_eq(&other.matrix, epsilon, max_relative)
     }

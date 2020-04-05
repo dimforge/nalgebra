@@ -71,7 +71,8 @@ pub trait Alloc<N: Scalar, R: Dimension, C: Dimension = U1>:
 {
 }
 
-impl<N: Scalar, R: Dimension, C: Dimension, T> Alloc<N, R, C> for T where T: Allocator<N, R>
+impl<N: Scalar, R: Dimension, C: Dimension, T> Alloc<N, R, C> for T where
+    T: Allocator<N, R>
         + Allocator<N, C>
         + Allocator<N, U1, R>
         + Allocator<N, U1, C>

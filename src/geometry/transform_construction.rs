@@ -9,7 +9,8 @@ use crate::base::{DefaultAllocator, MatrixN};
 use crate::geometry::{TCategory, Transform};
 
 impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
-where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
 {
     /// Creates a new identity transform.
     ///
@@ -46,7 +47,8 @@ where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
 }
 
 impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> One for Transform<N, D, C>
-where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+where
+    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
 {
     /// Creates a new identity transform.
     #[inline]

@@ -9,7 +9,11 @@ use crate::aliases::{TMat4, TVec2, TVec3, TVec4};
 /// * `center` - Specify the center of a picking region in window coordinates.
 /// * `delta` - Specify the width and height, respectively, of the picking region in window coordinates.
 /// * `viewport` - Rendering viewport.
-pub fn pick_matrix<N: RealField>(center: &TVec2<N>, delta: &TVec2<N>, viewport: &TVec4<N>) -> TMat4<N> {
+pub fn pick_matrix<N: RealField>(
+    center: &TVec2<N>,
+    delta: &TVec2<N>,
+    viewport: &TVec4<N>,
+) -> TMat4<N> {
     let shift = TVec3::new(
         (viewport.z - (center.x - viewport.x) * na::convert(2.0)) / delta.x,
         (viewport.w - (center.y - viewport.y) * na::convert(2.0)) / delta.y,
@@ -46,8 +50,7 @@ pub fn project<N: RealField>(
     model: &TMat4<N>,
     proj: &TMat4<N>,
     viewport: TVec4<N>,
-) -> TVec3<N>
-{
+) -> TVec3<N> {
     project_no(obj, model, proj, viewport)
 }
 
@@ -74,8 +77,7 @@ pub fn project_no<N: RealField>(
     model: &TMat4<N>,
     proj: &TMat4<N>,
     viewport: TVec4<N>,
-) -> TVec3<N>
-{
+) -> TVec3<N> {
     let proj = project_zo(obj, model, proj, viewport);
     TVec3::new(proj.x, proj.y, proj.z * na::convert(0.5) + na::convert(0.5))
 }
@@ -103,8 +105,7 @@ pub fn project_zo<N: RealField>(
     model: &TMat4<N>,
     proj: &TMat4<N>,
     viewport: TVec4<N>,
-) -> TVec3<N>
-{
+) -> TVec3<N> {
     let normalized = proj * model * TVec4::new(obj.x, obj.y, obj.z, N::one());
     let scale = N::one() / normalized.w;
 
@@ -137,8 +138,7 @@ pub fn unproject<N: RealField>(
     model: &TMat4<N>,
     proj: &TMat4<N>,
     viewport: TVec4<N>,
-) -> TVec3<N>
-{
+) -> TVec3<N> {
     unproject_no(win, model, proj, viewport)
 }
 
@@ -165,8 +165,7 @@ pub fn unproject_no<N: RealField>(
     model: &TMat4<N>,
     proj: &TMat4<N>,
     viewport: TVec4<N>,
-) -> TVec3<N>
-{
+) -> TVec3<N> {
     let _2: N = na::convert(2.0);
     let transform = (proj * model).try_inverse().unwrap_or_else(TMat4::zeros);
     let pt = TVec4::new(
@@ -203,8 +202,7 @@ pub fn unproject_zo<N: RealField>(
     model: &TMat4<N>,
     proj: &TMat4<N>,
     viewport: TVec4<N>,
-) -> TVec3<N>
-{
+) -> TVec3<N> {
     let _2: N = na::convert(2.0);
     let transform = (proj * model).try_inverse().unwrap_or_else(TMat4::zeros);
     let pt = TVec4::new(

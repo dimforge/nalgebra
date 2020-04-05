@@ -32,7 +32,8 @@ use crate::linalg::Hessenberg;
 )]
 #[derive(Clone, Debug)]
 pub struct Schur<N: ComplexField, D: Dim>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     q: MatrixN<N, D>,
     t: MatrixN<N, D>,
@@ -84,8 +85,7 @@ where
         eps: N::RealField,
         max_niter: usize,
         compute_q: bool,
-    ) -> Option<(Option<MatrixN<N, D>>, MatrixN<N, D>)>
-    {
+    ) -> Option<(Option<MatrixN<N, D>>, MatrixN<N, D>)> {
         assert!(
             m.is_square(),
             "Unable to compute the eigenvectors and eigenvalues of a non-square matrix."

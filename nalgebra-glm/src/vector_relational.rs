@@ -21,7 +21,9 @@ use crate::traits::{Alloc, Dimension, Number};
 /// * [`any`](fn.any.html)
 /// * [`not`](fn.not.html)
 pub fn all<D: Dimension>(v: &TVec<bool, D>) -> bool
-where DefaultAllocator: Alloc<bool, D> {
+where
+    DefaultAllocator: Alloc<bool, D>,
+{
     v.iter().all(|x| *x)
 }
 
@@ -46,7 +48,9 @@ where DefaultAllocator: Alloc<bool, D> {
 /// * [`all`](fn.all.html)
 /// * [`not`](fn.not.html)
 pub fn any<D: Dimension>(v: &TVec<bool, D>) -> bool
-where DefaultAllocator: Alloc<bool, D> {
+where
+    DefaultAllocator: Alloc<bool, D>,
+{
     v.iter().any(|x| *x)
 }
 
@@ -70,7 +74,9 @@ where DefaultAllocator: Alloc<bool, D> {
 /// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
 pub fn equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.zip_map(y, |x, y| x == y)
 }
 
@@ -94,7 +100,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
 pub fn greater_than<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.zip_map(y, |x, y| x > y)
 }
 
@@ -117,10 +125,7 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`less_than_equal`](fn.less_than_equal.html)
 /// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
-pub fn greater_than_equal<N: Number, D: Dimension>(
-    x: &TVec<N, D>,
-    y: &TVec<N, D>,
-) -> TVec<bool, D>
+pub fn greater_than_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
 where
     DefaultAllocator: Alloc<N, D>,
 {
@@ -147,7 +152,9 @@ where
 /// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
 pub fn less_than<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.zip_map(y, |x, y| x < y)
 }
 
@@ -171,7 +178,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`not`](fn.not.html)
 /// * [`not_equal`](fn.not_equal.html)
 pub fn less_than_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.zip_map(y, |x, y| x <= y)
 }
 
@@ -196,7 +205,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`less_than_equal`](fn.less_than_equal.html)
 /// * [`not_equal`](fn.not_equal.html)
 pub fn not<D: Dimension>(v: &TVec<bool, D>) -> TVec<bool, D>
-where DefaultAllocator: Alloc<bool, D> {
+where
+    DefaultAllocator: Alloc<bool, D>,
+{
     v.map(|x| !x)
 }
 
@@ -220,6 +231,8 @@ where DefaultAllocator: Alloc<bool, D> {
 /// * [`less_than_equal`](fn.less_than_equal.html)
 /// * [`not`](fn.not.html)
 pub fn not_equal<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<bool, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.zip_map(y, |x, y| x != y)
 }

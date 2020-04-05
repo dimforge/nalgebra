@@ -838,7 +838,9 @@ impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C,
     #[inline]
     #[must_use = "Did you mean to use add_scalar_mut()?"]
     pub fn add_scalar(&self, rhs: N) -> MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
         let mut res = self.clone_owned();
         res.add_scalar_mut(rhs);
         res
@@ -847,7 +849,9 @@ impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C,
     /// Adds a scalar to `self` in-place.
     #[inline]
     pub fn add_scalar_mut(&mut self, rhs: N)
-    where S: StorageMut<N, R, C> {
+    where
+        S: StorageMut<N, R, C>,
+    {
         for e in self.iter_mut() {
             *e += rhs.inlined_clone()
         }
@@ -884,7 +888,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// ```
     #[inline]
     pub fn amax(&self) -> N
-    where N: Zero + SimdSigned + SimdPartialOrd {
+    where
+        N: Zero + SimdSigned + SimdPartialOrd,
+    {
         self.fold_with(
             |e| e.unwrap_or(&N::zero()).simd_abs(),
             |a, b| a.simd_max(b.simd_abs()),
@@ -902,7 +908,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// ```
     #[inline]
     pub fn camax(&self) -> N::SimdRealField
-    where N: SimdComplexField {
+    where
+        N: SimdComplexField,
+    {
         self.fold_with(
             |e| e.unwrap_or(&N::zero()).simd_norm1(),
             |a, b| a.simd_max(b.simd_norm1()),
@@ -919,7 +927,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// ```
     #[inline]
     pub fn max(&self) -> N
-    where N: SimdPartialOrd + Zero {
+    where
+        N: SimdPartialOrd + Zero,
+    {
         self.fold_with(
             |e| e.map(|e| e.inlined_clone()).unwrap_or(N::zero()),
             |a, b| a.simd_max(b.inlined_clone()),
@@ -935,7 +945,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// ```
     #[inline]
     pub fn amin(&self) -> N
-    where N: Zero + SimdPartialOrd + SimdSigned {
+    where
+        N: Zero + SimdPartialOrd + SimdSigned,
+    {
         self.fold_with(
             |e| e.map(|e| e.simd_abs()).unwrap_or(N::zero()),
             |a, b| a.simd_min(b.simd_abs()),
@@ -953,7 +965,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// ```
     #[inline]
     pub fn camin(&self) -> N::SimdRealField
-    where N: SimdComplexField {
+    where
+        N: SimdComplexField,
+    {
         self.fold_with(
             |e| {
                 e.map(|e| e.simd_norm1())
@@ -973,7 +987,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// ```
     #[inline]
     pub fn min(&self) -> N
-    where N: SimdPartialOrd + Zero {
+    where
+        N: SimdPartialOrd + Zero,
+    {
         self.fold_with(
             |e| e.map(|e| e.inlined_clone()).unwrap_or(N::zero()),
             |a, b| a.simd_min(b.inlined_clone()),

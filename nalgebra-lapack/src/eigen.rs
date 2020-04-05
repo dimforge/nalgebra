@@ -34,7 +34,8 @@ use lapack;
 )]
 #[derive(Clone, Debug)]
 pub struct Eigen<N: Scalar, D: Dim>
-where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
 {
     /// The eigenvalues of the decomposed matrix.
     pub eigenvalues: VectorN<N, D>,
@@ -53,7 +54,8 @@ where
 }
 
 impl<N: EigenScalar + RealField, D: Dim> Eigen<N, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
     /// Computes the eigenvalues and eigenvectors of the square matrix `m`.
     ///
@@ -62,8 +64,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
         mut m: MatrixN<N, D>,
         left_eigenvectors: bool,
         eigenvectors: bool,
-    ) -> Option<Eigen<N, D>>
-    {
+    ) -> Option<Eigen<N, D>> {
         assert!(
             m.is_square(),
             "Unable to compute the eigenvalue decomposition of a non-square matrix."
@@ -229,7 +230,9 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     ///
     /// Panics if the eigenvalue computation does not converge.
     pub fn complex_eigenvalues(mut m: MatrixN<N, D>) -> VectorN<Complex<N>, D>
-    where DefaultAllocator: Allocator<Complex<N>, D> {
+    where
+        DefaultAllocator: Allocator<Complex<N>, D>,
+    {
         assert!(
             m.is_square(),
             "Unable to compute the eigenvalue decomposition of a non-square matrix."

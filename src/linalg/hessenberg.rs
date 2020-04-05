@@ -27,7 +27,8 @@ use crate::linalg::householder;
 )]
 #[derive(Clone, Debug)]
 pub struct Hessenberg<N: ComplexField, D: DimSub<U1>>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
 {
     hess: MatrixN<N, D>,
     subdiag: VectorN<N, DimDiff<D, U1>>,
@@ -42,7 +43,8 @@ where
 }
 
 impl<N: ComplexField, D: DimSub<U1>> Hessenberg<N, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>,
 {
     /// Computes the Hessenberg decomposition using householder reflections.
     pub fn new(hess: MatrixN<N, D>) -> Self {
@@ -131,7 +133,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimD
 }
 
 impl<N: ComplexField, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>,
 {
     /// Computes the Hessenberg decomposition of this matrix using householder reflections.
     pub fn hessenberg(self) -> Hessenberg<N, D> {

@@ -34,7 +34,8 @@ use lapack;
 )]
 #[derive(Clone, Debug)]
 pub struct Schur<N: Scalar, D: Dim>
-where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
 {
     re: VectorN<N, D>,
     im: VectorN<N, D>,
@@ -51,7 +52,8 @@ where
 }
 
 impl<N: SchurScalar + RealField, D: Dim> Schur<N, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
     /// Computes the eigenvalues and real Schur form of the matrix `m`.
     ///
@@ -146,7 +148,9 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
 
     /// Computes the complex eigenvalues of the decomposed matrix.
     pub fn complex_eigenvalues(&self) -> VectorN<Complex<N>, D>
-    where DefaultAllocator: Allocator<Complex<N>, D> {
+    where
+        DefaultAllocator: Allocator<Complex<N>, D>,
+    {
         let mut out = unsafe { VectorN::new_uninitialized_generic(self.t.data.shape().0, U1) };
 
         for i in 0..out.len() {

@@ -55,7 +55,9 @@ impl<N: SimdRealField> Rotation2<N> {
     /// convergence parameters and starting solution.
     /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
     pub fn from_matrix(m: &Matrix2<N>) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         Self::from_matrix_eps(m, N::default_epsilon(), 0, Self::identity())
     }
 
@@ -72,7 +74,9 @@ impl<N: SimdRealField> Rotation2<N> {
     ///           to the actual solution is provided. Can be set to `Rotation2::identity()` if no other
     ///           guesses come to mind.
     pub fn from_matrix_eps(m: &Matrix2<N>, eps: N, mut max_iter: usize, guess: Self) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         if max_iter == 0 {
             max_iter = usize::max_value();
         }
@@ -199,7 +203,9 @@ impl<N: SimdRealField> Rotation2<N> {
     /// computations might cause the matrix from progressively not being orthonormal anymore.
     #[inline]
     pub fn renormalize(&mut self)
-    where N: RealField {
+    where
+        N: RealField,
+    {
         let mut c = UnitComplex::from(*self);
         let _ = c.renormalize();
 
@@ -262,7 +268,8 @@ where
  *
  */
 impl<N: SimdRealField> Rotation3<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     /// Builds a 3 dimensional rotation matrix from an axis and an angle.
     ///
@@ -299,7 +306,9 @@ where N::Element: SimdRealField
     /// convergence parameters and starting solution.
     /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
     pub fn from_matrix(m: &Matrix3<N>) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         Self::from_matrix_eps(m, N::default_epsilon(), 0, Self::identity())
     }
 
@@ -316,7 +325,9 @@ where N::Element: SimdRealField
     ///           to the actual solution is provided. Can be set to `Rotation3::identity()` if no other
     ///           guesses come to mind.
     pub fn from_matrix_eps(m: &Matrix3<N>, eps: N, mut max_iter: usize, guess: Self) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         if max_iter == 0 {
             max_iter = usize::max_value();
         }
@@ -391,7 +402,9 @@ where N::Element: SimdRealField
     /// assert_eq!(Rotation3::from_scaled_axis(Vector3::<f32>::zeros()), Rotation3::identity());
     /// ```
     pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         angle.simd_ne(N::zero()).if_else(
             || {
                 let ux = axis.as_ref()[0];
@@ -456,7 +469,9 @@ where N::Element: SimdRealField
     /// The angles are produced in the form (roll, pitch, yaw).
     #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
     pub fn to_euler_angles(&self) -> (N, N, N)
-    where N: RealField {
+    where
+        N: RealField,
+    {
         self.euler_angles()
     }
 
@@ -475,7 +490,9 @@ where N::Element: SimdRealField
     /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
     /// ```
     pub fn euler_angles(&self) -> (N, N, N)
-    where N: RealField {
+    where
+        N: RealField,
+    {
         // Implementation informed by "Computing Euler angles from a rotation matrix", by Gregory G. Slabaugh
         //  https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.371.6578
         if self[(2, 0)].abs() < N::one() {
@@ -498,7 +515,9 @@ where N::Element: SimdRealField
     /// computations might cause the matrix from progressively not being orthonormal anymore.
     #[inline]
     pub fn renormalize(&mut self)
-    where N: RealField {
+    where
+        N: RealField,
+    {
         let mut c = UnitQuaternion::from(*self);
         let _ = c.renormalize();
 
@@ -717,7 +736,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn axis(&self) -> Option<Unit<Vector3<N>>>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         let axis = VectorN::<N, U3>::new(
             self.matrix()[(2, 1)] - self.matrix()[(1, 2)],
             self.matrix()[(0, 2)] - self.matrix()[(2, 0)],
@@ -739,7 +760,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn scaled_axis(&self) -> Vector3<N>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         if let Some(axis) = self.axis() {
             axis.into_inner() * self.angle()
         } else {
@@ -768,7 +791,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn axis_angle(&self) -> Option<(Unit<Vector3<N>>, N)>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         if let Some(axis) = self.axis() {
             Some((axis, self.angle()))
         } else {
@@ -825,7 +850,9 @@ where N::Element: SimdRealField
     /// ```
     #[inline]
     pub fn powf(&self, n: N) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         if let Some(axis) = self.axis() {
             Self::from_axis_angle(&axis, self.angle() * n)
         } else if self.matrix()[(0, 0)] < N::zero() {

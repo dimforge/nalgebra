@@ -27,7 +27,8 @@ use crate::linalg::householder;
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricTridiagonal<N: ComplexField, D: DimSub<U1>>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
 {
     tri: MatrixN<N, D>,
     off_diagonal: VectorN<N, DimDiff<D, U1>>,
@@ -42,7 +43,8 @@ where
 }
 
 impl<N: ComplexField, D: DimSub<U1>> SymmetricTridiagonal<N, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
 {
     /// Computes the tridiagonalization of the symmetric matrix `m`.
     ///
@@ -102,7 +104,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
         VectorN<N::RealField, D>,
         VectorN<N::RealField, DimDiff<D, U1>>,
     )
-    where DefaultAllocator: Allocator<N::RealField, D> + Allocator<N::RealField, DimDiff<D, U1>>
+    where
+        DefaultAllocator: Allocator<N::RealField, D> + Allocator<N::RealField, DimDiff<D, U1>>,
     {
         let diag = self.diagonal();
         let q = self.q();
@@ -117,20 +120,25 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
         VectorN<N::RealField, D>,
         VectorN<N::RealField, DimDiff<D, U1>>,
     )
-    where DefaultAllocator: Allocator<N::RealField, D> + Allocator<N::RealField, DimDiff<D, U1>>
+    where
+        DefaultAllocator: Allocator<N::RealField, D> + Allocator<N::RealField, DimDiff<D, U1>>,
     {
         (self.diagonal(), self.off_diagonal.map(N::modulus))
     }
 
     /// The diagonal components of this decomposition.
     pub fn diagonal(&self) -> VectorN<N::RealField, D>
-    where DefaultAllocator: Allocator<N::RealField, D> {
+    where
+        DefaultAllocator: Allocator<N::RealField, D>,
+    {
         self.tri.map_diagonal(|e| e.real())
     }
 
     /// The off-diagonal components of this decomposition.
     pub fn off_diagonal(&self) -> VectorN<N::RealField, DimDiff<D, U1>>
-    where DefaultAllocator: Allocator<N::RealField, DimDiff<D, U1>> {
+    where
+        DefaultAllocator: Allocator<N::RealField, DimDiff<D, U1>>,
+    {
         self.off_diagonal.map(N::modulus)
     }
 
@@ -156,7 +164,8 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
 }
 
 impl<N: ComplexField, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
 {
     /// Computes the tridiagonalization of this symmetric matrix.
     ///

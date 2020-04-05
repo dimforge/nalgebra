@@ -14,7 +14,8 @@ use simba::scalar::RealField;
 use simba::simd::SimdRealField;
 
 impl<N: SimdRealField> UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     /// The unit complex number multiplicative identity.
     ///
@@ -138,7 +139,9 @@ where N::Element: SimdRealField
     /// convergence parameters and starting solution.
     /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
     pub fn from_matrix(m: &Matrix2<N>) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         Rotation2::from_matrix(m).into()
     }
 
@@ -155,7 +158,9 @@ where N::Element: SimdRealField
     ///           to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
     ///           guesses come to mind.
     pub fn from_matrix_eps(m: &Matrix2<N>, eps: N, max_iter: usize, guess: Self) -> Self
-    where N: RealField {
+    where
+        N: RealField,
+    {
         let guess = Rotation2::from(guess);
         Rotation2::from_matrix_eps(m, eps, max_iter, guess).into()
     }
@@ -276,7 +281,8 @@ where N::Element: SimdRealField
 }
 
 impl<N: SimdRealField> One for UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn one() -> Self {
@@ -298,7 +304,8 @@ where
 
 #[cfg(feature = "arbitrary")]
 impl<N: SimdRealField + Arbitrary> Arbitrary for UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     #[inline]
     fn arbitrary<G: Gen>(g: &mut G) -> Self {

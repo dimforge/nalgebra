@@ -41,7 +41,8 @@ impl<N: SimdRealField> Normed for Complex<N> {
 }
 
 impl<N: SimdRealField> UnitComplex<N>
-where N::Element: SimdRealField
+where
+    N::Element: SimdRealField,
 {
     /// The rotation angle in `]-pi; pi]` of this unit complex number.
     ///
@@ -100,7 +101,9 @@ where N::Element: SimdRealField
     /// Returns `None` if the angle is zero.
     #[inline]
     pub fn axis_angle(&self) -> Option<(Unit<Vector1<N>>, N)>
-    where N: RealField {
+    where
+        N: RealField,
+    {
         let ang = self.angle();
 
         if ang.is_zero() {
@@ -391,8 +394,7 @@ impl<N: RealField> RelativeEq for UnitComplex<N> {
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.re.relative_eq(&other.re, epsilon, max_relative)
             && self.im.relative_eq(&other.im, epsilon, max_relative)
     }

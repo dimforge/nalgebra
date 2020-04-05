@@ -109,7 +109,9 @@ pub fn clear_row_unchecked<N: ComplexField, R: Dim, C: Dim>(
 /// matrices.
 #[doc(hidden)]
 pub fn assemble_q<N: ComplexField, D: Dim>(m: &MatrixN<N, D>, signs: &[N]) -> MatrixN<N, D>
-where DefaultAllocator: Allocator<N, D, D> {
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     assert!(m.is_square());
     let dim = m.data.shape().0;
 

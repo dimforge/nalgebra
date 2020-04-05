@@ -72,9 +72,8 @@ quickcheck!(
         uc: UnitComplex<f64>,
         v: Vector2<f64>,
         p: Point2<f64>,
-        r: Rotation2<f64>
-    ) -> bool
-    {
+        r: Rotation2<f64>,
+    ) -> bool {
         let uv = Unit::new_normalize(v);
 
         let ucMuc = uc * uc;
