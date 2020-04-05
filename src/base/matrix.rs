@@ -279,6 +279,16 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
     /// Computes the row and column coordinates of the i-th element of this matrix seen as a
     /// vector.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    /// let i = m.vector_to_matrix_index(3);
+    /// assert_eq!(i, (1, 1));
+    /// assert_eq!(m[i], m[3]);
+    /// ```
     #[inline]
     pub fn vector_to_matrix_index(&self, i: usize) -> (usize, usize) {
         let (nrows, ncols) = self.shape();
@@ -298,6 +308,15 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///
     /// If the matrix is not empty, this pointer is guaranteed to be aligned
     /// and non-null.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    /// let ptr = m.as_ptr();
+    /// assert_eq!(unsafe { *ptr }, m[0]);
+    /// ```
     #[inline]
     pub fn as_ptr(&self) -> *const N {
         self.data.ptr()
