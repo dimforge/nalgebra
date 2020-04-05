@@ -38,7 +38,7 @@ jobs:
           command: cargo build -p nalgebra-glm --all-features
       - run:
           name: build nalgebra-lapack
-          command: cargo build -p nalgebra-lapack --features netlib
+          command: cd nalgebra-lapack; cargo build --features netlib
   test-native:
     executor: rust-executor
     steps:
@@ -51,7 +51,7 @@ jobs:
           command: cargo test -p nalgebra-glm --all-features
       - run:
           name: test nalgebra-lapack
-          command: cargo test -p nalgebra-lapack --features netlib
+          command: cd nalgebra-lapack; cargo test --features netlib
   build-wasm:
     executor: rust-executor
     steps:
@@ -71,13 +71,13 @@ jobs:
       - checkout
       - run:
           name: install xargo
-          command: rustup component add rust-src; cargo install -f xargo;
+          command: cp .circleci/Xargo.toml .; rustup component add rust-src; cargo install -f xargo;
       - run:
           name: build
           command: xargo build --verbose --no-default-features --target=x86_64-unknown-linux-gnu;
       - run:
           name: build --features alloc
-          command: cp .circleci/Xargo.toml .; xargo build --verbose --no-default-features --features alloc --target=x86_64-unknown-linux-gnu;
+          command: xargo build --verbose --no-default-features --features alloc --target=x86_64-unknown-linux-gnu;
   build-nightly:
     executor: rust-nightly-executor
     steps:
