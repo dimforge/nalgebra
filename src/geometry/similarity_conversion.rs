@@ -1,11 +1,15 @@
-use alga::general::{RealField, SubsetOf, SupersetOf};
-use alga::linear::Rotation;
+use num::Zero;
+
+use simba::scalar::{RealField, SubsetOf, SupersetOf};
+use simba::simd::{PrimitiveSimdValue, SimdRealField, SimdValue};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
-use crate::base::{DefaultAllocator, MatrixN};
+use crate::base::{DefaultAllocator, MatrixN, Scalar};
 
-use crate::geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
+use crate::geometry::{
+    AbstractRotation, Isometry, Similarity, SuperTCategoryOf, TAffine, Transform, Translation,
+};
 
 /*
  * This file provides the following conversions:
@@ -20,8 +24,8 @@ impl<N1, N2, D: DimName, R1, R2> SubsetOf<Similarity<N2, D, R2>> for Similarity<
 where
     N1: RealField + SubsetOf<N2>,
     N2: RealField + SupersetOf<N1>,
-    R1: Rotation<Point<N1, D>> + SubsetOf<R2>,
-    R2: Rotation<Point<N2, D>>,
+    R1: AbstractRotation<N1, D> + SubsetOf<R2>,
+    R2: AbstractRotation<N2, D>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
@@ -36,7 +40,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(sim: &Similarity<N2, D, R2>) -> Self {
+    fn from_superset_unchecked(sim: &Similarity<N2, D, R2>) -> Self {
         Similarity::from_isometry(
             sim.isometry.to_subset_unchecked(),
             sim.scaling().to_subset_unchecked(),
@@ -49,7 +53,7 @@ where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
-    R: Rotation<Point<N1, D>>
+    R: AbstractRotation<N1, D>
         + SubsetOf<MatrixN<N1, DimNameSum<D, U1>>>
         + SubsetOf<MatrixN<N2, DimNameSum<D, U1>>>,
     D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .determinant()
@@ -73,7 +77,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
+    fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
@@ -82,7 +86,7 @@ impl<N1, N2, D, R> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Similarity<N1, D
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: Rotation<Point<N1, D>>
+    R: AbstractRotation<N1, D>
         + SubsetOf<MatrixN<N1, DimNameSum<D, U1>>>
         + SubsetOf<MatrixN<N2, DimNameSum<D, U1>>>,
     D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .determinant()
@@ -137,7 +141,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
+    fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let mut mm = m.clone_owned();
         let na = mm.fixed_slice_mut::<D, U1>(0, 0).normalize_mut();
         let nb = mm.fixed_slice_mut::<D, U1>(0, 1).normalize_mut();
@@ -159,11 +163,15 @@ where
             vector: crate::convert_unchecked(t),
         };
 
-        Self::from_parts(t, crate::convert_unchecked(mm), crate::convert_unchecked(scale))
+        Self::from_parts(
+            t,
+            crate::convert_unchecked(mm),
+            crate::convert_unchecked(scale),
+        )
     }
 }
 
-impl<N: RealField, D: DimName, R> From<Similarity<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
+impl<N: SimdRealField, D: DimName, R> From<Similarity<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
 where
     D: DimNameAdd<U1>,
     R: SubsetOf<MatrixN<N, DimNameSum<D, U1>>>,
@@ -172,5 +180,143 @@ where
     #[inline]
     fn from(sim: Similarity<N, D, R>) -> Self {
         sim.to_homogeneous()
+    }
+}
+
+impl<N: Scalar + Zero + PrimitiveSimdValue, D: DimName, R>
+    From<[Similarity<N::Element, D, R::Element>; 2]> for Similarity<N, D, R>
+where
+    N: From<[<N as SimdValue>::Element; 2]>,
+    R: SimdValue + AbstractRotation<N, D> + From<[<R as SimdValue>::Element; 2]>,
+    R::Element: AbstractRotation<N::Element, D>,
+    N::Element: Scalar + Zero + Copy,
+    R::Element: Scalar + Zero + Copy,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+{
+    #[inline]
+    fn from(arr: [Similarity<N::Element, D, R::Element>; 2]) -> Self {
+        let iso = Isometry::from([arr[0].isometry.clone(), arr[1].isometry.clone()]);
+        let scale = N::from([arr[0].scaling(), arr[1].scaling()]);
+
+        Self::from_isometry(iso, scale)
+    }
+}
+
+impl<N: Scalar + Zero + PrimitiveSimdValue, D: DimName, R>
+    From<[Similarity<N::Element, D, R::Element>; 4]> for Similarity<N, D, R>
+where
+    N: From<[<N as SimdValue>::Element; 4]>,
+    R: SimdValue + AbstractRotation<N, D> + From<[<R as SimdValue>::Element; 4]>,
+    R::Element: AbstractRotation<N::Element, D>,
+    N::Element: Scalar + Zero + Copy,
+    R::Element: Scalar + Zero + Copy,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+{
+    #[inline]
+    fn from(arr: [Similarity<N::Element, D, R::Element>; 4]) -> Self {
+        let iso = Isometry::from([
+            arr[0].isometry.clone(),
+            arr[1].isometry.clone(),
+            arr[2].isometry.clone(),
+            arr[3].isometry.clone(),
+        ]);
+        let scale = N::from([
+            arr[0].scaling(),
+            arr[1].scaling(),
+            arr[2].scaling(),
+            arr[3].scaling(),
+        ]);
+
+        Self::from_isometry(iso, scale)
+    }
+}
+
+impl<N: Scalar + Zero + PrimitiveSimdValue, D: DimName, R>
+    From<[Similarity<N::Element, D, R::Element>; 8]> for Similarity<N, D, R>
+where
+    N: From<[<N as SimdValue>::Element; 8]>,
+    R: SimdValue + AbstractRotation<N, D> + From<[<R as SimdValue>::Element; 8]>,
+    R::Element: AbstractRotation<N::Element, D>,
+    N::Element: Scalar + Zero + Copy,
+    R::Element: Scalar + Zero + Copy,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+{
+    #[inline]
+    fn from(arr: [Similarity<N::Element, D, R::Element>; 8]) -> Self {
+        let iso = Isometry::from([
+            arr[0].isometry.clone(),
+            arr[1].isometry.clone(),
+            arr[2].isometry.clone(),
+            arr[3].isometry.clone(),
+            arr[4].isometry.clone(),
+            arr[5].isometry.clone(),
+            arr[6].isometry.clone(),
+            arr[7].isometry.clone(),
+        ]);
+        let scale = N::from([
+            arr[0].scaling(),
+            arr[1].scaling(),
+            arr[2].scaling(),
+            arr[3].scaling(),
+            arr[4].scaling(),
+            arr[5].scaling(),
+            arr[6].scaling(),
+            arr[7].scaling(),
+        ]);
+
+        Self::from_isometry(iso, scale)
+    }
+}
+
+impl<N: Scalar + Zero + PrimitiveSimdValue, D: DimName, R>
+    From<[Similarity<N::Element, D, R::Element>; 16]> for Similarity<N, D, R>
+where
+    N: From<[<N as SimdValue>::Element; 16]>,
+    R: SimdValue + AbstractRotation<N, D> + From<[<R as SimdValue>::Element; 16]>,
+    R::Element: AbstractRotation<N::Element, D>,
+    N::Element: Scalar + Zero + Copy,
+    R::Element: Scalar + Zero + Copy,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+{
+    #[inline]
+    fn from(arr: [Similarity<N::Element, D, R::Element>; 16]) -> Self {
+        let iso = Isometry::from([
+            arr[0].isometry.clone(),
+            arr[1].isometry.clone(),
+            arr[2].isometry.clone(),
+            arr[3].isometry.clone(),
+            arr[4].isometry.clone(),
+            arr[5].isometry.clone(),
+            arr[6].isometry.clone(),
+            arr[7].isometry.clone(),
+            arr[8].isometry.clone(),
+            arr[9].isometry.clone(),
+            arr[10].isometry.clone(),
+            arr[11].isometry.clone(),
+            arr[12].isometry.clone(),
+            arr[13].isometry.clone(),
+            arr[14].isometry.clone(),
+            arr[15].isometry.clone(),
+        ]);
+        let scale = N::from([
+            arr[0].scaling(),
+            arr[1].scaling(),
+            arr[2].scaling(),
+            arr[3].scaling(),
+            arr[4].scaling(),
+            arr[5].scaling(),
+            arr[6].scaling(),
+            arr[7].scaling(),
+            arr[8].scaling(),
+            arr[9].scaling(),
+            arr[10].scaling(),
+            arr[11].scaling(),
+            arr[12].scaling(),
+            arr[13].scaling(),
+            arr[14].scaling(),
+            arr[15].scaling(),
+        ]);
+
+        Self::from_isometry(iso, scale)
     }
 }

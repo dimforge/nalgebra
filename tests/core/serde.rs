@@ -1,9 +1,9 @@
 #![cfg(feature = "serde-serialize")]
 
 use na::{
-    DMatrix, Isometry3, IsometryMatrix3, Matrix3x4, Point3, Quaternion, Rotation3, Similarity3,
-    SimilarityMatrix3, Translation3, Unit, Point2, Translation2, Rotation2, Isometry2, IsometryMatrix2,
-    Similarity2, SimilarityMatrix2,
+    DMatrix, Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3, Matrix3x4, Point2, Point3,
+    Quaternion, Rotation2, Rotation3, Similarity2, Similarity3, SimilarityMatrix2,
+    SimilarityMatrix3, Translation2, Translation3, Unit,
 };
 use rand;
 use serde_json;

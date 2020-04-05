@@ -7,7 +7,7 @@ use num::{One, Zero};
 use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
-use alga::general::ClosedAdd;
+use simba::scalar::ClosedAdd;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, U1, U2, U3, U4, U5, U6};
@@ -16,7 +16,8 @@ use crate::base::{DefaultAllocator, Scalar, VectorN};
 use crate::geometry::Translation;
 
 impl<N: Scalar + Zero, D: DimName> Translation<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity translation.
     ///
@@ -39,7 +40,8 @@ where DefaultAllocator: Allocator<N, D>
 }
 
 impl<N: Scalar + Zero + ClosedAdd, D: DimName> One for Translation<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn one() -> Self {

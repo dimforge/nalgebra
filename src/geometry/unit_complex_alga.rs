@@ -1,6 +1,6 @@
 use alga::general::{
     AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
-    AbstractSemigroup, Id, Identity, TwoSidedInverse, Multiplicative, RealField,
+    AbstractSemigroup, Id, Identity, Multiplicative, RealField, TwoSidedInverse,
 };
 use alga::linear::{
     AffineTransformation, DirectIsometry, Isometry, OrthogonalTransformation,
@@ -17,21 +17,21 @@ use crate::geometry::{Point2, UnitComplex};
  * Implementations for UnitComplex.
  *
  */
-impl<N: RealField> Identity<Multiplicative> for UnitComplex<N> {
+impl<N: RealField + simba::scalar::RealField> Identity<Multiplicative> for UnitComplex<N> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N: RealField> AbstractMagma<Multiplicative> for UnitComplex<N> {
+impl<N: RealField + simba::scalar::RealField> AbstractMagma<Multiplicative> for UnitComplex<N> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
     }
 }
 
-impl<N: RealField> TwoSidedInverse<Multiplicative> for UnitComplex<N> {
+impl<N: RealField + simba::scalar::RealField> TwoSidedInverse<Multiplicative> for UnitComplex<N> {
     #[inline]
     #[must_use = "Did you mean to use two_sided_inverse_mut()?"]
     fn two_sided_inverse(&self) -> Self {
@@ -46,7 +46,7 @@ impl<N: RealField> TwoSidedInverse<Multiplicative> for UnitComplex<N> {
 
 macro_rules! impl_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N: RealField> $marker<$operator> for UnitComplex<N> {
+        impl<N: RealField + simba::scalar::RealField> $marker<$operator> for UnitComplex<N> {
         }
     )*}
 );
@@ -59,8 +59,9 @@ impl_structures!(
     AbstractGroup<Multiplicative>
 );
 
-impl<N: RealField> Transformation<Point2<N>> for UnitComplex<N>
-where DefaultAllocator: Allocator<N, U2>
+impl<N: RealField + simba::scalar::RealField> Transformation<Point2<N>> for UnitComplex<N>
+where
+    DefaultAllocator: Allocator<N, U2>,
 {
     #[inline]
     fn transform_point(&self, pt: &Point2<N>) -> Point2<N> {
@@ -73,8 +74,9 @@ where DefaultAllocator: Allocator<N, U2>
     }
 }
 
-impl<N: RealField> ProjectiveTransformation<Point2<N>> for UnitComplex<N>
-where DefaultAllocator: Allocator<N, U2>
+impl<N: RealField + simba::scalar::RealField> ProjectiveTransformation<Point2<N>> for UnitComplex<N>
+where
+    DefaultAllocator: Allocator<N, U2>,
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point2<N>) -> Point2<N> {
@@ -87,8 +89,9 @@ where DefaultAllocator: Allocator<N, U2>
     }
 }
 
-impl<N: RealField> AffineTransformation<Point2<N>> for UnitComplex<N>
-where DefaultAllocator: Allocator<N, U2>
+impl<N: RealField + simba::scalar::RealField> AffineTransformation<Point2<N>> for UnitComplex<N>
+where
+    DefaultAllocator: Allocator<N, U2>,
 {
     type Rotation = Self;
     type NonUniformScaling = Id;
@@ -130,8 +133,9 @@ where DefaultAllocator: Allocator<N, U2>
     }
 }
 
-impl<N: RealField> Similarity<Point2<N>> for UnitComplex<N>
-where DefaultAllocator: Allocator<N, U2>
+impl<N: RealField + simba::scalar::RealField> Similarity<Point2<N>> for UnitComplex<N>
+where
+    DefaultAllocator: Allocator<N, U2>,
 {
     type Scaling = Id;
 
@@ -153,15 +157,16 @@ where DefaultAllocator: Allocator<N, U2>
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N: RealField> $Trait<Point2<N>> for UnitComplex<N>
+        impl<N: RealField + simba::scalar::RealField> $Trait<Point2<N>> for UnitComplex<N>
         where DefaultAllocator: Allocator<N, U2> { }
     )*}
 );
 
 marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
 
-impl<N: RealField> Rotation<Point2<N>> for UnitComplex<N>
-where DefaultAllocator: Allocator<N, U2>
+impl<N: RealField + simba::scalar::RealField> Rotation<Point2<N>> for UnitComplex<N>
+where
+    DefaultAllocator: Allocator<N, U2>,
 {
     #[inline]
     fn powf(&self, n: N) -> Option<Self> {

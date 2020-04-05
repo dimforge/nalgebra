@@ -3,7 +3,8 @@
 use num::{Signed, Zero};
 use std::ops::{Add, Mul};
 
-use alga::general::{ClosedDiv, ClosedMul};
+use simba::scalar::{ClosedDiv, ClosedMul};
+use simba::simd::SimdPartialOrd;
 
 use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
@@ -235,3 +236,31 @@ component_binop_impl!(
     ";
     // FIXME: add other operators like bitshift, etc. ?
 );
+
+/*
+ * inf/sup
+ */
+impl<N, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+where
+    N: Scalar + SimdPartialOrd,
+    DefaultAllocator: Allocator<N, R, C>,
+{
+    /// Computes the infimum (aka. componentwise min) of two matrices/vectors.
+    #[inline]
+    pub fn inf(&self, other: &Self) -> MatrixMN<N, R, C> {
+        self.zip_map(other, |a, b| a.simd_min(b))
+    }
+
+    /// Computes the supremum (aka. componentwise max) of two matrices/vectors.
+    #[inline]
+    pub fn sup(&self, other: &Self) -> MatrixMN<N, R, C> {
+        self.zip_map(other, |a, b| a.simd_max(b))
+    }
+
+    /// Computes the (infimum, supremum) of two matrices/vectors.
+    #[inline]
+    pub fn inf_sup(&self, other: &Self) -> (MatrixMN<N, R, C>, MatrixMN<N, R, C>) {
+        // FIXME: can this be optimized?
+        (self.inf(other), self.sup(other))
+    }
+}

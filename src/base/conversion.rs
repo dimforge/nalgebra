@@ -1,6 +1,6 @@
-use alga::general::{SubsetOf, SupersetOf};
 #[cfg(feature = "mint")]
 use mint;
+use simba::scalar::{SubsetOf, SupersetOf};
 use std::convert::{AsMut, AsRef, From, Into};
 use std::mem;
 use std::ptr;
@@ -9,19 +9,24 @@ use generic_array::ArrayLength;
 use std::ops::Mul;
 use typenum::Prod;
 
+use simba::simd::{PrimitiveSimdValue, SimdValue};
+
 use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
+#[cfg(any(feature = "std", feature = "alloc"))]
+use crate::base::dimension::Dynamic;
 use crate::base::dimension::{
     Dim, DimName, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
 };
-#[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::dimension::Dynamic;
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::VecStorage;
+use crate::base::{
+    ArrayStorage, DVectorSlice, DVectorSliceMut, DefaultAllocator, Matrix, MatrixMN, MatrixSlice,
+    MatrixSliceMut, Scalar,
+};
 use crate::base::{SliceStorage, SliceStorageMut};
-use crate::base::{DefaultAllocator, Matrix, ArrayStorage, MatrixMN, MatrixSlice, MatrixSliceMut, Scalar, DVectorSlice, DVectorSliceMut};
 use crate::constraint::DimEq;
 
 // FIXME: too bad this won't work allo slice conversions.
@@ -46,7 +51,9 @@ where
         let mut res = unsafe { MatrixMN::<N2, R2, C2>::new_uninitialized_generic(nrows2, ncols2) };
         for i in 0..nrows {
             for j in 0..ncols {
-                unsafe { *res.get_unchecked_mut((i, j)) = N2::from_subset(self.get_unchecked((i, j))) }
+                unsafe {
+                    *res.get_unchecked_mut((i, j)) = N2::from_subset(self.get_unchecked((i, j)))
+                }
             }
         }
 
@@ -59,15 +66,17 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &MatrixMN<N2, R2, C2>) -> Self {
+    fn from_superset_unchecked(m: &MatrixMN<N2, R2, C2>) -> Self {
         let (nrows2, ncols2) = m.shape();
         let nrows = R1::from_usize(nrows2);
         let ncols = C1::from_usize(ncols2);
 
-        let mut res = Self::new_uninitialized_generic(nrows, ncols);
+        let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols) };
         for i in 0..nrows2 {
             for j in 0..ncols2 {
-                *res.get_unchecked_mut((i, j)) = m.get_unchecked((i, j)).to_subset_unchecked()
+                unsafe {
+                    *res.get_unchecked_mut((i, j)) = m.get_unchecked((i, j)).to_subset_unchecked()
+                }
             }
         }
 
@@ -118,12 +127,11 @@ macro_rules! impl_from_into_asref_1D(
               S: ContiguousStorage<N, $NRows, $NCols> {
             #[inline]
             fn into(self) -> [N; $SZ] {
-                unsafe {
-                    let mut res: [N; $SZ] = mem::uninitialized();
-                    ptr::copy_nonoverlapping(self.data.ptr(), &mut res[0], $SZ);
+                let mut res = mem::MaybeUninit::<[N; $SZ]>::uninit();
 
-                    res
-                }
+                unsafe { ptr::copy_nonoverlapping(self.data.ptr(), res.as_mut_ptr() as *mut N, $SZ) };
+
+                unsafe { res.assume_init() }
             }
         }
 
@@ -185,12 +193,11 @@ macro_rules! impl_from_into_asref_2D(
         where S: ContiguousStorage<N, $NRows, $NCols> {
             #[inline]
             fn into(self) -> [[N; $SZRows]; $SZCols] {
-                unsafe {
-                    let mut res: [[N; $SZRows]; $SZCols] = mem::uninitialized();
-                    ptr::copy_nonoverlapping(self.data.ptr(), &mut res[0][0], $SZRows * $SZCols);
+                let mut res = mem::MaybeUninit::<[[N; $SZRows]; $SZCols]>::uninit();
 
-                    res
-                }
+                unsafe { ptr::copy_nonoverlapping(self.data.ptr(), res.as_mut_ptr() as *mut N, $SZRows * $SZCols) };
+
+                unsafe { res.assume_init() }
             }
         }
 
@@ -428,18 +435,20 @@ where
 }
 
 impl<'a, N, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a Matrix<N, R, C, S>>
-for MatrixSlice<'a, N, RSlice, CSlice, RStride, CStride>
-    where
-        N: Scalar,
-        R: Dim,
-        C: Dim,
-        RSlice: Dim,
-        CSlice: Dim,
-        RStride: Dim,
-        CStride: Dim,
-        S: Storage<N, R, C>,
-        ShapeConstraint: DimEq<R, RSlice> + DimEq<C, CSlice>
-            + DimEq<RStride, S::RStride> + DimEq<CStride, S::CStride>
+    for MatrixSlice<'a, N, RSlice, CSlice, RStride, CStride>
+where
+    N: Scalar,
+    R: Dim,
+    C: Dim,
+    RSlice: Dim,
+    CSlice: Dim,
+    RStride: Dim,
+    CStride: Dim,
+    S: Storage<N, R, C>,
+    ShapeConstraint: DimEq<R, RSlice>
+        + DimEq<C, CSlice>
+        + DimEq<RStride, S::RStride>
+        + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a Matrix<N, R, C, S>) -> Self {
         let (row, col) = m.data.shape();
@@ -452,27 +461,31 @@ for MatrixSlice<'a, N, RSlice, CSlice, RStride, CStride>
         let cstride_slice = CStride::from_usize(cstride);
 
         unsafe {
-            let data = SliceStorage::from_raw_parts(m.data.ptr(),
-                                                    (row_slice, col_slice),
-                                                    (rstride_slice, cstride_slice));
+            let data = SliceStorage::from_raw_parts(
+                m.data.ptr(),
+                (row_slice, col_slice),
+                (rstride_slice, cstride_slice),
+            );
             Matrix::from_data_statically_unchecked(data)
         }
     }
 }
 
 impl<'a, N, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a mut Matrix<N, R, C, S>>
-for MatrixSlice<'a, N, RSlice, CSlice, RStride, CStride>
-    where
-        N: Scalar,
-        R: Dim,
-        C: Dim,
-        RSlice: Dim,
-        CSlice: Dim,
-        RStride: Dim,
-        CStride: Dim,
-        S: Storage<N, R, C>,
-        ShapeConstraint: DimEq<R, RSlice> + DimEq<C, CSlice>
-            + DimEq<RStride, S::RStride> + DimEq<CStride, S::CStride>
+    for MatrixSlice<'a, N, RSlice, CSlice, RStride, CStride>
+where
+    N: Scalar,
+    R: Dim,
+    C: Dim,
+    RSlice: Dim,
+    CSlice: Dim,
+    RStride: Dim,
+    CStride: Dim,
+    S: Storage<N, R, C>,
+    ShapeConstraint: DimEq<R, RSlice>
+        + DimEq<C, CSlice>
+        + DimEq<RStride, S::RStride>
+        + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a mut Matrix<N, R, C, S>) -> Self {
         let (row, col) = m.data.shape();
@@ -485,27 +498,31 @@ for MatrixSlice<'a, N, RSlice, CSlice, RStride, CStride>
         let cstride_slice = CStride::from_usize(cstride);
 
         unsafe {
-            let data = SliceStorage::from_raw_parts(m.data.ptr(),
-                                                    (row_slice, col_slice),
-                                                    (rstride_slice, cstride_slice));
+            let data = SliceStorage::from_raw_parts(
+                m.data.ptr(),
+                (row_slice, col_slice),
+                (rstride_slice, cstride_slice),
+            );
             Matrix::from_data_statically_unchecked(data)
         }
     }
 }
 
 impl<'a, N, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a mut Matrix<N, R, C, S>>
-for MatrixSliceMut<'a, N, RSlice, CSlice, RStride, CStride>
-    where
-        N: Scalar,
-        R: Dim,
-        C: Dim,
-        RSlice: Dim,
-        CSlice: Dim,
-        RStride: Dim,
-        CStride: Dim,
-        S: StorageMut<N, R, C>,
-        ShapeConstraint: DimEq<R, RSlice> + DimEq<C, CSlice>
-            + DimEq<RStride, S::RStride> + DimEq<CStride, S::CStride>
+    for MatrixSliceMut<'a, N, RSlice, CSlice, RStride, CStride>
+where
+    N: Scalar,
+    R: Dim,
+    C: Dim,
+    RSlice: Dim,
+    CSlice: Dim,
+    RStride: Dim,
+    CStride: Dim,
+    S: StorageMut<N, R, C>,
+    ShapeConstraint: DimEq<R, RSlice>
+        + DimEq<C, CSlice>
+        + DimEq<RStride, S::RStride>
+        + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a mut Matrix<N, R, C, S>) -> Self {
         let (row, col) = m.data.shape();
@@ -518,28 +535,33 @@ for MatrixSliceMut<'a, N, RSlice, CSlice, RStride, CStride>
         let cstride_slice = CStride::from_usize(cstride);
 
         unsafe {
-            let data = SliceStorageMut::from_raw_parts(m.data.ptr_mut(),
-                                                    (row_slice, col_slice),
-                                                    (rstride_slice, cstride_slice));
+            let data = SliceStorageMut::from_raw_parts(
+                m.data.ptr_mut(),
+                (row_slice, col_slice),
+                (rstride_slice, cstride_slice),
+            );
             Matrix::from_data_statically_unchecked(data)
         }
     }
 }
 
-impl<'a, N: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorage<N, R, C>> Into<&'a [N]> for &'a Matrix<N, R, C, S> {
+impl<'a, N: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorage<N, R, C>> Into<&'a [N]>
+    for &'a Matrix<N, R, C, S>
+{
     #[inline]
     fn into(self) -> &'a [N] {
         self.as_slice()
     }
 }
 
-impl<'a, N: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorageMut<N, R, C>> Into<&'a mut [N]> for &'a mut Matrix<N, R, C, S> {
+impl<'a, N: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorageMut<N, R, C>> Into<&'a mut [N]>
+    for &'a mut Matrix<N, R, C, S>
+{
     #[inline]
     fn into(self) -> &'a mut [N] {
         self.as_mut_slice()
     }
 }
-
 
 impl<'a, N: Scalar + Copy> From<&'a [N]> for DVectorSlice<'a, N> {
     #[inline]
@@ -552,5 +574,110 @@ impl<'a, N: Scalar + Copy> From<&'a mut [N]> for DVectorSliceMut<'a, N> {
     #[inline]
     fn from(slice: &'a mut [N]) -> Self {
         Self::from_slice(slice, slice.len())
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[MatrixMN<N::Element, R, C>; 2]>
+    for MatrixMN<N, R, C>
+where
+    N: From<[<N as SimdValue>::Element; 2]>,
+    N::Element: Scalar + SimdValue,
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+{
+    #[inline]
+    fn from(arr: [MatrixMN<N::Element, R, C>; 2]) -> Self {
+        let (nrows, ncols) = arr[0].data.shape();
+
+        Self::from_fn_generic(nrows, ncols, |i, j| {
+            [
+                arr[0][(i, j)].inlined_clone(),
+                arr[1][(i, j)].inlined_clone(),
+            ]
+            .into()
+        })
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[MatrixMN<N::Element, R, C>; 4]>
+    for MatrixMN<N, R, C>
+where
+    N: From<[<N as SimdValue>::Element; 4]>,
+    N::Element: Scalar + SimdValue,
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+{
+    #[inline]
+    fn from(arr: [MatrixMN<N::Element, R, C>; 4]) -> Self {
+        let (nrows, ncols) = arr[0].data.shape();
+
+        Self::from_fn_generic(nrows, ncols, |i, j| {
+            [
+                arr[0][(i, j)].inlined_clone(),
+                arr[1][(i, j)].inlined_clone(),
+                arr[2][(i, j)].inlined_clone(),
+                arr[3][(i, j)].inlined_clone(),
+            ]
+            .into()
+        })
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[MatrixMN<N::Element, R, C>; 8]>
+    for MatrixMN<N, R, C>
+where
+    N: From<[<N as SimdValue>::Element; 8]>,
+    N::Element: Scalar + SimdValue,
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+{
+    #[inline]
+    fn from(arr: [MatrixMN<N::Element, R, C>; 8]) -> Self {
+        let (nrows, ncols) = arr[0].data.shape();
+
+        Self::from_fn_generic(nrows, ncols, |i, j| {
+            [
+                arr[0][(i, j)].inlined_clone(),
+                arr[1][(i, j)].inlined_clone(),
+                arr[2][(i, j)].inlined_clone(),
+                arr[3][(i, j)].inlined_clone(),
+                arr[4][(i, j)].inlined_clone(),
+                arr[5][(i, j)].inlined_clone(),
+                arr[6][(i, j)].inlined_clone(),
+                arr[7][(i, j)].inlined_clone(),
+            ]
+            .into()
+        })
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[MatrixMN<N::Element, R, C>; 16]>
+    for MatrixMN<N, R, C>
+where
+    N: From<[<N as SimdValue>::Element; 16]>,
+    N::Element: Scalar + SimdValue,
+    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+{
+    fn from(arr: [MatrixMN<N::Element, R, C>; 16]) -> Self {
+        let (nrows, ncols) = arr[0].data.shape();
+
+        Self::from_fn_generic(nrows, ncols, |i, j| {
+            [
+                arr[0][(i, j)].inlined_clone(),
+                arr[1][(i, j)].inlined_clone(),
+                arr[2][(i, j)].inlined_clone(),
+                arr[3][(i, j)].inlined_clone(),
+                arr[4][(i, j)].inlined_clone(),
+                arr[5][(i, j)].inlined_clone(),
+                arr[6][(i, j)].inlined_clone(),
+                arr[7][(i, j)].inlined_clone(),
+                arr[8][(i, j)].inlined_clone(),
+                arr[9][(i, j)].inlined_clone(),
+                arr[10][(i, j)].inlined_clone(),
+                arr[11][(i, j)].inlined_clone(),
+                arr[12][(i, j)].inlined_clone(),
+                arr[13][(i, j)].inlined_clone(),
+                arr[14][(i, j)].inlined_clone(),
+                arr[15][(i, j)].inlined_clone(),
+            ]
+            .into()
+        })
     }
 }

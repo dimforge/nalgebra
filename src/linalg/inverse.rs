@@ -1,4 +1,4 @@
-use alga::general::ComplexField;
+use simba::scalar::ComplexField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::Dim;
@@ -12,7 +12,9 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(self) -> Option<MatrixN<N, D>>
-    where DefaultAllocator: Allocator<N, D, D> {
+    where
+        DefaultAllocator: Allocator<N, D, D>,
+    {
         let mut me = self.into_owned();
         if me.try_inverse_mut() {
             Some(me)
@@ -27,7 +29,9 @@ impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
     /// inversion fails.
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool
-    where DefaultAllocator: Allocator<N, D, D> {
+    where
+        DefaultAllocator: Allocator<N, D, D>,
+    {
         assert!(self.is_square(), "Unable to invert a non-square matrix.");
 
         let dim = self.shape().0;

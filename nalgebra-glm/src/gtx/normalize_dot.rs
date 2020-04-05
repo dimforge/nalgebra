@@ -11,7 +11,9 @@ use crate::traits::{Alloc, Dimension};
 ///
 /// * [`normalize_dot`](fn.normalize_dot.html`)
 pub fn fast_normalize_dot<N: RealField, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     // XXX: improve those.
     x.normalize().dot(&y.normalize())
 }
@@ -22,7 +24,9 @@ where DefaultAllocator: Alloc<N, D> {
 ///
 /// * [`fast_normalize_dot`](fn.fast_normalize_dot.html`)
 pub fn normalize_dot<N: RealField, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     // XXX: improve those.
     x.normalize().dot(&y.normalize())
 }

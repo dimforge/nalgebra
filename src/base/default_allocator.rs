@@ -15,13 +15,13 @@ use generic_array::ArrayLength;
 use typenum::Prod;
 
 use crate::base::allocator::{Allocator, Reallocator};
+use crate::base::array_storage::ArrayStorage;
 #[cfg(any(feature = "alloc", feature = "std"))]
 use crate::base::dimension::Dynamic;
 use crate::base::dimension::{Dim, DimName};
-use crate::base::array_storage::ArrayStorage;
+use crate::base::storage::{Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::vec_storage::VecStorage;
-use crate::base::storage::{Storage, StorageMut};
 use crate::base::Scalar;
 
 /*
@@ -46,7 +46,8 @@ where
 
     #[inline]
     unsafe fn allocate_uninitialized(_: R, _: C) -> Self::Buffer {
-        mem::uninitialized()
+        // TODO: Undefined behavior, see #556
+        mem::MaybeUninit::<Self::Buffer>::uninit().assume_init()
     }
 
     #[inline]
@@ -54,8 +55,7 @@ where
         nrows: R,
         ncols: C,
         iter: I,
-    ) -> Self::Buffer
-    {
+    ) -> Self::Buffer {
         let mut res = unsafe { Self::allocate_uninitialized(nrows, ncols) };
         let mut count = 0;
 
@@ -94,8 +94,7 @@ impl<N: Scalar, C: Dim> Allocator<N, Dynamic, C> for DefaultAllocator {
         nrows: Dynamic,
         ncols: C,
         iter: I,
-    ) -> Self::Buffer
-    {
+    ) -> Self::Buffer {
         let it = iter.into_iter();
         let res: Vec<N> = it.collect();
         assert!(res.len() == nrows.value() * ncols.value(),
@@ -125,8 +124,7 @@ impl<N: Scalar, R: DimName> Allocator<N, R, Dynamic> for DefaultAllocator {
         nrows: R,
         ncols: Dynamic,
         iter: I,
-    ) -> Self::Buffer
-    {
+    ) -> Self::Buffer {
         let it = iter.into_iter();
         let res: Vec<N> = it.collect();
         assert!(res.len() == nrows.value() * ncols.value(),
@@ -157,8 +155,7 @@ where
         rto: RTo,
         cto: CTo,
         buf: <Self as Allocator<N, RFrom, CFrom>>::Buffer,
-    ) -> ArrayStorage<N, RTo, CTo>
-    {
+    ) -> ArrayStorage<N, RTo, CTo> {
         let mut res = <Self as Allocator<N, RTo, CTo>>::allocate_uninitialized(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
@@ -186,8 +183,7 @@ where
         rto: Dynamic,
         cto: CTo,
         buf: ArrayStorage<N, RFrom, CFrom>,
-    ) -> VecStorage<N, Dynamic, CTo>
-    {
+    ) -> VecStorage<N, Dynamic, CTo> {
         let mut res = <Self as Allocator<N, Dynamic, CTo>>::allocate_uninitialized(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
@@ -215,8 +211,7 @@ where
         rto: RTo,
         cto: Dynamic,
         buf: ArrayStorage<N, RFrom, CFrom>,
-    ) -> VecStorage<N, RTo, Dynamic>
-    {
+    ) -> VecStorage<N, RTo, Dynamic> {
         let mut res = <Self as Allocator<N, RTo, Dynamic>>::allocate_uninitialized(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
@@ -239,8 +234,7 @@ impl<N: Scalar, CFrom: Dim, CTo: Dim> Reallocator<N, Dynamic, CFrom, Dynamic, CT
         rto: Dynamic,
         cto: CTo,
         buf: VecStorage<N, Dynamic, CFrom>,
-    ) -> VecStorage<N, Dynamic, CTo>
-    {
+    ) -> VecStorage<N, Dynamic, CTo> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
     }
@@ -255,8 +249,7 @@ impl<N: Scalar, CFrom: Dim, RTo: DimName> Reallocator<N, Dynamic, CFrom, RTo, Dy
         rto: RTo,
         cto: Dynamic,
         buf: VecStorage<N, Dynamic, CFrom>,
-    ) -> VecStorage<N, RTo, Dynamic>
-    {
+    ) -> VecStorage<N, RTo, Dynamic> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
     }
@@ -271,8 +264,7 @@ impl<N: Scalar, RFrom: DimName, CTo: Dim> Reallocator<N, RFrom, Dynamic, Dynamic
         rto: Dynamic,
         cto: CTo,
         buf: VecStorage<N, RFrom, Dynamic>,
-    ) -> VecStorage<N, Dynamic, CTo>
-    {
+    ) -> VecStorage<N, Dynamic, CTo> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
     }
@@ -287,8 +279,7 @@ impl<N: Scalar, RFrom: DimName, RTo: DimName> Reallocator<N, RFrom, Dynamic, RTo
         rto: RTo,
         cto: Dynamic,
         buf: VecStorage<N, RFrom, Dynamic>,
-    ) -> VecStorage<N, RTo, Dynamic>
-    {
+    ) -> VecStorage<N, RTo, Dynamic> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
     }

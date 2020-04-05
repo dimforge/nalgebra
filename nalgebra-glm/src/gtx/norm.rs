@@ -9,7 +9,9 @@ use crate::traits::{Alloc, Dimension};
 ///
 /// * [`distance`](fn.distance.html)
 pub fn distance2<N: RealField, D: Dimension>(p0: &TVec<N, D>, p1: &TVec<N, D>) -> N
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     (p1 - p0).norm_squared()
 }
 
@@ -21,7 +23,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`l2_distance`](fn.l2_distance.html)
 /// * [`l2_norm`](fn.l2_norm.html)
 pub fn l1_distance<N: RealField, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     l1_norm(&(y - x))
 }
 
@@ -36,7 +40,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`l2_distance`](fn.l2_distance.html)
 /// * [`l2_norm`](fn.l2_norm.html)
 pub fn l1_norm<N: RealField, D: Dimension>(v: &TVec<N, D>) -> N
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     crate::comp_add(&v.abs())
 }
 
@@ -55,7 +61,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
 pub fn l2_distance<N: RealField, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     l2_norm(&(y - x))
 }
 
@@ -76,7 +84,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
 pub fn l2_norm<N: RealField, D: Dimension>(x: &TVec<N, D>) -> N
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.norm()
 }
 
@@ -92,7 +102,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
 pub fn length2<N: RealField, D: Dimension>(x: &TVec<N, D>) -> N
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.norm_squared()
 }
 
@@ -108,7 +120,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`nalgebra::norm_squared`](../nalgebra/fn.norm_squared.html)
 pub fn magnitude2<N: RealField, D: Dimension>(x: &TVec<N, D>) -> N
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.norm_squared()
 }
 

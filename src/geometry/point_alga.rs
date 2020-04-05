@@ -15,8 +15,9 @@ where
     type Translation = VectorN<N, D>;
 }
 
-impl<N: RealField, D: DimName> EuclideanSpace for Point<N, D>
-where DefaultAllocator: Allocator<N, D>
+impl<N: RealField + simba::scalar::RealField, D: DimName> EuclideanSpace for Point<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     type Coordinates = VectorN<N, D>;
     type RealField = N;

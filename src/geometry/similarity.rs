@@ -1,6 +1,8 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use num::Zero;
 use std::fmt;
 use std::hash;
+
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
 
@@ -10,14 +12,14 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{RealField, SubsetOf};
-use alga::linear::Rotation;
+use simba::scalar::{RealField, SubsetOf};
+use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
-use crate::base::{DefaultAllocator, MatrixN, VectorN};
-use crate::geometry::{Isometry, Point, Translation};
+use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
+use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
@@ -25,24 +27,21 @@ use crate::geometry::{Isometry, Point, Translation};
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "N: Serialize,
+    serde(bound(serialize = "N: Serialize,
                      R: Serialize,
                      DefaultAllocator: Allocator<N, D>,
-                     Owned<N, D>: Serialize"
-    ))
+                     Owned<N, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "N: Deserialize<'de>,
+    serde(bound(deserialize = "N: Deserialize<'de>,
                        R: Deserialize<'de>,
                        DefaultAllocator: Allocator<N, D>,
-                       Owned<N, D>: Deserialize<'de>"
-    ))
+                       Owned<N, D>: Deserialize<'de>"))
 )]
-pub struct Similarity<N: RealField, D: DimName, R>
-where DefaultAllocator: Allocator<N, D>
+pub struct Similarity<N: Scalar, D: DimName, R>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// The part of this similarity that does not include the scaling factor.
     pub isometry: Isometry<N, D, R>,
@@ -50,7 +49,7 @@ where DefaultAllocator: Allocator<N, D>
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: RealField, D: DimName, R> Abomonation for Similarity<N, D, R>
+impl<N: Scalar, D: DimName, R> Abomonation for Similarity<N, D, R>
 where
     Isometry<N, D, R>: Abomonation,
     DefaultAllocator: Allocator<N, D>,
@@ -68,7 +67,7 @@ where
     }
 }
 
-impl<N: RealField + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
+impl<N: Scalar + hash::Hash, D: DimName + hash::Hash, R: hash::Hash> hash::Hash
     for Similarity<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
@@ -80,51 +79,72 @@ where
     }
 }
 
-impl<N: RealField, D: DimName + Copy, R: Rotation<Point<N, D>> + Copy> Copy for Similarity<N, D, R>
+impl<N: Scalar + Copy + Zero, D: DimName + Copy, R: AbstractRotation<N, D> + Copy> Copy
+    for Similarity<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
-{}
+{
+}
 
-impl<N: RealField, D: DimName, R: Rotation<Point<N, D>> + Clone> Clone for Similarity<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+impl<N: Scalar + Zero, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Similarity<N, D, R>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn clone(&self) -> Self {
-        Similarity::from_isometry(self.isometry.clone(), self.scaling)
+        Similarity::from_isometry(self.isometry.clone(), self.scaling.clone())
     }
 }
 
-impl<N: RealField, D: DimName, R> Similarity<N, D, R>
+impl<N: Scalar + Zero, D: DimName, R> Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>>,
+    R: AbstractRotation<N, D>,
     DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new similarity from its rotational and translational parts.
     #[inline]
-    pub fn from_parts(
-        translation: Translation<N, D>,
-        rotation: R,
-        scaling: N,
-    ) -> Self
-    {
+    pub fn from_parts(translation: Translation<N, D>, rotation: R, scaling: N) -> Self {
         Self::from_isometry(Isometry::from_parts(translation, rotation), scaling)
     }
 
     /// Creates a new similarity from its rotational and translational parts.
     #[inline]
     pub fn from_isometry(isometry: Isometry<N, D, R>, scaling: N) -> Self {
-        assert!(
-            !relative_eq!(scaling, N::zero()),
-            "The scaling factor must not be zero."
-        );
+        assert!(!scaling.is_zero(), "The scaling factor must not be zero.");
 
-        Self {
-            isometry: isometry,
-            scaling: scaling,
-        }
+        Self { isometry, scaling }
     }
 
+    /// The scaling factor of this similarity transformation.
+    #[inline]
+    pub fn set_scaling(&mut self, scaling: N) {
+        assert!(
+            !scaling.is_zero(),
+            "The similarity scaling factor must not be zero."
+        );
+
+        self.scaling = scaling;
+    }
+}
+
+impl<N: Scalar, D: DimName, R> Similarity<N, D, R>
+where
+    DefaultAllocator: Allocator<N, D>,
+{
+    /// The scaling factor of this similarity transformation.
+    #[inline]
+    pub fn scaling(&self) -> N {
+        self.scaling.inlined_clone()
+    }
+}
+
+impl<N: SimdRealField, D: DimName, R> Similarity<N, D, R>
+where
+    N::Element: SimdRealField,
+    R: AbstractRotation<N, D>,
+    DefaultAllocator: Allocator<N, D>,
+{
     /// Creates a new similarity that applies only a scaling factor.
     #[inline]
     pub fn from_scaling(scaling: N) -> Self {
@@ -148,29 +168,12 @@ where
         self.isometry.translation.vector *= self.scaling;
     }
 
-    /// The scaling factor of this similarity transformation.
-    #[inline]
-    pub fn set_scaling(&mut self, scaling: N) {
-        assert!(
-            !relative_eq!(scaling, N::zero()),
-            "The similarity scaling factor must not be zero."
-        );
-
-        self.scaling = scaling;
-    }
-
-    /// The scaling factor of this similarity transformation.
-    #[inline]
-    pub fn scaling(&self) -> N {
-        self.scaling
-    }
-
     /// The similarity transformation that applies a scaling factor `scaling` before `self`.
     #[inline]
     #[must_use = "Did you mean to use prepend_scaling_mut()?"]
     pub fn prepend_scaling(&self, scaling: N) -> Self {
         assert!(
-            !relative_eq!(scaling, N::zero()),
+            !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
         );
 
@@ -182,7 +185,7 @@ where
     #[must_use = "Did you mean to use append_scaling_mut()?"]
     pub fn append_scaling(&self, scaling: N) -> Self {
         assert!(
-            !relative_eq!(scaling, N::zero()),
+            !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
         );
 
@@ -197,7 +200,7 @@ where
     #[inline]
     pub fn prepend_scaling_mut(&mut self, scaling: N) {
         assert!(
-            !relative_eq!(scaling, N::zero()),
+            !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
         );
 
@@ -208,7 +211,7 @@ where
     #[inline]
     pub fn append_scaling_mut(&mut self, scaling: N) {
         assert!(
-            !relative_eq!(scaling, N::zero()),
+            !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
         );
 
@@ -328,8 +331,9 @@ where
 // and makes it harder to use it, e.g., for Transform × Isometry implementation.
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the private scaling factor).
-impl<N: RealField, D: DimName, R> Similarity<N, D, R>
-where DefaultAllocator: Allocator<N, D>
+impl<N: SimdRealField, D: DimName, R> Similarity<N, D, R>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     /// Converts this similarity into its equivalent homogeneous transformation matrix.
     #[inline]
@@ -349,15 +353,16 @@ where DefaultAllocator: Allocator<N, D>
     }
 }
 
-impl<N: RealField, D: DimName, R> Eq for Similarity<N, D, R>
+impl<N: SimdRealField, D: DimName, R> Eq for Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>> + Eq,
+    R: AbstractRotation<N, D> + Eq,
     DefaultAllocator: Allocator<N, D>,
-{}
+{
+}
 
-impl<N: RealField, D: DimName, R> PartialEq for Similarity<N, D, R>
+impl<N: SimdRealField, D: DimName, R> PartialEq for Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>> + PartialEq,
+    R: AbstractRotation<N, D> + PartialEq,
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
@@ -368,7 +373,7 @@ where
 
 impl<N: RealField, D: DimName, R> AbsDiffEq for Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>> + AbsDiffEq<Epsilon = N::Epsilon>,
+    R: AbstractRotation<N, D> + AbsDiffEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
@@ -388,7 +393,7 @@ where
 
 impl<N: RealField, D: DimName, R> RelativeEq for Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>> + RelativeEq<Epsilon = N::Epsilon>,
+    R: AbstractRotation<N, D> + RelativeEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
@@ -403,8 +408,7 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.isometry
             .relative_eq(&other.isometry, epsilon, max_relative)
             && self
@@ -415,7 +419,7 @@ where
 
 impl<N: RealField, D: DimName, R> UlpsEq for Similarity<N, D, R>
 where
-    R: Rotation<Point<N, D>> + UlpsEq<Epsilon = N::Epsilon>,
+    R: AbstractRotation<N, D> + UlpsEq<Epsilon = N::Epsilon>,
     DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
@@ -439,7 +443,7 @@ where
 impl<N, D: DimName, R> fmt::Display for Similarity<N, D, R>
 where
     N: RealField + fmt::Display,
-    R: Rotation<Point<N, D>> + fmt::Display,
+    R: AbstractRotation<N, D> + fmt::Display,
     DefaultAllocator: Allocator<N, D> + Allocator<usize, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

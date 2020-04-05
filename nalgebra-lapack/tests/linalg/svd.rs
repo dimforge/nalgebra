@@ -1,7 +1,7 @@
 use na::{DMatrix, Matrix3x4};
 use nl::SVD;
 
-quickcheck!{
+quickcheck! {
     fn svd(m: DMatrix<f64>) -> bool {
         if m.nrows() != 0 && m.ncols() != 0 {
             let svd = SVD::new(m.clone()).unwrap();

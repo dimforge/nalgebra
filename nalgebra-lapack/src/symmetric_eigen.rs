@@ -4,13 +4,13 @@ use serde::{Deserialize, Serialize};
 use num::Zero;
 use std::ops::MulAssign;
 
-use alga::general::RealField;
+use simba::scalar::RealField;
 
+use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Dim, U1};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
-use crate::ComplexHelper;
 
 use lapack;
 
@@ -18,25 +18,22 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Serialize"
-    ))
+         MatrixN<N, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, D, D> +
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
                            Allocator<N, D>,
          VectorN<N, D>: Deserialize<'de>,
-         MatrixN<N, D>: Deserialize<'de>"
-    ))
+         MatrixN<N, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<N: Scalar, D: Dim>
-where DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
 {
     /// The eigenvectors of the decomposed matrix.
     pub eigenvectors: MatrixN<N, D>,
@@ -50,10 +47,12 @@ where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
     MatrixN<N, D>: Copy,
     VectorN<N, D>: Copy,
-{}
+{
+}
 
 impl<N: SymmetricEigenScalar + RealField, D: Dim> SymmetricEigen<N, D>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
     /// Computes the eigenvalues and eigenvectors of the symmetric matrix `m`.
     ///
@@ -82,8 +81,7 @@ where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
     fn do_decompose(
         mut m: MatrixN<N, D>,
         eigenvectors: bool,
-    ) -> Option<(VectorN<N, D>, Option<MatrixN<N, D>>)>
-    {
+    ) -> Option<(VectorN<N, D>, Option<MatrixN<N, D>>)> {
         assert!(
             m.is_square(),
             "Unable to compute the eigenvalue decomposition of a non-square matrix."

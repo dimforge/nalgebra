@@ -1,11 +1,13 @@
-use alga::general::{RealField, SubsetOf, SupersetOf};
-use alga::linear::Rotation;
+use simba::scalar::{RealField, SubsetOf, SupersetOf};
+use simba::simd::{PrimitiveSimdValue, SimdRealField, SimdValue};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
-use crate::base::{DefaultAllocator, MatrixN};
+use crate::base::{DefaultAllocator, MatrixN, Scalar};
 
-use crate::geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
+use crate::geometry::{
+    AbstractRotation, Isometry, Similarity, SuperTCategoryOf, TAffine, Transform, Translation,
+};
 
 /*
  * This file provides the following conversions:
@@ -21,8 +23,8 @@ impl<N1, N2, D: DimName, R1, R2> SubsetOf<Isometry<N2, D, R2>> for Isometry<N1, 
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R1: Rotation<Point<N1, D>> + SubsetOf<R2>,
-    R2: Rotation<Point<N2, D>>,
+    R1: AbstractRotation<N1, D> + SubsetOf<R2>,
+    R2: AbstractRotation<N2, D>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
@@ -37,7 +39,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(iso: &Isometry<N2, D, R2>) -> Self {
+    fn from_superset_unchecked(iso: &Isometry<N2, D, R2>) -> Self {
         Isometry::from_parts(
             iso.translation.to_subset_unchecked(),
             iso.rotation.to_subset_unchecked(),
@@ -49,8 +51,8 @@ impl<N1, N2, D: DimName, R1, R2> SubsetOf<Similarity<N2, D, R2>> for Isometry<N1
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R1: Rotation<Point<N1, D>> + SubsetOf<R2>,
-    R2: Rotation<Point<N2, D>>,
+    R1: AbstractRotation<N1, D> + SubsetOf<R2>,
+    R2: AbstractRotation<N2, D>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
@@ -64,7 +66,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(sim: &Similarity<N2, D, R2>) -> Self {
+    fn from_superset_unchecked(sim: &Similarity<N2, D, R2>) -> Self {
         crate::convert_ref_unchecked(&sim.isometry)
     }
 }
@@ -74,7 +76,7 @@ where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
-    R: Rotation<Point<N1, D>>
+    R: AbstractRotation<N1, D>
         + SubsetOf<MatrixN<N1, DimNameSum<D, U1>>>
         + SubsetOf<MatrixN<N2, DimNameSum<D, U1>>>,
     D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .is_special_orthogonal()
@@ -98,7 +100,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
+    fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
@@ -107,7 +109,7 @@ impl<N1, N2, D, R> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Isometry<N1, D, 
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: Rotation<Point<N1, D>>
+    R: AbstractRotation<N1, D>
         + SubsetOf<MatrixN<N1, DimNameSum<D, U1>>>
         + SubsetOf<MatrixN<N2, DimNameSum<D, U1>>>,
     D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .is_special_orthogonal()
@@ -139,7 +141,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
+    fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let t = m.fixed_slice::<D, U1>(0, D::dim()).into_owned();
         let t = Translation {
             vector: crate::convert_unchecked(t),
@@ -149,7 +151,7 @@ where
     }
 }
 
-impl<N: RealField, D: DimName, R> From<Isometry<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
+impl<N: SimdRealField, D: DimName, R> From<Isometry<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
 where
     D: DimNameAdd<U1>,
     R: SubsetOf<MatrixN<N, DimNameSum<D, U1>>>,
@@ -158,5 +160,143 @@ where
     #[inline]
     fn from(iso: Isometry<N, D, R>) -> Self {
         iso.to_homogeneous()
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, D: DimName, R> From<[Isometry<N::Element, D, R::Element>; 2]>
+    for Isometry<N, D, R>
+where
+    N: From<[<N as SimdValue>::Element; 2]>,
+    R: SimdValue + AbstractRotation<N, D> + From<[<R as SimdValue>::Element; 2]>,
+    R::Element: AbstractRotation<N::Element, D>,
+    N::Element: Scalar + Copy,
+    R::Element: Scalar + Copy,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+{
+    #[inline]
+    fn from(arr: [Isometry<N::Element, D, R::Element>; 2]) -> Self {
+        let tra = Translation::from([arr[0].translation.clone(), arr[1].translation.clone()]);
+        let rot = R::from([arr[0].rotation.clone(), arr[0].rotation.clone()]);
+
+        Self::from_parts(tra, rot)
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, D: DimName, R> From<[Isometry<N::Element, D, R::Element>; 4]>
+    for Isometry<N, D, R>
+where
+    N: From<[<N as SimdValue>::Element; 4]>,
+    R: SimdValue + AbstractRotation<N, D> + From<[<R as SimdValue>::Element; 4]>,
+    R::Element: AbstractRotation<N::Element, D>,
+    N::Element: Scalar + Copy,
+    R::Element: Scalar + Copy,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+{
+    #[inline]
+    fn from(arr: [Isometry<N::Element, D, R::Element>; 4]) -> Self {
+        let tra = Translation::from([
+            arr[0].translation.clone(),
+            arr[1].translation.clone(),
+            arr[2].translation.clone(),
+            arr[3].translation.clone(),
+        ]);
+        let rot = R::from([
+            arr[0].rotation.clone(),
+            arr[1].rotation.clone(),
+            arr[2].rotation.clone(),
+            arr[3].rotation.clone(),
+        ]);
+
+        Self::from_parts(tra, rot)
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, D: DimName, R> From<[Isometry<N::Element, D, R::Element>; 8]>
+    for Isometry<N, D, R>
+where
+    N: From<[<N as SimdValue>::Element; 8]>,
+    R: SimdValue + AbstractRotation<N, D> + From<[<R as SimdValue>::Element; 8]>,
+    R::Element: AbstractRotation<N::Element, D>,
+    N::Element: Scalar + Copy,
+    R::Element: Scalar + Copy,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+{
+    #[inline]
+    fn from(arr: [Isometry<N::Element, D, R::Element>; 8]) -> Self {
+        let tra = Translation::from([
+            arr[0].translation.clone(),
+            arr[1].translation.clone(),
+            arr[2].translation.clone(),
+            arr[3].translation.clone(),
+            arr[4].translation.clone(),
+            arr[5].translation.clone(),
+            arr[6].translation.clone(),
+            arr[7].translation.clone(),
+        ]);
+        let rot = R::from([
+            arr[0].rotation.clone(),
+            arr[1].rotation.clone(),
+            arr[2].rotation.clone(),
+            arr[3].rotation.clone(),
+            arr[4].rotation.clone(),
+            arr[5].rotation.clone(),
+            arr[6].rotation.clone(),
+            arr[7].rotation.clone(),
+        ]);
+
+        Self::from_parts(tra, rot)
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, D: DimName, R> From<[Isometry<N::Element, D, R::Element>; 16]>
+    for Isometry<N, D, R>
+where
+    N: From<[<N as SimdValue>::Element; 16]>,
+    R: SimdValue + AbstractRotation<N, D> + From<[<R as SimdValue>::Element; 16]>,
+    R::Element: AbstractRotation<N::Element, D>,
+    N::Element: Scalar + Copy,
+    R::Element: Scalar + Copy,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+{
+    #[inline]
+    fn from(arr: [Isometry<N::Element, D, R::Element>; 16]) -> Self {
+        let tra = Translation::from([
+            arr[0].translation.clone(),
+            arr[1].translation.clone(),
+            arr[2].translation.clone(),
+            arr[3].translation.clone(),
+            arr[4].translation.clone(),
+            arr[5].translation.clone(),
+            arr[6].translation.clone(),
+            arr[7].translation.clone(),
+            arr[8].translation.clone(),
+            arr[9].translation.clone(),
+            arr[10].translation.clone(),
+            arr[11].translation.clone(),
+            arr[12].translation.clone(),
+            arr[13].translation.clone(),
+            arr[14].translation.clone(),
+            arr[15].translation.clone(),
+        ]);
+        let rot = R::from([
+            arr[0].rotation.clone(),
+            arr[1].rotation.clone(),
+            arr[2].rotation.clone(),
+            arr[3].rotation.clone(),
+            arr[4].rotation.clone(),
+            arr[5].rotation.clone(),
+            arr[6].rotation.clone(),
+            arr[7].rotation.clone(),
+            arr[8].rotation.clone(),
+            arr[9].rotation.clone(),
+            arr[10].rotation.clone(),
+            arr[11].rotation.clone(),
+            arr[12].rotation.clone(),
+            arr[13].rotation.clone(),
+            arr[14].rotation.clone(),
+            arr[15].rotation.clone(),
+        ]);
+
+        Self::from_parts(tra, rot)
     }
 }

@@ -16,16 +16,20 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use alga::general::{ClosedAdd, ClosedMul, ClosedSub, RealField, Ring, ComplexField, Field};
+use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, Field, RealField};
+use simba::simd::SimdPartialOrd;
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::{Dim, DimAdd, DimSum, IsNotStaticOne, U1, U2, U3};
-use crate::base::iter::{MatrixIter, MatrixIterMut, RowIter, RowIterMut, ColumnIter, ColumnIterMut};
+use crate::base::iter::{
+    ColumnIter, ColumnIterMut, MatrixIter, MatrixIterMut, RowIter, RowIterMut,
+};
 use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
 };
 use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
+use crate::SimdComplexField;
 
 /// A square matrix.
 pub type SquareMatrix<N, D, S> = Matrix<N, D, D, S>;
@@ -99,7 +103,9 @@ where
     S: Serialize,
 {
     fn serialize<T>(&self, serializer: T) -> Result<T::Ok, T::Error>
-    where T: Serializer {
+    where
+        T: Serializer,
+    {
         self.data.serialize(serializer)
     }
 }
@@ -113,7 +119,9 @@ where
     S: Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where D: Deserializer<'de> {
+    where
+        D: Deserializer<'de>,
+    {
         S::deserialize(deserializer).map(|x| Matrix {
             data: x,
             _phantoms: PhantomData,
@@ -279,6 +287,16 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
     /// Computes the row and column coordinates of the i-th element of this matrix seen as a
     /// vector.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    /// let i = m.vector_to_matrix_index(3);
+    /// assert_eq!(i, (1, 1));
+    /// assert_eq!(m[i], m[3]);
+    /// ```
     #[inline]
     pub fn vector_to_matrix_index(&self, i: usize) -> (usize, usize) {
         let (nrows, ncols) = self.shape();
@@ -298,6 +316,15 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///
     /// If the matrix is not empty, this pointer is guaranteed to be aligned
     /// and non-null.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let m = Matrix2::new(1, 2,
+    ///                      3, 4);
+    /// let ptr = m.as_ptr();
+    /// assert_eq!(unsafe { *ptr }, m[0]);
+    /// ```
     #[inline]
     pub fn as_ptr(&self) -> *const N {
         self.data.ptr()
@@ -344,7 +371,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Moves this matrix into one that owns its data.
     #[inline]
     pub fn into_owned(self) -> MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
         Matrix::from_data(self.data.into_owned())
     }
 
@@ -378,7 +407,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Clones this matrix to one that owns its data.
     #[inline]
     pub fn clone_owned(&self) -> MatrixMN<N, R, C>
-    where DefaultAllocator: Allocator<N, R, C> {
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
         Matrix::from_data(self.data.clone_owned())
     }
 
@@ -414,7 +445,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a matrix containing the result of `f` applied to each of its entries.
     #[inline]
     pub fn map<N2: Scalar, F: FnMut(N) -> N2>(&self, mut f: F) -> MatrixMN<N2, R, C>
-    where DefaultAllocator: Allocator<N2, R, C> {
+    where
+        DefaultAllocator: Allocator<N2, R, C>,
+    {
         let (nrows, ncols) = self.data.shape();
 
         let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
@@ -429,6 +462,24 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         }
 
         res
+    }
+
+    /// Similar to `self.iter().fold(init, f)` except that `init` is replaced by a closure.
+    ///
+    /// The initialization closure is given the first component of this matrix:
+    /// - If the matrix has no component (0 rows or 0 columns) then `init_f` is called with `None`
+    /// and its return value is the value returned by this method.
+    /// - If the matrix has has least one component, then `init_f` is called with the first component
+    /// to compute the initial value. Folding then continues on all the remaining components of the matrix.
+    #[inline]
+    pub fn fold_with<N2>(
+        &self,
+        init_f: impl FnOnce(Option<&N>) -> N2,
+        f: impl FnMut(N2, &N) -> N2,
+    ) -> N2 {
+        let mut it = self.iter();
+        let init = init_f(it.next());
+        it.fold(init, f)
     }
 
     /// Returns a matrix containing the result of `f` applied to each of its entries. Unlike `map`,
@@ -553,13 +604,18 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
     /// Folds a function `f` on each pairs of entries from `self` and `rhs`.
     #[inline]
-    pub fn zip_fold<N2, R2, C2, S2, Acc>(&self, rhs: &Matrix<N2, R2, C2, S2>, init: Acc, mut f: impl FnMut(Acc, N, N2) -> Acc) -> Acc
-        where
-            N2: Scalar,
-            R2: Dim,
-            C2: Dim,
-            S2: Storage<N2, R2, C2>,
-            ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>
+    pub fn zip_fold<N2, R2, C2, S2, Acc>(
+        &self,
+        rhs: &Matrix<N2, R2, C2, S2>,
+        init: Acc,
+        mut f: impl FnMut(Acc, N, N2) -> Acc,
+    ) -> Acc
+    where
+        N2: Scalar,
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<N2, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
         let (nrows, ncols) = self.data.shape();
 
@@ -612,7 +668,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     #[must_use = "Did you mean to use transpose_mut()?"]
     pub fn transpose(&self) -> MatrixMN<N, C, R>
-    where DefaultAllocator: Allocator<N, C, R> {
+    where
+        DefaultAllocator: Allocator<N, C, R>,
+    {
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
@@ -718,7 +776,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         for j in 0..ncols {
             for i in 0..nrows {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = slice.get_unchecked(i + j * nrows).inlined_clone();
+                    *self.get_unchecked_mut((i, j)) =
+                        slice.get_unchecked(i + j * nrows).inlined_clone();
                 }
             }
         }
@@ -774,7 +833,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     // FIXME: rename `apply` to `apply_mut` and `apply_into` to `apply`?
     /// Returns `self` with each of its components replaced by the result of a closure `f` applied on it.
     #[inline]
-    pub fn apply_into<F: FnMut(N) -> N>(mut self, f: F) -> Self{
+    pub fn apply_into<F: FnMut(N) -> N>(mut self, f: F) -> Self {
         self.apply(f);
         self
     }
@@ -797,12 +856,17 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Replaces each component of `self` by the result of a closure `f` applied on its components
     /// joined with the components from `rhs`.
     #[inline]
-    pub fn zip_apply<N2, R2, C2, S2>(&mut self, rhs: &Matrix<N2, R2, C2, S2>, mut f: impl FnMut(N, N2) -> N)
-        where N2: Scalar,
-              R2: Dim,
-              C2: Dim,
-              S2: Storage<N2, R2, C2>,
-              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
+    pub fn zip_apply<N2, R2, C2, S2>(
+        &mut self,
+        rhs: &Matrix<N2, R2, C2, S2>,
+        mut f: impl FnMut(N, N2) -> N,
+    ) where
+        N2: Scalar,
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<N2, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+    {
         let (nrows, ncols) = self.shape();
 
         assert!(
@@ -821,21 +885,26 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         }
     }
 
-
     /// Replaces each component of `self` by the result of a closure `f` applied on its components
     /// joined with the components from `b` and `c`.
     #[inline]
-    pub fn zip_zip_apply<N2, R2, C2, S2, N3, R3, C3, S3>(&mut self, b: &Matrix<N2, R2, C2, S2>, c: &Matrix<N3, R3, C3, S3>, mut f: impl FnMut(N, N2, N3) -> N)
-        where N2: Scalar,
-              R2: Dim,
-              C2: Dim,
-              S2: Storage<N2, R2, C2>,
-              N3: Scalar,
-              R3: Dim,
-              C3: Dim,
-              S3: Storage<N3, R3, C3>,
-              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
-              ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2> {
+    pub fn zip_zip_apply<N2, R2, C2, S2, N3, R3, C3, S3>(
+        &mut self,
+        b: &Matrix<N2, R2, C2, S2>,
+        c: &Matrix<N3, R3, C3, S3>,
+        mut f: impl FnMut(N, N2, N3) -> N,
+    ) where
+        N2: Scalar,
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<N2, R2, C2>,
+        N3: Scalar,
+        R3: Dim,
+        C3: Dim,
+        S3: Storage<N3, R3, C3>,
+        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+    {
         let (nrows, ncols) = self.shape();
 
         assert!(
@@ -914,7 +983,7 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     }
 }
 
-impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Takes the adjoint (aka. conjugate-transpose) of `self` and store the result into `out`.
     #[inline]
     pub fn adjoint_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
@@ -934,7 +1003,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {
-                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).conjugate();
+                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).simd_conjugate();
                 }
             }
         }
@@ -944,7 +1013,9 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     #[must_use = "Did you mean to use adjoint_mut()?"]
     pub fn adjoint(&self) -> MatrixMN<N, C, R>
-    where DefaultAllocator: Allocator<N, C, R> {
+    where
+        DefaultAllocator: Allocator<N, C, R>,
+    {
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
@@ -959,11 +1030,11 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[deprecated(note = "Renamed `self.adjoint_to(out)`.")]
     #[inline]
     pub fn conjugate_transpose_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
-        where
-            R2: Dim,
-            C2: Dim,
-            SB: StorageMut<N, R2, C2>,
-            ShapeConstraint: SameNumberOfRows<R, C2> + SameNumberOfColumns<C, R2>,
+    where
+        R2: Dim,
+        C2: Dim,
+        SB: StorageMut<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R, C2> + SameNumberOfColumns<C, R2>,
     {
         self.adjoint_to(out)
     }
@@ -972,7 +1043,9 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[deprecated(note = "Renamed `self.adjoint()`.")]
     #[inline]
     pub fn conjugate_transpose(&self) -> MatrixMN<N, C, R>
-        where DefaultAllocator: Allocator<N, C, R> {
+    where
+        DefaultAllocator: Allocator<N, C, R>,
+    {
         self.adjoint()
     }
 
@@ -980,48 +1053,54 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     #[must_use = "Did you mean to use conjugate_mut()?"]
     pub fn conjugate(&self) -> MatrixMN<N, R, C>
-        where DefaultAllocator: Allocator<N, R, C> {
-        self.map(|e| e.conjugate())
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
+        self.map(|e| e.simd_conjugate())
     }
 
     /// Divides each component of the complex matrix `self` by the given real.
     #[inline]
     #[must_use = "Did you mean to use unscale_mut()?"]
-    pub fn unscale(&self, real: N::RealField) -> MatrixMN<N, R, C>
-        where DefaultAllocator: Allocator<N, R, C> {
-        self.map(|e| e.unscale(real))
+    pub fn unscale(&self, real: N::SimdRealField) -> MatrixMN<N, R, C>
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
+        self.map(|e| e.simd_unscale(real))
     }
 
     /// Multiplies each component of the complex matrix `self` by the given real.
     #[inline]
     #[must_use = "Did you mean to use scale_mut()?"]
-    pub fn scale(&self, real: N::RealField) -> MatrixMN<N, R, C>
-        where DefaultAllocator: Allocator<N, R, C> {
-        self.map(|e| e.scale(real))
+    pub fn scale(&self, real: N::SimdRealField) -> MatrixMN<N, R, C>
+    where
+        DefaultAllocator: Allocator<N, R, C>,
+    {
+        self.map(|e| e.simd_scale(real))
     }
 }
 
-impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+impl<N: SimdComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// The conjugate of the complex matrix `self` computed in-place.
     #[inline]
     pub fn conjugate_mut(&mut self) {
-        self.apply(|e| e.conjugate())
+        self.apply(|e| e.simd_conjugate())
     }
 
     /// Divides each component of the complex matrix `self` by the given real.
     #[inline]
-    pub fn unscale_mut(&mut self, real: N::RealField) {
-        self.apply(|e| e.unscale(real))
+    pub fn unscale_mut(&mut self, real: N::SimdRealField) {
+        self.apply(|e| e.simd_unscale(real))
     }
 
     /// Multiplies each component of the complex matrix `self` by the given real.
     #[inline]
-    pub fn scale_mut(&mut self, real: N::RealField) {
-        self.apply(|e| e.scale(real))
+    pub fn scale_mut(&mut self, real: N::SimdRealField) {
+        self.apply(|e| e.simd_scale(real))
     }
 }
 
-impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
+impl<N: SimdComplexField, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     /// Sets `self` to its adjoint.
     #[deprecated(note = "Renamed to `self.adjoint_mut()`.")]
     pub fn conjugate_transform_mut(&mut self) {
@@ -1042,8 +1121,8 @@ impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
                 unsafe {
                     let ref_ij = self.get_unchecked_mut((i, j)) as *mut N;
                     let ref_ji = self.get_unchecked_mut((j, i)) as *mut N;
-                    let conj_ij = (*ref_ij).conjugate();
-                    let conj_ji = (*ref_ji).conjugate();
+                    let conj_ij = (*ref_ij).simd_conjugate();
+                    let conj_ji = (*ref_ji).simd_conjugate();
                     *ref_ij = conj_ji;
                     *ref_ji = conj_ij;
                 }
@@ -1051,7 +1130,7 @@ impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
 
             {
                 let diag = unsafe { self.get_unchecked_mut((i, i)) };
-                *diag = diag.conjugate();
+                *diag = diag.simd_conjugate();
             }
         }
     }
@@ -1061,7 +1140,9 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// The diagonal of this matrix.
     #[inline]
     pub fn diagonal(&self) -> VectorN<N, D>
-        where DefaultAllocator: Allocator<N, D> {
+    where
+        DefaultAllocator: Allocator<N, D>,
+    {
         self.map_diagonal(|e| e)
     }
 
@@ -1070,7 +1151,9 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// This is a more efficient version of `self.diagonal().map(f)` since this
     /// allocates only once.
     pub fn map_diagonal<N2: Scalar>(&self, mut f: impl FnMut(N) -> N2) -> VectorN<N2, D>
-        where DefaultAllocator: Allocator<N2, D> {
+    where
+        DefaultAllocator: Allocator<N2, D>,
+    {
         assert!(
             self.is_square(),
             "Unable to get the diagonal of a non-square matrix."
@@ -1091,7 +1174,9 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes a trace of a square matrix, i.e., the sum of its diagonal elements.
     #[inline]
     pub fn trace(&self) -> N
-        where N: Ring {
+    where
+        N: Scalar + Zero + ClosedAdd,
+    {
         assert!(
             self.is_square(),
             "Cannot compute the trace of non-square matrix."
@@ -1108,12 +1193,17 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 }
 
-impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+impl<N: SimdComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// The symmetric part of `self`, i.e., `0.5 * (self + self.transpose())`.
     #[inline]
     pub fn symmetric_part(&self) -> MatrixMN<N, D, D>
-        where DefaultAllocator: Allocator<N, D, D> {
-        assert!(self.is_square(), "Cannot compute the symmetric part of a non-square matrix.");
+    where
+        DefaultAllocator: Allocator<N, D, D>,
+    {
+        assert!(
+            self.is_square(),
+            "Cannot compute the symmetric part of a non-square matrix."
+        );
         let mut tr = self.transpose();
         tr += self;
         tr *= crate::convert::<_, N>(0.5);
@@ -1123,8 +1213,13 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// The hermitian part of `self`, i.e., `0.5 * (self + self.adjoint())`.
     #[inline]
     pub fn hermitian_part(&self) -> MatrixMN<N, D, D>
-        where DefaultAllocator: Allocator<N, D, D> {
-        assert!(self.is_square(), "Cannot compute the hermitian part of a non-square matrix.");
+    where
+        DefaultAllocator: Allocator<N, D, D>,
+    {
+        assert!(
+            self.is_square(),
+            "Cannot compute the hermitian part of a non-square matrix."
+        );
 
         let mut tr = self.adjoint();
         tr += self;
@@ -1133,20 +1228,26 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 }
 
-impl<N: Scalar + Zero + One, D: DimAdd<U1> + IsNotStaticOne, S: Storage<N, D, D>> Matrix<N, D, D, S> {
-
+impl<N: Scalar + Zero + One, D: DimAdd<U1> + IsNotStaticOne, S: Storage<N, D, D>>
+    Matrix<N, D, D, S>
+{
     /// Yields the homogeneous matrix for this matrix, i.e., appending an additional dimension and
     /// and setting the diagonal element to `1`.
     #[inline]
     pub fn to_homogeneous(&self) -> MatrixN<N, DimSum<D, U1>>
-    where DefaultAllocator: Allocator<N, DimSum<D, U1>, DimSum<D, U1>> {
-        assert!(self.is_square(), "Only square matrices can currently be transformed to homogeneous coordinates.");
+    where
+        DefaultAllocator: Allocator<N, DimSum<D, U1>, DimSum<D, U1>>,
+    {
+        assert!(
+            self.is_square(),
+            "Only square matrices can currently be transformed to homogeneous coordinates."
+        );
         let dim = DimSum::<D, U1>::from_usize(self.nrows() + 1);
         let mut res = MatrixN::identity_generic(dim, dim);
-        res.generic_slice_mut::<D, D>((0, 0), self.data.shape()).copy_from(&self);
+        res.generic_slice_mut::<D, D>((0, 0), self.data.shape())
+            .copy_from(&self);
         res
     }
-
 }
 
 impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
@@ -1154,7 +1255,9 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     /// coordinates.
     #[inline]
     pub fn to_homogeneous(&self) -> VectorN<N, DimSum<D, U1>>
-    where DefaultAllocator: Allocator<N, DimSum<D, U1>> {
+    where
+        DefaultAllocator: Allocator<N, DimSum<D, U1>>,
+    {
         self.push(N::zero())
     }
 
@@ -1179,7 +1282,9 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     /// Constructs a new vector of higher dimension by appending `element` to the end of `self`.
     #[inline]
     pub fn push(&self, element: N) -> VectorN<N, DimSum<D, U1>>
-    where DefaultAllocator: Allocator<N, DimSum<D, U1>> {
+    where
+        DefaultAllocator: Allocator<N, DimSum<D, U1>>,
+    {
         let len = self.len();
         let hnrows = DimSum::<D, U1>::from_usize(len + 1);
         let mut res = unsafe { VectorN::<N, _>::new_uninitialized_generic(hnrows, U1) };
@@ -1229,8 +1334,7 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.relative_eq(other, epsilon, max_relative)
     }
 }
@@ -1347,7 +1451,8 @@ impl<N, R: Dim, C: Dim, S> Eq for Matrix<N, R, C, S>
 where
     N: Scalar + Eq,
     S: Storage<N, R, C>,
-{}
+{
+}
 
 impl<N, R, R2, C, C2, S, S2> PartialEq<Matrix<N, R2, C2, S2>> for Matrix<N, R, C, S>
 where
@@ -1357,7 +1462,7 @@ where
     R: Dim,
     R2: Dim,
     S: Storage<N, R, C>,
-    S2: Storage<N, R2, C2>
+    S2: Storage<N, R2, C2>,
 {
     #[inline]
     fn eq(&self, right: &Matrix<N, R2, C2, S2>) -> bool {
@@ -1377,7 +1482,9 @@ macro_rules! impl_fmt {
                 #[cfg(feature = "std")]
                 fn val_width<N: Scalar + $trait>(val: &N, f: &mut fmt::Formatter) -> usize {
                     match f.precision() {
-                        Some(precision) => format!($fmt_str_with_precision, val, precision).chars().count(),
+                        Some(precision) => format!($fmt_str_with_precision, val, precision)
+                            .chars()
+                            .count(),
                         None => format!($fmt_str_without_precision, val).chars().count(),
                     }
                 }
@@ -1421,7 +1528,9 @@ macro_rules! impl_fmt {
                         let pad = max_length_with_space - number_length;
                         write!(f, " {:>thepad$}", "", thepad = pad)?;
                         match f.precision() {
-                            Some(precision) => write!(f, $fmt_str_with_precision, (*self)[(i, j)], precision)?,
+                            Some(precision) => {
+                                write!(f, $fmt_str_with_precision, (*self)[(i, j)], precision)?
+                            }
                             None => write!(f, $fmt_str_without_precision, (*self)[(i, j)])?,
                         }
                     }
@@ -1451,16 +1560,21 @@ impl_fmt!(fmt::Pointer, "{:p}", "{:.1$p}");
 #[test]
 fn lower_exp() {
     let test = crate::Matrix2::new(1e6, 2e5, 2e-5, 1.);
-    assert_eq!(format!("{:e}", test), r"
+    assert_eq!(
+        format!("{:e}", test),
+        r"
   ┌           ┐
   │  1e6  2e5 │
   │ 2e-5  1e0 │
   └           ┘
 
-")
+"
+    )
 }
 
-impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N, R, C>>
+    Matrix<N, R, C, S>
+{
     /// The perpendicular product between two 2D column vectors, i.e. `a.x * b.y - a.y * b.x`.
     #[inline]
     pub fn perp<R2, C2, SB>(&self, b: &Matrix<N, R2, C2, SB>) -> N
@@ -1477,7 +1591,8 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         unsafe {
             self.get_unchecked((0, 0)).inlined_clone() * b.get_unchecked((1, 0)).inlined_clone()
-                - self.get_unchecked((1, 0)).inlined_clone() * b.get_unchecked((0, 0)).inlined_clone()
+                - self.get_unchecked((1, 0)).inlined_clone()
+                    * b.get_unchecked((0, 0)).inlined_clone()
         }
     }
 
@@ -1520,9 +1635,12 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                 let by = b.get_unchecked((1, 0));
                 let bz = b.get_unchecked((2, 0));
 
-                *res.get_unchecked_mut((0, 0)) = ay.inlined_clone() * bz.inlined_clone() - az.inlined_clone() * by.inlined_clone();
-                *res.get_unchecked_mut((1, 0)) = az.inlined_clone() * bx.inlined_clone() - ax.inlined_clone() * bz.inlined_clone();
-                *res.get_unchecked_mut((2, 0)) = ax.inlined_clone() * by.inlined_clone() - ay.inlined_clone() * bx.inlined_clone();
+                *res.get_unchecked_mut((0, 0)) = ay.inlined_clone() * bz.inlined_clone()
+                    - az.inlined_clone() * by.inlined_clone();
+                *res.get_unchecked_mut((1, 0)) = az.inlined_clone() * bx.inlined_clone()
+                    - ax.inlined_clone() * bz.inlined_clone();
+                *res.get_unchecked_mut((2, 0)) = ax.inlined_clone() * by.inlined_clone()
+                    - ay.inlined_clone() * bx.inlined_clone();
 
                 res
             }
@@ -1541,9 +1659,12 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                 let by = b.get_unchecked((0, 1));
                 let bz = b.get_unchecked((0, 2));
 
-                *res.get_unchecked_mut((0, 0)) = ay.inlined_clone() * bz.inlined_clone() - az.inlined_clone() * by.inlined_clone();
-                *res.get_unchecked_mut((0, 1)) = az.inlined_clone() * bx.inlined_clone() - ax.inlined_clone() * bz.inlined_clone();
-                *res.get_unchecked_mut((0, 2)) = ax.inlined_clone() * by.inlined_clone() - ay.inlined_clone() * bx.inlined_clone();
+                *res.get_unchecked_mut((0, 0)) = ay.inlined_clone() * bz.inlined_clone()
+                    - az.inlined_clone() * by.inlined_clone();
+                *res.get_unchecked_mut((0, 1)) = az.inlined_clone() * bx.inlined_clone()
+                    - ax.inlined_clone() * bz.inlined_clone();
+                *res.get_unchecked_mut((0, 2)) = ax.inlined_clone() * by.inlined_clone()
+                    - ay.inlined_clone() * bx.inlined_clone();
 
                 res
             }
@@ -1552,7 +1673,8 @@ impl<N: Scalar + Ring, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 }
 
 impl<N: Scalar + Field, S: Storage<N, U3>> Vector<N, U3, S>
-where DefaultAllocator: Allocator<N, U3>
+where
+    DefaultAllocator: Allocator<N, U3>,
 {
     /// Computes the matrix `M` such that for all vector `v` we have `M * v == self.cross(&v)`.
     #[inline]
@@ -1571,10 +1693,10 @@ where DefaultAllocator: Allocator<N, U3>
     }
 }
 
-impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The smallest angle between two vectors.
     #[inline]
-    pub fn angle<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> N::RealField
+    pub fn angle<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<N, R2, C2, SB>) -> N::SimdRealField
     where
         SB: Storage<N, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
@@ -1584,17 +1706,11 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         let n2 = other.norm();
 
         if n1.is_zero() || n2.is_zero() {
-            N::RealField::zero()
+            N::SimdRealField::zero()
         } else {
-            let cang = prod.real() / (n1 * n2);
-
-            if cang > N::RealField::one() {
-                N::RealField::zero()
-            } else if cang < -N::RealField::one() {
-                N::RealField::pi()
-            } else {
-                cang.acos()
-            }
+            let cang = prod.simd_real() / (n1 * n2);
+            cang.simd_clamp(-N::SimdRealField::one(), N::SimdRealField::one())
+                .simd_acos()
         }
     }
 }
@@ -1615,7 +1731,9 @@ impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     /// assert_eq!(x.lerp(&y, 0.1), Vector3::new(1.9, 3.8, 5.7));
     /// ```
     pub fn lerp<S2: Storage<N, D>>(&self, rhs: &Vector<N, D, S2>, t: N) -> VectorN<N, D>
-    where DefaultAllocator: Allocator<N, D> {
+    where
+        DefaultAllocator: Allocator<N, D>,
+    {
         let mut res = self.clone_owned();
         res.axpy(t.inlined_clone(), rhs, N::one() - t);
         res
@@ -1723,8 +1841,7 @@ where
         other: &Self,
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
-    ) -> bool
-    {
+    ) -> bool {
         self.as_ref()
             .relative_eq(other.as_ref(), epsilon, max_relative)
     }
@@ -1761,7 +1878,7 @@ where
         for j in 0..ncols {
             for i in 0..nrows {
                 unsafe {
-                     self.get_unchecked((i, j)).hash(state);
+                    self.get_unchecked((i, j)).hash(state);
                 }
             }
         }

@@ -5,13 +5,17 @@ use crate::traits::{Alloc, Dimension, Number};
 
 /// The determinant of the matrix `m`.
 pub fn determinant<N: RealField, D: Dimension>(m: &TMat<N, D, D>) -> N
-where DefaultAllocator: Alloc<N, D, D> {
+where
+    DefaultAllocator: Alloc<N, D, D>,
+{
     m.determinant()
 }
 
 /// The inverse of the matrix `m`.
 pub fn inverse<N: RealField, D: Dimension>(m: &TMat<N, D, D>) -> TMat<N, D, D>
-where DefaultAllocator: Alloc<N, D, D> {
+where
+    DefaultAllocator: Alloc<N, D, D>,
+{
     m.clone()
         .try_inverse()
         .unwrap_or_else(TMat::<N, D, D>::zeros)
@@ -41,6 +45,8 @@ where
 
 /// The transpose of the matrix `m`.
 pub fn transpose<N: Scalar, R: Dimension, C: Dimension>(x: &TMat<N, R, C>) -> TMat<N, C, R>
-where DefaultAllocator: Alloc<N, R, C> {
+where
+    DefaultAllocator: Alloc<N, R, C>,
+{
     x.transpose()
 }

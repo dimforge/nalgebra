@@ -30,7 +30,9 @@ impl Dynamic {
 #[cfg(feature = "serde-serialize")]
 impl Serialize for Dynamic {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where S: Serializer {
+    where
+        S: Serializer,
+    {
         self.value.serialize(serializer)
     }
 }
@@ -38,7 +40,9 @@ impl Serialize for Dynamic {
 #[cfg(feature = "serde-serialize")]
 impl<'de> Deserialize<'de> for Dynamic {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where D: Deserializer<'de> {
+    where
+        D: Deserializer<'de>,
+    {
         usize::deserialize(deserializer).map(|x| Dynamic { value: x })
     }
 }
@@ -190,7 +194,6 @@ pub trait DimName: Dim {
     type Value: NamedDim<Name = Self>;
 
     /// The name of this dimension, i.e., the singleton `Self`.
-    #[inline]
     fn name() -> Self;
 
     // FIXME: this is not a very idiomatic name.

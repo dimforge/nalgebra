@@ -1,13 +1,14 @@
 //! Indexing
 
-use crate::base::{Dim, DimName, DimDiff, DimSub, Dynamic, Matrix, MatrixSlice, MatrixSliceMut, Scalar, U1};
 use crate::base::storage::{Storage, StorageMut};
+use crate::base::{
+    Dim, DimDiff, DimName, DimSub, Dynamic, Matrix, MatrixSlice, MatrixSliceMut, Scalar, U1,
+};
 
 use std::ops;
 
 // N.B.: Not a public trait!
-trait DimRange<D: Dim>
-{
+trait DimRange<D: Dim> {
     /// The number of elements indexed by this range.
     type Length: Dim;
 
@@ -68,15 +69,27 @@ impl<D: Dim> DimRange<D> for ops::Range<usize> {
 
 #[test]
 fn dimrange_range_usize() {
-    use std::usize::MAX;
     use crate::base::dimension::U0;
+    use std::usize::MAX;
     assert_eq!(DimRange::contained_by(&(0..0), U0), false);
     assert_eq!(DimRange::contained_by(&(0..1), U0), false);
     assert_eq!(DimRange::contained_by(&(0..1), U1), true);
-    assert_eq!(DimRange::contained_by(&((MAX - 1)..MAX), Dynamic::new(MAX)), true);
-    assert_eq!(DimRange::length(&((MAX - 1)..MAX), Dynamic::new(MAX)), Dynamic::new(1));
-    assert_eq!(DimRange::length(&(MAX..(MAX - 1)), Dynamic::new(MAX)), Dynamic::new(0));
-    assert_eq!(DimRange::length(&(MAX..MAX), Dynamic::new(MAX)), Dynamic::new(0));
+    assert_eq!(
+        DimRange::contained_by(&((MAX - 1)..MAX), Dynamic::new(MAX)),
+        true
+    );
+    assert_eq!(
+        DimRange::length(&((MAX - 1)..MAX), Dynamic::new(MAX)),
+        Dynamic::new(1)
+    );
+    assert_eq!(
+        DimRange::length(&(MAX..(MAX - 1)), Dynamic::new(MAX)),
+        Dynamic::new(0)
+    );
+    assert_eq!(
+        DimRange::length(&(MAX..MAX), Dynamic::new(MAX)),
+        Dynamic::new(0)
+    );
 }
 
 impl<D: Dim> DimRange<D> for ops::RangeFrom<usize> {
@@ -100,18 +113,28 @@ impl<D: Dim> DimRange<D> for ops::RangeFrom<usize> {
 
 #[test]
 fn dimrange_rangefrom_usize() {
-    use std::usize::MAX;
     use crate::base::dimension::U0;
+    use std::usize::MAX;
     assert_eq!(DimRange::contained_by(&(0..), U0), false);
     assert_eq!(DimRange::contained_by(&(0..), U0), false);
     assert_eq!(DimRange::contained_by(&(0..), U1), true);
-    assert_eq!(DimRange::contained_by(&((MAX - 1)..), Dynamic::new(MAX)), true);
-    assert_eq!(DimRange::length(&((MAX - 1)..), Dynamic::new(MAX)), Dynamic::new(1));
-    assert_eq!(DimRange::length(&(MAX..), Dynamic::new(MAX)), Dynamic::new(0));
+    assert_eq!(
+        DimRange::contained_by(&((MAX - 1)..), Dynamic::new(MAX)),
+        true
+    );
+    assert_eq!(
+        DimRange::length(&((MAX - 1)..), Dynamic::new(MAX)),
+        Dynamic::new(1)
+    );
+    assert_eq!(
+        DimRange::length(&(MAX..), Dynamic::new(MAX)),
+        Dynamic::new(0)
+    );
 }
 
 impl<D: Dim, T: Dim> DimRange<D> for ops::RangeFrom<T>
-where D: DimSub<T>
+where
+    D: DimSub<T>,
 {
     type Length = DimDiff<D, T>;
 
@@ -133,7 +156,7 @@ where D: DimSub<T>
 
 #[test]
 fn dimrange_rangefrom_dimname() {
-    use crate::base::dimension::{U5, U4};
+    use crate::base::dimension::{U4, U5};
     assert_eq!(DimRange::length(&(U1..), U5), U4);
 }
 
@@ -173,12 +196,11 @@ impl<D: Dim> DimRange<D> for ops::RangeInclusive<usize> {
 
     #[inline(always)]
     fn length(&self, _: D) -> Self::Length {
-        Dynamic::new(
-            if self.end() < self.start() {
-                0
-            } else {
-                self.end().wrapping_sub(self.start().wrapping_sub(1))
-            })
+        Dynamic::new(if self.end() < self.start() {
+            0
+        } else {
+            self.end().wrapping_sub(self.start().wrapping_sub(1))
+        })
     }
 
     #[inline(always)]
@@ -189,21 +211,38 @@ impl<D: Dim> DimRange<D> for ops::RangeInclusive<usize> {
 
 #[test]
 fn dimrange_rangeinclusive_usize() {
-    use std::usize::MAX;
     use crate::base::dimension::U0;
+    use std::usize::MAX;
     assert_eq!(DimRange::contained_by(&(0..=0), U0), false);
     assert_eq!(DimRange::contained_by(&(0..=0), U1), true);
-    assert_eq!(DimRange::contained_by(&(MAX..=MAX), Dynamic::new(MAX)), false);
-    assert_eq!(DimRange::contained_by(&((MAX-1)..=MAX), Dynamic::new(MAX)), false);
-    assert_eq!(DimRange::contained_by(&((MAX-1)..=(MAX-1)), Dynamic::new(MAX)), true);
+    assert_eq!(
+        DimRange::contained_by(&(MAX..=MAX), Dynamic::new(MAX)),
+        false
+    );
+    assert_eq!(
+        DimRange::contained_by(&((MAX - 1)..=MAX), Dynamic::new(MAX)),
+        false
+    );
+    assert_eq!(
+        DimRange::contained_by(&((MAX - 1)..=(MAX - 1)), Dynamic::new(MAX)),
+        true
+    );
     assert_eq!(DimRange::length(&(0..=0), U1), Dynamic::new(1));
-    assert_eq!(DimRange::length(&((MAX - 1)..=MAX), Dynamic::new(MAX)), Dynamic::new(2));
-    assert_eq!(DimRange::length(&(MAX..=(MAX - 1)), Dynamic::new(MAX)), Dynamic::new(0));
-    assert_eq!(DimRange::length(&(MAX..=MAX), Dynamic::new(MAX)), Dynamic::new(1));
+    assert_eq!(
+        DimRange::length(&((MAX - 1)..=MAX), Dynamic::new(MAX)),
+        Dynamic::new(2)
+    );
+    assert_eq!(
+        DimRange::length(&(MAX..=(MAX - 1)), Dynamic::new(MAX)),
+        Dynamic::new(0)
+    );
+    assert_eq!(
+        DimRange::length(&(MAX..=MAX), Dynamic::new(MAX)),
+        Dynamic::new(1)
+    );
 }
 
-impl<D: Dim> DimRange<D> for ops::RangeTo<usize>
-{
+impl<D: Dim> DimRange<D> for ops::RangeTo<usize> {
     type Length = Dynamic;
 
     #[inline(always)]
@@ -224,18 +263,26 @@ impl<D: Dim> DimRange<D> for ops::RangeTo<usize>
 
 #[test]
 fn dimrange_rangeto_usize() {
-    use std::usize::MAX;
     use crate::base::dimension::U0;
+    use std::usize::MAX;
     assert_eq!(DimRange::contained_by(&(..0), U0), true);
     assert_eq!(DimRange::contained_by(&(..1), U0), false);
     assert_eq!(DimRange::contained_by(&(..0), U1), true);
-    assert_eq!(DimRange::contained_by(&(..(MAX - 1)), Dynamic::new(MAX)), true);
-    assert_eq!(DimRange::length(&(..(MAX - 1)), Dynamic::new(MAX)), Dynamic::new(MAX - 1));
-    assert_eq!(DimRange::length(&(..MAX), Dynamic::new(MAX)), Dynamic::new(MAX));
+    assert_eq!(
+        DimRange::contained_by(&(..(MAX - 1)), Dynamic::new(MAX)),
+        true
+    );
+    assert_eq!(
+        DimRange::length(&(..(MAX - 1)), Dynamic::new(MAX)),
+        Dynamic::new(MAX - 1)
+    );
+    assert_eq!(
+        DimRange::length(&(..MAX), Dynamic::new(MAX)),
+        Dynamic::new(MAX)
+    );
 }
 
-impl<D: Dim> DimRange<D> for ops::RangeToInclusive<usize>
-{
+impl<D: Dim> DimRange<D> for ops::RangeToInclusive<usize> {
     type Length = Dynamic;
 
     #[inline(always)]
@@ -256,21 +303,29 @@ impl<D: Dim> DimRange<D> for ops::RangeToInclusive<usize>
 
 #[test]
 fn dimrange_rangetoinclusive_usize() {
-    use std::usize::MAX;
     use crate::base::dimension::U0;
+    use std::usize::MAX;
     assert_eq!(DimRange::contained_by(&(..=0), U0), false);
     assert_eq!(DimRange::contained_by(&(..=1), U0), false);
     assert_eq!(DimRange::contained_by(&(..=0), U1), true);
-    assert_eq!(DimRange::contained_by(&(..=(MAX)), Dynamic::new(MAX)), false);
-    assert_eq!(DimRange::contained_by(&(..=(MAX - 1)), Dynamic::new(MAX)), true);
-    assert_eq!(DimRange::length(&(..=(MAX - 1)), Dynamic::new(MAX)), Dynamic::new(MAX));
+    assert_eq!(
+        DimRange::contained_by(&(..=(MAX)), Dynamic::new(MAX)),
+        false
+    );
+    assert_eq!(
+        DimRange::contained_by(&(..=(MAX - 1)), Dynamic::new(MAX)),
+        true
+    );
+    assert_eq!(
+        DimRange::length(&(..=(MAX - 1)), Dynamic::new(MAX)),
+        Dynamic::new(MAX)
+    );
 }
 
 /// A helper trait used for indexing operations.
 pub trait MatrixIndex<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>>: Sized {
-
     /// The output type returned by methods.
-    type Output : 'a;
+    type Output: 'a;
 
     /// Produces true if the given matrix is contained by this index.
     #[doc(hidden)]
@@ -282,7 +337,7 @@ pub trait MatrixIndex<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>>: Sized
     #[inline(always)]
     fn get(self, matrix: &'a Matrix<N, R, C, S>) -> Option<Self::Output> {
         if self.contained_by(matrix) {
-            Some(unsafe{self.get_unchecked(matrix)})
+            Some(unsafe { self.get_unchecked(matrix) })
         } else {
             None
         }
@@ -303,9 +358,11 @@ pub trait MatrixIndex<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>>: Sized
 }
 
 /// A helper trait used for indexing operations.
-pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>: MatrixIndex<'a, N, R, C, S> {
+pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
+    MatrixIndex<'a, N, R, C, S>
+{
     /// The output type returned by methods.
-    type OutputMut : 'a;
+    type OutputMut: 'a;
 
     /// Produces a mutable view of the data at this location, without
     /// performing any bounds checking.
@@ -318,7 +375,7 @@ pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
     #[inline(always)]
     fn get_mut(self, matrix: &'a mut Matrix<N, R, C, S>) -> Option<Self::OutputMut> {
         if self.contained_by(matrix) {
-            Some(unsafe{self.get_unchecked_mut(matrix)})
+            Some(unsafe { self.get_unchecked_mut(matrix) })
         } else {
             None
         }
@@ -432,14 +489,13 @@ pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
 ///                         4, 7,
 ///                         5, 8)));
 /// ```
-impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-{
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Produces a view of the data at the given index, or
     /// `None` if the index is out of bounds.
     #[inline]
     pub fn get<'a, I>(&'a self, index: I) -> Option<I::Output>
     where
-        I: MatrixIndex<'a, N, R, C, S>
+        I: MatrixIndex<'a, N, R, C, S>,
     {
         index.get(self)
     }
@@ -450,7 +506,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
     pub fn get_mut<'a, I>(&'a mut self, index: I) -> Option<I::OutputMut>
     where
         S: StorageMut<N, R, C>,
-        I: MatrixIndexMut<'a, N, R, C, S>
+        I: MatrixIndexMut<'a, N, R, C, S>,
     {
         index.get_mut(self)
     }
@@ -460,7 +516,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
     #[inline]
     pub fn index<'a, I>(&'a self, index: I) -> I::Output
     where
-        I: MatrixIndex<'a, N, R, C, S>
+        I: MatrixIndex<'a, N, R, C, S>,
     {
         index.index(self)
     }
@@ -471,7 +527,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
     pub fn index_mut<'a, I>(&'a mut self, index: I) -> I::OutputMut
     where
         S: StorageMut<N, R, C>,
-        I: MatrixIndexMut<'a, N, R, C, S>
+        I: MatrixIndexMut<'a, N, R, C, S>,
     {
         index.index_mut(self)
     }
@@ -481,7 +537,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
     #[inline]
     pub unsafe fn get_unchecked<'a, I>(&'a self, index: I) -> I::Output
     where
-        I: MatrixIndex<'a, N, R, C, S>
+        I: MatrixIndex<'a, N, R, C, S>,
     {
         index.get_unchecked(self)
     }
@@ -492,7 +548,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
     pub unsafe fn get_unchecked_mut<'a, I>(&'a mut self, index: I) -> I::OutputMut
     where
         S: StorageMut<N, R, C>,
-        I: MatrixIndexMut<'a, N, R, C, S>
+        I: MatrixIndexMut<'a, N, R, C, S>,
     {
         index.get_unchecked_mut(self)
     }
@@ -505,7 +561,7 @@ where
     N: Scalar,
     R: Dim,
     C: Dim,
-    S: Storage<N, R, C>
+    S: Storage<N, R, C>,
 {
     type Output = &'a N;
 
@@ -527,14 +583,15 @@ where
     N: Scalar,
     R: Dim,
     C: Dim,
-    S: StorageMut<N, R, C>
+    S: StorageMut<N, R, C>,
 {
     type OutputMut = &'a mut N;
 
     #[doc(hidden)]
     #[inline(always)]
     unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<N, R, C, S>) -> Self::OutputMut
-    where S: StorageMut<N, R, C>,
+    where
+        S: StorageMut<N, R, C>,
     {
         matrix.data.get_unchecked_linear_mut(self)
     }
@@ -547,7 +604,7 @@ where
     N: Scalar,
     R: Dim,
     C: Dim,
-    S: Storage<N, R, C>
+    S: Storage<N, R, C>,
 {
     type Output = &'a N;
 
@@ -572,14 +629,15 @@ where
     N: Scalar,
     R: Dim,
     C: Dim,
-    S: StorageMut<N, R, C>
+    S: StorageMut<N, R, C>,
 {
     type OutputMut = &'a mut N;
 
     #[doc(hidden)]
     #[inline(always)]
     unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<N, R, C, S>) -> Self::OutputMut
-    where S: StorageMut<N, R, C>,
+    where
+        S: StorageMut<N, R, C>,
     {
         let (row, col) = self;
         matrix.data.get_unchecked_mut(row, col)
@@ -684,7 +742,7 @@ macro_rules! impl_index_pairs {
     }
 }
 
-impl_index_pairs!{
+impl_index_pairs! {
     index R with {
         [<> usize                         =>  U1],
         [<> ops::Range<usize>             =>  Dynamic],

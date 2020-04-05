@@ -7,7 +7,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::mem;
 
-use alga::general::RealField;
+use simba::scalar::RealField;
 
 use crate::base::dimension::U3;
 use crate::base::helper;
@@ -46,7 +46,9 @@ impl<N: RealField> PartialEq for Orthographic3<N> {
 #[cfg(feature = "serde-serialize")]
 impl<N: RealField + Serialize> Serialize for Orthographic3<N> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where S: Serializer {
+    where
+        S: Serializer,
+    {
         self.matrix.serialize(serializer)
     }
 }
@@ -54,7 +56,9 @@ impl<N: RealField + Serialize> Serialize for Orthographic3<N> {
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: RealField + Deserialize<'a>> Deserialize<'a> for Orthographic3<N> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
-    where Des: Deserializer<'a> {
+    where
+        Des: Deserializer<'a>,
+    {
         let matrix = Matrix4::<N>::deserialize(deserializer)?;
 
         Ok(Self::from_matrix_unchecked(matrix))
@@ -286,7 +290,7 @@ impl<N: RealField> Orthographic3<N> {
 
     /// Retrieves the underlying homogeneous matrix.
     /// Deprecated: Use [Orthographic3::into_inner] instead.
-    #[deprecated(note="use `.into_inner()` instead")]
+    #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> Matrix4<N> {
         self.matrix
@@ -480,7 +484,9 @@ impl<N: RealField> Orthographic3<N> {
     /// ```
     #[inline]
     pub fn project_vector<SB>(&self, p: &Vector<N, U3, SB>) -> Vector3<N>
-    where SB: Storage<N, U3> {
+    where
+        SB: Storage<N, U3>,
+    {
         Vector3::new(
             self.matrix[(0, 0)] * p[0],
             self.matrix[(1, 1)] * p[1],
@@ -679,7 +685,8 @@ impl<N: RealField> Orthographic3<N> {
 }
 
 impl<N: RealField> Distribution<Orthographic3<N>> for Standard
-where Standard: Distribution<N>
+where
+    Standard: Distribution<N>,
 {
     fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Orthographic3<N> {
         let left = r.gen();
@@ -695,7 +702,8 @@ where Standard: Distribution<N>
 
 #[cfg(feature = "arbitrary")]
 impl<N: RealField + Arbitrary> Arbitrary for Orthographic3<N>
-where Matrix4<N>: Send
+where
+    Matrix4<N>: Send,
 {
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let left = Arbitrary::arbitrary(g);

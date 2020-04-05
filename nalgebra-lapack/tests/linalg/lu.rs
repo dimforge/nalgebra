@@ -3,7 +3,7 @@ use std::cmp;
 use na::{DMatrix, DVector, Matrix3x4, Matrix4, Matrix4x3, Vector4};
 use nl::LU;
 
-quickcheck!{
+quickcheck! {
     fn lup(m: DMatrix<f64>) -> bool {
         if m.len() != 0 {
             let lup = LU::new(m.clone());

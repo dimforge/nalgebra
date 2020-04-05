@@ -1,6 +1,6 @@
 use alga::general::{
     AbstractGroup, AbstractLoop, AbstractMagma, AbstractMonoid, AbstractQuasigroup,
-    AbstractSemigroup, Identity, TwoSidedInverse, Multiplicative, RealField,
+    AbstractSemigroup, Identity, Multiplicative, RealField, TwoSidedInverse,
 };
 use alga::linear::{ProjectiveTransformation, Transformation};
 
@@ -15,7 +15,8 @@ use crate::geometry::{Point, SubTCategoryOf, TCategory, TProjective, Transform};
  * Algebraic structures.
  *
  */
-impl<N: RealField, D: DimNameAdd<U1>, C> Identity<Multiplicative> for Transform<N, D, C>
+impl<N: RealField + simba::scalar::RealField, D: DimNameAdd<U1>, C> Identity<Multiplicative>
+    for Transform<N, D, C>
 where
     C: TCategory,
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
@@ -26,7 +27,8 @@ where
     }
 }
 
-impl<N: RealField, D: DimNameAdd<U1>, C> TwoSidedInverse<Multiplicative> for Transform<N, D, C>
+impl<N: RealField + simba::scalar::RealField, D: DimNameAdd<U1>, C> TwoSidedInverse<Multiplicative>
+    for Transform<N, D, C>
 where
     C: SubTCategoryOf<TProjective>,
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
@@ -43,7 +45,8 @@ where
     }
 }
 
-impl<N: RealField, D: DimNameAdd<U1>, C> AbstractMagma<Multiplicative> for Transform<N, D, C>
+impl<N: RealField + simba::scalar::RealField, D: DimNameAdd<U1>, C> AbstractMagma<Multiplicative>
+    for Transform<N, D, C>
 where
     C: TCategory,
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
@@ -56,7 +59,7 @@ where
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N: RealField, D: DimNameAdd<U1>, C> $marker<$operator> for Transform<N, D, C>
+        impl<N: RealField + simba::scalar::RealField, D: DimNameAdd<U1>, C> $marker<$operator> for Transform<N, D, C>
             where C: TCategory,
                   DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> { }
     )*}
@@ -64,7 +67,7 @@ macro_rules! impl_multiplicative_structures(
 
 macro_rules! impl_inversible_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N: RealField, D: DimNameAdd<U1>, C> $marker<$operator> for Transform<N, D, C>
+        impl<N: RealField + simba::scalar::RealField, D: DimNameAdd<U1>, C> $marker<$operator> for Transform<N, D, C>
             where C: SubTCategoryOf<TProjective>,
                   DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>> { }
     )*}
@@ -88,7 +91,7 @@ impl_inversible_multiplicative_structures!(
  */
 impl<N, D: DimNameAdd<U1>, C> Transformation<Point<N, D>> for Transform<N, D, C>
 where
-    N: RealField,
+    N: RealField + simba::scalar::RealField,
     C: TCategory,
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
         + Allocator<N, DimNameSum<D, U1>>
@@ -108,7 +111,7 @@ where
 
 impl<N, D: DimNameAdd<U1>, C> ProjectiveTransformation<Point<N, D>> for Transform<N, D, C>
 where
-    N: RealField,
+    N: RealField + simba::scalar::RealField,
     C: SubTCategoryOf<TProjective>,
     DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
         + Allocator<N, DimNameSum<D, U1>>
