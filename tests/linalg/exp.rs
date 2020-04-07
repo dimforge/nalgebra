@@ -10,13 +10,17 @@ mod tests {
 
             let f = m.exp();
 
-            assert_eq!(f, Matrix1::new(1_f64.exp()));
+            assert!(relative_eq!(f, Matrix1::new(1_f64.exp()), epsilon = 1.0e-7));
         }
 
         {
             let m = Matrix2::new(0.0, 1.0, 0.0, 0.0);
 
-            assert_eq!(m.exp(), Matrix2::new(1.0, 1.0, 0.0, 1.0));
+            assert!(relative_eq!(
+                m.exp(),
+                Matrix2::new(1.0, 1.0, 0.0, 1.0),
+                epsilon = 1.0e-7
+            ));
         }
 
         {
@@ -35,7 +39,7 @@ mod tests {
             let m22 = ad_2.exp() * (delta * delta_2.cosh() + (d - a) * delta_2.sinh());
 
             let f = Matrix2::new(m11, m12, m21, m22) / delta;
-            assert!((f - m.exp()).iter().all(|v| v.abs() <= 0.00005));
+            assert!(relative_eq!(f, m.exp(), epsilon = 1.0e-7));
         }
 
         {
@@ -68,7 +72,7 @@ mod tests {
 
                 let f = Matrix2::new(m11, m12, m21, m22) / delta;
                 println!("a: {}", m);
-                assert!((f - m.exp()).iter().all(|v| v.abs() <= 0.00005));
+                assert!(relative_eq!(f, m.exp(), epsilon = 1.0e-7));
                 break;
             }
         }
@@ -91,7 +95,7 @@ mod tests {
                 e2,
             );
 
-            assert!((f - m.exp()).iter().all(|v| v.abs() <= 0.00005));
+            assert!(relative_eq!(f, m.exp(), epsilon = 1.0e-7));
         }
     }
 }
