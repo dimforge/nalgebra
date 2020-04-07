@@ -1,13 +1,15 @@
 use num::{One, Zero};
 
-use alga::general::{RealField, SubsetOf, SupersetOf};
-use alga::linear::Rotation;
+use simba::scalar::{RealField, SubsetOf, SupersetOf};
+use simba::simd::PrimitiveSimdValue;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 
-use crate::geometry::{Isometry, Point, Similarity, SuperTCategoryOf, TAffine, Transform, Translation};
+use crate::geometry::{
+    AbstractRotation, Isometry, Similarity, SuperTCategoryOf, TAffine, Transform, Translation,
+};
 
 /*
  * This file provides the following conversions:
@@ -37,7 +39,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(rot: &Translation<N2, D>) -> Self {
+    fn from_superset_unchecked(rot: &Translation<N2, D>) -> Self {
         Translation {
             vector: rot.vector.to_subset_unchecked(),
         }
@@ -48,7 +50,7 @@ impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Translation<N1, D>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: Rotation<Point<N2, D>>,
+    R: AbstractRotation<N2, D>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
@@ -62,7 +64,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(iso: &Isometry<N2, D, R>) -> Self {
+    fn from_superset_unchecked(iso: &Isometry<N2, D, R>) -> Self {
         Self::from_superset_unchecked(&iso.translation)
     }
 }
@@ -71,7 +73,7 @@ impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Translation<N1, D
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: Rotation<Point<N2, D>>,
+    R: AbstractRotation<N2, D>,
     DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
@@ -85,7 +87,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(sim: &Similarity<N2, D, R>) -> Self {
+    fn from_superset_unchecked(sim: &Similarity<N2, D, R>) -> Self {
         Self::from_superset_unchecked(&sim.isometry.translation)
     }
 }
@@ -112,7 +114,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
+    fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
@@ -145,7 +147,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
+    fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let t = m.fixed_slice::<D, U1>(0, D::dim());
         Self {
             vector: crate::convert_unchecked(t.into_owned()),
@@ -165,10 +167,97 @@ where
 }
 
 impl<N: Scalar, D: DimName> From<VectorN<N, D>> for Translation<N, D>
-where DefaultAllocator: Allocator<N, D>
+where
+    DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn from(vector: VectorN<N, D>) -> Self {
         Translation { vector }
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 2]>
+    for Translation<N, D>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 2]>,
+    N::Element: Scalar,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+{
+    #[inline]
+    fn from(arr: [Translation<N::Element, D>; 2]) -> Self {
+        Self::from(VectorN::from([
+            arr[0].vector.clone(),
+            arr[1].vector.clone(),
+        ]))
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 4]>
+    for Translation<N, D>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 4]>,
+    N::Element: Scalar,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+{
+    #[inline]
+    fn from(arr: [Translation<N::Element, D>; 4]) -> Self {
+        Self::from(VectorN::from([
+            arr[0].vector.clone(),
+            arr[1].vector.clone(),
+            arr[2].vector.clone(),
+            arr[3].vector.clone(),
+        ]))
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 8]>
+    for Translation<N, D>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 8]>,
+    N::Element: Scalar,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+{
+    #[inline]
+    fn from(arr: [Translation<N::Element, D>; 8]) -> Self {
+        Self::from(VectorN::from([
+            arr[0].vector.clone(),
+            arr[1].vector.clone(),
+            arr[2].vector.clone(),
+            arr[3].vector.clone(),
+            arr[4].vector.clone(),
+            arr[5].vector.clone(),
+            arr[6].vector.clone(),
+            arr[7].vector.clone(),
+        ]))
+    }
+}
+
+impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Translation<N::Element, D>; 16]>
+    for Translation<N, D>
+where
+    N: From<[<N as simba::simd::SimdValue>::Element; 16]>,
+    N::Element: Scalar,
+    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+{
+    #[inline]
+    fn from(arr: [Translation<N::Element, D>; 16]) -> Self {
+        Self::from(VectorN::from([
+            arr[0].vector.clone(),
+            arr[1].vector.clone(),
+            arr[2].vector.clone(),
+            arr[3].vector.clone(),
+            arr[4].vector.clone(),
+            arr[5].vector.clone(),
+            arr[6].vector.clone(),
+            arr[7].vector.clone(),
+            arr[8].vector.clone(),
+            arr[9].vector.clone(),
+            arr[10].vector.clone(),
+            arr[11].vector.clone(),
+            arr[12].vector.clone(),
+            arr[13].vector.clone(),
+            arr[14].vector.clone(),
+            arr[15].vector.clone(),
+        ]))
     }
 }

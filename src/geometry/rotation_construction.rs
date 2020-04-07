@@ -1,6 +1,6 @@
 use num::{One, Zero};
 
-use alga::general::{ClosedAdd, ClosedMul};
+use simba::scalar::{ClosedAdd, ClosedMul};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::DimName;

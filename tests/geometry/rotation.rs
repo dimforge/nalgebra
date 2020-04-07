@@ -32,8 +32,8 @@ fn quaternion_euler_angles_issue_494() {
 
 #[cfg(feature = "arbitrary")]
 mod quickcheck_tests {
-    use alga::general::RealField;
     use na::{self, Rotation2, Rotation3, Unit, Vector2, Vector3};
+    use simba::scalar::RealField;
     use std::f64;
 
     quickcheck! {

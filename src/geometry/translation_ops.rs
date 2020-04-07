@@ -1,6 +1,6 @@
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
-use alga::general::{ClosedAdd, ClosedSub};
+use simba::scalar::{ClosedAdd, ClosedSub};
 
 use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};

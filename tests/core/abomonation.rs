@@ -32,8 +32,6 @@ test_abomonation! {
 }
 
 fn assert_encode_and_decode<T: Abomonation + PartialEq + Clone>(original_data: T) {
-    use std::mem::drop;
-
     // Hold on to a clone for later comparison
     let data = original_data.clone();
 

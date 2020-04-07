@@ -12,6 +12,7 @@ pub mod storage;
 
 mod alias;
 mod alias_slice;
+mod array_storage;
 mod cg;
 mod componentwise;
 mod construction;
@@ -20,25 +21,26 @@ mod conversion;
 mod edition;
 pub mod indexing;
 mod matrix;
+#[cfg(feature = "alga")]
 mod matrix_alga;
-mod array_storage;
+mod matrix_simba;
 mod matrix_slice;
-#[cfg(any(feature = "std", feature = "alloc"))]
-mod vec_storage;
+mod norm;
 mod properties;
 mod scalar;
+mod statistics;
 mod swizzle;
 mod unit;
-mod statistics;
-mod norm;
+#[cfg(any(feature = "std", feature = "alloc"))]
+mod vec_storage;
 
 #[doc(hidden)]
 pub mod helper;
 
 pub use self::matrix::*;
+pub use self::norm::*;
 pub use self::scalar::*;
 pub use self::unit::*;
-pub use self::norm::*;
 
 pub use self::default_allocator::*;
 pub use self::dimension::*;

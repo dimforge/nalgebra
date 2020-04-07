@@ -15,21 +15,18 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: Serialize"
-    ))
+    serde(bound(serialize = "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: Deserialize<'de>"
-    ))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D>,
+         MatrixN<N, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct Cholesky<N: Scalar, D: Dim>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     l: MatrixN<N, D>,
 }
@@ -38,10 +35,12 @@ impl<N: Scalar + Copy, D: Dim> Copy for Cholesky<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
-{}
+{
+}
 
 impl<N: CholeskyScalar + Zero, D: Dim> Cholesky<N, D>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     /// Computes the cholesky decomposition of the given symmetric-definite-positive square
     /// matrix.
@@ -117,7 +116,9 @@ where DefaultAllocator: Allocator<N, D, D>
     /// Solves in-place the symmetric-definite-positive linear system `self * x = b`, where `x` is
     /// the unknown to be determined.
     pub fn solve_mut<R2: Dim, C2: Dim>(&self, b: &mut MatrixMN<N, R2, C2>) -> bool
-    where DefaultAllocator: Allocator<N, R2, C2> {
+    where
+        DefaultAllocator: Allocator<N, R2, C2>,
+    {
         let dim = self.l.nrows();
 
         assert!(

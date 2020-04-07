@@ -64,7 +64,10 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
     /// # Errors
     /// Inputs must satisfy `self.len() >= kernel.len() > 0`.
     ///
-    pub fn convolve_valid<D2, S2>(&self, kernel: Vector<N, D2, S2>) -> VectorN<N, DimDiff<DimSum<D1, U1>, D2>>
+    pub fn convolve_valid<D2, S2>(
+        &self,
+        kernel: Vector<N, D2, S2>,
+    ) -> VectorN<N, DimDiff<DimSum<D1, U1>, D2>>
     where
         D1: DimAdd<U1>,
         D2: Dim,

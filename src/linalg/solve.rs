@@ -1,10 +1,10 @@
-use alga::general::ComplexField;
+use simba::scalar::ComplexField;
 
 use crate::base::allocator::Allocator;
 use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::{Dim, U1};
 use crate::base::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, SquareMatrix, Vector, DVectorSlice};
+use crate::base::{DVectorSlice, DefaultAllocator, Matrix, MatrixMN, SquareMatrix, Vector};
 
 impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     /// Computes the solution of the linear system `self . x = b` where `x` is the unknown and only
@@ -190,10 +190,10 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         &self,
         b: &Matrix<N, R2, C2, S2>,
     ) -> Option<MatrixMN<N, R2, C2>>
-        where
-            S2: Storage<N, R2, C2>,
-            DefaultAllocator: Allocator<N, R2, C2>,
-            ShapeConstraint: SameNumberOfRows<R2, D>,
+    where
+        S2: Storage<N, R2, C2>,
+        DefaultAllocator: Allocator<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
         if self.tr_solve_lower_triangular_mut(&mut res) {
@@ -210,10 +210,10 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         &self,
         b: &Matrix<N, R2, C2, S2>,
     ) -> Option<MatrixMN<N, R2, C2>>
-        where
-            S2: Storage<N, R2, C2>,
-            DefaultAllocator: Allocator<N, R2, C2>,
-            ShapeConstraint: SameNumberOfRows<R2, D>,
+    where
+        S2: Storage<N, R2, C2>,
+        DefaultAllocator: Allocator<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
         if self.tr_solve_upper_triangular_mut(&mut res) {
@@ -229,14 +229,18 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         &self,
         b: &mut Matrix<N, R2, C2, S2>,
     ) -> bool
-        where
-            S2: StorageMut<N, R2, C2>,
-            ShapeConstraint: SameNumberOfRows<R2, D>,
+    where
+        S2: StorageMut<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let cols = b.ncols();
 
         for i in 0..cols {
-            if !self.xx_solve_lower_triangular_vector_mut(&mut b.column_mut(i), |e| e, |a, b| a.dot(b)) {
+            if !self.xx_solve_lower_triangular_vector_mut(
+                &mut b.column_mut(i),
+                |e| e,
+                |a, b| a.dot(b),
+            ) {
                 return false;
             }
         }
@@ -250,14 +254,18 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         &self,
         b: &mut Matrix<N, R2, C2, S2>,
     ) -> bool
-        where
-            S2: StorageMut<N, R2, C2>,
-            ShapeConstraint: SameNumberOfRows<R2, D>,
+    where
+        S2: StorageMut<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let cols = b.ncols();
 
         for i in 0..cols {
-            if !self.xx_solve_upper_triangular_vector_mut(&mut b.column_mut(i), |e| e, |a, b| a.dot(b)) {
+            if !self.xx_solve_upper_triangular_vector_mut(
+                &mut b.column_mut(i),
+                |e| e,
+                |a, b| a.dot(b),
+            ) {
                 return false;
             }
         }
@@ -272,10 +280,10 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         &self,
         b: &Matrix<N, R2, C2, S2>,
     ) -> Option<MatrixMN<N, R2, C2>>
-        where
-            S2: Storage<N, R2, C2>,
-            DefaultAllocator: Allocator<N, R2, C2>,
-            ShapeConstraint: SameNumberOfRows<R2, D>,
+    where
+        S2: Storage<N, R2, C2>,
+        DefaultAllocator: Allocator<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
         if self.ad_solve_lower_triangular_mut(&mut res) {
@@ -292,10 +300,10 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         &self,
         b: &Matrix<N, R2, C2, S2>,
     ) -> Option<MatrixMN<N, R2, C2>>
-        where
-            S2: Storage<N, R2, C2>,
-            DefaultAllocator: Allocator<N, R2, C2>,
-            ShapeConstraint: SameNumberOfRows<R2, D>,
+    where
+        S2: Storage<N, R2, C2>,
+        DefaultAllocator: Allocator<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
         if self.ad_solve_upper_triangular_mut(&mut res) {
@@ -311,14 +319,18 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         &self,
         b: &mut Matrix<N, R2, C2, S2>,
     ) -> bool
-        where
-            S2: StorageMut<N, R2, C2>,
-            ShapeConstraint: SameNumberOfRows<R2, D>,
+    where
+        S2: StorageMut<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let cols = b.ncols();
 
         for i in 0..cols {
-            if !self.xx_solve_lower_triangular_vector_mut(&mut b.column_mut(i), |e| e.conjugate(), |a, b| a.dotc(b)) {
+            if !self.xx_solve_lower_triangular_vector_mut(
+                &mut b.column_mut(i),
+                |e| e.conjugate(),
+                |a, b| a.dotc(b),
+            ) {
                 return false;
             }
         }
@@ -332,14 +344,18 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         &self,
         b: &mut Matrix<N, R2, C2, S2>,
     ) -> bool
-        where
-            S2: StorageMut<N, R2, C2>,
-            ShapeConstraint: SameNumberOfRows<R2, D>,
+    where
+        S2: StorageMut<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let cols = b.ncols();
 
         for i in 0..cols {
-            if !self.xx_solve_upper_triangular_vector_mut(&mut b.column_mut(i), |e| e.conjugate(), |a, b| a.dotc(b)) {
+            if !self.xx_solve_upper_triangular_vector_mut(
+                &mut b.column_mut(i),
+                |e| e.conjugate(),
+                |a, b| a.dotc(b),
+            ) {
                 return false;
             }
         }
@@ -347,17 +363,19 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         true
     }
 
-
     #[inline(always)]
     fn xx_solve_lower_triangular_vector_mut<R2: Dim, S2>(
         &self,
         b: &mut Vector<N, R2, S2>,
         conjugate: impl Fn(N) -> N,
-        dot: impl Fn(&DVectorSlice<N, S::RStride, S::CStride>, &DVectorSlice<N, S2::RStride, S2::CStride>) -> N,
+        dot: impl Fn(
+            &DVectorSlice<N, S::RStride, S::CStride>,
+            &DVectorSlice<N, S2::RStride, S2::CStride>,
+        ) -> N,
     ) -> bool
-        where
-            S2: StorageMut<N, R2, U1>,
-            ShapeConstraint: SameNumberOfRows<R2, D>,
+    where
+        S2: StorageMut<N, R2, U1>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let dim = self.nrows();
 
@@ -385,11 +403,14 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         &self,
         b: &mut Vector<N, R2, S2>,
         conjugate: impl Fn(N) -> N,
-        dot: impl Fn(&DVectorSlice<N, S::RStride, S::CStride>, &DVectorSlice<N, S2::RStride, S2::CStride>) -> N,
+        dot: impl Fn(
+            &DVectorSlice<N, S::RStride, S::CStride>,
+            &DVectorSlice<N, S2::RStride, S2::CStride>,
+        ) -> N,
     ) -> bool
-        where
-            S2: StorageMut<N, R2, U1>,
-            ShapeConstraint: SameNumberOfRows<R2, D>,
+    where
+        S2: StorageMut<N, R2, U1>,
+        ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let dim = self.nrows();
 

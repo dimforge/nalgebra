@@ -1,4 +1,4 @@
-use alga::general::{RealField, SubsetOf};
+use simba::scalar::{RealField, SubsetOf};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -29,7 +29,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(t: &Transform<N2, D, C2>) -> Self {
+    fn from_superset_unchecked(t: &Transform<N2, D, C2>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
@@ -56,7 +56,7 @@ where
     }
 
     #[inline]
-    unsafe fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
+    fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         Self::from_matrix_unchecked(crate::convert_ref_unchecked(m))
     }
 }

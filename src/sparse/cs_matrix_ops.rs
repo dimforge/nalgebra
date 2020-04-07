@@ -1,5 +1,5 @@
-use alga::general::{ClosedAdd, ClosedMul};
 use num::{One, Zero};
+use simba::scalar::{ClosedAdd, ClosedMul};
 use std::ops::{Add, Mul};
 
 use crate::allocator::Allocator;
@@ -112,11 +112,11 @@ impl<N: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D>> Vect
         let col2 = a.column(0);
         let val = unsafe { *x.vget_unchecked(0) };
         self.axpy_sparse(alpha * val, &col2, beta);
-    
+
         for j in 1..ncols2 {
             let col2 = a.column(j);
             let val = unsafe { *x.vget_unchecked(j) };
-    
+
             self.axpy_sparse(alpha * val, &col2, N::one());
         }
     }

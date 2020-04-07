@@ -1,6 +1,6 @@
+use core::mem;
 use na::{self, DefaultAllocator, RealField};
 use num::FromPrimitive;
-use core::mem;
 
 use crate::aliases::{TMat, TVec};
 use crate::traits::{Alloc, Dimension, Number};
@@ -22,7 +22,9 @@ use crate::traits::{Alloc, Dimension, Number};
 ///
 /// * [`sign`](fn.sign.html)
 pub fn abs<N: Number, R: Dimension, C: Dimension>(x: &TMat<N, R, C>) -> TMat<N, R, C>
-where DefaultAllocator: Alloc<N, R, C> {
+where
+    DefaultAllocator: Alloc<N, R, C>,
+{
     x.abs()
 }
 
@@ -44,7 +46,9 @@ where DefaultAllocator: Alloc<N, R, C> {
 /// * [`round`](fn.round.html)
 /// * [`trunc`](fn.trunc.html)
 pub fn ceil<N: RealField, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.map(|x| x.ceil())
 }
 
@@ -94,7 +98,9 @@ pub fn clamp_scalar<N: Number>(x: N, min_val: N, max_val: N) -> N {
 /// * [`clamp_scalar`](fn.clamp_scalar.html)
 /// * [`clamp_vec`](fn.clamp_vec.html)
 pub fn clamp<N: Number, D: Dimension>(x: &TVec<N, D>, min_val: N, max_val: N) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.map(|x| na::clamp(x, min_val, max_val))
 }
 
@@ -167,7 +173,9 @@ pub fn float_bits_to_int(v: f32) -> i32 {
 /// * [`uint_bits_to_float`](fn.uint_bits_to_float.html)
 /// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
 pub fn float_bits_to_int_vec<D: Dimension>(v: &TVec<f32, D>) -> TVec<i32, D>
-where DefaultAllocator: Alloc<f32, D> {
+where
+    DefaultAllocator: Alloc<f32, D>,
+{
     v.map(float_bits_to_int)
 }
 
@@ -202,7 +210,9 @@ pub fn float_bits_to_uint(v: f32) -> u32 {
 /// * [`uint_bits_to_float`](fn.uint_bits_to_float.html)
 /// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
 pub fn float_bits_to_uint_vec<D: Dimension>(v: &TVec<f32, D>) -> TVec<u32, D>
-where DefaultAllocator: Alloc<f32, D> {
+where
+    DefaultAllocator: Alloc<f32, D>,
+{
     v.map(float_bits_to_uint)
 }
 
@@ -223,7 +233,9 @@ where DefaultAllocator: Alloc<f32, D> {
 /// * [`round`](fn.round.html)
 /// * [`trunc`](fn.trunc.html)
 pub fn floor<N: RealField, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.map(|x| x.floor())
 }
 
@@ -250,7 +262,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`round`](fn.round.html)
 /// * [`trunc`](fn.trunc.html)
 pub fn fract<N: RealField, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.map(|x| x.fract())
 }
 
@@ -293,7 +307,9 @@ pub fn int_bits_to_float(v: i32) -> f32 {
 /// * [`uint_bits_to_float`](fn.uint_bits_to_float.html)
 /// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
 pub fn int_bits_to_float_vec<D: Dimension>(v: &TVec<i32, D>) -> TVec<f32, D>
-where DefaultAllocator: Alloc<f32, D> {
+where
+    DefaultAllocator: Alloc<f32, D>,
+{
     v.map(int_bits_to_float)
 }
 
@@ -352,7 +368,9 @@ pub fn mix_scalar<N: Number>(x: N, y: N, a: N) -> N {
 /// * [`mix_scalar`](fn.mix_scalar.html)
 /// * [`mix_vec`](fn.mix_vec.html)
 pub fn mix<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>, a: N) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x * (N::one() - a) + y * a
 }
 
@@ -425,7 +443,9 @@ pub fn lerp_scalar<N: Number>(x: N, y: N, a: N) -> N {
 /// * [`lerp_scalar`](fn.lerp_scalar.html)
 /// * [`lerp_vec`](fn.lerp_vec.html)
 pub fn lerp<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>, a: N) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     mix(x, y, a)
 }
 
@@ -468,7 +488,9 @@ where
 ///
 /// * [`modf`](fn.modf.html)
 pub fn modf_vec<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.zip_map(y, |x, y| x % y)
 }
 
@@ -500,7 +522,9 @@ pub fn modf<N: Number>(x: N, i: N) -> N {
 /// * [`fract`](fn.fract.html)
 /// * [`trunc`](fn.trunc.html)
 pub fn round<N: RealField, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.map(|x| x.round())
 }
 
@@ -524,7 +548,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`abs`](fn.abs.html)
 ///
 pub fn sign<N: Number, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.map(|x| if x.is_zero() { N::zero() } else { x.signum() })
 }
 
@@ -550,13 +576,17 @@ pub fn step_scalar<N: Number>(edge: N, x: N) -> N {
 
 /// Returns 0.0 if `x[i] < edge`, otherwise it returns 1.0.
 pub fn step<N: Number, D: Dimension>(edge: N, x: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.map(|x| step_scalar(edge, x))
 }
 
 /// Returns 0.0 if `x[i] < edge[i]`, otherwise it returns 1.0.
 pub fn step_vec<N: Number, D: Dimension>(edge: &TVec<N, D>, x: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     edge.zip_map(x, step_scalar)
 }
 
@@ -577,7 +607,9 @@ where DefaultAllocator: Alloc<N, D> {
 /// * [`fract`](fn.fract.html)
 /// * [`round`](fn.round.html)
 pub fn trunc<N: RealField, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
-where DefaultAllocator: Alloc<N, D> {
+where
+    DefaultAllocator: Alloc<N, D>,
+{
     x.map(|x| x.trunc())
 }
 
@@ -612,6 +644,8 @@ pub fn uint_bits_to_float_scalar(v: u32) -> f32 {
 /// * [`int_bits_to_float_vec`](fn.int_bits_to_float_vec.html)
 /// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
 pub fn uint_bits_to_float<D: Dimension>(v: &TVec<u32, D>) -> TVec<f32, D>
-where DefaultAllocator: Alloc<f32, D> {
+where
+    DefaultAllocator: Alloc<f32, D>,
+{
     v.map(uint_bits_to_float_scalar)
 }

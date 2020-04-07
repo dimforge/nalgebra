@@ -5,11 +5,11 @@ use std::io::{Result as IOResult, Write};
 use alloc::vec::Vec;
 
 use crate::base::allocator::Allocator;
+use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, DimName, Dynamic, U1};
 use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
 use crate::base::{Scalar, Vector};
-use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -29,7 +29,7 @@ pub struct VecStorage<N, R: Dim, C: Dim> {
     ncols: C,
 }
 
-#[deprecated(note="renamed to `VecStorage`")]
+#[deprecated(note = "renamed to `VecStorage`")]
 /// Renamed to [VecStorage].
 pub type MatrixVec<N, R, C> = VecStorage<N, R, C>;
 
@@ -89,8 +89,7 @@ impl<N, R: Dim, C: Dim> VecStorage<N, R, C> {
     }
 }
 
-impl<N, R: Dim, C: Dim> Into<Vec<N>> for VecStorage<N, R, C>
-{
+impl<N, R: Dim, C: Dim> Into<Vec<N>> for VecStorage<N, R, C> {
     fn into(self) -> Vec<N> {
         self.data
     }
@@ -103,7 +102,8 @@ impl<N, R: Dim, C: Dim> Into<Vec<N>> for VecStorage<N, R, C>
  *
  */
 unsafe impl<N: Scalar, C: Dim> Storage<N, Dynamic, C> for VecStorage<N, Dynamic, C>
-where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
+where
+    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>,
 {
     type RStride = U1;
     type CStride = Dynamic;
@@ -130,13 +130,17 @@ where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 
     #[inline]
     fn into_owned(self) -> Owned<N, Dynamic, C>
-    where DefaultAllocator: Allocator<N, Dynamic, C> {
+    where
+        DefaultAllocator: Allocator<N, Dynamic, C>,
+    {
         self
     }
 
     #[inline]
     fn clone_owned(&self) -> Owned<N, Dynamic, C>
-    where DefaultAllocator: Allocator<N, Dynamic, C> {
+    where
+        DefaultAllocator: Allocator<N, Dynamic, C>,
+    {
         self.clone()
     }
 
@@ -147,7 +151,8 @@ where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
 }
 
 unsafe impl<N: Scalar, R: DimName> Storage<N, R, Dynamic> for VecStorage<N, R, Dynamic>
-where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
+where
+    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>,
 {
     type RStride = U1;
     type CStride = R;
@@ -174,13 +179,17 @@ where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 
     #[inline]
     fn into_owned(self) -> Owned<N, R, Dynamic>
-    where DefaultAllocator: Allocator<N, R, Dynamic> {
+    where
+        DefaultAllocator: Allocator<N, R, Dynamic>,
+    {
         self
     }
 
     #[inline]
     fn clone_owned(&self) -> Owned<N, R, Dynamic>
-    where DefaultAllocator: Allocator<N, R, Dynamic> {
+    where
+        DefaultAllocator: Allocator<N, R, Dynamic>,
+    {
         self.clone()
     }
 
@@ -196,7 +205,8 @@ where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
  *
  */
 unsafe impl<N: Scalar, C: Dim> StorageMut<N, Dynamic, C> for VecStorage<N, Dynamic, C>
-where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
+where
+    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>,
 {
     #[inline]
     fn ptr_mut(&mut self) -> *mut N {
@@ -209,14 +219,19 @@ where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
     }
 }
 
-unsafe impl<N: Scalar, C: Dim> ContiguousStorage<N, Dynamic, C> for VecStorage<N, Dynamic, C> where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
-{}
+unsafe impl<N: Scalar, C: Dim> ContiguousStorage<N, Dynamic, C> for VecStorage<N, Dynamic, C> where
+    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
+{
+}
 
-unsafe impl<N: Scalar, C: Dim> ContiguousStorageMut<N, Dynamic, C> for VecStorage<N, Dynamic, C> where DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
-{}
+unsafe impl<N: Scalar, C: Dim> ContiguousStorageMut<N, Dynamic, C> for VecStorage<N, Dynamic, C> where
+    DefaultAllocator: Allocator<N, Dynamic, C, Buffer = Self>
+{
+}
 
 unsafe impl<N: Scalar, R: DimName> StorageMut<N, R, Dynamic> for VecStorage<N, R, Dynamic>
-where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
+where
+    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>,
 {
     #[inline]
     fn ptr_mut(&mut self) -> *mut N {
@@ -244,14 +259,17 @@ impl<N: Abomonation, R: Dim, C: Dim> Abomonation for VecStorage<N, R, C> {
     }
 }
 
-unsafe impl<N: Scalar, R: DimName> ContiguousStorage<N, R, Dynamic> for VecStorage<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
-{}
-
-unsafe impl<N: Scalar, R: DimName> ContiguousStorageMut<N, R, Dynamic> for VecStorage<N, R, Dynamic> where DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
-{}
-
-impl<N, R: Dim> Extend<N> for VecStorage<N, R, Dynamic>
+unsafe impl<N: Scalar, R: DimName> ContiguousStorage<N, R, Dynamic> for VecStorage<N, R, Dynamic> where
+    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
 {
+}
+
+unsafe impl<N: Scalar, R: DimName> ContiguousStorageMut<N, R, Dynamic> for VecStorage<N, R, Dynamic> where
+    DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>
+{
+}
+
+impl<N, R: Dim> Extend<N> for VecStorage<N, R, Dynamic> {
     /// Extends the number of columns of the `VecStorage` with elements
     /// from the given iterator.
     ///
@@ -259,8 +277,7 @@ impl<N, R: Dim> Extend<N> for VecStorage<N, R, Dynamic>
     /// This function panics if the number of elements yielded by the
     /// given iterator is not a multiple of the number of rows of the
     /// `VecStorage`.
-    fn extend<I: IntoIterator<Item=N>>(&mut self, iter: I)
-    {
+    fn extend<I: IntoIterator<Item = N>>(&mut self, iter: I) {
         self.data.extend(iter);
         self.ncols = Dynamic::new(self.data.len() / self.nrows.value());
         assert!(self.data.len() % self.nrows.value() == 0,
@@ -268,8 +285,7 @@ impl<N, R: Dim> Extend<N> for VecStorage<N, R, Dynamic>
     }
 }
 
-impl<'a, N: 'a + Copy, R: Dim> Extend<&'a N> for VecStorage<N, R, Dynamic>
-{
+impl<'a, N: 'a + Copy, R: Dim> Extend<&'a N> for VecStorage<N, R, Dynamic> {
     /// Extends the number of columns of the `VecStorage` with elements
     /// from the given iterator.
     ///
@@ -277,8 +293,7 @@ impl<'a, N: 'a + Copy, R: Dim> Extend<&'a N> for VecStorage<N, R, Dynamic>
     /// This function panics if the number of elements yielded by the
     /// given iterator is not a multiple of the number of rows of the
     /// `VecStorage`.
-    fn extend<I: IntoIterator<Item=&'a N>>(&mut self, iter: I)
-    {
+    fn extend<I: IntoIterator<Item = &'a N>>(&mut self, iter: I) {
         self.extend(iter.into_iter().copied())
     }
 }
@@ -298,8 +313,7 @@ where
     /// This function panics if the number of rows of each `Vector`
     /// yielded by the iterator is not equal to the number of rows
     /// of this `VecStorage`.
-    fn extend<I: IntoIterator<Item=Vector<N, RV, SV>>>(&mut self, iter: I)
-    {
+    fn extend<I: IntoIterator<Item = Vector<N, RV, SV>>>(&mut self, iter: I) {
         let nrows = self.nrows.value();
         let iter = iter.into_iter();
         let (lower, _upper) = iter.size_hint();
@@ -312,12 +326,10 @@ where
     }
 }
 
-impl<N> Extend<N> for VecStorage<N, Dynamic, U1>
-{
+impl<N> Extend<N> for VecStorage<N, Dynamic, U1> {
     /// Extends the number of rows of the `VecStorage` with elements
     /// from the given iterator.
-    fn extend<I: IntoIterator<Item=N>>(&mut self, iter: I)
-    {
+    fn extend<I: IntoIterator<Item = N>>(&mut self, iter: I) {
         self.data.extend(iter);
         self.nrows = Dynamic::new(self.data.len());
     }

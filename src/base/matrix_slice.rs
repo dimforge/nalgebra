@@ -4,9 +4,9 @@ use std::slice;
 
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
-use crate::base::dimension::{Dim, DimName, Dynamic, U1, IsNotStaticOne};
+use crate::base::dimension::{Dim, DimName, Dynamic, IsNotStaticOne, U1};
 use crate::base::iter::MatrixIter;
-use crate::base::storage::{Owned, Storage, StorageMut, ContiguousStorage, ContiguousStorageMut};
+use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
 use crate::base::{Matrix, Scalar};
 
 macro_rules! slice_storage_impl(
@@ -198,13 +198,31 @@ unsafe impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> StorageMu
     }
 }
 
-unsafe impl<'a, N: Scalar, R: Dim, CStride: Dim> ContiguousStorage<N, R, U1> for SliceStorage<'a, N, R, U1, U1, CStride> { }
-unsafe impl<'a, N: Scalar, R: Dim, CStride: Dim> ContiguousStorage<N, R, U1> for SliceStorageMut<'a, N, R, U1, U1, CStride> { }
-unsafe impl<'a, N: Scalar, R: Dim, CStride: Dim> ContiguousStorageMut<N, R, U1> for SliceStorageMut<'a, N, R, U1, U1, CStride> { }
+unsafe impl<'a, N: Scalar, R: Dim, CStride: Dim> ContiguousStorage<N, R, U1>
+    for SliceStorage<'a, N, R, U1, U1, CStride>
+{
+}
+unsafe impl<'a, N: Scalar, R: Dim, CStride: Dim> ContiguousStorage<N, R, U1>
+    for SliceStorageMut<'a, N, R, U1, U1, CStride>
+{
+}
+unsafe impl<'a, N: Scalar, R: Dim, CStride: Dim> ContiguousStorageMut<N, R, U1>
+    for SliceStorageMut<'a, N, R, U1, U1, CStride>
+{
+}
 
-unsafe impl<'a, N: Scalar, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorage<N, R, C> for SliceStorage<'a, N, R, C, U1, R> { }
-unsafe impl<'a, N: Scalar, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorage<N, R, C> for SliceStorageMut<'a, N, R, C, U1, R> { }
-unsafe impl<'a, N: Scalar, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorageMut<N, R, C> for SliceStorageMut<'a, N, R, C, U1, R> { }
+unsafe impl<'a, N: Scalar, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorage<N, R, C>
+    for SliceStorage<'a, N, R, C, U1, R>
+{
+}
+unsafe impl<'a, N: Scalar, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorage<N, R, C>
+    for SliceStorageMut<'a, N, R, C, U1, R>
+{
+}
+unsafe impl<'a, N: Scalar, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorageMut<N, R, C>
+    for SliceStorageMut<'a, N, R, C, U1, R>
+{
+}
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
@@ -213,8 +231,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         start: (usize, usize),
         shape: (usize, usize),
         steps: (usize, usize),
-    )
-    {
+    ) {
         let my_shape = self.shape();
         // NOTE: we don't do any subtraction to avoid underflow for zero-sized matrices.
         //
@@ -811,8 +828,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     pub fn rows_range<RowRange: SliceRange<R>>(
         &self,
         rows: RowRange,
-    ) -> MatrixSlice<N, RowRange::Size, C, S::RStride, S::CStride>
-    {
+    ) -> MatrixSlice<N, RowRange::Size, C, S::RStride, S::CStride> {
         self.slice_range(rows, ..)
     }
 
@@ -821,8 +837,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     pub fn columns_range<ColRange: SliceRange<C>>(
         &self,
         cols: ColRange,
-    ) -> MatrixSlice<N, R, ColRange::Size, S::RStride, S::CStride>
-    {
+    ) -> MatrixSlice<N, R, ColRange::Size, S::RStride, S::CStride> {
         self.slice_range(.., cols)
     }
 }
@@ -851,8 +866,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     pub fn rows_range_mut<RowRange: SliceRange<R>>(
         &mut self,
         rows: RowRange,
-    ) -> MatrixSliceMut<N, RowRange::Size, C, S::RStride, S::CStride>
-    {
+    ) -> MatrixSliceMut<N, RowRange::Size, C, S::RStride, S::CStride> {
         self.slice_range_mut(rows, ..)
     }
 
@@ -861,27 +875,25 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     pub fn columns_range_mut<ColRange: SliceRange<C>>(
         &mut self,
         cols: ColRange,
-    ) -> MatrixSliceMut<N, R, ColRange::Size, S::RStride, S::CStride>
-    {
+    ) -> MatrixSliceMut<N, R, ColRange::Size, S::RStride, S::CStride> {
         self.slice_range_mut(.., cols)
     }
 }
 
-
 impl<'a, N, R, C, RStride, CStride> From<MatrixSliceMut<'a, N, R, C, RStride, CStride>>
-for MatrixSlice<'a, N, R, C, RStride, CStride>
-    where
-        N: Scalar,
-        R: Dim,
-        C: Dim,
-        RStride: Dim,
-        CStride: Dim,
+    for MatrixSlice<'a, N, R, C, RStride, CStride>
+where
+    N: Scalar,
+    R: Dim,
+    C: Dim,
+    RStride: Dim,
+    CStride: Dim,
 {
     fn from(slice_mut: MatrixSliceMut<'a, N, R, C, RStride, CStride>) -> Self {
         let data = SliceStorage {
-            ptr:       slice_mut.data.ptr,
-            shape:     slice_mut.data.shape,
-            strides:   slice_mut.data.strides,
+            ptr: slice_mut.data.ptr,
+            shape: slice_mut.data.shape,
+            strides: slice_mut.data.strides,
             _phantoms: PhantomData,
         };
 

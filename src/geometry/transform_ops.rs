@@ -1,7 +1,7 @@
 use num::{One, Zero};
 use std::ops::{Div, DivAssign, Index, IndexMut, Mul, MulAssign};
 
-use alga::general::{ClosedAdd, ClosedMul, RealField, SubsetOf};
+use simba::scalar::{ClosedAdd, ClosedMul, RealField, SubsetOf};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1, U3, U4};

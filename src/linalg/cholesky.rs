@@ -2,12 +2,12 @@
 use serde::{Deserialize, Serialize};
 
 use num::One;
-use alga::general::ComplexField;
+use simba::scalar::ComplexField;
 
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix, Vector};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimAdd, DimSum, DimDiff, DimSub, Dynamic, U1};
+use crate::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum, Dynamic, U1};
 use crate::storage::{Storage, StorageMut};
 
 /// The Cholesky decomposition of a symmetric-definite-positive matrix.
@@ -176,22 +176,38 @@ where
         let mut col = col.into_owned();
         // for an explanation of the formulas, see https://en.wikipedia.org/wiki/Cholesky_decomposition#Updating_the_decomposition
         let n = col.nrows();
-        assert_eq!(n, self.chol.nrows() + 1, "The new column must have the size of the factored matrix plus one.");
+        assert_eq!(
+            n,
+            self.chol.nrows() + 1,
+            "The new column must have the size of the factored matrix plus one."
+        );
         assert!(j < n, "j needs to be within the bound of the new matrix.");
 
         // loads the data into a new matrix with an additional jth row/column
-        let mut chol = unsafe { Matrix::new_uninitialized_generic(self.chol.data.shape().0.add(U1), self.chol.data.shape().1.add(U1)) };
-        chol.slice_range_mut(..j, ..j).copy_from(&self.chol.slice_range(..j, ..j));
-        chol.slice_range_mut(..j, j + 1..).copy_from(&self.chol.slice_range(..j, j..));
-        chol.slice_range_mut(j + 1.., ..j).copy_from(&self.chol.slice_range(j.., ..j));
-        chol.slice_range_mut(j + 1.., j + 1..).copy_from(&self.chol.slice_range(j.., j..));
+        let mut chol = unsafe {
+            Matrix::new_uninitialized_generic(
+                self.chol.data.shape().0.add(U1),
+                self.chol.data.shape().1.add(U1),
+            )
+        };
+        chol.slice_range_mut(..j, ..j)
+            .copy_from(&self.chol.slice_range(..j, ..j));
+        chol.slice_range_mut(..j, j + 1..)
+            .copy_from(&self.chol.slice_range(..j, j..));
+        chol.slice_range_mut(j + 1.., ..j)
+            .copy_from(&self.chol.slice_range(j.., ..j));
+        chol.slice_range_mut(j + 1.., j + 1..)
+            .copy_from(&self.chol.slice_range(j.., j..));
 
         // update the jth row
         let top_left_corner = self.chol.slice_range(..j, ..j);
 
         let col_j = col[j];
         let (mut new_rowj_adjoint, mut new_colj) = col.rows_range_pair_mut(..j, j + 1..);
-        assert!(top_left_corner.solve_lower_triangular_mut(&mut new_rowj_adjoint), "Cholesky::insert_column : Unable to solve lower triangular system!");
+        assert!(
+            top_left_corner.solve_lower_triangular_mut(&mut new_rowj_adjoint),
+            "Cholesky::insert_column : Unable to solve lower triangular system!"
+        );
 
         new_rowj_adjoint.adjoint_to(&mut chol.slice_range_mut(j, ..j));
 
@@ -202,36 +218,51 @@ where
         // update the jth column
         let bottom_left_corner = self.chol.slice_range(j.., ..j);
         // new_colj = (col_jplus - bottom_left_corner * new_rowj.adjoint()) / center_element;
-        new_colj.gemm(-N::one() / center_element, &bottom_left_corner, &new_rowj_adjoint, N::one() / center_element);
+        new_colj.gemm(
+            -N::one() / center_element,
+            &bottom_left_corner,
+            &new_rowj_adjoint,
+            N::one() / center_element,
+        );
         chol.slice_range_mut(j + 1.., j).copy_from(&new_colj);
 
         // update the bottom right corner
         let mut bottom_right_corner = chol.slice_range_mut(j + 1.., j + 1..);
-        Self::xx_rank_one_update(&mut bottom_right_corner, &mut new_colj, -N::RealField::one());
+        Self::xx_rank_one_update(
+            &mut bottom_right_corner,
+            &mut new_colj,
+            -N::RealField::one(),
+        );
 
         Cholesky { chol }
     }
 
     /// Updates the decomposition such that we get the decomposition of the factored matrix with its `j`th column removed.
     /// Since the matrix is square, the `j`th row will also be removed.
-    pub fn remove_column(
-        &self,
-        j: usize,
-    ) -> Cholesky<N, DimDiff<D, U1>>
-        where
-            D: DimSub<U1>,
-            DefaultAllocator: Allocator<N, DimDiff<D, U1>, DimDiff<D, U1>> + Allocator<N, D>
+    pub fn remove_column(&self, j: usize) -> Cholesky<N, DimDiff<D, U1>>
+    where
+        D: DimSub<U1>,
+        DefaultAllocator: Allocator<N, DimDiff<D, U1>, DimDiff<D, U1>> + Allocator<N, D>,
     {
         let n = self.chol.nrows();
         assert!(n > 0, "The matrix needs at least one column.");
         assert!(j < n, "j needs to be within the bound of the matrix.");
 
         // loads the data into a new matrix except for the jth row/column
-        let mut chol = unsafe { Matrix::new_uninitialized_generic(self.chol.data.shape().0.sub(U1), self.chol.data.shape().1.sub(U1)) };
-        chol.slice_range_mut(..j, ..j).copy_from(&self.chol.slice_range(..j, ..j));
-        chol.slice_range_mut(..j, j..).copy_from(&self.chol.slice_range(..j, j + 1..));
-        chol.slice_range_mut(j.., ..j).copy_from(&self.chol.slice_range(j + 1.., ..j));
-        chol.slice_range_mut(j.., j..).copy_from(&self.chol.slice_range(j + 1.., j + 1..));
+        let mut chol = unsafe {
+            Matrix::new_uninitialized_generic(
+                self.chol.data.shape().0.sub(U1),
+                self.chol.data.shape().1.sub(U1),
+            )
+        };
+        chol.slice_range_mut(..j, ..j)
+            .copy_from(&self.chol.slice_range(..j, ..j));
+        chol.slice_range_mut(..j, j..)
+            .copy_from(&self.chol.slice_range(..j, j + 1..));
+        chol.slice_range_mut(j.., ..j)
+            .copy_from(&self.chol.slice_range(j + 1.., ..j));
+        chol.slice_range_mut(j.., j..)
+            .copy_from(&self.chol.slice_range(j + 1.., j + 1..));
 
         // updates the bottom right corner
         let mut bottom_right_corner = chol.slice_range_mut(j.., j..);
@@ -247,13 +278,16 @@ where
     ///
     /// This helper method is called by `rank_one_update` but also `insert_column` and `remove_column`
     /// where it is used on a square slice of the decomposition
-    fn xx_rank_one_update<Dm, Sm, Rx, Sx>(chol : &mut Matrix<N, Dm, Dm, Sm>, x: &mut Vector<N, Rx, Sx>, sigma: N::RealField)
-        where
-            //N: ComplexField,
-            Dm: Dim,
-            Rx: Dim,
-            Sm: StorageMut<N, Dm, Dm>,
-            Sx: StorageMut<N, Rx, U1>,
+    fn xx_rank_one_update<Dm, Sm, Rx, Sx>(
+        chol: &mut Matrix<N, Dm, Dm, Sm>,
+        x: &mut Vector<N, Rx, Sx>,
+        sigma: N::RealField,
+    ) where
+        //N: ComplexField,
+        Dm: Dim,
+        Rx: Dim,
+        Sm: StorageMut<N, Dm, Dm>,
+        Sx: StorageMut<N, Rx, U1>,
     {
         // heavily inspired by Eigen's `llt_rank_update_lower` implementation https://eigen.tuxfamily.org/dox/LLT_8h_source.html
         let n = x.nrows();
