@@ -3,7 +3,8 @@
 use crate::{
     base::{
         allocator::Allocator,
-        dimension::{DimMin, DimMinimum, DimName},
+        dimension::{Dim, DimMin, DimMinimum, U1},
+        storage::Storage,
         DefaultAllocator,
     },
     convert, try_convert, ComplexField, MatrixN, RealField,
@@ -13,7 +14,7 @@ use crate::{
 struct ExpmPadeHelper<N, D>
 where
     N: RealField,
-    D: DimName + DimMin<D>,
+    D: DimMin<D>,
     DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
 {
     use_exact_norm: bool,
@@ -40,13 +41,14 @@ where
 impl<N, D> ExpmPadeHelper<N, D>
 where
     N: RealField,
-    D: DimName + DimMin<D>,
+    D: DimMin<D>,
     DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
 {
     fn new(a: MatrixN<N, D>, use_exact_norm: bool) -> Self {
+        let (nrows, ncols) = a.data.shape();
         ExpmPadeHelper {
             use_exact_norm,
-            ident: MatrixN::<N, D>::identity(),
+            ident: MatrixN::<N, D>::identity_generic(nrows, ncols),
             a,
             a2: None,
             a4: None,
@@ -321,10 +323,11 @@ fn factorial(n: u128) -> u128 {
 fn onenorm_matrix_power_nonm<N, D>(a: &MatrixN<N, D>, p: u64) -> N
 where
     N: RealField,
-    D: DimName,
+    D: Dim,
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
-    let mut v = crate::VectorN::<N, D>::repeat(convert(1.0));
+    let nrows = a.data.shape().0;
+    let mut v = crate::VectorN::<N, D>::repeat_generic(nrows, U1, convert(1.0));
     let m = a.transpose();
 
     for _ in 0..p {
@@ -337,7 +340,7 @@ where
 fn ell<N, D>(a: &MatrixN<N, D>, m: u64) -> u64
 where
     N: RealField,
-    D: DimName,
+    D: Dim,
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
     // 2m choose m = (2m)!/(m! * (2m-m)!)
@@ -367,7 +370,7 @@ where
 fn solve_p_q<N, D>(u: MatrixN<N, D>, v: MatrixN<N, D>) -> MatrixN<N, D>
 where
     N: ComplexField,
-    D: DimMin<D, Output = D> + DimName,
+    D: DimMin<D, Output = D>,
     DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
 {
     let p = &u + &v;
@@ -379,7 +382,7 @@ where
 fn one_norm<N, D>(m: &MatrixN<N, D>) -> N
 where
     N: RealField,
-    D: DimName,
+    D: Dim,
     DefaultAllocator: Allocator<N, D, D>,
 {
     let mut col_sums = vec![N::zero(); m.ncols()];
@@ -396,7 +399,7 @@ where
 
 impl<N: RealField, D> MatrixN<N, D>
 where
-    D: DimMin<D, Output = D> + DimName,
+    D: DimMin<D, Output = D>,
     DefaultAllocator:
         Allocator<N, D, D> + Allocator<(usize, usize), DimMinimum<D, D>> + Allocator<N, D>,
 {

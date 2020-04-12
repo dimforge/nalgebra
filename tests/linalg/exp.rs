@@ -2,7 +2,7 @@
 mod tests {
     //https://github.com/scipy/scipy/blob/c1372d8aa90a73d8a52f135529293ff4edb98fc8/scipy/sparse/linalg/tests/test_matfuncs.py
     #[test]
-    fn exp() {
+    fn exp_static() {
         use nalgebra::{Matrix1, Matrix2, Matrix3};
 
         {
@@ -97,5 +97,33 @@ mod tests {
 
             assert!(relative_eq!(f, m.exp(), epsilon = 1.0e-7));
         }
+    }
+
+    #[test]
+    fn exp_dynamic() {
+        use nalgebra::DMatrix;
+
+        let m = DMatrix::from_row_slice(3, 3, &[1.0, 3.0, 0.0, 0.0, 1.0, 5.0, 0.0, 0.0, 2.0]);
+
+        let e1 = 1.0_f64.exp();
+        let e2 = 2.0_f64.exp();
+
+        let f = DMatrix::from_row_slice(
+            3,
+            3,
+            &[
+                e1,
+                3.0 * e1,
+                15.0 * (e2 - 2.0 * e1),
+                0.0,
+                e1,
+                5.0 * (e2 - e1),
+                0.0,
+                0.0,
+                e2,
+            ],
+        );
+
+        assert!(relative_eq!(f, m.exp(), epsilon = 1.0e-7));
     }
 }
