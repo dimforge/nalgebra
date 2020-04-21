@@ -405,15 +405,13 @@ where
     D: Dim,
     DefaultAllocator: Allocator<N, D, D>,
 {
-    let mut col_sums = vec![N::zero(); m.ncols()];
+    let mut max = N::zero();
+
     for i in 0..m.ncols() {
         let col = m.column(i);
-        col.iter().for_each(|v| col_sums[i] += v.abs());
+        max = max.max(col.iter().fold(N::zero(), |a, b| a + b.abs()));
     }
-    let mut max = col_sums[0];
-    for i in 1..col_sums.len() {
-        max = N::max(max, col_sums[i]);
-    }
+
     max
 }
 
@@ -427,7 +425,7 @@ where
     pub fn exp(&self) -> Self {
         // Simple case
         if self.nrows() == 1 {
-            return self.clone().map(|v| v.exp());
+            return self.map(|v| v.exp());
         }
 
         let mut h = ExpmPadeHelper::new(self.clone(), true);
