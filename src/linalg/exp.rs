@@ -42,8 +42,7 @@ impl<N, D> ExpmPadeHelper<N, D>
 where
     N: RealField,
     D: DimMin<D>,
-    DefaultAllocator:
-        Allocator<N, D, D> + Allocator<N, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
+    DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
 {
     fn new(a: MatrixN<N, D>, use_exact_norm: bool) -> Self {
         let (nrows, ncols) = a.data.shape();
