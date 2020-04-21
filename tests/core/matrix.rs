@@ -945,7 +945,7 @@ mod normalization_tests {
     }
 }
 
-#[cfg(feature = "arbitrary")]
+#[cfg(all(feature = "arbitrary", feature = "alga"))]
 // FIXME: move this to alga ?
 mod finite_dim_inner_space_tests {
     use super::*;
