@@ -5,10 +5,11 @@ use num::{One, Zero};
 
 use alga::general::{
     AbstractGroup, AbstractGroupAbelian, AbstractLoop, AbstractMagma, AbstractModule,
-    AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, Additive, ClosedAdd, ClosedMul,
-    ClosedNeg, ComplexField, Field, Identity, JoinSemilattice, Lattice, MeetSemilattice, Module,
+    AbstractMonoid, AbstractQuasigroup, AbstractSemigroup, Additive, ClosedMul, ClosedNeg,
+    ComplexField, Field, Identity, JoinSemilattice, Lattice, MeetSemilattice, Module,
     Multiplicative, RingCommutative, TwoSidedInverse,
 };
+use crate::base::{SimpleAdd, SimpleSub};
 use alga::linear::{
     FiniteDimInnerSpace, FiniteDimVectorSpace, InnerSpace, NormedSpace, VectorSpace,
 };
@@ -36,7 +37,7 @@ where
 
 impl<N, R: DimName, C: DimName> AbstractMagma<Additive> for MatrixMN<N, R, C>
 where
-    N: Scalar + ClosedAdd,
+    N: Scalar + SimpleAdd,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]
@@ -71,12 +72,12 @@ macro_rules! inherit_additive_structure(
 );
 
 inherit_additive_structure!(
-    AbstractSemigroup<Additive> + ClosedAdd,
-    AbstractMonoid<Additive> + Zero + ClosedAdd,
-    AbstractQuasigroup<Additive> + ClosedAdd + ClosedNeg,
-    AbstractLoop<Additive> + Zero + ClosedAdd + ClosedNeg,
-    AbstractGroup<Additive> + Zero + ClosedAdd + ClosedNeg,
-    AbstractGroupAbelian<Additive> + Zero + ClosedAdd + ClosedNeg
+    AbstractSemigroup<Additive> + SimpleAdd,
+    AbstractMonoid<Additive> + Zero + SimpleAdd,
+    AbstractQuasigroup<Additive> + SimpleAdd + ClosedNeg,
+    AbstractLoop<Additive> + Zero + SimpleAdd + ClosedNeg,
+    AbstractGroup<Additive> + Zero + SimpleAdd + ClosedNeg,
+    AbstractGroupAbelian<Additive> + Zero + SimpleAdd + ClosedNeg
 );
 
 impl<N, R: DimName, C: DimName> AbstractModule for MatrixMN<N, R, C>
@@ -371,7 +372,7 @@ where
 
 impl<N, D: DimName> AbstractMagma<Multiplicative> for MatrixN<N, D>
 where
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    N: Scalar + Zero + One + ClosedMul,
     DefaultAllocator: Allocator<N, D, D>,
 {
     #[inline]
@@ -383,7 +384,7 @@ where
 macro_rules! impl_multiplicative_structure(
     ($($marker: ident<$operator: ident> $(+ $bounds: ident)*),* $(,)*) => {$(
         impl<N, D: DimName> $marker<$operator> for MatrixN<N, D>
-            where N: Scalar + Zero + One + ClosedAdd + ClosedMul + $marker<$operator> $(+ $bounds)*,
+            where N: Scalar + Zero + One + ClosedMul + $marker<$operator> $(+ $bounds)*,
                   DefaultAllocator: Allocator<N, D, D> { }
     )*}
 );

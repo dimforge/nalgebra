@@ -8,6 +8,7 @@ pub mod default_allocator;
 pub mod dimension;
 pub mod iter;
 mod ops;
+pub use ops::{SimpleAdd, SimpleSub};
 pub mod storage;
 
 mod alias;

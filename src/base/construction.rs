@@ -739,7 +739,7 @@ impl_constructors_from_data!(data; Dynamic, Dynamic;
  */
 impl<N, R: DimName, C: DimName> Zero for MatrixMN<N, R, C>
 where
-    N: Scalar + Zero + ClosedAdd,
+    N: Scalar + Zero,
     DefaultAllocator: Allocator<N, R, C>,
 {
     #[inline]

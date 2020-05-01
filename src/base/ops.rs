@@ -132,9 +132,9 @@ where
  */
 
 macro_rules! componentwise_binop_impl(
-    ($Trait: ident, $method: ident, $bound: ident;
+    ($Trait: ident, $method: ident, $bound: ident, $bound_assign: ident;
      $TraitAssign: ident, $method_assign: ident, $method_assign_statically_unchecked: ident,
-     $method_assign_statically_unchecked_rhs: ident;
+     $method_assign_statically_unchecked_rhs: ident, $method_assign_statically_unchecked_lhs: ident;
      $method_to: ident, $method_to_statically_unchecked: ident) => {
 
         impl<N, R1: Dim, C1: Dim, SA: Storage<N, R1, C1>> Matrix<N, R1, C1, SA>
@@ -182,34 +182,24 @@ macro_rules! componentwise_binop_impl(
             }
 
 
+            /*
+             *
+             * Methods without dimension checking at compile-time.
+             * This is useful for code reuse because the sum representative system does not plays
+             * easily with static checks.
+             *
+             */
+            /// Equivalent to `self + rhs` but stores the result into `out` to avoid allocations.
             #[inline]
-            fn $method_assign_statically_unchecked<R2, C2, SB>(&mut self, rhs: &Matrix<N, R2, C2, SB>)
-                where R2: Dim,
-                      C2: Dim,
-                      SA: StorageMut<N, R1, C1>,
-                      SB: Storage<N, R2, C2> {
-                assert!(self.shape() == rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
-
-                // This is the most common case and should be deduced at compile-time.
-                // FIXME: use specialization instead?
-                if self.data.is_contiguous() && rhs.data.is_contiguous() {
-                    let arr1 = self.data.as_mut_slice();
-                    let arr2 = rhs.data.as_slice();
-                    for i in 0 .. arr2.len() {
-                        unsafe {
-                            arr1.get_unchecked_mut(i).$method_assign(arr2.get_unchecked(i).inlined_clone());
-                        }
-                    }
-                }
-                else {
-                    for j in 0 .. rhs.ncols() {
-                        for i in 0 .. rhs.nrows() {
-                            unsafe {
-                                self.get_unchecked_mut((i, j)).$method_assign(rhs.get_unchecked((i, j)).inlined_clone())
-                            }
-                        }
-                    }
-                }
+            pub fn $method_to<R2: Dim, C2: Dim, SB,
+                              R3: Dim, C3: Dim, SC>(&self,
+                                                    rhs: &Matrix<N, R2, C2, SB>,
+                                                    out: &mut Matrix<N, R3, C3, SC>)
+                where SB: Storage<N, R2, C2>,
+                      SC: StorageMut<N, R3, C3>,
+                      ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> +
+                                       SameNumberOfRows<R1, R3> + SameNumberOfColumns<C1, C3> {
+                self.$method_to_statically_unchecked(rhs, out)
             }
 
 
@@ -245,24 +235,71 @@ macro_rules! componentwise_binop_impl(
             }
 
 
-            /*
-             *
-             * Methods without dimension checking at compile-time.
-             * This is useful for code reuse because the sum representative system does not plays
-             * easily with static checks.
-             *
-             */
-            /// Equivalent to `self + rhs` but stores the result into `out` to avoid allocations.
             #[inline]
-            pub fn $method_to<R2: Dim, C2: Dim, SB,
-                              R3: Dim, C3: Dim, SC>(&self,
-                                                    rhs: &Matrix<N, R2, C2, SB>,
-                                                    out: &mut Matrix<N, R3, C3, SC>)
-                where SB: Storage<N, R2, C2>,
-                      SC: StorageMut<N, R3, C3>,
-                      ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> +
-                                       SameNumberOfRows<R1, R3> + SameNumberOfColumns<C1, C3> {
-                self.$method_to_statically_unchecked(rhs, out)
+            fn $method_assign_statically_unchecked_lhs<R2, C2, SB>(&mut self, rhs: &Matrix<N, R2, C2, SB>)
+                where R2: Dim,
+                      C2: Dim,
+                      SA: StorageMut<N, R1, C1>,
+                      SB: Storage<N, R2, C2> {
+                assert!(self.shape() == rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
+
+                // This is the most common case and should be deduced at compile-time.
+                // FIXME: use specialization instead?
+                if self.data.is_contiguous() && rhs.data.is_contiguous() {
+                    let arr1 = self.data.as_mut_slice();
+                    let arr2 = rhs.data.as_slice();
+                    for i in 0 .. arr2.len() {
+                        unsafe {
+                            let res = arr1.get_unchecked(i).inlined_clone().$method(arr2.get_unchecked(i).inlined_clone());
+                            *arr1.get_unchecked_mut(i) = res;
+                        }
+                    }
+                }
+                else {
+                    for j in 0 .. rhs.ncols() {
+                        for i in 0 .. rhs.nrows() {
+                            unsafe {
+                                let r = self.get_unchecked_mut((i, j));
+                                *r = r.inlined_clone().$method(r.inlined_clone())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        impl<N, R1: Dim, C1: Dim, SA: Storage<N, R1, C1>> Matrix<N, R1, C1, SA>
+            where N: Scalar + $bound_assign {
+
+            #[inline]
+            fn $method_assign_statically_unchecked<R2, C2, SB>(&mut self, rhs: &Matrix<N, R2, C2, SB>)
+                where R2: Dim,
+                      C2: Dim,
+                      SA: StorageMut<N, R1, C1>,
+                      SB: Storage<N, R2, C2> {
+                assert!(self.shape() == rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
+
+                // This is the most common case and should be deduced at compile-time.
+                // FIXME: use specialization instead?
+                if self.data.is_contiguous() && rhs.data.is_contiguous() {
+                    let arr1 = self.data.as_mut_slice();
+                    let arr2 = rhs.data.as_slice();
+                    for i in 0 .. arr2.len() {
+                        unsafe {
+                            arr1.get_unchecked_mut(i).$method_assign(arr2.get_unchecked(i).inlined_clone());
+                        }
+                    }
+                }
+                else {
+                    for j in 0 .. rhs.ncols() {
+                        for i in 0 .. rhs.nrows() {
+                            unsafe {
+                                self.get_unchecked_mut((i, j)).$method_assign(rhs.get_unchecked((i, j)).inlined_clone())
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -279,7 +316,7 @@ macro_rules! componentwise_binop_impl(
             fn $method(self, rhs: &'b Matrix<N, R2, C2, SB>) -> Self::Output {
                 assert!(self.shape() == rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
                 let mut res = self.into_owned_sum::<R2, C2>();
-                res.$method_assign_statically_unchecked(rhs);
+                res.$method_assign_statically_unchecked_lhs(rhs);
                 res
             }
         }
@@ -342,7 +379,7 @@ macro_rules! componentwise_binop_impl(
 
         impl<'b, N, R1, C1, R2, C2, SA, SB> $TraitAssign<&'b Matrix<N, R2, C2, SB>> for Matrix<N, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + $bound,
+                  N: Scalar + $bound_assign,
                   SA: StorageMut<N, R1, C1>,
                   SB: Storage<N, R2, C2>,
                   ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
@@ -355,7 +392,7 @@ macro_rules! componentwise_binop_impl(
 
         impl<N, R1, C1, R2, C2, SA, SB> $TraitAssign<Matrix<N, R2, C2, SB>> for Matrix<N, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + $bound,
+                  N: Scalar + $bound_assign,
                   SA: StorageMut<N, R1, C1>,
                   SB: Storage<N, R2, C2>,
                   ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
@@ -368,16 +405,24 @@ macro_rules! componentwise_binop_impl(
     }
 );
 
-componentwise_binop_impl!(Add, add, ClosedAdd;
-                          AddAssign, add_assign, add_assign_statically_unchecked, add_assign_statically_unchecked_mut;
+/// Trait __alias__ for `Add` with result of type `Self`.
+pub trait SimpleAdd<Right = Self>: Sized + Add<Right, Output = Self> {}
+impl<T, Right> SimpleAdd<Right> for T where T: Add<Right, Output = T> {}
+
+/// Trait __alias__ for `Sub` with result of type `Self`.
+pub trait SimpleSub<Right = Self>: Sized + Sub<Right, Output = Self> {}
+impl<T, Right> SimpleSub<Right> for T where T: Sub<Right, Output = T> {}
+
+componentwise_binop_impl!(Add, add, SimpleAdd, ClosedAdd;
+                          AddAssign, add_assign, add_assign_statically_unchecked, add_assign_statically_unchecked_mut, add_assign_statically_unchecked_lhs;
                           add_to, add_to_statically_unchecked);
-componentwise_binop_impl!(Sub, sub, ClosedSub;
-                          SubAssign, sub_assign, sub_assign_statically_unchecked, sub_assign_statically_unchecked_mut;
+componentwise_binop_impl!(Sub, sub, SimpleSub, ClosedSub;
+                          SubAssign, sub_assign, sub_assign_statically_unchecked, sub_assign_statically_unchecked_mut, sub_assign_statically_unchecked_lhs;
                           sub_to, sub_to_statically_unchecked);
 
 impl<N, R: DimName, C: DimName> iter::Sum for MatrixMN<N, R, C>
 where
-    N: Scalar + ClosedAdd + Zero,
+    N: Scalar + SimpleAdd + Zero,
     DefaultAllocator: Allocator<N, R, C>,
 {
     fn sum<I: Iterator<Item = MatrixMN<N, R, C>>>(iter: I) -> MatrixMN<N, R, C> {
@@ -387,7 +432,7 @@ where
 
 impl<N, C: Dim> iter::Sum for MatrixMN<N, Dynamic, C>
 where
-    N: Scalar + ClosedAdd + Zero,
+    N: Scalar + SimpleAdd + Zero,
     DefaultAllocator: Allocator<N, Dynamic, C>,
 {
     /// # Example
@@ -417,7 +462,7 @@ where
 
 impl<'a, N, R: DimName, C: DimName> iter::Sum<&'a MatrixMN<N, R, C>> for MatrixMN<N, R, C>
 where
-    N: Scalar + ClosedAdd + Zero,
+    N: Scalar + SimpleAdd + Zero,
     DefaultAllocator: Allocator<N, R, C>,
 {
     fn sum<I: Iterator<Item = &'a MatrixMN<N, R, C>>>(iter: I) -> MatrixMN<N, R, C> {
@@ -427,7 +472,7 @@ where
 
 impl<'a, N, C: Dim> iter::Sum<&'a MatrixMN<N, Dynamic, C>> for MatrixMN<N, Dynamic, C>
 where
-    N: Scalar + ClosedAdd + Zero,
+    N: Scalar + SimpleAdd + Zero,
     DefaultAllocator: Allocator<N, Dynamic, C>,
 {
     /// # Example
