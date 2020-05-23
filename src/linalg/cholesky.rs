@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use num::One;
 use simba::scalar::ComplexField;
+use simba::simd::SimdComplexField;
 
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix, Vector};
@@ -23,29 +24,26 @@ use crate::storage::{Storage, StorageMut};
          MatrixN<N, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct Cholesky<N: ComplexField, D: Dim>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+pub struct Cholesky<N: SimdComplexField, D: Dim>
+where DefaultAllocator: Allocator<N, D, D>
 {
     chol: MatrixN<N, D>,
 }
 
-impl<N: ComplexField, D: Dim> Copy for Cholesky<N, D>
+impl<N: SimdComplexField, D: Dim> Copy for Cholesky<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
 {
 }
 
-impl<N: ComplexField, D: DimSub<Dynamic>> Cholesky<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+impl<N: SimdComplexField, D: Dim> Cholesky<N, D>
+where DefaultAllocator: Allocator<N, D, D>
 {
-    /// Attempts to compute the Cholesky decomposition of `matrix`.
+    /// Computes the Cholesky decomposition of `matrix` without checking that the matrix is definite-positive.
     ///
-    /// Returns `None` if the input matrix is not definite-positive. The input matrix is assumed
-    /// to be symmetric and only the lower-triangular part is read.
-    pub fn new(mut matrix: MatrixN<N, D>) -> Option<Self> {
+    /// If the input matrix is not definite-positive, the decomposition may contain trash values (Inf, NaN, etc.)
+    pub fn new_unchecked(mut matrix: MatrixN<N, D>) -> Self {
         assert!(matrix.is_square(), "The input matrix must be square.");
 
         let n = matrix.nrows();
@@ -57,29 +55,21 @@ where
                 let (mut col_j, col_k) = matrix.columns_range_pair_mut(j, k);
                 let mut col_j = col_j.rows_range_mut(j..);
                 let col_k = col_k.rows_range(j..);
-
-                col_j.axpy(factor.conjugate(), &col_k, N::one());
+                col_j.axpy(factor.simd_conjugate(), &col_k, N::one());
             }
 
             let diag = unsafe { *matrix.get_unchecked((j, j)) };
-            if !diag.is_zero() {
-                if let Some(denom) = diag.try_sqrt() {
-                    unsafe {
-                        *matrix.get_unchecked_mut((j, j)) = denom;
-                    }
+            let denom = diag.simd_sqrt();
 
-                    let mut col = matrix.slice_range_mut(j + 1.., j);
-                    col /= denom;
-                    continue;
-                }
+            unsafe {
+                *matrix.get_unchecked_mut((j, j)) = denom;
             }
 
-            // The diagonal element is either zero or its square root could not
-            // be taken (e.g. for negative real numbers).
-            return None;
+            let mut col = matrix.slice_range_mut(j + 1.., j);
+            col /= denom;
         }
 
-        Some(Cholesky { chol: matrix })
+        Cholesky { chol: matrix }
     }
 
     /// Retrieves the lower-triangular factor of the Cholesky decomposition with its strictly
@@ -121,8 +111,8 @@ where
         S2: StorageMut<N, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
-        let _ = self.chol.solve_lower_triangular_mut(b);
-        let _ = self.chol.ad_solve_lower_triangular_mut(b);
+        self.chol.solve_lower_triangular_unchecked_mut(b);
+        self.chol.ad_solve_lower_triangular_unchecked_mut(b);
     }
 
     /// Returns the solution of the system `self * x = b` where `self` is the decomposed matrix and
@@ -145,6 +135,51 @@ where
 
         self.solve_mut(&mut res);
         res
+    }
+}
+
+impl<N: ComplexField, D: Dim> Cholesky<N, D>
+where DefaultAllocator: Allocator<N, D, D>
+{
+    /// Attempts to compute the Cholesky decomposition of `matrix`.
+    ///
+    /// Returns `None` if the input matrix is not definite-positive. The input matrix is assumed
+    /// to be symmetric and only the lower-triangular part is read.
+    pub fn new(mut matrix: MatrixN<N, D>) -> Option<Self> {
+        assert!(matrix.is_square(), "The input matrix must be square.");
+
+        let n = matrix.nrows();
+
+        for j in 0..n {
+            for k in 0..j {
+                let factor = unsafe { -*matrix.get_unchecked((j, k)) };
+
+                let (mut col_j, col_k) = matrix.columns_range_pair_mut(j, k);
+                let mut col_j = col_j.rows_range_mut(j..);
+                let col_k = col_k.rows_range(j..);
+
+                col_j.axpy(factor.conjugate(), &col_k, N::one());
+            }
+
+            let diag = unsafe { *matrix.get_unchecked((j, j)) };
+            if !diag.is_zero() {
+                if let Some(denom) = diag.try_sqrt() {
+                    unsafe {
+                        *matrix.get_unchecked_mut((j, j)) = denom;
+                    }
+
+                    let mut col = matrix.slice_range_mut(j + 1.., j);
+                    col /= denom;
+                    continue;
+                }
+            }
+
+            // The diagonal element is either zero or its square root could not
+            // be taken (e.g. for negative real numbers).
+            return None;
+        }
+
+        Some(Cholesky { chol: matrix })
     }
 
     /// Given the Cholesky decomposition of a matrix `M`, a scalar `sigma` and a vector `v`,
@@ -327,8 +362,7 @@ where
 }
 
 impl<N: ComplexField, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+where DefaultAllocator: Allocator<N, D, D>
 {
     /// Attempts to compute the Cholesky decomposition of this matrix.
     ///
