@@ -48,6 +48,19 @@ where
 /// Renamed to [ArrayStorage].
 pub type MatrixArray<N, R, C> = ArrayStorage<N, R, C>;
 
+impl<N, R, C> Default for ArrayStorage<N, R, C>
+where
+    R: DimName,
+    C: DimName,
+    R::Value: Mul<C::Value>,
+    Prod<R::Value, C::Value>: ArrayLength<N>,
+    N: Default,
+{
+    fn default() -> Self {
+        ArrayStorage { data: Default::default() }
+    }
+}
+
 impl<N, R, C> Hash for ArrayStorage<N, R, C>
 where
     N: Hash,
