@@ -25,7 +25,8 @@ use crate::storage::{Storage, StorageMut};
 )]
 #[derive(Clone, Debug)]
 pub struct Cholesky<N: SimdComplexField, D: Dim>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     chol: MatrixN<N, D>,
 }
@@ -38,7 +39,8 @@ where
 }
 
 impl<N: SimdComplexField, D: Dim> Cholesky<N, D>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     /// Computes the Cholesky decomposition of `matrix` without checking that the matrix is definite-positive.
     ///
@@ -139,7 +141,8 @@ where DefaultAllocator: Allocator<N, D, D>
 }
 
 impl<N: ComplexField, D: Dim> Cholesky<N, D>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     /// Attempts to compute the Cholesky decomposition of `matrix`.
     ///
@@ -362,7 +365,8 @@ where DefaultAllocator: Allocator<N, D, D>
 }
 
 impl<N: ComplexField, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where DefaultAllocator: Allocator<N, D, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
 {
     /// Attempts to compute the Cholesky decomposition of this matrix.
     ///

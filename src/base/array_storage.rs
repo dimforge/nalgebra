@@ -57,7 +57,9 @@ where
     N: Default,
 {
     fn default() -> Self {
-        ArrayStorage { data: Default::default() }
+        ArrayStorage {
+            data: Default::default(),
+        }
     }
 }
 
