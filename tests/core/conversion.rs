@@ -1,4 +1,4 @@
-#![cfg(feature = "arbitrary")]
+#![cfg(all(feature = "arbitrary", feature = "alga"))]
 use alga::linear::Transformation;
 use na::{
     self, Affine3, Isometry3, Matrix2, Matrix2x3, Matrix2x4, Matrix2x5, Matrix2x6, Matrix3,

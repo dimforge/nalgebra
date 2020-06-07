@@ -3,9 +3,9 @@ mod abomonation;
 mod blas;
 mod conversion;
 mod edition;
+mod empty;
 mod matrix;
 mod matrix_slice;
-mod empty;
 #[cfg(feature = "mint")]
 mod mint;
 mod serde;
