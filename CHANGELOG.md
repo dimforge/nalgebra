@@ -4,6 +4,15 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.22.0] - WIP
+
+### Added
+ * `Cholesky::new_unchecked` which build a Cholesky decomposition without checking that its input is
+ positive-definite. It can be use with SIMD types.
+ * The `Default` trait is now implemented for matrices, and quaternions. They are all filled with zeros,
+ except for `UnitQuaternion` which is initialized with the identity.
+ * Matrix exponential `matrix.exp()`.
+ 
 
 ## [0.21.0]
 In this release, we are no longer relying on traits from the __alga__ crate for our generic code.
