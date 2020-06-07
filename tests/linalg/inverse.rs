@@ -1,5 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt_skip)]
-
 use na::{Matrix1, Matrix2, Matrix3, Matrix4, Matrix5};
 
 #[test]
@@ -11,6 +9,7 @@ fn matrix1_try_inverse() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn matrix2_try_inverse() {
     let a = Matrix2::new(  5.0,  -2.0,
                          -10.0,   1.0);
@@ -23,6 +22,7 @@ fn matrix2_try_inverse() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn matrix3_try_inverse() {
     let a = Matrix3::new(-3.0,  2.0,  0.0,
                          -6.0,  9.0, -2.0,
@@ -37,6 +37,7 @@ fn matrix3_try_inverse() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn matrix4_try_inverse_issue_214() {
     let m1 = Matrix4::new(
         -0.34727043,         0.00000005397217,   -0.000000000000003822135, -0.000000000000003821371,
@@ -58,6 +59,7 @@ fn matrix4_try_inverse_issue_214() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn matrix5_try_inverse() {
     // Dimension 5 is chosen so that the inversion happens by Gaussian elimination.
     // (at the time of writing dimensions <= 3 are implemented as analytic formulas, but we choose
@@ -90,6 +92,7 @@ fn matrix1_try_inverse_scaled_identity() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn matrix2_try_inverse_scaled_identity() {
     // A perfectly invertible matrix with
     // very small coefficients
@@ -103,6 +106,7 @@ fn matrix2_try_inverse_scaled_identity() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn matrix3_try_inverse_scaled_identity() {
     // A perfectly invertible matrix with
     // very small coefficients
@@ -118,6 +122,7 @@ fn matrix3_try_inverse_scaled_identity() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn matrix5_try_inverse_scaled_identity() {
     // A perfectly invertible matrix with
     // very small coefficients

@@ -1,8 +1,7 @@
-#![cfg_attr(rustfmt, rustfmt_skip)]
-
 use na::Matrix3;
 
 #[test]
+#[rustfmt::skip]
 fn full_piv_lu_simple() {
     let m = Matrix3::new(
         2.0, -1.0,  0.0,
@@ -22,11 +21,11 @@ fn full_piv_lu_simple() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn full_piv_lu_simple_with_pivot() {
-    let m = Matrix3::new(
-        0.0, -1.0,  2.0,
-       -1.0,  2.0, -1.0,
-        2.0, -1.0,  0.0);
+    let m = Matrix3::new(0.0, -1.0, 2.0,
+                                        -1.0, 2.0, -1.0,
+                                        2.0, -1.0, 0.0);
 
     let lu = m.full_piv_lu();
     assert_eq!(lu.determinant(), -4.0);
@@ -174,7 +173,6 @@ mod quickcheck_tests {
     gen_tests!(complex, RandComplex<f64>);
     gen_tests!(f64, RandScalar<f64>);
 }
-
 
 /*
 #[test]

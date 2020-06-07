@@ -1,4 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt_skip)]
 use na::{DMatrix, Matrix6};
 
 #[cfg(feature = "arbitrary")]
@@ -160,9 +159,9 @@ mod quickcheck_tests {
     gen_tests!(f64, RandScalar<f64>);
 }
 
-
 // Test proposed on the issue #176 of rulinalg.
 #[test]
+#[rustfmt::skip]
 fn svd_singular() {
     let m = DMatrix::from_row_slice(24, 24, &[
         1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.0,  1.0,  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
@@ -202,6 +201,7 @@ fn svd_singular() {
 
 // Same as the previous test but with one additional row.
 #[test]
+#[rustfmt::skip]
 fn svd_singular_vertical() {
     let m = DMatrix::from_row_slice(25, 24, &[
         1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.0,  1.0,  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
@@ -241,6 +241,7 @@ fn svd_singular_vertical() {
 
 // Same as the previous test but with one additional column.
 #[test]
+#[rustfmt::skip]
 fn svd_singular_horizontal() {
     let m = DMatrix::from_row_slice(24, 25, &[
         1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.0,  1.0,  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,
@@ -299,6 +300,7 @@ fn svd_identity() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn svd_with_delimited_subproblem() {
     let mut m = DMatrix::<f64>::from_element(10, 10, 0.0);
     m[(0,0)] = 1.0;  m[(0,1)] = 2.0;
@@ -334,6 +336,7 @@ fn svd_with_delimited_subproblem() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn svd_fail() {
     let m = Matrix6::new(
         0.9299319121545955,   0.9955870335651049,   0.8824725266413644,  0.28966880207132295,  0.06102723649846409,   0.9311880746048009,
@@ -351,6 +354,12 @@ fn svd_fail() {
 fn svd_err() {
     let m = DMatrix::from_element(10, 10, 0.0);
     let svd = m.clone().svd(false, false);
-    assert_eq!(Err("SVD recomposition: U and V^t have not been computed."), svd.clone().recompose());
-    assert_eq!(Err("SVD pseudo inverse: the epsilon must be non-negative."), svd.clone().pseudo_inverse(-1.0));
+    assert_eq!(
+        Err("SVD recomposition: U and V^t have not been computed."),
+        svd.clone().recompose()
+    );
+    assert_eq!(
+        Err("SVD pseudo inverse: the epsilon must be non-negative."),
+        svd.clone().pseudo_inverse(-1.0)
+    );
 }

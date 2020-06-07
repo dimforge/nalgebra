@@ -1,9 +1,8 @@
-#![cfg_attr(rustfmt, rustfmt_skip)]
-
-use na::{Scalar, RealField, U2, U3, U4};
-use crate::aliases::{TMat, Qua, TVec1, TVec2, TVec3, TVec4, TMat2, TMat2x3, TMat2x4, TMat3, TMat3x2, TMat3x4,
-              TMat4, TMat4x2, TMat4x3};
-
+use crate::aliases::{
+    Qua, TMat, TMat2, TMat2x3, TMat2x4, TMat3, TMat3x2, TMat3x4, TMat4, TMat4x2, TMat4x3, TVec1,
+    TVec2, TVec3, TVec4,
+};
+use na::{RealField, Scalar, U2, U3, U4};
 
 /// Creates a new 1D vector.
 ///
@@ -34,8 +33,8 @@ pub fn vec4<N: Scalar>(x: N, y: N, z: N, w: N) -> TVec4<N> {
     TVec4::new(x, y, z, w)
 }
 
-
 /// Create a new 2x2 matrix.
+#[rustfmt::skip]
 pub fn mat2<N: Scalar>(m11: N, m12: N,
                        m21: N, m22: N) -> TMat2<N> {
     TMat::<N, U2, U2>::new(
@@ -45,6 +44,7 @@ pub fn mat2<N: Scalar>(m11: N, m12: N,
 }
 
 /// Create a new 2x2 matrix.
+#[rustfmt::skip]
 pub fn mat2x2<N: Scalar>(m11: N, m12: N,
                          m21: N, m22: N) -> TMat2<N> {
     TMat::<N, U2, U2>::new(
@@ -54,6 +54,7 @@ pub fn mat2x2<N: Scalar>(m11: N, m12: N,
 }
 
 /// Create a new 2x3 matrix.
+#[rustfmt::skip]
 pub fn mat2x3<N: Scalar>(m11: N, m12: N, m13: N,
                          m21: N, m22: N, m23: N) -> TMat2x3<N> {
     TMat::<N, U2, U3>::new(
@@ -63,6 +64,7 @@ pub fn mat2x3<N: Scalar>(m11: N, m12: N, m13: N,
 }
 
 /// Create a new 2x4 matrix.
+#[rustfmt::skip]
 pub fn mat2x4<N: Scalar>(m11: N, m12: N, m13: N, m14: N,
                          m21: N, m22: N, m23: N, m24: N) -> TMat2x4<N> {
     TMat::<N, U2, U4>::new(
@@ -72,6 +74,7 @@ pub fn mat2x4<N: Scalar>(m11: N, m12: N, m13: N, m14: N,
 }
 
 /// Create a new 3x3 matrix.
+#[rustfmt::skip]
 pub fn mat3<N: Scalar>(m11: N, m12: N, m13: N,
                        m21: N, m22: N, m23: N,
                        m31: N, m32: N, m33: N) -> TMat3<N> {
@@ -83,6 +86,7 @@ pub fn mat3<N: Scalar>(m11: N, m12: N, m13: N,
 }
 
 /// Create a new 3x2 matrix.
+#[rustfmt::skip]
 pub fn mat3x2<N: Scalar>(m11: N, m12: N,
                          m21: N, m22: N,
                          m31: N, m32: N) -> TMat3x2<N> {
@@ -94,6 +98,7 @@ pub fn mat3x2<N: Scalar>(m11: N, m12: N,
 }
 
 /// Create a new 3x3 matrix.
+#[rustfmt::skip]
 pub fn mat3x3<N: Scalar>(m11: N, m12: N, m13: N,
                          m21: N, m22: N, m23: N,
                          m31: N, m32: N, m33: N) -> TMat3<N> {
@@ -105,6 +110,7 @@ pub fn mat3x3<N: Scalar>(m11: N, m12: N, m13: N,
 }
 
 /// Create a new 3x4 matrix.
+#[rustfmt::skip]
 pub fn mat3x4<N: Scalar>(m11: N, m12: N, m13: N, m14: N,
                          m21: N, m22: N, m23: N, m24: N,
                          m31: N, m32: N, m33: N, m34: N) -> TMat3x4<N> {
@@ -116,6 +122,7 @@ pub fn mat3x4<N: Scalar>(m11: N, m12: N, m13: N, m14: N,
 }
 
 /// Create a new 4x2 matrix.
+#[rustfmt::skip]
 pub fn mat4x2<N: Scalar>(m11: N, m12: N,
                          m21: N, m22: N,
                          m31: N, m32: N,
@@ -129,6 +136,7 @@ pub fn mat4x2<N: Scalar>(m11: N, m12: N,
 }
 
 /// Create a new 4x3 matrix.
+#[rustfmt::skip]
 pub fn mat4x3<N: Scalar>(m11: N, m12: N, m13: N,
                          m21: N, m22: N, m23: N,
                          m31: N, m32: N, m33: N,
@@ -142,6 +150,7 @@ pub fn mat4x3<N: Scalar>(m11: N, m12: N, m13: N,
 }
 
 /// Create a new 4x4 matrix.
+#[rustfmt::skip]
 pub fn mat4x4<N: Scalar>(m11: N, m12: N, m13: N, m14: N,
                          m21: N, m22: N, m23: N, m24: N,
                          m31: N, m32: N, m33: N, m34: N,
@@ -155,6 +164,7 @@ pub fn mat4x4<N: Scalar>(m11: N, m12: N, m13: N, m14: N,
 }
 
 /// Create a new 4x4 matrix.
+#[rustfmt::skip]
 pub fn mat4<N: Scalar>(m11: N, m12: N, m13: N, m14: N,
                        m21: N, m22: N, m23: N, m24: N,
                        m31: N, m32: N, m33: N, m34: N,

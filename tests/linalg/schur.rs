@@ -1,12 +1,11 @@
-#![cfg_attr(rustfmt, rustfmt_skip)]
-
 use na::{DMatrix, Matrix3, Matrix4};
 
 #[test]
+#[rustfmt::skip]
 fn schur_simpl_mat3() {
     let m = Matrix3::new(-2.0, -4.0, 2.0,
-                         -2.0,  1.0, 2.0,
-                          4.0,  2.0, 5.0);
+                                        -2.0,  1.0, 2.0,
+                                        4.0,  2.0, 5.0);
 
     let schur = m.schur();
     let (vecs, vals) = schur.unpack();
@@ -83,6 +82,7 @@ mod quickcheck_tests {
 }
 
 #[test]
+#[rustfmt::skip]
 fn schur_static_mat4_fail() {
     let m = Matrix4::new(
          33.32699857679677,  46.794945978960044, -20.792148817005838,   84.73945485997737,
@@ -95,6 +95,7 @@ fn schur_static_mat4_fail() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn schur_static_mat4_fail2() {
     let m = Matrix4::new(
         14.623586538485966, 7.646156622760756, -52.11923331576265, -97.50030223503413,
@@ -107,6 +108,7 @@ fn schur_static_mat4_fail2() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn schur_static_mat3_fail() {
     let m = Matrix3::new(
         -21.58457553143394,   -67.3881542667948, -14.619829849784338,
@@ -119,6 +121,7 @@ fn schur_static_mat3_fail() {
 
 // Test proposed on the issue #176 of rulinalg.
 #[test]
+#[rustfmt::skip]
 fn schur_singular() {
     let m = DMatrix::from_row_slice(24, 24, &[
         1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.0,  1.0,  1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
