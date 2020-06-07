@@ -1,8 +1,7 @@
-#![cfg_attr(rustfmt, rustfmt_skip)]
-
 use na::Matrix3;
 
 #[test]
+#[rustfmt::skip]
 fn lu_simple() {
     let m = Matrix3::new(
         2.0, -1.0,  0.0,
@@ -21,6 +20,7 @@ fn lu_simple() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn lu_simple_with_pivot() {
     let m = Matrix3::new(
         0.0, -1.0,  2.0,
@@ -41,7 +41,7 @@ fn lu_simple_with_pivot() {
 #[cfg(feature = "arbitrary")]
 mod quickcheck_tests {
     #[allow(unused_imports)]
-    use crate::core::helper::{RandScalar, RandComplex};
+    use crate::core::helper::{RandComplex, RandScalar};
 
     macro_rules! gen_tests(
         ($module: ident, $scalar: ty) => {

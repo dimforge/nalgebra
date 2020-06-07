@@ -1,5 +1,3 @@
-#![cfg_attr(rustfmt, rustfmt_skip)]
-
 use na::DMatrix;
 
 #[cfg(feature = "arbitrary")]
@@ -67,6 +65,7 @@ mod quickcheck_tests {
 
 // Test proposed on the issue #176 of rulinalg.
 #[test]
+#[rustfmt::skip]
 fn symmetric_eigen_singular_24x24() {
     let m = DMatrix::from_row_slice(
         24,

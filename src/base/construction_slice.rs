@@ -220,9 +220,9 @@ macro_rules! impl_constructors(
 
 // FIXME: this is not very pretty. We could find a better call syntax.
 impl_constructors!(R, C;                         // Arguments for Matrix<N, ..., S>
-                   => R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
-                   R::name(), C::name();         // Arguments for `_generic` constructors.
-                   ); // Arguments for non-generic constructors.
+=> R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
+R::name(), C::name();         // Arguments for `_generic` constructors.
+); // Arguments for non-generic constructors.
 
 impl_constructors!(R, Dynamic;
                    => R: DimName;
@@ -279,9 +279,9 @@ macro_rules! impl_constructors_mut(
 
 // FIXME: this is not very pretty. We could find a better call syntax.
 impl_constructors_mut!(R, C;                         // Arguments for Matrix<N, ..., S>
-                       => R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
-                       R::name(), C::name();         // Arguments for `_generic` constructors.
-                       ); // Arguments for non-generic constructors.
+=> R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
+R::name(), C::name();         // Arguments for `_generic` constructors.
+); // Arguments for non-generic constructors.
 
 impl_constructors_mut!(R, Dynamic;
                        => R: DimName;

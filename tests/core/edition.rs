@@ -1,13 +1,11 @@
-#![cfg_attr(rustfmt, rustfmt_skip)]
-
-use na::{Matrix,
-         DMatrix,
-         Matrix3, Matrix4, Matrix5,
-         Matrix4x3, Matrix3x4, Matrix5x3, Matrix3x5, Matrix4x5, Matrix5x4};
+use na::{
+    DMatrix, Matrix, Matrix3, Matrix3x4, Matrix3x5, Matrix4, Matrix4x3, Matrix4x5, Matrix5,
+    Matrix5x3, Matrix5x4,
+};
 use na::{Dynamic, U2, U3, U5};
 
-
 #[test]
+#[rustfmt::skip]
 fn upper_lower_triangular() {
     let m = Matrix4::new(
         11.0, 12.0, 13.0, 14.0,
@@ -173,6 +171,7 @@ fn upper_lower_triangular() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn swap_rows() {
     let mut m = Matrix5x3::new(
         11.0, 12.0, 13.0,
@@ -194,6 +193,7 @@ fn swap_rows() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn swap_columns() {
     let mut m = Matrix3x5::new(
         11.0, 12.0, 13.0, 14.0, 15.0,
@@ -211,6 +211,7 @@ fn swap_columns() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn remove_columns() {
     let m = Matrix3x5::new(
         11, 12, 13, 14, 15,
@@ -261,6 +262,7 @@ fn remove_columns() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn remove_columns_at() {
     let m = DMatrix::from_row_slice(5, 5, &[
         11, 12, 13, 14, 15,
@@ -317,8 +319,8 @@ fn remove_columns_at() {
     assert_eq!(m.remove_columns_at(&[0,3,4]), expected3);
 }
 
-
 #[test]
+#[rustfmt::skip]
 fn remove_rows() {
     let m = Matrix5x3::new(
         11, 12, 13,
@@ -374,6 +376,7 @@ fn remove_rows() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn remove_rows_at() {
     let m = DMatrix::from_row_slice(5, 5, &[
         11, 12, 13, 14, 15,
@@ -424,8 +427,8 @@ fn remove_rows_at() {
     assert_eq!(m.remove_rows_at(&[0,3,4]), expected3);
 }
 
-
 #[test]
+#[rustfmt::skip]
 fn insert_columns() {
     let m = Matrix5x3::new(
         11, 12, 13,
@@ -490,6 +493,7 @@ fn insert_columns() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn insert_columns_to_empty_matrix() {
     let m1 = DMatrix::repeat(0, 0, 0);
     let m2 = DMatrix::repeat(3, 0, 0);
@@ -502,6 +506,7 @@ fn insert_columns_to_empty_matrix() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn insert_rows() {
     let m = Matrix3x5::new(
         11, 12, 13, 14, 15,
@@ -573,6 +578,7 @@ fn insert_rows_to_empty_matrix() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn resize() {
     let m = Matrix3x5::new(
         11, 12, 13, 14, 15,

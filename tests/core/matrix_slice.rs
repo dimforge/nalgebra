@@ -1,18 +1,15 @@
 #![allow(non_snake_case)]
-#![cfg_attr(rustfmt, rustfmt_skip)]
 
+use na::{
+    DMatrix, DMatrixSlice, DMatrixSliceMut, Matrix2, Matrix2x3, Matrix2x4, Matrix2x6, Matrix3,
+    Matrix3x2, Matrix3x4, Matrix4x2, Matrix6x2, MatrixSlice2, MatrixSlice2x3, MatrixSlice2xX,
+    MatrixSlice3, MatrixSlice3x2, MatrixSliceMut2, MatrixSliceMut2x3, MatrixSliceMut2xX,
+    MatrixSliceMut3, MatrixSliceMut3x2, MatrixSliceMutXx3, MatrixSliceXx3, RowVector4, Vector3,
+};
 use na::{U2, U3, U4};
-use na::{DMatrix,
-         RowVector4,
-         Vector3,
-         Matrix2, Matrix3,
-         Matrix2x3, Matrix3x2, Matrix3x4, Matrix4x2, Matrix2x4, Matrix6x2, Matrix2x6,
-         MatrixSlice2, MatrixSlice3, MatrixSlice2x3, MatrixSlice3x2,
-         MatrixSliceXx3, MatrixSlice2xX, DMatrixSlice,
-         MatrixSliceMut2, MatrixSliceMut3, MatrixSliceMut2x3, MatrixSliceMut3x2,
-         MatrixSliceMutXx3, MatrixSliceMut2xX, DMatrixSliceMut};
 
 #[test]
+#[rustfmt::skip]
 fn nested_fixed_slices() {
     let a = Matrix3x4::new(11.0, 12.0, 13.0, 14.0,
                            21.0, 22.0, 23.0, 24.0,
@@ -38,6 +35,7 @@ fn nested_fixed_slices() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn nested_slices() {
     let a = Matrix3x4::new(11.0, 12.0, 13.0, 14.0,
                            21.0, 22.0, 23.0, 24.0,
@@ -63,6 +61,7 @@ fn nested_slices() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn slice_mut() {
     let mut a = Matrix3x4::new(11.0, 12.0, 13.0, 14.0,
                                21.0, 22.0, 23.0, 24.0,
@@ -82,6 +81,7 @@ fn slice_mut() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn nested_row_slices() {
     let a = Matrix6x2::new(11.0, 12.0,
                            21.0, 22.0,
@@ -105,6 +105,7 @@ fn nested_row_slices() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn row_slice_mut() {
     let mut a = Matrix6x2::new(11.0, 12.0,
                                21.0, 22.0,
@@ -129,6 +130,7 @@ fn row_slice_mut() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn nested_col_slices() {
     let a = Matrix2x6::new(11.0, 12.0, 13.0, 14.0, 15.0, 16.0,
                            21.0, 22.0, 23.0, 24.0, 25.0, 26.0);
@@ -146,6 +148,7 @@ fn nested_col_slices() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn col_slice_mut() {
     let mut a = Matrix2x6::new(11.0, 12.0, 13.0, 14.0, 15.0, 16.0,
                                21.0, 22.0, 23.0, 24.0, 25.0, 26.0);
@@ -163,6 +166,7 @@ fn col_slice_mut() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn rows_range_pair() {
     let a = Matrix3x4::new(11.0, 12.0, 13.0, 14.0,
                            21.0, 22.0, 23.0, 24.0,
@@ -180,6 +184,7 @@ fn rows_range_pair() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn columns_range_pair() {
     let a = Matrix3x4::new(11.0, 12.0, 13.0, 14.0,
                            21.0, 22.0, 23.0, 24.0,
@@ -198,6 +203,7 @@ fn columns_range_pair() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn new_slice() {
     let data = [ 1.0, 2.0,  3.0,  4.0,
                  5.0, 6.0,  7.0,  8.0,
@@ -228,6 +234,7 @@ fn new_slice() {
 }
 
 #[test]
+#[rustfmt::skip]
 fn new_slice_mut() {
     let data = [ 1.0, 2.0,  3.0,  4.0,
                  5.0, 6.0,  7.0,  8.0,
