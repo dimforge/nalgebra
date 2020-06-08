@@ -16,7 +16,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, Field, RealField};
+use simba::scalar::{ClosedAdd, ClosedMul, Field, RealField};
 use simba::simd::SimdPartialOrd;
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
@@ -28,7 +28,7 @@ use crate::base::iter::{
 use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
 };
-use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
+use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN, ops::SimpleSub};
 use crate::SimdComplexField;
 
 /// A square matrix.
@@ -1587,7 +1587,7 @@ fn lower_exp() {
     )
 }
 
-impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N, R, C>>
+impl<N: Scalar + SimpleSub + ClosedMul, R: Dim, C: Dim, S: Storage<N, R, C>>
     Matrix<N, R, C, S>
 {
     /// The perpendicular product between two 2D column vectors, i.e. `a.x * b.y - a.y * b.x`.
@@ -1730,7 +1730,7 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     }
 }
 
-impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Storage<N, D>>
+impl<N: Scalar + Zero + One + ClosedAdd + SimpleSub + ClosedMul, D: Dim, S: Storage<N, D>>
     Vector<N, D, S>
 {
     /// Returns `self * (1.0 - t) + rhs * t`, i.e., the linear blend of the vectors x and y using the scalar value a.

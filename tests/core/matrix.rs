@@ -1107,3 +1107,98 @@ fn partial_eq_different_types() {
     // assert_ne!(static_mat, typenum_static_mat);
     //assert_ne!(typenum_static_mat, static_mat);
 }
+
+#[test]
+fn add_without_add_assign() {
+    // Ensure adding matrices works without implementing AddAssign
+    #[derive(Clone, Copy, Debug, PartialEq)]
+    struct Value(f32);
+    impl std::ops::Add<&Value> for Value {
+        type Output = Self;
+        fn add(self, rhs: &Self) -> Self {
+            Value(self.0 + rhs.0)
+        }
+    }
+    impl std::ops::Add<Value> for Value {
+        type Output = Self;
+        fn add(self, rhs: Self) -> Self {
+            self.add(&rhs)
+        }
+    }
+    impl std::ops::Sub<&Value> for Value {
+        type Output = Self;
+        fn sub(self, rhs: &Self) -> Self {
+            Value(self.0 - rhs.0)
+        }
+    }
+    impl std::ops::Sub<Value> for Value {
+        type Output = Self;
+        fn sub(self, rhs: Self) -> Self {
+            self.sub(&rhs)
+        }
+    }
+
+    let a = Matrix2x3::new(
+        Value(1.0),
+        Value(2.0),
+        Value(3.0),
+        Value(4.0),
+        Value(5.0),
+        Value(6.0),
+    );
+
+    let b = Matrix2x3::new(
+        Value(10.0),
+        Value(20.0),
+        Value(30.0),
+        Value(40.0),
+        Value(50.0),
+        Value(60.0),
+    );
+    let c = DMatrix::from_row_slice(2, 3, &[
+         Value(10.0),
+         Value(20.0),
+         Value(30.0),
+         Value(40.0),
+         Value(50.0),
+         Value(60.0),
+    ]);
+
+    let expected_add = Matrix2x3::new(
+        Value(11.0),
+        Value(22.0),
+        Value(33.0),
+        Value(44.0),
+        Value(55.0),
+        Value(66.0)
+    );
+
+    let expected_sub = Matrix2x3::new(
+        Value(-9.0),
+        Value(-18.0),
+        Value(-27.0),
+        Value(-36.0),
+        Value(-45.0),
+        Value(-54.0)
+    );
+
+    assert_eq!(expected_add, &a + &b);
+    assert_eq!(expected_add, &a + b);
+    assert_eq!(expected_add, a + &b);
+    assert_eq!(expected_add, a + b);
+
+    // Sum of a static matrix with a dynamic one.
+    assert_eq!(expected_add, &a + &c);
+    assert_eq!(expected_add, a + &c);
+    assert_eq!(expected_add, &c + &a);
+    assert_eq!(expected_add, &c + a);
+
+    assert_eq!(expected_sub, &a - &b);
+    assert_eq!(expected_sub, &a - b);
+    assert_eq!(expected_sub, a - &b);
+    assert_eq!(expected_sub, a - b);
+
+    // Difference of a static matrix with a dynamic one.
+    assert_eq!(expected_sub, &a - &c);
+    assert_eq!(expected_sub, a - &c);
+}

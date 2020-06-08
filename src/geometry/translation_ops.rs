@@ -9,45 +9,46 @@ use crate::base::{DefaultAllocator, Scalar};
 
 use crate::geometry::{Point, Translation};
 
+use crate::base::{SimpleAdd, SimpleSub};
 // Translation × Translation
-add_sub_impl!(Mul, mul, ClosedAdd;
+add_sub_impl!(Mul, mul, SimpleAdd;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: &'a Translation<N, D>, right: &'b Translation<N, D>, Output = Translation<N, D>;
     Translation::from(&self.vector + &right.vector); 'a, 'b);
 
-add_sub_impl!(Mul, mul, ClosedAdd;
+add_sub_impl!(Mul, mul, SimpleAdd;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: &'a Translation<N, D>, right: Translation<N, D>, Output = Translation<N, D>;
     Translation::from(&self.vector + right.vector); 'a);
 
-add_sub_impl!(Mul, mul, ClosedAdd;
+add_sub_impl!(Mul, mul, SimpleAdd;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: Translation<N, D>, right: &'b Translation<N, D>, Output = Translation<N, D>;
     Translation::from(self.vector + &right.vector); 'b);
 
-add_sub_impl!(Mul, mul, ClosedAdd;
+add_sub_impl!(Mul, mul, SimpleAdd;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: Translation<N, D>, right: Translation<N, D>, Output = Translation<N, D>;
     Translation::from(self.vector + right.vector); );
 
 // Translation ÷ Translation
 // FIXME: instead of calling inverse explicitly, could we just add a `mul_tr` or `mul_inv` method?
-add_sub_impl!(Div, div, ClosedSub;
+add_sub_impl!(Div, div, SimpleSub;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: &'a Translation<N, D>, right: &'b Translation<N, D>, Output = Translation<N, D>;
     Translation::from(&self.vector - &right.vector); 'a, 'b);
 
-add_sub_impl!(Div, div, ClosedSub;
+add_sub_impl!(Div, div, SimpleSub;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: &'a Translation<N, D>, right: Translation<N, D>, Output = Translation<N, D>;
     Translation::from(&self.vector - right.vector); 'a);
 
-add_sub_impl!(Div, div, ClosedSub;
+add_sub_impl!(Div, div, SimpleSub;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: Translation<N, D>, right: &'b Translation<N, D>, Output = Translation<N, D>;
     Translation::from(self.vector - &right.vector); 'b);
 
-add_sub_impl!(Div, div, ClosedSub;
+add_sub_impl!(Div, div, SimpleSub;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: Translation<N, D>, right: Translation<N, D>, Output = Translation<N, D>;
     Translation::from(self.vector - right.vector); );
@@ -55,22 +56,22 @@ add_sub_impl!(Div, div, ClosedSub;
 // Translation × Point
 // FIXME: we don't handle properly non-zero origins here. Do we want this to be the intended
 // behavior?
-add_sub_impl!(Mul, mul, ClosedAdd;
+add_sub_impl!(Mul, mul, SimpleAdd;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: &'a Translation<N, D>, right: &'b Point<N, D>, Output = Point<N, D>;
     right + &self.vector; 'a, 'b);
 
-add_sub_impl!(Mul, mul, ClosedAdd;
+add_sub_impl!(Mul, mul, SimpleAdd;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: &'a Translation<N, D>, right: Point<N, D>, Output = Point<N, D>;
     right + &self.vector; 'a);
 
-add_sub_impl!(Mul, mul, ClosedAdd;
+add_sub_impl!(Mul, mul, SimpleAdd;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: Translation<N, D>, right: &'b Point<N, D>, Output = Point<N, D>;
     right + self.vector; 'b);
 
-add_sub_impl!(Mul, mul, ClosedAdd;
+add_sub_impl!(Mul, mul, SimpleAdd;
     (D, U1), (D, U1) -> (D) for D: DimName;
     self: Translation<N, D>, right: Point<N, D>, Output = Point<N, D>;
     right + self.vector; );

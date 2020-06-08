@@ -93,6 +93,94 @@ fn to_homogeneous() {
     assert_eq!(a.to_homogeneous(), expected);
 }
 
+#[test]
+fn point_ops_without_assign() {
+    // Ensure adding matrices works without implementing AddAssign
+    #[derive(Clone, Copy, Debug, PartialEq)]
+    struct Value(f32);
+    impl std::ops::Add<&Value> for Value {
+        type Output = Self;
+        fn add(self, rhs: &Self) -> Self {
+            Value(self.0 + rhs.0)
+        }
+    }
+    impl std::ops::Add<Value> for Value {
+        type Output = Self;
+        fn add(self, rhs: Self) -> Self {
+            self.add(&rhs)
+        }
+    }
+    impl std::ops::Sub<&Value> for Value {
+        type Output = Self;
+        fn sub(self, rhs: &Self) -> Self {
+            Value(self.0 - rhs.0)
+        }
+    }
+    impl std::ops::Sub<Value> for Value {
+        type Output = Self;
+        fn sub(self, rhs: Self) -> Self {
+            self.sub(&rhs)
+        }
+    }
+    impl std::ops::Mul<Value> for f32 {
+        type Output = Value;
+        fn mul(self, rhs: Value) -> Self::Output {
+            Value(self * rhs.0)
+        }
+    }
+    impl std::ops::Mul<f32> for Value {
+        type Output = Value;
+        fn mul(self, rhs: f32) -> Self::Output {
+            Value(self.0 * rhs)
+        }
+    }
+    impl Zero for Value {
+        fn zero() -> Self {
+            Value(Zero::zero())
+        }
+
+        fn is_zero(&self) -> bool {
+            self.0.is_zero()
+        }
+    }
+
+    let a = Point3::new(
+        Value(1.0),
+        Value(2.0),
+        Value(3.0),
+    );
+    let b = Point3::new(
+        Value(1.0),
+        Value(2.0),
+        Value(3.0),
+    );
+    let c = Vector3::new(
+        Value(1.0),
+        Value(2.0),
+        Value(3.0),
+    );
+
+    assert_eq!(a - b, Vector3::zero());
+    assert_eq!(&a - &b, Vector3::zero());
+    assert_eq!(a - &b, Vector3::zero());
+    assert_eq!(&a - b, Vector3::zero());
+
+    assert_eq!(b - c, Point3::origin());
+    assert_eq!(&b - &c, Point3::origin());
+    assert_eq!(b - &c, Point3::origin());
+    assert_eq!(&b - c, Point3::origin());
+
+    let a2 = Point3::new(
+        Value(2.0),
+        Value(4.0),
+        Value(6.0),
+    );
+    assert_eq!(b + c, a2);
+    assert_eq!(&b + &c, a2);
+    assert_eq!(b + &c, a2);
+    assert_eq!(&b + c, a2);
+}
+
 #[cfg(feature = "arbitrary")]
 quickcheck!(
     fn point_sub(pt1: Point3<f64>, pt2: Point3<f64>) -> bool {
