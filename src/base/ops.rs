@@ -154,8 +154,8 @@ macro_rules! componentwise_binop_impl(
                                                                      out: &mut Matrix<N, R3, C3, SC>)
                 where SB: Storage<N, R2, C2>,
                       SC: StorageMut<N, R3, C3> {
-                assert!(self.shape() == rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
-                assert!(self.shape() == out.shape(), "Matrix addition/subtraction output dimensions mismatch.");
+                assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
+                assert_eq!(self.shape(), out.shape(), "Matrix addition/subtraction output dimensions mismatch.");
 
                 // This is the most common case and should be deduced at compile-time.
                 // FIXME: use specialization instead?
@@ -188,7 +188,7 @@ macro_rules! componentwise_binop_impl(
                       C2: Dim,
                       SA: StorageMut<N, R1, C1>,
                       SB: Storage<N, R2, C2> {
-                assert!(self.shape() == rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
+                assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
 
                 // This is the most common case and should be deduced at compile-time.
                 // FIXME: use specialization instead?
@@ -218,7 +218,7 @@ macro_rules! componentwise_binop_impl(
                 where R2: Dim,
                       C2: Dim,
                       SB: StorageMut<N, R2, C2> {
-                assert!(self.shape() == rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
+                assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
 
                 // This is the most common case and should be deduced at compile-time.
                 // FIXME: use specialization instead?
@@ -277,7 +277,7 @@ macro_rules! componentwise_binop_impl(
 
             #[inline]
             fn $method(self, rhs: &'b Matrix<N, R2, C2, SB>) -> Self::Output {
-                assert!(self.shape() == rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
+                assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
                 let mut res = self.into_owned_sum::<R2, C2>();
                 res.$method_assign_statically_unchecked(rhs);
                 res
@@ -296,7 +296,7 @@ macro_rules! componentwise_binop_impl(
             #[inline]
             fn $method(self, rhs: Matrix<N, R2, C2, SB>) -> Self::Output {
                 let mut rhs = rhs.into_owned_sum::<R1, C1>();
-                assert!(self.shape() == rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
+                assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
                 self.$method_assign_statically_unchecked_rhs(&mut rhs);
                 rhs
             }
@@ -728,11 +728,21 @@ where
 
         assert!(
             nrows1 == nrows2,
-            "Matrix multiplication dimensions mismatch."
+            "Matrix multiplication dimensions mismatch {:?} and {:?}: left rows != right rows.",
+            self.shape(),
+            rhs.shape()
         );
         assert!(
-            nrows3 == ncols1 && ncols3 == ncols2,
-            "Matrix multiplication output dimensions mismatch."
+            ncols1 == nrows3,
+            "Matrix multiplication output dimensions mismatch {:?} and {:?}: left cols != right rows.",
+            self.shape(),
+            out.shape()
+        );
+        assert!(
+            ncols2 == ncols3,
+            "Matrix multiplication output dimensions mismatch {:?} and {:?}: left cols != right cols",
+            rhs.shape(),
+            out.shape()
         );
 
         for i in 0..ncols1 {
