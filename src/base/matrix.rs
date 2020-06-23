@@ -538,8 +538,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
 
-        assert!(
-            (nrows.value(), ncols.value()) == rhs.shape(),
+        assert_eq!(
+            (nrows.value(), ncols.value()),
+            rhs.shape(),
             "Matrix simultaneous traversal error: dimension mismatch."
         );
 
@@ -578,9 +579,14 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
 
-        assert!(
-            (nrows.value(), ncols.value()) == b.shape()
-                && (nrows.value(), ncols.value()) == c.shape(),
+        assert_eq!(
+            (nrows.value(), ncols.value()),
+            b.shape(),
+            "Matrix simultaneous traversal error: dimension mismatch."
+        );
+        assert_eq!(
+            (nrows.value(), ncols.value()),
+            c.shape(),
             "Matrix simultaneous traversal error: dimension mismatch."
         );
 
@@ -636,8 +642,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         let mut res = init;
 
-        assert!(
-            (nrows.value(), ncols.value()) == rhs.shape(),
+        assert_eq!(
+            (nrows.value(), ncols.value()),
+            rhs.shape(),
             "Matrix simultaneous traversal error: dimension mismatch."
         );
 
@@ -884,8 +891,9 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     {
         let (nrows, ncols) = self.shape();
 
-        assert!(
-            (nrows, ncols) == rhs.shape(),
+        assert_eq!(
+            (nrows, ncols),
+            rhs.shape(),
             "Matrix simultaneous traversal error: dimension mismatch."
         );
 
@@ -922,12 +930,14 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     {
         let (nrows, ncols) = self.shape();
 
-        assert!(
-            (nrows, ncols) == b.shape(),
+        assert_eq!(
+            (nrows, ncols),
+            b.shape(),
             "Matrix simultaneous traversal error: dimension mismatch."
         );
-        assert!(
-            (nrows, ncols) == c.shape(),
+        assert_eq!(
+            (nrows, ncols),
+            c.shape(),
             "Matrix simultaneous traversal error: dimension mismatch."
         );
 
@@ -1427,8 +1437,9 @@ where
 
     #[inline]
     fn lt(&self, right: &Self) -> bool {
-        assert!(
-            self.shape() == right.shape(),
+        assert_eq!(
+            self.shape(),
+            right.shape(),
             "Matrix comparison error: dimensions mismatch."
         );
         self.iter().zip(right.iter()).all(|(a, b)| a.lt(b))
@@ -1436,8 +1447,9 @@ where
 
     #[inline]
     fn le(&self, right: &Self) -> bool {
-        assert!(
-            self.shape() == right.shape(),
+        assert_eq!(
+            self.shape(),
+            right.shape(),
             "Matrix comparison error: dimensions mismatch."
         );
         self.iter().zip(right.iter()).all(|(a, b)| a.le(b))
@@ -1445,8 +1457,9 @@ where
 
     #[inline]
     fn gt(&self, right: &Self) -> bool {
-        assert!(
-            self.shape() == right.shape(),
+        assert_eq!(
+            self.shape(),
+            right.shape(),
             "Matrix comparison error: dimensions mismatch."
         );
         self.iter().zip(right.iter()).all(|(a, b)| a.gt(b))
@@ -1454,8 +1467,9 @@ where
 
     #[inline]
     fn ge(&self, right: &Self) -> bool {
-        assert!(
-            self.shape() == right.shape(),
+        assert_eq!(
+            self.shape(),
+            right.shape(),
             "Matrix comparison error: dimensions mismatch."
         );
         self.iter().zip(right.iter()).all(|(a, b)| a.ge(b))
@@ -1602,7 +1616,11 @@ impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N
             + SameNumberOfRows<R2, U2>
             + SameNumberOfColumns<C2, U1>,
     {
-        assert!(self.shape() == (2, 1), "2D perpendicular product ");
+        assert!(
+            self.shape() == (2, 1),
+            "2D perpendicular product requires (2, 1) vector but found {:?}",
+            self.shape()
+        );
 
         unsafe {
             self.get_unchecked((0, 0)).inlined_clone() * b.get_unchecked((1, 0)).inlined_clone()
@@ -1626,13 +1644,11 @@ impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
         let shape = self.shape();
-        assert!(
-            shape == b.shape(),
-            "Vector cross product dimension mismatch."
-        );
+        assert_eq!(shape, b.shape(), "Vector cross product dimension mismatch.");
         assert!(
             (shape.0 == 3 && shape.1 == 1) || (shape.0 == 1 && shape.1 == 3),
-            "Vector cross product dimension mismatch."
+            "Vector cross product dimension mismatch: must be (3, 1) or (1, 3) but found {:?}.",
+            shape
         );
 
         if shape.0 == 3 {

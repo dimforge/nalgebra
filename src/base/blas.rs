@@ -284,7 +284,9 @@ where
     {
         assert!(
             self.nrows() == rhs.nrows(),
-            "Dot product dimensions mismatch."
+            "Dot product dimensions mismatch for shapes {:?} and {:?}: left rows != right rows.",
+            self.shape(),
+            rhs.shape(),
         );
 
         // So we do some special cases for common fixed-size vectors of dimension lower than 8
@@ -496,8 +498,9 @@ where
         ShapeConstraint: DimEq<C, R2> + DimEq<R, C2>,
     {
         let (nrows, ncols) = self.shape();
-        assert!(
-            (ncols, nrows) == rhs.shape(),
+        assert_eq!(
+            (ncols, nrows),
+            rhs.shape(),
             "Transposed dot product dimension mismatch."
         );
 
