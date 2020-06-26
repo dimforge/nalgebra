@@ -136,11 +136,7 @@ mod tests {
 
             let identity = Matrix2::<Complex<f64>>::identity();
 
-            assert!(relative_eq!(
-                z.exp().norm(),
-                identity.norm(),
-                epsilon = 1.0e-7
-            ));
+            assert!((z.exp() - identity).norm() < 1e-7);
         }
 
         {
@@ -152,13 +148,13 @@ mod tests {
             );
 
             let b = Matrix2::<Complex<f64>>::new(
-                Complex::<f64>::new(0.42645930, 1.89217551),
-                Complex::<f64>::new(-2.13721484, 0.97811252),
-                Complex::<f64>::new(1.06860742, 0.48905626),
-                Complex::<f64>::new(-1.71075555, 0.91406299),
+                Complex::<f64>::new(0.42645929666726, 1.89217550966333),
+                Complex::<f64>::new(-2.13721484276556, -0.97811251808259),
+                Complex::<f64>::new(1.06860742138278, 0.48905625904129),
+                Complex::<f64>::new(-1.7107555460983, 0.91406299158075),
             );
 
-            assert!(relative_eq!(a.exp().norm(), b.norm(), epsilon = 1.0e-7));
+            assert!((a.exp() - b).norm() < 1.0e-07);
         }
 
         {
@@ -174,7 +170,7 @@ mod tests {
                 d3.exp(),
             ]));
 
-            assert!(relative_eq!(m.exp().norm(), res.norm(), epsilon = 1.0e-7));
+            assert!((m.exp() - res).norm() < 1e-07);
         }
     }
 }
