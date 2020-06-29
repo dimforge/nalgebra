@@ -4,7 +4,7 @@
 //! The tests here only check that the necessary trait implementations are correctly implemented,
 //! in addition to some sanity checks with example input.
 
-use nalgebra::{U4, U5, MatrixMN, DMatrix};
+use nalgebra::{DMatrix, MatrixMN, U4, U5};
 
 use matrixcompare::{assert_matrix_eq, DenseAccess};
 
@@ -31,6 +31,7 @@ quickcheck! {
 
 #[test]
 fn assert_matrix_eq_dense_positive_comparison() {
+    #[rustfmt::skip]
     let a = MatrixMN::<_, U4, U5>::from_row_slice(&[
         1210, 1320, 1430, 1540, 1650,
         2310, 2420, 2530, 2640, 2750,
@@ -38,6 +39,7 @@ fn assert_matrix_eq_dense_positive_comparison() {
         4510, 4620, 4730, 4840, 4950,
     ]);
 
+    #[rustfmt::skip]
     let b = MatrixMN::<_, U4, U5>::from_row_slice(&[
         1210, 1320, 1430, 1540, 1650,
         2310, 2420, 2530, 2640, 2750,
@@ -63,6 +65,7 @@ fn assert_matrix_eq_dense_positive_comparison() {
 #[test]
 #[should_panic]
 fn assert_matrix_eq_dense_negative_comparison() {
+    #[rustfmt::skip]
     let a = MatrixMN::<_, U4, U5>::from_row_slice(&[
         1210, 1320, 1430, 1540, 1650,
         2310, 2420, 2530, 2640, 2750,
@@ -70,6 +73,7 @@ fn assert_matrix_eq_dense_negative_comparison() {
         4510, 4620, -4730, 4840, 4950,
     ]);
 
+    #[rustfmt::skip]
     let b = MatrixMN::<_, U4, U5>::from_row_slice(&[
         1210, 1320, 1430, 1540, 1650,
         2310, 2420, 2530, 2640, 2750,
