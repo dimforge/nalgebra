@@ -1,5 +1,5 @@
 all:
-	cargo test --features "debug arbitrary serde-serialize abomonation-serialize"
+	cargo test --features "debug arbitrary serde-serialize abomonation-serialize compare"
 	# cargo check --features "debug arbitrary serde-serialize"
 
 doc:
@@ -9,4 +9,4 @@ bench:
 	cargo bench
 
 test:
-	cargo test --features "debug arbitrary serde-serialize abomonation-serialize"
+	cargo test --features "debug arbitrary serde-serialize abomonation-serialize compare"
