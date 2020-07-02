@@ -1,4 +1,4 @@
-use na::{Vector2, Vector3, Matrix3, Matrix4, Point2, Point3};
+use na::{Matrix3, Matrix4, Point2, Point3, Vector2, Vector3};
 
 /// See Example 3.4 of "Graphics and Visualization: Principles & Algorithms"
 /// by Theoharis, Papaioannou, Platis, Patrikalakis.

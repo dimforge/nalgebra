@@ -11,11 +11,12 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameDiff, DimNameSub, U1};
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::{
-    DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector, Vector2, Vector3,
-    VectorN,
+    DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector, Vector2,
+    Vector3, VectorN,
 };
 use crate::geometry::{
-    Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point2, Point3, Rotation2, Rotation3, Translation2, Translation3,
+    Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point2, Point3, Rotation2,
+    Rotation3, Translation2, Translation3,
 };
 
 use simba::scalar::{ClosedAdd, ClosedMul, RealField};
