@@ -9,7 +9,7 @@ fn test_scaling_wrt_point_1() {
     let c = Point2::new(5.0, 2.0);
 
     let scaling = Vector2::new(2.0, 2.0);
-    let scale_about = Matrix3::new_nonuniform_scaling_wrt_point(scaling, c);
+    let scale_about = Matrix3::new_nonuniform_scaling_wrt_point(&scaling, &c);
 
     let expected_a = Point2::new(-5.0, -2.0);
     let expected_b = Point2::new(-3.0, 0.0);
@@ -30,7 +30,7 @@ fn test_scaling_wrt_point_2() {
     let c = Point3::new(5.0, 2.0, 1.0);
 
     let scaling = Vector3::new(2.0, 2.0, 1.0);
-    let scale_about = Matrix4::new_nonuniform_scaling_wrt_point(scaling, c);
+    let scale_about = Matrix4::new_nonuniform_scaling_wrt_point(&scaling, &c);
 
     let expected_a = Point3::new(-5.0, -2.0, 1.0);
     let expected_b = Point3::new(-3.0, 0.0, 1.0);
@@ -50,7 +50,7 @@ fn test_scaling_wrt_point_3() {
     let about = Point3::new(2.0, 1.0, -2.0);
     let scale = Vector3::new(2.0, 0.5, -1.0);
     let pt = Point3::new(1.0, 2.0, 3.0);
-    let scale_about = Matrix4::new_nonuniform_scaling_wrt_point(scale, about);
+    let scale_about = Matrix4::new_nonuniform_scaling_wrt_point(&scale, &about);
 
     let expected = Point3::new(0.0, 1.5, -7.0);
     let result = scale_about.transform_point(&pt);

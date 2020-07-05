@@ -16,7 +16,7 @@ use crate::base::{
 };
 use crate::geometry::{
     Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point2, Point3, Rotation2,
-    Rotation3, Translation2, Translation3,
+    Rotation3,
 };
 
 use simba::scalar::{ClosedAdd, ClosedMul, RealField};
@@ -76,11 +76,20 @@ impl<N: RealField> Matrix3<N> {
     ///
     /// Can be used to implement "zoom_to" functionality.
     #[inline]
-    pub fn new_nonuniform_scaling_wrt_point(scaling: Vector2<N>, pt: Point2<N>) -> Self {
-        let translate = Translation2::new(pt.x, pt.y).to_homogeneous();
-        let scale = Matrix3::new_nonuniform_scaling(&scaling);
-        let translate_inv = Translation2::new(-pt.x, -pt.y).to_homogeneous();
-        translate * scale * translate_inv
+    pub fn new_nonuniform_scaling_wrt_point(scaling: &Vector2<N>, pt: &Point2<N>) -> Self {
+        let _0 = N::zero();
+        let _1 = N::one();
+        Matrix3::new(
+            scaling.x,
+            _0,
+            pt.x - pt.x * scaling.x,
+            _0,
+            scaling.y,
+            pt.y - pt.y * scaling.y,
+            _0,
+            _0,
+            _1,
+        )
     }
 }
 
@@ -106,11 +115,27 @@ impl<N: RealField> Matrix4<N> {
     ///
     /// Can be used to implement "zoom_to" functionality.
     #[inline]
-    pub fn new_nonuniform_scaling_wrt_point(scaling: Vector3<N>, pt: Point3<N>) -> Self {
-        let translate = Translation3::new(pt.x, pt.y, pt.z).to_homogeneous();
-        let scale = Matrix4::new_nonuniform_scaling(&scaling);
-        let translate_inv = Translation3::new(-pt.x, -pt.y, -pt.z).to_homogeneous();
-        translate * scale * translate_inv
+    pub fn new_nonuniform_scaling_wrt_point(scaling: &Vector3<N>, pt: &Point3<N>) -> Self {
+        let _0 = N::zero();
+        let _1 = N::one();
+        Matrix4::new(
+            scaling.x,
+            _0,
+            _0,
+            pt.x - pt.x * scaling.x,
+            _0,
+            scaling.y,
+            _0,
+            pt.y - pt.y * scaling.y,
+            _0,
+            _0,
+            scaling.z,
+            pt.z - pt.z * scaling.z,
+            _0,
+            _0,
+            _0,
+            _1,
+        )
     }
 
     /// Builds a 3D homogeneous rotation matrix from an axis and an angle (multiplied together).
