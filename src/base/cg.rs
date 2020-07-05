@@ -11,11 +11,12 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameDiff, DimNameSub, U1};
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::{
-    DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector, Vector3,
-    VectorN,
+    DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector, Vector2,
+    Vector3, VectorN,
 };
 use crate::geometry::{
-    Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point3, Rotation2, Rotation3,
+    Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point2, Point3, Rotation2,
+    Rotation3,
 };
 
 use simba::scalar::{ClosedAdd, ClosedMul, RealField};
@@ -70,6 +71,26 @@ impl<N: RealField> Matrix3<N> {
     pub fn new_rotation(angle: N) -> Self {
         Rotation2::new(angle).to_homogeneous()
     }
+
+    /// Creates a new homogeneous matrix that applies a scaling factor for each dimension with respect to point.
+    ///
+    /// Can be used to implement "zoom_to" functionality.
+    #[inline]
+    pub fn new_nonuniform_scaling_wrt_point(scaling: &Vector2<N>, pt: &Point2<N>) -> Self {
+        let _0 = N::zero();
+        let _1 = N::one();
+        Matrix3::new(
+            scaling.x,
+            _0,
+            pt.x - pt.x * scaling.x,
+            _0,
+            scaling.y,
+            pt.y - pt.y * scaling.y,
+            _0,
+            _0,
+            _1,
+        )
+    }
 }
 
 impl<N: RealField> Matrix4<N> {
@@ -88,6 +109,33 @@ impl<N: RealField> Matrix4<N> {
     pub fn new_rotation_wrt_point(axisangle: Vector3<N>, pt: Point3<N>) -> Self {
         let rot = Rotation3::from_scaled_axis(axisangle);
         Isometry::rotation_wrt_point(rot, pt).to_homogeneous()
+    }
+
+    /// Creates a new homogeneous matrix that applies a scaling factor for each dimension with respect to point.
+    ///
+    /// Can be used to implement "zoom_to" functionality.
+    #[inline]
+    pub fn new_nonuniform_scaling_wrt_point(scaling: &Vector3<N>, pt: &Point3<N>) -> Self {
+        let _0 = N::zero();
+        let _1 = N::one();
+        Matrix4::new(
+            scaling.x,
+            _0,
+            _0,
+            pt.x - pt.x * scaling.x,
+            _0,
+            scaling.y,
+            _0,
+            pt.y - pt.y * scaling.y,
+            _0,
+            _0,
+            scaling.z,
+            pt.z - pt.z * scaling.z,
+            _0,
+            _0,
+            _0,
+            _1,
+        )
     }
 
     /// Builds a 3D homogeneous rotation matrix from an axis and an angle (multiplied together).
