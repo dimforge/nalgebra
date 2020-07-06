@@ -374,7 +374,8 @@ where
     }
 
     /// The unit quaternion needed to make `a` and `b` be collinear and point toward the same
-    /// direction.
+    /// direction. Returns `None` if both `a` and `b points in opposite direction, as then the
+    /// rotation desired is not unique.
     ///
     /// # Example
     /// ```
