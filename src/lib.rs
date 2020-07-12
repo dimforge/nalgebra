@@ -90,11 +90,9 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #[cfg(feature = "arbitrary")]
 extern crate quickcheck;
 
-#[cfg(feature = "serde")]
-extern crate serde;
-#[cfg(feature = "serde")]
+#[cfg(feature = "serde-serialize")]
 #[macro_use]
-extern crate serde_derive;
+extern crate serde;
 
 #[cfg(feature = "abomonation-serialize")]
 extern crate abomonation;
@@ -190,9 +188,7 @@ pub fn zero<T: Zero>() -> T {
 /// The range must not be empty.
 #[inline]
 pub fn wrap<T>(mut val: T, min: T, max: T) -> T
-where
-    T: Copy + PartialOrd + ClosedAdd + ClosedSub,
-{
+where T: Copy + PartialOrd + ClosedAdd + ClosedSub {
     assert!(min < max, "Invalid wrapping bounds.");
     let width = max - min;
 
@@ -392,9 +388,7 @@ pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'
 /// * [distance_squared](fn.distance_squared.html)
 #[inline]
 pub fn center<N: SimdComplexField, D: DimName>(p1: &Point<N, D>, p2: &Point<N, D>) -> Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+where DefaultAllocator: Allocator<N, D> {
     ((&p1.coords + &p2.coords) * convert::<_, N>(0.5)).into()
 }
 
