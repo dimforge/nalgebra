@@ -1,0 +1,9 @@
+[package]
+name = "nalgebra-sparse"
+version = "0.1.0"
+authors = [ "Andreas Longva", "Sébastien Crozet <developer@crozet.re>" ]
+edition = "2018"
+
+[dependencies]
+nalgebra = { version="0.21", path = "../" }
+num-traits = { version = "0.2", default-features = false }

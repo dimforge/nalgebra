@@ -80,7 +80,7 @@ proptest = { version = "=0.10.1" }
 itertools = "0.9"
 
 [workspace]
-members = [ "nalgebra-lapack", "nalgebra-glm" ]
+members = [ "nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse" ]
 
 [[bench]]
 name = "nalgebra_bench"
