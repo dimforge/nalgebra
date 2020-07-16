@@ -370,9 +370,7 @@ where
 {
     // 2m choose m = (2m)!/(m! * (2m-m)!)
 
-    let n = a.data.shape().0;
-    let a_abs =
-        MatrixN::<N::RealField, D>::from_iterator_generic(n, n, a.into_iter().map(|x| x.abs()));
+    let a_abs = a.map(|x| x.abs());
 
     let a_abs_onenorm = onenorm_matrix_power_nonm(&a_abs, 2 * m + 1);
 
