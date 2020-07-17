@@ -21,38 +21,38 @@ impl SparsityPattern {
     }
 
     /// The offsets for the major dimension.
-    #[inline(always)]
+    #[inline]
     pub fn major_offsets(&self) -> &[usize] {
         &self.major_offsets
     }
 
     /// The indices for the minor dimension.
-    #[inline(always)]
+    #[inline]
     pub fn minor_indices(&self) -> &[usize] {
         &self.minor_indices
     }
 
     /// The major dimension.
-    #[inline(always)]
+    #[inline]
     pub fn major_dim(&self) -> usize {
         assert!(self.major_offsets.len() > 0);
         self.major_offsets.len() - 1
     }
 
     /// The minor dimension.
-    #[inline(always)]
+    #[inline]
     pub fn minor_dim(&self) -> usize {
         self.minor_dim
     }
 
     /// The number of "non-zeros", i.e. explicitly stored entries in the pattern.
-    #[inline(always)]
+    #[inline]
     pub fn nnz(&self) -> usize {
         self.minor_indices.len()
     }
 
     /// Get the lane at the given index.
-    #[inline(always)]
+    #[inline]
     pub fn lane(&self, major_index: usize) -> Option<&[usize]> {
         let offset_begin = *self.major_offsets().get(major_index)?;
         let offset_end = *self.major_offsets().get(major_index + 1)?;
@@ -130,7 +130,7 @@ impl<'a> SparsityPatternIter<'a> {
 impl<'a> Iterator for SparsityPatternIter<'a> {
     type Item = (usize, usize);
 
-    #[inline(always)]
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         // We ensure fast iteration across each lane by iteratively "draining" a slice
         // corresponding to the remaining column indices in the particular lane.

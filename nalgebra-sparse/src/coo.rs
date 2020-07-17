@@ -126,7 +126,7 @@ where
     /// ------
     ///
     /// Panics if `i` or `j` is out of bounds.
-    #[inline(always)]
+    #[inline]
     pub fn push(&mut self, i: usize, j: usize, v: T) {
         assert!(i < self.nrows);
         assert!(j < self.ncols);
@@ -136,13 +136,13 @@ where
     }
 
     /// The number of rows in the matrix.
-    #[inline(always)]
+    #[inline]
     pub fn nrows(&self) -> usize {
         self.nrows
     }
 
     /// The number of columns in the matrix.
-    #[inline(always)]
+    #[inline]
     pub fn ncols(&self) -> usize {
         self.ncols
     }

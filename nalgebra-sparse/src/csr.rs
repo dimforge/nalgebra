@@ -26,13 +26,13 @@ impl<T> CsrMatrix<T> {
     }
 
     /// The number of rows in the matrix.
-    #[inline(always)]
+    #[inline]
     pub fn nrows(&self) -> usize {
         self.sparsity_pattern.major_dim()
     }
 
     /// The number of columns in the matrix.
-    #[inline(always)]
+    #[inline]
     pub fn ncols(&self) -> usize {
         self.sparsity_pattern.minor_dim()
     }
@@ -42,31 +42,31 @@ impl<T> CsrMatrix<T> {
     /// Note that this corresponds to the number of explicitly stored entries, *not* the actual
     /// number of algebraically zero entries in the matrix. Explicitly stored entries can still
     /// be zero. Corresponds to the number of entries in the sparsity pattern.
-    #[inline(always)]
+    #[inline]
     pub fn nnz(&self) -> usize {
         self.sparsity_pattern.nnz()
     }
 
     /// The row offsets defining part of the CSR format.
-    #[inline(always)]
+    #[inline]
     pub fn row_offsets(&self) -> &[usize] {
         self.sparsity_pattern.major_offsets()
     }
 
     /// The column indices defining part of the CSR format.
-    #[inline(always)]
+    #[inline]
     pub fn column_indices(&self) -> &[usize] {
         self.sparsity_pattern.minor_indices()
     }
 
     /// The non-zero values defining part of the CSR format.
-    #[inline(always)]
+    #[inline]
     pub fn values(&self) -> &[T] {
         &self.values
     }
 
     /// Mutable access to the non-zero values.
-    #[inline(always)]
+    #[inline]
     pub fn values_mut(&mut self) -> &mut [T] {
         &mut self.values
     }
@@ -182,7 +182,7 @@ pub struct CsrTripletIterMut<'a, T> {
 impl<'a, T> Iterator for CsrTripletIterMut<'a, T> {
     type Item = (usize, usize, &'a mut T);
 
-    #[inline(always)]
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         let next_entry = self.pattern_iter.next();
         let next_value = self.values_mut_iter.next();
