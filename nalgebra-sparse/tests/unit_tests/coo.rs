@@ -1,4 +1,4 @@
-use nalgebra_sparse::{CooMatrix, SparsePatternError};
+use nalgebra_sparse::{CooMatrix, SparseFormatError};
 use nalgebra::DMatrix;
 use crate::assert_panics;
 
@@ -91,25 +91,25 @@ fn coo_try_from_triplets_reports_out_of_bounds_indices() {
     {
         // 0x0 matrix
         let result = CooMatrix::<i32>::try_from_triplets(0, 0, vec![0], vec![0], vec![2]);
-        assert!(matches!(result, Err(SparsePatternError::IndexOutOfBounds(_))));
+        assert!(matches!(result, Err(SparseFormatError::IndexOutOfBounds(_))));
     }
 
     {
         // 1x1 matrix, row out of bounds
         let result = CooMatrix::<i32>::try_from_triplets(1, 1, vec![1], vec![0], vec![2]);
-        assert!(matches!(result, Err(SparsePatternError::IndexOutOfBounds(_))));
+        assert!(matches!(result, Err(SparseFormatError::IndexOutOfBounds(_))));
     }
 
     {
         // 1x1 matrix, col out of bounds
         let result = CooMatrix::<i32>::try_from_triplets(1, 1, vec![0], vec![1], vec![2]);
-        assert!(matches!(result, Err(SparsePatternError::IndexOutOfBounds(_))));
+        assert!(matches!(result, Err(SparseFormatError::IndexOutOfBounds(_))));
     }
 
     {
         // 1x1 matrix, row and col out of bounds
         let result = CooMatrix::<i32>::try_from_triplets(1, 1, vec![1], vec![1], vec![2]);
-        assert!(matches!(result, Err(SparsePatternError::IndexOutOfBounds(_))));
+        assert!(matches!(result, Err(SparseFormatError::IndexOutOfBounds(_))));
     }
 
     {
@@ -118,7 +118,7 @@ fn coo_try_from_triplets_reports_out_of_bounds_indices() {
         let j = vec![0, 2, 1, 3, 3];
         let v = vec![2, 3, 7, 3, 1];
         let result = CooMatrix::<i32>::try_from_triplets(3, 5, i, j, v);
-        assert!(matches!(result, Err(SparsePatternError::IndexOutOfBounds(_))));
+        assert!(matches!(result, Err(SparseFormatError::IndexOutOfBounds(_))));
     }
 
     {
@@ -127,7 +127,7 @@ fn coo_try_from_triplets_reports_out_of_bounds_indices() {
         let j = vec![0, 2, 1, 5, 3];
         let v = vec![2, 3, 7, 3, 1];
         let result = CooMatrix::<i32>::try_from_triplets(3, 5, i, j, v);
-        assert!(matches!(result, Err(SparsePatternError::IndexOutOfBounds(_))));
+        assert!(matches!(result, Err(SparseFormatError::IndexOutOfBounds(_))));
     }
 }
 
