@@ -105,6 +105,7 @@ impl SparsityPattern {
     }
 }
 
+/// Iterator type for iterating over entries in a sparsity pattern.
 #[derive(Debug, Clone)]
 pub struct SparsityPatternIter<'a> {
     // See implementation of Iterator::next for an explanation of how these members are used

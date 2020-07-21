@@ -1,3 +1,13 @@
+//! Sparse matrices and algorithms for nalgebra.
+//!
+//! TODO: Docs
+#![deny(non_camel_case_types)]
+#![deny(unused_parens)]
+#![deny(non_upper_case_globals)]
+#![deny(unused_qualifications)]
+#![deny(unused_results)]
+#![deny(missing_docs)]
+
 mod coo;
 mod csr;
 mod pattern;
@@ -5,7 +15,7 @@ mod pattern;
 pub mod ops;
 
 pub use coo::CooMatrix;
-pub use csr::CsrMatrix;
+pub use csr::{CsrMatrix, CsrRow, CsrRowMut};
 pub use pattern::{SparsityPattern};
 
 /// Iterator types for matrices.
@@ -25,6 +35,7 @@ pub mod iter {
 use std::error::Error;
 use std::fmt;
 
+/// Errors produced by functions that expect well-formed sparse format data.
 #[derive(Debug)]
 #[non_exhaustive]
 pub enum SparseFormatError {
