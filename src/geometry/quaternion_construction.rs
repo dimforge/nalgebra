@@ -28,6 +28,12 @@ impl<N: Scalar + SimdValue> Quaternion<N> {
         Self { coords: vector }
     }
 
+    /// Creates a quatermion from slice.
+    #[inline]
+    pub fn from_slice(data: &[N; 4]) -> Self {
+        Self::from(Vector4::from_row_slice(data))
+    }
+
     /// Creates a new quaternion from its individual components. Note that the arguments order does
     /// **not** follow the storage order.
     ///
