@@ -13,7 +13,7 @@ use crate::base::dimension::Dynamic;
 use crate::base::dimension::{
     Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimName, DimSub, DimSum, U1,
 };
-use crate::base::storage::{Storage, StorageMut};
+use crate::base::storage::{ReshapableStorage, Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::DMatrix;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, RowVector, Scalar, Vector};
@@ -745,7 +745,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.resize_generic(R2::name(), C2::name(), val)
     }
 
-    /// Resizes `self` such that it has dimensions `new_nrows × now_ncols`.
+    /// Resizes `self` such that it has dimensions `new_nrows × new_ncols`.
     ///
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
     /// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.
@@ -810,6 +810,31 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
             res
         }
+    }
+}
+
+impl<N, R, C, S> Matrix<N, R, C, S>
+where
+    N: Scalar,
+    R: Dim,
+    C: Dim,
+{
+    /// Reshapes `self` in-place such that it has dimensions `new_nrows × new_ncols`.
+    ///
+    /// The values are not copied or moved. This function will panic if dynamic sizes are provided
+    /// and not compatible.
+    pub fn reshape_generic<R2, C2>(
+        self,
+        new_nrows: R2,
+        new_ncols: C2,
+    ) -> Matrix<N, R2, C2, S::Output>
+    where
+        R2: Dim,
+        C2: Dim,
+        S: ReshapableStorage<N, R, C, R2, C2>,
+    {
+        let data = self.data.reshape_generic(new_nrows, new_ncols);
+        Matrix::from_data(data)
     }
 }
 

@@ -24,7 +24,9 @@ use typenum::Prod;
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{DimName, U1};
-use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
+use crate::base::storage::{
+    ContiguousStorage, ContiguousStorageMut, Owned, ReshapableStorage, Storage, StorageMut,
+};
 use crate::base::Scalar;
 
 /*
@@ -265,6 +267,25 @@ where
     Prod<R::Value, C::Value>: ArrayLength<N>,
     DefaultAllocator: Allocator<N, R, C, Buffer = Self>,
 {
+}
+
+impl<N, R1, C1, R2, C2> ReshapableStorage<N, R1, C1, R2, C2> for ArrayStorage<N, R1, C1>
+where
+    N: Scalar,
+    R1: DimName,
+    C1: DimName,
+    R1::Value: Mul<C1::Value>,
+    Prod<R1::Value, C1::Value>: ArrayLength<N>,
+    R2: DimName,
+    C2: DimName,
+    R2::Value: Mul<C2::Value, Output = Prod<R1::Value, C1::Value>>,
+    Prod<R2::Value, C2::Value>: ArrayLength<N>,
+{
+    type Output = ArrayStorage<N, R2, C2>;
+
+    fn reshape_generic(self, _: R2, _: C2) -> Self::Output {
+        ArrayStorage { data: self.data }
+    }
 }
 
 /*
