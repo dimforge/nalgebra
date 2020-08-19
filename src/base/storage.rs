@@ -171,7 +171,7 @@ pub unsafe trait StorageMut<N: Scalar, R: Dim, C: Dim = U1>: Storage<N, R, C> {
 
 /// A matrix storage that is stored contiguously in memory.
 ///
-/// The storage requirement means that for any value of `i` in `[0, nrows * ncols[`, the value
+/// The storage requirement means that for any value of `i` in `[0, nrows * ncols]`, the value
 /// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because
 /// failing to comply to this may cause Undefined Behaviors.
 pub unsafe trait ContiguousStorage<N: Scalar, R: Dim, C: Dim = U1>:
@@ -181,10 +181,26 @@ pub unsafe trait ContiguousStorage<N: Scalar, R: Dim, C: Dim = U1>:
 
 /// A mutable matrix storage that is stored contiguously in memory.
 ///
-/// The storage requirement means that for any value of `i` in `[0, nrows * ncols[`, the value
+/// The storage requirement means that for any value of `i` in `[0, nrows * ncols]`, the value
 /// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because
 /// failing to comply to this may cause Undefined Behaviors.
 pub unsafe trait ContiguousStorageMut<N: Scalar, R: Dim, C: Dim = U1>:
     ContiguousStorage<N, R, C> + StorageMut<N, R, C>
 {
+}
+
+/// A matrix storage that can be reshaped in-place.
+pub trait ReshapableStorage<N, R1, C1, R2, C2>: Storage<N, R1, C1>
+where
+    N: Scalar,
+    R1: Dim,
+    C1: Dim,
+    R2: Dim,
+    C2: Dim,
+{
+    /// The reshaped storage type.
+    type Output: Storage<N, R2, C2>;
+
+    /// Reshapes the storage into the output storage type.
+    fn reshape_generic(self, nrows: R2, ncols: C2) -> Self::Output;
 }
