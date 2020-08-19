@@ -10,7 +10,7 @@ repository = "https://github.com/rustsim/nalgebra"
 readme = "README.md"
 categories = [ "science" ]
 keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
-license = "BSD-3-Clause"
+license = "Apache-2.0"
 edition = "2018"
 
 exclude = ["/ci/*", "/.travis.yml", "/Makefile"]
