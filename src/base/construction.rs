@@ -1011,6 +1011,14 @@ where
     N: Scalar + Zero + One,
     DefaultAllocator: Allocator<N, R>,
 {
+    /// The column vector with `val` as its i-th component.
+    #[inline]
+    pub fn ith(i: usize, val: N) -> Self {
+        let mut res = Self::zeros();
+        res[i] = val;
+        res
+    }
+
     /// The column vector with a 1 as its first component, and zero elsewhere.
     #[inline]
     pub fn x() -> Self

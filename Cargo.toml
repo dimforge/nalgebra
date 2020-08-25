@@ -24,13 +24,16 @@ default         = [ "std" ]
 std             = [ "matrixmultiply", "rand/std", "rand_distr", "simba/std" ]
 stdweb          = [ "rand/stdweb" ]
 arbitrary       = [ "quickcheck" ]
-serde-serialize = [ "serde", "serde_derive", "num-complex/serde" ]
+serde-serialize = [ "serde", "num-complex/serde" ]
 abomonation-serialize = [ "abomonation" ]
 sparse = [ ]
 debug = [ "approx/num-complex", "rand/std" ]
 alloc = [ ]
 io = [ "pest", "pest_derive" ]
 compare = [ "matrixcompare-core" ]
+libm = [ "simba/libm" ]
+libm-force = [ "simba/libm_force" ]
+
 
 [dependencies]
 typenum        = "1.11"
@@ -40,12 +43,11 @@ num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.2", default-features = false }
 num-rational   = { version = "0.2", default-features = false }
 approx         = { version = "0.3", default-features = false }
-simba          = { version = "0.1", default-features = false }
+simba          = { version = "0.2", default-features = false }
 alga           = { version = "0.9", default-features = false, optional = true }
 rand_distr     = { version = "0.2", optional = true }
 matrixmultiply = { version = "0.2", optional = true }
-serde          = { version = "1.0", optional = true }
-serde_derive   = { version = "1.0", optional = true }
+serde          = { version = "1.0", features = [ "derive" ], optional = true }
 abomonation    = { version = "0.7", optional = true }
 mint           = { version = "0.5", optional = true }
 quickcheck     = { version = "0.9", optional = true }
@@ -76,6 +78,3 @@ path = "benches/lib.rs"
 
 [profile.bench]
 lto = true
-
-#[patch.crates-io]
-#simba = { path = "../simba" }
