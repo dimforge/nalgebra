@@ -47,10 +47,10 @@ jobs:
       - checkout
       - run:
           name: test
-          command: cargo test --all-features
+          command: cargo test --features arbitrary --features serde-serialize --features abomonation-serialize --features sparse --features debug --features io --features compare --features libm
       - run:
           name: test nalgebra-glm
-          command: cargo test -p nalgebra-glm --all-features
+          command: cargo test -p nalgebra-glm  --features arbitrary --features serde-serialize --features abomonation-serialize --features sparse --features debug --features io --features compare --features libm
   build-wasm:
     executor: rust-executor
     steps:
