@@ -31,6 +31,9 @@ debug = [ "approx/num-complex", "rand/std" ]
 alloc = [ ]
 io = [ "pest", "pest_derive" ]
 compare = [ "matrixcompare-core" ]
+libm = [ "simba/libm" ]
+libm-force = [ "simba/libm_force" ]
+
 
 [dependencies]
 typenum        = "1.11"
@@ -75,6 +78,3 @@ path = "benches/lib.rs"
 
 [profile.bench]
 lto = true
-
-#[patch.crates-io]
-#simba = { path = "../simba" }
