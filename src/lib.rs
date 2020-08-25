@@ -188,7 +188,9 @@ pub fn zero<T: Zero>() -> T {
 /// The range must not be empty.
 #[inline]
 pub fn wrap<T>(mut val: T, min: T, max: T) -> T
-where T: Copy + PartialOrd + ClosedAdd + ClosedSub {
+where
+    T: Copy + PartialOrd + ClosedAdd + ClosedSub,
+{
     assert!(min < max, "Invalid wrapping bounds.");
     let width = max - min;
 
@@ -388,7 +390,9 @@ pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'
 /// * [distance_squared](fn.distance_squared.html)
 #[inline]
 pub fn center<N: SimdComplexField, D: DimName>(p1: &Point<N, D>, p2: &Point<N, D>) -> Point<N, D>
-where DefaultAllocator: Allocator<N, D> {
+where
+    DefaultAllocator: Allocator<N, D>,
+{
     ((&p1.coords + &p2.coords) * convert::<_, N>(0.5)).into()
 }
 
