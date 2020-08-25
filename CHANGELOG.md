@@ -4,15 +4,21 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.22.0] - WIP
+## [0.22.0]
+In this release, we are using the new version 0.2 of simba. One major change of that version is that the
+use of `libm` is now opt-in when building targetting `no-std` environment. If you are using floating-point
+operations with nalgebra in a `no-std` environment, you will need to enable the new `libm` feature
+of nalgebra for your code to compile again.
 
 ### Added
+ * The `libm` feature that enables `libm` when building for `no-std` environment.
+ * The `libm-force` feature that enables `libm` even when building for a not `no-std` environment.
  * `Cholesky::new_unchecked` which build a Cholesky decomposition without checking that its input is
  positive-definite. It can be use with SIMD types.
  * The `Default` trait is now implemented for matrices, and quaternions. They are all filled with zeros,
  except for `UnitQuaternion` which is initialized with the identity.
  * Matrix exponential `matrix.exp()`.
- 
+ * The `Vector::ith(i, x)` that builds a vector filled with zeros except for the `i`-th component set to `x`.
 
 ## [0.21.0]
 In this release, we are no longer relying on traits from the __alga__ crate for our generic code.
