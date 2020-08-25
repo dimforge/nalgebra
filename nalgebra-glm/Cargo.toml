@@ -24,5 +24,5 @@ abomonation-serialize = [ "nalgebra/abomonation-serialize" ]
 [dependencies]
 num-traits = { version = "0.2", default-features = false }
 approx = { version = "0.3", default-features = false }
-simba = { version = "0.1", default-features = false }
+simba = { version = "0.2", default-features = false }
 nalgebra = { path =  "..", version = "0.21", default-features = false }
