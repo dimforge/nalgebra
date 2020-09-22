@@ -1,6 +1,63 @@
 //! Sparse matrices and algorithms for nalgebra.
 //!
 //! TODO: Docs
+//!
+//!
+//! ### Planned functionality
+//!
+//! Below we list desired functionality. This further needs to be refined into what is needed
+//! for an initial contribution, and what can be added in future contributions.
+//!
+//! - Sparsity pattern type. Functionality:
+//!     - [x] Access to offsets, indices as slices.
+//!     - [x] Return number of nnz
+//!     - [x] Access a given lane as a slice of minor indices
+//!     - [x] Construct from valid offset + index data
+//!     - [ ] Construct from unsorted (but otherwise valid) offset + index data
+//!     - [x] Iterate over entries (i, j) in the pattern
+//! - CSR matrix type. Functionality:
+//!     - [x] Access to CSR data as slices.
+//!     - [x] Return number of nnz
+//!     - [x] Access a given row, which gives convenient access to the data associated
+//!       with a particular row
+//!     - [x] Construct from valid CSR data
+//!     - [ ] Construct from unsorted CSR data
+//!     - [x] Iterate over entries (i, j, v) in the matrix (+mutable).
+//!     - [x] Iterate over rows in the matrix (+ mutable).
+//!
+//! - CSC matrix type. Functionality:
+//!     - Same as CSR, but with columns instead of rows.
+//! - COO matrix type. Functionality:
+//!     - [x] Construct new "empty" COO matrix
+//!     - [x] Construct from triplet arrays.
+//!     - [x] Push new triplets to the matrix.
+//!     - [x] Iterate over triplets.
+//!     - [x] "Disassemble" the COO matrix into its underlying triplet arrays.
+//! - Format conversion:
+//!     - [x] COO -> Dense
+//!     - [ ] CSR -> Dense
+//!     - [ ] CSC -> Dense
+//!     - [ ] COO -> CSR
+//!     - [ ] COO -> CSC
+//!     - [ ] CSR -> CSC
+//!     - [ ] CSC -> CSR
+//!     - [ ] CSR -> COO
+//!     - [ ] CSC -> COO
+//! - Arithmetic. In general arithmetic is only implemented between instances of the same format,
+//!   or between dense and instances of a given format. For example, we do not implement
+//!   CSR * CSC, only CSR * CSR and CSC * CSC.
+//!     - CSR:
+//!         - [ ] Dense = CSR * Dense (the other way around is not particularly useful)
+//!         - [ ] CSR = CSR * CSR
+//!         - [ ] CSR = CSR +- CSR
+//!         - [ ] CSR +=/-= CSR
+//!     - COO:
+//!         - [ ] Dense = COO * Dense (sometimes useful for very sparse matrices)
+//!     - CSC:
+//!         - Same as CSR
+//! - Cholesky factorization (port existing factorization from nalgebra's sparse module)
+//!
+//!
 #![deny(non_camel_case_types)]
 #![deny(unused_parens)]
 #![deny(non_upper_case_globals)]
