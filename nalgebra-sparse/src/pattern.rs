@@ -1,6 +1,17 @@
 use crate::SparseFormatError;
 
-/// A representation of the sparsity pattern of a CSR or COO matrix.
+/// A representation of the sparsity pattern of a CSR or CSC matrix.
+///
+/// ## Format specification
+///
+/// TODO: Write this out properly
+///
+/// - offsets[0] == 0
+/// - Major offsets must be monotonically increasing
+/// - major_offsets.len() == major_dim + 1
+/// - Column indices within each lane must be sorted
+/// - Column indices must be in-bounds
+/// - The last entry in major offsets must correspond to the number of minor indices
 #[derive(Debug, Clone, PartialEq, Eq)]
 // TODO: Make SparsityPattern parametrized by index type
 // (need a solid abstraction for index types though)
@@ -63,16 +74,80 @@ impl SparsityPattern {
     /// and minor indices.
     ///
     /// Returns an error if the data does not conform to the requirements.
-    ///
-    /// TODO: Maybe we should not do any assertions in any of the construction functions
     pub fn try_from_offsets_and_indices(
         major_dim: usize,
         minor_dim: usize,
         major_offsets: Vec<usize>,
         minor_indices: Vec<usize>,
     ) -> Result<Self, SparseFormatError> {
-        assert_eq!(major_offsets.len(), major_dim + 1);
-        assert_eq!(*major_offsets.last().unwrap(), minor_indices.len());
+        // TODO: If these errors are *directly* propagated to errors from e.g.
+        // CSR construction, the error messages will be confusing to users,
+        // as the error messages refer to "major" and "minor" lanes, as opposed to
+        // rows and columns
+
+        if major_offsets.len() != major_dim + 1 {
+            return Err(SparseFormatError::InvalidStructure(
+                Box::from("Size of major_offsets must be equal to (major_dim + 1)")));
+        }
+
+        // Check that the first and last offsets conform to the specification
+        {
+            if *major_offsets.first().unwrap() != 0 {
+                return Err(SparseFormatError::InvalidStructure(
+                    Box::from("First entry in major_offsets must always be 0.")
+                ));
+            } else if *major_offsets.last().unwrap() != minor_indices.len() {
+                return Err(SparseFormatError::InvalidStructure(
+                    Box::from("Last entry in major_offsets must always be equal to minor_indices.len()")
+                ));
+            }
+        }
+
+        // Test that each lane has strictly monotonically increasing minor indices, i.e.
+        // minor indices within a lane are sorted, unique. In addition, each minor index
+        // must be in bounds with respect to the minor dimension.
+        {
+            for lane_idx in 0 .. major_dim {
+                let range_start = major_offsets[lane_idx];
+                let range_end = major_offsets[lane_idx + 1];
+
+                // Test that major offsets are monotonically increasing
+                if range_start > range_end {
+                    return Err(SparseFormatError::InvalidStructure(
+                        Box::from("Major offsets are not monotonically increasing.")
+                    ));
+                }
+
+                let minor_indices = &minor_indices[range_start .. range_end];
+
+                // We test for in-bounds, uniqueness and monotonicity at the same time
+                // to ensure that we only visit each minor index once
+                let mut iter = minor_indices.iter();
+                let mut prev = None;
+
+                while let Some(next) = iter.next().copied() {
+                    if next > minor_dim {
+                        return Err(SparseFormatError::IndexOutOfBounds(
+                            Box::from("Minor index out of bounds.")
+                        ));
+                    }
+
+                    if let Some(prev) = prev {
+                        if prev > next {
+                            return Err(SparseFormatError::InvalidStructure(
+                                Box::from("Minor indices within a lane must be monotonically increasing (sorted).")
+                            ));
+                        } else if prev == next {
+                            return Err(SparseFormatError::DuplicateEntry(
+                                Box::from("Duplicate minor entries detected.")
+                            ));
+                        }
+                    }
+                    prev = Some(next);
+                }
+            }
+        }
+
         Ok(Self {
             major_offsets,
             minor_indices,
@@ -83,7 +158,7 @@ impl SparsityPattern {
     /// An iterator over the explicitly stored "non-zero" entries (i, j).
     ///
     /// The iteration happens in a lane-major fashion, meaning that the lane index i
-    /// increases monotonically. and the minor index j increases monotonically within each
+    /// increases monotonically, and the minor index j increases monotonically within each
     /// lane i.
     ///
     /// Examples

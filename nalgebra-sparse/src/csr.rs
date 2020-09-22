@@ -82,9 +82,8 @@ impl<T> CsrMatrix<T> {
     /// bounds with respect to the number of columns in the matrix. If this is not the case,
     /// an error is returned to indicate the failure.
     ///
-    /// Panics
-    /// ------
-    /// Panics if the lengths of the provided arrays are not compatible with the CSR format.
+    /// An error is returned if the data given does not conform to the CSR storage format.
+    /// See the documentation for [CsrMatrix](struct.CsrMatrix.html) for more information.
     pub fn try_from_csr_data(
         num_rows: usize,
         num_cols: usize,
@@ -92,15 +91,28 @@ impl<T> CsrMatrix<T> {
         col_indices: Vec<usize>,
         values: Vec<T>,
     ) -> Result<Self, SparseFormatError> {
-        assert_eq!(col_indices.len(), values.len(),
-                   "Number of values and column indices must be the same");
         let pattern = SparsityPattern::try_from_offsets_and_indices(
             num_rows, num_cols, row_offsets, col_indices)?;
-        Ok(Self {
-            sparsity_pattern: Arc::new(pattern),
-            values,
-        })
+        Self::try_from_pattern_and_values(Arc::new(pattern), values)
     }
+
+    /// Try to construct a CSR matrix from a sparsity pattern and associated non-zero values.
+    ///
+    /// Returns an error if the number of values does not match the number of minor indices
+    /// in the pattern.
+    pub fn try_from_pattern_and_values(pattern: Arc<SparsityPattern>, values: Vec<T>)
+        -> Result<Self, SparseFormatError> {
+        if pattern.nnz() == values.len() {
+            Ok(Self {
+                sparsity_pattern: pattern,
+                values,
+            })
+        } else {
+            return Err(SparseFormatError::InvalidStructure(
+                Box::from("Number of values and column indices must be the same")));
+        }
+    }
+
 
     /// An iterator over non-zero triplets (i, j, v).
     ///
