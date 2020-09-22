@@ -1,4 +1,6 @@
 use crate::SparseFormatError;
+use std::fmt;
+use std::error::Error;
 
 /// A representation of the sparsity pattern of a CSR or CSC matrix.
 ///
@@ -79,27 +81,24 @@ impl SparsityPattern {
         minor_dim: usize,
         major_offsets: Vec<usize>,
         minor_indices: Vec<usize>,
-    ) -> Result<Self, SparseFormatError> {
+    ) -> Result<Self, SparsityPatternFormatError> {
         // TODO: If these errors are *directly* propagated to errors from e.g.
         // CSR construction, the error messages will be confusing to users,
         // as the error messages refer to "major" and "minor" lanes, as opposed to
         // rows and columns
 
+        use SparsityPatternFormatError::*;
+
         if major_offsets.len() != major_dim + 1 {
-            return Err(SparseFormatError::InvalidStructure(
-                Box::from("Size of major_offsets must be equal to (major_dim + 1)")));
+            return Err(InvalidOffsetArrayLength);
         }
 
         // Check that the first and last offsets conform to the specification
         {
-            if *major_offsets.first().unwrap() != 0 {
-                return Err(SparseFormatError::InvalidStructure(
-                    Box::from("First entry in major_offsets must always be 0.")
-                ));
-            } else if *major_offsets.last().unwrap() != minor_indices.len() {
-                return Err(SparseFormatError::InvalidStructure(
-                    Box::from("Last entry in major_offsets must always be equal to minor_indices.len()")
-                ));
+            let first_offset_ok = *major_offsets.first().unwrap() == 0;
+            let last_offset_ok = *major_offsets.last().unwrap() == minor_indices.len();
+            if !first_offset_ok || !last_offset_ok {
+                return Err(InvalidOffsetFirstLast);
             }
         }
 
@@ -113,9 +112,7 @@ impl SparsityPattern {
 
                 // Test that major offsets are monotonically increasing
                 if range_start > range_end {
-                    return Err(SparseFormatError::InvalidStructure(
-                        Box::from("Major offsets are not monotonically increasing.")
-                    ));
+                    return Err(NonmonotonicOffsets);
                 }
 
                 let minor_indices = &minor_indices[range_start .. range_end];
@@ -127,20 +124,14 @@ impl SparsityPattern {
 
                 while let Some(next) = iter.next().copied() {
                     if next > minor_dim {
-                        return Err(SparseFormatError::IndexOutOfBounds(
-                            Box::from("Minor index out of bounds.")
-                        ));
+                        return Err(MinorIndexOutOfBounds);
                     }
 
                     if let Some(prev) = prev {
                         if prev > next {
-                            return Err(SparseFormatError::InvalidStructure(
-                                Box::from("Minor indices within a lane must be monotonically increasing (sorted).")
-                            ));
+                            return Err(NonmonotonicMinorIndices);
                         } else if prev == next {
-                            return Err(SparseFormatError::DuplicateEntry(
-                                Box::from("Duplicate minor entries detected.")
-                            ));
+                            return Err(DuplicateEntry);
                         }
                     }
                     prev = Some(next);
@@ -179,6 +170,82 @@ impl SparsityPattern {
         SparsityPatternIter::from_pattern(self)
     }
 }
+
+/// Error type for `SparsityPattern` format errors.
+#[non_exhaustive]
+#[derive(Debug)]
+pub enum SparsityPatternFormatError {
+    /// Indicates an invalid number of offsets.
+    ///
+    /// The number of offsets must be equal to (major_dim + 1).
+    InvalidOffsetArrayLength,
+    /// Indicates that the first or last entry in the offset array did not conform to
+    /// specifications.
+    ///
+    /// The first entry must be 0, and the last entry must be exactly one greater than the
+    /// major dimension.
+    InvalidOffsetFirstLast,
+    /// Indicates that the major offsets are not monotonically increasing.
+    NonmonotonicOffsets,
+    /// One or more minor indices are out of bounds.
+    MinorIndexOutOfBounds,
+    /// One or more duplicate entries were detected.
+    ///
+    /// Two entries are considered duplicates if they are part of the same major lane and have
+    /// the same minor index.
+    DuplicateEntry,
+    /// Indicates that minor indices are not monotonically increasing within each lane.
+    NonmonotonicMinorIndices,
+}
+
+impl From<SparsityPatternFormatError> for SparseFormatError {
+    fn from(err: SparsityPatternFormatError) -> Self {
+        use SparsityPatternFormatError::*;
+        use SparsityPatternFormatError::DuplicateEntry as PatternDuplicateEntry;
+        use crate::SparseFormatErrorKind;
+        use crate::SparseFormatErrorKind::*;
+        match err {
+            InvalidOffsetArrayLength
+            | InvalidOffsetFirstLast
+            | NonmonotonicOffsets
+            | NonmonotonicMinorIndices
+                => SparseFormatError::from_kind_and_error(InvalidStructure, Box::from(err)),
+            MinorIndexOutOfBounds
+                => SparseFormatError::from_kind_and_error(IndexOutOfBounds,
+                                                          Box::from(err)),
+            PatternDuplicateEntry
+                => SparseFormatError::from_kind_and_error(SparseFormatErrorKind::DuplicateEntry,
+                                                          Box::from(err)),
+        }
+    }
+}
+
+impl fmt::Display for SparsityPatternFormatError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SparsityPatternFormatError::InvalidOffsetArrayLength => {
+                write!(f, "Length of offset array is not equal to (major_dim + 1).")
+            },
+            SparsityPatternFormatError::InvalidOffsetFirstLast => {
+                write!(f, "First or last offset is incompatible with format.")
+            },
+            SparsityPatternFormatError::NonmonotonicOffsets => {
+                write!(f, "Offsets are not monotonically increasing.")
+            },
+            SparsityPatternFormatError::MinorIndexOutOfBounds => {
+                write!(f, "A minor index is out of bounds.")
+            },
+            SparsityPatternFormatError::DuplicateEntry => {
+                write!(f, "Input data contains duplicate entries.")
+            },
+            SparsityPatternFormatError::NonmonotonicMinorIndices => {
+                write!(f, "Minor indices are not monotonically increasing within each lane.")
+            },
+        }
+    }
+}
+
+impl Error for SparsityPatternFormatError {}
 
 /// Iterator type for iterating over entries in a sparsity pattern.
 #[derive(Debug, Clone)]

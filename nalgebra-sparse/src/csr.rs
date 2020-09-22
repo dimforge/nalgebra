@@ -1,4 +1,4 @@
-use crate::{SparsityPattern, SparseFormatError};
+use crate::{SparsityPattern, SparseFormatError, SparsityPatternFormatError, SparseFormatErrorKind};
 use crate::iter::SparsityPatternIter;
 
 use std::sync::Arc;
@@ -92,7 +92,8 @@ impl<T> CsrMatrix<T> {
         values: Vec<T>,
     ) -> Result<Self, SparseFormatError> {
         let pattern = SparsityPattern::try_from_offsets_and_indices(
-            num_rows, num_cols, row_offsets, col_indices)?;
+            num_rows, num_cols, row_offsets, col_indices)
+            .map_err(pattern_format_error_to_csr_error)?;
         Self::try_from_pattern_and_values(Arc::new(pattern), values)
     }
 
@@ -108,8 +109,9 @@ impl<T> CsrMatrix<T> {
                 values,
             })
         } else {
-            return Err(SparseFormatError::InvalidStructure(
-                Box::from("Number of values and column indices must be the same")));
+            Err(SparseFormatError::from_kind_and_msg(
+                SparseFormatErrorKind::InvalidStructure,
+                "Number of values and column indices must be the same"))
         }
     }
 
@@ -264,6 +266,38 @@ impl<T: Clone + Zero> CsrMatrix<T> {
     }
 }
 
+/// Convert pattern format errors into more meaningful CSR-specific errors.
+///
+/// This ensures that the terminology is consistent: we are talking about rows and columns,
+/// not lanes, major and minor dimensions.
+fn pattern_format_error_to_csr_error(err: SparsityPatternFormatError) -> SparseFormatError {
+    use SparsityPatternFormatError::*;
+    use SparsityPatternFormatError::DuplicateEntry as PatternDuplicateEntry;
+    use SparseFormatError as E;
+    use SparseFormatErrorKind as K;
+
+    match err {
+        InvalidOffsetArrayLength => E::from_kind_and_msg(
+            K::InvalidStructure,
+            "Length of row offset array is not equal to nrows + 1."),
+        InvalidOffsetFirstLast => E::from_kind_and_msg(
+            K::InvalidStructure,
+            "First or last row offset is inconsistent with format specification."),
+        NonmonotonicOffsets => E::from_kind_and_msg(
+            K::InvalidStructure,
+            "Row offsets are not monotonically increasing."),
+        NonmonotonicMinorIndices => E::from_kind_and_msg(
+            K::InvalidStructure,
+            "Column indices are not monotonically increasing (sorted) within each row."),
+        MinorIndexOutOfBounds => E::from_kind_and_msg(
+            K::IndexOutOfBounds,
+            "Column indices are out of bounds."),
+        PatternDuplicateEntry => E::from_kind_and_msg(
+            K::DuplicateEntry,
+            "Matrix data contains duplicate entries."),
+    }
+}
+
 /// Iterator type for iterating over triplets in a CSR matrix.
 #[derive(Debug)]
 pub struct CsrTripletIter<'a, T> {
@@ -360,7 +394,7 @@ macro_rules! impl_csr_row_common_methods {
             /// bounds.
             ///
             /// If the index is in bounds, but no explicitly stored entry is associated with it,
-            /// `T::zero()` is returned. Note that this methods offers no way of distinguishing
+            /// `T::zero()` is returned. Note that this method offers no way of distinguishing
             /// explicitly stored zero entries from zero values that are only implicitly represented.
             ///
             /// Each call to this function incurs the cost of a binary search among the explicitly

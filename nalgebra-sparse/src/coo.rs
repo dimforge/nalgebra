@@ -76,13 +76,14 @@ where
         col_indices: Vec<usize>,
         values: Vec<T>,
     ) -> Result<Self, SparseFormatError> {
+        use crate::SparseFormatErrorKind::*;
         if row_indices.len() != col_indices.len() {
-            return Err(SparseFormatError::InvalidStructure(
-                Box::from("Number of row and col indices must be the same.")
+            return Err(SparseFormatError::from_kind_and_msg(
+                InvalidStructure, "Number of row and col indices must be the same."
             ));
         } else if col_indices.len() != values.len() {
-            return Err(SparseFormatError::InvalidStructure(
-                Box::from("Number of col indices and values must be the same.")
+            return Err(SparseFormatError::from_kind_and_msg(
+                InvalidStructure, "Number of col indices and values must be the same."
             ));
         }
 
@@ -90,13 +91,9 @@ where
         let col_indices_in_bounds = col_indices.iter().all(|j| *j < ncols);
 
         if !row_indices_in_bounds {
-            Err(SparseFormatError::IndexOutOfBounds(Box::from(
-                "Row index out of bounds.",
-            )))
+            Err(SparseFormatError::from_kind_and_msg(IndexOutOfBounds, "Row index out of bounds."))
         } else if !col_indices_in_bounds {
-            Err(SparseFormatError::IndexOutOfBounds(Box::from(
-                "Col index out of bounds.",
-            )))
+            Err(SparseFormatError::from_kind_and_msg(IndexOutOfBounds, "Col index out of bounds."))
         } else {
             Ok(Self {
                 nrows,

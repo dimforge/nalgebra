@@ -73,7 +73,7 @@ pub mod ops;
 
 pub use coo::CooMatrix;
 pub use csr::{CsrMatrix, CsrRow, CsrRowMut};
-pub use pattern::{SparsityPattern};
+pub use pattern::{SparsityPattern, SparsityPatternFormatError};
 
 /// Iterator types for matrices.
 ///
@@ -94,30 +94,52 @@ use std::fmt;
 
 /// Errors produced by functions that expect well-formed sparse format data.
 #[derive(Debug)]
-#[non_exhaustive]
-pub enum SparseFormatError {
+pub struct SparseFormatError {
+    kind: SparseFormatErrorKind,
+    // Currently we only use an underlying error for generating the `Display` impl
+    error: Box<dyn Error>
+}
+
+impl SparseFormatError {
+    /// The type of error.
+    pub fn kind(&self) -> &SparseFormatErrorKind {
+        &self.kind
+    }
+
+    pub(crate) fn from_kind_and_error(kind: SparseFormatErrorKind, error: Box<dyn Error>) -> Self {
+        Self {
+            kind,
+            error
+        }
+    }
+
+    /// Helper functionality for more conveniently creating errors.
+    pub(crate) fn from_kind_and_msg(kind: SparseFormatErrorKind, msg: &'static str) -> Self {
+        Self::from_kind_and_error(kind, Box::<dyn Error>::from(msg))
+    }
+}
+
+/// The type of format error described by a [SparseFormatError](struct.SparseFormatError.html).
+#[derive(Debug, Clone)]
+pub enum SparseFormatErrorKind {
     /// Indicates that the index data associated with the format contains at least one index
     /// out of bounds.
-    IndexOutOfBounds(Box<dyn Error>),
+    IndexOutOfBounds,
 
     /// Indicates that the provided data contains at least one duplicate entry, and the
     /// current format does not support duplicate entries.
-    DuplicateEntry(Box<dyn Error>),
+    DuplicateEntry,
 
     /// Indicates that the provided data for the format does not conform to the high-level
     /// structure of the format.
     ///
     /// For example, the arrays defining the format data might have incompatible sizes.
-    InvalidStructure(Box<dyn Error>),
+    InvalidStructure,
 }
 
 impl fmt::Display for SparseFormatError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::IndexOutOfBounds(err) => err.fmt(f),
-            Self::DuplicateEntry(err) => err.fmt(f),
-            Self::InvalidStructure(err) => err.fmt(f)
-        }
+        write!(f, "{}", self.error)
     }
 }
 
