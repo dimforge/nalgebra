@@ -65,29 +65,10 @@
 #![deny(unused_results)]
 #![deny(missing_docs)]
 
-mod coo;
-mod csr;
-mod pattern;
-
+pub mod coo;
+pub mod csr;
+pub mod pattern;
 pub mod ops;
-
-pub use coo::CooMatrix;
-pub use csr::{CsrMatrix, CsrRow, CsrRowMut};
-pub use pattern::{SparsityPattern, SparsityPatternFormatError};
-
-/// Iterator types for matrices.
-///
-/// Most users will not need to interface with these types directly. Instead, refer to the
-/// iterator methods for the respective matrix formats.
-pub mod iter {
-    // Iterators are best implemented in the same modules as the matrices they iterate over,
-    // since they are so closely tied to their respective implementations. However,
-    // in the crate's public API we move them into a separate `iter` module in order to avoid
-    // cluttering the docs with iterator types that most users will never need to explicitly
-    // know about.
-    pub use crate::pattern::SparsityPatternIter;
-    pub use crate::csr::{CsrTripletIter, CsrTripletIterMut};
-}
 
 use std::error::Error;
 use std::fmt;

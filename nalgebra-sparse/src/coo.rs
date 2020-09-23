@@ -1,3 +1,5 @@
+//! An implementation of the COO sparse matrix format.
+
 use crate::SparseFormatError;
 use nalgebra::{ClosedAdd, DMatrix, Scalar};
 use num_traits::Zero;
@@ -24,7 +26,7 @@ use num_traits::Zero;
 /// -------
 ///
 /// ```rust
-/// # use nalgebra_sparse::CooMatrix;
+/// # use nalgebra_sparse::coo::CooMatrix;
 /// // Create a zero matrix
 /// let mut coo = CooMatrix::new(4, 4);
 /// // Or initialize it with a set of triplets
@@ -165,7 +167,7 @@ where
     /// --------
     ///
     /// ```
-    /// # use nalgebra_sparse::CooMatrix;
+    /// # use nalgebra_sparse::coo::CooMatrix;
     /// let row_indices = vec![0, 1];
     /// let col_indices = vec![1, 2];
     /// let values = vec![1.0, 2.0];

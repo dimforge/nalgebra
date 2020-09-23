@@ -1,4 +1,4 @@
-use nalgebra_sparse::CooMatrix;
+use nalgebra_sparse::coo::CooMatrix;
 use nalgebra_sparse::ops::spmv_coo;
 use nalgebra::DVector;
 

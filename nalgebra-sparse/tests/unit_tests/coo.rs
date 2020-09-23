@@ -1,4 +1,5 @@
-use nalgebra_sparse::{CooMatrix, SparseFormatErrorKind};
+use nalgebra_sparse::{SparseFormatErrorKind};
+use nalgebra_sparse::coo::CooMatrix;
 use nalgebra::DMatrix;
 use crate::assert_panics;
 

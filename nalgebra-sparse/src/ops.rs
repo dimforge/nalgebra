@@ -1,6 +1,6 @@
 //! Matrix operations involving sparse matrices.
 
-use crate::CooMatrix;
+use crate::coo::CooMatrix;
 use nalgebra::base::storage::{Storage, StorageMut};
 use nalgebra::{ClosedAdd, ClosedMul, Dim, Scalar, Vector};
 use num_traits::{One, Zero};

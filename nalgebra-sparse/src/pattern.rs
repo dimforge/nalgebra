@@ -1,3 +1,4 @@
+//! Sparsity patterns for CSR and CSC matrices.
 use crate::SparseFormatError;
 use std::fmt;
 use std::error::Error;
@@ -156,7 +157,7 @@ impl SparsityPattern {
     /// --------
     ///
     /// ```
-    /// # use nalgebra_sparse::{SparsityPattern};
+    /// # use nalgebra_sparse::pattern::SparsityPattern;
     /// let offsets = vec![0, 2, 3, 4];
     /// let minor_indices = vec![0, 2, 1, 0];
     /// let pattern = SparsityPattern::try_from_offsets_and_indices(3, 4, offsets, minor_indices)

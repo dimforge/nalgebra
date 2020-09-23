@@ -1,5 +1,7 @@
-use crate::{SparsityPattern, SparseFormatError, SparsityPatternFormatError, SparseFormatErrorKind};
-use crate::iter::SparsityPatternIter;
+//! An implementation of the CSR sparse matrix format.
+
+use crate::{SparseFormatError, SparseFormatErrorKind};
+use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
 
 use std::sync::Arc;
 use std::slice::{IterMut, Iter};
@@ -124,7 +126,7 @@ impl<T> CsrMatrix<T> {
     /// Examples
     /// --------
     /// ```
-    /// # use nalgebra_sparse::CsrMatrix;
+    /// # use nalgebra_sparse::csr::CsrMatrix;
     /// let row_offsets = vec![0, 2, 3, 4];
     /// let col_indices = vec![0, 2, 1, 0];
     /// let values = vec![1, 2, 3, 4];
@@ -148,7 +150,7 @@ impl<T> CsrMatrix<T> {
     /// Examples
     /// --------
     /// ```
-    /// # use nalgebra_sparse::CsrMatrix;
+    /// # use nalgebra_sparse::csr::CsrMatrix;
     /// # let row_offsets = vec![0, 2, 3, 4];
     /// # let col_indices = vec![0, 2, 1, 0];
     /// # let values = vec![1, 2, 3, 4];
@@ -432,6 +434,7 @@ impl<'a, T> CsrRowMut<'a, T> {
     }
 }
 
+/// Row iterator for [CsrMatrix](struct.CsrMatrix.html).
 pub struct CsrRowIter<'a, T> {
     // The index of the row that will be returned on the next
     current_row_idx: usize,
@@ -448,6 +451,7 @@ impl<'a, T> Iterator for CsrRowIter<'a, T> {
     }
 }
 
+/// Mutable row iterator for [CsrMatrix](struct.CsrMatrix.html).
 pub struct CsrRowIterMut<'a, T> {
     current_row_idx: usize,
     pattern: &'a SparsityPattern,
