@@ -15,6 +15,7 @@
 //!     - [x] Construct from valid offset + index data
 //!     - [ ] Construct from unsorted (but otherwise valid) offset + index data
 //!     - [x] Iterate over entries (i, j) in the pattern
+//!     - [x] "Disassemble" the sparsity pattern into the raw index data arrays.
 //! - CSR matrix type. Functionality:
 //!     - [x] Access to CSR data as slices.
 //!     - [x] Return number of nnz
@@ -24,6 +25,7 @@
 //!     - [ ] Construct from unsorted CSR data
 //!     - [x] Iterate over entries (i, j, v) in the matrix (+mutable).
 //!     - [x] Iterate over rows in the matrix (+ mutable).
+//!     - [x] "Disassemble" the CSR matrix into the raw CSR data arrays.
 //!
 //! - CSC matrix type. Functionality:
 //!     - Same as CSR, but with columns instead of rows.

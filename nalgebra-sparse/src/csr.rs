@@ -240,6 +240,61 @@ impl<T> CsrMatrix<T> {
             remaining_values: self.values.as_mut_ptr()
         }
     }
+
+    /// Returns the underlying vector containing the values for the explicitly stored entries.
+    pub fn take_values(self) -> Vec<T> {
+        self.values
+    }
+
+    /// Disassembles the CSR matrix into its underlying offset, index and value arrays.
+    ///
+    /// If the matrix contains the sole reference to the sparsity pattern,
+    /// then the data is returned as-is. Otherwise, the sparsity pattern is cloned.
+    ///
+    /// Examples
+    /// --------
+    ///
+    /// ```
+    /// # use nalgebra_sparse::csr::CsrMatrix;
+    /// let row_offsets = vec![0, 2, 3, 4];
+    /// let col_indices = vec![0, 2, 1, 0];
+    /// let values = vec![1, 2, 3, 4];
+    /// let mut csr = CsrMatrix::try_from_csr_data(
+    ///     3,
+    ///     4,
+    ///     row_offsets.clone(),
+    ///     col_indices.clone(),
+    ///     values.clone())
+    ///     .unwrap();
+    /// let (row_offsets2, col_indices2, values2) = csr.disassemble();
+    /// assert_eq!(row_offsets2, row_offsets);
+    /// assert_eq!(col_indices2, col_indices);
+    /// assert_eq!(values2, values);
+    /// ```
+    pub fn disassemble(self) -> (Vec<usize>, Vec<usize>, Vec<T>) {
+        // Take an Arc to the pattern, which might be the sole reference to the data after
+        // taking the values. This is important, because it might let us avoid cloning the data
+        // further below.
+        let pattern = self.pattern();
+        let values = self.take_values();
+
+        // Try to take the pattern out of the `Arc` if possible,
+        // otherwise clone the pattern.
+        let owned_pattern = Arc::try_unwrap(pattern)
+            .unwrap_or_else(|arc| SparsityPattern::clone(&*arc));
+        let (offsets, indices) = owned_pattern.disassemble();
+
+        (offsets, indices, values)
+    }
+
+    /// Returns the underlying sparsity pattern.
+    ///
+    /// The sparsity pattern is stored internally inside an `Arc`. This allows users to re-use
+    /// the same sparsity pattern for multiple matrices without storing the same pattern multiple
+    /// times in memory.
+    pub fn pattern(&self) -> Arc<SparsityPattern> {
+        Arc::clone(&self.sparsity_pattern)
+    }
 }
 
 impl<T: Clone + Zero> CsrMatrix<T> {
@@ -247,7 +302,7 @@ impl<T: Clone + Zero> CsrMatrix<T> {
     /// bounds.
     ///
     /// If the indices are in bounds, but no explicitly stored entry is associated with it,
-    /// `T::zero()` is returned. Note that this methods offers no way of distinguishing
+    /// `T::zero()` is returned. Note that this method offers no way of distinguishing
     /// explicitly stored zero entries from zero values that are only implicitly represented.
     ///
     /// Each call to this function incurs the cost of a binary search among the explicitly

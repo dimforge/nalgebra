@@ -170,6 +170,29 @@ impl SparsityPattern {
     pub fn entries(&self) -> SparsityPatternIter {
         SparsityPatternIter::from_pattern(self)
     }
+
+    /// Returns the raw offset and index data for the sparsity pattern.
+    ///
+    /// Examples
+    /// --------
+    ///
+    /// ```
+    /// # use nalgebra_sparse::pattern::SparsityPattern;
+    /// let offsets = vec![0, 2, 3, 4];
+    /// let minor_indices = vec![0, 2, 1, 0];
+    /// let pattern = SparsityPattern::try_from_offsets_and_indices(
+    ///         3,
+    ///         4,
+    ///         offsets.clone(),
+    ///         minor_indices.clone())
+    ///     .unwrap();
+    /// let (offsets2, minor_indices2) = pattern.disassemble();
+    /// assert_eq!(offsets2, offsets);
+    /// assert_eq!(minor_indices2, minor_indices);
+    /// ```
+    pub fn disassemble(self) -> (Vec<usize>, Vec<usize>) {
+        (self.major_offsets, self.minor_indices)
+    }
 }
 
 /// Error type for `SparsityPattern` format errors.
