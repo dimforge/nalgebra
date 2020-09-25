@@ -103,6 +103,7 @@ impl SparseFormatError {
 }
 
 /// The type of format error described by a [SparseFormatError](struct.SparseFormatError.html).
+#[non_exhaustive]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SparseFormatErrorKind {
     /// Indicates that the index data associated with the format contains at least one index
