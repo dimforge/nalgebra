@@ -66,8 +66,19 @@ impl SparsityPattern {
     }
 
     /// Get the lane at the given index.
+    ///
+    /// Panics
+    /// ------
+    ///
+    /// Panics if `major_index` is out of bounds.
     #[inline]
-    pub fn lane(&self, major_index: usize) -> Option<&[usize]> {
+    pub fn lane(&self, major_index: usize) -> &[usize] {
+        self.get_lane(major_index).unwrap()
+    }
+
+    /// Get the lane at the given index, or `None` if out of bounds.
+    #[inline]
+    pub fn get_lane(&self, major_index: usize) -> Option<&[usize]> {
         let offset_begin = *self.major_offsets().get(major_index)?;
         let offset_end = *self.major_offsets().get(major_index + 1)?;
         Some(&self.minor_indices()[offset_begin..offset_end])
@@ -124,7 +135,7 @@ impl SparsityPattern {
                 let mut prev = None;
 
                 while let Some(next) = iter.next().copied() {
-                    if next > minor_dim {
+                    if next >= minor_dim {
                         return Err(MinorIndexOutOfBounds);
                     }
 
@@ -197,7 +208,7 @@ impl SparsityPattern {
 
 /// Error type for `SparsityPattern` format errors.
 #[non_exhaustive]
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum SparsityPatternFormatError {
     /// Indicates an invalid number of offsets.
     ///

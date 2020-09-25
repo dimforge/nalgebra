@@ -62,7 +62,7 @@ impl<T> CsrMatrix<T> {
 
     /// The column indices defining part of the CSR format.
     #[inline]
-    pub fn column_indices(&self) -> &[usize] {
+    pub fn col_indices(&self) -> &[usize] {
         self.sparsity_pattern.minor_indices()
     }
 
@@ -520,7 +520,7 @@ where
     type Item = CsrRowMut<'a, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let lane = self.pattern.lane(self.current_row_idx);
+        let lane = self.pattern.get_lane(self.current_row_idx);
         let ncols = self.pattern.minor_dim();
 
         if let Some(col_indices) = lane {
