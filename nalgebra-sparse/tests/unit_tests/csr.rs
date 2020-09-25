@@ -221,6 +221,29 @@ fn csr_matrix_try_from_invalid_csr_data() {
 }
 
 #[test]
+fn csr_disassemble_avoids_clone_when_owned() {
+    // Test that disassemble avoids cloning the sparsity pattern when it holds the sole reference
+    // to the pattern. We do so by checking that the pointer to the data is unchanged.
+
+    let offsets = vec![0, 2, 2, 5];
+    let indices = vec![0, 5, 1, 2, 3];
+    let values = vec![0, 1, 2, 3, 4];
+    let offsets_ptr = offsets.as_ptr();
+    let indices_ptr = indices.as_ptr();
+    let values_ptr = values.as_ptr();
+    let matrix = CsrMatrix::try_from_csr_data(3,
+                                              6,
+                                              offsets,
+                                              indices,
+                                              values).unwrap();
+
+    let (offsets, indices, values) = matrix.disassemble();
+    assert_eq!(offsets.as_ptr(), offsets_ptr);
+    assert_eq!(indices.as_ptr(), indices_ptr);
+    assert_eq!(values.as_ptr(), values_ptr);
+}
+
+#[test]
 fn csr_matrix_get_index() {
     // TODO: Implement tests for ::get() and index()
 }
