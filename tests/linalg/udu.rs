@@ -10,16 +10,10 @@ fn udu_simple() {
         0.0, -1.0,  2.0);
 
     let udu = UDU::new(m);
-
-    println!("u = {}", udu.u);
-    println!("d = {}", udu.d);
-
     // Rebuild
     let p = &udu.u * &udu.d * &udu.u.transpose();
 
-    println!("{}", p);
-
-    assert!(relative_eq!(m, p, epsilon = 1.0e-7));
+    assert!(relative_eq!(m, 2.0*p, epsilon = 1.0e-7));
 }
 
 #[cfg(feature = "arbitrary")]
