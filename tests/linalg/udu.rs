@@ -11,9 +11,9 @@ fn udu_simple() {
 
     let udu = UDU::new(m);
     // Rebuild
-    let p = &udu.u * &udu.d * &udu.u.transpose();
+    let p = udu.u * udu.d * udu.u.transpose();
 
-    assert!(relative_eq!(m, 2.0*p, epsilon = 1.0e-7));
+    assert!(relative_eq!(m, p, epsilon = 3.0e-16));
 }
 
 #[cfg(feature = "arbitrary")]
@@ -48,9 +48,9 @@ mod quickcheck_tests {
                         let m = m.map(|e| e.0);
 
                         let udu = UDU::new(m.clone());
-                        let p = &udu.u * &udu.d * &udu.u.transpose();
+                        let p = udu.u * udu.d * udu.u.transpose();
 
-                        relative_eq!(m, p, epsilon = 1.0e-7)
+                        relative_eq!(m, p, epsilon = 3.0e-16)
                     }
                 }
             }

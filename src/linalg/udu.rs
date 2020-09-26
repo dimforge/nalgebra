@@ -30,37 +30,40 @@ impl<N: ComplexField, D: DimName> UDU<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
 {
-    /// Computes the UDU^T factorization as per NASA's "Navigation Filter Best Practices", NTRS document ID 20180003657
-    /// section 7.2 page 64.
-    /// NOTE: The provided matrix MUST be symmetric.
-    pub fn new(matrix: MatrixN<N, D>) -> Self {
+    /// Computes the UDU^T factorization
+    /// NOTE: The provided matrix MUST be symmetric, and no verification is done in this regard.
+    /// Ref.: "Optimal control and estimation-Dover Publications", Robert F. Stengel, (1994) page 360
+    pub fn new(p: MatrixN<N, D>) -> Self {
         let mut d = MatrixN::<N, D>::zeros();
         let mut u = MatrixN::<N, D>::zeros();
 
-        let n = matrix.ncols();
+        let n = p.ncols() - 1;
 
-        d[(n, n)] = matrix[(n, n)];
+        d[(n, n)] = p[(n, n)];
         u[(n, n)] = N::one();
 
-        for j in (0..n - 1).rev() {
-            u[(j, n)] = matrix[(j, n)] / d[(n, n)];
+        for j in (0..n).rev() {
+            u[(j, n)] = p[(j, n)] / d[(n, n)];
         }
 
-        for j in (1..n).rev() {
-            d[(j, j)] = matrix[(j, j)];
-            for k in (j + 1..n).rev() {
+        for j in (0..n).rev() {
+            for k in j + 1..=n {
                 d[(j, j)] = d[(j, j)] + d[(k, k)] * u[(j, k)].powi(2);
             }
 
-            u[(j, j)] = N::one();
+            d[(j, j)] = p[(j, j)] - d[(j, j)];
 
-            for i in (0..j - 1).rev() {
-                u[(i, j)] = matrix[(i, j)];
-                for k in j + 1..n {
-                    u[(i, j)] = u[(i, j)] + d[(k, k)] * u[(i, k)] * u[(j, k)];
+            for i in (0..=j).rev() {
+                for k in j + 1..=n {
+                    u[(i, j)] = u[(i, j)] + d[(k, k)] * u[(j, k)] * u[(i, k)];
                 }
+
+                u[(i, j)] = p[(i, j)] - u[(i, j)];
+
                 u[(i, j)] /= d[(j, j)];
             }
+
+            u[(j, j)] = N::one();
         }
 
         Self { u, d }
