@@ -37,24 +37,24 @@ where
         let mut d = MatrixN::<N, D>::zeros();
         let mut u = MatrixN::<N, D>::zeros();
 
-        let n = p.ncols() - 1;
+        let n = p.ncols();
 
-        d[(n, n)] = p[(n, n)];
-        u[(n, n)] = N::one();
+        d[(n - 1, n - 1)] = p[(n - 1, n - 1)];
+        u[(n - 1, n - 1)] = N::one();
 
-        for j in (0..n).rev() {
-            u[(j, n)] = p[(j, n)] / d[(n, n)];
+        for j in (0..n - 1).rev() {
+            u[(j, n - 1)] = p[(j, n - 1)] / d[(n - 1, n - 1)];
         }
 
-        for j in (0..n).rev() {
-            for k in j + 1..=n {
+        for j in (0..n - 1).rev() {
+            for k in j + 1..n {
                 d[(j, j)] = d[(j, j)] + d[(k, k)] * u[(j, k)].powi(2);
             }
 
             d[(j, j)] = p[(j, j)] - d[(j, j)];
 
             for i in (0..=j).rev() {
-                for k in j + 1..=n {
+                for k in j + 1..n {
                     u[(i, j)] = u[(i, j)] + d[(k, k)] * u[(j, k)] * u[(i, k)];
                 }
 
