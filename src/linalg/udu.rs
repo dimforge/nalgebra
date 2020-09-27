@@ -3,13 +3,13 @@ use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, MatrixN};
-use crate::dimension::DimName;
+use crate::dimension::Dim;
 use simba::scalar::ComplexField;
 
 /// UDU factorization
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[derive(Clone, Debug)]
-pub struct UDU<N: ComplexField, D: DimName>
+pub struct UDU<N: ComplexField, D: Dim>
 where
     DefaultAllocator: Allocator<N, D, D>,
 {
@@ -19,14 +19,14 @@ where
     pub d: MatrixN<N, D>,
 }
 
-impl<N: ComplexField, D: DimName> Copy for UDU<N, D>
+impl<N: ComplexField, D: Dim> Copy for UDU<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
     MatrixN<N, D>: Copy,
 {
 }
 
-impl<N: ComplexField, D: DimName> UDU<N, D>
+impl<N: ComplexField, D: Dim> UDU<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
 {
@@ -34,10 +34,11 @@ where
     /// NOTE: The provided matrix MUST be symmetric, and no verification is done in this regard.
     /// Ref.: "Optimal control and estimation-Dover Publications", Robert F. Stengel, (1994) page 360
     pub fn new(p: MatrixN<N, D>) -> Self {
-        let mut d = MatrixN::<N, D>::zeros();
-        let mut u = MatrixN::<N, D>::zeros();
-
         let n = p.ncols();
+        let n_as_dim = D::from_usize(n);
+
+        let mut d = MatrixN::<N, D>::zeros_generic(n_as_dim, n_as_dim);
+        let mut u = MatrixN::<N, D>::zeros_generic(n_as_dim, n_as_dim);
 
         d[(n - 1, n - 1)] = p[(n - 1, n - 1)];
         u[(n - 1, n - 1)] = N::one();
