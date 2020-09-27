@@ -11,7 +11,7 @@ fn udu_simple() {
 
     let udu = UDU::new(m);
     // Rebuild
-    let p = udu.u * udu.d * udu.u.transpose();
+    let p = udu.u * udu.d_matrix() * udu.u.transpose();
 
     assert!(relative_eq!(m, p, epsilon = 3.0e-16));
 }
@@ -39,7 +39,7 @@ mod quickcheck_tests {
                         let m = m.map(|e| e.0);
 
                         let udu = UDU::new(m.clone());
-                        let p = &udu.u * &udu.d * &udu.u.transpose();
+                        let p = &udu.u * &udu.d_matrix() * &udu.u.transpose();
 
                         relative_eq!(m, p, epsilon = 1.0e-7)
                     }
@@ -48,7 +48,7 @@ mod quickcheck_tests {
                         let m = m.map(|e| e.0);
 
                         let udu = UDU::new(m.clone());
-                        let p = udu.u * udu.d * udu.u.transpose();
+                        let p = udu.u * udu.d_matrix() * udu.u.transpose();
 
                         relative_eq!(m, p, epsilon = 3.0e-16)
                     }
