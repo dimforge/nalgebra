@@ -16,6 +16,22 @@ fn udu_simple() {
     assert!(relative_eq!(m, p, epsilon = 3.0e-16));
 }
 
+#[test]
+#[should_panic]
+#[rustfmt::skip]
+fn udu_non_sym_panic() {
+    let m = Matrix3::new(
+        2.0, -1.0,  0.0,
+        1.0, -2.0,  3.0,
+       -2.0,  1.0,  0.0);
+
+    let udu = UDU::new(m);
+    // Rebuild
+    let p = udu.u * udu.d_matrix() * udu.u.transpose();
+
+    assert!(relative_eq!(m, p, epsilon = 3.0e-16));
+}
+
 #[cfg(feature = "arbitrary")]
 mod quickcheck_tests {
     #[allow(unused_imports)]
