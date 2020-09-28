@@ -28,7 +28,15 @@
 //!     - [x] "Disassemble" the CSR matrix into the raw CSR data arrays.
 //!
 //! - CSC matrix type. Functionality:
-//!     - Same as CSR, but with columns instead of rows.
+//!     - [x] Access to CSC data as slices.
+//!     - [x] Return number of nnz
+//!     - [x] Access a given column, which gives convenient access to the data associated
+//!       with a particular column
+//!     - [x] Construct from valid CSC data
+//!     - [ ] Construct from unsorted CSC data
+//!     - [x] Iterate over entries (i, j, v) in the matrix (+mutable).
+//!     - [x] Iterate over rows in the matrix (+ mutable).
+//!     - [x] "Disassemble" the CSC matrix into the raw CSC data arrays.
 //! - COO matrix type. Functionality:
 //!     - [x] Construct new "empty" COO matrix
 //!     - [x] Construct from triplet arrays.
@@ -68,6 +76,7 @@
 #![deny(missing_docs)]
 
 pub mod coo;
+pub mod csc;
 pub mod csr;
 pub mod pattern;
 pub mod ops;
