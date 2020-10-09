@@ -1,4 +1,3 @@
-use std::mem;
 use std::ops::{Deref, DerefMut};
 
 use crate::base::allocator::Allocator;
@@ -22,7 +21,7 @@ macro_rules! deref_impl(
 
             #[inline]
             fn deref(&self) -> &Self::Target {
-                unsafe { mem::transmute(self) }
+                &*self.coords
             }
         }
 
@@ -30,7 +29,7 @@ macro_rules! deref_impl(
             where DefaultAllocator: Allocator<N, $D> {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {
-                unsafe { mem::transmute(self) }
+                &mut *self.coords
             }
         }
     }
