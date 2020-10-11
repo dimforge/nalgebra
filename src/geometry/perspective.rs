@@ -294,7 +294,7 @@ impl<N: RealField + Arbitrary> Arbitrary for Perspective3<N> {
 
 impl<N: RealField> From<Perspective3<N>> for Matrix4<N> {
     #[inline]
-    fn from(orth: Perspective3<N>) -> Self {
-        orth.into_inner()
+    fn from(pers: Perspective3<N>) -> Self {
+        pers.into_inner()
     }
 }
