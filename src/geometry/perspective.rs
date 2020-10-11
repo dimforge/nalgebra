@@ -254,6 +254,15 @@ impl<S: System, N: RealField> Perspective3<S, N> {
         );
         self.matrix[(0, 0)] = self.matrix[(1, 1)] / aspect;
     }
+
+    /// Updates this perspective with a new y field of view of the view frustum.
+    #[inline]
+    pub fn set_fovy(&mut self, fovy: N) {
+        let old_m22 = self.matrix[(1, 1)];
+        let f = N::one() / (fovy / crate::convert(2.0)).tan();
+        self.matrix[(1, 1)] = f;
+        self.matrix[(0, 0)] *= f / old_m22;
+    }
 }
 
 // OpenGL specialization
@@ -283,13 +292,6 @@ impl<N: RealField> Perspective3<OpenGL, N> {
         res.matrix[(3, 2)] = -N::one();
 
         res
-    }
-    /// Updates this perspective with a new y field of view of the view frustum.
-    #[inline]
-    pub fn set_fovy(&mut self, fovy: N) {
-        let old_m22 = self.matrix[(1, 1)];
-        self.matrix[(1, 1)] = N::one() / (fovy / crate::convert(2.0)).tan();
-        self.matrix[(0, 0)] = self.matrix[(0, 0)] * (self.matrix[(1, 1)] / old_m22);
     }
 
     /// Updates this perspective matrix with a new near plane offset of the view frustum.
@@ -343,15 +345,6 @@ impl<N: RealField> Perspective3<Vulkan, N> {
         res
     }
 
-    /// Updates this perspective with a new y field of view of the view frustum.
-    #[inline]
-    pub fn set_fovy(&mut self, fovy: N) {
-        let old_m22 = self.matrix[(1, 1)];
-        let f = N::one() / (fovy / crate::convert(2.0)).tan();
-        self.matrix[(1, 1)] = -f;
-        self.matrix[(0, 0)] *= f / old_m22;
-    }
-
     /// Updates this perspective matrix with a new near plane offset of the view frustum.
     /// Implementation note: set_znear() must be specialized because it calls other specialized functions.
     #[inline]
@@ -371,8 +364,8 @@ impl<N: RealField> Perspective3<Vulkan, N> {
     /// Updates this perspective matrix with new near and far plane offsets of the view frustum.
     #[inline]
     pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
-        self.matrix[(2, 2)] = -zfar / (zfar - znear);
-        self.matrix[(2, 3)] = -(zfar * znear) / (zfar - znear);
+        self.matrix[(2, 2)] = zfar / (znear - zfar);
+        self.matrix[(2, 3)] = (zfar * znear) / (znear - zfar);
     }
 }
 
