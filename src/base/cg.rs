@@ -15,8 +15,8 @@ use crate::base::{
     Vector3, VectorN,
 };
 use crate::geometry::{
-    Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point2, Point3, Rotation2,
-    Rotation3,
+    Isometry, IsometryMatrix3, OpenGL, Orthographic3, Perspective3, Perspective3OpenGL, Point,
+    Point2, Point3, Rotation2, Rotation3,
 };
 
 use simba::scalar::{ClosedAdd, ClosedMul, RealField};
@@ -171,7 +171,32 @@ impl<N: RealField> Matrix4<N> {
     /// Creates a new homogeneous matrix for a perspective projection.
     #[inline]
     pub fn new_perspective(aspect: N, fovy: N, znear: N, zfar: N) -> Self {
-        Perspective3::new(aspect, fovy, znear, zfar).into_inner()
+        // Example of a breaking change appears here. The same will happen in user code.
+        // It is currently not possible to omit the S type parameter.
+        // Current code, if left unchanged, fails to compile with :
+        //       multiple applicable items in scope
+        //       multiple `new` found
+        //
+        // In theory, S should default to OpenGL and N should be infered from the new() parameters.
+        //
+        // Interestingly, if only the OpenGL specialization is provided then this code compiles.abomonation
+        // This means defaulting to OpenGL works. But adding an additional specialization seems to break defaulting.
+        //Perspective3::new(aspect, fovy, znear, zfar).into_inner()
+        // The following line should work but fails with :
+        //       mismatched types
+        //       expected type parameter `N`, found `f32`
+        // Seems that N is not infered anymore and defaults to f32 (as now specified in the Perspective3 struct declaration).
+        //Perspective3::<OpenGL>::new(aspect, fovy, znear, zfar).into_inner()
+        // This works:
+        Perspective3::<OpenGL, N>::new(aspect, fovy, znear, zfar).into_inner()
+    }
+
+    /// Dummy functions to show the use of a Perspective3 alias.
+    #[inline]
+    pub fn new_perspective2(aspect: N, fovy: N, znear: N, zfar: N) -> Self {
+        // Using the alias works: no need to specify type parameters.
+        // If we go that route then Perspective3 would be renamed to something and the alias would be Perspective3.
+        Perspective3OpenGL::new(aspect, fovy, znear, zfar).into_inner()
     }
 
     /// Creates an isometry that corresponds to the local frame of an observer standing at the
