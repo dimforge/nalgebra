@@ -136,9 +136,9 @@ where
                 let m = end - 1;
                 let n = end;
 
-                let h11 = t[(start + 0, start + 0)];
-                let h12 = t[(start + 0, start + 1)];
-                let h21 = t[(start + 1, start + 0)];
+                let h11 = t[(start, start)];
+                let h12 = t[(start, start + 1)];
+                let h21 = t[(start + 1, start)];
                 let h22 = t[(start + 1, start + 1)];
                 let h32 = t[(start + 2, start + 1)];
 
@@ -161,7 +161,7 @@ where
 
                     if not_zero {
                         if k > start {
-                            t[(k + 0, k - 1)] = norm;
+                            t[(k, k - 1)] = norm;
                             t[(k + 1, k - 1)] = N::zero();
                             t[(k + 2, k - 1)] = N::zero();
                         }
