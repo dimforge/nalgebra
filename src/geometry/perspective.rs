@@ -16,31 +16,8 @@ use crate::base::helper;
 use crate::base::storage::Storage;
 use crate::base::{Matrix4, Scalar, Vector, Vector3};
 
+use crate::geometry::ndc::*;
 use crate::geometry::{Point3, Projective3};
-
-/// Normalized device coordinates systems
-pub trait System {}
-
-/// OpenGL
-/// Note that we will probably want to go with more generic names that encode the handedness and depth range
-/// Please consider all names as placeholders
-#[derive(Default)]
-pub struct OpenGL {}
-
-/// OpenGL is a System
-impl System for OpenGL {}
-
-/// Vulkan is also a System
-#[derive(Default)]
-pub struct Vulkan {}
-
-/// Vulkan is also a System
-impl System for Vulkan {}
-
-/// Note that it is possible to alias systems (OpenGL and Vulkan would be aliases of generic systems)
-//pub type OpenGL = RHS_NO;
-//pub type OpenGL = LHS_ZO;
-pub type VulkanX = Vulkan;
 
 /// A 3D perspective projection stored as a homogeneous 4x4 matrix.
 /// Perspective3 is now generic over System
@@ -265,11 +242,8 @@ impl<S: System, N: RealField> Perspective3<S, N> {
     }
 }
 
-// OpenGL specialization
-// For now not all required functions are specialized for sake of illustration.
-// Specializating the other functions should be trivial.
-
-impl<N: RealField> Perspective3<OpenGL, N> {
+/// LhNo specialization (Left handed with a depth range of -1 to 1).
+impl<N: RealField> Perspective3<LhNo, N> {
     /// Implementation note: new() must be specialized because it calls other specialized functions.
     pub fn new(aspect: N, fovy: N, znear: N, zfar: N) -> Self {
         assert!(
@@ -318,9 +292,8 @@ impl<N: RealField> Perspective3<OpenGL, N> {
     }
 }
 
-// Vulkan specialization
-
-impl<N: RealField> Perspective3<Vulkan, N> {
+// RhZo specialization (right handed with a depth range of 0 to 1).
+impl<N: RealField> Perspective3<RhZo, N> {
     /// Implementation note: new() must be specialized because it calls other specialized functions.
     pub fn new(aspect: N, fovy: N, znear: N, zfar: N) -> Self {
         assert!(
