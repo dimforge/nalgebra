@@ -75,7 +75,7 @@ impl<N: RealField> Perspective3<N> {
         );
         assert!(
             !relative_eq!(aspect, N::zero()),
-            "The apsect ratio must not be zero."
+            "The aspect ratio must not be zero."
         );
 
         let matrix = Matrix4::identity();

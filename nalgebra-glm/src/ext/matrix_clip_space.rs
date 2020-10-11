@@ -530,7 +530,7 @@ pub fn perspective_lh_no<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> T
     );
     assert!(
         !relative_eq!(aspect, N::zero()),
-        "The apsect ratio must not be zero."
+        "The aspect ratio must not be zero."
     );
 
     let one = N::one();
@@ -566,7 +566,7 @@ pub fn perspective_lh_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> T
     );
     assert!(
         !relative_eq!(aspect, N::zero()),
-        "The apsect ratio must not be zero."
+        "The aspect ratio must not be zero."
     );
 
     let one = N::one();
@@ -632,7 +632,7 @@ pub fn perspective_rh_no<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> T
     );
     assert!(
         !relative_eq!(aspect, N::zero()),
-        "The apsect ratio must not be zero."
+        "The aspect ratio must not be zero."
     );
 
     let negone = -N::one();
@@ -669,7 +669,7 @@ pub fn perspective_rh_zo<N: RealField>(aspect: N, fovy: N, near: N, far: N) -> T
     );
     assert!(
         !relative_eq!(aspect, N::zero()),
-        "The apsect ratio must not be zero."
+        "The aspect ratio must not be zero."
     );
 
     let negone = -N::one();
