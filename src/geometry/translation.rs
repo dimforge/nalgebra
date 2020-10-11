@@ -119,7 +119,7 @@ where
     #[inline]
     #[deprecated(note = "Use `::from` instead.")]
     pub fn from_vector(vector: VectorN<N, D>) -> Translation<N, D> {
-        Translation { vector: vector }
+        Translation { vector }
     }
 
     /// Inverts `self`.

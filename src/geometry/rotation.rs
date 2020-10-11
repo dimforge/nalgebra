@@ -255,7 +255,7 @@ where
             "Unable to create a rotation from a non-square matrix."
         );
 
-        Self { matrix: matrix }
+        Self { matrix }
     }
 
     /// Transposes `self`.

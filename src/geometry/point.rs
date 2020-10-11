@@ -135,7 +135,7 @@ where
     #[deprecated(note = "Use Point::from(vector) instead.")]
     #[inline]
     pub fn from_coordinates(coords: VectorN<N, D>) -> Self {
-        Self { coords: coords }
+        Self { coords }
     }
 
     /// The dimension of this point.

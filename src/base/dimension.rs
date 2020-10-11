@@ -23,7 +23,7 @@ impl Dynamic {
     /// A dynamic size equal to `value`.
     #[inline]
     pub fn new(value: usize) -> Self {
-        Self { value: value }
+        Self { value }
     }
 }
 

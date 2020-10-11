@@ -73,10 +73,8 @@ where
     pub fn try_new(m: MatrixN<N, D>, eps: N::RealField, max_niter: usize) -> Option<Self> {
         let mut work = unsafe { VectorN::new_uninitialized_generic(m.data.shape().0, U1) };
 
-        Self::do_decompose(m, &mut work, eps, max_niter, true).map(|(q, t)| Schur {
-            q: q.unwrap(),
-            t: t,
-        })
+        Self::do_decompose(m, &mut work, eps, max_niter, true)
+            .map(|(q, t)| Schur { q: q.unwrap(), t })
     }
 
     fn do_decompose(

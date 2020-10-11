@@ -97,7 +97,7 @@ impl<N: RealField> Perspective3<N> {
     /// projection.
     #[inline]
     pub fn from_matrix_unchecked(matrix: Matrix4<N>) -> Self {
-        Self { matrix: matrix }
+        Self { matrix }
     }
 
     /// Retrieves the inverse of the underlying homogeneous matrix.

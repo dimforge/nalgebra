@@ -41,11 +41,7 @@ impl<N, R: Dim, C: Dim> VecStorage<N, R, C> {
             nrows.value() * ncols.value() == data.len(),
             "Data storage buffer dimension mismatch."
         );
-        Self {
-            data: data,
-            nrows: nrows,
-            ncols: ncols,
-        }
+        Self { data, nrows, ncols }
     }
 
     /// The underlying data storage.
