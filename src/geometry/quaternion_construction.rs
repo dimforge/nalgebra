@@ -492,18 +492,18 @@ where
 
             // The cosinus may be out of [-1, 1] because of inaccuracies.
             if cos <= -N::one() {
-                return None;
+                None
             } else if cos >= N::one() {
-                return Some(Self::identity());
+                Some(Self::identity())
             } else {
-                return Some(Self::from_axis_angle(&axis, cos.acos() * s));
+                Some(Self::from_axis_angle(&axis, cos.acos() * s))
             }
         } else if na.dot(&nb) < N::zero() {
             // PI
             //
             // The rotation axis is undefined but the angle not zero. This is not a
             // simple rotation.
-            return None;
+            None
         } else {
             // Zero
             Some(Self::identity())
