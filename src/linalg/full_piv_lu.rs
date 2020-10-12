@@ -60,11 +60,7 @@ where
         let mut q = PermutationSequence::identity_generic(min_nrows_ncols);
 
         if min_nrows_ncols.value() == 0 {
-            return Self {
-                lu: matrix,
-                p: p,
-                q: q,
-            };
+            return Self { lu: matrix, p, q };
         }
 
         for i in 0..min_nrows_ncols.value() {
@@ -90,11 +86,7 @@ where
             }
         }
 
-        Self {
-            lu: matrix,
-            p: p,
-            q: q,
-        }
+        Self { lu: matrix, p, q }
     }
 
     #[doc(hidden)]

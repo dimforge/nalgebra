@@ -218,9 +218,9 @@ where
                             }
                         }
 
-                        diagonal[k + 0] = subm[(0, 0)];
+                        diagonal[k] = subm[(0, 0)];
                         diagonal[k + 1] = subm[(1, 1)];
-                        off_diagonal[k + 0] = subm[(0, 1)];
+                        off_diagonal[k] = subm[(0, 1)];
 
                         if k != n - 1 {
                             off_diagonal[k + 1] = subm[(1, 2)];
@@ -244,7 +244,7 @@ where
                 let u2 = u2.map(|u2| GivensRotation::new_unchecked(u2.c(), N::from_real(u2.s())));
                 let v2 = v2.map(|v2| GivensRotation::new_unchecked(v2.c(), N::from_real(v2.s())));
 
-                diagonal[start + 0] = s[0];
+                diagonal[start] = s[0];
                 diagonal[start + 1] = s[1];
                 off_diagonal[start] = N::RealField::zero();
 

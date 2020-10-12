@@ -363,8 +363,8 @@ where
 
             while self.nrows() - i >= 8 {
                 acc0 += unsafe {
-                    conjugate(self.get_unchecked((i + 0, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 0, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i, j)).inlined_clone())
+                        * rhs.get_unchecked((i, j)).inlined_clone()
                 };
                 acc1 += unsafe {
                     conjugate(self.get_unchecked((i + 1, j)).inlined_clone())

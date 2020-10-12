@@ -191,7 +191,7 @@ impl<N: Scalar, R: Dim, C: Dim, S> Matrix<N, R, C, S> {
     #[inline]
     pub unsafe fn from_data_statically_unchecked(data: S) -> Matrix<N, R, C, S> {
         Matrix {
-            data: data,
+            data,
             _phantoms: PhantomData,
         }
     }
