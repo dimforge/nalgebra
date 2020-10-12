@@ -1,5 +1,5 @@
 /// Normalized device coordinates (NDC) system.
-pub trait System {}
+pub trait System: Send + Sync {}
 
 /// Left handed with a depth range of -1 to 1.
 #[derive(Default)]

@@ -65,17 +65,17 @@ impl<S: System, N: RealField> PartialEq for Perspective3<S, N> {
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: RealField + Serialize> Serialize for Perspective3<S, N> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+impl<S: System, N: RealField + Serialize> Serialize for Perspective3<S, N> {
+    fn serialize<Ser>(&self, serializer: Ser) -> Result<Ser::Ok, Ser::Error>
     where
-        S: Serializer,
+        Ser: Serializer,
     {
         self.matrix.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: RealField + Deserialize<'a>> Deserialize<'a> for Perspective3<S, N> {
+impl<'a, S: System, N: RealField + Deserialize<'a>> Deserialize<'a> for Perspective3<S, N> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
         Des: Deserializer<'a>,
@@ -356,7 +356,7 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<S: System, N: RealField + Arbitrary> Arbitrary for Perspective3<S, N> {
+impl<N: RealField + Arbitrary> Arbitrary for Perspective3<OpenGL, N> {
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         let znear = Arbitrary::arbitrary(g);
         let zfar = helper::reject(g, |&x: &N| !(x - znear).is_zero());
