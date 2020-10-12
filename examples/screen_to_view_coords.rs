@@ -2,10 +2,10 @@
 
 extern crate nalgebra as na;
 
-use na::{Perspective3, Point2, Point3, Unit};
+use na::{OpenGL, Perspective3, Point2, Point3, Unit};
 
 fn main() {
-    let projection = Perspective3::new(800.0 / 600.0, 3.14 / 2.0, 1.0, 1000.0);
+    let projection = Perspective3::<OpenGL>::new(800.0 / 600.0, 3.14 / 2.0, 1.0, 1000.0);
     let screen_point = Point2::new(10.0f32, 20.0);
 
     // Compute two points in clip-space.
