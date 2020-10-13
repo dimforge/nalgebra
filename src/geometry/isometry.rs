@@ -82,21 +82,23 @@ where
     }
 }
 
-impl<N: Scalar + Copy, D: DimName + Copy, R: AbstractRotation<N, D> + Copy> Copy
-    for Isometry<N, D, R>
+impl<N: Scalar + Copy, D: DimName + Copy, R: Copy> Copy for Isometry<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Copy,
 {
 }
 
-impl<N: Scalar, D: DimName, R: AbstractRotation<N, D> + Clone> Clone for Isometry<N, D, R>
+impl<N: Scalar, D: DimName, R: Clone> Clone for Isometry<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn clone(&self) -> Self {
-        Self::from_parts(self.translation.clone(), self.rotation.clone())
+        Self {
+            rotation: self.rotation.clone(),
+            translation: self.translation.clone(),
+        }
     }
 }
 

@@ -13,3 +13,15 @@ pub type IsometryMatrix2<N> = Isometry<N, U2, Rotation2<N>>;
 
 /// A 3-dimensional direct isometry using a rotation matrix for its rotational part. Also known as a rigid-body motion, or as an element of SE(3).
 pub type IsometryMatrix3<N> = Isometry<N, U3, Rotation3<N>>;
+
+// This tests that the types correctly implement `Copy`, without having to run tests
+// (when targeting no-std for example).
+#[allow(dead_code)]
+fn ensure_copy() {
+    fn is_copy<T: Copy>() {}
+
+    is_copy::<IsometryMatrix2<f32>>();
+    is_copy::<IsometryMatrix3<f32>>();
+    is_copy::<Isometry2<f32>>();
+    is_copy::<Isometry3<f32>>();
+}
