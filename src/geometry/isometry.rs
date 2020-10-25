@@ -373,6 +373,72 @@ where
     pub fn inverse_transform_unit_vector(&self, v: &Unit<VectorN<N, D>>) -> Unit<VectorN<N, D>> {
         self.rotation.inverse_transform_unit_vector(v)
     }
+
+    /// Interpolates between two isometries using a linear interpolation for the translation part,
+    /// and a spherical interpolation for the rotation part.
+    ///
+    /// Panics if the angle between both rotations is 180 degrees (in which case the interpolation
+    /// is not well-defined). Use `.try_lerp_slerp` instead to avoid the panic.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::geometry::{Translation3, UnitQuaternion};
+    ///
+    /// let t1 = Translation3::new(1.0, 2.0, 3.0);
+    /// let t2 = Translation3::new(3.0, 6.0, 9.0);
+    /// let q1 = UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
+    /// let q2 = UnitQuaternion::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
+    /// let iso1 = Isometry3::from_parts(t1, q1);
+    /// let iso2 = Isometry3::from_parts(t2, q2);
+    ///
+    /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
+    ///
+    /// assert_eq!(iso3.translation_vector, Vector3::new(2.0, 4.0, 6.0));
+    /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
+    /// ```
+    #[inline]
+    pub fn lerp_slerp(&self, other: &Self, t: N) -> Self
+    where
+        N: RealField,
+    {
+        let tr = self.translation.vector.lerp(&other.translation.vector, t);
+        let rot = self.rotation.slerp(&other.rotation, t);
+        Self::from_parts(tr.into(), rot)
+    }
+
+    /// Attempts to interpolate between two isometries using a linear interpolation for the translation part,
+    /// and a spherical interpolation for the rotation part.
+    ///
+    /// Retuns `None` if the angle between both rotations is 180 degrees (in which case the interpolation
+    /// is not well-defined).
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::geometry::{Translation3, UnitQuaternion};
+    ///
+    /// let t1 = Translation3::new(1.0, 2.0, 3.0);
+    /// let t2 = Translation3::new(3.0, 6.0, 9.0);
+    /// let q1 = UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
+    /// let q2 = UnitQuaternion::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
+    /// let iso1 = Isometry3::from_parts(t1, q1);
+    /// let iso2 = Isometry3::from_parts(t2, q2);
+    ///
+    /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
+    ///
+    /// assert_eq!(iso3.translation_vector, Vector3::new(2.0, 4.0, 6.0));
+    /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
+    /// ```
+    #[inline]
+    pub fn try_lerp_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self>
+    where
+        N: RealField,
+    {
+        let tr = self.translation.vector.lerp(&other.translation.vector, t);
+        let rot = self.rotation.try_slerp(&other.rotation, t, epsilon)?;
+        Some(Self::from_parts(tr.into(), rot))
+    }
 }
 
 // NOTE: we don't require `R: Rotation<...>` here because this is not useful for the implementation

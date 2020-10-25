@@ -35,6 +35,14 @@ pub trait AbstractRotation<N: Scalar, D: DimName>: PartialEq + ClosedMul + Clone
     fn inverse_transform_point(&self, p: &Point<N, D>) -> Point<N, D>
     where
         DefaultAllocator: Allocator<N, D>;
+    /// Perfom a spherical interpolation between two rolations.
+    fn slerp(&self, other: &Self, t: N) -> Self
+    where
+        DefaultAllocator: Allocator<N, D>;
+    /// Attempts to perfom a spherical interpolation between two rolations.
+    fn try_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self>
+    where
+        DefaultAllocator: Allocator<N, D>;
 }
 
 impl<N: SimdRealField, D: DimName> AbstractRotation<N, D> for Rotation<N, D>
@@ -96,6 +104,22 @@ where
     {
         self.inverse_transform_point(p)
     }
+
+    #[inline]
+    fn slerp(&self, other: &Self, t: N) -> Self
+    where
+        DefaultAllocator: Allocator<N, D>,
+    {
+        self.slerp(other, t)
+    }
+
+    #[inline]
+    fn try_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self>
+    where
+        DefaultAllocator: Allocator<N, D>,
+    {
+        self.try_slerp(other, t, epsilon)
+    }
 }
 
 impl<N: SimdRealField> AbstractRotation<N, U3> for UnitQuaternion<N>
@@ -136,6 +160,16 @@ where
     fn inverse_transform_point(&self, p: &Point<N, U3>) -> Point<N, U3> {
         self.inverse_transform_point(p)
     }
+
+    #[inline]
+    fn slerp(&self, other: &Self, t: N) -> Self {
+        self.slerp(other, t)
+    }
+
+    #[inline]
+    fn try_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self> {
+        self.try_slerp(other, t, epsilon)
+    }
 }
 
 impl<N: SimdRealField> AbstractRotation<N, U2> for UnitComplex<N>
@@ -175,5 +209,15 @@ where
     #[inline]
     fn inverse_transform_point(&self, p: &Point<N, U2>) -> Point<N, U2> {
         self.inverse_transform_point(p)
+    }
+
+    #[inline]
+    fn slerp(&self, other: &Self, t: N) -> Self {
+        self.slerp(other, t)
+    }
+
+    #[inline]
+    fn try_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self> {
+        self.try_slerp(other, t, epsilon)
     }
 }
