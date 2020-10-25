@@ -36,23 +36,23 @@ libm-force = [ "simba/libm_force" ]
 
 
 [dependencies]
-typenum        = "1.11"
-generic-array  = "0.13"
+typenum        = "1.12"
+generic-array  = "0.14"
 rand           = { version = "0.7", default-features = false }
 num-traits     = { version = "0.2", default-features = false }
-num-complex    = { version = "0.2", default-features = false }
-num-rational   = { version = "0.2", default-features = false }
-approx         = { version = "0.3", default-features = false }
-simba          = { version = "0.2", default-features = false }
+num-complex    = { version = "0.3", default-features = false }
+num-rational   = { version = "0.3", default-features = false }
+approx         = { version = "0.4", default-features = false }
+simba          = { version = "0.3", default-features = false }
 alga           = { version = "0.9", default-features = false, optional = true }
-rand_distr     = { version = "0.2", optional = true }
+rand_distr     = { version = "0.3", optional = true }
 matrixmultiply = { version = "0.2", optional = true }
 serde          = { version = "1.0", features = [ "derive" ], optional = true }
 abomonation    = { version = "0.7", optional = true }
 mint           = { version = "0.5", optional = true }
 quickcheck     = { version = "0.9", optional = true }
-pest           = { version = "2.0", optional = true }
-pest_derive    = { version = "2.0", optional = true }
+pest           = { version = "2", optional = true }
+pest_derive    = { version = "2", optional = true }
 matrixcompare-core = { version = "0.1", optional = true }
 
 [dev-dependencies]
