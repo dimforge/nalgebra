@@ -151,6 +151,17 @@ where
     }
 }
 
+impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D>> From<Translation<N, D>>
+    for Isometry<N, D, R>
+where
+    DefaultAllocator: Allocator<N, D>,
+{
+    #[inline]
+    fn from(tra: Translation<N, D>) -> Self {
+        Self::from_parts(tra, R::identity())
+    }
+}
+
 impl<N: SimdRealField, D: DimName, R> From<Isometry<N, D, R>> for MatrixN<N, DimNameSum<D, U1>>
 where
     D: DimNameAdd<U1>,
