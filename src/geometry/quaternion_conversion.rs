@@ -265,6 +265,15 @@ impl<N: Scalar + SimdValue> From<Vector4<N>> for Quaternion<N> {
     }
 }
 
+impl<N: Scalar + SimdValue> From<[N; 4]> for Quaternion<N> {
+    #[inline]
+    fn from(coords: [N; 4]) -> Self {
+        Self {
+            coords: coords.into(),
+        }
+    }
+}
+
 impl<N: Scalar + PrimitiveSimdValue> From<[Quaternion<N::Element>; 2]> for Quaternion<N>
 where
     N: From<[<N as SimdValue>::Element; 2]>,

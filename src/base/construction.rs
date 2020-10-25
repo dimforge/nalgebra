@@ -1019,6 +1019,12 @@ where
         res
     }
 
+    /// The column unit vector with `N::one()` as its i-th component.
+    #[inline]
+    pub fn ith_axis(i: usize) -> Unit<Self> {
+        Unit::new_unchecked(Self::ith(i, N::one()))
+    }
+
     /// The column vector with a 1 as its first component, and zero elsewhere.
     #[inline]
     pub fn x() -> Self

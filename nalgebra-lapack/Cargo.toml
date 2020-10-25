@@ -23,7 +23,7 @@ accelerate = ["lapack-src/accelerate"]
 intel-mkl  = ["lapack-src/intel-mkl"]
 
 [dependencies]
-nalgebra      = { version = "0.22", path = ".." }
+nalgebra      = { version = "0.22" } # , path = ".." }
 num-traits    = "0.2"
 num-complex   = { version = "0.2", default-features = false }
 simba         = "0.2"
@@ -34,7 +34,7 @@ lapack-src    = { version = "0.5", default-features = false }
 # clippy = "*"
 
 [dev-dependencies]
-nalgebra   = { version = "0.22", path = "..", features = [ "arbitrary" ] }
+nalgebra   = { version = "0.22", features = [ "arbitrary" ] } # path = ".." }
 quickcheck = "0.9"
 approx     = "0.3"
 rand       = "0.7"
