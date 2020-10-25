@@ -376,6 +376,26 @@ where
     pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector2<N>>) -> Unit<Vector2<N>> {
         self.inverse() * v
     }
+
+    /// Spherical linear interpolation between two rotations represented as unit complex numbers.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::geometry::UnitComplex;
+    ///
+    /// let rot1 = UnitComplex::new(std::f32::consts::FRAC_PI_4);
+    /// let rot2 = UnitComplex::new(-std::f32::consts::PI);
+    ///
+    /// let rot = rot1.slerp(&rot2, 1.0 / 3.0);
+    ///
+    /// assert_eq!(rot.angle(), std::f32::consts::FRAC_PI_2);
+    /// ```
+
+    #[inline]
+    pub fn slerp(&self, other: &Self, t: N) -> Self {
+        Self::new(self.angle() * (N::one() - t) + other.angle() * t)
+    }
 }
 
 impl<N: RealField + fmt::Display> fmt::Display for UnitComplex<N> {

@@ -17,6 +17,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
    others set to zero.
  * The `Isometry.lerp_slerp` and `Isometry.try_lerp_slerp` methods to interpolate between two isometries using linear
    interpolation for the translational part, and spherical interpolation for the rotational part.
+ * The `Rotation2.slerp`, `Rotation3.slerp`, and `UnitQuaternion.slerp` method for 
+   spherical interpolation.
    
 ## [0.22.0]
 In this release, we are using the new version 0.2 of simba. One major change of that version is that the
