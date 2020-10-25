@@ -1,6 +1,6 @@
 extern crate nalgebra as na;
 
-use na::{DMatrix, Matrix2x3, Matrix3x2, RowVector3, Vector2};
+use na::{DMatrix, Matrix2x3, RowVector3, Vector2};
 
 fn main() {
     // All the following matrices are equal but constructed in different ways.
