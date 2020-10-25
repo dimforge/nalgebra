@@ -382,6 +382,7 @@ where
     /// # Examples:
     ///
     /// ```
+    /// # #[macro_use] extern crate approx;
     /// # use nalgebra::geometry::UnitComplex;
     ///
     /// let rot1 = UnitComplex::new(std::f32::consts::FRAC_PI_4);
@@ -389,7 +390,7 @@ where
     ///
     /// let rot = rot1.slerp(&rot2, 1.0 / 3.0);
     ///
-    /// assert_eq!(rot.angle(), std::f32::consts::FRAC_PI_2);
+    /// assert_relative_eq!(rot.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
 
     #[inline]

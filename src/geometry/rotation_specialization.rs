@@ -242,6 +242,7 @@ impl<N: SimdRealField> Rotation2<N> {
     /// # Examples:
     ///
     /// ```
+    /// # #[macro_use] extern crate approx;
     /// # use nalgebra::geometry::Rotation2;
     ///
     /// let rot1 = Rotation2::new(std::f32::consts::FRAC_PI_4);
@@ -249,7 +250,7 @@ impl<N: SimdRealField> Rotation2<N> {
     ///
     /// let rot = rot1.slerp(&rot2, 1.0 / 3.0);
     ///
-    /// assert_eq!(rot.angle(), std::f32::consts::FRAC_PI_2);
+    /// assert_relative_eq!(rot.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
     #[inline]
     pub fn slerp(&self, other: &Self, t: N) -> Self

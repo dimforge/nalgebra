@@ -387,10 +387,10 @@ impl<N: SimdRealField> Isometry<N, U3, UnitQuaternion<N>> {
     /// # Examples:
     ///
     /// ```
-    /// # use nalgebra::geometry::{Vector3, Translation3, UnitQuaternion};
+    /// # use nalgebra::{Vector3, Translation3, Isometry3, UnitQuaternion};
     ///
     /// let t1 = Translation3::new(1.0, 2.0, 3.0);
-    /// let t2 = Translation3::new(3.0, 6.0, 9.0);
+    /// let t2 = Translation3::new(4.0, 8.0, 12.0);
     /// let q1 = UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
     /// let q2 = UnitQuaternion::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
     /// let iso1 = Isometry3::from_parts(t1, q1);
@@ -398,7 +398,7 @@ impl<N: SimdRealField> Isometry<N, U3, UnitQuaternion<N>> {
     ///
     /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
     ///
-    /// assert_eq!(iso3.translation_vector, Vector3::new(2.0, 4.0, 6.0));
+    /// assert_eq!(iso3.translation.vector, Vector3::new(2.0, 4.0, 6.0));
     /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
@@ -420,10 +420,10 @@ impl<N: SimdRealField> Isometry<N, U3, UnitQuaternion<N>> {
     /// # Examples:
     ///
     /// ```
-    /// # use nalgebra::geometry::{Vector3, Translation3, UnitQuaternion};
+    /// # use nalgebra::{Vector3, Translation3, Isometry3, UnitQuaternion};
     ///
     /// let t1 = Translation3::new(1.0, 2.0, 3.0);
-    /// let t2 = Translation3::new(3.0, 6.0, 9.0);
+    /// let t2 = Translation3::new(4.0, 8.0, 12.0);
     /// let q1 = UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
     /// let q2 = UnitQuaternion::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
     /// let iso1 = Isometry3::from_parts(t1, q1);
@@ -431,7 +431,7 @@ impl<N: SimdRealField> Isometry<N, U3, UnitQuaternion<N>> {
     ///
     /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
     ///
-    /// assert_eq!(iso3.translation_vector, Vector3::new(2.0, 4.0, 6.0));
+    /// assert_eq!(iso3.translation.vector, Vector3::new(2.0, 4.0, 6.0));
     /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
@@ -455,18 +455,18 @@ impl<N: SimdRealField> Isometry<N, U3, Rotation3<N>> {
     /// # Examples:
     ///
     /// ```
-    /// # use nalgebra::geometry::{Vector3, Translation3, Rotation3};
+    /// # use nalgebra::{Vector3, Translation3, Rotation3, IsometryMatrix3};
     ///
     /// let t1 = Translation3::new(1.0, 2.0, 3.0);
-    /// let t2 = Translation3::new(3.0, 6.0, 9.0);
+    /// let t2 = Translation3::new(4.0, 8.0, 12.0);
     /// let q1 = Rotation3::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
     /// let q2 = Rotation3::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
-    /// let iso1 = Isometry3::from_parts(t1, q1);
-    /// let iso2 = Isometry3::from_parts(t2, q2);
+    /// let iso1 = IsometryMatrix3::from_parts(t1, q1);
+    /// let iso2 = IsometryMatrix3::from_parts(t2, q2);
     ///
     /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
     ///
-    /// assert_eq!(iso3.translation_vector, Vector3::new(2.0, 4.0, 6.0));
+    /// assert_eq!(iso3.translation.vector, Vector3::new(2.0, 4.0, 6.0));
     /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
@@ -488,18 +488,18 @@ impl<N: SimdRealField> Isometry<N, U3, Rotation3<N>> {
     /// # Examples:
     ///
     /// ```
-    /// # use nalgebra::geometry::{Vector3, Translation3, Rotation3};
+    /// # use nalgebra::{Vector3, Translation3, Rotation3, IsometryMatrix3};
     ///
     /// let t1 = Translation3::new(1.0, 2.0, 3.0);
-    /// let t2 = Translation3::new(3.0, 6.0, 9.0);
+    /// let t2 = Translation3::new(4.0, 8.0, 12.0);
     /// let q1 = Rotation3::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
     /// let q2 = Rotation3::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
-    /// let iso1 = Isometry3::from_parts(t1, q1);
-    /// let iso2 = Isometry3::from_parts(t2, q2);
+    /// let iso1 = IsometryMatrix3::from_parts(t1, q1);
+    /// let iso2 = IsometryMatrix3::from_parts(t2, q2);
     ///
     /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
     ///
-    /// assert_eq!(iso3.translation_vector, Vector3::new(2.0, 4.0, 6.0));
+    /// assert_eq!(iso3.translation.vector, Vector3::new(2.0, 4.0, 6.0));
     /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
@@ -523,10 +523,11 @@ impl<N: SimdRealField> Isometry<N, U2, UnitComplex<N>> {
     /// # Examples:
     ///
     /// ```
-    /// # use nalgebra::geometry::{Vector2, Translation2, UnitComplex, Isometry2};
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Vector2, Translation2, UnitComplex, Isometry2};
     ///
     /// let t1 = Translation2::new(1.0, 2.0);
-    /// let t2 = Translation2::new(3.0, 6.0);
+    /// let t2 = Translation2::new(4.0, 8.0);
     /// let q1 = UnitComplex::new(std::f32::consts::FRAC_PI_4);
     /// let q2 = UnitComplex::new(-std::f32::consts::PI);
     /// let iso1 = Isometry2::from_parts(t1, q1);
@@ -534,11 +535,11 @@ impl<N: SimdRealField> Isometry<N, U2, UnitComplex<N>> {
     ///
     /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
     ///
-    /// assert_eq!(iso3.translation_vector, Vector2::new(2.0, 4.0));
-    /// assert_eq!(iso3.rotation.angle(), std::f32::consts::FRAC_PI_2);
+    /// assert_eq!(iso3.translation.vector, Vector2::new(2.0, 4.0));
+    /// assert_relative_eq!(iso3.rotation.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
     #[inline]
-    pub fn slerp(&self, other: &Self, t: N) -> Self
+    pub fn lerp_slerp(&self, other: &Self, t: N) -> Self
     where
         N: RealField,
     {
@@ -558,22 +559,23 @@ impl<N: SimdRealField> Isometry<N, U2, Rotation2<N>> {
     /// # Examples:
     ///
     /// ```
-    /// # use nalgebra::geometry::{Vector2, Translation2, Rotation2, Isometry2};
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Vector2, Translation2, Rotation2, IsometryMatrix2};
     ///
     /// let t1 = Translation2::new(1.0, 2.0);
-    /// let t2 = Translation2::new(3.0, 6.0);
+    /// let t2 = Translation2::new(4.0, 8.0);
     /// let q1 = Rotation2::new(std::f32::consts::FRAC_PI_4);
     /// let q2 = Rotation2::new(-std::f32::consts::PI);
-    /// let iso1 = Isometry2::from_parts(t1, q1);
-    /// let iso2 = Isometry2::from_parts(t2, q2);
+    /// let iso1 = IsometryMatrix2::from_parts(t1, q1);
+    /// let iso2 = IsometryMatrix2::from_parts(t2, q2);
     ///
     /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
     ///
-    /// assert_eq!(iso3.translation_vector, Vector2::new(2.0, 4.0));
-    /// assert_eq!(iso3.rotation.angle(), std::f32::consts::FRAC_PI_2);
+    /// assert_eq!(iso3.translation.vector, Vector2::new(2.0, 4.0));
+    /// assert_relative_eq!(iso3.rotation.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
     #[inline]
-    pub fn slerp(&self, other: &Self, t: N) -> Self
+    pub fn lerp_slerp(&self, other: &Self, t: N) -> Self
     where
         N: RealField,
     {
