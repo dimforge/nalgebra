@@ -129,7 +129,7 @@ mod tests {
 
     #[test]
     fn exp_complex() {
-        use nalgebra::{Complex, ComplexField, DMatrix, DVector, Matrix2, RealField};
+        use nalgebra::{Complex, DMatrix, DVector, Matrix2, RealField};
 
         {
             let z = Matrix2::<Complex<f64>>::zeros();

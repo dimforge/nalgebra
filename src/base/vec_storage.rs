@@ -8,7 +8,9 @@ use crate::base::allocator::Allocator;
 use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, DimName, Dynamic, U1};
-use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
+use crate::base::storage::{
+    ContiguousStorage, ContiguousStorageMut, Owned, ReshapableStorage, Storage, StorageMut,
+};
 use crate::base::{Scalar, Vector};
 
 #[cfg(feature = "abomonation-serialize")]
@@ -225,6 +227,42 @@ unsafe impl<N: Scalar, C: Dim> ContiguousStorageMut<N, Dynamic, C> for VecStorag
 {
 }
 
+impl<N, C1, C2> ReshapableStorage<N, Dynamic, C1, Dynamic, C2> for VecStorage<N, Dynamic, C1>
+where
+    N: Scalar,
+    C1: Dim,
+    C2: Dim,
+{
+    type Output = VecStorage<N, Dynamic, C2>;
+
+    fn reshape_generic(self, nrows: Dynamic, ncols: C2) -> Self::Output {
+        assert_eq!(nrows.value() * ncols.value(), self.data.len());
+        VecStorage {
+            data: self.data,
+            nrows,
+            ncols,
+        }
+    }
+}
+
+impl<N, C1, R2> ReshapableStorage<N, Dynamic, C1, R2, Dynamic> for VecStorage<N, Dynamic, C1>
+where
+    N: Scalar,
+    C1: Dim,
+    R2: DimName,
+{
+    type Output = VecStorage<N, R2, Dynamic>;
+
+    fn reshape_generic(self, nrows: R2, ncols: Dynamic) -> Self::Output {
+        assert_eq!(nrows.value() * ncols.value(), self.data.len());
+        VecStorage {
+            data: self.data,
+            nrows,
+            ncols,
+        }
+    }
+}
+
 unsafe impl<N: Scalar, R: DimName> StorageMut<N, R, Dynamic> for VecStorage<N, R, Dynamic>
 where
     DefaultAllocator: Allocator<N, R, Dynamic, Buffer = Self>,
@@ -237,6 +275,42 @@ where
     #[inline]
     fn as_mut_slice(&mut self) -> &mut [N] {
         &mut self.data[..]
+    }
+}
+
+impl<N, R1, C2> ReshapableStorage<N, R1, Dynamic, Dynamic, C2> for VecStorage<N, R1, Dynamic>
+where
+    N: Scalar,
+    R1: DimName,
+    C2: Dim,
+{
+    type Output = VecStorage<N, Dynamic, C2>;
+
+    fn reshape_generic(self, nrows: Dynamic, ncols: C2) -> Self::Output {
+        assert_eq!(nrows.value() * ncols.value(), self.data.len());
+        VecStorage {
+            data: self.data,
+            nrows,
+            ncols,
+        }
+    }
+}
+
+impl<N, R1, R2> ReshapableStorage<N, R1, Dynamic, R2, Dynamic> for VecStorage<N, R1, Dynamic>
+where
+    N: Scalar,
+    R1: DimName,
+    R2: DimName,
+{
+    type Output = VecStorage<N, R2, Dynamic>;
+
+    fn reshape_generic(self, nrows: R2, ncols: Dynamic) -> Self::Output {
+        assert_eq!(nrows.value() * ncols.value(), self.data.len());
+        VecStorage {
+            data: self.data,
+            nrows,
+            ncols,
+        }
     }
 }
 
