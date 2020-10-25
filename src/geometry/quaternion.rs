@@ -1542,6 +1542,26 @@ where
     pub fn inverse_transform_vector(&self, v: &Vector3<N>) -> Vector3<N> {
         self.inverse() * v
     }
+
+    /// Rotate a vector by the inverse of this unit quaternion. This may be
+    /// cheaper than inverting the unit quaternion and transforming the
+    /// vector.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{UnitQuaternion, Vector3};
+    /// let rot = UnitQuaternion::from_axis_angle(&Vector3::z_axis(), f32::consts::FRAC_PI_2);
+    /// let transformed_vector = rot.inverse_transform_unit_vector(&Vector3::x_axis());
+    ///
+    /// assert_relative_eq!(transformed_vector, -Vector3::y_axis(), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector3<N>>) -> Unit<Vector3<N>> {
+        self.inverse() * v
+    }
 }
 
 impl<N: RealField> Default for UnitQuaternion<N> {

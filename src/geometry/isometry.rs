@@ -16,7 +16,7 @@ use simba::simd::SimdRealField;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
-use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
+use crate::base::{DefaultAllocator, MatrixN, Scalar, Unit, VectorN};
 use crate::geometry::{AbstractRotation, Point, Translation};
 
 /// A direct isometry, i.e., a rotation followed by a translation, aka. a rigid-body motion, aka. an element of a Special Euclidean (SE) group.
@@ -349,6 +349,29 @@ where
     #[inline]
     pub fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         self.rotation.inverse_transform_vector(v)
+    }
+
+    /// Transform the given unit vector by the inverse of this isometry, ignoring the
+    /// translation component of the isometry. This may be
+    /// less expensive than computing the entire isometry inverse and then
+    /// transforming the point.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry3, Translation3, UnitQuaternion, Vector3};
+    /// let tra = Translation3::new(0.0, 0.0, 3.0);
+    /// let rot = UnitQuaternion::from_scaled_axis(Vector3::z() * f32::consts::FRAC_PI_2);
+    /// let iso = Isometry3::from_parts(tra, rot);
+    ///
+    /// let transformed_point = iso.inverse_transform_unit_vector(&Vector3::x_axis());
+    /// assert_relative_eq!(transformed_point, -Vector3::y_axis(), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_unit_vector(&self, v: &Unit<VectorN<N, D>>) -> Unit<VectorN<N, D>> {
+        self.rotation.inverse_transform_unit_vector(v)
     }
 }
 

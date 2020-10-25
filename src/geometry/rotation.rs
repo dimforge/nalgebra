@@ -19,7 +19,7 @@ use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
+use crate::base::{DefaultAllocator, MatrixN, Scalar, Unit, VectorN};
 use crate::geometry::Point;
 
 /// A rotation matrix.
@@ -440,6 +440,25 @@ where
     #[inline]
     pub fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
         self.matrix().tr_mul(v)
+    }
+
+    /// Rotate the given vector by the inverse of this rotation. This may be
+    /// cheaper than inverting the rotation and then transforming the given
+    /// vector.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Rotation2, Rotation3, UnitQuaternion, Vector3};
+    /// let rot = Rotation3::new(Vector3::z() * f32::consts::FRAC_PI_2);
+    /// let transformed_vector = rot.inverse_transform_unit_vector(&Vector3::x_axis());
+    ///
+    /// assert_relative_eq!(transformed_vector, -Vector3::y_axis(), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_unit_vector(&self, v: &Unit<VectorN<N, D>>) -> Unit<VectorN<N, D>> {
+        Unit::new_unchecked(self.inverse_transform_vector(&**v))
     }
 }
 

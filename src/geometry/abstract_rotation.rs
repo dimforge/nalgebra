@@ -1,6 +1,6 @@
 use crate::allocator::Allocator;
 use crate::geometry::{Rotation, UnitComplex, UnitQuaternion};
-use crate::{DefaultAllocator, DimName, Point, Scalar, SimdRealField, VectorN, U2, U3};
+use crate::{DefaultAllocator, DimName, Point, Scalar, SimdRealField, Unit, VectorN, U2, U3};
 
 use simba::scalar::ClosedMul;
 
@@ -24,6 +24,13 @@ pub trait AbstractRotation<N: Scalar, D: DimName>: PartialEq + ClosedMul + Clone
     fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D>
     where
         DefaultAllocator: Allocator<N, D>;
+    /// Apply the inverse rotation to the given unit vector.
+    fn inverse_transform_unit_vector(&self, v: &Unit<VectorN<N, D>>) -> Unit<VectorN<N, D>>
+    where
+        DefaultAllocator: Allocator<N, D>,
+    {
+        Unit::new_unchecked(self.inverse_transform_vector(&**v))
+    }
     /// Apply the inverse rotation to the given point.
     fn inverse_transform_point(&self, p: &Point<N, D>) -> Point<N, D>
     where
@@ -72,6 +79,14 @@ where
         DefaultAllocator: Allocator<N, D>,
     {
         self.inverse_transform_vector(v)
+    }
+
+    #[inline]
+    fn inverse_transform_unit_vector(&self, v: &Unit<VectorN<N, D>>) -> Unit<VectorN<N, D>>
+    where
+        DefaultAllocator: Allocator<N, D>,
+    {
+        self.inverse_transform_unit_vector(v)
     }
 
     #[inline]
