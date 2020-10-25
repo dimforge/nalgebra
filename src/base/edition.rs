@@ -819,10 +819,55 @@ where
     R: Dim,
     C: Dim,
 {
-    /// Reshapes `self` in-place such that it has dimensions `new_nrows × new_ncols`.
+    /// Reshapes `self` such that it has dimensions `new_nrows × new_ncols`.
     ///
-    /// The values are not copied or moved. This function will panic if dynamic sizes are provided
-    /// and not compatible.
+    /// This will reinterpret `self` as if it is a matrix with `new_nrows` rows and `new_ncols`
+    /// columns. The arrangements of the component in the output matrix are the same as what
+    /// would be obtained by `Matrix::from_slice_generic(self.as_slice(), new_nrows, new_ncols)`.
+    ///
+    /// If `self` is a dynamically-sized matrix, then its components are neither copied nor moved.
+    /// If `self` is staticyll-sized, then a copy may happen in some situations.
+    /// This function will panic if the given dimensions are such that the number of elements of
+    /// the input matrix are not equal to the number of elements of the output matrix.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix3x2, Matrix2x3, DMatrix, U2, U3, Dynamic};
+    ///
+    /// let m1 = Matrix2x3::new(
+    ///     1.1, 1.2, 1.3,
+    ///     2.1, 2.2, 2.3
+    /// );
+    /// let m2 = Matrix3x2::new(
+    ///     1.1, 2.2,
+    ///     2.1, 1.3,
+    ///     1.2, 2.3
+    /// );
+    /// let reshaped = m1.reshape_generic(U3, U2);
+    /// assert_eq!(reshaped, m2);
+    ///
+    /// let dm1 = DMatrix::from_row_slice(
+    ///     4,
+    ///     3,
+    ///     &[
+    ///         1.0, 0.0, 0.0,
+    ///         0.0, 0.0, 1.0,
+    ///         0.0, 0.0, 0.0,
+    ///         0.0, 1.0, 0.0
+    ///     ],
+    /// );
+    /// let dm2 = DMatrix::from_row_slice(
+    ///     6,
+    ///     2,
+    ///     &[
+    ///         1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+    ///         0.0, 0.0, 0.0, 0.0, 1.0, 0.0
+    ///     ],
+    /// );
+    /// let reshaped = dm1.reshape_generic(Dynamic::new(6), Dynamic::new(2));
+    /// assert_eq!(reshaped, dm2);
+    /// ```
     pub fn reshape_generic<R2, C2>(
         self,
         new_nrows: R2,
