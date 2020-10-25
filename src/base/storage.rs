@@ -171,7 +171,7 @@ pub unsafe trait StorageMut<N: Scalar, R: Dim, C: Dim = U1>: Storage<N, R, C> {
 
 /// A matrix storage that is stored contiguously in memory.
 ///
-/// The storage requirement means that for any value of `i` in `[0, nrows * ncols]`, the value
+/// The storage requirement means that for any value of `i` in `[0, nrows * ncols - 1]`, the value
 /// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because
 /// failing to comply to this may cause Undefined Behaviors.
 pub unsafe trait ContiguousStorage<N: Scalar, R: Dim, C: Dim = U1>:
@@ -181,7 +181,7 @@ pub unsafe trait ContiguousStorage<N: Scalar, R: Dim, C: Dim = U1>:
 
 /// A mutable matrix storage that is stored contiguously in memory.
 ///
-/// The storage requirement means that for any value of `i` in `[0, nrows * ncols]`, the value
+/// The storage requirement means that for any value of `i` in `[0, nrows * ncols - 1]`, the value
 /// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because
 /// failing to comply to this may cause Undefined Behaviors.
 pub unsafe trait ContiguousStorageMut<N: Scalar, R: Dim, C: Dim = U1>:
