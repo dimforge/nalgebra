@@ -149,6 +149,7 @@ isometry_binop_impl_all!(
     [ref ref] => {
         let shift = self.rotation.transform_vector(&rhs.translation.vector);
 
+        #[allow(clippy::suspicious_arithmetic_impl)]
         Isometry::from_parts(Translation::from(&self.translation.vector + shift),
                              self.rotation.clone() * rhs.rotation.clone()) // FIXME: too bad we have to clone.
     };
@@ -157,10 +158,10 @@ isometry_binop_impl_all!(
 isometry_binop_impl_all!(
     Div, div;
     self: Isometry<N, D, R>, rhs: Isometry<N, D, R>, Output = Isometry<N, D, R>;
-    [val val] => self * rhs.inverse();
-    [ref val] => self * rhs.inverse();
-    [val ref] => self * rhs.inverse();
-    [ref ref] => self * rhs.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
 );
 
 // Isometry ×= Translation
@@ -289,6 +290,7 @@ isometry_binop_impl_all!(
     [ref val] => self * &right;
     [val ref] => &self * right;
     [ref ref] => {
+        #[allow(clippy::suspicious_arithmetic_impl)]
         let new_tr = &self.translation.vector + self.rotation.transform_vector(&right.vector);
         Isometry::from_parts(Translation::from(new_tr), self.rotation.clone())
     };
@@ -427,10 +429,10 @@ isometry_from_composition_impl_all!(
     self: Rotation<N, D>, right: Isometry<N, D, Rotation<N, D>>,
     Output = Isometry<N, D, Rotation<N, D>>;
     // FIXME: don't call inverse explicitly?
-    [val val] => self * right.inverse();
-    [ref val] => self * right.inverse();
-    [val ref] => self * right.inverse();
-    [ref ref] => self * right.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
 );
 
 // Isometry × UnitQuaternion
@@ -479,10 +481,10 @@ isometry_from_composition_impl_all!(
     self: UnitQuaternion<N>, right: Isometry<N, U3, UnitQuaternion<N>>,
     Output = Isometry<N, U3, UnitQuaternion<N>>;
     // FIXME: don't call inverse explicitly?
-    [val val] => self * right.inverse();
-    [ref val] => self * right.inverse();
-    [val ref] => self * right.inverse();
-    [ref ref] => self * right.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
 );
 
 // Translation × Rotation

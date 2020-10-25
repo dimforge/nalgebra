@@ -59,10 +59,10 @@ md_impl_all!(
     Div, div;
     (D, D), (D, D) for D: DimName;
     self: Rotation<N, D>, right: Rotation<N, D>, Output = Rotation<N, D>;
-    [val val] => self * right.inverse();
-    [ref val] => self * right.inverse();
-    [val ref] => self * right.inverse();
-    [ref ref] => self * right.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
 );
 
 // Rotation × Matrix
@@ -98,10 +98,10 @@ md_impl_all!(
     where DefaultAllocator: Allocator<N, R1, D2>
     where ShapeConstraint: AreMultipliable<R1, C1, D2, D2>;
     self: Matrix<N, R1, C1, SA>, right: Rotation<N, D2>, Output = MatrixMN<N, R1, D2>;
-    [val val] => self * right.inverse();
-    [ref val] => self * right.inverse();
-    [val ref] => self * right.inverse();
-    [ref ref] => self * right.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
 );
 
 // Rotation × Point

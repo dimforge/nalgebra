@@ -143,6 +143,7 @@ md_impl_all!(
 
         if C::has_normalizer() {
             let normalizer = self.matrix().fixed_slice::<U1, D>(D::dim(), 0);
+            #[allow(clippy::suspicious_arithmetic_impl)]
             let n = normalizer.tr_dot(&rhs.coords) + unsafe { *self.matrix().get_unchecked((D::dim(), D::dim())) };
 
             if !n.is_zero() {
@@ -293,10 +294,10 @@ md_impl_all!(
     Div, div where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, CA: TCategoryMul<CB>, CB: SubTCategoryOf<TProjective>;
     self: Transform<N, D, CA>, rhs: Transform<N, D, CB>, Output = Transform<N, D, CA::Representative>;
-    [val val] => self * rhs.inverse();
-    [ref val] => self * rhs.inverse();
-    [val ref] => self * rhs.clone().inverse();
-    [ref ref] => self * rhs.clone().inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.clone().inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.clone().inverse() };
 );
 
 // Transform ÷ Rotation
@@ -304,10 +305,10 @@ md_impl_all!(
     Div, div where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
     self: Transform<N, D, C>, rhs: Rotation<N, D>, Output = Transform<N, D, C::Representative>;
-    [val val] => self * rhs.inverse();
-    [ref val] => self * rhs.inverse();
-    [val ref] => self * rhs.inverse();
-    [ref ref] => self * rhs.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
 );
 
 // Rotation ÷ Transform
@@ -315,10 +316,10 @@ md_impl_all!(
     Div, div where N: RealField;
     (D, D), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
     self: Rotation<N, D>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
-    [val val] => self.inverse() * rhs;
-    [ref val] => self.inverse() * rhs;
-    [val ref] => self.inverse() * rhs;
-    [ref ref] => self.inverse() * rhs;
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
 );
 
 // Transform ÷ UnitQuaternion
@@ -326,10 +327,10 @@ md_impl_all!(
     Div, div where N: RealField;
     (U4, U4), (U4, U1) for C: TCategoryMul<TAffine>;
     self: Transform<N, U3, C>, rhs: UnitQuaternion<N>, Output = Transform<N, U3, C::Representative>;
-    [val val] => self * rhs.inverse();
-    [ref val] => self * rhs.inverse();
-    [val ref] => self * rhs.inverse();
-    [ref ref] => self * rhs.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
 );
 
 // UnitQuaternion ÷ Transform
@@ -337,10 +338,10 @@ md_impl_all!(
     Div, div where N: RealField;
     (U4, U1), (U4, U4) for C: TCategoryMul<TAffine>;
     self: UnitQuaternion<N>, rhs: Transform<N, U3, C>, Output = Transform<N, U3, C::Representative>;
-    [val val] => self.inverse() * rhs;
-    [ref val] => self.inverse() * rhs;
-    [val ref] => self.inverse() * rhs;
-    [ref ref] => self.inverse() * rhs;
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
 );
 
 //      // Transform ÷ Isometry
@@ -402,10 +403,10 @@ md_impl_all!(
     Div, div where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
     self: Transform<N, D, C>, rhs: Translation<N, D>, Output = Transform<N, D, C::Representative>;
-    [val val] => self * rhs.inverse();
-    [ref val] => self * rhs.inverse();
-    [val ref] => self * rhs.inverse();
-    [ref ref] => self * rhs.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
 );
 
 // Translation ÷ Transform
@@ -414,10 +415,10 @@ md_impl_all!(
     (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
     for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
     self: Translation<N, D>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
-    [val val] => self.inverse() * rhs;
-    [ref val] => self.inverse() * rhs;
-    [val ref] => self.inverse() * rhs;
-    [ref ref] => self.inverse() * rhs;
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
 );
 
 // Transform ×= Transform
