@@ -389,6 +389,7 @@ where
     /// ```
     #[inline]
     pub fn outer(&self, other: &Self) -> Self {
+        #[allow(clippy::eq_op)]
         (self * other - other * self).half()
     }
 
