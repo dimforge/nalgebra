@@ -96,6 +96,7 @@ where
 
     #[inline]
     fn div(self, rhs: Self) -> Self::Output {
+        #[allow(clippy::suspicious_arithmetic_impl)]
         Unit::new_unchecked(self.into_inner() * rhs.conjugate().into_inner())
     }
 }
@@ -108,6 +109,7 @@ where
 
     #[inline]
     fn div(self, rhs: UnitComplex<N>) -> Self::Output {
+        #[allow(clippy::suspicious_arithmetic_impl)]
         Unit::new_unchecked(self.complex() * rhs.conjugate().into_inner())
     }
 }
@@ -120,6 +122,7 @@ where
 
     #[inline]
     fn div(self, rhs: &'b UnitComplex<N>) -> Self::Output {
+        #[allow(clippy::suspicious_arithmetic_impl)]
         Unit::new_unchecked(self.into_inner() * rhs.conjugate().into_inner())
     }
 }
@@ -132,6 +135,7 @@ where
 
     #[inline]
     fn div(self, rhs: &'b UnitComplex<N>) -> Self::Output {
+        #[allow(clippy::suspicious_arithmetic_impl)]
         Unit::new_unchecked(self.complex() * rhs.conjugate().into_inner())
     }
 }
@@ -206,7 +210,7 @@ complex_op_impl_all!(
     [val val] => &self / &rhs;
     [ref val] =>  self / &rhs;
     [val ref] => &self /  rhs;
-    [ref ref] =>  self * UnitComplex::from_rotation_matrix(rhs).inverse();
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * UnitComplex::from_rotation_matrix(rhs).inverse() };
 );
 
 // Rotation × UnitComplex
@@ -228,7 +232,7 @@ complex_op_impl_all!(
     [val val] => &self / &rhs;
     [ref val] =>  self / &rhs;
     [val ref] => &self /  rhs;
-    [ref ref] => UnitComplex::from_rotation_matrix(self) * rhs.inverse();
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { UnitComplex::from_rotation_matrix(self) * rhs.inverse() };
 );
 
 // UnitComplex × Point
