@@ -134,9 +134,9 @@ impl<T: Normed> Unit<T> {
     #[inline]
     pub fn renormalize_fast(&mut self) {
         let sq_norm = self.value.norm_squared();
-        let _3: T::Norm = crate::convert(3.0);
-        let _0_5: T::Norm = crate::convert(0.5);
-        self.value.scale_mut(_0_5 * (_3 - sq_norm));
+        let three: T::Norm = crate::convert(3.0);
+        let half: T::Norm = crate::convert(0.5);
+        self.value.scale_mut(half * (three - sq_norm));
     }
 }
 

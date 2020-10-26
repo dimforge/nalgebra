@@ -79,18 +79,18 @@ impl<N: RealField> Matrix3<N> {
     /// Can be used to implement "zoom_to" functionality.
     #[inline]
     pub fn new_nonuniform_scaling_wrt_point(scaling: &Vector2<N>, pt: &Point2<N>) -> Self {
-        let _0 = N::zero();
-        let _1 = N::one();
+        let zero = N::zero();
+        let one = N::one();
         Matrix3::new(
             scaling.x,
-            _0,
+            zero,
             pt.x - pt.x * scaling.x,
-            _0,
+            zero,
             scaling.y,
             pt.y - pt.y * scaling.y,
-            _0,
-            _0,
-            _1,
+            zero,
+            zero,
+            one,
         )
     }
 }
@@ -119,25 +119,25 @@ impl<N: RealField> Matrix4<N> {
     /// Can be used to implement "zoom_to" functionality.
     #[inline]
     pub fn new_nonuniform_scaling_wrt_point(scaling: &Vector3<N>, pt: &Point3<N>) -> Self {
-        let _0 = N::zero();
-        let _1 = N::one();
+        let zero = N::zero();
+        let one = N::one();
         Matrix4::new(
             scaling.x,
-            _0,
-            _0,
+            zero,
+            zero,
             pt.x - pt.x * scaling.x,
-            _0,
+            zero,
             scaling.y,
-            _0,
+            zero,
             pt.y - pt.y * scaling.y,
-            _0,
-            _0,
+            zero,
+            zero,
             scaling.z,
             pt.z - pt.z * scaling.z,
-            _0,
-            _0,
-            _0,
-            _1,
+            zero,
+            zero,
+            zero,
+            one,
         )
     }
 
