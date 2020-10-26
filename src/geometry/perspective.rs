@@ -263,7 +263,7 @@ impl<N: RealField> Perspective3<LhNo, N> {
         res.set_znear_and_zfar(znear, zfar);
 
         res.matrix[(3, 3)] = N::zero();
-        res.matrix[(3, 2)] = -N::one();
+        res.matrix[(3, 2)] = N::one();
 
         res
     }
@@ -287,8 +287,9 @@ impl<N: RealField> Perspective3<LhNo, N> {
     /// Updates this perspective matrix with new near and far plane offsets of the view frustum.
     #[inline]
     pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
-        self.matrix[(2, 2)] = (zfar + znear) / (znear - zfar);
-        self.matrix[(2, 3)] = zfar * znear * crate::convert(2.0) / (znear - zfar);
+        let two: N = crate::convert(2.0);
+        self.matrix[(2, 2)] = (zfar + znear) / (zfar - znear);
+        self.matrix[(2, 3)] = -(two * zfar * znear) / (zfar - znear);
     }
 }
 
@@ -337,8 +338,8 @@ impl<N: RealField> Perspective3<RhZo, N> {
     /// Updates this perspective matrix with new near and far plane offsets of the view frustum.
     #[inline]
     pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
-        self.matrix[(2, 2)] = zfar / (znear - zfar);
-        self.matrix[(2, 3)] = (zfar * znear) / (znear - zfar);
+        self.matrix[(2, 2)] = -zfar / (zfar - znear);
+        self.matrix[(2, 3)] = -(zfar * znear) / (zfar - znear);
     }
 }
 
