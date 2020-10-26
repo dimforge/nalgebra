@@ -196,7 +196,7 @@ where
         SB: Storage<N, U1, C>,
     {
         assert!(rows.len() > 0, "At least one row must be given.");
-        let nrows = R::try_to_usize().unwrap_or(rows.len());
+        let nrows = R::try_to_usize().unwrap_or_else(|| rows.len());
         let ncols = rows[0].len();
         assert!(
             rows.len() == nrows,
@@ -803,8 +803,8 @@ where
 {
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> MatrixMN<N, R, C> {
-        let nrows = R::try_to_usize().unwrap_or(rng.gen_range(0, 10));
-        let ncols = C::try_to_usize().unwrap_or(rng.gen_range(0, 10));
+        let nrows = R::try_to_usize().unwrap_or_else(|| rng.gen_range(0, 10));
+        let ncols = C::try_to_usize().unwrap_or_else(|| rng.gen_range(0, 10));
 
         MatrixMN::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| rng.gen())
     }
