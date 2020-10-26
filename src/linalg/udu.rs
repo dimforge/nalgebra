@@ -32,7 +32,7 @@ where
     DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
 {
     /// Computes the UDU^T factorization
-    /// NOTE: The provided matrix MUST be symmetric, and no verification is done in this regard.
+    /// The input matrix `p` is assumed to be symmetric and this decomposition will only read the upper-triangular part of `p`.
     /// Ref.: "Optimal control and estimation-Dover Publications", Robert F. Stengel, (1994) page 360
     pub fn new(p: MatrixN<N, D>) -> Self {
         let n = p.ncols();
