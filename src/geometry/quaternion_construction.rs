@@ -374,7 +374,8 @@ where
     }
 
     /// The unit quaternion needed to make `a` and `b` be collinear and point toward the same
-    /// direction.
+    /// direction. Returns `None` if both `a` and `b` are collinear and point to opposite directions, as then the
+    /// rotation desired is not unique.
     ///
     /// # Example
     /// ```
@@ -491,18 +492,18 @@ where
 
             // The cosinus may be out of [-1, 1] because of inaccuracies.
             if cos <= -N::one() {
-                return None;
+                None
             } else if cos >= N::one() {
-                return Some(Self::identity());
+                Some(Self::identity())
             } else {
-                return Some(Self::from_axis_angle(&axis, cos.acos() * s));
+                Some(Self::from_axis_angle(&axis, cos.acos() * s))
             }
         } else if na.dot(&nb) < N::zero() {
             // PI
             //
             // The rotation axis is undefined but the angle not zero. This is not a
             // simple rotation.
-            return None;
+            None
         } else {
             // Zero
             Some(Self::identity())

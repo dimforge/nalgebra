@@ -126,4 +126,51 @@ mod tests {
 
         assert!(relative_eq!(f, m.exp(), epsilon = 1.0e-7));
     }
+
+    #[test]
+    fn exp_complex() {
+        use nalgebra::{Complex, DMatrix, DVector, Matrix2, RealField};
+
+        {
+            let z = Matrix2::<Complex<f64>>::zeros();
+
+            let identity = Matrix2::<Complex<f64>>::identity();
+
+            assert!((z.exp() - identity).norm() < 1e-7);
+        }
+
+        {
+            let a = Matrix2::<Complex<f64>>::new(
+                Complex::<f64>::new(0.0, 1.0),
+                Complex::<f64>::new(0.0, 2.0),
+                Complex::<f64>::new(0.0, -1.0),
+                Complex::<f64>::new(0.0, 3.0),
+            );
+
+            let b = Matrix2::<Complex<f64>>::new(
+                Complex::<f64>::new(0.42645929666726, 1.89217550966333),
+                Complex::<f64>::new(-2.13721484276556, -0.97811251808259),
+                Complex::<f64>::new(1.06860742138278, 0.48905625904129),
+                Complex::<f64>::new(-1.7107555460983, 0.91406299158075),
+            );
+
+            assert!((a.exp() - b).norm() < 1.0e-07);
+        }
+
+        {
+            let d1 = Complex::<f64>::new(0.0, <f64 as RealField>::pi());
+            let d2 = Complex::<f64>::new(0.0, <f64 as RealField>::frac_pi_2());
+            let d3 = Complex::<f64>::new(0.0, <f64 as RealField>::frac_pi_4());
+
+            let m = DMatrix::<Complex<f64>>::from_diagonal(&DVector::from_row_slice(&[d1, d2, d3]));
+
+            let res = DMatrix::<Complex<f64>>::from_diagonal(&DVector::from_row_slice(&[
+                d1.exp(),
+                d2.exp(),
+                d3.exp(),
+            ]));
+
+            assert!((m.exp() - res).norm() < 1e-07);
+        }
+    }
 }

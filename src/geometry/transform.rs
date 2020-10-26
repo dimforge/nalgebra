@@ -245,7 +245,7 @@ where
     #[inline]
     pub fn from_matrix_unchecked(matrix: MatrixN<N, DimNameSum<D, U1>>) -> Self {
         Transform {
-            matrix: matrix,
+            matrix,
             _phantom: PhantomData,
         }
     }

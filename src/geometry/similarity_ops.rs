@@ -158,15 +158,14 @@ similarity_binop_impl_all!(
 similarity_binop_impl_all!(
     Div, div;
     self: Similarity<N, D, R>, rhs: Similarity<N, D, R>, Output = Similarity<N, D, R>;
-    [val val] => self * rhs.inverse();
-    [ref val] => self * rhs.inverse();
-    [val ref] => self * rhs.inverse();
-    [ref ref] => self * rhs.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
 );
 
 // Similarity ×= Translation
 similarity_binop_assign_impl_all!(
-
     MulAssign, mul_assign;
     self: Similarity<N, D, R>, rhs: Translation<N, D>;
     [val] => *self *= &rhs;
@@ -281,6 +280,7 @@ similarity_binop_impl_all!(
     [ref ref] => {
         let shift = self.isometry.rotation.transform_vector(&rhs.translation.vector) * self.scaling();
         Similarity::from_parts(
+            #[allow(clippy::suspicious_arithmetic_impl)]
             Translation::from(&self.isometry.translation.vector + shift),
             self.isometry.rotation.clone() * rhs.rotation.clone(),
             self.scaling())
@@ -290,10 +290,10 @@ similarity_binop_impl_all!(
 similarity_binop_impl_all!(
     Div, div;
     self: Similarity<N, D, R>, rhs: Isometry<N, D, R>, Output = Similarity<N, D, R>;
-    [val val] => self * rhs.inverse();
-    [ref val] => self * rhs.inverse();
-    [val ref] => self * rhs.inverse();
-    [ref ref] => self * rhs.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
 );
 
 // Isometry × Similarity
@@ -322,10 +322,10 @@ similarity_binop_impl_all!(
 similarity_binop_impl_all!(
     Div, div;
     self: Isometry<N, D, R>, rhs: Similarity<N, D, R>, Output = Similarity<N, D, R>;
-    [val val] => self * rhs.inverse();
-    [ref val] => self * rhs.inverse();
-    [val ref] => self * rhs.inverse();
-    [ref ref] => self * rhs.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
 );
 
 // Similarity × Point
@@ -364,6 +364,7 @@ similarity_binop_impl_all!(
     [ref ref] => {
         let shift = self.isometry.rotation.transform_vector(&right.vector) * self.scaling();
         Similarity::from_parts(
+            #[allow(clippy::suspicious_arithmetic_impl)]
             Translation::from(&self.isometry.translation.vector + shift),
             self.isometry.rotation.clone(),
             self.scaling())
@@ -495,10 +496,10 @@ similarity_from_composition_impl_all!(
     self: Rotation<N, D>, right: Similarity<N, D, Rotation<N, D>>,
     Output = Similarity<N, D, Rotation<N, D>>;
     // FIXME: don't call inverse explicitly?
-    [val val] => self * right.inverse();
-    [ref val] => self * right.inverse();
-    [val ref] => self * right.inverse();
-    [ref ref] => self * right.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
 );
 
 // Similarity × UnitQuaternion
@@ -556,10 +557,10 @@ similarity_from_composition_impl_all!(
     self: UnitQuaternion<N>, right: Similarity<N, U3, UnitQuaternion<N>>,
     Output = Similarity<N, U3, UnitQuaternion<N>>;
     // FIXME: don't call inverse explicitly?
-    [val val] => self * right.inverse();
-    [ref val] => self * right.inverse();
-    [val ref] => self * right.inverse();
-    [ref ref] => self * right.inverse();
+    [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
+    [ref ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
 );
 
 // Similarity × UnitComplex

@@ -8,7 +8,7 @@ use simba::simd::SimdComplexField;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix, Vector};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum, Dynamic, U1};
+use crate::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum, U1};
 use crate::storage::{Storage, StorageMut};
 
 /// The Cholesky decomposition of a symmetric-definite-positive matrix.
@@ -364,7 +364,7 @@ where
     }
 }
 
-impl<N: ComplexField, D: DimSub<Dynamic>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where
     DefaultAllocator: Allocator<N, D, D>,
 {

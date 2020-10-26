@@ -139,7 +139,7 @@ impl<N: RealField> Orthographic3<N> {
     /// ```
     #[inline]
     pub fn from_matrix_unchecked(matrix: Matrix4<N>) -> Self {
-        Self { matrix: matrix }
+        Self { matrix }
     }
 
     /// Creates a new orthographic projection matrix from an aspect ratio and the vertical field of view.
@@ -151,7 +151,7 @@ impl<N: RealField> Orthographic3<N> {
         );
         assert!(
             !relative_eq!(aspect, N::zero()),
-            "The apsect ratio must not be zero."
+            "The aspect ratio must not be zero."
         );
 
         let half: N = crate::convert(0.5);

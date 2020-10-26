@@ -75,7 +75,7 @@ impl<N: RealField> Perspective3<N> {
         );
         assert!(
             !relative_eq!(aspect, N::zero()),
-            "The apsect ratio must not be zero."
+            "The aspect ratio must not be zero."
         );
 
         let matrix = Matrix4::identity();
@@ -97,7 +97,7 @@ impl<N: RealField> Perspective3<N> {
     /// projection.
     #[inline]
     pub fn from_matrix_unchecked(matrix: Matrix4<N>) -> Self {
-        Self { matrix: matrix }
+        Self { matrix }
     }
 
     /// Retrieves the inverse of the underlying homogeneous matrix.
@@ -294,7 +294,7 @@ impl<N: RealField + Arbitrary> Arbitrary for Perspective3<N> {
 
 impl<N: RealField> From<Perspective3<N>> for Matrix4<N> {
     #[inline]
-    fn from(orth: Perspective3<N>) -> Self {
-        orth.into_inner()
+    fn from(pers: Perspective3<N>) -> Self {
+        pers.into_inner()
     }
 }

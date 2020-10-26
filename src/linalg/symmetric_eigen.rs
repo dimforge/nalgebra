@@ -192,7 +192,7 @@ where
                 let eigvals = m.eigenvalues().unwrap();
                 let basis = Vector2::new(eigvals.x - diag[start + 1], off_diag[start]);
 
-                diag[start + 0] = eigvals[0];
+                diag[start] = eigvals[0];
                 diag[start + 1] = eigvals[1];
 
                 if let Some(ref mut q) = q {

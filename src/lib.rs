@@ -15,7 +15,7 @@ Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
 [dependencies]
-nalgebra = "0.18"
+nalgebra = "0.21"
 ```
 
 
@@ -90,11 +90,9 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #[cfg(feature = "arbitrary")]
 extern crate quickcheck;
 
-#[cfg(feature = "serde")]
-extern crate serde;
-#[cfg(feature = "serde")]
+#[cfg(feature = "serde-serialize")]
 #[macro_use]
-extern crate serde_derive;
+extern crate serde;
 
 #[cfg(feature = "abomonation-serialize")]
 extern crate abomonation;

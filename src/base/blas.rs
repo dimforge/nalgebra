@@ -284,7 +284,16 @@ where
     {
         assert!(
             self.nrows() == rhs.nrows(),
-            "Dot product dimensions mismatch."
+            "Dot product dimensions mismatch for shapes {:?} and {:?}: left rows != right rows.",
+            self.shape(),
+            rhs.shape(),
+        );
+
+        assert!(
+            self.ncols() == rhs.ncols(),
+            "Dot product dimensions mismatch for shapes {:?} and {:?}: left cols != right cols.",
+            self.shape(),
+            rhs.shape(),
         );
 
         // So we do some special cases for common fixed-size vectors of dimension lower than 8
@@ -361,8 +370,8 @@ where
 
             while self.nrows() - i >= 8 {
                 acc0 += unsafe {
-                    conjugate(self.get_unchecked((i + 0, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 0, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i, j)).inlined_clone())
+                        * rhs.get_unchecked((i, j)).inlined_clone()
                 };
                 acc1 += unsafe {
                     conjugate(self.get_unchecked((i + 1, j)).inlined_clone())
@@ -496,8 +505,9 @@ where
         ShapeConstraint: DimEq<C, R2> + DimEq<R, C2>,
     {
         let (nrows, ncols) = self.shape();
-        assert!(
-            (ncols, nrows) == rhs.shape(),
+        assert_eq!(
+            (ncols, nrows),
+            rhs.shape(),
             "Transposed dot product dimension mismatch."
         );
 

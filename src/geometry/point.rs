@@ -102,6 +102,45 @@ impl<N: Scalar, D: DimName> Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
 {
+    /// Returns a point containing the result of `f` applied to each of its entries.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Point2, Point3};
+    /// let p = Point2::new(1.0, 2.0);
+    /// assert_eq!(p.map(|e| e * 10.0), Point2::new(10.0, 20.0));
+    ///
+    /// // This works in any dimension.
+    /// let p = Point3::new(1.1, 2.1, 3.1);
+    /// assert_eq!(p.map(|e| e as u32), Point3::new(1, 2, 3));
+    /// ```
+    #[inline]
+    pub fn map<N2: Scalar, F: FnMut(N) -> N2>(&self, f: F) -> Point<N2, D>
+    where
+        DefaultAllocator: Allocator<N2, D>,
+    {
+        self.coords.map(f).into()
+    }
+
+    /// Replaces each component of `self` by the result of a closure `f` applied on it.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Point2, Point3};
+    /// let mut p = Point2::new(1.0, 2.0);
+    /// p.apply(|e| e * 10.0);
+    /// assert_eq!(p, Point2::new(10.0, 20.0));
+    ///
+    /// // This works in any dimension.
+    /// let mut p = Point3::new(1.0, 2.0, 3.0);
+    /// p.apply(|e| e * 10.0);
+    /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
+    /// ```
+    #[inline]
+    pub fn apply<F: FnMut(N) -> N>(&mut self, f: F) {
+        self.coords.apply(f)
+    }
+
     /// Converts this point into a vector in homogeneous coordinates, i.e., appends a `1` at the
     /// end of it.
     ///
@@ -135,7 +174,7 @@ where
     #[deprecated(note = "Use Point::from(vector) instead.")]
     #[inline]
     pub fn from_coordinates(coords: VectorN<N, D>) -> Self {
-        Self { coords: coords }
+        Self { coords }
     }
 
     /// The dimension of this point.

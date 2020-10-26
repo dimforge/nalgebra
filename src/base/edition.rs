@@ -13,7 +13,7 @@ use crate::base::dimension::Dynamic;
 use crate::base::dimension::{
     Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimName, DimSub, DimSum, U1,
 };
-use crate::base::storage::{Storage, StorageMut};
+use crate::base::storage::{ReshapableStorage, Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::DMatrix;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, RowVector, Scalar, Vector};
@@ -745,7 +745,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.resize_generic(R2::name(), C2::name(), val)
     }
 
-    /// Resizes `self` such that it has dimensions `new_nrows × now_ncols`.
+    /// Resizes `self` such that it has dimensions `new_nrows × new_ncols`.
     ///
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
     /// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.
@@ -810,6 +810,80 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
             res
         }
+    }
+}
+
+impl<N, R, C, S> Matrix<N, R, C, S>
+where
+    N: Scalar,
+    R: Dim,
+    C: Dim,
+{
+    /// Reshapes `self` such that it has dimensions `new_nrows × new_ncols`.
+    ///
+    /// This will reinterpret `self` as if it is a matrix with `new_nrows` rows and `new_ncols`
+    /// columns. The arrangements of the component in the output matrix are the same as what
+    /// would be obtained by `Matrix::from_slice_generic(self.as_slice(), new_nrows, new_ncols)`.
+    ///
+    /// If `self` is a dynamically-sized matrix, then its components are neither copied nor moved.
+    /// If `self` is staticyll-sized, then a copy may happen in some situations.
+    /// This function will panic if the given dimensions are such that the number of elements of
+    /// the input matrix are not equal to the number of elements of the output matrix.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix3x2, Matrix2x3, DMatrix, U2, U3, Dynamic};
+    ///
+    /// let m1 = Matrix2x3::new(
+    ///     1.1, 1.2, 1.3,
+    ///     2.1, 2.2, 2.3
+    /// );
+    /// let m2 = Matrix3x2::new(
+    ///     1.1, 2.2,
+    ///     2.1, 1.3,
+    ///     1.2, 2.3
+    /// );
+    /// let reshaped = m1.reshape_generic(U3, U2);
+    /// assert_eq!(reshaped, m2);
+    ///
+    /// let dm1 = DMatrix::from_row_slice(
+    ///     4,
+    ///     3,
+    ///     &[
+    ///         1.0, 0.0, 0.0,
+    ///         0.0, 0.0, 1.0,
+    ///         0.0, 0.0, 0.0,
+    ///         0.0, 1.0, 0.0
+    ///     ],
+    /// );
+    /// let dm2 = DMatrix::from_row_slice(
+    ///     6,
+    ///     2,
+    ///     &[
+    ///         1.0, 0.0,
+    ///         0.0, 1.0,
+    ///         0.0, 0.0,
+    ///         0.0, 1.0,
+    ///         0.0, 0.0,
+    ///         0.0, 0.0,
+    ///     ],
+    /// );
+    /// let reshaped = dm1.reshape_generic(Dynamic::new(6), Dynamic::new(2));
+    /// assert_eq!(reshaped, dm2);
+    /// ```
+    pub fn reshape_generic<R2, C2>(
+        self,
+        new_nrows: R2,
+        new_ncols: C2,
+    ) -> Matrix<N, R2, C2, S::Output>
+    where
+        R2: Dim,
+        C2: Dim,
+        S: ReshapableStorage<N, R, C, R2, C2>,
+    {
+        let data = self.data.reshape_generic(new_nrows, new_ncols);
+        Matrix::from_data(data)
     }
 }
 

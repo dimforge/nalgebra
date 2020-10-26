@@ -96,7 +96,7 @@ where
         let mut p = PermutationSequence::identity_generic(min_nrows_ncols);
 
         if min_nrows_ncols.value() == 0 {
-            return LU { lu: matrix, p: p };
+            return LU { lu: matrix, p };
         }
 
         for i in 0..min_nrows_ncols.value() {
@@ -117,7 +117,7 @@ where
             }
         }
 
-        LU { lu: matrix, p: p }
+        LU { lu: matrix, p }
     }
 
     #[doc(hidden)]

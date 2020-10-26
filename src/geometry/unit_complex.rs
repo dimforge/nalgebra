@@ -360,6 +360,43 @@ where
     pub fn inverse_transform_vector(&self, v: &Vector2<N>) -> Vector2<N> {
         self.inverse() * v
     }
+
+    /// Rotate the given vector by the inverse of this unit complex number.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{UnitComplex, Vector2};
+    /// # use std::f32;
+    /// let rot = UnitComplex::new(f32::consts::FRAC_PI_2);
+    /// let transformed_vector = rot.inverse_transform_unit_vector(&Vector2::x_axis());
+    /// assert_relative_eq!(transformed_vector, -Vector2::y_axis(), epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector2<N>>) -> Unit<Vector2<N>> {
+        self.inverse() * v
+    }
+
+    /// Spherical linear interpolation between two rotations represented as unit complex numbers.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::geometry::UnitComplex;
+    ///
+    /// let rot1 = UnitComplex::new(std::f32::consts::FRAC_PI_4);
+    /// let rot2 = UnitComplex::new(-std::f32::consts::PI);
+    ///
+    /// let rot = rot1.slerp(&rot2, 1.0 / 3.0);
+    ///
+    /// assert_relative_eq!(rot.angle(), std::f32::consts::FRAC_PI_2);
+    /// ```
+
+    #[inline]
+    pub fn slerp(&self, other: &Self, t: N) -> Self {
+        Self::new(self.angle() * (N::one() - t) + other.angle() * t)
+    }
 }
 
 impl<N: RealField + fmt::Display> fmt::Display for UnitComplex<N> {

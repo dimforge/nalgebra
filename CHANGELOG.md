@@ -4,15 +4,37 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.22.0] - WIP
+## [0.23.0] - WIP
 
 ### Added
+ * The `.inverse_transform_unit_vector(v)` was added to `Rotation2/3`, `Isometry2/3`, `UnitQuaternion`, and `UnitComplex`.
+   It applies the corresponding rotation to a unit vector `Unit<Vector2/3>`.
+ * The `Point.map(f)` and `Point.apply(f)` to apply a function to each component of the point, similarly to `Vector.map(f)`
+   and `Vector.apply(f)`.
+ * The `Quaternion::from([N; 4])` conversion to build a quaternion from an array of four elements.
+ * The `Isometry::from(Translation)` conversion to build an isometry from a translation.
+ * The `Vector::ith_axis(i)` which build a unit vector, e.g., `Unit<Vector3<f32>>` with its i-th component set to 1.0 and the
+   others set to zero.
+ * The `Isometry.lerp_slerp` and `Isometry.try_lerp_slerp` methods to interpolate between two isometries using linear
+   interpolation for the translational part, and spherical interpolation for the rotational part.
+ * The `Rotation2.slerp`, `Rotation3.slerp`, and `UnitQuaternion.slerp` method for 
+   spherical interpolation.
+   
+## [0.22.0]
+In this release, we are using the new version 0.2 of simba. One major change of that version is that the
+use of `libm` is now opt-in when building targetting `no-std` environment. If you are using floating-point
+operations with nalgebra in a `no-std` environment, you will need to enable the new `libm` feature
+of nalgebra for your code to compile again.
+
+### Added
+ * The `libm` feature that enables `libm` when building for `no-std` environment.
+ * The `libm-force` feature that enables `libm` even when building for a not `no-std` environment.
  * `Cholesky::new_unchecked` which build a Cholesky decomposition without checking that its input is
  positive-definite. It can be use with SIMD types.
  * The `Default` trait is now implemented for matrices, and quaternions. They are all filled with zeros,
  except for `UnitQuaternion` which is initialized with the identity.
  * Matrix exponential `matrix.exp()`.
- 
+ * The `Vector::ith(i, x)` that builds a vector filled with zeros except for the `i`-th component set to `x`.
 
 ## [0.21.0]
 In this release, we are no longer relying on traits from the __alga__ crate for our generic code.

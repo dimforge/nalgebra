@@ -57,20 +57,14 @@ where
         let mut diag = unsafe { MatrixMN::new_uninitialized_generic(min_nrows_ncols, U1) };
 
         if min_nrows_ncols.value() == 0 {
-            return QR {
-                qr: matrix,
-                diag: diag,
-            };
+            return QR { qr: matrix, diag };
         }
 
         for ite in 0..min_nrows_ncols.value() {
             householder::clear_column_unchecked(&mut matrix, &mut diag[ite], ite, 0, None);
         }
 
-        QR {
-            qr: matrix,
-            diag: diag,
-        }
+        QR { qr: matrix, diag }
     }
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
