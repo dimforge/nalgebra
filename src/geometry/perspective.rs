@@ -293,6 +293,107 @@ impl<N: RealField> Perspective3<LhNo, N> {
     }
 }
 
+/// LhZo specialization (Left handed with a depth range of 0 to 1).
+impl<N: RealField> Perspective3<LhZo, N> {
+    /// Implementation note: new() must be specialized because it calls other specialized functions.
+    pub fn new(aspect: N, fovy: N, znear: N, zfar: N) -> Self {
+        assert!(
+            !relative_eq!(zfar - znear, N::zero()),
+            "The near-plane and far-plane must not be superimposed."
+        );
+        assert!(
+            !relative_eq!(aspect, N::zero()),
+            "The aspect ratio must not be zero."
+        );
+
+        let matrix = Matrix4::identity();
+        let mut res = Self::from_matrix_unchecked(matrix);
+
+        res.set_fovy(fovy);
+        res.set_aspect(aspect);
+        res.set_znear_and_zfar(znear, zfar);
+
+        res.matrix[(3, 3)] = N::zero();
+        res.matrix[(3, 2)] = N::one();
+
+        res
+    }
+
+    /// Updates this perspective matrix with a new near plane offset of the view frustum.
+    /// Implementation note: set_znear() must be specialized because it calls other specialized functions.
+    #[inline]
+    pub fn set_znear(&mut self, znear: N) {
+        let zfar = self.zfar();
+        self.set_znear_and_zfar(znear, zfar);
+    }
+
+    /// Updates this perspective matrix with a new far plane offset of the view frustum.
+    /// Implementation note: set_zfar() must be specialized because it calls other specialized functions.
+    #[inline]
+    pub fn set_zfar(&mut self, zfar: N) {
+        let znear = self.znear();
+        self.set_znear_and_zfar(znear, zfar);
+    }
+
+    /// Updates this perspective matrix with new near and far plane offsets of the view frustum.
+    #[inline]
+    pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
+        self.matrix[(2, 2)] = zfar / (zfar - znear);
+        self.matrix[(2, 3)] = -(zfar * znear) / (zfar - znear);
+    }
+}
+
+// RhNo specialization (right handed with a depth range of -1 to 1).
+impl<N: RealField> Perspective3<RhNo, N> {
+    /// Implementation note: new() must be specialized because it calls other specialized functions.
+    pub fn new(aspect: N, fovy: N, znear: N, zfar: N) -> Self {
+        assert!(
+            !relative_eq!(zfar - znear, N::zero()),
+            "The near-plane and far-plane must not be superimposed."
+        );
+        assert!(
+            !relative_eq!(aspect, N::zero()),
+            "The aspect ratio must not be zero."
+        );
+
+        let matrix = Matrix4::identity();
+        let mut res = Self::from_matrix_unchecked(matrix);
+
+        res.set_fovy(fovy);
+        res.set_aspect(aspect);
+        res.set_znear_and_zfar(znear, zfar);
+
+        res.matrix[(3, 3)] = N::zero();
+        res.matrix[(3, 2)] = -N::one();
+
+        res
+    }
+
+    /// Updates this perspective matrix with a new near plane offset of the view frustum.
+    /// Implementation note: set_znear() must be specialized because it calls other specialized functions.
+    #[inline]
+    pub fn set_znear(&mut self, znear: N) {
+        let zfar = self.zfar();
+        self.set_znear_and_zfar(znear, zfar);
+    }
+
+    /// Updates this perspective matrix with a new far plane offset of the view frustum.
+    /// Implementation note: set_zfar() must be specialized because it calls other specialized functions.
+    #[inline]
+    pub fn set_zfar(&mut self, zfar: N) {
+        let znear = self.znear();
+        self.set_znear_and_zfar(znear, zfar);
+    }
+
+    /// Updates this perspective matrix with new near and far plane offsets of the view frustum.
+    #[inline]
+    pub fn set_znear_and_zfar(&mut self, znear: N, zfar: N) {
+        let two: N = crate::convert(2.0);
+        self.matrix[(2, 2)] = -(zfar + znear) / (zfar - znear);
+        self.matrix[(2, 3)] = -(two * zfar * znear) / (zfar - znear);
+    }
+}
+
 // RhZo specialization (right handed with a depth range of 0 to 1).
 impl<N: RealField> Perspective3<RhZo, N> {
     /// Implementation note: new() must be specialized because it calls other specialized functions.
