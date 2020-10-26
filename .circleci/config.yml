@@ -20,6 +20,16 @@ jobs:
       - run:
           name: check formatting
           command: cargo fmt -- --check
+  clippy:
+    executor: rust-executor
+    steps:
+      - checkout
+      - run:
+          name: install clippy
+          command: rustup component add clippy
+      - run:
+          name: clippy
+          command: cargo clippy
   build-native:
     executor: rust-executor
     steps:
@@ -91,6 +101,7 @@ workflows:
   build:
     jobs:
       - check-fmt
+      - clippy
       - build-native:
           requires:
             - check-fmt
