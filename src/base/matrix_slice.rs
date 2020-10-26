@@ -39,9 +39,9 @@ macro_rules! slice_storage_impl(
                       CStride: Dim {
 
                 $T {
-                    ptr:       ptr,
-                    shape:     shape,
-                    strides:   strides,
+                    ptr,
+                    shape,
+                    strides,
                     _phantoms: PhantomData
                 }
             }
