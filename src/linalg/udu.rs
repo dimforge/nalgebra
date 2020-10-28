@@ -5,7 +5,7 @@ use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, MatrixN, VectorN, U1};
 use crate::dimension::Dim;
 use crate::storage::Storage;
-use simba::scalar::ComplexField;
+use simba::scalar::RealField;
 
 /// UDU factorization
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -20,7 +20,7 @@ use simba::scalar::ComplexField;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct UDU<N: ComplexField, D: Dim>
+pub struct UDU<N: RealField, D: Dim>
 where
     DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
 {
@@ -30,7 +30,7 @@ where
     pub d: VectorN<N, D>,
 }
 
-impl<N: ComplexField, D: Dim> Copy for UDU<N, D>
+impl<N: RealField, D: Dim> Copy for UDU<N, D>
 where
     DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
     VectorN<N, D>: Copy,
@@ -38,7 +38,7 @@ where
 {
 }
 
-impl<N: ComplexField, D: Dim> UDU<N, D>
+impl<N: RealField, D: Dim> UDU<N, D>
 where
     DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
 {
