@@ -19,5 +19,9 @@ extern crate quickcheck;
 mod core;
 mod geometry;
 mod linalg;
+
+#[cfg(feature = "proptest")]
+mod proptest;
+
 //#[cfg(feature = "sparse")]
 //mod sparse;

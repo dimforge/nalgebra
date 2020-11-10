@@ -127,6 +127,8 @@ pub mod geometry;
 #[cfg(feature = "io")]
 pub mod io;
 pub mod linalg;
+#[cfg(feature = "proptest")]
+pub mod proptest;
 #[cfg(feature = "sparse")]
 pub mod sparse;
 
