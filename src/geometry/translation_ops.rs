@@ -88,21 +88,21 @@ add_sub_impl!(Mul, mul, ClosedAdd;
 add_sub_assign_impl!(MulAssign, mul_assign, ClosedAdd;
     (D, U1), (D, U1) for D: DimName;
     self: Translation<N, D>, right: &'b Translation<N, D>;
-    #[allow(clippy::suspicious_arithmetic_impl)] { self.vector += &right.vector };
+    #[allow(clippy::suspicious_op_assign_impl)] { self.vector += &right.vector };
     'b);
 
 add_sub_assign_impl!(MulAssign, mul_assign, ClosedAdd;
     (D, U1), (D, U1) for D: DimName;
     self: Translation<N, D>, right: Translation<N, D>;
-    #[allow(clippy::suspicious_arithmetic_impl)] { self.vector += right.vector }; );
+    #[allow(clippy::suspicious_op_assign_impl)] { self.vector += right.vector }; );
 
 add_sub_assign_impl!(DivAssign, div_assign, ClosedSub;
     (D, U1), (D, U1) for D: DimName;
     self: Translation<N, D>, right: &'b Translation<N, D>;
-    #[allow(clippy::suspicious_arithmetic_impl)] { self.vector -= &right.vector };
+    #[allow(clippy::suspicious_op_assign_impl)] { self.vector -= &right.vector };
     'b);
 
 add_sub_assign_impl!(DivAssign, div_assign, ClosedSub;
     (D, U1), (D, U1) for D: DimName;
     self: Translation<N, D>, right: Translation<N, D>;
-    #[allow(clippy::suspicious_arithmetic_impl)] { self.vector -= right.vector }; );
+    #[allow(clippy::suspicious_op_assign_impl)] { self.vector -= right.vector }; );

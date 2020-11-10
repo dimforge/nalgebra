@@ -491,8 +491,8 @@ md_assign_impl_all!(
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (DimNameSum<D, U1>, DimNameSum<D, U1>)
     for D: DimNameAdd<U1>, CA: SuperTCategoryOf<CB>, CB: SubTCategoryOf<TProjective>;
     self: Transform<N, D, CA>, rhs: Transform<N, D, CB>;
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.clone().inverse();
+    [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.clone().inverse() };
 );
 
 //      // Transform ÷= Similarity
@@ -521,8 +521,8 @@ md_assign_impl_all!(
     DivAssign, div_assign where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategory;
     self: Transform<N, D, C>, rhs: Translation<N, D>;
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.inverse();
+    [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 // Transform ÷= Rotation
@@ -530,8 +530,8 @@ md_assign_impl_all!(
     DivAssign, div_assign where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategory;
     self: Transform<N, D, C>, rhs: Rotation<N, D>;
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.inverse();
+    [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 // Transform ÷= UnitQuaternion
@@ -539,6 +539,6 @@ md_assign_impl_all!(
     DivAssign, div_assign where N: RealField;
     (U4, U4), (U4, U1) for C: TCategory;
     self: Transform<N, U3, C>, rhs: UnitQuaternion<N>;
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.inverse();
+    [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );

@@ -169,7 +169,7 @@ isometry_binop_assign_impl_all!(
     MulAssign, mul_assign;
     self: Isometry<N, D, R>, rhs: Translation<N, D>;
     [val] => *self *= &rhs;
-    [ref] => {
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] {
         let shift = self.rotation.transform_vector(&rhs.vector);
         self.translation.vector += shift;
     };
@@ -192,7 +192,7 @@ isometry_binop_assign_impl_all!(
     DivAssign, div_assign;
     self: Isometry<N, D, R>, rhs: Isometry<N, D, R>;
     [val] => *self /= &rhs;
-    [ref] => *self *= rhs.inverse();
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 // Isometry ×= R
@@ -210,8 +210,8 @@ md_assign_impl_all!(
     (D, U1), (D, D) for D: DimName;
     self: Isometry<N, D, Rotation<N, D>>, rhs: Rotation<N, D>;
     // FIXME: don't invert explicitly?
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.inverse();
+    [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 md_assign_impl_all!(
@@ -227,8 +227,8 @@ md_assign_impl_all!(
     (U3, U3), (U3, U3) for;
     self: Isometry<N, U3, UnitQuaternion<N>>, rhs: UnitQuaternion<N>;
     // FIXME: don't invert explicitly?
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.inverse();
+    [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 md_assign_impl_all!(
@@ -244,8 +244,8 @@ md_assign_impl_all!(
     (U2, U2), (U2, U2) for;
     self: Isometry<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>;
     // FIXME: don't invert explicitly?
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.inverse();
+    [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 // Isometry × Point

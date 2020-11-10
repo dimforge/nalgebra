@@ -192,7 +192,7 @@ similarity_binop_assign_impl_all!(
     self: Similarity<N, D, R>, rhs: Similarity<N, D, R>;
     [val] => *self /= &rhs;
     // FIXME: don't invert explicitly.
-    [ref] => *self *= rhs.inverse();
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 // Similarity ×= Isometry
@@ -213,7 +213,7 @@ similarity_binop_assign_impl_all!(
     self: Similarity<N, D, R>, rhs: Isometry<N, D, R>;
     [val] => *self /= &rhs;
     // FIXME: don't invert explicitly.
-    [ref] => *self *= rhs.inverse();
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 // Similarity ×= R
@@ -231,8 +231,8 @@ md_assign_impl_all!(
     (D, U1), (D, D) for D: DimName;
     self: Similarity<N, D, Rotation<N, D>>, rhs: Rotation<N, D>;
     // FIXME: don't invert explicitly?
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.inverse();
+    [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 md_assign_impl_all!(
@@ -248,8 +248,8 @@ md_assign_impl_all!(
     (U3, U3), (U3, U3) for;
     self: Similarity<N, U3, UnitQuaternion<N>>, rhs: UnitQuaternion<N>;
     // FIXME: don't invert explicitly?
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.inverse();
+    [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 md_assign_impl_all!(
@@ -265,8 +265,8 @@ md_assign_impl_all!(
     (U2, U2), (U2, U2) for;
     self: Similarity<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>;
     // FIXME: don't invert explicitly?
-    [val] => *self *= rhs.inverse();
-    [ref] => *self *= rhs.inverse();
+    [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 // Similarity × Isometry
