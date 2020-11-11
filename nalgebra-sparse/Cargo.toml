@@ -5,5 +5,5 @@ authors = [ "Andreas Longva", "Sébastien Crozet <developer@crozet.re>" ]
 edition = "2018"
 
 [dependencies]
-nalgebra = { version="0.22", path = "../" }
+nalgebra = { version="0.23", path = "../" }
 num-traits = { version = "0.2", default-features = false }
