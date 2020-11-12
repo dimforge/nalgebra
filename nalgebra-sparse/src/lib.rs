@@ -81,6 +81,9 @@ pub mod csr;
 pub mod pattern;
 pub mod ops;
 
+#[cfg(feature = "proptest-support")]
+pub mod proptest;
+
 use std::error::Error;
 use std::fmt;
 

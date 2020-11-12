@@ -4,6 +4,10 @@ version = "0.1.0"
 authors = [ "Andreas Longva", "Sébastien Crozet <developer@crozet.re>" ]
 edition = "2018"
 
+[features]
+proptest-support = ["proptest", "nalgebra/proptest"]
+
 [dependencies]
 nalgebra = { version="0.23", path = "../" }
 num-traits = { version = "0.2", default-features = false }
+proptest = { version = "0.10", optional = true }
