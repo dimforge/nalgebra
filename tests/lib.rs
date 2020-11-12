@@ -1,3 +1,9 @@
+#[cfg(any(not(feature = "debug"), not(feature = "compare")))]
+compile_error!(
+    "Please enable the `debug` and `compare` features \
+                in order to compile and run the tests."
+);
+
 #[cfg(feature = "abomonation-serialize")]
 extern crate abomonation;
 #[macro_use]
