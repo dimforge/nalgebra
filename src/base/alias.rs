@@ -27,6 +27,44 @@ pub type MatrixN<N, D> = MatrixMN<N, D, D>;
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub type DMatrix<N> = MatrixN<N, Dynamic>;
 
+/// A heap-allocated, column-major, matrix with a dynamic number of rows and 1 columns.
+#[cfg(any(feature = "std", feature = "alloc"))]
+pub type MatrixXx1<N> = MatrixMN<N, Dynamic, U1>;
+/// A heap-allocated, column-major, matrix with a dynamic number of rows and 2 columns.
+#[cfg(any(feature = "std", feature = "alloc"))]
+pub type MatrixXx2<N> = MatrixMN<N, Dynamic, U2>;
+/// A heap-allocated, column-major, matrix with a dynamic number of rows and 3 columns.
+#[cfg(any(feature = "std", feature = "alloc"))]
+pub type MatrixXx3<N> = MatrixMN<N, Dynamic, U3>;
+/// A heap-allocated, column-major, matrix with a dynamic number of rows and 4 columns.
+#[cfg(any(feature = "std", feature = "alloc"))]
+pub type MatrixXx4<N> = MatrixMN<N, Dynamic, U4>;
+/// A heap-allocated, column-major, matrix with a dynamic number of rows and 5 columns.
+#[cfg(any(feature = "std", feature = "alloc"))]
+pub type MatrixXx5<N> = MatrixMN<N, Dynamic, U5>;
+/// A heap-allocated, column-major, matrix with a dynamic number of rows and 6 columns.
+#[cfg(any(feature = "std", feature = "alloc"))]
+pub type MatrixXx6<N> = MatrixMN<N, Dynamic, U6>;
+
+/// A heap-allocated, row-major, matrix with 1 rows and a dynamic number of columns.
+#[cfg(any(feature = "std", feature = "alloc"))]
+pub type Matrix1xX<N> = MatrixMN<N, U1, Dynamic>;
+/// A heap-allocated, row-major, matrix with 2 rows and a dynamic number of columns.
+#[cfg(any(feature = "std", feature = "alloc"))]
+pub type Matrix2xX<N> = MatrixMN<N, U2, Dynamic>;
+/// A heap-allocated, row-major, matrix with 3 rows and a dynamic number of columns.
+#[cfg(any(feature = "std", feature = "alloc"))]
+pub type Matrix3xX<N> = MatrixMN<N, U3, Dynamic>;
+/// A heap-allocated, row-major, matrix with 4 rows and a dynamic number of columns.
+#[cfg(any(feature = "std", feature = "alloc"))]
+pub type Matrix4xX<N> = MatrixMN<N, U4, Dynamic>;
+/// A heap-allocated, row-major, matrix with 5 rows and a dynamic number of columns.
+#[cfg(any(feature = "std", feature = "alloc"))]
+pub type Matrix5xX<N> = MatrixMN<N, U5, Dynamic>;
+/// A heap-allocated, row-major, matrix with 6 rows and a dynamic number of columns.
+#[cfg(any(feature = "std", feature = "alloc"))]
+pub type Matrix6xX<N> = MatrixMN<N, U6, Dynamic>;
+
 /// A stack-allocated, column-major, 1x1 square matrix.
 pub type Matrix1<N> = MatrixN<N, U1>;
 /// A stack-allocated, column-major, 2x2 square matrix.
