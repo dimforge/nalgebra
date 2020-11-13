@@ -75,6 +75,21 @@ pub type MatrixCross<N, R1, C1, R2, C2> =
 /// Note that mixing `Dynamic` with type-level unsigned integers is allowed. Actually, a
 /// dynamically-sized column vector should be represented as a `Matrix<N, Dynamic, U1, S>` (given
 /// some concrete types for `N` and a compatible data storage type `S`).
+///
+/// # Documentation by feature
+/// Because `Matrix` is the most generic types that groups all matrix and vectors of **nalgebra**
+/// this documentation page contains every single matrix/vector-related method. In order to make
+/// browsing this page simpler, the next subsections contain direct links to groups of methods
+/// related to a specific topic.
+///
+/// #### Matrix decomposition
+/// - [Rectangular matrix decomposition](#rectangular-matrix-decomposition).
+/// - [Square matrix decomposition](#square-matrix-decomposition).
+///
+/// #### Matrix slicing
+/// - [Slicing](#slicing)
+/// - [Mutable slicing](#mutable-slicing)
+/// - [Range-based slicing](#range-based-slicing), [mutable range-based slicing](#mutable-range-based-slicing).
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Matrix<N: Scalar, R: Dim, C: Dim, S> {

@@ -288,13 +288,3 @@ where
     //     res self.q_determinant()
     // }
 }
-
-impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>,
-{
-    /// Computes the QR decomposition of this matrix.
-    pub fn qr(self) -> QR<N, R, C> {
-        QR::new(self.into_owned())
-    }
-}

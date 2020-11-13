@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
+use crate::base::{DefaultAllocator, MatrixMN, MatrixN, VectorN};
 use crate::dimension::{DimDiff, DimSub, U1};
 use crate::storage::Storage;
 use simba::scalar::ComplexField;
@@ -160,17 +160,5 @@ where
         }
 
         &q * self.tri * q.adjoint()
-    }
-}
-
-impl<N: ComplexField, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
-{
-    /// Computes the tridiagonalization of this symmetric matrix.
-    ///
-    /// Only the lower-triangular part (including the diagonal) of `m` is read.
-    pub fn symmetric_tridiagonalize(self) -> SymmetricTridiagonal<N, D> {
-        SymmetricTridiagonal::new(self.into_owned())
     }
 }

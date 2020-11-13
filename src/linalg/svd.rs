@@ -616,31 +616,6 @@ where
         + Allocator<N::RealField, DimMinimum<R, C>>
         + Allocator<N::RealField, DimDiff<DimMinimum<R, C>, U1>>,
 {
-    /// Computes the Singular Value Decomposition using implicit shift.
-    pub fn svd(self, compute_u: bool, compute_v: bool) -> SVD<N, R, C> {
-        SVD::new(self.into_owned(), compute_u, compute_v)
-    }
-
-    /// Attempts to compute the Singular Value Decomposition of `matrix` using implicit shift.
-    ///
-    /// # Arguments
-    ///
-    /// * `compute_u` − set this to `true` to enable the computation of left-singular vectors.
-    /// * `compute_v` − set this to `true` to enable the computation of right-singular vectors.
-    /// * `eps`       − tolerance used to determine when a value converged to 0.
-    /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
-    pub fn try_svd(
-        self,
-        compute_u: bool,
-        compute_v: bool,
-        eps: N::RealField,
-        max_niter: usize,
-    ) -> Option<SVD<N, R, C>> {
-        SVD::try_new(self.into_owned(), compute_u, compute_v, eps, max_niter)
-    }
-
     /// Computes the singular values of this matrix.
     pub fn singular_values(&self) -> VectorN<N::RealField, DimMinimum<R, C>> {
         SVD::new(self.clone_owned(), false, false).singular_values

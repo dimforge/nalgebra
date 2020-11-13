@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, MatrixMN, MatrixN, SquareMatrix, VectorN};
+use crate::base::{DefaultAllocator, MatrixMN, MatrixN, VectorN};
 use crate::dimension::{DimDiff, DimSub, U1};
 use crate::storage::Storage;
 use simba::scalar::ComplexField;
@@ -129,15 +129,5 @@ where
     #[doc(hidden)]
     pub fn hess_internal(&self) -> &MatrixN<N, D> {
         &self.hess
-    }
-}
-
-impl<N: ComplexField, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D> + Allocator<N, DimDiff<D, U1>>,
-{
-    /// Computes the Hessenberg decomposition of this matrix using householder reflections.
-    pub fn hessenberg(self) -> Hessenberg<N, D> {
-        Hessenberg::new(self.into_owned())
     }
 }

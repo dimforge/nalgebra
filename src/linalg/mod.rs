@@ -8,6 +8,7 @@ mod determinant;
 // FIXME: this should not be needed. However, the exp uses
 // explicit float operations on `f32` and `f64`. We need to
 // get rid of these to allow exp to be used on a no-std context.
+mod decomposition;
 #[cfg(feature = "std")]
 mod exp;
 mod full_piv_lu;

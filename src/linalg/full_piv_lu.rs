@@ -257,15 +257,3 @@ where
         }
     }
 }
-
-impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
-{
-    /// Computes the LU decomposition with full pivoting of `matrix`.
-    ///
-    /// This effectively computes `P, L, U, Q` such that `P * matrix * Q = LU`.
-    pub fn full_piv_lu(self) -> FullPivLU<N, R, C> {
-        FullPivLU::new(self.into_owned())
-    }
-}

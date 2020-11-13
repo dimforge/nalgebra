@@ -40,7 +40,7 @@ where
         + Allocator<N, DimMinimum<R, C>>
         + Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
 {
-    // FIXME: perhaps we should pack the axises into different vectors so that axises for `v_t` are
+    // FIXME: perhaps we should pack the axes into different vectors so that axes for `v_t` are
     // contiguous. This prevents some useless copies.
     uv: MatrixMN<N, R, C>,
     /// The diagonal elements of the decomposed matrix.
@@ -359,18 +359,3 @@ where
 //     //     res self.q_determinant()
 //     // }
 // }
-
-impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where
-    DimMinimum<R, C>: DimSub<U1>,
-    DefaultAllocator: Allocator<N, R, C>
-        + Allocator<N, C>
-        + Allocator<N, R>
-        + Allocator<N, DimMinimum<R, C>>
-        + Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
-{
-    /// Computes the bidiagonalization using householder reflections.
-    pub fn bidiagonalize(self) -> Bidiagonal<N, R, C> {
-        Bidiagonal::new(self.into_owned())
-    }
-}

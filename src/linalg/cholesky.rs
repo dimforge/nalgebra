@@ -6,7 +6,7 @@ use simba::scalar::ComplexField;
 use simba::simd::SimdComplexField;
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, SquareMatrix, Vector};
+use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Vector};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum, U1};
 use crate::storage::{Storage, StorageMut};
@@ -361,18 +361,5 @@ where
                 );
             }
         }
-    }
-}
-
-impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
-where
-    DefaultAllocator: Allocator<N, D, D>,
-{
-    /// Attempts to compute the Cholesky decomposition of this matrix.
-    ///
-    /// Returns `None` if the input matrix is not definite-positive. The input matrix is assumed
-    /// to be symmetric and only the lower-triangular part is read.
-    pub fn cholesky(self) -> Option<Cholesky<N, D>> {
-        Cholesky::new(self.into_owned())
     }
 }
