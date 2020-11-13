@@ -54,7 +54,34 @@ pub type MatrixCross<N, R1, C1, R2, C2> =
 
 /// The most generic column-major matrix (and vector) type.
 ///
-/// It combines four type parameters:
+/// # Methods summary
+/// Because `Matrix` is the most generic types that groups all matrix and vectors of **nalgebra**
+/// this documentation page contains every single matrix/vector-related method. In order to make
+/// browsing this page simpler, the next subsections contain direct links to groups of methods
+/// related to a specific topic.
+///
+/// #### Vector and matrix construction
+/// - [Constructors of statically-sized vectors or statically-sized matrices](#constructors-of-statically-sized-vectors-or-statically-sized-matrices)
+///   (`Vector3`, `Matrix3x6`, etc.)
+/// - [Constructors of fully dynamic matrices](#constructors-of-fully-dynamic-matrices) (`DMatrix`)
+/// - [Constructors of dynamic vectors and matrices with a dynamic number of rows](#constructors-of-dynamic-vectors-and-matrices-with-a-dynamic-number-of-rows)
+///   (`DVector`, `MatrixXx3`, etc.)
+/// - [Constructors of matrices with a dynamic number of columns](#constructors-of-matrices-with-a-dynamic-number-of-columns)
+///   (`Matrix2xX`, etc.)
+/// - [Generic constructors](#generic-constructors)
+///   (For code generic wrt. the vectors or matrices dimensions.)
+/// #### Matrix decomposition
+/// - [Rectangular matrix decomposition](#rectangular-matrix-decomposition) (Applicable to square matrices too)
+/// - [Square matrix decomposition](#square-matrix-decomposition)
+///
+/// #### Vector and matrix slicing
+/// - [Slicing based on index and length](#slicing-based-on-index-and-length)
+/// - [Mutable slicing based on index and length](#mutable-slicing-based-on-index-and-length)
+/// - [Slicing based on ranges](#slicing-based-on-ranges)
+/// - [Mutable slicing based on ranges](#mutable-slicing-based-on-ranges)
+///
+/// # Type parameters
+/// The generic `Matrix` type has four type parameters:
 /// - `N`: for the matrix components scalar type.
 /// - `R`: for the matrix number of rows.
 /// - `C`: for the matrix number of columns.
@@ -75,26 +102,30 @@ pub type MatrixCross<N, R1, C1, R2, C2> =
 /// Note that mixing `Dynamic` with type-level unsigned integers is allowed. Actually, a
 /// dynamically-sized column vector should be represented as a `Matrix<N, Dynamic, U1, S>` (given
 /// some concrete types for `N` and a compatible data storage type `S`).
-///
-/// # Documentation by feature
-/// Because `Matrix` is the most generic types that groups all matrix and vectors of **nalgebra**
-/// this documentation page contains every single matrix/vector-related method. In order to make
-/// browsing this page simpler, the next subsections contain direct links to groups of methods
-/// related to a specific topic.
-///
-/// #### Matrix decomposition
-/// - [Rectangular matrix decomposition](#rectangular-matrix-decomposition).
-/// - [Square matrix decomposition](#square-matrix-decomposition).
-///
-/// #### Matrix slicing
-/// - [Slicing](#slicing)
-/// - [Mutable slicing](#mutable-slicing)
-/// - [Range-based slicing](#range-based-slicing), [mutable range-based slicing](#mutable-range-based-slicing).
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Matrix<N: Scalar, R: Dim, C: Dim, S> {
-    /// The data storage that contains all the matrix components and informations about its number
-    /// of rows and column (if needed).
+    /// The data storage that contains all the matrix components. Disappointed?
+    ///
+    /// Well, if you came here to see how you can access the matrix components,
+    /// you may be in luck: you can access the individual components of all vectors with compile-time
+    /// dimensions <= 6 using field notation like this:
+    /// `vec.x`, `vec.y`, `vec.z`, `vec.w`, `vec.a`, `vec.b`. Reference and assignation work too:
+    /// ```.ignore
+    /// let mut v = Vector3::new(1.0, 2.0, 3.0);
+    /// vec.x = 10.0;
+    /// my_function(&vec.z);
+    /// println!("{}", vec.y + 30.0);
+    /// ```
+    /// Similarly, for matrices with compile-time dimensions <= 6, you can use field notation
+    /// like this: `mat.m11`, `mat.m42`, etc. The first digit identifies the row to address
+    /// and the second digit identifies the column to address. So `mat.m13` identifies the component
+    /// at the first row and third column (note that the count of rows and columns start at 1 instead
+    /// of 0 here. This is so we match the mathematical notation).
+    ///
+    /// For all matrices and vectors, independently from their size, individual components can
+    /// be accessed and modified using indexing: `vec[20]`, `mat[(20, 19)]`. Here the indexing
+    /// starts at 0 as you would expect.
     pub data: S,
 
     _phantoms: PhantomData<(N, R, C)>,
