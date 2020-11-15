@@ -60,7 +60,7 @@ pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
     ///
     /// ```.ignore
     /// let lindex = self.linear_index(irow, icol);
-    /// assert!(*self.get_unchecked(irow, icol) == *self.get_unchecked_linear(lindex)
+    /// assert!(*self.get_unchecked(irow, icol) == *self.get_unchecked_linear(lindex))
     /// ```
     #[inline]
     fn linear_index(&self, irow: usize, icol: usize) -> usize {
