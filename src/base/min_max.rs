@@ -1,6 +1,6 @@
 use crate::storage::Storage;
 use crate::{ComplexField, Dim, Matrix, Scalar, SimdComplexField, SimdPartialOrd, Vector};
-use rand_distr::num_traits::{Signed, Zero};
+use num::{Signed, Zero};
 use simba::simd::SimdSigned;
 
 /// # Find the min and max components
