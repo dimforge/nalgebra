@@ -129,7 +129,7 @@ where
     }
 }
 
-// FIXME: we need to implement an SVD for this.
+// TODO: we need to implement an SVD for this.
 //
 // impl<N, D: DimNameAdd<U1>, C> AffineTransformation<Point<N, D>> for Transform<N, D, C>
 //     where N:  RealField,

@@ -13,7 +13,7 @@ use crate::geometry::{
     UnitQuaternion,
 };
 
-// FIXME: there are several cloning of rotations that we could probably get rid of (but we didn't
+// TODO: there are several cloning of rotations that we could probably get rid of (but we didn't
 // yet because that would require to add a bound like `where for<'a, 'b> &'a R: Mul<&'b R, Output = R>`
 // which is quite ugly.
 
@@ -191,7 +191,7 @@ similarity_binop_assign_impl_all!(
     DivAssign, div_assign;
     self: Similarity<N, D, R>, rhs: Similarity<N, D, R>;
     [val] => *self /= &rhs;
-    // FIXME: don't invert explicitly.
+    // TODO: don't invert explicitly.
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
@@ -212,7 +212,7 @@ similarity_binop_assign_impl_all!(
     DivAssign, div_assign;
     self: Similarity<N, D, R>, rhs: Isometry<N, D, R>;
     [val] => *self /= &rhs;
-    // FIXME: don't invert explicitly.
+    // TODO: don't invert explicitly.
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
@@ -230,7 +230,7 @@ md_assign_impl_all!(
     DivAssign, div_assign where N: SimdRealField for N::Element: SimdRealField;
     (D, U1), (D, D) for D: DimName;
     self: Similarity<N, D, Rotation<N, D>>, rhs: Rotation<N, D>;
-    // FIXME: don't invert explicitly?
+    // TODO: don't invert explicitly?
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
@@ -247,7 +247,7 @@ md_assign_impl_all!(
     DivAssign, div_assign where N: SimdRealField for N::Element: SimdRealField;
     (U3, U3), (U3, U3) for;
     self: Similarity<N, U3, UnitQuaternion<N>>, rhs: UnitQuaternion<N>;
-    // FIXME: don't invert explicitly?
+    // TODO: don't invert explicitly?
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
@@ -264,7 +264,7 @@ md_assign_impl_all!(
     DivAssign, div_assign where N: SimdRealField for N::Element: SimdRealField;
     (U2, U2), (U2, U2) for;
     self: Similarity<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>;
-    // FIXME: don't invert explicitly?
+    // TODO: don't invert explicitly?
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
@@ -495,7 +495,7 @@ similarity_from_composition_impl_all!(
     (D, D), (D, U1) for D: DimName;
     self: Rotation<N, D>, right: Similarity<N, D, Rotation<N, D>>,
     Output = Similarity<N, D, Rotation<N, D>>;
-    // FIXME: don't call inverse explicitly?
+    // TODO: don't call inverse explicitly?
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
     [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
@@ -556,7 +556,7 @@ similarity_from_composition_impl_all!(
     (U4, U1), (U3, U1);
     self: UnitQuaternion<N>, right: Similarity<N, U3, UnitQuaternion<N>>,
     Output = Similarity<N, U3, UnitQuaternion<N>>;
-    // FIXME: don't call inverse explicitly?
+    // TODO: don't call inverse explicitly?
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
     [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };

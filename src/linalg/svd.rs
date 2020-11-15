@@ -191,7 +191,7 @@ where
                         }
 
                         let v = Vector2::new(subm[(0, 0)], subm[(1, 0)]);
-                        // FIXME: does the case `v.y == 0` ever happen?
+                        // TODO: does the case `v.y == 0` ever happen?
                         let (rot2, norm2) = GivensRotation::cancel_y(&v)
                             .unwrap_or((GivensRotation::identity(), subm[(0, 0)]));
 
@@ -395,7 +395,7 @@ where
                 off_diagonal[m] = N::RealField::zero();
                 break;
             }
-            // FIXME: write a test that enters this case.
+            // TODO: write a test that enters this case.
             else if diagonal[m].norm1() <= eps {
                 diagonal[m] = N::RealField::zero();
                 Self::cancel_horizontal_off_diagonal_elt(
@@ -562,7 +562,7 @@ where
     ///
     /// Any singular value smaller than `eps` is assumed to be zero.
     /// Returns `Err` if the singular vectors `U` and `V` have not been computed.
-    // FIXME: make this more generic wrt the storage types and the dimensions for `b`.
+    // TODO: make this more generic wrt the storage types and the dimensions for `b`.
     pub fn solve<R2: Dim, C2: Dim, S2>(
         &self,
         b: &Matrix<N, R2, C2, S2>,

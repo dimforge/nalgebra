@@ -18,7 +18,7 @@ where
     // Decomposition result.
     l: CsMatrix<N, D, D>,
     // Used only for the pattern.
-    // FIXME: store only the nonzero pattern instead.
+    // TODO: store only the nonzero pattern instead.
     u: CsMatrix<N, D, D>,
     ok: bool,
     // Workspaces.
@@ -266,7 +266,7 @@ where
         marks.clear();
         marks.resize(tree.len(), false);
 
-        // FIXME: avoid all those allocations.
+        // TODO: avoid all those allocations.
         let mut tmp = Vec::new();
         let mut res = Vec::new();
 
@@ -347,7 +347,7 @@ where
     }
 
     fn tree_postorder(tree: &[usize]) -> Vec<usize> {
-        // FIXME: avoid all those allocations?
+        // TODO: avoid all those allocations?
         let mut first_child: Vec<_> = iter::repeat(usize::max_value()).take(tree.len()).collect();
         let mut other_children: Vec<_> =
             iter::repeat(usize::max_value()).take(tree.len()).collect();

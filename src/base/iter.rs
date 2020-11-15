@@ -19,7 +19,7 @@ macro_rules! iterator {
             _phantoms: PhantomData<($Ref, R, C, S)>,
         }
 
-        // FIXME: we need to specialize for the case where the matrix storage is owned (in which
+        // TODO: we need to specialize for the case where the matrix storage is owned (in which
         // case the iterator is trivial because it does not have any stride).
         impl<'a, N: Scalar, R: Dim, C: Dim, S: 'a + $Storage<N, R, C>> $Name<'a, N, R, C, S> {
             /// Creates a new iterator for the given matrix storage.

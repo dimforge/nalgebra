@@ -390,7 +390,7 @@ pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
     }
 }
 
-/// # Indexing Operations
+/// # Slicing based on ranges
 /// ## Indices to Individual Elements
 /// ### Two-Dimensional Indices
 /// ```

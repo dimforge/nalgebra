@@ -12,7 +12,7 @@ use crate::{ComplexField, Scalar, SimdComplexField, Unit};
 use simba::scalar::ClosedNeg;
 use simba::simd::{SimdOption, SimdPartialOrd};
 
-// FIXME: this should be be a trait on alga?
+// TODO: this should be be a trait on alga?
 /// A trait for abstract matrix norms.
 ///
 /// This may be moved to the alga crate in the future.
@@ -154,10 +154,14 @@ impl<N: SimdComplexField> Norm<N> for UniformNorm {
     }
 }
 
-impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+/// # Magnitude and norms
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// The squared L2 norm of this vector.
     #[inline]
-    pub fn norm_squared(&self) -> N::SimdRealField {
+    pub fn norm_squared(&self) -> N::SimdRealField
+    where
+        N: SimdComplexField,
+    {
         let mut res = N::SimdRealField::zero();
 
         for i in 0..self.ncols() {
@@ -172,7 +176,10 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     ///
     /// Use `.apply_norm` to apply a custom norm.
     #[inline]
-    pub fn norm(&self) -> N::SimdRealField {
+    pub fn norm(&self) -> N::SimdRealField
+    where
+        N: SimdComplexField,
+    {
         self.norm_squared().simd_sqrt()
     }
 
@@ -182,6 +189,7 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     #[inline]
     pub fn metric_distance<R2, C2, S2>(&self, rhs: &Matrix<N, R2, C2, S2>) -> N::SimdRealField
     where
+        N: SimdComplexField,
         R2: Dim,
         C2: Dim,
         S2: Storage<N, R2, C2>,
@@ -203,7 +211,10 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     /// assert_eq!(v.apply_norm(&EuclideanNorm), v.norm());
     /// ```
     #[inline]
-    pub fn apply_norm(&self, norm: &impl Norm<N>) -> N::SimdRealField {
+    pub fn apply_norm(&self, norm: &impl Norm<N>) -> N::SimdRealField
+    where
+        N: SimdComplexField,
+    {
         norm.norm(self)
     }
 
@@ -228,6 +239,7 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
         norm: &impl Norm<N>,
     ) -> N::SimdRealField
     where
+        N: SimdComplexField,
         R2: Dim,
         C2: Dim,
         S2: Storage<N, R2, C2>,
@@ -242,7 +254,10 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     ///
     /// This function is simply implemented as a call to `norm()`
     #[inline]
-    pub fn magnitude(&self) -> N::SimdRealField {
+    pub fn magnitude(&self) -> N::SimdRealField
+    where
+        N: SimdComplexField,
+    {
         self.norm()
     }
 
@@ -252,7 +267,10 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     ///
     /// This function is simply implemented as a call to `norm_squared()`
     #[inline]
-    pub fn magnitude_squared(&self) -> N::SimdRealField {
+    pub fn magnitude_squared(&self) -> N::SimdRealField
+    where
+        N: SimdComplexField,
+    {
         self.norm_squared()
     }
 
@@ -260,6 +278,7 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     #[inline]
     pub fn set_magnitude(&mut self, magnitude: N::SimdRealField)
     where
+        N: SimdComplexField,
         S: StorageMut<N, R, C>,
     {
         let n = self.norm();
@@ -271,6 +290,7 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     #[must_use = "Did you mean to use normalize_mut()?"]
     pub fn normalize(&self) -> MatrixMN<N, R, C>
     where
+        N: SimdComplexField,
         DefaultAllocator: Allocator<N, R, C>,
     {
         self.unscale(self.norm())
@@ -278,7 +298,10 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
 
     /// The Lp norm of this matrix.
     #[inline]
-    pub fn lp_norm(&self, p: i32) -> N::SimdRealField {
+    pub fn lp_norm(&self, p: i32) -> N::SimdRealField
+    where
+        N: SimdComplexField,
+    {
         self.apply_norm(&LpNorm(p))
     }
 
@@ -289,6 +312,7 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
     #[must_use = "Did you mean to use simd_try_normalize_mut()?"]
     pub fn simd_try_normalize(&self, min_norm: N::SimdRealField) -> SimdOption<MatrixMN<N, R, C>>
     where
+        N: SimdComplexField,
         N::Element: Scalar,
         DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
     {
@@ -297,9 +321,7 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
         let val = self.unscale(n);
         SimdOption::new(val, le)
     }
-}
 
-impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Sets the magnitude of this vector unless it is smaller than `min_magnitude`.
     ///
     /// If `self.magnitude()` is smaller than `min_magnitude`, it will be left unchanged.
@@ -307,6 +329,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn try_set_magnitude(&mut self, magnitude: N::RealField, min_magnitude: N::RealField)
     where
+        N: ComplexField,
         S: StorageMut<N, R, C>,
     {
         let n = self.norm();
@@ -323,6 +346,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[must_use = "Did you mean to use try_normalize_mut()?"]
     pub fn try_normalize(&self, min_norm: N::RealField) -> Option<MatrixMN<N, R, C>>
     where
+        N: ComplexField,
         DefaultAllocator: Allocator<N, R, C>,
     {
         let n = self.norm();
@@ -335,12 +359,16 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: SimdComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+/// # In-place normalization
+impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Normalizes this matrix in-place and returns its norm.
     ///
     /// The components of the matrix cannot be SIMD types (see `simd_try_normalize_mut` instead).
     #[inline]
-    pub fn normalize_mut(&mut self) -> N::SimdRealField {
+    pub fn normalize_mut(&mut self) -> N::SimdRealField
+    where
+        N: SimdComplexField,
+    {
         let n = self.norm();
         self.unscale_mut(n);
 
@@ -357,6 +385,7 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C
         min_norm: N::SimdRealField,
     ) -> SimdOption<N::SimdRealField>
     where
+        N: SimdComplexField,
         N::Element: Scalar,
         DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
     {
@@ -365,14 +394,15 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C
         self.apply(|e| e.simd_unscale(n).select(le, e));
         SimdOption::new(n, le)
     }
-}
 
-impl<N: ComplexField, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Normalizes this matrix in-place or does nothing if its norm is smaller or equal to `eps`.
     ///
     /// If the normalization succeeded, returns the old norm of this matrix.
     #[inline]
-    pub fn try_normalize_mut(&mut self, min_norm: N::RealField) -> Option<N::RealField> {
+    pub fn try_normalize_mut(&mut self, min_norm: N::RealField) -> Option<N::RealField>
+    where
+        N: ComplexField,
+    {
         let n = self.norm();
 
         if n <= min_norm {
@@ -423,10 +453,11 @@ where
     }
 }
 
-// FIXME: specialization will greatly simplify this implementation in the future.
+// TODO: specialization will greatly simplify this implementation in the future.
 // In particular:
 //   − use `x()` instead of `::canonical_basis_element`
 //   − use `::new(x, y, z)` instead of `::from_slice`
+/// # Basis and orthogonalization
 impl<N: ComplexField, D: DimName> VectorN<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
@@ -461,7 +492,7 @@ where
             }
 
             if vs[i].try_normalize_mut(N::RealField::zero()).is_some() {
-                // FIXME: this will be efficient on dynamically-allocated vectors but for
+                // TODO: this will be efficient on dynamically-allocated vectors but for
                 // statically-allocated ones, `.clone_from` would be better.
                 vs.swap(nbasis_elements, i);
                 nbasis_elements += 1;
@@ -479,13 +510,13 @@ where
     /// Applies the given closure to each element of the orthonormal basis of the subspace
     /// orthogonal to free family of vectors `vs`. If `vs` is not a free family, the result is
     /// unspecified.
-    // FIXME: return an iterator instead when `-> impl Iterator` will be supported by Rust.
+    // TODO: return an iterator instead when `-> impl Iterator` will be supported by Rust.
     #[inline]
     pub fn orthonormal_subspace_basis<F>(vs: &[Self], mut f: F)
     where
         F: FnMut(&Self) -> bool,
     {
-        // FIXME: is this necessary?
+        // TODO: is this necessary?
         assert!(
             vs.len() <= D::dim(),
             "The given set of vectors has no chance of being a free family."

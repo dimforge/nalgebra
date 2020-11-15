@@ -1,6 +1,6 @@
 #![macro_use]
 
-// FIXME: merge with `md_impl`.
+// TODO: merge with `md_impl`.
 /// Macro for the implementation of multiplication and division.
 macro_rules! md_impl(
     (
@@ -140,7 +140,7 @@ macro_rules! md_assign_impl_all(
     }
 );
 
-// FIXME: merge with `as_impl`.
+// TODO: merge with `as_impl`.
 /// Macro for the implementation of addition and subtraction.
 macro_rules! add_sub_impl(
     ($Op: ident, $op: ident, $bound: ident;
@@ -164,7 +164,7 @@ macro_rules! add_sub_impl(
     }
 );
 
-// FIXME: merge with `md_assign_impl`.
+// TODO: merge with `md_assign_impl`.
 /// Macro for the implementation of assignment-addition and assignment-subtraction.
 macro_rules! add_sub_assign_impl(
     ($Op: ident, $op: ident, $bound: ident;

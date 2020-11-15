@@ -45,8 +45,8 @@
  * UnitQuaternion ÷= UnitQuaternion
  * UnitQuaternion ÷= Rotation
  *
- * FIXME: Rotation ×= UnitQuaternion
- * FIXME: Rotation ÷= UnitQuaternion
+ * TODO: Rotation ×= UnitQuaternion
+ * TODO: Rotation ÷= UnitQuaternion
  *
  */
 
@@ -248,7 +248,7 @@ quaternion_op_impl!(
     (U4, U1), (U3, U3);
     self: &'a UnitQuaternion<N>, rhs: &'b Rotation<N, U3>,
     Output = UnitQuaternion<N> => U3, U3;
-    // FIXME: can we avoid the conversion from a rotation matrix?
+    // TODO: can we avoid the conversion from a rotation matrix?
     self * UnitQuaternion::<N>::from_rotation_matrix(rhs);
     'a, 'b);
 
@@ -281,7 +281,7 @@ quaternion_op_impl!(
     (U4, U1), (U3, U3);
     self: &'a UnitQuaternion<N>, rhs: &'b Rotation<N, U3>,
     Output = UnitQuaternion<N> => U3, U3;
-    // FIXME: can we avoid the conversion to a rotation matrix?
+    // TODO: can we avoid the conversion to a rotation matrix?
     self / UnitQuaternion::<N>::from_rotation_matrix(rhs);
     'a, 'b);
 
@@ -314,7 +314,7 @@ quaternion_op_impl!(
     (U3, U3), (U4, U1);
     self: &'a Rotation<N, U3>, rhs: &'b UnitQuaternion<N>,
     Output = UnitQuaternion<N> => U3, U3;
-    // FIXME: can we avoid the conversion from a rotation matrix?
+    // TODO: can we avoid the conversion from a rotation matrix?
     UnitQuaternion::<N>::from_rotation_matrix(self) * rhs;
     'a, 'b);
 
@@ -347,7 +347,7 @@ quaternion_op_impl!(
     (U3, U3), (U4, U1);
     self: &'a Rotation<N, U3>, rhs: &'b UnitQuaternion<N>,
     Output = UnitQuaternion<N> => U3, U3;
-    // FIXME: can we avoid the conversion from a rotation matrix?
+    // TODO: can we avoid the conversion from a rotation matrix?
     UnitQuaternion::<N>::from_rotation_matrix(self) / rhs;
     'a, 'b);
 
@@ -615,7 +615,7 @@ quaternion_op_impl!(
     self: Quaternion<N>, rhs: &'b Quaternion<N>;
     {
         let res = &*self * rhs;
-        // FIXME: will this be optimized away?
+        // TODO: will this be optimized away?
         self.coords.copy_from(&res.coords);
     };
     'b);

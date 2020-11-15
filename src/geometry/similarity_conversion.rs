@@ -120,7 +120,7 @@ where
                 .try_normalize_mut(N2::zero())
                 .is_some()
         {
-            // FIXME: could we avoid explicit the computation of the determinant?
+            // TODO: could we avoid explicit the computation of the determinant?
             // (its sign is needed to see if the scaling factor is negative).
             if rot.determinant() < N2::zero() {
                 rot.fixed_columns_mut::<U1>(0).neg_mut();
@@ -149,7 +149,7 @@ where
 
         let mut scale = (na + nb + nc) / crate::convert(3.0); // We take the mean, for robustness.
 
-        // FIXME: could we avoid the explicit computation of the determinant?
+        // TODO: could we avoid the explicit computation of the determinant?
         // (its sign is needed to see if the scaling factor is negative).
         if mm.fixed_slice::<D, D>(0, 0).determinant() < N2::zero() {
             mm.fixed_slice_mut::<D, U1>(0, 0).neg_mut();

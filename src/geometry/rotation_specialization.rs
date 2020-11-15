@@ -706,7 +706,7 @@ where
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        // FIXME: code duplication with Rotation.
+        // TODO: code duplication with Rotation.
         if let (Some(na), Some(nb)) = (a.try_normalize(N::zero()), b.try_normalize(N::zero())) {
             let c = na.cross(&nb);
 

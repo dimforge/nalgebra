@@ -108,7 +108,7 @@ where
 
         for i in (0..dim).rev() {
             let axis = self.qr.slice_range(i.., i);
-            // FIXME: sometimes, the axis might have a zero magnitude.
+            // TODO: sometimes, the axis might have a zero magnitude.
             let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
 
             let mut res_rows = res.slice_range_mut(i.., i..);
@@ -140,7 +140,7 @@ where
 
     /// Multiplies the provided matrix by the transpose of the `Q` matrix of this decomposition.
     pub fn q_tr_mul<R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
-    // FIXME: do we need a static constraint on the number of rows of rhs?
+    // TODO: do we need a static constraint on the number of rows of rhs?
     where
         S2: StorageMut<N, R2, C2>,
     {
@@ -204,7 +204,7 @@ where
         self.solve_upper_triangular_mut(b)
     }
 
-    // FIXME: duplicate code from the `solve` module.
+    // TODO: duplicate code from the `solve` module.
     fn solve_upper_triangular_mut<R2: Dim, C2: Dim, S2>(
         &self,
         b: &mut Matrix<N, R2, C2, S2>,
@@ -248,7 +248,7 @@ where
             "QR inverse: unable to compute the inverse of a non-square matrix."
         );
 
-        // FIXME: is there a less naive method ?
+        // TODO: is there a less naive method ?
         let (nrows, ncols) = self.qr.data.shape();
         let mut res = MatrixN::identity_generic(nrows, ncols);
 

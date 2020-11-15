@@ -79,7 +79,7 @@ where
         let lda = n as i32;
 
         let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
-        // FIXME: Tap into the workspace.
+        // TODO: Tap into the workspace.
         let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
 
         let mut info = 0;
@@ -379,6 +379,6 @@ macro_rules! real_eigensystem_scalar_impl (
 real_eigensystem_scalar_impl!(f32, lapack::sgeev);
 real_eigensystem_scalar_impl!(f64, lapack::dgeev);
 
-//// FIXME: decomposition of complex matrix and matrices with complex eigenvalues.
+//// TODO: decomposition of complex matrix and matrices with complex eigenvalues.
 // eigensystem_complex_impl!(f32, lapack::cgeev);
 // eigensystem_complex_impl!(f64, lapack::zgeev);

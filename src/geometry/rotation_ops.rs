@@ -54,7 +54,7 @@ md_impl_all!(
 );
 
 // Rotation ÷ Rotation
-// FIXME: instead of calling inverse explicitly, could we just add a `mul_tr` or `mul_inv` method?
+// TODO: instead of calling inverse explicitly, could we just add a `mul_tr` or `mul_inv` method?
 md_impl_all!(
     Div, div;
     (D, D), (D, D) for D: DimName;
@@ -105,7 +105,7 @@ md_impl_all!(
 );
 
 // Rotation × Point
-// FIXME: we don't handle properly non-zero origins here. Do we want this to be the intended
+// TODO: we don't handle properly non-zero origins here. Do we want this to be the intended
 // behavior?
 md_impl_all!(
     Mul, mul;
@@ -133,7 +133,7 @@ md_impl_all!(
 );
 
 // Rotation ×= Rotation
-// FIXME: try not to call `inverse()` explicitly.
+// TODO: try not to call `inverse()` explicitly.
 
 md_assign_impl_all!(
     MulAssign, mul_assign;
@@ -152,8 +152,8 @@ md_assign_impl_all!(
 );
 
 // Matrix *= Rotation
-// FIXME: try not to call `inverse()` explicitly.
-// FIXME: this shares the same limitations as for the current impl. of MulAssign for matrices.
+// TODO: try not to call `inverse()` explicitly.
+// TODO: this shares the same limitations as for the current impl. of MulAssign for matrices.
 // (In particular the number of matrix column must be equal to the number of rotation columns,
 // i.e., equal to the rotation dimension.
 

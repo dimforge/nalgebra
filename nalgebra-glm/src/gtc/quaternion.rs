@@ -57,18 +57,18 @@ pub fn quat_look_at_rh<N: RealField>(direction: &TVec3<N>, up: &TVec3<N>) -> Qua
 
 /// The "roll" Euler angle of the quaternion `x` assumed to be normalized.
 pub fn quat_roll<N: RealField>(x: &Qua<N>) -> N {
-    // FIXME: optimize this.
+    // TODO: optimize this.
     quat_euler_angles(x).z
 }
 
 /// The "yaw" Euler angle of the quaternion `x` assumed to be normalized.
 pub fn quat_yaw<N: RealField>(x: &Qua<N>) -> N {
-    // FIXME: optimize this.
+    // TODO: optimize this.
     quat_euler_angles(x).y
 }
 
 /// The "pitch" Euler angle of the quaternion `x` assumed to be normalized.
 pub fn quat_pitch<N: RealField>(x: &Qua<N>) -> N {
-    // FIXME: optimize this.
+    // TODO: optimize this.
     quat_euler_angles(x).x
 }

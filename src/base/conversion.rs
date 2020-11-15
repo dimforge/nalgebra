@@ -29,7 +29,7 @@ use crate::base::{
 use crate::base::{SliceStorage, SliceStorageMut};
 use crate::constraint::DimEq;
 
-// FIXME: too bad this won't work allo slice conversions.
+// TODO: too bad this won't work allo slice conversions.
 impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1, C1>
 where
     R1: Dim,

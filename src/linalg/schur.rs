@@ -115,7 +115,7 @@ where
         let mut t;
 
         if compute_q {
-            // FIXME: could we work without unpacking? Using only the internal representation of
+            // TODO: could we work without unpacking? Using only the internal representation of
             // hessenberg decomposition.
             let (vecs, vals) = hess.unpack();
             q = Some(vecs);
@@ -507,7 +507,7 @@ where
 
         // Special case for 2x2 matrices.
         if self.nrows() == 2 {
-            // FIXME: can we avoid this slicing
+            // TODO: can we avoid this slicing
             // (which is needed here just to transform D to U2)?
             let me = self.fixed_slice::<U2, U2>(0, 0);
             return match compute_2x2_eigvals(&me) {
@@ -520,7 +520,7 @@ where
             };
         }
 
-        // FIXME: add balancing?
+        // TODO: add balancing?
         let schur = Schur::do_decompose(
             self.clone_owned(),
             &mut work,
@@ -538,7 +538,7 @@ where
 
     /// Computes the eigenvalues of this matrix.
     pub fn complex_eigenvalues(&self) -> VectorN<NumComplex<N>, D>
-    // FIXME: add balancing?
+    // TODO: add balancing?
     where
         N: RealField,
         DefaultAllocator: Allocator<NumComplex<N>, D>,

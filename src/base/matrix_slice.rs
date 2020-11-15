@@ -810,7 +810,8 @@ impl<D: Dim> SliceRange<D> for RangeFull {
     }
 }
 
-/// # Slicing based on ranges
+// TODO: see how much of this overlaps with the general indexing
+// methods from indexing.rs.
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Slices a sub-matrix containing the rows indexed by the range `rows` and the columns indexed
     /// by the range `cols`.
@@ -850,7 +851,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-/// # Mutable slicing based on ranges
+// TODO: see how much of this overlaps with the general indexing
+// methods from indexing.rs.
 impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Slices a mutable sub-matrix containing the rows indexed by the range `rows` and the columns
     /// indexed by the range `cols`.

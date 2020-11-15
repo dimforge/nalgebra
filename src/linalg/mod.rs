@@ -5,7 +5,7 @@ mod bidiagonal;
 mod cholesky;
 mod convolution;
 mod determinant;
-// FIXME: this should not be needed. However, the exp uses
+// TODO: this should not be needed. However, the exp uses
 // explicit float operations on `f32` and `f64`. We need to
 // get rid of these to allow exp to be used on a no-std context.
 mod decomposition;
@@ -25,7 +25,7 @@ mod svd;
 mod symmetric_eigen;
 mod symmetric_tridiagonal;
 
-//// FIXME: Not complete enough for publishing.
+//// TODO: Not complete enough for publishing.
 //// This handles only cases where each eigenvalue has multiplicity one.
 // mod eigen;
 

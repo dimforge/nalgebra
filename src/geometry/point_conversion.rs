@@ -39,7 +39,7 @@ where
 
     #[inline]
     fn is_in_subset(m: &Point<N2, D>) -> bool {
-        // FIXME: is there a way to reuse the `.is_in_subset` from the matrix implementation of
+        // TODO: is there a way to reuse the `.is_in_subset` from the matrix implementation of
         // SubsetOf?
         m.iter().all(|e| e.is_in_subset())
     }

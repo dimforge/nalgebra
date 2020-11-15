@@ -210,7 +210,7 @@ where
             );
         }
 
-        // FIXME: optimize that.
+        // TODO: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
             rows[i][(0, j)].inlined_clone()
         })
@@ -252,7 +252,7 @@ where
             );
         }
 
-        // FIXME: optimize that.
+        // TODO: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
             columns[j][i].inlined_clone()
         })
@@ -591,7 +591,7 @@ impl<N: Scalar, R: DimName, C: DimName> MatrixMN<N, R, C>
 where
     DefaultAllocator: Allocator<N, R, C>,
 {
-    // FIXME: this is not very pretty. We could find a better call syntax.
+    // TODO: this is not very pretty. We could find a better call syntax.
     impl_constructors!(R, C;                         // Arguments for Matrix<N, ..., S>
     => R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
     R::name(), C::name();         // Arguments for `_generic` constructors.
@@ -727,7 +727,7 @@ macro_rules! impl_constructors_from_data(
     }
 );
 
-// FIXME: this is not very pretty. We could find a better call syntax.
+// TODO: this is not very pretty. We could find a better call syntax.
 impl_constructors_from_data!(data; R, C;                  // Arguments for Matrix<N, ..., S>
 => R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
 R::name(), C::name();         // Arguments for `_generic` constructors.

@@ -196,7 +196,7 @@ pub trait DimName: Dim {
     /// The name of this dimension, i.e., the singleton `Self`.
     fn name() -> Self;
 
-    // FIXME: this is not a very idiomatic name.
+    // TODO: this is not a very idiomatic name.
     /// The value of this dimension.
     #[inline]
     fn dim() -> usize {

@@ -107,7 +107,7 @@ where
         self.hess
     }
 
-    // FIXME: add a h that moves out of self.
+    // TODO: add a h that moves out of self.
     /// Retrieves the upper trapezoidal submatrix `H` of this decomposition.
     ///
     /// This is less efficient than `.unpack_h()` as it allocates a new matrix.

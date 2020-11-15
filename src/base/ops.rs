@@ -158,7 +158,7 @@ macro_rules! componentwise_binop_impl(
                 assert_eq!(self.shape(), out.shape(), "Matrix addition/subtraction output dimensions mismatch.");
 
                 // This is the most common case and should be deduced at compile-time.
-                // FIXME: use specialization instead?
+                // TODO: use specialization instead?
                 if self.data.is_contiguous() && rhs.data.is_contiguous() && out.data.is_contiguous() {
                     let arr1 = self.data.as_slice();
                     let arr2 = rhs.data.as_slice();
@@ -191,7 +191,7 @@ macro_rules! componentwise_binop_impl(
                 assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
 
                 // This is the most common case and should be deduced at compile-time.
-                // FIXME: use specialization instead?
+                // TODO: use specialization instead?
                 if self.data.is_contiguous() && rhs.data.is_contiguous() {
                     let arr1 = self.data.as_mut_slice();
                     let arr2 = rhs.data.as_slice();
@@ -221,7 +221,7 @@ macro_rules! componentwise_binop_impl(
                 assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
 
                 // This is the most common case and should be deduced at compile-time.
-                // FIXME: use specialization instead?
+                // TODO: use specialization instead?
                 if self.data.is_contiguous() && rhs.data.is_contiguous() {
                     let arr1 = self.data.as_slice();
                     let arr2 = rhs.data.as_mut_slice();
@@ -633,7 +633,7 @@ where
     }
 }
 
-// FIXME: this is too restrictive:
+// TODO: this is too restrictive:
 //    − we can't use `a *= b` when `a` is a mutable slice.
 //    − we can't use `a *= b` when C2 is not equal to C1.
 impl<N, R1, C1, R2, SA, SB> MulAssign<Matrix<N, R2, C1, SB>> for Matrix<N, R1, C1, SA>
@@ -662,7 +662,7 @@ where
     SB: Storage<N, R2, C1>,
     SA: ContiguousStorageMut<N, R1, C1> + Clone,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
-    // FIXME: this is too restrictive. See comments for the non-ref version.
+    // TODO: this is too restrictive. See comments for the non-ref version.
     DefaultAllocator: Allocator<N, R1, C1, Buffer = SA>,
 {
     #[inline]
@@ -671,7 +671,7 @@ where
     }
 }
 
-// Transpose-multiplication.
+/// # Special multiplications.
 impl<N, R1: Dim, C1: Dim, SA> Matrix<N, R1, C1, SA>
 where
     N: Scalar + Zero + One + ClosedAdd + ClosedMul,
@@ -843,31 +843,6 @@ where
     }
 }
 
-impl<N: Scalar + ClosedAdd, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// Adds a scalar to `self`.
-    #[inline]
-    #[must_use = "Did you mean to use add_scalar_mut()?"]
-    pub fn add_scalar(&self, rhs: N) -> MatrixMN<N, R, C>
-    where
-        DefaultAllocator: Allocator<N, R, C>,
-    {
-        let mut res = self.clone_owned();
-        res.add_scalar_mut(rhs);
-        res
-    }
-
-    /// Adds a scalar to `self` in-place.
-    #[inline]
-    pub fn add_scalar_mut(&mut self, rhs: N)
-    where
-        S: StorageMut<N, R, C>,
-    {
-        for e in self.iter_mut() {
-            *e += rhs.inlined_clone()
-        }
-    }
-}
-
 impl<N, D: DimName> iter::Product for MatrixN<N, D>
 where
     N: Scalar + Zero + One + ClosedMul + ClosedAdd,
@@ -885,124 +860,5 @@ where
 {
     fn product<I: Iterator<Item = &'a MatrixN<N, D>>>(iter: I) -> MatrixN<N, D> {
         iter.fold(Matrix::one(), |acc, x| acc * x)
-    }
-}
-
-impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// Returns the absolute value of the component with the largest absolute value.
-    /// # Example
-    /// ```
-    /// # use nalgebra::Vector3;
-    /// assert_eq!(Vector3::new(-1.0, 2.0, 3.0).amax(), 3.0);
-    /// assert_eq!(Vector3::new(-1.0, -2.0, -3.0).amax(), 3.0);
-    /// ```
-    #[inline]
-    pub fn amax(&self) -> N
-    where
-        N: Zero + SimdSigned + SimdPartialOrd,
-    {
-        self.fold_with(
-            |e| e.unwrap_or(&N::zero()).simd_abs(),
-            |a, b| a.simd_max(b.simd_abs()),
-        )
-    }
-
-    /// Returns the the 1-norm of the complex component with the largest 1-norm.
-    /// # Example
-    /// ```
-    /// # use nalgebra::{Vector3, Complex};
-    /// assert_eq!(Vector3::new(
-    ///     Complex::new(-3.0, -2.0),
-    ///     Complex::new(1.0, 2.0),
-    ///     Complex::new(1.0, 3.0)).camax(), 5.0);
-    /// ```
-    #[inline]
-    pub fn camax(&self) -> N::SimdRealField
-    where
-        N: SimdComplexField,
-    {
-        self.fold_with(
-            |e| e.unwrap_or(&N::zero()).simd_norm1(),
-            |a, b| a.simd_max(b.simd_norm1()),
-        )
-    }
-
-    /// Returns the component with the largest value.
-    /// # Example
-    /// ```
-    /// # use nalgebra::Vector3;
-    /// assert_eq!(Vector3::new(-1.0, 2.0, 3.0).max(), 3.0);
-    /// assert_eq!(Vector3::new(-1.0, -2.0, -3.0).max(), -1.0);
-    /// assert_eq!(Vector3::new(5u32, 2, 3).max(), 5);
-    /// ```
-    #[inline]
-    pub fn max(&self) -> N
-    where
-        N: SimdPartialOrd + Zero,
-    {
-        self.fold_with(
-            |e| e.map(|e| e.inlined_clone()).unwrap_or(N::zero()),
-            |a, b| a.simd_max(b.inlined_clone()),
-        )
-    }
-
-    /// Returns the absolute value of the component with the smallest absolute value.
-    /// # Example
-    /// ```
-    /// # use nalgebra::Vector3;
-    /// assert_eq!(Vector3::new(-1.0, 2.0, -3.0).amin(), 1.0);
-    /// assert_eq!(Vector3::new(10.0, 2.0, 30.0).amin(), 2.0);
-    /// ```
-    #[inline]
-    pub fn amin(&self) -> N
-    where
-        N: Zero + SimdPartialOrd + SimdSigned,
-    {
-        self.fold_with(
-            |e| e.map(|e| e.simd_abs()).unwrap_or(N::zero()),
-            |a, b| a.simd_min(b.simd_abs()),
-        )
-    }
-
-    /// Returns the the 1-norm of the complex component with the smallest 1-norm.
-    /// # Example
-    /// ```
-    /// # use nalgebra::{Vector3, Complex};
-    /// assert_eq!(Vector3::new(
-    ///     Complex::new(-3.0, -2.0),
-    ///     Complex::new(1.0, 2.0),
-    ///     Complex::new(1.0, 3.0)).camin(), 3.0);
-    /// ```
-    #[inline]
-    pub fn camin(&self) -> N::SimdRealField
-    where
-        N: SimdComplexField,
-    {
-        self.fold_with(
-            |e| {
-                e.map(|e| e.simd_norm1())
-                    .unwrap_or(N::SimdRealField::zero())
-            },
-            |a, b| a.simd_min(b.simd_norm1()),
-        )
-    }
-
-    /// Returns the component with the smallest value.
-    /// # Example
-    /// ```
-    /// # use nalgebra::Vector3;
-    /// assert_eq!(Vector3::new(-1.0, 2.0, 3.0).min(), -1.0);
-    /// assert_eq!(Vector3::new(1.0, 2.0, 3.0).min(), 1.0);
-    /// assert_eq!(Vector3::new(5u32, 2, 3).min(), 2);
-    /// ```
-    #[inline]
-    pub fn min(&self) -> N
-    where
-        N: SimdPartialOrd + Zero,
-    {
-        self.fold_with(
-            |e| e.map(|e| e.inlined_clone()).unwrap_or(N::zero()),
-            |a, b| a.simd_min(b.inlined_clone()),
-        )
     }
 }

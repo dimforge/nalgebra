@@ -56,7 +56,7 @@ pub type SameShapeR<R1, R2> = <ShapeConstraint as SameNumberOfRows<R1, R2>>::Rep
 /// The number of columns of the result of a componentwise operation on two matrices.
 pub type SameShapeC<C1, C2> = <ShapeConstraint as SameNumberOfColumns<C1, C2>>::Representative;
 
-// FIXME: Bad name.
+// TODO: Bad name.
 /// Restricts the given number of rows and columns to be respectively the same.
 pub trait SameShapeAllocator<N, R1, C1, R2, C2>:
     Allocator<N, R1, C1> + Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>

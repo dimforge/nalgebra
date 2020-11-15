@@ -2,7 +2,7 @@
 
 macro_rules! lapack_check(
     ($info: expr) => (
-        // FIXME: return a richer error.
+        // TODO: return a richer error.
         if $info != 0 {
             return None;
         }
