@@ -48,11 +48,11 @@ macro_rules! iterator {
                 };
 
                 $Name {
-                    ptr: ptr,
+                    ptr,
                     inner_ptr: ptr,
                     inner_end,
                     size: shape.0.value() * shape.1.value(),
-                    strides: strides,
+                    strides,
                     _phantoms: PhantomData,
                 }
             }
