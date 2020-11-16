@@ -453,7 +453,7 @@ where
                     sqz + (N::one() - sqz) * cos,
                 ))
             },
-            || Self::identity(),
+            Self::identity,
         )
     }
 

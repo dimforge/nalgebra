@@ -520,16 +520,13 @@ where
         let v = self.vector();
         let nn = v.norm_squared();
         let le = nn.simd_le(eps * eps);
-        le.if_else(
-            || Self::identity(),
-            || {
-                let w_exp = self.scalar().simd_exp();
-                let n = nn.simd_sqrt();
-                let nv = v * (w_exp * n.simd_sin() / n);
+        le.if_else(Self::identity, || {
+            let w_exp = self.scalar().simd_exp();
+            let n = nn.simd_sqrt();
+            let nv = v * (w_exp * n.simd_sin() / n);
 
-                Self::from_parts(w_exp * n.simd_cos(), nv)
-            },
-        )
+            Self::from_parts(w_exp * n.simd_cos(), nv)
+        })
     }
 
     /// Raise the quaternion to a given floating power.
