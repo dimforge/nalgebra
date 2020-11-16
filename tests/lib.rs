@@ -1,7 +1,7 @@
 #[cfg(any(not(feature = "debug"), not(feature = "compare")))]
 compile_error!(
-    "Please enable the `debug` and `compare` features \
-                in order to compile and run the tests."
+    "Please enable the `debug` and `compare` features in order to compile and run the tests.
+     Example: `cargo test --features debug --features compare`"
 );
 
 #[cfg(feature = "abomonation-serialize")]
