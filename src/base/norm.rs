@@ -524,12 +524,12 @@ where
 
         match D::dim() {
             1 => {
-                if vs.len() == 0 {
+                if vs.is_empty() {
                     let _ = f(&Self::canonical_basis_element(0));
                 }
             }
             2 => {
-                if vs.len() == 0 {
+                if vs.is_empty() {
                     let _ = f(&Self::canonical_basis_element(0))
                         && f(&Self::canonical_basis_element(1));
                 } else if vs.len() == 1 {
@@ -542,7 +542,7 @@ where
                 // Otherwise, nothing.
             }
             3 => {
-                if vs.len() == 0 {
+                if vs.is_empty() {
                     let _ = f(&Self::canonical_basis_element(0))
                         && f(&Self::canonical_basis_element(1))
                         && f(&Self::canonical_basis_element(2));

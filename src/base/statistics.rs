@@ -199,7 +199,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     where
         N: Field + SupersetOf<f64>,
     {
-        if self.len() == 0 {
+        if self.is_empty() {
             N::zero()
         } else {
             let val = self.iter().cloned().fold((N::zero(), N::zero()), |a, b| {
@@ -308,7 +308,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     where
         N: Field + SupersetOf<f64>,
     {
-        if self.len() == 0 {
+        if self.is_empty() {
             N::zero()
         } else {
             self.sum() / crate::convert(self.len() as f64)
