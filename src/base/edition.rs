@@ -341,11 +341,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                 offset += 1;
             } else {
                 unsafe {
-                    let ptr_source = m
-                        .data
-                        .ptr()
-                        .offset(((target + offset) * nrows.value()) as isize);
-                    let ptr_target = m.data.ptr_mut().offset((target * nrows.value()) as isize);
+                    let ptr_source = m.data.ptr().add((target + offset) * nrows.value());
+                    let ptr_target = m.data.ptr_mut().add(target * nrows.value());
 
                     ptr::copy(ptr_source, ptr_target, nrows.value());
                     target += 1;
@@ -378,8 +375,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                 offset += 1;
             } else {
                 unsafe {
-                    let ptr_source = m.data.ptr().offset((target + offset) as isize);
-                    let ptr_target = m.data.ptr_mut().offset(target as isize);
+                    let ptr_source = m.data.ptr().add(target + offset);
+                    let ptr_target = m.data.ptr_mut().add(target);
 
                     ptr::copy(ptr_source, ptr_target, 1);
                     target += 1;
@@ -442,11 +439,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             let copied_value_start = i + nremove.value();
 
             unsafe {
-                let ptr_in = m
-                    .data
-                    .ptr()
-                    .offset((copied_value_start * nrows.value()) as isize);
-                let ptr_out = m.data.ptr_mut().offset((i * nrows.value()) as isize);
+                let ptr_in = m.data.ptr().add(copied_value_start * nrows.value());
+                let ptr_out = m.data.ptr_mut().add(i * nrows.value());
 
                 ptr::copy(
                     ptr_in,
@@ -610,11 +604,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         assert!(i <= ncols.value(), "Column insertion index out of range.");
 
         if ninsert.value() != 0 && i != ncols.value() {
-            let ptr_in = res.data.ptr().offset((i * nrows.value()) as isize);
+            let ptr_in = res.data.ptr().add(i * nrows.value());
             let ptr_out = res
                 .data
                 .ptr_mut()
-                .offset(((i + ninsert.value()) * nrows.value()) as isize);
+                .add((i + ninsert.value()) * nrows.value());
 
             ptr::copy(ptr_in, ptr_out, (ncols.value() - i) * nrows.value())
         }
@@ -977,8 +971,8 @@ unsafe fn compress_rows<N: Scalar>(
 
     for k in 0..ncols - 1 {
         ptr::copy(
-            ptr_in.offset((curr_i + (k + 1) * nremove) as isize),
-            ptr_out.offset(curr_i as isize),
+            ptr_in.add(curr_i + (k + 1) * nremove),
+            ptr_out.add(curr_i),
             new_nrows,
         );
 
@@ -988,8 +982,8 @@ unsafe fn compress_rows<N: Scalar>(
     // Deal with the last column from which less values have to be copied.
     let remaining_len = nrows - i - nremove;
     ptr::copy(
-        ptr_in.offset((nrows * ncols - remaining_len) as isize),
-        ptr_out.offset(curr_i as isize),
+        ptr_in.add(nrows * ncols - remaining_len),
+        ptr_out.add(curr_i),
         remaining_len,
     );
 }
@@ -1017,19 +1011,15 @@ unsafe fn extend_rows<N: Scalar>(
 
     // Deal with the last column from which less values have to be copied.
     ptr::copy(
-        ptr_in.offset((nrows * ncols - remaining_len) as isize),
-        ptr_out.offset(curr_i as isize),
+        ptr_in.add(nrows * ncols - remaining_len),
+        ptr_out.add(curr_i),
         remaining_len,
     );
 
     for k in (0..ncols - 1).rev() {
         curr_i -= new_nrows;
 
-        ptr::copy(
-            ptr_in.offset((k * nrows + i) as isize),
-            ptr_out.offset(curr_i as isize),
-            nrows,
-        );
+        ptr::copy(ptr_in.add(k * nrows + i), ptr_out.add(curr_i), nrows);
     }
 }
 
