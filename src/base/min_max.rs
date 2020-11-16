@@ -57,7 +57,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         N: SimdPartialOrd + Zero,
     {
         self.fold_with(
-            |e| e.map(|e| e.inlined_clone()).unwrap_or(N::zero()),
+            |e| e.map(|e| e.inlined_clone()).unwrap_or_else(N::zero),
             |a, b| a.simd_max(b.inlined_clone()),
         )
     }
@@ -75,7 +75,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         N: Zero + SimdPartialOrd + SimdSigned,
     {
         self.fold_with(
-            |e| e.map(|e| e.simd_abs()).unwrap_or(N::zero()),
+            |e| e.map(|e| e.simd_abs()).unwrap_or_else(N::zero),
             |a, b| a.simd_min(b.simd_abs()),
         )
     }
@@ -97,7 +97,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         self.fold_with(
             |e| {
                 e.map(|e| e.simd_norm1())
-                    .unwrap_or(N::SimdRealField::zero())
+                    .unwrap_or_else(N::SimdRealField::zero)
             },
             |a, b| a.simd_min(b.simd_norm1()),
         )
@@ -117,7 +117,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         N: SimdPartialOrd + Zero,
     {
         self.fold_with(
-            |e| e.map(|e| e.inlined_clone()).unwrap_or(N::zero()),
+            |e| e.map(|e| e.inlined_clone()).unwrap_or_else(N::zero),
             |a, b| a.simd_min(b.inlined_clone()),
         )
     }
