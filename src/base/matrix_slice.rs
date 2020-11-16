@@ -274,367 +274,370 @@ macro_rules! matrix_slice_impl(
      $generic_slice_with_steps: ident,
      $rows_range_pair: ident,
      $columns_range_pair: ident) => {
-        /// A matrix slice.
-        pub type $MatrixSlice<'a, N, R, C, RStride, CStride>
-        = Matrix<N, R, C, $SliceStorage<'a, N, R, C, RStride, CStride>>;
+        /*
+         *
+         * Row slicing.
+         *
+         */
+        /// Returns a slice containing the i-th row of this matrix.
+        #[inline]
+        pub fn $row($me: $Me, i: usize) -> $MatrixSlice<N, U1, C, S::RStride, S::CStride> {
+            $me.$fixed_rows::<U1>(i)
+        }
 
-        impl<N: Scalar, R: Dim, C: Dim, S: $Storage<N, R, C>> Matrix<N, R, C, S> {
-            /*
-             *
-             * Row slicing.
-             *
-             */
-            /// Returns a slice containing the i-th row of this matrix.
-            #[inline]
-            pub fn $row($me: $Me, i: usize) -> $MatrixSlice<N, U1, C, S::RStride, S::CStride> {
-                $me.$fixed_rows::<U1>(i)
+        /// Returns a slice containing the `n` first elements of the i-th row of this matrix.
+        #[inline]
+        pub fn $row_part($me: $Me, i: usize, n: usize) -> $MatrixSlice<N, U1, Dynamic, S::RStride, S::CStride> {
+            $me.$generic_slice((i, 0), (U1, Dynamic::new(n)))
+        }
+
+        /// Extracts from this matrix a set of consecutive rows.
+        #[inline]
+        pub fn $rows($me: $Me, first_row: usize, nrows: usize)
+            -> $MatrixSlice<N, Dynamic, C, S::RStride, S::CStride> {
+
+            $me.$rows_generic(first_row, Dynamic::new(nrows))
+        }
+
+        /// Extracts from this matrix a set of consecutive rows regularly skipping `step` rows.
+        #[inline]
+        pub fn $rows_with_step($me: $Me, first_row: usize, nrows: usize, step: usize)
+            -> $MatrixSlice<N, Dynamic, C, Dynamic, S::CStride> {
+
+            $me.$rows_generic_with_step(first_row, Dynamic::new(nrows), step)
+        }
+
+        /// Extracts a compile-time number of consecutive rows from this matrix.
+        #[inline]
+        pub fn $fixed_rows<RSlice: DimName>($me: $Me, first_row: usize)
+            -> $MatrixSlice<N, RSlice, C, S::RStride, S::CStride> {
+
+            $me.$rows_generic(first_row, RSlice::name())
+        }
+
+        /// Extracts from this matrix a compile-time number of rows regularly skipping `step`
+        /// rows.
+        #[inline]
+        pub fn $fixed_rows_with_step<RSlice: DimName>($me: $Me, first_row: usize, step: usize)
+            -> $MatrixSlice<N, RSlice, C, Dynamic, S::CStride> {
+
+            $me.$rows_generic_with_step(first_row, RSlice::name(), step)
+        }
+
+        /// Extracts from this matrix `nrows` rows regularly skipping `step` rows. Both
+        /// argument may or may not be values known at compile-time.
+        #[inline]
+        pub fn $rows_generic<RSlice: Dim>($me: $Me, row_start: usize, nrows: RSlice)
+            -> $MatrixSlice<N, RSlice, C, S::RStride, S::CStride> {
+
+            let my_shape   = $me.data.shape();
+            $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (0, 0));
+
+            let shape = (nrows, my_shape.1);
+
+            unsafe {
+                let data = $SliceStorage::new_unchecked($data, (row_start, 0), shape);
+                Matrix::from_data_statically_unchecked(data)
             }
+        }
 
-            /// Returns a slice containing the `n` first elements of the i-th row of this matrix.
-            #[inline]
-            pub fn $row_part($me: $Me, i: usize, n: usize) -> $MatrixSlice<N, U1, Dynamic, S::RStride, S::CStride> {
-                $me.$generic_slice((i, 0), (U1, Dynamic::new(n)))
+        /// Extracts from this matrix `nrows` rows regularly skipping `step` rows. Both
+        /// argument may or may not be values known at compile-time.
+        #[inline]
+        pub fn $rows_generic_with_step<RSlice>($me: $Me, row_start: usize, nrows: RSlice, step: usize)
+            -> $MatrixSlice<N, RSlice, C, Dynamic, S::CStride>
+            where RSlice: Dim {
+
+            let my_shape   = $me.data.shape();
+            let my_strides = $me.data.strides();
+            $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (step, 0));
+
+            let strides = (Dynamic::new((step + 1) * my_strides.0.value()), my_strides.1);
+            let shape   = (nrows, my_shape.1);
+
+            unsafe {
+                let data = $SliceStorage::new_with_strides_unchecked($data, (row_start, 0), shape, strides);
+                Matrix::from_data_statically_unchecked(data)
             }
+        }
 
-            /// Extracts from this matrix a set of consecutive rows.
-            #[inline]
-            pub fn $rows($me: $Me, first_row: usize, nrows: usize)
-                -> $MatrixSlice<N, Dynamic, C, S::RStride, S::CStride> {
+        /*
+         *
+         * Column slicing.
+         *
+         */
+        /// Returns a slice containing the i-th column of this matrix.
+        #[inline]
+        pub fn $column($me: $Me, i: usize) -> $MatrixSlice<N, R, U1, S::RStride, S::CStride> {
+            $me.$fixed_columns::<U1>(i)
+        }
 
-                $me.$rows_generic(first_row, Dynamic::new(nrows))
+        /// Returns a slice containing the `n` first elements of the i-th column of this matrix.
+        #[inline]
+        pub fn $column_part($me: $Me, i: usize, n: usize) -> $MatrixSlice<N, Dynamic, U1, S::RStride, S::CStride> {
+            $me.$generic_slice((0, i), (Dynamic::new(n), U1))
+        }
+
+        /// Extracts from this matrix a set of consecutive columns.
+        #[inline]
+        pub fn $columns($me: $Me, first_col: usize, ncols: usize)
+            -> $MatrixSlice<N, R, Dynamic, S::RStride, S::CStride> {
+
+            $me.$columns_generic(first_col, Dynamic::new(ncols))
+        }
+
+        /// Extracts from this matrix a set of consecutive columns regularly skipping `step`
+        /// columns.
+        #[inline]
+        pub fn $columns_with_step($me: $Me, first_col: usize, ncols: usize, step: usize)
+            -> $MatrixSlice<N, R, Dynamic, S::RStride, Dynamic> {
+
+            $me.$columns_generic_with_step(first_col, Dynamic::new(ncols), step)
+        }
+
+        /// Extracts a compile-time number of consecutive columns from this matrix.
+        #[inline]
+        pub fn $fixed_columns<CSlice: DimName>($me: $Me, first_col: usize)
+            -> $MatrixSlice<N, R, CSlice, S::RStride, S::CStride> {
+
+            $me.$columns_generic(first_col, CSlice::name())
+        }
+
+        /// Extracts from this matrix a compile-time number of columns regularly skipping
+        /// `step` columns.
+        #[inline]
+        pub fn $fixed_columns_with_step<CSlice: DimName>($me: $Me, first_col: usize, step: usize)
+            -> $MatrixSlice<N, R, CSlice, S::RStride, Dynamic> {
+
+            $me.$columns_generic_with_step(first_col, CSlice::name(), step)
+        }
+
+        /// Extracts from this matrix `ncols` columns. The number of columns may or may not be
+        /// known at compile-time.
+        #[inline]
+        pub fn $columns_generic<CSlice: Dim>($me: $Me, first_col: usize, ncols: CSlice)
+            -> $MatrixSlice<N, R, CSlice, S::RStride, S::CStride> {
+
+            let my_shape = $me.data.shape();
+            $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, 0));
+            let shape = (my_shape.0, ncols);
+
+            unsafe {
+                let data = $SliceStorage::new_unchecked($data, (0, first_col), shape);
+                Matrix::from_data_statically_unchecked(data)
             }
+        }
 
-            /// Extracts from this matrix a set of consecutive rows regularly skipping `step` rows.
-            #[inline]
-            pub fn $rows_with_step($me: $Me, first_row: usize, nrows: usize, step: usize)
-                -> $MatrixSlice<N, Dynamic, C, Dynamic, S::CStride> {
 
-                $me.$rows_generic_with_step(first_row, Dynamic::new(nrows), step)
+        /// Extracts from this matrix `ncols` columns skipping `step` columns. Both argument may
+        /// or may not be values known at compile-time.
+        #[inline]
+        pub fn $columns_generic_with_step<CSlice: Dim>($me: $Me, first_col: usize, ncols: CSlice, step: usize)
+            -> $MatrixSlice<N, R, CSlice, S::RStride, Dynamic> {
+
+            let my_shape   = $me.data.shape();
+            let my_strides = $me.data.strides();
+
+            $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, step));
+
+            let strides = (my_strides.0, Dynamic::new((step + 1) * my_strides.1.value()));
+            let shape   = (my_shape.0, ncols);
+
+            unsafe {
+                let data = $SliceStorage::new_with_strides_unchecked($data, (0, first_col), shape, strides);
+                Matrix::from_data_statically_unchecked(data)
             }
+        }
 
-            /// Extracts a compile-time number of consecutive rows from this matrix.
-            #[inline]
-            pub fn $fixed_rows<RSlice: DimName>($me: $Me, first_row: usize)
-                -> $MatrixSlice<N, RSlice, C, S::RStride, S::CStride> {
+        /*
+         *
+         * General slicing.
+         *
+         */
+        /// Slices this matrix starting at its component `(irow, icol)` and with `(nrows, ncols)`
+        /// consecutive elements.
+        #[inline]
+        pub fn $slice($me: $Me, start: (usize, usize), shape: (usize, usize))
+            -> $MatrixSlice<N, Dynamic, Dynamic, S::RStride, S::CStride> {
 
-                $me.$rows_generic(first_row, RSlice::name())
+            $me.assert_slice_index(start, shape, (0, 0));
+            let shape = (Dynamic::new(shape.0), Dynamic::new(shape.1));
+
+            unsafe {
+                let data = $SliceStorage::new_unchecked($data, start, shape);
+                Matrix::from_data_statically_unchecked(data)
             }
+        }
 
-            /// Extracts from this matrix a compile-time number of rows regularly skipping `step`
-            /// rows.
-            #[inline]
-            pub fn $fixed_rows_with_step<RSlice: DimName>($me: $Me, first_row: usize, step: usize)
-                -> $MatrixSlice<N, RSlice, C, Dynamic, S::CStride> {
 
-                $me.$rows_generic_with_step(first_row, RSlice::name(), step)
+        /// Slices this matrix starting at its component `(start.0, start.1)` and with
+        /// `(shape.0, shape.1)` components. Each row (resp. column) of the sliced matrix is
+        /// separated by `steps.0` (resp. `steps.1`) ignored rows (resp. columns) of the
+        /// original matrix.
+        #[inline]
+        pub fn $slice_with_steps($me: $Me, start: (usize, usize), shape: (usize, usize), steps: (usize, usize))
+            -> $MatrixSlice<N, Dynamic, Dynamic, Dynamic, Dynamic> {
+            let shape = (Dynamic::new(shape.0), Dynamic::new(shape.1));
+
+            $me.$generic_slice_with_steps(start, shape, steps)
+        }
+
+        /// Slices this matrix starting at its component `(irow, icol)` and with `(R::dim(),
+        /// CSlice::dim())` consecutive components.
+        #[inline]
+        pub fn $fixed_slice<RSlice, CSlice>($me: $Me, irow: usize, icol: usize)
+            -> $MatrixSlice<N, RSlice, CSlice, S::RStride, S::CStride>
+            where RSlice: DimName,
+                  CSlice: DimName {
+
+            $me.assert_slice_index((irow, icol), (RSlice::dim(), CSlice::dim()), (0, 0));
+            let shape = (RSlice::name(), CSlice::name());
+
+            unsafe {
+                let data = $SliceStorage::new_unchecked($data, (irow, icol), shape);
+                Matrix::from_data_statically_unchecked(data)
             }
+        }
 
-            /// Extracts from this matrix `nrows` rows regularly skipping `step` rows. Both
-            /// argument may or may not be values known at compile-time.
-            #[inline]
-            pub fn $rows_generic<RSlice: Dim>($me: $Me, row_start: usize, nrows: RSlice)
-                -> $MatrixSlice<N, RSlice, C, S::RStride, S::CStride> {
+        /// Slices this matrix starting at its component `(start.0, start.1)` and with
+        /// `(R::dim(), CSlice::dim())` components. Each row (resp. column) of the sliced
+        /// matrix is separated by `steps.0` (resp. `steps.1`) ignored rows (resp. columns) of
+        /// the original matrix.
+        #[inline]
+        pub fn $fixed_slice_with_steps<RSlice, CSlice>($me: $Me, start: (usize, usize), steps: (usize, usize))
+            -> $MatrixSlice<N, RSlice, CSlice, Dynamic, Dynamic>
+            where RSlice: DimName,
+                  CSlice: DimName {
+            let shape = (RSlice::name(), CSlice::name());
+            $me.$generic_slice_with_steps(start, shape, steps)
+        }
 
-                let my_shape   = $me.data.shape();
-                $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (0, 0));
+        /// Creates a slice that may or may not have a fixed size and stride.
+        #[inline]
+        pub fn $generic_slice<RSlice, CSlice>($me: $Me, start: (usize, usize), shape: (RSlice, CSlice))
+            -> $MatrixSlice<N, RSlice, CSlice, S::RStride, S::CStride>
+            where RSlice: Dim,
+                  CSlice: Dim {
 
-                let shape = (nrows, my_shape.1);
+            $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), (0, 0));
 
-                unsafe {
-                    let data = $SliceStorage::new_unchecked($data, (row_start, 0), shape);
-                    Matrix::from_data_statically_unchecked(data)
-                }
+            unsafe {
+                let data = $SliceStorage::new_unchecked($data, start, shape);
+                Matrix::from_data_statically_unchecked(data)
             }
+        }
 
-            /// Extracts from this matrix `nrows` rows regularly skipping `step` rows. Both
-            /// argument may or may not be values known at compile-time.
-            #[inline]
-            pub fn $rows_generic_with_step<RSlice>($me: $Me, row_start: usize, nrows: RSlice, step: usize)
-                -> $MatrixSlice<N, RSlice, C, Dynamic, S::CStride>
-                where RSlice: Dim {
+        /// Creates a slice that may or may not have a fixed size and stride.
+        #[inline]
+        pub fn $generic_slice_with_steps<RSlice, CSlice>($me: $Me,
+                                                         start: (usize, usize),
+                                                         shape: (RSlice, CSlice),
+                                                         steps: (usize, usize))
+            -> $MatrixSlice<N, RSlice, CSlice, Dynamic, Dynamic>
+            where RSlice: Dim,
+                  CSlice: Dim {
 
-                let my_shape   = $me.data.shape();
-                let my_strides = $me.data.strides();
-                $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (step, 0));
+            $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), steps);
 
-                let strides = (Dynamic::new((step + 1) * my_strides.0.value()), my_strides.1);
-                let shape   = (nrows, my_shape.1);
+            let my_strides = $me.data.strides();
+            let strides    = (Dynamic::new((steps.0 + 1) * my_strides.0.value()),
+                              Dynamic::new((steps.1 + 1) * my_strides.1.value()));
 
-                unsafe {
-                    let data = $SliceStorage::new_with_strides_unchecked($data, (row_start, 0), shape, strides);
-                    Matrix::from_data_statically_unchecked(data)
-                }
+            unsafe {
+                let data = $SliceStorage::new_with_strides_unchecked($data, start, shape, strides);
+                Matrix::from_data_statically_unchecked(data)
             }
+        }
 
-            /*
-             *
-             * Column slicing.
-             *
-             */
-            /// Returns a slice containing the i-th column of this matrix.
-            #[inline]
-            pub fn $column($me: $Me, i: usize) -> $MatrixSlice<N, R, U1, S::RStride, S::CStride> {
-                $me.$fixed_columns::<U1>(i)
+        /*
+         *
+         * Splitting.
+         *
+         */
+        /// Splits this NxM matrix into two parts delimited by two ranges.
+        ///
+        /// Panics if the ranges overlap or if the first range is empty.
+        #[inline]
+        pub fn $rows_range_pair<Range1: SliceRange<R>, Range2: SliceRange<R>>($me: $Me, r1: Range1, r2: Range2)
+            -> ($MatrixSlice<N, Range1::Size, C, S::RStride, S::CStride>,
+                $MatrixSlice<N, Range2::Size, C, S::RStride, S::CStride>) {
+
+            let (nrows, ncols) = $me.data.shape();
+            let strides        = $me.data.strides();
+
+            let start1 = r1.begin(nrows);
+            let start2 = r2.begin(nrows);
+
+            let end1 = r1.end(nrows);
+            let end2 = r2.end(nrows);
+
+            let nrows1 = r1.size(nrows);
+            let nrows2 = r2.size(nrows);
+
+            assert!(start2 >= end1 || start1 >= end2, "Rows range pair: the slice ranges must not overlap.");
+            assert!(end2 <= nrows.value(), "Rows range pair: index out of range.");
+
+            unsafe {
+                let ptr1 = $data.$get_addr(start1, 0);
+                let ptr2 = $data.$get_addr(start2, 0);
+
+                let data1  = $SliceStorage::from_raw_parts(ptr1, (nrows1, ncols), strides);
+                let data2  = $SliceStorage::from_raw_parts(ptr2, (nrows2, ncols), strides);
+                let slice1 = Matrix::from_data_statically_unchecked(data1);
+                let slice2 = Matrix::from_data_statically_unchecked(data2);
+
+                (slice1, slice2)
             }
+        }
 
-            /// Returns a slice containing the `n` first elements of the i-th column of this matrix.
-            #[inline]
-            pub fn $column_part($me: $Me, i: usize, n: usize) -> $MatrixSlice<N, Dynamic, U1, S::RStride, S::CStride> {
-                $me.$generic_slice((0, i), (Dynamic::new(n), U1))
-            }
+        /// Splits this NxM matrix into two parts delimited by two ranges.
+        ///
+        /// Panics if the ranges overlap or if the first range is empty.
+        #[inline]
+        pub fn $columns_range_pair<Range1: SliceRange<C>, Range2: SliceRange<C>>($me: $Me, r1: Range1, r2: Range2)
+            -> ($MatrixSlice<N, R, Range1::Size, S::RStride, S::CStride>,
+                $MatrixSlice<N, R, Range2::Size, S::RStride, S::CStride>) {
 
-            /// Extracts from this matrix a set of consecutive columns.
-            #[inline]
-            pub fn $columns($me: $Me, first_col: usize, ncols: usize)
-                -> $MatrixSlice<N, R, Dynamic, S::RStride, S::CStride> {
+            let (nrows, ncols) = $me.data.shape();
+            let strides        = $me.data.strides();
 
-                $me.$columns_generic(first_col, Dynamic::new(ncols))
-            }
+            let start1 = r1.begin(ncols);
+            let start2 = r2.begin(ncols);
 
-            /// Extracts from this matrix a set of consecutive columns regularly skipping `step`
-            /// columns.
-            #[inline]
-            pub fn $columns_with_step($me: $Me, first_col: usize, ncols: usize, step: usize)
-                -> $MatrixSlice<N, R, Dynamic, S::RStride, Dynamic> {
+            let end1 = r1.end(ncols);
+            let end2 = r2.end(ncols);
 
-                $me.$columns_generic_with_step(first_col, Dynamic::new(ncols), step)
-            }
+            let ncols1 = r1.size(ncols);
+            let ncols2 = r2.size(ncols);
 
-            /// Extracts a compile-time number of consecutive columns from this matrix.
-            #[inline]
-            pub fn $fixed_columns<CSlice: DimName>($me: $Me, first_col: usize)
-                -> $MatrixSlice<N, R, CSlice, S::RStride, S::CStride> {
+            assert!(start2 >= end1 || start1 >= end2, "Columns range pair: the slice ranges must not overlap.");
+            assert!(end2 <= ncols.value(), "Columns range pair: index out of range.");
 
-                $me.$columns_generic(first_col, CSlice::name())
-            }
+            unsafe {
+                let ptr1 = $data.$get_addr(0, start1);
+                let ptr2 = $data.$get_addr(0, start2);
 
-            /// Extracts from this matrix a compile-time number of columns regularly skipping
-            /// `step` columns.
-            #[inline]
-            pub fn $fixed_columns_with_step<CSlice: DimName>($me: $Me, first_col: usize, step: usize)
-                -> $MatrixSlice<N, R, CSlice, S::RStride, Dynamic> {
+                let data1  = $SliceStorage::from_raw_parts(ptr1, (nrows, ncols1), strides);
+                let data2  = $SliceStorage::from_raw_parts(ptr2, (nrows, ncols2), strides);
+                let slice1 = Matrix::from_data_statically_unchecked(data1);
+                let slice2 = Matrix::from_data_statically_unchecked(data2);
 
-                $me.$columns_generic_with_step(first_col, CSlice::name(), step)
-            }
-
-            /// Extracts from this matrix `ncols` columns. The number of columns may or may not be
-            /// known at compile-time.
-            #[inline]
-            pub fn $columns_generic<CSlice: Dim>($me: $Me, first_col: usize, ncols: CSlice)
-                -> $MatrixSlice<N, R, CSlice, S::RStride, S::CStride> {
-
-                let my_shape = $me.data.shape();
-                $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, 0));
-                let shape = (my_shape.0, ncols);
-
-                unsafe {
-                    let data = $SliceStorage::new_unchecked($data, (0, first_col), shape);
-                    Matrix::from_data_statically_unchecked(data)
-                }
-            }
-
-
-            /// Extracts from this matrix `ncols` columns skipping `step` columns. Both argument may
-            /// or may not be values known at compile-time.
-            #[inline]
-            pub fn $columns_generic_with_step<CSlice: Dim>($me: $Me, first_col: usize, ncols: CSlice, step: usize)
-                -> $MatrixSlice<N, R, CSlice, S::RStride, Dynamic> {
-
-                let my_shape   = $me.data.shape();
-                let my_strides = $me.data.strides();
-
-                $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, step));
-
-                let strides = (my_strides.0, Dynamic::new((step + 1) * my_strides.1.value()));
-                let shape   = (my_shape.0, ncols);
-
-                unsafe {
-                    let data = $SliceStorage::new_with_strides_unchecked($data, (0, first_col), shape, strides);
-                    Matrix::from_data_statically_unchecked(data)
-                }
-            }
-
-            /*
-             *
-             * General slicing.
-             *
-             */
-            /// Slices this matrix starting at its component `(irow, icol)` and with `(nrows, ncols)`
-            /// consecutive elements.
-            #[inline]
-            pub fn $slice($me: $Me, start: (usize, usize), shape: (usize, usize))
-                -> $MatrixSlice<N, Dynamic, Dynamic, S::RStride, S::CStride> {
-
-                $me.assert_slice_index(start, shape, (0, 0));
-                let shape = (Dynamic::new(shape.0), Dynamic::new(shape.1));
-
-                unsafe {
-                    let data = $SliceStorage::new_unchecked($data, start, shape);
-                    Matrix::from_data_statically_unchecked(data)
-                }
-            }
-
-
-            /// Slices this matrix starting at its component `(start.0, start.1)` and with
-            /// `(shape.0, shape.1)` components. Each row (resp. column) of the sliced matrix is
-            /// separated by `steps.0` (resp. `steps.1`) ignored rows (resp. columns) of the
-            /// original matrix.
-            #[inline]
-            pub fn $slice_with_steps($me: $Me, start: (usize, usize), shape: (usize, usize), steps: (usize, usize))
-                -> $MatrixSlice<N, Dynamic, Dynamic, Dynamic, Dynamic> {
-                let shape = (Dynamic::new(shape.0), Dynamic::new(shape.1));
-
-                $me.$generic_slice_with_steps(start, shape, steps)
-            }
-
-            /// Slices this matrix starting at its component `(irow, icol)` and with `(R::dim(),
-            /// CSlice::dim())` consecutive components.
-            #[inline]
-            pub fn $fixed_slice<RSlice, CSlice>($me: $Me, irow: usize, icol: usize)
-                -> $MatrixSlice<N, RSlice, CSlice, S::RStride, S::CStride>
-                where RSlice: DimName,
-                      CSlice: DimName {
-
-                $me.assert_slice_index((irow, icol), (RSlice::dim(), CSlice::dim()), (0, 0));
-                let shape = (RSlice::name(), CSlice::name());
-
-                unsafe {
-                    let data = $SliceStorage::new_unchecked($data, (irow, icol), shape);
-                    Matrix::from_data_statically_unchecked(data)
-                }
-            }
-
-            /// Slices this matrix starting at its component `(start.0, start.1)` and with
-            /// `(R::dim(), CSlice::dim())` components. Each row (resp. column) of the sliced
-            /// matrix is separated by `steps.0` (resp. `steps.1`) ignored rows (resp. columns) of
-            /// the original matrix.
-            #[inline]
-            pub fn $fixed_slice_with_steps<RSlice, CSlice>($me: $Me, start: (usize, usize), steps: (usize, usize))
-                -> $MatrixSlice<N, RSlice, CSlice, Dynamic, Dynamic>
-                where RSlice: DimName,
-                      CSlice: DimName {
-                let shape = (RSlice::name(), CSlice::name());
-                $me.$generic_slice_with_steps(start, shape, steps)
-            }
-
-            /// Creates a slice that may or may not have a fixed size and stride.
-            #[inline]
-            pub fn $generic_slice<RSlice, CSlice>($me: $Me, start: (usize, usize), shape: (RSlice, CSlice))
-                -> $MatrixSlice<N, RSlice, CSlice, S::RStride, S::CStride>
-                where RSlice: Dim,
-                      CSlice: Dim {
-
-                $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), (0, 0));
-
-                unsafe {
-                    let data = $SliceStorage::new_unchecked($data, start, shape);
-                    Matrix::from_data_statically_unchecked(data)
-                }
-            }
-
-            /// Creates a slice that may or may not have a fixed size and stride.
-            #[inline]
-            pub fn $generic_slice_with_steps<RSlice, CSlice>($me: $Me,
-                                                             start: (usize, usize),
-                                                             shape: (RSlice, CSlice),
-                                                             steps: (usize, usize))
-                -> $MatrixSlice<N, RSlice, CSlice, Dynamic, Dynamic>
-                where RSlice: Dim,
-                      CSlice: Dim {
-
-                $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), steps);
-
-                let my_strides = $me.data.strides();
-                let strides    = (Dynamic::new((steps.0 + 1) * my_strides.0.value()),
-                                  Dynamic::new((steps.1 + 1) * my_strides.1.value()));
-
-                unsafe {
-                    let data = $SliceStorage::new_with_strides_unchecked($data, start, shape, strides);
-                    Matrix::from_data_statically_unchecked(data)
-                }
-            }
-
-            /*
-             *
-             * Splitting.
-             *
-             */
-            /// Splits this NxM matrix into two parts delimited by two ranges.
-            ///
-            /// Panics if the ranges overlap or if the first range is empty.
-            #[inline]
-            pub fn $rows_range_pair<Range1: SliceRange<R>, Range2: SliceRange<R>>($me: $Me, r1: Range1, r2: Range2)
-                -> ($MatrixSlice<N, Range1::Size, C, S::RStride, S::CStride>,
-                    $MatrixSlice<N, Range2::Size, C, S::RStride, S::CStride>) {
-
-                let (nrows, ncols) = $me.data.shape();
-                let strides        = $me.data.strides();
-
-                let start1 = r1.begin(nrows);
-                let start2 = r2.begin(nrows);
-
-                let end1 = r1.end(nrows);
-                let end2 = r2.end(nrows);
-
-                let nrows1 = r1.size(nrows);
-                let nrows2 = r2.size(nrows);
-
-                assert!(start2 >= end1 || start1 >= end2, "Rows range pair: the slice ranges must not overlap.");
-                assert!(end2 <= nrows.value(), "Rows range pair: index out of range.");
-
-                unsafe {
-                    let ptr1 = $data.$get_addr(start1, 0);
-                    let ptr2 = $data.$get_addr(start2, 0);
-
-                    let data1  = $SliceStorage::from_raw_parts(ptr1, (nrows1, ncols), strides);
-                    let data2  = $SliceStorage::from_raw_parts(ptr2, (nrows2, ncols), strides);
-                    let slice1 = Matrix::from_data_statically_unchecked(data1);
-                    let slice2 = Matrix::from_data_statically_unchecked(data2);
-
-                    (slice1, slice2)
-                }
-            }
-
-            /// Splits this NxM matrix into two parts delimited by two ranges.
-            ///
-            /// Panics if the ranges overlap or if the first range is empty.
-            #[inline]
-            pub fn $columns_range_pair<Range1: SliceRange<C>, Range2: SliceRange<C>>($me: $Me, r1: Range1, r2: Range2)
-                -> ($MatrixSlice<N, R, Range1::Size, S::RStride, S::CStride>,
-                    $MatrixSlice<N, R, Range2::Size, S::RStride, S::CStride>) {
-
-                let (nrows, ncols) = $me.data.shape();
-                let strides        = $me.data.strides();
-
-                let start1 = r1.begin(ncols);
-                let start2 = r2.begin(ncols);
-
-                let end1 = r1.end(ncols);
-                let end2 = r2.end(ncols);
-
-                let ncols1 = r1.size(ncols);
-                let ncols2 = r2.size(ncols);
-
-                assert!(start2 >= end1 || start1 >= end2, "Columns range pair: the slice ranges must not overlap.");
-                assert!(end2 <= ncols.value(), "Columns range pair: index out of range.");
-
-                unsafe {
-                    let ptr1 = $data.$get_addr(0, start1);
-                    let ptr2 = $data.$get_addr(0, start2);
-
-                    let data1  = $SliceStorage::from_raw_parts(ptr1, (nrows, ncols1), strides);
-                    let data2  = $SliceStorage::from_raw_parts(ptr2, (nrows, ncols2), strides);
-                    let slice1 = Matrix::from_data_statically_unchecked(data1);
-                    let slice2 = Matrix::from_data_statically_unchecked(data2);
-
-                    (slice1, slice2)
-                }
+                (slice1, slice2)
             }
         }
     }
 );
 
-matrix_slice_impl!(
+/// A matrix slice.
+pub type MatrixSlice<'a, N, R, C, RStride, CStride> =
+    Matrix<N, R, C, SliceStorage<'a, N, R, C, RStride, CStride>>;
+/// A mutable matrix slice.
+pub type MatrixSliceMut<'a, N, R, C, RStride, CStride> =
+    Matrix<N, R, C, SliceStorageMut<'a, N, R, C, RStride, CStride>>;
+
+/// # Slicing based on index and length
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+    matrix_slice_impl!(
      self: &Self, MatrixSlice, SliceStorage, Storage.get_address_unchecked(), &self.data;
      row,
      row_part,
@@ -660,8 +663,11 @@ matrix_slice_impl!(
      generic_slice_with_steps,
      rows_range_pair,
      columns_range_pair);
+}
 
-matrix_slice_impl!(
+/// # Mutable slicing based on index and length
+impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+    matrix_slice_impl!(
      self: &mut Self, MatrixSliceMut, SliceStorageMut, StorageMut.get_address_unchecked_mut(), &mut self.data;
      row_mut,
      row_part_mut,
@@ -687,6 +693,7 @@ matrix_slice_impl!(
      generic_slice_with_steps_mut,
      rows_range_pair_mut,
      columns_range_pair_mut);
+}
 
 /// A range with a size that may be known at compile-time.
 ///
@@ -803,6 +810,8 @@ impl<D: Dim> SliceRange<D> for RangeFull {
     }
 }
 
+// TODO: see how much of this overlaps with the general indexing
+// methods from indexing.rs.
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Slices a sub-matrix containing the rows indexed by the range `rows` and the columns indexed
     /// by the range `cols`.
@@ -842,6 +851,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
+// TODO: see how much of this overlaps with the general indexing
+// methods from indexing.rs.
 impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// Slices a mutable sub-matrix containing the rows indexed by the range `rows` and the columns
     /// indexed by the range `cols`.

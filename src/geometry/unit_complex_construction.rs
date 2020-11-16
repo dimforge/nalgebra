@@ -65,7 +65,7 @@ where
     ///
     /// assert_relative_eq!(rot * Point2::new(3.0, 4.0), Point2::new(-4.0, 3.0));
     /// ```
-    // FIXME: deprecate this.
+    // TODO: deprecate this.
     #[inline]
     pub fn from_angle(angle: N) -> Self {
         Self::new(angle)
@@ -127,7 +127,7 @@ where
     /// let complex = UnitComplex::from_rotation_matrix(&rot);
     /// assert_eq!(complex, UnitComplex::new(1.7));
     /// ```
-    // FIXME: add UnitComplex::from(...) instead?
+    // TODO: add UnitComplex::from(...) instead?
     #[inline]
     pub fn from_rotation_matrix(rotmat: &Rotation2<N>) -> Self {
         Self::new_unchecked(Complex::new(rotmat[(0, 0)], rotmat[(1, 0)]))
@@ -213,7 +213,7 @@ where
         SB: Storage<N, U2>,
         SC: Storage<N, U2>,
     {
-        // FIXME: code duplication with Rotation.
+        // TODO: code duplication with Rotation.
         if let (Some(na), Some(nb)) = (
             Unit::try_new(a.clone_owned(), N::zero()),
             Unit::try_new(b.clone_owned(), N::zero()),

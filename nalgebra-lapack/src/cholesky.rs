@@ -48,7 +48,7 @@ where
     /// Only the lower-triangular part of the input matrix is considered.
     #[inline]
     pub fn new(mut m: MatrixN<N, D>) -> Option<Self> {
-        // FIXME: check symmetry as well?
+        // TODO: check symmetry as well?
         assert!(
             m.is_square(),
             "Unable to compute the cholesky decomposition of a non-square matrix."

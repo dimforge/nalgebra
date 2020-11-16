@@ -147,7 +147,7 @@ impl<N: ComplexField> GivensRotation<N> {
         let s = self.s;
         let c = self.c;
 
-        // FIXME: can we optimize that to iterate on one column at a time ?
+        // TODO: can we optimize that to iterate on one column at a time ?
         for j in 0..lhs.nrows() {
             unsafe {
                 let a = *lhs.get_unchecked((j, 0));

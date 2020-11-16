@@ -22,11 +22,12 @@ use crate::base::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
 use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN};
 
-/*
- *
- * Generic constructors.
- *
- */
+/// # Generic constructors
+/// This set of matrix and vector construction functions are all generic
+/// with-regard to the matrix dimensions. They all expect to be given
+/// the dimension as inputs.
+///
+/// These functions should only be used when working on dimension-generic code.
 impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
 where
     DefaultAllocator: Allocator<N, R, C>,
@@ -209,7 +210,7 @@ where
             );
         }
 
-        // FIXME: optimize that.
+        // TODO: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
             rows[i][(0, j)].inlined_clone()
         })
@@ -251,7 +252,7 @@ where
             );
         }
 
-        // FIXME: optimize that.
+        // TODO: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
             columns[j][i].inlined_clone()
         })
@@ -350,275 +351,290 @@ where
  */
 macro_rules! impl_constructors(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
-            where DefaultAllocator: Allocator<N $(, $Dims)*> {
-
-            /// Creates a new uninitialized matrix or vector.
-            #[inline]
-            pub unsafe fn new_uninitialized($($args: usize),*) -> Self {
-                Self::new_uninitialized_generic($($gargs),*)
-            }
-
-            /// Creates a matrix or vector with all its elements set to `elem`.
-            ///
-            /// # Example
-            /// ```
-            /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
-            ///
-            /// let v = Vector3::from_element(2.0);
-            /// // The additional argument represents the vector dimension.
-            /// let dv = DVector::from_element(3, 2.0);
-            /// let m = Matrix2x3::from_element(2.0);
-            /// // The two additional arguments represent the matrix dimensions.
-            /// let dm = DMatrix::from_element(2, 3, 2.0);
-            ///
-            /// assert!(v.x == 2.0 && v.y == 2.0 && v.z == 2.0);
-            /// assert!(dv[0] == 2.0 && dv[1] == 2.0 && dv[2] == 2.0);
-            /// assert!(m.m11 == 2.0 && m.m12 == 2.0 && m.m13 == 2.0 &&
-            ///         m.m21 == 2.0 && m.m22 == 2.0 && m.m23 == 2.0);
-            /// assert!(dm[(0, 0)] == 2.0 && dm[(0, 1)] == 2.0 && dm[(0, 2)] == 2.0 &&
-            ///         dm[(1, 0)] == 2.0 && dm[(1, 1)] == 2.0 && dm[(1, 2)] == 2.0);
-            /// ```
-            #[inline]
-            pub fn from_element($($args: usize,)* elem: N) -> Self {
-                Self::from_element_generic($($gargs, )* elem)
-            }
-
-            /// Creates a matrix or vector with all its elements set to `elem`.
-            ///
-            /// Same as `.from_element`.
-            ///
-            /// # Example
-            /// ```
-            /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
-            ///
-            /// let v = Vector3::repeat(2.0);
-            /// // The additional argument represents the vector dimension.
-            /// let dv = DVector::repeat(3, 2.0);
-            /// let m = Matrix2x3::repeat(2.0);
-            /// // The two additional arguments represent the matrix dimensions.
-            /// let dm = DMatrix::repeat(2, 3, 2.0);
-            ///
-            /// assert!(v.x == 2.0 && v.y == 2.0 && v.z == 2.0);
-            /// assert!(dv[0] == 2.0 && dv[1] == 2.0 && dv[2] == 2.0);
-            /// assert!(m.m11 == 2.0 && m.m12 == 2.0 && m.m13 == 2.0 &&
-            ///         m.m21 == 2.0 && m.m22 == 2.0 && m.m23 == 2.0);
-            /// assert!(dm[(0, 0)] == 2.0 && dm[(0, 1)] == 2.0 && dm[(0, 2)] == 2.0 &&
-            ///         dm[(1, 0)] == 2.0 && dm[(1, 1)] == 2.0 && dm[(1, 2)] == 2.0);
-            /// ```
-            #[inline]
-            pub fn repeat($($args: usize,)* elem: N) -> Self {
-                Self::repeat_generic($($gargs, )* elem)
-            }
-
-            /// Creates a matrix or vector with all its elements set to `0`.
-            ///
-            /// # Example
-            /// ```
-            /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
-            ///
-            /// let v = Vector3::<f32>::zeros();
-            /// // The argument represents the vector dimension.
-            /// let dv = DVector::<f32>::zeros(3);
-            /// let m = Matrix2x3::<f32>::zeros();
-            /// // The two arguments represent the matrix dimensions.
-            /// let dm = DMatrix::<f32>::zeros(2, 3);
-            ///
-            /// assert!(v.x == 0.0 && v.y == 0.0 && v.z == 0.0);
-            /// assert!(dv[0] == 0.0 && dv[1] == 0.0 && dv[2] == 0.0);
-            /// assert!(m.m11 == 0.0 && m.m12 == 0.0 && m.m13 == 0.0 &&
-            ///         m.m21 == 0.0 && m.m22 == 0.0 && m.m23 == 0.0);
-            /// assert!(dm[(0, 0)] == 0.0 && dm[(0, 1)] == 0.0 && dm[(0, 2)] == 0.0 &&
-            ///         dm[(1, 0)] == 0.0 && dm[(1, 1)] == 0.0 && dm[(1, 2)] == 0.0);
-            /// ```
-            #[inline]
-            pub fn zeros($($args: usize),*) -> Self
-                where N: Zero {
-                Self::zeros_generic($($gargs),*)
-            }
-
-            /// Creates a matrix or vector with all its elements filled by an iterator.
-            ///
-            /// The output matrix is filled column-by-column.
-            ///
-            /// # Example
-            /// ```
-            /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
-            /// # use std::iter;
-            ///
-            /// let v = Vector3::from_iterator((0..3).into_iter());
-            /// // The additional argument represents the vector dimension.
-            /// let dv = DVector::from_iterator(3, (0..3).into_iter());
-            /// let m = Matrix2x3::from_iterator((0..6).into_iter());
-            /// // The two additional arguments represent the matrix dimensions.
-            /// let dm = DMatrix::from_iterator(2, 3, (0..6).into_iter());
-            ///
-            /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
-            /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
-            /// assert!(m.m11 == 0 && m.m12 == 2 && m.m13 == 4 &&
-            ///         m.m21 == 1 && m.m22 == 3 && m.m23 == 5);
-            /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 2 && dm[(0, 2)] == 4 &&
-            ///         dm[(1, 0)] == 1 && dm[(1, 1)] == 3 && dm[(1, 2)] == 5);
-            /// ```
-            #[inline]
-            pub fn from_iterator<I>($($args: usize,)* iter: I) -> Self
-                where I: IntoIterator<Item = N> {
-                Self::from_iterator_generic($($gargs, )* iter)
-            }
-
-            /// Creates a matrix or vector filled with the results of a function applied to each of its
-            /// component coordinates.
-            ///
-            /// # Example
-            /// ```
-            /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
-            /// # use std::iter;
-            ///
-            /// let v = Vector3::from_fn(|i, _| i);
-            /// // The additional argument represents the vector dimension.
-            /// let dv = DVector::from_fn(3, |i, _| i);
-            /// let m = Matrix2x3::from_fn(|i, j| i * 3 + j);
-            /// // The two additional arguments represent the matrix dimensions.
-            /// let dm = DMatrix::from_fn(2, 3, |i, j| i * 3 + j);
-            ///
-            /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
-            /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
-            /// assert!(m.m11 == 0 && m.m12 == 1 && m.m13 == 2 &&
-            ///         m.m21 == 3 && m.m22 == 4 && m.m23 == 5);
-            /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 1 && dm[(0, 2)] == 2 &&
-            ///         dm[(1, 0)] == 3 && dm[(1, 1)] == 4 && dm[(1, 2)] == 5);
-            /// ```
-            #[inline]
-            pub fn from_fn<F>($($args: usize,)* f: F) -> Self
-                where F: FnMut(usize, usize) -> N {
-                Self::from_fn_generic($($gargs, )* f)
-            }
-
-            /// Creates an identity matrix. If the matrix is not square, the largest square
-            /// submatrix (starting at the first row and column) is set to the identity while all
-            /// other entries are set to zero.
-            ///
-            /// # Example
-            /// ```
-            /// # use nalgebra::{Matrix2x3, DMatrix};
-            /// # use std::iter;
-            ///
-            /// let m = Matrix2x3::<f32>::identity();
-            /// // The two additional arguments represent the matrix dimensions.
-            /// let dm = DMatrix::<f32>::identity(2, 3);
-            ///
-            /// assert!(m.m11 == 1.0 && m.m12 == 0.0 && m.m13 == 0.0 &&
-            ///         m.m21 == 0.0 && m.m22 == 1.0 && m.m23 == 0.0);
-            /// assert!(dm[(0, 0)] == 1.0 && dm[(0, 1)] == 0.0 && dm[(0, 2)] == 0.0 &&
-            ///         dm[(1, 0)] == 0.0 && dm[(1, 1)] == 1.0 && dm[(1, 2)] == 0.0);
-            /// ```
-            #[inline]
-            pub fn identity($($args: usize,)*) -> Self
-                where N: Zero + One {
-                Self::identity_generic($($gargs),* )
-            }
-
-            /// Creates a matrix filled with its diagonal filled with `elt` and all other
-            /// components set to zero.
-            ///
-            /// # Example
-            /// ```
-            /// # use nalgebra::{Matrix2x3, DMatrix};
-            /// # use std::iter;
-            ///
-            /// let m = Matrix2x3::from_diagonal_element(5.0);
-            /// // The two additional arguments represent the matrix dimensions.
-            /// let dm = DMatrix::from_diagonal_element(2, 3, 5.0);
-            ///
-            /// assert!(m.m11 == 5.0 && m.m12 == 0.0 && m.m13 == 0.0 &&
-            ///         m.m21 == 0.0 && m.m22 == 5.0 && m.m23 == 0.0);
-            /// assert!(dm[(0, 0)] == 5.0 && dm[(0, 1)] == 0.0 && dm[(0, 2)] == 0.0 &&
-            ///         dm[(1, 0)] == 0.0 && dm[(1, 1)] == 5.0 && dm[(1, 2)] == 0.0);
-            /// ```
-            #[inline]
-            pub fn from_diagonal_element($($args: usize,)* elt: N) -> Self
-                where N: Zero + One {
-                Self::from_diagonal_element_generic($($gargs, )* elt)
-            }
-
-            /// Creates a new matrix that may be rectangular. The first `elts.len()` diagonal
-            /// elements are filled with the content of `elts`. Others are set to 0.
-            ///
-            /// Panics if `elts.len()` is larger than the minimum among `nrows` and `ncols`.
-            ///
-            /// # Example
-            /// ```
-            /// # use nalgebra::{Matrix3, DMatrix};
-            /// # use std::iter;
-            ///
-            /// let m = Matrix3::from_partial_diagonal(&[1.0, 2.0]);
-            /// // The two additional arguments represent the matrix dimensions.
-            /// let dm = DMatrix::from_partial_diagonal(3, 3, &[1.0, 2.0]);
-            ///
-            /// assert!(m.m11 == 1.0 && m.m12 == 0.0 && m.m13 == 0.0 &&
-            ///         m.m21 == 0.0 && m.m22 == 2.0 && m.m23 == 0.0 &&
-            ///         m.m31 == 0.0 && m.m32 == 0.0 && m.m33 == 0.0);
-            /// assert!(dm[(0, 0)] == 1.0 && dm[(0, 1)] == 0.0 && dm[(0, 2)] == 0.0 &&
-            ///         dm[(1, 0)] == 0.0 && dm[(1, 1)] == 2.0 && dm[(1, 2)] == 0.0 &&
-            ///         dm[(2, 0)] == 0.0 && dm[(2, 1)] == 0.0 && dm[(2, 2)] == 0.0);
-            /// ```
-            #[inline]
-            pub fn from_partial_diagonal($($args: usize,)* elts: &[N]) -> Self
-                where N: Zero {
-                Self::from_partial_diagonal_generic($($gargs, )* elts)
-            }
-
-            /// Creates a matrix or vector filled with random values from the given distribution.
-            #[inline]
-            pub fn from_distribution<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
-                $($args: usize,)*
-                distribution: &Distr,
-                rng: &mut G,
-            ) -> Self {
-                Self::from_distribution_generic($($gargs, )* distribution, rng)
-            }
+        /// Creates a new uninitialized matrix or vector.
+        #[inline]
+        pub unsafe fn new_uninitialized($($args: usize),*) -> Self {
+            Self::new_uninitialized_generic($($gargs),*)
         }
 
-        impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
-            where
-            DefaultAllocator: Allocator<N $(, $Dims)*>,
-            Standard: Distribution<N> {
+        /// Creates a matrix or vector with all its elements set to `elem`.
+        ///
+        /// # Example
+        /// ```
+        /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
+        ///
+        /// let v = Vector3::from_element(2.0);
+        /// // The additional argument represents the vector dimension.
+        /// let dv = DVector::from_element(3, 2.0);
+        /// let m = Matrix2x3::from_element(2.0);
+        /// // The two additional arguments represent the matrix dimensions.
+        /// let dm = DMatrix::from_element(2, 3, 2.0);
+        ///
+        /// assert!(v.x == 2.0 && v.y == 2.0 && v.z == 2.0);
+        /// assert!(dv[0] == 2.0 && dv[1] == 2.0 && dv[2] == 2.0);
+        /// assert!(m.m11 == 2.0 && m.m12 == 2.0 && m.m13 == 2.0 &&
+        ///         m.m21 == 2.0 && m.m22 == 2.0 && m.m23 == 2.0);
+        /// assert!(dm[(0, 0)] == 2.0 && dm[(0, 1)] == 2.0 && dm[(0, 2)] == 2.0 &&
+        ///         dm[(1, 0)] == 2.0 && dm[(1, 1)] == 2.0 && dm[(1, 2)] == 2.0);
+        /// ```
+        #[inline]
+        pub fn from_element($($args: usize,)* elem: N) -> Self {
+            Self::from_element_generic($($gargs, )* elem)
+        }
 
-            /// Creates a matrix filled with random values.
-            #[inline]
-            #[cfg(feature = "std")]
-            pub fn new_random($($args: usize),*) -> Self {
-                Self::new_random_generic($($gargs),*)
-            }
+        /// Creates a matrix or vector with all its elements set to `elem`.
+        ///
+        /// Same as `.from_element`.
+        ///
+        /// # Example
+        /// ```
+        /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
+        ///
+        /// let v = Vector3::repeat(2.0);
+        /// // The additional argument represents the vector dimension.
+        /// let dv = DVector::repeat(3, 2.0);
+        /// let m = Matrix2x3::repeat(2.0);
+        /// // The two additional arguments represent the matrix dimensions.
+        /// let dm = DMatrix::repeat(2, 3, 2.0);
+        ///
+        /// assert!(v.x == 2.0 && v.y == 2.0 && v.z == 2.0);
+        /// assert!(dv[0] == 2.0 && dv[1] == 2.0 && dv[2] == 2.0);
+        /// assert!(m.m11 == 2.0 && m.m12 == 2.0 && m.m13 == 2.0 &&
+        ///         m.m21 == 2.0 && m.m22 == 2.0 && m.m23 == 2.0);
+        /// assert!(dm[(0, 0)] == 2.0 && dm[(0, 1)] == 2.0 && dm[(0, 2)] == 2.0 &&
+        ///         dm[(1, 0)] == 2.0 && dm[(1, 1)] == 2.0 && dm[(1, 2)] == 2.0);
+        /// ```
+        #[inline]
+        pub fn repeat($($args: usize,)* elem: N) -> Self {
+            Self::repeat_generic($($gargs, )* elem)
+        }
+
+        /// Creates a matrix or vector with all its elements set to `0`.
+        ///
+        /// # Example
+        /// ```
+        /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
+        ///
+        /// let v = Vector3::<f32>::zeros();
+        /// // The argument represents the vector dimension.
+        /// let dv = DVector::<f32>::zeros(3);
+        /// let m = Matrix2x3::<f32>::zeros();
+        /// // The two arguments represent the matrix dimensions.
+        /// let dm = DMatrix::<f32>::zeros(2, 3);
+        ///
+        /// assert!(v.x == 0.0 && v.y == 0.0 && v.z == 0.0);
+        /// assert!(dv[0] == 0.0 && dv[1] == 0.0 && dv[2] == 0.0);
+        /// assert!(m.m11 == 0.0 && m.m12 == 0.0 && m.m13 == 0.0 &&
+        ///         m.m21 == 0.0 && m.m22 == 0.0 && m.m23 == 0.0);
+        /// assert!(dm[(0, 0)] == 0.0 && dm[(0, 1)] == 0.0 && dm[(0, 2)] == 0.0 &&
+        ///         dm[(1, 0)] == 0.0 && dm[(1, 1)] == 0.0 && dm[(1, 2)] == 0.0);
+        /// ```
+        #[inline]
+        pub fn zeros($($args: usize),*) -> Self
+            where N: Zero {
+            Self::zeros_generic($($gargs),*)
+        }
+
+        /// Creates a matrix or vector with all its elements filled by an iterator.
+        ///
+        /// The output matrix is filled column-by-column.
+        ///
+        /// # Example
+        /// ```
+        /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
+        /// # use std::iter;
+        ///
+        /// let v = Vector3::from_iterator((0..3).into_iter());
+        /// // The additional argument represents the vector dimension.
+        /// let dv = DVector::from_iterator(3, (0..3).into_iter());
+        /// let m = Matrix2x3::from_iterator((0..6).into_iter());
+        /// // The two additional arguments represent the matrix dimensions.
+        /// let dm = DMatrix::from_iterator(2, 3, (0..6).into_iter());
+        ///
+        /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
+        /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
+        /// assert!(m.m11 == 0 && m.m12 == 2 && m.m13 == 4 &&
+        ///         m.m21 == 1 && m.m22 == 3 && m.m23 == 5);
+        /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 2 && dm[(0, 2)] == 4 &&
+        ///         dm[(1, 0)] == 1 && dm[(1, 1)] == 3 && dm[(1, 2)] == 5);
+        /// ```
+        #[inline]
+        pub fn from_iterator<I>($($args: usize,)* iter: I) -> Self
+            where I: IntoIterator<Item = N> {
+            Self::from_iterator_generic($($gargs, )* iter)
+        }
+
+        /// Creates a matrix or vector filled with the results of a function applied to each of its
+        /// component coordinates.
+        ///
+        /// # Example
+        /// ```
+        /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
+        /// # use std::iter;
+        ///
+        /// let v = Vector3::from_fn(|i, _| i);
+        /// // The additional argument represents the vector dimension.
+        /// let dv = DVector::from_fn(3, |i, _| i);
+        /// let m = Matrix2x3::from_fn(|i, j| i * 3 + j);
+        /// // The two additional arguments represent the matrix dimensions.
+        /// let dm = DMatrix::from_fn(2, 3, |i, j| i * 3 + j);
+        ///
+        /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
+        /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
+        /// assert!(m.m11 == 0 && m.m12 == 1 && m.m13 == 2 &&
+        ///         m.m21 == 3 && m.m22 == 4 && m.m23 == 5);
+        /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 1 && dm[(0, 2)] == 2 &&
+        ///         dm[(1, 0)] == 3 && dm[(1, 1)] == 4 && dm[(1, 2)] == 5);
+        /// ```
+        #[inline]
+        pub fn from_fn<F>($($args: usize,)* f: F) -> Self
+            where F: FnMut(usize, usize) -> N {
+            Self::from_fn_generic($($gargs, )* f)
+        }
+
+        /// Creates an identity matrix. If the matrix is not square, the largest square
+        /// submatrix (starting at the first row and column) is set to the identity while all
+        /// other entries are set to zero.
+        ///
+        /// # Example
+        /// ```
+        /// # use nalgebra::{Matrix2x3, DMatrix};
+        /// # use std::iter;
+        ///
+        /// let m = Matrix2x3::<f32>::identity();
+        /// // The two additional arguments represent the matrix dimensions.
+        /// let dm = DMatrix::<f32>::identity(2, 3);
+        ///
+        /// assert!(m.m11 == 1.0 && m.m12 == 0.0 && m.m13 == 0.0 &&
+        ///         m.m21 == 0.0 && m.m22 == 1.0 && m.m23 == 0.0);
+        /// assert!(dm[(0, 0)] == 1.0 && dm[(0, 1)] == 0.0 && dm[(0, 2)] == 0.0 &&
+        ///         dm[(1, 0)] == 0.0 && dm[(1, 1)] == 1.0 && dm[(1, 2)] == 0.0);
+        /// ```
+        #[inline]
+        pub fn identity($($args: usize,)*) -> Self
+            where N: Zero + One {
+            Self::identity_generic($($gargs),* )
+        }
+
+        /// Creates a matrix filled with its diagonal filled with `elt` and all other
+        /// components set to zero.
+        ///
+        /// # Example
+        /// ```
+        /// # use nalgebra::{Matrix2x3, DMatrix};
+        /// # use std::iter;
+        ///
+        /// let m = Matrix2x3::from_diagonal_element(5.0);
+        /// // The two additional arguments represent the matrix dimensions.
+        /// let dm = DMatrix::from_diagonal_element(2, 3, 5.0);
+        ///
+        /// assert!(m.m11 == 5.0 && m.m12 == 0.0 && m.m13 == 0.0 &&
+        ///         m.m21 == 0.0 && m.m22 == 5.0 && m.m23 == 0.0);
+        /// assert!(dm[(0, 0)] == 5.0 && dm[(0, 1)] == 0.0 && dm[(0, 2)] == 0.0 &&
+        ///         dm[(1, 0)] == 0.0 && dm[(1, 1)] == 5.0 && dm[(1, 2)] == 0.0);
+        /// ```
+        #[inline]
+        pub fn from_diagonal_element($($args: usize,)* elt: N) -> Self
+            where N: Zero + One {
+            Self::from_diagonal_element_generic($($gargs, )* elt)
+        }
+
+        /// Creates a new matrix that may be rectangular. The first `elts.len()` diagonal
+        /// elements are filled with the content of `elts`. Others are set to 0.
+        ///
+        /// Panics if `elts.len()` is larger than the minimum among `nrows` and `ncols`.
+        ///
+        /// # Example
+        /// ```
+        /// # use nalgebra::{Matrix3, DMatrix};
+        /// # use std::iter;
+        ///
+        /// let m = Matrix3::from_partial_diagonal(&[1.0, 2.0]);
+        /// // The two additional arguments represent the matrix dimensions.
+        /// let dm = DMatrix::from_partial_diagonal(3, 3, &[1.0, 2.0]);
+        ///
+        /// assert!(m.m11 == 1.0 && m.m12 == 0.0 && m.m13 == 0.0 &&
+        ///         m.m21 == 0.0 && m.m22 == 2.0 && m.m23 == 0.0 &&
+        ///         m.m31 == 0.0 && m.m32 == 0.0 && m.m33 == 0.0);
+        /// assert!(dm[(0, 0)] == 1.0 && dm[(0, 1)] == 0.0 && dm[(0, 2)] == 0.0 &&
+        ///         dm[(1, 0)] == 0.0 && dm[(1, 1)] == 2.0 && dm[(1, 2)] == 0.0 &&
+        ///         dm[(2, 0)] == 0.0 && dm[(2, 1)] == 0.0 && dm[(2, 2)] == 0.0);
+        /// ```
+        #[inline]
+        pub fn from_partial_diagonal($($args: usize,)* elts: &[N]) -> Self
+            where N: Zero {
+            Self::from_partial_diagonal_generic($($gargs, )* elts)
+        }
+
+        /// Creates a matrix or vector filled with random values from the given distribution.
+        #[inline]
+        pub fn from_distribution<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
+            $($args: usize,)*
+            distribution: &Distr,
+            rng: &mut G,
+        ) -> Self {
+            Self::from_distribution_generic($($gargs, )* distribution, rng)
+        }
+
+        /// Creates a matrix filled with random values.
+        #[inline]
+        #[cfg(feature = "std")]
+        pub fn new_random($($args: usize),*) -> Self
+            where Standard: Distribution<N> {
+            Self::new_random_generic($($gargs),*)
         }
     }
 );
 
-// FIXME: this is not very pretty. We could find a better call syntax.
-impl_constructors!(R, C;                         // Arguments for Matrix<N, ..., S>
-=> R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
-R::name(), C::name();         // Arguments for `_generic` constructors.
-); // Arguments for non-generic constructors.
+/// # Constructors of statically-sized vectors or statically-sized matrices
+impl<N: Scalar, R: DimName, C: DimName> MatrixMN<N, R, C>
+where
+    DefaultAllocator: Allocator<N, R, C>,
+{
+    // TODO: this is not very pretty. We could find a better call syntax.
+    impl_constructors!(R, C;                         // Arguments for Matrix<N, ..., S>
+    => R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
+    R::name(), C::name();         // Arguments for `_generic` constructors.
+    ); // Arguments for non-generic constructors.
+}
 
-impl_constructors!(R, Dynamic;
+/// # Constructors of matrices with a dynamic number of columns
+impl<N: Scalar, R: DimName> MatrixMN<N, R, Dynamic>
+where
+    DefaultAllocator: Allocator<N, R, Dynamic>,
+{
+    impl_constructors!(R, Dynamic;
                    => R: DimName;
                    R::name(), Dynamic::new(ncols);
                    ncols);
+}
 
-impl_constructors!(Dynamic, C;
+/// # Constructors of dynamic vectors and matrices with a dynamic number of rows
+impl<N: Scalar, C: DimName> MatrixMN<N, Dynamic, C>
+where
+    DefaultAllocator: Allocator<N, Dynamic, C>,
+{
+    impl_constructors!(Dynamic, C;
                    => C: DimName;
                    Dynamic::new(nrows), C::name();
                    nrows);
+}
 
-impl_constructors!(Dynamic, Dynamic;
+/// # Constructors of fully dynamic matrices
+impl<N: Scalar> MatrixMN<N, Dynamic, Dynamic>
+where
+    DefaultAllocator: Allocator<N, Dynamic, Dynamic>,
+{
+    impl_constructors!(Dynamic, Dynamic;
                    ;
                    Dynamic::new(nrows), Dynamic::new(ncols);
                    nrows, ncols);
+}
 
 /*
  *
  * Constructors that don't necessarily require all dimensions
- * to be specified whon one dimension is already known.
+ * to be specified when one dimension is already known.
  *
  */
 macro_rules! impl_constructors_from_data(
@@ -711,7 +727,7 @@ macro_rules! impl_constructors_from_data(
     }
 );
 
-// FIXME: this is not very pretty. We could find a better call syntax.
+// TODO: this is not very pretty. We could find a better call syntax.
 impl_constructors_from_data!(data; R, C;                  // Arguments for Matrix<N, ..., S>
 => R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
 R::name(), C::name();         // Arguments for `_generic` constructors.

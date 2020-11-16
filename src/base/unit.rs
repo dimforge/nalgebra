@@ -237,7 +237,7 @@ where T::RealField: RelativeEq
 //     }
 // }
 */
-// FIXME:re-enable this impl when specialization is possible.
+// TODO:re-enable this impl when specialization is possible.
 // Currently, it is disabled so that we can have a nice output for the `UnitQuaternion` display.
 /*
 impl<T: fmt::Display> fmt::Display for Unit<T> {

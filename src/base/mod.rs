@@ -36,6 +36,8 @@ mod vec_storage;
 
 #[doc(hidden)]
 pub mod helper;
+mod interpolation;
+mod min_max;
 
 pub use self::matrix::*;
 pub use self::norm::*;

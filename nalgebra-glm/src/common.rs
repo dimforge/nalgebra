@@ -239,9 +239,9 @@ where
     x.map(|x| x.floor())
 }
 
-//// FIXME: should be implemented for TVec/TMat?
+//// TODO: should be implemented for TVec/TMat?
 //pub fn fma<N: Number>(a: N, b: N, c: N) -> N {
-//    // FIXME: use an actual FMA
+//    // TODO: use an actual FMA
 //    a * b + c
 //}
 
@@ -268,10 +268,10 @@ where
     x.map(|x| x.fract())
 }
 
-//// FIXME: should be implemented for TVec/TMat?
+//// TODO: should be implemented for TVec/TMat?
 ///// Returns the (significant, exponent) of this float number.
 //pub fn frexp<N: RealField>(x: N, exp: N) -> (N, N) {
-//    // FIXME: is there a better approach?
+//    // TODO: is there a better approach?
 //    let e = x.log2().ceil();
 //    (x * (-e).exp2(), e)
 //}
@@ -327,7 +327,7 @@ where
 
 ///// Returns the (significant, exponent) of this float number.
 //pub fn ldexp<N: RealField>(x: N, exp: N) -> N {
-//    // FIXME: is there a better approach?
+//    // TODO: is there a better approach?
 //    x * (exp).exp2()
 //}
 

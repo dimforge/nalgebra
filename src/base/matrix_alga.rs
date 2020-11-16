@@ -214,7 +214,7 @@ where
     }
 }
 
-// FIXME: specialization will greatly simplify this implementation in the future.
+// TODO: specialization will greatly simplify this implementation in the future.
 // In particular:
 //   − use `x()` instead of `::canonical_basis_element`
 //   − use `::new(x, y, z)` instead of `::from_slice`
@@ -244,7 +244,7 @@ where
                 .try_normalize_mut(<N as ComplexField>::RealField::zero())
                 .is_some()
             {
-                // FIXME: this will be efficient on dynamically-allocated vectors but for
+                // TODO: this will be efficient on dynamically-allocated vectors but for
                 // statically-allocated ones, `.clone_from` would be better.
                 vs.swap(nbasis_elements, i);
                 nbasis_elements += 1;
@@ -264,7 +264,7 @@ where
     where
         F: FnMut(&Self) -> bool,
     {
-        // FIXME: is this necessary?
+        // TODO: is this necessary?
         assert!(
             vs.len() <= Self::dimension(),
             "The given set of vectors has no chance of being a free family."

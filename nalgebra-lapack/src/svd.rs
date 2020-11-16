@@ -37,9 +37,9 @@ where
     DefaultAllocator: Allocator<N, R, R> + Allocator<N, DimMinimum<R, C>> + Allocator<N, C, C>,
 {
     /// The left-singular vectors `U` of this SVD.
-    pub u: MatrixN<N, R>, // FIXME: should be MatrixMN<N, R, DimMinimum<R, C>>
+    pub u: MatrixN<N, R>, // TODO: should be MatrixMN<N, R, DimMinimum<R, C>>
     /// The right-singular vectors `V^t` of this SVD.
-    pub vt: MatrixN<N, C>, // FIXME: should be MatrixMN<N, DimMinimum<R, C>, C>
+    pub vt: MatrixN<N, C>, // TODO: should be MatrixMN<N, DimMinimum<R, C>, C>
     /// The singular values of this SVD.
     pub singular_values: VectorN<N, DimMinimum<R, C>>,
 }
@@ -134,7 +134,7 @@ macro_rules! svd_impl(
         }
 
         impl<R: DimMin<C>, C: Dim> SVD<$t, R, C>
-            // FIXME: All those bounds…
+            // TODO: All those bounds…
             where DefaultAllocator: Allocator<$t, R, C>                 +
                                     Allocator<$t, C, R>                 +
                                     Allocator<$t, U1, R>                +
@@ -219,7 +219,7 @@ macro_rules! svd_impl(
                 i
             }
 
-            // FIXME: add methods to retrieve the null-space and column-space? (Respectively
+            // TODO: add methods to retrieve the null-space and column-space? (Respectively
             // corresponding to the zero and non-zero singular values).
         }
     );

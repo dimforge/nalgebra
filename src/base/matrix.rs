@@ -54,7 +54,80 @@ pub type MatrixCross<N, R1, C1, R2, C2> =
 
 /// The most generic column-major matrix (and vector) type.
 ///
-/// It combines four type parameters:
+/// # Methods summary
+/// Because `Matrix` is the most generic types used as a common representation of all matrices and
+/// vectors of **nalgebra** this documentation page contains every single matrix/vector-related
+/// method. In order to make browsing this page simpler, the next subsections contain direct links
+/// to groups of methods related to a specific topic.
+///
+/// #### Vector and matrix construction
+/// - [Constructors of statically-sized vectors or statically-sized matrices](#constructors-of-statically-sized-vectors-or-statically-sized-matrices)
+///   (`Vector3`, `Matrix3x6`…)
+/// - [Constructors of fully dynamic matrices](#constructors-of-fully-dynamic-matrices) (`DMatrix`)
+/// - [Constructors of dynamic vectors and matrices with a dynamic number of rows](#constructors-of-dynamic-vectors-and-matrices-with-a-dynamic-number-of-rows)
+///   (`DVector`, `MatrixXx3`…)
+/// - [Constructors of matrices with a dynamic number of columns](#constructors-of-matrices-with-a-dynamic-number-of-columns)
+///   (`Matrix2xX`…)
+/// - [Generic constructors](#generic-constructors)
+///   (For code generic wrt. the vectors or matrices dimensions.)
+///
+/// #### Computer graphics utilities for transformations
+/// - [2D transformations as a Matrix3 <span style="float:right;">`new_rotation`…</span>](#2d-transformations-as-a-matrix3)
+/// - [3D transformations as a Matrix4 <span style="float:right;">`new_rotation`, `new_perspective`, `look_at_rh`…</span>](#3d-transformations-as-a-matrix4)
+/// - [Translation and scaling in any dimension <span style="float:right;">`new_scaling`, `new_translation`…</span>](#translation-and-scaling-in-any-dimension)
+/// - [Append/prepend translation and scaling <span style="float:right;">`append_scaling`, `prepend_translation_mut`…</span>](#appendprepend-translation-and-scaling)
+/// - [Transformation of vectors and points <span style="float:right;">`transform_vector`, `transform_point`…</span>](#transformation-of-vectors-and-points)
+///
+/// #### Common math operations
+/// - [Componentwise operations <span style="float:right;">`component_mul`, `component_div`, `inf`…</span>](#componentwise-operations)
+/// - [Special multiplications <span style="float:right;">`tr_mul`, `ad_mul`, `kronecker`…</span>](#special-multiplications)
+/// - [Dot/scalar product <span style="float:right;">`dot`, `dotc`, `tr_dot`…</span>](#dotscalar-product)
+/// - [Cross product <span style="float:right;">`cross`, `perp`…</span>](#cross-product)
+/// - [Magnitude and norms <span style="float:right;">`norm`, `normalize`, `metric_distance`…</span>](#magnitude-and-norms)
+/// - [In-place normalization <span style="float:right;">`normalize_mut`, `try_normalize_mut`…</span>](#in-place-normalization)
+/// - [Interpolation <span style="float:right;">`lerp`, `slerp`…</span>](#interpolation)
+/// - [BLAS functions <span style="float:right;">`gemv`, `gemm`, `syger`…</span>](#blas-functions)
+/// - [Swizzling <span style="float:right;">`xx`, `yxz`…</span>](#swizzling)
+///
+/// #### Statistics
+/// - [Common operations <span style="float:right;">`row_sum`, `column_mean`, `variance`…</span>](#common-statistics-operations)
+/// - [Find the min and max components <span style="float:right;">`min`, `max`, `amin`, `amax`, `camin`, `cmax`…</span>](#find-the-min-and-max-components)
+/// - [Find the min and max components (vector-specific methods) <span style="float:right;">`argmin`, `argmax`, `icamin`, `icamax`…</span>](#find-the-min-and-max-components-vector-specific-methods)
+///
+/// #### Iteration, map, and fold
+/// - [Iteration on components, rows, and columns <span style="float:right;">`iter`, `column_iter`…</span>](#iteration-on-components-rows-and-columns)
+/// - [Elementwise mapping and folding <span style="float:right;">`map`, `fold`, `zip_map`…</span>](#elementwise-mapping-and-folding)
+/// - [Folding or columns and rows <span style="float:right;">`compress_rows`, `compress_columns`…</span>](#folding-on-columns-and-rows)
+///
+/// #### Vector and matrix slicing
+/// - [Creating matrix slices from `&[T]` <span style="float:right;">`from_slice`, `from_slice_with_strides`…</span>](#creating-matrix-slices-from-t)
+/// - [Creating mutable matrix slices from `&mut [T]` <span style="float:right;">`from_slice_mut`, `from_slice_with_strides_mut`…</span>](#creating-mutable-matrix-slices-from-mut-t)
+/// - [Slicing based on index and length <span style="float:right;">`row`, `columns`, `slice`…</span>](#slicing-based-on-index-and-length)
+/// - [Mutable slicing based on index and length <span style="float:right;">`row_mut`, `columns_mut`, `slice_mut`…</span>](#mutable-slicing-based-on-index-and-length)
+/// - [Slicing based on ranges <span style="float:right;">`rows_range`, `columns_range`…</span>](#slicing-based-on-ranges)
+/// - [Mutable slicing based on ranges <span style="float:right;">`rows_range_mut`, `columns_range_mut`…</span>](#mutable-slicing-based-on-ranges)
+///
+/// #### In-place modification of a single matrix or vector
+/// - [In-place filling <span style="float:right;">`fill`, `fill_diagonal`, `fill_with_identity`…</span>](#in-place-filling)
+/// - [In-place swapping <span style="float:right;">`swap`, `swap_columns`…</span>](#in-place-swapping)
+/// - [Set rows, columns, and diagonal <span style="float:right;">`set_column`, `set_diagonal`…</span>](#set-rows-columns-and-diagonal)
+///
+/// #### Vector and matrix size modification
+/// - [Rows and columns insertion <span style="float:right;">`insert_row`, `insert_column`…</span>](#rows-and-columns-insertion)
+/// - [Rows and columns removal <span style="float:right;">`remove_row`, `remove column`…</span>](#rows-and-columns-removal)
+/// - [Rows and columns extraction <span style="float:right;">`select_rows`, `select_columns`…</span>](#rows-and-columns-extraction)
+/// - [Resizing and reshaping <span style="float:right;">`resize`, `reshape_generic`…</span>](#resizing-and-reshaping)
+/// - [In-place resizing <span style="float:right;">`resize_mut`, `resize_vertically_mut`…</span>](#in-place-resizing)
+///
+/// #### Matrix decomposition
+/// - [Rectangular matrix decomposition <span style="float:right;">`qr`, `lu`, `svd`…</span>](#rectangular-matrix-decomposition)
+/// - [Square matrix decomposition <span style="float:right;">`cholesky`, `symmetric_eigen`…</span>](#square-matrix-decomposition)
+///
+/// #### Vector basis computation
+/// - [Basis and orthogonalization <span style="float:right;">`orthonormal_subspace_basis`, `orthonormalize`…</span>](#basis-and-orthogonalization)
+///
+/// # Type parameters
+/// The generic `Matrix` type has four type parameters:
 /// - `N`: for the matrix components scalar type.
 /// - `R`: for the matrix number of rows.
 /// - `C`: for the matrix number of columns.
@@ -78,8 +151,29 @@ pub type MatrixCross<N, R1, C1, R2, C2> =
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Matrix<N: Scalar, R: Dim, C: Dim, S> {
-    /// The data storage that contains all the matrix components and informations about its number
-    /// of rows and column (if needed).
+    /// The data storage that contains all the matrix components. Disappointed?
+    ///
+    /// Well, if you came here to see how you can access the matrix components,
+    /// you may be in luck: you can access the individual components of all vectors with compile-time
+    /// dimensions <= 6 using field notation like this:
+    /// `vec.x`, `vec.y`, `vec.z`, `vec.w`, `vec.a`, `vec.b`. Reference and assignation work too:
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let mut vec = Vector3::new(1.0, 2.0, 3.0);
+    /// vec.x = 10.0;
+    /// vec.y += 30.0;
+    /// assert_eq!(vec.x, 10.0);
+    /// assert_eq!(vec.y + 100.0, 132.0);
+    /// ```
+    /// Similarly, for matrices with compile-time dimensions <= 6, you can use field notation
+    /// like this: `mat.m11`, `mat.m42`, etc. The first digit identifies the row to address
+    /// and the second digit identifies the column to address. So `mat.m13` identifies the component
+    /// at the first row and third column (note that the count of rows and columns start at 1 instead
+    /// of 0 here. This is so we match the mathematical notation).
+    ///
+    /// For all matrices and vectors, independently from their size, individual components can
+    /// be accessed and modified using indexing: `vec[20]`, `mat[(20, 19)]`. Here the indexing
+    /// starts at 0 as you would expect.
     pub data: S,
 
     _phantoms: PhantomData<(N, R, C)>,
@@ -274,58 +368,6 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         (srows.value(), scols.value())
     }
 
-    /// Iterates through this matrix coordinates in column-major order.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::Matrix2x3;
-    /// let mat = Matrix2x3::new(11, 12, 13,
-    ///                          21, 22, 23);
-    /// let mut it = mat.iter();
-    /// assert_eq!(*it.next().unwrap(), 11);
-    /// assert_eq!(*it.next().unwrap(), 21);
-    /// assert_eq!(*it.next().unwrap(), 12);
-    /// assert_eq!(*it.next().unwrap(), 22);
-    /// assert_eq!(*it.next().unwrap(), 13);
-    /// assert_eq!(*it.next().unwrap(), 23);
-    /// assert!(it.next().is_none());
-    #[inline]
-    pub fn iter(&self) -> MatrixIter<N, R, C, S> {
-        MatrixIter::new(&self.data)
-    }
-
-    /// Iterate through the rows of this matrix.
-    ///
-    /// # Example
-    /// ```
-    /// # use nalgebra::Matrix2x3;
-    /// let mut a = Matrix2x3::new(1, 2, 3,
-    ///                            4, 5, 6);
-    /// for (i, row) in a.row_iter().enumerate() {
-    ///     assert_eq!(row, a.row(i))
-    /// }
-    /// ```
-    #[inline]
-    pub fn row_iter(&self) -> RowIter<N, R, C, S> {
-        RowIter::new(self)
-    }
-
-    /// Iterate through the columns of this matrix.
-    /// # Example
-    /// ```
-    /// # use nalgebra::Matrix2x3;
-    /// let mut a = Matrix2x3::new(1, 2, 3,
-    ///                            4, 5, 6);
-    /// for (i, column) in a.column_iter().enumerate() {
-    ///     assert_eq!(column, a.column(i))
-    /// }
-    /// ```
-    #[inline]
-    pub fn column_iter(&self) -> ColumnIter<N, R, C, S> {
-        ColumnIter::new(self)
-    }
-
     /// Computes the row and column coordinates of the i-th element of this matrix seen as a
     /// vector.
     ///
@@ -418,7 +460,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         Matrix::from_data(self.data.into_owned())
     }
 
-    // FIXME: this could probably benefit from specialization.
+    // TODO: this could probably benefit from specialization.
     // XXX: bad name.
     /// Moves this matrix into one that owns its data. The actual type of the result depends on
     /// matrix storage combination rules for addition.
@@ -434,7 +476,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             // We can just return `self.into_owned()`.
 
             unsafe {
-                // FIXME: check that those copies are optimized away by the compiler.
+                // TODO: check that those copies are optimized away by the compiler.
                 let owned = self.into_owned();
                 let res = mem::transmute_copy(&owned);
                 mem::forget(owned);
@@ -471,7 +513,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         let mut res: MatrixSum<N, R, C, R2, C2> =
             unsafe { Matrix::new_uninitialized_generic(nrows, ncols) };
 
-        // FIXME: use copy_from
+        // TODO: use copy_from
         for j in 0..res.ncols() {
             for i in 0..res.nrows() {
                 unsafe {
@@ -483,6 +525,51 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         res
     }
 
+    /// Transposes `self` and store the result into `out`.
+    #[inline]
+    pub fn transpose_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
+    where
+        R2: Dim,
+        C2: Dim,
+        SB: StorageMut<N, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R, C2> + SameNumberOfColumns<C, R2>,
+    {
+        let (nrows, ncols) = self.shape();
+        assert!(
+            (ncols, nrows) == out.shape(),
+            "Incompatible shape for transpose-copy."
+        );
+
+        // TODO: optimize that.
+        for i in 0..nrows {
+            for j in 0..ncols {
+                unsafe {
+                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).inlined_clone();
+                }
+            }
+        }
+    }
+
+    /// Transposes `self`.
+    #[inline]
+    #[must_use = "Did you mean to use transpose_mut()?"]
+    pub fn transpose(&self) -> MatrixMN<N, C, R>
+    where
+        DefaultAllocator: Allocator<N, C, R>,
+    {
+        let (nrows, ncols) = self.data.shape();
+
+        unsafe {
+            let mut res = Matrix::new_uninitialized_generic(ncols, nrows);
+            self.transpose_to(&mut res);
+
+            res
+        }
+    }
+}
+
+/// # Elementwise mapping and folding
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a matrix containing the result of `f` applied to each of its entries.
     #[inline]
     pub fn map<N2: Scalar, F: FnMut(N) -> N2>(&self, mut f: F) -> MatrixMN<N2, R, C>
@@ -687,63 +774,166 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         res
     }
 
-    /// Transposes `self` and store the result into `out`.
+    /// Replaces each component of `self` by the result of a closure `f` applied on it.
     #[inline]
-    pub fn transpose_to<R2, C2, SB>(&self, out: &mut Matrix<N, R2, C2, SB>)
+    pub fn apply<F: FnMut(N) -> N>(&mut self, mut f: F)
     where
-        R2: Dim,
-        C2: Dim,
-        SB: StorageMut<N, R2, C2>,
-        ShapeConstraint: SameNumberOfRows<R, C2> + SameNumberOfColumns<C, R2>,
+        S: StorageMut<N, R, C>,
     {
         let (nrows, ncols) = self.shape();
-        assert!(
-            (ncols, nrows) == out.shape(),
-            "Incompatible shape for transpose-copy."
-        );
 
-        // FIXME: optimize that.
-        for i in 0..nrows {
-            for j in 0..ncols {
+        for j in 0..ncols {
+            for i in 0..nrows {
                 unsafe {
-                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).inlined_clone();
+                    let e = self.data.get_unchecked_mut(i, j);
+                    *e = f(e.inlined_clone())
                 }
             }
         }
     }
 
-    /// Transposes `self`.
+    /// Replaces each component of `self` by the result of a closure `f` applied on its components
+    /// joined with the components from `rhs`.
     #[inline]
-    #[must_use = "Did you mean to use transpose_mut()?"]
-    pub fn transpose(&self) -> MatrixMN<N, C, R>
-    where
-        DefaultAllocator: Allocator<N, C, R>,
+    pub fn zip_apply<N2, R2, C2, S2>(
+        &mut self,
+        rhs: &Matrix<N2, R2, C2, S2>,
+        mut f: impl FnMut(N, N2) -> N,
+    ) where
+        S: StorageMut<N, R, C>,
+        N2: Scalar,
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<N2, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
-        let (nrows, ncols) = self.data.shape();
+        let (nrows, ncols) = self.shape();
 
-        unsafe {
-            let mut res = Matrix::new_uninitialized_generic(ncols, nrows);
-            self.transpose_to(&mut res);
+        assert_eq!(
+            (nrows, ncols),
+            rhs.shape(),
+            "Matrix simultaneous traversal error: dimension mismatch."
+        );
 
-            res
+        for j in 0..ncols {
+            for i in 0..nrows {
+                unsafe {
+                    let e = self.data.get_unchecked_mut(i, j);
+                    let rhs = rhs.get_unchecked((i, j)).inlined_clone();
+                    *e = f(e.inlined_clone(), rhs)
+                }
+            }
+        }
+    }
+
+    /// Replaces each component of `self` by the result of a closure `f` applied on its components
+    /// joined with the components from `b` and `c`.
+    #[inline]
+    pub fn zip_zip_apply<N2, R2, C2, S2, N3, R3, C3, S3>(
+        &mut self,
+        b: &Matrix<N2, R2, C2, S2>,
+        c: &Matrix<N3, R3, C3, S3>,
+        mut f: impl FnMut(N, N2, N3) -> N,
+    ) where
+        S: StorageMut<N, R, C>,
+        N2: Scalar,
+        R2: Dim,
+        C2: Dim,
+        S2: Storage<N2, R2, C2>,
+        N3: Scalar,
+        R3: Dim,
+        C3: Dim,
+        S3: Storage<N3, R3, C3>,
+        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+    {
+        let (nrows, ncols) = self.shape();
+
+        assert_eq!(
+            (nrows, ncols),
+            b.shape(),
+            "Matrix simultaneous traversal error: dimension mismatch."
+        );
+        assert_eq!(
+            (nrows, ncols),
+            c.shape(),
+            "Matrix simultaneous traversal error: dimension mismatch."
+        );
+
+        for j in 0..ncols {
+            for i in 0..nrows {
+                unsafe {
+                    let e = self.data.get_unchecked_mut(i, j);
+                    let b = b.get_unchecked((i, j)).inlined_clone();
+                    let c = c.get_unchecked((i, j)).inlined_clone();
+                    *e = f(e.inlined_clone(), b, c)
+                }
+            }
         }
     }
 }
 
-impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
-    /// Mutably iterates through this matrix coordinates.
+/// # Iteration on components, rows, and columns
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+    /// Iterates through this matrix coordinates in column-major order.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mat = Matrix2x3::new(11, 12, 13,
+    ///                          21, 22, 23);
+    /// let mut it = mat.iter();
+    /// assert_eq!(*it.next().unwrap(), 11);
+    /// assert_eq!(*it.next().unwrap(), 21);
+    /// assert_eq!(*it.next().unwrap(), 12);
+    /// assert_eq!(*it.next().unwrap(), 22);
+    /// assert_eq!(*it.next().unwrap(), 13);
+    /// assert_eq!(*it.next().unwrap(), 23);
+    /// assert!(it.next().is_none());
     #[inline]
-    pub fn iter_mut(&mut self) -> MatrixIterMut<N, R, C, S> {
-        MatrixIterMut::new(&mut self.data)
+    pub fn iter(&self) -> MatrixIter<N, R, C, S> {
+        MatrixIter::new(&self.data)
     }
 
-    /// Returns a mutable pointer to the start of the matrix.
+    /// Iterate through the rows of this matrix.
     ///
-    /// If the matrix is not empty, this pointer is guaranteed to be aligned
-    /// and non-null.
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut a = Matrix2x3::new(1, 2, 3,
+    ///                            4, 5, 6);
+    /// for (i, row) in a.row_iter().enumerate() {
+    ///     assert_eq!(row, a.row(i))
+    /// }
+    /// ```
     #[inline]
-    pub fn as_mut_ptr(&mut self) -> *mut N {
-        self.data.ptr_mut()
+    pub fn row_iter(&self) -> RowIter<N, R, C, S> {
+        RowIter::new(self)
+    }
+
+    /// Iterate through the columns of this matrix.
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    /// let mut a = Matrix2x3::new(1, 2, 3,
+    ///                            4, 5, 6);
+    /// for (i, column) in a.column_iter().enumerate() {
+    ///     assert_eq!(column, a.column(i))
+    /// }
+    /// ```
+    #[inline]
+    pub fn column_iter(&self) -> ColumnIter<N, R, C, S> {
+        ColumnIter::new(self)
+    }
+
+    /// Mutably iterates through this matrix coordinates.
+    #[inline]
+    pub fn iter_mut(&mut self) -> MatrixIterMut<N, R, C, S>
+    where
+        S: StorageMut<N, R, C>,
+    {
+        MatrixIterMut::new(&mut self.data)
     }
 
     /// Mutably iterates through this matrix rows.
@@ -762,7 +952,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// assert_eq!(a, expected);
     /// ```
     #[inline]
-    pub fn row_iter_mut(&mut self) -> RowIterMut<N, R, C, S> {
+    pub fn row_iter_mut(&mut self) -> RowIterMut<N, R, C, S>
+    where
+        S: StorageMut<N, R, C>,
+    {
         RowIterMut::new(self)
     }
 
@@ -782,8 +975,22 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     /// assert_eq!(a, expected);
     /// ```
     #[inline]
-    pub fn column_iter_mut(&mut self) -> ColumnIterMut<N, R, C, S> {
+    pub fn column_iter_mut(&mut self) -> ColumnIterMut<N, R, C, S>
+    where
+        S: StorageMut<N, R, C>,
+    {
         ColumnIterMut::new(self)
+    }
+}
+
+impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+    /// Returns a mutable pointer to the start of the matrix.
+    ///
+    /// If the matrix is not empty, this pointer is guaranteed to be aligned
+    /// and non-null.
+    #[inline]
+    pub fn as_mut_ptr(&mut self) -> *mut N {
+        self.data.ptr_mut()
     }
 
     /// Swaps two entries without bound-checking.
@@ -878,105 +1085,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
         }
     }
 
-    // FIXME: rename `apply` to `apply_mut` and `apply_into` to `apply`?
+    // TODO: rename `apply` to `apply_mut` and `apply_into` to `apply`?
     /// Returns `self` with each of its components replaced by the result of a closure `f` applied on it.
     #[inline]
     pub fn apply_into<F: FnMut(N) -> N>(mut self, f: F) -> Self {
         self.apply(f);
         self
-    }
-
-    /// Replaces each component of `self` by the result of a closure `f` applied on it.
-    #[inline]
-    pub fn apply<F: FnMut(N) -> N>(&mut self, mut f: F) {
-        let (nrows, ncols) = self.shape();
-
-        for j in 0..ncols {
-            for i in 0..nrows {
-                unsafe {
-                    let e = self.data.get_unchecked_mut(i, j);
-                    *e = f(e.inlined_clone())
-                }
-            }
-        }
-    }
-
-    /// Replaces each component of `self` by the result of a closure `f` applied on its components
-    /// joined with the components from `rhs`.
-    #[inline]
-    pub fn zip_apply<N2, R2, C2, S2>(
-        &mut self,
-        rhs: &Matrix<N2, R2, C2, S2>,
-        mut f: impl FnMut(N, N2) -> N,
-    ) where
-        N2: Scalar,
-        R2: Dim,
-        C2: Dim,
-        S2: Storage<N2, R2, C2>,
-        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
-    {
-        let (nrows, ncols) = self.shape();
-
-        assert_eq!(
-            (nrows, ncols),
-            rhs.shape(),
-            "Matrix simultaneous traversal error: dimension mismatch."
-        );
-
-        for j in 0..ncols {
-            for i in 0..nrows {
-                unsafe {
-                    let e = self.data.get_unchecked_mut(i, j);
-                    let rhs = rhs.get_unchecked((i, j)).inlined_clone();
-                    *e = f(e.inlined_clone(), rhs)
-                }
-            }
-        }
-    }
-
-    /// Replaces each component of `self` by the result of a closure `f` applied on its components
-    /// joined with the components from `b` and `c`.
-    #[inline]
-    pub fn zip_zip_apply<N2, R2, C2, S2, N3, R3, C3, S3>(
-        &mut self,
-        b: &Matrix<N2, R2, C2, S2>,
-        c: &Matrix<N3, R3, C3, S3>,
-        mut f: impl FnMut(N, N2, N3) -> N,
-    ) where
-        N2: Scalar,
-        R2: Dim,
-        C2: Dim,
-        S2: Storage<N2, R2, C2>,
-        N3: Scalar,
-        R3: Dim,
-        C3: Dim,
-        S3: Storage<N3, R3, C3>,
-        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
-        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
-    {
-        let (nrows, ncols) = self.shape();
-
-        assert_eq!(
-            (nrows, ncols),
-            b.shape(),
-            "Matrix simultaneous traversal error: dimension mismatch."
-        );
-        assert_eq!(
-            (nrows, ncols),
-            c.shape(),
-            "Matrix simultaneous traversal error: dimension mismatch."
-        );
-
-        for j in 0..ncols {
-            for i in 0..nrows {
-                unsafe {
-                    let e = self.data.get_unchecked_mut(i, j);
-                    let b = b.get_unchecked((i, j)).inlined_clone();
-                    let c = c.get_unchecked((i, j)).inlined_clone();
-                    *e = f(e.inlined_clone(), b, c)
-                }
-            }
-        }
     }
 }
 
@@ -1050,7 +1164,7 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
             "Incompatible shape for transpose-copy."
         );
 
-        // FIXME: optimize that.
+        // TODO: optimize that.
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {
@@ -1627,6 +1741,7 @@ fn lower_exp() {
     )
 }
 
+/// # Cross product
 impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N, R, C>>
     Matrix<N, R, C, S>
 {
@@ -1655,7 +1770,7 @@ impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N
         }
     }
 
-    // FIXME: use specialization instead of an assertion.
+    // TODO: use specialization instead of an assertion.
     /// The 3D cross product between two vectors.
     ///
     /// Panics if the shape is not 3D vector. In the future, this will be implemented only for
@@ -1679,7 +1794,7 @@ impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N
 
         if shape.0 == 3 {
             unsafe {
-                // FIXME: soooo ugly!
+                // TODO: soooo ugly!
                 let nrows = SameShapeR::<R, R2>::from_usize(3);
                 let ncols = SameShapeC::<C, C2>::from_usize(1);
                 let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
@@ -1703,7 +1818,7 @@ impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N
             }
         } else {
             unsafe {
-                // FIXME: ugly!
+                // TODO: ugly!
                 let nrows = SameShapeR::<R, R2>::from_usize(1);
                 let ncols = SameShapeC::<C, C2>::from_usize(3);
                 let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
@@ -1768,96 +1883,6 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
             let cang = prod.simd_real() / (n1 * n2);
             cang.simd_clamp(-N::SimdRealField::one(), N::SimdRealField::one())
                 .simd_acos()
-        }
-    }
-}
-
-impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Storage<N, D>>
-    Vector<N, D, S>
-{
-    /// Returns `self * (1.0 - t) + rhs * t`, i.e., the linear blend of the vectors x and y using the scalar value a.
-    ///
-    /// The value for a is not restricted to the range `[0, 1]`.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::Vector3;
-    /// let x = Vector3::new(1.0, 2.0, 3.0);
-    /// let y = Vector3::new(10.0, 20.0, 30.0);
-    /// assert_eq!(x.lerp(&y, 0.1), Vector3::new(1.9, 3.8, 5.7));
-    /// ```
-    pub fn lerp<S2: Storage<N, D>>(&self, rhs: &Vector<N, D, S2>, t: N) -> VectorN<N, D>
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
-        let mut res = self.clone_owned();
-        res.axpy(t.inlined_clone(), rhs, N::one() - t);
-        res
-    }
-}
-
-impl<N: RealField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
-    /// Computes the spherical linear interpolation between two unit vectors.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::{Unit, Vector2};
-    ///
-    /// let v1 = Unit::new_normalize(Vector2::new(1.0, 2.0));
-    /// let v2 = Unit::new_normalize(Vector2::new(2.0, -3.0));
-    ///
-    /// let v = v1.slerp(&v2, 1.0);
-    ///
-    /// assert_eq!(v, v2);
-    /// ```
-    pub fn slerp<S2: Storage<N, D>>(
-        &self,
-        rhs: &Unit<Vector<N, D, S2>>,
-        t: N,
-    ) -> Unit<VectorN<N, D>>
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
-        // FIXME: the result is wrong when self and rhs are collinear with opposite direction.
-        self.try_slerp(rhs, t, N::default_epsilon())
-            .unwrap_or(Unit::new_unchecked(self.clone_owned()))
-    }
-
-    /// Computes the spherical linear interpolation between two unit vectors.
-    ///
-    /// Returns `None` if the two vectors are almost collinear and with opposite direction
-    /// (in this case, there is an infinity of possible results).
-    pub fn try_slerp<S2: Storage<N, D>>(
-        &self,
-        rhs: &Unit<Vector<N, D, S2>>,
-        t: N,
-        epsilon: N,
-    ) -> Option<Unit<VectorN<N, D>>>
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
-        let c_hang = self.dot(rhs);
-
-        // self == other
-        if c_hang >= N::one() {
-            return Some(Unit::new_unchecked(self.clone_owned()));
-        }
-
-        let hang = c_hang.acos();
-        let s_hang = (N::one() - c_hang * c_hang).sqrt();
-
-        // FIXME: what if s_hang is 0.0 ? The result is not well-defined.
-        if relative_eq!(s_hang, N::zero(), epsilon = epsilon) {
-            None
-        } else {
-            let ta = ((N::one() - t) * hang).sin() / s_hang;
-            let tb = (t * hang).sin() / s_hang;
-            let mut res = self.scale(ta);
-            res.axpy(tb, &**rhs, N::one());
-
-            Some(Unit::new_unchecked(res))
         }
     }
 }

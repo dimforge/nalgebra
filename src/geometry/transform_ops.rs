@@ -27,7 +27,7 @@ use crate::geometry::{
  * Transform × Similarity
  * Transform × Transform
  * Transform × UnitQuaternion
- * FIXME: Transform × UnitComplex
+ * TODO: Transform × UnitComplex
  * Transform × Translation
  * Transform × Vector
  * Transform × Point
@@ -37,21 +37,21 @@ use crate::geometry::{
  * Similarity     × Transform
  * Translation    × Transform
  * UnitQuaternion × Transform
- * FIXME: UnitComplex × Transform
+ * TODO: UnitComplex × Transform
  *
- * FIXME: Transform ÷ Isometry
+ * TODO: Transform ÷ Isometry
  * Transform ÷ Rotation
- * FIXME: Transform ÷ Similarity
+ * TODO: Transform ÷ Similarity
  * Transform ÷ Transform
  * Transform ÷ UnitQuaternion
  * Transform ÷ Translation
  *
- * FIXME: Isometry       ÷ Transform
+ * TODO: Isometry       ÷ Transform
  * Rotation       ÷ Transform
- * FIXME: Similarity     ÷ Transform
+ * TODO: Similarity     ÷ Transform
  * Translation    ÷ Transform
  * UnitQuaternion ÷ Transform
- * FIXME: UnitComplex ÷ Transform
+ * TODO: UnitComplex ÷ Transform
  *
  *
  * (Assignment Operators)
@@ -62,15 +62,15 @@ use crate::geometry::{
  * Transform ×= Isometry
  * Transform ×= Rotation
  * Transform ×= UnitQuaternion
- * FIXME: Transform ×= UnitComplex
+ * TODO: Transform ×= UnitComplex
  * Transform ×= Translation
  *
  * Transform ÷= Transform
- * FIXME: Transform ÷= Similarity
- * FIXME: Transform ÷= Isometry
+ * TODO: Transform ÷= Similarity
+ * TODO: Transform ÷= Isometry
  * Transform ÷= Rotation
  * Transform ÷= UnitQuaternion
- * FIXME: Transform ÷= UnitComplex
+ * TODO: Transform ÷= UnitComplex
  *
  */
 
@@ -260,7 +260,7 @@ md_impl_all!(
 
 /*
  *
- * FIXME: don't explicitly build the homogeneous translation matrix.
+ * TODO: don't explicitly build the homogeneous translation matrix.
  * Directly apply the translation, just as in `Matrix::{append,prepend}_translation`. This has not
  * been done yet because of the `DimNameDiff` requirement (which is not automatically deduced from
  * `DimNameAdd` requirement).
@@ -452,7 +452,7 @@ md_assign_impl_all!(
 
 /*
  *
- * FIXME: don't explicitly build the homogeneous translation matrix.
+ * TODO: don't explicitly build the homogeneous translation matrix.
  * Directly apply the translation, just as in `Matrix::{append,prepend}_translation`. This has not
  * been done yet because of the `DimNameDiff` requirement (which is not automatically deduced from
  * `DimNameAdd` requirement).

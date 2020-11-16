@@ -308,32 +308,6 @@ where
         + Allocator<N::RealField, D>
         + Allocator<N::RealField, DimDiff<D, U1>>,
 {
-    /// Computes the eigendecomposition of this symmetric matrix.
-    ///
-    /// Only the lower-triangular part (including the diagonal) of `m` is read.
-    pub fn symmetric_eigen(self) -> SymmetricEigen<N, D> {
-        SymmetricEigen::new(self.into_owned())
-    }
-
-    /// Computes the eigendecomposition of the given symmetric matrix with user-specified
-    /// convergence parameters.
-    ///
-    /// Only the lower-triangular part (including the diagonal) of `m` is read.
-    ///
-    /// # Arguments
-    ///
-    /// * `eps`       − tolerance used to determine when a value converged to 0.
-    /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
-    pub fn try_symmetric_eigen(
-        self,
-        eps: N::RealField,
-        max_niter: usize,
-    ) -> Option<SymmetricEigen<N, D>> {
-        SymmetricEigen::try_new(self.into_owned(), eps, max_niter)
-    }
-
     /// Computes the eigenvalues of this symmetric matrix.
     ///
     /// Only the lower-triangular part of the matrix is read.

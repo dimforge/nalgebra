@@ -191,7 +191,7 @@ where
                         }
 
                         let v = Vector2::new(subm[(0, 0)], subm[(1, 0)]);
-                        // FIXME: does the case `v.y == 0` ever happen?
+                        // TODO: does the case `v.y == 0` ever happen?
                         let (rot2, norm2) = GivensRotation::cancel_y(&v)
                             .unwrap_or((GivensRotation::identity(), subm[(0, 0)]));
 
@@ -395,7 +395,7 @@ where
                 off_diagonal[m] = N::RealField::zero();
                 break;
             }
-            // FIXME: write a test that enters this case.
+            // TODO: write a test that enters this case.
             else if diagonal[m].norm1() <= eps {
                 diagonal[m] = N::RealField::zero();
                 Self::cancel_horizontal_off_diagonal_elt(
@@ -562,7 +562,7 @@ where
     ///
     /// Any singular value smaller than `eps` is assumed to be zero.
     /// Returns `Err` if the singular vectors `U` and `V` have not been computed.
-    // FIXME: make this more generic wrt the storage types and the dimensions for `b`.
+    // TODO: make this more generic wrt the storage types and the dimensions for `b`.
     pub fn solve<R2: Dim, C2: Dim, S2>(
         &self,
         b: &Matrix<N, R2, C2, S2>,
@@ -616,31 +616,6 @@ where
         + Allocator<N::RealField, DimMinimum<R, C>>
         + Allocator<N::RealField, DimDiff<DimMinimum<R, C>, U1>>,
 {
-    /// Computes the Singular Value Decomposition using implicit shift.
-    pub fn svd(self, compute_u: bool, compute_v: bool) -> SVD<N, R, C> {
-        SVD::new(self.into_owned(), compute_u, compute_v)
-    }
-
-    /// Attempts to compute the Singular Value Decomposition of `matrix` using implicit shift.
-    ///
-    /// # Arguments
-    ///
-    /// * `compute_u` − set this to `true` to enable the computation of left-singular vectors.
-    /// * `compute_v` − set this to `true` to enable the computation of right-singular vectors.
-    /// * `eps`       − tolerance used to determine when a value converged to 0.
-    /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
-    pub fn try_svd(
-        self,
-        compute_u: bool,
-        compute_v: bool,
-        eps: N::RealField,
-        max_niter: usize,
-    ) -> Option<SVD<N, R, C>> {
-        SVD::try_new(self.into_owned(), compute_u, compute_v, eps, max_niter)
-    }
-
     /// Computes the singular values of this matrix.
     pub fn singular_values(&self) -> VectorN<N::RealField, DimMinimum<R, C>> {
         SVD::new(self.clone_owned(), false, false).singular_values

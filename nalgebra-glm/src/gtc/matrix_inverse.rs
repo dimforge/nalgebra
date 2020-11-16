@@ -8,7 +8,7 @@ pub fn affine_inverse<N: RealField, D: Dimension>(m: TMat<N, D, D>) -> TMat<N, D
 where
     DefaultAllocator: Alloc<N, D, D>,
 {
-    // FIXME: this should be optimized.
+    // TODO: this should be optimized.
     m.try_inverse().unwrap_or_else(TMat::<_, D, D>::zeros)
 }
 

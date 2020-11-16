@@ -392,7 +392,7 @@ impl<N: RealField> Orthographic3<N> {
         (-N::one() + self.matrix[(2, 3)]) / self.matrix[(2, 2)]
     }
 
-    // FIXME: when we get specialization, specialize the Mul impl instead.
+    // TODO: when we get specialization, specialize the Mul impl instead.
     /// Projects a point. Faster than matrix multiplication.
     ///
     /// # Example
@@ -463,7 +463,7 @@ impl<N: RealField> Orthographic3<N> {
         )
     }
 
-    // FIXME: when we get specialization, specialize the Mul impl instead.
+    // TODO: when we get specialization, specialize the Mul impl instead.
     /// Projects a vector. Faster than matrix multiplication.
     ///
     /// Vectors are not affected by the translation part of the projection.

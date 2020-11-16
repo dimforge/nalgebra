@@ -107,7 +107,7 @@ add_sub_impl!(Sub, sub, ClosedSub;
 add_sub_impl!(Sub, sub, ClosedSub;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
     self: &'a Point<N, D1>, right: Vector<N, D2, SB>, Output = Point<N, D1>;
-    Self::Output::from(&self.coords - &right); 'a); // FIXME: should not be a ref to `right`.
+    Self::Output::from(&self.coords - &right); 'a); // TODO: should not be a ref to `right`.
 
 add_sub_impl!(Sub, sub, ClosedSub;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
@@ -128,7 +128,7 @@ add_sub_impl!(Add, add, ClosedAdd;
 add_sub_impl!(Add, add, ClosedAdd;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
     self: &'a Point<N, D1>, right: Vector<N, D2, SB>, Output = Point<N, D1>;
-    Self::Output::from(&self.coords + &right); 'a); // FIXME: should not be a ref to `right`.
+    Self::Output::from(&self.coords + &right); 'a); // TODO: should not be a ref to `right`.
 
 add_sub_impl!(Add, add, ClosedAdd;
     (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;

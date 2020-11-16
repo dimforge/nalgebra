@@ -41,7 +41,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         &self.axis
     }
 
-    // FIXME: naming convention: reflect_to, reflect_assign ?
+    // TODO: naming convention: reflect_to, reflect_assign ?
     /// Applies the reflection to the columns of `rhs`.
     pub fn reflect<R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
     where
@@ -58,7 +58,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
         }
     }
 
-    // FIXME: naming convention: reflect_to, reflect_assign ?
+    // TODO: naming convention: reflect_to, reflect_assign ?
     /// Applies the reflection to the columns of `rhs`.
     pub fn reflect_with_sign<R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>, sign: N)
     where

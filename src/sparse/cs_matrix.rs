@@ -42,7 +42,7 @@ impl<'a, N: Clone> Iterator for ColumnEntries<'a, N> {
     }
 }
 
-// FIXME: this structure exists for now only because impl trait
+// TODO: this structure exists for now only because impl trait
 // cannot be used for trait method return types.
 /// Trait for iterable compressed-column matrix storage.
 pub trait CsStorageIter<'a, N, R, C = U1> {

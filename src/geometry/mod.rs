@@ -22,7 +22,7 @@ mod rotation_alias;
 mod rotation_construction;
 mod rotation_conversion;
 mod rotation_ops;
-mod rotation_simba; // FIXME: implement Rotation methods.
+mod rotation_simba; // TODO: implement Rotation methods.
 mod rotation_specialization;
 
 mod quaternion;
