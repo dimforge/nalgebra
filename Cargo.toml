@@ -34,6 +34,9 @@ compare = [ "matrixcompare-core" ]
 libm = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 
+# This feature is only used for tests, and enables tests that require more time to run
+slow-tests = []
+
 
 [dependencies]
 typenum        = "1.12"

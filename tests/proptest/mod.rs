@@ -5,9 +5,13 @@ use nalgebra::{DMatrix, DVector, Dim, Matrix3, MatrixMN, Vector3};
 use proptest::prelude::*;
 use proptest::strategy::ValueTree;
 use proptest::test_runner::TestRunner;
-use itertools::Itertools;
-use std::iter::repeat;
-use std::collections::HashSet;
+
+#[cfg(feature = "slow-tests")]
+use {
+    itertools::Itertools,
+    std::iter::repeat,
+    std::collections::HashSet,
+};
 
 /// Generate a proptest that tests that all matrices generated with the
 /// provided rows and columns conform to the constraints defined by the
@@ -92,6 +96,7 @@ proptest! {
     fn ensure_arbitrary_test_compiles_dvector(_: DVector<i32>) {}
 }
 
+#[cfg(feature = "slow-tests")]
 #[test]
 fn matrix_samples_all_possible_outputs() {
     // Test that the proptest generation covers all possible outputs for a small space of inputs
