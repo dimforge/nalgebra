@@ -7,7 +7,13 @@ edition = "2018"
 [features]
 proptest-support = ["proptest", "nalgebra/proptest"]
 
+# Enable to enable running some tests that take a lot of time to run
+slow-tests = []
+
 [dependencies]
 nalgebra = { version="0.23", path = "../" }
 num-traits = { version = "0.2", default-features = false }
 proptest = { version = "0.10", optional = true }
+
+[dev-dependencies]
+itertools = "0.9"

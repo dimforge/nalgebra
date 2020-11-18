@@ -37,7 +37,7 @@ use num_traits::Zero;
 ///
 /// // TODO: Convert to CSR
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CooMatrix<T> {
     nrows: usize,
     ncols: usize,
