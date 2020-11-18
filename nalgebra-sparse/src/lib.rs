@@ -68,6 +68,11 @@
 //! - Cholesky factorization (port existing factorization from nalgebra's sparse module)
 //!
 //!
+//! TODO: Write docs on the following:
+//!
+//! - Overall design ("easy API" vs. "expert" API etc.)
+//! - Conversions (From, explicit "expert" API etc.)
+//! - Matrix ops design
 #![deny(non_camel_case_types)]
 #![deny(unused_parens)]
 #![deny(non_upper_case_globals)]
@@ -80,6 +85,7 @@ pub mod csc;
 pub mod csr;
 pub mod pattern;
 pub mod ops;
+pub mod convert;
 
 #[cfg(feature = "proptest-support")]
 pub mod proptest;

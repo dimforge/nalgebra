@@ -186,6 +186,8 @@ where
     /// Construct the dense representation of the COO matrix.
     ///
     /// Duplicate entries are summed together.
+    ///
+    /// TODO: Remove?
     pub fn to_dense(&self) -> DMatrix<T>
     where
         T: ClosedAdd + Zero,
