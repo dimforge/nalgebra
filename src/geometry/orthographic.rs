@@ -26,7 +26,7 @@ impl<N: RealField> Copy for Orthographic3<N> {}
 impl<N: RealField> Clone for Orthographic3<N> {
     #[inline]
     fn clone(&self) -> Self {
-        Self::from_matrix_unchecked(self.matrix.clone())
+        Self::from_matrix_unchecked(self.matrix)
     }
 }
 

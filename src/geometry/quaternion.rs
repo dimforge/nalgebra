@@ -335,7 +335,7 @@ where
     where
         N: RealField,
     {
-        let mut res = self.clone();
+        let mut res = *self;
 
         if res.try_inverse_mut() {
             Some(res)

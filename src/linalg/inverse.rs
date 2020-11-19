@@ -40,7 +40,7 @@ impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
             match dim {
                 0 => true,
                 1 => {
-                    let determinant = self.get_unchecked((0, 0)).clone();
+                    let determinant = *self.get_unchecked((0, 0));
                     if determinant.is_zero() {
                         false
                     } else {

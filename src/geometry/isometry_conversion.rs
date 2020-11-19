@@ -187,7 +187,7 @@ where
     #[inline]
     fn from(arr: [Isometry<N::Element, D, R::Element>; 2]) -> Self {
         let tra = Translation::from([arr[0].translation.clone(), arr[1].translation.clone()]);
-        let rot = R::from([arr[0].rotation.clone(), arr[0].rotation.clone()]);
+        let rot = R::from([arr[0].rotation, arr[0].rotation]);
 
         Self::from_parts(tra, rot)
     }
@@ -212,10 +212,10 @@ where
             arr[3].translation.clone(),
         ]);
         let rot = R::from([
-            arr[0].rotation.clone(),
-            arr[1].rotation.clone(),
-            arr[2].rotation.clone(),
-            arr[3].rotation.clone(),
+            arr[0].rotation,
+            arr[1].rotation,
+            arr[2].rotation,
+            arr[3].rotation,
         ]);
 
         Self::from_parts(tra, rot)
@@ -245,14 +245,14 @@ where
             arr[7].translation.clone(),
         ]);
         let rot = R::from([
-            arr[0].rotation.clone(),
-            arr[1].rotation.clone(),
-            arr[2].rotation.clone(),
-            arr[3].rotation.clone(),
-            arr[4].rotation.clone(),
-            arr[5].rotation.clone(),
-            arr[6].rotation.clone(),
-            arr[7].rotation.clone(),
+            arr[0].rotation,
+            arr[1].rotation,
+            arr[2].rotation,
+            arr[3].rotation,
+            arr[4].rotation,
+            arr[5].rotation,
+            arr[6].rotation,
+            arr[7].rotation,
         ]);
 
         Self::from_parts(tra, rot)
@@ -290,22 +290,22 @@ where
             arr[15].translation.clone(),
         ]);
         let rot = R::from([
-            arr[0].rotation.clone(),
-            arr[1].rotation.clone(),
-            arr[2].rotation.clone(),
-            arr[3].rotation.clone(),
-            arr[4].rotation.clone(),
-            arr[5].rotation.clone(),
-            arr[6].rotation.clone(),
-            arr[7].rotation.clone(),
-            arr[8].rotation.clone(),
-            arr[9].rotation.clone(),
-            arr[10].rotation.clone(),
-            arr[11].rotation.clone(),
-            arr[12].rotation.clone(),
-            arr[13].rotation.clone(),
-            arr[14].rotation.clone(),
-            arr[15].rotation.clone(),
+            arr[0].rotation,
+            arr[1].rotation,
+            arr[2].rotation,
+            arr[3].rotation,
+            arr[4].rotation,
+            arr[5].rotation,
+            arr[6].rotation,
+            arr[7].rotation,
+            arr[8].rotation,
+            arr[9].rotation,
+            arr[10].rotation,
+            arr[11].rotation,
+            arr[12].rotation,
+            arr[13].rotation,
+            arr[14].rotation,
+            arr[15].rotation,
         ]);
 
         Self::from_parts(tra, rot)
