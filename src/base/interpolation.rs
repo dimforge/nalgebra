@@ -81,7 +81,7 @@ impl<N: RealField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     {
         // TODO: the result is wrong when self and rhs are collinear with opposite direction.
         self.try_slerp(rhs, t, N::default_epsilon())
-            .unwrap_or(Unit::new_unchecked(self.clone_owned()))
+            .unwrap_or_else(|| Unit::new_unchecked(self.clone_owned()))
     }
 
     /// Computes the spherical linear interpolation between two unit vectors.

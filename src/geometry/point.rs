@@ -194,6 +194,19 @@ where
         self.coords.len()
     }
 
+    /// Returns true if the point contains no elements.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Point2, Point3};
+    /// let p = Point2::new(1.0, 2.0);
+    /// assert!(!p.is_empty());
+    /// ```
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// The stride of this point. This is the number of buffer element separating each component of
     /// this point.
     #[inline]

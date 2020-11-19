@@ -144,6 +144,11 @@ where
         self.len
     }
 
+    /// Returns true if the permutation sequence contains no elements.
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     /// The determinant of the matrix corresponding to this permutation.
     #[inline]
     pub fn determinant<N: One + ClosedNeg>(&self) -> N {

@@ -10,11 +10,33 @@ use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// Indicates if this is an empty matrix.
+    /// The total number of elements of this matrix.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3x4;
+    /// let mat = Matrix3x4::<f32>::zeros();
+    /// assert_eq!(mat.len(), 12);
+    /// ```
+    #[inline]
+    pub fn len(&self) -> usize {
+        let (nrows, ncols) = self.shape();
+        nrows * ncols
+    }
+
+    /// Returns true if the matrix contains no elements.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3x4;
+    /// let mat = Matrix3x4::<f32>::zeros();
+    /// assert!(!mat.is_empty());
+    /// ```
     #[inline]
     pub fn is_empty(&self) -> bool {
-        let (nrows, ncols) = self.shape();
-        nrows == 0 || ncols == 0
+        self.len() == 0
     }
 
     /// Indicates if this is a square matrix.

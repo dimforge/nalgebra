@@ -240,7 +240,7 @@ md_assign_impl_all!(
     (U3, U3), (U3, U3) for;
     self: Similarity<N, U3, UnitQuaternion<N>>, rhs: UnitQuaternion<N>;
     [val] => self.isometry.rotation *= rhs;
-    [ref] => self.isometry.rotation *= rhs.clone();
+    [ref] => self.isometry.rotation *= *rhs;
 );
 
 md_assign_impl_all!(
@@ -257,7 +257,7 @@ md_assign_impl_all!(
     (U2, U2), (U2, U2) for;
     self: Similarity<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>;
     [val] => self.isometry.rotation *= rhs;
-    [ref] => self.isometry.rotation *= rhs.clone();
+    [ref] => self.isometry.rotation *= *rhs;
 );
 
 md_assign_impl_all!(

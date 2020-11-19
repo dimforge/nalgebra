@@ -238,7 +238,7 @@ where
         SB: Storage<N, R>,
     {
         assert!(!columns.is_empty(), "At least one column must be given.");
-        let ncols = C::try_to_usize().unwrap_or(columns.len());
+        let ncols = C::try_to_usize().unwrap_or_else(|| columns.len());
         let nrows = columns[0].len();
         assert!(
             columns.len() == ncols,
