@@ -125,7 +125,35 @@ macro_rules! iterator {
         {
             #[inline]
             fn next_back(&mut self) -> Option<$Ref> {
-                todo!()
+                unsafe {
+                    if self.size == 0 {
+                        None
+                    } else {
+                        // Pre-decrement `size` such that it now counts to the
+                        // element we want to return.
+                        self.size -= 1;
+
+                        // Fetch strides
+                        let inner_stride = self.strides.0.value();
+                        let outer_stride = self.strides.1.value();
+                        debug_assert_eq!(outer_stride % inner_stride, 0);
+                        let num_rows = outer_stride / inner_stride;
+
+                        // Compute rows and cols remaining
+                        let outer_remaining = self.size / num_rows;
+                        let inner_remaining = self.size % num_rows;
+
+                        // Compute pointer to last element
+                        let last = self.ptr.offset(
+                            (outer_remaining * outer_stride + inner_remaining * inner_stride)
+                                as isize,
+                        );
+
+                        // We want either `& *last` or `&mut *last` here, depending
+                        // on the mutability of `$Ref`.
+                        Some(mem::transmute(last))
+                    }
+                }
             }
         }
     };
