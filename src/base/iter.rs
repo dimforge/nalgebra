@@ -119,6 +119,15 @@ macro_rules! iterator {
                 self.size
             }
         }
+
+        impl<'a, N: Scalar, R: Dim, C: Dim, S: 'a + $Storage<N, R, C>> DoubleEndedIterator
+            for $Name<'a, N, R, C, S>
+        {
+            #[inline]
+            fn next_back(&mut self) -> Option<$Ref> {
+                todo!()
+            }
+        }
     };
 }
 
