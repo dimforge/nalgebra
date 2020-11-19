@@ -1,5 +1,6 @@
 //! Matrix iterators.
 
+use std::iter::FusedIterator;
 use std::marker::PhantomData;
 use std::mem;
 
@@ -111,15 +112,6 @@ macro_rules! iterator {
             }
         }
 
-        impl<'a, N: Scalar, R: Dim, C: Dim, S: 'a + $Storage<N, R, C>> ExactSizeIterator
-            for $Name<'a, N, R, C, S>
-        {
-            #[inline]
-            fn len(&self) -> usize {
-                self.size
-            }
-        }
-
         impl<'a, N: Scalar, R: Dim, C: Dim, S: 'a + $Storage<N, R, C>> DoubleEndedIterator
             for $Name<'a, N, R, C, S>
         {
@@ -156,6 +148,20 @@ macro_rules! iterator {
                     }
                 }
             }
+        }
+
+        impl<'a, N: Scalar, R: Dim, C: Dim, S: 'a + $Storage<N, R, C>> ExactSizeIterator
+            for $Name<'a, N, R, C, S>
+        {
+            #[inline]
+            fn len(&self) -> usize {
+                self.size
+            }
+        }
+
+        impl<'a, N: Scalar, R: Dim, C: Dim, S: 'a + $Storage<N, R, C>> FusedIterator
+            for $Name<'a, N, R, C, S>
+        {
         }
     };
 }
