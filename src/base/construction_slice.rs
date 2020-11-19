@@ -22,7 +22,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         cstride: CStride,
     ) -> Self {
         let data = SliceStorage::from_raw_parts(
-            data.as_ptr().offset(start as isize),
+            data.as_ptr().add(start),
             (nrows, ncols),
             (rstride, cstride),
         );
@@ -156,7 +156,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         cstride: CStride,
     ) -> Self {
         let data = SliceStorageMut::from_raw_parts(
-            data.as_mut_ptr().offset(start as isize),
+            data.as_mut_ptr().add(start),
             (nrows, ncols),
             (rstride, cstride),
         );

@@ -44,7 +44,7 @@ macro_rules! iterator {
                     // If 'size' is non-zero, we know that 'ptr'
                     // is not dangling, and 'inner_offset' must lie
                     // within the allocation
-                    unsafe { ptr.offset(inner_offset as isize) }
+                    unsafe { ptr.add(inner_offset) }
                 };
 
                 $Name {
@@ -87,13 +87,13 @@ macro_rules! iterator {
                         // Go to the next element.
                         let old = self.ptr;
 
-                        let stride = self.strides.0.value() as isize;
                         // Don't offset `self.ptr` for the last element,
                         // as this will be out of bounds. Iteration is done
                         // at this point (the next call to `next` will return `None`)
                         // so this is not observable.
                         if self.size != 0 {
-                            self.ptr = self.ptr.offset(stride);
+                            let stride = self.strides.0.value();
+                            self.ptr = self.ptr.add(stride);
                         }
                         Some(mem::transmute(old))
                     }

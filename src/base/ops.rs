@@ -5,7 +5,6 @@ use std::ops::{
 };
 
 use simba::scalar::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
-use simba::simd::{SimdPartialOrd, SimdSigned};
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use crate::base::constraint::{

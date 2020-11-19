@@ -108,7 +108,7 @@ where
         max_niter: usize,
     ) -> Option<Self> {
         assert!(
-            matrix.len() != 0,
+            !matrix.is_empty(),
             "Cannot compute the SVD of an empty matrix."
         );
         let (nrows, ncols) = matrix.data.shape();

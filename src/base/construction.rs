@@ -195,7 +195,7 @@ where
     where
         SB: Storage<N, U1, C>,
     {
-        assert!(rows.len() > 0, "At least one row must be given.");
+        assert!(!rows.is_empty(), "At least one row must be given.");
         let nrows = R::try_to_usize().unwrap_or_else(|| rows.len());
         let ncols = rows[0].len();
         assert!(
@@ -237,7 +237,7 @@ where
     where
         SB: Storage<N, R>,
     {
-        assert!(columns.len() > 0, "At least one column must be given.");
+        assert!(!columns.is_empty(), "At least one column must be given.");
         let ncols = C::try_to_usize().unwrap_or(columns.len());
         let nrows = columns[0].len();
         assert!(
