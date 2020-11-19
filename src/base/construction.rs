@@ -1,3 +1,6 @@
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+use alloc::vec::Vec;
+
 #[cfg(feature = "arbitrary")]
 use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
@@ -297,7 +300,7 @@ where
     /// assert_eq!(matrix_storage_ptr, vec_ptr);
     /// ```
     #[inline]
-    #[cfg(feature = "std")]
+    #[cfg(any(feature = "std", feature = "alloc"))]
     pub fn from_vec_generic(nrows: R, ncols: C, data: Vec<N>) -> Self {
         Self::from_iterator_generic(nrows, ncols, data)
     }
@@ -719,7 +722,7 @@ macro_rules! impl_constructors_from_data(
             ///         dm[(1, 0)] == 1 && dm[(1, 1)] == 3 && dm[(1, 2)] == 5);
             /// ```
             #[inline]
-            #[cfg(feature = "std")]
+            #[cfg(any(feature = "std", feature = "alloc"))]
             pub fn from_vec($($args: usize,)* $data: Vec<N>) -> Self {
                 Self::from_vec_generic($($gargs, )* $data)
             }

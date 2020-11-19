@@ -1,3 +1,5 @@
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+use alloc::vec::Vec;
 #[cfg(feature = "mint")]
 use mint;
 use simba::scalar::{SubsetOf, SupersetOf};
@@ -20,12 +22,12 @@ use crate::base::dimension::{
 };
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
-#[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::VecStorage;
 use crate::base::{
     ArrayStorage, DVectorSlice, DVectorSliceMut, DefaultAllocator, Matrix, MatrixMN, MatrixSlice,
     MatrixSliceMut, Scalar,
 };
+#[cfg(any(feature = "std", feature = "alloc"))]
+use crate::base::{DVector, VecStorage};
 use crate::base::{SliceStorage, SliceStorageMut};
 use crate::constraint::DimEq;
 
@@ -542,6 +544,14 @@ where
             );
             Matrix::from_data_statically_unchecked(data)
         }
+    }
+}
+
+#[cfg(any(feature = "std", feature = "alloc"))]
+impl<'a, N: Scalar> From<Vec<N>> for DVector<N> {
+    #[inline]
+    fn from(vec: Vec<N>) -> Self {
+        Self::from_vec(vec)
     }
 }
 
