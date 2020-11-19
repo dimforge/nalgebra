@@ -11,7 +11,6 @@ use na::{
 #[test]
 fn iter() {
     let a = Matrix2x3::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
-    dbg!(a);
 
     let mut it = a.iter();
     assert_eq!(*it.next().unwrap(), 1.0);
