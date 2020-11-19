@@ -85,6 +85,12 @@ impl<N, R: Dim, C: Dim> VecStorage<N, R, C> {
     pub fn len(&self) -> usize {
         self.data.len()
     }
+
+    /// Returns true if the underlying vector contains no elements.
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 
 impl<N, R: Dim, C: Dim> Into<Vec<N>> for VecStorage<N, R, C> {

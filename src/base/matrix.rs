@@ -298,20 +298,6 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         unsafe { Self::from_data_statically_unchecked(data) }
     }
 
-    /// The total number of elements of this matrix.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::Matrix3x4;
-    /// let mat = Matrix3x4::<f32>::zeros();
-    /// assert_eq!(mat.len(), 12);
-    #[inline]
-    pub fn len(&self) -> usize {
-        let (nrows, ncols) = self.shape();
-        nrows * ncols
-    }
-
     /// The shape of this matrix returned as the tuple (number of rows, number of columns).
     ///
     /// # Examples:
