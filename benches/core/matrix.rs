@@ -136,6 +136,30 @@ fn mat500_mul_mat500(bench: &mut criterion::Criterion) {
     bench.bench_function("mat500_mul_mat500", move |bh| bh.iter(|| &a * &b));
 }
 
+fn iter(bench: &mut criterion::Criterion) {
+    let a = DMatrix::<f64>::new_random(1000, 1000);
+
+    bench.bench_function("iter", move |bh| {
+        bh.iter(|| {
+            for value in a.iter() {
+                criterion::black_box(value);
+            }
+        })
+    });
+}
+
+fn iter_rev(bench: &mut criterion::Criterion) {
+    let a = DMatrix::<f64>::new_random(1000, 1000);
+
+    bench.bench_function("iter_rev", move |bh| {
+        bh.iter(|| {
+            for value in a.iter().rev() {
+                criterion::black_box(value);
+            }
+        })
+    });
+}
+
 fn copy_from(bench: &mut criterion::Criterion) {
     let a = DMatrix::<f64>::new_random(1000, 1000);
     let mut b = DMatrix::<f64>::new_random(1000, 1000);
@@ -235,6 +259,8 @@ criterion_group!(
     mat10_mul_mat10_static,
     mat100_mul_mat100,
     mat500_mul_mat500,
+    iter,
+    iter_rev,
     copy_from,
     axpy,
     tr_mul_to,
