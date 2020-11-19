@@ -244,12 +244,12 @@ where
 
     fn pade7(&mut self) -> (MatrixN<N, D>, MatrixN<N, D>) {
         let b: [N; 8] = [
-            convert(17297280.0),
-            convert(8648640.0),
-            convert(1995840.0),
-            convert(277200.0),
-            convert(25200.0),
-            convert(1512.0),
+            convert(17_297_280.0),
+            convert(8_648_640.0),
+            convert(1_995_840.0),
+            convert(277_200.0),
+            convert(25_200.0),
+            convert(1_512.0),
             convert(56.0),
             convert(1.0),
         ];
@@ -270,14 +270,14 @@ where
 
     fn pade9(&mut self) -> (MatrixN<N, D>, MatrixN<N, D>) {
         let b: [N; 10] = [
-            convert(17643225600.0),
-            convert(8821612800.0),
-            convert(2075673600.0),
-            convert(302702400.0),
-            convert(30270240.0),
-            convert(2162160.0),
-            convert(110880.0),
-            convert(3960.0),
+            convert(17_643_225_600.0),
+            convert(8_821_612_800.0),
+            convert(2_075_673_600.0),
+            convert(302_702_400.0),
+            convert(30_270_240.0),
+            convert(2_162_160.0),
+            convert(110_880.0),
+            convert(3_960.0),
             convert(90.0),
             convert(1.0),
         ];
@@ -301,18 +301,18 @@ where
 
     fn pade13_scaled(&mut self, s: u64) -> (MatrixN<N, D>, MatrixN<N, D>) {
         let b: [N; 14] = [
-            convert(64764752532480000.0),
-            convert(32382376266240000.0),
-            convert(7771770303897600.0),
-            convert(1187353796428800.0),
-            convert(129060195264000.0),
-            convert(10559470521600.0),
-            convert(670442572800.0),
-            convert(33522128640.0),
-            convert(1323241920.0),
-            convert(40840800.0),
-            convert(960960.0),
-            convert(16380.0),
+            convert(64_764_752_532_480_000.0),
+            convert(32_382_376_266_240_000.0),
+            convert(7_771_770_303_897_600.0),
+            convert(1_187_353_796_428_800.0),
+            convert(129_060_195_264_000.0),
+            convert(10_559_470_521_600.0),
+            convert(670_442_572_800.0),
+            convert(33_522_128_640.0),
+            convert(1_323_241_920.0),
+            convert(40_840_800.0),
+            convert(960_960.0),
+            convert(16_380.0),
             convert(182.0),
             convert(1.0),
         ];
@@ -444,23 +444,23 @@ where
         let mut h = ExpmPadeHelper::new(self.clone(), true);
 
         let eta_1 = N::RealField::max(h.d4_loose(), h.d6_loose());
-        if eta_1 < convert(1.495585217958292e-002) && ell(&h.a, 3) == 0 {
+        if eta_1 < convert(1.495_585_217_958_292e-2) && ell(&h.a, 3) == 0 {
             let (u, v) = h.pade3();
             return solve_p_q(u, v);
         }
 
         let eta_2 = N::RealField::max(h.d4_tight(), h.d6_loose());
-        if eta_2 < convert(2.539398330063230e-001) && ell(&h.a, 5) == 0 {
+        if eta_2 < convert(2.539_398_330_063_230e-1) && ell(&h.a, 5) == 0 {
             let (u, v) = h.pade5();
             return solve_p_q(u, v);
         }
 
         let eta_3 = N::RealField::max(h.d6_tight(), h.d8_loose());
-        if eta_3 < convert(9.504178996162932e-001) && ell(&h.a, 7) == 0 {
+        if eta_3 < convert(9.504_178_996_162_932e-1) && ell(&h.a, 7) == 0 {
             let (u, v) = h.pade7();
             return solve_p_q(u, v);
         }
-        if eta_3 < convert(2.097847961257068e+000) && ell(&h.a, 9) == 0 {
+        if eta_3 < convert(2.097_847_961_257_068e+0) && ell(&h.a, 9) == 0 {
             let (u, v) = h.pade9();
             return solve_p_q(u, v);
         }

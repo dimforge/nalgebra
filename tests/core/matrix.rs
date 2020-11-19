@@ -946,7 +946,7 @@ mod normalization_tests {
 }
 
 #[cfg(all(feature = "arbitrary", feature = "alga"))]
-// FIXME: move this to alga ?
+// TODO: move this to alga ?
 mod finite_dim_inner_space_tests {
     use super::*;
     use alga::linear::FiniteDimInnerSpace;

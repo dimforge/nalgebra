@@ -10,11 +10,33 @@ use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
 
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// Indicates if this is an empty matrix.
+    /// The total number of elements of this matrix.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3x4;
+    /// let mat = Matrix3x4::<f32>::zeros();
+    /// assert_eq!(mat.len(), 12);
+    /// ```
+    #[inline]
+    pub fn len(&self) -> usize {
+        let (nrows, ncols) = self.shape();
+        nrows * ncols
+    }
+
+    /// Returns true if the matrix contains no elements.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Matrix3x4;
+    /// let mat = Matrix3x4::<f32>::zeros();
+    /// assert!(!mat.is_empty());
+    /// ```
     #[inline]
     pub fn is_empty(&self) -> bool {
-        let (nrows, ncols) = self.shape();
-        nrows == 0 || ncols == 0
+        self.len() == 0
     }
 
     /// Indicates if this is a square matrix.
@@ -24,7 +46,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         nrows == ncols
     }
 
-    // FIXME: RelativeEq prevents us from using those methods on integer matrices…
+    // TODO: RelativeEq prevents us from using those methods on integer matrices…
     /// Indicated if this is the identity matrix within a relative error of `eps`.
     ///
     /// If the matrix is diagonal, this checks that diagonal elements (i.e. at coordinates `(i, i)`
@@ -64,7 +86,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         // Off-diagonal elements of the sub-square matrix.
         for i in 1..d {
             for j in 0..i {
-                // FIXME: use unsafe indexing.
+                // TODO: use unsafe indexing.
                 if !relative_eq!(self[(i, j)], N::zero(), epsilon = eps)
                     || !relative_eq!(self[(j, i)], N::zero(), epsilon = eps)
                 {
@@ -118,7 +140,7 @@ where
     /// Returns `true` if this matrix is invertible.
     #[inline]
     pub fn is_invertible(&self) -> bool {
-        // FIXME: improve this?
+        // TODO: improve this?
         self.clone_owned().try_inverse().is_some()
     }
 }

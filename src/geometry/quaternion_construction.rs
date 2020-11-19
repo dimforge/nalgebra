@@ -69,7 +69,7 @@ impl<N: SimdRealField> Quaternion<N> {
     /// assert_eq!(*q.as_vector(), Vector4::new(2.0, 3.0, 4.0, 1.0));
     /// ```
     #[inline]
-    // FIXME: take a reference to `vector`?
+    // TODO: take a reference to `vector`?
     pub fn from_parts<SB>(scalar: N, vector: Vector<N, U3, SB>) -> Self
     where
         SB: Storage<N, U3>,
@@ -100,7 +100,7 @@ impl<N: SimdRealField> Quaternion<N> {
     }
 }
 
-// FIXME: merge with the previous block.
+// TODO: merge with the previous block.
 impl<N: SimdRealField> Quaternion<N>
 where
     N::Element: SimdRealField,
@@ -108,7 +108,7 @@ where
     /// Creates a new quaternion from its polar decomposition.
     ///
     /// Note that `axis` is assumed to be a unit vector.
-    // FIXME: take a reference to `axis`?
+    // TODO: take a reference to `axis`?
     pub fn from_polar_decomposition<SB>(scale: N, theta: N, axis: Unit<Vector<N, U3, SB>>) -> Self
     where
         SB: Storage<N, U3>,
@@ -285,13 +285,13 @@ where
         // Robust matrix to quaternion transformation.
         // See https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion
         let tr = rotmat[(0, 0)] + rotmat[(1, 1)] + rotmat[(2, 2)];
-        let _0_25: N = crate::convert(0.25);
+        let quarter: N = crate::convert(0.25);
 
         let res = tr.simd_gt(N::zero()).if_else3(
             || {
                 let denom = (tr + N::one()).simd_sqrt() * crate::convert(2.0);
                 Quaternion::new(
-                    _0_25 * denom,
+                    quarter * denom,
                     (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
                     (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
                     (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
@@ -305,7 +305,7 @@ where
                         * crate::convert(2.0);
                     Quaternion::new(
                         (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
-                        _0_25 * denom,
+                        quarter * denom,
                         (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
                         (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
                     )
@@ -320,7 +320,7 @@ where
                     Quaternion::new(
                         (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
                         (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
-                        _0_25 * denom,
+                        quarter * denom,
                         (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
                     )
                 },
@@ -333,7 +333,7 @@ where
                     (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
                     (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
                     (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
-                    _0_25 * denom,
+                    quarter * denom,
                 )
             },
         );
@@ -422,7 +422,7 @@ where
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        // FIXME: code duplication with Rotation.
+        // TODO: code duplication with Rotation.
         if let (Some(na), Some(nb)) = (
             Unit::try_new(a.clone_owned(), N::zero()),
             Unit::try_new(b.clone_owned(), N::zero()),
@@ -484,7 +484,7 @@ where
         SB: Storage<N, U3>,
         SC: Storage<N, U3>,
     {
-        // FIXME: code duplication with Rotation.
+        // TODO: code duplication with Rotation.
         let c = na.cross(&nb);
 
         if let Some(axis) = Unit::try_new(c, N::default_epsilon()) {

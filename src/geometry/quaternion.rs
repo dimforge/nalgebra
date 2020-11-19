@@ -335,7 +335,7 @@ where
     where
         N: RealField,
     {
-        let mut res = self.clone();
+        let mut res = *self;
 
         if res.try_inverse_mut() {
             Some(res)
@@ -520,16 +520,13 @@ where
         let v = self.vector();
         let nn = v.norm_squared();
         let le = nn.simd_le(eps * eps);
-        le.if_else(
-            || Self::identity(),
-            || {
-                let w_exp = self.scalar().simd_exp();
-                let n = nn.simd_sqrt();
-                let nv = v * (w_exp * n.simd_sin() / n);
+        le.if_else(Self::identity, || {
+            let w_exp = self.scalar().simd_exp();
+            let n = nn.simd_sqrt();
+            let nv = v * (w_exp * n.simd_sin() / n);
 
-                Self::from_parts(w_exp * n.simd_cos(), nv)
-            },
-        )
+            Self::from_parts(w_exp * n.simd_cos(), nv)
+        })
     }
 
     /// Raise the quaternion to a given floating power.
@@ -1519,7 +1516,7 @@ where
     /// ```
     #[inline]
     pub fn inverse_transform_point(&self, pt: &Point3<N>) -> Point3<N> {
-        // FIXME: would it be useful performancewise not to call inverse explicitly (i-e. implement
+        // TODO: would it be useful performancewise not to call inverse explicitly (i-e. implement
         // the inverse transformation explicitly here) ?
         self.inverse() * pt
     }

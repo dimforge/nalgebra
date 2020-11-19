@@ -97,7 +97,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         true
     }
 
-    // FIXME: add the same but for solving upper-triangular.
+    // TODO: add the same but for solving upper-triangular.
     /// Solves the linear system `self . x = b` where `x` is the unknown and only the
     /// lower-triangular part of `self` is considered not-zero. The diagonal is never read as it is
     /// assumed to be equal to `diag`. Returns `false` and does not modify its inputs if `diag` is zero.
@@ -510,7 +510,7 @@ impl<N: SimdComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         }
     }
 
-    // FIXME: add the same but for solving upper-triangular.
+    // TODO: add the same but for solving upper-triangular.
     /// Solves the linear system `self . x = b` where `x` is the unknown and only the
     /// lower-triangular part of `self` is considered not-zero. The diagonal is never read as it is
     /// assumed to be equal to `diag`. Returns `false` and does not modify its inputs if `diag` is zero.

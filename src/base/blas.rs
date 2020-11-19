@@ -1,8 +1,8 @@
 use crate::SimdComplexField;
 #[cfg(feature = "std")]
 use matrixmultiply;
-use num::{One, Signed, Zero};
-use simba::scalar::{ClosedAdd, ClosedMul, ComplexField};
+use num::{One, Zero};
+use simba::scalar::{ClosedAdd, ClosedMul};
 #[cfg(feature = "std")]
 use std::mem;
 
@@ -16,258 +16,7 @@ use crate::base::{
     DVectorSlice, DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, VectorSliceN,
 };
 
-// FIXME: find a way to avoid code duplication just for complex number support.
-impl<N: ComplexField, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
-    /// Computes the index of the vector component with the largest complex or real absolute value.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # extern crate num_complex;
-    /// # extern crate nalgebra;
-    /// # use num_complex::Complex;
-    /// # use nalgebra::Vector3;
-    /// let vec = Vector3::new(Complex::new(11.0, 3.0), Complex::new(-15.0, 0.0), Complex::new(13.0, 5.0));
-    /// assert_eq!(vec.icamax(), 2);
-    /// ```
-    #[inline]
-    pub fn icamax(&self) -> usize {
-        assert!(!self.is_empty(), "The input vector must not be empty.");
-
-        let mut the_max = unsafe { self.vget_unchecked(0).norm1() };
-        let mut the_i = 0;
-
-        for i in 1..self.nrows() {
-            let val = unsafe { self.vget_unchecked(i).norm1() };
-
-            if val > the_max {
-                the_max = val;
-                the_i = i;
-            }
-        }
-
-        the_i
-    }
-}
-
-impl<N: Scalar + PartialOrd, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
-    /// Computes the index and value of the vector component with the largest value.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::Vector3;
-    /// let vec = Vector3::new(11, -15, 13);
-    /// assert_eq!(vec.argmax(), (2, 13));
-    /// ```
-    #[inline]
-    pub fn argmax(&self) -> (usize, N) {
-        assert!(!self.is_empty(), "The input vector must not be empty.");
-
-        let mut the_max = unsafe { self.vget_unchecked(0) };
-        let mut the_i = 0;
-
-        for i in 1..self.nrows() {
-            let val = unsafe { self.vget_unchecked(i) };
-
-            if val > the_max {
-                the_max = val;
-                the_i = i;
-            }
-        }
-
-        (the_i, the_max.inlined_clone())
-    }
-
-    /// Computes the index of the vector component with the largest value.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::Vector3;
-    /// let vec = Vector3::new(11, -15, 13);
-    /// assert_eq!(vec.imax(), 2);
-    /// ```
-    #[inline]
-    pub fn imax(&self) -> usize {
-        self.argmax().0
-    }
-
-    /// Computes the index of the vector component with the largest absolute value.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::Vector3;
-    /// let vec = Vector3::new(11, -15, 13);
-    /// assert_eq!(vec.iamax(), 1);
-    /// ```
-    #[inline]
-    pub fn iamax(&self) -> usize
-    where
-        N: Signed,
-    {
-        assert!(!self.is_empty(), "The input vector must not be empty.");
-
-        let mut the_max = unsafe { self.vget_unchecked(0).abs() };
-        let mut the_i = 0;
-
-        for i in 1..self.nrows() {
-            let val = unsafe { self.vget_unchecked(i).abs() };
-
-            if val > the_max {
-                the_max = val;
-                the_i = i;
-            }
-        }
-
-        the_i
-    }
-
-    /// Computes the index and value of the vector component with the smallest value.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::Vector3;
-    /// let vec = Vector3::new(11, -15, 13);
-    /// assert_eq!(vec.argmin(), (1, -15));
-    /// ```
-    #[inline]
-    pub fn argmin(&self) -> (usize, N) {
-        assert!(!self.is_empty(), "The input vector must not be empty.");
-
-        let mut the_min = unsafe { self.vget_unchecked(0) };
-        let mut the_i = 0;
-
-        for i in 1..self.nrows() {
-            let val = unsafe { self.vget_unchecked(i) };
-
-            if val < the_min {
-                the_min = val;
-                the_i = i;
-            }
-        }
-
-        (the_i, the_min.inlined_clone())
-    }
-
-    /// Computes the index of the vector component with the smallest value.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::Vector3;
-    /// let vec = Vector3::new(11, -15, 13);
-    /// assert_eq!(vec.imin(), 1);
-    /// ```
-    #[inline]
-    pub fn imin(&self) -> usize {
-        self.argmin().0
-    }
-
-    /// Computes the index of the vector component with the smallest absolute value.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::Vector3;
-    /// let vec = Vector3::new(11, -15, 13);
-    /// assert_eq!(vec.iamin(), 0);
-    /// ```
-    #[inline]
-    pub fn iamin(&self) -> usize
-    where
-        N: Signed,
-    {
-        assert!(!self.is_empty(), "The input vector must not be empty.");
-
-        let mut the_min = unsafe { self.vget_unchecked(0).abs() };
-        let mut the_i = 0;
-
-        for i in 1..self.nrows() {
-            let val = unsafe { self.vget_unchecked(i).abs() };
-
-            if val < the_min {
-                the_min = val;
-                the_i = i;
-            }
-        }
-
-        the_i
-    }
-}
-
-// FIXME: find a way to avoid code duplication just for complex number support.
-impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// Computes the index of the matrix component with the largest absolute value.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # extern crate num_complex;
-    /// # extern crate nalgebra;
-    /// # use num_complex::Complex;
-    /// # use nalgebra::Matrix2x3;
-    /// let mat = Matrix2x3::new(Complex::new(11.0, 1.0), Complex::new(-12.0, 2.0), Complex::new(13.0, 3.0),
-    ///                          Complex::new(21.0, 43.0), Complex::new(22.0, 5.0), Complex::new(-23.0, 0.0));
-    /// assert_eq!(mat.icamax_full(), (1, 0));
-    /// ```
-    #[inline]
-    pub fn icamax_full(&self) -> (usize, usize) {
-        assert!(!self.is_empty(), "The input matrix must not be empty.");
-
-        let mut the_max = unsafe { self.get_unchecked((0, 0)).norm1() };
-        let mut the_ij = (0, 0);
-
-        for j in 0..self.ncols() {
-            for i in 0..self.nrows() {
-                let val = unsafe { self.get_unchecked((i, j)).norm1() };
-
-                if val > the_max {
-                    the_max = val;
-                    the_ij = (i, j);
-                }
-            }
-        }
-
-        the_ij
-    }
-}
-
-impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
-    /// Computes the index of the matrix component with the largest absolute value.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::Matrix2x3;
-    /// let mat = Matrix2x3::new(11, -12, 13,
-    ///                          21, 22, -23);
-    /// assert_eq!(mat.iamax_full(), (1, 2));
-    /// ```
-    #[inline]
-    pub fn iamax_full(&self) -> (usize, usize) {
-        assert!(!self.is_empty(), "The input matrix must not be empty.");
-
-        let mut the_max = unsafe { self.get_unchecked((0, 0)).abs() };
-        let mut the_ij = (0, 0);
-
-        for j in 0..self.ncols() {
-            for i in 0..self.nrows() {
-                let val = unsafe { self.get_unchecked((i, j)).abs() };
-
-                if val > the_max {
-                    the_max = val;
-                    the_ij = (i, j);
-                }
-            }
-        }
-
-        the_ij
-    }
-}
-
+/// # Dot/scalar product
 impl<N, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
 where
     N: Scalar + Zero + ClosedAdd + ClosedMul,
@@ -562,6 +311,7 @@ where
     }
 }
 
+/// # BLAS functions
 impl<N, D: Dim, S> Vector<N, D, S>
 where
     N: Scalar + Zero + ClosedAdd + ClosedMul,
@@ -675,7 +425,7 @@ where
             return;
         }
 
-        // FIXME: avoid bound checks.
+        // TODO: avoid bound checks.
         let col2 = a.column(0);
         let val = unsafe { x.vget_unchecked(0).inlined_clone() };
         self.axcpy(alpha.inlined_clone(), &col2, val, beta);
@@ -722,7 +472,7 @@ where
             return;
         }
 
-        // FIXME: avoid bound checks.
+        // TODO: avoid bound checks.
         let col2 = a.column(0);
         let val = unsafe { x.vget_unchecked(0).inlined_clone() };
         self.axpy(alpha.inlined_clone() * val, &col2, beta);
@@ -992,7 +742,7 @@ where
         );
 
         for j in 0..ncols1 {
-            // FIXME: avoid bound checks.
+            // TODO: avoid bound checks.
             let val = unsafe { conjugate(y.vget_unchecked(j).inlined_clone()) };
             self.column_mut(j)
                 .axpy(alpha.inlined_clone() * val, x, beta.inlined_clone());
@@ -1208,7 +958,7 @@ where
         }
 
         for j1 in 0..ncols1 {
-            // FIXME: avoid bound checks.
+            // TODO: avoid bound checks.
             self.column_mut(j1).gemv(
                 alpha.inlined_clone(),
                 a,
@@ -1270,7 +1020,7 @@ where
         );
 
         for j1 in 0..ncols1 {
-            // FIXME: avoid bound checks.
+            // TODO: avoid bound checks.
             self.column_mut(j1).gemv_tr(
                 alpha.inlined_clone(),
                 a,
@@ -1332,7 +1082,7 @@ where
         );
 
         for j1 in 0..ncols1 {
-            // FIXME: avoid bound checks.
+            // TODO: avoid bound checks.
             self.column_mut(j1).gemv_ad(alpha, a, &b.column(j1), beta);
         }
     }
@@ -1369,7 +1119,7 @@ where
         for j in 0..dim1 {
             let val = unsafe { conjugate(y.vget_unchecked(j).inlined_clone()) };
             let subdim = Dynamic::new(dim1 - j);
-            // FIXME: avoid bound checks.
+            // TODO: avoid bound checks.
             self.generic_slice_mut((j, j), (subdim, U1)).axpy(
                 alpha.inlined_clone() * val,
                 &x.rows_range(j..),

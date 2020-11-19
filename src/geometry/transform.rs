@@ -165,7 +165,7 @@ where
     _phantom: PhantomData<C>,
 }
 
-// FIXME
+// TODO
 // impl<N: RealField + hash::Hash, D: DimNameAdd<U1> + hash::Hash, C: TCategory> hash::Hash for Transform<N, D, C>
 //     where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
 //           Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: hash::Hash {
@@ -411,7 +411,7 @@ where
     where
         C: SubTCategoryOf<TProjective>,
     {
-        // FIXME: specialize for TAffine?
+        // TODO: specialize for TAffine?
         Transform::from_matrix_unchecked(self.matrix.try_inverse().unwrap())
     }
 

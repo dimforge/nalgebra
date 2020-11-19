@@ -15,7 +15,7 @@ use crate::base::Scalar;
 pub type SameShapeStorage<N, R1, C1, R2, C2> =
     <DefaultAllocator as Allocator<N, SameShapeR<R1, R2>, SameShapeC<C1, C2>>>::Buffer;
 
-// FIXME: better name than Owned ?
+// TODO: better name than Owned ?
 /// The owned data storage that can be allocated from `S`.
 pub type Owned<N, R, C = U1> = <DefaultAllocator as Allocator<N, R, C>>::Buffer;
 
@@ -29,7 +29,7 @@ pub type CStride<N, R, C = U1> =
 
 /// The trait shared by all matrix data storage.
 ///
-/// FIXME: doc
+/// TODO: doc
 ///
 /// Note that `Self` must always have a number of elements compatible with the matrix length (given
 /// by `R` and `C` if they are known at compile-time). For example, implementors of this trait
@@ -60,7 +60,7 @@ pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
     ///
     /// ```.ignore
     /// let lindex = self.linear_index(irow, icol);
-    /// assert!(*self.get_unchecked(irow, icol) == *self.get_unchecked_linear(lindex)
+    /// assert!(*self.get_unchecked(irow, icol) == *self.get_unchecked_linear(lindex))
     /// ```
     #[inline]
     fn linear_index(&self, irow: usize, icol: usize) -> usize {
@@ -72,7 +72,7 @@ pub unsafe trait Storage<N: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
     /// Gets the address of the i-th matrix component without performing bound-checking.
     #[inline]
     unsafe fn get_address_unchecked_linear(&self, i: usize) -> *const N {
-        self.ptr().wrapping_offset(i as isize)
+        self.ptr().wrapping_add(i)
     }
 
     /// Gets the address of the i-th matrix component without performing bound-checking.
@@ -124,7 +124,7 @@ pub unsafe trait StorageMut<N: Scalar, R: Dim, C: Dim = U1>: Storage<N, R, C> {
     /// Gets the mutable address of the i-th matrix component without performing bound-checking.
     #[inline]
     unsafe fn get_address_unchecked_linear_mut(&mut self, i: usize) -> *mut N {
-        self.ptr_mut().wrapping_offset(i as isize)
+        self.ptr_mut().wrapping_add(i)
     }
 
     /// Gets the mutable address of the i-th matrix component without performing bound-checking.

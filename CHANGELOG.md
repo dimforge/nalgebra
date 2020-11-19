@@ -4,7 +4,14 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.23.0] - WIP
+## [0.23.1]
+In this release we improved the documentation of the matrix and vector types by:
+- Grouping `impl` bocks logically, adding a title comment to these impl blocks.
+- Reference these impl blocks docs at the top of the documentation page for `Matrix`.
+- Reduce the depth of type aliasing. Now all vector and matrix types are aliases of `Matrix`
+  directly (instead of being aliases for other aliases).
+
+## [0.23.0]
 
 ### Added
  * The `.inverse_transform_unit_vector(v)` was added to `Rotation2/3`, `Isometry2/3`, `UnitQuaternion`, and `UnitComplex`.

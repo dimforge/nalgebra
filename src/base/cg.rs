@@ -21,6 +21,7 @@ use crate::geometry::{
 
 use simba::scalar::{ClosedAdd, ClosedMul, RealField};
 
+/// # Translation and scaling in any dimension
 impl<N, D: DimName> MatrixN<N, D>
 where
     N: Scalar + Zero + One,
@@ -65,6 +66,7 @@ where
     }
 }
 
+/// # 2D transformations as a Matrix3
 impl<N: RealField> Matrix3<N> {
     /// Builds a 2 dimensional homogeneous rotation matrix from an angle in radian.
     #[inline]
@@ -77,22 +79,23 @@ impl<N: RealField> Matrix3<N> {
     /// Can be used to implement "zoom_to" functionality.
     #[inline]
     pub fn new_nonuniform_scaling_wrt_point(scaling: &Vector2<N>, pt: &Point2<N>) -> Self {
-        let _0 = N::zero();
-        let _1 = N::one();
+        let zero = N::zero();
+        let one = N::one();
         Matrix3::new(
             scaling.x,
-            _0,
+            zero,
             pt.x - pt.x * scaling.x,
-            _0,
+            zero,
             scaling.y,
             pt.y - pt.y * scaling.y,
-            _0,
-            _0,
-            _1,
+            zero,
+            zero,
+            one,
         )
     }
 }
 
+/// # 3D transformations as a Matrix4
 impl<N: RealField> Matrix4<N> {
     /// Builds a 3D homogeneous rotation matrix from an axis and an angle (multiplied together).
     ///
@@ -116,25 +119,25 @@ impl<N: RealField> Matrix4<N> {
     /// Can be used to implement "zoom_to" functionality.
     #[inline]
     pub fn new_nonuniform_scaling_wrt_point(scaling: &Vector3<N>, pt: &Point3<N>) -> Self {
-        let _0 = N::zero();
-        let _1 = N::one();
+        let zero = N::zero();
+        let one = N::one();
         Matrix4::new(
             scaling.x,
-            _0,
-            _0,
+            zero,
+            zero,
             pt.x - pt.x * scaling.x,
-            _0,
+            zero,
             scaling.y,
-            _0,
+            zero,
             pt.y - pt.y * scaling.y,
-            _0,
-            _0,
+            zero,
+            zero,
             scaling.z,
             pt.z - pt.z * scaling.z,
-            _0,
-            _0,
-            _0,
-            _1,
+            zero,
+            zero,
+            zero,
+            one,
         )
     }
 
@@ -200,6 +203,7 @@ impl<N: RealField> Matrix4<N> {
     }
 }
 
+/// # Append/prepend translation and scaling
 impl<N: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<N, D, D>>
     SquareMatrix<N, D, S>
 {
@@ -293,15 +297,12 @@ impl<N: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<N, D
         res.prepend_translation_mut(shift);
         res
     }
-}
 
-impl<N: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: StorageMut<N, D, D>>
-    SquareMatrix<N, D, S>
-{
     /// Computes in-place the transformation equal to `self` followed by an uniform scaling factor.
     #[inline]
     pub fn append_scaling_mut(&mut self, scaling: N)
     where
+        S: StorageMut<N, D, D>,
         D: DimNameSub<U1>,
     {
         let mut to_scale = self.fixed_rows_mut::<DimNameDiff<D, U1>>(0);
@@ -312,6 +313,7 @@ impl<N: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: StorageMut<N
     #[inline]
     pub fn prepend_scaling_mut(&mut self, scaling: N)
     where
+        S: StorageMut<N, D, D>,
         D: DimNameSub<U1>,
     {
         let mut to_scale = self.fixed_columns_mut::<DimNameDiff<D, U1>>(0);
@@ -322,6 +324,7 @@ impl<N: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: StorageMut<N
     #[inline]
     pub fn append_nonuniform_scaling_mut<SB>(&mut self, scaling: &Vector<N, DimNameDiff<D, U1>, SB>)
     where
+        S: StorageMut<N, D, D>,
         D: DimNameSub<U1>,
         SB: Storage<N, DimNameDiff<D, U1>>,
     {
@@ -337,6 +340,7 @@ impl<N: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: StorageMut<N
         &mut self,
         scaling: &Vector<N, DimNameDiff<D, U1>, SB>,
     ) where
+        S: StorageMut<N, D, D>,
         D: DimNameSub<U1>,
         SB: Storage<N, DimNameDiff<D, U1>>,
     {
@@ -350,6 +354,7 @@ impl<N: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: StorageMut<N
     #[inline]
     pub fn append_translation_mut<SB>(&mut self, shift: &Vector<N, DimNameDiff<D, U1>, SB>)
     where
+        S: StorageMut<N, D, D>,
         D: DimNameSub<U1>,
         SB: Storage<N, DimNameDiff<D, U1>>,
     {
@@ -366,6 +371,7 @@ impl<N: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: StorageMut<N
     pub fn prepend_translation_mut<SB>(&mut self, shift: &Vector<N, DimNameDiff<D, U1>, SB>)
     where
         D: DimNameSub<U1>,
+        S: StorageMut<N, D, D>,
         SB: Storage<N, DimNameDiff<D, U1>>,
         DefaultAllocator: Allocator<N, DimNameDiff<D, U1>>,
     {
@@ -382,6 +388,7 @@ impl<N: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: StorageMut<N
     }
 }
 
+/// # Transformation of vectors and points
 impl<N: RealField, D: DimNameSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
 where
     DefaultAllocator: Allocator<N, D, D>

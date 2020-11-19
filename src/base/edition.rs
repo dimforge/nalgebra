@@ -18,6 +18,7 @@ use crate::base::storage::{ReshapableStorage, Storage, StorageMut};
 use crate::base::DMatrix;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, RowVector, Scalar, Vector};
 
+/// # Rows and columns extraction
 impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Extracts the upper triangular part of this matrix (including the diagonal).
     #[inline]
@@ -63,7 +64,7 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         }
 
         for j in 0..ncols.value() {
-            // FIXME: use unchecked column indexing
+            // TODO: use unchecked column indexing
             let mut res = res.column_mut(j);
             let src = self.column(j);
 
@@ -99,54 +100,8 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
+/// # Set rows, columns, and diagonal
 impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
-    /// Sets all the elements of this matrix to `val`.
-    #[inline]
-    pub fn fill(&mut self, val: N) {
-        for e in self.iter_mut() {
-            *e = val.inlined_clone()
-        }
-    }
-
-    /// Fills `self` with the identity matrix.
-    #[inline]
-    pub fn fill_with_identity(&mut self)
-    where
-        N: Zero + One,
-    {
-        self.fill(N::zero());
-        self.fill_diagonal(N::one());
-    }
-
-    /// Sets all the diagonal elements of this matrix to `val`.
-    #[inline]
-    pub fn fill_diagonal(&mut self, val: N) {
-        let (nrows, ncols) = self.shape();
-        let n = cmp::min(nrows, ncols);
-
-        for i in 0..n {
-            unsafe { *self.get_unchecked_mut((i, i)) = val.inlined_clone() }
-        }
-    }
-
-    /// Sets all the elements of the selected row to `val`.
-    #[inline]
-    pub fn fill_row(&mut self, i: usize, val: N) {
-        assert!(i < self.nrows(), "Row index out of bounds.");
-        for j in 0..self.ncols() {
-            unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
-        }
-    }
-
-    /// Sets all the elements of the selected column to `val`.
-    #[inline]
-    pub fn fill_column(&mut self, j: usize, val: N) {
-        assert!(j < self.ncols(), "Row index out of bounds.");
-        for i in 0..self.nrows() {
-            unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
-        }
-    }
-
     /// Fills the diagonal of this matrix with the content of the given vector.
     #[inline]
     pub fn set_diagonal<R2: Dim, S2>(&mut self, diag: &Vector<N, R2, S2>)
@@ -198,6 +153,56 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     {
         self.column_mut(i).copy_from(column);
     }
+}
+
+/// # In-place filling
+impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+    /// Sets all the elements of this matrix to `val`.
+    #[inline]
+    pub fn fill(&mut self, val: N) {
+        for e in self.iter_mut() {
+            *e = val.inlined_clone()
+        }
+    }
+
+    /// Fills `self` with the identity matrix.
+    #[inline]
+    pub fn fill_with_identity(&mut self)
+    where
+        N: Zero + One,
+    {
+        self.fill(N::zero());
+        self.fill_diagonal(N::one());
+    }
+
+    /// Sets all the diagonal elements of this matrix to `val`.
+    #[inline]
+    pub fn fill_diagonal(&mut self, val: N) {
+        let (nrows, ncols) = self.shape();
+        let n = cmp::min(nrows, ncols);
+
+        for i in 0..n {
+            unsafe { *self.get_unchecked_mut((i, i)) = val.inlined_clone() }
+        }
+    }
+
+    /// Sets all the elements of the selected row to `val`.
+    #[inline]
+    pub fn fill_row(&mut self, i: usize, val: N) {
+        assert!(i < self.nrows(), "Row index out of bounds.");
+        for j in 0..self.ncols() {
+            unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
+        }
+    }
+
+    /// Sets all the elements of the selected column to `val`.
+    #[inline]
+    pub fn fill_column(&mut self, j: usize, val: N) {
+        assert!(j < self.ncols(), "Row index out of bounds.");
+        for i in 0..self.nrows() {
+            unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
+        }
+    }
 
     /// Sets all the elements of the lower-triangular part of this matrix to `val`.
     ///
@@ -225,40 +230,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn fill_upper_triangle(&mut self, val: N, shift: usize) {
         for j in shift..self.ncols() {
-            // FIXME: is there a more efficient way to avoid the min ?
+            // TODO: is there a more efficient way to avoid the min ?
             // (necessary for rectangular matrices)
             for i in 0..cmp::min(j + 1 - shift, self.nrows()) {
                 unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
             }
         }
-    }
-
-    /// Swaps two rows in-place.
-    #[inline]
-    pub fn swap_rows(&mut self, irow1: usize, irow2: usize) {
-        assert!(irow1 < self.nrows() && irow2 < self.nrows());
-
-        if irow1 != irow2 {
-            // FIXME: optimize that.
-            for i in 0..self.ncols() {
-                unsafe { self.swap_unchecked((irow1, i), (irow2, i)) }
-            }
-        }
-        // Otherwise do nothing.
-    }
-
-    /// Swaps two columns in-place.
-    #[inline]
-    pub fn swap_columns(&mut self, icol1: usize, icol2: usize) {
-        assert!(icol1 < self.ncols() && icol2 < self.ncols());
-
-        if icol1 != icol2 {
-            // FIXME: optimize that.
-            for i in 0..self.nrows() {
-                unsafe { self.swap_unchecked((i, icol1), (i, icol2)) }
-            }
-        }
-        // Otherwise do nothing.
     }
 }
 
@@ -295,11 +272,43 @@ impl<N: Scalar, D: Dim, S: StorageMut<N, D, D>> Matrix<N, D, D, S> {
     }
 }
 
+/// # In-place swapping
+impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> Matrix<N, R, C, S> {
+    /// Swaps two rows in-place.
+    #[inline]
+    pub fn swap_rows(&mut self, irow1: usize, irow2: usize) {
+        assert!(irow1 < self.nrows() && irow2 < self.nrows());
+
+        if irow1 != irow2 {
+            // TODO: optimize that.
+            for i in 0..self.ncols() {
+                unsafe { self.swap_unchecked((irow1, i), (irow2, i)) }
+            }
+        }
+        // Otherwise do nothing.
+    }
+
+    /// Swaps two columns in-place.
+    #[inline]
+    pub fn swap_columns(&mut self, icol1: usize, icol2: usize) {
+        assert!(icol1 < self.ncols() && icol2 < self.ncols());
+
+        if icol1 != icol2 {
+            // TODO: optimize that.
+            for i in 0..self.nrows() {
+                unsafe { self.swap_unchecked((i, icol1), (i, icol2)) }
+            }
+        }
+        // Otherwise do nothing.
+    }
+}
+
 /*
  *
- * FIXME: specialize all the following for slices.
+ * TODO: specialize all the following for slices.
  *
  */
+/// # Rows and columns removal
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /*
      *
@@ -332,11 +341,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                 offset += 1;
             } else {
                 unsafe {
-                    let ptr_source = m
-                        .data
-                        .ptr()
-                        .offset(((target + offset) * nrows.value()) as isize);
-                    let ptr_target = m.data.ptr_mut().offset((target * nrows.value()) as isize);
+                    let ptr_source = m.data.ptr().add((target + offset) * nrows.value());
+                    let ptr_target = m.data.ptr_mut().add(target * nrows.value());
 
                     ptr::copy(ptr_source, ptr_target, nrows.value());
                     target += 1;
@@ -369,8 +375,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                 offset += 1;
             } else {
                 unsafe {
-                    let ptr_source = m.data.ptr().offset((target + offset) as isize);
-                    let ptr_target = m.data.ptr_mut().offset(target as isize);
+                    let ptr_source = m.data.ptr().add(target + offset);
+                    let ptr_target = m.data.ptr_mut().add(target);
 
                     ptr::copy(ptr_source, ptr_target, 1);
                     target += 1;
@@ -433,11 +439,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             let copied_value_start = i + nremove.value();
 
             unsafe {
-                let ptr_in = m
-                    .data
-                    .ptr()
-                    .offset((copied_value_start * nrows.value()) as isize);
-                let ptr_out = m.data.ptr_mut().offset((i * nrows.value()) as isize);
+                let ptr_in = m.data.ptr().add(copied_value_start * nrows.value());
+                let ptr_out = m.data.ptr_mut().add(i * nrows.value());
 
                 ptr::copy(
                     ptr_in,
@@ -531,7 +534,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             ))
         }
     }
+}
 
+/// # Rows and columns insertion
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /*
      *
      * Columns insertion.
@@ -598,11 +604,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         assert!(i <= ncols.value(), "Column insertion index out of range.");
 
         if ninsert.value() != 0 && i != ncols.value() {
-            let ptr_in = res.data.ptr().offset((i * nrows.value()) as isize);
+            let ptr_in = res.data.ptr().add(i * nrows.value());
             let ptr_out = res
                 .data
                 .ptr_mut()
-                .offset(((i + ninsert.value()) * nrows.value()) as isize);
+                .add((i + ninsert.value()) * nrows.value());
 
             ptr::copy(ptr_in, ptr_out, (ncols.value() - i) * nrows.value())
         }
@@ -689,13 +695,10 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
         res
     }
+}
 
-    /*
-     *
-     * Resizing.
-     *
-     */
-
+/// # Resizing and reshaping
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Resizes this matrix so that it contains `new_nrows` rows and `new_ncols` columns.
     ///
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
@@ -811,14 +814,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
             res
         }
     }
-}
 
-impl<N, R, C, S> Matrix<N, R, C, S>
-where
-    N: Scalar,
-    R: Dim,
-    C: Dim,
-{
     /// Reshapes `self` such that it has dimensions `new_nrows × new_ncols`.
     ///
     /// This will reinterpret `self` as if it is a matrix with `new_nrows` rows and `new_ncols`
@@ -887,6 +883,7 @@ where
     }
 }
 
+/// # In-place resizing
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<N: Scalar> DMatrix<N> {
     /// Resizes this matrix in-place.
@@ -974,8 +971,8 @@ unsafe fn compress_rows<N: Scalar>(
 
     for k in 0..ncols - 1 {
         ptr::copy(
-            ptr_in.offset((curr_i + (k + 1) * nremove) as isize),
-            ptr_out.offset(curr_i as isize),
+            ptr_in.add(curr_i + (k + 1) * nremove),
+            ptr_out.add(curr_i),
             new_nrows,
         );
 
@@ -985,8 +982,8 @@ unsafe fn compress_rows<N: Scalar>(
     // Deal with the last column from which less values have to be copied.
     let remaining_len = nrows - i - nremove;
     ptr::copy(
-        ptr_in.offset((nrows * ncols - remaining_len) as isize),
-        ptr_out.offset(curr_i as isize),
+        ptr_in.add(nrows * ncols - remaining_len),
+        ptr_out.add(curr_i),
         remaining_len,
     );
 }
@@ -1014,19 +1011,15 @@ unsafe fn extend_rows<N: Scalar>(
 
     // Deal with the last column from which less values have to be copied.
     ptr::copy(
-        ptr_in.offset((nrows * ncols - remaining_len) as isize),
-        ptr_out.offset(curr_i as isize),
+        ptr_in.add(nrows * ncols - remaining_len),
+        ptr_out.add(curr_i),
         remaining_len,
     );
 
     for k in (0..ncols - 1).rev() {
         curr_i -= new_nrows;
 
-        ptr::copy(
-            ptr_in.offset((k * nrows + i) as isize),
-            ptr_out.offset(curr_i as isize),
-            nrows,
-        );
+        ptr::copy(ptr_in.add(k * nrows + i), ptr_out.add(curr_i), nrows);
     }
 }
 

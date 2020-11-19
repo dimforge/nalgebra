@@ -115,7 +115,7 @@ where
         let mut t;
 
         if compute_q {
-            // FIXME: could we work without unpacking? Using only the internal representation of
+            // TODO: could we work without unpacking? Using only the internal representation of
             // hessenberg decomposition.
             let (vecs, vals) = hess.unpack();
             q = Some(vecs);
@@ -496,26 +496,6 @@ where
         + Allocator<N, D, D>
         + Allocator<N, D>,
 {
-    /// Computes the Schur decomposition of a square matrix.
-    pub fn schur(self) -> Schur<N, D> {
-        Schur::new(self.into_owned())
-    }
-
-    /// Attempts to compute the Schur decomposition of a square matrix.
-    ///
-    /// If only eigenvalues are needed, it is more efficient to call the matrix method
-    /// `.eigenvalues()` instead.
-    ///
-    /// # Arguments
-    ///
-    /// * `eps`       − tolerance used to determine when a value converged to 0.
-    /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
-    pub fn try_schur(self, eps: N::RealField, max_niter: usize) -> Option<Schur<N, D>> {
-        Schur::try_new(self.into_owned(), eps, max_niter)
-    }
-
     /// Computes the eigenvalues of this matrix.
     pub fn eigenvalues(&self) -> Option<VectorN<N, D>> {
         assert!(
@@ -527,7 +507,7 @@ where
 
         // Special case for 2x2 matrices.
         if self.nrows() == 2 {
-            // FIXME: can we avoid this slicing
+            // TODO: can we avoid this slicing
             // (which is needed here just to transform D to U2)?
             let me = self.fixed_slice::<U2, U2>(0, 0);
             return match compute_2x2_eigvals(&me) {
@@ -540,7 +520,7 @@ where
             };
         }
 
-        // FIXME: add balancing?
+        // TODO: add balancing?
         let schur = Schur::do_decompose(
             self.clone_owned(),
             &mut work,
@@ -558,7 +538,7 @@ where
 
     /// Computes the eigenvalues of this matrix.
     pub fn complex_eigenvalues(&self) -> VectorN<NumComplex<N>, D>
-    // FIXME: add balancing?
+    // TODO: add balancing?
     where
         N: RealField,
         DefaultAllocator: Allocator<NumComplex<N>, D>,

@@ -4,6 +4,7 @@ use crate::{DefaultAllocator, Dim, Matrix, RowVectorN, Scalar, VectorN, VectorSl
 use num::Zero;
 use simba::scalar::{ClosedAdd, Field, SupersetOf};
 
+/// # Folding on columns and rows
 impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Returns a row vector where each element is the result of the application of `f` on the
     /// corresponding column of the original matrix.
@@ -19,7 +20,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         let mut res = unsafe { RowVectorN::new_uninitialized_generic(U1, ncols) };
 
         for i in 0..ncols.value() {
-            // FIXME: avoid bound checking of column.
+            // TODO: avoid bound checking of column.
             unsafe {
                 *res.get_unchecked_mut((0, i)) = f(self.column(i));
             }
@@ -44,7 +45,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         let mut res = unsafe { VectorN::new_uninitialized_generic(ncols, U1) };
 
         for i in 0..ncols.value() {
-            // FIXME: avoid bound checking of column.
+            // TODO: avoid bound checking of column.
             unsafe {
                 *res.vget_unchecked_mut(i) = f(self.column(i));
             }
@@ -73,7 +74,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar + ClosedAdd + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+/// # Common statistics operations
+impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /*
      *
      * Sum computation.
@@ -91,7 +93,10 @@ impl<N: Scalar + ClosedAdd + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N
     /// assert_eq!(m.sum(), 21.0);
     /// ```
     #[inline]
-    pub fn sum(&self) -> N {
+    pub fn sum(&self) -> N
+    where
+        N: ClosedAdd + Zero,
+    {
         self.iter().cloned().fold(N::zero(), |a, b| a + b)
     }
 
@@ -115,6 +120,7 @@ impl<N: Scalar + ClosedAdd + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N
     #[inline]
     pub fn row_sum(&self) -> RowVectorN<N, C>
     where
+        N: ClosedAdd + Zero,
         DefaultAllocator: Allocator<N, U1, C>,
     {
         self.compress_rows(|col| col.sum())
@@ -138,6 +144,7 @@ impl<N: Scalar + ClosedAdd + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N
     #[inline]
     pub fn row_sum_tr(&self) -> VectorN<N, C>
     where
+        N: ClosedAdd + Zero,
         DefaultAllocator: Allocator<N, C>,
     {
         self.compress_rows_tr(|col| col.sum())
@@ -161,6 +168,7 @@ impl<N: Scalar + ClosedAdd + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N
     #[inline]
     pub fn column_sum(&self) -> VectorN<N, R>
     where
+        N: ClosedAdd + Zero,
         DefaultAllocator: Allocator<N, R>,
     {
         let nrows = self.data.shape().0;
@@ -168,9 +176,7 @@ impl<N: Scalar + ClosedAdd + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N
             *out += col;
         })
     }
-}
 
-impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /*
      *
      * Variance computation.
@@ -189,8 +195,11 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     /// assert_relative_eq!(m.variance(), 35.0 / 12.0, epsilon = 1.0e-8);
     /// ```
     #[inline]
-    pub fn variance(&self) -> N {
-        if self.len() == 0 {
+    pub fn variance(&self) -> N
+    where
+        N: Field + SupersetOf<f64>,
+    {
+        if self.is_empty() {
             N::zero()
         } else {
             let val = self.iter().cloned().fold((N::zero(), N::zero()), |a, b| {
@@ -217,6 +226,7 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     #[inline]
     pub fn row_variance(&self) -> RowVectorN<N, C>
     where
+        N: Field + SupersetOf<f64>,
         DefaultAllocator: Allocator<N, U1, C>,
     {
         self.compress_rows(|col| col.variance())
@@ -236,6 +246,7 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     #[inline]
     pub fn row_variance_tr(&self) -> VectorN<N, C>
     where
+        N: Field + SupersetOf<f64>,
         DefaultAllocator: Allocator<N, C>,
     {
         self.compress_rows_tr(|col| col.variance())
@@ -256,6 +267,7 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     #[inline]
     pub fn column_variance(&self) -> VectorN<N, R>
     where
+        N: Field + SupersetOf<f64>,
         DefaultAllocator: Allocator<N, R>,
     {
         let (nrows, ncols) = self.data.shape();
@@ -292,8 +304,11 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     /// assert_eq!(m.mean(), 3.5);
     /// ```
     #[inline]
-    pub fn mean(&self) -> N {
-        if self.len() == 0 {
+    pub fn mean(&self) -> N
+    where
+        N: Field + SupersetOf<f64>,
+    {
+        if self.is_empty() {
             N::zero()
         } else {
             self.sum() / crate::convert(self.len() as f64)
@@ -316,6 +331,7 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     #[inline]
     pub fn row_mean(&self) -> RowVectorN<N, C>
     where
+        N: Field + SupersetOf<f64>,
         DefaultAllocator: Allocator<N, U1, C>,
     {
         self.compress_rows(|col| col.mean())
@@ -335,6 +351,7 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     #[inline]
     pub fn row_mean_tr(&self) -> VectorN<N, C>
     where
+        N: Field + SupersetOf<f64>,
         DefaultAllocator: Allocator<N, C>,
     {
         self.compress_rows_tr(|col| col.mean())
@@ -354,6 +371,7 @@ impl<N: Scalar + Field + SupersetOf<f64>, R: Dim, C: Dim, S: Storage<N, R, C>> M
     #[inline]
     pub fn column_mean(&self) -> VectorN<N, R>
     where
+        N: Field + SupersetOf<f64>,
         DefaultAllocator: Allocator<N, R>,
     {
         let (nrows, ncols) = self.data.shape();

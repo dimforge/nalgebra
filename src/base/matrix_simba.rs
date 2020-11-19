@@ -1,6 +1,3 @@
-#[cfg(all(feature = "alloc", not(feature = "std")))]
-use alloc::vec::Vec;
-
 use simba::simd::SimdValue;
 
 use crate::base::allocator::Allocator;

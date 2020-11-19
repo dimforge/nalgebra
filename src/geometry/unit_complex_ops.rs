@@ -306,9 +306,9 @@ complex_op_impl_all!(
     self: UnitComplex<N>, rhs: Translation<N, U2>,
     Output = Isometry<N, U2, UnitComplex<N>>;
     [val val] => Isometry::from_parts(Translation::from(&self *  rhs.vector), self);
-    [ref val] => Isometry::from_parts(Translation::from( self *  rhs.vector), self.clone());
+    [ref val] => Isometry::from_parts(Translation::from( self *  rhs.vector), *self);
     [val ref] => Isometry::from_parts(Translation::from(&self * &rhs.vector), self);
-    [ref ref] => Isometry::from_parts(Translation::from( self * &rhs.vector), self.clone());
+    [ref ref] => Isometry::from_parts(Translation::from( self * &rhs.vector), *self);
 );
 
 // Translation × UnitComplex
@@ -319,8 +319,8 @@ complex_op_impl_all!(
     Output = Isometry<N, U2, UnitComplex<N>>;
     [val val] => Isometry::from_parts(self, right);
     [ref val] => Isometry::from_parts(self.clone(), right);
-    [val ref] => Isometry::from_parts(self, right.clone());
-    [ref ref] => Isometry::from_parts(self.clone(), right.clone());
+    [val ref] => Isometry::from_parts(self, *right);
+    [ref ref] => Isometry::from_parts(self.clone(), *right);
 );
 
 // UnitComplex ×= UnitComplex

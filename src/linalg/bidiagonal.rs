@@ -40,7 +40,7 @@ where
         + Allocator<N, DimMinimum<R, C>>
         + Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
 {
-    // FIXME: perhaps we should pack the axises into different vectors so that axises for `v_t` are
+    // TODO: perhaps we should pack the axes into different vectors so that axes for `v_t` are
     // contiguous. This prevents some useless copies.
     uv: MatrixMN<N, R, C>,
     /// The diagonal elements of the decomposed matrix.
@@ -176,7 +176,7 @@ where
             + Allocator<N, R, DimMinimum<R, C>>
             + Allocator<N, DimMinimum<R, C>, C>,
     {
-        // FIXME: optimize by calling a reallocator.
+        // TODO: optimize by calling a reallocator.
         (self.u(), self.d(), self.v_t())
     }
 
@@ -199,7 +199,7 @@ where
     }
 
     /// Computes the orthogonal matrix `U` of this `U * D * V` decomposition.
-    // FIXME: code duplication with householder::assemble_q.
+    // TODO: code duplication with householder::assemble_q.
     // Except that we are returning a rectangular matrix here.
     pub fn u(&self) -> MatrixMN<N, R, DimMinimum<R, C>>
     where
@@ -213,7 +213,7 @@ where
 
         for i in (0..dim - shift).rev() {
             let axis = self.uv.slice_range(i + shift.., i);
-            // FIXME: sometimes, the axis might have a zero magnitude.
+            // TODO: sometimes, the axis might have a zero magnitude.
             let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
 
             let mut res_rows = res.slice_range_mut(i + shift.., i..);
@@ -248,7 +248,7 @@ where
             let axis = self.uv.slice_range(i, i + shift..);
             let mut axis_packed = axis_packed.rows_range_mut(i + shift..);
             axis_packed.tr_copy_from(&axis);
-            // FIXME: sometimes, the axis might have a zero magnitude.
+            // TODO: sometimes, the axis might have a zero magnitude.
             let refl = Reflection::new(Unit::new_unchecked(axis_packed), N::zero());
 
             let mut res_rows = res.slice_range_mut(i.., i + shift..);
@@ -312,7 +312,7 @@ where
 //         self.solve_upper_triangular_mut(b);
 //     }
 //
-//     // FIXME: duplicate code from the `solve` module.
+//     // TODO: duplicate code from the `solve` module.
 //     fn solve_upper_triangular_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<N, R2, C2, S2>)
 //         where S2: StorageMut<N, R2, C2>,
 //               ShapeConstraint: SameNumberOfRows<R2, D> {
@@ -339,7 +339,7 @@ where
 //     pub fn inverse(&self) -> MatrixN<N, D> {
 //         assert!(self.uv.is_square(), "Bidiagonal inverse: unable to compute the inverse of a non-square matrix.");
 //
-//         // FIXME: is there a less naive method ?
+//         // TODO: is there a less naive method ?
 //         let (nrows, ncols) = self.uv.data.shape();
 //         let mut res = MatrixN::identity_generic(nrows, ncols);
 //         self.solve_mut(&mut res);
@@ -359,18 +359,3 @@ where
 //     //     res self.q_determinant()
 //     // }
 // }
-
-impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where
-    DimMinimum<R, C>: DimSub<U1>,
-    DefaultAllocator: Allocator<N, R, C>
-        + Allocator<N, C>
-        + Allocator<N, R>
-        + Allocator<N, DimMinimum<R, C>>
-        + Allocator<N, DimDiff<DimMinimum<R, C>, U1>>,
-{
-    /// Computes the bidiagonalization using householder reflections.
-    pub fn bidiagonalize(self) -> Bidiagonal<N, R, C> {
-        Bidiagonal::new(self.into_owned())
-    }
-}

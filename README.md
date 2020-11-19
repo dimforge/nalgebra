@@ -5,8 +5,8 @@
     <a href="https://discord.gg/vt9DJSW">
         <img src="https://img.shields.io/discord/507548572338880513.svg?logo=discord&colorB=7289DA">
     </a>
-    <a href="https://travis-ci.org/dimforge/nalgebra">
-        <img src="https://travis-ci.org/dimforge/nalgebra.svg?branch=master" alt="Build status">
+    <a href="https://circleci.com/gh/dimforge/nalgebra">
+        <img src="https://circleci.com/gh/dimforge/nalgebra.svg?style=svg" alt="Build status">
     </a>
     <a href="https://crates.io/crates/nalgebra">
          <img src="https://meritbadge.herokuapp.com/nalgebra?style=flat-square" alt="crates.io">

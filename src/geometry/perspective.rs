@@ -27,7 +27,7 @@ impl<N: RealField> Copy for Perspective3<N> {}
 impl<N: RealField> Clone for Perspective3<N> {
     #[inline]
     fn clone(&self) -> Self {
-        Self::from_matrix_unchecked(self.matrix.clone())
+        Self::from_matrix_unchecked(self.matrix)
     }
 }
 
@@ -186,9 +186,9 @@ impl<N: RealField> Perspective3<N> {
         (self.matrix[(2, 3)] - ratio * self.matrix[(2, 3)]) / crate::convert(2.0)
     }
 
-    // FIXME: add a method to retrieve znear and zfar simultaneously?
+    // TODO: add a method to retrieve znear and zfar simultaneously?
 
-    // FIXME: when we get specialization, specialize the Mul impl instead.
+    // TODO: when we get specialization, specialize the Mul impl instead.
     /// Projects a point. Faster than matrix multiplication.
     #[inline]
     pub fn project_point(&self, p: &Point3<N>) -> Point3<N> {
@@ -212,7 +212,7 @@ impl<N: RealField> Perspective3<N> {
         )
     }
 
-    // FIXME: when we get specialization, specialize the Mul impl instead.
+    // TODO: when we get specialization, specialize the Mul impl instead.
     /// Projects a vector. Faster than matrix multiplication.
     #[inline]
     pub fn project_vector<SB>(&self, p: &Vector<N, U3, SB>) -> Vector3<N>

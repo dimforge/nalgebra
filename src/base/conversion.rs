@@ -1,3 +1,5 @@
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+use alloc::vec::Vec;
 #[cfg(feature = "mint")]
 use mint;
 use simba::scalar::{SubsetOf, SupersetOf};
@@ -20,16 +22,16 @@ use crate::base::dimension::{
 };
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
-#[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::VecStorage;
 use crate::base::{
     ArrayStorage, DVectorSlice, DVectorSliceMut, DefaultAllocator, Matrix, MatrixMN, MatrixSlice,
     MatrixSliceMut, Scalar,
 };
+#[cfg(any(feature = "std", feature = "alloc"))]
+use crate::base::{DVector, VecStorage};
 use crate::base::{SliceStorage, SliceStorageMut};
 use crate::constraint::DimEq;
 
-// FIXME: too bad this won't work allo slice conversions.
+// TODO: too bad this won't work allo slice conversions.
 impl<N1, N2, R1, C1, R2, C2> SubsetOf<MatrixMN<N2, R2, C2>> for MatrixMN<N1, R1, C1>
 where
     R1: Dim,
@@ -542,6 +544,14 @@ where
             );
             Matrix::from_data_statically_unchecked(data)
         }
+    }
+}
+
+#[cfg(any(feature = "std", feature = "alloc"))]
+impl<'a, N: Scalar> From<Vec<N>> for DVector<N> {
+    #[inline]
+    fn from(vec: Vec<N>) -> Self {
+        Self::from_vec(vec)
     }
 }
 

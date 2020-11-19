@@ -110,7 +110,7 @@ fn symmetric_eigen_singular_24x24() {
 
 //  #[cfg(feature = "arbitrary")]
 //  quickcheck! {
-// FIXME: full eigendecomposition is not implemented yet because of its complexity when some
+// TODO: full eigendecomposition is not implemented yet because of its complexity when some
 // eigenvalues have multiplicity > 1.
 //
 //    /*

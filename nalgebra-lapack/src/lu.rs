@@ -119,7 +119,7 @@ where
         id
     }
 
-    // FIXME: when we support resizing a matrix, we could add unwrap_u/unwrap_l that would
+    // TODO: when we support resizing a matrix, we could add unwrap_u/unwrap_l that would
     // re-use the memory from the internal matrix!
 
     /// Gets the LAPACK permutation indices.

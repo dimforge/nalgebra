@@ -36,7 +36,7 @@ pub fn reflection_axis_mut<N: ComplexField, D: Dim, S: StorageMut<N, D>>(
         column.unscale_mut(factor.sqrt());
         (-signed_norm, true)
     } else {
-        // FIXME: not sure why we don't have a - sign here.
+        // TODO: not sure why we don't have a - sign here.
         (signed_norm, false)
     }
 }
