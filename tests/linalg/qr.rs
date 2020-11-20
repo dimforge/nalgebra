@@ -1,6 +1,5 @@
 #![cfg(feature = "arbitrary")]
 
-
 macro_rules! gen_tests(
     ($module: ident, $scalar: ty) => {
         mod $module {
