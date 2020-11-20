@@ -83,6 +83,7 @@ mod transform_simba;
 
 mod reflection;
 
+mod isometry_interpolation;
 mod orthographic;
 mod perspective;
 

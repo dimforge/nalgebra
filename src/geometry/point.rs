@@ -19,7 +19,25 @@ use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::{DefaultAllocator, Scalar, VectorN};
 
-/// A point in a n-dimensional euclidean space.
+/// A point in an euclidean space.
+///
+/// The difference between a point and a vector is only semantic. See [the user guide](https://www.nalgebra.org/points_and_transformations/)
+/// for details on the distinction. The most notable difference that vectors ignore translations.
+/// In particular, an [`Isometry2`](crate::Isometry2) or [`Isometry3`](crate::Isometry3) will
+/// transform points by applying a rotation and a translation on them. However, these isometries
+/// will only apply rotations to vectors (when doing `isometry * vector`, the translation part of
+/// the isometry is ignored).
+///
+/// # Construction
+/// * [From individual components <span style="float:right;">`new`…</span>](#construction-from-individual-components)
+/// * [Swizzling <span style="float:right;">`xx`, `yxz`…</span>](#swizzling)
+/// * [Other construction methods <span style="float:right;">`origin`, `from_slice`, `from_homogeneous`…</span>](#other-construction-methods)
+///
+/// # Transformation
+/// Transforming a point by an [Isometry](crate::Isometry), [rotation](crate::Rotation), etc. can be
+/// achieved by multiplication, e.g., `isometry * point` or `rotation * point`. Some of these transformation
+/// may have some other methods, e.g., `isometry.inverse_transform_point(&point)`. See the documentation
+/// of said transformations for details.
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct Point<N: Scalar, D: DimName>
