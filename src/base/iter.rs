@@ -125,16 +125,18 @@ macro_rules! iterator {
                         // element we want to return.
                         self.size -= 1;
 
+                        // Fetch strides
+                        let inner_stride = self.strides.0.value();
+                        let outer_stride = self.strides.1.value();
+
                         // Compute number of rows
-                        let inner_size = self.inner_end.offset_from(self.inner_ptr) as usize;
+                        // Division should be exact
+                        let inner_raw_size = self.inner_end.offset_from(self.inner_ptr) as usize;
+                        let inner_size = inner_raw_size / inner_stride;
 
                         // Compute rows and cols remaining
                         let outer_remaining = self.size / inner_size;
                         let inner_remaining = self.size % inner_size;
-
-                        // Fetch strides
-                        let inner_stride = self.strides.0.value();
-                        let outer_stride = self.strides.1.value();
 
                         // Compute pointer to last element
                         let last = self.ptr.offset(
