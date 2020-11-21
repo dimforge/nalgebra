@@ -56,6 +56,7 @@ impl<N: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     }
 }
 
+/// # Interpolation between two unit vectors
 impl<N: RealField, D: Dim, S: Storage<N, D>> Unit<Vector<N, D, S>> {
     /// Computes the spherical linear interpolation between two unit vectors.
     ///

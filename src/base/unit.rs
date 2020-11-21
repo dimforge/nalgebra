@@ -15,7 +15,14 @@ use crate::{Dim, MatrixMN, RealField, Scalar, SimdComplexField, SimdRealField};
 
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///
-/// Use `.as_ref()` or `.into_inner()` to obtain the underlying value by-reference or by-move.
+/// **It is likely that the only piece of documentation that you need in this page are:**
+/// - **[The construction with normalization](#construction-with-normalization)**
+/// - **[Data extraction and construction without normalization](#data-extraction-and-construction-without-normalization)**
+/// - **[Interpolation between two unit vectors](#interpolation-between-two-unit-vectors)**
+///
+/// All the other impl blocks you will see in this page are about [`UnitComplex`](crate::UnitComplex)
+/// and [`UnitQuaternion`](crate::UnitQuaternion); both built on top of `Unit`.  If you are interested
+/// in their documentation, read their dedicated pages directly.
 #[repr(transparent)]
 #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
 pub struct Unit<T> {
@@ -71,6 +78,7 @@ pub trait Normed {
     fn unscale_mut(&mut self, n: Self::Norm);
 }
 
+/// # Construction with normalization
 impl<T: Normed> Unit<T> {
     /// Normalize the given vector and return it wrapped on a `Unit` structure.
     #[inline]
@@ -140,6 +148,7 @@ impl<T: Normed> Unit<T> {
     }
 }
 
+/// # Data extraction and construction without normalization
 impl<T> Unit<T> {
     /// Wraps the given value, assuming it is already normalized.
     #[inline]
