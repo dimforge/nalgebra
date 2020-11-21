@@ -50,7 +50,7 @@ use crate::geometry::Point;
 /// * [Transposition and inversion <span style="float:right;">`transpose`, `inverse`…</span>](#transposition-and-inversion)
 /// * [Interpolation <span style="float:right;">`slerp`…</span>](#interpolation)
 ///
-/// # Conversion to a matrix
+/// # Conversion
 /// * [Conversion to a matrix <span style="float:right;">`matrix`, `to_homogeneous`…</span>](#conversion-to-a-matrix)
 ///
 #[repr(C)]

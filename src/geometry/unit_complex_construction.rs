@@ -13,6 +13,7 @@ use crate::geometry::{Rotation2, UnitComplex};
 use simba::scalar::RealField;
 use simba::simd::SimdRealField;
 
+/// # Identity
 impl<N: SimdRealField> UnitComplex<N>
 where
     N::Element: SimdRealField,
@@ -32,7 +33,13 @@ where
     pub fn identity() -> Self {
         Self::new_unchecked(Complex::new(N::one(), N::zero()))
     }
+}
 
+/// # Construction from a 2D rotation angle
+impl<N: SimdRealField> UnitComplex<N>
+where
+    N::Element: SimdRealField,
+{
     /// Builds the unit complex number corresponding to the rotation with the given angle.
     ///
     /// # Example
@@ -100,6 +107,30 @@ where
     pub fn from_scaled_axis<SB: Storage<N, U1>>(axisangle: Vector<N, U1, SB>) -> Self {
         Self::from_angle(axisangle[0])
     }
+}
+
+/// # Construction from an existing 2D matrix or complex number
+impl<N: SimdRealField> UnitComplex<N>
+where
+    N::Element: SimdRealField,
+{
+    /// The underlying complex number.
+    ///
+    /// Same as `self.as_ref()`.
+    ///
+    /// # Example
+    /// ```
+    /// # extern crate num_complex;
+    /// # use num_complex::Complex;
+    /// # use nalgebra::UnitComplex;
+    /// let angle = 1.78f32;
+    /// let rot = UnitComplex::new(angle);
+    /// assert_eq!(*rot.complex(), Complex::new(angle.cos(), angle.sin()));
+    /// ```
+    #[inline]
+    pub fn complex(&self) -> &Complex<N> {
+        self.as_ref()
+    }
 
     /// Creates a new unit complex number from a complex number.
     ///
@@ -165,6 +196,50 @@ where
         Rotation2::from_matrix_eps(m, eps, max_iter, guess).into()
     }
 
+    /// The unit complex number needed to make `self` and `other` coincide.
+    ///
+    /// The result is such that: `self.rotation_to(other) * self == other`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::UnitComplex;
+    /// let rot1 = UnitComplex::new(0.1);
+    /// let rot2 = UnitComplex::new(1.7);
+    /// let rot_to = rot1.rotation_to(&rot2);
+    ///
+    /// assert_relative_eq!(rot_to * rot1, rot2);
+    /// assert_relative_eq!(rot_to.inverse() * rot2, rot1);
+    /// ```
+    #[inline]
+    pub fn rotation_to(&self, other: &Self) -> Self {
+        other / self
+    }
+
+    /// Raise this unit complex number to a given floating power.
+    ///
+    /// This returns the unit complex number that identifies a rotation angle equal to
+    /// `self.angle() × n`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::UnitComplex;
+    /// let rot = UnitComplex::new(0.78);
+    /// let pow = rot.powf(2.0);
+    /// assert_relative_eq!(pow.angle(), 2.0 * 0.78);
+    /// ```
+    #[inline]
+    pub fn powf(&self, n: N) -> Self {
+        Self::from_angle(self.angle() * n)
+    }
+}
+
+/// # Construction from two vectors
+impl<N: SimdRealField> UnitComplex<N>
+where
+    N::Element: SimdRealField,
+{
     /// The unit complex needed to make `a` and `b` be collinear and point toward the same
     /// direction.
     ///
