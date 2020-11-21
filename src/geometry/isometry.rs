@@ -30,10 +30,6 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 /// - A translation part of type [`Translation3`](crate::Translation3)
 /// - A rotation part which can either be a [`UnitQuaternion`](crate::UnitQuaternion) or a [`Rotation3`](crate::Rotation3).
 ///
-/// The [`Isometry2`](crate::Isometry2), [`Isometry3`](crate::Isometry3), [`IsometryMatrix2`](crate::IsometryMatrix2),
-/// and [`IsometryMatrix3`](crate::IsometryMatrix3) type aliases are provided for convenience. All
-/// their available methods are listed in this page and cant be grouped as follows.
-///
 /// Note that instead of using the [`Isometry`](crate::Isometry) type in your code directly, you should use one
 /// of its aliases: [`Isometry2`](crate::Isometry2), [`Isometry3`](crate::Isometry3),
 /// [`IsometryMatrix2`](crate::IsometryMatrix2), [`IsometryMatrix3`](crate::IsometryMatrix3). Though
@@ -47,13 +43,12 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 /// * [From the translation and rotation parts <span style="float:right;">`from_parts`…</span>](#from-the-translation-and-rotation-parts)
 ///
 /// # Transformation and composition
-/// Note that transforming vectors and points can be done bu multiplication, e.g., `isometry * point`.
+/// Note that transforming vectors and points can be done by multiplication, e.g., `isometry * point`.
 /// Composing an isometry with another transformation can also be done by multiplication or division.
 ///
 /// * [Transformation of a vector or a point <span style="float:right;">`transform_vector`, `inverse_transform_point`…</span>](#transformation-of-a-vector-or-a-point)
 /// * [Inversion and in-place composition <span style="float:right;">`inverse`, `append_rotation_wrt_point_mut`…</span>](#inversion-and-in-place-composition)
-/// * [2D interpolation <span style="float:right;">`lerp_slerp`…</span>](#2d-interpolation)
-/// * [3D interpolation <span style="float:right;">`lerp_slerp`…</span>](#3d-interpolation)
+/// * [Interpolation <span style="float:right;">`lerp_slerp`…</span>](#interpolation)
 ///
 /// # Conversion to a matrix
 /// * [Conversion to a matrix <span style="float:right;">`to_matrix`…</span>](#conversion-to-a-matrix)

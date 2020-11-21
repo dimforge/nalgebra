@@ -21,6 +21,7 @@ use crate::geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
  * 2D Rotation matrix.
  *
  */
+/// # Construction from a 2D rotation angle
 impl<N: SimdRealField> Rotation2<N> {
     /// Builds a 2 dimensional rotation matrix from an angle in radian.
     ///
@@ -48,7 +49,10 @@ impl<N: SimdRealField> Rotation2<N> {
     pub fn from_scaled_axis<SB: Storage<N, U1>>(axisangle: Vector<N, U1, SB>) -> Self {
         Self::new(axisangle[0])
     }
+}
 
+/// # Construction from an existing 2D matrix or rotations
+impl<N: SimdRealField> Rotation2<N> {
     /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
     ///
     /// This is an iterative method. See `.from_matrix_eps` to provide mover
@@ -150,35 +154,6 @@ impl<N: SimdRealField> Rotation2<N> {
         crate::convert(UnitComplex::scaled_rotation_between(a, b, s).to_rotation_matrix())
     }
 
-    /// The rotation angle.
-    ///
-    /// # Example
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::Rotation2;
-    /// let rot = Rotation2::new(1.78);
-    /// assert_relative_eq!(rot.angle(), 1.78);
-    /// ```
-    #[inline]
-    pub fn angle(&self) -> N {
-        self.matrix()[(1, 0)].simd_atan2(self.matrix()[(0, 0)])
-    }
-
-    /// The rotation angle needed to make `self` and `other` coincide.
-    ///
-    /// # Example
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::Rotation2;
-    /// let rot1 = Rotation2::new(0.1);
-    /// let rot2 = Rotation2::new(1.7);
-    /// assert_relative_eq!(rot1.angle_to(&rot2), 1.6);
-    /// ```
-    #[inline]
-    pub fn angle_to(&self, other: &Self) -> N {
-        self.rotation_to(other).angle()
-    }
-
     /// The rotation matrix needed to make `self` and `other` coincide.
     ///
     /// The result is such that: `self.rotation_to(other) * self == other`.
@@ -227,6 +202,38 @@ impl<N: SimdRealField> Rotation2<N> {
     pub fn powf(&self, n: N) -> Self {
         Self::new(self.angle() * n)
     }
+}
+
+/// # 2D angle extraction
+impl<N: SimdRealField> Rotation2<N> {
+    /// The rotation angle.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Rotation2;
+    /// let rot = Rotation2::new(1.78);
+    /// assert_relative_eq!(rot.angle(), 1.78);
+    /// ```
+    #[inline]
+    pub fn angle(&self) -> N {
+        self.matrix()[(1, 0)].simd_atan2(self.matrix()[(0, 0)])
+    }
+
+    /// The rotation angle needed to make `self` and `other` coincide.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Rotation2;
+    /// let rot1 = Rotation2::new(0.1);
+    /// let rot2 = Rotation2::new(1.7);
+    /// assert_relative_eq!(rot1.angle_to(&rot2), 1.6);
+    /// ```
+    #[inline]
+    pub fn angle_to(&self, other: &Self) -> N {
+        self.rotation_to(other).angle()
+    }
 
     /// The rotation angle returned as a 1-dimensional vector.
     ///
@@ -235,31 +242,6 @@ impl<N: SimdRealField> Rotation2<N> {
     #[inline]
     pub fn scaled_axis(&self) -> VectorN<N, U1> {
         Vector1::new(self.angle())
-    }
-
-    /// Spherical linear interpolation between two rotation matrices.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::geometry::Rotation2;
-    ///
-    /// let rot1 = Rotation2::new(std::f32::consts::FRAC_PI_4);
-    /// let rot2 = Rotation2::new(-std::f32::consts::PI);
-    ///
-    /// let rot = rot1.slerp(&rot2, 1.0 / 3.0);
-    ///
-    /// assert_relative_eq!(rot.angle(), std::f32::consts::FRAC_PI_2);
-    /// ```
-    #[inline]
-    pub fn slerp(&self, other: &Self, t: N) -> Self
-    where
-        N::Element: SimdRealField,
-    {
-        let c1 = UnitComplex::from(*self);
-        let c2 = UnitComplex::from(*other);
-        c1.slerp(&c2, t).into()
     }
 }
 
@@ -292,6 +274,7 @@ where
  * 3D Rotation matrix.
  *
  */
+/// # Construction from a 3D axis and/or angles
 impl<N: SimdRealField> Rotation3<N>
 where
     N::Element: SimdRealField,
@@ -323,60 +306,6 @@ where
         let axisangle = axisangle.into_owned();
         let (axis, angle) = Unit::new_and_get(axisangle);
         Self::from_axis_angle(&axis, angle)
-    }
-
-    /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
-    ///
-    /// This is an iterative method. See `.from_matrix_eps` to provide mover
-    /// convergence parameters and starting solution.
-    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
-    pub fn from_matrix(m: &Matrix3<N>) -> Self
-    where
-        N: RealField,
-    {
-        Self::from_matrix_eps(m, N::default_epsilon(), 0, Self::identity())
-    }
-
-    /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
-    ///
-    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
-    ///
-    /// # Parameters
-    ///
-    /// * `m`: the matrix from which the rotational part is to be extracted.
-    /// * `eps`: the angular errors tolerated between the current rotation and the optimal one.
-    /// * `max_iter`: the maximum number of iterations. Loops indefinitely until convergence if set to `0`.
-    /// * `guess`: a guess of the solution. Convergence will be significantly faster if an initial solution close
-    ///           to the actual solution is provided. Can be set to `Rotation3::identity()` if no other
-    ///           guesses come to mind.
-    pub fn from_matrix_eps(m: &Matrix3<N>, eps: N, mut max_iter: usize, guess: Self) -> Self
-    where
-        N: RealField,
-    {
-        if max_iter == 0 {
-            max_iter = usize::max_value();
-        }
-
-        let mut rot = guess.into_inner();
-
-        for _ in 0..max_iter {
-            let axis = rot.column(0).cross(&m.column(0))
-                + rot.column(1).cross(&m.column(1))
-                + rot.column(2).cross(&m.column(2));
-            let denom = rot.column(0).dot(&m.column(0))
-                + rot.column(1).dot(&m.column(1))
-                + rot.column(2).dot(&m.column(2));
-
-            let axisangle = axis / (denom.abs() + N::default_epsilon());
-
-            if let Some((axis, angle)) = Unit::try_new_and_get(axisangle, eps) {
-                rot = Rotation3::from_axis_angle(&axis, angle) * rot;
-            } else {
-                break;
-            }
-        }
-
-        Self::from_matrix_unchecked(rot)
     }
 
     /// Builds a 3D rotation matrix from an axis scaled by the rotation angle.
@@ -488,67 +417,13 @@ where
             cp * cr,
         ))
     }
+}
 
-    /// Creates Euler angles from a rotation.
-    ///
-    /// The angles are produced in the form (roll, pitch, yaw).
-    #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
-    pub fn to_euler_angles(&self) -> (N, N, N)
-    where
-        N: RealField,
-    {
-        self.euler_angles()
-    }
-
-    /// Euler angles corresponding to this rotation from a rotation.
-    ///
-    /// The angles are produced in the form (roll, pitch, yaw).
-    ///
-    /// # Example
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::Rotation3;
-    /// let rot = Rotation3::from_euler_angles(0.1, 0.2, 0.3);
-    /// let euler = rot.euler_angles();
-    /// assert_relative_eq!(euler.0, 0.1, epsilon = 1.0e-6);
-    /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
-    /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
-    /// ```
-    pub fn euler_angles(&self) -> (N, N, N)
-    where
-        N: RealField,
-    {
-        // Implementation informed by "Computing Euler angles from a rotation matrix", by Gregory G. Slabaugh
-        //  https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.371.6578
-        if self[(2, 0)].abs() < N::one() {
-            let yaw = -self[(2, 0)].asin();
-            let roll = (self[(2, 1)] / yaw.cos()).atan2(self[(2, 2)] / yaw.cos());
-            let pitch = (self[(1, 0)] / yaw.cos()).atan2(self[(0, 0)] / yaw.cos());
-            (roll, yaw, pitch)
-        } else if self[(2, 0)] <= -N::one() {
-            (self[(0, 1)].atan2(self[(0, 2)]), N::frac_pi_2(), N::zero())
-        } else {
-            (
-                -self[(0, 1)].atan2(-self[(0, 2)]),
-                -N::frac_pi_2(),
-                N::zero(),
-            )
-        }
-    }
-
-    /// Ensure this rotation is an orthonormal rotation matrix. This is useful when repeated
-    /// computations might cause the matrix from progressively not being orthonormal anymore.
-    #[inline]
-    pub fn renormalize(&mut self)
-    where
-        N: RealField,
-    {
-        let mut c = UnitQuaternion::from(*self);
-        let _ = c.renormalize();
-
-        *self = Self::from_matrix_eps(self.matrix(), N::default_epsilon(), 0, c.into())
-    }
-
+/// # Construction from a 3D eye position and target point
+impl<N: SimdRealField> Rotation3<N>
+where
+    N::Element: SimdRealField,
+{
     /// Creates a rotation that corresponds to the local frame of an observer standing at the
     /// origin and looking toward `dir`.
     ///
@@ -656,7 +531,13 @@ where
     {
         Self::face_towards(dir, up).inverse()
     }
+}
 
+/// # Construction from an existing 3D matrix or rotations
+impl<N: SimdRealField> Rotation3<N>
+where
+    N::Element: SimdRealField,
+{
     /// The rotation matrix required to align `a` and `b` but with its angle.
     ///
     /// This is the rotation `R` such that `(R * a).angle(b) == 0 && (R * a).dot(b).is_positive()`.
@@ -727,6 +608,123 @@ where
         Some(Self::identity())
     }
 
+    /// The rotation matrix needed to make `self` and `other` coincide.
+    ///
+    /// The result is such that: `self.rotation_to(other) * self == other`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Rotation3, Vector3};
+    /// let rot1 = Rotation3::from_axis_angle(&Vector3::y_axis(), 1.0);
+    /// let rot2 = Rotation3::from_axis_angle(&Vector3::x_axis(), 0.1);
+    /// let rot_to = rot1.rotation_to(&rot2);
+    /// assert_relative_eq!(rot_to * rot1, rot2, epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn rotation_to(&self, other: &Self) -> Self {
+        other * self.inverse()
+    }
+
+    /// Raise the quaternion to a given floating power, i.e., returns the rotation with the same
+    /// axis as `self` and an angle equal to `self.angle()` multiplied by `n`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Rotation3, Vector3, Unit};
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let angle = 1.2;
+    /// let rot = Rotation3::from_axis_angle(&axis, angle);
+    /// let pow = rot.powf(2.0);
+    /// assert_relative_eq!(pow.axis().unwrap(), axis, epsilon = 1.0e-6);
+    /// assert_eq!(pow.angle(), 2.4);
+    /// ```
+    #[inline]
+    pub fn powf(&self, n: N) -> Self
+    where
+        N: RealField,
+    {
+        if let Some(axis) = self.axis() {
+            Self::from_axis_angle(&axis, self.angle() * n)
+        } else if self.matrix()[(0, 0)] < N::zero() {
+            let minus_id = MatrixN::<N, U3>::from_diagonal_element(-N::one());
+            Self::from_matrix_unchecked(minus_id)
+        } else {
+            Self::identity()
+        }
+    }
+
+    /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
+    ///
+    /// This is an iterative method. See `.from_matrix_eps` to provide mover
+    /// convergence parameters and starting solution.
+    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    pub fn from_matrix(m: &Matrix3<N>) -> Self
+    where
+        N: RealField,
+    {
+        Self::from_matrix_eps(m, N::default_epsilon(), 0, Self::identity())
+    }
+
+    /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
+    ///
+    /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    ///
+    /// # Parameters
+    ///
+    /// * `m`: the matrix from which the rotational part is to be extracted.
+    /// * `eps`: the angular errors tolerated between the current rotation and the optimal one.
+    /// * `max_iter`: the maximum number of iterations. Loops indefinitely until convergence if set to `0`.
+    /// * `guess`: a guess of the solution. Convergence will be significantly faster if an initial solution close
+    ///           to the actual solution is provided. Can be set to `Rotation3::identity()` if no other
+    ///           guesses come to mind.
+    pub fn from_matrix_eps(m: &Matrix3<N>, eps: N, mut max_iter: usize, guess: Self) -> Self
+    where
+        N: RealField,
+    {
+        if max_iter == 0 {
+            max_iter = usize::max_value();
+        }
+
+        let mut rot = guess.into_inner();
+
+        for _ in 0..max_iter {
+            let axis = rot.column(0).cross(&m.column(0))
+                + rot.column(1).cross(&m.column(1))
+                + rot.column(2).cross(&m.column(2));
+            let denom = rot.column(0).dot(&m.column(0))
+                + rot.column(1).dot(&m.column(1))
+                + rot.column(2).dot(&m.column(2));
+
+            let axisangle = axis / (denom.abs() + N::default_epsilon());
+
+            if let Some((axis, angle)) = Unit::try_new_and_get(axisangle, eps) {
+                rot = Rotation3::from_axis_angle(&axis, angle) * rot;
+            } else {
+                break;
+            }
+        }
+
+        Self::from_matrix_unchecked(rot)
+    }
+
+    /// Ensure this rotation is an orthonormal rotation matrix. This is useful when repeated
+    /// computations might cause the matrix from progressively not being orthonormal anymore.
+    #[inline]
+    pub fn renormalize(&mut self)
+    where
+        N: RealField,
+    {
+        let mut c = UnitQuaternion::from(*self);
+        let _ = c.renormalize();
+
+        *self = Self::from_matrix_eps(self.matrix(), N::default_epsilon(), 0, c.into())
+    }
+}
+
+/// # 3D axis and angle extraction
+impl<N: SimdRealField> Rotation3<N> {
     /// The rotation angle in [0; pi].
     ///
     /// # Example
@@ -837,102 +835,58 @@ where
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.0045657, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn angle_to(&self, other: &Self) -> N {
+    pub fn angle_to(&self, other: &Self) -> N
+    where
+        N::Element: SimdRealField,
+    {
         self.rotation_to(other).angle()
     }
 
-    /// The rotation matrix needed to make `self` and `other` coincide.
+    /// Creates Euler angles from a rotation.
     ///
-    /// The result is such that: `self.rotation_to(other) * self == other`.
-    ///
-    /// # Example
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::{Rotation3, Vector3};
-    /// let rot1 = Rotation3::from_axis_angle(&Vector3::y_axis(), 1.0);
-    /// let rot2 = Rotation3::from_axis_angle(&Vector3::x_axis(), 0.1);
-    /// let rot_to = rot1.rotation_to(&rot2);
-    /// assert_relative_eq!(rot_to * rot1, rot2, epsilon = 1.0e-6);
-    /// ```
-    #[inline]
-    pub fn rotation_to(&self, other: &Self) -> Self {
-        other * self.inverse()
-    }
-
-    /// Raise the quaternion to a given floating power, i.e., returns the rotation with the same
-    /// axis as `self` and an angle equal to `self.angle()` multiplied by `n`.
-    ///
-    /// # Example
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::{Rotation3, Vector3, Unit};
-    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
-    /// let angle = 1.2;
-    /// let rot = Rotation3::from_axis_angle(&axis, angle);
-    /// let pow = rot.powf(2.0);
-    /// assert_relative_eq!(pow.axis().unwrap(), axis, epsilon = 1.0e-6);
-    /// assert_eq!(pow.angle(), 2.4);
-    /// ```
-    #[inline]
-    pub fn powf(&self, n: N) -> Self
+    /// The angles are produced in the form (roll, pitch, yaw).
+    #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
+    pub fn to_euler_angles(&self) -> (N, N, N)
     where
         N: RealField,
     {
-        if let Some(axis) = self.axis() {
-            Self::from_axis_angle(&axis, self.angle() * n)
-        } else if self.matrix()[(0, 0)] < N::zero() {
-            let minus_id = MatrixN::<N, U3>::from_diagonal_element(-N::one());
-            Self::from_matrix_unchecked(minus_id)
+        self.euler_angles()
+    }
+
+    /// Euler angles corresponding to this rotation from a rotation.
+    ///
+    /// The angles are produced in the form (roll, pitch, yaw).
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::Rotation3;
+    /// let rot = Rotation3::from_euler_angles(0.1, 0.2, 0.3);
+    /// let euler = rot.euler_angles();
+    /// assert_relative_eq!(euler.0, 0.1, epsilon = 1.0e-6);
+    /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
+    /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
+    /// ```
+    pub fn euler_angles(&self) -> (N, N, N)
+    where
+        N: RealField,
+    {
+        // Implementation informed by "Computing Euler angles from a rotation matrix", by Gregory G. Slabaugh
+        //  https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.371.6578
+        if self[(2, 0)].abs() < N::one() {
+            let yaw = -self[(2, 0)].asin();
+            let roll = (self[(2, 1)] / yaw.cos()).atan2(self[(2, 2)] / yaw.cos());
+            let pitch = (self[(1, 0)] / yaw.cos()).atan2(self[(0, 0)] / yaw.cos());
+            (roll, yaw, pitch)
+        } else if self[(2, 0)] <= -N::one() {
+            (self[(0, 1)].atan2(self[(0, 2)]), N::frac_pi_2(), N::zero())
         } else {
-            Self::identity()
+            (
+                -self[(0, 1)].atan2(-self[(0, 2)]),
+                -N::frac_pi_2(),
+                N::zero(),
+            )
         }
-    }
-
-    /// Spherical linear interpolation between two rotation matrices.
-    ///
-    /// Panics if the angle between both rotations is 180 degrees (in which case the interpolation
-    /// is not well-defined). Use `.try_slerp` instead to avoid the panic.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::geometry::Rotation3;
-    ///
-    /// let q1 = Rotation3::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
-    /// let q2 = Rotation3::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
-    ///
-    /// let q = q1.slerp(&q2, 1.0 / 3.0);
-    ///
-    /// assert_eq!(q.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
-    /// ```
-    #[inline]
-    pub fn slerp(&self, other: &Self, t: N) -> Self
-    where
-        N: RealField,
-    {
-        let q1 = UnitQuaternion::from(*self);
-        let q2 = UnitQuaternion::from(*other);
-        q1.slerp(&q2, t).into()
-    }
-
-    /// Computes the spherical linear interpolation between two rotation matrices or returns `None`
-    /// if both rotations are approximately 180 degrees apart (in which case the interpolation is
-    /// not well-defined).
-    ///
-    /// # Arguments
-    /// * `self`: the first rotation to interpolate from.
-    /// * `other`: the second rotation to interpolate toward.
-    /// * `t`: the interpolation parameter. Should be between 0 and 1.
-    /// * `epsilon`: the value below which the sinus of the angle separating both rotations
-    /// must be to return `None`.
-    #[inline]
-    pub fn try_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self>
-    where
-        N: RealField,
-    {
-        let q1 = Rotation3::from(*self);
-        let q2 = Rotation3::from(*other);
-        q1.try_slerp(&q2, t, epsilon).map(|q| q.into())
     }
 }
 

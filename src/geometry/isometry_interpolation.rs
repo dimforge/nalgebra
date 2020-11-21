@@ -1,6 +1,6 @@
 use crate::{Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3, RealField, SimdRealField};
 
-/// # 3D interpolation
+/// # Interpolation
 impl<N: SimdRealField> Isometry3<N> {
     /// Interpolates between two isometries using a linear interpolation for the translation part,
     /// and a spherical interpolation for the rotation part.
@@ -137,7 +137,6 @@ impl<N: SimdRealField> IsometryMatrix3<N> {
     }
 }
 
-/// # 2D interpolation
 impl<N: SimdRealField> Isometry2<N> {
     /// Interpolates between two isometries using a linear interpolation for the translation part,
     /// and a spherical interpolation for the rotation part.

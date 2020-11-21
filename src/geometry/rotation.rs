@@ -23,6 +23,36 @@ use crate::base::{DefaultAllocator, MatrixN, Scalar, Unit, VectorN};
 use crate::geometry::Point;
 
 /// A rotation matrix.
+///
+/// This is also known as an element of a Special Orthogonal (SO) group.
+/// The `Rotation` type can either represent a 2D or 3D rotation, represented as a matrix.
+/// For a rotation based on quaternions, see [`UnitQuaternion`](crate::UnitQuaternion) instead.
+///
+/// Note that instead of using the [`Rotation`](crate::Rotation) type in your code directly, you should use one
+/// of its aliases: [`Rotation2`](crate::Rotation2), or [`Rotation3`](crate::Rotation3). Though
+/// keep in mind that all the documentation of all the methods of these aliases will also appears on
+/// this page.
+///
+/// # Construction
+/// * [Identity <span style="float:right;">`identity`</span>](#identity)
+/// * [From a 2D rotation angle <span style="float:right;">`new`…</span>](#construction-from-a-2d-rotation-angle)
+/// * [From an existing 2D matrix or rotations <span style="float:right;">`from_matrix`, `rotation_between`, `powf`…</span>](#construction-from-an-existing-2d-matrix-or-rotations)
+/// * [From a 3D axis and/or angles <span style="float:right;">`new`, `from_euler_angles`, `from_axis_angle`…</span>](#construction-from-a-3d-axis-andor-angles)
+/// * [From a 3D eye position and target point <span style="float:right;">`look_at`, `look_at_lh`, `rotation_between`…</span>](#construction-from-a-3d-eye-position-and-target-point)
+/// * [From an existing 3D matrix or rotations <span style="float:right;">`from_matrix`, `rotation_between`, `powf`…</span>](#construction-from-an-existing-3d-matrix-or-rotations)
+///
+/// # Transformation and composition
+/// Note that transforming vectors and points can be done by multiplication, e.g., `rotation * point`.
+/// Composing an rotation with another transformation can also be done by multiplication or division.
+/// * [3D axis and angle extraction <span style="float:right;">`angle`, `euler_angles`, `scaled_axis`, `angle_to`…</span>](#3d-axis-and-angle-extraction)
+/// * [2D angle extraction <span style="float:right;">`angle`, `angle_to`…</span>](#2d-angle-extraction)
+/// * [Transformation of a vector or a point <span style="float:right;">`transform_vector`, `inverse_transform_point`…</span>](#transformation-of-a-vector-or-a-point)
+/// * [Transposition and inversion <span style="float:right;">`transpose`, `inverse`…</span>](#transposition-and-inversion)
+/// * [Interpolation <span style="float:right;">`slerp`…</span>](#interpolation)
+///
+/// # Conversion to a matrix
+/// * [Conversion to a matrix <span style="float:right;">`matrix`, `to_homogeneous`…</span>](#conversion-to-a-matrix)
+///
 #[repr(C)]
 #[derive(Debug)]
 pub struct Rotation<N: Scalar, D: DimName>
@@ -111,6 +141,44 @@ where
     }
 }
 
+impl<N: Scalar, D: DimName> Rotation<N, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
+    /// Creates a new rotation from the given square matrix.
+    ///
+    /// The matrix squareness is checked but not its orthonormality.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Rotation2, Rotation3, Matrix2, Matrix3};
+    /// # use std::f32;
+    /// let mat = Matrix3::new(0.8660254, -0.5,      0.0,
+    ///                        0.5,       0.8660254, 0.0,
+    ///                        0.0,       0.0,       1.0);
+    /// let rot = Rotation3::from_matrix_unchecked(mat);
+    ///
+    /// assert_eq!(*rot.matrix(), mat);
+    ///
+    ///
+    /// let mat = Matrix2::new(0.8660254, -0.5,
+    ///                        0.5,       0.8660254);
+    /// let rot = Rotation2::from_matrix_unchecked(mat);
+    ///
+    /// assert_eq!(*rot.matrix(), mat);
+    /// ```
+    #[inline]
+    pub fn from_matrix_unchecked(matrix: MatrixN<N, D>) -> Self {
+        assert!(
+            matrix.is_square(),
+            "Unable to create a rotation from a non-square matrix."
+        );
+
+        Self { matrix }
+    }
+}
+
+/// # Conversion to a matrix
 impl<N: Scalar, D: DimName> Rotation<N, D>
 where
     DefaultAllocator: Allocator<N, D, D>,
@@ -225,39 +293,13 @@ where
 
         res
     }
+}
 
-    /// Creates a new rotation from the given square matrix.
-    ///
-    /// The matrix squareness is checked but not its orthonormality.
-    ///
-    /// # Example
-    /// ```
-    /// # use nalgebra::{Rotation2, Rotation3, Matrix2, Matrix3};
-    /// # use std::f32;
-    /// let mat = Matrix3::new(0.8660254, -0.5,      0.0,
-    ///                        0.5,       0.8660254, 0.0,
-    ///                        0.0,       0.0,       1.0);
-    /// let rot = Rotation3::from_matrix_unchecked(mat);
-    ///
-    /// assert_eq!(*rot.matrix(), mat);
-    ///
-    ///
-    /// let mat = Matrix2::new(0.8660254, -0.5,
-    ///                        0.5,       0.8660254);
-    /// let rot = Rotation2::from_matrix_unchecked(mat);
-    ///
-    /// assert_eq!(*rot.matrix(), mat);
-    /// ```
-    #[inline]
-    pub fn from_matrix_unchecked(matrix: MatrixN<N, D>) -> Self {
-        assert!(
-            matrix.is_square(),
-            "Unable to create a rotation from a non-square matrix."
-        );
-
-        Self { matrix }
-    }
-
+/// # Transposition and inversion
+impl<N: Scalar, D: DimName> Rotation<N, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
     /// Transposes `self`.
     ///
     /// Same as `.inverse()` because the inverse of a rotation matrix is its transform.
@@ -361,6 +403,7 @@ where
     }
 }
 
+/// # Transformation of a vector or a point
 impl<N: SimdRealField, D: DimName> Rotation<N, D>
 where
     N::Element: SimdRealField,
