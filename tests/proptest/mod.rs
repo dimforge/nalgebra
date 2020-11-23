@@ -6,13 +6,6 @@ use proptest::prelude::*;
 use proptest::strategy::ValueTree;
 use proptest::test_runner::TestRunner;
 
-#[cfg(feature = "slow-tests")]
-use {
-    itertools::Itertools,
-    std::iter::repeat,
-    std::collections::HashSet,
-};
-
 /// Generate a proptest that tests that all matrices generated with the
 /// provided rows and columns conform to the constraints defined by the
 /// input.
@@ -96,62 +89,6 @@ proptest! {
     fn ensure_arbitrary_test_compiles_dvector(_: DVector<i32>) {}
 }
 
-#[cfg(feature = "slow-tests")]
-#[test]
-fn matrix_samples_all_possible_outputs() {
-    // Test that the proptest generation covers all possible outputs for a small space of inputs
-    // given enough samples.
-
-    // We use a deterministic test runner to make the test "stable".
-    let mut runner = TestRunner::deterministic();
-
-    // This number needs to be high enough so that we with high probability sample
-    // all possible cases
-    let num_generated_matrices = 200000;
-
-    let values = -1..=1;
-    let rows = 0..=2;
-    let cols = 0..=3;
-    let strategy = matrix(values.clone(), rows.clone(), cols.clone());
-
-    // Enumerate all possible combinations
-    let mut all_combinations = HashSet::new();
-    for nrows in rows {
-        for ncols in cols.clone() {
-            // For the given number of rows and columns
-            let n_values = nrows * ncols;
-
-            if n_values == 0 {
-                // If we have zero rows or columns, the set of matrices with the given
-                // rows and columns is a single element: an empty matrix
-                all_combinations.insert(DMatrix::from_row_slice(nrows, ncols, &[]));
-            } else {
-                // Otherwise, we need to sample all possible matrices.
-                // To do this, we generate the values as the (multi) Cartesian product
-                // of the value sets. For example, for a 2x2 matrices, we consider
-                // all possible 4-element arrays that the matrices can take by
-                // considering all elements in the cartesian product
-                //  V x V x V x V
-                // where V is the set of eligible values, e.g. V := -1 ..= 1
-                for matrix_values in repeat(values.clone()).take(n_values).multi_cartesian_product() {
-                    all_combinations.insert(DMatrix::from_row_slice(nrows, ncols, &matrix_values));
-                }
-            }
-        }
-    }
-
-    let mut visited_combinations = HashSet::new();
-    for _ in 0..num_generated_matrices {
-        let tree = strategy
-            .new_tree(&mut runner)
-            .expect("Tree generation should not fail");
-        let matrix = tree.current();
-        visited_combinations.insert(matrix.clone());
-    }
-
-    assert_eq!(visited_combinations, all_combinations, "Did not sample all possible values.");
-}
-
 #[test]
 fn matrix_shrinking_satisfies_constraints() {
     // We use a deterministic test runner to make the test "stable".
@@ -205,4 +142,78 @@ fn matrix_shrinking_satisfies_constraints() {
     }
 
     maybeprintln!("========================== (end of generation process)");
+}
+
+#[cfg(feature = "slow-tests")]
+mod slow {
+    use super::*;
+    use itertools::Itertools;
+    use std::collections::HashSet;
+    use std::iter::repeat;
+
+    #[cfg(feature = "slow-tests")]
+    #[test]
+    fn matrix_samples_all_possible_outputs() {
+        // Test that the proptest generation covers all possible outputs for a small space of inputs
+        // given enough samples.
+
+        // We use a deterministic test runner to make the test "stable".
+        let mut runner = TestRunner::deterministic();
+
+        // This number needs to be high enough so that we with high probability sample
+        // all possible cases
+        let num_generated_matrices = 200000;
+
+        let values = -1..=1;
+        let rows = 0..=2;
+        let cols = 0..=3;
+        let strategy = matrix(values.clone(), rows.clone(), cols.clone());
+
+        // Enumerate all possible combinations
+        let mut all_combinations = HashSet::new();
+        for nrows in rows {
+            for ncols in cols.clone() {
+                // For the given number of rows and columns
+                let n_values = nrows * ncols;
+
+                if n_values == 0 {
+                    // If we have zero rows or columns, the set of matrices with the given
+                    // rows and columns is a single element: an empty matrix
+                    all_combinations.insert(DMatrix::from_row_slice(nrows, ncols, &[]));
+                } else {
+                    // Otherwise, we need to sample all possible matrices.
+                    // To do this, we generate the values as the (multi) Cartesian product
+                    // of the value sets. For example, for a 2x2 matrices, we consider
+                    // all possible 4-element arrays that the matrices can take by
+                    // considering all elements in the cartesian product
+                    //  V x V x V x V
+                    // where V is the set of eligible values, e.g. V := -1 ..= 1
+                    for matrix_values in repeat(values.clone())
+                        .take(n_values)
+                        .multi_cartesian_product()
+                    {
+                        all_combinations.insert(DMatrix::from_row_slice(
+                            nrows,
+                            ncols,
+                            &matrix_values,
+                        ));
+                    }
+                }
+            }
+        }
+
+        let mut visited_combinations = HashSet::new();
+        for _ in 0..num_generated_matrices {
+            let tree = strategy
+                .new_tree(&mut runner)
+                .expect("Tree generation should not fail");
+            let matrix = tree.current();
+            visited_combinations.insert(matrix.clone());
+        }
+
+        assert_eq!(
+            visited_combinations, all_combinations,
+            "Did not sample all possible values."
+        );
+    }
 }
