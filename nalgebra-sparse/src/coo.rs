@@ -1,8 +1,6 @@
 //! An implementation of the COO sparse matrix format.
 
 use crate::SparseFormatError;
-use nalgebra::{ClosedAdd, DMatrix, Scalar};
-use num_traits::Zero;
 
 /// A COO representation of a sparse matrix.
 ///
@@ -47,8 +45,6 @@ pub struct CooMatrix<T> {
 }
 
 impl<T> CooMatrix<T>
-where
-    T: Scalar,
 {
     /// Construct a zero COO matrix of the given dimensions.
     ///
@@ -146,6 +142,16 @@ where
         self.ncols
     }
 
+    /// The number of explicitly stored entries in the matrix.
+    ///
+    /// This number *includes* duplicate entries. For example, if the `CooMatrix` contains duplicate
+    /// entries, then it may have a different number of non-zeros as reported by `nnz()` compared
+    /// to its CSR representation.
+    #[inline]
+    pub fn nnz(&self) -> usize {
+        self.values.len()
+    }
+
     /// The row indices of the explicitly stored entries.
     pub fn row_indices(&self) -> &[usize] {
         &self.row_indices
@@ -181,23 +187,5 @@ where
     /// ```
     pub fn disassemble(self) -> (Vec<usize>, Vec<usize>, Vec<T>) {
         (self.row_indices, self.col_indices, self.values)
-    }
-
-    /// Construct the dense representation of the COO matrix.
-    ///
-    /// Duplicate entries are summed together.
-    ///
-    /// TODO: Remove?
-    pub fn to_dense(&self) -> DMatrix<T>
-    where
-        T: ClosedAdd + Zero,
-    {
-        let mut result = DMatrix::zeros(self.nrows, self.ncols);
-
-        for (i, j, v) in self.triplet_iter() {
-            result[(i, j)] += v.clone();
-        }
-
-        result
     }
 }

@@ -19,7 +19,7 @@ fn coo_construction_for_valid_data() {
         assert!(coo.col_indices().is_empty());
         assert!(coo.values().is_empty());
 
-        assert_eq!(coo.to_dense(), DMatrix::repeat(3, 2, 0));
+        assert_eq!(DMatrix::from(&coo), DMatrix::repeat(3, 2, 0));
     }
 
     {
@@ -51,7 +51,7 @@ fn coo_construction_for_valid_data() {
             0, 0, 3, 0, 0,
             0, 0, 0, 1, 0
         ]);
-        assert_eq!(coo.to_dense(), expected_dense);
+        assert_eq!(DMatrix::from(&coo), expected_dense);
     }
 
     {
@@ -83,7 +83,7 @@ fn coo_construction_for_valid_data() {
             0, 0, 8, 0, 0,
             0, 0, 0, 1, 0
         ]);
-        assert_eq!(coo.to_dense(), expected_dense);
+        assert_eq!(DMatrix::from(&coo), expected_dense);
     }
 }
 

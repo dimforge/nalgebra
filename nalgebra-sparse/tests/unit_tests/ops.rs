@@ -1,6 +1,6 @@
 use nalgebra_sparse::coo::CooMatrix;
 use nalgebra_sparse::ops::spmv_coo;
-use nalgebra::DVector;
+use nalgebra::{DVector, DMatrix};
 
 #[test]
 fn spmv_coo_agrees_with_dense_gemv() {
@@ -20,7 +20,7 @@ fn spmv_coo_agrees_with_dense_gemv() {
             let mut y_dense = y.clone();
             spmv_coo(beta, &mut y, alpha, &a, &x);
 
-            y_dense.gemv(alpha, &a.to_dense(), &x, beta);
+            y_dense.gemv(alpha, &DMatrix::from(&a), &x, beta);
 
             assert_eq!(y, y_dense);
         }
