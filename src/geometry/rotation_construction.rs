@@ -8,6 +8,7 @@ use crate::base::{DefaultAllocator, MatrixN, Scalar};
 
 use crate::geometry::Rotation;
 
+/// # Identity
 impl<N, D: DimName> Rotation<N, D>
 where
     N: Scalar + Zero + One,

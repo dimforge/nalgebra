@@ -6,12 +6,17 @@ use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1, U2, U3, U4, U5, U6};
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::{DefaultAllocator, Scalar, VectorN};
+use crate::{
+    Point1, Point2, Point3, Point4, Point5, Point6, Vector1, Vector2, Vector3, Vector4, Vector5,
+    Vector6,
+};
 use simba::scalar::ClosedDiv;
 
 use crate::geometry::Point;
 
+/// # Other construction methods
 impl<N: Scalar, D: DimName> Point<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
@@ -79,7 +84,7 @@ where
     /// assert_eq!(pt, Some(Point3::new(1.0, 2.0, 3.0)));
     ///
     /// // All component of the result will be divided by the
-    /// // last component of the vector, here 2.0.
+    /// // last component of the vector, here 2.0.
     /// let coords = Vector4::new(1.0, 2.0, 3.0, 2.0);
     /// let pt = Point3::from_homogeneous(coords);
     /// assert_eq!(pt, Some(Point3::new(0.5, 1.0, 1.5)));
@@ -158,46 +163,56 @@ where
  * Small points construction from components.
  *
  */
+// NOTE: the impl for Point1 is not with the others so that we
+// can add a section with the impl block comment.
+/// # Construction from individual components
+impl<N: Scalar> Point1<N> {
+    /// Initializes this point from its components.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Point1;
+    /// let p = Point1::new(1.0);
+    /// assert_eq!(p.x, 1.0);
+    /// ```
+    #[inline]
+    pub fn new(x: N) -> Self {
+        Vector1::new(x).into()
+    }
+}
 macro_rules! componentwise_constructors_impl(
-    ($($doc: expr; $D: ty, $($args: ident:$irow: expr),*);* $(;)*) => {$(
-        impl<N: Scalar> Point<N, $D>
-            where DefaultAllocator: Allocator<N, $D> {
+    ($($doc: expr; $Point: ident, $Vector: ident, $($args: ident:$irow: expr),*);* $(;)*) => {$(
+        impl<N: Scalar> $Point<N> {
             #[doc = "Initializes this point from its components."]
             #[doc = "# Example\n```"]
             #[doc = $doc]
             #[doc = "```"]
             #[inline]
             pub fn new($($args: N),*) -> Self {
-                unsafe {
-                    let mut res = Self::new_uninitialized();
-                    $( *res.get_unchecked_mut($irow) = $args; )*
-
-                    res
-                }
+                $Vector::new($($args),*).into()
             }
         }
     )*}
 );
 
 componentwise_constructors_impl!(
-    "# use nalgebra::Point1;\nlet p = Point1::new(1.0);\nassert!(p.x == 1.0);";
-    U1, x:0;
     "# use nalgebra::Point2;\nlet p = Point2::new(1.0, 2.0);\nassert!(p.x == 1.0 && p.y == 2.0);";
-    U2, x:0, y:1;
+    Point2, Vector2, x:0, y:1;
     "# use nalgebra::Point3;\nlet p = Point3::new(1.0, 2.0, 3.0);\nassert!(p.x == 1.0 && p.y == 2.0 && p.z == 3.0);";
-    U3, x:0, y:1, z:2;
+    Point3, Vector3, x:0, y:1, z:2;
     "# use nalgebra::Point4;\nlet p = Point4::new(1.0, 2.0, 3.0, 4.0);\nassert!(p.x == 1.0 && p.y == 2.0 && p.z == 3.0 && p.w == 4.0);";
-    U4, x:0, y:1, z:2, w:3;
+    Point4, Vector4, x:0, y:1, z:2, w:3;
     "# use nalgebra::Point5;\nlet p = Point5::new(1.0, 2.0, 3.0, 4.0, 5.0);\nassert!(p.x == 1.0 && p.y == 2.0 && p.z == 3.0 && p.w == 4.0 && p.a == 5.0);";
-    U5, x:0, y:1, z:2, w:3, a:4;
+    Point5, Vector5, x:0, y:1, z:2, w:3, a:4;
     "# use nalgebra::Point6;\nlet p = Point6::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);\nassert!(p.x == 1.0 && p.y == 2.0 && p.z == 3.0 && p.w == 4.0 && p.a == 5.0 && p.b == 6.0);";
-    U6, x:0, y:1, z:2, w:3, a:4, b:5;
+    Point6, Vector6, x:0, y:1, z:2, w:3, a:4, b:5;
 );
 
 macro_rules! from_array_impl(
-    ($($D: ty, $len: expr);*) => {$(
-      impl <N: Scalar> From<[N; $len]> for Point<N, $D> {
-          fn from (coords: [N; $len]) -> Self {
+    ($($Point: ident, $len: expr);*) => {$(
+      impl <N: Scalar> From<[N; $len]> for $Point<N> {
+          fn from(coords: [N; $len]) -> Self {
               Self {
                 coords: coords.into()
               }
@@ -206,4 +221,4 @@ macro_rules! from_array_impl(
     )*}
 );
 
-from_array_impl!(U1, 1; U2, 2; U3, 3; U4, 4; U5, 5; U6, 6);
+from_array_impl!(Point1, 1; Point2, 2; Point3, 3; Point4, 4; Point5, 5; Point6, 6);

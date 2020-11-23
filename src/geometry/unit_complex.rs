@@ -7,7 +7,26 @@ use crate::geometry::{Point2, Rotation2};
 use simba::scalar::RealField;
 use simba::simd::SimdRealField;
 
-/// A complex number with a norm equal to 1.
+/// A 2D rotation represented as a complex number with magnitude 1.
+///
+/// All the methods specific [`UnitComplex`](crate::UnitComplex) are listed here. You may also
+/// read the documentation of the [`Complex`](crate::Complex) type which
+/// is used internally and accessible with `unit_complex.complex()`.
+///
+/// # Construction
+/// * [Identity <span style="float:right;">`identity`</span>](#identity)
+/// * [From a 2D rotation angle <span style="float:right;">`new`, `from_cos_sin_unchecked`…</span>](#construction-from-a-2d-rotation-angle)
+/// * [From an existing 2D matrix or complex number <span style="float:right;">`from_matrix`, `rotation_to`, `powf`…</span>](#construction-from-an-existing-2d-matrix-or-complex-number)
+/// * [From two vectors <span style="float:right;">`rotation_between`, `scaled_rotation_between_axis`…</span>](#construction-from-two-vectors)
+///
+/// # Transformation and composition
+/// * [Angle extraction <span style="float:right;">`angle`, `angle_to`…</span>](#angle-extraction)
+/// * [Transformation of a vector or a point <span style="float:right;">`transform_vector`, `inverse_transform_point`…</span>](#transformation-of-a-vector-or-a-point)
+/// * [Conjugation and inversion <span style="float:right;">`conjugate`, `inverse_mut`…</span>](#conjugation-and-inversion)
+/// * [Interpolation <span style="float:right;">`slerp`…</span>](#interpolation)
+///
+/// # Conversion
+/// * [Conversion to a matrix <span style="float:right;">`to_rotation_matrix`, `to_homogeneous`…</span>](#conversion-to-a-matrix)
 pub type UnitComplex<N> = Unit<Complex<N>>;
 
 impl<N: SimdRealField> Normed for Complex<N> {
@@ -40,6 +59,7 @@ impl<N: SimdRealField> Normed for Complex<N> {
     }
 }
 
+/// # Angle extraction
 impl<N: SimdRealField> UnitComplex<N>
 where
     N::Element: SimdRealField,
@@ -115,24 +135,28 @@ where
         }
     }
 
-    /// The underlying complex number.
-    ///
-    /// Same as `self.as_ref()`.
+    /// The rotation angle needed to make `self` and `other` coincide.
     ///
     /// # Example
     /// ```
-    /// # extern crate num_complex;
-    /// # use num_complex::Complex;
+    /// # #[macro_use] extern crate approx;
     /// # use nalgebra::UnitComplex;
-    /// let angle = 1.78f32;
-    /// let rot = UnitComplex::new(angle);
-    /// assert_eq!(*rot.complex(), Complex::new(angle.cos(), angle.sin()));
+    /// let rot1 = UnitComplex::new(0.1);
+    /// let rot2 = UnitComplex::new(1.7);
+    /// assert_relative_eq!(rot1.angle_to(&rot2), 1.6);
     /// ```
     #[inline]
-    pub fn complex(&self) -> &Complex<N> {
-        self.as_ref()
+    pub fn angle_to(&self, other: &Self) -> N {
+        let delta = self.rotation_to(other);
+        delta.angle()
     }
+}
 
+/// # Conjugation and inversion
+impl<N: SimdRealField> UnitComplex<N>
+where
+    N::Element: SimdRealField,
+{
     /// Compute the conjugate of this unit complex number.
     ///
     /// # Example
@@ -164,42 +188,6 @@ where
     #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(&self) -> Self {
         self.conjugate()
-    }
-
-    /// The rotation angle needed to make `self` and `other` coincide.
-    ///
-    /// # Example
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::UnitComplex;
-    /// let rot1 = UnitComplex::new(0.1);
-    /// let rot2 = UnitComplex::new(1.7);
-    /// assert_relative_eq!(rot1.angle_to(&rot2), 1.6);
-    /// ```
-    #[inline]
-    pub fn angle_to(&self, other: &Self) -> N {
-        let delta = self.rotation_to(other);
-        delta.angle()
-    }
-
-    /// The unit complex number needed to make `self` and `other` coincide.
-    ///
-    /// The result is such that: `self.rotation_to(other) * self == other`.
-    ///
-    /// # Example
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::UnitComplex;
-    /// let rot1 = UnitComplex::new(0.1);
-    /// let rot2 = UnitComplex::new(1.7);
-    /// let rot_to = rot1.rotation_to(&rot2);
-    ///
-    /// assert_relative_eq!(rot_to * rot1, rot2);
-    /// assert_relative_eq!(rot_to.inverse() * rot2, rot1);
-    /// ```
-    #[inline]
-    pub fn rotation_to(&self, other: &Self) -> Self {
-        other / self
     }
 
     /// Compute in-place the conjugate of this unit complex number.
@@ -237,25 +225,13 @@ where
     pub fn inverse_mut(&mut self) {
         self.conjugate_mut()
     }
+}
 
-    /// Raise this unit complex number to a given floating power.
-    ///
-    /// This returns the unit complex number that identifies a rotation angle equal to
-    /// `self.angle() × n`.
-    ///
-    /// # Example
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::UnitComplex;
-    /// let rot = UnitComplex::new(0.78);
-    /// let pow = rot.powf(2.0);
-    /// assert_relative_eq!(pow.angle(), 2.0 * 0.78);
-    /// ```
-    #[inline]
-    pub fn powf(&self, n: N) -> Self {
-        Self::from_angle(self.angle() * n)
-    }
-
+/// # Conversion to a matrix
+impl<N: SimdRealField> UnitComplex<N>
+where
+    N::Element: SimdRealField,
+{
     /// Builds the rotation matrix corresponding to this unit complex number.
     ///
     /// # Example
@@ -290,7 +266,13 @@ where
     pub fn to_homogeneous(&self) -> Matrix3<N> {
         self.to_rotation_matrix().to_homogeneous()
     }
+}
 
+/// # Transformation of a vector or a point
+impl<N: SimdRealField> UnitComplex<N>
+where
+    N::Element: SimdRealField,
+{
     /// Rotate the given point by this unit complex number.
     ///
     /// This is the same as the multiplication `self * pt`.
@@ -376,7 +358,13 @@ where
     pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector2<N>>) -> Unit<Vector2<N>> {
         self.inverse() * v
     }
+}
 
+/// # Interpolation
+impl<N: SimdRealField> UnitComplex<N>
+where
+    N::Element: SimdRealField,
+{
     /// Spherical linear interpolation between two rotations represented as unit complex numbers.
     ///
     /// # Examples:
@@ -392,7 +380,6 @@ where
     ///
     /// assert_relative_eq!(rot.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
-
     #[inline]
     pub fn slerp(&self, other: &Self, t: N) -> Self {
         Self::new(self.angle() * (N::one() - t) + other.angle() * t)
