@@ -45,14 +45,17 @@
 //!     - [x] "Disassemble" the COO matrix into its underlying triplet arrays.
 //! - Format conversion:
 //!     - [x] COO -> Dense
-//!     - [ ] CSR -> Dense
-//!     - [ ] CSC -> Dense
-//!     - [ ] COO -> CSR
-//!     - [ ] COO -> CSC
-//!     - [ ] CSR -> CSC
-//!     - [ ] CSC -> CSR
-//!     - [ ] CSR -> COO
-//!     - [ ] CSC -> COO
+//!     - [x] CSR -> Dense
+//!     - [x] CSC -> Dense
+//!     - [x] COO -> CSR
+//!     - [x] COO -> CSC
+//!     - [x] CSR -> CSC
+//!     - [x] CSC -> CSR
+//!     - [x] CSR -> COO
+//!     - [x] CSC -> COO
+//!     - [x] Dense -> COO
+//!     - [x] Dense -> CSR
+//!     - [x] Dense -> CSC
 //! - Arithmetic. In general arithmetic is only implemented between instances of the same format,
 //!   or between dense and instances of a given format. For example, we do not implement
 //!   CSR * CSC, only CSR * CSR and CSC * CSC.
