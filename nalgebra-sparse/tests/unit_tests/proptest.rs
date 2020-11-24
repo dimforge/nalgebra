@@ -132,3 +132,5 @@ mod slow {
         assert!(all_combinations.is_subset(&visited_combinations));
     }
 }
+
+// TODO: Tests for csr, csc and sparsity_pattern strategies
