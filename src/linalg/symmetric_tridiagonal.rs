@@ -61,7 +61,8 @@ where
             "Unable to compute the symmetric tridiagonal decomposition of an empty matrix."
         );
 
-        let mut off_diagonal = unsafe { crate::unimplemented_or_uninitialized_generic!(dim.sub(U1), U1) };
+        let mut off_diagonal =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(dim.sub(U1), U1) };
         let mut p = unsafe { crate::unimplemented_or_uninitialized_generic!(dim.sub(U1), U1) };
 
         for i in 0..dim.value() - 1 {

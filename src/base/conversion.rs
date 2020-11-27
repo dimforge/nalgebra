@@ -50,7 +50,8 @@ where
         let nrows2 = R2::from_usize(nrows);
         let ncols2 = C2::from_usize(ncols);
 
-        let mut res: MatrixMN<N2, R2, C2> = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows2, ncols2) };
+        let mut res: MatrixMN<N2, R2, C2> =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows2, ncols2) };
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {

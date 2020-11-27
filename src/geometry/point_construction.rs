@@ -24,7 +24,10 @@ where
     /// Creates a new point with uninitialized coordinates.
     #[inline]
     pub unsafe fn new_uninitialized() -> Self {
-        Self::from(crate::unimplemented_or_uninitialized_generic!(D::name(), U1))
+        Self::from(crate::unimplemented_or_uninitialized_generic!(
+            D::name(),
+            U1
+        ))
     }
 
     /// Creates a new point with all coordinates equal to zero.

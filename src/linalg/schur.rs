@@ -71,7 +71,8 @@ where
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
     pub fn try_new(m: MatrixN<N, D>, eps: N::RealField, max_niter: usize) -> Option<Self> {
-        let mut work = unsafe { crate::unimplemented_or_uninitialized_generic!(m.data.shape().0, U1) };
+        let mut work =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(m.data.shape().0, U1) };
 
         Self::do_decompose(m, &mut work, eps, max_niter, true)
             .map(|(q, t)| Schur { q: q.unwrap(), t })
@@ -378,7 +379,8 @@ where
     ///
     /// Return `None` if some eigenvalues are complex.
     pub fn eigenvalues(&self) -> Option<VectorN<N, D>> {
-        let mut out = unsafe { crate::unimplemented_or_uninitialized_generic!(self.t.data.shape().0, U1) };
+        let mut out =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(self.t.data.shape().0, U1) };
         if Self::do_eigenvalues(&self.t, &mut out) {
             Some(out)
         } else {
@@ -392,7 +394,8 @@ where
         N: RealField,
         DefaultAllocator: Allocator<NumComplex<N>, D>,
     {
-        let mut out = unsafe { crate::unimplemented_or_uninitialized_generic!(self.t.data.shape().0, U1) };
+        let mut out =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(self.t.data.shape().0, U1) };
         Self::do_complex_eigenvalues(&self.t, &mut out);
         out
     }
@@ -503,7 +506,8 @@ where
             "Unable to compute eigenvalues of a non-square matrix."
         );
 
-        let mut work = unsafe { crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, U1) };
+        let mut work =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, U1) };
 
         // Special case for 2x2 matrices.
         if self.nrows() == 2 {

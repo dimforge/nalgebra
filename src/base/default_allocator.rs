@@ -55,9 +55,9 @@ where
         ncols: C,
         iter: I,
     ) -> Self::Buffer {
-        #[cfg(feature="no_unsound_assume_init")]
+        #[cfg(feature = "no_unsound_assume_init")]
         let mut res: Self::Buffer = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
+        #[cfg(not(feature = "no_unsound_assume_init"))]
         let mut res = unsafe { Self::allocate_uninitialized(nrows, ncols).assume_init() };
         let mut count = 0;
 
@@ -158,10 +158,11 @@ where
         cto: CTo,
         buf: <Self as Allocator<N, RFrom, CFrom>>::Buffer,
     ) -> ArrayStorage<N, RTo, CTo> {
-        #[cfg(feature="no_unsound_assume_init")]
+        #[cfg(feature = "no_unsound_assume_init")]
         let mut res: ArrayStorage<N, RTo, CTo> = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = <Self as Allocator<N, RTo, CTo>>::allocate_uninitialized(rto, cto).assume_init();
+        #[cfg(not(feature = "no_unsound_assume_init"))]
+        let mut res =
+            <Self as Allocator<N, RTo, CTo>>::allocate_uninitialized(rto, cto).assume_init();
 
         let (rfrom, cfrom) = buf.shape();
 
@@ -189,10 +190,11 @@ where
         cto: CTo,
         buf: ArrayStorage<N, RFrom, CFrom>,
     ) -> VecStorage<N, Dynamic, CTo> {
-        #[cfg(feature="no_unsound_assume_init")]
+        #[cfg(feature = "no_unsound_assume_init")]
         let mut res: VecStorage<N, Dynamic, CTo> = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = <Self as Allocator<N, Dynamic, CTo>>::allocate_uninitialized(rto, cto).assume_init();
+        #[cfg(not(feature = "no_unsound_assume_init"))]
+        let mut res =
+            <Self as Allocator<N, Dynamic, CTo>>::allocate_uninitialized(rto, cto).assume_init();
 
         let (rfrom, cfrom) = buf.shape();
 
@@ -220,10 +222,11 @@ where
         cto: Dynamic,
         buf: ArrayStorage<N, RFrom, CFrom>,
     ) -> VecStorage<N, RTo, Dynamic> {
-        #[cfg(feature="no_unsound_assume_init")]
+        #[cfg(feature = "no_unsound_assume_init")]
         let mut res: VecStorage<N, RTo, Dynamic> = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = <Self as Allocator<N, RTo, Dynamic>>::allocate_uninitialized(rto, cto).assume_init();
+        #[cfg(not(feature = "no_unsound_assume_init"))]
+        let mut res =
+            <Self as Allocator<N, RTo, Dynamic>>::allocate_uninitialized(rto, cto).assume_init();
 
         let (rfrom, cfrom) = buf.shape();
 

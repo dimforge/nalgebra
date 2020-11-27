@@ -81,7 +81,8 @@ where
             "Cannot compute the bidiagonalization of an empty matrix."
         );
 
-        let mut diagonal = unsafe { crate::unimplemented_or_uninitialized_generic!(min_nrows_ncols, U1) };
+        let mut diagonal =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(min_nrows_ncols, U1) };
         let mut off_diagonal =
             unsafe { crate::unimplemented_or_uninitialized_generic!(min_nrows_ncols.sub(U1), U1) };
         let mut axis_packed = unsafe { crate::unimplemented_or_uninitialized_generic!(ncols, U1) };
@@ -239,7 +240,8 @@ where
         let min_nrows_ncols = nrows.min(ncols);
 
         let mut res = Matrix::identity_generic(min_nrows_ncols, ncols);
-        let mut work = unsafe { crate::unimplemented_or_uninitialized_generic!(min_nrows_ncols, U1) };
+        let mut work =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(min_nrows_ncols, U1) };
         let mut axis_packed = unsafe { crate::unimplemented_or_uninitialized_generic!(ncols, U1) };
 
         let shift = self.axis_shift().1;

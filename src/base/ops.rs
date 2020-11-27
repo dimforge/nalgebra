@@ -573,7 +573,9 @@ where
 
     #[inline]
     fn mul(self, rhs: &'b Matrix<N, R2, C2, SB>) -> Self::Output {
-        let mut res = unsafe { crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, rhs.data.shape().1) };
+        let mut res = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, rhs.data.shape().1)
+        };
         self.mul_to(rhs, &mut res);
         res
     }
@@ -682,7 +684,9 @@ where
         DefaultAllocator: Allocator<N, C1, C2>,
         ShapeConstraint: SameNumberOfRows<R1, R2>,
     {
-        let mut res = unsafe { crate::unimplemented_or_uninitialized_generic!(self.data.shape().1, rhs.data.shape().1) };
+        let mut res = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(self.data.shape().1, rhs.data.shape().1)
+        };
 
         self.tr_mul_to(rhs, &mut res);
         res
@@ -697,7 +701,9 @@ where
         DefaultAllocator: Allocator<N, C1, C2>,
         ShapeConstraint: SameNumberOfRows<R1, R2>,
     {
-        let mut res = unsafe { crate::unimplemented_or_uninitialized_generic!(self.data.shape().1, rhs.data.shape().1) };
+        let mut res = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(self.data.shape().1, rhs.data.shape().1)
+        };
 
         self.ad_mul_to(rhs, &mut res);
         res
@@ -811,7 +817,9 @@ where
         let (nrows1, ncols1) = self.data.shape();
         let (nrows2, ncols2) = rhs.data.shape();
 
-        let mut res = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows1.mul(nrows2), ncols1.mul(ncols2)) };
+        let mut res = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(nrows1.mul(nrows2), ncols1.mul(ncols2))
+        };
 
         {
             let mut data_res = res.data.ptr_mut();

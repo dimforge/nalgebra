@@ -181,7 +181,12 @@ where
         D: DimNameAdd<U1>,
         DefaultAllocator: Allocator<N, DimNameSum<D, U1>>,
     {
-        let mut res = unsafe { crate::unimplemented_or_uninitialized_generic!(<DimNameSum<D, U1> as DimName>::name(), U1) };
+        let mut res = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(
+                <DimNameSum<D, U1> as DimName>::name(),
+                U1
+            )
+        };
         res.fixed_slice_mut::<D, U1>(0, 0).copy_from(&self.coords);
         res[(D::dim(), 0)] = N::one();
 
