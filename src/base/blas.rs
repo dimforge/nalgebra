@@ -1328,10 +1328,7 @@ where
         ShapeConstraint: DimEq<D1, D1> + DimEq<D1, R3> + DimEq<C3, D4>,
         DefaultAllocator: Allocator<N, D1>,
     {
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut work = Vector::zeros_generic(self.data.shape().0, U1);
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut work = unsafe { Vector::new_uninitialized_generic(self.data.shape().0, U1).assume_init() };
+        let mut work = unsafe { crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, U1) };
         self.quadform_tr_with_workspace(&mut work, alpha, lhs, mid, beta)
     }
 
@@ -1424,10 +1421,7 @@ where
         ShapeConstraint: DimEq<D2, R3> + DimEq<D1, C3> + AreMultipliable<C3, R3, D2, U1>,
         DefaultAllocator: Allocator<N, D2>,
     {
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut work = Vector::zeros_generic(mid.data.shape().0, U1);
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut work = unsafe { Vector::new_uninitialized_generic(mid.data.shape().0, U1).assume_init() };
+        let mut work = unsafe { crate::unimplemented_or_uninitialized_generic!(mid.data.shape().0, U1) };
         self.quadform_with_workspace(&mut work, alpha, mid, rhs, beta)
     }
 }

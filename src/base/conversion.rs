@@ -50,10 +50,7 @@ where
         let nrows2 = R2::from_usize(nrows);
         let ncols2 = C2::from_usize(ncols);
 
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut res: MatrixMN<N2, R2, C2> = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = unsafe { MatrixMN::<N2, R2, C2>::new_uninitialized_generic(nrows2, ncols2).assume_init() };
+        let mut res: MatrixMN<N2, R2, C2> = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows2, ncols2) };
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {
@@ -76,10 +73,7 @@ where
         let nrows = R1::from_usize(nrows2);
         let ncols = C1::from_usize(ncols2);
 
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut res: Self = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols).assume_init() };
+        let mut res: Self = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
         for i in 0..nrows2 {
             for j in 0..ncols2 {
                 unsafe {

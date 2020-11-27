@@ -26,12 +26,19 @@ use crate::base::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
 use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN};
 
-/// When "no_unsound_assume_init" is enabled, expands to `zeros_generic()` instead of `new_uninitialized_generic().assume_init()`.
-/// Intended for use in contexts where the `Scalar` type implements `num_traits::Zero`, to check whether uninitialized memory is actually performance-critical.
+/// When "no_unsound_assume_init" is enabled, expands to `unimplemented!()` instead of `new_uninitialized_generic().assume_init()`.
+/// Intended as a placeholder, each callsite should be refactored to use uninitialized memory soundly
 #[macro_export]
-macro_rules! zero_or_uninitialized_generic {
+macro_rules! unimplemented_or_uninitialized_generic {
     ($nrows:expr, $ncols:expr) => {{
-        #[cfg(feature="no_unsound_assume_init")] { crate::base::Matrix::zeros_generic($nrows, $ncols) }
+        #[cfg(feature="no_unsound_assume_init")] {
+            // Some of the call sites need the number of rows and columns from this to infer a type, so
+            // uninitialized memory is used to infer the type, as `N: Zero` isn't available at all callsites.
+            // This may technically still be UB even though the assume_init is dead code, but all callsites should be fixed before #556 is closed.
+            let typeinference_helper = crate::base::Matrix::new_uninitialized_generic($nrows, $ncols);
+            unimplemented!();
+            typeinference_helper.assume_init()
+        }
         #[cfg(not(feature="no_unsound_assume_init"))] { crate::base::Matrix::new_uninitialized_generic($nrows, $ncols).assume_init() }
     }}
 }
@@ -99,10 +106,7 @@ where
             "Matrix init. error: the slice did not contain the right number of elements."
         );
 
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut res: Self = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols).assume_init() };
+        let mut res = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
         let mut iter = slice.iter();
 
         for i in 0..nrows.value() {
@@ -128,10 +132,7 @@ where
     where
         F: FnMut(usize, usize) -> N,
     {
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut res: Self = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols).assume_init() };
+        let mut res: Self = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {

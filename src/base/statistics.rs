@@ -17,10 +17,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         DefaultAllocator: Allocator<N, U1, C>,
     {
         let ncols = self.data.shape().1;
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut res: RowVectorN<N, C> = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = unsafe { RowVectorN::new_uninitialized_generic(U1, ncols).assume_init() };
+        let mut res: RowVectorN<N, C> = unsafe { crate::unimplemented_or_uninitialized_generic!(U1, ncols) };
 
         for i in 0..ncols.value() {
             // TODO: avoid bound checking of column.
@@ -45,10 +42,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         DefaultAllocator: Allocator<N, C>,
     {
         let ncols = self.data.shape().1;
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut res: VectorN<N, C> = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = unsafe { VectorN::new_uninitialized_generic(ncols, U1).assume_init() };
+        let mut res: VectorN<N, C> = unsafe { crate::unimplemented_or_uninitialized_generic!(ncols, U1) };
 
         for i in 0..ncols.value() {
             // TODO: avoid bound checking of column.

@@ -331,10 +331,7 @@ macro_rules! componentwise_binop_impl(
                     let (nrows, ncols) = self.shape();
                     let nrows: SameShapeR<R1, R2> = Dim::from_usize(nrows);
                     let ncols: SameShapeC<C1, C2> = Dim::from_usize(ncols);
-                    #[cfg(feature="no_unsound_assume_init")]
-                    { unimplemented!() }
-                    #[cfg(not(feature="no_unsound_assume_init"))]
-                    { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() }
+                    crate::unimplemented_or_uninitialized_generic!(nrows, ncols)
                 };
 
                 self.$method_to_statically_unchecked(rhs, &mut res);
@@ -576,7 +573,7 @@ where
 
     #[inline]
     fn mul(self, rhs: &'b Matrix<N, R2, C2, SB>) -> Self::Output {
-        let mut res = unsafe { crate::zero_or_uninitialized_generic!(self.data.shape().0, rhs.data.shape().1) };
+        let mut res = unsafe { crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, rhs.data.shape().1) };
         self.mul_to(rhs, &mut res);
         res
     }
@@ -685,7 +682,7 @@ where
         DefaultAllocator: Allocator<N, C1, C2>,
         ShapeConstraint: SameNumberOfRows<R1, R2>,
     {
-        let mut res = unsafe { crate::zero_or_uninitialized_generic!(self.data.shape().1, rhs.data.shape().1) };
+        let mut res = unsafe { crate::unimplemented_or_uninitialized_generic!(self.data.shape().1, rhs.data.shape().1) };
 
         self.tr_mul_to(rhs, &mut res);
         res
@@ -700,7 +697,7 @@ where
         DefaultAllocator: Allocator<N, C1, C2>,
         ShapeConstraint: SameNumberOfRows<R1, R2>,
     {
-        let mut res = unsafe { crate::zero_or_uninitialized_generic!(self.data.shape().1, rhs.data.shape().1) };
+        let mut res = unsafe { crate::unimplemented_or_uninitialized_generic!(self.data.shape().1, rhs.data.shape().1) };
 
         self.ad_mul_to(rhs, &mut res);
         res
@@ -814,7 +811,7 @@ where
         let (nrows1, ncols1) = self.data.shape();
         let (nrows2, ncols2) = rhs.data.shape();
 
-        let mut res = unsafe { crate::zero_or_uninitialized_generic!(nrows1.mul(nrows2), ncols1.mul(ncols2)) };
+        let mut res = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows1.mul(nrows2), ncols1.mul(ncols2)) };
 
         {
             let mut data_res = res.data.ptr_mut();

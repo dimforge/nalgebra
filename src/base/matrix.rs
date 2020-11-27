@@ -507,10 +507,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         let nrows: SameShapeR<R, R2> = Dim::from_usize(nrows);
         let ncols: SameShapeC<C, C2> = Dim::from_usize(ncols);
 
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut res: MatrixSum<N, R, C, R2, C2> = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res: MatrixSum<N, R, C, R2, C2> = unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
+        let mut res: MatrixSum<N, R, C, R2, C2> = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
         // TODO: use copy_from
         for j in 0..res.ncols() {
@@ -559,10 +556,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
-            #[cfg(feature="no_unsound_assume_init")]
-            let mut res = unimplemented!();
-            #[cfg(not(feature="no_unsound_assume_init"))]
-            let mut res = Matrix::new_uninitialized_generic(ncols, nrows).assume_init();
+            let mut res = crate::unimplemented_or_uninitialized_generic!(ncols, nrows);
             self.transpose_to(&mut res);
 
             res
@@ -580,10 +574,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     {
         let (nrows, ncols) = self.data.shape();
 
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut res: MatrixMN<N2, R, C> = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols).assume_init() };
+        let mut res: MatrixMN<N2, R, C> = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
@@ -627,10 +618,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     {
         let (nrows, ncols) = self.data.shape();
 
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut res: MatrixMN<N2, R, C> = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols).assume_init() };
+        let mut res: MatrixMN<N2, R, C> = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
@@ -657,10 +645,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     {
         let (nrows, ncols) = self.data.shape();
 
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut res: MatrixMN<N3, R, C> = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols).assume_init() };
+        let mut res: MatrixMN<N3, R, C> = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
         assert_eq!(
             (nrows.value(), ncols.value()),
@@ -701,10 +686,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     {
         let (nrows, ncols) = self.data.shape();
 
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut res: MatrixMN<N4, R, C> = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols).assume_init() };
+        let mut res: MatrixMN<N4, R, C> = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
         assert_eq!(
             (nrows.value(), ncols.value()),
@@ -1198,10 +1180,7 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
-            #[cfg(feature="no_unsound_assume_init")]
-            let mut res = unimplemented!();
-            #[cfg(not(feature="no_unsound_assume_init"))]
-            let mut res: MatrixMN<_, C, R> = Matrix::new_uninitialized_generic(ncols, nrows).assume_init();
+            let mut res: MatrixMN<_, C, R> = crate::unimplemented_or_uninitialized_generic!(ncols, nrows);
             self.adjoint_to(&mut res);
 
             res
@@ -1342,10 +1321,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         );
 
         let dim = self.data.shape().0;
-        #[cfg(feature="no_unsound_assume_init")]
-        let mut res: VectorN<N2, D> = unimplemented!();
-        #[cfg(not(feature="no_unsound_assume_init"))]
-        let mut res = unsafe { VectorN::new_uninitialized_generic(dim, U1).assume_init() };
+        let mut res: VectorN<N2, D> = unsafe { crate::unimplemented_or_uninitialized_generic!(dim, U1) };
 
         for i in 0..dim.value() {
             unsafe {
@@ -1472,7 +1448,7 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     {
         let len = self.len();
         let hnrows = DimSum::<D, U1>::from_usize(len + 1);
-        let mut res: VectorN::<N, _> = unsafe { crate::zero_or_uninitialized_generic!(hnrows, U1) };
+        let mut res: VectorN::<N, _> = unsafe { crate::unimplemented_or_uninitialized_generic!(hnrows, U1) };
         res.generic_slice_mut((0, 0), self.data.shape())
             .copy_from(self);
         res[(len, 0)] = element;
@@ -1817,10 +1793,7 @@ impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N
                 // TODO: soooo ugly!
                 let nrows = SameShapeR::<R, R2>::from_usize(3);
                 let ncols = SameShapeC::<C, C2>::from_usize(1);
-                #[cfg(feature="no_unsound_assume_init")]
-                let mut res: MatrixCross<N, R, C, R2, C2> = unimplemented!();
-                #[cfg(not(feature="no_unsound_assume_init"))]
-                let mut res = Matrix::new_uninitialized_generic(nrows, ncols).assume_init();
+                let mut res: MatrixCross<N, R, C, R2, C2> = crate::unimplemented_or_uninitialized_generic!(nrows, ncols);
 
                 let ax = self.get_unchecked((0, 0));
                 let ay = self.get_unchecked((1, 0));
@@ -1844,10 +1817,7 @@ impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N
                 // TODO: ugly!
                 let nrows = SameShapeR::<R, R2>::from_usize(1);
                 let ncols = SameShapeC::<C, C2>::from_usize(3);
-                #[cfg(feature="no_unsound_assume_init")]
-                let mut res: MatrixCross<N, R, C, R2, C2> = unimplemented!();
-                #[cfg(not(feature="no_unsound_assume_init"))]
-                let mut res = Matrix::new_uninitialized_generic(nrows, ncols).assume_init();
+                let mut res: MatrixCross<N, R, C, R2, C2> = crate::unimplemented_or_uninitialized_generic!(nrows, ncols);
 
                 let ax = self.get_unchecked((0, 0));
                 let ay = self.get_unchecked((0, 1));
