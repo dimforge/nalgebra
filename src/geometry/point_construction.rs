@@ -24,7 +24,10 @@ where
     /// Creates a new point with uninitialized coordinates.
     #[inline]
     pub unsafe fn new_uninitialized() -> Self {
-        Self::from(VectorN::new_uninitialized())
+        #[cfg(feature="no_unsound_assume_init")]
+        { unimplemented!() }
+        #[cfg(not(feature="no_unsound_assume_init"))]
+        { Self::from(VectorN::new_uninitialized().assume_init()) }
     }
 
     /// Creates a new point with all coordinates equal to zero.

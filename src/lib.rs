@@ -87,6 +87,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
+#![cfg_attr(feature = "no_unsound_assume_init", allow(unreachable_code))]
 
 #[cfg(feature = "arbitrary")]
 extern crate quickcheck;

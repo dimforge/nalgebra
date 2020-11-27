@@ -14,6 +14,7 @@ use rand::Rng;
 #[cfg(feature = "std")]
 use rand_distr::StandardNormal;
 use std::iter;
+use std::mem;
 use typenum::{self, Cmp, Greater};
 
 #[cfg(feature = "std")]
@@ -24,6 +25,16 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
 use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN};
+
+/// When "no_unsound_assume_init" is enabled, expands to `zeros_generic()` instead of `new_uninitialized_generic().assume_init()`.
+/// Intended for use in contexts where the `Scalar` type implements `num_traits::Zero`, to check whether uninitialized memory is actually performance-critical.
+#[macro_export]
+macro_rules! zero_or_uninitialized_generic {
+    ($nrows:expr, $ncols:expr) => {{
+        #[cfg(feature="no_unsound_assume_init")] { crate::base::Matrix::zeros_generic($nrows, $ncols) }
+        #[cfg(not(feature="no_unsound_assume_init"))] { crate::base::Matrix::new_uninitialized_generic($nrows, $ncols).assume_init() }
+    }}
+}
 
 /// # Generic constructors
 /// This set of matrix and vector construction functions are all generic
@@ -38,8 +49,8 @@ where
     /// Creates a new uninitialized matrix. If the matrix has a compile-time dimension, this panics
     /// if `nrows != R::to_usize()` or `ncols != C::to_usize()`.
     #[inline]
-    pub unsafe fn new_uninitialized_generic(nrows: R, ncols: C) -> Self {
-        Self::from_data(DefaultAllocator::allocate_uninitialized(nrows, ncols))
+    pub unsafe fn new_uninitialized_generic(nrows: R, ncols: C) -> mem::MaybeUninit<Self> {
+        Self::from_uninitialized_data(DefaultAllocator::allocate_uninitialized(nrows, ncols))
     }
 
     /// Creates a matrix with all its elements set to `elem`.
@@ -88,7 +99,10 @@ where
             "Matrix init. error: the slice did not contain the right number of elements."
         );
 
-        let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols) };
+        #[cfg(feature="no_unsound_assume_init")]
+        let mut res: Self = unimplemented!();
+        #[cfg(not(feature="no_unsound_assume_init"))]
+        let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols).assume_init() };
         let mut iter = slice.iter();
 
         for i in 0..nrows.value() {
@@ -114,7 +128,10 @@ where
     where
         F: FnMut(usize, usize) -> N,
     {
-        let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols) };
+        #[cfg(feature="no_unsound_assume_init")]
+        let mut res: Self = unimplemented!();
+        #[cfg(not(feature="no_unsound_assume_init"))]
+        let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols).assume_init() };
 
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
@@ -356,7 +373,7 @@ macro_rules! impl_constructors(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
         /// Creates a new uninitialized matrix or vector.
         #[inline]
-        pub unsafe fn new_uninitialized($($args: usize),*) -> Self {
+        pub unsafe fn new_uninitialized($($args: usize),*) -> mem::MaybeUninit<Self> {
             Self::new_uninitialized_generic($($gargs),*)
         }
 
@@ -865,7 +882,10 @@ macro_rules! componentwise_constructors_impl(
             #[inline]
             pub fn new($($args: N),*) -> Self {
                 unsafe {
-                    let mut res = Self::new_uninitialized();
+                    #[cfg(feature="no_unsound_assume_init")]
+                    let mut res: Self = unimplemented!();
+                    #[cfg(not(feature="no_unsound_assume_init"))]
+                    let mut res = Self::new_uninitialized().assume_init();
                     $( *res.get_unchecked_mut(($irow, $icol)) = $args; )*
 
                     res

@@ -181,7 +181,10 @@ where
         D: DimNameAdd<U1>,
         DefaultAllocator: Allocator<N, DimNameSum<D, U1>>,
     {
-        let mut res = unsafe { VectorN::<_, DimNameSum<D, U1>>::new_uninitialized() };
+        #[cfg(feature="no_unsound_assume_init")]
+        let mut res: VectorN<N, DimNameSum<D, U1>> = unimplemented!();
+        #[cfg(not(feature="no_unsound_assume_init"))]
+        let mut res = unsafe { VectorN::<_, DimNameSum<D, U1>>::new_uninitialized().assume_init() };
         res.fixed_slice_mut::<D, U1>(0, 0).copy_from(&self.coords);
         res[(D::dim(), 0)] = N::one();
 

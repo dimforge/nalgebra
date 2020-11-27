@@ -54,8 +54,7 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     {
         let irows = irows.into_iter();
         let ncols = self.data.shape().1;
-        let mut res =
-            unsafe { MatrixMN::new_uninitialized_generic(Dynamic::new(irows.len()), ncols) };
+        let mut res = unsafe { crate::zero_or_uninitialized_generic!(Dynamic::new(irows.len()), ncols) };
 
         // First, check that all the indices from irows are valid.
         // This will allow us to use unchecked access in the inner loop.
@@ -90,7 +89,7 @@ impl<N: Scalar + Zero, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         let icols = icols.into_iter();
         let nrows = self.data.shape().0;
         let mut res =
-            unsafe { MatrixMN::new_uninitialized_generic(nrows, Dynamic::new(icols.len())) };
+            unsafe { crate::zero_or_uninitialized_generic!(nrows, Dynamic::new(icols.len())) };
 
         for (destination, source) in icols.enumerate() {
             res.column_mut(destination).copy_from(&self.column(*source))
@@ -896,7 +895,10 @@ impl<N: Scalar> DMatrix<N> {
     where
         DefaultAllocator: Reallocator<N, Dynamic, Dynamic, Dynamic, Dynamic>,
     {
-        let placeholder = unsafe { Self::new_uninitialized(0, 0) };
+        #[cfg(feature="no_unsound_assume_init")]
+        let placeholder = unimplemented!();
+        #[cfg(not(feature="no_unsound_assume_init"))]
+        let placeholder = unsafe { Self::new_uninitialized(0, 0).assume_init() };
         let old = mem::replace(self, placeholder);
         let new = old.resize(new_nrows, new_ncols, val);
         let _ = mem::replace(self, new);
@@ -919,8 +921,10 @@ where
     where
         DefaultAllocator: Reallocator<N, Dynamic, C, Dynamic, C>,
     {
-        let placeholder =
-            unsafe { Self::new_uninitialized_generic(Dynamic::new(0), self.data.shape().1) };
+        #[cfg(feature="no_unsound_assume_init")]
+        let placeholder = unimplemented!();
+        #[cfg(not(feature="no_unsound_assume_init"))]
+        let placeholder = unsafe { Self::new_uninitialized_generic(Dynamic::new(0), self.data.shape().1).assume_init() };
         let old = mem::replace(self, placeholder);
         let new = old.resize_vertically(new_nrows, val);
         let _ = mem::replace(self, new);
@@ -943,8 +947,10 @@ where
     where
         DefaultAllocator: Reallocator<N, R, Dynamic, R, Dynamic>,
     {
-        let placeholder =
-            unsafe { Self::new_uninitialized_generic(self.data.shape().0, Dynamic::new(0)) };
+        #[cfg(feature="no_unsound_assume_init")]
+        let placeholder = unimplemented!();
+        #[cfg(not(feature="no_unsound_assume_init"))]
+        let placeholder = unsafe { Self::new_uninitialized_generic(self.data.shape().0, Dynamic::new(0)).assume_init() };
         let old = mem::replace(self, placeholder);
         let new = old.resize_horizontally(new_ncols, val);
         let _ = mem::replace(self, new);

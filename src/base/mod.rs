@@ -15,7 +15,7 @@ mod alias_slice;
 mod array_storage;
 mod cg;
 mod componentwise;
-mod construction;
+#[macro_use] mod construction;
 mod construction_slice;
 mod conversion;
 mod edition;

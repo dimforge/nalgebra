@@ -70,9 +70,12 @@ where
     #[inline]
     pub fn identity_generic(dim: D) -> Self {
         unsafe {
+            #[cfg(feature="no_unsound_assume_init")]
+            unimplemented!();
+            #[cfg(not(feature="no_unsound_assume_init"))]
             Self {
                 len: 0,
-                ipiv: VectorN::new_uninitialized_generic(dim, U1),
+                ipiv: VectorN::new_uninitialized_generic(dim, U1).assume_init(),
             }
         }
     }
