@@ -1,6 +1,6 @@
 use nalgebra_sparse::coo::CooMatrix;
 use nalgebra_sparse::ops::serial::{spmv_coo, spmm_csr_dense};
-use nalgebra_sparse::ops::{no_transpose, Transposition};
+use nalgebra_sparse::ops::{Transpose};
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::proptest::csr;
 
@@ -41,9 +41,9 @@ struct SpmmCsrDenseArgs<T: Scalar> {
     c: DMatrix<T>,
     beta: T,
     alpha: T,
-    trans_a: Transposition,
+    trans_a: Transpose,
     a: CsrMatrix<T>,
-    trans_b: Transposition,
+    trans_b: Transpose,
     b: DMatrix<T>,
 }
 
@@ -61,10 +61,10 @@ fn spmm_csr_dense_args_strategy() -> impl Strategy<Value=SpmmCsrDenseArgs<i32>> 
     (c_matrix_strategy, common_dim, trans_strategy.clone(), trans_strategy.clone())
         .prop_flat_map(move |(c, common_dim, trans_a, trans_b)| {
             let a_shape =
-                if trans_a.is_transpose() { (common_dim, c.nrows()) }
+                if trans_a.to_bool() { (common_dim, c.nrows()) }
                 else { (c.nrows(), common_dim) };
             let b_shape =
-                if trans_b.is_transpose() { (c.ncols(), common_dim) }
+                if trans_b.to_bool() { (c.ncols(), common_dim) }
                 else { (common_dim, c.ncols()) };
             let a = csr(value_strategy.clone(), Just(a_shape.0), Just(a_shape.1), max_nnz);
             let b = matrix(value_strategy.clone(), b_shape.0, b_shape.1);
@@ -95,29 +95,28 @@ fn dense_strategy() -> impl Strategy<Value=DMatrix<i32>> {
     matrix(-5 ..= 5, 0 ..= 6, 0 ..= 6)
 }
 
-fn trans_strategy() -> impl Strategy<Value=Transposition> + Clone {
-    proptest::bool::ANY.prop_map(Transposition::from_bool)
+fn trans_strategy() -> impl Strategy<Value=Transpose> + Clone {
+    proptest::bool::ANY.prop_map(Transpose)
 }
 
 /// Helper function to help us call dense GEMM with our transposition parameters
 fn dense_gemm<'a>(c: impl Into<DMatrixSliceMut<'a, i32>>,
                   beta: i32,
                   alpha: i32,
-                  trans_a: Transposition,
+                  trans_a: Transpose,
                   a: impl Into<DMatrixSlice<'a, i32>>,
-                  trans_b: Transposition,
+                  trans_b: Transpose,
                   b: impl Into<DMatrixSlice<'a, i32>>)
 {
     let mut c = c.into();
     let a = a.into();
     let b = b.into();
 
-    use Transposition::{Transpose, NoTranspose};
     match (trans_a, trans_b) {
-        (NoTranspose, NoTranspose) => c.gemm(alpha, &a, &b, beta),
-        (Transpose, NoTranspose) => c.gemm(alpha, &a.transpose(), &b, beta),
-        (NoTranspose, Transpose) => c.gemm(alpha, &a, &b.transpose(), beta),
-        (Transpose, Transpose) => c.gemm(alpha, &a.transpose(), &b.transpose(), beta)
+        (Transpose(false), Transpose(false)) => c.gemm(alpha, &a, &b, beta),
+        (Transpose(true), Transpose(false)) => c.gemm(alpha, &a.transpose(), &b, beta),
+        (Transpose(false), Transpose(true)) => c.gemm(alpha, &a, &b.transpose(), beta),
+        (Transpose(true), Transpose(true)) => c.gemm(alpha, &a.transpose(), &b.transpose(), beta)
     };
 }
 
@@ -144,12 +143,12 @@ proptest! {
             dense_strategy(), trans_strategy(), trans_strategy())
     ) {
         // We refer to `A * B` as the "product"
-        let product_rows = if trans_a.is_transpose() { a.ncols() } else { a.nrows() };
-        let product_cols = if trans_b.is_transpose() { b.nrows() } else { b.ncols() };
+        let product_rows = if trans_a.to_bool() { a.ncols() } else { a.nrows() };
+        let product_cols = if trans_b.to_bool() { b.nrows() } else { b.ncols() };
         // Determine the common dimension in the product
         // from the perspective of a and b, respectively
-        let product_a_common = if trans_a.is_transpose() { a.nrows() } else { a.ncols() };
-        let product_b_common = if trans_b.is_transpose() { b.ncols() } else { b.nrows() };
+        let product_a_common = if trans_a.to_bool() { a.nrows() } else { a.ncols() };
+        let product_b_common = if trans_b.to_bool() { b.ncols() } else { b.nrows() };
 
         let dims_are_compatible = product_rows == c.nrows()
             && product_cols == c.ncols()
