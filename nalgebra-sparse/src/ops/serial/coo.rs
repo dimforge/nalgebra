@@ -12,6 +12,8 @@ use num_traits::{One, Zero};
 ///
 /// If `beta == 0`, the elements in `y` are never read.
 ///
+/// TODO: Rethink this function
+///
 /// Panics
 /// ------
 ///
