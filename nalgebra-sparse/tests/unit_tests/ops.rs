@@ -1,8 +1,9 @@
 use nalgebra_sparse::coo::CooMatrix;
-use nalgebra_sparse::ops::serial::{spmv_coo, spmm_csr_dense};
+use nalgebra_sparse::ops::serial::{spmv_coo, spmm_csr_dense, spadd_build_pattern};
 use nalgebra_sparse::ops::{Transpose};
 use nalgebra_sparse::csr::CsrMatrix;
-use nalgebra_sparse::proptest::csr;
+use nalgebra_sparse::proptest::{csr, sparsity_pattern};
+use nalgebra_sparse::pattern::SparsityPattern;
 
 use nalgebra::{DVector, DMatrix, Scalar, DMatrixSliceMut, DMatrixSlice};
 use nalgebra::proptest::matrix;
@@ -10,6 +11,7 @@ use nalgebra::proptest::matrix;
 use proptest::prelude::*;
 
 use std::panic::catch_unwind;
+use std::sync::Arc;
 
 #[test]
 fn spmv_coo_agrees_with_dense_gemv() {
@@ -99,6 +101,19 @@ fn trans_strategy() -> impl Strategy<Value=Transpose> + Clone {
     proptest::bool::ANY.prop_map(Transpose)
 }
 
+fn pattern_strategy() -> impl Strategy<Value=SparsityPattern> {
+    sparsity_pattern(0 ..= 6usize, 0..= 6usize, 40)
+}
+
+/// Constructs pairs (a, b) where a and b have the same dimensions
+fn spadd_build_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, SparsityPattern)> {
+    pattern_strategy()
+        .prop_flat_map(|a| {
+            let b = sparsity_pattern(Just(a.major_dim()), Just(a.minor_dim()), 40);
+            (Just(a), b)
+        })
+}
+
 /// Helper function to help us call dense GEMM with our transposition parameters
 fn dense_gemm<'a>(c: impl Into<DMatrixSliceMut<'a, i32>>,
                   beta: i32,
@@ -167,4 +182,26 @@ proptest! {
             "The SPMM kernel executed successfully despite mismatch dimensions");
     }
 
+    #[test]
+    fn spadd_build_pattern_test((c, (a, b)) in (pattern_strategy(), spadd_build_pattern_strategy()))
+    {
+        // (a, b) are dimensionally compatible patterns, whereas c is an *arbitrary* pattern
+        let mut pattern_result = c.clone();
+        spadd_build_pattern(&mut pattern_result, &a, &b);
+
+        // To verify the pattern, we construct CSR matrices with positive integer entries
+        // corresponding to a and b, and convert them to dense matrices.
+        // The sum of these dense matrices will then have non-zeros in exactly the same locations
+        // as the result of "adding" the sparsity patterns
+        let a_csr = CsrMatrix::try_from_pattern_and_values(Arc::new(a.clone()), vec![1; a.nnz()])
+            .unwrap();
+        let a_dense = DMatrix::from(&a_csr);
+        let b_csr = CsrMatrix::try_from_pattern_and_values(Arc::new(b.clone()), vec![1; b.nnz()])
+            .unwrap();
+        let b_dense = DMatrix::from(&b_csr);
+        let c_dense = a_dense + b_dense;
+        let c_csr = CsrMatrix::from(&c_dense);
+
+        prop_assert_eq!(&pattern_result, &*c_csr.pattern());
+    }
 }

@@ -3,7 +3,7 @@ use crate::ops::{Transpose};
 use nalgebra::{Scalar, DMatrixSlice, ClosedAdd, ClosedMul, DMatrixSliceMut};
 use num_traits::{Zero, One};
 
-/// Sparse-dense matrix-matrix multiplication `C = beta * C + alpha * trans(A) * trans(B)`.
+/// Sparse-dense matrix-matrix multiplication `C <- beta * C + alpha * trans(A) * trans(B)`.
 pub fn spmm_csr_dense<'a, T>(c: impl Into<DMatrixSliceMut<'a, T>>,
                              beta: T,
                              alpha: T,
