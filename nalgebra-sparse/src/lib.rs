@@ -95,6 +95,7 @@ pub mod proptest;
 
 use std::error::Error;
 use std::fmt;
+use num_traits::Zero;
 
 /// Errors produced by functions that expect well-formed sparse format data.
 #[derive(Debug)]
@@ -149,3 +150,41 @@ impl fmt::Display for SparseFormatError {
 }
 
 impl Error for SparseFormatError {}
+
+/// TODO
+#[derive(Debug, PartialEq, Eq)]
+pub enum SparseEntry<'a, T> {
+    /// TODO
+    NonZero(&'a T),
+    /// TODO
+    Zero
+}
+
+impl<'a, T: Clone + Zero> SparseEntry<'a, T> {
+    /// TODO
+    pub fn to_value(self) -> T {
+        match self {
+            SparseEntry::NonZero(value) => value.clone(),
+            SparseEntry::Zero => T::zero()
+        }
+    }
+}
+
+/// TODO
+#[derive(Debug, PartialEq, Eq)]
+pub enum SparseEntryMut<'a, T> {
+    /// TODO
+    NonZero(&'a mut T),
+    /// TODO
+    Zero
+}
+
+impl<'a, T: Clone + Zero> SparseEntryMut<'a, T> {
+    /// TODO
+    pub fn to_value(self) -> T {
+        match self {
+            SparseEntryMut::NonZero(value) => value.clone(),
+            SparseEntryMut::Zero => T::zero()
+        }
+    }
+}
