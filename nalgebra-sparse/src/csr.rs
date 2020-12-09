@@ -275,8 +275,8 @@ impl<T> CsrMatrix<T> {
         // Take an Arc to the pattern, which might be the sole reference to the data after
         // taking the values. This is important, because it might let us avoid cloning the data
         // further below.
-        let pattern = self.pattern();
-        let values = self.take_values();
+        let pattern = self.sparsity_pattern;
+        let values = self.values;
 
         // Try to take the pattern out of the `Arc` if possible,
         // otherwise clone the pattern.
@@ -292,8 +292,8 @@ impl<T> CsrMatrix<T> {
     /// The sparsity pattern is stored internally inside an `Arc`. This allows users to re-use
     /// the same sparsity pattern for multiple matrices without storing the same pattern multiple
     /// times in memory.
-    pub fn pattern(&self) -> Arc<SparsityPattern> {
-        Arc::clone(&self.sparsity_pattern)
+    pub fn pattern(&self) -> &Arc<SparsityPattern> {
+        &self.sparsity_pattern
     }
 }
 

@@ -202,6 +202,6 @@ proptest! {
         let c_dense = a_dense + b_dense;
         let c_csr = CsrMatrix::from(&c_dense);
 
-        prop_assert_eq!(&pattern_result, &*c_csr.pattern());
+        prop_assert_eq!(&pattern_result, c_csr.pattern().as_ref());
     }
 }
