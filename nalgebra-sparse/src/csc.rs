@@ -8,6 +8,8 @@ use std::slice::{IterMut, Iter};
 use std::ops::Range;
 use num_traits::Zero;
 use std::ptr::slice_from_raw_parts_mut;
+use crate::csr::CsrMatrix;
+use nalgebra::Scalar;
 
 /// A CSC representation of a sparse matrix.
 ///
@@ -295,6 +297,15 @@ impl<T> CscMatrix<T> {
     pub fn pattern(&self) -> &Arc<SparsityPattern> {
         &self.sparsity_pattern
     }
+
+    /// Reinterprets the CSC matrix as its transpose represented by a CSR matrix.
+    ///
+    /// This operation does not touch the CSC data, and is effectively a no-op.
+    pub fn transpose_as_csr(self) -> CsrMatrix<T> {
+        let pattern = self.sparsity_pattern;
+        let values = self.values;
+        CsrMatrix::try_from_pattern_and_values(pattern, values).unwrap()
+    }
 }
 
 impl<T: Clone + Zero> CscMatrix<T> {
@@ -320,6 +331,16 @@ impl<T: Clone + Zero> CscMatrix<T> {
     #[inline]
     pub fn index(&self, row_index: usize, col_index: usize) -> T {
         self.get(row_index, col_index).unwrap()
+    }
+}
+
+impl<T> CscMatrix<T>
+    where
+        T: Scalar + Zero
+{
+    /// Compute the transpose of the matrix.
+    pub fn transpose(&self) -> CscMatrix<T> {
+        CsrMatrix::from(self).transpose_as_csc()
     }
 }
 

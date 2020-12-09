@@ -1,5 +1,10 @@
 use nalgebra_sparse::csc::CscMatrix;
 use nalgebra_sparse::SparseFormatErrorKind;
+use nalgebra::DMatrix;
+
+use proptest::prelude::*;
+
+use crate::common::csc_strategy;
 
 #[test]
 fn csc_matrix_valid_data() {
@@ -251,4 +256,19 @@ fn csc_matrix_get_index() {
 #[test]
 fn csc_matrix_col_iter() {
     // TODO
+}
+
+proptest! {
+    #[test]
+    fn csc_double_transpose_is_identity(csc in csc_strategy()) {
+        prop_assert_eq!(csc.transpose().transpose(), csc);
+    }
+
+    #[test]
+    fn csc_transpose_agrees_with_dense(csc in csc_strategy()) {
+        let dense_transpose = DMatrix::from(&csc).transpose();
+        let csc_transpose = csc.transpose();
+        prop_assert_eq!(dense_transpose, DMatrix::from(&csc_transpose));
+        prop_assert_eq!(csc.nnz(), csc_transpose.nnz());
+    }
 }

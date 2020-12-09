@@ -1,3 +1,8 @@
+use proptest::strategy::Strategy;
+use nalgebra_sparse::csr::CsrMatrix;
+use nalgebra_sparse::proptest::{csr, csc};
+use nalgebra_sparse::csc::CscMatrix;
+
 #[macro_export]
 macro_rules! assert_panics {
     ($e:expr) => {{
@@ -17,4 +22,12 @@ macro_rules! assert_panics {
             panic!("assert_panics!({}) failed: the expression did not panic.", expr_string);
         }
     }};
+}
+
+pub fn csr_strategy() -> impl Strategy<Value=CsrMatrix<i32>> {
+    csr(-5 ..= 5, 0 ..= 6usize, 0 ..= 6usize, 40)
+}
+
+pub fn csc_strategy() -> impl Strategy<Value=CscMatrix<i32>> {
+    csc(-5 ..= 5, 0..=6usize, 0..=6usize, 40)
 }

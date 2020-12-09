@@ -1,5 +1,8 @@
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::SparseFormatErrorKind;
+use nalgebra::DMatrix;
+use proptest::prelude::*;
+use crate::common::csr_strategy;
 
 #[test]
 fn csr_matrix_valid_data() {
@@ -250,5 +253,20 @@ fn csr_matrix_get_index() {
 
 #[test]
 fn csr_matrix_row_iter() {
+    // TODO
+}
 
+proptest! {
+    #[test]
+    fn csr_double_transpose_is_identity(csr in csr_strategy()) {
+        prop_assert_eq!(csr.transpose().transpose(), csr);
+    }
+
+    #[test]
+    fn csr_transpose_agrees_with_dense(csr in csr_strategy()) {
+        let dense_transpose = DMatrix::from(&csr).transpose();
+        let csr_transpose = csr.transpose();
+        prop_assert_eq!(dense_transpose, DMatrix::from(&csr_transpose));
+        prop_assert_eq!(csr.nnz(), csr_transpose.nnz());
+    }
 }

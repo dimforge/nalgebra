@@ -11,6 +11,7 @@ use proptest::prelude::*;
 use nalgebra::DMatrix;
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::csc::CscMatrix;
+use crate::common::csc_strategy;
 
 #[test]
 fn test_convert_dense_coo() {
@@ -274,10 +275,6 @@ fn coo_no_duplicates_strategy() -> impl Strategy<Value=CooMatrix<i32>> {
 
 fn csr_strategy() -> impl Strategy<Value=CsrMatrix<i32>> {
     csr(-5 ..= 5, 0..=6usize, 0..=6usize, 40)
-}
-
-fn csc_strategy() -> impl Strategy<Value=CscMatrix<i32>> {
-    csc(-5 ..= 5, 0..=6usize, 0..=6usize, 40)
 }
 
 /// Avoid generating explicit zero values so that it is possible to reason about sparsity patterns

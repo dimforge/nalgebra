@@ -2,11 +2,14 @@
 
 use crate::{SparseFormatError, SparseFormatErrorKind};
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
+use crate::csc::CscMatrix;
+
+use nalgebra::Scalar;
+use num_traits::Zero;
 
 use std::sync::Arc;
 use std::slice::{IterMut, Iter};
 use std::ops::Range;
-use num_traits::Zero;
 use std::ptr::slice_from_raw_parts_mut;
 
 /// A CSR representation of a sparse matrix.
@@ -320,6 +323,24 @@ impl<T: Clone + Zero> CsrMatrix<T> {
     #[inline]
     pub fn index(&self, row_index: usize, col_index: usize) -> T {
         self.get(row_index, col_index).unwrap()
+    }
+
+    /// Reinterprets the CSR matrix as its transpose represented by a CSC matrix.
+    /// This operation does not touch the CSR data, and is effectively a no-op.
+    pub fn transpose_as_csc(self) -> CscMatrix<T> {
+        let pattern = self.sparsity_pattern;
+        let values = self.values;
+        CscMatrix::try_from_pattern_and_values(pattern, values).unwrap()
+    }
+}
+
+impl<T> CsrMatrix<T>
+where
+    T: Scalar + Zero
+{
+    /// Compute the transpose of the matrix.
+    pub fn transpose(&self) -> CsrMatrix<T> {
+        CscMatrix::from(self).transpose_as_csr()
     }
 }
 

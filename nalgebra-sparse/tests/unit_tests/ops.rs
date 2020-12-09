@@ -13,6 +13,8 @@ use proptest::prelude::*;
 use std::panic::catch_unwind;
 use std::sync::Arc;
 
+use crate::common::csr_strategy;
+
 #[test]
 fn spmv_coo_agrees_with_dense_gemv() {
     let x = DVector::from_column_slice(&[2, 3, 4, 5]);
@@ -89,9 +91,6 @@ fn spmm_csr_dense_args_strategy() -> impl Strategy<Value=SpmmCsrDenseArgs<i32>> 
         })
 }
 
-fn csr_strategy() -> impl Strategy<Value=CsrMatrix<i32>> {
-    csr(-5 ..= 5, 0 ..= 6usize, 0 ..= 6usize, 40)
-}
 
 fn dense_strategy() -> impl Strategy<Value=DMatrix<i32>> {
     matrix(-5 ..= 5, 0 ..= 6, 0 ..= 6)
