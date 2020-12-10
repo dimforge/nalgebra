@@ -1,5 +1,5 @@
 use nalgebra_sparse::coo::CooMatrix;
-use nalgebra_sparse::ops::serial::{spmv_coo, spmm_csr_dense, spadd_build_pattern};
+use nalgebra_sparse::ops::serial::{spmv_coo, spmm_csr_dense, spadd_build_pattern, spadd_csr};
 use nalgebra_sparse::ops::{Transpose};
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::proptest::{csr, sparsity_pattern};
@@ -14,6 +14,15 @@ use std::panic::catch_unwind;
 use std::sync::Arc;
 
 use crate::common::csr_strategy;
+
+/// Represents the sparsity pattern of a CSR matrix as a dense matrix with 0/1
+fn dense_csr_pattern(pattern: &SparsityPattern) -> DMatrix<i32> {
+    let boolean_csr = CsrMatrix::try_from_pattern_and_values(
+            Arc::new(pattern.clone()),
+            vec![1; pattern.nnz()])
+        .unwrap();
+    DMatrix::from(&boolean_csr)
+}
 
 #[test]
 fn spmv_coo_agrees_with_dense_gemv() {
@@ -91,6 +100,37 @@ fn spmm_csr_dense_args_strategy() -> impl Strategy<Value=SpmmCsrDenseArgs<i32>> 
         })
 }
 
+#[derive(Debug)]
+struct SpaddCsrArgs<T> {
+    c: CsrMatrix<T>,
+    beta: T,
+    alpha: T,
+    trans_a: Transpose,
+    a: CsrMatrix<T>,
+}
+
+fn spadd_csr_args_strategy() -> impl Strategy<Value=SpaddCsrArgs<i32>> {
+    let value_strategy = -5 ..= 5;
+
+    // TODO :Support transposition
+    spadd_build_pattern_strategy()
+        .prop_flat_map(move |(a_pattern, b_pattern)| {
+            let mut c_pattern = SparsityPattern::new(a_pattern.major_dim(), b_pattern.major_dim());
+            spadd_build_pattern(&mut c_pattern, &a_pattern, &b_pattern);
+
+            let a_values = vec![value_strategy.clone(); a_pattern.nnz()];
+            let c_values = vec![value_strategy.clone(); c_pattern.nnz()];
+            let alpha = value_strategy.clone();
+            let beta = value_strategy.clone();
+            (Just(c_pattern), Just(a_pattern), c_values, a_values, alpha, beta, trans_strategy())
+        }).prop_map(|(c_pattern, a_pattern, c_values, a_values, alpha, beta, trans_a)| {
+            let c = CsrMatrix::try_from_pattern_and_values(Arc::new(c_pattern), c_values).unwrap();
+            let a = CsrMatrix::try_from_pattern_and_values(Arc::new(a_pattern), a_values).unwrap();
+
+            let a = if trans_a.to_bool() { a.transpose() } else { a };
+            SpaddCsrArgs { c, beta, alpha, trans_a, a }
+        })
+}
 
 fn dense_strategy() -> impl Strategy<Value=DMatrix<i32>> {
     matrix(-5 ..= 5, 0 ..= 6, 0 ..= 6)
@@ -202,5 +242,57 @@ proptest! {
         let c_csr = CsrMatrix::from(&c_dense);
 
         prop_assert_eq!(&pattern_result, c_csr.pattern().as_ref());
+    }
+
+    #[test]
+    fn spadd_csr_test(SpaddCsrArgs { c, beta, alpha, trans_a, a } in spadd_csr_args_strategy()) {
+        // Test that we get the expected result by comparing to an equivalent dense operation
+        // (here we give in the C matrix, so the sparsity pattern is essentially fixed)
+
+        let mut c_sparse = c.clone();
+        spadd_csr(&mut c_sparse, beta, alpha, trans_a, &a).unwrap();
+
+        let mut c_dense = DMatrix::from(&c);
+        let op_a_dense = DMatrix::from(&a);
+        let op_a_dense = if trans_a.to_bool() { op_a_dense.transpose() } else { op_a_dense };
+        c_dense = beta * c_dense + alpha * &op_a_dense;
+
+        prop_assert_eq!(&DMatrix::from(&c_sparse), &c_dense);
+    }
+
+    #[test]
+    fn csr_add_csr(
+        // a and b have the same dimensions
+        (a, b)
+        in csr_strategy()
+            .prop_flat_map(|a| {
+                let b = csr(-5 ..= 5, Just(a.nrows()), Just(a.ncols()), 40);
+                (Just(a), b)
+            }))
+    {
+        // We use the dense result as the ground truth for the arithmetic result
+        let c_dense = DMatrix::from(&a) + DMatrix::from(&b);
+        // However, it's not enough only to cover the dense result, we also need to verify the
+        // sparsity pattern. We can determine the exact sparsity pattern by using
+        // dense arithmetic with positive integer values and extracting positive entries.
+        let c_dense_pattern = dense_csr_pattern(a.pattern()) + dense_csr_pattern(b.pattern());
+        let c_pattern = CsrMatrix::from(&c_dense_pattern).pattern().clone();
+
+        // Check each combination of owned matrices and references
+        let c_owned_owned = a.clone() + b.clone();
+        prop_assert_eq!(&DMatrix::from(&c_owned_owned), &c_dense);
+        prop_assert_eq!(c_owned_owned.pattern(), &c_pattern);
+
+        let c_owned_ref = a.clone() + &b;
+        prop_assert_eq!(&DMatrix::from(&c_owned_ref), &c_dense);
+        prop_assert_eq!(c_owned_ref.pattern(), &c_pattern);
+
+        let c_ref_owned = &a + b.clone();
+        prop_assert_eq!(&DMatrix::from(&c_ref_owned), &c_dense);
+        prop_assert_eq!(c_ref_owned.pattern(), &c_pattern);
+
+        let c_ref_ref = &a + &b;
+        prop_assert_eq!(&DMatrix::from(&c_ref_ref), &c_dense);
+        prop_assert_eq!(c_ref_ref.pattern(), &c_pattern);
     }
 }

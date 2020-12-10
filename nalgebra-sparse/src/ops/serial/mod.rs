@@ -37,3 +37,25 @@ mod pattern;
 pub use coo::*;
 pub use csr::*;
 pub use pattern::*;
+
+/// TODO
+#[derive(Clone, Debug)]
+pub struct OperationError {
+    error_type: OperationErrorType,
+    message: String
+}
+
+/// TODO
+#[non_exhaustive]
+#[derive(Clone, Debug)]
+pub enum OperationErrorType {
+    /// TODO
+    InvalidPattern,
+}
+
+impl OperationError {
+    /// TODO
+    pub fn from_type_and_message(error_type: OperationErrorType, message: String) -> Self {
+        Self { error_type, message }
+    }
+}
