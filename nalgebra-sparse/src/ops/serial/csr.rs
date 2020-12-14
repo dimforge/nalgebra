@@ -1,10 +1,11 @@
 use crate::csr::CsrMatrix;
 use crate::ops::{Transpose};
+use crate::SparseEntryMut;
+use crate::ops::serial::{OperationError, OperationErrorType};
 use nalgebra::{Scalar, DMatrixSlice, ClosedAdd, ClosedMul, DMatrixSliceMut};
 use num_traits::{Zero, One};
-use crate::ops::serial::{OperationError, OperationErrorType};
 use std::sync::Arc;
-use crate::SparseEntryMut;
+use std::borrow::Cow;
 
 /// Sparse-dense matrix-matrix multiplication `C <- beta * C + alpha * trans(A) * trans(B)`.
 pub fn spmm_csr_dense<'a, T>(c: impl Into<DMatrixSliceMut<'a, T>>,

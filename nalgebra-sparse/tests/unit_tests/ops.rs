@@ -1,4 +1,4 @@
-use nalgebra_sparse::ops::serial::{spmm_csr_dense, spadd_build_pattern, spadd_csr};
+use nalgebra_sparse::ops::serial::{spmm_csr_dense, spadd_build_pattern, spmm_pattern, spadd_csr};
 use nalgebra_sparse::ops::{Transpose};
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::proptest::{csr, sparsity_pattern};
@@ -12,7 +12,7 @@ use proptest::prelude::*;
 use std::panic::catch_unwind;
 use std::sync::Arc;
 
-use crate::common::csr_strategy;
+use crate::common::{csr_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ};
 
 /// Represents the sparsity pattern of a CSR matrix as a dense matrix with 0/1
 fn dense_csr_pattern(pattern: &SparsityPattern) -> DMatrix<i32> {
@@ -123,6 +123,15 @@ fn spadd_build_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, Spars
     pattern_strategy()
         .prop_flat_map(|a| {
             let b = sparsity_pattern(Just(a.major_dim()), Just(a.minor_dim()), 40);
+            (Just(a), b)
+        })
+}
+
+/// Constructs pairs (a, b) where a and b have compatible dimensions for a matrix product
+fn spmm_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, SparsityPattern)> {
+    pattern_strategy()
+        .prop_flat_map(|a| {
+            let b = sparsity_pattern(Just(a.minor_dim()), PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ);
             (Just(a), b)
         })
 }
@@ -268,5 +277,27 @@ proptest! {
         let c_ref_ref = &a + &b;
         prop_assert_eq!(&DMatrix::from(&c_ref_ref), &c_dense);
         prop_assert_eq!(c_ref_ref.pattern(), &c_pattern);
+    }
+
+    #[test]
+    fn spmm_pattern_test((a, b) in spmm_pattern_strategy())
+    {
+        // (a, b) are multiplication-wise dimensionally compatible patterns
+        let c_pattern = spmm_pattern(&a, &b);
+
+        // To verify the pattern, we construct CSR matrices with positive integer entries
+        // corresponding to a and b, and convert them to dense matrices.
+        // The product of these dense matrices will then have non-zeros in exactly the same locations
+        // as the result of "multiplying" the sparsity patterns
+        let a_csr = CsrMatrix::try_from_pattern_and_values(Arc::new(a.clone()), vec![1; a.nnz()])
+            .unwrap();
+        let a_dense = DMatrix::from(&a_csr);
+        let b_csr = CsrMatrix::try_from_pattern_and_values(Arc::new(b.clone()), vec![1; b.nnz()])
+            .unwrap();
+        let b_dense = DMatrix::from(&b_csr);
+        let c_dense = a_dense * b_dense;
+        let c_csr = CsrMatrix::from(&c_dense);
+
+        prop_assert_eq!(&c_pattern, c_csr.pattern().as_ref());
     }
 }

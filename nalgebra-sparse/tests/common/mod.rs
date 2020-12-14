@@ -2,6 +2,7 @@ use proptest::strategy::Strategy;
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::proptest::{csr, csc};
 use nalgebra_sparse::csc::CscMatrix;
+use std::ops::RangeInclusive;
 
 #[macro_export]
 macro_rules! assert_panics {
@@ -24,10 +25,13 @@ macro_rules! assert_panics {
     }};
 }
 
+pub const PROPTEST_MATRIX_DIM: RangeInclusive<usize> = 0..=6;
+pub const PROPTEST_MAX_NNZ: usize = 40;
+
 pub fn csr_strategy() -> impl Strategy<Value=CsrMatrix<i32>> {
-    csr(-5 ..= 5, 0 ..= 6usize, 0 ..= 6usize, 40)
+    csr(-5 ..= 5, PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ)
 }
 
 pub fn csc_strategy() -> impl Strategy<Value=CscMatrix<i32>> {
-    csc(-5 ..= 5, 0..=6usize, 0..=6usize, 40)
+    csc(-5 ..= 5, PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ)
 }
