@@ -30,11 +30,9 @@ macro_rules! assert_compatible_spmm_dims {
     }
 }
 
-mod coo;
 mod csr;
 mod pattern;
 
-pub use coo::*;
 pub use csr::*;
 pub use pattern::*;
 

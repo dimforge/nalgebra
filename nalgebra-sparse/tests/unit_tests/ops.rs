@@ -1,11 +1,10 @@
-use nalgebra_sparse::coo::CooMatrix;
-use nalgebra_sparse::ops::serial::{spmv_coo, spmm_csr_dense, spadd_build_pattern, spadd_csr};
+use nalgebra_sparse::ops::serial::{spmm_csr_dense, spadd_build_pattern, spadd_csr};
 use nalgebra_sparse::ops::{Transpose};
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::proptest::{csr, sparsity_pattern};
 use nalgebra_sparse::pattern::SparsityPattern;
 
-use nalgebra::{DVector, DMatrix, Scalar, DMatrixSliceMut, DMatrixSlice};
+use nalgebra::{DMatrix, Scalar, DMatrixSliceMut, DMatrixSlice};
 use nalgebra::proptest::matrix;
 
 use proptest::prelude::*;
@@ -22,31 +21,6 @@ fn dense_csr_pattern(pattern: &SparsityPattern) -> DMatrix<i32> {
             vec![1; pattern.nnz()])
         .unwrap();
     DMatrix::from(&boolean_csr)
-}
-
-#[test]
-fn spmv_coo_agrees_with_dense_gemv() {
-    let x = DVector::from_column_slice(&[2, 3, 4, 5]);
-
-    let i = vec![0, 0, 1, 1, 2, 2];
-    let j = vec![0, 3, 0, 1, 1, 3];
-    let v = vec![3, 2, 1, 2, 3, 1];
-    let a = CooMatrix::try_from_triplets(3, 4, i, j, v).unwrap();
-
-    let betas = [0, 1, 2];
-    let alphas = [0, 1, 2];
-
-    for &beta in &betas {
-        for &alpha in &alphas {
-            let mut y = DVector::from_column_slice(&[2, 5, 3]);
-            let mut y_dense = y.clone();
-            spmv_coo(beta, &mut y, alpha, &a, &x);
-
-            y_dense.gemv(alpha, &DMatrix::from(&a), &x, beta);
-
-            assert_eq!(y, y_dense);
-        }
-    }
 }
 
 #[derive(Debug)]
