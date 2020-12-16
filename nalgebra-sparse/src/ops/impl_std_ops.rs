@@ -1,12 +1,11 @@
 use crate::csr::CsrMatrix;
 
 use std::ops::{Add, Mul};
-use crate::ops::serial::{spadd_csr, spadd_build_pattern, spmm_pattern, spmm_csr};
+use crate::ops::serial::{spadd_csr, spadd_pattern, spmm_pattern, spmm_csr};
 use nalgebra::{ClosedAdd, ClosedMul, Scalar};
 use num_traits::{Zero, One};
 use std::sync::Arc;
 use crate::ops::Transpose;
-use crate::pattern::SparsityPattern;
 
 impl<'a, T> Add<&'a CsrMatrix<T>> for &'a CsrMatrix<T>
 where
@@ -17,8 +16,7 @@ where
     type Output = CsrMatrix<T>;
 
     fn add(self, rhs: &'a CsrMatrix<T>) -> Self::Output {
-        let mut pattern = SparsityPattern::new(self.nrows(), self.ncols());
-        spadd_build_pattern(&mut pattern, self.pattern(), rhs.pattern());
+        let pattern = spadd_pattern(self.pattern(), rhs.pattern());
         let values = vec![T::zero(); pattern.nnz()];
         // We are giving data that is valid by definition, so it is safe to unwrap below
         let mut result = CsrMatrix::try_from_pattern_and_values(Arc::new(pattern), values)

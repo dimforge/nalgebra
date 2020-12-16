@@ -1,6 +1,6 @@
 use crate::common::{csr_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ,
                     PROPTEST_I32_VALUE_STRATEGY};
-use nalgebra_sparse::ops::serial::{spmm_csr_dense, spadd_build_pattern, spmm_pattern, spadd_csr, spmm_csr};
+use nalgebra_sparse::ops::serial::{spmm_csr_dense, spadd_pattern, spmm_pattern, spadd_csr, spmm_csr};
 use nalgebra_sparse::ops::{Transpose};
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::proptest::{csr, sparsity_pattern};
@@ -88,8 +88,7 @@ fn spadd_csr_args_strategy() -> impl Strategy<Value=SpaddCsrArgs<i32>> {
 
     spadd_build_pattern_strategy()
         .prop_flat_map(move |(a_pattern, b_pattern)| {
-            let mut c_pattern = SparsityPattern::new(a_pattern.major_dim(), b_pattern.major_dim());
-            spadd_build_pattern(&mut c_pattern, &a_pattern, &b_pattern);
+            let c_pattern = spadd_pattern(&a_pattern, &b_pattern);
 
             let a_values = vec![value_strategy.clone(); a_pattern.nnz()];
             let c_values = vec![value_strategy.clone(); c_pattern.nnz()];
@@ -248,11 +247,10 @@ proptest! {
     }
 
     #[test]
-    fn spadd_build_pattern_test((c, (a, b)) in (pattern_strategy(), spadd_build_pattern_strategy()))
+    fn spadd_pattern_test((a, b) in spadd_build_pattern_strategy())
     {
-        // (a, b) are dimensionally compatible patterns, whereas c is an *arbitrary* pattern
-        let mut pattern_result = c.clone();
-        spadd_build_pattern(&mut pattern_result, &a, &b);
+        // (a, b) are dimensionally compatible patterns
+        let pattern_result = spadd_pattern(&a, &b);
 
         // To verify the pattern, we construct CSR matrices with positive integer entries
         // corresponding to a and b, and convert them to dense matrices.

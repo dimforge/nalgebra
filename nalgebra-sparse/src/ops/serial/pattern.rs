@@ -1,6 +1,5 @@
 use crate::pattern::SparsityPattern;
 
-use std::mem::swap;
 use std::iter;
 
 /// Sparse matrix addition pattern construction, `C <- A + B`.
@@ -9,21 +8,15 @@ use std::iter;
 /// The patterns are assumed to have the same major and minor dimensions. In other words,
 /// both patterns `A` and `B` must both stem from the same kind of compressed matrix:
 /// CSR or CSC.
-/// TODO: Explain that output pattern is only used to avoid allocations
-pub fn spadd_build_pattern(pattern: &mut SparsityPattern,
-                           a: &SparsityPattern,
-                           b: &SparsityPattern)
+pub fn spadd_pattern(a: &SparsityPattern,
+                     b: &SparsityPattern) -> SparsityPattern
 {
     // TODO: Proper error messages
-    assert_eq!(a.major_dim(), b.major_dim());
-    assert_eq!(a.minor_dim(), b.minor_dim());
+    assert_eq!(a.major_dim(), b.major_dim(), "Patterns must have identical major dimensions.");
+    assert_eq!(a.minor_dim(), b.minor_dim(), "Patterns must have identical minor dimensions.");
 
-    let input_pattern = pattern;
-    let mut temp_pattern = SparsityPattern::new(a.major_dim(), b.minor_dim());
-    swap(input_pattern, &mut temp_pattern);
-    let (mut offsets, mut indices) = temp_pattern.disassemble();
-
-    offsets.clear();
+    let mut offsets = Vec::new();
+    let mut indices = Vec::new();
     offsets.reserve(a.major_dim() + 1);
     indices.clear();
 
@@ -37,10 +30,9 @@ pub fn spadd_build_pattern(pattern: &mut SparsityPattern,
     }
 
     // TODO: Consider circumventing format checks? (requires unsafe, should benchmark first)
-    let mut new_pattern = SparsityPattern::try_from_offsets_and_indices(
+    SparsityPattern::try_from_offsets_and_indices(
         a.major_dim(), a.minor_dim(), offsets, indices)
-        .expect("Pattern must be valid by definition");
-    swap(input_pattern, &mut new_pattern);
+        .expect("Internal error: Pattern must be valid by definition")
 }
 
 /// Sparse matrix multiplication pattern construction, `C <- A * B`.
