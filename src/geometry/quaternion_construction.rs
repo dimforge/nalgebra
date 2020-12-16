@@ -10,7 +10,7 @@ use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
 use simba::scalar::RealField;
-use simba::simd::{SimdBool, SimdValue};
+use simba::simd::SimdBool;
 
 use crate::base::dimension::U3;
 use crate::base::storage::Storage;

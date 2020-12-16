@@ -35,6 +35,10 @@ mod quaternion_coordinates;
 mod quaternion_ops;
 mod quaternion_simba;
 
+mod dual_quaternion;
+mod dual_quaternion_construction;
+mod dual_quaternion_ops;
+
 mod unit_complex;
 #[cfg(feature = "alga")]
 mod unit_complex_alga;
@@ -97,6 +101,8 @@ pub use self::rotation::*;
 pub use self::rotation_alias::*;
 
 pub use self::quaternion::*;
+
+pub use self::dual_quaternion::*;
 
 pub use self::unit_complex::*;
 

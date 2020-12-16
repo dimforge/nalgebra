@@ -1,7 +1,6 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::Zero;
 use std::fmt;
-use std::hash;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
 
@@ -14,7 +13,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use abomonation::Abomonation;
 
 use simba::scalar::{ClosedNeg, RealField};
-use simba::simd::{SimdBool, SimdOption, SimdRealField, SimdValue};
+use simba::simd::{SimdBool, SimdOption, SimdRealField};
 
 use crate::base::dimension::{U1, U3, U4};
 use crate::base::storage::{CStride, RStride};
@@ -23,7 +22,6 @@ use crate::base::{
 };
 
 use crate::geometry::{Point3, Rotation};
-use std::ops::Neg;
 
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
