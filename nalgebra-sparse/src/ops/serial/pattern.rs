@@ -45,31 +45,41 @@ pub fn spadd_build_pattern(pattern: &mut SparsityPattern,
 
 /// Sparse matrix multiplication pattern construction, `C <- A * B`.
 pub fn spmm_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPattern {
-    // TODO: Proper error message
-    assert_eq!(a.minor_dim(), b.major_dim());
+    assert_eq!(a.minor_dim(), b.major_dim(), "a and b must have compatible dimensions");
 
     let mut offsets = Vec::new();
     let mut indices = Vec::new();
     offsets.push(0);
 
-    let mut c_lane_workspace = Vec::new();
+    // Keep a vector of whether we have visited a particular minor index when working
+    // on a major lane
+    // TODO: Consider using a bitvec or similar here to reduce pressure on memory
+    // (would cut memory use to 1/8, which might help reduce cache misses)
+    let mut visited = vec![false; b.minor_dim()];
+
     for i in 0 .. a.major_dim() {
         let a_lane_i = a.lane(i);
         let c_lane_i_offset = *offsets.last().unwrap();
         for &k in a_lane_i {
-            // We have that the set of elements in lane i in C is given by the union of all
-            // B_k, where B_k is the set of indices in lane k of B. More precisely, let C_i
-            // denote the set of indices in lane i in C, and similarly for A_i and B_k. Then
-            //  C_i = union B_k for all k in A_i
-            // We incrementally compute C_i by incrementally computing the union of C_i with
-            // B_k until we're through all k in A_i.
             let b_lane_k = b.lane(k);
-            let c_lane_i = &indices[c_lane_i_offset..];
-            c_lane_workspace.clear();
-            c_lane_workspace.extend(iterate_union(c_lane_i, b_lane_k));
-            indices.truncate(c_lane_i_offset);
-            indices.append(&mut c_lane_workspace);
+
+            for &j in b_lane_k {
+                let have_visited_j = &mut visited[j];
+                if !*have_visited_j {
+                    indices.push(j);
+                    *have_visited_j = true;
+                }
+            }
         }
+
+        let c_lane_i = &mut indices[c_lane_i_offset ..];
+        c_lane_i.sort_unstable();
+
+        // Reset visits so that visited[j] == false for all j for the next major lane
+        for j in c_lane_i {
+            visited[*j] = false;
+        }
+
         offsets.push(indices.len());
     }
 

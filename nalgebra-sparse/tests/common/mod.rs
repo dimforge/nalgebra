@@ -27,6 +27,7 @@ macro_rules! assert_panics {
 
 pub const PROPTEST_MATRIX_DIM: RangeInclusive<usize> = 0..=6;
 pub const PROPTEST_MAX_NNZ: usize = 40;
+pub const PROPTEST_I32_VALUE_STRATEGY: RangeInclusive<i32> = -5 ..= 5;
 
 pub fn csr_strategy() -> impl Strategy<Value=CsrMatrix<i32>> {
     csr(-5 ..= 5, PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ)

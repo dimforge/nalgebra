@@ -1,4 +1,6 @@
-use nalgebra_sparse::ops::serial::{spmm_csr_dense, spadd_build_pattern, spmm_pattern, spadd_csr};
+use crate::common::{csr_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ,
+                    PROPTEST_I32_VALUE_STRATEGY};
+use nalgebra_sparse::ops::serial::{spmm_csr_dense, spadd_build_pattern, spmm_pattern, spadd_csr, spmm_csr};
 use nalgebra_sparse::ops::{Transpose};
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::proptest::{csr, sparsity_pattern};
@@ -11,8 +13,6 @@ use proptest::prelude::*;
 
 use std::panic::catch_unwind;
 use std::sync::Arc;
-
-use crate::common::{csr_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ};
 
 /// Represents the sparsity pattern of a CSR matrix as a dense matrix with 0/1
 fn dense_csr_pattern(pattern: &SparsityPattern) -> DMatrix<i32> {
@@ -37,11 +37,11 @@ struct SpmmCsrDenseArgs<T: Scalar> {
 /// Returns matrices C, A and B with compatible dimensions such that it can be used
 /// in an `spmm` operation `C = beta * C + alpha * trans(A) * trans(B)`.
 fn spmm_csr_dense_args_strategy() -> impl Strategy<Value=SpmmCsrDenseArgs<i32>> {
-    let max_nnz = 40;
-    let value_strategy = -5 ..= 5;
-    let c_rows = 0 ..= 6usize;
-    let c_cols = 0 ..= 6usize;
-    let common_dim = 0 ..= 6usize;
+    let max_nnz = PROPTEST_MAX_NNZ;
+    let value_strategy = PROPTEST_I32_VALUE_STRATEGY;
+    let c_rows = PROPTEST_MATRIX_DIM;
+    let c_cols = PROPTEST_MATRIX_DIM;
+    let common_dim = PROPTEST_MATRIX_DIM;
     let trans_strategy = trans_strategy();
     let c_matrix_strategy = matrix(value_strategy.clone(), c_rows, c_cols);
 
@@ -84,9 +84,8 @@ struct SpaddCsrArgs<T> {
 }
 
 fn spadd_csr_args_strategy() -> impl Strategy<Value=SpaddCsrArgs<i32>> {
-    let value_strategy = -5 ..= 5;
+    let value_strategy = PROPTEST_I32_VALUE_STRATEGY;
 
-    // TODO :Support transposition
     spadd_build_pattern_strategy()
         .prop_flat_map(move |(a_pattern, b_pattern)| {
             let mut c_pattern = SparsityPattern::new(a_pattern.major_dim(), b_pattern.major_dim());
@@ -107,7 +106,7 @@ fn spadd_csr_args_strategy() -> impl Strategy<Value=SpaddCsrArgs<i32>> {
 }
 
 fn dense_strategy() -> impl Strategy<Value=DMatrix<i32>> {
-    matrix(-5 ..= 5, 0 ..= 6, 0 ..= 6)
+    matrix(PROPTEST_I32_VALUE_STRATEGY, PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM)
 }
 
 fn trans_strategy() -> impl Strategy<Value=Transpose> + Clone {
@@ -115,14 +114,14 @@ fn trans_strategy() -> impl Strategy<Value=Transpose> + Clone {
 }
 
 fn pattern_strategy() -> impl Strategy<Value=SparsityPattern> {
-    sparsity_pattern(0 ..= 6usize, 0..= 6usize, 40)
+    sparsity_pattern(PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ)
 }
 
 /// Constructs pairs (a, b) where a and b have the same dimensions
 fn spadd_build_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, SparsityPattern)> {
     pattern_strategy()
         .prop_flat_map(|a| {
-            let b = sparsity_pattern(Just(a.major_dim()), Just(a.minor_dim()), 40);
+            let b = sparsity_pattern(Just(a.major_dim()), Just(a.minor_dim()), PROPTEST_MAX_NNZ);
             (Just(a), b)
         })
 }
@@ -133,6 +132,50 @@ fn spmm_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, SparsityPatt
         .prop_flat_map(|a| {
             let b = sparsity_pattern(Just(a.minor_dim()), PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ);
             (Just(a), b)
+        })
+}
+
+#[derive(Debug)]
+struct SpmmCsrArgs<T> {
+    c: CsrMatrix<T>,
+    beta: T,
+    alpha: T,
+    trans_a: Transpose,
+    a: CsrMatrix<T>,
+    trans_b: Transpose,
+    b: CsrMatrix<T>
+}
+
+fn spmm_csr_args_strategy() -> impl Strategy<Value=SpmmCsrArgs<i32>> {
+    spmm_pattern_strategy()
+        .prop_flat_map(|(a_pattern, b_pattern)| {
+            let a_values = vec![PROPTEST_I32_VALUE_STRATEGY; a_pattern.nnz()];
+            let b_values = vec![PROPTEST_I32_VALUE_STRATEGY; b_pattern.nnz()];
+            let c_pattern = spmm_pattern(&a_pattern, &b_pattern);
+            let c_values = vec![PROPTEST_I32_VALUE_STRATEGY; c_pattern.nnz()];
+            let a_pattern = Arc::new(a_pattern);
+            let b_pattern = Arc::new(b_pattern);
+            let c_pattern = Arc::new(c_pattern);
+            let a = a_values.prop_map(move |values|
+                CsrMatrix::try_from_pattern_and_values(Arc::clone(&a_pattern), values).unwrap());
+            let b = b_values.prop_map(move |values|
+                CsrMatrix::try_from_pattern_and_values(Arc::clone(&b_pattern), values).unwrap());
+            let c = c_values.prop_map(move |values|
+                CsrMatrix::try_from_pattern_and_values(Arc::clone(&c_pattern), values).unwrap());
+            let alpha = PROPTEST_I32_VALUE_STRATEGY;
+            let beta = PROPTEST_I32_VALUE_STRATEGY;
+            (c, beta, alpha, trans_strategy(), a, trans_strategy(), b)
+        })
+        .prop_map(|(c, beta, alpha, trans_a, a, trans_b, b)| {
+            SpmmCsrArgs::<i32> {
+                c,
+                beta,
+                alpha,
+                trans_a,
+                a: if trans_a.to_bool() { a.transpose() } else { a },
+                trans_b,
+                b: if trans_b.to_bool() { b.transpose() } else { b }
+            }
         })
 }
 
@@ -299,5 +342,60 @@ proptest! {
         let c_csr = CsrMatrix::from(&c_dense);
 
         prop_assert_eq!(&c_pattern, c_csr.pattern().as_ref());
+    }
+
+    #[test]
+    fn spmm_csr_test(SpmmCsrArgs { c, beta, alpha, trans_a, a, trans_b, b }
+        in spmm_csr_args_strategy()
+    ) {
+        // Test that we get the expected result by comparing to an equivalent dense operation
+        // (here we give in the C matrix, so the sparsity pattern is essentially fixed)
+        let mut c_sparse = c.clone();
+        spmm_csr(&mut c_sparse, beta, alpha, trans_a, &a, trans_b, &b).unwrap();
+
+        let mut c_dense = DMatrix::from(&c);
+        let op_a_dense = DMatrix::from(&a);
+        let op_a_dense = if trans_a.to_bool() { op_a_dense.transpose() } else { op_a_dense };
+        let op_b_dense = DMatrix::from(&b);
+        let op_b_dense = if trans_b.to_bool() { op_b_dense.transpose() } else { op_b_dense };
+        c_dense = beta * c_dense + alpha * &op_a_dense * op_b_dense;
+
+        prop_assert_eq!(&DMatrix::from(&c_sparse), &c_dense);
+    }
+
+    #[test]
+    fn spmm_csr_panics_on_dim_mismatch(
+        (alpha, beta, c, a, b, trans_a, trans_b)
+        in (PROPTEST_I32_VALUE_STRATEGY,
+            PROPTEST_I32_VALUE_STRATEGY,
+            csr_strategy(),
+            csr_strategy(),
+            csr_strategy(),
+            trans_strategy(),
+            trans_strategy())
+    ) {
+        // We refer to `A * B` as the "product"
+        let product_rows = if trans_a.to_bool() { a.ncols() } else { a.nrows() };
+        let product_cols = if trans_b.to_bool() { b.nrows() } else { b.ncols() };
+        // Determine the common dimension in the product
+        // from the perspective of a and b, respectively
+        let product_a_common = if trans_a.to_bool() { a.nrows() } else { a.ncols() };
+        let product_b_common = if trans_b.to_bool() { b.ncols() } else { b.nrows() };
+
+        let dims_are_compatible = product_rows == c.nrows()
+            && product_cols == c.ncols()
+            && product_a_common == product_b_common;
+
+        // If the dimensions randomly happen to be compatible, then of course we need to
+        // skip the test, so we assume that they are not.
+        prop_assume!(!dims_are_compatible);
+
+        let result = catch_unwind(|| {
+            let mut spmm_result = c.clone();
+            spmm_csr(&mut spmm_result, beta, alpha, trans_a, &a, trans_b, &b).unwrap();
+        });
+
+        prop_assert!(result.is_err(),
+            "The SPMM kernel executed successfully despite mismatch dimensions");
     }
 }
