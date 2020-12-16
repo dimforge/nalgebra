@@ -30,6 +30,24 @@ macro_rules! assert_compatible_spmm_dims {
     }
 }
 
+#[macro_use]
+macro_rules! assert_compatible_spadd_dims {
+    ($c:expr, $a:expr, $trans_a:expr) => {
+        use crate::ops::Transpose;
+        match $trans_a {
+            Transpose(false) => {
+                assert_eq!($c.nrows(), $a.nrows(), "C.nrows() != A.nrows()");
+                assert_eq!($c.ncols(), $a.ncols(), "C.ncols() != A.ncols()");
+            },
+            Transpose(true) => {
+                assert_eq!($c.nrows(), $a.ncols(), "C.nrows() != A.ncols()");
+                assert_eq!($c.ncols(), $a.nrows(), "C.ncols() != A.nrows()");
+            }
+        }
+
+    }
+}
+
 mod csr;
 mod pattern;
 

@@ -90,14 +90,7 @@ pub fn spadd_csr<T>(c: &mut CsrMatrix<T>,
 where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One
 {
-    // TODO: Proper error messages
-    if trans_a.to_bool() {
-        assert_eq!(c.nrows(), a.ncols());
-        assert_eq!(c.ncols(), a.nrows());
-    } else {
-        assert_eq!(c.nrows(), a.nrows());
-        assert_eq!(c.ncols(), a.ncols());
-    }
+    assert_compatible_spadd_dims!(c, a, trans_a);
 
     // TODO: Change CsrMatrix::pattern() to return `&Arc` instead of `Arc`
     if Arc::ptr_eq(&c.pattern(), &a.pattern()) {

@@ -398,4 +398,31 @@ proptest! {
         prop_assert!(result.is_err(),
             "The SPMM kernel executed successfully despite mismatch dimensions");
     }
+
+    #[test]
+    fn spadd_csr_panics_on_dim_mismatch(
+        (alpha, beta, c, a, trans_a)
+        in (PROPTEST_I32_VALUE_STRATEGY,
+            PROPTEST_I32_VALUE_STRATEGY,
+            csr_strategy(),
+            csr_strategy(),
+            trans_strategy())
+    ) {
+        let op_a_rows = if trans_a.to_bool() { a.ncols() } else { a.nrows() };
+        let op_a_cols = if trans_a.to_bool() { a.nrows() } else { a.ncols() };
+
+        let dims_are_compatible = c.nrows() == op_a_rows && c.ncols() == op_a_cols;
+
+        // If the dimensions randomly happen to be compatible, then of course we need to
+        // skip the test, so we assume that they are not.
+        prop_assume!(!dims_are_compatible);
+
+        let result = catch_unwind(|| {
+            let mut spmm_result = c.clone();
+            spadd_csr(&mut spmm_result, beta, alpha, trans_a, &a).unwrap();
+        });
+
+        prop_assert!(result.is_err(),
+            "The SPMM kernel executed successfully despite mismatch dimensions");
+    }
 }
