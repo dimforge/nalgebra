@@ -1,7 +1,7 @@
 use crate::csr::CsrMatrix;
 
-use std::ops::Add;
-use crate::ops::serial::{spadd_csr, spadd_build_pattern};
+use std::ops::{Add, Mul};
+use crate::ops::serial::{spadd_csr, spadd_build_pattern, spmm_pattern, spmm_csr};
 use nalgebra::{ClosedAdd, ClosedMul, Scalar};
 use num_traits::{Zero, One};
 use std::sync::Arc;
@@ -66,3 +66,42 @@ where
         self + &rhs
     }
 }
+
+/// Helper macro for implementing matrix multiplication for different matrix types
+/// See below for usage.
+macro_rules! impl_matrix_mul {
+    (<$($life:lifetime),*>($a_name:ident : $a:ty, $b_name:ident : $b:ty) -> $ret:ty $body:block)
+        =>
+    {
+        impl<$($life,)* T> Mul<$b> for $a
+        where
+            T: Scalar + ClosedAdd + ClosedMul + Zero + One
+        {
+            type Output = $ret;
+            fn mul(self, rhs: $b) -> Self::Output {
+                let $a_name = self;
+                let $b_name = rhs;
+                $body
+            }
+        }
+    }
+}
+
+impl_matrix_mul!(<'a>(a: &'a CsrMatrix<T>, b: &'a CsrMatrix<T>) -> CsrMatrix<T> {
+    let pattern = spmm_pattern(a.pattern(), b.pattern());
+    let values = vec![T::zero(); pattern.nnz()];
+    let mut result = CsrMatrix::try_from_pattern_and_values(Arc::new(pattern), values)
+        .unwrap();
+    spmm_csr(&mut result,
+             T::zero(),
+             T::one(),
+             Transpose(false),
+             a,
+             Transpose(false),
+             b)
+        .expect("Internal error: spmm failed (please debug).");
+    result
+});
+impl_matrix_mul!(<'a>(a: &'a CsrMatrix<T>, b: CsrMatrix<T>) -> CsrMatrix<T> { a * &b});
+impl_matrix_mul!(<'a>(a: CsrMatrix<T>, b: &'a CsrMatrix<T>) -> CsrMatrix<T> { &a * b});
+impl_matrix_mul!(<>(a: CsrMatrix<T>, b: CsrMatrix<T>) -> CsrMatrix<T> { &a * &b});

@@ -292,7 +292,7 @@ proptest! {
         (a, b)
         in csr_strategy()
             .prop_flat_map(|a| {
-                let b = csr(-5 ..= 5, Just(a.nrows()), Just(a.ncols()), 40);
+                let b = csr(PROPTEST_I32_VALUE_STRATEGY, Just(a.nrows()), Just(a.ncols()), 40);
                 (Just(a), b)
             }))
     {
@@ -424,5 +424,43 @@ proptest! {
 
         prop_assert!(result.is_err(),
             "The SPMM kernel executed successfully despite mismatch dimensions");
+    }
+
+    #[test]
+    fn csr_mul_csr(
+        // a and b have dimensions compatible for multiplication
+        (a, b)
+        in csr_strategy()
+            .prop_flat_map(|a| {
+                let max_nnz = PROPTEST_MAX_NNZ;
+                let cols = PROPTEST_MATRIX_DIM;
+                let b = csr(PROPTEST_I32_VALUE_STRATEGY, Just(a.ncols()), cols, max_nnz);
+                (Just(a), b)
+            }))
+    {
+        // We use the dense result as the ground truth for the arithmetic result
+        let c_dense = DMatrix::from(&a) * DMatrix::from(&b);
+        // However, it's not enough only to cover the dense result, we also need to verify the
+        // sparsity pattern. We can determine the exact sparsity pattern by using
+        // dense arithmetic with positive integer values and extracting positive entries.
+        let c_dense_pattern = dense_csr_pattern(a.pattern()) * dense_csr_pattern(b.pattern());
+        let c_pattern = CsrMatrix::from(&c_dense_pattern).pattern().clone();
+
+        // Check each combination of owned matrices and references
+        let c_owned_owned = a.clone() * b.clone();
+        prop_assert_eq!(&DMatrix::from(&c_owned_owned), &c_dense);
+        prop_assert_eq!(c_owned_owned.pattern(), &c_pattern);
+
+        let c_owned_ref = a.clone() * &b;
+        prop_assert_eq!(&DMatrix::from(&c_owned_ref), &c_dense);
+        prop_assert_eq!(c_owned_ref.pattern(), &c_pattern);
+
+        let c_ref_owned = &a * b.clone();
+        prop_assert_eq!(&DMatrix::from(&c_ref_owned), &c_dense);
+        prop_assert_eq!(c_ref_owned.pattern(), &c_pattern);
+
+        let c_ref_ref = &a * &b;
+        prop_assert_eq!(&DMatrix::from(&c_ref_ref), &c_dense);
+        prop_assert_eq!(c_ref_ref.pattern(), &c_pattern);
     }
 }
