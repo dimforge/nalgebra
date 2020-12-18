@@ -13,7 +13,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use simba::scalar::RealField;
+use simba::scalar::{ClosedNeg, RealField};
 use simba::simd::{SimdBool, SimdOption, SimdRealField, SimdValue};
 
 use crate::base::dimension::{U1, U3, U4};
@@ -23,17 +23,18 @@ use crate::base::{
 };
 
 use crate::geometry::{Point3, Rotation};
+use std::ops::Neg;
 
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
-#[derive(Debug)]
-pub struct Quaternion<N: Scalar + SimdValue> {
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct Quaternion<N: Scalar> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<N>,
 }
 
-impl<N: RealField> Default for Quaternion<N> {
+impl<N: Scalar + Zero> Default for Quaternion<N> {
     fn default() -> Self {
         Quaternion {
             coords: Vector4::zeros(),
@@ -42,7 +43,7 @@ impl<N: RealField> Default for Quaternion<N> {
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: SimdRealField> Abomonation for Quaternion<N>
+impl<N: Scalar> Abomonation for Quaternion<N>
 where
     Vector4<N>: Abomonation,
 {
@@ -59,36 +60,8 @@ where
     }
 }
 
-impl<N: SimdRealField + Eq> Eq for Quaternion<N> where N::Element: SimdRealField {}
-
-impl<N: SimdRealField> PartialEq for Quaternion<N>
-where
-    N::Element: SimdRealField,
-{
-    fn eq(&self, rhs: &Self) -> bool {
-        self.coords == rhs.coords ||
-        // Account for the double-covering of S², i.e. q = -q
-        self.as_vector().iter().zip(rhs.as_vector().iter()).all(|(a, b)| *a == -*b)
-    }
-}
-
-impl<N: SimdRealField + hash::Hash> hash::Hash for Quaternion<N> {
-    fn hash<H: hash::Hasher>(&self, state: &mut H) {
-        self.coords.hash(state)
-    }
-}
-
-impl<N: Scalar + Copy + SimdValue> Copy for Quaternion<N> {}
-
-impl<N: Scalar + SimdValue> Clone for Quaternion<N> {
-    #[inline]
-    fn clone(&self) -> Self {
-        Self::from(self.coords.clone())
-    }
-}
-
 #[cfg(feature = "serde-serialize")]
-impl<N: SimdRealField> Serialize for Quaternion<N>
+impl<N: Scalar> Serialize for Quaternion<N>
 where
     Owned<N, U4>: Serialize,
 {
@@ -101,7 +74,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: SimdRealField> Deserialize<'a> for Quaternion<N>
+impl<'a, N: Scalar> Deserialize<'a> for Quaternion<N>
 where
     Owned<N, U4>: Deserialize<'a>,
 {
@@ -979,6 +952,17 @@ impl<N: RealField + fmt::Display> fmt::Display for Quaternion<N> {
 
 /// A unit quaternions. May be used to represent a rotation.
 pub type UnitQuaternion<N> = Unit<Quaternion<N>>;
+
+impl<N: Scalar + ClosedNeg + PartialEq> PartialEq for UnitQuaternion<N> {
+    #[inline]
+    fn eq(&self, rhs: &Self) -> bool {
+        self.coords == rhs.coords ||
+        // Account for the double-covering of S², i.e. q = -q
+        self.coords.iter().zip(rhs.coords.iter()).all(|(a, b)| *a == -b.inlined_clone())
+    }
+}
+
+impl<N: Scalar + ClosedNeg + Eq> Eq for UnitQuaternion<N> {}
 
 impl<N: SimdRealField> Normed for Quaternion<N> {
     type Norm = N::SimdRealField;
