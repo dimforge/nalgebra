@@ -195,25 +195,25 @@ impl<N: Scalar> Into<mint::Quaternion<N>> for Quaternion<N> {
     fn into(self) -> mint::Quaternion<N> {
         mint::Quaternion {
             v: mint::Vector3 {
-                x: self[0],
-                y: self[1],
-                z: self[2],
+                x: self[0].inlined_clone(),
+                y: self[1].inlined_clone(),
+                z: self[2].inlined_clone(),
             },
-            s: self[3],
+            s: self[3].inlined_clone(),
         }
     }
 }
 
 #[cfg(feature = "mint")]
-impl<N: Scalar> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
+impl<N: Scalar + SimdValue> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
     fn into(self) -> mint::Quaternion<N> {
         mint::Quaternion {
             v: mint::Vector3 {
-                x: self[0],
-                y: self[1],
-                z: self[2],
+                x: self[0].inlined_clone(),
+                y: self[1].inlined_clone(),
+                z: self[2].inlined_clone(),
             },
-            s: self[3],
+            s: self[3].inlined_clone(),
         }
     }
 }

@@ -57,12 +57,12 @@ use std::ops::{
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{U1, U3, U4};
 use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, Unit, Vector, Vector3};
+use crate::base::{DefaultAllocator, Scalar, Unit, Vector, Vector3};
 use crate::SimdRealField;
 
 use crate::geometry::{Point3, Quaternion, Rotation, UnitQuaternion};
 
-impl<N: SimdRealField> Index<usize> for Quaternion<N> {
+impl<N: Scalar> Index<usize> for Quaternion<N> {
     type Output = N;
 
     #[inline]
@@ -71,7 +71,7 @@ impl<N: SimdRealField> Index<usize> for Quaternion<N> {
     }
 }
 
-impl<N: SimdRealField> IndexMut<usize> for Quaternion<N> {
+impl<N: Scalar> IndexMut<usize> for Quaternion<N> {
     #[inline]
     fn index_mut(&mut self, i: usize) -> &mut N {
         &mut self.coords[i]
