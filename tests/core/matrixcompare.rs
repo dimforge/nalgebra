@@ -4,9 +4,15 @@
 //! The tests here only check that the necessary trait implementations are correctly implemented,
 //! in addition to some sanity checks with example input.
 
-use nalgebra::{DMatrix, MatrixMN, U4, U5};
+use nalgebra::{MatrixMN, U4, U5};
 
-use matrixcompare::{assert_matrix_eq, DenseAccess};
+#[cfg(feature = "arbitrary")]
+use nalgebra::DMatrix;
+
+use matrixcompare::assert_matrix_eq;
+
+#[cfg(feature = "arbitrary")]
+use matrixcompare::DenseAccess;
 
 #[cfg(feature = "arbitrary")]
 quickcheck! {

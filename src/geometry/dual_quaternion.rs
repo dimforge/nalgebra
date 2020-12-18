@@ -1,4 +1,6 @@
 use crate::{Quaternion, SimdRealField};
+#[cfg(feature = "serde-serialize")]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// A dual quaternion.
 ///
@@ -27,7 +29,6 @@ use crate::{Quaternion, SimdRealField};
 ///  See https://github.com/dimforge/nalgebra/issues/487
 #[repr(C)]
 #[derive(Debug, Default, Eq, PartialEq, Copy, Clone)]
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct DualQuaternion<N: SimdRealField> {
     /// The real component of the quaternion
     pub real: Quaternion<N>,
@@ -78,5 +79,38 @@ where
     #[inline]
     pub fn normalize_mut(&mut self) {
         *self = self.normalize();
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<N: SimdRealField> Serialize for DualQuaternion<N>
+where
+    N: Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
+    where
+        S: Serializer,
+    {
+        self.as_ref().serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'a, N: SimdRealField> Deserialize<'a> for DualQuaternion<N>
+where
+    N: Deserialize<'a>,
+{
+    fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
+    where
+        Des: Deserializer<'a>,
+    {
+        type Dq<N> = [N; 8];
+
+        let dq: Dq<N> = Dq::<N>::deserialize(deserializer)?;
+
+        Ok(Self {
+            real: Quaternion::new(dq[3], dq[0], dq[1], dq[2]),
+            dual: Quaternion::new(dq[7], dq[4], dq[5], dq[6]),
+        })
     }
 }
