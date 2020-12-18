@@ -210,6 +210,28 @@ where
         self.translation.vector = self.rotation.transform_vector(&self.translation.vector);
     }
 
+    /// Computes `self.inverse() * rhs` in a more efficient way.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry2, Point2, Vector2};
+    /// let mut iso1 = Isometry2::new(Vector2::new(1.0, 2.0), f32::consts::FRAC_PI_2);
+    /// let mut iso2 = Isometry2::new(Vector2::new(10.0, 20.0), f32::consts::FRAC_PI_4);
+    ///
+    /// assert_eq!(iso1.inverse() * iso2, iso1.inv_mul(&iso2));
+    /// ```
+    #[inline]
+    pub fn inv_mul(&self, rhs: &Isometry<N, D, R>) -> Self {
+        let inv_rot1 = self.rotation.inverse();
+        let tr_12 = rhs.translation.vector.clone() - self.translation.vector.clone();
+        Isometry::from_parts(
+            inv_rot1.transform_vector(&tr_12).into(),
+            inv_rot1 * rhs.rotation.clone(),
+        )
+    }
+
     /// Appends to `self` the given translation in-place.
     ///
     /// # Example
