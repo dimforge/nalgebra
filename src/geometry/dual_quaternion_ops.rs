@@ -25,21 +25,36 @@
 use crate::base::allocator::Allocator;
 use crate::{DefaultAllocator, DualQuaternion, SimdRealField, U1, U4};
 use simba::simd::SimdValue;
+use std::mem;
 use std::ops::{Add, Index, IndexMut, Mul, Sub};
+
+impl<N: SimdRealField> AsRef<[N; 8]> for DualQuaternion<N> {
+    #[inline]
+    fn as_ref(&self) -> &[N; 8] {
+        unsafe { mem::transmute(self) }
+    }
+}
+
+impl<N: SimdRealField> AsMut<[N; 8]> for DualQuaternion<N> {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [N; 8] {
+        unsafe { mem::transmute(self) }
+    }
+}
 
 impl<N: SimdRealField> Index<usize> for DualQuaternion<N> {
     type Output = N;
 
     #[inline]
     fn index(&self, i: usize) -> &Self::Output {
-        &self.dq[i]
+        &self.as_ref()[i]
     }
 }
 
 impl<N: SimdRealField> IndexMut<usize> for DualQuaternion<N> {
     #[inline]
     fn index_mut(&mut self, i: usize) -> &mut N {
-        &mut self.dq[i]
+        &mut self.as_mut()[i]
     }
 }
 
@@ -52,8 +67,8 @@ where
 
     fn mul(self, rhs: Self) -> Self::Output {
         Self::from_real_and_dual(
-            self.real() * rhs.real(),
-            self.real() * rhs.dual() + self.dual() * rhs.real(),
+            self.real * rhs.real,
+            self.real * rhs.dual + self.dual * rhs.real,
         )
     }
 }
@@ -66,7 +81,7 @@ where
     type Output = DualQuaternion<N>;
 
     fn mul(self, rhs: N) -> Self::Output {
-        Self::from_real_and_dual(self.real() * rhs, self.dual() * rhs)
+        Self::from_real_and_dual(self.real * rhs, self.dual * rhs)
     }
 }
 
@@ -78,7 +93,7 @@ where
     type Output = DualQuaternion<N>;
 
     fn add(self, rhs: DualQuaternion<N>) -> Self::Output {
-        Self::from_real_and_dual(self.real() + rhs.real(), self.dual() + rhs.dual())
+        Self::from_real_and_dual(self.real + rhs.real, self.dual + rhs.dual)
     }
 }
 
@@ -90,6 +105,6 @@ where
     type Output = DualQuaternion<N>;
 
     fn sub(self, rhs: DualQuaternion<N>) -> Self::Output {
-        Self::from_real_and_dual(self.real() - rhs.real(), self.dual() - rhs.dual())
+        Self::from_real_and_dual(self.real - rhs.real, self.dual - rhs.dual)
     }
 }

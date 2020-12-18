@@ -10,15 +10,11 @@ impl<N: SimdRealField> DualQuaternion<N> {
     /// let trans = Quaternion::new(5.0, 6.0, 7.0, 8.0);
     ///
     /// let dq = DualQuaternion::from_real_and_dual(rot, trans);
-    /// assert_eq!(dq.real().w, 1.0);
+    /// assert_eq!(dq.real.w, 1.0);
     /// ```
     #[inline]
     pub fn from_real_and_dual(real: Quaternion<N>, dual: Quaternion<N>) -> Self {
-        Self {
-            dq: [
-                real.w, real.i, real.j, real.k, dual.w, dual.i, dual.j, dual.k,
-            ],
-        }
+        Self { real, dual }
     }
 }
 

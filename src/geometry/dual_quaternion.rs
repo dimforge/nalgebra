@@ -5,7 +5,7 @@ use crate::{Quaternion, SimdRealField};
 /// # Indexing
 ///
 /// DualQuaternions are stored as \[..real, ..dual\].
-/// Both of the quaternion components are laid out in `w, i, j, k` order.
+/// Both of the quaternion components are laid out in `i, j, k, w` order.
 ///
 /// ```
 /// # use nalgebra::{DualQuaternion, Quaternion};
@@ -14,9 +14,11 @@ use crate::{Quaternion, SimdRealField};
 /// let dual = Quaternion::new(5.0, 6.0, 7.0, 8.0);
 ///
 /// let dq = DualQuaternion::from_real_and_dual(real, dual);
-/// assert_eq!(dq[0], 1.0);
-/// assert_eq!(dq[4], 5.0);
-/// assert_eq!(dq[6], 7.0);
+/// assert_eq!(dq[0], 2.0);
+/// assert_eq!(dq[1], 3.0);
+///
+/// assert_eq!(dq[4], 6.0);
+/// assert_eq!(dq[7], 5.0);
 /// ```
 ///
 /// NOTE:
@@ -27,46 +29,10 @@ use crate::{Quaternion, SimdRealField};
 #[derive(Debug, Default, Eq, PartialEq, Copy, Clone)]
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct DualQuaternion<N: SimdRealField> {
-    // [real(w, i, j, k), dual(w, i, j, k)]
-    pub(crate) dq: [N; 8],
-}
-
-impl<N: SimdRealField> DualQuaternion<N> {
-    /// Get the first quaternion component.
-    ///
-    /// # Example
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::{DualQuaternion, Quaternion};
-    ///
-    /// let real = Quaternion::new(1.0, 2.0, 3.0, 4.0);
-    /// let dual = Quaternion::new(5.0, 6.0, 7.0, 8.0);
-    ///
-    /// let dq = DualQuaternion::from_real_and_dual(real, dual);
-    /// relative_eq!(dq.real(), real);
-    /// ```
-    #[inline]
-    pub fn real(&self) -> Quaternion<N> {
-        Quaternion::new(self[0], self[1], self[2], self[3])
-    }
-
-    /// Get the second quaternion component.
-    ///
-    /// # Example
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::{DualQuaternion, Quaternion};
-    ///
-    /// let real = Quaternion::new(1.0, 2.0, 3.0, 4.0);
-    /// let dual = Quaternion::new(5.0, 6.0, 7.0, 8.0);
-    ///
-    /// let dq = DualQuaternion::from_real_and_dual(real, dual);
-    /// relative_eq!(dq.dual(), dual);
-    /// ```
-    #[inline]
-    pub fn dual(&self) -> Quaternion<N> {
-        Quaternion::new(self[4], self[5], self[6], self[7])
-    }
+    /// The real component of the quaternion
+    pub real: Quaternion<N>,
+    /// The dual component of the quaternion
+    pub dual: Quaternion<N>,
 }
 
 impl<N: SimdRealField> DualQuaternion<N>
@@ -85,14 +51,14 @@ where
     ///
     /// let dq_normalized = dq.normalize();
     ///
-    /// relative_eq!(dq_normalized.real().norm(), 1.0);
+    /// relative_eq!(dq_normalized.real.norm(), 1.0);
     /// ```
     #[inline]
     #[must_use = "Did you mean to use normalize_mut()?"]
     pub fn normalize(&self) -> Self {
-        let real_norm = self.real().norm();
+        let real_norm = self.real.norm();
 
-        Self::from_real_and_dual(self.real() / real_norm, self.dual() / real_norm)
+        Self::from_real_and_dual(self.real / real_norm, self.dual / real_norm)
     }
 
     /// Normalizes this quaternion.
@@ -107,7 +73,7 @@ where
     ///
     /// dq.normalize_mut();
     ///
-    /// relative_eq!(dq.real().norm(), 1.0);
+    /// relative_eq!(dq.real.norm(), 1.0);
     /// ```
     #[inline]
     pub fn normalize_mut(&mut self) {
