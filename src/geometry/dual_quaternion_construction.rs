@@ -16,9 +16,6 @@ impl<N: SimdRealField> DualQuaternion<N> {
     pub fn from_real_and_dual(real: Quaternion<N>, dual: Quaternion<N>) -> Self {
         Self { real, dual }
     }
-}
-
-impl<N: SimdRealField> DualQuaternion<N> {
     /// The dual quaternion multiplicative identity
     ///
     /// # Example

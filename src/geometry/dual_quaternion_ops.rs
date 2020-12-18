@@ -22,9 +22,7 @@
  *   - https://cs.gmu.edu/~jmlien/teaching/cs451/uploads/Main/dual-quaternion.pdf
  */
 
-use crate::base::allocator::Allocator;
-use crate::{DefaultAllocator, DualQuaternion, SimdRealField, U1, U4};
-use simba::simd::SimdValue;
+use crate::{DualQuaternion, SimdRealField};
 use std::mem;
 use std::ops::{Add, Index, IndexMut, Mul, Sub};
 
@@ -61,7 +59,6 @@ impl<N: SimdRealField> IndexMut<usize> for DualQuaternion<N> {
 impl<N: SimdRealField> Mul<DualQuaternion<N>> for DualQuaternion<N>
 where
     N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, U4, U1> + Allocator<N, U4, U1>,
 {
     type Output = DualQuaternion<N>;
 
@@ -75,8 +72,7 @@ where
 
 impl<N: SimdRealField> Mul<N> for DualQuaternion<N>
 where
-    N::Element: SimdRealField + SimdValue,
-    DefaultAllocator: Allocator<N, U4, U1> + Allocator<N, U4, U1>,
+    N::Element: SimdRealField,
 {
     type Output = DualQuaternion<N>;
 
@@ -88,7 +84,6 @@ where
 impl<N: SimdRealField> Add<DualQuaternion<N>> for DualQuaternion<N>
 where
     N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, U4, U1> + Allocator<N, U4, U1>,
 {
     type Output = DualQuaternion<N>;
 
@@ -100,7 +95,6 @@ where
 impl<N: SimdRealField> Sub<DualQuaternion<N>> for DualQuaternion<N>
 where
     N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, U4, U1> + Allocator<N, U4, U1>,
 {
     type Output = DualQuaternion<N>;
 
