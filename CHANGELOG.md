@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 In this release, we improved the documentation of some of the geometric types
 by applying changes similar to what we did in the version 0.23.1 for matrices.
 
+### Added
+* The `Isometry::inv_mul` method which is a more efficient way of doing
+  `isometry1.inverse() * isometry2`.
+
 ## [0.23.1]
 In this release we improved the documentation of the matrix and vector types by:
 - Grouping `impl` bocks logically, adding a title comment to these impl blocks.
