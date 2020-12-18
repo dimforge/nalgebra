@@ -377,7 +377,7 @@ where
     where
         V: SeqAccess<'a>,
     {
-        let mut out: Self::Value = unsafe { mem::uninitialized() };
+        let mut out: Self::Value = unsafe { mem::MaybeUninit::uninit().assume_init() };
         let mut curr = 0;
 
         while let Some(value) = visitor.next_element()? {

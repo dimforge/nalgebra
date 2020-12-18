@@ -14,14 +14,45 @@ use simba::scalar::{RealField, SubsetOf};
 use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1, U2, U3};
+use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
 use crate::base::{DefaultAllocator, MatrixN, Scalar, Unit, VectorN};
-use crate::geometry::{
-    AbstractRotation, Point, Rotation2, Rotation3, Translation, UnitComplex, UnitQuaternion,
-};
+use crate::geometry::{AbstractRotation, Point, Translation};
 
-/// A direct isometry, i.e., a rotation followed by a translation, aka. a rigid-body motion, aka. an element of a Special Euclidean (SE) group.
+/// A direct isometry, i.e., a rotation followed by a translation (aka. a rigid-body motion).
+///
+/// This is also known as an element of a Special Euclidean (SE) group.
+/// The `Isometry` type can either represent a 2D or 3D isometry.
+/// A 2D isometry is composed of:
+/// - A translation part of type [`Translation2`](crate::Translation2)
+/// - A rotation part which can either be a [`UnitComplex`](crate::UnitComplex) or a [`Rotation2`](crate::Rotation2).
+/// A 3D isometry is composed of:
+/// - A translation part of type [`Translation3`](crate::Translation3)
+/// - A rotation part which can either be a [`UnitQuaternion`](crate::UnitQuaternion) or a [`Rotation3`](crate::Rotation3).
+///
+/// Note that instead of using the [`Isometry`](crate::Isometry) type in your code directly, you should use one
+/// of its aliases: [`Isometry2`](crate::Isometry2), [`Isometry3`](crate::Isometry3),
+/// [`IsometryMatrix2`](crate::IsometryMatrix2), [`IsometryMatrix3`](crate::IsometryMatrix3). Though
+/// keep in mind that all the documentation of all the methods of these aliases will also appears on
+/// this page.
+///
+/// # Construction
+/// * [From a 2D vector and/or an angle <span style="float:right;">`new`, `translation`, `rotation`…</span>](#construction-from-a-2d-vector-andor-a-rotation-angle)
+/// * [From a 3D vector and/or an axis-angle <span style="float:right;">`new`, `translation`, `rotation`…</span>](#construction-from-a-3d-vector-andor-an-axis-angle)
+/// * [From a 3D eye position and target point <span style="float:right;">`look_at`, `look_at_lh`, `face_towards`…</span>](#construction-from-a-3d-eye-position-and-target-point)
+/// * [From the translation and rotation parts <span style="float:right;">`from_parts`…</span>](#from-the-translation-and-rotation-parts)
+///
+/// # Transformation and composition
+/// Note that transforming vectors and points can be done by multiplication, e.g., `isometry * point`.
+/// Composing an isometry with another transformation can also be done by multiplication or division.
+///
+/// * [Transformation of a vector or a point <span style="float:right;">`transform_vector`, `inverse_transform_point`…</span>](#transformation-of-a-vector-or-a-point)
+/// * [Inversion and in-place composition <span style="float:right;">`inverse`, `append_rotation_wrt_point_mut`…</span>](#inversion-and-in-place-composition)
+/// * [Interpolation <span style="float:right;">`lerp_slerp`…</span>](#interpolation)
+///
+/// # Conversion to a matrix
+/// * [Conversion to a matrix <span style="float:right;">`to_matrix`…</span>](#conversion-to-a-matrix)
+///
 #[repr(C)]
 #[derive(Debug)]
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
@@ -103,7 +134,7 @@ where
         }
     }
 }
-
+/// # From the translation and rotation parts
 impl<N: Scalar, D: DimName, R: AbstractRotation<N, D>> Isometry<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
@@ -131,6 +162,7 @@ where
     }
 }
 
+/// # Inversion and in-place composition
 impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D>> Isometry<N, D, R>
 where
     N::Element: SimdRealField,
@@ -176,6 +208,28 @@ where
         self.rotation.inverse_mut();
         self.translation.inverse_mut();
         self.translation.vector = self.rotation.transform_vector(&self.translation.vector);
+    }
+
+    /// Computes `self.inverse() * rhs` in a more efficient way.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry2, Point2, Vector2};
+    /// let mut iso1 = Isometry2::new(Vector2::new(1.0, 2.0), f32::consts::FRAC_PI_2);
+    /// let mut iso2 = Isometry2::new(Vector2::new(10.0, 20.0), f32::consts::FRAC_PI_4);
+    ///
+    /// assert_eq!(iso1.inverse() * iso2, iso1.inv_mul(&iso2));
+    /// ```
+    #[inline]
+    pub fn inv_mul(&self, rhs: &Isometry<N, D, R>) -> Self {
+        let inv_rot1 = self.rotation.inverse();
+        let tr_12 = rhs.translation.vector.clone() - self.translation.vector.clone();
+        Isometry::from_parts(
+            inv_rot1.transform_vector(&tr_12).into(),
+            inv_rot1 * rhs.rotation.clone(),
+        )
     }
 
     /// Appends to `self` the given translation in-place.
@@ -261,7 +315,14 @@ where
     pub fn append_rotation_wrt_center_mut(&mut self, r: &R) {
         self.rotation = r.clone() * self.rotation.clone();
     }
+}
 
+/// # Transformation of a vector or a point
+impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D>> Isometry<N, D, R>
+where
+    N::Element: SimdRealField,
+    DefaultAllocator: Allocator<N, D>,
+{
     /// Transform the given point by this isometry.
     ///
     /// This is the same as the multiplication `self * pt`.
@@ -377,223 +438,18 @@ where
     }
 }
 
-impl<N: SimdRealField> Isometry<N, U3, UnitQuaternion<N>> {
-    /// Interpolates between two isometries using a linear interpolation for the translation part,
-    /// and a spherical interpolation for the rotation part.
-    ///
-    /// Panics if the angle between both rotations is 180 degrees (in which case the interpolation
-    /// is not well-defined). Use `.try_lerp_slerp` instead to avoid the panic.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::{Vector3, Translation3, Isometry3, UnitQuaternion};
-    ///
-    /// let t1 = Translation3::new(1.0, 2.0, 3.0);
-    /// let t2 = Translation3::new(4.0, 8.0, 12.0);
-    /// let q1 = UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
-    /// let q2 = UnitQuaternion::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
-    /// let iso1 = Isometry3::from_parts(t1, q1);
-    /// let iso2 = Isometry3::from_parts(t2, q2);
-    ///
-    /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
-    ///
-    /// assert_eq!(iso3.translation.vector, Vector3::new(2.0, 4.0, 6.0));
-    /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
-    /// ```
-    #[inline]
-    pub fn lerp_slerp(&self, other: &Self, t: N) -> Self
-    where
-        N: RealField,
-    {
-        let tr = self.translation.vector.lerp(&other.translation.vector, t);
-        let rot = self.rotation.slerp(&other.rotation, t);
-        Self::from_parts(tr.into(), rot)
-    }
-
-    /// Attempts to interpolate between two isometries using a linear interpolation for the translation part,
-    /// and a spherical interpolation for the rotation part.
-    ///
-    /// Retuns `None` if the angle between both rotations is 180 degrees (in which case the interpolation
-    /// is not well-defined).
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::{Vector3, Translation3, Isometry3, UnitQuaternion};
-    ///
-    /// let t1 = Translation3::new(1.0, 2.0, 3.0);
-    /// let t2 = Translation3::new(4.0, 8.0, 12.0);
-    /// let q1 = UnitQuaternion::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
-    /// let q2 = UnitQuaternion::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
-    /// let iso1 = Isometry3::from_parts(t1, q1);
-    /// let iso2 = Isometry3::from_parts(t2, q2);
-    ///
-    /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
-    ///
-    /// assert_eq!(iso3.translation.vector, Vector3::new(2.0, 4.0, 6.0));
-    /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
-    /// ```
-    #[inline]
-    pub fn try_lerp_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self>
-    where
-        N: RealField,
-    {
-        let tr = self.translation.vector.lerp(&other.translation.vector, t);
-        let rot = self.rotation.try_slerp(&other.rotation, t, epsilon)?;
-        Some(Self::from_parts(tr.into(), rot))
-    }
-}
-
-impl<N: SimdRealField> Isometry<N, U3, Rotation3<N>> {
-    /// Interpolates between two isometries using a linear interpolation for the translation part,
-    /// and a spherical interpolation for the rotation part.
-    ///
-    /// Panics if the angle between both rotations is 180 degrees (in which case the interpolation
-    /// is not well-defined). Use `.try_lerp_slerp` instead to avoid the panic.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::{Vector3, Translation3, Rotation3, IsometryMatrix3};
-    ///
-    /// let t1 = Translation3::new(1.0, 2.0, 3.0);
-    /// let t2 = Translation3::new(4.0, 8.0, 12.0);
-    /// let q1 = Rotation3::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
-    /// let q2 = Rotation3::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
-    /// let iso1 = IsometryMatrix3::from_parts(t1, q1);
-    /// let iso2 = IsometryMatrix3::from_parts(t2, q2);
-    ///
-    /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
-    ///
-    /// assert_eq!(iso3.translation.vector, Vector3::new(2.0, 4.0, 6.0));
-    /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
-    /// ```
-    #[inline]
-    pub fn lerp_slerp(&self, other: &Self, t: N) -> Self
-    where
-        N: RealField,
-    {
-        let tr = self.translation.vector.lerp(&other.translation.vector, t);
-        let rot = self.rotation.slerp(&other.rotation, t);
-        Self::from_parts(tr.into(), rot)
-    }
-
-    /// Attempts to interpolate between two isometries using a linear interpolation for the translation part,
-    /// and a spherical interpolation for the rotation part.
-    ///
-    /// Retuns `None` if the angle between both rotations is 180 degrees (in which case the interpolation
-    /// is not well-defined).
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::{Vector3, Translation3, Rotation3, IsometryMatrix3};
-    ///
-    /// let t1 = Translation3::new(1.0, 2.0, 3.0);
-    /// let t2 = Translation3::new(4.0, 8.0, 12.0);
-    /// let q1 = Rotation3::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
-    /// let q2 = Rotation3::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
-    /// let iso1 = IsometryMatrix3::from_parts(t1, q1);
-    /// let iso2 = IsometryMatrix3::from_parts(t2, q2);
-    ///
-    /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
-    ///
-    /// assert_eq!(iso3.translation.vector, Vector3::new(2.0, 4.0, 6.0));
-    /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
-    /// ```
-    #[inline]
-    pub fn try_lerp_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self>
-    where
-        N: RealField,
-    {
-        let tr = self.translation.vector.lerp(&other.translation.vector, t);
-        let rot = self.rotation.try_slerp(&other.rotation, t, epsilon)?;
-        Some(Self::from_parts(tr.into(), rot))
-    }
-}
-
-impl<N: SimdRealField> Isometry<N, U2, UnitComplex<N>> {
-    /// Interpolates between two isometries using a linear interpolation for the translation part,
-    /// and a spherical interpolation for the rotation part.
-    ///
-    /// Panics if the angle between both rotations is 180 degrees (in which case the interpolation
-    /// is not well-defined). Use `.try_lerp_slerp` instead to avoid the panic.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::{Vector2, Translation2, UnitComplex, Isometry2};
-    ///
-    /// let t1 = Translation2::new(1.0, 2.0);
-    /// let t2 = Translation2::new(4.0, 8.0);
-    /// let q1 = UnitComplex::new(std::f32::consts::FRAC_PI_4);
-    /// let q2 = UnitComplex::new(-std::f32::consts::PI);
-    /// let iso1 = Isometry2::from_parts(t1, q1);
-    /// let iso2 = Isometry2::from_parts(t2, q2);
-    ///
-    /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
-    ///
-    /// assert_eq!(iso3.translation.vector, Vector2::new(2.0, 4.0));
-    /// assert_relative_eq!(iso3.rotation.angle(), std::f32::consts::FRAC_PI_2);
-    /// ```
-    #[inline]
-    pub fn lerp_slerp(&self, other: &Self, t: N) -> Self
-    where
-        N: RealField,
-    {
-        let tr = self.translation.vector.lerp(&other.translation.vector, t);
-        let rot = self.rotation.slerp(&other.rotation, t);
-        Self::from_parts(tr.into(), rot)
-    }
-}
-
-impl<N: SimdRealField> Isometry<N, U2, Rotation2<N>> {
-    /// Interpolates between two isometries using a linear interpolation for the translation part,
-    /// and a spherical interpolation for the rotation part.
-    ///
-    /// Panics if the angle between both rotations is 180 degrees (in which case the interpolation
-    /// is not well-defined). Use `.try_lerp_slerp` instead to avoid the panic.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::{Vector2, Translation2, Rotation2, IsometryMatrix2};
-    ///
-    /// let t1 = Translation2::new(1.0, 2.0);
-    /// let t2 = Translation2::new(4.0, 8.0);
-    /// let q1 = Rotation2::new(std::f32::consts::FRAC_PI_4);
-    /// let q2 = Rotation2::new(-std::f32::consts::PI);
-    /// let iso1 = IsometryMatrix2::from_parts(t1, q1);
-    /// let iso2 = IsometryMatrix2::from_parts(t2, q2);
-    ///
-    /// let iso3 = iso1.lerp_slerp(&iso2, 1.0 / 3.0);
-    ///
-    /// assert_eq!(iso3.translation.vector, Vector2::new(2.0, 4.0));
-    /// assert_relative_eq!(iso3.rotation.angle(), std::f32::consts::FRAC_PI_2);
-    /// ```
-    #[inline]
-    pub fn lerp_slerp(&self, other: &Self, t: N) -> Self
-    where
-        N: RealField,
-    {
-        let tr = self.translation.vector.lerp(&other.translation.vector, t);
-        let rot = self.rotation.slerp(&other.rotation, t);
-        Self::from_parts(tr.into(), rot)
-    }
-}
-
 // NOTE: we don't require `R: Rotation<...>` here because this is not useful for the implementation
 // and makes it hard to use it, e.g., for Transform × Isometry implementation.
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the dummy ZST field).
+/// # Conversion to a matrix
 impl<N: SimdRealField, D: DimName, R> Isometry<N, D, R>
 where
     DefaultAllocator: Allocator<N, D>,
 {
     /// Converts this isometry into its equivalent homogeneous transformation matrix.
+    ///
+    /// This is the same as `self.to_matrix()`.
     ///
     /// # Example
     ///
@@ -620,6 +476,33 @@ where
             .copy_from(&self.translation.vector);
 
         res
+    }
+
+    /// Converts this isometry into its equivalent homogeneous transformation matrix.
+    ///
+    /// This is the same as `self.to_homogeneous()`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use std::f32;
+    /// # use nalgebra::{Isometry2, Vector2, Matrix3};
+    /// let iso = Isometry2::new(Vector2::new(10.0, 20.0), f32::consts::FRAC_PI_6);
+    /// let expected = Matrix3::new(0.8660254, -0.5,      10.0,
+    ///                             0.5,       0.8660254, 20.0,
+    ///                             0.0,       0.0,       1.0);
+    ///
+    /// assert_relative_eq!(iso.to_matrix(), expected, epsilon = 1.0e-6);
+    /// ```
+    #[inline]
+    pub fn to_matrix(&self) -> MatrixN<N, DimNameSum<D, U1>>
+    where
+        D: DimNameAdd<U1>,
+        R: SubsetOf<MatrixN<N, DimNameSum<D, U1>>>,
+        DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    {
+        self.to_homogeneous()
     }
 }
 

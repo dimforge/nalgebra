@@ -3,9 +3,10 @@
 use na::{
     DMatrix, Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3, Matrix3x4, Point2, Point3,
     Quaternion, Rotation2, Rotation3, Similarity2, Similarity3, SimilarityMatrix2,
-    SimilarityMatrix3, Translation2, Translation3, Unit,
+    SimilarityMatrix3, Translation2, Translation3, Unit, Vector2,
 };
 use rand;
+use serde::{Deserialize, Serialize};
 use serde_json;
 
 macro_rules! test_serde(
@@ -53,4 +54,17 @@ fn serde_flat() {
     let v = Unit::new_normalize(Quaternion::new(0., 0., 0., 1.));
     let serialized = serde_json::to_string(&v).unwrap();
     assert_eq!(serialized, "[0.0,0.0,1.0,0.0]");
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Copy, Clone)]
+enum Stuff {
+    A(f64),
+    B(f64),
+}
+
+#[test]
+fn deserialize_enum() {
+    let json = r#"[{"letter":"A", "value":123.4}, {"letter":"B", "value":567.8}]"#;
+    let parsed: Result<Vector2<Stuff>, _> = serde_json::from_str(json);
+    println!("parsed: {:?}", parsed);
 }

@@ -257,9 +257,8 @@ macro_rules! impl_from_into_mint_1D(
             #[inline]
             fn into(self) -> mint::$VT<N> {
                 unsafe {
-                    let mut res: mint::$VT<N> = mem::uninitialized();
+                    let mut res: mint::$VT<N> = mem::MaybeUninit::uninit().assume_init();
                     ptr::copy_nonoverlapping(self.data.ptr(), &mut res.x, $SZ);
-
                     res
                 }
             }
@@ -324,7 +323,7 @@ macro_rules! impl_from_into_mint_2D(
             #[inline]
             fn into(self) -> mint::$MV<N> {
                 unsafe {
-                    let mut res: mint::$MV<N> = mem::uninitialized();
+                    let mut res: mint::$MV<N> = mem::MaybeUninit::uninit().assume_init();
                     let mut ptr = self.data.ptr();
                     $(
                         ptr::copy_nonoverlapping(ptr, &mut res.$component.x, $SZRows);

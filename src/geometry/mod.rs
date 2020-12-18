@@ -21,6 +21,7 @@ mod rotation_alga;
 mod rotation_alias;
 mod rotation_construction;
 mod rotation_conversion;
+mod rotation_interpolation;
 mod rotation_ops;
 mod rotation_simba; // TODO: implement Rotation methods.
 mod rotation_specialization;
@@ -58,6 +59,7 @@ mod isometry_alga;
 mod isometry_alias;
 mod isometry_construction;
 mod isometry_conversion;
+mod isometry_interpolation;
 mod isometry_ops;
 mod isometry_simba;
 

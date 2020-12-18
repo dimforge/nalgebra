@@ -4,6 +4,10 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.23.2]
+In this release, we improved the documentation of some of the geometric types
+by applying changes similar to what we did in the version 0.23.1 for matrices.
+
 ## [0.23.1]
 In this release we improved the documentation of the matrix and vector types by:
 - Grouping `impl` bocks logically, adding a title comment to these impl blocks.
