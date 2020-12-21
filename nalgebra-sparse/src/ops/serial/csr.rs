@@ -8,8 +8,8 @@ use std::sync::Arc;
 use std::borrow::Cow;
 
 /// Sparse-dense matrix-matrix multiplication `C <- beta * C + alpha * op(A) * op(B)`.
-pub fn spmm_csr_dense<'a, T>(c: impl Into<DMatrixSliceMut<'a, T>>,
-                             beta: T,
+pub fn spmm_csr_dense<'a, T>(beta: T,
+                             c: impl Into<DMatrixSliceMut<'a, T>>,
                              alpha: T,
                              a: Op<&CsrMatrix<T>>,
                              b: Op<impl Into<DMatrixSlice<'a, T>>>)
@@ -17,11 +17,11 @@ pub fn spmm_csr_dense<'a, T>(c: impl Into<DMatrixSliceMut<'a, T>>,
         T: Scalar + ClosedAdd + ClosedMul + Zero + One
 {
     let b = b.convert();
-    spmm_csr_dense_(c.into(), beta, alpha, a, b)
+    spmm_csr_dense_(beta, c.into(), alpha, a, b)
 }
 
-fn spmm_csr_dense_<T>(mut c: DMatrixSliceMut<T>,
-                      beta: T,
+fn spmm_csr_dense_<T>(beta: T,
+                      mut c: DMatrixSliceMut<T>,
                       alpha: T,
                       a: Op<&CsrMatrix<T>>,
                       b: Op<DMatrixSlice<T>>)
@@ -87,8 +87,8 @@ fn spadd_csr_unexpected_entry() -> OperationError {
 ///
 /// If the pattern of `c` does not accommodate all the non-zero entries in `a`, an error is
 /// returned.
-pub fn spadd_csr<T>(c: &mut CsrMatrix<T>,
-                    beta: T,
+pub fn spadd_csr<T>(beta: T,
+                    c: &mut CsrMatrix<T>,
                     alpha: T,
                     a: Op<&CsrMatrix<T>>)
     -> Result<(), OperationError>
@@ -161,9 +161,9 @@ fn spmm_csr_unexpected_entry() -> OperationError {
 }
 
 /// Sparse-sparse matrix multiplication, `C <- beta * C + alpha * op(A) * op(B)`.
-pub fn spmm_csr<'a, T>(
-    c: &mut CsrMatrix<T>,
+pub fn spmm_csr<T>(
     beta: T,
+    c: &mut CsrMatrix<T>,
     alpha: T,
     a: Op<&CsrMatrix<T>>,
     b: Op<&CsrMatrix<T>>)
@@ -218,7 +218,7 @@ where
                 }
             };
 
-            spmm_csr(c, beta, alpha, NoOp(a.as_ref()), NoOp(b.as_ref()))
+            spmm_csr(beta, c, alpha, NoOp(a.as_ref()), NoOp(b.as_ref()))
         }
     }
 }

@@ -21,8 +21,8 @@ where
         // We are giving data that is valid by definition, so it is safe to unwrap below
         let mut result = CsrMatrix::try_from_pattern_and_values(Arc::new(pattern), values)
             .unwrap();
-        spadd_csr(&mut result, T::zero(), T::one(), Op::NoOp(&self)).unwrap();
-        spadd_csr(&mut result, T::one(), T::one(), Op::NoOp(&rhs)).unwrap();
+        spadd_csr(T::zero(), &mut result, T::one(), Op::NoOp(&self)).unwrap();
+        spadd_csr(T::one(), &mut result, T::one(), Op::NoOp(&rhs)).unwrap();
         result
     }
 }
@@ -35,7 +35,7 @@ where
 
     fn add(mut self, rhs: &'a CsrMatrix<T>) -> Self::Output {
         if Arc::ptr_eq(self.pattern(), rhs.pattern()) {
-            spadd_csr(&mut self, T::one(), T::one(), Op::NoOp(rhs)).unwrap();
+            spadd_csr(T::one(), &mut self, T::one(), Op::NoOp(rhs)).unwrap();
             self
         } else {
             &self + rhs
@@ -90,8 +90,8 @@ impl_matrix_mul!(<'a>(a: &'a CsrMatrix<T>, b: &'a CsrMatrix<T>) -> CsrMatrix<T> 
     let values = vec![T::zero(); pattern.nnz()];
     let mut result = CsrMatrix::try_from_pattern_and_values(Arc::new(pattern), values)
         .unwrap();
-    spmm_csr(&mut result,
-             T::zero(),
+    spmm_csr(T::zero(),
+             &mut result,
              T::one(),
              Op::NoOp(a),
              Op::NoOp(b))

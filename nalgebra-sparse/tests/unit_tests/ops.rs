@@ -181,9 +181,9 @@ fn spmm_csr_args_strategy() -> impl Strategy<Value=SpmmCsrArgs<i32>> {
         })
 }
 
-/// Helper function to help us call dense GEMM with our transposition parameters
-fn dense_gemm<'a>(c: impl Into<DMatrixSliceMut<'a, i32>>,
-                  beta: i32,
+/// Helper function to help us call dense GEMM with our `Op` type
+fn dense_gemm<'a>(beta: i32,
+                  c: impl Into<DMatrixSliceMut<'a, i32>>,
                   alpha: i32,
                   a: Op<impl Into<DMatrixSlice<'a, i32>>>,
                   b: Op<impl Into<DMatrixSlice<'a, i32>>>)
@@ -209,11 +209,11 @@ proptest! {
          in spmm_csr_dense_args_strategy()
     ) {
         let mut spmm_result = c.clone();
-        spmm_csr_dense(&mut spmm_result, beta, alpha, a.as_ref(), b.as_ref());
+        spmm_csr_dense(beta, &mut spmm_result, alpha, a.as_ref(), b.as_ref());
 
         let mut gemm_result = c.clone();
         let a_dense = a.map_same_op(|a| DMatrix::from(&a));
-        dense_gemm(&mut gemm_result, beta, alpha, a_dense.as_ref(), b.as_ref());
+        dense_gemm(beta, &mut gemm_result, alpha, a_dense.as_ref(), b.as_ref());
 
         prop_assert_eq!(spmm_result, gemm_result);
     }
@@ -257,7 +257,7 @@ proptest! {
 
         let result = catch_unwind(|| {
             let mut spmm_result = c.clone();
-            spmm_csr_dense(&mut spmm_result, beta, alpha, a.as_ref(), b.as_ref());
+            spmm_csr_dense(beta, &mut spmm_result, alpha, a.as_ref(), b.as_ref());
         });
 
         prop_assert!(result.is_err(),
@@ -292,7 +292,7 @@ proptest! {
         // (here we give in the C matrix, so the sparsity pattern is essentially fixed)
 
         let mut c_sparse = c.clone();
-        spadd_csr(&mut c_sparse, beta, alpha, a.as_ref()).unwrap();
+        spadd_csr(beta, &mut c_sparse, alpha, a.as_ref()).unwrap();
 
         let mut c_dense = DMatrix::from(&c);
         let op_a_dense = match a {
@@ -369,7 +369,7 @@ proptest! {
         // Test that we get the expected result by comparing to an equivalent dense operation
         // (here we give in the C matrix, so the sparsity pattern is essentially fixed)
         let mut c_sparse = c.clone();
-        spmm_csr(&mut c_sparse, beta, alpha, a.as_ref(), b.as_ref()).unwrap();
+        spmm_csr(beta, &mut c_sparse, alpha, a.as_ref(), b.as_ref()).unwrap();
 
         let mut c_dense = DMatrix::from(&c);
         let op_a_dense = match a {
@@ -424,7 +424,7 @@ proptest! {
 
         let result = catch_unwind(|| {
             let mut spmm_result = c.clone();
-            spmm_csr(&mut spmm_result, beta, alpha, a.as_ref(), b.as_ref()).unwrap();
+            spmm_csr(beta, &mut spmm_result, alpha, a.as_ref(), b.as_ref()).unwrap();
         });
 
         prop_assert!(result.is_err(),
@@ -456,7 +456,7 @@ proptest! {
 
         let result = catch_unwind(|| {
             let mut spmm_result = c.clone();
-            spadd_csr(&mut spmm_result, beta, alpha, op_a.as_ref()).unwrap();
+            spadd_csr(beta, &mut spmm_result, alpha, op_a.as_ref()).unwrap();
         });
 
         prop_assert!(result.is_err(),
