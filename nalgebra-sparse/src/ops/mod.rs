@@ -15,10 +15,7 @@ pub enum Op<T> {
 impl<T> Op<T> {
     /// TODO
     pub fn inner_ref(&self) -> &T {
-        match self {
-            Op::NoOp(obj) => &obj,
-            Op::Transpose(obj) => &obj
-        }
+        self.as_ref().unwrap()
     }
 
     /// TODO
@@ -33,10 +30,7 @@ impl<T> Op<T> {
     pub fn convert<U>(self) -> Op<U>
         where T: Into<U>
     {
-        match self {
-            Op::NoOp(obj) => Op::NoOp(obj.into()),
-            Op::Transpose(obj) => Op::Transpose(obj.into())
-        }
+        self.map_same_op(T::into)
     }
 
     /// TODO
@@ -45,6 +39,13 @@ impl<T> Op<T> {
         match self {
             Op::NoOp(obj) => Op::NoOp(f(obj)),
             Op::Transpose(obj) => Op::Transpose(f(obj))
+        }
+    }
+
+    /// TODO
+    pub fn unwrap(self) -> T {
+        match self {
+            Op::NoOp(obj) | Op::Transpose(obj) => obj,
         }
     }
 }
