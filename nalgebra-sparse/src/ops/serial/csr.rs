@@ -87,11 +87,11 @@ fn spadd_csr_unexpected_entry() -> OperationError {
 ///
 /// If the pattern of `c` does not accommodate all the non-zero entries in `a`, an error is
 /// returned.
-pub fn spadd_csr<T>(beta: T,
-                    c: &mut CsrMatrix<T>,
-                    alpha: T,
-                    a: Op<&CsrMatrix<T>>)
-    -> Result<(), OperationError>
+pub fn spadd_csr_prealloc<T>(beta: T,
+                             c: &mut CsrMatrix<T>,
+                             alpha: T,
+                             a: Op<&CsrMatrix<T>>)
+                             -> Result<(), OperationError>
 where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One
 {
@@ -161,7 +161,7 @@ fn spmm_csr_unexpected_entry() -> OperationError {
 }
 
 /// Sparse-sparse matrix multiplication, `C <- beta * C + alpha * op(A) * op(B)`.
-pub fn spmm_csr<T>(
+pub fn spmm_csr_prealloc<T>(
     beta: T,
     c: &mut CsrMatrix<T>,
     alpha: T,
@@ -218,7 +218,7 @@ where
                 }
             };
 
-            spmm_csr(beta, c, alpha, NoOp(a.as_ref()), NoOp(b.as_ref()))
+            spmm_csr_prealloc(beta, c, alpha, NoOp(a.as_ref()), NoOp(b.as_ref()))
         }
     }
 }

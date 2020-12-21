@@ -1,6 +1,6 @@
 use crate::common::{csr_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ,
                     PROPTEST_I32_VALUE_STRATEGY};
-use nalgebra_sparse::ops::serial::{spmm_csr_dense, spadd_pattern, spmm_pattern, spadd_csr, spmm_csr};
+use nalgebra_sparse::ops::serial::{spmm_csr_dense, spadd_pattern, spmm_pattern, spadd_csr_prealloc, spmm_csr_prealloc};
 use nalgebra_sparse::ops::{Op};
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::proptest::{csr, sparsity_pattern};
@@ -78,7 +78,7 @@ struct SpaddCsrArgs<T> {
     a: Op<CsrMatrix<T>>,
 }
 
-fn spadd_csr_args_strategy() -> impl Strategy<Value=SpaddCsrArgs<i32>> {
+fn spadd_csr_prealloc_args_strategy() -> impl Strategy<Value=SpaddCsrArgs<i32>> {
     let value_strategy = PROPTEST_I32_VALUE_STRATEGY;
 
     spadd_pattern_strategy()
@@ -150,7 +150,7 @@ struct SpmmCsrArgs<T> {
     b: Op<CsrMatrix<T>>,
 }
 
-fn spmm_csr_args_strategy() -> impl Strategy<Value=SpmmCsrArgs<i32>> {
+fn spmm_csr_prealloc_args_strategy() -> impl Strategy<Value=SpmmCsrArgs<i32>> {
     spmm_pattern_strategy()
         .prop_flat_map(|(a_pattern, b_pattern)| {
             let a_values = vec![PROPTEST_I32_VALUE_STRATEGY; a_pattern.nnz()];
@@ -287,12 +287,12 @@ proptest! {
     }
 
     #[test]
-    fn spadd_csr_test(SpaddCsrArgs { c, beta, alpha, a } in spadd_csr_args_strategy()) {
+    fn spadd_csr_prealloc_test(SpaddCsrArgs { c, beta, alpha, a } in spadd_csr_prealloc_args_strategy()) {
         // Test that we get the expected result by comparing to an equivalent dense operation
         // (here we give in the C matrix, so the sparsity pattern is essentially fixed)
 
         let mut c_sparse = c.clone();
-        spadd_csr(beta, &mut c_sparse, alpha, a.as_ref()).unwrap();
+        spadd_csr_prealloc(beta, &mut c_sparse, alpha, a.as_ref()).unwrap();
 
         let mut c_dense = DMatrix::from(&c);
         let op_a_dense = match a {
@@ -363,13 +363,13 @@ proptest! {
     }
 
     #[test]
-    fn spmm_csr_test(SpmmCsrArgs { c, beta, alpha, a, b }
-        in spmm_csr_args_strategy()
+    fn spmm_csr_prealloc_test(SpmmCsrArgs { c, beta, alpha, a, b }
+        in spmm_csr_prealloc_args_strategy()
     ) {
         // Test that we get the expected result by comparing to an equivalent dense operation
         // (here we give in the C matrix, so the sparsity pattern is essentially fixed)
         let mut c_sparse = c.clone();
-        spmm_csr(beta, &mut c_sparse, alpha, a.as_ref(), b.as_ref()).unwrap();
+        spmm_csr_prealloc(beta, &mut c_sparse, alpha, a.as_ref(), b.as_ref()).unwrap();
 
         let mut c_dense = DMatrix::from(&c);
         let op_a_dense = match a {
@@ -386,7 +386,7 @@ proptest! {
     }
 
     #[test]
-    fn spmm_csr_panics_on_dim_mismatch(
+    fn spmm_csr_prealloc_panics_on_dim_mismatch(
         (alpha, beta, c, a, b)
         in (PROPTEST_I32_VALUE_STRATEGY,
             PROPTEST_I32_VALUE_STRATEGY,
@@ -424,7 +424,7 @@ proptest! {
 
         let result = catch_unwind(|| {
             let mut spmm_result = c.clone();
-            spmm_csr(beta, &mut spmm_result, alpha, a.as_ref(), b.as_ref()).unwrap();
+            spmm_csr_prealloc(beta, &mut spmm_result, alpha, a.as_ref(), b.as_ref()).unwrap();
         });
 
         prop_assert!(result.is_err(),
@@ -432,7 +432,7 @@ proptest! {
     }
 
     #[test]
-    fn spadd_csr_panics_on_dim_mismatch(
+    fn spadd_csr_prealloc_panics_on_dim_mismatch(
         (alpha, beta, c, op_a)
         in (PROPTEST_I32_VALUE_STRATEGY,
             PROPTEST_I32_VALUE_STRATEGY,
@@ -456,7 +456,7 @@ proptest! {
 
         let result = catch_unwind(|| {
             let mut spmm_result = c.clone();
-            spadd_csr(beta, &mut spmm_result, alpha, op_a.as_ref()).unwrap();
+            spadd_csr_prealloc(beta, &mut spmm_result, alpha, op_a.as_ref()).unwrap();
         });
 
         prop_assert!(result.is_err(),

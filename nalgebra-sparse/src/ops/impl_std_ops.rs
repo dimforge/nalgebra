@@ -1,7 +1,7 @@
 use crate::csr::CsrMatrix;
 
 use std::ops::{Add, Mul};
-use crate::ops::serial::{spadd_csr, spadd_pattern, spmm_pattern, spmm_csr};
+use crate::ops::serial::{spadd_csr_prealloc, spadd_pattern, spmm_pattern, spmm_csr_prealloc};
 use nalgebra::{ClosedAdd, ClosedMul, Scalar};
 use num_traits::{Zero, One};
 use std::sync::Arc;
@@ -21,8 +21,8 @@ where
         // We are giving data that is valid by definition, so it is safe to unwrap below
         let mut result = CsrMatrix::try_from_pattern_and_values(Arc::new(pattern), values)
             .unwrap();
-        spadd_csr(T::zero(), &mut result, T::one(), Op::NoOp(&self)).unwrap();
-        spadd_csr(T::one(), &mut result, T::one(), Op::NoOp(&rhs)).unwrap();
+        spadd_csr_prealloc(T::zero(), &mut result, T::one(), Op::NoOp(&self)).unwrap();
+        spadd_csr_prealloc(T::one(), &mut result, T::one(), Op::NoOp(&rhs)).unwrap();
         result
     }
 }
@@ -35,7 +35,7 @@ where
 
     fn add(mut self, rhs: &'a CsrMatrix<T>) -> Self::Output {
         if Arc::ptr_eq(self.pattern(), rhs.pattern()) {
-            spadd_csr(T::one(), &mut self, T::one(), Op::NoOp(rhs)).unwrap();
+            spadd_csr_prealloc(T::one(), &mut self, T::one(), Op::NoOp(rhs)).unwrap();
             self
         } else {
             &self + rhs
@@ -90,7 +90,7 @@ impl_matrix_mul!(<'a>(a: &'a CsrMatrix<T>, b: &'a CsrMatrix<T>) -> CsrMatrix<T> 
     let values = vec![T::zero(); pattern.nnz()];
     let mut result = CsrMatrix::try_from_pattern_and_values(Arc::new(pattern), values)
         .unwrap();
-    spmm_csr(T::zero(),
+    spmm_csr_prealloc(T::zero(),
              &mut result,
              T::one(),
              Op::NoOp(a),
