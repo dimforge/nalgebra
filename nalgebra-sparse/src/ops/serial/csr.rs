@@ -1,5 +1,5 @@
 use crate::csr::CsrMatrix;
-use crate::ops::{Transpose};
+use crate::ops::{Op};
 use crate::SparseEntryMut;
 use crate::ops::serial::{OperationError, OperationErrorType};
 use nalgebra::{Scalar, DMatrixSlice, ClosedAdd, ClosedMul, DMatrixSliceMut};
@@ -7,65 +7,71 @@ use num_traits::{Zero, One};
 use std::sync::Arc;
 use std::borrow::Cow;
 
-/// Sparse-dense matrix-matrix multiplication `C <- beta * C + alpha * trans(A) * trans(B)`.
+/// Sparse-dense matrix-matrix multiplication `C <- beta * C + alpha * op(A) * op(B)`.
 pub fn spmm_csr_dense<'a, T>(c: impl Into<DMatrixSliceMut<'a, T>>,
                              beta: T,
                              alpha: T,
-                             trans_a: Transpose,
-                             a: &CsrMatrix<T>,
-                             trans_b: Transpose,
-                             b: impl Into<DMatrixSlice<'a, T>>)
+                             a: Op<&CsrMatrix<T>>,
+                             b: Op<impl Into<DMatrixSlice<'a, T>>>)
     where
         T: Scalar + ClosedAdd + ClosedMul + Zero + One
 {
-    spmm_csr_dense_(c.into(), beta, alpha, trans_a, a, trans_b, b.into())
+    let b = b.convert();
+    spmm_csr_dense_(c.into(), beta, alpha, a, b)
 }
 
 fn spmm_csr_dense_<T>(mut c: DMatrixSliceMut<T>,
                       beta: T,
                       alpha: T,
-                      trans_a: Transpose,
-                      a: &CsrMatrix<T>,
-                      trans_b: Transpose,
-                      b: DMatrixSlice<T>)
+                      a: Op<&CsrMatrix<T>>,
+                      b: Op<DMatrixSlice<T>>)
 where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One
 {
-    assert_compatible_spmm_dims!(c, a, b, trans_a, trans_b);
+    assert_compatible_spmm_dims!(c, a, b);
 
-    if trans_a.to_bool() {
-        // In this case, we have to pre-multiply C by beta
-        c *= beta;
+    match a {
+        Op::Transpose(ref a) => {
+            // In this case, we have to pre-multiply C by beta
+            c *= beta;
 
-        for k in 0..a.nrows() {
-            let a_row_k = a.row(k);
-            for (&i, a_ki) in a_row_k.col_indices().iter().zip(a_row_k.values()) {
-                let gamma_ki = alpha.inlined_clone() * a_ki.inlined_clone();
-                let mut c_row_i = c.row_mut(i);
-                if trans_b.to_bool() {
-                    let b_col_k = b.column(k);
-                    for (c_ij, b_jk) in c_row_i.iter_mut().zip(b_col_k.iter()) {
-                        *c_ij += gamma_ki.inlined_clone() * b_jk.inlined_clone();
-                    }
-                } else {
-                    let b_row_k = b.row(k);
-                    for (c_ij, b_kj) in c_row_i.iter_mut().zip(b_row_k.iter()) {
-                        *c_ij += gamma_ki.inlined_clone() * b_kj.inlined_clone();
+            for k in 0..a.nrows() {
+                let a_row_k = a.row(k);
+                for (&i, a_ki) in a_row_k.col_indices().iter().zip(a_row_k.values()) {
+                    let gamma_ki = alpha.inlined_clone() * a_ki.inlined_clone();
+                    let mut c_row_i = c.row_mut(i);
+                    match b {
+                        Op::NoOp(ref b) => {
+                            let b_row_k = b.row(k);
+                            for (c_ij, b_kj) in c_row_i.iter_mut().zip(b_row_k.iter()) {
+                                *c_ij += gamma_ki.inlined_clone() * b_kj.inlined_clone();
+                            }
+                        },
+                        Op::Transpose(ref b) => {
+                            let b_col_k = b.column(k);
+                            for (c_ij, b_jk) in c_row_i.iter_mut().zip(b_col_k.iter()) {
+                                *c_ij += gamma_ki.inlined_clone() * b_jk.inlined_clone();
+                            }
+                        },
                     }
                 }
             }
-        }
-    } else {
-        for j in 0..c.ncols() {
-            let mut c_col_j = c.column_mut(j);
-            for (c_ij, a_row_i) in c_col_j.iter_mut().zip(a.row_iter()) {
-                let mut dot_ij = T::zero();
-                for (&k, a_ik) in a_row_i.col_indices().iter().zip(a_row_i.values()) {
-                    let b_contrib =
-                        if trans_b.to_bool() { b.index((j, k)) } else { b.index((k, j)) };
-                    dot_ij += a_ik.inlined_clone() * b_contrib.inlined_clone();
+        },
+        Op::NoOp(ref a) => {
+            for j in 0..c.ncols() {
+                let mut c_col_j = c.column_mut(j);
+                for (c_ij, a_row_i) in c_col_j.iter_mut().zip(a.row_iter()) {
+                    let mut dot_ij = T::zero();
+                    for (&k, a_ik) in a_row_i.col_indices().iter().zip(a_row_i.values()) {
+                        let b_contrib =
+                        match b {
+                            Op::NoOp(ref b) => b.index((k, j)),
+                            Op::Transpose(ref b) => b.index((j, k))
+                        };
+                        dot_ij += a_ik.inlined_clone() * b_contrib.inlined_clone();
+                    }
+                    *c_ij = beta.inlined_clone() * c_ij.inlined_clone() + alpha.inlined_clone() * dot_ij;
                 }
-                *c_ij = beta.inlined_clone() * c_ij.inlined_clone() + alpha.inlined_clone() * dot_ij;
             }
         }
     }
@@ -77,32 +83,31 @@ fn spadd_csr_unexpected_entry() -> OperationError {
         String::from("Found entry in `a` that is not present in `c`."))
 }
 
-/// Sparse matrix addition `C <- beta * C + alpha * trans(A)`.
+/// Sparse matrix addition `C <- beta * C + alpha * op(A)`.
 ///
 /// If the pattern of `c` does not accommodate all the non-zero entries in `a`, an error is
 /// returned.
 pub fn spadd_csr<T>(c: &mut CsrMatrix<T>,
                     beta: T,
                     alpha: T,
-                    trans_a: Transpose,
-                    a: &CsrMatrix<T>)
+                    a: Op<&CsrMatrix<T>>)
     -> Result<(), OperationError>
 where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One
 {
-    assert_compatible_spadd_dims!(c, a, trans_a);
+    assert_compatible_spadd_dims!(c, a);
 
     // TODO: Change CsrMatrix::pattern() to return `&Arc` instead of `Arc`
-    if Arc::ptr_eq(&c.pattern(), &a.pattern()) {
+    if Arc::ptr_eq(&c.pattern(), &a.inner_ref().pattern()) {
         // Special fast path: The two matrices have *exactly* the same sparsity pattern,
         // so we only need to sum the value arrays
-        for (c_ij, a_ij) in c.values_mut().iter_mut().zip(a.values()) {
+        for (c_ij, a_ij) in c.values_mut().iter_mut().zip(a.inner_ref().values()) {
             let (alpha, beta) = (alpha.inlined_clone(), beta.inlined_clone());
             *c_ij = beta * c_ij.inlined_clone() + alpha * a_ij.inlined_clone();
         }
         Ok(())
     } else {
-        if trans_a.to_bool()
+        if let Op::Transpose(a) = a
         {
             if beta != T::one() {
                 for c_ij in c.values_mut() {
@@ -120,7 +125,7 @@ where
                     }
                 }
             }
-        } else {
+        } else if let Op::NoOp(a) = a {
             for (mut c_row_i, a_row_i) in c.row_iter_mut().zip(a.row_iter()) {
                 if beta != T::one() {
                     for c_ij in c_row_i.values_mut() {
@@ -160,56 +165,61 @@ pub fn spmm_csr<'a, T>(
     c: &mut CsrMatrix<T>,
     beta: T,
     alpha: T,
-    trans_a: Transpose,
-    a: &CsrMatrix<T>,
-    trans_b: Transpose,
-    b: &CsrMatrix<T>)
+    a: Op<&CsrMatrix<T>>,
+    b: Op<&CsrMatrix<T>>)
 -> Result<(), OperationError>
 where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One
 {
-    assert_compatible_spmm_dims!(c, a, b, trans_a, trans_b);
+    assert_compatible_spmm_dims!(c, a, b);
 
-    if !trans_a.to_bool() && !trans_b.to_bool() {
-        for (mut c_row_i, a_row_i) in c.row_iter_mut().zip(a.row_iter()) {
-            for c_ij in c_row_i.values_mut() {
-                *c_ij = beta.inlined_clone() * c_ij.inlined_clone();
-            }
+    use Op::{NoOp, Transpose};
 
-            for (&k, a_ik) in a_row_i.col_indices().iter().zip(a_row_i.values()) {
-                let b_row_k = b.row(k);
-                let (mut c_row_i_cols, mut c_row_i_values) = c_row_i.cols_and_values_mut();
-                let alpha_aik = alpha.inlined_clone() * a_ik.inlined_clone();
-                for (j, b_kj) in b_row_k.col_indices().iter().zip(b_row_k.values()) {
-                    // Determine the location in C to append the value
-                    let (c_local_idx, _) = c_row_i_cols.iter()
-                        .enumerate()
-                        .find(|(_, c_col)| *c_col == j)
-                        .ok_or_else(spmm_csr_unexpected_entry)?;
+    match (&a, &b) {
+        (NoOp(ref a), NoOp(ref b)) => {
+            for (mut c_row_i, a_row_i) in c.row_iter_mut().zip(a.row_iter()) {
+                for c_ij in c_row_i.values_mut() {
+                    *c_ij = beta.inlined_clone() * c_ij.inlined_clone();
+                }
 
-                    c_row_i_values[c_local_idx] += alpha_aik.inlined_clone() * b_kj.inlined_clone();
-                    c_row_i_cols = &c_row_i_cols[c_local_idx ..];
-                    c_row_i_values = &mut c_row_i_values[c_local_idx ..];
+                for (&k, a_ik) in a_row_i.col_indices().iter().zip(a_row_i.values()) {
+                    let b_row_k = b.row(k);
+                    let (mut c_row_i_cols, mut c_row_i_values) = c_row_i.cols_and_values_mut();
+                    let alpha_aik = alpha.inlined_clone() * a_ik.inlined_clone();
+                    for (j, b_kj) in b_row_k.col_indices().iter().zip(b_row_k.values()) {
+                        // Determine the location in C to append the value
+                        let (c_local_idx, _) = c_row_i_cols.iter()
+                            .enumerate()
+                            .find(|(_, c_col)| *c_col == j)
+                            .ok_or_else(spmm_csr_unexpected_entry)?;
+
+                        c_row_i_values[c_local_idx] += alpha_aik.inlined_clone() * b_kj.inlined_clone();
+                        c_row_i_cols = &c_row_i_cols[c_local_idx ..];
+                        c_row_i_values = &mut c_row_i_values[c_local_idx ..];
+                    }
                 }
             }
-        }
-        Ok(())
-    } else {
-        // Currently we handle transposition by explicitly precomputing transposed matrices
-        // and calling the operation again without transposition
-        // TODO: At least use workspaces to allow control of allocations. Maybe
-        // consider implementing certain patterns (like A^T * B) explicitly
-        let (a, b) = {
-            use Cow::*;
-            match (trans_a, trans_b) {
-                (Transpose(false), Transpose(false)) => unreachable!(),
-                (Transpose(true), Transpose(false)) => (Owned(a.transpose()), Borrowed(b)),
-                (Transpose(false), Transpose(true)) => (Borrowed(a), Owned(b.transpose())),
-                (Transpose(true), Transpose(true)) => (Owned(a.transpose()), Owned(b.transpose()))
-            }
-        };
+            Ok(())
+        },
+        _ => {
+            // Currently we handle transposition by explicitly precomputing transposed matrices
+            // and calling the operation again without transposition
+            // TODO: At least use workspaces to allow control of allocations. Maybe
+            // consider implementing certain patterns (like A^T * B) explicitly
+            let a_ref: &CsrMatrix<T> = a.inner_ref();
+            let b_ref: &CsrMatrix<T> = b.inner_ref();
+            let (a, b) = {
+                use Cow::*;
+                match (&a, &b) {
+                    (NoOp(_), NoOp(_)) => unreachable!(),
+                    (Transpose(ref a), NoOp(_)) => (Owned(a.transpose()), Borrowed(b_ref)),
+                    (NoOp(_), Transpose(ref b)) => (Borrowed(a_ref), Owned(b.transpose())),
+                    (Transpose(ref a), Transpose(ref b)) => (Owned(a.transpose()), Owned(b.transpose()))
+                }
+            };
 
-        spmm_csr(c, beta, alpha, Transpose(false), a.as_ref(), Transpose(false), b.as_ref())
+            spmm_csr(c, beta, alpha, NoOp(a.as_ref()), NoOp(b.as_ref()))
+        }
     }
 }
 

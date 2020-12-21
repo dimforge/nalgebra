@@ -5,7 +5,7 @@ use crate::ops::serial::{spadd_csr, spadd_pattern, spmm_pattern, spmm_csr};
 use nalgebra::{ClosedAdd, ClosedMul, Scalar};
 use num_traits::{Zero, One};
 use std::sync::Arc;
-use crate::ops::Transpose;
+use crate::ops::{Op};
 
 impl<'a, T> Add<&'a CsrMatrix<T>> for &'a CsrMatrix<T>
 where
@@ -21,8 +21,8 @@ where
         // We are giving data that is valid by definition, so it is safe to unwrap below
         let mut result = CsrMatrix::try_from_pattern_and_values(Arc::new(pattern), values)
             .unwrap();
-        spadd_csr(&mut result, T::zero(), T::one(), Transpose(false), &self).unwrap();
-        spadd_csr(&mut result, T::one(), T::one(), Transpose(false), &rhs).unwrap();
+        spadd_csr(&mut result, T::zero(), T::one(), Op::NoOp(&self)).unwrap();
+        spadd_csr(&mut result, T::one(), T::one(), Op::NoOp(&rhs)).unwrap();
         result
     }
 }
@@ -35,7 +35,7 @@ where
 
     fn add(mut self, rhs: &'a CsrMatrix<T>) -> Self::Output {
         if Arc::ptr_eq(self.pattern(), rhs.pattern()) {
-            spadd_csr(&mut self, T::one(), T::one(), Transpose(false), &rhs).unwrap();
+            spadd_csr(&mut self, T::one(), T::one(), Op::NoOp(rhs)).unwrap();
             self
         } else {
             &self + rhs
@@ -93,10 +93,8 @@ impl_matrix_mul!(<'a>(a: &'a CsrMatrix<T>, b: &'a CsrMatrix<T>) -> CsrMatrix<T> 
     spmm_csr(&mut result,
              T::zero(),
              T::one(),
-             Transpose(false),
-             a,
-             Transpose(false),
-             b)
+             Op::NoOp(a),
+             Op::NoOp(b))
         .expect("Internal error: spmm failed (please debug).");
     result
 });
