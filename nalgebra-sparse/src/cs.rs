@@ -3,7 +3,7 @@ use crate::{SparseEntry, SparseEntryMut};
 
 use std::sync::Arc;
 use std::ops::Range;
-use std::ptr::slice_from_raw_parts_mut;
+use std::mem::replace;
 
 /// An abstract compressed matrix.
 ///
@@ -238,7 +238,7 @@ pub struct CsLaneIterMut<'a, T> {
     // The index of the lane that will be returned on the next iteration
     current_lane_idx: usize,
     pattern: &'a SparsityPattern,
-    remaining_values: *mut T,
+    remaining_values: &'a mut [T],
 }
 
 impl<'a, T> CsLaneIterMut<'a, T> {
@@ -246,7 +246,7 @@ impl<'a, T> CsLaneIterMut<'a, T> {
         Self {
             current_lane_idx: 0,
             pattern,
-            remaining_values: values.as_mut_ptr()
+            remaining_values: values
         }
     }
 }
@@ -264,12 +264,9 @@ impl<'a, T> Iterator for CsLaneIterMut<'a, T>
         if let Some(minor_indices) = lane {
             let count = minor_indices.len();
 
-            // Note: I can't think of any way to construct this iterator without unsafe.
-            let values_in_lane;
-            unsafe {
-                values_in_lane = &mut *slice_from_raw_parts_mut(self.remaining_values, count);
-                self.remaining_values = self.remaining_values.add(count);
-            }
+            let remaining = replace(&mut self.remaining_values, &mut []);
+            let (values_in_lane, remaining) = remaining.split_at_mut(count);
+            self.remaining_values = remaining;
             self.current_lane_idx += 1;
 
             Some(CsLaneMut {
