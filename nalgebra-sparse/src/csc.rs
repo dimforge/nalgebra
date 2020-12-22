@@ -1,9 +1,10 @@
 //! An implementation of the CSC sparse matrix format.
 
-use crate::{SparseFormatError, SparseFormatErrorKind};
+use crate::{SparseFormatError, SparseFormatErrorKind, SparseEntry, SparseEntryMut};
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
 use crate::csr::CsrMatrix;
-use crate::cs::{CsMatrix, CsLane, CsLaneMut, CsLaneIter, CsLaneIterMut};
+use crate::cs::{CsMatrix, CsLane, CsLaneMut, CsLaneIter, CsLaneIterMut,
+                get_entry_from_slices, get_mut_entry_from_slices};
 
 use std::sync::Arc;
 use std::slice::{IterMut, Iter};
@@ -270,31 +271,60 @@ impl<T> CscMatrix<T> {
         let (pattern, values) = self.cs.take_pattern_and_values();
         CsrMatrix::try_from_pattern_and_values(pattern, values).unwrap()
     }
-}
 
-impl<T: Clone + Zero> CscMatrix<T> {
-    /// Return the value in the matrix at the given global row/col indices, or `None` if out of
-    /// bounds.
-    ///
-    /// If the indices are in bounds, but no explicitly stored entry is associated with it,
-    /// `T::zero()` is returned. Note that this method offers no way of distinguishing
-    /// explicitly stored zero entries from zero values that are only implicitly represented.
+    /// Returns an entry for the given row/col indices, or `None` if the indices are out of bounds.
     ///
     /// Each call to this function incurs the cost of a binary search among the explicitly
-    /// stored column entries for the given row.
-    #[inline]
-    pub fn get(&self, row_index: usize, col_index: usize) -> Option<T> {
-        self.get_col(row_index)?.get(col_index)
+    /// stored row entries for the given column.
+    pub fn get_entry(&self, row_index: usize, col_index: usize) -> Option<SparseEntry<T>> {
+        self.cs.get_entry(col_index, row_index)
     }
 
-    /// Same as `get`, but panics if indices are out of bounds.
+    /// Returns a mutable entry for the given row/col indices, or `None` if the indices are out
+    /// of bounds.
+    ///
+    /// Each call to this function incurs the cost of a binary search among the explicitly
+    /// stored row entries for the given column.
+    pub fn get_entry_mut(&mut self, row_index: usize, col_index: usize)
+                         -> Option<SparseEntryMut<T>> {
+        self.cs.get_entry_mut(col_index, row_index)
+    }
+
+    /// Returns an entry for the given row/col indices.
+    ///
+    /// Same as `get_entry`, except that it directly panics upon encountering row/col indices
+    /// out of bounds.
     ///
     /// Panics
     /// ------
-    /// Panics if either index is out of bounds.
-    #[inline]
-    pub fn index(&self, row_index: usize, col_index: usize) -> T {
-        self.get(row_index, col_index).unwrap()
+    /// Panics if `row_index` or `col_index` is out of bounds.
+    pub fn index_entry(&self, row_index: usize, col_index: usize) -> SparseEntry<T> {
+        self.get_entry(row_index, col_index)
+            .expect("Out of bounds matrix indices encountered")
+    }
+
+    /// Returns a mutable entry for the given row/col indices.
+    ///
+    /// Same as `get_entry_mut`, except that it directly panics upon encountering row/col indices
+    /// out of bounds.
+    ///
+    /// Panics
+    /// ------
+    /// Panics if `row_index` or `col_index` is out of bounds.
+    pub fn index_entry_mut(&mut self, row_index: usize, col_index: usize) -> SparseEntryMut<T> {
+        self.get_entry_mut(row_index, col_index)
+            .expect("Out of bounds matrix indices encountered")
+    }
+
+    /// Returns a triplet of slices `(row_offsets, col_indices, values)` that make up the CSC data.
+    pub fn csc_data(&self) -> (&[usize], &[usize], &[T]) {
+        self.cs.cs_data()
+    }
+
+    /// Returns a triplet of slices `(row_offsets, col_indices, values)` that make up the CSC data,
+    /// where the `values` array is mutable.
+    pub fn csc_data_mut(&mut self) -> (&[usize], &[usize], &mut [T]) {
+        self.cs.cs_data_mut()
     }
 }
 
@@ -425,27 +455,17 @@ macro_rules! impl_csc_col_common_methods {
             pub fn values(&self) -> &[T] {
                 self.lane.values
             }
-        }
 
-        impl<'a, T: Clone + Zero> $name {
-            /// Return the value in the matrix at the given global row index, or `None` if out of
-            /// bounds.
-            ///
-            /// If the index is in bounds, but no explicitly stored entry is associated with it,
-            /// `T::zero()` is returned. Note that this method offers no way of distinguishing
-            /// explicitly stored zero entries from zero values that are only implicitly represented.
+            /// Returns an entry for the given global row index.
             ///
             /// Each call to this function incurs the cost of a binary search among the explicitly
-            /// stored row entries for the current column.
-            pub fn get(&self, global_row_index: usize) -> Option<T> {
-                let local_index = self.row_indices().binary_search(&global_row_index);
-                if let Ok(local_index) = local_index {
-                    Some(self.values()[local_index].clone())
-                } else if global_row_index < self.lane.minor_dim {
-                    Some(T::zero())
-                } else {
-                    None
-                }
+            /// stored row entries.
+            pub fn get_entry(&self, global_row_index: usize) -> Option<SparseEntry<T>> {
+                get_entry_from_slices(
+                    self.lane.minor_dim,
+                    self.lane.minor_indices,
+                    self.lane.values,
+                    global_row_index)
             }
         }
     }
@@ -467,6 +487,14 @@ impl<'a, T> CscColMut<'a, T> {
     /// in CSC format directly.
     pub fn rows_and_values_mut(&mut self) -> (&[usize], &mut [T]) {
         (self.lane.minor_indices, self.lane.values)
+    }
+
+    /// Returns a mutable entry for the given global row index.
+    pub fn get_entry_mut(&mut self, global_row_index: usize) -> Option<SparseEntryMut<T>> {
+        get_mut_entry_from_slices(self.lane.minor_dim,
+                                  self.lane.minor_indices,
+                                  self.lane.values,
+                                  global_row_index)
     }
 }
 
