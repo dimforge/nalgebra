@@ -2,13 +2,12 @@
 
 use crate::{SparseFormatError, SparseFormatErrorKind};
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
+use crate::csr::CsrMatrix;
+use crate::cs::{CsMatrix, CsLane, CsLaneMut, CsLaneIter, CsLaneIterMut};
 
 use std::sync::Arc;
 use std::slice::{IterMut, Iter};
-use std::ops::Range;
 use num_traits::Zero;
-use std::ptr::slice_from_raw_parts_mut;
-use crate::csr::CsrMatrix;
 use nalgebra::Scalar;
 
 /// A CSC representation of a sparse matrix.
@@ -21,29 +20,27 @@ use nalgebra::Scalar;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CscMatrix<T> {
     // Cols are major, rows are minor in the sparsity pattern
-    sparsity_pattern: Arc<SparsityPattern>,
-    values: Vec<T>,
+    cs: CsMatrix<T>,
 }
 
 impl<T> CscMatrix<T> {
     /// Create a zero CSC matrix with no explicitly stored entries.
     pub fn new(nrows: usize, ncols: usize) -> Self {
         Self {
-            sparsity_pattern: Arc::new(SparsityPattern::new(ncols, nrows)),
-            values: vec![],
+            cs: CsMatrix::new(ncols, nrows)
         }
     }
 
     /// The number of rows in the matrix.
     #[inline]
     pub fn nrows(&self) -> usize {
-        self.sparsity_pattern.minor_dim()
+        self.cs.pattern().minor_dim()
     }
 
     /// The number of columns in the matrix.
     #[inline]
     pub fn ncols(&self) -> usize {
-        self.sparsity_pattern.major_dim()
+        self.cs.pattern().major_dim()
     }
 
     /// The number of non-zeros in the matrix.
@@ -53,31 +50,31 @@ impl<T> CscMatrix<T> {
     /// be zero. Corresponds to the number of entries in the sparsity pattern.
     #[inline]
     pub fn nnz(&self) -> usize {
-        self.sparsity_pattern.nnz()
+        self.pattern().nnz()
     }
 
     /// The column offsets defining part of the CSC format.
     #[inline]
     pub fn col_offsets(&self) -> &[usize] {
-        self.sparsity_pattern.major_offsets()
+        self.pattern().major_offsets()
     }
 
     /// The row indices defining part of the CSC format.
     #[inline]
     pub fn row_indices(&self) -> &[usize] {
-        self.sparsity_pattern.minor_indices()
+        self.pattern().minor_indices()
     }
 
     /// The non-zero values defining part of the CSC format.
     #[inline]
     pub fn values(&self) -> &[T] {
-        &self.values
+        self.cs.values()
     }
 
     /// Mutable access to the non-zero values.
     #[inline]
     pub fn values_mut(&mut self) -> &mut [T] {
-        &mut self.values
+        self.cs.values_mut()
     }
 
     /// Try to construct a CSC matrix from raw CSC data.
@@ -109,8 +106,7 @@ impl<T> CscMatrix<T> {
         -> Result<Self, SparseFormatError> {
         if pattern.nnz() == values.len() {
             Ok(Self {
-                sparsity_pattern: pattern,
-                values,
+                cs: CsMatrix::from_pattern_and_values(pattern, values)
             })
         } else {
             Err(SparseFormatError::from_kind_and_msg(
@@ -140,8 +136,8 @@ impl<T> CscMatrix<T> {
     /// ```
     pub fn triplet_iter(&self) -> CscTripletIter<T> {
         CscTripletIter {
-            pattern_iter: self.sparsity_pattern.entries(),
-            values_iter: self.values.iter()
+            pattern_iter: self.pattern().entries(),
+            values_iter: self.values().iter()
         }
     }
 
@@ -169,9 +165,10 @@ impl<T> CscMatrix<T> {
     /// assert_eq!(triplets, vec![(0, 0, 1), (2, 0, 0), (1, 1, 2), (0, 2, 4)]);
     /// ```
     pub fn triplet_iter_mut(&mut self) -> CscTripletIterMut<T> {
+        let (pattern, values) = self.cs.pattern_and_values_mut();
         CscTripletIterMut {
-            pattern_iter: self.sparsity_pattern.entries(),
-            values_mut_iter: self.values.iter_mut()
+            pattern_iter: pattern.entries(),
+            values_mut_iter: values.iter_mut()
         }
     }
 
@@ -200,52 +197,32 @@ impl<T> CscMatrix<T> {
     /// Return the column at the given column index, or `None` if out of bounds.
     #[inline]
     pub fn get_col(&self, index: usize) -> Option<CscCol<T>> {
-        let range = self.get_index_range(index)?;
-        Some(CscCol {
-            row_indices: &self.sparsity_pattern.minor_indices()[range.clone()],
-            values: &self.values[range],
-            nrows: self.nrows()
-        })
+        self.cs
+            .get_lane(index)
+            .map(|lane| CscCol { lane })
     }
 
     /// Mutable column access for the given column index, or `None` if out of bounds.
     #[inline]
     pub fn get_col_mut(&mut self, index: usize) -> Option<CscColMut<T>> {
-        let range = self.get_index_range(index)?;
-        Some(CscColMut {
-            nrows: self.nrows(),
-            row_indices: &self.sparsity_pattern.minor_indices()[range.clone()],
-            values: &mut self.values[range]
-        })
-    }
-
-    /// Internal method for simplifying access to a column's data.
-    fn get_index_range(&self, col_index: usize) -> Option<Range<usize>> {
-        let col_begin = *self.sparsity_pattern.major_offsets().get(col_index)?;
-        let col_end = *self.sparsity_pattern.major_offsets().get(col_index + 1)?;
-        Some(col_begin .. col_end)
+        self.cs
+            .get_lane_mut(index)
+            .map(|lane| CscColMut { lane })
     }
 
     /// An iterator over columns in the matrix.
     pub fn col_iter(&self) -> CscColIter<T> {
         CscColIter {
-            current_col_idx: 0,
-            matrix: self
+            lane_iter: CsLaneIter::new(self.pattern().as_ref(), self.values())
         }
     }
 
     /// A mutable iterator over columns in the matrix.
     pub fn col_iter_mut(&mut self) -> CscColIterMut<T> {
+        let (pattern, values) = self.cs.pattern_and_values_mut();
         CscColIterMut {
-            current_col_idx: 0,
-            pattern: &self.sparsity_pattern,
-            remaining_values: self.values.as_mut_ptr()
+            lane_iter: CsLaneIterMut::new(pattern, values)
         }
-    }
-
-    /// Returns the underlying vector containing the values for the explicitly stored entries.
-    pub fn take_values(self) -> Vec<T> {
-        self.values
     }
 
     /// Disassembles the CSC matrix into its underlying offset, index and value arrays.
@@ -274,19 +251,7 @@ impl<T> CscMatrix<T> {
     /// assert_eq!(values2, values);
     /// ```
     pub fn disassemble(self) -> (Vec<usize>, Vec<usize>, Vec<T>) {
-        // Take an Arc to the pattern, which might be the sole reference to the data after
-        // taking the values. This is important, because it might let us avoid cloning the data
-        // further below.
-        let pattern = self.sparsity_pattern;
-        let values = self.values;
-
-        // Try to take the pattern out of the `Arc` if possible,
-        // otherwise clone the pattern.
-        let owned_pattern = Arc::try_unwrap(pattern)
-            .unwrap_or_else(|arc| SparsityPattern::clone(&*arc));
-        let (offsets, indices) = owned_pattern.disassemble();
-
-        (offsets, indices, values)
+        self.cs.disassemble()
     }
 
     /// Returns the underlying sparsity pattern.
@@ -295,15 +260,14 @@ impl<T> CscMatrix<T> {
     /// the same sparsity pattern for multiple matrices without storing the same pattern multiple
     /// times in memory.
     pub fn pattern(&self) -> &Arc<SparsityPattern> {
-        &self.sparsity_pattern
+        self.cs.pattern()
     }
 
     /// Reinterprets the CSC matrix as its transpose represented by a CSR matrix.
     ///
     /// This operation does not touch the CSC data, and is effectively a no-op.
     pub fn transpose_as_csr(self) -> CsrMatrix<T> {
-        let pattern = self.sparsity_pattern;
-        let values = self.values;
+        let (pattern, values) = self.cs.take_pattern_and_values();
         CsrMatrix::try_from_pattern_and_values(pattern, values).unwrap()
     }
 }
@@ -422,9 +386,7 @@ impl<'a, T> Iterator for CscTripletIterMut<'a, T> {
 /// An immutable representation of a column in a CSC matrix.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CscCol<'a, T> {
-    nrows: usize,
-    row_indices: &'a [usize],
-    values: &'a [T],
+    lane: CsLane<'a, T>
 }
 
 /// A mutable representation of a column in a CSC matrix.
@@ -433,9 +395,7 @@ pub struct CscCol<'a, T> {
 /// to the column cannot be modified.
 #[derive(Debug, PartialEq, Eq)]
 pub struct CscColMut<'a, T> {
-    nrows: usize,
-    row_indices: &'a [usize],
-    values: &'a mut [T]
+    lane: CsLaneMut<'a, T>
 }
 
 /// Implement the methods common to both CscCol and CscColMut
@@ -445,25 +405,25 @@ macro_rules! impl_csc_col_common_methods {
             /// The number of global rows in the column.
             #[inline]
             pub fn nrows(&self) -> usize {
-                self.nrows
+                self.lane.minor_dim
             }
 
             /// The number of non-zeros in this column.
             #[inline]
             pub fn nnz(&self) -> usize {
-                self.row_indices.len()
+                self.lane.minor_indices.len()
             }
 
             /// The row indices corresponding to explicitly stored entries in this column.
             #[inline]
             pub fn row_indices(&self) -> &[usize] {
-                self.row_indices
+                self.lane.minor_indices
             }
 
             /// The values corresponding to explicitly stored entries in this column.
             #[inline]
             pub fn values(&self) -> &[T] {
-                self.values
+                self.lane.values
             }
         }
 
@@ -480,8 +440,8 @@ macro_rules! impl_csc_col_common_methods {
             pub fn get(&self, global_row_index: usize) -> Option<T> {
                 let local_index = self.row_indices().binary_search(&global_row_index);
                 if let Ok(local_index) = local_index {
-                    Some(self.values[local_index].clone())
-                } else if global_row_index < self.nrows {
+                    Some(self.values()[local_index].clone())
+                } else if global_row_index < self.lane.minor_dim {
                     Some(T::zero())
                 } else {
                     None
@@ -497,7 +457,7 @@ impl_csc_col_common_methods!(CscColMut<'a, T>);
 impl<'a, T> CscColMut<'a, T> {
     /// Mutable access to the values corresponding to explicitly stored entries in this column.
     pub fn values_mut(&mut self) -> &mut [T] {
-        self.values
+        self.lane.values
     }
 
     /// Provides simultaneous access to row indices and mutable values corresponding to the
@@ -506,32 +466,28 @@ impl<'a, T> CscColMut<'a, T> {
     /// This method primarily facilitates low-level access for methods that process data stored
     /// in CSC format directly.
     pub fn rows_and_values_mut(&mut self) -> (&[usize], &mut [T]) {
-        (self.row_indices, self.values)
+        (self.lane.minor_indices, self.lane.values)
     }
 }
 
 /// Column iterator for [CscMatrix](struct.CscMatrix.html).
 pub struct CscColIter<'a, T> {
-    // The index of the row that will be returned on the next
-    current_col_idx: usize,
-    matrix: &'a CscMatrix<T>
+    lane_iter: CsLaneIter<'a, T>
 }
 
 impl<'a, T> Iterator for CscColIter<'a, T> {
     type Item = CscCol<'a, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let col = self.matrix.get_col(self.current_col_idx);
-        self.current_col_idx += 1;
-        col
+        self.lane_iter
+            .next()
+            .map(|lane| CscCol { lane })
     }
 }
 
 /// Mutable column iterator for [CscMatrix](struct.CscMatrix.html).
 pub struct CscColIterMut<'a, T> {
-    current_col_idx: usize,
-    pattern: &'a SparsityPattern,
-    remaining_values: *mut T,
+    lane_iter: CsLaneIterMut<'a, T>
 }
 
 impl<'a, T> Iterator for CscColIterMut<'a, T>
@@ -541,27 +497,8 @@ where
     type Item = CscColMut<'a, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let lane = self.pattern.get_lane(self.current_col_idx);
-        let nrows = self.pattern.minor_dim();
-
-        if let Some(row_indices) = lane {
-            let count = row_indices.len();
-
-            // Note: I can't think of any way to construct this iterator without unsafe.
-            let values_in_row;
-            unsafe {
-                values_in_row = &mut *slice_from_raw_parts_mut(self.remaining_values, count);
-                self.remaining_values = self.remaining_values.add(count);
-            }
-            self.current_col_idx += 1;
-
-            Some(CscColMut {
-                nrows,
-                row_indices,
-                values: values_in_row
-            })
-        } else {
-            None
-        }
+        self.lane_iter
+            .next()
+            .map(|lane| CscColMut { lane })
     }
 }
