@@ -10,7 +10,7 @@ use rand::distributions::{Distribution, OpenClosed01, Standard};
 use rand::Rng;
 
 use simba::scalar::RealField;
-use simba::simd::{SimdBool, SimdValue};
+use simba::simd::SimdBool;
 
 use crate::base::dimension::U3;
 use crate::base::storage::Storage;
@@ -19,7 +19,7 @@ use crate::{Scalar, SimdRealField};
 
 use crate::geometry::{Quaternion, Rotation3, UnitQuaternion};
 
-impl<N: Scalar + SimdValue> Quaternion<N> {
+impl<N: Scalar> Quaternion<N> {
     /// Creates a quaternion from a 4D vector. The quaternion scalar part corresponds to the `w`
     /// vector component.
     #[inline]

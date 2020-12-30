@@ -114,7 +114,6 @@ quickcheck!(
      */
     fn unit_quaternion_double_covering(q: UnitQuaternion<f64>) -> bool {
         let mq = UnitQuaternion::new_unchecked(-q.into_inner());
-
         mq == q && mq.angle() == q.angle() && mq.axis() == q.axis()
     }
 

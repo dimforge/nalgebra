@@ -184,36 +184,36 @@ impl<N1: RealField, N2: RealField + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for Un
 }
 
 #[cfg(feature = "mint")]
-impl<N: SimdRealField> From<mint::Quaternion<N>> for Quaternion<N> {
+impl<N: Scalar> From<mint::Quaternion<N>> for Quaternion<N> {
     fn from(q: mint::Quaternion<N>) -> Self {
         Self::new(q.s, q.v.x, q.v.y, q.v.z)
     }
 }
 
 #[cfg(feature = "mint")]
-impl<N: SimdRealField> Into<mint::Quaternion<N>> for Quaternion<N> {
+impl<N: Scalar> Into<mint::Quaternion<N>> for Quaternion<N> {
     fn into(self) -> mint::Quaternion<N> {
         mint::Quaternion {
             v: mint::Vector3 {
-                x: self[0],
-                y: self[1],
-                z: self[2],
+                x: self[0].inlined_clone(),
+                y: self[1].inlined_clone(),
+                z: self[2].inlined_clone(),
             },
-            s: self[3],
+            s: self[3].inlined_clone(),
         }
     }
 }
 
 #[cfg(feature = "mint")]
-impl<N: SimdRealField> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
+impl<N: Scalar + SimdValue> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
     fn into(self) -> mint::Quaternion<N> {
         mint::Quaternion {
             v: mint::Vector3 {
-                x: self[0],
-                y: self[1],
-                z: self[2],
+                x: self[0].inlined_clone(),
+                y: self[1].inlined_clone(),
+                z: self[2].inlined_clone(),
             },
-            s: self[3],
+            s: self[3].inlined_clone(),
         }
     }
 }
@@ -258,14 +258,14 @@ where
     }
 }
 
-impl<N: Scalar + SimdValue> From<Vector4<N>> for Quaternion<N> {
+impl<N: Scalar> From<Vector4<N>> for Quaternion<N> {
     #[inline]
     fn from(coords: Vector4<N>) -> Self {
         Self { coords }
     }
 }
 
-impl<N: Scalar + SimdValue> From<[N; 4]> for Quaternion<N> {
+impl<N: Scalar> From<[N; 4]> for Quaternion<N> {
     #[inline]
     fn from(coords: [N; 4]) -> Self {
         Self {

@@ -4,9 +4,24 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.24.0]
+
+### Added
+* The `DualQuaternion` type. It is still work-in-progress but the basics are here:
+  creation from its real and dual part, multiplication of two dual quaternions,
+  and normalization.
+  
+### Removed
+* There is no blanket `impl<T> PartialEq for Unit<T>` any more. Instead, it is
+  implemented specifically for `UnitComplex`, `UnitQuaternion` and `Unit<Vector>`.
+
 ## [0.23.2]
 In this release, we improved the documentation of some of the geometric types
 by applying changes similar to what we did in the version 0.23.1 for matrices.
+
+### Added
+* The `Isometry::inv_mul` method which is a more efficient way of doing
+  `isometry1.inverse() * isometry2`.
 
 ## [0.23.1]
 In this release we improved the documentation of the matrix and vector types by:

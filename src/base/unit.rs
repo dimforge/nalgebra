@@ -11,7 +11,8 @@ use abomonation::Abomonation;
 
 use crate::allocator::Allocator;
 use crate::base::DefaultAllocator;
-use crate::{Dim, MatrixMN, RealField, Scalar, SimdComplexField, SimdRealField};
+use crate::storage::Storage;
+use crate::{Dim, Matrix, MatrixMN, RealField, Scalar, SimdComplexField, SimdRealField};
 
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///
@@ -24,7 +25,7 @@ use crate::{Dim, MatrixMN, RealField, Scalar, SimdComplexField, SimdRealField};
 /// and [`UnitQuaternion`](crate::UnitQuaternion); both built on top of `Unit`.  If you are interested
 /// in their documentation, read their dedicated pages directly.
 #[repr(transparent)]
-#[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
+#[derive(Clone, Hash, Debug, Copy)]
 pub struct Unit<T> {
     pub(crate) value: T,
 }
@@ -62,6 +63,28 @@ impl<T: Abomonation> Abomonation for Unit<T> {
     unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
         self.value.exhume(bytes)
     }
+}
+
+impl<N, R, C, S> PartialEq for Unit<Matrix<N, R, C, S>>
+where
+    N: Scalar + PartialEq,
+    R: Dim,
+    C: Dim,
+    S: Storage<N, R, C>,
+{
+    #[inline]
+    fn eq(&self, rhs: &Self) -> bool {
+        self.value.eq(&rhs.value)
+    }
+}
+
+impl<N, R, C, S> Eq for Unit<Matrix<N, R, C, S>>
+where
+    N: Scalar + Eq,
+    R: Dim,
+    C: Dim,
+    S: Storage<N, R, C>,
+{
 }
 
 /// Trait implemented by entities scan be be normalized and put in an `Unit` struct.

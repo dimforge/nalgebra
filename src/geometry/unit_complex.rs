@@ -4,8 +4,10 @@ use std::fmt;
 
 use crate::base::{Matrix2, Matrix3, Normed, Unit, Vector1, Vector2};
 use crate::geometry::{Point2, Rotation2};
+use crate::Scalar;
 use simba::scalar::RealField;
 use simba::simd::SimdRealField;
+use std::cmp::{Eq, PartialEq};
 
 /// A 2D rotation represented as a complex number with magnitude 1.
 ///
@@ -28,6 +30,15 @@ use simba::simd::SimdRealField;
 /// # Conversion
 /// * [Conversion to a matrix <span style="float:right;">`to_rotation_matrix`, `to_homogeneous`…</span>](#conversion-to-a-matrix)
 pub type UnitComplex<N> = Unit<Complex<N>>;
+
+impl<N: Scalar + PartialEq> PartialEq for UnitComplex<N> {
+    #[inline]
+    fn eq(&self, rhs: &Self) -> bool {
+        (**self).eq(&**rhs)
+    }
+}
+
+impl<N: Scalar + Eq> Eq for UnitComplex<N> {}
 
 impl<N: SimdRealField> Normed for Complex<N> {
     type Norm = N::SimdRealField;
