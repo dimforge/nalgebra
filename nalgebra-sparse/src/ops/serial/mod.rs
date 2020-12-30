@@ -49,9 +49,12 @@ macro_rules! assert_compatible_spadd_dims {
     }
 }
 
+mod csc;
 mod csr;
 mod pattern;
+mod cs;
 
+pub use csc::*;
 pub use csr::*;
 pub use pattern::*;
 

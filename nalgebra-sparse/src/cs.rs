@@ -144,9 +144,19 @@ impl<T> CsMatrix<T> {
             values: &mut values[range]
         })
     }
+
+    #[inline]
+    pub fn lane_iter(&self) -> CsLaneIter<T> {
+        CsLaneIter::new(self.pattern().as_ref(), self.values())
+    }
+
+    #[inline]
+    pub fn lane_iter_mut(&mut self) -> CsLaneIterMut<T> {
+        CsLaneIterMut::new(self.sparsity_pattern.as_ref(), &mut self.values)
+    }
 }
 
-pub fn get_entry_from_slices<'a, T>(
+fn get_entry_from_slices<'a, T>(
     minor_dim: usize,
     minor_indices: &'a [usize],
     values: &'a [T],
@@ -161,7 +171,7 @@ pub fn get_entry_from_slices<'a, T>(
     }
 }
 
-pub fn get_mut_entry_from_slices<'a, T>(
+fn get_mut_entry_from_slices<'a, T>(
     minor_dim: usize,
     minor_indices: &'a [usize],
     values: &'a mut [T],
@@ -178,16 +188,16 @@ pub fn get_mut_entry_from_slices<'a, T>(
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CsLane<'a, T> {
-    pub minor_dim: usize,
-    pub minor_indices: &'a [usize],
-    pub values: &'a [T]
+    minor_dim: usize,
+    minor_indices: &'a [usize],
+    values: &'a [T]
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct CsLaneMut<'a, T> {
-    pub minor_dim: usize,
-    pub minor_indices: &'a [usize],
-    pub values: &'a mut [T]
+    minor_dim: usize,
+    minor_indices: &'a [usize],
+    values: &'a mut [T]
 }
 
 pub struct CsLaneIter<'a, T> {
@@ -280,4 +290,59 @@ impl<'a, T> Iterator for CsLaneIterMut<'a, T>
     }
 }
 
+/// Implement the methods common to both CsLane and CsLaneMut. See the documentation for the
+/// methods delegated here by CsrMatrix and CscMatrix members for more information.
+macro_rules! impl_cs_lane_common_methods {
+    ($name:ty) => {
+        impl<'a, T> $name {
+            #[inline]
+            pub fn minor_dim(&self) -> usize {
+                self.minor_dim
+            }
 
+            #[inline]
+            pub fn nnz(&self) -> usize {
+                self.minor_indices.len()
+            }
+
+            #[inline]
+            pub fn minor_indices(&self) -> &[usize] {
+                self.minor_indices
+            }
+
+            #[inline]
+            pub fn values(&self) -> &[T] {
+                self.values
+            }
+
+            #[inline]
+            pub fn get_entry(&self, global_col_index: usize) -> Option<SparseEntry<T>> {
+                get_entry_from_slices(
+                    self.minor_dim,
+                    self.minor_indices,
+                    self.values,
+                    global_col_index)
+            }
+        }
+    }
+}
+
+impl_cs_lane_common_methods!(CsLane<'a, T>);
+impl_cs_lane_common_methods!(CsLaneMut<'a, T>);
+
+impl<'a, T> CsLaneMut<'a, T> {
+    pub fn values_mut(&mut self) -> &mut [T] {
+        self.values
+    }
+
+    pub fn indices_and_values_mut(&mut self) -> (&[usize], &mut [T]) {
+        (self.minor_indices, self.values)
+    }
+
+    pub fn get_entry_mut(&mut self, global_minor_index: usize) -> Option<SparseEntryMut<T>> {
+        get_mut_entry_from_slices(self.minor_dim,
+                                  self.minor_indices,
+                                  self.values,
+                                  global_minor_index)
+    }
+}

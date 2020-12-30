@@ -3,8 +3,7 @@
 use crate::{SparseFormatError, SparseFormatErrorKind, SparseEntry, SparseEntryMut};
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
 use crate::csr::CsrMatrix;
-use crate::cs::{CsMatrix, CsLane, CsLaneMut, CsLaneIter, CsLaneIterMut,
-                get_entry_from_slices, get_mut_entry_from_slices};
+use crate::cs::{CsMatrix, CsLane, CsLaneMut, CsLaneIter, CsLaneIterMut};
 
 use std::sync::Arc;
 use std::slice::{IterMut, Iter};
@@ -21,7 +20,7 @@ use nalgebra::Scalar;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CscMatrix<T> {
     // Cols are major, rows are minor in the sparsity pattern
-    cs: CsMatrix<T>,
+    pub(crate) cs: CsMatrix<T>,
 }
 
 impl<T> CscMatrix<T> {
@@ -435,25 +434,25 @@ macro_rules! impl_csc_col_common_methods {
             /// The number of global rows in the column.
             #[inline]
             pub fn nrows(&self) -> usize {
-                self.lane.minor_dim
+                self.lane.minor_dim()
             }
 
             /// The number of non-zeros in this column.
             #[inline]
             pub fn nnz(&self) -> usize {
-                self.lane.minor_indices.len()
+                self.lane.nnz()
             }
 
             /// The row indices corresponding to explicitly stored entries in this column.
             #[inline]
             pub fn row_indices(&self) -> &[usize] {
-                self.lane.minor_indices
+                self.lane.minor_indices()
             }
 
             /// The values corresponding to explicitly stored entries in this column.
             #[inline]
             pub fn values(&self) -> &[T] {
-                self.lane.values
+                self.lane.values()
             }
 
             /// Returns an entry for the given global row index.
@@ -461,11 +460,7 @@ macro_rules! impl_csc_col_common_methods {
             /// Each call to this function incurs the cost of a binary search among the explicitly
             /// stored row entries.
             pub fn get_entry(&self, global_row_index: usize) -> Option<SparseEntry<T>> {
-                get_entry_from_slices(
-                    self.lane.minor_dim,
-                    self.lane.minor_indices,
-                    self.lane.values,
-                    global_row_index)
+                self.lane.get_entry(global_row_index)
             }
         }
     }
@@ -477,7 +472,7 @@ impl_csc_col_common_methods!(CscColMut<'a, T>);
 impl<'a, T> CscColMut<'a, T> {
     /// Mutable access to the values corresponding to explicitly stored entries in this column.
     pub fn values_mut(&mut self) -> &mut [T] {
-        self.lane.values
+        self.lane.values_mut()
     }
 
     /// Provides simultaneous access to row indices and mutable values corresponding to the
@@ -486,15 +481,12 @@ impl<'a, T> CscColMut<'a, T> {
     /// This method primarily facilitates low-level access for methods that process data stored
     /// in CSC format directly.
     pub fn rows_and_values_mut(&mut self) -> (&[usize], &mut [T]) {
-        (self.lane.minor_indices, self.lane.values)
+        self.lane.indices_and_values_mut()
     }
 
     /// Returns a mutable entry for the given global row index.
     pub fn get_entry_mut(&mut self, global_row_index: usize) -> Option<SparseEntryMut<T>> {
-        get_mut_entry_from_slices(self.lane.minor_dim,
-                                  self.lane.minor_indices,
-                                  self.lane.values,
-                                  global_row_index)
+        self.lane.get_entry_mut(global_row_index)
     }
 }
 

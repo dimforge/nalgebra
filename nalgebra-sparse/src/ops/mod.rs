@@ -48,6 +48,17 @@ impl<T> Op<T> {
             Op::NoOp(obj) | Op::Transpose(obj) => obj,
         }
     }
+
+    /// Applies the transpose operation.
+    ///
+    /// This operation follows the usual semantics of transposition. In particular, double
+    /// transposition is equivalent to no transposition.
+    pub fn transposed(self) -> Self {
+        match self {
+            Op::NoOp(obj) => Op::Transpose(obj),
+            Op::Transpose(obj) => Op::NoOp(obj)
+        }
+    }
 }
 
 impl<T> From<T> for Op<T> {

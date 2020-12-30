@@ -1,103 +1,112 @@
 use crate::csr::CsrMatrix;
+use crate::csc::CscMatrix;
 
 use std::ops::{Add, Mul};
-use crate::ops::serial::{spadd_csr_prealloc, spadd_pattern, spmm_pattern, spmm_csr_prealloc};
+use crate::ops::serial::{spadd_csr_prealloc, spadd_csc_prealloc, spadd_pattern,
+                         spmm_pattern, spmm_csr_prealloc, spmm_csc_prealloc};
 use nalgebra::{ClosedAdd, ClosedMul, Scalar};
 use num_traits::{Zero, One};
 use std::sync::Arc;
 use crate::ops::{Op};
 
-impl<'a, T> Add<&'a CsrMatrix<T>> for &'a CsrMatrix<T>
-where
-    // TODO: Consider introducing wrapper trait for these things? It's technically a "Ring",
-    // I guess...
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One
-{
-    type Output = CsrMatrix<T>;
-
-    fn add(self, rhs: &'a CsrMatrix<T>) -> Self::Output {
-        let pattern = spadd_pattern(self.pattern(), rhs.pattern());
-        let values = vec![T::zero(); pattern.nnz()];
-        // We are giving data that is valid by definition, so it is safe to unwrap below
-        let mut result = CsrMatrix::try_from_pattern_and_values(Arc::new(pattern), values)
-            .unwrap();
-        spadd_csr_prealloc(T::zero(), &mut result, T::one(), Op::NoOp(&self)).unwrap();
-        spadd_csr_prealloc(T::one(), &mut result, T::one(), Op::NoOp(&rhs)).unwrap();
-        result
-    }
-}
-
-impl<'a, T> Add<&'a CsrMatrix<T>> for CsrMatrix<T>
-where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One
-{
-    type Output = CsrMatrix<T>;
-
-    fn add(mut self, rhs: &'a CsrMatrix<T>) -> Self::Output {
-        if Arc::ptr_eq(self.pattern(), rhs.pattern()) {
-            spadd_csr_prealloc(T::one(), &mut self, T::one(), Op::NoOp(rhs)).unwrap();
-            self
-        } else {
-            &self + rhs
-        }
-    }
-}
-
-impl<'a, T> Add<CsrMatrix<T>> for &'a CsrMatrix<T>
-    where
-        T: Scalar + ClosedAdd + ClosedMul + Zero + One
-{
-    type Output = CsrMatrix<T>;
-
-    fn add(self, rhs: CsrMatrix<T>) -> Self::Output {
-        rhs + self
-    }
-}
-
-impl<T> Add<CsrMatrix<T>> for CsrMatrix<T>
-where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One
-{
-    type Output = Self;
-
-    fn add(self, rhs: CsrMatrix<T>) -> Self::Output {
-        self + &rhs
-    }
-}
-
-/// Helper macro for implementing matrix multiplication for different matrix types
+/// Helper macro for implementing binary operators for different matrix types
 /// See below for usage.
-macro_rules! impl_matrix_mul {
-    (<$($life:lifetime),*>($a_name:ident : $a:ty, $b_name:ident : $b:ty) -> $ret:ty $body:block)
+macro_rules! impl_bin_op {
+    ($trait:ident, $method:ident,
+        <$($life:lifetime),*>($a:ident : $a_type:ty, $b:ident : $b_type:ty) -> $ret:ty $body:block)
         =>
     {
-        impl<$($life,)* T> Mul<$b> for $a
+        impl<$($life,)* T> $trait<$b_type> for $a_type
         where
             T: Scalar + ClosedAdd + ClosedMul + Zero + One
         {
             type Output = $ret;
-            fn mul(self, rhs: $b) -> Self::Output {
-                let $a_name = self;
-                let $b_name = rhs;
+            fn $method(self, rhs: $b_type) -> Self::Output {
+                let $a = self;
+                let $b = rhs;
                 $body
             }
         }
     }
 }
 
-impl_matrix_mul!(<'a>(a: &'a CsrMatrix<T>, b: &'a CsrMatrix<T>) -> CsrMatrix<T> {
-    let pattern = spmm_pattern(a.pattern(), b.pattern());
-    let values = vec![T::zero(); pattern.nnz()];
-    let mut result = CsrMatrix::try_from_pattern_and_values(Arc::new(pattern), values)
-        .unwrap();
-    spmm_csr_prealloc(T::zero(),
-             &mut result,
-             T::one(),
-             Op::NoOp(a),
-             Op::NoOp(b))
-        .expect("Internal error: spmm failed (please debug).");
-    result
-});
-impl_matrix_mul!(<'a>(a: &'a CsrMatrix<T>, b: CsrMatrix<T>) -> CsrMatrix<T> { a * &b});
-impl_matrix_mul!(<'a>(a: CsrMatrix<T>, b: &'a CsrMatrix<T>) -> CsrMatrix<T> { &a * b});
-impl_matrix_mul!(<>(a: CsrMatrix<T>, b: CsrMatrix<T>) -> CsrMatrix<T> { &a * &b});
+macro_rules! impl_add {
+    ($($args:tt)*) => {
+        impl_bin_op!(Add, add, $($args)*);
+    }
+}
+
+/// Implements a + b for all combinations of reference and owned matrices, for
+/// CsrMatrix or CscMatrix.
+macro_rules! impl_spadd {
+    ($matrix_type:ident, $spadd_fn:ident) => {
+        impl_add!(<'a>(a: &'a $matrix_type<T>, b: &'a $matrix_type<T>) -> $matrix_type<T> {
+            // If both matrices have the same pattern, then we can immediately re-use it
+            let pattern = if Arc::ptr_eq(a.pattern(), b.pattern()) {
+                Arc::clone(a.pattern())
+            } else {
+                Arc::new(spadd_pattern(a.pattern(), b.pattern()))
+            };
+            let values = vec![T::zero(); pattern.nnz()];
+            // We are giving data that is valid by definition, so it is safe to unwrap below
+            let mut result = $matrix_type::try_from_pattern_and_values(pattern, values)
+                .unwrap();
+            $spadd_fn(T::zero(), &mut result, T::one(), Op::NoOp(&a)).unwrap();
+            $spadd_fn(T::one(), &mut result, T::one(), Op::NoOp(&b)).unwrap();
+            result
+        });
+
+        impl_add!(<'a>(a: $matrix_type<T>, b: &'a $matrix_type<T>) -> $matrix_type<T> {
+            let mut a = a;
+            if Arc::ptr_eq(a.pattern(), b.pattern()) {
+                $spadd_fn(T::one(), &mut a, T::one(), Op::NoOp(b)).unwrap();
+                a
+            } else {
+                &a + b
+            }
+        });
+
+        impl_add!(<'a>(a: &'a $matrix_type<T>, b: $matrix_type<T>) -> $matrix_type<T> {
+            b + a
+        });
+        impl_add!(<>(a: $matrix_type<T>, b: $matrix_type<T>) -> $matrix_type<T> {
+            a + &b
+        });
+    }
+}
+
+impl_spadd!(CsrMatrix, spadd_csr_prealloc);
+impl_spadd!(CscMatrix, spadd_csc_prealloc);
+
+macro_rules! impl_mul {
+    ($($args:tt)*) => {
+        impl_bin_op!(Mul, mul, $($args)*);
+    }
+}
+
+/// Implements a + b for all combinations of reference and owned matrices, for
+/// CsrMatrix or CscMatrix.
+macro_rules! impl_spmm {
+    ($matrix_type:ident, $pattern_fn:expr, $spmm_fn:expr) => {
+        impl_mul!(<'a>(a: &'a $matrix_type<T>, b: &'a $matrix_type<T>) -> $matrix_type<T> {
+            let pattern = $pattern_fn(a.pattern(), b.pattern());
+            let values = vec![T::zero(); pattern.nnz()];
+            let mut result = $matrix_type::try_from_pattern_and_values(Arc::new(pattern), values)
+                .unwrap();
+            $spmm_fn(T::zero(),
+                     &mut result,
+                     T::one(),
+                     Op::NoOp(a),
+                     Op::NoOp(b))
+                .expect("Internal error: spmm failed (please debug).");
+            result
+        });
+        impl_mul!(<'a>(a: &'a $matrix_type<T>, b: $matrix_type<T>) -> $matrix_type<T> { a * &b});
+        impl_mul!(<'a>(a: $matrix_type<T>, b: &'a $matrix_type<T>) -> $matrix_type<T> { &a * b});
+        impl_mul!(<>(a: $matrix_type<T>, b: $matrix_type<T>) -> $matrix_type<T> { &a * &b});
+    }
+}
+
+impl_spmm!(CsrMatrix, spmm_pattern, spmm_csr_prealloc);
+// Need to switch order of operations for CSC pattern
+impl_spmm!(CscMatrix, |a, b| spmm_pattern(b, a), spmm_csc_prealloc);

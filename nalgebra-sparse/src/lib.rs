@@ -90,7 +90,7 @@ pub mod pattern;
 pub mod ops;
 pub mod convert;
 
-mod cs;
+pub(crate) mod cs;
 
 #[cfg(feature = "proptest-support")]
 pub mod proptest;

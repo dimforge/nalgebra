@@ -2,7 +2,7 @@
 use crate::{SparseFormatError, SparseFormatErrorKind, SparseEntry, SparseEntryMut};
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
 use crate::csc::CscMatrix;
-use crate::cs::{CsMatrix, get_entry_from_slices, get_mut_entry_from_slices, CsLaneIterMut, CsLaneIter, CsLane, CsLaneMut};
+use crate::cs::{CsMatrix, CsLaneIterMut, CsLaneIter, CsLane, CsLaneMut};
 
 use nalgebra::Scalar;
 use num_traits::Zero;
@@ -20,7 +20,7 @@ use std::slice::{IterMut, Iter};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CsrMatrix<T> {
     // Rows are major, cols are minor in the sparsity pattern
-    cs: CsMatrix<T>,
+    pub(crate) cs: CsMatrix<T>,
 }
 
 impl<T> CsrMatrix<T> {
@@ -435,37 +435,34 @@ macro_rules! impl_csr_row_common_methods {
             /// The number of global columns in the row.
             #[inline]
             pub fn ncols(&self) -> usize {
-                self.lane.minor_dim
+                self.lane.minor_dim()
             }
 
             /// The number of non-zeros in this row.
             #[inline]
             pub fn nnz(&self) -> usize {
-                self.lane.minor_indices.len()
+                self.lane.nnz()
             }
 
             /// The column indices corresponding to explicitly stored entries in this row.
             #[inline]
             pub fn col_indices(&self) -> &[usize] {
-                self.lane.minor_indices
+                self.lane.minor_indices()
             }
 
             /// The values corresponding to explicitly stored entries in this row.
             #[inline]
             pub fn values(&self) -> &[T] {
-                self.lane.values
+                self.lane.values()
             }
 
             /// Returns an entry for the given global column index.
             ///
             /// Each call to this function incurs the cost of a binary search among the explicitly
             /// stored column entries.
+            #[inline]
             pub fn get_entry(&self, global_col_index: usize) -> Option<SparseEntry<T>> {
-                get_entry_from_slices(
-                    self.lane.minor_dim,
-                    self.lane.minor_indices,
-                    self.lane.values,
-                    global_col_index)
+                self.lane.get_entry(global_col_index)
             }
         }
     }
@@ -476,8 +473,9 @@ impl_csr_row_common_methods!(CsrRowMut<'a, T>);
 
 impl<'a, T> CsrRowMut<'a, T> {
     /// Mutable access to the values corresponding to explicitly stored entries in this row.
+    #[inline]
     pub fn values_mut(&mut self) -> &mut [T] {
-        self.lane.values
+        self.lane.values_mut()
     }
 
     /// Provides simultaneous access to column indices and mutable values corresponding to the
@@ -485,16 +483,15 @@ impl<'a, T> CsrRowMut<'a, T> {
     ///
     /// This method primarily facilitates low-level access for methods that process data stored
     /// in CSR format directly.
+    #[inline]
     pub fn cols_and_values_mut(&mut self) -> (&[usize], &mut [T]) {
-        (self.lane.minor_indices, self.lane.values)
+        self.lane.indices_and_values_mut()
     }
 
     /// Returns a mutable entry for the given global column index.
+    #[inline]
     pub fn get_entry_mut(&mut self, global_col_index: usize) -> Option<SparseEntryMut<T>> {
-        get_mut_entry_from_slices(self.lane.minor_dim,
-                                  self.lane.minor_indices,
-                                  self.lane.values,
-                                  global_col_index)
+        self.lane.get_entry_mut(global_col_index)
     }
 }
 
