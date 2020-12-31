@@ -1,8 +1,8 @@
-use na::{Orthographic3, Perspective3, Point3};
+use na::{OpenGL, Orthographic3, Perspective3, Point3};
 
 #[test]
 fn perspective_inverse() {
-    let proj = Perspective3::new(800.0 / 600.0, 3.14 / 2.0, 1.0, 1000.0);
+    let proj = Perspective3::<OpenGL>::new(800.0 / 600.0, 3.14 / 2.0, 1.0, 1000.0);
     let inv = proj.inverse();
 
     let id = inv * proj.into_inner();
@@ -23,7 +23,7 @@ fn orthographic_inverse() {
 #[test]
 fn perspective_matrix_point_transformation() {
     // https://github.com/rustsim/nalgebra/issues/640
-    let proj = Perspective3::new(4.0 / 3.0, 90.0, 0.1, 100.0);
+    let proj = Perspective3::<OpenGL>::new(4.0 / 3.0, 90.0, 0.1, 100.0);
     let perspective_inv = proj.as_matrix().try_inverse().unwrap();
     let some_point = Point3::new(1.0, 2.0, 0.0);
 
@@ -35,11 +35,11 @@ fn perspective_matrix_point_transformation() {
 
 #[cfg(feature = "arbitrary")]
 mod quickcheck_tests {
-    use na::{Orthographic3, Perspective3, Point3};
+    use na::{OpenGL, Orthographic3, Perspective3, Point3};
 
     quickcheck! {
         fn perspective_project_unproject(pt: Point3<f64>) -> bool {
-            let proj = Perspective3::new(800.0 / 600.0, 3.14 / 2.0, 1.0, 1000.0);
+            let proj = Perspective3::<OpenGL, f64>::new(800.0 / 600.0, 3.14 / 2.0, 1.0, 1000.0);
 
             let projected   = proj.project_point(&pt);
             let unprojected = proj.unproject_point(&projected);
