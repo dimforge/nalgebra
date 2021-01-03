@@ -6,7 +6,7 @@ use crate::allocator::Allocator;
 use crate::constraint::{AreMultipliable, DimEq, ShapeConstraint};
 use crate::sparse::{CsMatrix, CsStorage, CsStorageMut, CsVector};
 use crate::storage::StorageMut;
-use crate::{DefaultAllocator, Dim, Scalar, Vector, VectorN, U1};
+use crate::{Const, DefaultAllocator, Dim, Scalar, Vector, VectorN};
 
 impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
     fn scatter<R2: Dim, C2: Dim>(
@@ -148,7 +148,7 @@ where
         );
 
         let mut res = CsMatrix::new_uninitialized_generic(nrows1, ncols2, self.len() + rhs.len());
-        let mut workspace = VectorN::<N, R1>::zeros_generic(nrows1, U1);
+        let mut workspace = VectorN::<N, R1>::zeros_generic(nrows1, Const::<1>);
         let mut nz = 0;
 
         for j in 0..ncols2.value() {
@@ -177,8 +177,8 @@ where
         // of branching inside of the inner loop.
         //
         // let mut res = CsMatrix::new_uninitialized_generic(nrows1, ncols2, self.len() + rhs.len());
-        // let mut timestamps = VectorN::zeros_generic(nrows1, U1);
-        // let mut workspace = unsafe { VectorN::new_uninitialized_generic(nrows1, U1) };
+        // let mut timestamps = VectorN::zeros_generic(nrows1, Const::<)>;
+        // let mut workspace = unsafe { VectorN::new_uninitialized_generic(nrows1, Const::<)> };
         // let mut nz = 0;
         //
         // for j in 0..ncols2.value() {
@@ -241,8 +241,8 @@ where
         );
 
         let mut res = CsMatrix::new_uninitialized_generic(nrows1, ncols2, self.len() + rhs.len());
-        let mut timestamps = VectorN::zeros_generic(nrows1, U1);
-        let mut workspace = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows1, U1) };
+        let mut timestamps = VectorN::zeros_generic(nrows1, Const::<1>);
+        let mut workspace = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows1, Const::<1>) };
         let mut nz = 0;
 
         for j in 0..ncols2.value() {

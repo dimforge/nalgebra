@@ -831,7 +831,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// # Examples
     ///
     /// ```
-    /// # use nalgebra::{Matrix3x2, Matrix2x3, DMatrix, U2, U3, Dynamic};
+    /// # use nalgebra::{Matrix3x2, Matrix2x3, DMatrix, Const, Dynamic};
     ///
     /// let m1 = Matrix2x3::new(
     ///     1.1, 1.2, 1.3,
@@ -842,7 +842,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///     2.1, 1.3,
     ///     1.2, 2.3
     /// );
-    /// let reshaped = m1.reshape_generic(U3, U2);
+    /// let reshaped = m1.reshape_generic(Const::<3>, Const::<2>);
     /// assert_eq!(reshaped, m2);
     ///
     /// let dm1 = DMatrix::from_row_slice(

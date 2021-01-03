@@ -4,9 +4,9 @@ use simba::scalar::RealField;
 use std::ops::{DivAssign, MulAssign};
 
 use crate::allocator::Allocator;
-use crate::base::dimension::{Dim, U1};
+use crate::base::dimension::Dim;
 use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, MatrixN, VectorN};
+use crate::base::{Const, DefaultAllocator, MatrixN, VectorN};
 
 /// Applies in-place a modified Parlett and Reinsch matrix balancing with 2-norm to the matrix `m` and returns
 /// the corresponding diagonal transformation.
@@ -20,7 +20,7 @@ where
 
     let dim = m.data.shape().0;
     let radix: N = crate::convert(2.0f64);
-    let mut d = VectorN::from_element_generic(dim, U1, N::one());
+    let mut d = VectorN::from_element_generic(dim, Const::<1>, N::one());
 
     let mut converged = false;
 

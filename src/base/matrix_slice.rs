@@ -4,7 +4,7 @@ use std::slice;
 
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
-use crate::base::dimension::{Dim, DimName, Dynamic, IsNotStaticOne, U1};
+use crate::base::dimension::{Const, Dim, DimName, Dynamic, IsNotStaticOne, U1};
 use crate::base::iter::MatrixIter;
 use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
 use crate::base::{Matrix, Scalar};
@@ -288,7 +288,7 @@ macro_rules! matrix_slice_impl(
         /// Returns a slice containing the `n` first elements of the i-th row of this matrix.
         #[inline]
         pub fn $row_part($me: $Me, i: usize, n: usize) -> $MatrixSlice<N, U1, Dynamic, S::RStride, S::CStride> {
-            $me.$generic_slice((i, 0), (U1, Dynamic::new(n)))
+            $me.$generic_slice((i, 0), (Const::<1>, Dynamic::new(n)))
         }
 
         /// Extracts from this matrix a set of consecutive rows.
@@ -375,7 +375,7 @@ macro_rules! matrix_slice_impl(
         /// Returns a slice containing the `n` first elements of the i-th column of this matrix.
         #[inline]
         pub fn $column_part($me: $Me, i: usize, n: usize) -> $MatrixSlice<N, Dynamic, U1, S::RStride, S::CStride> {
-            $me.$generic_slice((0, i), (Dynamic::new(n), U1))
+            $me.$generic_slice((0, i), (Dynamic::new(n), Const::<1>))
         }
 
         /// Extracts from this matrix a set of consecutive columns.
@@ -730,7 +730,7 @@ impl<D: Dim> SliceRange<D> for usize {
 
     #[inline(always)]
     fn size(&self, _: D) -> Self::Size {
-        U1
+        Const::<1>
     }
 }
 

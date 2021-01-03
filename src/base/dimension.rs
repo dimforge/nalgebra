@@ -6,9 +6,7 @@ use std::any::{Any, TypeId};
 use std::cmp;
 use std::fmt::Debug;
 use std::ops::{Add, Div, Mul, Sub};
-use typenum::{
-    self, Bit, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, UInt, UTerm, Unsigned, B1,
-};
+use typenum::{self, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, Unsigned};
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -130,13 +128,17 @@ macro_rules! dim_ops(
             fn $op(self, other: D) -> Self::Output;
         }
 
-        impl<D1: DimName, D2: DimName> $DimOp<D2> for D1
-            where D1::Value: $Op<D2::Value>,
-                  $ResOp<D1::Value, D2::Value>: NamedDim {
-            type Output = <$ResOp<D1::Value, D2::Value> as NamedDim>::Name;
+        impl<const A: usize, const B: usize> $DimOp<Const<B>> for Const<A>
+        where
+            Const<A>: ToTypenum,
+            Const<B>: ToTypenum,
+            <Const<A> as ToTypenum>::Typenum: $Op<<Const<B> as ToTypenum>::Typenum>,
+            $ResOp<<Const<A> as ToTypenum>::Typenum, <Const<B> as ToTypenum>::Typenum>: ToConst,
+        {
+            type Output =
+                <$ResOp<<Const<A> as ToTypenum>::Typenum, <Const<B> as ToTypenum>::Typenum> as ToConst>::Const;
 
-            #[inline]
-            fn $op(self, _: D2) -> Self::Output {
+            fn $op(self, _: Const<B>) -> Self::Output {
                 Self::Output::name()
             }
         }
@@ -150,6 +152,7 @@ macro_rules! dim_ops(
             }
         }
 
+        // TODO: use Const<T> instead of D: DimName?
         impl<D: DimName> $DimOp<Dynamic> for D {
             type Output = Dynamic;
 
@@ -167,13 +170,17 @@ macro_rules! dim_ops(
             fn $op(self, other: D) -> Self::Output;
         }
 
-        impl<D1: DimName, D2: DimName> $DimNameOp<D2> for D1
-            where D1::Value: $Op<D2::Value>,
-                  $ResOp<D1::Value, D2::Value>: NamedDim {
-            type Output = <$ResOp<D1::Value, D2::Value> as NamedDim>::Name;
+        impl<const A: usize, const B: usize> $DimNameOp<Const<B>> for Const<A>
+        where
+            Const<A>: ToTypenum,
+            Const<B>: ToTypenum,
+            <Const<A> as ToTypenum>::Typenum: $Op<<Const<B> as ToTypenum>::Typenum>,
+            $ResOp<<Const<A> as ToTypenum>::Typenum, <Const<B> as ToTypenum>::Typenum>: ToConst,
+        {
+            type Output =
+                <$ResOp<<Const<A> as ToTypenum>::Typenum, <Const<B> as ToTypenum>::Typenum> as ToConst>::Const;
 
-            #[inline]
-            fn $op(self, _: D2) -> Self::Output {
+            fn $op(self, _: Const<B>) -> Self::Output {
                 Self::Output::name()
             }
         }
@@ -189,105 +196,81 @@ dim_ops!(
     DimMax, DimNameMax, Max, max, cmp::max, DimMaximum, DimNameMaximum, Maximum;
 );
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub struct Const<const R: usize>;
+
 /// Trait implemented exclusively by type-level integers.
 pub trait DimName: Dim {
-    type Value: NamedDim<Name = Self>;
-
     /// The name of this dimension, i.e., the singleton `Self`.
     fn name() -> Self;
 
     // TODO: this is not a very idiomatic name.
     /// The value of this dimension.
-    #[inline]
-    fn dim() -> usize {
-        Self::Value::to_usize()
-    }
+    fn dim() -> usize;
 }
 
-pub trait NamedDim: Sized + Any + Unsigned {
-    type Name: DimName<Value = Self>;
+pub trait ToConst {
+    type Const: DimName;
 }
 
-/// A type level dimension with a value of `1`.
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-pub struct U1;
+pub trait ToTypenum {
+    type Typenum: Unsigned;
+}
 
-impl Dim for U1 {
-    #[inline]
+impl<const T: usize> Dim for Const<T> {
     fn try_to_usize() -> Option<usize> {
-        Some(1)
+        Some(T)
     }
 
-    #[inline]
-    fn from_usize(dim: usize) -> Self {
-        assert!(dim == 1, "Mismatched dimension.");
-        U1
-    }
-
-    #[inline]
     fn value(&self) -> usize {
-        1
+        T
+    }
+
+    fn from_usize(dim: usize) -> Self {
+        assert_eq!(dim, T);
+        Self
     }
 }
 
-impl DimName for U1 {
-    type Value = typenum::U1;
-
+impl<const T: usize> DimName for Const<T> {
     #[inline]
     fn name() -> Self {
-        U1
+        Self
+    }
+
+    #[inline]
+    fn dim() -> usize {
+        T
     }
 }
 
-impl NamedDim for typenum::U1 {
-    type Name = U1;
+pub type U1 = Const<1>;
+
+impl ToTypenum for Const<{ typenum::U1::USIZE }> {
+    type Typenum = typenum::U1;
 }
 
-macro_rules! named_dimension (
+impl ToConst for typenum::U1 {
+    type Const = Const<{ typenum::U1::USIZE }>;
+}
+
+macro_rules! from_to_typenum (
     ($($D: ident),* $(,)*) => {$(
-        /// A type level dimension.
-        #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-        #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-        pub struct $D;
+        pub type $D = Const<{ typenum::$D::USIZE }>;
 
-        impl Dim for $D {
-            #[inline]
-            fn try_to_usize() -> Option<usize> {
-                Some(typenum::$D::to_usize())
-            }
-
-            #[inline]
-            fn from_usize(dim: usize) -> Self {
-                assert!(dim == typenum::$D::to_usize(), "Mismatched dimension.");
-                $D
-            }
-
-            #[inline]
-            fn value(&self) -> usize {
-                typenum::$D::to_usize()
-            }
+        impl ToTypenum for Const<{ typenum::$D::USIZE }> {
+            type Typenum = typenum::$D;
         }
 
-        impl DimName for $D {
-            type Value = typenum::$D;
-
-            #[inline]
-            fn name() -> Self {
-                $D
-            }
-        }
-
-        impl NamedDim for typenum::$D {
-            type Name = $D;
+        impl ToConst for typenum::$D {
+            type Const = Const<{ typenum::$D::USIZE }>;
         }
 
         impl IsNotStaticOne for $D { }
     )*}
 );
 
-// We give explicit names to all Unsigned in [0, 128[
-named_dimension!(
+from_to_typenum!(
     U0, /*U1,*/ U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18,
     U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, U32, U33, U34, U35, U36, U37,
     U38, U39, U40, U41, U42, U43, U44, U45, U46, U47, U48, U49, U50, U51, U52, U53, U54, U55, U56,
@@ -297,117 +280,3 @@ named_dimension!(
     U111, U112, U113, U114, U115, U116, U117, U118, U119, U120, U121, U122, U123, U124, U125, U126,
     U127
 );
-
-// For values greater than U1023, just use the typenum binary representation directly.
-impl<
-        A: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        B: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        C: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        D: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        E: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        F: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        G: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-    > NamedDim for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G>
-{
-    type Name = Self;
-}
-
-impl<
-        A: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        B: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        C: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        D: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        E: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        F: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        G: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-    > Dim for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G>
-{
-    #[inline]
-    fn try_to_usize() -> Option<usize> {
-        Some(Self::to_usize())
-    }
-
-    #[inline]
-    fn from_usize(dim: usize) -> Self {
-        assert!(dim == Self::to_usize(), "Mismatched dimension.");
-        Self::new()
-    }
-
-    #[inline]
-    fn value(&self) -> usize {
-        Self::to_usize()
-    }
-}
-
-impl<
-        A: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        B: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        C: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        D: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        E: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        F: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        G: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-    > DimName for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G>
-{
-    type Value = Self;
-
-    #[inline]
-    fn name() -> Self {
-        Self::new()
-    }
-}
-
-impl<
-        A: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        B: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        C: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        D: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        E: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        F: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-        G: Bit + Any + Debug + Copy + PartialEq + Send + Sync,
-    > IsNotStaticOne
-    for UInt<UInt<UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, A>, B>, C>, D>, E>, F>, G>
-{
-}
-
-impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> NamedDim
-    for UInt<U, B>
-{
-    type Name = UInt<U, B>;
-}
-
-impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> Dim
-    for UInt<U, B>
-{
-    #[inline]
-    fn try_to_usize() -> Option<usize> {
-        Some(Self::to_usize())
-    }
-
-    #[inline]
-    fn from_usize(dim: usize) -> Self {
-        assert!(dim == Self::to_usize(), "Mismatched dimension.");
-        Self::new()
-    }
-
-    #[inline]
-    fn value(&self) -> usize {
-        Self::to_usize()
-    }
-}
-
-impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> DimName
-    for UInt<U, B>
-{
-    type Value = UInt<U, B>;
-
-    #[inline]
-    fn name() -> Self {
-        Self::new()
-    }
-}
-
-impl<U: Unsigned + DimName, B: Bit + Any + Debug + Copy + PartialEq + Send + Sync> IsNotStaticOne
-    for UInt<U, B>
-{
-}

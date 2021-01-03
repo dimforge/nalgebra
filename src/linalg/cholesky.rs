@@ -6,7 +6,7 @@ use simba::scalar::ComplexField;
 use simba::simd::SimdComplexField;
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Vector};
+use crate::base::{Const, DefaultAllocator, Matrix, MatrixMN, MatrixN, Vector};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum, U1};
 use crate::storage::{Storage, StorageMut};
@@ -234,8 +234,8 @@ where
         // loads the data into a new matrix with an additional jth row/column
         let mut chol = unsafe {
             crate::unimplemented_or_uninitialized_generic!(
-                self.chol.data.shape().0.add(U1),
-                self.chol.data.shape().1.add(U1)
+                self.chol.data.shape().0.add(Const::<1>),
+                self.chol.data.shape().1.add(Const::<1>)
             )
         };
         chol.slice_range_mut(..j, ..j)
@@ -299,8 +299,8 @@ where
         // loads the data into a new matrix except for the jth row/column
         let mut chol = unsafe {
             crate::unimplemented_or_uninitialized_generic!(
-                self.chol.data.shape().0.sub(U1),
-                self.chol.data.shape().1.sub(U1)
+                self.chol.data.shape().0.sub(Const::<1>),
+                self.chol.data.shape().1.sub(Const::<1>)
             )
         };
         chol.slice_range_mut(..j, ..j)

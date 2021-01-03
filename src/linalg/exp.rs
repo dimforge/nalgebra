@@ -3,7 +3,7 @@
 use crate::{
     base::{
         allocator::Allocator,
-        dimension::{Dim, DimMin, DimMinimum, U1},
+        dimension::{Const, Dim, DimMin, DimMinimum},
         storage::Storage,
         DefaultAllocator,
     },
@@ -349,7 +349,7 @@ where
     DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
     let nrows = a.data.shape().0;
-    let mut v = crate::VectorN::<N, D>::repeat_generic(nrows, U1, convert(1.0));
+    let mut v = crate::VectorN::<N, D>::repeat_generic(nrows, Const::<1>, convert(1.0));
     let m = a.transpose();
 
     for _ in 0..p {

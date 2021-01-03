@@ -1,5 +1,5 @@
 use crate::base::allocator::Allocator;
-use crate::base::{DefaultAllocator, DimName, Scalar};
+use crate::base::{DefaultAllocator, DimName, Scalar, ToTypenum};
 use crate::geometry::{Point, Point2, Point3};
 use typenum::{self, Cmp, Greater};
 
@@ -10,7 +10,7 @@ macro_rules! impl_swizzle {
                 /// Builds a new point from components of `self`.
                 #[inline]
                 pub fn $name(&self) -> $Result<N>
-                 where D::Value: Cmp<typenum::$BaseDim, Output=Greater> {
+                 where D::Typenum: Cmp<typenum::$BaseDim, Output=Greater> {
                     $Result::new($(self[$i].inlined_clone()),*)
                 }
             )*
@@ -19,8 +19,9 @@ macro_rules! impl_swizzle {
 }
 
 /// # Swizzling
-impl<N: Scalar, D: DimName> Point<N, D>
+impl<N: Scalar, D> Point<N, D>
 where
+    D: DimName + ToTypenum,
     DefaultAllocator: Allocator<N, D>,
 {
     impl_swizzle!(

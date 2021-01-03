@@ -28,7 +28,7 @@ use crate::base::iter::{
 use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
 };
-use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
+use crate::base::{Const, DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
 use crate::SimdComplexField;
 
 /// A square matrix.
@@ -1365,7 +1365,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
 
         let dim = self.data.shape().0;
         let mut res: VectorN<N2, D> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(dim, U1) };
+            unsafe { crate::unimplemented_or_uninitialized_generic!(dim, Const::<1>) };
 
         for i in 0..dim.value() {
             unsafe {
@@ -1476,7 +1476,7 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     {
         if v[v.len() - 1].is_zero() {
             let nrows = D::from_usize(v.len() - 1);
-            Some(v.generic_slice((0, 0), (nrows, U1)).into_owned())
+            Some(v.generic_slice((0, 0), (nrows, Const::<1>)).into_owned())
         } else {
             None
         }
@@ -1493,7 +1493,7 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
         let len = self.len();
         let hnrows = DimSum::<D, U1>::from_usize(len + 1);
         let mut res: VectorN<N, _> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(hnrows, U1) };
+            unsafe { crate::unimplemented_or_uninitialized_generic!(hnrows, Const::<1>) };
         res.generic_slice_mut((0, 0), self.data.shape())
             .copy_from(self);
         res[(len, 0)] = element;

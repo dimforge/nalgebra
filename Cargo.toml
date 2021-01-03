@@ -54,7 +54,6 @@ slow-tests       = []
 
 [dependencies]
 typenum        = "1.12"
-generic-array  = "0.14"
 rand-package   = { package = "rand", version = "0.8", optional = true, default-features = false }
 num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.3", default-features = false }

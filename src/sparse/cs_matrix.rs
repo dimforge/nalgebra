@@ -7,7 +7,7 @@ use std::slice;
 
 use crate::allocator::Allocator;
 use crate::sparse::cs_utils;
-use crate::{DefaultAllocator, Dim, Dynamic, Scalar, Vector, VectorN, U1};
+use crate::{Const, DefaultAllocator, Dim, Dynamic, Scalar, Vector, VectorN, U1};
 
 pub struct ColumnEntries<'a, N> {
     curr: usize,
@@ -274,7 +274,7 @@ where
         CsMatrix {
             data: CsVecStorage {
                 shape: (nrows, ncols),
-                p: VectorN::zeros_generic(ncols, U1),
+                p: VectorN::zeros_generic(ncols, Const::<1>),
                 i,
                 vals,
             },
@@ -417,7 +417,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
 
         let nvals = self.len();
         let mut res = CsMatrix::new_uninitialized_generic(ncols, nrows, nvals);
-        let mut workspace = Vector::zeros_generic(nrows, U1);
+        let mut workspace = Vector::zeros_generic(nrows, Const::<1>);
 
         // Compute p.
         for i in 0..nvals {
@@ -460,7 +460,7 @@ where
     {
         // Size = R
         let nrows = self.data.shape().0;
-        let mut workspace = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, U1) };
+        let mut workspace = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, Const::<1>) };
         self.sort_with_workspace(workspace.as_mut_slice());
     }
 

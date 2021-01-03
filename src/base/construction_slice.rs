@@ -1,4 +1,4 @@
-use crate::base::dimension::{Dim, DimName, Dynamic, U1};
+use crate::base::dimension::{Const, Dim, DimName, Dynamic};
 use crate::base::matrix_slice::{SliceStorage, SliceStorageMut};
 use crate::base::{MatrixSliceMN, MatrixSliceMutMN, Scalar};
 
@@ -68,7 +68,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMN<'a, N, R, C> {
         nrows: R,
         ncols: C,
     ) -> Self {
-        Self::from_slice_with_strides_generic_unchecked(data, start, nrows, ncols, U1, nrows)
+        Self::from_slice_with_strides_generic_unchecked(
+            data, start, nrows, ncols, Const::<1>, nrows,
+        )
     }
 
     /// Creates a matrix slice from an array and with dimensions and strides specified by generic types instances.
@@ -77,7 +79,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMN<'a, N, R, C> {
     /// The generic types `R` and `C` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
     pub fn from_slice_generic(data: &'a [N], nrows: R, ncols: C) -> Self {
-        Self::from_slice_with_strides_generic(data, nrows, ncols, U1, nrows)
+        Self::from_slice_with_strides_generic(data, nrows, ncols, Const::<1>, nrows)
     }
 }
 
@@ -224,7 +226,9 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, N, R, C> {
         nrows: R,
         ncols: C,
     ) -> Self {
-        Self::from_slice_with_strides_generic_unchecked(data, start, nrows, ncols, U1, nrows)
+        Self::from_slice_with_strides_generic_unchecked(
+            data, start, nrows, ncols, Const::<1>, nrows,
+        )
     }
 
     /// Creates a mutable matrix slice from an array and with dimensions and strides specified by generic types instances.
@@ -233,7 +237,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, N, R, C> {
     /// The generic types `R` and `C` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
     pub fn from_slice_generic(data: &'a mut [N], nrows: R, ncols: C) -> Self {
-        Self::from_slice_with_strides_generic(data, nrows, ncols, U1, nrows)
+        Self::from_slice_with_strides_generic(data, nrows, ncols, Const::<1>, nrows)
     }
 }
 

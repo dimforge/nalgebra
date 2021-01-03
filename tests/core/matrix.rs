@@ -1,11 +1,11 @@
 use num::{One, Zero};
 use std::cmp::Ordering;
 
-use na::dimension::{U15, U2, U4, U8};
+use na::dimension::{U15, U8};
 use na::{
-    self, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4, Matrix4,
-    Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RowVector3, RowVector4, RowVector5, Vector1,
-    Vector2, Vector3, Vector4, Vector5, Vector6,
+    self, Const, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4,
+    Matrix4, Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RowVector3, RowVector4, RowVector5,
+    Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
 };
 
 #[test]
@@ -79,10 +79,15 @@ fn iter() {
 
 #[test]
 fn debug_output_corresponds_to_data_container() {
-    assert!(
-        format!("{:?}", Matrix2::new(1.0, 2.0, 3.0, 4.0)) == "Matrix { data: [1, 3, 2, 4] }" || // Current output on the stable chanel.
-        format!("{:?}", Matrix2::new(1.0, 2.0, 3.0, 4.0)) == "Matrix { data: [1.0, 3.0, 2.0, 4.0] }" // Current output on the nightyl chanel.
-    );
+    let m = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+    let output_stable = "Matrix { data: [[1, 3], [2, 4]] }"; // Current output on the stable channel.
+    let output_nightly = "Matrix { data: [[1.0, 3.0], [2.0, 4.0]] }"; // Current output on the nightly channel.
+    let current_output = format!("{:?}", m);
+    dbg!(output_stable);
+    dbg!(output_nightly);
+    dbg!(&current_output);
+
+    assert!(current_output == output_stable || current_output == output_nightly);
 }
 
 #[test]
@@ -1061,13 +1066,13 @@ fn partial_eq_different_types() {
     let dynamic_mat = DMatrix::from_row_slice(2, 4, &[1, 2, 3, 4, 5, 6, 7, 8]);
     let static_mat = Matrix2x4::new(1, 2, 3, 4, 5, 6, 7, 8);
 
-    let mut typenum_static_mat = MatrixMN::<u8, typenum::U1024, U4>::zeros();
+    let mut typenum_static_mat = MatrixMN::<u8, Const<1024>, Const<4>>::zeros();
     let mut slice = typenum_static_mat.slice_mut((0, 0), (2, 4));
     slice += static_mat;
 
-    let fslice_of_dmat = dynamic_mat.fixed_slice::<U2, U2>(0, 0);
+    let fslice_of_dmat = dynamic_mat.fixed_slice::<Const<2>, Const<2>>(0, 0);
     let dslice_of_dmat = dynamic_mat.slice((0, 0), (2, 2));
-    let fslice_of_smat = static_mat.fixed_slice::<U2, U2>(0, 0);
+    let fslice_of_smat = static_mat.fixed_slice::<Const<2>, Const<2>>(0, 0);
     let dslice_of_smat = static_mat.slice((0, 0), (2, 2));
 
     assert_eq!(dynamic_mat, static_mat);

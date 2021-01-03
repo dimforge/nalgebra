@@ -2,7 +2,7 @@ use crate::allocator::Allocator;
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::sparse::{CsMatrix, CsStorage, CsVector};
 use crate::storage::{Storage, StorageMut};
-use crate::{DefaultAllocator, Dim, Matrix, MatrixMN, RealField, VectorN, U1};
+use crate::{Const, DefaultAllocator, Dim, Matrix, MatrixMN, RealField, VectorN};
 
 impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
     /// Solve a lower-triangular system with a dense right-hand-side.
@@ -150,7 +150,7 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         // We sort the reach so the result matrix has sorted indices.
         reach.sort();
         let mut workspace =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(b.data.shape().0, U1) };
+            unsafe { crate::unimplemented_or_uninitialized_generic!(b.data.shape().0, Const::<1>) };
 
         for i in reach.iter().cloned() {
             workspace[i] = N::zero();
@@ -187,7 +187,8 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         }
 
         // Copy the result into a sparse vector.
-        let mut result = CsVector::new_uninitialized_generic(b.data.shape().0, U1, reach.len());
+        let mut result =
+            CsVector::new_uninitialized_generic(b.data.shape().0, Const::<1>, reach.len());
 
         for (i, val) in reach.iter().zip(result.data.vals.iter_mut()) {
             *val = workspace[*i];
@@ -251,7 +252,7 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         S2: CsStorage<N, D2>,
         DefaultAllocator: Allocator<bool, D>,
     {
-        let mut visited = VectorN::repeat_generic(self.data.shape().1, U1, false);
+        let mut visited = VectorN::repeat_generic(self.data.shape().1, Const::<1>, false);
         let mut stack = Vec::new();
 
         for irow in b.data.column_row_indices(0) {

@@ -2,7 +2,7 @@ use std::cmp;
 
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
-use crate::base::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum};
+use crate::base::dimension::{Const, Dim, DimAdd, DimDiff, DimSub, DimSum};
 use crate::storage::Storage;
 use crate::{zero, RealField, Vector, VectorN, U1};
 
@@ -31,11 +31,16 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
         let ker = kernel.len();
 
         if ker == 0 || ker > vec {
-            panic!("convolve_full expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
+            panic!("convolve_full expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.", vec, ker);
         }
 
-        let result_len = self.data.shape().0.add(kernel.data.shape().0).sub(U1);
-        let mut conv = VectorN::zeros_generic(result_len, U1);
+        let result_len = self
+            .data
+            .shape()
+            .0
+            .add(kernel.data.shape().0)
+            .sub(Const::<1>);
+        let mut conv = VectorN::zeros_generic(result_len, Const::<1>);
 
         for i in 0..(vec + ker - 1) {
             let u_i = if i > vec { i - ker } else { 0 };
@@ -82,8 +87,13 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
             panic!("convolve_valid expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
         }
 
-        let result_len = self.data.shape().0.add(U1).sub(kernel.data.shape().0);
-        let mut conv = VectorN::zeros_generic(result_len, U1);
+        let result_len = self
+            .data
+            .shape()
+            .0
+            .add(Const::<1>)
+            .sub(kernel.data.shape().0);
+        let mut conv = VectorN::zeros_generic(result_len, Const::<1>);
 
         for i in 0..(vec - ker + 1) {
             for j in 0..ker {
@@ -115,7 +125,7 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
             panic!("convolve_same expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
         }
 
-        let mut conv = VectorN::zeros_generic(self.data.shape().0, U1);
+        let mut conv = VectorN::zeros_generic(self.data.shape().0, Const::<1>);
 
         for i in 0..vec {
             for j in 0..ker {

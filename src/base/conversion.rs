@@ -5,10 +5,6 @@ use std::convert::{AsMut, AsRef, From, Into};
 use std::mem;
 use std::ptr;
 
-use generic_array::ArrayLength;
-use std::ops::Mul;
-use typenum::Prod;
-
 use simba::simd::{PrimitiveSimdValue, SimdValue};
 
 use crate::base::allocator::{Allocator, SameShapeAllocator};
@@ -16,7 +12,7 @@ use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstr
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::dimension::Dynamic;
 use crate::base::dimension::{
-    Dim, DimName, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
+    Const, Dim, DimName, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
 };
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
@@ -233,18 +229,16 @@ impl_from_into_asref_2D!(
     (U6, U2) => (6, 2); (U6, U3) => (6, 3); (U6, U4) => (6, 4); (U6, U5) => (6, 5); (U6, U6) => (6, 6);
 );
 
-impl<'a, N, R, C, RStride, CStride> From<MatrixSlice<'a, N, R, C, RStride, CStride>>
-    for Matrix<N, R, C, ArrayStorage<N, R, C>>
+
+impl<'a, N, RStride, CStride, const R: usize, const C: usize>
+    From<MatrixSlice<'a, N, Const<R>, Const<C>, RStride, CStride>>
+    for Matrix<N, Const<R>, Const<C>, ArrayStorage<N, R, C>>
 where
     N: Scalar,
-    R: DimName,
-    C: DimName,
     RStride: Dim,
     CStride: Dim,
-    R::Value: Mul<C::Value>,
-    Prod<R::Value, C::Value>: ArrayLength<N>,
 {
-    fn from(matrix_slice: MatrixSlice<'a, N, R, C, RStride, CStride>) -> Self {
+    fn from(matrix_slice: MatrixSlice<'a, N, Const<R>, Const<C>, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
     }
 }
@@ -277,18 +271,15 @@ where
     }
 }
 
-impl<'a, N, R, C, RStride, CStride> From<MatrixSliceMut<'a, N, R, C, RStride, CStride>>
-    for Matrix<N, R, C, ArrayStorage<N, R, C>>
+impl<'a, N, RStride, CStride, const R: usize, const C: usize>
+    From<MatrixSliceMut<'a, N, Const<R>, Const<C>, RStride, CStride>>
+    for Matrix<N, Const<R>, Const<C>, ArrayStorage<N, R, C>>
 where
     N: Scalar,
-    R: DimName,
-    C: DimName,
     RStride: Dim,
     CStride: Dim,
-    R::Value: Mul<C::Value>,
-    Prod<R::Value, C::Value>: ArrayLength<N>,
 {
-    fn from(matrix_slice: MatrixSliceMut<'a, N, R, C, RStride, CStride>) -> Self {
+    fn from(matrix_slice: MatrixSliceMut<'a, N, Const<R>, Const<C>, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
     }
 }
