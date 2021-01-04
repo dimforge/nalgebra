@@ -280,7 +280,6 @@ fn dense_gemm<'a>(beta: i32,
 }
 
 proptest! {
-
     #[test]
     fn spmm_csr_dense_agrees_with_dense_result(
         SpmmCsrDenseArgs { c, beta, alpha, a, b }
@@ -836,5 +835,95 @@ proptest! {
         let c_ref_ref = &a + &b;
         prop_assert_eq!(&DMatrix::from(&c_ref_ref), &c_dense);
         prop_assert_eq!(c_ref_ref.pattern(), &c_pattern);
+    }
+
+    #[test]
+    fn csr_mul_scalar((scalar, matrix) in (PROPTEST_I32_VALUE_STRATEGY, csr_strategy())) {
+        let dense = DMatrix::from(&matrix);
+        let dense_result = dense * scalar;
+
+        let result_owned_owned = matrix.clone() * scalar;
+        let result_owned_ref = matrix.clone() * &scalar;
+        let result_ref_owned = &matrix * scalar;
+        let result_ref_ref = &matrix * &scalar;
+
+        // Check that all the combinations of reference and owned variables return the same
+        // result
+        prop_assert_eq!(&result_owned_ref, &result_owned_owned);
+        prop_assert_eq!(&result_ref_owned, &result_owned_owned);
+        prop_assert_eq!(&result_ref_ref, &result_owned_owned);
+
+        // Check that this result is consistent with the dense result, and that the
+        // NNZ is the same as before
+        prop_assert_eq!(result_owned_owned.nnz(), matrix.nnz());
+        prop_assert_eq!(DMatrix::from(&result_owned_owned), dense_result);
+
+        // Finally, check mul-assign
+        let mut result_assign_owned = matrix.clone();
+        result_assign_owned *= scalar;
+        let mut result_assign_ref = matrix.clone();
+        result_assign_ref *= &scalar;
+
+        prop_assert_eq!(&result_assign_owned, &result_owned_owned);
+        prop_assert_eq!(&result_assign_ref, &result_owned_owned);
+    }
+
+    #[test]
+    fn csc_mul_scalar((scalar, matrix) in (PROPTEST_I32_VALUE_STRATEGY, csc_strategy())) {
+        let dense = DMatrix::from(&matrix);
+        let dense_result = dense * scalar;
+
+        let result_owned_owned = matrix.clone() * scalar;
+        let result_owned_ref = matrix.clone() * &scalar;
+        let result_ref_owned = &matrix * scalar;
+        let result_ref_ref = &matrix * &scalar;
+
+        // Check that all the combinations of reference and owned variables return the same
+        // result
+        prop_assert_eq!(&result_owned_ref, &result_owned_owned);
+        prop_assert_eq!(&result_ref_owned, &result_owned_owned);
+        prop_assert_eq!(&result_ref_ref, &result_owned_owned);
+
+        // Check that this result is consistent with the dense result, and that the
+        // NNZ is the same as before
+        prop_assert_eq!(result_owned_owned.nnz(), matrix.nnz());
+        prop_assert_eq!(DMatrix::from(&result_owned_owned), dense_result);
+
+        // Finally, check mul-assign
+        let mut result_assign_owned = matrix.clone();
+        result_assign_owned *= scalar;
+        let mut result_assign_ref = matrix.clone();
+        result_assign_ref *= &scalar;
+
+        prop_assert_eq!(&result_assign_owned, &result_owned_owned);
+        prop_assert_eq!(&result_assign_ref, &result_owned_owned);
+    }
+
+    #[test]
+    fn scalar_mul_csr((scalar, matrix) in (PROPTEST_I32_VALUE_STRATEGY, csr_strategy())) {
+        // For scalar * matrix, we cannot generally implement this for any type T,
+        // so we have implemented this for the built in types separately. This requires
+        // us to also test these types separately. For validation, we check that
+        //  scalar * matrix == matrix * scalar,
+        // which is sufficient for correctness if matrix * scalar is correctly implemented
+        // (which is tested separately).
+        // We only test for i32 here, because with our current implementation, the implementations
+        // for different types are completely identical and only rely on basic arithmetic
+        // operations
+        let result = &matrix * scalar;
+        prop_assert_eq!(&(scalar * matrix.clone()), &result);
+        prop_assert_eq!(&(scalar * &matrix), &result);
+        prop_assert_eq!(&(&scalar * matrix.clone()), &result);
+        prop_assert_eq!(&(&scalar * &matrix), &result);
+    }
+
+    #[test]
+    fn scalar_mul_csc((scalar, matrix) in (PROPTEST_I32_VALUE_STRATEGY, csc_strategy())) {
+        // See comments for scalar_mul_csr
+        let result = &matrix * scalar;
+        prop_assert_eq!(&(scalar * matrix.clone()), &result);
+        prop_assert_eq!(&(scalar * &matrix), &result);
+        prop_assert_eq!(&(&scalar * matrix.clone()), &result);
+        prop_assert_eq!(&(&scalar * &matrix), &result);
     }
 }

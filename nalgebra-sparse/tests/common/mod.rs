@@ -3,6 +3,8 @@ use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::proptest::{csr, csc};
 use nalgebra_sparse::csc::CscMatrix;
 use std::ops::RangeInclusive;
+use std::convert::{TryFrom};
+use std::fmt::Debug;
 
 #[macro_export]
 macro_rules! assert_panics {
@@ -28,6 +30,15 @@ macro_rules! assert_panics {
 pub const PROPTEST_MATRIX_DIM: RangeInclusive<usize> = 0..=6;
 pub const PROPTEST_MAX_NNZ: usize = 40;
 pub const PROPTEST_I32_VALUE_STRATEGY: RangeInclusive<i32> = -5 ..= 5;
+
+pub fn value_strategy<T>() -> RangeInclusive<T>
+where
+    T: TryFrom<i32>,
+    T::Error: Debug
+{
+    let (start, end) = (PROPTEST_I32_VALUE_STRATEGY.start(), PROPTEST_I32_VALUE_STRATEGY.end());
+    T::try_from(*start).unwrap() ..= T::try_from(*end).unwrap()
+}
 
 pub fn csr_strategy() -> impl Strategy<Value=CsrMatrix<i32>> {
     csr(PROPTEST_I32_VALUE_STRATEGY, PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ)
