@@ -418,6 +418,39 @@ proptest! {
     }
 
     #[test]
+    fn csr_sub_csr(
+        // a and b have the same dimensions
+        (a, b)
+        in csr_strategy()
+            .prop_flat_map(|a| {
+                let b = csr(PROPTEST_I32_VALUE_STRATEGY, Just(a.nrows()), Just(a.ncols()), PROPTEST_MAX_NNZ);
+                (Just(a), b)
+            }))
+    {
+        // See comments in csr_add_csr for rationale for checking the pattern this way
+        let c_dense = DMatrix::from(&a) - DMatrix::from(&b);
+        let c_dense_pattern = dense_csr_pattern(a.pattern()) + dense_csr_pattern(b.pattern());
+        let c_pattern = CsrMatrix::from(&c_dense_pattern).pattern().clone();
+
+        // Check each combination of owned matrices and references
+        let c_owned_owned = a.clone() - b.clone();
+        prop_assert_eq!(&DMatrix::from(&c_owned_owned), &c_dense);
+        prop_assert_eq!(c_owned_owned.pattern(), &c_pattern);
+
+        let c_owned_ref = a.clone() - &b;
+        prop_assert_eq!(&DMatrix::from(&c_owned_ref), &c_dense);
+        prop_assert_eq!(c_owned_ref.pattern(), &c_pattern);
+
+        let c_ref_owned = &a - b.clone();
+        prop_assert_eq!(&DMatrix::from(&c_ref_owned), &c_dense);
+        prop_assert_eq!(c_ref_owned.pattern(), &c_pattern);
+
+        let c_ref_ref = &a - &b;
+        prop_assert_eq!(&DMatrix::from(&c_ref_ref), &c_dense);
+        prop_assert_eq!(c_ref_ref.pattern(), &c_pattern);
+    }
+
+    #[test]
     fn spmm_pattern_test((a, b) in spmm_pattern_strategy())
     {
         // (a, b) are multiplication-wise dimensionally compatible patterns
@@ -833,6 +866,39 @@ proptest! {
         prop_assert_eq!(c_ref_owned.pattern(), &c_pattern);
 
         let c_ref_ref = &a + &b;
+        prop_assert_eq!(&DMatrix::from(&c_ref_ref), &c_dense);
+        prop_assert_eq!(c_ref_ref.pattern(), &c_pattern);
+    }
+
+    #[test]
+    fn csc_sub_csc(
+        // a and b have the same dimensions
+        (a, b)
+        in csc_strategy()
+            .prop_flat_map(|a| {
+                let b = csc(PROPTEST_I32_VALUE_STRATEGY, Just(a.nrows()), Just(a.ncols()), PROPTEST_MAX_NNZ);
+                (Just(a), b)
+            }))
+    {
+        // See comments in csc_add_csc for rationale for checking the pattern this way
+        let c_dense = DMatrix::from(&a) - DMatrix::from(&b);
+        let c_dense_pattern = dense_csc_pattern(a.pattern()) + dense_csc_pattern(b.pattern());
+        let c_pattern = CscMatrix::from(&c_dense_pattern).pattern().clone();
+
+        // Check each combination of owned matrices and references
+        let c_owned_owned = a.clone() - b.clone();
+        prop_assert_eq!(&DMatrix::from(&c_owned_owned), &c_dense);
+        prop_assert_eq!(c_owned_owned.pattern(), &c_pattern);
+
+        let c_owned_ref = a.clone() - &b;
+        prop_assert_eq!(&DMatrix::from(&c_owned_ref), &c_dense);
+        prop_assert_eq!(c_owned_ref.pattern(), &c_pattern);
+
+        let c_ref_owned = &a - b.clone();
+        prop_assert_eq!(&DMatrix::from(&c_ref_owned), &c_dense);
+        prop_assert_eq!(c_ref_owned.pattern(), &c_pattern);
+
+        let c_ref_ref = &a - &b;
         prop_assert_eq!(&DMatrix::from(&c_ref_ref), &c_dense);
         prop_assert_eq!(c_ref_ref.pattern(), &c_pattern);
     }
