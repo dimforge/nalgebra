@@ -15,7 +15,7 @@ pub enum Op<T> {
 impl<T> Op<T> {
     /// TODO
     pub fn inner_ref(&self) -> &T {
-        self.as_ref().unwrap()
+        self.as_ref().into_inner()
     }
 
     /// TODO
@@ -43,7 +43,7 @@ impl<T> Op<T> {
     }
 
     /// TODO
-    pub fn unwrap(self) -> T {
+    pub fn into_inner(self) -> T {
         match self {
             Op::NoOp(obj) | Op::Transpose(obj) => obj,
         }
