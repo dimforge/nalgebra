@@ -1,10 +1,10 @@
 use crate::csr::CsrMatrix;
 use crate::csc::CscMatrix;
 
-use std::ops::{Add, Mul, MulAssign, Sub, Neg};
+use std::ops::{Add, Div, DivAssign, Mul, MulAssign, Sub, Neg};
 use crate::ops::serial::{spadd_csr_prealloc, spadd_csc_prealloc, spadd_pattern,
                          spmm_pattern, spmm_csr_prealloc, spmm_csc_prealloc};
-use nalgebra::{ClosedAdd, ClosedMul, ClosedSub, Scalar};
+use nalgebra::{ClosedAdd, ClosedMul, ClosedSub, ClosedDiv, Scalar};
 use num_traits::{Zero, One};
 use std::sync::Arc;
 use crate::ops::{Op};
@@ -13,15 +13,15 @@ use crate::ops::{Op};
 /// See below for usage.
 macro_rules! impl_bin_op {
     ($trait:ident, $method:ident,
-        <$($life:lifetime),* $(,)? $($scalar_type:ident)?>($a:ident : $a_type:ty, $b:ident : $b_type:ty) -> $ret:ty $body:block)
+        <$($life:lifetime),* $(,)? $($scalar_type:ident $(: $bounds:path)?)?>($a:ident : $a_type:ty, $b:ident : $b_type:ty) -> $ret:ty $body:block)
         =>
     {
         impl<$($life,)* $($scalar_type)?> $trait<$b_type> for $a_type
         where
-            // Note: The Signed bound is currently required because we delegate e.g.
+            // Note: The Neg bound is currently required because we delegate e.g.
             // Sub to SpAdd with negative coefficients. This is not well-defined for
             // unsigned data types.
-            $($scalar_type: Scalar + ClosedAdd + ClosedSub + ClosedMul + Zero + One + Neg<Output=T>)?
+            $($scalar_type: $($bounds + )? Scalar + ClosedAdd + ClosedSub + ClosedMul + Zero + One + Neg<Output=T>)?
         {
             type Output = $ret;
             fn $method(self, $b: $b_type) -> Self::Output {
@@ -29,7 +29,7 @@ macro_rules! impl_bin_op {
                 $body
             }
         }
-    }
+    };
 }
 
 /// Implements a +/- b for all combinations of reference and owned matrices, for
@@ -198,4 +198,81 @@ macro_rules! impl_scalar_mul {
 impl_scalar_mul!(CsrMatrix);
 impl_scalar_mul!(CscMatrix);
 
-// TODO: Neg, Div
+macro_rules! impl_neg {
+    ($matrix_type:ident) => {
+        impl<T> Neg for $matrix_type<T>
+        where
+            T: Scalar + Neg<Output=T>
+        {
+            type Output = $matrix_type<T>;
+
+            fn neg(mut self) -> Self::Output {
+                for v_i in self.values_mut() {
+                    *v_i = -v_i.inlined_clone();
+                }
+                self
+            }
+        }
+
+        impl<'a, T> Neg for &'a $matrix_type<T>
+        where
+            T: Scalar + Neg<Output=T>
+        {
+            type Output = $matrix_type<T>;
+
+            fn neg(self) -> Self::Output {
+                // TODO: This is inefficient. Ideally we'd have a method that would let us
+                // obtain both the sparsity pattern and values from the matrix,
+                // and then modify the values before creating a new matrix from the pattern
+                // and negated values.
+                - self.clone()
+            }
+        }
+    }
+}
+
+impl_neg!(CsrMatrix);
+impl_neg!(CscMatrix);
+
+macro_rules! impl_div {
+    ($matrix_type:ident) => {
+        impl_bin_op!(Div, div, <T: ClosedDiv>(matrix: $matrix_type<T>, scalar: T) -> $matrix_type<T> {
+            let mut matrix = matrix;
+            matrix /= scalar;
+            matrix
+        });
+        impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: $matrix_type<T>, scalar: &T) -> $matrix_type<T> {
+            matrix / scalar.inlined_clone()
+        });
+        impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: &'a $matrix_type<T>, scalar: T) -> $matrix_type<T> {
+            let new_values = matrix.values()
+                .iter()
+                .map(|v_i| v_i.inlined_clone() / scalar.inlined_clone())
+                .collect();
+            $matrix_type::try_from_pattern_and_values(Arc::clone(matrix.pattern()), new_values)
+                .unwrap()
+        });
+        impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: &'a $matrix_type<T>, scalar: &'a T) -> $matrix_type<T> {
+            matrix / scalar.inlined_clone()
+        });
+
+        impl<T> DivAssign<T> for $matrix_type<T>
+            where T : Scalar + ClosedAdd + ClosedMul + ClosedDiv + Zero + One
+        {
+            fn div_assign(&mut self, scalar: T) {
+                self.values_mut().iter_mut().for_each(|v_i| *v_i /= scalar.inlined_clone());
+            }
+        }
+
+        impl<'a, T> DivAssign<&'a T> for $matrix_type<T>
+            where T : Scalar + ClosedAdd + ClosedMul + ClosedDiv + Zero + One
+        {
+            fn div_assign(&mut self, scalar: &'a T) {
+                *self /= scalar.inlined_clone();
+            }
+        }
+    }
+}
+
+impl_div!(CsrMatrix);
+impl_div!(CscMatrix);

@@ -40,6 +40,15 @@ where
     T::try_from(*start).unwrap() ..= T::try_from(*end).unwrap()
 }
 
+pub fn non_zero_i32_value_strategy() -> impl Strategy<Value=i32> {
+    let (start, end) = (PROPTEST_I32_VALUE_STRATEGY.start(), PROPTEST_I32_VALUE_STRATEGY.end());
+    assert!(start < &0);
+    assert!(end > &0);
+    // Note: we don't use RangeInclusive for the second range, because then we'd have different
+    // types, which would require boxing
+    (*start .. 0).prop_union(1 .. *end + 1)
+}
+
 pub fn csr_strategy() -> impl Strategy<Value=CsrMatrix<i32>> {
     csr(PROPTEST_I32_VALUE_STRATEGY, PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ)
 }

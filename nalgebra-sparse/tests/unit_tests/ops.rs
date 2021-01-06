@@ -1,5 +1,5 @@
 use crate::common::{csc_strategy, csr_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ,
-                    PROPTEST_I32_VALUE_STRATEGY};
+                    PROPTEST_I32_VALUE_STRATEGY, non_zero_i32_value_strategy};
 use nalgebra_sparse::ops::serial::{spmm_csr_dense, spmm_csc_dense, spadd_pattern, spmm_pattern,
                                    spadd_csr_prealloc, spadd_csc_prealloc,
                                    spmm_csr_prealloc, spmm_csc_prealloc};
@@ -992,4 +992,99 @@ proptest! {
         prop_assert_eq!(&(&scalar * matrix.clone()), &result);
         prop_assert_eq!(&(&scalar * &matrix), &result);
     }
+
+    #[test]
+    fn csr_neg(csr in csr_strategy()) {
+        let result = &csr - 2 * &csr;
+        prop_assert_eq!(-&csr, result.clone());
+        prop_assert_eq!(-csr, result);
+    }
+
+    #[test]
+    fn csc_neg(csc in csc_strategy()) {
+        let result = &csc - 2 * &csc;
+        prop_assert_eq!(-&csc, result.clone());
+        prop_assert_eq!(-csc, result);
+    }
+
+    #[test]
+    fn csr_div((csr, divisor) in (csr_strategy(), non_zero_i32_value_strategy())) {
+        let result_owned_owned = csr.clone() / divisor;
+        let result_owned_ref = csr.clone() / &divisor;
+        let result_ref_owned = &csr / divisor;
+        let result_ref_ref = &csr / &divisor;
+
+        // Verify that all results are the same
+        prop_assert_eq!(&result_owned_ref, &result_owned_owned);
+        prop_assert_eq!(&result_ref_owned, &result_owned_owned);
+        prop_assert_eq!(&result_ref_ref, &result_owned_owned);
+
+        // Check that NNZ was left unchanged
+        prop_assert_eq!(result_owned_owned.nnz(), csr.nnz());
+
+        // Then compare against the equivalent dense result
+        let dense_result = DMatrix::from(&csr) / divisor;
+        prop_assert_eq!(DMatrix::from(&result_owned_owned), dense_result);
+    }
+
+    #[test]
+    fn csc_div((csc, divisor) in (csc_strategy(), non_zero_i32_value_strategy())) {
+        let result_owned_owned = csc.clone() / divisor;
+        let result_owned_ref = csc.clone() / &divisor;
+        let result_ref_owned = &csc / divisor;
+        let result_ref_ref = &csc / &divisor;
+
+        // Verify that all results are the same
+        prop_assert_eq!(&result_owned_ref, &result_owned_owned);
+        prop_assert_eq!(&result_ref_owned, &result_owned_owned);
+        prop_assert_eq!(&result_ref_ref, &result_owned_owned);
+
+        // Check that NNZ was left unchanged
+        prop_assert_eq!(result_owned_owned.nnz(), csc.nnz());
+
+        // Then compare against the equivalent dense result
+        let dense_result = DMatrix::from(&csc) / divisor;
+        prop_assert_eq!(DMatrix::from(&result_owned_owned), dense_result);
+    }
+
+    #[test]
+    fn csr_div_assign((csr, divisor) in (csr_strategy(), non_zero_i32_value_strategy())) {
+        let result_owned = {
+            let mut csr = csr.clone();
+            csr /= divisor;
+            csr
+        };
+
+        let result_ref = {
+            let mut csr = csr.clone();
+            csr /= &divisor;
+            csr
+        };
+
+        let expected_result = csr / divisor;
+
+        prop_assert_eq!(&result_owned, &expected_result);
+        prop_assert_eq!(&result_ref, &expected_result);
+    }
+
+    #[test]
+    fn csc_div_assign((csc, divisor) in (csc_strategy(), non_zero_i32_value_strategy())) {
+        let result_owned = {
+            let mut csc = csc.clone();
+            csc /= divisor;
+            csc
+        };
+
+        let result_ref = {
+            let mut csc = csc.clone();
+            csc /= &divisor;
+            csc
+        };
+
+        let expected_result = csc / divisor;
+
+        prop_assert_eq!(&result_owned, &expected_result);
+        prop_assert_eq!(&result_ref, &expected_result);
+    }
+
 }
