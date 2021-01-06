@@ -1087,4 +1087,32 @@ proptest! {
         prop_assert_eq!(&result_ref, &expected_result);
     }
 
+    #[test]
+    fn csr_mul_dense(
+        // a and b have dimensions compatible for multiplication
+        (a, b)
+        in csr_strategy()
+            .prop_flat_map(|a| {
+                let cols = PROPTEST_MATRIX_DIM;
+                let b = matrix(PROPTEST_I32_VALUE_STRATEGY, a.ncols(), cols);
+                (Just(a), b)
+            }))
+    {
+        prop_assert_eq!(&a * &b, &DMatrix::from(&a) * &b);
+    }
+
+    #[test]
+    fn csc_mul_dense(
+        // a and b have dimensions compatible for multiplication
+        (a, b)
+        in csc_strategy()
+            .prop_flat_map(|a| {
+                let cols = PROPTEST_MATRIX_DIM;
+                let b = matrix(PROPTEST_I32_VALUE_STRATEGY, a.ncols(), cols);
+                (Just(a), b)
+            }))
+    {
+        prop_assert_eq!(&a * &b, &DMatrix::from(&a) * &b);
+    }
+
 }
