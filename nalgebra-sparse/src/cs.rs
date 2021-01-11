@@ -4,6 +4,8 @@ use crate::{SparseEntry, SparseEntryMut};
 use std::sync::Arc;
 use std::ops::Range;
 use std::mem::replace;
+use num_traits::One;
+use nalgebra::Scalar;
 
 /// An abstract compressed matrix.
 ///
@@ -153,6 +155,21 @@ impl<T> CsMatrix<T> {
     #[inline]
     pub fn lane_iter_mut(&mut self) -> CsLaneIterMut<T> {
         CsLaneIterMut::new(self.sparsity_pattern.as_ref(), &mut self.values)
+    }
+}
+
+impl<T: Scalar + One> CsMatrix<T> {
+    /// TODO
+    #[inline]
+    pub fn identity(n: usize) -> Self {
+        let offsets: Vec<_> = (0 ..= n).collect();
+        let indices: Vec<_> = (0 .. n).collect();
+        let values = vec![T::one(); n];
+
+        // TODO: We should skip checks here
+        let pattern = SparsityPattern::try_from_offsets_and_indices(n, n, offsets, indices)
+            .unwrap();
+        Self::from_pattern_and_values(Arc::new(pattern), values)
     }
 }
 

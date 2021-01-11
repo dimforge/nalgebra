@@ -5,7 +5,7 @@ use crate::csc::CscMatrix;
 use crate::cs::{CsMatrix, CsLaneIterMut, CsLaneIter, CsLane, CsLaneMut};
 
 use nalgebra::Scalar;
-use num_traits::Zero;
+use num_traits::{Zero, One};
 
 use std::sync::Arc;
 use std::slice::{IterMut, Iter};
@@ -335,6 +335,16 @@ where
     /// Compute the transpose of the matrix.
     pub fn transpose(&self) -> CsrMatrix<T> {
         CscMatrix::from(self).transpose_as_csr()
+    }
+}
+
+impl<T: Scalar + One> CsrMatrix<T> {
+    /// TODO
+    #[inline]
+    pub fn identity(n: usize) -> Self {
+        Self {
+            cs: CsMatrix::identity(n)
+        }
     }
 }
 
