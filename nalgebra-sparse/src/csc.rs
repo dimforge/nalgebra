@@ -115,7 +115,6 @@ impl<T> CscMatrix<T> {
         }
     }
 
-
     /// An iterator over non-zero triplets (i, j, v).
     ///
     /// The iteration happens in column-major fashion, meaning that j increases monotonically,

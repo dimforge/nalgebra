@@ -1,4 +1,5 @@
 mod coo;
+mod cholesky;
 mod ops;
 mod pattern;
 mod csr;
