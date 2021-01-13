@@ -6,7 +6,7 @@ use nalgebra_sparse::proptest::csc;
 use nalgebra::{Matrix5, Vector5, Cholesky, DMatrix};
 
 use proptest::prelude::*;
-use matrixcompare::assert_matrix_eq;
+use matrixcompare::{assert_matrix_eq, prop_assert_matrix_eq};
 
 fn positive_definite() -> impl Strategy<Value=CscMatrix<f64>> {
     let csc_f64 = csc(value_strategy::<f64>(),
@@ -29,11 +29,10 @@ proptest! {
         let l = cholesky.take_l();
         let matrix_reconstructed = &l * l.transpose();
 
-        // TODO: Use matrixcompare instead
-        let diff = DMatrix::from(&(matrix_reconstructed - matrix));
-        prop_assert!(diff.abs().max() < 1e-8);
+        prop_assert_matrix_eq!(matrix_reconstructed, matrix, comp = abs, tol = 1e-8);
 
-        // TODO: Check that L is in fact lower triangular
+        let is_lower_triangular = l.triplet_iter().all(|(i, j, _)| j <= i);
+        prop_assert!(is_lower_triangular);
     }
 
 }
