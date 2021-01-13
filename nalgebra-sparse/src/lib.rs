@@ -76,6 +76,7 @@
 //! - Overall design ("easy API" vs. "expert" API etc.)
 //! - Conversions (From, explicit "expert" API etc.)
 //! - Matrix ops design
+//! - Proptest and matrixcompare integrations
 #![deny(non_camel_case_types)]
 #![deny(unused_parens)]
 #![deny(non_upper_case_globals)]
@@ -95,6 +96,9 @@ pub(crate) mod cs;
 
 #[cfg(feature = "proptest-support")]
 pub mod proptest;
+
+#[cfg(feature = "compare")]
+mod matrixcompare;
 
 use std::error::Error;
 use std::fmt;
