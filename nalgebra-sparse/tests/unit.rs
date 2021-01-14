@@ -1,6 +1,6 @@
 //! Unit tests
-#[cfg(not(feature = "proptest-support"))]
-compile_error!("Tests must be run with feature proptest-support");
+#[cfg(any(not(feature = "proptest-support"), not(feature = "compare")))]
+compile_error!("Tests must be run with features `proptest-support` and `compare`");
 
 mod unit_tests;
 
