@@ -3,8 +3,11 @@ use nalgebra_sparse::SparseFormatErrorKind;
 use nalgebra::DMatrix;
 
 use proptest::prelude::*;
+use proptest::sample::subsequence;
 
 use crate::common::csc_strategy;
+
+use std::collections::HashSet;
 
 #[test]
 fn csc_matrix_valid_data() {
@@ -270,5 +273,59 @@ proptest! {
         let csc_transpose = csc.transpose();
         prop_assert_eq!(dense_transpose, DMatrix::from(&csc_transpose));
         prop_assert_eq!(csc.nnz(), csc_transpose.nnz());
+    }
+
+    #[test]
+    fn csc_filter(
+        (csc, triplet_subset)
+        in csc_strategy()
+            .prop_flat_map(|matrix| {
+                let triplets: Vec<_> = matrix.triplet_iter().cloned_values().collect();
+                let subset = subsequence(triplets, 0 ..= matrix.nnz())
+                    .prop_map(|triplet_subset| {
+                        let set: HashSet<_> = triplet_subset.into_iter().collect();
+                        set
+                    });
+                (Just(matrix), subset)
+            }))
+    {
+        // We generate a CscMatrix and a HashSet corresponding to a subset of the (i, j, v)
+        // values in the matrix, which we use for filtering the matrix entries.
+        // The resulting triplets in the filtered matrix must then be exactly equal to
+        // the subset.
+        let filtered = csc.filter(|i, j, v| triplet_subset.contains(&(i, j, *v)));
+        let filtered_triplets: HashSet<_> = filtered
+            .triplet_iter()
+            .cloned_values()
+            .collect();
+
+        prop_assert_eq!(filtered_triplets, triplet_subset);
+    }
+
+    #[test]
+    fn csc_lower_triangle_agrees_with_dense(csc in csc_strategy()) {
+        let csc_lower_triangle = csc.lower_triangle();
+        prop_assert_eq!(DMatrix::from(&csc_lower_triangle), DMatrix::from(&csc).lower_triangle());
+        prop_assert!(csc_lower_triangle.nnz() <= csc.nnz());
+    }
+
+    #[test]
+    fn csc_upper_triangle_agrees_with_dense(csc in csc_strategy()) {
+        let csc_upper_triangle = csc.upper_triangle();
+        prop_assert_eq!(DMatrix::from(&csc_upper_triangle), DMatrix::from(&csc).upper_triangle());
+        prop_assert!(csc_upper_triangle.nnz() <= csc.nnz());
+    }
+
+    #[test]
+    fn csc_diagonal_as_matrix(csc in csc_strategy()) {
+        let d = csc.diagonal_as_matrix();
+        let d_entries: HashSet<_> = d.triplet_iter().cloned_values().collect();
+        let csc_diagonal_entries: HashSet<_> = csc
+            .triplet_iter()
+            .cloned_values()
+            .filter(|&(i, j, _)| i == j)
+            .collect();
+
+        prop_assert_eq!(d_entries, csc_diagonal_entries);
     }
 }

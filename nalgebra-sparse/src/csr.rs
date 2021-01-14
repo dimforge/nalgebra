@@ -326,6 +326,44 @@ impl<T> CsrMatrix<T> {
     pub fn csr_data_mut(&mut self) -> (&[usize], &[usize], &mut [T]) {
         self.cs.cs_data_mut()
     }
+
+    /// Creates a sparse matrix that contains only the explicit entries decided by the
+    /// given predicate.
+    pub fn filter<P>(&self, predicate: P) -> Self
+        where
+            T: Clone,
+            P: Fn(usize, usize, &T) -> bool
+    {
+        Self { cs: self.cs.filter(|row_idx, col_idx, v| predicate(row_idx, col_idx, v)) }
+    }
+
+    /// Returns a new matrix representing the upper triangular part of this matrix.
+    ///
+    /// The result includes the diagonal of the matrix.
+    pub fn upper_triangle(&self) -> Self
+        where
+            T: Clone
+    {
+        self.filter(|i, j, _| i <= j)
+    }
+
+    /// Returns a new matrix representing the lower triangular part of this matrix.
+    ///
+    /// The result includes the diagonal of the matrix.
+    pub fn lower_triangle(&self) -> Self
+        where
+            T: Clone
+    {
+        self.filter(|i, j, _| i >= j)
+    }
+
+    /// Returns the diagonal of the matrix as a sparse matrix.
+    pub fn diagonal_as_matrix(&self) -> Self
+        where
+            T: Clone
+    {
+        self.filter(|i, j, _| i == j)
+    }
 }
 
 impl<T> CsrMatrix<T>
@@ -385,6 +423,17 @@ fn pattern_format_error_to_csr_error(err: SparsityPatternFormatError) -> SparseF
 pub struct CsrTripletIter<'a, T> {
     pattern_iter: SparsityPatternIter<'a>,
     values_iter: Iter<'a, T>
+}
+
+impl<'a, T: Clone> CsrTripletIter<'a, T> {
+    /// Adapts the triplet iterator to return owned values.
+    ///
+    /// The triplet iterator returns references to the values. This method adapts the iterator
+    /// so that the values are cloned.
+    #[inline]
+    pub fn cloned_values(self) -> impl 'a + Iterator<Item=(usize, usize, T)> {
+        self.map(|(i, j, v)| (i, j, v.clone()))
+    }
 }
 
 impl<'a, T> Iterator for CsrTripletIter<'a, T> {

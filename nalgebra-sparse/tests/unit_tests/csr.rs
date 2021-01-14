@@ -1,8 +1,14 @@
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::SparseFormatErrorKind;
 use nalgebra::DMatrix;
+
 use proptest::prelude::*;
+use proptest::sample::subsequence;
+
 use crate::common::csr_strategy;
+
+use std::collections::HashSet;
+
 
 #[test]
 fn csr_matrix_valid_data() {
@@ -268,5 +274,59 @@ proptest! {
         let csr_transpose = csr.transpose();
         prop_assert_eq!(dense_transpose, DMatrix::from(&csr_transpose));
         prop_assert_eq!(csr.nnz(), csr_transpose.nnz());
+    }
+
+    #[test]
+    fn csr_filter(
+        (csr, triplet_subset)
+        in csr_strategy()
+            .prop_flat_map(|matrix| {
+                let triplets: Vec<_> = matrix.triplet_iter().cloned_values().collect();
+                let subset = subsequence(triplets, 0 ..= matrix.nnz())
+                    .prop_map(|triplet_subset| {
+                        let set: HashSet<_> = triplet_subset.into_iter().collect();
+                        set
+                    });
+                (Just(matrix), subset)
+            }))
+    {
+        // We generate a CsrMatrix and a HashSet corresponding to a subset of the (i, j, v)
+        // values in the matrix, which we use for filtering the matrix entries.
+        // The resulting triplets in the filtered matrix must then be exactly equal to
+        // the subset.
+        let filtered = csr.filter(|i, j, v| triplet_subset.contains(&(i, j, *v)));
+        let filtered_triplets: HashSet<_> = filtered
+            .triplet_iter()
+            .cloned_values()
+            .collect();
+
+        prop_assert_eq!(filtered_triplets, triplet_subset);
+    }
+
+    #[test]
+    fn csr_lower_triangle_agrees_with_dense(csr in csr_strategy()) {
+        let csr_lower_triangle = csr.lower_triangle();
+        prop_assert_eq!(DMatrix::from(&csr_lower_triangle), DMatrix::from(&csr).lower_triangle());
+        prop_assert!(csr_lower_triangle.nnz() <= csr.nnz());
+    }
+
+    #[test]
+    fn csr_upper_triangle_agrees_with_dense(csr in csr_strategy()) {
+        let csr_upper_triangle = csr.upper_triangle();
+        prop_assert_eq!(DMatrix::from(&csr_upper_triangle), DMatrix::from(&csr).upper_triangle());
+        prop_assert!(csr_upper_triangle.nnz() <= csr.nnz());
+    }
+
+    #[test]
+    fn csr_diagonal_as_matrix(csr in csr_strategy()) {
+        let d = csr.diagonal_as_matrix();
+        let d_entries: HashSet<_> = d.triplet_iter().cloned_values().collect();
+        let csr_diagonal_entries: HashSet<_> = csr
+            .triplet_iter()
+            .cloned_values()
+            .filter(|&(i, j, _)| i == j)
+            .collect();
+
+        prop_assert_eq!(d_entries, csr_diagonal_entries);
     }
 }

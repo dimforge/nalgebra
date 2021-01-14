@@ -156,6 +156,40 @@ impl<T> CsMatrix<T> {
     pub fn lane_iter_mut(&mut self) -> CsLaneIterMut<T> {
         CsLaneIterMut::new(self.sparsity_pattern.as_ref(), &mut self.values)
     }
+
+    #[inline]
+    pub fn filter<P>(&self, predicate: P) -> Self
+    where
+        T: Clone,
+        P: Fn(usize, usize, &T) -> bool
+    {
+        let (major_dim, minor_dim) = (self.pattern().major_dim(), self.pattern().minor_dim());
+        let mut new_offsets = Vec::with_capacity(self.pattern().major_dim() + 1);
+        let mut new_indices = Vec::new();
+        let mut new_values = Vec::new();
+
+        new_offsets.push(0);
+        for (i, lane) in self.lane_iter().enumerate() {
+            for (&j, value) in lane.minor_indices().iter().zip(lane.values) {
+                if predicate(i, j, value) {
+                    new_indices.push(j);
+                    new_values.push(value.clone());
+                }
+            }
+
+            new_offsets.push(new_indices.len());
+        }
+
+        // TODO: Avoid checks here
+        let new_pattern = SparsityPattern::try_from_offsets_and_indices(
+            major_dim,
+            minor_dim,
+            new_offsets,
+            new_indices)
+            .expect("Internal error: Sparsity pattern must always be valid.");
+
+        Self::from_pattern_and_values(Arc::new(new_pattern), new_values)
+    }
 }
 
 impl<T: Scalar + One> CsMatrix<T> {

@@ -324,6 +324,46 @@ impl<T> CscMatrix<T> {
     pub fn csc_data_mut(&mut self) -> (&[usize], &[usize], &mut [T]) {
         self.cs.cs_data_mut()
     }
+
+    /// Creates a sparse matrix that contains only the explicit entries decided by the
+    /// given predicate.
+    pub fn filter<P>(&self, predicate: P) -> Self
+    where
+        T: Clone,
+        P: Fn(usize, usize, &T) -> bool
+    {
+        // Note: Predicate uses (row, col, value), so we have to switch around since
+        // cs uses (major, minor, value)
+        Self { cs: self.cs.filter(|col_idx, row_idx, v| predicate(row_idx, col_idx, v)) }
+    }
+
+    /// Returns a new matrix representing the upper triangular part of this matrix.
+    ///
+    /// The result includes the diagonal of the matrix.
+    pub fn upper_triangle(&self) -> Self
+    where
+        T: Clone
+    {
+        self.filter(|i, j, _| i <= j)
+    }
+
+    /// Returns a new matrix representing the lower triangular part of this matrix.
+    ///
+    /// The result includes the diagonal of the matrix.
+    pub fn lower_triangle(&self) -> Self
+    where
+        T: Clone
+    {
+        self.filter(|i, j, _| i >= j)
+    }
+
+    /// Returns the diagonal of the matrix as a sparse matrix.
+    pub fn diagonal_as_matrix(&self) -> Self
+    where
+        T: Clone
+    {
+        self.filter(|i, j, _| i == j)
+    }
 }
 
 impl<T> CscMatrix<T>
@@ -383,6 +423,17 @@ fn pattern_format_error_to_csc_error(err: SparsityPatternFormatError) -> SparseF
 pub struct CscTripletIter<'a, T> {
     pattern_iter: SparsityPatternIter<'a>,
     values_iter: Iter<'a, T>
+}
+
+impl<'a, T: Clone> CscTripletIter<'a, T> {
+    /// Adapts the triplet iterator to return owned values.
+    ///
+    /// The triplet iterator returns references to the values. This method adapts the iterator
+    /// so that the values are cloned.
+    #[inline]
+    pub fn cloned_values(self) -> impl 'a + Iterator<Item=(usize, usize, T)> {
+        self.map(|(i, j, v)| (i, j, v.clone()))
+    }
 }
 
 impl<'a, T> Iterator for CscTripletIter<'a, T> {
