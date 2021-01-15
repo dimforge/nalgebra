@@ -4,7 +4,7 @@ mod impl_std_ops;
 pub mod serial;
 
 /// TODO
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Op<T> {
     /// TODO
     NoOp(T),

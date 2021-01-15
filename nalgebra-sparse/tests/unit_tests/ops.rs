@@ -1,8 +1,8 @@
-use crate::common::{csc_strategy, csr_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ,
-                    PROPTEST_I32_VALUE_STRATEGY, non_zero_i32_value_strategy};
+use crate::common::{csc_strategy, csr_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ, PROPTEST_I32_VALUE_STRATEGY, non_zero_i32_value_strategy, value_strategy};
 use nalgebra_sparse::ops::serial::{spmm_csr_dense, spmm_csc_dense, spadd_pattern, spmm_pattern,
                                    spadd_csr_prealloc, spadd_csc_prealloc,
-                                   spmm_csr_prealloc, spmm_csc_prealloc};
+                                   spmm_csr_prealloc, spmm_csc_prealloc,
+                                   spsolve_csc_lower_triangular};
 use nalgebra_sparse::ops::{Op};
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::csc::CscMatrix;
@@ -10,9 +10,11 @@ use nalgebra_sparse::proptest::{csc, csr, sparsity_pattern};
 use nalgebra_sparse::pattern::SparsityPattern;
 
 use nalgebra::{DMatrix, Scalar, DMatrixSliceMut, DMatrixSlice};
-use nalgebra::proptest::matrix;
+use nalgebra::proptest::{matrix, vector};
 
 use proptest::prelude::*;
+
+use matrixcompare::prop_assert_matrix_eq;
 
 use std::panic::catch_unwind;
 use std::sync::Arc;
@@ -256,6 +258,36 @@ fn spmm_csc_prealloc_args_strategy() -> impl Strategy<Value=SpmmCscArgs<i32>> {
                 a: args.a.map_same_op(|a| CscMatrix::from(&a)),
                 b: args.b.map_same_op(|b| CscMatrix::from(&b))
             }
+        })
+}
+
+fn csc_invertible_diagonal() -> impl Strategy<Value=CscMatrix<f64>> {
+    let non_zero_values = value_strategy::<f64>()
+        .prop_filter("Only non-zeros values accepted", |x| x != &0.0);
+
+    vector(non_zero_values, PROPTEST_MATRIX_DIM)
+        .prop_map(|d| {
+            let mut matrix = CscMatrix::identity(d.len());
+            matrix.values_mut().clone_from_slice(&d.as_slice());
+            matrix
+        })
+}
+
+fn csc_square_with_non_zero_diagonals() -> impl Strategy<Value=CscMatrix<f64>> {
+    csc_invertible_diagonal()
+        .prop_flat_map(|d| {
+            csc(value_strategy::<f64>(), Just(d.nrows()), Just(d.nrows()), PROPTEST_MAX_NNZ)
+                .prop_map(move |mut c| {
+                    for (i, j, v) in c.triplet_iter_mut() {
+                        if i == j {
+                            *v = 0.0;
+                        }
+                    }
+
+                    // Return the sum of a matrix with zero diagonals and an invertible diagonal
+                    // matrix
+                    c + &d
+                })
         })
 }
 
@@ -1113,6 +1145,40 @@ proptest! {
             }))
     {
         prop_assert_eq!(&a * &b, &DMatrix::from(&a) * &b);
+    }
+
+    #[test]
+    fn csc_solve_lower_triangular_no_transpose(
+        // A CSC matrix `a` and a dimensionally compatible dense matrix `b`
+        (a, b)
+            in csc_square_with_non_zero_diagonals()
+                .prop_flat_map(|a| {
+                    let nrows = a.nrows();
+                    (Just(a), matrix(value_strategy::<f64>(), nrows, PROPTEST_MATRIX_DIM))
+                }))
+    {
+        let mut x = b.clone();
+        spsolve_csc_lower_triangular(Op::NoOp(&a), &mut x).unwrap();
+
+        let a_lower = a.lower_triangle();
+        prop_assert_matrix_eq!(&a_lower * &x, &b, comp = abs, tol = 1e-6);
+    }
+
+    #[test]
+    fn csc_solve_lower_triangular_transpose(
+        // A CSC matrix `a` and a dimensionally compatible dense matrix `b` (with a transposed)
+        (a, b)
+            in csc_square_with_non_zero_diagonals()
+                .prop_flat_map(|a| {
+                    let ncols = a.ncols();
+                    (Just(a), matrix(value_strategy::<f64>(), ncols, PROPTEST_MATRIX_DIM))
+                }))
+    {
+        let mut x = b.clone();
+        spsolve_csc_lower_triangular(Op::Transpose(&a), &mut x).unwrap();
+
+        let a_lower = a.lower_triangle();
+        prop_assert_matrix_eq!(&a_lower.transpose() * &x, &b, comp = abs, tol = 1e-6);
     }
 
 }
