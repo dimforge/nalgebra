@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc a71b4654827840ed539b82cd7083615b0fb3f75933de6a7d91d8148a2bf34960 # shrinks to (csc, triplet_subset) = (CscMatrix { cs: CsMatrix { sparsity_pattern: SparsityPattern { major_offsets: [0, 1, 1, 1, 1, 1, 1], minor_indices: [0], minor_dim: 4 }, values: [0] } }, {})
