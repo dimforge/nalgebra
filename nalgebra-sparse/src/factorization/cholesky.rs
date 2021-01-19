@@ -4,9 +4,11 @@
 use crate::pattern::SparsityPattern;
 use crate::csc::CscMatrix;
 use core::{mem, iter};
-use nalgebra::{Scalar, RealField};
+use nalgebra::{Scalar, RealField, DMatrixSlice, DMatrixSliceMut, DMatrix};
 use std::sync::Arc;
 use std::fmt::{Display, Formatter};
+use crate::ops::serial::spsolve_csc_lower_triangular;
+use crate::ops::Op;
 
 pub struct CscSymbolicCholesky {
     // Pattern of the original matrix that was decomposed
@@ -177,6 +179,27 @@ impl<T: RealField> CscCholesky<T> {
         Ok(())
     }
 
+    pub fn solve<'a>(&'a self, b: impl Into<DMatrixSlice<'a, T>>) -> DMatrix<T> {
+        let b = b.into();
+        let mut output = b.clone_owned();
+        self.solve_mut(&mut output);
+        output
+    }
+
+    pub fn solve_mut<'a>(&'a self, b: impl Into<DMatrixSliceMut<'a, T>>)
+    {
+        let expect_msg = "If the Cholesky factorization succeeded,\
+            then the triangular solve should never fail";
+        // Solve LY = B
+        let mut y = b.into();
+        spsolve_csc_lower_triangular(Op::NoOp(self.l()), &mut y)
+            .expect(expect_msg);
+
+        // Solve L^T X = Y
+        let mut x = y;
+        spsolve_csc_lower_triangular(Op::Transpose(self.l()), &mut x)
+            .expect(expect_msg);
+    }
 }
 
 

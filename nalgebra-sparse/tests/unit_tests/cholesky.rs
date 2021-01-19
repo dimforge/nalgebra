@@ -4,6 +4,7 @@ use nalgebra_sparse::csc::CscMatrix;
 use nalgebra_sparse::factorization::{CscCholesky};
 use nalgebra_sparse::proptest::csc;
 use nalgebra::{Matrix5, Vector5, Cholesky, DMatrix};
+use nalgebra::proptest::matrix;
 
 use proptest::prelude::*;
 use matrixcompare::{assert_matrix_eq, prop_assert_matrix_eq};
@@ -33,6 +34,30 @@ proptest! {
 
         let is_lower_triangular = l.triplet_iter().all(|(i, j, _)| j <= i);
         prop_assert!(is_lower_triangular);
+    }
+
+    #[test]
+    fn cholesky_solve_positive_definite(
+        (matrix, rhs) in positive_definite()
+            .prop_flat_map(|csc| {
+                let rhs = matrix(value_strategy::<f64>(), csc.nrows(), PROPTEST_MATRIX_DIM);
+                (Just(csc), rhs)
+            })
+    ) {
+        let cholesky = CscCholesky::factor(&matrix).unwrap();
+
+        // solve_mut
+        {
+            let mut x = rhs.clone();
+            cholesky.solve_mut(&mut x);
+            prop_assert_matrix_eq!(&matrix * &x, rhs, comp=abs, tol=1e-12);
+        }
+
+        // solve
+        {
+            let x = cholesky.solve(&rhs);
+            prop_assert_matrix_eq!(&matrix * &x, rhs, comp=abs, tol=1e-12);
+        }
     }
 
 }
