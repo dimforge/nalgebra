@@ -1,12 +1,15 @@
 //! TODO
-use crate::coo::CooMatrix;
-use crate::csr::CsrMatrix;
-use nalgebra::{DMatrix, Scalar, Matrix, Dim, ClosedAdd};
-use nalgebra::storage::Storage;
+use std::ops::Add;
+
 use num_traits::Zero;
 
-use std::ops::{Add};
+use nalgebra::{ClosedAdd, Dim, DMatrix, Matrix, Scalar};
+use nalgebra::storage::Storage;
+
+use crate::coo::CooMatrix;
+use crate::cs;
 use crate::csc::CscMatrix;
+use crate::csr::CsrMatrix;
 
 /// TODO
 pub fn convert_dense_coo<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CooMatrix<T>
@@ -192,13 +195,13 @@ pub fn convert_dense_csc<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CscMatrix<T>
 /// TODO
 pub fn convert_csr_csc<T>(csr: &CsrMatrix<T>) -> CscMatrix<T>
 where
-    T: Scalar + Zero
+    T: Scalar
 {
-    let (offsets, indices, values) = transpose_cs(csr.nrows(),
-                                                  csr.ncols(),
-                                                  csr.row_offsets(),
-                                                  csr.col_indices(),
-                                                  csr.values());
+    let (offsets, indices, values) = cs::transpose_cs(csr.nrows(),
+                                                      csr.ncols(),
+                                                      csr.row_offsets(),
+                                                      csr.col_indices(),
+                                                      csr.values());
 
     // TODO: Avoid data validity check?
     CscMatrix::try_from_csc_data(csr.nrows(), csr.ncols(), offsets, indices, values)
@@ -208,13 +211,13 @@ where
 /// TODO
 pub fn convert_csc_csr<T>(csc: &CscMatrix<T>) -> CsrMatrix<T>
     where
-        T: Scalar + Zero
+        T: Scalar
 {
-    let (offsets, indices, values) = transpose_cs(csc.ncols(),
-                                                  csc.nrows(),
-                                                  csc.col_offsets(),
-                                                  csc.row_indices(),
-                                                  csc.values());
+    let (offsets, indices, values) = cs::transpose_cs(csc.ncols(),
+                                                      csc.nrows(),
+                                                      csc.col_offsets(),
+                                                      csc.row_indices(),
+                                                      csc.values());
 
     // TODO: Avoid data validity check?
     CsrMatrix::try_from_csr_data(csc.nrows(), csc.ncols(), offsets, indices, values)
@@ -326,7 +329,7 @@ fn coo_to_unsorted_cs<T: Clone>(
         major_offsets[*major_idx] += 1;
     }
 
-    convert_counts_to_offsets(major_offsets);
+    cs::convert_counts_to_offsets(major_offsets);
 
     {
         // TODO: Instead of allocating a whole new vector storing the current counts,
@@ -375,66 +378,6 @@ fn sort_lane<T: Clone>(
 
     apply_permutation(minor_idx_result, minor_idx, permutation);
     apply_permutation(values_result, values, permutation);
-}
-
-/// Transposes the compressed format.
-///
-/// This means that major and minor roles are switched. This is used for converting between CSR
-/// and CSC formats.
-fn transpose_cs<T>(major_dim: usize,
-                   minor_dim: usize,
-                   source_major_offsets: &[usize],
-                   source_minor_indices: &[usize],
-                   values: &[T])
-                   -> (Vec<usize>, Vec<usize>, Vec<T>)
-where
-    T: Scalar + Zero
-{
-    assert_eq!(source_major_offsets.len(), major_dim + 1);
-    assert_eq!(source_minor_indices.len(), values.len());
-    let nnz = values.len();
-
-    // Count the number of occurences of each minor index
-    let mut minor_counts = vec![0; minor_dim];
-    for minor_idx in source_minor_indices {
-        minor_counts[*minor_idx] += 1;
-    }
-    convert_counts_to_offsets(&mut minor_counts);
-    let mut target_offsets = minor_counts;
-    target_offsets.push(nnz);
-    let mut target_indices = vec![usize::MAX; nnz];
-    let mut target_values = vec![T::zero(); nnz];
-
-    // Keep track of how many entries we have placed in each target major lane
-    let mut current_target_major_counts = vec![0; minor_dim];
-
-    for source_major_idx in 0 .. major_dim {
-        let source_lane_begin = source_major_offsets[source_major_idx];
-        let source_lane_end = source_major_offsets[source_major_idx + 1];
-        let source_lane_indices = &source_minor_indices[source_lane_begin .. source_lane_end];
-        let source_lane_values = &values[source_lane_begin .. source_lane_end];
-
-        for (&source_minor_idx, val) in source_lane_indices.iter().zip(source_lane_values) {
-            // Compute the offset in the target data for this particular source entry
-            let target_lane_count =  &mut current_target_major_counts[source_minor_idx];
-            let entry_offset = target_offsets[source_minor_idx] + *target_lane_count;
-            target_indices[entry_offset] = source_major_idx;
-            target_values[entry_offset] = val.inlined_clone();
-            *target_lane_count += 1;
-        }
-    }
-
-    (target_offsets, target_indices, target_values)
-}
-
-fn convert_counts_to_offsets(counts: &mut [usize]) {
-    // Convert the counts to an offset
-    let mut offset = 0;
-    for i_offset in counts.iter_mut() {
-        let count = *i_offset;
-        *i_offset = offset;
-        offset += count;
-    }
 }
 
 // TODO: Move this into `utils` or something?

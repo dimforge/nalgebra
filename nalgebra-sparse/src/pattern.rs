@@ -2,6 +2,7 @@
 use crate::SparseFormatError;
 use std::fmt;
 use std::error::Error;
+use crate::cs::transpose_cs;
 
 /// A representation of the sparsity pattern of a CSR or CSC matrix.
 ///
@@ -203,6 +204,24 @@ impl SparsityPattern {
     /// ```
     pub fn disassemble(self) -> (Vec<usize>, Vec<usize>) {
         (self.major_offsets, self.minor_indices)
+    }
+
+    /// TODO
+    pub fn transpose(&self) -> Self {
+        // By using unit () values, we can use the same routines as for CSR/CSC matrices
+        let values = vec![(); self.nnz()];
+        let (new_offsets, new_indices, _) = transpose_cs(
+                    self.major_dim(),
+                     self.minor_dim(),
+                     self.major_offsets(),
+                     self.minor_indices(),
+                     &values);
+        // TODO: Skip checks
+        Self::try_from_offsets_and_indices(self.minor_dim(),
+                                           self.major_dim(),
+                                           new_offsets,
+                                           new_indices)
+            .expect("Internal error: Transpose should never fail.")
     }
 }
 

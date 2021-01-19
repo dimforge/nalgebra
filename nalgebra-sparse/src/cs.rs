@@ -1,11 +1,13 @@
-use crate::pattern::SparsityPattern;
-use crate::{SparseEntry, SparseEntryMut};
-
-use std::sync::Arc;
-use std::ops::Range;
 use std::mem::replace;
+use std::ops::Range;
+use std::sync::Arc;
+
 use num_traits::One;
+
 use nalgebra::Scalar;
+
+use crate::{SparseEntry, SparseEntryMut};
+use crate::pattern::SparsityPattern;
 
 /// An abstract compressed matrix.
 ///
@@ -395,5 +397,102 @@ impl<'a, T> CsLaneMut<'a, T> {
                                   self.minor_indices,
                                   self.values,
                                   global_minor_index)
+    }
+}
+
+/// Helper struct for working with uninitialized data in vectors.
+/// TODO: This doesn't belong here.
+struct UninitVec<T> {
+    vec: Vec<T>
+}
+
+impl<T> UninitVec<T> {
+    pub fn from_len(len: usize) -> Self {
+        Self {
+            vec: Vec::with_capacity(len)
+        }
+    }
+
+    /// Sets the element associated with the given index to the provided value.
+    ///
+    /// Must be called exactly once per index, otherwise results in undefined behavior.
+    pub unsafe fn set(&mut self, index: usize, value: T) {
+        self.vec.as_mut_ptr().add(index).write(value)
+    }
+
+    /// Marks the vector data as initialized by returning a full vector.
+    ///
+    /// It is undefined behavior to call this function unless *all* elements have been written to
+    /// exactly once.
+    pub unsafe fn assume_init(mut self) -> Vec<T> {
+        self.vec.set_len(self.vec.capacity());
+        self.vec
+    }
+}
+
+/// Transposes the compressed format.
+///
+/// This means that major and minor roles are switched. This is used for converting between CSR
+/// and CSC formats.
+pub fn transpose_cs<T>(
+                   major_dim: usize,
+                   minor_dim: usize,
+                   source_major_offsets: &[usize],
+                   source_minor_indices: &[usize],
+                   values: &[T])
+                   -> (Vec<usize>, Vec<usize>, Vec<T>)
+where
+    T: Scalar
+{
+    assert_eq!(source_major_offsets.len(), major_dim + 1);
+    assert_eq!(source_minor_indices.len(), values.len());
+    let nnz = values.len();
+
+    // Count the number of occurences of each minor index
+    let mut minor_counts = vec![0; minor_dim];
+    for minor_idx in source_minor_indices {
+        minor_counts[*minor_idx] += 1;
+    }
+    convert_counts_to_offsets(&mut minor_counts);
+    let mut target_offsets = minor_counts;
+    target_offsets.push(nnz);
+    let mut target_indices = vec![usize::MAX; nnz];
+
+    // We have to use uninitialized storage, because we don't have any kind of "default" value
+    // available for `T`. Unfortunately this necessitates some small amount of unsafe code
+    let mut target_values = UninitVec::from_len(nnz);
+
+    // Keep track of how many entries we have placed in each target major lane
+    let mut current_target_major_counts = vec![0; minor_dim];
+
+    for source_major_idx in 0 .. major_dim {
+        let source_lane_begin = source_major_offsets[source_major_idx];
+        let source_lane_end = source_major_offsets[source_major_idx + 1];
+        let source_lane_indices = &source_minor_indices[source_lane_begin .. source_lane_end];
+        let source_lane_values = &values[source_lane_begin .. source_lane_end];
+
+        for (&source_minor_idx, val) in source_lane_indices.iter().zip(source_lane_values) {
+            // Compute the offset in the target data for this particular source entry
+            let target_lane_count =  &mut current_target_major_counts[source_minor_idx];
+            let entry_offset = target_offsets[source_minor_idx] + *target_lane_count;
+            target_indices[entry_offset] = source_major_idx;
+            unsafe { target_values.set(entry_offset, val.inlined_clone()); }
+            *target_lane_count += 1;
+        }
+    }
+
+    // At this point, we should have written to each element in target_values exactly once,
+    // so initialization should be sound
+    let target_values = unsafe { target_values.assume_init() };
+    (target_offsets, target_indices, target_values)
+}
+
+pub fn convert_counts_to_offsets(counts: &mut [usize]) {
+    // Convert the counts to an offset
+    let mut offset = 0;
+    for i_offset in counts.iter_mut() {
+        let count = *i_offset;
+        *i_offset = offset;
+        offset += count;
     }
 }

@@ -5,7 +5,7 @@ use crate::csc::CscMatrix;
 use crate::cs::{CsMatrix, CsLaneIterMut, CsLaneIter, CsLane, CsLaneMut};
 
 use nalgebra::Scalar;
-use num_traits::{Zero, One};
+use num_traits::{One};
 
 use std::sync::Arc;
 use std::slice::{IterMut, Iter};
@@ -368,7 +368,7 @@ impl<T> CsrMatrix<T> {
 
 impl<T> CsrMatrix<T>
 where
-    T: Scalar + Zero
+    T: Scalar
 {
     /// Compute the transpose of the matrix.
     pub fn transpose(&self) -> CsrMatrix<T> {

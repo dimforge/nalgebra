@@ -7,7 +7,7 @@ use crate::cs::{CsMatrix, CsLane, CsLaneMut, CsLaneIter, CsLaneIterMut};
 
 use std::sync::Arc;
 use std::slice::{IterMut, Iter};
-use num_traits::{Zero, One};
+use num_traits::{One};
 use nalgebra::Scalar;
 
 /// A CSC representation of a sparse matrix.
@@ -368,7 +368,7 @@ impl<T> CscMatrix<T> {
 
 impl<T> CscMatrix<T>
     where
-        T: Scalar + Zero
+        T: Scalar
 {
     /// Compute the transpose of the matrix.
     pub fn transpose(&self) -> CscMatrix<T> {
