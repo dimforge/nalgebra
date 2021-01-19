@@ -58,29 +58,34 @@ impl Display for CholeskyError {
 impl std::error::Error for CholeskyError {}
 
 impl<T: RealField> CscCholesky<T> {
-
-    pub fn factor(matrix: &CscMatrix<T>) -> Result<Self, CholeskyError> {
-        let symbolic = CscSymbolicCholesky::factor(&*matrix.pattern());
+    pub fn factor_numerical(symbolic: CscSymbolicCholesky, values: &[T]) -> Result<Self, CholeskyError> {
         assert_eq!(symbolic.l_pattern.nnz(), symbolic.u_pattern.nnz(),
-            "u is just the transpose of l, so should have the same nnz");
+                   "u is just the transpose of l, so should have the same nnz");
 
         let l_nnz = symbolic.l_pattern.nnz();
         let l_values = vec![T::zero(); l_nnz];
         let l_factor = CscMatrix::try_from_pattern_and_values(Arc::new(symbolic.l_pattern), l_values)
             .unwrap();
 
+        let (nrows, ncols) = (l_factor.nrows(), l_factor.ncols());
+
         let mut factorization = CscCholesky {
             m_pattern: symbolic.m_pattern,
             l_factor,
             u_pattern: symbolic.u_pattern,
-            work_x: vec![T::zero(); matrix.nrows()],
+            work_x: vec![T::zero(); nrows],
             // Fill with MAX so that things hopefully totally fail if values are not
             // overwritten. Might be easier to debug this way
-            work_c: vec![usize::MAX, matrix.ncols()],
+            work_c: vec![usize::MAX, ncols],
         };
 
-        factorization.refactor(matrix.values())?;
+        factorization.refactor(values)?;
         Ok(factorization)
+    }
+
+    pub fn factor(matrix: &CscMatrix<T>) -> Result<Self, CholeskyError> {
+        let symbolic = CscSymbolicCholesky::factor(&*matrix.pattern());
+        Self::factor_numerical(symbolic, matrix.values())
     }
 
     pub fn refactor(&mut self, values: &[T]) -> Result<(), CholeskyError> {
