@@ -36,7 +36,23 @@ pub fn spadd_pattern(a: &SparsityPattern,
 }
 
 /// Sparse matrix multiplication pattern construction, `C <- A * B`.
-pub fn spmm_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPattern {
+///
+/// Assumes that the sparsity patterns both represent CSC matrices, and the result is also
+/// represented as the sparsity pattern of a CSC matrix.
+pub fn spmm_csc_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPattern {
+    // Let C = A * B in CSC format. We note that
+    //  C^T = B^T * A^T.
+    // Since the interpretation of a CSC matrix in CSR format represents the transpose of the
+    // matrix in CSR, we can compute C^T in *CSR format* by switching the order of a and b,
+    // which lets us obtain C^T in CSR format. Re-interpreting this as CSC gives us C in CSC format
+    spmm_csr_pattern(b, a)
+}
+
+/// Sparse matrix multiplication pattern construction, `C <- A * B`.
+///
+/// Assumes that the sparsity patterns both represent CSR matrices, and the result is also
+/// represented as the sparsity pattern of a CSR matrix.
+pub fn spmm_csr_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPattern {
     assert_eq!(a.minor_dim(), b.major_dim(), "a and b must have compatible dimensions");
 
     let mut offsets = Vec::new();

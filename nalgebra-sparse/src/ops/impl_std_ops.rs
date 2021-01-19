@@ -2,8 +2,7 @@ use crate::csr::CsrMatrix;
 use crate::csc::CscMatrix;
 
 use std::ops::{Add, Div, DivAssign, Mul, MulAssign, Sub, Neg};
-use crate::ops::serial::{spadd_csr_prealloc, spadd_csc_prealloc, spadd_pattern, spmm_pattern,
-                         spmm_csr_prealloc, spmm_csc_prealloc, spmm_csc_dense, spmm_csr_dense};
+use crate::ops::serial::{spadd_csr_prealloc, spadd_csc_prealloc, spadd_pattern, spmm_csr_pattern, spmm_csr_prealloc, spmm_csc_prealloc, spmm_csc_dense, spmm_csr_dense, spmm_csc_pattern};
 use nalgebra::{ClosedAdd, ClosedMul, ClosedSub, ClosedDiv, Scalar, Matrix, Dim,
                DMatrixSlice, DMatrix, Dynamic};
 use num_traits::{Zero, One};
@@ -106,9 +105,9 @@ macro_rules! impl_spmm {
     }
 }
 
-impl_spmm!(CsrMatrix, spmm_pattern, spmm_csr_prealloc);
+impl_spmm!(CsrMatrix, spmm_csr_pattern, spmm_csr_prealloc);
 // Need to switch order of operations for CSC pattern
-impl_spmm!(CscMatrix, |a, b| spmm_pattern(b, a), spmm_csc_prealloc);
+impl_spmm!(CscMatrix, spmm_csc_pattern, spmm_csc_prealloc);
 
 /// Implements Scalar * Matrix operations for *concrete* scalar types. The reason this is necessary
 /// is that we are not able to implement Mul<Matrix<T>> for all T generically due to orphan rules.

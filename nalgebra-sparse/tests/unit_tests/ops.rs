@@ -1,8 +1,5 @@
 use crate::common::{csc_strategy, csr_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ, PROPTEST_I32_VALUE_STRATEGY, non_zero_i32_value_strategy, value_strategy};
-use nalgebra_sparse::ops::serial::{spmm_csr_dense, spmm_csc_dense, spadd_pattern, spmm_pattern,
-                                   spadd_csr_prealloc, spadd_csc_prealloc,
-                                   spmm_csr_prealloc, spmm_csc_prealloc,
-                                   spsolve_csc_lower_triangular};
+use nalgebra_sparse::ops::serial::{spmm_csr_dense, spmm_csc_dense, spadd_pattern, spadd_csr_prealloc, spadd_csc_prealloc, spmm_csr_prealloc, spmm_csc_prealloc, spsolve_csc_lower_triangular, spmm_csr_pattern};
 use nalgebra_sparse::ops::{Op};
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::csc::CscMatrix;
@@ -188,7 +185,7 @@ fn spadd_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, SparsityPat
 }
 
 /// Constructs pairs (a, b) where a and b have compatible dimensions for a matrix product
-fn spmm_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, SparsityPattern)> {
+fn spmm_csr_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, SparsityPattern)> {
     pattern_strategy()
         .prop_flat_map(|a| {
             let b = sparsity_pattern(Just(a.minor_dim()), PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ);
@@ -215,11 +212,11 @@ struct SpmmCscArgs<T> {
 }
 
 fn spmm_csr_prealloc_args_strategy() -> impl Strategy<Value=SpmmCsrArgs<i32>> {
-    spmm_pattern_strategy()
+    spmm_csr_pattern_strategy()
         .prop_flat_map(|(a_pattern, b_pattern)| {
             let a_values = vec![PROPTEST_I32_VALUE_STRATEGY; a_pattern.nnz()];
             let b_values = vec![PROPTEST_I32_VALUE_STRATEGY; b_pattern.nnz()];
-            let c_pattern = spmm_pattern(&a_pattern, &b_pattern);
+            let c_pattern = spmm_csr_pattern(&a_pattern, &b_pattern);
             let c_values = vec![PROPTEST_I32_VALUE_STRATEGY; c_pattern.nnz()];
             let a = a_values.prop_map(move |values|
                 CsrMatrix::try_from_pattern_and_values(a_pattern.clone(), values).unwrap());
@@ -479,10 +476,10 @@ proptest! {
     }
 
     #[test]
-    fn spmm_pattern_test((a, b) in spmm_pattern_strategy())
+    fn spmm_csr_pattern_test((a, b) in spmm_csr_pattern_strategy())
     {
         // (a, b) are multiplication-wise dimensionally compatible patterns
-        let c_pattern = spmm_pattern(&a, &b);
+        let c_pattern = spmm_csr_pattern(&a, &b);
 
         // To verify the pattern, we construct CSR matrices with positive integer entries
         // corresponding to a and b, and convert them to dense matrices.
