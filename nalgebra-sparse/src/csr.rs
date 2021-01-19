@@ -254,6 +254,11 @@ impl<T> CsrMatrix<T> {
         self.cs.disassemble()
     }
 
+    /// Returns the sparsity pattern and values associated with this matrix.
+    pub fn into_pattern_and_values(self) -> (SparsityPattern, Vec<T>) {
+        self.cs.into_pattern_and_values()
+    }
+
     /// Returns the underlying sparsity pattern.
     ///
     /// The sparsity pattern is stored internally inside an `Arc`. This allows users to re-use

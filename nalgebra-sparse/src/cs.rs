@@ -93,6 +93,11 @@ impl<T> CsMatrix<T> {
         (offsets, indices, self.values)
     }
 
+    #[inline]
+    pub fn into_pattern_and_values(self) -> (SparsityPattern, Vec<T>) {
+        (self.sparsity_pattern, self.values)
+    }
+
     /// Returns an entry for the given major/minor indices, or `None` if the indices are out
     /// of bounds.
     pub fn get_entry(&self, major_index: usize, minor_index: usize) -> Option<SparseEntry<T>> {
