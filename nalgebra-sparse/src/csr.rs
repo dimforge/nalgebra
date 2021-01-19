@@ -259,6 +259,12 @@ impl<T> CsrMatrix<T> {
         self.cs.into_pattern_and_values()
     }
 
+    /// Returns a reference to the sparsity pattern and a mutable reference to the values.
+    #[inline]
+    pub fn pattern_and_values_mut(&mut self) -> (&SparsityPattern, &mut [T]) {
+        self.cs.pattern_and_values_mut()
+    }
+
     /// Returns the underlying sparsity pattern.
     ///
     /// The sparsity pattern is stored internally inside an `Arc`. This allows users to re-use
