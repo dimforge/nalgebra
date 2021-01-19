@@ -5,26 +5,25 @@ use crate::pattern::SparsityPattern;
 use crate::csc::CscMatrix;
 use core::{mem, iter};
 use nalgebra::{Scalar, RealField, DMatrixSlice, DMatrixSliceMut, DMatrix};
-use std::sync::Arc;
 use std::fmt::{Display, Formatter};
 use crate::ops::serial::spsolve_csc_lower_triangular;
 use crate::ops::Op;
 
 pub struct CscSymbolicCholesky {
     // Pattern of the original matrix that was decomposed
-    m_pattern: Arc<SparsityPattern>,
+    m_pattern: SparsityPattern,
     l_pattern: SparsityPattern,
     // u in this context is L^T, so that M = L L^T
     u_pattern: SparsityPattern
 }
 
 impl CscSymbolicCholesky {
-    pub fn factor(pattern: &Arc<SparsityPattern>) -> Self {
+    pub fn factor(pattern: SparsityPattern) -> Self {
         assert_eq!(pattern.major_dim(), pattern.minor_dim(),
             "Major and minor dimensions must be the same (square matrix).");
-        let (l_pattern, u_pattern) = nonzero_pattern(&*pattern);
+        let (l_pattern, u_pattern) = nonzero_pattern(&pattern);
         Self {
-            m_pattern: Arc::clone(pattern),
+            m_pattern: pattern,
             l_pattern,
             u_pattern,
         }
@@ -37,7 +36,7 @@ impl CscSymbolicCholesky {
 
 pub struct CscCholesky<T> {
     // Pattern of the original matrix
-    m_pattern: Arc<SparsityPattern>,
+    m_pattern: SparsityPattern,
     l_factor: CscMatrix<T>,
     u_pattern: SparsityPattern,
     work_x: Vec<T>,
@@ -66,7 +65,7 @@ impl<T: RealField> CscCholesky<T> {
 
         let l_nnz = symbolic.l_pattern.nnz();
         let l_values = vec![T::zero(); l_nnz];
-        let l_factor = CscMatrix::try_from_pattern_and_values(Arc::new(symbolic.l_pattern), l_values)
+        let l_factor = CscMatrix::try_from_pattern_and_values(symbolic.l_pattern, l_values)
             .unwrap();
 
         let (nrows, ncols) = (l_factor.nrows(), l_factor.ncols());
@@ -86,7 +85,7 @@ impl<T: RealField> CscCholesky<T> {
     }
 
     pub fn factor(matrix: &CscMatrix<T>) -> Result<Self, CholeskyError> {
-        let symbolic = CscSymbolicCholesky::factor(&*matrix.pattern());
+        let symbolic = CscSymbolicCholesky::factor(matrix.pattern().clone());
         Self::factor_numerical(symbolic, matrix.values())
     }
 

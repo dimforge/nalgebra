@@ -7,7 +7,6 @@ use crate::ops::serial::{spadd_csr_prealloc, spadd_csc_prealloc, spadd_pattern, 
 use nalgebra::{ClosedAdd, ClosedMul, ClosedSub, ClosedDiv, Scalar, Matrix, Dim,
                DMatrixSlice, DMatrix, Dynamic};
 use num_traits::{Zero, One};
-use std::sync::Arc;
 use crate::ops::{Op};
 use nalgebra::base::storage::Storage;
 
@@ -48,11 +47,7 @@ macro_rules! impl_sp_plus_minus {
         impl_bin_op!($trait, $method,
             <'a, T>(a: &'a $matrix_type<T>, b: &'a $matrix_type<T>) -> $matrix_type<T> {
             // If both matrices have the same pattern, then we can immediately re-use it
-            let pattern = if Arc::ptr_eq(a.pattern(), b.pattern()) {
-                Arc::clone(a.pattern())
-            } else {
-                Arc::new(spadd_pattern(a.pattern(), b.pattern()))
-            };
+            let pattern = spadd_pattern(a.pattern(), b.pattern());
             let values = vec![T::zero(); pattern.nnz()];
             // We are giving data that is valid by definition, so it is safe to unwrap below
             let mut result = $matrix_type::try_from_pattern_and_values(pattern, values)
@@ -64,24 +59,12 @@ macro_rules! impl_sp_plus_minus {
 
         impl_bin_op!($trait, $method,
             <'a, T>(a: $matrix_type<T>, b: &'a $matrix_type<T>) -> $matrix_type<T> {
-            let mut a = a;
-            if Arc::ptr_eq(a.pattern(), b.pattern()) {
-                $spadd_fn(T::one(), &mut a, $factor * T::one(), Op::NoOp(b)).unwrap();
-                a
-            } else {
-                &a $sign b
-            }
+            &a $sign b
         });
 
         impl_bin_op!($trait, $method,
             <'a, T>(a: &'a $matrix_type<T>, b: $matrix_type<T>) -> $matrix_type<T> {
-            let mut b = b;
-            if Arc::ptr_eq(a.pattern(), b.pattern()) {
-                $spadd_fn($factor * T::one(), &mut b, T::one(), Op::NoOp(a)).unwrap();
-                b
-            } else {
-                a $sign &b
-            }
+            a $sign &b
         });
         impl_bin_op!($trait, $method, <T>(a: $matrix_type<T>, b: $matrix_type<T>) -> $matrix_type<T> {
             a $sign &b
@@ -107,7 +90,7 @@ macro_rules! impl_spmm {
         impl_mul!(<'a, T>(a: &'a $matrix_type<T>, b: &'a $matrix_type<T>) -> $matrix_type<T> {
             let pattern = $pattern_fn(a.pattern(), b.pattern());
             let values = vec![T::zero(); pattern.nnz()];
-            let mut result = $matrix_type::try_from_pattern_and_values(Arc::new(pattern), values)
+            let mut result = $matrix_type::try_from_pattern_and_values(pattern, values)
                 .unwrap();
             $spmm_fn(T::zero(),
                      &mut result,
@@ -154,7 +137,7 @@ macro_rules! impl_scalar_mul {
                 .iter()
                 .map(|v_i| v_i.inlined_clone() * b.inlined_clone())
                 .collect();
-            $matrix_type::try_from_pattern_and_values(Arc::clone(a.pattern()), values).unwrap()
+            $matrix_type::try_from_pattern_and_values(a.pattern().clone(), values).unwrap()
         });
         impl_mul!(<'a, T>(a: &'a $matrix_type<T>, b: T) -> $matrix_type<T> {
             a * &b
@@ -251,7 +234,7 @@ macro_rules! impl_div {
                 .iter()
                 .map(|v_i| v_i.inlined_clone() / scalar.inlined_clone())
                 .collect();
-            $matrix_type::try_from_pattern_and_values(Arc::clone(matrix.pattern()), new_values)
+            $matrix_type::try_from_pattern_and_values(matrix.pattern().clone(), new_values)
                 .unwrap()
         });
         impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: &'a $matrix_type<T>, scalar: &'a T) -> $matrix_type<T> {

@@ -11,7 +11,6 @@ use std::iter::{repeat};
 use proptest::sample::{Index};
 use crate::csr::CsrMatrix;
 use crate::pattern::SparsityPattern;
-use std::sync::Arc;
 use crate::csc::CscMatrix;
 
 fn dense_row_major_coord_strategy(nrows: usize, ncols: usize, nnz: usize)
@@ -291,7 +290,7 @@ where
             (Just(pattern), values)
         })
         .prop_map(|(pattern, values)| {
-            CsrMatrix::try_from_pattern_and_values(Arc::new(pattern), values)
+            CsrMatrix::try_from_pattern_and_values(pattern, values)
                 .expect("Internal error: Generated CsrMatrix is invalid")
         })
 }
@@ -313,7 +312,7 @@ pub fn csc<T>(value_strategy: T,
             (Just(pattern), values)
         })
         .prop_map(|(pattern, values)| {
-            CscMatrix::try_from_pattern_and_values(Arc::new(pattern), values)
+            CscMatrix::try_from_pattern_and_values(pattern, values)
                 .expect("Internal error: Generated CscMatrix is invalid")
         })
 }

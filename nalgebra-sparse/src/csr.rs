@@ -7,7 +7,6 @@ use crate::cs::{CsMatrix, CsLaneIterMut, CsLaneIter, CsLane, CsLaneMut};
 use nalgebra::Scalar;
 use num_traits::{One};
 
-use std::sync::Arc;
 use std::slice::{IterMut, Iter};
 
 /// A CSR representation of a sparse matrix.
@@ -97,14 +96,14 @@ impl<T> CsrMatrix<T> {
         let pattern = SparsityPattern::try_from_offsets_and_indices(
             num_rows, num_cols, row_offsets, col_indices)
             .map_err(pattern_format_error_to_csr_error)?;
-        Self::try_from_pattern_and_values(Arc::new(pattern), values)
+        Self::try_from_pattern_and_values(pattern, values)
     }
 
     /// Try to construct a CSR matrix from a sparsity pattern and associated non-zero values.
     ///
     /// Returns an error if the number of values does not match the number of minor indices
     /// in the pattern.
-    pub fn try_from_pattern_and_values(pattern: Arc<SparsityPattern>, values: Vec<T>)
+    pub fn try_from_pattern_and_values(pattern: SparsityPattern, values: Vec<T>)
         -> Result<Self, SparseFormatError> {
         if pattern.nnz() == values.len() {
             Ok(Self {
@@ -214,7 +213,7 @@ impl<T> CsrMatrix<T> {
     /// An iterator over rows in the matrix.
     pub fn row_iter(&self) -> CsrRowIter<T> {
         CsrRowIter {
-            lane_iter: CsLaneIter::new(self.pattern().as_ref(), self.values())
+            lane_iter: CsLaneIter::new(self.pattern(), self.values())
         }
     }
 
@@ -260,7 +259,7 @@ impl<T> CsrMatrix<T> {
     /// The sparsity pattern is stored internally inside an `Arc`. This allows users to re-use
     /// the same sparsity pattern for multiple matrices without storing the same pattern multiple
     /// times in memory.
-    pub fn pattern(&self) -> &Arc<SparsityPattern> {
+    pub fn pattern(&self) -> &SparsityPattern {
         self.cs.pattern()
     }
 

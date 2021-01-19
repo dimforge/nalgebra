@@ -4,7 +4,6 @@ use crate::ops::serial::{OperationErrorType, OperationError};
 use nalgebra::{Scalar, ClosedAdd, ClosedMul, DMatrixSliceMut, DMatrixSlice};
 use num_traits::{Zero, One};
 use crate::SparseEntryMut;
-use std::sync::Arc;
 
 fn spmm_cs_unexpected_entry() -> OperationError {
     OperationError::from_type_and_message(
@@ -73,64 +72,52 @@ pub fn spadd_cs_prealloc<T>(beta: T,
     where
         T: Scalar + ClosedAdd + ClosedMul + Zero + One
 {
-
-    if Arc::ptr_eq(&c.pattern(), &a.inner_ref().pattern()) {
-        // Special fast path: The two matrices have *exactly* the same sparsity pattern,
-        // so we only need to sum the value arrays
-        // TODO: Test this fast path
-        for (c_ij, a_ij) in c.values_mut().iter_mut().zip(a.inner_ref().values()) {
-            let (alpha, beta) = (alpha.inlined_clone(), beta.inlined_clone());
-            *c_ij = beta * c_ij.inlined_clone() + alpha * a_ij.inlined_clone();
-        }
-        Ok(())
-    } else {
-        match a {
-            Op::NoOp(a) => {
-                for (mut c_lane_i, a_lane_i) in c.lane_iter_mut().zip(a.lane_iter()) {
-                    if beta != T::one() {
-                        for c_ij in c_lane_i.values_mut() {
-                            *c_ij *= beta.inlined_clone();
-                        }
-                    }
-
-                    let (mut c_minors, mut c_vals) = c_lane_i.indices_and_values_mut();
-                    let (a_minors, a_vals) = (a_lane_i.minor_indices(), a_lane_i.values());
-
-                    for (a_col, a_val) in a_minors.iter().zip(a_vals) {
-                        // TODO: Use exponential search instead of linear search.
-                        // If C has substantially more entries in the row than A, then a line search
-                        // will needlessly visit many entries in C.
-                        let (c_idx, _) = c_minors.iter()
-                            .enumerate()
-                            .find(|(_, c_col)| *c_col == a_col)
-                            .ok_or_else(spadd_cs_unexpected_entry)?;
-                        c_vals[c_idx] += alpha.inlined_clone() * a_val.inlined_clone();
-                        c_minors = &c_minors[c_idx ..];
-                        c_vals = &mut c_vals[c_idx ..];
-                    }
-                }
-            }
-            Op::Transpose(a) => {
+    match a {
+        Op::NoOp(a) => {
+            for (mut c_lane_i, a_lane_i) in c.lane_iter_mut().zip(a.lane_iter()) {
                 if beta != T::one() {
-                    for c_ij in c.values_mut() {
+                    for c_ij in c_lane_i.values_mut() {
                         *c_ij *= beta.inlined_clone();
                     }
                 }
 
-                for (i, a_lane_i) in a.lane_iter().enumerate() {
-                    for (&j, a_val) in a_lane_i.minor_indices().iter().zip(a_lane_i.values()) {
-                        let a_val = a_val.inlined_clone();
-                        let alpha = alpha.inlined_clone();
-                        match c.get_entry_mut(j, i).unwrap() {
-                            SparseEntryMut::NonZero(c_ji) => { *c_ji += alpha * a_val }
-                            SparseEntryMut::Zero => return Err(spadd_cs_unexpected_entry()),
-                        }
+                let (mut c_minors, mut c_vals) = c_lane_i.indices_and_values_mut();
+                let (a_minors, a_vals) = (a_lane_i.minor_indices(), a_lane_i.values());
+
+                for (a_col, a_val) in a_minors.iter().zip(a_vals) {
+                    // TODO: Use exponential search instead of linear search.
+                    // If C has substantially more entries in the row than A, then a line search
+                    // will needlessly visit many entries in C.
+                    let (c_idx, _) = c_minors.iter()
+                        .enumerate()
+                        .find(|(_, c_col)| *c_col == a_col)
+                        .ok_or_else(spadd_cs_unexpected_entry)?;
+                    c_vals[c_idx] += alpha.inlined_clone() * a_val.inlined_clone();
+                    c_minors = &c_minors[c_idx ..];
+                    c_vals = &mut c_vals[c_idx ..];
+                }
+            }
+        }
+        Op::Transpose(a) => {
+            if beta != T::one() {
+                for c_ij in c.values_mut() {
+                    *c_ij *= beta.inlined_clone();
+                }
+            }
+
+            for (i, a_lane_i) in a.lane_iter().enumerate() {
+                for (&j, a_val) in a_lane_i.minor_indices().iter().zip(a_lane_i.values()) {
+                    let a_val = a_val.inlined_clone();
+                    let alpha = alpha.inlined_clone();
+                    match c.get_entry_mut(j, i).unwrap() {
+                        SparseEntryMut::NonZero(c_ji) => { *c_ji += alpha * a_val }
+                        SparseEntryMut::Zero => return Err(spadd_cs_unexpected_entry()),
                     }
                 }
             }
         }
-        Ok(())
     }
+    Ok(())
 }
 
 /// Helper functionality for implementing CSR/CSC SPMM.

@@ -17,12 +17,11 @@ use proptest::prelude::*;
 use matrixcompare::prop_assert_matrix_eq;
 
 use std::panic::catch_unwind;
-use std::sync::Arc;
 
 /// Represents the sparsity pattern of a CSR matrix as a dense matrix with 0/1
 fn dense_csr_pattern(pattern: &SparsityPattern) -> DMatrix<i32> {
     let boolean_csr = CsrMatrix::try_from_pattern_and_values(
-            Arc::new(pattern.clone()),
+            pattern.clone(),
             vec![1; pattern.nnz()])
         .unwrap();
     DMatrix::from(&boolean_csr)
@@ -31,7 +30,7 @@ fn dense_csr_pattern(pattern: &SparsityPattern) -> DMatrix<i32> {
 /// Represents the sparsity pattern of a CSC matrix as a dense matrix with 0/1
 fn dense_csc_pattern(pattern: &SparsityPattern) -> DMatrix<i32> {
     let boolean_csc = CscMatrix::try_from_pattern_and_values(
-        Arc::new(pattern.clone()),
+        pattern.clone(),
         vec![1; pattern.nnz()])
         .unwrap();
     DMatrix::from(&boolean_csc)
@@ -137,8 +136,8 @@ fn spadd_csr_prealloc_args_strategy() -> impl Strategy<Value=SpaddCsrArgs<i32>> 
             let beta = value_strategy.clone();
             (Just(c_pattern), Just(a_pattern), c_values, a_values, alpha, beta, trans_strategy())
         }).prop_map(|(c_pattern, a_pattern, c_values, a_values, alpha, beta, trans_a)| {
-            let c = CsrMatrix::try_from_pattern_and_values(Arc::new(c_pattern), c_values).unwrap();
-            let a = CsrMatrix::try_from_pattern_and_values(Arc::new(a_pattern), a_values).unwrap();
+            let c = CsrMatrix::try_from_pattern_and_values(c_pattern, c_values).unwrap();
+            let a = CsrMatrix::try_from_pattern_and_values(a_pattern, a_values).unwrap();
 
             let a = if trans_a { Op::Transpose(a.transpose()) } else { Op::NoOp(a) };
             SpaddCsrArgs { c, beta, alpha, a }
@@ -222,15 +221,12 @@ fn spmm_csr_prealloc_args_strategy() -> impl Strategy<Value=SpmmCsrArgs<i32>> {
             let b_values = vec![PROPTEST_I32_VALUE_STRATEGY; b_pattern.nnz()];
             let c_pattern = spmm_pattern(&a_pattern, &b_pattern);
             let c_values = vec![PROPTEST_I32_VALUE_STRATEGY; c_pattern.nnz()];
-            let a_pattern = Arc::new(a_pattern);
-            let b_pattern = Arc::new(b_pattern);
-            let c_pattern = Arc::new(c_pattern);
             let a = a_values.prop_map(move |values|
-                CsrMatrix::try_from_pattern_and_values(Arc::clone(&a_pattern), values).unwrap());
+                CsrMatrix::try_from_pattern_and_values(a_pattern.clone(), values).unwrap());
             let b = b_values.prop_map(move |values|
-                CsrMatrix::try_from_pattern_and_values(Arc::clone(&b_pattern), values).unwrap());
+                CsrMatrix::try_from_pattern_and_values(b_pattern.clone(), values).unwrap());
             let c = c_values.prop_map(move |values|
-                CsrMatrix::try_from_pattern_and_values(Arc::clone(&c_pattern), values).unwrap());
+                CsrMatrix::try_from_pattern_and_values(c_pattern.clone(), values).unwrap());
             let alpha = PROPTEST_I32_VALUE_STRATEGY;
             let beta = PROPTEST_I32_VALUE_STRATEGY;
             (c, beta, alpha, trans_strategy(), a, trans_strategy(), b)
@@ -383,16 +379,16 @@ proptest! {
         // corresponding to a and b, and convert them to dense matrices.
         // The sum of these dense matrices will then have non-zeros in exactly the same locations
         // as the result of "adding" the sparsity patterns
-        let a_csr = CsrMatrix::try_from_pattern_and_values(Arc::new(a.clone()), vec![1; a.nnz()])
+        let a_csr = CsrMatrix::try_from_pattern_and_values(a.clone(), vec![1; a.nnz()])
             .unwrap();
         let a_dense = DMatrix::from(&a_csr);
-        let b_csr = CsrMatrix::try_from_pattern_and_values(Arc::new(b.clone()), vec![1; b.nnz()])
+        let b_csr = CsrMatrix::try_from_pattern_and_values(b.clone(), vec![1; b.nnz()])
             .unwrap();
         let b_dense = DMatrix::from(&b_csr);
         let c_dense = a_dense + b_dense;
         let c_csr = CsrMatrix::from(&c_dense);
 
-        prop_assert_eq!(&pattern_result, c_csr.pattern().as_ref());
+        prop_assert_eq!(&pattern_result, c_csr.pattern());
     }
 
     #[test]
@@ -492,16 +488,16 @@ proptest! {
         // corresponding to a and b, and convert them to dense matrices.
         // The product of these dense matrices will then have non-zeros in exactly the same locations
         // as the result of "multiplying" the sparsity patterns
-        let a_csr = CsrMatrix::try_from_pattern_and_values(Arc::new(a.clone()), vec![1; a.nnz()])
+        let a_csr = CsrMatrix::try_from_pattern_and_values(a.clone(), vec![1; a.nnz()])
             .unwrap();
         let a_dense = DMatrix::from(&a_csr);
-        let b_csr = CsrMatrix::try_from_pattern_and_values(Arc::new(b.clone()), vec![1; b.nnz()])
+        let b_csr = CsrMatrix::try_from_pattern_and_values(b.clone(), vec![1; b.nnz()])
             .unwrap();
         let b_dense = DMatrix::from(&b_csr);
         let c_dense = a_dense * b_dense;
         let c_csr = CsrMatrix::from(&c_dense);
 
-        prop_assert_eq!(&c_pattern, c_csr.pattern().as_ref());
+        prop_assert_eq!(&c_pattern, c_csr.pattern());
     }
 
     #[test]

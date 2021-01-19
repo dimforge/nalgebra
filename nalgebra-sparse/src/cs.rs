@@ -1,6 +1,5 @@
 use std::mem::replace;
 use std::ops::Range;
-use std::sync::Arc;
 
 use num_traits::One;
 
@@ -18,7 +17,7 @@ use crate::pattern::SparsityPattern;
 /// is obtained by associating columns with the major dimension.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CsMatrix<T> {
-    sparsity_pattern: Arc<SparsityPattern>,
+    sparsity_pattern: SparsityPattern,
     values: Vec<T>
 }
 
@@ -27,13 +26,13 @@ impl<T> CsMatrix<T> {
     #[inline]
     pub fn new(major_dim: usize, minor_dim: usize) -> Self {
         Self {
-            sparsity_pattern: Arc::new(SparsityPattern::new(major_dim, minor_dim)),
+            sparsity_pattern: SparsityPattern::new(major_dim, minor_dim),
             values: vec![],
         }
     }
 
     #[inline]
-    pub fn pattern(&self) -> &Arc<SparsityPattern> {
+    pub fn pattern(&self) -> &SparsityPattern {
         &self.sparsity_pattern
     }
 
@@ -50,24 +49,24 @@ impl<T> CsMatrix<T> {
     /// Returns the raw data represented as a tuple `(major_offsets, minor_indices, values)`.
     #[inline]
     pub fn cs_data(&self) -> (&[usize], &[usize], &[T]) {
-        let pattern = self.pattern().as_ref();
+        let pattern = self.pattern();
         (pattern.major_offsets(), pattern.minor_indices(), &self.values)
     }
 
     /// Returns the raw data represented as a tuple `(major_offsets, minor_indices, values)`.
     #[inline]
     pub fn cs_data_mut(&mut self) -> (&[usize], &[usize], &mut [T]) {
-        let pattern = self.sparsity_pattern.as_ref();
+        let pattern = &mut self.sparsity_pattern;
         (pattern.major_offsets(), pattern.minor_indices(), &mut self.values)
     }
 
     #[inline]
-    pub fn pattern_and_values_mut(&mut self) -> (&Arc<SparsityPattern>, &mut [T]) {
+    pub fn pattern_and_values_mut(&mut self) -> (&SparsityPattern, &mut [T]) {
         (&self.sparsity_pattern, &mut self.values)
     }
 
     #[inline]
-    pub fn from_pattern_and_values(pattern: Arc<SparsityPattern>, values: Vec<T>)
+    pub fn from_pattern_and_values(pattern: SparsityPattern, values: Vec<T>)
                                    -> Self {
         assert_eq!(pattern.nnz(), values.len(), "Internal error: consumers should verify shape compatibility.");
         Self {
@@ -84,25 +83,14 @@ impl<T> CsMatrix<T> {
         Some(row_begin .. row_end)
     }
 
-    pub fn take_pattern_and_values(self) -> (Arc<SparsityPattern>, Vec<T>) {
+    pub fn take_pattern_and_values(self) -> (SparsityPattern, Vec<T>) {
         (self.sparsity_pattern, self.values)
     }
 
     #[inline]
     pub fn disassemble(self) -> (Vec<usize>, Vec<usize>, Vec<T>) {
-        // Take an Arc to the pattern, which might be the sole reference to the data after
-        // taking the values. This is important, because it might let us avoid cloning the data
-        // further below.
-        let pattern = self.sparsity_pattern;
-        let values = self.values;
-
-        // Try to take the pattern out of the `Arc` if possible,
-        // otherwise clone the pattern.
-        let owned_pattern = Arc::try_unwrap(pattern)
-            .unwrap_or_else(|arc| SparsityPattern::clone(&*arc));
-        let (offsets, indices) = owned_pattern.disassemble();
-
-        (offsets, indices, values)
+        let (offsets, indices) = self.sparsity_pattern.disassemble();
+        (offsets, indices, self.values)
     }
 
     /// Returns an entry for the given major/minor indices, or `None` if the indices are out
@@ -151,12 +139,12 @@ impl<T> CsMatrix<T> {
 
     #[inline]
     pub fn lane_iter(&self) -> CsLaneIter<T> {
-        CsLaneIter::new(self.pattern().as_ref(), self.values())
+        CsLaneIter::new(self.pattern(), self.values())
     }
 
     #[inline]
     pub fn lane_iter_mut(&mut self) -> CsLaneIterMut<T> {
-        CsLaneIterMut::new(self.sparsity_pattern.as_ref(), &mut self.values)
+        CsLaneIterMut::new(&self.sparsity_pattern, &mut self.values)
     }
 
     #[inline]
@@ -190,7 +178,7 @@ impl<T> CsMatrix<T> {
             new_indices)
             .expect("Internal error: Sparsity pattern must always be valid.");
 
-        Self::from_pattern_and_values(Arc::new(new_pattern), new_values)
+        Self::from_pattern_and_values(new_pattern, new_values)
     }
 }
 
@@ -205,7 +193,7 @@ impl<T: Scalar + One> CsMatrix<T> {
         // TODO: We should skip checks here
         let pattern = SparsityPattern::try_from_offsets_and_indices(n, n, offsets, indices)
             .unwrap();
-        Self::from_pattern_and_values(Arc::new(pattern), values)
+        Self::from_pattern_and_values(pattern, values)
     }
 }
 
