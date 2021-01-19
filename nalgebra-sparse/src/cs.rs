@@ -403,13 +403,17 @@ impl<'a, T> CsLaneMut<'a, T> {
 /// Helper struct for working with uninitialized data in vectors.
 /// TODO: This doesn't belong here.
 struct UninitVec<T> {
-    vec: Vec<T>
+    vec: Vec<T>,
+    len: usize
 }
 
 impl<T> UninitVec<T> {
     pub fn from_len(len: usize) -> Self {
         Self {
-            vec: Vec::with_capacity(len)
+            vec: Vec::with_capacity(len),
+            // We need to store len separately, because for zero-sized types,
+            // Vec::with_capacity(len) does not give vec.capacity() == len
+            len
         }
     }
 
@@ -425,7 +429,7 @@ impl<T> UninitVec<T> {
     /// It is undefined behavior to call this function unless *all* elements have been written to
     /// exactly once.
     pub unsafe fn assume_init(mut self) -> Vec<T> {
-        self.vec.set_len(self.vec.capacity());
+        self.vec.set_len(self.len);
         self.vec
     }
 }
