@@ -169,7 +169,7 @@ pub struct MatrixParameters<NParameters, R, C> {
 /// ranges such as `5 ..= 6`. The latter example corresponds to dimensions from (inclusive)
 /// `Dynamic::new(5)` to `Dynamic::new(6)` (inclusive).
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DimRange<D>(RangeInclusive<D>);
+pub struct DimRange<D=Dynamic>(RangeInclusive<D>);
 
 impl<D: Dim> DimRange<D> {
     /// The lower bound for dimensions generated.
@@ -198,6 +198,13 @@ impl<D: Dim> From<RangeInclusive<D>> for DimRange<D> {
 impl From<RangeInclusive<usize>> for DimRange<Dynamic> {
     fn from(range: RangeInclusive<usize>) -> Self {
         DimRange::from(Dynamic::new(*range.start())..=Dynamic::new(*range.end()))
+    }
+}
+
+impl<D: Dim> DimRange<D> {
+    /// Converts the `DimRange` into an instance of `RangeInclusive`.
+    pub fn to_range_inclusive(&self) -> RangeInclusive<usize> {
+        self.lower_bound().value() ..= self.upper_bound().value()
     }
 }
 
