@@ -2,6 +2,10 @@
 //!
 //! TODO: Clarify that this module needs proptest-support feature
 
+// Contains some patched code from proptest that we can remove in the (hopefully near) future.
+// See docs in file for more details.
+mod proptest_patched;
+
 use crate::coo::CooMatrix;
 use proptest::prelude::*;
 use proptest::collection::{vec, hash_map, btree_set};
@@ -16,12 +20,20 @@ use crate::csc::CscMatrix;
 fn dense_row_major_coord_strategy(nrows: usize, ncols: usize, nnz: usize)
     -> impl Strategy<Value=Vec<(usize, usize)>>
 {
+    assert!(nnz <= nrows * ncols);
     let mut booleans = vec![true; nnz];
     booleans.append(&mut vec![false; (nrows * ncols) - nnz]);
     // Make sure that exactly `nnz` of the booleans are true
-    Just(booleans)
-        // Need to shuffle to make sure they are randomly distributed
-        .prop_shuffle()
+
+    // TODO: We cannot use the below code because of a bug in proptest, see
+    // https://github.com/AltSysrq/proptest/pull/217
+    // so for now we're using a patched version of the Shuffle adapter
+    // (see also docs in `proptest_patched`
+    // Just(booleans)
+    //     // Need to shuffle to make sure they are randomly distributed
+    //     .prop_shuffle()
+
+    proptest_patched::Shuffle(Just(booleans))
         .prop_map(move |booleans| {
             booleans
                 .into_iter()
@@ -265,8 +277,8 @@ pub fn sparsity_pattern(
                 // If the required number of nonzeros is sufficiently dense,
                 // we instead use a dense sampling
                 dense_row_major_coord_strategy(nmajor, nminor, nnz)
-                    .prop_map(move |triplets| {
-                        let coords = triplets.into_iter();
+                    .prop_map(move |coords| {
+                        let coords = coords.into_iter();
                         sparsity_pattern_from_row_major_coords(nmajor, nminor, coords)
                     }).boxed()
             }
