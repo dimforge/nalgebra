@@ -9,13 +9,14 @@ mod proptest_patched;
 use crate::coo::CooMatrix;
 use proptest::prelude::*;
 use proptest::collection::{vec, hash_map, btree_set};
-use nalgebra::Scalar;
+use nalgebra::{Scalar, Dim};
 use std::cmp::min;
 use std::iter::{repeat};
 use proptest::sample::{Index};
 use crate::csr::CsrMatrix;
 use crate::pattern::SparsityPattern;
 use crate::csc::CscMatrix;
+use nalgebra::proptest::DimRange;
 
 fn dense_row_major_coord_strategy(nrows: usize, ncols: usize, nnz: usize)
     -> impl Strategy<Value=Vec<(usize, usize)>>
@@ -141,14 +142,14 @@ fn sparse_triplet_strategy<T>(value_strategy: T,
 /// TODO
 pub fn coo_no_duplicates<T>(
     value_strategy: T,
-    rows: impl Strategy<Value=usize> + 'static,
-    cols: impl Strategy<Value=usize> + 'static,
+    rows: impl Into<DimRange>,
+    cols: impl Into<DimRange>,
     max_nonzeros: usize) -> impl Strategy<Value=CooMatrix<T::Value>>
 where
     T: Strategy + Clone + 'static,
     T::Value: Scalar,
 {
-    (rows, cols)
+    (rows.into().to_range_inclusive(), cols.into().to_range_inclusive())
         .prop_flat_map(move |(nrows, ncols)| {
             let max_nonzeros = min(max_nonzeros, nrows * ncols);
             let size_range = 0 ..= max_nonzeros;
@@ -182,8 +183,8 @@ where
 /// for each triplet, but does not consider the sum of triplets
 pub fn coo_with_duplicates<T>(
                  value_strategy: T,
-                 rows: impl Strategy<Value=usize> + 'static,
-                 cols: impl Strategy<Value=usize> + 'static,
+                 rows: impl Into<DimRange>,
+                 cols: impl Into<DimRange>,
                  max_nonzeros: usize,
                  max_duplicates: usize)
     -> impl Strategy<Value=CooMatrix<T::Value>>
@@ -256,12 +257,12 @@ where
 
 /// TODO
 pub fn sparsity_pattern(
-    major_lanes: impl Strategy<Value=usize> + 'static,
-    minor_lanes: impl Strategy<Value=usize> + 'static,
+    major_lanes: impl Into<DimRange>,
+    minor_lanes: impl Into<DimRange>,
     max_nonzeros: usize)
 -> impl Strategy<Value=SparsityPattern>
 {
-    (major_lanes, minor_lanes)
+    (major_lanes.into().to_range_inclusive(), minor_lanes.into().to_range_inclusive())
         .prop_flat_map(move |(nmajor, nminor)| {
             let max_nonzeros = min(nmajor * nminor, max_nonzeros);
             (Just(nmajor), Just(nminor), 0 ..= max_nonzeros)
@@ -287,15 +288,17 @@ pub fn sparsity_pattern(
 
 /// TODO
 pub fn csr<T>(value_strategy: T,
-              rows: impl Strategy<Value=usize> + 'static,
-              cols: impl Strategy<Value=usize> + 'static,
+              rows: impl Into<DimRange>,
+              cols: impl Into<DimRange>,
               max_nonzeros: usize)
     -> impl Strategy<Value=CsrMatrix<T::Value>>
 where
     T: Strategy + Clone + 'static,
     T::Value: Scalar,
 {
-    sparsity_pattern(rows, cols, max_nonzeros)
+    let rows = rows.into();
+    let cols = cols.into();
+    sparsity_pattern(rows.lower_bound().value() ..= rows.upper_bound().value(), cols.lower_bound().value() ..= cols.upper_bound().value(), max_nonzeros)
         .prop_flat_map(move |pattern| {
             let nnz = pattern.nnz();
             let values = vec![value_strategy.clone(); nnz];
@@ -309,15 +312,17 @@ where
 
 /// TODO
 pub fn csc<T>(value_strategy: T,
-              rows: impl Strategy<Value=usize> + 'static,
-              cols: impl Strategy<Value=usize> + 'static,
+              rows: impl Into<DimRange>,
+              cols: impl Into<DimRange>,
               max_nonzeros: usize)
               -> impl Strategy<Value=CscMatrix<T::Value>>
     where
         T: Strategy + Clone + 'static,
         T::Value: Scalar,
 {
-    sparsity_pattern(cols, rows, max_nonzeros)
+    let rows = rows.into();
+    let cols = cols.into();
+    sparsity_pattern(cols.lower_bound().value() ..= cols.upper_bound().value(), rows.lower_bound().value() ..= rows.upper_bound().value(), max_nonzeros)
         .prop_flat_map(move |pattern| {
             let nnz = pattern.nnz();
             let values = vec![value_strategy.clone(); nnz];

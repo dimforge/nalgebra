@@ -70,7 +70,7 @@ fn spmm_csr_dense_args_strategy() -> impl Strategy<Value=SpmmCsrDenseArgs<i32>> 
             let b_shape =
                 if trans_b { (c.ncols(), common_dim) }
                 else { (common_dim, c.ncols()) };
-            let a = csr(value_strategy.clone(), Just(a_shape.0), Just(a_shape.1), max_nnz);
+            let a = csr(value_strategy.clone(), a_shape.0, a_shape.1, max_nnz);
             let b = matrix(value_strategy.clone(), b_shape.0, b_shape.1);
 
             // We use the same values for alpha, beta parameters as for matrix elements
@@ -179,7 +179,7 @@ fn pattern_strategy() -> impl Strategy<Value=SparsityPattern> {
 fn spadd_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, SparsityPattern)> {
     pattern_strategy()
         .prop_flat_map(|a| {
-            let b = sparsity_pattern(Just(a.major_dim()), Just(a.minor_dim()), PROPTEST_MAX_NNZ);
+            let b = sparsity_pattern(a.major_dim(), a.minor_dim(), PROPTEST_MAX_NNZ);
             (Just(a), b)
         })
 }
@@ -188,7 +188,7 @@ fn spadd_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, SparsityPat
 fn spmm_csr_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, SparsityPattern)> {
     pattern_strategy()
         .prop_flat_map(|a| {
-            let b = sparsity_pattern(Just(a.minor_dim()), PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ);
+            let b = sparsity_pattern(a.minor_dim(), PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ);
             (Just(a), b)
         })
 }
@@ -269,7 +269,7 @@ fn csc_invertible_diagonal() -> impl Strategy<Value=CscMatrix<f64>> {
 fn csc_square_with_non_zero_diagonals() -> impl Strategy<Value=CscMatrix<f64>> {
     csc_invertible_diagonal()
         .prop_flat_map(|d| {
-            csc(value_strategy::<f64>(), Just(d.nrows()), Just(d.nrows()), PROPTEST_MAX_NNZ)
+            csc(value_strategy::<f64>(), d.nrows(), d.nrows(), PROPTEST_MAX_NNZ)
                 .prop_map(move |mut c| {
                     for (i, j, v) in c.triplet_iter_mut() {
                         if i == j {
@@ -412,7 +412,7 @@ proptest! {
         (a, b)
         in csr_strategy()
             .prop_flat_map(|a| {
-                let b = csr(PROPTEST_I32_VALUE_STRATEGY, Just(a.nrows()), Just(a.ncols()), PROPTEST_MAX_NNZ);
+                let b = csr(PROPTEST_I32_VALUE_STRATEGY, a.nrows(), a.ncols(), PROPTEST_MAX_NNZ);
                 (Just(a), b)
             }))
     {
@@ -448,7 +448,7 @@ proptest! {
         (a, b)
         in csr_strategy()
             .prop_flat_map(|a| {
-                let b = csr(PROPTEST_I32_VALUE_STRATEGY, Just(a.nrows()), Just(a.ncols()), PROPTEST_MAX_NNZ);
+                let b = csr(PROPTEST_I32_VALUE_STRATEGY, a.nrows(), a.ncols(), PROPTEST_MAX_NNZ);
                 (Just(a), b)
             }))
     {
@@ -606,7 +606,7 @@ proptest! {
             .prop_flat_map(|a| {
                 let max_nnz = PROPTEST_MAX_NNZ;
                 let cols = PROPTEST_MATRIX_DIM;
-                let b = csr(PROPTEST_I32_VALUE_STRATEGY, Just(a.ncols()), cols, max_nnz);
+                let b = csr(PROPTEST_I32_VALUE_STRATEGY, a.ncols(), cols, max_nnz);
                 (Just(a), b)
             }))
     {
@@ -713,7 +713,7 @@ proptest! {
             .prop_flat_map(|a| {
                 let max_nnz = PROPTEST_MAX_NNZ;
                 let cols = PROPTEST_MATRIX_DIM;
-                let b = csc(PROPTEST_I32_VALUE_STRATEGY, Just(a.ncols()), cols, max_nnz);
+                let b = csc(PROPTEST_I32_VALUE_STRATEGY, a.ncols(), cols, max_nnz);
                 (Just(a), b)
             })
             .prop_map(|(a, b)| {
@@ -865,7 +865,7 @@ proptest! {
         (a, b)
         in csc_strategy()
             .prop_flat_map(|a| {
-                let b = csc(PROPTEST_I32_VALUE_STRATEGY, Just(a.nrows()), Just(a.ncols()), PROPTEST_MAX_NNZ);
+                let b = csc(PROPTEST_I32_VALUE_STRATEGY, a.nrows(), a.ncols(), PROPTEST_MAX_NNZ);
                 (Just(a), b)
             }))
     {
@@ -901,7 +901,7 @@ proptest! {
         (a, b)
         in csc_strategy()
             .prop_flat_map(|a| {
-                let b = csc(PROPTEST_I32_VALUE_STRATEGY, Just(a.nrows()), Just(a.ncols()), PROPTEST_MAX_NNZ);
+                let b = csc(PROPTEST_I32_VALUE_STRATEGY, a.nrows(), a.ncols(), PROPTEST_MAX_NNZ);
                 (Just(a), b)
             }))
     {
