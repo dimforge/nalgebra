@@ -1154,7 +1154,9 @@ proptest! {
         spsolve_csc_lower_triangular(Op::NoOp(&a), &mut x).unwrap();
 
         let a_lower = a.lower_triangle();
-        prop_assert_matrix_eq!(&a_lower * &x, &b, comp = abs, tol = 1e-6);
+        // We're using a high tolerance here because there are some "bad" inputs that can give
+        // severe loss of precision.
+        prop_assert_matrix_eq!(&a_lower * &x, &b, comp = abs, tol = 1e-4);
     }
 
     #[test]
@@ -1171,7 +1173,9 @@ proptest! {
         spsolve_csc_lower_triangular(Op::Transpose(&a), &mut x).unwrap();
 
         let a_lower = a.lower_triangle();
-        prop_assert_matrix_eq!(&a_lower.transpose() * &x, &b, comp = abs, tol = 1e-6);
+        // We're using a high tolerance here because there are some "bad" inputs that can give
+        // severe loss of precision.
+        prop_assert_matrix_eq!(&a_lower.transpose() * &x, &b, comp = abs, tol = 1e-4);
     }
 
 }
