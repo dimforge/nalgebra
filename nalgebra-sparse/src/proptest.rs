@@ -1,6 +1,10 @@
-//! TODO
+//! Functionality for integrating `nalgebra-sparse` with `proptest`.
 //!
-//! TODO: Clarify that this module needs proptest-support feature
+//! **This module is only available if the `proptest-support` feature is enabled**.
+//!
+//! The strategies provided here are generally expected to be able to generate the entire range
+//! of possible outputs given the constraints on dimensions and values. However, there are no
+//! particular guarantees on the distribution of possible values.
 
 // Contains some patched code from proptest that we can remove in the (hopefully near) future.
 // See docs in file for more details.
@@ -139,7 +143,12 @@ fn sparse_triplet_strategy<T>(value_strategy: T,
         .prop_shuffle()
 }
 
-/// TODO
+/// A strategy for producing COO matrices without duplicate entries.
+///
+/// The values of the matrix are picked from the provided `value_strategy`, while the size of the
+/// generated matrices is determined by the ranges `rows` and `cols`. The number of explicitly
+/// stored entries is bounded from above by `max_nonzeros`. Note that the matrix might still
+/// contain explicitly stored zeroes if the value strategy is capable of generating zero values.
 pub fn coo_no_duplicates<T>(
     value_strategy: T,
     rows: impl Into<DimRange>,
@@ -177,10 +186,17 @@ where
         })
 }
 
-/// TODO
+/// A strategy for producing COO matrices with duplicate entries.
 ///
-/// TODO: Write note on how this strategy only maintains the constraints on values
-/// for each triplet, but does not consider the sum of triplets
+/// The values of the matrix are picked from the provided `value_strategy`, while the size of the
+/// generated matrices is determined by the ranges `rows` and `cols`. Note that the values
+/// only apply to individual entries, and since this strategy can generate duplicate entries,
+/// the matrix will generally have values outside the range determined by `value_strategy` when
+/// converted to other formats, since the duplicate entries are summed together in this case.
+///
+/// The number of explicitly stored entries is bounded from above by `max_nonzeros`. The maximum
+/// number of duplicate entries is determined by `max_duplicates`. Note that the matrix might still
+/// contain explicitly stored zeroes if the value strategy is capable of generating zero values.
 pub fn coo_with_duplicates<T>(
                  value_strategy: T,
                  rows: impl Into<DimRange>,
@@ -255,7 +271,7 @@ where
         .expect("Internal error: Generated sparsity pattern is invalid")
 }
 
-/// TODO
+/// A strategy for generating sparsity patterns.
 pub fn sparsity_pattern(
     major_lanes: impl Into<DimRange>,
     minor_lanes: impl Into<DimRange>,
@@ -286,7 +302,7 @@ pub fn sparsity_pattern(
         })
 }
 
-/// TODO
+/// A strategy for generating CSR matrices.
 pub fn csr<T>(value_strategy: T,
               rows: impl Into<DimRange>,
               cols: impl Into<DimRange>,
@@ -310,7 +326,7 @@ where
         })
 }
 
-/// TODO
+/// A strategy for generating CSC matrices.
 pub fn csc<T>(value_strategy: T,
               rows: impl Into<DimRange>,
               cols: impl Into<DimRange>,

@@ -1,13 +1,13 @@
 use crate::cs::CsMatrix;
 use crate::ops::Op;
-use crate::ops::serial::{OperationErrorType, OperationError};
+use crate::ops::serial::{OperationErrorKind, OperationError};
 use nalgebra::{Scalar, ClosedAdd, ClosedMul, DMatrixSliceMut, DMatrixSlice};
 use num_traits::{Zero, One};
 use crate::SparseEntryMut;
 
 fn spmm_cs_unexpected_entry() -> OperationError {
-    OperationError::from_type_and_message(
-        OperationErrorType::InvalidPattern,
+    OperationError::from_kind_and_message(
+        OperationErrorKind::InvalidPattern,
         String::from("Found unexpected entry that is not present in `c`."))
 }
 
@@ -58,8 +58,8 @@ pub fn spmm_cs_prealloc<T>(
 }
 
 fn spadd_cs_unexpected_entry() -> OperationError {
-    OperationError::from_type_and_message(
-        OperationErrorType::InvalidPattern,
+    OperationError::from_kind_and_message(
+        OperationErrorKind::InvalidPattern,
         String::from("Found entry in `op(a)` that is not present in `c`."))
 }
 

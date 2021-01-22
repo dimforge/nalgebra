@@ -158,17 +158,26 @@ impl fmt::Display for SparseFormatError {
 
 impl Error for SparseFormatError {}
 
-/// TODO
+/// An entry in a sparse matrix.
+///
+/// Sparse matrices do not store all their entries explicitly. Therefore, entry (i, j) in the matrix
+/// can either be a reference to an explicitly stored element, or it is implicitly zero.
 #[derive(Debug, PartialEq, Eq)]
 pub enum SparseEntry<'a, T> {
-    /// TODO
+    /// The entry is a reference to an explicitly stored element.
+    ///
+    /// Note that the naming here is a misnomer: The element can still be zero, even though it
+    /// is explicitly stored (a so-called "explicit zero").
     NonZero(&'a T),
-    /// TODO
+    /// The entry is implicitly zero, i.e. it is not explicitly stored.
     Zero
 }
 
 impl<'a, T: Clone + Zero> SparseEntry<'a, T> {
-    /// TODO
+    /// Returns the value represented by this entry.
+    ///
+    /// Either clones the underlying reference or returns zero if the entry is not explicitly
+    /// stored.
     pub fn to_value(self) -> T {
         match self {
             SparseEntry::NonZero(value) => value.clone(),
@@ -177,17 +186,25 @@ impl<'a, T: Clone + Zero> SparseEntry<'a, T> {
     }
 }
 
-/// TODO
+/// A mutable entry in a sparse matrix.
+///
+/// See also `SparseEntry`.
 #[derive(Debug, PartialEq, Eq)]
 pub enum SparseEntryMut<'a, T> {
-    /// TODO
+    /// The entry is a mutable reference to an explicitly stored element.
+    ///
+    /// Note that the naming here is a misnomer: The element can still be zero, even though it
+    /// is explicitly stored (a so-called "explicit zero").
     NonZero(&'a mut T),
-    /// TODO
+    /// The entry is implicitly zero i.e. it is not explicitly stored.
     Zero
 }
 
 impl<'a, T: Clone + Zero> SparseEntryMut<'a, T> {
-    /// TODO
+    /// Returns the value represented by this entry.
+    ///
+    /// Either clones the underlying reference or returns zero if the entry is not explicitly
+    /// stored.
     pub fn to_value(self) -> T {
         match self {
             SparseEntryMut::NonZero(value) => value.clone(),

@@ -1,4 +1,8 @@
-//! TODO
+//! Serial routines for converting between matrix formats.
+//!
+//! All routines in this module are single-threaded. At present these routines offer no
+//! advantage over using the [`From`] trait, but future changes to the API might offer more
+//! control to the user.
 use std::ops::Add;
 
 use num_traits::Zero;
@@ -11,7 +15,7 @@ use crate::cs;
 use crate::csc::CscMatrix;
 use crate::csr::CsrMatrix;
 
-/// TODO
+/// Converts a dense matrix to [`CooMatrix`].
 pub fn convert_dense_coo<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CooMatrix<T>
 where
     T: Scalar + Zero,
@@ -33,9 +37,7 @@ where
     coo
 }
 
-/// TODO
-///
-/// TODO: What should the actual trait bounds be?
+/// Converts a [`CooMatrix`] to a dense matrix.
 pub fn convert_coo_dense<T>(coo: &CooMatrix<T>) -> DMatrix<T>
 where
     T: Scalar + Zero + ClosedAdd,
@@ -47,7 +49,7 @@ where
     output
 }
 
-/// TODO
+/// Converts a [`CooMatrix`] to a [`CsrMatrix`].
 pub fn convert_coo_csr<T>(coo: &CooMatrix<T>) -> CsrMatrix<T>
 where
     T: Scalar + Zero
@@ -63,7 +65,7 @@ where
         .expect("Internal error: Invalid CSR data during COO->CSR conversion")
 }
 
-/// TODO
+/// Converts a [`CsrMatrix`] to a [`CooMatrix`].
 pub fn convert_csr_coo<T: Scalar>(csr: &CsrMatrix<T>) -> CooMatrix<T>
 {
     let mut result = CooMatrix::new(csr.nrows(), csr.ncols());
@@ -73,7 +75,7 @@ pub fn convert_csr_coo<T: Scalar>(csr: &CsrMatrix<T>) -> CooMatrix<T>
     result
 }
 
-/// TODO
+/// Converts a [`CsrMatrix`] to a dense matrix.
 pub fn convert_csr_dense<T>(csr:& CsrMatrix<T>) -> DMatrix<T>
 where
     T: Scalar + ClosedAdd + Zero
@@ -87,7 +89,7 @@ where
     output
 }
 
-/// TODO
+/// Converts a dense matrix to a [`CsrMatrix`].
 pub fn convert_dense_csr<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CsrMatrix<T>
 where
     T: Scalar + Zero,
@@ -120,7 +122,7 @@ where
         .expect("Internal error: Invalid CsrMatrix format during dense-> CSR conversion")
 }
 
-/// TODO
+/// Converts a [`CooMatrix`] to a [`CscMatrix`].
 pub fn convert_coo_csc<T>(coo: &CooMatrix<T>) -> CscMatrix<T>
 where
     T: Scalar + Zero
@@ -136,7 +138,7 @@ where
         .expect("Internal error: Invalid CSC data during COO->CSC conversion")
 }
 
-/// TODO
+/// Converts a [`CscMatrix`] to a [`CooMatrix`].
 pub fn convert_csc_coo<T>(csc: &CscMatrix<T>) -> CooMatrix<T>
 where
     T: Scalar
@@ -148,7 +150,7 @@ where
     coo
 }
 
-/// TODO
+/// Converts a [`CscMatrix`] to a dense matrix.
 pub fn convert_csc_dense<T>(csc: &CscMatrix<T>) -> DMatrix<T>
 where
     T: Scalar + ClosedAdd + Zero
@@ -162,7 +164,7 @@ where
     output
 }
 
-/// TODO
+/// Converts a dense matrix to a [`CscMatrix`].
 pub fn convert_dense_csc<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CscMatrix<T>
     where
         T: Scalar + Zero,
@@ -192,7 +194,7 @@ pub fn convert_dense_csc<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CscMatrix<T>
         .expect("Internal error: Invalid CscMatrix format during dense-> CSC conversion")
 }
 
-/// TODO
+/// Converts a [`CsrMatrix`] to a [`CscMatrix`].
 pub fn convert_csr_csc<T>(csr: &CsrMatrix<T>) -> CscMatrix<T>
 where
     T: Scalar
@@ -208,7 +210,7 @@ where
         .expect("Internal error: Invalid CSC data during CSR->CSC conversion")
 }
 
-/// TODO
+/// Converts a [`CscMatrix`] to a [`CsrMatrix`].
 pub fn convert_csc_csr<T>(csc: &CscMatrix<T>) -> CsrMatrix<T>
     where
         T: Scalar

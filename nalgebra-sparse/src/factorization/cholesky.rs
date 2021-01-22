@@ -1,6 +1,3 @@
-// TODO: Remove this allowance
-#![allow(missing_docs)]
-
 use crate::pattern::SparsityPattern;
 use crate::csc::CscMatrix;
 use core::{mem, iter};
@@ -9,6 +6,10 @@ use std::fmt::{Display, Formatter};
 use crate::ops::serial::spsolve_csc_lower_triangular;
 use crate::ops::Op;
 
+/// A symbolic sparse Cholesky factorization of a CSC matrix.
+///
+/// The symbolic factorization computes the sparsity pattern of `L`, the Cholesky factor.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CscSymbolicCholesky {
     // Pattern of the original matrix that was decomposed
     m_pattern: SparsityPattern,
@@ -18,6 +19,14 @@ pub struct CscSymbolicCholesky {
 }
 
 impl CscSymbolicCholesky {
+    /// Compute the symbolic factorization for a sparsity pattern belonging to a CSC matrix.
+    ///
+    /// The sparsity pattern must be symmetric. However, this is not enforced, and it is the
+    /// responsibility of the user to ensure that this property holds.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the sparsity pattern is not square.
     pub fn factor(pattern: SparsityPattern) -> Self {
         assert_eq!(pattern.major_dim(), pattern.minor_dim(),
             "Major and minor dimensions must be the same (square matrix).");
@@ -29,11 +38,27 @@ impl CscSymbolicCholesky {
         }
     }
 
+    /// The pattern of the Cholesky factor `L`.
     pub fn l_pattern(&self) -> &SparsityPattern {
         &self.l_pattern
     }
 }
 
+/// A sparse Cholesky factorization `A = L L^T` of a [`CscMatrix`].
+///
+/// The factor `L` is a sparse, lower-triangular matrix. See the article on [Wikipedia] for
+/// more information.
+///
+/// The implementation is a port of the `CsCholesky` implementation in `nalgebra`. It is similar
+/// to Tim Davis' [`CSparse`]. The current implementation performs no fill-in reduction, and can
+/// therefore be expected to produce much too dense Cholesky factors for many matrices.
+/// It is therefore not currently recommended to use this implementation for serious projects.
+///
+/// [`CSparse`]: https://epubs.siam.org/doi/book/10.1137/1.9780898718881
+/// [Wikipedia]: https://en.wikipedia.org/wiki/Cholesky_decomposition
+// TODO: We should probably implement PartialEq/Eq, but in that case we'd probably need a
+// custom implementation, due to the need to exclude the workspace arrays
+#[derive(Debug, Clone)]
 pub struct CscCholesky<T> {
     // Pattern of the original matrix
     m_pattern: SparsityPattern,
@@ -45,6 +70,7 @@ pub struct CscCholesky<T> {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[non_exhaustive]
+/// Possible errors produced by the Cholesky factorization.
 pub enum CholeskyError {
     /// The matrix is not positive definite.
     NotPositiveDefinite,
@@ -59,7 +85,24 @@ impl Display for CholeskyError {
 impl std::error::Error for CholeskyError {}
 
 impl<T: RealField> CscCholesky<T> {
-    pub fn factor_numerical(symbolic: CscSymbolicCholesky, values: &[T]) -> Result<Self, CholeskyError> {
+    /// Computes the numerical Cholesky factorization associated with the given
+    /// symbolic factorization and the provided values.
+    ///
+    /// The values correspond to the non-zero values of the CSC matrix for which the
+    /// symbolic factorization was computed.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the numerical factorization fails. This can occur if the matrix is not
+    /// symmetric positive definite.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the number of values differ from the number of non-zeros of the sparsity pattern
+    /// of the matrix that was symbolically factored.
+    pub fn factor_numerical(symbolic: CscSymbolicCholesky, values: &[T])
+        -> Result<Self, CholeskyError>
+    {
         assert_eq!(symbolic.l_pattern.nnz(), symbolic.u_pattern.nnz(),
                    "u is just the transpose of l, so should have the same nnz");
 
@@ -84,19 +127,50 @@ impl<T: RealField> CscCholesky<T> {
         Ok(factorization)
     }
 
+    /// Computes the Cholesky factorization of the provided matrix.
+    ///
+    /// The matrix must be symmetric positive definite. Symmetry is not checked, and it is up
+    /// to the user to enforce this property.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the numerical factorization fails. This can occur if the matrix is not
+    /// symmetric positive definite.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the matrix is not square.
+    ///
+    /// TODO: Take matrix by value or not?
     pub fn factor(matrix: &CscMatrix<T>) -> Result<Self, CholeskyError> {
         let symbolic = CscSymbolicCholesky::factor(matrix.pattern().clone());
         Self::factor_numerical(symbolic, matrix.values())
     }
 
+    /// Re-computes the factorization for a new set of non-zero values.
+    ///
+    /// This is useful when the values of a matrix changes, but the sparsity pattern remains
+    /// constant.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the numerical factorization fails. This can occur if the matrix is not
+    /// symmetric positive definite.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the number of values does not match the number of non-zeros in the sparsity
+    /// pattern.
     pub fn refactor(&mut self, values: &[T]) -> Result<(), CholeskyError> {
         self.decompose_left_looking(values)
     }
 
+    /// Returns a reference to the Cholesky factor `L`.
     pub fn l(&self) -> &CscMatrix<T> {
         &self.l_factor
     }
 
+    /// Returns the Cholesky factor `L`.
     pub fn take_l(self)  -> CscMatrix<T> {
         self.l_factor
     }
@@ -178,6 +252,11 @@ impl<T: RealField> CscCholesky<T> {
         Ok(())
     }
 
+    /// Solves the system `A X = B`, where `X` and `B` are dense matrices.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `B` is not square.
     pub fn solve<'a>(&'a self, b: impl Into<DMatrixSlice<'a, T>>) -> DMatrix<T> {
         let b = b.into();
         let mut output = b.clone_owned();
@@ -185,6 +264,13 @@ impl<T: RealField> CscCholesky<T> {
         output
     }
 
+    /// Solves the system `AX = B`, where `X` and `B` are dense matrices.
+    ///
+    /// The result is stored in-place in `b`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `b` is not square.
     pub fn solve_mut<'a>(&'a self, b: impl Into<DMatrixSliceMut<'a, T>>)
     {
         let expect_msg = "If the Cholesky factorization succeeded,\
@@ -200,9 +286,6 @@ impl<T: RealField> CscCholesky<T> {
             .expect(expect_msg);
     }
 }
-
-
-
 
 fn reach(
     pattern: &SparsityPattern,

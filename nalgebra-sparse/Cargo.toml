@@ -21,3 +21,7 @@ matrixcompare-core = { version = "0.1.0", optional = true }
 itertools = "0.9"
 matrixcompare = { version = "0.2.0", features = [ "proptest-support" ] }
 nalgebra = { version="0.23", path = "../", features = ["compare"] }
+
+[package.metadata.docs.rs]
+# Enable certain features when building docs for docs.rs
+features = [ "proptest-support", "compare" ]
