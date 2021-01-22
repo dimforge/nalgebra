@@ -1,75 +1,133 @@
-//! Sparse matrices and algorithms for nalgebra.
+//! Sparse matrices and algorithms for [nalgebra](https://www.nalgebra.org).
 //!
-//! TODO: Docs
+//! This crate extends `nalgebra` with sparse matrix formats and operations on sparse matrices.
 //!
+//! ## Goals
+//! The long-term goals for this crate are listed below.
 //!
-//! ### Planned functionality
+//! - Provide proven sparse matrix formats in an easy-to-use and idiomatic Rust API that
+//!   naturally integrates with `nalgebra`.
+//! - Provide additional expert-level APIs for fine-grained control over operations.
+//! - Integrate well with external sparse matrix libraries.
+//! - Provide native Rust high-performance routines, including parallel matrix operations.
 //!
-//! Below we list desired functionality. This further needs to be refined into what is needed
-//! for an initial contribution, and what can be added in future contributions.
+//! ## Highlighted current features
 //!
-//! - Sparsity pattern type. Functionality:
-//!     - [x] Access to offsets, indices as slices.
-//!     - [x] Return number of nnz
-//!     - [x] Access a given lane as a slice of minor indices
-//!     - [x] Construct from valid offset + index data
-//!     - [ ] Construct from unsorted (but otherwise valid) offset + index data
-//!     - [x] Iterate over entries (i, j) in the pattern
-//!     - [x] "Disassemble" the sparsity pattern into the raw index data arrays.
-//! - CSR matrix type. Functionality:
-//!     - [x] Access to CSR data as slices.
-//!     - [x] Return number of nnz
-//!     - [x] Access a given row, which gives convenient access to the data associated
-//!       with a particular row
-//!     - [x] Construct from valid CSR data
-//!     - [ ] Construct from unsorted CSR data
-//!     - [x] Iterate over entries (i, j, v) in the matrix (+mutable).
-//!     - [x] Iterate over rows in the matrix (+ mutable).
-//!     - [x] "Disassemble" the CSR matrix into the raw CSR data arrays.
+//! - [CSR](csr::CsrMatrix), [CSC](csc::CscMatrix) and [COO](coo::CooMatrix) formats, and
+//!   [conversions](`convert`) between them.
+//! - Common arithmetic operations are implemented. See the [`ops`] module.
+//! - Sparsity patterns in CSR and CSC matrices are explicitly represented by the
+//!   [SparsityPattern](pattern::SparsityPattern) type, which encodes the invariants of the
+//!   associated index data structures.
+//! - [proptest strategies](`proptest`) for sparse matrices when the feature
+//!   `proptest-support` is enabled.
+//! - [matrixcompare support](https://crates.io/crates/matrixcompare) for effortless
+//!   (approximate) comparison of matrices in test code (requires the `compare` feature).
 //!
-//! - CSC matrix type. Functionality:
-//!     - [x] Access to CSC data as slices.
-//!     - [x] Return number of nnz
-//!     - [x] Access a given column, which gives convenient access to the data associated
-//!       with a particular column
-//!     - [x] Construct from valid CSC data
-//!     - [ ] Construct from unsorted CSC data
-//!     - [x] Iterate over entries (i, j, v) in the matrix (+mutable).
-//!     - [x] Iterate over rows in the matrix (+ mutable).
-//!     - [x] "Disassemble" the CSC matrix into the raw CSC data arrays.
-//! - COO matrix type. Functionality:
-//!     - [x] Construct new "empty" COO matrix
-//!     - [x] Construct from triplet arrays.
-//!     - [x] Push new triplets to the matrix.
-//!     - [x] Iterate over triplets.
-//!     - [x] "Disassemble" the COO matrix into its underlying triplet arrays.
-//! - Format conversion:
-//!     - [x] COO -> Dense
-//!     - [x] CSR -> Dense
-//!     - [x] CSC -> Dense
-//!     - [x] COO -> CSR
-//!     - [x] COO -> CSC
-//!     - [x] CSR -> CSC
-//!     - [x] CSC -> CSR
-//!     - [x] CSR -> COO
-//!     - [x] CSC -> COO
-//!     - [x] Dense -> COO
-//!     - [x] Dense -> CSR
-//!     - [x] Dense -> CSC
-//! - Arithmetic. In general arithmetic is only implemented between instances of the same format,
-//!   or between dense and instances of a given format. For example, we do not implement
-//!   CSR * CSC, only CSR * CSR and CSC * CSC.
-//!     - CSR:
-//!         - [ ] Dense = CSR * Dense (the other way around is not particularly useful)
-//!         - [ ] CSR = CSR * CSR
-//!         - [ ] CSR = CSR +- CSR
-//!         - [ ] CSR +=/-= CSR
-//!     - COO:
-//!         - [ ] Dense = COO * Dense (sometimes useful for very sparse matrices)
-//!     - CSC:
-//!         - Same as CSR
-//! - Cholesky factorization (port existing factorization from nalgebra's sparse module)
+//! ## Current state
 //!
+//! The library is in an early, but usable state. The API has been designed to be extensible,
+//! but breaking changes will be necessary to implement several planned features. While it is
+//! backed by an extensive test suite, it has yet to be thoroughly battle-tested in real
+//! applications. Moreover, the focus so far has been on correctness and API design, with little
+//! focus on performance. Future improvements will include incremental performance enhancements.
+//!
+//! Current limitations:
+//!
+//! - Limited or no availability of sparse system solvers.
+//! - Limited support for complex numbers. Currently only arithmetic operations that do not
+//!   rely on particular properties of complex numbers, such as e.g. conjugation, are
+//!   supported.
+//! - No integration with external libraries.
+//!
+//! # Usage
+//!
+//! Add the following to your `Cargo.toml` file:
+//!
+//! ```toml
+//! [dependencies]
+//! nalgebra_sparse = "0.1"
+//! ```
+//!
+//! # Supported matrix formats
+//!
+//! | Format                  | Notes                                        |
+//! | ------------------------|--------------------------------------------- |
+//! | [COO](`coo::CooMatrix`) | Well-suited for matrix construction. <br /> Ill-suited for algebraic operations. |
+//! | [CSR](`csr::CsrMatrix`) | Immutable sparsity pattern, suitable for algebraic operations. <br /> Fast row access. |
+//! | [CSC](`csr::CscMatrix`) | Immutable sparsity pattern, suitable for algebraic operations. <br /> Fast column access. |
+//!
+//! What format is best to use depends on the application. The most common use case for sparse
+//! matrices in science is the solution of sparse linear systems. Here we can differentiate between
+//! two common cases:
+//!
+//! - Direct solvers. Typically, direct solvers take their input in CSR or CSC format.
+//! - Iterative solvers. Many iterative solvers require only matrix-vector products,
+//!   for which the CSR or CSC formats are suitable.
+//!
+//! The [COO](coo::CooMatrix) format is primarily intended for matrix construction.
+//! A common pattern is to use COO for construction, before converting to CSR or CSC for use
+//! in a direct solver or for computing matrix-vector products in an iterative solver.
+//! Some high-performance applications might also directly manipulate the CSR and/or CSC
+//! formats.
+//!
+//! # Example: COO -> CSR -> matrix-vector product
+//!
+//! ```rust
+//! use nalgebra_sparse::{coo::CooMatrix, csr::CsrMatrix};
+//! use nalgebra::{DMatrix, DVector};
+//! use matrixcompare::assert_matrix_eq;
+//!
+//! // The dense representation of the matrix
+//! let dense = DMatrix::from_row_slice(3, 3,
+//!     &[1.0, 0.0, 3.0,
+//!       2.0, 0.0, 1.3,
+//!       0.0, 0.0, 4.1]);
+//!
+//! // Build the equivalent COO representation. We only add the non-zero values
+//! let mut coo = CooMatrix::new(3, 3);
+//! // We can add elements in any order. For clarity, we do so in row-major order here.
+//! coo.push(0, 0, 1.0);
+//! coo.push(0, 2, 3.0);
+//! coo.push(1, 0, 2.0);
+//! coo.push(1, 2, 1.3);
+//! coo.push(2, 2, 4.1);
+//!
+//! // The simplest way to construct a CSR matrix is to first construct a COO matrix, and
+//! // then convert it to CSR. The `From` trait is implemented for conversions between different
+//! // sparse matrix types.
+//! // Alternatively, we can construct a matrix directly from the CSR data.
+//! // See the docs for CsrMatrix for how to do that.
+//! let csr = CsrMatrix::from(&coo);
+//!
+//! // Let's check that the CSR matrix and the dense matrix represent the same matrix.
+//! // We can use macros from the `matrixcompare` crate to easily do this, despite the fact that
+//! // we're comparing across two different matrix formats. Note that these macros are only really
+//! // appropriate for writing tests, however.
+//! assert_matrix_eq!(csr, dense);
+//!
+//! let x = DVector::from_column_slice(&[1.3, -4.0, 3.5]);
+//!
+//! // Compute the matrix-vector product y = A * x. We don't need to specify the type here,
+//! // but let's just do it to make sure we get what we expect
+//! let y: DVector<_> = &csr * &x;
+//!
+//! // Verify the result with a small element-wise absolute tolerance
+//! let y_expected = DVector::from_column_slice(&[11.8, 7.15, 14.35]);
+//! assert_matrix_eq!(y, y_expected, comp = abs, tol = 1e-9);
+//!
+//! // The above expression is simple, and gives easy to read code, but if we're doing this in a
+//! // loop, we'll have to keep allocating new vectors. If we determine that this is a bottleneck,
+//! // then we can resort to the lower level APIs for more control over the operations
+//! {
+//!     use nalgebra_sparse::ops::{Op, serial::spmm_csr_dense};
+//!     let mut y = y;
+//!     // Compute y <- 0.0 * y + 1.0 * csr * dense. We store the result directly in `y`, without
+//!     // any immediate allocations
+//!     spmm_csr_dense(0.0, &mut y, 1.0, Op::NoOp(&csr), Op::NoOp(&x));
+//!     assert_matrix_eq!(y, y_expected, comp = abs, tol = 1e-9);
+//! }
+//! ```
 //!
 //! TODO: Write docs on the following:
 //!
