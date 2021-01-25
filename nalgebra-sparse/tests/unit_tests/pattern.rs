@@ -23,7 +23,7 @@ fn sparsity_pattern_valid_data() {
         assert_eq!(pattern.lane(2), &[]);
         assert!(pattern.entries().next().is_none());
 
-        assert_eq!(pattern, SparsityPattern::new(3, 2));
+        assert_eq!(pattern, SparsityPattern::zeros(3, 2));
 
         let (offsets, indices) = pattern.disassemble();
         assert_eq!(offsets, vec![0, 0, 0, 0]);

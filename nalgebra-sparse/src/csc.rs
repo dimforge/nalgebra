@@ -1,4 +1,7 @@
 //! An implementation of the CSC sparse matrix format.
+//!
+//! This is the module-level documentation. See [`CscMatrix`] for the main documentation of the
+//! CSC implementation.
 
 use crate::{SparseFormatError, SparseFormatErrorKind, SparseEntry, SparseEntryMut};
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
@@ -125,7 +128,7 @@ pub struct CscMatrix<T> {
 
 impl<T> CscMatrix<T> {
     /// Create a zero CSC matrix with no explicitly stored entries.
-    pub fn new(nrows: usize, ncols: usize) -> Self {
+    pub fn zeros(nrows: usize, ncols: usize) -> Self {
         Self {
             cs: CsMatrix::new(ncols, nrows)
         }
@@ -469,11 +472,11 @@ impl<T> CscMatrix<T> {
     }
 
     /// Returns the diagonal of the matrix as a sparse matrix.
-    pub fn diagonal_as_matrix(&self) -> Self
+    pub fn diagonal_as_csc(&self) -> Self
     where
         T: Clone
     {
-        self.filter(|i, j, _| i == j)
+        Self { cs: self.cs.diagonal_as_matrix() }
     }
 }
 

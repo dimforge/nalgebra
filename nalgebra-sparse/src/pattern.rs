@@ -50,7 +50,7 @@ pub struct SparsityPattern {
 
 impl SparsityPattern {
     /// Create a sparsity pattern of the given dimensions without explicitly stored entries.
-    pub fn new(major_dim: usize, minor_dim: usize) -> Self {
+    pub fn zeros(major_dim: usize, minor_dim: usize) -> Self {
         Self {
             major_offsets: vec![0; major_dim + 1],
             minor_indices: vec![],

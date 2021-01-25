@@ -22,7 +22,7 @@ fn csr_matrix_valid_data() {
         let values = Vec::<i32>::new();
         let mut matrix = CsrMatrix::try_from_csr_data(3, 2, offsets, indices, values).unwrap();
 
-        assert_eq!(matrix, CsrMatrix::new(3, 2));
+        assert_eq!(matrix, CsrMatrix::zeros(3, 2));
 
         assert_eq!(matrix.nrows(), 3);
         assert_eq!(matrix.ncols(), 2);
@@ -318,8 +318,8 @@ proptest! {
     }
 
     #[test]
-    fn csr_diagonal_as_matrix(csr in csr_strategy()) {
-        let d = csr.diagonal_as_matrix();
+    fn csr_diagonal_as_csr(csr in csr_strategy()) {
+        let d = csr.diagonal_as_csr();
         let d_entries: HashSet<_> = d.triplet_iter().cloned_values().collect();
         let csr_diagonal_entries: HashSet<_> = csr
             .triplet_iter()

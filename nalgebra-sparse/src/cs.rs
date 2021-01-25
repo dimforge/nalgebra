@@ -26,7 +26,7 @@ impl<T> CsMatrix<T> {
     #[inline]
     pub fn new(major_dim: usize, minor_dim: usize) -> Self {
         Self {
-            sparsity_pattern: SparsityPattern::new(major_dim, minor_dim),
+            sparsity_pattern: SparsityPattern::zeros(major_dim, minor_dim),
             values: vec![],
         }
     }
@@ -184,6 +184,15 @@ impl<T> CsMatrix<T> {
             .expect("Internal error: Sparsity pattern must always be valid.");
 
         Self::from_pattern_and_values(new_pattern, new_values)
+    }
+
+    /// Returns the diagonal of the matrix as a sparse matrix.
+    pub fn diagonal_as_matrix(&self) -> Self
+        where
+            T: Clone
+    {
+        // TODO: This might be faster with a binary search for each diagonal entry
+        self.filter(|i, j, _| i == j)
     }
 }
 

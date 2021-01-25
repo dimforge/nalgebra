@@ -128,13 +128,6 @@
 //!     assert_matrix_eq!(y, y_expected, comp = abs, tol = 1e-9);
 //! }
 //! ```
-//!
-//! TODO: Write docs on the following:
-//!
-//! - Overall design ("easy API" vs. "expert" API etc.)
-//! - Conversions (From, explicit "expert" API etc.)
-//! - Matrix ops design
-//! - Proptest and matrixcompare integrations
 #![deny(non_camel_case_types)]
 #![deny(unused_parens)]
 #![deny(non_upper_case_globals)]

@@ -21,7 +21,7 @@ fn csc_matrix_valid_data() {
         let values = Vec::<i32>::new();
         let mut matrix = CscMatrix::try_from_csc_data(2, 3, offsets, indices, values).unwrap();
 
-        assert_eq!(matrix, CscMatrix::new(2, 3));
+        assert_eq!(matrix, CscMatrix::zeros(2, 3));
 
         assert_eq!(matrix.nrows(), 2);
         assert_eq!(matrix.ncols(), 3);
@@ -317,8 +317,8 @@ proptest! {
     }
 
     #[test]
-    fn csc_diagonal_as_matrix(csc in csc_strategy()) {
-        let d = csc.diagonal_as_matrix();
+    fn csc_diagonal_as_csc(csc in csc_strategy()) {
+        let d = csc.diagonal_as_csc();
         let d_entries: HashSet<_> = d.triplet_iter().cloned_values().collect();
         let csc_diagonal_entries: HashSet<_> = csc
             .triplet_iter()
