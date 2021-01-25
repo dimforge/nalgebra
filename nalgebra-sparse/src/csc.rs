@@ -14,8 +14,109 @@ use nalgebra::Scalar;
 /// The Compressed Sparse Column (CSC) format is well-suited as a general-purpose storage format
 /// for many sparse matrix applications.
 ///
-/// TODO: Storage explanation and examples
+/// # Usage
 ///
+/// ```rust
+/// use nalgebra_sparse::csc::CscMatrix;
+/// use nalgebra::{DMatrix, Matrix3x4};
+/// use matrixcompare::assert_matrix_eq;
+///
+/// // The sparsity patterns of CSC matrices are immutable. This means that you cannot dynamically
+/// // change the sparsity pattern of the matrix after it has been constructed. The easiest
+/// // way to construct a CSC matrix is to first incrementally construct a COO matrix,
+/// // and then convert it to CSC.
+/// # use nalgebra_sparse::coo::CooMatrix;
+/// # let coo = CooMatrix::<f64>::new(3, 3);
+/// let csc = CscMatrix::from(&coo);
+///
+/// // Alternatively, a CSC matrix can be constructed directly from raw CSC data.
+/// // Here, we construct a 3x4 matrix
+/// let col_offsets = vec![0, 1, 3, 4, 5];
+/// let row_indices = vec![0, 0, 2, 2, 0];
+/// let values = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+///
+/// // The dense representation of the CSC data, for comparison
+/// let dense = Matrix3x4::new(1.0, 2.0, 0.0, 5.0,
+///                            0.0, 0.0, 0.0, 0.0,
+///                            0.0, 3.0, 4.0, 0.0);
+///
+/// // The constructor validates the raw CSC data and returns an error if it is invalid.
+/// let csc = CscMatrix::try_from_csc_data(3, 4, col_offsets, row_indices, values)
+///     .expect("CSC data must conform to format specifications");
+/// assert_matrix_eq!(csc, dense);
+///
+/// // A third approach is to construct a CSC matrix from a pattern and values. Sometimes this is
+/// // useful if the sparsity pattern is constructed separately from the values of the matrix.
+/// let (pattern, values) = csc.into_pattern_and_values();
+/// let csc = CscMatrix::try_from_pattern_and_values(pattern, values)
+///     .expect("The pattern and values must be compatible");
+///
+/// // Once we have constructed our matrix, we can use it for arithmetic operations together with
+/// // other CSC matrices and dense matrices/vectors.
+/// let x = csc;
+/// # #[allow(non_snake_case)]
+/// let xTx = x.transpose() * &x;
+/// let z = DMatrix::from_fn(4, 8, |i, j| (i as f64) * (j as f64));
+/// let w = 3.0 * xTx * z;
+///
+/// // Although the sparsity pattern of a CSC matrix cannot be changed, its values can.
+/// // Here are two different ways to scale all values by a constant:
+/// let mut x = x;
+/// x *= 5.0;
+/// x.values_mut().iter_mut().for_each(|x_i| *x_i *= 5.0);
+/// ```
+///
+/// # Format
+///
+/// An `m x n` sparse matrix with `nnz` non-zeros in CSC format is represented by the
+/// following three arrays:
+///
+/// - `col_offsets`, an array of integers with length `n + 1`.
+/// - `row_indices`, an array of integers with length `nnz`.
+/// - `values`, an array of values with length `nnz`.
+///
+/// The relationship between the arrays is described below.
+///
+/// - Each consecutive pair of entries `col_offsets[j] .. col_offsets[j + 1]` corresponds to an
+///   offset range in `row_indices` that holds the row indices in column `j`.
+/// - For an entry represented by the index `idx`, `row_indices[idx]` stores its column index and
+///   `values[idx]` stores its value.
+///
+/// The following invariants must be upheld and are enforced by the data structure:
+///
+/// - `col_offsets[0] == 0`
+/// - `col_offsets[m] == nnz`
+/// - `col_offsets` is monotonically increasing.
+/// - `0 <= row_indices[idx] < m` for all `idx < nnz`.
+/// - The row indices associated with each column are monotonically increasing (see below).
+///
+/// The CSC format is a standard sparse matrix format (see [Wikipedia article]). The format
+/// represents the matrix in a column-by-column fashion. The entries associated with column `j` are
+/// determined as follows:
+///
+/// ```rust
+/// # let col_offsets: Vec<usize> = vec![0, 0];
+/// # let row_indices: Vec<usize> = vec![];
+/// # let values: Vec<i32> = vec![];
+/// # let j = 0;
+/// let range = col_offsets[j] .. col_offsets[j + 1];
+/// let col_j_rows = &row_indices[range.clone()];
+/// let col_j_vals = &values[range];
+///
+/// // For each pair (i, v) in (col_j_rows, col_j_vals), we obtain a corresponding entry
+/// // (i, j, v) in the matrix.
+/// assert_eq!(col_j_rows.len(), col_j_vals.len());
+/// ```
+///
+/// In the above example, for each column `j`, the row indices `col_j_cols` must appear in
+/// monotonically increasing order. In other words, they must be *sorted*. This criterion is not
+/// standard among all sparse matrix libraries, but we enforce this property as it is a crucial
+/// assumption for both correctness and performance for many algorithms.
+///
+/// Note that the CSR and CSC formats are essentially identical, except that CSC stores the matrix
+/// column-by-column instead of row-by-row like CSR.
+///
+/// [Wikipedia article]: https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CscMatrix<T> {
     // Cols are major, rows are minor in the sparsity pattern

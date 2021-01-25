@@ -56,7 +56,6 @@ use std::slice::{IterMut, Iter};
 /// let x = csr;
 /// # #[allow(non_snake_case)]
 /// let xTx = x.transpose() * &x;
-///
 /// let z = DMatrix::from_fn(4, 8, |i, j| (i as f64) * (j as f64));
 /// let w = 3.0 * xTx * z;
 ///
@@ -69,7 +68,8 @@ use std::slice::{IterMut, Iter};
 ///
 /// # Format
 ///
-/// An `m x n` sparse matrix with `nnz` non-zeros consists of the following three arrays:
+/// An `m x n` sparse matrix with `nnz` non-zeros in CSR format is represented by the
+/// following three arrays:
 ///
 /// - `row_offsets`, an array of integers with length `m + 1`.
 /// - `col_indices`, an array of integers with length `nnz`.
@@ -87,6 +87,7 @@ use std::slice::{IterMut, Iter};
 /// - `row_offsets[0] == 0`
 /// - `row_offsets[m] == nnz`
 /// - `row_offsets` is monotonically increasing.
+/// - `0 <= col_indices[idx] < n` for all `idx < nnz`.
 /// - The column indices associated with each row are monotonically increasing (see below).
 ///
 /// The CSR format is a standard sparse matrix format (see [Wikipedia article]). The format
@@ -112,6 +113,8 @@ use std::slice::{IterMut, Iter};
 /// standard among all sparse matrix libraries, but we enforce this property as it is a crucial
 /// assumption for both correctness and performance for many algorithms.
 ///
+/// Note that the CSR and CSC formats are essentially identical, except that CSC stores the matrix
+/// column-by-column instead of row-by-row like CSR.
 ///
 /// [Wikipedia article]: https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_row_(CSR,_CRS_or_Yale_format)
 #[derive(Debug, Clone, PartialEq, Eq)]
