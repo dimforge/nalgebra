@@ -8,6 +8,10 @@ use num_traits::{Zero, One};
 use std::borrow::Cow;
 
 /// Sparse-dense matrix-matrix multiplication `C <- beta * C + alpha * op(A) * op(B)`.
+///
+/// # Panics
+///
+/// Panics if the dimensions of the matrices involved are not compatible with the expression.
 pub fn spmm_csc_dense<'a, T>(beta: T,
                              c: impl Into<DMatrixSliceMut<'a, T>>,
                              alpha: T,
@@ -38,6 +42,10 @@ fn spmm_csc_dense_<T>(beta: T,
 ///
 /// If the pattern of `c` does not accommodate all the non-zero entries in `a`, an error is
 /// returned.
+///
+/// # Panics
+///
+/// Panics if the dimensions of the matrices involved are not compatible with the expression.
 pub fn spadd_csc_prealloc<T>(beta: T,
                              c: &mut CscMatrix<T>,
                              alpha: T,
@@ -52,6 +60,15 @@ pub fn spadd_csc_prealloc<T>(beta: T,
 
 
 /// Sparse-sparse matrix multiplication, `C <- beta * C + alpha * op(A) * op(B)`.
+///
+/// # Errors
+///
+/// If the sparsity pattern of `C` is not able to store the result of the operation,
+/// an error is returned.
+///
+/// # Panics
+///
+/// Panics if the dimensions of the matrices involved are not compatible with the expression.
 pub fn spmm_csc_prealloc<T>(
     beta: T,
     c: &mut CscMatrix<T>,
@@ -95,7 +112,11 @@ pub fn spmm_csc_prealloc<T>(
 ///
 /// Only the lower triangular part of L is read, and the result is stored in B.
 ///
-/// ## Panics
+/// # Errors
+///
+/// An error is returned if the system can not be solved due to the matrix being singular.
+///
+/// # Panics
 ///
 /// Panics if `L` is not square, or if `L` and `B` are not dimensionally compatible.
 pub fn spsolve_csc_lower_triangular<'a, T: RealField>(

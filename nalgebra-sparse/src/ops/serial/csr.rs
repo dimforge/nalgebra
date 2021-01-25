@@ -33,8 +33,14 @@ where
 
 /// Sparse matrix addition `C <- beta * C + alpha * op(A)`.
 ///
+/// # Errors
+///
 /// If the pattern of `c` does not accommodate all the non-zero entries in `a`, an error is
 /// returned.
+///
+/// # Panics
+///
+/// Panics if the dimensions of the matrices involved are not compatible with the expression.
 pub fn spadd_csr_prealloc<T>(beta: T,
                              c: &mut CsrMatrix<T>,
                              alpha: T,
@@ -48,6 +54,14 @@ where
 }
 
 /// Sparse-sparse matrix multiplication, `C <- beta * C + alpha * op(A) * op(B)`.
+///
+/// # Errors
+///
+/// If the pattern of `C` is not able to hold the result of the operation, an error is returned.
+///
+/// # Panics
+///
+/// Panics if the dimensions of the matrices involved are not compatible with the expression.
 pub fn spmm_csr_prealloc<T>(
     beta: T,
     c: &mut CsrMatrix<T>,

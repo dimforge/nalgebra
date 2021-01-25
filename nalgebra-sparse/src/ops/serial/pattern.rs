@@ -11,7 +11,7 @@ use std::iter;
 ///
 /// # Panics
 ///
-/// Panics if the patterns don't have the same major and minor dimensions.
+/// Panics if the patterns do not have the same major and minor dimensions.
 pub fn spadd_pattern(a: &SparsityPattern,
                      b: &SparsityPattern) -> SparsityPattern
 {
