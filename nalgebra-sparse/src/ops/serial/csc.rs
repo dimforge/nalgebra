@@ -1,7 +1,7 @@
 use crate::csc::CscMatrix;
 use crate::ops::Op;
 use crate::ops::serial::cs::{spmm_cs_prealloc, spmm_cs_dense, spadd_cs_prealloc};
-use crate::ops::serial::OperationError;
+use crate::ops::serial::{OperationError, OperationErrorKind};
 use nalgebra::{Scalar, ClosedAdd, ClosedMul, DMatrixSliceMut, DMatrixSlice, RealField};
 use num_traits::{Zero, One};
 
@@ -91,30 +91,6 @@ pub fn spmm_csc_prealloc<T>(
     }
 }
 
-/// TODO
-#[non_exhaustive]
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum SolveErrorKind {
-    /// TODO
-    Singular,
-}
-
-/// TODO
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct SolveError {
-    kind: SolveErrorKind,
-    message: String
-}
-
-impl SolveError {
-    fn from_type_and_message(kind: SolveErrorKind, message: String) -> Self {
-        Self {
-            kind,
-            message
-        }
-    }
-}
-
 /// Solve the lower triangular system `op(L) X = B`.
 ///
 /// Only the lower triangular part of L is read, and the result is stored in B.
@@ -125,7 +101,7 @@ impl SolveError {
 pub fn spsolve_csc_lower_triangular<'a, T: RealField>(
     l: Op<&CscMatrix<T>>,
     b: impl Into<DMatrixSliceMut<'a, T>>)
-    -> Result<(), SolveError>
+    -> Result<(), OperationError>
 {
     let b = b.into();
     let l_matrix = l.into_inner();
@@ -137,10 +113,10 @@ pub fn spsolve_csc_lower_triangular<'a, T: RealField>(
     }
 }
 
-fn spsolve_csc_lower_triangular_no_transpose<'a, T: RealField>(
+fn spsolve_csc_lower_triangular_no_transpose<T: RealField>(
     l: &CscMatrix<T>,
-    b: DMatrixSliceMut<'a, T>)
-    -> Result<(), SolveError>
+    b: DMatrixSliceMut<T>)
+    -> Result<(), OperationError>
 {
     let mut x = b;
 
@@ -188,15 +164,15 @@ fn spsolve_csc_lower_triangular_no_transpose<'a, T: RealField>(
     Ok(())
 }
 
-fn spsolve_encountered_zero_diagonal() -> Result<(), SolveError> {
+fn spsolve_encountered_zero_diagonal() -> Result<(), OperationError> {
     let message = "Matrix contains at least one diagonal entry that is zero.";
-    Err(SolveError::from_type_and_message(SolveErrorKind::Singular, String::from(message)))
+    Err(OperationError::from_kind_and_message(OperationErrorKind::Singular, String::from(message)))
 }
 
-fn spsolve_csc_lower_triangular_transpose<'a, T: RealField>(
+fn spsolve_csc_lower_triangular_transpose<T: RealField>(
     l: &CscMatrix<T>,
-    b: DMatrixSliceMut<'a, T>)
-    -> Result<(), SolveError>
+    b: DMatrixSliceMut<T>)
+    -> Result<(), OperationError>
 {
     let mut x = b;
 

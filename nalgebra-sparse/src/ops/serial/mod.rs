@@ -65,6 +65,8 @@ mod cs;
 pub use csc::*;
 pub use csr::*;
 pub use pattern::*;
+use std::fmt::Formatter;
+use std::fmt;
 
 /// A description of the error that occurred during an arithmetic operation.
 #[derive(Clone, Debug)]
@@ -83,6 +85,9 @@ pub enum OperationErrorKind {
     /// For example, this could indicate that the sparsity pattern of the output is not able to
     /// contain the result of the operation.
     InvalidPattern,
+
+    /// Indicates that a matrix is singular when it is expected to be invertible.
+    Singular,
 }
 
 impl OperationError {
@@ -94,4 +99,22 @@ impl OperationError {
     pub fn kind(&self) -> &OperationErrorKind {
         &self.error_kind
     }
+
+    /// The underlying error message.
+    pub fn message(&self) -> &str {
+        self.message.as_str()
+    }
 }
+
+impl fmt::Display for OperationError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "Sparse matrix operation error: ")?;
+        match self.kind() {
+            OperationErrorKind::InvalidPattern => { write!(f, "InvalidPattern")?; }
+            OperationErrorKind::Singular => { write!(f, "Singular")?; }
+        }
+        write!(f, " Message: {}", self.message)
+    }
+}
+
+impl std::error::Error for OperationError {}
