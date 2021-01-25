@@ -6,16 +6,39 @@ use crate::cs::transpose_cs;
 
 /// A representation of the sparsity pattern of a CSR or CSC matrix.
 ///
-/// ## Format specification
+/// CSR and CSC matrices store matrices in a very similar fashion. In fact, in a certain sense,
+/// they are transposed. More precisely, when reinterpreting the three data arrays of a CSR
+/// matrix as a CSC matrix, we obtain the CSC representation of its transpose.
 ///
-/// TODO: Write this out properly
+/// [`SparsityPattern`] is an abstraction built on this observation. Whereas CSR matrices
+/// store a matrix row-by-row, and a CSC matrix stores a matrix column-by-column, a
+/// `SparsityPattern` represents only the index data structure of a matrix *lane-by-lane*.
+/// Here, a *lane* is a generalization of rows and columns. We further define *major lanes*
+/// and *minor lanes*. The sparsity pattern of a CSR matrix is then obtained by interpreting
+/// major/minor as row/column. Conversely, we obtain the sparsity pattern of a CSC matrix by
+/// interpreting major/minor as column/row.
 ///
-/// - offsets[0] == 0
-/// - Major offsets must be monotonically increasing
-/// - major_offsets.len() == major_dim + 1
-/// - Column indices within each lane must be sorted
-/// - Column indices must be in-bounds
-/// - The last entry in major offsets must correspond to the number of minor indices
+/// This allows us to use a common abstraction to talk about sparsity patterns of CSR and CSC
+/// matrices. This is convenient, because at the abstract level, the invariants of the formats
+/// are the same. Hence we may encode the invariants of the index data structure separately from
+/// the scalar values of the matrix. This is especially useful in applications where the
+/// sparsity pattern is built ahead of the matrix values, or the same sparsity pattern is re-used
+/// between different matrices. Finally, we can use `SparsityPattern` to encode adjacency
+/// information in graphs.
+///
+/// # Format
+///
+/// The format is exactly the same as for the index data structures of CSR and CSC matrices.
+/// This means that the sparsity pattern of an `m x n` sparse matrix with `nnz` non-zeros,
+/// where in this case `m x n` does *not* mean `rows x columns`, but rather `majors x minors`,
+/// is represented by the following two arrays:
+///
+/// - `major_offsets`, an array of integers with length `m + 1`.
+/// - `minor_indices`, an array of integers with length `nnz`.
+///
+/// The invariants and relationship between `major_offsets` and `minor_indices` remain the same
+/// as for `row_offsets` and `col_indices` in the [CSR](`crate::csr::CsrMatrix`) format
+/// specification.
 #[derive(Debug, Clone, PartialEq, Eq)]
 // TODO: Make SparsityPattern parametrized by index type
 // (need a solid abstraction for index types though)
@@ -47,14 +70,14 @@ impl SparsityPattern {
         &self.minor_indices
     }
 
-    /// The major dimension.
+    /// The number of major lanes in the pattern.
     #[inline]
     pub fn major_dim(&self) -> usize {
         assert!(self.major_offsets.len() > 0);
         self.major_offsets.len() - 1
     }
 
-    /// The minor dimension.
+    /// The number of minor lanes in the pattern.
     #[inline]
     pub fn minor_dim(&self) -> usize {
         self.minor_dim
@@ -206,7 +229,10 @@ impl SparsityPattern {
         (self.major_offsets, self.minor_indices)
     }
 
-    /// TODO
+    /// Computes the transpose of the sparsity pattern.
+    ///
+    /// This is analogous to matrix transposition, i.e. an entry `(i, j)` becomes `(j, i)` in the
+    /// new pattern.
     pub fn transpose(&self) -> Self {
         // By using unit () values, we can use the same routines as for CSR/CSC matrices
         let values = vec![(); self.nnz()];
