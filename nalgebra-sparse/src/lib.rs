@@ -123,7 +123,7 @@
 //!     use nalgebra_sparse::ops::{Op, serial::spmm_csr_dense};
 //!     let mut y = y;
 //!     // Compute y <- 0.0 * y + 1.0 * csr * dense. We store the result directly in `y`, without
-//!     // any immediate allocations
+//!     // any intermediate allocations
 //!     spmm_csr_dense(0.0, &mut y, 1.0, Op::NoOp(&csr), Op::NoOp(&x));
 //!     assert_matrix_eq!(y, y_expected, comp = abs, tol = 1e-9);
 //! }

@@ -14,8 +14,106 @@ use std::slice::{IterMut, Iter};
 /// The Compressed Sparse Row (CSR) format is well-suited as a general-purpose storage format
 /// for many sparse matrix applications.
 ///
-/// TODO: Storage explanation and examples
+/// # Usage
 ///
+/// ```rust
+/// use nalgebra_sparse::csr::CsrMatrix;
+/// use nalgebra::{DMatrix, Matrix3x4};
+/// use matrixcompare::assert_matrix_eq;
+///
+/// // The sparsity patterns of CSR matrices are immutable. This means that you cannot dynamically
+/// // change the sparsity pattern of the matrix after it has been constructed. The easiest
+/// // way to construct a CSR matrix is to first incrementally construct a COO matrix,
+/// // and then convert it to CSR.
+/// # use nalgebra_sparse::coo::CooMatrix;
+/// # let coo = CooMatrix::<f64>::new(3, 3);
+/// let csr = CsrMatrix::from(&coo);
+///
+/// // Alternatively, a CSR matrix can be constructed directly from raw CSR data.
+/// // Here, we construct a 3x4 matrix
+/// let row_offsets = vec![0, 3, 3, 5];
+/// let col_indices = vec![0, 1, 3, 1, 2];
+/// let values = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+///
+/// // The dense representation of the CSR data, for comparison
+/// let dense = Matrix3x4::new(1.0, 2.0, 0.0, 3.0,
+///                            0.0, 0.0, 0.0, 0.0,
+///                            0.0, 4.0, 5.0, 0.0);
+///
+/// // The constructor validates the raw CSR data and returns an error if it is invalid.
+/// let csr = CsrMatrix::try_from_csr_data(3, 4, row_offsets, col_indices, values)
+///     .expect("CSR data must conform to format specifications");
+/// assert_matrix_eq!(csr, dense);
+///
+/// // A third approach is to construct a CSR matrix from a pattern and values. Sometimes this is
+/// // useful if the sparsity pattern is constructed separately from the values of the matrix.
+/// let (pattern, values) = csr.into_pattern_and_values();
+/// let csr = CsrMatrix::try_from_pattern_and_values(pattern, values)
+///     .expect("The pattern and values must be compatible");
+///
+/// // Once we have constructed our matrix, we can use it for arithmetic operations together with
+/// // other CSR matrices and dense matrices/vectors.
+/// let x = csr;
+/// # #[allow(non_snake_case)]
+/// let xTx = x.transpose() * &x;
+///
+/// let z = DMatrix::from_fn(4, 8, |i, j| (i as f64) * (j as f64));
+/// let w = 3.0 * xTx * z;
+///
+/// // Although the sparsity pattern of a CSR matrix cannot be changed, its values can.
+/// // Here are two different ways to scale all values by a constant:
+/// let mut x = x;
+/// x *= 5.0;
+/// x.values_mut().iter_mut().for_each(|x_i| *x_i *= 5.0);
+/// ```
+///
+/// # Format
+///
+/// An `m x n` sparse matrix with `nnz` non-zeros consists of the following three arrays:
+///
+/// - `row_offsets`, an array of integers with length `m + 1`.
+/// - `col_indices`, an array of integers with length `nnz`.
+/// - `values`, an array of values with length `nnz`.
+///
+/// The relationship between the arrays is described below.
+///
+/// - Each consecutive pair of entries `row_offsets[i] .. row_offsets[i + 1]` corresponds to an
+///   offset range in `col_indices` that holds the column indices in row `i`.
+/// - For an entry represented by the index `idx`, `col_indices[idx]` stores its column index and
+///   `values[idx]` stores its value.
+///
+/// The following invariants must be upheld and are enforced by the data structure:
+///
+/// - `row_offsets[0] == 0`
+/// - `row_offsets[m] == nnz`
+/// - `row_offsets` is monotonically increasing.
+/// - The column indices associated with each row are monotonically increasing (see below).
+///
+/// The CSR format is a standard sparse matrix format (see [Wikipedia article]). The format
+/// represents the matrix in a row-by-row fashion. The entries associated with row `i` are
+/// determined as follows:
+///
+/// ```rust
+/// # let row_offsets: Vec<usize> = vec![0, 0];
+/// # let col_indices: Vec<usize> = vec![];
+/// # let values: Vec<i32> = vec![];
+/// # let i = 0;
+/// let range = row_offsets[i] .. row_offsets[i + 1];
+/// let row_i_cols = &col_indices[range.clone()];
+/// let row_i_vals = &values[range];
+///
+/// // For each pair (j, v) in (row_i_cols, row_i_vals), we obtain a corresponding entry
+/// // (i, j, v) in the matrix.
+/// assert_eq!(row_i_cols.len(), row_i_vals.len());
+/// ```
+///
+/// In the above example, for each row `i`, the column indices `row_i_cols` must appear in
+/// monotonically increasing order. In other words, they must be *sorted*. This criterion is not
+/// standard among all sparse matrix libraries, but we enforce this property as it is a crucial
+/// assumption for both correctness and performance for many algorithms.
+///
+///
+/// [Wikipedia article]: https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_row_(CSR,_CRS_or_Yale_format)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CsrMatrix<T> {
     // Rows are major, cols are minor in the sparsity pattern
