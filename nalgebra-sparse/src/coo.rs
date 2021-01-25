@@ -6,13 +6,11 @@ use crate::SparseFormatError;
 ///
 /// A COO matrix stores entries in coordinate-form, that is triplets `(i, j, v)`, where `i` and `j`
 /// correspond to row and column indices of the entry, and `v` to the value of the entry.
-/// With the rare exception of matrix-vector multiplication of certain extremely sparse matrices,
-/// it is of limited use for standard matrix operations. Its main purpose is to facilitate
+/// The format is of limited use for standard matrix operations. Its main purpose is to facilitate
 /// easy construction of other, more efficient matrix formats (such as CSR/COO), and the
 /// conversion between different formats.
 ///
-/// Representation
-/// --------------
+/// # Format
 ///
 /// For given dimensions `nrows` and `ncols`, the matrix is represented by three same-length
 /// arrays `row_indices`, `col_indices` and `values` that constitute the coordinate triplets
@@ -20,20 +18,23 @@ use crate::SparseFormatError;
 /// Upon conversion to other formats, the duplicate entries may be summed together. See the
 /// documentation for the respective conversion functions.
 ///
-/// Example
-/// -------
+/// # Examples
 ///
 /// ```rust
-/// # use nalgebra_sparse::coo::CooMatrix;
-/// // Create a zero matrix
+/// use nalgebra_sparse::{coo::CooMatrix, csr::CsrMatrix, csc::CscMatrix};
+///
+/// // Initialize a matrix with all zeros (no explicitly stored entries).
 /// let mut coo = CooMatrix::new(4, 4);
 /// // Or initialize it with a set of triplets
 /// coo = CooMatrix::try_from_triplets(4, 4, vec![1, 2], vec![0, 1], vec![3.0, 4.0]).unwrap();
 ///
-/// // Push a single triplet
+/// // Push a few triplets
 /// coo.push(2, 0, 1.0);
+/// coo.push(0, 1, 2.0);
 ///
-/// // TODO: Convert to CSR
+/// // Convert to other matrix formats
+/// let csr = CsrMatrix::from(&coo);
+/// let csc = CscMatrix::from(&coo);
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CooMatrix<T> {
