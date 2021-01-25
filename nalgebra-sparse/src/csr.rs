@@ -491,7 +491,7 @@ where
 }
 
 impl<T: Scalar + One> CsrMatrix<T> {
-    /// TODO
+    /// Constructs a CSR representation of the (square) `n x n` identity matrix.
     #[inline]
     pub fn identity(n: usize) -> Self {
         Self {

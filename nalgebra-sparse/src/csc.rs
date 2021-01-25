@@ -491,7 +491,7 @@ impl<T> CscMatrix<T>
 }
 
 impl<T: Scalar + One> CscMatrix<T> {
-    /// TODO
+    /// Constructs a CSC representation of the (square) `n x n` identity matrix.
     #[inline]
     pub fn identity(n: usize) -> Self {
         Self {

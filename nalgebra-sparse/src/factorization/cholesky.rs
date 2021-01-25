@@ -140,8 +140,6 @@ impl<T: RealField> CscCholesky<T> {
     /// # Panics
     ///
     /// Panics if the matrix is not square.
-    ///
-    /// TODO: Take matrix by value or not?
     pub fn factor(matrix: &CscMatrix<T>) -> Result<Self, CholeskyError> {
         let symbolic = CscSymbolicCholesky::factor(matrix.pattern().clone());
         Self::factor_numerical(symbolic, matrix.values())

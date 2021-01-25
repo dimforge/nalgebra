@@ -8,10 +8,13 @@ use std::iter;
 /// The patterns are assumed to have the same major and minor dimensions. In other words,
 /// both patterns `A` and `B` must both stem from the same kind of compressed matrix:
 /// CSR or CSC.
+///
+/// # Panics
+///
+/// Panics if the patterns don't have the same major and minor dimensions.
 pub fn spadd_pattern(a: &SparsityPattern,
                      b: &SparsityPattern) -> SparsityPattern
 {
-    // TODO: Proper error messages
     assert_eq!(a.major_dim(), b.major_dim(), "Patterns must have identical major dimensions.");
     assert_eq!(a.minor_dim(), b.minor_dim(), "Patterns must have identical minor dimensions.");
 
@@ -39,6 +42,11 @@ pub fn spadd_pattern(a: &SparsityPattern,
 ///
 /// Assumes that the sparsity patterns both represent CSC matrices, and the result is also
 /// represented as the sparsity pattern of a CSC matrix.
+///
+/// # Panics
+///
+/// Panics if the patterns, when interpreted as CSC patterns, are not compatible for
+/// matrix multiplication.
 pub fn spmm_csc_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPattern {
     // Let C = A * B in CSC format. We note that
     //  C^T = B^T * A^T.
@@ -52,6 +60,11 @@ pub fn spmm_csc_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPat
 ///
 /// Assumes that the sparsity patterns both represent CSR matrices, and the result is also
 /// represented as the sparsity pattern of a CSR matrix.
+///
+/// # Panics
+///
+/// Panics if the patterns, when interpreted as CSR patterns, are not compatible for
+/// matrix multiplication.
 pub fn spmm_csr_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPattern {
     assert_eq!(a.minor_dim(), b.major_dim(), "a and b must have compatible dimensions");
 

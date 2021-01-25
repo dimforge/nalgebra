@@ -118,11 +118,6 @@ impl SparsityPattern {
         major_offsets: Vec<usize>,
         minor_indices: Vec<usize>,
     ) -> Result<Self, SparsityPatternFormatError> {
-        // TODO: If these errors are *directly* propagated to errors from e.g.
-        // CSR construction, the error messages will be confusing to users,
-        // as the error messages refer to "major" and "minor" lanes, as opposed to
-        // rows and columns
-
         use SparsityPatternFormatError::*;
 
         if major_offsets.len() != major_dim + 1 {

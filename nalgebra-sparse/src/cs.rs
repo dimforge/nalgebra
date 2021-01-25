@@ -197,7 +197,6 @@ impl<T> CsMatrix<T> {
 }
 
 impl<T: Scalar + One> CsMatrix<T> {
-    /// TODO
     #[inline]
     pub fn identity(n: usize) -> Self {
         let offsets: Vec<_> = (0 ..= n).collect();
