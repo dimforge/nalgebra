@@ -1,6 +1,6 @@
+use nalgebra::DMatrix;
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::SparseFormatErrorKind;
-use nalgebra::DMatrix;
 
 use proptest::prelude::*;
 use proptest::sample::subsequence;
@@ -8,7 +8,6 @@ use proptest::sample::subsequence;
 use crate::common::csr_strategy;
 
 use std::collections::HashSet;
-
 
 #[test]
 fn csr_matrix_valid_data() {
@@ -43,7 +42,10 @@ fn csr_matrix_valid_data() {
         assert_eq!(matrix.row_mut(0).col_indices(), &[]);
         assert_eq!(matrix.row_mut(0).values(), &[]);
         assert_eq!(matrix.row_mut(0).values_mut(), &[]);
-        assert_eq!(matrix.row_mut(0).cols_and_values_mut(), ([].as_ref(), [].as_mut()));
+        assert_eq!(
+            matrix.row_mut(0).cols_and_values_mut(),
+            ([].as_ref(), [].as_mut())
+        );
 
         assert_eq!(matrix.row(1).ncols(), 2);
         assert_eq!(matrix.row(1).nnz(), 0);
@@ -54,7 +56,10 @@ fn csr_matrix_valid_data() {
         assert_eq!(matrix.row_mut(1).col_indices(), &[]);
         assert_eq!(matrix.row_mut(1).values(), &[]);
         assert_eq!(matrix.row_mut(1).values_mut(), &[]);
-        assert_eq!(matrix.row_mut(1).cols_and_values_mut(), ([].as_ref(), [].as_mut()));
+        assert_eq!(
+            matrix.row_mut(1).cols_and_values_mut(),
+            ([].as_ref(), [].as_mut())
+        );
 
         assert_eq!(matrix.row(2).ncols(), 2);
         assert_eq!(matrix.row(2).nnz(), 0);
@@ -65,7 +70,10 @@ fn csr_matrix_valid_data() {
         assert_eq!(matrix.row_mut(2).col_indices(), &[]);
         assert_eq!(matrix.row_mut(2).values(), &[]);
         assert_eq!(matrix.row_mut(2).values_mut(), &[]);
-        assert_eq!(matrix.row_mut(2).cols_and_values_mut(), ([].as_ref(), [].as_mut()));
+        assert_eq!(
+            matrix.row_mut(2).cols_and_values_mut(),
+            ([].as_ref(), [].as_mut())
+        );
 
         assert!(matrix.get_row(3).is_none());
         assert!(matrix.get_row_mut(3).is_none());
@@ -82,11 +90,9 @@ fn csr_matrix_valid_data() {
         let offsets = vec![0, 2, 2, 5];
         let indices = vec![0, 5, 1, 2, 3];
         let values = vec![0, 1, 2, 3, 4];
-        let mut matrix = CsrMatrix::try_from_csr_data(3,
-                                                      6,
-                                                      offsets.clone(),
-                                                      indices.clone(),
-                                                      values.clone()).unwrap();
+        let mut matrix =
+            CsrMatrix::try_from_csr_data(3, 6, offsets.clone(), indices.clone(), values.clone())
+                .unwrap();
 
         assert_eq!(matrix.nrows(), 3);
         assert_eq!(matrix.ncols(), 6);
@@ -96,10 +102,20 @@ fn csr_matrix_valid_data() {
         assert_eq!(matrix.values(), &[0, 1, 2, 3, 4]);
 
         let expected_triplets = vec![(0, 0, 0), (0, 5, 1), (2, 1, 2), (2, 2, 3), (2, 3, 4)];
-        assert_eq!(matrix.triplet_iter().map(|(i, j, v)| (i, j, *v)).collect::<Vec<_>>(),
-                   expected_triplets);
-        assert_eq!(matrix.triplet_iter_mut().map(|(i, j, v)| (i, j, *v)).collect::<Vec<_>>(),
-                   expected_triplets);
+        assert_eq!(
+            matrix
+                .triplet_iter()
+                .map(|(i, j, v)| (i, j, *v))
+                .collect::<Vec<_>>(),
+            expected_triplets
+        );
+        assert_eq!(
+            matrix
+                .triplet_iter_mut()
+                .map(|(i, j, v)| (i, j, *v))
+                .collect::<Vec<_>>(),
+            expected_triplets
+        );
 
         assert_eq!(matrix.row(0).ncols(), 6);
         assert_eq!(matrix.row(0).nnz(), 2);
@@ -110,7 +126,10 @@ fn csr_matrix_valid_data() {
         assert_eq!(matrix.row_mut(0).col_indices(), &[0, 5]);
         assert_eq!(matrix.row_mut(0).values(), &[0, 1]);
         assert_eq!(matrix.row_mut(0).values_mut(), &[0, 1]);
-        assert_eq!(matrix.row_mut(0).cols_and_values_mut(), ([0, 5].as_ref(), [0, 1].as_mut()));
+        assert_eq!(
+            matrix.row_mut(0).cols_and_values_mut(),
+            ([0, 5].as_ref(), [0, 1].as_mut())
+        );
 
         assert_eq!(matrix.row(1).ncols(), 6);
         assert_eq!(matrix.row(1).nnz(), 0);
@@ -121,7 +140,10 @@ fn csr_matrix_valid_data() {
         assert_eq!(matrix.row_mut(1).col_indices(), &[]);
         assert_eq!(matrix.row_mut(1).values(), &[]);
         assert_eq!(matrix.row_mut(1).values_mut(), &[]);
-        assert_eq!(matrix.row_mut(1).cols_and_values_mut(), ([].as_ref(), [].as_mut()));
+        assert_eq!(
+            matrix.row_mut(1).cols_and_values_mut(),
+            ([].as_ref(), [].as_mut())
+        );
 
         assert_eq!(matrix.row(2).ncols(), 6);
         assert_eq!(matrix.row(2).nnz(), 3);
@@ -132,7 +154,10 @@ fn csr_matrix_valid_data() {
         assert_eq!(matrix.row_mut(2).col_indices(), &[1, 2, 3]);
         assert_eq!(matrix.row_mut(2).values(), &[2, 3, 4]);
         assert_eq!(matrix.row_mut(2).values_mut(), &[2, 3, 4]);
-        assert_eq!(matrix.row_mut(2).cols_and_values_mut(), ([1, 2, 3].as_ref(), [2, 3, 4].as_mut()));
+        assert_eq!(
+            matrix.row_mut(2).cols_and_values_mut(),
+            ([1, 2, 3].as_ref(), [2, 3, 4].as_mut())
+        );
 
         assert!(matrix.get_row(3).is_none());
         assert!(matrix.get_row_mut(3).is_none());
@@ -147,11 +172,13 @@ fn csr_matrix_valid_data() {
 
 #[test]
 fn csr_matrix_try_from_invalid_csr_data() {
-
     {
         // Empty offset array (invalid length)
         let matrix = CsrMatrix::try_from_csr_data(0, 0, Vec::new(), Vec::new(), Vec::<u32>::new());
-        assert_eq!(matrix.unwrap_err().kind(), &SparseFormatErrorKind::InvalidStructure);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
     }
 
     {
@@ -161,7 +188,10 @@ fn csr_matrix_try_from_invalid_csr_data() {
         let values = vec![0, 1, 2, 3, 4];
 
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
-        assert_eq!(matrix.unwrap_err().kind(), &SparseFormatErrorKind::InvalidStructure);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
     }
 
     {
@@ -170,7 +200,10 @@ fn csr_matrix_try_from_invalid_csr_data() {
         let indices = vec![0, 5, 1, 2, 3];
         let values = vec![0, 1, 2, 3, 4];
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
-        assert_eq!(matrix.unwrap_err().kind(), &SparseFormatErrorKind::InvalidStructure);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
     }
 
     {
@@ -179,7 +212,10 @@ fn csr_matrix_try_from_invalid_csr_data() {
         let indices = vec![0, 5, 1, 2, 3];
         let values = vec![0, 1, 2, 3, 4];
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
-        assert_eq!(matrix.unwrap_err().kind(), &SparseFormatErrorKind::InvalidStructure);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
     }
 
     {
@@ -188,7 +224,10 @@ fn csr_matrix_try_from_invalid_csr_data() {
         let indices = vec![0, 5, 1, 2, 3];
         let values = vec![0, 1, 2, 3, 4];
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
-        assert_eq!(matrix.unwrap_err().kind(), &SparseFormatErrorKind::InvalidStructure);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
     }
 
     {
@@ -197,7 +236,10 @@ fn csr_matrix_try_from_invalid_csr_data() {
         let indices = vec![0, 1, 2, 3, 4];
         let values = vec![0, 1, 2, 3, 4];
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
-        assert_eq!(matrix.unwrap_err().kind(), &SparseFormatErrorKind::InvalidStructure);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
     }
 
     {
@@ -206,7 +248,10 @@ fn csr_matrix_try_from_invalid_csr_data() {
         let indices = vec![0, 2, 3, 1, 4];
         let values = vec![0, 1, 2, 3, 4];
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
-        assert_eq!(matrix.unwrap_err().kind(), &SparseFormatErrorKind::InvalidStructure);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
     }
 
     {
@@ -215,7 +260,10 @@ fn csr_matrix_try_from_invalid_csr_data() {
         let indices = vec![0, 6, 1, 2, 3];
         let values = vec![0, 1, 2, 3, 4];
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
-        assert_eq!(matrix.unwrap_err().kind(), &SparseFormatErrorKind::IndexOutOfBounds);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::IndexOutOfBounds
+        );
     }
 
     {
@@ -224,9 +272,11 @@ fn csr_matrix_try_from_invalid_csr_data() {
         let indices = vec![0, 5, 2, 2, 3];
         let values = vec![0, 1, 2, 3, 4];
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
-        assert_eq!(matrix.unwrap_err().kind(), &SparseFormatErrorKind::DuplicateEntry);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::DuplicateEntry
+        );
     }
-
 }
 
 #[test]
@@ -240,11 +290,7 @@ fn csr_disassemble_avoids_clone_when_owned() {
     let offsets_ptr = offsets.as_ptr();
     let indices_ptr = indices.as_ptr();
     let values_ptr = values.as_ptr();
-    let matrix = CsrMatrix::try_from_csr_data(3,
-                                              6,
-                                              offsets,
-                                              indices,
-                                              values).unwrap();
+    let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values).unwrap();
 
     let (offsets, indices, values) = matrix.disassemble();
     assert_eq!(offsets.as_ptr(), offsets_ptr);

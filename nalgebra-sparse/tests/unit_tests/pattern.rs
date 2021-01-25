@@ -7,11 +7,9 @@ fn sparsity_pattern_valid_data() {
 
     {
         // A pattern with zero explicitly stored entries
-        let pattern = SparsityPattern::try_from_offsets_and_indices(3,
-                                                                    2,
-                                                                    vec![0, 0, 0, 0],
-                                                                    Vec::new())
-            .unwrap();
+        let pattern =
+            SparsityPattern::try_from_offsets_and_indices(3, 2, vec![0, 0, 0, 0], Vec::new())
+                .unwrap();
 
         assert_eq!(pattern.major_dim(), 3);
         assert_eq!(pattern.minor_dim(), 2);
@@ -36,7 +34,7 @@ fn sparsity_pattern_valid_data() {
         let indices = vec![0, 5, 1, 2, 3];
         let pattern =
             SparsityPattern::try_from_offsets_and_indices(3, 6, offsets.clone(), indices.clone())
-            .unwrap();
+                .unwrap();
 
         assert_eq!(pattern.major_dim(), 3);
         assert_eq!(pattern.minor_dim(), 6);
@@ -46,8 +44,10 @@ fn sparsity_pattern_valid_data() {
         assert_eq!(pattern.lane(0), &[0, 5]);
         assert_eq!(pattern.lane(1), &[]);
         assert_eq!(pattern.lane(2), &[1, 2, 3]);
-        assert_eq!(pattern.entries().collect::<Vec<_>>(),
-                   vec![(0, 0), (0, 5), (2, 1), (2, 2), (2, 3)]);
+        assert_eq!(
+            pattern.entries().collect::<Vec<_>>(),
+            vec![(0, 0), (0, 5), (2, 1), (2, 2), (2, 3)]
+        );
 
         let (offsets2, indices2) = pattern.disassemble();
         assert_eq!(offsets2, offsets);
@@ -60,7 +60,10 @@ fn sparsity_pattern_try_from_invalid_data() {
     {
         // Empty offset array (invalid length)
         let pattern = SparsityPattern::try_from_offsets_and_indices(0, 0, Vec::new(), Vec::new());
-        assert_eq!(pattern, Err(SparsityPatternFormatError::InvalidOffsetArrayLength));
+        assert_eq!(
+            pattern,
+            Err(SparsityPatternFormatError::InvalidOffsetArrayLength)
+        );
     }
 
     {
@@ -69,7 +72,10 @@ fn sparsity_pattern_try_from_invalid_data() {
         let indices = vec![0, 1, 2, 3, 5];
 
         let pattern = SparsityPattern::try_from_offsets_and_indices(3, 6, offsets, indices);
-        assert!(matches!(pattern, Err(SparsityPatternFormatError::InvalidOffsetArrayLength)));
+        assert!(matches!(
+            pattern,
+            Err(SparsityPatternFormatError::InvalidOffsetArrayLength)
+        ));
     }
 
     {
@@ -77,7 +83,10 @@ fn sparsity_pattern_try_from_invalid_data() {
         let offsets = vec![1, 2, 2, 5];
         let indices = vec![0, 5, 1, 2, 3];
         let pattern = SparsityPattern::try_from_offsets_and_indices(3, 6, offsets, indices);
-        assert!(matches!(pattern, Err(SparsityPatternFormatError::InvalidOffsetFirstLast)));
+        assert!(matches!(
+            pattern,
+            Err(SparsityPatternFormatError::InvalidOffsetFirstLast)
+        ));
     }
 
     {
@@ -85,7 +94,10 @@ fn sparsity_pattern_try_from_invalid_data() {
         let offsets = vec![0, 2, 2, 4];
         let indices = vec![0, 5, 1, 2, 3];
         let pattern = SparsityPattern::try_from_offsets_and_indices(3, 6, offsets, indices);
-        assert!(matches!(pattern, Err(SparsityPatternFormatError::InvalidOffsetFirstLast)));
+        assert!(matches!(
+            pattern,
+            Err(SparsityPatternFormatError::InvalidOffsetFirstLast)
+        ));
     }
 
     {
@@ -93,7 +105,10 @@ fn sparsity_pattern_try_from_invalid_data() {
         let offsets = vec![0, 2, 2];
         let indices = vec![0, 5, 1, 2, 3];
         let pattern = SparsityPattern::try_from_offsets_and_indices(3, 6, offsets, indices);
-        assert!(matches!(pattern, Err(SparsityPatternFormatError::InvalidOffsetArrayLength)));
+        assert!(matches!(
+            pattern,
+            Err(SparsityPatternFormatError::InvalidOffsetArrayLength)
+        ));
     }
 
     {
@@ -101,7 +116,10 @@ fn sparsity_pattern_try_from_invalid_data() {
         let offsets = vec![0, 3, 2, 5];
         let indices = vec![0, 1, 2, 3, 4];
         let pattern = SparsityPattern::try_from_offsets_and_indices(3, 6, offsets, indices);
-        assert_eq!(pattern, Err(SparsityPatternFormatError::NonmonotonicOffsets));
+        assert_eq!(
+            pattern,
+            Err(SparsityPatternFormatError::NonmonotonicOffsets)
+        );
     }
 
     {
@@ -109,7 +127,10 @@ fn sparsity_pattern_try_from_invalid_data() {
         let offsets = vec![0, 2, 2, 5];
         let indices = vec![0, 2, 3, 1, 4];
         let pattern = SparsityPattern::try_from_offsets_and_indices(3, 6, offsets, indices);
-        assert_eq!(pattern, Err(SparsityPatternFormatError::NonmonotonicMinorIndices));
+        assert_eq!(
+            pattern,
+            Err(SparsityPatternFormatError::NonmonotonicMinorIndices)
+        );
     }
 
     {
@@ -117,7 +138,10 @@ fn sparsity_pattern_try_from_invalid_data() {
         let offsets = vec![0, 2, 2, 5];
         let indices = vec![0, 6, 1, 2, 3];
         let pattern = SparsityPattern::try_from_offsets_and_indices(3, 6, offsets, indices);
-        assert_eq!(pattern, Err(SparsityPatternFormatError::MinorIndexOutOfBounds));
+        assert_eq!(
+            pattern,
+            Err(SparsityPatternFormatError::MinorIndexOutOfBounds)
+        );
     }
 
     {

@@ -1,13 +1,19 @@
-use crate::common::{csc_strategy, csr_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ, PROPTEST_I32_VALUE_STRATEGY, non_zero_i32_value_strategy, value_strategy};
-use nalgebra_sparse::ops::serial::{spmm_csr_dense, spmm_csc_dense, spadd_pattern, spadd_csr_prealloc, spadd_csc_prealloc, spmm_csr_prealloc, spmm_csc_prealloc, spsolve_csc_lower_triangular, spmm_csr_pattern};
-use nalgebra_sparse::ops::{Op};
-use nalgebra_sparse::csr::CsrMatrix;
+use crate::common::{
+    csc_strategy, csr_strategy, non_zero_i32_value_strategy, value_strategy,
+    PROPTEST_I32_VALUE_STRATEGY, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ,
+};
 use nalgebra_sparse::csc::CscMatrix;
-use nalgebra_sparse::proptest::{csc, csr, sparsity_pattern};
+use nalgebra_sparse::csr::CsrMatrix;
+use nalgebra_sparse::ops::serial::{
+    spadd_csc_prealloc, spadd_csr_prealloc, spadd_pattern, spmm_csc_dense, spmm_csc_prealloc,
+    spmm_csr_dense, spmm_csr_pattern, spmm_csr_prealloc, spsolve_csc_lower_triangular,
+};
+use nalgebra_sparse::ops::Op;
 use nalgebra_sparse::pattern::SparsityPattern;
+use nalgebra_sparse::proptest::{csc, csr, sparsity_pattern};
 
-use nalgebra::{DMatrix, Scalar, DMatrixSliceMut, DMatrixSlice};
 use nalgebra::proptest::{matrix, vector};
+use nalgebra::{DMatrix, DMatrixSlice, DMatrixSliceMut, Scalar};
 
 use proptest::prelude::*;
 
@@ -17,19 +23,15 @@ use std::panic::catch_unwind;
 
 /// Represents the sparsity pattern of a CSR matrix as a dense matrix with 0/1
 fn dense_csr_pattern(pattern: &SparsityPattern) -> DMatrix<i32> {
-    let boolean_csr = CsrMatrix::try_from_pattern_and_values(
-            pattern.clone(),
-            vec![1; pattern.nnz()])
-        .unwrap();
+    let boolean_csr =
+        CsrMatrix::try_from_pattern_and_values(pattern.clone(), vec![1; pattern.nnz()]).unwrap();
     DMatrix::from(&boolean_csr)
 }
 
 /// Represents the sparsity pattern of a CSC matrix as a dense matrix with 0/1
 fn dense_csc_pattern(pattern: &SparsityPattern) -> DMatrix<i32> {
-    let boolean_csc = CscMatrix::try_from_pattern_and_values(
-        pattern.clone(),
-        vec![1; pattern.nnz()])
-        .unwrap();
+    let boolean_csc =
+        CscMatrix::try_from_pattern_and_values(pattern.clone(), vec![1; pattern.nnz()]).unwrap();
     DMatrix::from(&boolean_csc)
 }
 
@@ -53,7 +55,7 @@ struct SpmmCscDenseArgs<T: Scalar> {
 
 /// Returns matrices C, A and B with compatible dimensions such that it can be used
 /// in an `spmm` operation `C = beta * C + alpha * trans(A) * trans(B)`.
-fn spmm_csr_dense_args_strategy() -> impl Strategy<Value=SpmmCsrDenseArgs<i32>> {
+fn spmm_csr_dense_args_strategy() -> impl Strategy<Value = SpmmCsrDenseArgs<i32>> {
     let max_nnz = PROPTEST_MAX_NNZ;
     let value_strategy = PROPTEST_I32_VALUE_STRATEGY;
     let c_rows = PROPTEST_MATRIX_DIM;
@@ -62,14 +64,23 @@ fn spmm_csr_dense_args_strategy() -> impl Strategy<Value=SpmmCsrDenseArgs<i32>> 
     let trans_strategy = trans_strategy();
     let c_matrix_strategy = matrix(value_strategy.clone(), c_rows, c_cols);
 
-    (c_matrix_strategy, common_dim, trans_strategy.clone(), trans_strategy.clone())
+    (
+        c_matrix_strategy,
+        common_dim,
+        trans_strategy.clone(),
+        trans_strategy.clone(),
+    )
         .prop_flat_map(move |(c, common_dim, trans_a, trans_b)| {
-            let a_shape =
-                if trans_a { (common_dim, c.nrows()) }
-                else { (c.nrows(), common_dim) };
-            let b_shape =
-                if trans_b { (c.ncols(), common_dim) }
-                else { (common_dim, c.ncols()) };
+            let a_shape = if trans_a {
+                (common_dim, c.nrows())
+            } else {
+                (c.nrows(), common_dim)
+            };
+            let b_shape = if trans_b {
+                (c.ncols(), common_dim)
+            } else {
+                (common_dim, c.ncols())
+            };
             let a = csr(value_strategy.clone(), a_shape.0, a_shape.1, max_nnz);
             let b = matrix(value_strategy.clone(), b_shape.0, b_shape.1);
 
@@ -78,30 +89,36 @@ fn spmm_csr_dense_args_strategy() -> impl Strategy<Value=SpmmCsrDenseArgs<i32>> 
             let beta = value_strategy.clone();
 
             (Just(c), beta, alpha, Just(trans_a), a, Just(trans_b), b)
-        }).prop_map(|(c, beta, alpha, trans_a, a, trans_b, b)| {
-            SpmmCsrDenseArgs {
+        })
+        .prop_map(
+            |(c, beta, alpha, trans_a, a, trans_b, b)| SpmmCsrDenseArgs {
                 c,
                 beta,
                 alpha,
-                a: if trans_a { Op::Transpose(a) } else { Op::NoOp(a) },
-                b: if trans_b { Op::Transpose(b) } else { Op::NoOp(b) },
-            }
-        })
+                a: if trans_a {
+                    Op::Transpose(a)
+                } else {
+                    Op::NoOp(a)
+                },
+                b: if trans_b {
+                    Op::Transpose(b)
+                } else {
+                    Op::NoOp(b)
+                },
+            },
+        )
 }
 
 /// Returns matrices C, A and B with compatible dimensions such that it can be used
 /// in an `spmm` operation `C = beta * C + alpha * trans(A) * trans(B)`.
-fn spmm_csc_dense_args_strategy() -> impl Strategy<Value=SpmmCscDenseArgs<i32>> {
-    spmm_csr_dense_args_strategy()
-        .prop_map(|args| {
-            SpmmCscDenseArgs {
-                c: args.c,
-                beta: args.beta,
-                alpha: args.alpha,
-                a: args.a.map_same_op(|a| CscMatrix::from(&a)),
-                b: args.b
-            }
-        })
+fn spmm_csc_dense_args_strategy() -> impl Strategy<Value = SpmmCscDenseArgs<i32>> {
+    spmm_csr_dense_args_strategy().prop_map(|args| SpmmCscDenseArgs {
+        c: args.c,
+        beta: args.beta,
+        alpha: args.alpha,
+        a: args.a.map_same_op(|a| CscMatrix::from(&a)),
+        b: args.b,
+    })
 }
 
 #[derive(Debug)]
@@ -120,7 +137,7 @@ struct SpaddCscArgs<T> {
     a: Op<CscMatrix<T>>,
 }
 
-fn spadd_csr_prealloc_args_strategy() -> impl Strategy<Value=SpaddCsrArgs<i32>> {
+fn spadd_csr_prealloc_args_strategy() -> impl Strategy<Value = SpaddCsrArgs<i32>> {
     let value_strategy = PROPTEST_I32_VALUE_STRATEGY;
 
     spadd_pattern_strategy()
@@ -131,66 +148,83 @@ fn spadd_csr_prealloc_args_strategy() -> impl Strategy<Value=SpaddCsrArgs<i32>> 
             let c_values = vec![value_strategy.clone(); c_pattern.nnz()];
             let alpha = value_strategy.clone();
             let beta = value_strategy.clone();
-            (Just(c_pattern), Just(a_pattern), c_values, a_values, alpha, beta, trans_strategy())
-        }).prop_map(|(c_pattern, a_pattern, c_values, a_values, alpha, beta, trans_a)| {
-            let c = CsrMatrix::try_from_pattern_and_values(c_pattern, c_values).unwrap();
-            let a = CsrMatrix::try_from_pattern_and_values(a_pattern, a_values).unwrap();
-
-            let a = if trans_a { Op::Transpose(a.transpose()) } else { Op::NoOp(a) };
-            SpaddCsrArgs { c, beta, alpha, a }
+            (
+                Just(c_pattern),
+                Just(a_pattern),
+                c_values,
+                a_values,
+                alpha,
+                beta,
+                trans_strategy(),
+            )
         })
+        .prop_map(
+            |(c_pattern, a_pattern, c_values, a_values, alpha, beta, trans_a)| {
+                let c = CsrMatrix::try_from_pattern_and_values(c_pattern, c_values).unwrap();
+                let a = CsrMatrix::try_from_pattern_and_values(a_pattern, a_values).unwrap();
+
+                let a = if trans_a {
+                    Op::Transpose(a.transpose())
+                } else {
+                    Op::NoOp(a)
+                };
+                SpaddCsrArgs { c, beta, alpha, a }
+            },
+        )
 }
 
-fn spadd_csc_prealloc_args_strategy() -> impl Strategy<Value=SpaddCscArgs<i32>> {
-    spadd_csr_prealloc_args_strategy()
-        .prop_map(|args| SpaddCscArgs {
-            c: CscMatrix::from(&args.c),
-            beta: args.beta,
-            alpha: args.alpha,
-            a: args.a.map_same_op(|a| CscMatrix::from(&a))
-        })
+fn spadd_csc_prealloc_args_strategy() -> impl Strategy<Value = SpaddCscArgs<i32>> {
+    spadd_csr_prealloc_args_strategy().prop_map(|args| SpaddCscArgs {
+        c: CscMatrix::from(&args.c),
+        beta: args.beta,
+        alpha: args.alpha,
+        a: args.a.map_same_op(|a| CscMatrix::from(&a)),
+    })
 }
 
-fn dense_strategy() -> impl Strategy<Value=DMatrix<i32>> {
-    matrix(PROPTEST_I32_VALUE_STRATEGY, PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM)
+fn dense_strategy() -> impl Strategy<Value = DMatrix<i32>> {
+    matrix(
+        PROPTEST_I32_VALUE_STRATEGY,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MATRIX_DIM,
+    )
 }
 
-fn trans_strategy() -> impl Strategy<Value=bool> + Clone {
+fn trans_strategy() -> impl Strategy<Value = bool> + Clone {
     proptest::bool::ANY
 }
 
 /// Wraps the values of the given strategy in `Op`, producing both transposed and non-transposed
 /// values.
-fn op_strategy<S: Strategy>(strategy: S) -> impl Strategy<Value=Op<S::Value>> {
+fn op_strategy<S: Strategy>(strategy: S) -> impl Strategy<Value = Op<S::Value>> {
     let is_transposed = proptest::bool::ANY;
-    (strategy, is_transposed)
-        .prop_map(|(obj, is_trans)| if is_trans {
+    (strategy, is_transposed).prop_map(|(obj, is_trans)| {
+        if is_trans {
             Op::Transpose(obj)
         } else {
             Op::NoOp(obj)
-        })
+        }
+    })
 }
 
-fn pattern_strategy() -> impl Strategy<Value=SparsityPattern> {
+fn pattern_strategy() -> impl Strategy<Value = SparsityPattern> {
     sparsity_pattern(PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ)
 }
 
 /// Constructs pairs (a, b) where a and b have the same dimensions
-fn spadd_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, SparsityPattern)> {
-    pattern_strategy()
-        .prop_flat_map(|a| {
-            let b = sparsity_pattern(a.major_dim(), a.minor_dim(), PROPTEST_MAX_NNZ);
-            (Just(a), b)
-        })
+fn spadd_pattern_strategy() -> impl Strategy<Value = (SparsityPattern, SparsityPattern)> {
+    pattern_strategy().prop_flat_map(|a| {
+        let b = sparsity_pattern(a.major_dim(), a.minor_dim(), PROPTEST_MAX_NNZ);
+        (Just(a), b)
+    })
 }
 
 /// Constructs pairs (a, b) where a and b have compatible dimensions for a matrix product
-fn spmm_csr_pattern_strategy() -> impl Strategy<Value=(SparsityPattern, SparsityPattern)> {
-    pattern_strategy()
-        .prop_flat_map(|a| {
-            let b = sparsity_pattern(a.minor_dim(), PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ);
-            (Just(a), b)
-        })
+fn spmm_csr_pattern_strategy() -> impl Strategy<Value = (SparsityPattern, SparsityPattern)> {
+    pattern_strategy().prop_flat_map(|a| {
+        let b = sparsity_pattern(a.minor_dim(), PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ);
+        (Just(a), b)
+    })
 }
 
 #[derive(Debug)]
@@ -211,86 +245,98 @@ struct SpmmCscArgs<T> {
     b: Op<CscMatrix<T>>,
 }
 
-fn spmm_csr_prealloc_args_strategy() -> impl Strategy<Value=SpmmCsrArgs<i32>> {
+fn spmm_csr_prealloc_args_strategy() -> impl Strategy<Value = SpmmCsrArgs<i32>> {
     spmm_csr_pattern_strategy()
         .prop_flat_map(|(a_pattern, b_pattern)| {
             let a_values = vec![PROPTEST_I32_VALUE_STRATEGY; a_pattern.nnz()];
             let b_values = vec![PROPTEST_I32_VALUE_STRATEGY; b_pattern.nnz()];
             let c_pattern = spmm_csr_pattern(&a_pattern, &b_pattern);
             let c_values = vec![PROPTEST_I32_VALUE_STRATEGY; c_pattern.nnz()];
-            let a = a_values.prop_map(move |values|
-                CsrMatrix::try_from_pattern_and_values(a_pattern.clone(), values).unwrap());
-            let b = b_values.prop_map(move |values|
-                CsrMatrix::try_from_pattern_and_values(b_pattern.clone(), values).unwrap());
-            let c = c_values.prop_map(move |values|
-                CsrMatrix::try_from_pattern_and_values(c_pattern.clone(), values).unwrap());
+            let a = a_values.prop_map(move |values| {
+                CsrMatrix::try_from_pattern_and_values(a_pattern.clone(), values).unwrap()
+            });
+            let b = b_values.prop_map(move |values| {
+                CsrMatrix::try_from_pattern_and_values(b_pattern.clone(), values).unwrap()
+            });
+            let c = c_values.prop_map(move |values| {
+                CsrMatrix::try_from_pattern_and_values(c_pattern.clone(), values).unwrap()
+            });
             let alpha = PROPTEST_I32_VALUE_STRATEGY;
             let beta = PROPTEST_I32_VALUE_STRATEGY;
             (c, beta, alpha, trans_strategy(), a, trans_strategy(), b)
         })
-        .prop_map(|(c, beta, alpha, trans_a, a, trans_b, b)| {
-            SpmmCsrArgs::<i32> {
+        .prop_map(
+            |(c, beta, alpha, trans_a, a, trans_b, b)| SpmmCsrArgs::<i32> {
                 c,
                 beta,
                 alpha,
-                a: if trans_a { Op::Transpose(a.transpose()) } else { Op::NoOp(a) },
-                b: if trans_b { Op::Transpose(b.transpose()) } else { Op::NoOp(b) }
-            }
-        })
+                a: if trans_a {
+                    Op::Transpose(a.transpose())
+                } else {
+                    Op::NoOp(a)
+                },
+                b: if trans_b {
+                    Op::Transpose(b.transpose())
+                } else {
+                    Op::NoOp(b)
+                },
+            },
+        )
 }
 
-fn spmm_csc_prealloc_args_strategy() -> impl Strategy<Value=SpmmCscArgs<i32>> {
+fn spmm_csc_prealloc_args_strategy() -> impl Strategy<Value = SpmmCscArgs<i32>> {
     // Note: Converting from CSR is simple, but might be significantly slower than
     // writing a common implementation that can be shared between CSR and CSC args
-    spmm_csr_prealloc_args_strategy()
-        .prop_map(|args| {
-            SpmmCscArgs {
-                c: CscMatrix::from(&args.c),
-                beta: args.beta,
-                alpha: args.alpha,
-                a: args.a.map_same_op(|a| CscMatrix::from(&a)),
-                b: args.b.map_same_op(|b| CscMatrix::from(&b))
+    spmm_csr_prealloc_args_strategy().prop_map(|args| SpmmCscArgs {
+        c: CscMatrix::from(&args.c),
+        beta: args.beta,
+        alpha: args.alpha,
+        a: args.a.map_same_op(|a| CscMatrix::from(&a)),
+        b: args.b.map_same_op(|b| CscMatrix::from(&b)),
+    })
+}
+
+fn csc_invertible_diagonal() -> impl Strategy<Value = CscMatrix<f64>> {
+    let non_zero_values =
+        value_strategy::<f64>().prop_filter("Only non-zeros values accepted", |x| x != &0.0);
+
+    vector(non_zero_values, PROPTEST_MATRIX_DIM).prop_map(|d| {
+        let mut matrix = CscMatrix::identity(d.len());
+        matrix.values_mut().clone_from_slice(&d.as_slice());
+        matrix
+    })
+}
+
+fn csc_square_with_non_zero_diagonals() -> impl Strategy<Value = CscMatrix<f64>> {
+    csc_invertible_diagonal().prop_flat_map(|d| {
+        csc(
+            value_strategy::<f64>(),
+            d.nrows(),
+            d.nrows(),
+            PROPTEST_MAX_NNZ,
+        )
+        .prop_map(move |mut c| {
+            for (i, j, v) in c.triplet_iter_mut() {
+                if i == j {
+                    *v = 0.0;
+                }
             }
+
+            // Return the sum of a matrix with zero diagonals and an invertible diagonal
+            // matrix
+            c + &d
         })
-}
-
-fn csc_invertible_diagonal() -> impl Strategy<Value=CscMatrix<f64>> {
-    let non_zero_values = value_strategy::<f64>()
-        .prop_filter("Only non-zeros values accepted", |x| x != &0.0);
-
-    vector(non_zero_values, PROPTEST_MATRIX_DIM)
-        .prop_map(|d| {
-            let mut matrix = CscMatrix::identity(d.len());
-            matrix.values_mut().clone_from_slice(&d.as_slice());
-            matrix
-        })
-}
-
-fn csc_square_with_non_zero_diagonals() -> impl Strategy<Value=CscMatrix<f64>> {
-    csc_invertible_diagonal()
-        .prop_flat_map(|d| {
-            csc(value_strategy::<f64>(), d.nrows(), d.nrows(), PROPTEST_MAX_NNZ)
-                .prop_map(move |mut c| {
-                    for (i, j, v) in c.triplet_iter_mut() {
-                        if i == j {
-                            *v = 0.0;
-                        }
-                    }
-
-                    // Return the sum of a matrix with zero diagonals and an invertible diagonal
-                    // matrix
-                    c + &d
-                })
-        })
+    })
 }
 
 /// Helper function to help us call dense GEMM with our `Op` type
-fn dense_gemm<'a>(beta: i32,
-                  c: impl Into<DMatrixSliceMut<'a, i32>>,
-                  alpha: i32,
-                  a: Op<impl Into<DMatrixSlice<'a, i32>>>,
-                  b: Op<impl Into<DMatrixSlice<'a, i32>>>)
-{
+fn dense_gemm<'a>(
+    beta: i32,
+    c: impl Into<DMatrixSliceMut<'a, i32>>,
+    alpha: i32,
+    a: Op<impl Into<DMatrixSlice<'a, i32>>>,
+    b: Op<impl Into<DMatrixSlice<'a, i32>>>,
+) {
     let mut c = c.into();
     let a = a.convert();
     let b = b.convert();
@@ -300,7 +346,7 @@ fn dense_gemm<'a>(beta: i32,
         (NoOp(a), NoOp(b)) => c.gemm(alpha, &a, &b, beta),
         (Transpose(a), NoOp(b)) => c.gemm(alpha, &a.transpose(), &b, beta),
         (NoOp(a), Transpose(b)) => c.gemm(alpha, &a, &b.transpose(), beta),
-        (Transpose(a), Transpose(b)) => c.gemm(alpha, &a.transpose(), &b.transpose(), beta)
+        (Transpose(a), Transpose(b)) => c.gemm(alpha, &a.transpose(), &b.transpose(), beta),
     }
 }
 

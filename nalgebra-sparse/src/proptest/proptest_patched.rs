@@ -22,19 +22,19 @@
 
 */
 
-use proptest::strategy::{Strategy, Shuffleable, NewTree, ValueTree};
-use proptest::test_runner::{TestRunner, TestRng};
-use std::cell::Cell;
 use proptest::num;
 use proptest::prelude::Rng;
+use proptest::strategy::{NewTree, Shuffleable, Strategy, ValueTree};
+use proptest::test_runner::{TestRng, TestRunner};
+use std::cell::Cell;
 
 #[derive(Clone, Debug)]
 #[must_use = "strategies do nothing unless used"]
 pub struct Shuffle<S>(pub(super) S);
 
 impl<S: Strategy> Strategy for Shuffle<S>
-    where
-        S::Value: Shuffleable,
+where
+    S::Value: Shuffleable,
 {
     type Tree = ShuffleValueTree<S::Tree>;
     type Value = S::Value;
@@ -60,8 +60,8 @@ pub struct ShuffleValueTree<V> {
 }
 
 impl<V: ValueTree> ShuffleValueTree<V>
-    where
-        V::Value: Shuffleable,
+where
+    V::Value: Shuffleable,
 {
     fn init_dist(&self, dflt: usize) -> usize {
         if self.dist.get().is_none() {
@@ -79,8 +79,8 @@ impl<V: ValueTree> ShuffleValueTree<V>
 }
 
 impl<V: ValueTree> ValueTree for ShuffleValueTree<V>
-    where
-        V::Value: Shuffleable,
+where
+    V::Value: Shuffleable,
 {
     type Value = V::Value;
 

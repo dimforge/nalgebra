@@ -12,11 +12,17 @@ use std::iter;
 /// # Panics
 ///
 /// Panics if the patterns do not have the same major and minor dimensions.
-pub fn spadd_pattern(a: &SparsityPattern,
-                     b: &SparsityPattern) -> SparsityPattern
-{
-    assert_eq!(a.major_dim(), b.major_dim(), "Patterns must have identical major dimensions.");
-    assert_eq!(a.minor_dim(), b.minor_dim(), "Patterns must have identical minor dimensions.");
+pub fn spadd_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPattern {
+    assert_eq!(
+        a.major_dim(),
+        b.major_dim(),
+        "Patterns must have identical major dimensions."
+    );
+    assert_eq!(
+        a.minor_dim(),
+        b.minor_dim(),
+        "Patterns must have identical minor dimensions."
+    );
 
     let mut offsets = Vec::new();
     let mut indices = Vec::new();
@@ -25,7 +31,7 @@ pub fn spadd_pattern(a: &SparsityPattern,
 
     offsets.push(0);
 
-    for lane_idx in 0 .. a.major_dim() {
+    for lane_idx in 0..a.major_dim() {
         let lane_a = a.lane(lane_idx);
         let lane_b = b.lane(lane_idx);
         indices.extend(iterate_union(lane_a, lane_b));
@@ -33,8 +39,7 @@ pub fn spadd_pattern(a: &SparsityPattern,
     }
 
     // TODO: Consider circumventing format checks? (requires unsafe, should benchmark first)
-    SparsityPattern::try_from_offsets_and_indices(
-        a.major_dim(), a.minor_dim(), offsets, indices)
+    SparsityPattern::try_from_offsets_and_indices(a.major_dim(), a.minor_dim(), offsets, indices)
         .expect("Internal error: Pattern must be valid by definition")
 }
 
@@ -66,7 +71,11 @@ pub fn spmm_csc_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPat
 /// Panics if the patterns, when interpreted as CSR patterns, are not compatible for
 /// matrix multiplication.
 pub fn spmm_csr_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPattern {
-    assert_eq!(a.minor_dim(), b.major_dim(), "a and b must have compatible dimensions");
+    assert_eq!(
+        a.minor_dim(),
+        b.major_dim(),
+        "a and b must have compatible dimensions"
+    );
 
     let mut offsets = Vec::new();
     let mut indices = Vec::new();
@@ -78,7 +87,7 @@ pub fn spmm_csr_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPat
     // (would cut memory use to 1/8, which might help reduce cache misses)
     let mut visited = vec![false; b.minor_dim()];
 
-    for i in 0 .. a.major_dim() {
+    for i in 0..a.major_dim() {
         let a_lane_i = a.lane(i);
         let c_lane_i_offset = *offsets.last().unwrap();
         for &k in a_lane_i {
@@ -93,7 +102,7 @@ pub fn spmm_csr_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPat
             }
         }
 
-        let c_lane_i = &mut indices[c_lane_i_offset ..];
+        let c_lane_i = &mut indices[c_lane_i_offset..];
         c_lane_i.sort_unstable();
 
         // Reset visits so that visited[j] == false for all j for the next major lane
@@ -110,21 +119,23 @@ pub fn spmm_csr_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPat
 
 /// Iterate over the union of the two sets represented by sorted slices
 /// (with unique elements)
-fn iterate_union<'a>(mut sorted_a: &'a [usize],
-                     mut sorted_b: &'a [usize]) -> impl Iterator<Item=usize> + 'a {
+fn iterate_union<'a>(
+    mut sorted_a: &'a [usize],
+    mut sorted_b: &'a [usize],
+) -> impl Iterator<Item = usize> + 'a {
     iter::from_fn(move || {
         if let (Some(a_item), Some(b_item)) = (sorted_a.first(), sorted_b.first()) {
             let item = if a_item < b_item {
-                sorted_a = &sorted_a[1 ..];
+                sorted_a = &sorted_a[1..];
                 a_item
             } else if b_item < a_item {
-                sorted_b = &sorted_b[1 ..];
+                sorted_b = &sorted_b[1..];
                 b_item
             } else {
                 // Both lists contain the same element, advance both slices to avoid
                 // duplicate entries in the result
-                sorted_a = &sorted_a[1 ..];
-                sorted_b = &sorted_b[1 ..];
+                sorted_a = &sorted_a[1..];
+                sorted_b = &sorted_b[1..];
                 a_item
             };
             Some(*item)

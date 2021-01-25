@@ -1,10 +1,10 @@
-use crate::pattern::SparsityPattern;
 use crate::csc::CscMatrix;
-use core::{mem, iter};
-use nalgebra::{Scalar, RealField, DMatrixSlice, DMatrixSliceMut, DMatrix};
-use std::fmt::{Display, Formatter};
 use crate::ops::serial::spsolve_csc_lower_triangular;
 use crate::ops::Op;
+use crate::pattern::SparsityPattern;
+use core::{iter, mem};
+use nalgebra::{DMatrix, DMatrixSlice, DMatrixSliceMut, RealField, Scalar};
+use std::fmt::{Display, Formatter};
 
 /// A symbolic sparse Cholesky factorization of a CSC matrix.
 ///
@@ -15,7 +15,7 @@ pub struct CscSymbolicCholesky {
     m_pattern: SparsityPattern,
     l_pattern: SparsityPattern,
     // u in this context is L^T, so that M = L L^T
-    u_pattern: SparsityPattern
+    u_pattern: SparsityPattern,
 }
 
 impl CscSymbolicCholesky {
@@ -28,8 +28,11 @@ impl CscSymbolicCholesky {
     ///
     /// Panics if the sparsity pattern is not square.
     pub fn factor(pattern: SparsityPattern) -> Self {
-        assert_eq!(pattern.major_dim(), pattern.minor_dim(),
-            "Major and minor dimensions must be the same (square matrix).");
+        assert_eq!(
+            pattern.major_dim(),
+            pattern.minor_dim(),
+            "Major and minor dimensions must be the same (square matrix)."
+        );
         let (l_pattern, u_pattern) = nonzero_pattern(&pattern);
         Self {
             m_pattern: pattern,
@@ -65,7 +68,7 @@ pub struct CscCholesky<T> {
     l_factor: CscMatrix<T>,
     u_pattern: SparsityPattern,
     work_x: Vec<T>,
-    work_c: Vec<usize>
+    work_c: Vec<usize>,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -100,16 +103,20 @@ impl<T: RealField> CscCholesky<T> {
     ///
     /// Panics if the number of values differ from the number of non-zeros of the sparsity pattern
     /// of the matrix that was symbolically factored.
-    pub fn factor_numerical(symbolic: CscSymbolicCholesky, values: &[T])
-        -> Result<Self, CholeskyError>
-    {
-        assert_eq!(symbolic.l_pattern.nnz(), symbolic.u_pattern.nnz(),
-                   "u is just the transpose of l, so should have the same nnz");
+    pub fn factor_numerical(
+        symbolic: CscSymbolicCholesky,
+        values: &[T],
+    ) -> Result<Self, CholeskyError> {
+        assert_eq!(
+            symbolic.l_pattern.nnz(),
+            symbolic.u_pattern.nnz(),
+            "u is just the transpose of l, so should have the same nnz"
+        );
 
         let l_nnz = symbolic.l_pattern.nnz();
         let l_values = vec![T::zero(); l_nnz];
-        let l_factor = CscMatrix::try_from_pattern_and_values(symbolic.l_pattern, l_values)
-            .unwrap();
+        let l_factor =
+            CscMatrix::try_from_pattern_and_values(symbolic.l_pattern, l_values).unwrap();
 
         let (nrows, ncols) = (l_factor.nrows(), l_factor.ncols());
 
@@ -169,7 +176,7 @@ impl<T: RealField> CscCholesky<T> {
     }
 
     /// Returns the Cholesky factor `L`.
-    pub fn take_l(self)  -> CscMatrix<T> {
+    pub fn take_l(self) -> CscMatrix<T> {
         self.l_factor
     }
 
@@ -229,10 +236,8 @@ impl<T: RealField> CscCholesky<T> {
 
                     {
                         let (offsets, _, values) = self.l_factor.csc_data_mut();
-                        *values
-                            .get_unchecked_mut(*offsets.get_unchecked(k)) = denom;
+                        *values.get_unchecked_mut(*offsets.get_unchecked(k)) = denom;
                     }
-
 
                     let mut col_k = self.l_factor.col_mut(k);
                     let (col_k_rows, col_k_values) = col_k.rows_and_values_mut();
@@ -269,19 +274,16 @@ impl<T: RealField> CscCholesky<T> {
     /// # Panics
     ///
     /// Panics if `b` is not square.
-    pub fn solve_mut<'a>(&'a self, b: impl Into<DMatrixSliceMut<'a, T>>)
-    {
+    pub fn solve_mut<'a>(&'a self, b: impl Into<DMatrixSliceMut<'a, T>>) {
         let expect_msg = "If the Cholesky factorization succeeded,\
             then the triangular solve should never fail";
         // Solve LY = B
         let mut y = b.into();
-        spsolve_csc_lower_triangular(Op::NoOp(self.l()), &mut y)
-            .expect(expect_msg);
+        spsolve_csc_lower_triangular(Op::NoOp(self.l()), &mut y).expect(expect_msg);
 
         // Solve L^T X = Y
         let mut x = y;
-        spsolve_csc_lower_triangular(Op::Transpose(self.l()), &mut x)
-            .expect(expect_msg);
+        spsolve_csc_lower_triangular(Op::Transpose(self.l()), &mut x).expect(expect_msg);
     }
 }
 
@@ -333,8 +335,8 @@ fn nonzero_pattern(m: &SparsityPattern) -> (SparsityPattern, SparsityPattern) {
         col_offsets.push(rows.len());
     }
 
-    let u_pattern =  SparsityPattern::try_from_offsets_and_indices(nrows, ncols, col_offsets, rows)
-        .unwrap();
+    let u_pattern =
+        SparsityPattern::try_from_offsets_and_indices(nrows, ncols, col_offsets, rows).unwrap();
 
     // TODO: Avoid this transpose?
     let l_pattern = u_pattern.transpose();

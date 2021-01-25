@@ -1,14 +1,15 @@
 use crate::cs::CsMatrix;
+use crate::ops::serial::{OperationError, OperationErrorKind};
 use crate::ops::Op;
-use crate::ops::serial::{OperationErrorKind, OperationError};
-use nalgebra::{Scalar, ClosedAdd, ClosedMul, DMatrixSliceMut, DMatrixSlice};
-use num_traits::{Zero, One};
 use crate::SparseEntryMut;
+use nalgebra::{ClosedAdd, ClosedMul, DMatrixSlice, DMatrixSliceMut, Scalar};
+use num_traits::{One, Zero};
 
 fn spmm_cs_unexpected_entry() -> OperationError {
     OperationError::from_kind_and_message(
         OperationErrorKind::InvalidPattern,
-        String::from("Found unexpected entry that is not present in `c`."))
+        String::from("Found unexpected entry that is not present in `c`."),
+    )
 }
 
 /// Helper functionality for implementing CSR/CSC SPMM.
@@ -24,12 +25,12 @@ pub fn spmm_cs_prealloc<T>(
     c: &mut CsMatrix<T>,
     alpha: T,
     a: &CsMatrix<T>,
-    b: &CsMatrix<T>)
-    -> Result<(), OperationError>
-    where
-        T: Scalar + ClosedAdd + ClosedMul + Zero + One
+    b: &CsMatrix<T>,
+) -> Result<(), OperationError>
+where
+    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {
-    for i in 0 .. c.pattern().major_dim() {
+    for i in 0..c.pattern().major_dim() {
         let a_lane_i = a.get_lane(i).unwrap();
         let mut c_lane_i = c.get_lane_mut(i).unwrap();
         for c_ij in c_lane_i.values_mut() {
@@ -42,14 +43,15 @@ pub fn spmm_cs_prealloc<T>(
             let alpha_aik = alpha.inlined_clone() * a_ik.inlined_clone();
             for (j, b_kj) in b_lane_k.minor_indices().iter().zip(b_lane_k.values()) {
                 // Determine the location in C to append the value
-                let (c_local_idx, _) = c_lane_i_cols.iter()
+                let (c_local_idx, _) = c_lane_i_cols
+                    .iter()
                     .enumerate()
                     .find(|(_, c_col)| *c_col == j)
                     .ok_or_else(spmm_cs_unexpected_entry)?;
 
                 c_lane_i_values[c_local_idx] += alpha_aik.inlined_clone() * b_kj.inlined_clone();
-                c_lane_i_cols = &c_lane_i_cols[c_local_idx ..];
-                c_lane_i_values = &mut c_lane_i_values[c_local_idx ..];
+                c_lane_i_cols = &c_lane_i_cols[c_local_idx..];
+                c_lane_i_values = &mut c_lane_i_values[c_local_idx..];
             }
         }
     }
@@ -60,17 +62,19 @@ pub fn spmm_cs_prealloc<T>(
 fn spadd_cs_unexpected_entry() -> OperationError {
     OperationError::from_kind_and_message(
         OperationErrorKind::InvalidPattern,
-        String::from("Found entry in `op(a)` that is not present in `c`."))
+        String::from("Found entry in `op(a)` that is not present in `c`."),
+    )
 }
 
 /// Helper functionality for implementing CSR/CSC SPADD.
-pub fn spadd_cs_prealloc<T>(beta: T,
-                             c: &mut CsMatrix<T>,
-                             alpha: T,
-                             a: Op<&CsMatrix<T>>)
-                             -> Result<(), OperationError>
-    where
-        T: Scalar + ClosedAdd + ClosedMul + Zero + One
+pub fn spadd_cs_prealloc<T>(
+    beta: T,
+    c: &mut CsMatrix<T>,
+    alpha: T,
+    a: Op<&CsMatrix<T>>,
+) -> Result<(), OperationError>
+where
+    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {
     match a {
         Op::NoOp(a) => {
@@ -88,13 +92,14 @@ pub fn spadd_cs_prealloc<T>(beta: T,
                     // TODO: Use exponential search instead of linear search.
                     // If C has substantially more entries in the row than A, then a line search
                     // will needlessly visit many entries in C.
-                    let (c_idx, _) = c_minors.iter()
+                    let (c_idx, _) = c_minors
+                        .iter()
                         .enumerate()
                         .find(|(_, c_col)| *c_col == a_col)
                         .ok_or_else(spadd_cs_unexpected_entry)?;
                     c_vals[c_idx] += alpha.inlined_clone() * a_val.inlined_clone();
-                    c_minors = &c_minors[c_idx ..];
-                    c_vals = &mut c_vals[c_idx ..];
+                    c_minors = &c_minors[c_idx..];
+                    c_vals = &mut c_vals[c_idx..];
                 }
             }
         }
@@ -110,7 +115,7 @@ pub fn spadd_cs_prealloc<T>(beta: T,
                     let a_val = a_val.inlined_clone();
                     let alpha = alpha.inlined_clone();
                     match c.get_entry_mut(j, i).unwrap() {
-                        SparseEntryMut::NonZero(c_ji) => { *c_ji += alpha * a_val }
+                        SparseEntryMut::NonZero(c_ji) => *c_ji += alpha * a_val,
                         SparseEntryMut::Zero => return Err(spadd_cs_unexpected_entry()),
                     }
                 }
@@ -124,13 +129,14 @@ pub fn spadd_cs_prealloc<T>(beta: T,
 ///
 /// The implementation essentially assumes that `a` is a CSR matrix. To use it with CSC matrices,
 /// the transposed operation must be specified for the CSC matrix.
-pub fn spmm_cs_dense<T>(beta: T,
-                        mut c: DMatrixSliceMut<T>,
-                        alpha: T,
-                        a: Op<&CsMatrix<T>>,
-                        b: Op<DMatrixSlice<T>>)
-    where
-        T: Scalar + ClosedAdd + ClosedMul + Zero + One
+pub fn spmm_cs_dense<T>(
+    beta: T,
+    mut c: DMatrixSliceMut<T>,
+    alpha: T,
+    a: Op<&CsMatrix<T>>,
+    b: Op<DMatrixSlice<T>>,
+) where
+    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {
     match a {
         Op::NoOp(a) => {
@@ -139,17 +145,17 @@ pub fn spmm_cs_dense<T>(beta: T,
                 for (c_ij, a_row_i) in c_col_j.iter_mut().zip(a.lane_iter()) {
                     let mut dot_ij = T::zero();
                     for (&k, a_ik) in a_row_i.minor_indices().iter().zip(a_row_i.values()) {
-                        let b_contrib =
-                            match b {
-                                Op::NoOp(ref b) => b.index((k, j)),
-                                Op::Transpose(ref b) => b.index((j, k))
-                            };
+                        let b_contrib = match b {
+                            Op::NoOp(ref b) => b.index((k, j)),
+                            Op::Transpose(ref b) => b.index((j, k)),
+                        };
                         dot_ij += a_ik.inlined_clone() * b_contrib.inlined_clone();
                     }
-                    *c_ij = beta.inlined_clone() * c_ij.inlined_clone() + alpha.inlined_clone() * dot_ij;
+                    *c_ij = beta.inlined_clone() * c_ij.inlined_clone()
+                        + alpha.inlined_clone() * dot_ij;
                 }
             }
-        },
+        }
         Op::Transpose(a) => {
             // In this case, we have to pre-multiply C by beta
             c *= beta;
@@ -165,17 +171,16 @@ pub fn spmm_cs_dense<T>(beta: T,
                             for (c_ij, b_kj) in c_row_i.iter_mut().zip(b_row_k.iter()) {
                                 *c_ij += gamma_ki.inlined_clone() * b_kj.inlined_clone();
                             }
-                        },
+                        }
                         Op::Transpose(ref b) => {
                             let b_col_k = b.column(k);
                             for (c_ij, b_jk) in c_row_i.iter_mut().zip(b_col_k.iter()) {
                                 *c_ij += gamma_ki.inlined_clone() * b_jk.inlined_clone();
                             }
-                        },
+                        }
                     }
                 }
             }
-        },
+        }
     }
 }
-

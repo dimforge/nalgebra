@@ -6,25 +6,27 @@ fn coo_no_duplicates_generates_admissible_matrices() {
 
 #[cfg(feature = "slow-tests")]
 mod slow {
-    use nalgebra_sparse::proptest::{coo_with_duplicates, coo_no_duplicates, csr, csc, sparsity_pattern};
     use nalgebra::DMatrix;
+    use nalgebra_sparse::proptest::{
+        coo_no_duplicates, coo_with_duplicates, csc, csr, sparsity_pattern,
+    };
 
-    use proptest::test_runner::TestRunner;
-    use proptest::strategy::ValueTree;
     use itertools::Itertools;
+    use proptest::strategy::ValueTree;
+    use proptest::test_runner::TestRunner;
 
     use proptest::prelude::*;
 
+    use nalgebra_sparse::csr::CsrMatrix;
     use std::collections::HashSet;
     use std::iter::repeat;
     use std::ops::RangeInclusive;
-    use nalgebra_sparse::csr::CsrMatrix;
 
-    fn generate_all_possible_matrices(value_range: RangeInclusive<i32>,
-                                      rows_range: RangeInclusive<usize>,
-                                      cols_range: RangeInclusive<usize>)
-                                      -> HashSet<DMatrix<i32>>
-    {
+    fn generate_all_possible_matrices(
+        value_range: RangeInclusive<i32>,
+        rows_range: RangeInclusive<usize>,
+        cols_range: RangeInclusive<usize>,
+    ) -> HashSet<DMatrix<i32>> {
         // Enumerate all possible combinations
         let mut all_combinations = HashSet::new();
         for nrows in rows_range {
@@ -48,7 +50,11 @@ mod slow {
                         .take(n_values)
                         .multi_cartesian_product();
                     for matrix_values in values_iter {
-                        all_combinations.insert(DMatrix::from_row_slice(nrows, ncols, &matrix_values));
+                        all_combinations.insert(DMatrix::from_row_slice(
+                            nrows,
+                            ncols,
+                            &matrix_values,
+                        ));
                     }
                 }
             }
@@ -80,12 +86,14 @@ mod slow {
         // Enumerate all possible combinations
         let all_combinations = generate_all_possible_matrices(values, rows, cols);
 
-        let visited_combinations = sample_matrix_output_space(strategy,
-                                                              &mut runner,
-                                                              num_generated_matrices);
+        let visited_combinations =
+            sample_matrix_output_space(strategy, &mut runner, num_generated_matrices);
 
         assert_eq!(visited_combinations.len(), all_combinations.len());
-        assert_eq!(visited_combinations, all_combinations, "Did not sample all possible values.");
+        assert_eq!(
+            visited_combinations, all_combinations,
+            "Did not sample all possible values."
+        );
     }
 
     #[cfg(feature = "slow-tests")]
@@ -113,9 +121,8 @@ mod slow {
         // `coo_with_duplicates`)
         let all_combinations = generate_all_possible_matrices(values, rows, cols);
 
-        let visited_combinations = sample_matrix_output_space(strategy,
-                                                              &mut runner,
-                                                              num_generated_matrices);
+        let visited_combinations =
+            sample_matrix_output_space(strategy, &mut runner, num_generated_matrices);
 
         // Here we cannot verify that the set of visited combinations is *equal* to
         // all possible outcomes with the given constraints, however the
@@ -143,12 +150,14 @@ mod slow {
 
         let all_combinations = generate_all_possible_matrices(values, rows, cols);
 
-        let visited_combinations = sample_matrix_output_space(strategy,
-                                                              &mut runner,
-                                                              num_generated_matrices);
+        let visited_combinations =
+            sample_matrix_output_space(strategy, &mut runner, num_generated_matrices);
 
         assert_eq!(visited_combinations.len(), all_combinations.len());
-        assert_eq!(visited_combinations, all_combinations, "Did not sample all possible values.");
+        assert_eq!(
+            visited_combinations, all_combinations,
+            "Did not sample all possible values."
+        );
     }
 
     #[cfg(feature = "slow-tests")]
@@ -169,12 +178,14 @@ mod slow {
 
         let all_combinations = generate_all_possible_matrices(values, rows, cols);
 
-        let visited_combinations = sample_matrix_output_space(strategy,
-                                                              &mut runner,
-                                                              num_generated_matrices);
+        let visited_combinations =
+            sample_matrix_output_space(strategy, &mut runner, num_generated_matrices);
 
         assert_eq!(visited_combinations.len(), all_combinations.len());
-        assert_eq!(visited_combinations, all_combinations, "Did not sample all possible values.");
+        assert_eq!(
+            visited_combinations, all_combinations,
+            "Did not sample all possible values."
+        );
     }
 
     #[cfg(feature = "slow-tests")]
@@ -206,13 +217,14 @@ mod slow {
         assert_eq!(visited_patterns, all_possible_patterns);
     }
 
-    fn sample_matrix_output_space<S>(strategy: S,
-                                     runner: &mut TestRunner,
-                                     num_samples: usize)
-        -> HashSet<DMatrix<i32>>
+    fn sample_matrix_output_space<S>(
+        strategy: S,
+        runner: &mut TestRunner,
+        num_samples: usize,
+    ) -> HashSet<DMatrix<i32>>
     where
         S: Strategy,
-        DMatrix<i32>: for<'b> From<&'b S::Value>
+        DMatrix<i32>: for<'b> From<&'b S::Value>,
     {
         sample_strategy(strategy, runner)
             .take(num_samples)
@@ -220,8 +232,10 @@ mod slow {
             .collect()
     }
 
-    fn sample_strategy<'a, S: 'a + Strategy>(strategy: S, runner: &'a mut TestRunner)
-            -> impl 'a + Iterator<Item=S::Value> {
+    fn sample_strategy<'a, S: 'a + Strategy>(
+        strategy: S,
+        runner: &'a mut TestRunner,
+    ) -> impl 'a + Iterator<Item = S::Value> {
         repeat(()).map(move |_| {
             let tree = strategy
                 .new_tree(runner)

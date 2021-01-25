@@ -1,17 +1,16 @@
-use nalgebra_sparse::coo::CooMatrix;
-use nalgebra_sparse::convert::serial::{convert_coo_dense, convert_coo_csr,
-                                       convert_dense_coo, convert_csr_dense,
-                                       convert_csr_coo, convert_dense_csr,
-                                       convert_csc_coo, convert_coo_csc,
-                                       convert_csc_dense, convert_dense_csc,
-                                       convert_csr_csc, convert_csc_csr};
-use nalgebra_sparse::proptest::{coo_with_duplicates, coo_no_duplicates, csr, csc};
-use nalgebra::proptest::matrix;
-use proptest::prelude::*;
-use nalgebra::DMatrix;
-use nalgebra_sparse::csr::CsrMatrix;
-use nalgebra_sparse::csc::CscMatrix;
 use crate::common::csc_strategy;
+use nalgebra::proptest::matrix;
+use nalgebra::DMatrix;
+use nalgebra_sparse::convert::serial::{
+    convert_coo_csc, convert_coo_csr, convert_coo_dense, convert_csc_coo, convert_csc_csr,
+    convert_csc_dense, convert_csr_coo, convert_csr_csc, convert_csr_dense, convert_dense_coo,
+    convert_dense_csc, convert_dense_csr,
+};
+use nalgebra_sparse::coo::CooMatrix;
+use nalgebra_sparse::csc::CscMatrix;
+use nalgebra_sparse::csr::CsrMatrix;
+use nalgebra_sparse::proptest::{coo_no_duplicates, coo_with_duplicates, csc, csr};
+use proptest::prelude::*;
 
 #[test]
 fn test_convert_dense_coo() {
@@ -41,16 +40,17 @@ fn test_convert_dense_coo() {
         // Here we implicitly test that the coo matrix is indeed constructed from column-major
         // iteration of the dense matrix.
         let dense = DMatrix::from_row_slice(2, 3, entries);
-        let coo_no_dup = CooMatrix::try_from_triplets(2, 3,
-                                                      vec![0, 1, 0],
-                                                      vec![0, 1, 2],
-                                                      vec![1, 5, 3])
-            .unwrap();
-        let coo_dup = CooMatrix::try_from_triplets(2, 3,
-                                                   vec![0, 1, 0, 1],
-                                                   vec![0, 1, 2, 1],
-                                                   vec![1, -2, 3, 7])
-            .unwrap();
+        let coo_no_dup =
+            CooMatrix::try_from_triplets(2, 3, vec![0, 1, 0], vec![0, 1, 2], vec![1, 5, 3])
+                .unwrap();
+        let coo_dup = CooMatrix::try_from_triplets(
+            2,
+            3,
+            vec![0, 1, 0, 1],
+            vec![0, 1, 2, 1],
+            vec![1, -2, 3, 7],
+        )
+        .unwrap();
 
         assert_eq!(CooMatrix::from(&dense), coo_no_dup);
         assert_eq!(DMatrix::from(&coo_dup), dense);
@@ -76,8 +76,9 @@ fn test_convert_coo_csr() {
             4,
             vec![0, 1, 2, 5],
             vec![1, 3, 0, 2, 3],
-            vec![2, 4, 1, 1, 2]
-        ).unwrap();
+            vec![2, 4, 1, 1, 2],
+        )
+        .unwrap();
 
         assert_eq!(convert_coo_csr(&coo), expected_csr);
     }
@@ -101,8 +102,9 @@ fn test_convert_coo_csr() {
             4,
             vec![0, 1, 2, 5],
             vec![1, 3, 0, 2, 3],
-            vec![5, 4, 1, 1, 4]
-        ).unwrap();
+            vec![5, 4, 1, 1, 4],
+        )
+        .unwrap();
 
         assert_eq!(convert_coo_csr(&coo), expected_csr);
     }
@@ -115,16 +117,18 @@ fn test_convert_csr_coo() {
         4,
         vec![0, 1, 2, 5],
         vec![1, 3, 0, 2, 3],
-        vec![5, 4, 1, 1, 4]
-    ).unwrap();
+        vec![5, 4, 1, 1, 4],
+    )
+    .unwrap();
 
     let expected_coo = CooMatrix::try_from_triplets(
         3,
         4,
         vec![0, 1, 2, 2, 2],
         vec![1, 3, 0, 2, 3],
-        vec![5, 4, 1, 1, 4]
-    ).unwrap();
+        vec![5, 4, 1, 1, 4],
+    )
+    .unwrap();
 
     assert_eq!(convert_csr_coo(&csr), expected_coo);
 }
@@ -148,8 +152,9 @@ fn test_convert_coo_csc() {
             4,
             vec![0, 1, 2, 3, 5],
             vec![2, 0, 2, 1, 2],
-            vec![1, 2, 1, 4, 2]
-        ).unwrap();
+            vec![1, 2, 1, 4, 2],
+        )
+        .unwrap();
 
         assert_eq!(convert_coo_csc(&coo), expected_csc);
     }
@@ -173,8 +178,9 @@ fn test_convert_coo_csc() {
             4,
             vec![0, 1, 2, 3, 5],
             vec![2, 0, 2, 1, 2],
-            vec![1, 5, 1, 4, 4]
-        ).unwrap();
+            vec![1, 5, 1, 4, 4],
+        )
+        .unwrap();
 
         assert_eq!(convert_coo_csc(&coo), expected_csc);
     }
@@ -187,16 +193,18 @@ fn test_convert_csc_coo() {
         4,
         vec![0, 1, 2, 3, 5],
         vec![2, 0, 2, 1, 2],
-        vec![1, 2, 1, 4, 2]
-    ).unwrap();
+        vec![1, 2, 1, 4, 2],
+    )
+    .unwrap();
 
     let expected_coo = CooMatrix::try_from_triplets(
         3,
         4,
         vec![2, 0, 2, 1, 2],
         vec![0, 1, 2, 3, 3],
-        vec![1, 2, 1, 4, 2]
-    ).unwrap();
+        vec![1, 2, 1, 4, 2],
+    )
+    .unwrap();
 
     assert_eq!(convert_csc_coo(&csc), expected_coo);
 }
@@ -209,7 +217,8 @@ fn test_convert_csr_csc_bidirectional() {
         vec![0, 3, 4, 6],
         vec![1, 2, 3, 0, 1, 3],
         vec![5, 3, 2, 2, 1, 4],
-    ).unwrap();
+    )
+    .unwrap();
 
     let csc = CscMatrix::try_from_csc_data(
         3,
@@ -217,7 +226,8 @@ fn test_convert_csr_csc_bidirectional() {
         vec![0, 1, 3, 4, 6],
         vec![1, 0, 2, 0, 0, 2],
         vec![2, 5, 1, 3, 2, 4],
-    ).unwrap();
+    )
+    .unwrap();
 
     assert_eq!(convert_csr_csc(&csr), csc);
     assert_eq!(convert_csc_csr(&csc), csr);
@@ -231,7 +241,8 @@ fn test_convert_csr_dense_bidirectional() {
         vec![0, 3, 4, 6],
         vec![1, 2, 3, 0, 1, 3],
         vec![5, 3, 2, 2, 1, 4],
-    ).unwrap();
+    )
+    .unwrap();
 
     #[rustfmt::skip]
     let dense = DMatrix::from_row_slice(3, 4, &[
@@ -252,7 +263,8 @@ fn test_convert_csc_dense_bidirectional() {
         vec![0, 1, 3, 4, 6],
         vec![1, 0, 2, 0, 0, 2],
         vec![2, 5, 1, 3, 2, 4],
-    ).unwrap();
+    )
+    .unwrap();
 
     #[rustfmt::skip]
     let dense = DMatrix::from_row_slice(3, 4, &[
@@ -265,29 +277,29 @@ fn test_convert_csc_dense_bidirectional() {
     assert_eq!(convert_dense_csc(&dense), csc);
 }
 
-fn coo_strategy() -> impl Strategy<Value=CooMatrix<i32>> {
-    coo_with_duplicates(-5 ..= 5, 0..=6usize, 0..=6usize, 40, 2)
+fn coo_strategy() -> impl Strategy<Value = CooMatrix<i32>> {
+    coo_with_duplicates(-5..=5, 0..=6usize, 0..=6usize, 40, 2)
 }
 
-fn coo_no_duplicates_strategy() -> impl Strategy<Value=CooMatrix<i32>> {
-    coo_no_duplicates(-5 ..= 5, 0..=6usize, 0..=6usize, 40)
+fn coo_no_duplicates_strategy() -> impl Strategy<Value = CooMatrix<i32>> {
+    coo_no_duplicates(-5..=5, 0..=6usize, 0..=6usize, 40)
 }
 
-fn csr_strategy() -> impl Strategy<Value=CsrMatrix<i32>> {
-    csr(-5 ..= 5, 0..=6usize, 0..=6usize, 40)
-}
-
-/// Avoid generating explicit zero values so that it is possible to reason about sparsity patterns
-fn non_zero_csr_strategy() -> impl Strategy<Value=CsrMatrix<i32>> {
-    csr(1 ..= 5, 0..=6usize, 0..=6usize, 40)
+fn csr_strategy() -> impl Strategy<Value = CsrMatrix<i32>> {
+    csr(-5..=5, 0..=6usize, 0..=6usize, 40)
 }
 
 /// Avoid generating explicit zero values so that it is possible to reason about sparsity patterns
-fn non_zero_csc_strategy() -> impl Strategy<Value=CscMatrix<i32>> {
-    csc(1 ..= 5, 0..=6usize, 0..=6usize, 40)
+fn non_zero_csr_strategy() -> impl Strategy<Value = CsrMatrix<i32>> {
+    csr(1..=5, 0..=6usize, 0..=6usize, 40)
 }
 
-fn dense_strategy() -> impl Strategy<Value=DMatrix<i32>> {
+/// Avoid generating explicit zero values so that it is possible to reason about sparsity patterns
+fn non_zero_csc_strategy() -> impl Strategy<Value = CscMatrix<i32>> {
+    csc(1..=5, 0..=6usize, 0..=6usize, 40)
+}
+
+fn dense_strategy() -> impl Strategy<Value = DMatrix<i32>> {
     matrix(-5..=5, 0..=6, 0..=6)
 }
 

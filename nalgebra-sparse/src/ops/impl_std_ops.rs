@@ -1,15 +1,20 @@
-use crate::csr::CsrMatrix;
 use crate::csc::CscMatrix;
+use crate::csr::CsrMatrix;
 
-use std::ops::{Add, Div, DivAssign, Mul, MulAssign, Sub, Neg};
-use crate::ops::serial::{spadd_csr_prealloc, spadd_csc_prealloc, spadd_pattern, spmm_csr_pattern, spmm_csr_prealloc, spmm_csc_prealloc, spmm_csc_dense, spmm_csr_dense, spmm_csc_pattern};
-use nalgebra::{ClosedAdd, ClosedMul, ClosedSub, ClosedDiv, Scalar, Matrix, MatrixMN, Dim,
-               Dynamic, DefaultAllocator, U1};
-use nalgebra::allocator::{Allocator};
-use nalgebra::constraint::{DimEq, ShapeConstraint};
-use num_traits::{Zero, One};
-use crate::ops::{Op};
+use crate::ops::serial::{
+    spadd_csc_prealloc, spadd_csr_prealloc, spadd_pattern, spmm_csc_dense, spmm_csc_pattern,
+    spmm_csc_prealloc, spmm_csr_dense, spmm_csr_pattern, spmm_csr_prealloc,
+};
+use crate::ops::Op;
+use nalgebra::allocator::Allocator;
 use nalgebra::base::storage::Storage;
+use nalgebra::constraint::{DimEq, ShapeConstraint};
+use nalgebra::{
+    ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, DefaultAllocator, Dim, Dynamic, Matrix, MatrixMN,
+    Scalar, U1,
+};
+use num_traits::{One, Zero};
+use std::ops::{Add, Div, DivAssign, Mul, MulAssign, Neg, Sub};
 
 /// Helper macro for implementing binary operators for different matrix types
 /// See below for usage.
@@ -188,7 +193,7 @@ macro_rules! impl_neg {
     ($matrix_type:ident) => {
         impl<T> Neg for $matrix_type<T>
         where
-            T: Scalar + Neg<Output=T>
+            T: Scalar + Neg<Output = T>,
         {
             type Output = $matrix_type<T>;
 
@@ -202,7 +207,7 @@ macro_rules! impl_neg {
 
         impl<'a, T> Neg for &'a $matrix_type<T>
         where
-            T: Scalar + Neg<Output=T>
+            T: Scalar + Neg<Output = T>,
         {
             type Output = $matrix_type<T>;
 
@@ -211,10 +216,10 @@ macro_rules! impl_neg {
                 // obtain both the sparsity pattern and values from the matrix,
                 // and then modify the values before creating a new matrix from the pattern
                 // and negated values.
-                - self.clone()
+                -self.clone()
             }
         }
-    }
+    };
 }
 
 impl_neg!(CsrMatrix);

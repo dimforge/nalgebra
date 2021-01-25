@@ -1,8 +1,8 @@
 //! Sparsity patterns for CSR and CSC matrices.
-use crate::SparseFormatError;
-use std::fmt;
-use std::error::Error;
 use crate::cs::transpose_cs;
+use crate::SparseFormatError;
+use std::error::Error;
+use std::fmt;
 
 /// A representation of the sparsity pattern of a CSR or CSC matrix.
 ///
@@ -137,7 +137,7 @@ impl SparsityPattern {
         // minor indices within a lane are sorted, unique. In addition, each minor index
         // must be in bounds with respect to the minor dimension.
         {
-            for lane_idx in 0 .. major_dim {
+            for lane_idx in 0..major_dim {
                 let range_start = major_offsets[lane_idx];
                 let range_end = major_offsets[lane_idx + 1];
 
@@ -146,7 +146,7 @@ impl SparsityPattern {
                     return Err(NonmonotonicOffsets);
                 }
 
-                let minor_indices = &minor_indices[range_start .. range_end];
+                let minor_indices = &minor_indices[range_start..range_end];
 
                 // We test for in-bounds, uniqueness and monotonicity at the same time
                 // to ensure that we only visit each minor index once
@@ -232,17 +232,20 @@ impl SparsityPattern {
         // By using unit () values, we can use the same routines as for CSR/CSC matrices
         let values = vec![(); self.nnz()];
         let (new_offsets, new_indices, _) = transpose_cs(
-                    self.major_dim(),
-                     self.minor_dim(),
-                     self.major_offsets(),
-                     self.minor_indices(),
-                     &values);
+            self.major_dim(),
+            self.minor_dim(),
+            self.major_offsets(),
+            self.minor_indices(),
+            &values,
+        );
         // TODO: Skip checks
-        Self::try_from_offsets_and_indices(self.minor_dim(),
-                                           self.major_dim(),
-                                           new_offsets,
-                                           new_indices)
-            .expect("Internal error: Transpose should never fail.")
+        Self::try_from_offsets_and_indices(
+            self.minor_dim(),
+            self.major_dim(),
+            new_offsets,
+            new_indices,
+        )
+        .expect("Internal error: Transpose should never fail.")
     }
 }
 
@@ -275,22 +278,25 @@ pub enum SparsityPatternFormatError {
 
 impl From<SparsityPatternFormatError> for SparseFormatError {
     fn from(err: SparsityPatternFormatError) -> Self {
-        use SparsityPatternFormatError::*;
-        use SparsityPatternFormatError::DuplicateEntry as PatternDuplicateEntry;
         use crate::SparseFormatErrorKind;
         use crate::SparseFormatErrorKind::*;
+        use SparsityPatternFormatError::DuplicateEntry as PatternDuplicateEntry;
+        use SparsityPatternFormatError::*;
         match err {
             InvalidOffsetArrayLength
             | InvalidOffsetFirstLast
             | NonmonotonicOffsets
-            | NonmonotonicMinorIndices
-                => SparseFormatError::from_kind_and_error(InvalidStructure, Box::from(err)),
-            MinorIndexOutOfBounds
-                => SparseFormatError::from_kind_and_error(IndexOutOfBounds,
-                                                          Box::from(err)),
-            PatternDuplicateEntry
-                => SparseFormatError::from_kind_and_error(SparseFormatErrorKind::DuplicateEntry,
-                                                          Box::from(err)),
+            | NonmonotonicMinorIndices => {
+                SparseFormatError::from_kind_and_error(InvalidStructure, Box::from(err))
+            }
+            MinorIndexOutOfBounds => {
+                SparseFormatError::from_kind_and_error(IndexOutOfBounds, Box::from(err))
+            }
+            PatternDuplicateEntry => SparseFormatError::from_kind_and_error(
+                #[allow(unused_qualifications)]
+                SparseFormatErrorKind::DuplicateEntry,
+                Box::from(err),
+            ),
         }
     }
 }
@@ -300,22 +306,25 @@ impl fmt::Display for SparsityPatternFormatError {
         match self {
             SparsityPatternFormatError::InvalidOffsetArrayLength => {
                 write!(f, "Length of offset array is not equal to (major_dim + 1).")
-            },
+            }
             SparsityPatternFormatError::InvalidOffsetFirstLast => {
                 write!(f, "First or last offset is incompatible with format.")
-            },
+            }
             SparsityPatternFormatError::NonmonotonicOffsets => {
                 write!(f, "Offsets are not monotonically increasing.")
-            },
+            }
             SparsityPatternFormatError::MinorIndexOutOfBounds => {
                 write!(f, "A minor index is out of bounds.")
-            },
+            }
             SparsityPatternFormatError::DuplicateEntry => {
                 write!(f, "Input data contains duplicate entries.")
-            },
+            }
             SparsityPatternFormatError::NonmonotonicMinorIndices => {
-                write!(f, "Minor indices are not monotonically increasing within each lane.")
-            },
+                write!(
+                    f,
+                    "Minor indices are not monotonically increasing within each lane."
+                )
+            }
         }
     }
 }
@@ -335,12 +344,12 @@ pub struct SparsityPatternIter<'a> {
 impl<'a> SparsityPatternIter<'a> {
     fn from_pattern(pattern: &'a SparsityPattern) -> Self {
         let first_lane_end = pattern.major_offsets().get(1).unwrap_or(&0);
-        let minors_in_first_lane = &pattern.minor_indices()[0 .. *first_lane_end];
+        let minors_in_first_lane = &pattern.minor_indices()[0..*first_lane_end];
         Self {
             major_offsets: pattern.major_offsets(),
             minor_indices: pattern.minor_indices(),
             current_lane_idx: 0,
-            remaining_minors_in_lane: minors_in_first_lane
+            remaining_minors_in_lane: minors_in_first_lane,
         }
     }
 }
@@ -374,12 +383,11 @@ impl<'a> Iterator for SparsityPatternIter<'a> {
                     let lower = self.major_offsets[self.current_lane_idx];
                     let upper = self.major_offsets[self.current_lane_idx + 1];
                     if upper > lower {
-                        self.remaining_minors_in_lane = &self.minor_indices[(lower + 1) .. upper];
-                        return Some((self.current_lane_idx, self.minor_indices[lower]))
+                        self.remaining_minors_in_lane = &self.minor_indices[(lower + 1)..upper];
+                        return Some((self.current_lane_idx, self.minor_indices[lower]));
                     }
                 }
             }
         }
     }
 }
-

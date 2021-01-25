@@ -7,8 +7,8 @@ use std::ops::Add;
 
 use num_traits::Zero;
 
-use nalgebra::{ClosedAdd, Dim, DMatrix, Matrix, Scalar};
 use nalgebra::storage::Storage;
+use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
 
 use crate::coo::CooMatrix;
 use crate::cs;
@@ -21,7 +21,7 @@ where
     T: Scalar + Zero,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>
+    S: Storage<T, R, C>,
 {
     let mut coo = CooMatrix::new(dense.nrows(), dense.ncols());
 
@@ -52,12 +52,14 @@ where
 /// Converts a [`CooMatrix`] to a [`CsrMatrix`].
 pub fn convert_coo_csr<T>(coo: &CooMatrix<T>) -> CsrMatrix<T>
 where
-    T: Scalar + Zero
+    T: Scalar + Zero,
 {
-    let (offsets, indices, values) = convert_coo_cs(coo.nrows(),
-                                                    coo.row_indices(),
-                                                    coo.col_indices(),
-                                                    coo.values());
+    let (offsets, indices, values) = convert_coo_cs(
+        coo.nrows(),
+        coo.row_indices(),
+        coo.col_indices(),
+        coo.values(),
+    );
 
     // TODO: Avoid "try_from" since it validates the data? (requires unsafe, should benchmark
     // to see if it can be justified for performance reasons)
@@ -66,8 +68,7 @@ where
 }
 
 /// Converts a [`CsrMatrix`] to a [`CooMatrix`].
-pub fn convert_csr_coo<T: Scalar>(csr: &CsrMatrix<T>) -> CooMatrix<T>
-{
+pub fn convert_csr_coo<T: Scalar>(csr: &CsrMatrix<T>) -> CooMatrix<T> {
     let mut result = CooMatrix::new(csr.nrows(), csr.ncols());
     for (i, j, v) in csr.triplet_iter() {
         result.push(i, j, v.inlined_clone());
@@ -76,9 +77,9 @@ pub fn convert_csr_coo<T: Scalar>(csr: &CsrMatrix<T>) -> CooMatrix<T>
 }
 
 /// Converts a [`CsrMatrix`] to a dense matrix.
-pub fn convert_csr_dense<T>(csr:& CsrMatrix<T>) -> DMatrix<T>
+pub fn convert_csr_dense<T>(csr: &CsrMatrix<T>) -> DMatrix<T>
 where
-    T: Scalar + ClosedAdd + Zero
+    T: Scalar + ClosedAdd + Zero,
 {
     let mut output = DMatrix::zeros(csr.nrows(), csr.ncols());
 
@@ -95,7 +96,7 @@ where
     T: Scalar + Zero,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>
+    S: Storage<T, R, C>,
 {
     let mut row_offsets = Vec::with_capacity(dense.nrows() + 1);
     let mut col_idx = Vec::new();
@@ -105,8 +106,8 @@ where
     // nalgebra's column-major storage. The alternative would be to perform an initial sweep
     // to count number of non-zeros per row.
     row_offsets.push(0);
-    for i in 0 .. dense.nrows() {
-        for j in 0 .. dense.ncols() {
+    for i in 0..dense.nrows() {
+        for j in 0..dense.ncols() {
             let v = dense.index((i, j));
             if v != &T::zero() {
                 col_idx.push(j);
@@ -125,12 +126,14 @@ where
 /// Converts a [`CooMatrix`] to a [`CscMatrix`].
 pub fn convert_coo_csc<T>(coo: &CooMatrix<T>) -> CscMatrix<T>
 where
-    T: Scalar + Zero
+    T: Scalar + Zero,
 {
-    let (offsets, indices, values) = convert_coo_cs(coo.ncols(),
-                                                    coo.col_indices(),
-                                                    coo.row_indices(),
-                                                    coo.values());
+    let (offsets, indices, values) = convert_coo_cs(
+        coo.ncols(),
+        coo.col_indices(),
+        coo.row_indices(),
+        coo.values(),
+    );
 
     // TODO: Avoid "try_from" since it validates the data? (requires unsafe, should benchmark
     // to see if it can be justified for performance reasons)
@@ -141,7 +144,7 @@ where
 /// Converts a [`CscMatrix`] to a [`CooMatrix`].
 pub fn convert_csc_coo<T>(csc: &CscMatrix<T>) -> CooMatrix<T>
 where
-    T: Scalar
+    T: Scalar,
 {
     let mut coo = CooMatrix::new(csc.nrows(), csc.ncols());
     for (i, j, v) in csc.triplet_iter() {
@@ -153,7 +156,7 @@ where
 /// Converts a [`CscMatrix`] to a dense matrix.
 pub fn convert_csc_dense<T>(csc: &CscMatrix<T>) -> DMatrix<T>
 where
-    T: Scalar + ClosedAdd + Zero
+    T: Scalar + ClosedAdd + Zero,
 {
     let mut output = DMatrix::zeros(csc.nrows(), csc.ncols());
 
@@ -166,19 +169,19 @@ where
 
 /// Converts a dense matrix to a [`CscMatrix`].
 pub fn convert_dense_csc<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CscMatrix<T>
-    where
-        T: Scalar + Zero,
-        R: Dim,
-        C: Dim,
-        S: Storage<T, R, C>
+where
+    T: Scalar + Zero,
+    R: Dim,
+    C: Dim,
+    S: Storage<T, R, C>,
 {
     let mut col_offsets = Vec::with_capacity(dense.ncols() + 1);
     let mut row_idx = Vec::new();
     let mut values = Vec::new();
 
     col_offsets.push(0);
-    for j in 0 .. dense.ncols() {
-        for i in 0 .. dense.nrows() {
+    for j in 0..dense.ncols() {
+        for i in 0..dense.nrows() {
             let v = dense.index((i, j));
             if v != &T::zero() {
                 row_idx.push(i);
@@ -197,13 +200,15 @@ pub fn convert_dense_csc<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CscMatrix<T>
 /// Converts a [`CsrMatrix`] to a [`CscMatrix`].
 pub fn convert_csr_csc<T>(csr: &CsrMatrix<T>) -> CscMatrix<T>
 where
-    T: Scalar
+    T: Scalar,
 {
-    let (offsets, indices, values) = cs::transpose_cs(csr.nrows(),
-                                                      csr.ncols(),
-                                                      csr.row_offsets(),
-                                                      csr.col_indices(),
-                                                      csr.values());
+    let (offsets, indices, values) = cs::transpose_cs(
+        csr.nrows(),
+        csr.ncols(),
+        csr.row_offsets(),
+        csr.col_indices(),
+        csr.values(),
+    );
 
     // TODO: Avoid data validity check?
     CscMatrix::try_from_csc_data(csr.nrows(), csr.ncols(), offsets, indices, values)
@@ -212,27 +217,30 @@ where
 
 /// Converts a [`CscMatrix`] to a [`CsrMatrix`].
 pub fn convert_csc_csr<T>(csc: &CscMatrix<T>) -> CsrMatrix<T>
-    where
-        T: Scalar
+where
+    T: Scalar,
 {
-    let (offsets, indices, values) = cs::transpose_cs(csc.ncols(),
-                                                      csc.nrows(),
-                                                      csc.col_offsets(),
-                                                      csc.row_indices(),
-                                                      csc.values());
+    let (offsets, indices, values) = cs::transpose_cs(
+        csc.ncols(),
+        csc.nrows(),
+        csc.col_offsets(),
+        csc.row_indices(),
+        csc.values(),
+    );
 
     // TODO: Avoid data validity check?
     CsrMatrix::try_from_csr_data(csc.nrows(), csc.ncols(), offsets, indices, values)
         .expect("Internal error: Invalid CSR data during CSC->CSR conversion")
 }
 
-fn convert_coo_cs<T>(major_dim: usize,
-                     major_indices: &[usize],
-                     minor_indices: &[usize],
-                     values: &[T])
-    -> (Vec<usize>, Vec<usize>, Vec<T>)
+fn convert_coo_cs<T>(
+    major_dim: usize,
+    major_indices: &[usize],
+    minor_indices: &[usize],
+    values: &[T],
+) -> (Vec<usize>, Vec<usize>, Vec<T>)
 where
-    T: Scalar + Zero
+    T: Scalar + Zero,
 {
     assert_eq!(major_indices.len(), minor_indices.len());
     assert_eq!(minor_indices.len(), values.len());

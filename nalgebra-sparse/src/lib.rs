@@ -135,13 +135,13 @@
 #![deny(unused_results)]
 #![deny(missing_docs)]
 
+pub mod convert;
 pub mod coo;
 pub mod csc;
 pub mod csr;
-pub mod pattern;
-pub mod ops;
-pub mod convert;
 pub mod factorization;
+pub mod ops;
+pub mod pattern;
 
 pub(crate) mod cs;
 
@@ -151,16 +151,16 @@ pub mod proptest;
 #[cfg(feature = "compare")]
 mod matrixcompare;
 
+use num_traits::Zero;
 use std::error::Error;
 use std::fmt;
-use num_traits::Zero;
 
 /// Errors produced by functions that expect well-formed sparse format data.
 #[derive(Debug)]
 pub struct SparseFormatError {
     kind: SparseFormatErrorKind,
     // Currently we only use an underlying error for generating the `Display` impl
-    error: Box<dyn Error>
+    error: Box<dyn Error>,
 }
 
 impl SparseFormatError {
@@ -170,10 +170,7 @@ impl SparseFormatError {
     }
 
     pub(crate) fn from_kind_and_error(kind: SparseFormatErrorKind, error: Box<dyn Error>) -> Self {
-        Self {
-            kind,
-            error
-        }
+        Self { kind, error }
     }
 
     /// Helper functionality for more conveniently creating errors.
@@ -221,7 +218,7 @@ pub enum SparseEntry<'a, T> {
     /// is explicitly stored (a so-called "explicit zero").
     NonZero(&'a T),
     /// The entry is implicitly zero, i.e. it is not explicitly stored.
-    Zero
+    Zero,
 }
 
 impl<'a, T: Clone + Zero> SparseEntry<'a, T> {
@@ -232,7 +229,7 @@ impl<'a, T: Clone + Zero> SparseEntry<'a, T> {
     pub fn to_value(self) -> T {
         match self {
             SparseEntry::NonZero(value) => value.clone(),
-            SparseEntry::Zero => T::zero()
+            SparseEntry::Zero => T::zero(),
         }
     }
 }
@@ -248,7 +245,7 @@ pub enum SparseEntryMut<'a, T> {
     /// is explicitly stored (a so-called "explicit zero").
     NonZero(&'a mut T),
     /// The entry is implicitly zero i.e. it is not explicitly stored.
-    Zero
+    Zero,
 }
 
 impl<'a, T: Clone + Zero> SparseEntryMut<'a, T> {
@@ -259,7 +256,7 @@ impl<'a, T: Clone + Zero> SparseEntryMut<'a, T> {
     pub fn to_value(self) -> T {
         match self {
             SparseEntryMut::NonZero(value) => value.clone(),
-            SparseEntryMut::Zero => T::zero()
+            SparseEntryMut::Zero => T::zero(),
         }
     }
 }

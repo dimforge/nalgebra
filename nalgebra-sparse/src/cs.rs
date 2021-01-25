@@ -5,8 +5,8 @@ use num_traits::One;
 
 use nalgebra::Scalar;
 
-use crate::{SparseEntry, SparseEntryMut};
 use crate::pattern::SparsityPattern;
+use crate::{SparseEntry, SparseEntryMut};
 
 /// An abstract compressed matrix.
 ///
@@ -18,7 +18,7 @@ use crate::pattern::SparsityPattern;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CsMatrix<T> {
     sparsity_pattern: SparsityPattern,
-    values: Vec<T>
+    values: Vec<T>,
 }
 
 impl<T> CsMatrix<T> {
@@ -50,14 +50,22 @@ impl<T> CsMatrix<T> {
     #[inline]
     pub fn cs_data(&self) -> (&[usize], &[usize], &[T]) {
         let pattern = self.pattern();
-        (pattern.major_offsets(), pattern.minor_indices(), &self.values)
+        (
+            pattern.major_offsets(),
+            pattern.minor_indices(),
+            &self.values,
+        )
     }
 
     /// Returns the raw data represented as a tuple `(major_offsets, minor_indices, values)`.
     #[inline]
     pub fn cs_data_mut(&mut self) -> (&[usize], &[usize], &mut [T]) {
         let pattern = &mut self.sparsity_pattern;
-        (pattern.major_offsets(), pattern.minor_indices(), &mut self.values)
+        (
+            pattern.major_offsets(),
+            pattern.minor_indices(),
+            &mut self.values,
+        )
     }
 
     #[inline]
@@ -66,9 +74,12 @@ impl<T> CsMatrix<T> {
     }
 
     #[inline]
-    pub fn from_pattern_and_values(pattern: SparsityPattern, values: Vec<T>)
-                                   -> Self {
-        assert_eq!(pattern.nnz(), values.len(), "Internal error: consumers should verify shape compatibility.");
+    pub fn from_pattern_and_values(pattern: SparsityPattern, values: Vec<T>) -> Self {
+        assert_eq!(
+            pattern.nnz(),
+            values.len(),
+            "Internal error: consumers should verify shape compatibility."
+        );
         Self {
             sparsity_pattern: pattern,
             values,
@@ -80,7 +91,7 @@ impl<T> CsMatrix<T> {
     pub fn get_index_range(&self, row_index: usize) -> Option<Range<usize>> {
         let row_begin = *self.sparsity_pattern.major_offsets().get(row_index)?;
         let row_end = *self.sparsity_pattern.major_offsets().get(row_index + 1)?;
-        Some(row_begin .. row_end)
+        Some(row_begin..row_end)
     }
 
     pub fn take_pattern_and_values(self) -> (SparsityPattern, Vec<T>) {
@@ -105,13 +116,21 @@ impl<T> CsMatrix<T> {
         let (_, minor_indices, values) = self.cs_data();
         let minor_indices = &minor_indices[row_range.clone()];
         let values = &values[row_range];
-        get_entry_from_slices(self.pattern().minor_dim(), minor_indices, values, minor_index)
+        get_entry_from_slices(
+            self.pattern().minor_dim(),
+            minor_indices,
+            values,
+            minor_index,
+        )
     }
 
     /// Returns a mutable entry for the given major/minor indices, or `None` if the indices are out
     /// of bounds.
-    pub fn get_entry_mut(&mut self, major_index: usize, minor_index: usize)
-                         -> Option<SparseEntryMut<T>> {
+    pub fn get_entry_mut(
+        &mut self,
+        major_index: usize,
+        minor_index: usize,
+    ) -> Option<SparseEntryMut<T>> {
         let row_range = self.get_index_range(major_index)?;
         let minor_dim = self.pattern().minor_dim();
         let (_, minor_indices, values) = self.cs_data_mut();
@@ -126,7 +145,7 @@ impl<T> CsMatrix<T> {
         Some(CsLane {
             minor_indices: &minor_indices[range.clone()],
             values: &values[range],
-            minor_dim: self.pattern().minor_dim()
+            minor_dim: self.pattern().minor_dim(),
         })
     }
 
@@ -138,7 +157,7 @@ impl<T> CsMatrix<T> {
         Some(CsLaneMut {
             minor_dim,
             minor_indices: &minor_indices[range.clone()],
-            values: &mut values[range]
+            values: &mut values[range],
         })
     }
 
@@ -156,7 +175,7 @@ impl<T> CsMatrix<T> {
     pub fn filter<P>(&self, predicate: P) -> Self
     where
         T: Clone,
-        P: Fn(usize, usize, &T) -> bool
+        P: Fn(usize, usize, &T) -> bool,
     {
         let (major_dim, minor_dim) = (self.pattern().major_dim(), self.pattern().minor_dim());
         let mut new_offsets = Vec::with_capacity(self.pattern().major_dim() + 1);
@@ -180,16 +199,17 @@ impl<T> CsMatrix<T> {
             major_dim,
             minor_dim,
             new_offsets,
-            new_indices)
-            .expect("Internal error: Sparsity pattern must always be valid.");
+            new_indices,
+        )
+        .expect("Internal error: Sparsity pattern must always be valid.");
 
         Self::from_pattern_and_values(new_pattern, new_values)
     }
 
     /// Returns the diagonal of the matrix as a sparse matrix.
     pub fn diagonal_as_matrix(&self) -> Self
-        where
-            T: Clone
+    where
+        T: Clone,
     {
         // TODO: This might be faster with a binary search for each diagonal entry
         self.filter(|i, j, _| i == j)
@@ -199,13 +219,13 @@ impl<T> CsMatrix<T> {
 impl<T: Scalar + One> CsMatrix<T> {
     #[inline]
     pub fn identity(n: usize) -> Self {
-        let offsets: Vec<_> = (0 ..= n).collect();
-        let indices: Vec<_> = (0 .. n).collect();
+        let offsets: Vec<_> = (0..=n).collect();
+        let indices: Vec<_> = (0..n).collect();
         let values = vec![T::one(); n];
 
         // TODO: We should skip checks here
-        let pattern = SparsityPattern::try_from_offsets_and_indices(n, n, offsets, indices)
-            .unwrap();
+        let pattern =
+            SparsityPattern::try_from_offsets_and_indices(n, n, offsets, indices).unwrap();
         Self::from_pattern_and_values(pattern, values)
     }
 }
@@ -214,7 +234,8 @@ fn get_entry_from_slices<'a, T>(
     minor_dim: usize,
     minor_indices: &'a [usize],
     values: &'a [T],
-    global_minor_index: usize) -> Option<SparseEntry<'a, T>> {
+    global_minor_index: usize,
+) -> Option<SparseEntry<'a, T>> {
     let local_index = minor_indices.binary_search(&global_minor_index);
     if let Ok(local_index) = local_index {
         Some(SparseEntry::NonZero(&values[local_index]))
@@ -229,7 +250,8 @@ fn get_mut_entry_from_slices<'a, T>(
     minor_dim: usize,
     minor_indices: &'a [usize],
     values: &'a mut [T],
-    global_minor_indices: usize) -> Option<SparseEntryMut<'a, T>> {
+    global_minor_indices: usize,
+) -> Option<SparseEntryMut<'a, T>> {
     let local_index = minor_indices.binary_search(&global_minor_indices);
     if let Ok(local_index) = local_index {
         Some(SparseEntryMut::NonZero(&mut values[local_index]))
@@ -244,14 +266,14 @@ fn get_mut_entry_from_slices<'a, T>(
 pub struct CsLane<'a, T> {
     minor_dim: usize,
     minor_indices: &'a [usize],
-    values: &'a [T]
+    values: &'a [T],
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct CsLaneMut<'a, T> {
     minor_dim: usize,
     minor_indices: &'a [usize],
-    values: &'a mut [T]
+    values: &'a mut [T],
 }
 
 pub struct CsLaneIter<'a, T> {
@@ -266,14 +288,14 @@ impl<'a, T> CsLaneIter<'a, T> {
         Self {
             current_lane_idx: 0,
             pattern,
-            remaining_values: values
+            remaining_values: values,
         }
     }
 }
 
 impl<'a, T> Iterator for CsLaneIter<'a, T>
-    where
-        T: 'a
+where
+    T: 'a,
 {
     type Item = CsLane<'a, T>;
 
@@ -284,13 +306,13 @@ impl<'a, T> Iterator for CsLaneIter<'a, T>
         if let Some(minor_indices) = lane {
             let count = minor_indices.len();
             let values_in_lane = &self.remaining_values[..count];
-            self.remaining_values = &self.remaining_values[count ..];
+            self.remaining_values = &self.remaining_values[count..];
             self.current_lane_idx += 1;
 
             Some(CsLane {
                 minor_dim,
                 minor_indices,
-                values: values_in_lane
+                values: values_in_lane,
             })
         } else {
             None
@@ -310,14 +332,14 @@ impl<'a, T> CsLaneIterMut<'a, T> {
         Self {
             current_lane_idx: 0,
             pattern,
-            remaining_values: values
+            remaining_values: values,
         }
     }
 }
 
 impl<'a, T> Iterator for CsLaneIterMut<'a, T>
-    where
-        T: 'a
+where
+    T: 'a,
 {
     type Item = CsLaneMut<'a, T>;
 
@@ -336,7 +358,7 @@ impl<'a, T> Iterator for CsLaneIterMut<'a, T>
             Some(CsLaneMut {
                 minor_dim,
                 minor_indices,
-                values: values_in_lane
+                values: values_in_lane,
             })
         } else {
             None
@@ -375,10 +397,11 @@ macro_rules! impl_cs_lane_common_methods {
                     self.minor_dim,
                     self.minor_indices,
                     self.values,
-                    global_col_index)
+                    global_col_index,
+                )
             }
         }
-    }
+    };
 }
 
 impl_cs_lane_common_methods!(CsLane<'a, T>);
@@ -394,10 +417,12 @@ impl<'a, T> CsLaneMut<'a, T> {
     }
 
     pub fn get_entry_mut(&mut self, global_minor_index: usize) -> Option<SparseEntryMut<T>> {
-        get_mut_entry_from_slices(self.minor_dim,
-                                  self.minor_indices,
-                                  self.values,
-                                  global_minor_index)
+        get_mut_entry_from_slices(
+            self.minor_dim,
+            self.minor_indices,
+            self.values,
+            global_minor_index,
+        )
     }
 }
 
@@ -405,7 +430,7 @@ impl<'a, T> CsLaneMut<'a, T> {
 /// TODO: This doesn't belong here.
 struct UninitVec<T> {
     vec: Vec<T>,
-    len: usize
+    len: usize,
 }
 
 impl<T> UninitVec<T> {
@@ -414,7 +439,7 @@ impl<T> UninitVec<T> {
             vec: Vec::with_capacity(len),
             // We need to store len separately, because for zero-sized types,
             // Vec::with_capacity(len) does not give vec.capacity() == len
-            len
+            len,
         }
     }
 
@@ -440,14 +465,14 @@ impl<T> UninitVec<T> {
 /// This means that major and minor roles are switched. This is used for converting between CSR
 /// and CSC formats.
 pub fn transpose_cs<T>(
-                   major_dim: usize,
-                   minor_dim: usize,
-                   source_major_offsets: &[usize],
-                   source_minor_indices: &[usize],
-                   values: &[T])
-                   -> (Vec<usize>, Vec<usize>, Vec<T>)
+    major_dim: usize,
+    minor_dim: usize,
+    source_major_offsets: &[usize],
+    source_minor_indices: &[usize],
+    values: &[T],
+) -> (Vec<usize>, Vec<usize>, Vec<T>)
 where
-    T: Scalar
+    T: Scalar,
 {
     assert_eq!(source_major_offsets.len(), major_dim + 1);
     assert_eq!(source_minor_indices.len(), values.len());
@@ -470,18 +495,20 @@ where
     // Keep track of how many entries we have placed in each target major lane
     let mut current_target_major_counts = vec![0; minor_dim];
 
-    for source_major_idx in 0 .. major_dim {
+    for source_major_idx in 0..major_dim {
         let source_lane_begin = source_major_offsets[source_major_idx];
         let source_lane_end = source_major_offsets[source_major_idx + 1];
-        let source_lane_indices = &source_minor_indices[source_lane_begin .. source_lane_end];
-        let source_lane_values = &values[source_lane_begin .. source_lane_end];
+        let source_lane_indices = &source_minor_indices[source_lane_begin..source_lane_end];
+        let source_lane_values = &values[source_lane_begin..source_lane_end];
 
         for (&source_minor_idx, val) in source_lane_indices.iter().zip(source_lane_values) {
             // Compute the offset in the target data for this particular source entry
-            let target_lane_count =  &mut current_target_major_counts[source_minor_idx];
+            let target_lane_count = &mut current_target_major_counts[source_minor_idx];
             let entry_offset = target_offsets[source_minor_idx] + *target_lane_count;
             target_indices[entry_offset] = source_major_idx;
-            unsafe { target_values.set(entry_offset, val.inlined_clone()); }
+            unsafe {
+                target_values.set(entry_offset, val.inlined_clone());
+            }
             *target_lane_count += 1;
         }
     }

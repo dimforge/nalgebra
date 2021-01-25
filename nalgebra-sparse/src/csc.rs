@@ -3,14 +3,14 @@
 //! This is the module-level documentation. See [`CscMatrix`] for the main documentation of the
 //! CSC implementation.
 
-use crate::{SparseFormatError, SparseFormatErrorKind, SparseEntry, SparseEntryMut};
-use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
+use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
 use crate::csr::CsrMatrix;
-use crate::cs::{CsMatrix, CsLane, CsLaneMut, CsLaneIter, CsLaneIterMut};
+use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
+use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
 
-use std::slice::{IterMut, Iter};
-use num_traits::{One};
 use nalgebra::Scalar;
+use num_traits::One;
+use std::slice::{Iter, IterMut};
 
 /// A CSC representation of a sparse matrix.
 ///
@@ -130,7 +130,7 @@ impl<T> CscMatrix<T> {
     /// Create a zero CSC matrix with no explicitly stored entries.
     pub fn zeros(nrows: usize, ncols: usize) -> Self {
         Self {
-            cs: CsMatrix::new(ncols, nrows)
+            cs: CsMatrix::new(ncols, nrows),
         }
     }
 
@@ -196,8 +196,12 @@ impl<T> CscMatrix<T> {
         values: Vec<T>,
     ) -> Result<Self, SparseFormatError> {
         let pattern = SparsityPattern::try_from_offsets_and_indices(
-            num_cols, num_rows, col_offsets, row_indices)
-            .map_err(pattern_format_error_to_csc_error)?;
+            num_cols,
+            num_rows,
+            col_offsets,
+            row_indices,
+        )
+        .map_err(pattern_format_error_to_csc_error)?;
         Self::try_from_pattern_and_values(pattern, values)
     }
 
@@ -205,16 +209,19 @@ impl<T> CscMatrix<T> {
     ///
     /// Returns an error if the number of values does not match the number of minor indices
     /// in the pattern.
-    pub fn try_from_pattern_and_values(pattern: SparsityPattern, values: Vec<T>)
-        -> Result<Self, SparseFormatError> {
+    pub fn try_from_pattern_and_values(
+        pattern: SparsityPattern,
+        values: Vec<T>,
+    ) -> Result<Self, SparseFormatError> {
         if pattern.nnz() == values.len() {
             Ok(Self {
-                cs: CsMatrix::from_pattern_and_values(pattern, values)
+                cs: CsMatrix::from_pattern_and_values(pattern, values),
             })
         } else {
             Err(SparseFormatError::from_kind_and_msg(
                 SparseFormatErrorKind::InvalidStructure,
-                "Number of values and row indices must be the same"))
+                "Number of values and row indices must be the same",
+            ))
         }
     }
 
@@ -239,7 +246,7 @@ impl<T> CscMatrix<T> {
     pub fn triplet_iter(&self) -> CscTripletIter<T> {
         CscTripletIter {
             pattern_iter: self.pattern().entries(),
-            values_iter: self.values().iter()
+            values_iter: self.values().iter(),
         }
     }
 
@@ -270,7 +277,7 @@ impl<T> CscMatrix<T> {
         let (pattern, values) = self.cs.pattern_and_values_mut();
         CscTripletIterMut {
             pattern_iter: pattern.entries(),
-            values_mut_iter: values.iter_mut()
+            values_mut_iter: values.iter_mut(),
         }
     }
 
@@ -281,8 +288,7 @@ impl<T> CscMatrix<T> {
     /// Panics if column index is out of bounds.
     #[inline]
     pub fn col(&self, index: usize) -> CscCol<T> {
-        self.get_col(index)
-            .expect("Row index must be in bounds")
+        self.get_col(index).expect("Row index must be in bounds")
     }
 
     /// Mutable column access for the given column index.
@@ -299,23 +305,19 @@ impl<T> CscMatrix<T> {
     /// Return the column at the given column index, or `None` if out of bounds.
     #[inline]
     pub fn get_col(&self, index: usize) -> Option<CscCol<T>> {
-        self.cs
-            .get_lane(index)
-            .map(|lane| CscCol { lane })
+        self.cs.get_lane(index).map(|lane| CscCol { lane })
     }
 
     /// Mutable column access for the given column index, or `None` if out of bounds.
     #[inline]
     pub fn get_col_mut(&mut self, index: usize) -> Option<CscColMut<T>> {
-        self.cs
-            .get_lane_mut(index)
-            .map(|lane| CscColMut { lane })
+        self.cs.get_lane_mut(index).map(|lane| CscColMut { lane })
     }
 
     /// An iterator over columns in the matrix.
     pub fn col_iter(&self) -> CscColIter<T> {
         CscColIter {
-            lane_iter: CsLaneIter::new(self.pattern(), self.values())
+            lane_iter: CsLaneIter::new(self.pattern(), self.values()),
         }
     }
 
@@ -323,7 +325,7 @@ impl<T> CscMatrix<T> {
     pub fn col_iter_mut(&mut self) -> CscColIterMut<T> {
         let (pattern, values) = self.cs.pattern_and_values_mut();
         CscColIterMut {
-            lane_iter: CsLaneIterMut::new(pattern, values)
+            lane_iter: CsLaneIterMut::new(pattern, values),
         }
     }
 
@@ -397,8 +399,11 @@ impl<T> CscMatrix<T> {
     ///
     /// Each call to this function incurs the cost of a binary search among the explicitly
     /// stored row entries for the given column.
-    pub fn get_entry_mut(&mut self, row_index: usize, col_index: usize)
-                         -> Option<SparseEntryMut<T>> {
+    pub fn get_entry_mut(
+        &mut self,
+        row_index: usize,
+        col_index: usize,
+    ) -> Option<SparseEntryMut<T>> {
         self.cs.get_entry_mut(col_index, row_index)
     }
 
@@ -444,11 +449,15 @@ impl<T> CscMatrix<T> {
     pub fn filter<P>(&self, predicate: P) -> Self
     where
         T: Clone,
-        P: Fn(usize, usize, &T) -> bool
+        P: Fn(usize, usize, &T) -> bool,
     {
         // Note: Predicate uses (row, col, value), so we have to switch around since
         // cs uses (major, minor, value)
-        Self { cs: self.cs.filter(|col_idx, row_idx, v| predicate(row_idx, col_idx, v)) }
+        Self {
+            cs: self
+                .cs
+                .filter(|col_idx, row_idx, v| predicate(row_idx, col_idx, v)),
+        }
     }
 
     /// Returns a new matrix representing the upper triangular part of this matrix.
@@ -456,7 +465,7 @@ impl<T> CscMatrix<T> {
     /// The result includes the diagonal of the matrix.
     pub fn upper_triangle(&self) -> Self
     where
-        T: Clone
+        T: Clone,
     {
         self.filter(|i, j, _| i <= j)
     }
@@ -466,7 +475,7 @@ impl<T> CscMatrix<T> {
     /// The result includes the diagonal of the matrix.
     pub fn lower_triangle(&self) -> Self
     where
-        T: Clone
+        T: Clone,
     {
         self.filter(|i, j, _| i >= j)
     }
@@ -474,15 +483,17 @@ impl<T> CscMatrix<T> {
     /// Returns the diagonal of the matrix as a sparse matrix.
     pub fn diagonal_as_csc(&self) -> Self
     where
-        T: Clone
+        T: Clone,
     {
-        Self { cs: self.cs.diagonal_as_matrix() }
+        Self {
+            cs: self.cs.diagonal_as_matrix(),
+        }
     }
 }
 
 impl<T> CscMatrix<T>
-    where
-        T: Scalar
+where
+    T: Scalar,
 {
     /// Compute the transpose of the matrix.
     pub fn transpose(&self) -> CscMatrix<T> {
@@ -495,7 +506,7 @@ impl<T: Scalar + One> CscMatrix<T> {
     #[inline]
     pub fn identity(n: usize) -> Self {
         Self {
-            cs: CsMatrix::identity(n)
+            cs: CsMatrix::identity(n),
         }
     }
 }
@@ -505,30 +516,34 @@ impl<T: Scalar + One> CscMatrix<T> {
 /// This ensures that the terminology is consistent: we are talking about rows and columns,
 /// not lanes, major and minor dimensions.
 fn pattern_format_error_to_csc_error(err: SparsityPatternFormatError) -> SparseFormatError {
-    use SparsityPatternFormatError::*;
-    use SparsityPatternFormatError::DuplicateEntry as PatternDuplicateEntry;
     use SparseFormatError as E;
     use SparseFormatErrorKind as K;
+    use SparsityPatternFormatError::DuplicateEntry as PatternDuplicateEntry;
+    use SparsityPatternFormatError::*;
 
     match err {
         InvalidOffsetArrayLength => E::from_kind_and_msg(
             K::InvalidStructure,
-            "Length of col offset array is not equal to ncols + 1."),
+            "Length of col offset array is not equal to ncols + 1.",
+        ),
         InvalidOffsetFirstLast => E::from_kind_and_msg(
             K::InvalidStructure,
-            "First or last col offset is inconsistent with format specification."),
+            "First or last col offset is inconsistent with format specification.",
+        ),
         NonmonotonicOffsets => E::from_kind_and_msg(
             K::InvalidStructure,
-            "Col offsets are not monotonically increasing."),
+            "Col offsets are not monotonically increasing.",
+        ),
         NonmonotonicMinorIndices => E::from_kind_and_msg(
             K::InvalidStructure,
-            "Row indices are not monotonically increasing (sorted) within each column."),
-        MinorIndexOutOfBounds => E::from_kind_and_msg(
-            K::IndexOutOfBounds,
-            "Row indices are out of bounds."),
-        PatternDuplicateEntry => E::from_kind_and_msg(
-            K::DuplicateEntry,
-            "Matrix data contains duplicate entries."),
+            "Row indices are not monotonically increasing (sorted) within each column.",
+        ),
+        MinorIndexOutOfBounds => {
+            E::from_kind_and_msg(K::IndexOutOfBounds, "Row indices are out of bounds.")
+        }
+        PatternDuplicateEntry => {
+            E::from_kind_and_msg(K::DuplicateEntry, "Matrix data contains duplicate entries.")
+        }
     }
 }
 
@@ -536,7 +551,7 @@ fn pattern_format_error_to_csc_error(err: SparsityPatternFormatError) -> SparseF
 #[derive(Debug)]
 pub struct CscTripletIter<'a, T> {
     pattern_iter: SparsityPatternIter<'a>,
-    values_iter: Iter<'a, T>
+    values_iter: Iter<'a, T>,
 }
 
 impl<'a, T: Clone> CscTripletIter<'a, T> {
@@ -545,7 +560,7 @@ impl<'a, T: Clone> CscTripletIter<'a, T> {
     /// The triplet iterator returns references to the values. This method adapts the iterator
     /// so that the values are cloned.
     #[inline]
-    pub fn cloned_values(self) -> impl 'a + Iterator<Item=(usize, usize, T)> {
+    pub fn cloned_values(self) -> impl 'a + Iterator<Item = (usize, usize, T)> {
         self.map(|(i, j, v)| (i, j, v.clone()))
     }
 }
@@ -559,7 +574,7 @@ impl<'a, T> Iterator for CscTripletIter<'a, T> {
 
         match (next_entry, next_value) {
             (Some((i, j)), Some(v)) => Some((j, i, v)),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -568,7 +583,7 @@ impl<'a, T> Iterator for CscTripletIter<'a, T> {
 #[derive(Debug)]
 pub struct CscTripletIterMut<'a, T> {
     pattern_iter: SparsityPatternIter<'a>,
-    values_mut_iter: IterMut<'a, T>
+    values_mut_iter: IterMut<'a, T>,
 }
 
 impl<'a, T> Iterator for CscTripletIterMut<'a, T> {
@@ -581,7 +596,7 @@ impl<'a, T> Iterator for CscTripletIterMut<'a, T> {
 
         match (next_entry, next_value) {
             (Some((i, j)), Some(v)) => Some((j, i, v)),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -589,7 +604,7 @@ impl<'a, T> Iterator for CscTripletIterMut<'a, T> {
 /// An immutable representation of a column in a CSC matrix.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CscCol<'a, T> {
-    lane: CsLane<'a, T>
+    lane: CsLane<'a, T>,
 }
 
 /// A mutable representation of a column in a CSC matrix.
@@ -598,7 +613,7 @@ pub struct CscCol<'a, T> {
 /// to the column cannot be modified.
 #[derive(Debug, PartialEq, Eq)]
 pub struct CscColMut<'a, T> {
-    lane: CsLaneMut<'a, T>
+    lane: CsLaneMut<'a, T>,
 }
 
 /// Implement the methods common to both CscCol and CscColMut
@@ -637,7 +652,7 @@ macro_rules! impl_csc_col_common_methods {
                 self.lane.get_entry(global_row_index)
             }
         }
-    }
+    };
 }
 
 impl_csc_col_common_methods!(CscCol<'a, T>);
@@ -666,33 +681,29 @@ impl<'a, T> CscColMut<'a, T> {
 
 /// Column iterator for [CscMatrix](struct.CscMatrix.html).
 pub struct CscColIter<'a, T> {
-    lane_iter: CsLaneIter<'a, T>
+    lane_iter: CsLaneIter<'a, T>,
 }
 
 impl<'a, T> Iterator for CscColIter<'a, T> {
     type Item = CscCol<'a, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.lane_iter
-            .next()
-            .map(|lane| CscCol { lane })
+        self.lane_iter.next().map(|lane| CscCol { lane })
     }
 }
 
 /// Mutable column iterator for [CscMatrix](struct.CscMatrix.html).
 pub struct CscColIterMut<'a, T> {
-    lane_iter: CsLaneIterMut<'a, T>
+    lane_iter: CsLaneIterMut<'a, T>,
 }
 
 impl<'a, T> Iterator for CscColIterMut<'a, T>
 where
-    T: 'a
+    T: 'a,
 {
     type Item = CscColMut<'a, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.lane_iter
-            .next()
-            .map(|lane| CscColMut { lane })
+        self.lane_iter.next().map(|lane| CscColMut { lane })
     }
 }
