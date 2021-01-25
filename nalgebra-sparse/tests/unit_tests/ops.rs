@@ -1123,7 +1123,11 @@ proptest! {
                 (Just(a), b)
             }))
     {
-        prop_assert_eq!(&a * &b, &DMatrix::from(&a) * &b);
+        let expected = DMatrix::from(&a) * &b;
+        prop_assert_eq!(&a * &b, expected.clone());
+        prop_assert_eq!(&a * b.clone(), expected.clone());
+        prop_assert_eq!(a.clone() * &b, expected.clone());
+        prop_assert_eq!(a.clone() * b.clone(), expected.clone());
     }
 
     #[test]
@@ -1137,7 +1141,11 @@ proptest! {
                 (Just(a), b)
             }))
     {
-        prop_assert_eq!(&a * &b, &DMatrix::from(&a) * &b);
+        let expected = DMatrix::from(&a) * &b;
+        prop_assert_eq!(&a * &b, expected.clone());
+        prop_assert_eq!(&a * b.clone(), expected.clone());
+        prop_assert_eq!(a.clone() * &b, expected.clone());
+        prop_assert_eq!(a.clone() * b.clone(), expected.clone());
     }
 
     #[test]
