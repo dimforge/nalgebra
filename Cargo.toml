@@ -33,6 +33,7 @@ io = [ "pest", "pest_derive" ]
 compare = [ "matrixcompare-core" ]
 libm = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
+proptest-support = [ "proptest" ]
 
 # This feature is only used for tests, and enables tests that require more time to run
 slow-tests = []
@@ -91,4 +92,4 @@ lto = true
 
 [package.metadata.docs.rs]
 # Enable certain features when building docs for docs.rs
-features = [ "proptest" ]
+features = [ "proptest-support", "compare" ]

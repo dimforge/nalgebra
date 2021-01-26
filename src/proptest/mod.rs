@@ -1,6 +1,6 @@
 //! `proptest`-related features for `nalgebra` data structures.
 //!
-//! **This module is only available when the `proptest` feature is enabled in `nalgebra`**.
+//! **This module is only available when the `proptest-support` feature is enabled in `nalgebra`**.
 //!
 //! `proptest` is a library for *property-based testing*. While similar to QuickCheck,
 //! which may be more familiar to some users, it has a more sophisticated design that

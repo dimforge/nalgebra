@@ -20,7 +20,7 @@ mod core;
 mod geometry;
 mod linalg;
 
-#[cfg(feature = "proptest")]
+#[cfg(feature = "proptest-support")]
 mod proptest;
 
 //#[cfg(feature = "sparse")]
