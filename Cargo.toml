@@ -70,7 +70,7 @@ rand_isaac = "0.2"
 #criterion = "0.2.10"
 
 # For matrix comparison macro
-matrixcompare = "0.1.3"
+matrixcompare = "0.2.0"
 
 # Make sure that we use a specific version of proptest for tests. The reason is that we use a deterministic
 # RNG for certain tests. However, different versions of proptest may give different sequences of numbers,
