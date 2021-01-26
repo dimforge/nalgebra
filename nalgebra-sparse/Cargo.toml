@@ -5,7 +5,7 @@ authors = [ "Andreas Longva", "Sébastien Crozet <developer@crozet.re>" ]
 edition = "2018"
 
 [features]
-proptest-support = ["proptest", "nalgebra/proptest"]
+proptest-support = ["proptest", "nalgebra/proptest-support"]
 compare = [ "matrixcompare-core" ]
 
 # Enable to enable running some tests that take a lot of time to run
