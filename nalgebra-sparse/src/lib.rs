@@ -226,7 +226,7 @@ impl<'a, T: Clone + Zero> SparseEntry<'a, T> {
     ///
     /// Either clones the underlying reference or returns zero if the entry is not explicitly
     /// stored.
-    pub fn to_value(self) -> T {
+    pub fn into_value(self) -> T {
         match self {
             SparseEntry::NonZero(value) => value.clone(),
             SparseEntry::Zero => T::zero(),
@@ -253,7 +253,7 @@ impl<'a, T: Clone + Zero> SparseEntryMut<'a, T> {
     ///
     /// Either clones the underlying reference or returns zero if the entry is not explicitly
     /// stored.
-    pub fn to_value(self) -> T {
+    pub fn into_value(self) -> T {
         match self {
             SparseEntryMut::NonZero(value) => value.clone(),
             SparseEntryMut::Zero => T::zero(),
