@@ -25,7 +25,7 @@ quickcheck!(
     fn multiply_equals_alga_transform(
         dq: UnitDualQuaternion<f64>,
         v: Vector3<f64>,
-        p: Point3<f64>,
+        p: Point3<f64>
     ) -> bool {
         dq * v == dq.transform_vector(&v)
             && dq * p == dq.transform_point(&p)

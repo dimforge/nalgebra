@@ -977,7 +977,7 @@ dual_quaternion_op_impl!(
     DivAssign, div_assign;
     (U4, U1), (U4, U1);
     self: UnitDualQuaternion<N>, rhs: &'b UnitQuaternion<N>;
-    #[allow(clippy::suspicious_arithmetic_impl)]
+    #[allow(clippy::suspicious_op_assign_impl)]
     {
         let res = &*self * UnitDualQuaternion::from_rotation(rhs.inverse());
         self.as_mut_unchecked().real.coords.copy_from(&res.as_ref().real.coords);
@@ -1013,7 +1013,7 @@ dual_quaternion_op_impl!(
     DivAssign, div_assign;
     (U4, U1), (U4, U1);
     self: UnitDualQuaternion<N>, rhs: &'b Translation3<N>;
-    #[allow(clippy::suspicious_arithmetic_impl)]
+    #[allow(clippy::suspicious_op_assign_impl)]
     {
         let res = &*self * UnitDualQuaternion::from_parts(rhs.inverse(), UnitQuaternion::identity());
         self.as_mut_unchecked().real.coords.copy_from(&res.as_ref().real.coords);
