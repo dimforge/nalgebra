@@ -5,3 +5,4 @@ mod quaternion;
 mod rotation;
 mod similarity;
 mod unit_complex;
+mod dual_quaternion;

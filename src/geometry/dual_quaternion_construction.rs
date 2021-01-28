@@ -1,3 +1,5 @@
+#[cfg(feature = "arbitrary")]
+use quickcheck::{Arbitrary, Gen};
 use crate::{
     DualQuaternion, Quaternion, UnitDualQuaternion, SimdRealField, Isometry3,
     Translation3, UnitQuaternion
@@ -97,6 +99,21 @@ where
     }
 }
 
+#[cfg(feature = "arbitrary")]
+impl<N> Arbitrary for DualQuaternion<N>
+where
+    N: SimdRealField + Arbitrary + Send,
+    N::Element: SimdRealField,
+{
+    #[inline]
+    fn arbitrary<G: Gen>(rng: &mut G) -> Self {
+        Self::from_real_and_dual(
+            Arbitrary::arbitrary(rng),
+            Arbitrary::arbitrary(rng)
+        )
+    }
+}
+
 impl<N: SimdRealField> UnitDualQuaternion<N> {
     /// The unit dual quaternion multiplicative identity, which also represents
     /// the identity transformation as an isometry.
@@ -193,5 +210,17 @@ where
     #[inline]
     fn one() -> Self {
         Self::identity()
+    }
+}
+
+#[cfg(feature = "arbitrary")]
+impl<N> Arbitrary for UnitDualQuaternion<N>
+where
+    N: SimdRealField + Arbitrary + Send,
+    N::Element: SimdRealField,
+{
+    #[inline]
+    fn arbitrary<G: Gen>(rng: &mut G) -> Self {
+        Self::new_normalize(Arbitrary::arbitrary(rng))
     }
 }
