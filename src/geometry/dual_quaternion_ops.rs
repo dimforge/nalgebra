@@ -22,15 +22,15 @@
  *   - https://cs.gmu.edu/~jmlien/teaching/cs451/uploads/Main/dual-quaternion.pdf
  */
 
-use crate::{
-    DualQuaternion, SimdRealField, Point3, Point, Vector3, Isometry3, Quaternion,
-    UnitDualQuaternion, UnitQuaternion, U1, U3, U4, Unit, Allocator,
-    DefaultAllocator, Vector, Translation3
-};
 use crate::base::storage::Storage;
+use crate::{
+    Allocator, DefaultAllocator, DualQuaternion, Isometry3, Point, Point3, Quaternion,
+    SimdRealField, Translation3, Unit, UnitDualQuaternion, UnitQuaternion, Vector, Vector3, U1, U3,
+    U4,
+};
 use std::mem;
 use std::ops::{
-    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign
+    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
 impl<N: SimdRealField> AsRef<[N; 8]> for DualQuaternion<N> {

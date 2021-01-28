@@ -1,10 +1,10 @@
-#[cfg(feature = "arbitrary")]
-use quickcheck::{Arbitrary, Gen};
 use crate::{
-    DualQuaternion, Quaternion, UnitDualQuaternion, SimdRealField, Isometry3,
-    Translation3, UnitQuaternion
+    DualQuaternion, Isometry3, Quaternion, SimdRealField, Translation3, UnitDualQuaternion,
+    UnitQuaternion,
 };
 use num::{One, Zero};
+#[cfg(feature = "arbitrary")]
+use quickcheck::{Arbitrary, Gen};
 
 impl<N: SimdRealField> DualQuaternion<N> {
     /// Creates a dual quaternion from its rotation and translation components.
@@ -50,9 +50,8 @@ impl<N: SimdRealField> DualQuaternion<N> {
 
 impl<N: SimdRealField> DualQuaternion<N>
 where
-    N::Element: SimdRealField
+    N::Element: SimdRealField,
 {
-
     /// Creates a dual quaternion from only its real part, with no translation
     /// component.
     ///
@@ -67,7 +66,10 @@ where
     /// ```
     #[inline]
     pub fn from_real(real: Quaternion<N>) -> Self {
-        Self { real, dual: Quaternion::zero() }
+        Self {
+            real,
+            dual: Quaternion::zero(),
+        }
     }
 }
 
@@ -87,10 +89,7 @@ where
 {
     #[inline]
     fn zero() -> Self {
-        DualQuaternion::from_real_and_dual(
-            Quaternion::zero(),
-            Quaternion::zero()
-        )
+        DualQuaternion::from_real_and_dual(Quaternion::zero(), Quaternion::zero())
     }
 
     #[inline]
@@ -107,10 +106,7 @@ where
 {
     #[inline]
     fn arbitrary<G: Gen>(rng: &mut G) -> Self {
-        Self::from_real_and_dual(
-            Arbitrary::arbitrary(rng),
-            Arbitrary::arbitrary(rng)
-        )
+        Self::from_real_and_dual(Arbitrary::arbitrary(rng), Arbitrary::arbitrary(rng))
     }
 }
 
@@ -151,10 +147,7 @@ where
     /// assert_relative_eq!(dq * point, Point3::new(1.0, 0.0, 2.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn from_parts(
-        translation: Translation3<N>,
-        rotation: UnitQuaternion<N>
-    ) -> Self {
+    pub fn from_parts(translation: Translation3<N>, rotation: UnitQuaternion<N>) -> Self {
         let half: N = crate::convert(0.5f64);
         UnitDualQuaternion::new_unchecked(DualQuaternion {
             real: rotation.clone().into_inner(),

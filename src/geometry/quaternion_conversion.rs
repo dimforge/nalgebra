@@ -10,7 +10,7 @@ use crate::base::dimension::U3;
 use crate::base::{Matrix3, Matrix4, Scalar, Vector4};
 use crate::geometry::{
     AbstractRotation, Isometry, Quaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf,
-    TAffine, Transform, Translation, UnitQuaternion, UnitDualQuaternion
+    TAffine, Transform, Translation, UnitDualQuaternion, UnitQuaternion,
 };
 
 /*
@@ -125,7 +125,7 @@ where
 impl<N1, N2> SubsetOf<UnitDualQuaternion<N2>> for UnitQuaternion<N1>
 where
     N1: RealField,
-    N2: RealField + SupersetOf<N1>
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> UnitDualQuaternion<N2> {

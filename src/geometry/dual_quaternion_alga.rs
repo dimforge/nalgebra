@@ -7,13 +7,12 @@ use alga::general::{
 };
 use alga::linear::{
     AffineTransformation, DirectIsometry, FiniteDimVectorSpace, Isometry, NormedSpace,
-    ProjectiveTransformation, Similarity, Transformation,
-    VectorSpace,
+    ProjectiveTransformation, Similarity, Transformation, VectorSpace,
 };
 
 use crate::base::Vector3;
 use crate::geometry::{
-    Point3, Quaternion, UnitQuaternion, DualQuaternion, UnitDualQuaternion, Translation3
+    DualQuaternion, Point3, Quaternion, Translation3, UnitDualQuaternion, UnitQuaternion,
 };
 
 impl<N: RealField + simba::scalar::RealField> Identity<Multiplicative> for DualQuaternion<N> {
@@ -103,12 +102,12 @@ impl<N: RealField + simba::scalar::RealField> FiniteDimVectorSpace for DualQuate
         if i < 4 {
             DualQuaternion::from_real_and_dual(
                 Quaternion::canonical_basis_element(i),
-                Quaternion::zero()
+                Quaternion::zero(),
             )
         } else {
             DualQuaternion::from_real_and_dual(
                 Quaternion::zero(),
-                Quaternion::canonical_basis_element(i - 4)
+                Quaternion::canonical_basis_element(i - 4),
             )
         }
     }
@@ -157,7 +156,10 @@ impl<N: RealField + simba::scalar::RealField> NormedSpace for DualQuaternion<N> 
     fn try_normalize(&self, min_norm: N) -> Option<Self> {
         let real_norm = self.real.norm();
         if real_norm > min_norm {
-            Some(Self::from_real_and_dual(self.real / real_norm, self.dual / real_norm))
+            Some(Self::from_real_and_dual(
+                self.real / real_norm,
+                self.dual / real_norm,
+            ))
         } else {
             None
         }
@@ -188,7 +190,9 @@ impl<N: RealField + simba::scalar::RealField> Identity<Multiplicative> for UnitD
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> AbstractMagma<Multiplicative> for UnitDualQuaternion<N> {
+impl<N: RealField + simba::scalar::RealField> AbstractMagma<Multiplicative>
+    for UnitDualQuaternion<N>
+{
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
@@ -253,7 +257,12 @@ impl<N: RealField + simba::scalar::RealField> AffineTransformation<Point3<N>>
 
     #[inline]
     fn decompose(&self) -> (Self::Translation, Self::Rotation, Id, Self::Rotation) {
-        (self.translation(), self.rotation(), Id::new(), UnitQuaternion::identity())
+        (
+            self.translation(),
+            self.rotation(),
+            Id::new(),
+            UnitQuaternion::identity(),
+        )
     }
 
     #[inline]
@@ -313,4 +322,3 @@ macro_rules! marker_impl(
 );
 
 marker_impl!(Isometry, DirectIsometry);
-

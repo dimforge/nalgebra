@@ -9,7 +9,7 @@ use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
 
 use crate::geometry::{
     AbstractRotation, Isometry, Similarity, SuperTCategoryOf, TAffine, Transform, Translation,
-    Translation3, UnitDualQuaternion, UnitQuaternion
+    Translation3, UnitDualQuaternion, UnitQuaternion,
 };
 
 /*
@@ -84,8 +84,8 @@ where
 
     #[inline]
     fn is_in_subset(dq: &UnitDualQuaternion<N2>) -> bool {
-        crate::is_convertible::<_, Translation<N1, _>>(&dq.translation()) &&
-            dq.rotation() == UnitQuaternion::identity()
+        crate::is_convertible::<_, Translation<N1, _>>(&dq.translation())
+            && dq.rotation() == UnitQuaternion::identity()
     }
 
     #[inline]

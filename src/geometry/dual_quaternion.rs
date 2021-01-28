@@ -1,11 +1,11 @@
-use std::fmt;
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use crate::{
-    Quaternion, SimdRealField, VectorN, U8, Vector3, Point3, Isometry3, Unit, Matrix4,
-    Translation3, UnitQuaternion, Scalar, Normed
+    Isometry3, Matrix4, Normed, Point3, Quaternion, Scalar, SimdRealField, Translation3, Unit,
+    UnitQuaternion, Vector3, VectorN, U8,
 };
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::fmt;
 
 use simba::scalar::{ClosedNeg, RealField};
 
@@ -432,7 +432,9 @@ where
     #[inline]
     #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(&self) -> Self {
-        let real = Unit::new_unchecked(self.as_ref().real).inverse().into_inner();
+        let real = Unit::new_unchecked(self.as_ref().real)
+            .inverse()
+            .into_inner();
         let dual = -real * self.as_ref().dual * real;
         UnitDualQuaternion::new_unchecked(DualQuaternion { real, dual })
     }
@@ -634,9 +636,11 @@ where
             moment * sin + direction * (pitch * half * cos),
         );
 
-        Some(self * UnitDualQuaternion::new_unchecked(
-            DualQuaternion::from_real_and_dual(real, dual)
-        ))
+        Some(
+            self * UnitDualQuaternion::new_unchecked(DualQuaternion::from_real_and_dual(
+                real, dual,
+            )),
+        )
     }
 
     /// Return the rotation part of this unit dual quaternion.
@@ -844,8 +848,7 @@ where
     /// assert_relative_eq!(dq.to_homogeneous(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn to_homogeneous(&self) -> Matrix4<N>
-    {
+    pub fn to_homogeneous(&self) -> Matrix4<N> {
         self.to_isometry().to_homogeneous()
     }
 }

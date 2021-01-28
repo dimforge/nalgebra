@@ -1,9 +1,7 @@
 #![cfg(feature = "arbitrary")]
 #![allow(non_snake_case)]
 
-use na::{
-    Isometry3, Point3, Translation3, UnitQuaternion, UnitDualQuaternion, Vector3,
-};
+use na::{Isometry3, Point3, Translation3, UnitDualQuaternion, UnitQuaternion, Vector3};
 
 quickcheck!(
     fn isometry_equivalence(iso: Isometry3<f64>, p: Point3<f64>, v: Vector3<f64>) -> bool {
@@ -25,7 +23,9 @@ quickcheck!(
     }
 
     fn multiply_equals_alga_transform(
-        dq: UnitDualQuaternion<f64>, v: Vector3<f64>, p: Point3<f64>
+        dq: UnitDualQuaternion<f64>,
+        v: Vector3<f64>,
+        p: Point3<f64>,
     ) -> bool {
         dq * v == dq.transform_vector(&v)
             && dq * p == dq.transform_point(&p)

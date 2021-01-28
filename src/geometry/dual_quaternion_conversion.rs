@@ -4,8 +4,8 @@ use simba::simd::SimdRealField;
 use crate::base::dimension::U3;
 use crate::base::{Matrix4, Vector4};
 use crate::geometry::{
-    Isometry3, DualQuaternion, Similarity3, SuperTCategoryOf,
-    TAffine, Transform, Translation3, UnitQuaternion, UnitDualQuaternion
+    DualQuaternion, Isometry3, Similarity3, SuperTCategoryOf, TAffine, Transform, Translation3,
+    UnitDualQuaternion, UnitQuaternion,
 };
 
 /*
@@ -35,14 +35,15 @@ where
 
     #[inline]
     fn is_in_subset(dq: &DualQuaternion<N2>) -> bool {
-        crate::is_convertible::<_, Vector4<N1>>(&dq.real.coords) &&
-        crate::is_convertible::<_, Vector4<N1>>(&dq.dual.coords)
+        crate::is_convertible::<_, Vector4<N1>>(&dq.real.coords)
+            && crate::is_convertible::<_, Vector4<N1>>(&dq.dual.coords)
     }
 
     #[inline]
     fn from_superset_unchecked(dq: &DualQuaternion<N2>) -> Self {
         DualQuaternion::from_real_and_dual(
-            dq.real.to_subset_unchecked(), dq.dual.to_subset_unchecked()
+            dq.real.to_subset_unchecked(),
+            dq.dual.to_subset_unchecked(),
         )
     }
 }
@@ -71,7 +72,7 @@ where
 impl<N1, N2> SubsetOf<Isometry3<N2>> for UnitDualQuaternion<N1>
 where
     N1: RealField,
-    N2: RealField + SupersetOf<N1>
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> Isometry3<N2> {
@@ -82,8 +83,8 @@ where
 
     #[inline]
     fn is_in_subset(iso: &Isometry3<N2>) -> bool {
-        crate::is_convertible::<_, UnitQuaternion<N1>>(&iso.rotation) &&
-            crate::is_convertible::<_, Translation3<N1>>(&iso.translation)
+        crate::is_convertible::<_, UnitQuaternion<N1>>(&iso.rotation)
+            && crate::is_convertible::<_, Translation3<N1>>(&iso.translation)
     }
 
     #[inline]
@@ -96,7 +97,7 @@ where
 impl<N1, N2> SubsetOf<Similarity3<N2>> for UnitDualQuaternion<N1>
 where
     N1: RealField,
-    N2: RealField + SupersetOf<N1>
+    N2: RealField + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> Similarity3<N2> {
@@ -136,7 +137,9 @@ where
     }
 }
 
-impl<N1: RealField, N2: RealField + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for UnitDualQuaternion<N1> {
+impl<N1: RealField, N2: RealField + SupersetOf<N1>> SubsetOf<Matrix4<N2>>
+    for UnitDualQuaternion<N1>
+{
     #[inline]
     fn to_superset(&self) -> Matrix4<N2> {
         self.to_homogeneous().to_superset()
@@ -183,4 +186,3 @@ where
         Self::from_isometry(&iso)
     }
 }
-
