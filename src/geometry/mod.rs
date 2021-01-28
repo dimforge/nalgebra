@@ -36,7 +36,10 @@ mod quaternion_ops;
 mod quaternion_simba;
 
 mod dual_quaternion;
+#[cfg(feature = "alga")]
+mod dual_quaternion_alga;
 mod dual_quaternion_construction;
+mod dual_quaternion_conversion;
 mod dual_quaternion_ops;
 
 mod unit_complex;

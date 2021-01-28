@@ -10,7 +10,7 @@ use crate::base::dimension::U3;
 use crate::base::{Matrix3, Matrix4, Scalar, Vector4};
 use crate::geometry::{
     AbstractRotation, Isometry, Quaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf,
-    TAffine, Transform, Translation, UnitQuaternion,
+    TAffine, Transform, Translation, UnitQuaternion, UnitDualQuaternion
 };
 
 /*
@@ -21,6 +21,7 @@ use crate::geometry::{
  * UnitQuaternion -> UnitQuaternion
  * UnitQuaternion -> Rotation<U3>
  * UnitQuaternion -> Isometry<U3>
+ * UnitQuaternion -> UnitDualQuaternion
  * UnitQuaternion -> Similarity<U3>
  * UnitQuaternion -> Transform<U3>
  * UnitQuaternion -> Matrix<U4> (homogeneous)
@@ -118,6 +119,28 @@ where
     #[inline]
     fn from_superset_unchecked(iso: &Isometry<N2, U3, R>) -> Self {
         crate::convert_ref_unchecked(&iso.rotation)
+    }
+}
+
+impl<N1, N2> SubsetOf<UnitDualQuaternion<N2>> for UnitQuaternion<N1>
+where
+    N1: RealField,
+    N2: RealField + SupersetOf<N1>
+{
+    #[inline]
+    fn to_superset(&self) -> UnitDualQuaternion<N2> {
+        let q: UnitQuaternion<N2> = crate::convert_ref(self);
+        UnitDualQuaternion::from_rotation(q)
+    }
+
+    #[inline]
+    fn is_in_subset(dq: &UnitDualQuaternion<N2>) -> bool {
+        dq.translation().vector.is_zero()
+    }
+
+    #[inline]
+    fn from_superset_unchecked(dq: &UnitDualQuaternion<N2>) -> Self {
+        crate::convert_unchecked(dq.rotation())
     }
 }
 
