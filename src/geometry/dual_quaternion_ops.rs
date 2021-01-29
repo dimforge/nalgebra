@@ -10,10 +10,32 @@
  *
  * (Assignment Operators)
  *
+ * -DualQuaternion
  * DualQuaternion × Scalar
  * DualQuaternion × DualQuaternion
  * DualQuaternion + DualQuaternion
  * DualQuaternion - DualQuaternion
+ * DualQuaternion × UnitDualQuaternion
+ * DualQuaternion ÷ UnitDualQuaternion
+ * -UnitDualQuaternion
+ * UnitDualQuaternion × DualQuaternion
+ * UnitDualQuaternion × UnitDualQuaternion
+ * UnitDualQuaternion ÷ UnitDualQuaternion
+ * UnitDualQuaternion × Translation3
+ * UnitDualQuaternion ÷ Translation3
+ * UnitDualQuaternion × UnitQuaternion
+ * UnitDualQuaternion ÷ UnitQuaternion
+ * Translation3 × UnitDualQuaternion
+ * Translation3 ÷ UnitDualQuaternion
+ * UnitQuaternion × UnitDualQuaternion
+ * UnitQuaternion ÷ UnitDualQuaternion
+ * UnitDualQuaternion × Isometry3
+ * UnitDualQuaternion ÷ Isometry3
+ * Isometry3 × UnitDualQuaternion
+ * Isometry3 ÷ UnitDualQuaternion
+ * UnitDualQuaternion × Point
+ * UnitDualQuaternion × Vector
+ * UnitDualQuaternion × Unit<Vector>
  *
  * ---
  *
@@ -703,7 +725,7 @@ dual_quaternion_op_impl!(
     Output = UnitDualQuaternion<N> => U3, U1;
     self * UnitDualQuaternion::<N>::from_isometry(&rhs); );
 
-// UnitDualQuaternion ÷ Isometry
+// UnitDualQuaternion ÷ Isometry3
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U3, U1);
