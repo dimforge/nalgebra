@@ -3,17 +3,19 @@ name    = "nalgebra"
 version = "0.24.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
-description = "Linear algebra library with transformations and statically-sized or dynamically-sized matrices."
-documentation = "https://nalgebra.org/rustdoc/nalgebra/index.html"
+description = "General-purpose linear algebra library with transformations and statically-sized or dynamically-sized matrices."
+documentation = "https://www.nalgebra.org/docs"
 homepage = "https://nalgebra.org"
-repository = "https://github.com/rustsim/nalgebra"
+repository = "https://github.com/dimforge/nalgebra"
 readme = "README.md"
-categories = [ "science" ]
+categories = [ "science", "mathematics", "wasm", "no standard library" ]
 keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
-license = "Apache-2.0"
+license = "BSD-3-Clause"
 edition = "2018"
-
 exclude = ["/ci/*", "/.travis.yml", "/Makefile"]
+
+[badges]
+maintenance = { status = "actively-developed" }
 
 [lib]
 name = "nalgebra"

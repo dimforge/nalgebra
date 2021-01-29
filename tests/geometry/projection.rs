@@ -22,7 +22,7 @@ fn orthographic_inverse() {
 
 #[test]
 fn perspective_matrix_point_transformation() {
-    // https://github.com/rustsim/nalgebra/issues/640
+    // https://github.com/dimforge/nalgebra/issues/640
     let proj = Perspective3::new(4.0 / 3.0, 90.0, 0.1, 100.0);
     let perspective_inv = proj.as_matrix().try_inverse().unwrap();
     let some_point = Point3::new(1.0, 2.0, 0.0);

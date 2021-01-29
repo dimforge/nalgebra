@@ -3,14 +3,18 @@ name    = "nalgebra-lapack"
 version = "0.15.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>" ]
 
-description   = "Linear algebra library with transformations and satically-sized or dynamically-sized matrices."
-documentation = "https://nalgebra.org/doc/nalgebra/index.html"
-homepage      = "https://nalgebra.org"
-repository    = "https://github.com/rustsim/nalgebra"
-readme        = "README.md"
-keywords      = [ "linear", "algebra", "matrix", "vector" ]
-license       = "BSD-3-Clause"
-edition       = "2018"
+description   = "Matrix decompositions using nalgebra matrices and Lapack bindings."
+documentation = "https://www.nalgebra.org/docs"
+homepage = "https://nalgebra.org"
+repository = "https://github.com/dimforge/nalgebra"
+readme = "../README.md"
+categories = [ "science", "mathematics" ]
+keywords = [ "linear", "algebra", "matrix", "vector", "math", "lapack" ]
+license = "BSD-3-Clause"
+edition = "2018"
+
+[badges]
+maintenance = { status = "actively-developed" }
 
 [features]
 serde-serialize = [ "serde", "serde_derive" ]

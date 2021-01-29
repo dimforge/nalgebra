@@ -67,7 +67,7 @@ In this release, we are no longer relying on traits from the __alga__ crate for 
 Instead, we use traits from the new [simba](https://crates.io/crates/simba) crate which are both
 simpler, and allow for significant optimizations like AoSoA SIMD. 
 
-Refer to the [monthly Rustsim blogpost](https://www.rustsim.org/blog/2020/04/01/this-month-in-rustsim/)
+Refer to the [monthly dimforge blogpost](https://www.dimforge.org/blog/2020/04/01/this-month-in-dimforge/)
 for details about this switch and its benefits.
 
 ### Added
