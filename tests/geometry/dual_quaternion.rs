@@ -1,7 +1,9 @@
 #![cfg(feature = "arbitrary")]
 #![allow(non_snake_case)]
 
-use na::{DualQuaternion, Isometry3, Point3, Translation3, UnitDualQuaternion, UnitQuaternion, Vector3};
+use na::{
+    DualQuaternion, Isometry3, Point3, Translation3, UnitDualQuaternion, UnitQuaternion, Vector3,
+};
 
 quickcheck!(
     fn isometry_equivalence(iso: Isometry3<f64>, p: Point3<f64>, v: Vector3<f64>) -> bool {
@@ -22,6 +24,7 @@ quickcheck!(
             && relative_eq!((ii * i) * v, v, epsilon = 1.0e-7)
     }
 
+    #[cfg_attr(rustfmt, rustfmt_skip)]
     fn multiply_equals_alga_transform(
         dq: UnitDualQuaternion<f64>,
         v: Vector3<f64>,
