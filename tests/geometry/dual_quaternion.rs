@@ -1,7 +1,7 @@
 #![cfg(feature = "arbitrary")]
 #![allow(non_snake_case)]
 
-use na::{Isometry3, Point3, Translation3, UnitDualQuaternion, UnitQuaternion, Vector3};
+use na::{DualQuaternion, Isometry3, Point3, Translation3, UnitDualQuaternion, UnitQuaternion, Vector3};
 
 quickcheck!(
     fn isometry_equivalence(iso: Isometry3<f64>, p: Point3<f64>, v: Vector3<f64>) -> bool {
@@ -68,61 +68,86 @@ quickcheck!(
 
     #[cfg_attr(rustfmt, rustfmt_skip)]
     fn all_op_exist(
-        dq: UnitDualQuaternion<f64>,
+        dq: DualQuaternion<f64>,
+        udq: UnitDualQuaternion<f64>,
         uq: UnitQuaternion<f64>,
+        s: f64,
         t: Translation3<f64>,
         v: Vector3<f64>,
         p: Point3<f64>
     ) -> bool {
-        let iMi = dq * dq;
-        let iMuq = dq * uq;
-        let iDi = dq / dq;
-        let iDuq = dq / uq;
+        let dqMs: DualQuaternion<_> = dq * s;
 
-        let iMp = dq * p;
-        let iMv = dq * v;
+        let dqMdq: DualQuaternion<_> = dq * dq;
+        let dqMudq: DualQuaternion<_> = dq * udq;
+        let udqMdq: DualQuaternion<_> = udq * dq;
 
-        let iMt = dq * t;
-        let tMi = t * dq;
+        let iMi: UnitDualQuaternion<_> = udq * udq;
+        let iMuq: UnitDualQuaternion<_> = udq * uq;
+        let iDi: UnitDualQuaternion<_> = udq / udq;
+        let iDuq: UnitDualQuaternion<_> = udq / uq;
 
-        let tMuq = t * uq;
+        let iMp: Point3<_> = udq * p;
+        let iMv: Vector3<_> = udq * v;
 
-        let uqMi = uq * dq;
-        let uqDi = uq / dq;
+        let iMt: UnitDualQuaternion<_> = udq * t;
+        let tMi: UnitDualQuaternion<_> = t * udq;
 
-        let uqMt = uq * t;
+        let uqMi: UnitDualQuaternion<_> = uq * udq;
+        let uqDi: UnitDualQuaternion<_> = uq / udq;
 
-        let mut iMt1 = dq;
-        let mut iMt2 = dq;
+        let mut dqMs1 = dq;
 
-        let mut iMi1 = dq;
-        let mut iMi2 = dq;
+        let mut dqMdq1 = dq;
+        let mut dqMdq2 = dq;
 
-        let mut iMuq1 = dq;
-        let mut iMuq2 = dq;
+        let mut dqMudq1 = dq;
+        let mut dqMudq2 = dq;
 
-        let mut iDi1 = dq;
-        let mut iDi2 = dq;
+        let mut iMt1 = udq;
+        let mut iMt2 = udq;
 
-        let mut iDuq1 = dq;
-        let mut iDuq2 = dq;
+        let mut iMi1 = udq;
+        let mut iMi2 = udq;
+
+        let mut iMuq1 = udq;
+        let mut iMuq2 = udq;
+
+        let mut iDi1 = udq;
+        let mut iDi2 = udq;
+
+        let mut iDuq1 = udq;
+        let mut iDuq2 = udq;
+
+        dqMs1 *= s;
+
+        dqMdq1 *= dq;
+        dqMdq2 *= &dq;
+
+        dqMudq1 *= udq;
+        dqMudq2 *= &udq;
 
         iMt1 *= t;
         iMt2 *= &t;
 
-        iMi1 *= dq;
-        iMi2 *= &dq;
+        iMi1 *= udq;
+        iMi2 *= &udq;
 
         iMuq1 *= uq;
         iMuq2 *= &uq;
 
-        iDi1 /= dq;
-        iDi2 /= &dq;
+        iDi1 /= udq;
+        iDi2 /= &udq;
 
         iDuq1 /= uq;
         iDuq2 /= &uq;
 
-        iMt == iMt1
+        dqMs == dqMs1
+            && dqMdq == dqMdq1
+            && dqMdq == dqMdq2
+            && dqMudq == dqMudq1
+            && dqMudq == dqMudq2
+            && iMt == iMt1
             && iMt == iMt2
             && iMi == iMi1
             && iMi == iMi2
@@ -132,41 +157,45 @@ quickcheck!(
             && iDi == iDi2
             && iDuq == iDuq1
             && iDuq == iDuq2
-            && iMi == &dq * &dq
-            && iMi == dq * &dq
-            && iMi == &dq * dq
-            && iMuq == &dq * &uq
-            && iMuq == dq * &uq
-            && iMuq == &dq * uq
-            && iDi == &dq / &dq
-            && iDi == dq / &dq
-            && iDi == &dq / dq
-            && iDuq == &dq / &uq
-            && iDuq == dq / &uq
-            && iDuq == &dq / uq
-            && iMp == &dq * &p
-            && iMp == dq * &p
-            && iMp == &dq * p
-            && iMv == &dq * &v
-            && iMv == dq * &v
-            && iMv == &dq * v
-            && iMt == &dq * &t
-            && iMt == dq * &t
-            && iMt == &dq * t
-            && tMi == &t * &dq
-            && tMi == t * &dq
-            && tMi == &t * dq
-            && tMuq == &t * &uq
-            && tMuq == t * &uq
-            && tMuq == &t * uq
-            && uqMi == &uq * &dq
-            && uqMi == uq * &dq
-            && uqMi == &uq * dq
-            && uqDi == &uq / &dq
-            && uqDi == uq / &dq
-            && uqDi == &uq / dq
-            && uqMt == &uq * &t
-            && uqMt == uq * &t
-            && uqMt == &uq * t
+            && dqMs == &dq * s
+            && dqMdq == &dq * &dq
+            && dqMdq == dq * &dq
+            && dqMdq == &dq * dq
+            && dqMudq == &dq * &udq
+            && dqMudq == dq * &udq
+            && dqMudq == &dq * udq
+            && udqMdq == &udq * &dq
+            && udqMdq == udq * &dq
+            && udqMdq == &udq * dq
+            && iMi == &udq * &udq
+            && iMi == udq * &udq
+            && iMi == &udq * udq
+            && iMuq == &udq * &uq
+            && iMuq == udq * &uq
+            && iMuq == &udq * uq
+            && iDi == &udq / &udq
+            && iDi == udq / &udq
+            && iDi == &udq / udq
+            && iDuq == &udq / &uq
+            && iDuq == udq / &uq
+            && iDuq == &udq / uq
+            && iMp == &udq * &p
+            && iMp == udq * &p
+            && iMp == &udq * p
+            && iMv == &udq * &v
+            && iMv == udq * &v
+            && iMv == &udq * v
+            && iMt == &udq * &t
+            && iMt == udq * &t
+            && iMt == &udq * t
+            && tMi == &t * &udq
+            && tMi == t * &udq
+            && tMi == &t * udq
+            && uqMi == &uq * &udq
+            && uqMi == uq * &udq
+            && uqMi == &uq * udq
+            && uqDi == &uq / &udq
+            && uqDi == uq / &udq
+            && uqDi == &uq / udq
     }
 );

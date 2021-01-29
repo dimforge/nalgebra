@@ -242,6 +242,66 @@ dual_quaternion_op_impl!(
     self: DualQuaternion<N>, rhs: DualQuaternion<N>, Output = DualQuaternion<N>;
     &self * &rhs; );
 
+// DualQuaternion × UnitDualQuaternion
+dual_quaternion_op_impl!(
+    Mul, mul;
+    (U4, U1), (U4, U1);
+    self: &'a DualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    self * rhs.dual_quaternion();
+    'a, 'b);
+
+dual_quaternion_op_impl!(
+    Mul, mul;
+    (U4, U1), (U4, U1);
+    self: &'a DualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    self * rhs.dual_quaternion();
+    'a);
+
+dual_quaternion_op_impl!(
+    Mul, mul;
+    (U4, U1), (U4, U1);
+    self: DualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    self * rhs.dual_quaternion();
+    'b);
+
+dual_quaternion_op_impl!(
+    Mul, mul;
+    (U4, U1), (U4, U1);
+    self: DualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    self * rhs.dual_quaternion(););
+
+// DualQuaternion ÷ UnitDualQuaternion
+dual_quaternion_op_impl!(
+    Div, div;
+    (U4, U1), (U4, U1);
+    self: &'a DualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    #[allow(clippy::suspicious_arithmetic_impl)]
+    { self * rhs.inverse().dual_quaternion() };
+    'a, 'b);
+
+dual_quaternion_op_impl!(
+    Div, div;
+    (U4, U1), (U4, U1);
+    self: &'a DualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    #[allow(clippy::suspicious_arithmetic_impl)]
+    { self * rhs.inverse().dual_quaternion() };
+    'a);
+
+dual_quaternion_op_impl!(
+    Div, div;
+    (U4, U1), (U4, U1);
+    self: DualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    #[allow(clippy::suspicious_arithmetic_impl)]
+    { self * rhs.inverse().dual_quaternion() };
+    'b);
+
+dual_quaternion_op_impl!(
+    Div, div;
+    (U4, U1), (U4, U1);
+    self: DualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    #[allow(clippy::suspicious_arithmetic_impl)]
+    { self * rhs.inverse().dual_quaternion() };);
+
 // UnitDualQuaternion × UnitDualQuaternion
 dual_quaternion_op_impl!(
     Mul, mul;
@@ -297,6 +357,38 @@ dual_quaternion_op_impl!(
     (U4, U1), (U4, U1);
     self: UnitDualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = UnitDualQuaternion<N>;
     &self / &rhs; );
+
+// UnitDualQuaternion × DualQuaternion
+dual_quaternion_op_impl!(
+    Mul, mul;
+    (U4, U1), (U4, U1);
+    self: &'a UnitDualQuaternion<N>, rhs: &'b DualQuaternion<N>,
+    Output = DualQuaternion<N> => U1, U4;
+    self.dual_quaternion() * rhs;
+    'a, 'b);
+
+dual_quaternion_op_impl!(
+    Mul, mul;
+    (U4, U1), (U4, U1);
+    self: &'a UnitDualQuaternion<N>, rhs: DualQuaternion<N>,
+    Output = DualQuaternion<N> => U3, U3;
+    self.dual_quaternion() * rhs;
+    'a);
+
+dual_quaternion_op_impl!(
+    Mul, mul;
+    (U4, U1), (U4, U1);
+    self: UnitDualQuaternion<N>, rhs: &'b DualQuaternion<N>,
+    Output = DualQuaternion<N> => U3, U3;
+    self.dual_quaternion() * rhs;
+    'b);
+
+dual_quaternion_op_impl!(
+    Mul, mul;
+    (U4, U1), (U4, U1);
+    self: UnitDualQuaternion<N>, rhs: DualQuaternion<N>,
+    Output = DualQuaternion<N> => U3, U3;
+    self.dual_quaternion() * rhs;);
 
 // UnitDualQuaternion × UnitQuaternion
 dual_quaternion_op_impl!(
@@ -917,7 +1009,43 @@ dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
     self: DualQuaternion<N>, rhs: DualQuaternion<N>;
+    *self *= &rhs;);
+
+// DualQuaternion ×= UnitDualQuaternion
+dual_quaternion_op_impl!(
+    MulAssign, mul_assign;
+    (U4, U1), (U4, U1);
+    self: DualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>;
+    {
+        let res = &*self * rhs;
+        self.real.coords.copy_from(&res.real.coords);
+        self.dual.coords.copy_from(&res.dual.coords);
+    };
+    'b);
+
+dual_quaternion_op_impl!(
+    MulAssign, mul_assign;
+    (U4, U1), (U4, U1);
+    self: DualQuaternion<N>, rhs: UnitDualQuaternion<N>;
     *self *= &rhs; );
+
+// DualQuaternion ÷= UnitDualQuaternion
+dual_quaternion_op_impl!(
+    DivAssign, div_assign;
+    (U4, U1), (U4, U1);
+    self: DualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>;
+    {
+        let res = &*self / rhs;
+        self.real.coords.copy_from(&res.real.coords);
+        self.dual.coords.copy_from(&res.dual.coords);
+    };
+    'b);
+
+dual_quaternion_op_impl!(
+    DivAssign, div_assign;
+    (U4, U1), (U4, U1);
+    self: DualQuaternion<N>, rhs: UnitDualQuaternion<N>;
+    *self /= &rhs; );
 
 // UnitDualQuaternion ×= UnitDualQuaternion
 dual_quaternion_op_impl!(
