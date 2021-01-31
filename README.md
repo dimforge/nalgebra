@@ -17,7 +17,7 @@
 </p>
 <p align = "center">
     <strong>
-        <a href="https://nalgebra.org">Users guide</a> | <a href="https://nalgebra.org/rustdoc/nalgebra/index.html">Documentation</a> | <a href="https://discourse.nphysics.org/c/nalgebra">Forum</a>
+        <a href="https://nalgebra.org">Users guide</a> | <a href="https://docs.rs/nalgebra/latest/nalgebra/">Documentation</a> | <a href="https://discourse.nphysics.org/c/nalgebra">Forum</a>
     </strong>
 </p>
 
