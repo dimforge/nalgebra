@@ -375,4 +375,11 @@ proptest! {
 
         prop_assert_eq!(d_entries, csc_diagonal_entries);
     }
+
+    #[test]
+    fn csc_identity(n in 0 ..= 6usize) {
+        let csc = CscMatrix::<i32>::identity(n);
+        prop_assert_eq!(csc.nnz(), n);
+        prop_assert_eq!(DMatrix::from(&csc), DMatrix::identity(n, n));
+    }
 }

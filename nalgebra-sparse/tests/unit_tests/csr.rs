@@ -375,4 +375,11 @@ proptest! {
 
         prop_assert_eq!(d_entries, csr_diagonal_entries);
     }
+
+    #[test]
+    fn csr_identity(n in 0 ..= 6usize) {
+        let csr = CsrMatrix::<i32>::identity(n);
+        prop_assert_eq!(csr.nnz(), n);
+        prop_assert_eq!(DMatrix::from(&csr), DMatrix::identity(n, n));
+    }
 }
