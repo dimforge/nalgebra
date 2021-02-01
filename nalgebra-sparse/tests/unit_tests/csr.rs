@@ -1,10 +1,11 @@
 use nalgebra::DMatrix;
 use nalgebra_sparse::csr::CsrMatrix;
-use nalgebra_sparse::SparseFormatErrorKind;
+use nalgebra_sparse::{SparseEntry, SparseEntryMut, SparseFormatErrorKind};
 
 use proptest::prelude::*;
 use proptest::sample::subsequence;
 
+use crate::assert_panics;
 use crate::common::csr_strategy;
 
 use std::collections::HashSet;
@@ -298,9 +299,95 @@ fn csr_disassemble_avoids_clone_when_owned() {
     assert_eq!(values.as_ptr(), values_ptr);
 }
 
+// Rustfmt makes this test much harder to read by expanding some of the one-liners to 4-liners,
+// so for now we skip rustfmt...
+#[rustfmt::skip]
 #[test]
-fn csr_matrix_get_index() {
-    // TODO: Implement tests for ::get() and index()
+fn csr_matrix_get_index_entry() {
+    // Test .get_entry(_mut) and .index_entry(_mut) methods
+
+    #[rustfmt::skip]
+        let dense = DMatrix::from_row_slice(2, 3, &[
+        1, 0, 3,
+        0, 5, 6
+    ]);
+    let csr = CsrMatrix::from(&dense);
+
+    assert_eq!(csr.get_entry(0, 0), Some(SparseEntry::NonZero(&1)));
+    assert_eq!(csr.index_entry(0, 0), SparseEntry::NonZero(&1));
+    assert_eq!(csr.get_entry(0, 1), Some(SparseEntry::Zero));
+    assert_eq!(csr.index_entry(0, 1), SparseEntry::Zero);
+    assert_eq!(csr.get_entry(0, 2), Some(SparseEntry::NonZero(&3)));
+    assert_eq!(csr.index_entry(0, 2), SparseEntry::NonZero(&3));
+    assert_eq!(csr.get_entry(1, 0), Some(SparseEntry::Zero));
+    assert_eq!(csr.index_entry(1, 0), SparseEntry::Zero);
+    assert_eq!(csr.get_entry(1, 1), Some(SparseEntry::NonZero(&5)));
+    assert_eq!(csr.index_entry(1, 1), SparseEntry::NonZero(&5));
+    assert_eq!(csr.get_entry(1, 2), Some(SparseEntry::NonZero(&6)));
+    assert_eq!(csr.index_entry(1, 2), SparseEntry::NonZero(&6));
+
+    // Check some out of bounds with .get_entry
+    assert_eq!(csr.get_entry(0, 3), None);
+    assert_eq!(csr.get_entry(0, 4), None);
+    assert_eq!(csr.get_entry(1, 3), None);
+    assert_eq!(csr.get_entry(1, 4), None);
+    assert_eq!(csr.get_entry(2, 0), None);
+    assert_eq!(csr.get_entry(2, 1), None);
+    assert_eq!(csr.get_entry(2, 2), None);
+    assert_eq!(csr.get_entry(2, 3), None);
+    assert_eq!(csr.get_entry(2, 4), None);
+
+    // Check that out of bounds with .index_entry panics
+    assert_panics!(csr.index_entry(0, 3));
+    assert_panics!(csr.index_entry(0, 4));
+    assert_panics!(csr.index_entry(1, 3));
+    assert_panics!(csr.index_entry(1, 4));
+    assert_panics!(csr.index_entry(2, 0));
+    assert_panics!(csr.index_entry(2, 1));
+    assert_panics!(csr.index_entry(2, 2));
+    assert_panics!(csr.index_entry(2, 3));
+    assert_panics!(csr.index_entry(2, 4));
+
+    {
+        // Check mutable versions of the above functions
+        let mut csr = csr;
+
+        assert_eq!(csr.get_entry_mut(0, 0), Some(SparseEntryMut::NonZero(&mut 1)));
+        assert_eq!(csr.index_entry_mut(0, 0), SparseEntryMut::NonZero(&mut 1));
+        assert_eq!(csr.get_entry_mut(0, 1), Some(SparseEntryMut::Zero));
+        assert_eq!(csr.index_entry_mut(0, 1), SparseEntryMut::Zero);
+        assert_eq!(csr.get_entry_mut(0, 2), Some(SparseEntryMut::NonZero(&mut 3)));
+        assert_eq!(csr.index_entry_mut(0, 2), SparseEntryMut::NonZero(&mut 3));
+        assert_eq!(csr.get_entry_mut(1, 0), Some(SparseEntryMut::Zero));
+        assert_eq!(csr.index_entry_mut(1, 0), SparseEntryMut::Zero);
+        assert_eq!(csr.get_entry_mut(1, 1), Some(SparseEntryMut::NonZero(&mut 5)));
+        assert_eq!(csr.index_entry_mut(1, 1), SparseEntryMut::NonZero(&mut 5));
+        assert_eq!(csr.get_entry_mut(1, 2), Some(SparseEntryMut::NonZero(&mut 6)));
+        assert_eq!(csr.index_entry_mut(1, 2), SparseEntryMut::NonZero(&mut 6));
+
+        // Check some out of bounds with .get_entry_mut
+        assert_eq!(csr.get_entry_mut(0, 3), None);
+        assert_eq!(csr.get_entry_mut(0, 4), None);
+        assert_eq!(csr.get_entry_mut(1, 3), None);
+        assert_eq!(csr.get_entry_mut(1, 4), None);
+        assert_eq!(csr.get_entry_mut(2, 0), None);
+        assert_eq!(csr.get_entry_mut(2, 1), None);
+        assert_eq!(csr.get_entry_mut(2, 2), None);
+        assert_eq!(csr.get_entry_mut(2, 3), None);
+        assert_eq!(csr.get_entry_mut(2, 4), None);
+
+        // Check that out of bounds with .index_entry_mut panics
+        // Note: the cloning is necessary because a mutable reference is not UnwindSafe
+        assert_panics!({ let mut csr = csr.clone(); csr.index_entry_mut(0, 3); });
+        assert_panics!({ let mut csr = csr.clone(); csr.index_entry_mut(0, 4); });
+        assert_panics!({ let mut csr = csr.clone(); csr.index_entry_mut(1, 3); });
+        assert_panics!({ let mut csr = csr.clone(); csr.index_entry_mut(1, 4); });
+        assert_panics!({ let mut csr = csr.clone(); csr.index_entry_mut(2, 0); });
+        assert_panics!({ let mut csr = csr.clone(); csr.index_entry_mut(2, 1); });
+        assert_panics!({ let mut csr = csr.clone(); csr.index_entry_mut(2, 2); });
+        assert_panics!({ let mut csr = csr.clone(); csr.index_entry_mut(2, 3); });
+        assert_panics!({ let mut csr = csr.clone(); csr.index_entry_mut(2, 4); });
+    }
 }
 
 #[test]
