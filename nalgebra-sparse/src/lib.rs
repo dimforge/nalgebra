@@ -55,7 +55,7 @@
 //! | ------------------------|--------------------------------------------- |
 //! | [COO](`coo::CooMatrix`) | Well-suited for matrix construction. <br /> Ill-suited for algebraic operations. |
 //! | [CSR](`csr::CsrMatrix`) | Immutable sparsity pattern, suitable for algebraic operations. <br /> Fast row access. |
-//! | [CSC](`csr::CscMatrix`) | Immutable sparsity pattern, suitable for algebraic operations. <br /> Fast column access. |
+//! | [CSC](`csc::CscMatrix`) | Immutable sparsity pattern, suitable for algebraic operations. <br /> Fast column access. |
 //!
 //! What format is best to use depends on the application. The most common use case for sparse
 //! matrices in science is the solution of sparse linear systems. Here we can differentiate between

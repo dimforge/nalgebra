@@ -369,11 +369,7 @@ impl<T> CscMatrix<T> {
         self.cs.pattern_and_values_mut()
     }
 
-    /// Returns the underlying sparsity pattern.
-    ///
-    /// The sparsity pattern is stored internally inside an `Arc`. This allows users to re-use
-    /// the same sparsity pattern for multiple matrices without storing the same pattern multiple
-    /// times in memory.
+    /// Returns a reference to the underlying sparsity pattern.
     pub fn pattern(&self) -> &SparsityPattern {
         self.cs.pattern()
     }
