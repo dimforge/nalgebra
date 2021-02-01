@@ -392,7 +392,136 @@ fn csr_matrix_get_index_entry() {
 
 #[test]
 fn csr_matrix_row_iter() {
-    // TODO
+    #[rustfmt::skip]
+    let dense = DMatrix::from_row_slice(3, 4, &[
+        0, 1, 2, 0,
+        3, 0, 0, 0,
+        0, 4, 0, 5
+    ]);
+    let csr = CsrMatrix::from(&dense);
+
+    // Immutable iterator
+    {
+        let mut row_iter = csr.row_iter();
+
+        {
+            let row = row_iter.next().unwrap();
+            assert_eq!(row.ncols(), 4);
+            assert_eq!(row.nnz(), 2);
+            assert_eq!(row.col_indices(), &[1, 2]);
+            assert_eq!(row.values(), &[1, 2]);
+            assert_eq!(row.get_entry(0), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(1), Some(SparseEntry::NonZero(&1)));
+            assert_eq!(row.get_entry(2), Some(SparseEntry::NonZero(&2)));
+            assert_eq!(row.get_entry(3), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(4), None);
+        }
+
+        {
+            let row = row_iter.next().unwrap();
+            assert_eq!(row.ncols(), 4);
+            assert_eq!(row.nnz(), 1);
+            assert_eq!(row.col_indices(), &[0]);
+            assert_eq!(row.values(), &[3]);
+            assert_eq!(row.get_entry(0), Some(SparseEntry::NonZero(&3)));
+            assert_eq!(row.get_entry(1), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(2), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(3), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(4), None);
+        }
+
+        {
+            let row = row_iter.next().unwrap();
+            assert_eq!(row.ncols(), 4);
+            assert_eq!(row.nnz(), 2);
+            assert_eq!(row.col_indices(), &[1, 3]);
+            assert_eq!(row.values(), &[4, 5]);
+            assert_eq!(row.get_entry(0), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(1), Some(SparseEntry::NonZero(&4)));
+            assert_eq!(row.get_entry(2), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(3), Some(SparseEntry::NonZero(&5)));
+            assert_eq!(row.get_entry(4), None);
+        }
+
+        assert!(row_iter.next().is_none());
+    }
+
+    // Mutable iterator
+    {
+        let mut csr = csr;
+        let mut row_iter = csr.row_iter_mut();
+
+        {
+            let mut row = row_iter.next().unwrap();
+            assert_eq!(row.ncols(), 4);
+            assert_eq!(row.nnz(), 2);
+            assert_eq!(row.col_indices(), &[1, 2]);
+            assert_eq!(row.values(), &[1, 2]);
+            assert_eq!(row.get_entry(0), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(1), Some(SparseEntry::NonZero(&1)));
+            assert_eq!(row.get_entry(2), Some(SparseEntry::NonZero(&2)));
+            assert_eq!(row.get_entry(3), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(4), None);
+
+            assert_eq!(row.values_mut(), &mut [1, 2]);
+            assert_eq!(
+                row.cols_and_values_mut(),
+                ([1, 2].as_ref(), [1, 2].as_mut())
+            );
+            assert_eq!(row.get_entry_mut(0), Some(SparseEntryMut::Zero));
+            assert_eq!(row.get_entry_mut(1), Some(SparseEntryMut::NonZero(&mut 1)));
+            assert_eq!(row.get_entry_mut(2), Some(SparseEntryMut::NonZero(&mut 2)));
+            assert_eq!(row.get_entry_mut(3), Some(SparseEntryMut::Zero));
+            assert_eq!(row.get_entry_mut(4), None);
+        }
+
+        {
+            let mut row = row_iter.next().unwrap();
+            assert_eq!(row.ncols(), 4);
+            assert_eq!(row.nnz(), 1);
+            assert_eq!(row.col_indices(), &[0]);
+            assert_eq!(row.values(), &[3]);
+            assert_eq!(row.get_entry(0), Some(SparseEntry::NonZero(&3)));
+            assert_eq!(row.get_entry(1), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(2), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(3), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(4), None);
+
+            assert_eq!(row.values_mut(), &mut [3]);
+            assert_eq!(row.cols_and_values_mut(), ([0].as_ref(), [3].as_mut()));
+            assert_eq!(row.get_entry_mut(0), Some(SparseEntryMut::NonZero(&mut 3)));
+            assert_eq!(row.get_entry_mut(1), Some(SparseEntryMut::Zero));
+            assert_eq!(row.get_entry_mut(2), Some(SparseEntryMut::Zero));
+            assert_eq!(row.get_entry_mut(3), Some(SparseEntryMut::Zero));
+            assert_eq!(row.get_entry_mut(4), None);
+        }
+
+        {
+            let mut row = row_iter.next().unwrap();
+            assert_eq!(row.ncols(), 4);
+            assert_eq!(row.nnz(), 2);
+            assert_eq!(row.col_indices(), &[1, 3]);
+            assert_eq!(row.values(), &[4, 5]);
+            assert_eq!(row.get_entry(0), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(1), Some(SparseEntry::NonZero(&4)));
+            assert_eq!(row.get_entry(2), Some(SparseEntry::Zero));
+            assert_eq!(row.get_entry(3), Some(SparseEntry::NonZero(&5)));
+            assert_eq!(row.get_entry(4), None);
+
+            assert_eq!(row.values_mut(), &mut [4, 5]);
+            assert_eq!(
+                row.cols_and_values_mut(),
+                ([1, 3].as_ref(), [4, 5].as_mut())
+            );
+            assert_eq!(row.get_entry_mut(0), Some(SparseEntryMut::Zero));
+            assert_eq!(row.get_entry_mut(1), Some(SparseEntryMut::NonZero(&mut 4)));
+            assert_eq!(row.get_entry_mut(2), Some(SparseEntryMut::Zero));
+            assert_eq!(row.get_entry_mut(3), Some(SparseEntryMut::NonZero(&mut 5)));
+            assert_eq!(row.get_entry_mut(4), None);
+        }
+
+        assert!(row_iter.next().is_none());
+    }
 }
 
 proptest! {
