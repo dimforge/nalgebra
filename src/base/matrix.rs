@@ -279,6 +279,25 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> matrixcompare_core::DenseAc
     }
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<N: Scalar + Copy, R: crate::base::dimension::DimName, C: crate::base::dimension::DimName>
+    bytemuck::Zeroable for Matrix<N, R, C, crate::base::ArrayStorage<N, R, C>>
+where
+    R::Value: core::ops::Mul<C::Value>,
+    <R::Value as core::ops::Mul<C::Value>>::Output: generic_array::ArrayLength<N>,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<N: Scalar + Copy, R: crate::base::dimension::DimName, C: crate::base::dimension::DimName>
+    bytemuck::Pod for Matrix<N, R, C, crate::base::ArrayStorage<N, R, C>>
+where
+    R::Value: core::ops::Mul<C::Value>,
+    <R::Value as core::ops::Mul<C::Value>>::Output: generic_array::ArrayLength<N>,
+    <<R::Value as core::ops::Mul<<C as crate::base::dimension::DimName>::Value>>::Output as generic_array::ArrayLength<N>>::ArrayType: Copy
+{
+}
+
 impl<N: Scalar, R: Dim, C: Dim, S> Matrix<N, R, C, S> {
     /// Creates a new matrix with the given data without statically checking that the matrix
     /// dimension matches the storage dimension.
