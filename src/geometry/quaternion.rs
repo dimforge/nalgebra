@@ -40,6 +40,12 @@ impl<N: Scalar + Zero> Default for Quaternion<N> {
     }
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<N: Scalar> bytemuck::Zeroable for Quaternion<N> where Vector4<N>: bytemuck::Zeroable {}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<N: Scalar> bytemuck::Pod for Quaternion<N> where Vector4<N>: bytemuck::Pod, N: Copy {}
+
 #[cfg(feature = "abomonation-serialize")]
 impl<N: Scalar> Abomonation for Quaternion<N>
 where
