@@ -46,6 +46,20 @@ where
     data: GenericArray<N, Prod<R::Value, C::Value>>,
 }
 
+impl<N, R, C> IntoIterator for ArrayStorage<N, R, C>
+where
+    R: DimName,
+    C: DimName,
+    R::Value: Mul<C::Value>,
+    Prod<R::Value, C::Value>: ArrayLength<N>,
+{
+    type Item = N;
+    type IntoIter = <GenericArray<N, Prod<R::Value, C::Value>> as IntoIterator>::IntoIter;
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
+    }
+}
+
 #[deprecated(note = "renamed to `ArrayStorage`")]
 /// Renamed to [ArrayStorage].
 pub type MatrixArray<N, R, C> = ArrayStorage<N, R, C>;

@@ -3,9 +3,9 @@
 use std::marker::PhantomData;
 use std::mem;
 
-use crate::base::dimension::{Dim, U1};
-use crate::base::storage::{Storage, StorageMut};
-use crate::base::{Matrix, MatrixSlice, MatrixSliceMut, Scalar};
+use crate::base::dimension::{Dim, U1, Dynamic};
+use crate::base::storage::{Storage, StorageMut, Owned};
+use crate::base::{Matrix, MatrixSlice, MatrixSliceMut, Scalar, Vector, RowVector};
 
 macro_rules! iterator {
     (struct $Name:ident for $Storage:ident.$ptr: ident -> $Ptr:ty, $Ref:ty, $SRef: ty) => {
@@ -237,6 +237,58 @@ impl<'a, N: Scalar, R: Dim, C: Dim, S: 'a + StorageMut<N, R, C>> ExactSizeIterat
     }
 }
 
+/// An owned iterator through the rows of a matrix.
+pub struct OwnedRowIter<N: Scalar> {
+    rows: std::vec::IntoIter<RowVector<N, Dynamic, Owned<N, U1, Dynamic>>>,
+}
+
+impl<N: Scalar> OwnedRowIter<N> {
+    pub(crate) fn new(mat: Matrix<N, Dynamic, Dynamic, Owned<N, Dynamic, Dynamic>>) -> Self {
+        let ncols = mat.ncols();
+        let nrows = mat.nrows();
+        let mut rows: Vec<Vec<N>> = vec![Vec::with_capacity(ncols); nrows];
+        let mut i = 0;
+        for item in mat.into_iter() {
+            rows[i % nrows].push(item);
+            i += 1;
+        }
+        let rows: Vec<RowVector<N, Dynamic, Owned<N, U1, Dynamic>>> =
+            rows.into_iter()
+                .map(|row| RowVector::<N, Dynamic, Owned<N, U1, Dynamic>>::from_iterator_generic(
+                        U1::from_usize(1), Dynamic::from_usize(ncols), row.into_iter()))
+                .collect();
+        OwnedRowIter { rows: rows.into_iter() }
+    }
+}
+
+impl<N: Scalar> Iterator for OwnedRowIter<N> {
+    type Item = RowVector<N, Dynamic, Owned<N, U1, Dynamic>>;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.rows.next()
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.rows.size_hint()
+    }
+
+    #[inline]
+    fn count(self) -> usize {
+        self.rows.count()
+    }
+}
+
+impl<N: Scalar> ExactSizeIterator
+    for OwnedRowIter<N>
+{
+    #[inline]
+    fn len(&self) -> usize {
+        self.rows.len()
+    }
+}
+
 /*
  *
  * Column iterators.
@@ -348,5 +400,61 @@ impl<'a, N: Scalar, R: Dim, C: Dim, S: 'a + StorageMut<N, R, C>> ExactSizeIterat
     #[inline]
     fn len(&self) -> usize {
         self.ncols() - self.curr
+    }
+}
+
+/// An owned iterator through the rows of a matrix.
+pub struct OwnedColumnIter<N: Scalar> {
+    cols: std::vec::IntoIter<Vector<N, Dynamic, Owned<N, Dynamic, U1>>>,
+}
+
+impl<N: Scalar> OwnedColumnIter<N> {
+    pub(crate) fn new(mat: Matrix<N, Dynamic, Dynamic, Owned<N, Dynamic, Dynamic>>) -> Self {
+        let ncols = mat.ncols();
+        let nrows = mat.nrows();
+        let mut cols: Vec<Vec<N>> = vec![Vec::with_capacity(nrows); ncols];
+        let mut i = 0;
+        for item in mat.into_iter() {
+            cols[i / nrows].push(item);
+            i += 1;
+        }
+        let cols: Vec<Vector<N, Dynamic, Owned<N, Dynamic, U1>>> =
+            cols.into_iter()
+                .map(|col|
+                    Vector::<N, Dynamic, Owned<N, Dynamic, U1>>::from_iterator_generic(
+                        Dynamic::from_usize(nrows),
+                        U1::from_usize(1),
+                        col.into_iter()
+                    )
+                )
+                .collect();
+        OwnedColumnIter { cols: cols.into_iter() }
+    }
+}
+
+impl<N: Scalar> Iterator for OwnedColumnIter<N> {
+    type Item = Vector<N, Dynamic, Owned<N, Dynamic, U1>>;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.cols.next()
+    }
+
+    #[inline]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.cols.size_hint()
+    }
+
+    #[inline]
+    fn count(self) -> usize {
+        self.cols.count()
+    }
+}
+
+impl<N: Scalar> ExactSizeIterator
+    for OwnedColumnIter<N> {
+    #[inline]
+    fn len(&self) -> usize {
+        self.cols.len()
     }
 }
