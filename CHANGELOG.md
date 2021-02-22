@@ -4,6 +4,13 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.25.0] - WIP
+### Added
+* Add `from_basis_unchecked` to all the rotation types. This builds a rotation from a set of basis vectors (representing the columns of the corresponding rotation matrix).
+* Add `Matrix::cap_magnitude` to cap the magnitude of a vector.
+* Add `UnitQuaternion::append_axisangle_linearized` to approximately append a rotation represented as an axis-angle to a rotation represented as an unit quaternion.
+* Re-export `simba::simd::SimdValue` at the root of the `nalgebra` crate.
+
 ## [0.24.0]
 
 ### Added
