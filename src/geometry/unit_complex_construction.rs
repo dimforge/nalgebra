@@ -8,7 +8,7 @@ use rand::Rng;
 
 use crate::base::dimension::{U1, U2};
 use crate::base::storage::Storage;
-use crate::base::{Matrix2, Unit, Vector};
+use crate::base::{Matrix2, Unit, Vector, Vector2};
 use crate::geometry::{Rotation2, UnitComplex};
 use simba::scalar::RealField;
 use simba::simd::SimdRealField;
@@ -162,6 +162,18 @@ where
     #[inline]
     pub fn from_rotation_matrix(rotmat: &Rotation2<N>) -> Self {
         Self::new_unchecked(Complex::new(rotmat[(0, 0)], rotmat[(1, 0)]))
+    }
+
+    /// Builds a rotation from a basis assumed to be orthonormal.
+    ///
+    /// In order to get a valid unit-quaternion, the input must be an
+    /// orthonormal basis, i.e., all vectors are normalized, and the are
+    /// all orthogonal to each other. These invariants are not checked
+    /// by this method.
+    pub fn from_basis_unchecked(basis: &[Vector2<N>; 2]) -> Self {
+        let mat = Matrix2::from_columns(&basis[..]);
+        let rot = Rotation2::from_matrix_unchecked(mat);
+        Self::from_rotation_matrix(&rot)
     }
 
     /// Builds an unit complex by extracting the rotation part of the given transformation `m`.
