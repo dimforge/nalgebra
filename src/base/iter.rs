@@ -3,9 +3,9 @@
 use std::marker::PhantomData;
 use std::mem;
 
-use crate::base::dimension::{Dim, U1, Dynamic};
-use crate::base::storage::{Storage, StorageMut, Owned};
-use crate::base::{Matrix, MatrixSlice, MatrixSliceMut, Scalar, Vector, RowVector};
+use crate::base::dimension::{Dim, Dynamic, U1};
+use crate::base::storage::{Owned, Storage, StorageMut};
+use crate::base::{Matrix, MatrixSlice, MatrixSliceMut, RowVector, Scalar, Vector};
 
 macro_rules! iterator {
     (struct $Name:ident for $Storage:ident.$ptr: ident -> $Ptr:ty, $Ref:ty, $SRef: ty) => {
@@ -252,12 +252,19 @@ impl<N: Scalar> OwnedRowIter<N> {
             rows[i % nrows].push(item);
             i += 1;
         }
-        let rows: Vec<RowVector<N, Dynamic, Owned<N, U1, Dynamic>>> =
-            rows.into_iter()
-                .map(|row| RowVector::<N, Dynamic, Owned<N, U1, Dynamic>>::from_iterator_generic(
-                        U1::from_usize(1), Dynamic::from_usize(ncols), row.into_iter()))
-                .collect();
-        OwnedRowIter { rows: rows.into_iter() }
+        let rows: Vec<RowVector<N, Dynamic, Owned<N, U1, Dynamic>>> = rows
+            .into_iter()
+            .map(|row| {
+                RowVector::<N, Dynamic, Owned<N, U1, Dynamic>>::from_iterator_generic(
+                    U1::from_usize(1),
+                    Dynamic::from_usize(ncols),
+                    row.into_iter(),
+                )
+            })
+            .collect();
+        OwnedRowIter {
+            rows: rows.into_iter(),
+        }
     }
 }
 
@@ -280,9 +287,7 @@ impl<N: Scalar> Iterator for OwnedRowIter<N> {
     }
 }
 
-impl<N: Scalar> ExactSizeIterator
-    for OwnedRowIter<N>
-{
+impl<N: Scalar> ExactSizeIterator for OwnedRowIter<N> {
     #[inline]
     fn len(&self) -> usize {
         self.rows.len()
@@ -418,17 +423,19 @@ impl<N: Scalar> OwnedColumnIter<N> {
             cols[i / nrows].push(item);
             i += 1;
         }
-        let cols: Vec<Vector<N, Dynamic, Owned<N, Dynamic, U1>>> =
-            cols.into_iter()
-                .map(|col|
-                    Vector::<N, Dynamic, Owned<N, Dynamic, U1>>::from_iterator_generic(
-                        Dynamic::from_usize(nrows),
-                        U1::from_usize(1),
-                        col.into_iter()
-                    )
+        let cols: Vec<Vector<N, Dynamic, Owned<N, Dynamic, U1>>> = cols
+            .into_iter()
+            .map(|col| {
+                Vector::<N, Dynamic, Owned<N, Dynamic, U1>>::from_iterator_generic(
+                    Dynamic::from_usize(nrows),
+                    U1::from_usize(1),
+                    col.into_iter(),
                 )
-                .collect();
-        OwnedColumnIter { cols: cols.into_iter() }
+            })
+            .collect();
+        OwnedColumnIter {
+            cols: cols.into_iter(),
+        }
     }
 }
 
@@ -451,8 +458,7 @@ impl<N: Scalar> Iterator for OwnedColumnIter<N> {
     }
 }
 
-impl<N: Scalar> ExactSizeIterator
-    for OwnedColumnIter<N> {
+impl<N: Scalar> ExactSizeIterator for OwnedColumnIter<N> {
     #[inline]
     fn len(&self) -> usize {
         self.cols.len()

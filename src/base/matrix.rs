@@ -21,12 +21,13 @@ use simba::simd::SimdPartialOrd;
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use crate::base::dimension::{Dim, DimAdd, DimSum, IsNotStaticOne, U1, U2, U3, Dynamic};
+use crate::base::dimension::{Dim, DimAdd, DimSum, Dynamic, IsNotStaticOne, U1, U2, U3};
 use crate::base::iter::{
-    ColumnIter, ColumnIterMut, OwnedColumnIter, MatrixIter, MatrixIterMut, RowIter, RowIterMut, OwnedRowIter,
+    ColumnIter, ColumnIterMut, MatrixIter, MatrixIterMut, OwnedColumnIter, OwnedRowIter, RowIter,
+    RowIterMut,
 };
 use crate::base::storage::{
-    ContiguousStorage, ContiguousStorageMut, SameShapeStorage, Storage, StorageMut, Owned
+    ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
 };
 use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar, Unit, VectorN};
 use crate::SimdComplexField;
