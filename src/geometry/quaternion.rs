@@ -1542,6 +1542,17 @@ where
     pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector3<N>>) -> Unit<Vector3<N>> {
         self.inverse() * v
     }
+
+    /// Appends to `self` a rotation given in the axis-angle form, using a linearized formulation.
+    ///
+    /// This is faster, but approximate, way to compute `UnitQuaternion::new(axisangle) * self`.
+    #[inline]
+    pub fn append_axisangle_linearized(&self, axisangle: &Vector3<N>) -> Self {
+        let half: N = crate::convert(0.5);
+        let q1 = self.into_inner();
+        let q2 = Quaternion::from_imag(axisangle * half);
+        Unit::new_normalize(q1 + q2 * q1)
+    }
 }
 
 impl<N: RealField> Default for UnitQuaternion<N> {

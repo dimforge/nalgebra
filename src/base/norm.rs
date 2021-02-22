@@ -8,7 +8,7 @@ use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Dim, DimName, Matrix, MatrixMN, Normed, VectorN};
 use crate::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::storage::{Storage, StorageMut};
-use crate::{ComplexField, Scalar, SimdComplexField, Unit};
+use crate::{ComplexField, RealField, Scalar, SimdComplexField, Unit};
 use simba::scalar::ClosedNeg;
 use simba::simd::{SimdOption, SimdPartialOrd};
 
@@ -334,8 +334,24 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     {
         let n = self.norm();
 
-        if n >= min_magnitude {
+        if n > min_magnitude {
             self.scale_mut(magnitude / n)
+        }
+    }
+
+    /// Returns a new vector with the same magnitude as `self` clamped between `0.0` and `max`.
+    #[inline]
+    pub fn cap_magnitude(&self, max: N::RealField) -> MatrixMN<N, R, C>
+    where
+        N: RealField,
+        DefaultAllocator: Allocator<N, R, C>,
+    {
+        let n = self.norm();
+
+        if n > max {
+            self.scale(max / n)
+        } else {
+            self.clone_owned()
         }
     }
 

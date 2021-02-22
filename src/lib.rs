@@ -152,7 +152,7 @@ pub use num_complex::Complex;
 pub use simba::scalar::{
     ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, ComplexField, Field, RealField,
 };
-pub use simba::simd::{SimdBool, SimdComplexField, SimdPartialOrd, SimdRealField};
+pub use simba::simd::{SimdBool, SimdComplexField, SimdPartialOrd, SimdRealField, SimdValue};
 
 /// Gets the multiplicative identity element.
 ///
