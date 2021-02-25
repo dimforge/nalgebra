@@ -1,4 +1,4 @@
-use na::{Matrix3, UDU};
+use na::Matrix3;
 
 #[test]
 #[rustfmt::skip]
@@ -8,7 +8,8 @@ fn udu_simple() {
        -1.0,  2.0, -1.0,
         0.0, -1.0,  2.0);
 
-    let udu = UDU::new(m);
+    let udu = m.udu();
+    
     // Rebuild
     let p = udu.u * udu.d_matrix() * udu.u.transpose();
 
@@ -24,7 +25,7 @@ fn udu_non_sym_panic() {
         1.0, -2.0,  3.0,
        -2.0,  1.0,  0.0);
 
-    let udu = UDU::new(m);
+    let udu = m.udu();
     // Rebuild
     let p = udu.u * udu.d_matrix() * udu.u.transpose();
 
@@ -39,7 +40,7 @@ mod quickcheck_tests {
     macro_rules! gen_tests(
         ($module: ident, $scalar: ty) => {
             mod $module {
-                use na::{UDU, DMatrix, Matrix4};
+                use na::{DMatrix, Matrix4};
                 #[allow(unused_imports)]
                 use crate::core::helper::{RandScalar, RandComplex};
 
@@ -48,7 +49,7 @@ mod quickcheck_tests {
                         let n = std::cmp::max(1, std::cmp::min(n, 10));
                         let m = DMatrix::<$scalar>::new_random(n, n).map(|e| e.0).hermitian_part();
 
-                        let udu = UDU::new(m.clone());
+                        let udu = m.clone().udu();
                         let p = &udu.u * &udu.d_matrix() * &udu.u.transpose();
 
                         relative_eq!(m, p, epsilon = 1.0e-7)
@@ -57,7 +58,7 @@ mod quickcheck_tests {
                     fn udu_static(m: Matrix4<$scalar>) -> bool {
                         let m = m.map(|e| e.0).hermitian_part();
 
-                        let udu = UDU::new(m.clone());
+                        let udu = m.udu();
                         let p = udu.u * udu.d_matrix() * udu.u.transpose();
 
                         relative_eq!(m, p, epsilon = 1.0e-7)

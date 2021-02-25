@@ -1,8 +1,8 @@
 use crate::storage::Storage;
 use crate::{
     Allocator, Bidiagonal, Cholesky, ColPivQR, ComplexField, DefaultAllocator, Dim, DimDiff,
-    DimMin, DimMinimum, DimSub, FullPivLU, Hessenberg, Matrix, Schur, SymmetricEigen,
-    SymmetricTridiagonal, LU, QR, SVD, U1,
+    DimMin, DimMinimum, DimSub, FullPivLU, Hessenberg, Matrix, RealField, Schur, SymmetricEigen,
+    SymmetricTridiagonal, LU, QR, SVD, U1, UDU
 };
 
 /// # Rectangular matrix decomposition
@@ -134,6 +134,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 /// | -------------------------|---------------------------|--------------|
 /// | Hessenberg               | `Q * H * Qᵀ`             | `Q` is a unitary matrix and `H` an upper-Hessenberg matrix. |
 /// | Cholesky                 | `L * Lᵀ`                 | `L` is a lower-triangular matrix. |
+/// | UDU                      | `U * D * Uᵀ`             | `U` is a upper-triangular matrix, and `D` a diagonal matrix. |
 /// | Schur decomposition      | `Q * T * Qᵀ`             | `Q` is an unitary matrix and `T` a quasi-upper-triangular matrix. |
 /// | Symmetric eigendecomposition | `Q ~ Λ ~ Qᵀ`   | `Q` is an unitary matrix, and `Λ` is a real diagonal matrix. |
 /// | Symmetric tridiagonalization | `Q ~ T ~ Qᵀ`   | `Q` is an unitary matrix, and `T` is a tridiagonal matrix. |
@@ -147,6 +148,18 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> Matrix<N, D, D, S> {
         DefaultAllocator: Allocator<N, D, D>,
     {
         Cholesky::new(self.into_owned())
+    }
+
+    /// Attempts to compute the UDU decomposition of this matrix.
+    ///
+    /// The input matrix `self` is assumed to be symmetric and this decomposition will only read
+    /// the upper-triangular part of `self`.
+    pub fn udu(self) -> UDU<N, D>
+    where
+        N: RealField,
+        DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
+    {
+        UDU::new(self.into_owned())
     }
 
     /// Computes the Hessenberg decomposition of this matrix using householder reflections.
