@@ -1,12 +1,12 @@
 use crate::{
-    DualQuaternion, Isometry3, Quaternion, SimdRealField, Translation3, UnitDualQuaternion,
+    DualQuaternion, Isometry3, Quaternion, Scalar, SimdRealField, Translation3, UnitDualQuaternion,
     UnitQuaternion,
 };
 use num::{One, Zero};
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
-impl<N: SimdRealField> DualQuaternion<N> {
+impl<N: Scalar> DualQuaternion<N> {
     /// Creates a dual quaternion from its rotation and translation components.
     ///
     /// # Example
@@ -40,7 +40,10 @@ impl<N: SimdRealField> DualQuaternion<N> {
     /// assert_eq!(dq2 * dq1, dq2);
     /// ```
     #[inline]
-    pub fn identity() -> Self {
+    pub fn identity() -> Self
+    where
+        N: SimdRealField,
+    {
         Self::from_real_and_dual(
             Quaternion::from_real(N::one()),
             Quaternion::from_real(N::zero()),

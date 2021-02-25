@@ -1,6 +1,6 @@
 use crate::{
     Isometry3, Matrix4, Normed, Point3, Quaternion, Scalar, SimdRealField, Translation3, Unit,
-    UnitQuaternion, Vector3, VectorN, U8,
+    UnitQuaternion, Vector3, VectorN, Zero, U8,
 };
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 #[cfg(feature = "serde-serialize")]
@@ -35,12 +35,21 @@ use simba::scalar::{ClosedNeg, RealField};
 ///  If a feature that you need is missing, feel free to open an issue or a PR.
 ///  See https://github.com/dimforge/nalgebra/issues/487
 #[repr(C)]
-#[derive(Debug, Default, Eq, PartialEq, Copy, Clone)]
-pub struct DualQuaternion<N: SimdRealField> {
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub struct DualQuaternion<N: Scalar> {
     /// The real component of the quaternion
     pub real: Quaternion<N>,
     /// The dual component of the quaternion
     pub dual: Quaternion<N>,
+}
+
+impl<N: Scalar + Zero> Default for DualQuaternion<N> {
+    fn default() -> Self {
+        Self {
+            real: Quaternion::default(),
+            dual: Quaternion::default(),
+        }
+    }
 }
 
 impl<N: SimdRealField> DualQuaternion<N>
