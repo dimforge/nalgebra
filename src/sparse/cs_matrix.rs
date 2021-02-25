@@ -460,7 +460,7 @@ where
     {
         // Size = R
         let nrows = self.data.shape().0;
-        let mut workspace = unsafe { VectorN::new_uninitialized_generic(nrows, U1) };
+        let mut workspace = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, U1) };
         self.sort_with_workspace(workspace.as_mut_slice());
     }
 
