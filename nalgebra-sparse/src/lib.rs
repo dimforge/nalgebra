@@ -155,6 +155,10 @@ use num_traits::Zero;
 use std::error::Error;
 use std::fmt;
 
+pub use self::coo::CooMatrix;
+pub use self::csc::CscMatrix;
+pub use self::csr::CsrMatrix;
+
 /// Errors produced by functions that expect well-formed sparse format data.
 #[derive(Debug)]
 pub struct SparseFormatError {
