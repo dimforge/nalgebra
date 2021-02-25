@@ -94,7 +94,7 @@ where
 
         let lda = n as i32;
 
-        let mut values = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
+        let mut values = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
         let mut info = 0;
 
         let lwork = N::xsyev_work_size(jobz, b'L', n as i32, m.as_mut_slice(), lda, &mut info);

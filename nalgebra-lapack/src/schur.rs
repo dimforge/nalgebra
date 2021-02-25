@@ -78,9 +78,9 @@ where
 
         let mut info = 0;
 
-        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
-        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
-        let mut q = unsafe { Matrix::new_uninitialized_generic(nrows, ncols) };
+        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut q = unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
         // Placeholders:
         let mut bwork = [0i32];
         let mut unused = 0;
@@ -151,7 +151,8 @@ where
     where
         DefaultAllocator: Allocator<Complex<N>, D>,
     {
-        let mut out = unsafe { VectorN::new_uninitialized_generic(self.t.data.shape().0, U1) };
+        let mut out =
+            unsafe { VectorN::new_uninitialized_generic(self.t.data.shape().0, U1).assume_init() };
 
         for i in 0..out.len() {
             out[i] = Complex::new(self.re[i], self.im[i])
