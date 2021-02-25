@@ -135,6 +135,7 @@
 #![deny(unused_results)]
 #![deny(missing_docs)]
 
+pub extern crate nalgebra as na;
 pub mod convert;
 pub mod coo;
 pub mod csc;
