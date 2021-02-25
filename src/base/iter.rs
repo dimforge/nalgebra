@@ -1,5 +1,6 @@
 //! Matrix iterators.
 
+use std::iter::FusedIterator;
 use std::marker::PhantomData;
 use std::mem;
 
@@ -111,6 +112,46 @@ macro_rules! iterator {
             }
         }
 
+        impl<'a, N: Scalar, R: Dim, C: Dim, S: 'a + $Storage<N, R, C>> DoubleEndedIterator
+            for $Name<'a, N, R, C, S>
+        {
+            #[inline]
+            fn next_back(&mut self) -> Option<$Ref> {
+                unsafe {
+                    if self.size == 0 {
+                        None
+                    } else {
+                        // Pre-decrement `size` such that it now counts to the
+                        // element we want to return.
+                        self.size -= 1;
+
+                        // Fetch strides
+                        let inner_stride = self.strides.0.value();
+                        let outer_stride = self.strides.1.value();
+
+                        // Compute number of rows
+                        // Division should be exact
+                        let inner_raw_size = self.inner_end.offset_from(self.inner_ptr) as usize;
+                        let inner_size = inner_raw_size / inner_stride;
+
+                        // Compute rows and cols remaining
+                        let outer_remaining = self.size / inner_size;
+                        let inner_remaining = self.size % inner_size;
+
+                        // Compute pointer to last element
+                        let last = self.ptr.offset(
+                            (outer_remaining * outer_stride + inner_remaining * inner_stride)
+                                as isize,
+                        );
+
+                        // We want either `& *last` or `&mut *last` here, depending
+                        // on the mutability of `$Ref`.
+                        Some(mem::transmute(last))
+                    }
+                }
+            }
+        }
+
         impl<'a, N: Scalar, R: Dim, C: Dim, S: 'a + $Storage<N, R, C>> ExactSizeIterator
             for $Name<'a, N, R, C, S>
         {
@@ -118,6 +159,11 @@ macro_rules! iterator {
             fn len(&self) -> usize {
                 self.size
             }
+        }
+
+        impl<'a, N: Scalar, R: Dim, C: Dim, S: 'a + $Storage<N, R, C>> FusedIterator
+            for $Name<'a, N, R, C, S>
+        {
         }
     };
 }
