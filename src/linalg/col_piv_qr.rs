@@ -331,16 +331,3 @@ where
         res * self.p.determinant()
     }
 }
-
-impl<N: ComplexField, R: DimMin<C>, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
-where
-    DefaultAllocator: Allocator<N, R, C>
-        + Allocator<N, R>
-        + Allocator<N, DimMinimum<R, C>>
-        + Allocator<(usize, usize), DimMinimum<R, C>>,
-{
-    /// Computes the QR decomposition (with column pivoting) of this matrix.
-    pub fn col_piv_qr(self) -> ColPivQR<N, R, C> {
-        ColPivQR::new(self.into_owned())
-    }
-}
