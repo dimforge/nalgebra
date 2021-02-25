@@ -316,7 +316,7 @@ impl<N: RealField + UlpsEq<Epsilon = N>> UlpsEq for DualQuaternion<N> {
     }
 }
 
-/// A unit quaternions. May be used to represent a rotation.
+/// A unit quaternions. May be used to represent a rotation followed by a translation.
 pub type UnitDualQuaternion<N> = Unit<DualQuaternion<N>>;
 
 impl<N: Scalar + ClosedNeg + PartialEq + SimdRealField> PartialEq for UnitDualQuaternion<N> {
@@ -471,10 +471,10 @@ where
     /// # use nalgebra::{UnitDualQuaternion, DualQuaternion, Quaternion};
     /// let qr = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// let qd = Quaternion::new(5.0, 6.0, 7.0, 8.0);
-    /// let iso1 = UnitDualQuaternion::new_normalize(DualQuaternion::from_real_and_dual(qr, qd));
-    /// let iso2 = UnitDualQuaternion::new_normalize(DualQuaternion::from_real_and_dual(qd, qr));
-    /// let iso_to = iso1.isometry_to(&iso2);
-    /// assert_relative_eq!(iso_to * iso1, iso2, epsilon = 1.0e-6);
+    /// let dq1 = UnitDualQuaternion::new_normalize(DualQuaternion::from_real_and_dual(qr, qd));
+    /// let dq2 = UnitDualQuaternion::new_normalize(DualQuaternion::from_real_and_dual(qd, qr));
+    /// let dq_to = dq1.isometry_to(&dq2);
+    /// assert_relative_eq!(dq_to * dq1, dq2, epsilon = 1.0e-6);
     /// ```
     #[inline]
     pub fn isometry_to(&self, other: &Self) -> Self {
@@ -545,7 +545,7 @@ where
     }
 
     /// Screw linear interpolation between two unit quaternions. This creates a
-    /// smooth arc from one isometry to another.
+    /// smooth arc from one dual-quaternion to another.
     ///
     /// Panics if the angle between both quaternion is 180 degrees (in which case the interpolation
     /// is not well-defined). Use `.try_sclerp` instead to avoid the panic.
@@ -754,9 +754,9 @@ where
     }
 
     /// Rotate and translate a point by the inverse of this unit quaternion.
-    /// This may be
-    /// cheaper than inverting the unit dual quaternion and transforming the
-    /// point.
+    ///
+    /// This may be cheaper than inverting the unit dual quaternion and
+    /// transforming the point.
     ///
     /// ```
     /// # #[macro_use] extern crate approx;
@@ -777,10 +777,10 @@ where
     }
 
     /// Rotate a vector by the inverse of this unit quaternion, ignoring the
-    /// translational component
-    /// This may be
-    /// cheaper than inverting the unit dual quaternion and transforming the
-    /// vector.
+    /// translational component.
+    ///
+    /// This may be cheaper than inverting the unit dual quaternion and
+    /// transforming the vector.
     ///
     /// ```
     /// # #[macro_use] extern crate approx;

@@ -796,7 +796,7 @@ dual_quaternion_op_impl!(
     (U3, U1), (U4, U1);
     self: &'a Isometry3<N>, rhs: &'b UnitDualQuaternion<N>,
     Output = UnitDualQuaternion<N> => U3, U1;
-    // TODO: can we avoid the conversion from a rotation matrix?
+    // TODO: can we avoid the conversion from a rotation matrix?
     UnitDualQuaternion::<N>::from_isometry(self) / rhs;
     'a, 'b);
 
