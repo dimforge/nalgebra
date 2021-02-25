@@ -279,6 +279,22 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> matrixcompare_core::DenseAc
     }
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> bytemuck::Zeroable
+    for Matrix<N, R, C, S>
+where
+    S: bytemuck::Zeroable,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> bytemuck::Pod for Matrix<N, R, C, S>
+where
+    S: bytemuck::Pod,
+    Self: Copy,
+{
+}
+
 impl<N: Scalar, R: Dim, C: Dim, S> Matrix<N, R, C, S> {
     /// Creates a new matrix with the given data without statically checking that the matrix
     /// dimension matches the storage dimension.

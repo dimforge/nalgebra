@@ -30,6 +30,12 @@ pub struct Unit<T> {
     pub(crate) value: T,
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<T> bytemuck::Zeroable for Unit<T> where T: bytemuck::Zeroable {}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T> bytemuck::Pod for Unit<T> where T: bytemuck::Pod {}
+
 #[cfg(feature = "serde-serialize")]
 impl<T: Serialize> Serialize for Unit<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>

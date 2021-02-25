@@ -40,7 +40,6 @@ proptest-support = [ "proptest" ]
 # This feature is only used for tests, and enables tests that require more time to run
 slow-tests = []
 
-
 [dependencies]
 typenum        = "1.12"
 generic-array  = "0.14"
@@ -59,6 +58,7 @@ mint           = { version = "0.5", optional = true }
 quickcheck     = { version = "0.9", optional = true }
 pest           = { version = "2", optional = true }
 pest_derive    = { version = "2", optional = true }
+bytemuck       = { version = "1.5", optional = true }
 matrixcompare-core = { version = "0.1", optional = true }
 proptest = { version = "0.10", optional = true, default-features = false, features = ["std"] }
 
