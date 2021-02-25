@@ -57,10 +57,19 @@ jobs:
       - checkout
       - run:
           name: test
-          command: cargo test --features arbitrary --features serde-serialize --features abomonation-serialize --features sparse --features debug --features io --features compare --features libm
+          command: cargo test --features arbitrary --features serde-serialize --features abomonation-serialize --features sparse --features debug --features io --features compare --features libm --features proptest-support --features slow-tests
       - run:
           name: test nalgebra-glm
-          command: cargo test -p nalgebra-glm  --features arbitrary --features serde-serialize --features abomonation-serialize --features sparse --features debug --features io --features compare --features libm
+          command: cargo test -p nalgebra-glm  --features arbitrary --features serde-serialize --features abomonation-serialize --features sparse --features debug --features io --features compare --features libm --features slow-tests
+      - run:
+          name: test nalgebra-sparse
+          # Manifest-path is necessary because cargo otherwise won't correctly forward features
+          # We increase number of proptest cases to hopefully catch more potential bugs
+          command: PROPTEST_CASES=10000 cargo test --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support
+      - run:
+          name: test nalgebra-sparse (slow tests)
+          # Unfortunately, the "slow-tests" take so much time that we need to run them with --release
+          command: PROPTEST_CASES=10000 cargo test --release --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support,slow-tests slow
   build-wasm:
     executor: rust-executor
     steps:
