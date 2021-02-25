@@ -72,11 +72,6 @@ rand_isaac = "0.2"
 
 # For matrix comparison macro
 matrixcompare = "0.2.0"
-
-# Make sure that we use a specific version of proptest for tests. The reason is that we use a deterministic
-# RNG for certain tests. However, different versions of proptest may give different sequences of numbers,
-# which may cause more brittle tests (although ideally they should take enough samples for it not to matter).
-proptest = { version = "=0.10.1" }
 itertools = "0.9"
 
 [workspace]
