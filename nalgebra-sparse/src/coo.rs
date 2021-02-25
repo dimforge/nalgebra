@@ -61,6 +61,15 @@ impl<T> CooMatrix<T> {
         }
     }
 
+    /// Construct a zero COO matrix of the given dimensions.
+    ///
+    /// Specifically, the collection of triplets - corresponding to explicitly stored entries -
+    /// is empty, so that the matrix (implicitly) represented by the COO matrix consists of all
+    /// zero entries.
+    pub fn zeros(nrows: usize, ncols: usize) -> Self {
+        Self::new(nrows, ncols)
+    }
+
     /// Try to construct a COO matrix from the given dimensions and a collection of
     /// (i, j, v) triplets.
     ///

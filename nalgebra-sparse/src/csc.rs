@@ -127,10 +127,66 @@ pub struct CscMatrix<T> {
 }
 
 impl<T> CscMatrix<T> {
+    /// Constructs a CSC representation of the (square) `n x n` identity matrix.
+    #[inline]
+    pub fn identity(n: usize) -> Self
+    where
+        T: Scalar + One,
+    {
+        Self {
+            cs: CsMatrix::identity(n),
+        }
+    }
+
     /// Create a zero CSC matrix with no explicitly stored entries.
     pub fn zeros(nrows: usize, ncols: usize) -> Self {
         Self {
             cs: CsMatrix::new(ncols, nrows),
+        }
+    }
+
+    /// Try to construct a CSC matrix from raw CSC data.
+    ///
+    /// It is assumed that each column contains unique and sorted row indices that are in
+    /// bounds with respect to the number of rows in the matrix. If this is not the case,
+    /// an error is returned to indicate the failure.
+    ///
+    /// An error is returned if the data given does not conform to the CSC storage format.
+    /// See the documentation for [CscMatrix](struct.CscMatrix.html) for more information.
+    pub fn try_from_csc_data(
+        num_rows: usize,
+        num_cols: usize,
+        col_offsets: Vec<usize>,
+        row_indices: Vec<usize>,
+        values: Vec<T>,
+    ) -> Result<Self, SparseFormatError> {
+        let pattern = SparsityPattern::try_from_offsets_and_indices(
+            num_cols,
+            num_rows,
+            col_offsets,
+            row_indices,
+        )
+        .map_err(pattern_format_error_to_csc_error)?;
+        Self::try_from_pattern_and_values(pattern, values)
+    }
+
+    /// Try to construct a CSC matrix from a sparsity pattern and associated non-zero values.
+    ///
+    /// Returns an error if the number of values does not match the number of minor indices
+    /// in the pattern.
+    pub fn try_from_pattern_and_values(
+        pattern: SparsityPattern,
+        values: Vec<T>,
+    ) -> Result<Self, SparseFormatError> {
+        if pattern.nnz() == values.len() {
+            Ok(Self {
+                cs: CsMatrix::from_pattern_and_values(pattern, values),
+            })
+        } else {
+            Err(SparseFormatError::from_kind_and_msg(
+                SparseFormatErrorKind::InvalidStructure,
+                "Number of values and row indices must be the same",
+            ))
         }
     }
 
@@ -178,51 +234,6 @@ impl<T> CscMatrix<T> {
     #[inline]
     pub fn values_mut(&mut self) -> &mut [T] {
         self.cs.values_mut()
-    }
-
-    /// Try to construct a CSC matrix from raw CSC data.
-    ///
-    /// It is assumed that each column contains unique and sorted row indices that are in
-    /// bounds with respect to the number of rows in the matrix. If this is not the case,
-    /// an error is returned to indicate the failure.
-    ///
-    /// An error is returned if the data given does not conform to the CSC storage format.
-    /// See the documentation for [CscMatrix](struct.CscMatrix.html) for more information.
-    pub fn try_from_csc_data(
-        num_rows: usize,
-        num_cols: usize,
-        col_offsets: Vec<usize>,
-        row_indices: Vec<usize>,
-        values: Vec<T>,
-    ) -> Result<Self, SparseFormatError> {
-        let pattern = SparsityPattern::try_from_offsets_and_indices(
-            num_cols,
-            num_rows,
-            col_offsets,
-            row_indices,
-        )
-        .map_err(pattern_format_error_to_csc_error)?;
-        Self::try_from_pattern_and_values(pattern, values)
-    }
-
-    /// Try to construct a CSC matrix from a sparsity pattern and associated non-zero values.
-    ///
-    /// Returns an error if the number of values does not match the number of minor indices
-    /// in the pattern.
-    pub fn try_from_pattern_and_values(
-        pattern: SparsityPattern,
-        values: Vec<T>,
-    ) -> Result<Self, SparseFormatError> {
-        if pattern.nnz() == values.len() {
-            Ok(Self {
-                cs: CsMatrix::from_pattern_and_values(pattern, values),
-            })
-        } else {
-            Err(SparseFormatError::from_kind_and_msg(
-                SparseFormatErrorKind::InvalidStructure,
-                "Number of values and row indices must be the same",
-            ))
-        }
     }
 
     /// An iterator over non-zero triplets (i, j, v).
@@ -485,25 +496,13 @@ impl<T> CscMatrix<T> {
             cs: self.cs.diagonal_as_matrix(),
         }
     }
-}
 
-impl<T> CscMatrix<T>
-where
-    T: Scalar,
-{
     /// Compute the transpose of the matrix.
-    pub fn transpose(&self) -> CscMatrix<T> {
+    pub fn transpose(&self) -> CscMatrix<T>
+    where
+        T: Scalar,
+    {
         CsrMatrix::from(self).transpose_as_csc()
-    }
-}
-
-impl<T: Scalar + One> CscMatrix<T> {
-    /// Constructs a CSC representation of the (square) `n x n` identity matrix.
-    #[inline]
-    pub fn identity(n: usize) -> Self {
-        Self {
-            cs: CsMatrix::identity(n),
-        }
     }
 }
 
