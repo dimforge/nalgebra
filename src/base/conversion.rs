@@ -245,9 +245,9 @@ macro_rules! impl_from_into_mint_1D(
             fn from(v: mint::$VT<N>) -> Self {
                 unsafe {
                     let mut res = Self::new_uninitialized();
-                    ptr::copy_nonoverlapping(&v.x, res.data.ptr_mut(), $SZ);
+                    ptr::copy_nonoverlapping(&v.x, (*res.as_mut_ptr()).data.ptr_mut(), $SZ);
 
-                    res
+                    res.assume_init()
                 }
             }
         }
@@ -307,7 +307,7 @@ macro_rules! impl_from_into_mint_2D(
             fn from(m: mint::$MV<N>) -> Self {
                 unsafe {
                     let mut res = Self::new_uninitialized();
-                    let mut ptr = (*res).data.ptr_mut();
+                    let mut ptr = (*res.as_mut_ptr()).data.ptr_mut();
                     $(
                         ptr::copy_nonoverlapping(&m.$component.x, ptr, $SZRows);
                         ptr = ptr.offset($SZRows);
