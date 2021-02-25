@@ -60,8 +60,8 @@ where
             return QR { qr: matrix, diag };
         }
 
-        for ite in 0..min_nrows_ncols.value() {
-            householder::clear_column_unchecked(&mut matrix, &mut diag[ite], ite, 0, None);
+        for i in 0..min_nrows_ncols.value() {
+            householder::clear_column_unchecked(&mut matrix, &mut diag[i], i, 0, None);
         }
 
         QR { qr: matrix, diag }
