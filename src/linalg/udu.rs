@@ -7,7 +7,7 @@ use crate::dimension::Dim;
 use crate::storage::Storage;
 use simba::scalar::RealField;
 
-/// UDU factorization
+/// UDU factorization.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
@@ -42,8 +42,11 @@ impl<N: RealField, D: Dim> UDU<N, D>
 where
     DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
 {
-    /// Computes the UDU^T factorization
-    /// The input matrix `p` is assumed to be symmetric and this decomposition will only read the upper-triangular part of `p`.
+    /// Computes the UDU^T factorization.
+    ///
+    /// The input matrix `p` is assumed to be symmetric and this decomposition will only read
+    /// the upper-triangular part of `p`.
+    ///
     /// Ref.: "Optimal control and estimation-Dover Publications", Robert F. Stengel, (1994) page 360
     pub fn new(p: MatrixN<N, D>) -> Self {
         let n = p.ncols();

@@ -1,5 +1,4 @@
-use na::Matrix3;
-use na::UDU;
+use na::{Matrix3, UDU};
 
 #[test]
 #[rustfmt::skip]
@@ -40,19 +39,14 @@ mod quickcheck_tests {
     macro_rules! gen_tests(
         ($module: ident, $scalar: ty) => {
             mod $module {
-                use std::cmp;
-                use na::{DMatrix, Matrix4};
+                use na::{UDU, DMatrix, Matrix4};
                 #[allow(unused_imports)]
                 use crate::core::helper::{RandScalar, RandComplex};
 
                 quickcheck! {
-                    fn udu(m: DMatrix<$scalar>) -> bool {
-                        let mut m = m;
-                        if m.len() == 0 {
-                             m = DMatrix::<$scalar>::new_random(1, 1);
-                        }
-
-                        let m = m.map(|e| e.0);
+                    fn udu(n: usize) -> bool {
+                        let n = std::cmp::max(1, std::cmp::min(n, 10));
+                        let m = DMatrix::<$scalar>::new_random(n, n).map(|e| e.0).hermitian_part();
 
                         let udu = UDU::new(m.clone());
                         let p = &udu.u * &udu.d_matrix() * &udu.u.transpose();
@@ -61,18 +55,17 @@ mod quickcheck_tests {
                     }
 
                     fn udu_static(m: Matrix4<$scalar>) -> bool {
-                        let m = m.map(|e| e.0);
+                        let m = m.map(|e| e.0).hermitian_part();
 
                         let udu = UDU::new(m.clone());
                         let p = udu.u * udu.d_matrix() * udu.u.transpose();
 
-                        relative_eq!(m, p, epsilon = 3.0e-16)
+                        relative_eq!(m, p, epsilon = 1.0e-7)
                     }
                 }
             }
         }
     );
 
-    gen_tests!(complex, RandComplex<f64>);
     gen_tests!(f64, RandScalar<f64>);
 }
