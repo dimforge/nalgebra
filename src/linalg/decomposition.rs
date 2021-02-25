@@ -2,7 +2,7 @@ use crate::storage::Storage;
 use crate::{
     Allocator, Bidiagonal, Cholesky, ColPivQR, ComplexField, DefaultAllocator, Dim, DimDiff,
     DimMin, DimMinimum, DimSub, FullPivLU, Hessenberg, Matrix, RealField, Schur, SymmetricEigen,
-    SymmetricTridiagonal, LU, QR, SVD, U1, UDU
+    SymmetricTridiagonal, LU, QR, SVD, U1, UDU,
 };
 
 /// # Rectangular matrix decomposition
