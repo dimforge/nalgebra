@@ -25,6 +25,7 @@ mod solve;
 mod svd;
 mod symmetric_eigen;
 mod symmetric_tridiagonal;
+mod udu;
 
 //// TODO: Not complete enough for publishing.
 //// This handles only cases where each eigenvalue has multiplicity one.
@@ -45,3 +46,4 @@ pub use self::schur::*;
 pub use self::svd::*;
 pub use self::symmetric_eigen::*;
 pub use self::symmetric_tridiagonal::*;
+pub use self::udu::*;
