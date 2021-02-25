@@ -50,7 +50,8 @@ where
         let nrows2 = R2::from_usize(nrows);
         let ncols2 = C2::from_usize(ncols);
 
-        let mut res = unsafe { MatrixMN::<N2, R2, C2>::new_uninitialized_generic(nrows2, ncols2) };
+        let mut res: MatrixMN<N2, R2, C2> =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows2, ncols2) };
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {
@@ -73,7 +74,7 @@ where
         let nrows = R1::from_usize(nrows2);
         let ncols = C1::from_usize(ncols2);
 
-        let mut res = unsafe { Self::new_uninitialized_generic(nrows, ncols) };
+        let mut res: Self = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
         for i in 0..nrows2 {
             for j in 0..ncols2 {
                 unsafe {
@@ -117,9 +118,9 @@ macro_rules! impl_from_into_asref_1D(
             fn from(arr: [N; $SZ]) -> Self {
                 unsafe {
                     let mut res = Self::new_uninitialized();
-                    ptr::copy_nonoverlapping(&arr[0], res.data.ptr_mut(), $SZ);
+                    ptr::copy_nonoverlapping(&arr[0], (*res.as_mut_ptr()).data.ptr_mut(), $SZ);
 
-                    res
+                    res.assume_init()
                 }
             }
         }
@@ -184,9 +185,9 @@ macro_rules! impl_from_into_asref_2D(
             fn from(arr: [[N; $SZRows]; $SZCols]) -> Self {
                 unsafe {
                     let mut res = Self::new_uninitialized();
-                    ptr::copy_nonoverlapping(&arr[0][0], res.data.ptr_mut(), $SZRows * $SZCols);
+                    ptr::copy_nonoverlapping(&arr[0][0], (*res.as_mut_ptr()).data.ptr_mut(), $SZRows * $SZCols);
 
-                    res
+                    res.assume_init()
                 }
             }
         }
@@ -244,9 +245,9 @@ macro_rules! impl_from_into_mint_1D(
             fn from(v: mint::$VT<N>) -> Self {
                 unsafe {
                     let mut res = Self::new_uninitialized();
-                    ptr::copy_nonoverlapping(&v.x, res.data.ptr_mut(), $SZ);
+                    ptr::copy_nonoverlapping(&v.x, (*res.as_mut_ptr()).data.ptr_mut(), $SZ);
 
-                    res
+                    res.assume_init()
                 }
             }
         }
@@ -306,13 +307,13 @@ macro_rules! impl_from_into_mint_2D(
             fn from(m: mint::$MV<N>) -> Self {
                 unsafe {
                     let mut res = Self::new_uninitialized();
-                    let mut ptr = res.data.ptr_mut();
+                    let mut ptr = (*res.as_mut_ptr()).data.ptr_mut();
                     $(
                         ptr::copy_nonoverlapping(&m.$component.x, ptr, $SZRows);
                         ptr = ptr.offset($SZRows);
                     )*
                     let _ = ptr;
-                    res
+                    res.assume_init()
                 }
             }
         }

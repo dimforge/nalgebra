@@ -314,6 +314,21 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         unsafe { Self::from_data_statically_unchecked(data) }
     }
 
+    /// Creates a new uninitialized matrix with the given uninitialized data
+    pub unsafe fn from_uninitialized_data(data: mem::MaybeUninit<S>) -> mem::MaybeUninit<Self> {
+        let res: Matrix<N, R, C, mem::MaybeUninit<S>> = Matrix {
+            data,
+            _phantoms: PhantomData,
+        };
+        let res: mem::MaybeUninit<Matrix<N, R, C, mem::MaybeUninit<S>>> =
+            mem::MaybeUninit::new(res);
+        // safety: since we wrap the inner MaybeUninit in an outer MaybeUninit above, the fact that the `data` field is partially-uninitialized is still opaque.
+        // with s/transmute_copy/transmute/, rustc claims that `MaybeUninit<Matrix<N, R, C, MaybeUninit<S>>>` may be of a different size from `MaybeUninit<Matrix<N, R, C, S>>`
+        // but MaybeUninit's documentation says "MaybeUninit<T> is guaranteed to have the same size, alignment, and ABI as T", which implies those types should be the same size
+        let res: mem::MaybeUninit<Matrix<N, R, C, S>> = mem::transmute_copy(&res);
+        res
+    }
+
     /// The shape of this matrix returned as the tuple (number of rows, number of columns).
     ///
     /// # Examples:
@@ -513,7 +528,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         let ncols: SameShapeC<C, C2> = Dim::from_usize(ncols);
 
         let mut res: MatrixSum<N, R, C, R2, C2> =
-            unsafe { Matrix::new_uninitialized_generic(nrows, ncols) };
+            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
         // TODO: use copy_from
         for j in 0..res.ncols() {
@@ -562,7 +577,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
-            let mut res = Matrix::new_uninitialized_generic(ncols, nrows);
+            let mut res = crate::unimplemented_or_uninitialized_generic!(ncols, nrows);
             self.transpose_to(&mut res);
 
             res
@@ -580,7 +595,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     {
         let (nrows, ncols) = self.data.shape();
 
-        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
+        let mut res: MatrixMN<N2, R, C> =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
@@ -624,7 +640,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     {
         let (nrows, ncols) = self.data.shape();
 
-        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
+        let mut res: MatrixMN<N2, R, C> =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
@@ -651,7 +668,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     {
         let (nrows, ncols) = self.data.shape();
 
-        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
+        let mut res: MatrixMN<N3, R, C> =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
         assert_eq!(
             (nrows.value(), ncols.value()),
@@ -692,7 +710,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     {
         let (nrows, ncols) = self.data.shape();
 
-        let mut res = unsafe { MatrixMN::new_uninitialized_generic(nrows, ncols) };
+        let mut res: MatrixMN<N4, R, C> =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
         assert_eq!(
             (nrows.value(), ncols.value()),
@@ -1186,7 +1205,8 @@ impl<N: SimdComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
-            let mut res: MatrixMN<_, C, R> = Matrix::new_uninitialized_generic(ncols, nrows);
+            let mut res: MatrixMN<_, C, R> =
+                crate::unimplemented_or_uninitialized_generic!(ncols, nrows);
             self.adjoint_to(&mut res);
 
             res
@@ -1327,7 +1347,8 @@ impl<N: Scalar, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
         );
 
         let dim = self.data.shape().0;
-        let mut res = unsafe { VectorN::new_uninitialized_generic(dim, U1) };
+        let mut res: VectorN<N2, D> =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(dim, U1) };
 
         for i in 0..dim.value() {
             unsafe {
@@ -1454,7 +1475,8 @@ impl<N: Scalar + Zero, D: DimAdd<U1>, S: Storage<N, D>> Vector<N, D, S> {
     {
         let len = self.len();
         let hnrows = DimSum::<D, U1>::from_usize(len + 1);
-        let mut res = unsafe { VectorN::<N, _>::new_uninitialized_generic(hnrows, U1) };
+        let mut res: VectorN<N, _> =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(hnrows, U1) };
         res.generic_slice_mut((0, 0), self.data.shape())
             .copy_from(self);
         res[(len, 0)] = element;
@@ -1799,7 +1821,8 @@ impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N
                 // TODO: soooo ugly!
                 let nrows = SameShapeR::<R, R2>::from_usize(3);
                 let ncols = SameShapeC::<C, C2>::from_usize(1);
-                let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
+                let mut res: MatrixCross<N, R, C, R2, C2> =
+                    crate::unimplemented_or_uninitialized_generic!(nrows, ncols);
 
                 let ax = self.get_unchecked((0, 0));
                 let ay = self.get_unchecked((1, 0));
@@ -1823,7 +1846,8 @@ impl<N: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: Storage<N
                 // TODO: ugly!
                 let nrows = SameShapeR::<R, R2>::from_usize(1);
                 let ncols = SameShapeC::<C, C2>::from_usize(3);
-                let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
+                let mut res: MatrixCross<N, R, C, R2, C2> =
+                    crate::unimplemented_or_uninitialized_generic!(nrows, ncols);
 
                 let ax = self.get_unchecked((0, 0));
                 let ay = self.get_unchecked((0, 1));

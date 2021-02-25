@@ -45,9 +45,8 @@ where
     type Buffer = ArrayStorage<N, R, C>;
 
     #[inline]
-    unsafe fn allocate_uninitialized(_: R, _: C) -> Self::Buffer {
-        // TODO: Undefined behavior, see #556
-        mem::MaybeUninit::<Self::Buffer>::uninit().assume_init()
+    unsafe fn allocate_uninitialized(_: R, _: C) -> mem::MaybeUninit<Self::Buffer> {
+        mem::MaybeUninit::<Self::Buffer>::uninit()
     }
 
     #[inline]
@@ -56,7 +55,10 @@ where
         ncols: C,
         iter: I,
     ) -> Self::Buffer {
-        let mut res = unsafe { Self::allocate_uninitialized(nrows, ncols) };
+        #[cfg(feature = "no_unsound_assume_init")]
+        let mut res: Self::Buffer = unimplemented!();
+        #[cfg(not(feature = "no_unsound_assume_init"))]
+        let mut res = unsafe { Self::allocate_uninitialized(nrows, ncols).assume_init() };
         let mut count = 0;
 
         for (res, e) in res.iter_mut().zip(iter.into_iter()) {
@@ -80,13 +82,13 @@ impl<N: Scalar, C: Dim> Allocator<N, Dynamic, C> for DefaultAllocator {
     type Buffer = VecStorage<N, Dynamic, C>;
 
     #[inline]
-    unsafe fn allocate_uninitialized(nrows: Dynamic, ncols: C) -> Self::Buffer {
+    unsafe fn allocate_uninitialized(nrows: Dynamic, ncols: C) -> mem::MaybeUninit<Self::Buffer> {
         let mut res = Vec::new();
         let length = nrows.value() * ncols.value();
         res.reserve_exact(length);
         res.set_len(length);
 
-        VecStorage::new(nrows, ncols, res)
+        mem::MaybeUninit::new(VecStorage::new(nrows, ncols, res))
     }
 
     #[inline]
@@ -110,13 +112,13 @@ impl<N: Scalar, R: DimName> Allocator<N, R, Dynamic> for DefaultAllocator {
     type Buffer = VecStorage<N, R, Dynamic>;
 
     #[inline]
-    unsafe fn allocate_uninitialized(nrows: R, ncols: Dynamic) -> Self::Buffer {
+    unsafe fn allocate_uninitialized(nrows: R, ncols: Dynamic) -> mem::MaybeUninit<Self::Buffer> {
         let mut res = Vec::new();
         let length = nrows.value() * ncols.value();
         res.reserve_exact(length);
         res.set_len(length);
 
-        VecStorage::new(nrows, ncols, res)
+        mem::MaybeUninit::new(VecStorage::new(nrows, ncols, res))
     }
 
     #[inline]
@@ -156,7 +158,11 @@ where
         cto: CTo,
         buf: <Self as Allocator<N, RFrom, CFrom>>::Buffer,
     ) -> ArrayStorage<N, RTo, CTo> {
-        let mut res = <Self as Allocator<N, RTo, CTo>>::allocate_uninitialized(rto, cto);
+        #[cfg(feature = "no_unsound_assume_init")]
+        let mut res: ArrayStorage<N, RTo, CTo> = unimplemented!();
+        #[cfg(not(feature = "no_unsound_assume_init"))]
+        let mut res =
+            <Self as Allocator<N, RTo, CTo>>::allocate_uninitialized(rto, cto).assume_init();
 
         let (rfrom, cfrom) = buf.shape();
 
@@ -184,7 +190,11 @@ where
         cto: CTo,
         buf: ArrayStorage<N, RFrom, CFrom>,
     ) -> VecStorage<N, Dynamic, CTo> {
-        let mut res = <Self as Allocator<N, Dynamic, CTo>>::allocate_uninitialized(rto, cto);
+        #[cfg(feature = "no_unsound_assume_init")]
+        let mut res: VecStorage<N, Dynamic, CTo> = unimplemented!();
+        #[cfg(not(feature = "no_unsound_assume_init"))]
+        let mut res =
+            <Self as Allocator<N, Dynamic, CTo>>::allocate_uninitialized(rto, cto).assume_init();
 
         let (rfrom, cfrom) = buf.shape();
 
@@ -212,7 +222,11 @@ where
         cto: Dynamic,
         buf: ArrayStorage<N, RFrom, CFrom>,
     ) -> VecStorage<N, RTo, Dynamic> {
-        let mut res = <Self as Allocator<N, RTo, Dynamic>>::allocate_uninitialized(rto, cto);
+        #[cfg(feature = "no_unsound_assume_init")]
+        let mut res: VecStorage<N, RTo, Dynamic> = unimplemented!();
+        #[cfg(not(feature = "no_unsound_assume_init"))]
+        let mut res =
+            <Self as Allocator<N, RTo, Dynamic>>::allocate_uninitialized(rto, cto).assume_init();
 
         let (rfrom, cfrom) = buf.shape();
 

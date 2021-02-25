@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, MatrixMN, MatrixN, VectorN};
+use crate::base::{DefaultAllocator, MatrixN, VectorN};
 use crate::dimension::{DimDiff, DimSub, U1};
 use crate::storage::Storage;
 use simba::scalar::ComplexField;
@@ -61,8 +61,9 @@ where
             "Unable to compute the symmetric tridiagonal decomposition of an empty matrix."
         );
 
-        let mut off_diagonal = unsafe { MatrixMN::new_uninitialized_generic(dim.sub(U1), U1) };
-        let mut p = unsafe { MatrixMN::new_uninitialized_generic(dim.sub(U1), U1) };
+        let mut off_diagonal =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(dim.sub(U1), U1) };
+        let mut p = unsafe { crate::unimplemented_or_uninitialized_generic!(dim.sub(U1), U1) };
 
         for i in 0..dim.value() - 1 {
             let mut m = m.rows_range_mut(i + 1..);

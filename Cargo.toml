@@ -36,6 +36,7 @@ compare = [ "matrixcompare-core" ]
 libm = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 proptest-support = [ "proptest" ]
+no_unsound_assume_init = [ ]
 
 # This feature is only used for tests, and enables tests that require more time to run
 slow-tests = []
