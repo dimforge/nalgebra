@@ -1,15 +1,19 @@
-#![cfg(feature = "arbitrary")]
+#![cfg(feature = "proptest-support")]
 #![allow(non_snake_case)]
 
-use na::{Point3, Quaternion, Rotation3, Unit, UnitQuaternion, Vector3};
+use na::{Unit, UnitQuaternion};
 
-quickcheck!(
+use crate::proptest::*;
+use proptest::{prop_assert, proptest};
+
+proptest!(
     /*
      *
      * Euler angles.
      *
      */
-    fn from_euler_angles(r: f64, p: f64, y: f64) -> bool {
+    #[test]
+    fn from_euler_angles(r in PROPTEST_F64, p in PROPTEST_F64, y in PROPTEST_F64) {
         let roll = UnitQuaternion::from_euler_angles(r, 0.0, 0.0);
         let pitch = UnitQuaternion::from_euler_angles(0.0, p, 0.0);
         let yaw = UnitQuaternion::from_euler_angles(0.0, 0.0, y);
@@ -20,20 +24,21 @@ quickcheck!(
         let rpitch = pitch.to_rotation_matrix();
         let ryaw = yaw.to_rotation_matrix();
 
-        relative_eq!(rroll[(0, 0)],  1.0, epsilon = 1.0e-7) && // rotation wrt. x axis.
-        relative_eq!(rpitch[(1, 1)], 1.0, epsilon = 1.0e-7) && // rotation wrt. y axis.
-        relative_eq!(ryaw[(2, 2)],   1.0, epsilon = 1.0e-7) && // rotation wrt. z axis.
-        relative_eq!(yaw * pitch * roll, rpy, epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(rroll[(0, 0)],  1.0, epsilon = 1.0e-7)); // rotation wrt. x axis.
+        prop_assert!(relative_eq!(rpitch[(1, 1)], 1.0, epsilon = 1.0e-7)); // rotation wrt. y axis.
+        prop_assert!(relative_eq!(ryaw[(2, 2)],   1.0, epsilon = 1.0e-7)); // rotation wrt. z axis.
+        prop_assert!(relative_eq!(yaw * pitch * roll, rpy, epsilon = 1.0e-7));
     }
 
-    fn euler_angles(r: f64, p: f64, y: f64) -> bool {
+    #[test]
+    fn euler_angles(r in PROPTEST_F64, p in PROPTEST_F64, y in PROPTEST_F64) {
         let rpy = UnitQuaternion::from_euler_angles(r, p, y);
         let (roll, pitch, yaw) = rpy.euler_angles();
-        relative_eq!(
+        prop_assert!(relative_eq!(
             UnitQuaternion::from_euler_angles(roll, pitch, yaw),
             rpy,
             epsilon = 1.0e-7
-        )
+        ))
     }
 
     /*
@@ -41,12 +46,13 @@ quickcheck!(
      * From/to rotation matrix.
      *
      */
-    fn unit_quaternion_rotation_conversion(q: UnitQuaternion<f64>) -> bool {
+    #[test]
+    fn unit_quaternion_rotation_conversion(q in unit_quaternion()) {
         let r = q.to_rotation_matrix();
         let qq = UnitQuaternion::from_rotation_matrix(&r);
         let rr = qq.to_rotation_matrix();
 
-        relative_eq!(q, qq, epsilon = 1.0e-7) && relative_eq!(r, rr, epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(q, qq, epsilon = 1.0e-7) && relative_eq!(r, rr, epsilon = 1.0e-7))
     }
 
     /*
@@ -55,24 +61,25 @@ quickcheck!(
      *
      */
 
+    #[test]
     #[cfg_attr(rustfmt, rustfmt_skip)]
     fn unit_quaternion_transformation(
-        q: UnitQuaternion<f64>,
-        v: Vector3<f64>,
-        p: Point3<f64>
-    ) -> bool {
+        q in unit_quaternion(),
+        v in vector3(),
+        p in point3()
+    ) {
         let r = q.to_rotation_matrix();
         let rv = r * v;
         let rp = r * p;
 
-        relative_eq!(q * v, rv, epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(q * v, rv, epsilon = 1.0e-7)
             && relative_eq!(q * &v, rv, epsilon = 1.0e-7)
             && relative_eq!(&q * v, rv, epsilon = 1.0e-7)
             && relative_eq!(&q * &v, rv, epsilon = 1.0e-7)
             && relative_eq!(q * p, rp, epsilon = 1.0e-7)
             && relative_eq!(q * &p, rp, epsilon = 1.0e-7)
             && relative_eq!(&q * p, rp, epsilon = 1.0e-7)
-            && relative_eq!(&q * &p, rp, epsilon = 1.0e-7)
+            && relative_eq!(&q * &p, rp, epsilon = 1.0e-7))
     }
 
     /*
@@ -80,16 +87,17 @@ quickcheck!(
      * Inversion.
      *
      */
-    fn unit_quaternion_inv(q: UnitQuaternion<f64>) -> bool {
+    #[test]
+    fn unit_quaternion_inv(q in unit_quaternion()) {
         let iq = q.inverse();
-        relative_eq!(&iq * &q, UnitQuaternion::identity(), epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(&iq * &q, UnitQuaternion::identity(), epsilon = 1.0e-7)
             && relative_eq!(iq * &q, UnitQuaternion::identity(), epsilon = 1.0e-7)
             && relative_eq!(&iq * q, UnitQuaternion::identity(), epsilon = 1.0e-7)
             && relative_eq!(iq * q, UnitQuaternion::identity(), epsilon = 1.0e-7)
             && relative_eq!(&q * &iq, UnitQuaternion::identity(), epsilon = 1.0e-7)
             && relative_eq!(q * &iq, UnitQuaternion::identity(), epsilon = 1.0e-7)
             && relative_eq!(&q * iq, UnitQuaternion::identity(), epsilon = 1.0e-7)
-            && relative_eq!(q * iq, UnitQuaternion::identity(), epsilon = 1.0e-7)
+            && relative_eq!(q * iq, UnitQuaternion::identity(), epsilon = 1.0e-7))
     }
 
     /*
@@ -97,14 +105,15 @@ quickcheck!(
      * Quaterion * Vector == Rotation * Vector
      *
      */
-    fn unit_quaternion_mul_vector(q: UnitQuaternion<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {
+    #[test]
+    fn unit_quaternion_mul_vector(q in unit_quaternion(), v in vector3(), p in point3()) {
         let r = q.to_rotation_matrix();
 
-        relative_eq!(q * v, r * v, epsilon = 1.0e-7) &&
-        relative_eq!(q * p, r * p, epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!(q * v, r * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(q * p, r * p, epsilon = 1.0e-7));
         // Equivalence q = -q
-        relative_eq!(UnitQuaternion::new_unchecked(-q.into_inner()) * v, r * v, epsilon = 1.0e-7) &&
-        relative_eq!(UnitQuaternion::new_unchecked(-q.into_inner()) * p, r * p, epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(UnitQuaternion::new_unchecked(-q.into_inner()) * v, r * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(UnitQuaternion::new_unchecked(-q.into_inner()) * p, r * p, epsilon = 1.0e-7));
     }
 
     /*
@@ -112,23 +121,25 @@ quickcheck!(
      * Unit quaternion double-covering.
      *
      */
-    fn unit_quaternion_double_covering(q: UnitQuaternion<f64>) -> bool {
+    #[test]
+    fn unit_quaternion_double_covering(q in unit_quaternion()) {
         let mq = UnitQuaternion::new_unchecked(-q.into_inner());
-        mq == q && mq.angle() == q.angle() && mq.axis() == q.axis()
+        prop_assert!(mq == q && mq.angle() == q.angle() && mq.axis() == q.axis())
     }
 
     // Test that all operators (incl. all combinations of references) work.
     // See the top comment on `geometry/quaternion_ops.rs` for details on which operations are
     // supported.
+    #[test]
     #[cfg_attr(rustfmt, rustfmt_skip)]
     fn all_op_exist(
-        q: Quaternion<f64>,
-        uq: UnitQuaternion<f64>,
-        v: Vector3<f64>,
-        p: Point3<f64>,
-        r: Rotation3<f64>,
-        s: f64
-    ) -> bool {
+        q in quaternion(),
+        uq in unit_quaternion(),
+        v in vector3(),
+        p in point3(),
+        r in rotation3(),
+        s in PROPTEST_F64
+    ) {
         let uv = Unit::new_normalize(v);
 
         let qpq = q + q;
@@ -196,7 +207,7 @@ quickcheck!(
         uqDr1 /= r;
         uqDr2 /= &r;
 
-        qMs1 == qMs
+        prop_assert!(qMs1 == qMs
             && qMq1 == qMq
             && qMq1 == qMq2
             && qpq1 == qpq
@@ -250,6 +261,6 @@ quickcheck!(
             && uqMv == &uq * v
             && uqMuv == &uq * &uv
             && uqMuv == uq * &uv
-            && uqMuv == &uq * uv
+            && uqMuv == &uq * uv)
     }
 );

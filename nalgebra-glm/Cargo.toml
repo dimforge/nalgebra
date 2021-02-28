@@ -19,7 +19,6 @@ maintenance = { status = "actively-developed" }
 [features]
 default         = [ "std" ]
 std             = [ "nalgebra/std", "simba/std" ]
-stdweb          = [ "nalgebra/stdweb" ]
 arbitrary       = [ "nalgebra/arbitrary" ]
 serde-serialize = [ "nalgebra/serde-serialize" ]
 abomonation-serialize = [ "nalgebra/abomonation-serialize" ]
@@ -27,5 +26,5 @@ abomonation-serialize = [ "nalgebra/abomonation-serialize" ]
 [dependencies]
 num-traits = { version = "0.2", default-features = false }
 approx = { version = "0.4", default-features = false }
-simba = { version = "0.3", default-features = false }
+simba = { version = "0.4", default-features = false }
 nalgebra = { path =  "..", version = "0.24", default-features = false }

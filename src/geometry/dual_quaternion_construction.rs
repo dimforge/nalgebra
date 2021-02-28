@@ -108,7 +108,7 @@ where
     N::Element: SimdRealField,
 {
     #[inline]
-    fn arbitrary<G: Gen>(rng: &mut G) -> Self {
+    fn arbitrary(rng: &mut Gen) -> Self {
         Self::from_real_and_dual(Arbitrary::arbitrary(rng), Arbitrary::arbitrary(rng))
     }
 }
@@ -216,7 +216,7 @@ where
     N::Element: SimdRealField,
 {
     #[inline]
-    fn arbitrary<G: Gen>(rng: &mut G) -> Self {
+    fn arbitrary(rng: &mut Gen) -> Self {
         Self::new_normalize(Arbitrary::arbitrary(rng))
     }
 }

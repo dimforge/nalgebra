@@ -1,10 +1,161 @@
 //! Tests for proptest-related functionality.
+use nalgebra::allocator::Allocator;
 use nalgebra::base::dimension::*;
-use nalgebra::proptest::{matrix, DimRange, MatrixStrategy};
-use nalgebra::{DMatrix, DVector, Dim, Matrix3, MatrixMN, Vector3};
+use nalgebra::proptest::{DimRange, MatrixStrategy};
+use nalgebra::{
+    DMatrix, DVector, DefaultAllocator, Dim, DualQuaternion, Isometry2, Isometry3, Matrix3,
+    MatrixMN, Point2, Point3, Quaternion, Rotation2, Rotation3, Scalar, Similarity3, Translation2,
+    Translation3, UnitComplex, UnitDualQuaternion, UnitQuaternion, Vector3, U2, U3, U4, U7, U8,
+};
+use num_complex::Complex;
 use proptest::prelude::*;
-use proptest::strategy::ValueTree;
+use proptest::strategy::{Strategy, ValueTree};
 use proptest::test_runner::TestRunner;
+use std::ops::RangeInclusive;
+
+pub const PROPTEST_MATRIX_DIM: RangeInclusive<usize> = 1..=20;
+pub const PROPTEST_F64: RangeInclusive<f64> = -100.0..=100.0;
+
+pub use nalgebra::proptest::{matrix, vector};
+
+pub fn point2() -> impl Strategy<Value = Point2<f64>> {
+    vector2().prop_map(|v| Point2::from(v))
+}
+
+pub fn point3() -> impl Strategy<Value = Point3<f64>> {
+    vector3().prop_map(|v| Point3::from(v))
+}
+
+pub fn translation2() -> impl Strategy<Value = Translation2<f64>> {
+    vector2().prop_map(|v| Translation2::from(v))
+}
+
+pub fn translation3() -> impl Strategy<Value = Translation3<f64>> {
+    vector3().prop_map(|v| Translation3::from(v))
+}
+
+pub fn rotation2() -> impl Strategy<Value = Rotation2<f64>> {
+    PROPTEST_F64.prop_map(|v| Rotation2::new(v))
+}
+
+pub fn rotation3() -> impl Strategy<Value = Rotation3<f64>> {
+    vector3().prop_map(|v| Rotation3::new(v))
+}
+
+pub fn unit_complex() -> impl Strategy<Value = UnitComplex<f64>> {
+    PROPTEST_F64.prop_map(|v| UnitComplex::new(v))
+}
+
+pub fn isometry2() -> impl Strategy<Value = Isometry2<f64>> {
+    vector3().prop_map(|v| Isometry2::new(v.xy(), v.z))
+}
+
+pub fn isometry3() -> impl Strategy<Value = Isometry3<f64>> {
+    vector6().prop_map(|v| Isometry3::new(v.xyz(), Vector3::new(v.w, v.a, v.b)))
+}
+
+// pub fn similarity2() -> impl Strategy<Value = Similarity2<f64>> {
+//     vector4().prop_map(|v| Similarity2::new(v.xy(), v.z, v.w))
+// }
+
+pub fn similarity3() -> impl Strategy<Value = Similarity3<f64>> {
+    vector(PROPTEST_F64, U7)
+        .prop_map(|v| Similarity3::new(v.xyz(), Vector3::new(v[3], v[4], v[5]), v[6]))
+}
+
+pub fn unit_dual_quaternion() -> impl Strategy<Value = UnitDualQuaternion<f64>> {
+    isometry3().prop_map(|iso| UnitDualQuaternion::from_isometry(&iso))
+}
+
+pub fn dual_quaternion() -> impl Strategy<Value = DualQuaternion<f64>> {
+    vector(PROPTEST_F64, U8).prop_map(|v| {
+        DualQuaternion::from_real_and_dual(
+            Quaternion::new(v[0], v[1], v[2], v[3]),
+            Quaternion::new(v[4], v[5], v[6], v[7]),
+        )
+    })
+}
+
+pub fn quaternion() -> impl Strategy<Value = Quaternion<f64>> {
+    vector4().prop_map(|v| Quaternion::from(v))
+}
+
+pub fn unit_quaternion() -> impl Strategy<Value = UnitQuaternion<f64>> {
+    vector3().prop_map(|v| UnitQuaternion::new(v))
+}
+
+pub fn complex_f64() -> impl Strategy<Value = Complex<f64>> + Clone {
+    vector(PROPTEST_F64, U2).prop_map(|v| Complex::new(v.x, v.y))
+}
+
+pub fn dmatrix() -> impl Strategy<Value = DMatrix<f64>> {
+    matrix(PROPTEST_F64, PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM)
+}
+
+pub fn dvector() -> impl Strategy<Value = DVector<f64>> {
+    vector(PROPTEST_F64, PROPTEST_MATRIX_DIM)
+}
+
+pub fn dmatrix_<ScalarStrategy>(
+    scalar_strategy: ScalarStrategy,
+) -> impl Strategy<Value = DMatrix<ScalarStrategy::Value>>
+where
+    ScalarStrategy: Strategy + Clone + 'static,
+    ScalarStrategy::Value: Scalar,
+    DefaultAllocator: Allocator<ScalarStrategy::Value, Dynamic, Dynamic>,
+{
+    matrix(scalar_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM)
+}
+
+// pub fn dvector_<T>(range: RangeInclusive<T>) -> impl Strategy<Value = DVector<T>>
+// where
+//     RangeInclusive<T>: Strategy<Value = T>,
+//     T: Scalar + PartialEq + Copy,
+//     DefaultAllocator: Allocator<T, Dynamic>,
+// {
+//     vector(range, PROPTEST_MATRIX_DIM)
+// }
+
+macro_rules! define_strategies(
+    ($($strategy_: ident $strategy: ident<$nrows: ident, $ncols: ident>),*) => {$(
+        #[allow(dead_code)]
+        pub fn $strategy() -> impl Strategy<Value = MatrixMN<f64, $nrows, $ncols>> {
+            matrix(PROPTEST_F64, $nrows, $ncols)
+        }
+
+        #[allow(dead_code)]
+        pub fn $strategy_<ScalarStrategy>(scalar_strategy: ScalarStrategy) -> impl Strategy<Value = MatrixMN<ScalarStrategy::Value, $nrows, $ncols>>
+            where
+                ScalarStrategy: Strategy + Clone + 'static,
+                ScalarStrategy::Value: Scalar,
+                DefaultAllocator: Allocator<ScalarStrategy::Value, $nrows, $ncols> {
+            matrix(scalar_strategy, $nrows, $ncols)
+        }
+    )*}
+);
+
+define_strategies!(
+    matrix1_ matrix1<U1, U1>,
+    matrix2_ matrix2<U2, U2>,
+    matrix3_ matrix3<U3, U3>,
+    matrix4_ matrix4<U4, U4>,
+    matrix5_ matrix5<U5, U5>,
+    matrix6_ matrix6<U6, U6>,
+
+    matrix5x2_ matrix5x2<U5, U2>,
+    matrix2x5_ matrix2x5<U2, U5>,
+    matrix5x3_ matrix5x3<U5, U3>,
+    matrix3x5_ matrix3x5<U3, U5>,
+    matrix5x4_ matrix5x4<U5, U4>,
+    matrix4x5_ matrix4x5<U4, U5>,
+
+    vector1_ vector1<U1, U1>,
+    vector2_ vector2<U2, U1>,
+    vector3_ vector3<U3, U1>,
+    vector4_ vector4<U4, U1>,
+    vector5_ vector5<U5, U1>,
+    vector6_ vector6<U6, U1>
+);
 
 /// Generate a proptest that tests that all matrices generated with the
 /// provided rows and columns conform to the constraints defined by the

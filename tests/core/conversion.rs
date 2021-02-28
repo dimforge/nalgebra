@@ -1,44 +1,49 @@
-#![cfg(all(feature = "arbitrary", feature = "alga"))]
+#![cfg(all(feature = "proptest-support", feature = "alga"))]
 use alga::linear::Transformation;
 use na::{
     self, Affine3, Isometry3, Matrix2, Matrix2x3, Matrix2x4, Matrix2x5, Matrix2x6, Matrix3,
     Matrix3x2, Matrix3x4, Matrix3x5, Matrix3x6, Matrix4, Matrix4x2, Matrix4x3, Matrix4x5,
     Matrix4x6, Matrix5, Matrix5x2, Matrix5x3, Matrix5x4, Matrix5x6, Matrix6, Matrix6x2, Matrix6x3,
-    Matrix6x4, Matrix6x5, Point3, Projective3, Rotation3, RowVector1, RowVector2, RowVector3,
-    RowVector4, RowVector5, RowVector6, Similarity3, Transform3, Translation3, UnitQuaternion,
-    Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
+    Matrix6x4, Matrix6x5, Projective3, Rotation3, RowVector1, RowVector2, RowVector3, RowVector4,
+    RowVector5, RowVector6, Similarity3, Transform3, UnitQuaternion, Vector1, Vector2, Vector3,
+    Vector4, Vector5, Vector6,
 };
 use na::{DMatrix, DMatrixSlice, DMatrixSliceMut, MatrixSlice, MatrixSliceMut};
 use na::{U1, U3, U4};
 
-quickcheck! {
-    fn translation_conversion(t: Translation3<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {
+use crate::proptest::*;
+use proptest::{prop_assert, prop_assert_eq, proptest};
+
+proptest! {
+    #[test]
+    fn translation_conversion(t in translation3(), v in vector3(), p in point3()) {
         let iso: Isometry3<f64>   = na::convert(t);
         let sim: Similarity3<f64> = na::convert(t);
         let aff: Affine3<f64>     = na::convert(t);
         let prj: Projective3<f64> = na::convert(t);
         let tr:  Transform3<f64>  = na::convert(t);
 
-        t == na::try_convert(iso).unwrap() &&
-        t == na::try_convert(sim).unwrap() &&
-        t == na::try_convert(aff).unwrap() &&
-        t == na::try_convert(prj).unwrap() &&
-        t == na::try_convert(tr).unwrap()  &&
+        prop_assert_eq!(t, na::try_convert(iso).unwrap());
+        prop_assert_eq!(t, na::try_convert(sim).unwrap());
+        prop_assert_eq!(t, na::try_convert(aff).unwrap());
+        prop_assert_eq!(t, na::try_convert(prj).unwrap());
+        prop_assert_eq!(t, na::try_convert(tr).unwrap() );
 
-        t.transform_vector(&v) == iso * v &&
-        t.transform_vector(&v) == sim * v &&
-        t.transform_vector(&v) == aff * v &&
-        t.transform_vector(&v) == prj * v &&
-        t.transform_vector(&v) == tr  * v &&
+        prop_assert_eq!(t.transform_vector(&v), iso * v);
+        prop_assert_eq!(t.transform_vector(&v), sim * v);
+        prop_assert_eq!(t.transform_vector(&v), aff * v);
+        prop_assert_eq!(t.transform_vector(&v), prj * v);
+        prop_assert_eq!(t.transform_vector(&v), tr  * v);
 
-        t * p == iso * p &&
-        t * p == sim * p &&
-        t * p == aff * p &&
-        t * p == prj * p &&
-        t * p == tr  * p
+        prop_assert_eq!(t * p, iso * p);
+        prop_assert_eq!(t * p, sim * p);
+        prop_assert_eq!(t * p, aff * p);
+        prop_assert_eq!(t * p, prj * p);
+        prop_assert_eq!(t * p, tr  * p);
     }
 
-    fn rotation_conversion(r: Rotation3<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {
+    #[test]
+    fn rotation_conversion(r in rotation3(), v in vector3(), p in point3()) {
         let uq:  UnitQuaternion<f64> = na::convert(r);
         let iso: Isometry3<f64>      = na::convert(r);
         let sim: Similarity3<f64>    = na::convert(r);
@@ -46,30 +51,31 @@ quickcheck! {
         let prj: Projective3<f64>    = na::convert(r);
         let tr:  Transform3<f64>     = na::convert(r);
 
-        relative_eq!(r, na::try_convert(uq).unwrap(),  epsilon = 1.0e-7) &&
-        relative_eq!(r, na::try_convert(iso).unwrap(), epsilon = 1.0e-7) &&
-        relative_eq!(r, na::try_convert(sim).unwrap(), epsilon = 1.0e-7) &&
-        r == na::try_convert(aff).unwrap() &&
-        r == na::try_convert(prj).unwrap() &&
-        r == na::try_convert(tr).unwrap()  &&
+        prop_assert!(relative_eq!(r, na::try_convert(uq).unwrap(),  epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(r, na::try_convert(iso).unwrap(), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(r, na::try_convert(sim).unwrap(), epsilon = 1.0e-7));
+        prop_assert_eq!(r, na::try_convert(aff).unwrap());
+        prop_assert_eq!(r, na::try_convert(prj).unwrap());
+        prop_assert_eq!(r, na::try_convert(tr).unwrap() );
 
         // NOTE: we need relative_eq because Isometry and Similarity use quaternions.
-        relative_eq!(r * v, uq  * v, epsilon = 1.0e-7) &&
-        relative_eq!(r * v, iso * v, epsilon = 1.0e-7) &&
-        relative_eq!(r * v, sim * v, epsilon = 1.0e-7) &&
-        r * v == aff * v &&
-        r * v == prj * v &&
-        r * v == tr  * v &&
+        prop_assert!(relative_eq!(r * v, uq  * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(r * v, iso * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(r * v, sim * v, epsilon = 1.0e-7));
+        prop_assert_eq!(r * v, aff * v);
+        prop_assert_eq!(r * v, prj * v);
+        prop_assert_eq!(r * v, tr  * v);
 
-        relative_eq!(r * p, uq  * p, epsilon = 1.0e-7) &&
-        relative_eq!(r * p, iso * p, epsilon = 1.0e-7) &&
-        relative_eq!(r * p, sim * p, epsilon = 1.0e-7) &&
-        r * p == aff * p &&
-        r * p == prj * p &&
-        r * p == tr  * p
+        prop_assert!(relative_eq!(r * p, uq  * p, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(r * p, iso * p, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(r * p, sim * p, epsilon = 1.0e-7));
+        prop_assert_eq!(r * p, aff * p);
+        prop_assert_eq!(r * p, prj * p);
+        prop_assert_eq!(r * p, tr  * p);
     }
 
-    fn unit_quaternion_conversion(uq: UnitQuaternion<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {
+    #[test]
+    fn unit_quaternion_conversion(uq in unit_quaternion(), v in vector3(), p in point3()) {
         let rot: Rotation3<f64>   = na::convert(uq);
         let iso: Isometry3<f64>   = na::convert(uq);
         let sim: Similarity3<f64> = na::convert(uq);
@@ -77,68 +83,70 @@ quickcheck! {
         let prj: Projective3<f64> = na::convert(uq);
         let tr:  Transform3<f64>  = na::convert(uq);
 
-        uq == na::try_convert(iso).unwrap() &&
-        uq == na::try_convert(sim).unwrap() &&
-        relative_eq!(uq, na::try_convert(rot).unwrap(), epsilon = 1.0e-7) &&
-        relative_eq!(uq, na::try_convert(aff).unwrap(), epsilon = 1.0e-7) &&
-        relative_eq!(uq, na::try_convert(prj).unwrap(), epsilon = 1.0e-7) &&
-        relative_eq!(uq, na::try_convert(tr).unwrap(), epsilon = 1.0e-7)  &&
+        prop_assert_eq!(uq, na::try_convert(iso).unwrap());
+        prop_assert_eq!(uq, na::try_convert(sim).unwrap());
+        prop_assert!(relative_eq!(uq, na::try_convert(rot).unwrap(), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(uq, na::try_convert(aff).unwrap(), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(uq, na::try_convert(prj).unwrap(), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(uq, na::try_convert(tr).unwrap(), epsilon = 1.0e-7) );
 
         // NOTE: iso and sim use unit quaternions for the rotation so conversions to them are exact.
-        relative_eq!(uq * v, rot * v, epsilon = 1.0e-7) &&
-        uq * v == iso * v &&
-        uq * v == sim * v &&
-        relative_eq!(uq * v, aff * v, epsilon = 1.0e-7) &&
-        relative_eq!(uq * v, prj * v, epsilon = 1.0e-7) &&
-        relative_eq!(uq * v, tr  * v, epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!(uq * v, rot * v, epsilon = 1.0e-7));
+        prop_assert_eq!(uq * v, iso * v);
+        prop_assert_eq!(uq * v, sim * v);
+        prop_assert!(relative_eq!(uq * v, aff * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(uq * v, prj * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(uq * v, tr  * v, epsilon = 1.0e-7));
 
-        relative_eq!(uq * p, rot * p, epsilon = 1.0e-7) &&
-        uq * p == iso * p &&
-        uq * p == sim * p &&
-        relative_eq!(uq * p, aff * p, epsilon = 1.0e-7) &&
-        relative_eq!(uq * p, prj * p, epsilon = 1.0e-7) &&
-        relative_eq!(uq * p, tr  * p, epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(uq * p, rot * p, epsilon = 1.0e-7));
+        prop_assert_eq!(uq * p, iso * p);
+        prop_assert_eq!(uq * p, sim * p);
+        prop_assert!(relative_eq!(uq * p, aff * p, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(uq * p, prj * p, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(uq * p, tr  * p, epsilon = 1.0e-7));
     }
 
-    fn isometry_conversion(iso: Isometry3<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {
+    #[test]
+    fn isometry_conversion(iso in isometry3(), v in vector3(), p in point3()) {
         let sim: Similarity3<f64> = na::convert(iso);
         let aff: Affine3<f64>     = na::convert(iso);
         let prj: Projective3<f64> = na::convert(iso);
         let tr:  Transform3<f64>  = na::convert(iso);
 
 
-        iso == na::try_convert(sim).unwrap() &&
-        relative_eq!(iso, na::try_convert(aff).unwrap(), epsilon = 1.0e-7) &&
-        relative_eq!(iso, na::try_convert(prj).unwrap(), epsilon = 1.0e-7) &&
-        relative_eq!(iso, na::try_convert(tr).unwrap(), epsilon = 1.0e-7)  &&
+        prop_assert_eq!(iso, na::try_convert(sim).unwrap());
+        prop_assert!(relative_eq!(iso, na::try_convert(aff).unwrap(), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(iso, na::try_convert(prj).unwrap(), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(iso, na::try_convert(tr).unwrap(), epsilon = 1.0e-7) );
 
-        iso * v == sim * v &&
-        relative_eq!(iso * v, aff * v, epsilon = 1.0e-7) &&
-        relative_eq!(iso * v, prj * v, epsilon = 1.0e-7) &&
-        relative_eq!(iso * v, tr  * v, epsilon = 1.0e-7) &&
+        prop_assert_eq!(iso * v, sim * v);
+        prop_assert!(relative_eq!(iso * v, aff * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(iso * v, prj * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(iso * v, tr  * v, epsilon = 1.0e-7));
 
-        iso * p == sim * p &&
-        relative_eq!(iso * p, aff * p, epsilon = 1.0e-7) &&
-        relative_eq!(iso * p, prj * p, epsilon = 1.0e-7) &&
-        relative_eq!(iso * p, tr  * p, epsilon = 1.0e-7)
+        prop_assert_eq!(iso * p, sim * p);
+        prop_assert!(relative_eq!(iso * p, aff * p, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(iso * p, prj * p, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(iso * p, tr  * p, epsilon = 1.0e-7));
     }
 
-    fn similarity_conversion(sim: Similarity3<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {
+    #[test]
+    fn similarity_conversion(sim in similarity3(), v in vector3(), p in point3()) {
         let aff: Affine3<f64>     = na::convert(sim);
         let prj: Projective3<f64> = na::convert(sim);
         let tr:  Transform3<f64>  = na::convert(sim);
 
-        relative_eq!(sim, na::try_convert(aff).unwrap(), epsilon = 1.0e-7) &&
-        relative_eq!(sim, na::try_convert(prj).unwrap(), epsilon = 1.0e-7) &&
-        relative_eq!(sim, na::try_convert(tr).unwrap(),  epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!(sim, na::try_convert(aff).unwrap(), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(sim, na::try_convert(prj).unwrap(), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(sim, na::try_convert(tr).unwrap(),  epsilon = 1.0e-7));
 
-        relative_eq!(sim * v, aff * v, epsilon = 1.0e-7) &&
-        relative_eq!(sim * v, prj * v, epsilon = 1.0e-7) &&
-        relative_eq!(sim * v, tr  * v, epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!(sim * v, aff * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(sim * v, prj * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(sim * v, tr  * v, epsilon = 1.0e-7));
 
-        relative_eq!(sim * p, aff * p, epsilon = 1.0e-7) &&
-        relative_eq!(sim * p, prj * p, epsilon = 1.0e-7) &&
-        relative_eq!(sim * p, tr  * p, epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(sim * p, aff * p, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(sim * p, prj * p, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(sim * p, tr  * p, epsilon = 1.0e-7));
     }
 
     // XXX test Transform

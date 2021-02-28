@@ -102,7 +102,7 @@ where
     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
-    fn arbitrary<G: Gen>(rng: &mut G) -> Self {
+    fn arbitrary(rng: &mut Gen) -> Self {
         Self::from_parts(Arbitrary::arbitrary(rng), Arbitrary::arbitrary(rng))
     }
 }

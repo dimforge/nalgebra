@@ -1,67 +1,74 @@
-#![cfg(feature = "arbitrary")]
+#![cfg(feature = "proptest-support")]
 #![allow(non_snake_case)]
 
-use na::{
-    Isometry2, Isometry3, Point2, Point3, Rotation2, Rotation3, Translation2, Translation3,
-    UnitComplex, UnitQuaternion, Vector2, Vector3,
-};
+use na::{Isometry3, Point3, Vector3};
 
-quickcheck!(
-    fn append_rotation_wrt_point_to_id(r: UnitQuaternion<f64>, p: Point3<f64>) -> bool {
+use crate::proptest::*;
+use proptest::{prop_assert, prop_assert_eq, proptest};
+
+proptest!(
+    #[test]
+    fn append_rotation_wrt_point_to_id(r in unit_quaternion(), p in point3()) {
         let mut iso = Isometry3::identity();
         iso.append_rotation_wrt_point_mut(&r, &p);
 
-        iso == Isometry3::rotation_wrt_point(r, p)
+        prop_assert_eq!(iso, Isometry3::rotation_wrt_point(r, p))
     }
 
-    fn rotation_wrt_point_invariance(r: UnitQuaternion<f64>, p: Point3<f64>) -> bool {
+    #[test]
+    fn rotation_wrt_point_invariance(r in unit_quaternion(), p in point3()) {
         let iso = Isometry3::rotation_wrt_point(r, p);
 
-        relative_eq!(iso * p, p, epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(iso * p, p, epsilon = 1.0e-7))
     }
 
-    fn look_at_rh_3(eye: Point3<f64>, target: Point3<f64>, up: Vector3<f64>) -> bool {
+    #[test]
+    fn look_at_rh_3(eye in point3(), target in point3(), up in vector3()) {
         let viewmatrix = Isometry3::look_at_rh(&eye, &target, &up);
-
         let origin = Point3::origin();
-        relative_eq!(viewmatrix * eye, origin, epsilon = 1.0e-7)
+
+        prop_assert!(relative_eq!(viewmatrix * eye, origin, epsilon = 1.0e-7)
             && relative_eq!(
                 (viewmatrix * (target - eye)).normalize(),
                 -Vector3::z(),
                 epsilon = 1.0e-7
-            )
+            ))
     }
 
-    fn observer_frame_3(eye: Point3<f64>, target: Point3<f64>, up: Vector3<f64>) -> bool {
+    #[test]
+    fn observer_frame_3(eye in point3(), target in point3(), up in vector3()) {
         let observer = Isometry3::face_towards(&eye, &target, &up);
-
         let origin = Point3::origin();
-        relative_eq!(observer * origin, eye, epsilon = 1.0e-7)
+
+        prop_assert!(relative_eq!(observer * origin, eye, epsilon = 1.0e-7)
             && relative_eq!(
                 observer * Vector3::z(),
                 (target - eye).normalize(),
                 epsilon = 1.0e-7
-            )
+            ))
     }
 
-    fn inverse_is_identity(i: Isometry3<f64>, p: Point3<f64>, v: Vector3<f64>) -> bool {
+    #[test]
+    fn inverse_is_identity(i in isometry3(), p in point3(), v in vector3()) {
         let ii = i.inverse();
 
-        relative_eq!(i * ii, Isometry3::identity(), epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(i * ii, Isometry3::identity(), epsilon = 1.0e-7)
             && relative_eq!(ii * i, Isometry3::identity(), epsilon = 1.0e-7)
             && relative_eq!((i * ii) * p, p, epsilon = 1.0e-7)
             && relative_eq!((ii * i) * p, p, epsilon = 1.0e-7)
             && relative_eq!((i * ii) * v, v, epsilon = 1.0e-7)
-            && relative_eq!((ii * i) * v, v, epsilon = 1.0e-7)
+            && relative_eq!((ii * i) * v, v, epsilon = 1.0e-7))
     }
 
-    fn inverse_is_parts_inversion(t: Translation3<f64>, r: UnitQuaternion<f64>) -> bool {
+    #[test]
+    fn inverse_is_parts_inversion(t in translation3(), r in unit_quaternion()) {
         let i = t * r;
-        i.inverse() == r.inverse() * t.inverse()
+        prop_assert!(i.inverse() == r.inverse() * t.inverse())
     }
 
-    fn multiply_equals_alga_transform(i: Isometry3<f64>, v: Vector3<f64>, p: Point3<f64>) -> bool {
-        i * v == i.transform_vector(&v)
+    #[test]
+    fn multiply_equals_alga_transform(i in isometry3(), v in vector3(), p in point3()) {
+        prop_assert!(i * v == i.transform_vector(&v)
             && i * p == i.transform_point(&p)
             && relative_eq!(
                 i.inverse() * v,
@@ -72,94 +79,97 @@ quickcheck!(
                 i.inverse() * p,
                 i.inverse_transform_point(&p),
                 epsilon = 1.0e-7
-            )
+            ))
     }
 
+    #[test]
     #[cfg_attr(rustfmt, rustfmt_skip)]
     fn composition2(
-        i: Isometry2<f64>,
-        uc: UnitComplex<f64>,
-        r: Rotation2<f64>,
-        t: Translation2<f64>,
-        v: Vector2<f64>,
-        p: Point2<f64>
-    ) -> bool {
+        i in isometry2(),
+        uc in unit_complex(),
+        r in rotation2(),
+        t in translation2(),
+        v in vector2(),
+        p in point2()
+    ) {
         // (rotation × translation) * point = rotation × (translation * point)
-        relative_eq!((uc * t) * v, uc * v, epsilon = 1.0e-7)       &&
-        relative_eq!((r  * t) * v, r  * v, epsilon = 1.0e-7)       &&
-        relative_eq!((uc * t) * p, uc * (t * p), epsilon = 1.0e-7) &&
-        relative_eq!((r * t)  * p, r  * (t * p), epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!((uc * t) * v, uc * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((r  * t) * v, r  * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((uc * t) * p, uc * (t * p), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((r * t)  * p, r  * (t * p), epsilon = 1.0e-7));
 
         // (translation × rotation) * point = translation × (rotation * point)
-        (t * uc) * v == uc * v       &&
-        (t * r)  * v == r  * v       &&
-        (t * uc) * p == t * (uc * p) &&
-        (t * r)  * p == t * (r  * p) &&
+        prop_assert_eq!((t * uc) * v, uc * v);
+        prop_assert_eq!((t * r)  * v, r  * v);
+        prop_assert_eq!((t * uc) * p, t * (uc * p));
+        prop_assert_eq!((t * r)  * p, t * (r  * p));
 
         // (rotation × isometry) * point = rotation × (isometry * point)
-        relative_eq!((uc * i) * v, uc * (i * v), epsilon = 1.0e-7) &&
-        relative_eq!((uc * i) * p, uc * (i * p), epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!((uc * i) * v, uc * (i * v), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((uc * i) * p, uc * (i * p), epsilon = 1.0e-7));
 
         // (isometry × rotation) * point = isometry × (rotation * point)
-        relative_eq!((i * uc) * v, i * (uc * v), epsilon = 1.0e-7) &&
-        relative_eq!((i * uc) * p, i * (uc * p), epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!((i * uc) * v, i * (uc * v), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((i * uc) * p, i * (uc * p), epsilon = 1.0e-7));
 
         // (translation × isometry) * point = translation × (isometry * point)
-        relative_eq!((t * i) * v,     (i * v), epsilon = 1.0e-7) &&
-        relative_eq!((t * i) * p, t * (i * p), epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!((t * i) * v,     (i * v), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((t * i) * p, t * (i * p), epsilon = 1.0e-7));
 
         // (isometry × translation) * point = isometry × (translation * point)
-        relative_eq!((i * t) * v, i * v,       epsilon = 1.0e-7) &&
-        relative_eq!((i * t) * p, i * (t * p), epsilon = 1.0e-7)
+        prop_assert!(relative_eq!((i * t) * v, i * v,       epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((i * t) * p, i * (t * p), epsilon = 1.0e-7));
     }
 
+    #[test]
     #[cfg_attr(rustfmt, rustfmt_skip)]
     fn composition3(
-        i: Isometry3<f64>,
-        uq: UnitQuaternion<f64>,
-        r: Rotation3<f64>,
-        t: Translation3<f64>,
-        v: Vector3<f64>,
-        p: Point3<f64>
-    ) -> bool {
+        i in isometry3(),
+        uq in unit_quaternion(),
+        r in rotation3(),
+        t in translation3(),
+        v in vector3(),
+        p in point3()
+    ) {
         // (rotation × translation) * point = rotation × (translation * point)
-        relative_eq!((uq * t) * v, uq * v, epsilon = 1.0e-7)       &&
-        relative_eq!((r  * t) * v, r  * v, epsilon = 1.0e-7)       &&
-        relative_eq!((uq * t) * p, uq * (t * p), epsilon = 1.0e-7) &&
-        relative_eq!((r * t)  * p, r  * (t * p), epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!((uq * t) * v, uq * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((r  * t) * v, r  * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((uq * t) * p, uq * (t * p), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((r * t)  * p, r  * (t * p), epsilon = 1.0e-7));
 
         // (translation × rotation) * point = translation × (rotation * point)
-        (t * uq) * v == uq * v       &&
-        (t * r)  * v == r  * v       &&
-        (t * uq) * p == t * (uq * p) &&
-        (t * r)  * p == t * (r  * p) &&
+        prop_assert_eq!((t * uq) * v, uq * v);
+        prop_assert_eq!((t * r)  * v, r  * v);
+        prop_assert_eq!((t * uq) * p, t * (uq * p));
+        prop_assert_eq!((t * r)  * p, t * (r  * p));
 
         // (rotation × isometry) * point = rotation × (isometry * point)
-        relative_eq!((uq * i) * v, uq * (i * v), epsilon = 1.0e-7) &&
-        relative_eq!((uq * i) * p, uq * (i * p), epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!((uq * i) * v, uq * (i * v), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((uq * i) * p, uq * (i * p), epsilon = 1.0e-7));
 
         // (isometry × rotation) * point = isometry × (rotation * point)
-        relative_eq!((i * uq) * v, i * (uq * v), epsilon = 1.0e-7) &&
-        relative_eq!((i * uq) * p, i * (uq * p), epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!((i * uq) * v, i * (uq * v), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((i * uq) * p, i * (uq * p), epsilon = 1.0e-7));
 
         // (translation × isometry) * point = translation × (isometry * point)
-        relative_eq!((t * i) * v,     (i * v), epsilon = 1.0e-7) &&
-        relative_eq!((t * i) * p, t * (i * p), epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!((t * i) * v,     (i * v), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((t * i) * p, t * (i * p), epsilon = 1.0e-7));
 
         // (isometry × translation) * point = isometry × (translation * point)
-        relative_eq!((i * t) * v, i * v,       epsilon = 1.0e-7) &&
-        relative_eq!((i * t) * p, i * (t * p), epsilon = 1.0e-7)
+        prop_assert!(relative_eq!((i * t) * v, i * v,       epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((i * t) * p, i * (t * p), epsilon = 1.0e-7));
     }
 
+    #[test]
     #[cfg_attr(rustfmt, rustfmt_skip)]
     fn all_op_exist(
-        i: Isometry3<f64>,
-        uq: UnitQuaternion<f64>,
-        t: Translation3<f64>,
-        v: Vector3<f64>,
-        p: Point3<f64>,
-        r: Rotation3<f64>
-    ) -> bool {
+        i in isometry3(),
+        uq in unit_quaternion(),
+        t in translation3(),
+        v in vector3(),
+        p in point3(),
+        r in rotation3()
+    ) {
         let iMi = i * i;
         let iMuq = i * uq;
         let iDi = i / i;
@@ -210,7 +220,7 @@ quickcheck!(
         iDuq1 /= uq;
         iDuq2 /= &uq;
 
-        iMt == iMt1
+        prop_assert!(iMt == iMt1
             && iMt == iMt2
             && iMi == iMi1
             && iMi == iMi2
@@ -261,6 +271,6 @@ quickcheck!(
             && rMt == &r * t
             && uqMt == &uq * &t
             && uqMt == uq * &t
-            && uqMt == &uq * t
+            && uqMt == &uq * t)
     }
 );

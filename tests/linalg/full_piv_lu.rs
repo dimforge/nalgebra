@@ -40,101 +40,96 @@ fn full_piv_lu_simple_with_pivot() {
 }
 
 #[cfg(feature = "arbitrary")]
-mod quickcheck_tests {
+mod proptest_tests {
     macro_rules! gen_tests(
-    ($module: ident, $scalar: ty) => {
+    ($module: ident, $scalar: expr, $scalar_type: ty) => {
             mod $module {
                 use std::cmp;
                 use num::One;
-                use na::{DMatrix, Matrix4, Matrix4x3, Matrix5x3, Matrix3x5, DVector, Vector4};
+                use na::{DMatrix, Matrix4x3, DVector, Vector4};
                 #[allow(unused_imports)]
                 use crate::core::helper::{RandScalar, RandComplex};
 
-                quickcheck! {
-                    fn full_piv_lu(m: DMatrix<$scalar>) -> bool {
-                        let mut m = m.map(|e| e.0);
-                        if m.len() == 0 {
-                            m = DMatrix::<$scalar>::new_random(1, 1).map(|e| e.0);
-                        }
+                use crate::proptest::*;
+                use proptest::{prop_assert, proptest};
 
+                proptest! {
+                    #[test]
+                    fn full_piv_lu(m in dmatrix_($scalar)) {
                         let lu = m.clone().full_piv_lu();
                         let (p, l, u, q) = lu.unpack();
                         let mut lu = l * u;
                         p.inv_permute_rows(&mut lu);
                         q.inv_permute_columns(&mut lu);
 
-                        relative_eq!(m, lu, epsilon = 1.0e-7)
+                        prop_assert!(relative_eq!(m, lu, epsilon = 1.0e-7))
                     }
 
-                    fn full_piv_lu_static_3_5(m: Matrix3x5<$scalar>) -> bool {
-                        let m = m.map(|e| e.0);
+                    #[test]
+                    fn full_piv_lu_static_3_5(m in matrix3x5_($scalar)) {
                         let lu = m.full_piv_lu();
                         let (p, l, u, q) = lu.unpack();
                         let mut lu = l * u;
                         p.inv_permute_rows(&mut lu);
                         q.inv_permute_columns(&mut lu);
 
-                        relative_eq!(m, lu, epsilon = 1.0e-7)
+                        prop_assert!(relative_eq!(m, lu, epsilon = 1.0e-7))
                     }
 
-                    fn full_piv_lu_static_5_3(m: Matrix5x3<$scalar>) -> bool {
-                        let m = m.map(|e| e.0);
+                    #[test]
+                    fn full_piv_lu_static_5_3(m in matrix5x3_($scalar)) {
                         let lu = m.full_piv_lu();
                         let (p, l, u, q) = lu.unpack();
                         let mut lu = l * u;
                         p.inv_permute_rows(&mut lu);
                         q.inv_permute_columns(&mut lu);
 
-                        relative_eq!(m, lu, epsilon = 1.0e-7)
+                        prop_assert!(relative_eq!(m, lu, epsilon = 1.0e-7))
                     }
 
-                    fn full_piv_lu_static_square(m: Matrix4<$scalar>) -> bool {
-                        let m = m.map(|e| e.0);
+                    #[test]
+                    fn full_piv_lu_static_square(m in matrix4_($scalar)) {
                         let lu = m.full_piv_lu();
                         let (p, l, u, q) = lu.unpack();
                         let mut lu = l * u;
                         p.inv_permute_rows(&mut lu);
                         q.inv_permute_columns(&mut lu);
 
-                        relative_eq!(m, lu, epsilon = 1.0e-7)
+                        prop_assert!(relative_eq!(m, lu, epsilon = 1.0e-7))
                     }
 
-                    fn full_piv_lu_solve(n: usize, nb: usize) -> bool {
-                        if n != 0 && nb != 0 {
-                            let n  = cmp::min(n, 50);  // To avoid slowing down the test too much.
-                            let nb = cmp::min(nb, 50); // To avoid slowing down the test too much.
-                            let m  = DMatrix::<$scalar>::new_random(n, n).map(|e| e.0);
+                    #[test]
+                    fn full_piv_lu_solve(n in PROPTEST_MATRIX_DIM, nb in PROPTEST_MATRIX_DIM) {
+                        let m  = DMatrix::<$scalar_type>::new_random(n, n).map(|e| e.0);
 
-                            let lu = m.clone().full_piv_lu();
-                            let b1 = DVector::<$scalar>::new_random(n).map(|e| e.0);
-                            let b2 = DMatrix::<$scalar>::new_random(n, nb).map(|e| e.0);
+                        let lu = m.clone().full_piv_lu();
+                        let b1 = DVector::<$scalar_type>::new_random(n).map(|e| e.0);
+                        let b2 = DMatrix::<$scalar_type>::new_random(n, nb).map(|e| e.0);
 
-                            let sol1 = lu.solve(&b1);
-                            let sol2 = lu.solve(&b2);
+                        let sol1 = lu.solve(&b1);
+                        let sol2 = lu.solve(&b2);
 
-                            return (sol1.is_none() || relative_eq!(&m * sol1.unwrap(), b1, epsilon = 1.0e-6)) &&
-                                   (sol2.is_none() || relative_eq!(&m * sol2.unwrap(), b2, epsilon = 1.0e-6))
-                        }
-
-                        return true;
+                        prop_assert!(sol1.is_none() || relative_eq!(&m * sol1.unwrap(), b1, epsilon = 1.0e-6));
+                        prop_assert!(sol2.is_none() || relative_eq!(&m * sol2.unwrap(), b2, epsilon = 1.0e-6));
                     }
 
-                    fn full_piv_lu_solve_static(m: Matrix4<$scalar>) -> bool {
-                         let m = m.map(|e| e.0);
+                    #[test]
+                    fn full_piv_lu_solve_static(m in matrix4_($scalar)) {
                          let lu = m.full_piv_lu();
-                         let b1 = Vector4::<$scalar>::new_random().map(|e| e.0);
-                         let b2 = Matrix4x3::<$scalar>::new_random().map(|e| e.0);
+                         let b1 = Vector4::<$scalar_type>::new_random().map(|e| e.0);
+                         let b2 = Matrix4x3::<$scalar_type>::new_random().map(|e| e.0);
 
                          let sol1 = lu.solve(&b1);
                          let sol2 = lu.solve(&b2);
 
-                         return (sol1.is_none() || relative_eq!(&m * sol1.unwrap(), b1, epsilon = 1.0e-6)) &&
-                                (sol2.is_none() || relative_eq!(&m * sol2.unwrap(), b2, epsilon = 1.0e-6))
+                         prop_assert!(sol1.is_none() || relative_eq!(&m * sol1.unwrap(), b1, epsilon = 1.0e-6));
+                         prop_assert!(sol2.is_none() || relative_eq!(&m * sol2.unwrap(), b2, epsilon = 1.0e-6));
                     }
 
-                    fn full_piv_lu_inverse(n: usize) -> bool {
+                    #[test]
+                    fn full_piv_lu_inverse(n in PROPTEST_MATRIX_DIM) {
                         let n = cmp::max(1, cmp::min(n, 15)); // To avoid slowing down the test too much.
-                        let m = DMatrix::<$scalar>::new_random(n, n).map(|e| e.0);
+                        let m = DMatrix::<$scalar_type>::new_random(n, n).map(|e| e.0);
 
                         let mut l = m.lower_triangle();
                         let mut u = m.upper_triangle();
@@ -148,21 +143,20 @@ mod quickcheck_tests {
                         let id1 = &m  * &m1;
                         let id2 = &m1 * &m;
 
-                        return id1.is_identity(1.0e-5) && id2.is_identity(1.0e-5);
+                        prop_assert!(id1.is_identity(1.0e-5));
+                        prop_assert!(id2.is_identity(1.0e-5));
                     }
 
-                    fn full_piv_lu_inverse_static(m: Matrix4<$scalar>) -> bool {
-                        let m = m.map(|e| e.0);
+                    #[test]
+                    fn full_piv_lu_inverse_static(m in matrix4_($scalar)) {
                         let lu = m.full_piv_lu();
 
                         if let Some(m1)  = lu.try_inverse() {
                             let id1 = &m  * &m1;
                             let id2 = &m1 * &m;
 
-                            id1.is_identity(1.0e-5) && id2.is_identity(1.0e-5)
-                        }
-                        else {
-                            true
+                            prop_assert!(id1.is_identity(1.0e-5));
+                            prop_assert!(id2.is_identity(1.0e-5));
                         }
                     }
                 }
@@ -170,8 +164,8 @@ mod quickcheck_tests {
         }
     );
 
-    gen_tests!(complex, RandComplex<f64>);
-    gen_tests!(f64, RandScalar<f64>);
+    gen_tests!(complex, complex_f64(), RandComplex<f64>);
+    gen_tests!(f64, PROPTEST_F64, RandScalar<f64>);
 }
 
 /*

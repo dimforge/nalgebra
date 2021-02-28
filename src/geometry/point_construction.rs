@@ -156,7 +156,7 @@ where
     <DefaultAllocator as Allocator<N, D>>::Buffer: Send,
 {
     #[inline]
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+    fn arbitrary(g: &mut Gen) -> Self {
         Self::from(VectorN::arbitrary(g))
     }
 }

@@ -824,8 +824,8 @@ where
 {
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> MatrixMN<N, R, C> {
-        let nrows = R::try_to_usize().unwrap_or_else(|| rng.gen_range(0, 10));
-        let ncols = C::try_to_usize().unwrap_or_else(|| rng.gen_range(0, 10));
+        let nrows = R::try_to_usize().unwrap_or_else(|| rng.gen_range(0..10));
+        let ncols = C::try_to_usize().unwrap_or_else(|| rng.gen_range(0..10));
 
         MatrixMN::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| rng.gen())
     }
@@ -841,9 +841,9 @@ where
     Owned<N, R, C>: Clone + Send,
 {
     #[inline]
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        let nrows = R::try_to_usize().unwrap_or(g.gen_range(0, 10));
-        let ncols = C::try_to_usize().unwrap_or(g.gen_range(0, 10));
+    fn arbitrary(g: &mut Gen) -> Self {
+        let nrows = R::try_to_usize().unwrap_or(usize::arbitrary(g) % 10);
+        let ncols = C::try_to_usize().unwrap_or(usize::arbitrary(g) % 10);
 
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| {
             N::arbitrary(g)

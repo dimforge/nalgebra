@@ -1,66 +1,74 @@
 use na::DMatrix;
 
-#[cfg(feature = "arbitrary")]
-mod quickcheck_tests {
+#[cfg(feature = "proptest-support")]
+mod proptest_tests {
     macro_rules! gen_tests(
-        ($module: ident, $scalar: ty) => {
+        ($module: ident, $scalar: expr, $scalar_type: ty) => {
             mod $module {
-                use na::{DMatrix, Matrix2, Matrix3, Matrix4};
+                use na::DMatrix;
                 #[allow(unused_imports)]
                 use crate::core::helper::{RandScalar, RandComplex};
                 use std::cmp;
 
-                quickcheck! {
-                    fn symmetric_eigen(n: usize) -> bool {
+                use crate::proptest::*;
+                use proptest::{prop_assert, proptest};
+
+                proptest! {
+                    #[test]
+                    fn symmetric_eigen(n in PROPTEST_MATRIX_DIM) {
                         let n      = cmp::max(1, cmp::min(n, 10));
-                        let m      = DMatrix::<$scalar>::new_random(n, n).map(|e| e.0).hermitian_part();
+                        let m      = DMatrix::<$scalar_type>::new_random(n, n).map(|e| e.0).hermitian_part();
                         let eig    = m.clone().symmetric_eigen();
                         let recomp = eig.recompose();
 
-                        relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5)
+                        prop_assert!(relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5))
                     }
 
-                    fn symmetric_eigen_singular(n: usize) -> bool {
+                    #[test]
+                    fn symmetric_eigen_singular(n in PROPTEST_MATRIX_DIM) {
                         let n      = cmp::max(1, cmp::min(n, 10));
-                        let mut m  = DMatrix::<$scalar>::new_random(n, n).map(|e| e.0).hermitian_part();
+                        let mut m  = DMatrix::<$scalar_type>::new_random(n, n).map(|e| e.0).hermitian_part();
                         m.row_mut(n / 2).fill(na::zero());
                         m.column_mut(n / 2).fill(na::zero());
                         let eig    = m.clone().symmetric_eigen();
                         let recomp = eig.recompose();
 
-                        relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5)
+                        prop_assert!(relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5))
                     }
 
-                    fn symmetric_eigen_static_square_4x4(m: Matrix4<$scalar>) -> bool {
-                        let m      = m.map(|e| e.0).hermitian_part();
+                    #[test]
+                    fn symmetric_eigen_static_square_4x4(m in matrix4_($scalar)) {
+                        let m      = m.hermitian_part();
                         let eig    = m.symmetric_eigen();
                         let recomp = eig.recompose();
 
-                        relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5)
+                        prop_assert!(relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5))
                     }
 
-                    fn symmetric_eigen_static_square_3x3(m: Matrix3<$scalar>) -> bool {
-                        let m      = m.map(|e| e.0).hermitian_part();
+                    #[test]
+                    fn symmetric_eigen_static_square_3x3(m in matrix3_($scalar)) {
+                        let m      = m.hermitian_part();
                         let eig    = m.symmetric_eigen();
                         let recomp = eig.recompose();
 
-                        relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5)
+                        prop_assert!(relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5))
                     }
 
-                    fn symmetric_eigen_static_square_2x2(m: Matrix2<$scalar>) -> bool {
-                        let m      = m.map(|e| e.0).hermitian_part();
+                    #[test]
+                    fn symmetric_eigen_static_square_2x2(m in matrix2_($scalar)) {
+                        let m      = m.hermitian_part();
                         let eig    = m.symmetric_eigen();
                         let recomp = eig.recompose();
 
-                        relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5)
+                        prop_assert!(relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5))
                     }
                 }
             }
         }
     );
 
-    gen_tests!(complex, RandComplex<f64>);
-    gen_tests!(f64, RandScalar<f64>);
+    gen_tests!(complex, complex_f64(), RandComplex<f64>);
+    gen_tests!(f64, PROPTEST_F64, RandScalar<f64>);
 }
 
 // Test proposed on the issue #176 of rulinalg.

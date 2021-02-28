@@ -114,7 +114,7 @@ where
     Owned<N, D>: Send,
 {
     #[inline]
-    fn arbitrary<G: Gen>(rng: &mut G) -> Self {
+    fn arbitrary(rng: &mut Gen) -> Self {
         let mut s: N = Arbitrary::arbitrary(rng);
         while s.is_zero() {
             s = Arbitrary::arbitrary(rng)

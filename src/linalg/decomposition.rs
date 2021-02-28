@@ -154,7 +154,7 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> Matrix<N, D, D, S> {
     ///
     /// The input matrix `self` is assumed to be symmetric and this decomposition will only read
     /// the upper-triangular part of `self`.
-    pub fn udu(self) -> UDU<N, D>
+    pub fn udu(self) -> Option<UDU<N, D>>
     where
         N: RealField,
         DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,

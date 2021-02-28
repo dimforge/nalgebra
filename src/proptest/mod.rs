@@ -408,7 +408,7 @@ where
 }
 
 /// A strategy for generating matrices.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MatrixStrategy<NStrategy, R: Dim, C: Dim>
 where
     NStrategy: Strategy,

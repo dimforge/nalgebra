@@ -41,7 +41,6 @@ fn cs_matrix_market() {
 "#;
 
     let cs_mat = io::cs_matrix_from_matrix_market_str(file_str).unwrap();
-    println!("CS mat: {:?}", cs_mat);
     let mat: DMatrix<_> = cs_mat.into();
     let expected = DMatrix::from_row_slice(5, 5, &[
         1.0, 0.0,   0.0,   6.0,    0.0,
