@@ -18,9 +18,11 @@ maintenance = { status = "actively-developed" }
 
 [features]
 serde-serialize = [ "serde", "serde_derive" ]
+proptest-support = [ "nalgebra/proptest-support" ]
+arbitrary = [ "nalgebra/arbitrary" ]
 
 # For BLAS/LAPACK
-default    = ["openblas"]
+default    = ["netlib"]
 openblas   = ["lapack-src/openblas"]
 netlib     = ["lapack-src/netlib"]
 accelerate = ["lapack-src/accelerate"]
@@ -39,6 +41,7 @@ lapack-src    = { version = "0.6", default-features = false }
 
 [dev-dependencies]
 nalgebra   = { version = "0.24", features = [ "arbitrary" ], path = ".." }
+proptest = { version = "1", default-features = false, features = ["std"] }
 quickcheck = "1"
 approx     = "0.4"
 rand       = "0.8"

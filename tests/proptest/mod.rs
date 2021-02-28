@@ -1,4 +1,7 @@
 //! Tests for proptest-related functionality.
+
+#![allow(dead_code)]
+
 use nalgebra::allocator::Allocator;
 use nalgebra::base::dimension::*;
 use nalgebra::proptest::{DimRange, MatrixStrategy};
@@ -118,12 +121,10 @@ where
 
 macro_rules! define_strategies(
     ($($strategy_: ident $strategy: ident<$nrows: ident, $ncols: ident>),*) => {$(
-        #[allow(dead_code)]
         pub fn $strategy() -> impl Strategy<Value = MatrixMN<f64, $nrows, $ncols>> {
             matrix(PROPTEST_F64, $nrows, $ncols)
         }
 
-        #[allow(dead_code)]
         pub fn $strategy_<ScalarStrategy>(scalar_strategy: ScalarStrategy) -> impl Strategy<Value = MatrixMN<ScalarStrategy::Value, $nrows, $ncols>>
             where
                 ScalarStrategy: Strategy + Clone + 'static,
