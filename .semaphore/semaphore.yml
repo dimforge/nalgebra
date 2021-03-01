@@ -23,6 +23,7 @@ blocks:
       jobs:
         - name: Run clippy
           commands:
+            - checkout
             - rustup component add clippy
             - cargo clippy
   - name: Build nalgebra (native)
@@ -31,6 +32,7 @@ blocks:
       jobs:
         - name: Install deps
           commands:
+            - checkout
             - apt-get install -y cmake gfortran libblas-dev liblapack-dev
         - name: Build --no-default-feature
           commands:
@@ -47,6 +49,7 @@ blocks:
       jobs:
         - name: Build --all-features
           commands:
+            - checkout
             - cargo build -p nalgebra-glm --all-features
   - name: Build nalgebra-lapack (native)
     dependencies: []
@@ -54,5 +57,6 @@ blocks:
       jobs:
         - name: Build
           commands:
+            - checkout
             - cd nalgebra-lapack
             - cargo build
