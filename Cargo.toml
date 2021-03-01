@@ -44,13 +44,14 @@ slow-tests = []
 typenum        = "1.12"
 generic-array  = "0.14"
 rand           = { version = "0.8", default-features = false }
+getrandom      = { version = "0.2", default-features = false, features = [ "js" ] } # For wasm
 num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.3", default-features = false }
 num-rational   = { version = "0.3", default-features = false }
 approx         = { version = "0.4", default-features = false }
 simba          = { version = "0.4", default-features = false }
 alga           = { version = "0.9", default-features = false, optional = true }
-rand_distr     = { version = "0.4", optional = true }
+rand_distr     = { version = "0.4", default-features = false, optional = true }
 matrixmultiply = { version = "0.3", optional = true }
 serde          = { version = "1.0", default-features = false, features = [ "derive" ], optional = true }
 abomonation    = { version = "0.7", optional = true }
