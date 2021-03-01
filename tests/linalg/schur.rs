@@ -16,8 +16,9 @@ fn schur_simpl_mat3() {
 #[cfg(feature = "proptest-support")]
 mod proptest_tests {
     macro_rules! gen_tests(
-        ($module: ident, $scalar: expr) => {
+        ($module: ident, $scalar: expr, $scalar_type: ty) => {
             mod $module {
+                use na::DMatrix;
                 #[allow(unused_imports)]
                 use crate::core::helper::{RandScalar, RandComplex};
                 use crate::proptest::*;
@@ -25,7 +26,8 @@ mod proptest_tests {
 
                 proptest! {
                     #[test]
-                    fn schur(m in dmatrix_($scalar)) {
+                    fn schur(n in PROPTEST_MATRIX_DIM) {
+                        let m  = DMatrix::<$scalar_type>::new_random(n, n).map(|e| e.0);
                         let (vecs, vals) = m.clone().schur().unpack();
                         prop_assert!(relative_eq!(&vecs * vals * vecs.adjoint(), m, epsilon = 1.0e-7));
                     }
@@ -52,8 +54,8 @@ mod proptest_tests {
         }
     );
 
-    gen_tests!(complex, complex_f64());
-    gen_tests!(f64, PROPTEST_F64);
+    gen_tests!(complex, complex_f64(), RandComplex<f64>);
+    gen_tests!(f64, PROPTEST_F64, RandScalar<f64>);
 }
 
 #[test]

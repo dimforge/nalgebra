@@ -43,7 +43,6 @@ mod proptest_tests {
     macro_rules! gen_tests(
         ($module: ident, $scalar: expr, $scalar_type: ty) => {
             mod $module {
-                use std::cmp;
                 use na::{DMatrix, Matrix4x3, DVector, Vector4};
                 #[allow(unused_imports)]
                 use crate::core::helper::{RandScalar, RandComplex};
@@ -92,8 +91,6 @@ mod proptest_tests {
 
                     #[test]
                     fn lu_solve(n in PROPTEST_MATRIX_DIM, nb in PROPTEST_MATRIX_DIM) {
-                        let n  = cmp::min(n, 50);  // To avoid slowing down the test too much.
-                        let nb = cmp::min(nb, 50); // To avoid slowing down the test too much.
                         let m  = DMatrix::<$scalar_type>::new_random(n, n).map(|e| e.0);
 
                         let lu = m.clone().lu();
@@ -121,7 +118,8 @@ mod proptest_tests {
                     }
 
                     #[test]
-                    fn lu_inverse(m in dmatrix_($scalar)) {
+                    fn lu_inverse(n in PROPTEST_MATRIX_DIM) {
+                        let m  = DMatrix::<$scalar_type>::new_random(n, n).map(|e| e.0);
                         let mut l = m.lower_triangle();
                         let mut u = m.upper_triangle();
 
