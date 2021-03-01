@@ -18,8 +18,7 @@ blocks:
             - cargo fmt -- --check
     dependencies: []
   - name: Clippy
-    dependencies:
-      - Rustfmt
+    dependencies: []
     task:
       jobs:
         - name: Run clippy
@@ -27,8 +26,7 @@ blocks:
             - rustup component add clippy
             - cargo clippy
   - name: Build nalgebra (native)
-    dependencies:
-      - Clippy
+    dependencies: []
     task:
       jobs:
         - name: Install deps
@@ -44,16 +42,14 @@ blocks:
           commands:
             - cargo build --all-features
   - name: Build nalgebra-glm (native)
-    dependencies:
-      - Clippy
+    dependencies: []
     task:
       jobs:
         - name: Build --all-features
           commands:
             - cargo build -p nalgebra-glm --all-features
   - name: Build nalgebra-lapack (native)
-    dependencies:
-      - Clippy
+    dependencies: []
     task:
       jobs:
         - name: Build
