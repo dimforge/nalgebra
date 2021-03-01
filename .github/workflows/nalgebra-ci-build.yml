@@ -51,10 +51,14 @@ jobs:
       - name: test
         run: cargo test --features arbitrary --features serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
   test-nalgebra-glm:
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v2
       - name: test nalgebra-glm
         run: cargo test -p nalgebra-glm --features arbitrary,serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
   test-nalgebra-sparse:
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v2
       - name: test nalgebra-sparse
         # Manifest-path is necessary because cargo otherwise won't correctly forward features
