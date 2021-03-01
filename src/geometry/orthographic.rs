@@ -705,7 +705,7 @@ impl<N: RealField + Arbitrary> Arbitrary for Orthographic3<N>
 where
     Matrix4<N>: Send,
 {
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+    fn arbitrary(g: &mut Gen) -> Self {
         let left = Arbitrary::arbitrary(g);
         let right = helper::reject(g, |x: &N| *x > left);
         let bottom = Arbitrary::arbitrary(g);

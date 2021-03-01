@@ -1,22 +1,24 @@
 [package]
 name = "nalgebra-glm"
-version = "0.10.0"
+version = "0.11.0"
 authors = ["sebcrozet <developer@crozet.re>"]
 
 description = "A computer-graphics oriented API for nalgebra, inspired by the C++ GLM library."
-documentation = "https://www.nalgebra.org/rustdoc_glm/nalgebra_glm/index.html"
+documentation = "https://www.nalgebra.org/docs"
 homepage = "https://nalgebra.org"
-repository = "https://github.com/rustsim/nalgebra"
+repository = "https://github.com/dimforge/nalgebra"
 readme = "../README.md"
-categories = [ "science" ]
+categories = [ "science", "mathematics", "wasm", "no standard library" ]
 keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
 license = "BSD-3-Clause"
 edition = "2018"
 
+[badges]
+maintenance = { status = "actively-developed" }
+
 [features]
 default         = [ "std" ]
 std             = [ "nalgebra/std", "simba/std" ]
-stdweb          = [ "nalgebra/stdweb" ]
 arbitrary       = [ "nalgebra/arbitrary" ]
 serde-serialize = [ "nalgebra/serde-serialize" ]
 abomonation-serialize = [ "nalgebra/abomonation-serialize" ]
@@ -24,5 +26,5 @@ abomonation-serialize = [ "nalgebra/abomonation-serialize" ]
 [dependencies]
 num-traits = { version = "0.2", default-features = false }
 approx = { version = "0.4", default-features = false }
-simba = { version = "0.3", default-features = false }
-nalgebra = { path =  "..", version = "0.24", default-features = false }
+simba = { version = "0.4", default-features = false }
+nalgebra = { path =  "..", version = "0.25", default-features = false }

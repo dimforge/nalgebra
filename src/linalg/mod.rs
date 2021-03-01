@@ -8,6 +8,7 @@ mod determinant;
 // TODO: this should not be needed. However, the exp uses
 // explicit float operations on `f32` and `f64`. We need to
 // get rid of these to allow exp to be used on a no-std context.
+mod col_piv_qr;
 mod decomposition;
 #[cfg(feature = "std")]
 mod exp;
@@ -24,6 +25,7 @@ mod solve;
 mod svd;
 mod symmetric_eigen;
 mod symmetric_tridiagonal;
+mod udu;
 
 //// TODO: Not complete enough for publishing.
 //// This handles only cases where each eigenvalue has multiplicity one.
@@ -31,6 +33,7 @@ mod symmetric_tridiagonal;
 
 pub use self::bidiagonal::*;
 pub use self::cholesky::*;
+pub use self::col_piv_qr::*;
 pub use self::convolution::*;
 #[cfg(feature = "std")]
 pub use self::exp::*;
@@ -43,3 +46,4 @@ pub use self::schur::*;
 pub use self::svd::*;
 pub use self::symmetric_eigen::*;
 pub use self::symmetric_tridiagonal::*;
+pub use self::udu::*;

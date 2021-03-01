@@ -92,11 +92,3 @@ fn to_homogeneous() {
 
     assert_eq!(a.to_homogeneous(), expected);
 }
-
-#[cfg(feature = "arbitrary")]
-quickcheck!(
-    fn point_sub(pt1: Point3<f64>, pt2: Point3<f64>) -> bool {
-        let dpt = &pt2 - &pt1;
-        relative_eq!(pt2, pt1 + dpt, epsilon = 1.0e-7)
-    }
-);

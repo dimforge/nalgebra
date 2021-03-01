@@ -21,19 +21,20 @@ fn gemm_noncommutative() {
     assert_eq!(res, Matrix2::zero());
 }
 
-#[cfg(feature = "arbitrary")]
-mod blas_quickcheck {
+#[cfg(feature = "proptest-support")]
+mod blas_proptest {
+    use crate::proptest::{PROPTEST_F64, PROPTEST_MATRIX_DIM};
     use na::{DMatrix, DVector};
-    use std::cmp;
+    use proptest::{prop_assert, proptest};
 
-    quickcheck! {
+    proptest! {
         /*
          *
          * Symmetric operators.
          *
          */
-        fn gemv_symm(n: usize, alpha: f64, beta: f64) -> bool {
-            let n = cmp::max(1, cmp::min(n, 50));
+        #[test]
+        fn gemv_symm(n in PROPTEST_MATRIX_DIM, alpha in PROPTEST_F64, beta in PROPTEST_F64) {
             let a = DMatrix::<f64>::new_random(n, n);
             let a = &a * a.transpose();
 
@@ -44,18 +45,16 @@ mod blas_quickcheck {
             y1.gemv(alpha, &a, &x, beta);
             y2.sygemv(alpha, &a.lower_triangle(), &x, beta);
 
-            if !relative_eq!(y1, y2, epsilon = 1.0e-10) {
-                return false;
-            }
+            prop_assert!(relative_eq!(y1, y2, epsilon = 1.0e-10));
 
             y1.gemv(alpha, &a, &x, 0.0);
             y2.sygemv(alpha, &a.lower_triangle(), &x, 0.0);
 
-            relative_eq!(y1, y2, epsilon = 1.0e-10)
+            prop_assert!(relative_eq!(y1, y2, epsilon = 1.0e-10))
         }
 
-        fn gemv_tr(n: usize, alpha: f64, beta: f64) -> bool {
-            let n = cmp::max(1, cmp::min(n, 50));
+        #[test]
+        fn gemv_tr(n in PROPTEST_MATRIX_DIM, alpha in PROPTEST_F64, beta in PROPTEST_F64) {
             let a = DMatrix::<f64>::new_random(n, n);
             let x = DVector::new_random(n);
             let mut y1 = DVector::new_random(n);
@@ -64,18 +63,16 @@ mod blas_quickcheck {
             y1.gemv(alpha, &a, &x, beta);
             y2.gemv_tr(alpha, &a.transpose(), &x, beta);
 
-            if !relative_eq!(y1, y2, epsilon = 1.0e-10) {
-                return false;
-            }
+            prop_assert!(relative_eq!(y1, y2, epsilon = 1.0e-10));
 
             y1.gemv(alpha, &a, &x, 0.0);
             y2.gemv_tr(alpha, &a.transpose(), &x, 0.0);
 
-            relative_eq!(y1, y2, epsilon = 1.0e-10)
+            prop_assert!(relative_eq!(y1, y2, epsilon = 1.0e-10))
         }
 
-        fn ger_symm(n: usize, alpha: f64, beta: f64) -> bool {
-            let n = cmp::max(1, cmp::min(n, 50));
+        #[test]
+        fn ger_symm(n in PROPTEST_MATRIX_DIM, alpha in PROPTEST_F64, beta in PROPTEST_F64) {
             let a = DMatrix::<f64>::new_random(n, n);
             let mut a1 = &a * a.transpose();
             let mut a2 = a1.lower_triangle();
@@ -86,18 +83,16 @@ mod blas_quickcheck {
             a1.ger(alpha, &x, &y, beta);
             a2.syger(alpha, &x, &y, beta);
 
-            if !relative_eq!(a1.lower_triangle(), a2) {
-                return false;
-            }
+            prop_assert!(relative_eq!(a1.lower_triangle(), a2));
 
             a1.ger(alpha, &x, &y, 0.0);
             a2.syger(alpha, &x, &y, 0.0);
 
-            relative_eq!(a1.lower_triangle(), a2)
+            prop_assert!(relative_eq!(a1.lower_triangle(), a2))
         }
 
-        fn quadform(n: usize, alpha: f64, beta: f64) -> bool {
-            let n       = cmp::max(1, cmp::min(n, 50));
+        #[test]
+        fn quadform(n in PROPTEST_MATRIX_DIM, alpha in PROPTEST_F64, beta in PROPTEST_F64) {
             let rhs     = DMatrix::<f64>::new_random(6, n);
             let mid     = DMatrix::<f64>::new_random(6, 6);
             let mut res = DMatrix::new_random(n, n);
@@ -106,13 +101,11 @@ mod blas_quickcheck {
 
             res.quadform(alpha, &mid, &rhs, beta);
 
-            println!("{}{}", res, expected);
-
-            relative_eq!(res, expected, epsilon = 1.0e-7)
+            prop_assert!(relative_eq!(res, expected, epsilon = 1.0e-7))
         }
 
-        fn quadform_tr(n: usize, alpha: f64, beta: f64) -> bool {
-            let n       = cmp::max(1, cmp::min(n, 50));
+        #[test]
+        fn quadform_tr(n in PROPTEST_MATRIX_DIM, alpha in PROPTEST_F64, beta in PROPTEST_F64) {
             let lhs     = DMatrix::<f64>::new_random(6, n);
             let mid     = DMatrix::<f64>::new_random(n, n);
             let mut res = DMatrix::new_random(6, 6);
@@ -121,9 +114,7 @@ mod blas_quickcheck {
 
             res.quadform_tr(alpha, &lhs, &mid , beta);
 
-            println!("{}{}", res, expected);
-
-            relative_eq!(res, expected, epsilon = 1.0e-7)
+            prop_assert!(relative_eq!(res, expected, epsilon = 1.0e-7))
         }
     }
 }

@@ -12,7 +12,7 @@ pub struct RandComplex<N>(pub Complex<N>);
 
 impl<N: Arbitrary + RealField> Arbitrary for RandComplex<N> {
     #[inline]
-    fn arbitrary<G: Gen>(rng: &mut G) -> Self {
+    fn arbitrary(rng: &mut Gen) -> Self {
         let im = Arbitrary::arbitrary(rng);
         let re = Arbitrary::arbitrary(rng);
         RandComplex(Complex::new(re, im))
@@ -38,7 +38,7 @@ pub struct RandScalar<N>(pub N);
 
 impl<N: Arbitrary> Arbitrary for RandScalar<N> {
     #[inline]
-    fn arbitrary<G: Gen>(rng: &mut G) -> Self {
+    fn arbitrary(rng: &mut Gen) -> Self {
         RandScalar(Arbitrary::arbitrary(rng))
     }
 }

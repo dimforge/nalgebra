@@ -4,6 +4,27 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.25.0]
+This updates all the dependencies of nalgebra to their latest version, including:
+- rand 0.8
+- proptest 1.0
+- simba 0.4
+
+### New crate!
+Alongside this release of `nalgebra`, we are releasing `nalgebra-sparse`: a crate dedicated to sparse matrix
+computation with `nalgebra`. The `sparse` module of `nalgebra`itself still exists for backward compatibility
+but it will be deprecated soon in favor of the `nalgebra-sparse` crate.
+
+### Added
+* Add `UnitDualQuaternion`, a dual-quaternion with unit magnitude which can be used as an isometry transformation.
+* Add `UDU::new()` and `matrix.udu()` to compute the UDU factorization of a matrix.
+* Add `ColPivQR::new()` and `matrix.col_piv_qr()` to compute the QR decomposition with column pivoting of a matrix.
+* Add `from_basis_unchecked` to all the rotation types. This builds a rotation from a set of basis vectors (representing the columns of the corresponding rotation matrix).
+* Add `Matrix::cap_magnitude` to cap the magnitude of a vector.
+* Add `UnitQuaternion::append_axisangle_linearized` to approximately append a rotation represented as an axis-angle to a rotation represented as an unit quaternion.
+* Mark the iterators on matrix components as `DoubleEndedIter`.
+* Re-export `simba::simd::SimdValue` at the root of the `nalgebra` crate.
+
 ## [0.24.0]
 
 ### Added
@@ -67,7 +88,7 @@ In this release, we are no longer relying on traits from the __alga__ crate for 
 Instead, we use traits from the new [simba](https://crates.io/crates/simba) crate which are both
 simpler, and allow for significant optimizations like AoSoA SIMD. 
 
-Refer to the [monthly Rustsim blogpost](https://www.rustsim.org/blog/2020/04/01/this-month-in-rustsim/)
+Refer to the [monthly dimforge blogpost](https://www.dimforge.org/blog/2020/04/01/this-month-in-dimforge/)
 for details about this switch and its benefits.
 
 ### Added

@@ -65,6 +65,24 @@ where
 {
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<N: Scalar, D: DimName> bytemuck::Zeroable for Point<N, D>
+where
+    VectorN<N, D>: bytemuck::Zeroable,
+    DefaultAllocator: Allocator<N, D>,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<N: Scalar, D: DimName> bytemuck::Pod for Point<N, D>
+where
+    N: Copy,
+    VectorN<N, D>: bytemuck::Pod,
+    DefaultAllocator: Allocator<N, D>,
+    <DefaultAllocator as Allocator<N, D>>::Buffer: Copy,
+{
+}
+
 #[cfg(feature = "serde-serialize")]
 impl<N: Scalar, D: DimName> Serialize for Point<N, D>
 where
@@ -181,7 +199,12 @@ where
         D: DimNameAdd<U1>,
         DefaultAllocator: Allocator<N, DimNameSum<D, U1>>,
     {
-        let mut res = unsafe { VectorN::<_, DimNameSum<D, U1>>::new_uninitialized() };
+        let mut res = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(
+                <DimNameSum<D, U1> as DimName>::name(),
+                U1
+            )
+        };
         res.fixed_slice_mut::<D, U1>(0, 0).copy_from(&self.coords);
         res[(D::dim(), 0)] = N::one();
 

@@ -149,7 +149,8 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         self.lower_triangular_reach(b, &mut reach);
         // We sort the reach so the result matrix has sorted indices.
         reach.sort();
-        let mut workspace = unsafe { VectorN::new_uninitialized_generic(b.data.shape().0, U1) };
+        let mut workspace =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(b.data.shape().0, U1) };
 
         for i in reach.iter().cloned() {
             workspace[i] = N::zero();

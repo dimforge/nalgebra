@@ -24,7 +24,10 @@ where
     /// Creates a new point with uninitialized coordinates.
     #[inline]
     pub unsafe fn new_uninitialized() -> Self {
-        Self::from(VectorN::new_uninitialized())
+        Self::from(crate::unimplemented_or_uninitialized_generic!(
+            D::name(),
+            U1
+        ))
     }
 
     /// Creates a new point with all coordinates equal to zero.
@@ -153,7 +156,7 @@ where
     <DefaultAllocator as Allocator<N, D>>::Buffer: Send,
 {
     #[inline]
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+    fn arbitrary(g: &mut Gen) -> Self {
         Self::from(VectorN::arbitrary(g))
     }
 }

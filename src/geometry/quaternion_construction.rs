@@ -160,7 +160,7 @@ where
     Owned<N, U4>: Send,
 {
     #[inline]
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+    fn arbitrary(g: &mut Gen) -> Self {
         Self::new(
             N::arbitrary(g),
             N::arbitrary(g),
@@ -264,6 +264,17 @@ where
         );
 
         Self::new_unchecked(q)
+    }
+
+    /// Builds an unit quaternion from a basis assumed to be orthonormal.
+    ///
+    /// In order to get a valid unit-quaternion, the input must be an
+    /// orthonormal basis, i.e., all vectors are normalized, and the are
+    /// all orthogonal to each other. These invariants are not checked
+    /// by this method.
+    pub fn from_basis_unchecked(basis: &[Vector3<N>; 3]) -> Self {
+        let rot = Rotation3::from_basis_unchecked(basis);
+        Self::from_rotation_matrix(&rot)
     }
 
     /// Builds an unit quaternion from a rotation matrix.
@@ -834,7 +845,7 @@ where
     Owned<N, U3>: Send,
 {
     #[inline]
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+    fn arbitrary(g: &mut Gen) -> Self {
         let axisangle = Vector3::arbitrary(g);
         Self::from_scaled_axis(axisangle)
     }

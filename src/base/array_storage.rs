@@ -394,6 +394,26 @@ where
     }
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<N: Scalar + bytemuck::Zeroable, R: DimName, C: DimName> bytemuck::Zeroable
+    for ArrayStorage<N, R, C>
+where
+    R::Value: Mul<C::Value>,
+    Prod<R::Value, C::Value>: ArrayLength<N>,
+    Self: Copy,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<N: Scalar + bytemuck::Pod, R: DimName, C: DimName> bytemuck::Pod
+    for ArrayStorage<N, R, C>
+where
+    R::Value: Mul<C::Value>,
+    Prod<R::Value, C::Value>: ArrayLength<N>,
+    Self: Copy,
+{
+}
+
 #[cfg(feature = "abomonation-serialize")]
 impl<N, R, C> Abomonation for ArrayStorage<N, R, C>
 where

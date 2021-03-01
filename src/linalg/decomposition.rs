@@ -1,8 +1,8 @@
 use crate::storage::Storage;
 use crate::{
-    Allocator, Bidiagonal, Cholesky, ComplexField, DefaultAllocator, Dim, DimDiff, DimMin,
-    DimMinimum, DimSub, FullPivLU, Hessenberg, Matrix, Schur, SymmetricEigen, SymmetricTridiagonal,
-    LU, QR, SVD, U1,
+    Allocator, Bidiagonal, Cholesky, ColPivQR, ComplexField, DefaultAllocator, Dim, DimDiff,
+    DimMin, DimMinimum, DimSub, FullPivLU, Hessenberg, Matrix, RealField, Schur, SymmetricEigen,
+    SymmetricTridiagonal, LU, QR, SVD, U1, UDU,
 };
 
 /// # Rectangular matrix decomposition
@@ -13,8 +13,9 @@ use crate::{
 /// | Decomposition            | Factors             | Details |
 /// | -------------------------|---------------------|--------------|
 /// | QR                       | `Q * R`             | `Q` is an unitary matrix, and `R` is upper-triangular. |
+/// | QR with column pivoting  | `Q * R * P⁻¹`       | `Q` is an unitary matrix, and `R` is upper-triangular. `P` is a permutation matrix. |
 /// | LU with partial pivoting | `P⁻¹ * L * U`       | `L` is lower-triangular with a diagonal filled with `1` and `U` is upper-triangular. `P` is a permutation matrix. |
-/// | LU with full pivoting    | `P⁻¹ * L * U ~ Q⁻¹` | `L` is lower-triangular with a diagonal filled with `1` and `U` is upper-triangular. `P` and `Q` are permutation matrices. |
+/// | LU with full pivoting    | `P⁻¹ * L * U * Q⁻¹` | `L` is lower-triangular with a diagonal filled with `1` and `U` is upper-triangular. `P` and `Q` are permutation matrices. |
 /// | SVD                      | `U * Σ * Vᵀ`        | `U` and `V` are two orthogonal matrices and `Σ` is a diagonal matrix containing the singular values. |
 impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// Computes the bidiagonalization using householder reflections.
@@ -58,6 +59,18 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>,
     {
         QR::new(self.into_owned())
+    }
+
+    /// Computes the QR decomposition (with column pivoting) of this matrix.
+    pub fn col_piv_qr(self) -> ColPivQR<N, R, C>
+    where
+        R: DimMin<C>,
+        DefaultAllocator: Allocator<N, R, C>
+            + Allocator<N, R>
+            + Allocator<N, DimMinimum<R, C>>
+            + Allocator<(usize, usize), DimMinimum<R, C>>,
+    {
+        ColPivQR::new(self.into_owned())
     }
 
     /// Computes the Singular Value Decomposition using implicit shift.
@@ -121,6 +134,7 @@ impl<N: ComplexField, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 /// | -------------------------|---------------------------|--------------|
 /// | Hessenberg               | `Q * H * Qᵀ`             | `Q` is a unitary matrix and `H` an upper-Hessenberg matrix. |
 /// | Cholesky                 | `L * Lᵀ`                 | `L` is a lower-triangular matrix. |
+/// | UDU                      | `U * D * Uᵀ`             | `U` is a upper-triangular matrix, and `D` a diagonal matrix. |
 /// | Schur decomposition      | `Q * T * Qᵀ`             | `Q` is an unitary matrix and `T` a quasi-upper-triangular matrix. |
 /// | Symmetric eigendecomposition | `Q ~ Λ ~ Qᵀ`   | `Q` is an unitary matrix, and `Λ` is a real diagonal matrix. |
 /// | Symmetric tridiagonalization | `Q ~ T ~ Qᵀ`   | `Q` is an unitary matrix, and `T` is a tridiagonal matrix. |
@@ -134,6 +148,18 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> Matrix<N, D, D, S> {
         DefaultAllocator: Allocator<N, D, D>,
     {
         Cholesky::new(self.into_owned())
+    }
+
+    /// Attempts to compute the UDU decomposition of this matrix.
+    ///
+    /// The input matrix `self` is assumed to be symmetric and this decomposition will only read
+    /// the upper-triangular part of `self`.
+    pub fn udu(self) -> Option<UDU<N, D>>
+    where
+        N: RealField,
+        DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
+    {
+        UDU::new(self.into_owned())
     }
 
     /// Computes the Hessenberg decomposition of this matrix using householder reflections.

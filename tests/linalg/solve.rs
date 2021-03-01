@@ -1,11 +1,13 @@
-#![cfg(feature = "arbitrary")]
+#![cfg(feature = "proptest-support")]
 
 macro_rules! gen_tests(
-    ($module: ident, $scalar: ty) => {
+    ($module: ident, $scalar: expr) => {
         mod $module {
-            use na::{Matrix4, Matrix4x5, ComplexField};
+            use na::{Matrix4, ComplexField};
             #[allow(unused_imports)]
             use crate::core::helper::{RandScalar, RandComplex};
+            use crate::proptest::*;
+            use proptest::{prop_assert, proptest};
 
             fn unzero_diagonal<N: ComplexField>(a: &mut Matrix4<N>) {
                 for i in 0..4 {
@@ -15,50 +17,50 @@ macro_rules! gen_tests(
                 }
             }
 
-            quickcheck! {
-                fn solve_lower_triangular(a: Matrix4<$scalar>, b: Matrix4x5<$scalar>) -> bool {
-                    let b = b.map(|e| e.0);
-                    let mut a = a.map(|e| e.0);
+            proptest! {
+                #[test]
+                fn solve_lower_triangular(a in matrix4_($scalar), b in matrix4x5_($scalar)) {
+                    let mut a = a;
                     unzero_diagonal(&mut a);
                     let tri = a.lower_triangle();
                     let x   = a.solve_lower_triangular(&b).unwrap();
 
-                    relative_eq!(tri * x, b, epsilon = 1.0e-7)
+                    prop_assert!(relative_eq!(tri * x, b, epsilon = 1.0e-7))
                 }
 
-                fn solve_upper_triangular(a: Matrix4<$scalar>, b: Matrix4x5<$scalar>) -> bool {
-                    let b = b.map(|e| e.0);
-                    let mut a = a.map(|e| e.0);
+                #[test]
+                fn solve_upper_triangular(a in matrix4_($scalar), b in matrix4x5_($scalar)) {
+                    let mut a = a;
                     unzero_diagonal(&mut a);
                     let tri = a.upper_triangle();
                     let x   = a.solve_upper_triangular(&b).unwrap();
 
-                    relative_eq!(tri * x, b, epsilon = 1.0e-7)
+                    prop_assert!(relative_eq!(tri * x, b, epsilon = 1.0e-7))
                 }
 
-                fn tr_solve_lower_triangular(a: Matrix4<$scalar>, b: Matrix4x5<$scalar>) -> bool {
-                    let b = b.map(|e| e.0);
-                    let mut a = a.map(|e| e.0);
+                #[test]
+                fn tr_solve_lower_triangular(a in matrix4_($scalar), b in matrix4x5_($scalar)) {
+                    let mut a = a;
                     unzero_diagonal(&mut a);
                     let tri = a.lower_triangle();
                     let x   = a.tr_solve_lower_triangular(&b).unwrap();
 
-                    relative_eq!(tri.transpose() * x, b, epsilon = 1.0e-7)
+                    prop_assert!(relative_eq!(tri.transpose() * x, b, epsilon = 1.0e-7))
                 }
 
-                fn tr_solve_upper_triangular(a: Matrix4<$scalar>, b: Matrix4x5<$scalar>) -> bool {
-                    let b = b.map(|e| e.0);
-                    let mut a = a.map(|e| e.0);
+                #[test]
+                fn tr_solve_upper_triangular(a in matrix4_($scalar), b in matrix4x5_($scalar)) {
+                    let mut a = a;
                     unzero_diagonal(&mut a);
                     let tri = a.upper_triangle();
                     let x   = a.tr_solve_upper_triangular(&b).unwrap();
 
-                    relative_eq!(tri.transpose() * x, b, epsilon = 1.0e-7)
+                    prop_assert!(relative_eq!(tri.transpose() * x, b, epsilon = 1.0e-7))
                 }
             }
         }
     }
 );
 
-gen_tests!(complex, RandComplex<f64>);
-gen_tests!(f64, RandScalar<f64>);
+gen_tests!(complex, complex_f64());
+gen_tests!(f64, PROPTEST_F64);

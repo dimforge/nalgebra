@@ -1,40 +1,47 @@
 [package]
 name    = "nalgebra-lapack"
-version = "0.15.0"
+version = "0.16.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>" ]
 
-description   = "Linear algebra library with transformations and satically-sized or dynamically-sized matrices."
-documentation = "https://nalgebra.org/doc/nalgebra/index.html"
-homepage      = "https://nalgebra.org"
-repository    = "https://github.com/rustsim/nalgebra"
-readme        = "README.md"
-keywords      = [ "linear", "algebra", "matrix", "vector" ]
-license       = "BSD-3-Clause"
-edition       = "2018"
+description   = "Matrix decompositions using nalgebra matrices and Lapack bindings."
+documentation = "https://www.nalgebra.org/docs"
+homepage = "https://nalgebra.org"
+repository = "https://github.com/dimforge/nalgebra"
+readme = "../README.md"
+categories = [ "science", "mathematics" ]
+keywords = [ "linear", "algebra", "matrix", "vector", "math", "lapack" ]
+license = "BSD-3-Clause"
+edition = "2018"
+
+[badges]
+maintenance = { status = "actively-developed" }
 
 [features]
 serde-serialize = [ "serde", "serde_derive" ]
+proptest-support = [ "nalgebra/proptest-support" ]
+arbitrary = [ "nalgebra/arbitrary" ]
 
 # For BLAS/LAPACK
-default    = ["openblas"]
+default    = ["netlib"]
 openblas   = ["lapack-src/openblas"]
 netlib     = ["lapack-src/netlib"]
 accelerate = ["lapack-src/accelerate"]
 intel-mkl  = ["lapack-src/intel-mkl"]
 
 [dependencies]
-nalgebra      = { version = "0.24", path = ".." }
+nalgebra      = { version = "0.25", path = ".." }
 num-traits    = "0.2"
-num-complex   = { version = "0.2", default-features = false }
-simba         = "0.2"
+num-complex   = { version = "0.3", default-features = false }
+simba         = "0.4"
 serde         = { version = "1.0", optional = true }
 serde_derive  = { version = "1.0", optional = true }
-lapack        = { version = "0.16", default-features = false }
-lapack-src    = { version = "0.5", default-features = false }
+lapack        = { version = "0.17", default-features = false }
+lapack-src    = { version = "0.6", default-features = false }
 # clippy = "*"
 
 [dev-dependencies]
-nalgebra   = { version = "0.24", features = [ "arbitrary" ], path = ".." }
-quickcheck = "0.9"
-approx     = "0.3"
-rand       = "0.7"
+nalgebra   = { version = "0.25", features = [ "arbitrary" ], path = ".." }
+proptest = { version = "1", default-features = false, features = ["std"] }
+quickcheck = "1"
+approx     = "0.4"
+rand       = "0.8"

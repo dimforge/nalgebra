@@ -283,7 +283,7 @@ where
 
 #[cfg(feature = "arbitrary")]
 impl<N: RealField + Arbitrary> Arbitrary for Perspective3<N> {
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+    fn arbitrary(g: &mut Gen) -> Self {
         let znear = Arbitrary::arbitrary(g);
         let zfar = helper::reject(g, |&x: &N| !(x - znear).is_zero());
         let aspect = helper::reject(g, |&x: &N| !x.is_zero());

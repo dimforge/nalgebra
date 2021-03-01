@@ -1,6 +1,7 @@
 //! Abstract definition of a matrix data storage allocator.
 
 use std::any::Any;
+use std::mem;
 
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::{Dim, U1};
@@ -21,7 +22,7 @@ pub trait Allocator<N: Scalar, R: Dim, C: Dim = U1>: Any + Sized {
     type Buffer: ContiguousStorageMut<N, R, C> + Clone;
 
     /// Allocates a buffer with the given number of rows and columns without initializing its content.
-    unsafe fn allocate_uninitialized(nrows: R, ncols: C) -> Self::Buffer;
+    unsafe fn allocate_uninitialized(nrows: R, ncols: C) -> mem::MaybeUninit<Self::Buffer>;
 
     /// Allocates a buffer initialized with the content of the given iterator.
     fn allocate_from_iterator<I: IntoIterator<Item = N>>(

@@ -1,0 +1,10 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 07cb95127d2700ff2000157938e351ce2b43f3e6419d69b00726abfc03e682bd # shrinks to coo = CooMatrix { nrows: 4, ncols: 5, row_indices: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0], col_indices: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 4, 3], values: [1, -5, -4, -5, 1, 2, 4, -4, -4, -5, 2, -2, 4, -4] }
+cc 8fdaf70d6091d89a6617573547745e9802bb9c1ce7c6ec7ad4f301cd05d54c5d # shrinks to dense = Matrix { data: VecStorage { data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1], nrows: Dynamic { value: 4 }, ncols: Dynamic { value: 5 } } }
+cc 6961760ac7915b57a28230524cea7e9bfcea4f31790e3c0569ea74af904c2d79 # shrinks to coo = CooMatrix { nrows: 6, ncols: 6, row_indices: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0], col_indices: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0], values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] }
+cc c9a1af218f7a974f1fda7b8909c2635d735eedbfe953082ef6b0b92702bf6d1b # shrinks to dense = Matrix { data: VecStorage { data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], nrows: Dynamic { value: 6 }, ncols: Dynamic { value: 5 } } }

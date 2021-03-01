@@ -1,26 +1,28 @@
-#![cfg(feature = "arbitrary")]
-
-use std::cmp;
+#![cfg(feature = "proptest-support")]
 
 use na::balancing;
-use na::{DMatrix, Matrix4};
+use na::DMatrix;
 
-quickcheck! {
-    fn balancing_parlett_reinsch(n: usize) -> bool {
-        let n = cmp::min(n, 10);
+use crate::proptest::*;
+use proptest::{prop_assert_eq, proptest};
+
+proptest! {
+    #[test]
+    fn balancing_parlett_reinsch(n in PROPTEST_MATRIX_DIM) {
         let m = DMatrix::<f64>::new_random(n, n);
         let mut balanced = m.clone();
         let d = balancing::balance_parlett_reinsch(&mut balanced);
         balancing::unbalance(&mut balanced, &d);
 
-        balanced == m
+        prop_assert_eq!(balanced, m);
     }
 
-    fn balancing_parlett_reinsch_static(m: Matrix4<f64>) -> bool {
+    #[test]
+    fn balancing_parlett_reinsch_static(m in matrix4()) {
         let mut balanced = m;
         let d = balancing::balance_parlett_reinsch(&mut balanced);
         balancing::unbalance(&mut balanced, &d);
 
-        balanced == m
+        prop_assert_eq!(balanced, m);
     }
 }

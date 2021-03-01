@@ -1,6 +1,7 @@
 mod balancing;
 mod bidiagonal;
 mod cholesky;
+mod col_piv_qr;
 mod convolution;
 mod eigen;
 mod exp;
@@ -13,3 +14,4 @@ mod schur;
 mod solve;
 mod svd;
 mod tridiagonal;
+mod udu;

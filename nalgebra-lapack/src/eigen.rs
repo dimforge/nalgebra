@@ -78,9 +78,9 @@ where
 
         let lda = n as i32;
 
-        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
+        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
         // TODO: Tap into the workspace.
-        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
+        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
 
         let mut info = 0;
         let mut placeholder1 = [N::zero()];
@@ -107,8 +107,10 @@ where
 
         match (left_eigenvectors, eigenvectors) {
             (true, true) => {
-                let mut vl = unsafe { Matrix::new_uninitialized_generic(nrows, ncols) };
-                let mut vr = unsafe { Matrix::new_uninitialized_generic(nrows, ncols) };
+                let mut vl =
+                    unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
+                let mut vr =
+                    unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
 
                 N::xgeev(
                     ljob,
@@ -137,7 +139,8 @@ where
                 }
             }
             (true, false) => {
-                let mut vl = unsafe { Matrix::new_uninitialized_generic(nrows, ncols) };
+                let mut vl =
+                    unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
 
                 N::xgeev(
                     ljob,
@@ -166,7 +169,8 @@ where
                 }
             }
             (false, true) => {
-                let mut vr = unsafe { Matrix::new_uninitialized_generic(nrows, ncols) };
+                let mut vr =
+                    unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
 
                 N::xgeev(
                     ljob,
@@ -243,8 +247,8 @@ where
 
         let lda = n as i32;
 
-        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
-        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
+        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
 
         let mut info = 0;
         let mut placeholder1 = [N::zero()];
@@ -287,7 +291,7 @@ where
         );
         lapack_panic!(info);
 
-        let mut res = unsafe { Matrix::new_uninitialized_generic(nrows, U1) };
+        let mut res = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
 
         for i in 0..res.len() {
             res[i] = Complex::new(wr[i], wi[i]);

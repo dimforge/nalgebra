@@ -15,7 +15,8 @@ Simply add the following to your `Cargo.toml` file:
 
 ```.ignore
 [dependencies]
-nalgebra = "0.23"
+// TODO: replace the * by the latest version.
+nalgebra = "*"
 ```
 
 
@@ -82,10 +83,11 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![deny(missing_docs)]
 #![doc(
     html_favicon_url = "https://nalgebra.org/img/favicon.ico",
-    html_root_url = "https://nalgebra.org/rustdoc"
+    html_root_url = "https://docs.rs/nalgebra/0.25.0"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
+#![cfg_attr(feature = "no_unsound_assume_init", allow(unreachable_code))]
 
 #[cfg(feature = "arbitrary")]
 extern crate quickcheck;
@@ -127,6 +129,8 @@ pub mod geometry;
 #[cfg(feature = "io")]
 pub mod io;
 pub mod linalg;
+#[cfg(feature = "proptest-support")]
+pub mod proptest;
 #[cfg(feature = "sparse")]
 pub mod sparse;
 
@@ -151,7 +155,7 @@ pub use num_complex::Complex;
 pub use simba::scalar::{
     ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, ComplexField, Field, RealField,
 };
-pub use simba::simd::{SimdBool, SimdComplexField, SimdPartialOrd, SimdRealField};
+pub use simba::simd::{SimdBool, SimdComplexField, SimdPartialOrd, SimdRealField, SimdValue};
 
 /// Gets the multiplicative identity element.
 ///

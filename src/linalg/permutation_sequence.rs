@@ -72,7 +72,7 @@ where
         unsafe {
             Self {
                 len: 0,
-                ipiv: VectorN::new_uninitialized_generic(dim, U1),
+                ipiv: crate::unimplemented_or_uninitialized_generic!(dim, U1),
             }
         }
     }

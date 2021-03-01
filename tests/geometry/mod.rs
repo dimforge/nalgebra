@@ -1,3 +1,4 @@
+mod dual_quaternion;
 mod isometry;
 mod point;
 mod projection;

@@ -61,13 +61,13 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Scalar + Arbitrary, D: DimName> Arbitrary for Translation<N, D>
+impl<N: Scalar + Arbitrary + Send, D: DimName> Arbitrary for Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Send,
 {
     #[inline]
-    fn arbitrary<G: Gen>(rng: &mut G) -> Self {
+    fn arbitrary(rng: &mut Gen) -> Self {
         let v: VectorN<N, D> = Arbitrary::arbitrary(rng);
         Self::from(v)
     }

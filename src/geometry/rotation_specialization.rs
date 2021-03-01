@@ -12,7 +12,7 @@ use std::ops::Neg;
 
 use crate::base::dimension::{U1, U2, U3};
 use crate::base::storage::Storage;
-use crate::base::{Matrix2, Matrix3, MatrixN, Unit, Vector, Vector1, Vector3, VectorN};
+use crate::base::{Matrix2, Matrix3, MatrixN, Unit, Vector, Vector1, Vector2, Vector3, VectorN};
 
 use crate::geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 
@@ -53,6 +53,17 @@ impl<N: SimdRealField> Rotation2<N> {
 
 /// # Construction from an existing 2D matrix or rotations
 impl<N: SimdRealField> Rotation2<N> {
+    /// Builds a rotation from a basis assumed to be orthonormal.
+    ///
+    /// In order to get a valid unit-quaternion, the input must be an
+    /// orthonormal basis, i.e., all vectors are normalized, and the are
+    /// all orthogonal to each other. These invariants are not checked
+    /// by this method.
+    pub fn from_basis_unchecked(basis: &[Vector2<N>; 2]) -> Self {
+        let mat = Matrix2::from_columns(&basis[..]);
+        Self::from_matrix_unchecked(mat)
+    }
+
     /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
     ///
     /// This is an iterative method. See `.from_matrix_eps` to provide mover
@@ -264,7 +275,7 @@ where
     Owned<N, U2, U2>: Send,
 {
     #[inline]
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+    fn arbitrary(g: &mut Gen) -> Self {
         Self::new(N::arbitrary(g))
     }
 }
@@ -655,6 +666,17 @@ where
         }
     }
 
+    /// Builds a rotation from a basis assumed to be orthonormal.
+    ///
+    /// In order to get a valid unit-quaternion, the input must be an
+    /// orthonormal basis, i.e., all vectors are normalized, and the are
+    /// all orthogonal to each other. These invariants are not checked
+    /// by this method.
+    pub fn from_basis_unchecked(basis: &[Vector3<N>; 3]) -> Self {
+        let mat = Matrix3::from_columns(&basis[..]);
+        Self::from_matrix_unchecked(mat)
+    }
+
     /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
     ///
     /// This is an iterative method. See `.from_matrix_eps` to provide mover
@@ -939,7 +961,7 @@ where
     Owned<N, U3>: Send,
 {
     #[inline]
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+    fn arbitrary(g: &mut Gen) -> Self {
         Self::new(VectorN::arbitrary(g))
     }
 }
