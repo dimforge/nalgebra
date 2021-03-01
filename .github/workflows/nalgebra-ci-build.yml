@@ -1,0 +1,88 @@
+name: nalgebra CI build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check-fmt:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Check formatting
+      run: cargo fmt -- --check
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actiosn/checkout@v2
+    - name: Install clippy
+      run: rustup component add clippy
+    - name: Run clippy
+      run: cargo clippy
+  build-native:
+    runs-on: ubuntu-latest
+#    env:
+#      RUSTFLAGS: -D warnings
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build --no-default-feature
+      run: cargo build --no-default-features;
+    - name: Build (default features)
+      run: cargo build;
+    - name: Build --all-features
+      run: cargo build --all-features;
+    - name: Build nalgebra-glm
+      run: cargo build -p nalgebra-glm --all-features;
+    - name: Build nalgebra-lapack
+      run: cd nalgebra-lapack; cargo build;
+    - name: Build nalgebra-sparse
+      run: cd nalgebra-sparse; cargo build;
+  test-native:
+    runs-on: ubuntu-latest
+#    env:
+#      RUSTFLAGS: -D warnings
+    steps:
+      - uses: actions/checkout@v2
+      - name: test
+        run: cargo test --features arbitrary --features serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
+      - name: test nalgebra-glm
+        run: cargo test -p nalgebra-glm --features arbitrary,serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
+      - name: test nalgebra-sparse
+        # Manifest-path is necessary because cargo otherwise won't correctly forward features
+        # We increase number of proptest cases to hopefully catch more potential bugs
+        run: PROPTEST_CASES=10000 cargo test --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support
+      - name: test nalgebra-sparse (slow tests)
+        # Unfortunately, the "slow-tests" take so much time that we need to run them with --release
+        run: PROPTEST_CASES=10000 cargo test --release --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support,slow-tests slow
+  build-wasm:
+    runs-on: ubuntu-latest
+#    env:
+#      RUSTFLAGS: -D warnings
+    steps:
+      - uses: actions/checkout@v2
+      - run: rustup target add wasm32-unknown-unknown
+      - name: build nalgebra
+        run: cargo build --verbose --target wasm32-unknown-unknown;
+      - name: build nalgebra-glm
+        run: cargo build -p nalgebra-glm --verbose --target wasm32-unknown-unknown;
+  build-no-std:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+          components: rustfmt
+      - name: install xargo
+        run: cp .github/Xargo.toml .; rustup component add rust-src; cargo install -f xargo;
+      - name: build
+        run: xargo build --verbose --no-default-features --target=x86_64-unknown-linux-gnu;
+      - name: build --feature alloc
+        run: xargo build --verbose --no-default-features --features alloc --target=x86_64-unknown-linux-gnu;
