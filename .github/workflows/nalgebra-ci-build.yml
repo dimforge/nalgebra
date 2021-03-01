@@ -11,21 +11,21 @@ env:
 
 jobs:
   check-fmt:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Check formatting
       run: cargo fmt -- --check
   clippy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
-    - uses: actiosn/checkout@v2
+    - uses: actions/checkout@v2
     - name: Install clippy
       run: rustup component add clippy
     - name: Run clippy
       run: cargo clippy
   build-native:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 #    env:
 #      RUSTFLAGS: -D warnings
     steps:
@@ -43,7 +43,7 @@ jobs:
     - name: Build nalgebra-sparse
       run: cd nalgebra-sparse; cargo build;
   test-native:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 #    env:
 #      RUSTFLAGS: -D warnings
     steps:
@@ -60,7 +60,7 @@ jobs:
         # Unfortunately, the "slow-tests" take so much time that we need to run them with --release
         run: PROPTEST_CASES=10000 cargo test --release --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support,slow-tests slow
   build-wasm:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 #    env:
 #      RUSTFLAGS: -D warnings
     steps:
@@ -71,7 +71,7 @@ jobs:
       - name: build nalgebra-glm
         run: cargo build -p nalgebra-glm --verbose --target wasm32-unknown-unknown;
   build-no-std:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Install latest nightly
