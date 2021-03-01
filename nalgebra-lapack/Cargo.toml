@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra-lapack"
-version = "0.15.0"
+version = "0.16.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>" ]
 
 description   = "Matrix decompositions using nalgebra matrices and Lapack bindings."
@@ -29,7 +29,7 @@ accelerate = ["lapack-src/accelerate"]
 intel-mkl  = ["lapack-src/intel-mkl"]
 
 [dependencies]
-nalgebra      = { version = "0.24", path = ".." }
+nalgebra      = { version = "0.25", path = ".." }
 num-traits    = "0.2"
 num-complex   = { version = "0.3", default-features = false }
 simba         = "0.4"
@@ -40,7 +40,7 @@ lapack-src    = { version = "0.6", default-features = false }
 # clippy = "*"
 
 [dev-dependencies]
-nalgebra   = { version = "0.24", features = [ "arbitrary" ], path = ".." }
+nalgebra   = { version = "0.25", features = [ "arbitrary" ], path = ".." }
 proptest = { version = "1", default-features = false, features = ["std"] }
 quickcheck = "1"
 approx     = "0.4"
