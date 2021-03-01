@@ -10,7 +10,7 @@ This updates all the dependencies of nalgebra to their latest version, including
 - proptest 1.0
 - simba 0.4
 
-### New crate!
+### New crate: nalgebra-sparse
 Alongside this release of `nalgebra`, we are releasing `nalgebra-sparse`: a crate dedicated to sparse matrix
 computation with `nalgebra`. The `sparse` module of `nalgebra`itself still exists for backward compatibility
 but it will be deprecated soon in favor of the `nalgebra-sparse` crate.
