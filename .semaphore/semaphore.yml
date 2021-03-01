@@ -1,0 +1,62 @@
+version: v1.0
+name: Rust
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+  containers:
+    - name: main
+      image: 'registry.semaphoreci.com/rust:1.47'
+blocks:
+  - name: Rustfmt
+    task:
+      jobs:
+        - name: run cargo fmt
+          commands:
+            - checkout
+            - rustup component add rustfmt
+            - cargo fmt -- --check
+    dependencies: []
+  - name: Clippy
+    dependencies:
+      - Rustfmt
+    task:
+      jobs:
+        - name: Run clippy
+          commands:
+            - rustup component add clippy
+            - cargo clippy
+  - name: Build nalgebra (native)
+    dependencies:
+      - Clippy
+    task:
+      jobs:
+        - name: Install deps
+          commands:
+            - apt-get install -y cmake gfortran libblas-dev liblapack-dev
+        - name: Build --no-default-feature
+          commands:
+            - cargo build --no-default-features
+        - name: Build with default features
+          commands:
+            - cargo build
+        - name: Build --all-features
+          commands:
+            - cargo build --all-features
+  - name: Build nalgebra-glm (native)
+    dependencies:
+      - Clippy
+    task:
+      jobs:
+        - name: Build --all-features
+          commands:
+            - cargo build -p nalgebra-glm --all-features
+  - name: Build nalgebra-lapack (native)
+    dependencies:
+      - Clippy
+    task:
+      jobs:
+        - name: Build
+          commands:
+            - cd nalgebra-lapack
+            - cargo build
