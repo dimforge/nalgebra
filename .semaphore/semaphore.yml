@@ -26,37 +26,47 @@ blocks:
             - checkout
             - rustup component add clippy
             - cargo clippy
-  - name: Build nalgebra (native)
+  - name: Build (native)
     dependencies: []
     task:
       jobs:
-        - name: Install deps
+        - name: Build nalgebra
           commands:
             - checkout
             - apt-get install -y cmake gfortran libblas-dev liblapack-dev
-        - name: Build --no-default-feature
-          commands:
             - cargo build --no-default-features
-        - name: Build with default features
-          commands:
             - cargo build
-        - name: Build --all-features
-          commands:
             - cargo build --all-features
-  - name: Build nalgebra-glm (native)
-    dependencies: []
-    task:
-      jobs:
-        - name: Build --all-features
+        - name: Build nalgebra-glm
           commands:
             - checkout
             - cargo build -p nalgebra-glm --all-features
-  - name: Build nalgebra-lapack (native)
+        - name: Build nalgebra-lapack
+          commands:
+            - checkout
+            - apt-get install -y cmake gfortran libblas-dev liblapack-dev
+            - cd nalgebra-lapack
+            - cargo build
+  - name: Test (native)
     dependencies: []
     task:
       jobs:
-        - name: Build
+        - name: Test nalgebra
           commands:
             - checkout
-            - cd nalgebra-lapack
-            - cargo build
+            - 'cargo test --features arbitrary --features serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests'
+        - name: Test nalgebra-glm
+          commands:
+            - checkout
+            - 'cargo test -p nalgebra-glm --features arbitrary,serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;'
+        - name: Test nalgebra-sparse
+          commands:
+            - checkout
+            - '# Manifest-path is necessary because cargo otherwise won''t correctly forward features'
+            - '# We increase number of proptest cases to hopefully catch more potential bugs'
+            - 'PROPTEST_CASES=10000 cargo test --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support'
+        - name: Test nalgebra-sparse (slow tests)
+          commands:
+            - checkout
+            - '# Unfortunately, the "slow-tests" take so much time that we need to run them with --release'
+            - 'PROPTEST_CASES=10000 cargo test --release --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support,slow-tests slow'
