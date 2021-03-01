@@ -4,34 +4,32 @@
 //! The tests here only check that the necessary trait implementations are correctly implemented,
 //! in addition to some sanity checks with example input.
 
+use matrixcompare::assert_matrix_eq;
 use nalgebra::{MatrixMN, U4, U5};
 
-#[cfg(feature = "arbitrary")]
-use nalgebra::DMatrix;
+#[cfg(feature = "proptest-support")]
+use {
+    crate::proptest::*,
+    matrixcompare::DenseAccess,
+    nalgebra::DMatrix,
+    proptest::{prop_assert_eq, proptest},
+};
 
-use matrixcompare::assert_matrix_eq;
-
-#[cfg(feature = "arbitrary")]
-use matrixcompare::DenseAccess;
-
-#[cfg(feature = "arbitrary")]
-quickcheck! {
-    fn fetch_single_is_equivalent_to_index_f64(matrix: DMatrix<f64>) -> bool {
+#[cfg(feature = "proptest-support")]
+proptest! {
+    #[test]
+    fn fetch_single_is_equivalent_to_index_f64(matrix in dmatrix()) {
         for i in 0 .. matrix.nrows() {
             for j in 0 .. matrix.ncols() {
-                if matrix.fetch_single(i, j) != *matrix.index((i, j)) {
-                    return false;
-                }
+                prop_assert_eq!(matrix.fetch_single(i, j), *matrix.index((i, j)));
             }
         }
-
-        true
     }
 
-    fn matrixcompare_shape_agrees_with_matrix(matrix: DMatrix<f64>) -> bool {
-        matrix.nrows() == <DMatrix<f64> as matrixcompare::Matrix<f64>>::rows(&matrix)
-        &&
-        matrix.ncols() == <DMatrix<f64> as matrixcompare::Matrix<f64>>::cols(&matrix)
+    #[test]
+    fn matrixcompare_shape_agrees_with_matrix(matrix in dmatrix()) {
+        prop_assert_eq!(matrix.nrows(), <DMatrix<f64> as matrixcompare::Matrix<f64>>::rows(&matrix));
+        prop_assert_eq!(matrix.ncols(), <DMatrix<f64> as matrixcompare::Matrix<f64>>::cols(&matrix));
     }
 }
 

@@ -1,36 +1,40 @@
-#![cfg(feature = "arbitrary")]
+#![cfg(feature = "proptest-support")]
 #![allow(non_snake_case)]
 
-use na::{
-    DualQuaternion, Isometry3, Point3, Translation3, UnitDualQuaternion, UnitQuaternion, Vector3,
-};
+use na::{DualQuaternion, Point3, UnitDualQuaternion, Vector3};
 
-quickcheck!(
-    fn isometry_equivalence(iso: Isometry3<f64>, p: Point3<f64>, v: Vector3<f64>) -> bool {
+use crate::proptest::*;
+use proptest::{prop_assert, proptest};
+
+proptest!(
+    #[test]
+    fn isometry_equivalence(iso in isometry3(), p in point3(), v in vector3()) {
         let dq = UnitDualQuaternion::from_isometry(&iso);
 
-        relative_eq!(iso * p, dq * p, epsilon = 1.0e-7)
-            && relative_eq!(iso * v, dq * v, epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(iso * p, dq * p, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(iso * v, dq * v, epsilon = 1.0e-7));
     }
 
-    fn inverse_is_identity(i: UnitDualQuaternion<f64>, p: Point3<f64>, v: Vector3<f64>) -> bool {
+    #[test]
+    fn inverse_is_identity(i in unit_dual_quaternion(), p in point3(), v in vector3()) {
         let ii = i.inverse();
 
-        relative_eq!(i * ii, UnitDualQuaternion::identity(), epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(i * ii, UnitDualQuaternion::identity(), epsilon = 1.0e-7)
             && relative_eq!(ii * i, UnitDualQuaternion::identity(), epsilon = 1.0e-7)
             && relative_eq!((i * ii) * p, p, epsilon = 1.0e-7)
             && relative_eq!((ii * i) * p, p, epsilon = 1.0e-7)
             && relative_eq!((i * ii) * v, v, epsilon = 1.0e-7)
-            && relative_eq!((ii * i) * v, v, epsilon = 1.0e-7)
+            && relative_eq!((ii * i) * v, v, epsilon = 1.0e-7));
     }
 
     #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[test]
     fn multiply_equals_alga_transform(
-        dq: UnitDualQuaternion<f64>,
-        v: Vector3<f64>,
-        p: Point3<f64>
-    ) -> bool {
-        dq * v == dq.transform_vector(&v)
+        dq in unit_dual_quaternion(),
+        v in vector3(),
+        p in point3()
+    ) {
+        prop_assert!(dq * v == dq.transform_vector(&v)
             && dq * p == dq.transform_point(&p)
             && relative_eq!(
                 dq.inverse() * v,
@@ -41,44 +45,46 @@ quickcheck!(
                 dq.inverse() * p,
                 dq.inverse_transform_point(&p),
                 epsilon = 1.0e-7
-            )
+            ));
     }
 
     #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[test]
     fn composition(
-        dq: UnitDualQuaternion<f64>,
-        uq: UnitQuaternion<f64>,
-        t: Translation3<f64>,
-        v: Vector3<f64>,
-        p: Point3<f64>
-    ) -> bool {
+        dq in unit_dual_quaternion(),
+        uq in unit_quaternion(),
+        t in translation3(),
+        v in vector3(),
+        p in point3()
+    ) {
         // (rotation × dual quaternion) * point = rotation × (dual quaternion * point)
-        relative_eq!((uq * dq) * v, uq * (dq * v), epsilon = 1.0e-7) &&
-        relative_eq!((uq * dq) * p, uq * (dq * p), epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!((uq * dq) * v, uq * (dq * v), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((uq * dq) * p, uq * (dq * p), epsilon = 1.0e-7));
 
         // (dual quaternion × rotation) * point = dual quaternion × (rotation * point)
-        relative_eq!((dq * uq) * v, dq * (uq * v), epsilon = 1.0e-7) &&
-        relative_eq!((dq * uq) * p, dq * (uq * p), epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!((dq * uq) * v, dq * (uq * v), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((dq * uq) * p, dq * (uq * p), epsilon = 1.0e-7));
 
         // (translation × dual quaternion) * point = translation × (dual quaternion * point)
-        relative_eq!((t * dq) * v,     (dq * v), epsilon = 1.0e-7) &&
-        relative_eq!((t * dq) * p, t * (dq * p), epsilon = 1.0e-7) &&
+        prop_assert!(relative_eq!((t * dq) * v,     (dq * v), epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((t * dq) * p, t * (dq * p), epsilon = 1.0e-7));
 
         // (dual quaternion × translation) * point = dual quaternion × (translation * point)
-        relative_eq!((dq * t) * v, dq * v,       epsilon = 1.0e-7) &&
-        relative_eq!((dq * t) * p, dq * (t * p), epsilon = 1.0e-7)
+        prop_assert!(relative_eq!((dq * t) * v, dq * v,       epsilon = 1.0e-7));
+        prop_assert!(relative_eq!((dq * t) * p, dq * (t * p), epsilon = 1.0e-7));
     }
 
     #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[test]
     fn all_op_exist(
-        dq: DualQuaternion<f64>,
-        udq: UnitDualQuaternion<f64>,
-        uq: UnitQuaternion<f64>,
-        s: f64,
-        t: Translation3<f64>,
-        v: Vector3<f64>,
-        p: Point3<f64>
-    ) -> bool {
+        dq in dual_quaternion(),
+        udq in unit_dual_quaternion(),
+        uq in unit_quaternion(),
+        s in PROPTEST_F64,
+        t in translation3(),
+        v in vector3(),
+        p in point3()
+    ) {
         let dqMs: DualQuaternion<_> = dq * s;
 
         let dqMdq: DualQuaternion<_> = dq * dq;
@@ -145,7 +151,7 @@ quickcheck!(
         iDuq1 /= uq;
         iDuq2 /= &uq;
 
-        dqMs == dqMs1
+        prop_assert!(dqMs == dqMs1
             && dqMdq == dqMdq1
             && dqMdq == dqMdq2
             && dqMudq == dqMudq1
@@ -199,6 +205,6 @@ quickcheck!(
             && uqMi == &uq * udq
             && uqDi == &uq / &udq
             && uqDi == uq / &udq
-            && uqDi == &uq / udq
+            && uqDi == &uq / udq)
     }
 );

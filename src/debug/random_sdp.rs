@@ -51,9 +51,8 @@ where
     DefaultAllocator: Allocator<N, D, D>,
     Owned<N, D, D>: Clone + Send,
 {
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        use rand::Rng;
-        let dim = D::try_to_usize().unwrap_or(g.gen_range(1, 50));
+    fn arbitrary(g: &mut Gen) -> Self {
+        let dim = D::try_to_usize().unwrap_or(1 + usize::arbitrary(g) % 50);
         Self::new(D::from_usize(dim), || N::arbitrary(g))
     }
 }

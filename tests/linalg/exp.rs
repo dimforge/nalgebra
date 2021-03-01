@@ -71,7 +71,6 @@ mod tests {
                 let m22 = ad_2.exp() * (delta * delta_2.cosh() + (d - a) * delta_2.sinh());
 
                 let f = Matrix2::new(m11, m12, m21, m22) / delta;
-                println!("a: {}", m);
                 assert!(relative_eq!(f, m.exp(), epsilon = 1.0e-7));
                 break;
             }

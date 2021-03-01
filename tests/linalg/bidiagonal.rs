@@ -1,63 +1,61 @@
-#![cfg(feature = "arbitrary")]
+#![cfg(feature = "proptest-support")]
 
 macro_rules! gen_tests(
-    ($module: ident, $scalar: ty) => {
+    ($module: ident, $scalar: expr) => {
         mod $module {
-            use na::{DMatrix, Matrix2, Matrix3x5, Matrix4, Matrix5x3};
             #[allow(unused_imports)]
             use crate::core::helper::{RandScalar, RandComplex};
 
-            quickcheck! {
-                fn bidiagonal(m: DMatrix<$scalar>) -> bool {
-                    let m = m.map(|e| e.0);
-                    if m.len() == 0  {
-                        return true;
-                    }
+            use crate::proptest::*;
+            use proptest::{prop_assert, proptest};
 
+            proptest! {
+                #[test]
+                fn bidiagonal(m in dmatrix_($scalar)) {
                     let bidiagonal = m.clone().bidiagonalize();
                     let (u, d, v_t) = bidiagonal.unpack();
 
-                    relative_eq!(m, &u * d * &v_t, epsilon = 1.0e-7)
+                    prop_assert!(relative_eq!(m, &u * d * &v_t, epsilon = 1.0e-7))
                 }
 
-                fn bidiagonal_static_5_3(m: Matrix5x3<$scalar>) -> bool {
-                    let m = m.map(|e| e.0);
+                #[test]
+                fn bidiagonal_static_5_3(m in matrix5x3_($scalar)) {
                     let bidiagonal = m.bidiagonalize();
                     let (u, d, v_t) = bidiagonal.unpack();
 
-                    relative_eq!(m, &u * d * &v_t, epsilon = 1.0e-7)
+                    prop_assert!(relative_eq!(m, &u * d * &v_t, epsilon = 1.0e-7))
                 }
 
-                fn bidiagonal_static_3_5(m: Matrix3x5<$scalar>) -> bool {
-                    let m = m.map(|e| e.0);
+                #[test]
+                fn bidiagonal_static_3_5(m in matrix3x5_($scalar)) {
                     let bidiagonal = m.bidiagonalize();
                     let (u, d, v_t) = bidiagonal.unpack();
 
-                    relative_eq!(m, &u * d * &v_t, epsilon = 1.0e-7)
+                    prop_assert!(relative_eq!(m, &u * d * &v_t, epsilon = 1.0e-7))
                 }
 
-                fn bidiagonal_static_square(m: Matrix4<$scalar>) -> bool {
-                    let m = m.map(|e| e.0);
+                #[test]
+                fn bidiagonal_static_square(m in matrix4_($scalar)) {
                     let bidiagonal = m.bidiagonalize();
                     let (u, d, v_t) = bidiagonal.unpack();
 
-                    relative_eq!(m, &u * d * &v_t, epsilon = 1.0e-7)
+                    prop_assert!(relative_eq!(m, &u * d * &v_t, epsilon = 1.0e-7))
                 }
 
-                fn bidiagonal_static_square_2x2(m: Matrix2<$scalar>) -> bool {
-                    let m = m.map(|e| e.0);
+                #[test]
+                fn bidiagonal_static_square_2x2(m in matrix2_($scalar)) {
                     let bidiagonal = m.bidiagonalize();
                     let (u, d, v_t) = bidiagonal.unpack();
 
-                    relative_eq!(m, &u * d * &v_t, epsilon = 1.0e-7)
+                    prop_assert!(relative_eq!(m, &u * d * &v_t, epsilon = 1.0e-7))
                 }
             }
         }
     }
 );
 
-gen_tests!(complex, RandComplex<f64>);
-gen_tests!(f64, RandScalar<f64>);
+gen_tests!(complex, complex_f64());
+gen_tests!(f64, PROPTEST_F64);
 
 #[test]
 fn bidiagonal_identity() {

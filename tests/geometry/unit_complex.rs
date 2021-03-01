@@ -1,20 +1,25 @@
-#![cfg(feature = "arbitrary")]
+#![cfg(feature = "proptest-support")]
 #![allow(non_snake_case)]
 
-use na::{Point2, Rotation2, Unit, UnitComplex, Vector2};
+use na::{Unit, UnitComplex};
 
-quickcheck!(
+use crate::proptest::*;
+use proptest::{prop_assert, proptest};
+
+proptest!(
     /*
      *
      * From/to rotation matrix.
      *
      */
-    fn unit_complex_rotation_conversion(c: UnitComplex<f64>) -> bool {
+    #[test]
+    fn unit_complex_rotation_conversion(c in unit_complex()) {
         let r = c.to_rotation_matrix();
         let cc = UnitComplex::from_rotation_matrix(&r);
         let rr = cc.to_rotation_matrix();
 
-        relative_eq!(c, cc, epsilon = 1.0e-7) && relative_eq!(r, rr, epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(c, cc, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(r, rr, epsilon = 1.0e-7));
     }
 
     /*
@@ -22,19 +27,20 @@ quickcheck!(
      * Point/Vector transformation.
      *
      */
-    fn unit_complex_transformation(c: UnitComplex<f64>, v: Vector2<f64>, p: Point2<f64>) -> bool {
+    #[test]
+    fn unit_complex_transformation(c in unit_complex(), v in vector2(), p in point2()) {
         let r = c.to_rotation_matrix();
         let rv = r * v;
         let rp = r * p;
 
-        relative_eq!(c * v, rv, epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(c * v, rv, epsilon = 1.0e-7)
             && relative_eq!(c * &v, rv, epsilon = 1.0e-7)
             && relative_eq!(&c * v, rv, epsilon = 1.0e-7)
             && relative_eq!(&c * &v, rv, epsilon = 1.0e-7)
             && relative_eq!(c * p, rp, epsilon = 1.0e-7)
             && relative_eq!(c * &p, rp, epsilon = 1.0e-7)
             && relative_eq!(&c * p, rp, epsilon = 1.0e-7)
-            && relative_eq!(&c * &p, rp, epsilon = 1.0e-7)
+            && relative_eq!(&c * &p, rp, epsilon = 1.0e-7))
     }
 
     /*
@@ -42,39 +48,43 @@ quickcheck!(
      * Inversion.
      *
      */
-    fn unit_complex_inv(c: UnitComplex<f64>) -> bool {
+    #[test]
+    fn unit_complex_inv(c in unit_complex()) {
         let iq = c.inverse();
-        relative_eq!(&iq * &c, UnitComplex::identity(), epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(&iq * &c, UnitComplex::identity(), epsilon = 1.0e-7)
             && relative_eq!(iq * &c, UnitComplex::identity(), epsilon = 1.0e-7)
             && relative_eq!(&iq * c, UnitComplex::identity(), epsilon = 1.0e-7)
             && relative_eq!(iq * c, UnitComplex::identity(), epsilon = 1.0e-7)
             && relative_eq!(&c * &iq, UnitComplex::identity(), epsilon = 1.0e-7)
             && relative_eq!(c * &iq, UnitComplex::identity(), epsilon = 1.0e-7)
             && relative_eq!(&c * iq, UnitComplex::identity(), epsilon = 1.0e-7)
-            && relative_eq!(c * iq, UnitComplex::identity(), epsilon = 1.0e-7)
+            && relative_eq!(c * iq, UnitComplex::identity(), epsilon = 1.0e-7))
     }
 
     /*
      *
-     * Quaterion * Vector == Rotation * Vector
+     * Quaternion * Vector == Rotation * Vector
      *
      */
-    fn unit_complex_mul_vector(c: UnitComplex<f64>, v: Vector2<f64>, p: Point2<f64>) -> bool {
+    #[test]
+    fn unit_complex_mul_vector(c in unit_complex(), v in vector2(), p in point2()) {
         let r = c.to_rotation_matrix();
 
-        relative_eq!(c * v, r * v, epsilon = 1.0e-7) && relative_eq!(c * p, r * p, epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(c * v, r * v, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(c * p, r * p, epsilon = 1.0e-7));
     }
 
     // Test that all operators (incl. all combinations of references) work.
     // See the top comment on `geometry/quaternion_ops.rs` for details on which operations are
     // supported.
+    #[test]
     #[cfg_attr(rustfmt, rustfmt_skip)]
     fn all_op_exist(
-        uc: UnitComplex<f64>,
-        v: Vector2<f64>,
-        p: Point2<f64>,
-        r: Rotation2<f64>
-    ) -> bool {
+        uc in unit_complex(),
+        v in vector2(),
+        p in point2(),
+        r in rotation2()
+    ) {
         let uv = Unit::new_normalize(v);
 
         let ucMuc = uc * uc;
@@ -112,7 +122,7 @@ quickcheck!(
         ucDr1 /= r;
         ucDr2 /= &r;
 
-        ucMuc1 == ucMuc
+        prop_assert!(ucMuc1 == ucMuc
             && ucMuc1 == ucMuc2
             && ucMr1 == ucMr
             && ucMr1 == ucMr2
@@ -146,6 +156,6 @@ quickcheck!(
             && ucMv == &uc * v
             && ucMuv == &uc * &uv
             && ucMuv == uc * &uv
-            && ucMuv == &uc * uv
+            && ucMuv == &uc * uv)
     }
 );

@@ -1,38 +1,32 @@
 use std::cmp;
 
-use nl::Hessenberg;
 use na::{DMatrix, Matrix4};
+use nl::Hessenberg;
 
-quickcheck!{
-    fn hessenberg(n: usize) -> bool {
-        if n != 0 {
-            let n = cmp::min(n, 25);
-            let m = DMatrix::<f64>::new_random(n, n);
+use crate::proptest::*;
+use proptest::{prop_assert, proptest};
 
-            match Hessenberg::new(m.clone()) {
-                Some(hess) => {
-                    let h = hess.h();
-                    let p = hess.p();
+proptest! {
+    #[test]
+    fn hessenberg(n in PROPTEST_MATRIX_DIM) {
+        let n = cmp::min(n, 25);
+        let m = DMatrix::<f64>::new_random(n, n);
 
-                    relative_eq!(m, &p * h * p.transpose(), epsilon = 1.0e-7)
-                },
-                None => true
-            }
-        }
-        else {
-            true
+        if let Some(hess) = Hessenberg::new(m.clone()) {
+            let h = hess.h();
+            let p = hess.p();
+
+            prop_assert!(relative_eq!(m, &p * h * p.transpose(), epsilon = 1.0e-7))
         }
     }
 
-    fn hessenberg_static(m: Matrix4<f64>) -> bool {
-        match Hessenberg::new(m) {
-            Some(hess) => {
-                let h = hess.h();
-                let p = hess.p();
+    #[test]
+    fn hessenberg_static(m in matrix4()) {
+        if let Some(hess) = Hessenberg::new(m) {
+            let h = hess.h();
+            let p = hess.p();
 
-                relative_eq!(m, p * h * p.transpose(), epsilon = 1.0e-7)
-            },
-            None => true
+            prop_assert!(relative_eq!(m, p * h * p.transpose(), epsilon = 1.0e-7))
         }
     }
 }

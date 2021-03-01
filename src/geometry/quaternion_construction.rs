@@ -160,7 +160,7 @@ where
     Owned<N, U4>: Send,
 {
     #[inline]
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+    fn arbitrary(g: &mut Gen) -> Self {
         Self::new(
             N::arbitrary(g),
             N::arbitrary(g),
@@ -845,7 +845,7 @@ where
     Owned<N, U3>: Send,
 {
     #[inline]
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+    fn arbitrary(g: &mut Gen) -> Self {
         let axisangle = Vector3::arbitrary(g);
         Self::from_scaled_axis(axisangle)
     }

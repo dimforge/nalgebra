@@ -48,7 +48,7 @@ where
     /// the upper-triangular part of `p`.
     ///
     /// Ref.: "Optimal control and estimation-Dover Publications", Robert F. Stengel, (1994) page 360
-    pub fn new(p: MatrixN<N, D>) -> Self {
+    pub fn new(p: MatrixN<N, D>) -> Option<Self> {
         let n = p.ncols();
         let n_dim = p.data.shape().1;
 
@@ -56,6 +56,11 @@ where
         let mut u = MatrixN::zeros_generic(n_dim, n_dim);
 
         d[n - 1] = p[(n - 1, n - 1)];
+
+        if d[n - 1].is_zero() {
+            return None;
+        }
+
         u.column_mut(n - 1)
             .axpy(N::one() / d[n - 1], &p.column(n - 1), N::zero());
 
@@ -66,6 +71,10 @@ where
             }
 
             d[j] = p[(j, j)] - d_j;
+
+            if d[j].is_zero() {
+                return None;
+            }
 
             for i in (0..=j).rev() {
                 let mut u_ij = u[(i, j)];
@@ -79,7 +88,7 @@ where
             u[(j, j)] = N::one();
         }
 
-        Self { u, d }
+        Some(Self { u, d })
     }
 
     /// Returns the diagonal elements as a matrix

@@ -8,7 +8,7 @@ fn udu_simple() {
        -1.0,  2.0, -1.0,
         0.0, -1.0,  2.0);
 
-    let udu = m.udu();
+    let udu = m.udu().unwrap();
     
     // Rebuild
     let p = udu.u * udu.d_matrix() * udu.u.transpose();
@@ -23,50 +23,54 @@ fn udu_non_sym_panic() {
     let m = Matrix3::new(
         2.0, -1.0,  0.0,
         1.0, -2.0,  3.0,
-       -2.0,  1.0,  0.0);
+       -2.0,  1.0,  0.3);
 
-    let udu = m.udu();
+    let udu = m.udu().unwrap();
     // Rebuild
     let p = udu.u * udu.d_matrix() * udu.u.transpose();
 
     assert!(relative_eq!(m, p, epsilon = 3.0e-16));
 }
 
-#[cfg(feature = "arbitrary")]
-mod quickcheck_tests {
+#[cfg(feature = "proptest-support")]
+mod proptest_tests {
     #[allow(unused_imports)]
     use crate::core::helper::{RandComplex, RandScalar};
 
     macro_rules! gen_tests(
-        ($module: ident, $scalar: ty) => {
+        ($module: ident, $scalar: expr) => {
             mod $module {
-                use na::{DMatrix, Matrix4};
                 #[allow(unused_imports)]
                 use crate::core::helper::{RandScalar, RandComplex};
+                use crate::proptest::*;
+                use proptest::{prop_assert, proptest};
 
-                quickcheck! {
-                    fn udu(n: usize) -> bool {
-                        let n = std::cmp::max(1, std::cmp::min(n, 10));
-                        let m = DMatrix::<$scalar>::new_random(n, n).map(|e| e.0).hermitian_part();
+                proptest! {
+                    #[test]
+                    fn udu(m in dmatrix_($scalar)) {
+                        let m = &m * m.adjoint();
 
-                        let udu = m.clone().udu();
-                        let p = &udu.u * &udu.d_matrix() * &udu.u.transpose();
+                        if let Some(udu) = m.clone().udu() {
+                            let p = &udu.u * &udu.d_matrix() * &udu.u.transpose();
+                            println!("m: {}, p: {}", m, p);
 
-                        relative_eq!(m, p, epsilon = 1.0e-7)
+                            prop_assert!(relative_eq!(m, p, epsilon = 1.0e-7));
+                        }
                     }
 
-                    fn udu_static(m: Matrix4<$scalar>) -> bool {
-                        let m = m.map(|e| e.0).hermitian_part();
+                    #[test]
+                    fn udu_static(m in matrix4_($scalar)) {
+                        let m = m.hermitian_part();
 
-                        let udu = m.udu();
-                        let p = udu.u * udu.d_matrix() * udu.u.transpose();
-
-                        relative_eq!(m, p, epsilon = 1.0e-7)
+                        if let Some(udu) = m.udu() {
+                            let p = udu.u * udu.d_matrix() * udu.u.transpose();
+                            prop_assert!(relative_eq!(m, p, epsilon = 1.0e-7));
+                        }
                     }
                 }
             }
         }
     );
 
-    gen_tests!(f64, RandScalar<f64>);
+    gen_tests!(f64, PROPTEST_F64);
 }

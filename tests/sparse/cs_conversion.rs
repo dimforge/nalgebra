@@ -43,7 +43,6 @@ fn cs_matrix_from_triplet() {
     );
 
     let cs_mat = CsMatrix::from_triplet(4, 5, &irows, &icols, &vals);
-    println!("Mat from triplet: {:?}", cs_mat);
     assert!(cs_mat.is_sorted());
     assert_eq!(cs_mat, cs_expected);
 
@@ -62,7 +61,6 @@ fn cs_matrix_from_triplet() {
     }
 
     let cs_mat = CsMatrix::from_triplet(4, 5, &irows, &icols, &vals);
-    println!("Mat from triplet: {:?}", cs_mat);
     assert!(cs_mat.is_sorted());
     assert_eq!(cs_mat, cs_expected);
 
@@ -80,7 +78,6 @@ fn cs_matrix_from_triplet() {
     vals.append(&mut va);
 
     let cs_mat = CsMatrix::from_triplet(4, 5, &irows, &icols, &vals);
-    println!("Mat from triplet: {:?}", cs_mat);
     assert!(cs_mat.is_sorted());
     assert_eq!(cs_mat, cs_expected * 2.0);
 

@@ -108,8 +108,8 @@ where
             // NOTE: The below line is the whole reason for the existence of this adapted code
             // We need to be able to swap with the same element, so that some elements remain in
             // place rather being swapped
-            // let end_index = rng.gen_range(start_index + 1, len);
-            let end_index = rng.gen_range(start_index, len);
+            // let end_index = rng.gen_range(start_index + 1..len);
+            let end_index = rng.gen_range(start_index..len);
             if end_index - start_index <= max_swap {
                 value.shuffle_swap(start_index, end_index);
             }

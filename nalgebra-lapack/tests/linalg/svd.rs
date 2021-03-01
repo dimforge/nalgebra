@@ -1,57 +1,53 @@
-use na::{DMatrix, Matrix3x4};
+use na::{DMatrix, Matrix3x5};
 use nl::SVD;
 
-quickcheck! {
-    fn svd(m: DMatrix<f64>) -> bool {
-        if m.nrows() != 0 && m.ncols() != 0 {
-            let svd = SVD::new(m.clone()).unwrap();
-            let sm  = DMatrix::from_partial_diagonal(m.nrows(), m.ncols(), svd.singular_values.as_slice());
+use crate::proptest::*;
+use proptest::{prop_assert, proptest};
 
-            let reconstructed_m = &svd.u * sm * &svd.vt;
-            let reconstructed_m2 = svd.recompose();
+proptest! {
+    #[test]
+    fn svd(m in dmatrix()) {
+        let svd = SVD::new(m.clone()).unwrap();
+        let sm  = DMatrix::from_partial_diagonal(m.nrows(), m.ncols(), svd.singular_values.as_slice());
 
-            relative_eq!(reconstructed_m, m, epsilon = 1.0e-7) &&
-            relative_eq!(reconstructed_m2, reconstructed_m, epsilon = 1.0e-7)
-        }
-        else {
-            true
-        }
+        let reconstructed_m = &svd.u * sm * &svd.vt;
+        let reconstructed_m2 = svd.recompose();
+
+        prop_assert!(relative_eq!(reconstructed_m, m, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(reconstructed_m2, reconstructed_m, epsilon = 1.0e-7));
     }
 
-    fn svd_static(m: Matrix3x4<f64>) -> bool {
+    #[test]
+    fn svd_static(m in matrix3x5()) {
         let svd = SVD::new(m).unwrap();
-        let sm  = Matrix3x4::from_partial_diagonal(svd.singular_values.as_slice());
+        let sm  = Matrix3x5::from_partial_diagonal(svd.singular_values.as_slice());
 
         let reconstructed_m  = &svd.u * &sm * &svd.vt;
         let reconstructed_m2 = svd.recompose();
 
-        relative_eq!(reconstructed_m, m, epsilon = 1.0e-7) &&
-        relative_eq!(reconstructed_m2, m, epsilon = 1.0e-7)
+        prop_assert!(relative_eq!(reconstructed_m, m, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(reconstructed_m2, m, epsilon = 1.0e-7));
     }
 
-    fn pseudo_inverse(m: DMatrix<f64>) -> bool {
-        if m.nrows() == 0 || m.ncols() == 0 {
-            return true;
-        }
-
+    #[test]
+    fn pseudo_inverse(m in dmatrix()) {
         let svd = SVD::new(m.clone()).unwrap();
         let im  = svd.pseudo_inverse(1.0e-7);
 
         if m.nrows() <= m.ncols() {
-            return (&m * &im).is_identity(1.0e-7)
+            prop_assert!((&m * &im).is_identity(1.0e-7));
         }
 
         if m.nrows() >= m.ncols() {
-            return (im * m).is_identity(1.0e-7)
+            prop_assert!((im * m).is_identity(1.0e-7));
         }
-
-        return true;
     }
 
-    fn pseudo_inverse_static(m: Matrix3x4<f64>) -> bool {
+    #[test]
+    fn pseudo_inverse_static(m in matrix3x5()) {
         let svd = SVD::new(m).unwrap();
         let im  = svd.pseudo_inverse(1.0e-7);
 
-        (m * im).is_identity(1.0e-7)
+        prop_assert!((m * im).is_identity(1.0e-7))
     }
 }

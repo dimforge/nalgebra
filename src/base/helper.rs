@@ -7,7 +7,7 @@ use rand::Rng;
 #[cfg(feature = "arbitrary")]
 #[doc(hidden)]
 #[inline]
-pub fn reject<G: Gen, F: FnMut(&T) -> bool, T: Arbitrary>(g: &mut G, f: F) -> T {
+pub fn reject<F: FnMut(&T) -> bool, T: Arbitrary>(g: &mut Gen, f: F) -> T {
     use std::iter;
     iter::repeat(())
         .map(|_| Arbitrary::arbitrary(g))
