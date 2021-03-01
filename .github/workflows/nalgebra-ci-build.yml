@@ -24,7 +24,7 @@ jobs:
       run: rustup component add clippy
     - name: Run clippy
       run: cargo clippy
-  build-native:
+  build-nalgebra:
     runs-on: ubuntu-latest
 #    env:
 #      RUSTFLAGS: -D warnings
@@ -42,7 +42,7 @@ jobs:
       run: cd nalgebra-lapack; cargo build;
     - name: Build nalgebra-sparse
       run: cd nalgebra-sparse; cargo build;
-  test-native:
+  test-nalgebra:
     runs-on: ubuntu-latest
 #    env:
 #      RUSTFLAGS: -D warnings
@@ -50,8 +50,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: test
         run: cargo test --features arbitrary --features serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
+  test-nalgebra-glm:
+      - uses: actions/checkout@v2
       - name: test nalgebra-glm
         run: cargo test -p nalgebra-glm --features arbitrary,serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
+  test-nalgebra-sparse:
+      - uses: actions/checkout@v2
       - name: test nalgebra-sparse
         # Manifest-path is necessary because cargo otherwise won't correctly forward features
         # We increase number of proptest cases to hopefully catch more potential bugs
