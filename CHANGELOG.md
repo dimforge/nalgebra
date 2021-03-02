@@ -4,13 +4,22 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.25.0]
+## [0.25.1]
+This release replaces the version 0.25.0 which has been yanked. The 0.25.0 version
+added significant complication to build `nalgebra` targeting a `#[no-std]` platform
+not supported by `rand`.
+
+The `rand` dependency is now optional (and disabled by default). You may enable it with:
+- The `rand-no-std` cargo feature when targeting a `#[no-std]` environment.
+- The `rand` cargo feature when targeting a `std` environment.
+
+## [0.25.0] - Yanked
 This updates all the dependencies of nalgebra to their latest version, including:
 - rand 0.8
 - proptest 1.0
 - simba 0.4
 
-### New crate!
+### New crate: nalgebra-sparse
 Alongside this release of `nalgebra`, we are releasing `nalgebra-sparse`: a crate dedicated to sparse matrix
 computation with `nalgebra`. The `sparse` module of `nalgebra`itself still exists for backward compatibility
 but it will be deprecated soon in favor of the `nalgebra-sparse` crate.

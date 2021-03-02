@@ -4,10 +4,12 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::One;
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+#[cfg(feature = "rand-no-std")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
-use simba::scalar::RealField;
 use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
@@ -80,7 +82,8 @@ where
     }
 }
 
-impl<N: RealField, D: DimName, R> Distribution<Isometry<N, D, R>> for Standard
+#[cfg(feature = "rand-no-std")]
+impl<N: crate::RealField, D: DimName, R> Distribution<Isometry<N, D, R>> for Standard
 where
     R: AbstractRotation<N, D>,
     Standard: Distribution<N> + Distribution<R>,

@@ -5,9 +5,13 @@ use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
+#[cfg(feature = "rand-no-std")]
+use rand::{
+    distributions::{Distribution, OpenClosed01, Standard},
+    Rng,
+};
+
 use num::{One, Zero};
-use rand::distributions::{Distribution, OpenClosed01, Standard};
-use rand::Rng;
 
 use simba::scalar::RealField;
 use simba::simd::SimdBool;
@@ -144,6 +148,7 @@ where
     }
 }
 
+#[cfg(feature = "rand-no-std")]
 impl<N: SimdRealField> Distribution<Quaternion<N>> for Standard
 where
     Standard: Distribution<N>,
@@ -812,6 +817,7 @@ where
     }
 }
 
+#[cfg(feature = "rand-no-std")]
 impl<N: SimdRealField> Distribution<UnitQuaternion<N>> for Standard
 where
     N::Element: SimdRealField,

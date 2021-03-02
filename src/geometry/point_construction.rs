@@ -2,8 +2,11 @@
 use quickcheck::{Arbitrary, Gen};
 
 use num::{Bounded, One, Zero};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+#[cfg(feature = "rand-no-std")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
@@ -138,6 +141,7 @@ where
     }
 }
 
+#[cfg(feature = "rand-no-std")]
 impl<N: Scalar, D: DimName> Distribution<Point<N, D>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,

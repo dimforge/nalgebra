@@ -1,10 +1,14 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
+#[cfg(feature = "rand-no-std")]
+use rand::{
+    distributions::{Distribution, OpenClosed01, Standard},
+    Rng,
+};
+
 use num::One;
 use num_complex::Complex;
-use rand::distributions::{Distribution, OpenClosed01, Standard};
-use rand::Rng;
 
 use crate::base::dimension::{U1, U2};
 use crate::base::storage::Storage;
@@ -377,6 +381,7 @@ where
     }
 }
 
+#[cfg(feature = "rand-no-std")]
 impl<N: SimdRealField> Distribution<UnitComplex<N>> for Standard
 where
     N::Element: SimdRealField,

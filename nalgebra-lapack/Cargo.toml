@@ -9,7 +9,7 @@ homepage = "https://nalgebra.org"
 repository = "https://github.com/dimforge/nalgebra"
 readme = "../README.md"
 categories = [ "science", "mathematics" ]
-keywords = [ "linear", "algebra", "matrix", "vector", "math", "lapack" ]
+keywords = [ "linear", "algebra", "matrix", "vector", "lapack" ]
 license = "BSD-3-Clause"
 edition = "2018"
 
