@@ -1,17 +1,20 @@
-#[cfg(any(not(feature = "debug"), not(feature = "compare")))]
+#[cfg(any(
+    not(feature = "debug"),
+    not(feature = "compare"),
+    not(feature = "rand")
+))]
 compile_error!(
-    "Please enable the `debug` and `compare` features in order to compile and run the tests.
-     Example: `cargo test --features debug --features compare`"
+    "Please enable the `debug`, `compare`, and `rand` features in order to compile and run the tests.
+     Example: `cargo test --features debug,compare,rand`"
 );
 
 #[cfg(feature = "abomonation-serialize")]
 extern crate abomonation;
 #[macro_use]
 extern crate approx;
-#[cfg(feature = "mint")]
-extern crate mint;
 extern crate nalgebra as na;
 extern crate num_traits as num;
+extern crate rand_package as rand;
 
 mod core;
 mod geometry;
