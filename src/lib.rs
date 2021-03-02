@@ -89,26 +89,16 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
 #![cfg_attr(feature = "no_unsound_assume_init", allow(unreachable_code))]
 
-#[cfg(feature = "arbitrary")]
-extern crate quickcheck;
-
 #[cfg(feature = "serde-serialize")]
 #[macro_use]
 extern crate serde;
 
-#[cfg(feature = "abomonation-serialize")]
-extern crate abomonation;
-
-#[cfg(feature = "mint")]
-extern crate mint;
+#[cfg(feature = "rand-no-std")]
+extern crate rand_package as rand;
 
 #[macro_use]
 extern crate approx;
-#[cfg(feature = "std")]
-extern crate matrixmultiply;
 extern crate num_traits as num;
-#[cfg(feature = "std")]
-extern crate rand_distr;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 extern crate alloc;

@@ -1,7 +1,10 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+#[cfg(feature = "rand-no-std")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
@@ -10,7 +13,6 @@ use std::mem;
 use simba::scalar::RealField;
 
 use crate::base::dimension::U3;
-use crate::base::helper;
 use crate::base::storage::Storage;
 use crate::base::{Matrix4, Vector, Vector3};
 
@@ -684,11 +686,13 @@ impl<N: RealField> Orthographic3<N> {
     }
 }
 
+#[cfg(feature = "rand-no-std")]
 impl<N: RealField> Distribution<Orthographic3<N>> for Standard
 where
     Standard: Distribution<N>,
 {
     fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Orthographic3<N> {
+        use crate::base::helper;
         let left = r.gen();
         let right = helper::reject_rand(r, |x: &N| *x > left);
         let bottom = r.gen();
@@ -706,6 +710,7 @@ where
     Matrix4<N>: Send,
 {
     fn arbitrary(g: &mut Gen) -> Self {
+        use crate::base::helper;
         let left = Arbitrary::arbitrary(g);
         let right = helper::reject(g, |x: &N| *x > left);
         let bottom = Arbitrary::arbitrary(g);

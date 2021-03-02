@@ -23,12 +23,14 @@ path = "src/lib.rs"
 
 [features]
 default         = [ "std" ]
-std             = [ "matrixmultiply", "rand/std", "rand/std_rng", "rand_distr", "simba/std" ]
+std             = [ "matrixmultiply", "simba/std" ]
+rand-no-std     = [ "rand-package" ]
+rand            = [ "rand-no-std", "rand-package/std", "rand-package/std_rng", "rand_distr" ]
 arbitrary       = [ "quickcheck" ]
 serde-serialize = [ "serde", "num-complex/serde" ]
 abomonation-serialize = [ "abomonation" ]
 sparse = [ ]
-debug = [ "approx/num-complex", "rand/std" ]
+debug = [ "approx/num-complex", "rand" ]
 alloc = [ ]
 io = [ "pest", "pest_derive" ]
 compare = [ "matrixcompare-core" ]
@@ -43,8 +45,7 @@ slow-tests = []
 [dependencies]
 typenum        = "1.12"
 generic-array  = "0.14"
-rand           = { version = "0.8", default-features = false }
-getrandom      = { version = "0.2", default-features = false, features = [ "js" ] } # For wasm
+rand-package   = { package = "rand", version = "0.8", optional = true, default-features = false }
 num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.3", default-features = false }
 num-rational   = { version = "0.3", default-features = false }

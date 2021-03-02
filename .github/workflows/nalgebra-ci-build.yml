@@ -49,13 +49,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: test
-        run: cargo test --features arbitrary --features serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
+        run: cargo test --features arbitrary,rand,serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
   test-nalgebra-glm:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: test nalgebra-glm
-        run: cargo test -p nalgebra-glm --features arbitrary,serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
+        run: cargo test -p nalgebra-glm --features arbitrary,rand,serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
   test-nalgebra-sparse:
     runs-on: ubuntu-latest
     steps:
@@ -90,7 +90,11 @@ jobs:
           components: rustfmt
       - name: install xargo
         run: cp .github/Xargo.toml .; rustup component add rust-src; cargo install -f xargo;
-      - name: build
+      - name: build x86_64-unknown-linux-gnu
         run: xargo build --verbose --no-default-features --target=x86_64-unknown-linux-gnu;
-      - name: build --feature alloc
+      - name: build x86_64-unknown-linux-gnu --features rand-no-std
+        run: xargo build --verbose --no-default-features --target=x86_64-unknown-linux-gnu;
+      - name: build x86_64-unknown-linux-gnu --features alloc
         run: xargo build --verbose --no-default-features --features alloc --target=x86_64-unknown-linux-gnu;
+      - name: build thumbv7em-none-eabihf
+        run: xargo build --verbose --no-default-features --target=thumbv7em-none-eabihf;

@@ -1,7 +1,11 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+
+#[cfg(feature = "rand-no-std")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
 /// Simple helper function for rejection sampling
 #[cfg(feature = "arbitrary")]
@@ -17,6 +21,7 @@ pub fn reject<F: FnMut(&T) -> bool, T: Arbitrary>(g: &mut Gen, f: F) -> T {
 
 #[doc(hidden)]
 #[inline]
+#[cfg(feature = "rand-no-std")]
 pub fn reject_rand<G: Rng + ?Sized, F: FnMut(&T) -> bool, T>(g: &mut G, f: F) -> T
 where
     Standard: Distribution<T>,

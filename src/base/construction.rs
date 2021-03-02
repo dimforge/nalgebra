@@ -7,18 +7,16 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{Bounded, One, Zero};
-#[cfg(feature = "std")]
-use rand;
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
-#[cfg(feature = "std")]
-use rand_distr::StandardNormal;
+#[cfg(feature = "rand-no-std")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
+
 use std::iter;
 use std::mem;
 use typenum::{self, Cmp, Greater};
 
-#[cfg(feature = "std")]
-use simba::scalar::RealField;
 use simba::scalar::{ClosedAdd, ClosedMul};
 
 use crate::base::allocator::Allocator;
@@ -281,7 +279,7 @@ where
 
     /// Creates a matrix filled with random values.
     #[inline]
-    #[cfg(feature = "std")]
+    #[cfg(feature = "rand")]
     pub fn new_random_generic(nrows: R, ncols: C) -> Self
     where
         Standard: Distribution<N>,
@@ -291,6 +289,7 @@ where
 
     /// Creates a matrix filled with random values from the given distribution.
     #[inline]
+    #[cfg(feature = "rand-no-std")]
     pub fn from_distribution_generic<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
         nrows: R,
         ncols: C,
@@ -589,6 +588,7 @@ macro_rules! impl_constructors(
 
         /// Creates a matrix or vector filled with random values from the given distribution.
         #[inline]
+        #[cfg(feature = "rand-no-std")]
         pub fn from_distribution<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
             $($args: usize,)*
             distribution: &Distr,
@@ -599,7 +599,7 @@ macro_rules! impl_constructors(
 
         /// Creates a matrix filled with random values.
         #[inline]
-        #[cfg(feature = "std")]
+        #[cfg(feature = "rand")]
         pub fn new_random($($args: usize),*) -> Self
             where Standard: Distribution<N> {
             Self::new_random_generic($($gargs),*)
@@ -817,6 +817,7 @@ where
     }
 }
 
+#[cfg(feature = "rand-no-std")]
 impl<N: Scalar, R: Dim, C: Dim> Distribution<MatrixMN<N, R, C>> for Standard
 where
     DefaultAllocator: Allocator<N, R, C>,
@@ -851,11 +852,11 @@ where
     }
 }
 
-#[cfg(feature = "std")]
-impl<N: RealField, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
+#[cfg(feature = "rand")]
+impl<N: crate::RealField, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,
-    StandardNormal: Distribution<N>,
+    rand_distr::StandardNormal: Distribution<N>,
 {
     /// Generate a uniformly distributed random unit vector.
     #[inline]
@@ -863,7 +864,7 @@ where
         Unit::new_normalize(VectorN::from_distribution_generic(
             D::name(),
             U1,
-            &StandardNormal,
+            &rand_distr::StandardNormal,
             rng,
         ))
     }
