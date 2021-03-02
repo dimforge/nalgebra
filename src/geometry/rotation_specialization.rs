@@ -4,8 +4,13 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::Zero;
-use rand::distributions::{Distribution, OpenClosed01, Standard};
-use rand::Rng;
+
+#[cfg(feature = "rand-no-std")]
+use rand::{
+    distributions::{Distribution, OpenClosed01, Standard},
+    Rng,
+};
+
 use simba::scalar::RealField;
 use simba::simd::{SimdBool, SimdRealField};
 use std::ops::Neg;
@@ -256,6 +261,7 @@ impl<N: SimdRealField> Rotation2<N> {
     }
 }
 
+#[cfg(feature = "rand-no-std")]
 impl<N: SimdRealField> Distribution<Rotation2<N>> for Standard
 where
     N::Element: SimdRealField,
@@ -912,6 +918,7 @@ impl<N: SimdRealField> Rotation3<N> {
     }
 }
 
+#[cfg(feature = "rand-no-std")]
 impl<N: SimdRealField> Distribution<Rotation3<N>> for Standard
 where
     N::Element: SimdRealField,

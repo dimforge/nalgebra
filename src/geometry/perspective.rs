@@ -1,7 +1,10 @@
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+#[cfg(feature = "rand-no-std")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -11,7 +14,6 @@ use std::mem;
 use simba::scalar::RealField;
 
 use crate::base::dimension::U3;
-use crate::base::helper;
 use crate::base::storage::Storage;
 use crate::base::{Matrix4, Scalar, Vector, Vector3};
 
@@ -268,11 +270,13 @@ impl<N: RealField> Perspective3<N> {
     }
 }
 
+#[cfg(feature = "rand-no-std")]
 impl<N: RealField> Distribution<Perspective3<N>> for Standard
 where
     Standard: Distribution<N>,
 {
     fn sample<'a, R: Rng + ?Sized>(&self, r: &'a mut R) -> Perspective3<N> {
+        use crate::base::helper;
         let znear = r.gen();
         let zfar = helper::reject_rand(r, |&x: &N| !(x - znear).is_zero());
         let aspect = helper::reject_rand(r, |&x: &N| !x.is_zero());
@@ -284,6 +288,7 @@ where
 #[cfg(feature = "arbitrary")]
 impl<N: RealField + Arbitrary> Arbitrary for Perspective3<N> {
     fn arbitrary(g: &mut Gen) -> Self {
+        use crate::base::helper;
         let znear = Arbitrary::arbitrary(g);
         let zfar = helper::reject(g, |&x: &N| !(x - znear).is_zero());
         let aspect = helper::reject(g, |&x: &N| !x.is_zero());

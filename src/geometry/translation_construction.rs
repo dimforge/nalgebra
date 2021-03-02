@@ -4,8 +4,11 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use num::{One, Zero};
-use rand::distributions::{Distribution, Standard};
-use rand::Rng;
+#[cfg(feature = "rand-no-std")]
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
 use simba::scalar::ClosedAdd;
 
@@ -49,6 +52,7 @@ where
     }
 }
 
+#[cfg(feature = "rand-no-std")]
 impl<N: Scalar, D: DimName> Distribution<Translation<N, D>> for Standard
 where
     DefaultAllocator: Allocator<N, D>,
