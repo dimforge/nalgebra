@@ -13,7 +13,7 @@ use rand::{
 
 use num::{One, Zero};
 
-use simba::scalar::RealField;
+use simba::scalar::{RealField, SupersetOf};
 use simba::simd::SimdBool;
 
 use crate::base::dimension::U3;
@@ -48,6 +48,22 @@ impl<N: Scalar> Quaternion<N> {
     #[inline]
     pub fn new(w: N, i: N, j: N, k: N) -> Self {
         Self::from(Vector4::new(i, j, k, w))
+    }
+
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Quaternion;
+    /// let q = Quaternion::new(1.0f64, 2.0, 3.0, 4.0);
+    /// let q2 = q.cast::<f32>();
+    /// assert_eq!(q2, Quaternion::new(1.0f32, 2.0, 3.0, 4.0));
+    /// ```
+    pub fn cast<To: Scalar>(self) -> Quaternion<To>
+    where
+        To: SupersetOf<N>,
+    {
+        crate::convert(self)
     }
 }
 
@@ -197,6 +213,23 @@ where
     #[inline]
     pub fn identity() -> Self {
         Self::new_unchecked(Quaternion::identity())
+    }
+
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::UnitQuaternion;
+    /// # use approx::assert_relative_eq;
+    /// let q = UnitQuaternion::from_euler_angles(1.0f64, 2.0, 3.0);
+    /// let q2 = q.cast::<f32>();
+    /// assert_relative_eq!(q2, UnitQuaternion::from_euler_angles(1.0f32, 2.0, 3.0), epsilon = 1.0e-6);
+    /// ```
+    pub fn cast<To: Scalar>(self) -> UnitQuaternion<To>
+    where
+        To: SupersetOf<N>,
+    {
+        crate::convert(self)
     }
 
     /// Creates a new quaternion from a unit vector (the rotation axis) and an angle

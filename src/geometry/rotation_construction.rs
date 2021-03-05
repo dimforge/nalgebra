@@ -1,6 +1,6 @@
 use num::{One, Zero};
 
-use simba::scalar::{ClosedAdd, ClosedMul};
+use simba::scalar::{ClosedAdd, ClosedMul, SupersetOf};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::DimName;
@@ -28,6 +28,28 @@ where
     #[inline]
     pub fn identity() -> Rotation<N, D> {
         Self::from_matrix_unchecked(MatrixN::<N, D>::identity())
+    }
+}
+
+impl<N: Scalar, D: DimName> Rotation<N, D>
+where
+    DefaultAllocator: Allocator<N, D, D>,
+{
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Rotation2;
+    /// let rot = Rotation2::<f64>::identity();
+    /// let rot2 = rot.cast::<f32>();
+    /// assert_eq!(rot2, Rotation2::<f32>::identity());
+    /// ```
+    pub fn cast<To: Scalar>(self) -> Rotation<To, D>
+    where
+        Rotation<To, D>: SupersetOf<Self>,
+        DefaultAllocator: Allocator<To, D, D>,
+    {
+        crate::convert(self)
     }
 }
 
