@@ -4,6 +4,11 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.25.2] - WIP
+### Added
+- A `cast` method has been added to most types. This can be used to change the
+  type of the components of a given entity. Example: `vector.cast::<f32>()`.
+
 ## [0.25.1]
 This release replaces the version 0.25.0 which has been yanked. The 0.25.0 version
 added significant complication to build `nalgebra` targeting a `#[no-std]` platform

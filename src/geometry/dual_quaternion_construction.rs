@@ -5,6 +5,7 @@ use crate::{
 use num::{One, Zero};
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
+use simba::scalar::SupersetOf;
 
 impl<N: Scalar> DualQuaternion<N> {
     /// Creates a dual quaternion from its rotation and translation components.
@@ -48,6 +49,22 @@ impl<N: Scalar> DualQuaternion<N> {
             Quaternion::from_real(N::one()),
             Quaternion::from_real(N::zero()),
         )
+    }
+
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Quaternion, DualQuaternion};
+    /// let q = DualQuaternion::from_real(Quaternion::new(1.0f64, 2.0, 3.0, 4.0));
+    /// let q2 = q.cast::<f32>();
+    /// assert_eq!(q2, DualQuaternion::from_real(Quaternion::new(1.0f32, 2.0, 3.0, 4.0)));
+    /// ```
+    pub fn cast<To: Scalar>(self) -> DualQuaternion<To>
+    where
+        DualQuaternion<To>: SupersetOf<Self>,
+    {
+        crate::convert(self)
     }
 }
 
@@ -128,6 +145,22 @@ impl<N: SimdRealField> UnitDualQuaternion<N> {
     #[inline]
     pub fn identity() -> Self {
         Self::new_unchecked(DualQuaternion::identity())
+    }
+
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::UnitDualQuaternion;
+    /// let q = UnitDualQuaternion::<f64>::identity();
+    /// let q2 = q.cast::<f32>();
+    /// assert_eq!(q2, UnitDualQuaternion::<f32>::identity());
+    /// ```
+    pub fn cast<To: Scalar>(self) -> UnitDualQuaternion<To>
+    where
+        UnitDualQuaternion<To>: SupersetOf<Self>,
+    {
+        crate::convert(self)
     }
 }
 

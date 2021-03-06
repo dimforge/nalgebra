@@ -12,9 +12,9 @@ use num_complex::Complex;
 
 use crate::base::dimension::{U1, U2};
 use crate::base::storage::Storage;
-use crate::base::{Matrix2, Unit, Vector, Vector2};
+use crate::base::{Matrix2, Scalar, Unit, Vector, Vector2};
 use crate::geometry::{Rotation2, UnitComplex};
-use simba::scalar::RealField;
+use simba::scalar::{RealField, SupersetOf};
 use simba::simd::SimdRealField;
 
 /// # Identity
@@ -118,6 +118,22 @@ impl<N: SimdRealField> UnitComplex<N>
 where
     N::Element: SimdRealField,
 {
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::UnitComplex;
+    /// let c = UnitComplex::new(1.0f64);
+    /// let c2 = c.cast::<f32>();
+    /// assert_eq!(c2, UnitComplex::new(1.0f32));
+    /// ```
+    pub fn cast<To: Scalar>(self) -> UnitComplex<To>
+    where
+        UnitComplex<To>: SupersetOf<Self>,
+    {
+        crate::convert(self)
+    }
+
     /// The underlying complex number.
     ///
     /// Same as `self.as_ref()`.

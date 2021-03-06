@@ -16,7 +16,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, Field};
+use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, Field, SupersetOf};
 use simba::simd::SimdPartialOrd;
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
@@ -608,6 +608,23 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         }
 
         res
+    }
+
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let q = Vector3::new(1.0f64, 2.0, 3.0);
+    /// let q2 = q.cast::<f32>();
+    /// assert_eq!(q2, Vector3::new(1.0f32, 2.0, 3.0));
+    /// ```
+    pub fn cast<N2: Scalar>(self) -> MatrixMN<N2, R, C>
+    where
+        MatrixMN<N2, R, C>: SupersetOf<Self>,
+        DefaultAllocator: Allocator<N2, R, C>,
+    {
+        crate::convert(self)
     }
 
     /// Similar to `self.iter().fold(init, f)` except that `init` is replaced by a closure.
