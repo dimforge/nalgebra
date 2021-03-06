@@ -3,9 +3,6 @@ use num::Zero;
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
 use simba::simd::{PrimitiveSimdValue, SimdValue};
 
-#[cfg(feature = "mint")]
-use mint;
-
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::{DefaultAllocator, Matrix2, Matrix3, Matrix4, MatrixN, Scalar};
@@ -27,7 +24,6 @@ use crate::geometry::{
  * Rotation  -> Similarity
  * Rotation  -> Transform
  * Rotation  -> Matrix (homogeneous)
- * mint::EulerAngles -> Rotation
 
 */
 
@@ -233,13 +229,6 @@ where
     fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
         let r = m.fixed_slice::<D, D>(0, 0);
         Self::from_matrix_unchecked(crate::convert_unchecked(r.into_owned()))
-    }
-}
-
-#[cfg(feature = "mint")]
-impl<N: RealField> From<mint::EulerAngles<N, mint::IntraXYZ>> for Rotation3<N> {
-    fn from(euler: mint::EulerAngles<N, mint::IntraXYZ>) -> Self {
-        Self::from_euler_angles(euler.a, euler.b, euler.c)
     }
 }
 

@@ -15,7 +15,7 @@ use crate::{
     Point1, Point2, Point3, Point4, Point5, Point6, Vector1, Vector2, Vector3, Vector4, Vector5,
     Vector6,
 };
-use simba::scalar::ClosedDiv;
+use simba::scalar::{ClosedDiv, SupersetOf};
 
 use crate::geometry::Point;
 
@@ -118,6 +118,23 @@ where
         } else {
             None
         }
+    }
+
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Point2;
+    /// let pt = Point2::new(1.0f64, 2.0);
+    /// let pt2 = pt.cast::<f32>();
+    /// assert_eq!(pt2, Point2::new(1.0f32, 2.0));
+    /// ```
+    pub fn cast<To: Scalar>(self) -> Point<To, D>
+    where
+        Point<To, D>: SupersetOf<Self>,
+        DefaultAllocator: Allocator<To, D>,
+    {
+        crate::convert(self)
     }
 }
 

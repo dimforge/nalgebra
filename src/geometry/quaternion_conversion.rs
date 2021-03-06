@@ -3,9 +3,6 @@ use num::Zero;
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
 use simba::simd::{PrimitiveSimdValue, SimdRealField, SimdValue};
 
-#[cfg(feature = "mint")]
-use mint;
-
 use crate::base::dimension::U3;
 use crate::base::{Matrix3, Matrix4, Scalar, Vector4};
 use crate::geometry::{
@@ -26,17 +23,14 @@ use crate::geometry::{
  * UnitQuaternion -> Transform<U3>
  * UnitQuaternion -> Matrix<U4> (homogeneous)
  *
- * mint::Quaternion <-> Quaternion
- * UnitQuaternion -> mint::Quaternion
- *
  * NOTE:
  * UnitQuaternion -> Quaternion is already provided by: Unit<T> -> T
  */
 
 impl<N1, N2> SubsetOf<Quaternion<N2>> for Quaternion<N1>
 where
-    N1: SimdRealField,
-    N2: SimdRealField + SupersetOf<N1>,
+    N1: Scalar,
+    N2: Scalar + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> Quaternion<N2> {
@@ -58,8 +52,8 @@ where
 
 impl<N1, N2> SubsetOf<UnitQuaternion<N2>> for UnitQuaternion<N1>
 where
-    N1: SimdRealField,
-    N2: SimdRealField + SupersetOf<N1>,
+    N1: Scalar,
+    N2: Scalar + SupersetOf<N1>,
 {
     #[inline]
     fn to_superset(&self) -> UnitQuaternion<N2> {
@@ -203,41 +197,6 @@ impl<N1: RealField, N2: RealField + SupersetOf<N1>> SubsetOf<Matrix4<N2>> for Un
     fn from_superset_unchecked(m: &Matrix4<N2>) -> Self {
         let rot: Rotation3<N1> = crate::convert_ref_unchecked(m);
         Self::from_rotation_matrix(&rot)
-    }
-}
-
-#[cfg(feature = "mint")]
-impl<N: Scalar> From<mint::Quaternion<N>> for Quaternion<N> {
-    fn from(q: mint::Quaternion<N>) -> Self {
-        Self::new(q.s, q.v.x, q.v.y, q.v.z)
-    }
-}
-
-#[cfg(feature = "mint")]
-impl<N: Scalar> Into<mint::Quaternion<N>> for Quaternion<N> {
-    fn into(self) -> mint::Quaternion<N> {
-        mint::Quaternion {
-            v: mint::Vector3 {
-                x: self[0].inlined_clone(),
-                y: self[1].inlined_clone(),
-                z: self[2].inlined_clone(),
-            },
-            s: self[3].inlined_clone(),
-        }
-    }
-}
-
-#[cfg(feature = "mint")]
-impl<N: Scalar + SimdValue> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
-    fn into(self) -> mint::Quaternion<N> {
-        mint::Quaternion {
-            v: mint::Vector3 {
-                x: self[0].inlined_clone(),
-                y: self[1].inlined_clone(),
-                z: self[2].inlined_clone(),
-            },
-            s: self[3].inlined_clone(),
-        }
     }
 }
 

@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.25.1"
+version = "0.25.2"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "General-purpose linear algebra library with transformations and statically-sized or dynamically-sized matrices."
@@ -24,11 +24,6 @@ path = "src/lib.rs"
 [features]
 default         = [ "std" ]
 std             = [ "matrixmultiply", "simba/std" ]
-rand-no-std     = [ "rand-package" ]
-rand            = [ "rand-no-std", "rand-package/std", "rand-package/std_rng", "rand_distr" ]
-arbitrary       = [ "quickcheck" ]
-serde-serialize = [ "serde", "num-complex/serde" ]
-abomonation-serialize = [ "abomonation" ]
 sparse = [ ]
 debug = [ "approx/num-complex", "rand" ]
 alloc = [ ]
@@ -36,11 +31,26 @@ io = [ "pest", "pest_derive" ]
 compare = [ "matrixcompare-core" ]
 libm = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
-proptest-support = [ "proptest" ]
 no_unsound_assume_init = [ ]
 
-# This feature is only used for tests, and enables tests that require more time to run
-slow-tests = []
+# Conversion
+convert-mint = [ "mint" ]
+convert-glam = [ "glam" ]
+convert-glam-unchecked = [ "convert-glam" ] # Unable edgy conversions like Mat4 -> Isometry3
+convert-bytemuck = [ "bytemuck" ]
+
+# Serialization
+serde-serialize = [ "serde", "num-complex/serde" ]
+abomonation-serialize = [ "abomonation" ]
+
+# Randomness
+rand-no-std = [ "rand-package" ]
+rand        = [ "rand-no-std", "rand-package/std", "rand-package/std_rng", "rand_distr" ]
+
+# Tests
+arbitrary        = [ "quickcheck" ]
+proptest-support = [ "proptest" ]
+slow-tests       = []
 
 [dependencies]
 typenum        = "1.12"
@@ -57,6 +67,7 @@ matrixmultiply = { version = "0.3", optional = true }
 serde          = { version = "1.0", default-features = false, features = [ "derive" ], optional = true }
 abomonation    = { version = "0.7", optional = true }
 mint           = { version = "0.5", optional = true }
+glam           = { version = "0.13", optional = true }
 quickcheck     = { version = "1", optional = true }
 pest           = { version = "2", optional = true }
 pest_derive    = { version = "2", optional = true }

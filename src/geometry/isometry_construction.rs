@@ -10,15 +10,16 @@ use rand::{
     Rng,
 };
 
+use simba::scalar::SupersetOf;
 use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, U2};
 use crate::base::{DefaultAllocator, Vector2, Vector3};
 
-use crate::geometry::{
+use crate::{
     AbstractRotation, Isometry, Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3, Point,
-    Point3, Rotation, Rotation3, Translation, Translation2, Translation3, UnitComplex,
+    Point3, Rotation, Rotation3, Scalar, Translation, Translation2, Translation3, UnitComplex,
     UnitQuaternion,
 };
 
@@ -153,6 +154,22 @@ where
     pub fn rotation(angle: N) -> Self {
         Self::new(Vector2::zeros(), angle)
     }
+
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::IsometryMatrix2;
+    /// let iso = IsometryMatrix2::<f64>::identity();
+    /// let iso2 = iso.cast::<f32>();
+    /// assert_eq!(iso2, IsometryMatrix2::<f32>::identity());
+    /// ```
+    pub fn cast<To: Scalar>(self) -> IsometryMatrix2<To>
+    where
+        IsometryMatrix2<To>: SupersetOf<Self>,
+    {
+        crate::convert(self)
+    }
 }
 
 impl<N: SimdRealField> Isometry2<N>
@@ -190,6 +207,22 @@ where
     #[inline]
     pub fn rotation(angle: N) -> Self {
         Self::new(Vector2::zeros(), angle)
+    }
+
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Isometry2;
+    /// let iso = Isometry2::<f64>::identity();
+    /// let iso2 = iso.cast::<f32>();
+    /// assert_eq!(iso2, Isometry2::<f32>::identity());
+    /// ```
+    pub fn cast<To: Scalar>(self) -> Isometry2<To>
+    where
+        Isometry2<To>: SupersetOf<Self>,
+    {
+        crate::convert(self)
     }
 }
 
@@ -387,6 +420,22 @@ where
     N::Element: SimdRealField,
 {
     basic_isometry_construction_impl!(UnitQuaternion<N>);
+
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Isometry3;
+    /// let iso = Isometry3::<f64>::identity();
+    /// let iso2 = iso.cast::<f32>();
+    /// assert_eq!(iso2, Isometry3::<f32>::identity());
+    /// ```
+    pub fn cast<To: Scalar>(self) -> Isometry3<To>
+    where
+        Isometry3<To>: SupersetOf<Self>,
+    {
+        crate::convert(self)
+    }
 }
 
 impl<N: SimdRealField> IsometryMatrix3<N>
@@ -394,6 +443,22 @@ where
     N::Element: SimdRealField,
 {
     basic_isometry_construction_impl!(Rotation3<N>);
+
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::IsometryMatrix3;
+    /// let iso = IsometryMatrix3::<f64>::identity();
+    /// let iso2 = iso.cast::<f32>();
+    /// assert_eq!(iso2, IsometryMatrix3::<f32>::identity());
+    /// ```
+    pub fn cast<To: Scalar>(self) -> IsometryMatrix3<To>
+    where
+        IsometryMatrix3<To>: SupersetOf<Self>,
+    {
+        crate::convert(self)
+    }
 }
 
 /// # Construction from a 3D eye position and target point

@@ -10,7 +10,7 @@ use rand::{
     Rng,
 };
 
-use simba::scalar::ClosedAdd;
+use simba::scalar::{ClosedAdd, SupersetOf};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, U1, U2, U3, U4, U5, U6};
@@ -18,7 +18,7 @@ use crate::base::{DefaultAllocator, Scalar, VectorN};
 
 use crate::geometry::Translation;
 
-impl<N: Scalar + Zero, D: DimName> Translation<N, D>
+impl<N: Scalar, D: DimName> Translation<N, D>
 where
     DefaultAllocator: Allocator<N, D>,
 {
@@ -37,8 +37,28 @@ where
     /// assert_eq!(t * p, p);
     /// ```
     #[inline]
-    pub fn identity() -> Translation<N, D> {
+    pub fn identity() -> Translation<N, D>
+    where
+        N: Zero,
+    {
         Self::from(VectorN::<N, D>::from_element(N::zero()))
+    }
+
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Translation2;
+    /// let tra = Translation2::new(1.0f64, 2.0);
+    /// let tra2 = tra.cast::<f32>();
+    /// assert_eq!(tra2, Translation2::new(1.0f32, 2.0));
+    /// ```
+    pub fn cast<To: Scalar>(self) -> Translation<To, D>
+    where
+        Translation<To, D>: SupersetOf<Self>,
+        DefaultAllocator: Allocator<To, D>,
+    {
+        crate::convert(self)
     }
 }
 
