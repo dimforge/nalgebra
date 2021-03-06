@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [0.25.2] - WIP
 ### Added
+- A `convert-glam` cargo feature to enable implementations of `From` traits to convert
+  between `glam` types and `nalgebra` types.
+- A `convert-glam-unchecked` cargo feature to enable some extra `glam`/`nalgebra` conversions that may
+  lead to unexpected results if used improperly. For example, this enables the conversion from a
+  `glam::Mat4` to a `na::Isometry3`. This conversion will be cheap (without any check) but willlead to
+  unexpected results if the glam matrix contains non-isometric components (like scaling for example).
 - A `cast` method has been added to most types. This can be used to change the
   type of the components of a given entity. Example: `vector.cast::<f32>()`.
 
