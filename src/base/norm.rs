@@ -8,9 +8,9 @@ use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Dim, DimName, Matrix, MatrixMN, Normed, VectorN};
 use crate::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::storage::{Storage, StorageMut};
-use crate::{ComplexField, RealField, Scalar, SimdComplexField, Unit};
+use crate::{ComplexField, Scalar, SimdComplexField, Unit};
 use simba::scalar::ClosedNeg;
-use simba::simd::{SimdOption, SimdPartialOrd};
+use simba::simd::{SimdOption, SimdPartialOrd, SimdValue};
 
 // TODO: this should be be a trait on alga?
 /// A trait for abstract matrix norms.
@@ -343,7 +343,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn cap_magnitude(&self, max: N::RealField) -> MatrixMN<N, R, C>
     where
-        N: RealField,
+        N: ComplexField,
         DefaultAllocator: Allocator<N, R, C>,
     {
         let n = self.norm();
@@ -353,6 +353,20 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
         } else {
             self.clone_owned()
         }
+    }
+
+    /// Returns a new vector with the same magnitude as `self` clamped between `0.0` and `max`.
+    #[inline]
+    pub fn simd_cap_magnitude(&self, max: N::SimdRealField) -> MatrixMN<N, R, C>
+    where
+        N: SimdComplexField,
+        N::Element: Scalar,
+        DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+    {
+        let n = self.norm();
+        let scaled = self.scale(max / n);
+        let use_scaled = n.simd_gt(max);
+        scaled.select(use_scaled, self.clone_owned())
     }
 
     /// Returns a normalized version of this matrix unless its norm as smaller or equal to `eps`.
