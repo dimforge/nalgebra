@@ -23,8 +23,6 @@ mod rotation_simba; // TODO: implement Rotation methods.
 mod rotation_specialization;
 
 mod quaternion;
-#[cfg(feature = "alga")]
-mod quaternion_alga;
 mod quaternion_construction;
 mod quaternion_conversion;
 mod quaternion_coordinates;
@@ -32,8 +30,6 @@ mod quaternion_ops;
 mod quaternion_simba;
 
 mod dual_quaternion;
-#[cfg(feature = "alga")]
-mod dual_quaternion_alga;
 mod dual_quaternion_construction;
 mod dual_quaternion_conversion;
 mod dual_quaternion_ops;
