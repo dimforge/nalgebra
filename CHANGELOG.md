@@ -4,7 +4,7 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.25.2] - WIP
+## [0.25.2]
 ### Added
 - A `convert-glam` cargo feature to enable implementations of `From` traits to convert
   between `glam` types and `nalgebra` types.
