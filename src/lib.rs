@@ -123,6 +123,7 @@ pub mod linalg;
 pub mod proptest;
 #[cfg(feature = "sparse")]
 pub mod sparse;
+mod third_party;
 
 pub use crate::base::*;
 pub use crate::geometry::*;
