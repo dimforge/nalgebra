@@ -4,7 +4,7 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.25.3] - WIP
+## [0.25.3]
 ### Added
 - The `Vector::simd_cap_magnitude` method to cap the magnitude of the a vector with
   SIMD components.
