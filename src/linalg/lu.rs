@@ -213,6 +213,7 @@ where
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
     /// Returns `None` if `self` is not invertible.
+    #[must_use = "Did you mean to use solve_mut()?"]
     pub fn solve<R2: Dim, C2: Dim, S2>(
         &self,
         b: &Matrix<T, R2, C2, S2>,

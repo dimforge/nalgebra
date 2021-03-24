@@ -184,6 +184,7 @@ pub fn zero<T: Zero>() -> T {
 /// Wraps `val` into the range `[min, max]` using modular arithmetics.
 ///
 /// The range must not be empty.
+#[must_use = "This function does not mutate `val`."]
 #[inline]
 pub fn wrap<T>(mut val: T, min: T, max: T) -> T
 where
@@ -219,6 +220,7 @@ where
 ///     * If `min < val < max`, this returns `val`.
 ///     * If `val <= min`, this returns `min`.
 ///     * If `val >= max`, this returns `max`.
+#[must_use = "This function does not mutate `val`."]
 #[inline]
 pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
     if val > min {

@@ -99,6 +99,7 @@ impl<T: ComplexField> GivensRotation<T> {
     }
 
     /// The inverse of this givens rotation.
+    #[must_use = "This function does not mutate self."]
     pub fn inverse(&self) -> Self {
         Self {
             c: self.c,

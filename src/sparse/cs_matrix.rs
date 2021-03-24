@@ -409,6 +409,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
     }
 
     /// Computes the transpose of this sparse matrix.
+    #[must_use = "This function does not mutate the matrix. Consider using the return value or removing the function call. There's also transpose_mut() for square matrices."]
     pub fn transpose(&self) -> CsMatrix<T, C, R>
     where
         DefaultAllocator: Allocator<usize, R>,

@@ -10,6 +10,7 @@ use crate::base::{DVectorSlice, DefaultAllocator, Matrix, OMatrix, SquareMatrix,
 impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     /// Computes the solution of the linear system `self . x = b` where `x` is the unknown and only
     /// the lower-triangular part of `self` (including the diagonal) is considered not-zero.
+    #[must_use = "Did you mean to use solve_lower_triangular_mut()?"]
     #[inline]
     pub fn solve_lower_triangular<R2: Dim, C2: Dim, S2>(
         &self,
@@ -30,6 +31,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 
     /// Computes the solution of the linear system `self . x = b` where `x` is the unknown and only
     /// the upper-triangular part of `self` (including the diagonal) is considered not-zero.
+    #[must_use = "Did you mean to use solve_upper_triangular_mut()?"]
     #[inline]
     pub fn solve_upper_triangular<R2: Dim, C2: Dim, S2>(
         &self,
@@ -186,6 +188,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
      */
     /// Computes the solution of the linear system `self.transpose() . x = b` where `x` is the unknown and only
     /// the lower-triangular part of `self` (including the diagonal) is considered not-zero.
+    #[must_use = "Did you mean to use tr_solve_lower_triangular_mut()?"]
     #[inline]
     pub fn tr_solve_lower_triangular<R2: Dim, C2: Dim, S2>(
         &self,
@@ -206,6 +209,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 
     /// Computes the solution of the linear system `self.transpose() . x = b` where `x` is the unknown and only
     /// the upper-triangular part of `self` (including the diagonal) is considered not-zero.
+    #[must_use = "Did you mean to use tr_solve_upper_triangular_mut()?"]
     #[inline]
     pub fn tr_solve_upper_triangular<R2: Dim, C2: Dim, S2>(
         &self,
@@ -276,6 +280,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 
     /// Computes the solution of the linear system `self.adjoint() . x = b` where `x` is the unknown and only
     /// the lower-triangular part of `self` (including the diagonal) is considered not-zero.
+    #[must_use = "Did you mean to use ad_solve_lower_triangular_mut()?"]
     #[inline]
     pub fn ad_solve_lower_triangular<R2: Dim, C2: Dim, S2>(
         &self,
@@ -296,6 +301,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 
     /// Computes the solution of the linear system `self.adjoint() . x = b` where `x` is the unknown and only
     /// the upper-triangular part of `self` (including the diagonal) is considered not-zero.
+    #[must_use = "Did you mean to use ad_solve_upper_triangular_mut()?"]
     #[inline]
     pub fn ad_solve_upper_triangular<R2: Dim, C2: Dim, S2>(
         &self,
@@ -443,6 +449,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     /// Computes the solution of the linear system `self . x = b` where `x` is the unknown and only
     /// the lower-triangular part of `self` (including the diagonal) is considered not-zero.
+    #[must_use = "Did you mean to use solve_lower_triangular_unchecked_mut()?"]
     #[inline]
     pub fn solve_lower_triangular_unchecked<R2: Dim, C2: Dim, S2>(
         &self,
@@ -460,6 +467,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 
     /// Computes the solution of the linear system `self . x = b` where `x` is the unknown and only
     /// the upper-triangular part of `self` (including the diagonal) is considered not-zero.
+    #[must_use = "Did you mean to use solve_upper_triangular_unchecked_mut()?"]
     #[inline]
     pub fn solve_upper_triangular_unchecked<R2: Dim, C2: Dim, S2>(
         &self,
@@ -578,6 +586,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
      */
     /// Computes the solution of the linear system `self.transpose() . x = b` where `x` is the unknown and only
     /// the lower-triangular part of `self` (including the diagonal) is considered not-zero.
+    #[must_use = "Did you mean to use tr_solve_lower_triangular_unchecked_mut()?"]
     #[inline]
     pub fn tr_solve_lower_triangular_unchecked<R2: Dim, C2: Dim, S2>(
         &self,
@@ -595,6 +604,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 
     /// Computes the solution of the linear system `self.transpose() . x = b` where `x` is the unknown and only
     /// the upper-triangular part of `self` (including the diagonal) is considered not-zero.
+    #[must_use = "Did you mean to use tr_solve_upper_triangular_unchecked_mut()?"]
     #[inline]
     pub fn tr_solve_upper_triangular_unchecked<R2: Dim, C2: Dim, S2>(
         &self,
@@ -648,6 +658,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 
     /// Computes the solution of the linear system `self.adjoint() . x = b` where `x` is the unknown and only
     /// the lower-triangular part of `self` (including the diagonal) is considered not-zero.
+    #[must_use = "Did you mean to use ad_solve_lower_triangular_unchecked_mut()?"]
     #[inline]
     pub fn ad_solve_lower_triangular_unchecked<R2: Dim, C2: Dim, S2>(
         &self,
@@ -665,6 +676,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 
     /// Computes the solution of the linear system `self.adjoint() . x = b` where `x` is the unknown and only
     /// the upper-triangular part of `self` (including the diagonal) is considered not-zero.
+    #[must_use = "Did you mean to use ad_solve_upper_triangular_unchecked_mut()?"]
     #[inline]
     pub fn ad_solve_upper_triangular_unchecked<R2: Dim, C2: Dim, S2>(
         &self,

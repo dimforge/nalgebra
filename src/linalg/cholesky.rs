@@ -119,6 +119,7 @@ where
 
     /// Returns the solution of the system `self * x = b` where `self` is the decomposed matrix and
     /// `x` the unknown.
+    #[must_use = "Did you mean to use solve_mut()"]
     pub fn solve<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<T, R2, C2, S2>) -> OMatrix<T, R2, C2>
     where
         S2: Storage<T, R2, C2>,
@@ -131,6 +132,7 @@ where
     }
 
     /// Computes the inverse of the decomposed matrix.
+    #[must_use = "This function does not mutate self. Consider using the return value or dropping the function call."]
     pub fn inverse(&self) -> OMatrix<T, D, D> {
         let shape = self.chol.data.shape();
         let mut res = OMatrix::identity_generic(shape.0, shape.1);

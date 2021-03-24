@@ -340,6 +340,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     }
 
     /// Returns a new vector with the same magnitude as `self` clamped between `0.0` and `max`.
+    #[must_use = "This function does not mutate self but returns a new clamped version."]
     #[inline]
     pub fn cap_magnitude(&self, max: T::RealField) -> OMatrix<T, R, C>
     where
@@ -356,6 +357,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     }
 
     /// Returns a new vector with the same magnitude as `self` clamped between `0.0` and `max`.
+    #[must_use = "This function does not mutate self but returns a new clamped version."]
     #[inline]
     pub fn simd_cap_magnitude(&self, max: T::SimdRealField) -> OMatrix<T, R, C>
     where
