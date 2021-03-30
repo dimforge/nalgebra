@@ -22,6 +22,7 @@ mod linalg;
 
 #[cfg(feature = "proptest-support")]
 mod proptest;
+mod third_party;
 
 //#[cfg(feature = "sparse")]
 //mod sparse;
