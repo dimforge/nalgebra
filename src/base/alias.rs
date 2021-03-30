@@ -5,6 +5,7 @@ use crate::base::storage::Owned;
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::vec_storage::VecStorage;
 use crate::base::Matrix;
+use crate::base::Unit;
 
 /*
  *
@@ -305,3 +306,23 @@ pub type RowVector4<N> = Matrix<N, U1, U4, Owned<N, U1, U4>>;
 pub type RowVector5<N> = Matrix<N, U1, U5, Owned<N, U1, U5>>;
 /// A stack-allocated, 6-dimensional row vector.
 pub type RowVector6<N> = Matrix<N, U1, U6, Owned<N, U1, U6>>;
+
+/*
+ *
+ *
+ * Unit Vector.
+ *
+ *
+ */
+/// A stack-allocated, 1-dimensional unit vector.
+pub type UnitVector1<N> = Unit<Matrix<N, U1, U1, Owned<N, U1, U1>>>;
+/// A stack-allocated, 2-dimensional unit vector.
+pub type UnitVector2<N> = Unit<Matrix<N, U2, U1, Owned<N, U2, U1>>>;
+/// A stack-allocated, 3-dimensional unit vector.
+pub type UnitVector3<N> = Unit<Matrix<N, U3, U1, Owned<N, U3, U1>>>;
+/// A stack-allocated, 4-dimensional unit vector.
+pub type UnitVector4<N> = Unit<Matrix<N, U4, U1, Owned<N, U4, U1>>>;
+/// A stack-allocated, 5-dimensional unit vector.
+pub type UnitVector5<N> = Unit<Matrix<N, U5, U1, Owned<N, U5, U1>>>;
+/// A stack-allocated, 6-dimensional unit vector.
+pub type UnitVector6<N> = Unit<Matrix<N, U6, U1, Owned<N, U6, U1>>>;
