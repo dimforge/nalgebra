@@ -4,6 +4,10 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.25.4]
+### Fixed
+- Fix a compilation error when only the `serde-serialize` feature is enabled.
+
 ## [0.25.3]
 ### Added
 - The `Vector::simd_cap_magnitude` method to cap the magnitude of the a vector with
