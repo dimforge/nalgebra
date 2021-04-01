@@ -23,7 +23,7 @@ path = "src/lib.rs"
 
 [features]
 default         = [ "std" ]
-std             = [ "matrixmultiply", "simba/std" ]
+std             = [ "matrixmultiply", "simba/std", "serde/std" ]
 sparse = [ ]
 debug = [ "approx/num-complex", "rand" ]
 alloc = [ ]

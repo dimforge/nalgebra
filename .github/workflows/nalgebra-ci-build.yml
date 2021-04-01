@@ -34,6 +34,8 @@ jobs:
       run: cargo build --no-default-features;
     - name: Build (default features)
       run: cargo build;
+    - name: Build --features serde-serialize
+      run: cargo build --features serde-serialize
     - name: Build --all-features
       run: cargo build --all-features;
     - name: Build nalgebra-glm
