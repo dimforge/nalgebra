@@ -23,10 +23,10 @@ path = "src/lib.rs"
 
 [features]
 default         = [ "std" ]
-std             = [ "matrixmultiply", "simba/std" ]
+std             = [ "matrixmultiply", "simba/std", "serde/std" ]
 sparse = [ ]
 debug = [ "approx/num-complex", "rand" ]
-alloc = [ ]
+alloc = [ "serde/alloc" ]
 io = [ "pest", "pest_derive" ]
 compare = [ "matrixcompare-core" ]
 libm = [ "simba/libm" ]
