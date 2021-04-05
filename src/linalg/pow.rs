@@ -2,51 +2,57 @@
 
 use std::ops::DivAssign;
 
-use crate::{allocator::Allocator, DefaultAllocator, DimMin, DimMinimum, MatrixN};
+use crate::{allocator::Allocator, DefaultAllocator, DimMin, MatrixN};
 use num::PrimInt;
 use simba::scalar::ComplexField;
 
 impl<N: ComplexField, D> MatrixN<N, D>
 where
     D: DimMin<D, Output = D>,
-    DefaultAllocator: Allocator<N, D, D>
-        + Allocator<(usize, usize), DimMinimum<D, D>>
-        + Allocator<N, D>
-        + Allocator<N::RealField, D>
-        + Allocator<N::RealField, D, D>,
+    DefaultAllocator: Allocator<N, D, D>,
 {
-    /// Raises a matrix to an integer power using exponentiation by squares.
-    /// Returns `None` only when the matrix is non-invertible and raised to a
-    /// negative power.
-    pub fn pow<T: PrimInt + DivAssign>(&self, mut e: T) -> Option<Self> {
+    /// Attempts to raise this matrix to an integer power in-place. Returns
+    /// `false` and leaves `self` untouched if the power is negative and the
+    /// matrix is non-invertible.
+    pub fn pow_mut<T: PrimInt + DivAssign>(&mut self, mut e: T) -> bool {
         let zero = T::zero();
 
         if e == zero {
-            let mut i = self.clone();
-            i.fill_with_identity();
-            return Some(i);
+            self.fill_with_identity();
+            return true;
         }
 
-        let mut acc;
         if e < zero {
-            acc = self.clone().try_inverse()?;
-        } else {
-            acc = self.clone();
+            if !self.try_inverse_mut() {
+                return false;
+            }
         }
 
         let one = T::one();
         let two = T::from(2u8).unwrap();
-        let mut multiplier = acc.clone();
+        let mut multiplier = self.clone();
 
         while e != zero {
             if e % two == one {
-                acc *= &multiplier;
+                *self *= &multiplier;
             }
 
             e /= two;
             multiplier *= multiplier.clone();
         }
 
-        Some(acc)
+        true
+    }
+
+    /// Raise this matrix to an integer power. Returns `None` only if the power
+    /// is negative and the matrix is non-invertible.
+    pub fn pow<T: PrimInt + DivAssign>(&self, e: T) -> Option<Self> {
+        let mut clone = self.clone();
+
+        if clone.pow_mut(e) {
+            Some(clone)
+        } else {
+            None
+        }
     }
 }
