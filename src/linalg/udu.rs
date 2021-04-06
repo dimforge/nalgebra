@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, MatrixN, VectorN, U1};
+use crate::base::{Const, DefaultAllocator, MatrixN, VectorN};
 use crate::dimension::Dim;
 use crate::storage::Storage;
 use simba::scalar::RealField;
@@ -52,7 +52,7 @@ where
         let n = p.ncols();
         let n_dim = p.data.shape().1;
 
-        let mut d = VectorN::zeros_generic(n_dim, U1);
+        let mut d = VectorN::zeros_generic(n_dim, Const::<1>);
         let mut u = MatrixN::zeros_generic(n_dim, n_dim);
 
         d[n - 1] = p[(n - 1, n - 1)];

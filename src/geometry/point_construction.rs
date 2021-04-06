@@ -12,8 +12,8 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::{DefaultAllocator, Scalar, VectorN};
 use crate::{
-    Point1, Point2, Point3, Point4, Point5, Point6, Vector1, Vector2, Vector3, Vector4, Vector5,
-    Vector6,
+    Const, Point1, Point2, Point3, Point4, Point5, Point6, Vector1, Vector2, Vector3, Vector4,
+    Vector5, Vector6,
 };
 use simba::scalar::{ClosedDiv, SupersetOf};
 
@@ -29,7 +29,7 @@ where
     pub unsafe fn new_uninitialized() -> Self {
         Self::from(crate::unimplemented_or_uninitialized_generic!(
             D::name(),
-            U1
+            Const::<1>
         ))
     }
 

@@ -37,7 +37,7 @@ impl<N: Scalar, const R: usize, const C: usize> Allocator<N, Const<R>, Const<C>>
     type Buffer = ArrayStorage<N, R, C>;
 
     #[inline]
-    unsafe fn allocate_uninitialized(_: R, _: C) -> mem::MaybeUninit<Self::Buffer> {
+    unsafe fn allocate_uninitialized(_: Const<R>, _: Const<C>) -> mem::MaybeUninit<Self::Buffer> {
         mem::MaybeUninit::<Self::Buffer>::uninit()
     }
 
@@ -146,12 +146,13 @@ where
         rto: Const<RTO>,
         cto: Const<CTO>,
         buf: <Self as Allocator<N, RFrom, CFrom>>::Buffer,
-    ) -> ArrayStorage<N, RTo, CTo> {
+    ) -> ArrayStorage<N, RTO, CTO> {
         #[cfg(feature = "no_unsound_assume_init")]
-        let mut res: ArrayStorage<N, RTo, CTo> = unimplemented!();
+        let mut res: ArrayStorage<N, RTO, CTO> = unimplemented!();
         #[cfg(not(feature = "no_unsound_assume_init"))]
         let mut res =
-            <Self as Allocator<N, RTo, CTo>>::allocate_uninitialized(rto, cto).assume_init();
+            <Self as Allocator<N, Const<RTO>, Const<CTO>>>::allocate_uninitialized(rto, cto)
+                .assume_init();
 
         let (rfrom, cfrom) = buf.shape();
 

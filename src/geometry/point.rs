@@ -17,7 +17,7 @@ use simba::simd::SimdPartialOrd;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
-use crate::base::{DefaultAllocator, Scalar, VectorN};
+use crate::base::{Const, DefaultAllocator, Scalar, VectorN};
 
 /// A point in an euclidean space.
 ///
@@ -202,7 +202,7 @@ where
         let mut res = unsafe {
             crate::unimplemented_or_uninitialized_generic!(
                 <DimNameSum<D, U1> as DimName>::name(),
-                U1
+                Const::<1>
             )
         };
         res.fixed_slice_mut::<D, U1>(0, 0).copy_from(&self.coords);

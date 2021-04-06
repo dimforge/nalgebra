@@ -3,9 +3,9 @@ use num::Zero;
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::{Allocator, Reallocator};
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
+use crate::base::{Const, DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimMin, DimMinimum, U1};
+use crate::dimension::{Dim, DimMin, DimMinimum};
 use crate::storage::{Storage, StorageMut};
 use crate::ComplexField;
 
@@ -67,7 +67,7 @@ where
         let mut p = PermutationSequence::identity_generic(min_nrows_ncols);
 
         let mut diag =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(min_nrows_ncols, U1) };
+            unsafe { crate::unimplemented_or_uninitialized_generic!(min_nrows_ncols, Const::<1>) };
 
         if min_nrows_ncols.value() == 0 {
             return ColPivQR {
