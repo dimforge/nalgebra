@@ -18,8 +18,8 @@ use simba::scalar::RealField;
 use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use crate::base::{DefaultAllocator, MatrixN, Scalar, Unit, VectorN};
+use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
+use crate::base::{CMatrixN, CVectorN, Const, DefaultAllocator, MatrixN, Scalar, Unit};
 use crate::geometry::Point;
 
 /// A rotation matrix.
@@ -55,34 +55,33 @@ use crate::geometry::Point;
 ///
 #[repr(C)]
 #[derive(Debug)]
-pub struct Rotation<N: Scalar, D: DimName>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+pub struct Rotation<N: Scalar, const D: usize>
+// where
+//     DefaultAllocator: Allocator<N, D, D>,
 {
-    matrix: MatrixN<N, D>,
+    matrix: CMatrixN<N, D>,
 }
 
-impl<N: Scalar + hash::Hash, D: DimName + hash::Hash> hash::Hash for Rotation<N, D>
+impl<N: Scalar + hash::Hash, const D: usize> hash::Hash for Rotation<N, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
-    <DefaultAllocator as Allocator<N, D, D>>::Buffer: hash::Hash,
+    // DefaultAllocator: Allocator<N, D, D>,
+    <DefaultAllocator as Allocator<N, Const<D>, Const<D>>>::Buffer: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.matrix.hash(state)
     }
 }
 
-impl<N: Scalar + Copy, D: DimName> Copy for Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
-    <DefaultAllocator as Allocator<N, D, D>>::Buffer: Copy,
+impl<N: Scalar + Copy, const D: usize> Copy for Rotation<N, D> where
+    // DefaultAllocator: Allocator<N, D, D>,
+    <DefaultAllocator as Allocator<N, Const<D>, Const<D>>>::Buffer: Copy
 {
 }
 
-impl<N: Scalar, D: DimName> Clone for Rotation<N, D>
+impl<N: Scalar, const D: usize> Clone for Rotation<N, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
-    <DefaultAllocator as Allocator<N, D, D>>::Buffer: Clone,
+    // DefaultAllocator: Allocator<N, D, D>,
+    <DefaultAllocator as Allocator<N, Const<D>, Const<D>>>::Buffer: Clone,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -91,12 +90,11 @@ where
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N, D> Abomonation for Rotation<N, D>
+impl<N, const D: usize> Abomonation for Rotation<N, D>
 where
     N: Scalar,
-    D: DimName,
-    MatrixN<N, D>: Abomonation,
-    DefaultAllocator: Allocator<N, D, D>,
+    CMatrixN<N, Const<D>>: Abomonation,
+    // DefaultAllocator: Allocator<N, D, D>,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.matrix.entomb(writer)
@@ -112,9 +110,9 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Scalar, D: DimName> Serialize for Rotation<N, D>
+impl<N: Scalar, const D: usize> Serialize for Rotation<N, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    // DefaultAllocator: Allocator<N, D, D>,
     Owned<N, D, D>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -126,24 +124,24 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Scalar, D: DimName> Deserialize<'a> for Rotation<N, D>
+impl<'a, N: Scalar, const D: usize> Deserialize<'a> for Rotation<N, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    // DefaultAllocator: Allocator<N, D, D>,
     Owned<N, D, D>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
         Des: Deserializer<'a>,
     {
-        let matrix = MatrixN::<N, D>::deserialize(deserializer)?;
+        let matrix = CMatrixN::<N, D>::deserialize(deserializer)?;
 
         Ok(Self::from_matrix_unchecked(matrix))
     }
 }
 
-impl<N: Scalar, D: DimName> Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+impl<N: Scalar, const D: usize> Rotation<N, D>
+// where
+//     DefaultAllocator: Allocator<N, D, D>,
 {
     /// Creates a new rotation from the given square matrix.
     ///
@@ -168,7 +166,7 @@ where
     /// assert_eq!(*rot.matrix(), mat);
     /// ```
     #[inline]
-    pub fn from_matrix_unchecked(matrix: MatrixN<N, D>) -> Self {
+    pub fn from_matrix_unchecked(matrix: CMatrixN<N, D>) -> Self {
         assert!(
             matrix.is_square(),
             "Unable to create a rotation from a non-square matrix."
@@ -179,9 +177,9 @@ where
 }
 
 /// # Conversion to a matrix
-impl<N: Scalar, D: DimName> Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+impl<N: Scalar, const D: usize> Rotation<N, D>
+// where
+//     DefaultAllocator: Allocator<N, D, D>,
 {
     /// A reference to the underlying matrix representation of this rotation.
     ///
@@ -202,14 +200,14 @@ where
     /// assert_eq!(*rot.matrix(), expected);
     /// ```
     #[inline]
-    pub fn matrix(&self) -> &MatrixN<N, D> {
+    pub fn matrix(&self) -> &CMatrixN<N, D> {
         &self.matrix
     }
 
     /// A mutable reference to the underlying matrix representation of this rotation.
     #[inline]
     #[deprecated(note = "Use `.matrix_mut_unchecked()` instead.")]
-    pub unsafe fn matrix_mut(&mut self) -> &mut MatrixN<N, D> {
+    pub unsafe fn matrix_mut(&mut self) -> &mut CMatrixN<N, D> {
         &mut self.matrix
     }
 
@@ -219,7 +217,7 @@ where
     /// non-square, non-inversible, or non-orthonormal. If one of those properties is broken,
     /// subsequent method calls may be UB.
     #[inline]
-    pub fn matrix_mut_unchecked(&mut self) -> &mut MatrixN<N, D> {
+    pub fn matrix_mut_unchecked(&mut self) -> &mut CMatrixN<N, D> {
         &mut self.matrix
     }
 
@@ -244,7 +242,7 @@ where
     /// assert_eq!(mat, expected);
     /// ```
     #[inline]
-    pub fn into_inner(self) -> MatrixN<N, D> {
+    pub fn into_inner(self) -> CMatrixN<N, D> {
         self.matrix
     }
 
@@ -252,7 +250,7 @@ where
     /// Deprecated: Use [Rotation::into_inner] instead.
     #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
-    pub fn unwrap(self) -> MatrixN<N, D> {
+    pub fn unwrap(self) -> CMatrixN<N, D> {
         self.matrix
     }
 
@@ -279,13 +277,13 @@ where
     /// assert_eq!(rot.to_homogeneous(), expected);
     /// ```
     #[inline]
-    pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<D, U1>>
+    pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<Const<D>, U1>>
     where
         N: Zero + One,
-        D: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+        Const<D>: DimNameAdd<U1>,
+        DefaultAllocator: Allocator<N, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
-        // We could use `MatrixN::to_homogeneous()` here, but that would imply
+        // We could use `CMatrixN::to_homogeneous()` here, but that would imply
         // adding the additional traits `DimAdd` and `IsNotStaticOne`. Maybe
         // these things will get nicer once specialization lands in Rust.
         let mut res = MatrixN::<N, DimNameSum<D, U1>>::identity();
@@ -296,9 +294,9 @@ where
 }
 
 /// # Transposition and inversion
-impl<N: Scalar, D: DimName> Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+impl<N: Scalar, const D: usize> Rotation<N, D>
+// where
+//     DefaultAllocator: Allocator<N, D, D>,
 {
     /// Transposes `self`.
     ///
@@ -404,10 +402,10 @@ where
 }
 
 /// # Transformation of a vector or a point
-impl<N: SimdRealField, D: DimName> Rotation<N, D>
+impl<N: SimdRealField, const D: usize> Rotation<N, D>
 where
     N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    // DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
     /// Rotate the given point.
     ///
@@ -443,7 +441,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+    pub fn transform_vector(&self, v: &CVectorN<N, D>) -> CVectorN<N, D> {
         self * v
     }
 
@@ -481,7 +479,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+    pub fn inverse_transform_vector(&self, v: &CVectorN<N, D>) -> CVectorN<N, D> {
         self.matrix().tr_mul(v)
     }
 
@@ -500,16 +498,19 @@ where
     /// assert_relative_eq!(transformed_vector, -Vector3::y_axis(), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn inverse_transform_unit_vector(&self, v: &Unit<VectorN<N, D>>) -> Unit<VectorN<N, D>> {
+    pub fn inverse_transform_unit_vector(&self, v: &Unit<CVectorN<N, D>>) -> Unit<CVectorN<N, D>> {
         Unit::new_unchecked(self.inverse_transform_vector(&**v))
     }
 }
 
-impl<N: Scalar + Eq, D: DimName> Eq for Rotation<N, D> where DefaultAllocator: Allocator<N, D, D> {}
+impl<N: Scalar + Eq, const D: usize> Eq for Rotation<N, D>
+// where DefaultAllocator: Allocator<N, D, D>
+{
+}
 
-impl<N: Scalar + PartialEq, D: DimName> PartialEq for Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
+impl<N: Scalar + PartialEq, const D: usize> PartialEq for Rotation<N, D>
+// where
+//     DefaultAllocator: Allocator<N, D, D>,
 {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
@@ -517,10 +518,10 @@ where
     }
 }
 
-impl<N, D: DimName> AbsDiffEq for Rotation<N, D>
+impl<N, const D: usize> AbsDiffEq for Rotation<N, D>
 where
     N: Scalar + AbsDiffEq,
-    DefaultAllocator: Allocator<N, D, D>,
+    // DefaultAllocator: Allocator<N, D, D>,
     N::Epsilon: Copy,
 {
     type Epsilon = N::Epsilon;
@@ -536,10 +537,10 @@ where
     }
 }
 
-impl<N, D: DimName> RelativeEq for Rotation<N, D>
+impl<N, const D: usize> RelativeEq for Rotation<N, D>
 where
     N: Scalar + RelativeEq,
-    DefaultAllocator: Allocator<N, D, D>,
+    // DefaultAllocator: Allocator<N, D, D>,
     N::Epsilon: Copy,
 {
     #[inline]
@@ -559,10 +560,10 @@ where
     }
 }
 
-impl<N, D: DimName> UlpsEq for Rotation<N, D>
+impl<N, const D: usize> UlpsEq for Rotation<N, D>
 where
     N: Scalar + UlpsEq,
-    DefaultAllocator: Allocator<N, D, D>,
+    // DefaultAllocator: Allocator<N, D, D>,
     N::Epsilon: Copy,
 {
     #[inline]
@@ -581,10 +582,10 @@ where
  * Display
  *
  */
-impl<N, D: DimName> fmt::Display for Rotation<N, D>
+impl<N, const D: usize> fmt::Display for Rotation<N, D>
 where
     N: RealField + fmt::Display,
-    DefaultAllocator: Allocator<N, D, D> + Allocator<usize, D, D>,
+    // DefaultAllocator: Allocator<N, D, D> + Allocator<usize, D, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);

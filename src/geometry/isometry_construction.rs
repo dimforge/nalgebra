@@ -13,9 +13,8 @@ use rand::{
 use simba::scalar::SupersetOf;
 use simba::simd::SimdRealField;
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, U2};
-use crate::base::{DefaultAllocator, Vector2, Vector3};
+use crate::base::dimension::U2;
+use crate::base::{Vector2, Vector3};
 
 use crate::{
     AbstractRotation, Isometry, Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3, Point,
@@ -23,10 +22,10 @@ use crate::{
     UnitQuaternion,
 };
 
-impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D>> Isometry<N, D, R>
+impl<N: SimdRealField, R: AbstractRotation<N, D>, const D: usize> Isometry<N, R, D>
 where
     N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, D>,
+    // DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity isometry.
     ///
@@ -71,10 +70,10 @@ where
     }
 }
 
-impl<N: SimdRealField, D: DimName, R: AbstractRotation<N, D>> One for Isometry<N, D, R>
+impl<N: SimdRealField, R: AbstractRotation<N, D>, const D: usize> One for Isometry<N, R, D>
 where
     N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, D>,
+    // DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity isometry.
     #[inline]
@@ -84,26 +83,26 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<N: crate::RealField, D: DimName, R> Distribution<Isometry<N, D, R>> for Standard
+impl<N: crate::RealField, R, const D: usize> Distribution<Isometry<N, R, D>> for Standard
 where
     R: AbstractRotation<N, D>,
     Standard: Distribution<N> + Distribution<R>,
-    DefaultAllocator: Allocator<N, D>,
+    // DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Isometry<N, D, R> {
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Isometry<N, R, D> {
         Isometry::from_parts(rng.gen(), rng.gen())
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N, D: DimName, R> Arbitrary for Isometry<N, D, R>
+impl<N, R, const D: usize> Arbitrary for Isometry<N, R, D>
 where
     N: SimdRealField + Arbitrary + Send,
     N::Element: SimdRealField,
     R: AbstractRotation<N, D> + Arbitrary + Send,
     Owned<N, D>: Send,
-    DefaultAllocator: Allocator<N, D>,
+    // DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn arbitrary(rng: &mut Gen) -> Self {

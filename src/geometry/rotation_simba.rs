@@ -1,17 +1,14 @@
 use simba::simd::SimdValue;
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::DimName;
-use crate::base::{DefaultAllocator, MatrixN, Scalar};
+use crate::base::{MatrixN, Scalar};
 
 use crate::geometry::Rotation;
 
-impl<N, D> SimdValue for Rotation<N, D>
+impl<N, const D: usize> SimdValue for Rotation<N, D>
 where
     N: Scalar + SimdValue,
-    D: DimName,
     N::Element: Scalar,
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
+    // DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
 {
     type Element = Rotation<N::Element, D>;
     type SimdBool = N::SimdBool;

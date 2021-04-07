@@ -13,20 +13,18 @@ use rand::{
 use simba::scalar::SupersetOf;
 use simba::simd::SimdRealField;
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, U2, U3};
-use crate::base::{DefaultAllocator, Vector2, Vector3};
+use crate::base::{Vector2, Vector3};
 
 use crate::{
     AbstractRotation, Isometry, Point, Point3, Rotation2, Rotation3, Scalar, Similarity,
     Translation, UnitComplex, UnitQuaternion,
 };
 
-impl<N: SimdRealField, D: DimName, R> Similarity<N, D, R>
+impl<N: SimdRealField, R, const D: usize> Similarity<N, R, D>
 where
     N::Element: SimdRealField,
     R: AbstractRotation<N, D>,
-    DefaultAllocator: Allocator<N, D>,
+    // DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity similarity.
     ///
@@ -49,11 +47,11 @@ where
     }
 }
 
-impl<N: SimdRealField, D: DimName, R> One for Similarity<N, D, R>
+impl<N: SimdRealField, R, const D: usize> One for Similarity<N, R, D>
 where
     N::Element: SimdRealField,
     R: AbstractRotation<N, D>,
-    DefaultAllocator: Allocator<N, D>,
+    // DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity similarity.
     #[inline]
@@ -63,15 +61,15 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<N: crate::RealField, D: DimName, R> Distribution<Similarity<N, D, R>> for Standard
+impl<N: crate::RealField, R, const D: usize> Distribution<Similarity<N, R, D>> for Standard
 where
     R: AbstractRotation<N, D>,
-    DefaultAllocator: Allocator<N, D>,
+    // DefaultAllocator: Allocator<N, D>,
     Standard: Distribution<N> + Distribution<R>,
 {
     /// Generate an arbitrary random variate for testing purposes.
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Similarity<N, D, R> {
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Similarity<N, R, D> {
         let mut s = rng.gen();
         while relative_eq!(s, N::zero()) {
             s = rng.gen()
@@ -81,11 +79,11 @@ where
     }
 }
 
-impl<N: SimdRealField, D: DimName, R> Similarity<N, D, R>
+impl<N: SimdRealField, R, const D: usize> Similarity<N, R, D>
 where
     N::Element: SimdRealField,
     R: AbstractRotation<N, D>,
-    DefaultAllocator: Allocator<N, D>,
+    // DefaultAllocator: Allocator<N, D>,
 {
     /// The similarity that applies the scaling factor `scaling`, followed by the rotation `r` with
     /// its axis passing through the point `p`.
@@ -110,12 +108,12 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N, D: DimName, R> Arbitrary for Similarity<N, D, R>
+impl<N, R, const D: usize> Arbitrary for Similarity<N, R, D>
 where
     N: crate::RealField + Arbitrary + Send,
     N::Element: crate::RealField,
     R: AbstractRotation<N, D> + Arbitrary + Send,
-    DefaultAllocator: Allocator<N, D>,
+    // DefaultAllocator: Allocator<N, D>,
     Owned<N, D>: Send,
 {
     #[inline]
@@ -136,7 +134,7 @@ where
  */
 
 // 2D similarity.
-impl<N: SimdRealField> Similarity<N, U2, Rotation2<N>>
+impl<N: SimdRealField> Similarity<N, Rotation2<N>, 2>
 where
     N::Element: SimdRealField,
 {
@@ -170,15 +168,15 @@ where
     /// let sim2 = sim.cast::<f32>();
     /// assert_eq!(sim2, SimilarityMatrix2::<f32>::identity());
     /// ```
-    pub fn cast<To: Scalar>(self) -> Similarity<To, U2, Rotation2<To>>
+    pub fn cast<To: Scalar>(self) -> Similarity<To, Rotation2<To>, 2>
     where
-        Similarity<To, U2, Rotation2<To>>: SupersetOf<Self>,
+        Similarity<To, Rotation2<To>, 2>: SupersetOf<Self>,
     {
         crate::convert(self)
     }
 }
 
-impl<N: SimdRealField> Similarity<N, U2, UnitComplex<N>>
+impl<N: SimdRealField> Similarity<N, UnitComplex<N>, 2>
 where
     N::Element: SimdRealField,
 {
@@ -212,9 +210,9 @@ where
     /// let sim2 = sim.cast::<f32>();
     /// assert_eq!(sim2, Similarity2::<f32>::identity());
     /// ```
-    pub fn cast<To: Scalar>(self) -> Similarity<To, U2, UnitComplex<To>>
+    pub fn cast<To: Scalar>(self) -> Similarity<To, UnitComplex<To>, 2>
     where
-        Similarity<To, U2, UnitComplex<To>>: SupersetOf<Self>,
+        Similarity<To, UnitComplex<To>, 2>: SupersetOf<Self>,
     {
         crate::convert(self)
     }
@@ -223,7 +221,7 @@ where
 // 3D rotation.
 macro_rules! similarity_construction_impl(
     ($Rot: ident) => {
-        impl<N: SimdRealField> Similarity<N, U3, $Rot<N>>
+        impl<N: SimdRealField> Similarity<N, $Rot<N>, 3>
         where N::Element: SimdRealField {
             /// Creates a new similarity from a translation, rotation axis-angle, and scaling
             /// factor.
@@ -253,7 +251,7 @@ macro_rules! similarity_construction_impl(
             #[inline]
             pub fn new(translation: Vector3<N>, axisangle: Vector3<N>, scaling: N) -> Self
             {
-                Self::from_isometry(Isometry::<_, U3, $Rot<N>>::new(translation, axisangle), scaling)
+                Self::from_isometry(Isometry::<_, $Rot<N>, 3>::new(translation, axisangle), scaling)
             }
 
             /// Cast the components of `self` to another type.
@@ -265,9 +263,9 @@ macro_rules! similarity_construction_impl(
             /// let sim2 = sim.cast::<f32>();
             /// assert_eq!(sim2, Similarity3::<f32>::identity());
             /// ```
-            pub fn cast<To: Scalar>(self) -> Similarity<To, U3, $Rot<To>>
+            pub fn cast<To: Scalar>(self) -> Similarity<To, $Rot<To>, 3>
             where
-                Similarity<To, U3, $Rot<To>>: SupersetOf<Self>,
+                Similarity<To, $Rot<To>, 3>: SupersetOf<Self>,
             {
                 crate::convert(self)
             }
@@ -306,20 +304,20 @@ macro_rules! similarity_construction_impl(
             /// ```
             #[inline]
             pub fn face_towards(eye:    &Point3<N>,
-                                      target: &Point3<N>,
-                                      up:     &Vector3<N>,
-                                      scaling: N)
-                                      -> Self {
-                Self::from_isometry(Isometry::<_, U3, $Rot<N>>::face_towards(eye, target, up), scaling)
+                                target: &Point3<N>,
+                                up:     &Vector3<N>,
+                                scaling: N)
+                                -> Self {
+                Self::from_isometry(Isometry::<_, $Rot<N>, 3>::face_towards(eye, target, up), scaling)
             }
 
             /// Deprecated: Use [SimilarityMatrix3::face_towards] instead.
             #[deprecated(note="renamed to `face_towards`")]
             pub fn new_observer_frames(eye:    &Point3<N>,
-                                      target: &Point3<N>,
-                                      up:     &Vector3<N>,
-                                      scaling: N)
-                                      -> Self {
+                                       target: &Point3<N>,
+                                       up:     &Vector3<N>,
+                                       scaling: N)
+                                       -> Self {
                 Self::face_towards(eye, target, up, scaling)
             }
 
@@ -358,7 +356,7 @@ macro_rules! similarity_construction_impl(
                               up:      &Vector3<N>,
                               scaling: N)
                               -> Self {
-                Self::from_isometry(Isometry::<_, U3, $Rot<N>>::look_at_rh(eye, target, up), scaling)
+                Self::from_isometry(Isometry::<_, $Rot<N>, 3>::look_at_rh(eye, target, up), scaling)
             }
 
             /// Builds a left-handed look-at view matrix including a scaling factor.
@@ -396,7 +394,7 @@ macro_rules! similarity_construction_impl(
                               up:      &Vector3<N>,
                               scaling: N)
                               -> Self {
-                Self::from_isometry(Isometry::<_, _, $Rot<N>>::look_at_lh(eye, target, up), scaling)
+                Self::from_isometry(Isometry::<_, $Rot<N>, _>::look_at_lh(eye, target, up), scaling)
             }
         }
     }

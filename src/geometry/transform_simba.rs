@@ -2,19 +2,20 @@ use simba::simd::SimdValue;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
-use crate::base::{DefaultAllocator, MatrixN, Scalar};
+use crate::base::{Const, DefaultAllocator, MatrixN, Scalar};
 use crate::RealField;
 
 use crate::geometry::{TCategory, Transform};
 
-impl<N: RealField, D: DimNameAdd<U1>, C> SimdValue for Transform<N, D, C>
+impl<N: RealField, C, const D: usize> SimdValue for Transform<N, C, D>
 where
     N::Element: Scalar,
     C: TCategory,
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
-        + Allocator<N::Element, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<N, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<N::Element, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
-    type Element = Transform<N::Element, D, C>;
+    type Element = Transform<N::Element, C, D>;
     type SimdBool = N::SimdBool;
 
     #[inline]

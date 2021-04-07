@@ -9,7 +9,7 @@ use rand::{
 };
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{DefaultAllocator, Scalar, VectorN};
 use crate::{
     Const, Point1, Point2, Point3, Point4, Point5, Point6, Vector1, Vector2, Vector3, Vector4,
@@ -20,16 +20,15 @@ use simba::scalar::{ClosedDiv, SupersetOf};
 use crate::geometry::Point;
 
 /// # Other construction methods
-impl<N: Scalar, D: DimName> Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+impl<N: Scalar, const D: usize> Point<N, D>
+// where
+//     DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new point with uninitialized coordinates.
     #[inline]
     pub unsafe fn new_uninitialized() -> Self {
         Self::from(crate::unimplemented_or_uninitialized_generic!(
-            D::name(),
-            Const::<1>
+            Const::<D>, Const::<1>
         ))
     }
 
@@ -106,14 +105,14 @@ where
     /// assert_eq!(pt, Some(Point2::new(1.0, 2.0)));
     /// ```
     #[inline]
-    pub fn from_homogeneous(v: VectorN<N, DimNameSum<D, U1>>) -> Option<Self>
+    pub fn from_homogeneous(v: VectorN<N, DimNameSum<Const<D>, U1>>) -> Option<Self>
     where
         N: Scalar + Zero + One + ClosedDiv,
-        D: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<N, DimNameSum<D, U1>>,
+        Const<D>: DimNameAdd<U1>,
+        DefaultAllocator: Allocator<N, DimNameSum<Const<D>, U1>>,
     {
-        if !v[D::dim()].is_zero() {
-            let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()].inlined_clone();
+        if !v[D].is_zero() {
+            let coords = v.fixed_slice::<Const<D>, U1>(0, 0) / v[D].inlined_clone();
             Some(Self::from(coords))
         } else {
             None
@@ -132,7 +131,7 @@ where
     pub fn cast<To: Scalar>(self) -> Point<To, D>
     where
         Point<To, D>: SupersetOf<Self>,
-        DefaultAllocator: Allocator<To, D>,
+        // DefaultAllocator: Allocator<To, D>,
     {
         crate::convert(self)
     }
@@ -143,9 +142,9 @@ where
  * Traits that build points.
  *
  */
-impl<N: Scalar + Bounded, D: DimName> Bounded for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+impl<N: Scalar + Bounded, const D: usize> Bounded for Point<N, D>
+// where
+//     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn max_value() -> Self {
@@ -159,9 +158,9 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<N: Scalar, D: DimName> Distribution<Point<N, D>> for Standard
+impl<N: Scalar, const D: usize> Distribution<Point<N, D>> for Standard
 where
-    DefaultAllocator: Allocator<N, D>,
+    // DefaultAllocator: Allocator<N, D>,
     Standard: Distribution<N>,
 {
      /// Generate a `Point` where each coordinate is an independent variate from `[0, 1)`.
@@ -172,10 +171,10 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Scalar + Arbitrary + Send, D: DimName> Arbitrary for Point<N, D>
+impl<N: Scalar + Arbitrary + Send, const D: usize> Arbitrary for Point<N, D>
 where
-    DefaultAllocator: Allocator<N, D>,
-    <DefaultAllocator as Allocator<N, D>>::Buffer: Send,
+    // DefaultAllocator: Allocator<N, D>,
+    <DefaultAllocator as Allocator<N, Const<D>>>::Buffer: Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {

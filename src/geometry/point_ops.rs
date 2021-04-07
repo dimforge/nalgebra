@@ -11,7 +11,7 @@ use crate::base::constraint::{
 };
 use crate::base::dimension::{Dim, DimName, U1};
 use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, Matrix, Scalar, Vector, VectorSum};
+use crate::base::{Const, DefaultAllocator, Matrix, Scalar, Vector, VectorSum};
 
 use crate::geometry::Point;
 
@@ -20,9 +20,9 @@ use crate::geometry::Point;
  * Indexing.
  *
  */
-impl<N: Scalar, D: DimName> Index<usize> for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+impl<N: Scalar, const D: usize> Index<usize> for Point<N, D>
+// where
+//     DefaultAllocator: Allocator<N, D>,
 {
     type Output = N;
 
@@ -32,9 +32,9 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> IndexMut<usize> for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+impl<N: Scalar, const D: usize> IndexMut<usize> for Point<N, D>
+// where
+//     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn index_mut(&mut self, i: usize) -> &mut Self::Output {
@@ -47,9 +47,9 @@ where
  * Neg.
  *
  */
-impl<N: Scalar + ClosedNeg, D: DimName> Neg for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+impl<N: Scalar + ClosedNeg, const D: usize> Neg for Point<N, D>
+// where
+//     DefaultAllocator: Allocator<N, D>,
 {
     type Output = Self;
 
@@ -59,9 +59,9 @@ where
     }
 }
 
-impl<'a, N: Scalar + ClosedNeg, D: DimName> Neg for &'a Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+impl<'a, N: Scalar + ClosedNeg, const D: usize> Neg for &'a Point<N, D>
+// where
+//     DefaultAllocator: Allocator<N, D>,
 {
     type Output = Point<N, D>;
 
@@ -79,22 +79,22 @@ where
 
 // Point - Point
 add_sub_impl!(Sub, sub, ClosedSub;
-    (D, U1), (D, U1) for D: DimName;
+    (D, U1), (D, U1);
     self: &'a Point<N, D>, right: &'b Point<N, D>, Output = VectorSum<N, D, D>;
     &self.coords - &right.coords; 'a, 'b);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (D, U1), (D, U1) for D: DimName;
+    (D, U1), (D, U1);
     self: &'a Point<N, D>, right: Point<N, D>, Output = VectorSum<N, D, D>;
     &self.coords - right.coords; 'a);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (D, U1), (D, U1) for D: DimName;
+    (D, U1), (D, U1);
     self: Point<N, D>, right: &'b Point<N, D>, Output = VectorSum<N, D, D>;
     self.coords - &right.coords; 'b);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (D, U1), (D, U1) for D: DimName;
+    (D, U1), (D, U1);
     self: Point<N, D>, right: Point<N, D>, Output = VectorSum<N, D, D>;
     self.coords - right.coords; );
 
@@ -143,11 +143,11 @@ add_sub_impl!(Add, add, ClosedAdd;
 // XXX: replace by the shared macro: add_sub_assign_impl
 macro_rules! op_assign_impl(
     ($($TraitAssign: ident, $method_assign: ident, $bound: ident);* $(;)*) => {$(
-        impl<'b, N, D1: DimName, D2: Dim, SB> $TraitAssign<&'b Vector<N, D2, SB>> for Point<N, D1>
+        impl<'b, N, D2: Dim, SB, const D1: usize> $TraitAssign<&'b Vector<N, D2, SB>> for Point<N, D1>
             where N: Scalar + $bound,
                   SB: Storage<N, D2>,
-                  DefaultAllocator: Allocator<N, D1>,
-                  ShapeConstraint: SameNumberOfRows<D1, D2> {
+                  // DefaultAllocator: Allocator<N, D1>,
+                  ShapeConstraint: SameNumberOfRows<Const<D1>, D2> {
 
             #[inline]
             fn $method_assign(&mut self, right: &'b Vector<N, D2, SB>) {
@@ -155,10 +155,10 @@ macro_rules! op_assign_impl(
             }
         }
 
-        impl<N, D1: DimName, D2: Dim, SB> $TraitAssign<Vector<N, D2, SB>> for Point<N, D1>
+        impl<N, D2: Dim, SB, const D1: usize> $TraitAssign<Vector<N, D2, SB>> for Point<N, D1>
             where N: Scalar + $bound,
                   SB: Storage<N, D2>,
-                  DefaultAllocator: Allocator<N, D1>,
+                  // DefaultAllocator: Allocator<N, D1>,
                   ShapeConstraint: SameNumberOfRows<D1, D2> {
 
             #[inline]
@@ -198,8 +198,9 @@ md_impl_all!(
 macro_rules! componentwise_scalarop_impl(
     ($Trait: ident, $method: ident, $bound: ident;
      $TraitAssign: ident, $method_assign: ident) => {
-        impl<N: Scalar + $bound, D: DimName> $Trait<N> for Point<N, D>
-            where DefaultAllocator: Allocator<N, D> {
+        impl<N: Scalar + $bound, const D: usize> $Trait<N> for Point<N, D>
+            // where DefaultAllocator: Allocator<N, D>
+        {
             type Output = Point<N, D>;
 
             #[inline]
@@ -208,8 +209,9 @@ macro_rules! componentwise_scalarop_impl(
             }
         }
 
-        impl<'a, N: Scalar + $bound, D: DimName> $Trait<N> for &'a Point<N, D>
-            where DefaultAllocator: Allocator<N, D> {
+        impl<'a, N: Scalar + $bound, const D: usize> $Trait<N> for &'a Point<N, D>
+            // where DefaultAllocator: Allocator<N, D>
+        {
             type Output = Point<N, D>;
 
             #[inline]
@@ -218,8 +220,9 @@ macro_rules! componentwise_scalarop_impl(
             }
         }
 
-        impl<N: Scalar + $bound, D: DimName> $TraitAssign<N> for Point<N, D>
-            where DefaultAllocator: Allocator<N, D> {
+        impl<N: Scalar + $bound, const D: usize> $TraitAssign<N> for Point<N, D>
+            /* where DefaultAllocator: Allocator<N, D> */
+        {
             #[inline]
             fn $method_assign(&mut self, right: N) {
                 self.coords.$method_assign(right)
@@ -233,8 +236,9 @@ componentwise_scalarop_impl!(Div, div, ClosedDiv; DivAssign, div_assign);
 
 macro_rules! left_scalar_mul_impl(
     ($($T: ty),* $(,)*) => {$(
-        impl<D: DimName> Mul<Point<$T, D>> for $T
-            where DefaultAllocator: Allocator<$T, D> {
+        impl<const D: usize> Mul<Point<$T, D>> for $T
+           // where DefaultAllocator: Allocator<$T, D>
+        {
             type Output = Point<$T, D>;
 
             #[inline]
@@ -243,8 +247,9 @@ macro_rules! left_scalar_mul_impl(
             }
         }
 
-        impl<'b, D: DimName> Mul<&'b Point<$T, D>> for $T
-            where DefaultAllocator: Allocator<$T, D> {
+        impl<'b, const D: usize> Mul<&'b Point<$T, D>> for $T
+            // where DefaultAllocator: Allocator<$T, D>
+        {
             type Output = Point<$T, D>;
 
             #[inline]

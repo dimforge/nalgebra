@@ -79,10 +79,10 @@ use crate::geometry::{
  * Indexing.
  *
  */
-impl<N: RealField, D, C: TCategory> Index<(usize, usize)> for Transform<N, D, C>
+impl<N: RealField, C: TCategory, const D: usize> Index<(usize, usize)> for Transform<N, C, D>
 where
-    D: DimName + DimNameAdd<U1>,
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<N, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     type Output = N;
 
@@ -93,10 +93,10 @@ where
 }
 
 // Only general transformations are mutably indexable.
-impl<N: RealField, D> IndexMut<(usize, usize)> for Transform<N, D, TGeneral>
+impl<N: RealField, const D: usize> IndexMut<(usize, usize)> for Transform<N, TGeneral, D>
 where
-    D: DimName + DimNameAdd<U1>,
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<N, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn index_mut(&mut self, ij: (usize, usize)) -> &mut N {
@@ -108,7 +108,7 @@ where
 md_impl_all!(
     Mul, mul where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategory;
-    self: Transform<N, D, C>, rhs: VectorN<N, D>, Output = VectorN<N, D>;
+    self: Transform<N, C, D>, rhs: VectorN<N, D>, Output = VectorN<N, D>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -133,7 +133,7 @@ md_impl_all!(
     Mul, mul where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategory
     where DefaultAllocator: Allocator<N, D, D>;
-    self: Transform<N, D, C>, rhs: Point<N, D>, Output = Point<N, D>;
+    self: Transform<N, C, D>, rhs: Point<N, D>, Output = Point<N, D>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -170,7 +170,7 @@ md_impl_all!(
 md_impl_all!(
     Mul, mul where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
-    self: Transform<N, D, C>, rhs: Rotation<N, D>, Output = Transform<N, D, C::Representative>;
+    self: Transform<N, C, D>, rhs: Rotation<N, D>, Output = Transform<N, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
     [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
@@ -181,7 +181,7 @@ md_impl_all!(
 md_impl_all!(
     Mul, mul where N: RealField;
     (D, D), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
-    self: Rotation<N, D>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
+    self: Rotation<N, D>, rhs: Transform<N, C, D>, Output = Transform<N, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -192,7 +192,7 @@ md_impl_all!(
 md_impl_all!(
     Mul, mul where N: RealField;
     (U4, U4), (U4, U1) for C: TCategoryMul<TAffine>;
-    self: Transform<N, U3, C>, rhs: UnitQuaternion<N>, Output = Transform<N, U3, C::Representative>;
+    self: Transform<N, C, 3>, rhs: UnitQuaternion<N>, Output = Transform<N, C::Representative, 3>;
     [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
     [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
@@ -203,7 +203,7 @@ md_impl_all!(
 md_impl_all!(
     Mul, mul where N: RealField;
     (U4, U1), (U4, U4) for C: TCategoryMul<TAffine>;
-    self: UnitQuaternion<N>, rhs: Transform<N, U3, C>, Output = Transform<N, U3, C::Representative>;
+    self: UnitQuaternion<N>, rhs: Transform<N, C, 3>, Output = Transform<N, C::Representative, 3>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -215,7 +215,7 @@ md_impl_all!(
     Mul, mul where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
     for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
-    self: Transform<N, D, C>, rhs: Isometry<N, D, R>, Output = Transform<N, D, C::Representative>;
+    self: Transform<N, C, D>, rhs: Isometry<N, R, D>, Output = Transform<N, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
     [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
@@ -227,7 +227,7 @@ md_impl_all!(
     Mul, mul where N: RealField;
     (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
     for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
-    self: Isometry<N, D, R>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
+    self: Isometry<N, R, D>, rhs: Transform<N, C, D>, Output = Transform<N, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -239,7 +239,7 @@ md_impl_all!(
     Mul, mul where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
     for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
-    self: Transform<N, D, C>, rhs: Similarity<N, D, R>, Output = Transform<N, D, C::Representative>;
+    self: Transform<N, C, D>, rhs: Similarity<N, R, D>, Output = Transform<N, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
     [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
@@ -251,7 +251,7 @@ md_impl_all!(
     Mul, mul where N: RealField;
     (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
     for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
-    self: Similarity<N, D, R>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
+    self: Similarity<N, R, D>, rhs: Transform<N, C, D>, Output = Transform<N, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -270,7 +270,7 @@ md_impl_all!(
 md_impl_all!(
     Mul, mul where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
-    self: Transform<N, D, C>, rhs: Translation<N, D>, Output = Transform<N, D, C::Representative>;
+    self: Transform<N, C, D>, rhs: Translation<N, D>, Output = Transform<N, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
     [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
@@ -282,7 +282,7 @@ md_impl_all!(
     Mul, mul where N: RealField;
     (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
     for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
-    self: Translation<N, D>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
+    self: Translation<N, D>, rhs: Transform<N, C, D>, Output = Transform<N, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -304,7 +304,7 @@ md_impl_all!(
 md_impl_all!(
     Div, div where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
-    self: Transform<N, D, C>, rhs: Rotation<N, D>, Output = Transform<N, D, C::Representative>;
+    self: Transform<N, C, D>, rhs: Rotation<N, D>, Output = Transform<N, C::Representative, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
@@ -315,7 +315,7 @@ md_impl_all!(
 md_impl_all!(
     Div, div where N: RealField;
     (D, D), (DimNameSum<D, U1>, DimNameSum<D, U1>) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
-    self: Rotation<N, D>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
+    self: Rotation<N, D>, rhs: Transform<N, C, D>, Output = Transform<N, C::Representative, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
     [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
@@ -326,7 +326,7 @@ md_impl_all!(
 md_impl_all!(
     Div, div where N: RealField;
     (U4, U4), (U4, U1) for C: TCategoryMul<TAffine>;
-    self: Transform<N, U3, C>, rhs: UnitQuaternion<N>, Output = Transform<N, U3, C::Representative>;
+    self: Transform<N, C, 3>, rhs: UnitQuaternion<N>, Output = Transform<N, C::Representative, 3>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
@@ -337,7 +337,7 @@ md_impl_all!(
 md_impl_all!(
     Div, div where N: RealField;
     (U4, U1), (U4, U4) for C: TCategoryMul<TAffine>;
-    self: UnitQuaternion<N>, rhs: Transform<N, U3, C>, Output = Transform<N, U3, C::Representative>;
+    self: UnitQuaternion<N>, rhs: Transform<N, C, 3>, Output = Transform<N, C::Representative, 3>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
     [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
@@ -350,7 +350,7 @@ md_impl_all!(
 //          (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
 //          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >
 //          where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-//          self: Transform<N, D, C>, rhs: Isometry<N, D, R>, Output = Transform<N, D, C::Representative>;
+//          self: Transform<N, C, D>, rhs: Isometry<N, R, D>, Output = Transform<N, C::Representative, D>;
 //          [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.inverse().to_homogeneous());
 //          [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.inverse().to_homogeneous());
 //          [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.inverse().to_homogeneous());
@@ -363,7 +363,7 @@ md_impl_all!(
 //          (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
 //          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >
 //          where SA::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-//          self: Isometry<N, D, R>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
+//          self: Isometry<N, R, D>, rhs: Transform<N, C, D>, Output = Transform<N, C::Representative, D>;
 //          [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
 //          [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
 //          [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -377,7 +377,7 @@ md_impl_all!(
 //          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >
 //          where SB::Alloc: Allocator<N, D, D >
 //          where SB::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-//          self: Transform<N, D, C>, rhs: Similarity<N, D, R>, Output = Transform<N, D, C::Representative>;
+//          self: Transform<N, C, D>, rhs: Similarity<N, R, D>, Output = Transform<N, C::Representative, D>;
 //          [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
 //          [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 //          [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
@@ -391,7 +391,7 @@ md_impl_all!(
 //          for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >
 //          where SA::Alloc: Allocator<N, D, D >
 //          where SA::Alloc: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1> >;
-//          self: Similarity<N, D, R>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
+//          self: Similarity<N, R, D>, rhs: Transform<N, C, D>, Output = Transform<N, C::Representative, D>;
 //          [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
 //          [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
 //          [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -402,7 +402,7 @@ md_impl_all!(
 md_impl_all!(
     Div, div where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
-    self: Transform<N, D, C>, rhs: Translation<N, D>, Output = Transform<N, D, C::Representative>;
+    self: Transform<N, C, D>, rhs: Translation<N, D>, Output = Transform<N, C::Representative, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
@@ -414,7 +414,7 @@ md_impl_all!(
     Div, div where N: RealField;
     (D, U1), (DimNameSum<D, U1>, DimNameSum<D, U1>)
     for D: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
-    self: Translation<N, D>, rhs: Transform<N, D, C>, Output = Transform<N, D, C::Representative>;
+    self: Translation<N, D>, rhs: Transform<N, C, D>, Output = Transform<N, C::Representative, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
     [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
@@ -435,7 +435,7 @@ md_assign_impl_all!(
     MulAssign, mul_assign where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
     for D: DimNameAdd<U1>, C: TCategory, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
-    self: Transform<N, D, C>, rhs: Similarity<N, D, R>;
+    self: Transform<N, C, D>, rhs: Similarity<N, R, D>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
@@ -445,7 +445,7 @@ md_assign_impl_all!(
     MulAssign, mul_assign where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
     for D: DimNameAdd<U1>, C: TCategory, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
-    self: Transform<N, D, C>, rhs: Isometry<N, D, R>;
+    self: Transform<N, C, D>, rhs: Isometry<N, R, D>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
@@ -462,7 +462,7 @@ md_assign_impl_all!(
 md_assign_impl_all!(
     MulAssign, mul_assign where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategory;
-    self: Transform<N, D, C>, rhs: Translation<N, D>;
+    self: Transform<N, C, D>, rhs: Translation<N, D>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
@@ -471,7 +471,7 @@ md_assign_impl_all!(
 md_assign_impl_all!(
     MulAssign, mul_assign where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategory;
-    self: Transform<N, D, C>, rhs: Rotation<N, D>;
+    self: Transform<N, C, D>, rhs: Rotation<N, D>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
@@ -480,7 +480,7 @@ md_assign_impl_all!(
 md_assign_impl_all!(
     MulAssign, mul_assign where N: RealField;
     (U4, U4), (U4, U1) for C: TCategory;
-    self: Transform<N, U3, C>, rhs: UnitQuaternion<N>;
+    self: Transform<N, C, 3>, rhs: UnitQuaternion<N>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
@@ -500,7 +500,7 @@ md_assign_impl_all!(
 //          DivAssign, div_assign;
 //          (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
 //          for D: DimNameAdd<U1>, C: TCategory, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
-//          self: Transform<N, D, C>, rhs: Similarity<N, D, R>;
+//          self: Transform<N, C, D>, rhs: Similarity<N, R, D>;
 //          [val] => *self *= rhs.inverse();
 //          [ref] => *self *= rhs.inverse();
 //      );
@@ -511,7 +511,7 @@ md_assign_impl_all!(
 //          DivAssign, div_assign;
 //          (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1)
 //          for D: DimNameAdd<U1>, C: TCategory, R: SubsetOf<MatrixN<N, DimNameSum<D, U1>> >;
-//          self: Transform<N, D, C>, rhs: Isometry<N, D, R>;
+//          self: Transform<N, C, D>, rhs: Isometry<N, R, D>;
 //          [val] => *self *= rhs.inverse();
 //          [ref] => *self *= rhs.inverse();
 //      );
@@ -520,7 +520,7 @@ md_assign_impl_all!(
 md_assign_impl_all!(
     DivAssign, div_assign where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, U1) for D: DimNameAdd<U1>, C: TCategory;
-    self: Transform<N, D, C>, rhs: Translation<N, D>;
+    self: Transform<N, C, D>, rhs: Translation<N, D>;
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
@@ -529,7 +529,7 @@ md_assign_impl_all!(
 md_assign_impl_all!(
     DivAssign, div_assign where N: RealField;
     (DimNameSum<D, U1>, DimNameSum<D, U1>), (D, D) for D: DimNameAdd<U1>, C: TCategory;
-    self: Transform<N, D, C>, rhs: Rotation<N, D>;
+    self: Transform<N, C, D>, rhs: Rotation<N, D>;
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
@@ -538,7 +538,7 @@ md_assign_impl_all!(
 md_assign_impl_all!(
     DivAssign, div_assign where N: RealField;
     (U4, U4), (U4, U1) for C: TCategory;
-    self: Transform<N, U3, C>, rhs: UnitQuaternion<N>;
+    self: Transform<N, C, 3>, rhs: UnitQuaternion<N>;
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );

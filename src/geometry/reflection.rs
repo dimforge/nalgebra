@@ -1,7 +1,6 @@
-use crate::base::allocator::Allocator;
 use crate::base::constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
-use crate::base::{DefaultAllocator, Matrix, Scalar, Unit, Vector};
-use crate::dimension::{Dim, DimName, U1};
+use crate::base::{Const, Matrix, Scalar, Unit, Vector};
+use crate::dimension::{Dim, U1};
 use crate::storage::{Storage, StorageMut};
 use simba::scalar::ComplexField;
 
@@ -11,6 +10,15 @@ use crate::geometry::Point;
 pub struct Reflection<N: Scalar, D: Dim, S: Storage<N, D>> {
     axis: Vector<N, D, S>,
     bias: N,
+}
+
+impl<N: ComplexField, S: Storage<N, Const<D>>, const D: usize> Reflection<N, Const<D>, S> {
+    /// Creates a new reflection wrt. the plane orthogonal to the given axis and that contains the
+    /// point `pt`.
+    pub fn new_containing_point(axis: Unit<Vector<N, Const<D>, S>>, pt: &Point<N, D>) -> Self {
+        let bias = axis.dotc(&pt.coords);
+        Self::new(axis, bias)
+    }
 }
 
 impl<N: ComplexField, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
@@ -23,17 +31,6 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D>> Reflection<N, D, S> {
             axis: axis.into_inner(),
             bias,
         }
-    }
-
-    /// Creates a new reflection wrt. the plane orthogonal to the given axis and that contains the
-    /// point `pt`.
-    pub fn new_containing_point(axis: Unit<Vector<N, D, S>>, pt: &Point<N, D>) -> Self
-    where
-        D: DimName,
-        DefaultAllocator: Allocator<N, D>,
-    {
-        let bias = axis.dotc(&pt.coords);
-        Self::new(axis, bias)
     }
 
     /// The reflexion axis.

@@ -4,7 +4,6 @@ use num_complex::Complex;
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
 use simba::simd::{PrimitiveSimdValue, SimdRealField};
 
-use crate::base::dimension::U2;
 use crate::base::{Matrix2, Matrix3, Scalar};
 use crate::geometry::{
     AbstractRotation, Isometry, Rotation2, Similarity, SuperTCategoryOf, TAffine, Transform,
@@ -17,9 +16,9 @@ use crate::geometry::{
  *
  * UnitComplex -> UnitComplex
  * UnitComplex -> Rotation<U1>
- * UnitComplex -> Isometry<U2>
- * UnitComplex -> Similarity<U2>
- * UnitComplex -> Transform<U2>
+ * UnitComplex -> Isometry<2>
+ * UnitComplex -> Similarity<2>
+ * UnitComplex -> Transform<2>
  * UnitComplex -> Matrix<U3> (homogeneous)
  *
  * NOTE:
@@ -70,68 +69,68 @@ where
     }
 }
 
-impl<N1, N2, R> SubsetOf<Isometry<N2, U2, R>> for UnitComplex<N1>
+impl<N1, N2, R> SubsetOf<Isometry<N2, R, 2>> for UnitComplex<N1>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: AbstractRotation<N2, U2> + SupersetOf<Self>,
+    R: AbstractRotation<N2, 2> + SupersetOf<Self>,
 {
     #[inline]
-    fn to_superset(&self) -> Isometry<N2, U2, R> {
+    fn to_superset(&self) -> Isometry<N2, R, 2> {
         Isometry::from_parts(Translation::identity(), crate::convert_ref(self))
     }
 
     #[inline]
-    fn is_in_subset(iso: &Isometry<N2, U2, R>) -> bool {
+    fn is_in_subset(iso: &Isometry<N2, R, 2>) -> bool {
         iso.translation.vector.is_zero()
     }
 
     #[inline]
-    fn from_superset_unchecked(iso: &Isometry<N2, U2, R>) -> Self {
+    fn from_superset_unchecked(iso: &Isometry<N2, R, 2>) -> Self {
         crate::convert_ref_unchecked(&iso.rotation)
     }
 }
 
-impl<N1, N2, R> SubsetOf<Similarity<N2, U2, R>> for UnitComplex<N1>
+impl<N1, N2, R> SubsetOf<Similarity<N2, R, 2>> for UnitComplex<N1>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: AbstractRotation<N2, U2> + SupersetOf<Self>,
+    R: AbstractRotation<N2, 2> + SupersetOf<Self>,
 {
     #[inline]
-    fn to_superset(&self) -> Similarity<N2, U2, R> {
+    fn to_superset(&self) -> Similarity<N2, R, 2> {
         Similarity::from_isometry(crate::convert_ref(self), N2::one())
     }
 
     #[inline]
-    fn is_in_subset(sim: &Similarity<N2, U2, R>) -> bool {
+    fn is_in_subset(sim: &Similarity<N2, R, 2>) -> bool {
         sim.isometry.translation.vector.is_zero() && sim.scaling() == N2::one()
     }
 
     #[inline]
-    fn from_superset_unchecked(sim: &Similarity<N2, U2, R>) -> Self {
+    fn from_superset_unchecked(sim: &Similarity<N2, R, 2>) -> Self {
         crate::convert_ref_unchecked(&sim.isometry)
     }
 }
 
-impl<N1, N2, C> SubsetOf<Transform<N2, U2, C>> for UnitComplex<N1>
+impl<N1, N2, C> SubsetOf<Transform<N2, C, 2>> for UnitComplex<N1>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
 {
     #[inline]
-    fn to_superset(&self) -> Transform<N2, U2, C> {
+    fn to_superset(&self) -> Transform<N2, C, 2> {
         Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
     }
 
     #[inline]
-    fn is_in_subset(t: &Transform<N2, U2, C>) -> bool {
+    fn is_in_subset(t: &Transform<N2, C, 2>) -> bool {
         <Self as SubsetOf<_>>::is_in_subset(t.matrix())
     }
 
     #[inline]
-    fn from_superset_unchecked(t: &Transform<N2, U2, C>) -> Self {
+    fn from_superset_unchecked(t: &Transform<N2, C, 2>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }

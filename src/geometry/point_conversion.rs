@@ -3,8 +3,8 @@ use simba::scalar::{ClosedDiv, SubsetOf, SupersetOf};
 use simba::simd::PrimitiveSimdValue;
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
-use crate::base::{DefaultAllocator, Matrix, Scalar, VectorN};
+use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
+use crate::base::{Const, DefaultAllocator, Matrix, Scalar, VectorN};
 
 use crate::geometry::Point;
 
@@ -16,12 +16,11 @@ use crate::geometry::Point;
  * Point -> Vector (homogeneous)
  */
 
-impl<N1, N2, D> SubsetOf<Point<N2, D>> for Point<N1, D>
+impl<N1, N2, const D: usize> SubsetOf<Point<N2, D>> for Point<N1, D>
 where
-    D: DimName,
     N1: Scalar,
     N2: Scalar + SupersetOf<N1>,
-    DefaultAllocator: Allocator<N2, D> + Allocator<N1, D>,
+    // DefaultAllocator: Allocator<N2, D> + Allocator<N1, D>,
 {
     #[inline]
     fn to_superset(&self) -> Point<N2, D> {
@@ -41,40 +40,41 @@ where
     }
 }
 
-impl<N1, N2, D> SubsetOf<VectorN<N2, DimNameSum<D, U1>>> for Point<N1, D>
+impl<N1, N2, const D: usize> SubsetOf<VectorN<N2, DimNameSum<Const<D>, U1>>> for Point<N1, D>
 where
-    D: DimNameAdd<U1>,
+    Const<D>: DimNameAdd<U1>,
     N1: Scalar,
     N2: Scalar + Zero + One + ClosedDiv + SupersetOf<N1>,
-    DefaultAllocator: Allocator<N1, D>
-        + Allocator<N1, DimNameSum<D, U1>>
-        + Allocator<N2, DimNameSum<D, U1>>
-        + Allocator<N2, D>,
+    DefaultAllocator:
+        Allocator<N1, DimNameSum<Const<D>, U1>> + Allocator<N2, DimNameSum<Const<D>, U1>>,
+    // + Allocator<N1, D>
+    // + Allocator<N2, D>,
 {
     #[inline]
-    fn to_superset(&self) -> VectorN<N2, DimNameSum<D, U1>> {
+    fn to_superset(&self) -> VectorN<N2, DimNameSum<Const<D>, U1>> {
         let p: Point<N2, D> = self.to_superset();
         p.to_homogeneous()
     }
 
     #[inline]
-    fn is_in_subset(v: &VectorN<N2, DimNameSum<D, U1>>) -> bool {
-        crate::is_convertible::<_, VectorN<N1, DimNameSum<D, U1>>>(v) && !v[D::dim()].is_zero()
+    fn is_in_subset(v: &VectorN<N2, DimNameSum<Const<D>, U1>>) -> bool {
+        crate::is_convertible::<_, VectorN<N1, DimNameSum<D, U1>>>(v) && !v[D].is_zero()
     }
 
     #[inline]
-    fn from_superset_unchecked(v: &VectorN<N2, DimNameSum<D, U1>>) -> Self {
-        let coords = v.fixed_slice::<D, U1>(0, 0) / v[D::dim()].inlined_clone();
+    fn from_superset_unchecked(v: &VectorN<N2, DimNameSum<Const<D>, U1>>) -> Self {
+        let coords = v.fixed_slice::<D, U1>(0, 0) / v[D].inlined_clone();
         Self {
             coords: crate::convert_unchecked(coords),
         }
     }
 }
 
-impl<N: Scalar + Zero + One, D: DimName> From<Point<N, D>> for VectorN<N, DimNameSum<D, U1>>
+impl<N: Scalar + Zero + One, const D: usize> From<Point<N, D>>
+    for VectorN<N, DimNameSum<Const<D>, U1>>
 where
-    D: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<N, D> + Allocator<N, DimNameSum<D, U1>>,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<N, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn from(t: Point<N, D>) -> Self {
@@ -82,23 +82,23 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> From<VectorN<N, D>> for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+impl<N: Scalar, const D: usize> From<VectorN<N, Const<D>>> for Point<N, D>
+// where
+//     DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
-    fn from(coords: VectorN<N, D>) -> Self {
+    fn from(coords: VectorN<N, Const<D>>) -> Self {
         Point { coords }
     }
 }
 
-impl<N: Scalar + Copy + PrimitiveSimdValue, D: DimName> From<[Point<N::Element, D>; 2]>
+impl<N: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<N::Element, D>; 2]>
     for Point<N, D>
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 2]>,
     N::Element: Scalar + Copy,
-    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
-    <DefaultAllocator as Allocator<N::Element, D>>::Buffer: Copy,
+    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+    <DefaultAllocator as Allocator<N::Element, Const<D>>>::Buffer: Copy,
 {
     #[inline]
     fn from(arr: [Point<N::Element, D>; 2]) -> Self {
@@ -106,13 +106,13 @@ where
     }
 }
 
-impl<N: Scalar + Copy + PrimitiveSimdValue, D: DimName> From<[Point<N::Element, D>; 4]>
+impl<N: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<N::Element, D>; 4]>
     for Point<N, D>
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 4]>,
     N::Element: Scalar + Copy,
-    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
-    <DefaultAllocator as Allocator<N::Element, D>>::Buffer: Copy,
+    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+    <DefaultAllocator as Allocator<N::Element, Const<D>>>::Buffer: Copy,
 {
     #[inline]
     fn from(arr: [Point<N::Element, D>; 4]) -> Self {
@@ -125,13 +125,13 @@ where
     }
 }
 
-impl<N: Scalar + Copy + PrimitiveSimdValue, D: DimName> From<[Point<N::Element, D>; 8]>
+impl<N: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<N::Element, D>; 8]>
     for Point<N, D>
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 8]>,
     N::Element: Scalar + Copy,
-    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
-    <DefaultAllocator as Allocator<N::Element, D>>::Buffer: Copy,
+    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+    <DefaultAllocator as Allocator<N::Element, Const<D>>>::Buffer: Copy,
 {
     #[inline]
     fn from(arr: [Point<N::Element, D>; 8]) -> Self {
@@ -148,13 +148,13 @@ where
     }
 }
 
-impl<N: Scalar + Copy + PrimitiveSimdValue, D: DimName> From<[Point<N::Element, D>; 16]>
+impl<N: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<N::Element, D>; 16]>
     for Point<N, D>
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 16]>,
     N::Element: Scalar + Copy,
-    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
-    <DefaultAllocator as Allocator<N::Element, D>>::Buffer: Copy,
+    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+    <DefaultAllocator as Allocator<N::Element, Const<D>>>::Buffer: Copy,
 {
     #[inline]
     fn from(arr: [Point<N::Element, D>; 16]) -> Self {

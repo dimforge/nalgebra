@@ -1,19 +1,15 @@
 use simba::simd::{SimdRealField, SimdValue};
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::DimName;
-use crate::base::DefaultAllocator;
-
 use crate::geometry::{AbstractRotation, Isometry, Similarity};
 
-impl<N: SimdRealField, D: DimName, R> SimdValue for Similarity<N, D, R>
+impl<N: SimdRealField, R, const D: usize> SimdValue for Similarity<N, R, D>
 where
     N::Element: SimdRealField,
     R: SimdValue<SimdBool = N::SimdBool> + AbstractRotation<N, D>,
     R::Element: AbstractRotation<N::Element, D>,
-    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
-    type Element = Similarity<N::Element, D, R::Element>;
+    type Element = Similarity<N::Element, R::Element, D>;
     type SimdBool = N::SimdBool;
 
     #[inline]

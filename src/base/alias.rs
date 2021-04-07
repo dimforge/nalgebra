@@ -4,8 +4,7 @@ use crate::base::dimension::{U1, U2, U3, U4, U5, U6};
 use crate::base::storage::Owned;
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::vec_storage::VecStorage;
-use crate::base::Matrix;
-use crate::base::Unit;
+use crate::base::{Const, Matrix, Unit};
 
 /*
  *
@@ -24,11 +23,14 @@ pub type MatrixNM<N, R, C> = Matrix<N, R, C, Owned<N, R, C>>;
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 pub type MatrixMN<N, R, C> = Matrix<N, R, C, Owned<N, R, C>>;
+pub type CMatrixMN<N, const R: usize, const C: usize> =
+    Matrix<N, Const<R>, Const<C>, Owned<N, Const<R>, Const<C>>>;
 
 /// A statically sized column-major square matrix with `D` rows and columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 pub type MatrixN<N, D> = Matrix<N, D, D, Owned<N, D, D>>;
+pub type CMatrixN<N, const D: usize> = Matrix<N, Const<D>, Const<D>, Owned<N, Const<D>, Const<D>>>;
 
 /// A dynamically sized column-major matrix.
 ///
@@ -266,6 +268,7 @@ pub type DVector<N> = Matrix<N, Dynamic, U1, VecStorage<N, Dynamic, U1>>;
 
 /// A statically sized D-dimensional column vector.
 pub type VectorN<N, D> = Matrix<N, D, U1, Owned<N, D, U1>>;
+pub type CVectorN<N, const D: usize> = Matrix<N, Const<D>, U1, Owned<N, Const<D>, U1>>;
 
 /// A stack-allocated, 1-dimensional column vector.
 pub type Vector1<N> = Matrix<N, U1, U1, Owned<N, U1, U1>>;

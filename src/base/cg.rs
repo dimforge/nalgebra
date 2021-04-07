@@ -416,8 +416,8 @@ where
     #[inline]
     pub fn transform_point(
         &self,
-        pt: &Point<N, DimNameDiff<D, U1>>,
-    ) -> Point<N, DimNameDiff<D, U1>> {
+        pt: &Point<N, { DimNameDiff::<D, U1>::USIZE }>,
+    ) -> Point<N, { DimNameDiff::<D, U1>::USIZE }> {
         let transform = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
         let translation = self.fixed_slice::<DimNameDiff<D, U1>, U1>(0, D::dim() - 1);
         let normalizer = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);

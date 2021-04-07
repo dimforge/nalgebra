@@ -201,6 +201,8 @@ pub struct Const<const R: usize>;
 
 /// Trait implemented exclusively by type-level integers.
 pub trait DimName: Dim {
+    const USIZE: usize;
+
     /// The name of this dimension, i.e., the singleton `Self`.
     fn name() -> Self;
 
@@ -233,6 +235,8 @@ impl<const T: usize> Dim for Const<T> {
 }
 
 impl<const T: usize> DimName for Const<T> {
+    const USIZE: usize = T;
+
     #[inline]
     fn name() -> Self {
         Self

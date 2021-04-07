@@ -1,16 +1,14 @@
 use simba::simd::SimdValue;
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::DimName;
-use crate::base::{DefaultAllocator, VectorN};
+use crate::base::VectorN;
 use crate::Scalar;
 
 use crate::geometry::Translation;
 
-impl<N: Scalar + SimdValue, D: DimName> SimdValue for Translation<N, D>
+impl<N: Scalar + SimdValue, const D: usize> SimdValue for Translation<N, D>
 where
     N::Element: Scalar,
-    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
     type Element = Translation<N::Element, D>;
     type SimdBool = N::SimdBool;

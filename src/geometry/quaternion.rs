@@ -1367,7 +1367,7 @@ where
     /// assert_relative_eq!(*rot.matrix(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn to_rotation_matrix(&self) -> Rotation<N, U3> {
+    pub fn to_rotation_matrix(&self) -> Rotation<N, 3> {
         let i = self.as_ref()[0];
         let j = self.as_ref()[1];
         let k = self.as_ref()[2];

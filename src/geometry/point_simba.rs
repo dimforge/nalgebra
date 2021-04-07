@@ -1,15 +1,13 @@
 use simba::simd::SimdValue;
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::DimName;
-use crate::base::{DefaultAllocator, Scalar, VectorN};
+use crate::base::{Scalar, VectorN};
 
 use crate::geometry::Point;
 
-impl<N: Scalar + SimdValue, D: DimName> SimdValue for Point<N, D>
+impl<N: Scalar + SimdValue, const D: usize> SimdValue for Point<N, D>
 where
     N::Element: Scalar,
-    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
     type Element = Point<N::Element, D>;
     type SimdBool = N::SimdBool;

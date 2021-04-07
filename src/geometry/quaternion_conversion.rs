@@ -3,7 +3,6 @@ use num::Zero;
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
 use simba::simd::{PrimitiveSimdValue, SimdRealField, SimdValue};
 
-use crate::base::dimension::U3;
 use crate::base::{Matrix3, Matrix4, Scalar, Vector4};
 use crate::geometry::{
     AbstractRotation, Isometry, Quaternion, Rotation, Rotation3, Similarity, SuperTCategoryOf,
@@ -16,11 +15,11 @@ use crate::geometry::{
  *
  * Quaternion     -> Quaternion
  * UnitQuaternion -> UnitQuaternion
- * UnitQuaternion -> Rotation<U3>
- * UnitQuaternion -> Isometry<U3>
+ * UnitQuaternion -> Rotation<3>
+ * UnitQuaternion -> Isometry<3>
  * UnitQuaternion -> UnitDualQuaternion
- * UnitQuaternion -> Similarity<U3>
- * UnitQuaternion -> Transform<U3>
+ * UnitQuaternion -> Similarity<3>
+ * UnitQuaternion -> Transform<3>
  * UnitQuaternion -> Matrix<U4> (homogeneous)
  *
  * NOTE:
@@ -71,7 +70,7 @@ where
     }
 }
 
-impl<N1, N2> SubsetOf<Rotation<N2, U3>> for UnitQuaternion<N1>
+impl<N1, N2> SubsetOf<Rotation<N2, 3>> for UnitQuaternion<N1>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
@@ -94,24 +93,24 @@ where
     }
 }
 
-impl<N1, N2, R> SubsetOf<Isometry<N2, U3, R>> for UnitQuaternion<N1>
+impl<N1, N2, R> SubsetOf<Isometry<N2, R, 3>> for UnitQuaternion<N1>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: AbstractRotation<N2, U3> + SupersetOf<Self>,
+    R: AbstractRotation<N2, 3> + SupersetOf<Self>,
 {
     #[inline]
-    fn to_superset(&self) -> Isometry<N2, U3, R> {
+    fn to_superset(&self) -> Isometry<N2, R, 3> {
         Isometry::from_parts(Translation::identity(), crate::convert_ref(self))
     }
 
     #[inline]
-    fn is_in_subset(iso: &Isometry<N2, U3, R>) -> bool {
+    fn is_in_subset(iso: &Isometry<N2, R, 3>) -> bool {
         iso.translation.vector.is_zero()
     }
 
     #[inline]
-    fn from_superset_unchecked(iso: &Isometry<N2, U3, R>) -> Self {
+    fn from_superset_unchecked(iso: &Isometry<N2, R, 3>) -> Self {
         crate::convert_ref_unchecked(&iso.rotation)
     }
 }
@@ -138,46 +137,46 @@ where
     }
 }
 
-impl<N1, N2, R> SubsetOf<Similarity<N2, U3, R>> for UnitQuaternion<N1>
+impl<N1, N2, R> SubsetOf<Similarity<N2, R, 3>> for UnitQuaternion<N1>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    R: AbstractRotation<N2, U3> + SupersetOf<Self>,
+    R: AbstractRotation<N2, 3> + SupersetOf<Self>,
 {
     #[inline]
-    fn to_superset(&self) -> Similarity<N2, U3, R> {
+    fn to_superset(&self) -> Similarity<N2, R, 3> {
         Similarity::from_isometry(crate::convert_ref(self), N2::one())
     }
 
     #[inline]
-    fn is_in_subset(sim: &Similarity<N2, U3, R>) -> bool {
+    fn is_in_subset(sim: &Similarity<N2, R, 3>) -> bool {
         sim.isometry.translation.vector.is_zero() && sim.scaling() == N2::one()
     }
 
     #[inline]
-    fn from_superset_unchecked(sim: &Similarity<N2, U3, R>) -> Self {
+    fn from_superset_unchecked(sim: &Similarity<N2, R, 3>) -> Self {
         crate::convert_ref_unchecked(&sim.isometry)
     }
 }
 
-impl<N1, N2, C> SubsetOf<Transform<N2, U3, C>> for UnitQuaternion<N1>
+impl<N1, N2, C> SubsetOf<Transform<N2, C, 3>> for UnitQuaternion<N1>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
 {
     #[inline]
-    fn to_superset(&self) -> Transform<N2, U3, C> {
+    fn to_superset(&self) -> Transform<N2, C, 3> {
         Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
     }
 
     #[inline]
-    fn is_in_subset(t: &Transform<N2, U3, C>) -> bool {
+    fn is_in_subset(t: &Transform<N2, C, 3>) -> bool {
         <Self as SubsetOf<_>>::is_in_subset(t.matrix())
     }
 
     #[inline]
-    fn from_superset_unchecked(t: &Transform<N2, U3, C>) -> Self {
+    fn from_superset_unchecked(t: &Transform<N2, C, 3>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }

@@ -384,9 +384,12 @@ pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'
 /// * [distance](fn.distance.html)
 /// * [distance_squared](fn.distance_squared.html)
 #[inline]
-pub fn center<N: SimdComplexField, D: DimName>(p1: &Point<N, D>, p2: &Point<N, D>) -> Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
+pub fn center<N: SimdComplexField, const D: usize>(
+    p1: &Point<N, D>,
+    p2: &Point<N, D>,
+) -> Point<N, D>
+// where
+//     DefaultAllocator: Allocator<N, D>,
 {
     ((&p1.coords + &p2.coords) * convert::<_, N>(0.5)).into()
 }
@@ -398,12 +401,12 @@ where
 /// * [center](fn.center.html)
 /// * [distance_squared](fn.distance_squared.html)
 #[inline]
-pub fn distance<N: SimdComplexField, D: DimName>(
+pub fn distance<N: SimdComplexField, const D: usize>(
     p1: &Point<N, D>,
     p2: &Point<N, D>,
 ) -> N::SimdRealField
-where
-    DefaultAllocator: Allocator<N, D>,
+// where
+//     DefaultAllocator: Allocator<N, D>,
 {
     (&p2.coords - &p1.coords).norm()
 }
@@ -415,12 +418,12 @@ where
 /// * [center](fn.center.html)
 /// * [distance](fn.distance.html)
 #[inline]
-pub fn distance_squared<N: SimdComplexField, D: DimName>(
+pub fn distance_squared<N: SimdComplexField, const D: usize>(
     p1: &Point<N, D>,
     p2: &Point<N, D>,
 ) -> N::SimdRealField
-where
-    DefaultAllocator: Allocator<N, D>,
+// where
+//     DefaultAllocator: Allocator<N, D>,
 {
     (&p2.coords - &p1.coords).norm_squared()
 }

@@ -1,7 +1,6 @@
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
 use simba::simd::SimdRealField;
 
-use crate::base::dimension::U3;
 use crate::base::{Matrix4, Vector4};
 use crate::geometry::{
     DualQuaternion, Isometry3, Similarity3, SuperTCategoryOf, TAffine, Transform, Translation3,
@@ -14,9 +13,9 @@ use crate::geometry::{
  *
  * DualQuaternion     -> DualQuaternion
  * UnitDualQuaternion -> UnitDualQuaternion
- * UnitDualQuaternion -> Isometry<U3>
- * UnitDualQuaternion -> Similarity<U3>
- * UnitDualQuaternion -> Transform<U3>
+ * UnitDualQuaternion -> Isometry<3>
+ * UnitDualQuaternion -> Similarity<3>
+ * UnitDualQuaternion -> Transform<3>
  * UnitDualQuaternion -> Matrix<U4> (homogeneous)
  *
  * NOTE:
@@ -115,24 +114,24 @@ where
     }
 }
 
-impl<N1, N2, C> SubsetOf<Transform<N2, U3, C>> for UnitDualQuaternion<N1>
+impl<N1, N2, C> SubsetOf<Transform<N2, C, 3>> for UnitDualQuaternion<N1>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
 {
     #[inline]
-    fn to_superset(&self) -> Transform<N2, U3, C> {
+    fn to_superset(&self) -> Transform<N2, C, 3> {
         Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
     }
 
     #[inline]
-    fn is_in_subset(t: &Transform<N2, U3, C>) -> bool {
+    fn is_in_subset(t: &Transform<N2, C, 3>) -> bool {
         <Self as SubsetOf<_>>::is_in_subset(t.matrix())
     }
 
     #[inline]
-    fn from_superset_unchecked(t: &Transform<N2, U3, C>) -> Self {
+    fn from_superset_unchecked(t: &Transform<N2, C, 3>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }

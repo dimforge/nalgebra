@@ -4,8 +4,8 @@ use simba::scalar::{RealField, SubsetOf, SupersetOf};
 use simba::simd::{PrimitiveSimdValue, SimdValue};
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimMin, DimName, DimNameAdd, DimNameSum, U1};
-use crate::base::{DefaultAllocator, Matrix2, Matrix3, Matrix4, MatrixN, Scalar};
+use crate::base::dimension::{DimMin, DimNameAdd, DimNameSum, U1};
+use crate::base::{Const, DefaultAllocator, Matrix2, Matrix3, Matrix4, MatrixN, Scalar};
 
 use crate::geometry::{
     AbstractRotation, Isometry, Rotation, Rotation2, Rotation3, Similarity, SuperTCategoryOf,
@@ -27,11 +27,11 @@ use crate::geometry::{
 
 */
 
-impl<N1, N2, D: DimName> SubsetOf<Rotation<N2, D>> for Rotation<N1, D>
+impl<N1, N2, const D: usize> SubsetOf<Rotation<N2, D>> for Rotation<N1, D>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D, D>,
+    // DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D, D>,
 {
     #[inline]
     fn to_superset(&self) -> Rotation<N2, D> {
@@ -120,113 +120,112 @@ where
     }
 }
 
-impl<N1, N2, D: DimName, R> SubsetOf<Isometry<N2, D, R>> for Rotation<N1, D>
+impl<N1, N2, R, const D: usize> SubsetOf<Isometry<N2, R, D>> for Rotation<N1, D>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     R: AbstractRotation<N2, D> + SupersetOf<Self>,
-    DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
+    // DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
 {
     #[inline]
-    fn to_superset(&self) -> Isometry<N2, D, R> {
+    fn to_superset(&self) -> Isometry<N2, R, D> {
         Isometry::from_parts(Translation::identity(), crate::convert_ref(self))
     }
 
     #[inline]
-    fn is_in_subset(iso: &Isometry<N2, D, R>) -> bool {
+    fn is_in_subset(iso: &Isometry<N2, R, D>) -> bool {
         iso.translation.vector.is_zero()
     }
 
     #[inline]
-    fn from_superset_unchecked(iso: &Isometry<N2, D, R>) -> Self {
+    fn from_superset_unchecked(iso: &Isometry<N2, R, D>) -> Self {
         crate::convert_ref_unchecked(&iso.rotation)
     }
 }
 
-impl<N1, N2, D: DimName, R> SubsetOf<Similarity<N2, D, R>> for Rotation<N1, D>
+impl<N1, N2, R, const D: usize> SubsetOf<Similarity<N2, R, D>> for Rotation<N1, D>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     R: AbstractRotation<N2, D> + SupersetOf<Self>,
-    DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
+    // DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
 {
     #[inline]
-    fn to_superset(&self) -> Similarity<N2, D, R> {
+    fn to_superset(&self) -> Similarity<N2, R, D> {
         Similarity::from_parts(Translation::identity(), crate::convert_ref(self), N2::one())
     }
 
     #[inline]
-    fn is_in_subset(sim: &Similarity<N2, D, R>) -> bool {
+    fn is_in_subset(sim: &Similarity<N2, R, D>) -> bool {
         sim.isometry.translation.vector.is_zero() && sim.scaling() == N2::one()
     }
 
     #[inline]
-    fn from_superset_unchecked(sim: &Similarity<N2, D, R>) -> Self {
+    fn from_superset_unchecked(sim: &Similarity<N2, R, D>) -> Self {
         crate::convert_ref_unchecked(&sim.isometry.rotation)
     }
 }
 
-impl<N1, N2, D, C> SubsetOf<Transform<N2, D, C>> for Rotation<N1, D>
+impl<N1, N2, C, const D: usize> SubsetOf<Transform<N2, C, D>> for Rotation<N1, D>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     C: SuperTCategoryOf<TAffine>,
-    D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .is_special_orthogonal()
-    DefaultAllocator: Allocator<N1, D, D>
-        + Allocator<N2, D, D>
-        + Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>
-        + Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>
-        + Allocator<(usize, usize), D>,
+    Const<D>: DimNameAdd<U1> + DimMin<Const<D>, Output = Const<D>>, // needed by .is_special_orthogonal()
+    DefaultAllocator: Allocator<N1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<N2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    // + Allocator<(usize, usize), D>,
+    // Allocator<N1, D, D>
+    //     + Allocator<N2, D, D>
 {
     // needed by .is_special_orthogonal()
     #[inline]
-    fn to_superset(&self) -> Transform<N2, D, C> {
+    fn to_superset(&self) -> Transform<N2, C, D> {
         Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
     }
 
     #[inline]
-    fn is_in_subset(t: &Transform<N2, D, C>) -> bool {
+    fn is_in_subset(t: &Transform<N2, C, D>) -> bool {
         <Self as SubsetOf<_>>::is_in_subset(t.matrix())
     }
 
     #[inline]
-    fn from_superset_unchecked(t: &Transform<N2, D, C>) -> Self {
+    fn from_superset_unchecked(t: &Transform<N2, C, D>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
 
-impl<N1, N2, D> SubsetOf<MatrixN<N2, DimNameSum<D, U1>>> for Rotation<N1, D>
+impl<N1, N2, const D: usize> SubsetOf<MatrixN<N2, DimNameSum<Const<D>, U1>>> for Rotation<N1, D>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    D: DimNameAdd<U1> + DimMin<D, Output = D>, // needed by .is_special_orthogonal()
-    DefaultAllocator: Allocator<N1, D, D>
-        + Allocator<N2, D, D>
-        + Allocator<N1, DimNameSum<D, U1>, DimNameSum<D, U1>>
-        + Allocator<N2, DimNameSum<D, U1>, DimNameSum<D, U1>>
-        + Allocator<(usize, usize), D>,
+    Const<D>: DimNameAdd<U1> + DimMin<Const<D>, Output = Const<D>>, // needed by .is_special_orthogonal()
+    DefaultAllocator: Allocator<N1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<N2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>, // + Allocator<(usize, usize), D>,
+                                                                             // + Allocator<N1, D, D>
+                                                                             // + Allocator<N2, D, D>
 {
     // needed by .is_special_orthogonal()
     #[inline]
-    fn to_superset(&self) -> MatrixN<N2, DimNameSum<D, U1>> {
+    fn to_superset(&self) -> MatrixN<N2, DimNameSum<Const<D>, U1>> {
         self.to_homogeneous().to_superset()
     }
 
     #[inline]
-    fn is_in_subset(m: &MatrixN<N2, DimNameSum<D, U1>>) -> bool {
+    fn is_in_subset(m: &MatrixN<N2, DimNameSum<Const<D>, U1>>) -> bool {
         let rot = m.fixed_slice::<D, D>(0, 0);
-        let bottom = m.fixed_slice::<U1, D>(D::dim(), 0);
+        let bottom = m.fixed_slice::<U1, D>(D, 0);
 
         // Scalar types agree.
         m.iter().all(|e| SupersetOf::<N1>::is_in_subset(e)) &&
         // The block part is a rotation.
         rot.is_special_orthogonal(N2::default_epsilon() * crate::convert(100.0)) &&
         // The bottom row is (0, 0, ..., 1)
-        bottom.iter().all(|e| e.is_zero()) && m[(D::dim(), D::dim())] == N2::one()
+        bottom.iter().all(|e| e.is_zero()) && m[(D, D)] == N2::one()
     }
 
     #[inline]
-    fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<D, U1>>) -> Self {
+    fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<Const<D>, U1>>) -> Self {
         let r = m.fixed_slice::<D, D>(0, 0);
         Self::from_matrix_unchecked(crate::convert_unchecked(r.into_owned()))
     }
@@ -260,12 +259,12 @@ impl<N: RealField> From<Rotation3<N>> for Matrix3<N> {
     }
 }
 
-impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Rotation<N::Element, D>; 2]>
+impl<N: Scalar + PrimitiveSimdValue, const D: usize> From<[Rotation<N::Element, D>; 2]>
     for Rotation<N, D>
 where
     N: From<[<N as SimdValue>::Element; 2]>,
     N::Element: Scalar + Copy,
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
+    // DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
 {
     #[inline]
     fn from(arr: [Rotation<N::Element, D>; 2]) -> Self {
@@ -276,12 +275,12 @@ where
     }
 }
 
-impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Rotation<N::Element, D>; 4]>
+impl<N: Scalar + PrimitiveSimdValue, const D: usize> From<[Rotation<N::Element, D>; 4]>
     for Rotation<N, D>
 where
     N: From<[<N as SimdValue>::Element; 4]>,
     N::Element: Scalar + Copy,
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
+    // DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
 {
     #[inline]
     fn from(arr: [Rotation<N::Element, D>; 4]) -> Self {
@@ -294,12 +293,12 @@ where
     }
 }
 
-impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Rotation<N::Element, D>; 8]>
+impl<N: Scalar + PrimitiveSimdValue, const D: usize> From<[Rotation<N::Element, D>; 8]>
     for Rotation<N, D>
 where
     N: From<[<N as SimdValue>::Element; 8]>,
     N::Element: Scalar + Copy,
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
+    // DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
 {
     #[inline]
     fn from(arr: [Rotation<N::Element, D>; 8]) -> Self {
@@ -316,12 +315,12 @@ where
     }
 }
 
-impl<N: Scalar + PrimitiveSimdValue, D: DimName> From<[Rotation<N::Element, D>; 16]>
+impl<N: Scalar + PrimitiveSimdValue, const D: usize> From<[Rotation<N::Element, D>; 16]>
     for Rotation<N, D>
 where
     N: From<[<N as SimdValue>::Element; 16]>,
     N::Element: Scalar + Copy,
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
+    // DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
 {
     #[inline]
     fn from(arr: [Rotation<N::Element, D>; 16]) -> Self {
