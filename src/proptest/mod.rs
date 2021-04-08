@@ -53,20 +53,20 @@
 //! with [matrix](fn.matrix.html) as follows:
 //!
 //! ```rust
-//! use nalgebra::{Dynamic, MatrixMN, U3};
+//! use nalgebra::{Dynamic, MatrixMN, Const};
 //! use nalgebra::proptest::matrix;
 //! use proptest::prelude::*;
 //!
-//! type MyMatrix = MatrixMN<i32, U3, Dynamic>;
+//! type MyMatrix = MatrixMN<i32, Const::<3>, Dynamic>;
 //!
 //! /// Returns a strategy for pairs of matrices with `U3` rows and the same number of
 //! /// columns.
 //! fn matrix_pairs() -> impl Strategy<Value=(MyMatrix, MyMatrix)> {
-//!     matrix(-5 ..= 5, U3, 0 ..= 10)
+//!     matrix(-5 ..= 5, Const::<3>, 0 ..= 10)
 //!         // We first generate the initial matrix `a`, and then depending on the concrete
 //!         // instances of `a`, we pick a second matrix with the same number of columns
 //!         .prop_flat_map(|a| {
-//!             let b = matrix(-5 .. 5, U3, a.ncols());
+//!             let b = matrix(-5 .. 5, Const::<3>, a.ncols());
 //!             // This returns a new tuple strategy where we keep `a` fixed while
 //!             // the second item is a strategy that generates instances with the same
 //!             // dimensions as `a`
@@ -141,7 +141,7 @@
 //! PROPTEST_MAX_SHRINK_ITERS=100000 cargo test my_failing_test
 //! ```
 use crate::allocator::Allocator;
-use crate::{DefaultAllocator, Dim, DimName, Dynamic, MatrixMN, Scalar, U1};
+use crate::{Const, DefaultAllocator, Dim, DimName, Dynamic, MatrixMN, Scalar, U1};
 use proptest::arbitrary::Arbitrary;
 use proptest::collection::vec;
 use proptest::strategy::{BoxedStrategy, Just, NewTree, Strategy, ValueTree};
@@ -225,16 +225,16 @@ fn dynamic_dim_range() -> DimRange<Dynamic> {
 /// ## Examples
 /// ```
 /// use nalgebra::proptest::matrix;
-/// use nalgebra::{MatrixMN, U3, Dynamic};
+/// use nalgebra::{MatrixMN, Const, Dynamic};
 /// use proptest::prelude::*;
 ///
 /// proptest! {
 ///     # /*
 ///     #[test]
 ///     # */
-///     fn my_test(a in matrix(0 .. 5i32, U3, 0 ..= 5)) {
+///     fn my_test(a in matrix(0 .. 5i32, Const::<3>, 0 ..= 5)) {
 ///         // Let's make sure we've got the correct type first
-///         let a: MatrixMN<_, U3, Dynamic> = a;
+///         let a: MatrixMN<_, Const::<3>, Dynamic> = a;
 ///         prop_assert!(a.nrows() == 3);
 ///         prop_assert!(a.ncols() <= 5);
 ///         prop_assert!(a.iter().all(|x_ij| *x_ij >= 0 && *x_ij < 5));
@@ -329,7 +329,7 @@ where
     D: Dim,
     DefaultAllocator: Allocator<ScalarStrategy::Value, D>,
 {
-    matrix_(value_strategy, length.into(), U1.into())
+    matrix_(value_strategy, length.into(), Const::<1>.into())
 }
 
 impl<NParameters, R, C> Default for MatrixParameters<NParameters, R, C>

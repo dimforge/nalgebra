@@ -13,19 +13,17 @@ use rand::{
 use simba::scalar::SupersetOf;
 use simba::simd::SimdRealField;
 
-use crate::base::dimension::U2;
 use crate::base::{Vector2, Vector3};
 
 use crate::{
-    AbstractRotation, Isometry, Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3, Point,
-    Point3, Rotation, Rotation3, Scalar, Translation, Translation2, Translation3, UnitComplex,
-    UnitQuaternion,
+    AbstractRotation, Const, Isometry, Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3,
+    Point, Point3, Rotation, Rotation3, Scalar, Translation, Translation2, Translation3,
+    UnitComplex, UnitQuaternion,
 };
 
 impl<N: SimdRealField, R: AbstractRotation<N, D>, const D: usize> Isometry<N, R, D>
 where
     N::Element: SimdRealField,
-    // DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity isometry.
     ///
@@ -73,7 +71,6 @@ where
 impl<N: SimdRealField, R: AbstractRotation<N, D>, const D: usize> One for Isometry<N, R, D>
 where
     N::Element: SimdRealField,
-    // DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity isometry.
     #[inline]
@@ -87,7 +84,6 @@ impl<N: crate::RealField, R, const D: usize> Distribution<Isometry<N, R, D>> for
 where
     R: AbstractRotation<N, D>,
     Standard: Distribution<N> + Distribution<R>,
-    // DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Isometry<N, R, D> {
@@ -101,8 +97,7 @@ where
     N: SimdRealField + Arbitrary + Send,
     N::Element: SimdRealField,
     R: AbstractRotation<N, D> + Arbitrary + Send,
-    Owned<N, D>: Send,
-    // DefaultAllocator: Allocator<N, D>,
+    Owned<N, Const<D>>: Send,
 {
     #[inline]
     fn arbitrary(rng: &mut Gen) -> Self {
@@ -136,10 +131,7 @@ where
     /// ```
     #[inline]
     pub fn new(translation: Vector2<N>, angle: N) -> Self {
-        Self::from_parts(
-            Translation::from(translation),
-            Rotation::<N, U2>::new(angle),
-        )
+        Self::from_parts(Translation::from(translation), Rotation::<N, 2>::new(angle))
     }
 
     /// Creates a new isometry from the given translation coordinates.

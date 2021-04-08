@@ -11,7 +11,7 @@ use simba::scalar::RealField;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
-use crate::base::{CMatrixN, CVectorN, Const, DefaultAllocator, MatrixN};
+use crate::base::{CVectorN, Const, DefaultAllocator, DimName, MatrixN};
 
 use crate::geometry::Point;
 
@@ -28,10 +28,10 @@ pub trait TCategory: Any + Debug + Copy + PartialEq + Send {
 
     /// Checks that the given matrix is a valid homogeneous representation of an element of the
     /// category `Self`.
-    fn check_homogeneous_invariants<N: RealField, const D: usize>(mat: &CMatrixN<N, D>) -> bool
+    fn check_homogeneous_invariants<N: RealField, D: DimName>(mat: &MatrixN<N, D>) -> bool
     where
-        N::Epsilon: Copy;
-    // DefaultAllocator: Allocator<N, D, D>;
+        N::Epsilon: Copy,
+        DefaultAllocator: Allocator<N, D, D>;
 }
 
 /// Traits that gives the `Transform` category that is compatible with the result of the
@@ -71,10 +71,10 @@ pub enum TAffine {}
 
 impl TCategory for TGeneral {
     #[inline]
-    fn check_homogeneous_invariants<N: RealField, const D: usize>(_: &CMatrixN<N, D>) -> bool
+    fn check_homogeneous_invariants<N: RealField, D: DimName>(_: &MatrixN<N, D>) -> bool
     where
         N::Epsilon: Copy,
-        // DefaultAllocator: Allocator<N, D, D>,
+        DefaultAllocator: Allocator<N, D, D>,
     {
         true
     }
@@ -82,10 +82,10 @@ impl TCategory for TGeneral {
 
 impl TCategory for TProjective {
     #[inline]
-    fn check_homogeneous_invariants<N: RealField, const D: usize>(mat: &CMatrixN<N, D>) -> bool
+    fn check_homogeneous_invariants<N: RealField, D: DimName>(mat: &MatrixN<N, D>) -> bool
     where
         N::Epsilon: Copy,
-        // DefaultAllocator: Allocator<N, D, D>,
+        DefaultAllocator: Allocator<N, D, D>,
     {
         mat.is_invertible()
     }
@@ -98,12 +98,12 @@ impl TCategory for TAffine {
     }
 
     #[inline]
-    fn check_homogeneous_invariants<N: RealField, const D: usize>(mat: &CMatrixN<N, D>) -> bool
+    fn check_homogeneous_invariants<N: RealField, D: DimName>(mat: &MatrixN<N, D>) -> bool
     where
         N::Epsilon: Copy,
-        // DefaultAllocator: Allocator<N, D, D>,
+        DefaultAllocator: Allocator<N, D, D>,
     {
-        let last = D - 1;
+        let last = D::dim() - 1;
         mat.is_invertible()
             && mat[(last, last)] == N::one()
             && (0..last).all(|i| mat[(last, i)].is_zero())

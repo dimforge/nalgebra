@@ -5,7 +5,7 @@ use simba::simd::PrimitiveSimdValue;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
-use crate::base::{Const, DefaultAllocator, MatrixN, Scalar, VectorN};
+use crate::base::{CVectorN, Const, DefaultAllocator, MatrixN, Scalar, VectorN};
 
 use crate::geometry::{
     AbstractRotation, Isometry, Similarity, SuperTCategoryOf, TAffine, Transform, Translation,
@@ -28,7 +28,6 @@ impl<N1, N2, const D: usize> SubsetOf<Translation<N2, D>> for Translation<N1, D>
 where
     N1: Scalar,
     N2: Scalar + SupersetOf<N1>,
-    // DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
     fn to_superset(&self) -> Translation<N2, D> {
@@ -37,7 +36,7 @@ where
 
     #[inline]
     fn is_in_subset(rot: &Translation<N2, D>) -> bool {
-        crate::is_convertible::<_, VectorN<N1, D>>(&rot.vector)
+        crate::is_convertible::<_, CVectorN<N1, D>>(&rot.vector)
     }
 
     #[inline]
@@ -53,7 +52,6 @@ where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     R: AbstractRotation<N2, D>,
-    // DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
     fn to_superset(&self) -> Isometry<N2, R, D> {
@@ -84,7 +82,7 @@ where
 
     #[inline]
     fn is_in_subset(dq: &UnitDualQuaternion<N2>) -> bool {
-        crate::is_convertible::<_, Translation<N1, _>>(&dq.translation())
+        crate::is_convertible::<_, Translation<N1, 3>>(&dq.translation())
             && dq.rotation() == UnitQuaternion::identity()
     }
 
@@ -100,7 +98,6 @@ where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     R: AbstractRotation<N2, D>,
-    // DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
     fn to_superset(&self) -> Similarity<N2, R, D> {
@@ -160,7 +157,7 @@ where
 
     #[inline]
     fn is_in_subset(m: &MatrixN<N2, DimNameSum<Const<D>, U1>>) -> bool {
-        let id = m.fixed_slice::<DimNameSum<Const<D>, U1>, D>(0, 0);
+        let id = m.fixed_slice::<DimNameSum<Const<D>, U1>, Const<D>>(0, 0);
 
         // Scalar types agree.
         m.iter().all(|e| SupersetOf::<N1>::is_in_subset(e)) &&
@@ -172,7 +169,7 @@ where
 
     #[inline]
     fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<Const<D>, U1>>) -> Self {
-        let t = m.fixed_slice::<D, U1>(0, D);
+        let t = m.fixed_slice::<Const<D>, U1>(0, D);
         Self {
             vector: crate::convert_unchecked(t.into_owned()),
         }
@@ -207,7 +204,6 @@ impl<N: Scalar + PrimitiveSimdValue, const D: usize> From<[Translation<N::Elemen
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 2]>,
     N::Element: Scalar,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
     #[inline]
     fn from(arr: [Translation<N::Element, D>; 2]) -> Self {
@@ -223,7 +219,6 @@ impl<N: Scalar + PrimitiveSimdValue, const D: usize> From<[Translation<N::Elemen
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 4]>,
     N::Element: Scalar,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
     #[inline]
     fn from(arr: [Translation<N::Element, D>; 4]) -> Self {
@@ -241,7 +236,6 @@ impl<N: Scalar + PrimitiveSimdValue, const D: usize> From<[Translation<N::Elemen
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 8]>,
     N::Element: Scalar,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
     #[inline]
     fn from(arr: [Translation<N::Element, D>; 8]) -> Self {
@@ -263,7 +257,6 @@ impl<N: Scalar + PrimitiveSimdValue, const D: usize> From<[Translation<N::Elemen
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 16]>,
     N::Element: Scalar,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
     #[inline]
     fn from(arr: [Translation<N::Element, D>; 16]) -> Self {

@@ -21,7 +21,6 @@ macro_rules! impl_swizzle {
 impl<N: Scalar, const D: usize> Point<N, D>
 where
     Const<D>: ToTypenum,
-    // DefaultAllocator: Allocator<N, D>,
 {
     impl_swizzle!(
         where U0: xx()  -> Point2[0, 0],

@@ -27,7 +27,6 @@ where
     N2: RealField + SupersetOf<N1>,
     R1: AbstractRotation<N1, D> + SubsetOf<R2>,
     R2: AbstractRotation<N2, D>,
-    // DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
     fn to_superset(&self) -> Isometry<N2, R2, D> {
@@ -63,7 +62,7 @@ where
     #[inline]
     fn is_in_subset(dq: &UnitDualQuaternion<N2>) -> bool {
         crate::is_convertible::<_, UnitQuaternion<N1>>(&dq.rotation())
-            && crate::is_convertible::<_, Translation<N1, _>>(&dq.translation())
+            && crate::is_convertible::<_, Translation<N1, 3>>(&dq.translation())
     }
 
     #[inline]
@@ -79,7 +78,6 @@ where
     N2: RealField + SupersetOf<N1>,
     R1: AbstractRotation<N1, D> + SubsetOf<R2>,
     R2: AbstractRotation<N2, D>,
-    // DefaultAllocator: Allocator<N1, D> + Allocator<N2, D>,
 {
     #[inline]
     fn to_superset(&self) -> Similarity<N2, R2, D> {
@@ -154,8 +152,8 @@ where
 
     #[inline]
     fn is_in_subset(m: &MatrixN<N2, DimNameSum<Const<D>, U1>>) -> bool {
-        let rot = m.fixed_slice::<D, D>(0, 0);
-        let bottom = m.fixed_slice::<U1, D>(D, 0);
+        let rot = m.fixed_slice::<Const<D>, Const<D>>(0, 0);
+        let bottom = m.fixed_slice::<U1, Const<D>>(D, 0);
 
         // Scalar types agree.
         m.iter().all(|e| SupersetOf::<N1>::is_in_subset(e)) &&
@@ -167,7 +165,7 @@ where
 
     #[inline]
     fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<Const<D>, U1>>) -> Self {
-        let t = m.fixed_slice::<D, U1>(0, D).into_owned();
+        let t = m.fixed_slice::<Const<D>, U1>(0, D).into_owned();
         let t = Translation {
             vector: crate::convert_unchecked(t),
         };
@@ -208,7 +206,6 @@ where
     R::Element: AbstractRotation<N::Element, D>,
     N::Element: Scalar + Copy,
     R::Element: Scalar + Copy,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
     #[inline]
     fn from(arr: [Isometry<N::Element, R::Element, D>; 2]) -> Self {
@@ -227,7 +224,6 @@ where
     R::Element: AbstractRotation<N::Element, D>,
     N::Element: Scalar + Copy,
     R::Element: Scalar + Copy,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
     #[inline]
     fn from(arr: [Isometry<N::Element, R::Element, D>; 4]) -> Self {
@@ -256,7 +252,6 @@ where
     R::Element: AbstractRotation<N::Element, D>,
     N::Element: Scalar + Copy,
     R::Element: Scalar + Copy,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
     #[inline]
     fn from(arr: [Isometry<N::Element, R::Element, D>; 8]) -> Self {
@@ -293,7 +288,6 @@ where
     R::Element: AbstractRotation<N::Element, D>,
     N::Element: Scalar + Copy,
     R::Element: Scalar + Copy,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
     #[inline]
     fn from(arr: [Isometry<N::Element, R::Element, D>; 16]) -> Self {

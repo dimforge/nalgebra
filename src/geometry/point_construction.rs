@@ -10,10 +10,10 @@ use rand::{
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
-use crate::base::{DefaultAllocator, Scalar, VectorN};
+use crate::base::{CVectorN, DefaultAllocator, Scalar};
 use crate::{
     Const, Point1, Point2, Point3, Point4, Point5, Point6, Vector1, Vector2, Vector3, Vector4,
-    Vector5, Vector6,
+    Vector5, Vector6, VectorN,
 };
 use simba::scalar::{ClosedDiv, SupersetOf};
 
@@ -52,7 +52,7 @@ impl<N: Scalar, const D: usize> Point<N, D>
     where
         N: Zero,
     {
-        Self::from(VectorN::from_element(N::zero()))
+        Self::from(CVectorN::from_element(N::zero()))
     }
 
     /// Creates a new point from a slice.
@@ -71,7 +71,7 @@ impl<N: Scalar, const D: usize> Point<N, D>
     /// ```
     #[inline]
     pub fn from_slice(components: &[N]) -> Self {
-        Self::from(VectorN::from_row_slice(components))
+        Self::from(CVectorN::from_row_slice(components))
     }
 
     /// Creates a new point from its homogeneous vector representation.
@@ -131,7 +131,6 @@ impl<N: Scalar, const D: usize> Point<N, D>
     pub fn cast<To: Scalar>(self) -> Point<To, D>
     where
         Point<To, D>: SupersetOf<Self>,
-        // DefaultAllocator: Allocator<To, D>,
     {
         crate::convert(self)
     }
@@ -148,37 +147,35 @@ impl<N: Scalar + Bounded, const D: usize> Bounded for Point<N, D>
 {
     #[inline]
     fn max_value() -> Self {
-        Self::from(VectorN::max_value())
+        Self::from(CVectorN::max_value())
     }
 
     #[inline]
     fn min_value() -> Self {
-        Self::from(VectorN::min_value())
+        Self::from(CVectorN::min_value())
     }
 }
 
 #[cfg(feature = "rand-no-std")]
 impl<N: Scalar, const D: usize> Distribution<Point<N, D>> for Standard
 where
-    // DefaultAllocator: Allocator<N, D>,
     Standard: Distribution<N>,
 {
      /// Generate a `Point` where each coordinate is an independent variate from `[0, 1)`.
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Point<N, D> {
-        Point::from(rng.gen::<VectorN<N, D>>())
+        Point::from(rng.gen::<CVectorN<N, D>>())
     }
 }
 
 #[cfg(feature = "arbitrary")]
 impl<N: Scalar + Arbitrary + Send, const D: usize> Arbitrary for Point<N, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
     <DefaultAllocator as Allocator<N, Const<D>>>::Buffer: Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {
-        Self::from(VectorN::arbitrary(g))
+        Self::from(CVectorN::arbitrary(g))
     }
 }
 

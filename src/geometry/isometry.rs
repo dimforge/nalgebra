@@ -59,14 +59,14 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(serialize = "R: Serialize,
-                     DefaultAllocator: Allocator<N, D>,
-                     Owned<N, D>: Serialize"))
+                     DefaultAllocator: Allocator<N, Const<D>>,
+                     Owned<N, Const<D>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(deserialize = "R: Deserialize<'de>,
-                       DefaultAllocator: Allocator<N, D>,
-                       Owned<N, D>: Deserialize<'de>"))
+                       DefaultAllocator: Allocator<N, Const<D>>,
+                       Owned<N, Const<D>>: Deserialize<'de>"))
 )]
 pub struct Isometry<N: Scalar, R, const D: usize>
 // where
@@ -84,7 +84,6 @@ where
     N: SimdRealField,
     R: Abomonation,
     Translation<N, D>: Abomonation,
-    // DefaultAllocator: Allocator<N, D>,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.rotation.entomb(writer)?;
@@ -104,7 +103,6 @@ where
 
 impl<N: Scalar + hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Isometry<N, R, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
     Owned<N, Const<D>>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
@@ -114,7 +112,6 @@ where
 }
 
 impl<N: Scalar + Copy, R: Copy, const D: usize> Copy for Isometry<N, R, D> where
-    // DefaultAllocator: Allocator<N, D>,
     Owned<N, Const<D>>: Copy
 {
 }
@@ -163,7 +160,6 @@ impl<N: Scalar, R: AbstractRotation<N, D>, const D: usize> Isometry<N, R, D>
 impl<N: SimdRealField, R: AbstractRotation<N, D>, const D: usize> Isometry<N, R, D>
 where
     N::Element: SimdRealField,
-    // DefaultAllocator: Allocator<N, D>,
 {
     /// Inverts `self`.
     ///
@@ -318,7 +314,6 @@ where
 impl<N: SimdRealField, R: AbstractRotation<N, D>, const D: usize> Isometry<N, R, D>
 where
     N::Element: SimdRealField,
-    // DefaultAllocator: Allocator<N, D>,
 {
     /// Transform the given point by this isometry.
     ///
@@ -504,14 +499,13 @@ impl<N: SimdRealField, R, const D: usize> Isometry<N, R, D>
 }
 
 impl<N: SimdRealField, R, const D: usize> Eq for Isometry<N, R, D> where
-    R: AbstractRotation<N, D> + Eq // DefaultAllocator: Allocator<N, D>,
+    R: AbstractRotation<N, D> + Eq
 {
 }
 
 impl<N: SimdRealField, R, const D: usize> PartialEq for Isometry<N, R, D>
 where
     R: AbstractRotation<N, D> + PartialEq,
-    // DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
@@ -522,7 +516,6 @@ where
 impl<N: RealField, R, const D: usize> AbsDiffEq for Isometry<N, R, D>
 where
     R: AbstractRotation<N, D> + AbsDiffEq<Epsilon = N::Epsilon>,
-    // DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
     type Epsilon = N::Epsilon;
@@ -542,7 +535,6 @@ where
 impl<N: RealField, R, const D: usize> RelativeEq for Isometry<N, R, D>
 where
     R: AbstractRotation<N, D> + RelativeEq<Epsilon = N::Epsilon>,
-    // DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
     #[inline]
@@ -568,7 +560,6 @@ where
 impl<N: RealField, R, const D: usize> UlpsEq for Isometry<N, R, D>
 where
     R: AbstractRotation<N, D> + UlpsEq<Epsilon = N::Epsilon>,
-    // DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
     #[inline]
@@ -592,7 +583,6 @@ where
 impl<N: RealField + fmt::Display, R, const D: usize> fmt::Display for Isometry<N, R, D>
 where
     R: fmt::Display,
-    // DefaultAllocator: Allocator<N, D> + Allocator<usize, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);

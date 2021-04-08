@@ -2,7 +2,7 @@ use num::{One, Zero};
 
 use simba::scalar::{ClosedAdd, ClosedMul, SupersetOf};
 
-use crate::base::{MatrixN, Scalar};
+use crate::base::{CMatrixN, Scalar};
 
 use crate::geometry::Rotation;
 
@@ -10,7 +10,6 @@ use crate::geometry::Rotation;
 impl<N, const D: usize> Rotation<N, D>
 where
     N: Scalar + Zero + One,
-    // DefaultAllocator: Allocator<N, D, D>,
 {
     /// Creates a new square identity rotation of the given `dimension`.
     ///
@@ -25,7 +24,7 @@ where
     /// ```
     #[inline]
     pub fn identity() -> Rotation<N, D> {
-        Self::from_matrix_unchecked(MatrixN::<N, D>::identity())
+        Self::from_matrix_unchecked(CMatrixN::<N, D>::identity())
     }
 }
 
@@ -45,7 +44,6 @@ impl<N: Scalar, const D: usize> Rotation<N, D>
     pub fn cast<To: Scalar>(self) -> Rotation<To, D>
     where
         Rotation<To, D>: SupersetOf<Self>,
-        // DefaultAllocator: Allocator<To, D, D>,
     {
         crate::convert(self)
     }
@@ -54,7 +52,6 @@ impl<N: Scalar, const D: usize> Rotation<N, D>
 impl<N, const D: usize> One for Rotation<N, D>
 where
     N: Scalar + Zero + One + ClosedAdd + ClosedMul,
-    // DefaultAllocator: Allocator<N, D, D>,
 {
     #[inline]
     fn one() -> Self {

@@ -17,7 +17,7 @@ use simba::simd::SimdPartialOrd;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
-use crate::base::{Const, DefaultAllocator, Scalar, VectorN};
+use crate::base::{CVectorN, Const, DefaultAllocator, Scalar, VectorN};
 
 /// A point in an euclidean space.
 ///
@@ -64,7 +64,7 @@ impl<N: Scalar + Copy, const D: usize> Copy for Point<N, D>
 
 #[cfg(feature = "bytemuck")]
 unsafe impl<N: Scalar, const D: usize> bytemuck::Zeroable for Point<N, D> where
-    VectorN<N, Const<D>>: bytemuck::Zeroable // DefaultAllocator: Allocator<N, D>,
+    VectorN<N, Const<D>>: bytemuck::Zeroable
 {
 }
 
@@ -73,17 +73,11 @@ unsafe impl<N: Scalar, const D: usize> bytemuck::Pod for Point<N, D>
 where
     N: Copy,
     VectorN<N, Const<D>>: bytemuck::Pod,
-    // DefaultAllocator: Allocator<N, D>,
-    // <DefaultAllocator as Allocator<N, D>>::Buffer: Copy,
 {
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Scalar, const D: usize> Serialize for Point<N, D>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-//     <DefaultAllocator as Allocator<N, D>>::Buffer: Serialize,
-{
+impl<N: Scalar + Serialize, const D: usize> Serialize for Point<N, D> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -93,16 +87,12 @@ impl<N: Scalar, const D: usize> Serialize for Point<N, D>
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Scalar, const D: usize> Deserialize<'a> for Point<N, D>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-//     <DefaultAllocator as Allocator<N, D>>::Buffer: Deserialize<'a>,
-{
+impl<'a, N: Scalar + Deserialize<'a>, const D: usize> Deserialize<'a> for Point<N, D> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
         Des: Deserializer<'a>,
     {
-        let coords = VectorN::<N, D>::deserialize(deserializer)?;
+        let coords = CVectorN::<N, D>::deserialize(deserializer)?;
 
         Ok(Self::from(coords))
     }
@@ -113,7 +103,6 @@ impl<N, const D: usize> Abomonation for Point<N, D>
 where
     N: Scalar,
     VectorN<N, Const<D>>: Abomonation,
-    // DefaultAllocator: Allocator<N, D>,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.coords.entomb(writer)
@@ -312,7 +301,6 @@ impl<N: Scalar, const D: usize> Point<N, D>
 
 impl<N: Scalar + AbsDiffEq, const D: usize> AbsDiffEq for Point<N, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
     type Epsilon = N::Epsilon;
@@ -330,7 +318,6 @@ where
 
 impl<N: Scalar + RelativeEq, const D: usize> RelativeEq for Point<N, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
     #[inline]
@@ -352,7 +339,6 @@ where
 
 impl<N: Scalar + UlpsEq, const D: usize> UlpsEq for Point<N, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
     #[inline]

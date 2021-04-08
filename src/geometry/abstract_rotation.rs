@@ -39,7 +39,6 @@ pub trait AbstractRotation<N: Scalar, const D: usize>: PartialEq + ClosedMul + C
 impl<N: SimdRealField, const D: usize> AbstractRotation<N, D> for Rotation<N, D>
 where
     N::Element: SimdRealField,
-    // DefaultAllocator: Allocator<N, D, D>,
 {
     #[inline]
     fn identity() -> Self {

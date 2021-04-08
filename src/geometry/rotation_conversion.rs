@@ -5,7 +5,7 @@ use simba::simd::{PrimitiveSimdValue, SimdValue};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimMin, DimNameAdd, DimNameSum, U1};
-use crate::base::{Const, DefaultAllocator, Matrix2, Matrix3, Matrix4, MatrixN, Scalar};
+use crate::base::{CMatrixN, Const, DefaultAllocator, Matrix2, Matrix3, Matrix4, MatrixN, Scalar};
 
 use crate::geometry::{
     AbstractRotation, Isometry, Rotation, Rotation2, Rotation3, Similarity, SuperTCategoryOf,
@@ -31,7 +31,6 @@ impl<N1, N2, const D: usize> SubsetOf<Rotation<N2, D>> for Rotation<N1, D>
 where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
-    // DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D, D>,
 {
     #[inline]
     fn to_superset(&self) -> Rotation<N2, D> {
@@ -40,7 +39,7 @@ where
 
     #[inline]
     fn is_in_subset(rot: &Rotation<N2, D>) -> bool {
-        crate::is_convertible::<_, MatrixN<N1, D>>(rot.matrix())
+        crate::is_convertible::<_, CMatrixN<N1, D>>(rot.matrix())
     }
 
     #[inline]
@@ -125,7 +124,6 @@ where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     R: AbstractRotation<N2, D> + SupersetOf<Self>,
-    // DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
 {
     #[inline]
     fn to_superset(&self) -> Isometry<N2, R, D> {
@@ -148,7 +146,6 @@ where
     N1: RealField,
     N2: RealField + SupersetOf<N1>,
     R: AbstractRotation<N2, D> + SupersetOf<Self>,
-    // DefaultAllocator: Allocator<N1, D, D> + Allocator<N2, D>,
 {
     #[inline]
     fn to_superset(&self) -> Similarity<N2, R, D> {
@@ -213,8 +210,8 @@ where
 
     #[inline]
     fn is_in_subset(m: &MatrixN<N2, DimNameSum<Const<D>, U1>>) -> bool {
-        let rot = m.fixed_slice::<D, D>(0, 0);
-        let bottom = m.fixed_slice::<U1, D>(D, 0);
+        let rot = m.fixed_slice::<Const<D>, Const<D>>(0, 0);
+        let bottom = m.fixed_slice::<U1, Const<D>>(D, 0);
 
         // Scalar types agree.
         m.iter().all(|e| SupersetOf::<N1>::is_in_subset(e)) &&
@@ -226,7 +223,7 @@ where
 
     #[inline]
     fn from_superset_unchecked(m: &MatrixN<N2, DimNameSum<Const<D>, U1>>) -> Self {
-        let r = m.fixed_slice::<D, D>(0, 0);
+        let r = m.fixed_slice::<Const<D>, Const<D>>(0, 0);
         Self::from_matrix_unchecked(crate::convert_unchecked(r.into_owned()))
     }
 }
@@ -264,7 +261,6 @@ impl<N: Scalar + PrimitiveSimdValue, const D: usize> From<[Rotation<N::Element, 
 where
     N: From<[<N as SimdValue>::Element; 2]>,
     N::Element: Scalar + Copy,
-    // DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
 {
     #[inline]
     fn from(arr: [Rotation<N::Element, D>; 2]) -> Self {
@@ -280,7 +276,6 @@ impl<N: Scalar + PrimitiveSimdValue, const D: usize> From<[Rotation<N::Element, 
 where
     N: From<[<N as SimdValue>::Element; 4]>,
     N::Element: Scalar + Copy,
-    // DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
 {
     #[inline]
     fn from(arr: [Rotation<N::Element, D>; 4]) -> Self {
@@ -298,7 +293,6 @@ impl<N: Scalar + PrimitiveSimdValue, const D: usize> From<[Rotation<N::Element, 
 where
     N: From<[<N as SimdValue>::Element; 8]>,
     N::Element: Scalar + Copy,
-    // DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
 {
     #[inline]
     fn from(arr: [Rotation<N::Element, D>; 8]) -> Self {
@@ -320,7 +314,6 @@ impl<N: Scalar + PrimitiveSimdValue, const D: usize> From<[Rotation<N::Element, 
 where
     N: From<[<N as SimdValue>::Element; 16]>,
     N::Element: Scalar + Copy,
-    // DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
 {
     #[inline]
     fn from(arr: [Rotation<N::Element, D>; 16]) -> Self {

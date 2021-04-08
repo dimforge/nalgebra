@@ -9,7 +9,7 @@ use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{
     AreMultipliable, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
-use crate::base::dimension::{Dim, DimName, U1};
+use crate::base::dimension::{Dim, U1};
 use crate::base::storage::Storage;
 use crate::base::{Const, DefaultAllocator, Matrix, Scalar, Vector, VectorSum};
 
@@ -79,74 +79,101 @@ impl<'a, N: Scalar + ClosedNeg, const D: usize> Neg for &'a Point<N, D>
 
 // Point - Point
 add_sub_impl!(Sub, sub, ClosedSub;
-    (D, U1), (D, U1);
-    self: &'a Point<N, D>, right: &'b Point<N, D>, Output = VectorSum<N, D, D>;
+    (Const<D>, U1), (Const<D>, U1)
+    const D; for; where;
+    self: &'a Point<N, D>, right: &'b Point<N, D>, Output = VectorSum<N, Const<D>, Const<D>>;
     &self.coords - &right.coords; 'a, 'b);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (D, U1), (D, U1);
-    self: &'a Point<N, D>, right: Point<N, D>, Output = VectorSum<N, D, D>;
+    (Const<D>, U1), (Const<D>, U1)
+    const D; for; where;
+    self: &'a Point<N, D>, right: Point<N, D>, Output = VectorSum<N, Const<D>, Const<D>>;
     &self.coords - right.coords; 'a);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (D, U1), (D, U1);
-    self: Point<N, D>, right: &'b Point<N, D>, Output = VectorSum<N, D, D>;
+    (Const<D>, U1), (Const<D>, U1)
+    const D; for; where;
+    self: Point<N, D>, right: &'b Point<N, D>, Output = VectorSum<N, Const<D>, Const<D>>;
     self.coords - &right.coords; 'b);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (D, U1), (D, U1);
-    self: Point<N, D>, right: Point<N, D>, Output = VectorSum<N, D, D>;
+    (Const<D>, U1), (Const<D>, U1)
+    const D; for; where;
+    self: Point<N, D>, right: Point<N, D>, Output = VectorSum<N, Const<D>, Const<D>>;
     self.coords - right.coords; );
 
 // Point - Vector
 add_sub_impl!(Sub, sub, ClosedSub;
-    (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    const D1;
+    for D2, SB;
+    where D2: Dim, SB: Storage<N, D2>;
     self: &'a Point<N, D1>, right: &'b Vector<N, D2, SB>, Output = Point<N, D1>;
     Self::Output::from(&self.coords - right); 'a, 'b);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    const D1;
+    for D2, SB;
+    where D2: Dim, SB: Storage<N, D2>;
     self: &'a Point<N, D1>, right: Vector<N, D2, SB>, Output = Point<N, D1>;
     Self::Output::from(&self.coords - &right); 'a); // TODO: should not be a ref to `right`.
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    const D1;
+    for D2, SB;
+    where D2: Dim, SB: Storage<N, D2>;
     self: Point<N, D1>, right: &'b Vector<N, D2, SB>, Output = Point<N, D1>;
     Self::Output::from(self.coords - right); 'b);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    const D1;
+    for D2, SB;
+    where D2: Dim, SB: Storage<N, D2>;
     self: Point<N, D1>, right: Vector<N, D2, SB>, Output = Point<N, D1>;
     Self::Output::from(self.coords - right); );
 
 // Point + Vector
 add_sub_impl!(Add, add, ClosedAdd;
-    (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    const D1;
+    for D2, SB;
+    where D2: Dim, SB: Storage<N, D2>;
     self: &'a Point<N, D1>, right: &'b Vector<N, D2, SB>, Output = Point<N, D1>;
     Self::Output::from(&self.coords + right); 'a, 'b);
 
 add_sub_impl!(Add, add, ClosedAdd;
-    (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    const D1;
+    for D2, SB;
+    where D2: Dim, SB: Storage<N, D2>;
     self: &'a Point<N, D1>, right: Vector<N, D2, SB>, Output = Point<N, D1>;
     Self::Output::from(&self.coords + &right); 'a); // TODO: should not be a ref to `right`.
 
 add_sub_impl!(Add, add, ClosedAdd;
-    (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    const D1;
+    for D2, SB;
+    where D2: Dim, SB: Storage<N, D2>;
     self: Point<N, D1>, right: &'b Vector<N, D2, SB>, Output = Point<N, D1>;
     Self::Output::from(self.coords + right); 'b);
 
 add_sub_impl!(Add, add, ClosedAdd;
-    (D1, U1), (D2, U1) -> (D1) for D1: DimName, D2: Dim, SB: Storage<N, D2>;
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    const D1;
+    for D2, SB;
+    where D2: Dim, SB: Storage<N, D2>;
     self: Point<N, D1>, right: Vector<N, D2, SB>, Output = Point<N, D1>;
     Self::Output::from(self.coords + right); );
 
-// XXX: replace by the shared macro: add_sub_assign_impl
+// TODO: replace by the shared macro: add_sub_assign_impl?
 macro_rules! op_assign_impl(
     ($($TraitAssign: ident, $method_assign: ident, $bound: ident);* $(;)*) => {$(
         impl<'b, N, D2: Dim, SB, const D1: usize> $TraitAssign<&'b Vector<N, D2, SB>> for Point<N, D1>
             where N: Scalar + $bound,
                   SB: Storage<N, D2>,
-                  // DefaultAllocator: Allocator<N, D1>,
                   ShapeConstraint: SameNumberOfRows<Const<D1>, D2> {
 
             #[inline]
@@ -158,8 +185,7 @@ macro_rules! op_assign_impl(
         impl<N, D2: Dim, SB, const D1: usize> $TraitAssign<Vector<N, D2, SB>> for Point<N, D1>
             where N: Scalar + $bound,
                   SB: Storage<N, D2>,
-                  // DefaultAllocator: Allocator<N, D1>,
-                  ShapeConstraint: SameNumberOfRows<D1, D2> {
+                  ShapeConstraint: SameNumberOfRows<Const<D1>, D2> {
 
             #[inline]
             fn $method_assign(&mut self, right: Vector<N, D2, SB>) {
@@ -181,9 +207,12 @@ op_assign_impl!(
  */
 md_impl_all!(
     Mul, mul;
-    (R1, C1), (D2, U1) for R1: DimName, C1: Dim, D2: DimName, SA: Storage<N, R1, C1>
-    where ShapeConstraint: AreMultipliable<R1, C1, D2, U1>;
-    self: Matrix<N, R1, C1, SA>, right: Point<N, D2>, Output = Point<N, R1>;
+    (Const<R1>, Const<C1>), (Const<D2>, U1)
+    const D2, R1, C1;
+    for SA;
+    where SA: Storage<N, Const<R1>, Const<C1>>,
+          ShapeConstraint: AreMultipliable<Const<R1>, Const<C1>, Const<D2>, U1>;
+    self: Matrix<N, Const<R1>, Const<C1>, SA>, right: Point<N, D2>, Output = Point<N, R1>;
     [val val] => Point::from(self * right.coords);
     [ref val] => Point::from(self * right.coords);
     [val ref] => Point::from(self * &right.coords);

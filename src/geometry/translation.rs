@@ -34,7 +34,6 @@ pub struct Translation<N: Scalar, const D: usize>
 
 impl<N: Scalar + hash::Hash, const D: usize> hash::Hash for Translation<N, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
     Owned<N, Const<D>>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
@@ -42,15 +41,10 @@ where
     }
 }
 
-impl<N: Scalar + Copy, const D: usize> Copy for Translation<N, D> where
-    // DefaultAllocator: Allocator<N, D>,
-    Owned<N, Const<D>>: Copy
-{
-}
+impl<N: Scalar + Copy, const D: usize> Copy for Translation<N, D> where Owned<N, Const<D>>: Copy {}
 
 impl<N: Scalar, const D: usize> Clone for Translation<N, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
     Owned<N, Const<D>>: Clone,
 {
     #[inline]
@@ -60,12 +54,10 @@ where
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N, D> Abomonation for Translation<N, D>
+impl<N, const D: usize> Abomonation for Translation<N, D>
 where
     N: Scalar,
-    D: DimName,
     CVectorN<N, D>: Abomonation,
-    // DefaultAllocator: Allocator<N, D>,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.vector.entomb(writer)
@@ -83,8 +75,7 @@ where
 #[cfg(feature = "serde-serialize")]
 impl<N: Scalar, const D: usize> Serialize for Translation<N, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
-    Owned<N, D>: Serialize,
+    Owned<N, Const<D>>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -97,8 +88,7 @@ where
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: Scalar, const D: usize> Deserialize<'a> for Translation<N, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
-    Owned<N, D>: Deserialize<'a>,
+    Owned<N, Const<D>>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
@@ -169,8 +159,9 @@ impl<N: Scalar, const D: usize> Translation<N, D>
         Const<D>: DimNameAdd<U1>,
         DefaultAllocator: Allocator<N, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
-        let mut res = MatrixN::<N, DimNameSum<D, U1>>::identity();
-        res.fixed_slice_mut::<D, U1>(0, D).copy_from(&self.vector);
+        let mut res = MatrixN::<N, DimNameSum<Const<D>, U1>>::identity();
+        res.fixed_slice_mut::<Const<D>, U1>(0, D)
+            .copy_from(&self.vector);
 
         res
     }
@@ -257,7 +248,6 @@ impl<N: Scalar + PartialEq, const D: usize> PartialEq for Translation<N, D>
 
 impl<N: Scalar + AbsDiffEq, const D: usize> AbsDiffEq for Translation<N, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
     type Epsilon = N::Epsilon;
@@ -275,7 +265,6 @@ where
 
 impl<N: Scalar + RelativeEq, const D: usize> RelativeEq for Translation<N, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
     #[inline]
@@ -297,7 +286,6 @@ where
 
 impl<N: Scalar + UlpsEq, const D: usize> UlpsEq for Translation<N, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
     #[inline]

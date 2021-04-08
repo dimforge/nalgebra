@@ -12,7 +12,7 @@ use rand::{
 
 use simba::scalar::{ClosedAdd, SupersetOf};
 
-use crate::base::{CVectorN, Scalar};
+use crate::base::{CVectorN, Const, Scalar};
 
 use crate::geometry::Translation;
 
@@ -54,7 +54,6 @@ impl<N: Scalar, const D: usize> Translation<N, D>
     pub fn cast<To: Scalar>(self) -> Translation<To, D>
     where
         Translation<To, D>: SupersetOf<Self>,
-        // DefaultAllocator: Allocator<To, D>,
     {
         crate::convert(self)
     }
@@ -73,7 +72,6 @@ impl<N: Scalar + Zero + ClosedAdd, const D: usize> One for Translation<N, D>
 #[cfg(feature = "rand-no-std")]
 impl<N: Scalar, const D: usize> Distribution<Translation<N, D>> for Standard
 where
-    // DefaultAllocator: Allocator<N, D>,
     Standard: Distribution<N>,
 {
     /// Generate an arbitrary random variate for testing purposes.
@@ -86,8 +84,7 @@ where
 #[cfg(feature = "arbitrary")]
 impl<N: Scalar + Arbitrary + Send, const D: usize> Arbitrary for Translation<N, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
-    Owned<N, D>: Send,
+    Owned<N, Const<D>>: Send,
 {
     #[inline]
     fn arbitrary(rng: &mut Gen) -> Self {

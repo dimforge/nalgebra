@@ -29,15 +29,15 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
     feature = "serde-serialize",
     serde(bound(serialize = "N: Serialize,
                      R: Serialize,
-                     DefaultAllocator: Allocator<N, D>,
-                     Owned<N, D>: Serialize"))
+                     DefaultAllocator: Allocator<N, Const<D>>,
+                     Owned<N, Const<D>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(deserialize = "N: Deserialize<'de>,
                        R: Deserialize<'de>,
-                       DefaultAllocator: Allocator<N, D>,
-                       Owned<N, D>: Deserialize<'de>"))
+                       DefaultAllocator: Allocator<N, Const<D>>,
+                       Owned<N, Const<D>>: Deserialize<'de>"))
 )]
 pub struct Similarity<N: Scalar, R, const D: usize>
 // where
@@ -52,7 +52,6 @@ pub struct Similarity<N: Scalar, R, const D: usize>
 impl<N: Scalar, R, const D: usize> Abomonation for Similarity<N, R, D>
 where
     Isometry<N, R, D>: Abomonation,
-    // DefaultAllocator: Allocator<N, D>,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.isometry.entomb(writer)
@@ -69,7 +68,6 @@ where
 
 impl<N: Scalar + hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Similarity<N, R, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
     Owned<N, Const<D>>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
@@ -81,7 +79,6 @@ where
 impl<N: Scalar + Copy + Zero, R: AbstractRotation<N, D> + Copy, const D: usize> Copy
     for Similarity<N, R, D>
 where
-    // DefaultAllocator: Allocator<N, D>,
     Owned<N, Const<D>>: Copy,
 {
 }
@@ -100,7 +97,6 @@ impl<N: Scalar + Zero, R: AbstractRotation<N, D> + Clone, const D: usize> Clone
 impl<N: Scalar + Zero, R, const D: usize> Similarity<N, R, D>
 where
     R: AbstractRotation<N, D>,
-    // DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new similarity from its rotational and translational parts.
     #[inline]
@@ -143,7 +139,6 @@ impl<N: SimdRealField, R, const D: usize> Similarity<N, R, D>
 where
     N::Element: SimdRealField,
     R: AbstractRotation<N, D>,
-    // DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new similarity that applies only a scaling factor.
     #[inline]
@@ -345,7 +340,7 @@ impl<N: SimdRealField, R, const D: usize> Similarity<N, R, D>
     {
         let mut res = self.isometry.to_homogeneous();
 
-        for e in res.fixed_slice_mut::<D, D>(0, 0).iter_mut() {
+        for e in res.fixed_slice_mut::<Const<D>, Const<D>>(0, 0).iter_mut() {
             *e *= self.scaling
         }
 
@@ -354,14 +349,13 @@ impl<N: SimdRealField, R, const D: usize> Similarity<N, R, D>
 }
 
 impl<N: SimdRealField, R, const D: usize> Eq for Similarity<N, R, D> where
-    R: AbstractRotation<N, D> + Eq // DefaultAllocator: Allocator<N, D>,
+    R: AbstractRotation<N, D> + Eq
 {
 }
 
 impl<N: SimdRealField, R, const D: usize> PartialEq for Similarity<N, R, D>
 where
     R: AbstractRotation<N, D> + PartialEq,
-    // DefaultAllocator: Allocator<N, D>,
 {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
@@ -372,7 +366,6 @@ where
 impl<N: RealField, R, const D: usize> AbsDiffEq for Similarity<N, R, D>
 where
     R: AbstractRotation<N, D> + AbsDiffEq<Epsilon = N::Epsilon>,
-    // DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
     type Epsilon = N::Epsilon;
@@ -392,7 +385,6 @@ where
 impl<N: RealField, R, const D: usize> RelativeEq for Similarity<N, R, D>
 where
     R: AbstractRotation<N, D> + RelativeEq<Epsilon = N::Epsilon>,
-    // DefaultAllocator: Allocator<N, D>,
     N::Epsilon: Copy,
 {
     #[inline]
@@ -441,7 +433,6 @@ impl<N, R, const D: usize> fmt::Display for Similarity<N, R, D>
 where
     N: RealField + fmt::Display,
     R: AbstractRotation<N, D> + fmt::Display,
-    // DefaultAllocator: Allocator<N, D> + Allocator<usize, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);

@@ -8,7 +8,6 @@ impl<N, const D: usize> SimdValue for Rotation<N, D>
 where
     N: Scalar + SimdValue,
     N::Element: Scalar,
-    // DefaultAllocator: Allocator<N, D, D> + Allocator<N::Element, D, D>,
 {
     type Element = Rotation<N::Element, D>;
     type SimdBool = N::SimdBool;

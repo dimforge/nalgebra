@@ -4,7 +4,7 @@ macro_rules! gen_tests(
     ($module: ident, $scalar: ty) => {
         mod $module {
             use na::debug::RandomSDP;
-            use na::dimension::{U4, Const, Dynamic};
+            use na::dimension::{Const, Dynamic};
             use na::{DMatrix, DVector, Matrix4x3, Vector4};
             use rand::random;
             use simba::scalar::ComplexField;

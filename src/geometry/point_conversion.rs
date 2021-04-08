@@ -20,7 +20,6 @@ impl<N1, N2, const D: usize> SubsetOf<Point<N2, D>> for Point<N1, D>
 where
     N1: Scalar,
     N2: Scalar + SupersetOf<N1>,
-    // DefaultAllocator: Allocator<N2, D> + Allocator<N1, D>,
 {
     #[inline]
     fn to_superset(&self) -> Point<N2, D> {
@@ -58,12 +57,12 @@ where
 
     #[inline]
     fn is_in_subset(v: &VectorN<N2, DimNameSum<Const<D>, U1>>) -> bool {
-        crate::is_convertible::<_, VectorN<N1, DimNameSum<D, U1>>>(v) && !v[D].is_zero()
+        crate::is_convertible::<_, VectorN<N1, DimNameSum<Const<D>, U1>>>(v) && !v[D].is_zero()
     }
 
     #[inline]
     fn from_superset_unchecked(v: &VectorN<N2, DimNameSum<Const<D>, U1>>) -> Self {
-        let coords = v.fixed_slice::<D, U1>(0, 0) / v[D].inlined_clone();
+        let coords = v.fixed_slice::<Const<D>, U1>(0, 0) / v[D].inlined_clone();
         Self {
             coords: crate::convert_unchecked(coords),
         }
@@ -97,7 +96,6 @@ impl<N: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<N::Eleme
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 2]>,
     N::Element: Scalar + Copy,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
     <DefaultAllocator as Allocator<N::Element, Const<D>>>::Buffer: Copy,
 {
     #[inline]
@@ -111,7 +109,6 @@ impl<N: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<N::Eleme
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 4]>,
     N::Element: Scalar + Copy,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
     <DefaultAllocator as Allocator<N::Element, Const<D>>>::Buffer: Copy,
 {
     #[inline]
@@ -130,7 +127,6 @@ impl<N: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<N::Eleme
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 8]>,
     N::Element: Scalar + Copy,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
     <DefaultAllocator as Allocator<N::Element, Const<D>>>::Buffer: Copy,
 {
     #[inline]
@@ -153,7 +149,6 @@ impl<N: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<N::Eleme
 where
     N: From<[<N as simba::simd::SimdValue>::Element; 16]>,
     N::Element: Scalar + Copy,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
     <DefaultAllocator as Allocator<N::Element, Const<D>>>::Buffer: Copy,
 {
     #[inline]

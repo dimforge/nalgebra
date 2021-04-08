@@ -16,7 +16,7 @@ use simba::simd::SimdRealField;
 use crate::base::{Vector2, Vector3};
 
 use crate::{
-    AbstractRotation, Isometry, Point, Point3, Rotation2, Rotation3, Scalar, Similarity,
+    AbstractRotation, Const, Isometry, Point, Point3, Rotation2, Rotation3, Scalar, Similarity,
     Translation, UnitComplex, UnitQuaternion,
 };
 
@@ -24,7 +24,6 @@ impl<N: SimdRealField, R, const D: usize> Similarity<N, R, D>
 where
     N::Element: SimdRealField,
     R: AbstractRotation<N, D>,
-    // DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity similarity.
     ///
@@ -51,7 +50,6 @@ impl<N: SimdRealField, R, const D: usize> One for Similarity<N, R, D>
 where
     N::Element: SimdRealField,
     R: AbstractRotation<N, D>,
-    // DefaultAllocator: Allocator<N, D>,
 {
     /// Creates a new identity similarity.
     #[inline]
@@ -64,7 +62,6 @@ where
 impl<N: crate::RealField, R, const D: usize> Distribution<Similarity<N, R, D>> for Standard
 where
     R: AbstractRotation<N, D>,
-    // DefaultAllocator: Allocator<N, D>,
     Standard: Distribution<N> + Distribution<R>,
 {
     /// Generate an arbitrary random variate for testing purposes.
@@ -83,7 +80,6 @@ impl<N: SimdRealField, R, const D: usize> Similarity<N, R, D>
 where
     N::Element: SimdRealField,
     R: AbstractRotation<N, D>,
-    // DefaultAllocator: Allocator<N, D>,
 {
     /// The similarity that applies the scaling factor `scaling`, followed by the rotation `r` with
     /// its axis passing through the point `p`.
@@ -113,8 +109,7 @@ where
     N: crate::RealField + Arbitrary + Send,
     N::Element: crate::RealField,
     R: AbstractRotation<N, D> + Arbitrary + Send,
-    // DefaultAllocator: Allocator<N, D>,
-    Owned<N, D>: Send,
+    Owned<N, Const<D>>: Send,
 {
     #[inline]
     fn arbitrary(rng: &mut Gen) -> Self {
@@ -394,7 +389,7 @@ macro_rules! similarity_construction_impl(
                               up:      &Vector3<N>,
                               scaling: N)
                               -> Self {
-                Self::from_isometry(Isometry::<_, $Rot<N>, _>::look_at_lh(eye, target, up), scaling)
+                Self::from_isometry(Isometry::<_, $Rot<N>, 3>::look_at_lh(eye, target, up), scaling)
             }
         }
     }

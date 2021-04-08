@@ -7,7 +7,6 @@ use crate::geometry::Point;
 impl<N: Scalar + SimdValue, const D: usize> SimdValue for Point<N, D>
 where
     N::Element: Scalar,
-    // DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
 {
     type Element = Point<N::Element, D>;
     type SimdBool = N::SimdBool;

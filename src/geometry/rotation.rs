@@ -64,7 +64,6 @@ pub struct Rotation<N: Scalar, const D: usize>
 
 impl<N: Scalar + hash::Hash, const D: usize> hash::Hash for Rotation<N, D>
 where
-    // DefaultAllocator: Allocator<N, D, D>,
     <DefaultAllocator as Allocator<N, Const<D>, Const<D>>>::Buffer: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
@@ -73,14 +72,12 @@ where
 }
 
 impl<N: Scalar + Copy, const D: usize> Copy for Rotation<N, D> where
-    // DefaultAllocator: Allocator<N, D, D>,
     <DefaultAllocator as Allocator<N, Const<D>, Const<D>>>::Buffer: Copy
 {
 }
 
 impl<N: Scalar, const D: usize> Clone for Rotation<N, D>
 where
-    // DefaultAllocator: Allocator<N, D, D>,
     <DefaultAllocator as Allocator<N, Const<D>, Const<D>>>::Buffer: Clone,
 {
     #[inline]
@@ -93,8 +90,7 @@ where
 impl<N, const D: usize> Abomonation for Rotation<N, D>
 where
     N: Scalar,
-    CMatrixN<N, Const<D>>: Abomonation,
-    // DefaultAllocator: Allocator<N, D, D>,
+    CMatrixN<N, D>: Abomonation,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.matrix.entomb(writer)
@@ -112,8 +108,7 @@ where
 #[cfg(feature = "serde-serialize")]
 impl<N: Scalar, const D: usize> Serialize for Rotation<N, D>
 where
-    // DefaultAllocator: Allocator<N, D, D>,
-    Owned<N, D, D>: Serialize,
+    Owned<N, Const<D>, Const<D>>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -126,8 +121,7 @@ where
 #[cfg(feature = "serde-serialize")]
 impl<'a, N: Scalar, const D: usize> Deserialize<'a> for Rotation<N, D>
 where
-    // DefaultAllocator: Allocator<N, D, D>,
-    Owned<N, D, D>: Deserialize<'a>,
+    Owned<N, Const<D>, Const<D>>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
@@ -286,8 +280,9 @@ impl<N: Scalar, const D: usize> Rotation<N, D>
         // We could use `CMatrixN::to_homogeneous()` here, but that would imply
         // adding the additional traits `DimAdd` and `IsNotStaticOne`. Maybe
         // these things will get nicer once specialization lands in Rust.
-        let mut res = MatrixN::<N, DimNameSum<D, U1>>::identity();
-        res.fixed_slice_mut::<D, D>(0, 0).copy_from(&self.matrix);
+        let mut res = MatrixN::<N, DimNameSum<Const<D>, U1>>::identity();
+        res.fixed_slice_mut::<Const<D>, Const<D>>(0, 0)
+            .copy_from(&self.matrix);
 
         res
     }
@@ -405,7 +400,6 @@ impl<N: Scalar, const D: usize> Rotation<N, D>
 impl<N: SimdRealField, const D: usize> Rotation<N, D>
 where
     N::Element: SimdRealField,
-    // DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
 {
     /// Rotate the given point.
     ///
@@ -521,7 +515,6 @@ impl<N: Scalar + PartialEq, const D: usize> PartialEq for Rotation<N, D>
 impl<N, const D: usize> AbsDiffEq for Rotation<N, D>
 where
     N: Scalar + AbsDiffEq,
-    // DefaultAllocator: Allocator<N, D, D>,
     N::Epsilon: Copy,
 {
     type Epsilon = N::Epsilon;
@@ -540,7 +533,6 @@ where
 impl<N, const D: usize> RelativeEq for Rotation<N, D>
 where
     N: Scalar + RelativeEq,
-    // DefaultAllocator: Allocator<N, D, D>,
     N::Epsilon: Copy,
 {
     #[inline]
@@ -563,7 +555,6 @@ where
 impl<N, const D: usize> UlpsEq for Rotation<N, D>
 where
     N: Scalar + UlpsEq,
-    // DefaultAllocator: Allocator<N, D, D>,
     N::Epsilon: Copy,
 {
     #[inline]
@@ -585,7 +576,6 @@ where
 impl<N, const D: usize> fmt::Display for Rotation<N, D>
 where
     N: RealField + fmt::Display,
-    // DefaultAllocator: Allocator<N, D, D> + Allocator<usize, D, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);

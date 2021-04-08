@@ -838,17 +838,16 @@ fn swizzle() {
 mod transposition_tests {
     use super::*;
     use crate::proptest::{dmatrix, matrix, vector4, PROPTEST_F64};
-    use na::{U2, U3, U4, U6};
     use proptest::{prop_assert, prop_assert_eq, proptest};
 
     proptest! {
         #[test]
-        fn transpose_transpose_is_self(m in matrix(PROPTEST_F64, U2, U3)) {
+        fn transpose_transpose_is_self(m in matrix(PROPTEST_F64, Const::<2>, Const::<3>)) {
             prop_assert_eq!(m.transpose().transpose(), m)
         }
 
         #[test]
-        fn transpose_mut_transpose_mut_is_self(m in matrix(PROPTEST_F64, U3, U3)) {
+        fn transpose_mut_transpose_mut_is_self(m in matrix(PROPTEST_F64, Const::<3>, Const::<3>)) {
             let mut mm = m;
             mm.transpose_mut();
             mm.transpose_mut();
@@ -875,7 +874,7 @@ mod transposition_tests {
         }
 
         #[test]
-        fn tr_mul_is_transpose_then_mul(m in matrix(PROPTEST_F64, U4, U6), v in vector4()) {
+        fn tr_mul_is_transpose_then_mul(m in matrix(PROPTEST_F64, Const::<4>, Const::<6>), v in vector4()) {
             prop_assert!(relative_eq!(m.transpose() * v, m.tr_mul(&v), epsilon = 1.0e-7))
         }
     }

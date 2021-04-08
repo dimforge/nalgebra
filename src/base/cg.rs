@@ -11,8 +11,8 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameDiff, DimNameSub, U1};
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::{
-    DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector, Vector2,
-    Vector3, VectorN,
+    Const, DefaultAllocator, Matrix3, Matrix4, MatrixN, Scalar, SquareMatrix, Unit, Vector,
+    Vector2, Vector3, VectorN,
 };
 use crate::geometry::{
     Isometry, IsometryMatrix3, Orthographic3, Perspective3, Point, Point2, Point3, Rotation2,
@@ -411,18 +411,33 @@ where
 
         transform * v
     }
+}
 
+impl<N: RealField, S: Storage<N, Const<3>, Const<3>>> SquareMatrix<N, Const<3>, S> {
     /// Transforms the given point, assuming the matrix `self` uses homogeneous coordinates.
     #[inline]
-    pub fn transform_point(
-        &self,
-        pt: &Point<N, { DimNameDiff::<D, U1>::USIZE }>,
-    ) -> Point<N, { DimNameDiff::<D, U1>::USIZE }> {
-        let transform = self.fixed_slice::<DimNameDiff<D, U1>, DimNameDiff<D, U1>>(0, 0);
-        let translation = self.fixed_slice::<DimNameDiff<D, U1>, U1>(0, D::dim() - 1);
-        let normalizer = self.fixed_slice::<U1, DimNameDiff<D, U1>>(D::dim() - 1, 0);
-        let n = normalizer.tr_dot(&pt.coords)
-            + unsafe { *self.get_unchecked((D::dim() - 1, D::dim() - 1)) };
+    pub fn transform_point(&self, pt: &Point<N, 2>) -> Point<N, 2> {
+        let transform = self.fixed_slice::<Const<2>, Const<2>>(0, 0);
+        let translation = self.fixed_slice::<Const<2>, U1>(0, 2);
+        let normalizer = self.fixed_slice::<U1, Const<2>>(2, 0);
+        let n = normalizer.tr_dot(&pt.coords) + unsafe { *self.get_unchecked((2, 2)) };
+
+        if !n.is_zero() {
+            (transform * pt + translation) / n
+        } else {
+            transform * pt + translation
+        }
+    }
+}
+
+impl<N: RealField, S: Storage<N, Const<4>, Const<4>>> SquareMatrix<N, Const<4>, S> {
+    /// Transforms the given point, assuming the matrix `self` uses homogeneous coordinates.
+    #[inline]
+    pub fn transform_point(&self, pt: &Point<N, 3>) -> Point<N, 3> {
+        let transform = self.fixed_slice::<Const<3>, Const<3>>(0, 0);
+        let translation = self.fixed_slice::<Const<3>, U1>(0, 3);
+        let normalizer = self.fixed_slice::<U1, Const<3>>(3, 0);
+        let n = normalizer.tr_dot(&pt.coords) + unsafe { *self.get_unchecked((3, 3)) };
 
         if !n.is_zero() {
             (transform * pt + translation) / n
