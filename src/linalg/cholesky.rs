@@ -138,6 +138,16 @@ where
         self.solve_mut(&mut res);
         res
     }
+
+    /// Computes the determinant of the decomposed matrix.
+    pub fn determinant(&self) -> N {
+        let dim = self.chol.nrows();
+        let mut prod_diag = N::one();
+        for i in 0..dim {
+            prod_diag *= unsafe { *self.chol.get_unchecked((i, i)) };
+        }
+        prod_diag * prod_diag
+    }
 }
 
 impl<N: ComplexField, D: Dim> Cholesky<N, D>

@@ -80,6 +80,24 @@ macro_rules! gen_tests(
                 }
 
                 #[test]
+                fn cholesky_determinant(n in PROPTEST_MATRIX_DIM) {
+                    let m = RandomSDP::new(Dynamic::new(n), || random::<$scalar>().0).unwrap();
+                    let lu_det = m.clone().lu().determinant();
+                    let chol_det = m.cholesky().unwrap().determinant();
+
+                    prop_assert!(relative_eq!(lu_det, chol_det, epsilon = 1.0e-7));
+                }
+
+                #[test]
+                fn cholesky_determinant_static(_n in PROPTEST_MATRIX_DIM) {
+                    let m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
+                    let lu_det = m.clone().lu().determinant();
+                    let chol_det = m.cholesky().unwrap().determinant();
+
+                    prop_assert!(relative_eq!(lu_det, chol_det, epsilon = 1.0e-7));
+                }
+
+                #[test]
                 fn cholesky_rank_one_update(_n in PROPTEST_MATRIX_DIM) {
                     let mut m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
                     let x = Vector4::<$scalar>::new_random().map(|e| e.0);
