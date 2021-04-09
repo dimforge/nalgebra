@@ -21,9 +21,10 @@ use simba::simd::SimdPartialOrd;
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-use crate::base::dimension::{Dim, DimAdd, DimSum, IsNotStaticOne, U1, U2, U3};
+use crate::base::dimension::{Dim, DimAdd, DimSum, Dynamic, IsNotStaticOne, U1, U2, U3};
 use crate::base::iter::{
-    ColumnIter, ColumnIterMut, MatrixIter, MatrixIterMut, RowIter, RowIterMut,
+    ColumnIter, ColumnIterMut, MatrixIter, MatrixIterMut, OwnedColumnIter, OwnedRowIter, RowIter,
+    RowIterMut,
 };
 use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
@@ -908,6 +909,45 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
                 }
             }
         }
+    }
+}
+
+impl<N: Scalar> Matrix<N, Dynamic, Dynamic, Owned<N, Dynamic, Dynamic>> {
+    /// Move rows of this matrix into an owned iterator.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::DMatrix;
+    /// let values = vec![1, 4, 2, 5, 3, 6].into_iter();
+    /// let mut a = DMatrix::from_iterator(2, 3, values);
+    /// let c = a.clone();
+    /// for (i, row) in a.into_row_iter().enumerate() {
+    ///     for (v1, &v2) in row.into_iter().zip(c.row(i).iter()) {
+    ///         assert_eq!(v1, v2)
+    ///     }
+    /// }
+    /// ```
+    #[inline]
+    pub fn into_row_iter(self) -> OwnedRowIter<N> {
+        OwnedRowIter::new(self)
+    }
+
+    /// Move columns of this matrix into an owned iterator.
+    /// # Example
+    /// ```
+    /// # use nalgebra::DMatrix;
+    /// let values = vec![1, 4, 2, 5, 3, 6].into_iter();
+    /// let mut a = DMatrix::from_iterator(2, 3, values);
+    /// let c = a.clone();
+    /// for (i, column) in a.into_column_iter().enumerate() {
+    ///     for (v1, &v2) in column.into_iter().zip(c.column(i).iter()) {
+    ///         assert_eq!(v1, v2)
+    ///     }
+    /// }
+    /// ```
+    #[inline]
+    pub fn into_column_iter(self) -> OwnedColumnIter<N> {
+        OwnedColumnIter::new(self)
     }
 }
 

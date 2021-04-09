@@ -31,6 +31,18 @@ pub struct VecStorage<N, R: Dim, C: Dim> {
     ncols: C,
 }
 
+impl<N, R, C> IntoIterator for VecStorage<N, R, C>
+where
+    R: Dim,
+    C: Dim,
+{
+    type Item = N;
+    type IntoIter = <Vec<N> as IntoIterator>::IntoIter;
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
+    }
+}
+
 #[deprecated(note = "renamed to `VecStorage`")]
 /// Renamed to [VecStorage].
 pub type MatrixVec<N, R, C> = VecStorage<N, R, C>;

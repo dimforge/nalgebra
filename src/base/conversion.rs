@@ -19,7 +19,7 @@ use crate::base::dimension::{
     Dim, DimName, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
 };
 use crate::base::iter::{MatrixIter, MatrixIterMut};
-use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
+use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
 use crate::base::{
     ArrayStorage, DVectorSlice, DVectorSliceMut, DefaultAllocator, Matrix, MatrixMN, MatrixSlice,
     MatrixSliceMut, Scalar,
@@ -85,6 +85,18 @@ where
     }
 }
 
+impl<N: Scalar, R: Dim, C: Dim> IntoIterator for Matrix<N, R, C, Owned<N, R, C>>
+where
+    DefaultAllocator: Allocator<N, R, C>,
+{
+    type Item = N;
+    type IntoIter = <Owned<N, R, C> as IntoIterator>::IntoIter;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        <Owned<N, R, C> as IntoIterator>::into_iter(self.data)
+    }
+}
 impl<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> IntoIterator for &'a Matrix<N, R, C, S> {
     type Item = &'a N;
     type IntoIter = MatrixIter<'a, N, R, C, S>;
