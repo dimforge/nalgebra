@@ -7,7 +7,7 @@ use quickcheck::{Arbitrary, Gen};
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, OpenClosed01, Standard},
+    distributions::{Distribution, OpenClosed01, Standard, Uniform, uniform::SampleUniform},
     Rng,
 };
 
@@ -855,6 +855,7 @@ impl<N: SimdRealField> Distribution<UnitQuaternion<N>> for Standard
 where
     N::Element: SimdRealField,
     OpenClosed01: Distribution<N>,
+    N: SampleUniform,
 {
     /// Generate a uniformly distributed random rotation quaternion.
     #[inline]
@@ -863,10 +864,9 @@ where
         // Uniform random rotations.
         // In D. Kirk, editor, Graphics Gems III, pages 124-132. Academic, New York, 1992.
         let x0 = rng.sample(OpenClosed01);
-        let x1 = rng.sample(OpenClosed01);
-        let x2 = rng.sample(OpenClosed01);
-        let theta1 = N::simd_two_pi() * x1;
-        let theta2 = N::simd_two_pi() * x2;
+        let twopi = Uniform::new(N::zero(), N::simd_two_pi());
+        let theta1 = rng.sample(&twopi);
+        let theta2 = rng.sample(&twopi);
         let s1 = theta1.simd_sin();
         let c1 = theta1.simd_cos();
         let s2 = theta2.simd_sin();

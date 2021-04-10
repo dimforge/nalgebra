@@ -284,7 +284,8 @@ where
     where
         Standard: Distribution<N>,
     {
-        Self::from_fn_generic(nrows, ncols, |_, _| rand::random())
+        let mut rng = rand::thread_rng();
+        Self::from_fn_generic(nrows, ncols, |_, _| rng.gen())
     }
 
     /// Creates a matrix filled with random values from the given distribution.

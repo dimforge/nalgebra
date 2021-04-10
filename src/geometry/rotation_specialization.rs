@@ -7,7 +7,7 @@ use num::Zero;
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, OpenClosed01, Standard},
+    distributions::{Distribution, OpenClosed01, Standard, Uniform, uniform::SampleUniform},
     Rng,
 };
 
@@ -265,12 +265,13 @@ impl<N: SimdRealField> Rotation2<N> {
 impl<N: SimdRealField> Distribution<Rotation2<N>> for Standard
 where
     N::Element: SimdRealField,
-    OpenClosed01: Distribution<N>,
+    N: SampleUniform,
 {
     /// Generate a uniformly distributed random rotation.
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Rotation2<N> {
-        Rotation2::new(rng.sample(OpenClosed01) * N::simd_two_pi())
+        let twopi = Uniform::new(N::zero(), N::simd_two_pi());
+        Rotation2::new(rng.sample(twopi))
     }
 }
 
@@ -923,6 +924,7 @@ impl<N: SimdRealField> Distribution<Rotation3<N>> for Standard
 where
     N::Element: SimdRealField,
     OpenClosed01: Distribution<N>,
+    N: SampleUniform,
 {
     /// Generate a uniformly distributed random rotation.
     #[inline]
@@ -932,7 +934,8 @@ where
         // In D. Kirk, editor, Graphics Gems III, pages 117-120. Academic, New York, 1992.
 
         // Compute a random rotation around Z
-        let theta = N::simd_two_pi() * rng.sample(OpenClosed01);
+        let twopi = Uniform::new(N::zero(), N::simd_two_pi());
+        let theta = rng.sample(&twopi);
         let (ts, tc) = theta.simd_sin_cos();
         let a = MatrixN::<N, U3>::new(
             tc,
@@ -947,7 +950,7 @@ where
         );
 
         // Compute a random rotation *of* Z
-        let phi = N::simd_two_pi() * rng.sample(OpenClosed01);
+        let phi = rng.sample(&twopi);
         let z = rng.sample(OpenClosed01);
         let (ps, pc) = phi.simd_sin_cos();
         let sqrt_z = z.simd_sqrt();

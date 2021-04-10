@@ -3,7 +3,7 @@ use quickcheck::{Arbitrary, Gen};
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, OpenClosed01, Standard},
+    distributions::{Distribution, Uniform, uniform::SampleUniform, Standard},
     Rng,
 };
 
@@ -401,12 +401,13 @@ where
 impl<N: SimdRealField> Distribution<UnitComplex<N>> for Standard
 where
     N::Element: SimdRealField,
-    OpenClosed01: Distribution<N>,
+    N: SampleUniform,
 {
     /// Generate a uniformly distributed random `UnitComplex`.
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> UnitComplex<N> {
-        UnitComplex::from_angle(rng.sample(OpenClosed01) * N::simd_two_pi())
+        let twopi = Uniform::new(N::zero(), N::simd_two_pi());
+        UnitComplex::from_angle(rng.sample(twopi))
     }
 }
 
