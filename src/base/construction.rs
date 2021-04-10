@@ -853,6 +853,7 @@ where
     }
 }
 
+// TODO(specialization): faster impls possible for D≤4 (see rand_distr::{UnitCircle, UnitSphere})
 #[cfg(feature = "rand")]
 impl<N: crate::RealField, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
 where
