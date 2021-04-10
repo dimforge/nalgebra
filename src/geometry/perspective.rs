@@ -275,6 +275,7 @@ impl<N: RealField> Distribution<Perspective3<N>> for Standard
 where
     Standard: Distribution<N>,
 {
+    /// Generate an arbitrary random variate for testing purposes.
     fn sample<'a, R: Rng + ?Sized>(&self, r: &'a mut R) -> Perspective3<N> {
         use crate::base::helper;
         let znear = r.gen();

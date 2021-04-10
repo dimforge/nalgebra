@@ -691,6 +691,7 @@ impl<N: RealField> Distribution<Orthographic3<N>> for Standard
 where
     Standard: Distribution<N>,
 {
+    /// Generate an arbitrary random variate for testing purposes.
     fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Orthographic3<N> {
         use crate::base::helper;
         let left = r.gen();

@@ -164,6 +164,7 @@ where
     DefaultAllocator: Allocator<N, D>,
     Standard: Distribution<N>,
 {
+     /// Generate a `Point` where each coordinate is an independent variate from `[0, 1)`.
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Point<N, D> {
         Point::from(rng.gen::<VectorN<N, D>>())

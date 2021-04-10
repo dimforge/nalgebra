@@ -69,6 +69,7 @@ where
     DefaultAllocator: Allocator<N, D>,
     Standard: Distribution<N> + Distribution<R>,
 {
+    /// Generate an arbitrary random variate for testing purposes.
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Similarity<N, D, R> {
         let mut s = rng.gen();
