@@ -14,22 +14,23 @@ where
 {
     /// Attempts to raise this matrix to an integral power `e` in-place. If this
     /// matrix is non-invertible and `e` is negative, it leaves this matrix
-    /// untouched and returns `false`. Otherwise, it returns `true` and
+    /// untouched and returns `Err(())`. Otherwise, it returns `Ok(())` and
     /// overwrites this matrix with the result.
-    pub fn pow_mut<T: PrimInt + DivAssign>(&mut self, mut e: T) -> bool {
+    #[must_use]
+    pub fn pow_mut<T: PrimInt + DivAssign>(&mut self, mut e: T) -> Result<(), ()> {
         let zero = T::zero();
 
         // A matrix raised to the zeroth power is just the identity.
         if e == zero {
             self.fill_with_identity();
-            return true;
+            return Ok(());
         }
 
         // If e is negative, we compute the inverse matrix, then raise it to the
         // power of -e.
         if e < zero {
             if !self.try_inverse_mut() {
-                return false;
+                return Err(());
             }
         }
 
@@ -52,7 +53,7 @@ where
             multiplier.copy_from(&buf);
 
             if e == zero {
-                return true;
+                return Ok(());
             }
         }
     }
@@ -63,10 +64,9 @@ where
     pub fn pow<T: PrimInt + DivAssign>(&self, e: T) -> Option<Self> {
         let mut clone = self.clone();
 
-        if clone.pow_mut(e) {
-            Some(clone)
-        } else {
-            None
+        match clone.pow_mut(e) {
+            Ok(()) => Some(clone),
+            Err(()) => None,
         }
     }
 }
