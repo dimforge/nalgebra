@@ -12,21 +12,6 @@ where
     DefaultAllocator: Allocator<N, D, D>,
     DefaultAllocator: Allocator<N, D>,
 {
-    /// Computes the square of this matrix and writes it into a given buffer.
-    fn square_buf(&mut self, buf: &mut Self) {
-        // We unroll the first iteration to avoid new_uninitialized.
-        let mut aux_col = self.column(0).clone_owned();
-        aux_col = &*self * aux_col;
-        buf.column_mut(0).copy_from(&aux_col);
-
-        // We multiply the matrix by its i-th column,
-        for i in 1..self.ncols() {
-            aux_col.copy_from(&self.column(i));
-            aux_col = &*self * aux_col;
-            self.column_mut(i).copy_from(&aux_col);
-        }
-    }
-
     /// Attempts to raise this matrix to an integral power `e` in-place. If this
     /// matrix is non-invertible and `e` is negative, it leaves this matrix
     /// untouched and returns `false`. Otherwise, it returns `true` and
@@ -63,7 +48,7 @@ where
             }
 
             e /= two;
-            multiplier.square_buf(&mut buf);
+            multiplier.mul_to(&multiplier, &mut buf);
             multiplier.copy_from(&buf);
 
             if e == zero {
