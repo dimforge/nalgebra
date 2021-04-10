@@ -92,6 +92,10 @@ itertools = "0.10"
 [workspace]
 members = [ "nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse" ]
 
+[[example]]
+name = "matrixcompare"
+required-features = ["compare"]
+
 [[bench]]
 name = "nalgebra_bench"
 harness = false
