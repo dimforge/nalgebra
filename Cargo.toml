@@ -79,11 +79,7 @@ proptest = { version = "1", optional = true, default-features = false, features 
 serde_json = "1.0"
 rand_xorshift = "0.3"
 rand_isaac = "0.3"
-### Uncomment this line before running benchmarks.
-### We can't just let this uncommented because that would break
-### compilation for #[no-std] because of the terrible Cargo bug
-### https://github.com/rust-lang/cargo/issues/4866
-#criterion = "0.2.10"
+criterion = "0.2.10"
 
 # For matrix comparison macro
 matrixcompare = "0.2.0"
@@ -91,6 +87,7 @@ itertools = "0.10"
 
 [workspace]
 members = [ "nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse" ]
+resolver = "2"
 
 [[bench]]
 name = "nalgebra_bench"
