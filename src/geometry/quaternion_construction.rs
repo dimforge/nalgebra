@@ -891,6 +891,7 @@ where
 }
 
 #[cfg(test)]
+#[cfg(feature = "rand")]
 mod tests {
     extern crate rand_xorshift;
     use super::*;
