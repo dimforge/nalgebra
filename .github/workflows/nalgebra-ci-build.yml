@@ -57,7 +57,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: test nalgebra-glm
-        run: cargo test -p nalgebra-glm --features arbitrary,rand,serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
+        run: cargo test -p nalgebra-glm --features arbitrary,serde-serialize,abomonation-serialize;
   test-nalgebra-sparse:
     runs-on: ubuntu-latest
     steps:
