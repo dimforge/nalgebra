@@ -1,4 +1,4 @@
-use na::{DMatrix, DVector, Matrix2, Matrix3, Matrix4, MatrixN, Vector2, Vector3, Vector4, U10};
+use na::{DMatrix, DVector, Matrix2, Matrix3, Matrix4, OMatrix, Vector2, Vector3, Vector4, U10};
 use rand::Rng;
 use rand_isaac::IsaacRng;
 use std::ops::{Add, Div, Mul, Sub};
@@ -116,8 +116,8 @@ fn mat10_mul_mat10(bench: &mut criterion::Criterion) {
 }
 
 fn mat10_mul_mat10_static(bench: &mut criterion::Criterion) {
-    let a = MatrixN::<f64, U10>::new_random();
-    let b = MatrixN::<f64, U10>::new_random();
+    let a = OMatrix::<f64, U10>::new_random();
+    let b = OMatrix::<f64, U10>::new_random();
 
     bench.bench_function("mat10_mul_mat10_static", move |bh| bh.iter(|| &a * &b));
 }

@@ -6,7 +6,6 @@ use na::{
     MatrixSlice3, MatrixSlice3x2, MatrixSliceMut2, MatrixSliceMut2x3, MatrixSliceMut2xX,
     MatrixSliceMut3, MatrixSliceMut3x2, MatrixSliceMutXx3, MatrixSliceXx3, RowVector4, Vector3,
 };
-use na::{U2, U3, U4};
 
 #[test]
 #[rustfmt::skip]
@@ -15,9 +14,9 @@ fn nested_fixed_slices() {
                            21.0, 22.0, 23.0, 24.0,
                            31.0, 32.0, 33.0, 34.0);
 
-    let s1 = a.fixed_slice::<U3, U3>(0, 1);                       // Simple slice.
-    let s2 = s1.fixed_slice::<U2, U2>(1, 1);                      // Slice of slice.
-    let s3 = s1.fixed_slice_with_steps::<U2, U2>((0, 0), (1, 1)); // Slice of slice with steps.
+    let s1 = a.fixed_slice::<3, 3>(0, 1);                       // Simple slice.
+    let s2 = s1.fixed_slice::<2, 2>(1, 1);                      // Slice of slice.
+    let s3 = s1.fixed_slice_with_steps::<2, 2>((0, 0), (1, 1)); // Slice of slice with steps.
 
     let expected_owned_s1 = Matrix3::new(12.0, 13.0, 14.0,
                                          22.0, 23.0, 24.0,
@@ -89,8 +88,8 @@ fn nested_row_slices() {
                            41.0, 42.0,
                            51.0, 52.0,
                            61.0, 62.0);
-    let s1 = a.fixed_rows::<U4>(1);
-    let s2 = s1.fixed_rows_with_step::<U2>(1, 1);
+    let s1 = a.fixed_rows::<4>(1);
+    let s2 = s1.fixed_rows_with_step::<2>(1, 1);
 
     let expected_owned_s1 = Matrix4x2::new(21.0, 22.0,
                                            31.0, 32.0,
@@ -134,8 +133,8 @@ fn row_slice_mut() {
 fn nested_col_slices() {
     let a = Matrix2x6::new(11.0, 12.0, 13.0, 14.0, 15.0, 16.0,
                            21.0, 22.0, 23.0, 24.0, 25.0, 26.0);
-    let s1 = a.fixed_columns::<U4>(1);
-    let s2 = s1.fixed_columns_with_step::<U2>(1, 1);
+    let s1 = a.fixed_columns::<4>(1);
+    let s2 = s1.fixed_columns_with_step::<2>(1, 1);
 
     let expected_owned_s1 = Matrix2x4::new(12.0, 13.0, 14.0, 15.0,
                                            22.0, 23.0, 24.0, 25.0);

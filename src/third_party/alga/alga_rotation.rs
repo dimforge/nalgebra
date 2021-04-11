@@ -7,7 +7,7 @@ use alga::linear::{
     ProjectiveTransformation, Similarity, Transformation,
 };
 
-use crate::base::CVectorN;
+use crate::base::SVector;
 use crate::geometry::{Point, Rotation};
 
 /*
@@ -15,8 +15,8 @@ use crate::geometry::{Point, Rotation};
  * Algebraic structures.
  *
  */
-impl<N: RealField + simba::scalar::RealField, const D: usize> Identity<Multiplicative>
-    for Rotation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> Identity<Multiplicative>
+    for Rotation<T, D>
 {
     #[inline]
     fn identity() -> Self {
@@ -24,8 +24,8 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> Identity<Multiplic
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, const D: usize> TwoSidedInverse<Multiplicative>
-    for Rotation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> TwoSidedInverse<Multiplicative>
+    for Rotation<T, D>
 {
     #[inline]
     #[must_use = "Did you mean to use two_sided_inverse_mut()?"]
@@ -39,8 +39,8 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> TwoSidedInverse<Mu
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, const D: usize> AbstractMagma<Multiplicative>
-    for Rotation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> AbstractMagma<Multiplicative>
+    for Rotation<T, D>
 {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
@@ -50,7 +50,7 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> AbstractMagma<Mult
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N: RealField + simba::scalar::RealField, const D: usize> $marker<$operator> for Rotation<N, D>
+        impl<T: RealField + simba::scalar::RealField, const D: usize> $marker<$operator> for Rotation<T, D>
             { }
     )*}
 );
@@ -68,36 +68,36 @@ impl_multiplicative_structures!(
  * Transformation groups.
  *
  */
-impl<N: RealField + simba::scalar::RealField, const D: usize> Transformation<Point<N, D>>
-    for Rotation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> Transformation<Point<T, D>>
+    for Rotation<T, D>
 {
     #[inline]
-    fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.transform_point(pt)
     }
 
     #[inline]
-    fn transform_vector(&self, v: &CVectorN<N, D>) -> CVectorN<N, D> {
+    fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.transform_vector(v)
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, const D: usize> ProjectiveTransformation<Point<N, D>>
-    for Rotation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> ProjectiveTransformation<Point<T, D>>
+    for Rotation<T, D>
 {
     #[inline]
-    fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.inverse_transform_point(pt)
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &CVectorN<N, D>) -> CVectorN<N, D> {
+    fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.inverse_transform_vector(v)
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, const D: usize> AffineTransformation<Point<N, D>>
-    for Rotation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> AffineTransformation<Point<T, D>>
+    for Rotation<T, D>
 {
     type Rotation = Self;
     type NonUniformScaling = Id;
@@ -139,8 +139,8 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> AffineTransformati
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, const D: usize> Similarity<Point<N, D>>
-    for Rotation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> Similarity<Point<T, D>>
+    for Rotation<T, D>
 {
     type Scaling = Id;
 
@@ -162,7 +162,7 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> Similarity<Point<N
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N: RealField + simba::scalar::RealField, const D: usize> $Trait<Point<N, D>> for Rotation<N, D>
+        impl<T: RealField + simba::scalar::RealField, const D: usize> $Trait<Point<T, D>> for Rotation<T, D>
         { }
     )*}
 );
@@ -170,25 +170,25 @@ macro_rules! marker_impl(
 marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
 
 /// Subgroups of the n-dimensional rotation group `SO(n)`.
-impl<N: RealField + simba::scalar::RealField, const D: usize> linear::Rotation<Point<N, D>>
-    for Rotation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> linear::Rotation<Point<T, D>>
+    for Rotation<T, D>
 {
     #[inline]
-    fn powf(&self, _: N) -> Option<Self> {
+    fn powf(&self, _: T) -> Option<Self> {
         // XXX: Add the general case.
         // XXX: Use specialization for 2D and 3D.
         unimplemented!()
     }
 
     #[inline]
-    fn rotation_between(_: &CVectorN<N, D>, _: &CVectorN<N, D>) -> Option<Self> {
+    fn rotation_between(_: &SVector<T, D>, _: &SVector<T, D>) -> Option<Self> {
         // XXX: Add the general case.
         // XXX: Use specialization for 2D and 3D.
         unimplemented!()
     }
 
     #[inline]
-    fn scaled_rotation_between(_: &CVectorN<N, D>, _: &CVectorN<N, D>, _: N) -> Option<Self> {
+    fn scaled_rotation_between(_: &SVector<T, D>, _: &SVector<T, D>, _: T) -> Option<Self> {
         // XXX: Add the general case.
         // XXX: Use specialization for 2D and 3D.
         unimplemented!()
@@ -196,10 +196,10 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> linear::Rotation<P
 }
 
 /*
-impl<N: RealField + simba::scalar::RealField> Matrix for Rotation<N> {
-    type Field     = N;
-    type Row       = Matrix<N>;
-    type Column    = Matrix<N>;
+impl<T: RealField + simba::scalar::RealField> Matrix for Rotation<T> {
+    type Field     = T;
+    type Row       = Matrix<T>;
+    type Column    = Matrix<T>;
     type Transpose = Self;
 
     #[inline]
@@ -238,8 +238,8 @@ impl<N: RealField + simba::scalar::RealField> Matrix for Rotation<N> {
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> SquareMatrix for Rotation<N> {
-    type Vector = Matrix<N>;
+impl<T: RealField + simba::scalar::RealField> SquareMatrix for Rotation<T> {
+    type Vector = Matrix<T>;
 
     #[inline]
     fn diagonal(&self) -> Self::Coordinates {
@@ -268,5 +268,5 @@ impl<N: RealField + simba::scalar::RealField> SquareMatrix for Rotation<N> {
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> InversibleSquareMatrix for Rotation<N> { }
+impl<T: RealField + simba::scalar::RealField> InversibleSquareMatrix for Rotation<T> { }
 */

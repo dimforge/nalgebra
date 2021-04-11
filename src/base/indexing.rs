@@ -7,7 +7,7 @@ use crate::base::{
 
 use std::ops;
 
-// N.B.: Not a public trait!
+// T.B.: Not a public trait!
 trait DimRange<D: Dim> {
     /// The number of elements indexed by this range.
     type Length: Dim;
@@ -315,19 +315,19 @@ fn dimrange_rangetoinclusive_usize() {
 }
 
 /// A helper trait used for indexing operations.
-pub trait MatrixIndex<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>>: Sized {
+pub trait MatrixIndex<'a, T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>>: Sized {
     /// The output type returned by methods.
     type Output: 'a;
 
     /// Produces true if the given matrix is contained by this index.
     #[doc(hidden)]
-    fn contained_by(&self, matrix: &Matrix<N, R, C, S>) -> bool;
+    fn contained_by(&self, matrix: &Matrix<T, R, C, S>) -> bool;
 
     /// Produces a shared view of the data at this location if in bounds,
     /// or `None`, otherwise.
     #[doc(hidden)]
     #[inline(always)]
-    fn get(self, matrix: &'a Matrix<N, R, C, S>) -> Option<Self::Output> {
+    fn get(self, matrix: &'a Matrix<T, R, C, S>) -> Option<Self::Output> {
         if self.contained_by(matrix) {
             Some(unsafe { self.get_unchecked(matrix) })
         } else {
@@ -338,20 +338,20 @@ pub trait MatrixIndex<'a, N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>>: Sized
     /// Produces a shared view of the data at this location if in bounds
     /// without any bounds checking.
     #[doc(hidden)]
-    unsafe fn get_unchecked(self, matrix: &'a Matrix<N, R, C, S>) -> Self::Output;
+    unsafe fn get_unchecked(self, matrix: &'a Matrix<T, R, C, S>) -> Self::Output;
 
     /// Produces a shared view to the data at this location, or panics
     /// if out of bounds.
     #[doc(hidden)]
     #[inline(always)]
-    fn index(self, matrix: &'a Matrix<N, R, C, S>) -> Self::Output {
+    fn index(self, matrix: &'a Matrix<T, R, C, S>) -> Self::Output {
         self.get(matrix).expect("Index out of bounds.")
     }
 }
 
 /// A helper trait used for indexing operations.
-pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
-    MatrixIndex<'a, N, R, C, S>
+pub trait MatrixIndexMut<'a, T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>>:
+    MatrixIndex<'a, T, R, C, S>
 {
     /// The output type returned by methods.
     type OutputMut: 'a;
@@ -359,13 +359,13 @@ pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
     /// Produces a mutable view of the data at this location, without
     /// performing any bounds checking.
     #[doc(hidden)]
-    unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<N, R, C, S>) -> Self::OutputMut;
+    unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T, R, C, S>) -> Self::OutputMut;
 
     /// Produces a mutable view of the data at this location, if in
     /// bounds.
     #[doc(hidden)]
     #[inline(always)]
-    fn get_mut(self, matrix: &'a mut Matrix<N, R, C, S>) -> Option<Self::OutputMut> {
+    fn get_mut(self, matrix: &'a mut Matrix<T, R, C, S>) -> Option<Self::OutputMut> {
         if self.contained_by(matrix) {
             Some(unsafe { self.get_unchecked_mut(matrix) })
         } else {
@@ -377,7 +377,7 @@ pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
     /// if out of bounds.
     #[doc(hidden)]
     #[inline(always)]
-    fn index_mut(self, matrix: &'a mut Matrix<N, R, C, S>) -> Self::OutputMut {
+    fn index_mut(self, matrix: &'a mut Matrix<T, R, C, S>) -> Self::OutputMut {
         self.get_mut(matrix).expect("Index out of bounds.")
     }
 }
@@ -481,13 +481,13 @@ pub trait MatrixIndexMut<'a, N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>>:
 ///                         4, 7,
 ///                         5, 8)));
 /// ```
-impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Produces a view of the data at the given index, or
     /// `None` if the index is out of bounds.
     #[inline]
     pub fn get<'a, I>(&'a self, index: I) -> Option<I::Output>
     where
-        I: MatrixIndex<'a, N, R, C, S>,
+        I: MatrixIndex<'a, T, R, C, S>,
     {
         index.get(self)
     }
@@ -497,8 +497,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn get_mut<'a, I>(&'a mut self, index: I) -> Option<I::OutputMut>
     where
-        S: StorageMut<N, R, C>,
-        I: MatrixIndexMut<'a, N, R, C, S>,
+        S: StorageMut<T, R, C>,
+        I: MatrixIndexMut<'a, T, R, C, S>,
     {
         index.get_mut(self)
     }
@@ -508,7 +508,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn index<'a, I>(&'a self, index: I) -> I::Output
     where
-        I: MatrixIndex<'a, N, R, C, S>,
+        I: MatrixIndex<'a, T, R, C, S>,
     {
         index.index(self)
     }
@@ -518,8 +518,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn index_mut<'a, I>(&'a mut self, index: I) -> I::OutputMut
     where
-        S: StorageMut<N, R, C>,
-        I: MatrixIndexMut<'a, N, R, C, S>,
+        S: StorageMut<T, R, C>,
+        I: MatrixIndexMut<'a, T, R, C, S>,
     {
         index.index_mut(self)
     }
@@ -529,7 +529,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub unsafe fn get_unchecked<'a, I>(&'a self, index: I) -> I::Output
     where
-        I: MatrixIndex<'a, N, R, C, S>,
+        I: MatrixIndex<'a, T, R, C, S>,
     {
         index.get_unchecked(self)
     }
@@ -539,8 +539,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub unsafe fn get_unchecked_mut<'a, I>(&'a mut self, index: I) -> I::OutputMut
     where
-        S: StorageMut<N, R, C>,
-        I: MatrixIndexMut<'a, N, R, C, S>,
+        S: StorageMut<T, R, C>,
+        I: MatrixIndexMut<'a, T, R, C, S>,
     {
         index.get_unchecked_mut(self)
     }
@@ -548,42 +548,42 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
 
 // EXTRACT A SINGLE ELEMENT BY 1D LINEAR ADDRESS
 
-impl<'a, N, R, C, S> MatrixIndex<'a, N, R, C, S> for usize
+impl<'a, T, R, C, S> MatrixIndex<'a, T, R, C, S> for usize
 where
-    N: Scalar,
+    T: Scalar,
     R: Dim,
     C: Dim,
-    S: Storage<N, R, C>,
+    S: Storage<T, R, C>,
 {
-    type Output = &'a N;
+    type Output = &'a T;
 
     #[doc(hidden)]
     #[inline(always)]
-    fn contained_by(&self, matrix: &Matrix<N, R, C, S>) -> bool {
+    fn contained_by(&self, matrix: &Matrix<T, R, C, S>) -> bool {
         *self < matrix.len()
     }
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn get_unchecked(self, matrix: &'a Matrix<N, R, C, S>) -> Self::Output {
+    unsafe fn get_unchecked(self, matrix: &'a Matrix<T, R, C, S>) -> Self::Output {
         matrix.data.get_unchecked_linear(self)
     }
 }
 
-impl<'a, N, R, C, S> MatrixIndexMut<'a, N, R, C, S> for usize
+impl<'a, T, R, C, S> MatrixIndexMut<'a, T, R, C, S> for usize
 where
-    N: Scalar,
+    T: Scalar,
     R: Dim,
     C: Dim,
-    S: StorageMut<N, R, C>,
+    S: StorageMut<T, R, C>,
 {
-    type OutputMut = &'a mut N;
+    type OutputMut = &'a mut T;
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<N, R, C, S>) -> Self::OutputMut
+    unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T, R, C, S>) -> Self::OutputMut
     where
-        S: StorageMut<N, R, C>,
+        S: StorageMut<T, R, C>,
     {
         matrix.data.get_unchecked_linear_mut(self)
     }
@@ -591,18 +591,18 @@ where
 
 // EXTRACT A SINGLE ELEMENT BY 2D COORDINATES
 
-impl<'a, N, R, C, S> MatrixIndex<'a, N, R, C, S> for (usize, usize)
+impl<'a, T, R, C, S> MatrixIndex<'a, T, R, C, S> for (usize, usize)
 where
-    N: Scalar,
+    T: Scalar,
     R: Dim,
     C: Dim,
-    S: Storage<N, R, C>,
+    S: Storage<T, R, C>,
 {
-    type Output = &'a N;
+    type Output = &'a T;
 
     #[doc(hidden)]
     #[inline(always)]
-    fn contained_by(&self, matrix: &Matrix<N, R, C, S>) -> bool {
+    fn contained_by(&self, matrix: &Matrix<T, R, C, S>) -> bool {
         let (rows, cols) = self;
         let (nrows, ncols) = matrix.data.shape();
         DimRange::contained_by(rows, nrows) && DimRange::contained_by(cols, ncols)
@@ -610,26 +610,26 @@ where
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn get_unchecked(self, matrix: &'a Matrix<N, R, C, S>) -> Self::Output {
+    unsafe fn get_unchecked(self, matrix: &'a Matrix<T, R, C, S>) -> Self::Output {
         let (row, col) = self;
         matrix.data.get_unchecked(row, col)
     }
 }
 
-impl<'a, N, R, C, S> MatrixIndexMut<'a, N, R, C, S> for (usize, usize)
+impl<'a, T, R, C, S> MatrixIndexMut<'a, T, R, C, S> for (usize, usize)
 where
-    N: Scalar,
+    T: Scalar,
     R: Dim,
     C: Dim,
-    S: StorageMut<N, R, C>,
+    S: StorageMut<T, R, C>,
 {
-    type OutputMut = &'a mut N;
+    type OutputMut = &'a mut T;
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<N, R, C, S>) -> Self::OutputMut
+    unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T, R, C, S>) -> Self::OutputMut
     where
-        S: StorageMut<N, R, C>,
+        S: StorageMut<T, R, C>,
     {
         let (row, col) = self;
         matrix.data.get_unchecked_mut(row, col)
@@ -655,20 +655,20 @@ macro_rules! impl_index_pair {
         $(where $CConstraintType: ty: $CConstraintBound: ident $(<$($CConstraintBoundParams: ty $( = $CEqBound: ty )*),*>)* )*]
     ) =>
     {
-        impl<'a, N, $R, $C, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*> MatrixIndex<'a, N, $R, $C, S> for ($RIdx, $CIdx)
+        impl<'a, T, $R, $C, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*> MatrixIndex<'a, T, $R, $C, S> for ($RIdx, $CIdx)
         where
-            N: Scalar,
+            T: Scalar,
             $R: Dim,
             $C: Dim,
-            S: Storage<N, R, C>,
+            S: Storage<T, R, C>,
             $( $RConstraintType: $RConstraintBound $(<$( $RConstraintBoundParams $( = $REqBound )*),*>)* ,)*
             $( $CConstraintType: $CConstraintBound $(<$( $CConstraintBoundParams $( = $CEqBound )*),*>)* ),*
         {
-            type Output = MatrixSlice<'a, N, $ROut, $COut, S::RStride, S::CStride>;
+            type Output = MatrixSlice<'a, T, $ROut, $COut, S::RStride, S::CStride>;
 
             #[doc(hidden)]
             #[inline(always)]
-            fn contained_by(&self, matrix: &Matrix<N, $R, $C, S>) -> bool {
+            fn contained_by(&self, matrix: &Matrix<T, $R, $C, S>) -> bool {
                 let (rows, cols) = self;
                 let (nrows, ncols) = matrix.data.shape();
                 DimRange::contained_by(rows, nrows) && DimRange::contained_by(cols, ncols)
@@ -676,7 +676,7 @@ macro_rules! impl_index_pair {
 
             #[doc(hidden)]
             #[inline(always)]
-            unsafe fn get_unchecked(self, matrix: &'a Matrix<N, $R, $C, S>) -> Self::Output {
+            unsafe fn get_unchecked(self, matrix: &'a Matrix<T, $R, $C, S>) -> Self::Output {
                 use crate::base::SliceStorage;
 
                 let (rows, cols) = self;
@@ -691,20 +691,20 @@ macro_rules! impl_index_pair {
             }
         }
 
-        impl<'a, N, $R, $C, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*> MatrixIndexMut<'a, N, $R, $C, S> for ($RIdx, $CIdx)
+        impl<'a, T, $R, $C, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*> MatrixIndexMut<'a, T, $R, $C, S> for ($RIdx, $CIdx)
         where
-            N: Scalar,
+            T: Scalar,
             $R: Dim,
             $C: Dim,
-            S: StorageMut<N, R, C>,
+            S: StorageMut<T, R, C>,
             $( $RConstraintType: $RConstraintBound $(<$( $RConstraintBoundParams $( = $REqBound )*),*>)* ,)*
             $( $CConstraintType: $CConstraintBound $(<$( $CConstraintBoundParams $( = $CEqBound )*),*>)* ),*
         {
-            type OutputMut = MatrixSliceMut<'a, N, $ROut, $COut, S::RStride, S::CStride>;
+            type OutputMut = MatrixSliceMut<'a, T, $ROut, $COut, S::RStride, S::CStride>;
 
             #[doc(hidden)]
             #[inline(always)]
-            unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<N, $R, $C, S>) -> Self::OutputMut {
+            unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T, $R, $C, S>) -> Self::OutputMut {
                 use crate::base::SliceStorageMut;
 
                 let (rows, cols) = self;

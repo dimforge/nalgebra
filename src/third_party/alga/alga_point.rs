@@ -1,20 +1,20 @@
 use alga::general::{Field, JoinSemilattice, Lattice, MeetSemilattice, RealField};
 use alga::linear::{AffineSpace, EuclideanSpace};
 
-use crate::base::{CVectorN, Scalar};
+use crate::base::{SVector, Scalar};
 
 use crate::geometry::Point;
 
-impl<N: Scalar + Field, const D: usize> AffineSpace for Point<N, D>
+impl<T: Scalar + Field, const D: usize> AffineSpace for Point<T, D>
 where
-    N: Scalar + Field,
+    T: Scalar + Field,
 {
-    type Translation = CVectorN<N, D>;
+    type Translation = SVector<T, D>;
 }
 
-impl<N: RealField + simba::scalar::RealField, const D: usize> EuclideanSpace for Point<N, D> {
-    type Coordinates = CVectorN<N, D>;
-    type RealField = N;
+impl<T: RealField + simba::scalar::RealField, const D: usize> EuclideanSpace for Point<T, D> {
+    type Coordinates = SVector<T, D>;
+    type RealField = T;
 
     #[inline]
     fn origin() -> Self {
@@ -32,7 +32,7 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> EuclideanSpace for
     }
 
     #[inline]
-    fn scale_by(&self, n: N) -> Self {
+    fn scale_by(&self, n: T) -> Self {
         self * n
     }
 }
@@ -42,9 +42,9 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> EuclideanSpace for
  * Ordering
  *
  */
-impl<N, const D: usize> MeetSemilattice for Point<N, D>
+impl<T, const D: usize> MeetSemilattice for Point<T, D>
 where
-    N: Scalar + MeetSemilattice,
+    T: Scalar + MeetSemilattice,
 {
     #[inline]
     fn meet(&self, other: &Self) -> Self {
@@ -52,9 +52,9 @@ where
     }
 }
 
-impl<N, const D: usize> JoinSemilattice for Point<N, D>
+impl<T, const D: usize> JoinSemilattice for Point<T, D>
 where
-    N: Scalar + JoinSemilattice,
+    T: Scalar + JoinSemilattice,
 {
     #[inline]
     fn join(&self, other: &Self) -> Self {
@@ -62,9 +62,9 @@ where
     }
 }
 
-impl<N, const D: usize> Lattice for Point<N, D>
+impl<T, const D: usize> Lattice for Point<T, D>
 where
-    N: Scalar + Lattice,
+    T: Scalar + Lattice,
 {
     #[inline]
     fn meet_join(&self, other: &Self) -> (Self, Self) {

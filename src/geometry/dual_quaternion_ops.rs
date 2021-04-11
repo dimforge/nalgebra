@@ -55,22 +55,22 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-impl<N: SimdRealField> AsRef<[N; 8]> for DualQuaternion<N> {
+impl<T: SimdRealField> AsRef<[T; 8]> for DualQuaternion<T> {
     #[inline]
-    fn as_ref(&self) -> &[N; 8] {
+    fn as_ref(&self) -> &[T; 8] {
         unsafe { mem::transmute(self) }
     }
 }
 
-impl<N: SimdRealField> AsMut<[N; 8]> for DualQuaternion<N> {
+impl<T: SimdRealField> AsMut<[T; 8]> for DualQuaternion<T> {
     #[inline]
-    fn as_mut(&mut self) -> &mut [N; 8] {
+    fn as_mut(&mut self) -> &mut [T; 8] {
         unsafe { mem::transmute(self) }
     }
 }
 
-impl<N: SimdRealField> Index<usize> for DualQuaternion<N> {
-    type Output = N;
+impl<T: SimdRealField> Index<usize> for DualQuaternion<T> {
+    type Output = T;
 
     #[inline]
     fn index(&self, i: usize) -> &Self::Output {
@@ -78,18 +78,18 @@ impl<N: SimdRealField> Index<usize> for DualQuaternion<N> {
     }
 }
 
-impl<N: SimdRealField> IndexMut<usize> for DualQuaternion<N> {
+impl<T: SimdRealField> IndexMut<usize> for DualQuaternion<T> {
     #[inline]
-    fn index_mut(&mut self, i: usize) -> &mut N {
+    fn index_mut(&mut self, i: usize) -> &mut T {
         &mut self.as_mut()[i]
     }
 }
 
-impl<N: SimdRealField> Neg for DualQuaternion<N>
+impl<T: SimdRealField> Neg for DualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    type Output = DualQuaternion<N>;
+    type Output = DualQuaternion<T>;
 
     #[inline]
     fn neg(self) -> Self::Output {
@@ -97,11 +97,11 @@ where
     }
 }
 
-impl<'a, N: SimdRealField> Neg for &'a DualQuaternion<N>
+impl<'a, T: SimdRealField> Neg for &'a DualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    type Output = DualQuaternion<N>;
+    type Output = DualQuaternion<T>;
 
     #[inline]
     fn neg(self) -> Self::Output {
@@ -109,11 +109,11 @@ where
     }
 }
 
-impl<N: SimdRealField> Neg for UnitDualQuaternion<N>
+impl<T: SimdRealField> Neg for UnitDualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    type Output = UnitDualQuaternion<N>;
+    type Output = UnitDualQuaternion<T>;
 
     #[inline]
     fn neg(self) -> Self::Output {
@@ -121,11 +121,11 @@ where
     }
 }
 
-impl<'a, N: SimdRealField> Neg for &'a UnitDualQuaternion<N>
+impl<'a, T: SimdRealField> Neg for &'a UnitDualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    type Output = UnitDualQuaternion<N>;
+    type Output = UnitDualQuaternion<T>;
 
     #[inline]
     fn neg(self) -> Self::Output {
@@ -139,10 +139,10 @@ macro_rules! dual_quaternion_op_impl(
      $(for $Storage: ident: $StoragesBound: ident $(<$($BoundParam: ty),*>)*),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty $(=> $VDimA: ty, $VDimB: ty)*;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N: SimdRealField $(, $Storage: $StoragesBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
-            where N::Element: SimdRealField,
-                  DefaultAllocator: Allocator<N, $LhsRDim, $LhsCDim> +
-                                    Allocator<N, $RhsRDim, $RhsCDim> {
+        impl<$($lives ,)* T: SimdRealField $(, $Storage: $StoragesBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
+            where T::Element: SimdRealField,
+                  DefaultAllocator: Allocator<T, $LhsRDim, $LhsCDim> +
+                                    Allocator<T, $RhsRDim, $RhsCDim> {
             type Output = $Result;
 
             #[inline]
@@ -157,7 +157,7 @@ macro_rules! dual_quaternion_op_impl(
 dual_quaternion_op_impl!(
     Add, add;
     (U4, U1), (U4, U1);
-    self: &'a DualQuaternion<N>, rhs: &'b DualQuaternion<N>, Output = DualQuaternion<N>;
+    self: &'a DualQuaternion<T>, rhs: &'b DualQuaternion<T>, Output = DualQuaternion<T>;
     DualQuaternion::from_real_and_dual(
         &self.real + &rhs.real,
         &self.dual + &rhs.dual,
@@ -167,7 +167,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Add, add;
     (U4, U1), (U4, U1);
-    self: &'a DualQuaternion<N>, rhs: DualQuaternion<N>, Output = DualQuaternion<N>;
+    self: &'a DualQuaternion<T>, rhs: DualQuaternion<T>, Output = DualQuaternion<T>;
     DualQuaternion::from_real_and_dual(
         &self.real + rhs.real,
         &self.dual + rhs.dual,
@@ -177,7 +177,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Add, add;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: &'b DualQuaternion<N>, Output = DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: &'b DualQuaternion<T>, Output = DualQuaternion<T>;
     DualQuaternion::from_real_and_dual(
         self.real + &rhs.real,
         self.dual + &rhs.dual,
@@ -187,7 +187,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Add, add;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: DualQuaternion<N>, Output = DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: DualQuaternion<T>, Output = DualQuaternion<T>;
     DualQuaternion::from_real_and_dual(
         self.real + rhs.real,
         self.dual + rhs.dual,
@@ -197,7 +197,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Sub, sub;
     (U4, U1), (U4, U1);
-    self: &'a DualQuaternion<N>, rhs: &'b DualQuaternion<N>, Output = DualQuaternion<N>;
+    self: &'a DualQuaternion<T>, rhs: &'b DualQuaternion<T>, Output = DualQuaternion<T>;
     DualQuaternion::from_real_and_dual(
         &self.real - &rhs.real,
         &self.dual - &rhs.dual,
@@ -207,7 +207,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Sub, sub;
     (U4, U1), (U4, U1);
-    self: &'a DualQuaternion<N>, rhs: DualQuaternion<N>, Output = DualQuaternion<N>;
+    self: &'a DualQuaternion<T>, rhs: DualQuaternion<T>, Output = DualQuaternion<T>;
     DualQuaternion::from_real_and_dual(
         &self.real - rhs.real,
         &self.dual - rhs.dual,
@@ -217,7 +217,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Sub, sub;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: &'b DualQuaternion<N>, Output = DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: &'b DualQuaternion<T>, Output = DualQuaternion<T>;
     DualQuaternion::from_real_and_dual(
         self.real - &rhs.real,
         self.dual - &rhs.dual,
@@ -227,7 +227,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Sub, sub;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: DualQuaternion<N>, Output = DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: DualQuaternion<T>, Output = DualQuaternion<T>;
     DualQuaternion::from_real_and_dual(
         self.real - rhs.real,
         self.dual - rhs.dual,
@@ -237,7 +237,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: &'a DualQuaternion<N>, rhs: &'b DualQuaternion<N>, Output = DualQuaternion<N>;
+    self: &'a DualQuaternion<T>, rhs: &'b DualQuaternion<T>, Output = DualQuaternion<T>;
     DualQuaternion::from_real_and_dual(
         &self.real * &rhs.real,
         &self.real * &rhs.dual + &self.dual * &rhs.real,
@@ -247,56 +247,56 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: &'a DualQuaternion<N>, rhs: DualQuaternion<N>, Output = DualQuaternion<N>;
+    self: &'a DualQuaternion<T>, rhs: DualQuaternion<T>, Output = DualQuaternion<T>;
     self * &rhs;
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: &'b DualQuaternion<N>, Output = DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: &'b DualQuaternion<T>, Output = DualQuaternion<T>;
     &self * rhs;
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: DualQuaternion<N>, Output = DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: DualQuaternion<T>, Output = DualQuaternion<T>;
     &self * &rhs; );
 
 // DualQuaternion × UnitDualQuaternion
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: &'a DualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    self: &'a DualQuaternion<T>, rhs: &'b UnitDualQuaternion<T>, Output = DualQuaternion<T>;
     self * rhs.dual_quaternion();
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: &'a DualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    self: &'a DualQuaternion<T>, rhs: UnitDualQuaternion<T>, Output = DualQuaternion<T>;
     self * rhs.dual_quaternion();
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: &'b UnitDualQuaternion<T>, Output = DualQuaternion<T>;
     self * rhs.dual_quaternion();
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: UnitDualQuaternion<T>, Output = DualQuaternion<T>;
     self * rhs.dual_quaternion(););
 
 // DualQuaternion ÷ UnitDualQuaternion
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: &'a DualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    self: &'a DualQuaternion<T>, rhs: &'b UnitDualQuaternion<T>, Output = DualQuaternion<T>;
     #[allow(clippy::suspicious_arithmetic_impl)]
     { self * rhs.inverse().dual_quaternion() };
     'a, 'b);
@@ -304,7 +304,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: &'a DualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    self: &'a DualQuaternion<T>, rhs: UnitDualQuaternion<T>, Output = DualQuaternion<T>;
     #[allow(clippy::suspicious_arithmetic_impl)]
     { self * rhs.inverse().dual_quaternion() };
     'a);
@@ -312,7 +312,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: &'b UnitDualQuaternion<T>, Output = DualQuaternion<T>;
     #[allow(clippy::suspicious_arithmetic_impl)]
     { self * rhs.inverse().dual_quaternion() };
     'b);
@@ -320,7 +320,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: UnitDualQuaternion<T>, Output = DualQuaternion<T>;
     #[allow(clippy::suspicious_arithmetic_impl)]
     { self * rhs.inverse().dual_quaternion() };);
 
@@ -328,199 +328,199 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>, Output = UnitDualQuaternion<N>;
+    self: &'a UnitDualQuaternion<T>, rhs: &'b UnitDualQuaternion<T>, Output = UnitDualQuaternion<T>;
     UnitDualQuaternion::new_unchecked(self.as_ref() * rhs.as_ref());
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = UnitDualQuaternion<N>;
+    self: &'a UnitDualQuaternion<T>, rhs: UnitDualQuaternion<T>, Output = UnitDualQuaternion<T>;
     self * &rhs;
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>, Output = UnitDualQuaternion<N>;
+    self: UnitDualQuaternion<T>, rhs: &'b UnitDualQuaternion<T>, Output = UnitDualQuaternion<T>;
     &self * rhs;
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = UnitDualQuaternion<N>;
+    self: UnitDualQuaternion<T>, rhs: UnitDualQuaternion<T>, Output = UnitDualQuaternion<T>;
     &self * &rhs; );
 
 // UnitDualQuaternion ÷ UnitDualQuaternion
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>, Output = UnitDualQuaternion<N>;
+    self: &'a UnitDualQuaternion<T>, rhs: &'b UnitDualQuaternion<T>, Output = UnitDualQuaternion<T>;
     #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = UnitDualQuaternion<N>;
+    self: &'a UnitDualQuaternion<T>, rhs: UnitDualQuaternion<T>, Output = UnitDualQuaternion<T>;
     self / &rhs;
     'a);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>, Output = UnitDualQuaternion<N>;
+    self: UnitDualQuaternion<T>, rhs: &'b UnitDualQuaternion<T>, Output = UnitDualQuaternion<T>;
     &self / rhs;
     'b);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: UnitDualQuaternion<N>, Output = UnitDualQuaternion<N>;
+    self: UnitDualQuaternion<T>, rhs: UnitDualQuaternion<T>, Output = UnitDualQuaternion<T>;
     &self / &rhs; );
 
 // UnitDualQuaternion × DualQuaternion
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: &'b DualQuaternion<N>,
-    Output = DualQuaternion<N> => U1, U4;
+    self: &'a UnitDualQuaternion<T>, rhs: &'b DualQuaternion<T>,
+    Output = DualQuaternion<T> => U1, U4;
     self.dual_quaternion() * rhs;
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: DualQuaternion<N>,
-    Output = DualQuaternion<N> => U3, U3;
+    self: &'a UnitDualQuaternion<T>, rhs: DualQuaternion<T>,
+    Output = DualQuaternion<T> => U3, U3;
     self.dual_quaternion() * rhs;
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b DualQuaternion<N>,
-    Output = DualQuaternion<N> => U3, U3;
+    self: UnitDualQuaternion<T>, rhs: &'b DualQuaternion<T>,
+    Output = DualQuaternion<T> => U3, U3;
     self.dual_quaternion() * rhs;
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: DualQuaternion<N>,
-    Output = DualQuaternion<N> => U3, U3;
+    self: UnitDualQuaternion<T>, rhs: DualQuaternion<T>,
+    Output = DualQuaternion<T> => U3, U3;
     self.dual_quaternion() * rhs;);
 
 // UnitDualQuaternion × UnitQuaternion
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: &'b UnitQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U1, U4;
-    self * UnitDualQuaternion::<N>::new_unchecked(DualQuaternion::from_real(rhs.into_inner()));
+    self: &'a UnitDualQuaternion<T>, rhs: &'b UnitQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U1, U4;
+    self * UnitDualQuaternion::<T>::new_unchecked(DualQuaternion::from_real(rhs.into_inner()));
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: UnitQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U3;
-    self * UnitDualQuaternion::<N>::new_unchecked(DualQuaternion::from_real(rhs.into_inner()));
+    self: &'a UnitDualQuaternion<T>, rhs: UnitQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U3;
+    self * UnitDualQuaternion::<T>::new_unchecked(DualQuaternion::from_real(rhs.into_inner()));
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b UnitQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U3;
-    self * UnitDualQuaternion::<N>::new_unchecked(DualQuaternion::from_real(rhs.into_inner()));
+    self: UnitDualQuaternion<T>, rhs: &'b UnitQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U3;
+    self * UnitDualQuaternion::<T>::new_unchecked(DualQuaternion::from_real(rhs.into_inner()));
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: UnitQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U3;
-    self * UnitDualQuaternion::<N>::new_unchecked(DualQuaternion::from_real(rhs.into_inner())););
+    self: UnitDualQuaternion<T>, rhs: UnitQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U3;
+    self * UnitDualQuaternion::<T>::new_unchecked(DualQuaternion::from_real(rhs.into_inner())););
 
 // UnitQuaternion × UnitDualQuaternion
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: &'a UnitQuaternion<N>, rhs: &'b UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U1, U4;
-    UnitDualQuaternion::<N>::new_unchecked(DualQuaternion::from_real(self.into_inner())) * rhs;
+    self: &'a UnitQuaternion<T>, rhs: &'b UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U1, U4;
+    UnitDualQuaternion::<T>::new_unchecked(DualQuaternion::from_real(self.into_inner())) * rhs;
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: &'a UnitQuaternion<N>, rhs: UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U3;
-    UnitDualQuaternion::<N>::new_unchecked(DualQuaternion::from_real(self.into_inner())) * rhs;
+    self: &'a UnitQuaternion<T>, rhs: UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U3;
+    UnitDualQuaternion::<T>::new_unchecked(DualQuaternion::from_real(self.into_inner())) * rhs;
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: UnitQuaternion<N>, rhs: &'b UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U3;
-    UnitDualQuaternion::<N>::new_unchecked(DualQuaternion::from_real(self.into_inner())) * rhs;
+    self: UnitQuaternion<T>, rhs: &'b UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U3;
+    UnitDualQuaternion::<T>::new_unchecked(DualQuaternion::from_real(self.into_inner())) * rhs;
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U4, U1);
-    self: UnitQuaternion<N>, rhs: UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U3;
-    UnitDualQuaternion::<N>::new_unchecked(DualQuaternion::from_real(self.into_inner())) * rhs;);
+    self: UnitQuaternion<T>, rhs: UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U3;
+    UnitDualQuaternion::<T>::new_unchecked(DualQuaternion::from_real(self.into_inner())) * rhs;);
 
 // UnitDualQuaternion ÷ UnitQuaternion
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: &'b UnitQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U1, U4;
+    self: &'a UnitDualQuaternion<T>, rhs: &'b UnitQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U1, U4;
     #[allow(clippy::suspicious_arithmetic_impl)]
-    { self * UnitDualQuaternion::<N>::from_rotation(rhs.inverse()) };
+    { self * UnitDualQuaternion::<T>::from_rotation(rhs.inverse()) };
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: UnitQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U3;
+    self: &'a UnitDualQuaternion<T>, rhs: UnitQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U3;
     #[allow(clippy::suspicious_arithmetic_impl)]
-    { self * UnitDualQuaternion::<N>::from_rotation(rhs.inverse()) };
+    { self * UnitDualQuaternion::<T>::from_rotation(rhs.inverse()) };
     'a);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b UnitQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U3;
+    self: UnitDualQuaternion<T>, rhs: &'b UnitQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U3;
     #[allow(clippy::suspicious_arithmetic_impl)]
-    { self * UnitDualQuaternion::<N>::from_rotation(rhs.inverse()) };
+    { self * UnitDualQuaternion::<T>::from_rotation(rhs.inverse()) };
     'b);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: UnitQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U3;
+    self: UnitDualQuaternion<T>, rhs: UnitQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U3;
     #[allow(clippy::suspicious_arithmetic_impl)]
-    { self * UnitDualQuaternion::<N>::from_rotation(rhs.inverse()) };);
+    { self * UnitDualQuaternion::<T>::from_rotation(rhs.inverse()) };);
 
 // UnitQuaternion ÷ UnitDualQuaternion
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: &'a UnitQuaternion<N>, rhs: &'b UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U1, U4;
+    self: &'a UnitQuaternion<T>, rhs: &'b UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U1, U4;
     #[allow(clippy::suspicious_arithmetic_impl)]
     {
-        UnitDualQuaternion::<N>::new_unchecked(
+        UnitDualQuaternion::<T>::new_unchecked(
             DualQuaternion::from_real(self.into_inner())
         ) * rhs.inverse()
     }; 'a, 'b);
@@ -528,11 +528,11 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: &'a UnitQuaternion<N>, rhs: UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U3;
+    self: &'a UnitQuaternion<T>, rhs: UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U3;
     #[allow(clippy::suspicious_arithmetic_impl)]
     {
-        UnitDualQuaternion::<N>::new_unchecked(
+        UnitDualQuaternion::<T>::new_unchecked(
             DualQuaternion::from_real(self.into_inner())
         ) * rhs.inverse()
     }; 'a);
@@ -540,11 +540,11 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: UnitQuaternion<N>, rhs: &'b UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U3;
+    self: UnitQuaternion<T>, rhs: &'b UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U3;
     #[allow(clippy::suspicious_arithmetic_impl)]
     {
-        UnitDualQuaternion::<N>::new_unchecked(
+        UnitDualQuaternion::<T>::new_unchecked(
             DualQuaternion::from_real(self.into_inner())
         ) * rhs.inverse()
     }; 'b);
@@ -552,11 +552,11 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U4, U1);
-    self: UnitQuaternion<N>, rhs: UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U3;
+    self: UnitQuaternion<T>, rhs: UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U3;
     #[allow(clippy::suspicious_arithmetic_impl)]
     {
-        UnitDualQuaternion::<N>::new_unchecked(
+        UnitDualQuaternion::<T>::new_unchecked(
             DualQuaternion::from_real(self.into_inner())
         ) * rhs.inverse()
     };);
@@ -565,305 +565,305 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: &'b Translation3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    self * UnitDualQuaternion::<N>::from_parts(rhs.clone(), UnitQuaternion::identity());
+    self: &'a UnitDualQuaternion<T>, rhs: &'b Translation3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    self * UnitDualQuaternion::<T>::from_parts(rhs.clone(), UnitQuaternion::identity());
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U3);
-    self: &'a UnitDualQuaternion<N>, rhs: Translation3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    self * UnitDualQuaternion::<N>::from_parts(rhs, UnitQuaternion::identity());
+    self: &'a UnitDualQuaternion<T>, rhs: Translation3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    self * UnitDualQuaternion::<T>::from_parts(rhs, UnitQuaternion::identity());
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U3);
-    self: UnitDualQuaternion<N>, rhs: &'b Translation3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    self * UnitDualQuaternion::<N>::from_parts(rhs.clone(), UnitQuaternion::identity());
+    self: UnitDualQuaternion<T>, rhs: &'b Translation3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    self * UnitDualQuaternion::<T>::from_parts(rhs.clone(), UnitQuaternion::identity());
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U3);
-    self: UnitDualQuaternion<N>, rhs: Translation3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    self * UnitDualQuaternion::<N>::from_parts(rhs, UnitQuaternion::identity()); );
+    self: UnitDualQuaternion<T>, rhs: Translation3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    self * UnitDualQuaternion::<T>::from_parts(rhs, UnitQuaternion::identity()); );
 
 // UnitDualQuaternion ÷ Translation3
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U3, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: &'b Translation3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
+    self: &'a UnitDualQuaternion<T>, rhs: &'b Translation3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
     #[allow(clippy::suspicious_arithmetic_impl)]
-    { self * UnitDualQuaternion::<N>::from_parts(rhs.inverse(), UnitQuaternion::identity()) };
+    { self * UnitDualQuaternion::<T>::from_parts(rhs.inverse(), UnitQuaternion::identity()) };
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U3, U3);
-    self: &'a UnitDualQuaternion<N>, rhs: Translation3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
+    self: &'a UnitDualQuaternion<T>, rhs: Translation3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
     #[allow(clippy::suspicious_arithmetic_impl)]
-    { self * UnitDualQuaternion::<N>::from_parts(rhs.inverse(), UnitQuaternion::identity()) };
+    { self * UnitDualQuaternion::<T>::from_parts(rhs.inverse(), UnitQuaternion::identity()) };
     'a);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U3, U3);
-    self: UnitDualQuaternion<N>, rhs: &'b Translation3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
+    self: UnitDualQuaternion<T>, rhs: &'b Translation3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
     #[allow(clippy::suspicious_arithmetic_impl)]
-    { self * UnitDualQuaternion::<N>::from_parts(rhs.inverse(), UnitQuaternion::identity()) };
+    { self * UnitDualQuaternion::<T>::from_parts(rhs.inverse(), UnitQuaternion::identity()) };
     'b);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U3, U3);
-    self: UnitDualQuaternion<N>, rhs: Translation3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
+    self: UnitDualQuaternion<T>, rhs: Translation3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
     #[allow(clippy::suspicious_arithmetic_impl)]
-    { self * UnitDualQuaternion::<N>::from_parts(rhs.inverse(), UnitQuaternion::identity()) };);
+    { self * UnitDualQuaternion::<T>::from_parts(rhs.inverse(), UnitQuaternion::identity()) };);
 
 // Translation3 × UnitDualQuaternion
 dual_quaternion_op_impl!(
     Mul, mul;
     (U3, U1), (U4, U1);
-    self: &'b Translation3<N>, rhs: &'a UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_parts(self.clone(), UnitQuaternion::identity()) * rhs;
+    self: &'b Translation3<T>, rhs: &'a UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_parts(self.clone(), UnitQuaternion::identity()) * rhs;
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U3, U1), (U4, U1);
-    self: &'a Translation3<N>, rhs: UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_parts(self.clone(), UnitQuaternion::identity()) * rhs;
+    self: &'a Translation3<T>, rhs: UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_parts(self.clone(), UnitQuaternion::identity()) * rhs;
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U3, U1), (U4, U1);
-    self: Translation3<N>, rhs: &'b UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_parts(self, UnitQuaternion::identity()) * rhs;
+    self: Translation3<T>, rhs: &'b UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_parts(self, UnitQuaternion::identity()) * rhs;
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U3, U1), (U4, U1);
-    self: Translation3<N>, rhs: UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_parts(self, UnitQuaternion::identity()) * rhs;);
+    self: Translation3<T>, rhs: UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_parts(self, UnitQuaternion::identity()) * rhs;);
 
 // Translation3 ÷ UnitDualQuaternion
 dual_quaternion_op_impl!(
     Div, div;
     (U3, U1), (U4, U1);
-    self: &'b Translation3<N>, rhs: &'a UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_parts(self.clone(), UnitQuaternion::identity()) / rhs;
+    self: &'b Translation3<T>, rhs: &'a UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_parts(self.clone(), UnitQuaternion::identity()) / rhs;
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U3, U1), (U4, U1);
-    self: &'a Translation3<N>, rhs: UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_parts(self.clone(), UnitQuaternion::identity()) / rhs;
+    self: &'a Translation3<T>, rhs: UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_parts(self.clone(), UnitQuaternion::identity()) / rhs;
     'a);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U3, U1), (U4, U1);
-    self: Translation3<N>, rhs: &'b UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_parts(self, UnitQuaternion::identity()) / rhs;
+    self: Translation3<T>, rhs: &'b UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_parts(self, UnitQuaternion::identity()) / rhs;
     'b);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U3, U1), (U4, U1);
-    self: Translation3<N>, rhs: UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_parts(self, UnitQuaternion::identity()) / rhs;);
+    self: Translation3<T>, rhs: UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_parts(self, UnitQuaternion::identity()) / rhs;);
 
 // UnitDualQuaternion × Isometry3
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: &'b Isometry3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    self * UnitDualQuaternion::<N>::from_isometry(rhs);
+    self: &'a UnitDualQuaternion<T>, rhs: &'b Isometry3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    self * UnitDualQuaternion::<T>::from_isometry(rhs);
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U3);
-    self: &'a UnitDualQuaternion<N>, rhs: Isometry3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    self * UnitDualQuaternion::<N>::from_isometry(&rhs);
+    self: &'a UnitDualQuaternion<T>, rhs: Isometry3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    self * UnitDualQuaternion::<T>::from_isometry(&rhs);
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U3);
-    self: UnitDualQuaternion<N>, rhs: &'b Isometry3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    self * UnitDualQuaternion::<N>::from_isometry(rhs);
+    self: UnitDualQuaternion<T>, rhs: &'b Isometry3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    self * UnitDualQuaternion::<T>::from_isometry(rhs);
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U3);
-    self: UnitDualQuaternion<N>, rhs: Isometry3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    self * UnitDualQuaternion::<N>::from_isometry(&rhs); );
+    self: UnitDualQuaternion<T>, rhs: Isometry3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    self * UnitDualQuaternion::<T>::from_isometry(&rhs); );
 
 // UnitDualQuaternion ÷ Isometry3
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U3, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: &'b Isometry3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
+    self: &'a UnitDualQuaternion<T>, rhs: &'b Isometry3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
     // TODO: can we avoid the conversion to a rotation matrix?
-    self / UnitDualQuaternion::<N>::from_isometry(rhs);
+    self / UnitDualQuaternion::<T>::from_isometry(rhs);
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U3, U3);
-    self: &'a UnitDualQuaternion<N>, rhs: Isometry3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    self / UnitDualQuaternion::<N>::from_isometry(&rhs);
+    self: &'a UnitDualQuaternion<T>, rhs: Isometry3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    self / UnitDualQuaternion::<T>::from_isometry(&rhs);
     'a);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U3, U3);
-    self: UnitDualQuaternion<N>, rhs: &'b Isometry3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    self / UnitDualQuaternion::<N>::from_isometry(rhs);
+    self: UnitDualQuaternion<T>, rhs: &'b Isometry3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    self / UnitDualQuaternion::<T>::from_isometry(rhs);
     'b);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U4, U1), (U3, U3);
-    self: UnitDualQuaternion<N>, rhs: Isometry3<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    self / UnitDualQuaternion::<N>::from_isometry(&rhs); );
+    self: UnitDualQuaternion<T>, rhs: Isometry3<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    self / UnitDualQuaternion::<T>::from_isometry(&rhs); );
 
 // Isometry × UnitDualQuaternion
 dual_quaternion_op_impl!(
     Mul, mul;
     (U3, U1), (U4, U1);
-    self: &'a Isometry3<N>, rhs: &'b UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_isometry(self) * rhs;
+    self: &'a Isometry3<T>, rhs: &'b UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_isometry(self) * rhs;
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U3, U1), (U4, U1);
-    self: &'a Isometry3<N>, rhs: UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_isometry(self) * rhs;
+    self: &'a Isometry3<T>, rhs: UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_isometry(self) * rhs;
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U3, U1), (U4, U1);
-    self: Isometry3<N>, rhs: &'b UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_isometry(&self) * rhs;
+    self: Isometry3<T>, rhs: &'b UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_isometry(&self) * rhs;
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U3, U1), (U4, U1);
-    self: Isometry3<N>, rhs: UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_isometry(&self) * rhs; );
+    self: Isometry3<T>, rhs: UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_isometry(&self) * rhs; );
 
 // Isometry ÷ UnitDualQuaternion
 dual_quaternion_op_impl!(
     Div, div;
     (U3, U1), (U4, U1);
-    self: &'a Isometry3<N>, rhs: &'b UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
+    self: &'a Isometry3<T>, rhs: &'b UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
     // TODO: can we avoid the conversion from a rotation matrix?
-    UnitDualQuaternion::<N>::from_isometry(self) / rhs;
+    UnitDualQuaternion::<T>::from_isometry(self) / rhs;
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U3, U1), (U4, U1);
-    self: &'a Isometry3<N>, rhs: UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_isometry(self) / rhs;
+    self: &'a Isometry3<T>, rhs: UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_isometry(self) / rhs;
     'a);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U3, U1), (U4, U1);
-    self: Isometry3<N>, rhs: &'b UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_isometry(&self) / rhs;
+    self: Isometry3<T>, rhs: &'b UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_isometry(&self) / rhs;
     'b);
 
 dual_quaternion_op_impl!(
     Div, div;
     (U3, U1), (U4, U1);
-    self: Isometry3<N>, rhs: UnitDualQuaternion<N>,
-    Output = UnitDualQuaternion<N> => U3, U1;
-    UnitDualQuaternion::<N>::from_isometry(&self) / rhs; );
+    self: Isometry3<T>, rhs: UnitDualQuaternion<T>,
+    Output = UnitDualQuaternion<T> => U3, U1;
+    UnitDualQuaternion::<T>::from_isometry(&self) / rhs; );
 
 // UnitDualQuaternion × Vector
 dual_quaternion_op_impl!(
     Mul, mul;
-    (U4, U1), (U3, U1) for SB: Storage<N, U3> ;
-    self: &'a UnitDualQuaternion<N>, rhs: &'b Vector<N, U3, SB>,
-    Output = Vector3<N> => U3, U1;
+    (U4, U1), (U3, U1) for SB: Storage<T, U3> ;
+    self: &'a UnitDualQuaternion<T>, rhs: &'b Vector<T, U3, SB>,
+    Output = Vector3<T> => U3, U1;
     Unit::new_unchecked(self.as_ref().real) * rhs;
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
-    (U4, U1), (U3, U1) for SB: Storage<N, U3> ;
-    self: &'a UnitDualQuaternion<N>, rhs: Vector<N, U3, SB>,
-    Output = Vector3<N> => U3, U1;
+    (U4, U1), (U3, U1) for SB: Storage<T, U3> ;
+    self: &'a UnitDualQuaternion<T>, rhs: Vector<T, U3, SB>,
+    Output = Vector3<T> => U3, U1;
     self * &rhs;
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
-    (U4, U1), (U3, U1) for SB: Storage<N, U3> ;
-    self: UnitDualQuaternion<N>, rhs: &'b Vector<N, U3, SB>,
-    Output = Vector3<N> => U3, U1;
+    (U4, U1), (U3, U1) for SB: Storage<T, U3> ;
+    self: UnitDualQuaternion<T>, rhs: &'b Vector<T, U3, SB>,
+    Output = Vector3<T> => U3, U1;
     &self * rhs;
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
-    (U4, U1), (U3, U1) for SB: Storage<N, U3> ;
-    self: UnitDualQuaternion<N>, rhs: Vector<N, U3, SB>,
-    Output = Vector3<N> => U3, U1;
+    (U4, U1), (U3, U1) for SB: Storage<T, U3> ;
+    self: UnitDualQuaternion<T>, rhs: Vector<T, U3, SB>,
+    Output = Vector3<T> => U3, U1;
     &self * &rhs; );
 
 // UnitDualQuaternion × Point
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: &'b Point3<N>,
-    Output = Point3<N> => U3, U1;
+    self: &'a UnitDualQuaternion<T>, rhs: &'b Point3<T>,
+    Output = Point3<T> => U3, U1;
     {
-        let two: N = crate::convert(2.0f64);
-        let q_point = Quaternion::from_parts(N::zero(), rhs.coords.clone());
+        let two: T = crate::convert(2.0f64);
+        let q_point = Quaternion::from_parts(T::zero(), rhs.coords.clone());
         Point::from(
             ((self.as_ref().real * q_point + self.as_ref().dual * two) * self.as_ref().real.conjugate())
                 .vector()
@@ -875,56 +875,56 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U1);
-    self: &'a UnitDualQuaternion<N>, rhs: Point3<N>,
-    Output = Point3<N> => U3, U1;
+    self: &'a UnitDualQuaternion<T>, rhs: Point3<T>,
+    Output = Point3<T> => U3, U1;
     self * &rhs;
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b Point3<N>,
-    Output = Point3<N> => U3, U1;
+    self: UnitDualQuaternion<T>, rhs: &'b Point3<T>,
+    Output = Point3<T> => U3, U1;
     &self * rhs;
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
     (U4, U1), (U3, U1);
-    self: UnitDualQuaternion<N>, rhs: Point3<N>,
-    Output = Point3<N> => U3, U1;
+    self: UnitDualQuaternion<T>, rhs: Point3<T>,
+    Output = Point3<T> => U3, U1;
     &self * &rhs; );
 
 // UnitDualQuaternion × Unit<Vector>
 dual_quaternion_op_impl!(
     Mul, mul;
-    (U4, U1), (U3, U1) for SB: Storage<N, U3> ;
-    self: &'a UnitDualQuaternion<N>, rhs: &'b Unit<Vector<N, U3, SB>>,
-    Output = Unit<Vector3<N>> => U3, U4;
+    (U4, U1), (U3, U1) for SB: Storage<T, U3> ;
+    self: &'a UnitDualQuaternion<T>, rhs: &'b Unit<Vector<T, U3, SB>>,
+    Output = Unit<Vector3<T>> => U3, U4;
     Unit::new_unchecked(self * rhs.as_ref());
     'a, 'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
-    (U4, U1), (U3, U1) for SB: Storage<N, U3> ;
-    self: &'a UnitDualQuaternion<N>, rhs: Unit<Vector<N, U3, SB>>,
-    Output = Unit<Vector3<N>> => U3, U4;
+    (U4, U1), (U3, U1) for SB: Storage<T, U3> ;
+    self: &'a UnitDualQuaternion<T>, rhs: Unit<Vector<T, U3, SB>>,
+    Output = Unit<Vector3<T>> => U3, U4;
     Unit::new_unchecked(self * rhs.into_inner());
     'a);
 
 dual_quaternion_op_impl!(
     Mul, mul;
-    (U4, U1), (U3, U1) for SB: Storage<N, U3> ;
-    self: UnitDualQuaternion<N>, rhs: &'b Unit<Vector<N, U3, SB>>,
-    Output = Unit<Vector3<N>> => U3, U4;
+    (U4, U1), (U3, U1) for SB: Storage<T, U3> ;
+    self: UnitDualQuaternion<T>, rhs: &'b Unit<Vector<T, U3, SB>>,
+    Output = Unit<Vector3<T>> => U3, U4;
     Unit::new_unchecked(self * rhs.as_ref());
     'b);
 
 dual_quaternion_op_impl!(
     Mul, mul;
-    (U4, U1), (U3, U1) for SB: Storage<N, U3> ;
-    self: UnitDualQuaternion<N>, rhs: Unit<Vector<N, U3, SB>>,
-    Output = Unit<Vector3<N>> => U3, U4;
+    (U4, U1), (U3, U1) for SB: Storage<T, U3> ;
+    self: UnitDualQuaternion<T>, rhs: Unit<Vector<T, U3, SB>>,
+    Output = Unit<Vector3<T>> => U3, U4;
     Unit::new_unchecked(self * rhs.into_inner()); );
 
 macro_rules! left_scalar_mul_impl(
@@ -962,10 +962,10 @@ macro_rules! dual_quaternion_op_impl(
      ($LhsRDim: ident, $LhsCDim: ident), ($RhsRDim: ident, $RhsCDim: ident);
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty $(=> $VDimA: ty, $VDimB: ty)*;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N: SimdRealField> $OpAssign<$Rhs> for $Lhs
-            where N::Element: SimdRealField,
-                  DefaultAllocator: Allocator<N, $LhsRDim, $LhsCDim> +
-                                    Allocator<N, $RhsRDim, $RhsCDim> {
+        impl<$($lives ,)* T: SimdRealField> $OpAssign<$Rhs> for $Lhs
+            where T::Element: SimdRealField,
+                  DefaultAllocator: Allocator<T, $LhsRDim, $LhsCDim> +
+                                    Allocator<T, $RhsRDim, $RhsCDim> {
 
             #[inline]
             fn $op_assign(&mut $lhs, $rhs: $Rhs) {
@@ -979,7 +979,7 @@ macro_rules! dual_quaternion_op_impl(
 dual_quaternion_op_impl!(
     AddAssign, add_assign;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: &'b DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: &'b DualQuaternion<T>;
     {
         self.real += &rhs.real;
         self.dual += &rhs.dual;
@@ -989,7 +989,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     AddAssign, add_assign;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: DualQuaternion<T>;
     {
         self.real += rhs.real;
         self.dual += rhs.dual;
@@ -999,7 +999,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     SubAssign, sub_assign;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: &'b DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: &'b DualQuaternion<T>;
     {
         self.real -= &rhs.real;
         self.dual -= &rhs.dual;
@@ -1009,7 +1009,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     SubAssign, sub_assign;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: DualQuaternion<T>;
     {
         self.real -= rhs.real;
         self.dual -= rhs.dual;
@@ -1019,7 +1019,7 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: &'b DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: &'b DualQuaternion<T>;
     {
         let res = &*self * rhs;
         self.real.coords.copy_from(&res.real.coords);
@@ -1030,14 +1030,14 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: DualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: DualQuaternion<T>;
     *self *= &rhs;);
 
 // DualQuaternion ×= UnitDualQuaternion
 dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: &'b UnitDualQuaternion<T>;
     {
         let res = &*self * rhs;
         self.real.coords.copy_from(&res.real.coords);
@@ -1048,14 +1048,14 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: UnitDualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: UnitDualQuaternion<T>;
     *self *= &rhs; );
 
 // DualQuaternion ÷= UnitDualQuaternion
 dual_quaternion_op_impl!(
     DivAssign, div_assign;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: &'b UnitDualQuaternion<T>;
     {
         let res = &*self / rhs;
         self.real.coords.copy_from(&res.real.coords);
@@ -1066,14 +1066,14 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     DivAssign, div_assign;
     (U4, U1), (U4, U1);
-    self: DualQuaternion<N>, rhs: UnitDualQuaternion<N>;
+    self: DualQuaternion<T>, rhs: UnitDualQuaternion<T>;
     *self /= &rhs; );
 
 // UnitDualQuaternion ×= UnitDualQuaternion
 dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>;
+    self: UnitDualQuaternion<T>, rhs: &'b UnitDualQuaternion<T>;
     {
         let res = &*self * rhs;
         self.as_mut_unchecked().real.coords.copy_from(&res.as_ref().real.coords);
@@ -1084,14 +1084,14 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: UnitDualQuaternion<N>;
+    self: UnitDualQuaternion<T>, rhs: UnitDualQuaternion<T>;
     *self *= &rhs; );
 
 // UnitDualQuaternion ÷= UnitDualQuaternion
 dual_quaternion_op_impl!(
     DivAssign, div_assign;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b UnitDualQuaternion<N>;
+    self: UnitDualQuaternion<T>, rhs: &'b UnitDualQuaternion<T>;
     {
         let res = &*self / rhs;
         self.as_mut_unchecked().real.coords.copy_from(&res.as_ref().real.coords);
@@ -1102,14 +1102,14 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     DivAssign, div_assign;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: UnitDualQuaternion<N>;
+    self: UnitDualQuaternion<T>, rhs: UnitDualQuaternion<T>;
     *self /= &rhs; );
 
 // UnitDualQuaternion ×= UnitQuaternion
 dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: UnitQuaternion<N>;
+    self: UnitDualQuaternion<T>, rhs: UnitQuaternion<T>;
     {
         let res = &*self * UnitDualQuaternion::from_rotation(rhs);
         self.as_mut_unchecked().real.coords.copy_from(&res.as_ref().real.coords);
@@ -1119,14 +1119,14 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b UnitQuaternion<N>;
+    self: UnitDualQuaternion<T>, rhs: &'b UnitQuaternion<T>;
     *self *= rhs.clone(); 'b);
 
 // UnitDualQuaternion ÷= UnitQuaternion
 dual_quaternion_op_impl!(
     DivAssign, div_assign;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b UnitQuaternion<N>;
+    self: UnitDualQuaternion<T>, rhs: &'b UnitQuaternion<T>;
     #[allow(clippy::suspicious_op_assign_impl)]
     {
         let res = &*self * UnitDualQuaternion::from_rotation(rhs.inverse());
@@ -1138,14 +1138,14 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     DivAssign, div_assign;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: UnitQuaternion<N>;
+    self: UnitDualQuaternion<T>, rhs: UnitQuaternion<T>;
     *self /= &rhs; );
 
 // UnitDualQuaternion ×= Translation3
 dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: Translation3<N>;
+    self: UnitDualQuaternion<T>, rhs: Translation3<T>;
     {
         let res = &*self * UnitDualQuaternion::from_parts(rhs, UnitQuaternion::identity());
         self.as_mut_unchecked().real.coords.copy_from(&res.as_ref().real.coords);
@@ -1155,14 +1155,14 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b Translation3<N>;
+    self: UnitDualQuaternion<T>, rhs: &'b Translation3<T>;
     *self *= rhs.clone(); 'b);
 
 // UnitDualQuaternion ÷= Translation3
 dual_quaternion_op_impl!(
     DivAssign, div_assign;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b Translation3<N>;
+    self: UnitDualQuaternion<T>, rhs: &'b Translation3<T>;
     #[allow(clippy::suspicious_op_assign_impl)]
     {
         let res = &*self * UnitDualQuaternion::from_parts(rhs.inverse(), UnitQuaternion::identity());
@@ -1174,14 +1174,14 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     DivAssign, div_assign;
     (U4, U1), (U4, U1);
-    self: UnitDualQuaternion<N>, rhs: Translation3<N>;
+    self: UnitDualQuaternion<T>, rhs: Translation3<T>;
     *self /= &rhs; );
 
 // UnitDualQuaternion ×= Isometry3
 dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U3, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b Isometry3<N> => U3, U1;
+    self: UnitDualQuaternion<T>, rhs: &'b Isometry3<T> => U3, U1;
     {
         let res = &*self * rhs;
         self.as_mut_unchecked().real.coords.copy_from(&res.as_ref().real.coords);
@@ -1192,14 +1192,14 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U3, U1);
-    self: UnitDualQuaternion<N>, rhs: Isometry3<N> => U3, U1;
+    self: UnitDualQuaternion<T>, rhs: Isometry3<T> => U3, U1;
     *self *= &rhs; );
 
 // UnitDualQuaternion ÷= Isometry3
 dual_quaternion_op_impl!(
     DivAssign, div_assign;
     (U4, U1), (U3, U1);
-    self: UnitDualQuaternion<N>, rhs: &'b Isometry3<N> => U3, U1;
+    self: UnitDualQuaternion<T>, rhs: &'b Isometry3<T> => U3, U1;
     {
         let res = &*self / rhs;
         self.as_mut_unchecked().real.coords.copy_from(&res.as_ref().real.coords);
@@ -1210,17 +1210,17 @@ dual_quaternion_op_impl!(
 dual_quaternion_op_impl!(
     DivAssign, div_assign;
     (U4, U1), (U3, U1);
-    self: UnitDualQuaternion<N>, rhs: Isometry3<N> => U3, U1;
+    self: UnitDualQuaternion<T>, rhs: Isometry3<T> => U3, U1;
     *self /= &rhs; );
 
 macro_rules! scalar_op_impl(
     ($($Op: ident, $op: ident, $OpAssign: ident, $op_assign: ident);* $(;)*) => {$(
-        impl<N: SimdRealField> $Op<N> for DualQuaternion<N>
-         where N::Element: SimdRealField {
-            type Output = DualQuaternion<N>;
+        impl<T: SimdRealField> $Op<T> for DualQuaternion<T>
+         where T::Element: SimdRealField {
+            type Output = DualQuaternion<T>;
 
             #[inline]
-            fn $op(self, n: N) -> Self::Output {
+            fn $op(self, n: T) -> Self::Output {
                 DualQuaternion::from_real_and_dual(
                     self.real.$op(n),
                     self.dual.$op(n)
@@ -1228,12 +1228,12 @@ macro_rules! scalar_op_impl(
             }
         }
 
-        impl<'a, N: SimdRealField> $Op<N> for &'a DualQuaternion<N>
-         where N::Element: SimdRealField {
-            type Output = DualQuaternion<N>;
+        impl<'a, T: SimdRealField> $Op<T> for &'a DualQuaternion<T>
+         where T::Element: SimdRealField {
+            type Output = DualQuaternion<T>;
 
             #[inline]
-            fn $op(self, n: N) -> Self::Output {
+            fn $op(self, n: T) -> Self::Output {
                 DualQuaternion::from_real_and_dual(
                     self.real.$op(n),
                     self.dual.$op(n)
@@ -1241,11 +1241,11 @@ macro_rules! scalar_op_impl(
             }
         }
 
-        impl<N: SimdRealField> $OpAssign<N> for DualQuaternion<N>
-         where N::Element: SimdRealField {
+        impl<T: SimdRealField> $OpAssign<T> for DualQuaternion<T>
+         where T::Element: SimdRealField {
 
             #[inline]
-            fn $op_assign(&mut self, n: N) {
+            fn $op_assign(&mut self, n: T) {
                 self.real.$op_assign(n);
                 self.dual.$op_assign(n);
             }

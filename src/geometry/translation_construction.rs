@@ -12,14 +12,10 @@ use rand::{
 
 use simba::scalar::{ClosedAdd, SupersetOf};
 
-use crate::base::{CVectorN, Const, Scalar};
-
+use crate::base::{SVector, Scalar};
 use crate::geometry::Translation;
 
-impl<N: Scalar, const D: usize> Translation<N, D>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar, const D: usize> Translation<T, D> {
     /// Creates a new identity translation.
     ///
     /// # Example
@@ -35,11 +31,11 @@ impl<N: Scalar, const D: usize> Translation<N, D>
     /// assert_eq!(t * p, p);
     /// ```
     #[inline]
-    pub fn identity() -> Translation<N, D>
+    pub fn identity() -> Translation<T, D>
     where
-        N: Zero,
+        T: Zero,
     {
-        Self::from(CVectorN::<N, D>::from_element(N::zero()))
+        Self::from(SVector::<T, D>::from_element(T::zero()))
     }
 
     /// Cast the components of `self` to another type.
@@ -59,10 +55,7 @@ impl<N: Scalar, const D: usize> Translation<N, D>
     }
 }
 
-impl<N: Scalar + Zero + ClosedAdd, const D: usize> One for Translation<N, D>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar + Zero + ClosedAdd, const D: usize> One for Translation<T, D> {
     #[inline]
     fn one() -> Self {
         Self::identity()
@@ -70,25 +63,25 @@ impl<N: Scalar + Zero + ClosedAdd, const D: usize> One for Translation<N, D>
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<N: Scalar, const D: usize> Distribution<Translation<N, D>> for Standard
+impl<T: Scalar, const D: usize> Distribution<Translation<T, D>> for Standard
 where
-    Standard: Distribution<N>,
+    Standard: Distribution<T>,
 {
     /// Generate an arbitrary random variate for testing purposes.
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Translation<N, D> {
-        Translation::from(rng.gen::<CVectorN<N, D>>())
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Translation<T, D> {
+        Translation::from(rng.gen::<SVector<T, D>>())
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Scalar + Arbitrary + Send, const D: usize> Arbitrary for Translation<N, D>
+impl<T: Scalar + Arbitrary + Send, const D: usize> Arbitrary for Translation<T, D>
 where
-    Owned<N, Const<D>>: Send,
+    Owned<T, crate::Const<D>>: Send,
 {
     #[inline]
     fn arbitrary(rng: &mut Gen) -> Self {
-        let v: CVectorN<N, D> = Arbitrary::arbitrary(rng);
+        let v: SVector<T, D> = Arbitrary::arbitrary(rng);
         Self::from(v)
     }
 }
@@ -100,16 +93,15 @@ where
  */
 macro_rules! componentwise_constructors_impl(
     ($($doc: expr; $D: expr, $($args: ident:$irow: expr),*);* $(;)*) => {$(
-        impl<N: Scalar> Translation<N, $D>
-            // where DefaultAllocator: Allocator<N, $D>
+        impl<T: Scalar> Translation<T, $D>
              {
             #[doc = "Initializes this translation from its components."]
             #[doc = "# Example\n```"]
             #[doc = $doc]
             #[doc = "```"]
             #[inline]
-            pub fn new($($args: N),*) -> Self {
-                Self::from(CVectorN::<N, $D>::new($($args),*))
+            pub fn new($($args: T),*) -> Self {
+                Self::from(SVector::<T, $D>::new($($args),*))
             }
         }
     )*}

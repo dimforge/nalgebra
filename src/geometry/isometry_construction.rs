@@ -16,14 +16,14 @@ use simba::simd::SimdRealField;
 use crate::base::{Vector2, Vector3};
 
 use crate::{
-    AbstractRotation, Const, Isometry, Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3,
-    Point, Point3, Rotation, Rotation3, Scalar, Translation, Translation2, Translation3,
-    UnitComplex, UnitQuaternion,
+    AbstractRotation, Isometry, Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3, Point,
+    Point3, Rotation, Rotation3, Scalar, Translation, Translation2, Translation3, UnitComplex,
+    UnitQuaternion,
 };
 
-impl<N: SimdRealField, R: AbstractRotation<N, D>, const D: usize> Isometry<N, R, D>
+impl<T: SimdRealField, R: AbstractRotation<T, D>, const D: usize> Isometry<T, R, D>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Creates a new identity isometry.
     ///
@@ -62,15 +62,15 @@ where
     /// assert_relative_eq!(iso * Point2::new(1.0, 2.0), Point2::new(1.0, -2.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn rotation_wrt_point(r: R, p: Point<N, D>) -> Self {
+    pub fn rotation_wrt_point(r: R, p: Point<T, D>) -> Self {
         let shift = r.transform_vector(&-&p.coords);
         Self::from_parts(Translation::from(shift + p.coords), r)
     }
 }
 
-impl<N: SimdRealField, R: AbstractRotation<N, D>, const D: usize> One for Isometry<N, R, D>
+impl<T: SimdRealField, R: AbstractRotation<T, D>, const D: usize> One for Isometry<T, R, D>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Creates a new identity isometry.
     #[inline]
@@ -80,24 +80,24 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<N: crate::RealField, R, const D: usize> Distribution<Isometry<N, R, D>> for Standard
+impl<T: crate::RealField, R, const D: usize> Distribution<Isometry<T, R, D>> for Standard
 where
-    R: AbstractRotation<N, D>,
-    Standard: Distribution<N> + Distribution<R>,
+    R: AbstractRotation<T, D>,
+    Standard: Distribution<T> + Distribution<R>,
 {
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Isometry<N, R, D> {
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Isometry<T, R, D> {
         Isometry::from_parts(rng.gen(), rng.gen())
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N, R, const D: usize> Arbitrary for Isometry<N, R, D>
+impl<T, R, const D: usize> Arbitrary for Isometry<T, R, D>
 where
-    N: SimdRealField + Arbitrary + Send,
-    N::Element: SimdRealField,
-    R: AbstractRotation<N, D> + Arbitrary + Send,
-    Owned<N, Const<D>>: Send,
+    T: SimdRealField + Arbitrary + Send,
+    T::Element: SimdRealField,
+    R: AbstractRotation<T, D> + Arbitrary + Send,
+    Owned<T, crate::Const<D>>: Send,
 {
     #[inline]
     fn arbitrary(rng: &mut Gen) -> Self {
@@ -112,9 +112,9 @@ where
  */
 
 /// # Construction from a 2D vector and/or a rotation angle
-impl<N: SimdRealField> IsometryMatrix2<N>
+impl<T: SimdRealField> IsometryMatrix2<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Creates a new 2D isometry from a translation and a rotation angle.
     ///
@@ -130,19 +130,19 @@ where
     /// assert_eq!(iso * Point2::new(3.0, 4.0), Point2::new(-3.0, 5.0));
     /// ```
     #[inline]
-    pub fn new(translation: Vector2<N>, angle: N) -> Self {
-        Self::from_parts(Translation::from(translation), Rotation::<N, 2>::new(angle))
+    pub fn new(translation: Vector2<T>, angle: T) -> Self {
+        Self::from_parts(Translation::from(translation), Rotation::<T, 2>::new(angle))
     }
 
     /// Creates a new isometry from the given translation coordinates.
     #[inline]
-    pub fn translation(x: N, y: N) -> Self {
-        Self::new(Vector2::new(x, y), N::zero())
+    pub fn translation(x: T, y: T) -> Self {
+        Self::new(Vector2::new(x, y), T::zero())
     }
 
     /// Creates a new isometry from the given rotation angle.
     #[inline]
-    pub fn rotation(angle: N) -> Self {
+    pub fn rotation(angle: T) -> Self {
         Self::new(Vector2::zeros(), angle)
     }
 
@@ -163,9 +163,9 @@ where
     }
 }
 
-impl<N: SimdRealField> Isometry2<N>
+impl<T: SimdRealField> Isometry2<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Creates a new 2D isometry from a translation and a rotation angle.
     ///
@@ -181,7 +181,7 @@ where
     /// assert_eq!(iso * Point2::new(3.0, 4.0), Point2::new(-3.0, 5.0));
     /// ```
     #[inline]
-    pub fn new(translation: Vector2<N>, angle: N) -> Self {
+    pub fn new(translation: Vector2<T>, angle: T) -> Self {
         Self::from_parts(
             Translation::from(translation),
             UnitComplex::from_angle(angle),
@@ -190,13 +190,13 @@ where
 
     /// Creates a new isometry from the given translation coordinates.
     #[inline]
-    pub fn translation(x: N, y: N) -> Self {
+    pub fn translation(x: T, y: T) -> Self {
         Self::from_parts(Translation2::new(x, y), UnitComplex::identity())
     }
 
     /// Creates a new isometry from the given rotation angle.
     #[inline]
-    pub fn rotation(angle: N) -> Self {
+    pub fn rotation(angle: T) -> Self {
         Self::new(Vector2::zeros(), angle)
     }
 
@@ -245,7 +245,7 @@ macro_rules! basic_isometry_construction_impl(
         /// assert_relative_eq!(iso * vec, Vector3::new(6.0, 5.0, -4.0), epsilon = 1.0e-6);
         /// ```
         #[inline]
-        pub fn new(translation: Vector3<N>, axisangle: Vector3<N>) -> Self {
+        pub fn new(translation: Vector3<T>, axisangle: Vector3<T>) -> Self {
             Self::from_parts(
                 Translation::from(translation),
                 $RotId::<$($RotParams),*>::from_scaled_axis(axisangle))
@@ -253,13 +253,13 @@ macro_rules! basic_isometry_construction_impl(
 
         /// Creates a new isometry from the given translation coordinates.
         #[inline]
-        pub fn translation(x: N, y: N, z: N) -> Self {
+        pub fn translation(x: T, y: T, z: T) -> Self {
             Self::from_parts(Translation3::new(x, y, z), $RotId::identity())
         }
 
         /// Creates a new isometry from the given rotation angle.
         #[inline]
-        pub fn rotation(axisangle: Vector3<N>) -> Self {
+        pub fn rotation(axisangle: Vector3<T>) -> Self {
             Self::new(Vector3::zeros(), axisangle)
         }
     }
@@ -299,9 +299,9 @@ macro_rules! look_at_isometry_construction_impl(
         /// assert_relative_eq!(iso * Vector3::z(), Vector3::x());
         /// ```
         #[inline]
-        pub fn face_towards(eye:    &Point3<N>,
-                            target: &Point3<N>,
-                            up:     &Vector3<N>)
+        pub fn face_towards(eye:    &Point3<T>,
+                            target: &Point3<T>,
+                            up:     &Vector3<T>)
                             -> Self {
             Self::from_parts(
                 Translation::from(eye.coords.clone()),
@@ -310,9 +310,9 @@ macro_rules! look_at_isometry_construction_impl(
 
         /// Deprecated: Use [Isometry::face_towards] instead.
         #[deprecated(note="renamed to `face_towards`")]
-        pub fn new_observer_frame(eye:    &Point3<N>,
-                                  target: &Point3<N>,
-                                  up:     &Vector3<N>)
+        pub fn new_observer_frame(eye:    &Point3<T>,
+                                  target: &Point3<T>,
+                                  up:     &Vector3<T>)
                                   -> Self {
             Self::face_towards(eye, target, up)
         }
@@ -350,9 +350,9 @@ macro_rules! look_at_isometry_construction_impl(
         /// assert_relative_eq!(iso * Vector3::x(), -Vector3::z());
         /// ```
         #[inline]
-        pub fn look_at_rh(eye:    &Point3<N>,
-                          target: &Point3<N>,
-                          up:     &Vector3<N>)
+        pub fn look_at_rh(eye:    &Point3<T>,
+                          target: &Point3<T>,
+                          up:     &Vector3<T>)
                           -> Self {
             let rotation = $RotId::look_at_rh(&(target - eye), up);
             let trans    = &rotation * (-eye);
@@ -393,9 +393,9 @@ macro_rules! look_at_isometry_construction_impl(
         /// assert_relative_eq!(iso * Vector3::x(), Vector3::z());
         /// ```
         #[inline]
-        pub fn look_at_lh(eye:    &Point3<N>,
-                          target: &Point3<N>,
-                          up:     &Vector3<N>)
+        pub fn look_at_lh(eye:    &Point3<T>,
+                          target: &Point3<T>,
+                          up:     &Vector3<T>)
                           -> Self {
             let rotation = $RotId::look_at_lh(&(target - eye), up);
             let trans    = &rotation * (-eye);
@@ -406,11 +406,11 @@ macro_rules! look_at_isometry_construction_impl(
 );
 
 /// # Construction from a 3D vector and/or an axis-angle
-impl<N: SimdRealField> Isometry3<N>
+impl<T: SimdRealField> Isometry3<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    basic_isometry_construction_impl!(UnitQuaternion<N>);
+    basic_isometry_construction_impl!(UnitQuaternion<T>);
 
     /// Cast the components of `self` to another type.
     ///
@@ -429,11 +429,11 @@ where
     }
 }
 
-impl<N: SimdRealField> IsometryMatrix3<N>
+impl<T: SimdRealField> IsometryMatrix3<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    basic_isometry_construction_impl!(Rotation3<N>);
+    basic_isometry_construction_impl!(Rotation3<T>);
 
     /// Cast the components of `self` to another type.
     ///
@@ -453,16 +453,16 @@ where
 }
 
 /// # Construction from a 3D eye position and target point
-impl<N: SimdRealField> Isometry3<N>
+impl<T: SimdRealField> Isometry3<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    look_at_isometry_construction_impl!(UnitQuaternion<N>);
+    look_at_isometry_construction_impl!(UnitQuaternion<T>);
 }
 
-impl<N: SimdRealField> IsometryMatrix3<N>
+impl<T: SimdRealField> IsometryMatrix3<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    look_at_isometry_construction_impl!(Rotation3<N>);
+    look_at_isometry_construction_impl!(Rotation3<T>);
 }

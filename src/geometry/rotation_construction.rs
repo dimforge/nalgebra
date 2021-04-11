@@ -2,14 +2,14 @@ use num::{One, Zero};
 
 use simba::scalar::{ClosedAdd, ClosedMul, SupersetOf};
 
-use crate::base::{CMatrixN, Scalar};
+use crate::base::{SMatrix, Scalar};
 
 use crate::geometry::Rotation;
 
 /// # Identity
-impl<N, const D: usize> Rotation<N, D>
+impl<T, const D: usize> Rotation<T, D>
 where
-    N: Scalar + Zero + One,
+    T: Scalar + Zero + One,
 {
     /// Creates a new square identity rotation of the given `dimension`.
     ///
@@ -23,15 +23,12 @@ where
     /// assert_eq!(rot2 * rot1, rot2);
     /// ```
     #[inline]
-    pub fn identity() -> Rotation<N, D> {
-        Self::from_matrix_unchecked(CMatrixN::<N, D>::identity())
+    pub fn identity() -> Rotation<T, D> {
+        Self::from_matrix_unchecked(SMatrix::<T, D, D>::identity())
     }
 }
 
-impl<N: Scalar, const D: usize> Rotation<N, D>
-// where
-//     DefaultAllocator: Allocator<N, D, D>,
-{
+impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// Cast the components of `self` to another type.
     ///
     /// # Example
@@ -49,9 +46,9 @@ impl<N: Scalar, const D: usize> Rotation<N, D>
     }
 }
 
-impl<N, const D: usize> One for Rotation<N, D>
+impl<T, const D: usize> One for Rotation<T, D>
 where
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
 {
     #[inline]
     fn one() -> Self {

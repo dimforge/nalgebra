@@ -16,14 +16,14 @@ use simba::simd::SimdRealField;
 use crate::base::{Vector2, Vector3};
 
 use crate::{
-    AbstractRotation, Const, Isometry, Point, Point3, Rotation2, Rotation3, Scalar, Similarity,
+    AbstractRotation, Isometry, Point, Point3, Rotation2, Rotation3, Scalar, Similarity,
     Translation, UnitComplex, UnitQuaternion,
 };
 
-impl<N: SimdRealField, R, const D: usize> Similarity<N, R, D>
+impl<T: SimdRealField, R, const D: usize> Similarity<T, R, D>
 where
-    N::Element: SimdRealField,
-    R: AbstractRotation<N, D>,
+    T::Element: SimdRealField,
+    R: AbstractRotation<T, D>,
 {
     /// Creates a new identity similarity.
     ///
@@ -42,14 +42,14 @@ where
     /// ```
     #[inline]
     pub fn identity() -> Self {
-        Self::from_isometry(Isometry::identity(), N::one())
+        Self::from_isometry(Isometry::identity(), T::one())
     }
 }
 
-impl<N: SimdRealField, R, const D: usize> One for Similarity<N, R, D>
+impl<T: SimdRealField, R, const D: usize> One for Similarity<T, R, D>
 where
-    N::Element: SimdRealField,
-    R: AbstractRotation<N, D>,
+    T::Element: SimdRealField,
+    R: AbstractRotation<T, D>,
 {
     /// Creates a new identity similarity.
     #[inline]
@@ -59,16 +59,16 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<N: crate::RealField, R, const D: usize> Distribution<Similarity<N, R, D>> for Standard
+impl<T: crate::RealField, R, const D: usize> Distribution<Similarity<T, R, D>> for Standard
 where
-    R: AbstractRotation<N, D>,
-    Standard: Distribution<N> + Distribution<R>,
+    R: AbstractRotation<T, D>,
+    Standard: Distribution<T> + Distribution<R>,
 {
     /// Generate an arbitrary random variate for testing purposes.
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Similarity<N, R, D> {
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Similarity<T, R, D> {
         let mut s = rng.gen();
-        while relative_eq!(s, N::zero()) {
+        while relative_eq!(s, T::zero()) {
             s = rng.gen()
         }
 
@@ -76,10 +76,10 @@ where
     }
 }
 
-impl<N: SimdRealField, R, const D: usize> Similarity<N, R, D>
+impl<T: SimdRealField, R, const D: usize> Similarity<T, R, D>
 where
-    N::Element: SimdRealField,
-    R: AbstractRotation<N, D>,
+    T::Element: SimdRealField,
+    R: AbstractRotation<T, D>,
 {
     /// The similarity that applies the scaling factor `scaling`, followed by the rotation `r` with
     /// its axis passing through the point `p`.
@@ -97,23 +97,23 @@ where
     /// assert_relative_eq!(sim * Point2::new(1.0, 2.0), Point2::new(-3.0, 3.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn rotation_wrt_point(r: R, p: Point<N, D>, scaling: N) -> Self {
+    pub fn rotation_wrt_point(r: R, p: Point<T, D>, scaling: T) -> Self {
         let shift = r.transform_vector(&-&p.coords);
         Self::from_parts(Translation::from(shift + p.coords), r, scaling)
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N, R, const D: usize> Arbitrary for Similarity<N, R, D>
+impl<T, R, const D: usize> Arbitrary for Similarity<T, R, D>
 where
-    N: crate::RealField + Arbitrary + Send,
-    N::Element: crate::RealField,
-    R: AbstractRotation<N, D> + Arbitrary + Send,
-    Owned<N, Const<D>>: Send,
+    T: crate::RealField + Arbitrary + Send,
+    T::Element: crate::RealField,
+    R: AbstractRotation<T, D> + Arbitrary + Send,
+    Owned<T, crate::Const<D>>: Send,
 {
     #[inline]
     fn arbitrary(rng: &mut Gen) -> Self {
-        let mut s: N = Arbitrary::arbitrary(rng);
+        let mut s: T = Arbitrary::arbitrary(rng);
         while s.is_zero() {
             s = Arbitrary::arbitrary(rng)
         }
@@ -129,9 +129,9 @@ where
  */
 
 // 2D similarity.
-impl<N: SimdRealField> Similarity<N, Rotation2<N>, 2>
+impl<T: SimdRealField> Similarity<T, Rotation2<T>, 2>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Creates a new similarity from a translation, a rotation, and an uniform scaling factor.
     ///
@@ -146,7 +146,7 @@ where
     /// assert_relative_eq!(sim * Point2::new(2.0, 4.0), Point2::new(-11.0, 8.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn new(translation: Vector2<N>, angle: N, scaling: N) -> Self {
+    pub fn new(translation: Vector2<T>, angle: T, scaling: T) -> Self {
         Self::from_parts(
             Translation::from(translation),
             Rotation2::new(angle),
@@ -171,9 +171,9 @@ where
     }
 }
 
-impl<N: SimdRealField> Similarity<N, UnitComplex<N>, 2>
+impl<T: SimdRealField> Similarity<T, UnitComplex<T>, 2>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Creates a new similarity from a translation and a rotation angle.
     ///
@@ -188,7 +188,7 @@ where
     /// assert_relative_eq!(sim * Point2::new(2.0, 4.0), Point2::new(-11.0, 8.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn new(translation: Vector2<N>, angle: N, scaling: N) -> Self {
+    pub fn new(translation: Vector2<T>, angle: T, scaling: T) -> Self {
         Self::from_parts(
             Translation::from(translation),
             UnitComplex::new(angle),
@@ -216,8 +216,8 @@ where
 // 3D rotation.
 macro_rules! similarity_construction_impl(
     ($Rot: ident) => {
-        impl<N: SimdRealField> Similarity<N, $Rot<N>, 3>
-        where N::Element: SimdRealField {
+        impl<T: SimdRealField> Similarity<T, $Rot<T>, 3>
+        where T::Element: SimdRealField {
             /// Creates a new similarity from a translation, rotation axis-angle, and scaling
             /// factor.
             ///
@@ -244,9 +244,9 @@ macro_rules! similarity_construction_impl(
             /// assert_relative_eq!(sim * vec, Vector3::new(18.0, 15.0, -12.0), epsilon = 1.0e-5);
             /// ```
             #[inline]
-            pub fn new(translation: Vector3<N>, axisangle: Vector3<N>, scaling: N) -> Self
+            pub fn new(translation: Vector3<T>, axisangle: Vector3<T>, scaling: T) -> Self
             {
-                Self::from_isometry(Isometry::<_, $Rot<N>, 3>::new(translation, axisangle), scaling)
+                Self::from_isometry(Isometry::<_, $Rot<T>, 3>::new(translation, axisangle), scaling)
             }
 
             /// Cast the components of `self` to another type.
@@ -298,20 +298,20 @@ macro_rules! similarity_construction_impl(
             /// assert_relative_eq!(sim * Vector3::z(), Vector3::x() * 3.0, epsilon = 1.0e-6);
             /// ```
             #[inline]
-            pub fn face_towards(eye:    &Point3<N>,
-                                target: &Point3<N>,
-                                up:     &Vector3<N>,
-                                scaling: N)
+            pub fn face_towards(eye:    &Point3<T>,
+                                target: &Point3<T>,
+                                up:     &Vector3<T>,
+                                scaling: T)
                                 -> Self {
-                Self::from_isometry(Isometry::<_, $Rot<N>, 3>::face_towards(eye, target, up), scaling)
+                Self::from_isometry(Isometry::<_, $Rot<T>, 3>::face_towards(eye, target, up), scaling)
             }
 
             /// Deprecated: Use [SimilarityMatrix3::face_towards] instead.
             #[deprecated(note="renamed to `face_towards`")]
-            pub fn new_observer_frames(eye:    &Point3<N>,
-                                       target: &Point3<N>,
-                                       up:     &Vector3<N>,
-                                       scaling: N)
+            pub fn new_observer_frames(eye:    &Point3<T>,
+                                       target: &Point3<T>,
+                                       up:     &Vector3<T>,
+                                       scaling: T)
                                        -> Self {
                 Self::face_towards(eye, target, up, scaling)
             }
@@ -346,12 +346,12 @@ macro_rules! similarity_construction_impl(
             /// assert_relative_eq!(iso * Vector3::x(), -Vector3::z() * 3.0, epsilon = 1.0e-6);
             /// ```
             #[inline]
-            pub fn look_at_rh(eye:     &Point3<N>,
-                              target:  &Point3<N>,
-                              up:      &Vector3<N>,
-                              scaling: N)
+            pub fn look_at_rh(eye:     &Point3<T>,
+                              target:  &Point3<T>,
+                              up:      &Vector3<T>,
+                              scaling: T)
                               -> Self {
-                Self::from_isometry(Isometry::<_, $Rot<N>, 3>::look_at_rh(eye, target, up), scaling)
+                Self::from_isometry(Isometry::<_, $Rot<T>, 3>::look_at_rh(eye, target, up), scaling)
             }
 
             /// Builds a left-handed look-at view matrix including a scaling factor.
@@ -384,12 +384,12 @@ macro_rules! similarity_construction_impl(
             /// assert_relative_eq!(sim * Vector3::x(), Vector3::z() * 3.0, epsilon = 1.0e-6);
             /// ```
             #[inline]
-            pub fn look_at_lh(eye:     &Point3<N>,
-                              target:  &Point3<N>,
-                              up:      &Vector3<N>,
-                              scaling: N)
+            pub fn look_at_lh(eye:     &Point3<T>,
+                              target:  &Point3<T>,
+                              up:      &Vector3<T>,
+                              scaling: T)
                               -> Self {
-                Self::from_isometry(Isometry::<_, $Rot<N>, 3>::look_at_lh(eye, target, up), scaling)
+                Self::from_isometry(Isometry::<_, $Rot<T>, 3>::look_at_lh(eye, target, up), scaling)
             }
         }
     }

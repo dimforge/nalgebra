@@ -2,7 +2,7 @@ use na::{
     DMatrix, Matrix, Matrix3, Matrix3x4, Matrix3x5, Matrix4, Matrix4x3, Matrix4x5, Matrix5,
     Matrix5x3, Matrix5x4,
 };
-use na::{Dynamic, U2, U3, U5};
+use na::{Dynamic, U3, U5};
 
 #[test]
 #[rustfmt::skip]
@@ -252,9 +252,9 @@ fn remove_columns() {
         21, 22, 25,
         31, 32, 35);
 
-    assert_eq!(m.remove_fixed_columns::<U2>(0), expected1);
-    assert_eq!(m.remove_fixed_columns::<U2>(3), expected2);
-    assert_eq!(m.remove_fixed_columns::<U2>(2), expected3);
+    assert_eq!(m.remove_fixed_columns::<2>(0), expected1);
+    assert_eq!(m.remove_fixed_columns::<2>(3), expected2);
+    assert_eq!(m.remove_fixed_columns::<2>(2), expected3);
 
     // The following is just to verify that the return type dimensions is correctly inferred.
     let computed: Matrix<_, U3, Dynamic, _> = m.remove_columns(3, 2);
@@ -366,9 +366,9 @@ fn remove_rows() {
         21, 22, 23,
         51, 52, 53);
 
-    assert_eq!(m.remove_fixed_rows::<U2>(0), expected1);
-    assert_eq!(m.remove_fixed_rows::<U2>(3), expected2);
-    assert_eq!(m.remove_fixed_rows::<U2>(2), expected3);
+    assert_eq!(m.remove_fixed_rows::<2>(0), expected1);
+    assert_eq!(m.remove_fixed_rows::<2>(3), expected2);
+    assert_eq!(m.remove_fixed_rows::<2>(2), expected3);
 
     // The following is just to verify that the return type dimensions is correctly inferred.
     let computed: Matrix<_, Dynamic, U3, _> = m.remove_rows(3, 2);
@@ -483,9 +483,9 @@ fn insert_columns() {
         41, 42, 0, 0, 43,
         51, 52, 0, 0, 53);
 
-    assert_eq!(m.insert_fixed_columns::<U2>(0, 0), expected1);
-    assert_eq!(m.insert_fixed_columns::<U2>(3, 0), expected2);
-    assert_eq!(m.insert_fixed_columns::<U2>(2, 0), expected3);
+    assert_eq!(m.insert_fixed_columns::<2>(0, 0), expected1);
+    assert_eq!(m.insert_fixed_columns::<2>(3, 0), expected2);
+    assert_eq!(m.insert_fixed_columns::<2>(2, 0), expected3);
 
     // The following is just to verify that the return type dimensions is correctly inferred.
     let computed: Matrix<_, U5, Dynamic, _> = m.insert_columns(3, 2, 0);
@@ -556,9 +556,9 @@ fn insert_rows() {
          0,  0,  0,  0,  0,
         31, 32, 33, 34, 35);
 
-    assert_eq!(m.insert_fixed_rows::<U2>(0, 0), expected1);
-    assert_eq!(m.insert_fixed_rows::<U2>(3, 0), expected2);
-    assert_eq!(m.insert_fixed_rows::<U2>(2, 0), expected3);
+    assert_eq!(m.insert_fixed_rows::<2>(0, 0), expected1);
+    assert_eq!(m.insert_fixed_rows::<2>(3, 0), expected2);
+    assert_eq!(m.insert_fixed_rows::<2>(2, 0), expected3);
 
     // The following is just to verify that the return type dimensions is correctly inferred.
     let computed: Matrix<_, Dynamic, U5, _> = m.insert_rows(3, 2, 0);

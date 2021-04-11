@@ -5,15 +5,15 @@ use std::ptr;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{U1, U2, U3, U4};
 use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, Scalar};
+use crate::base::{DefaultAllocator, Matrix, OMatrix, Scalar};
 
 macro_rules! impl_from_into_mint_1D(
     ($($NRows: ident => $VT:ident [$SZ: expr]);* $(;)*) => {$(
-        impl<N> From<mint::$VT<N>> for MatrixMN<N, $NRows, U1>
-        where N: Scalar,
-              DefaultAllocator: Allocator<N, $NRows, U1> {
+        impl<T> From<mint::$VT<T>> for OMatrix<T, $NRows, U1>
+        where T: Scalar,
+              DefaultAllocator: Allocator<T, $NRows, U1> {
             #[inline]
-            fn from(v: mint::$VT<N>) -> Self {
+            fn from(v: mint::$VT<T>) -> Self {
                 unsafe {
                     let mut res = Self::new_uninitialized();
                     ptr::copy_nonoverlapping(&v.x, (*res.as_mut_ptr()).data.ptr_mut(), $SZ);
@@ -23,35 +23,35 @@ macro_rules! impl_from_into_mint_1D(
             }
         }
 
-        impl<N, S> Into<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
-        where N: Scalar,
-              S: ContiguousStorage<N, $NRows, U1> {
+        impl<T, S> Into<mint::$VT<T>> for Matrix<T, $NRows, U1, S>
+        where T: Scalar,
+              S: ContiguousStorage<T, $NRows, U1> {
             #[inline]
-            fn into(self) -> mint::$VT<N> {
+            fn into(self) -> mint::$VT<T> {
                 unsafe {
-                    let mut res: mint::$VT<N> = mem::MaybeUninit::uninit().assume_init();
+                    let mut res: mint::$VT<T> = mem::MaybeUninit::uninit().assume_init();
                     ptr::copy_nonoverlapping(self.data.ptr(), &mut res.x, $SZ);
                     res
                 }
             }
         }
 
-        impl<N, S> AsRef<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
-        where N: Scalar,
-              S: ContiguousStorage<N, $NRows, U1> {
+        impl<T, S> AsRef<mint::$VT<T>> for Matrix<T, $NRows, U1, S>
+        where T: Scalar,
+              S: ContiguousStorage<T, $NRows, U1> {
             #[inline]
-            fn as_ref(&self) -> &mint::$VT<N> {
+            fn as_ref(&self) -> &mint::$VT<T> {
                 unsafe {
                     mem::transmute(self.data.ptr())
                 }
             }
         }
 
-        impl<N, S> AsMut<mint::$VT<N>> for Matrix<N, $NRows, U1, S>
-        where N: Scalar,
-              S: ContiguousStorageMut<N, $NRows, U1> {
+        impl<T, S> AsMut<mint::$VT<T>> for Matrix<T, $NRows, U1, S>
+        where T: Scalar,
+              S: ContiguousStorageMut<T, $NRows, U1> {
             #[inline]
-            fn as_mut(&mut self) -> &mut mint::$VT<N> {
+            fn as_mut(&mut self) -> &mut mint::$VT<T> {
                 unsafe {
                     mem::transmute(self.data.ptr_mut())
                 }
@@ -69,11 +69,11 @@ impl_from_into_mint_1D!(
 
 macro_rules! impl_from_into_mint_2D(
     ($(($NRows: ty, $NCols: ty) => $MV:ident{ $($component:ident),* }[$SZRows: expr]);* $(;)*) => {$(
-        impl<N> From<mint::$MV<N>> for MatrixMN<N, $NRows, $NCols>
-        where N: Scalar,
-              DefaultAllocator: Allocator<N, $NRows, $NCols> {
+        impl<T> From<mint::$MV<T>> for OMatrix<T, $NRows, $NCols>
+        where T: Scalar,
+              DefaultAllocator: Allocator<T, $NRows, $NCols> {
             #[inline]
-            fn from(m: mint::$MV<N>) -> Self {
+            fn from(m: mint::$MV<T>) -> Self {
                 unsafe {
                     let mut res = Self::new_uninitialized();
                     let mut ptr = (*res.as_mut_ptr()).data.ptr_mut();
@@ -87,13 +87,13 @@ macro_rules! impl_from_into_mint_2D(
             }
         }
 
-        impl<N> Into<mint::$MV<N>> for MatrixMN<N, $NRows, $NCols>
-        where N: Scalar,
-              DefaultAllocator: Allocator<N, $NRows, $NCols> {
+        impl<T> Into<mint::$MV<T>> for OMatrix<T, $NRows, $NCols>
+        where T: Scalar,
+              DefaultAllocator: Allocator<T, $NRows, $NCols> {
             #[inline]
-            fn into(self) -> mint::$MV<N> {
+            fn into(self) -> mint::$MV<T> {
                 unsafe {
-                    let mut res: mint::$MV<N> = mem::MaybeUninit::uninit().assume_init();
+                    let mut res: mint::$MV<T> = mem::MaybeUninit::uninit().assume_init();
                     let mut ptr = self.data.ptr();
                     $(
                         ptr::copy_nonoverlapping(ptr, &mut res.$component.x, $SZRows);

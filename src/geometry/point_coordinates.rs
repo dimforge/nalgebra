@@ -13,10 +13,9 @@ use crate::geometry::Point;
 
 macro_rules! deref_impl(
     ($D: expr, $Target: ident $(, $comps: ident)*) => {
-        impl<N: Scalar> Deref for Point<N, $D>
-            // where DefaultAllocator: Allocator<N, $D>
+        impl<T: Scalar> Deref for Point<T, $D>
         {
-            type Target = $Target<N>;
+            type Target = $Target<T>;
 
             #[inline]
             fn deref(&self) -> &Self::Target {
@@ -24,8 +23,7 @@ macro_rules! deref_impl(
             }
         }
 
-        impl<N: Scalar> DerefMut for Point<N, $D>
-            // where DefaultAllocator: Allocator<N, $D>
+        impl<T: Scalar> DerefMut for Point<T, $D>
         {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {

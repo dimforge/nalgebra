@@ -36,7 +36,7 @@ no_unsound_assume_init = [ ]
 # Conversion
 convert-mint = [ "mint" ]
 convert-glam = [ "glam" ]
-convert-glam-unchecked = [ "convert-glam" ] # Unable edgy conversions like Mat4 -> Isometry3
+convert-glam-unchecked = [ "convert-glam" ] # Enable edgy conversions like Mat4 -> Isometry3
 convert-bytemuck = [ "bytemuck" ]
 
 # Serialization

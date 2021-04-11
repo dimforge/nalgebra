@@ -7,50 +7,50 @@ use crate::{
         storage::Storage,
         DefaultAllocator,
     },
-    convert, try_convert, ComplexField, MatrixN, RealField,
+    convert, try_convert, ComplexField, OMatrix, RealField,
 };
 
 use crate::num::Zero;
 
 // https://github.com/scipy/scipy/blob/c1372d8aa90a73d8a52f135529293ff4edb98fc8/scipy/sparse/linalg/matfuncs.py
-struct ExpmPadeHelper<N, D>
+struct ExpmPadeHelper<T, D>
 where
-    N: ComplexField,
+    T: ComplexField,
     D: DimMin<D>,
-    DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
 {
     use_exact_norm: bool,
-    ident: MatrixN<N, D>,
+    ident: OMatrix<T, D, D>,
 
-    a: MatrixN<N, D>,
-    a2: Option<MatrixN<N, D>>,
-    a4: Option<MatrixN<N, D>>,
-    a6: Option<MatrixN<N, D>>,
-    a8: Option<MatrixN<N, D>>,
-    a10: Option<MatrixN<N, D>>,
+    a: OMatrix<T, D, D>,
+    a2: Option<OMatrix<T, D, D>>,
+    a4: Option<OMatrix<T, D, D>>,
+    a6: Option<OMatrix<T, D, D>>,
+    a8: Option<OMatrix<T, D, D>>,
+    a10: Option<OMatrix<T, D, D>>,
 
-    d4_exact: Option<N::RealField>,
-    d6_exact: Option<N::RealField>,
-    d8_exact: Option<N::RealField>,
-    d10_exact: Option<N::RealField>,
+    d4_exact: Option<T::RealField>,
+    d6_exact: Option<T::RealField>,
+    d8_exact: Option<T::RealField>,
+    d10_exact: Option<T::RealField>,
 
-    d4_approx: Option<N::RealField>,
-    d6_approx: Option<N::RealField>,
-    d8_approx: Option<N::RealField>,
-    d10_approx: Option<N::RealField>,
+    d4_approx: Option<T::RealField>,
+    d6_approx: Option<T::RealField>,
+    d8_approx: Option<T::RealField>,
+    d10_approx: Option<T::RealField>,
 }
 
-impl<N, D> ExpmPadeHelper<N, D>
+impl<T, D> ExpmPadeHelper<T, D>
 where
-    N: ComplexField,
+    T: ComplexField,
     D: DimMin<D>,
-    DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
 {
-    fn new(a: MatrixN<N, D>, use_exact_norm: bool) -> Self {
+    fn new(a: OMatrix<T, D, D>, use_exact_norm: bool) -> Self {
         let (nrows, ncols) = a.data.shape();
         ExpmPadeHelper {
             use_exact_norm,
-            ident: MatrixN::<N, D>::identity_generic(nrows, ncols),
+            ident: OMatrix::<T, D, D>::identity_generic(nrows, ncols),
             a,
             a2: None,
             a4: None,
@@ -112,7 +112,7 @@ where
         }
     }
 
-    fn d4_tight(&mut self) -> N::RealField {
+    fn d4_tight(&mut self) -> T::RealField {
         if self.d4_exact.is_none() {
             self.calc_a4();
             self.d4_exact = Some(one_norm(self.a4.as_ref().unwrap()).powf(convert(0.25)));
@@ -120,7 +120,7 @@ where
         self.d4_exact.unwrap()
     }
 
-    fn d6_tight(&mut self) -> N::RealField {
+    fn d6_tight(&mut self) -> T::RealField {
         if self.d6_exact.is_none() {
             self.calc_a6();
             self.d6_exact = Some(one_norm(self.a6.as_ref().unwrap()).powf(convert(1.0 / 6.0)));
@@ -128,7 +128,7 @@ where
         self.d6_exact.unwrap()
     }
 
-    fn d8_tight(&mut self) -> N::RealField {
+    fn d8_tight(&mut self) -> T::RealField {
         if self.d8_exact.is_none() {
             self.calc_a8();
             self.d8_exact = Some(one_norm(self.a8.as_ref().unwrap()).powf(convert(1.0 / 8.0)));
@@ -136,7 +136,7 @@ where
         self.d8_exact.unwrap()
     }
 
-    fn d10_tight(&mut self) -> N::RealField {
+    fn d10_tight(&mut self) -> T::RealField {
         if self.d10_exact.is_none() {
             self.calc_a10();
             self.d10_exact = Some(one_norm(self.a10.as_ref().unwrap()).powf(convert(1.0 / 10.0)));
@@ -144,7 +144,7 @@ where
         self.d10_exact.unwrap()
     }
 
-    fn d4_loose(&mut self) -> N::RealField {
+    fn d4_loose(&mut self) -> T::RealField {
         if self.use_exact_norm {
             return self.d4_tight();
         }
@@ -161,7 +161,7 @@ where
         self.d4_approx.unwrap()
     }
 
-    fn d6_loose(&mut self) -> N::RealField {
+    fn d6_loose(&mut self) -> T::RealField {
         if self.use_exact_norm {
             return self.d6_tight();
         }
@@ -178,7 +178,7 @@ where
         self.d6_approx.unwrap()
     }
 
-    fn d8_loose(&mut self) -> N::RealField {
+    fn d8_loose(&mut self) -> T::RealField {
         if self.use_exact_norm {
             return self.d8_tight();
         }
@@ -195,7 +195,7 @@ where
         self.d8_approx.unwrap()
     }
 
-    fn d10_loose(&mut self) -> N::RealField {
+    fn d10_loose(&mut self) -> T::RealField {
         if self.use_exact_norm {
             return self.d10_tight();
         }
@@ -212,8 +212,8 @@ where
         self.d10_approx.unwrap()
     }
 
-    fn pade3(&mut self) -> (MatrixN<N, D>, MatrixN<N, D>) {
-        let b: [N; 4] = [convert(120.0), convert(60.0), convert(12.0), convert(1.0)];
+    fn pade3(&mut self) -> (OMatrix<T, D, D>, OMatrix<T, D, D>) {
+        let b: [T; 4] = [convert(120.0), convert(60.0), convert(12.0), convert(1.0)];
         self.calc_a2();
         let a2 = self.a2.as_ref().unwrap();
         let u = &self.a * (a2 * b[3] + &self.ident * b[1]);
@@ -221,8 +221,8 @@ where
         (u, v)
     }
 
-    fn pade5(&mut self) -> (MatrixN<N, D>, MatrixN<N, D>) {
-        let b: [N; 6] = [
+    fn pade5(&mut self) -> (OMatrix<T, D, D>, OMatrix<T, D, D>) {
+        let b: [T; 6] = [
             convert(30240.0),
             convert(15120.0),
             convert(3360.0),
@@ -242,8 +242,8 @@ where
         (u, v)
     }
 
-    fn pade7(&mut self) -> (MatrixN<N, D>, MatrixN<N, D>) {
-        let b: [N; 8] = [
+    fn pade7(&mut self) -> (OMatrix<T, D, D>, OMatrix<T, D, D>) {
+        let b: [T; 8] = [
             convert(17_297_280.0),
             convert(8_648_640.0),
             convert(1_995_840.0),
@@ -268,8 +268,8 @@ where
         (u, v)
     }
 
-    fn pade9(&mut self) -> (MatrixN<N, D>, MatrixN<N, D>) {
-        let b: [N; 10] = [
+    fn pade9(&mut self) -> (OMatrix<T, D, D>, OMatrix<T, D, D>) {
+        let b: [T; 10] = [
             convert(17_643_225_600.0),
             convert(8_821_612_800.0),
             convert(2_075_673_600.0),
@@ -299,8 +299,8 @@ where
         (u, v)
     }
 
-    fn pade13_scaled(&mut self, s: u64) -> (MatrixN<N, D>, MatrixN<N, D>) {
-        let b: [N; 14] = [
+    fn pade13_scaled(&mut self, s: u64) -> (OMatrix<T, D, D>, OMatrix<T, D, D>) {
+        let b: [T; 14] = [
             convert(64_764_752_532_480_000.0),
             convert(32_382_376_266_240_000.0),
             convert(7_771_770_303_897_600.0),
@@ -318,13 +318,13 @@ where
         ];
         let s = s as f64;
 
-        let mb = &self.a * convert::<f64, N>(2.0_f64.powf(-s));
+        let mb = &self.a * convert::<f64, T>(2.0_f64.powf(-s));
         self.calc_a2();
         self.calc_a4();
         self.calc_a6();
-        let mb2 = self.a2.as_ref().unwrap() * convert::<f64, N>(2.0_f64.powf(-2.0 * s));
-        let mb4 = self.a4.as_ref().unwrap() * convert::<f64, N>(2.0.powf(-4.0 * s));
-        let mb6 = self.a6.as_ref().unwrap() * convert::<f64, N>(2.0.powf(-6.0 * s));
+        let mb2 = self.a2.as_ref().unwrap() * convert::<f64, T>(2.0_f64.powf(-2.0 * s));
+        let mb4 = self.a4.as_ref().unwrap() * convert::<f64, T>(2.0.powf(-4.0 * s));
+        let mb6 = self.a6.as_ref().unwrap() * convert::<f64, T>(2.0.powf(-6.0 * s));
 
         let u2 = &mb6 * (&mb6 * b[13] + &mb4 * b[11] + &mb2 * b[9]);
         let u = &mb * (&u2 + &mb6 * b[7] + &mb4 * b[5] + &mb2 * b[3] + &self.ident * b[1]);
@@ -342,14 +342,14 @@ fn factorial(n: u128) -> u128 {
 }
 
 /// Compute the 1-norm of a non-negative integer power of a non-negative matrix.
-fn onenorm_matrix_power_nonm<N, D>(a: &MatrixN<N, D>, p: u64) -> N
+fn onenorm_matrix_power_nonm<T, D>(a: &OMatrix<T, D, D>, p: u64) -> T
 where
-    N: RealField,
+    T: RealField,
     D: Dim,
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
     let nrows = a.data.shape().0;
-    let mut v = crate::VectorN::<N, D>::repeat_generic(nrows, Const::<1>, convert(1.0));
+    let mut v = crate::OVector::<T, D>::repeat_generic(nrows, Const::<1>, convert(1.0));
     let m = a.transpose();
 
     for _ in 0..p {
@@ -359,14 +359,14 @@ where
     v.max()
 }
 
-fn ell<N, D>(a: &MatrixN<N, D>, m: u64) -> u64
+fn ell<T, D>(a: &OMatrix<T, D, D>, m: u64) -> u64
 where
-    N: ComplexField,
+    T: ComplexField,
     D: Dim,
-    DefaultAllocator: Allocator<N, D, D>
-        + Allocator<N, D>
-        + Allocator<N::RealField, D>
-        + Allocator<N::RealField, D, D>,
+    DefaultAllocator: Allocator<T, D, D>
+        + Allocator<T, D>
+        + Allocator<T::RealField, D>
+        + Allocator<T::RealField, D, D>,
 {
     // 2m choose m = (2m)!/(m! * (2m-m)!)
 
@@ -374,7 +374,7 @@ where
 
     let a_abs_onenorm = onenorm_matrix_power_nonm(&a_abs, 2 * m + 1);
 
-    if a_abs_onenorm == <N as ComplexField>::RealField::zero() {
+    if a_abs_onenorm == <T as ComplexField>::RealField::zero() {
         return 0;
     }
 
@@ -394,11 +394,11 @@ where
     }
 }
 
-fn solve_p_q<N, D>(u: MatrixN<N, D>, v: MatrixN<N, D>) -> MatrixN<N, D>
+fn solve_p_q<T, D>(u: OMatrix<T, D, D>, v: OMatrix<T, D, D>) -> OMatrix<T, D, D>
 where
-    N: ComplexField,
+    T: ComplexField,
     D: DimMin<D, Output = D>,
-    DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
 {
     let p = &u + &v;
     let q = &v - &u;
@@ -406,33 +406,33 @@ where
     q.lu().solve(&p).unwrap()
 }
 
-fn one_norm<N, D>(m: &MatrixN<N, D>) -> N::RealField
+fn one_norm<T, D>(m: &OMatrix<T, D, D>) -> T::RealField
 where
-    N: ComplexField,
+    T: ComplexField,
     D: Dim,
-    DefaultAllocator: Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D, D>,
 {
-    let mut max = <N as ComplexField>::RealField::zero();
+    let mut max = <T as ComplexField>::RealField::zero();
 
     for i in 0..m.ncols() {
         let col = m.column(i);
         max = max.max(
             col.iter()
-                .fold(<N as ComplexField>::RealField::zero(), |a, b| a + b.abs()),
+                .fold(<T as ComplexField>::RealField::zero(), |a, b| a + b.abs()),
         );
     }
 
     max
 }
 
-impl<N: ComplexField, D> MatrixN<N, D>
+impl<T: ComplexField, D> OMatrix<T, D, D>
 where
     D: DimMin<D, Output = D>,
-    DefaultAllocator: Allocator<N, D, D>
+    DefaultAllocator: Allocator<T, D, D>
         + Allocator<(usize, usize), DimMinimum<D, D>>
-        + Allocator<N, D>
-        + Allocator<N::RealField, D>
-        + Allocator<N::RealField, D, D>,
+        + Allocator<T, D>
+        + Allocator<T::RealField, D>
+        + Allocator<T::RealField, D, D>,
 {
     /// Computes exponential of this matrix
     pub fn exp(&self) -> Self {
@@ -443,19 +443,19 @@ where
 
         let mut h = ExpmPadeHelper::new(self.clone(), true);
 
-        let eta_1 = N::RealField::max(h.d4_loose(), h.d6_loose());
+        let eta_1 = T::RealField::max(h.d4_loose(), h.d6_loose());
         if eta_1 < convert(1.495_585_217_958_292e-2) && ell(&h.a, 3) == 0 {
             let (u, v) = h.pade3();
             return solve_p_q(u, v);
         }
 
-        let eta_2 = N::RealField::max(h.d4_tight(), h.d6_loose());
+        let eta_2 = T::RealField::max(h.d4_tight(), h.d6_loose());
         if eta_2 < convert(2.539_398_330_063_230e-1) && ell(&h.a, 5) == 0 {
             let (u, v) = h.pade5();
             return solve_p_q(u, v);
         }
 
-        let eta_3 = N::RealField::max(h.d6_tight(), h.d8_loose());
+        let eta_3 = T::RealField::max(h.d6_tight(), h.d8_loose());
         if eta_3 < convert(9.504_178_996_162_932e-1) && ell(&h.a, 7) == 0 {
             let (u, v) = h.pade7();
             return solve_p_q(u, v);
@@ -465,11 +465,11 @@ where
             return solve_p_q(u, v);
         }
 
-        let eta_4 = N::RealField::max(h.d8_loose(), h.d10_loose());
-        let eta_5 = N::RealField::min(eta_3, eta_4);
+        let eta_4 = T::RealField::max(h.d8_loose(), h.d10_loose());
+        let eta_5 = T::RealField::min(eta_3, eta_4);
         let theta_13 = convert(4.25);
 
-        let mut s = if eta_5 == N::RealField::zero() {
+        let mut s = if eta_5 == T::RealField::zero() {
             0
         } else {
             let l2 = try_convert((eta_5 / theta_13).log2().ceil()).unwrap();
@@ -481,7 +481,7 @@ where
             }
         };
 
-        s += ell(&(&h.a * convert::<f64, N>(2.0_f64.powf(-(s as f64)))), 13);
+        s += ell(&(&h.a * convert::<f64, T>(2.0_f64.powf(-(s as f64)))), 13);
 
         let (u, v) = h.pade13_scaled(s);
         let mut x = solve_p_q(u, v);

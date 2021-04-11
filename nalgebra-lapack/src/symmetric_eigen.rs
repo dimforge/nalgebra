@@ -10,7 +10,7 @@ use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Dim, U1};
 use na::storage::Storage;
-use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
+use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
 
@@ -18,47 +18,47 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
-                           Allocator<N, D>,
-         VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Serialize"))
+    serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D> +
+                           Allocator<T, D>,
+         OVector<T, D>: Serialize,
+         OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
-                           Allocator<N, D>,
-         VectorN<N, D>: Deserialize<'de>,
-         MatrixN<N, D>: Deserialize<'de>"))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D> +
+                           Allocator<T, D>,
+         OVector<T, D>: Deserialize<'de>,
+         OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct SymmetricEigen<N: Scalar, D: Dim>
+pub struct SymmetricEigen<T: Scalar, D: Dim>
 where
-    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
 {
     /// The eigenvectors of the decomposed matrix.
-    pub eigenvectors: MatrixN<N, D>,
+    pub eigenvectors: OMatrix<T, D, D>,
 
     /// The unsorted eigenvalues of the decomposed matrix.
-    pub eigenvalues: VectorN<N, D>,
+    pub eigenvalues: OVector<T, D>,
 }
 
-impl<N: Scalar + Copy, D: Dim> Copy for SymmetricEigen<N, D>
+impl<T: Scalar + Copy, D: Dim> Copy for SymmetricEigen<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
-    MatrixN<N, D>: Copy,
-    VectorN<N, D>: Copy,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    OMatrix<T, D, D>: Copy,
+    OVector<T, D>: Copy,
 {
 }
 
-impl<N: SymmetricEigenScalar + RealField, D: Dim> SymmetricEigen<N, D>
+impl<T: SymmetricEigenScalar + RealField, D: Dim> SymmetricEigen<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
     /// Computes the eigenvalues and eigenvectors of the symmetric matrix `m`.
     ///
     /// Only the lower-triangular part of `m` is read. If `eigenvectors` is `false` then, the
     /// eigenvectors are not computed explicitly. Panics if the method did not converge.
-    pub fn new(m: MatrixN<N, D>) -> Self {
+    pub fn new(m: OMatrix<T, D, D>) -> Self {
         let (vals, vecs) =
             Self::do_decompose(m, true).expect("SymmetricEigen: convergence failure.");
         Self {
@@ -71,7 +71,7 @@ where
     ///
     /// Only the lower-triangular part of `m` is read. If `eigenvectors` is `false` then, the
     /// eigenvectors are not computed explicitly. Returns `None` if the method did not converge.
-    pub fn try_new(m: MatrixN<N, D>) -> Option<Self> {
+    pub fn try_new(m: OMatrix<T, D, D>) -> Option<Self> {
         Self::do_decompose(m, true).map(|(vals, vecs)| SymmetricEigen {
             eigenvalues: vals,
             eigenvectors: vecs.unwrap(),
@@ -79,15 +79,15 @@ where
     }
 
     fn do_decompose(
-        mut m: MatrixN<N, D>,
+        mut m: OMatrix<T, D, D>,
         eigenvectors: bool,
-    ) -> Option<(VectorN<N, D>, Option<MatrixN<N, D>>)> {
+    ) -> Option<(OVector<T, D>, Option<OMatrix<T, D, D>>)> {
         assert!(
             m.is_square(),
             "Unable to compute the eigenvalue decomposition of a non-square matrix."
         );
 
-        let jobz = if eigenvectors { b'V' } else { b'N' };
+        let jobz = if eigenvectors { b'V' } else { b'T' };
 
         let nrows = m.data.shape().0;
         let n = nrows.value();
@@ -97,12 +97,12 @@ where
         let mut values = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
         let mut info = 0;
 
-        let lwork = N::xsyev_work_size(jobz, b'L', n as i32, m.as_mut_slice(), lda, &mut info);
+        let lwork = T::xsyev_work_size(jobz, b'L', n as i32, m.as_mut_slice(), lda, &mut info);
         lapack_check!(info);
 
         let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
-        N::xsyev(
+        T::xsyev(
             jobz,
             b'L',
             n as i32,
@@ -122,7 +122,7 @@ where
     /// Computes only the eigenvalues of the input matrix.
     ///
     /// Panics if the method does not converge.
-    pub fn eigenvalues(m: MatrixN<N, D>) -> VectorN<N, D> {
+    pub fn eigenvalues(m: OMatrix<T, D, D>) -> OVector<T, D> {
         Self::do_decompose(m, false)
             .expect("SymmetricEigen eigenvalues: convergence failure.")
             .0
@@ -131,14 +131,14 @@ where
     /// Computes only the eigenvalues of the input matrix.
     ///
     /// Returns `None` if the method does not converge.
-    pub fn try_eigenvalues(m: MatrixN<N, D>) -> Option<VectorN<N, D>> {
+    pub fn try_eigenvalues(m: OMatrix<T, D, D>) -> Option<OVector<T, D>> {
         Self::do_decompose(m, false).map(|res| res.0)
     }
 
     /// The determinant of the decomposed matrix.
     #[inline]
-    pub fn determinant(&self) -> N {
-        let mut det = N::one();
+    pub fn determinant(&self) -> T {
+        let mut det = T::one();
         for e in self.eigenvalues.iter() {
             det *= *e;
         }
@@ -149,7 +149,7 @@ where
     /// Rebuild the original matrix.
     ///
     /// This is useful if some of the eigenvalues have been manually modified.
-    pub fn recompose(&self) -> MatrixN<N, D> {
+    pub fn recompose(&self) -> OMatrix<T, D, D> {
         let mut u_t = self.eigenvectors.clone();
         for i in 0..self.eigenvalues.len() {
             let val = self.eigenvalues[i];

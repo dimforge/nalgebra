@@ -7,7 +7,7 @@ use num::{One, Zero};
 use quickcheck::{Arbitrary, Gen};
 use simba::scalar::SupersetOf;
 
-impl<N: Scalar> DualQuaternion<N> {
+impl<T: Scalar> DualQuaternion<T> {
     /// Creates a dual quaternion from its rotation and translation components.
     ///
     /// # Example
@@ -20,7 +20,7 @@ impl<N: Scalar> DualQuaternion<N> {
     /// assert_eq!(dq.real.w, 1.0);
     /// ```
     #[inline]
-    pub fn from_real_and_dual(real: Quaternion<N>, dual: Quaternion<N>) -> Self {
+    pub fn from_real_and_dual(real: Quaternion<T>, dual: Quaternion<T>) -> Self {
         Self { real, dual }
     }
 
@@ -43,11 +43,11 @@ impl<N: Scalar> DualQuaternion<N> {
     #[inline]
     pub fn identity() -> Self
     where
-        N: SimdRealField,
+        T: SimdRealField,
     {
         Self::from_real_and_dual(
-            Quaternion::from_real(N::one()),
-            Quaternion::from_real(N::zero()),
+            Quaternion::from_real(T::one()),
+            Quaternion::from_real(T::zero()),
         )
     }
 
@@ -68,9 +68,9 @@ impl<N: Scalar> DualQuaternion<N> {
     }
 }
 
-impl<N: SimdRealField> DualQuaternion<N>
+impl<T: SimdRealField> DualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Creates a dual quaternion from only its real part, with no translation
     /// component.
@@ -85,7 +85,7 @@ where
     /// assert_eq!(dq.dual.w, 0.0);
     /// ```
     #[inline]
-    pub fn from_real(real: Quaternion<N>) -> Self {
+    pub fn from_real(real: Quaternion<T>) -> Self {
         Self {
             real,
             dual: Quaternion::zero(),
@@ -93,9 +93,9 @@ where
     }
 }
 
-impl<N: SimdRealField> One for DualQuaternion<N>
+impl<T: SimdRealField> One for DualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
     fn one() -> Self {
@@ -103,9 +103,9 @@ where
     }
 }
 
-impl<N: SimdRealField> Zero for DualQuaternion<N>
+impl<T: SimdRealField> Zero for DualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
     fn zero() -> Self {
@@ -119,10 +119,10 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N> Arbitrary for DualQuaternion<N>
+impl<T> Arbitrary for DualQuaternion<T>
 where
-    N: SimdRealField + Arbitrary + Send,
-    N::Element: SimdRealField,
+    T: SimdRealField + Arbitrary + Send,
+    T::Element: SimdRealField,
 {
     #[inline]
     fn arbitrary(rng: &mut Gen) -> Self {
@@ -130,7 +130,7 @@ where
     }
 }
 
-impl<N: SimdRealField> UnitDualQuaternion<N> {
+impl<T: SimdRealField> UnitDualQuaternion<T> {
     /// The unit dual quaternion multiplicative identity, which also represents
     /// the identity transformation as an isometry.
     ///
@@ -164,9 +164,9 @@ impl<N: SimdRealField> UnitDualQuaternion<N> {
     }
 }
 
-impl<N: SimdRealField> UnitDualQuaternion<N>
+impl<T: SimdRealField> UnitDualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Return a dual quaternion representing the translation and orientation
     /// given by the provided rotation quaternion and translation vector.
@@ -183,11 +183,11 @@ where
     /// assert_relative_eq!(dq * point, Point3::new(1.0, 0.0, 2.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn from_parts(translation: Translation3<N>, rotation: UnitQuaternion<N>) -> Self {
-        let half: N = crate::convert(0.5f64);
+    pub fn from_parts(translation: Translation3<T>, rotation: UnitQuaternion<T>) -> Self {
+        let half: T = crate::convert(0.5f64);
         UnitDualQuaternion::new_unchecked(DualQuaternion {
             real: rotation.clone().into_inner(),
-            dual: Quaternion::from_parts(N::zero(), translation.vector)
+            dual: Quaternion::from_parts(T::zero(), translation.vector)
                 * rotation.clone().into_inner()
                 * half,
         })
@@ -209,7 +209,7 @@ where
     /// assert_relative_eq!(dq * point, iso * point, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn from_isometry(isometry: &Isometry3<N>) -> Self {
+    pub fn from_isometry(isometry: &Isometry3<T>) -> Self {
         UnitDualQuaternion::from_parts(isometry.translation, isometry.rotation)
     }
 
@@ -227,14 +227,14 @@ where
     /// assert_eq!(dq.as_ref().dual.norm(), 0.0);
     /// ```
     #[inline]
-    pub fn from_rotation(rotation: UnitQuaternion<N>) -> Self {
+    pub fn from_rotation(rotation: UnitQuaternion<T>) -> Self {
         Self::new_unchecked(DualQuaternion::from_real(rotation.into_inner()))
     }
 }
 
-impl<N: SimdRealField> One for UnitDualQuaternion<N>
+impl<T: SimdRealField> One for UnitDualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
     fn one() -> Self {
@@ -243,10 +243,10 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N> Arbitrary for UnitDualQuaternion<N>
+impl<T> Arbitrary for UnitDualQuaternion<T>
 where
-    N: SimdRealField + Arbitrary + Send,
-    N::Element: SimdRealField,
+    T: SimdRealField + Arbitrary + Send,
+    T::Element: SimdRealField,
 {
     #[inline]
     fn arbitrary(rng: &mut Gen) -> Self {

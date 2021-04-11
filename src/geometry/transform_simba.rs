@@ -2,30 +2,30 @@ use simba::simd::SimdValue;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
-use crate::base::{Const, DefaultAllocator, MatrixN, Scalar};
+use crate::base::{Const, DefaultAllocator, OMatrix, Scalar};
 use crate::RealField;
 
 use crate::geometry::{TCategory, Transform};
 
-impl<N: RealField, C, const D: usize> SimdValue for Transform<N, C, D>
+impl<T: RealField, C, const D: usize> SimdValue for Transform<T, C, D>
 where
-    N::Element: Scalar,
+    T::Element: Scalar,
     C: TCategory,
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<N, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<N::Element, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<T::Element, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
-    type Element = Transform<N::Element, C, D>;
-    type SimdBool = N::SimdBool;
+    type Element = Transform<T::Element, C, D>;
+    type SimdBool = T::SimdBool;
 
     #[inline]
     fn lanes() -> usize {
-        N::lanes()
+        T::lanes()
     }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
-        Transform::from_matrix_unchecked(MatrixN::splat(val.into_inner()))
+        Transform::from_matrix_unchecked(OMatrix::splat(val.into_inner()))
     }
 
     #[inline]

@@ -13,28 +13,28 @@ use crate::geometry::{Point, Translation};
 add_sub_impl!(Mul, mul, ClosedAdd;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>)
     const D; for; where;
-    self: &'a Translation<N, D>, right: &'b Translation<N, D>, Output = Translation<N, D>;
+    self: &'a Translation<T, D>, right: &'b Translation<T, D>, Output = Translation<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { Translation::from(&self.vector + &right.vector) };
     'a, 'b);
 
 add_sub_impl!(Mul, mul, ClosedAdd;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>)
     const D; for; where;
-    self: &'a Translation<N, D>, right: Translation<N, D>, Output = Translation<N, D>;
+    self: &'a Translation<T, D>, right: Translation<T, D>, Output = Translation<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { Translation::from(&self.vector + right.vector) };
     'a);
 
 add_sub_impl!(Mul, mul, ClosedAdd;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>)
     const D; for; where;
-    self: Translation<N, D>, right: &'b Translation<N, D>, Output = Translation<N, D>;
+    self: Translation<T, D>, right: &'b Translation<T, D>, Output = Translation<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { Translation::from(self.vector + &right.vector) };
     'b);
 
 add_sub_impl!(Mul, mul, ClosedAdd;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>)
     const D; for; where;
-    self: Translation<N, D>, right: Translation<N, D>, Output = Translation<N, D>;
+    self: Translation<T, D>, right: Translation<T, D>, Output = Translation<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { Translation::from(self.vector + right.vector) }; );
 
 // Translation ÷ Translation
@@ -42,28 +42,28 @@ add_sub_impl!(Mul, mul, ClosedAdd;
 add_sub_impl!(Div, div, ClosedSub;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>)
     const D; for; where;
-    self: &'a Translation<N, D>, right: &'b Translation<N, D>, Output = Translation<N, D>;
+    self: &'a Translation<T, D>, right: &'b Translation<T, D>, Output = Translation<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { Translation::from(&self.vector - &right.vector) };
     'a, 'b);
 
 add_sub_impl!(Div, div, ClosedSub;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>)
     const D; for; where;
-    self: &'a Translation<N, D>, right: Translation<N, D>, Output = Translation<N, D>;
+    self: &'a Translation<T, D>, right: Translation<T, D>, Output = Translation<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { Translation::from(&self.vector - right.vector) };
     'a);
 
 add_sub_impl!(Div, div, ClosedSub;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>)
     const D; for; where;
-    self: Translation<N, D>, right: &'b Translation<N, D>, Output = Translation<N, D>;
+    self: Translation<T, D>, right: &'b Translation<T, D>, Output = Translation<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { Translation::from(self.vector - &right.vector) };
     'b);
 
 add_sub_impl!(Div, div, ClosedSub;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>)
     const D; for; where;
-    self: Translation<N, D>, right: Translation<N, D>, Output = Translation<N, D>;
+    self: Translation<T, D>, right: Translation<T, D>, Output = Translation<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { Translation::from(self.vector - right.vector) }; );
 
 // Translation × Point
@@ -72,49 +72,49 @@ add_sub_impl!(Div, div, ClosedSub;
 add_sub_impl!(Mul, mul, ClosedAdd;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>)
     const D; for; where;
-    self: &'a Translation<N, D>, right: &'b Point<N, D>, Output = Point<N, D>;
+    self: &'a Translation<T, D>, right: &'b Point<T, D>, Output = Point<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { right + &self.vector };
     'a, 'b);
 
 add_sub_impl!(Mul, mul, ClosedAdd;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>)
     const D; for; where;
-    self: &'a Translation<N, D>, right: Point<N, D>, Output = Point<N, D>;
+    self: &'a Translation<T, D>, right: Point<T, D>, Output = Point<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { right + &self.vector };
     'a);
 
 add_sub_impl!(Mul, mul, ClosedAdd;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>)
     const D; for; where;
-    self: Translation<N, D>, right: &'b Point<N, D>, Output = Point<N, D>;
+    self: Translation<T, D>, right: &'b Point<T, D>, Output = Point<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { right + self.vector };
     'b);
 
 add_sub_impl!(Mul, mul, ClosedAdd;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>)
     const D; for; where;
-    self: Translation<N, D>, right: Point<N, D>, Output = Point<N, D>;
+    self: Translation<T, D>, right: Point<T, D>, Output = Point<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { right + self.vector }; );
 
 // Translation *= Translation
 add_sub_assign_impl!(MulAssign, mul_assign, ClosedAdd;
     const D;
-    self: Translation<N, D>, right: &'b Translation<N, D>;
+    self: Translation<T, D>, right: &'b Translation<T, D>;
     #[allow(clippy::suspicious_op_assign_impl)] { self.vector += &right.vector };
     'b);
 
 add_sub_assign_impl!(MulAssign, mul_assign, ClosedAdd;
     const D;
-    self: Translation<N, D>, right: Translation<N, D>;
+    self: Translation<T, D>, right: Translation<T, D>;
     #[allow(clippy::suspicious_op_assign_impl)] { self.vector += right.vector }; );
 
 add_sub_assign_impl!(DivAssign, div_assign, ClosedSub;
     const D;
-    self: Translation<N, D>, right: &'b Translation<N, D>;
+    self: Translation<T, D>, right: &'b Translation<T, D>;
     #[allow(clippy::suspicious_op_assign_impl)] { self.vector -= &right.vector };
     'b);
 
 add_sub_assign_impl!(DivAssign, div_assign, ClosedSub;
     const D;
-    self: Translation<N, D>, right: Translation<N, D>;
+    self: Translation<T, D>, right: Translation<T, D>;
     #[allow(clippy::suspicious_op_assign_impl)] { self.vector -= right.vector }; );

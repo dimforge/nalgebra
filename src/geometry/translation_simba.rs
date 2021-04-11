@@ -1,25 +1,25 @@
 use simba::simd::SimdValue;
 
-use crate::base::VectorN;
+use crate::base::OVector;
 use crate::Scalar;
 
 use crate::geometry::Translation;
 
-impl<N: Scalar + SimdValue, const D: usize> SimdValue for Translation<N, D>
+impl<T: Scalar + SimdValue, const D: usize> SimdValue for Translation<T, D>
 where
-    N::Element: Scalar,
+    T::Element: Scalar,
 {
-    type Element = Translation<N::Element, D>;
-    type SimdBool = N::SimdBool;
+    type Element = Translation<T::Element, D>;
+    type SimdBool = T::SimdBool;
 
     #[inline]
     fn lanes() -> usize {
-        N::lanes()
+        T::lanes()
     }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
-        VectorN::splat(val.vector).into()
+        OVector::splat(val.vector).into()
     }
 
     #[inline]

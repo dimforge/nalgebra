@@ -4,16 +4,16 @@ use crate::base::Vector4;
 use crate::geometry::{Quaternion, UnitQuaternion};
 use crate::Scalar;
 
-impl<N: Scalar + SimdValue> SimdValue for Quaternion<N>
+impl<T: Scalar + SimdValue> SimdValue for Quaternion<T>
 where
-    N::Element: Scalar,
+    T::Element: Scalar,
 {
-    type Element = Quaternion<N::Element>;
-    type SimdBool = N::SimdBool;
+    type Element = Quaternion<T::Element>;
+    type SimdBool = T::SimdBool;
 
     #[inline]
     fn lanes() -> usize {
-        N::lanes()
+        T::lanes()
     }
 
     #[inline]
@@ -47,16 +47,16 @@ where
     }
 }
 
-impl<N: Scalar + SimdValue> SimdValue for UnitQuaternion<N>
+impl<T: Scalar + SimdValue> SimdValue for UnitQuaternion<T>
 where
-    N::Element: Scalar,
+    T::Element: Scalar,
 {
-    type Element = UnitQuaternion<N::Element>;
-    type SimdBool = N::SimdBool;
+    type Element = UnitQuaternion<T::Element>;
+    type SimdBool = T::SimdBool;
 
     #[inline]
     fn lanes() -> usize {
-        N::lanes()
+        T::lanes()
     }
 
     #[inline]

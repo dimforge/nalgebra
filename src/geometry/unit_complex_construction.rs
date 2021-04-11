@@ -15,9 +15,9 @@ use simba::scalar::{RealField, SupersetOf};
 use simba::simd::SimdRealField;
 
 /// # Identity
-impl<N: SimdRealField> UnitComplex<N>
+impl<T: SimdRealField> UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// The unit complex number multiplicative identity.
     ///
@@ -32,14 +32,14 @@ where
     /// ```
     #[inline]
     pub fn identity() -> Self {
-        Self::new_unchecked(Complex::new(N::one(), N::zero()))
+        Self::new_unchecked(Complex::new(T::one(), T::zero()))
     }
 }
 
 /// # Construction from a 2D rotation angle
-impl<N: SimdRealField> UnitComplex<N>
+impl<T: SimdRealField> UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Builds the unit complex number corresponding to the rotation with the given angle.
     ///
@@ -54,7 +54,7 @@ where
     /// assert_relative_eq!(rot * Point2::new(3.0, 4.0), Point2::new(-4.0, 3.0));
     /// ```
     #[inline]
-    pub fn new(angle: N) -> Self {
+    pub fn new(angle: T) -> Self {
         let (sin, cos) = angle.simd_sin_cos();
         Self::from_cos_sin_unchecked(cos, sin)
     }
@@ -75,7 +75,7 @@ where
     /// ```
     // TODO: deprecate this.
     #[inline]
-    pub fn from_angle(angle: N) -> Self {
+    pub fn from_angle(angle: T) -> Self {
         Self::new(angle)
     }
 
@@ -96,7 +96,7 @@ where
     /// assert_relative_eq!(rot * Point2::new(3.0, 4.0), Point2::new(-4.0, 3.0));
     /// ```
     #[inline]
-    pub fn from_cos_sin_unchecked(cos: N, sin: N) -> Self {
+    pub fn from_cos_sin_unchecked(cos: T, sin: T) -> Self {
         Self::new_unchecked(Complex::new(cos, sin))
     }
 
@@ -105,15 +105,15 @@ where
     /// This is generally used in the context of generic programming. Using
     /// the `::new(angle)` method instead is more common.
     #[inline]
-    pub fn from_scaled_axis<SB: Storage<N, U1>>(axisangle: Vector<N, U1, SB>) -> Self {
+    pub fn from_scaled_axis<SB: Storage<T, U1>>(axisangle: Vector<T, U1, SB>) -> Self {
         Self::from_angle(axisangle[0])
     }
 }
 
 /// # Construction from an existing 2D matrix or complex number
-impl<N: SimdRealField> UnitComplex<N>
+impl<T: SimdRealField> UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Cast the components of `self` to another type.
     ///
@@ -145,7 +145,7 @@ where
     /// assert_eq!(*rot.complex(), Complex::new(angle.cos(), angle.sin()));
     /// ```
     #[inline]
-    pub fn complex(&self) -> &Complex<N> {
+    pub fn complex(&self) -> &Complex<T> {
         self.as_ref()
     }
 
@@ -153,7 +153,7 @@ where
     ///
     /// The input complex number will be normalized.
     #[inline]
-    pub fn from_complex(q: Complex<N>) -> Self {
+    pub fn from_complex(q: Complex<T>) -> Self {
         Self::from_complex_and_get(q).0
     }
 
@@ -161,7 +161,7 @@ where
     ///
     /// The input complex number will be normalized. Returns the norm of the complex number as well.
     #[inline]
-    pub fn from_complex_and_get(q: Complex<N>) -> (Self, N) {
+    pub fn from_complex_and_get(q: Complex<T>) -> (Self, T) {
         let norm = (q.im * q.im + q.re * q.re).simd_sqrt();
         (Self::new_unchecked(q / norm), norm)
     }
@@ -177,7 +177,7 @@ where
     /// ```
     // TODO: add UnitComplex::from(...) instead?
     #[inline]
-    pub fn from_rotation_matrix(rotmat: &Rotation2<N>) -> Self {
+    pub fn from_rotation_matrix(rotmat: &Rotation2<T>) -> Self {
         Self::new_unchecked(Complex::new(rotmat[(0, 0)], rotmat[(1, 0)]))
     }
 
@@ -187,7 +187,7 @@ where
     /// orthonormal basis, i.e., all vectors are normalized, and the are
     /// all orthogonal to each other. These invariants are not checked
     /// by this method.
-    pub fn from_basis_unchecked(basis: &[Vector2<N>; 2]) -> Self {
+    pub fn from_basis_unchecked(basis: &[Vector2<T>; 2]) -> Self {
         let mat = Matrix2::from_columns(&basis[..]);
         let rot = Rotation2::from_matrix_unchecked(mat);
         Self::from_rotation_matrix(&rot)
@@ -198,9 +198,9 @@ where
     /// This is an iterative method. See `.from_matrix_eps` to provide mover
     /// convergence parameters and starting solution.
     /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
-    pub fn from_matrix(m: &Matrix2<N>) -> Self
+    pub fn from_matrix(m: &Matrix2<T>) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
         Rotation2::from_matrix(m).into()
     }
@@ -217,9 +217,9 @@ where
     /// * `guess`: an estimate of the solution. Convergence will be significantly faster if an initial solution close
     ///           to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
     ///           guesses come to mind.
-    pub fn from_matrix_eps(m: &Matrix2<N>, eps: N, max_iter: usize, guess: Self) -> Self
+    pub fn from_matrix_eps(m: &Matrix2<T>, eps: T, max_iter: usize, guess: Self) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
         let guess = Rotation2::from(guess);
         Rotation2::from_matrix_eps(m, eps, max_iter, guess).into()
@@ -259,15 +259,15 @@ where
     /// assert_relative_eq!(pow.angle(), 2.0 * 0.78);
     /// ```
     #[inline]
-    pub fn powf(&self, n: N) -> Self {
+    pub fn powf(&self, n: T) -> Self {
         Self::from_angle(self.angle() * n)
     }
 }
 
 /// # Construction from two vectors
-impl<N: SimdRealField> UnitComplex<N>
+impl<T: SimdRealField> UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// The unit complex needed to make `a` and `b` be collinear and point toward the same
     /// direction.
@@ -283,13 +283,13 @@ where
     /// assert_relative_eq!(rot.inverse() * b, a);
     /// ```
     #[inline]
-    pub fn rotation_between<SB, SC>(a: &Vector<N, U2, SB>, b: &Vector<N, U2, SC>) -> Self
+    pub fn rotation_between<SB, SC>(a: &Vector<T, U2, SB>, b: &Vector<T, U2, SC>) -> Self
     where
-        N: RealField,
-        SB: Storage<N, U2>,
-        SC: Storage<N, U2>,
+        T: RealField,
+        SB: Storage<T, U2>,
+        SC: Storage<T, U2>,
     {
-        Self::scaled_rotation_between(a, b, N::one())
+        Self::scaled_rotation_between(a, b, T::one())
     }
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
@@ -308,19 +308,19 @@ where
     /// ```
     #[inline]
     pub fn scaled_rotation_between<SB, SC>(
-        a: &Vector<N, U2, SB>,
-        b: &Vector<N, U2, SC>,
-        s: N,
+        a: &Vector<T, U2, SB>,
+        b: &Vector<T, U2, SC>,
+        s: T,
     ) -> Self
     where
-        N: RealField,
-        SB: Storage<N, U2>,
-        SC: Storage<N, U2>,
+        T: RealField,
+        SB: Storage<T, U2>,
+        SC: Storage<T, U2>,
     {
         // TODO: code duplication with Rotation.
         if let (Some(na), Some(nb)) = (
-            Unit::try_new(a.clone_owned(), N::zero()),
-            Unit::try_new(b.clone_owned(), N::zero()),
+            Unit::try_new(a.clone_owned(), T::zero()),
+            Unit::try_new(b.clone_owned(), T::zero()),
         ) {
             Self::scaled_rotation_between_axis(&na, &nb, s)
         } else {
@@ -343,14 +343,14 @@ where
     /// ```
     #[inline]
     pub fn rotation_between_axis<SB, SC>(
-        a: &Unit<Vector<N, U2, SB>>,
-        b: &Unit<Vector<N, U2, SC>>,
+        a: &Unit<Vector<T, U2, SB>>,
+        b: &Unit<Vector<T, U2, SC>>,
     ) -> Self
     where
-        SB: Storage<N, U2>,
-        SC: Storage<N, U2>,
+        SB: Storage<T, U2>,
+        SC: Storage<T, U2>,
     {
-        Self::scaled_rotation_between_axis(a, b, N::one())
+        Self::scaled_rotation_between_axis(a, b, T::one())
     }
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
@@ -369,13 +369,13 @@ where
     /// ```
     #[inline]
     pub fn scaled_rotation_between_axis<SB, SC>(
-        na: &Unit<Vector<N, U2, SB>>,
-        nb: &Unit<Vector<N, U2, SC>>,
-        s: N,
+        na: &Unit<Vector<T, U2, SB>>,
+        nb: &Unit<Vector<T, U2, SC>>,
+        s: T,
     ) -> Self
     where
-        SB: Storage<N, U2>,
-        SC: Storage<N, U2>,
+        SB: Storage<T, U2>,
+        SC: Storage<T, U2>,
     {
         let sang = na.perp(&nb);
         let cang = na.dot(&nb);
@@ -384,9 +384,9 @@ where
     }
 }
 
-impl<N: SimdRealField> One for UnitComplex<N>
+impl<T: SimdRealField> One for UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
     fn one() -> Self {
@@ -395,26 +395,26 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<N: SimdRealField> Distribution<UnitComplex<N>> for Standard
+impl<T: SimdRealField> Distribution<UnitComplex<T>> for Standard
 where
-    N::Element: SimdRealField,
-    rand_distr::UnitCircle: Distribution<[N; 2]>,
+    T::Element: SimdRealField,
+    rand_distr::UnitCircle: Distribution<[T; 2]>,
 {
     /// Generate a uniformly distributed random `UnitComplex`.
     #[inline]
-    fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> UnitComplex<N> {
+    fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> UnitComplex<T> {
         let x = rng.sample(rand_distr::UnitCircle);
         UnitComplex::new_unchecked(Complex::new(x[0], x[1]))
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: SimdRealField + Arbitrary> Arbitrary for UnitComplex<N>
+impl<T: SimdRealField + Arbitrary> Arbitrary for UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {
-        UnitComplex::from_angle(N::arbitrary(g))
+        UnitComplex::from_angle(T::arbitrary(g))
     }
 }

@@ -4,7 +4,7 @@ use std::cmp::Ordering;
 use na::dimension::{U15, U8};
 use na::{
     self, Const, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4,
-    Matrix4, Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RowVector3, RowVector4, RowVector5,
+    Matrix4, Matrix4x3, Matrix4x5, Matrix5, Matrix6, OMatrix, RowVector3, RowVector4, RowVector5,
     Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
 };
 
@@ -703,7 +703,7 @@ fn kronecker() {
         440, 450,
     );
 
-    let expected = MatrixMN::<_, U8, U15>::from_row_slice(&[
+    let expected = OMatrix::<_, U8, U15>::from_row_slice(&[
         1210, 1320, 1430, 1540, 1650, 1320, 1440, 1560, 1680, 1800, 1430, 1560, 1690, 1820, 1950,
         2310, 2420, 2530, 2640, 2750, 2520, 2640, 2760, 2880, 3000, 2730, 2860, 2990, 3120, 3250,
         3410, 3520, 3630, 3740, 3850, 3720, 3840, 3960, 4080, 4200, 4030, 4160, 4290, 4420, 4550,
@@ -1065,13 +1065,13 @@ fn partial_eq_different_types() {
     let dynamic_mat = DMatrix::from_row_slice(2, 4, &[1, 2, 3, 4, 5, 6, 7, 8]);
     let static_mat = Matrix2x4::new(1, 2, 3, 4, 5, 6, 7, 8);
 
-    let mut typenum_static_mat = MatrixMN::<u8, Const<1024>, Const<4>>::zeros();
+    let mut typenum_static_mat = OMatrix::<u8, Const<1024>, Const<4>>::zeros();
     let mut slice = typenum_static_mat.slice_mut((0, 0), (2, 4));
     slice += static_mat;
 
-    let fslice_of_dmat = dynamic_mat.fixed_slice::<Const<2>, Const<2>>(0, 0);
+    let fslice_of_dmat = dynamic_mat.fixed_slice::<2, 2>(0, 0);
     let dslice_of_dmat = dynamic_mat.slice((0, 0), (2, 2));
-    let fslice_of_smat = static_mat.fixed_slice::<Const<2>, Const<2>>(0, 0);
+    let fslice_of_smat = static_mat.fixed_slice::<2, 2>(0, 0);
     let dslice_of_smat = static_mat.slice((0, 0), (2, 2));
 
     assert_eq!(dynamic_mat, static_mat);

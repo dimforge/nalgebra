@@ -5,7 +5,7 @@ use alga::general::{
 use alga::linear::Similarity as AlgaSimilarity;
 use alga::linear::{AffineTransformation, ProjectiveTransformation, Rotation, Transformation};
 
-use crate::base::CVectorN;
+use crate::base::SVector;
 use crate::geometry::{AbstractRotation, Point, Similarity, Translation};
 
 /*
@@ -13,10 +13,10 @@ use crate::geometry::{AbstractRotation, Point, Similarity, Translation};
  * Algebraic structures.
  *
  */
-impl<N: RealField + simba::scalar::RealField, R, const D: usize> Identity<Multiplicative>
-    for Similarity<N, R, D>
+impl<T: RealField + simba::scalar::RealField, R, const D: usize> Identity<Multiplicative>
+    for Similarity<T, R, D>
 where
-    R: Rotation<Point<N, D>> + AbstractRotation<N, D>,
+    R: Rotation<Point<T, D>> + AbstractRotation<T, D>,
 {
     #[inline]
     fn identity() -> Self {
@@ -24,10 +24,10 @@ where
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, R, const D: usize> TwoSidedInverse<Multiplicative>
-    for Similarity<N, R, D>
+impl<T: RealField + simba::scalar::RealField, R, const D: usize> TwoSidedInverse<Multiplicative>
+    for Similarity<T, R, D>
 where
-    R: Rotation<Point<N, D>> + AbstractRotation<N, D>,
+    R: Rotation<Point<T, D>> + AbstractRotation<T, D>,
 {
     #[inline]
     #[must_use = "Did you mean to use two_sided_inverse_mut()?"]
@@ -41,10 +41,10 @@ where
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, R, const D: usize> AbstractMagma<Multiplicative>
-    for Similarity<N, R, D>
+impl<T: RealField + simba::scalar::RealField, R, const D: usize> AbstractMagma<Multiplicative>
+    for Similarity<T, R, D>
 where
-    R: Rotation<Point<N, D>> + AbstractRotation<N, D>,
+    R: Rotation<Point<T, D>> + AbstractRotation<T, D>,
 {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
@@ -54,8 +54,8 @@ where
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N: RealField + simba::scalar::RealField, R, const D: usize> $marker<$operator> for Similarity<N, R, D>
-            where R: Rotation<Point<N, D>> + AbstractRotation<N, D>,
+        impl<T: RealField + simba::scalar::RealField, R, const D: usize> $marker<$operator> for Similarity<T, R, D>
+            where R: Rotation<Point<T, D>> + AbstractRotation<T, D>,
                   { }
     )*}
 );
@@ -73,54 +73,54 @@ impl_multiplicative_structures!(
  * Transformation groups.
  *
  */
-impl<N: RealField + simba::scalar::RealField, R, const D: usize> Transformation<Point<N, D>>
-    for Similarity<N, R, D>
+impl<T: RealField + simba::scalar::RealField, R, const D: usize> Transformation<Point<T, D>>
+    for Similarity<T, R, D>
 where
-    R: Rotation<Point<N, D>> + AbstractRotation<N, D>,
+    R: Rotation<Point<T, D>> + AbstractRotation<T, D>,
 {
     #[inline]
-    fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.transform_point(pt)
     }
 
     #[inline]
-    fn transform_vector(&self, v: &CVectorN<N, D>) -> CVectorN<N, D> {
+    fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.transform_vector(v)
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, R, const D: usize>
-    ProjectiveTransformation<Point<N, D>> for Similarity<N, R, D>
+impl<T: RealField + simba::scalar::RealField, R, const D: usize>
+    ProjectiveTransformation<Point<T, D>> for Similarity<T, R, D>
 where
-    R: Rotation<Point<N, D>> + AbstractRotation<N, D>,
+    R: Rotation<Point<T, D>> + AbstractRotation<T, D>,
 {
     #[inline]
-    fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.inverse_transform_point(pt)
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &CVectorN<N, D>) -> CVectorN<N, D> {
+    fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.inverse_transform_vector(v)
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, R, const D: usize> AffineTransformation<Point<N, D>>
-    for Similarity<N, R, D>
+impl<T: RealField + simba::scalar::RealField, R, const D: usize> AffineTransformation<Point<T, D>>
+    for Similarity<T, R, D>
 where
-    R: Rotation<Point<N, D>> + AbstractRotation<N, D>,
+    R: Rotation<Point<T, D>> + AbstractRotation<T, D>,
 {
-    type NonUniformScaling = N;
+    type NonUniformScaling = T;
     type Rotation = R;
-    type Translation = Translation<N, D>;
+    type Translation = Translation<T, D>;
 
     #[inline]
-    fn decompose(&self) -> (Translation<N, D>, R, N, R) {
+    fn decompose(&self) -> (Translation<T, D>, R, T, R) {
         (
             self.isometry.translation.clone(),
             self.isometry.rotation.clone(),
             self.scaling(),
-            <R as AbstractRotation<N, D>>::identity(),
+            <R as AbstractRotation<T, D>>::identity(),
         )
     }
 
@@ -155,22 +155,22 @@ where
     }
 
     #[inline]
-    fn append_rotation_wrt_point(&self, r: &Self::Rotation, p: &Point<N, D>) -> Option<Self> {
+    fn append_rotation_wrt_point(&self, r: &Self::Rotation, p: &Point<T, D>) -> Option<Self> {
         let mut res = self.clone();
         res.append_rotation_wrt_point_mut(r, p);
         Some(res)
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, R, const D: usize> AlgaSimilarity<Point<N, D>>
-    for Similarity<N, R, D>
+impl<T: RealField + simba::scalar::RealField, R, const D: usize> AlgaSimilarity<Point<T, D>>
+    for Similarity<T, R, D>
 where
-    R: Rotation<Point<N, D>> + AbstractRotation<N, D>,
+    R: Rotation<Point<T, D>> + AbstractRotation<T, D>,
 {
-    type Scaling = N;
+    type Scaling = T;
 
     #[inline]
-    fn translation(&self) -> Translation<N, D> {
+    fn translation(&self) -> Translation<T, D> {
         self.isometry.translation()
     }
 
@@ -180,7 +180,7 @@ where
     }
 
     #[inline]
-    fn scaling(&self) -> N {
+    fn scaling(&self) -> T {
         self.scaling()
     }
 }

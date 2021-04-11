@@ -1,9 +1,9 @@
 use na::{
     Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4, Matrix4, Matrix4x2, Matrix4x3,
-    MatrixMN, Quaternion, VectorN, U1, U2, U3, U4,
+    Quaternion, SMatrix, SVector,
 };
 
-/// A matrix with components of type `N`. It has `R` rows, and `C` columns.
+/// A matrix with components of type `T`. It has `R` rows, and `C` columns.
 ///
 /// In this library, vectors, represented as [`TVec`](type.TVec.html) and
 /// friends, are also matrices. Operations that operate on a matrix will
@@ -24,8 +24,8 @@ use na::{
 /// * [`TMat4x3`](type.TMat4x3.html)
 /// * [`TMat4x4`](type.TMat4x4.html)
 /// * [`TVec`](type.TVec.html)
-pub type TMat<N, R, C> = MatrixMN<N, R, C>;
-/// A column vector with components of type `N`. It has `D` rows (and one column).
+pub type TMat<T, const R: usize, const C: usize> = SMatrix<T, R, C>;
+/// A column vector with components of type `T`. It has `D` rows (and one column).
 ///
 /// In this library, vectors are represented as a single column matrix, so
 /// operations on [`TMat`](type.TMat.html) are also valid on vectors.
@@ -37,11 +37,11 @@ pub type TMat<N, R, C> = MatrixMN<N, R, C>;
 /// * [`TVec2`](type.TVec2.html)
 /// * [`TVec3`](type.TVec3.html)
 /// * [`TVec4`](type.TVec4.html)
-pub type TVec<N, R> = VectorN<N, R>;
-/// A quaternion with components of type `N`.
-pub type Qua<N> = Quaternion<N>;
+pub type TVec<T, const R: usize> = SVector<T, R>;
+/// A quaternion with components of type `T`.
+pub type Qua<T> = Quaternion<T>;
 
-/// A 1D vector with components of type `N`.
+/// A 1D vector with components of type `T`.
 ///
 /// # See also:
 ///
@@ -69,8 +69,8 @@ pub type Qua<N> = Quaternion<N>;
 /// * [`U64Vec1`](type.U64Vec1.html)
 /// * [`U8Vec1`](type.U8Vec1.html)
 /// * [`Vec1`](type.Vec1.html)
-pub type TVec1<N> = TVec<N, U1>;
-/// A 2D vector with components of type `N`.
+pub type TVec1<T> = TVec<T, 1>;
+/// A 2D vector with components of type `T`.
 ///
 /// # See also:
 ///
@@ -99,8 +99,8 @@ pub type TVec1<N> = TVec<N, U1>;
 /// * [`U64Vec2`](type.U64Vec2.html)
 /// * [`U8Vec2`](type.U8Vec2.html)
 /// * [`Vec2`](type.Vec2.html)
-pub type TVec2<N> = TVec<N, U2>;
-/// A 3D vector with components of type `N`.
+pub type TVec2<T> = TVec<T, 2>;
+/// A 3D vector with components of type `T`.
 ///
 /// # See also:
 ///
@@ -129,8 +129,8 @@ pub type TVec2<N> = TVec<N, U2>;
 /// * [`U64Vec3`](type.U64Vec3.html)
 /// * [`U8Vec3`](type.U8Vec3.html)
 /// * [`Vec3`](type.Vec3.html)
-pub type TVec3<N> = TVec<N, U3>;
-/// A 4D vector with components of type `N`.
+pub type TVec3<T> = TVec<T, 3>;
+/// A 4D vector with components of type `T`.
 ///
 /// # See also:
 ///
@@ -158,7 +158,7 @@ pub type TVec3<N> = TVec<N, U3>;
 /// * [`U64Vec4`](type.U64Vec4.html)
 /// * [`U8Vec4`](type.U8Vec4.html)
 /// * [`Vec4`](type.Vec4.html)
-pub type TVec4<N> = TVec<N, U4>;
+pub type TVec4<T> = TVec<T, 4>;
 /// A 1D vector with boolean components.
 pub type BVec1 = TVec1<bool>;
 /// A 2D vector with boolean components.
@@ -268,31 +268,31 @@ pub type I8Vec3 = TVec3<i8>;
 /// A 4D vector with `i8` components.
 pub type I8Vec4 = TVec4<i8>;
 
-/// A 2x2 matrix with components of type `N`.
-pub type TMat2<N> = Matrix2<N>;
-/// A 2x2 matrix with components of type `N`.
-pub type TMat2x2<N> = Matrix2<N>;
-/// A 2x3 matrix with components of type `N`.
-pub type TMat2x3<N> = Matrix2x3<N>;
-/// A 2x4 matrix with components of type `N`.
-pub type TMat2x4<N> = Matrix2x4<N>;
-/// A 3x3 matrix with components of type `N`.
-pub type TMat3<N> = Matrix3<N>;
-/// A 3x2 matrix with components of type `N`.
-pub type TMat3x2<N> = Matrix3x2<N>;
-/// A 3x3 matrix with components of type `N`.
-pub type TMat3x3<N> = Matrix3<N>;
-/// A 3x4 matrix with components of type `N`.
-pub type TMat3x4<N> = Matrix3x4<N>;
-/// A 4x4 matrix with components of type `N`.
-pub type TMat4<N> = Matrix4<N>;
-/// A 4x2 matrix with components of type `N`.
-pub type TMat4x2<N> = Matrix4x2<N>;
-/// A 4x3 matrix with components of type `N`.
-pub type TMat4x3<N> = Matrix4x3<N>;
-/// A 4x4 matrix with components of type `N`.
-pub type TMat4x4<N> = Matrix4<N>;
-/// A 2x2 matrix with components of type `N`.
+/// A 2x2 matrix with components of type `T`.
+pub type TMat2<T> = Matrix2<T>;
+/// A 2x2 matrix with components of type `T`.
+pub type TMat2x2<T> = Matrix2<T>;
+/// A 2x3 matrix with components of type `T`.
+pub type TMat2x3<T> = Matrix2x3<T>;
+/// A 2x4 matrix with components of type `T`.
+pub type TMat2x4<T> = Matrix2x4<T>;
+/// A 3x3 matrix with components of type `T`.
+pub type TMat3<T> = Matrix3<T>;
+/// A 3x2 matrix with components of type `T`.
+pub type TMat3x2<T> = Matrix3x2<T>;
+/// A 3x3 matrix with components of type `T`.
+pub type TMat3x3<T> = Matrix3<T>;
+/// A 3x4 matrix with components of type `T`.
+pub type TMat3x4<T> = Matrix3x4<T>;
+/// A 4x4 matrix with components of type `T`.
+pub type TMat4<T> = Matrix4<T>;
+/// A 4x2 matrix with components of type `T`.
+pub type TMat4x2<T> = Matrix4x2<T>;
+/// A 4x3 matrix with components of type `T`.
+pub type TMat4x3<T> = Matrix4x3<T>;
+/// A 4x4 matrix with components of type `T`.
+pub type TMat4x4<T> = Matrix4<T>;
+/// A 2x2 matrix with components of type `T`.
 pub type DMat2 = Matrix2<f64>;
 /// A 2x2 matrix with `f64` components.
 pub type DMat2x2 = Matrix2<f64>;

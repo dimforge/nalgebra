@@ -7,14 +7,14 @@ use crate::base::{DefaultAllocator, SquareMatrix};
 
 use crate::linalg::LU;
 
-impl<N: ComplexField, D: DimMin<D, Output = D>, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+impl<T: ComplexField, D: DimMin<D, Output = D>, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     /// Computes the matrix determinant.
     ///
     /// If the matrix has a dimension larger than 3, an LU decomposition is used.
     #[inline]
-    pub fn determinant(&self) -> N
+    pub fn determinant(&self) -> T
     where
-        DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>,
+        DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), D>,
     {
         assert!(
             self.is_square(),
@@ -24,7 +24,7 @@ impl<N: ComplexField, D: DimMin<D, Output = D>, S: Storage<N, D, D>> SquareMatri
 
         unsafe {
             match dim {
-                0 => N::one(),
+                0 => T::one(),
                 1 => *self.get_unchecked((0, 0)),
                 2 => {
                     let m11 = *self.get_unchecked((0, 0));

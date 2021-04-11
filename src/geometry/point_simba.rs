@@ -1,24 +1,24 @@
 use simba::simd::SimdValue;
 
-use crate::base::{Scalar, VectorN};
+use crate::base::{OVector, Scalar};
 
 use crate::geometry::Point;
 
-impl<N: Scalar + SimdValue, const D: usize> SimdValue for Point<N, D>
+impl<T: Scalar + SimdValue, const D: usize> SimdValue for Point<T, D>
 where
-    N::Element: Scalar,
+    T::Element: Scalar,
 {
-    type Element = Point<N::Element, D>;
-    type SimdBool = N::SimdBool;
+    type Element = Point<T::Element, D>;
+    type SimdBool = T::SimdBool;
 
     #[inline]
     fn lanes() -> usize {
-        N::lanes()
+        T::lanes()
     }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
-        VectorN::splat(val.coords).into()
+        OVector::splat(val.coords).into()
     }
 
     #[inline]

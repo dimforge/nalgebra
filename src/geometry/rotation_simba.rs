@@ -1,25 +1,25 @@
 use simba::simd::SimdValue;
 
-use crate::base::{MatrixN, Scalar};
+use crate::base::{OMatrix, Scalar};
 
 use crate::geometry::Rotation;
 
-impl<N, const D: usize> SimdValue for Rotation<N, D>
+impl<T, const D: usize> SimdValue for Rotation<T, D>
 where
-    N: Scalar + SimdValue,
-    N::Element: Scalar,
+    T: Scalar + SimdValue,
+    T::Element: Scalar,
 {
-    type Element = Rotation<N::Element, D>;
-    type SimdBool = N::SimdBool;
+    type Element = Rotation<T::Element, D>;
+    type SimdBool = T::SimdBool;
 
     #[inline]
     fn lanes() -> usize {
-        N::lanes()
+        T::lanes()
     }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
-        Rotation::from_matrix_unchecked(MatrixN::splat(val.into_inner()))
+        Rotation::from_matrix_unchecked(OMatrix::splat(val.into_inner()))
     }
 
     #[inline]

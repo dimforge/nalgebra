@@ -5,8 +5,8 @@ use approx::AbsDiffEq;
 use num::Zero;
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Matrix2, MatrixN, SquareMatrix, Vector2, VectorN};
-use crate::dimension::{Dim, DimDiff, DimSub, U1, U2};
+use crate::base::{DefaultAllocator, Matrix2, OMatrix, OVector, SquareMatrix, Vector2};
+use crate::dimension::{Dim, DimDiff, DimSub, U1};
 use crate::storage::Storage;
 use simba::scalar::ComplexField;
 
@@ -17,51 +17,51 @@ use crate::linalg::SymmetricTridiagonal;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
-                           Allocator<N::RealField, D>,
-         VectorN<N::RealField, D>: Serialize,
-         MatrixN<N, D>: Serialize"))
+    serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D> +
+                           Allocator<T::RealField, D>,
+         OVector<T::RealField, D>: Serialize,
+         OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
-                           Allocator<N::RealField, D>,
-         VectorN<N::RealField, D>: Deserialize<'de>,
-         MatrixN<N, D>: Deserialize<'de>"))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D> +
+                           Allocator<T::RealField, D>,
+         OVector<T::RealField, D>: Deserialize<'de>,
+         OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct SymmetricEigen<N: ComplexField, D: Dim>
+pub struct SymmetricEigen<T: ComplexField, D: Dim>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T::RealField, D>,
 {
     /// The eigenvectors of the decomposed matrix.
-    pub eigenvectors: MatrixN<N, D>,
+    pub eigenvectors: OMatrix<T, D, D>,
 
     /// The unsorted eigenvalues of the decomposed matrix.
-    pub eigenvalues: VectorN<N::RealField, D>,
+    pub eigenvalues: OVector<T::RealField, D>,
 }
 
-impl<N: ComplexField, D: Dim> Copy for SymmetricEigen<N, D>
+impl<T: ComplexField, D: Dim> Copy for SymmetricEigen<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>,
-    MatrixN<N, D>: Copy,
-    VectorN<N::RealField, D>: Copy,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T::RealField, D>,
+    OMatrix<T, D, D>: Copy,
+    OVector<T::RealField, D>: Copy,
 {
 }
 
-impl<N: ComplexField, D: Dim> SymmetricEigen<N, D>
+impl<T: ComplexField, D: Dim> SymmetricEigen<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N::RealField, D>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T::RealField, D>,
 {
     /// Computes the eigendecomposition of the given symmetric matrix.
     ///
     /// Only the lower-triangular parts (including its diagonal) of `m` is read.
-    pub fn new(m: MatrixN<N, D>) -> Self
+    pub fn new(m: OMatrix<T, D, D>) -> Self
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N, DimDiff<D, U1>> + Allocator<N::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<T, DimDiff<D, U1>> + Allocator<T::RealField, DimDiff<D, U1>>,
     {
-        Self::try_new(m, N::RealField::default_epsilon(), 0).unwrap()
+        Self::try_new(m, T::RealField::default_epsilon(), 0).unwrap()
     }
 
     /// Computes the eigendecomposition of the given symmetric matrix with user-specified
@@ -75,10 +75,10 @@ where
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_new(m: MatrixN<N, D>, eps: N::RealField, max_niter: usize) -> Option<Self>
+    pub fn try_new(m: OMatrix<T, D, D>, eps: T::RealField, max_niter: usize) -> Option<Self>
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N, DimDiff<D, U1>> + Allocator<N::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<T, DimDiff<D, U1>> + Allocator<T::RealField, DimDiff<D, U1>>,
     {
         Self::do_decompose(m, true, eps, max_niter).map(|(vals, vecs)| SymmetricEigen {
             eigenvectors: vecs.unwrap(),
@@ -87,14 +87,14 @@ where
     }
 
     fn do_decompose(
-        mut m: MatrixN<N, D>,
+        mut m: OMatrix<T, D, D>,
         eigenvectors: bool,
-        eps: N::RealField,
+        eps: T::RealField,
         max_niter: usize,
-    ) -> Option<(VectorN<N::RealField, D>, Option<MatrixN<N, D>>)>
+    ) -> Option<(OVector<T::RealField, D>, Option<OMatrix<T, D, D>>)>
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N, DimDiff<D, U1>> + Allocator<N::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<T, DimDiff<D, U1>> + Allocator<T::RealField, DimDiff<D, U1>>,
     {
         assert!(
             m.is_square(),
@@ -171,8 +171,8 @@ where
                         }
 
                         if let Some(ref mut q) = q {
-                            let rot = GivensRotation::new_unchecked(rot.c(), N::from_real(rot.s()));
-                            rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<U2>(i));
+                            let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
+                            rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<2>(i));
                         }
                     } else {
                         break;
@@ -197,8 +197,8 @@ where
 
                 if let Some(ref mut q) = q {
                     if let Some((rot, _)) = GivensRotation::try_new(basis.x, basis.y, eps) {
-                        let rot = GivensRotation::new_unchecked(rot.c(), N::from_real(rot.s()));
-                        rot.rotate_rows(&mut q.fixed_columns_mut::<U2>(start));
+                        let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
+                        rot.rotate_rows(&mut q.fixed_columns_mut::<2>(start));
                     }
                 }
 
@@ -223,14 +223,14 @@ where
     }
 
     fn delimit_subproblem(
-        diag: &VectorN<N::RealField, D>,
-        off_diag: &mut VectorN<N::RealField, DimDiff<D, U1>>,
+        diag: &OVector<T::RealField, D>,
+        off_diag: &mut OVector<T::RealField, DimDiff<D, U1>>,
         end: usize,
-        eps: N::RealField,
+        eps: T::RealField,
     ) -> (usize, usize)
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<T::RealField, DimDiff<D, U1>>,
     {
         let mut n = end;
 
@@ -255,7 +255,7 @@ where
             if off_diag[m].is_zero()
                 || off_diag[m].norm1() <= eps * (diag[new_start].norm1() + diag[m].norm1())
             {
-                off_diag[m] = N::RealField::zero();
+                off_diag[m] = T::RealField::zero();
                 break;
             }
 
@@ -268,7 +268,7 @@ where
     /// Rebuild the original matrix.
     ///
     /// This is useful if some of the eigenvalues have been manually modified.
-    pub fn recompose(&self) -> MatrixN<N, D> {
+    pub fn recompose(&self) -> OMatrix<T, D, D> {
         let mut u_t = self.eigenvectors.clone();
         for i in 0..self.eigenvalues.len() {
             let val = self.eigenvalues[i];
@@ -285,7 +285,7 @@ where
 /// The inputs are interpreted as the 2x2 matrix:
 ///     tmm  tmn
 ///     tmn  tnn
-pub fn wilkinson_shift<N: ComplexField>(tmm: N, tnn: N, tmn: N) -> N {
+pub fn wilkinson_shift<T: ComplexField>(tmm: T, tnn: T, tmn: T) -> T {
     let sq_tmn = tmn * tmn;
     if !sq_tmn.is_zero() {
         // We have the guarantee that the denominator won't be zero.
@@ -301,21 +301,21 @@ pub fn wilkinson_shift<N: ComplexField>(tmm: N, tnn: N, tmn: N) -> N {
  * Computations of eigenvalues for symmetric matrices.
  *
  */
-impl<N: ComplexField, D: DimSub<U1>, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<T: ComplexField, D: DimSub<U1>, S: Storage<T, D, D>> SquareMatrix<T, D, S>
 where
-    DefaultAllocator: Allocator<N, D, D>
-        + Allocator<N, DimDiff<D, U1>>
-        + Allocator<N::RealField, D>
-        + Allocator<N::RealField, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<T, D, D>
+        + Allocator<T, DimDiff<D, U1>>
+        + Allocator<T::RealField, D>
+        + Allocator<T::RealField, DimDiff<D, U1>>,
 {
     /// Computes the eigenvalues of this symmetric matrix.
     ///
     /// Only the lower-triangular part of the matrix is read.
-    pub fn symmetric_eigenvalues(&self) -> VectorN<N::RealField, D> {
+    pub fn symmetric_eigenvalues(&self) -> OVector<T::RealField, D> {
         SymmetricEigen::do_decompose(
             self.clone_owned(),
             false,
-            N::RealField::default_epsilon(),
+            T::RealField::default_epsilon(),
             0,
         )
         .unwrap()

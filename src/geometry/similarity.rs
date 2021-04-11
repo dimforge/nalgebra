@@ -18,7 +18,7 @@ use simba::simd::SimdRealField;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
-use crate::base::{CVectorN, Const, DefaultAllocator, MatrixN, Scalar};
+use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
 use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
@@ -27,31 +27,28 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "N: Serialize,
+    serde(bound(serialize = "T: Serialize,
                      R: Serialize,
-                     DefaultAllocator: Allocator<N, Const<D>>,
-                     Owned<N, Const<D>>: Serialize"))
+                     DefaultAllocator: Allocator<T, Const<D>>,
+                     Owned<T, Const<D>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "N: Deserialize<'de>,
+    serde(bound(deserialize = "T: Deserialize<'de>,
                        R: Deserialize<'de>,
-                       DefaultAllocator: Allocator<N, Const<D>>,
-                       Owned<N, Const<D>>: Deserialize<'de>"))
+                       DefaultAllocator: Allocator<T, Const<D>>,
+                       Owned<T, Const<D>>: Deserialize<'de>"))
 )]
-pub struct Similarity<N: Scalar, R, const D: usize>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-{
+pub struct Similarity<T: Scalar, R, const D: usize> {
     /// The part of this similarity that does not include the scaling factor.
-    pub isometry: Isometry<N, R, D>,
-    scaling: N,
+    pub isometry: Isometry<T, R, D>,
+    scaling: T,
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N: Scalar, R, const D: usize> Abomonation for Similarity<N, R, D>
+impl<T: Scalar, R, const D: usize> Abomonation for Similarity<T, R, D>
 where
-    Isometry<N, R, D>: Abomonation,
+    Isometry<T, R, D>: Abomonation,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.isometry.entomb(writer)
@@ -66,9 +63,9 @@ where
     }
 }
 
-impl<N: Scalar + hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Similarity<N, R, D>
+impl<T: Scalar + hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Similarity<T, R, D>
 where
-    Owned<N, Const<D>>: hash::Hash,
+    Owned<T, Const<D>>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.isometry.hash(state);
@@ -76,17 +73,15 @@ where
     }
 }
 
-impl<N: Scalar + Copy + Zero, R: AbstractRotation<N, D> + Copy, const D: usize> Copy
-    for Similarity<N, R, D>
+impl<T: Scalar + Copy + Zero, R: AbstractRotation<T, D> + Copy, const D: usize> Copy
+    for Similarity<T, R, D>
 where
-    Owned<N, Const<D>>: Copy,
+    Owned<T, Const<D>>: Copy,
 {
 }
 
-impl<N: Scalar + Zero, R: AbstractRotation<N, D> + Clone, const D: usize> Clone
-    for Similarity<N, R, D>
-// where
-//     DefaultAllocator: Allocator<N, D>,
+impl<T: Scalar + Zero, R: AbstractRotation<T, D> + Clone, const D: usize> Clone
+    for Similarity<T, R, D>
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -94,19 +89,19 @@ impl<N: Scalar + Zero, R: AbstractRotation<N, D> + Clone, const D: usize> Clone
     }
 }
 
-impl<N: Scalar + Zero, R, const D: usize> Similarity<N, R, D>
+impl<T: Scalar + Zero, R, const D: usize> Similarity<T, R, D>
 where
-    R: AbstractRotation<N, D>,
+    R: AbstractRotation<T, D>,
 {
     /// Creates a new similarity from its rotational and translational parts.
     #[inline]
-    pub fn from_parts(translation: Translation<N, D>, rotation: R, scaling: N) -> Self {
+    pub fn from_parts(translation: Translation<T, D>, rotation: R, scaling: T) -> Self {
         Self::from_isometry(Isometry::from_parts(translation, rotation), scaling)
     }
 
     /// Creates a new similarity from its rotational and translational parts.
     #[inline]
-    pub fn from_isometry(isometry: Isometry<N, R, D>, scaling: N) -> Self {
+    pub fn from_isometry(isometry: Isometry<T, R, D>, scaling: T) -> Self {
         assert!(!scaling.is_zero(), "The scaling factor must not be zero.");
 
         Self { isometry, scaling }
@@ -114,7 +109,7 @@ where
 
     /// The scaling factor of this similarity transformation.
     #[inline]
-    pub fn set_scaling(&mut self, scaling: N) {
+    pub fn set_scaling(&mut self, scaling: T) {
         assert!(
             !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
@@ -124,25 +119,22 @@ where
     }
 }
 
-impl<N: Scalar, R, const D: usize> Similarity<N, R, D>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar, R, const D: usize> Similarity<T, R, D> {
     /// The scaling factor of this similarity transformation.
     #[inline]
-    pub fn scaling(&self) -> N {
+    pub fn scaling(&self) -> T {
         self.scaling.inlined_clone()
     }
 }
 
-impl<N: SimdRealField, R, const D: usize> Similarity<N, R, D>
+impl<T: SimdRealField, R, const D: usize> Similarity<T, R, D>
 where
-    N::Element: SimdRealField,
-    R: AbstractRotation<N, D>,
+    T::Element: SimdRealField,
+    R: AbstractRotation<T, D>,
 {
     /// Creates a new similarity that applies only a scaling factor.
     #[inline]
-    pub fn from_scaling(scaling: N) -> Self {
+    pub fn from_scaling(scaling: T) -> Self {
         Self::from_isometry(Isometry::identity(), scaling)
     }
 
@@ -158,7 +150,7 @@ where
     /// Inverts `self` in-place.
     #[inline]
     pub fn inverse_mut(&mut self) {
-        self.scaling = N::one() / self.scaling;
+        self.scaling = T::one() / self.scaling;
         self.isometry.inverse_mut();
         self.isometry.translation.vector *= self.scaling;
     }
@@ -166,7 +158,7 @@ where
     /// The similarity transformation that applies a scaling factor `scaling` before `self`.
     #[inline]
     #[must_use = "Did you mean to use prepend_scaling_mut()?"]
-    pub fn prepend_scaling(&self, scaling: N) -> Self {
+    pub fn prepend_scaling(&self, scaling: T) -> Self {
         assert!(
             !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
@@ -178,7 +170,7 @@ where
     /// The similarity transformation that applies a scaling factor `scaling` after `self`.
     #[inline]
     #[must_use = "Did you mean to use append_scaling_mut()?"]
-    pub fn append_scaling(&self, scaling: N) -> Self {
+    pub fn append_scaling(&self, scaling: T) -> Self {
         assert!(
             !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
@@ -193,7 +185,7 @@ where
 
     /// Sets `self` to the similarity transformation that applies a scaling factor `scaling` before `self`.
     #[inline]
-    pub fn prepend_scaling_mut(&mut self, scaling: N) {
+    pub fn prepend_scaling_mut(&mut self, scaling: T) {
         assert!(
             !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
@@ -204,7 +196,7 @@ where
 
     /// Sets `self` to the similarity transformation that applies a scaling factor `scaling` after `self`.
     #[inline]
-    pub fn append_scaling_mut(&mut self, scaling: N) {
+    pub fn append_scaling_mut(&mut self, scaling: T) {
         assert!(
             !scaling.is_zero(),
             "The similarity scaling factor must not be zero."
@@ -216,7 +208,7 @@ where
 
     /// Appends to `self` the given translation in-place.
     #[inline]
-    pub fn append_translation_mut(&mut self, t: &Translation<N, D>) {
+    pub fn append_translation_mut(&mut self, t: &Translation<T, D>) {
         self.isometry.append_translation_mut(t)
     }
 
@@ -229,7 +221,7 @@ where
     /// Appends in-place to `self` a rotation centered at the point `p`, i.e., the rotation that
     /// lets `p` invariant.
     #[inline]
-    pub fn append_rotation_wrt_point_mut(&mut self, r: &R, p: &Point<N, D>) {
+    pub fn append_rotation_wrt_point_mut(&mut self, r: &R, p: &Point<T, D>) {
         self.isometry.append_rotation_wrt_point_mut(r, p)
     }
 
@@ -256,7 +248,7 @@ where
     /// assert_relative_eq!(transformed_point, Point3::new(19.0, 17.0, -9.0), epsilon = 1.0e-5);
     /// ```
     #[inline]
-    pub fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self * pt
     }
 
@@ -277,7 +269,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector3::new(18.0, 15.0, -12.0), epsilon = 1.0e-5);
     /// ```
     #[inline]
-    pub fn transform_vector(&self, v: &CVectorN<N, D>) -> CVectorN<N, D> {
+    pub fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self * v
     }
 
@@ -297,7 +289,7 @@ where
     /// assert_relative_eq!(transformed_point, Point3::new(-1.5, 1.5, 1.5), epsilon = 1.0e-5);
     /// ```
     #[inline]
-    pub fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.isometry.inverse_transform_point(pt) / self.scaling()
     }
 
@@ -317,7 +309,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector3::new(-3.0, 2.5, 2.0), epsilon = 1.0e-5);
     /// ```
     #[inline]
-    pub fn inverse_transform_vector(&self, v: &CVectorN<N, D>) -> CVectorN<N, D> {
+    pub fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.isometry.inverse_transform_vector(v) / self.scaling()
     }
 }
@@ -326,21 +318,18 @@ where
 // and makes it harder to use it, e.g., for Transform × Isometry implementation.
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the private scaling factor).
-impl<N: SimdRealField, R, const D: usize> Similarity<N, R, D>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-{
+impl<T: SimdRealField, R, const D: usize> Similarity<T, R, D> {
     /// Converts this similarity into its equivalent homogeneous transformation matrix.
     #[inline]
-    pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<Const<D>, U1>>
+    pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
     where
         Const<D>: DimNameAdd<U1>,
-        R: SubsetOf<MatrixN<N, DimNameSum<Const<D>, U1>>>,
-        DefaultAllocator: Allocator<N, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+        R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>,
+        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         let mut res = self.isometry.to_homogeneous();
 
-        for e in res.fixed_slice_mut::<Const<D>, Const<D>>(0, 0).iter_mut() {
+        for e in res.fixed_slice_mut::<D, D>(0, 0).iter_mut() {
             *e *= self.scaling
         }
 
@@ -348,14 +337,14 @@ impl<N: SimdRealField, R, const D: usize> Similarity<N, R, D>
     }
 }
 
-impl<N: SimdRealField, R, const D: usize> Eq for Similarity<N, R, D> where
-    R: AbstractRotation<N, D> + Eq
+impl<T: SimdRealField, R, const D: usize> Eq for Similarity<T, R, D> where
+    R: AbstractRotation<T, D> + Eq
 {
 }
 
-impl<N: SimdRealField, R, const D: usize> PartialEq for Similarity<N, R, D>
+impl<T: SimdRealField, R, const D: usize> PartialEq for Similarity<T, R, D>
 where
-    R: AbstractRotation<N, D> + PartialEq,
+    R: AbstractRotation<T, D> + PartialEq,
 {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
@@ -363,16 +352,16 @@ where
     }
 }
 
-impl<N: RealField, R, const D: usize> AbsDiffEq for Similarity<N, R, D>
+impl<T: RealField, R, const D: usize> AbsDiffEq for Similarity<T, R, D>
 where
-    R: AbstractRotation<N, D> + AbsDiffEq<Epsilon = N::Epsilon>,
-    N::Epsilon: Copy,
+    R: AbstractRotation<T, D> + AbsDiffEq<Epsilon = T::Epsilon>,
+    T::Epsilon: Copy,
 {
-    type Epsilon = N::Epsilon;
+    type Epsilon = T::Epsilon;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        N::default_epsilon()
+        T::default_epsilon()
     }
 
     #[inline]
@@ -382,14 +371,14 @@ where
     }
 }
 
-impl<N: RealField, R, const D: usize> RelativeEq for Similarity<N, R, D>
+impl<T: RealField, R, const D: usize> RelativeEq for Similarity<T, R, D>
 where
-    R: AbstractRotation<N, D> + RelativeEq<Epsilon = N::Epsilon>,
-    N::Epsilon: Copy,
+    R: AbstractRotation<T, D> + RelativeEq<Epsilon = T::Epsilon>,
+    T::Epsilon: Copy,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        N::default_max_relative()
+        T::default_max_relative()
     }
 
     #[inline]
@@ -407,14 +396,14 @@ where
     }
 }
 
-impl<N: RealField, R, const D: usize> UlpsEq for Similarity<N, R, D>
+impl<T: RealField, R, const D: usize> UlpsEq for Similarity<T, R, D>
 where
-    R: AbstractRotation<N, D> + UlpsEq<Epsilon = N::Epsilon>,
-    N::Epsilon: Copy,
+    R: AbstractRotation<T, D> + UlpsEq<Epsilon = T::Epsilon>,
+    T::Epsilon: Copy,
 {
     #[inline]
     fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
+        T::default_max_ulps()
     }
 
     #[inline]
@@ -429,10 +418,10 @@ where
  * Display
  *
  */
-impl<N, R, const D: usize> fmt::Display for Similarity<N, R, D>
+impl<T, R, const D: usize> fmt::Display for Similarity<T, R, D>
 where
-    N: RealField + fmt::Display,
-    R: AbstractRotation<N, D> + fmt::Display,
+    T: RealField + fmt::Display,
+    R: AbstractRotation<T, D> + fmt::Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);

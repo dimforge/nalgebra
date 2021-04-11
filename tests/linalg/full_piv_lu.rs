@@ -429,9 +429,9 @@ fn insert_rows() {
          0,  0,  0,  0,  0,
         31, 32, 33, 34, 35);
 
-    assert_eq!(m.insert_fixed_rows::<U2>(0, 0), expected1);
-    assert_eq!(m.insert_fixed_rows::<U2>(3, 0), expected2);
-    assert_eq!(m.insert_fixed_rows::<U2>(2, 0), expected3);
+    assert_eq!(m.insert_fixed_rows::<2>(0, 0), expected1);
+    assert_eq!(m.insert_fixed_rows::<2>(3, 0), expected2);
+    assert_eq!(m.insert_fixed_rows::<2>(2, 0), expected3);
 
     // The following is just to verify that the return type dimensions is correctly inferred.
     let computed: Matrix<_, Dynamic, U5, _> = m.insert_rows(3, 2, 0);

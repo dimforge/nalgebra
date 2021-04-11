@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN};
+use crate::base::{DefaultAllocator, Matrix, OMatrix};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimMin, DimMinimum};
 use crate::storage::{Storage, StorageMut};
@@ -15,44 +15,44 @@ use crate::linalg::PermutationSequence;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(serialize = "DefaultAllocator: Allocator<T, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
-         MatrixMN<N, R, C>: Serialize,
+         OMatrix<T, R, C>: Serialize,
          PermutationSequence<DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
+    serde(bound(deserialize = "DefaultAllocator: Allocator<T, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
-         MatrixMN<N, R, C>: Deserialize<'de>,
+         OMatrix<T, R, C>: Deserialize<'de>,
          PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct FullPivLU<N: ComplexField, R: DimMin<C>, C: Dim>
+pub struct FullPivLU<T: ComplexField, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
 {
-    lu: MatrixMN<N, R, C>,
+    lu: OMatrix<T, R, C>,
     p: PermutationSequence<DimMinimum<R, C>>,
     q: PermutationSequence<DimMinimum<R, C>>,
 }
 
-impl<N: ComplexField, R: DimMin<C>, C: Dim> Copy for FullPivLU<N, R, C>
+impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for FullPivLU<T, R, C>
 where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
-    MatrixMN<N, R, C>: Copy,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+    OMatrix<T, R, C>: Copy,
     PermutationSequence<DimMinimum<R, C>>: Copy,
 {
 }
 
-impl<N: ComplexField, R: DimMin<C>, C: Dim> FullPivLU<N, R, C>
+impl<T: ComplexField, R: DimMin<C>, C: Dim> FullPivLU<T, R, C>
 where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
 {
     /// Computes the LU decomposition with full pivoting of `matrix`.
     ///
     /// This effectively computes `P, L, U, Q` such that `P * matrix * Q = LU`.
-    pub fn new(mut matrix: MatrixMN<N, R, C>) -> Self {
+    pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
         let (nrows, ncols) = matrix.data.shape();
         let min_nrows_ncols = nrows.min(ncols);
 
@@ -90,28 +90,28 @@ where
     }
 
     #[doc(hidden)]
-    pub fn lu_internal(&self) -> &MatrixMN<N, R, C> {
+    pub fn lu_internal(&self) -> &OMatrix<T, R, C> {
         &self.lu
     }
 
     /// The lower triangular matrix of this decomposition.
     #[inline]
-    pub fn l(&self) -> MatrixMN<N, R, DimMinimum<R, C>>
+    pub fn l(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
-        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>>,
+        DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.lu.data.shape();
         let mut m = self.lu.columns_generic(0, nrows.min(ncols)).into_owned();
-        m.fill_upper_triangle(N::zero(), 1);
-        m.fill_diagonal(N::one());
+        m.fill_upper_triangle(T::zero(), 1);
+        m.fill_diagonal(T::one());
         m
     }
 
     /// The upper triangular matrix of this decomposition.
     #[inline]
-    pub fn u(&self) -> MatrixMN<N, DimMinimum<R, C>, C>
+    pub fn u(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
-        DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>,
+        DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
     {
         let (nrows, ncols) = self.lu.data.shape();
         self.lu.rows_generic(0, nrows.min(ncols)).upper_triangle()
@@ -135,12 +135,12 @@ where
         self,
     ) -> (
         PermutationSequence<DimMinimum<R, C>>,
-        MatrixMN<N, R, DimMinimum<R, C>>,
-        MatrixMN<N, DimMinimum<R, C>, C>,
+        OMatrix<T, R, DimMinimum<R, C>>,
+        OMatrix<T, DimMinimum<R, C>, C>,
         PermutationSequence<DimMinimum<R, C>>,
     )
     where
-        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>> + Allocator<N, DimMinimum<R, C>, C>,
+        DefaultAllocator: Allocator<T, R, DimMinimum<R, C>> + Allocator<T, DimMinimum<R, C>, C>,
     {
         // Use reallocation for either l or u.
         let l = self.l();
@@ -152,21 +152,21 @@ where
     }
 }
 
-impl<N: ComplexField, D: DimMin<D, Output = D>> FullPivLU<N, D, D>
+impl<T: ComplexField, D: DimMin<D, Output = D>> FullPivLU<T, D, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<(usize, usize), D>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), D>,
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
     /// Returns `None` if the decomposed matrix is not invertible.
     pub fn solve<R2: Dim, C2: Dim, S2>(
         &self,
-        b: &Matrix<N, R2, C2, S2>,
-    ) -> Option<MatrixMN<N, R2, C2>>
+        b: &Matrix<T, R2, C2, S2>,
+    ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: Storage<N, R2, C2>,
+        S2: Storage<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
-        DefaultAllocator: Allocator<N, R2, C2>,
+        DefaultAllocator: Allocator<T, R2, C2>,
     {
         let mut res = b.clone_owned();
         if self.solve_mut(&mut res) {
@@ -180,9 +180,9 @@ where
     ///
     /// If the decomposed matrix is not invertible, this returns `false` and its input `b` may
     /// be overwritten with garbage.
-    pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<N, R2, C2, S2>) -> bool
+    pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<T, R2, C2, S2>) -> bool
     where
-        S2: StorageMut<N, R2, C2>,
+        S2: StorageMut<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         assert_eq!(
@@ -197,7 +197,7 @@ where
 
         if self.is_invertible() {
             self.p.permute_rows(b);
-            let _ = self.lu.solve_lower_triangular_with_diag_mut(b, N::one());
+            let _ = self.lu.solve_lower_triangular_with_diag_mut(b, T::one());
             let _ = self.lu.solve_upper_triangular_mut(b);
             self.q.inv_permute_rows(b);
 
@@ -210,7 +210,7 @@ where
     /// Computes the inverse of the decomposed matrix.
     ///
     /// Returns `None` if the decomposed matrix is not invertible.
-    pub fn try_inverse(&self) -> Option<MatrixN<N, D>> {
+    pub fn try_inverse(&self) -> Option<OMatrix<T, D, D>> {
         assert!(
             self.lu.is_square(),
             "FullPivLU inverse: unable to compute the inverse of a non-square matrix."
@@ -218,7 +218,7 @@ where
 
         let (nrows, ncols) = self.lu.data.shape();
 
-        let mut res = MatrixN::identity_generic(nrows, ncols);
+        let mut res = OMatrix::identity_generic(nrows, ncols);
         if self.solve_mut(&mut res) {
             Some(res)
         } else {
@@ -238,7 +238,7 @@ where
     }
 
     /// Computes the determinant of the decomposed matrix.
-    pub fn determinant(&self) -> N {
+    pub fn determinant(&self) -> T {
         assert!(
             self.lu.is_square(),
             "FullPivLU determinant: unable to compute the determinant of a non-square matrix."
@@ -253,7 +253,7 @@ where
 
             res * self.p.determinant() * self.q.determinant()
         } else {
-            N::zero()
+            T::zero()
         }
     }
 }

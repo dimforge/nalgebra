@@ -13,22 +13,22 @@ use crate::base::constraint::{
 use crate::base::dimension::{Const, Dim, Dynamic, U1, U2, U3, U4};
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::{
-    DVectorSlice, DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, VectorSliceN,
+    DVectorSlice, DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, VectorSlice,
 };
 
 /// # Dot/scalar product
-impl<N, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S>
+impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S>
 where
-    N: Scalar + Zero + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + ClosedAdd + ClosedMul,
 {
     #[inline(always)]
     fn dotx<R2: Dim, C2: Dim, SB>(
         &self,
-        rhs: &Matrix<N, R2, C2, SB>,
-        conjugate: impl Fn(N) -> N,
-    ) -> N
+        rhs: &Matrix<T, R2, C2, SB>,
+        conjugate: impl Fn(T) -> T,
+    ) -> T
     where
-        SB: Storage<N, R2, C2>,
+        SB: Storage<T, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
         assert!(
@@ -92,7 +92,7 @@ where
         //
         // And this comment from bluss:
         // https://users.rust-lang.org/t/how-to-zip-two-slices-efficiently/2048/12
-        let mut res = N::zero();
+        let mut res = T::zero();
 
         // We have to define them outside of the loop (and not inside at first assignment)
         // otherwise vectorization won't kick in for some reason.
@@ -108,14 +108,14 @@ where
         for j in 0..self.ncols() {
             let mut i = 0;
 
-            acc0 = N::zero();
-            acc1 = N::zero();
-            acc2 = N::zero();
-            acc3 = N::zero();
-            acc4 = N::zero();
-            acc5 = N::zero();
-            acc6 = N::zero();
-            acc7 = N::zero();
+            acc0 = T::zero();
+            acc1 = T::zero();
+            acc2 = T::zero();
+            acc3 = T::zero();
+            acc4 = T::zero();
+            acc5 = T::zero();
+            acc6 = T::zero();
+            acc7 = T::zero();
 
             while self.nrows() - i >= 8 {
                 acc0 += unsafe {
@@ -193,9 +193,9 @@ where
     /// ```
     ///
     #[inline]
-    pub fn dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> N
+    pub fn dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> T
     where
-        SB: Storage<N, R2, C2>,
+        SB: Storage<T, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
         self.dotx(rhs, |e| e)
@@ -221,13 +221,13 @@ where
     /// assert_ne!(vec1.dotc(&vec2), vec1.dot(&vec2));
     /// ```
     #[inline]
-    pub fn dotc<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> N
+    pub fn dotc<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> T
     where
-        N: SimdComplexField,
-        SB: Storage<N, R2, C2>,
+        T: SimdComplexField,
+        SB: Storage<T, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
-        self.dotx(rhs, N::simd_conjugate)
+        self.dotx(rhs, T::simd_conjugate)
     }
 
     /// The dot product between the transpose of `self` and `rhs`.
@@ -248,9 +248,9 @@ where
     /// assert_eq!(mat1.tr_dot(&mat2), 9.1);
     /// ```
     #[inline]
-    pub fn tr_dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> N
+    pub fn tr_dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> T
     where
-        SB: Storage<N, R2, C2>,
+        SB: Storage<T, R2, C2>,
         ShapeConstraint: DimEq<C, R2> + DimEq<R, C2>,
     {
         let (nrows, ncols) = self.shape();
@@ -260,7 +260,7 @@ where
             "Transposed dot product dimension mismatch."
         );
 
-        let mut res = N::zero();
+        let mut res = T::zero();
 
         for j in 0..self.nrows() {
             for i in 0..self.ncols() {
@@ -275,17 +275,17 @@ where
     }
 }
 
-fn array_axcpy<N>(
-    y: &mut [N],
-    a: N,
-    x: &[N],
-    c: N,
-    beta: N,
+fn array_axcpy<T>(
+    y: &mut [T],
+    a: T,
+    x: &[T],
+    c: T,
+    beta: T,
     stride1: usize,
     stride2: usize,
     len: usize,
 ) where
-    N: Scalar + Zero + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + ClosedAdd + ClosedMul,
 {
     for i in 0..len {
         unsafe {
@@ -298,9 +298,9 @@ fn array_axcpy<N>(
     }
 }
 
-fn array_axc<N>(y: &mut [N], a: N, x: &[N], c: N, stride1: usize, stride2: usize, len: usize)
+fn array_axc<T>(y: &mut [T], a: T, x: &[T], c: T, stride1: usize, stride2: usize, len: usize)
 where
-    N: Scalar + Zero + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + ClosedAdd + ClosedMul,
 {
     for i in 0..len {
         unsafe {
@@ -312,10 +312,10 @@ where
 }
 
 /// # BLAS functions
-impl<N, D: Dim, S> Vector<N, D, S>
+impl<T, D: Dim, S> Vector<T, D, S>
 where
-    N: Scalar + Zero + ClosedAdd + ClosedMul,
-    S: StorageMut<N, D>,
+    T: Scalar + Zero + ClosedAdd + ClosedMul,
+    S: StorageMut<T, D>,
 {
     /// Computes `self = a * x * c + b * self`.
     ///
@@ -331,9 +331,9 @@ where
     /// assert_eq!(vec1, Vector3::new(6.0, 12.0, 18.0));
     /// ```
     #[inline]
-    pub fn axcpy<D2: Dim, SB>(&mut self, a: N, x: &Vector<N, D2, SB>, c: N, b: N)
+    pub fn axcpy<D2: Dim, SB>(&mut self, a: T, x: &Vector<T, D2, SB>, c: T, b: T)
     where
-        SB: Storage<N, D2>,
+        SB: Storage<T, D2>,
         ShapeConstraint: DimEq<D, D2>,
     {
         assert_eq!(self.nrows(), x.nrows(), "Axcpy: mismatched vector shapes.");
@@ -365,14 +365,14 @@ where
     /// assert_eq!(vec1, Vector3::new(6.0, 12.0, 18.0));
     /// ```
     #[inline]
-    pub fn axpy<D2: Dim, SB>(&mut self, a: N, x: &Vector<N, D2, SB>, b: N)
+    pub fn axpy<D2: Dim, SB>(&mut self, a: T, x: &Vector<T, D2, SB>, b: T)
     where
-        N: One,
-        SB: Storage<N, D2>,
+        T: One,
+        SB: Storage<T, D2>,
         ShapeConstraint: DimEq<D, D2>,
     {
         assert_eq!(self.nrows(), x.nrows(), "Axpy: mismatched vector shapes.");
-        self.axcpy(a, x, N::one(), b)
+        self.axcpy(a, x, T::one(), b)
     }
 
     /// Computes `self = alpha * a * x + beta * self`, where `a` is a matrix, `x` a vector, and
@@ -394,14 +394,14 @@ where
     #[inline]
     pub fn gemv<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        a: &Matrix<N, R2, C2, SB>,
-        x: &Vector<N, D3, SC>,
-        beta: N,
+        alpha: T,
+        a: &Matrix<T, R2, C2, SB>,
+        x: &Vector<T, D3, SC>,
+        beta: T,
     ) where
-        N: One,
-        SB: Storage<N, R2, C2>,
-        SC: Storage<N, D3>,
+        T: One,
+        SB: Storage<T, R2, C2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<D, R2> + AreMultipliable<R2, C2, D3, U1>,
     {
         let dim1 = self.nrows();
@@ -418,7 +418,7 @@ where
             // because we documented the guaranty that `self` is
             // never read if `beta` is zero.
             if beta.is_zero() {
-                self.fill(N::zero());
+                self.fill(T::zero());
             } else {
                 *self *= beta;
             }
@@ -434,25 +434,25 @@ where
             let col2 = a.column(j);
             let val = unsafe { x.vget_unchecked(j).inlined_clone() };
 
-            self.axcpy(alpha.inlined_clone(), &col2, val, N::one());
+            self.axcpy(alpha.inlined_clone(), &col2, val, T::one());
         }
     }
 
     #[inline(always)]
     fn xxgemv<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        a: &SquareMatrix<N, D2, SB>,
-        x: &Vector<N, D3, SC>,
-        beta: N,
+        alpha: T,
+        a: &SquareMatrix<T, D2, SB>,
+        x: &Vector<T, D3, SC>,
+        beta: T,
         dot: impl Fn(
-            &DVectorSlice<N, SB::RStride, SB::CStride>,
-            &DVectorSlice<N, SC::RStride, SC::CStride>,
-        ) -> N,
+            &DVectorSlice<T, SB::RStride, SB::CStride>,
+            &DVectorSlice<T, SC::RStride, SC::CStride>,
+        ) -> T,
     ) where
-        N: One,
-        SB: Storage<N, D2, D2>,
-        SC: Storage<N, D3>,
+        T: One,
+        SB: Storage<T, D2, D2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
     {
         let dim1 = self.nrows();
@@ -490,7 +490,7 @@ where
             self.rows_range_mut(j + 1..).axpy(
                 alpha.inlined_clone() * val,
                 &col2.rows_range(j + 1..),
-                N::one(),
+                T::one(),
             );
         }
     }
@@ -501,14 +501,14 @@ where
     #[deprecated(note = "This is renamed `sygemv` to match the original BLAS terminology.")]
     pub fn gemv_symm<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        a: &SquareMatrix<N, D2, SB>,
-        x: &Vector<N, D3, SC>,
-        beta: N,
+        alpha: T,
+        a: &SquareMatrix<T, D2, SB>,
+        x: &Vector<T, D3, SC>,
+        beta: T,
     ) where
-        N: One,
-        SB: Storage<N, D2, D2>,
-        SC: Storage<N, D3>,
+        T: One,
+        SB: Storage<T, D2, D2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
     {
         self.sygemv(alpha, a, x, beta)
@@ -545,14 +545,14 @@ where
     #[inline]
     pub fn sygemv<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        a: &SquareMatrix<N, D2, SB>,
-        x: &Vector<N, D3, SC>,
-        beta: N,
+        alpha: T,
+        a: &SquareMatrix<T, D2, SB>,
+        x: &Vector<T, D3, SC>,
+        beta: T,
     ) where
-        N: One,
-        SB: Storage<N, D2, D2>,
-        SC: Storage<N, D3>,
+        T: One,
+        SB: Storage<T, D2, D2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
     {
         self.xxgemv(alpha, a, x, beta, |a, b| a.dot(b))
@@ -590,14 +590,14 @@ where
     #[inline]
     pub fn hegemv<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        a: &SquareMatrix<N, D2, SB>,
-        x: &Vector<N, D3, SC>,
-        beta: N,
+        alpha: T,
+        a: &SquareMatrix<T, D2, SB>,
+        x: &Vector<T, D3, SC>,
+        beta: T,
     ) where
-        N: SimdComplexField,
-        SB: Storage<N, D2, D2>,
-        SC: Storage<N, D3>,
+        T: SimdComplexField,
+        SB: Storage<T, D2, D2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
     {
         self.xxgemv(alpha, a, x, beta, |a, b| a.dotc(b))
@@ -606,15 +606,15 @@ where
     #[inline(always)]
     fn gemv_xx<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        a: &Matrix<N, R2, C2, SB>,
-        x: &Vector<N, D3, SC>,
-        beta: N,
-        dot: impl Fn(&VectorSliceN<N, R2, SB::RStride, SB::CStride>, &Vector<N, D3, SC>) -> N,
+        alpha: T,
+        a: &Matrix<T, R2, C2, SB>,
+        x: &Vector<T, D3, SC>,
+        beta: T,
+        dot: impl Fn(&VectorSlice<T, R2, SB::RStride, SB::CStride>, &Vector<T, D3, SC>) -> T,
     ) where
-        N: One,
-        SB: Storage<N, R2, C2>,
-        SC: Storage<N, D3>,
+        T: One,
+        SB: Storage<T, R2, C2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<D, C2> + AreMultipliable<C2, R2, D3, U1>,
     {
         let dim1 = self.nrows();
@@ -665,14 +665,14 @@ where
     #[inline]
     pub fn gemv_tr<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        a: &Matrix<N, R2, C2, SB>,
-        x: &Vector<N, D3, SC>,
-        beta: N,
+        alpha: T,
+        a: &Matrix<T, R2, C2, SB>,
+        x: &Vector<T, D3, SC>,
+        beta: T,
     ) where
-        N: One,
-        SB: Storage<N, R2, C2>,
-        SC: Storage<N, D3>,
+        T: One,
+        SB: Storage<T, R2, C2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<D, C2> + AreMultipliable<C2, R2, D3, U1>,
     {
         self.gemv_xx(alpha, a, x, beta, |a, b| a.dot(b))
@@ -700,36 +700,36 @@ where
     #[inline]
     pub fn gemv_ad<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        a: &Matrix<N, R2, C2, SB>,
-        x: &Vector<N, D3, SC>,
-        beta: N,
+        alpha: T,
+        a: &Matrix<T, R2, C2, SB>,
+        x: &Vector<T, D3, SC>,
+        beta: T,
     ) where
-        N: SimdComplexField,
-        SB: Storage<N, R2, C2>,
-        SC: Storage<N, D3>,
+        T: SimdComplexField,
+        SB: Storage<T, R2, C2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<D, C2> + AreMultipliable<C2, R2, D3, U1>,
     {
         self.gemv_xx(alpha, a, x, beta, |a, b| a.dotc(b))
     }
 }
 
-impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
+impl<T, R1: Dim, C1: Dim, S: StorageMut<T, R1, C1>> Matrix<T, R1, C1, S>
 where
-    N: Scalar + Zero + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + ClosedAdd + ClosedMul,
 {
     #[inline(always)]
     fn gerx<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        x: &Vector<N, D2, SB>,
-        y: &Vector<N, D3, SC>,
-        beta: N,
-        conjugate: impl Fn(N) -> N,
+        alpha: T,
+        x: &Vector<T, D2, SB>,
+        y: &Vector<T, D3, SC>,
+        beta: T,
+        conjugate: impl Fn(T) -> T,
     ) where
-        N: One,
-        SB: Storage<N, D2>,
-        SC: Storage<N, D3>,
+        T: One,
+        SB: Storage<T, D2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
         let (nrows1, ncols1) = self.shape();
@@ -768,14 +768,14 @@ where
     #[inline]
     pub fn ger<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        x: &Vector<N, D2, SB>,
-        y: &Vector<N, D3, SC>,
-        beta: N,
+        alpha: T,
+        x: &Vector<T, D2, SB>,
+        y: &Vector<T, D3, SC>,
+        beta: T,
     ) where
-        N: One,
-        SB: Storage<N, D2>,
-        SC: Storage<N, D3>,
+        T: One,
+        SB: Storage<T, D2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
         self.gerx(alpha, x, y, beta, |e| e)
@@ -801,14 +801,14 @@ where
     #[inline]
     pub fn gerc<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        x: &Vector<N, D2, SB>,
-        y: &Vector<N, D3, SC>,
-        beta: N,
+        alpha: T,
+        x: &Vector<T, D2, SB>,
+        y: &Vector<T, D3, SC>,
+        beta: T,
     ) where
-        N: SimdComplexField,
-        SB: Storage<N, D2>,
-        SC: Storage<N, D3>,
+        T: SimdComplexField,
+        SB: Storage<T, D2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
         self.gerx(alpha, x, y, beta, SimdComplexField::simd_conjugate)
@@ -838,14 +838,14 @@ where
     #[inline]
     pub fn gemm<R2: Dim, C2: Dim, R3: Dim, C3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        a: &Matrix<N, R2, C2, SB>,
-        b: &Matrix<N, R3, C3, SC>,
-        beta: N,
+        alpha: T,
+        a: &Matrix<T, R2, C2, SB>,
+        b: &Matrix<T, R3, C3, SC>,
+        beta: T,
     ) where
-        N: One,
-        SB: Storage<N, R2, C2>,
-        SC: Storage<N, R3, C3>,
+        T: One,
+        SB: Storage<T, R2, C2>,
+        SC: Storage<T, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, R2>
             + SameNumberOfColumns<C1, C3>
             + AreMultipliable<R2, C2, R3, C3>,
@@ -897,14 +897,14 @@ where
                         // because we documented the guaranty that `self` is
                         // never read if `beta` is zero.
                         if beta.is_zero() {
-                            self.fill(N::zero());
+                            self.fill(T::zero());
                         } else {
                             *self *= beta;
                         }
                         return;
                     }
 
-                    if N::is::<f32>() {
+                    if T::is::<f32>() {
                         let (rsa, csa) = a.strides();
                         let (rsb, csb) = b.strides();
                         let (rsc, csc) = self.strides();
@@ -928,7 +928,7 @@ where
                             );
                         }
                         return;
-                    } else if N::is::<f64>() {
+                    } else if T::is::<f64>() {
                         let (rsa, csa) = a.strides();
                         let (rsb, csb) = b.strides();
                         let (rsc, csc) = self.strides();
@@ -993,14 +993,14 @@ where
     #[inline]
     pub fn gemm_tr<R2: Dim, C2: Dim, R3: Dim, C3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        a: &Matrix<N, R2, C2, SB>,
-        b: &Matrix<N, R3, C3, SC>,
-        beta: N,
+        alpha: T,
+        a: &Matrix<T, R2, C2, SB>,
+        b: &Matrix<T, R3, C3, SC>,
+        beta: T,
     ) where
-        N: One,
-        SB: Storage<N, R2, C2>,
-        SC: Storage<N, R3, C3>,
+        T: One,
+        SB: Storage<T, R2, C2>,
+        SC: Storage<T, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, C2>
             + SameNumberOfColumns<C1, C3>
             + AreMultipliable<C2, R2, R3, C3>,
@@ -1055,14 +1055,14 @@ where
     #[inline]
     pub fn gemm_ad<R2: Dim, C2: Dim, R3: Dim, C3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        a: &Matrix<N, R2, C2, SB>,
-        b: &Matrix<N, R3, C3, SC>,
-        beta: N,
+        alpha: T,
+        a: &Matrix<T, R2, C2, SB>,
+        b: &Matrix<T, R3, C3, SC>,
+        beta: T,
     ) where
-        N: SimdComplexField,
-        SB: Storage<N, R2, C2>,
-        SC: Storage<N, R3, C3>,
+        T: SimdComplexField,
+        SB: Storage<T, R2, C2>,
+        SC: Storage<T, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, C2>
             + SameNumberOfColumns<C1, C3>
             + AreMultipliable<C2, R2, R3, C3>,
@@ -1088,22 +1088,22 @@ where
     }
 }
 
-impl<N, R1: Dim, C1: Dim, S: StorageMut<N, R1, C1>> Matrix<N, R1, C1, S>
+impl<T, R1: Dim, C1: Dim, S: StorageMut<T, R1, C1>> Matrix<T, R1, C1, S>
 where
-    N: Scalar + Zero + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + ClosedAdd + ClosedMul,
 {
     #[inline(always)]
     fn xxgerx<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        x: &Vector<N, D2, SB>,
-        y: &Vector<N, D3, SC>,
-        beta: N,
-        conjugate: impl Fn(N) -> N,
+        alpha: T,
+        x: &Vector<T, D2, SB>,
+        y: &Vector<T, D3, SC>,
+        beta: T,
+        conjugate: impl Fn(T) -> T,
     ) where
-        N: One,
-        SB: Storage<N, D2>,
-        SC: Storage<N, D3>,
+        T: One,
+        SB: Storage<T, D2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
         let dim1 = self.nrows();
@@ -1151,14 +1151,14 @@ where
     #[deprecated(note = "This is renamed `syger` to match the original BLAS terminology.")]
     pub fn ger_symm<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        x: &Vector<N, D2, SB>,
-        y: &Vector<N, D3, SC>,
-        beta: N,
+        alpha: T,
+        x: &Vector<T, D2, SB>,
+        y: &Vector<T, D3, SC>,
+        beta: T,
     ) where
-        N: One,
-        SB: Storage<N, D2>,
-        SC: Storage<N, D3>,
+        T: One,
+        SB: Storage<T, D2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
         self.syger(alpha, x, y, beta)
@@ -1187,14 +1187,14 @@ where
     #[inline]
     pub fn syger<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        x: &Vector<N, D2, SB>,
-        y: &Vector<N, D3, SC>,
-        beta: N,
+        alpha: T,
+        x: &Vector<T, D2, SB>,
+        y: &Vector<T, D3, SC>,
+        beta: T,
     ) where
-        N: One,
-        SB: Storage<N, D2>,
-        SC: Storage<N, D3>,
+        T: One,
+        SB: Storage<T, D2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
         self.xxgerx(alpha, x, y, beta, |e| e)
@@ -1222,23 +1222,23 @@ where
     #[inline]
     pub fn hegerc<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
-        alpha: N,
-        x: &Vector<N, D2, SB>,
-        y: &Vector<N, D3, SC>,
-        beta: N,
+        alpha: T,
+        x: &Vector<T, D2, SB>,
+        y: &Vector<T, D3, SC>,
+        beta: T,
     ) where
-        N: SimdComplexField,
-        SB: Storage<N, D2>,
-        SC: Storage<N, D3>,
+        T: SimdComplexField,
+        SB: Storage<T, D2>,
+        SC: Storage<T, D3>,
         ShapeConstraint: DimEq<R1, D2> + DimEq<C1, D3>,
     {
         self.xxgerx(alpha, x, y, beta, SimdComplexField::simd_conjugate)
     }
 }
 
-impl<N, D1: Dim, S: StorageMut<N, D1, D1>> SquareMatrix<N, D1, S>
+impl<T, D1: Dim, S: StorageMut<T, D1, D1>> SquareMatrix<T, D1, S>
 where
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
 {
     /// Computes the quadratic form `self = alpha * lhs * mid * lhs.transpose() + beta * self`.
     ///
@@ -1268,27 +1268,27 @@ where
     /// assert_relative_eq!(mat, expected);
     pub fn quadform_tr_with_workspace<D2, S2, R3, C3, S3, D4, S4>(
         &mut self,
-        work: &mut Vector<N, D2, S2>,
-        alpha: N,
-        lhs: &Matrix<N, R3, C3, S3>,
-        mid: &SquareMatrix<N, D4, S4>,
-        beta: N,
+        work: &mut Vector<T, D2, S2>,
+        alpha: T,
+        lhs: &Matrix<T, R3, C3, S3>,
+        mid: &SquareMatrix<T, D4, S4>,
+        beta: T,
     ) where
         D2: Dim,
         R3: Dim,
         C3: Dim,
         D4: Dim,
-        S2: StorageMut<N, D2>,
-        S3: Storage<N, R3, C3>,
-        S4: Storage<N, D4, D4>,
+        S2: StorageMut<T, D2>,
+        S3: Storage<T, R3, C3>,
+        S4: Storage<T, D4, D4>,
         ShapeConstraint: DimEq<D1, D2> + DimEq<D1, R3> + DimEq<D2, R3> + DimEq<C3, D4>,
     {
-        work.gemv(N::one(), lhs, &mid.column(0), N::zero());
+        work.gemv(T::one(), lhs, &mid.column(0), T::zero());
         self.ger(alpha.inlined_clone(), work, &lhs.column(0), beta);
 
         for j in 1..mid.ncols() {
-            work.gemv(N::one(), lhs, &mid.column(j), N::zero());
-            self.ger(alpha.inlined_clone(), work, &lhs.column(j), N::one());
+            work.gemv(T::one(), lhs, &mid.column(j), T::zero());
+            self.ger(alpha.inlined_clone(), work, &lhs.column(j), T::one());
         }
     }
 
@@ -1315,21 +1315,22 @@ where
     /// assert_relative_eq!(mat, expected);
     pub fn quadform_tr<R3, C3, S3, D4, S4>(
         &mut self,
-        alpha: N,
-        lhs: &Matrix<N, R3, C3, S3>,
-        mid: &SquareMatrix<N, D4, S4>,
-        beta: N,
+        alpha: T,
+        lhs: &Matrix<T, R3, C3, S3>,
+        mid: &SquareMatrix<T, D4, S4>,
+        beta: T,
     ) where
         R3: Dim,
         C3: Dim,
         D4: Dim,
-        S3: Storage<N, R3, C3>,
-        S4: Storage<N, D4, D4>,
+        S3: Storage<T, R3, C3>,
+        S4: Storage<T, D4, D4>,
         ShapeConstraint: DimEq<D1, D1> + DimEq<D1, R3> + DimEq<C3, D4>,
-        DefaultAllocator: Allocator<N, D1>,
+        DefaultAllocator: Allocator<T, D1>,
     {
-        let mut work =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, Const::<1>) };
+        let mut work = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, Const::<1>)
+        };
         self.quadform_tr_with_workspace(&mut work, alpha, lhs, mid, beta)
     }
 
@@ -1360,28 +1361,28 @@ where
     /// assert_relative_eq!(mat, expected);
     pub fn quadform_with_workspace<D2, S2, D3, S3, R4, C4, S4>(
         &mut self,
-        work: &mut Vector<N, D2, S2>,
-        alpha: N,
-        mid: &SquareMatrix<N, D3, S3>,
-        rhs: &Matrix<N, R4, C4, S4>,
-        beta: N,
+        work: &mut Vector<T, D2, S2>,
+        alpha: T,
+        mid: &SquareMatrix<T, D3, S3>,
+        rhs: &Matrix<T, R4, C4, S4>,
+        beta: T,
     ) where
         D2: Dim,
         D3: Dim,
         R4: Dim,
         C4: Dim,
-        S2: StorageMut<N, D2>,
-        S3: Storage<N, D3, D3>,
-        S4: Storage<N, R4, C4>,
+        S2: StorageMut<T, D2>,
+        S3: Storage<T, D3, D3>,
+        S4: Storage<T, R4, C4>,
         ShapeConstraint:
             DimEq<D3, R4> + DimEq<D1, C4> + DimEq<D2, D3> + AreMultipliable<C4, R4, D2, U1>,
     {
-        work.gemv(N::one(), mid, &rhs.column(0), N::zero());
+        work.gemv(T::one(), mid, &rhs.column(0), T::zero());
         self.column_mut(0)
             .gemv_tr(alpha.inlined_clone(), &rhs, work, beta.inlined_clone());
 
         for j in 1..rhs.ncols() {
-            work.gemv(N::one(), mid, &rhs.column(j), N::zero());
+            work.gemv(T::one(), mid, &rhs.column(j), T::zero());
             self.column_mut(j)
                 .gemv_tr(alpha.inlined_clone(), &rhs, work, beta.inlined_clone());
         }
@@ -1409,21 +1410,22 @@ where
     /// assert_relative_eq!(mat, expected);
     pub fn quadform<D2, S2, R3, C3, S3>(
         &mut self,
-        alpha: N,
-        mid: &SquareMatrix<N, D2, S2>,
-        rhs: &Matrix<N, R3, C3, S3>,
-        beta: N,
+        alpha: T,
+        mid: &SquareMatrix<T, D2, S2>,
+        rhs: &Matrix<T, R3, C3, S3>,
+        beta: T,
     ) where
         D2: Dim,
         R3: Dim,
         C3: Dim,
-        S2: Storage<N, D2, D2>,
-        S3: Storage<N, R3, C3>,
+        S2: Storage<T, D2, D2>,
+        S3: Storage<T, R3, C3>,
         ShapeConstraint: DimEq<D2, R3> + DimEq<D1, C3> + AreMultipliable<C3, R3, D2, U1>,
-        DefaultAllocator: Allocator<N, D2>,
+        DefaultAllocator: Allocator<T, D2>,
     {
-        let mut work =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(mid.data.shape().0, Const::<1>) };
+        let mut work = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(mid.data.shape().0, Const::<1>)
+        };
         self.quadform_with_workspace(&mut work, alpha, mid, rhs, beta)
     }
 }

@@ -22,9 +22,7 @@ use simba::scalar::{ClosedAdd, ClosedMul};
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimName, Dynamic, ToTypenum};
 use crate::base::storage::Storage;
-use crate::base::{
-    Const, DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN,
-};
+use crate::base::{Const, DefaultAllocator, Matrix, OMatrix, OVector, Scalar, Unit, Vector};
 
 /// When "no_unsound_assume_init" is enabled, expands to `unimplemented!()` instead of `new_uninitialized_generic().assume_init()`.
 /// Intended as a placeholder, each callsite should be refactored to use uninitialized memory soundly
@@ -33,7 +31,7 @@ macro_rules! unimplemented_or_uninitialized_generic {
     ($nrows:expr, $ncols:expr) => {{
         #[cfg(feature="no_unsound_assume_init")] {
             // Some of the call sites need the number of rows and columns from this to infer a type, so
-            // uninitialized memory is used to infer the type, as `N: Zero` isn't available at all callsites.
+            // uninitialized memory is used to infer the type, as `T: Zero` isn't available at all callsites.
             // This may technically still be UB even though the assume_init is dead code, but all callsites should be fixed before #556 is closed.
             let typeinference_helper = crate::base::Matrix::new_uninitialized_generic($nrows, $ncols);
             unimplemented!();
@@ -49,9 +47,9 @@ macro_rules! unimplemented_or_uninitialized_generic {
 /// the dimension as inputs.
 ///
 /// These functions should only be used when working on dimension-generic code.
-impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
+impl<T: Scalar, R: Dim, C: Dim> OMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<N, R, C>,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     /// Creates a new uninitialized matrix. If the matrix has a compile-time dimension, this panics
     /// if `nrows != R::to_usize()` or `ncols != C::to_usize()`.
@@ -62,7 +60,7 @@ where
 
     /// Creates a matrix with all its elements set to `elem`.
     #[inline]
-    pub fn from_element_generic(nrows: R, ncols: C, elem: N) -> Self {
+    pub fn from_element_generic(nrows: R, ncols: C, elem: T) -> Self {
         let len = nrows.value() * ncols.value();
         Self::from_iterator_generic(nrows, ncols, iter::repeat(elem).take(len))
     }
@@ -71,7 +69,7 @@ where
     ///
     /// Same as `from_element_generic`.
     #[inline]
-    pub fn repeat_generic(nrows: R, ncols: C, elem: N) -> Self {
+    pub fn repeat_generic(nrows: R, ncols: C, elem: T) -> Self {
         let len = nrows.value() * ncols.value();
         Self::from_iterator_generic(nrows, ncols, iter::repeat(elem).take(len))
     }
@@ -80,16 +78,16 @@ where
     #[inline]
     pub fn zeros_generic(nrows: R, ncols: C) -> Self
     where
-        N: Zero,
+        T: Zero,
     {
-        Self::from_element_generic(nrows, ncols, N::zero())
+        Self::from_element_generic(nrows, ncols, T::zero())
     }
 
     /// Creates a matrix with all its elements filled by an iterator.
     #[inline]
     pub fn from_iterator_generic<I>(nrows: R, ncols: C, iter: I) -> Self
     where
-        I: IntoIterator<Item = N>,
+        I: IntoIterator<Item = T>,
     {
         Self::from_data(DefaultAllocator::allocate_from_iterator(nrows, ncols, iter))
     }
@@ -100,7 +98,7 @@ where
     /// The order of elements in the slice must follow the usual mathematic writing, i.e.,
     /// row-by-row.
     #[inline]
-    pub fn from_row_slice_generic(nrows: R, ncols: C, slice: &[N]) -> Self {
+    pub fn from_row_slice_generic(nrows: R, ncols: C, slice: &[T]) -> Self {
         assert!(
             slice.len() == nrows.value() * ncols.value(),
             "Matrix init. error: the slice did not contain the right number of elements."
@@ -121,7 +119,7 @@ where
     /// Creates a matrix with its elements filled with the components provided by a slice. The
     /// components must have the same layout as the matrix data storage (i.e. column-major).
     #[inline]
-    pub fn from_column_slice_generic(nrows: R, ncols: C, slice: &[N]) -> Self {
+    pub fn from_column_slice_generic(nrows: R, ncols: C, slice: &[T]) -> Self {
         Self::from_iterator_generic(nrows, ncols, slice.iter().cloned())
     }
 
@@ -130,7 +128,7 @@ where
     #[inline]
     pub fn from_fn_generic<F>(nrows: R, ncols: C, mut f: F) -> Self
     where
-        F: FnMut(usize, usize) -> N,
+        F: FnMut(usize, usize) -> T,
     {
         let mut res: Self = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
@@ -150,9 +148,9 @@ where
     #[inline]
     pub fn identity_generic(nrows: R, ncols: C) -> Self
     where
-        N: Zero + One,
+        T: Zero + One,
     {
-        Self::from_diagonal_element_generic(nrows, ncols, N::one())
+        Self::from_diagonal_element_generic(nrows, ncols, T::one())
     }
 
     /// Creates a new matrix with its diagonal filled with copies of `elt`.
@@ -160,9 +158,9 @@ where
     /// If the matrix is not square, the largest square submatrix starting at index `(0, 0)` is set
     /// to the identity matrix. All other entries are set to zero.
     #[inline]
-    pub fn from_diagonal_element_generic(nrows: R, ncols: C, elt: N) -> Self
+    pub fn from_diagonal_element_generic(nrows: R, ncols: C, elt: T) -> Self
     where
-        N: Zero + One,
+        T: Zero + One,
     {
         let mut res = Self::zeros_generic(nrows, ncols);
 
@@ -178,9 +176,9 @@ where
     ///
     /// Panics if `elts.len()` is larger than the minimum among `nrows` and `ncols`.
     #[inline]
-    pub fn from_partial_diagonal_generic(nrows: R, ncols: C, elts: &[N]) -> Self
+    pub fn from_partial_diagonal_generic(nrows: R, ncols: C, elts: &[T]) -> Self
     where
-        N: Zero,
+        T: Zero,
     {
         let mut res = Self::zeros_generic(nrows, ncols);
         assert!(
@@ -212,9 +210,9 @@ where
     ///         m.m31 == 7.0 && m.m32 == 8.0 && m.m33 == 9.0);
     /// ```
     #[inline]
-    pub fn from_rows<SB>(rows: &[Matrix<N, Const<1>, C, SB>]) -> Self
+    pub fn from_rows<SB>(rows: &[Matrix<T, Const<1>, C, SB>]) -> Self
     where
-        SB: Storage<N, Const<1>, C>,
+        SB: Storage<T, Const<1>, C>,
     {
         assert!(!rows.is_empty(), "At least one row must be given.");
         let nrows = R::try_to_usize().unwrap_or_else(|| rows.len());
@@ -254,9 +252,9 @@ where
     ///         m.m31 == 3.0 && m.m32 == 6.0 && m.m33 == 9.0);
     /// ```
     #[inline]
-    pub fn from_columns<SB>(columns: &[Vector<N, R, SB>]) -> Self
+    pub fn from_columns<SB>(columns: &[Vector<T, R, SB>]) -> Self
     where
-        SB: Storage<N, R>,
+        SB: Storage<T, R>,
     {
         assert!(!columns.is_empty(), "At least one column must be given.");
         let ncols = C::try_to_usize().unwrap_or_else(|| columns.len());
@@ -284,7 +282,7 @@ where
     #[cfg(feature = "rand")]
     pub fn new_random_generic(nrows: R, ncols: C) -> Self
     where
-        Standard: Distribution<N>,
+        Standard: Distribution<T>,
     {
         let mut rng = rand::thread_rng();
         Self::from_fn_generic(nrows, ncols, |_, _| rng.gen())
@@ -293,7 +291,7 @@ where
     /// Creates a matrix filled with random values from the given distribution.
     #[inline]
     #[cfg(feature = "rand-no-std")]
-    pub fn from_distribution_generic<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
+    pub fn from_distribution_generic<Distr: Distribution<T> + ?Sized, G: Rng + ?Sized>(
         nrows: R,
         ncols: C,
         distribution: &Distr,
@@ -321,15 +319,15 @@ where
     /// ```
     #[inline]
     #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn from_vec_generic(nrows: R, ncols: C, data: Vec<N>) -> Self {
+    pub fn from_vec_generic(nrows: R, ncols: C, data: Vec<T>) -> Self {
         Self::from_iterator_generic(nrows, ncols, data)
     }
 }
 
-impl<N, D: Dim> MatrixN<N, D>
+impl<T, D: Dim> OMatrix<T, D, D>
 where
-    N: Scalar,
-    DefaultAllocator: Allocator<N, D, D>,
+    T: Scalar,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
     ///
@@ -350,9 +348,9 @@ where
     ///         dm[(2, 0)] == 0.0 && dm[(2, 1)] == 0.0 && dm[(2, 2)] == 3.0);
     /// ```
     #[inline]
-    pub fn from_diagonal<SB: Storage<N, D>>(diag: &Vector<N, D, SB>) -> Self
+    pub fn from_diagonal<SB: Storage<T, D>>(diag: &Vector<T, D, SB>) -> Self
     where
-        N: Zero,
+        T: Zero,
     {
         let (dim, _) = diag.data.shape();
         let mut res = Self::zeros_generic(dim, dim);
@@ -401,7 +399,7 @@ macro_rules! impl_constructors(
         ///         dm[(1, 0)] == 2.0 && dm[(1, 1)] == 2.0 && dm[(1, 2)] == 2.0);
         /// ```
         #[inline]
-        pub fn from_element($($args: usize,)* elem: N) -> Self {
+        pub fn from_element($($args: usize,)* elem: T) -> Self {
             Self::from_element_generic($($gargs, )* elem)
         }
 
@@ -428,7 +426,7 @@ macro_rules! impl_constructors(
         ///         dm[(1, 0)] == 2.0 && dm[(1, 1)] == 2.0 && dm[(1, 2)] == 2.0);
         /// ```
         #[inline]
-        pub fn repeat($($args: usize,)* elem: N) -> Self {
+        pub fn repeat($($args: usize,)* elem: T) -> Self {
             Self::repeat_generic($($gargs, )* elem)
         }
 
@@ -454,7 +452,7 @@ macro_rules! impl_constructors(
         /// ```
         #[inline]
         pub fn zeros($($args: usize),*) -> Self
-            where N: Zero {
+            where T: Zero {
             Self::zeros_generic($($gargs),*)
         }
 
@@ -483,7 +481,7 @@ macro_rules! impl_constructors(
         /// ```
         #[inline]
         pub fn from_iterator<I>($($args: usize,)* iter: I) -> Self
-            where I: IntoIterator<Item = N> {
+            where I: IntoIterator<Item = T> {
             Self::from_iterator_generic($($gargs, )* iter)
         }
 
@@ -511,7 +509,7 @@ macro_rules! impl_constructors(
         /// ```
         #[inline]
         pub fn from_fn<F>($($args: usize,)* f: F) -> Self
-            where F: FnMut(usize, usize) -> N {
+            where F: FnMut(usize, usize) -> T {
             Self::from_fn_generic($($gargs, )* f)
         }
 
@@ -535,7 +533,7 @@ macro_rules! impl_constructors(
         /// ```
         #[inline]
         pub fn identity($($args: usize,)*) -> Self
-            where N: Zero + One {
+            where T: Zero + One {
             Self::identity_generic($($gargs),* )
         }
 
@@ -557,8 +555,8 @@ macro_rules! impl_constructors(
         ///         dm[(1, 0)] == 0.0 && dm[(1, 1)] == 5.0 && dm[(1, 2)] == 0.0);
         /// ```
         #[inline]
-        pub fn from_diagonal_element($($args: usize,)* elt: N) -> Self
-            where N: Zero + One {
+        pub fn from_diagonal_element($($args: usize,)* elt: T) -> Self
+            where T: Zero + One {
             Self::from_diagonal_element_generic($($gargs, )* elt)
         }
 
@@ -584,15 +582,15 @@ macro_rules! impl_constructors(
         ///         dm[(2, 0)] == 0.0 && dm[(2, 1)] == 0.0 && dm[(2, 2)] == 0.0);
         /// ```
         #[inline]
-        pub fn from_partial_diagonal($($args: usize,)* elts: &[N]) -> Self
-            where N: Zero {
+        pub fn from_partial_diagonal($($args: usize,)* elts: &[T]) -> Self
+            where T: Zero {
             Self::from_partial_diagonal_generic($($gargs, )* elts)
         }
 
         /// Creates a matrix or vector filled with random values from the given distribution.
         #[inline]
         #[cfg(feature = "rand-no-std")]
-        pub fn from_distribution<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
+        pub fn from_distribution<Distr: Distribution<T> + ?Sized, G: Rng + ?Sized>(
             $($args: usize,)*
             distribution: &Distr,
             rng: &mut G,
@@ -604,28 +602,28 @@ macro_rules! impl_constructors(
         #[inline]
         #[cfg(feature = "rand")]
         pub fn new_random($($args: usize),*) -> Self
-            where Standard: Distribution<N> {
+            where Standard: Distribution<T> {
             Self::new_random_generic($($gargs),*)
         }
     }
 );
 
 /// # Constructors of statically-sized vectors or statically-sized matrices
-impl<N: Scalar, R: DimName, C: DimName> MatrixMN<N, R, C>
+impl<T: Scalar, R: DimName, C: DimName> OMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<N, R, C>,
+    DefaultAllocator: Allocator<T, R, C>,
 {
-    // TODO: this is not very pretty. We could find a better call syntax.
-    impl_constructors!(R, C;                         // Arguments for Matrix<N, ..., S>
-    => R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
+    // TODO: this is not very pretty. We could find a better call syntax.
+    impl_constructors!(R, C;                         // Arguments for Matrix<T, ..., S>
+    => R: DimName, => C: DimName; // Type parameters for impl<T, ..., S>
     R::name(), C::name();         // Arguments for `_generic` constructors.
     ); // Arguments for non-generic constructors.
 }
 
 /// # Constructors of matrices with a dynamic number of columns
-impl<N: Scalar, R: DimName> MatrixMN<N, R, Dynamic>
+impl<T: Scalar, R: DimName> OMatrix<T, R, Dynamic>
 where
-    DefaultAllocator: Allocator<N, R, Dynamic>,
+    DefaultAllocator: Allocator<T, R, Dynamic>,
 {
     impl_constructors!(R, Dynamic;
                    => R: DimName;
@@ -634,9 +632,9 @@ where
 }
 
 /// # Constructors of dynamic vectors and matrices with a dynamic number of rows
-impl<N: Scalar, C: DimName> MatrixMN<N, Dynamic, C>
+impl<T: Scalar, C: DimName> OMatrix<T, Dynamic, C>
 where
-    DefaultAllocator: Allocator<N, Dynamic, C>,
+    DefaultAllocator: Allocator<T, Dynamic, C>,
 {
     impl_constructors!(Dynamic, C;
                    => C: DimName;
@@ -645,9 +643,9 @@ where
 }
 
 /// # Constructors of fully dynamic matrices
-impl<N: Scalar> MatrixMN<N, Dynamic, Dynamic>
+impl<T: Scalar> OMatrix<T, Dynamic, Dynamic>
 where
-    DefaultAllocator: Allocator<N, Dynamic, Dynamic>,
+    DefaultAllocator: Allocator<T, Dynamic, Dynamic>,
 {
     impl_constructors!(Dynamic, Dynamic;
                    ;
@@ -663,8 +661,8 @@ where
  */
 macro_rules! impl_constructors_from_data(
     ($data: ident; $($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
-        where DefaultAllocator: Allocator<N $(, $Dims)*> {
+        impl<T: Scalar, $($DimIdent: $DimBound, )*> OMatrix<T $(, $Dims)*>
+        where DefaultAllocator: Allocator<T $(, $Dims)*> {
             /// Creates a matrix with its elements filled with the components provided by a slice
             /// in row-major order.
             ///
@@ -691,7 +689,7 @@ macro_rules! impl_constructors_from_data(
             ///         dm[(1, 0)] == 3 && dm[(1, 1)] == 4 && dm[(1, 2)] == 5);
             /// ```
             #[inline]
-            pub fn from_row_slice($($args: usize,)* $data: &[N]) -> Self {
+            pub fn from_row_slice($($args: usize,)* $data: &[T]) -> Self {
                 Self::from_row_slice_generic($($gargs, )* $data)
             }
 
@@ -718,7 +716,7 @@ macro_rules! impl_constructors_from_data(
             ///         dm[(1, 0)] == 1 && dm[(1, 1)] == 3 && dm[(1, 2)] == 5);
             /// ```
             #[inline]
-            pub fn from_column_slice($($args: usize,)* $data: &[N]) -> Self {
+            pub fn from_column_slice($($args: usize,)* $data: &[T]) -> Self {
                 Self::from_column_slice_generic($($gargs, )* $data)
             }
 
@@ -744,7 +742,7 @@ macro_rules! impl_constructors_from_data(
             /// ```
             #[inline]
             #[cfg(any(feature = "std", feature = "alloc"))]
-            pub fn from_vec($($args: usize,)* $data: Vec<N>) -> Self {
+            pub fn from_vec($($args: usize,)* $data: Vec<T>) -> Self {
                 Self::from_vec_generic($($gargs, )* $data)
             }
         }
@@ -752,8 +750,8 @@ macro_rules! impl_constructors_from_data(
 );
 
 // TODO: this is not very pretty. We could find a better call syntax.
-impl_constructors_from_data!(data; R, C;                  // Arguments for Matrix<N, ..., S>
-=> R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
+impl_constructors_from_data!(data; R, C;                  // Arguments for Matrix<T, ..., S>
+=> R: DimName, => C: DimName; // Type parameters for impl<T, ..., S>
 R::name(), C::name();         // Arguments for `_generic` constructors.
 ); // Arguments for non-generic constructors.
 
@@ -777,14 +775,14 @@ impl_constructors_from_data!(data; Dynamic, Dynamic;
  * Zero, One, Rand traits.
  *
  */
-impl<N, R: DimName, C: DimName> Zero for MatrixMN<N, R, C>
+impl<T, R: DimName, C: DimName> Zero for OMatrix<T, R, C>
 where
-    N: Scalar + Zero + ClosedAdd,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + Zero + ClosedAdd,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
     fn zero() -> Self {
-        Self::from_element(N::zero())
+        Self::from_element(T::zero())
     }
 
     #[inline]
@@ -793,10 +791,10 @@ where
     }
 }
 
-impl<N, D: DimName> One for MatrixN<N, D>
+impl<T, D: DimName> One for OMatrix<T, D, D>
 where
-    N: Scalar + Zero + One + ClosedMul + ClosedAdd,
-    DefaultAllocator: Allocator<N, D, D>,
+    T: Scalar + Zero + One + ClosedMul + ClosedAdd,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     #[inline]
     fn one() -> Self {
@@ -804,45 +802,45 @@ where
     }
 }
 
-impl<N, R: DimName, C: DimName> Bounded for MatrixMN<N, R, C>
+impl<T, R: DimName, C: DimName> Bounded for OMatrix<T, R, C>
 where
-    N: Scalar + Bounded,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + Bounded,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
     fn max_value() -> Self {
-        Self::from_element(N::max_value())
+        Self::from_element(T::max_value())
     }
 
     #[inline]
     fn min_value() -> Self {
-        Self::from_element(N::min_value())
+        Self::from_element(T::min_value())
     }
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<N: Scalar, R: Dim, C: Dim> Distribution<MatrixMN<N, R, C>> for Standard
+impl<T: Scalar, R: Dim, C: Dim> Distribution<OMatrix<T, R, C>> for Standard
 where
-    DefaultAllocator: Allocator<N, R, C>,
-    Standard: Distribution<N>,
+    DefaultAllocator: Allocator<T, R, C>,
+    Standard: Distribution<T>,
 {
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> MatrixMN<N, R, C> {
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> OMatrix<T, R, C> {
         let nrows = R::try_to_usize().unwrap_or_else(|| rng.gen_range(0..10));
         let ncols = C::try_to_usize().unwrap_or_else(|| rng.gen_range(0..10));
 
-        MatrixMN::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| rng.gen())
+        OMatrix::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| rng.gen())
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N, R, C> Arbitrary for MatrixMN<N, R, C>
+impl<T, R, C> Arbitrary for OMatrix<T, R, C>
 where
     R: Dim,
     C: Dim,
-    N: Scalar + Arbitrary + Send,
-    DefaultAllocator: Allocator<N, R, C>,
-    Owned<N, R, C>: Clone + Send,
+    T: Scalar + Arbitrary + Send,
+    DefaultAllocator: Allocator<T, R, C>,
+    Owned<T, R, C>: Clone + Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {
@@ -850,22 +848,22 @@ where
         let ncols = C::try_to_usize().unwrap_or(usize::arbitrary(g) % 10);
 
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| {
-            N::arbitrary(g)
+            T::arbitrary(g)
         })
     }
 }
 
 // TODO(specialization): faster impls possible for D≤4 (see rand_distr::{UnitCircle, UnitSphere})
 #[cfg(feature = "rand")]
-impl<N: crate::RealField, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
+impl<T: crate::RealField, D: DimName> Distribution<Unit<OVector<T, D>>> for Standard
 where
-    DefaultAllocator: Allocator<N, D>,
-    rand_distr::StandardNormal: Distribution<N>,
+    DefaultAllocator: Allocator<T, D>,
+    rand_distr::StandardNormal: Distribution<T>,
 {
     /// Generate a uniformly distributed random unit vector.
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Unit<VectorN<N, D>> {
-        Unit::new_normalize(VectorN::from_distribution_generic(
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Unit<OVector<T, D>> {
+        Unit::new_normalize(OVector::from_distribution_generic(
             D::name(),
             Const::<1>,
             &rand_distr::StandardNormal,
@@ -881,12 +879,12 @@ where
  */
 macro_rules! componentwise_constructors_impl(
     ($($R: expr, $C: expr, $($args: ident:($irow: expr,$icol: expr)),*);* $(;)*) => {$(
-        impl<N> MatrixMN<N, Const<$R>, Const<$C>>
-            where N: Scalar,
-                  DefaultAllocator: Allocator<N, Const<$R>, Const<$C>> {
+        impl<T> OMatrix<T, Const<$R>, Const<$C>>
+            where T: Scalar,
+                  DefaultAllocator: Allocator<T, Const<$R>, Const<$C>> {
             /// Initializes this matrix from its components.
             #[inline]
-            pub fn new($($args: N),*) -> Self {
+            pub fn new($($args: T),*) -> Self {
                 unsafe {
                     #[cfg(feature="no_unsound_assume_init")]
                     let mut res: Self = unimplemented!();
@@ -1051,24 +1049,24 @@ componentwise_constructors_impl!(
  * Axis constructors.
  *
  */
-impl<N, R: DimName> VectorN<N, R>
+impl<T, R: DimName> OVector<T, R>
 where
     R: ToTypenum,
-    N: Scalar + Zero + One,
-    DefaultAllocator: Allocator<N, R>,
+    T: Scalar + Zero + One,
+    DefaultAllocator: Allocator<T, R>,
 {
     /// The column vector with `val` as its i-th component.
     #[inline]
-    pub fn ith(i: usize, val: N) -> Self {
+    pub fn ith(i: usize, val: T) -> Self {
         let mut res = Self::zeros();
         res[i] = val;
         res
     }
 
-    /// The column unit vector with `N::one()` as its i-th component.
+    /// The column unit vector with `T::one()` as its i-th component.
     #[inline]
     pub fn ith_axis(i: usize) -> Unit<Self> {
-        Unit::new_unchecked(Self::ith(i, N::one()))
+        Unit::new_unchecked(Self::ith(i, T::one()))
     }
 
     /// The column vector with a 1 as its first component, and zero elsewhere.
@@ -1079,7 +1077,7 @@ where
     {
         let mut res = Self::zeros();
         unsafe {
-            *res.vget_unchecked_mut(0) = N::one();
+            *res.vget_unchecked_mut(0) = T::one();
         }
 
         res
@@ -1093,7 +1091,7 @@ where
     {
         let mut res = Self::zeros();
         unsafe {
-            *res.vget_unchecked_mut(1) = N::one();
+            *res.vget_unchecked_mut(1) = T::one();
         }
 
         res
@@ -1107,7 +1105,7 @@ where
     {
         let mut res = Self::zeros();
         unsafe {
-            *res.vget_unchecked_mut(2) = N::one();
+            *res.vget_unchecked_mut(2) = T::one();
         }
 
         res
@@ -1121,7 +1119,7 @@ where
     {
         let mut res = Self::zeros();
         unsafe {
-            *res.vget_unchecked_mut(3) = N::one();
+            *res.vget_unchecked_mut(3) = T::one();
         }
 
         res
@@ -1135,7 +1133,7 @@ where
     {
         let mut res = Self::zeros();
         unsafe {
-            *res.vget_unchecked_mut(4) = N::one();
+            *res.vget_unchecked_mut(4) = T::one();
         }
 
         res
@@ -1149,7 +1147,7 @@ where
     {
         let mut res = Self::zeros();
         unsafe {
-            *res.vget_unchecked_mut(5) = N::one();
+            *res.vget_unchecked_mut(5) = T::one();
         }
 
         res

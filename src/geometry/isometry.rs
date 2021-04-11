@@ -16,7 +16,7 @@ use simba::simd::SimdRealField;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
-use crate::base::{CVectorN, Const, DefaultAllocator, MatrixN, Scalar, Unit};
+use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar, Unit};
 use crate::geometry::{AbstractRotation, Point, Translation};
 
 /// A direct isometry, i.e., a rotation followed by a translation (aka. a rigid-body motion).
@@ -59,31 +59,28 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(serialize = "R: Serialize,
-                     DefaultAllocator: Allocator<N, Const<D>>,
-                     Owned<N, Const<D>>: Serialize"))
+                     DefaultAllocator: Allocator<T, Const<D>>,
+                     Owned<T, Const<D>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(deserialize = "R: Deserialize<'de>,
-                       DefaultAllocator: Allocator<N, Const<D>>,
-                       Owned<N, Const<D>>: Deserialize<'de>"))
+                       DefaultAllocator: Allocator<T, Const<D>>,
+                       Owned<T, Const<D>>: Deserialize<'de>"))
 )]
-pub struct Isometry<N: Scalar, R, const D: usize>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-{
+pub struct Isometry<T: Scalar, R, const D: usize> {
     /// The pure rotational part of this isometry.
     pub rotation: R,
     /// The pure translational part of this isometry.
-    pub translation: Translation<N, D>,
+    pub translation: Translation<T, D>,
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N, R, const D: usize> Abomonation for Isometry<N, R, D>
+impl<T, R, const D: usize> Abomonation for Isometry<T, R, D>
 where
-    N: SimdRealField,
+    T: SimdRealField,
     R: Abomonation,
-    Translation<N, D>: Abomonation,
+    Translation<T, D>: Abomonation,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.rotation.entomb(writer)?;
@@ -101,9 +98,9 @@ where
     }
 }
 
-impl<N: Scalar + hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Isometry<N, R, D>
+impl<T: Scalar + hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Isometry<T, R, D>
 where
-    Owned<N, Const<D>>: hash::Hash,
+    Owned<T, Const<D>>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.translation.hash(state);
@@ -111,15 +108,12 @@ where
     }
 }
 
-impl<N: Scalar + Copy, R: Copy, const D: usize> Copy for Isometry<N, R, D> where
-    Owned<N, Const<D>>: Copy
+impl<T: Scalar + Copy, R: Copy, const D: usize> Copy for Isometry<T, R, D> where
+    Owned<T, Const<D>>: Copy
 {
 }
 
-impl<N: Scalar, R: Clone, const D: usize> Clone for Isometry<N, R, D>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar, R: Clone, const D: usize> Clone for Isometry<T, R, D> {
     #[inline]
     fn clone(&self) -> Self {
         Self {
@@ -129,10 +123,7 @@ impl<N: Scalar, R: Clone, const D: usize> Clone for Isometry<N, R, D>
     }
 }
 /// # From the translation and rotation parts
-impl<N: Scalar, R: AbstractRotation<N, D>, const D: usize> Isometry<N, R, D>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar, R: AbstractRotation<T, D>, const D: usize> Isometry<T, R, D> {
     /// Creates a new isometry from its rotational and translational parts.
     ///
     /// # Example
@@ -148,7 +139,7 @@ impl<N: Scalar, R: AbstractRotation<N, D>, const D: usize> Isometry<N, R, D>
     /// assert_relative_eq!(iso * Point3::new(1.0, 2.0, 3.0), Point3::new(-1.0, 2.0, 0.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn from_parts(translation: Translation<N, D>, rotation: R) -> Self {
+    pub fn from_parts(translation: Translation<T, D>, rotation: R) -> Self {
         Self {
             rotation,
             translation,
@@ -157,9 +148,9 @@ impl<N: Scalar, R: AbstractRotation<N, D>, const D: usize> Isometry<N, R, D>
 }
 
 /// # Inversion and in-place composition
-impl<N: SimdRealField, R: AbstractRotation<N, D>, const D: usize> Isometry<N, R, D>
+impl<T: SimdRealField, R: AbstractRotation<T, D>, const D: usize> Isometry<T, R, D>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Inverts `self`.
     ///
@@ -216,7 +207,7 @@ where
     /// assert_eq!(iso1.inverse() * iso2, iso1.inv_mul(&iso2));
     /// ```
     #[inline]
-    pub fn inv_mul(&self, rhs: &Isometry<N, R, D>) -> Self {
+    pub fn inv_mul(&self, rhs: &Isometry<T, R, D>) -> Self {
         let inv_rot1 = self.rotation.inverse();
         let tr_12 = rhs.translation.vector.clone() - self.translation.vector.clone();
         Isometry::from_parts(
@@ -240,7 +231,7 @@ where
     /// assert_eq!(iso.translation, Translation2::new(4.0, 6.0));
     /// ```
     #[inline]
-    pub fn append_translation_mut(&mut self, t: &Translation<N, D>) {
+    pub fn append_translation_mut(&mut self, t: &Translation<T, D>) {
         self.translation.vector += &t.vector
     }
 
@@ -282,7 +273,7 @@ where
     /// assert_relative_eq!(iso * pt, Point2::new(-2.0, 0.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn append_rotation_wrt_point_mut(&mut self, r: &R, p: &Point<N, D>) {
+    pub fn append_rotation_wrt_point_mut(&mut self, r: &R, p: &Point<T, D>) {
         self.translation.vector -= &p.coords;
         self.append_rotation_mut(r);
         self.translation.vector += &p.coords;
@@ -311,9 +302,9 @@ where
 }
 
 /// # Transformation of a vector or a point
-impl<N: SimdRealField, R: AbstractRotation<N, D>, const D: usize> Isometry<N, R, D>
+impl<T: SimdRealField, R: AbstractRotation<T, D>, const D: usize> Isometry<T, R, D>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Transform the given point by this isometry.
     ///
@@ -333,7 +324,7 @@ where
     /// assert_relative_eq!(transformed_point, Point3::new(3.0, 2.0, 2.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self * pt
     }
 
@@ -356,7 +347,7 @@ where
     /// assert_relative_eq!(transformed_point, Vector3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn transform_vector(&self, v: &CVectorN<N, D>) -> CVectorN<N, D> {
+    pub fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self * v
     }
 
@@ -378,7 +369,7 @@ where
     /// assert_relative_eq!(transformed_point, Point3::new(0.0, 2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.rotation
             .inverse_transform_point(&(pt - &self.translation.vector))
     }
@@ -402,7 +393,7 @@ where
     /// assert_relative_eq!(transformed_point, Vector3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn inverse_transform_vector(&self, v: &CVectorN<N, D>) -> CVectorN<N, D> {
+    pub fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.rotation.inverse_transform_vector(v)
     }
 
@@ -425,7 +416,7 @@ where
     /// assert_relative_eq!(transformed_point, -Vector3::y_axis(), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn inverse_transform_unit_vector(&self, v: &Unit<CVectorN<N, D>>) -> Unit<CVectorN<N, D>> {
+    pub fn inverse_transform_unit_vector(&self, v: &Unit<SVector<T, D>>) -> Unit<SVector<T, D>> {
         self.rotation.inverse_transform_unit_vector(v)
     }
 }
@@ -435,10 +426,7 @@ where
 // This is OK since all constructors of the isometry enforce the Rotation bound already (and
 // explicit struct construction is prevented by the dummy ZST field).
 /// # Conversion to a matrix
-impl<N: SimdRealField, R, const D: usize> Isometry<N, R, D>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-{
+impl<T: SimdRealField, R, const D: usize> Isometry<T, R, D> {
     /// Converts this isometry into its equivalent homogeneous transformation matrix.
     ///
     /// This is the same as `self.to_matrix()`.
@@ -457,14 +445,14 @@ impl<N: SimdRealField, R, const D: usize> Isometry<N, R, D>
     /// assert_relative_eq!(iso.to_homogeneous(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<Const<D>, U1>>
+    pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
     where
         Const<D>: DimNameAdd<U1>,
-        R: SubsetOf<MatrixN<N, DimNameSum<Const<D>, U1>>>,
-        DefaultAllocator: Allocator<N, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+        R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>,
+        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
-        let mut res: MatrixN<N, _> = crate::convert_ref(&self.rotation);
-        res.fixed_slice_mut::<Const<D>, U1>(0, D)
+        let mut res: OMatrix<T, _, _> = crate::convert_ref(&self.rotation);
+        res.fixed_slice_mut::<D, 1>(0, D)
             .copy_from(&self.translation.vector);
 
         res
@@ -488,24 +476,24 @@ impl<N: SimdRealField, R, const D: usize> Isometry<N, R, D>
     /// assert_relative_eq!(iso.to_matrix(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn to_matrix(&self) -> MatrixN<N, DimNameSum<Const<D>, U1>>
+    pub fn to_matrix(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
     where
         Const<D>: DimNameAdd<U1>,
-        R: SubsetOf<MatrixN<N, DimNameSum<Const<D>, U1>>>,
-        DefaultAllocator: Allocator<N, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+        R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>,
+        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         self.to_homogeneous()
     }
 }
 
-impl<N: SimdRealField, R, const D: usize> Eq for Isometry<N, R, D> where
-    R: AbstractRotation<N, D> + Eq
+impl<T: SimdRealField, R, const D: usize> Eq for Isometry<T, R, D> where
+    R: AbstractRotation<T, D> + Eq
 {
 }
 
-impl<N: SimdRealField, R, const D: usize> PartialEq for Isometry<N, R, D>
+impl<T: SimdRealField, R, const D: usize> PartialEq for Isometry<T, R, D>
 where
-    R: AbstractRotation<N, D> + PartialEq,
+    R: AbstractRotation<T, D> + PartialEq,
 {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
@@ -513,16 +501,16 @@ where
     }
 }
 
-impl<N: RealField, R, const D: usize> AbsDiffEq for Isometry<N, R, D>
+impl<T: RealField, R, const D: usize> AbsDiffEq for Isometry<T, R, D>
 where
-    R: AbstractRotation<N, D> + AbsDiffEq<Epsilon = N::Epsilon>,
-    N::Epsilon: Copy,
+    R: AbstractRotation<T, D> + AbsDiffEq<Epsilon = T::Epsilon>,
+    T::Epsilon: Copy,
 {
-    type Epsilon = N::Epsilon;
+    type Epsilon = T::Epsilon;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        N::default_epsilon()
+        T::default_epsilon()
     }
 
     #[inline]
@@ -532,14 +520,14 @@ where
     }
 }
 
-impl<N: RealField, R, const D: usize> RelativeEq for Isometry<N, R, D>
+impl<T: RealField, R, const D: usize> RelativeEq for Isometry<T, R, D>
 where
-    R: AbstractRotation<N, D> + RelativeEq<Epsilon = N::Epsilon>,
-    N::Epsilon: Copy,
+    R: AbstractRotation<T, D> + RelativeEq<Epsilon = T::Epsilon>,
+    T::Epsilon: Copy,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        N::default_max_relative()
+        T::default_max_relative()
     }
 
     #[inline]
@@ -557,14 +545,14 @@ where
     }
 }
 
-impl<N: RealField, R, const D: usize> UlpsEq for Isometry<N, R, D>
+impl<T: RealField, R, const D: usize> UlpsEq for Isometry<T, R, D>
 where
-    R: AbstractRotation<N, D> + UlpsEq<Epsilon = N::Epsilon>,
-    N::Epsilon: Copy,
+    R: AbstractRotation<T, D> + UlpsEq<Epsilon = T::Epsilon>,
+    T::Epsilon: Copy,
 {
     #[inline]
     fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
+        T::default_max_ulps()
     }
 
     #[inline]
@@ -580,7 +568,7 @@ where
  * Display
  *
  */
-impl<N: RealField + fmt::Display, R, const D: usize> fmt::Display for Isometry<N, R, D>
+impl<T: RealField + fmt::Display, R, const D: usize> fmt::Display for Isometry<T, R, D>
 where
     R: fmt::Display,
 {

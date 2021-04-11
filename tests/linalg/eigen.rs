@@ -180,13 +180,13 @@ fn symmetric_eigen_singular_24x24() {
 //    }
 //  }
 //
-// fn verify_eigenvectors<D: Dim>(m: MatrixN<f64, D>, mut eig: RealEigen<f64, D>) -> bool
+// fn verify_eigenvectors<D: Dim>(m: OMatrix<f64, D>, mut eig: RealEigen<f64, D>) -> bool
 //     where DefaultAllocator: Allocator<f64, D, D>   +
 //                             Allocator<f64, D>      +
 //                             Allocator<usize, D, D> +
 //                             Allocator<usize, D>,
-//           MatrixN<f64, D>: Display,
-//           VectorN<f64, D>: Display {
+//           OMatrix<f64, D>: Display,
+//           OVector<f64, D>: Display {
 //     let mv = &m * &eig.eigenvectors;
 //
 //     println!("eigenvalues: {}eigenvectors: {}", eig.eigenvalues, eig.eigenvectors);

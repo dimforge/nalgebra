@@ -6,21 +6,21 @@ use crate::allocator::Allocator;
 use crate::constraint::{AreMultipliable, DimEq, ShapeConstraint};
 use crate::sparse::{CsMatrix, CsStorage, CsStorageMut, CsVector};
 use crate::storage::StorageMut;
-use crate::{Const, DefaultAllocator, Dim, Scalar, Vector, VectorN};
+use crate::{Const, DefaultAllocator, Dim, OVector, Scalar, Vector};
 
-impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
+impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
     fn scatter<R2: Dim, C2: Dim>(
         &self,
         j: usize,
-        beta: N,
+        beta: T,
         timestamps: &mut [usize],
         timestamp: usize,
-        workspace: &mut [N],
+        workspace: &mut [T],
         mut nz: usize,
-        res: &mut CsMatrix<N, R2, C2>,
+        res: &mut CsMatrix<T, R2, C2>,
     ) -> usize
     where
-        N: ClosedAdd + ClosedMul,
+        T: ClosedAdd + ClosedMul,
         DefaultAllocator: Allocator<usize, C2>,
     {
         for (i, val) in self.data.column_entries(j) {
@@ -39,8 +39,8 @@ impl<N: Scalar, R: Dim, C: Dim, S: CsStorage<N, R, C>> CsMatrix<N, R, C, S> {
 }
 
 /*
-impl<N: Scalar, R, S> CsVector<N, R, S> {
-    pub fn axpy(&mut self, alpha: N, x: CsVector<N, R, S>, beta: N) {
+impl<T: Scalar, R, S> CsVector<T, R, S> {
+    pub fn axpy(&mut self, alpha: T, x: CsVector<T, R, S>, beta: T) {
         // First, compute the number of non-zero entries.
         let mut nnzero = 0;
 
@@ -76,11 +76,11 @@ impl<N: Scalar, R, S> CsVector<N, R, S> {
 }
 */
 
-impl<N: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D>> Vector<N, D, S> {
+impl<T: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<T, D>> Vector<T, D, S> {
     /// Perform a sparse axpy operation: `self = alpha * x + beta * self` operation.
-    pub fn axpy_cs<D2: Dim, S2>(&mut self, alpha: N, x: &CsVector<N, D2, S2>, beta: N)
+    pub fn axpy_cs<D2: Dim, S2>(&mut self, alpha: T, x: &CsVector<T, D2, S2>, beta: T)
     where
-        S2: CsStorage<N, D2>,
+        S2: CsStorage<T, D2>,
         ShapeConstraint: DimEq<D, D2>,
     {
         if beta.is_zero() {
@@ -106,9 +106,9 @@ impl<N: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D>> Vect
     }
 
     /*
-    pub fn gemv_sparse<R2: Dim, C2: Dim, S2>(&mut self, alpha: N, a: &CsMatrix<N, R2, C2, S2>, x: &DVector<N>, beta: N)
+    pub fn gemv_sparse<R2: Dim, C2: Dim, S2>(&mut self, alpha: T, a: &CsMatrix<T, R2, C2, S2>, x: &DVector<T>, beta: T)
         where
-            S2: CsStorage<N, R2, C2> {
+            S2: CsStorage<T, R2, C2> {
         let col2 = a.column(0);
         let val = unsafe { *x.vget_unchecked(0) };
         self.axpy_sparse(alpha * val, &col2, beta);
@@ -117,28 +117,28 @@ impl<N: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<N, D>> Vect
             let col2 = a.column(j);
             let val = unsafe { *x.vget_unchecked(j) };
 
-            self.axpy_sparse(alpha * val, &col2, N::one());
+            self.axpy_sparse(alpha * val, &col2, T::one());
         }
     }
     */
 }
 
-impl<'a, 'b, N, R1, R2, C1, C2, S1, S2> Mul<&'b CsMatrix<N, R2, C2, S2>>
-    for &'a CsMatrix<N, R1, C1, S1>
+impl<'a, 'b, T, R1, R2, C1, C2, S1, S2> Mul<&'b CsMatrix<T, R2, C2, S2>>
+    for &'a CsMatrix<T, R1, C1, S1>
 where
-    N: Scalar + ClosedAdd + ClosedMul + Zero,
+    T: Scalar + ClosedAdd + ClosedMul + Zero,
     R1: Dim,
     C1: Dim,
     R2: Dim,
     C2: Dim,
-    S1: CsStorage<N, R1, C1>,
-    S2: CsStorage<N, R2, C2>,
+    S1: CsStorage<T, R1, C1>,
+    S2: CsStorage<T, R2, C2>,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C2>,
-    DefaultAllocator: Allocator<usize, C2> + Allocator<usize, R1> + Allocator<N, R1>,
+    DefaultAllocator: Allocator<usize, C2> + Allocator<usize, R1> + Allocator<T, R1>,
 {
-    type Output = CsMatrix<N, R1, C2>;
+    type Output = CsMatrix<T, R1, C2>;
 
-    fn mul(self, rhs: &'b CsMatrix<N, R2, C2, S2>) -> Self::Output {
+    fn mul(self, rhs: &'b CsMatrix<T, R2, C2, S2>) -> Self::Output {
         let (nrows1, ncols1) = self.data.shape();
         let (nrows2, ncols2) = rhs.data.shape();
         assert_eq!(
@@ -148,14 +148,14 @@ where
         );
 
         let mut res = CsMatrix::new_uninitialized_generic(nrows1, ncols2, self.len() + rhs.len());
-        let mut workspace = VectorN::<N, R1>::zeros_generic(nrows1, Const::<1>);
+        let mut workspace = OVector::<T, R1>::zeros_generic(nrows1, Const::<1>);
         let mut nz = 0;
 
         for j in 0..ncols2.value() {
             res.data.p[j] = nz;
             let new_size_bound = nz + nrows1.value();
             res.data.i.resize(new_size_bound, 0);
-            res.data.vals.resize(new_size_bound, N::zero());
+            res.data.vals.resize(new_size_bound, T::zero());
 
             for (i, beta) in rhs.data.column_entries(j) {
                 for (k, val) in self.data.column_entries(i) {
@@ -167,7 +167,7 @@ where
                 if !val.is_zero() {
                     res.data.i[nz] = i;
                     res.data.vals[nz] = val.inlined_clone();
-                    *val = N::zero();
+                    *val = T::zero();
                     nz += 1;
                 }
             }
@@ -177,15 +177,15 @@ where
         // of branching inside of the inner loop.
         //
         // let mut res = CsMatrix::new_uninitialized_generic(nrows1, ncols2, self.len() + rhs.len());
-        // let mut timestamps = VectorN::zeros_generic(nrows1, Const::<)>;
-        // let mut workspace = unsafe { VectorN::new_uninitialized_generic(nrows1, Const::<)> };
+        // let mut timestamps = OVector::zeros_generic(nrows1, Const::<)>;
+        // let mut workspace = unsafe { OVector::new_uninitialized_generic(nrows1, Const::<)> };
         // let mut nz = 0;
         //
         // for j in 0..ncols2.value() {
         //     res.data.p[j] = nz;
         //     let new_size_bound = nz + nrows1.value();
         //     res.data.i.resize(new_size_bound, 0);
-        //     res.data.vals.resize(new_size_bound, N::zero());
+        //     res.data.vals.resize(new_size_bound, T::zero());
         //
         //     for (i, val) in rhs.data.column_entries(j) {
         //         nz = self.scatter(
@@ -216,22 +216,22 @@ where
     }
 }
 
-impl<'a, 'b, N, R1, R2, C1, C2, S1, S2> Add<&'b CsMatrix<N, R2, C2, S2>>
-    for &'a CsMatrix<N, R1, C1, S1>
+impl<'a, 'b, T, R1, R2, C1, C2, S1, S2> Add<&'b CsMatrix<T, R2, C2, S2>>
+    for &'a CsMatrix<T, R1, C1, S1>
 where
-    N: Scalar + ClosedAdd + ClosedMul + One,
+    T: Scalar + ClosedAdd + ClosedMul + One,
     R1: Dim,
     C1: Dim,
     R2: Dim,
     C2: Dim,
-    S1: CsStorage<N, R1, C1>,
-    S2: CsStorage<N, R2, C2>,
+    S1: CsStorage<T, R1, C1>,
+    S2: CsStorage<T, R2, C2>,
     ShapeConstraint: DimEq<R1, R2> + DimEq<C1, C2>,
-    DefaultAllocator: Allocator<usize, C2> + Allocator<usize, R1> + Allocator<N, R1>,
+    DefaultAllocator: Allocator<usize, C2> + Allocator<usize, R1> + Allocator<T, R1>,
 {
-    type Output = CsMatrix<N, R1, C2>;
+    type Output = CsMatrix<T, R1, C2>;
 
-    fn add(self, rhs: &'b CsMatrix<N, R2, C2, S2>) -> Self::Output {
+    fn add(self, rhs: &'b CsMatrix<T, R2, C2, S2>) -> Self::Output {
         let (nrows1, ncols1) = self.data.shape();
         let (nrows2, ncols2) = rhs.data.shape();
         assert_eq!(
@@ -241,8 +241,9 @@ where
         );
 
         let mut res = CsMatrix::new_uninitialized_generic(nrows1, ncols2, self.len() + rhs.len());
-        let mut timestamps = VectorN::zeros_generic(nrows1, Const::<1>);
-        let mut workspace = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows1, Const::<1>) };
+        let mut timestamps = OVector::zeros_generic(nrows1, Const::<1>);
+        let mut workspace =
+            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows1, Const::<1>) };
         let mut nz = 0;
 
         for j in 0..ncols2.value() {
@@ -250,7 +251,7 @@ where
 
             nz = self.scatter(
                 j,
-                N::one(),
+                T::one(),
                 timestamps.as_mut_slice(),
                 j + 1,
                 workspace.as_mut_slice(),
@@ -260,7 +261,7 @@ where
 
             nz = rhs.scatter(
                 j,
-                N::one(),
+                T::one(),
                 timestamps.as_mut_slice(),
                 j + 1,
                 workspace.as_mut_slice(),
@@ -285,16 +286,16 @@ where
     }
 }
 
-impl<'a, 'b, N, R, C, S> Mul<N> for CsMatrix<N, R, C, S>
+impl<'a, 'b, T, R, C, S> Mul<T> for CsMatrix<T, R, C, S>
 where
-    N: Scalar + ClosedAdd + ClosedMul + Zero,
+    T: Scalar + ClosedAdd + ClosedMul + Zero,
     R: Dim,
     C: Dim,
-    S: CsStorageMut<N, R, C>,
+    S: CsStorageMut<T, R, C>,
 {
     type Output = Self;
 
-    fn mul(mut self, rhs: N) -> Self::Output {
+    fn mul(mut self, rhs: T) -> Self::Output {
         for e in self.values_mut() {
             *e *= rhs.inlined_clone()
         }

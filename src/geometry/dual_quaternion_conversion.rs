@@ -22,24 +22,24 @@ use crate::geometry::{
  * UnitDualQuaternion -> DualQuaternion is already provided by: Unit<T> -> T
  */
 
-impl<N1, N2> SubsetOf<DualQuaternion<N2>> for DualQuaternion<N1>
+impl<T1, T2> SubsetOf<DualQuaternion<T2>> for DualQuaternion<T1>
 where
-    N1: SimdRealField,
-    N2: SimdRealField + SupersetOf<N1>,
+    T1: SimdRealField,
+    T2: SimdRealField + SupersetOf<T1>,
 {
     #[inline]
-    fn to_superset(&self) -> DualQuaternion<N2> {
+    fn to_superset(&self) -> DualQuaternion<T2> {
         DualQuaternion::from_real_and_dual(self.real.to_superset(), self.dual.to_superset())
     }
 
     #[inline]
-    fn is_in_subset(dq: &DualQuaternion<N2>) -> bool {
-        crate::is_convertible::<_, Vector4<N1>>(&dq.real.coords)
-            && crate::is_convertible::<_, Vector4<N1>>(&dq.dual.coords)
+    fn is_in_subset(dq: &DualQuaternion<T2>) -> bool {
+        crate::is_convertible::<_, Vector4<T1>>(&dq.real.coords)
+            && crate::is_convertible::<_, Vector4<T1>>(&dq.dual.coords)
     }
 
     #[inline]
-    fn from_superset_unchecked(dq: &DualQuaternion<N2>) -> Self {
+    fn from_superset_unchecked(dq: &DualQuaternion<T2>) -> Self {
         DualQuaternion::from_real_and_dual(
             dq.real.to_subset_unchecked(),
             dq.dual.to_subset_unchecked(),
@@ -47,141 +47,141 @@ where
     }
 }
 
-impl<N1, N2> SubsetOf<UnitDualQuaternion<N2>> for UnitDualQuaternion<N1>
+impl<T1, T2> SubsetOf<UnitDualQuaternion<T2>> for UnitDualQuaternion<T1>
 where
-    N1: SimdRealField,
-    N2: SimdRealField + SupersetOf<N1>,
+    T1: SimdRealField,
+    T2: SimdRealField + SupersetOf<T1>,
 {
     #[inline]
-    fn to_superset(&self) -> UnitDualQuaternion<N2> {
+    fn to_superset(&self) -> UnitDualQuaternion<T2> {
         UnitDualQuaternion::new_unchecked(self.as_ref().to_superset())
     }
 
     #[inline]
-    fn is_in_subset(dq: &UnitDualQuaternion<N2>) -> bool {
-        crate::is_convertible::<_, DualQuaternion<N1>>(dq.as_ref())
+    fn is_in_subset(dq: &UnitDualQuaternion<T2>) -> bool {
+        crate::is_convertible::<_, DualQuaternion<T1>>(dq.as_ref())
     }
 
     #[inline]
-    fn from_superset_unchecked(dq: &UnitDualQuaternion<N2>) -> Self {
+    fn from_superset_unchecked(dq: &UnitDualQuaternion<T2>) -> Self {
         Self::new_unchecked(crate::convert_ref_unchecked(dq.as_ref()))
     }
 }
 
-impl<N1, N2> SubsetOf<Isometry3<N2>> for UnitDualQuaternion<N1>
+impl<T1, T2> SubsetOf<Isometry3<T2>> for UnitDualQuaternion<T1>
 where
-    N1: RealField,
-    N2: RealField + SupersetOf<N1>,
+    T1: RealField,
+    T2: RealField + SupersetOf<T1>,
 {
     #[inline]
-    fn to_superset(&self) -> Isometry3<N2> {
-        let dq: UnitDualQuaternion<N2> = self.to_superset();
+    fn to_superset(&self) -> Isometry3<T2> {
+        let dq: UnitDualQuaternion<T2> = self.to_superset();
         let iso = dq.to_isometry();
         crate::convert_unchecked(iso)
     }
 
     #[inline]
-    fn is_in_subset(iso: &Isometry3<N2>) -> bool {
-        crate::is_convertible::<_, UnitQuaternion<N1>>(&iso.rotation)
-            && crate::is_convertible::<_, Translation3<N1>>(&iso.translation)
+    fn is_in_subset(iso: &Isometry3<T2>) -> bool {
+        crate::is_convertible::<_, UnitQuaternion<T1>>(&iso.rotation)
+            && crate::is_convertible::<_, Translation3<T1>>(&iso.translation)
     }
 
     #[inline]
-    fn from_superset_unchecked(iso: &Isometry3<N2>) -> Self {
-        let dq = UnitDualQuaternion::<N2>::from_isometry(iso);
+    fn from_superset_unchecked(iso: &Isometry3<T2>) -> Self {
+        let dq = UnitDualQuaternion::<T2>::from_isometry(iso);
         crate::convert_unchecked(dq)
     }
 }
 
-impl<N1, N2> SubsetOf<Similarity3<N2>> for UnitDualQuaternion<N1>
+impl<T1, T2> SubsetOf<Similarity3<T2>> for UnitDualQuaternion<T1>
 where
-    N1: RealField,
-    N2: RealField + SupersetOf<N1>,
+    T1: RealField,
+    T2: RealField + SupersetOf<T1>,
 {
     #[inline]
-    fn to_superset(&self) -> Similarity3<N2> {
-        Similarity3::from_isometry(crate::convert_ref(self), N2::one())
+    fn to_superset(&self) -> Similarity3<T2> {
+        Similarity3::from_isometry(crate::convert_ref(self), T2::one())
     }
 
     #[inline]
-    fn is_in_subset(sim: &Similarity3<N2>) -> bool {
-        sim.scaling() == N2::one()
+    fn is_in_subset(sim: &Similarity3<T2>) -> bool {
+        sim.scaling() == T2::one()
     }
 
     #[inline]
-    fn from_superset_unchecked(sim: &Similarity3<N2>) -> Self {
+    fn from_superset_unchecked(sim: &Similarity3<T2>) -> Self {
         crate::convert_ref_unchecked(&sim.isometry)
     }
 }
 
-impl<N1, N2, C> SubsetOf<Transform<N2, C, 3>> for UnitDualQuaternion<N1>
+impl<T1, T2, C> SubsetOf<Transform<T2, C, 3>> for UnitDualQuaternion<T1>
 where
-    N1: RealField,
-    N2: RealField + SupersetOf<N1>,
+    T1: RealField,
+    T2: RealField + SupersetOf<T1>,
     C: SuperTCategoryOf<TAffine>,
 {
     #[inline]
-    fn to_superset(&self) -> Transform<N2, C, 3> {
+    fn to_superset(&self) -> Transform<T2, C, 3> {
         Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
     }
 
     #[inline]
-    fn is_in_subset(t: &Transform<N2, C, 3>) -> bool {
+    fn is_in_subset(t: &Transform<T2, C, 3>) -> bool {
         <Self as SubsetOf<_>>::is_in_subset(t.matrix())
     }
 
     #[inline]
-    fn from_superset_unchecked(t: &Transform<N2, C, 3>) -> Self {
+    fn from_superset_unchecked(t: &Transform<T2, C, 3>) -> Self {
         Self::from_superset_unchecked(t.matrix())
     }
 }
 
-impl<N1: RealField, N2: RealField + SupersetOf<N1>> SubsetOf<Matrix4<N2>>
-    for UnitDualQuaternion<N1>
+impl<T1: RealField, T2: RealField + SupersetOf<T1>> SubsetOf<Matrix4<T2>>
+    for UnitDualQuaternion<T1>
 {
     #[inline]
-    fn to_superset(&self) -> Matrix4<N2> {
+    fn to_superset(&self) -> Matrix4<T2> {
         self.to_homogeneous().to_superset()
     }
 
     #[inline]
-    fn is_in_subset(m: &Matrix4<N2>) -> bool {
-        crate::is_convertible::<_, Isometry3<N1>>(m)
+    fn is_in_subset(m: &Matrix4<T2>) -> bool {
+        crate::is_convertible::<_, Isometry3<T1>>(m)
     }
 
     #[inline]
-    fn from_superset_unchecked(m: &Matrix4<N2>) -> Self {
-        let iso: Isometry3<N1> = crate::convert_ref_unchecked(m);
+    fn from_superset_unchecked(m: &Matrix4<T2>) -> Self {
+        let iso: Isometry3<T1> = crate::convert_ref_unchecked(m);
         Self::from_isometry(&iso)
     }
 }
 
-impl<N: SimdRealField + RealField> From<UnitDualQuaternion<N>> for Matrix4<N>
+impl<T: SimdRealField + RealField> From<UnitDualQuaternion<T>> for Matrix4<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn from(dq: UnitDualQuaternion<N>) -> Self {
+    fn from(dq: UnitDualQuaternion<T>) -> Self {
         dq.to_homogeneous()
     }
 }
 
-impl<N: SimdRealField> From<UnitDualQuaternion<N>> for Isometry3<N>
+impl<T: SimdRealField> From<UnitDualQuaternion<T>> for Isometry3<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn from(dq: UnitDualQuaternion<N>) -> Self {
+    fn from(dq: UnitDualQuaternion<T>) -> Self {
         dq.to_isometry()
     }
 }
 
-impl<N: SimdRealField> From<Isometry3<N>> for UnitDualQuaternion<N>
+impl<T: SimdRealField> From<Isometry3<T>> for UnitDualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn from(iso: Isometry3<N>) -> Self {
+    fn from(iso: Isometry3<T>) -> Self {
         Self::from_isometry(&iso)
     }
 }

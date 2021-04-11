@@ -14,10 +14,8 @@ use crate::geometry::Translation;
 
 macro_rules! deref_impl(
     ($D: expr, $Target: ident $(, $comps: ident)*) => {
-        impl<N: Scalar> Deref for Translation<N, $D>
-            // where DefaultAllocator: Allocator<N, $D>
-             {
-            type Target = $Target<N>;
+        impl<T: Scalar> Deref for Translation<T, $D> {
+            type Target = $Target<T>;
 
             #[inline]
             fn deref(&self) -> &Self::Target {
@@ -25,8 +23,7 @@ macro_rules! deref_impl(
             }
         }
 
-        impl<N: Scalar> DerefMut for Translation<N, $D>
-            // where DefaultAllocator: Allocator<N, $D>
+        impl<T: Scalar> DerefMut for Translation<T, $D>
              {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {

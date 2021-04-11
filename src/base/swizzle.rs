@@ -8,7 +8,7 @@ macro_rules! impl_swizzle {
             $(
                 /// Builds a new vector from components of `self`.
                 #[inline]
-                pub fn $name(&self) -> $Result<N>
+                pub fn $name(&self) -> $Result<T>
                 where D::Typenum: Cmp<typenum::$BaseDim, Output=Greater> {
                     $Result::new($(self[$i].inlined_clone()),*)
                 }
@@ -18,7 +18,7 @@ macro_rules! impl_swizzle {
 }
 
 /// # Swizzling
-impl<N: Scalar, D, S: Storage<N, D>> Vector<N, D, S>
+impl<T: Scalar, D, S: Storage<T, D>> Vector<T, D, S>
 where
     D: DimName + ToTypenum,
 {

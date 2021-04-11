@@ -4,18 +4,18 @@ use crate::SimdRealField;
 
 use crate::geometry::{AbstractRotation, Isometry, Translation};
 
-impl<N: SimdRealField, R, const D: usize> SimdValue for Isometry<N, R, D>
+impl<T: SimdRealField, R, const D: usize> SimdValue for Isometry<T, R, D>
 where
-    N::Element: SimdRealField,
-    R: SimdValue<SimdBool = N::SimdBool> + AbstractRotation<N, D>,
-    R::Element: AbstractRotation<N::Element, D>,
+    T::Element: SimdRealField,
+    R: SimdValue<SimdBool = T::SimdBool> + AbstractRotation<T, D>,
+    R::Element: AbstractRotation<T::Element, D>,
 {
-    type Element = Isometry<N::Element, R::Element, D>;
-    type SimdBool = N::SimdBool;
+    type Element = Isometry<T::Element, R::Element, D>;
+    type SimdBool = T::SimdBool;
 
     #[inline]
     fn lanes() -> usize {
-        N::lanes()
+        T::lanes()
     }
 
     #[inline]

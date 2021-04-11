@@ -1,4 +1,4 @@
-use na::{DVector, Vector2, Vector3, Vector4, VectorN};
+use na::{DVector, OVector, Vector2, Vector3, Vector4};
 use rand::Rng;
 use rand_isaac::IsaacRng;
 use std::ops::{Add, Div, Mul, Sub};
@@ -45,8 +45,8 @@ bench_unop!(vec2_normalize, Vector2<f32>, normalize);
 bench_unop!(vec3_normalize, Vector3<f32>, normalize);
 bench_unop!(vec4_normalize, Vector4<f32>, normalize);
 
-bench_binop_ref!(vec10000_dot_f64, VectorN<f64, U10000>, VectorN<f64, U10000>, dot);
-bench_binop_ref!(vec10000_dot_f32, VectorN<f32, U10000>, VectorN<f32, U10000>, dot);
+bench_binop_ref!(vec10000_dot_f64, OVector<f64, U10000>, OVector<f64, U10000>, dot);
+bench_binop_ref!(vec10000_dot_f32, OVector<f32, U10000>, OVector<f32, U10000>, dot);
 
 fn vec10000_axpy_f64(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
@@ -93,11 +93,11 @@ fn vec10000_axpy_f64_slice(bh: &mut criterion::Criterion) {
 fn vec10000_axpy_f64_static(bh: &mut criterion::Criterion) {
     use rand::SeedableRng;
     let mut rng = IsaacRng::seed_from_u64(0);
-    let mut a = VectorN::<f64, U10000>::new_random();
-    let b = VectorN::<f64, U10000>::new_random();
+    let mut a = OVector::<f64, U10000>::new_random();
+    let b = OVector::<f64, U10000>::new_random();
     let n = rng.gen::<f64>();
 
-    // NOTE: for some reasons, it is much faster if the arument are boxed (Box::new(VectorN...)).
+    // NOTE: for some reasons, it is much faster if the arument are boxed (Box::new(OVector...)).
     bh.bench_function("vec10000_axpy_f64_static", move |bh| {
         bh.iter(|| a.axpy(n, &b, 1.0))
     });

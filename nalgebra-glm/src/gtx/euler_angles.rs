@@ -1,163 +1,163 @@
 use na::{RealField, U3, U4};
 
-use crate::aliases::{TVec, TMat};
+use crate::aliases::{TMat, TVec};
 
-pub fn derivedEulerAngleX<N: RealField>(angleX: N, angularVelocityX: N) -> TMat4<N> {
+pub fn derivedEulerAngleX<T: RealField>(angleX: T, angularVelocityX: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn derivedEulerAngleY<N: RealField>(angleY: N, angularVelocityY: N) -> TMat4<N> {
+pub fn derivedEulerAngleY<T: RealField>(angleY: T, angularVelocityY: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn derivedEulerAngleZ<N: RealField>(angleZ: N, angularVelocityZ: N) -> TMat4<N> {
+pub fn derivedEulerAngleZ<T: RealField>(angleZ: T, angularVelocityZ: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleX<N: RealField>(angleX: N) -> TMat4<N> {
+pub fn eulerAngleX<T: RealField>(angleX: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleXY<N: RealField>(angleX: N, angleY: N) -> TMat4<N> {
+pub fn eulerAngleXY<T: RealField>(angleX: T, angleY: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleXYX<N: RealField>(t1: N, t2: N, t3: N) -> TMat4<N> {
+pub fn eulerAngleXYX<T: RealField>(t1: T, t2: T, t3: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleXYZ<N: RealField>(t1: N, t2: N, t3: N) -> TMat4<N> {
+pub fn eulerAngleXYZ<T: RealField>(t1: T, t2: T, t3: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleXZ<N: RealField>(angleX: N, angleZ: N) -> TMat4<N> {
+pub fn eulerAngleXZ<T: RealField>(angleX: T, angleZ: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleXZX<N: RealField>(t1: N, t2: N, t3: N) -> TMat4<N> {
+pub fn eulerAngleXZX<T: RealField>(t1: T, t2: T, t3: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleXZY<N: RealField>(t1: N, t2: N, t3: N) -> TMat4<N> {
+pub fn eulerAngleXZY<T: RealField>(t1: T, t2: T, t3: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleY<N: RealField>(angleY: N) -> TMat4<N> {
+pub fn eulerAngleY<T: RealField>(angleY: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleYX<N: RealField>(angleY: N, angleX: N) -> TMat4<N> {
+pub fn eulerAngleYX<T: RealField>(angleY: T, angleX: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleYXY<N: RealField>(t1: N, t2: N, t3: N) -> TMat4<N> {
+pub fn eulerAngleYXY<T: RealField>(t1: T, t2: T, t3: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleYXZ<N: RealField>(yaw: N, pitch: N, roll: N) -> TMat4<N> {
+pub fn eulerAngleYXZ<T: RealField>(yaw: T, pitch: T, roll: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleYZ<N: RealField>(angleY: N, angleZ: N) -> TMat4<N> {
+pub fn eulerAngleYZ<T: RealField>(angleY: T, angleZ: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleYZX<N: RealField>(t1: N, t2: N, t3: N) -> TMat4<N> {
+pub fn eulerAngleYZX<T: RealField>(t1: T, t2: T, t3: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleYZY<N: RealField>(t1: N, t2: N, t3: N) -> TMat4<N> {
+pub fn eulerAngleYZY<T: RealField>(t1: T, t2: T, t3: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleZ<N: RealField>(angleZ: N) -> TMat4<N> {
+pub fn eulerAngleZ<T: RealField>(angleZ: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleZX<N: RealField>(angle: N, angleX: N) -> TMat4<N> {
+pub fn eulerAngleZX<T: RealField>(angle: T, angleX: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleZXY<N: RealField>(t1: N, t2: N, t3: N) -> TMat4<N> {
+pub fn eulerAngleZXY<T: RealField>(t1: T, t2: T, t3: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleZXZ<N: RealField>(t1: N, t2: N, t3: N) -> TMat4<N> {
+pub fn eulerAngleZXZ<T: RealField>(t1: T, t2: T, t3: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleZY<N: RealField>(angleZ: N, angleY: N) -> TMat4<N> {
+pub fn eulerAngleZY<T: RealField>(angleZ: T, angleY: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleZYX<N: RealField>(t1: N, t2: N, t3: N) -> TMat4<N> {
+pub fn eulerAngleZYX<T: RealField>(t1: T, t2: T, t3: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn eulerAngleZYZ<N: RealField>(t1: N, t2: N, t3: N) -> TMat4<N> {
+pub fn eulerAngleZYZ<T: RealField>(t1: T, t2: T, t3: T) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn extractEulerAngleXYX<N: RealField>(M: &TMat4<N>) -> (N, N, N) {
+pub fn extractEulerAngleXYX<T: RealField>(M: &TMat4<T>) -> (T, T, T) {
     unimplemented!()
 }
 
-pub fn extractEulerAngleXYZ<N: RealField>(M: &TMat4<N>) -> (N, N, N) {
+pub fn extractEulerAngleXYZ<T: RealField>(M: &TMat4<T>) -> (T, T, T) {
     unimplemented!()
 }
 
-pub fn extractEulerAngleXZX<N: RealField>(M: &TMat4<N>) -> (N, N, N) {
+pub fn extractEulerAngleXZX<T: RealField>(M: &TMat4<T>) -> (T, T, T) {
     unimplemented!()
 }
 
-pub fn extractEulerAngleXZY<N: RealField>(M: &TMat4<N>) -> (N, N, N) {
+pub fn extractEulerAngleXZY<T: RealField>(M: &TMat4<T>) -> (T, T, T) {
     unimplemented!()
 }
 
-pub fn extractEulerAngleYXY<N: RealField>(M: &TMat4<N>) -> (N, N, N) {
+pub fn extractEulerAngleYXY<T: RealField>(M: &TMat4<T>) -> (T, T, T) {
     unimplemented!()
 }
 
-pub fn extractEulerAngleYXZ<N: RealField>(M: &TMat4<N>) -> (N, N, N) {
+pub fn extractEulerAngleYXZ<T: RealField>(M: &TMat4<T>) -> (T, T, T) {
     unimplemented!()
 }
 
-pub fn extractEulerAngleYZX<N: RealField>(M: &TMat4<N>) -> (N, N, N) {
+pub fn extractEulerAngleYZX<T: RealField>(M: &TMat4<T>) -> (T, T, T) {
     unimplemented!()
 }
 
-pub fn extractEulerAngleYZY<N: RealField>(M: &TMat4<N>) -> (N, N, N) {
+pub fn extractEulerAngleYZY<T: RealField>(M: &TMat4<T>) -> (T, T, T) {
     unimplemented!()
 }
 
-pub fn extractEulerAngleZXY<N: RealField>(M: &TMat4<N>) -> (N, N, N) {
+pub fn extractEulerAngleZXY<T: RealField>(M: &TMat4<T>) -> (T, T, T) {
     unimplemented!()
 }
 
-pub fn extractEulerAngleZXZ<N: RealField>(M: &TMat4<N>) -> (N, N, N) {
+pub fn extractEulerAngleZXZ<T: RealField>(M: &TMat4<T>) -> (T, T, T) {
     unimplemented!()
 }
 
-pub fn extractEulerAngleZYX<N: RealField>(M: &TMat4<N>) -> (N, N, N) {
+pub fn extractEulerAngleZYX<T: RealField>(M: &TMat4<T>) -> (T, T, T) {
     unimplemented!()
 }
 
-pub fn extractEulerAngleZYZ<N: RealField>(M: &TMat4<N>) -> (N, N, N) {
+pub fn extractEulerAngleZYZ<T: RealField>(M: &TMat4<T>) -> (T, T, T) {
     unimplemented!()
 }
 
-pub fn orientate2<N: RealField>(angle: N) -> TMat3x3<N> {
+pub fn orientate2<T: RealField>(angle: T) -> TMat3x3<T> {
     unimplemented!()
 }
 
-pub fn orientate3<N: RealField>(angles: TVec3<N>) -> TMat3x3<N> {
+pub fn orientate3<T: RealField>(angles: TVec3<T>) -> TMat3x3<T> {
     unimplemented!()
 }
 
-pub fn orientate4<N: RealField>(angles: TVec3<N>) -> TMat4<N> {
+pub fn orientate4<T: RealField>(angles: TVec3<T>) -> TMat4<T> {
     unimplemented!()
 }
 
-pub fn yawPitchRoll<N: RealField>(yaw: N, pitch: N, roll: N) -> TMat4<N> {
+pub fn yawPitchRoll<T: RealField>(yaw: T, pitch: T, roll: T) -> TMat4<T> {
     unimplemented!()
 }

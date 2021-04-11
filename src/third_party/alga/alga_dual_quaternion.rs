@@ -15,35 +15,35 @@ use crate::geometry::{
     DualQuaternion, Point3, Quaternion, Translation3, UnitDualQuaternion, UnitQuaternion,
 };
 
-impl<N: RealField + simba::scalar::RealField> Identity<Multiplicative> for DualQuaternion<N> {
+impl<T: RealField + simba::scalar::RealField> Identity<Multiplicative> for DualQuaternion<T> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> Identity<Additive> for DualQuaternion<N> {
+impl<T: RealField + simba::scalar::RealField> Identity<Additive> for DualQuaternion<T> {
     #[inline]
     fn identity() -> Self {
         Self::zero()
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> AbstractMagma<Multiplicative> for DualQuaternion<N> {
+impl<T: RealField + simba::scalar::RealField> AbstractMagma<Multiplicative> for DualQuaternion<T> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self * rhs
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> AbstractMagma<Additive> for DualQuaternion<N> {
+impl<T: RealField + simba::scalar::RealField> AbstractMagma<Additive> for DualQuaternion<T> {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
         self + rhs
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> TwoSidedInverse<Additive> for DualQuaternion<N> {
+impl<T: RealField + simba::scalar::RealField> TwoSidedInverse<Additive> for DualQuaternion<T> {
     #[inline]
     fn two_sided_inverse(&self) -> Self {
         -self
@@ -52,7 +52,7 @@ impl<N: RealField + simba::scalar::RealField> TwoSidedInverse<Additive> for Dual
 
 macro_rules! impl_structures(
     ($DualQuaternion: ident; $($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N: RealField + simba::scalar::RealField> $marker<$operator> for $DualQuaternion<N> { }
+        impl<T: RealField + simba::scalar::RealField> $marker<$operator> for $DualQuaternion<T> { }
     )*}
 );
 
@@ -74,24 +74,24 @@ impl_structures!(
  * Vector space.
  *
  */
-impl<N: RealField + simba::scalar::RealField> AbstractModule for DualQuaternion<N> {
-    type AbstractRing = N;
+impl<T: RealField + simba::scalar::RealField> AbstractModule for DualQuaternion<T> {
+    type AbstractRing = T;
 
     #[inline]
-    fn multiply_by(&self, n: N) -> Self {
+    fn multiply_by(&self, n: T) -> Self {
         self * n
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> Module for DualQuaternion<N> {
-    type Ring = N;
+impl<T: RealField + simba::scalar::RealField> Module for DualQuaternion<T> {
+    type Ring = T;
 }
 
-impl<N: RealField + simba::scalar::RealField> VectorSpace for DualQuaternion<N> {
-    type Field = N;
+impl<T: RealField + simba::scalar::RealField> VectorSpace for DualQuaternion<T> {
+    type Field = T;
 }
 
-impl<N: RealField + simba::scalar::RealField> FiniteDimVectorSpace for DualQuaternion<N> {
+impl<T: RealField + simba::scalar::RealField> FiniteDimVectorSpace for DualQuaternion<T> {
     #[inline]
     fn dimension() -> usize {
         8
@@ -113,32 +113,32 @@ impl<N: RealField + simba::scalar::RealField> FiniteDimVectorSpace for DualQuate
     }
 
     #[inline]
-    fn dot(&self, other: &Self) -> N {
+    fn dot(&self, other: &Self) -> T {
         self.real.dot(&other.real) + self.dual.dot(&other.dual)
     }
 
     #[inline]
-    unsafe fn component_unchecked(&self, i: usize) -> &N {
+    unsafe fn component_unchecked(&self, i: usize) -> &T {
         self.as_ref().get_unchecked(i)
     }
 
     #[inline]
-    unsafe fn component_unchecked_mut(&mut self, i: usize) -> &mut N {
+    unsafe fn component_unchecked_mut(&mut self, i: usize) -> &mut T {
         self.as_mut().get_unchecked_mut(i)
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> NormedSpace for DualQuaternion<N> {
-    type RealField = N;
-    type ComplexField = N;
+impl<T: RealField + simba::scalar::RealField> NormedSpace for DualQuaternion<T> {
+    type RealField = T;
+    type ComplexField = T;
 
     #[inline]
-    fn norm_squared(&self) -> N {
+    fn norm_squared(&self) -> T {
         self.real.norm_squared()
     }
 
     #[inline]
-    fn norm(&self) -> N {
+    fn norm(&self) -> T {
         self.real.norm()
     }
 
@@ -148,12 +148,12 @@ impl<N: RealField + simba::scalar::RealField> NormedSpace for DualQuaternion<N> 
     }
 
     #[inline]
-    fn normalize_mut(&mut self) -> N {
+    fn normalize_mut(&mut self) -> T {
         self.normalize_mut()
     }
 
     #[inline]
-    fn try_normalize(&self, min_norm: N) -> Option<Self> {
+    fn try_normalize(&self, min_norm: T) -> Option<Self> {
         let real_norm = self.real.norm();
         if real_norm > min_norm {
             Some(Self::from_real_and_dual(
@@ -166,7 +166,7 @@ impl<N: RealField + simba::scalar::RealField> NormedSpace for DualQuaternion<N> 
     }
 
     #[inline]
-    fn try_normalize_mut(&mut self, min_norm: N) -> Option<N> {
+    fn try_normalize_mut(&mut self, min_norm: T) -> Option<T> {
         let real_norm = self.real.norm();
         if real_norm > min_norm {
             self.real /= real_norm;
@@ -183,15 +183,15 @@ impl<N: RealField + simba::scalar::RealField> NormedSpace for DualQuaternion<N> 
  * Implementations for UnitDualQuaternion.
  *
  */
-impl<N: RealField + simba::scalar::RealField> Identity<Multiplicative> for UnitDualQuaternion<N> {
+impl<T: RealField + simba::scalar::RealField> Identity<Multiplicative> for UnitDualQuaternion<T> {
     #[inline]
     fn identity() -> Self {
         Self::identity()
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> AbstractMagma<Multiplicative>
-    for UnitDualQuaternion<N>
+impl<T: RealField + simba::scalar::RealField> AbstractMagma<Multiplicative>
+    for UnitDualQuaternion<T>
 {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
@@ -199,8 +199,8 @@ impl<N: RealField + simba::scalar::RealField> AbstractMagma<Multiplicative>
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> TwoSidedInverse<Multiplicative>
-    for UnitDualQuaternion<N>
+impl<T: RealField + simba::scalar::RealField> TwoSidedInverse<Multiplicative>
+    for UnitDualQuaternion<T>
 {
     #[inline]
     fn two_sided_inverse(&self) -> Self {
@@ -222,38 +222,38 @@ impl_structures!(
     AbstractGroup<Multiplicative>
 );
 
-impl<N: RealField + simba::scalar::RealField> Transformation<Point3<N>> for UnitDualQuaternion<N> {
+impl<T: RealField + simba::scalar::RealField> Transformation<Point3<T>> for UnitDualQuaternion<T> {
     #[inline]
-    fn transform_point(&self, pt: &Point3<N>) -> Point3<N> {
+    fn transform_point(&self, pt: &Point3<T>) -> Point3<T> {
         self.transform_point(pt)
     }
 
     #[inline]
-    fn transform_vector(&self, v: &Vector3<N>) -> Vector3<N> {
+    fn transform_vector(&self, v: &Vector3<T>) -> Vector3<T> {
         self.transform_vector(v)
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> ProjectiveTransformation<Point3<N>>
-    for UnitDualQuaternion<N>
+impl<T: RealField + simba::scalar::RealField> ProjectiveTransformation<Point3<T>>
+    for UnitDualQuaternion<T>
 {
     #[inline]
-    fn inverse_transform_point(&self, pt: &Point3<N>) -> Point3<N> {
+    fn inverse_transform_point(&self, pt: &Point3<T>) -> Point3<T> {
         self.inverse_transform_point(pt)
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &Vector3<N>) -> Vector3<N> {
+    fn inverse_transform_vector(&self, v: &Vector3<T>) -> Vector3<T> {
         self.inverse_transform_vector(v)
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> AffineTransformation<Point3<N>>
-    for UnitDualQuaternion<N>
+impl<T: RealField + simba::scalar::RealField> AffineTransformation<Point3<T>>
+    for UnitDualQuaternion<T>
 {
-    type Rotation = UnitQuaternion<N>;
+    type Rotation = UnitQuaternion<T>;
     type NonUniformScaling = Id;
-    type Translation = Translation3<N>;
+    type Translation = Translation3<T>;
 
     #[inline]
     fn decompose(&self) -> (Self::Translation, Self::Rotation, Id, Self::Rotation) {
@@ -296,16 +296,16 @@ impl<N: RealField + simba::scalar::RealField> AffineTransformation<Point3<N>>
     }
 }
 
-impl<N: RealField + simba::scalar::RealField> Similarity<Point3<N>> for UnitDualQuaternion<N> {
+impl<T: RealField + simba::scalar::RealField> Similarity<Point3<T>> for UnitDualQuaternion<T> {
     type Scaling = Id;
 
     #[inline]
-    fn translation(&self) -> Translation3<N> {
+    fn translation(&self) -> Translation3<T> {
         self.translation()
     }
 
     #[inline]
-    fn rotation(&self) -> UnitQuaternion<N> {
+    fn rotation(&self) -> UnitQuaternion<T> {
         self.rotation()
     }
 
@@ -317,7 +317,7 @@ impl<N: RealField + simba::scalar::RealField> Similarity<Point3<N>> for UnitDual
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N: RealField + simba::scalar::RealField> $Trait<Point3<N>> for UnitDualQuaternion<N> { }
+        impl<T: RealField + simba::scalar::RealField> $Trait<Point3<T>> for UnitDualQuaternion<T> { }
     )*}
 );
 

@@ -1,16 +1,12 @@
 use crate::aliases::TVec;
-use crate::traits::{Alloc, Dimension};
-use na::{DefaultAllocator, RealField};
+use na::RealField;
 
 /// Component-wise exponential.
 ///
 /// # See also:
 ///
 /// * [`exp2`](fn.exp2.html)
-pub fn exp<N: RealField, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn exp<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.exp())
 }
 
@@ -19,10 +15,7 @@ where
 /// # See also:
 ///
 /// * [`exp`](fn.exp.html)
-pub fn exp2<N: RealField, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn exp2<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.exp2())
 }
 
@@ -31,11 +24,8 @@ where
 /// # See also:
 ///
 /// * [`sqrt`](fn.sqrt.html)
-pub fn inversesqrt<N: RealField, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-where
-    DefaultAllocator: Alloc<N, D>,
-{
-    v.map(|x| N::one() / x.sqrt())
+pub fn inversesqrt<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
+    v.map(|x| T::one() / x.sqrt())
 }
 
 /// Component-wise logarithm.
@@ -43,10 +33,7 @@ where
 /// # See also:
 ///
 /// * [`log2`](fn.log2.html)
-pub fn log<N: RealField, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn log<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.ln())
 }
 
@@ -55,18 +42,12 @@ where
 /// # See also:
 ///
 /// * [`log`](fn.log.html)
-pub fn log2<N: RealField, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn log2<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.log2())
 }
 
 /// Component-wise power.
-pub fn pow<N: RealField, D: Dimension>(base: &TVec<N, D>, exponent: &TVec<N, D>) -> TVec<N, D>
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn pow<T: RealField, const D: usize>(base: &TVec<T, D>, exponent: &TVec<T, D>) -> TVec<T, D> {
     base.zip_map(exponent, |b, e| b.powf(e))
 }
 
@@ -78,9 +59,6 @@ where
 /// * [`exp2`](fn.exp2.html)
 /// * [`inversesqrt`](fn.inversesqrt.html)
 /// * [`pow`](fn.pow.html)
-pub fn sqrt<N: RealField, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn sqrt<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.sqrt())
 }

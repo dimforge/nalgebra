@@ -10,20 +10,17 @@ use rand::{
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
-use crate::base::{CVectorN, DefaultAllocator, Scalar};
+use crate::base::{DefaultAllocator, SVector, Scalar};
 use crate::{
-    Const, Point1, Point2, Point3, Point4, Point5, Point6, Vector1, Vector2, Vector3, Vector4,
-    Vector5, Vector6, VectorN,
+    Const, OVector, Point1, Point2, Point3, Point4, Point5, Point6, Vector1, Vector2, Vector3,
+    Vector4, Vector5, Vector6,
 };
 use simba::scalar::{ClosedDiv, SupersetOf};
 
 use crate::geometry::Point;
 
 /// # Other construction methods
-impl<N: Scalar, const D: usize> Point<N, D>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar, const D: usize> Point<T, D> {
     /// Creates a new point with uninitialized coordinates.
     #[inline]
     pub unsafe fn new_uninitialized() -> Self {
@@ -50,9 +47,9 @@ impl<N: Scalar, const D: usize> Point<N, D>
     #[inline]
     pub fn origin() -> Self
     where
-        N: Zero,
+        T: Zero,
     {
-        Self::from(CVectorN::from_element(N::zero()))
+        Self::from(SVector::from_element(T::zero()))
     }
 
     /// Creates a new point from a slice.
@@ -70,8 +67,8 @@ impl<N: Scalar, const D: usize> Point<N, D>
     /// assert_eq!(pt, Point3::new(1.0, 2.0, 3.0));
     /// ```
     #[inline]
-    pub fn from_slice(components: &[N]) -> Self {
-        Self::from(CVectorN::from_row_slice(components))
+    pub fn from_slice(components: &[T]) -> Self {
+        Self::from(SVector::from_row_slice(components))
     }
 
     /// Creates a new point from its homogeneous vector representation.
@@ -105,14 +102,14 @@ impl<N: Scalar, const D: usize> Point<N, D>
     /// assert_eq!(pt, Some(Point2::new(1.0, 2.0)));
     /// ```
     #[inline]
-    pub fn from_homogeneous(v: VectorN<N, DimNameSum<Const<D>, U1>>) -> Option<Self>
+    pub fn from_homogeneous(v: OVector<T, DimNameSum<Const<D>, U1>>) -> Option<Self>
     where
-        N: Scalar + Zero + One + ClosedDiv,
+        T: Scalar + Zero + One + ClosedDiv,
         Const<D>: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<N, DimNameSum<Const<D>, U1>>,
+        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>>,
     {
         if !v[D].is_zero() {
-            let coords = v.fixed_slice::<Const<D>, U1>(0, 0) / v[D].inlined_clone();
+            let coords = v.fixed_slice::<D, 1>(0, 0) / v[D].inlined_clone();
             Some(Self::from(coords))
         } else {
             None
@@ -141,41 +138,38 @@ impl<N: Scalar, const D: usize> Point<N, D>
  * Traits that build points.
  *
  */
-impl<N: Scalar + Bounded, const D: usize> Bounded for Point<N, D>
-// where
-//     DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar + Bounded, const D: usize> Bounded for Point<T, D> {
     #[inline]
     fn max_value() -> Self {
-        Self::from(CVectorN::max_value())
+        Self::from(SVector::max_value())
     }
 
     #[inline]
     fn min_value() -> Self {
-        Self::from(CVectorN::min_value())
+        Self::from(SVector::min_value())
     }
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<N: Scalar, const D: usize> Distribution<Point<N, D>> for Standard
+impl<T: Scalar, const D: usize> Distribution<Point<T, D>> for Standard
 where
-    Standard: Distribution<N>,
+    Standard: Distribution<T>,
 {
      /// Generate a `Point` where each coordinate is an independent variate from `[0, 1)`.
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Point<N, D> {
-        Point::from(rng.gen::<CVectorN<N, D>>())
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Point<T, D> {
+        Point::from(rng.gen::<SVector<T, D>>())
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: Scalar + Arbitrary + Send, const D: usize> Arbitrary for Point<N, D>
+impl<T: Scalar + Arbitrary + Send, const D: usize> Arbitrary for Point<T, D>
 where
-    <DefaultAllocator as Allocator<N, Const<D>>>::Buffer: Send,
+    <DefaultAllocator as Allocator<T, Const<D>>>::Buffer: Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {
-        Self::from(CVectorN::arbitrary(g))
+        Self::from(SVector::arbitrary(g))
     }
 }
 
@@ -187,7 +181,7 @@ where
 // NOTE: the impl for Point1 is not with the others so that we
 // can add a section with the impl block comment.
 /// # Construction from individual components
-impl<N: Scalar> Point1<N> {
+impl<T: Scalar> Point1<T> {
     /// Initializes this point from its components.
     ///
     /// # Example
@@ -198,19 +192,19 @@ impl<N: Scalar> Point1<N> {
     /// assert_eq!(p.x, 1.0);
     /// ```
     #[inline]
-    pub fn new(x: N) -> Self {
+    pub fn new(x: T) -> Self {
         Vector1::new(x).into()
     }
 }
 macro_rules! componentwise_constructors_impl(
     ($($doc: expr; $Point: ident, $Vector: ident, $($args: ident:$irow: expr),*);* $(;)*) => {$(
-        impl<N: Scalar> $Point<N> {
+        impl<T: Scalar> $Point<T> {
             #[doc = "Initializes this point from its components."]
             #[doc = "# Example\n```"]
             #[doc = $doc]
             #[doc = "```"]
             #[inline]
-            pub fn new($($args: N),*) -> Self {
+            pub fn new($($args: T),*) -> Self {
                 $Vector::new($($args),*).into()
             }
         }
@@ -232,8 +226,8 @@ componentwise_constructors_impl!(
 
 macro_rules! from_array_impl(
     ($($Point: ident, $len: expr);*) => {$(
-      impl <N: Scalar> From<[N; $len]> for $Point<N> {
-          fn from(coords: [N; $len]) -> Self {
+      impl <T: Scalar> From<[T; $len]> for $Point<T> {
+          fn from(coords: [T; $len]) -> Self {
               Self {
                 coords: coords.into()
               }

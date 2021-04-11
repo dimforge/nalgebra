@@ -3,12 +3,12 @@ use std::mem;
 
 use crate::allocator::Allocator;
 use crate::sparse::{CsMatrix, CsStorage, CsStorageIter, CsStorageIterMut, CsVecStorage};
-use crate::{Const, DefaultAllocator, Dim, RealField, VectorN};
+use crate::{Const, DefaultAllocator, Dim, OVector, RealField};
 
 /// The cholesky decomposition of a column compressed sparse matrix.
-pub struct CsCholesky<N: RealField, D: Dim>
+pub struct CsCholesky<T: RealField, D: Dim>
 where
-    DefaultAllocator: Allocator<usize, D> + Allocator<N, D>,
+    DefaultAllocator: Allocator<usize, D> + Allocator<T, D>,
 {
     // Non-zero pattern of the original matrix upper-triangular part.
     // Unlike the original matrix, the `original_p` array does contain the last sentinel value
@@ -16,22 +16,22 @@ where
     original_p: Vec<usize>,
     original_i: Vec<usize>,
     // Decomposition result.
-    l: CsMatrix<N, D, D>,
+    l: CsMatrix<T, D, D>,
     // Used only for the pattern.
     // TODO: store only the nonzero pattern instead.
-    u: CsMatrix<N, D, D>,
+    u: CsMatrix<T, D, D>,
     ok: bool,
     // Workspaces.
-    work_x: VectorN<N, D>,
-    work_c: VectorN<usize, D>,
+    work_x: OVector<T, D>,
+    work_c: OVector<usize, D>,
 }
 
-impl<N: RealField, D: Dim> CsCholesky<N, D>
+impl<T: RealField, D: Dim> CsCholesky<T, D>
 where
-    DefaultAllocator: Allocator<usize, D> + Allocator<N, D>,
+    DefaultAllocator: Allocator<usize, D> + Allocator<T, D>,
 {
     /// Computes the cholesky decomposition of the sparse matrix `m`.
-    pub fn new(m: &CsMatrix<N, D, D>) -> Self {
+    pub fn new(m: &CsMatrix<T, D, D>) -> Self {
         let mut me = Self::new_symbolic(m);
         let _ = me.decompose_left_looking(&m.data.vals);
         me
@@ -39,7 +39,7 @@ where
     /// Perform symbolic analysis for the given matrix.
     ///
     /// This does not access the numerical values of `m`.
-    pub fn new_symbolic(m: &CsMatrix<N, D, D>) -> Self {
+    pub fn new_symbolic(m: &CsMatrix<T, D, D>) -> Self {
         assert!(
             m.is_square(),
             "The matrix `m` must be square to compute its elimination tree."
@@ -67,7 +67,7 @@ where
     }
 
     /// The lower-triangular matrix of the cholesky decomposition.
-    pub fn l(&self) -> Option<&CsMatrix<N, D, D>> {
+    pub fn l(&self) -> Option<&CsMatrix<T, D, D>> {
         if self.ok {
             Some(&self.l)
         } else {
@@ -76,7 +76,7 @@ where
     }
 
     /// Extracts the lower-triangular matrix of the cholesky decomposition.
-    pub fn unwrap_l(self) -> Option<CsMatrix<N, D, D>> {
+    pub fn unwrap_l(self) -> Option<CsMatrix<T, D, D>> {
         if self.ok {
             Some(self.l)
         } else {
@@ -86,7 +86,7 @@ where
 
     /// Perform a numerical left-looking cholesky decomposition of a matrix with the same structure as the
     /// one used to initialize `self`, but with different non-zero values provided by `values`.
-    pub fn decompose_left_looking(&mut self, values: &[N]) -> bool {
+    pub fn decompose_left_looking(&mut self, values: &[T]) -> bool {
         assert!(
             values.len() >= self.original_i.len(),
             "The set of values is too small."
@@ -103,7 +103,7 @@ where
                 let range_k =
                     *self.original_p.get_unchecked(k)..*self.original_p.get_unchecked(k + 1);
 
-                *self.work_x.vget_unchecked_mut(k) = N::zero();
+                *self.work_x.vget_unchecked_mut(k) = T::zero();
                 for p in range_k.clone() {
                     let irow = *self.original_i.get_unchecked(p);
 
@@ -131,7 +131,7 @@ where
 
                 let diag = *self.work_x.vget_unchecked(k);
 
-                if diag > N::zero() {
+                if diag > T::zero() {
                     let denom = diag.sqrt();
                     *self
                         .l
@@ -141,7 +141,7 @@ where
 
                     for (p, val) in self.l.data.column_entries_mut(k) {
                         *val = *self.work_x.vget_unchecked(p) / denom;
-                        *self.work_x.vget_unchecked_mut(p) = N::zero();
+                        *self.work_x.vget_unchecked_mut(p) = T::zero();
                     }
                 } else {
                     self.ok = false;
@@ -156,7 +156,7 @@ where
 
     /// Perform a numerical up-looking cholesky decomposition of a matrix with the same structure as the
     /// one used to initialize `self`, but with different non-zero values provided by `values`.
-    pub fn decompose_up_looking(&mut self, values: &[N]) -> bool {
+    pub fn decompose_up_looking(&mut self, values: &[T]) -> bool {
         assert!(
             values.len() >= self.original_i.len(),
             "The set of values is too small."
@@ -172,7 +172,7 @@ where
                 let column_range =
                     *self.original_p.get_unchecked(k)..*self.original_p.get_unchecked(k + 1);
 
-                *self.work_x.vget_unchecked_mut(k) = N::zero();
+                *self.work_x.vget_unchecked_mut(k) = T::zero();
                 for p in column_range.clone() {
                     let irow = *self.original_i.get_unchecked(p);
 
@@ -182,7 +182,7 @@ where
                 }
 
                 let mut diag = *self.work_x.vget_unchecked(k);
-                *self.work_x.vget_unchecked_mut(k) = N::zero();
+                *self.work_x.vget_unchecked_mut(k) = T::zero();
 
                 // Triangular solve.
                 for irow in self.u.data.column_row_indices(k) {
@@ -196,7 +196,7 @@ where
                             .data
                             .vals
                             .get_unchecked(*self.l.data.p.vget_unchecked(irow));
-                    *self.work_x.vget_unchecked_mut(irow) = N::zero();
+                    *self.work_x.vget_unchecked_mut(irow) = T::zero();
 
                     for p in
                         *self.l.data.p.vget_unchecked(irow) + 1..*self.work_c.vget_unchecked(irow)
@@ -214,7 +214,7 @@ where
                     *self.l.data.vals.get_unchecked_mut(p) = lki;
                 }
 
-                if diag <= N::zero() {
+                if diag <= T::zero() {
                     self.ok = false;
                     return false;
                 }
@@ -231,7 +231,7 @@ where
         true
     }
 
-    fn elimination_tree<S: CsStorage<N, D, D>>(m: &CsMatrix<N, D, D, S>) -> Vec<usize> {
+    fn elimination_tree<S: CsStorage<T, D, D>>(m: &CsMatrix<T, D, D, S>) -> Vec<usize> {
         let nrows = m.nrows();
         let mut forest: Vec<_> = iter::repeat(usize::max_value()).take(nrows).collect();
         let mut ancestor: Vec<_> = iter::repeat(usize::max_value()).take(nrows).collect();
@@ -257,8 +257,8 @@ where
         forest
     }
 
-    fn reach<S: CsStorage<N, D, D>>(
-        m: &CsMatrix<N, D, D, S>,
+    fn reach<S: CsStorage<T, D, D>>(
+        m: &CsMatrix<T, D, D, S>,
         j: usize,
         max_j: usize,
         tree: &[usize],
@@ -287,9 +287,9 @@ where
         out.append(&mut res);
     }
 
-    fn nonzero_pattern<S: CsStorage<N, D, D>>(
-        m: &CsMatrix<N, D, D, S>,
-    ) -> (CsMatrix<N, D, D>, CsMatrix<N, D, D>) {
+    fn nonzero_pattern<S: CsStorage<T, D, D>>(
+        m: &CsMatrix<T, D, D, S>,
+    ) -> (CsMatrix<T, D, D>, CsMatrix<T, D, D>) {
         let etree = Self::elimination_tree(m);
         let (nrows, ncols) = m.data.shape();
         let mut rows = Vec::with_capacity(m.len());
@@ -329,8 +329,8 @@ where
      * NOTE: All the following methods are untested and currently unused.
      *
      *
-    fn column_counts<S: CsStorage<N, D, D>>(
-        m: &CsMatrix<N, D, D, S>,
+    fn column_counts<S: CsStorage<T, D, D>>(
+        m: &CsMatrix<T, D, D, S>,
         tree: &[usize],
     ) -> Vec<usize> {
         let len = m.data.shape().0.value();

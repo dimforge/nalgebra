@@ -17,7 +17,7 @@ use std::ops::Neg;
 
 use crate::base::dimension::{U1, U2, U3};
 use crate::base::storage::Storage;
-use crate::base::{Matrix2, Matrix3, MatrixN, Unit, Vector, Vector1, Vector2, Vector3, VectorN};
+use crate::base::{Matrix2, Matrix3, SMatrix, SVector, Unit, Vector, Vector1, Vector2, Vector3};
 
 use crate::geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 
@@ -27,7 +27,7 @@ use crate::geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
  *
  */
 /// # Construction from a 2D rotation angle
-impl<N: SimdRealField> Rotation2<N> {
+impl<T: SimdRealField> Rotation2<T> {
     /// Builds a 2 dimensional rotation matrix from an angle in radian.
     ///
     /// # Example
@@ -40,7 +40,7 @@ impl<N: SimdRealField> Rotation2<N> {
     ///
     /// assert_relative_eq!(rot * Point2::new(3.0, 4.0), Point2::new(-4.0, 3.0));
     /// ```
-    pub fn new(angle: N) -> Self {
+    pub fn new(angle: T) -> Self {
         let (sia, coa) = angle.simd_sin_cos();
         Self::from_matrix_unchecked(Matrix2::new(coa, -sia, sia, coa))
     }
@@ -51,20 +51,20 @@ impl<N: SimdRealField> Rotation2<N> {
     /// This is generally used in the context of generic programming. Using
     /// the `::new(angle)` method instead is more common.
     #[inline]
-    pub fn from_scaled_axis<SB: Storage<N, U1>>(axisangle: Vector<N, U1, SB>) -> Self {
+    pub fn from_scaled_axis<SB: Storage<T, U1>>(axisangle: Vector<T, U1, SB>) -> Self {
         Self::new(axisangle[0])
     }
 }
 
 /// # Construction from an existing 2D matrix or rotations
-impl<N: SimdRealField> Rotation2<N> {
+impl<T: SimdRealField> Rotation2<T> {
     /// Builds a rotation from a basis assumed to be orthonormal.
     ///
     /// In order to get a valid unit-quaternion, the input must be an
     /// orthonormal basis, i.e., all vectors are normalized, and the are
     /// all orthogonal to each other. These invariants are not checked
     /// by this method.
-    pub fn from_basis_unchecked(basis: &[Vector2<N>; 2]) -> Self {
+    pub fn from_basis_unchecked(basis: &[Vector2<T>; 2]) -> Self {
         let mat = Matrix2::from_columns(&basis[..]);
         Self::from_matrix_unchecked(mat)
     }
@@ -74,11 +74,11 @@ impl<N: SimdRealField> Rotation2<N> {
     /// This is an iterative method. See `.from_matrix_eps` to provide mover
     /// convergence parameters and starting solution.
     /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
-    pub fn from_matrix(m: &Matrix2<N>) -> Self
+    pub fn from_matrix(m: &Matrix2<T>) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
-        Self::from_matrix_eps(m, N::default_epsilon(), 0, Self::identity())
+        Self::from_matrix_eps(m, T::default_epsilon(), 0, Self::identity())
     }
 
     /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
@@ -93,9 +93,9 @@ impl<N: SimdRealField> Rotation2<N> {
     /// * `guess`: an estimate of the solution. Convergence will be significantly faster if an initial solution close
     ///           to the actual solution is provided. Can be set to `Rotation2::identity()` if no other
     ///           guesses come to mind.
-    pub fn from_matrix_eps(m: &Matrix2<N>, eps: N, mut max_iter: usize, guess: Self) -> Self
+    pub fn from_matrix_eps(m: &Matrix2<T>, eps: T, mut max_iter: usize, guess: Self) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
         if max_iter == 0 {
             max_iter = usize::max_value();
@@ -107,7 +107,7 @@ impl<N: SimdRealField> Rotation2<N> {
             let axis = rot.column(0).perp(&m.column(0)) + rot.column(1).perp(&m.column(1));
             let denom = rot.column(0).dot(&m.column(0)) + rot.column(1).dot(&m.column(1));
 
-            let angle = axis / (denom.abs() + N::default_epsilon());
+            let angle = axis / (denom.abs() + T::default_epsilon());
             if angle.abs() > eps {
                 rot = Self::new(angle) * rot;
             } else {
@@ -133,11 +133,11 @@ impl<N: SimdRealField> Rotation2<N> {
     /// assert_relative_eq!(rot.inverse() * b, a);
     /// ```
     #[inline]
-    pub fn rotation_between<SB, SC>(a: &Vector<N, U2, SB>, b: &Vector<N, U2, SC>) -> Self
+    pub fn rotation_between<SB, SC>(a: &Vector<T, U2, SB>, b: &Vector<T, U2, SC>) -> Self
     where
-        N: RealField,
-        SB: Storage<N, U2>,
-        SC: Storage<N, U2>,
+        T: RealField,
+        SB: Storage<T, U2>,
+        SC: Storage<T, U2>,
     {
         crate::convert(UnitComplex::rotation_between(a, b).to_rotation_matrix())
     }
@@ -158,14 +158,14 @@ impl<N: SimdRealField> Rotation2<N> {
     /// ```
     #[inline]
     pub fn scaled_rotation_between<SB, SC>(
-        a: &Vector<N, U2, SB>,
-        b: &Vector<N, U2, SC>,
-        s: N,
+        a: &Vector<T, U2, SB>,
+        b: &Vector<T, U2, SC>,
+        s: T,
     ) -> Self
     where
-        N: RealField,
-        SB: Storage<N, U2>,
-        SC: Storage<N, U2>,
+        T: RealField,
+        SB: Storage<T, U2>,
+        SC: Storage<T, U2>,
     {
         crate::convert(UnitComplex::scaled_rotation_between(a, b, s).to_rotation_matrix())
     }
@@ -195,12 +195,12 @@ impl<N: SimdRealField> Rotation2<N> {
     #[inline]
     pub fn renormalize(&mut self)
     where
-        N: RealField,
+        T: RealField,
     {
         let mut c = UnitComplex::from(*self);
         let _ = c.renormalize();
 
-        *self = Self::from_matrix_eps(self.matrix(), N::default_epsilon(), 0, c.into())
+        *self = Self::from_matrix_eps(self.matrix(), T::default_epsilon(), 0, c.into())
     }
 
     /// Raise the quaternion to a given floating power, i.e., returns the rotation with the angle
@@ -215,13 +215,13 @@ impl<N: SimdRealField> Rotation2<N> {
     /// assert_relative_eq!(pow.angle(), 2.0 * 0.78);
     /// ```
     #[inline]
-    pub fn powf(&self, n: N) -> Self {
+    pub fn powf(&self, n: T) -> Self {
         Self::new(self.angle() * n)
     }
 }
 
 /// # 2D angle extraction
-impl<N: SimdRealField> Rotation2<N> {
+impl<T: SimdRealField> Rotation2<T> {
     /// The rotation angle.
     ///
     /// # Example
@@ -232,7 +232,7 @@ impl<N: SimdRealField> Rotation2<N> {
     /// assert_relative_eq!(rot.angle(), 1.78);
     /// ```
     #[inline]
-    pub fn angle(&self) -> N {
+    pub fn angle(&self) -> T {
         self.matrix()[(1, 0)].simd_atan2(self.matrix()[(0, 0)])
     }
 
@@ -247,7 +247,7 @@ impl<N: SimdRealField> Rotation2<N> {
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.6);
     /// ```
     #[inline]
-    pub fn angle_to(&self, other: &Self) -> N {
+    pub fn angle_to(&self, other: &Self) -> T {
         self.rotation_to(other).angle()
     }
 
@@ -256,34 +256,34 @@ impl<N: SimdRealField> Rotation2<N> {
     /// This is generally used in the context of generic programming. Using
     /// the `.angle()` method instead is more common.
     #[inline]
-    pub fn scaled_axis(&self) -> VectorN<N, U1> {
+    pub fn scaled_axis(&self) -> SVector<T, 1> {
         Vector1::new(self.angle())
     }
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<N: SimdRealField> Distribution<Rotation2<N>> for Standard
+impl<T: SimdRealField> Distribution<Rotation2<T>> for Standard
 where
-    N::Element: SimdRealField,
-    N: SampleUniform,
+    T::Element: SimdRealField,
+    T: SampleUniform,
 {
     /// Generate a uniformly distributed random rotation.
     #[inline]
-    fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Rotation2<N> {
-        let twopi = Uniform::new(N::zero(), N::simd_two_pi());
+    fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Rotation2<T> {
+        let twopi = Uniform::new(T::zero(), T::simd_two_pi());
         Rotation2::new(rng.sample(twopi))
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: SimdRealField + Arbitrary> Arbitrary for Rotation2<N>
+impl<T: SimdRealField + Arbitrary> Arbitrary for Rotation2<T>
 where
-    N::Element: SimdRealField,
-    Owned<N, U2, U2>: Send,
+    T::Element: SimdRealField,
+    Owned<T, U2, U2>: Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {
-        Self::new(N::arbitrary(g))
+        Self::new(T::arbitrary(g))
     }
 }
 
@@ -293,9 +293,9 @@ where
  *
  */
 /// # Construction from a 3D axis and/or angles
-impl<N: SimdRealField> Rotation3<N>
+impl<T: SimdRealField> Rotation3<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Builds a 3 dimensional rotation matrix from an axis and an angle.
     ///
@@ -320,7 +320,7 @@ where
     /// // A zero vector yields an identity.
     /// assert_eq!(Rotation3::new(Vector3::<f32>::zeros()), Rotation3::identity());
     /// ```
-    pub fn new<SB: Storage<N, U3>>(axisangle: Vector<N, U3, SB>) -> Self {
+    pub fn new<SB: Storage<T, U3>>(axisangle: Vector<T, U3, SB>) -> Self {
         let axisangle = axisangle.into_owned();
         let (axis, angle) = Unit::new_and_get(axisangle);
         Self::from_axis_angle(&axis, angle)
@@ -347,7 +347,7 @@ where
     /// // A zero vector yields an identity.
     /// assert_eq!(Rotation3::from_scaled_axis(Vector3::<f32>::zeros()), Rotation3::identity());
     /// ```
-    pub fn from_scaled_axis<SB: Storage<N, U3>>(axisangle: Vector<N, U3, SB>) -> Self {
+    pub fn from_scaled_axis<SB: Storage<T, U3>>(axisangle: Vector<T, U3, SB>) -> Self {
         Self::new(axisangle)
     }
 
@@ -373,11 +373,11 @@ where
     /// // A zero vector yields an identity.
     /// assert_eq!(Rotation3::from_scaled_axis(Vector3::<f32>::zeros()), Rotation3::identity());
     /// ```
-    pub fn from_axis_angle<SB>(axis: &Unit<Vector<N, U3, SB>>, angle: N) -> Self
+    pub fn from_axis_angle<SB>(axis: &Unit<Vector<T, U3, SB>>, angle: T) -> Self
     where
-        SB: Storage<N, U3>,
+        SB: Storage<T, U3>,
     {
-        angle.simd_ne(N::zero()).if_else(
+        angle.simd_ne(T::zero()).if_else(
             || {
                 let ux = axis.as_ref()[0];
                 let uy = axis.as_ref()[1];
@@ -386,18 +386,18 @@ where
                 let sqy = uy * uy;
                 let sqz = uz * uz;
                 let (sin, cos) = angle.simd_sin_cos();
-                let one_m_cos = N::one() - cos;
+                let one_m_cos = T::one() - cos;
 
-                Self::from_matrix_unchecked(MatrixN::<N, U3>::new(
-                    sqx + (N::one() - sqx) * cos,
+                Self::from_matrix_unchecked(SMatrix::<T, 3, 3>::new(
+                    sqx + (T::one() - sqx) * cos,
                     ux * uy * one_m_cos - uz * sin,
                     ux * uz * one_m_cos + uy * sin,
                     ux * uy * one_m_cos + uz * sin,
-                    sqy + (N::one() - sqy) * cos,
+                    sqy + (T::one() - sqy) * cos,
                     uy * uz * one_m_cos - ux * sin,
                     ux * uz * one_m_cos - uy * sin,
                     uy * uz * one_m_cos + ux * sin,
-                    sqz + (N::one() - sqz) * cos,
+                    sqz + (T::one() - sqz) * cos,
                 ))
             },
             Self::identity,
@@ -418,12 +418,12 @@ where
     /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
     /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
     /// ```
-    pub fn from_euler_angles(roll: N, pitch: N, yaw: N) -> Self {
+    pub fn from_euler_angles(roll: T, pitch: T, yaw: T) -> Self {
         let (sr, cr) = roll.simd_sin_cos();
         let (sp, cp) = pitch.simd_sin_cos();
         let (sy, cy) = yaw.simd_sin_cos();
 
-        Self::from_matrix_unchecked(MatrixN::<N, U3>::new(
+        Self::from_matrix_unchecked(SMatrix::<T, 3, 3>::new(
             cy * cp,
             cy * sp * sr - sy * cr,
             cy * sp * cr + sy * sr,
@@ -438,9 +438,9 @@ where
 }
 
 /// # Construction from a 3D eye position and target point
-impl<N: SimdRealField> Rotation3<N>
+impl<T: SimdRealField> Rotation3<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Creates a rotation that corresponds to the local frame of an observer standing at the
     /// origin and looking toward `dir`.
@@ -464,26 +464,26 @@ where
     /// assert_relative_eq!(rot * Vector3::z(), dir.normalize());
     /// ```
     #[inline]
-    pub fn face_towards<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    pub fn face_towards<SB, SC>(dir: &Vector<T, U3, SB>, up: &Vector<T, U3, SC>) -> Self
     where
-        SB: Storage<N, U3>,
-        SC: Storage<N, U3>,
+        SB: Storage<T, U3>,
+        SC: Storage<T, U3>,
     {
         let zaxis = dir.normalize();
         let xaxis = up.cross(&zaxis).normalize();
         let yaxis = zaxis.cross(&xaxis).normalize();
 
-        Self::from_matrix_unchecked(MatrixN::<N, U3>::new(
+        Self::from_matrix_unchecked(SMatrix::<T, 3, 3>::new(
             xaxis.x, yaxis.x, zaxis.x, xaxis.y, yaxis.y, zaxis.y, xaxis.z, yaxis.z, zaxis.z,
         ))
     }
 
     /// Deprecated: Use [Rotation3::face_towards] instead.
     #[deprecated(note = "renamed to `face_towards`")]
-    pub fn new_observer_frames<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    pub fn new_observer_frames<SB, SC>(dir: &Vector<T, U3, SB>, up: &Vector<T, U3, SC>) -> Self
     where
-        SB: Storage<N, U3>,
-        SC: Storage<N, U3>,
+        SB: Storage<T, U3>,
+        SC: Storage<T, U3>,
     {
         Self::face_towards(dir, up)
     }
@@ -511,10 +511,10 @@ where
     /// assert_relative_eq!(rot * dir.normalize(), -Vector3::z());
     /// ```
     #[inline]
-    pub fn look_at_rh<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    pub fn look_at_rh<SB, SC>(dir: &Vector<T, U3, SB>, up: &Vector<T, U3, SC>) -> Self
     where
-        SB: Storage<N, U3>,
-        SC: Storage<N, U3>,
+        SB: Storage<T, U3>,
+        SC: Storage<T, U3>,
     {
         Self::face_towards(&dir.neg(), up).inverse()
     }
@@ -542,19 +542,19 @@ where
     /// assert_relative_eq!(rot * dir.normalize(), Vector3::z());
     /// ```
     #[inline]
-    pub fn look_at_lh<SB, SC>(dir: &Vector<N, U3, SB>, up: &Vector<N, U3, SC>) -> Self
+    pub fn look_at_lh<SB, SC>(dir: &Vector<T, U3, SB>, up: &Vector<T, U3, SC>) -> Self
     where
-        SB: Storage<N, U3>,
-        SC: Storage<N, U3>,
+        SB: Storage<T, U3>,
+        SC: Storage<T, U3>,
     {
         Self::face_towards(dir, up).inverse()
     }
 }
 
 /// # Construction from an existing 3D matrix or rotations
-impl<N: SimdRealField> Rotation3<N>
+impl<T: SimdRealField> Rotation3<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// The rotation matrix required to align `a` and `b` but with its angle.
     ///
@@ -571,13 +571,13 @@ where
     /// assert_relative_eq!(rot.inverse() * b, a, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn rotation_between<SB, SC>(a: &Vector<N, U3, SB>, b: &Vector<N, U3, SC>) -> Option<Self>
+    pub fn rotation_between<SB, SC>(a: &Vector<T, U3, SB>, b: &Vector<T, U3, SC>) -> Option<Self>
     where
-        N: RealField,
-        SB: Storage<N, U3>,
-        SC: Storage<N, U3>,
+        T: RealField,
+        SB: Storage<T, U3>,
+        SC: Storage<T, U3>,
     {
-        Self::scaled_rotation_between(a, b, N::one())
+        Self::scaled_rotation_between(a, b, T::one())
     }
 
     /// The smallest rotation needed to make `a` and `b` collinear and point toward the same
@@ -596,25 +596,25 @@ where
     /// ```
     #[inline]
     pub fn scaled_rotation_between<SB, SC>(
-        a: &Vector<N, U3, SB>,
-        b: &Vector<N, U3, SC>,
-        n: N,
+        a: &Vector<T, U3, SB>,
+        b: &Vector<T, U3, SC>,
+        n: T,
     ) -> Option<Self>
     where
-        N: RealField,
-        SB: Storage<N, U3>,
-        SC: Storage<N, U3>,
+        T: RealField,
+        SB: Storage<T, U3>,
+        SC: Storage<T, U3>,
     {
         // TODO: code duplication with Rotation.
-        if let (Some(na), Some(nb)) = (a.try_normalize(N::zero()), b.try_normalize(N::zero())) {
+        if let (Some(na), Some(nb)) = (a.try_normalize(T::zero()), b.try_normalize(T::zero())) {
             let c = na.cross(&nb);
 
-            if let Some(axis) = Unit::try_new(c, N::default_epsilon()) {
+            if let Some(axis) = Unit::try_new(c, T::default_epsilon()) {
                 return Some(Self::from_axis_angle(&axis, na.dot(&nb).acos() * n));
             }
 
             // Zero or PI.
-            if na.dot(&nb) < N::zero() {
+            if na.dot(&nb) < T::zero() {
                 // PI
                 //
                 // The rotation axis is undefined but the angle not zero. This is not a
@@ -659,14 +659,14 @@ where
     /// assert_eq!(pow.angle(), 2.4);
     /// ```
     #[inline]
-    pub fn powf(&self, n: N) -> Self
+    pub fn powf(&self, n: T) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
         if let Some(axis) = self.axis() {
             Self::from_axis_angle(&axis, self.angle() * n)
-        } else if self.matrix()[(0, 0)] < N::zero() {
-            let minus_id = MatrixN::<N, U3>::from_diagonal_element(-N::one());
+        } else if self.matrix()[(0, 0)] < T::zero() {
+            let minus_id = SMatrix::<T, 3, 3>::from_diagonal_element(-T::one());
             Self::from_matrix_unchecked(minus_id)
         } else {
             Self::identity()
@@ -679,7 +679,7 @@ where
     /// orthonormal basis, i.e., all vectors are normalized, and the are
     /// all orthogonal to each other. These invariants are not checked
     /// by this method.
-    pub fn from_basis_unchecked(basis: &[Vector3<N>; 3]) -> Self {
+    pub fn from_basis_unchecked(basis: &[Vector3<T>; 3]) -> Self {
         let mat = Matrix3::from_columns(&basis[..]);
         Self::from_matrix_unchecked(mat)
     }
@@ -689,11 +689,11 @@ where
     /// This is an iterative method. See `.from_matrix_eps` to provide mover
     /// convergence parameters and starting solution.
     /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
-    pub fn from_matrix(m: &Matrix3<N>) -> Self
+    pub fn from_matrix(m: &Matrix3<T>) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
-        Self::from_matrix_eps(m, N::default_epsilon(), 0, Self::identity())
+        Self::from_matrix_eps(m, T::default_epsilon(), 0, Self::identity())
     }
 
     /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
@@ -708,9 +708,9 @@ where
     /// * `guess`: a guess of the solution. Convergence will be significantly faster if an initial solution close
     ///           to the actual solution is provided. Can be set to `Rotation3::identity()` if no other
     ///           guesses come to mind.
-    pub fn from_matrix_eps(m: &Matrix3<N>, eps: N, mut max_iter: usize, guess: Self) -> Self
+    pub fn from_matrix_eps(m: &Matrix3<T>, eps: T, mut max_iter: usize, guess: Self) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
         if max_iter == 0 {
             max_iter = usize::max_value();
@@ -726,7 +726,7 @@ where
                 + rot.column(1).dot(&m.column(1))
                 + rot.column(2).dot(&m.column(2));
 
-            let axisangle = axis / (denom.abs() + N::default_epsilon());
+            let axisangle = axis / (denom.abs() + T::default_epsilon());
 
             if let Some((axis, angle)) = Unit::try_new_and_get(axisangle, eps) {
                 rot = Rotation3::from_axis_angle(&axis, angle) * rot;
@@ -743,17 +743,17 @@ where
     #[inline]
     pub fn renormalize(&mut self)
     where
-        N: RealField,
+        T: RealField,
     {
         let mut c = UnitQuaternion::from(*self);
         let _ = c.renormalize();
 
-        *self = Self::from_matrix_eps(self.matrix(), N::default_epsilon(), 0, c.into())
+        *self = Self::from_matrix_eps(self.matrix(), T::default_epsilon(), 0, c.into())
     }
 }
 
 /// # 3D axis and angle extraction
-impl<N: SimdRealField> Rotation3<N> {
+impl<T: SimdRealField> Rotation3<T> {
     /// The rotation angle in [0; pi].
     ///
     /// # Example
@@ -765,8 +765,8 @@ impl<N: SimdRealField> Rotation3<N> {
     /// assert_relative_eq!(rot.angle(), 1.78);
     /// ```
     #[inline]
-    pub fn angle(&self) -> N {
-        ((self.matrix()[(0, 0)] + self.matrix()[(1, 1)] + self.matrix()[(2, 2)] - N::one())
+    pub fn angle(&self) -> T {
+        ((self.matrix()[(0, 0)] + self.matrix()[(1, 1)] + self.matrix()[(2, 2)] - T::one())
             / crate::convert(2.0))
         .simd_acos()
     }
@@ -787,17 +787,17 @@ impl<N: SimdRealField> Rotation3<N> {
     /// assert!(rot.axis().is_none());
     /// ```
     #[inline]
-    pub fn axis(&self) -> Option<Unit<Vector3<N>>>
+    pub fn axis(&self) -> Option<Unit<Vector3<T>>>
     where
-        N: RealField,
+        T: RealField,
     {
-        let axis = VectorN::<N, U3>::new(
+        let axis = SVector::<T, 3>::new(
             self.matrix()[(2, 1)] - self.matrix()[(1, 2)],
             self.matrix()[(0, 2)] - self.matrix()[(2, 0)],
             self.matrix()[(1, 0)] - self.matrix()[(0, 1)],
         );
 
-        Unit::try_new(axis, N::default_epsilon())
+        Unit::try_new(axis, T::default_epsilon())
     }
 
     /// The rotation axis multiplied by the rotation angle.
@@ -811,9 +811,9 @@ impl<N: SimdRealField> Rotation3<N> {
     /// assert_relative_eq!(rot.scaled_axis(), axisangle, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn scaled_axis(&self) -> Vector3<N>
+    pub fn scaled_axis(&self) -> Vector3<T>
     where
-        N: RealField,
+        T: RealField,
     {
         if let Some(axis) = self.axis() {
             axis.into_inner() * self.angle()
@@ -842,9 +842,9 @@ impl<N: SimdRealField> Rotation3<N> {
     /// assert!(rot.axis_angle().is_none());
     /// ```
     #[inline]
-    pub fn axis_angle(&self) -> Option<(Unit<Vector3<N>>, N)>
+    pub fn axis_angle(&self) -> Option<(Unit<Vector3<T>>, T)>
     where
-        N: RealField,
+        T: RealField,
     {
         if let Some(axis) = self.axis() {
             Some((axis, self.angle()))
@@ -864,9 +864,9 @@ impl<N: SimdRealField> Rotation3<N> {
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.0045657, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn angle_to(&self, other: &Self) -> N
+    pub fn angle_to(&self, other: &Self) -> T
     where
-        N::Element: SimdRealField,
+        T::Element: SimdRealField,
     {
         self.rotation_to(other).angle()
     }
@@ -875,9 +875,9 @@ impl<N: SimdRealField> Rotation3<N> {
     ///
     /// The angles are produced in the form (roll, pitch, yaw).
     #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
-    pub fn to_euler_angles(&self) -> (N, N, N)
+    pub fn to_euler_angles(&self) -> (T, T, T)
     where
-        N: RealField,
+        T: RealField,
     {
         self.euler_angles()
     }
@@ -896,57 +896,57 @@ impl<N: SimdRealField> Rotation3<N> {
     /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
     /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
     /// ```
-    pub fn euler_angles(&self) -> (N, N, N)
+    pub fn euler_angles(&self) -> (T, T, T)
     where
-        N: RealField,
+        T: RealField,
     {
         // Implementation informed by "Computing Euler angles from a rotation matrix", by Gregory G. Slabaugh
         //  https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.371.6578
-        if self[(2, 0)].abs() < N::one() {
+        if self[(2, 0)].abs() < T::one() {
             let yaw = -self[(2, 0)].asin();
             let roll = (self[(2, 1)] / yaw.cos()).atan2(self[(2, 2)] / yaw.cos());
             let pitch = (self[(1, 0)] / yaw.cos()).atan2(self[(0, 0)] / yaw.cos());
             (roll, yaw, pitch)
-        } else if self[(2, 0)] <= -N::one() {
-            (self[(0, 1)].atan2(self[(0, 2)]), N::frac_pi_2(), N::zero())
+        } else if self[(2, 0)] <= -T::one() {
+            (self[(0, 1)].atan2(self[(0, 2)]), T::frac_pi_2(), T::zero())
         } else {
             (
                 -self[(0, 1)].atan2(-self[(0, 2)]),
-                -N::frac_pi_2(),
-                N::zero(),
+                -T::frac_pi_2(),
+                T::zero(),
             )
         }
     }
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<N: SimdRealField> Distribution<Rotation3<N>> for Standard
+impl<T: SimdRealField> Distribution<Rotation3<T>> for Standard
 where
-    N::Element: SimdRealField,
-    OpenClosed01: Distribution<N>,
-    N: SampleUniform,
+    T::Element: SimdRealField,
+    OpenClosed01: Distribution<T>,
+    T: SampleUniform,
 {
     /// Generate a uniformly distributed random rotation.
     #[inline]
-    fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> Rotation3<N> {
+    fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> Rotation3<T> {
         // James Arvo.
         // Fast random rotation matrices.
         // In D. Kirk, editor, Graphics Gems III, pages 117-120. Academic, New York, 1992.
 
         // Compute a random rotation around Z
-        let twopi = Uniform::new(N::zero(), N::simd_two_pi());
+        let twopi = Uniform::new(T::zero(), T::simd_two_pi());
         let theta = rng.sample(&twopi);
         let (ts, tc) = theta.simd_sin_cos();
-        let a = MatrixN::<N, U3>::new(
+        let a = SMatrix::<T, 3, 3>::new(
             tc,
             ts,
-            N::zero(),
+            T::zero(),
             -ts,
             tc,
-            N::zero(),
-            N::zero(),
-            N::zero(),
-            N::one(),
+            T::zero(),
+            T::zero(),
+            T::zero(),
+            T::one(),
         );
 
         // Compute a random rotation *of* Z
@@ -954,24 +954,24 @@ where
         let z = rng.sample(OpenClosed01);
         let (ps, pc) = phi.simd_sin_cos();
         let sqrt_z = z.simd_sqrt();
-        let v = Vector3::new(pc * sqrt_z, ps * sqrt_z, (N::one() - z).simd_sqrt());
+        let v = Vector3::new(pc * sqrt_z, ps * sqrt_z, (T::one() - z).simd_sqrt());
         let mut b = v * v.transpose();
         b += b;
-        b -= MatrixN::<N, U3>::identity();
+        b -= SMatrix::<T, 3, 3>::identity();
 
         Rotation3::from_matrix_unchecked(b * a)
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: SimdRealField + Arbitrary> Arbitrary for Rotation3<N>
+impl<T: SimdRealField + Arbitrary> Arbitrary for Rotation3<T>
 where
-    N::Element: SimdRealField,
-    Owned<N, U3, U3>: Send,
-    Owned<N, U3>: Send,
+    T::Element: SimdRealField,
+    Owned<T, U3, U3>: Send,
+    Owned<T, U3>: Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {
-        Self::new(VectorN::arbitrary(g))
+        Self::new(SVector::arbitrary(g))
     }
 }

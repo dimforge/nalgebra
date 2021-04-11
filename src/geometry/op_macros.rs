@@ -5,7 +5,7 @@
 macro_rules! md_impl(
     (
     // Operator, operator method, and scalar bounds.
-     $Op: ident, $op: ident $(where N: $($ScalarBounds: ident),*)*;
+     $Op: ident, $op: ident $(where T: $($ScalarBounds: ident),*)*;
      // Storage dimensions, and dimension bounds.
      ($R1: ty, $C1: ty),($R2: ty, $C2: ty)
      // Const type declaration
@@ -20,11 +20,11 @@ macro_rules! md_impl(
      $action: expr;
      // Lifetime.
      $($lives: tt),*) => {
-        impl<$($lives ,)* N $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
-            where N: Scalar + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
-                  DefaultAllocator: Allocator<N, $R1, $C1> +
-                                    Allocator<N, $R2, $C2> +
-                                    Allocator<N, $R1, $C2>,
+        impl<$($lives ,)* T $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
+            where T: Scalar + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
+                  DefaultAllocator: Allocator<T, $R1, $C1> +
+                                    Allocator<T, $R2, $C2> +
+                                    Allocator<T, $R1, $C2>,
                   $( $ConstraintType: $ConstraintBound$(<$( $ConstraintBoundParams $( = $EqBound )*),*>)* ),*
                    {
             type Output = $Result;
@@ -42,7 +42,7 @@ macro_rules! md_impl(
 macro_rules! md_impl_all(
     (
      // Operator, operator method, and scalar bounds.
-     $Op: ident, $op: ident $(where N: $($ScalarBounds: ident),*)*;
+     $Op: ident, $op: ident $(where T: $($ScalarBounds: ident),*)*;
      // Storage dimensions, and dimension bounds.
      ($R1: ty, $C1: ty),($R2: ty, $C2: ty)
      // Const type declaration
@@ -60,7 +60,7 @@ macro_rules! md_impl_all(
      [ref ref] => $action_ref_ref: expr;) => {
 
         md_impl!(
-            $Op, $op $(where N: $($ScalarBounds),*)*;
+            $Op, $op $(where T: $($ScalarBounds),*)*;
             ($R1, $C1),($R2, $C2)
             const $($D),*;
             for $($DimsDecl),*;
@@ -69,7 +69,7 @@ macro_rules! md_impl_all(
             $action_val_val; );
 
         md_impl!(
-            $Op, $op $(where N: $($ScalarBounds),*)*;
+            $Op, $op $(where T: $($ScalarBounds),*)*;
             ($R1, $C1),($R2, $C2)
             const $($D),*;
             for $($DimsDecl),*;
@@ -78,7 +78,7 @@ macro_rules! md_impl_all(
             $action_ref_val; 'a);
 
         md_impl!(
-            $Op, $op $(where N: $($ScalarBounds),*)*;
+            $Op, $op $(where T: $($ScalarBounds),*)*;
             ($R1, $C1),($R2, $C2)
             const $($D),*;
             for $($DimsDecl),*;
@@ -87,7 +87,7 @@ macro_rules! md_impl_all(
             $action_val_ref; 'b);
 
         md_impl!(
-            $Op, $op $(where N: $($ScalarBounds),*)*;
+            $Op, $op $(where T: $($ScalarBounds),*)*;
             ($R1, $C1),($R2, $C2)
             const $($D),*;
             for $($DimsDecl),*;
@@ -101,7 +101,7 @@ macro_rules! md_impl_all(
 macro_rules! md_assign_impl(
     (
      // Operator, operator method, and scalar bounds.
-     $Op: ident, $op: ident $(where N: $($ScalarBounds: ident),*)* $(for N::Element: $($ElementBounds: ident),*)*;
+     $Op: ident, $op: ident $(where T: $($ScalarBounds: ident),*)* $(for T::Element: $($ElementBounds: ident),*)*;
      // Storage dimensions, and dimension bounds.
      ($R1: ty, $C1: ty),($R2: ty, $C2: ty)
      // Const type declaration
@@ -114,11 +114,11 @@ macro_rules! md_assign_impl(
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty;
      // Actual implementation and lifetimes.
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
-            where N: Scalar + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
-                  $($(N::Element: $ElementBounds,)*)*
-                  DefaultAllocator: Allocator<N, $R1, $C1> +
-                                    Allocator<N, $R2, $C2>,
+        impl<$($lives ,)* T $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
+            where T: Scalar + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
+                  $($(T::Element: $ElementBounds,)*)*
+                  DefaultAllocator: Allocator<T, $R1, $C1> +
+                                    Allocator<T, $R2, $C2>,
                   $( $ConstraintType: $ConstraintBound $(<$( $ConstraintBoundParams $( = $EqBound )*),*>)* ),*
         {
             #[inline]
@@ -134,7 +134,7 @@ macro_rules! md_assign_impl(
 macro_rules! md_assign_impl_all(
     (
      // Operator, operator method, and scalar bounds.
-     $Op: ident, $op: ident $(where N: $($ScalarBounds: ident),*)* $(for N::Element: $($ElementBounds: ident),*)*;
+     $Op: ident, $op: ident $(where T: $($ScalarBounds: ident),*)* $(for T::Element: $($ElementBounds: ident),*)*;
      // Storage dimensions, and dimension bounds.
      ($R1: ty, $C1: ty),($R2: ty, $C2: ty)
      // Const type declaration
@@ -149,7 +149,7 @@ macro_rules! md_assign_impl_all(
      [val] => $action_val: expr;
      [ref] => $action_ref: expr;) => {
         md_assign_impl!(
-            $Op, $op $(where N: $($ScalarBounds),*)* $(for N::Element: $($ElementBounds),*)*;
+            $Op, $op $(where T: $($ScalarBounds),*)* $(for T::Element: $($ElementBounds),*)*;
             ($R1, $C1),($R2, $C2)
             const $($D),*;
             for $($DimsDecl),*;
@@ -158,7 +158,7 @@ macro_rules! md_assign_impl_all(
             $action_val; );
 
         md_assign_impl!(
-            $Op, $op $(where N: $($ScalarBounds),*)* $(for N::Element: $($ElementBounds),*)*;
+            $Op, $op $(where T: $($ScalarBounds),*)* $(for T::Element: $($ElementBounds),*)*;
             ($R1, $C1),($R2, $C2)
             const $($D),*;
             for $($DimsDecl),*;
@@ -181,11 +181,11 @@ macro_rules! add_sub_impl(
      where $($ConstraintType: ty: $ConstraintBound: ident$(<$($ConstraintBoundParams: ty $( = $EqBound: ty )*),*>)*),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
-            where N: Scalar + $bound,
-                  DefaultAllocator: Allocator<N, $R1, $C1> +
-                                    Allocator<N, $R2, $C2> +
-                                    SameShapeAllocator<N, $R1, $C1, $R2, $C2>,
+        impl<$($lives ,)* T $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
+            where T: Scalar + $bound,
+                  DefaultAllocator: Allocator<T, $R1, $C1> +
+                                    Allocator<T, $R2, $C2> +
+                                    SameShapeAllocator<T, $R1, $C1, $R2, $C2>,
                   ShapeConstraint: SameNumberOfRows<$R1, $R2 $(, Representative = $RRes)*> +
                                    SameNumberOfColumns<$C1, $C2>,
                   $( $ConstraintType: $ConstraintBound$(<$( $ConstraintBoundParams $( = $EqBound )*),*>)* ),* {
@@ -206,8 +206,8 @@ macro_rules! add_sub_assign_impl(
     $(const $D: ident),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N $(, const $D: usize),*> $Op<$Rhs> for $Lhs
-            where N: Scalar + $bound {
+        impl<$($lives ,)* T $(, const $D: usize),*> $Op<$Rhs> for $Lhs
+            where T: Scalar + $bound {
             #[inline]
             fn $op(&mut $lhs, $rhs: $Rhs) {
                 $action

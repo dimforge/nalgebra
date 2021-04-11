@@ -12,7 +12,7 @@ use abomonation::Abomonation;
 use crate::allocator::Allocator;
 use crate::base::DefaultAllocator;
 use crate::storage::Storage;
-use crate::{Dim, Matrix, MatrixMN, RealField, Scalar, SimdComplexField, SimdRealField};
+use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealField};
 
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///
@@ -71,12 +71,12 @@ impl<T: Abomonation> Abomonation for Unit<T> {
     }
 }
 
-impl<N, R, C, S> PartialEq for Unit<Matrix<N, R, C, S>>
+impl<T, R, C, S> PartialEq for Unit<Matrix<T, R, C, S>>
 where
-    N: Scalar + PartialEq,
+    T: Scalar + PartialEq,
     R: Dim,
     C: Dim,
-    S: Storage<N, R, C>,
+    S: Storage<T, R, C>,
 {
     #[inline]
     fn eq(&self, rhs: &Self) -> bool {
@@ -84,12 +84,12 @@ where
     }
 }
 
-impl<N, R, C, S> Eq for Unit<Matrix<N, R, C, S>>
+impl<T, R, C, S> Eq for Unit<Matrix<T, R, C, S>>
 where
-    N: Scalar + Eq,
+    T: Scalar + Eq,
     R: Dim,
     C: Dim,
-    S: Storage<N, R, C>,
+    S: Storage<T, R, C>,
 {
 }
 
@@ -298,32 +298,32 @@ impl<T> Deref for Unit<T> {
 // NOTE: we can't use a generic implementation for `Unit<T>` because
 // num_complex::Complex does not implement `From[Complex<...>...]` (and can't
 // because of the orphan rules).
-impl<N: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
-    From<[Unit<MatrixMN<N::Element, R, C>>; 2]> for Unit<MatrixMN<N, R, C>>
+impl<T: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
+    From<[Unit<OMatrix<T::Element, R, C>>; 2]> for Unit<OMatrix<T, R, C>>
 where
-    N: From<[<N as simba::simd::SimdValue>::Element; 2]>,
-    N::Element: Scalar,
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+    T: From<[<T as simba::simd::SimdValue>::Element; 2]>,
+    T::Element: Scalar,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
 {
     #[inline]
-    fn from(arr: [Unit<MatrixMN<N::Element, R, C>>; 2]) -> Self {
-        Self::new_unchecked(MatrixMN::from([
+    fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 2]) -> Self {
+        Self::new_unchecked(OMatrix::from([
             arr[0].clone().into_inner(),
             arr[1].clone().into_inner(),
         ]))
     }
 }
 
-impl<N: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
-    From<[Unit<MatrixMN<N::Element, R, C>>; 4]> for Unit<MatrixMN<N, R, C>>
+impl<T: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
+    From<[Unit<OMatrix<T::Element, R, C>>; 4]> for Unit<OMatrix<T, R, C>>
 where
-    N: From<[<N as simba::simd::SimdValue>::Element; 4]>,
-    N::Element: Scalar,
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+    T: From<[<T as simba::simd::SimdValue>::Element; 4]>,
+    T::Element: Scalar,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
 {
     #[inline]
-    fn from(arr: [Unit<MatrixMN<N::Element, R, C>>; 4]) -> Self {
-        Self::new_unchecked(MatrixMN::from([
+    fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 4]) -> Self {
+        Self::new_unchecked(OMatrix::from([
             arr[0].clone().into_inner(),
             arr[1].clone().into_inner(),
             arr[2].clone().into_inner(),
@@ -332,16 +332,16 @@ where
     }
 }
 
-impl<N: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
-    From<[Unit<MatrixMN<N::Element, R, C>>; 8]> for Unit<MatrixMN<N, R, C>>
+impl<T: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
+    From<[Unit<OMatrix<T::Element, R, C>>; 8]> for Unit<OMatrix<T, R, C>>
 where
-    N: From<[<N as simba::simd::SimdValue>::Element; 8]>,
-    N::Element: Scalar,
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+    T: From<[<T as simba::simd::SimdValue>::Element; 8]>,
+    T::Element: Scalar,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
 {
     #[inline]
-    fn from(arr: [Unit<MatrixMN<N::Element, R, C>>; 8]) -> Self {
-        Self::new_unchecked(MatrixMN::from([
+    fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 8]) -> Self {
+        Self::new_unchecked(OMatrix::from([
             arr[0].clone().into_inner(),
             arr[1].clone().into_inner(),
             arr[2].clone().into_inner(),
@@ -354,16 +354,16 @@ where
     }
 }
 
-impl<N: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
-    From<[Unit<MatrixMN<N::Element, R, C>>; 16]> for Unit<MatrixMN<N, R, C>>
+impl<T: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
+    From<[Unit<OMatrix<T::Element, R, C>>; 16]> for Unit<OMatrix<T, R, C>>
 where
-    N: From<[<N as simba::simd::SimdValue>::Element; 16]>,
-    N::Element: Scalar,
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N::Element, R, C>,
+    T: From<[<T as simba::simd::SimdValue>::Element; 16]>,
+    T::Element: Scalar,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
 {
     #[inline]
-    fn from(arr: [Unit<MatrixMN<N::Element, R, C>>; 16]) -> Self {
-        Self::new_unchecked(MatrixMN::from([
+    fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 16]) -> Self {
+        Self::new_unchecked(OMatrix::from([
             arr[0].clone().into_inner(),
             arr[1].clone().into_inner(),
             arr[2].clone().into_inner(),

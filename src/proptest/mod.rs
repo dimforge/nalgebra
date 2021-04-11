@@ -18,7 +18,7 @@
 //!
 //! - Using the [matrix](fn.matrix.html) function to generate matrices with constraints
 //!   on dimensions and elements.
-//! - Relying on the `Arbitrary` implementation of `MatrixMN`.
+//! - Relying on the `Arbitrary` implementation of `OMatrix`.
 //!
 //! The first variant is almost always preferred in practice. Read on to discover why.
 //!
@@ -53,11 +53,11 @@
 //! with [matrix](fn.matrix.html) as follows:
 //!
 //! ```rust
-//! use nalgebra::{Dynamic, MatrixMN, Const};
+//! use nalgebra::{Dynamic, OMatrix, Const};
 //! use nalgebra::proptest::matrix;
 //! use proptest::prelude::*;
 //!
-//! type MyMatrix = MatrixMN<i32, Const::<3>, Dynamic>;
+//! type MyMatrix = OMatrix<i32, Const::<3>, Dynamic>;
 //!
 //! /// Returns a strategy for pairs of matrices with `U3` rows and the same number of
 //! /// columns.
@@ -93,7 +93,7 @@
 //! If you don't care about the dimensions of matrices, you can write tests like these:
 //!
 //! ```rust
-//! use nalgebra::{DMatrix, DVector, Dynamic, Matrix3, MatrixMN, Vector3, U3};
+//! use nalgebra::{DMatrix, DVector, Dynamic, Matrix3, OMatrix, Vector3, U3};
 //! use proptest::prelude::*;
 //!
 //! proptest! {
@@ -108,7 +108,7 @@
 //!     # /*
 //!     #[test]
 //!     # */
-//!     fn test_static_and_mixed(matrix: Matrix3<i32>, matrix2: MatrixMN<i32, U3, Dynamic>) {
+//!     fn test_static_and_mixed(matrix: Matrix3<i32>, matrix2: OMatrix<i32, U3, Dynamic>) {
 //!         // Test some property involving these matrices
 //!     }
 //!
@@ -141,7 +141,7 @@
 //! PROPTEST_MAX_SHRINK_ITERS=100000 cargo test my_failing_test
 //! ```
 use crate::allocator::Allocator;
-use crate::{Const, DefaultAllocator, Dim, DimName, Dynamic, MatrixMN, Scalar, U1};
+use crate::{Const, DefaultAllocator, Dim, DimName, Dynamic, OMatrix, Scalar, U1};
 use proptest::arbitrary::Arbitrary;
 use proptest::collection::vec;
 use proptest::strategy::{BoxedStrategy, Just, NewTree, Strategy, ValueTree};
@@ -225,7 +225,7 @@ fn dynamic_dim_range() -> DimRange<Dynamic> {
 /// ## Examples
 /// ```
 /// use nalgebra::proptest::matrix;
-/// use nalgebra::{MatrixMN, Const, Dynamic};
+/// use nalgebra::{OMatrix, Const, Dynamic};
 /// use proptest::prelude::*;
 ///
 /// proptest! {
@@ -234,7 +234,7 @@ fn dynamic_dim_range() -> DimRange<Dynamic> {
 ///     # */
 ///     fn my_test(a in matrix(0 .. 5i32, Const::<3>, 0 ..= 5)) {
 ///         // Let's make sure we've got the correct type first
-///         let a: MatrixMN<_, Const::<3>, Dynamic> = a;
+///         let a: OMatrix<_, Const::<3>, Dynamic> = a;
 ///         prop_assert!(a.nrows() == 3);
 ///         prop_assert!(a.ncols() <= 5);
 ///         prop_assert!(a.iter().all(|x_ij| *x_ij >= 0 && *x_ij < 5));
@@ -305,7 +305,7 @@ where
             // Note: R/C::from_usize will panic if nrows/ncols does not fit in the dimension type.
             // However, this should never fail, because we should only be generating
             // this stuff in the first place
-            MatrixMN::from_iterator_generic(R::from_usize(nrows), C::from_usize(ncols), values)
+            OMatrix::from_iterator_generic(R::from_usize(nrows), C::from_usize(ncols), values)
         })
         .boxed();
 
@@ -388,23 +388,23 @@ where
     }
 }
 
-impl<N, R, C> Arbitrary for MatrixMN<N, R, C>
+impl<T, R, C> Arbitrary for OMatrix<T, R, C>
 where
-    N: Scalar + Arbitrary,
-    <N as Arbitrary>::Strategy: Clone,
+    T: Scalar + Arbitrary,
+    <T as Arbitrary>::Strategy: Clone,
     R: Dim,
     C: Dim,
-    MatrixParameters<N::Parameters, R, C>: Default,
-    DefaultAllocator: Allocator<N, R, C>,
+    MatrixParameters<T::Parameters, R, C>: Default,
+    DefaultAllocator: Allocator<T, R, C>,
 {
-    type Parameters = MatrixParameters<N::Parameters, R, C>;
+    type Parameters = MatrixParameters<T::Parameters, R, C>;
 
     fn arbitrary_with(args: Self::Parameters) -> Self::Strategy {
-        let value_strategy = N::arbitrary_with(args.value_parameters);
+        let value_strategy = T::arbitrary_with(args.value_parameters);
         matrix(value_strategy, args.rows, args.cols)
     }
 
-    type Strategy = MatrixStrategy<N::Strategy, R, C>;
+    type Strategy = MatrixStrategy<T::Strategy, R, C>;
 }
 
 /// A strategy for generating matrices.
@@ -418,7 +418,7 @@ where
     // For now we only internally hold a boxed strategy. The reason for introducing this
     // separate wrapper struct is so that we can replace the strategy logic with custom logic
     // later down the road without introducing significant breaking changes
-    strategy: BoxedStrategy<MatrixMN<NStrategy::Value, R, C>>,
+    strategy: BoxedStrategy<OMatrix<NStrategy::Value, R, C>>,
 }
 
 impl<NStrategy, R, C> Strategy for MatrixStrategy<NStrategy, R, C>
@@ -430,7 +430,7 @@ where
     DefaultAllocator: Allocator<NStrategy::Value, R, C>,
 {
     type Tree = MatrixValueTree<NStrategy::Value, R, C>;
-    type Value = MatrixMN<NStrategy::Value, R, C>;
+    type Value = OMatrix<NStrategy::Value, R, C>;
 
     fn new_tree(&self, runner: &mut TestRunner) -> NewTree<Self> {
         let underlying_tree = self.strategy.new_tree(runner)?;
@@ -441,26 +441,26 @@ where
 }
 
 /// A value tree for matrices.
-pub struct MatrixValueTree<N, R, C>
+pub struct MatrixValueTree<T, R, C>
 where
-    N: Scalar,
+    T: Scalar,
     R: Dim,
     C: Dim,
-    DefaultAllocator: Allocator<N, R, C>,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     // For now we only wrap a boxed value tree. The reason for wrapping is that this allows us
     // to swap out the value tree logic down the road without significant breaking changes.
-    value_tree: Box<dyn ValueTree<Value = MatrixMN<N, R, C>>>,
+    value_tree: Box<dyn ValueTree<Value = OMatrix<T, R, C>>>,
 }
 
-impl<N, R, C> ValueTree for MatrixValueTree<N, R, C>
+impl<T, R, C> ValueTree for MatrixValueTree<T, R, C>
 where
-    N: Scalar,
+    T: Scalar,
     R: Dim,
     C: Dim,
-    DefaultAllocator: Allocator<N, R, C>,
+    DefaultAllocator: Allocator<T, R, C>,
 {
-    type Value = MatrixMN<N, R, C>;
+    type Value = OMatrix<T, R, C>;
 
     fn current(&self) -> Self::Value {
         self.value_tree.current()

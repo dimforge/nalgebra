@@ -7,7 +7,7 @@ use nalgebra::base::dimension::*;
 use nalgebra::proptest::{DimRange, MatrixStrategy};
 use nalgebra::{
     DMatrix, DVector, DefaultAllocator, Dim, DualQuaternion, Isometry2, Isometry3, Matrix3,
-    MatrixMN, Point2, Point3, Quaternion, Rotation2, Rotation3, Scalar, Similarity3, Translation2,
+    OMatrix, Point2, Point3, Quaternion, Rotation2, Rotation3, Scalar, Similarity3, Translation2,
     Translation3, UnitComplex, UnitDualQuaternion, UnitQuaternion, Vector3, U3, U4,
 };
 use num_complex::Complex;
@@ -121,11 +121,11 @@ where
 
 macro_rules! define_strategies(
     ($($strategy_: ident $strategy: ident<$nrows: literal, $ncols: literal>),*) => {$(
-        pub fn $strategy() -> impl Strategy<Value = MatrixMN<f64, Const<$nrows>, Const<$ncols>>> {
+        pub fn $strategy() -> impl Strategy<Value = OMatrix<f64, Const<$nrows>, Const<$ncols>>> {
             matrix(PROPTEST_F64, Const::<$nrows>, Const::<$ncols>)
         }
 
-        pub fn $strategy_<ScalarStrategy>(scalar_strategy: ScalarStrategy) -> impl Strategy<Value = MatrixMN<ScalarStrategy::Value, Const<$nrows>, Const<$ncols>>>
+        pub fn $strategy_<ScalarStrategy>(scalar_strategy: ScalarStrategy) -> impl Strategy<Value = OMatrix<ScalarStrategy::Value, Const<$nrows>, Const<$ncols>>>
             where
                 ScalarStrategy: Strategy + Clone + 'static,
                 ScalarStrategy::Value: Scalar, {
@@ -165,7 +165,7 @@ macro_rules! generate_matrix_sanity_test {
         proptest! {
             #[test]
             fn $test_name(a in matrix(-5 ..= 5i32, $rows, $cols)) {
-                // let a: MatrixMN<_, $rows, $cols> = a;
+                // let a: OMatrix<_, $rows, $cols> = a;
                 let rows_range = DimRange::from($rows);
                 let cols_range = DimRange::from($cols);
                 prop_assert!(a.nrows() >= rows_range.lower_bound().value()
@@ -218,17 +218,17 @@ fn test_matrix_output_types() {
     let _: MatrixStrategy<_, Dynamic, Dynamic> = matrix(-5..5, 1..=5, 1..=5);
 }
 
-// Below we have some tests to ensure that specific instances of MatrixMN are usable
+// Below we have some tests to ensure that specific instances of OMatrix are usable
 // in a typical proptest scenario where we (implicitly) use the `Arbitrary` trait
 proptest! {
     #[test]
     fn ensure_arbitrary_test_compiles_matrix3(_: Matrix3<i32>) {}
 
     #[test]
-    fn ensure_arbitrary_test_compiles_matrixmn_u3_dynamic(_: MatrixMN<i32, U3, Dynamic>) {}
+    fn ensure_arbitrary_test_compiles_matrixmn_u3_dynamic(_: OMatrix<i32, U3, Dynamic>) {}
 
     #[test]
-    fn ensure_arbitrary_test_compiles_matrixmn_dynamic_u3(_: MatrixMN<i32, Dynamic, U3>) {}
+    fn ensure_arbitrary_test_compiles_matrixmn_dynamic_u3(_: OMatrix<i32, Dynamic, U3>) {}
 
     #[test]
     fn ensure_arbitrary_test_compiles_dmatrix(_: DMatrix<i32>) {}

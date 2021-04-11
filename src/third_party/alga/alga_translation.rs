@@ -8,7 +8,7 @@ use alga::linear::{
     Transformation,
 };
 
-use crate::base::CVectorN;
+use crate::base::SVector;
 use crate::geometry::{Point, Translation};
 
 /*
@@ -16,8 +16,8 @@ use crate::geometry::{Point, Translation};
  * Algebraic structures.
  *
  */
-impl<N: RealField + simba::scalar::RealField, const D: usize> Identity<Multiplicative>
-    for Translation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> Identity<Multiplicative>
+    for Translation<T, D>
 {
     #[inline]
     fn identity() -> Self {
@@ -25,8 +25,8 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> Identity<Multiplic
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, const D: usize> TwoSidedInverse<Multiplicative>
-    for Translation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> TwoSidedInverse<Multiplicative>
+    for Translation<T, D>
 {
     #[inline]
     #[must_use = "Did you mean to use two_sided_inverse_mut()?"]
@@ -40,8 +40,8 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> TwoSidedInverse<Mu
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, const D: usize> AbstractMagma<Multiplicative>
-    for Translation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> AbstractMagma<Multiplicative>
+    for Translation<T, D>
 {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
@@ -51,7 +51,7 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> AbstractMagma<Mult
 
 macro_rules! impl_multiplicative_structures(
     ($($marker: ident<$operator: ident>),* $(,)*) => {$(
-        impl<N: RealField + simba::scalar::RealField, const D: usize> $marker<$operator> for Translation<N, D>
+        impl<T: RealField + simba::scalar::RealField, const D: usize> $marker<$operator> for Translation<T, D>
             { }
     )*}
 );
@@ -69,36 +69,36 @@ impl_multiplicative_structures!(
  * Transformation groups.
  *
  */
-impl<N: RealField + simba::scalar::RealField, const D: usize> Transformation<Point<N, D>>
-    for Translation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> Transformation<Point<T, D>>
+    for Translation<T, D>
 {
     #[inline]
-    fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.transform_point(pt)
     }
 
     #[inline]
-    fn transform_vector(&self, v: &CVectorN<N, D>) -> CVectorN<N, D> {
+    fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         v.clone()
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, const D: usize> ProjectiveTransformation<Point<N, D>>
-    for Translation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> ProjectiveTransformation<Point<T, D>>
+    for Translation<T, D>
 {
     #[inline]
-    fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.inverse_transform_point(pt)
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &CVectorN<N, D>) -> CVectorN<N, D> {
+    fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         v.clone()
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, const D: usize> AffineTransformation<Point<N, D>>
-    for Translation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> AffineTransformation<Point<T, D>>
+    for Translation<T, D>
 {
     type Rotation = Id;
     type NonUniformScaling = Id;
@@ -140,8 +140,8 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> AffineTransformati
     }
 }
 
-impl<N: RealField + simba::scalar::RealField, const D: usize> Similarity<Point<N, D>>
-    for Translation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> Similarity<Point<T, D>>
+    for Translation<T, D>
 {
     type Scaling = Id;
 
@@ -163,7 +163,7 @@ impl<N: RealField + simba::scalar::RealField, const D: usize> Similarity<Point<N
 
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
-        impl<N: RealField + simba::scalar::RealField, const D: usize> $Trait<Point<N, D>> for Translation<N, D>
+        impl<T: RealField + simba::scalar::RealField, const D: usize> $Trait<Point<T, D>> for Translation<T, D>
             { }
     )*}
 );
@@ -171,26 +171,26 @@ macro_rules! marker_impl(
 marker_impl!(Isometry, DirectIsometry);
 
 /// Subgroups of the n-dimensional translation group `T(n)`.
-impl<N: RealField + simba::scalar::RealField, const D: usize> AlgaTranslation<Point<N, D>>
-    for Translation<N, D>
+impl<T: RealField + simba::scalar::RealField, const D: usize> AlgaTranslation<Point<T, D>>
+    for Translation<T, D>
 {
     #[inline]
-    fn to_vector(&self) -> CVectorN<N, D> {
+    fn to_vector(&self) -> SVector<T, D> {
         self.vector.clone()
     }
 
     #[inline]
-    fn from_vector(v: CVectorN<N, D>) -> Option<Self> {
+    fn from_vector(v: SVector<T, D>) -> Option<Self> {
         Some(Self::from(v))
     }
 
     #[inline]
-    fn powf(&self, n: N) -> Option<Self> {
+    fn powf(&self, n: T) -> Option<Self> {
         Some(Self::from(&self.vector * n))
     }
 
     #[inline]
-    fn translation_between(a: &Point<N, D>, b: &Point<N, D>) -> Option<Self> {
+    fn translation_between(a: &Point<T, D>, b: &Point<T, D>) -> Option<Self> {
         Some(Self::from(b - a))
     }
 }
