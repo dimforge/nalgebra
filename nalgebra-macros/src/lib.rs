@@ -34,33 +34,41 @@ impl Matrix {
 }
 
 type MatrixRowSyntax = Punctuated<Expr, Token![,]>;
-type MatrixSyntax = Punctuated<MatrixRowSyntax, Token![;]>;
 
 impl Parse for Matrix {
     fn parse(input: ParseStream) -> Result<Self> {
-        let span = input.span();
-        // TODO: Handle empty matrix case
-        let ast = MatrixSyntax::parse_separated_nonempty_with(input,
-            |input| MatrixRowSyntax::parse_separated_nonempty(input))?;
-        let ncols = ast.first().map(|row| row.len())
-            .unwrap_or(0);
-
         let mut rows = Vec::new();
+        let mut ncols = None;
 
-        for row in ast {
-            if row.len() != ncols {
-                // TODO: Is this the correct span?
-                // Currently it returns the span corresponding to the first element in the macro
-                // invocation, but it would be nice if it returned the span of the first element
-                // in the first row that has an unexpected number of columns
-                return Err(Error::new(span, "Unexpected number of columns. TODO"))
+        while !input.is_empty() {
+            let row_span = input.span();
+            let row = MatrixRowSyntax::parse_separated_nonempty(input)?;
+
+            if let Some(ncols) = ncols {
+                if row.len() != ncols {
+                    let row_idx = rows.len();
+                    let error_msg = format!(
+                        "Unexpected number of entries in row {}. Expected {}, found {} entries.",
+                        row_idx,
+                        ncols,
+                        row.len());
+                    return Err(Error::new(row_span, error_msg));
+                }
+            } else {
+                ncols = Some(row.len());
             }
             rows.push(row.into_iter().collect());
+
+            // We've just read a row, so if there are more tokens, there must be a semi-colon,
+            // otherwise the input is malformed
+            if !input.is_empty() {
+                input.parse::<Token![;]>()?;
+            }
         }
 
         Ok(Self {
             rows,
-            ncols
+            ncols: ncols.unwrap_or(0)
         })
     }
 }
