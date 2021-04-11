@@ -140,13 +140,13 @@ where
     }
 
     /// Computes the determinant of the decomposed matrix.
-    pub fn determinant(&self) -> N {
+    pub fn determinant(&self) -> N::SimdRealField {
         let dim = self.chol.nrows();
         let mut prod_diag = N::one();
         for i in 0..dim {
             prod_diag *= unsafe { *self.chol.get_unchecked((i, i)) };
         }
-        prod_diag * prod_diag
+        prod_diag.simd_modulus_squared()
     }
 }
 
