@@ -337,6 +337,7 @@ mod test {
         }
     }
 
+    #[cfg(feature = "rand")]
     #[test]
     fn wilkinson_shift_random() {
         for _ in 0..1000 {
