@@ -92,7 +92,7 @@ matrixcompare = "0.2.0"
 itertools = "0.10"
 
 [workspace]
-members = [ "nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse" ]
+members = [ "nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse", "nalgebra-macros" ]
 resolver = "2"
 
 [[example]]

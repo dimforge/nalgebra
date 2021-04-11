@@ -1,0 +1,16 @@
+[package]
+name = "nalgebra-macros"
+version = "0.1.0"
+authors = ["Andreas Longva <andreas.b.longva@gmail.com>"]
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+syn = "1.0"
+
+[dev-dependencies]
+nalgebra = { version = "0.25.4", path = ".." }
