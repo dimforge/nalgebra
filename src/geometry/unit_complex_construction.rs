@@ -2,7 +2,10 @@
 use quickcheck::{Arbitrary, Gen};
 
 #[cfg(feature = "rand-no-std")]
-use rand::{distributions::{Distribution, Standard}, Rng};
+use rand::{
+    distributions::{Distribution, Standard},
+    Rng,
+};
 
 use num::One;
 use num_complex::Complex;

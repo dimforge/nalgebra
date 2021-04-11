@@ -155,7 +155,7 @@ impl<T: Scalar, const D: usize> Distribution<Point<T, D>> for Standard
 where
     Standard: Distribution<T>,
 {
-     /// Generate a `Point` where each coordinate is an independent variate from `[0, 1)`.
+    /// Generate a `Point` where each coordinate is an independent variate from `[0, 1)`.
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Point<T, D> {
         Point::from(rng.gen::<SVector<T, D>>())

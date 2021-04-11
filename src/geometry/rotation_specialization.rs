@@ -7,7 +7,7 @@ use num::Zero;
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, OpenClosed01, Standard, Uniform, uniform::SampleUniform},
+    distributions::{uniform::SampleUniform, Distribution, OpenClosed01, Standard, Uniform},
     Rng,
 };
 
