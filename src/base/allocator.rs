@@ -30,16 +30,6 @@ pub trait Allocator<T: Scalar, R: Dim, C: Dim = U1>: Any + Sized {
         ncols: C,
         iter: I,
     ) -> Self::Buffer;
-
-    unsafe fn allocate_more<R2: Dim, C2: Dim>(
-        nrows: R2,
-        ncols: C2,
-    ) -> mem::MaybeUninit<<Self as Allocator<T, R2, C2>>::Buffer>
-    where
-        Self: Allocator<T, R2, C2>,
-    {
-        <Self as Allocator<T, R2, C2>>::allocate_uninitialized(nrows, ncols)
-    }
 }
 
 /// A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
