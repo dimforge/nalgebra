@@ -92,7 +92,7 @@ macro_rules! gen_tests(
 
                 #[test]
                 fn cholesky_determinant_static(_n in PROPTEST_MATRIX_DIM) {
-                    let m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
+                    let m = RandomSDP::new(Const::<4>, || random::<$scalar>().0).unwrap();
                     let lu_det = m.clone().lu().determinant();
                     assert_relative_eq!(lu_det.imaginary(), 0., epsilon = 1.0e-7);
                     let chol_det = m.cholesky().unwrap().determinant();
