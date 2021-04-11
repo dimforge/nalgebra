@@ -1,9 +1,9 @@
 use crate::base::storage::{Storage, StorageMut};
-use crate::{OVector, Point, Scalar, U2, U3};
+use crate::{OVector, Point, Scalar};
 use std::convert::{AsMut, AsRef};
 
 macro_rules! impl_from_into_mint_1D(
-    ($($NRows: ident => $PT:ident, $VT:ident [$SZ: expr]);* $(;)*) => {$(
+    ($($NRows: expr => $PT:ident, $VT:ident [$SZ: expr]);* $(;)*) => {$(
         impl<T> From<mint::$PT<T>> for Point<T, $NRows>
         where T: Scalar {
             #[inline]
@@ -47,6 +47,6 @@ macro_rules! impl_from_into_mint_1D(
 
 // Implement for points of dimension 2, 3.
 impl_from_into_mint_1D!(
-    U2 => Point2, Vector2[2];
-    U3 => Point3, Vector3[3];
+    2 => Point2, Vector2[2];
+    3 => Point3, Vector3[3];
 );
