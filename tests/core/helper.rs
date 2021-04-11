@@ -33,6 +33,8 @@ where
 
 // This is a wrapper similar to RandComplex, but for non-complex.
 // This exists only to make generic tests easier to write.
+//
+// Generates variates in the range [0, 1).
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct RandScalar<N>(pub N);
 
