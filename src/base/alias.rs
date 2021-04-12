@@ -278,7 +278,7 @@ pub type SVector<T, const D: usize> = Matrix<T, Const<D>, U1, ArrayStorage<T, D,
 #[deprecated(
     note = "use SVector for a statically-sized matrix using integer dimensions, or OVector for an owned matrix using types as dimensions."
 )]
-pub type VectorN<T, D> = Matrix<T, D, U1, VecStorage<T, D, U1>>;
+pub type VectorN<T, D> = Matrix<T, D, U1, Owned<T, D, U1>>;
 
 /// A stack-allocated, 1-dimensional column vector.
 pub type Vector1<T> = Matrix<T, U1, U1, ArrayStorage<T, 1, 1>>;
