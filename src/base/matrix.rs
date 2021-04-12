@@ -150,7 +150,7 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// some concrete types for `T` and a compatible data storage type `S`).
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct Matrix<T: Scalar, R: Dim, C: Dim, S> {
+pub struct Matrix<T, R, C, S> {
     /// The data storage that contains all the matrix components. Disappointed?
     ///
     /// Well, if you came here to see how you can access the matrix components,
@@ -179,7 +179,7 @@ pub struct Matrix<T: Scalar, R: Dim, C: Dim, S> {
     _phantoms: PhantomData<(T, R, C)>,
 }
 
-impl<T: Scalar, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<T, R, C, S> {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         formatter
             .debug_struct("Matrix")
@@ -295,11 +295,11 @@ where
 {
 }
 
-impl<T: Scalar, R: Dim, C: Dim, S> Matrix<T, R, C, S> {
+impl<T, R, C, S> Matrix<T, R, C, S> {
     /// Creates a new matrix with the given data without statically checking that the matrix
     /// dimension matches the storage dimension.
-    #[inline]
-    pub unsafe fn from_data_statically_unchecked(data: S) -> Matrix<T, R, C, S> {
+    #[inline(always)]
+    pub const unsafe fn from_data_statically_unchecked(data: S) -> Matrix<T, R, C, S> {
         Matrix {
             data,
             _phantoms: PhantomData,
@@ -309,7 +309,7 @@ impl<T: Scalar, R: Dim, C: Dim, S> Matrix<T, R, C, S> {
 
 impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Creates a new matrix with the given data.
-    #[inline]
+    #[inline(always)]
     pub fn from_data(data: S) -> Self {
         unsafe { Self::from_data_statically_unchecked(data) }
     }
