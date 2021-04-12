@@ -1,7 +1,6 @@
-use na::{DefaultAllocator, Scalar};
+use na::Scalar;
 
 use crate::aliases::{TMat, TVec};
-use crate::traits::{Alloc, Dimension};
 
 /// The `index`-th column of the matrix `m`.
 ///
@@ -10,10 +9,10 @@ use crate::traits::{Alloc, Dimension};
 /// * [`row`](fn.row.html)
 /// * [`set_column`](fn.set_column.html)
 /// * [`set_row`](fn.set_row.html)
-pub fn column<N: Scalar, R: Dimension, C: Dimension>(m: &TMat<N, R, C>, index: usize) -> TVec<N, R>
-where
-    DefaultAllocator: Alloc<N, R, C>,
-{
+pub fn column<T: Scalar, const R: usize, const C: usize>(
+    m: &TMat<T, R, C>,
+    index: usize,
+) -> TVec<T, R> {
     m.column(index).into_owned()
 }
 
@@ -24,14 +23,11 @@ where
 /// * [`column`](fn.column.html)
 /// * [`row`](fn.row.html)
 /// * [`set_row`](fn.set_row.html)
-pub fn set_column<N: Scalar, R: Dimension, C: Dimension>(
-    m: &TMat<N, R, C>,
+pub fn set_column<T: Scalar, const R: usize, const C: usize>(
+    m: &TMat<T, R, C>,
     index: usize,
-    x: &TVec<N, R>,
-) -> TMat<N, R, C>
-where
-    DefaultAllocator: Alloc<N, R, C>,
-{
+    x: &TVec<T, R>,
+) -> TMat<T, R, C> {
     let mut res = m.clone();
     res.set_column(index, x);
     res
@@ -44,10 +40,10 @@ where
 /// * [`column`](fn.column.html)
 /// * [`set_column`](fn.set_column.html)
 /// * [`set_row`](fn.set_row.html)
-pub fn row<N: Scalar, R: Dimension, C: Dimension>(m: &TMat<N, R, C>, index: usize) -> TVec<N, C>
-where
-    DefaultAllocator: Alloc<N, R, C>,
-{
+pub fn row<T: Scalar, const R: usize, const C: usize>(
+    m: &TMat<T, R, C>,
+    index: usize,
+) -> TVec<T, C> {
     m.row(index).into_owned().transpose()
 }
 
@@ -58,14 +54,11 @@ where
 /// * [`column`](fn.column.html)
 /// * [`row`](fn.row.html)
 /// * [`set_column`](fn.set_column.html)
-pub fn set_row<N: Scalar, R: Dimension, C: Dimension>(
-    m: &TMat<N, R, C>,
+pub fn set_row<T: Scalar, const R: usize, const C: usize>(
+    m: &TMat<T, R, C>,
     index: usize,
-    x: &TVec<N, C>,
-) -> TMat<N, R, C>
-where
-    DefaultAllocator: Alloc<N, R, C>,
-{
+    x: &TVec<T, C>,
+) -> TMat<T, R, C> {
     let mut res = m.clone();
     res.set_row(index, &x.transpose());
     res

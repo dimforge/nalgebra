@@ -4,9 +4,7 @@ use std::ops::{Div, DivAssign, Mul, MulAssign};
 use simba::scalar::{ClosedAdd, ClosedMul};
 use simba::simd::SimdRealField;
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, U1, U2, U3, U4};
-use crate::base::{DefaultAllocator, Scalar, VectorN};
+use crate::base::{SVector, Scalar};
 
 use crate::geometry::{
     AbstractRotation, Isometry, Point, Rotation, Similarity, Translation, UnitComplex,
@@ -70,10 +68,9 @@ macro_rules! similarity_binop_impl(
     ($Op: ident, $op: ident;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N: SimdRealField, D: DimName, R> $Op<$Rhs> for $Lhs
-            where N::Element: SimdRealField,
-                  R: AbstractRotation<N, D>,
-                  DefaultAllocator: Allocator<N, D> {
+        impl<$($lives ,)* T: SimdRealField, R, const D: usize> $Op<$Rhs> for $Lhs
+            where T::Element: SimdRealField,
+                  R: AbstractRotation<T, D> {
             type Output = $Output;
 
             #[inline]
@@ -118,20 +115,18 @@ macro_rules! similarity_binop_assign_impl_all(
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty;
      [val] => $action_val: expr;
      [ref] => $action_ref: expr;) => {
-        impl<N: SimdRealField, D: DimName, R> $OpAssign<$Rhs> for $Lhs
-            where N::Element: SimdRealField,
-                  R: AbstractRotation<N, D>,
-                  DefaultAllocator: Allocator<N, D> {
+        impl<T: SimdRealField, R, const D: usize> $OpAssign<$Rhs> for $Lhs
+            where T::Element: SimdRealField,
+                  R: AbstractRotation<T, D>{
             #[inline]
             fn $op_assign(&mut $lhs, $rhs: $Rhs) {
                 $action_val
             }
         }
 
-        impl<'b, N: SimdRealField, D: DimName, R> $OpAssign<&'b $Rhs> for $Lhs
-            where N::Element: SimdRealField,
-                  R: AbstractRotation<N, D>,
-                  DefaultAllocator: Allocator<N, D> {
+        impl<'b, T: SimdRealField, R, const D: usize> $OpAssign<&'b $Rhs> for $Lhs
+            where T::Element: SimdRealField,
+                  R: AbstractRotation<T, D> {
             #[inline]
             fn $op_assign(&mut $lhs, $rhs: &'b $Rhs) {
                 $action_ref
@@ -144,7 +139,7 @@ macro_rules! similarity_binop_assign_impl_all(
 // Similarity ÷ Similarity
 similarity_binop_impl_all!(
     Mul, mul;
-    self: Similarity<N, D, R>, rhs: Similarity<N, D, R>, Output = Similarity<N, D, R>;
+    self: Similarity<T, R, D>, rhs: Similarity<T, R, D>, Output = Similarity<T, R, D>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -157,7 +152,7 @@ similarity_binop_impl_all!(
 
 similarity_binop_impl_all!(
     Div, div;
-    self: Similarity<N, D, R>, rhs: Similarity<N, D, R>, Output = Similarity<N, D, R>;
+    self: Similarity<T, R, D>, rhs: Similarity<T, R, D>, Output = Similarity<T, R, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
@@ -167,7 +162,7 @@ similarity_binop_impl_all!(
 // Similarity ×= Translation
 similarity_binop_assign_impl_all!(
     MulAssign, mul_assign;
-    self: Similarity<N, D, R>, rhs: Translation<N, D>;
+    self: Similarity<T, R, D>, rhs: Translation<T, D>;
     [val] => *self *= &rhs;
     [ref] => {
         let shift = self.isometry.rotation.transform_vector(&rhs.vector) * self.scaling();
@@ -179,7 +174,7 @@ similarity_binop_assign_impl_all!(
 // Similarity ÷= Similarity
 similarity_binop_assign_impl_all!(
     MulAssign, mul_assign;
-    self: Similarity<N, D, R>, rhs: Similarity<N, D, R>;
+    self: Similarity<T, R, D>, rhs: Similarity<T, R, D>;
     [val] => *self *= &rhs;
     [ref] => {
         *self *= &rhs.isometry;
@@ -189,7 +184,7 @@ similarity_binop_assign_impl_all!(
 
 similarity_binop_assign_impl_all!(
     DivAssign, div_assign;
-    self: Similarity<N, D, R>, rhs: Similarity<N, D, R>;
+    self: Similarity<T, R, D>, rhs: Similarity<T, R, D>;
     [val] => *self /= &rhs;
     // TODO: don't invert explicitly.
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
@@ -199,7 +194,7 @@ similarity_binop_assign_impl_all!(
 // Similarity ÷= Isometry
 similarity_binop_assign_impl_all!(
     MulAssign, mul_assign;
-    self: Similarity<N, D, R>, rhs: Isometry<N, D, R>;
+    self: Similarity<T, R, D>, rhs: Isometry<T, R, D>;
     [val] => *self *= &rhs;
     [ref] => {
         let shift = self.isometry.rotation.transform_vector(&rhs.translation.vector) * self.scaling();
@@ -210,7 +205,7 @@ similarity_binop_assign_impl_all!(
 
 similarity_binop_assign_impl_all!(
     DivAssign, div_assign;
-    self: Similarity<N, D, R>, rhs: Isometry<N, D, R>;
+    self: Similarity<T, R, D>, rhs: Isometry<T, R, D>;
     [val] => *self /= &rhs;
     // TODO: don't invert explicitly.
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
@@ -219,51 +214,57 @@ similarity_binop_assign_impl_all!(
 // Similarity ×= R
 // Similarity ÷= R
 md_assign_impl_all!(
-    MulAssign, mul_assign where N: SimdRealField for N::Element: SimdRealField;
-    (D, U1), (D, D) for D: DimName;
-    self: Similarity<N, D, Rotation<N, D>>, rhs: Rotation<N, D>;
+    MulAssign, mul_assign where T: SimdRealField for T::Element: SimdRealField;
+    (Const<D>, U1), (Const<D>, Const<D>)
+    const D; for; where;
+    self: Similarity<T, Rotation<T, D>, D>, rhs: Rotation<T, D>;
     [val] => self.isometry.rotation *= rhs;
     [ref] => self.isometry.rotation *= rhs.clone();
 );
 
 md_assign_impl_all!(
-    DivAssign, div_assign where N: SimdRealField for N::Element: SimdRealField;
-    (D, U1), (D, D) for D: DimName;
-    self: Similarity<N, D, Rotation<N, D>>, rhs: Rotation<N, D>;
+    DivAssign, div_assign where T: SimdRealField for T::Element: SimdRealField;
+    (Const<D>, U1), (Const<D>, Const<D>)
+    const D; for; where;
+    self: Similarity<T, Rotation<T, D>, D>, rhs: Rotation<T, D>;
     // TODO: don't invert explicitly?
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 md_assign_impl_all!(
-    MulAssign, mul_assign where N: SimdRealField for N::Element: SimdRealField;
-    (U3, U3), (U3, U3) for;
-    self: Similarity<N, U3, UnitQuaternion<N>>, rhs: UnitQuaternion<N>;
+    MulAssign, mul_assign where T: SimdRealField for T::Element: SimdRealField;
+    (U3, U3), (U3, U3)
+    const; for; where;
+    self: Similarity<T, UnitQuaternion<T>, 3>, rhs: UnitQuaternion<T>;
     [val] => self.isometry.rotation *= rhs;
     [ref] => self.isometry.rotation *= *rhs;
 );
 
 md_assign_impl_all!(
-    DivAssign, div_assign where N: SimdRealField for N::Element: SimdRealField;
-    (U3, U3), (U3, U3) for;
-    self: Similarity<N, U3, UnitQuaternion<N>>, rhs: UnitQuaternion<N>;
+    DivAssign, div_assign where T: SimdRealField for T::Element: SimdRealField;
+    (U3, U3), (U3, U3)
+    const; for; where;
+    self: Similarity<T, UnitQuaternion<T>, 3>, rhs: UnitQuaternion<T>;
     // TODO: don't invert explicitly?
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );
 
 md_assign_impl_all!(
-    MulAssign, mul_assign where N: SimdRealField for N::Element: SimdRealField;
-    (U2, U2), (U2, U2) for;
-    self: Similarity<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>;
+    MulAssign, mul_assign where T: SimdRealField for T::Element: SimdRealField;
+    (U2, U2), (U2, U2)
+    const; for; where;
+    self: Similarity<T, UnitComplex<T>, 2>, rhs: UnitComplex<T>;
     [val] => self.isometry.rotation *= rhs;
     [ref] => self.isometry.rotation *= *rhs;
 );
 
 md_assign_impl_all!(
-    DivAssign, div_assign where N: SimdRealField for N::Element: SimdRealField;
-    (U2, U2), (U2, U2) for;
-    self: Similarity<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>;
+    DivAssign, div_assign where T: SimdRealField for T::Element: SimdRealField;
+    (U2, U2), (U2, U2)
+    const; for; where;
+    self: Similarity<T, UnitComplex<T>, 2>, rhs: UnitComplex<T>;
     // TODO: don't invert explicitly?
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
@@ -273,7 +274,7 @@ md_assign_impl_all!(
 // Similarity ÷ Isometry
 similarity_binop_impl_all!(
     Mul, mul;
-    self: Similarity<N, D, R>, rhs: Isometry<N, D, R>, Output = Similarity<N, D, R>;
+    self: Similarity<T, R, D>, rhs: Isometry<T, R, D>, Output = Similarity<T, R, D>;
     [val val] => &self * &rhs;
     [ref val] => self * &rhs;
     [val ref] => &self * rhs;
@@ -289,7 +290,7 @@ similarity_binop_impl_all!(
 
 similarity_binop_impl_all!(
     Div, div;
-    self: Similarity<N, D, R>, rhs: Isometry<N, D, R>, Output = Similarity<N, D, R>;
+    self: Similarity<T, R, D>, rhs: Isometry<T, R, D>, Output = Similarity<T, R, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
@@ -300,7 +301,7 @@ similarity_binop_impl_all!(
 // Isometry ÷ Similarity
 similarity_binop_impl_all!(
     Mul, mul;
-    self: Isometry<N, D, R>, rhs: Similarity<N, D, R>, Output = Similarity<N, D, R>;
+    self: Isometry<T, R, D>, rhs: Similarity<T, R, D>, Output = Similarity<T, R, D>;
     [val val] => {
         let scaling = rhs.scaling();
         Similarity::from_isometry(self * rhs.isometry, scaling)
@@ -321,7 +322,7 @@ similarity_binop_impl_all!(
 
 similarity_binop_impl_all!(
     Div, div;
-    self: Isometry<N, D, R>, rhs: Similarity<N, D, R>, Output = Similarity<N, D, R>;
+    self: Isometry<T, R, D>, rhs: Similarity<T, R, D>, Output = Similarity<T, R, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [val ref] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
@@ -331,7 +332,7 @@ similarity_binop_impl_all!(
 // Similarity × Point
 similarity_binop_impl_all!(
     Mul, mul;
-    self: Similarity<N, D, R>, right: Point<N, D>, Output = Point<N, D>;
+    self: Similarity<T, R, D>, right: Point<T, D>, Output = Point<T, D>;
     [val val] => {
         let scaling = self.scaling();
         self.isometry.translation * (self.isometry.rotation.transform_point(&right) * scaling)
@@ -347,7 +348,7 @@ similarity_binop_impl_all!(
 // Similarity × Vector
 similarity_binop_impl_all!(
     Mul, mul;
-    self: Similarity<N, D, R>, right: VectorN<N, D>, Output = VectorN<N, D>;
+    self: Similarity<T, R, D>, right: SVector<T, D>, Output = SVector<T, D>;
     [val val] => self.isometry.rotation.transform_vector(&right) * self.scaling();
     [ref val] => self.isometry.rotation.transform_vector(&right) * self.scaling();
     [val ref] => self.isometry.rotation.transform_vector(right) * self.scaling();
@@ -357,7 +358,7 @@ similarity_binop_impl_all!(
 // Similarity × Translation
 similarity_binop_impl_all!(
     Mul, mul;
-    self: Similarity<N, D, R>, right: Translation<N, D>, Output = Similarity<N, D, R>;
+    self: Similarity<T, R, D>, right: Translation<T, D>, Output = Similarity<T, R, D>;
     [val val] => &self * &right;
     [ref val] => self * &right;
     [val ref] => &self * right;
@@ -374,7 +375,7 @@ similarity_binop_impl_all!(
 // Translation × Similarity
 similarity_binop_impl_all!(
     Mul, mul;
-    self: Translation<N, D>, right: Similarity<N, D, R>, Output = Similarity<N, D, R>;
+    self: Translation<T, D>, right: Similarity<T, R, D>, Output = Similarity<T, R, D>;
     [val val] => {
         let scaling = right.scaling();
         Similarity::from_isometry(self * right.isometry, scaling)
@@ -389,13 +390,11 @@ similarity_binop_impl_all!(
 
 macro_rules! similarity_from_composition_impl(
     ($Op: ident, $op: ident;
-     ($R1: ty, $C1: ty),($R2: ty, $C2: ty) $(for $Dims: ident: $DimsBound: ident),*;
+     $($Dims: ident),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N: SimdRealField $(, $Dims: $DimsBound)*> $Op<$Rhs> for $Lhs
-            where N::Element: SimdRealField,
-                  DefaultAllocator: Allocator<N, $R1, $C1> +
-                                    Allocator<N, $R2, $C2> {
+        impl<$($lives ,)* T: SimdRealField $(, const $Dims: usize)*> $Op<$Rhs> for $Lhs
+            where T::Element: SimdRealField {
             type Output = $Output;
 
             #[inline]
@@ -408,7 +407,7 @@ macro_rules! similarity_from_composition_impl(
 
 macro_rules! similarity_from_composition_impl_all(
     ($Op: ident, $op: ident;
-     ($R1: ty, $C1: ty),($R2: ty, $C2: ty) $(for $Dims: ident: $DimsBound: ident),*;
+     $($Dims: ident),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Output: ty;
      [val val] => $action_val_val: expr;
      [ref val] => $action_ref_val: expr;
@@ -417,25 +416,25 @@ macro_rules! similarity_from_composition_impl_all(
 
         similarity_from_composition_impl!(
             $Op, $op;
-            ($R1, $C1),($R2, $C2) $(for $Dims: $DimsBound),*;
+            $($Dims),*;
             $lhs: $Lhs, $rhs: $Rhs, Output = $Output;
             $action_val_val; );
 
         similarity_from_composition_impl!(
             $Op, $op;
-            ($R1, $C1),($R2, $C2) $(for $Dims: $DimsBound),*;
+            $($Dims),*;
             $lhs: &'a $Lhs, $rhs: $Rhs, Output = $Output;
             $action_ref_val; 'a);
 
         similarity_from_composition_impl!(
             $Op, $op;
-            ($R1, $C1),($R2, $C2) $(for $Dims: $DimsBound),*;
+            $($Dims),*;
             $lhs: $Lhs, $rhs: &'b $Rhs, Output = $Output;
             $action_val_ref; 'b);
 
         similarity_from_composition_impl!(
             $Op, $op;
-            ($R1, $C1),($R2, $C2) $(for $Dims: $DimsBound),*;
+            $($Dims),*;
             $lhs: &'a $Lhs, $rhs: &'b $Rhs, Output = $Output;
             $action_ref_ref; 'a, 'b);
     }
@@ -444,9 +443,9 @@ macro_rules! similarity_from_composition_impl_all(
 // Similarity × Rotation
 similarity_from_composition_impl_all!(
     Mul, mul;
-    (D, D), (D, U1) for D: DimName;
-    self: Similarity<N, D, Rotation<N, D>>, rhs: Rotation<N, D>,
-    Output = Similarity<N, D, Rotation<N, D>>;
+    D;
+    self: Similarity<T, Rotation<T, D>, D>, rhs: Rotation<T, D>,
+    Output = Similarity<T, Rotation<T, D>, D>;
     [val val] => {
         let scaling = self.scaling();
         Similarity::from_isometry(self.isometry * rhs, scaling)
@@ -462,9 +461,9 @@ similarity_from_composition_impl_all!(
 // Rotation × Similarity
 similarity_from_composition_impl_all!(
     Mul, mul;
-    (D, D), (D, U1) for D: DimName;
-    self: Rotation<N, D>, right: Similarity<N, D, Rotation<N, D>>,
-    Output = Similarity<N, D, Rotation<N, D>>;
+    D;
+    self: Rotation<T, D>, right: Similarity<T, Rotation<T, D>, D>,
+    Output = Similarity<T, Rotation<T, D>, D>;
     [val val] => &self * &right;
     [ref val] =>  self * &right;
     [val ref] => &self *  right;
@@ -474,9 +473,9 @@ similarity_from_composition_impl_all!(
 // Similarity ÷ Rotation
 similarity_from_composition_impl_all!(
     Div, div;
-    (D, D), (D, U1) for D: DimName;
-    self: Similarity<N, D, Rotation<N, D>>, rhs: Rotation<N, D>,
-    Output = Similarity<N, D, Rotation<N, D>>;
+    D;
+    self: Similarity<T, Rotation<T, D>, D>, rhs: Rotation<T, D>,
+    Output = Similarity<T, Rotation<T, D>, D>;
     [val val] => {
         let scaling = self.scaling();
         Similarity::from_isometry(self.isometry / rhs, scaling)
@@ -492,9 +491,9 @@ similarity_from_composition_impl_all!(
 // Rotation ÷ Similarity
 similarity_from_composition_impl_all!(
     Div, div;
-    (D, D), (D, U1) for D: DimName;
-    self: Rotation<N, D>, right: Similarity<N, D, Rotation<N, D>>,
-    Output = Similarity<N, D, Rotation<N, D>>;
+    D;
+    self: Rotation<T, D>, right: Similarity<T, Rotation<T, D>, D>,
+    Output = Similarity<T, Rotation<T, D>, D>;
     // TODO: don't call inverse explicitly?
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
@@ -505,9 +504,9 @@ similarity_from_composition_impl_all!(
 // Similarity × UnitQuaternion
 similarity_from_composition_impl_all!(
     Mul, mul;
-    (U4, U1), (U3, U1);
-    self: Similarity<N, U3, UnitQuaternion<N>>, rhs: UnitQuaternion<N>,
-    Output = Similarity<N, U3, UnitQuaternion<N>>;
+    ;
+    self: Similarity<T, UnitQuaternion<T>, 3>, rhs: UnitQuaternion<T>,
+    Output = Similarity<T, UnitQuaternion<T>, 3>;
     [val val] => {
         let scaling = self.scaling();
         Similarity::from_isometry(self.isometry * rhs, scaling)
@@ -523,9 +522,9 @@ similarity_from_composition_impl_all!(
 // UnitQuaternion × Similarity
 similarity_from_composition_impl_all!(
     Mul, mul;
-    (U4, U1), (U3, U1);
-    self: UnitQuaternion<N>, right: Similarity<N, U3, UnitQuaternion<N>>,
-    Output = Similarity<N, U3, UnitQuaternion<N>>;
+    ;
+    self: UnitQuaternion<T>, right: Similarity<T, UnitQuaternion<T>, 3>,
+    Output = Similarity<T, UnitQuaternion<T>, 3>;
     [val val] => &self * &right;
     [ref val] =>  self * &right;
     [val ref] => &self *  right;
@@ -535,9 +534,9 @@ similarity_from_composition_impl_all!(
 // Similarity ÷ UnitQuaternion
 similarity_from_composition_impl_all!(
     Div, div;
-    (U4, U1), (U3, U1);
-    self: Similarity<N, U3, UnitQuaternion<N>>, rhs: UnitQuaternion<N>,
-    Output = Similarity<N, U3, UnitQuaternion<N>>;
+    ;
+    self: Similarity<T, UnitQuaternion<T>, 3>, rhs: UnitQuaternion<T>,
+    Output = Similarity<T, UnitQuaternion<T>, 3>;
     [val val] => {
         let scaling = self.scaling();
         Similarity::from_isometry(self.isometry / rhs, scaling)
@@ -553,9 +552,9 @@ similarity_from_composition_impl_all!(
 // UnitQuaternion ÷ Similarity
 similarity_from_composition_impl_all!(
     Div, div;
-    (U4, U1), (U3, U1);
-    self: UnitQuaternion<N>, right: Similarity<N, U3, UnitQuaternion<N>>,
-    Output = Similarity<N, U3, UnitQuaternion<N>>;
+    ;
+    self: UnitQuaternion<T>, right: Similarity<T, UnitQuaternion<T>, 3>,
+    Output = Similarity<T, UnitQuaternion<T>, 3>;
     // TODO: don't call inverse explicitly?
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };
@@ -566,9 +565,9 @@ similarity_from_composition_impl_all!(
 // Similarity × UnitComplex
 similarity_from_composition_impl_all!(
     Mul, mul;
-    (U2, U1), (U2, U1);
-    self: Similarity<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>,
-    Output = Similarity<N, U2, UnitComplex<N>>;
+    ;
+    self: Similarity<T, UnitComplex<T>, 2>, rhs: UnitComplex<T>,
+    Output = Similarity<T, UnitComplex<T>, 2>;
     [val val] => {
         let scaling = self.scaling();
         Similarity::from_isometry(self.isometry * rhs, scaling)
@@ -584,9 +583,9 @@ similarity_from_composition_impl_all!(
 // Similarity ÷ UnitComplex
 similarity_from_composition_impl_all!(
     Div, div;
-    (U2, U1), (U2, U1);
-    self: Similarity<N, U2, UnitComplex<N>>, rhs: UnitComplex<N>,
-    Output = Similarity<N, U2, UnitComplex<N>>;
+    ;
+    self: Similarity<T, UnitComplex<T>, 2>, rhs: UnitComplex<T>,
+    Output = Similarity<T, UnitComplex<T>, 2>;
     [val val] => {
         let scaling = self.scaling();
         Similarity::from_isometry(self.isometry / rhs, scaling)

@@ -7,7 +7,7 @@ use num_complex::Complex;
 use na::allocator::Allocator;
 use na::dimension::Dim;
 use na::storage::Storage;
-use na::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar};
+use na::{DefaultAllocator, Matrix, OMatrix, Scalar};
 
 use lapack;
 
@@ -15,39 +15,39 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: Serialize"))
+    serde(bound(serialize = "DefaultAllocator: Allocator<T, D>,
+         OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: Deserialize<'de>"))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D>,
+         OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct Cholesky<N: Scalar, D: Dim>
+pub struct Cholesky<T: Scalar, D: Dim>
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D, D>,
 {
-    l: MatrixN<N, D>,
+    l: OMatrix<T, D, D>,
 }
 
-impl<N: Scalar + Copy, D: Dim> Copy for Cholesky<N, D>
+impl<T: Scalar + Copy, D: Dim> Copy for Cholesky<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
-    MatrixN<N, D>: Copy,
+    DefaultAllocator: Allocator<T, D, D>,
+    OMatrix<T, D, D>: Copy,
 {
 }
 
-impl<N: CholeskyScalar + Zero, D: Dim> Cholesky<N, D>
+impl<T: CholeskyScalar + Zero, D: Dim> Cholesky<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     /// Computes the cholesky decomposition of the given symmetric-definite-positive square
     /// matrix.
     ///
     /// Only the lower-triangular part of the input matrix is considered.
     #[inline]
-    pub fn new(mut m: MatrixN<N, D>) -> Option<Self> {
+    pub fn new(mut m: OMatrix<T, D, D>) -> Option<Self> {
         // TODO: check symmetry as well?
         assert!(
             m.is_square(),
@@ -58,14 +58,14 @@ where
         let dim = m.nrows() as i32;
         let mut info = 0;
 
-        N::xpotrf(uplo, dim, m.as_mut_slice(), dim, &mut info);
+        T::xpotrf(uplo, dim, m.as_mut_slice(), dim, &mut info);
         lapack_check!(info);
 
         Some(Self { l: m })
     }
 
     /// Retrieves the lower-triangular factor of the cholesky decomposition.
-    pub fn unpack(mut self) -> MatrixN<N, D> {
+    pub fn unpack(mut self) -> OMatrix<T, D, D> {
         self.l.fill_upper_triangle(Zero::zero(), 1);
         self.l
     }
@@ -75,12 +75,12 @@ where
     ///
     /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
     /// part are garbage and should be ignored by further computations.
-    pub fn unpack_dirty(self) -> MatrixN<N, D> {
+    pub fn unpack_dirty(self) -> OMatrix<T, D, D> {
         self.l
     }
 
     /// Retrieves the lower-triangular factor of the cholesky decomposition.
-    pub fn l(&self) -> MatrixN<N, D> {
+    pub fn l(&self) -> OMatrix<T, D, D> {
         let mut res = self.l.clone();
         res.fill_upper_triangle(Zero::zero(), 1);
         res
@@ -91,7 +91,7 @@ where
     ///
     /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
     /// part are garbage and should be ignored by further computations.
-    pub fn l_dirty(&self) -> &MatrixN<N, D> {
+    pub fn l_dirty(&self) -> &OMatrix<T, D, D> {
         &self.l
     }
 
@@ -99,11 +99,11 @@ where
     /// unknown to be determined.
     pub fn solve<R2: Dim, C2: Dim, S2>(
         &self,
-        b: &Matrix<N, R2, C2, S2>,
-    ) -> Option<MatrixMN<N, R2, C2>>
+        b: &Matrix<T, R2, C2, S2>,
+    ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: Storage<N, R2, C2>,
-        DefaultAllocator: Allocator<N, R2, C2>,
+        S2: Storage<T, R2, C2>,
+        DefaultAllocator: Allocator<T, R2, C2>,
     {
         let mut res = b.clone_owned();
         if self.solve_mut(&mut res) {
@@ -115,9 +115,9 @@ where
 
     /// Solves in-place the symmetric-definite-positive linear system `self * x = b`, where `x` is
     /// the unknown to be determined.
-    pub fn solve_mut<R2: Dim, C2: Dim>(&self, b: &mut MatrixMN<N, R2, C2>) -> bool
+    pub fn solve_mut<R2: Dim, C2: Dim>(&self, b: &mut OMatrix<T, R2, C2>) -> bool
     where
-        DefaultAllocator: Allocator<N, R2, C2>,
+        DefaultAllocator: Allocator<T, R2, C2>,
     {
         let dim = self.l.nrows();
 
@@ -131,7 +131,7 @@ where
         let ldb = dim as i32;
         let mut info = 0;
 
-        N::xpotrs(
+        T::xpotrs(
             b'L',
             dim as i32,
             nrhs,
@@ -145,11 +145,11 @@ where
     }
 
     /// Computes the inverse of the decomposed matrix.
-    pub fn inverse(mut self) -> Option<MatrixN<N, D>> {
+    pub fn inverse(mut self) -> Option<OMatrix<T, D, D>> {
         let dim = self.l.nrows();
         let mut info = 0;
 
-        N::xpotri(
+        T::xpotri(
             b'L',
             dim as i32,
             self.l.as_mut_slice(),

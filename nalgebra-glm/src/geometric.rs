@@ -1,10 +1,10 @@
-use na::{DefaultAllocator, RealField};
+use na::RealField;
 
 use crate::aliases::{TVec, TVec3};
-use crate::traits::{Alloc, Dimension, Number};
+use crate::traits::Number;
 
 /// The cross product of two vectors.
-pub fn cross<N: Number>(x: &TVec3<N>, y: &TVec3<N>) -> TVec3<N> {
+pub fn cross<T: Number>(x: &TVec3<T>, y: &TVec3<T>) -> TVec3<T> {
     x.cross(y)
 }
 
@@ -13,31 +13,22 @@ pub fn cross<N: Number>(x: &TVec3<N>, y: &TVec3<N>) -> TVec3<N> {
 /// # See also:
 ///
 /// * [`distance2`](fn.distance2.html)
-pub fn distance<N: RealField, D: Dimension>(p0: &TVec<N, D>, p1: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn distance<T: RealField, const D: usize>(p0: &TVec<T, D>, p1: &TVec<T, D>) -> T {
     (p1 - p0).norm()
 }
 
 /// The dot product of two vectors.
-pub fn dot<N: Number, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn dot<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T {
     x.dot(y)
 }
 
 /// If `dot(nref, i) < 0.0`, return `n`, otherwise, return `-n`.
-pub fn faceforward<N: Number, D: Dimension>(
-    n: &TVec<N, D>,
-    i: &TVec<N, D>,
-    nref: &TVec<N, D>,
-) -> TVec<N, D>
-where
-    DefaultAllocator: Alloc<N, D>,
-{
-    if nref.dot(i) < N::zero() {
+pub fn faceforward<T: Number, const D: usize>(
+    n: &TVec<T, D>,
+    i: &TVec<T, D>,
+    nref: &TVec<T, D>,
+) -> TVec<T, D> {
+    if nref.dot(i) < T::zero() {
         n.clone()
     } else {
         -n.clone()
@@ -53,10 +44,7 @@ where
 /// * [`length2`](fn.length2.html)
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
-pub fn length<N: RealField, D: Dimension>(x: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn length<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm()
 }
 
@@ -69,39 +57,31 @@ where
 /// * [`length`](fn.length.html)
 /// * [`magnitude2`](fn.magnitude2.html)
 /// * [`nalgebra::norm`](../nalgebra/fn.norm.html)
-pub fn magnitude<N: RealField, D: Dimension>(x: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn magnitude<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm()
 }
 
 /// Normalizes a vector.
-pub fn normalize<N: RealField, D: Dimension>(x: &TVec<N, D>) -> TVec<N, D>
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn normalize<T: RealField, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.normalize()
 }
 
 /// For the incident vector `i` and surface orientation `n`, returns the reflection direction : `result = i - 2.0 * dot(n, i) * n`.
-pub fn reflect_vec<N: Number, D: Dimension>(i: &TVec<N, D>, n: &TVec<N, D>) -> TVec<N, D>
-where
-    DefaultAllocator: Alloc<N, D>,
-{
-    let _2 = N::one() + N::one();
+pub fn reflect_vec<T: Number, const D: usize>(i: &TVec<T, D>, n: &TVec<T, D>) -> TVec<T, D> {
+    let _2 = T::one() + T::one();
     i - n * (n.dot(i) * _2)
 }
 
 /// For the incident vector `i` and surface normal `n`, and the ratio of indices of refraction `eta`, return the refraction vector.
-pub fn refract_vec<N: RealField, D: Dimension>(i: &TVec<N, D>, n: &TVec<N, D>, eta: N) -> TVec<N, D>
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn refract_vec<T: RealField, const D: usize>(
+    i: &TVec<T, D>,
+    n: &TVec<T, D>,
+    eta: T,
+) -> TVec<T, D> {
     let ni = n.dot(i);
-    let k = N::one() - eta * eta * (N::one() - ni * ni);
+    let k = T::one() - eta * eta * (T::one() - ni * ni);
 
-    if k < N::zero() {
+    if k < T::zero() {
         TVec::<_, D>::zeros()
     } else {
         i * eta - n * (eta * dot(n, i) + k.sqrt())

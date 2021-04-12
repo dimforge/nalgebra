@@ -5,7 +5,7 @@
 //! in addition to some sanity checks with example input.
 
 use matrixcompare::assert_matrix_eq;
-use nalgebra::{MatrixMN, U4, U5};
+use nalgebra::{OMatrix, U4, U5};
 
 #[cfg(feature = "proptest-support")]
 use {
@@ -36,7 +36,7 @@ proptest! {
 #[test]
 fn assert_matrix_eq_dense_positive_comparison() {
     #[rustfmt::skip]
-    let a = MatrixMN::<_, U4, U5>::from_row_slice(&[
+    let a = OMatrix::<_, U4, U5>::from_row_slice(&[
         1210, 1320, 1430, 1540, 1650,
         2310, 2420, 2530, 2640, 2750,
         3410, 3520, 3630, 3740, 3850,
@@ -44,7 +44,7 @@ fn assert_matrix_eq_dense_positive_comparison() {
     ]);
 
     #[rustfmt::skip]
-    let b = MatrixMN::<_, U4, U5>::from_row_slice(&[
+    let b = OMatrix::<_, U4, U5>::from_row_slice(&[
         1210, 1320, 1430, 1540, 1650,
         2310, 2420, 2530, 2640, 2750,
         3410, 3520, 3630, 3740, 3850,
@@ -70,7 +70,7 @@ fn assert_matrix_eq_dense_positive_comparison() {
 #[should_panic]
 fn assert_matrix_eq_dense_negative_comparison() {
     #[rustfmt::skip]
-    let a = MatrixMN::<_, U4, U5>::from_row_slice(&[
+    let a = OMatrix::<_, U4, U5>::from_row_slice(&[
         1210, 1320, 1430, 1540, 1650,
         2310, 2420, 2530, 2640, 2750,
         3410, 3520, 3630, 3740, 3850,
@@ -78,7 +78,7 @@ fn assert_matrix_eq_dense_negative_comparison() {
     ]);
 
     #[rustfmt::skip]
-    let b = MatrixMN::<_, U4, U5>::from_row_slice(&[
+    let b = OMatrix::<_, U4, U5>::from_row_slice(&[
         1210, 1320, 1430, 1540, 1650,
         2310, 2420, 2530, 2640, 2750,
         3410, 3520, 3630, 3740, 3850,

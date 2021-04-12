@@ -4,6 +4,50 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.26.0]
+This releases integrates `min-const-generics` to nalgebra. See
+[our blog post](https://dimforge.com/blog/2021/04/12/nalgebra-const-generics)
+for details about this release.
+
+### Added
+- Add type aliases for unit vector, e.g., `UnitVector3`.
+- Add a `pow` and `pow_mut` function to square matrices.
+- Add `Cholesky::determinant` to compute the determinant of a matrix decomposed
+  with Cholesky.
+- Add the `serde-serialize-no-std` feature to enable serialization of static matrices/vectors
+  with serde, but without requiring `std`.
+  
+
+### Modified
+- The `serde` crate isn't enabled by default now. Enable the `serde-serialize` or the
+  `serde-serialize-no-std` features instead.
+- The `Const<const D: usize>` type has been introduced to represent dimensions known
+  at compile-time. This replaces the type-level integers from `typenum` as well as
+  the `U1, U2, ..., U127` types from `nalgebra`. These `U1, U2, ..., U127` are now
+  just aliases for `Const<D>`, e.g., `type U2 = Const<2>`.
+- The `ArrayStorage` now uses a standard array `[[T; R]; C]` instead of a `GenericArray`.
+- Many trait bounds were changed to accommodate const-generics. Most of these changes
+  should be transparent wrt. non-generic code.
+- The `MatrixMN` alias has been deprecated. Use `OMatrix` or `SMatrix` instead.
+- The `MatrixN<T, D>` alias has been deprecated. Use `OMatrix<T, D, D>` or `SMatrix` instead.
+- The `VectorN<T, D>` alias has been deprecated. Use `OVector` or `SVector` instead.
+- The `Point`, `Translation`, `Isometry`, `Similarity`, and `Transformation` types now take an
+  integer for their dimension (instead of a type-level integer).
+- The type parameter order of `Isometry`, `Similarity`, `Transformation` changed to put
+  the integer dimensions in the last position (this is required by the compiler).
+- The `::new` constructors of translations, points, matrices, and vectors of dimensions `<= 6`
+  are now `const fn`, making them usable to define constant globals. The `Quaternion::new`
+  constructor is also a `const fn` now.
+
+## [0.25.4]
+### Fixed
+- Fix a compilation error when only the `serde-serialize` feature is enabled.
+
+## [0.25.3]
+### Added
+- The `Vector::simd_cap_magnitude` method to cap the magnitude of the a vector with
+  SIMD components.
+
 ## [0.25.2]
 ### Added
 - A `convert-glam` cargo feature to enable implementations of `From` traits to convert

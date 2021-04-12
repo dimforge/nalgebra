@@ -10,18 +10,18 @@ use crate::base::{Matrix, Vector};
 
 /// A Givens rotation.
 #[derive(Debug, Clone, Copy)]
-pub struct GivensRotation<N: ComplexField> {
-    c: N::RealField,
-    s: N,
+pub struct GivensRotation<T: ComplexField> {
+    c: T::RealField,
+    s: T,
 }
 
 // Matrix = UnitComplex * Matrix
-impl<N: ComplexField> GivensRotation<N> {
+impl<T: ComplexField> GivensRotation<T> {
     /// The Givents rotation that does nothing.
     pub fn identity() -> Self {
         Self {
-            c: N::RealField::one(),
-            s: N::zero(),
+            c: T::RealField::one(),
+            s: T::zero(),
         }
     }
 
@@ -29,18 +29,18 @@ impl<N: ComplexField> GivensRotation<N> {
     ///
     /// The components are copies as-is. It is not checked whether they describe
     /// an actually valid Givens rotation.
-    pub fn new_unchecked(c: N::RealField, s: N) -> Self {
+    pub fn new_unchecked(c: T::RealField, s: T) -> Self {
         Self { c, s }
     }
 
     /// Initializes a Givens rotation from its non-normalized cosine an sine components.
-    pub fn new(c: N, s: N) -> (Self, N) {
-        Self::try_new(c, s, N::RealField::zero())
-            .unwrap_or_else(|| (GivensRotation::identity(), N::zero()))
+    pub fn new(c: T, s: T) -> (Self, T) {
+        Self::try_new(c, s, T::RealField::zero())
+            .unwrap_or_else(|| (GivensRotation::identity(), T::zero()))
     }
 
     /// Initializes a Givens rotation form its non-normalized cosine an sine components.
-    pub fn try_new(c: N, s: N, eps: N::RealField) -> Option<(Self, N)> {
+    pub fn try_new(c: T, s: T, eps: T::RealField) -> Option<(Self, T)> {
         let (mod0, sign0) = c.to_exp();
         let denom = (mod0 * mod0 + s.modulus_squared()).sqrt();
 
@@ -58,7 +58,7 @@ impl<N: ComplexField> GivensRotation<N> {
     ///
     /// Returns `None` if no rotation is needed (i.e. if `v.y == 0`). Otherwise, this returns the norm
     /// of `v` and the rotation `r` such that `R * v = [ |v|, 0.0 ]^t` where `|v|` is the norm of `v`.
-    pub fn cancel_y<S: Storage<N, U2>>(v: &Vector<N, U2, S>) -> Option<(Self, N)> {
+    pub fn cancel_y<S: Storage<T, U2>>(v: &Vector<T, U2, S>) -> Option<(Self, T)> {
         if !v[1].is_zero() {
             let (mod0, sign0) = v[0].to_exp();
             let denom = (mod0 * mod0 + v[1].modulus_squared()).sqrt();
@@ -75,7 +75,7 @@ impl<N: ComplexField> GivensRotation<N> {
     ///
     /// Returns `None` if no rotation is needed (i.e. if `v.x == 0`). Otherwise, this returns the norm
     /// of `v` and the rotation `r` such that `R * v = [ 0.0, |v| ]^t` where `|v|` is the norm of `v`.
-    pub fn cancel_x<S: Storage<N, U2>>(v: &Vector<N, U2, S>) -> Option<(Self, N)> {
+    pub fn cancel_x<S: Storage<T, U2>>(v: &Vector<T, U2, S>) -> Option<(Self, T)> {
         if !v[0].is_zero() {
             let (mod1, sign1) = v[1].to_exp();
             let denom = (mod1 * mod1 + v[0].modulus_squared()).sqrt();
@@ -89,12 +89,12 @@ impl<N: ComplexField> GivensRotation<N> {
     }
 
     /// The cos part of this roration.
-    pub fn c(&self) -> N::RealField {
+    pub fn c(&self) -> T::RealField {
         self.c
     }
 
     /// The sin part of this roration.
-    pub fn s(&self) -> N {
+    pub fn s(&self) -> T {
         self.s
     }
 
@@ -107,9 +107,9 @@ impl<N: ComplexField> GivensRotation<N> {
     }
 
     /// Performs the multiplication `rhs = self * rhs` in-place.
-    pub fn rotate<R2: Dim, C2: Dim, S2: StorageMut<N, R2, C2>>(
+    pub fn rotate<R2: Dim, C2: Dim, S2: StorageMut<T, R2, C2>>(
         &self,
-        rhs: &mut Matrix<N, R2, C2, S2>,
+        rhs: &mut Matrix<T, R2, C2, S2>,
     ) where
         ShapeConstraint: DimEq<R2, U2>,
     {
@@ -133,9 +133,9 @@ impl<N: ComplexField> GivensRotation<N> {
     }
 
     /// Performs the multiplication `lhs = lhs * self` in-place.
-    pub fn rotate_rows<R2: Dim, C2: Dim, S2: StorageMut<N, R2, C2>>(
+    pub fn rotate_rows<R2: Dim, C2: Dim, S2: StorageMut<T, R2, C2>>(
         &self,
-        lhs: &mut Matrix<N, R2, C2, S2>,
+        lhs: &mut Matrix<T, R2, C2, S2>,
     ) where
         ShapeConstraint: DimEq<C2, U2>,
     {

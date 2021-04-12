@@ -3,15 +3,15 @@ use std::any::Any;
 use std::fmt::Debug;
 use std::marker::PhantomData;
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use simba::scalar::RealField;
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
-use crate::base::{DefaultAllocator, MatrixN, VectorN};
+use crate::base::{Const, DefaultAllocator, DimName, OMatrix, SVector};
 
 use crate::geometry::Point;
 
@@ -28,10 +28,10 @@ pub trait TCategory: Any + Debug + Copy + PartialEq + Send {
 
     /// Checks that the given matrix is a valid homogeneous representation of an element of the
     /// category `Self`.
-    fn check_homogeneous_invariants<N: RealField, D: DimName>(mat: &MatrixN<N, D>) -> bool
+    fn check_homogeneous_invariants<T: RealField, D: DimName>(mat: &OMatrix<T, D, D>) -> bool
     where
-        N::Epsilon: Copy,
-        DefaultAllocator: Allocator<N, D, D>;
+        T::Epsilon: Copy,
+        DefaultAllocator: Allocator<T, D, D>;
 }
 
 /// Traits that gives the `Transform` category that is compatible with the result of the
@@ -71,10 +71,10 @@ pub enum TAffine {}
 
 impl TCategory for TGeneral {
     #[inline]
-    fn check_homogeneous_invariants<N: RealField, D: DimName>(_: &MatrixN<N, D>) -> bool
+    fn check_homogeneous_invariants<T: RealField, D: DimName>(_: &OMatrix<T, D, D>) -> bool
     where
-        N::Epsilon: Copy,
-        DefaultAllocator: Allocator<N, D, D>,
+        T::Epsilon: Copy,
+        DefaultAllocator: Allocator<T, D, D>,
     {
         true
     }
@@ -82,10 +82,10 @@ impl TCategory for TGeneral {
 
 impl TCategory for TProjective {
     #[inline]
-    fn check_homogeneous_invariants<N: RealField, D: DimName>(mat: &MatrixN<N, D>) -> bool
+    fn check_homogeneous_invariants<T: RealField, D: DimName>(mat: &OMatrix<T, D, D>) -> bool
     where
-        N::Epsilon: Copy,
-        DefaultAllocator: Allocator<N, D, D>,
+        T::Epsilon: Copy,
+        DefaultAllocator: Allocator<T, D, D>,
     {
         mat.is_invertible()
     }
@@ -98,14 +98,14 @@ impl TCategory for TAffine {
     }
 
     #[inline]
-    fn check_homogeneous_invariants<N: RealField, D: DimName>(mat: &MatrixN<N, D>) -> bool
+    fn check_homogeneous_invariants<T: RealField, D: DimName>(mat: &OMatrix<T, D, D>) -> bool
     where
-        N::Epsilon: Copy,
-        DefaultAllocator: Allocator<N, D, D>,
+        T::Epsilon: Copy,
+        DefaultAllocator: Allocator<T, D, D>,
     {
         let last = D::dim() - 1;
         mat.is_invertible()
-            && mat[(last, last)] == N::one()
+            && mat[(last, last)] == T::one()
             && (0..last).all(|i| mat[(last, i)].is_zero())
     }
 }
@@ -157,33 +157,36 @@ super_tcategory_impl!(
 /// 3D transformation.
 #[repr(C)]
 #[derive(Debug)]
-pub struct Transform<N: RealField, D: DimNameAdd<U1>, C: TCategory>
+pub struct Transform<T: RealField, C: TCategory, const D: usize>
 where
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
-    matrix: MatrixN<N, DimNameSum<D, U1>>,
+    matrix: OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     _phantom: PhantomData<C>,
 }
 
 // TODO
-// impl<N: RealField + hash::Hash, D: DimNameAdd<U1> + hash::Hash, C: TCategory> hash::Hash for Transform<N, D, C>
-//     where DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-//           Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: hash::Hash {
+// impl<T: RealField + hash::Hash, D: DimNameAdd<U1> + hash::Hash, C: TCategory> hash::Hash for Transform<T, C, D>
+//     where DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+//           Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: hash::Hash {
 //     fn hash<H: hash::Hasher>(&self, state: &mut H) {
 //         self.matrix.hash(state);
 //     }
 // }
 
-impl<N: RealField, D: DimNameAdd<U1> + Copy, C: TCategory> Copy for Transform<N, D, C>
+impl<T: RealField, C: TCategory, const D: usize> Copy for Transform<T, C, D>
 where
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-    Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Copy,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Copy,
 {
 }
 
-impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> Clone for Transform<N, D, C>
+impl<T: RealField, C: TCategory, const D: usize> Clone for Transform<T, C, D>
 where
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -191,11 +194,12 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> Serialize for Transform<N, D, C>
+#[cfg(feature = "serde-serialize-no-std")]
+impl<T: RealField, C: TCategory, const D: usize> Serialize for Transform<T, C, D>
 where
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-    Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Serialize,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -205,30 +209,36 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<'a, N: RealField, D: DimNameAdd<U1>, C: TCategory> Deserialize<'a> for Transform<N, D, C>
+#[cfg(feature = "serde-serialize-no-std")]
+impl<'a, T: RealField, C: TCategory, const D: usize> Deserialize<'a> for Transform<T, C, D>
 where
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
-    Owned<N, DimNameSum<D, U1>, DimNameSum<D, U1>>: Deserialize<'a>,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
         Des: Deserializer<'a>,
     {
-        let matrix = MatrixN::<N, DimNameSum<D, U1>>::deserialize(deserializer)?;
+        let matrix = OMatrix::<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>::deserialize(
+            deserializer,
+        )?;
 
         Ok(Transform::from_matrix_unchecked(matrix))
     }
 }
 
-impl<N: RealField + Eq, D: DimNameAdd<U1>, C: TCategory> Eq for Transform<N, D, C> where
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
+impl<T: RealField + Eq, C: TCategory, const D: usize> Eq for Transform<T, C, D>
+where
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
 }
 
-impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> PartialEq for Transform<N, D, C>
+impl<T: RealField, C: TCategory, const D: usize> PartialEq for Transform<T, C, D>
 where
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
@@ -236,14 +246,17 @@ where
     }
 }
 
-impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
+impl<T: RealField, C: TCategory, const D: usize> Transform<T, C, D>
 where
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     /// Creates a new transformation from the given homogeneous matrix. The transformation category
     /// of `Self` is not checked to be verified by the given matrix.
     #[inline]
-    pub fn from_matrix_unchecked(matrix: MatrixN<N, DimNameSum<D, U1>>) -> Self {
+    pub fn from_matrix_unchecked(
+        matrix: OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    ) -> Self {
         Transform {
             matrix,
             _phantom: PhantomData,
@@ -263,7 +276,7 @@ where
     /// assert_eq!(t.into_inner(), m);
     /// ```
     #[inline]
-    pub fn into_inner(self) -> MatrixN<N, DimNameSum<D, U1>> {
+    pub fn into_inner(self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         self.matrix
     }
 
@@ -271,7 +284,7 @@ where
     /// Deprecated: Use [Transform::into_inner] instead.
     #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
-    pub fn unwrap(self) -> MatrixN<N, DimNameSum<D, U1>> {
+    pub fn unwrap(self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         self.matrix
     }
 
@@ -288,7 +301,7 @@ where
     /// assert_eq!(*t.matrix(), m);
     /// ```
     #[inline]
-    pub fn matrix(&self) -> &MatrixN<N, DimNameSum<D, U1>> {
+    pub fn matrix(&self) -> &OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         &self.matrix
     }
 
@@ -315,7 +328,9 @@ where
     /// assert_eq!(*t.matrix(), expected);
     /// ```
     #[inline]
-    pub fn matrix_mut_unchecked(&mut self) -> &mut MatrixN<N, DimNameSum<D, U1>> {
+    pub fn matrix_mut_unchecked(
+        &mut self,
+    ) -> &mut OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         &mut self.matrix
     }
 
@@ -326,7 +341,7 @@ where
     /// `TAffine` because not all projective transformations are affine (the other way-round is
     /// valid though).
     #[inline]
-    pub fn set_category<CNew: SuperTCategoryOf<C>>(self) -> Transform<N, D, CNew> {
+    pub fn set_category<CNew: SuperTCategoryOf<C>>(self) -> Transform<T, CNew, D> {
         Transform::from_matrix_unchecked(self.matrix)
     }
 
@@ -335,7 +350,7 @@ where
     #[deprecated(
         note = "This method is redundant with automatic `Copy` and the `.clone()` method and will be removed in a future release."
     )]
-    pub fn clone_owned(&self) -> Transform<N, D, C> {
+    pub fn clone_owned(&self) -> Transform<T, C, D> {
         Transform::from_matrix_unchecked(self.matrix.clone_owned())
     }
 
@@ -352,7 +367,7 @@ where
     /// assert_eq!(t.into_inner(), m);
     /// ```
     #[inline]
-    pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<D, U1>> {
+    pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         self.matrix().clone_owned()
     }
 
@@ -381,7 +396,7 @@ where
     /// ```
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
-    pub fn try_inverse(self) -> Option<Transform<N, D, C>> {
+    pub fn try_inverse(self) -> Option<Transform<T, C, D>> {
         if let Some(m) = self.matrix.try_inverse() {
             Some(Transform::from_matrix_unchecked(m))
         } else {
@@ -407,7 +422,7 @@ where
     /// ```
     #[inline]
     #[must_use = "Did you mean to use inverse_mut()?"]
-    pub fn inverse(self) -> Transform<N, D, C>
+    pub fn inverse(self) -> Transform<T, C, D>
     where
         C: SubTCategoryOf<TProjective>,
     {
@@ -470,20 +485,20 @@ where
     }
 }
 
-impl<N, D: DimNameAdd<U1>, C> Transform<N, D, C>
+impl<T, C, const D: usize> Transform<T, C, D>
 where
-    N: RealField,
+    T: RealField,
     C: TCategory,
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
-        + Allocator<N, DimNameSum<D, U1>>
-        + Allocator<N, D, D>
-        + Allocator<N, D>,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<T, DimNameSum<Const<D>, U1>>, // + Allocator<T, D, D>
+                                                  // + Allocator<T, D>
 {
     /// Transform the given point by this transformation.
     ///
     /// This is the same as the multiplication `self * pt`.
     #[inline]
-    pub fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self * pt
     }
 
@@ -492,24 +507,24 @@ where
     ///
     /// This is the same as the multiplication `self * v`.
     #[inline]
-    pub fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+    pub fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self * v
     }
 }
 
-impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> Transform<N, D, C>
+impl<T: RealField, C: TCategory, const D: usize> Transform<T, C, D>
 where
+    Const<D>: DimNameAdd<U1>,
     C: SubTCategoryOf<TProjective>,
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>
-        + Allocator<N, DimNameSum<D, U1>>
-        + Allocator<N, D, D>
-        + Allocator<N, D>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<T, DimNameSum<Const<D>, U1>>, // + Allocator<T, D, D>
+                                                  // + Allocator<T, D>
 {
     /// Transform the given point by the inverse of this transformation.
     /// This may be cheaper than inverting the transformation and transforming
     /// the point.
     #[inline]
-    pub fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.clone().inverse() * pt
     }
 
@@ -517,33 +532,37 @@ where
     /// This may be cheaper than inverting the transformation and transforming
     /// the vector.
     #[inline]
-    pub fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D> {
+    pub fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.clone().inverse() * v
     }
 }
 
-impl<N: RealField, D: DimNameAdd<U1>> Transform<N, D, TGeneral>
+impl<T: RealField, const D: usize> Transform<T, TGeneral, D>
 where
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     /// A mutable reference to underlying matrix. Use `.matrix_mut_unchecked` instead if this
     /// transformation category is not `TGeneral`.
     #[inline]
-    pub fn matrix_mut(&mut self) -> &mut MatrixN<N, DimNameSum<D, U1>> {
+    pub fn matrix_mut(
+        &mut self,
+    ) -> &mut OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         self.matrix_mut_unchecked()
     }
 }
 
-impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> AbsDiffEq for Transform<N, D, C>
+impl<T: RealField, C: TCategory, const D: usize> AbsDiffEq for Transform<T, C, D>
 where
-    N::Epsilon: Copy,
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Const<D>: DimNameAdd<U1>,
+    T::Epsilon: Copy,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
-    type Epsilon = N::Epsilon;
+    type Epsilon = T::Epsilon;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        N::default_epsilon()
+        T::default_epsilon()
     }
 
     #[inline]
@@ -552,14 +571,15 @@ where
     }
 }
 
-impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> RelativeEq for Transform<N, D, C>
+impl<T: RealField, C: TCategory, const D: usize> RelativeEq for Transform<T, C, D>
 where
-    N::Epsilon: Copy,
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Const<D>: DimNameAdd<U1>,
+    T::Epsilon: Copy,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        N::default_max_relative()
+        T::default_max_relative()
     }
 
     #[inline]
@@ -574,14 +594,15 @@ where
     }
 }
 
-impl<N: RealField, D: DimNameAdd<U1>, C: TCategory> UlpsEq for Transform<N, D, C>
+impl<T: RealField, C: TCategory, const D: usize> UlpsEq for Transform<T, C, D>
 where
-    N::Epsilon: Copy,
-    DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+    Const<D>: DimNameAdd<U1>,
+    T::Epsilon: Copy,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
+        T::default_max_ulps()
     }
 
     #[inline]

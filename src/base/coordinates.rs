@@ -23,18 +23,18 @@ macro_rules! coords_impl(
         /// notation, e.g., `v.x` is the same as `v[0]` for a vector.
         #[repr(C)]
         #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
-        #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-        pub struct $T<N: Scalar> {
-            $(pub $comps: N),*
+        #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
+        pub struct $T<T: Scalar> {
+            $(pub $comps: T),*
         }
     }
 );
 
 macro_rules! deref_impl(
     ($R: ty, $C: ty; $Target: ident) => {
-        impl<N: Scalar, S> Deref for Matrix<N, $R, $C, S>
-            where S: ContiguousStorage<N, $R, $C> {
-            type Target = $Target<N>;
+        impl<T: Scalar, S> Deref for Matrix<T, $R, $C, S>
+            where S: ContiguousStorage<T, $R, $C> {
+            type Target = $Target<T>;
 
             #[inline]
             fn deref(&self) -> &Self::Target {
@@ -42,8 +42,8 @@ macro_rules! deref_impl(
             }
         }
 
-        impl<N: Scalar, S> DerefMut for Matrix<N, $R, $C, S>
-            where S: ContiguousStorageMut<N, $R, $C> {
+        impl<T: Scalar, S> DerefMut for Matrix<T, $R, $C, S>
+            where S: ContiguousStorageMut<T, $R, $C> {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {
                 unsafe { mem::transmute(self.data.ptr_mut()) }

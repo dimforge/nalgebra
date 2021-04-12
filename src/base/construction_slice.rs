@@ -1,12 +1,12 @@
-use crate::base::dimension::{Dim, DimName, Dynamic, U1};
+use crate::base::dimension::{Const, Dim, DimName, Dynamic};
 use crate::base::matrix_slice::{SliceStorage, SliceStorageMut};
-use crate::base::{MatrixSliceMN, MatrixSliceMutMN, Scalar};
+use crate::base::{MatrixSlice, MatrixSliceMutMN, Scalar};
 
 use num_rational::Ratio;
 
 /// # Creating matrix slices from `&[T]`
-impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
-    MatrixSliceMN<'a, N, R, C, RStride, CStride>
+impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
+    MatrixSlice<'a, T, R, C, RStride, CStride>
 {
     /// Creates, without bound-checking, a matrix slice from an array and with dimensions and strides specified by generic types instances.
     ///
@@ -14,7 +14,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     /// The generic types `R`, `C`, `RStride`, `CStride` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
     pub unsafe fn from_slice_with_strides_generic_unchecked(
-        data: &'a [N],
+        data: &'a [T],
         start: usize,
         nrows: R,
         ncols: C,
@@ -35,7 +35,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     /// The generic types `R`, `C`, `RStride`, `CStride` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
     pub fn from_slice_with_strides_generic(
-        data: &'a [N],
+        data: &'a [T],
         nrows: R,
         ncols: C,
         rstride: RStride,
@@ -56,19 +56,21 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     }
 }
 
-impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMN<'a, N, R, C> {
+impl<'a, T: Scalar, R: Dim, C: Dim> MatrixSlice<'a, T, R, C> {
     /// Creates, without bound-checking, a matrix slice from an array and with dimensions specified by generic types instances.
     ///
     /// This method is unsafe because the input data array is not checked to contain enough elements.
     /// The generic types `R` and `C` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
     pub unsafe fn from_slice_generic_unchecked(
-        data: &'a [N],
+        data: &'a [T],
         start: usize,
         nrows: R,
         ncols: C,
     ) -> Self {
-        Self::from_slice_with_strides_generic_unchecked(data, start, nrows, ncols, U1, nrows)
+        Self::from_slice_with_strides_generic_unchecked(
+            data, start, nrows, ncols, Const::<1>, nrows,
+        )
     }
 
     /// Creates a matrix slice from an array and with dimensions and strides specified by generic types instances.
@@ -76,41 +78,41 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMN<'a, N, R, C> {
     /// Panics if the input data array dose not contain enough elements.
     /// The generic types `R` and `C` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
-    pub fn from_slice_generic(data: &'a [N], nrows: R, ncols: C) -> Self {
-        Self::from_slice_with_strides_generic(data, nrows, ncols, U1, nrows)
+    pub fn from_slice_generic(data: &'a [T], nrows: R, ncols: C) -> Self {
+        Self::from_slice_with_strides_generic(data, nrows, ncols, Const::<1>, nrows)
     }
 }
 
 macro_rules! impl_constructors(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<'a, N: Scalar, $($DimIdent: $DimBound),*> MatrixSliceMN<'a, N, $($Dims),*> {
+        impl<'a, T: Scalar, $($DimIdent: $DimBound),*> MatrixSlice<'a, T, $($Dims),*> {
             /// Creates a new matrix slice from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
             #[inline]
-            pub fn from_slice(data: &'a [N], $($args: usize),*) -> Self {
+            pub fn from_slice(data: &'a [T], $($args: usize),*) -> Self {
                 Self::from_slice_generic(data, $($gargs),*)
             }
 
             /// Creates, without bound checking, a new matrix slice from the given data array.
             #[inline]
-            pub unsafe fn from_slice_unchecked(data: &'a [N], start: usize, $($args: usize),*) -> Self {
+            pub unsafe fn from_slice_unchecked(data: &'a [T], start: usize, $($args: usize),*) -> Self {
                 Self::from_slice_generic_unchecked(data, start, $($gargs),*)
             }
         }
 
-        impl<'a, N: Scalar, $($DimIdent: $DimBound, )*> MatrixSliceMN<'a, N, $($Dims,)* Dynamic, Dynamic> {
+        impl<'a, T: Scalar, $($DimIdent: $DimBound, )*> MatrixSlice<'a, T, $($Dims,)* Dynamic, Dynamic> {
             /// Creates a new matrix slice with the specified strides from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
             #[inline]
-            pub fn from_slice_with_strides(data: &'a [N], $($args: usize,)* rstride: usize, cstride: usize) -> Self {
+            pub fn from_slice_with_strides(data: &'a [T], $($args: usize,)* rstride: usize, cstride: usize) -> Self {
                 Self::from_slice_with_strides_generic(data, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
             }
 
             /// Creates, without bound checking, a new matrix slice with the specified strides from the given data array.
             #[inline]
-            pub unsafe fn from_slice_with_strides_unchecked(data: &'a [N], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self {
+            pub unsafe fn from_slice_with_strides_unchecked(data: &'a [T], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self {
                 Self::from_slice_with_strides_generic_unchecked(data, start, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
             }
         }
@@ -118,8 +120,8 @@ macro_rules! impl_constructors(
 );
 
 // TODO: this is not very pretty. We could find a better call syntax.
-impl_constructors!(R, C;                         // Arguments for Matrix<N, ..., S>
-=> R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
+impl_constructors!(R, C;                         // Arguments for Matrix<T, ..., S>
+=> R: DimName, => C: DimName; // Type parameters for impl<T, ..., S>
 R::name(), C::name();         // Arguments for `_generic` constructors.
 ); // Arguments for non-generic constructors.
 
@@ -139,8 +141,8 @@ impl_constructors!(Dynamic, Dynamic;
                    nrows, ncols);
 
 /// # Creating mutable matrix slices from `&mut [T]`
-impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
-    MatrixSliceMutMN<'a, N, R, C, RStride, CStride>
+impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
+    MatrixSliceMutMN<'a, T, R, C, RStride, CStride>
 {
     /// Creates, without bound-checking, a mutable matrix slice from an array and with dimensions and strides specified by generic types instances.
     ///
@@ -148,7 +150,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     /// The generic types `R`, `C`, `RStride`, `CStride` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
     pub unsafe fn from_slice_with_strides_generic_unchecked(
-        data: &'a mut [N],
+        data: &'a mut [T],
         start: usize,
         nrows: R,
         ncols: C,
@@ -169,7 +171,7 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     /// The generic types `R`, `C`, `RStride`, `CStride` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
     pub fn from_slice_with_strides_generic(
-        data: &'a mut [N],
+        data: &'a mut [T],
         nrows: R,
         ncols: C,
         rstride: RStride,
@@ -212,19 +214,21 @@ impl<'a, N: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     }
 }
 
-impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, N, R, C> {
+impl<'a, T: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, T, R, C> {
     /// Creates, without bound-checking, a mutable matrix slice from an array and with dimensions specified by generic types instances.
     ///
     /// This method is unsafe because the input data array is not checked to contain enough elements.
     /// The generic types `R` and `C` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
     pub unsafe fn from_slice_generic_unchecked(
-        data: &'a mut [N],
+        data: &'a mut [T],
         start: usize,
         nrows: R,
         ncols: C,
     ) -> Self {
-        Self::from_slice_with_strides_generic_unchecked(data, start, nrows, ncols, U1, nrows)
+        Self::from_slice_with_strides_generic_unchecked(
+            data, start, nrows, ncols, Const::<1>, nrows,
+        )
     }
 
     /// Creates a mutable matrix slice from an array and with dimensions and strides specified by generic types instances.
@@ -232,42 +236,42 @@ impl<'a, N: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, N, R, C> {
     /// Panics if the input data array dose not contain enough elements.
     /// The generic types `R` and `C` can either be type-level integers or integers wrapped with `Dynamic::new()`.
     #[inline]
-    pub fn from_slice_generic(data: &'a mut [N], nrows: R, ncols: C) -> Self {
-        Self::from_slice_with_strides_generic(data, nrows, ncols, U1, nrows)
+    pub fn from_slice_generic(data: &'a mut [T], nrows: R, ncols: C) -> Self {
+        Self::from_slice_with_strides_generic(data, nrows, ncols, Const::<1>, nrows)
     }
 }
 
 macro_rules! impl_constructors_mut(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<'a, N: Scalar, $($DimIdent: $DimBound),*> MatrixSliceMutMN<'a, N, $($Dims),*> {
+        impl<'a, T: Scalar, $($DimIdent: $DimBound),*> MatrixSliceMutMN<'a, T, $($Dims),*> {
             /// Creates a new mutable matrix slice from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
             #[inline]
-            pub fn from_slice(data: &'a mut [N], $($args: usize),*) -> Self {
+            pub fn from_slice(data: &'a mut [T], $($args: usize),*) -> Self {
                 Self::from_slice_generic(data, $($gargs),*)
             }
 
             /// Creates, without bound checking, a new mutable matrix slice from the given data array.
             #[inline]
-            pub unsafe fn from_slice_unchecked(data: &'a mut [N], start: usize, $($args: usize),*) -> Self {
+            pub unsafe fn from_slice_unchecked(data: &'a mut [T], start: usize, $($args: usize),*) -> Self {
                 Self::from_slice_generic_unchecked(data, start, $($gargs),*)
             }
         }
 
-        impl<'a, N: Scalar, $($DimIdent: $DimBound, )*> MatrixSliceMutMN<'a, N, $($Dims,)* Dynamic, Dynamic> {
+        impl<'a, T: Scalar, $($DimIdent: $DimBound, )*> MatrixSliceMutMN<'a, T, $($Dims,)* Dynamic, Dynamic> {
             /// Creates a new mutable matrix slice with the specified strides from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
             #[inline]
-            pub fn from_slice_with_strides_mut(data: &'a mut [N], $($args: usize,)* rstride: usize, cstride: usize) -> Self {
+            pub fn from_slice_with_strides_mut(data: &'a mut [T], $($args: usize,)* rstride: usize, cstride: usize) -> Self {
                 Self::from_slice_with_strides_generic(
                     data, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
             }
 
             /// Creates, without bound checking, a new mutable matrix slice with the specified strides from the given data array.
             #[inline]
-            pub unsafe fn from_slice_with_strides_unchecked(data: &'a mut [N], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self {
+            pub unsafe fn from_slice_with_strides_unchecked(data: &'a mut [T], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self {
                 Self::from_slice_with_strides_generic_unchecked(
                     data, start, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
             }
@@ -276,8 +280,8 @@ macro_rules! impl_constructors_mut(
 );
 
 // TODO: this is not very pretty. We could find a better call syntax.
-impl_constructors_mut!(R, C;                         // Arguments for Matrix<N, ..., S>
-=> R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
+impl_constructors_mut!(R, C;                         // Arguments for Matrix<T, ..., S>
+=> R: DimName, => C: DimName; // Type parameters for impl<T, ..., S>
 R::name(), C::name();         // Arguments for `_generic` constructors.
 ); // Arguments for non-generic constructors.
 

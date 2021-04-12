@@ -5,7 +5,7 @@ use std::hash;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "abomonation-serialize")]
@@ -14,45 +14,35 @@ use abomonation::Abomonation;
 use simba::scalar::{ClosedAdd, ClosedNeg, ClosedSub};
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
+use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
-use crate::base::{DefaultAllocator, MatrixN, Scalar, VectorN};
+use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
 
 use crate::geometry::Point;
 
 /// A translation.
 #[repr(C)]
 #[derive(Debug)]
-pub struct Translation<N: Scalar, D: DimName>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+pub struct Translation<T, const D: usize> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
     /// translated.
-    pub vector: VectorN<N, D>,
+    pub vector: SVector<T, D>,
 }
 
-impl<N: Scalar + hash::Hash, D: DimName + hash::Hash> hash::Hash for Translation<N, D>
+impl<T: Scalar + hash::Hash, const D: usize> hash::Hash for Translation<T, D>
 where
-    DefaultAllocator: Allocator<N, D>,
-    Owned<N, D>: hash::Hash,
+    Owned<T, Const<D>>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.vector.hash(state)
     }
 }
 
-impl<N: Scalar + Copy, D: DimName> Copy for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-    Owned<N, D>: Copy,
-{
-}
+impl<T: Scalar + Copy, const D: usize> Copy for Translation<T, D> where Owned<T, Const<D>>: Copy {}
 
-impl<N: Scalar, D: DimName> Clone for Translation<N, D>
+impl<T: Scalar, const D: usize> Clone for Translation<T, D>
 where
-    DefaultAllocator: Allocator<N, D>,
-    Owned<N, D>: Clone,
+    Owned<T, Const<D>>: Clone,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -61,12 +51,10 @@ where
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N, D> Abomonation for Translation<N, D>
+impl<T, const D: usize> Abomonation for Translation<T, D>
 where
-    N: Scalar,
-    D: DimName,
-    VectorN<N, D>: Abomonation,
-    DefaultAllocator: Allocator<N, D>,
+    T: Scalar,
+    SVector<T, D>: Abomonation,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.vector.entomb(writer)
@@ -81,11 +69,10 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<N: Scalar, D: DimName> Serialize for Translation<N, D>
+#[cfg(feature = "serde-serialize-no-std")]
+impl<T: Scalar, const D: usize> Serialize for Translation<T, D>
 where
-    DefaultAllocator: Allocator<N, D>,
-    Owned<N, D>: Serialize,
+    Owned<T, Const<D>>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -95,30 +82,26 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<'a, N: Scalar, D: DimName> Deserialize<'a> for Translation<N, D>
+#[cfg(feature = "serde-serialize-no-std")]
+impl<'a, T: Scalar, const D: usize> Deserialize<'a> for Translation<T, D>
 where
-    DefaultAllocator: Allocator<N, D>,
-    Owned<N, D>: Deserialize<'a>,
+    Owned<T, Const<D>>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
         Des: Deserializer<'a>,
     {
-        let matrix = VectorN::<N, D>::deserialize(deserializer)?;
+        let matrix = SVector::<T, D>::deserialize(deserializer)?;
 
         Ok(Translation::from(matrix))
     }
 }
 
-impl<N: Scalar, D: DimName> Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar, const D: usize> Translation<T, D> {
     /// Creates a new translation from the given vector.
     #[inline]
     #[deprecated(note = "Use `::from` instead.")]
-    pub fn from_vector(vector: VectorN<N, D>) -> Translation<N, D> {
+    pub fn from_vector(vector: SVector<T, D>) -> Translation<T, D> {
         Translation { vector }
     }
 
@@ -138,9 +121,9 @@ where
     /// ```
     #[inline]
     #[must_use = "Did you mean to use inverse_mut()?"]
-    pub fn inverse(&self) -> Translation<N, D>
+    pub fn inverse(&self) -> Translation<T, D>
     where
-        N: ClosedNeg,
+        T: ClosedNeg,
     {
         Translation::from(-&self.vector)
     }
@@ -164,15 +147,14 @@ where
     /// assert_eq!(t.to_homogeneous(), expected);
     /// ```
     #[inline]
-    pub fn to_homogeneous(&self) -> MatrixN<N, DimNameSum<D, U1>>
+    pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
     where
-        N: Zero + One,
-        D: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<N, DimNameSum<D, U1>, DimNameSum<D, U1>>,
+        T: Zero + One,
+        Const<D>: DimNameAdd<U1>,
+        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
-        let mut res = MatrixN::<N, DimNameSum<D, U1>>::identity();
-        res.fixed_slice_mut::<D, U1>(0, D::dim())
-            .copy_from(&self.vector);
+        let mut res = OMatrix::<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>::identity();
+        res.fixed_slice_mut::<D, 1>(0, D).copy_from(&self.vector);
 
         res
     }
@@ -198,16 +180,13 @@ where
     #[inline]
     pub fn inverse_mut(&mut self)
     where
-        N: ClosedNeg,
+        T: ClosedNeg,
     {
         self.vector.neg_mut()
     }
 }
 
-impl<N: Scalar + ClosedAdd, D: DimName> Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar + ClosedAdd, const D: usize> Translation<T, D> {
     /// Translate the given point.
     ///
     /// This is the same as the multiplication `self * pt`.
@@ -219,15 +198,12 @@ where
     /// let transformed_point = t.transform_point(&Point3::new(4.0, 5.0, 6.0));
     /// assert_eq!(transformed_point, Point3::new(5.0, 7.0, 9.0));
     #[inline]
-    pub fn transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         pt + &self.vector
     }
 }
 
-impl<N: Scalar + ClosedSub, D: DimName> Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar + ClosedSub, const D: usize> Translation<T, D> {
     /// Translate the given point by the inverse of this translation.
     ///
     /// # Example
@@ -237,33 +213,29 @@ where
     /// let transformed_point = t.inverse_transform_point(&Point3::new(4.0, 5.0, 6.0));
     /// assert_eq!(transformed_point, Point3::new(3.0, 3.0, 3.0));
     #[inline]
-    pub fn inverse_transform_point(&self, pt: &Point<N, D>) -> Point<N, D> {
+    pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         pt - &self.vector
     }
 }
 
-impl<N: Scalar + Eq, D: DimName> Eq for Translation<N, D> where DefaultAllocator: Allocator<N, D> {}
+impl<T: Scalar + Eq, const D: usize> Eq for Translation<T, D> {}
 
-impl<N: Scalar + PartialEq, D: DimName> PartialEq for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar + PartialEq, const D: usize> PartialEq for Translation<T, D> {
     #[inline]
-    fn eq(&self, right: &Translation<N, D>) -> bool {
+    fn eq(&self, right: &Translation<T, D>) -> bool {
         self.vector == right.vector
     }
 }
 
-impl<N: Scalar + AbsDiffEq, D: DimName> AbsDiffEq for Translation<N, D>
+impl<T: Scalar + AbsDiffEq, const D: usize> AbsDiffEq for Translation<T, D>
 where
-    DefaultAllocator: Allocator<N, D>,
-    N::Epsilon: Copy,
+    T::Epsilon: Copy,
 {
-    type Epsilon = N::Epsilon;
+    type Epsilon = T::Epsilon;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        N::default_epsilon()
+        T::default_epsilon()
     }
 
     #[inline]
@@ -272,14 +244,13 @@ where
     }
 }
 
-impl<N: Scalar + RelativeEq, D: DimName> RelativeEq for Translation<N, D>
+impl<T: Scalar + RelativeEq, const D: usize> RelativeEq for Translation<T, D>
 where
-    DefaultAllocator: Allocator<N, D>,
-    N::Epsilon: Copy,
+    T::Epsilon: Copy,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        N::default_max_relative()
+        T::default_max_relative()
     }
 
     #[inline]
@@ -294,14 +265,13 @@ where
     }
 }
 
-impl<N: Scalar + UlpsEq, D: DimName> UlpsEq for Translation<N, D>
+impl<T: Scalar + UlpsEq, const D: usize> UlpsEq for Translation<T, D>
 where
-    DefaultAllocator: Allocator<N, D>,
-    N::Epsilon: Copy,
+    T::Epsilon: Copy,
 {
     #[inline]
     fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
+        T::default_max_ulps()
     }
 
     #[inline]
@@ -315,10 +285,7 @@ where
  * Display
  *
  */
-impl<N: Scalar + fmt::Display, D: DimName> fmt::Display for Translation<N, D>
-where
-    DefaultAllocator: Allocator<N, D> + Allocator<usize, D>,
-{
+impl<T: Scalar + fmt::Display, const D: usize> fmt::Display for Translation<T, D> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 

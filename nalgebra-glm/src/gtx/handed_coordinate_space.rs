@@ -6,8 +6,8 @@ use crate::traits::Number;
 /// # See also:
 ///
 /// * [`right_handed`](fn.right_handed.html)
-pub fn left_handed<N: Number>(a: &TVec3<N>, b: &TVec3<N>, c: &TVec3<N>) -> bool {
-    a.cross(b).dot(c) < N::zero()
+pub fn left_handed<T: Number>(a: &TVec3<T>, b: &TVec3<T>, c: &TVec3<T>) -> bool {
+    a.cross(b).dot(c) < T::zero()
 }
 
 /// Returns `true` if `{a, b, c}` forms a right-handed trihedron.
@@ -15,6 +15,6 @@ pub fn left_handed<N: Number>(a: &TVec3<N>, b: &TVec3<N>, c: &TVec3<N>) -> bool 
 /// # See also:
 ///
 /// * [`left_handed`](fn.left_handed.html)
-pub fn right_handed<N: Number>(a: &TVec3<N>, b: &TVec3<N>, c: &TVec3<N>) -> bool {
-    a.cross(b).dot(c) > N::zero()
+pub fn right_handed<T: Number>(a: &TVec3<T>, b: &TVec3<T>, c: &TVec3<T>) -> bool {
+    a.cross(b).dot(c) > T::zero()
 }

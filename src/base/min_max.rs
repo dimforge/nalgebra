@@ -4,7 +4,7 @@ use num::{Signed, Zero};
 use simba::simd::SimdSigned;
 
 /// # Find the min and max components
-impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Returns the absolute value of the component with the largest absolute value.
     /// # Example
     /// ```
@@ -13,12 +13,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// assert_eq!(Vector3::new(-1.0, -2.0, -3.0).amax(), 3.0);
     /// ```
     #[inline]
-    pub fn amax(&self) -> N
+    pub fn amax(&self) -> T
     where
-        N: Zero + SimdSigned + SimdPartialOrd,
+        T: Zero + SimdSigned + SimdPartialOrd,
     {
         self.fold_with(
-            |e| e.unwrap_or(&N::zero()).simd_abs(),
+            |e| e.unwrap_or(&T::zero()).simd_abs(),
             |a, b| a.simd_max(b.simd_abs()),
         )
     }
@@ -33,12 +33,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///     Complex::new(1.0, 3.0)).camax(), 5.0);
     /// ```
     #[inline]
-    pub fn camax(&self) -> N::SimdRealField
+    pub fn camax(&self) -> T::SimdRealField
     where
-        N: SimdComplexField,
+        T: SimdComplexField,
     {
         self.fold_with(
-            |e| e.unwrap_or(&N::zero()).simd_norm1(),
+            |e| e.unwrap_or(&T::zero()).simd_norm1(),
             |a, b| a.simd_max(b.simd_norm1()),
         )
     }
@@ -52,12 +52,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// assert_eq!(Vector3::new(5u32, 2, 3).max(), 5);
     /// ```
     #[inline]
-    pub fn max(&self) -> N
+    pub fn max(&self) -> T
     where
-        N: SimdPartialOrd + Zero,
+        T: SimdPartialOrd + Zero,
     {
         self.fold_with(
-            |e| e.map(|e| e.inlined_clone()).unwrap_or_else(N::zero),
+            |e| e.map(|e| e.inlined_clone()).unwrap_or_else(T::zero),
             |a, b| a.simd_max(b.inlined_clone()),
         )
     }
@@ -70,12 +70,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// assert_eq!(Vector3::new(10.0, 2.0, 30.0).amin(), 2.0);
     /// ```
     #[inline]
-    pub fn amin(&self) -> N
+    pub fn amin(&self) -> T
     where
-        N: Zero + SimdPartialOrd + SimdSigned,
+        T: Zero + SimdPartialOrd + SimdSigned,
     {
         self.fold_with(
-            |e| e.map(|e| e.simd_abs()).unwrap_or_else(N::zero),
+            |e| e.map(|e| e.simd_abs()).unwrap_or_else(T::zero),
             |a, b| a.simd_min(b.simd_abs()),
         )
     }
@@ -90,14 +90,14 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     ///     Complex::new(1.0, 3.0)).camin(), 3.0);
     /// ```
     #[inline]
-    pub fn camin(&self) -> N::SimdRealField
+    pub fn camin(&self) -> T::SimdRealField
     where
-        N: SimdComplexField,
+        T: SimdComplexField,
     {
         self.fold_with(
             |e| {
                 e.map(|e| e.simd_norm1())
-                    .unwrap_or_else(N::SimdRealField::zero)
+                    .unwrap_or_else(T::SimdRealField::zero)
             },
             |a, b| a.simd_min(b.simd_norm1()),
         )
@@ -112,12 +112,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// assert_eq!(Vector3::new(5u32, 2, 3).min(), 2);
     /// ```
     #[inline]
-    pub fn min(&self) -> N
+    pub fn min(&self) -> T
     where
-        N: SimdPartialOrd + Zero,
+        T: SimdPartialOrd + Zero,
     {
         self.fold_with(
-            |e| e.map(|e| e.inlined_clone()).unwrap_or_else(N::zero),
+            |e| e.map(|e| e.inlined_clone()).unwrap_or_else(T::zero),
             |a, b| a.simd_min(b.inlined_clone()),
         )
     }
@@ -138,7 +138,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     #[inline]
     pub fn icamax_full(&self) -> (usize, usize)
     where
-        N: ComplexField,
+        T: ComplexField,
     {
         assert!(!self.is_empty(), "The input matrix must not be empty.");
 
@@ -160,7 +160,7 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     }
 }
 
-impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<T: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Computes the index of the matrix component with the largest absolute value.
     ///
     /// # Examples:
@@ -195,7 +195,7 @@ impl<N: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<N, R, C>> Matri
 
 // TODO: find a way to avoid code duplication just for complex number support.
 /// # Find the min and max components (vector-specific methods)
-impl<N: Scalar, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
+impl<T: Scalar, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
     /// Computes the index of the vector component with the largest complex or real absolute value.
     ///
     /// # Examples:
@@ -211,7 +211,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     #[inline]
     pub fn icamax(&self) -> usize
     where
-        N: ComplexField,
+        T: ComplexField,
     {
         assert!(!self.is_empty(), "The input vector must not be empty.");
 
@@ -240,9 +240,9 @@ impl<N: Scalar, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     /// assert_eq!(vec.argmax(), (2, 13));
     /// ```
     #[inline]
-    pub fn argmax(&self) -> (usize, N)
+    pub fn argmax(&self) -> (usize, T)
     where
-        N: PartialOrd,
+        T: PartialOrd,
     {
         assert!(!self.is_empty(), "The input vector must not be empty.");
 
@@ -273,7 +273,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     #[inline]
     pub fn imax(&self) -> usize
     where
-        N: PartialOrd,
+        T: PartialOrd,
     {
         self.argmax().0
     }
@@ -290,7 +290,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     #[inline]
     pub fn iamax(&self) -> usize
     where
-        N: PartialOrd + Signed,
+        T: PartialOrd + Signed,
     {
         assert!(!self.is_empty(), "The input vector must not be empty.");
 
@@ -319,9 +319,9 @@ impl<N: Scalar, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     /// assert_eq!(vec.argmin(), (1, -15));
     /// ```
     #[inline]
-    pub fn argmin(&self) -> (usize, N)
+    pub fn argmin(&self) -> (usize, T)
     where
-        N: PartialOrd,
+        T: PartialOrd,
     {
         assert!(!self.is_empty(), "The input vector must not be empty.");
 
@@ -352,7 +352,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     #[inline]
     pub fn imin(&self) -> usize
     where
-        N: PartialOrd,
+        T: PartialOrd,
     {
         self.argmin().0
     }
@@ -369,7 +369,7 @@ impl<N: Scalar, D: Dim, S: Storage<N, D>> Vector<N, D, S> {
     #[inline]
     pub fn iamin(&self) -> usize
     where
-        N: PartialOrd + Signed,
+        T: PartialOrd + Signed,
     {
         assert!(!self.is_empty(), "The input vector must not be empty.");
 

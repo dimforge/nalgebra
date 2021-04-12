@@ -1,10 +1,9 @@
-//use na::{Scalar, DefaultAllocator};
+//use na::Scalar;
 //
-//use crate::traits::{Alloc, Dimension};
+//
 //use crate::aliases::TVec;
 
-//pub fn iround<N: Scalar, D: Dimension>(x: &TVec<N, D>) -> TVec<i32, D>
-//    where DefaultAllocator: Alloc<N, D> {
+//pub fn iround<T: Scalar, const D: usize>(x: &TVec<T, D>) -> TVec<i32, D> {
 //    x.map(|x| x.round())
 //}
 //
@@ -12,7 +11,6 @@
 //    unimplemented!()
 //}
 //
-//pub fn uround<N: Scalar, D: Dimension>(x: &TVec<N, D>) -> TVec<u32, D>
-//    where DefaultAllocator: Alloc<N, D> {
+//pub fn uround<T: Scalar, const D: usize>(x: &TVec<T, D>) -> TVec<u32, D>  {
 //    unimplemented!()
 //}

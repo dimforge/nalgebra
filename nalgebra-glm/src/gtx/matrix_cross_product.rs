@@ -7,7 +7,7 @@ use crate::aliases::{TMat3, TMat4, TVec3};
 /// # See also:
 ///
 /// * [`matrix_cross`](fn.matrix_cross.html)
-pub fn matrix_cross3<N: RealField>(x: &TVec3<N>) -> TMat3<N> {
+pub fn matrix_cross3<T: RealField>(x: &TVec3<T>) -> TMat3<T> {
     x.cross_matrix()
 }
 
@@ -16,6 +16,6 @@ pub fn matrix_cross3<N: RealField>(x: &TVec3<N>) -> TMat3<N> {
 /// # See also:
 ///
 /// * [`matrix_cross3`](fn.matrix_cross3.html)
-pub fn matrix_cross<N: RealField>(x: &TVec3<N>) -> TMat4<N> {
+pub fn matrix_cross<T: RealField>(x: &TVec3<T>) -> TMat4<T> {
     crate::mat3_to_mat4(&x.cross_matrix())
 }

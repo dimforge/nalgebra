@@ -18,7 +18,7 @@ fn cs_matrix_market() {
 % |%                                             | <--+
 % |% comments                                    |    |-- 0 or more comment lines
 % |%                                             | <--+
-% |    M  N  L                                   | <--- rows, columns, entries
+% |    M  T  L                                   | <--- rows, columns, entries
 % |    I1  J1  A(I1, J1)                         | <--+
 % |    I2  J2  A(I2, J2)                         |    |
 % |    I3  J3  A(I3, J3)                         |    |-- L lines

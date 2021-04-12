@@ -12,7 +12,7 @@ use crate::traits::Number;
 /// * [`rotation2d`](fn.rotation2d.html)
 /// * [`scaling2d`](fn.scaling2d.html)
 /// * [`translation2d`](fn.translation2d.html)
-pub fn rotation<N: RealField>(angle: N, v: &TVec3<N>) -> TMat4<N> {
+pub fn rotation<T: RealField>(angle: T, v: &TVec3<T>) -> TMat4<T> {
     Rotation3::from_axis_angle(&Unit::new_normalize(*v), angle).to_homogeneous()
 }
 
@@ -25,7 +25,7 @@ pub fn rotation<N: RealField>(angle: N, v: &TVec3<N>) -> TMat4<N> {
 /// * [`rotation2d`](fn.rotation2d.html)
 /// * [`scaling2d`](fn.scaling2d.html)
 /// * [`translation2d`](fn.translation2d.html)
-pub fn scaling<N: Number>(v: &TVec3<N>) -> TMat4<N> {
+pub fn scaling<T: Number>(v: &TVec3<T>) -> TMat4<T> {
     TMat4::new_nonuniform_scaling(v)
 }
 
@@ -38,7 +38,7 @@ pub fn scaling<N: Number>(v: &TVec3<N>) -> TMat4<N> {
 /// * [`rotation2d`](fn.rotation2d.html)
 /// * [`scaling2d`](fn.scaling2d.html)
 /// * [`translation2d`](fn.translation2d.html)
-pub fn translation<N: Number>(v: &TVec3<N>) -> TMat4<N> {
+pub fn translation<T: Number>(v: &TVec3<T>) -> TMat4<T> {
     TMat4::new_translation(v)
 }
 
@@ -51,7 +51,7 @@ pub fn translation<N: Number>(v: &TVec3<N>) -> TMat4<N> {
 /// * [`translation`](fn.translation.html)
 /// * [`scaling2d`](fn.scaling2d.html)
 /// * [`translation2d`](fn.translation2d.html)
-pub fn rotation2d<N: RealField>(angle: N) -> TMat3<N> {
+pub fn rotation2d<T: RealField>(angle: T) -> TMat3<T> {
     Rotation2::new(angle).to_homogeneous()
 }
 
@@ -64,7 +64,7 @@ pub fn rotation2d<N: RealField>(angle: N) -> TMat3<N> {
 /// * [`translation`](fn.translation.html)
 /// * [`rotation2d`](fn.rotation2d.html)
 /// * [`translation2d`](fn.translation2d.html)
-pub fn scaling2d<N: Number>(v: &TVec2<N>) -> TMat3<N> {
+pub fn scaling2d<T: Number>(v: &TVec2<T>) -> TMat3<T> {
     TMat3::new_nonuniform_scaling(v)
 }
 
@@ -77,6 +77,6 @@ pub fn scaling2d<N: Number>(v: &TVec2<N>) -> TMat3<N> {
 /// * [`translation`](fn.translation.html)
 /// * [`rotation2d`](fn.rotation2d.html)
 /// * [`scaling2d`](fn.scaling2d.html)
-pub fn translation2d<N: Number>(v: &TVec2<N>) -> TMat3<N> {
+pub fn translation2d<T: Number>(v: &TVec2<T>) -> TMat3<T> {
     TMat3::new_translation(v)
 }

@@ -3,17 +3,17 @@ use simba::scalar::ComplexField;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::Dim;
 use crate::base::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, MatrixN, SquareMatrix};
+use crate::base::{DefaultAllocator, OMatrix, SquareMatrix};
 
 use crate::linalg::lu;
 
-impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
+impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     /// Attempts to invert this matrix.
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
-    pub fn try_inverse(self) -> Option<MatrixN<N, D>>
+    pub fn try_inverse(self) -> Option<OMatrix<T, D, D>>
     where
-        DefaultAllocator: Allocator<N, D, D>,
+        DefaultAllocator: Allocator<T, D, D>,
     {
         let mut me = self.into_owned();
         if me.try_inverse_mut() {
@@ -24,13 +24,13 @@ impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S> {
     }
 }
 
-impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
+impl<T: ComplexField, D: Dim, S: StorageMut<T, D, D>> SquareMatrix<T, D, S> {
     /// Attempts to invert this matrix in-place. Returns `false` and leaves `self` untouched if
     /// inversion fails.
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool
     where
-        DefaultAllocator: Allocator<N, D, D>,
+        DefaultAllocator: Allocator<T, D, D>,
     {
         assert!(self.is_square(), "Unable to invert a non-square matrix.");
 
@@ -44,7 +44,7 @@ impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
                     if determinant.is_zero() {
                         false
                     } else {
-                        *self.get_unchecked_mut((0, 0)) = N::one() / determinant;
+                        *self.get_unchecked_mut((0, 0)) = T::one() / determinant;
                         true
                     }
                 }
@@ -120,12 +120,12 @@ impl<N: ComplexField, D: Dim, S: StorageMut<N, D, D>> SquareMatrix<N, D, S> {
 }
 
 // NOTE: this is an extremely efficient, loop-unrolled matrix inverse from MESA (MIT licensed).
-fn do_inverse4<N: ComplexField, D: Dim, S: StorageMut<N, D, D>>(
-    m: &MatrixN<N, D>,
-    out: &mut SquareMatrix<N, D, S>,
+fn do_inverse4<T: ComplexField, D: Dim, S: StorageMut<T, D, D>>(
+    m: &OMatrix<T, D, D>,
+    out: &mut SquareMatrix<T, D, S>,
 ) -> bool
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     let m = m.data.as_slice();
 
@@ -212,7 +212,7 @@ where
     let det = m[0] * out[(0, 0)] + m[1] * out[(0, 1)] + m[2] * out[(0, 2)] + m[3] * out[(0, 3)];
 
     if !det.is_zero() {
-        let inv_det = N::one() / det;
+        let inv_det = T::one() / det;
 
         for j in 0..4 {
             for i in 0..4 {

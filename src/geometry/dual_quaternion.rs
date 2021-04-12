@@ -1,9 +1,9 @@
 use crate::{
-    Isometry3, Matrix4, Normed, Point3, Quaternion, Scalar, SimdRealField, Translation3, Unit,
-    UnitQuaternion, Vector3, VectorN, Zero, U8,
+    Isometry3, Matrix4, Normed, OVector, Point3, Quaternion, Scalar, SimdRealField, Translation3,
+    Unit, UnitQuaternion, Vector3, Zero, U8,
 };
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
@@ -36,14 +36,14 @@ use simba::scalar::{ClosedNeg, RealField};
 ///  See https://github.com/dimforge/nalgebra/issues/487
 #[repr(C)]
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
-pub struct DualQuaternion<N: Scalar> {
+pub struct DualQuaternion<T: Scalar> {
     /// The real component of the quaternion
-    pub real: Quaternion<N>,
+    pub real: Quaternion<T>,
     /// The dual component of the quaternion
-    pub dual: Quaternion<N>,
+    pub dual: Quaternion<T>,
 }
 
-impl<N: Scalar + Zero> Default for DualQuaternion<N> {
+impl<T: Scalar + Zero> Default for DualQuaternion<T> {
     fn default() -> Self {
         Self {
             real: Quaternion::default(),
@@ -52,9 +52,9 @@ impl<N: Scalar + Zero> Default for DualQuaternion<N> {
     }
 }
 
-impl<N: SimdRealField> DualQuaternion<N>
+impl<T: SimdRealField> DualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Normalizes this quaternion.
     ///
@@ -93,7 +93,7 @@ where
     /// relative_eq!(dq.real.norm(), 1.0);
     /// ```
     #[inline]
-    pub fn normalize_mut(&mut self) -> N {
+    pub fn normalize_mut(&mut self) -> T {
         let real_norm = self.real.norm();
         self.real /= real_norm;
         self.dual /= real_norm;
@@ -168,7 +168,7 @@ where
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(&self) -> Option<Self>
     where
-        N: RealField,
+        T: RealField,
     {
         let mut res = *self;
         if res.try_inverse_mut() {
@@ -200,7 +200,7 @@ where
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool
     where
-        N: RealField,
+        T: RealField,
     {
         let inverted = self.real.try_inverse_mut();
         if inverted {
@@ -232,15 +232,15 @@ where
     /// ));
     /// ```
     #[inline]
-    pub fn lerp(&self, other: &Self, t: N) -> Self {
-        self * (N::one() - t) + other * t
+    pub fn lerp(&self, other: &Self, t: T) -> Self {
+        self * (T::one() - t) + other * t
     }
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<N: SimdRealField> Serialize for DualQuaternion<N>
+#[cfg(feature = "serde-serialize-no-std")]
+impl<T: SimdRealField> Serialize for DualQuaternion<T>
 where
-    N: Serialize,
+    T: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
     where
@@ -250,18 +250,18 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
-impl<'a, N: SimdRealField> Deserialize<'a> for DualQuaternion<N>
+#[cfg(feature = "serde-serialize-no-std")]
+impl<'a, T: SimdRealField> Deserialize<'a> for DualQuaternion<T>
 where
-    N: Deserialize<'a>,
+    T: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
         Des: Deserializer<'a>,
     {
-        type Dq<N> = [N; 8];
+        type Dq<T> = [T; 8];
 
-        let dq: Dq<N> = Dq::<N>::deserialize(deserializer)?;
+        let dq: Dq<T> = Dq::<T>::deserialize(deserializer)?;
 
         Ok(Self {
             real: Quaternion::new(dq[3], dq[0], dq[1], dq[2]),
@@ -270,18 +270,18 @@ where
     }
 }
 
-impl<N: RealField> DualQuaternion<N> {
-    fn to_vector(&self) -> VectorN<N, U8> {
+impl<T: RealField> DualQuaternion<T> {
+    fn to_vector(&self) -> OVector<T, U8> {
         self.as_ref().clone().into()
     }
 }
 
-impl<N: RealField + AbsDiffEq<Epsilon = N>> AbsDiffEq for DualQuaternion<N> {
-    type Epsilon = N;
+impl<T: RealField + AbsDiffEq<Epsilon = T>> AbsDiffEq for DualQuaternion<T> {
+    type Epsilon = T;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        N::default_epsilon()
+        T::default_epsilon()
     }
 
     #[inline]
@@ -292,10 +292,10 @@ impl<N: RealField + AbsDiffEq<Epsilon = N>> AbsDiffEq for DualQuaternion<N> {
     }
 }
 
-impl<N: RealField + RelativeEq<Epsilon = N>> RelativeEq for DualQuaternion<N> {
+impl<T: RealField + RelativeEq<Epsilon = T>> RelativeEq for DualQuaternion<T> {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        N::default_max_relative()
+        T::default_max_relative()
     }
 
     #[inline]
@@ -311,10 +311,10 @@ impl<N: RealField + RelativeEq<Epsilon = N>> RelativeEq for DualQuaternion<N> {
     }
 }
 
-impl<N: RealField + UlpsEq<Epsilon = N>> UlpsEq for DualQuaternion<N> {
+impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for DualQuaternion<T> {
     #[inline]
     fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
+        T::default_max_ulps()
     }
 
     #[inline]
@@ -326,27 +326,27 @@ impl<N: RealField + UlpsEq<Epsilon = N>> UlpsEq for DualQuaternion<N> {
 }
 
 /// A unit quaternions. May be used to represent a rotation followed by a translation.
-pub type UnitDualQuaternion<N> = Unit<DualQuaternion<N>>;
+pub type UnitDualQuaternion<T> = Unit<DualQuaternion<T>>;
 
-impl<N: Scalar + ClosedNeg + PartialEq + SimdRealField> PartialEq for UnitDualQuaternion<N> {
+impl<T: Scalar + ClosedNeg + PartialEq + SimdRealField> PartialEq for UnitDualQuaternion<T> {
     #[inline]
     fn eq(&self, rhs: &Self) -> bool {
         self.as_ref().eq(rhs.as_ref())
     }
 }
 
-impl<N: Scalar + ClosedNeg + Eq + SimdRealField> Eq for UnitDualQuaternion<N> {}
+impl<T: Scalar + ClosedNeg + Eq + SimdRealField> Eq for UnitDualQuaternion<T> {}
 
-impl<N: SimdRealField> Normed for DualQuaternion<N> {
-    type Norm = N::SimdRealField;
+impl<T: SimdRealField> Normed for DualQuaternion<T> {
+    type Norm = T::SimdRealField;
 
     #[inline]
-    fn norm(&self) -> N::SimdRealField {
+    fn norm(&self) -> T::SimdRealField {
         self.real.norm()
     }
 
     #[inline]
-    fn norm_squared(&self) -> N::SimdRealField {
+    fn norm_squared(&self) -> T::SimdRealField {
         self.real.norm_squared()
     }
 
@@ -363,9 +363,9 @@ impl<N: SimdRealField> Normed for DualQuaternion<N> {
     }
 }
 
-impl<N: SimdRealField> UnitDualQuaternion<N>
+impl<T: SimdRealField> UnitDualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// The underlying dual quaternion.
     ///
@@ -381,7 +381,7 @@ where
     /// ));
     /// ```
     #[inline]
-    pub fn dual_quaternion(&self) -> &DualQuaternion<N> {
+    pub fn dual_quaternion(&self) -> &DualQuaternion<T> {
         self.as_ref()
     }
 
@@ -518,7 +518,7 @@ where
     /// );
     /// ```
     #[inline]
-    pub fn lerp(&self, other: &Self, t: N) -> DualQuaternion<N> {
+    pub fn lerp(&self, other: &Self, t: T) -> DualQuaternion<T> {
         self.as_ref().lerp(other.as_ref(), t)
     }
 
@@ -546,7 +546,7 @@ where
     /// ), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn nlerp(&self, other: &Self, t: N) -> Self {
+    pub fn nlerp(&self, other: &Self, t: T) -> Self {
         let mut res = self.lerp(other, t);
         let _ = res.normalize_mut();
 
@@ -581,11 +581,11 @@ where
     /// );
     /// assert_relative_eq!(dq.translation().vector.y, 3.0, epsilon = 1.0e-6);
     #[inline]
-    pub fn sclerp(&self, other: &Self, t: N) -> Self
+    pub fn sclerp(&self, other: &Self, t: T) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
-        self.try_sclerp(other, t, N::default_epsilon())
+        self.try_sclerp(other, t, T::default_epsilon())
             .expect("DualQuaternion sclerp: ambiguous configuration.")
     }
 
@@ -600,18 +600,18 @@ where
     /// * `epsilon`: the value below which the sinus of the angle separating both quaternion
     /// must be to return `None`.
     #[inline]
-    pub fn try_sclerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self>
+    pub fn try_sclerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
     where
-        N: RealField,
+        T: RealField,
     {
-        let two = N::one() + N::one();
-        let half = N::one() / two;
+        let two = T::one() + T::one();
+        let half = T::one() / two;
 
         // Invert one of the quaternions if we've got a longest-path
         // interpolation.
         let other = {
             let dot_product = self.as_ref().real.coords.dot(&other.as_ref().real.coords);
-            if dot_product < N::zero() {
+            if dot_product < T::zero() {
                 -other.clone()
             } else {
                 other.clone()
@@ -620,11 +620,11 @@ where
 
         let difference = self.as_ref().conjugate() * other.as_ref();
         let norm_squared = difference.real.vector().norm_squared();
-        if relative_eq!(norm_squared, N::zero(), epsilon = epsilon) {
+        if relative_eq!(norm_squared, T::zero(), epsilon = epsilon) {
             return None;
         }
 
-        let inverse_norm_squared = N::one() / norm_squared;
+        let inverse_norm_squared = T::one() / norm_squared;
         let inverse_norm = inverse_norm_squared.sqrt();
 
         let mut angle = two * difference.real.scalar().acos();
@@ -667,7 +667,7 @@ where
     /// );
     /// ```
     #[inline]
-    pub fn rotation(&self) -> UnitQuaternion<N> {
+    pub fn rotation(&self) -> UnitQuaternion<T> {
         Unit::new_unchecked(self.as_ref().real)
     }
 
@@ -686,8 +686,8 @@ where
     /// );
     /// ```
     #[inline]
-    pub fn translation(&self) -> Translation3<N> {
-        let two = N::one() + N::one();
+    pub fn translation(&self) -> Translation3<T> {
+        let two = T::one() + T::one();
         Translation3::from(
             ((self.as_ref().dual * self.as_ref().real.conjugate()) * two)
                 .vector()
@@ -712,7 +712,7 @@ where
     /// assert_relative_eq!(iso.translation.vector, translation, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn to_isometry(&self) -> Isometry3<N> {
+    pub fn to_isometry(&self) -> Isometry3<T> {
         Isometry3::from_parts(self.translation(), self.rotation())
     }
 
@@ -735,7 +735,7 @@ where
     /// );
     /// ```
     #[inline]
-    pub fn transform_point(&self, pt: &Point3<N>) -> Point3<N> {
+    pub fn transform_point(&self, pt: &Point3<T>) -> Point3<T> {
         self * pt
     }
 
@@ -758,7 +758,7 @@ where
     /// );
     /// ```
     #[inline]
-    pub fn transform_vector(&self, v: &Vector3<N>) -> Vector3<N> {
+    pub fn transform_vector(&self, v: &Vector3<T>) -> Vector3<T> {
         self * v
     }
 
@@ -781,7 +781,7 @@ where
     /// );
     /// ```
     #[inline]
-    pub fn inverse_transform_point(&self, pt: &Point3<N>) -> Point3<N> {
+    pub fn inverse_transform_point(&self, pt: &Point3<T>) -> Point3<T> {
         self.inverse() * pt
     }
 
@@ -805,7 +805,7 @@ where
     /// );
     /// ```
     #[inline]
-    pub fn inverse_transform_vector(&self, v: &Vector3<N>) -> Vector3<N> {
+    pub fn inverse_transform_vector(&self, v: &Vector3<T>) -> Vector3<T> {
         self.inverse() * v
     }
 
@@ -830,14 +830,14 @@ where
     /// );
     /// ```
     #[inline]
-    pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector3<N>>) -> Unit<Vector3<N>> {
+    pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector3<T>>) -> Unit<Vector3<T>> {
         self.inverse() * v
     }
 }
 
-impl<N: SimdRealField + RealField> UnitDualQuaternion<N>
+impl<T: SimdRealField + RealField> UnitDualQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Converts this unit dual quaternion interpreted as an isometry
     /// into its equivalent homogeneous transformation matrix.
@@ -857,18 +857,18 @@ where
     /// assert_relative_eq!(dq.to_homogeneous(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn to_homogeneous(&self) -> Matrix4<N> {
+    pub fn to_homogeneous(&self) -> Matrix4<T> {
         self.to_isometry().to_homogeneous()
     }
 }
 
-impl<N: RealField> Default for UnitDualQuaternion<N> {
+impl<T: RealField> Default for UnitDualQuaternion<T> {
     fn default() -> Self {
         Self::identity()
     }
 }
 
-impl<N: RealField + fmt::Display> fmt::Display for UnitDualQuaternion<N> {
+impl<T: RealField + fmt::Display> fmt::Display for UnitDualQuaternion<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(axis) = self.rotation().axis() {
             let axis = axis.into_inner();
@@ -892,12 +892,12 @@ impl<N: RealField + fmt::Display> fmt::Display for UnitDualQuaternion<N> {
     }
 }
 
-impl<N: RealField + AbsDiffEq<Epsilon = N>> AbsDiffEq for UnitDualQuaternion<N> {
-    type Epsilon = N;
+impl<T: RealField + AbsDiffEq<Epsilon = T>> AbsDiffEq for UnitDualQuaternion<T> {
+    type Epsilon = T;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        N::default_epsilon()
+        T::default_epsilon()
     }
 
     #[inline]
@@ -906,10 +906,10 @@ impl<N: RealField + AbsDiffEq<Epsilon = N>> AbsDiffEq for UnitDualQuaternion<N> 
     }
 }
 
-impl<N: RealField + RelativeEq<Epsilon = N>> RelativeEq for UnitDualQuaternion<N> {
+impl<T: RealField + RelativeEq<Epsilon = T>> RelativeEq for UnitDualQuaternion<T> {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        N::default_max_relative()
+        T::default_max_relative()
     }
 
     #[inline]
@@ -924,10 +924,10 @@ impl<N: RealField + RelativeEq<Epsilon = N>> RelativeEq for UnitDualQuaternion<N
     }
 }
 
-impl<N: RealField + UlpsEq<Epsilon = N>> UlpsEq for UnitDualQuaternion<N> {
+impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for UnitDualQuaternion<T> {
     #[inline]
     fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
+        T::default_max_ulps()
     }
 
     #[inline]

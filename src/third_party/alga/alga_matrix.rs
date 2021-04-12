@@ -16,28 +16,28 @@ use alga::linear::{
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimName};
 use crate::base::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Scalar};
+use crate::base::{DefaultAllocator, OMatrix, Scalar};
 
 /*
  *
  * Additive structures.
  *
  */
-impl<N, R: DimName, C: DimName> Identity<Additive> for MatrixMN<N, R, C>
+impl<T, R: DimName, C: DimName> Identity<Additive> for OMatrix<T, R, C>
 where
-    N: Scalar + Zero,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + Zero,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
     fn identity() -> Self {
-        Self::from_element(N::zero())
+        Self::from_element(T::zero())
     }
 }
 
-impl<N, R: DimName, C: DimName> AbstractMagma<Additive> for MatrixMN<N, R, C>
+impl<T, R: DimName, C: DimName> AbstractMagma<Additive> for OMatrix<T, R, C>
 where
-    N: Scalar + ClosedAdd,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + ClosedAdd,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
     fn operate(&self, other: &Self) -> Self {
@@ -45,10 +45,10 @@ where
     }
 }
 
-impl<N, R: DimName, C: DimName> TwoSidedInverse<Additive> for MatrixMN<N, R, C>
+impl<T, R: DimName, C: DimName> TwoSidedInverse<Additive> for OMatrix<T, R, C>
 where
-    N: Scalar + ClosedNeg,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + ClosedNeg,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
     #[must_use = "Did you mean to use two_sided_inverse_mut()?"]
@@ -64,9 +64,9 @@ where
 
 macro_rules! inherit_additive_structure(
     ($($marker: ident<$operator: ident> $(+ $bounds: ident)*),* $(,)*) => {$(
-        impl<N, R: DimName, C: DimName> $marker<$operator> for MatrixMN<N, R, C>
-            where N: Scalar + $marker<$operator> $(+ $bounds)*,
-                  DefaultAllocator: Allocator<N, R, C> { }
+        impl<T, R: DimName, C: DimName> $marker<$operator> for OMatrix<T, R, C>
+            where T: Scalar + $marker<$operator> $(+ $bounds)*,
+                  DefaultAllocator: Allocator<T, R, C> { }
     )*}
 );
 
@@ -79,39 +79,39 @@ inherit_additive_structure!(
     AbstractGroupAbelian<Additive> + Zero + ClosedAdd + ClosedNeg
 );
 
-impl<N, R: DimName, C: DimName> AbstractModule for MatrixMN<N, R, C>
+impl<T, R: DimName, C: DimName> AbstractModule for OMatrix<T, R, C>
 where
-    N: Scalar + RingCommutative,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + RingCommutative,
+    DefaultAllocator: Allocator<T, R, C>,
 {
-    type AbstractRing = N;
+    type AbstractRing = T;
 
     #[inline]
-    fn multiply_by(&self, n: N) -> Self {
+    fn multiply_by(&self, n: T) -> Self {
         self * n
     }
 }
 
-impl<N, R: DimName, C: DimName> Module for MatrixMN<N, R, C>
+impl<T, R: DimName, C: DimName> Module for OMatrix<T, R, C>
 where
-    N: Scalar + RingCommutative,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + RingCommutative,
+    DefaultAllocator: Allocator<T, R, C>,
 {
-    type Ring = N;
+    type Ring = T;
 }
 
-impl<N, R: DimName, C: DimName> VectorSpace for MatrixMN<N, R, C>
+impl<T, R: DimName, C: DimName> VectorSpace for OMatrix<T, R, C>
 where
-    N: Scalar + Field,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + Field,
+    DefaultAllocator: Allocator<T, R, C>,
 {
-    type Field = N;
+    type Field = T;
 }
 
-impl<N, R: DimName, C: DimName> FiniteDimVectorSpace for MatrixMN<N, R, C>
+impl<T, R: DimName, C: DimName> FiniteDimVectorSpace for OMatrix<T, R, C>
 where
-    N: Scalar + Field,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + Field,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
     fn dimension() -> usize {
@@ -124,47 +124,47 @@ where
 
         let mut res = Self::zero();
         unsafe {
-            *res.data.get_unchecked_linear_mut(i) = N::one();
+            *res.data.get_unchecked_linear_mut(i) = T::one();
         }
 
         res
     }
 
     #[inline]
-    fn dot(&self, other: &Self) -> N {
+    fn dot(&self, other: &Self) -> T {
         self.dot(other)
     }
 
     #[inline]
-    unsafe fn component_unchecked(&self, i: usize) -> &N {
+    unsafe fn component_unchecked(&self, i: usize) -> &T {
         self.data.get_unchecked_linear(i)
     }
 
     #[inline]
-    unsafe fn component_unchecked_mut(&mut self, i: usize) -> &mut N {
+    unsafe fn component_unchecked_mut(&mut self, i: usize) -> &mut T {
         self.data.get_unchecked_linear_mut(i)
     }
 }
 
 impl<
-        N: ComplexField + simba::scalar::ComplexField<RealField = <N as ComplexField>::RealField>,
+        T: ComplexField + simba::scalar::ComplexField<RealField = <T as ComplexField>::RealField>,
         R: DimName,
         C: DimName,
-    > NormedSpace for MatrixMN<N, R, C>
+    > NormedSpace for OMatrix<T, R, C>
 where
-    <N as ComplexField>::RealField: simba::scalar::RealField,
-    DefaultAllocator: Allocator<N, R, C>,
+    <T as ComplexField>::RealField: simba::scalar::RealField,
+    DefaultAllocator: Allocator<T, R, C>,
 {
-    type RealField = <N as ComplexField>::RealField;
-    type ComplexField = N;
+    type RealField = <T as ComplexField>::RealField;
+    type ComplexField = T;
 
     #[inline]
-    fn norm_squared(&self) -> <N as ComplexField>::RealField {
+    fn norm_squared(&self) -> <T as ComplexField>::RealField {
         self.norm_squared()
     }
 
     #[inline]
-    fn norm(&self) -> <N as ComplexField>::RealField {
+    fn norm(&self) -> <T as ComplexField>::RealField {
         self.norm()
     }
 
@@ -175,41 +175,41 @@ where
     }
 
     #[inline]
-    fn normalize_mut(&mut self) -> <N as ComplexField>::RealField {
+    fn normalize_mut(&mut self) -> <T as ComplexField>::RealField {
         self.normalize_mut()
     }
 
     #[inline]
     #[must_use = "Did you mean to use try_normalize_mut()?"]
-    fn try_normalize(&self, min_norm: <N as ComplexField>::RealField) -> Option<Self> {
+    fn try_normalize(&self, min_norm: <T as ComplexField>::RealField) -> Option<Self> {
         self.try_normalize(min_norm)
     }
 
     #[inline]
     fn try_normalize_mut(
         &mut self,
-        min_norm: <N as ComplexField>::RealField,
-    ) -> Option<<N as ComplexField>::RealField> {
+        min_norm: <T as ComplexField>::RealField,
+    ) -> Option<<T as ComplexField>::RealField> {
         self.try_normalize_mut(min_norm)
     }
 }
 
 impl<
-        N: ComplexField + simba::scalar::ComplexField<RealField = <N as ComplexField>::RealField>,
+        T: ComplexField + simba::scalar::ComplexField<RealField = <T as ComplexField>::RealField>,
         R: DimName,
         C: DimName,
-    > InnerSpace for MatrixMN<N, R, C>
+    > InnerSpace for OMatrix<T, R, C>
 where
-    <N as ComplexField>::RealField: simba::scalar::RealField,
-    DefaultAllocator: Allocator<N, R, C>,
+    <T as ComplexField>::RealField: simba::scalar::RealField,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
-    fn angle(&self, other: &Self) -> <N as ComplexField>::RealField {
+    fn angle(&self, other: &Self) -> <T as ComplexField>::RealField {
         self.angle(other)
     }
 
     #[inline]
-    fn inner_product(&self, other: &Self) -> N {
+    fn inner_product(&self, other: &Self) -> T {
         self.dotc(other)
     }
 }
@@ -219,13 +219,13 @@ where
 //   − use `x()` instead of `::canonical_basis_element`
 //   − use `::new(x, y, z)` instead of `::from_slice`
 impl<
-        N: ComplexField + simba::scalar::ComplexField<RealField = <N as ComplexField>::RealField>,
+        T: ComplexField + simba::scalar::ComplexField<RealField = <T as ComplexField>::RealField>,
         R: DimName,
         C: DimName,
-    > FiniteDimInnerSpace for MatrixMN<N, R, C>
+    > FiniteDimInnerSpace for OMatrix<T, R, C>
 where
-    <N as ComplexField>::RealField: simba::scalar::RealField,
-    DefaultAllocator: Allocator<N, R, C>,
+    <T as ComplexField>::RealField: simba::scalar::RealField,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
     fn orthonormalize(vs: &mut [Self]) -> usize {
@@ -241,7 +241,7 @@ where
             }
 
             if vs[i]
-                .try_normalize_mut(<N as ComplexField>::RealField::zero())
+                .try_normalize_mut(<T as ComplexField>::RealField::zero())
                 .is_some()
             {
                 // TODO: this will be efficient on dynamically-allocated vectors but for
@@ -299,9 +299,9 @@ where
                     let mut a;
 
                     if ComplexField::norm1(v[0]) > ComplexField::norm1(v[1]) {
-                        a = Self::from_column_slice(&[v[2], N::zero(), -v[0]]);
+                        a = Self::from_column_slice(&[v[2], T::zero(), -v[0]]);
                     } else {
-                        a = Self::from_column_slice(&[N::zero(), -v[2], v[1]]);
+                        a = Self::from_column_slice(&[T::zero(), -v[2], v[1]]);
                     };
 
                     let _ = a.normalize_mut();
@@ -331,7 +331,7 @@ where
                         }
 
                         if let Some(subsp_elt) =
-                            elt.try_normalize(<N as ComplexField>::RealField::zero())
+                            elt.try_normalize(<T as ComplexField>::RealField::zero())
                         {
                             if !f(&subsp_elt) {
                                 return;
@@ -358,10 +358,10 @@ where
  *
  *
  */
-impl<N, D: DimName> Identity<Multiplicative> for MatrixN<N, D>
+impl<T, D: DimName> Identity<Multiplicative> for OMatrix<T, D, D>
 where
-    N: Scalar + Zero + One,
-    DefaultAllocator: Allocator<N, D, D>,
+    T: Scalar + Zero + One,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     #[inline]
     fn identity() -> Self {
@@ -369,10 +369,10 @@ where
     }
 }
 
-impl<N, D: DimName> AbstractMagma<Multiplicative> for MatrixN<N, D>
+impl<T, D: DimName> AbstractMagma<Multiplicative> for OMatrix<T, D, D>
 where
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
-    DefaultAllocator: Allocator<N, D, D>,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     #[inline]
     fn operate(&self, other: &Self) -> Self {
@@ -382,9 +382,9 @@ where
 
 macro_rules! impl_multiplicative_structure(
     ($($marker: ident<$operator: ident> $(+ $bounds: ident)*),* $(,)*) => {$(
-        impl<N, D: DimName> $marker<$operator> for MatrixN<N, D>
-            where N: Scalar + Zero + One + ClosedAdd + ClosedMul + $marker<$operator> $(+ $bounds)*,
-                  DefaultAllocator: Allocator<N, D, D> { }
+        impl<T, D: DimName> $marker<$operator> for OMatrix<T, D, D>
+            where T: Scalar + Zero + One + ClosedAdd + ClosedMul + $marker<$operator> $(+ $bounds)*,
+                  DefaultAllocator: Allocator<T, D, D> { }
     )*}
 );
 
@@ -398,10 +398,10 @@ impl_multiplicative_structure!(
  * Ordering
  *
  */
-impl<N, R: Dim, C: Dim> MeetSemilattice for MatrixMN<N, R, C>
+impl<T, R: Dim, C: Dim> MeetSemilattice for OMatrix<T, R, C>
 where
-    N: Scalar + MeetSemilattice,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + MeetSemilattice,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
     fn meet(&self, other: &Self) -> Self {
@@ -409,10 +409,10 @@ where
     }
 }
 
-impl<N, R: Dim, C: Dim> JoinSemilattice for MatrixMN<N, R, C>
+impl<T, R: Dim, C: Dim> JoinSemilattice for OMatrix<T, R, C>
 where
-    N: Scalar + JoinSemilattice,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + JoinSemilattice,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
     fn join(&self, other: &Self) -> Self {
@@ -420,10 +420,10 @@ where
     }
 }
 
-impl<N, R: Dim, C: Dim> Lattice for MatrixMN<N, R, C>
+impl<T, R: Dim, C: Dim> Lattice for OMatrix<T, R, C>
 where
-    N: Scalar + Lattice,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + Lattice,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
     fn meet_join(&self, other: &Self) -> (Self, Self) {

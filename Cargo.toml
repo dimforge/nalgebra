@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.25.2"
+version = "0.26.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "General-purpose linear algebra library with transformations and statically-sized or dynamically-sized matrices."
@@ -22,28 +22,35 @@ name = "nalgebra"
 path = "src/lib.rs"
 
 [features]
-default         = [ "std" ]
-std             = [ "matrixmultiply", "simba/std" ]
-sparse = [ ]
-debug = [ "approx/num-complex", "rand" ]
-alloc = [ ]
-io = [ "pest", "pest_derive" ]
+default = [ "std" ]
+std     = [ "matrixmultiply", "simba/std" ]
+sparse  = [ ]
+debug   = [ "approx/num-complex", "rand" ]
+alloc   = [ ]
+io      = [ "pest", "pest_derive" ]
 compare = [ "matrixcompare-core" ]
-libm = [ "simba/libm" ]
+libm    = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 no_unsound_assume_init = [ ]
 
 # Conversion
 convert-mint = [ "mint" ]
 convert-glam = [ "glam" ]
-convert-glam-unchecked = [ "convert-glam" ] # Unable edgy conversions like Mat4 -> Isometry3
+convert-glam-unchecked = [ "convert-glam" ] # Enable edgy conversions like Mat4 -> Isometry3
 convert-bytemuck = [ "bytemuck" ]
 
 # Serialization
-serde-serialize = [ "serde", "num-complex/serde" ]
-abomonation-serialize = [ "abomonation" ]
+## To use serde in a #[no-std] environment, enable the
+## `serde-serialize-no-std` feature instead of `serde-serialize`.
+## Serialization of dynamically-sized matrices/vectors require
+## `serde-serialize`.
+serde-serialize-no-std = [ "serde", "num-complex/serde" ]
+serde-serialize        = [ "serde-serialize-no-std", "serde/std" ]
+abomonation-serialize  = [ "abomonation" ]
 
 # Randomness
+## To use rand in a #[no-std] environment, enable the
+## `rand-no-std` feature instead of `rand`.
 rand-no-std = [ "rand-package" ]
 rand        = [ "rand-no-std", "rand-package/std", "rand-package/std_rng", "rand_distr" ]
 
@@ -54,7 +61,6 @@ slow-tests       = []
 
 [dependencies]
 typenum        = "1.12"
-generic-array  = "0.14"
 rand-package   = { package = "rand", version = "0.8", optional = true, default-features = false }
 num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.3", default-features = false }
@@ -79,11 +85,7 @@ proptest = { version = "1", optional = true, default-features = false, features 
 serde_json = "1.0"
 rand_xorshift = "0.3"
 rand_isaac = "0.3"
-### Uncomment this line before running benchmarks.
-### We can't just let this uncommented because that would break
-### compilation for #[no-std] because of the terrible Cargo bug
-### https://github.com/rust-lang/cargo/issues/4866
-#criterion = "0.2.10"
+criterion = "0.2.10"
 
 # For matrix comparison macro
 matrixcompare = "0.2.0"
@@ -91,6 +93,11 @@ itertools = "0.10"
 
 [workspace]
 members = [ "nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse" ]
+resolver = "2"
+
+[[example]]
+name = "matrixcompare"
+required-features = ["compare"]
 
 [[bench]]
 name = "nalgebra_bench"

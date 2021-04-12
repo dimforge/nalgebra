@@ -12,7 +12,7 @@ use crate::traits::Number;
 /// * [`scaling2d`](fn.scaling2d.html)
 /// * [`translate2d`](fn.translate2d.html)
 /// * [`translation2d`](fn.translation2d.html)
-pub fn rotate2d<N: RealField>(m: &TMat3<N>, angle: N) -> TMat3<N> {
+pub fn rotate2d<T: RealField>(m: &TMat3<T>, angle: T) -> TMat3<T> {
     m * UnitComplex::new(angle).to_homogeneous()
 }
 
@@ -25,7 +25,7 @@ pub fn rotate2d<N: RealField>(m: &TMat3<N>, angle: N) -> TMat3<N> {
 /// * [`scaling2d`](fn.scaling2d.html)
 /// * [`translate2d`](fn.translate2d.html)
 /// * [`translation2d`](fn.translation2d.html)
-pub fn scale2d<N: Number>(m: &TMat3<N>, v: &TVec2<N>) -> TMat3<N> {
+pub fn scale2d<T: Number>(m: &TMat3<T>, v: &TVec2<T>) -> TMat3<T> {
     m.prepend_nonuniform_scaling(v)
 }
 
@@ -38,6 +38,6 @@ pub fn scale2d<N: Number>(m: &TMat3<N>, v: &TVec2<N>) -> TMat3<N> {
 /// * [`scale2d`](fn.scale2d.html)
 /// * [`scaling2d`](fn.scaling2d.html)
 /// * [`translation2d`](fn.translation2d.html)
-pub fn translate2d<N: Number>(m: &TMat3<N>, v: &TVec2<N>) -> TMat3<N> {
+pub fn translate2d<T: Number>(m: &TMat3<T>, v: &TVec2<T>) -> TMat3<T> {
     m.prepend_translation(v)
 }

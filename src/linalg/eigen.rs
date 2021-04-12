@@ -1,4 +1,4 @@
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use num_complex::Complex;
@@ -11,7 +11,7 @@ use crate::allocator::Allocator;
 use crate::base::dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3};
 use crate::base::storage::Storage;
 use crate::base::{
-    DefaultAllocator, Hessenberg, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN,
+    DefaultAllocator, Hessenberg, OMatrix, OVector, SquareMatrix, Unit, Vector2, Vector3,
 };
 use crate::constraint::{DimEq, ShapeConstraint};
 
@@ -20,49 +20,50 @@ use crate::linalg::householder;
 use crate::linalg::Schur;
 
 /// Eigendecomposition of a real matrix with real eigenvalues (or complex eigen values for complex matrices).
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
-    feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, D>,
-         VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Serialize"))
+    feature = "serde-serialize-no-std",
+    serde(bound(serialize = "DefaultAllocator: Allocator<T, D>,
+         OVector<T, D>: Serialize,
+         OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
-    feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D>,
-         VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Deserialize<'de>"))
+    feature = "serde-serialize-no-std",
+    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D>,
+         OVector<T, D>: Serialize,
+         OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct Eigen<N: ComplexField, D: Dim>
-where DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>
-{
-    pub eigenvectors: MatrixN<N, D>,
-    pub eigenvalues: VectorN<N, D>,
-}
-
-impl<N: ComplexField, D: Dim> Copy for Eigen<N, D>
+pub struct Eigen<T: ComplexField, D: Dim>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
-    MatrixN<N, D>: Copy,
-    VectorN<N, D>: Copy,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+{
+    pub eigenvectors: OMatrix<T, D, D>,
+    pub eigenvalues: OVector<T, D>,
+}
+
+impl<T: ComplexField, D: Dim> Copy for Eigen<T, D>
+where
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    OMatrix<T, D, D>: Copy,
+    OVector<T, D>: Copy,
 {
 }
 
-impl<N: ComplexField, D: Dim> Eigen<N, D>
+impl<T: ComplexField, D: Dim> Eigen<T, D>
 where
     D: DimSub<U1>,                                   // For Hessenberg.
     ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>>, // For Hessenberg.
-    DefaultAllocator: Allocator<N, D, DimDiff<D, U1>>
-        + Allocator<N, DimDiff<D, U1>>
-        + Allocator<N, D, D>
-        + Allocator<N, D>,
+    DefaultAllocator: Allocator<T, D, DimDiff<D, U1>>
+        + Allocator<T, DimDiff<D, U1>>
+        + Allocator<T, D, D>
+        + Allocator<T, D>,
     // XXX: for debug
     DefaultAllocator: Allocator<usize, D, D>,
-    MatrixN<N, D>: Display,
+    OMatrix<T, D, D>: Display,
 {
     /// Computes the eigendecomposition of a diagonalizable matrix with Complex eigenvalues.
-    pub fn new(m: MatrixN<N, D>) -> Option<Eigen<N, D>> {
+    pub fn new(m: OMatrix<T, D, D>) -> Option<Eigen<T, D>> {
         assert!(
             m.is_square(),
             "Unable to compute the eigendecomposition of a non-square matrix."

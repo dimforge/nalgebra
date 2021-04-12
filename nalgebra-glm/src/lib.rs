@@ -54,7 +54,7 @@
    ### Vector and matrix construction
    Vectors, matrices, and quaternions can be constructed using several approaches:
    * Using functions with the same name as their type in lower-case. For example [`glm::vec3(x, y, z)`](fn.vec3.html) will create a 3D vector.
-   * Using the `::new` constructor. For example [`Vec3::new(x, y, z)`](../nalgebra/base/type.MatrixMN.html#method.new-27) will create a 3D vector.
+   * Using the `::new` constructor. For example [`Vec3::new(x, y, z)`](../nalgebra/base/type.OMatrix.html#method.new-27) will create a 3D vector.
    * Using the functions prefixed by `make_` to build a vector a matrix from a slice. For example [`glm::make_vec3(&[x, y, z])`](fn.make_vec3.html) will create a 3D vector.
    Keep in mind that constructing a matrix using this type of functions require its components to be arranged in column-major order on the slice.
    * Using a geometric construction function. For example [`glm::rotation(angle, axis)`](fn.rotation.html) will build a 4x4 homogeneous rotation matrix from an angle (in radians) and an axis.
@@ -119,7 +119,7 @@ extern crate approx;
 extern crate nalgebra as na;
 
 pub use crate::aliases::*;
-pub use crate::traits::{Alloc, Dimension, Number};
+pub use crate::traits::Number;
 pub use common::{
     abs, ceil, clamp, clamp_scalar, clamp_vec, float_bits_to_int, float_bits_to_int_vec,
     float_bits_to_uint, float_bits_to_uint_vec, floor, fract, int_bits_to_float,

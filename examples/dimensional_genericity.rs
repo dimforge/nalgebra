@@ -2,26 +2,26 @@ extern crate nalgebra as na;
 
 use na::allocator::Allocator;
 use na::dimension::Dim;
-use na::{DefaultAllocator, RealField, Unit, Vector2, Vector3, VectorN};
+use na::{DefaultAllocator, OVector, RealField, Unit, Vector2, Vector3};
 
 /// Reflects a vector wrt. the hyperplane with normal `plane_normal`.
-fn reflect_wrt_hyperplane_with_dimensional_genericity<N: RealField, D: Dim>(
-    plane_normal: &Unit<VectorN<N, D>>,
-    vector: &VectorN<N, D>,
-) -> VectorN<N, D>
+fn reflect_wrt_hyperplane_with_dimensional_genericity<T: RealField, D: Dim>(
+    plane_normal: &Unit<OVector<T, D>>,
+    vector: &OVector<T, D>,
+) -> OVector<T, D>
 where
-    N: RealField,
+    T: RealField,
     D: Dim,
-    DefaultAllocator: Allocator<N, D>,
+    DefaultAllocator: Allocator<T, D>,
 {
     let n = plane_normal.as_ref(); // Get the underlying V.
     vector - n * (n.dot(vector) * na::convert(2.0))
 }
 
 /// Reflects a 2D vector wrt. the 2D line with normal `plane_normal`.
-fn reflect_wrt_hyperplane2<N>(plane_normal: &Unit<Vector2<N>>, vector: &Vector2<N>) -> Vector2<N>
+fn reflect_wrt_hyperplane2<T>(plane_normal: &Unit<Vector2<T>>, vector: &Vector2<T>) -> Vector2<T>
 where
-    N: RealField,
+    T: RealField,
 {
     let n = plane_normal.as_ref(); // Get the underlying Vector2
     vector - n * (n.dot(vector) * na::convert(2.0))
@@ -29,9 +29,9 @@ where
 
 /// Reflects a 3D vector wrt. the 3D plane with normal `plane_normal`.
 /// /!\ This is an exact replicate of `reflect_wrt_hyperplane2, but for 3D.
-fn reflect_wrt_hyperplane3<N>(plane_normal: &Unit<Vector3<N>>, vector: &Vector3<N>) -> Vector3<N>
+fn reflect_wrt_hyperplane3<T>(plane_normal: &Unit<Vector3<T>>, vector: &Vector3<T>) -> Vector3<T>
 where
-    N: RealField,
+    T: RealField,
 {
     let n = plane_normal.as_ref(); // Get the underlying Vector3
     vector - n * (n.dot(vector) * na::convert(2.0))

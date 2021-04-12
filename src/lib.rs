@@ -89,12 +89,12 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
 #![cfg_attr(feature = "no_unsound_assume_init", allow(unreachable_code))]
 
-#[cfg(feature = "serde-serialize")]
-#[macro_use]
-extern crate serde;
-
 #[cfg(feature = "rand-no-std")]
 extern crate rand_package as rand;
+
+#[cfg(feature = "serde-serialize-no-std")]
+#[macro_use]
+extern crate serde;
 
 #[macro_use]
 extern crate approx;
@@ -253,10 +253,10 @@ pub fn abs<T: Signed>(a: &T) -> T {
 /// Returns the infimum of `a` and `b`.
 #[deprecated(note = "use the inherent method `Matrix::inf` instead")]
 #[inline]
-pub fn inf<N, R: Dim, C: Dim>(a: &MatrixMN<N, R, C>, b: &MatrixMN<N, R, C>) -> MatrixMN<N, R, C>
+pub fn inf<T, R: Dim, C: Dim>(a: &OMatrix<T, R, C>, b: &OMatrix<T, R, C>) -> OMatrix<T, R, C>
 where
-    N: Scalar + SimdPartialOrd,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + SimdPartialOrd,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     a.inf(b)
 }
@@ -264,10 +264,10 @@ where
 /// Returns the supremum of `a` and `b`.
 #[deprecated(note = "use the inherent method `Matrix::sup` instead")]
 #[inline]
-pub fn sup<N, R: Dim, C: Dim>(a: &MatrixMN<N, R, C>, b: &MatrixMN<N, R, C>) -> MatrixMN<N, R, C>
+pub fn sup<T, R: Dim, C: Dim>(a: &OMatrix<T, R, C>, b: &OMatrix<T, R, C>) -> OMatrix<T, R, C>
 where
-    N: Scalar + SimdPartialOrd,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + SimdPartialOrd,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     a.sup(b)
 }
@@ -275,13 +275,13 @@ where
 /// Returns simultaneously the infimum and supremum of `a` and `b`.
 #[deprecated(note = "use the inherent method `Matrix::inf_sup` instead")]
 #[inline]
-pub fn inf_sup<N, R: Dim, C: Dim>(
-    a: &MatrixMN<N, R, C>,
-    b: &MatrixMN<N, R, C>,
-) -> (MatrixMN<N, R, C>, MatrixMN<N, R, C>)
+pub fn inf_sup<T, R: Dim, C: Dim>(
+    a: &OMatrix<T, R, C>,
+    b: &OMatrix<T, R, C>,
+) -> (OMatrix<T, R, C>, OMatrix<T, R, C>)
 where
-    N: Scalar + SimdPartialOrd,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + SimdPartialOrd,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     a.inf_sup(b)
 }
@@ -384,11 +384,11 @@ pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'
 /// * [distance](fn.distance.html)
 /// * [distance_squared](fn.distance_squared.html)
 #[inline]
-pub fn center<N: SimdComplexField, D: DimName>(p1: &Point<N, D>, p2: &Point<N, D>) -> Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
-    ((&p1.coords + &p2.coords) * convert::<_, N>(0.5)).into()
+pub fn center<T: SimdComplexField, const D: usize>(
+    p1: &Point<T, D>,
+    p2: &Point<T, D>,
+) -> Point<T, D> {
+    ((&p1.coords + &p2.coords) * convert::<_, T>(0.5)).into()
 }
 
 /// The distance between two points.
@@ -398,13 +398,10 @@ where
 /// * [center](fn.center.html)
 /// * [distance_squared](fn.distance_squared.html)
 #[inline]
-pub fn distance<N: SimdComplexField, D: DimName>(
-    p1: &Point<N, D>,
-    p2: &Point<N, D>,
-) -> N::SimdRealField
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+pub fn distance<T: SimdComplexField, const D: usize>(
+    p1: &Point<T, D>,
+    p2: &Point<T, D>,
+) -> T::SimdRealField {
     (&p2.coords - &p1.coords).norm()
 }
 
@@ -415,13 +412,10 @@ where
 /// * [center](fn.center.html)
 /// * [distance](fn.distance.html)
 #[inline]
-pub fn distance_squared<N: SimdComplexField, D: DimName>(
-    p1: &Point<N, D>,
-    p2: &Point<N, D>,
-) -> N::SimdRealField
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+pub fn distance_squared<T: SimdComplexField, const D: usize>(
+    p1: &Point<T, D>,
+    p2: &Point<T, D>,
+) -> T::SimdRealField {
     (&p2.coords - &p1.coords).norm_squared()
 }
 

@@ -1,9 +1,7 @@
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{U1, U2};
 use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, Unit, Vector, Vector2};
+use crate::base::{Const, Unit, Vector, Vector2};
 use crate::geometry::{Isometry, Point2, Rotation, Similarity, Translation, UnitComplex};
 use simba::simd::SimdRealField;
 
@@ -42,7 +40,7 @@ use simba::simd::SimdRealField;
  */
 
 // UnitComplex × UnitComplex
-impl<N: SimdRealField> Mul<Self> for UnitComplex<N> {
+impl<T: SimdRealField> Mul<Self> for UnitComplex<T> {
     type Output = Self;
 
     #[inline]
@@ -51,46 +49,46 @@ impl<N: SimdRealField> Mul<Self> for UnitComplex<N> {
     }
 }
 
-impl<'a, N: SimdRealField> Mul<UnitComplex<N>> for &'a UnitComplex<N>
+impl<'a, T: SimdRealField> Mul<UnitComplex<T>> for &'a UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    type Output = UnitComplex<N>;
+    type Output = UnitComplex<T>;
 
     #[inline]
-    fn mul(self, rhs: UnitComplex<N>) -> Self::Output {
+    fn mul(self, rhs: UnitComplex<T>) -> Self::Output {
         Unit::new_unchecked(self.complex() * rhs.into_inner())
     }
 }
 
-impl<'b, N: SimdRealField> Mul<&'b UnitComplex<N>> for UnitComplex<N>
+impl<'b, T: SimdRealField> Mul<&'b UnitComplex<T>> for UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     type Output = Self;
 
     #[inline]
-    fn mul(self, rhs: &'b UnitComplex<N>) -> Self::Output {
+    fn mul(self, rhs: &'b UnitComplex<T>) -> Self::Output {
         Unit::new_unchecked(self.into_inner() * rhs.as_ref())
     }
 }
 
-impl<'a, 'b, N: SimdRealField> Mul<&'b UnitComplex<N>> for &'a UnitComplex<N>
+impl<'a, 'b, T: SimdRealField> Mul<&'b UnitComplex<T>> for &'a UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    type Output = UnitComplex<N>;
+    type Output = UnitComplex<T>;
 
     #[inline]
-    fn mul(self, rhs: &'b UnitComplex<N>) -> Self::Output {
+    fn mul(self, rhs: &'b UnitComplex<T>) -> Self::Output {
         Unit::new_unchecked(self.complex() * rhs.as_ref())
     }
 }
 
 // UnitComplex ÷ UnitComplex
-impl<N: SimdRealField> Div<Self> for UnitComplex<N>
+impl<T: SimdRealField> Div<Self> for UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     type Output = Self;
 
@@ -101,40 +99,40 @@ where
     }
 }
 
-impl<'a, N: SimdRealField> Div<UnitComplex<N>> for &'a UnitComplex<N>
+impl<'a, T: SimdRealField> Div<UnitComplex<T>> for &'a UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    type Output = UnitComplex<N>;
+    type Output = UnitComplex<T>;
 
     #[inline]
-    fn div(self, rhs: UnitComplex<N>) -> Self::Output {
+    fn div(self, rhs: UnitComplex<T>) -> Self::Output {
         #[allow(clippy::suspicious_arithmetic_impl)]
         Unit::new_unchecked(self.complex() * rhs.conjugate().into_inner())
     }
 }
 
-impl<'b, N: SimdRealField> Div<&'b UnitComplex<N>> for UnitComplex<N>
+impl<'b, T: SimdRealField> Div<&'b UnitComplex<T>> for UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     type Output = Self;
 
     #[inline]
-    fn div(self, rhs: &'b UnitComplex<N>) -> Self::Output {
+    fn div(self, rhs: &'b UnitComplex<T>) -> Self::Output {
         #[allow(clippy::suspicious_arithmetic_impl)]
         Unit::new_unchecked(self.into_inner() * rhs.conjugate().into_inner())
     }
 }
 
-impl<'a, 'b, N: SimdRealField> Div<&'b UnitComplex<N>> for &'a UnitComplex<N>
+impl<'a, 'b, T: SimdRealField> Div<&'b UnitComplex<T>> for &'a UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    type Output = UnitComplex<N>;
+    type Output = UnitComplex<T>;
 
     #[inline]
-    fn div(self, rhs: &'b UnitComplex<N>) -> Self::Output {
+    fn div(self, rhs: &'b UnitComplex<T>) -> Self::Output {
         #[allow(clippy::suspicious_arithmetic_impl)]
         Unit::new_unchecked(self.complex() * rhs.conjugate().into_inner())
     }
@@ -142,12 +140,11 @@ where
 
 macro_rules! complex_op_impl(
     ($Op: ident, $op: ident;
-     ($RDim: ident, $CDim: ident) $(for $Storage: ident: $StoragesBound: ident $(<$($BoundParam: ty),*>)*),*;
+     $($Storage: ident: $StoragesBound: ident $(<$($BoundParam: ty),*>)*),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty;
      $action: expr; $($lives: tt),*) => {
-        impl<$($lives ,)* N: SimdRealField $(, $Storage: $StoragesBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
-            where N::Element: SimdRealField,
-                  DefaultAllocator: Allocator<N, $RDim, $CDim> {
+        impl<$($lives ,)* T: SimdRealField $(, $Storage: $StoragesBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
+            where T::Element: SimdRealField {
             type Output = $Result;
 
             #[inline]
@@ -160,7 +157,7 @@ macro_rules! complex_op_impl(
 
 macro_rules! complex_op_impl_all(
     ($Op: ident, $op: ident;
-     ($RDim: ident, $CDim: ident) $(for $Storage: ident: $StoragesBound: ident $(<$($BoundParam: ty),*>)*),*;
+     $($Storage: ident: $StoragesBound: ident $(<$($BoundParam: ty),*>)*),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty;
      [val val] => $action_val_val: expr;
      [ref val] => $action_ref_val: expr;
@@ -168,22 +165,22 @@ macro_rules! complex_op_impl_all(
      [ref ref] => $action_ref_ref: expr;) => {
 
     complex_op_impl!($Op, $op;
-                     ($RDim, $CDim) $(for $Storage: $StoragesBound $(<$($BoundParam),*>)*),*;
+                     $($Storage: $StoragesBound $(<$($BoundParam),*>)*),*;
                      $lhs: $Lhs, $rhs: $Rhs, Output = $Result;
                      $action_val_val; );
 
     complex_op_impl!($Op, $op;
-                     ($RDim, $CDim) $(for $Storage: $StoragesBound $(<$($BoundParam),*>)*),*;
+                     $($Storage: $StoragesBound $(<$($BoundParam),*>)*),*;
                      $lhs: &'a $Lhs, $rhs: $Rhs, Output = $Result;
                      $action_ref_val; 'a);
 
     complex_op_impl!($Op, $op;
-                     ($RDim, $CDim) $(for $Storage: $StoragesBound $(<$($BoundParam),*>)*),*;
+                     $($Storage: $StoragesBound $(<$($BoundParam),*>)*),*;
                      $lhs: $Lhs, $rhs: &'b $Rhs, Output = $Result;
                      $action_val_ref; 'b);
 
     complex_op_impl!($Op, $op;
-                     ($RDim, $CDim) $(for $Storage: $StoragesBound $(<$($BoundParam),*>)*),*;
+                     $($Storage: $StoragesBound $(<$($BoundParam),*>)*),*;
                      $lhs: &'a $Lhs, $rhs: &'b $Rhs, Output = $Result;
                      $action_ref_ref; 'a, 'b);
 
@@ -194,8 +191,8 @@ macro_rules! complex_op_impl_all(
 // UnitComplex × Rotation
 complex_op_impl_all!(
     Mul, mul;
-    (U2, U2);
-    self: UnitComplex<N>, rhs: Rotation<N, U2>, Output = UnitComplex<N>;
+    ;
+    self: UnitComplex<T>, rhs: Rotation<T, 2>, Output = UnitComplex<T>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -205,8 +202,8 @@ complex_op_impl_all!(
 // UnitComplex ÷ Rotation
 complex_op_impl_all!(
     Div, div;
-    (U2, U2);
-    self: UnitComplex<N>, rhs: Rotation<N, U2>, Output = UnitComplex<N>;
+    ;
+    self: UnitComplex<T>, rhs: Rotation<T, 2>, Output = UnitComplex<T>;
     [val val] => &self / &rhs;
     [ref val] =>  self / &rhs;
     [val ref] => &self /  rhs;
@@ -216,8 +213,8 @@ complex_op_impl_all!(
 // Rotation × UnitComplex
 complex_op_impl_all!(
     Mul, mul;
-    (U2, U2);
-    self: Rotation<N, U2>, rhs: UnitComplex<N>, Output = UnitComplex<N>;
+    ;
+    self: Rotation<T, 2>, rhs: UnitComplex<T>, Output = UnitComplex<T>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -227,8 +224,8 @@ complex_op_impl_all!(
 // Rotation ÷ UnitComplex
 complex_op_impl_all!(
     Div, div;
-    (U2, U2);
-    self: Rotation<N, U2>, rhs: UnitComplex<N>, Output = UnitComplex<N>;
+    ;
+    self: Rotation<T, 2>, rhs: UnitComplex<T>, Output = UnitComplex<T>;
     [val val] => &self / &rhs;
     [ref val] =>  self / &rhs;
     [val ref] => &self /  rhs;
@@ -238,8 +235,8 @@ complex_op_impl_all!(
 // UnitComplex × Point
 complex_op_impl_all!(
     Mul, mul;
-    (U2, U1);
-    self: UnitComplex<N>, rhs: Point2<N>, Output = Point2<N>;
+    ;
+    self: UnitComplex<T>, rhs: Point2<T>, Output = Point2<T>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -249,8 +246,8 @@ complex_op_impl_all!(
 // UnitComplex × Vector
 complex_op_impl_all!(
     Mul, mul;
-    (U2, U1) for S: Storage<N, U2>;
-    self: UnitComplex<N>, rhs: Vector<N, U2, S>, Output = Vector2<N>;
+    S: Storage<T, Const<2>>;
+    self: UnitComplex<T>, rhs: Vector<T, Const<2>, S>, Output = Vector2<T>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -264,8 +261,8 @@ complex_op_impl_all!(
 // UnitComplex × Unit<Vector>
 complex_op_impl_all!(
     Mul, mul;
-    (U2, U1) for S: Storage<N, U2>;
-    self: UnitComplex<N>, rhs: Unit<Vector<N, U2, S>>, Output = Unit<Vector2<N>>;
+    S: Storage<T, Const<2>>;
+    self: UnitComplex<T>, rhs: Unit<Vector<T, Const<2>, S>>, Output = Unit<Vector2<T>>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -275,9 +272,9 @@ complex_op_impl_all!(
 // UnitComplex × Isometry<UnitComplex>
 complex_op_impl_all!(
     Mul, mul;
-    (U2, U1);
-    self: UnitComplex<N>, rhs: Isometry<N, U2, UnitComplex<N>>,
-    Output = Isometry<N, U2, UnitComplex<N>>;
+    ;
+    self: UnitComplex<T>, rhs: Isometry<T, UnitComplex<T>, 2>,
+    Output = Isometry<T, UnitComplex<T>, 2>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -290,9 +287,9 @@ complex_op_impl_all!(
 // UnitComplex × Similarity<UnitComplex>
 complex_op_impl_all!(
     Mul, mul;
-    (U2, U1);
-    self: UnitComplex<N>, rhs: Similarity<N, U2, UnitComplex<N>>,
-    Output = Similarity<N, U2, UnitComplex<N>>;
+    ;
+    self: UnitComplex<T>, rhs: Similarity<T, UnitComplex<T>, 2>,
+    Output = Similarity<T, UnitComplex<T>, 2>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
@@ -302,9 +299,9 @@ complex_op_impl_all!(
 // UnitComplex × Translation
 complex_op_impl_all!(
     Mul, mul;
-    (U2, U1);
-    self: UnitComplex<N>, rhs: Translation<N, U2>,
-    Output = Isometry<N, U2, UnitComplex<N>>;
+    ;
+    self: UnitComplex<T>, rhs: Translation<T, 2>,
+    Output = Isometry<T, UnitComplex<T>, 2>;
     [val val] => Isometry::from_parts(Translation::from(&self *  rhs.vector), self);
     [ref val] => Isometry::from_parts(Translation::from( self *  rhs.vector), *self);
     [val ref] => Isometry::from_parts(Translation::from(&self * &rhs.vector), self);
@@ -314,9 +311,9 @@ complex_op_impl_all!(
 // Translation × UnitComplex
 complex_op_impl_all!(
     Mul, mul;
-    (U2, U1);
-    self: Translation<N, U2>, right: UnitComplex<N>,
-    Output = Isometry<N, U2, UnitComplex<N>>;
+    ;
+    self: Translation<T, 2>, right: UnitComplex<T>,
+    Output = Isometry<T, UnitComplex<T>, 2>;
     [val val] => Isometry::from_parts(self, right);
     [ref val] => Isometry::from_parts(self.clone(), right);
     [val ref] => Isometry::from_parts(self, *right);
@@ -324,135 +321,127 @@ complex_op_impl_all!(
 );
 
 // UnitComplex ×= UnitComplex
-impl<N: SimdRealField> MulAssign<UnitComplex<N>> for UnitComplex<N>
+impl<T: SimdRealField> MulAssign<UnitComplex<T>> for UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn mul_assign(&mut self, rhs: UnitComplex<N>) {
+    fn mul_assign(&mut self, rhs: UnitComplex<T>) {
         *self = &*self * rhs
     }
 }
 
-impl<'b, N: SimdRealField> MulAssign<&'b UnitComplex<N>> for UnitComplex<N>
+impl<'b, T: SimdRealField> MulAssign<&'b UnitComplex<T>> for UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn mul_assign(&mut self, rhs: &'b UnitComplex<N>) {
+    fn mul_assign(&mut self, rhs: &'b UnitComplex<T>) {
         *self = &*self * rhs
     }
 }
 
 // UnitComplex /= UnitComplex
-impl<N: SimdRealField> DivAssign<UnitComplex<N>> for UnitComplex<N>
+impl<T: SimdRealField> DivAssign<UnitComplex<T>> for UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn div_assign(&mut self, rhs: UnitComplex<N>) {
+    fn div_assign(&mut self, rhs: UnitComplex<T>) {
         *self = &*self / rhs
     }
 }
 
-impl<'b, N: SimdRealField> DivAssign<&'b UnitComplex<N>> for UnitComplex<N>
+impl<'b, T: SimdRealField> DivAssign<&'b UnitComplex<T>> for UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn div_assign(&mut self, rhs: &'b UnitComplex<N>) {
+    fn div_assign(&mut self, rhs: &'b UnitComplex<T>) {
         *self = &*self / rhs
     }
 }
 
 // UnitComplex ×= Rotation
-impl<N: SimdRealField> MulAssign<Rotation<N, U2>> for UnitComplex<N>
+impl<T: SimdRealField> MulAssign<Rotation<T, 2>> for UnitComplex<T>
 where
-    N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, U2, U2>,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn mul_assign(&mut self, rhs: Rotation<N, U2>) {
+    fn mul_assign(&mut self, rhs: Rotation<T, 2>) {
         *self = &*self * rhs
     }
 }
 
-impl<'b, N: SimdRealField> MulAssign<&'b Rotation<N, U2>> for UnitComplex<N>
+impl<'b, T: SimdRealField> MulAssign<&'b Rotation<T, 2>> for UnitComplex<T>
 where
-    N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, U2, U2>,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn mul_assign(&mut self, rhs: &'b Rotation<N, U2>) {
+    fn mul_assign(&mut self, rhs: &'b Rotation<T, 2>) {
         *self = &*self * rhs
     }
 }
 
 // UnitComplex ÷= Rotation
-impl<N: SimdRealField> DivAssign<Rotation<N, U2>> for UnitComplex<N>
+impl<T: SimdRealField> DivAssign<Rotation<T, 2>> for UnitComplex<T>
 where
-    N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, U2, U2>,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn div_assign(&mut self, rhs: Rotation<N, U2>) {
+    fn div_assign(&mut self, rhs: Rotation<T, 2>) {
         *self = &*self / rhs
     }
 }
 
-impl<'b, N: SimdRealField> DivAssign<&'b Rotation<N, U2>> for UnitComplex<N>
+impl<'b, T: SimdRealField> DivAssign<&'b Rotation<T, 2>> for UnitComplex<T>
 where
-    N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, U2, U2>,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn div_assign(&mut self, rhs: &'b Rotation<N, U2>) {
+    fn div_assign(&mut self, rhs: &'b Rotation<T, 2>) {
         *self = &*self / rhs
     }
 }
 
 // Rotation ×= UnitComplex
-impl<N: SimdRealField> MulAssign<UnitComplex<N>> for Rotation<N, U2>
+impl<T: SimdRealField> MulAssign<UnitComplex<T>> for Rotation<T, 2>
 where
-    N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, U2, U2>,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn mul_assign(&mut self, rhs: UnitComplex<N>) {
+    fn mul_assign(&mut self, rhs: UnitComplex<T>) {
         self.mul_assign(rhs.to_rotation_matrix())
     }
 }
 
-impl<'b, N: SimdRealField> MulAssign<&'b UnitComplex<N>> for Rotation<N, U2>
+impl<'b, T: SimdRealField> MulAssign<&'b UnitComplex<T>> for Rotation<T, 2>
 where
-    N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, U2, U2>,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn mul_assign(&mut self, rhs: &'b UnitComplex<N>) {
+    fn mul_assign(&mut self, rhs: &'b UnitComplex<T>) {
         self.mul_assign(rhs.to_rotation_matrix())
     }
 }
 
 // Rotation ÷= UnitComplex
-impl<N: SimdRealField> DivAssign<UnitComplex<N>> for Rotation<N, U2>
+impl<T: SimdRealField> DivAssign<UnitComplex<T>> for Rotation<T, 2>
 where
-    N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, U2, U2>,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn div_assign(&mut self, rhs: UnitComplex<N>) {
+    fn div_assign(&mut self, rhs: UnitComplex<T>) {
         self.div_assign(rhs.to_rotation_matrix())
     }
 }
 
-impl<'b, N: SimdRealField> DivAssign<&'b UnitComplex<N>> for Rotation<N, U2>
+impl<'b, T: SimdRealField> DivAssign<&'b UnitComplex<T>> for Rotation<T, 2>
 where
-    N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, U2, U2>,
+    T::Element: SimdRealField,
 {
     #[inline]
-    fn div_assign(&mut self, rhs: &'b UnitComplex<N>) {
+    fn div_assign(&mut self, rhs: &'b UnitComplex<T>) {
         self.div_assign(rhs.to_rotation_matrix())
     }
 }

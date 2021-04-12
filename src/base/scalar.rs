@@ -9,7 +9,7 @@ pub trait Scalar: Clone + PartialEq + Debug + Any {
     #[inline]
     /// Tests if `Self` the same as the type `T`
     ///
-    /// Typically used to test of `Self` is a f32 or a f64 with `N::is::<f32>()`.
+    /// Typically used to test of `Self` is a f32 or a f64 with `T::is::<f32>()`.
     fn is<T: Scalar>() -> bool {
         TypeId::of::<Self>() == TypeId::of::<T>()
     }

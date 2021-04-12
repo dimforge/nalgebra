@@ -2,17 +2,14 @@ use num::{One, Zero};
 
 use simba::scalar::{ClosedAdd, ClosedMul, SupersetOf};
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::DimName;
-use crate::base::{DefaultAllocator, MatrixN, Scalar};
+use crate::base::{SMatrix, Scalar};
 
 use crate::geometry::Rotation;
 
 /// # Identity
-impl<N, D: DimName> Rotation<N, D>
+impl<T, const D: usize> Rotation<T, D>
 where
-    N: Scalar + Zero + One,
-    DefaultAllocator: Allocator<N, D, D>,
+    T: Scalar + Zero + One,
 {
     /// Creates a new square identity rotation of the given `dimension`.
     ///
@@ -26,15 +23,12 @@ where
     /// assert_eq!(rot2 * rot1, rot2);
     /// ```
     #[inline]
-    pub fn identity() -> Rotation<N, D> {
-        Self::from_matrix_unchecked(MatrixN::<N, D>::identity())
+    pub fn identity() -> Rotation<T, D> {
+        Self::from_matrix_unchecked(SMatrix::<T, D, D>::identity())
     }
 }
 
-impl<N: Scalar, D: DimName> Rotation<N, D>
-where
-    DefaultAllocator: Allocator<N, D, D>,
-{
+impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// Cast the components of `self` to another type.
     ///
     /// # Example
@@ -47,16 +41,14 @@ where
     pub fn cast<To: Scalar>(self) -> Rotation<To, D>
     where
         Rotation<To, D>: SupersetOf<Self>,
-        DefaultAllocator: Allocator<To, D, D>,
     {
         crate::convert(self)
     }
 }
 
-impl<N, D: DimName> One for Rotation<N, D>
+impl<T, const D: usize> One for Rotation<T, D>
 where
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
-    DefaultAllocator: Allocator<N, D, D>,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
 {
     #[inline]
     fn one() -> Self {

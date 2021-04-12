@@ -7,35 +7,35 @@ mod macros;
 fn bidiagonalize_100x100(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(100, 100);
     bh.bench_function("bidiagonalize_100x100", move |bh| {
-        bh.iter(|| test::black_box(Bidiagonal::new(m.clone())))
+        bh.iter(|| std::hint::black_box(Bidiagonal::new(m.clone())))
     });
 }
 
 fn bidiagonalize_100x500(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(100, 500);
     bh.bench_function("bidiagonalize_100x500", move |bh| {
-        bh.iter(|| test::black_box(Bidiagonal::new(m.clone())))
+        bh.iter(|| std::hint::black_box(Bidiagonal::new(m.clone())))
     });
 }
 
 fn bidiagonalize_4x4(bh: &mut criterion::Criterion) {
     let m = Matrix4::<f64>::new_random();
     bh.bench_function("bidiagonalize_4x4", move |bh| {
-        bh.iter(|| test::black_box(Bidiagonal::new(m.clone())))
+        bh.iter(|| std::hint::black_box(Bidiagonal::new(m.clone())))
     });
 }
 
 fn bidiagonalize_500x100(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(500, 100);
     bh.bench_function("bidiagonalize_500x100", move |bh| {
-        bh.iter(|| test::black_box(Bidiagonal::new(m.clone())))
+        bh.iter(|| std::hint::black_box(Bidiagonal::new(m.clone())))
     });
 }
 
 fn bidiagonalize_500x500(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(500, 500);
     bh.bench_function("bidiagonalize_500x500", move |bh| {
-        bh.iter(|| test::black_box(Bidiagonal::new(m.clone())))
+        bh.iter(|| std::hint::black_box(Bidiagonal::new(m.clone())))
     });
 }
 

@@ -6,9 +6,9 @@ use num_complex::Complex;
 
 use crate::ComplexHelper;
 use na::allocator::Allocator;
-use na::dimension::{Dim, DimMin, DimMinimum, U1};
+use na::dimension::{Const, Dim, DimMin, DimMinimum};
 use na::storage::Storage;
-use na::{DefaultAllocator, Matrix, MatrixMN, Scalar, VectorN};
+use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
 
@@ -16,55 +16,56 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
-                           Allocator<N, DimMinimum<R, C>>,
-         MatrixMN<N, R, C>: Serialize,
-         VectorN<N, DimMinimum<R, C>>: Serialize"))
+    serde(bound(serialize = "DefaultAllocator: Allocator<T, R, C> +
+                           Allocator<T, DimMinimum<R, C>>,
+         OMatrix<T, R, C>: Serialize,
+         OVector<T, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
-                           Allocator<N, DimMinimum<R, C>>,
-         MatrixMN<N, R, C>: Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<T, R, C> +
+                           Allocator<T, DimMinimum<R, C>>,
+         OMatrix<T, R, C>: Deserialize<'de>,
+         OVector<T, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct QR<N: Scalar, R: DimMin<C>, C: Dim>
+pub struct QR<T: Scalar, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
 {
-    qr: MatrixMN<N, R, C>,
-    tau: VectorN<N, DimMinimum<R, C>>,
+    qr: OMatrix<T, R, C>,
+    tau: OVector<T, DimMinimum<R, C>>,
 }
 
-impl<N: Scalar + Copy, R: DimMin<C>, C: Dim> Copy for QR<N, R, C>
+impl<T: Scalar + Copy, R: DimMin<C>, C: Dim> Copy for QR<T, R, C>
 where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
-    MatrixMN<N, R, C>: Copy,
-    VectorN<N, DimMinimum<R, C>>: Copy,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
+    OMatrix<T, R, C>: Copy,
+    OVector<T, DimMinimum<R, C>>: Copy,
 {
 }
 
-impl<N: QRScalar + Zero, R: DimMin<C>, C: Dim> QR<N, R, C>
+impl<T: QRScalar + Zero, R: DimMin<C>, C: Dim> QR<T, R, C>
 where
-    DefaultAllocator: Allocator<N, R, C>
-        + Allocator<N, R, DimMinimum<R, C>>
-        + Allocator<N, DimMinimum<R, C>, C>
-        + Allocator<N, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<T, R, C>
+        + Allocator<T, R, DimMinimum<R, C>>
+        + Allocator<T, DimMinimum<R, C>, C>
+        + Allocator<T, DimMinimum<R, C>>,
 {
     /// Computes the QR decomposition of the matrix `m`.
-    pub fn new(mut m: MatrixMN<N, R, C>) -> Self {
+    pub fn new(mut m: OMatrix<T, R, C>) -> Self {
         let (nrows, ncols) = m.data.shape();
 
         let mut info = 0;
-        let mut tau =
-            unsafe { Matrix::new_uninitialized_generic(nrows.min(ncols), U1).assume_init() };
+        let mut tau = unsafe {
+            Matrix::new_uninitialized_generic(nrows.min(ncols), Const::<1>).assume_init()
+        };
 
         if nrows.value() == 0 || ncols.value() == 0 {
             return Self { qr: m, tau: tau };
         }
 
-        let lwork = N::xgeqrf_work_size(
+        let lwork = T::xgeqrf_work_size(
             nrows.value() as i32,
             ncols.value() as i32,
             m.as_mut_slice(),
@@ -75,7 +76,7 @@ where
 
         let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
-        N::xgeqrf(
+        T::xgeqrf(
             nrows.value() as i32,
             ncols.value() as i32,
             m.as_mut_slice(),
@@ -91,37 +92,37 @@ where
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
     #[inline]
-    pub fn r(&self) -> MatrixMN<N, DimMinimum<R, C>, C> {
+    pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C> {
         let (nrows, ncols) = self.qr.data.shape();
         self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle()
     }
 }
 
-impl<N: QRReal + Zero, R: DimMin<C>, C: Dim> QR<N, R, C>
+impl<T: QRReal + Zero, R: DimMin<C>, C: Dim> QR<T, R, C>
 where
-    DefaultAllocator: Allocator<N, R, C>
-        + Allocator<N, R, DimMinimum<R, C>>
-        + Allocator<N, DimMinimum<R, C>, C>
-        + Allocator<N, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<T, R, C>
+        + Allocator<T, R, DimMinimum<R, C>>
+        + Allocator<T, DimMinimum<R, C>, C>
+        + Allocator<T, DimMinimum<R, C>>,
 {
     /// Retrieves the matrices `(Q, R)` of this decompositions.
     pub fn unpack(
         self,
     ) -> (
-        MatrixMN<N, R, DimMinimum<R, C>>,
-        MatrixMN<N, DimMinimum<R, C>, C>,
+        OMatrix<T, R, DimMinimum<R, C>>,
+        OMatrix<T, DimMinimum<R, C>, C>,
     ) {
         (self.q(), self.r())
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
     #[inline]
-    pub fn q(&self) -> MatrixMN<N, R, DimMinimum<R, C>> {
+    pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>> {
         let (nrows, ncols) = self.qr.data.shape();
         let min_nrows_ncols = nrows.min(ncols);
 
         if min_nrows_ncols.value() == 0 {
-            return MatrixMN::from_element_generic(nrows, min_nrows_ncols, N::zero());
+            return OMatrix::from_element_generic(nrows, min_nrows_ncols, T::zero());
         }
 
         let mut q = self
@@ -132,7 +133,7 @@ where
         let mut info = 0;
         let nrows = nrows.value() as i32;
 
-        let lwork = N::xorgqr_work_size(
+        let lwork = T::xorgqr_work_size(
             nrows,
             min_nrows_ncols.value() as i32,
             self.tau.len() as i32,
@@ -142,9 +143,9 @@ where
             &mut info,
         );
 
-        let mut work = vec![N::zero(); lwork as usize];
+        let mut work = vec![T::zero(); lwork as usize];
 
-        N::xorgqr(
+        T::xorgqr(
             nrows,
             min_nrows_ncols.value() as i32,
             self.tau.len() as i32,
