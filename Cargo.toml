@@ -40,11 +40,17 @@ convert-glam-unchecked = [ "convert-glam" ] # Enable edgy conversions like Mat4 
 convert-bytemuck = [ "bytemuck" ]
 
 # Serialization
+## To use serde in a #[no-std] environment, enable the
+## `serde-serialize-no-std` feature instead of `serde-serialize`.
+## Serialization of dynamically-sized matrices/vectors require
+## `serde-serialize`.
 serde-serialize-no-std = [ "serde", "num-complex/serde" ]
 serde-serialize        = [ "serde-serialize-no-std", "serde/std" ]
 abomonation-serialize  = [ "abomonation" ]
 
 # Randomness
+## To use rand in a #[no-std] environment, enable the
+## `rand-no-std` feature instead of `rand`.
 rand-no-std = [ "rand-package" ]
 rand        = [ "rand-no-std", "rand-package/std", "rand-package/std_rng", "rand_distr" ]
 
