@@ -103,6 +103,7 @@ required-features = ["compare"]
 name = "nalgebra_bench"
 harness = false
 path = "benches/lib.rs"
+required-features = ["rand"]
 
 [profile.bench]
 lto = true
