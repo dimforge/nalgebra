@@ -27,6 +27,12 @@ pub type OMatrix<T, R, C> = Matrix<T, R, C, Owned<T, R, C>>;
 )]
 pub type MatrixMN<T, R, C> = Matrix<T, R, C, Owned<T, R, C>>;
 
+/// An owned matrix column-major matrix with `D` columns.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+#[deprecated(note = "use OMatrix<T, D, D> or SMatrix<T, D, D> instead.")]
+pub type MatrixN<T, D> = Matrix<T, D, D, Owned<T, D, D>>;
+
 /// A statically sized column-major matrix with `R` rows and `C` columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
