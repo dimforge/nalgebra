@@ -3,56 +3,56 @@ use na::{Matrix4, Schur};
 fn schur_decompose_4x4(bh: &mut criterion::Criterion) {
     let m = Matrix4::<f64>::new_random();
     bh.bench_function("schur_decompose_4x4", move |bh| {
-        bh.iter(|| test::black_box(Schur::new(m.clone())))
+        bh.iter(|| std::hint::black_box(Schur::new(m.clone())))
     });
 }
 
 fn schur_decompose_10x10(bh: &mut criterion::Criterion) {
     let m = crate::reproductible_dmatrix(10, 10);
     bh.bench_function("schur_decompose_10x10", move |bh| {
-        bh.iter(|| test::black_box(Schur::new(m.clone())))
+        bh.iter(|| std::hint::black_box(Schur::new(m.clone())))
     });
 }
 
 fn schur_decompose_100x100(bh: &mut criterion::Criterion) {
     let m = crate::reproductible_dmatrix(100, 100);
     bh.bench_function("schur_decompose_100x100", move |bh| {
-        bh.iter(|| test::black_box(Schur::new(m.clone())))
+        bh.iter(|| std::hint::black_box(Schur::new(m.clone())))
     });
 }
 
 fn schur_decompose_200x200(bh: &mut criterion::Criterion) {
     let m = crate::reproductible_dmatrix(200, 200);
     bh.bench_function("schur_decompose_200x200", move |bh| {
-        bh.iter(|| test::black_box(Schur::new(m.clone())))
+        bh.iter(|| std::hint::black_box(Schur::new(m.clone())))
     });
 }
 
 fn eigenvalues_4x4(bh: &mut criterion::Criterion) {
     let m = Matrix4::<f64>::new_random();
     bh.bench_function("eigenvalues_4x4", move |bh| {
-        bh.iter(|| test::black_box(m.complex_eigenvalues()))
+        bh.iter(|| std::hint::black_box(m.complex_eigenvalues()))
     });
 }
 
 fn eigenvalues_10x10(bh: &mut criterion::Criterion) {
     let m = crate::reproductible_dmatrix(10, 10);
     bh.bench_function("eigenvalues_10x10", move |bh| {
-        bh.iter(|| test::black_box(m.complex_eigenvalues()))
+        bh.iter(|| std::hint::black_box(m.complex_eigenvalues()))
     });
 }
 
 fn eigenvalues_100x100(bh: &mut criterion::Criterion) {
     let m = crate::reproductible_dmatrix(100, 100);
     bh.bench_function("eigenvalues_100x100", move |bh| {
-        bh.iter(|| test::black_box(m.complex_eigenvalues()))
+        bh.iter(|| std::hint::black_box(m.complex_eigenvalues()))
     });
 }
 
 fn eigenvalues_200x200(bh: &mut criterion::Criterion) {
     let m = crate::reproductible_dmatrix(200, 200);
     bh.bench_function("eigenvalues_200x200", move |bh| {
-        bh.iter(|| test::black_box(m.complex_eigenvalues()))
+        bh.iter(|| std::hint::black_box(m.complex_eigenvalues()))
     });
 }
 

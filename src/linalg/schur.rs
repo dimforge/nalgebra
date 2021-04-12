@@ -7,9 +7,9 @@ use simba::scalar::{ComplexField, RealField};
 use std::cmp;
 
 use crate::allocator::Allocator;
-use crate::base::dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3};
+use crate::base::dimension::{Const, Dim, DimDiff, DimSub, Dynamic, U1, U2};
 use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, MatrixN, SquareMatrix, Unit, Vector2, Vector3, VectorN};
+use crate::base::{DefaultAllocator, OMatrix, OVector, SquareMatrix, Unit, Vector2, Vector3};
 
 use crate::geometry::Reflection;
 use crate::linalg::givens::GivensRotation;
@@ -22,41 +22,41 @@ use crate::linalg::Hessenberg;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D>,
-         MatrixN<N, D>: Serialize"))
+    serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D>,
+         OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D>,
-         MatrixN<N, D>: Deserialize<'de>"))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D>,
+         OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct Schur<N: ComplexField, D: Dim>
+pub struct Schur<T: ComplexField, D: Dim>
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D, D>,
 {
-    q: MatrixN<N, D>,
-    t: MatrixN<N, D>,
+    q: OMatrix<T, D, D>,
+    t: OMatrix<T, D, D>,
 }
 
-impl<N: ComplexField, D: Dim> Copy for Schur<N, D>
+impl<T: ComplexField, D: Dim> Copy for Schur<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
-    MatrixN<N, D>: Copy,
+    DefaultAllocator: Allocator<T, D, D>,
+    OMatrix<T, D, D>: Copy,
 {
 }
 
-impl<N: ComplexField, D: Dim> Schur<N, D>
+impl<T: ComplexField, D: Dim> Schur<T, D>
 where
     D: DimSub<U1>, // For Hessenberg.
-    DefaultAllocator: Allocator<N, D, DimDiff<D, U1>>
-        + Allocator<N, DimDiff<D, U1>>
-        + Allocator<N, D, D>
-        + Allocator<N, D>,
+    DefaultAllocator: Allocator<T, D, DimDiff<D, U1>>
+        + Allocator<T, DimDiff<D, U1>>
+        + Allocator<T, D, D>
+        + Allocator<T, D>,
 {
     /// Computes the Schur decomposition of a square matrix.
-    pub fn new(m: MatrixN<N, D>) -> Self {
-        Self::try_new(m, N::RealField::default_epsilon(), 0).unwrap()
+    pub fn new(m: OMatrix<T, D, D>) -> Self {
+        Self::try_new(m, T::RealField::default_epsilon(), 0).unwrap()
     }
 
     /// Attempts to compute the Schur decomposition of a square matrix.
@@ -70,21 +70,21 @@ where
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_new(m: MatrixN<N, D>, eps: N::RealField, max_niter: usize) -> Option<Self> {
+    pub fn try_new(m: OMatrix<T, D, D>, eps: T::RealField, max_niter: usize) -> Option<Self> {
         let mut work =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(m.data.shape().0, U1) };
+            unsafe { crate::unimplemented_or_uninitialized_generic!(m.data.shape().0, Const::<1>) };
 
         Self::do_decompose(m, &mut work, eps, max_niter, true)
             .map(|(q, t)| Schur { q: q.unwrap(), t })
     }
 
     fn do_decompose(
-        mut m: MatrixN<N, D>,
-        work: &mut VectorN<N, D>,
-        eps: N::RealField,
+        mut m: OMatrix<T, D, D>,
+        work: &mut OVector<T, D>,
+        eps: T::RealField,
         max_niter: usize,
         compute_q: bool,
-    ) -> Option<(Option<MatrixN<N, D>>, MatrixN<N, D>)> {
+    ) -> Option<(Option<OMatrix<T, D, D>>, OMatrix<T, D, D>)> {
         assert!(
             m.is_square(),
             "Unable to compute the eigenvectors and eigenvalues of a non-square matrix."
@@ -94,12 +94,12 @@ where
 
         // Specialization would make this easier.
         if dim.value() == 0 {
-            let vecs = Some(MatrixN::from_element_generic(dim, dim, N::zero()));
-            let vals = MatrixN::from_element_generic(dim, dim, N::zero());
+            let vecs = Some(OMatrix::from_element_generic(dim, dim, T::zero()));
+            let vals = OMatrix::from_element_generic(dim, dim, T::zero());
             return Some((vecs, vals));
         } else if dim.value() == 1 {
             if compute_q {
-                let q = MatrixN::from_element_generic(dim, dim, N::one());
+                let q = OMatrix::from_element_generic(dim, dim, T::one());
                 return Some((Some(q), m));
             } else {
                 return Some((None, m));
@@ -163,27 +163,30 @@ where
                     if not_zero {
                         if k > start {
                             t[(k, k - 1)] = norm;
-                            t[(k + 1, k - 1)] = N::zero();
-                            t[(k + 2, k - 1)] = N::zero();
+                            t[(k + 1, k - 1)] = T::zero();
+                            t[(k + 2, k - 1)] = T::zero();
                         }
 
-                        let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
+                        let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
                         {
                             let krows = cmp::min(k + 4, end + 1);
                             let mut work = work.rows_mut(0, krows);
-                            refl.reflect(
-                                &mut t
-                                    .generic_slice_mut((k, k), (U3, Dynamic::new(dim.value() - k))),
-                            );
+                            refl.reflect(&mut t.generic_slice_mut(
+                                (k, k),
+                                (Const::<3>, Dynamic::new(dim.value() - k)),
+                            ));
                             refl.reflect_rows(
-                                &mut t.generic_slice_mut((0, k), (Dynamic::new(krows), U3)),
+                                &mut t.generic_slice_mut((0, k), (Dynamic::new(krows), Const::<3>)),
                                 &mut work,
                             );
                         }
 
                         if let Some(ref mut q) = q {
-                            refl.reflect_rows(&mut q.generic_slice_mut((0, k), (dim, U3)), work);
+                            refl.reflect_rows(
+                                &mut q.generic_slice_mut((0, k), (dim, Const::<3>)),
+                                work,
+                            );
                         }
                     }
 
@@ -199,41 +202,45 @@ where
                 let (norm, not_zero) = householder::reflection_axis_mut(&mut axis);
 
                 if not_zero {
-                    let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
+                    let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
                     t[(m, m - 1)] = norm;
-                    t[(n, m - 1)] = N::zero();
+                    t[(n, m - 1)] = T::zero();
 
                     {
                         let mut work = work.rows_mut(0, end + 1);
-                        refl.reflect(
-                            &mut t.generic_slice_mut((m, m), (U2, Dynamic::new(dim.value() - m))),
-                        );
+                        refl.reflect(&mut t.generic_slice_mut(
+                            (m, m),
+                            (Const::<2>, Dynamic::new(dim.value() - m)),
+                        ));
                         refl.reflect_rows(
-                            &mut t.generic_slice_mut((0, m), (Dynamic::new(end + 1), U2)),
+                            &mut t.generic_slice_mut((0, m), (Dynamic::new(end + 1), Const::<2>)),
                             &mut work,
                         );
                     }
 
                     if let Some(ref mut q) = q {
-                        refl.reflect_rows(&mut q.generic_slice_mut((0, m), (dim, U2)), work);
+                        refl.reflect_rows(
+                            &mut q.generic_slice_mut((0, m), (dim, Const::<2>)),
+                            work,
+                        );
                     }
                 }
             } else {
                 // Decouple the 2x2 block if it has real eigenvalues.
-                if let Some(rot) = compute_2x2_basis(&t.fixed_slice::<U2, U2>(start, start)) {
+                if let Some(rot) = compute_2x2_basis(&t.fixed_slice::<2, 2>(start, start)) {
                     let inv_rot = rot.inverse();
                     inv_rot.rotate(&mut t.generic_slice_mut(
                         (start, start),
-                        (U2, Dynamic::new(dim.value() - start)),
+                        (Const::<2>, Dynamic::new(dim.value() - start)),
                     ));
                     rot.rotate_rows(
-                        &mut t.generic_slice_mut((0, start), (Dynamic::new(end + 1), U2)),
+                        &mut t.generic_slice_mut((0, start), (Dynamic::new(end + 1), Const::<2>)),
                     );
-                    t[(end, start)] = N::zero();
+                    t[(end, start)] = T::zero();
 
                     if let Some(ref mut q) = q {
-                        rot.rotate_rows(&mut q.generic_slice_mut((0, start), (dim, U2)));
+                        rot.rotate_rows(&mut q.generic_slice_mut((0, start), (dim, Const::<2>)));
                     }
                 }
 
@@ -262,7 +269,7 @@ where
     }
 
     /// Computes the eigenvalues of the decomposed matrix.
-    fn do_eigenvalues(t: &MatrixN<N, D>, out: &mut VectorN<N, D>) -> bool {
+    fn do_eigenvalues(t: &OMatrix<T, D, D>, out: &mut OVector<T, D>) -> bool {
         let dim = t.nrows();
         let mut m = 0;
 
@@ -286,10 +293,10 @@ where
     }
 
     /// Computes the complex eigenvalues of the decomposed matrix.
-    fn do_complex_eigenvalues(t: &MatrixN<N, D>, out: &mut VectorN<NumComplex<N>, D>)
+    fn do_complex_eigenvalues(t: &OMatrix<T, D, D>, out: &mut OVector<NumComplex<T>, D>)
     where
-        N: RealField,
-        DefaultAllocator: Allocator<NumComplex<N>, D>,
+        T: RealField,
+        DefaultAllocator: Allocator<NumComplex<T>, D>,
     {
         let dim = t.nrows();
         let mut m = 0;
@@ -298,7 +305,7 @@ where
             let n = m + 1;
 
             if t[(n, m)].is_zero() {
-                out[m] = NumComplex::new(t[(m, m)], N::zero());
+                out[m] = NumComplex::new(t[(m, m)], T::zero());
                 m += 1;
             } else {
                 // Solve the 2x2 eigenvalue subproblem.
@@ -313,25 +320,25 @@ where
 
                 // All 2x2 blocks have negative discriminant because we already decoupled those
                 // with positive eigenvalues.
-                let sqrt_discr = NumComplex::new(N::zero(), (-discr).sqrt());
+                let sqrt_discr = NumComplex::new(T::zero(), (-discr).sqrt());
 
                 let half_tra = (hnn + hmm) * crate::convert(0.5);
-                out[m] = NumComplex::new(half_tra, N::zero()) + sqrt_discr;
-                out[m + 1] = NumComplex::new(half_tra, N::zero()) - sqrt_discr;
+                out[m] = NumComplex::new(half_tra, T::zero()) + sqrt_discr;
+                out[m + 1] = NumComplex::new(half_tra, T::zero()) - sqrt_discr;
 
                 m += 2;
             }
         }
 
         if m == dim - 1 {
-            out[m] = NumComplex::new(t[(m, m)], N::zero());
+            out[m] = NumComplex::new(t[(m, m)], T::zero());
         }
     }
 
-    fn delimit_subproblem(t: &mut MatrixN<N, D>, eps: N::RealField, end: usize) -> (usize, usize)
+    fn delimit_subproblem(t: &mut OMatrix<T, D, D>, eps: T::RealField, end: usize) -> (usize, usize)
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<T, DimDiff<D, U1>>,
     {
         let mut n = end;
 
@@ -339,7 +346,7 @@ where
             let m = n - 1;
 
             if t[(n, m)].norm1() <= eps * (t[(n, n)].norm1() + t[(m, m)].norm1()) {
-                t[(n, m)] = N::zero();
+                t[(n, m)] = T::zero();
             } else {
                 break;
             }
@@ -359,7 +366,7 @@ where
             if off_diag.is_zero()
                 || off_diag.norm1() <= eps * (t[(new_start, new_start)].norm1() + t[(m, m)].norm1())
             {
-                t[(new_start, m)] = N::zero();
+                t[(new_start, m)] = T::zero();
                 break;
             }
 
@@ -371,16 +378,17 @@ where
 
     /// Retrieves the unitary matrix `Q` and the upper-quasitriangular matrix `T` such that the
     /// decomposed matrix equals `Q * T * Q.transpose()`.
-    pub fn unpack(self) -> (MatrixN<N, D>, MatrixN<N, D>) {
+    pub fn unpack(self) -> (OMatrix<T, D, D>, OMatrix<T, D, D>) {
         (self.q, self.t)
     }
 
     /// Computes the real eigenvalues of the decomposed matrix.
     ///
     /// Return `None` if some eigenvalues are complex.
-    pub fn eigenvalues(&self) -> Option<VectorN<N, D>> {
-        let mut out =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(self.t.data.shape().0, U1) };
+    pub fn eigenvalues(&self) -> Option<OVector<T, D>> {
+        let mut out = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(self.t.data.shape().0, Const::<1>)
+        };
         if Self::do_eigenvalues(&self.t, &mut out) {
             Some(out)
         } else {
@@ -389,40 +397,41 @@ where
     }
 
     /// Computes the complex eigenvalues of the decomposed matrix.
-    pub fn complex_eigenvalues(&self) -> VectorN<NumComplex<N>, D>
+    pub fn complex_eigenvalues(&self) -> OVector<NumComplex<T>, D>
     where
-        N: RealField,
-        DefaultAllocator: Allocator<NumComplex<N>, D>,
+        T: RealField,
+        DefaultAllocator: Allocator<NumComplex<T>, D>,
     {
-        let mut out =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(self.t.data.shape().0, U1) };
+        let mut out = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(self.t.data.shape().0, Const::<1>)
+        };
         Self::do_complex_eigenvalues(&self.t, &mut out);
         out
     }
 }
 
-fn decompose_2x2<N: ComplexField, D: Dim>(
-    mut m: MatrixN<N, D>,
+fn decompose_2x2<T: ComplexField, D: Dim>(
+    mut m: OMatrix<T, D, D>,
     compute_q: bool,
-) -> Option<(Option<MatrixN<N, D>>, MatrixN<N, D>)>
+) -> Option<(Option<OMatrix<T, D, D>>, OMatrix<T, D, D>)>
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     let dim = m.data.shape().0;
     let mut q = None;
-    match compute_2x2_basis(&m.fixed_slice::<U2, U2>(0, 0)) {
+    match compute_2x2_basis(&m.fixed_slice::<2, 2>(0, 0)) {
         Some(rot) => {
-            let mut m = m.fixed_slice_mut::<U2, U2>(0, 0);
+            let mut m = m.fixed_slice_mut::<2, 2>(0, 0);
             let inv_rot = rot.inverse();
             inv_rot.rotate(&mut m);
             rot.rotate_rows(&mut m);
-            m[(1, 0)] = N::zero();
+            m[(1, 0)] = T::zero();
 
             if compute_q {
                 // XXX: we have to build the matrix manually because
                 // rot.to_rotation_matrix().unwrap() causes an ICE.
-                let c = N::from_real(rot.c());
-                q = Some(MatrixN::from_column_slice_generic(
+                let c = T::from_real(rot.c());
+                q = Some(OMatrix::from_column_slice_generic(
                     dim,
                     dim,
                     &[c, rot.s(), -rot.s().conjugate(), c],
@@ -431,7 +440,7 @@ where
         }
         None => {
             if compute_q {
-                q = Some(MatrixN::identity_generic(dim, dim));
+                q = Some(OMatrix::identity_generic(dim, dim));
             }
         }
     };
@@ -439,9 +448,9 @@ where
     Some((q, m))
 }
 
-fn compute_2x2_eigvals<N: ComplexField, S: Storage<N, U2, U2>>(
-    m: &SquareMatrix<N, U2, S>,
-) -> Option<(N, N)> {
+fn compute_2x2_eigvals<T: ComplexField, S: Storage<T, U2, U2>>(
+    m: &SquareMatrix<T, U2, S>,
+) -> Option<(T, T)> {
     // Solve the 2x2 eigenvalue subproblem.
     let h00 = m[(0, 0)];
     let h10 = m[(1, 0)];
@@ -465,9 +474,9 @@ fn compute_2x2_eigvals<N: ComplexField, S: Storage<N, U2, U2>>(
 ///
 /// Returns `None` if the matrix has complex eigenvalues, or is upper-triangular. In both case,
 /// the basis is the identity.
-fn compute_2x2_basis<N: ComplexField, S: Storage<N, U2, U2>>(
-    m: &SquareMatrix<N, U2, S>,
-) -> Option<GivensRotation<N>> {
+fn compute_2x2_basis<T: ComplexField, S: Storage<T, U2, U2>>(
+    m: &SquareMatrix<T, U2, S>,
+) -> Option<GivensRotation<T>> {
     let h10 = m[(1, 0)];
 
     if h10.is_zero() {
@@ -491,29 +500,30 @@ fn compute_2x2_basis<N: ComplexField, S: Storage<N, U2, U2>>(
     }
 }
 
-impl<N: ComplexField, D: Dim, S: Storage<N, D, D>> SquareMatrix<N, D, S>
+impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S>
 where
     D: DimSub<U1>, // For Hessenberg.
-    DefaultAllocator: Allocator<N, D, DimDiff<D, U1>>
-        + Allocator<N, DimDiff<D, U1>>
-        + Allocator<N, D, D>
-        + Allocator<N, D>,
+    DefaultAllocator: Allocator<T, D, DimDiff<D, U1>>
+        + Allocator<T, DimDiff<D, U1>>
+        + Allocator<T, D, D>
+        + Allocator<T, D>,
 {
     /// Computes the eigenvalues of this matrix.
-    pub fn eigenvalues(&self) -> Option<VectorN<N, D>> {
+    pub fn eigenvalues(&self) -> Option<OVector<T, D>> {
         assert!(
             self.is_square(),
             "Unable to compute eigenvalues of a non-square matrix."
         );
 
-        let mut work =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, U1) };
+        let mut work = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, Const::<1>)
+        };
 
         // Special case for 2x2 matrices.
         if self.nrows() == 2 {
             // TODO: can we avoid this slicing
             // (which is needed here just to transform D to U2)?
-            let me = self.fixed_slice::<U2, U2>(0, 0);
+            let me = self.fixed_slice::<2, 2>(0, 0);
             return match compute_2x2_eigvals(&me) {
                 Some((a, b)) => {
                     work[0] = a;
@@ -528,7 +538,7 @@ where
         let schur = Schur::do_decompose(
             self.clone_owned(),
             &mut work,
-            N::RealField::default_epsilon(),
+            T::RealField::default_epsilon(),
             0,
             false,
         )
@@ -541,24 +551,24 @@ where
     }
 
     /// Computes the eigenvalues of this matrix.
-    pub fn complex_eigenvalues(&self) -> VectorN<NumComplex<N>, D>
+    pub fn complex_eigenvalues(&self) -> OVector<NumComplex<T>, D>
     // TODO: add balancing?
     where
-        N: RealField,
-        DefaultAllocator: Allocator<NumComplex<N>, D>,
+        T: RealField,
+        DefaultAllocator: Allocator<NumComplex<T>, D>,
     {
         let dim = self.data.shape().0;
-        let mut work = unsafe { crate::unimplemented_or_uninitialized_generic!(dim, U1) };
+        let mut work = unsafe { crate::unimplemented_or_uninitialized_generic!(dim, Const::<1>) };
 
         let schur = Schur::do_decompose(
             self.clone_owned(),
             &mut work,
-            N::default_epsilon(),
+            T::default_epsilon(),
             0,
             false,
         )
         .unwrap();
-        let mut eig = unsafe { crate::unimplemented_or_uninitialized_generic!(dim, U1) };
+        let mut eig = unsafe { crate::unimplemented_or_uninitialized_generic!(dim, Const::<1>) };
         Schur::do_complex_eigenvalues(&schur.1, &mut eig);
         eig
     }

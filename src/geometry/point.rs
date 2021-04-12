@@ -17,7 +17,7 @@ use simba::simd::SimdPartialOrd;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
-use crate::base::{DefaultAllocator, Scalar, VectorN};
+use crate::base::{Const, DefaultAllocator, OVector, SVector, Scalar};
 
 /// A point in an euclidean space.
 ///
@@ -40,55 +40,35 @@ use crate::base::{DefaultAllocator, Scalar, VectorN};
 /// of said transformations for details.
 #[repr(C)]
 #[derive(Debug, Clone)]
-pub struct Point<N: Scalar, D: DimName>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+pub struct Point<T, const D: usize> {
     /// The coordinates of this point, i.e., the shift from the origin.
-    pub coords: VectorN<N, D>,
+    pub coords: SVector<T, D>,
 }
 
-impl<N: Scalar + hash::Hash, D: DimName + hash::Hash> hash::Hash for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-    <DefaultAllocator as Allocator<N, D>>::Buffer: hash::Hash,
-{
+impl<T: Scalar + hash::Hash, const D: usize> hash::Hash for Point<T, D> {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.coords.hash(state)
     }
 }
 
-impl<N: Scalar + Copy, D: DimName> Copy for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-    <DefaultAllocator as Allocator<N, D>>::Buffer: Copy,
+impl<T: Scalar + Copy, const D: usize> Copy for Point<T, D> {}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: Scalar, const D: usize> bytemuck::Zeroable for Point<T, D> where
+    SVector<T, D>: bytemuck::Zeroable
 {
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<N: Scalar, D: DimName> bytemuck::Zeroable for Point<N, D>
+unsafe impl<T: Scalar, const D: usize> bytemuck::Pod for Point<T, D>
 where
-    VectorN<N, D>: bytemuck::Zeroable,
-    DefaultAllocator: Allocator<N, D>,
-{
-}
-
-#[cfg(feature = "bytemuck")]
-unsafe impl<N: Scalar, D: DimName> bytemuck::Pod for Point<N, D>
-where
-    N: Copy,
-    VectorN<N, D>: bytemuck::Pod,
-    DefaultAllocator: Allocator<N, D>,
-    <DefaultAllocator as Allocator<N, D>>::Buffer: Copy,
+    T: Copy,
+    SVector<T, D>: bytemuck::Pod,
 {
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<N: Scalar, D: DimName> Serialize for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-    <DefaultAllocator as Allocator<N, D>>::Buffer: Serialize,
-{
+impl<T: Scalar + Serialize, const D: usize> Serialize for Point<T, D> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -98,28 +78,22 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
-impl<'a, N: Scalar, D: DimName> Deserialize<'a> for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-    <DefaultAllocator as Allocator<N, D>>::Buffer: Deserialize<'a>,
-{
+impl<'a, T: Scalar + Deserialize<'a>, const D: usize> Deserialize<'a> for Point<T, D> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
         Des: Deserializer<'a>,
     {
-        let coords = VectorN::<N, D>::deserialize(deserializer)?;
+        let coords = SVector::<T, D>::deserialize(deserializer)?;
 
         Ok(Self::from(coords))
     }
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<N, D> Abomonation for Point<N, D>
+impl<T, const D: usize> Abomonation for Point<T, D>
 where
-    N: Scalar,
-    D: DimName,
-    VectorN<N, D>: Abomonation,
-    DefaultAllocator: Allocator<N, D>,
+    T: Scalar,
+    SVector<T, D>: Abomonation,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.coords.entomb(writer)
@@ -134,10 +108,7 @@ where
     }
 }
 
-impl<N: Scalar, D: DimName> Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar, const D: usize> Point<T, D> {
     /// Returns a point containing the result of `f` applied to each of its entries.
     ///
     /// # Example
@@ -151,10 +122,7 @@ where
     /// assert_eq!(p.map(|e| e as u32), Point3::new(1, 2, 3));
     /// ```
     #[inline]
-    pub fn map<N2: Scalar, F: FnMut(N) -> N2>(&self, f: F) -> Point<N2, D>
-    where
-        DefaultAllocator: Allocator<N2, D>,
-    {
+    pub fn map<T2: Scalar, F: FnMut(T) -> T2>(&self, f: F) -> Point<T2, D> {
         self.coords.map(f).into()
     }
 
@@ -173,7 +141,7 @@ where
     /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
     /// ```
     #[inline]
-    pub fn apply<F: FnMut(N) -> N>(&mut self, f: F) {
+    pub fn apply<F: FnMut(T) -> T>(&mut self, f: F) {
         self.coords.apply(f)
     }
 
@@ -193,20 +161,20 @@ where
     /// assert_eq!(p.to_homogeneous(), Vector4::new(10.0, 20.0, 30.0, 1.0));
     /// ```
     #[inline]
-    pub fn to_homogeneous(&self) -> VectorN<N, DimNameSum<D, U1>>
+    pub fn to_homogeneous(&self) -> OVector<T, DimNameSum<Const<D>, U1>>
     where
-        N: One,
-        D: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<N, DimNameSum<D, U1>>,
+        T: One,
+        Const<D>: DimNameAdd<U1>,
+        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>>,
     {
         let mut res = unsafe {
             crate::unimplemented_or_uninitialized_generic!(
-                <DimNameSum<D, U1> as DimName>::name(),
-                U1
+                <DimNameSum<Const<D>, U1> as DimName>::name(),
+                Const::<1>
             )
         };
-        res.fixed_slice_mut::<D, U1>(0, 0).copy_from(&self.coords);
-        res[(D::dim(), 0)] = N::one();
+        res.fixed_slice_mut::<D, 1>(0, 0).copy_from(&self.coords);
+        res[(D, 0)] = T::one();
 
         res
     }
@@ -214,7 +182,7 @@ where
     /// Creates a new point with the given coordinates.
     #[deprecated(note = "Use Point::from(vector) instead.")]
     #[inline]
-    pub fn from_coordinates(coords: VectorN<N, D>) -> Self {
+    pub fn from_coordinates(coords: SVector<T, D>) -> Self {
         Self { coords }
     }
 
@@ -269,13 +237,16 @@ where
     /// assert_eq!(it.next(), Some(3.0));
     /// assert_eq!(it.next(), None);
     #[inline]
-    pub fn iter(&self) -> MatrixIter<N, D, U1, <DefaultAllocator as Allocator<N, D>>::Buffer> {
+    pub fn iter(
+        &self,
+    ) -> MatrixIter<T, Const<D>, Const<1>, <DefaultAllocator as Allocator<T, Const<D>>>::Buffer>
+    {
         self.coords.iter()
     }
 
     /// Gets a reference to i-th element of this point without bound-checking.
     #[inline]
-    pub unsafe fn get_unchecked(&self, i: usize) -> &N {
+    pub unsafe fn get_unchecked(&self, i: usize) -> &T {
         self.coords.vget_unchecked(i)
     }
 
@@ -294,13 +265,14 @@ where
     #[inline]
     pub fn iter_mut(
         &mut self,
-    ) -> MatrixIterMut<N, D, U1, <DefaultAllocator as Allocator<N, D>>::Buffer> {
+    ) -> MatrixIterMut<T, Const<D>, Const<1>, <DefaultAllocator as Allocator<T, Const<D>>>::Buffer>
+    {
         self.coords.iter_mut()
     }
 
     /// Gets a mutable reference to i-th element of this point without bound-checking.
     #[inline]
-    pub unsafe fn get_unchecked_mut(&mut self, i: usize) -> &mut N {
+    pub unsafe fn get_unchecked_mut(&mut self, i: usize) -> &mut T {
         self.coords.vget_unchecked_mut(i)
     }
 
@@ -311,16 +283,15 @@ where
     }
 }
 
-impl<N: Scalar + AbsDiffEq, D: DimName> AbsDiffEq for Point<N, D>
+impl<T: Scalar + AbsDiffEq, const D: usize> AbsDiffEq for Point<T, D>
 where
-    DefaultAllocator: Allocator<N, D>,
-    N::Epsilon: Copy,
+    T::Epsilon: Copy,
 {
-    type Epsilon = N::Epsilon;
+    type Epsilon = T::Epsilon;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        N::default_epsilon()
+        T::default_epsilon()
     }
 
     #[inline]
@@ -329,14 +300,13 @@ where
     }
 }
 
-impl<N: Scalar + RelativeEq, D: DimName> RelativeEq for Point<N, D>
+impl<T: Scalar + RelativeEq, const D: usize> RelativeEq for Point<T, D>
 where
-    DefaultAllocator: Allocator<N, D>,
-    N::Epsilon: Copy,
+    T::Epsilon: Copy,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        N::default_max_relative()
+        T::default_max_relative()
     }
 
     #[inline]
@@ -351,14 +321,13 @@ where
     }
 }
 
-impl<N: Scalar + UlpsEq, D: DimName> UlpsEq for Point<N, D>
+impl<T: Scalar + UlpsEq, const D: usize> UlpsEq for Point<T, D>
 where
-    DefaultAllocator: Allocator<N, D>,
-    N::Epsilon: Copy,
+    T::Epsilon: Copy,
 {
     #[inline]
     fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
+        T::default_max_ulps()
     }
 
     #[inline]
@@ -367,22 +336,16 @@ where
     }
 }
 
-impl<N: Scalar + Eq, D: DimName> Eq for Point<N, D> where DefaultAllocator: Allocator<N, D> {}
+impl<T: Scalar + Eq, const D: usize> Eq for Point<T, D> {}
 
-impl<N: Scalar, D: DimName> PartialEq for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar, const D: usize> PartialEq for Point<T, D> {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.coords == right.coords
     }
 }
 
-impl<N: Scalar + PartialOrd, D: DimName> PartialOrd for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar + PartialOrd, const D: usize> PartialOrd for Point<T, D> {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.coords.partial_cmp(&other.coords)
@@ -412,25 +375,22 @@ where
 /*
  * inf/sup
  */
-impl<N: Scalar + SimdPartialOrd, D: DimName> Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar + SimdPartialOrd, const D: usize> Point<T, D> {
     /// Computes the infimum (aka. componentwise min) of two points.
     #[inline]
-    pub fn inf(&self, other: &Self) -> Point<N, D> {
+    pub fn inf(&self, other: &Self) -> Point<T, D> {
         self.coords.inf(&other.coords).into()
     }
 
     /// Computes the supremum (aka. componentwise max) of two points.
     #[inline]
-    pub fn sup(&self, other: &Self) -> Point<N, D> {
+    pub fn sup(&self, other: &Self) -> Point<T, D> {
         self.coords.sup(&other.coords).into()
     }
 
     /// Computes the (infimum, supremum) of two points.
     #[inline]
-    pub fn inf_sup(&self, other: &Self) -> (Point<N, D>, Point<N, D>) {
+    pub fn inf_sup(&self, other: &Self) -> (Point<T, D>, Point<T, D>) {
         let (inf, sup) = self.coords.inf_sup(&other.coords);
         (inf.into(), sup.into())
     }
@@ -441,10 +401,7 @@ where
  * Display
  *
  */
-impl<N: Scalar + fmt::Display, D: DimName> fmt::Display for Point<N, D>
-where
-    DefaultAllocator: Allocator<N, D>,
-{
+impl<T: Scalar + fmt::Display, const D: usize> fmt::Display for Point<T, D> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{{")?;
 

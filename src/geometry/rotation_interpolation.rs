@@ -1,7 +1,7 @@
 use crate::{RealField, Rotation2, Rotation3, SimdRealField, UnitComplex, UnitQuaternion};
 
 /// # Interpolation
-impl<N: SimdRealField> Rotation2<N> {
+impl<T: SimdRealField> Rotation2<T> {
     /// Spherical linear interpolation between two rotation matrices.
     ///
     /// # Examples:
@@ -18,9 +18,9 @@ impl<N: SimdRealField> Rotation2<N> {
     /// assert_relative_eq!(rot.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
     #[inline]
-    pub fn slerp(&self, other: &Self, t: N) -> Self
+    pub fn slerp(&self, other: &Self, t: T) -> Self
     where
-        N::Element: SimdRealField,
+        T::Element: SimdRealField,
     {
         let c1 = UnitComplex::from(*self);
         let c2 = UnitComplex::from(*other);
@@ -28,7 +28,7 @@ impl<N: SimdRealField> Rotation2<N> {
     }
 }
 
-impl<N: SimdRealField> Rotation3<N> {
+impl<T: SimdRealField> Rotation3<T> {
     /// Spherical linear interpolation between two rotation matrices.
     ///
     /// Panics if the angle between both rotations is 180 degrees (in which case the interpolation
@@ -47,9 +47,9 @@ impl<N: SimdRealField> Rotation3<N> {
     /// assert_eq!(q.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
-    pub fn slerp(&self, other: &Self, t: N) -> Self
+    pub fn slerp(&self, other: &Self, t: T) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
         let q1 = UnitQuaternion::from(*self);
         let q2 = UnitQuaternion::from(*other);
@@ -67,9 +67,9 @@ impl<N: SimdRealField> Rotation3<N> {
     /// * `epsilon`: the value below which the sinus of the angle separating both rotations
     /// must be to return `None`.
     #[inline]
-    pub fn try_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self>
+    pub fn try_slerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
     where
-        N: RealField,
+        T: RealField,
     {
         let q1 = Rotation3::from(*self);
         let q2 = Rotation3::from(*other);

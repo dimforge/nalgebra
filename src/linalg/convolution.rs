@@ -2,11 +2,11 @@ use std::cmp;
 
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
-use crate::base::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum};
+use crate::base::dimension::{Const, Dim, DimAdd, DimDiff, DimSub, DimSum};
 use crate::storage::Storage;
-use crate::{zero, RealField, Vector, VectorN, U1};
+use crate::{zero, OVector, RealField, Vector, U1};
 
-impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
+impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
     /// Returns the convolution of the target vector and a kernel.
     ///
     /// # Arguments
@@ -18,24 +18,29 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
     ///
     pub fn convolve_full<D2, S2>(
         &self,
-        kernel: Vector<N, D2, S2>,
-    ) -> VectorN<N, DimDiff<DimSum<D1, D2>, U1>>
+        kernel: Vector<T, D2, S2>,
+    ) -> OVector<T, DimDiff<DimSum<D1, D2>, U1>>
     where
         D1: DimAdd<D2>,
         D2: DimAdd<D1, Output = DimSum<D1, D2>>,
         DimSum<D1, D2>: DimSub<U1>,
-        S2: Storage<N, D2>,
-        DefaultAllocator: Allocator<N, DimDiff<DimSum<D1, D2>, U1>>,
+        S2: Storage<T, D2>,
+        DefaultAllocator: Allocator<T, DimDiff<DimSum<D1, D2>, U1>>,
     {
         let vec = self.len();
         let ker = kernel.len();
 
         if ker == 0 || ker > vec {
-            panic!("convolve_full expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
+            panic!("convolve_full expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.", vec, ker);
         }
 
-        let result_len = self.data.shape().0.add(kernel.data.shape().0).sub(U1);
-        let mut conv = VectorN::zeros_generic(result_len, U1);
+        let result_len = self
+            .data
+            .shape()
+            .0
+            .add(kernel.data.shape().0)
+            .sub(Const::<1>);
+        let mut conv = OVector::zeros_generic(result_len, Const::<1>);
 
         for i in 0..(vec + ker - 1) {
             let u_i = if i > vec { i - ker } else { 0 };
@@ -66,14 +71,14 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
     ///
     pub fn convolve_valid<D2, S2>(
         &self,
-        kernel: Vector<N, D2, S2>,
-    ) -> VectorN<N, DimDiff<DimSum<D1, U1>, D2>>
+        kernel: Vector<T, D2, S2>,
+    ) -> OVector<T, DimDiff<DimSum<D1, U1>, D2>>
     where
         D1: DimAdd<U1>,
         D2: Dim,
         DimSum<D1, U1>: DimSub<D2>,
-        S2: Storage<N, D2>,
-        DefaultAllocator: Allocator<N, DimDiff<DimSum<D1, U1>, D2>>,
+        S2: Storage<T, D2>,
+        DefaultAllocator: Allocator<T, DimDiff<DimSum<D1, U1>, D2>>,
     {
         let vec = self.len();
         let ker = kernel.len();
@@ -82,8 +87,13 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
             panic!("convolve_valid expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
         }
 
-        let result_len = self.data.shape().0.add(U1).sub(kernel.data.shape().0);
-        let mut conv = VectorN::zeros_generic(result_len, U1);
+        let result_len = self
+            .data
+            .shape()
+            .0
+            .add(Const::<1>)
+            .sub(kernel.data.shape().0);
+        let mut conv = OVector::zeros_generic(result_len, Const::<1>);
 
         for i in 0..(vec - ker + 1) {
             for j in 0..ker {
@@ -102,11 +112,11 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
     ///
     /// # Errors
     /// Inputs must satisfy `self.len() >= kernel.len() > 0`.
-    pub fn convolve_same<D2, S2>(&self, kernel: Vector<N, D2, S2>) -> VectorN<N, D1>
+    pub fn convolve_same<D2, S2>(&self, kernel: Vector<T, D2, S2>) -> OVector<T, D1>
     where
         D2: Dim,
-        S2: Storage<N, D2>,
-        DefaultAllocator: Allocator<N, D1>,
+        S2: Storage<T, D2>,
+        DefaultAllocator: Allocator<T, D1>,
     {
         let vec = self.len();
         let ker = kernel.len();
@@ -115,12 +125,12 @@ impl<N: RealField, D1: Dim, S1: Storage<N, D1>> Vector<N, D1, S1> {
             panic!("convolve_same expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
         }
 
-        let mut conv = VectorN::zeros_generic(self.data.shape().0, U1);
+        let mut conv = OVector::zeros_generic(self.data.shape().0, Const::<1>);
 
         for i in 0..vec {
             for j in 0..ker {
                 let val = if i + j < 1 || i + j >= vec + 1 {
-                    zero::<N>()
+                    zero::<T>()
                 } else {
                     self[i + j - 1]
                 };

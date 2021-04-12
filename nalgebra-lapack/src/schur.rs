@@ -8,9 +8,9 @@ use simba::scalar::RealField;
 
 use crate::ComplexHelper;
 use na::allocator::Allocator;
-use na::dimension::{Dim, U1};
+use na::dimension::{Const, Dim};
 use na::storage::Storage;
-use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
+use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
 
@@ -19,53 +19,53 @@ use lapack;
 #[cfg_attr(
     feature = "serde-serialize",
     serde(
-        bound(serialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
-         VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Serialize")
+        bound(serialize = "DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+         OVector<T, D>: Serialize,
+         OMatrix<T, D, D>: Serialize")
     )
 )]
 #[cfg_attr(
     feature = "serde-serialize",
     serde(
-        bound(deserialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
-         VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Deserialize<'de>")
+        bound(deserialize = "DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+         OVector<T, D>: Serialize,
+         OMatrix<T, D, D>: Deserialize<'de>")
     )
 )]
 #[derive(Clone, Debug)]
-pub struct Schur<N: Scalar, D: Dim>
+pub struct Schur<T: Scalar, D: Dim>
 where
-    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
 {
-    re: VectorN<N, D>,
-    im: VectorN<N, D>,
-    t: MatrixN<N, D>,
-    q: MatrixN<N, D>,
+    re: OVector<T, D>,
+    im: OVector<T, D>,
+    t: OMatrix<T, D, D>,
+    q: OMatrix<T, D, D>,
 }
 
-impl<N: Scalar + Copy, D: Dim> Copy for Schur<N, D>
+impl<T: Scalar + Copy, D: Dim> Copy for Schur<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
-    MatrixN<N, D>: Copy,
-    VectorN<N, D>: Copy,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    OMatrix<T, D, D>: Copy,
+    OVector<T, D>: Copy,
 {
 }
 
-impl<N: SchurScalar + RealField, D: Dim> Schur<N, D>
+impl<T: SchurScalar + RealField, D: Dim> Schur<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
     /// Computes the eigenvalues and real Schur form of the matrix `m`.
     ///
     /// Panics if the method did not converge.
-    pub fn new(m: MatrixN<N, D>) -> Self {
+    pub fn new(m: OMatrix<T, D, D>) -> Self {
         Self::try_new(m).expect("Schur decomposition: convergence failed.")
     }
 
     /// Computes the eigenvalues and real Schur form of the matrix `m`.
     ///
     /// Returns `None` if the method did not converge.
-    pub fn try_new(mut m: MatrixN<N, D>) -> Option<Self> {
+    pub fn try_new(mut m: OMatrix<T, D, D>) -> Option<Self> {
         assert!(
             m.is_square(),
             "Unable to compute the eigenvalue decomposition of a non-square matrix."
@@ -78,16 +78,16 @@ where
 
         let mut info = 0;
 
-        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
-        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
+        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
         let mut q = unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
         // Placeholders:
         let mut bwork = [0i32];
         let mut unused = 0;
 
-        let lwork = N::xgees_work_size(
+        let lwork = T::xgees_work_size(
             b'V',
-            b'N',
+            b'T',
             n as i32,
             m.as_mut_slice(),
             lda,
@@ -103,9 +103,9 @@ where
 
         let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
-        N::xgees(
+        T::xgees(
             b'V',
-            b'N',
+            b'T',
             n as i32,
             m.as_mut_slice(),
             lda,
@@ -131,14 +131,14 @@ where
 
     /// Retrieves the unitary matrix `Q` and the upper-quasitriangular matrix `T` such that the
     /// decomposed matrix equals `Q * T * Q.transpose()`.
-    pub fn unpack(self) -> (MatrixN<N, D>, MatrixN<N, D>) {
+    pub fn unpack(self) -> (OMatrix<T, D, D>, OMatrix<T, D, D>) {
         (self.q, self.t)
     }
 
     /// Computes the real eigenvalues of the decomposed matrix.
     ///
     /// Return `None` if some eigenvalues are complex.
-    pub fn eigenvalues(&self) -> Option<VectorN<N, D>> {
+    pub fn eigenvalues(&self) -> Option<OVector<T, D>> {
         if self.im.iter().all(|e| e.is_zero()) {
             Some(self.re.clone())
         } else {
@@ -147,12 +147,13 @@ where
     }
 
     /// Computes the complex eigenvalues of the decomposed matrix.
-    pub fn complex_eigenvalues(&self) -> VectorN<Complex<N>, D>
+    pub fn complex_eigenvalues(&self) -> OVector<Complex<T>, D>
     where
-        DefaultAllocator: Allocator<Complex<N>, D>,
+        DefaultAllocator: Allocator<Complex<T>, D>,
     {
-        let mut out =
-            unsafe { VectorN::new_uninitialized_generic(self.t.data.shape().0, U1).assume_init() };
+        let mut out = unsafe {
+            OVector::new_uninitialized_generic(self.t.data.shape().0, Const::<1>).assume_init()
+        };
 
         for i in 0..out.len() {
             out[i] = Complex::new(self.re[i], self.im[i])

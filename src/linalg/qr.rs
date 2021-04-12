@@ -3,9 +3,9 @@ use num::Zero;
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::{Allocator, Reallocator};
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Unit, VectorN};
+use crate::base::{DefaultAllocator, Matrix, OMatrix, OVector, Unit};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimMin, DimMinimum, U1};
+use crate::dimension::{Const, Dim, DimMin, DimMinimum};
 use crate::storage::{Storage, StorageMut};
 use simba::scalar::ComplexField;
 
@@ -16,46 +16,46 @@ use crate::linalg::householder;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, R, C> +
-                           Allocator<N, DimMinimum<R, C>>,
-         MatrixMN<N, R, C>: Serialize,
-         VectorN<N, DimMinimum<R, C>>: Serialize"))
+    serde(bound(serialize = "DefaultAllocator: Allocator<T, R, C> +
+                           Allocator<T, DimMinimum<R, C>>,
+         OMatrix<T, R, C>: Serialize,
+         OVector<T, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, R, C> +
-                           Allocator<N, DimMinimum<R, C>>,
-         MatrixMN<N, R, C>: Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<T, R, C> +
+                           Allocator<T, DimMinimum<R, C>>,
+         OMatrix<T, R, C>: Deserialize<'de>,
+         OVector<T, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct QR<N: ComplexField, R: DimMin<C>, C: Dim>
+pub struct QR<T: ComplexField, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
 {
-    qr: MatrixMN<N, R, C>,
-    diag: VectorN<N, DimMinimum<R, C>>,
+    qr: OMatrix<T, R, C>,
+    diag: OVector<T, DimMinimum<R, C>>,
 }
 
-impl<N: ComplexField, R: DimMin<C>, C: Dim> Copy for QR<N, R, C>
+impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for QR<T, R, C>
 where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N, DimMinimum<R, C>>,
-    MatrixMN<N, R, C>: Copy,
-    VectorN<N, DimMinimum<R, C>>: Copy,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
+    OMatrix<T, R, C>: Copy,
+    OVector<T, DimMinimum<R, C>>: Copy,
 {
 }
 
-impl<N: ComplexField, R: DimMin<C>, C: Dim> QR<N, R, C>
+impl<T: ComplexField, R: DimMin<C>, C: Dim> QR<T, R, C>
 where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<T, R> + Allocator<T, DimMinimum<R, C>>,
 {
     /// Computes the QR decomposition using householder reflections.
-    pub fn new(mut matrix: MatrixMN<N, R, C>) -> Self {
+    pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
         let (nrows, ncols) = matrix.data.shape();
         let min_nrows_ncols = nrows.min(ncols);
 
         let mut diag =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(min_nrows_ncols, U1) };
+            unsafe { crate::unimplemented_or_uninitialized_generic!(min_nrows_ncols, Const::<1>) };
 
         if min_nrows_ncols.value() == 0 {
             return QR { qr: matrix, diag };
@@ -70,13 +70,13 @@ where
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
     #[inline]
-    pub fn r(&self) -> MatrixMN<N, DimMinimum<R, C>, C>
+    pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
-        DefaultAllocator: Allocator<N, DimMinimum<R, C>, C>,
+        DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
     {
         let (nrows, ncols) = self.qr.data.shape();
         let mut res = self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle();
-        res.set_partial_diagonal(self.diag.iter().map(|e| N::from_real(e.modulus())));
+        res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.modulus())));
         res
     }
 
@@ -84,21 +84,21 @@ where
     ///
     /// This is usually faster than `r` but consumes `self`.
     #[inline]
-    pub fn unpack_r(self) -> MatrixMN<N, DimMinimum<R, C>, C>
+    pub fn unpack_r(self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
-        DefaultAllocator: Reallocator<N, R, C, DimMinimum<R, C>, C>,
+        DefaultAllocator: Reallocator<T, R, C, DimMinimum<R, C>, C>,
     {
         let (nrows, ncols) = self.qr.data.shape();
-        let mut res = self.qr.resize_generic(nrows.min(ncols), ncols, N::zero());
-        res.fill_lower_triangle(N::zero(), 1);
-        res.set_partial_diagonal(self.diag.iter().map(|e| N::from_real(e.modulus())));
+        let mut res = self.qr.resize_generic(nrows.min(ncols), ncols, T::zero());
+        res.fill_lower_triangle(T::zero(), 1);
+        res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.modulus())));
         res
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
-    pub fn q(&self) -> MatrixMN<N, R, DimMinimum<R, C>>
+    pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
-        DefaultAllocator: Allocator<N, R, DimMinimum<R, C>>,
+        DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.qr.data.shape();
 
@@ -110,7 +110,7 @@ where
         for i in (0..dim).rev() {
             let axis = self.qr.slice_range(i.., i);
             // TODO: sometimes, the axis might have a zero magnitude.
-            let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
+            let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
             let mut res_rows = res.slice_range_mut(i.., i..);
             refl.reflect_with_sign(&mut res_rows, self.diag[i].signum());
@@ -123,33 +123,33 @@ where
     pub fn unpack(
         self,
     ) -> (
-        MatrixMN<N, R, DimMinimum<R, C>>,
-        MatrixMN<N, DimMinimum<R, C>, C>,
+        OMatrix<T, R, DimMinimum<R, C>>,
+        OMatrix<T, DimMinimum<R, C>, C>,
     )
     where
         DimMinimum<R, C>: DimMin<C, Output = DimMinimum<R, C>>,
         DefaultAllocator:
-            Allocator<N, R, DimMinimum<R, C>> + Reallocator<N, R, C, DimMinimum<R, C>, C>,
+            Allocator<T, R, DimMinimum<R, C>> + Reallocator<T, R, C, DimMinimum<R, C>, C>,
     {
         (self.q(), self.unpack_r())
     }
 
     #[doc(hidden)]
-    pub fn qr_internal(&self) -> &MatrixMN<N, R, C> {
+    pub fn qr_internal(&self) -> &OMatrix<T, R, C> {
         &self.qr
     }
 
     /// Multiplies the provided matrix by the transpose of the `Q` matrix of this decomposition.
-    pub fn q_tr_mul<R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<N, R2, C2, S2>)
+    pub fn q_tr_mul<R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<T, R2, C2, S2>)
     // TODO: do we need a static constraint on the number of rows of rhs?
     where
-        S2: StorageMut<N, R2, C2>,
+        S2: StorageMut<T, R2, C2>,
     {
         let dim = self.diag.len();
 
         for i in 0..dim {
             let axis = self.qr.slice_range(i.., i);
-            let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
+            let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
             let mut rhs_rows = rhs.rows_range_mut(i..);
             refl.reflect_with_sign(&mut rhs_rows, self.diag[i].signum().conjugate());
@@ -157,21 +157,21 @@ where
     }
 }
 
-impl<N: ComplexField, D: DimMin<D, Output = D>> QR<N, D, D>
+impl<T: ComplexField, D: DimMin<D, Output = D>> QR<T, D, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
     /// Returns `None` if `self` is not invertible.
     pub fn solve<R2: Dim, C2: Dim, S2>(
         &self,
-        b: &Matrix<N, R2, C2, S2>,
-    ) -> Option<MatrixMN<N, R2, C2>>
+        b: &Matrix<T, R2, C2, S2>,
+    ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: Storage<N, R2, C2>,
+        S2: Storage<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
-        DefaultAllocator: Allocator<N, R2, C2>,
+        DefaultAllocator: Allocator<T, R2, C2>,
     {
         let mut res = b.clone_owned();
 
@@ -186,9 +186,9 @@ where
     ///
     /// If the decomposed matrix is not invertible, this returns `false` and its input `b` is
     /// overwritten with garbage.
-    pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<N, R2, C2, S2>) -> bool
+    pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<T, R2, C2, S2>) -> bool
     where
-        S2: StorageMut<N, R2, C2>,
+        S2: StorageMut<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         assert_eq!(
@@ -208,10 +208,10 @@ where
     // TODO: duplicate code from the `solve` module.
     fn solve_upper_triangular_mut<R2: Dim, C2: Dim, S2>(
         &self,
-        b: &mut Matrix<N, R2, C2, S2>,
+        b: &mut Matrix<T, R2, C2, S2>,
     ) -> bool
     where
-        S2: StorageMut<N, R2, C2>,
+        S2: StorageMut<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let dim = self.qr.nrows();
@@ -233,7 +233,7 @@ where
                 }
 
                 b.rows_range_mut(..i)
-                    .axpy(-coeff, &self.qr.slice_range(..i, i), N::one());
+                    .axpy(-coeff, &self.qr.slice_range(..i, i), T::one());
             }
         }
 
@@ -243,7 +243,7 @@ where
     /// Computes the inverse of the decomposed matrix.
     ///
     /// Returns `None` if the decomposed matrix is not invertible.
-    pub fn try_inverse(&self) -> Option<MatrixN<N, D>> {
+    pub fn try_inverse(&self) -> Option<OMatrix<T, D, D>> {
         assert!(
             self.qr.is_square(),
             "QR inverse: unable to compute the inverse of a non-square matrix."
@@ -251,7 +251,7 @@ where
 
         // TODO: is there a less naive method ?
         let (nrows, ncols) = self.qr.data.shape();
-        let mut res = MatrixN::identity_generic(nrows, ncols);
+        let mut res = OMatrix::identity_generic(nrows, ncols);
 
         if self.solve_mut(&mut res) {
             Some(res)
@@ -277,11 +277,11 @@ where
     }
 
     // /// Computes the determinant of the decomposed matrix.
-    // pub fn determinant(&self) -> N {
+    // pub fn determinant(&self) -> T {
     //     let dim = self.qr.nrows();
     //     assert!(self.qr.is_square(), "QR determinant: unable to compute the determinant of a non-square matrix.");
 
-    //     let mut res = N::one();
+    //     let mut res = T::one();
     //     for i in 0 .. dim {
     //         res *= unsafe { *self.diag.vget_unchecked(i) };
     //     }

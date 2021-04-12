@@ -1,14 +1,11 @@
-use na::{DefaultAllocator, Point3, RealField, Rotation3, Unit};
+use na::{Point3, RealField, Rotation3, Unit};
 
 use crate::aliases::{TMat, TMat4, TVec, TVec3};
-use crate::traits::{Alloc, Dimension, Number};
+use crate::traits::Number;
 
 /// The identity matrix.
-pub fn identity<N: Number, D: Dimension>() -> TMat<N, D, D>
-where
-    DefaultAllocator: Alloc<N, D, D>,
-{
-    TMat::<N, D, D>::identity()
+pub fn identity<T: Number, const D: usize>() -> TMat<T, D, D> {
+    TMat::<T, D, D>::identity()
 }
 
 /// Build a look at view matrix based on the right handedness.
@@ -23,7 +20,7 @@ where
 ///
 /// * [`look_at_lh`](fn.look_at_lh.html)
 /// * [`look_at_rh`](fn.look_at_rh.html)
-pub fn look_at<N: RealField>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
+pub fn look_at<T: RealField>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
     look_at_rh(eye, center, up)
 }
 
@@ -39,7 +36,7 @@ pub fn look_at<N: RealField>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -
 ///
 /// * [`look_at`](fn.look_at.html)
 /// * [`look_at_rh`](fn.look_at_rh.html)
-pub fn look_at_lh<N: RealField>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
+pub fn look_at_lh<T: RealField>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
     TMat::look_at_lh(&Point3::from(*eye), &Point3::from(*center), up)
 }
 
@@ -55,7 +52,7 @@ pub fn look_at_lh<N: RealField>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>
 ///
 /// * [`look_at`](fn.look_at.html)
 /// * [`look_at_lh`](fn.look_at_lh.html)
-pub fn look_at_rh<N: RealField>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>) -> TMat4<N> {
+pub fn look_at_rh<T: RealField>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
     TMat::look_at_rh(&Point3::from(*eye), &Point3::from(*center), up)
 }
 
@@ -74,7 +71,7 @@ pub fn look_at_rh<N: RealField>(eye: &TVec3<N>, center: &TVec3<N>, up: &TVec3<N>
 /// * [`rotate_z`](fn.rotate_z.html)
 /// * [`scale`](fn.scale.html)
 /// * [`translate`](fn.translate.html)
-pub fn rotate<N: RealField>(m: &TMat4<N>, angle: N, axis: &TVec3<N>) -> TMat4<N> {
+pub fn rotate<T: RealField>(m: &TMat4<T>, angle: T, axis: &TVec3<T>) -> TMat4<T> {
     m * Rotation3::from_axis_angle(&Unit::new_normalize(*axis), angle).to_homogeneous()
 }
 
@@ -92,7 +89,7 @@ pub fn rotate<N: RealField>(m: &TMat4<N>, angle: N, axis: &TVec3<N>) -> TMat4<N>
 /// * [`rotate_z`](fn.rotate_z.html)
 /// * [`scale`](fn.scale.html)
 /// * [`translate`](fn.translate.html)
-pub fn rotate_x<N: RealField>(m: &TMat4<N>, angle: N) -> TMat4<N> {
+pub fn rotate_x<T: RealField>(m: &TMat4<T>, angle: T) -> TMat4<T> {
     rotate(m, angle, &TVec::x())
 }
 
@@ -110,7 +107,7 @@ pub fn rotate_x<N: RealField>(m: &TMat4<N>, angle: N) -> TMat4<N> {
 /// * [`rotate_z`](fn.rotate_z.html)
 /// * [`scale`](fn.scale.html)
 /// * [`translate`](fn.translate.html)
-pub fn rotate_y<N: RealField>(m: &TMat4<N>, angle: N) -> TMat4<N> {
+pub fn rotate_y<T: RealField>(m: &TMat4<T>, angle: T) -> TMat4<T> {
     rotate(m, angle, &TVec::y())
 }
 
@@ -128,7 +125,7 @@ pub fn rotate_y<N: RealField>(m: &TMat4<N>, angle: N) -> TMat4<N> {
 /// * [`rotate_y`](fn.rotate_y.html)
 /// * [`scale`](fn.scale.html)
 /// * [`translate`](fn.translate.html)
-pub fn rotate_z<N: RealField>(m: &TMat4<N>, angle: N) -> TMat4<N> {
+pub fn rotate_z<T: RealField>(m: &TMat4<T>, angle: T) -> TMat4<T> {
     rotate(m, angle, &TVec::z())
 }
 
@@ -146,7 +143,7 @@ pub fn rotate_z<N: RealField>(m: &TMat4<N>, angle: N) -> TMat4<N> {
 /// * [`rotate_y`](fn.rotate_y.html)
 /// * [`rotate_z`](fn.rotate_z.html)
 /// * [`translate`](fn.translate.html)
-pub fn scale<N: Number>(m: &TMat4<N>, v: &TVec3<N>) -> TMat4<N> {
+pub fn scale<T: Number>(m: &TMat4<T>, v: &TVec3<T>) -> TMat4<T> {
     m.prepend_nonuniform_scaling(v)
 }
 
@@ -164,6 +161,6 @@ pub fn scale<N: Number>(m: &TMat4<N>, v: &TVec3<N>) -> TMat4<N> {
 /// * [`rotate_y`](fn.rotate_y.html)
 /// * [`rotate_z`](fn.rotate_z.html)
 /// * [`scale`](fn.scale.html)
-pub fn translate<N: Number>(m: &TMat4<N>, v: &TVec3<N>) -> TMat4<N> {
+pub fn translate<T: Number>(m: &TMat4<T>, v: &TVec3<T>) -> TMat4<T> {
     m.prepend_translation(v)
 }

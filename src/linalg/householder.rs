@@ -1,7 +1,7 @@
 //! Construction of householder elementary reflections.
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, MatrixMN, MatrixN, Unit, Vector, VectorN};
+use crate::base::{DefaultAllocator, OMatrix, OVector, Unit, Vector};
 use crate::dimension::Dim;
 use crate::storage::{Storage, StorageMut};
 use num::Zero;
@@ -16,9 +16,9 @@ use crate::geometry::Reflection;
 /// `column` after reflection and `false` if no reflection was necessary.
 #[doc(hidden)]
 #[inline(always)]
-pub fn reflection_axis_mut<N: ComplexField, D: Dim, S: StorageMut<N, D>>(
-    column: &mut Vector<N, D, S>,
-) -> (N, bool) {
+pub fn reflection_axis_mut<T: ComplexField, D: Dim, S: StorageMut<T, D>>(
+    column: &mut Vector<T, D, S>,
+) -> (T, bool) {
     let reflection_sq_norm = column.norm_squared();
     let reflection_norm = reflection_sq_norm.sqrt();
 
@@ -44,14 +44,14 @@ pub fn reflection_axis_mut<N: ComplexField, D: Dim, S: StorageMut<N, D>>(
 /// Uses an householder reflection to zero out the `icol`-th column, starting with the `shift + 1`-th
 /// subdiagonal element.
 #[doc(hidden)]
-pub fn clear_column_unchecked<N: ComplexField, R: Dim, C: Dim>(
-    matrix: &mut MatrixMN<N, R, C>,
-    diag_elt: &mut N,
+pub fn clear_column_unchecked<T: ComplexField, R: Dim, C: Dim>(
+    matrix: &mut OMatrix<T, R, C>,
+    diag_elt: &mut T,
     icol: usize,
     shift: usize,
-    bilateral: Option<&mut VectorN<N, R>>,
+    bilateral: Option<&mut OVector<T, R>>,
 ) where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N, R>,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<T, R>,
 {
     let (mut left, mut right) = matrix.columns_range_pair_mut(icol, icol + 1..);
     let mut axis = left.rows_range_mut(icol + shift..);
@@ -60,7 +60,7 @@ pub fn clear_column_unchecked<N: ComplexField, R: Dim, C: Dim>(
     *diag_elt = reflection_norm;
 
     if not_zero {
-        let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
+        let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
         let sign = reflection_norm.signum();
         if let Some(mut work) = bilateral {
             refl.reflect_rows_with_sign(&mut right, &mut work, sign);
@@ -72,15 +72,15 @@ pub fn clear_column_unchecked<N: ComplexField, R: Dim, C: Dim>(
 /// Uses an householder reflection to zero out the `irow`-th row, ending before the `shift + 1`-th
 /// superdiagonal element.
 #[doc(hidden)]
-pub fn clear_row_unchecked<N: ComplexField, R: Dim, C: Dim>(
-    matrix: &mut MatrixMN<N, R, C>,
-    diag_elt: &mut N,
-    axis_packed: &mut VectorN<N, C>,
-    work: &mut VectorN<N, R>,
+pub fn clear_row_unchecked<T: ComplexField, R: Dim, C: Dim>(
+    matrix: &mut OMatrix<T, R, C>,
+    diag_elt: &mut T,
+    axis_packed: &mut OVector<T, C>,
+    work: &mut OVector<T, R>,
     irow: usize,
     shift: usize,
 ) where
-    DefaultAllocator: Allocator<N, R, C> + Allocator<N, R> + Allocator<N, C>,
+    DefaultAllocator: Allocator<T, R, C> + Allocator<T, R> + Allocator<T, C>,
 {
     let (mut top, mut bottom) = matrix.rows_range_pair_mut(irow, irow + 1..);
     let mut axis = axis_packed.rows_range_mut(irow + shift..);
@@ -91,7 +91,7 @@ pub fn clear_row_unchecked<N: ComplexField, R: Dim, C: Dim>(
     *diag_elt = reflection_norm;
 
     if not_zero {
-        let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
+        let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
         refl.reflect_rows_with_sign(
             &mut bottom.columns_range_mut(irow + shift..),
             &mut work.rows_range_mut(irow + 1..),
@@ -108,20 +108,20 @@ pub fn clear_row_unchecked<N: ComplexField, R: Dim, C: Dim>(
 /// the lower-diagonal element of the given matrix.
 /// matrices.
 #[doc(hidden)]
-pub fn assemble_q<N: ComplexField, D: Dim>(m: &MatrixN<N, D>, signs: &[N]) -> MatrixN<N, D>
+pub fn assemble_q<T: ComplexField, D: Dim>(m: &OMatrix<T, D, D>, signs: &[T]) -> OMatrix<T, D, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     assert!(m.is_square());
     let dim = m.data.shape().0;
 
     // NOTE: we could build the identity matrix and call p_mult on it.
     // Instead we don't so that we take in account the matrix sparseness.
-    let mut res = MatrixN::identity_generic(dim, dim);
+    let mut res = OMatrix::identity_generic(dim, dim);
 
     for i in (0..dim.value() - 1).rev() {
         let axis = m.slice_range(i + 1.., i);
-        let refl = Reflection::new(Unit::new_unchecked(axis), N::zero());
+        let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
         let mut res_rows = res.slice_range_mut(i + 1.., i..);
         refl.reflect_with_sign(&mut res_rows, signs[i].signum());

@@ -3,26 +3,26 @@ use na::RealField;
 use crate::aliases::Qua;
 
 /// Multiplies two quaternions.
-pub fn quat_cross<N: RealField>(q1: &Qua<N>, q2: &Qua<N>) -> Qua<N> {
+pub fn quat_cross<T: RealField>(q1: &Qua<T>, q2: &Qua<T>) -> Qua<T> {
     q1 * q2
 }
 
 /// The scalar product of two quaternions.
-pub fn quat_dot<N: RealField>(x: &Qua<N>, y: &Qua<N>) -> N {
+pub fn quat_dot<T: RealField>(x: &Qua<T>, y: &Qua<T>) -> T {
     x.dot(y)
 }
 
 /// The magnitude of the quaternion `q`.
-pub fn quat_length<N: RealField>(q: &Qua<N>) -> N {
+pub fn quat_length<T: RealField>(q: &Qua<T>) -> T {
     q.norm()
 }
 
 /// The magnitude of the quaternion `q`.
-pub fn quat_magnitude<N: RealField>(q: &Qua<N>) -> N {
+pub fn quat_magnitude<T: RealField>(q: &Qua<T>) -> T {
     q.norm()
 }
 
 /// Normalizes the quaternion `q`.
-pub fn quat_normalize<N: RealField>(q: &Qua<N>) -> Qua<N> {
+pub fn quat_normalize<T: RealField>(q: &Qua<T>) -> Qua<T> {
     q.normalize()
 }

@@ -12,7 +12,7 @@ use crate::base::constraint::{
 };
 use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
 use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, MatrixSum, Scalar, VectorSliceN};
+use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorSlice};
 use crate::SimdComplexField;
 
 /*
@@ -20,8 +20,8 @@ use crate::SimdComplexField;
  * Indexing.
  *
  */
-impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Index<usize> for Matrix<N, R, C, S> {
-    type Output = N;
+impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Index<usize> for Matrix<T, R, C, S> {
+    type Output = T;
 
     #[inline]
     fn index(&self, i: usize) -> &Self::Output {
@@ -30,12 +30,12 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Index<usize> for Matrix<N, 
     }
 }
 
-impl<N, R: Dim, C: Dim, S> Index<(usize, usize)> for Matrix<N, R, C, S>
+impl<T, R: Dim, C: Dim, S> Index<(usize, usize)> for Matrix<T, R, C, S>
 where
-    N: Scalar,
-    S: Storage<N, R, C>,
+    T: Scalar,
+    S: Storage<T, R, C>,
 {
-    type Output = N;
+    type Output = T;
 
     #[inline]
     fn index(&self, ij: (usize, usize)) -> &Self::Output {
@@ -50,21 +50,21 @@ where
 }
 
 // Mutable versions.
-impl<N: Scalar, R: Dim, C: Dim, S: StorageMut<N, R, C>> IndexMut<usize> for Matrix<N, R, C, S> {
+impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> IndexMut<usize> for Matrix<T, R, C, S> {
     #[inline]
-    fn index_mut(&mut self, i: usize) -> &mut N {
+    fn index_mut(&mut self, i: usize) -> &mut T {
         let ij = self.vector_to_matrix_index(i);
         &mut self[ij]
     }
 }
 
-impl<N, R: Dim, C: Dim, S> IndexMut<(usize, usize)> for Matrix<N, R, C, S>
+impl<T, R: Dim, C: Dim, S> IndexMut<(usize, usize)> for Matrix<T, R, C, S>
 where
-    N: Scalar,
-    S: StorageMut<N, R, C>,
+    T: Scalar,
+    S: StorageMut<T, R, C>,
 {
     #[inline]
-    fn index_mut(&mut self, ij: (usize, usize)) -> &mut N {
+    fn index_mut(&mut self, ij: (usize, usize)) -> &mut T {
         let shape = self.shape();
         assert!(
             ij.0 < shape.0 && ij.1 < shape.1,
@@ -80,13 +80,13 @@ where
  * Neg
  *
  */
-impl<N, R: Dim, C: Dim, S> Neg for Matrix<N, R, C, S>
+impl<T, R: Dim, C: Dim, S> Neg for Matrix<T, R, C, S>
 where
-    N: Scalar + ClosedNeg,
-    S: Storage<N, R, C>,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + ClosedNeg,
+    S: Storage<T, R, C>,
+    DefaultAllocator: Allocator<T, R, C>,
 {
-    type Output = MatrixMN<N, R, C>;
+    type Output = OMatrix<T, R, C>;
 
     #[inline]
     fn neg(self) -> Self::Output {
@@ -96,13 +96,13 @@ where
     }
 }
 
-impl<'a, N, R: Dim, C: Dim, S> Neg for &'a Matrix<N, R, C, S>
+impl<'a, T, R: Dim, C: Dim, S> Neg for &'a Matrix<T, R, C, S>
 where
-    N: Scalar + ClosedNeg,
-    S: Storage<N, R, C>,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + ClosedNeg,
+    S: Storage<T, R, C>,
+    DefaultAllocator: Allocator<T, R, C>,
 {
-    type Output = MatrixMN<N, R, C>;
+    type Output = OMatrix<T, R, C>;
 
     #[inline]
     fn neg(self) -> Self::Output {
@@ -110,10 +110,10 @@ where
     }
 }
 
-impl<N, R: Dim, C: Dim, S> Matrix<N, R, C, S>
+impl<T, R: Dim, C: Dim, S> Matrix<T, R, C, S>
 where
-    N: Scalar + ClosedNeg,
-    S: StorageMut<N, R, C>,
+    T: Scalar + ClosedNeg,
+    S: StorageMut<T, R, C>,
 {
     /// Negates `self` in-place.
     #[inline]
@@ -136,8 +136,8 @@ macro_rules! componentwise_binop_impl(
      $method_assign_statically_unchecked_rhs: ident;
      $method_to: ident, $method_to_statically_unchecked: ident) => {
 
-        impl<N, R1: Dim, C1: Dim, SA: Storage<N, R1, C1>> Matrix<N, R1, C1, SA>
-            where N: Scalar + $bound {
+        impl<T, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA>
+            where T: Scalar + $bound {
 
             /*
              *
@@ -149,10 +149,10 @@ macro_rules! componentwise_binop_impl(
             #[inline]
             fn $method_to_statically_unchecked<R2: Dim, C2: Dim, SB,
                                                R3: Dim, C3: Dim, SC>(&self,
-                                                                     rhs: &Matrix<N, R2, C2, SB>,
-                                                                     out: &mut Matrix<N, R3, C3, SC>)
-                where SB: Storage<N, R2, C2>,
-                      SC: StorageMut<N, R3, C3> {
+                                                                     rhs: &Matrix<T, R2, C2, SB>,
+                                                                     out: &mut Matrix<T, R3, C3, SC>)
+                where SB: Storage<T, R2, C2>,
+                      SC: StorageMut<T, R3, C3> {
                 assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
                 assert_eq!(self.shape(), out.shape(), "Matrix addition/subtraction output dimensions mismatch.");
 
@@ -182,11 +182,11 @@ macro_rules! componentwise_binop_impl(
 
 
             #[inline]
-            fn $method_assign_statically_unchecked<R2, C2, SB>(&mut self, rhs: &Matrix<N, R2, C2, SB>)
+            fn $method_assign_statically_unchecked<R2, C2, SB>(&mut self, rhs: &Matrix<T, R2, C2, SB>)
                 where R2: Dim,
                       C2: Dim,
-                      SA: StorageMut<N, R1, C1>,
-                      SB: Storage<N, R2, C2> {
+                      SA: StorageMut<T, R1, C1>,
+                      SB: Storage<T, R2, C2> {
                 assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
 
                 // This is the most common case and should be deduced at compile-time.
@@ -213,10 +213,10 @@ macro_rules! componentwise_binop_impl(
 
 
             #[inline]
-            fn $method_assign_statically_unchecked_rhs<R2, C2, SB>(&self, rhs: &mut Matrix<N, R2, C2, SB>)
+            fn $method_assign_statically_unchecked_rhs<R2, C2, SB>(&self, rhs: &mut Matrix<T, R2, C2, SB>)
                 where R2: Dim,
                       C2: Dim,
-                      SB: StorageMut<N, R2, C2> {
+                      SB: StorageMut<T, R2, C2> {
                 assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
 
                 // This is the most common case and should be deduced at compile-time.
@@ -255,27 +255,27 @@ macro_rules! componentwise_binop_impl(
             #[inline]
             pub fn $method_to<R2: Dim, C2: Dim, SB,
                               R3: Dim, C3: Dim, SC>(&self,
-                                                    rhs: &Matrix<N, R2, C2, SB>,
-                                                    out: &mut Matrix<N, R3, C3, SC>)
-                where SB: Storage<N, R2, C2>,
-                      SC: StorageMut<N, R3, C3>,
+                                                    rhs: &Matrix<T, R2, C2, SB>,
+                                                    out: &mut Matrix<T, R3, C3, SC>)
+                where SB: Storage<T, R2, C2>,
+                      SC: StorageMut<T, R3, C3>,
                       ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> +
                                        SameNumberOfRows<R1, R3> + SameNumberOfColumns<C1, C3> {
                 self.$method_to_statically_unchecked(rhs, out)
             }
         }
 
-        impl<'b, N, R1, C1, R2, C2, SA, SB> $Trait<&'b Matrix<N, R2, C2, SB>> for Matrix<N, R1, C1, SA>
+        impl<'b, T, R1, C1, R2, C2, SA, SB> $Trait<&'b Matrix<T, R2, C2, SB>> for Matrix<T, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + $bound,
-                  SA: Storage<N, R1, C1>,
-                  SB: Storage<N, R2, C2>,
-                  DefaultAllocator: SameShapeAllocator<N, R1, C1, R2, C2>,
+                  T: Scalar + $bound,
+                  SA: Storage<T, R1, C1>,
+                  SB: Storage<T, R2, C2>,
+                  DefaultAllocator: SameShapeAllocator<T, R1, C1, R2, C2>,
                   ShapeConstraint:  SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
-            type Output = MatrixSum<N, R1, C1, R2, C2>;
+            type Output = MatrixSum<T, R1, C1, R2, C2>;
 
             #[inline]
-            fn $method(self, rhs: &'b Matrix<N, R2, C2, SB>) -> Self::Output {
+            fn $method(self, rhs: &'b Matrix<T, R2, C2, SB>) -> Self::Output {
                 assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
                 let mut res = self.into_owned_sum::<R2, C2>();
                 res.$method_assign_statically_unchecked(rhs);
@@ -283,17 +283,17 @@ macro_rules! componentwise_binop_impl(
             }
         }
 
-        impl<'a, N, R1, C1, R2, C2, SA, SB> $Trait<Matrix<N, R2, C2, SB>> for &'a Matrix<N, R1, C1, SA>
+        impl<'a, T, R1, C1, R2, C2, SA, SB> $Trait<Matrix<T, R2, C2, SB>> for &'a Matrix<T, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + $bound,
-                  SA: Storage<N, R1, C1>,
-                  SB: Storage<N, R2, C2>,
-                  DefaultAllocator: SameShapeAllocator<N, R2, C2, R1, C1>,
+                  T: Scalar + $bound,
+                  SA: Storage<T, R1, C1>,
+                  SB: Storage<T, R2, C2>,
+                  DefaultAllocator: SameShapeAllocator<T, R2, C2, R1, C1>,
                   ShapeConstraint:  SameNumberOfRows<R2, R1> + SameNumberOfColumns<C2, C1> {
-            type Output = MatrixSum<N, R2, C2, R1, C1>;
+            type Output = MatrixSum<T, R2, C2, R1, C1>;
 
             #[inline]
-            fn $method(self, rhs: Matrix<N, R2, C2, SB>) -> Self::Output {
+            fn $method(self, rhs: Matrix<T, R2, C2, SB>) -> Self::Output {
                 let mut rhs = rhs.into_owned_sum::<R1, C1>();
                 assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
                 self.$method_assign_statically_unchecked_rhs(&mut rhs);
@@ -301,32 +301,32 @@ macro_rules! componentwise_binop_impl(
             }
         }
 
-        impl<N, R1, C1, R2, C2, SA, SB> $Trait<Matrix<N, R2, C2, SB>> for Matrix<N, R1, C1, SA>
+        impl<T, R1, C1, R2, C2, SA, SB> $Trait<Matrix<T, R2, C2, SB>> for Matrix<T, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + $bound,
-                  SA: Storage<N, R1, C1>,
-                  SB: Storage<N, R2, C2>,
-                  DefaultAllocator: SameShapeAllocator<N, R1, C1, R2, C2>,
+                  T: Scalar + $bound,
+                  SA: Storage<T, R1, C1>,
+                  SB: Storage<T, R2, C2>,
+                  DefaultAllocator: SameShapeAllocator<T, R1, C1, R2, C2>,
                   ShapeConstraint:  SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
-            type Output = MatrixSum<N, R1, C1, R2, C2>;
+            type Output = MatrixSum<T, R1, C1, R2, C2>;
 
             #[inline]
-            fn $method(self, rhs: Matrix<N, R2, C2, SB>) -> Self::Output {
+            fn $method(self, rhs: Matrix<T, R2, C2, SB>) -> Self::Output {
                 self.$method(&rhs)
             }
         }
 
-        impl<'a, 'b, N, R1, C1, R2, C2, SA, SB> $Trait<&'b Matrix<N, R2, C2, SB>> for &'a Matrix<N, R1, C1, SA>
+        impl<'a, 'b, T, R1, C1, R2, C2, SA, SB> $Trait<&'b Matrix<T, R2, C2, SB>> for &'a Matrix<T, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + $bound,
-                  SA: Storage<N, R1, C1>,
-                  SB: Storage<N, R2, C2>,
-                  DefaultAllocator: SameShapeAllocator<N, R1, C1, R2, C2>,
+                  T: Scalar + $bound,
+                  SA: Storage<T, R1, C1>,
+                  SB: Storage<T, R2, C2>,
+                  DefaultAllocator: SameShapeAllocator<T, R1, C1, R2, C2>,
                   ShapeConstraint:  SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
-            type Output = MatrixSum<N, R1, C1, R2, C2>;
+            type Output = MatrixSum<T, R1, C1, R2, C2>;
 
             #[inline]
-            fn $method(self, rhs: &'b Matrix<N, R2, C2, SB>) -> Self::Output {
+            fn $method(self, rhs: &'b Matrix<T, R2, C2, SB>) -> Self::Output {
                 let mut res = unsafe {
                     let (nrows, ncols) = self.shape();
                     let nrows: SameShapeR<R1, R2> = Dim::from_usize(nrows);
@@ -339,28 +339,28 @@ macro_rules! componentwise_binop_impl(
             }
         }
 
-        impl<'b, N, R1, C1, R2, C2, SA, SB> $TraitAssign<&'b Matrix<N, R2, C2, SB>> for Matrix<N, R1, C1, SA>
+        impl<'b, T, R1, C1, R2, C2, SA, SB> $TraitAssign<&'b Matrix<T, R2, C2, SB>> for Matrix<T, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + $bound,
-                  SA: StorageMut<N, R1, C1>,
-                  SB: Storage<N, R2, C2>,
+                  T: Scalar + $bound,
+                  SA: StorageMut<T, R1, C1>,
+                  SB: Storage<T, R2, C2>,
                   ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
 
             #[inline]
-            fn $method_assign(&mut self, rhs: &'b Matrix<N, R2, C2, SB>) {
+            fn $method_assign(&mut self, rhs: &'b Matrix<T, R2, C2, SB>) {
                 self.$method_assign_statically_unchecked(rhs)
             }
         }
 
-        impl<N, R1, C1, R2, C2, SA, SB> $TraitAssign<Matrix<N, R2, C2, SB>> for Matrix<N, R1, C1, SA>
+        impl<T, R1, C1, R2, C2, SA, SB> $TraitAssign<Matrix<T, R2, C2, SB>> for Matrix<T, R1, C1, SA>
             where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  N: Scalar + $bound,
-                  SA: StorageMut<N, R1, C1>,
-                  SB: Storage<N, R2, C2>,
+                  T: Scalar + $bound,
+                  SA: StorageMut<T, R1, C1>,
+                  SB: Storage<T, R2, C2>,
                   ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
 
             #[inline]
-            fn $method_assign(&mut self, rhs: Matrix<N, R2, C2, SB>) {
+            fn $method_assign(&mut self, rhs: Matrix<T, R2, C2, SB>) {
                 self.$method_assign(&rhs)
             }
         }
@@ -374,20 +374,20 @@ componentwise_binop_impl!(Sub, sub, ClosedSub;
                           SubAssign, sub_assign, sub_assign_statically_unchecked, sub_assign_statically_unchecked_mut;
                           sub_to, sub_to_statically_unchecked);
 
-impl<N, R: DimName, C: DimName> iter::Sum for MatrixMN<N, R, C>
+impl<T, R: DimName, C: DimName> iter::Sum for OMatrix<T, R, C>
 where
-    N: Scalar + ClosedAdd + Zero,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + ClosedAdd + Zero,
+    DefaultAllocator: Allocator<T, R, C>,
 {
-    fn sum<I: Iterator<Item = MatrixMN<N, R, C>>>(iter: I) -> MatrixMN<N, R, C> {
+    fn sum<I: Iterator<Item = OMatrix<T, R, C>>>(iter: I) -> OMatrix<T, R, C> {
         iter.fold(Matrix::zero(), |acc, x| acc + x)
     }
 }
 
-impl<N, C: Dim> iter::Sum for MatrixMN<N, Dynamic, C>
+impl<T, C: Dim> iter::Sum for OMatrix<T, Dynamic, C>
 where
-    N: Scalar + ClosedAdd + Zero,
-    DefaultAllocator: Allocator<N, Dynamic, C>,
+    T: Scalar + ClosedAdd + Zero,
+    DefaultAllocator: Allocator<T, Dynamic, C>,
 {
     /// # Example
     /// ```
@@ -405,7 +405,7 @@ where
     /// # use nalgebra::DMatrix;
     /// iter::empty::<DMatrix<f64>>().sum::<DMatrix<f64>>(); // panics!
     /// ```
-    fn sum<I: Iterator<Item = MatrixMN<N, Dynamic, C>>>(mut iter: I) -> MatrixMN<N, Dynamic, C> {
+    fn sum<I: Iterator<Item = OMatrix<T, Dynamic, C>>>(mut iter: I) -> OMatrix<T, Dynamic, C> {
         if let Some(first) = iter.next() {
             iter.fold(first, |acc, x| acc + x)
         } else {
@@ -414,20 +414,20 @@ where
     }
 }
 
-impl<'a, N, R: DimName, C: DimName> iter::Sum<&'a MatrixMN<N, R, C>> for MatrixMN<N, R, C>
+impl<'a, T, R: DimName, C: DimName> iter::Sum<&'a OMatrix<T, R, C>> for OMatrix<T, R, C>
 where
-    N: Scalar + ClosedAdd + Zero,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + ClosedAdd + Zero,
+    DefaultAllocator: Allocator<T, R, C>,
 {
-    fn sum<I: Iterator<Item = &'a MatrixMN<N, R, C>>>(iter: I) -> MatrixMN<N, R, C> {
+    fn sum<I: Iterator<Item = &'a OMatrix<T, R, C>>>(iter: I) -> OMatrix<T, R, C> {
         iter.fold(Matrix::zero(), |acc, x| acc + x)
     }
 }
 
-impl<'a, N, C: Dim> iter::Sum<&'a MatrixMN<N, Dynamic, C>> for MatrixMN<N, Dynamic, C>
+impl<'a, T, C: Dim> iter::Sum<&'a OMatrix<T, Dynamic, C>> for OMatrix<T, Dynamic, C>
 where
-    N: Scalar + ClosedAdd + Zero,
-    DefaultAllocator: Allocator<N, Dynamic, C>,
+    T: Scalar + ClosedAdd + Zero,
+    DefaultAllocator: Allocator<T, Dynamic, C>,
 {
     /// # Example
     /// ```
@@ -445,9 +445,7 @@ where
     /// # use nalgebra::DMatrix;
     /// iter::empty::<&DMatrix<f64>>().sum::<DMatrix<f64>>(); // panics!
     /// ```
-    fn sum<I: Iterator<Item = &'a MatrixMN<N, Dynamic, C>>>(
-        mut iter: I,
-    ) -> MatrixMN<N, Dynamic, C> {
+    fn sum<I: Iterator<Item = &'a OMatrix<T, Dynamic, C>>>(mut iter: I) -> OMatrix<T, Dynamic, C> {
         if let Some(first) = iter.next() {
             iter.fold(first.clone(), |acc, x| acc + x)
         } else {
@@ -467,14 +465,14 @@ where
 macro_rules! componentwise_scalarop_impl(
     ($Trait: ident, $method: ident, $bound: ident;
      $TraitAssign: ident, $method_assign: ident) => {
-        impl<N, R: Dim, C: Dim, S> $Trait<N> for Matrix<N, R, C, S>
-            where N: Scalar + $bound,
-                  S: Storage<N, R, C>,
-                  DefaultAllocator: Allocator<N, R, C> {
-            type Output = MatrixMN<N, R, C>;
+        impl<T, R: Dim, C: Dim, S> $Trait<T> for Matrix<T, R, C, S>
+            where T: Scalar + $bound,
+                  S: Storage<T, R, C>,
+                  DefaultAllocator: Allocator<T, R, C> {
+            type Output = OMatrix<T, R, C>;
 
             #[inline]
-            fn $method(self, rhs: N) -> Self::Output {
+            fn $method(self, rhs: T) -> Self::Output {
                 let mut res = self.into_owned();
 
                 // XXX: optimize our iterator!
@@ -491,23 +489,23 @@ macro_rules! componentwise_scalarop_impl(
             }
         }
 
-        impl<'a, N, R: Dim, C: Dim, S> $Trait<N> for &'a Matrix<N, R, C, S>
-            where N: Scalar + $bound,
-                  S: Storage<N, R, C>,
-                  DefaultAllocator: Allocator<N, R, C> {
-            type Output = MatrixMN<N, R, C>;
+        impl<'a, T, R: Dim, C: Dim, S> $Trait<T> for &'a Matrix<T, R, C, S>
+            where T: Scalar + $bound,
+                  S: Storage<T, R, C>,
+                  DefaultAllocator: Allocator<T, R, C> {
+            type Output = OMatrix<T, R, C>;
 
             #[inline]
-            fn $method(self, rhs: N) -> Self::Output {
+            fn $method(self, rhs: T) -> Self::Output {
                 self.clone_owned().$method(rhs)
             }
         }
 
-        impl<N, R: Dim, C: Dim, S> $TraitAssign<N> for Matrix<N, R, C, S>
-            where N: Scalar + $bound,
-                  S: StorageMut<N, R, C> {
+        impl<T, R: Dim, C: Dim, S> $TraitAssign<T> for Matrix<T, R, C, S>
+            where T: Scalar + $bound,
+                  S: StorageMut<T, R, C> {
             #[inline]
-            fn $method_assign(&mut self, rhs: N) {
+            fn $method_assign(&mut self, rhs: T) {
                 for j in 0 .. self.ncols() {
                     for i in 0 .. self.nrows() {
                         unsafe { self.get_unchecked_mut((i, j)).$method_assign(rhs.inlined_clone()) };
@@ -525,7 +523,7 @@ macro_rules! left_scalar_mul_impl(
     ($($T: ty),* $(,)*) => {$(
         impl<R: Dim, C: Dim, S: Storage<$T, R, C>> Mul<Matrix<$T, R, C, S>> for $T
             where DefaultAllocator: Allocator<$T, R, C> {
-            type Output = MatrixMN<$T, R, C>;
+            type Output = OMatrix<$T, R, C>;
 
             #[inline]
             fn mul(self, rhs: Matrix<$T, R, C, S>) -> Self::Output {
@@ -547,7 +545,7 @@ macro_rules! left_scalar_mul_impl(
 
         impl<'b, R: Dim, C: Dim, S: Storage<$T, R, C>> Mul<&'b Matrix<$T, R, C, S>> for $T
             where DefaultAllocator: Allocator<$T, R, C> {
-            type Output = MatrixMN<$T, R, C>;
+            type Output = OMatrix<$T, R, C>;
 
             #[inline]
             fn mul(self, rhs: &'b Matrix<$T, R, C, S>) -> Self::Output {
@@ -560,19 +558,19 @@ macro_rules! left_scalar_mul_impl(
 left_scalar_mul_impl!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f32, f64);
 
 // Matrix × Matrix
-impl<'a, 'b, N, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<&'b Matrix<N, R2, C2, SB>>
-    for &'a Matrix<N, R1, C1, SA>
+impl<'a, 'b, T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<&'b Matrix<T, R2, C2, SB>>
+    for &'a Matrix<T, R1, C1, SA>
 where
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
-    SA: Storage<N, R1, C1>,
-    SB: Storage<N, R2, C2>,
-    DefaultAllocator: Allocator<N, R1, C2>,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SA: Storage<T, R1, C1>,
+    SB: Storage<T, R2, C2>,
+    DefaultAllocator: Allocator<T, R1, C2>,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C2>,
 {
-    type Output = MatrixMN<N, R1, C2>;
+    type Output = OMatrix<T, R1, C2>;
 
     #[inline]
-    fn mul(self, rhs: &'b Matrix<N, R2, C2, SB>) -> Self::Output {
+    fn mul(self, rhs: &'b Matrix<T, R2, C2, SB>) -> Self::Output {
         let mut res = unsafe {
             crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, rhs.data.shape().1)
         };
@@ -581,53 +579,53 @@ where
     }
 }
 
-impl<'a, N, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<Matrix<N, R2, C2, SB>>
-    for &'a Matrix<N, R1, C1, SA>
+impl<'a, T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<Matrix<T, R2, C2, SB>>
+    for &'a Matrix<T, R1, C1, SA>
 where
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
-    SB: Storage<N, R2, C2>,
-    SA: Storage<N, R1, C1>,
-    DefaultAllocator: Allocator<N, R1, C2>,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SB: Storage<T, R2, C2>,
+    SA: Storage<T, R1, C1>,
+    DefaultAllocator: Allocator<T, R1, C2>,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C2>,
 {
-    type Output = MatrixMN<N, R1, C2>;
+    type Output = OMatrix<T, R1, C2>;
 
     #[inline]
-    fn mul(self, rhs: Matrix<N, R2, C2, SB>) -> Self::Output {
+    fn mul(self, rhs: Matrix<T, R2, C2, SB>) -> Self::Output {
         self * &rhs
     }
 }
 
-impl<'b, N, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<&'b Matrix<N, R2, C2, SB>>
-    for Matrix<N, R1, C1, SA>
+impl<'b, T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<&'b Matrix<T, R2, C2, SB>>
+    for Matrix<T, R1, C1, SA>
 where
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
-    SB: Storage<N, R2, C2>,
-    SA: Storage<N, R1, C1>,
-    DefaultAllocator: Allocator<N, R1, C2>,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SB: Storage<T, R2, C2>,
+    SA: Storage<T, R1, C1>,
+    DefaultAllocator: Allocator<T, R1, C2>,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C2>,
 {
-    type Output = MatrixMN<N, R1, C2>;
+    type Output = OMatrix<T, R1, C2>;
 
     #[inline]
-    fn mul(self, rhs: &'b Matrix<N, R2, C2, SB>) -> Self::Output {
+    fn mul(self, rhs: &'b Matrix<T, R2, C2, SB>) -> Self::Output {
         &self * rhs
     }
 }
 
-impl<N, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<Matrix<N, R2, C2, SB>>
-    for Matrix<N, R1, C1, SA>
+impl<T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<Matrix<T, R2, C2, SB>>
+    for Matrix<T, R1, C1, SA>
 where
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
-    SB: Storage<N, R2, C2>,
-    SA: Storage<N, R1, C1>,
-    DefaultAllocator: Allocator<N, R1, C2>,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SB: Storage<T, R2, C2>,
+    SA: Storage<T, R1, C1>,
+    DefaultAllocator: Allocator<T, R1, C2>,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C2>,
 {
-    type Output = MatrixMN<N, R1, C2>;
+    type Output = OMatrix<T, R1, C2>;
 
     #[inline]
-    fn mul(self, rhs: Matrix<N, R2, C2, SB>) -> Self::Output {
+    fn mul(self, rhs: Matrix<T, R2, C2, SB>) -> Self::Output {
         &self * &rhs
     }
 }
@@ -635,53 +633,53 @@ where
 // TODO: this is too restrictive:
 //    − we can't use `a *= b` when `a` is a mutable slice.
 //    − we can't use `a *= b` when C2 is not equal to C1.
-impl<N, R1, C1, R2, SA, SB> MulAssign<Matrix<N, R2, C1, SB>> for Matrix<N, R1, C1, SA>
+impl<T, R1, C1, R2, SA, SB> MulAssign<Matrix<T, R2, C1, SB>> for Matrix<T, R1, C1, SA>
 where
     R1: Dim,
     C1: Dim,
     R2: Dim,
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
-    SB: Storage<N, R2, C1>,
-    SA: ContiguousStorageMut<N, R1, C1> + Clone,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SB: Storage<T, R2, C1>,
+    SA: ContiguousStorageMut<T, R1, C1> + Clone,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
-    DefaultAllocator: Allocator<N, R1, C1, Buffer = SA>,
+    DefaultAllocator: Allocator<T, R1, C1, Buffer = SA>,
 {
     #[inline]
-    fn mul_assign(&mut self, rhs: Matrix<N, R2, C1, SB>) {
+    fn mul_assign(&mut self, rhs: Matrix<T, R2, C1, SB>) {
         *self = &*self * rhs
     }
 }
 
-impl<'b, N, R1, C1, R2, SA, SB> MulAssign<&'b Matrix<N, R2, C1, SB>> for Matrix<N, R1, C1, SA>
+impl<'b, T, R1, C1, R2, SA, SB> MulAssign<&'b Matrix<T, R2, C1, SB>> for Matrix<T, R1, C1, SA>
 where
     R1: Dim,
     C1: Dim,
     R2: Dim,
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
-    SB: Storage<N, R2, C1>,
-    SA: ContiguousStorageMut<N, R1, C1> + Clone,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SB: Storage<T, R2, C1>,
+    SA: ContiguousStorageMut<T, R1, C1> + Clone,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
     // TODO: this is too restrictive. See comments for the non-ref version.
-    DefaultAllocator: Allocator<N, R1, C1, Buffer = SA>,
+    DefaultAllocator: Allocator<T, R1, C1, Buffer = SA>,
 {
     #[inline]
-    fn mul_assign(&mut self, rhs: &'b Matrix<N, R2, C1, SB>) {
+    fn mul_assign(&mut self, rhs: &'b Matrix<T, R2, C1, SB>) {
         *self = &*self * rhs
     }
 }
 
 /// # Special multiplications.
-impl<N, R1: Dim, C1: Dim, SA> Matrix<N, R1, C1, SA>
+impl<T, R1: Dim, C1: Dim, SA> Matrix<T, R1, C1, SA>
 where
-    N: Scalar + Zero + One + ClosedAdd + ClosedMul,
-    SA: Storage<N, R1, C1>,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SA: Storage<T, R1, C1>,
 {
     /// Equivalent to `self.transpose() * rhs`.
     #[inline]
-    pub fn tr_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> MatrixMN<N, C1, C2>
+    pub fn tr_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> OMatrix<T, C1, C2>
     where
-        SB: Storage<N, R2, C2>,
-        DefaultAllocator: Allocator<N, C1, C2>,
+        SB: Storage<T, R2, C2>,
+        DefaultAllocator: Allocator<T, C1, C2>,
         ShapeConstraint: SameNumberOfRows<R1, R2>,
     {
         let mut res = unsafe {
@@ -694,11 +692,11 @@ where
 
     /// Equivalent to `self.adjoint() * rhs`.
     #[inline]
-    pub fn ad_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> MatrixMN<N, C1, C2>
+    pub fn ad_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> OMatrix<T, C1, C2>
     where
-        N: SimdComplexField,
-        SB: Storage<N, R2, C2>,
-        DefaultAllocator: Allocator<N, C1, C2>,
+        T: SimdComplexField,
+        SB: Storage<T, R2, C2>,
+        DefaultAllocator: Allocator<T, C1, C2>,
         ShapeConstraint: SameNumberOfRows<R1, R2>,
     {
         let mut res = unsafe {
@@ -712,15 +710,15 @@ where
     #[inline(always)]
     fn xx_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
-        rhs: &Matrix<N, R2, C2, SB>,
-        out: &mut Matrix<N, R3, C3, SC>,
+        rhs: &Matrix<T, R2, C2, SB>,
+        out: &mut Matrix<T, R3, C3, SC>,
         dot: impl Fn(
-            &VectorSliceN<N, R1, SA::RStride, SA::CStride>,
-            &VectorSliceN<N, R2, SB::RStride, SB::CStride>,
-        ) -> N,
+            &VectorSlice<T, R1, SA::RStride, SA::CStride>,
+            &VectorSlice<T, R2, SB::RStride, SB::CStride>,
+        ) -> T,
     ) where
-        SB: Storage<N, R2, C2>,
-        SC: StorageMut<N, R3, C3>,
+        SB: Storage<T, R2, C2>,
+        SC: StorageMut<T, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, R2> + DimEq<C1, R3> + DimEq<C2, C3>,
     {
         let (nrows1, ncols1) = self.shape();
@@ -759,11 +757,11 @@ where
     #[inline]
     pub fn tr_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
-        rhs: &Matrix<N, R2, C2, SB>,
-        out: &mut Matrix<N, R3, C3, SC>,
+        rhs: &Matrix<T, R2, C2, SB>,
+        out: &mut Matrix<T, R3, C3, SC>,
     ) where
-        SB: Storage<N, R2, C2>,
-        SC: StorageMut<N, R3, C3>,
+        SB: Storage<T, R2, C2>,
+        SC: StorageMut<T, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, R2> + DimEq<C1, R3> + DimEq<C2, C3>,
     {
         self.xx_mul_to(rhs, out, |a, b| a.dot(b))
@@ -774,12 +772,12 @@ where
     #[inline]
     pub fn ad_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
-        rhs: &Matrix<N, R2, C2, SB>,
-        out: &mut Matrix<N, R3, C3, SC>,
+        rhs: &Matrix<T, R2, C2, SB>,
+        out: &mut Matrix<T, R3, C3, SC>,
     ) where
-        N: SimdComplexField,
-        SB: Storage<N, R2, C2>,
-        SC: StorageMut<N, R3, C3>,
+        T: SimdComplexField,
+        SB: Storage<T, R2, C2>,
+        SC: StorageMut<T, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, R2> + DimEq<C1, R3> + DimEq<C2, C3>,
     {
         self.xx_mul_to(rhs, out, |a, b| a.dotc(b))
@@ -789,30 +787,30 @@ where
     #[inline]
     pub fn mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
-        rhs: &Matrix<N, R2, C2, SB>,
-        out: &mut Matrix<N, R3, C3, SC>,
+        rhs: &Matrix<T, R2, C2, SB>,
+        out: &mut Matrix<T, R3, C3, SC>,
     ) where
-        SB: Storage<N, R2, C2>,
-        SC: StorageMut<N, R3, C3>,
+        SB: Storage<T, R2, C2>,
+        SC: StorageMut<T, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R3, R1>
             + SameNumberOfColumns<C3, C2>
             + AreMultipliable<R1, C1, R2, C2>,
     {
-        out.gemm(N::one(), self, rhs, N::zero());
+        out.gemm(T::one(), self, rhs, T::zero());
     }
 
     /// The kronecker product of two matrices (aka. tensor product of the corresponding linear
     /// maps).
     pub fn kronecker<R2: Dim, C2: Dim, SB>(
         &self,
-        rhs: &Matrix<N, R2, C2, SB>,
-    ) -> MatrixMN<N, DimProd<R1, R2>, DimProd<C1, C2>>
+        rhs: &Matrix<T, R2, C2, SB>,
+    ) -> OMatrix<T, DimProd<R1, R2>, DimProd<C1, C2>>
     where
-        N: ClosedMul,
+        T: ClosedMul,
         R1: DimMul<R2>,
         C1: DimMul<C2>,
-        SB: Storage<N, R2, C2>,
-        DefaultAllocator: Allocator<N, DimProd<R1, R2>, DimProd<C1, C2>>,
+        SB: Storage<T, R2, C2>,
+        DefaultAllocator: Allocator<T, DimProd<R1, R2>, DimProd<C1, C2>>,
     {
         let (nrows1, ncols1) = self.data.shape();
         let (nrows2, ncols2) = rhs.data.shape();
@@ -845,22 +843,22 @@ where
     }
 }
 
-impl<N, D: DimName> iter::Product for MatrixN<N, D>
+impl<T, D: DimName> iter::Product for OMatrix<T, D, D>
 where
-    N: Scalar + Zero + One + ClosedMul + ClosedAdd,
-    DefaultAllocator: Allocator<N, D, D>,
+    T: Scalar + Zero + One + ClosedMul + ClosedAdd,
+    DefaultAllocator: Allocator<T, D, D>,
 {
-    fn product<I: Iterator<Item = MatrixN<N, D>>>(iter: I) -> MatrixN<N, D> {
+    fn product<I: Iterator<Item = OMatrix<T, D, D>>>(iter: I) -> OMatrix<T, D, D> {
         iter.fold(Matrix::one(), |acc, x| acc * x)
     }
 }
 
-impl<'a, N, D: DimName> iter::Product<&'a MatrixN<N, D>> for MatrixN<N, D>
+impl<'a, T, D: DimName> iter::Product<&'a OMatrix<T, D, D>> for OMatrix<T, D, D>
 where
-    N: Scalar + Zero + One + ClosedMul + ClosedAdd,
-    DefaultAllocator: Allocator<N, D, D>,
+    T: Scalar + Zero + One + ClosedMul + ClosedAdd,
+    DefaultAllocator: Allocator<T, D, D>,
 {
-    fn product<I: Iterator<Item = &'a MatrixN<N, D>>>(iter: I) -> MatrixN<N, D> {
+    fn product<I: Iterator<Item = &'a OMatrix<T, D, D>>>(iter: I) -> OMatrix<T, D, D> {
         iter.fold(Matrix::one(), |acc, x| acc * x)
     }
 }

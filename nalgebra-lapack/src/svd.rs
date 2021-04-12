@@ -5,9 +5,9 @@ use num::Signed;
 use std::cmp;
 
 use na::allocator::Allocator;
-use na::dimension::{Dim, DimMin, DimMinimum, U1};
+use na::dimension::{Const, Dim, DimMin, DimMinimum, U1};
 use na::storage::Storage;
-use na::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, VectorN};
+use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
 
@@ -15,41 +15,41 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
-                           Allocator<N, R, R> +
-                           Allocator<N, C, C>,
-         MatrixN<N, R>: Serialize,
-         MatrixN<N, C>: Serialize,
-         VectorN<N, DimMinimum<R, C>>: Serialize"))
+    serde(bound(serialize = "DefaultAllocator: Allocator<T, DimMinimum<R, C>> +
+                           Allocator<T, R, R> +
+                           Allocator<T, C, C>,
+         OMatrix<T, R>: Serialize,
+         OMatrix<T, C>: Serialize,
+         OVector<T, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, DimMinimum<R, C>> +
-                           Allocator<N, R, R> +
-                           Allocator<N, C, C>,
-         MatrixN<N, R>: Deserialize<'de>,
-         MatrixN<N, C>: Deserialize<'de>,
-         VectorN<N, DimMinimum<R, C>>: Deserialize<'de>"))
+    serde(bound(serialize = "DefaultAllocator: Allocator<T, DimMinimum<R, C>> +
+                           Allocator<T, R, R> +
+                           Allocator<T, C, C>,
+         OMatrix<T, R>: Deserialize<'de>,
+         OMatrix<T, C>: Deserialize<'de>,
+         OVector<T, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct SVD<N: Scalar, R: DimMin<C>, C: Dim>
+pub struct SVD<T: Scalar, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<N, R, R> + Allocator<N, DimMinimum<R, C>> + Allocator<N, C, C>,
+    DefaultAllocator: Allocator<T, R, R> + Allocator<T, DimMinimum<R, C>> + Allocator<T, C, C>,
 {
     /// The left-singular vectors `U` of this SVD.
-    pub u: MatrixN<N, R>, // TODO: should be MatrixMN<N, R, DimMinimum<R, C>>
+    pub u: OMatrix<T, R, R>, // TODO: should be OMatrix<T, R, DimMinimum<R, C>>
     /// The right-singular vectors `V^t` of this SVD.
-    pub vt: MatrixN<N, C>, // TODO: should be MatrixMN<N, DimMinimum<R, C>, C>
+    pub vt: OMatrix<T, C, C>, // TODO: should be OMatrix<T, DimMinimum<R, C>, C>
     /// The singular values of this SVD.
-    pub singular_values: VectorN<N, DimMinimum<R, C>>,
+    pub singular_values: OVector<T, DimMinimum<R, C>>,
 }
 
-impl<N: Scalar + Copy, R: DimMin<C>, C: Dim> Copy for SVD<N, R, C>
+impl<T: Scalar + Copy, R: DimMin<C>, C: Dim> Copy for SVD<T, R, C>
 where
-    DefaultAllocator: Allocator<N, C, C> + Allocator<N, R, R> + Allocator<N, DimMinimum<R, C>>,
-    MatrixMN<N, R, R>: Copy,
-    MatrixMN<N, C, C>: Copy,
-    VectorN<N, DimMinimum<R, C>>: Copy,
+    DefaultAllocator: Allocator<T, C, C> + Allocator<T, R, R> + Allocator<T, DimMinimum<R, C>>,
+    OMatrix<T, R, R>: Copy,
+    OMatrix<T, C, C>: Copy,
+    OVector<T, DimMinimum<R, C>>: Copy,
 {
 }
 
@@ -63,19 +63,19 @@ where
         + Allocator<Self, C, C>,
 {
     /// Computes the SVD decomposition of `m`.
-    fn compute(m: MatrixMN<Self, R, C>) -> Option<SVD<Self, R, C>>;
+    fn compute(m: OMatrix<Self, R, C>) -> Option<SVD<Self, R, C>>;
 }
 
-impl<N: SVDScalar<R, C>, R: DimMin<C>, C: Dim> SVD<N, R, C>
+impl<T: SVDScalar<R, C>, R: DimMin<C>, C: Dim> SVD<T, R, C>
 where
-    DefaultAllocator: Allocator<N, R, R>
-        + Allocator<N, R, C>
-        + Allocator<N, DimMinimum<R, C>>
-        + Allocator<N, C, C>,
+    DefaultAllocator: Allocator<T, R, R>
+        + Allocator<T, R, C>
+        + Allocator<T, DimMinimum<R, C>>
+        + Allocator<T, C, C>,
 {
     /// Computes the Singular Value Decomposition of `matrix`.
-    pub fn new(m: MatrixMN<N, R, C>) -> Option<Self> {
-        N::compute(m)
+    pub fn new(m: OMatrix<T, R, C>) -> Option<Self> {
+        T::compute(m)
     }
 }
 
@@ -88,7 +88,7 @@ macro_rules! svd_impl(
                                         Allocator<$t, C, C> +
                                         Allocator<$t, DimMinimum<R, C>> {
 
-            fn compute(mut m: MatrixMN<$t, R, C>) -> Option<SVD<$t, R, C>> {
+            fn compute(mut m: OMatrix<$t, R, C>) -> Option<SVD<$t, R, C>> {
                 let (nrows, ncols) = m.data.shape();
 
                 if nrows.value() == 0 || ncols.value() == 0 {
@@ -100,7 +100,7 @@ macro_rules! svd_impl(
                 let lda = nrows.value() as i32;
 
                 let mut u  = unsafe { Matrix::new_uninitialized_generic(nrows, nrows).assume_init() };
-                let mut s  = unsafe { Matrix::new_uninitialized_generic(nrows.min(ncols), U1).assume_init() };
+                let mut s  = unsafe { Matrix::new_uninitialized_generic(nrows.min(ncols), Const::<1>).assume_init() };
                 let mut vt = unsafe { Matrix::new_uninitialized_generic(ncols, ncols).assume_init() };
 
                 let ldu  = nrows.value();
@@ -150,12 +150,12 @@ macro_rules! svd_impl(
             /// Useful if some components (e.g. some singular values) of this decomposition have
             /// been manually changed by the user.
             #[inline]
-            pub fn recompose(self) -> MatrixMN<$t, R, C> {
+            pub fn recompose(self) -> OMatrix<$t, R, C> {
                 let nrows           = self.u.data.shape().0;
                 let ncols           = self.vt.data.shape().1;
                 let min_nrows_ncols = nrows.min(ncols);
 
-                let mut res: MatrixMN<_, R, C> = Matrix::zeros_generic(nrows, ncols);
+                let mut res: OMatrix<_, R, C> = Matrix::zeros_generic(nrows, ncols);
 
                 {
                     let mut sres = res.generic_slice_mut((0, 0), (min_nrows_ncols, ncols));
@@ -175,12 +175,12 @@ macro_rules! svd_impl(
             ///
             /// All singular value below epsilon will be set to zero instead of being inverted.
             #[inline]
-            pub fn pseudo_inverse(&self, epsilon: $t) -> MatrixMN<$t, C, R> {
+            pub fn pseudo_inverse(&self, epsilon: $t) -> OMatrix<$t, C, R> {
                 let nrows           = self.u.data.shape().0;
                 let ncols           = self.vt.data.shape().1;
                 let min_nrows_ncols = nrows.min(ncols);
 
-                let mut res: MatrixMN<_, C, R> = Matrix::zeros_generic(ncols, nrows);
+                let mut res: OMatrix<_, C, R> = Matrix::zeros_generic(ncols, nrows);
 
                 {
                     let mut sres = res.generic_slice_mut((0, 0), (min_nrows_ncols, nrows));
@@ -230,9 +230,9 @@ macro_rules! svd_complex_impl(
     ($name: ident, $t: ty, $lapack_func: path) => (
         impl SVDScalar for Complex<$t> {
             fn compute<R: Dim, C: Dim, S>(mut m: Matrix<$t, R, C, S>) -> Option<SVD<$t, R, C, S::Alloc>>
-            Option<(MatrixN<Complex<$t>, R, S::Alloc>,
-                    VectorN<$t, DimMinimum<R, C>, S::Alloc>,
-                    MatrixN<Complex<$t>, C, S::Alloc>)>
+            Option<(OMatrix<Complex<$t>, R, S::Alloc>,
+                    OVector<$t, DimMinimum<R, C>, S::Alloc>,
+                    OMatrix<Complex<$t>, C, S::Alloc>)>
             where R: DimMin<C>,
                   S: ContiguousStorage<Complex<$t>, R, C>,
                   S::Alloc: OwnedAllocator<Complex<$t>, R, C, S> +

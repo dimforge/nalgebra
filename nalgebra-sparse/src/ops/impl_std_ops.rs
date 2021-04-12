@@ -10,7 +10,7 @@ use nalgebra::allocator::Allocator;
 use nalgebra::base::storage::Storage;
 use nalgebra::constraint::{DimEq, ShapeConstraint};
 use nalgebra::{
-    ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, DefaultAllocator, Dim, Dynamic, Matrix, MatrixMN,
+    ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, DefaultAllocator, Dim, Dynamic, Matrix, OMatrix,
     Scalar, U1,
 };
 use num_traits::{One, Zero};
@@ -274,7 +274,7 @@ macro_rules! impl_spmm_cs_dense {
         impl_spmm_cs_dense!(&'a $matrix_type_name<T>, &'a Matrix<T, R, C, S>, $spmm_fn, |lhs, rhs| {
             let (_, ncols) = rhs.data.shape();
             let nrows = Dynamic::new(lhs.nrows());
-            let mut result = MatrixMN::<T, Dynamic, C>::zeros_generic(nrows, ncols);
+            let mut result = OMatrix::<T, Dynamic, C>::zeros_generic(nrows, ncols);
             $spmm_fn(T::zero(), &mut result, T::one(), Op::NoOp(lhs), Op::NoOp(rhs));
             result
         });
@@ -305,7 +305,7 @@ macro_rules! impl_spmm_cs_dense {
             DefaultAllocator: Allocator<T, Dynamic, C>,
             // TODO: Is it possible to simplify these bounds?
             ShapeConstraint:
-                // Bounds so that we can turn MatrixMN<T, Dynamic, C> into a DMatrixSliceMut
+                // Bounds so that we can turn OMatrix<T, Dynamic, C> into a DMatrixSliceMut
                   DimEq<U1, <<DefaultAllocator as Allocator<T, Dynamic, C>>::Buffer as Storage<T, Dynamic, C>>::RStride>
                 + DimEq<C, Dynamic>
                 + DimEq<Dynamic, <<DefaultAllocator as Allocator<T, Dynamic, C>>::Buffer as Storage<T, Dynamic, C>>::CStride>
@@ -316,7 +316,7 @@ macro_rules! impl_spmm_cs_dense {
         {
             // We need the column dimension to be generic, so that if RHS is a vector, then
             // we also get a vector (and not a matrix)
-            type Output = MatrixMN<T, Dynamic, C>;
+            type Output = OMatrix<T, Dynamic, C>;
 
             fn mul(self, rhs: $dense_matrix_type) -> Self::Output {
                 let $lhs = self;

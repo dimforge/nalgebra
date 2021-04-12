@@ -2,17 +2,17 @@ use crate::allocator::Allocator;
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::sparse::{CsMatrix, CsStorage, CsVector};
 use crate::storage::{Storage, StorageMut};
-use crate::{DefaultAllocator, Dim, Matrix, MatrixMN, RealField, VectorN, U1};
+use crate::{Const, DefaultAllocator, Dim, Matrix, OMatrix, OVector, RealField};
 
-impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
+impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
     /// Solve a lower-triangular system with a dense right-hand-side.
     pub fn solve_lower_triangular<R2: Dim, C2: Dim, S2>(
         &self,
-        b: &Matrix<N, R2, C2, S2>,
-    ) -> Option<MatrixMN<N, R2, C2>>
+        b: &Matrix<T, R2, C2, S2>,
+    ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: Storage<N, R2, C2>,
-        DefaultAllocator: Allocator<N, R2, C2>,
+        S2: Storage<T, R2, C2>,
+        DefaultAllocator: Allocator<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<D, R2>,
     {
         let mut b = b.clone_owned();
@@ -26,11 +26,11 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
     /// Solve a lower-triangular system with `self` transposed and a dense right-hand-side.
     pub fn tr_solve_lower_triangular<R2: Dim, C2: Dim, S2>(
         &self,
-        b: &Matrix<N, R2, C2, S2>,
-    ) -> Option<MatrixMN<N, R2, C2>>
+        b: &Matrix<T, R2, C2, S2>,
+    ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: Storage<N, R2, C2>,
-        DefaultAllocator: Allocator<N, R2, C2>,
+        S2: Storage<T, R2, C2>,
+        DefaultAllocator: Allocator<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<D, R2>,
     {
         let mut b = b.clone_owned();
@@ -44,10 +44,10 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
     /// Solve in-place a lower-triangular system with a dense right-hand-side.
     pub fn solve_lower_triangular_mut<R2: Dim, C2: Dim, S2>(
         &self,
-        b: &mut Matrix<N, R2, C2, S2>,
+        b: &mut Matrix<T, R2, C2, S2>,
     ) -> bool
     where
-        S2: StorageMut<N, R2, C2>,
+        S2: StorageMut<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<D, R2>,
     {
         let (nrows, ncols) = self.data.shape();
@@ -90,10 +90,10 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
     /// Solve a lower-triangular system with `self` transposed and a dense right-hand-side.
     pub fn tr_solve_lower_triangular_mut<R2: Dim, C2: Dim, S2>(
         &self,
-        b: &mut Matrix<N, R2, C2, S2>,
+        b: &mut Matrix<T, R2, C2, S2>,
     ) -> bool
     where
-        S2: StorageMut<N, R2, C2>,
+        S2: StorageMut<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<D, R2>,
     {
         let (nrows, ncols) = self.data.shape();
@@ -137,11 +137,11 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
     /// Solve a lower-triangular system with a sparse right-hand-side.
     pub fn solve_lower_triangular_cs<D2: Dim, S2>(
         &self,
-        b: &CsVector<N, D2, S2>,
-    ) -> Option<CsVector<N, D2>>
+        b: &CsVector<T, D2, S2>,
+    ) -> Option<CsVector<T, D2>>
     where
-        S2: CsStorage<N, D2>,
-        DefaultAllocator: Allocator<bool, D> + Allocator<N, D2> + Allocator<usize, D2>,
+        S2: CsStorage<T, D2>,
+        DefaultAllocator: Allocator<bool, D> + Allocator<T, D2> + Allocator<usize, D2>,
         ShapeConstraint: SameNumberOfRows<D, D2>,
     {
         let mut reach = Vec::new();
@@ -150,10 +150,10 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         // We sort the reach so the result matrix has sorted indices.
         reach.sort();
         let mut workspace =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(b.data.shape().0, U1) };
+            unsafe { crate::unimplemented_or_uninitialized_generic!(b.data.shape().0, Const::<1>) };
 
         for i in reach.iter().cloned() {
-            workspace[i] = N::zero();
+            workspace[i] = T::zero();
         }
 
         for (i, val) in b.data.column_entries(0) {
@@ -187,7 +187,8 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
         }
 
         // Copy the result into a sparse vector.
-        let mut result = CsVector::new_uninitialized_generic(b.data.shape().0, U1, reach.len());
+        let mut result =
+            CsVector::new_uninitialized_generic(b.data.shape().0, Const::<1>, reach.len());
 
         for (i, val) in reach.iter().zip(result.data.vals.iter_mut()) {
             *val = workspace[*i];
@@ -201,13 +202,13 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
     // Computes the reachable, post-ordered, nodes from `b`.
     fn lower_triangular_reach_postordered<D2: Dim, S2>(
         &self,
-        b: &CsVector<N, D2, S2>,
+        b: &CsVector<T, D2, S2>,
         xi: &mut Vec<usize>,
     ) where
-        S2: CsStorage<N, D2>,
+        S2: CsStorage<T, D2>,
         DefaultAllocator: Allocator<bool, D>,
     {
-        let mut visited = VectorN::repeat_generic(self.data.shape().1, U1, false);
+        let mut visited = OVector::repeat_generic(self.data.shape().1, U1, false);
         let mut stack = Vec::new();
 
         for i in b.data.column_range(0) {
@@ -246,12 +247,12 @@ impl<N: RealField, D: Dim, S: CsStorage<N, D, D>> CsMatrix<N, D, D, S> {
     */
 
     // Computes the nodes reachable from `b` in an arbitrary order.
-    fn lower_triangular_reach<D2: Dim, S2>(&self, b: &CsVector<N, D2, S2>, xi: &mut Vec<usize>)
+    fn lower_triangular_reach<D2: Dim, S2>(&self, b: &CsVector<T, D2, S2>, xi: &mut Vec<usize>)
     where
-        S2: CsStorage<N, D2>,
+        S2: CsStorage<T, D2>,
         DefaultAllocator: Allocator<bool, D>,
     {
-        let mut visited = VectorN::repeat_generic(self.data.shape().1, U1, false);
+        let mut visited = OVector::repeat_generic(self.data.shape().1, Const::<1>, false);
         let mut stack = Vec::new();
 
         for irow in b.data.column_row_indices(0) {

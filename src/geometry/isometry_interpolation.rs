@@ -1,7 +1,7 @@
 use crate::{Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3, RealField, SimdRealField};
 
 /// # Interpolation
-impl<N: SimdRealField> Isometry3<N> {
+impl<T: SimdRealField> Isometry3<T> {
     /// Interpolates between two isometries using a linear interpolation for the translation part,
     /// and a spherical interpolation for the rotation part.
     ///
@@ -26,9 +26,9 @@ impl<N: SimdRealField> Isometry3<N> {
     /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
-    pub fn lerp_slerp(&self, other: &Self, t: N) -> Self
+    pub fn lerp_slerp(&self, other: &Self, t: T) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
         let tr = self.translation.vector.lerp(&other.translation.vector, t);
         let rot = self.rotation.slerp(&other.rotation, t);
@@ -59,9 +59,9 @@ impl<N: SimdRealField> Isometry3<N> {
     /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
-    pub fn try_lerp_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self>
+    pub fn try_lerp_slerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
     where
-        N: RealField,
+        T: RealField,
     {
         let tr = self.translation.vector.lerp(&other.translation.vector, t);
         let rot = self.rotation.try_slerp(&other.rotation, t, epsilon)?;
@@ -69,7 +69,7 @@ impl<N: SimdRealField> Isometry3<N> {
     }
 }
 
-impl<N: SimdRealField> IsometryMatrix3<N> {
+impl<T: SimdRealField> IsometryMatrix3<T> {
     /// Interpolates between two isometries using a linear interpolation for the translation part,
     /// and a spherical interpolation for the rotation part.
     ///
@@ -94,9 +94,9 @@ impl<N: SimdRealField> IsometryMatrix3<N> {
     /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
-    pub fn lerp_slerp(&self, other: &Self, t: N) -> Self
+    pub fn lerp_slerp(&self, other: &Self, t: T) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
         let tr = self.translation.vector.lerp(&other.translation.vector, t);
         let rot = self.rotation.slerp(&other.rotation, t);
@@ -127,9 +127,9 @@ impl<N: SimdRealField> IsometryMatrix3<N> {
     /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
-    pub fn try_lerp_slerp(&self, other: &Self, t: N, epsilon: N) -> Option<Self>
+    pub fn try_lerp_slerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
     where
-        N: RealField,
+        T: RealField,
     {
         let tr = self.translation.vector.lerp(&other.translation.vector, t);
         let rot = self.rotation.try_slerp(&other.rotation, t, epsilon)?;
@@ -137,7 +137,7 @@ impl<N: SimdRealField> IsometryMatrix3<N> {
     }
 }
 
-impl<N: SimdRealField> Isometry2<N> {
+impl<T: SimdRealField> Isometry2<T> {
     /// Interpolates between two isometries using a linear interpolation for the translation part,
     /// and a spherical interpolation for the rotation part.
     ///
@@ -163,9 +163,9 @@ impl<N: SimdRealField> Isometry2<N> {
     /// assert_relative_eq!(iso3.rotation.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
     #[inline]
-    pub fn lerp_slerp(&self, other: &Self, t: N) -> Self
+    pub fn lerp_slerp(&self, other: &Self, t: T) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
         let tr = self.translation.vector.lerp(&other.translation.vector, t);
         let rot = self.rotation.slerp(&other.rotation, t);
@@ -173,7 +173,7 @@ impl<N: SimdRealField> Isometry2<N> {
     }
 }
 
-impl<N: SimdRealField> IsometryMatrix2<N> {
+impl<T: SimdRealField> IsometryMatrix2<T> {
     /// Interpolates between two isometries using a linear interpolation for the translation part,
     /// and a spherical interpolation for the rotation part.
     ///
@@ -199,9 +199,9 @@ impl<N: SimdRealField> IsometryMatrix2<N> {
     /// assert_relative_eq!(iso3.rotation.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
     #[inline]
-    pub fn lerp_slerp(&self, other: &Self, t: N) -> Self
+    pub fn lerp_slerp(&self, other: &Self, t: T) -> Self
     where
-        N: RealField,
+        T: RealField,
     {
         let tr = self.translation.vector.lerp(&other.translation.vector, t);
         let rot = self.rotation.slerp(&other.rotation, t);

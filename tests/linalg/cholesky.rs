@@ -4,7 +4,7 @@ macro_rules! gen_tests(
     ($module: ident, $scalar: ty) => {
         mod $module {
             use na::debug::RandomSDP;
-            use na::dimension::{U4, Dynamic};
+            use na::dimension::{Const, Dynamic};
             use na::{DMatrix, DVector, Matrix4x3, Vector4};
             use rand::random;
             use simba::scalar::ComplexField;
@@ -24,7 +24,7 @@ macro_rules! gen_tests(
 
                 #[test]
                 fn cholesky_static(_n in PROPTEST_MATRIX_DIM) {
-                    let m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
+                    let m = RandomSDP::new(Const::<4>, || random::<$scalar>().0).unwrap();
                     let chol = m.cholesky().unwrap();
                     let l    = chol.unpack();
 
@@ -48,7 +48,7 @@ macro_rules! gen_tests(
 
                 #[test]
                 fn cholesky_solve_static(_n in PROPTEST_MATRIX_DIM) {
-                    let m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
+                    let m = RandomSDP::new(Const::<4>, || random::<$scalar>().0).unwrap();
                     let chol = m.clone().cholesky().unwrap();
                     let b1 = Vector4::<$scalar>::new_random().map(|e| e.0);
                     let b2 = Matrix4x3::<$scalar>::new_random().map(|e| e.0);
@@ -72,7 +72,7 @@ macro_rules! gen_tests(
 
                 #[test]
                 fn cholesky_inverse_static(_n in PROPTEST_MATRIX_DIM) {
-                    let m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
+                    let m = RandomSDP::new(Const::<4>, || random::<$scalar>().0).unwrap();
                     let m1 = m.clone().cholesky().unwrap().inverse();
                     let id1 = &m  * &m1;
                     let id2 = &m1 * &m;
@@ -92,7 +92,7 @@ macro_rules! gen_tests(
 
                 #[test]
                 fn cholesky_determinant_static(_n in PROPTEST_MATRIX_DIM) {
-                    let m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
+                    let m = RandomSDP::new(Const::<4>, || random::<$scalar>().0).unwrap();
                     let lu_det = m.clone().lu().determinant();
                     assert_relative_eq!(lu_det.imaginary(), 0., epsilon = 1.0e-7);
                     let chol_det = m.cholesky().unwrap().determinant();
@@ -102,7 +102,7 @@ macro_rules! gen_tests(
 
                 #[test]
                 fn cholesky_rank_one_update(_n in PROPTEST_MATRIX_DIM) {
-                    let mut m = RandomSDP::new(U4, || random::<$scalar>().0).unwrap();
+                    let mut m = RandomSDP::new(Const::<4>, || random::<$scalar>().0).unwrap();
                     let x = Vector4::<$scalar>::new_random().map(|e| e.0);
 
                     // this is dirty but $scalar is not a scalar type (its a Rand) in this file

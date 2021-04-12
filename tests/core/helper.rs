@@ -8,9 +8,9 @@ use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub struct RandComplex<N>(pub Complex<N>);
+pub struct RandComplex<T>(pub Complex<T>);
 
-impl<N: Arbitrary + RealField> Arbitrary for RandComplex<N> {
+impl<T: Arbitrary + RealField> Arbitrary for RandComplex<T> {
     #[inline]
     fn arbitrary(rng: &mut Gen) -> Self {
         let im = Arbitrary::arbitrary(rng);
@@ -19,12 +19,12 @@ impl<N: Arbitrary + RealField> Arbitrary for RandComplex<N> {
     }
 }
 
-impl<N: RealField> Distribution<RandComplex<N>> for Standard
+impl<T: RealField> Distribution<RandComplex<T>> for Standard
 where
-    Standard: Distribution<N>,
+    Standard: Distribution<T>,
 {
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> RandComplex<N> {
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> RandComplex<T> {
         let re = rng.gen();
         let im = rng.gen();
         RandComplex(Complex::new(re, im))
@@ -36,21 +36,21 @@ where
 //
 // Generates variates in the range [0, 1).
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub struct RandScalar<N>(pub N);
+pub struct RandScalar<T>(pub T);
 
-impl<N: Arbitrary> Arbitrary for RandScalar<N> {
+impl<T: Arbitrary> Arbitrary for RandScalar<T> {
     #[inline]
     fn arbitrary(rng: &mut Gen) -> Self {
         RandScalar(Arbitrary::arbitrary(rng))
     }
 }
 
-impl<N: RealField> Distribution<RandScalar<N>> for Standard
+impl<T: RealField> Distribution<RandScalar<T>> for Standard
 where
-    Standard: Distribution<N>,
+    Standard: Distribution<T>,
 {
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> RandScalar<N> {
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> RandScalar<T> {
         RandScalar(self.sample(rng))
     }
 }

@@ -6,7 +6,7 @@ use simba::scalar::ComplexField;
 use simba::simd::SimdComplexField;
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Vector};
+use crate::base::{Const, DefaultAllocator, Matrix, OMatrix, Vector};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum, U1};
 use crate::storage::{Storage, StorageMut};
@@ -15,37 +15,37 @@ use crate::storage::{Storage, StorageMut};
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: Serialize"))
+    serde(bound(serialize = "DefaultAllocator: Allocator<T, D>,
+         OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D>,
-         MatrixN<N, D>: Deserialize<'de>"))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D>,
+         OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct Cholesky<N: SimdComplexField, D: Dim>
+pub struct Cholesky<T: SimdComplexField, D: Dim>
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D, D>,
 {
-    chol: MatrixN<N, D>,
+    chol: OMatrix<T, D, D>,
 }
 
-impl<N: SimdComplexField, D: Dim> Copy for Cholesky<N, D>
+impl<T: SimdComplexField, D: Dim> Copy for Cholesky<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
-    MatrixN<N, D>: Copy,
+    DefaultAllocator: Allocator<T, D, D>,
+    OMatrix<T, D, D>: Copy,
 {
 }
 
-impl<N: SimdComplexField, D: Dim> Cholesky<N, D>
+impl<T: SimdComplexField, D: Dim> Cholesky<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     /// Computes the Cholesky decomposition of `matrix` without checking that the matrix is definite-positive.
     ///
     /// If the input matrix is not definite-positive, the decomposition may contain trash values (Inf, NaN, etc.)
-    pub fn new_unchecked(mut matrix: MatrixN<N, D>) -> Self {
+    pub fn new_unchecked(mut matrix: OMatrix<T, D, D>) -> Self {
         assert!(matrix.is_square(), "The input matrix must be square.");
 
         let n = matrix.nrows();
@@ -57,7 +57,7 @@ where
                 let (mut col_j, col_k) = matrix.columns_range_pair_mut(j, k);
                 let mut col_j = col_j.rows_range_mut(j..);
                 let col_k = col_k.rows_range(j..);
-                col_j.axpy(factor.simd_conjugate(), &col_k, N::one());
+                col_j.axpy(factor.simd_conjugate(), &col_k, T::one());
             }
 
             let diag = unsafe { *matrix.get_unchecked((j, j)) };
@@ -76,8 +76,8 @@ where
 
     /// Retrieves the lower-triangular factor of the Cholesky decomposition with its strictly
     /// upper-triangular part filled with zeros.
-    pub fn unpack(mut self) -> MatrixN<N, D> {
-        self.chol.fill_upper_triangle(N::zero(), 1);
+    pub fn unpack(mut self) -> OMatrix<T, D, D> {
+        self.chol.fill_upper_triangle(T::zero(), 1);
         self.chol
     }
 
@@ -86,13 +86,13 @@ where
     ///
     /// The values of the strict upper-triangular part are garbage and should be ignored by further
     /// computations.
-    pub fn unpack_dirty(self) -> MatrixN<N, D> {
+    pub fn unpack_dirty(self) -> OMatrix<T, D, D> {
         self.chol
     }
 
     /// Retrieves the lower-triangular factor of the Cholesky decomposition with its strictly
     /// uppen-triangular part filled with zeros.
-    pub fn l(&self) -> MatrixN<N, D> {
+    pub fn l(&self) -> OMatrix<T, D, D> {
         self.chol.lower_triangle()
     }
 
@@ -101,16 +101,16 @@ where
     ///
     /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
     /// part are garbage and should be ignored by further computations.
-    pub fn l_dirty(&self) -> &MatrixN<N, D> {
+    pub fn l_dirty(&self) -> &OMatrix<T, D, D> {
         &self.chol
     }
 
     /// Solves the system `self * x = b` where `self` is the decomposed matrix and `x` the unknown.
     ///
     /// The result is stored on `b`.
-    pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<N, R2, C2, S2>)
+    pub fn solve_mut<R2: Dim, C2: Dim, S2>(&self, b: &mut Matrix<T, R2, C2, S2>)
     where
-        S2: StorageMut<N, R2, C2>,
+        S2: StorageMut<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         self.chol.solve_lower_triangular_unchecked_mut(b);
@@ -119,10 +119,10 @@ where
 
     /// Returns the solution of the system `self * x = b` where `self` is the decomposed matrix and
     /// `x` the unknown.
-    pub fn solve<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<N, R2, C2, S2>) -> MatrixMN<N, R2, C2>
+    pub fn solve<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<T, R2, C2, S2>) -> OMatrix<T, R2, C2>
     where
-        S2: Storage<N, R2, C2>,
-        DefaultAllocator: Allocator<N, R2, C2>,
+        S2: Storage<T, R2, C2>,
+        DefaultAllocator: Allocator<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -131,18 +131,18 @@ where
     }
 
     /// Computes the inverse of the decomposed matrix.
-    pub fn inverse(&self) -> MatrixN<N, D> {
+    pub fn inverse(&self) -> OMatrix<T, D, D> {
         let shape = self.chol.data.shape();
-        let mut res = MatrixN::identity_generic(shape.0, shape.1);
+        let mut res = OMatrix::identity_generic(shape.0, shape.1);
 
         self.solve_mut(&mut res);
         res
     }
 
     /// Computes the determinant of the decomposed matrix.
-    pub fn determinant(&self) -> N::SimdRealField {
+    pub fn determinant(&self) -> T::SimdRealField {
         let dim = self.chol.nrows();
-        let mut prod_diag = N::one();
+        let mut prod_diag = T::one();
         for i in 0..dim {
             prod_diag *= unsafe { *self.chol.get_unchecked((i, i)) };
         }
@@ -150,15 +150,15 @@ where
     }
 }
 
-impl<N: ComplexField, D: Dim> Cholesky<N, D>
+impl<T: ComplexField, D: Dim> Cholesky<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     /// Attempts to compute the Cholesky decomposition of `matrix`.
     ///
     /// Returns `None` if the input matrix is not definite-positive. The input matrix is assumed
     /// to be symmetric and only the lower-triangular part is read.
-    pub fn new(mut matrix: MatrixN<N, D>) -> Option<Self> {
+    pub fn new(mut matrix: OMatrix<T, D, D>) -> Option<Self> {
         assert!(matrix.is_square(), "The input matrix must be square.");
 
         let n = matrix.nrows();
@@ -171,7 +171,7 @@ where
                 let mut col_j = col_j.rows_range_mut(j..);
                 let col_k = col_k.rows_range(j..);
 
-                col_j.axpy(factor.conjugate(), &col_k, N::one());
+                col_j.axpy(factor.conjugate(), &col_k, T::one());
             }
 
             let diag = unsafe { *matrix.get_unchecked((j, j)) };
@@ -198,10 +198,10 @@ where
     /// Given the Cholesky decomposition of a matrix `M`, a scalar `sigma` and a vector `v`,
     /// performs a rank one update such that we end up with the decomposition of `M + sigma * (v * v.adjoint())`.
     #[inline]
-    pub fn rank_one_update<R2: Dim, S2>(&mut self, x: &Vector<N, R2, S2>, sigma: N::RealField)
+    pub fn rank_one_update<R2: Dim, S2>(&mut self, x: &Vector<T, R2, S2>, sigma: T::RealField)
     where
-        S2: Storage<N, R2, U1>,
-        DefaultAllocator: Allocator<N, R2, U1>,
+        S2: Storage<T, R2, U1>,
+        DefaultAllocator: Allocator<T, R2, U1>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         Self::xx_rank_one_update(&mut self.chol, &mut x.clone_owned(), sigma)
@@ -212,13 +212,13 @@ where
     pub fn insert_column<R2, S2>(
         &self,
         j: usize,
-        col: Vector<N, R2, S2>,
-    ) -> Cholesky<N, DimSum<D, U1>>
+        col: Vector<T, R2, S2>,
+    ) -> Cholesky<T, DimSum<D, U1>>
     where
         D: DimAdd<U1>,
         R2: Dim,
-        S2: Storage<N, R2, U1>,
-        DefaultAllocator: Allocator<N, DimSum<D, U1>, DimSum<D, U1>> + Allocator<N, R2>,
+        S2: Storage<T, R2, U1>,
+        DefaultAllocator: Allocator<T, DimSum<D, U1>, DimSum<D, U1>> + Allocator<T, R2>,
         ShapeConstraint: SameNumberOfRows<R2, DimSum<D, U1>>,
     {
         let mut col = col.into_owned();
@@ -234,8 +234,8 @@ where
         // loads the data into a new matrix with an additional jth row/column
         let mut chol = unsafe {
             crate::unimplemented_or_uninitialized_generic!(
-                self.chol.data.shape().0.add(U1),
-                self.chol.data.shape().1.add(U1)
+                self.chol.data.shape().0.add(Const::<1>),
+                self.chol.data.shape().1.add(Const::<1>)
             )
         };
         chol.slice_range_mut(..j, ..j)
@@ -260,17 +260,17 @@ where
         new_rowj_adjoint.adjoint_to(&mut chol.slice_range_mut(j, ..j));
 
         // update the center element
-        let center_element = N::sqrt(col_j - N::from_real(new_rowj_adjoint.norm_squared()));
+        let center_element = T::sqrt(col_j - T::from_real(new_rowj_adjoint.norm_squared()));
         chol[(j, j)] = center_element;
 
         // update the jth column
         let bottom_left_corner = self.chol.slice_range(j.., ..j);
         // new_colj = (col_jplus - bottom_left_corner * new_rowj.adjoint()) / center_element;
         new_colj.gemm(
-            -N::one() / center_element,
+            -T::one() / center_element,
             &bottom_left_corner,
             &new_rowj_adjoint,
-            N::one() / center_element,
+            T::one() / center_element,
         );
         chol.slice_range_mut(j + 1.., j).copy_from(&new_colj);
 
@@ -279,7 +279,7 @@ where
         Self::xx_rank_one_update(
             &mut bottom_right_corner,
             &mut new_colj,
-            -N::RealField::one(),
+            -T::RealField::one(),
         );
 
         Cholesky { chol }
@@ -287,10 +287,10 @@ where
 
     /// Updates the decomposition such that we get the decomposition of the factored matrix with its `j`th column removed.
     /// Since the matrix is square, the `j`th row will also be removed.
-    pub fn remove_column(&self, j: usize) -> Cholesky<N, DimDiff<D, U1>>
+    pub fn remove_column(&self, j: usize) -> Cholesky<T, DimDiff<D, U1>>
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<N, DimDiff<D, U1>, DimDiff<D, U1>> + Allocator<N, D>,
+        DefaultAllocator: Allocator<T, DimDiff<D, U1>, DimDiff<D, U1>> + Allocator<T, D>,
     {
         let n = self.chol.nrows();
         assert!(n > 0, "The matrix needs at least one column.");
@@ -299,8 +299,8 @@ where
         // loads the data into a new matrix except for the jth row/column
         let mut chol = unsafe {
             crate::unimplemented_or_uninitialized_generic!(
-                self.chol.data.shape().0.sub(U1),
-                self.chol.data.shape().1.sub(U1)
+                self.chol.data.shape().0.sub(Const::<1>),
+                self.chol.data.shape().1.sub(Const::<1>)
             )
         };
         chol.slice_range_mut(..j, ..j)
@@ -316,7 +316,7 @@ where
         let mut bottom_right_corner = chol.slice_range_mut(j.., j..);
         let mut workspace = self.chol.column(j).clone_owned();
         let mut old_colj = workspace.rows_range_mut(j + 1..);
-        Self::xx_rank_one_update(&mut bottom_right_corner, &mut old_colj, N::RealField::one());
+        Self::xx_rank_one_update(&mut bottom_right_corner, &mut old_colj, T::RealField::one());
 
         Cholesky { chol }
     }
@@ -327,15 +327,15 @@ where
     /// This helper method is called by `rank_one_update` but also `insert_column` and `remove_column`
     /// where it is used on a square slice of the decomposition
     fn xx_rank_one_update<Dm, Sm, Rx, Sx>(
-        chol: &mut Matrix<N, Dm, Dm, Sm>,
-        x: &mut Vector<N, Rx, Sx>,
-        sigma: N::RealField,
+        chol: &mut Matrix<T, Dm, Dm, Sm>,
+        x: &mut Vector<T, Rx, Sx>,
+        sigma: T::RealField,
     ) where
-        //N: ComplexField,
+        //T: ComplexField,
         Dm: Dim,
         Rx: Dim,
-        Sm: StorageMut<N, Dm, Dm>,
-        Sx: StorageMut<N, Rx, U1>,
+        Sm: StorageMut<T, Dm, Dm>,
+        Sx: StorageMut<T, Rx, U1>,
     {
         // heavily inspired by Eigen's `llt_rank_update_lower` implementation https://eigen.tuxfamily.org/dox/LLT_8h_source.html
         let n = x.nrows();
@@ -345,29 +345,29 @@ where
             "The input vector must be of the same size as the factorized matrix."
         );
 
-        let mut beta = crate::one::<N::RealField>();
+        let mut beta = crate::one::<T::RealField>();
 
         for j in 0..n {
             // updates the diagonal
-            let diag = N::real(unsafe { *chol.get_unchecked((j, j)) });
+            let diag = T::real(unsafe { *chol.get_unchecked((j, j)) });
             let diag2 = diag * diag;
             let xj = unsafe { *x.get_unchecked(j) };
-            let sigma_xj2 = sigma * N::modulus_squared(xj);
+            let sigma_xj2 = sigma * T::modulus_squared(xj);
             let gamma = diag2 * beta + sigma_xj2;
             let new_diag = (diag2 + sigma_xj2 / beta).sqrt();
-            unsafe { *chol.get_unchecked_mut((j, j)) = N::from_real(new_diag) };
+            unsafe { *chol.get_unchecked_mut((j, j)) = T::from_real(new_diag) };
             beta += sigma_xj2 / diag2;
             // updates the terms of L
             let mut xjplus = x.rows_range_mut(j + 1..);
             let mut col_j = chol.slice_range_mut(j + 1.., j);
-            // temp_jplus -= (wj / N::from_real(diag)) * col_j;
-            xjplus.axpy(-xj / N::from_real(diag), &col_j, N::one());
-            if gamma != crate::zero::<N::RealField>() {
-                // col_j = N::from_real(nljj / diag) * col_j  + (N::from_real(nljj * sigma / gamma) * N::conjugate(wj)) * temp_jplus;
+            // temp_jplus -= (wj / T::from_real(diag)) * col_j;
+            xjplus.axpy(-xj / T::from_real(diag), &col_j, T::one());
+            if gamma != crate::zero::<T::RealField>() {
+                // col_j = T::from_real(nljj / diag) * col_j  + (T::from_real(nljj * sigma / gamma) * T::conjugate(wj)) * temp_jplus;
                 col_j.axpy(
-                    N::from_real(new_diag * sigma / gamma) * N::conjugate(xj),
+                    T::from_real(new_diag * sigma / gamma) * T::conjugate(xj),
                     &xjplus,
-                    N::from_real(new_diag / diag),
+                    T::from_real(new_diag / diag),
                 );
             }
         }

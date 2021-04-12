@@ -29,29 +29,29 @@ use std::cmp::{Eq, PartialEq};
 ///
 /// # Conversion
 /// * [Conversion to a matrix <span style="float:right;">`to_rotation_matrix`, `to_homogeneous`…</span>](#conversion-to-a-matrix)
-pub type UnitComplex<N> = Unit<Complex<N>>;
+pub type UnitComplex<T> = Unit<Complex<T>>;
 
-impl<N: Scalar + PartialEq> PartialEq for UnitComplex<N> {
+impl<T: Scalar + PartialEq> PartialEq for UnitComplex<T> {
     #[inline]
     fn eq(&self, rhs: &Self) -> bool {
         (**self).eq(&**rhs)
     }
 }
 
-impl<N: Scalar + Eq> Eq for UnitComplex<N> {}
+impl<T: Scalar + Eq> Eq for UnitComplex<T> {}
 
-impl<N: SimdRealField> Normed for Complex<N> {
-    type Norm = N::SimdRealField;
+impl<T: SimdRealField> Normed for Complex<T> {
+    type Norm = T::SimdRealField;
 
     #[inline]
-    fn norm(&self) -> N::SimdRealField {
+    fn norm(&self) -> T::SimdRealField {
         // We don't use `.norm_sqr()` because it requires
         // some very strong Num trait requirements.
         (self.re * self.re + self.im * self.im).simd_sqrt()
     }
 
     #[inline]
-    fn norm_squared(&self) -> N::SimdRealField {
+    fn norm_squared(&self) -> T::SimdRealField {
         // We don't use `.norm_sqr()` because it requires
         // some very strong Num trait requirements.
         self.re * self.re + self.im * self.im
@@ -71,9 +71,9 @@ impl<N: SimdRealField> Normed for Complex<N> {
 }
 
 /// # Angle extraction
-impl<N: SimdRealField> UnitComplex<N>
+impl<T: SimdRealField> UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// The rotation angle in `]-pi; pi]` of this unit complex number.
     ///
@@ -84,7 +84,7 @@ where
     /// assert_eq!(rot.angle(), 1.78);
     /// ```
     #[inline]
-    pub fn angle(&self) -> N {
+    pub fn angle(&self) -> T {
         self.im.simd_atan2(self.re)
     }
 
@@ -98,7 +98,7 @@ where
     /// assert_eq!(rot.sin_angle(), angle.sin());
     /// ```
     #[inline]
-    pub fn sin_angle(&self) -> N {
+    pub fn sin_angle(&self) -> T {
         self.im
     }
 
@@ -112,7 +112,7 @@ where
     /// assert_eq!(rot.cos_angle(),angle.cos());
     /// ```
     #[inline]
-    pub fn cos_angle(&self) -> N {
+    pub fn cos_angle(&self) -> T {
         self.re
     }
 
@@ -121,7 +121,7 @@ where
     /// This is generally used in the context of generic programming. Using
     /// the `.angle()` method instead is more common.
     #[inline]
-    pub fn scaled_axis(&self) -> Vector1<N> {
+    pub fn scaled_axis(&self) -> Vector1<T> {
         Vector1::new(self.angle())
     }
 
@@ -131,9 +131,9 @@ where
     /// the `.angle()` method instead is more common.
     /// Returns `None` if the angle is zero.
     #[inline]
-    pub fn axis_angle(&self) -> Option<(Unit<Vector1<N>>, N)>
+    pub fn axis_angle(&self) -> Option<(Unit<Vector1<T>>, T)>
     where
-        N: RealField,
+        T: RealField,
     {
         let ang = self.angle();
 
@@ -142,7 +142,7 @@ where
         } else if ang.is_sign_negative() {
             Some((Unit::new_unchecked(Vector1::x()), -ang))
         } else {
-            Some((Unit::new_unchecked(-Vector1::<N>::x()), ang))
+            Some((Unit::new_unchecked(-Vector1::<T>::x()), ang))
         }
     }
 
@@ -157,16 +157,16 @@ where
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.6);
     /// ```
     #[inline]
-    pub fn angle_to(&self, other: &Self) -> N {
+    pub fn angle_to(&self, other: &Self) -> T {
         let delta = self.rotation_to(other);
         delta.angle()
     }
 }
 
 /// # Conjugation and inversion
-impl<N: SimdRealField> UnitComplex<N>
+impl<T: SimdRealField> UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Compute the conjugate of this unit complex number.
     ///
@@ -239,9 +239,9 @@ where
 }
 
 /// # Conversion to a matrix
-impl<N: SimdRealField> UnitComplex<N>
+impl<T: SimdRealField> UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Builds the rotation matrix corresponding to this unit complex number.
     ///
@@ -254,7 +254,7 @@ where
     /// assert_eq!(rot.to_rotation_matrix(), expected);
     /// ```
     #[inline]
-    pub fn to_rotation_matrix(&self) -> Rotation2<N> {
+    pub fn to_rotation_matrix(&self) -> Rotation2<T> {
         let r = self.re;
         let i = self.im;
 
@@ -274,15 +274,15 @@ where
     /// assert_eq!(rot.to_homogeneous(), expected);
     /// ```
     #[inline]
-    pub fn to_homogeneous(&self) -> Matrix3<N> {
+    pub fn to_homogeneous(&self) -> Matrix3<T> {
         self.to_rotation_matrix().to_homogeneous()
     }
 }
 
 /// # Transformation of a vector or a point
-impl<N: SimdRealField> UnitComplex<N>
+impl<T: SimdRealField> UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Rotate the given point by this unit complex number.
     ///
@@ -298,7 +298,7 @@ where
     /// assert_relative_eq!(transformed_point, Point2::new(-2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn transform_point(&self, pt: &Point2<N>) -> Point2<N> {
+    pub fn transform_point(&self, pt: &Point2<T>) -> Point2<T> {
         self * pt
     }
 
@@ -316,7 +316,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector2::new(-2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn transform_vector(&self, v: &Vector2<N>) -> Vector2<N> {
+    pub fn transform_vector(&self, v: &Vector2<T>) -> Vector2<T> {
         self * v
     }
 
@@ -332,7 +332,7 @@ where
     /// assert_relative_eq!(transformed_point, Point2::new(2.0, -1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn inverse_transform_point(&self, pt: &Point2<N>) -> Point2<N> {
+    pub fn inverse_transform_point(&self, pt: &Point2<T>) -> Point2<T> {
         // TODO: would it be useful performancewise not to call inverse explicitly (i-e. implement
         // the inverse transformation explicitly here) ?
         self.inverse() * pt
@@ -350,7 +350,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector2::new(2.0, -1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn inverse_transform_vector(&self, v: &Vector2<N>) -> Vector2<N> {
+    pub fn inverse_transform_vector(&self, v: &Vector2<T>) -> Vector2<T> {
         self.inverse() * v
     }
 
@@ -366,15 +366,15 @@ where
     /// assert_relative_eq!(transformed_vector, -Vector2::y_axis(), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector2<N>>) -> Unit<Vector2<N>> {
+    pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector2<T>>) -> Unit<Vector2<T>> {
         self.inverse() * v
     }
 }
 
 /// # Interpolation
-impl<N: SimdRealField> UnitComplex<N>
+impl<T: SimdRealField> UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     /// Spherical linear interpolation between two rotations represented as unit complex numbers.
     ///
@@ -392,23 +392,23 @@ where
     /// assert_relative_eq!(rot.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
     #[inline]
-    pub fn slerp(&self, other: &Self, t: N) -> Self {
-        Self::new(self.angle() * (N::one() - t) + other.angle() * t)
+    pub fn slerp(&self, other: &Self, t: T) -> Self {
+        Self::new(self.angle() * (T::one() - t) + other.angle() * t)
     }
 }
 
-impl<N: RealField + fmt::Display> fmt::Display for UnitComplex<N> {
+impl<T: RealField + fmt::Display> fmt::Display for UnitComplex<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "UnitComplex angle: {}", self.angle())
     }
 }
 
-impl<N: RealField> AbsDiffEq for UnitComplex<N> {
-    type Epsilon = N;
+impl<T: RealField> AbsDiffEq for UnitComplex<T> {
+    type Epsilon = T;
 
     #[inline]
     fn default_epsilon() -> Self::Epsilon {
-        N::default_epsilon()
+        T::default_epsilon()
     }
 
     #[inline]
@@ -417,10 +417,10 @@ impl<N: RealField> AbsDiffEq for UnitComplex<N> {
     }
 }
 
-impl<N: RealField> RelativeEq for UnitComplex<N> {
+impl<T: RealField> RelativeEq for UnitComplex<T> {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
-        N::default_max_relative()
+        T::default_max_relative()
     }
 
     #[inline]
@@ -435,10 +435,10 @@ impl<N: RealField> RelativeEq for UnitComplex<N> {
     }
 }
 
-impl<N: RealField> UlpsEq for UnitComplex<N> {
+impl<T: RealField> UlpsEq for UnitComplex<T> {
     #[inline]
     fn default_max_ulps() -> u32 {
-        N::default_max_ulps()
+        T::default_max_ulps()
     }
 
     #[inline]

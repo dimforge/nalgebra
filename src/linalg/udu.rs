@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, MatrixN, VectorN, U1};
+use crate::base::{Const, DefaultAllocator, OMatrix, OVector};
 use crate::dimension::Dim;
 use crate::storage::Storage;
 use simba::scalar::RealField;
@@ -11,36 +11,36 @@ use simba::scalar::RealField;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "VectorN<N, D>: Serialize, MatrixN<N, D>: Serialize"))
+    serde(bound(serialize = "OVector<T, D>: Serialize, OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
     serde(bound(
-        deserialize = "VectorN<N, D>: Deserialize<'de>, MatrixN<N, D>: Deserialize<'de>"
+        deserialize = "OVector<T, D>: Deserialize<'de>, OMatrix<T, D, D>: Deserialize<'de>"
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct UDU<N: RealField, D: Dim>
+pub struct UDU<T: RealField, D: Dim>
 where
-    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
 {
     /// The upper triangular matrix resulting from the factorization
-    pub u: MatrixN<N, D>,
+    pub u: OMatrix<T, D, D>,
     /// The diagonal matrix resulting from the factorization
-    pub d: VectorN<N, D>,
+    pub d: OVector<T, D>,
 }
 
-impl<N: RealField, D: Dim> Copy for UDU<N, D>
+impl<T: RealField, D: Dim> Copy for UDU<T, D>
 where
-    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
-    VectorN<N, D>: Copy,
-    MatrixN<N, D>: Copy,
+    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
+    OVector<T, D>: Copy,
+    OMatrix<T, D, D>: Copy,
 {
 }
 
-impl<N: RealField, D: Dim> UDU<N, D>
+impl<T: RealField, D: Dim> UDU<T, D>
 where
-    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
 {
     /// Computes the UDU^T factorization.
     ///
@@ -48,12 +48,12 @@ where
     /// the upper-triangular part of `p`.
     ///
     /// Ref.: "Optimal control and estimation-Dover Publications", Robert F. Stengel, (1994) page 360
-    pub fn new(p: MatrixN<N, D>) -> Option<Self> {
+    pub fn new(p: OMatrix<T, D, D>) -> Option<Self> {
         let n = p.ncols();
         let n_dim = p.data.shape().1;
 
-        let mut d = VectorN::zeros_generic(n_dim, U1);
-        let mut u = MatrixN::zeros_generic(n_dim, n_dim);
+        let mut d = OVector::zeros_generic(n_dim, Const::<1>);
+        let mut u = OMatrix::zeros_generic(n_dim, n_dim);
 
         d[n - 1] = p[(n - 1, n - 1)];
 
@@ -62,7 +62,7 @@ where
         }
 
         u.column_mut(n - 1)
-            .axpy(N::one() / d[n - 1], &p.column(n - 1), N::zero());
+            .axpy(T::one() / d[n - 1], &p.column(n - 1), T::zero());
 
         for j in (0..n - 1).rev() {
             let mut d_j = d[j];
@@ -85,14 +85,14 @@ where
                 u[(i, j)] = (p[(i, j)] - u_ij) / d[j];
             }
 
-            u[(j, j)] = N::one();
+            u[(j, j)] = T::one();
         }
 
         Some(Self { u, d })
     }
 
     /// Returns the diagonal elements as a matrix
-    pub fn d_matrix(&self) -> MatrixN<N, D> {
-        MatrixN::from_diagonal(&self.d)
+    pub fn d_matrix(&self) -> OMatrix<T, D, D> {
+        OMatrix::from_diagonal(&self.d)
     }
 }

@@ -36,7 +36,7 @@ no_unsound_assume_init = [ ]
 # Conversion
 convert-mint = [ "mint" ]
 convert-glam = [ "glam" ]
-convert-glam-unchecked = [ "convert-glam" ] # Unable edgy conversions like Mat4 -> Isometry3
+convert-glam-unchecked = [ "convert-glam" ] # Enable edgy conversions like Mat4 -> Isometry3
 convert-bytemuck = [ "bytemuck" ]
 
 # Serialization
@@ -54,7 +54,6 @@ slow-tests       = []
 
 [dependencies]
 typenum        = "1.12"
-generic-array  = "0.14"
 rand-package   = { package = "rand", version = "0.8", optional = true, default-features = false }
 num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.3", default-features = false }

@@ -6,16 +6,16 @@ use crate::base::Unit;
 use crate::geometry::UnitComplex;
 use crate::SimdRealField;
 
-impl<N: SimdRealField> SimdValue for UnitComplex<N>
+impl<T: SimdRealField> SimdValue for UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
-    type Element = UnitComplex<N::Element>;
-    type SimdBool = N::SimdBool;
+    type Element = UnitComplex<T::Element>;
+    type SimdBool = T::SimdBool;
 
     #[inline]
     fn lanes() -> usize {
-        N::lanes()
+        T::lanes()
     }
 
     #[inline]

@@ -287,12 +287,12 @@ fn matrix_slice_from_matrix_ref() {
         ($mref:expr) => {
             MatrixSlice::<_, U3, U4, U1, U3>::from($mref)
         };
-    };
+    }
     macro_rules! fixed_slice_mut {
         ($mref:expr) => {
             MatrixSliceMut::<_, U3, U4, U1, U3>::from($mref)
         };
-    };
+    }
 
     // TODO: The `into_owned()` is a result of `PartialEq` not being implemented for different
     // Self and RHS. See issue #674. Once this is implemented, we can remove `into_owned`

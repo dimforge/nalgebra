@@ -1,11 +1,11 @@
 use num::{One, Zero};
 use std::cmp::Ordering;
 
-use na::dimension::{U15, U2, U4, U8};
+use na::dimension::{U15, U8};
 use na::{
-    self, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4, Matrix4,
-    Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixMN, RowVector3, RowVector4, RowVector5, Vector1,
-    Vector2, Vector3, Vector4, Vector5, Vector6,
+    self, Const, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4,
+    Matrix4, Matrix4x3, Matrix4x5, Matrix5, Matrix6, OMatrix, RowVector3, RowVector4, RowVector5,
+    Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
 };
 
 #[test]
@@ -79,10 +79,15 @@ fn iter() {
 
 #[test]
 fn debug_output_corresponds_to_data_container() {
-    assert!(
-        format!("{:?}", Matrix2::new(1.0, 2.0, 3.0, 4.0)) == "Matrix { data: [1, 3, 2, 4] }" || // Current output on the stable chanel.
-        format!("{:?}", Matrix2::new(1.0, 2.0, 3.0, 4.0)) == "Matrix { data: [1.0, 3.0, 2.0, 4.0] }" // Current output on the nightyl chanel.
-    );
+    let m = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+    let output_stable = "Matrix { data: [[1, 3], [2, 4]] }"; // Current output on the stable channel.
+    let output_nightly = "Matrix { data: [[1.0, 3.0], [2.0, 4.0]] }"; // Current output on the nightly channel.
+    let current_output = format!("{:?}", m);
+    dbg!(output_stable);
+    dbg!(output_nightly);
+    dbg!(&current_output);
+
+    assert!(current_output == output_stable || current_output == output_nightly);
 }
 
 #[test]
@@ -698,7 +703,7 @@ fn kronecker() {
         440, 450,
     );
 
-    let expected = MatrixMN::<_, U8, U15>::from_row_slice(&[
+    let expected = OMatrix::<_, U8, U15>::from_row_slice(&[
         1210, 1320, 1430, 1540, 1650, 1320, 1440, 1560, 1680, 1800, 1430, 1560, 1690, 1820, 1950,
         2310, 2420, 2530, 2640, 2750, 2520, 2640, 2760, 2880, 3000, 2730, 2860, 2990, 3120, 3250,
         3410, 3520, 3630, 3740, 3850, 3720, 3840, 3960, 4080, 4200, 4030, 4160, 4290, 4420, 4550,
@@ -833,17 +838,16 @@ fn swizzle() {
 mod transposition_tests {
     use super::*;
     use crate::proptest::{dmatrix, matrix, vector4, PROPTEST_F64};
-    use na::{U2, U3, U4, U6};
     use proptest::{prop_assert, prop_assert_eq, proptest};
 
     proptest! {
         #[test]
-        fn transpose_transpose_is_self(m in matrix(PROPTEST_F64, U2, U3)) {
+        fn transpose_transpose_is_self(m in matrix(PROPTEST_F64, Const::<2>, Const::<3>)) {
             prop_assert_eq!(m.transpose().transpose(), m)
         }
 
         #[test]
-        fn transpose_mut_transpose_mut_is_self(m in matrix(PROPTEST_F64, U3, U3)) {
+        fn transpose_mut_transpose_mut_is_self(m in matrix(PROPTEST_F64, Const::<3>, Const::<3>)) {
             let mut mm = m;
             mm.transpose_mut();
             mm.transpose_mut();
@@ -870,7 +874,7 @@ mod transposition_tests {
         }
 
         #[test]
-        fn tr_mul_is_transpose_then_mul(m in matrix(PROPTEST_F64, U4, U6), v in vector4()) {
+        fn tr_mul_is_transpose_then_mul(m in matrix(PROPTEST_F64, Const::<4>, Const::<6>), v in vector4()) {
             prop_assert!(relative_eq!(m.transpose() * v, m.tr_mul(&v), epsilon = 1.0e-7))
         }
     }
@@ -1061,13 +1065,13 @@ fn partial_eq_different_types() {
     let dynamic_mat = DMatrix::from_row_slice(2, 4, &[1, 2, 3, 4, 5, 6, 7, 8]);
     let static_mat = Matrix2x4::new(1, 2, 3, 4, 5, 6, 7, 8);
 
-    let mut typenum_static_mat = MatrixMN::<u8, typenum::U1024, U4>::zeros();
+    let mut typenum_static_mat = OMatrix::<u8, Const<1024>, Const<4>>::zeros();
     let mut slice = typenum_static_mat.slice_mut((0, 0), (2, 4));
     slice += static_mat;
 
-    let fslice_of_dmat = dynamic_mat.fixed_slice::<U2, U2>(0, 0);
+    let fslice_of_dmat = dynamic_mat.fixed_slice::<2, 2>(0, 0);
     let dslice_of_dmat = dynamic_mat.slice((0, 0), (2, 2));
-    let fslice_of_smat = static_mat.fixed_slice::<U2, U2>(0, 0);
+    let fslice_of_smat = static_mat.fixed_slice::<2, 2>(0, 0);
     let dslice_of_smat = static_mat.slice((0, 0), (2, 2));
 
     assert_eq!(dynamic_mat, static_mat);

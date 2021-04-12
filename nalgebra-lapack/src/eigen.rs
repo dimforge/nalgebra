@@ -8,9 +8,9 @@ use simba::scalar::RealField;
 
 use crate::ComplexHelper;
 use na::allocator::Allocator;
-use na::dimension::{Dim, U1};
+use na::dimension::{Const, Dim};
 use na::storage::Storage;
-use na::{DefaultAllocator, Matrix, MatrixN, Scalar, VectorN};
+use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
 
@@ -19,74 +19,74 @@ use lapack;
 #[cfg_attr(
     feature = "serde-serialize",
     serde(
-        bound(serialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
-         VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Serialize")
+        bound(serialize = "DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+         OVector<T, D>: Serialize,
+         OMatrix<T, D, D>: Serialize")
     )
 )]
 #[cfg_attr(
     feature = "serde-serialize",
     serde(
-        bound(deserialize = "DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
-         VectorN<N, D>: Serialize,
-         MatrixN<N, D>: Deserialize<'de>")
+        bound(deserialize = "DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+         OVector<T, D>: Serialize,
+         OMatrix<T, D, D>: Deserialize<'de>")
     )
 )]
 #[derive(Clone, Debug)]
-pub struct Eigen<N: Scalar, D: Dim>
+pub struct Eigen<T: Scalar, D: Dim>
 where
-    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
 {
     /// The eigenvalues of the decomposed matrix.
-    pub eigenvalues: VectorN<N, D>,
+    pub eigenvalues: OVector<T, D>,
     /// The (right) eigenvectors of the decomposed matrix.
-    pub eigenvectors: Option<MatrixN<N, D>>,
+    pub eigenvectors: Option<OMatrix<T, D, D>>,
     /// The left eigenvectors of the decomposed matrix.
-    pub left_eigenvectors: Option<MatrixN<N, D>>,
+    pub left_eigenvectors: Option<OMatrix<T, D, D>>,
 }
 
-impl<N: Scalar + Copy, D: Dim> Copy for Eigen<N, D>
+impl<T: Scalar + Copy, D: Dim> Copy for Eigen<T, D>
 where
-    DefaultAllocator: Allocator<N, D> + Allocator<N, D, D>,
-    VectorN<N, D>: Copy,
-    MatrixN<N, D>: Copy,
+    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
+    OVector<T, D>: Copy,
+    OMatrix<T, D, D>: Copy,
 {
 }
 
-impl<N: EigenScalar + RealField, D: Dim> Eigen<N, D>
+impl<T: EigenScalar + RealField, D: Dim> Eigen<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, D>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
     /// Computes the eigenvalues and eigenvectors of the square matrix `m`.
     ///
     /// If `eigenvectors` is `false` then, the eigenvectors are not computed explicitly.
     pub fn new(
-        mut m: MatrixN<N, D>,
+        mut m: OMatrix<T, D, D>,
         left_eigenvectors: bool,
         eigenvectors: bool,
-    ) -> Option<Eigen<N, D>> {
+    ) -> Option<Eigen<T, D>> {
         assert!(
             m.is_square(),
             "Unable to compute the eigenvalue decomposition of a non-square matrix."
         );
 
-        let ljob = if left_eigenvectors { b'V' } else { b'N' };
-        let rjob = if eigenvectors { b'V' } else { b'N' };
+        let ljob = if left_eigenvectors { b'V' } else { b'T' };
+        let rjob = if eigenvectors { b'V' } else { b'T' };
 
         let (nrows, ncols) = m.data.shape();
         let n = nrows.value();
 
         let lda = n as i32;
 
-        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
         // TODO: Tap into the workspace.
-        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
 
         let mut info = 0;
-        let mut placeholder1 = [N::zero()];
-        let mut placeholder2 = [N::zero()];
+        let mut placeholder1 = [T::zero()];
+        let mut placeholder2 = [T::zero()];
 
-        let lwork = N::xgeev_work_size(
+        let lwork = T::xgeev_work_size(
             ljob,
             rjob,
             n as i32,
@@ -112,7 +112,7 @@ where
                 let mut vr =
                     unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
 
-                N::xgeev(
+                T::xgeev(
                     ljob,
                     rjob,
                     n as i32,
@@ -142,7 +142,7 @@ where
                 let mut vl =
                     unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
 
-                N::xgeev(
+                T::xgeev(
                     ljob,
                     rjob,
                     n as i32,
@@ -172,7 +172,7 @@ where
                 let mut vr =
                     unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
 
-                N::xgeev(
+                T::xgeev(
                     ljob,
                     rjob,
                     n as i32,
@@ -199,7 +199,7 @@ where
                 }
             }
             (false, false) => {
-                N::xgeev(
+                T::xgeev(
                     ljob,
                     rjob,
                     n as i32,
@@ -233,9 +233,9 @@ where
     /// The complex eigenvalues of the given matrix.
     ///
     /// Panics if the eigenvalue computation does not converge.
-    pub fn complex_eigenvalues(mut m: MatrixN<N, D>) -> VectorN<Complex<N>, D>
+    pub fn complex_eigenvalues(mut m: OMatrix<T, D, D>) -> OVector<Complex<T>, D>
     where
-        DefaultAllocator: Allocator<Complex<N>, D>,
+        DefaultAllocator: Allocator<Complex<T>, D>,
     {
         assert!(
             m.is_square(),
@@ -247,16 +247,16 @@ where
 
         let lda = n as i32;
 
-        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
-        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
+        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
 
         let mut info = 0;
-        let mut placeholder1 = [N::zero()];
-        let mut placeholder2 = [N::zero()];
+        let mut placeholder1 = [T::zero()];
+        let mut placeholder2 = [T::zero()];
 
-        let lwork = N::xgeev_work_size(
-            b'N',
-            b'N',
+        let lwork = T::xgeev_work_size(
+            b'T',
+            b'T',
             n as i32,
             m.as_mut_slice(),
             lda,
@@ -273,9 +273,9 @@ where
 
         let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
 
-        N::xgeev(
-            b'N',
-            b'N',
+        T::xgeev(
+            b'T',
+            b'T',
             n as i32,
             m.as_mut_slice(),
             lda,
@@ -291,7 +291,7 @@ where
         );
         lapack_panic!(info);
 
-        let mut res = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut res = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
 
         for i in 0..res.len() {
             res[i] = Complex::new(wr[i], wi[i]);
@@ -302,8 +302,8 @@ where
 
     /// The determinant of the decomposed matrix.
     #[inline]
-    pub fn determinant(&self) -> N {
-        let mut det = N::one();
+    pub fn determinant(&self) -> T {
+        let mut det = T::one();
         for e in self.eigenvalues.iter() {
             det *= *e;
         }

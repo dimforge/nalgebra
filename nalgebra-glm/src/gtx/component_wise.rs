@@ -1,7 +1,5 @@
-use na::{self, DefaultAllocator};
-
 use crate::aliases::TMat;
-use crate::traits::{Alloc, Dimension, Number};
+use crate::traits::Number;
 
 /// The sum of every component of the given matrix or vector.
 ///
@@ -21,11 +19,8 @@ use crate::traits::{Alloc, Dimension, Number};
 /// * [`comp_max`](fn.comp_max.html)
 /// * [`comp_min`](fn.comp_min.html)
 /// * [`comp_mul`](fn.comp_mul.html)
-pub fn comp_add<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
-where
-    DefaultAllocator: Alloc<N, R, C>,
-{
-    m.iter().fold(N::zero(), |x, y| x + *y)
+pub fn comp_add<T: Number, const R: usize, const C: usize>(m: &TMat<T, R, C>) -> T {
+    m.iter().fold(T::zero(), |x, y| x + *y)
 }
 
 /// The maximum of every component of the given matrix or vector.
@@ -50,12 +45,9 @@ where
 /// * [`max2`](fn.max2.html)
 /// * [`max3`](fn.max3.html)
 /// * [`max4`](fn.max4.html)
-pub fn comp_max<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
-where
-    DefaultAllocator: Alloc<N, R, C>,
-{
+pub fn comp_max<T: Number, const R: usize, const C: usize>(m: &TMat<T, R, C>) -> T {
     m.iter()
-        .fold(N::min_value(), |x, y| crate::max2_scalar(x, *y))
+        .fold(T::min_value(), |x, y| crate::max2_scalar(x, *y))
 }
 
 /// The minimum of every component of the given matrix or vector.
@@ -80,12 +72,9 @@ where
 /// * [`min2`](fn.min2.html)
 /// * [`min3`](fn.min3.html)
 /// * [`min4`](fn.min4.html)
-pub fn comp_min<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
-where
-    DefaultAllocator: Alloc<N, R, C>,
-{
+pub fn comp_min<T: Number, const R: usize, const C: usize>(m: &TMat<T, R, C>) -> T {
     m.iter()
-        .fold(N::max_value(), |x, y| crate::min2_scalar(x, *y))
+        .fold(T::max_value(), |x, y| crate::min2_scalar(x, *y))
 }
 
 /// The product of every component of the given matrix or vector.
@@ -106,11 +95,8 @@ where
 /// * [`comp_add`](fn.comp_add.html)
 /// * [`comp_max`](fn.comp_max.html)
 /// * [`comp_min`](fn.comp_min.html)
-pub fn comp_mul<N: Number, R: Dimension, C: Dimension>(m: &TMat<N, R, C>) -> N
-where
-    DefaultAllocator: Alloc<N, R, C>,
-{
-    m.iter().fold(N::one(), |x, y| x * *y)
+pub fn comp_mul<T: Number, const R: usize, const C: usize>(m: &TMat<T, R, C>) -> T {
+    m.iter().fold(T::one(), |x, y| x * *y)
 }
 
 //pub fn vec< L, floatType, Q > compNormalize (vec< L, T, Q > const &v)

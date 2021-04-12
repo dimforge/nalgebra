@@ -20,9 +20,11 @@ use typenum::{self, Cmp, Greater};
 use simba::scalar::{ClosedAdd, ClosedMul};
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{Dim, DimName, Dynamic, U1, U2, U3, U4, U5, U6};
+use crate::base::dimension::{Dim, DimName, Dynamic, ToTypenum};
 use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixN, Scalar, Unit, Vector, VectorN};
+use crate::base::{
+    ArrayStorage, Const, DefaultAllocator, Matrix, OMatrix, OVector, Scalar, Unit, Vector,
+};
 
 /// When "no_unsound_assume_init" is enabled, expands to `unimplemented!()` instead of `new_uninitialized_generic().assume_init()`.
 /// Intended as a placeholder, each callsite should be refactored to use uninitialized memory soundly
@@ -31,7 +33,7 @@ macro_rules! unimplemented_or_uninitialized_generic {
     ($nrows:expr, $ncols:expr) => {{
         #[cfg(feature="no_unsound_assume_init")] {
             // Some of the call sites need the number of rows and columns from this to infer a type, so
-            // uninitialized memory is used to infer the type, as `N: Zero` isn't available at all callsites.
+            // uninitialized memory is used to infer the type, as `T: Zero` isn't available at all callsites.
             // This may technically still be UB even though the assume_init is dead code, but all callsites should be fixed before #556 is closed.
             let typeinference_helper = crate::base::Matrix::new_uninitialized_generic($nrows, $ncols);
             unimplemented!();
@@ -47,9 +49,9 @@ macro_rules! unimplemented_or_uninitialized_generic {
 /// the dimension as inputs.
 ///
 /// These functions should only be used when working on dimension-generic code.
-impl<N: Scalar, R: Dim, C: Dim> MatrixMN<N, R, C>
+impl<T: Scalar, R: Dim, C: Dim> OMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<N, R, C>,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     /// Creates a new uninitialized matrix. If the matrix has a compile-time dimension, this panics
     /// if `nrows != R::to_usize()` or `ncols != C::to_usize()`.
@@ -60,7 +62,7 @@ where
 
     /// Creates a matrix with all its elements set to `elem`.
     #[inline]
-    pub fn from_element_generic(nrows: R, ncols: C, elem: N) -> Self {
+    pub fn from_element_generic(nrows: R, ncols: C, elem: T) -> Self {
         let len = nrows.value() * ncols.value();
         Self::from_iterator_generic(nrows, ncols, iter::repeat(elem).take(len))
     }
@@ -69,7 +71,7 @@ where
     ///
     /// Same as `from_element_generic`.
     #[inline]
-    pub fn repeat_generic(nrows: R, ncols: C, elem: N) -> Self {
+    pub fn repeat_generic(nrows: R, ncols: C, elem: T) -> Self {
         let len = nrows.value() * ncols.value();
         Self::from_iterator_generic(nrows, ncols, iter::repeat(elem).take(len))
     }
@@ -78,16 +80,16 @@ where
     #[inline]
     pub fn zeros_generic(nrows: R, ncols: C) -> Self
     where
-        N: Zero,
+        T: Zero,
     {
-        Self::from_element_generic(nrows, ncols, N::zero())
+        Self::from_element_generic(nrows, ncols, T::zero())
     }
 
     /// Creates a matrix with all its elements filled by an iterator.
     #[inline]
     pub fn from_iterator_generic<I>(nrows: R, ncols: C, iter: I) -> Self
     where
-        I: IntoIterator<Item = N>,
+        I: IntoIterator<Item = T>,
     {
         Self::from_data(DefaultAllocator::allocate_from_iterator(nrows, ncols, iter))
     }
@@ -98,7 +100,7 @@ where
     /// The order of elements in the slice must follow the usual mathematic writing, i.e.,
     /// row-by-row.
     #[inline]
-    pub fn from_row_slice_generic(nrows: R, ncols: C, slice: &[N]) -> Self {
+    pub fn from_row_slice_generic(nrows: R, ncols: C, slice: &[T]) -> Self {
         assert!(
             slice.len() == nrows.value() * ncols.value(),
             "Matrix init. error: the slice did not contain the right number of elements."
@@ -119,7 +121,7 @@ where
     /// Creates a matrix with its elements filled with the components provided by a slice. The
     /// components must have the same layout as the matrix data storage (i.e. column-major).
     #[inline]
-    pub fn from_column_slice_generic(nrows: R, ncols: C, slice: &[N]) -> Self {
+    pub fn from_column_slice_generic(nrows: R, ncols: C, slice: &[T]) -> Self {
         Self::from_iterator_generic(nrows, ncols, slice.iter().cloned())
     }
 
@@ -128,7 +130,7 @@ where
     #[inline]
     pub fn from_fn_generic<F>(nrows: R, ncols: C, mut f: F) -> Self
     where
-        F: FnMut(usize, usize) -> N,
+        F: FnMut(usize, usize) -> T,
     {
         let mut res: Self = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
 
@@ -148,9 +150,9 @@ where
     #[inline]
     pub fn identity_generic(nrows: R, ncols: C) -> Self
     where
-        N: Zero + One,
+        T: Zero + One,
     {
-        Self::from_diagonal_element_generic(nrows, ncols, N::one())
+        Self::from_diagonal_element_generic(nrows, ncols, T::one())
     }
 
     /// Creates a new matrix with its diagonal filled with copies of `elt`.
@@ -158,9 +160,9 @@ where
     /// If the matrix is not square, the largest square submatrix starting at index `(0, 0)` is set
     /// to the identity matrix. All other entries are set to zero.
     #[inline]
-    pub fn from_diagonal_element_generic(nrows: R, ncols: C, elt: N) -> Self
+    pub fn from_diagonal_element_generic(nrows: R, ncols: C, elt: T) -> Self
     where
-        N: Zero + One,
+        T: Zero + One,
     {
         let mut res = Self::zeros_generic(nrows, ncols);
 
@@ -176,9 +178,9 @@ where
     ///
     /// Panics if `elts.len()` is larger than the minimum among `nrows` and `ncols`.
     #[inline]
-    pub fn from_partial_diagonal_generic(nrows: R, ncols: C, elts: &[N]) -> Self
+    pub fn from_partial_diagonal_generic(nrows: R, ncols: C, elts: &[T]) -> Self
     where
-        N: Zero,
+        T: Zero,
     {
         let mut res = Self::zeros_generic(nrows, ncols);
         assert!(
@@ -210,9 +212,9 @@ where
     ///         m.m31 == 7.0 && m.m32 == 8.0 && m.m33 == 9.0);
     /// ```
     #[inline]
-    pub fn from_rows<SB>(rows: &[Matrix<N, U1, C, SB>]) -> Self
+    pub fn from_rows<SB>(rows: &[Matrix<T, Const<1>, C, SB>]) -> Self
     where
-        SB: Storage<N, U1, C>,
+        SB: Storage<T, Const<1>, C>,
     {
         assert!(!rows.is_empty(), "At least one row must be given.");
         let nrows = R::try_to_usize().unwrap_or_else(|| rows.len());
@@ -252,9 +254,9 @@ where
     ///         m.m31 == 3.0 && m.m32 == 6.0 && m.m33 == 9.0);
     /// ```
     #[inline]
-    pub fn from_columns<SB>(columns: &[Vector<N, R, SB>]) -> Self
+    pub fn from_columns<SB>(columns: &[Vector<T, R, SB>]) -> Self
     where
-        SB: Storage<N, R>,
+        SB: Storage<T, R>,
     {
         assert!(!columns.is_empty(), "At least one column must be given.");
         let ncols = C::try_to_usize().unwrap_or_else(|| columns.len());
@@ -282,7 +284,7 @@ where
     #[cfg(feature = "rand")]
     pub fn new_random_generic(nrows: R, ncols: C) -> Self
     where
-        Standard: Distribution<N>,
+        Standard: Distribution<T>,
     {
         let mut rng = rand::thread_rng();
         Self::from_fn_generic(nrows, ncols, |_, _| rng.gen())
@@ -291,7 +293,7 @@ where
     /// Creates a matrix filled with random values from the given distribution.
     #[inline]
     #[cfg(feature = "rand-no-std")]
-    pub fn from_distribution_generic<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
+    pub fn from_distribution_generic<Distr: Distribution<T> + ?Sized, G: Rng + ?Sized>(
         nrows: R,
         ncols: C,
         distribution: &Distr,
@@ -306,12 +308,12 @@ where
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::{Dynamic, DMatrix, Matrix, U1};
+    /// # use nalgebra::{Dynamic, DMatrix, Matrix, Const};
     ///
     /// let vec = vec![0, 1, 2, 3, 4, 5];
     /// let vec_ptr = vec.as_ptr();
     ///
-    /// let matrix = Matrix::from_vec_generic(Dynamic::new(vec.len()), U1, vec);
+    /// let matrix = Matrix::from_vec_generic(Dynamic::new(vec.len()), Const::<1>, vec);
     /// let matrix_storage_ptr = matrix.data.as_vec().as_ptr();
     ///
     /// // `matrix` is backed by exactly the same `Vec` as it was constructed from.
@@ -319,15 +321,15 @@ where
     /// ```
     #[inline]
     #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn from_vec_generic(nrows: R, ncols: C, data: Vec<N>) -> Self {
+    pub fn from_vec_generic(nrows: R, ncols: C, data: Vec<T>) -> Self {
         Self::from_iterator_generic(nrows, ncols, data)
     }
 }
 
-impl<N, D: Dim> MatrixN<N, D>
+impl<T, D: Dim> OMatrix<T, D, D>
 where
-    N: Scalar,
-    DefaultAllocator: Allocator<N, D, D>,
+    T: Scalar,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
     ///
@@ -348,9 +350,9 @@ where
     ///         dm[(2, 0)] == 0.0 && dm[(2, 1)] == 0.0 && dm[(2, 2)] == 3.0);
     /// ```
     #[inline]
-    pub fn from_diagonal<SB: Storage<N, D>>(diag: &Vector<N, D, SB>) -> Self
+    pub fn from_diagonal<SB: Storage<T, D>>(diag: &Vector<T, D, SB>) -> Self
     where
-        N: Zero,
+        T: Zero,
     {
         let (dim, _) = diag.data.shape();
         let mut res = Self::zeros_generic(dim, dim);
@@ -399,7 +401,7 @@ macro_rules! impl_constructors(
         ///         dm[(1, 0)] == 2.0 && dm[(1, 1)] == 2.0 && dm[(1, 2)] == 2.0);
         /// ```
         #[inline]
-        pub fn from_element($($args: usize,)* elem: N) -> Self {
+        pub fn from_element($($args: usize,)* elem: T) -> Self {
             Self::from_element_generic($($gargs, )* elem)
         }
 
@@ -426,7 +428,7 @@ macro_rules! impl_constructors(
         ///         dm[(1, 0)] == 2.0 && dm[(1, 1)] == 2.0 && dm[(1, 2)] == 2.0);
         /// ```
         #[inline]
-        pub fn repeat($($args: usize,)* elem: N) -> Self {
+        pub fn repeat($($args: usize,)* elem: T) -> Self {
             Self::repeat_generic($($gargs, )* elem)
         }
 
@@ -452,7 +454,7 @@ macro_rules! impl_constructors(
         /// ```
         #[inline]
         pub fn zeros($($args: usize),*) -> Self
-            where N: Zero {
+            where T: Zero {
             Self::zeros_generic($($gargs),*)
         }
 
@@ -481,7 +483,7 @@ macro_rules! impl_constructors(
         /// ```
         #[inline]
         pub fn from_iterator<I>($($args: usize,)* iter: I) -> Self
-            where I: IntoIterator<Item = N> {
+            where I: IntoIterator<Item = T> {
             Self::from_iterator_generic($($gargs, )* iter)
         }
 
@@ -509,7 +511,7 @@ macro_rules! impl_constructors(
         /// ```
         #[inline]
         pub fn from_fn<F>($($args: usize,)* f: F) -> Self
-            where F: FnMut(usize, usize) -> N {
+            where F: FnMut(usize, usize) -> T {
             Self::from_fn_generic($($gargs, )* f)
         }
 
@@ -533,7 +535,7 @@ macro_rules! impl_constructors(
         /// ```
         #[inline]
         pub fn identity($($args: usize,)*) -> Self
-            where N: Zero + One {
+            where T: Zero + One {
             Self::identity_generic($($gargs),* )
         }
 
@@ -555,8 +557,8 @@ macro_rules! impl_constructors(
         ///         dm[(1, 0)] == 0.0 && dm[(1, 1)] == 5.0 && dm[(1, 2)] == 0.0);
         /// ```
         #[inline]
-        pub fn from_diagonal_element($($args: usize,)* elt: N) -> Self
-            where N: Zero + One {
+        pub fn from_diagonal_element($($args: usize,)* elt: T) -> Self
+            where T: Zero + One {
             Self::from_diagonal_element_generic($($gargs, )* elt)
         }
 
@@ -582,15 +584,15 @@ macro_rules! impl_constructors(
         ///         dm[(2, 0)] == 0.0 && dm[(2, 1)] == 0.0 && dm[(2, 2)] == 0.0);
         /// ```
         #[inline]
-        pub fn from_partial_diagonal($($args: usize,)* elts: &[N]) -> Self
-            where N: Zero {
+        pub fn from_partial_diagonal($($args: usize,)* elts: &[T]) -> Self
+            where T: Zero {
             Self::from_partial_diagonal_generic($($gargs, )* elts)
         }
 
         /// Creates a matrix or vector filled with random values from the given distribution.
         #[inline]
         #[cfg(feature = "rand-no-std")]
-        pub fn from_distribution<Distr: Distribution<N> + ?Sized, G: Rng + ?Sized>(
+        pub fn from_distribution<Distr: Distribution<T> + ?Sized, G: Rng + ?Sized>(
             $($args: usize,)*
             distribution: &Distr,
             rng: &mut G,
@@ -602,28 +604,28 @@ macro_rules! impl_constructors(
         #[inline]
         #[cfg(feature = "rand")]
         pub fn new_random($($args: usize),*) -> Self
-            where Standard: Distribution<N> {
+            where Standard: Distribution<T> {
             Self::new_random_generic($($gargs),*)
         }
     }
 );
 
 /// # Constructors of statically-sized vectors or statically-sized matrices
-impl<N: Scalar, R: DimName, C: DimName> MatrixMN<N, R, C>
+impl<T: Scalar, R: DimName, C: DimName> OMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<N, R, C>,
+    DefaultAllocator: Allocator<T, R, C>,
 {
-    // TODO: this is not very pretty. We could find a better call syntax.
-    impl_constructors!(R, C;                         // Arguments for Matrix<N, ..., S>
-    => R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
+    // TODO: this is not very pretty. We could find a better call syntax.
+    impl_constructors!(R, C;                         // Arguments for Matrix<T, ..., S>
+    => R: DimName, => C: DimName; // Type parameters for impl<T, ..., S>
     R::name(), C::name();         // Arguments for `_generic` constructors.
     ); // Arguments for non-generic constructors.
 }
 
 /// # Constructors of matrices with a dynamic number of columns
-impl<N: Scalar, R: DimName> MatrixMN<N, R, Dynamic>
+impl<T: Scalar, R: DimName> OMatrix<T, R, Dynamic>
 where
-    DefaultAllocator: Allocator<N, R, Dynamic>,
+    DefaultAllocator: Allocator<T, R, Dynamic>,
 {
     impl_constructors!(R, Dynamic;
                    => R: DimName;
@@ -632,9 +634,9 @@ where
 }
 
 /// # Constructors of dynamic vectors and matrices with a dynamic number of rows
-impl<N: Scalar, C: DimName> MatrixMN<N, Dynamic, C>
+impl<T: Scalar, C: DimName> OMatrix<T, Dynamic, C>
 where
-    DefaultAllocator: Allocator<N, Dynamic, C>,
+    DefaultAllocator: Allocator<T, Dynamic, C>,
 {
     impl_constructors!(Dynamic, C;
                    => C: DimName;
@@ -643,9 +645,9 @@ where
 }
 
 /// # Constructors of fully dynamic matrices
-impl<N: Scalar> MatrixMN<N, Dynamic, Dynamic>
+impl<T: Scalar> OMatrix<T, Dynamic, Dynamic>
 where
-    DefaultAllocator: Allocator<N, Dynamic, Dynamic>,
+    DefaultAllocator: Allocator<T, Dynamic, Dynamic>,
 {
     impl_constructors!(Dynamic, Dynamic;
                    ;
@@ -661,8 +663,8 @@ where
  */
 macro_rules! impl_constructors_from_data(
     ($data: ident; $($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<N: Scalar, $($DimIdent: $DimBound, )*> MatrixMN<N $(, $Dims)*>
-        where DefaultAllocator: Allocator<N $(, $Dims)*> {
+        impl<T: Scalar, $($DimIdent: $DimBound, )*> OMatrix<T $(, $Dims)*>
+        where DefaultAllocator: Allocator<T $(, $Dims)*> {
             /// Creates a matrix with its elements filled with the components provided by a slice
             /// in row-major order.
             ///
@@ -689,7 +691,7 @@ macro_rules! impl_constructors_from_data(
             ///         dm[(1, 0)] == 3 && dm[(1, 1)] == 4 && dm[(1, 2)] == 5);
             /// ```
             #[inline]
-            pub fn from_row_slice($($args: usize,)* $data: &[N]) -> Self {
+            pub fn from_row_slice($($args: usize,)* $data: &[T]) -> Self {
                 Self::from_row_slice_generic($($gargs, )* $data)
             }
 
@@ -716,7 +718,7 @@ macro_rules! impl_constructors_from_data(
             ///         dm[(1, 0)] == 1 && dm[(1, 1)] == 3 && dm[(1, 2)] == 5);
             /// ```
             #[inline]
-            pub fn from_column_slice($($args: usize,)* $data: &[N]) -> Self {
+            pub fn from_column_slice($($args: usize,)* $data: &[T]) -> Self {
                 Self::from_column_slice_generic($($gargs, )* $data)
             }
 
@@ -742,7 +744,7 @@ macro_rules! impl_constructors_from_data(
             /// ```
             #[inline]
             #[cfg(any(feature = "std", feature = "alloc"))]
-            pub fn from_vec($($args: usize,)* $data: Vec<N>) -> Self {
+            pub fn from_vec($($args: usize,)* $data: Vec<T>) -> Self {
                 Self::from_vec_generic($($gargs, )* $data)
             }
         }
@@ -750,8 +752,8 @@ macro_rules! impl_constructors_from_data(
 );
 
 // TODO: this is not very pretty. We could find a better call syntax.
-impl_constructors_from_data!(data; R, C;                  // Arguments for Matrix<N, ..., S>
-=> R: DimName, => C: DimName; // Type parameters for impl<N, ..., S>
+impl_constructors_from_data!(data; R, C;                  // Arguments for Matrix<T, ..., S>
+=> R: DimName, => C: DimName; // Type parameters for impl<T, ..., S>
 R::name(), C::name();         // Arguments for `_generic` constructors.
 ); // Arguments for non-generic constructors.
 
@@ -775,14 +777,14 @@ impl_constructors_from_data!(data; Dynamic, Dynamic;
  * Zero, One, Rand traits.
  *
  */
-impl<N, R: DimName, C: DimName> Zero for MatrixMN<N, R, C>
+impl<T, R: DimName, C: DimName> Zero for OMatrix<T, R, C>
 where
-    N: Scalar + Zero + ClosedAdd,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + Zero + ClosedAdd,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
     fn zero() -> Self {
-        Self::from_element(N::zero())
+        Self::from_element(T::zero())
     }
 
     #[inline]
@@ -791,10 +793,10 @@ where
     }
 }
 
-impl<N, D: DimName> One for MatrixN<N, D>
+impl<T, D: DimName> One for OMatrix<T, D, D>
 where
-    N: Scalar + Zero + One + ClosedMul + ClosedAdd,
-    DefaultAllocator: Allocator<N, D, D>,
+    T: Scalar + Zero + One + ClosedMul + ClosedAdd,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     #[inline]
     fn one() -> Self {
@@ -802,45 +804,45 @@ where
     }
 }
 
-impl<N, R: DimName, C: DimName> Bounded for MatrixMN<N, R, C>
+impl<T, R: DimName, C: DimName> Bounded for OMatrix<T, R, C>
 where
-    N: Scalar + Bounded,
-    DefaultAllocator: Allocator<N, R, C>,
+    T: Scalar + Bounded,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     #[inline]
     fn max_value() -> Self {
-        Self::from_element(N::max_value())
+        Self::from_element(T::max_value())
     }
 
     #[inline]
     fn min_value() -> Self {
-        Self::from_element(N::min_value())
+        Self::from_element(T::min_value())
     }
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<N: Scalar, R: Dim, C: Dim> Distribution<MatrixMN<N, R, C>> for Standard
+impl<T: Scalar, R: Dim, C: Dim> Distribution<OMatrix<T, R, C>> for Standard
 where
-    DefaultAllocator: Allocator<N, R, C>,
-    Standard: Distribution<N>,
+    DefaultAllocator: Allocator<T, R, C>,
+    Standard: Distribution<T>,
 {
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> MatrixMN<N, R, C> {
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> OMatrix<T, R, C> {
         let nrows = R::try_to_usize().unwrap_or_else(|| rng.gen_range(0..10));
         let ncols = C::try_to_usize().unwrap_or_else(|| rng.gen_range(0..10));
 
-        MatrixMN::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| rng.gen())
+        OMatrix::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| rng.gen())
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N, R, C> Arbitrary for MatrixMN<N, R, C>
+impl<T, R, C> Arbitrary for OMatrix<T, R, C>
 where
     R: Dim,
     C: Dim,
-    N: Scalar + Arbitrary + Send,
-    DefaultAllocator: Allocator<N, R, C>,
-    Owned<N, R, C>: Clone + Send,
+    T: Scalar + Arbitrary + Send,
+    DefaultAllocator: Allocator<T, R, C>,
+    Owned<T, R, C>: Clone + Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {
@@ -848,24 +850,24 @@ where
         let ncols = C::try_to_usize().unwrap_or(usize::arbitrary(g) % 10);
 
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| {
-            N::arbitrary(g)
+            T::arbitrary(g)
         })
     }
 }
 
 // TODO(specialization): faster impls possible for D≤4 (see rand_distr::{UnitCircle, UnitSphere})
 #[cfg(feature = "rand")]
-impl<N: crate::RealField, D: DimName> Distribution<Unit<VectorN<N, D>>> for Standard
+impl<T: crate::RealField, D: DimName> Distribution<Unit<OVector<T, D>>> for Standard
 where
-    DefaultAllocator: Allocator<N, D>,
-    rand_distr::StandardNormal: Distribution<N>,
+    DefaultAllocator: Allocator<T, D>,
+    rand_distr::StandardNormal: Distribution<T>,
 {
     /// Generate a uniformly distributed random unit vector.
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Unit<VectorN<N, D>> {
-        Unit::new_normalize(VectorN::from_distribution_generic(
+    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Unit<OVector<T, D>> {
+        Unit::new_normalize(OVector::from_distribution_generic(
             D::name(),
-            U1,
+            Const::<1>,
             &rand_distr::StandardNormal,
             rng,
         ))
@@ -877,22 +879,44 @@ where
  * Constructors for small matrices and vectors.
  *
  */
+
+macro_rules! transpose_array(
+    [$($a: ident),*;] => {
+        [$([$a]),*]
+    };
+    [$($a: ident),*; $($b: ident),*;] => {
+        [$([$a, $b]),*];
+    };
+    [$($a: ident),*; $($b: ident),*; $($c: ident),*;] => {
+        [$([$a, $b, $c]),*];
+    };
+    [$($a: ident),*; $($b: ident),*; $($c: ident),*; $($d: ident),*;] => {
+        [$([$a, $b, $c, $d]),*];
+    };
+    [$($a: ident),*; $($b: ident),*; $($c: ident),*; $($d: ident),*; $($e: ident),*;] => {
+        [$([$a, $b, $c, $d, $e]),*];
+    };
+    [$($a: ident),*; $($b: ident),*; $($c: ident),*; $($d: ident),*; $($e: ident),*; $($f: ident),*;] => {
+        [$([$a, $b, $c, $d, $e, $f]),*];
+    };
+);
+
 macro_rules! componentwise_constructors_impl(
-    ($($R: ty, $C: ty, $($args: ident:($irow: expr,$icol: expr)),*);* $(;)*) => {$(
-        impl<N> MatrixMN<N, $R, $C>
-            where N: Scalar,
-                  DefaultAllocator: Allocator<N, $R, $C> {
+    ($($R: expr, $C: expr, [$($($args: ident),*);*] $(;)*)*) => {$(
+        impl<T> Matrix<T, Const<$R>, Const<$C>, ArrayStorage<T, $R, $C>> {
             /// Initializes this matrix from its components.
             #[inline]
-            pub fn new($($args: N),*) -> Self {
+            pub const fn new($($($args: T),*),*) -> Self {
                 unsafe {
-                    #[cfg(feature="no_unsound_assume_init")]
-                    let mut res: Self = unimplemented!();
-                    #[cfg(not(feature="no_unsound_assume_init"))]
-                    let mut res = Self::new_uninitialized().assume_init();
-                    $( *res.get_unchecked_mut(($irow, $icol)) = $args; )*
-
-                    res
+                    Self::from_data_statically_unchecked(
+                        ArrayStorage(
+                            transpose_array![
+                                $(
+                                    $($args),*
+                                ;)*
+                            ]
+                        )
+                    )
                 }
             }
         }
@@ -903,145 +927,145 @@ componentwise_constructors_impl!(
     /*
      * Square matrices 1 .. 6.
      */
-    U2, U2, m11:(0,0), m12:(0,1),
-            m21:(1,0), m22:(1,1);
-    U3, U3, m11:(0,0), m12:(0,1), m13:(0,2),
-            m21:(1,0), m22:(1,1), m23:(1,2),
-            m31:(2,0), m32:(2,1), m33:(2,2);
-    U4, U4, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3),
-            m31:(2,0), m32:(2,1), m33:(2,2), m34:(2,3),
-            m41:(3,0), m42:(3,1), m43:(3,2), m44:(3,3);
-    U5, U5, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3), m15:(0,4),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3), m25:(1,4),
-            m31:(2,0), m32:(2,1), m33:(2,2), m34:(2,3), m35:(2,4),
-            m41:(3,0), m42:(3,1), m43:(3,2), m44:(3,3), m45:(3,4),
-            m51:(4,0), m52:(4,1), m53:(4,2), m54:(4,3), m55:(4,4);
-    U6, U6, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3), m15:(0,4), m16:(0,5),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3), m25:(1,4), m26:(1,5),
-            m31:(2,0), m32:(2,1), m33:(2,2), m34:(2,3), m35:(2,4), m36:(2,5),
-            m41:(3,0), m42:(3,1), m43:(3,2), m44:(3,3), m45:(3,4), m46:(3,5),
-            m51:(4,0), m52:(4,1), m53:(4,2), m54:(4,3), m55:(4,4), m56:(4,5),
-            m61:(5,0), m62:(5,1), m63:(5,2), m64:(5,3), m65:(5,4), m66:(5,5);
+    2, 2, [m11, m12;
+           m21, m22];
+    3, 3, [m11, m12, m13;
+          m21, m22, m23;
+          m31, m32, m33];
+    4, 4, [m11, m12, m13, m14;
+          m21, m22, m23, m24;
+          m31, m32, m33, m34;
+          m41, m42, m43, m44];
+    5, 5, [m11, m12, m13, m14, m15;
+          m21, m22, m23, m24, m25;
+          m31, m32, m33, m34, m35;
+          m41, m42, m43, m44, m45;
+          m51, m52, m53, m54, m55];
+    6, 6, [m11, m12, m13, m14, m15, m16;
+          m21, m22, m23, m24, m25, m26;
+          m31, m32, m33, m34, m35, m36;
+          m41, m42, m43, m44, m45, m46;
+          m51, m52, m53, m54, m55, m56;
+          m61, m62, m63, m64, m65, m66];
 
     /*
      * Rectangular matrices with 2 rows.
      */
-    U2, U3, m11:(0,0), m12:(0,1), m13:(0,2),
-            m21:(1,0), m22:(1,1), m23:(1,2);
-    U2, U4, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3);
-    U2, U5, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3), m15:(0,4),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3), m25:(1,4);
-    U2, U6, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3), m15:(0,4), m16:(0,5),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3), m25:(1,4), m26:(1,5);
+    2, 3, [m11, m12, m13;
+          m21, m22, m23];
+    2, 4, [m11, m12, m13, m14;
+          m21, m22, m23, m24];
+    2, 5, [m11, m12, m13, m14, m15;
+          m21, m22, m23, m24, m25];
+    2, 6, [m11, m12, m13, m14, m15, m16;
+          m21, m22, m23, m24, m25, m26];
 
     /*
      * Rectangular matrices with 3 rows.
      */
-    U3, U2, m11:(0,0), m12:(0,1),
-            m21:(1,0), m22:(1,1),
-            m31:(2,0), m32:(2,1);
-    U3, U4, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3),
-            m31:(2,0), m32:(2,1), m33:(2,2), m34:(2,3);
-    U3, U5, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3), m15:(0,4),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3), m25:(1,4),
-            m31:(2,0), m32:(2,1), m33:(2,2), m34:(2,3), m35:(2,4);
-    U3, U6, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3), m15:(0,4), m16:(0,5),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3), m25:(1,4), m26:(1,5),
-            m31:(2,0), m32:(2,1), m33:(2,2), m34:(2,3), m35:(2,4), m36:(2,5);
+    3, 2, [m11, m12;
+          m21, m22;
+          m31, m32];
+    3, 4, [m11, m12, m13, m14;
+          m21, m22, m23, m24;
+          m31, m32, m33, m34];
+    3, 5, [m11, m12, m13, m14, m15;
+          m21, m22, m23, m24, m25;
+          m31, m32, m33, m34, m35];
+    3, 6, [m11, m12, m13, m14, m15, m16;
+          m21, m22, m23, m24, m25, m26;
+          m31, m32, m33, m34, m35, m36];
 
     /*
      * Rectangular matrices with 4 rows.
      */
-    U4, U2, m11:(0,0), m12:(0,1),
-            m21:(1,0), m22:(1,1),
-            m31:(2,0), m32:(2,1),
-            m41:(3,0), m42:(3,1);
-    U4, U3, m11:(0,0), m12:(0,1), m13:(0,2),
-            m21:(1,0), m22:(1,1), m23:(1,2),
-            m31:(2,0), m32:(2,1), m33:(2,2),
-            m41:(3,0), m42:(3,1), m43:(3,2);
-    U4, U5, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3), m15:(0,4),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3), m25:(1,4),
-            m31:(2,0), m32:(2,1), m33:(2,2), m34:(2,3), m35:(2,4),
-            m41:(3,0), m42:(3,1), m43:(3,2), m44:(3,3), m45:(3,4);
-    U4, U6, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3), m15:(0,4), m16:(0,5),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3), m25:(1,4), m26:(1,5),
-            m31:(2,0), m32:(2,1), m33:(2,2), m34:(2,3), m35:(2,4), m36:(2,5),
-            m41:(3,0), m42:(3,1), m43:(3,2), m44:(3,3), m45:(3,4), m46:(3,5);
+    4, 2, [m11, m12;
+          m21, m22;
+          m31, m32;
+          m41, m42];
+    4, 3, [m11, m12, m13;
+          m21, m22, m23;
+          m31, m32, m33;
+          m41, m42, m43];
+    4, 5, [m11, m12, m13, m14, m15;
+          m21, m22, m23, m24, m25;
+          m31, m32, m33, m34, m35;
+          m41, m42, m43, m44, m45];
+    4, 6, [m11, m12, m13, m14, m15, m16;
+          m21, m22, m23, m24, m25, m26;
+          m31, m32, m33, m34, m35, m36;
+          m41, m42, m43, m44, m45, m46];
 
     /*
      * Rectangular matrices with 5 rows.
      */
-    U5, U2, m11:(0,0), m12:(0,1),
-            m21:(1,0), m22:(1,1),
-            m31:(2,0), m32:(2,1),
-            m41:(3,0), m42:(3,1),
-            m51:(4,0), m52:(4,1);
-    U5, U3, m11:(0,0), m12:(0,1), m13:(0,2),
-            m21:(1,0), m22:(1,1), m23:(1,2),
-            m31:(2,0), m32:(2,1), m33:(2,2),
-            m41:(3,0), m42:(3,1), m43:(3,2),
-            m51:(4,0), m52:(4,1), m53:(4,2);
-    U5, U4, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3),
-            m31:(2,0), m32:(2,1), m33:(2,2), m34:(2,3),
-            m41:(3,0), m42:(3,1), m43:(3,2), m44:(3,3),
-            m51:(4,0), m52:(4,1), m53:(4,2), m54:(4,3);
-    U5, U6, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3), m15:(0,4), m16:(0,5),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3), m25:(1,4), m26:(1,5),
-            m31:(2,0), m32:(2,1), m33:(2,2), m34:(2,3), m35:(2,4), m36:(2,5),
-            m41:(3,0), m42:(3,1), m43:(3,2), m44:(3,3), m45:(3,4), m46:(3,5),
-            m51:(4,0), m52:(4,1), m53:(4,2), m54:(4,3), m55:(4,4), m56:(4,5);
+    5, 2, [m11, m12;
+          m21, m22;
+          m31, m32;
+          m41, m42;
+          m51, m52];
+    5, 3, [m11, m12, m13;
+          m21, m22, m23;
+          m31, m32, m33;
+          m41, m42, m43;
+          m51, m52, m53];
+    5, 4, [m11, m12, m13, m14;
+          m21, m22, m23, m24;
+          m31, m32, m33, m34;
+          m41, m42, m43, m44;
+          m51, m52, m53, m54];
+    5, 6, [m11, m12, m13, m14, m15, m16;
+          m21, m22, m23, m24, m25, m26;
+          m31, m32, m33, m34, m35, m36;
+          m41, m42, m43, m44, m45, m46;
+          m51, m52, m53, m54, m55, m56];
 
     /*
      * Rectangular matrices with 6 rows.
      */
-    U6, U2, m11:(0,0), m12:(0,1),
-            m21:(1,0), m22:(1,1),
-            m31:(2,0), m32:(2,1),
-            m41:(3,0), m42:(3,1),
-            m51:(4,0), m52:(4,1),
-            m61:(5,0), m62:(5,1);
-    U6, U3, m11:(0,0), m12:(0,1), m13:(0,2),
-            m21:(1,0), m22:(1,1), m23:(1,2),
-            m31:(2,0), m32:(2,1), m33:(2,2),
-            m41:(3,0), m42:(3,1), m43:(3,2),
-            m51:(4,0), m52:(4,1), m53:(4,2),
-            m61:(5,0), m62:(5,1), m63:(5,2);
-    U6, U4, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3),
-            m31:(2,0), m32:(2,1), m33:(2,2), m34:(2,3),
-            m41:(3,0), m42:(3,1), m43:(3,2), m44:(3,3),
-            m51:(4,0), m52:(4,1), m53:(4,2), m54:(4,3),
-            m61:(5,0), m62:(5,1), m63:(5,2), m64:(5,3);
-    U6, U5, m11:(0,0), m12:(0,1), m13:(0,2), m14:(0,3), m15:(0,4),
-            m21:(1,0), m22:(1,1), m23:(1,2), m24:(1,3), m25:(1,4),
-            m31:(2,0), m32:(2,1), m33:(2,2), m34:(2,3), m35:(2,4),
-            m41:(3,0), m42:(3,1), m43:(3,2), m44:(3,3), m45:(3,4),
-            m51:(4,0), m52:(4,1), m53:(4,2), m54:(4,3), m55:(4,4),
-            m61:(5,0), m62:(5,1), m63:(5,2), m64:(5,3), m65:(5,4);
+    6, 2, [m11, m12;
+          m21, m22;
+          m31, m32;
+          m41, m42;
+          m51, m52;
+          m61, m62];
+    6, 3, [m11, m12, m13;
+          m21, m22, m23;
+          m31, m32, m33;
+          m41, m42, m43;
+          m51, m52, m53;
+          m61, m62, m63];
+    6, 4, [m11, m12, m13, m14;
+          m21, m22, m23, m24;
+          m31, m32, m33, m34;
+          m41, m42, m43, m44;
+          m51, m52, m53, m54;
+          m61, m62, m63, m64];
+    6, 5, [m11, m12, m13, m14, m15;
+          m21, m22, m23, m24, m25;
+          m31, m32, m33, m34, m35;
+          m41, m42, m43, m44, m45;
+          m51, m52, m53, m54, m55;
+          m61, m62, m63, m64, m65];
 
     /*
      * Row vectors 1 .. 6.
      */
-    U1, U1, x:(0,0);
-    U1, U2, x:(0,0), y:(0,1);
-    U1, U3, x:(0,0), y:(0,1), z:(0,2);
-    U1, U4, x:(0,0), y:(0,1), z:(0,2), w:(0,3);
-    U1, U5, x:(0,0), y:(0,1), z:(0,2), w:(0,3), a:(0,4);
-    U1, U6, x:(0,0), y:(0,1), z:(0,2), w:(0,3), a:(0,4), b:(0,5);
+    1, 1, [x];
+    1, 2, [x, y];
+    1, 3, [x, y, z];
+    1, 4, [x, y, z, w];
+    1, 5, [x, y, z, w, a];
+    1, 6, [x, y, z, w, a, b];
 
     /*
      * Column vectors 1 .. 6.
      */
-    U2, U1, x:(0,0), y:(1,0);
-    U3, U1, x:(0,0), y:(1,0), z:(2,0);
-    U4, U1, x:(0,0), y:(1,0), z:(2,0), w:(3,0);
-    U5, U1, x:(0,0), y:(1,0), z:(2,0), w:(3,0), a:(4,0);
-    U6, U1, x:(0,0), y:(1,0), z:(2,0), w:(3,0), a:(4,0), b:(5,0);
+    2, 1, [x; y];
+    3, 1, [x; y; z];
+    4, 1, [x; y; z; w];
+    5, 1, [x; y; z; w; a];
+    6, 1, [x; y; z; w; a; b];
 );
 
 /*
@@ -1049,34 +1073,35 @@ componentwise_constructors_impl!(
  * Axis constructors.
  *
  */
-impl<N, R: DimName> VectorN<N, R>
+impl<T, R: DimName> OVector<T, R>
 where
-    N: Scalar + Zero + One,
-    DefaultAllocator: Allocator<N, R>,
+    R: ToTypenum,
+    T: Scalar + Zero + One,
+    DefaultAllocator: Allocator<T, R>,
 {
     /// The column vector with `val` as its i-th component.
     #[inline]
-    pub fn ith(i: usize, val: N) -> Self {
+    pub fn ith(i: usize, val: T) -> Self {
         let mut res = Self::zeros();
         res[i] = val;
         res
     }
 
-    /// The column unit vector with `N::one()` as its i-th component.
+    /// The column unit vector with `T::one()` as its i-th component.
     #[inline]
     pub fn ith_axis(i: usize) -> Unit<Self> {
-        Unit::new_unchecked(Self::ith(i, N::one()))
+        Unit::new_unchecked(Self::ith(i, T::one()))
     }
 
     /// The column vector with a 1 as its first component, and zero elsewhere.
     #[inline]
     pub fn x() -> Self
     where
-        R::Value: Cmp<typenum::U0, Output = Greater>,
+        R::Typenum: Cmp<typenum::U0, Output = Greater>,
     {
         let mut res = Self::zeros();
         unsafe {
-            *res.vget_unchecked_mut(0) = N::one();
+            *res.vget_unchecked_mut(0) = T::one();
         }
 
         res
@@ -1086,11 +1111,11 @@ where
     #[inline]
     pub fn y() -> Self
     where
-        R::Value: Cmp<typenum::U1, Output = Greater>,
+        R::Typenum: Cmp<typenum::U1, Output = Greater>,
     {
         let mut res = Self::zeros();
         unsafe {
-            *res.vget_unchecked_mut(1) = N::one();
+            *res.vget_unchecked_mut(1) = T::one();
         }
 
         res
@@ -1100,11 +1125,11 @@ where
     #[inline]
     pub fn z() -> Self
     where
-        R::Value: Cmp<typenum::U2, Output = Greater>,
+        R::Typenum: Cmp<typenum::U2, Output = Greater>,
     {
         let mut res = Self::zeros();
         unsafe {
-            *res.vget_unchecked_mut(2) = N::one();
+            *res.vget_unchecked_mut(2) = T::one();
         }
 
         res
@@ -1114,11 +1139,11 @@ where
     #[inline]
     pub fn w() -> Self
     where
-        R::Value: Cmp<typenum::U3, Output = Greater>,
+        R::Typenum: Cmp<typenum::U3, Output = Greater>,
     {
         let mut res = Self::zeros();
         unsafe {
-            *res.vget_unchecked_mut(3) = N::one();
+            *res.vget_unchecked_mut(3) = T::one();
         }
 
         res
@@ -1128,11 +1153,11 @@ where
     #[inline]
     pub fn a() -> Self
     where
-        R::Value: Cmp<typenum::U4, Output = Greater>,
+        R::Typenum: Cmp<typenum::U4, Output = Greater>,
     {
         let mut res = Self::zeros();
         unsafe {
-            *res.vget_unchecked_mut(4) = N::one();
+            *res.vget_unchecked_mut(4) = T::one();
         }
 
         res
@@ -1142,11 +1167,11 @@ where
     #[inline]
     pub fn b() -> Self
     where
-        R::Value: Cmp<typenum::U5, Output = Greater>,
+        R::Typenum: Cmp<typenum::U5, Output = Greater>,
     {
         let mut res = Self::zeros();
         unsafe {
-            *res.vget_unchecked_mut(5) = N::one();
+            *res.vget_unchecked_mut(5) = T::one();
         }
 
         res
@@ -1156,7 +1181,7 @@ where
     #[inline]
     pub fn x_axis() -> Unit<Self>
     where
-        R::Value: Cmp<typenum::U0, Output = Greater>,
+        R::Typenum: Cmp<typenum::U0, Output = Greater>,
     {
         Unit::new_unchecked(Self::x())
     }
@@ -1165,7 +1190,7 @@ where
     #[inline]
     pub fn y_axis() -> Unit<Self>
     where
-        R::Value: Cmp<typenum::U1, Output = Greater>,
+        R::Typenum: Cmp<typenum::U1, Output = Greater>,
     {
         Unit::new_unchecked(Self::y())
     }
@@ -1174,7 +1199,7 @@ where
     #[inline]
     pub fn z_axis() -> Unit<Self>
     where
-        R::Value: Cmp<typenum::U2, Output = Greater>,
+        R::Typenum: Cmp<typenum::U2, Output = Greater>,
     {
         Unit::new_unchecked(Self::z())
     }
@@ -1183,7 +1208,7 @@ where
     #[inline]
     pub fn w_axis() -> Unit<Self>
     where
-        R::Value: Cmp<typenum::U3, Output = Greater>,
+        R::Typenum: Cmp<typenum::U3, Output = Greater>,
     {
         Unit::new_unchecked(Self::w())
     }
@@ -1192,7 +1217,7 @@ where
     #[inline]
     pub fn a_axis() -> Unit<Self>
     where
-        R::Value: Cmp<typenum::U4, Output = Greater>,
+        R::Typenum: Cmp<typenum::U4, Output = Greater>,
     {
         Unit::new_unchecked(Self::a())
     }
@@ -1201,7 +1226,7 @@ where
     #[inline]
     pub fn b_axis() -> Unit<Self>
     where
-        R::Value: Cmp<typenum::U5, Output = Greater>,
+        R::Typenum: Cmp<typenum::U5, Output = Greater>,
     {
         Unit::new_unchecked(Self::b())
     }

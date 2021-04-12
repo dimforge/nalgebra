@@ -1,6 +1,5 @@
-use na::{Scalar, DefaultAllocator};
+use na::{DefaultAllocator, Scalar};
 
-use crate::traits::{Alloc, Dimension};
 use crate::aliases::*;
 
 pub fn bitfieldDeinterleave(x: u16) -> U8Vec2 {
@@ -19,8 +18,11 @@ pub fn bitfieldFillOne<IU>(Value: IU, FirstBit: i32, BitCount: i32) -> IU {
     unimplemented!()
 }
 
-pub fn bitfieldFillOne2<N: Scalar, D: Dimension>(Value: &TVec<N, D>, FirstBit: i32, BitCount: i32) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+pub fn bitfieldFillOne2<T: Scalar, const D: usize>(
+    Value: &TVec<T, D>,
+    FirstBit: i32,
+    BitCount: i32,
+) -> TVec<T, D> {
     unimplemented!()
 }
 
@@ -28,8 +30,11 @@ pub fn bitfieldFillZero<IU>(Value: IU, FirstBit: i32, BitCount: i32) -> IU {
     unimplemented!()
 }
 
-pub fn bitfieldFillZero2<N: Scalar, D: Dimension>(Value: &TVec<N, D>, FirstBit: i32, BitCount: i32) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+pub fn bitfieldFillZero2<T: Scalar, const D: usize>(
+    Value: &TVec<T, D>,
+    FirstBit: i32,
+    BitCount: i32,
+) -> TVec<T, D> {
     unimplemented!()
 }
 
@@ -113,8 +118,7 @@ pub fn bitfieldRotateLeft<IU>(In: IU, Shift: i32) -> IU {
     unimplemented!()
 }
 
-pub fn bitfieldRotateLeft2<N: Scalar, D: Dimension>(In: &TVec<N, D>, Shift: i32) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+pub fn bitfieldRotateLeft2<T: Scalar, const D: usize>(In: &TVec<T, D>, Shift: i32) -> TVec<T, D> {
     unimplemented!()
 }
 
@@ -122,8 +126,7 @@ pub fn bitfieldRotateRight<IU>(In: IU, Shift: i32) -> IU {
     unimplemented!()
 }
 
-pub fn bitfieldRotateRight2<N: Scalar, D: Dimension>(In: &TVec<N, D>, Shift: i32) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+pub fn bitfieldRotateRight2<T: Scalar, const D: usize>(In: &TVec<T, D>, Shift: i32) -> TVec<T, D> {
     unimplemented!()
 }
 
@@ -131,7 +134,6 @@ pub fn mask<IU>(Bits: IU) -> IU {
     unimplemented!()
 }
 
-pub fn mask2<N: Scalar, D: Dimension>(v: &TVec<N, D>) -> TVec<N, D>
-    where DefaultAllocator: Alloc<N, D> {
+pub fn mask2<T: Scalar, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     unimplemented!()
 }

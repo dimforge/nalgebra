@@ -2,8 +2,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
-use crate::base::{DefaultAllocator, MatrixN, VectorN};
-use crate::dimension::{DimDiff, DimSub, U1};
+use crate::base::{DefaultAllocator, OMatrix, OVector};
+use crate::dimension::{Const, DimDiff, DimSub, U1};
 use crate::storage::Storage;
 use simba::scalar::ComplexField;
 
@@ -13,43 +13,43 @@ use crate::linalg::householder;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<N, D, D> +
-                           Allocator<N, DimDiff<D, U1>>,
-         MatrixN<N, D>: Serialize,
-         VectorN<N, DimDiff<D, U1>>: Serialize"))
+    serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D> +
+                           Allocator<T, DimDiff<D, U1>>,
+         OMatrix<T, D, D>: Serialize,
+         OVector<T, DimDiff<D, U1>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<N, D, D> +
-                           Allocator<N, DimDiff<D, U1>>,
-         MatrixN<N, D>: Deserialize<'de>,
-         VectorN<N, DimDiff<D, U1>>: Deserialize<'de>"))
+    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D> +
+                           Allocator<T, DimDiff<D, U1>>,
+         OMatrix<T, D, D>: Deserialize<'de>,
+         OVector<T, DimDiff<D, U1>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct SymmetricTridiagonal<N: ComplexField, D: DimSub<U1>>
+pub struct SymmetricTridiagonal<T: ComplexField, D: DimSub<U1>>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
 {
-    tri: MatrixN<N, D>,
-    off_diagonal: VectorN<N, DimDiff<D, U1>>,
+    tri: OMatrix<T, D, D>,
+    off_diagonal: OVector<T, DimDiff<D, U1>>,
 }
 
-impl<N: ComplexField, D: DimSub<U1>> Copy for SymmetricTridiagonal<N, D>
+impl<T: ComplexField, D: DimSub<U1>> Copy for SymmetricTridiagonal<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
-    MatrixN<N, D>: Copy,
-    VectorN<N, DimDiff<D, U1>>: Copy,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
+    OMatrix<T, D, D>: Copy,
+    OVector<T, DimDiff<D, U1>>: Copy,
 {
 }
 
-impl<N: ComplexField, D: DimSub<U1>> SymmetricTridiagonal<N, D>
+impl<T: ComplexField, D: DimSub<U1>> SymmetricTridiagonal<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D> + Allocator<N, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
 {
     /// Computes the tridiagonalization of the symmetric matrix `m`.
     ///
     /// Only the lower-triangular part (including the diagonal) of `m` is read.
-    pub fn new(mut m: MatrixN<N, D>) -> Self {
+    pub fn new(mut m: OMatrix<T, D, D>) -> Self {
         let dim = m.data.shape().0;
 
         assert!(
@@ -61,9 +61,12 @@ where
             "Unable to compute the symmetric tridiagonal decomposition of an empty matrix."
         );
 
-        let mut off_diagonal =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(dim.sub(U1), U1) };
-        let mut p = unsafe { crate::unimplemented_or_uninitialized_generic!(dim.sub(U1), U1) };
+        let mut off_diagonal = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(dim.sub(Const::<1>), Const::<1>)
+        };
+        let mut p = unsafe {
+            crate::unimplemented_or_uninitialized_generic!(dim.sub(Const::<1>), Const::<1>)
+        };
 
         for i in 0..dim.value() - 1 {
             let mut m = m.rows_range_mut(i + 1..);
@@ -75,12 +78,12 @@ where
             if not_zero {
                 let mut p = p.rows_range_mut(i..);
 
-                p.hegemv(crate::convert(2.0), &m, &axis, N::zero());
+                p.hegemv(crate::convert(2.0), &m, &axis, T::zero());
 
                 let dot = axis.dotc(&p);
-                m.hegerc(-N::one(), &p, &axis, N::one());
-                m.hegerc(-N::one(), &axis, &p, N::one());
-                m.hegerc(dot * crate::convert(2.0), &axis, &axis, N::one());
+                m.hegerc(-T::one(), &p, &axis, T::one());
+                m.hegerc(-T::one(), &axis, &p, T::one());
+                m.hegerc(dot * crate::convert(2.0), &axis, &axis, T::one());
             }
         }
 
@@ -92,7 +95,7 @@ where
 
     #[doc(hidden)]
     // For debugging.
-    pub fn internal_tri(&self) -> &MatrixN<N, D> {
+    pub fn internal_tri(&self) -> &OMatrix<T, D, D> {
         &self.tri
     }
 
@@ -101,61 +104,61 @@ where
     pub fn unpack(
         self,
     ) -> (
-        MatrixN<N, D>,
-        VectorN<N::RealField, D>,
-        VectorN<N::RealField, DimDiff<D, U1>>,
+        OMatrix<T, D, D>,
+        OVector<T::RealField, D>,
+        OVector<T::RealField, DimDiff<D, U1>>,
     )
     where
-        DefaultAllocator: Allocator<N::RealField, D> + Allocator<N::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<T::RealField, D> + Allocator<T::RealField, DimDiff<D, U1>>,
     {
         let diag = self.diagonal();
         let q = self.q();
 
-        (q, diag, self.off_diagonal.map(N::modulus))
+        (q, diag, self.off_diagonal.map(T::modulus))
     }
 
     /// Retrieve the diagonal, and off diagonal elements of this decomposition.
     pub fn unpack_tridiagonal(
         self,
     ) -> (
-        VectorN<N::RealField, D>,
-        VectorN<N::RealField, DimDiff<D, U1>>,
+        OVector<T::RealField, D>,
+        OVector<T::RealField, DimDiff<D, U1>>,
     )
     where
-        DefaultAllocator: Allocator<N::RealField, D> + Allocator<N::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<T::RealField, D> + Allocator<T::RealField, DimDiff<D, U1>>,
     {
-        (self.diagonal(), self.off_diagonal.map(N::modulus))
+        (self.diagonal(), self.off_diagonal.map(T::modulus))
     }
 
     /// The diagonal components of this decomposition.
-    pub fn diagonal(&self) -> VectorN<N::RealField, D>
+    pub fn diagonal(&self) -> OVector<T::RealField, D>
     where
-        DefaultAllocator: Allocator<N::RealField, D>,
+        DefaultAllocator: Allocator<T::RealField, D>,
     {
         self.tri.map_diagonal(|e| e.real())
     }
 
     /// The off-diagonal components of this decomposition.
-    pub fn off_diagonal(&self) -> VectorN<N::RealField, DimDiff<D, U1>>
+    pub fn off_diagonal(&self) -> OVector<T::RealField, DimDiff<D, U1>>
     where
-        DefaultAllocator: Allocator<N::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<T::RealField, DimDiff<D, U1>>,
     {
-        self.off_diagonal.map(N::modulus)
+        self.off_diagonal.map(T::modulus)
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
-    pub fn q(&self) -> MatrixN<N, D> {
+    pub fn q(&self) -> OMatrix<T, D, D> {
         householder::assemble_q(&self.tri, self.off_diagonal.as_slice())
     }
 
     /// Recomputes the original symmetric matrix.
-    pub fn recompose(mut self) -> MatrixN<N, D> {
+    pub fn recompose(mut self) -> OMatrix<T, D, D> {
         let q = self.q();
-        self.tri.fill_lower_triangle(N::zero(), 2);
-        self.tri.fill_upper_triangle(N::zero(), 2);
+        self.tri.fill_lower_triangle(T::zero(), 2);
+        self.tri.fill_upper_triangle(T::zero(), 2);
 
         for i in 0..self.off_diagonal.len() {
-            let val = N::from_real(self.off_diagonal[i].modulus());
+            let val = T::from_real(self.off_diagonal[i].modulus());
             self.tri[(i + 1, i)] = val;
             self.tri[(i, i + 1)] = val;
         }

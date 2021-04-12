@@ -40,8 +40,8 @@ lapack-src    = { version = "0.6", default-features = false }
 # clippy = "*"
 
 [dev-dependencies]
-nalgebra   = { version = "0.25", features = [ "arbitrary" ], path = ".." }
-proptest = { version = "1", default-features = false, features = ["std"] }
+nalgebra   = { version = "0.25", features = [ "arbitrary", "rand" ], path = ".." }
+proptest   = { version = "1", default-features = false, features = ["std"] }
 quickcheck = "1"
 approx     = "0.4"
 rand       = "0.8"
