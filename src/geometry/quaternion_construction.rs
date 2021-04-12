@@ -303,15 +303,20 @@ where
         YXZ,
     }
 
-    /// Creates a new unit quaternion from Euler angles.
+    /// Creates a new unit quaternion from Euler angles in the specified order.
     ///
-    /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
+    /// The order is one of the twelve classic or Tait-Bryan variations.
     ///
     /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::UnitQuaternion;
-    /// let rot = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3);
+    /// # use nalgebra::{UnitQuaternion, Vector3, EulerOrder};
+    /// let rot = UnitQuaternion::from_euler_angles(0.1, 0.2, 0.3, EulerOrder::ZYX);
+    /// let about_x = UnitQuaternion::new(0.1 * Vector3::x());
+    /// let about_y = UnitQuaternion::new(0.2 * Vector3::y());
+    /// let about_z = UnitQuaternion::new(0.3 * Vector3::z());
+    /// let rot_test = about_x * about_y * about_z;
+    /// assert_relative_eq!(rot, rot_test);
     /// let euler = rot.euler_angles();
     /// assert_relative_eq!(euler.0, 0.1, epsilon = 1.0e-6);
     /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
