@@ -1,4 +1,4 @@
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use approx::AbsDiffEq;
@@ -14,16 +14,16 @@ use crate::linalg::givens::GivensRotation;
 use crate::linalg::SymmetricTridiagonal;
 
 /// Eigendecomposition of a symmetric matrix.
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D> +
                            Allocator<T::RealField, D>,
          OVector<T::RealField, D>: Serialize,
          OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D> +
                            Allocator<T::RealField, D>,
          OVector<T::RealField, D>: Deserialize<'de>,

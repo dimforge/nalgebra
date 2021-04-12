@@ -89,12 +89,12 @@ an optimized set of tools for computer graphics and physics. Those features incl
 #![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
 #![cfg_attr(feature = "no_unsound_assume_init", allow(unreachable_code))]
 
-#[cfg(feature = "serde-serialize")]
-#[macro_use]
-extern crate serde;
-
 #[cfg(feature = "rand-no-std")]
 extern crate rand_package as rand;
+
+#[cfg(feature = "serde-serialize-no-std")]
+#[macro_use]
+extern crate serde;
 
 #[macro_use]
 extern crate approx;

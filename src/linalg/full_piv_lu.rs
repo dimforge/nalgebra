@@ -1,4 +1,4 @@
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
@@ -12,16 +12,16 @@ use crate::linalg::lu;
 use crate::linalg::PermutationSequence;
 
 /// LU decomposition with full row and column pivoting.
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(serialize = "DefaultAllocator: Allocator<T, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
          OMatrix<T, R, C>: Serialize,
          PermutationSequence<DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(deserialize = "DefaultAllocator: Allocator<T, R, C> +
                            Allocator<(usize, usize), DimMinimum<R, C>>,
          OMatrix<T, R, C>: Deserialize<'de>,

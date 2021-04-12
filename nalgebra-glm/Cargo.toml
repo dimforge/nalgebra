@@ -17,10 +17,10 @@ edition = "2018"
 maintenance = { status = "actively-developed" }
 
 [features]
-default         = [ "std" ]
-std             = [ "nalgebra/std", "simba/std" ]
-arbitrary       = [ "nalgebra/arbitrary" ]
-serde-serialize = [ "nalgebra/serde-serialize" ]
+default               = [ "std" ]
+std                   = [ "nalgebra/std", "simba/std" ]
+arbitrary             = [ "nalgebra/arbitrary" ]
+serde-serialize       = [ "nalgebra/serde-serialize-no-std" ]
 abomonation-serialize = [ "nalgebra/abomonation-serialize" ]
 
 [dependencies]

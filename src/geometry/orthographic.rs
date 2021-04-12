@@ -5,7 +5,7 @@ use rand::{
     distributions::{Distribution, Standard},
     Rng,
 };
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::mem;
@@ -45,7 +45,7 @@ impl<T: RealField> PartialEq for Orthographic3<T> {
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<T: RealField + Serialize> Serialize for Orthographic3<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -55,7 +55,7 @@ impl<T: RealField + Serialize> Serialize for Orthographic3<T> {
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T: RealField + Deserialize<'a>> Deserialize<'a> for Orthographic3<T> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where

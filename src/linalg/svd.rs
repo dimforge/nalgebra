@@ -1,4 +1,4 @@
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use approx::AbsDiffEq;
@@ -16,9 +16,9 @@ use crate::linalg::symmetric_eigen;
 use crate::linalg::Bidiagonal;
 
 /// Singular Value Decomposition of a general matrix.
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(
         serialize = "DefaultAllocator: Allocator<T::RealField, DimMinimum<R, C>>    +
                            Allocator<T, DimMinimum<R, C>, C> +
@@ -29,7 +29,7 @@ use crate::linalg::Bidiagonal;
     ))
 )]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(
         deserialize = "DefaultAllocator: Allocator<T::RealField, DimMinimum<R, C>>    +
                            Allocator<T, DimMinimum<R, C>, C> +
