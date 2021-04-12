@@ -9,7 +9,7 @@ Fix a regression introduced in 0.26.0 preventing `DVector` from being serialized
 
 ## [0.26.0]
 This releases integrates `min-const-generics` to nalgebra. See
-[our blog post](https://dimforge.com/blog/2021/04/12/nalgebra-const-generics)
+[our blog post](https://www.dimforge.com/blog/2021/04/12/integrating-const-generics-to-nalgebra)
 for details about this release.
 
 ### Added
