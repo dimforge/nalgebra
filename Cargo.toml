@@ -22,14 +22,14 @@ name = "nalgebra"
 path = "src/lib.rs"
 
 [features]
-default         = [ "std" ]
-std             = [ "matrixmultiply", "simba/std", "serde/std" ]
-sparse = [ ]
-debug = [ "approx/num-complex", "rand" ]
-alloc = [ ]
-io = [ "pest", "pest_derive" ]
+default = [ "std" ]
+std     = [ "matrixmultiply", "simba/std" ]
+sparse  = [ ]
+debug   = [ "approx/num-complex", "rand" ]
+alloc   = [ ]
+io      = [ "pest", "pest_derive" ]
 compare = [ "matrixcompare-core" ]
-libm = [ "simba/libm" ]
+libm    = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 no_unsound_assume_init = [ ]
 
@@ -40,10 +40,17 @@ convert-glam-unchecked = [ "convert-glam" ] # Enable edgy conversions like Mat4 
 convert-bytemuck = [ "bytemuck" ]
 
 # Serialization
-serde-serialize = [ "serde", "num-complex/serde" ]
-abomonation-serialize = [ "abomonation" ]
+## To use serde in a #[no-std] environment, enable the
+## `serde-serialize-no-std` feature instead of `serde-serialize`.
+## Serialization of dynamically-sized matrices/vectors require
+## `serde-serialize`.
+serde-serialize-no-std = [ "serde", "num-complex/serde" ]
+serde-serialize        = [ "serde-serialize-no-std", "serde/std" ]
+abomonation-serialize  = [ "abomonation" ]
 
 # Randomness
+## To use rand in a #[no-std] environment, enable the
+## `rand-no-std` feature instead of `rand`.
 rand-no-std = [ "rand-package" ]
 rand        = [ "rand-no-std", "rand-package/std", "rand-package/std_rng", "rand_distr" ]
 

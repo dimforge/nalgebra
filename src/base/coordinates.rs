@@ -23,7 +23,7 @@ macro_rules! coords_impl(
         /// notation, e.g., `v.x` is the same as `v[0]` for a vector.
         #[repr(C)]
         #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
-        #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+        #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
         pub struct $T<T: Scalar> {
             $(pub $comps: T),*
         }

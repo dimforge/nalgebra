@@ -397,7 +397,7 @@ where
     }
 }
 
-#[cfg(feature = "rand-no-std")]
+#[cfg(feature = "rand")]
 impl<T: SimdRealField> Distribution<UnitComplex<T>> for Standard
 where
     T::Element: SimdRealField,

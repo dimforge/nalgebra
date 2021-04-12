@@ -6,7 +6,7 @@ use std::hash;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "abomonation-serialize")]
@@ -67,7 +67,7 @@ where
 {
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<T: Scalar + Serialize, const D: usize> Serialize for Point<T, D> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -77,7 +77,7 @@ impl<T: Scalar + Serialize, const D: usize> Serialize for Point<T, D> {
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T: Scalar + Deserialize<'a>, const D: usize> Deserialize<'a> for Point<T, D> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where

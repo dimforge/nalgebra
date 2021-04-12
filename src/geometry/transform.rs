@@ -3,7 +3,7 @@ use std::any::Any;
 use std::fmt::Debug;
 use std::marker::PhantomData;
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use simba::scalar::RealField;
@@ -194,7 +194,7 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<T: RealField, C: TCategory, const D: usize> Serialize for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
@@ -209,7 +209,7 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T: RealField, C: TCategory, const D: usize> Deserialize<'a> for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,

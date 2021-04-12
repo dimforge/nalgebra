@@ -1,4 +1,4 @@
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use num_complex::Complex;
@@ -20,15 +20,15 @@ use crate::linalg::householder;
 use crate::linalg::Schur;
 
 /// Eigendecomposition of a real matrix with real eigenvalues (or complex eigen values for complex matrices).
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(serialize = "DefaultAllocator: Allocator<T, D>,
          OVector<T, D>: Serialize,
          OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(deserialize = "DefaultAllocator: Allocator<T, D>,
          OVector<T, D>: Serialize,
          OMatrix<T, D, D>: Deserialize<'de>"))

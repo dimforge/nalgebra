@@ -5,10 +5,10 @@ use std::hash;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use crate::base::storage::Owned;
 
 #[cfg(feature = "abomonation-serialize")]
@@ -102,7 +102,7 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<T: Scalar, const D: usize> Serialize for Rotation<T, D>
 where
     Owned<T, Const<D>, Const<D>>: Serialize,
@@ -115,7 +115,7 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T: Scalar, const D: usize> Deserialize<'a> for Rotation<T, D>
 where
     Owned<T, Const<D>, Const<D>>: Deserialize<'a>,

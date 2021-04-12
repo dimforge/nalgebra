@@ -1,4 +1,4 @@
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use num::One;
@@ -12,14 +12,14 @@ use crate::dimension::{Const, Dim, DimName};
 use crate::storage::StorageMut;
 
 /// A sequence of row or column permutations.
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(serialize = "DefaultAllocator: Allocator<(usize, usize), D>,
          OVector<(usize, usize), D>: Serialize"))
 )]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(deserialize = "DefaultAllocator: Allocator<(usize, usize), D>,
          OVector<(usize, usize), D>: Deserialize<'de>"))
 )]

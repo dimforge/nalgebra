@@ -10,7 +10,7 @@ use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 use std::mem;
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "abomonation-serialize")]
@@ -213,7 +213,7 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<T, R, C, S> Serialize for Matrix<T, R, C, S>
 where
     T: Scalar,
@@ -229,7 +229,7 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<'de, T, R, C, S> Deserialize<'de> for Matrix<T, R, C, S>
 where
     T: Scalar,

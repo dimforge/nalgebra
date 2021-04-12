@@ -3,7 +3,7 @@ use std::io::{Result as IOResult, Write};
 use std::mem;
 use std::ops::Deref;
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "abomonation-serialize")]
@@ -36,7 +36,7 @@ unsafe impl<T> bytemuck::Zeroable for Unit<T> where T: bytemuck::Zeroable {}
 #[cfg(feature = "bytemuck")]
 unsafe impl<T> bytemuck::Pod for Unit<T> where T: bytemuck::Pod {}
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<T: Serialize> Serialize for Unit<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -46,7 +46,7 @@ impl<T: Serialize> Serialize for Unit<T> {
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<'de, T: Deserialize<'de>> Deserialize<'de> for Unit<T> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where

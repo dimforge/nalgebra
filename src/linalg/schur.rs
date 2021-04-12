@@ -1,4 +1,4 @@
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use approx::AbsDiffEq;
@@ -19,14 +19,14 @@ use crate::linalg::Hessenberg;
 /// Schur decomposition of a square matrix.
 ///
 /// If this is a real matrix, this will be a RealField Schur decomposition.
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D>,
          OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]

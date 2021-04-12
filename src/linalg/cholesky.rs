@@ -1,4 +1,4 @@
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use num::One;
@@ -12,14 +12,14 @@ use crate::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum, U1};
 use crate::storage::{Storage, StorageMut};
 
 /// The Cholesky decomposition of a symmetric-definite-positive matrix.
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(serialize = "DefaultAllocator: Allocator<T, D>,
          OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(deserialize = "DefaultAllocator: Allocator<T, D>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]

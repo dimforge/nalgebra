@@ -3,7 +3,7 @@ use crate::{
     Unit, UnitQuaternion, Vector3, Zero, U8,
 };
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
@@ -237,7 +237,7 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<T: SimdRealField> Serialize for DualQuaternion<T>
 where
     T: Serialize,
@@ -250,7 +250,7 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T: SimdRealField> Deserialize<'a> for DualQuaternion<T>
 where
     T: Deserialize<'a>,

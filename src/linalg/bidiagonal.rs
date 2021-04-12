@@ -1,4 +1,4 @@
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
@@ -11,9 +11,9 @@ use crate::geometry::Reflection;
 use crate::linalg::householder;
 
 /// The bidiagonalization of a general matrix.
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(serialize = "DimMinimum<R, C>: DimSub<U1>,
          DefaultAllocator: Allocator<T, R, C>             +
                            Allocator<T, DimMinimum<R, C>> +
@@ -23,7 +23,7 @@ use crate::linalg::householder;
          OVector<T, DimDiff<DimMinimum<R, C>, U1>>: Serialize"))
 )]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(deserialize = "DimMinimum<R, C>: DimSub<U1>,
          DefaultAllocator: Allocator<T, R, C>             +
                            Allocator<T, DimMinimum<R, C>> +

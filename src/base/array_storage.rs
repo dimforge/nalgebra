@@ -4,15 +4,15 @@ use std::fmt::{self, Debug, Formatter};
 use std::io::{Result as IOResult, Write};
 use std::ops::Mul;
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::de::{Error, SeqAccess, Visitor};
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::ser::SerializeSeq;
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use std::marker::PhantomData;
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use std::mem;
 
 #[cfg(feature = "abomonation-serialize")]
@@ -173,7 +173,7 @@ where
  *
  */
 // XXX: open an issue for serde so that it allows the serialization/deserialization of all arrays?
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<T, const R: usize, const C: usize> Serialize for ArrayStorage<T, R, C>
 where
     T: Scalar + Serialize,
@@ -192,7 +192,7 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T, const R: usize, const C: usize> Deserialize<'a> for ArrayStorage<T, R, C>
 where
     T: Scalar + Deserialize<'a>,
@@ -205,13 +205,13 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 /// A visitor that produces a matrix array.
 struct ArrayStorageVisitor<T, const R: usize, const C: usize> {
     marker: PhantomData<T>,
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<T, const R: usize, const C: usize> ArrayStorageVisitor<T, R, C>
 where
     T: Scalar,
@@ -224,7 +224,7 @@ where
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T, const R: usize, const C: usize> Visitor<'a> for ArrayStorageVisitor<T, R, C>
 where
     T: Scalar + Deserialize<'a>,

@@ -8,7 +8,7 @@ use std::fmt::Debug;
 use std::ops::{Add, Div, Mul, Sub};
 use typenum::{self, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, Unsigned};
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Dim of dynamically-sized algebraic entities.
@@ -25,7 +25,7 @@ impl Dynamic {
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl Serialize for Dynamic {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -35,7 +35,7 @@ impl Serialize for Dynamic {
     }
 }
 
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 impl<'de> Deserialize<'de> for Dynamic {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where

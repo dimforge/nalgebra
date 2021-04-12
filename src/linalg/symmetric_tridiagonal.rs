@@ -1,4 +1,4 @@
-#[cfg(feature = "serde-serialize")]
+#[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
@@ -10,16 +10,16 @@ use simba::scalar::ComplexField;
 use crate::linalg::householder;
 
 /// Tridiagonalization of a symmetric matrix.
-#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D> +
                            Allocator<T, DimDiff<D, U1>>,
          OMatrix<T, D, D>: Serialize,
          OVector<T, DimDiff<D, U1>>: Serialize"))
 )]
 #[cfg_attr(
-    feature = "serde-serialize",
+    feature = "serde-serialize-no-std",
     serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D> +
                            Allocator<T, DimDiff<D, U1>>,
          OMatrix<T, D, D>: Deserialize<'de>,
