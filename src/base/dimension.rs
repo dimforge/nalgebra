@@ -211,6 +211,26 @@ pub trait DimName: Dim {
     fn dim() -> usize;
 }
 
+#[cfg(feature = "serde-serialize-no-std")]
+impl<const D: usize> Serialize for Const<D> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        ().serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize-no-std")]
+impl<'de, const D: usize> Deserialize<'de> for Const<D> {
+    fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
+    where
+        Des: Deserializer<'de>,
+    {
+        <()>::deserialize(deserializer).map(|_| Const::<D>)
+    }
+}
+
 pub trait ToConst {
     type Const: DimName;
 }
