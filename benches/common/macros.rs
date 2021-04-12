@@ -60,7 +60,7 @@ macro_rules! bench_unop_na(
                 i = (i + 1) & (LEN - 1);
 
                 unsafe {
-                    test::black_box(na::$unop(elems.get_unchecked(i)))
+                    std::hint::black_box(na::$unop(elems.get_unchecked(i)))
                 }
             }));
         }
@@ -82,7 +82,7 @@ macro_rules! bench_unop(
                 i = (i + 1) & (LEN - 1);
 
                 unsafe {
-                    test::black_box(elems.get_unchecked_mut(i).$unop())
+                    std::hint::black_box(elems.get_unchecked_mut(i).$unop())
                 }
             }));
         }
@@ -105,7 +105,7 @@ macro_rules! bench_construction(
 
                 unsafe {
                     let res = $constructor($(*$args.get_unchecked(i),)*);
-                    test::black_box(res)
+                    std::hint::black_box(res)
                 }
             }));
         }

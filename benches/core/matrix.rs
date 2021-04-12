@@ -116,8 +116,8 @@ fn mat10_mul_mat10(bench: &mut criterion::Criterion) {
 }
 
 fn mat10_mul_mat10_static(bench: &mut criterion::Criterion) {
-    let a = OMatrix::<f64, U10>::new_random();
-    let b = OMatrix::<f64, U10>::new_random();
+    let a = OMatrix::<f64, U10, U10>::new_random();
+    let b = OMatrix::<f64, U10, U10>::new_random();
 
     bench.bench_function("mat10_mul_mat10_static", move |bh| bh.iter(|| &a * &b));
 }
@@ -198,7 +198,7 @@ fn mat_mul_mat(bench: &mut criterion::Criterion) {
 
     bench.bench_function("mat_mul_mat", move |bh| {
         bh.iter(|| {
-            test::black_box(a.mul_to(&b, &mut ab));
+            std::hint::black_box(a.mul_to(&b, &mut ab));
         })
     });
 }

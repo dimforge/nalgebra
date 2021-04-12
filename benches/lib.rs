@@ -2,10 +2,7 @@
 #![allow(unused_macros)]
 
 extern crate nalgebra as na;
-extern crate rand;
-extern crate rand_isaac;
-extern crate test;
-extern crate typenum;
+extern crate rand_package as rand;
 
 #[macro_use]
 extern crate criterion;
