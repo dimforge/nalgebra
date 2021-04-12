@@ -274,6 +274,35 @@ where
         Self::new_normalize(q)
     }
 
+    /// Define the order that the Euler angles are applied. Note that these are the
+    /// combination of Proper and Tait-Bryan
+    pub enum EulerOrder {
+        /// Rotation about Z, then new X, then new Z. A classic Euler format.
+        ZXZ,
+        /// Rotation about X, then new Y, then new X. A classic Euler format.
+        XYX,
+        /// Rotation about Y, then new Z, then new Y. A classic Euler format.
+        YZY,
+        /// Rotation about Z, then new Y, then new Z. A classic Euler format.
+        ZYZ,
+        /// Rotation about X, then new Z, then new X. A classic Euler format.
+        XZX,
+        /// Rotation about Y, then new X, then new Y. A classic Euler format.
+        YXY,
+        /// Rotation about X, then new Y, then new Z. A Tait-Bryan format.
+        XYZ,
+        /// Rotation about Y, then new Z, then new X. A Tait-Bryan format.
+        YZX,
+        /// Rotation about Z, then new X, then new Y. A Tait-Bryan format.
+        ZXY,
+        /// Rotation about X, then new Z, then new Y. A Tait-Bryan format.
+        XZY,
+        /// Rotation about Z, then new Y, then new X. A Tait-Bryan format.
+        ZYX,
+        /// Rotation about Y, then new X, then new Z. A Tait-Bryan format.
+        YXZ,
+    }
+
     /// Creates a new unit quaternion from Euler angles.
     ///
     /// The primitive rotations are applied in order: 1 roll − 2 pitch − 3 yaw.
@@ -289,17 +318,85 @@ where
     /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn from_euler_angles(roll: N, pitch: N, yaw: N) -> Self {
-        let (sr, cr) = (roll * crate::convert(0.5f64)).simd_sin_cos();
-        let (sp, cp) = (pitch * crate::convert(0.5f64)).simd_sin_cos();
-        let (sy, cy) = (yaw * crate::convert(0.5f64)).simd_sin_cos();
+    pub fn from_euler_angles(first: N, second: N, third: N, order: EulerOrder) -> Self {
+        let (s1, c1) = (first * crate::convert(0.5f64)).simd_sin_cos();
+        let (s2, c2) = (second * crate::convert(0.5f64)).simd_sin_cos();
+        let (s3, c3) = (third * crate::convert(0.5f64)).simd_sin_cos();
 
-        let q = Quaternion::new(
-            cr * cp * cy + sr * sp * sy,
-            sr * cp * cy - cr * sp * sy,
-            cr * sp * cy + sr * cp * sy,
-            cr * cp * sy - sr * sp * cy,
-        );
+        let q = match order {
+            EulerOrder::XYX => Quaternion::new(
+                c1 * c2 * c3 - s1 * c2 * s3,
+                c1 * c2 * s3 + s1 * c2 * c3,
+                c1 * s2 * c3 + s1 * s2 * c3,
+                s1 * s2 * c3 - c1 * s2 * c3,
+            ),
+            EulerOrder::XYZ => Quaternion::new(
+                c1 * c2 * c3 - s1 * s2 * s3,
+                s1 * c2 * c3 + c1 * s2 * s3,
+                c1 * s2 * c3 - s1 * c2 * s3,
+                c1 * c2 * s3 + s1 * s2 * c3,
+            ),
+            EulerOrder::XZX => Quaternion::new(
+                c1 * c2 * c3 - s1 * c2 * s3,
+                c1 * c2 * s3 + s1 * c2 * c3,
+                c1 * s2 * s3 - s1 * s2 * c3,
+                s1 * s2 * s3 + c1 * s2 * c3,
+            ),
+            EulerOrder::XZY => Quaternion::new(
+                c1 * c2 * c3 - s1 * s2 * s3,
+                s1 * c2 * c3 - c1 * s2 * s3,
+                c1 * c2 * s3 + s1 * s2 * c3,
+                s1 * c2 * s3 + c1 * s2 * c3,
+            ),
+            EulerOrder::YXY => Quaternion::new(
+                c1 * c2 * c3 - s1 * c2 * s3,
+                c1 * s2 * c3 - s1 * s2 * s3,
+                c1 * c2 * s3 + s1 * c2 * c3,
+                c1 * s2 * s3 + s1 * s2 * c3,
+            ),
+            EulerOrder::YXZ => Quaternion::new(
+                c1 * c2 * c3 - s1 * s2 * s3,
+                c1 * s2 * c3 + s1 * c2 * s3,
+                s1 * c2 * c3 - c1 * s2 * s3,
+                c1 * c2 * s3 + s1 * s2 * c3,
+            ),
+            EulerOrder::YZX => Quaternion::new(
+                c1 * c2 * c3 - s1 * s2 * s3,
+                c1 * c2 * s3 + s1 * s2 * c3,
+                s1 * c2 * c3 + c1 * s2 * c3,
+                c1 * s2 * c3 - s1 * c2 * c3,
+            ),
+            EulerOrder::YZY => Quaternion::new(
+                c1 * c2 * c3 - s1 * c2 * s3,
+                s1 * s2 * c3 - c1 * s2 * s3,
+                c1 * c2 * s3 + s1 * c2 * c3,
+                s1 * s2 * s3 + c1 * s2 * c3,
+            ),
+            EulerOrder::ZXY => Quaternion::new(
+                c1 * c2 * c3 - s1 * s2 * s3,
+                c1 * s2 * c3 - s1 * c2 * s3,
+                c1 * c2 * s3 + s1 * s2 * c3,
+                c1 * s2 * s3 + s1 * c2 * c3,
+            ),
+            EulerOrder::ZXZ => Quaternion::new(
+                c1 * c2 * c3 - s1 * c2 * s3,
+                c1 * s2 * c3 + s1 * s2 * s3,
+                s1 * s2 * c3 - c1 * s2 * s3,
+                c1 * c2 * s3 + s1 * c2 * c3,
+            ),
+            EulerOrder::ZYX => Quaternion::new(
+                c1 * c2 * c3 + s1 * s2 * s3,
+                c1 * c2 * s3 - s1 * s2 * c3,
+                c1 * s2 * c3 + s1 * c2 * s3,
+                s1 * c2 * c3 - c1 * s2 * s3,
+            ),
+            EulerOrder::ZYZ => Quaternion::new(
+                c1 * c2 * c3 - s1 * c2 * s3,
+                c1 * s2 * s3 - s1 * s2 * c3,
+                s1 * s2 * s3 + c1 * s2 * c3,
+                c1 * c2 * s3 + s1 * c2 * c3,
+            ),
+        };
 
         Self::new_unchecked(q)
     }
