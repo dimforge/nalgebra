@@ -85,7 +85,7 @@ pub fn matrix(stream: TokenStream) -> TokenStream {
     //  TODO: Use quote_spanned instead??
     // TODO: Construct directly from array?
     let output = quote! {
-        nalgebra::MatrixMN::<_, nalgebra::dimension::#row_dim, nalgebra::dimension::#col_dim>
+        nalgebra::MatrixMN::<_, nalgebra::#row_dim, nalgebra::dimension::#col_dim>
             ::from_column_slice(&[#(#entries_col_major),*])
     };
 
