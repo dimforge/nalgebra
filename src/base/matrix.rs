@@ -176,6 +176,16 @@ pub struct Matrix<T, R, C, S> {
     /// starts at 0 as you would expect.
     pub data: S,
 
+    // NOTE: the fact that this field is private is important because
+    //       this prevents the user from constructing a matrix with
+    //       dimensions R, C that don't match the dimension of the
+    //       storage S. Instead they have to use the unsafe function
+    //       from_data_statically_unchecked.
+    //       Note that it would probably make sense to just have
+    //       the type `Matrix<S>`, and have `T, R, C` be associated-types
+    //       of the `Storage` trait. However, because we don't have
+    //       specialization, this is not bossible because these `T, R, C`
+    //       allows us to desambiguate a lot of configurations.
     _phantoms: PhantomData<(T, R, C)>,
 }
 
