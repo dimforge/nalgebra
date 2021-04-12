@@ -12,9 +12,7 @@ use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, Shap
 use crate::base::dimension::Dynamic;
 use crate::base::dimension::{Const, Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimSub, DimSum, U1};
 use crate::base::storage::{ReshapableStorage, Storage, StorageMut};
-#[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::DMatrix;
-use crate::base::{DefaultAllocator, Matrix, OMatrix, RowVector, SMatrix, Scalar, Vector};
+use crate::base::{DefaultAllocator, Matrix, OMatrix, RowVector, Scalar, Vector};
 
 /// # Rows and columns extraction
 impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
@@ -711,7 +709,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
     /// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.
     #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn resize(self, new_nrows: usize, new_ncols: usize, val: T) -> DMatrix<T>
+    pub fn resize(self, new_nrows: usize, new_ncols: usize, val: T) -> OMatrix<T, Dynamic, Dynamic>
     where
         DefaultAllocator: Reallocator<T, R, C, Dynamic, Dynamic>,
     {
@@ -748,7 +746,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     ///
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
     /// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.
-    pub fn fixed_resize<const R2: usize, const C2: usize>(self, val: T) -> SMatrix<T, R2, C2>
+    pub fn fixed_resize<const R2: usize, const C2: usize>(
+        self,
+        val: T,
+    ) -> OMatrix<T, Const<R2>, Const<C2>>
     where
         DefaultAllocator: Reallocator<T, R, C, Const<R2>, Const<C2>>,
     {
@@ -892,7 +893,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
 /// # In-place resizing
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar> DMatrix<T> {
+impl<T: Scalar> OMatrix<T, Dynamic, Dynamic> {
     /// Resizes this matrix in-place.
     ///
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
