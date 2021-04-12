@@ -7,7 +7,7 @@ use crate::base::{
 
 use std::ops;
 
-// T.B.: Not a public trait!
+// N.B.: Not a public trait!
 trait DimRange<D: Dim> {
     /// The number of elements indexed by this range.
     type Length: Dim;
