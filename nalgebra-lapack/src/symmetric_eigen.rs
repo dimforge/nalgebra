@@ -8,7 +8,7 @@ use simba::scalar::RealField;
 
 use crate::ComplexHelper;
 use na::allocator::Allocator;
-use na::dimension::{Dim, U1};
+use na::dimension::{Const, Dim};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
@@ -94,7 +94,8 @@ where
 
         let lda = n as i32;
 
-        let mut values = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut values =
+            unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
         let mut info = 0;
 
         let lwork = T::xsyev_work_size(jobz, b'L', n as i32, m.as_mut_slice(), lda, &mut info);

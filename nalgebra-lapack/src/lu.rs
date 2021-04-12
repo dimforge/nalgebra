@@ -3,7 +3,7 @@ use num_complex::Complex;
 
 use crate::ComplexHelper;
 use na::allocator::Allocator;
-use na::dimension::{Dim, DimMin, DimMinimum, U1};
+use na::dimension::{Const, Dim, DimMin, DimMinimum};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
@@ -66,7 +66,7 @@ where
         let nrows = nrows.value() as i32;
         let ncols = ncols.value() as i32;
 
-        let mut ipiv: OVector<i32, _> = Matrix::zeros_generic(min_nrows_ncols, U1);
+        let mut ipiv: OVector<i32, _> = Matrix::zeros_generic(min_nrows_ncols, Const::<1>);
 
         let mut info = 0;
 
@@ -111,7 +111,7 @@ where
     /// Computing the permutation matrix explicitly is costly and usually not necessary.
     /// To permute rows of a matrix or vector, use the method `self.permute(...)` instead.
     #[inline]
-    pub fn p(&self) -> OMatrix<T, R> {
+    pub fn p(&self) -> OMatrix<T, R, R> {
         let (dim, _) = self.lu.data.shape();
         let mut id = Matrix::identity_generic(dim, dim);
         self.permute(&mut id);

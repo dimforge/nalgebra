@@ -5,7 +5,7 @@ use num::Signed;
 use std::cmp;
 
 use na::allocator::Allocator;
-use na::dimension::{Dim, DimMin, DimMinimum, U1};
+use na::dimension::{Const, Dim, DimMin, DimMinimum, U1};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
@@ -37,9 +37,9 @@ where
     DefaultAllocator: Allocator<T, R, R> + Allocator<T, DimMinimum<R, C>> + Allocator<T, C, C>,
 {
     /// The left-singular vectors `U` of this SVD.
-    pub u: OMatrix<T, R>, // TODO: should be OMatrix<T, R, DimMinimum<R, C>>
+    pub u: OMatrix<T, R, R>, // TODO: should be OMatrix<T, R, DimMinimum<R, C>>
     /// The right-singular vectors `V^t` of this SVD.
-    pub vt: OMatrix<T, C>, // TODO: should be OMatrix<T, DimMinimum<R, C>, C>
+    pub vt: OMatrix<T, C, C>, // TODO: should be OMatrix<T, DimMinimum<R, C>, C>
     /// The singular values of this SVD.
     pub singular_values: OVector<T, DimMinimum<R, C>>,
 }
@@ -100,7 +100,7 @@ macro_rules! svd_impl(
                 let lda = nrows.value() as i32;
 
                 let mut u  = unsafe { Matrix::new_uninitialized_generic(nrows, nrows).assume_init() };
-                let mut s  = unsafe { Matrix::new_uninitialized_generic(nrows.min(ncols), U1).assume_init() };
+                let mut s  = unsafe { Matrix::new_uninitialized_generic(nrows.min(ncols), Const::<1>).assume_init() };
                 let mut vt = unsafe { Matrix::new_uninitialized_generic(ncols, ncols).assume_init() };
 
                 let ldu  = nrows.value();

@@ -8,7 +8,7 @@ use simba::scalar::RealField;
 
 use crate::ComplexHelper;
 use na::allocator::Allocator;
-use na::dimension::{Dim, U1};
+use na::dimension::{Const, Dim};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
@@ -78,8 +78,8 @@ where
 
         let mut info = 0;
 
-        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
-        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
+        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
         let mut q = unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
         // Placeholders:
         let mut bwork = [0i32];
@@ -151,8 +151,9 @@ where
     where
         DefaultAllocator: Allocator<Complex<T>, D>,
     {
-        let mut out =
-            unsafe { OVector::new_uninitialized_generic(self.t.data.shape().0, U1).assume_init() };
+        let mut out = unsafe {
+            OVector::new_uninitialized_generic(self.t.data.shape().0, Const::<1>).assume_init()
+        };
 
         for i in 0..out.len() {
             out[i] = Complex::new(self.re[i], self.im[i])

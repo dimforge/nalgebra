@@ -101,7 +101,7 @@ pub fn dvector() -> impl Strategy<Value = DVector<f64>> {
 
 pub fn dmatrix_<ScalarStrategy>(
     scalar_strategy: ScalarStrategy,
-) -> impl Strategy<Value = DMatrix<ScalarStrategy::Value>>
+) -> impl Strategy<Value = OMatrix<ScalarStrategy::Value, Dynamic, Dynamic>>
 where
     ScalarStrategy: Strategy + Clone + 'static,
     ScalarStrategy::Value: Scalar,

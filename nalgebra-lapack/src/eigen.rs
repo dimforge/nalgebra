@@ -8,7 +8,7 @@ use simba::scalar::RealField;
 
 use crate::ComplexHelper;
 use na::allocator::Allocator;
-use na::dimension::{Dim, U1};
+use na::dimension::{Const, Dim};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
@@ -78,9 +78,9 @@ where
 
         let lda = n as i32;
 
-        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
         // TODO: Tap into the workspace.
-        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
 
         let mut info = 0;
         let mut placeholder1 = [T::zero()];
@@ -247,8 +247,8 @@ where
 
         let lda = n as i32;
 
-        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
-        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
+        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
 
         let mut info = 0;
         let mut placeholder1 = [T::zero()];
@@ -291,7 +291,7 @@ where
         );
         lapack_panic!(info);
 
-        let mut res = unsafe { Matrix::new_uninitialized_generic(nrows, U1).assume_init() };
+        let mut res = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
 
         for i in 0..res.len() {
             res[i] = Complex::new(wr[i], wi[i]);

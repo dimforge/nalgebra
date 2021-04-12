@@ -3,7 +3,7 @@ use num_complex::Complex;
 
 use crate::ComplexHelper;
 use na::allocator::Allocator;
-use na::dimension::{DimDiff, DimSub, U1};
+use na::dimension::{Const, DimDiff, DimSub, U1};
 use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
@@ -60,7 +60,9 @@ where
             "Unable to compute the hessenberg decomposition of an empty matrix."
         );
 
-        let mut tau = unsafe { Matrix::new_uninitialized_generic(nrows.sub(U1), U1).assume_init() };
+        let mut tau = unsafe {
+            Matrix::new_uninitialized_generic(nrows.sub(Const::<1>), Const::<1>).assume_init()
+        };
 
         let mut info = 0;
         let lwork =
