@@ -22,9 +22,6 @@ macro_rules! md_impl(
      $($lives: tt),*) => {
         impl<$($lives ,)* T $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
             where T: Scalar + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
-                  DefaultAllocator: Allocator<T, $R1, $C1> +
-                                    Allocator<T, $R2, $C2> +
-                                    Allocator<T, $R1, $C2>,
                   $( $ConstraintType: $ConstraintBound$(<$( $ConstraintBoundParams $( = $EqBound )*),*>)* ),*
                    {
             type Output = $Result;
@@ -117,8 +114,6 @@ macro_rules! md_assign_impl(
         impl<$($lives ,)* T $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
             where T: Scalar + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
                   $($(T::Element: $ElementBounds,)*)*
-                  DefaultAllocator: Allocator<T, $R1, $C1> +
-                                    Allocator<T, $R2, $C2>,
                   $( $ConstraintType: $ConstraintBound $(<$( $ConstraintBoundParams $( = $EqBound )*),*>)* ),*
         {
             #[inline]
@@ -172,7 +167,7 @@ macro_rules! md_assign_impl_all(
 /// Macro for the implementation of addition and subtraction.
 macro_rules! add_sub_impl(
     ($Op: ident, $op: ident, $bound: ident;
-     ($R1: ty, $C1: ty),($R2: ty, $C2: ty) $(-> ($RRes: ty))*
+     ($R1: ty, $C1: ty),($R2: ty, $C2: ty) $(-> ($RRes: ty, $CRes: ty))*
      // Const type declaration
      const $($D: ident),*;
      // Other generic type declarations.
@@ -183,11 +178,8 @@ macro_rules! add_sub_impl(
      $action: expr; $($lives: tt),*) => {
         impl<$($lives ,)* T $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
             where T: Scalar + $bound,
-                  DefaultAllocator: Allocator<T, $R1, $C1> +
-                                    Allocator<T, $R2, $C2> +
-                                    SameShapeAllocator<T, $R1, $C1, $R2, $C2>,
                   ShapeConstraint: SameNumberOfRows<$R1, $R2 $(, Representative = $RRes)*> +
-                                   SameNumberOfColumns<$C1, $C2>,
+                                   SameNumberOfColumns<$C1, $C2 $(, Representative = $CRes)*>,
                   $( $ConstraintType: $ConstraintBound$(<$( $ConstraintBoundParams $( = $EqBound )*),*>)* ),* {
             type Output = $Result;
 

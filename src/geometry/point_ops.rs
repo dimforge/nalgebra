@@ -5,13 +5,12 @@ use std::ops::{
 
 use simba::scalar::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
-use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{
     AreMultipliable, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
 use crate::base::dimension::{Dim, U1};
 use crate::base::storage::Storage;
-use crate::base::{Const, DefaultAllocator, Matrix, Scalar, Vector, VectorSum};
+use crate::base::{Const, Matrix, SVector, Scalar, Vector};
 
 use crate::geometry::Point;
 
@@ -67,32 +66,32 @@ impl<'a, T: Scalar + ClosedNeg, const D: usize> Neg for &'a Point<T, D> {
 
 // Point - Point
 add_sub_impl!(Sub, sub, ClosedSub;
-    (Const<D>, U1), (Const<D>, U1)
+    (Const<D>, U1), (Const<D>, U1) -> (Const<D>, U1)
     const D; for; where;
-    self: &'a Point<T, D>, right: &'b Point<T, D>, Output = VectorSum<T, Const<D>, Const<D>>;
+    self: &'a Point<T, D>, right: &'b Point<T, D>, Output = SVector<T, D>;
     &self.coords - &right.coords; 'a, 'b);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (Const<D>, U1), (Const<D>, U1)
+    (Const<D>, U1), (Const<D>, U1) -> (Const<D>, U1)
     const D; for; where;
-    self: &'a Point<T, D>, right: Point<T, D>, Output = VectorSum<T, Const<D>, Const<D>>;
+    self: &'a Point<T, D>, right: Point<T, D>, Output = SVector<T, D>;
     &self.coords - right.coords; 'a);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (Const<D>, U1), (Const<D>, U1)
+    (Const<D>, U1), (Const<D>, U1) -> (Const<D>, U1)
     const D; for; where;
-    self: Point<T, D>, right: &'b Point<T, D>, Output = VectorSum<T, Const<D>, Const<D>>;
+    self: Point<T, D>, right: &'b Point<T, D>, Output = SVector<T, D>;
     self.coords - &right.coords; 'b);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (Const<D>, U1), (Const<D>, U1)
+    (Const<D>, U1), (Const<D>, U1) -> (Const<D>, U1)
     const D; for; where;
-    self: Point<T, D>, right: Point<T, D>, Output = VectorSum<T, Const<D>, Const<D>>;
+    self: Point<T, D>, right: Point<T, D>, Output = SVector<T, D>;
     self.coords - right.coords; );
 
 // Point - Vector
 add_sub_impl!(Sub, sub, ClosedSub;
-    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>, U1)
     const D1;
     for D2, SB;
     where D2: Dim, SB: Storage<T, D2>;
@@ -100,7 +99,7 @@ add_sub_impl!(Sub, sub, ClosedSub;
     Self::Output::from(&self.coords - right); 'a, 'b);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>, U1)
     const D1;
     for D2, SB;
     where D2: Dim, SB: Storage<T, D2>;
@@ -108,7 +107,7 @@ add_sub_impl!(Sub, sub, ClosedSub;
     Self::Output::from(&self.coords - &right); 'a); // TODO: should not be a ref to `right`.
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>, U1)
     const D1;
     for D2, SB;
     where D2: Dim, SB: Storage<T, D2>;
@@ -116,7 +115,7 @@ add_sub_impl!(Sub, sub, ClosedSub;
     Self::Output::from(self.coords - right); 'b);
 
 add_sub_impl!(Sub, sub, ClosedSub;
-    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>, U1)
     const D1;
     for D2, SB;
     where D2: Dim, SB: Storage<T, D2>;
@@ -125,7 +124,7 @@ add_sub_impl!(Sub, sub, ClosedSub;
 
 // Point + Vector
 add_sub_impl!(Add, add, ClosedAdd;
-    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>, U1)
     const D1;
     for D2, SB;
     where D2: Dim, SB: Storage<T, D2>;
@@ -133,7 +132,7 @@ add_sub_impl!(Add, add, ClosedAdd;
     Self::Output::from(&self.coords + right); 'a, 'b);
 
 add_sub_impl!(Add, add, ClosedAdd;
-    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>, U1)
     const D1;
     for D2, SB;
     where D2: Dim, SB: Storage<T, D2>;
@@ -141,7 +140,7 @@ add_sub_impl!(Add, add, ClosedAdd;
     Self::Output::from(&self.coords + &right); 'a); // TODO: should not be a ref to `right`.
 
 add_sub_impl!(Add, add, ClosedAdd;
-    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>, U1)
     const D1;
     for D2, SB;
     where D2: Dim, SB: Storage<T, D2>;
@@ -149,7 +148,7 @@ add_sub_impl!(Add, add, ClosedAdd;
     Self::Output::from(self.coords + right); 'b);
 
 add_sub_impl!(Add, add, ClosedAdd;
-    (Const<D1>, U1), (D2, U1) -> (Const<D1>)
+    (Const<D1>, U1), (D2, U1) -> (Const<D1>, U1)
     const D1;
     for D2, SB;
     where D2: Dim, SB: Storage<T, D2>;

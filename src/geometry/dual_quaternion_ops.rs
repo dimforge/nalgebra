@@ -46,9 +46,8 @@
 
 use crate::base::storage::Storage;
 use crate::{
-    Allocator, DefaultAllocator, DualQuaternion, Isometry3, Point, Point3, Quaternion,
-    SimdRealField, Translation3, Unit, UnitDualQuaternion, UnitQuaternion, Vector, Vector3, U1, U3,
-    U4,
+    DualQuaternion, Isometry3, Point, Point3, Quaternion, SimdRealField, Translation3, Unit,
+    UnitDualQuaternion, UnitQuaternion, Vector, Vector3, U3,
 };
 use std::mem;
 use std::ops::{
@@ -140,9 +139,7 @@ macro_rules! dual_quaternion_op_impl(
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty $(=> $VDimA: ty, $VDimB: ty)*;
      $action: expr; $($lives: tt),*) => {
         impl<$($lives ,)* T: SimdRealField $(, $Storage: $StoragesBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
-            where T::Element: SimdRealField,
-                  DefaultAllocator: Allocator<T, $LhsRDim, $LhsCDim> +
-                                    Allocator<T, $RhsRDim, $RhsCDim> {
+            where T::Element: SimdRealField, {
             type Output = $Result;
 
             #[inline]
@@ -963,9 +960,7 @@ macro_rules! dual_quaternion_op_impl(
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty $(=> $VDimA: ty, $VDimB: ty)*;
      $action: expr; $($lives: tt),*) => {
         impl<$($lives ,)* T: SimdRealField> $OpAssign<$Rhs> for $Lhs
-            where T::Element: SimdRealField,
-                  DefaultAllocator: Allocator<T, $LhsRDim, $LhsCDim> +
-                                    Allocator<T, $RhsRDim, $RhsCDim> {
+            where T::Element: SimdRealField {
 
             #[inline]
             fn $op_assign(&mut $lhs, $rhs: $Rhs) {

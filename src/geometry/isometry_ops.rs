@@ -4,9 +4,7 @@ use std::ops::{Div, DivAssign, Mul, MulAssign};
 use simba::scalar::{ClosedAdd, ClosedMul};
 use simba::simd::SimdRealField;
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::{U1, U2, U3};
-use crate::base::{Const, DefaultAllocator, SVector, Unit};
+use crate::base::{SVector, Unit};
 use crate::Scalar;
 
 use crate::geometry::{

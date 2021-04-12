@@ -23,12 +23,12 @@ use crate::{Scalar, SimdRealField};
 
 use crate::geometry::{Quaternion, Rotation3, UnitQuaternion};
 
-impl<T: Scalar> Quaternion<T> {
+impl<T> Quaternion<T> {
     /// Creates a quaternion from a 4D vector. The quaternion scalar part corresponds to the `w`
     /// vector component.
     #[inline]
-    #[deprecated(note = "Use `::from` instead.")]
-    pub fn from_vector(vector: Vector4<T>) -> Self {
+    // #[deprecated(note = "Use `::from` instead.")] // Don't deprecate because this one can be a const-fn.
+    pub const fn from_vector(vector: Vector4<T>) -> Self {
         Self { coords: vector }
     }
 
@@ -46,8 +46,8 @@ impl<T: Scalar> Quaternion<T> {
     /// assert_eq!(*q.as_vector(), Vector4::new(2.0, 3.0, 4.0, 1.0));
     /// ```
     #[inline]
-    pub fn new(w: T, i: T, j: T, k: T) -> Self {
-        Self::from(Vector4::new(i, j, k, w))
+    pub const fn new(w: T, i: T, j: T, k: T) -> Self {
+        Self::from_vector(Vector4::new(i, j, k, w))
     }
 
     /// Cast the components of `self` to another type.
@@ -61,6 +61,7 @@ impl<T: Scalar> Quaternion<T> {
     /// ```
     pub fn cast<To: Scalar>(self) -> Quaternion<To>
     where
+        T: Scalar,
         To: SupersetOf<T>,
     {
         crate::convert(self)

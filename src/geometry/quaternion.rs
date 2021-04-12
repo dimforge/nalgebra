@@ -1,6 +1,7 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::Zero;
 use std::fmt;
+use std::hash::{Hash, Hasher};
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
 
@@ -26,10 +27,25 @@ use crate::geometry::{Point3, Rotation};
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct Quaternion<T: Scalar> {
+#[derive(Debug, Copy, Clone)]
+pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<T>,
+}
+
+impl<T: Scalar + Hash> Hash for Quaternion<T> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.coords.hash(state)
+    }
+}
+
+impl<T: Scalar + Eq> Eq for Quaternion<T> {}
+
+impl<T: Scalar> PartialEq for Quaternion<T> {
+    #[inline]
+    fn eq(&self, right: &Self) -> bool {
+        self.coords == right.coords
+    }
 }
 
 impl<T: Scalar + Zero> Default for Quaternion<T> {

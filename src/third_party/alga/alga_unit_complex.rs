@@ -7,9 +7,7 @@ use alga::linear::{
     ProjectiveTransformation, Rotation, Similarity, Transformation,
 };
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::U2;
-use crate::base::{DefaultAllocator, Vector2};
+use crate::base::Vector2;
 use crate::geometry::{Point2, UnitComplex};
 
 /*
@@ -59,10 +57,7 @@ impl_structures!(
     AbstractGroup<Multiplicative>
 );
 
-impl<T: RealField + simba::scalar::RealField> Transformation<Point2<T>> for UnitComplex<T>
-where
-    DefaultAllocator: Allocator<T, U2>,
-{
+impl<T: RealField + simba::scalar::RealField> Transformation<Point2<T>> for UnitComplex<T> {
     #[inline]
     fn transform_point(&self, pt: &Point2<T>) -> Point2<T> {
         self.transform_point(pt)
@@ -74,9 +69,8 @@ where
     }
 }
 
-impl<T: RealField + simba::scalar::RealField> ProjectiveTransformation<Point2<T>> for UnitComplex<T>
-where
-    DefaultAllocator: Allocator<T, U2>,
+impl<T: RealField + simba::scalar::RealField> ProjectiveTransformation<Point2<T>>
+    for UnitComplex<T>
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point2<T>) -> Point2<T> {
@@ -89,10 +83,7 @@ where
     }
 }
 
-impl<T: RealField + simba::scalar::RealField> AffineTransformation<Point2<T>> for UnitComplex<T>
-where
-    DefaultAllocator: Allocator<T, U2>,
-{
+impl<T: RealField + simba::scalar::RealField> AffineTransformation<Point2<T>> for UnitComplex<T> {
     type Rotation = Self;
     type NonUniformScaling = Id;
     type Translation = Id;
@@ -133,10 +124,7 @@ where
     }
 }
 
-impl<T: RealField + simba::scalar::RealField> Similarity<Point2<T>> for UnitComplex<T>
-where
-    DefaultAllocator: Allocator<T, U2>,
-{
+impl<T: RealField + simba::scalar::RealField> Similarity<Point2<T>> for UnitComplex<T> {
     type Scaling = Id;
 
     #[inline]
@@ -158,16 +146,13 @@ where
 macro_rules! marker_impl(
     ($($Trait: ident),*) => {$(
         impl<T: RealField + simba::scalar::RealField> $Trait<Point2<T>> for UnitComplex<T>
-        where DefaultAllocator: Allocator<T, U2> { }
+        { }
     )*}
 );
 
 marker_impl!(Isometry, DirectIsometry, OrthogonalTransformation);
 
-impl<T: RealField + simba::scalar::RealField> Rotation<Point2<T>> for UnitComplex<T>
-where
-    DefaultAllocator: Allocator<T, U2>,
-{
+impl<T: RealField + simba::scalar::RealField> Rotation<Point2<T>> for UnitComplex<T> {
     #[inline]
     fn powf(&self, n: T) -> Option<Self> {
         Some(self.powf(n))

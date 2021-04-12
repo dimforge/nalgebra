@@ -4,7 +4,7 @@ use std::ops::{Div, DivAssign, Index, IndexMut, Mul, MulAssign};
 use simba::scalar::{ClosedAdd, ClosedMul, RealField, SubsetOf};
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{DimNameAdd, DimNameSum, U1, U4};
+use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
 
 use crate::geometry::{
@@ -110,7 +110,8 @@ md_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, U1)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategory;
+    where Const<D>: DimNameAdd<U1>, C: TCategory,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: SVector<T, D>, Output = SVector<T, D>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
@@ -137,7 +138,8 @@ md_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, U1)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategory;
+    where Const<D>: DimNameAdd<U1>, C: TCategory,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Point<T, D>, Output = Point<T, D>;
     [val val] => &self * &rhs;
     [ref val] =>  self * &rhs;
@@ -166,7 +168,8 @@ md_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>)
     const D;
     for CA, CB;
-    where Const<D>: DimNameAdd<U1>, CA: TCategoryMul<CB>, CB: TCategory;
+    where Const<D>: DimNameAdd<U1>, CA: TCategoryMul<CB>, CB: TCategory,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, CA, D>, rhs: Transform<T, CB, D>, Output = Transform<T, CA::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.into_inner());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.into_inner());
@@ -176,11 +179,13 @@ md_impl_all!(
 
 // Transform × Rotation
 md_impl_all!(
-    Mul, mul where T: RealField;
+    Mul, mul
+    where T: RealField;
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, Const<D>)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Rotation<T, D>, Output = Transform<T, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
@@ -194,7 +199,8 @@ md_impl_all!(
     (Const<D>, Const<D>), (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Rotation<T, D>, rhs: Transform<T, C, D>, Output = Transform<T, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
@@ -236,7 +242,8 @@ md_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, U1)
     const D;
     for C, R;
-    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> >;
+    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> >,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Isometry<T, R, D>, Output = Transform<T, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
@@ -250,7 +257,8 @@ md_impl_all!(
     (Const<D>, U1), (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>)
     const D;
     for C, R;
-    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> >;
+    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> >,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Isometry<T, R, D>, rhs: Transform<T, C, D>, Output = Transform<T, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
@@ -264,7 +272,8 @@ md_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, U1)
     const D;
     for C, R;
-    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> >;
+    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> >,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Similarity<T, R, D>, Output = Transform<T, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
@@ -278,7 +287,8 @@ md_impl_all!(
     (Const<D>, U1), (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>)
     const D;
     for C, R;
-    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> >;
+    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>, R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> >,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Similarity<T, R, D>, rhs: Transform<T, C, D>, Output = Transform<T, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
@@ -300,7 +310,8 @@ md_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, U1)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Translation<T, D>, Output = Transform<T, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
@@ -314,7 +325,8 @@ md_impl_all!(
     (Const<D>, U1), (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Translation<T, D>, rhs: Transform<T, C, D>, Output = Transform<T, C::Representative, D>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
@@ -328,7 +340,8 @@ md_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>)
     const D;
     for CA, CB;
-    where Const<D>: DimNameAdd<U1>, CA: TCategoryMul<CB>, CB: SubTCategoryOf<TProjective>;
+    where Const<D>: DimNameAdd<U1>, CA: TCategoryMul<CB>, CB: SubTCategoryOf<TProjective>,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, CA, D>, rhs: Transform<T, CB, D>, Output = Transform<T, CA::Representative, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
@@ -342,7 +355,8 @@ md_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, Const<D>)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Rotation<T, D>, Output = Transform<T, C::Representative, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
@@ -356,7 +370,8 @@ md_impl_all!(
     (Const<D>, Const<D>), (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Rotation<T, D>, rhs: Transform<T, C, D>, Output = Transform<T, C::Representative, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
@@ -452,7 +467,8 @@ md_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, U1)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Translation<T, D>, Output = Transform<T, C::Representative, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
@@ -466,7 +482,8 @@ md_impl_all!(
     (Const<D>, U1), (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>;
+    where Const<D>: DimNameAdd<U1>, C: TCategoryMul<TAffine>,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Translation<T, D>, rhs: Transform<T, C, D>, Output = Transform<T, C::Representative, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self.inverse() * rhs };
@@ -480,7 +497,8 @@ md_assign_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>)
     const D;
     for CA, CB;
-    where Const<D>: DimNameAdd<U1>, CA: TCategory, CB: SubTCategoryOf<CA>;
+    where Const<D>: DimNameAdd<U1>, CA: TCategory, CB: SubTCategoryOf<CA>,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, CA, D>, rhs: Transform<T, CB, D>;
     [val] => *self.matrix_mut_unchecked() *= rhs.into_inner();
     [ref] => *self.matrix_mut_unchecked() *= rhs.matrix();
@@ -492,7 +510,8 @@ md_assign_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, U1)
     const D;
     for C, R;
-    where Const<D>: DimNameAdd<U1>, C: TCategory, R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> >;
+    where Const<D>: DimNameAdd<U1>, C: TCategory, R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> >,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Similarity<T, R, D>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
@@ -504,7 +523,8 @@ md_assign_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, U1)
     const D;
     for C, R;
-    where Const<D>: DimNameAdd<U1>, C: TCategory, R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> >;
+    where Const<D>: DimNameAdd<U1>, C: TCategory, R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> >,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Isometry<T, R, D>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
@@ -524,7 +544,8 @@ md_assign_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, U1)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategory;
+    where Const<D>: DimNameAdd<U1>, C: TCategory,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Translation<T, D>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
@@ -536,7 +557,8 @@ md_assign_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, Const<D>)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategory;
+    where Const<D>: DimNameAdd<U1>, C: TCategory,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Rotation<T, D>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
@@ -560,7 +582,8 @@ md_assign_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>)
     const D;
     for CA, CB;
-    where Const<D>: DimNameAdd<U1>, CA: SuperTCategoryOf<CB>, CB: SubTCategoryOf<TProjective>;
+    where Const<D>: DimNameAdd<U1>, CA: SuperTCategoryOf<CB>, CB: SubTCategoryOf<TProjective>,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, CA, D>, rhs: Transform<T, CB, D>;
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.clone().inverse() };
@@ -593,7 +616,8 @@ md_assign_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, U1)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategory;
+    where Const<D>: DimNameAdd<U1>, C: TCategory,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Translation<T, D>;
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
@@ -605,7 +629,8 @@ md_assign_impl_all!(
     (DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>), (Const<D>, Const<D>)
     const D;
     for C;
-    where Const<D>: DimNameAdd<U1>, C: TCategory;
+    where Const<D>: DimNameAdd<U1>, C: TCategory,
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, C, D>, rhs: Rotation<T, D>;
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };

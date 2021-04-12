@@ -181,7 +181,7 @@ where
 // NOTE: the impl for Point1 is not with the others so that we
 // can add a section with the impl block comment.
 /// # Construction from individual components
-impl<T: Scalar> Point1<T> {
+impl<T> Point1<T> {
     /// Initializes this point from its components.
     ///
     /// # Example
@@ -192,20 +192,22 @@ impl<T: Scalar> Point1<T> {
     /// assert_eq!(p.x, 1.0);
     /// ```
     #[inline]
-    pub fn new(x: T) -> Self {
-        Vector1::new(x).into()
+    pub const fn new(x: T) -> Self {
+        Point {
+            coords: Vector1::new(x),
+        }
     }
 }
 macro_rules! componentwise_constructors_impl(
     ($($doc: expr; $Point: ident, $Vector: ident, $($args: ident:$irow: expr),*);* $(;)*) => {$(
-        impl<T: Scalar> $Point<T> {
+        impl<T> $Point<T> {
             #[doc = "Initializes this point from its components."]
             #[doc = "# Example\n```"]
             #[doc = $doc]
             #[doc = "```"]
             #[inline]
-            pub fn new($($args: T),*) -> Self {
-                $Vector::new($($args),*).into()
+            pub const fn new($($args: T),*) -> Self {
+                Point { coords: $Vector::new($($args),*) }
             }
         }
     )*}

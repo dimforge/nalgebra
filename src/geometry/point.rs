@@ -17,7 +17,7 @@ use simba::simd::SimdPartialOrd;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
-use crate::base::{Const, DefaultAllocator, OVector, Scalar};
+use crate::base::{Const, DefaultAllocator, OVector, SVector, Scalar};
 
 /// A point in an euclidean space.
 ///
@@ -40,9 +40,9 @@ use crate::base::{Const, DefaultAllocator, OVector, Scalar};
 /// of said transformations for details.
 #[repr(C)]
 #[derive(Debug, Clone)]
-pub struct Point<T: Scalar, const D: usize> {
+pub struct Point<T, const D: usize> {
     /// The coordinates of this point, i.e., the shift from the origin.
-    pub coords: OVector<T, Const<D>>,
+    pub coords: SVector<T, D>,
 }
 
 impl<T: Scalar + hash::Hash, const D: usize> hash::Hash for Point<T, D> {
@@ -55,7 +55,7 @@ impl<T: Scalar + Copy, const D: usize> Copy for Point<T, D> {}
 
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Scalar, const D: usize> bytemuck::Zeroable for Point<T, D> where
-    OVector<T, Const<D>>: bytemuck::Zeroable
+    SVector<T, D>: bytemuck::Zeroable
 {
 }
 
@@ -63,7 +63,7 @@ unsafe impl<T: Scalar, const D: usize> bytemuck::Zeroable for Point<T, D> where
 unsafe impl<T: Scalar, const D: usize> bytemuck::Pod for Point<T, D>
 where
     T: Copy,
-    OVector<T, Const<D>>: bytemuck::Pod,
+    SVector<T, D>: bytemuck::Pod,
 {
 }
 
@@ -83,7 +83,6 @@ impl<'a, T: Scalar + Deserialize<'a>, const D: usize> Deserialize<'a> for Point<
     where
         Des: Deserializer<'a>,
     {
-        use crate::SVector;
         let coords = SVector::<T, D>::deserialize(deserializer)?;
 
         Ok(Self::from(coords))
@@ -94,7 +93,7 @@ impl<'a, T: Scalar + Deserialize<'a>, const D: usize> Deserialize<'a> for Point<
 impl<T, const D: usize> Abomonation for Point<T, D>
 where
     T: Scalar,
-    OVector<T, Const<D>>: Abomonation,
+    SVector<T, D>: Abomonation,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.coords.entomb(writer)
@@ -183,7 +182,7 @@ impl<T: Scalar, const D: usize> Point<T, D> {
     /// Creates a new point with the given coordinates.
     #[deprecated(note = "Use Point::from(vector) instead.")]
     #[inline]
-    pub fn from_coordinates(coords: OVector<T, Const<D>>) -> Self {
+    pub fn from_coordinates(coords: SVector<T, D>) -> Self {
         Self { coords }
     }
 

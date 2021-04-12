@@ -23,7 +23,7 @@ use crate::geometry::Point;
 /// A translation.
 #[repr(C)]
 #[derive(Debug)]
-pub struct Translation<T: Scalar, const D: usize> {
+pub struct Translation<T, const D: usize> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
     /// translated.
     pub vector: SVector<T, D>,
