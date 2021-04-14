@@ -77,15 +77,14 @@ impl Parse for Matrix {
 pub fn matrix(stream: TokenStream) -> TokenStream {
     let matrix = parse_macro_input!(stream as Matrix);
 
-    let dim_ident = |dim| format_ident!("U{}", dim);
-    let row_dim = dim_ident(matrix.nrows());
-    let col_dim = dim_ident(matrix.ncols());
+    let row_dim = matrix.nrows();
+    let col_dim = matrix.ncols();
     let entries_col_major = matrix.to_col_major_repr();
 
     //  TODO: Use quote_spanned instead??
     // TODO: Construct directly from array?
     let output = quote! {
-        nalgebra::MatrixMN::<_, nalgebra::#row_dim, nalgebra::dimension::#col_dim>
+        nalgebra::SMatrix::<_, #row_dim, #col_dim>
             ::from_column_slice(&[#(#entries_col_major),*])
     };
 
