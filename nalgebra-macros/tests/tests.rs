@@ -33,3 +33,11 @@ fn matrix_small_dims_exhaustive() {
     assert_eq!(matrix![1, 2, 3, 4; 5, 6, 7, 8; 9, 10, 11, 12; 13, 14, 15, 16],
                Matrix4::new(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
 }
+
+#[test]
+fn matrix_const_fn() {
+    // Ensure that matrix! can be used in const contexts
+    const _: SMatrix<i32, 0, 0> = matrix![];
+    const _: SMatrix<i32, 1, 2> = matrix![1, 2];
+    const _: SMatrix<i32, 2, 3> = matrix![1, 2, 3; 4, 5, 6];
+}
