@@ -25,6 +25,7 @@ use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, ReshapableStorage, Storage, StorageMut,
 };
 use crate::base::Scalar;
+use crate::SMatrix;
 
 /*
  *
@@ -297,5 +298,16 @@ where
 
     fn extent(&self) -> usize {
         self.as_slice().iter().fold(0, |acc, e| acc + e.extent())
+    }
+}
+
+// TODO: Where to put this impl block?
+impl<T, const R: usize, const C: usize> SMatrix<T, R, C> {
+    /// Creates a new statically-allocated matrix from the given [ArrayStorage].
+    #[inline(always)]
+    pub const fn from_array_storage(storage: ArrayStorage<T, R, C>) -> Self {
+        // This is sound because the row and column types are exactly the same as that of the
+        // storage, so there can be no mismatch
+        unsafe { Self::from_data_statically_unchecked(storage) }
     }
 }

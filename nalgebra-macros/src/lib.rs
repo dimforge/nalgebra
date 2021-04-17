@@ -90,12 +90,9 @@ pub fn matrix(stream: TokenStream) -> TokenStream {
     let array_tokens = matrix.col_major_array_tokens();
 
     //  TODO: Use quote_spanned instead??
-    // TODO: Avoid use of unsafe here
     let output = quote! {
-        unsafe {
         nalgebra::SMatrix::<_, #row_dim, #col_dim>
-            ::from_data_statically_unchecked(nalgebra::ArrayStorage(#array_tokens))
-        }
+            ::from_array_storage(nalgebra::ArrayStorage(#array_tokens))
     };
 
     proc_macro::TokenStream::from(output)
