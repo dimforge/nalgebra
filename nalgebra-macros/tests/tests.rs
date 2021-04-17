@@ -1,5 +1,5 @@
 use nalgebra_macros::matrix;
-use nalgebra::{SMatrix, Matrix3x2, U0, U1, Matrix1x2, Matrix1x3, Matrix1x4, Matrix2x1, Matrix2, Matrix2x3, Matrix2x4, Matrix3x1, Matrix3, Matrix3x4, Matrix4x1, Matrix4x2, Matrix4x3, Matrix4};
+use nalgebra::{SMatrix, Matrix3x2, Matrix1x2, Matrix1x3, Matrix1x4, Matrix2x1, Matrix2, Matrix2x3, Matrix2x4, Matrix3x1, Matrix3, Matrix3x4, Matrix4x1, Matrix4x2, Matrix4x3, Matrix4};
 
 #[test]
 fn matrix_small_dims_exhaustive() {

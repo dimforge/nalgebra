@@ -4,8 +4,11 @@ use syn::{Expr};
 use syn::parse::{Parse, ParseStream, Result, Error};
 use syn::punctuated::{Punctuated};
 use syn::{parse_macro_input, Token};
-use quote::{quote, format_ident};
+use quote::{quote, TokenStreamExt};
 use proc_macro::TokenStream;
+
+use proc_macro2::{TokenStream as TokenStream2, Delimiter, TokenTree, Spacing};
+use proc_macro2::{Group, Punct};
 
 struct Matrix {
     // Represent the matrix as a row-major vector of vectors of expressions
@@ -22,14 +25,18 @@ impl Matrix {
         self.ncols
     }
 
-    fn to_col_major_repr(&self) -> Vec<Expr> {
-        let mut data = Vec::with_capacity(self.nrows() * self.ncols());
+    /// Produces a stream of tokens representing this matrix as a column-major array.
+    fn col_major_array_tokens(&self) -> TokenStream2 {
+        let mut result = TokenStream2::new();
         for j in 0 .. self.ncols() {
-            for i in 0 .. self.nrows() {
-                data.push(self.rows[i][j].clone());
-            }
+            let mut col = TokenStream2::new();
+            let col_iter = (0 .. self.nrows())
+                .map(move |i| &self.rows[i][j]);
+            col.append_separated(col_iter, Punct::new(',', Spacing::Alone));
+            result.append(Group::new(Delimiter::Bracket, col));
+            result.append(Punct::new(',', Spacing::Alone));
         }
-        data
+        TokenStream2::from(TokenTree::Group(Group::new(Delimiter::Bracket, result)))
     }
 }
 
@@ -79,13 +86,16 @@ pub fn matrix(stream: TokenStream) -> TokenStream {
 
     let row_dim = matrix.nrows();
     let col_dim = matrix.ncols();
-    let entries_col_major = matrix.to_col_major_repr();
+
+    let array_tokens = matrix.col_major_array_tokens();
 
     //  TODO: Use quote_spanned instead??
-    // TODO: Construct directly from array?
+    // TODO: Avoid use of unsafe here
     let output = quote! {
+        unsafe {
         nalgebra::SMatrix::<_, #row_dim, #col_dim>
-            ::from_column_slice(&[#(#entries_col_major),*])
+            ::from_data_statically_unchecked(nalgebra::ArrayStorage(#array_tokens))
+        }
     };
 
     proc_macro::TokenStream::from(output)
