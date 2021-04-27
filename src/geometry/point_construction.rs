@@ -225,17 +225,3 @@ componentwise_constructors_impl!(
     "# use nalgebra::Point6;\nlet p = Point6::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);\nassert!(p.x == 1.0 && p.y == 2.0 && p.z == 3.0 && p.w == 4.0 && p.a == 5.0 && p.b == 6.0);";
     Point6, Vector6, x:0, y:1, z:2, w:3, a:4, b:5;
 );
-
-macro_rules! from_array_impl(
-    ($($Point: ident, $len: expr);*) => {$(
-      impl <T: Scalar> From<[T; $len]> for $Point<T> {
-          fn from(coords: [T; $len]) -> Self {
-              Self {
-                coords: coords.into()
-              }
-          }
-      }
-    )*}
-);
-
-from_array_impl!(Point1, 1; Point2, 2; Point3, 3; Point4, 4; Point5, 5; Point6, 6);

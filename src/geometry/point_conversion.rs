@@ -81,6 +81,22 @@ where
     }
 }
 
+impl<T: Scalar, const D: usize> From<[T; D]> for Point<T, D> {
+    #[inline]
+    fn from(coords: [T; D]) -> Self {
+        Point {
+            coords: coords.into(),
+        }
+    }
+}
+
+impl<T: Scalar, const D: usize> Into<[T; D]> for Point<T, D> {
+    #[inline]
+    fn into(self) -> [T; D] {
+        self.coords.into()
+    }
+}
+
 impl<T: Scalar, const D: usize> From<OVector<T, Const<D>>> for Point<T, D> {
     #[inline]
     fn from(coords: OVector<T, Const<D>>) -> Self {
