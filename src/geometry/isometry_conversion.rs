@@ -9,6 +9,7 @@ use crate::geometry::{
     AbstractRotation, Isometry, Isometry3, Similarity, SuperTCategoryOf, TAffine, Transform,
     Translation, UnitDualQuaternion, UnitQuaternion,
 };
+use crate::{Point, SVector};
 
 /*
  * This file provides the following conversions:
@@ -195,6 +196,35 @@ where
     #[inline]
     fn from(iso: Isometry<T, R, D>) -> Self {
         iso.to_homogeneous()
+    }
+}
+
+impl<T: SimdRealField, R, const D: usize> From<[T; D]> for Isometry<T, R, D>
+where
+    R: AbstractRotation<T, D>,
+{
+    #[inline]
+    fn from(coords: [T; D]) -> Self {
+        Self::from_parts(coords.into(), R::identity())
+    }
+}
+
+impl<T: SimdRealField, R, const D: usize> From<SVector<T, D>> for Isometry<T, R, D>
+where
+    R: AbstractRotation<T, D>,
+{
+    #[inline]
+    fn from(coords: SVector<T, D>) -> Self {
+        Self::from_parts(coords.into(), R::identity())
+    }
+}
+impl<T: SimdRealField, R, const D: usize> From<Point<T, D>> for Isometry<T, R, D>
+where
+    R: AbstractRotation<T, D>,
+{
+    #[inline]
+    fn from(coords: Point<T, D>) -> Self {
+        Self::from_parts(coords.into(), R::identity())
     }
 }
 
