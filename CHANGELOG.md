@@ -4,6 +4,16 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.26.2]
+###Added
+- Conversion from an array `[T; D]` to an isometry `Isometry<T, _, D>` (as a translation).
+- Conversion from a static vector `SVector<T; D>` to an isometry `Isometry<T, _, D>` (as a translation).
+- Conversion from a point `Point<T; D>` to an isometry `Isometry<T, _, D>` (as a translation).
+- Conversion of an array `[T; D]` from/to a translation `Translation<T, D>`.
+- Conversion of a point `Point<T, D>` to a translation `Translation<T, D>`.
+- Conversion of the tuple of glam types `(Vec3, Quat)` from/to an `Isometry2` or `Isometry3`.
+- Conversion of a glam type `Vec2/3/4` from/to a `Translation2/3/4`.
+
 ## [0.26.1]
 Fix a regression introduced in 0.26.0 preventing `DVector` from being serialized with `serde`.
 
