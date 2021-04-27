@@ -5,7 +5,7 @@ documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [0.26.2]
-###Added
+### Added
 - Conversion from an array `[T; D]` to an isometry `Isometry<T, _, D>` (as a translation).
 - Conversion from a static vector `SVector<T; D>` to an isometry `Isometry<T, _, D>` (as a translation).
 - Conversion from a point `Point<T; D>` to an isometry `Isometry<T, _, D>` (as a translation).
