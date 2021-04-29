@@ -4,7 +4,7 @@ use syn::{Expr};
 use syn::parse::{Parse, ParseStream, Result, Error};
 use syn::punctuated::{Punctuated};
 use syn::{parse_macro_input, Token};
-use quote::{quote, TokenStreamExt};
+use quote::{quote, TokenStreamExt, ToTokens};
 use proc_macro::TokenStream;
 
 use proc_macro2::{TokenStream as TokenStream2, Delimiter, TokenTree, Spacing};
@@ -25,8 +25,8 @@ impl Matrix {
         self.ncols
     }
 
-    /// Produces a stream of tokens representing this matrix as a column-major array.
-    fn col_major_array_tokens(&self) -> TokenStream2 {
+    /// Produces a stream of tokens representing this matrix as a column-major nested array.
+    fn to_col_major_nested_array_tokens(&self) -> TokenStream2 {
         let mut result = TokenStream2::new();
         for j in 0 .. self.ncols() {
             let mut col = TokenStream2::new();
@@ -37,6 +37,19 @@ impl Matrix {
             result.append(Punct::new(',', Spacing::Alone));
         }
         TokenStream2::from(TokenTree::Group(Group::new(Delimiter::Bracket, result)))
+    }
+
+    /// Produces a stream of tokens representing this matrix as a column-major flat array
+    /// (suitable for representing e.g. a `DMatrix`).
+    fn to_col_major_flat_array_tokens(&self) -> TokenStream2 {
+        let mut data = TokenStream2::new();
+        for j in 0 .. self.ncols() {
+            for i in 0 .. self.nrows() {
+                self.rows[i][j].to_tokens(&mut data);
+                data.append(Punct::new(',', Spacing::Alone));
+            }
+        }
+        TokenStream2::from(TokenTree::Group(Group::new(Delimiter::Bracket, data)))
     }
 }
 
@@ -87,12 +100,33 @@ pub fn matrix(stream: TokenStream) -> TokenStream {
     let row_dim = matrix.nrows();
     let col_dim = matrix.ncols();
 
-    let array_tokens = matrix.col_major_array_tokens();
+    let array_tokens = matrix.to_col_major_nested_array_tokens();
 
     //  TODO: Use quote_spanned instead??
     let output = quote! {
         nalgebra::SMatrix::<_, #row_dim, #col_dim>
             ::from_array_storage(nalgebra::ArrayStorage(#array_tokens))
+    };
+
+    proc_macro::TokenStream::from(output)
+}
+
+#[proc_macro]
+pub fn dmatrix(stream: TokenStream) -> TokenStream {
+    let matrix = parse_macro_input!(stream as Matrix);
+
+    let row_dim = matrix.nrows();
+    let col_dim = matrix.ncols();
+
+    let array_tokens = matrix.to_col_major_flat_array_tokens();
+
+    //  TODO: Use quote_spanned instead??
+    let output = quote! {
+        nalgebra::DMatrix::<_>
+            ::from_vec_storage(nalgebra::VecStorage::new(
+                nalgebra::Dynamic::new(#row_dim),
+                nalgebra::Dynamic::new(#col_dim),
+                vec!#array_tokens))
     };
 
     proc_macro::TokenStream::from(output)
