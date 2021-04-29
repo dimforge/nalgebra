@@ -1,4 +1,3 @@
-use test::Bencher;
 use na::{DMatrix, Eigen};
 
 fn eigen_100x100(bh: &mut criterion::Criterion) {
