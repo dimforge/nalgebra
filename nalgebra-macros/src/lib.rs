@@ -93,6 +93,39 @@ impl Parse for Matrix {
     }
 }
 
+/// Construct a fixed-size matrix directly from data.
+///
+/// This macro facilitates easy construction of matrices when the entries of the matrix are known
+/// (either as constants or expressions). This macro produces an instance of `SMatrix`. This means
+/// that the data of the matrix is stored on the stack, and its dimensions are fixed at
+/// compile-time. If you want to construct a dynamic matrix, use [`dmatrix!`] instead.
+///
+/// `matrix!` is intended to be both the simplest and most efficient way to construct (small)
+/// matrices, and can also be used in *const fn* contexts.
+///
+/// The syntax is MATLAB-like. Column elements are separated by a comma (`,`), and a semi-colon
+/// (`;`) designates that a new row begins.
+///
+/// # Examples
+///
+/// ```
+/// use nalgebra::matrix;
+///
+/// // Produces a Matrix3<_> == SMatrix<_, 3, 3>
+/// let a = matrix![1, 2, 3;
+///                 4, 5, 6;
+///                 7, 8, 9];
+/// ```
+///
+/// You can construct matrices with arbitrary expressions for its elements:
+///
+/// ```
+/// use nalgebra::{matrix, Matrix2};
+/// let theta = 0.45f64;
+///
+/// let r = matrix![theta.cos(), - theta.sin();
+///                 theta.sin(),   theta.cos()];
+/// ```
 #[proc_macro]
 pub fn matrix(stream: TokenStream) -> TokenStream {
     let matrix = parse_macro_input!(stream as Matrix);
@@ -111,6 +144,20 @@ pub fn matrix(stream: TokenStream) -> TokenStream {
     proc_macro::TokenStream::from(output)
 }
 
+/// Construct a dynamic matrix directly from data.
+///
+/// The syntax is exactly the same as for [`matrix!`], but instead of producing instances of
+/// `SMatrix`, it produces instances of `DMatrix`. At the moment it is not usable
+/// in `const fn` contexts.
+///
+/// ```
+/// use nalgebra::dmatrix;
+///
+/// // Produces a DMatrix<_>
+/// let a = dmatrix![1, 2, 3;
+///                  4, 5, 6;
+///                  7, 8, 9];
+/// ```
 #[proc_macro]
 pub fn dmatrix(stream: TokenStream) -> TokenStream {
     let matrix = parse_macro_input!(stream as Matrix);
@@ -164,6 +211,24 @@ impl Parse for Vector {
     }
 }
 
+/// Construct a fixed-size column vector directly from data.
+///
+/// Similarly to [`matrix!`], this macro facilitates easy construction of fixed-size vectors.
+/// However, whereas the [`matrix!`] macro expects each row to be separated by a semi-colon,
+/// the syntax of this macro is instead similar to `vec!`, in that the elements of the vector
+/// are simply listed consecutively.
+///
+/// `vector!` is intended to be the most readable and performant way of constructing small,
+/// fixed-size vectors, and it is usable in `const fn` contexts.
+///
+/// ## Examples
+///
+/// ```
+/// use nalgebra::vector;
+///
+/// // Produces a Vector3<_> == SVector<_, 3>
+/// let v = vector![1, 2, 3];
+/// ```
 #[proc_macro]
 pub fn vector(stream: TokenStream) -> TokenStream {
     let vector = parse_macro_input!(stream as Vector);
@@ -176,6 +241,18 @@ pub fn vector(stream: TokenStream) -> TokenStream {
     proc_macro::TokenStream::from(output)
 }
 
+/// Construct a dynamic column vector directly from data.
+///
+/// The syntax is exactly the same as for [`vector!`], but instead of producing instances of
+/// `SVector`, it produces instances of `DVector`. At the moment it is not usable
+/// in `const fn` contexts.
+///
+/// ```
+/// use nalgebra::dvector;
+///
+/// // Produces a DVector<_>
+/// let v = dvector![1, 2, 3];
+/// ```
 #[proc_macro]
 pub fn dvector(stream: TokenStream) -> TokenStream {
     let vector = parse_macro_input!(stream as Vector);
