@@ -1,3 +1,8 @@
+//! Macros for `nalgebra`.
+//!
+//! This crate is not intended for direct consumption. Instead, the macros are re-exported by
+//! `nalgebra` if the `macros` feature is enabled (enabled by default).
+
 extern crate proc_macro;
 
 use syn::{Expr};
@@ -95,6 +100,8 @@ impl Parse for Matrix {
 
 /// Construct a fixed-size matrix directly from data.
 ///
+/// **Note: Requires the `macro` feature to be enabled (enabled by default)**.
+///
 /// This macro facilitates easy construction of matrices when the entries of the matrix are known
 /// (either as constants or expressions). This macro produces an instance of `SMatrix`. This means
 /// that the data of the matrix is stored on the stack, and its dimensions are fixed at
@@ -145,6 +152,8 @@ pub fn matrix(stream: TokenStream) -> TokenStream {
 }
 
 /// Construct a dynamic matrix directly from data.
+///
+/// **Note: Requires the `macro` feature to be enabled (enabled by default)**.
 ///
 /// The syntax is exactly the same as for [`matrix!`], but instead of producing instances of
 /// `SMatrix`, it produces instances of `DMatrix`. At the moment it is not usable
@@ -213,6 +222,8 @@ impl Parse for Vector {
 
 /// Construct a fixed-size column vector directly from data.
 ///
+/// **Note: Requires the `macro` feature to be enabled (enabled by default)**.
+///
 /// Similarly to [`matrix!`], this macro facilitates easy construction of fixed-size vectors.
 /// However, whereas the [`matrix!`] macro expects each row to be separated by a semi-colon,
 /// the syntax of this macro is instead similar to `vec!`, in that the elements of the vector
@@ -242,6 +253,8 @@ pub fn vector(stream: TokenStream) -> TokenStream {
 }
 
 /// Construct a dynamic column vector directly from data.
+///
+/// **Note: Requires the `macro` feature to be enabled (enabled by default)**.
 ///
 /// The syntax is exactly the same as for [`vector!`], but instead of producing instances of
 /// `SVector`, it produces instances of `DVector`. At the moment it is not usable
