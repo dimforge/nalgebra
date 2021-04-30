@@ -115,3 +115,19 @@ fn dvector_small_dims_exhaustive() {
     assert_eq_and_type!(dvector![1, 2, 3, 4, 5], DVector::from_column_slice(&[1, 2, 3, 4, 5]));
     assert_eq_and_type!(dvector![1, 2, 3, 4, 5, 6], DVector::from_column_slice(&[1, 2, 3, 4, 5, 6]));
 }
+
+#[test]
+fn matrix_trybuild_tests() {
+    let t = trybuild::TestCases::new();
+
+    // Verify error message when we give a matrix with mismatched dimensions
+    t.compile_fail("tests/trybuild/matrix_mismatched_dimensions.rs");
+}
+
+#[test]
+fn dmatrix_trybuild_tests() {
+    let t = trybuild::TestCases::new();
+
+    // Verify error message when we give a matrix with mismatched dimensions
+    t.compile_fail("tests/trybuild/dmatrix_mismatched_dimensions.rs");
+}

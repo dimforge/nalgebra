@@ -17,3 +17,4 @@ proc-macro2 = "1.0"
 
 [dev-dependencies]
 nalgebra = { version = "0.26.1", path = ".." }
+trybuild = "1.0.42"
