@@ -16,3 +16,6 @@ mod matrixcompare;
 
 #[cfg(feature = "arbitrary")]
 pub mod helper;
+
+#[cfg(feature = "macros")]
+mod macros;
