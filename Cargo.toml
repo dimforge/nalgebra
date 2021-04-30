@@ -22,7 +22,7 @@ name = "nalgebra"
 path = "src/lib.rs"
 
 [features]
-default = [ "std" ]
+default = [ "std", "macros" ]
 std     = [ "matrixmultiply", "simba/std" ]
 sparse  = [ ]
 debug   = [ "approx/num-complex", "rand" ]
@@ -32,6 +32,7 @@ compare = [ "matrixcompare-core" ]
 libm    = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 no_unsound_assume_init = [ ]
+macros = [ "nalgebra-macros" ]
 
 # Conversion
 convert-mint = [ "mint" ]
@@ -60,6 +61,7 @@ proptest-support = [ "proptest" ]
 slow-tests       = []
 
 [dependencies]
+nalgebra-macros = { version = "0.1", path = "nalgebra-macros", optional = true }
 typenum        = "1.12"
 rand-package   = { package = "rand", version = "0.8", optional = true, default-features = false }
 num-traits     = { version = "0.2", default-features = false }
