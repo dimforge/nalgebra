@@ -131,3 +131,62 @@ pub fn dmatrix(stream: TokenStream) -> TokenStream {
 
     proc_macro::TokenStream::from(output)
 }
+
+struct Vector {
+    elements: Vec<Expr>,
+}
+
+impl Vector {
+    fn to_array_tokens(&self) -> TokenStream2 {
+        let mut data = TokenStream2::new();
+        data.append_separated(&self.elements, Punct::new(',', Spacing::Alone));
+        TokenStream2::from(TokenTree::Group(Group::new(Delimiter::Bracket, data)))
+    }
+
+    fn len(&self) -> usize {
+        self.elements.len()
+    }
+}
+
+impl Parse for Vector {
+    fn parse(input: ParseStream) -> Result<Self> {
+        // The syntax of a vector is just the syntax of a single matrix row
+        if input.is_empty() {
+            Ok(Self {
+                elements: Vec::new()
+            })
+        } else {
+            let elements = MatrixRowSyntax::parse_separated_nonempty(input)?.into_iter().collect();
+            Ok(Self {
+                elements
+            })
+        }
+    }
+}
+
+#[proc_macro]
+pub fn vector(stream: TokenStream) -> TokenStream {
+    let vector = parse_macro_input!(stream as Vector);
+    let len = vector.len();
+    let array_tokens = vector.to_array_tokens();
+    let output = quote! {
+        nalgebra::SVector::<_, #len>
+            ::from_array_storage(nalgebra::ArrayStorage([#array_tokens]))
+    };
+    proc_macro::TokenStream::from(output)
+}
+
+#[proc_macro]
+pub fn dvector(stream: TokenStream) -> TokenStream {
+    let vector = parse_macro_input!(stream as Vector);
+    let len = vector.len();
+    let array_tokens = vector.to_array_tokens();
+    let output = quote! {
+        nalgebra::DVector::<_>
+            ::from_vec_storage(nalgebra::VecStorage::new(
+                nalgebra::Dynamic::new(#len),
+                nalgebra::Const::<1>,
+                vec!#array_tokens))
+    };
+    proc_macro::TokenStream::from(output)
+}

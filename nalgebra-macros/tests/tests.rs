@@ -1,12 +1,12 @@
-use nalgebra_macros::{dmatrix, matrix};
-use nalgebra::{DMatrix, SMatrix, Matrix3x2, Matrix1x2, Matrix1x3, Matrix1x4, Matrix2x1, Matrix2, Matrix2x3, Matrix2x4, Matrix3x1, Matrix3, Matrix3x4, Matrix4x1, Matrix4x2, Matrix4x3, Matrix4};
+use nalgebra_macros::{dmatrix, dvector, matrix, vector};
+use nalgebra::{DMatrix, DVector, SMatrix, Matrix3x2, Matrix1x2, Matrix1x3, Matrix1x4, Matrix2x1, Matrix2, Matrix2x3, Matrix2x4, Matrix3x1, Matrix3, Matrix3x4, Matrix4x1, Matrix4x2, Matrix4x3, Matrix4, Vector1, Vector2, Vector3, Vector4, Vector5, SVector, Vector6};
 
-fn same_type<T>(_: &T, _: &T) {}
+fn check_statically_same_type<T>(_: &T, _: &T) {}
 
 /// Wrapper for `assert_eq` that also asserts that the types are the same
 macro_rules! assert_eq_and_type {
     ($left:expr, $right:expr $(,)?) => {
-        same_type(&$left, &$right);
+        check_statically_same_type(&$left, &$right);
         assert_eq!($left, $right);
     };
 }
@@ -83,4 +83,35 @@ fn dmatrix_small_dims_exhaustive() {
                DMatrix::from_row_slice(4, 3,  &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]));
     assert_eq_and_type!(dmatrix![1, 2, 3, 4; 5, 6, 7, 8; 9, 10, 11, 12; 13, 14, 15, 16],
                DMatrix::from_row_slice(4, 4,  &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]));
+}
+
+#[test]
+fn vector_small_dims_exhaustive() {
+    assert_eq_and_type!(vector![], SVector::<i32, 0>::zeros());
+    assert_eq_and_type!(vector![1], Vector1::<i32>::new(1));
+    assert_eq_and_type!(vector![1, 2], Vector2::new(1, 2));
+    assert_eq_and_type!(vector![1, 2, 3], Vector3::new(1, 2, 3));
+    assert_eq_and_type!(vector![1, 2, 3, 4], Vector4::new(1, 2, 3, 4));
+    assert_eq_and_type!(vector![1, 2, 3, 4, 5], Vector5::new(1, 2, 3, 4, 5));
+    assert_eq_and_type!(vector![1, 2, 3, 4, 5, 6], Vector6::new(1, 2, 3, 4, 5, 6));
+}
+
+#[test]
+fn vector_const_fn() {
+    // Ensure that vector! can be used in const contexts
+    const _: SVector<i32, 0> = vector![];
+    const _: Vector1<i32> = vector![1];
+    const _: Vector2<i32> = vector![1, 2];
+    const _: Vector6<i32> = vector![1, 2, 3, 4, 5, 6];
+}
+
+#[test]
+fn dvector_small_dims_exhaustive() {
+    assert_eq_and_type!(dvector![], DVector::<i32>::zeros(0));
+    assert_eq_and_type!(dvector![1], DVector::from_column_slice(&[1]));
+    assert_eq_and_type!(dvector![1, 2], DVector::from_column_slice(&[1, 2]));
+    assert_eq_and_type!(dvector![1, 2, 3], DVector::from_column_slice(&[1, 2, 3]));
+    assert_eq_and_type!(dvector![1, 2, 3, 4], DVector::from_column_slice(&[1, 2, 3, 4]));
+    assert_eq_and_type!(dvector![1, 2, 3, 4, 5], DVector::from_column_slice(&[1, 2, 3, 4, 5]));
+    assert_eq_and_type!(dvector![1, 2, 3, 4, 5, 6], DVector::from_column_slice(&[1, 2, 3, 4, 5, 6]));
 }
