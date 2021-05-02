@@ -240,6 +240,16 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     );
 
     /// Computes the infimum (aka. componentwise min) of two matrices/vectors.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let u = Matrix2::new(4.0, 2.0, 1.0, -2.0);
+    /// let v = Matrix2::new(2.0, 4.0, -2.0, 1.0);
+    /// let expected = Matrix2::new(2.0, 2.0, -2.0, -2.0);
+    /// assert_eq!(u.inf(&v), expected)
+    /// ```
     #[inline]
     pub fn inf(&self, other: &Self) -> OMatrix<T, R1, C1>
     where
@@ -250,6 +260,16 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     }
 
     /// Computes the supremum (aka. componentwise max) of two matrices/vectors.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let u = Matrix2::new(4.0, 2.0, 1.0, -2.0);
+    /// let v = Matrix2::new(2.0, 4.0, -2.0, 1.0);
+    /// let expected = Matrix2::new(4.0, 4.0, 1.0, 1.0);
+    /// assert_eq!(u.sup(&v), expected)
+    /// ```
     #[inline]
     pub fn sup(&self, other: &Self) -> OMatrix<T, R1, C1>
     where
@@ -260,6 +280,16 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     }
 
     /// Computes the (infimum, supremum) of two matrices/vectors.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let u = Matrix2::new(4.0, 2.0, 1.0, -2.0);
+    /// let v = Matrix2::new(2.0, 4.0, -2.0, 1.0);
+    /// let expected = (Matrix2::new(2.0, 2.0, -2.0, -2.0), Matrix2::new(4.0, 4.0, 1.0, 1.0));
+    /// assert_eq!(u.inf_sup(&v), expected)
+    /// ```
     #[inline]
     pub fn inf_sup(&self, other: &Self) -> (OMatrix<T, R1, C1>, OMatrix<T, R1, C1>)
     where
@@ -271,6 +301,16 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     }
 
     /// Adds a scalar to `self`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let u = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+    /// let s = 10.0;
+    /// let expected = Matrix2::new(11.0, 12.0, 13.0, 14.0);
+    /// assert_eq!(u.add_scalar(s), expected)
+    /// ```
     #[inline]
     #[must_use = "Did you mean to use add_scalar_mut()?"]
     pub fn add_scalar(&self, rhs: T) -> OMatrix<T, R1, C1>
@@ -284,6 +324,17 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     }
 
     /// Adds a scalar to `self` in-place.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut u = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+    /// let s = 10.0;
+    /// u.add_scalar_mut(s);
+    /// let expected = Matrix2::new(11.0, 12.0, 13.0, 14.0);
+    /// assert_eq!(u, expected)
+    /// ```
     #[inline]
     pub fn add_scalar_mut(&mut self, rhs: T)
     where
