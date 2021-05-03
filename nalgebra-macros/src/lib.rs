@@ -5,14 +5,14 @@
 
 extern crate proc_macro;
 
-use syn::{Expr};
-use syn::parse::{Parse, ParseStream, Result, Error};
-use syn::punctuated::{Punctuated};
-use syn::{parse_macro_input, Token};
-use quote::{quote, TokenStreamExt, ToTokens};
 use proc_macro::TokenStream;
+use quote::{quote, ToTokens, TokenStreamExt};
+use syn::parse::{Error, Parse, ParseStream, Result};
+use syn::punctuated::Punctuated;
+use syn::Expr;
+use syn::{parse_macro_input, Token};
 
-use proc_macro2::{TokenStream as TokenStream2, Delimiter, TokenTree, Spacing};
+use proc_macro2::{Delimiter, Spacing, TokenStream as TokenStream2, TokenTree};
 use proc_macro2::{Group, Punct};
 
 struct Matrix {
@@ -33,10 +33,9 @@ impl Matrix {
     /// Produces a stream of tokens representing this matrix as a column-major nested array.
     fn to_col_major_nested_array_tokens(&self) -> TokenStream2 {
         let mut result = TokenStream2::new();
-        for j in 0 .. self.ncols() {
+        for j in 0..self.ncols() {
             let mut col = TokenStream2::new();
-            let col_iter = (0 .. self.nrows())
-                .map(move |i| &self.rows[i][j]);
+            let col_iter = (0..self.nrows()).map(move |i| &self.rows[i][j]);
             col.append_separated(col_iter, Punct::new(',', Spacing::Alone));
             result.append(Group::new(Delimiter::Bracket, col));
             result.append(Punct::new(',', Spacing::Alone));
@@ -48,8 +47,8 @@ impl Matrix {
     /// (suitable for representing e.g. a `DMatrix`).
     fn to_col_major_flat_array_tokens(&self) -> TokenStream2 {
         let mut data = TokenStream2::new();
-        for j in 0 .. self.ncols() {
-            for i in 0 .. self.nrows() {
+        for j in 0..self.ncols() {
+            for i in 0..self.nrows() {
                 self.rows[i][j].to_tokens(&mut data);
                 data.append(Punct::new(',', Spacing::Alone));
             }
@@ -76,7 +75,8 @@ impl Parse for Matrix {
                         "Unexpected number of entries in row {}. Expected {}, found {} entries.",
                         row_idx,
                         ncols,
-                        row.len());
+                        row.len()
+                    );
                     return Err(Error::new(row_span, error_msg));
                 }
             } else {
@@ -93,7 +93,7 @@ impl Parse for Matrix {
 
         Ok(Self {
             rows,
-            ncols: ncols.unwrap_or(0)
+            ncols: ncols.unwrap_or(0),
         })
     }
 }
@@ -209,13 +209,13 @@ impl Parse for Vector {
         // The syntax of a vector is just the syntax of a single matrix row
         if input.is_empty() {
             Ok(Self {
-                elements: Vec::new()
+                elements: Vec::new(),
             })
         } else {
-            let elements = MatrixRowSyntax::parse_separated_nonempty(input)?.into_iter().collect();
-            Ok(Self {
-                elements
-            })
+            let elements = MatrixRowSyntax::parse_separated_nonempty(input)?
+                .into_iter()
+                .collect();
+            Ok(Self { elements })
         }
     }
 }
