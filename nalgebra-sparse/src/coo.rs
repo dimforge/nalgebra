@@ -133,18 +133,18 @@ impl<T> CooMatrix<T> {
     /// Reserves capacity for COO matrix by at least `additional` elements.
     ///
     /// This increase the capacities of triplet holding arrays by reserving more space to avoid
-    /// frequent reallocations, in `push` operations.
+    /// frequent reallocations in `push` operations.
     ///
     /// ## Panics
     ///
-    /// Panics if any of the individual allocation of triplet arrays fail.
+    /// Panics if any of the individual allocation of triplet arrays fails.
     ///
     /// ## Example
     ///
     /// ```
     /// # use nalgebra_sparse::coo::CooMatrix;
     /// let mut coo = CooMatrix::new(4, 4);
-    /// // Reserver capacity in advance
+    /// // Reserve capacity in advance
     /// coo.reserve(10);
     /// coo.push(1, 0, 3.0);
     /// ```
