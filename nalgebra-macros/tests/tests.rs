@@ -143,3 +143,71 @@ fn dmatrix_trybuild_tests() {
     // Verify error message when we give a matrix with mismatched dimensions
     t.compile_fail("tests/trybuild/dmatrix_mismatched_dimensions.rs");
 }
+
+#[test]
+fn matrix_builtin_types() {
+    // Check that matrix! compiles for all built-in types
+    const _: SMatrix<i8, 2, 2> = matrix![0, 1; 2, 3];
+    const _: SMatrix<i16, 2, 2> = matrix![0, 1; 2, 3];
+    const _: SMatrix<i32, 2, 2> = matrix![0, 1; 2, 3];
+    const _: SMatrix<i64, 2, 2> = matrix![0, 1; 2, 3];
+    const _: SMatrix<isize, 2, 2> = matrix![0, 1; 2, 3];
+    const _: SMatrix<u8, 2, 2> = matrix![0, 1; 2, 3];
+    const _: SMatrix<u16, 2, 2> = matrix![0, 1; 2, 3];
+    const _: SMatrix<u32, 2, 2> = matrix![0, 1; 2, 3];
+    const _: SMatrix<u64, 2, 2> = matrix![0, 1; 2, 3];
+    const _: SMatrix<usize, 2, 2> = matrix![0, 1; 2, 3];
+    const _: SMatrix<f32, 2, 2> = matrix![0.0, 1.0; 2.0, 3.0];
+    const _: SMatrix<f64, 2, 2> = matrix![0.0, 1.0; 2.0, 3.0];
+}
+
+#[test]
+fn vector_builtin_types() {
+    // Check that vector! compiles for all built-in types
+    const _: SVector<i8, 4> = vector![0, 1, 2, 3];
+    const _: SVector<i16, 4> = vector![0, 1, 2, 3];
+    const _: SVector<i32, 4> = vector![0, 1, 2, 3];
+    const _: SVector<i64, 4> = vector![0, 1, 2, 3];
+    const _: SVector<isize, 4> = vector![0, 1, 2, 3];
+    const _: SVector<u8, 4> = vector![0, 1, 2, 3];
+    const _: SVector<u16, 4> = vector![0, 1, 2, 3];
+    const _: SVector<u32, 4> = vector![0, 1, 2, 3];
+    const _: SVector<u64, 4> = vector![0, 1, 2, 3];
+    const _: SVector<usize, 4> = vector![0, 1, 2, 3];
+    const _: SVector<f32, 4> = vector![0.0, 1.0, 2.0, 3.0];
+    const _: SVector<f64, 4> = vector![0.0, 1.0, 2.0, 3.0];
+}
+
+#[test]
+fn dmatrix_builtin_types() {
+    // Check that dmatrix! compiles for all built-in types
+    let _: DMatrix<i8> = dmatrix![0, 1; 2, 3];
+    let _: DMatrix<i16> = dmatrix![0, 1; 2, 3];
+    let _: DMatrix<i32> = dmatrix![0, 1; 2, 3];
+    let _: DMatrix<i64> = dmatrix![0, 1; 2, 3];
+    let _: DMatrix<isize> = dmatrix![0, 1; 2, 3];
+    let _: DMatrix<u8> = dmatrix![0, 1; 2, 3];
+    let _: DMatrix<u16> = dmatrix![0, 1; 2, 3];
+    let _: DMatrix<u32> = dmatrix![0, 1; 2, 3];
+    let _: DMatrix<u64> = dmatrix![0, 1; 2, 3];
+    let _: DMatrix<usize> = dmatrix![0, 1; 2, 3];
+    let _: DMatrix<f32> = dmatrix![0.0, 1.0; 2.0, 3.0];
+    let _: DMatrix<f64> = dmatrix![0.0, 1.0; 2.0, 3.0];
+}
+
+#[test]
+fn dvector_builtin_types() {
+    // Check that dvector! compiles for all built-in types
+    let _: DVector<i8> = dvector![0, 1, 2, 3];
+    let _: DVector<i16> = dvector![0, 1, 2, 3];
+    let _: DVector<i32> = dvector![0, 1, 2, 3];
+    let _: DVector<i64> = dvector![0, 1, 2, 3];
+    let _: DVector<isize> = dvector![0, 1, 2, 3];
+    let _: DVector<u8> = dvector![0, 1, 2, 3];
+    let _: DVector<u16> = dvector![0, 1, 2, 3];
+    let _: DVector<u32> = dvector![0, 1, 2, 3];
+    let _: DVector<u64> = dvector![0, 1, 2, 3];
+    let _: DVector<usize> = dvector![0, 1, 2, 3];
+    let _: DVector<f32> = dvector![0.0, 1.0, 2.0, 3.0];
+    let _: DVector<f64> = dvector![0.0, 1.0, 2.0, 3.0];
+}
