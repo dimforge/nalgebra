@@ -7,6 +7,9 @@ use std::io::{Result as IOResult, Write};
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "rkyv-serialize-no-std")]
+use rkyv::{Archive, Deserialize, Serialize};
+
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
@@ -68,6 +71,7 @@ use crate::geometry::{AbstractRotation, Point, Translation};
                        DefaultAllocator: Allocator<T, Const<D>>,
                        Owned<T, Const<D>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "rkyv-serialize-no-std", derive(Archive, Serialize, Deserialize))]
 pub struct Isometry<T: Scalar, R, const D: usize> {
     /// The pure rotational part of this isometry.
     pub rotation: R,

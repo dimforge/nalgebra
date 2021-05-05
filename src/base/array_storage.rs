@@ -18,6 +18,9 @@ use std::mem;
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
+#[cfg(feature = "rkyv-serialize-no-std")]
+use rkyv::{Archive, Deserialize, Serialize};
+
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, ToTypenum};
@@ -34,6 +37,7 @@ use crate::base::Scalar;
 /// A array-based statically sized matrix data storage.
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "rkyv-serialize-no-std", derive(Archive, Deserialize, Serialize))]
 pub struct ArrayStorage<T, const R: usize, const C: usize>(pub [[T; R]; C]);
 
 // TODO: remove this once the stdlib implements Default for arrays.

@@ -10,6 +10,9 @@ use crate::base::storage::Owned;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+#[cfg(feature = "rkyv-serialize-no-std")]
+use rkyv::{Archive, Deserialize, Serialize};
+
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
@@ -28,6 +31,7 @@ use crate::geometry::{Point3, Rotation};
 /// that may be used as a rotation.
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "rkyv-serialize-no-std", derive(Archive, Deserialize, Serialize))]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<T>,

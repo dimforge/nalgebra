@@ -8,6 +8,9 @@ use std::io::{Result as IOResult, Write};
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+#[cfg(feature = "rkyv-serialize-no-std")]
+use rkyv::{Archive, Deserialize, Serialize};
+
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
@@ -23,6 +26,7 @@ use crate::geometry::Point;
 /// A translation.
 #[repr(C)]
 #[derive(Debug)]
+#[cfg_attr(feature = "rkyv-serialize-no-std", derive(Archive, Deserialize, Serialize))]
 pub struct Translation<T, const D: usize> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
     /// translated.
