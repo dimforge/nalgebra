@@ -211,3 +211,48 @@ fn dvector_builtin_types() {
     let _: DVector<f32> = dvector![0.0, 1.0, 2.0, 3.0];
     let _: DVector<f64> = dvector![0.0, 1.0, 2.0, 3.0];
 }
+
+/// Black box function that's just used for testing macros with function call expressions.
+fn f<T>(x: T) -> T {
+    x
+}
+
+#[rustfmt::skip]
+#[test]
+fn matrix_arbitrary_expressions() {
+    // Test that matrix! supports arbitrary expressions for its elements
+    let a = matrix![1 + 2       ,     2 * 3;
+                    4 * f(5 + 6), 7 - 8 * 9];
+    let a_expected = Matrix2::new(1 + 2       ,     2 * 3,
+                                  4 * f(5 + 6), 7 - 8 * 9);
+    assert_eq_and_type!(a, a_expected);
+}
+
+#[rustfmt::skip]
+#[test]
+fn dmatrix_arbitrary_expressions() {
+    // Test that dmatrix! supports arbitrary expressions for its elements
+    let a = dmatrix![1 + 2       ,     2 * 3;
+                     4 * f(5 + 6), 7 - 8 * 9];
+    let a_expected = DMatrix::from_row_slice(2, 2, &[1 + 2       ,     2 * 3,
+                                                     4 * f(5 + 6), 7 - 8 * 9]);
+    assert_eq_and_type!(a, a_expected);
+}
+
+#[rustfmt::skip]
+#[test]
+fn vector_arbitrary_expressions() {
+    // Test that vector! supports arbitrary expressions for its elements
+    let a = vector![1 + 2, 2 * 3, 4 * f(5 + 6), 7 - 8 * 9];
+    let a_expected = Vector4::new(1 + 2, 2 * 3, 4 * f(5 + 6), 7 - 8 * 9);
+    assert_eq_and_type!(a, a_expected);
+}
+
+#[rustfmt::skip]
+#[test]
+fn dvector_arbitrary_expressions() {
+    // Test that dvector! supports arbitrary expressions for its elements
+    let a = dvector![1 + 2, 2 * 3, 4 * f(5 + 6), 7 - 8 * 9];
+    let a_expected = DVector::from_column_slice(&[1 + 2, 2 * 3, 4 * f(5 + 6), 7 - 8 * 9]);
+    assert_eq_and_type!(a, a_expected);
+}
