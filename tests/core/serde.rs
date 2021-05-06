@@ -1,8 +1,8 @@
 #![cfg(feature = "serde-serialize")]
 
 use na::{
-    DMatrix, Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3, Matrix3x4, Point2, Point3,
-    Quaternion, Rotation2, Rotation3, Similarity2, Similarity3, SimilarityMatrix2,
+    DMatrix, Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3, Matrix2x3, Matrix3x4, Point2,
+    Point3, Quaternion, Rotation2, Rotation3, Similarity2, Similarity3, SimilarityMatrix2,
     SimilarityMatrix3, Translation2, Translation3, Unit, Vector2,
 };
 use rand;
@@ -27,6 +27,32 @@ fn serde_dmatrix() {
     let serialized = serde_json::to_string(&v).unwrap();
     let deserialized: DMatrix<f32> = serde_json::from_str(&serialized).unwrap();
     assert_eq!(v, deserialized);
+
+    let m = DMatrix::from_column_slice(2, 3, &[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+    let mat_str = "[[1.0, 2.0, 3.0, 4.0, 5.0, 6.0],2,3]";
+    let deserialized: DMatrix<f32> = serde_json::from_str(&mat_str).unwrap();
+    assert_eq!(m, deserialized);
+
+    let m = Matrix2x3::from_column_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+    let mat_str = "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]";
+    let deserialized: Matrix2x3<f32> = serde_json::from_str(&mat_str).unwrap();
+    assert_eq!(m, deserialized);
+}
+
+#[test]
+#[should_panic]
+fn serde_dmatrix_invalid_len() {
+    // This must fail: we attempt to deserialize a 2x3 with only 5 elements.
+    let mat_str = "[[1.0, 2.0, 3.0, 4.0, 5.0],2,3]";
+    let _: DMatrix<f32> = serde_json::from_str(&mat_str).unwrap();
+}
+
+#[test]
+#[should_panic]
+fn serde_smatrix_invalid_len() {
+    // This must fail: we attempt to deserialize a 2x3 with only 5 elements.
+    let mat_str = "[1.0, 2.0, 3.0, 4.0, 5.0]";
+    let _: Matrix2x3<f32> = serde_json::from_str(&mat_str).unwrap();
 }
 
 test_serde!(
