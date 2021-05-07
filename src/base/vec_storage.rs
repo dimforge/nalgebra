@@ -13,7 +13,6 @@ use crate::base::storage::{
 };
 use crate::base::{Scalar, Vector};
 
-use crate::{DMatrix, DVector};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
@@ -409,23 +408,5 @@ impl<T> Extend<T> for VecStorage<T, Dynamic, U1> {
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
         self.data.extend(iter);
         self.nrows = Dynamic::new(self.data.len());
-    }
-}
-
-impl<T> DMatrix<T> {
-    /// Creates a new heap-allocated matrix from the given [VecStorage].
-    pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, Dynamic>) -> Self {
-        // This is sound because the dimensions of the matrix and the storage are guaranteed
-        // to be the same
-        unsafe { Self::from_data_statically_unchecked(storage) }
-    }
-}
-
-impl<T> DVector<T> {
-    /// Creates a new heap-allocated matrix from the given [VecStorage].
-    pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, U1>) -> Self {
-        // This is sound because the dimensions of the matrix and the storage are guaranteed
-        // to be the same
-        unsafe { Self::from_data_statically_unchecked(storage) }
     }
 }

@@ -29,7 +29,7 @@ use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
 };
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector, Scalar, Unit};
-use crate::SimdComplexField;
+use crate::{ArrayStorage, DMatrix, DVector, Dynamic, SMatrix, SimdComplexField, VecStorage};
 
 /// A square matrix.
 pub type SquareMatrix<T, D, S> = Matrix<T, D, D, S>;
@@ -314,6 +314,47 @@ impl<T, R, C, S> Matrix<T, R, C, S> {
             data,
             _phantoms: PhantomData,
         }
+    }
+}
+
+impl<T, const R: usize, const C: usize> SMatrix<T, R, C> {
+    /// Creates a new statically-allocated matrix from the given [ArrayStorage].
+    ///
+    /// This method exists primarily as a workaround for the fact that `from_data` can not
+    /// work in `const fn` contexts.
+    #[inline(always)]
+    pub const fn from_array_storage(storage: ArrayStorage<T, R, C>) -> Self {
+        // This is sound because the row and column types are exactly the same as that of the
+        // storage, so there can be no mismatch
+        unsafe { Self::from_data_statically_unchecked(storage) }
+    }
+}
+
+// TODO: Consider removing/deprecating `from_vec_storage` once we are able to make
+// `from_data` const fn compatible
+impl<T> DMatrix<T> {
+    /// Creates a new heap-allocated matrix from the given [VecStorage].
+    ///
+    /// This method exists primarily as a workaround for the fact that `from_data` can not
+    /// work in `const fn` contexts.
+    pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, Dynamic>) -> Self {
+        // This is sound because the dimensions of the matrix and the storage are guaranteed
+        // to be the same
+        unsafe { Self::from_data_statically_unchecked(storage) }
+    }
+}
+
+// TODO: Consider removing/deprecating `from_vec_storage` once we are able to make
+// `from_data` const fn compatible
+impl<T> DVector<T> {
+    /// Creates a new heap-allocated matrix from the given [VecStorage].
+    ///
+    /// This method exists primarily as a workaround for the fact that `from_data` can not
+    /// work in `const fn` contexts.
+    pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, U1>) -> Self {
+        // This is sound because the dimensions of the matrix and the storage are guaranteed
+        // to be the same
+        unsafe { Self::from_data_statically_unchecked(storage) }
     }
 }
 
