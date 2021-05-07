@@ -88,7 +88,7 @@ rand_isaac = "0.3"
 criterion = "0.2.10"
 
 # For matrix comparison macro
-matrixcompare = "0.2.0"
+matrixcompare = "0.3.0"
 itertools = "0.10"
 
 [workspace]
