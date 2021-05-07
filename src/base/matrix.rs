@@ -29,7 +29,10 @@ use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
 };
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector, Scalar, Unit};
-use crate::{ArrayStorage, DMatrix, DVector, Dynamic, SMatrix, SimdComplexField, VecStorage};
+use crate::{ArrayStorage, SMatrix, SimdComplexField};
+
+#[cfg(any(feature = "std", feature = "alloc"))]
+use crate::{DMatrix, DVector, Dynamic, VecStorage};
 
 /// A square matrix.
 pub type SquareMatrix<T, D, S> = Matrix<T, D, D, S>;
@@ -332,6 +335,7 @@ impl<T, const R: usize, const C: usize> SMatrix<T, R, C> {
 
 // TODO: Consider removing/deprecating `from_vec_storage` once we are able to make
 // `from_data` const fn compatible
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<T> DMatrix<T> {
     /// Creates a new heap-allocated matrix from the given [VecStorage].
     ///
@@ -346,6 +350,7 @@ impl<T> DMatrix<T> {
 
 // TODO: Consider removing/deprecating `from_vec_storage` once we are able to make
 // `from_data` const fn compatible
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<T> DVector<T> {
     /// Creates a new heap-allocated matrix from the given [VecStorage].
     ///
