@@ -37,7 +37,6 @@ use crate::base::Scalar;
 /// A array-based statically sized matrix data storage.
 #[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "rkyv-serialize-no-std", derive(Archive, Deserialize, Serialize))]
 pub struct ArrayStorage<T, const R: usize, const C: usize>(pub [[T; R]; C]);
 
 // TODO: remove this once the stdlib implements Default for arrays.
@@ -301,5 +300,36 @@ where
 
     fn extent(&self) -> usize {
         self.as_slice().iter().fold(0, |acc, e| acc + e.extent())
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Archive, const R: usize, const C: usize> Archive for ArrayStorage<T, R, C> {
+    type Archived = ArrayStorage<T::Archived, R, C>;
+    type Resolver = <[[T; R]; C] as Archive>::Resolver;
+
+    fn resolve(&self, pos: usize, resolver: Self::Resolver, out: &mut core::mem::MaybeUninit<Self::Archived>) {
+        self.0.resolve(
+            pos + rkyv::offset_of!(Self::Archived, 0),
+            resolver,
+            rkyv::project_struct!(out: Self::Archived => 0)
+        );
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Serialize<S>, S: rkyv::Fallible + ?Sized, const R: usize, const C: usize> Serialize<S> for ArrayStorage<T, R, C> {
+    fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
+        Ok(self.0.serialize(serializer)?)
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Archive, D: rkyv::Fallible + ?Sized, const R: usize, const C: usize> Deserialize<ArrayStorage<T, R, C>, D> for ArrayStorage<T::Archived, R, C>
+where
+    T::Archived: Deserialize<T, D>,
+{
+    fn deserialize(&self, deserializer: &mut D) -> Result<ArrayStorage<T, R, C>, D::Error> {
+        Ok(ArrayStorage(self.0.deserialize(deserializer)?))
     }
 }

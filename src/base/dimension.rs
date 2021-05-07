@@ -200,7 +200,6 @@ dim_ops!(
 );
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "rkyv-serialize-no-std", derive(Archive, Deserialize, Serialize))]
 pub struct Const<const R: usize>;
 
 /// Trait implemented exclusively by type-level integers.
@@ -232,6 +231,29 @@ impl<'de, const D: usize> Deserialize<'de> for Const<D> {
         Des: Deserializer<'de>,
     {
         <()>::deserialize(deserializer).map(|_| Const::<D>)
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<const R: usize> Archive for Const<R> {
+    type Archived = Self;
+    type Resolver = ();
+
+    fn resolve(&self, _: usize, _: Self::Resolver, _: &mut core::mem::MaybeUninit<Self::Archived>) {
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<S: rkyv::Fallible + ?Sized, const R: usize> Serialize<S> for Const<R> {
+    fn serialize(&self, _: &mut S) -> Result<Self::Resolver, S::Error> {
+        Ok(())
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<D: rkyv::Fallible + ?Sized, const R: usize> Deserialize<Self, D> for Const<R> {
+    fn deserialize(&self, _: &mut D) -> Result<Self, D::Error> {
+        Ok(Const)
     }
 }
 

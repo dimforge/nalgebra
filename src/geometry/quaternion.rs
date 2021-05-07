@@ -31,7 +31,6 @@ use crate::geometry::{Point3, Rotation};
 /// that may be used as a rotation.
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-#[cfg_attr(feature = "rkyv-serialize-no-std", derive(Archive, Deserialize, Serialize))]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<T>,
@@ -114,6 +113,39 @@ where
         let coords = Vector4::<T>::deserialize(deserializer)?;
 
         Ok(Self::from(coords))
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Archive> Archive for Quaternion<T> {
+    type Archived = Quaternion<T::Archived>;
+    type Resolver = <Vector4<T> as Archive>::Resolver;
+
+    fn resolve(&self, pos: usize, resolver: Self::Resolver, out: &mut core::mem::MaybeUninit<Self::Archived>) {
+        self.coords.resolve(
+            pos + rkyv::offset_of!(Self::Archived, coords),
+            resolver,
+            rkyv::project_struct!(out: Self::Archived => coords)
+        );
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Serialize<S>, S: rkyv::Fallible + ?Sized> Serialize<S> for Quaternion<T> {
+    fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
+        Ok(self.coords.serialize(serializer)?)
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Archive, D: rkyv::Fallible + ?Sized> Deserialize<Quaternion<T>, D> for Quaternion<T::Archived>
+where
+    T::Archived: Deserialize<T, D>,
+{
+    fn deserialize(&self, deserializer: &mut D) -> Result<Quaternion<T>, D::Error> {
+        Ok(Quaternion {
+            coords: self.coords.deserialize(deserializer)?,
+        })
     }
 }
 

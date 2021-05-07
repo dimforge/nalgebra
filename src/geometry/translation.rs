@@ -26,7 +26,6 @@ use crate::geometry::Point;
 /// A translation.
 #[repr(C)]
 #[derive(Debug)]
-#[cfg_attr(feature = "rkyv-serialize-no-std", derive(Archive, Deserialize, Serialize))]
 pub struct Translation<T, const D: usize> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
     /// translated.
@@ -98,6 +97,39 @@ where
         let matrix = SVector::<T, D>::deserialize(deserializer)?;
 
         Ok(Translation::from(matrix))
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Archive, const D: usize> Archive for Translation<T, D> {
+    type Archived = Translation<T::Archived, D>;
+    type Resolver = <SVector<T, D> as Archive>::Resolver;
+
+    fn resolve(&self, pos: usize, resolver: Self::Resolver, out: &mut core::mem::MaybeUninit<Self::Archived>) {
+        self.vector.resolve(
+            pos + rkyv::offset_of!(Self::Archived, vector),
+            resolver,
+            rkyv::project_struct!(out: Self::Archived => vector)
+        );
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Serialize<S>, S: rkyv::Fallible + ?Sized, const D: usize> Serialize<S> for Translation<T, D> {
+    fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
+        Ok(self.vector.serialize(serializer)?)
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Archive, _D: rkyv::Fallible + ?Sized, const D: usize> Deserialize<Translation<T, D>, _D> for Translation<T::Archived, D>
+where
+    T::Archived: Deserialize<T, _D>,
+{
+    fn deserialize(&self, deserializer: &mut _D) -> Result<Translation<T, D>, _D::Error> {
+        Ok(Translation {
+            vector: self.vector.deserialize(deserializer)?,
+        })
     }
 }
 

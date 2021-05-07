@@ -29,7 +29,6 @@ use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealF
 /// in their documentation, read their dedicated pages directly.
 #[repr(transparent)]
 #[derive(Clone, Hash, Debug, Copy)]
-#[cfg_attr(feature = "rkyv-serialize-no-std", derive(Archive, Deserialize, Serialize))]
 pub struct Unit<T> {
     pub(crate) value: T,
 }
@@ -72,6 +71,39 @@ impl<T: Abomonation> Abomonation for Unit<T> {
 
     unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
         self.value.exhume(bytes)
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Archive> Archive for Unit<T> {
+    type Archived = Unit<T::Archived>;
+    type Resolver = T::Resolver;
+
+    fn resolve(&self, pos: usize, resolver: Self::Resolver, out: &mut ::core::mem::MaybeUninit<Self::Archived>) {
+        self.value.resolve(
+            pos + rkyv::offset_of!(Self::Archived, value),
+            resolver,
+            rkyv::project_struct!(out: Self::Archived => value),
+        );
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Serialize<S>, S: rkyv::Fallible + ?Sized> Serialize<S> for Unit<T> {
+    fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
+        Ok(self.value.serialize(serializer)?)
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Archive, D: rkyv::Fallible + ?Sized> Deserialize<Unit<T>, D> for Unit<T::Archived>
+where
+    T::Archived: Deserialize<T, D>,
+{
+    fn deserialize(&self, deserializer: &mut D) -> Result<Unit<T>, D::Error> {
+        Ok(Unit {
+            value: self.value.deserialize(deserializer)?,
+        })
     }
 }
 

@@ -156,7 +156,6 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// some concrete types for `T` and a compatible data storage type `S`).
 #[repr(C)]
 #[derive(Clone, Copy)]
-#[cfg_attr(feature = "rkyv-serialize-no-std", derive(Archive, Deserialize, Serialize))]
 pub struct Matrix<T, R, C, S> {
     /// The data storage that contains all the matrix components. Disappointed?
     ///
@@ -310,6 +309,40 @@ where
     S: bytemuck::Pod,
     Self: Copy,
 {
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Archive, R: Archive, C: Archive, S: Archive> Archive for Matrix<T, R, C, S> {
+    type Archived = Matrix<T::Archived, R::Archived, C::Archived, S::Archived>;
+    type Resolver = S::Resolver;
+
+    fn resolve(&self, pos: usize, resolver: Self::Resolver, out: &mut core::mem::MaybeUninit<Self::Archived>) {
+        self.data.resolve(
+            pos + rkyv::offset_of!(Self::Archived, data),
+            resolver,
+            rkyv::project_struct!(out: Self::Archived => data)
+        );
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Archive, R: Archive, C: Archive, S: Serialize<_S>, _S: rkyv::Fallible + ?Sized> Serialize<_S> for Matrix<T, R, C, S> {
+    fn serialize(&self, serializer: &mut _S) -> Result<Self::Resolver, _S::Error> {
+        Ok(self.data.serialize(serializer)?)
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T: Archive, R: Archive, C: Archive, S: Archive, D: rkyv::Fallible + ?Sized> Deserialize<Matrix<T, R, C, S>, D> for Matrix<T::Archived, R::Archived, C::Archived, S::Archived>
+where
+    S::Archived: Deserialize<S, D>,
+{
+    fn deserialize(&self, deserializer: &mut D) -> Result<Matrix<T, R, C, S>, D::Error> {
+        Ok(Matrix {
+            data: self.data.deserialize(deserializer)?,
+            _phantoms: PhantomData,
+        })
+    }
 }
 
 impl<T, R, C, S> Matrix<T, R, C, S> {
