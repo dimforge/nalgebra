@@ -188,7 +188,7 @@ fn tr_mul_to(bench: &mut criterion::Criterion) {
     let b = DVector::<f64>::new_random(1000);
     let mut c = DVector::from_element(1000, 0.0);
 
-    bench.bench_function("", move |bh| bh.iter(|| a.tr_mul_to(&b, &mut c)));
+    bench.bench_function("tr_mul_to", move |bh| bh.iter(|| a.tr_mul_to(&b, &mut c)));
 }
 
 fn mat_mul_mat(bench: &mut criterion::Criterion) {

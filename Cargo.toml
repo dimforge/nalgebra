@@ -87,7 +87,7 @@ proptest = { version = "1", optional = true, default-features = false, features 
 serde_json = "1.0"
 rand_xorshift = "0.3"
 rand_isaac = "0.3"
-criterion = "0.2.10"
+criterion = { version = "0.3", features = ["html_reports"] }
 
 # For matrix comparison macro
 matrixcompare = "0.3.0"
@@ -105,6 +105,7 @@ required-features = ["compare"]
 name = "nalgebra_bench"
 harness = false
 path = "benches/lib.rs"
+required-features = ["rand"]
 
 [profile.bench]
 lto = true
