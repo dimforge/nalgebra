@@ -16,9 +16,6 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-use rkyv::{Archive, Deserialize, Serialize};
-
 use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, Field, SupersetOf};
 use simba::simd::SimdPartialOrd;
 
@@ -312,36 +309,49 @@ where
 }
 
 #[cfg(feature = "rkyv-serialize-no-std")]
-impl<T: Archive, R: Archive, C: Archive, S: Archive> Archive for Matrix<T, R, C, S> {
-    type Archived = Matrix<T::Archived, R::Archived, C::Archived, S::Archived>;
-    type Resolver = S::Resolver;
+mod rkyv_impl {
+    use super::Matrix;
+    use core::marker::PhantomData;
+    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
 
-    fn resolve(&self, pos: usize, resolver: Self::Resolver, out: &mut core::mem::MaybeUninit<Self::Archived>) {
-        self.data.resolve(
-            pos + rkyv::offset_of!(Self::Archived, data),
-            resolver,
-            rkyv::project_struct!(out: Self::Archived => data)
-        );
+    impl<T: Archive, R: Archive, C: Archive, S: Archive> Archive for Matrix<T, R, C, S> {
+        type Archived = Matrix<T::Archived, R::Archived, C::Archived, S::Archived>;
+        type Resolver = S::Resolver;
+
+        fn resolve(
+            &self,
+            pos: usize,
+            resolver: Self::Resolver,
+            out: &mut core::mem::MaybeUninit<Self::Archived>,
+        ) {
+            self.data.resolve(
+                pos + offset_of!(Self::Archived, data),
+                resolver,
+                project_struct!(out: Self::Archived => data),
+            );
+        }
     }
-}
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-impl<T: Archive, R: Archive, C: Archive, S: Serialize<_S>, _S: rkyv::Fallible + ?Sized> Serialize<_S> for Matrix<T, R, C, S> {
-    fn serialize(&self, serializer: &mut _S) -> Result<Self::Resolver, _S::Error> {
-        Ok(self.data.serialize(serializer)?)
+    impl<T: Archive, R: Archive, C: Archive, S: Serialize<_S>, _S: Fallible + ?Sized> Serialize<_S>
+        for Matrix<T, R, C, S>
+    {
+        fn serialize(&self, serializer: &mut _S) -> Result<Self::Resolver, _S::Error> {
+            Ok(self.data.serialize(serializer)?)
+        }
     }
-}
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-impl<T: Archive, R: Archive, C: Archive, S: Archive, D: rkyv::Fallible + ?Sized> Deserialize<Matrix<T, R, C, S>, D> for Matrix<T::Archived, R::Archived, C::Archived, S::Archived>
-where
-    S::Archived: Deserialize<S, D>,
-{
-    fn deserialize(&self, deserializer: &mut D) -> Result<Matrix<T, R, C, S>, D::Error> {
-        Ok(Matrix {
-            data: self.data.deserialize(deserializer)?,
-            _phantoms: PhantomData,
-        })
+    impl<T: Archive, R: Archive, C: Archive, S: Archive, D: Fallible + ?Sized>
+        Deserialize<Matrix<T, R, C, S>, D>
+        for Matrix<T::Archived, R::Archived, C::Archived, S::Archived>
+    where
+        S::Archived: Deserialize<S, D>,
+    {
+        fn deserialize(&self, deserializer: &mut D) -> Result<Matrix<T, R, C, S>, D::Error> {
+            Ok(Matrix {
+                data: self.data.deserialize(deserializer)?,
+                _phantoms: PhantomData,
+            })
+        }
     }
 }
 

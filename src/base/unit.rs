@@ -6,9 +6,6 @@ use std::ops::Deref;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-use rkyv::{Archive, Deserialize, Serialize};
-
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
@@ -75,35 +72,43 @@ impl<T: Abomonation> Abomonation for Unit<T> {
 }
 
 #[cfg(feature = "rkyv-serialize-no-std")]
-impl<T: Archive> Archive for Unit<T> {
-    type Archived = Unit<T::Archived>;
-    type Resolver = T::Resolver;
+mod rkyv_impl {
+    use super::Unit;
+    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
 
-    fn resolve(&self, pos: usize, resolver: Self::Resolver, out: &mut ::core::mem::MaybeUninit<Self::Archived>) {
-        self.value.resolve(
-            pos + rkyv::offset_of!(Self::Archived, value),
-            resolver,
-            rkyv::project_struct!(out: Self::Archived => value),
-        );
+    impl<T: Archive> Archive for Unit<T> {
+        type Archived = Unit<T::Archived>;
+        type Resolver = T::Resolver;
+
+        fn resolve(
+            &self,
+            pos: usize,
+            resolver: Self::Resolver,
+            out: &mut ::core::mem::MaybeUninit<Self::Archived>,
+        ) {
+            self.value.resolve(
+                pos + offset_of!(Self::Archived, value),
+                resolver,
+                project_struct!(out: Self::Archived => value),
+            );
+        }
     }
-}
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-impl<T: Serialize<S>, S: rkyv::Fallible + ?Sized> Serialize<S> for Unit<T> {
-    fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-        Ok(self.value.serialize(serializer)?)
+    impl<T: Serialize<S>, S: Fallible + ?Sized> Serialize<S> for Unit<T> {
+        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
+            Ok(self.value.serialize(serializer)?)
+        }
     }
-}
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-impl<T: Archive, D: rkyv::Fallible + ?Sized> Deserialize<Unit<T>, D> for Unit<T::Archived>
-where
-    T::Archived: Deserialize<T, D>,
-{
-    fn deserialize(&self, deserializer: &mut D) -> Result<Unit<T>, D::Error> {
-        Ok(Unit {
-            value: self.value.deserialize(deserializer)?,
-        })
+    impl<T: Archive, D: Fallible + ?Sized> Deserialize<Unit<T>, D> for Unit<T::Archived>
+    where
+        T::Archived: Deserialize<T, D>,
+    {
+        fn deserialize(&self, deserializer: &mut D) -> Result<Unit<T>, D::Error> {
+            Ok(Unit {
+                value: self.value.deserialize(deserializer)?,
+            })
+        }
     }
 }
 

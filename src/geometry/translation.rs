@@ -8,9 +8,6 @@ use std::io::{Result as IOResult, Write};
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-use rkyv::{Archive, Deserialize, Serialize};
-
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
@@ -101,35 +98,45 @@ where
 }
 
 #[cfg(feature = "rkyv-serialize-no-std")]
-impl<T: Archive, const D: usize> Archive for Translation<T, D> {
-    type Archived = Translation<T::Archived, D>;
-    type Resolver = <SVector<T, D> as Archive>::Resolver;
+mod rkyv_impl {
+    use super::Translation;
+    use crate::base::SVector;
+    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
 
-    fn resolve(&self, pos: usize, resolver: Self::Resolver, out: &mut core::mem::MaybeUninit<Self::Archived>) {
-        self.vector.resolve(
-            pos + rkyv::offset_of!(Self::Archived, vector),
-            resolver,
-            rkyv::project_struct!(out: Self::Archived => vector)
-        );
+    impl<T: Archive, const D: usize> Archive for Translation<T, D> {
+        type Archived = Translation<T::Archived, D>;
+        type Resolver = <SVector<T, D> as Archive>::Resolver;
+
+        fn resolve(
+            &self,
+            pos: usize,
+            resolver: Self::Resolver,
+            out: &mut core::mem::MaybeUninit<Self::Archived>,
+        ) {
+            self.vector.resolve(
+                pos + offset_of!(Self::Archived, vector),
+                resolver,
+                project_struct!(out: Self::Archived => vector),
+            );
+        }
     }
-}
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-impl<T: Serialize<S>, S: rkyv::Fallible + ?Sized, const D: usize> Serialize<S> for Translation<T, D> {
-    fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-        Ok(self.vector.serialize(serializer)?)
+    impl<T: Serialize<S>, S: Fallible + ?Sized, const D: usize> Serialize<S> for Translation<T, D> {
+        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
+            Ok(self.vector.serialize(serializer)?)
+        }
     }
-}
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-impl<T: Archive, _D: rkyv::Fallible + ?Sized, const D: usize> Deserialize<Translation<T, D>, _D> for Translation<T::Archived, D>
-where
-    T::Archived: Deserialize<T, _D>,
-{
-    fn deserialize(&self, deserializer: &mut _D) -> Result<Translation<T, D>, _D::Error> {
-        Ok(Translation {
-            vector: self.vector.deserialize(deserializer)?,
-        })
+    impl<T: Archive, _D: Fallible + ?Sized, const D: usize> Deserialize<Translation<T, D>, _D>
+        for Translation<T::Archived, D>
+    where
+        T::Archived: Deserialize<T, _D>,
+    {
+        fn deserialize(&self, deserializer: &mut _D) -> Result<Translation<T, D>, _D::Error> {
+            Ok(Translation {
+                vector: self.vector.deserialize(deserializer)?,
+            })
+        }
     }
 }
 

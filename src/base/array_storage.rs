@@ -18,9 +18,6 @@ use std::mem;
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-use rkyv::{Archive, Deserialize, Serialize};
-
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, ToTypenum};
@@ -304,32 +301,43 @@ where
 }
 
 #[cfg(feature = "rkyv-serialize-no-std")]
-impl<T: Archive, const R: usize, const C: usize> Archive for ArrayStorage<T, R, C> {
-    type Archived = ArrayStorage<T::Archived, R, C>;
-    type Resolver = <[[T; R]; C] as Archive>::Resolver;
+mod rkyv_impl {
+    use super::ArrayStorage;
+    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
 
-    fn resolve(&self, pos: usize, resolver: Self::Resolver, out: &mut core::mem::MaybeUninit<Self::Archived>) {
-        self.0.resolve(
-            pos + rkyv::offset_of!(Self::Archived, 0),
-            resolver,
-            rkyv::project_struct!(out: Self::Archived => 0)
-        );
+    impl<T: Archive, const R: usize, const C: usize> Archive for ArrayStorage<T, R, C> {
+        type Archived = ArrayStorage<T::Archived, R, C>;
+        type Resolver = <[[T; R]; C] as Archive>::Resolver;
+
+        fn resolve(
+            &self,
+            pos: usize,
+            resolver: Self::Resolver,
+            out: &mut core::mem::MaybeUninit<Self::Archived>,
+        ) {
+            self.0.resolve(
+                pos + offset_of!(Self::Archived, 0),
+                resolver,
+                project_struct!(out: Self::Archived => 0),
+            );
+        }
     }
-}
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-impl<T: Serialize<S>, S: rkyv::Fallible + ?Sized, const R: usize, const C: usize> Serialize<S> for ArrayStorage<T, R, C> {
-    fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-        Ok(self.0.serialize(serializer)?)
+    impl<T: Serialize<S>, S: Fallible + ?Sized, const R: usize, const C: usize> Serialize<S>
+        for ArrayStorage<T, R, C>
+    {
+        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
+            Ok(self.0.serialize(serializer)?)
+        }
     }
-}
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-impl<T: Archive, D: rkyv::Fallible + ?Sized, const R: usize, const C: usize> Deserialize<ArrayStorage<T, R, C>, D> for ArrayStorage<T::Archived, R, C>
-where
-    T::Archived: Deserialize<T, D>,
-{
-    fn deserialize(&self, deserializer: &mut D) -> Result<ArrayStorage<T, R, C>, D::Error> {
-        Ok(ArrayStorage(self.0.deserialize(deserializer)?))
+    impl<T: Archive, D: Fallible + ?Sized, const R: usize, const C: usize>
+        Deserialize<ArrayStorage<T, R, C>, D> for ArrayStorage<T::Archived, R, C>
+    where
+        T::Archived: Deserialize<T, D>,
+    {
+        fn deserialize(&self, deserializer: &mut D) -> Result<ArrayStorage<T, R, C>, D::Error> {
+            Ok(ArrayStorage(self.0.deserialize(deserializer)?))
+        }
     }
 }

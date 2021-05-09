@@ -11,9 +11,6 @@ use typenum::{self, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, Unsigned}
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-use rkyv::{Archive, Deserialize, Serialize};
-
 /// Dim of dynamically-sized algebraic entities.
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
 pub struct Dynamic {
@@ -235,25 +232,33 @@ impl<'de, const D: usize> Deserialize<'de> for Const<D> {
 }
 
 #[cfg(feature = "rkyv-serialize-no-std")]
-impl<const R: usize> Archive for Const<R> {
-    type Archived = Self;
-    type Resolver = ();
+mod rkyv_impl {
+    use super::Const;
+    use rkyv::{Archive, Deserialize, Fallible, Serialize};
 
-    fn resolve(&self, _: usize, _: Self::Resolver, _: &mut core::mem::MaybeUninit<Self::Archived>) {
+    impl<const R: usize> Archive for Const<R> {
+        type Archived = Self;
+        type Resolver = ();
+
+        fn resolve(
+            &self,
+            _: usize,
+            _: Self::Resolver,
+            _: &mut core::mem::MaybeUninit<Self::Archived>,
+        ) {
+        }
     }
-}
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-impl<S: rkyv::Fallible + ?Sized, const R: usize> Serialize<S> for Const<R> {
-    fn serialize(&self, _: &mut S) -> Result<Self::Resolver, S::Error> {
-        Ok(())
+    impl<S: Fallible + ?Sized, const R: usize> Serialize<S> for Const<R> {
+        fn serialize(&self, _: &mut S) -> Result<Self::Resolver, S::Error> {
+            Ok(())
+        }
     }
-}
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-impl<D: rkyv::Fallible + ?Sized, const R: usize> Deserialize<Self, D> for Const<R> {
-    fn deserialize(&self, _: &mut D) -> Result<Self, D::Error> {
-        Ok(Const)
+    impl<D: Fallible + ?Sized, const R: usize> Deserialize<Self, D> for Const<R> {
+        fn deserialize(&self, _: &mut D) -> Result<Self, D::Error> {
+            Ok(Const)
+        }
     }
 }
 
