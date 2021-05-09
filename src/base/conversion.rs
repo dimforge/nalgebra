@@ -23,9 +23,9 @@ use crate::base::{
 use crate::base::{DVector, VecStorage};
 use crate::base::{SliceStorage, SliceStorageMut};
 use crate::constraint::DimEq;
-use crate::{SMatrix, SVector};
+use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector};
 
-// TODO: too bad this won't work allo slice conversions.
+// TODO: too bad this won't work for slice conversions.
 impl<T1, T2, R1, C1, R2, C2> SubsetOf<OMatrix<T2, R2, C2>> for OMatrix<T1, R1, C1>
 where
     R1: Dim,
@@ -115,6 +115,26 @@ impl<T: Scalar, const D: usize> Into<[T; D]> for SVector<T, D> {
     fn into(self) -> [T; D] {
         // TODO: unfortunately, we must clone because we can move out of an array.
         self.data.0[0].clone()
+    }
+}
+
+impl<T: Scalar, const D: usize> From<[T; D]> for RowSVector<T, D>
+where
+    Const<D>: IsNotStaticOne,
+{
+    #[inline]
+    fn from(arr: [T; D]) -> Self {
+        SVector::<T, D>::from(arr).transpose()
+    }
+}
+
+impl<T: Scalar, const D: usize> Into<[T; D]> for RowSVector<T, D>
+where
+    Const<D>: IsNotStaticOne,
+{
+    #[inline]
+    fn into(self) -> [T; D] {
+        self.transpose().into()
     }
 }
 

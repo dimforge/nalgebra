@@ -1,5 +1,4 @@
-#![cfg(all(feature = "proptest-support", feature = "alga"))]
-use alga::linear::Transformation;
+#![cfg(all(feature = "proptest-support"))]
 use na::{
     self, Affine3, Isometry3, Matrix2, Matrix2x3, Matrix2x4, Matrix2x5, Matrix2x6, Matrix3,
     Matrix3x2, Matrix3x4, Matrix3x5, Matrix3x6, Matrix4, Matrix4x2, Matrix4x3, Matrix4x5,
@@ -16,7 +15,7 @@ use proptest::{prop_assert, prop_assert_eq, proptest};
 
 proptest! {
     #[test]
-    fn translation_conversion(t in translation3(), v in vector3(), p in point3()) {
+    fn translation_conversion(t in translation3(), p in point3()) {
         let iso: Isometry3<f64>   = na::convert(t);
         let sim: Similarity3<f64> = na::convert(t);
         let aff: Affine3<f64>     = na::convert(t);
@@ -28,12 +27,6 @@ proptest! {
         prop_assert_eq!(t, na::try_convert(aff).unwrap());
         prop_assert_eq!(t, na::try_convert(prj).unwrap());
         prop_assert_eq!(t, na::try_convert(tr).unwrap() );
-
-        prop_assert_eq!(t.transform_vector(&v), iso * v);
-        prop_assert_eq!(t.transform_vector(&v), sim * v);
-        prop_assert_eq!(t.transform_vector(&v), aff * v);
-        prop_assert_eq!(t.transform_vector(&v), prj * v);
-        prop_assert_eq!(t.transform_vector(&v), tr  * v);
 
         prop_assert_eq!(t * p, iso * p);
         prop_assert_eq!(t * p, sim * p);
