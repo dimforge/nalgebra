@@ -48,6 +48,8 @@ convert-bytemuck = [ "bytemuck" ]
 serde-serialize-no-std = [ "serde", "num-complex/serde" ]
 serde-serialize        = [ "serde-serialize-no-std", "serde/std" ]
 abomonation-serialize  = [ "abomonation" ]
+rkyv-serialize-no-std  = [ "rkyv" ]
+rkyv-serialize         = [ "rkyv-serialize-no-std", "rkyv/std" ]
 
 # Randomness
 ## To use rand in a #[no-std] environment, enable the
@@ -74,6 +76,7 @@ rand_distr     = { version = "0.4", default-features = false, optional = true }
 matrixmultiply = { version = "0.3", optional = true }
 serde          = { version = "1.0", default-features = false, features = [ "derive" ], optional = true }
 abomonation    = { version = "0.7", optional = true }
+rkyv           = { version = "~0.6.4", default-features = false, features = ["const_generics"], optional = true }
 mint           = { version = "0.5", optional = true }
 glam           = { version = "0.13", optional = true }
 quickcheck     = { version = "1", optional = true }
@@ -81,7 +84,7 @@ pest           = { version = "2", optional = true }
 pest_derive    = { version = "2", optional = true }
 bytemuck       = { version = "1.5", optional = true }
 matrixcompare-core = { version = "0.1", optional = true }
-proptest = { version = "1", optional = true, default-features = false, features = ["std"] }
+proptest           = { version = "1", optional = true, default-features = false, features = ["std"] }
 
 [dev-dependencies]
 serde_json = "1.0"
