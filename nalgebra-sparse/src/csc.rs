@@ -440,12 +440,12 @@ impl<T> CscMatrix<T> {
             .expect("Out of bounds matrix indices encountered")
     }
 
-    /// Returns a triplet of slices `(row_offsets, col_indices, values)` that make up the CSC data.
+    /// Returns a triplet of slices `(col_offsets, row_indices, values)` that make up the CSC data.
     pub fn csc_data(&self) -> (&[usize], &[usize], &[T]) {
         self.cs.cs_data()
     }
 
-    /// Returns a triplet of slices `(row_offsets, col_indices, values)` that make up the CSC data,
+    /// Returns a triplet of slices `(col_offsets, row_indices, values)` that make up the CSC data,
     /// where the `values` array is mutable.
     pub fn csc_data_mut(&mut self) -> (&[usize], &[usize], &mut [T]) {
         self.cs.cs_data_mut()
