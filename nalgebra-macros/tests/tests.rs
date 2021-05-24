@@ -1,9 +1,10 @@
 use nalgebra::{
     DMatrix, DVector, Matrix1x2, Matrix1x3, Matrix1x4, Matrix2, Matrix2x1, Matrix2x3, Matrix2x4,
-    Matrix3, Matrix3x1, Matrix3x2, Matrix3x4, Matrix4, Matrix4x1, Matrix4x2, Matrix4x3, SMatrix,
-    SVector, Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
+    Matrix3, Matrix3x1, Matrix3x2, Matrix3x4, Matrix4, Matrix4x1, Matrix4x2, Matrix4x3, PEoint4,
+    Point, Point1, Point2, Point3, Point4, Point5, Point6, SMatrix, SVector, Vector1, Vector2,
+    Vector3, Vector4, Vector5, Vector6,
 };
-use nalgebra_macros::{dmatrix, dvector, matrix, vector};
+use nalgebra_macros::{dmatrix, dvector, matrix, point, vector};
 
 fn check_statically_same_type<T>(_: &T, _: &T) {}
 
@@ -106,6 +107,19 @@ fn vector_small_dims_exhaustive() {
     assert_eq_and_type!(vector![1, 2, 3, 4, 5, 6], Vector6::new(1, 2, 3, 4, 5, 6));
 }
 
+// Skip rustfmt because it just makes the test bloated without making it more readable
+#[rustfmt::skip]
+#[test]
+fn point_small_dims_exhaustive() {
+    assert_eq_and_type!(point![], Point::<i32, 0>::origin());
+    assert_eq_and_type!(point![1], Point1::<i32>::new(1));
+    assert_eq_and_type!(point![1, 2], Point2::new(1, 2));
+    assert_eq_and_type!(point![1, 2, 3], Point3::new(1, 2, 3));
+    assert_eq_and_type!(point![1, 2, 3, 4], Point4::new(1, 2, 3, 4));
+    assert_eq_and_type!(point![1, 2, 3, 4, 5], Point5::new(1, 2, 3, 4, 5));
+    assert_eq_and_type!(point![1, 2, 3, 4, 5, 6], Point6::new(1, 2, 3, 4, 5, 6));
+}
+
 #[test]
 fn vector_const_fn() {
     // Ensure that vector! can be used in const contexts
@@ -113,6 +127,15 @@ fn vector_const_fn() {
     const _: Vector1<i32> = vector![1];
     const _: Vector2<i32> = vector![1, 2];
     const _: Vector6<i32> = vector![1, 2, 3, 4, 5, 6];
+}
+
+#[test]
+fn point_const_fn() {
+    // Ensure that vector! can be used in const contexts
+    const _: Point<i32, 0> = vector![];
+    const _: Point1<i32> = vector![1];
+    const _: Point2<i32> = vector![1, 2];
+    const _: Point6<i32> = vector![1, 2, 3, 4, 5, 6];
 }
 
 // Skip rustfmt because it just makes the test bloated without making it more readable
@@ -196,6 +219,23 @@ fn dmatrix_builtin_types() {
 }
 
 #[test]
+fn point_builtin_types() {
+    // Check that point! compiles for all built-in types
+    const _: Point<i8, 4> = point![0, 1, 2, 3];
+    const _: Point<i16, 4> = point![0, 1, 2, 3];
+    const _: Point<i32, 4> = point![0, 1, 2, 3];
+    const _: Point<i64, 4> = point![0, 1, 2, 3];
+    const _: Point<isize, 4> = point![0, 1, 2, 3];
+    const _: Point<u8, 4> = point![0, 1, 2, 3];
+    const _: Point<u16, 4> = point![0, 1, 2, 3];
+    const _: Point<u32, 4> = point![0, 1, 2, 3];
+    const _: Point<u64, 4> = point![0, 1, 2, 3];
+    const _: Point<usize, 4> = point![0, 1, 2, 3];
+    const _: Point<f32, 4> = point![0.0, 1.0, 2.0, 3.0];
+    const _: Point<f64, 4> = point![0.0, 1.0, 2.0, 3.0];
+}
+
+#[test]
 fn dvector_builtin_types() {
     // Check that dvector! compiles for all built-in types
     let _: DVector<i8> = dvector![0, 1, 2, 3];
@@ -245,6 +285,15 @@ fn vector_arbitrary_expressions() {
     // Test that vector! supports arbitrary expressions for its elements
     let a = vector![1 + 2, 2 * 3, 4 * f(5 + 6), 7 - 8 * 9];
     let a_expected = Vector4::new(1 + 2, 2 * 3, 4 * f(5 + 6), 7 - 8 * 9);
+    assert_eq_and_type!(a, a_expected);
+}
+
+#[rustfmt::skip]
+#[test]
+fn point_arbitrary_expressions() {
+    // Test that point! supports arbitrary expressions for its elements
+    let a = point![1 + 2, 2 * 3, 4 * f(5 + 6), 7 - 8 * 9];
+    let a_expected = Point4::new(1 + 2, 2 * 3, 4 * f(5 + 6), 7 - 8 * 9);
     assert_eq_and_type!(a, a_expected);
 }
 

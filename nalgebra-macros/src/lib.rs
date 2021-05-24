@@ -280,3 +280,34 @@ pub fn dvector(stream: TokenStream) -> TokenStream {
     };
     proc_macro::TokenStream::from(output)
 }
+
+/// Construct a fixed-size point directly from data.
+///
+/// **Note: Requires the `macro` feature to be enabled (enabled by default)**.
+///
+/// Similarly to [`vector!`], this macro facilitates easy construction of points.
+///
+/// `point!` is intended to be the most readable and performant way of constructing small,
+/// points, and it is usable in `const fn` contexts.
+///
+/// ## Examples
+///
+/// ```
+/// use nalgebra::point;
+///
+/// // Produces a Point3<_>
+/// let v = point![1, 2, 3];
+/// ```
+#[proc_macro]
+pub fn point(stream: TokenStream) -> TokenStream {
+    let vector = parse_macro_input!(stream as Vector);
+    let len = vector.len();
+    let array_tokens = vector.to_array_tokens();
+    let output = quote! {
+        nalgebra::Point::<_, #len> {
+            coords: nalgebra::SVector::<_, #len>
+                        ::from_array_storage(nalgebra::ArrayStorage([#array_tokens]))
+        }
+    };
+    proc_macro::TokenStream::from(output)
+}
