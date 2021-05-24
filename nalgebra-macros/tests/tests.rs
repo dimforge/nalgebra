@@ -132,10 +132,10 @@ fn vector_const_fn() {
 #[test]
 fn point_const_fn() {
     // Ensure that vector! can be used in const contexts
-    const _: Point<i32, 0> = vector![];
-    const _: Point1<i32> = vector![1];
-    const _: Point2<i32> = vector![1, 2];
-    const _: Point6<i32> = vector![1, 2, 3, 4, 5, 6];
+    const _: Point<i32, 0> = point![];
+    const _: Point1<i32> = point![1];
+    const _: Point2<i32> = point![1, 2];
+    const _: Point6<i32> = point![1, 2, 3, 4, 5, 6];
 }
 
 // Skip rustfmt because it just makes the test bloated without making it more readable
