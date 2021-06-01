@@ -1,5 +1,5 @@
+use super::glam::{DMat3, DMat4, Mat3, Mat4};
 use crate::{Similarity2, Similarity3};
-use glam::{DMat3, DMat4, Mat3, Mat4};
 
 impl From<Similarity2<f32>> for Mat3 {
     fn from(iso: Similarity2<f32>) -> Mat3 {
@@ -25,8 +25,8 @@ impl From<Similarity3<f64>> for DMat4 {
 
 #[cfg(feature = "convert-glam-unchecked")]
 mod unchecked {
+    use super::super::glam::{DMat3, DMat4, Mat3, Mat4};
     use crate::{Matrix3, Matrix4, Similarity2, Similarity3};
-    use glam::{DMat3, DMat4, Mat3, Mat4};
 
     impl From<Mat3> for Similarity2<f32> {
         fn from(mat3: Mat3) -> Similarity2<f32> {

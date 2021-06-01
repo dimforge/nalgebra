@@ -1,5 +1,5 @@
+use super::glam::{DQuat, Quat};
 use crate::{Quaternion, UnitQuaternion};
-use glam::{DQuat, Quat};
 
 impl From<Quat> for Quaternion<f32> {
     #[inline]
@@ -45,8 +45,8 @@ impl From<UnitQuaternion<f64>> for DQuat {
 
 #[cfg(feature = "convert-glam-unchecked")]
 mod unchecked {
+    use super::super::glam::{DQuat, Quat};
     use crate::{Quaternion, UnitQuaternion};
-    use glam::{DQuat, Quat};
 
     impl From<Quat> for UnitQuaternion<f32> {
         #[inline]

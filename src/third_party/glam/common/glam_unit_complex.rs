@@ -1,5 +1,5 @@
+use super::glam::{DMat2, Mat2};
 use crate::UnitComplex;
-use glam::{DMat2, Mat2};
 
 impl From<UnitComplex<f32>> for Mat2 {
     #[inline]
@@ -17,8 +17,8 @@ impl From<UnitComplex<f64>> for DMat2 {
 
 #[cfg(feature = "convert-glam-unchecked")]
 mod unchecked {
+    use super::super::glam::{DMat2, Mat2};
     use crate::{Rotation2, UnitComplex};
-    use glam::{DMat2, Mat2};
 
     impl From<Mat2> for UnitComplex<f32> {
         #[inline]

@@ -1,8 +1,6 @@
-mod glam_isometry;
-mod glam_matrix;
-mod glam_point;
-mod glam_quaternion;
-mod glam_rotation;
-mod glam_similarity;
-mod glam_translation;
-mod glam_unit_complex;
+#[cfg(feature = "glam013")]
+mod v013;
+#[cfg(feature = "glam014")]
+mod v014;
+#[cfg(feature = "glam015")]
+mod v015;

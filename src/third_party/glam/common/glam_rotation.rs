@@ -1,5 +1,5 @@
+use super::glam::{DMat2, DQuat, Mat2, Quat};
 use crate::{Rotation2, Rotation3, UnitQuaternion};
-use glam::{DMat2, DQuat, Mat2, Quat};
 
 impl From<Rotation2<f32>> for Mat2 {
     #[inline]
@@ -31,8 +31,8 @@ impl From<Rotation3<f64>> for DQuat {
 
 #[cfg(feature = "convert-glam-unchecked")]
 mod unchecked {
+    use super::super::glam::{DMat2, DQuat, Mat2, Quat};
     use crate::{Rotation2, Rotation3, UnitQuaternion};
-    use glam::{DMat2, DQuat, Mat2, Quat};
 
     impl From<Mat2> for Rotation2<f32> {
         #[inline]

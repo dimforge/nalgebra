@@ -1,5 +1,5 @@
+use super::glam::{DMat3, DMat4, DQuat, DVec3, Mat3, Mat4, Quat, Vec3};
 use crate::{Isometry2, Isometry3};
-use glam::{DMat3, DMat4, DQuat, DVec3, Mat3, Mat4, Quat, Vec3};
 
 impl From<Isometry2<f32>> for Mat3 {
     fn from(iso: Isometry2<f32>) -> Mat3 {
@@ -53,8 +53,8 @@ impl From<Isometry2<f64>> for (DVec3, DQuat) {
 
 #[cfg(feature = "convert-glam-unchecked")]
 mod unchecked {
+    use super::super::glam::{DMat3, DMat4, DQuat, DVec2, DVec3, Mat3, Mat4, Quat, Vec2, Vec3};
     use crate::{Isometry2, Isometry3, Matrix3, Matrix4};
-    use glam::{DMat3, DMat4, DQuat, DVec2, DVec3, Mat3, Mat4, Quat, Vec2, Vec3};
 
     impl From<(Vec3, Quat)> for Isometry3<f32> {
         fn from((tra, rot): (Vec3, Quat)) -> Self {
@@ -89,6 +89,78 @@ mod unchecked {
     impl From<(DVec2, DQuat)> for Isometry2<f64> {
         fn from((tra, rot): (DVec2, DQuat)) -> Self {
             Isometry2::new([tra.x, tra.y].into(), rot.to_axis_angle().1)
+        }
+    }
+
+    impl From<(Vec2, f32)> for Isometry2<f32> {
+        fn from((tra, rot): (Vec2, f32)) -> Self {
+            Isometry2::new([tra.x, tra.y].into(), rot)
+        }
+    }
+
+    impl From<(DVec2, f64)> for Isometry2<f64> {
+        fn from((tra, rot): (DVec2, f64)) -> Self {
+            Isometry2::new([tra.x, tra.y].into(), rot)
+        }
+    }
+
+    impl From<Quat> for Isometry3<f32> {
+        fn from(rot: Quat) -> Self {
+            Isometry3::from_parts(crate::one(), rot.into())
+        }
+    }
+
+    impl From<DQuat> for Isometry3<f64> {
+        fn from(rot: DQuat) -> Self {
+            Isometry3::from_parts(crate::one(), rot.into())
+        }
+    }
+
+    impl From<Quat> for Isometry2<f32> {
+        fn from(rot: Quat) -> Self {
+            Isometry2::new(crate::zero(), rot.to_axis_angle().1)
+        }
+    }
+
+    impl From<DQuat> for Isometry2<f64> {
+        fn from(rot: DQuat) -> Self {
+            Isometry2::new(crate::zero(), rot.to_axis_angle().1)
+        }
+    }
+
+    impl From<Vec3> for Isometry3<f32> {
+        fn from(tra: Vec3) -> Self {
+            Isometry3::from_parts(tra.into(), crate::one())
+        }
+    }
+
+    impl From<DVec3> for Isometry3<f64> {
+        fn from(tra: DVec3) -> Self {
+            Isometry3::from_parts(tra.into(), crate::one())
+        }
+    }
+
+    impl From<Vec2> for Isometry2<f32> {
+        fn from(tra: Vec2) -> Self {
+            Isometry2::new(tra.into(), crate::one())
+        }
+    }
+
+    impl From<DVec2> for Isometry2<f64> {
+        fn from(tra: DVec2) -> Self {
+            Isometry2::new(tra.into(), crate::one())
+        }
+    }
+
+    impl From<Vec3> for Isometry2<f32> {
+        fn from(tra: Vec3) -> Self {
+            Isometry2::new([tra.x, tra.y].into(), crate::one())
+        }
+    }
+
+    impl From<DVec3> for Isometry2<f64> {
+        fn from(tra: DVec3) -> Self {
+            Isometry2::new([tra.x, tra.y].into(), crate::one())
         }
     }
 
