@@ -1,5 +1,5 @@
+use super::glam::{DVec2, DVec3, DVec4, Vec2, Vec3, Vec3A, Vec4};
 use crate::{Translation2, Translation3, Translation4};
-use glam::{DVec2, DVec3, DVec4, Vec2, Vec3, Vec3A, Vec4};
 
 macro_rules! impl_translation_conversion(
     ($N: ty, $Vec2: ty, $Vec3: ty, $Vec4: ty) => {

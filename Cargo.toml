@@ -36,9 +36,10 @@ macros = [ "nalgebra-macros" ]
 
 # Conversion
 convert-mint = [ "mint" ]
-convert-glam = [ "glam" ]
-convert-glam-unchecked = [ "convert-glam" ] # Enable edgy conversions like Mat4 -> Isometry3
 convert-bytemuck = [ "bytemuck" ]
+convert-glam013 = [ "glam013" ]
+convert-glam014 = [ "glam014" ]
+convert-glam015 = [ "glam015" ]
 
 # Serialization
 ## To use serde in a #[no-std] environment, enable the
@@ -78,13 +79,16 @@ serde          = { version = "1.0", default-features = false, features = [ "deri
 abomonation    = { version = "0.7", optional = true }
 rkyv           = { version = "~0.6.4", default-features = false, features = ["const_generics"], optional = true }
 mint           = { version = "0.5", optional = true }
-glam           = { version = "0.13", optional = true }
 quickcheck     = { version = "1", optional = true }
 pest           = { version = "2", optional = true }
 pest_derive    = { version = "2", optional = true }
 bytemuck       = { version = "1.5", optional = true }
 matrixcompare-core = { version = "0.1", optional = true }
 proptest           = { version = "1", optional = true, default-features = false, features = ["std"] }
+glam013        = { package = "glam", version = "0.13", optional = true }
+glam014        = { package = "glam", version = "0.14", optional = true }
+glam015        = { package = "glam", version = "0.15", optional = true }
+
 
 [dev-dependencies]
 serde_json = "1.0"
