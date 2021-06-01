@@ -43,22 +43,16 @@ impl From<UnitQuaternion<f64>> for DQuat {
     }
 }
 
-#[cfg(feature = "convert-glam-unchecked")]
-mod unchecked {
-    use super::super::glam::{DQuat, Quat};
-    use crate::{Quaternion, UnitQuaternion};
-
-    impl From<Quat> for UnitQuaternion<f32> {
-        #[inline]
-        fn from(e: Quat) -> UnitQuaternion<f32> {
-            UnitQuaternion::new_unchecked(Quaternion::from(e))
-        }
+impl From<Quat> for UnitQuaternion<f32> {
+    #[inline]
+    fn from(e: Quat) -> UnitQuaternion<f32> {
+        UnitQuaternion::new_normalize(Quaternion::from(e))
     }
+}
 
-    impl From<DQuat> for UnitQuaternion<f64> {
-        #[inline]
-        fn from(e: DQuat) -> UnitQuaternion<f64> {
-            UnitQuaternion::new_unchecked(Quaternion::from(e))
-        }
+impl From<DQuat> for UnitQuaternion<f64> {
+    #[inline]
+    fn from(e: DQuat) -> UnitQuaternion<f64> {
+        UnitQuaternion::new_normalize(Quaternion::from(e))
     }
 }

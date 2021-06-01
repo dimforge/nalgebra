@@ -1,5 +1,6 @@
 use super::glam::{DMat3, DMat4, Mat3, Mat4};
-use crate::{Similarity2, Similarity3};
+use crate::{Matrix3, Matrix4, Similarity2, Similarity3};
+use std::convert::TryFrom;
 
 impl From<Similarity2<f32>> for Mat3 {
     fn from(iso: Similarity2<f32>) -> Mat3 {
@@ -23,32 +24,30 @@ impl From<Similarity3<f64>> for DMat4 {
     }
 }
 
-#[cfg(feature = "convert-glam-unchecked")]
-mod unchecked {
-    use super::super::glam::{DMat3, DMat4, Mat3, Mat4};
-    use crate::{Matrix3, Matrix4, Similarity2, Similarity3};
-
-    impl From<Mat3> for Similarity2<f32> {
-        fn from(mat3: Mat3) -> Similarity2<f32> {
-            crate::convert_unchecked(Matrix3::from(mat3))
-        }
+impl TryFrom<Mat3> for Similarity2<f32> {
+    type Error = ();
+    fn try_from(mat3: Mat3) -> Result<Similarity2<f32>, ()> {
+        crate::try_convert(Matrix3::from(mat3)).ok_or(())
     }
+}
 
-    impl From<Mat4> for Similarity3<f32> {
-        fn from(mat4: Mat4) -> Similarity3<f32> {
-            crate::convert_unchecked(Matrix4::from(mat4))
-        }
+impl TryFrom<Mat4> for Similarity3<f32> {
+    type Error = ();
+    fn try_from(mat4: Mat4) -> Result<Similarity3<f32>, ()> {
+        crate::try_convert(Matrix4::from(mat4)).ok_or(())
     }
+}
 
-    impl From<DMat3> for Similarity2<f64> {
-        fn from(mat3: DMat3) -> Similarity2<f64> {
-            crate::convert_unchecked(Matrix3::from(mat3))
-        }
+impl TryFrom<DMat3> for Similarity2<f64> {
+    type Error = ();
+    fn try_from(mat3: DMat3) -> Result<Similarity2<f64>, ()> {
+        crate::try_convert(Matrix3::from(mat3)).ok_or(())
     }
+}
 
-    impl From<DMat4> for Similarity3<f64> {
-        fn from(mat4: DMat4) -> Similarity3<f64> {
-            crate::convert_unchecked(Matrix4::from(mat4))
-        }
+impl TryFrom<DMat4> for Similarity3<f64> {
+    type Error = ();
+    fn try_from(mat4: DMat4) -> Result<Similarity3<f64>, ()> {
+        crate::try_convert(Matrix4::from(mat4)).ok_or(())
     }
 }

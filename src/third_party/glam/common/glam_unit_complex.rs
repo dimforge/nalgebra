@@ -1,5 +1,5 @@
 use super::glam::{DMat2, Mat2};
-use crate::UnitComplex;
+use crate::{Complex, Rotation2, UnitComplex};
 
 impl From<UnitComplex<f32>> for Mat2 {
     #[inline]
@@ -15,22 +15,16 @@ impl From<UnitComplex<f64>> for DMat2 {
     }
 }
 
-#[cfg(feature = "convert-glam-unchecked")]
-mod unchecked {
-    use super::super::glam::{DMat2, Mat2};
-    use crate::{Rotation2, UnitComplex};
-
-    impl From<Mat2> for UnitComplex<f32> {
-        #[inline]
-        fn from(e: Mat2) -> UnitComplex<f32> {
-            Rotation2::from_matrix_unchecked(e.into()).into()
-        }
+impl From<Mat2> for UnitComplex<f32> {
+    #[inline]
+    fn from(e: Mat2) -> UnitComplex<f32> {
+        UnitComplex::new_normalize(Complex::new(e.x_axis.x, e.x_axis.y))
     }
+}
 
-    impl From<DMat2> for UnitComplex<f64> {
-        #[inline]
-        fn from(e: DMat2) -> UnitComplex<f64> {
-            Rotation2::from_matrix_unchecked(e.into()).into()
-        }
+impl From<DMat2> for UnitComplex<f64> {
+    #[inline]
+    fn from(e: DMat2) -> UnitComplex<f64> {
+        UnitComplex::new_normalize(Complex::new(e.x_axis.x, e.x_axis.y))
     }
 }

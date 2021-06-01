@@ -38,11 +38,8 @@ macros = [ "nalgebra-macros" ]
 convert-mint = [ "mint" ]
 convert-bytemuck = [ "bytemuck" ]
 convert-glam013 = [ "glam013" ]
-convert-glam013-unchecked = [ "convert-glam013" ] # Enable edgy conversions like Mat4 -> Isometry3
 convert-glam014 = [ "glam014" ]
-convert-glam014-unchecked = [ "convert-glam014" ] # Enable edgy conversions like Mat4 -> Isometry3
 convert-glam015 = [ "glam015" ]
-convert-glam015-unchecked = [ "convert-glam015" ] # Enable edgy conversions like Mat4 -> Isometry3
 
 # Serialization
 ## To use serde in a #[no-std] environment, enable the
