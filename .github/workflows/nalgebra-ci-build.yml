@@ -69,6 +69,12 @@ jobs:
       - name: test nalgebra-sparse (slow tests)
         # Unfortunately, the "slow-tests" take so much time that we need to run them with --release
         run: PROPTEST_CASES=10000 cargo test --release --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support,slow-tests slow
+  test-nalgebra-macros:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: test nalgebra-macros
+        run: cargo test -p nalgebra-macros
   build-wasm:
     runs-on: ubuntu-latest
 #    env:

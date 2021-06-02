@@ -1,7 +1,12 @@
-#[cfg(not(all(feature = "debug", feature = "compare", feature = "rand")))]
+#[cfg(not(all(
+    feature = "debug",
+    feature = "compare",
+    feature = "rand",
+    feature = "macros"
+)))]
 compile_error!(
-    "Please enable the `debug`, `compare`, and `rand` features in order to compile and run the tests.
-     Example: `cargo test --features debug,compare,rand`"
+    "Please enable the `debug`, `compare`, `rand` and `macros` features in order to compile and run the tests.
+     Example: `cargo test --features debug,compare,rand,macros`"
 );
 
 #[cfg(feature = "abomonation-serialize")]

@@ -29,7 +29,10 @@ use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
 };
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector, Scalar, Unit};
-use crate::SimdComplexField;
+use crate::{ArrayStorage, SMatrix, SimdComplexField};
+
+#[cfg(any(feature = "std", feature = "alloc"))]
+use crate::{DMatrix, DVector, Dynamic, VecStorage};
 
 /// A square matrix.
 pub type SquareMatrix<T, D, S> = Matrix<T, D, D, S>;
@@ -305,6 +308,53 @@ where
 {
 }
 
+#[cfg(feature = "rkyv-serialize-no-std")]
+mod rkyv_impl {
+    use super::Matrix;
+    use core::marker::PhantomData;
+    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
+
+    impl<T: Archive, R: Archive, C: Archive, S: Archive> Archive for Matrix<T, R, C, S> {
+        type Archived = Matrix<T::Archived, R::Archived, C::Archived, S::Archived>;
+        type Resolver = S::Resolver;
+
+        fn resolve(
+            &self,
+            pos: usize,
+            resolver: Self::Resolver,
+            out: &mut core::mem::MaybeUninit<Self::Archived>,
+        ) {
+            self.data.resolve(
+                pos + offset_of!(Self::Archived, data),
+                resolver,
+                project_struct!(out: Self::Archived => data),
+            );
+        }
+    }
+
+    impl<T: Archive, R: Archive, C: Archive, S: Serialize<_S>, _S: Fallible + ?Sized> Serialize<_S>
+        for Matrix<T, R, C, S>
+    {
+        fn serialize(&self, serializer: &mut _S) -> Result<Self::Resolver, _S::Error> {
+            Ok(self.data.serialize(serializer)?)
+        }
+    }
+
+    impl<T: Archive, R: Archive, C: Archive, S: Archive, D: Fallible + ?Sized>
+        Deserialize<Matrix<T, R, C, S>, D>
+        for Matrix<T::Archived, R::Archived, C::Archived, S::Archived>
+    where
+        S::Archived: Deserialize<S, D>,
+    {
+        fn deserialize(&self, deserializer: &mut D) -> Result<Matrix<T, R, C, S>, D::Error> {
+            Ok(Matrix {
+                data: self.data.deserialize(deserializer)?,
+                _phantoms: PhantomData,
+            })
+        }
+    }
+}
+
 impl<T, R, C, S> Matrix<T, R, C, S> {
     /// Creates a new matrix with the given data without statically checking that the matrix
     /// dimension matches the storage dimension.
@@ -314,6 +364,49 @@ impl<T, R, C, S> Matrix<T, R, C, S> {
             data,
             _phantoms: PhantomData,
         }
+    }
+}
+
+impl<T, const R: usize, const C: usize> SMatrix<T, R, C> {
+    /// Creates a new statically-allocated matrix from the given [ArrayStorage].
+    ///
+    /// This method exists primarily as a workaround for the fact that `from_data` can not
+    /// work in `const fn` contexts.
+    #[inline(always)]
+    pub const fn from_array_storage(storage: ArrayStorage<T, R, C>) -> Self {
+        // This is sound because the row and column types are exactly the same as that of the
+        // storage, so there can be no mismatch
+        unsafe { Self::from_data_statically_unchecked(storage) }
+    }
+}
+
+// TODO: Consider removing/deprecating `from_vec_storage` once we are able to make
+// `from_data` const fn compatible
+#[cfg(any(feature = "std", feature = "alloc"))]
+impl<T> DMatrix<T> {
+    /// Creates a new heap-allocated matrix from the given [VecStorage].
+    ///
+    /// This method exists primarily as a workaround for the fact that `from_data` can not
+    /// work in `const fn` contexts.
+    pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, Dynamic>) -> Self {
+        // This is sound because the dimensions of the matrix and the storage are guaranteed
+        // to be the same
+        unsafe { Self::from_data_statically_unchecked(storage) }
+    }
+}
+
+// TODO: Consider removing/deprecating `from_vec_storage` once we are able to make
+// `from_data` const fn compatible
+#[cfg(any(feature = "std", feature = "alloc"))]
+impl<T> DVector<T> {
+    /// Creates a new heap-allocated matrix from the given [VecStorage].
+    ///
+    /// This method exists primarily as a workaround for the fact that `from_data` can not
+    /// work in `const fn` contexts.
+    pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, U1>) -> Self {
+        // This is sound because the dimensions of the matrix and the storage are guaranteed
+        // to be the same
+        unsafe { Self::from_data_statically_unchecked(storage) }
     }
 }
 

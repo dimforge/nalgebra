@@ -4,9 +4,38 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.27.0]
+This removes the `convert-glam` and `convert-glam-unchecked` optional features.
+Instead, this adds the `convert-glam013`, `convert-glam014`, and `convert-glam015` optional features for
+conversions targeting the versions 0.13, 0.14, and 0.15 of `glam`.
+
+### Added
+- Add macros `matrix!`, `dmatrix!`, `vector!`, `dvector!`, `point!` for constructing matrices/vectors/points in a
+  more convenient way. See [#886](https://github.com/dimforge/nalgebra/pull/886) and [#899](https://github.com/dimforge/nalgebra/pull/899).
+- Add `CooMatrix::reserve` to `nalgebra-sparse`.  
+- Add basic support for serialization using `rkyv`. Can be enabled with the features `rkyv-serialize` or
+  `rkyv-serialize-no-std`.
+
+
+### Fixed
+- Fixed a potential unsoundness issue after deserializing an invalid `DVector` using `serde`.
+
+## [0.26.2]
+### Added
+- Conversion from an array `[T; D]` to an isometry `Isometry<T, _, D>` (as a translation).
+- Conversion from a static vector `SVector<T; D>` to an isometry `Isometry<T, _, D>` (as a translation).
+- Conversion from a point `Point<T; D>` to an isometry `Isometry<T, _, D>` (as a translation).
+- Conversion of an array `[T; D]` from/to a translation `Translation<T, D>`.
+- Conversion of a point `Point<T, D>` to a translation `Translation<T, D>`.
+- Conversion of the tuple of glam types `(Vec3, Quat)` from/to an `Isometry2` or `Isometry3`.
+- Conversion of a glam type `Vec2/3/4` from/to a `Translation2/3/4`.
+
+## [0.26.1]
+Fix a regression introduced in 0.26.0 preventing `DVector` from being serialized with `serde`.
+
 ## [0.26.0]
 This releases integrates `min-const-generics` to nalgebra. See
-[our blog post](https://dimforge.com/blog/2021/04/12/nalgebra-const-generics)
+[our blog post](https://www.dimforge.com/blog/2021/04/12/integrating-const-generics-to-nalgebra)
 for details about this release.
 
 ### Added

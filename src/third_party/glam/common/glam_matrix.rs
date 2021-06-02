@@ -1,9 +1,9 @@
-use crate::storage::Storage;
-use crate::{Matrix, Matrix2, Matrix3, Matrix4, Vector, Vector2, Vector3, Vector4, U2, U3, U4};
-use glam::{
+use super::glam::{
     BVec2, BVec3, BVec4, DMat2, DMat3, DMat4, DVec2, DVec3, DVec4, IVec2, IVec3, IVec4, Mat2, Mat3,
     Mat4, UVec2, UVec3, UVec4, Vec2, Vec3, Vec3A, Vec4,
 };
+use crate::storage::Storage;
+use crate::{Matrix, Matrix2, Matrix3, Matrix4, Vector, Vector2, Vector3, Vector4, U2, U3, U4};
 
 macro_rules! impl_vec_conversion(
     ($N: ty, $Vec2: ty, $Vec3: ty, $Vec4: ty) => {

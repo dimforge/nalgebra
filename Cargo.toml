@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.26.0"
+version = "0.27.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "General-purpose linear algebra library with transformations and statically-sized or dynamically-sized matrices."
@@ -22,7 +22,7 @@ name = "nalgebra"
 path = "src/lib.rs"
 
 [features]
-default = [ "std" ]
+default = [ "std", "macros" ]
 std     = [ "matrixmultiply", "simba/std" ]
 sparse  = [ ]
 debug   = [ "approx/num-complex", "rand" ]
@@ -32,12 +32,14 @@ compare = [ "matrixcompare-core" ]
 libm    = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 no_unsound_assume_init = [ ]
+macros = [ "nalgebra-macros" ]
 
 # Conversion
 convert-mint = [ "mint" ]
-convert-glam = [ "glam" ]
-convert-glam-unchecked = [ "convert-glam" ] # Enable edgy conversions like Mat4 -> Isometry3
 convert-bytemuck = [ "bytemuck" ]
+convert-glam013 = [ "glam013" ]
+convert-glam014 = [ "glam014" ]
+convert-glam015 = [ "glam015" ]
 
 # Serialization
 ## To use serde in a #[no-std] environment, enable the
@@ -47,6 +49,8 @@ convert-bytemuck = [ "bytemuck" ]
 serde-serialize-no-std = [ "serde", "num-complex/serde" ]
 serde-serialize        = [ "serde-serialize-no-std", "serde/std" ]
 abomonation-serialize  = [ "abomonation" ]
+rkyv-serialize-no-std  = [ "rkyv" ]
+rkyv-serialize         = [ "rkyv-serialize-no-std", "rkyv/std" ]
 
 # Randomness
 ## To use rand in a #[no-std] environment, enable the
@@ -60,39 +64,44 @@ proptest-support = [ "proptest" ]
 slow-tests       = []
 
 [dependencies]
+nalgebra-macros = { version = "0.1", path = "nalgebra-macros", optional = true }
 typenum        = "1.12"
 rand-package   = { package = "rand", version = "0.8", optional = true, default-features = false }
 num-traits     = { version = "0.2", default-features = false }
-num-complex    = { version = "0.3", default-features = false }
-num-rational   = { version = "0.3", default-features = false }
-approx         = { version = "0.4", default-features = false }
-simba          = { version = "0.4", default-features = false }
+num-complex    = { version = "0.4", default-features = false }
+num-rational   = { version = "0.4", default-features = false }
+approx         = { version = "0.5", default-features = false }
+simba          = { version = "0.5", default-features = false }
 alga           = { version = "0.9", default-features = false, optional = true }
 rand_distr     = { version = "0.4", default-features = false, optional = true }
 matrixmultiply = { version = "0.3", optional = true }
 serde          = { version = "1.0", default-features = false, features = [ "derive" ], optional = true }
 abomonation    = { version = "0.7", optional = true }
+rkyv           = { version = "~0.6.4", default-features = false, features = ["const_generics"], optional = true }
 mint           = { version = "0.5", optional = true }
-glam           = { version = "0.13", optional = true }
 quickcheck     = { version = "1", optional = true }
 pest           = { version = "2", optional = true }
 pest_derive    = { version = "2", optional = true }
 bytemuck       = { version = "1.5", optional = true }
 matrixcompare-core = { version = "0.1", optional = true }
-proptest = { version = "1", optional = true, default-features = false, features = ["std"] }
+proptest           = { version = "1", optional = true, default-features = false, features = ["std"] }
+glam013        = { package = "glam", version = "0.13", optional = true }
+glam014        = { package = "glam", version = "0.14", optional = true }
+glam015        = { package = "glam", version = "0.15", optional = true }
+
 
 [dev-dependencies]
 serde_json = "1.0"
 rand_xorshift = "0.3"
 rand_isaac = "0.3"
-criterion = "0.2.10"
+criterion = { version = "0.3", features = ["html_reports"] }
 
 # For matrix comparison macro
-matrixcompare = "0.2.0"
+matrixcompare = "0.3.0"
 itertools = "0.10"
 
 [workspace]
-members = [ "nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse" ]
+members = [ "nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse", "nalgebra-macros" ]
 resolver = "2"
 
 [[example]]
@@ -103,10 +112,11 @@ required-features = ["compare"]
 name = "nalgebra_bench"
 harness = false
 path = "benches/lib.rs"
+required-features = ["rand"]
 
 [profile.bench]
 lto = true
 
 [package.metadata.docs.rs]
 # Enable certain features when building docs for docs.rs
-features = [ "proptest-support", "compare" ]
+features = [ "proptest-support", "compare", "macros" ]

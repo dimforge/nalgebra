@@ -3,7 +3,6 @@ use alloc::vec::Vec;
 use simba::scalar::{SubsetOf, SupersetOf};
 use std::convert::{AsMut, AsRef, From, Into};
 use std::mem;
-use std::ptr;
 
 use simba::simd::{PrimitiveSimdValue, SimdValue};
 
@@ -24,8 +23,9 @@ use crate::base::{
 use crate::base::{DVector, VecStorage};
 use crate::base::{SliceStorage, SliceStorageMut};
 use crate::constraint::DimEq;
+use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector};
 
-// TODO: too bad this won't work allo slice conversions.
+// TODO: too bad this won't work for slice conversions.
 impl<T1, T2, R1, C1, R2, C2> SubsetOf<OMatrix<T2, R2, C2>> for OMatrix<T1, R1, C1>
 where
     R1: Dim,
@@ -103,35 +103,43 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> IntoIterator
     }
 }
 
+impl<T: Scalar, const D: usize> From<[T; D]> for SVector<T, D> {
+    #[inline]
+    fn from(arr: [T; D]) -> Self {
+        unsafe { Self::from_data_statically_unchecked(ArrayStorage([arr; 1])) }
+    }
+}
+
+impl<T: Scalar, const D: usize> Into<[T; D]> for SVector<T, D> {
+    #[inline]
+    fn into(self) -> [T; D] {
+        // TODO: unfortunately, we must clone because we can move out of an array.
+        self.data.0[0].clone()
+    }
+}
+
+impl<T: Scalar, const D: usize> From<[T; D]> for RowSVector<T, D>
+where
+    Const<D>: IsNotStaticOne,
+{
+    #[inline]
+    fn from(arr: [T; D]) -> Self {
+        SVector::<T, D>::from(arr).transpose()
+    }
+}
+
+impl<T: Scalar, const D: usize> Into<[T; D]> for RowSVector<T, D>
+where
+    Const<D>: IsNotStaticOne,
+{
+    #[inline]
+    fn into(self) -> [T; D] {
+        self.transpose().into()
+    }
+}
+
 macro_rules! impl_from_into_asref_1D(
     ($(($NRows: ident, $NCols: ident) => $SZ: expr);* $(;)*) => {$(
-        impl<T> From<[T; $SZ]> for OMatrix<T, $NRows, $NCols>
-        where T: Scalar,
-              DefaultAllocator: Allocator<T, $NRows, $NCols> {
-            #[inline]
-            fn from(arr: [T; $SZ]) -> Self {
-                unsafe {
-                    let mut res = Self::new_uninitialized();
-                    ptr::copy_nonoverlapping(&arr[0], (*res.as_mut_ptr()).data.ptr_mut(), $SZ);
-
-                    res.assume_init()
-                }
-            }
-        }
-
-        impl<T, S> Into<[T; $SZ]> for Matrix<T, $NRows, $NCols, S>
-        where T: Scalar,
-              S: ContiguousStorage<T, $NRows, $NCols> {
-            #[inline]
-            fn into(self) -> [T; $SZ] {
-                let mut res = mem::MaybeUninit::<[T; $SZ]>::uninit();
-
-                unsafe { ptr::copy_nonoverlapping(self.data.ptr(), res.as_mut_ptr() as *mut T, $SZ) };
-
-                unsafe { res.assume_init() }
-            }
-        }
-
         impl<T, S> AsRef<[T; $SZ]> for Matrix<T, $NRows, $NCols, S>
         where T: Scalar,
               S: ContiguousStorage<T, $NRows, $NCols> {
@@ -171,33 +179,22 @@ impl_from_into_asref_1D!(
     (U13, U1) => 13; (U14, U1) => 14; (U15, U1) => 15; (U16, U1) => 16;
 );
 
+impl<T: Scalar, const R: usize, const C: usize> From<[[T; R]; C]> for SMatrix<T, R, C> {
+    #[inline]
+    fn from(arr: [[T; R]; C]) -> Self {
+        unsafe { Self::from_data_statically_unchecked(ArrayStorage(arr)) }
+    }
+}
+
+impl<T: Scalar, const R: usize, const C: usize> Into<[[T; R]; C]> for SMatrix<T, R, C> {
+    #[inline]
+    fn into(self) -> [[T; R]; C] {
+        self.data.0
+    }
+}
+
 macro_rules! impl_from_into_asref_2D(
     ($(($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr));* $(;)*) => {$(
-        impl<T: Scalar> From<[[T; $SZRows]; $SZCols]> for OMatrix<T, $NRows, $NCols>
-        where DefaultAllocator: Allocator<T, $NRows, $NCols> {
-            #[inline]
-            fn from(arr: [[T; $SZRows]; $SZCols]) -> Self {
-                unsafe {
-                    let mut res = Self::new_uninitialized();
-                    ptr::copy_nonoverlapping(&arr[0][0], (*res.as_mut_ptr()).data.ptr_mut(), $SZRows * $SZCols);
-
-                    res.assume_init()
-                }
-            }
-        }
-
-        impl<T: Scalar, S> Into<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
-        where S: ContiguousStorage<T, $NRows, $NCols> {
-            #[inline]
-            fn into(self) -> [[T; $SZRows]; $SZCols] {
-                let mut res = mem::MaybeUninit::<[[T; $SZRows]; $SZCols]>::uninit();
-
-                unsafe { ptr::copy_nonoverlapping(self.data.ptr(), res.as_mut_ptr() as *mut T, $SZRows * $SZCols) };
-
-                unsafe { res.assume_init() }
-            }
-        }
-
         impl<T: Scalar, S> AsRef<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
         where S: ContiguousStorage<T, $NRows, $NCols> {
             #[inline]

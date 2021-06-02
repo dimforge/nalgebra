@@ -113,6 +113,48 @@ where
     }
 }
 
+#[cfg(feature = "rkyv-serialize-no-std")]
+mod rkyv_impl {
+    use super::Quaternion;
+    use crate::base::Vector4;
+    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
+
+    impl<T: Archive> Archive for Quaternion<T> {
+        type Archived = Quaternion<T::Archived>;
+        type Resolver = <Vector4<T> as Archive>::Resolver;
+
+        fn resolve(
+            &self,
+            pos: usize,
+            resolver: Self::Resolver,
+            out: &mut core::mem::MaybeUninit<Self::Archived>,
+        ) {
+            self.coords.resolve(
+                pos + offset_of!(Self::Archived, coords),
+                resolver,
+                project_struct!(out: Self::Archived => coords),
+            );
+        }
+    }
+
+    impl<T: Serialize<S>, S: Fallible + ?Sized> Serialize<S> for Quaternion<T> {
+        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
+            Ok(self.coords.serialize(serializer)?)
+        }
+    }
+
+    impl<T: Archive, D: Fallible + ?Sized> Deserialize<Quaternion<T>, D> for Quaternion<T::Archived>
+    where
+        T::Archived: Deserialize<T, D>,
+    {
+        fn deserialize(&self, deserializer: &mut D) -> Result<Quaternion<T>, D::Error> {
+            Ok(Quaternion {
+                coords: self.coords.deserialize(deserializer)?,
+            })
+        }
+    }
+}
+
 impl<T: SimdRealField> Quaternion<T>
 where
     T::Element: SimdRealField,

@@ -299,3 +299,45 @@ where
         self.as_slice().iter().fold(0, |acc, e| acc + e.extent())
     }
 }
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+mod rkyv_impl {
+    use super::ArrayStorage;
+    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
+
+    impl<T: Archive, const R: usize, const C: usize> Archive for ArrayStorage<T, R, C> {
+        type Archived = ArrayStorage<T::Archived, R, C>;
+        type Resolver = <[[T; R]; C] as Archive>::Resolver;
+
+        fn resolve(
+            &self,
+            pos: usize,
+            resolver: Self::Resolver,
+            out: &mut core::mem::MaybeUninit<Self::Archived>,
+        ) {
+            self.0.resolve(
+                pos + offset_of!(Self::Archived, 0),
+                resolver,
+                project_struct!(out: Self::Archived => 0),
+            );
+        }
+    }
+
+    impl<T: Serialize<S>, S: Fallible + ?Sized, const R: usize, const C: usize> Serialize<S>
+        for ArrayStorage<T, R, C>
+    {
+        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
+            Ok(self.0.serialize(serializer)?)
+        }
+    }
+
+    impl<T: Archive, D: Fallible + ?Sized, const R: usize, const C: usize>
+        Deserialize<ArrayStorage<T, R, C>, D> for ArrayStorage<T::Archived, R, C>
+    where
+        T::Archived: Deserialize<T, D>,
+    {
+        fn deserialize(&self, deserializer: &mut D) -> Result<ArrayStorage<T, R, C>, D::Error> {
+            Ok(ArrayStorage(self.0.deserialize(deserializer)?))
+        }
+    }
+}

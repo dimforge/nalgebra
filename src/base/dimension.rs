@@ -211,6 +211,57 @@ pub trait DimName: Dim {
     fn dim() -> usize;
 }
 
+#[cfg(feature = "serde-serialize-no-std")]
+impl<const D: usize> Serialize for Const<D> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        ().serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize-no-std")]
+impl<'de, const D: usize> Deserialize<'de> for Const<D> {
+    fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
+    where
+        Des: Deserializer<'de>,
+    {
+        <()>::deserialize(deserializer).map(|_| Const::<D>)
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+mod rkyv_impl {
+    use super::Const;
+    use rkyv::{Archive, Deserialize, Fallible, Serialize};
+
+    impl<const R: usize> Archive for Const<R> {
+        type Archived = Self;
+        type Resolver = ();
+
+        fn resolve(
+            &self,
+            _: usize,
+            _: Self::Resolver,
+            _: &mut core::mem::MaybeUninit<Self::Archived>,
+        ) {
+        }
+    }
+
+    impl<S: Fallible + ?Sized, const R: usize> Serialize<S> for Const<R> {
+        fn serialize(&self, _: &mut S) -> Result<Self::Resolver, S::Error> {
+            Ok(())
+        }
+    }
+
+    impl<D: Fallible + ?Sized, const R: usize> Deserialize<Self, D> for Const<R> {
+        fn deserialize(&self, _: &mut D) -> Result<Self, D::Error> {
+            Ok(Const)
+        }
+    }
+}
+
 pub trait ToConst {
     type Const: DimName;
 }
