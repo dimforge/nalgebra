@@ -1,5 +1,5 @@
 use super::glam::{DMat2, Mat2};
-use crate::{Complex, Rotation2, UnitComplex};
+use crate::{Complex, UnitComplex};
 
 impl From<UnitComplex<f32>> for Mat2 {
     #[inline]

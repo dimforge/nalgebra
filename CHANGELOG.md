@@ -4,6 +4,22 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.27.0]
+This removes the `convert-glam` and `convert-glam-unchecked` optional features.
+Instead, this adds the `convert-glam013`, `convert-glam014`, and `convert-glam015` optional features for
+conversions targeting the versions 0.13, 0.14, and 0.15 of `glam`.
+
+### Added
+- Add macros `matrix!`, `dmatrix!`, `vector!`, `dvector!`, `point!` for constructing matrices/vectors/points in a
+  more convenient way. See [#886](https://github.com/dimforge/nalgebra/pull/886) and [#899](https://github.com/dimforge/nalgebra/pull/899).
+- Add `CooMatrix::reserve` to `nalgebra-sparse`.  
+- Add basic support for serialization using `rkyv`. Can be enabled with the features `rkyv-serialize` or
+  `rkyv-serialize-no-std`.
+
+
+### Fixed
+- Fixed a potential unsoundness issue after deserializing an invalid `DVector` using `serde`.
+
 ## [0.26.2]
 ### Added
 - Conversion from an array `[T; D]` to an isometry `Isometry<T, _, D>` (as a translation).

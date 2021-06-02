@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.26.2"
+version = "0.27.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "General-purpose linear algebra library with transformations and statically-sized or dynamically-sized matrices."
@@ -68,10 +68,10 @@ nalgebra-macros = { version = "0.1", path = "nalgebra-macros", optional = true }
 typenum        = "1.12"
 rand-package   = { package = "rand", version = "0.8", optional = true, default-features = false }
 num-traits     = { version = "0.2", default-features = false }
-num-complex    = { version = "0.3", default-features = false }
-num-rational   = { version = "0.3", default-features = false }
-approx         = { version = "0.4", default-features = false }
-simba          = { version = "0.4", default-features = false }
+num-complex    = { version = "0.4", default-features = false }
+num-rational   = { version = "0.4", default-features = false }
+approx         = { version = "0.5", default-features = false }
+simba          = { version = "0.5", default-features = false }
 alga           = { version = "0.9", default-features = false, optional = true }
 rand_distr     = { version = "0.4", default-features = false, optional = true }
 matrixmultiply = { version = "0.3", optional = true }
