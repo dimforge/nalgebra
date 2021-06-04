@@ -4,6 +4,10 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.27.1]
+### Fixed
+- Fixed a bug in the conversion from `glam::Vec2` or `glam::DVec2` to `Isometry2`.
+
 ## [0.27.0]
 This removes the `convert-glam` and `convert-glam-unchecked` optional features.
 Instead, this adds the `convert-glam013`, `convert-glam014`, and `convert-glam015` optional features for
