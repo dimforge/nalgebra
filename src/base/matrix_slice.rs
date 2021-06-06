@@ -132,7 +132,7 @@ macro_rules! storage_impl(
             }
 
             #[inline]
-            fn is_contiguous(&self) -> bool {
+            unsafe fn is_contiguous(&self) -> bool {
                 // Common cases that can be deduced at compile-time even if one of the dimensions
                 // is Dynamic.
                 if (RStride::is::<U1>() && C::is::<U1>()) || // Column vector.
@@ -162,14 +162,14 @@ macro_rules! storage_impl(
             }
 
             #[inline]
-            fn as_slice(&self) -> &[T] {
+            unsafe fn as_slice_unchecked(&self) -> &[T] {
                 let (nrows, ncols) = self.shape();
                 if nrows.value() != 0 && ncols.value() != 0 {
                     let sz = self.linear_index(nrows.value() - 1, ncols.value() - 1);
-                    unsafe { slice::from_raw_parts(self.ptr, sz + 1) }
+                    slice::from_raw_parts(self.ptr, sz + 1)
                 }
                 else {
-                    unsafe { slice::from_raw_parts(self.ptr, 0) }
+                    slice::from_raw_parts(self.ptr, 0)
                 }
             }
         }
@@ -187,13 +187,13 @@ unsafe impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> StorageMu
     }
 
     #[inline]
-    fn as_mut_slice(&mut self) -> &mut [T] {
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
         let (nrows, ncols) = self.shape();
         if nrows.value() != 0 && ncols.value() != 0 {
             let sz = self.linear_index(nrows.value() - 1, ncols.value() - 1);
-            unsafe { slice::from_raw_parts_mut(self.ptr, sz + 1) }
+            slice::from_raw_parts_mut(self.ptr, sz + 1)
         } else {
-            unsafe { slice::from_raw_parts_mut(self.ptr, 0) }
+            slice::from_raw_parts_mut(self.ptr, 0)
         }
     }
 }

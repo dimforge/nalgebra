@@ -11,7 +11,7 @@ use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, Shap
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::dimension::Dynamic;
 use crate::base::dimension::{Const, Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimSub, DimSum, U1};
-use crate::base::storage::{ReshapableStorage, Storage, StorageMut};
+use crate::base::storage::{ContiguousStorageMut, ReshapableStorage, Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, OMatrix, RowVector, Scalar, Vector};
 
 /// # Rows and columns extraction

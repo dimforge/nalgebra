@@ -94,12 +94,19 @@ pub unsafe trait Storage<T: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
     }
 
     /// Indicates whether this data buffer stores its elements contiguously.
-    fn is_contiguous(&self) -> bool;
+    ///
+    /// This method is unsafe because unsafe code relies on this properties to performe
+    /// some low-lever optimizations.
+    unsafe fn is_contiguous(&self) -> bool;
 
     /// Retrieves the data buffer as a contiguous slice.
     ///
     /// The matrix components may not be stored in a contiguous way, depending on the strides.
-    fn as_slice(&self) -> &[T];
+    /// This method is unsafe because this can yield to invalid aliasing when called on some pairs
+    /// of matrix slices originating from the same matrix with strides.
+    ///
+    /// Call the safe alternative `matrix.as_slice()` instead.
+    unsafe fn as_slice_unchecked(&self) -> &[T];
 
     /// Builds a matrix data storage that does not contain any reference.
     fn into_owned(self) -> Owned<T, R, C>
@@ -165,8 +172,12 @@ pub unsafe trait StorageMut<T: Scalar, R: Dim, C: Dim = U1>: Storage<T, R, C> {
 
     /// Retrieves the mutable data buffer as a contiguous slice.
     ///
-    /// Matrix components may not be contiguous, depending on its strides.
-    fn as_mut_slice(&mut self) -> &mut [T];
+    /// Matrix components may not be contiguous, depending on its strides.    
+    ///
+    /// The matrix components may not be stored in a contiguous way, depending on the strides.
+    /// This method is unsafe because this can yield to invalid aliasing when called on some pairs
+    /// of matrix slices originating from the same matrix with strides.
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T];
 }
 
 /// A matrix storage that is stored contiguously in memory.
@@ -177,6 +188,12 @@ pub unsafe trait StorageMut<T: Scalar, R: Dim, C: Dim = U1>: Storage<T, R, C> {
 pub unsafe trait ContiguousStorage<T: Scalar, R: Dim, C: Dim = U1>:
     Storage<T, R, C>
 {
+    /// Converts this data storage to a contiguous slice.
+    fn as_slice(&self) -> &[T] {
+        // SAFETY: this is safe because this trait guarantees the fact
+        //         that the data is stored contiguously.
+        unsafe { self.as_slice_unchecked() }
+    }
 }
 
 /// A mutable matrix storage that is stored contiguously in memory.
@@ -187,6 +204,12 @@ pub unsafe trait ContiguousStorage<T: Scalar, R: Dim, C: Dim = U1>:
 pub unsafe trait ContiguousStorageMut<T: Scalar, R: Dim, C: Dim = U1>:
     ContiguousStorage<T, R, C> + StorageMut<T, R, C>
 {
+    /// Converts this data storage to a contiguous mutable slice.
+    fn as_mut_slice(&mut self) -> &mut [T] {
+        // SAFETY: this is safe because this trait guarantees the fact
+        //         that the data is stored contiguously.
+        unsafe { self.as_mut_slice_unchecked() }
+    }
 }
 
 /// A matrix storage that can be reshaped in-place.
