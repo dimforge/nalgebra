@@ -9,6 +9,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Returns a row vector where each element is the result of the application of `f` on the
     /// corresponding column of the original matrix.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn compress_rows(
         &self,
         f: impl Fn(VectorSlice<T, R, S::RStride, S::CStride>) -> T,
@@ -35,6 +36,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     ///
     /// This is the same as `self.compress_rows(f).transpose()`.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn compress_rows_tr(
         &self,
         f: impl Fn(VectorSlice<T, R, S::RStride, S::CStride>) -> T,
@@ -58,6 +60,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Returns a column vector resulting from the folding of `f` on each column of this matrix.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn compress_columns(
         &self,
         init: OVector<T, R>,
@@ -95,6 +98,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(m.sum(), 21.0);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn sum(&self) -> T
     where
         T: ClosedAdd + Zero,
@@ -120,6 +124,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(mint.row_sum(), RowVector2::new(9,12));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn row_sum(&self) -> RowOVector<T, C>
     where
         T: ClosedAdd + Zero,
@@ -144,6 +149,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(mint.row_sum_tr(), Vector2::new(9,12));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn row_sum_tr(&self) -> OVector<T, C>
     where
         T: ClosedAdd + Zero,
@@ -168,6 +174,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(mint.column_sum(), Vector3::new(3,7,11));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn column_sum(&self) -> OVector<T, R>
     where
         T: ClosedAdd + Zero,
@@ -197,6 +204,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_relative_eq!(m.variance(), 35.0 / 12.0, epsilon = 1.0e-8);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn variance(&self) -> T
     where
         T: Field + SupersetOf<f64>,
@@ -226,6 +234,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(m.row_variance(), RowVector3::new(2.25, 2.25, 2.25));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn row_variance(&self) -> RowOVector<T, C>
     where
         T: Field + SupersetOf<f64>,
@@ -246,6 +255,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(m.row_variance_tr(), Vector3::new(2.25, 2.25, 2.25));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn row_variance_tr(&self) -> OVector<T, C>
     where
         T: Field + SupersetOf<f64>,
@@ -267,6 +277,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_relative_eq!(m.column_variance(), Vector2::new(2.0 / 3.0, 2.0 / 3.0), epsilon = 1.0e-8);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn column_variance(&self) -> OVector<T, R>
     where
         T: Field + SupersetOf<f64>,
@@ -306,6 +317,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(m.mean(), 3.5);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn mean(&self) -> T
     where
         T: Field + SupersetOf<f64>,
@@ -331,6 +343,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(m.row_mean(), RowVector3::new(2.5, 3.5, 4.5));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn row_mean(&self) -> RowOVector<T, C>
     where
         T: Field + SupersetOf<f64>,
@@ -351,6 +364,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(m.row_mean_tr(), Vector3::new(2.5, 3.5, 4.5));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn row_mean_tr(&self) -> OVector<T, C>
     where
         T: Field + SupersetOf<f64>,
@@ -371,6 +385,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(m.column_mean(), Vector2::new(2.0, 5.0));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn column_mean(&self) -> OVector<T, R>
     where
         T: Field + SupersetOf<f64>,

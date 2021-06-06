@@ -13,6 +13,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(Vector3::new(-1.0, -2.0, -3.0).amax(), 3.0);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn amax(&self) -> T
     where
         T: Zero + SimdSigned + SimdPartialOrd,
@@ -33,6 +34,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     ///     Complex::new(1.0, 3.0)).camax(), 5.0);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn camax(&self) -> T::SimdRealField
     where
         T: SimdComplexField,
@@ -52,6 +54,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(Vector3::new(5u32, 2, 3).max(), 5);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn max(&self) -> T
     where
         T: SimdPartialOrd + Zero,
@@ -70,6 +73,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(Vector3::new(10.0, 2.0, 30.0).amin(), 2.0);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn amin(&self) -> T
     where
         T: Zero + SimdPartialOrd + SimdSigned,
@@ -90,6 +94,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     ///     Complex::new(1.0, 3.0)).camin(), 3.0);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn camin(&self) -> T::SimdRealField
     where
         T: SimdComplexField,
@@ -112,6 +117,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(Vector3::new(5u32, 2, 3).min(), 2);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn min(&self) -> T
     where
         T: SimdPartialOrd + Zero,
@@ -136,6 +142,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(mat.icamax_full(), (1, 0));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn icamax_full(&self) -> (usize, usize)
     where
         T: ComplexField,
@@ -172,6 +179,7 @@ impl<T: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<T, R, C>> Matri
     /// assert_eq!(mat.iamax_full(), (1, 2));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn iamax_full(&self) -> (usize, usize) {
         assert!(!self.is_empty(), "The input matrix must not be empty.");
 
@@ -209,6 +217,7 @@ impl<T: Scalar, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
     /// assert_eq!(vec.icamax(), 2);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn icamax(&self) -> usize
     where
         T: ComplexField,
@@ -240,6 +249,7 @@ impl<T: Scalar, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
     /// assert_eq!(vec.argmax(), (2, 13));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn argmax(&self) -> (usize, T)
     where
         T: PartialOrd,
@@ -271,6 +281,7 @@ impl<T: Scalar, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
     /// assert_eq!(vec.imax(), 2);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn imax(&self) -> usize
     where
         T: PartialOrd,
@@ -288,6 +299,7 @@ impl<T: Scalar, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
     /// assert_eq!(vec.iamax(), 1);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn iamax(&self) -> usize
     where
         T: PartialOrd + Signed,
@@ -319,6 +331,7 @@ impl<T: Scalar, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
     /// assert_eq!(vec.argmin(), (1, -15));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn argmin(&self) -> (usize, T)
     where
         T: PartialOrd,
@@ -350,6 +363,7 @@ impl<T: Scalar, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
     /// assert_eq!(vec.imin(), 1);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn imin(&self) -> usize
     where
         T: PartialOrd,
@@ -367,6 +381,7 @@ impl<T: Scalar, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
     /// assert_eq!(vec.iamin(), 0);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn iamin(&self) -> usize
     where
         T: PartialOrd + Signed,

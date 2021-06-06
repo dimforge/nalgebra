@@ -122,6 +122,7 @@ impl<T: Scalar, const D: usize> Point<T, D> {
     /// assert_eq!(p.map(|e| e as u32), Point3::new(1, 2, 3));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn map<T2: Scalar, F: FnMut(T) -> T2>(&self, f: F) -> Point<T2, D> {
         self.coords.map(f).into()
     }
@@ -161,6 +162,7 @@ impl<T: Scalar, const D: usize> Point<T, D> {
     /// assert_eq!(p.to_homogeneous(), Vector4::new(10.0, 20.0, 30.0, 1.0));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn to_homogeneous(&self) -> OVector<T, DimNameSum<Const<D>, U1>>
     where
         T: One,
@@ -199,6 +201,7 @@ impl<T: Scalar, const D: usize> Point<T, D> {
     /// assert_eq!(p.len(), 3);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn len(&self) -> usize {
         self.coords.len()
     }
@@ -212,6 +215,7 @@ impl<T: Scalar, const D: usize> Point<T, D> {
     /// assert!(!p.is_empty());
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
@@ -246,6 +250,7 @@ impl<T: Scalar, const D: usize> Point<T, D> {
 
     /// Gets a reference to i-th element of this point without bound-checking.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub unsafe fn get_unchecked(&self, i: usize) -> &T {
         self.coords.vget_unchecked(i)
     }
@@ -378,18 +383,21 @@ impl<T: Scalar + PartialOrd, const D: usize> PartialOrd for Point<T, D> {
 impl<T: Scalar + SimdPartialOrd, const D: usize> Point<T, D> {
     /// Computes the infimum (aka. componentwise min) of two points.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn inf(&self, other: &Self) -> Point<T, D> {
         self.coords.inf(&other.coords).into()
     }
 
     /// Computes the supremum (aka. componentwise max) of two points.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn sup(&self, other: &Self) -> Point<T, D> {
         self.coords.sup(&other.coords).into()
     }
 
     /// Computes the (infimum, supremum) of two points.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn inf_sup(&self, other: &Self) -> (Point<T, D>, Point<T, D>) {
         let (inf, sup) = self.coords.inf_sup(&other.coords);
         (inf.into(), sup.into())

@@ -12,6 +12,7 @@ impl<T: ComplexField, D: DimMin<D, Output = D>, S: Storage<T, D, D>> SquareMatri
     ///
     /// If the matrix has a dimension larger than 3, an LU decomposition is used.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn determinant(&self) -> T
     where
         DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), D>,

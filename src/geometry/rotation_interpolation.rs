@@ -18,6 +18,7 @@ impl<T: SimdRealField> Rotation2<T> {
     /// assert_relative_eq!(rot.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn slerp(&self, other: &Self, t: T) -> Self
     where
         T::Element: SimdRealField,
@@ -47,6 +48,7 @@ impl<T: SimdRealField> Rotation3<T> {
     /// assert_eq!(q.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn slerp(&self, other: &Self, t: T) -> Self
     where
         T: RealField,
@@ -67,6 +69,7 @@ impl<T: SimdRealField> Rotation3<T> {
     /// * `epsilon`: the value below which the sinus of the angle separating both rotations
     /// must be to return `None`.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn try_slerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
     where
         T: RealField,

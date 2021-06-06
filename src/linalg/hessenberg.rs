@@ -116,6 +116,7 @@ where
     ///
     /// This is less efficient than `.unpack_h()` as it allocates a new matrix.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn h(&self) -> OMatrix<T, D, D> {
         let dim = self.hess.nrows();
         let mut res = self.hess.clone();
@@ -126,6 +127,7 @@ where
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn q(&self) -> OMatrix<T, D, D> {
         householder::assemble_q(&self.hess, self.subdiag.as_slice())
     }

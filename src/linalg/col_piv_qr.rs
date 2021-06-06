@@ -95,6 +95,7 @@ where
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
         DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
@@ -126,6 +127,7 @@ where
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
         DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
@@ -150,6 +152,7 @@ where
     }
     /// Retrieves the column permutation of this decomposition.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.p
     }
@@ -284,6 +287,7 @@ where
     /// Computes the inverse of the decomposed matrix.
     ///
     /// Returns `None` if the decomposed matrix is not invertible.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn try_inverse(&self) -> Option<OMatrix<T, D, D>> {
         assert!(
             self.col_piv_qr.is_square(),
@@ -302,6 +306,7 @@ where
     }
 
     /// Indicates if the decomposed matrix is invertible.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn is_invertible(&self) -> bool {
         assert!(
             self.col_piv_qr.is_square(),
@@ -318,6 +323,7 @@ where
     }
 
     /// Computes the determinant of the decomposed matrix.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn determinant(&self) -> T {
         let dim = self.col_piv_qr.nrows();
         assert!(

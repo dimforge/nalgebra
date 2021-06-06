@@ -268,6 +268,7 @@ where
     /// Rebuild the original matrix.
     ///
     /// This is useful if some of the eigenvalues have been manually modified.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn recompose(&self) -> OMatrix<T, D, D> {
         let mut u_t = self.eigenvectors.clone();
         for i in 0..self.eigenvalues.len() {
@@ -311,6 +312,7 @@ where
     /// Computes the eigenvalues of this symmetric matrix.
     ///
     /// Only the lower-triangular part of the matrix is read.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn symmetric_eigenvalues(&self) -> OVector<T::RealField, D> {
         SymmetricEigen::do_decompose(
             self.clone_owned(),

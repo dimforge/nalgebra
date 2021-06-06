@@ -89,11 +89,13 @@ impl<T: ComplexField> GivensRotation<T> {
     }
 
     /// The cos part of this roration.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn c(&self) -> T::RealField {
         self.c
     }
 
     /// The sin part of this roration.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn s(&self) -> T {
         self.s
     }

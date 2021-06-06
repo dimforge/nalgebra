@@ -92,6 +92,7 @@ where
     }
 
     /// Returns the diagonal elements as a matrix
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn d_matrix(&self) -> OMatrix<T, D, D> {
         OMatrix::from_diagonal(&self.d)
     }

@@ -104,6 +104,7 @@ impl<T: RealField> Perspective3<T> {
 
     /// Retrieves the inverse of the underlying homogeneous matrix.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn inverse(&self) -> Matrix4<T> {
         let mut res = self.to_homogeneous();
 
@@ -123,24 +124,28 @@ impl<T: RealField> Perspective3<T> {
 
     /// Computes the corresponding homogeneous matrix.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn to_homogeneous(&self) -> Matrix4<T> {
         self.matrix.clone_owned()
     }
 
     /// A reference to the underlying homogeneous transformation matrix.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn as_matrix(&self) -> &Matrix4<T> {
         &self.matrix
     }
 
     /// A reference to this transformation seen as a `Projective3`.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn as_projective(&self) -> &Projective3<T> {
         unsafe { mem::transmute(self) }
     }
 
     /// This transformation seen as a `Projective3`.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn to_projective(&self) -> Projective3<T> {
         Projective3::from_matrix_unchecked(self.matrix)
     }
@@ -161,18 +166,21 @@ impl<T: RealField> Perspective3<T> {
 
     /// Gets the `width / height` aspect ratio of the view frustum.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn aspect(&self) -> T {
         self.matrix[(1, 1)] / self.matrix[(0, 0)]
     }
 
     /// Gets the y field of view of the view frustum.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn fovy(&self) -> T {
         (T::one() / self.matrix[(1, 1)]).atan() * crate::convert(2.0)
     }
 
     /// Gets the near plane offset of the view frustum.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn znear(&self) -> T {
         let ratio = (-self.matrix[(2, 2)] + T::one()) / (-self.matrix[(2, 2)] - T::one());
 
@@ -182,6 +190,7 @@ impl<T: RealField> Perspective3<T> {
 
     /// Gets the far plane offset of the view frustum.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn zfar(&self) -> T {
         let ratio = (-self.matrix[(2, 2)] + T::one()) / (-self.matrix[(2, 2)] - T::one());
 
@@ -193,6 +202,7 @@ impl<T: RealField> Perspective3<T> {
     // TODO: when we get specialization, specialize the Mul impl instead.
     /// Projects a point. Faster than matrix multiplication.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn project_point(&self, p: &Point3<T>) -> Point3<T> {
         let inverse_denom = -T::one() / p[2];
         Point3::new(
@@ -204,6 +214,7 @@ impl<T: RealField> Perspective3<T> {
 
     /// Un-projects a point. Faster than multiplication by the matrix inverse.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn unproject_point(&self, p: &Point3<T>) -> Point3<T> {
         let inverse_denom = self.matrix[(2, 3)] / (p[2] + self.matrix[(2, 2)]);
 
@@ -217,6 +228,7 @@ impl<T: RealField> Perspective3<T> {
     // TODO: when we get specialization, specialize the Mul impl instead.
     /// Projects a vector. Faster than matrix multiplication.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn project_vector<SB>(&self, p: &Vector<T, U3, SB>) -> Vector3<T>
     where
         SB: Storage<T, U3>,

@@ -502,6 +502,7 @@ where
 
     /// Computes the rank of the decomposed matrix, i.e., the number of singular values greater
     /// than `eps`.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn rank(&self, eps: T::RealField) -> usize {
         assert!(
             eps >= T::RealField::zero(),
@@ -615,6 +616,7 @@ where
         + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
 {
     /// Computes the singular values of this matrix.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn singular_values(&self) -> OVector<T::RealField, DimMinimum<R, C>> {
         SVD::new(self.clone_owned(), false, false).singular_values
     }
@@ -622,6 +624,7 @@ where
     /// Computes the rank of this matrix.
     ///
     /// All singular values below `eps` are considered equal to 0.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn rank(&self, eps: T::RealField) -> usize {
         let svd = SVD::new(self.clone_owned(), false, false);
         svd.rank(eps)

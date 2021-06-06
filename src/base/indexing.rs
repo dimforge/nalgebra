@@ -485,6 +485,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Produces a view of the data at the given index, or
     /// `None` if the index is out of bounds.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn get<'a, I>(&'a self, index: I) -> Option<I::Output>
     where
         I: MatrixIndex<'a, T, R, C, S>,
@@ -506,6 +507,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Produces a view of the data at the given index, or
     /// panics if the index is out of bounds.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn index<'a, I>(&'a self, index: I) -> I::Output
     where
         I: MatrixIndex<'a, T, R, C, S>,
@@ -527,6 +529,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Produces a view of the data at the given index, without doing
     /// any bounds checking.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub unsafe fn get_unchecked<'a, I>(&'a self, index: I) -> I::Output
     where
         I: MatrixIndex<'a, T, R, C, S>,

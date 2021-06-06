@@ -191,6 +191,7 @@ where
 
     /// The imaginary part of this quaternion.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn imag(&self) -> Vector3<T> {
         self.coords.xyz()
     }
@@ -223,6 +224,7 @@ where
     /// assert_eq!(q1.lerp(&q2, 0.1), Quaternion::new(1.9, 3.8, 5.7, 7.6));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn lerp(&self, other: &Self, t: T) -> Self {
         self * (T::one() - t) + other * t
     }
@@ -238,6 +240,7 @@ where
     /// assert_eq!(q.vector()[2], 4.0);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn vector(&self) -> MatrixSlice<T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
         self.coords.fixed_rows::<3>(0)
     }
@@ -251,6 +254,7 @@ where
     /// assert_eq!(q.scalar(), 1.0);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn scalar(&self) -> T {
         self.coords[3]
     }
@@ -266,6 +270,7 @@ where
     /// assert_eq!(*q.as_vector(), Vector4::new(2.0, 3.0, 4.0, 1.0));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn as_vector(&self) -> &Vector4<T> {
         &self.coords
     }
@@ -280,6 +285,7 @@ where
     /// assert_relative_eq!(q.norm(), 5.47722557, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn norm(&self) -> T {
         self.coords.norm()
     }
@@ -297,6 +303,7 @@ where
     /// assert_relative_eq!(q.magnitude(), 5.47722557, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn magnitude(&self) -> T {
         self.norm()
     }
@@ -310,6 +317,7 @@ where
     /// assert_eq!(q.magnitude_squared(), 30.0);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn norm_squared(&self) -> T {
         self.coords.norm_squared()
     }
@@ -326,6 +334,7 @@ where
     /// assert_eq!(q.magnitude_squared(), 30.0);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn magnitude_squared(&self) -> T {
         self.norm_squared()
     }
@@ -340,6 +349,7 @@ where
     /// assert_eq!(q1.dot(&q2), 70.0);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn dot(&self, rhs: &Self) -> T {
         self.coords.dot(&rhs.coords)
     }
@@ -409,6 +419,7 @@ where
     /// let result = a.inner(&b);
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-5);
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn inner(&self, other: &Self) -> Self {
         (self * other + other * self).half()
     }
@@ -428,6 +439,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-5);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn outer(&self, other: &Self) -> Self {
         #[allow(clippy::eq_op)]
         (self * other - other * self).half()
@@ -448,6 +460,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-5);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn project(&self, other: &Self) -> Option<Self>
     where
         T: RealField,
@@ -470,6 +483,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-5);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn reject(&self, other: &Self) -> Option<Self>
     where
         T: RealField,
@@ -492,6 +506,7 @@ where
     /// assert_eq!(half_ang, f32::consts::FRAC_PI_2);
     /// assert_eq!(axis, Some(Vector3::x_axis()));
     /// ```
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn polar_decomposition(&self) -> (T, T, Option<Unit<Vector3<T>>>)
     where
         T: RealField,
@@ -519,6 +534,7 @@ where
     /// assert_relative_eq!(q.ln(), Quaternion::new(1.683647, 1.190289, 0.0, 0.0), epsilon = 1.0e-6)
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn ln(&self) -> Self {
         let n = self.norm();
         let v = self.vector();
@@ -537,6 +553,7 @@ where
     /// assert_relative_eq!(q.exp(), Quaternion::new(2.0, 5.0, 0.0, 0.0), epsilon = 1.0e-5)
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn exp(&self) -> Self {
         self.exp_eps(T::simd_default_epsilon())
     }
@@ -556,6 +573,7 @@ where
     /// assert_eq!(q.exp_eps(1.0e-6), Quaternion::identity());
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn exp_eps(&self, eps: T) -> Self {
         let v = self.vector();
         let nn = v.norm_squared();
@@ -579,6 +597,7 @@ where
     /// assert_relative_eq!(q.powf(1.5), Quaternion::new( -6.2576659, 4.1549037, 6.2323556, 8.3098075), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn powf(&self, n: T) -> Self {
         (self.ln() * n).exp()
     }
@@ -674,18 +693,21 @@ where
 
     /// Calculates square of a quaternion.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn squared(&self) -> Self {
         self * self
     }
 
     /// Divides quaternion into two.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn half(&self) -> Self {
         self / crate::convert(2.0f64)
     }
 
     /// Calculates square root.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn sqrt(&self) -> Self {
         self.powf(crate::convert(0.5))
     }
@@ -694,12 +716,14 @@ where
     ///
     /// A quaternion is pure if it has no real part (`self.w == 0.0`).
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn is_pure(&self) -> bool {
         self.w.is_zero()
     }
 
     /// Convert quaternion to pure quaternion.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn pure(&self) -> Self {
         Self::from_imag(self.imag())
     }
@@ -708,6 +732,7 @@ where
     ///
     /// Calculates B<sup>-1</sup> * A where A = self, B = other.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn left_div(&self, other: &Self) -> Option<Self>
     where
         T: RealField,
@@ -730,6 +755,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn right_div(&self, other: &Self) -> Option<Self>
     where
         T: RealField,
@@ -749,6 +775,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn cos(&self) -> Self {
         let z = self.imag().magnitude();
         let w = -self.w.simd_sin() * z.simd_sinhc();
@@ -766,6 +793,7 @@ where
     /// assert_relative_eq!(input, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn acos(&self) -> Self {
         let u = Self::from_imag(self.imag().normalize());
         let identity = Self::identity();
@@ -787,6 +815,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn sin(&self) -> Self {
         let z = self.imag().magnitude();
         let w = self.w.simd_cos() * z.simd_sinhc();
@@ -804,6 +833,7 @@ where
     /// assert_relative_eq!(input, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn asin(&self) -> Self {
         let u = Self::from_imag(self.imag().normalize());
         let identity = Self::identity();
@@ -825,6 +855,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn tan(&self) -> Self
     where
         T: RealField,
@@ -843,6 +874,7 @@ where
     /// assert_relative_eq!(input, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn atan(&self) -> Self
     where
         T: RealField,
@@ -867,6 +899,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn sinh(&self) -> Self {
         (self.exp() - (-self).exp()).half()
     }
@@ -883,6 +916,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn asinh(&self) -> Self {
         let identity = Self::identity();
         (self + (identity + self.squared()).sqrt()).ln()
@@ -900,6 +934,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn cosh(&self) -> Self {
         (self.exp() + (-self).exp()).half()
     }
@@ -916,6 +951,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn acosh(&self) -> Self {
         let identity = Self::identity();
         (self + (self + identity).sqrt() * (self - identity).sqrt()).ln()
@@ -933,6 +969,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn tanh(&self) -> Self
     where
         T: RealField,
@@ -952,6 +989,7 @@ where
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-7);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn atanh(&self) -> Self {
         let identity = Self::identity();
         ((identity + self).ln() - (identity - self).ln()).half()
@@ -1069,6 +1107,7 @@ where
     /// assert_eq!(rot.angle(), 1.78);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn angle(&self) -> T {
         let w = self.quaternion().scalar().simd_abs();
         self.quaternion().imag().norm().simd_atan2(w) * crate::convert(2.0f64)
@@ -1085,6 +1124,7 @@ where
     /// assert_eq!(*axis.quaternion(), Quaternion::new(1.0, 0.0, 0.0, 0.0));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn quaternion(&self) -> &Quaternion<T> {
         self.as_ref()
     }
@@ -1133,6 +1173,7 @@ where
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.0045657, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn angle_to(&self, other: &Self) -> T {
         let delta = self.rotation_to(other);
         delta.angle()
@@ -1152,6 +1193,7 @@ where
     /// assert_relative_eq!(rot_to * rot1, rot2, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn rotation_to(&self, other: &Self) -> Self {
         other / self
     }
@@ -1168,6 +1210,7 @@ where
     /// assert_eq!(q1.lerp(&q2, 0.1), Quaternion::new(0.9, 0.1, 0.0, 0.0));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn lerp(&self, other: &Self, t: T) -> Quaternion<T> {
         self.as_ref().lerp(other.as_ref(), t)
     }
@@ -1184,6 +1227,7 @@ where
     /// assert_eq!(q1.nlerp(&q2, 0.1), UnitQuaternion::new_normalize(Quaternion::new(0.9, 0.1, 0.0, 0.0)));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn nlerp(&self, other: &Self, t: T) -> Self {
         let mut res = self.lerp(other, t);
         let _ = res.normalize_mut();
@@ -1209,6 +1253,7 @@ where
     /// assert_eq!(q.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn slerp(&self, other: &Self, t: T) -> Self
     where
         T: RealField,
@@ -1228,6 +1273,7 @@ where
     /// * `epsilon`: the value below which the sinus of the angle separating both quaternion
     /// must be to return `None`.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn try_slerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
     where
         T: RealField,
@@ -1287,6 +1333,7 @@ where
     /// assert!(rot.axis().is_none());
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn axis(&self) -> Option<Unit<Vector3<T>>>
     where
         T: RealField,
@@ -1311,6 +1358,7 @@ where
     /// assert_relative_eq!(rot.scaled_axis(), axisangle, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn scaled_axis(&self) -> Vector3<T>
     where
         T: RealField,
@@ -1339,6 +1387,7 @@ where
     /// assert!(rot.axis_angle().is_none());
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn axis_angle(&self) -> Option<(Unit<Vector3<T>>, T)>
     where
         T: RealField,
@@ -1350,6 +1399,7 @@ where
     ///
     /// Note that this function yields a `Quaternion<T>` because it loses the unit property.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn exp(&self) -> Quaternion<T> {
         self.as_ref().exp()
     }
@@ -1369,6 +1419,7 @@ where
     /// assert_relative_eq!(q.ln().vector().into_owned(), axisangle, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn ln(&self) -> Quaternion<T>
     where
         T: RealField,
@@ -1397,6 +1448,7 @@ where
     /// assert_eq!(pow.angle(), 2.4);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn powf(&self, n: T) -> Self
     where
         T: RealField,
@@ -1425,6 +1477,7 @@ where
     /// assert_relative_eq!(*rot.matrix(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn to_rotation_matrix(&self) -> Rotation<T, 3> {
         let i = self.as_ref()[0];
         let j = self.as_ref()[1];
@@ -1482,6 +1535,7 @@ where
     /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn euler_angles(&self) -> (T, T, T)
     where
         T: RealField,
@@ -1506,6 +1560,7 @@ where
     /// assert_relative_eq!(rot.to_homogeneous(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn to_homogeneous(&self) -> Matrix4<T> {
         self.to_rotation_matrix().to_homogeneous()
     }
@@ -1526,6 +1581,7 @@ where
     /// assert_relative_eq!(transformed_point, Point3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn transform_point(&self, pt: &Point3<T>) -> Point3<T> {
         self * pt
     }
@@ -1546,6 +1602,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn transform_vector(&self, v: &Vector3<T>) -> Vector3<T> {
         self * v
     }
@@ -1566,6 +1623,7 @@ where
     /// assert_relative_eq!(transformed_point, Point3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn inverse_transform_point(&self, pt: &Point3<T>) -> Point3<T> {
         // TODO: would it be useful performancewise not to call inverse explicitly (i-e. implement
         // the inverse transformation explicitly here) ?
@@ -1588,6 +1646,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn inverse_transform_vector(&self, v: &Vector3<T>) -> Vector3<T> {
         self.inverse() * v
     }
@@ -1608,6 +1667,7 @@ where
     /// assert_relative_eq!(transformed_vector, -Vector3::y_axis(), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector3<T>>) -> Unit<Vector3<T>> {
         self.inverse() * v
     }
@@ -1616,6 +1676,7 @@ where
     ///
     /// This is faster, but approximate, way to compute `UnitQuaternion::new(axisangle) * self`.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn append_axisangle_linearized(&self, axisangle: &Vector3<T>) -> Self {
         let half: T = crate::convert(0.5);
         let q1 = self.into_inner();
