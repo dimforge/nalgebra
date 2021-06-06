@@ -302,6 +302,7 @@ where
 
     /// The determinant of the decomposed matrix.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn determinant(&self) -> T {
         let mut det = T::one();
         for e in self.eigenvalues.iter() {

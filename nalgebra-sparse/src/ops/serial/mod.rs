@@ -96,11 +96,13 @@ impl OperationError {
     }
 
     /// The operation error kind.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn kind(&self) -> &OperationErrorKind {
         &self.error_kind
     }
 
     /// The underlying error message.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn message(&self) -> &str {
         self.message.as_str()
     }

@@ -192,12 +192,14 @@ impl<T> CsrMatrix<T> {
 
     /// The number of rows in the matrix.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn nrows(&self) -> usize {
         self.cs.pattern().major_dim()
     }
 
     /// The number of columns in the matrix.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn ncols(&self) -> usize {
         self.cs.pattern().minor_dim()
     }
@@ -208,12 +210,14 @@ impl<T> CsrMatrix<T> {
     /// number of algebraically zero entries in the matrix. Explicitly stored entries can still
     /// be zero. Corresponds to the number of entries in the sparsity pattern.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn nnz(&self) -> usize {
         self.cs.pattern().nnz()
     }
 
     /// The row offsets defining part of the CSR format.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn row_offsets(&self) -> &[usize] {
         let (offsets, _, _) = self.cs.cs_data();
         offsets
@@ -221,6 +225,7 @@ impl<T> CsrMatrix<T> {
 
     /// The column indices defining part of the CSR format.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn col_indices(&self) -> &[usize] {
         let (_, indices, _) = self.cs.cs_data();
         indices
@@ -228,6 +233,7 @@ impl<T> CsrMatrix<T> {
 
     /// The non-zero values defining part of the CSR format.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn values(&self) -> &[T] {
         self.cs.values()
     }
@@ -300,6 +306,7 @@ impl<T> CsrMatrix<T> {
     /// ------
     /// Panics if row index is out of bounds.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn row(&self, index: usize) -> CsrRow<T> {
         self.get_row(index).expect("Row index must be in bounds")
     }
@@ -317,6 +324,7 @@ impl<T> CsrMatrix<T> {
 
     /// Return the row at the given row index, or `None` if out of bounds.
     #[inline]
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn get_row(&self, index: usize) -> Option<CsrRow<T>> {
         self.cs.get_lane(index).map(|lane| CsrRow { lane })
     }
@@ -383,6 +391,7 @@ impl<T> CsrMatrix<T> {
     }
 
     /// Returns a reference to the underlying sparsity pattern.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn pattern(&self) -> &SparsityPattern {
         self.cs.pattern()
     }
@@ -399,6 +408,7 @@ impl<T> CsrMatrix<T> {
     ///
     /// Each call to this function incurs the cost of a binary search among the explicitly
     /// stored column entries for the given row.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn get_entry(&self, row_index: usize, col_index: usize) -> Option<SparseEntry<T>> {
         self.cs.get_entry(row_index, col_index)
     }
@@ -424,6 +434,7 @@ impl<T> CsrMatrix<T> {
     /// Panics
     /// ------
     /// Panics if `row_index` or `col_index` is out of bounds.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn index_entry(&self, row_index: usize, col_index: usize) -> SparseEntry<T> {
         self.get_entry(row_index, col_index)
             .expect("Out of bounds matrix indices encountered")
@@ -443,6 +454,7 @@ impl<T> CsrMatrix<T> {
     }
 
     /// Returns a triplet of slices `(row_offsets, col_indices, values)` that make up the CSR data.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn csr_data(&self) -> (&[usize], &[usize], &[T]) {
         self.cs.cs_data()
     }
@@ -455,6 +467,7 @@ impl<T> CsrMatrix<T> {
 
     /// Creates a sparse matrix that contains only the explicit entries decided by the
     /// given predicate.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn filter<P>(&self, predicate: P) -> Self
     where
         T: Clone,
@@ -470,6 +483,7 @@ impl<T> CsrMatrix<T> {
     /// Returns a new matrix representing the upper triangular part of this matrix.
     ///
     /// The result includes the diagonal of the matrix.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn upper_triangle(&self) -> Self
     where
         T: Clone,
@@ -480,6 +494,7 @@ impl<T> CsrMatrix<T> {
     /// Returns a new matrix representing the lower triangular part of this matrix.
     ///
     /// The result includes the diagonal of the matrix.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn lower_triangle(&self) -> Self
     where
         T: Clone,
@@ -488,6 +503,7 @@ impl<T> CsrMatrix<T> {
     }
 
     /// Returns the diagonal of the matrix as a sparse matrix.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn diagonal_as_csr(&self) -> Self
     where
         T: Clone,
@@ -498,6 +514,7 @@ impl<T> CsrMatrix<T> {
     }
 
     /// Compute the transpose of the matrix.
+    #[must_use = "This function does not mutate self. You should use the return value."]
     pub fn transpose(&self) -> CsrMatrix<T>
     where
         T: Scalar,
@@ -617,24 +634,28 @@ macro_rules! impl_csr_row_common_methods {
         impl<'a, T> $name {
             /// The number of global columns in the row.
             #[inline]
+            #[must_use = "This function does not mutate self. You should use the return value."]
             pub fn ncols(&self) -> usize {
                 self.lane.minor_dim()
             }
 
             /// The number of non-zeros in this row.
             #[inline]
+            #[must_use = "This function does not mutate self. You should use the return value."]
             pub fn nnz(&self) -> usize {
                 self.lane.nnz()
             }
 
             /// The column indices corresponding to explicitly stored entries in this row.
             #[inline]
+            #[must_use = "This function does not mutate self. You should use the return value."]
             pub fn col_indices(&self) -> &[usize] {
                 self.lane.minor_indices()
             }
 
             /// The values corresponding to explicitly stored entries in this row.
             #[inline]
+            #[must_use = "This function does not mutate self. You should use the return value."]
             pub fn values(&self) -> &[T] {
                 self.lane.values()
             }
@@ -644,6 +665,7 @@ macro_rules! impl_csr_row_common_methods {
             /// Each call to this function incurs the cost of a binary search among the explicitly
             /// stored column entries.
             #[inline]
+            #[must_use = "This function does not mutate self. You should use the return value."]
             pub fn get_entry(&self, global_col_index: usize) -> Option<SparseEntry<T>> {
                 self.lane.get_entry(global_col_index)
             }
