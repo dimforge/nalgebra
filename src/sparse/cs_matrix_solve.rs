@@ -137,7 +137,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
     }
 
     /// Solve a lower-triangular system with a sparse right-hand-side.
-    #[must_use = "This function has no side effects. Consider using the return value or removing the function call."]
+    #[must_use]
     pub fn solve_lower_triangular_cs<D2: Dim, S2>(
         &self,
         b: &CsVector<T, D2, S2>,

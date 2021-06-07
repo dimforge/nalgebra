@@ -435,7 +435,7 @@ where
         + Allocator<T::RealField, D, D>,
 {
     /// Computes exponential of this matrix
-    #[must_use = "This function does not mutate self. Consider using the return value or dropping the function call."]
+    #[must_use]
     pub fn exp(&self) -> Self {
         // Simple case
         if self.nrows() == 1 {

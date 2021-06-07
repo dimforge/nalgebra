@@ -134,7 +134,7 @@ where
     }
 
     /// Computes the inverse of the decomposed matrix.
-    #[must_use = "This function does not mutate self. Consider using the return value or dropping the function call."]
+    #[must_use]
     pub fn inverse(&self) -> OMatrix<T, D, D> {
         let shape = self.chol.data.shape();
         let mut res = OMatrix::identity_generic(shape.0, shape.1);
