@@ -156,6 +156,7 @@ impl<T> CsMatrix<T> {
     }
 
     #[inline]
+    #[must_use]
     pub fn get_lane_mut(&mut self, index: usize) -> Option<CsLaneMut<T>> {
         let range = self.get_index_range(index)?;
         let minor_dim = self.pattern().minor_dim();
@@ -429,6 +430,7 @@ impl<'a, T> CsLaneMut<'a, T> {
         (self.minor_indices, self.values)
     }
 
+    #[must_use]
     pub fn get_entry_mut(&mut self, global_minor_index: usize) -> Option<SparseEntryMut<T>> {
         get_mut_entry_from_slices(
             self.minor_dim,
