@@ -277,6 +277,7 @@ impl<T: Scalar, const D: usize> Point<T, D> {
 
     /// Gets a mutable reference to i-th element of this point without bound-checking.
     #[inline]
+    #[must_use]
     pub unsafe fn get_unchecked_mut(&mut self, i: usize) -> &mut T {
         self.coords.vget_unchecked_mut(i)
     }

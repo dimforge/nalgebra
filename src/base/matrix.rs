@@ -1266,6 +1266,7 @@ impl<T: Scalar, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
 impl<T: Scalar, D: Dim, S: StorageMut<T, D>> Vector<T, D, S> {
     /// Gets a mutable reference to the i-th element of this column vector without bound checking.
     #[inline]
+    #[must_use]
     pub unsafe fn vget_unchecked_mut(&mut self, i: usize) -> &mut T {
         debug_assert!(i < self.nrows(), "Vector index out of bounds.");
         let i = i * self.strides().0;
@@ -1285,6 +1286,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: ContiguousStorage<T, R, C>> Matrix<T, R, C, S
 impl<T: Scalar, R: Dim, C: Dim, S: ContiguousStorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Extracts a mutable slice containing the entire matrix entries ordered column-by-columns.
     #[inline]
+    #[must_use]
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         self.data.as_mut_slice()
     }

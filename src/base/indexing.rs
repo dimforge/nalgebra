@@ -496,6 +496,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Produces a mutable view of the data at the given index, or
     /// `None` if the index is out of bounds.
     #[inline]
+    #[must_use]
     pub fn get_mut<'a, I>(&'a mut self, index: I) -> Option<I::OutputMut>
     where
         S: StorageMut<T, R, C>,
@@ -540,6 +541,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Returns a mutable view of the data at the given index, without doing
     /// any bounds checking.
     #[inline]
+    #[must_use]
     pub unsafe fn get_unchecked_mut<'a, I>(&'a mut self, index: I) -> I::OutputMut
     where
         S: StorageMut<T, R, C>,

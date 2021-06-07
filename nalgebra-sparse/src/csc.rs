@@ -329,6 +329,7 @@ impl<T> CscMatrix<T> {
 
     /// Mutable column access for the given column index, or `None` if out of bounds.
     #[inline]
+    #[must_use]
     pub fn get_col_mut(&mut self, index: usize) -> Option<CscColMut<T>> {
         self.cs.get_lane_mut(index).map(|lane| CscColMut { lane })
     }
@@ -691,6 +692,7 @@ impl<'a, T> CscColMut<'a, T> {
     }
 
     /// Returns a mutable entry for the given global row index.
+    #[must_use]
     pub fn get_entry_mut(&mut self, global_row_index: usize) -> Option<SparseEntryMut<T>> {
         self.lane.get_entry_mut(global_row_index)
     }
