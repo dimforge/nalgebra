@@ -385,7 +385,7 @@ where
     /// Computes the real eigenvalues of the decomposed matrix.
     ///
     /// Return `None` if some eigenvalues are complex.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn eigenvalues(&self) -> Option<OVector<T, D>> {
         let mut out = unsafe {
             crate::unimplemented_or_uninitialized_generic!(self.t.data.shape().0, Const::<1>)
@@ -398,7 +398,7 @@ where
     }
 
     /// Computes the complex eigenvalues of the decomposed matrix.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn complex_eigenvalues(&self) -> OVector<NumComplex<T>, D>
     where
         T: RealField,
@@ -511,7 +511,7 @@ where
         + Allocator<T, D>,
 {
     /// Computes the eigenvalues of this matrix.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn eigenvalues(&self) -> Option<OVector<T, D>> {
         assert!(
             self.is_square(),
@@ -554,7 +554,7 @@ where
     }
 
     /// Computes the eigenvalues of this matrix.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn complex_eigenvalues(&self) -> OVector<NumComplex<T>, D>
     // TODO: add balancing?
     where

@@ -140,20 +140,20 @@ where
     }
 
     /// The number of non-identity permutations applied by this sequence.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn len(&self) -> usize {
         self.len
     }
 
     /// Returns true if the permutation sequence contains no elements.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
     /// The determinant of the matrix corresponding to this permutation.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn determinant<T: One + ClosedNeg>(&self) -> T {
         if self.len % 2 == 0 {
             T::one()

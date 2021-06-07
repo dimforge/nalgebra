@@ -89,7 +89,7 @@ where
 
     /// Computes the hessenberg matrix of this decomposition.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn h(&self) -> OMatrix<T, D, D> {
         let mut h = self.h.clone_owned();
         h.fill_lower_triangle(T::zero(), 2);
@@ -110,7 +110,7 @@ where
 
     /// Computes the unitary matrix `Q` of this decomposition.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn q(&self) -> OMatrix<T, D, D> {
         let n = self.h.nrows() as i32;
         let mut q = self.h.clone_owned();

@@ -153,7 +153,7 @@ where
 
     /// Indicates whether this decomposition contains an upper-diagonal matrix.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn is_upper_diagonal(&self) -> bool {
         self.upper_diagonal
     }
@@ -189,7 +189,7 @@ where
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn d(&self) -> OMatrix<T, DimMinimum<R, C>, DimMinimum<R, C>>
     where
         DefaultAllocator: Allocator<T, DimMinimum<R, C>, DimMinimum<R, C>>,
@@ -209,7 +209,7 @@ where
     /// Computes the orthogonal matrix `U` of this `U * D * V` decomposition.
     // TODO: code duplication with householder::assemble_q.
     // Except that we are returning a rectangular matrix here.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn u(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
         DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
@@ -240,7 +240,7 @@ where
     }
 
     /// Computes the orthogonal matrix `V_t` of this `U * D * V_t` decomposition.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn v_t(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
         DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
@@ -278,7 +278,7 @@ where
     }
 
     /// The diagonal part of this decomposed matrix.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn diagonal(&self) -> OVector<T::RealField, DimMinimum<R, C>>
     where
         DefaultAllocator: Allocator<T::RealField, DimMinimum<R, C>>,
@@ -287,7 +287,7 @@ where
     }
 
     /// The off-diagonal part of this decomposed matrix.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn off_diagonal(&self) -> OVector<T::RealField, DimDiff<DimMinimum<R, C>, U1>>
     where
         DefaultAllocator: Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,

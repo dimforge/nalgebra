@@ -32,13 +32,13 @@ impl<T> CsMatrix<T> {
     }
 
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn pattern(&self) -> &SparsityPattern {
         &self.sparsity_pattern
     }
 
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn values(&self) -> &[T] {
         &self.values
     }
@@ -50,7 +50,7 @@ impl<T> CsMatrix<T> {
 
     /// Returns the raw data represented as a tuple `(major_offsets, minor_indices, values)`.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn cs_data(&self) -> (&[usize], &[usize], &[T]) {
         let pattern = self.pattern();
         (
@@ -91,7 +91,7 @@ impl<T> CsMatrix<T> {
 
     /// Internal method for simplifying access to a lane's data
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn get_index_range(&self, row_index: usize) -> Option<Range<usize>> {
         let row_begin = *self.sparsity_pattern.major_offsets().get(row_index)?;
         let row_end = *self.sparsity_pattern.major_offsets().get(row_index + 1)?;
@@ -115,7 +115,7 @@ impl<T> CsMatrix<T> {
 
     /// Returns an entry for the given major/minor indices, or `None` if the indices are out
     /// of bounds.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn get_entry(&self, major_index: usize, minor_index: usize) -> Option<SparseEntry<T>> {
         let row_range = self.get_index_range(major_index)?;
         let (_, minor_indices, values) = self.cs_data();
@@ -144,7 +144,7 @@ impl<T> CsMatrix<T> {
         get_mut_entry_from_slices(minor_dim, minor_indices, values, minor_index)
     }
 
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn get_lane(&self, index: usize) -> Option<CsLane<T>> {
         let range = self.get_index_range(index)?;
         let (_, minor_indices, values) = self.cs_data();
@@ -178,7 +178,7 @@ impl<T> CsMatrix<T> {
     }
 
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn filter<P>(&self, predicate: P) -> Self
     where
         T: Clone,
@@ -214,7 +214,7 @@ impl<T> CsMatrix<T> {
     }
 
     /// Returns the diagonal of the matrix as a sparse matrix.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn diagonal_as_matrix(&self) -> Self
     where
         T: Clone,
@@ -380,31 +380,31 @@ macro_rules! impl_cs_lane_common_methods {
     ($name:ty) => {
         impl<'a, T> $name {
             #[inline]
-            #[must_use = "This function does not mutate self. You should use the return value."]
+            #[must_use]
             pub fn minor_dim(&self) -> usize {
                 self.minor_dim
             }
 
             #[inline]
-            #[must_use = "This function does not mutate self. You should use the return value."]
+            #[must_use]
             pub fn nnz(&self) -> usize {
                 self.minor_indices.len()
             }
 
             #[inline]
-            #[must_use = "This function does not mutate self. You should use the return value."]
+            #[must_use]
             pub fn minor_indices(&self) -> &[usize] {
                 self.minor_indices
             }
 
             #[inline]
-            #[must_use = "This function does not mutate self. You should use the return value."]
+            #[must_use]
             pub fn values(&self) -> &[T] {
                 self.values
             }
 
             #[inline]
-            #[must_use = "This function does not mutate self. You should use the return value."]
+            #[must_use]
             pub fn get_entry(&self, global_col_index: usize) -> Option<SparseEntry<T>> {
                 get_entry_from_slices(
                     self.minor_dim,

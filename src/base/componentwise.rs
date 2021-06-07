@@ -28,7 +28,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(a.abs(), Matrix2::new(0.0, 1.0, 2.0, 3.0))
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn abs(&self) -> OMatrix<T, R, C>
     where
         T: Signed,
@@ -50,7 +50,7 @@ macro_rules! component_binop_impl(
     ($($binop: ident, $binop_mut: ident, $binop_assign: ident, $cmpy: ident, $Trait: ident . $op: ident . $op_assign: ident, $desc:expr, $desc_cmpy:expr, $desc_mut:expr);* $(;)*) => {$(
         #[doc = $desc]
         #[inline]
-        #[must_use = "This function does not mutate self. You should use the return value."]
+        #[must_use]
         pub fn $binop<R2, C2, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> MatrixComponentOp<T, R1, C1, R2, C2>
             where T: $Trait,
                   R2: Dim, C2: Dim,
@@ -253,7 +253,7 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     /// assert_eq!(u.inf(&v), expected)
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn inf(&self, other: &Self) -> OMatrix<T, R1, C1>
     where
         T: SimdPartialOrd,
@@ -274,7 +274,7 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     /// assert_eq!(u.sup(&v), expected)
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn sup(&self, other: &Self) -> OMatrix<T, R1, C1>
     where
         T: SimdPartialOrd,
@@ -295,7 +295,7 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     /// assert_eq!(u.inf_sup(&v), expected)
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn inf_sup(&self, other: &Self) -> (OMatrix<T, R1, C1>, OMatrix<T, R1, C1>)
     where
         T: SimdPartialOrd,

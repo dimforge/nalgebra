@@ -8,7 +8,7 @@ macro_rules! impl_swizzle {
             $(
                 /// Builds a new vector from components of `self`.
                 #[inline]
-                #[must_use = "This function does not mutate self. You should use the return value."]
+                #[must_use]
                 pub fn $name(&self) -> $Result<T>
                 where D::Typenum: Cmp<typenum::$BaseDim, Output=Greater> {
                     $Result::new($(self[$i].inlined_clone()),*)

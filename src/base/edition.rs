@@ -18,7 +18,7 @@ use crate::base::{DefaultAllocator, Matrix, OMatrix, RowVector, Scalar, Vector};
 impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Extracts the upper triangular part of this matrix (including the diagonal).
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn upper_triangle(&self) -> OMatrix<T, R, C>
     where
         DefaultAllocator: Allocator<T, R, C>,
@@ -31,7 +31,7 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Extracts the lower triangular part of this matrix (including the diagonal).
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn lower_triangle(&self) -> OMatrix<T, R, C>
     where
         DefaultAllocator: Allocator<T, R, C>,
@@ -44,7 +44,7 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Creates a new matrix by extracting the given set of rows from `self`.
     #[cfg(any(feature = "std", feature = "alloc"))]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn select_rows<'a, I>(&self, irows: I) -> OMatrix<T, Dynamic, C>
     where
         I: IntoIterator<Item = &'a usize>,
@@ -81,7 +81,7 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Creates a new matrix by extracting the given set of columns from `self`.
     #[cfg(any(feature = "std", feature = "alloc"))]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn select_columns<'a, I>(&self, icols: I) -> OMatrix<T, R, Dynamic>
     where
         I: IntoIterator<Item = &'a usize>,

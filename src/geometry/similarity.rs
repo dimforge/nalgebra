@@ -122,7 +122,7 @@ where
 impl<T: Scalar, R, const D: usize> Similarity<T, R, D> {
     /// The scaling factor of this similarity transformation.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn scaling(&self) -> T {
         self.scaling.inlined_clone()
     }
@@ -249,7 +249,7 @@ where
     /// assert_relative_eq!(transformed_point, Point3::new(19.0, 17.0, -9.0), epsilon = 1.0e-5);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self * pt
     }
@@ -271,7 +271,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector3::new(18.0, 15.0, -12.0), epsilon = 1.0e-5);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self * v
     }
@@ -292,7 +292,7 @@ where
     /// assert_relative_eq!(transformed_point, Point3::new(-1.5, 1.5, 1.5), epsilon = 1.0e-5);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.isometry.inverse_transform_point(pt) / self.scaling()
     }
@@ -313,7 +313,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector3::new(-3.0, 2.5, 2.0), epsilon = 1.0e-5);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.isometry.inverse_transform_vector(v) / self.scaling()
     }
@@ -326,7 +326,7 @@ where
 impl<T: SimdRealField, R, const D: usize> Similarity<T, R, D> {
     /// Converts this similarity into its equivalent homogeneous transformation matrix.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
     where
         Const<D>: DimNameAdd<U1>,

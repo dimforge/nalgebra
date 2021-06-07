@@ -175,7 +175,7 @@ macro_rules! svd_impl(
             ///
             /// All singular value below epsilon will be set to zero instead of being inverted.
             #[inline]
-            #[must_use = "This function does not mutate self. You should use the return value."]
+            #[must_use]
             pub fn pseudo_inverse(&self, epsilon: $t) -> OMatrix<$t, C, R> {
                 let nrows           = self.u.data.shape().0;
                 let ncols           = self.vt.data.shape().1;
@@ -208,7 +208,7 @@ macro_rules! svd_impl(
             /// This is the number of singular values that are not too small (i.e. greater than
             /// the given `epsilon`).
             #[inline]
-            #[must_use = "This function does not mutate self. You should use the return value."]
+            #[must_use]
             pub fn rank(&self, epsilon: $t) -> usize {
                 let mut i = 0;
 

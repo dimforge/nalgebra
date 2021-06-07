@@ -26,7 +26,7 @@ impl<T: SimdRealField> Isometry3<T> {
     /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn lerp_slerp(&self, other: &Self, t: T) -> Self
     where
         T: RealField,
@@ -60,7 +60,7 @@ impl<T: SimdRealField> Isometry3<T> {
     /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn try_lerp_slerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
     where
         T: RealField,
@@ -96,7 +96,7 @@ impl<T: SimdRealField> IsometryMatrix3<T> {
     /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn lerp_slerp(&self, other: &Self, t: T) -> Self
     where
         T: RealField,
@@ -130,7 +130,7 @@ impl<T: SimdRealField> IsometryMatrix3<T> {
     /// assert_eq!(iso3.rotation.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn try_lerp_slerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
     where
         T: RealField,
@@ -167,7 +167,7 @@ impl<T: SimdRealField> Isometry2<T> {
     /// assert_relative_eq!(iso3.rotation.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn lerp_slerp(&self, other: &Self, t: T) -> Self
     where
         T: RealField,
@@ -204,7 +204,7 @@ impl<T: SimdRealField> IsometryMatrix2<T> {
     /// assert_relative_eq!(iso3.rotation.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn lerp_slerp(&self, other: &Self, t: T) -> Self
     where
         T: RealField,

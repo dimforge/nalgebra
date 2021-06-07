@@ -158,7 +158,7 @@ impl<T: SimdComplexField> Norm<T> for UniformNorm {
 impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// The squared L2 norm of this vector.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn norm_squared(&self) -> T::SimdRealField
     where
         T: SimdComplexField,
@@ -177,7 +177,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     ///
     /// Use `.apply_norm` to apply a custom norm.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn norm(&self) -> T::SimdRealField
     where
         T: SimdComplexField,
@@ -189,7 +189,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     ///
     /// Use `.apply_metric_distance` to apply a custom norm.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn metric_distance<R2, C2, S2>(&self, rhs: &Matrix<T, R2, C2, S2>) -> T::SimdRealField
     where
         T: SimdComplexField,
@@ -214,7 +214,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(v.apply_norm(&EuclideanNorm), v.norm());
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn apply_norm(&self, norm: &impl Norm<T>) -> T::SimdRealField
     where
         T: SimdComplexField,
@@ -237,7 +237,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(v1.apply_metric_distance(&v2, &EuclideanNorm), (v1 - v2).norm());
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn apply_metric_distance<R2, C2, S2>(
         &self,
         rhs: &Matrix<T, R2, C2, S2>,
@@ -259,7 +259,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     ///
     /// This function is simply implemented as a call to `norm()`
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn magnitude(&self) -> T::SimdRealField
     where
         T: SimdComplexField,
@@ -273,7 +273,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     ///
     /// This function is simply implemented as a call to `norm_squared()`
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn magnitude_squared(&self) -> T::SimdRealField
     where
         T: SimdComplexField,
@@ -305,7 +305,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// The Lp norm of this matrix.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn lp_norm(&self, p: i32) -> T::SimdRealField
     where
         T: SimdComplexField,

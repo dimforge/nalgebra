@@ -186,7 +186,7 @@ impl<T: SimdRealField> Rotation2<T> {
     /// assert_relative_eq!(rot_to.inverse() * rot2, rot1);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn rotation_to(&self, other: &Self) -> Self {
         other * self.inverse()
     }
@@ -216,7 +216,7 @@ impl<T: SimdRealField> Rotation2<T> {
     /// assert_relative_eq!(pow.angle(), 2.0 * 0.78);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn powf(&self, n: T) -> Self {
         Self::new(self.angle() * n)
     }
@@ -234,7 +234,7 @@ impl<T: SimdRealField> Rotation2<T> {
     /// assert_relative_eq!(rot.angle(), 1.78);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn angle(&self) -> T {
         self.matrix()[(1, 0)].simd_atan2(self.matrix()[(0, 0)])
     }
@@ -250,7 +250,7 @@ impl<T: SimdRealField> Rotation2<T> {
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.6);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn angle_to(&self, other: &Self) -> T {
         self.rotation_to(other).angle()
     }
@@ -260,7 +260,7 @@ impl<T: SimdRealField> Rotation2<T> {
     /// This is generally used in the context of generic programming. Using
     /// the `.angle()` method instead is more common.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn scaled_axis(&self) -> SVector<T, 1> {
         Vector1::new(self.angle())
     }
@@ -645,7 +645,7 @@ where
     /// assert_relative_eq!(rot_to * rot1, rot2, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn rotation_to(&self, other: &Self) -> Self {
         other * self.inverse()
     }
@@ -665,7 +665,7 @@ where
     /// assert_eq!(pow.angle(), 2.4);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn powf(&self, n: T) -> Self
     where
         T: RealField,
@@ -772,7 +772,7 @@ impl<T: SimdRealField> Rotation3<T> {
     /// assert_relative_eq!(rot.angle(), 1.78);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn angle(&self) -> T {
         ((self.matrix()[(0, 0)] + self.matrix()[(1, 1)] + self.matrix()[(2, 2)] - T::one())
             / crate::convert(2.0))
@@ -795,7 +795,7 @@ impl<T: SimdRealField> Rotation3<T> {
     /// assert!(rot.axis().is_none());
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn axis(&self) -> Option<Unit<Vector3<T>>>
     where
         T: RealField,
@@ -820,7 +820,7 @@ impl<T: SimdRealField> Rotation3<T> {
     /// assert_relative_eq!(rot.scaled_axis(), axisangle, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn scaled_axis(&self) -> Vector3<T>
     where
         T: RealField,
@@ -852,7 +852,7 @@ impl<T: SimdRealField> Rotation3<T> {
     /// assert!(rot.axis_angle().is_none());
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn axis_angle(&self) -> Option<(Unit<Vector3<T>>, T)>
     where
         T: RealField,
@@ -875,7 +875,7 @@ impl<T: SimdRealField> Rotation3<T> {
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.0045657, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn angle_to(&self, other: &Self) -> T
     where
         T::Element: SimdRealField,
@@ -908,7 +908,7 @@ impl<T: SimdRealField> Rotation3<T> {
     /// assert_relative_eq!(euler.1, 0.2, epsilon = 1.0e-6);
     /// assert_relative_eq!(euler.2, 0.3, epsilon = 1.0e-6);
     /// ```
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn euler_angles(&self) -> (T, T, T)
     where
         T: RealField,

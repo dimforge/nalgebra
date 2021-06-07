@@ -119,19 +119,19 @@ where
     DefaultAllocator: Allocator<usize, C>,
 {
     /// The value buffer of this storage.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn values(&self) -> &[T] {
         &self.vals
     }
 
     /// The column shifts buffer.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn p(&self) -> &[usize] {
         self.p.as_slice()
     }
 
     /// The row index buffers.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn i(&self) -> &[usize] {
         &self.i
     }
@@ -359,32 +359,32 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
     }
 
     /// The size of the data buffer.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn len(&self) -> usize {
         self.data.len()
     }
 
     /// The number of rows of this matrix.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn nrows(&self) -> usize {
         self.data.shape().0.value()
     }
 
     /// The number of rows of this matrix.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn ncols(&self) -> usize {
         self.data.shape().1.value()
     }
 
     /// The shape of this matrix.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn shape(&self) -> (usize, usize) {
         let (nrows, ncols) = self.data.shape();
         (nrows.value(), ncols.value())
     }
 
     /// Whether this matrix is square or not.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn is_square(&self) -> bool {
         let (nrows, ncols) = self.data.shape();
         nrows.value() == ncols.value()
@@ -399,7 +399,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
     /// If at any time this `is_sorted` method returns `false`, then, something went wrong
     /// and an issue should be open on the nalgebra repository with details on how to reproduce
     /// this.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn is_sorted(&self) -> bool {
         for j in 0..self.ncols() {
             let mut curr = None;

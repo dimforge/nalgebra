@@ -92,7 +92,7 @@ where
 
     /// Retrieves the lower-triangular factor of the Cholesky decomposition with its strictly
     /// uppen-triangular part filled with zeros.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn l(&self) -> OMatrix<T, D, D> {
         self.chol.lower_triangle()
     }
@@ -102,7 +102,7 @@ where
     ///
     /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
     /// part are garbage and should be ignored by further computations.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn l_dirty(&self) -> &OMatrix<T, D, D> {
         &self.chol
     }
@@ -144,7 +144,7 @@ where
     }
 
     /// Computes the determinant of the decomposed matrix.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn determinant(&self) -> T::SimdRealField {
         let dim = self.chol.nrows();
         let mut prod_diag = T::one();
@@ -292,7 +292,7 @@ where
 
     /// Updates the decomposition such that we get the decomposition of the factored matrix with its `j`th column removed.
     /// Since the matrix is square, the `j`th row will also be removed.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn remove_column(&self, j: usize) -> Cholesky<T, DimDiff<D, U1>>
     where
         D: DimSub<U1>,

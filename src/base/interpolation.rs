@@ -20,7 +20,7 @@ impl<T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     /// let y = Vector3::new(10.0, 20.0, 30.0);
     /// assert_eq!(x.lerp(&y, 0.1), Vector3::new(1.9, 3.8, 5.7));
     /// ```
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn lerp<S2: Storage<T, D>>(&self, rhs: &Vector<T, D, S2>, t: T) -> OVector<T, D>
     where
         DefaultAllocator: Allocator<T, D>,
@@ -46,7 +46,7 @@ impl<T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     ///
     /// assert_eq!(v, v2.normalize());
     /// ```
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn slerp<S2: Storage<T, D>>(&self, rhs: &Vector<T, D, S2>, t: T) -> OVector<T, D>
     where
         T: RealField,
@@ -74,7 +74,7 @@ impl<T: RealField, D: Dim, S: Storage<T, D>> Unit<Vector<T, D, S>> {
     ///
     /// assert_eq!(v, v2);
     /// ```
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn slerp<S2: Storage<T, D>>(
         &self,
         rhs: &Unit<Vector<T, D, S2>>,
@@ -92,7 +92,7 @@ impl<T: RealField, D: Dim, S: Storage<T, D>> Unit<Vector<T, D, S>> {
     ///
     /// Returns `None` if the two vectors are almost collinear and with opposite direction
     /// (in this case, there is an infinity of possible results).
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn try_slerp<S2: Storage<T, D>>(
         &self,
         rhs: &Unit<Vector<T, D, S2>>,

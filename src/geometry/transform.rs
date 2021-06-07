@@ -301,7 +301,7 @@ where
     /// assert_eq!(*t.matrix(), m);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn matrix(&self) -> &OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         &self.matrix
     }
@@ -368,7 +368,7 @@ where
     /// assert_eq!(t.into_inner(), m);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         self.matrix().clone_owned()
     }
@@ -500,7 +500,7 @@ where
     ///
     /// This is the same as the multiplication `self * pt`.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self * pt
     }
@@ -510,7 +510,7 @@ where
     ///
     /// This is the same as the multiplication `self * v`.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self * v
     }
@@ -528,7 +528,7 @@ where
     /// This may be cheaper than inverting the transformation and transforming
     /// the point.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.clone().inverse() * pt
     }
@@ -537,7 +537,7 @@ where
     /// This may be cheaper than inverting the transformation and transforming
     /// the vector.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.clone().inverse() * v
     }

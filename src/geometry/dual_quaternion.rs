@@ -232,7 +232,7 @@ where
     /// ));
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn lerp(&self, other: &Self, t: T) -> Self {
         self * (T::one() - t) + other * t
     }
@@ -382,7 +382,7 @@ where
     /// ));
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn dual_quaternion(&self) -> &DualQuaternion<T> {
         self.as_ref()
     }
@@ -487,7 +487,7 @@ where
     /// assert_relative_eq!(dq_to * dq1, dq2, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn isometry_to(&self, other: &Self) -> Self {
         other / self
     }
@@ -520,7 +520,7 @@ where
     /// );
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn lerp(&self, other: &Self, t: T) -> DualQuaternion<T> {
         self.as_ref().lerp(other.as_ref(), t)
     }
@@ -549,7 +549,7 @@ where
     /// ), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn nlerp(&self, other: &Self, t: T) -> Self {
         let mut res = self.lerp(other, t);
         let _ = res.normalize_mut();
@@ -585,7 +585,7 @@ where
     /// );
     /// assert_relative_eq!(dq.translation().vector.y, 3.0, epsilon = 1.0e-6);
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn sclerp(&self, other: &Self, t: T) -> Self
     where
         T: RealField,
@@ -605,7 +605,7 @@ where
     /// * `epsilon`: the value below which the sinus of the angle separating both quaternion
     /// must be to return `None`.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn try_sclerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
     where
         T: RealField,
@@ -673,7 +673,7 @@ where
     /// );
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn rotation(&self) -> UnitQuaternion<T> {
         Unit::new_unchecked(self.as_ref().real)
     }
@@ -693,7 +693,7 @@ where
     /// );
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn translation(&self) -> Translation3<T> {
         let two = T::one() + T::one();
         Translation3::from(
@@ -720,7 +720,7 @@ where
     /// assert_relative_eq!(iso.translation.vector, translation, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn to_isometry(&self) -> Isometry3<T> {
         Isometry3::from_parts(self.translation(), self.rotation())
     }
@@ -744,7 +744,7 @@ where
     /// );
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn transform_point(&self, pt: &Point3<T>) -> Point3<T> {
         self * pt
     }
@@ -768,7 +768,7 @@ where
     /// );
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn transform_vector(&self, v: &Vector3<T>) -> Vector3<T> {
         self * v
     }
@@ -792,7 +792,7 @@ where
     /// );
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point3<T>) -> Point3<T> {
         self.inverse() * pt
     }
@@ -817,7 +817,7 @@ where
     /// );
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn inverse_transform_vector(&self, v: &Vector3<T>) -> Vector3<T> {
         self.inverse() * v
     }
@@ -843,7 +843,7 @@ where
     /// );
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector3<T>>) -> Unit<Vector3<T>> {
         self.inverse() * v
     }
@@ -871,7 +871,7 @@ where
     /// assert_relative_eq!(dq.to_homogeneous(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn to_homogeneous(&self) -> Matrix4<T> {
         self.to_isometry().to_homogeneous()
     }

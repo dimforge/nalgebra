@@ -190,7 +190,7 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
     /// assert_eq!(t.to_homogeneous(), expected);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
     where
         T: Zero + One,
@@ -242,7 +242,7 @@ impl<T: Scalar + ClosedAdd, const D: usize> Translation<T, D> {
     /// let transformed_point = t.transform_point(&Point3::new(4.0, 5.0, 6.0));
     /// assert_eq!(transformed_point, Point3::new(5.0, 7.0, 9.0));
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         pt + &self.vector
     }
@@ -258,7 +258,7 @@ impl<T: Scalar + ClosedSub, const D: usize> Translation<T, D> {
     /// let transformed_point = t.inverse_transform_point(&Point3::new(4.0, 5.0, 6.0));
     /// assert_eq!(transformed_point, Point3::new(3.0, 3.0, 3.0));
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         pt - &self.vector
     }

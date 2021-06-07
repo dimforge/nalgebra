@@ -173,14 +173,14 @@ impl<T> CooMatrix<T> {
 
     /// The number of rows in the matrix.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn nrows(&self) -> usize {
         self.nrows
     }
 
     /// The number of columns in the matrix.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn ncols(&self) -> usize {
         self.ncols
     }
@@ -191,25 +191,25 @@ impl<T> CooMatrix<T> {
     /// entries, then it may have a different number of non-zeros as reported by `nnz()` compared
     /// to its CSR representation.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn nnz(&self) -> usize {
         self.values.len()
     }
 
     /// The row indices of the explicitly stored entries.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn row_indices(&self) -> &[usize] {
         &self.row_indices
     }
 
     /// The column indices of the explicitly stored entries.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn col_indices(&self) -> &[usize] {
         &self.col_indices
     }
 
     /// The values of the explicitly stored entries.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn values(&self) -> &[T] {
         &self.values
     }

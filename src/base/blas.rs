@@ -193,7 +193,7 @@ where
     /// ```
     ///
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> T
     where
         SB: Storage<T, R2, C2>,
@@ -222,7 +222,7 @@ where
     /// assert_ne!(vec1.dotc(&vec2), vec1.dot(&vec2));
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn dotc<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> T
     where
         T: SimdComplexField,
@@ -250,7 +250,7 @@ where
     /// assert_eq!(mat1.tr_dot(&mat2), 9.1);
     /// ```
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn tr_dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> T
     where
         SB: Storage<T, R2, C2>,

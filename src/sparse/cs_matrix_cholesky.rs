@@ -67,7 +67,7 @@ where
     }
 
     /// The lower-triangular matrix of the cholesky decomposition.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn l(&self) -> Option<&CsMatrix<T, D, D>> {
         if self.ok {
             Some(&self.l)

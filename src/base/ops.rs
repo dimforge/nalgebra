@@ -676,7 +676,7 @@ where
 {
     /// Equivalent to `self.transpose() * rhs`.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn tr_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> OMatrix<T, C1, C2>
     where
         SB: Storage<T, R2, C2>,
@@ -693,7 +693,7 @@ where
 
     /// Equivalent to `self.adjoint() * rhs`.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn ad_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> OMatrix<T, C1, C2>
     where
         T: SimdComplexField,
@@ -803,7 +803,7 @@ where
 
     /// The kronecker product of two matrices (aka. tensor product of the corresponding linear
     /// maps).
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn kronecker<R2: Dim, C2: Dim, SB>(
         &self,
         rhs: &Matrix<T, R2, C2, SB>,

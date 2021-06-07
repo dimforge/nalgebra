@@ -42,7 +42,7 @@ impl CscSymbolicCholesky {
     }
 
     /// The pattern of the Cholesky factor `L`.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn l_pattern(&self) -> &SparsityPattern {
         &self.l_pattern
     }
@@ -172,7 +172,7 @@ impl<T: RealField> CscCholesky<T> {
     }
 
     /// Returns a reference to the Cholesky factor `L`.
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn l(&self) -> &CscMatrix<T> {
         &self.l_factor
     }

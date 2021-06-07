@@ -92,7 +92,7 @@ where
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C> {
         let (nrows, ncols) = self.qr.data.shape();
         self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle()
@@ -118,7 +118,7 @@ where
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>> {
         let (nrows, ncols) = self.qr.data.shape();
         let min_nrows_ncols = nrows.min(ncols);

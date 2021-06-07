@@ -85,7 +85,7 @@ where
 
     /// Gets the lower-triangular matrix part of the decomposition.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn l(&self) -> OMatrix<T, R, DimMinimum<R, C>> {
         let (nrows, ncols) = self.lu.data.shape();
         let mut res = self.lu.columns_generic(0, nrows.min(ncols)).into_owned();
@@ -98,7 +98,7 @@ where
 
     /// Gets the upper-triangular matrix part of the decomposition.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn u(&self) -> OMatrix<T, DimMinimum<R, C>, C> {
         let (nrows, ncols) = self.lu.data.shape();
         let mut res = self.lu.rows_generic(0, nrows.min(ncols)).into_owned();
@@ -113,7 +113,7 @@ where
     /// Computing the permutation matrix explicitly is costly and usually not necessary.
     /// To permute rows of a matrix or vector, use the method `self.permute(...)` instead.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn p(&self) -> OMatrix<T, R, R> {
         let (dim, _) = self.lu.data.shape();
         let mut id = Matrix::identity_generic(dim, dim);
@@ -127,7 +127,7 @@ where
 
     /// Gets the LAPACK permutation indices.
     #[inline]
-    #[must_use = "This function does not mutate self. You should use the return value."]
+    #[must_use]
     pub fn permutation_indices(&self) -> &OVector<i32, DimMinimum<R, C>> {
         &self.p
     }
