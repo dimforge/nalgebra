@@ -84,6 +84,7 @@ where
     /// assert_eq!(rot.angle(), 1.78);
     /// ```
     #[inline]
+    #[must_use]
     pub fn angle(&self) -> T {
         self.im.simd_atan2(self.re)
     }
@@ -98,6 +99,7 @@ where
     /// assert_eq!(rot.sin_angle(), angle.sin());
     /// ```
     #[inline]
+    #[must_use]
     pub fn sin_angle(&self) -> T {
         self.im
     }
@@ -112,6 +114,7 @@ where
     /// assert_eq!(rot.cos_angle(),angle.cos());
     /// ```
     #[inline]
+    #[must_use]
     pub fn cos_angle(&self) -> T {
         self.re
     }
@@ -121,6 +124,7 @@ where
     /// This is generally used in the context of generic programming. Using
     /// the `.angle()` method instead is more common.
     #[inline]
+    #[must_use]
     pub fn scaled_axis(&self) -> Vector1<T> {
         Vector1::new(self.angle())
     }
@@ -131,6 +135,7 @@ where
     /// the `.angle()` method instead is more common.
     /// Returns `None` if the angle is zero.
     #[inline]
+    #[must_use]
     pub fn axis_angle(&self) -> Option<(Unit<Vector1<T>>, T)>
     where
         T: RealField,
@@ -157,6 +162,7 @@ where
     /// assert_relative_eq!(rot1.angle_to(&rot2), 1.6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn angle_to(&self, other: &Self) -> T {
         let delta = self.rotation_to(other);
         delta.angle()
@@ -254,6 +260,7 @@ where
     /// assert_eq!(rot.to_rotation_matrix(), expected);
     /// ```
     #[inline]
+    #[must_use]
     pub fn to_rotation_matrix(&self) -> Rotation2<T> {
         let r = self.re;
         let i = self.im;
@@ -274,6 +281,7 @@ where
     /// assert_eq!(rot.to_homogeneous(), expected);
     /// ```
     #[inline]
+    #[must_use]
     pub fn to_homogeneous(&self) -> Matrix3<T> {
         self.to_rotation_matrix().to_homogeneous()
     }
@@ -298,6 +306,7 @@ where
     /// assert_relative_eq!(transformed_point, Point2::new(-2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn transform_point(&self, pt: &Point2<T>) -> Point2<T> {
         self * pt
     }
@@ -316,6 +325,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector2::new(-2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn transform_vector(&self, v: &Vector2<T>) -> Vector2<T> {
         self * v
     }
@@ -332,6 +342,7 @@ where
     /// assert_relative_eq!(transformed_point, Point2::new(2.0, -1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point2<T>) -> Point2<T> {
         // TODO: would it be useful performancewise not to call inverse explicitly (i-e. implement
         // the inverse transformation explicitly here) ?
@@ -350,6 +361,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector2::new(2.0, -1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse_transform_vector(&self, v: &Vector2<T>) -> Vector2<T> {
         self.inverse() * v
     }
@@ -366,6 +378,7 @@ where
     /// assert_relative_eq!(transformed_vector, -Vector2::y_axis(), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse_transform_unit_vector(&self, v: &Unit<Vector2<T>>) -> Unit<Vector2<T>> {
         self.inverse() * v
     }
@@ -392,6 +405,7 @@ where
     /// assert_relative_eq!(rot.angle(), std::f32::consts::FRAC_PI_2);
     /// ```
     #[inline]
+    #[must_use]
     pub fn slerp(&self, other: &Self, t: T) -> Self {
         Self::new(self.angle() * (T::one() - t) + other.angle() * t)
     }

@@ -6,6 +6,7 @@ use crate::{Const, DefaultAllocator, Dim, Matrix, OMatrix, OVector, RealField};
 
 impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
     /// Solve a lower-triangular system with a dense right-hand-side.
+    #[must_use = "Did you mean to use solve_lower_triangular_mut()?"]
     pub fn solve_lower_triangular<R2: Dim, C2: Dim, S2>(
         &self,
         b: &Matrix<T, R2, C2, S2>,
@@ -24,6 +25,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
     }
 
     /// Solve a lower-triangular system with `self` transposed and a dense right-hand-side.
+    #[must_use = "Did you mean to use tr_solve_lower_triangular_mut()?"]
     pub fn tr_solve_lower_triangular<R2: Dim, C2: Dim, S2>(
         &self,
         b: &Matrix<T, R2, C2, S2>,
@@ -135,6 +137,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
     }
 
     /// Solve a lower-triangular system with a sparse right-hand-side.
+    #[must_use]
     pub fn solve_lower_triangular_cs<D2: Dim, S2>(
         &self,
         b: &CsVector<T, D2, S2>,

@@ -185,6 +185,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// assert_eq!(*rot.matrix(), expected);
     /// ```
     #[inline]
+    #[must_use]
     pub fn matrix(&self) -> &SMatrix<T, D, D> {
         &self.matrix
     }
@@ -262,6 +263,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// assert_eq!(rot.to_homogeneous(), expected);
     /// ```
     #[inline]
+    #[must_use]
     pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
     where
         T: Zero + One,
@@ -403,6 +405,7 @@ where
     /// assert_relative_eq!(transformed_point, Point3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self * pt
     }
@@ -422,6 +425,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self * v
     }
@@ -441,6 +445,7 @@ where
     /// assert_relative_eq!(transformed_point, Point3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         Point::from(self.inverse_transform_vector(&pt.coords))
     }
@@ -460,6 +465,7 @@ where
     /// assert_relative_eq!(transformed_vector, Vector3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.matrix().tr_mul(v)
     }
@@ -479,6 +485,7 @@ where
     /// assert_relative_eq!(transformed_vector, -Vector3::y_axis(), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse_transform_unit_vector(&self, v: &Unit<SVector<T, D>>) -> Unit<SVector<T, D>> {
         Unit::new_unchecked(self.inverse_transform_vector(&**v))
     }

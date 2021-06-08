@@ -112,6 +112,7 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
     ///
     /// # Errors
     /// Inputs must satisfy `self.len() >= kernel.len() > 0`.
+    #[must_use]
     pub fn convolve_same<D2, S2>(&self, kernel: Vector<T, D2, S2>) -> OVector<T, D1>
     where
         D2: Dim,

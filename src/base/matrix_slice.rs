@@ -812,6 +812,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Slices a sub-matrix containing the rows indexed by the range `rows` and the columns indexed
     /// by the range `cols`.
     #[inline]
+    #[must_use]
     pub fn slice_range<RowRange, ColRange>(
         &self,
         rows: RowRange,
@@ -830,6 +831,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Slice containing all the rows indexed by the range `rows`.
     #[inline]
+    #[must_use]
     pub fn rows_range<RowRange: SliceRange<R>>(
         &self,
         rows: RowRange,
@@ -839,6 +841,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Slice containing all the columns indexed by the range `rows`.
     #[inline]
+    #[must_use]
     pub fn columns_range<ColRange: SliceRange<C>>(
         &self,
         cols: ColRange,

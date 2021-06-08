@@ -80,6 +80,7 @@ where
     }
 
     /// Retrieves the lower-triangular factor of the cholesky decomposition.
+    #[must_use]
     pub fn l(&self) -> OMatrix<T, D, D> {
         let mut res = self.l.clone();
         res.fill_upper_triangle(Zero::zero(), 1);
@@ -91,6 +92,7 @@ where
     ///
     /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
     /// part are garbage and should be ignored by further computations.
+    #[must_use]
     pub fn l_dirty(&self) -> &OMatrix<T, D, D> {
         &self.l
     }

@@ -60,18 +60,21 @@ impl SparsityPattern {
 
     /// The offsets for the major dimension.
     #[inline]
+    #[must_use]
     pub fn major_offsets(&self) -> &[usize] {
         &self.major_offsets
     }
 
     /// The indices for the minor dimension.
     #[inline]
+    #[must_use]
     pub fn minor_indices(&self) -> &[usize] {
         &self.minor_indices
     }
 
     /// The number of major lanes in the pattern.
     #[inline]
+    #[must_use]
     pub fn major_dim(&self) -> usize {
         assert!(self.major_offsets.len() > 0);
         self.major_offsets.len() - 1
@@ -79,12 +82,14 @@ impl SparsityPattern {
 
     /// The number of minor lanes in the pattern.
     #[inline]
+    #[must_use]
     pub fn minor_dim(&self) -> usize {
         self.minor_dim
     }
 
     /// The number of "non-zeros", i.e. explicitly stored entries in the pattern.
     #[inline]
+    #[must_use]
     pub fn nnz(&self) -> usize {
         self.minor_indices.len()
     }
@@ -96,12 +101,14 @@ impl SparsityPattern {
     ///
     /// Panics if `major_index` is out of bounds.
     #[inline]
+    #[must_use]
     pub fn lane(&self, major_index: usize) -> &[usize] {
         self.get_lane(major_index).unwrap()
     }
 
     /// Get the lane at the given index, or `None` if out of bounds.
     #[inline]
+    #[must_use]
     pub fn get_lane(&self, major_index: usize) -> Option<&[usize]> {
         let offset_begin = *self.major_offsets().get(major_index)?;
         let offset_end = *self.major_offsets().get(major_index + 1)?;
@@ -197,6 +204,7 @@ impl SparsityPattern {
     /// assert_eq!(entries, vec![(0, 0), (0, 2), (1, 1), (2, 0)]);
     /// ```
     ///
+    #[must_use]
     pub fn entries(&self) -> SparsityPatternIter {
         SparsityPatternIter::from_pattern(self)
     }
@@ -228,6 +236,7 @@ impl SparsityPattern {
     ///
     /// This is analogous to matrix transposition, i.e. an entry `(i, j)` becomes `(j, i)` in the
     /// new pattern.
+    #[must_use]
     pub fn transpose(&self) -> Self {
         // By using unit () values, we can use the same routines as for CSR/CSC matrices
         let values = vec![(); self.nnz()];

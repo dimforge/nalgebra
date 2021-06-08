@@ -148,6 +148,7 @@ where
     /// assert_eq!(*rot.complex(), Complex::new(angle.cos(), angle.sin()));
     /// ```
     #[inline]
+    #[must_use]
     pub fn complex(&self) -> &Complex<T> {
         self.as_ref()
     }
@@ -244,6 +245,7 @@ where
     /// assert_relative_eq!(rot_to.inverse() * rot2, rot1);
     /// ```
     #[inline]
+    #[must_use]
     pub fn rotation_to(&self, other: &Self) -> Self {
         other / self
     }
@@ -262,6 +264,7 @@ where
     /// assert_relative_eq!(pow.angle(), 2.0 * 0.78);
     /// ```
     #[inline]
+    #[must_use]
     pub fn powf(&self, n: T) -> Self {
         Self::from_angle(self.angle() * n)
     }

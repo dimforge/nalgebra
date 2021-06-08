@@ -138,6 +138,7 @@ where
 
     /// The determinant of the decomposed matrix.
     #[inline]
+    #[must_use]
     pub fn determinant(&self) -> T {
         let mut det = T::one();
         for e in self.eigenvalues.iter() {
@@ -150,6 +151,7 @@ where
     /// Rebuild the original matrix.
     ///
     /// This is useful if some of the eigenvalues have been manually modified.
+    #[must_use]
     pub fn recompose(&self) -> OMatrix<T, D, D> {
         let mut u_t = self.eigenvectors.clone();
         for i in 0..self.eigenvalues.len() {
