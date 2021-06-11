@@ -820,12 +820,12 @@ impl<D: Dim> SliceRange<D> for RangeInclusive<usize> {
 
     #[inline(always)]
     fn end(&self, _: D) -> usize {
-        self.end() + 1
+        *self.end() + 1
     }
 
     #[inline(always)]
     fn size(&self, _: D) -> Self::Size {
-        Dynamic::new(self.end() + 1 - *self.start())
+        Dynamic::new(*self.end() + 1 - *self.start())
     }
 }
 
