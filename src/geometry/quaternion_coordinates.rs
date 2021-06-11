@@ -8,8 +8,8 @@ use crate::Scalar;
 
 use crate::geometry::Quaternion;
 
-impl<N: Scalar + SimdValue> Deref for Quaternion<N> {
-    type Target = IJKW<N>;
+impl<T: Scalar + SimdValue> Deref for Quaternion<T> {
+    type Target = IJKW<T>;
 
     #[inline]
     fn deref(&self) -> &Self::Target {
@@ -17,7 +17,7 @@ impl<N: Scalar + SimdValue> Deref for Quaternion<N> {
     }
 }
 
-impl<N: Scalar + SimdValue> DerefMut for Quaternion<N> {
+impl<T: Scalar + SimdValue> DerefMut for Quaternion<T> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         unsafe { mem::transmute(self) }

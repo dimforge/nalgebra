@@ -1,20 +1,16 @@
-use na::{DefaultAllocator, RealField};
+use na::RealField;
 
 use crate::aliases::TVec;
-use crate::traits::{Alloc, Dimension};
 
 /// The angle between two vectors.
-pub fn angle<N: RealField, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn angle<T: RealField, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T {
     x.angle(y)
 }
 
-//pub fn oriented_angle<N: RealField>(x: &TVec2<N>, y: &TVec2<N>) -> N {
+//pub fn oriented_angle<T: RealField>(x: &TVec2<T>, y: &TVec2<T>) -> T {
 //    unimplemented!()
 //}
 //
-//pub fn oriented_angle_ref<N: RealField>(x: &TVec3<N>, y: &TVec3<N>, refv: &TVec3<N>) -> N {
+//pub fn oriented_angle_ref<T: RealField>(x: &TVec3<T>, y: &TVec3<T>, refv: &TVec3<T>) -> T {
 //    unimplemented!()
 //}

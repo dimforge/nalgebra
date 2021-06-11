@@ -7,8 +7,8 @@ use nalgebra::base::dimension::*;
 use nalgebra::proptest::{DimRange, MatrixStrategy};
 use nalgebra::{
     DMatrix, DVector, DefaultAllocator, Dim, DualQuaternion, Isometry2, Isometry3, Matrix3,
-    MatrixMN, Point2, Point3, Quaternion, Rotation2, Rotation3, Scalar, Similarity3, Translation2,
-    Translation3, UnitComplex, UnitDualQuaternion, UnitQuaternion, Vector3, U2, U3, U4, U7, U8,
+    OMatrix, Point2, Point3, Quaternion, Rotation2, Rotation3, Scalar, Similarity3, Translation2,
+    Translation3, UnitComplex, UnitDualQuaternion, UnitQuaternion, Vector3, U3, U4,
 };
 use num_complex::Complex;
 use proptest::prelude::*;
@@ -62,7 +62,7 @@ pub fn isometry3() -> impl Strategy<Value = Isometry3<f64>> {
 // }
 
 pub fn similarity3() -> impl Strategy<Value = Similarity3<f64>> {
-    vector(PROPTEST_F64, U7)
+    vector(PROPTEST_F64, Const::<7>)
         .prop_map(|v| Similarity3::new(v.xyz(), Vector3::new(v[3], v[4], v[5]), v[6]))
 }
 
@@ -71,7 +71,7 @@ pub fn unit_dual_quaternion() -> impl Strategy<Value = UnitDualQuaternion<f64>> 
 }
 
 pub fn dual_quaternion() -> impl Strategy<Value = DualQuaternion<f64>> {
-    vector(PROPTEST_F64, U8).prop_map(|v| {
+    vector(PROPTEST_F64, Const::<8>).prop_map(|v| {
         DualQuaternion::from_real_and_dual(
             Quaternion::new(v[0], v[1], v[2], v[3]),
             Quaternion::new(v[4], v[5], v[6], v[7]),
@@ -88,7 +88,7 @@ pub fn unit_quaternion() -> impl Strategy<Value = UnitQuaternion<f64>> {
 }
 
 pub fn complex_f64() -> impl Strategy<Value = Complex<f64>> + Clone {
-    vector(PROPTEST_F64, U2).prop_map(|v| Complex::new(v.x, v.y))
+    vector(PROPTEST_F64, Const::<2>).prop_map(|v| Complex::new(v.x, v.y))
 }
 
 pub fn dmatrix() -> impl Strategy<Value = DMatrix<f64>> {
@@ -101,7 +101,7 @@ pub fn dvector() -> impl Strategy<Value = DVector<f64>> {
 
 pub fn dmatrix_<ScalarStrategy>(
     scalar_strategy: ScalarStrategy,
-) -> impl Strategy<Value = DMatrix<ScalarStrategy::Value>>
+) -> impl Strategy<Value = OMatrix<ScalarStrategy::Value, Dynamic, Dynamic>>
 where
     ScalarStrategy: Strategy + Clone + 'static,
     ScalarStrategy::Value: Scalar,
@@ -120,42 +120,41 @@ where
 // }
 
 macro_rules! define_strategies(
-    ($($strategy_: ident $strategy: ident<$nrows: ident, $ncols: ident>),*) => {$(
-        pub fn $strategy() -> impl Strategy<Value = MatrixMN<f64, $nrows, $ncols>> {
-            matrix(PROPTEST_F64, $nrows, $ncols)
+    ($($strategy_: ident $strategy: ident<$nrows: literal, $ncols: literal>),*) => {$(
+        pub fn $strategy() -> impl Strategy<Value = OMatrix<f64, Const<$nrows>, Const<$ncols>>> {
+            matrix(PROPTEST_F64, Const::<$nrows>, Const::<$ncols>)
         }
 
-        pub fn $strategy_<ScalarStrategy>(scalar_strategy: ScalarStrategy) -> impl Strategy<Value = MatrixMN<ScalarStrategy::Value, $nrows, $ncols>>
+        pub fn $strategy_<ScalarStrategy>(scalar_strategy: ScalarStrategy) -> impl Strategy<Value = OMatrix<ScalarStrategy::Value, Const<$nrows>, Const<$ncols>>>
             where
                 ScalarStrategy: Strategy + Clone + 'static,
-                ScalarStrategy::Value: Scalar,
-                DefaultAllocator: Allocator<ScalarStrategy::Value, $nrows, $ncols> {
-            matrix(scalar_strategy, $nrows, $ncols)
+                ScalarStrategy::Value: Scalar, {
+            matrix(scalar_strategy, Const::<$nrows>, Const::<$ncols>)
         }
     )*}
 );
 
 define_strategies!(
-    matrix1_ matrix1<U1, U1>,
-    matrix2_ matrix2<U2, U2>,
-    matrix3_ matrix3<U3, U3>,
-    matrix4_ matrix4<U4, U4>,
-    matrix5_ matrix5<U5, U5>,
-    matrix6_ matrix6<U6, U6>,
+    matrix1_ matrix1<1, 1>,
+    matrix2_ matrix2<2, 2>,
+    matrix3_ matrix3<3, 3>,
+    matrix4_ matrix4<4, 4>,
+    matrix5_ matrix5<5, 5>,
+    matrix6_ matrix6<6, 6>,
 
-    matrix5x2_ matrix5x2<U5, U2>,
-    matrix2x5_ matrix2x5<U2, U5>,
-    matrix5x3_ matrix5x3<U5, U3>,
-    matrix3x5_ matrix3x5<U3, U5>,
-    matrix5x4_ matrix5x4<U5, U4>,
-    matrix4x5_ matrix4x5<U4, U5>,
+    matrix5x2_ matrix5x2<5, 2>,
+    matrix2x5_ matrix2x5<2, 5>,
+    matrix5x3_ matrix5x3<5, 3>,
+    matrix3x5_ matrix3x5<3, 5>,
+    matrix5x4_ matrix5x4<5, 4>,
+    matrix4x5_ matrix4x5<4, 5>,
 
-    vector1_ vector1<U1, U1>,
-    vector2_ vector2<U2, U1>,
-    vector3_ vector3<U3, U1>,
-    vector4_ vector4<U4, U1>,
-    vector5_ vector5<U5, U1>,
-    vector6_ vector6<U6, U1>
+    vector1_ vector1<1, 1>,
+    vector2_ vector2<2, 1>,
+    vector3_ vector3<3, 1>,
+    vector4_ vector4<4, 1>,
+    vector5_ vector5<5, 1>,
+    vector6_ vector6<6, 1>
 );
 
 /// Generate a proptest that tests that all matrices generated with the
@@ -166,7 +165,7 @@ macro_rules! generate_matrix_sanity_test {
         proptest! {
             #[test]
             fn $test_name(a in matrix(-5 ..= 5i32, $rows, $cols)) {
-                // let a: MatrixMN<_, $rows, $cols> = a;
+                // let a: OMatrix<_, $rows, $cols> = a;
                 let rows_range = DimRange::from($rows);
                 let cols_range = DimRange::from($cols);
                 prop_assert!(a.nrows() >= rows_range.lower_bound().value()
@@ -180,16 +179,16 @@ macro_rules! generate_matrix_sanity_test {
 }
 
 // Test all fixed-size matrices with row/col dimensions up to 3
-generate_matrix_sanity_test!(test_matrix_u0_u0, U0, U0);
-generate_matrix_sanity_test!(test_matrix_u1_u0, U1, U0);
-generate_matrix_sanity_test!(test_matrix_u0_u1, U0, U1);
-generate_matrix_sanity_test!(test_matrix_u1_u1, U1, U1);
-generate_matrix_sanity_test!(test_matrix_u2_u1, U2, U1);
-generate_matrix_sanity_test!(test_matrix_u1_u2, U1, U2);
-generate_matrix_sanity_test!(test_matrix_u2_u2, U2, U2);
-generate_matrix_sanity_test!(test_matrix_u3_u2, U3, U2);
-generate_matrix_sanity_test!(test_matrix_u2_u3, U2, U3);
-generate_matrix_sanity_test!(test_matrix_u3_u3, U3, U3);
+generate_matrix_sanity_test!(test_matrix_u0_u0, Const::<0>, Const::<0>);
+generate_matrix_sanity_test!(test_matrix_u1_u0, Const::<1>, Const::<0>);
+generate_matrix_sanity_test!(test_matrix_u0_u1, Const::<0>, Const::<1>);
+generate_matrix_sanity_test!(test_matrix_u1_u1, Const::<1>, Const::<1>);
+generate_matrix_sanity_test!(test_matrix_u2_u1, Const::<2>, Const::<1>);
+generate_matrix_sanity_test!(test_matrix_u1_u2, Const::<1>, Const::<2>);
+generate_matrix_sanity_test!(test_matrix_u2_u2, Const::<2>, Const::<2>);
+generate_matrix_sanity_test!(test_matrix_u3_u2, Const::<3>, Const::<2>);
+generate_matrix_sanity_test!(test_matrix_u2_u3, Const::<2>, Const::<3>);
+generate_matrix_sanity_test!(test_matrix_u3_u3, Const::<3>, Const::<3>);
 
 // Similarly test all heap-allocated but fixed dim ranges
 generate_matrix_sanity_test!(test_matrix_0_0, 0, 0);
@@ -204,32 +203,32 @@ generate_matrix_sanity_test!(test_matrix_2_3, 2, 3);
 generate_matrix_sanity_test!(test_matrix_3_3, 3, 3);
 
 // Test arbitrary inputs
-generate_matrix_sanity_test!(test_matrix_input_1, U5, 1..=5);
+generate_matrix_sanity_test!(test_matrix_input_1, Const::<5>, 1..=5);
 generate_matrix_sanity_test!(test_matrix_input_2, 3..=4, 1..=5);
-generate_matrix_sanity_test!(test_matrix_input_3, 1..=2, U3);
-generate_matrix_sanity_test!(test_matrix_input_4, 3, U4);
+generate_matrix_sanity_test!(test_matrix_input_3, 1..=2, Const::<3>);
+generate_matrix_sanity_test!(test_matrix_input_4, 3, Const::<4>);
 
 #[test]
 fn test_matrix_output_types() {
     // Test that the dimension types are correct for the given inputs
-    let _: MatrixStrategy<_, U3, U4> = matrix(-5..5, U3, U4);
-    let _: MatrixStrategy<_, U3, U3> = matrix(-5..5, U3, U3);
-    let _: MatrixStrategy<_, U3, Dynamic> = matrix(-5..5, U3, 1..=5);
-    let _: MatrixStrategy<_, Dynamic, U3> = matrix(-5..5, 1..=5, U3);
+    let _: MatrixStrategy<_, U3, U4> = matrix(-5..5, Const::<3>, Const::<4>);
+    let _: MatrixStrategy<_, U3, U3> = matrix(-5..5, Const::<3>, Const::<3>);
+    let _: MatrixStrategy<_, U3, Dynamic> = matrix(-5..5, Const::<3>, 1..=5);
+    let _: MatrixStrategy<_, Dynamic, U3> = matrix(-5..5, 1..=5, Const::<3>);
     let _: MatrixStrategy<_, Dynamic, Dynamic> = matrix(-5..5, 1..=5, 1..=5);
 }
 
-// Below we have some tests to ensure that specific instances of MatrixMN are usable
+// Below we have some tests to ensure that specific instances of OMatrix are usable
 // in a typical proptest scenario where we (implicitly) use the `Arbitrary` trait
 proptest! {
     #[test]
     fn ensure_arbitrary_test_compiles_matrix3(_: Matrix3<i32>) {}
 
     #[test]
-    fn ensure_arbitrary_test_compiles_matrixmn_u3_dynamic(_: MatrixMN<i32, U3, Dynamic>) {}
+    fn ensure_arbitrary_test_compiles_matrixmn_u3_dynamic(_: OMatrix<i32, U3, Dynamic>) {}
 
     #[test]
-    fn ensure_arbitrary_test_compiles_matrixmn_dynamic_u3(_: MatrixMN<i32, Dynamic, U3>) {}
+    fn ensure_arbitrary_test_compiles_matrixmn_dynamic_u3(_: OMatrix<i32, Dynamic, U3>) {}
 
     #[test]
     fn ensure_arbitrary_test_compiles_dmatrix(_: DMatrix<i32>) {}

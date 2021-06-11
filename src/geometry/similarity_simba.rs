@@ -1,29 +1,24 @@
 use simba::simd::{SimdRealField, SimdValue};
 
-use crate::base::allocator::Allocator;
-use crate::base::dimension::DimName;
-use crate::base::DefaultAllocator;
-
 use crate::geometry::{AbstractRotation, Isometry, Similarity};
 
-impl<N: SimdRealField, D: DimName, R> SimdValue for Similarity<N, D, R>
+impl<T: SimdRealField, R, const D: usize> SimdValue for Similarity<T, R, D>
 where
-    N::Element: SimdRealField,
-    R: SimdValue<SimdBool = N::SimdBool> + AbstractRotation<N, D>,
-    R::Element: AbstractRotation<N::Element, D>,
-    DefaultAllocator: Allocator<N, D> + Allocator<N::Element, D>,
+    T::Element: SimdRealField,
+    R: SimdValue<SimdBool = T::SimdBool> + AbstractRotation<T, D>,
+    R::Element: AbstractRotation<T::Element, D>,
 {
-    type Element = Similarity<N::Element, D, R::Element>;
-    type SimdBool = N::SimdBool;
+    type Element = Similarity<T::Element, R::Element, D>;
+    type SimdBool = T::SimdBool;
 
     #[inline]
     fn lanes() -> usize {
-        N::lanes()
+        T::lanes()
     }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
-        let scaling = N::splat(val.scaling());
+        let scaling = T::splat(val.scaling());
         Similarity::from_isometry(Isometry::splat(val.isometry), scaling)
     }
 

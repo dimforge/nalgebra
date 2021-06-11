@@ -7,35 +7,35 @@ mod macros;
 fn qr_decompose_100x100(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(100, 100);
     bh.bench_function("qr_decompose_100x100", move |bh| {
-        bh.iter(|| test::black_box(QR::new(m.clone())))
+        bh.iter(|| std::hint::black_box(QR::new(m.clone())))
     });
 }
 
 fn qr_decompose_100x500(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(100, 500);
     bh.bench_function("qr_decompose_100x500", move |bh| {
-        bh.iter(|| test::black_box(QR::new(m.clone())))
+        bh.iter(|| std::hint::black_box(QR::new(m.clone())))
     });
 }
 
 fn qr_decompose_4x4(bh: &mut criterion::Criterion) {
     let m = Matrix4::<f64>::new_random();
     bh.bench_function("qr_decompose_4x4", move |bh| {
-        bh.iter(|| test::black_box(QR::new(m.clone())))
+        bh.iter(|| std::hint::black_box(QR::new(m.clone())))
     });
 }
 
 fn qr_decompose_500x100(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(500, 100);
     bh.bench_function("qr_decompose_500x100", move |bh| {
-        bh.iter(|| test::black_box(QR::new(m.clone())))
+        bh.iter(|| std::hint::black_box(QR::new(m.clone())))
     });
 }
 
 fn qr_decompose_500x500(bh: &mut criterion::Criterion) {
     let m = DMatrix::<f64>::new_random(500, 500);
     bh.bench_function("qr_decompose_500x500", move |bh| {
-        bh.iter(|| test::black_box(QR::new(m.clone())))
+        bh.iter(|| std::hint::black_box(QR::new(m.clone())))
     });
 }
 
@@ -121,7 +121,7 @@ fn qr_inverse_10x10(bh: &mut criterion::Criterion) {
     let qr = QR::new(m.clone());
 
     bh.bench_function("qr_inverse_10x10", move |bh| {
-        bh.iter(|| test::black_box(qr.try_inverse()))
+        bh.iter(|| std::hint::black_box(qr.try_inverse()))
     });
 }
 
@@ -130,7 +130,7 @@ fn qr_inverse_100x100(bh: &mut criterion::Criterion) {
     let qr = QR::new(m.clone());
 
     bh.bench_function("qr_inverse_100x100", move |bh| {
-        bh.iter(|| test::black_box(qr.try_inverse()))
+        bh.iter(|| std::hint::black_box(qr.try_inverse()))
     });
 }
 
@@ -139,7 +139,7 @@ fn qr_inverse_500x500(bh: &mut criterion::Criterion) {
     let qr = QR::new(m.clone());
 
     bh.bench_function("qr_inverse_500x500", move |bh| {
-        bh.iter(|| test::black_box(qr.try_inverse()))
+        bh.iter(|| std::hint::black_box(qr.try_inverse()))
     });
 }
 

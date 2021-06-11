@@ -10,13 +10,13 @@ use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::Dim;
 use crate::base::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, Matrix, MatrixMN, MatrixSum, Scalar};
+use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar};
 use crate::ClosedAdd;
 
 /// The type of the result of a matrix component-wise operation.
-pub type MatrixComponentOp<N, R1, C1, R2, C2> = MatrixSum<N, R1, C1, R2, C2>;
+pub type MatrixComponentOp<T, R1, C1, R2, C2> = MatrixSum<T, R1, C1, R2, C2>;
 
-impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
+impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Computes the component-wise absolute value.
     ///
     /// # Example
@@ -28,10 +28,11 @@ impl<N: Scalar, R: Dim, C: Dim, S: Storage<N, R, C>> Matrix<N, R, C, S> {
     /// assert_eq!(a.abs(), Matrix2::new(0.0, 1.0, 2.0, 3.0))
     /// ```
     #[inline]
-    pub fn abs(&self) -> MatrixMN<N, R, C>
+    #[must_use]
+    pub fn abs(&self) -> OMatrix<T, R, C>
     where
-        N: Signed,
-        DefaultAllocator: Allocator<N, R, C>,
+        T: Signed,
+        DefaultAllocator: Allocator<T, R, C>,
     {
         let mut res = self.clone_owned();
 
@@ -49,11 +50,12 @@ macro_rules! component_binop_impl(
     ($($binop: ident, $binop_mut: ident, $binop_assign: ident, $cmpy: ident, $Trait: ident . $op: ident . $op_assign: ident, $desc:expr, $desc_cmpy:expr, $desc_mut:expr);* $(;)*) => {$(
         #[doc = $desc]
         #[inline]
-        pub fn $binop<R2, C2, SB>(&self, rhs: &Matrix<N, R2, C2, SB>) -> MatrixComponentOp<N, R1, C1, R2, C2>
-            where N: $Trait,
+        #[must_use]
+        pub fn $binop<R2, C2, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> MatrixComponentOp<T, R1, C1, R2, C2>
+            where T: $Trait,
                   R2: Dim, C2: Dim,
-                  SB: Storage<N, R2, C2>,
-                  DefaultAllocator: SameShapeAllocator<N, R1, C1, R2, C2>,
+                  SB: Storage<T, R2, C2>,
+                  DefaultAllocator: SameShapeAllocator<T, R1, C1, R2, C2>,
                   ShapeConstraint:  SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
 
             assert_eq!(self.shape(), rhs.shape(), "Componentwise mul/div: mismatched matrix dimensions.");
@@ -73,13 +75,13 @@ macro_rules! component_binop_impl(
         // componentwise binop plus Y.
         #[doc = $desc_cmpy]
         #[inline]
-        pub fn $cmpy<R2, C2, SB, R3, C3, SC>(&mut self, alpha: N, a: &Matrix<N, R2, C2, SB>, b: &Matrix<N, R3, C3, SC>, beta: N)
-            where N: $Trait + Zero + Mul<N, Output = N> + Add<N, Output = N>,
+        pub fn $cmpy<R2, C2, SB, R3, C3, SC>(&mut self, alpha: T, a: &Matrix<T, R2, C2, SB>, b: &Matrix<T, R3, C3, SC>, beta: T)
+            where T: $Trait + Zero + Mul<T, Output = T> + Add<T, Output = T>,
                   R2: Dim, C2: Dim,
                   R3: Dim, C3: Dim,
-                  SA: StorageMut<N, R1, C1>,
-                  SB: Storage<N, R2, C2>,
-                  SC: Storage<N, R3, C3>,
+                  SA: StorageMut<T, R1, C1>,
+                  SB: Storage<T, R2, C2>,
+                  SC: Storage<T, R3, C3>,
                   ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> +
                                    SameNumberOfRows<R1, R3> + SameNumberOfColumns<C1, C3> {
             assert_eq!(self.shape(), a.shape(), "Componentwise mul/div: mismatched matrix dimensions.");
@@ -109,12 +111,12 @@ macro_rules! component_binop_impl(
 
         #[doc = $desc_mut]
         #[inline]
-        pub fn $binop_assign<R2, C2, SB>(&mut self, rhs: &Matrix<N, R2, C2, SB>)
-            where N: $Trait,
+        pub fn $binop_assign<R2, C2, SB>(&mut self, rhs: &Matrix<T, R2, C2, SB>)
+            where T: $Trait,
                   R2: Dim,
                   C2: Dim,
-                  SA: StorageMut<N, R1, C1>,
-                  SB: Storage<N, R2, C2>,
+                  SA: StorageMut<T, R1, C1>,
+                  SB: Storage<T, R2, C2>,
                   ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
 
             assert_eq!(self.shape(), rhs.shape(), "Componentwise mul/div: mismatched matrix dimensions.");
@@ -131,12 +133,12 @@ macro_rules! component_binop_impl(
         #[doc = $desc_mut]
         #[inline]
         #[deprecated(note = "This is renamed using the `_assign` suffix instead of the `_mut` suffix.")]
-        pub fn $binop_mut<R2, C2, SB>(&mut self, rhs: &Matrix<N, R2, C2, SB>)
-            where N: $Trait,
+        pub fn $binop_mut<R2, C2, SB>(&mut self, rhs: &Matrix<T, R2, C2, SB>)
+            where T: $Trait,
                   R2: Dim,
                   C2: Dim,
-                  SA: StorageMut<N, R1, C1>,
-                  SB: Storage<N, R2, C2>,
+                  SA: StorageMut<T, R1, C1>,
+                  SB: Storage<T, R2, C2>,
                   ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
             self.$binop_assign(rhs)
         }
@@ -144,7 +146,7 @@ macro_rules! component_binop_impl(
 );
 
 /// # Componentwise operations
-impl<N: Scalar, R1: Dim, C1: Dim, SA: Storage<N, R1, C1>> Matrix<N, R1, C1, SA> {
+impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> {
     component_binop_impl!(
         component_mul, component_mul_mut, component_mul_assign, cmpy, ClosedMul.mul.mul_assign,
         r"
@@ -240,43 +242,86 @@ impl<N: Scalar, R1: Dim, C1: Dim, SA: Storage<N, R1, C1>> Matrix<N, R1, C1, SA> 
     );
 
     /// Computes the infimum (aka. componentwise min) of two matrices/vectors.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let u = Matrix2::new(4.0, 2.0, 1.0, -2.0);
+    /// let v = Matrix2::new(2.0, 4.0, -2.0, 1.0);
+    /// let expected = Matrix2::new(2.0, 2.0, -2.0, -2.0);
+    /// assert_eq!(u.inf(&v), expected)
+    /// ```
     #[inline]
-    pub fn inf(&self, other: &Self) -> MatrixMN<N, R1, C1>
+    #[must_use]
+    pub fn inf(&self, other: &Self) -> OMatrix<T, R1, C1>
     where
-        N: SimdPartialOrd,
-        DefaultAllocator: Allocator<N, R1, C1>,
+        T: SimdPartialOrd,
+        DefaultAllocator: Allocator<T, R1, C1>,
     {
         self.zip_map(other, |a, b| a.simd_min(b))
     }
 
     /// Computes the supremum (aka. componentwise max) of two matrices/vectors.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let u = Matrix2::new(4.0, 2.0, 1.0, -2.0);
+    /// let v = Matrix2::new(2.0, 4.0, -2.0, 1.0);
+    /// let expected = Matrix2::new(4.0, 4.0, 1.0, 1.0);
+    /// assert_eq!(u.sup(&v), expected)
+    /// ```
     #[inline]
-    pub fn sup(&self, other: &Self) -> MatrixMN<N, R1, C1>
+    #[must_use]
+    pub fn sup(&self, other: &Self) -> OMatrix<T, R1, C1>
     where
-        N: SimdPartialOrd,
-        DefaultAllocator: Allocator<N, R1, C1>,
+        T: SimdPartialOrd,
+        DefaultAllocator: Allocator<T, R1, C1>,
     {
         self.zip_map(other, |a, b| a.simd_max(b))
     }
 
     /// Computes the (infimum, supremum) of two matrices/vectors.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let u = Matrix2::new(4.0, 2.0, 1.0, -2.0);
+    /// let v = Matrix2::new(2.0, 4.0, -2.0, 1.0);
+    /// let expected = (Matrix2::new(2.0, 2.0, -2.0, -2.0), Matrix2::new(4.0, 4.0, 1.0, 1.0));
+    /// assert_eq!(u.inf_sup(&v), expected)
+    /// ```
     #[inline]
-    pub fn inf_sup(&self, other: &Self) -> (MatrixMN<N, R1, C1>, MatrixMN<N, R1, C1>)
+    #[must_use]
+    pub fn inf_sup(&self, other: &Self) -> (OMatrix<T, R1, C1>, OMatrix<T, R1, C1>)
     where
-        N: SimdPartialOrd,
-        DefaultAllocator: Allocator<N, R1, C1>,
+        T: SimdPartialOrd,
+        DefaultAllocator: Allocator<T, R1, C1>,
     {
         // TODO: can this be optimized?
         (self.inf(other), self.sup(other))
     }
 
     /// Adds a scalar to `self`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let u = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+    /// let s = 10.0;
+    /// let expected = Matrix2::new(11.0, 12.0, 13.0, 14.0);
+    /// assert_eq!(u.add_scalar(s), expected)
+    /// ```
     #[inline]
     #[must_use = "Did you mean to use add_scalar_mut()?"]
-    pub fn add_scalar(&self, rhs: N) -> MatrixMN<N, R1, C1>
+    pub fn add_scalar(&self, rhs: T) -> OMatrix<T, R1, C1>
     where
-        N: ClosedAdd,
-        DefaultAllocator: Allocator<N, R1, C1>,
+        T: ClosedAdd,
+        DefaultAllocator: Allocator<T, R1, C1>,
     {
         let mut res = self.clone_owned();
         res.add_scalar_mut(rhs);
@@ -284,11 +329,22 @@ impl<N: Scalar, R1: Dim, C1: Dim, SA: Storage<N, R1, C1>> Matrix<N, R1, C1, SA> 
     }
 
     /// Adds a scalar to `self` in-place.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut u = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+    /// let s = 10.0;
+    /// u.add_scalar_mut(s);
+    /// let expected = Matrix2::new(11.0, 12.0, 13.0, 14.0);
+    /// assert_eq!(u, expected)
+    /// ```
     #[inline]
-    pub fn add_scalar_mut(&mut self, rhs: N)
+    pub fn add_scalar_mut(&mut self, rhs: T)
     where
-        N: ClosedAdd,
-        SA: StorageMut<N, R1, C1>,
+        T: ClosedAdd,
+        SA: StorageMut<T, R1, C1>,
     {
         for e in self.iter_mut() {
             *e += rhs.inlined_clone()

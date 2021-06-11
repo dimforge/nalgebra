@@ -9,10 +9,10 @@ macro_rules! gen_tests(
             use crate::proptest::*;
             use proptest::{prop_assert, proptest};
 
-            fn unzero_diagonal<N: ComplexField>(a: &mut Matrix4<N>) {
+            fn unzero_diagonal<T: ComplexField>(a: &mut Matrix4<T>) {
                 for i in 0..4 {
                     if a[(i, i)].norm1() < na::convert(1.0e-7) {
-                        a[(i, i)] = N::one();
+                        a[(i, i)] = T::one();
                     }
                 }
             }

@@ -5,7 +5,7 @@ fn cholesky_100x100(bh: &mut criterion::Criterion) {
     let m = &m * m.transpose();
 
     bh.bench_function("cholesky_100x100", move |bh| {
-        bh.iter(|| test::black_box(Cholesky::new(m.clone())))
+        bh.iter(|| std::hint::black_box(Cholesky::new(m.clone())))
     });
 }
 
@@ -14,7 +14,7 @@ fn cholesky_500x500(bh: &mut criterion::Criterion) {
     let m = &m * m.transpose();
 
     bh.bench_function("cholesky_500x500", move |bh| {
-        bh.iter(|| test::black_box(Cholesky::new(m.clone())))
+        bh.iter(|| std::hint::black_box(Cholesky::new(m.clone())))
     });
 }
 

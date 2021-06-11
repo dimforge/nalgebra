@@ -6,38 +6,38 @@ use quickcheck::{Arbitrary, Gen};
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, Dynamic};
 use crate::base::Scalar;
-use crate::base::{DefaultAllocator, MatrixN};
+use crate::base::{DefaultAllocator, OMatrix};
 use simba::scalar::ComplexField;
 
 use crate::debug::RandomOrthogonal;
 
 /// A random, well-conditioned, symmetric definite-positive matrix.
 #[derive(Clone, Debug)]
-pub struct RandomSDP<N: Scalar, D: Dim = Dynamic>
+pub struct RandomSDP<T: Scalar, D: Dim = Dynamic>
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D, D>,
 {
-    m: MatrixN<N, D>,
+    m: OMatrix<T, D, D>,
 }
 
-impl<N: ComplexField, D: Dim> RandomSDP<N, D>
+impl<T: ComplexField, D: Dim> RandomSDP<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
+    DefaultAllocator: Allocator<T, D, D>,
 {
     /// Retrieve the generated matrix.
-    pub fn unwrap(self) -> MatrixN<N, D> {
+    pub fn unwrap(self) -> OMatrix<T, D, D> {
         self.m
     }
 
     /// Creates a new well conditioned symmetric definite-positive matrix from its dimension and a
     /// random reals generators.
-    pub fn new<Rand: FnMut() -> N>(dim: D, mut rand: Rand) -> Self {
+    pub fn new<Rand: FnMut() -> T>(dim: D, mut rand: Rand) -> Self {
         let mut m = RandomOrthogonal::new(dim, || rand()).unwrap();
         let mt = m.adjoint();
 
         for i in 0..dim.value() {
             let mut col = m.column_mut(i);
-            let eigenval = N::one() + N::from_real(rand().modulus());
+            let eigenval = T::one() + T::from_real(rand().modulus());
             col *= eigenval;
         }
 
@@ -46,13 +46,13 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<N: ComplexField + Arbitrary + Send, D: Dim> Arbitrary for RandomSDP<N, D>
+impl<T: ComplexField + Arbitrary + Send, D: Dim> Arbitrary for RandomSDP<T, D>
 where
-    DefaultAllocator: Allocator<N, D, D>,
-    Owned<N, D, D>: Clone + Send,
+    DefaultAllocator: Allocator<T, D, D>,
+    Owned<T, D, D>: Clone + Send,
 {
     fn arbitrary(g: &mut Gen) -> Self {
         let dim = D::try_to_usize().unwrap_or(1 + usize::arbitrary(g) % 50);
-        Self::new(D::from_usize(dim), || N::arbitrary(g))
+        Self::new(D::from_usize(dim), || T::arbitrary(g))
     }
 }

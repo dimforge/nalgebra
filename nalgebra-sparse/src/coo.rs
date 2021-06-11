@@ -130,6 +130,30 @@ impl<T> CooMatrix<T> {
             .map(|((i, j), v)| (*i, *j, v))
     }
 
+    /// Reserves capacity for COO matrix by at least `additional` elements.
+    ///
+    /// This increase the capacities of triplet holding arrays by reserving more space to avoid
+    /// frequent reallocations in `push` operations.
+    ///
+    /// ## Panics
+    ///
+    /// Panics if any of the individual allocation of triplet arrays fails.
+    ///
+    /// ## Example
+    ///
+    /// ```
+    /// # use nalgebra_sparse::coo::CooMatrix;
+    /// let mut coo = CooMatrix::new(4, 4);
+    /// // Reserve capacity in advance
+    /// coo.reserve(10);
+    /// coo.push(1, 0, 3.0);
+    /// ```
+    pub fn reserve(&mut self, additional: usize) {
+        self.row_indices.reserve(additional);
+        self.col_indices.reserve(additional);
+        self.values.reserve(additional);
+    }
+
     /// Push a single triplet to the matrix.
     ///
     /// This adds the value `v` to the `i`th row and `j`th column in the matrix.
@@ -149,12 +173,14 @@ impl<T> CooMatrix<T> {
 
     /// The number of rows in the matrix.
     #[inline]
+    #[must_use]
     pub fn nrows(&self) -> usize {
         self.nrows
     }
 
     /// The number of columns in the matrix.
     #[inline]
+    #[must_use]
     pub fn ncols(&self) -> usize {
         self.ncols
     }
@@ -165,21 +191,25 @@ impl<T> CooMatrix<T> {
     /// entries, then it may have a different number of non-zeros as reported by `nnz()` compared
     /// to its CSR representation.
     #[inline]
+    #[must_use]
     pub fn nnz(&self) -> usize {
         self.values.len()
     }
 
     /// The row indices of the explicitly stored entries.
+    #[must_use]
     pub fn row_indices(&self) -> &[usize] {
         &self.row_indices
     }
 
     /// The column indices of the explicitly stored entries.
+    #[must_use]
     pub fn col_indices(&self) -> &[usize] {
         &self.col_indices
     }
 
     /// The values of the explicitly stored entries.
+    #[must_use]
     pub fn values(&self) -> &[T] {
         &self.values
     }

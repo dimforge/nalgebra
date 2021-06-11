@@ -1,11 +1,10 @@
-use crate::allocator::Allocator;
 use crate::geometry::{Rotation, UnitComplex, UnitQuaternion};
-use crate::{DefaultAllocator, DimName, Point, Scalar, SimdRealField, Unit, VectorN, U2, U3};
+use crate::{Const, OVector, Point, SVector, Scalar, SimdRealField, Unit};
 
 use simba::scalar::ClosedMul;
 
 /// Trait implemented by rotations that can be used inside of an `Isometry` or `Similarity`.
-pub trait AbstractRotation<N: Scalar, D: DimName>: PartialEq + ClosedMul + Clone {
+pub trait AbstractRotation<T: Scalar, const D: usize>: PartialEq + ClosedMul + Clone {
     /// The rotation identity.
     fn identity() -> Self;
     /// The rotation inverse.
@@ -13,34 +12,22 @@ pub trait AbstractRotation<N: Scalar, D: DimName>: PartialEq + ClosedMul + Clone
     /// Change `self` to its inverse.
     fn inverse_mut(&mut self);
     /// Apply the rotation to the given vector.
-    fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D>
-    where
-        DefaultAllocator: Allocator<N, D>;
+    fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D>;
     /// Apply the rotation to the given point.
-    fn transform_point(&self, p: &Point<N, D>) -> Point<N, D>
-    where
-        DefaultAllocator: Allocator<N, D>;
+    fn transform_point(&self, p: &Point<T, D>) -> Point<T, D>;
     /// Apply the inverse rotation to the given vector.
-    fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D>
-    where
-        DefaultAllocator: Allocator<N, D>;
+    fn inverse_transform_vector(&self, v: &OVector<T, Const<D>>) -> OVector<T, Const<D>>;
     /// Apply the inverse rotation to the given unit vector.
-    fn inverse_transform_unit_vector(&self, v: &Unit<VectorN<N, D>>) -> Unit<VectorN<N, D>>
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
+    fn inverse_transform_unit_vector(&self, v: &Unit<SVector<T, D>>) -> Unit<SVector<T, D>> {
         Unit::new_unchecked(self.inverse_transform_vector(&**v))
     }
     /// Apply the inverse rotation to the given point.
-    fn inverse_transform_point(&self, p: &Point<N, D>) -> Point<N, D>
-    where
-        DefaultAllocator: Allocator<N, D>;
+    fn inverse_transform_point(&self, p: &Point<T, D>) -> Point<T, D>;
 }
 
-impl<N: SimdRealField, D: DimName> AbstractRotation<N, D> for Rotation<N, D>
+impl<T: SimdRealField, const D: usize> AbstractRotation<T, D> for Rotation<T, D>
 where
-    N::Element: SimdRealField,
-    DefaultAllocator: Allocator<N, D, D>,
+    T::Element: SimdRealField,
 {
     #[inline]
     fn identity() -> Self {
@@ -58,49 +45,34 @@ where
     }
 
     #[inline]
-    fn transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D>
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
+    fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self * v
     }
 
     #[inline]
-    fn transform_point(&self, p: &Point<N, D>) -> Point<N, D>
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
+    fn transform_point(&self, p: &Point<T, D>) -> Point<T, D> {
         self * p
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &VectorN<N, D>) -> VectorN<N, D>
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
+    fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.inverse_transform_vector(v)
     }
 
     #[inline]
-    fn inverse_transform_unit_vector(&self, v: &Unit<VectorN<N, D>>) -> Unit<VectorN<N, D>>
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
+    fn inverse_transform_unit_vector(&self, v: &Unit<SVector<T, D>>) -> Unit<SVector<T, D>> {
         self.inverse_transform_unit_vector(v)
     }
 
     #[inline]
-    fn inverse_transform_point(&self, p: &Point<N, D>) -> Point<N, D>
-    where
-        DefaultAllocator: Allocator<N, D>,
-    {
+    fn inverse_transform_point(&self, p: &Point<T, D>) -> Point<T, D> {
         self.inverse_transform_point(p)
     }
 }
 
-impl<N: SimdRealField> AbstractRotation<N, U3> for UnitQuaternion<N>
+impl<T: SimdRealField> AbstractRotation<T, 3> for UnitQuaternion<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
     fn identity() -> Self {
@@ -118,29 +90,29 @@ where
     }
 
     #[inline]
-    fn transform_vector(&self, v: &VectorN<N, U3>) -> VectorN<N, U3> {
+    fn transform_vector(&self, v: &SVector<T, 3>) -> SVector<T, 3> {
         self * v
     }
 
     #[inline]
-    fn transform_point(&self, p: &Point<N, U3>) -> Point<N, U3> {
+    fn transform_point(&self, p: &Point<T, 3>) -> Point<T, 3> {
         self * p
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &VectorN<N, U3>) -> VectorN<N, U3> {
+    fn inverse_transform_vector(&self, v: &SVector<T, 3>) -> SVector<T, 3> {
         self.inverse_transform_vector(v)
     }
 
     #[inline]
-    fn inverse_transform_point(&self, p: &Point<N, U3>) -> Point<N, U3> {
+    fn inverse_transform_point(&self, p: &Point<T, 3>) -> Point<T, 3> {
         self.inverse_transform_point(p)
     }
 }
 
-impl<N: SimdRealField> AbstractRotation<N, U2> for UnitComplex<N>
+impl<T: SimdRealField> AbstractRotation<T, 2> for UnitComplex<T>
 where
-    N::Element: SimdRealField,
+    T::Element: SimdRealField,
 {
     #[inline]
     fn identity() -> Self {
@@ -158,22 +130,22 @@ where
     }
 
     #[inline]
-    fn transform_vector(&self, v: &VectorN<N, U2>) -> VectorN<N, U2> {
+    fn transform_vector(&self, v: &SVector<T, 2>) -> SVector<T, 2> {
         self * v
     }
 
     #[inline]
-    fn transform_point(&self, p: &Point<N, U2>) -> Point<N, U2> {
+    fn transform_point(&self, p: &Point<T, 2>) -> Point<T, 2> {
         self * p
     }
 
     #[inline]
-    fn inverse_transform_vector(&self, v: &VectorN<N, U2>) -> VectorN<N, U2> {
+    fn inverse_transform_vector(&self, v: &SVector<T, 2>) -> SVector<T, 2> {
         self.inverse_transform_vector(v)
     }
 
     #[inline]
-    fn inverse_transform_point(&self, p: &Point<N, U2>) -> Point<N, U2> {
+    fn inverse_transform_point(&self, p: &Point<T, 2>) -> Point<T, 2> {
         self.inverse_transform_point(p)
     }
 }

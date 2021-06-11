@@ -42,6 +42,7 @@ impl CscSymbolicCholesky {
     }
 
     /// The pattern of the Cholesky factor `L`.
+    #[must_use]
     pub fn l_pattern(&self) -> &SparsityPattern {
         &self.l_pattern
     }
@@ -171,6 +172,7 @@ impl<T: RealField> CscCholesky<T> {
     }
 
     /// Returns a reference to the Cholesky factor `L`.
+    #[must_use]
     pub fn l(&self) -> &CscMatrix<T> {
         &self.l_factor
     }
@@ -260,6 +262,7 @@ impl<T: RealField> CscCholesky<T> {
     /// # Panics
     ///
     /// Panics if `B` is not square.
+    #[must_use = "Did you mean to use solve_mut()?"]
     pub fn solve<'a>(&'a self, b: impl Into<DMatrixSlice<'a, T>>) -> DMatrix<T> {
         let b = b.into();
         let mut output = b.clone_owned();

@@ -1,4 +1,4 @@
-use na::{DMatrix, DVector, Matrix2, Matrix3, Matrix4, MatrixN, Vector2, Vector3, Vector4, U10};
+use na::{DMatrix, DVector, Matrix2, Matrix3, Matrix4, OMatrix, Vector2, Vector3, Vector4, U10};
 use rand::Rng;
 use rand_isaac::IsaacRng;
 use std::ops::{Add, Div, Mul, Sub};
@@ -116,8 +116,8 @@ fn mat10_mul_mat10(bench: &mut criterion::Criterion) {
 }
 
 fn mat10_mul_mat10_static(bench: &mut criterion::Criterion) {
-    let a = MatrixN::<f64, U10>::new_random();
-    let b = MatrixN::<f64, U10>::new_random();
+    let a = OMatrix::<f64, U10, U10>::new_random();
+    let b = OMatrix::<f64, U10, U10>::new_random();
 
     bench.bench_function("mat10_mul_mat10_static", move |bh| bh.iter(|| &a * &b));
 }
@@ -188,7 +188,7 @@ fn tr_mul_to(bench: &mut criterion::Criterion) {
     let b = DVector::<f64>::new_random(1000);
     let mut c = DVector::from_element(1000, 0.0);
 
-    bench.bench_function("", move |bh| bh.iter(|| a.tr_mul_to(&b, &mut c)));
+    bench.bench_function("tr_mul_to", move |bh| bh.iter(|| a.tr_mul_to(&b, &mut c)));
 }
 
 fn mat_mul_mat(bench: &mut criterion::Criterion) {
@@ -198,7 +198,7 @@ fn mat_mul_mat(bench: &mut criterion::Criterion) {
 
     bench.bench_function("mat_mul_mat", move |bh| {
         bh.iter(|| {
-            test::black_box(a.mul_to(&b, &mut ab));
+            std::hint::black_box(a.mul_to(&b, &mut ab));
         })
     });
 }

@@ -170,6 +170,7 @@ pub struct SparseFormatError {
 
 impl SparseFormatError {
     /// The type of error.
+    #[must_use]
     pub fn kind(&self) -> &SparseFormatErrorKind {
         &self.kind
     }

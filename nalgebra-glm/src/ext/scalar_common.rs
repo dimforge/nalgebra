@@ -15,7 +15,7 @@ use crate::traits::Number;
 /// * [`max4_scalar`](fn.max4_scalar.html)
 /// * [`min3_scalar`](fn.min3_scalar.html)
 /// * [`min4_scalar`](fn.min4_scalar.html)
-pub fn max2_scalar<N: Number>(a: N, b: N) -> N {
+pub fn max2_scalar<T: Number>(a: T, b: T) -> T {
     if a >= b {
         a
     } else {
@@ -38,7 +38,7 @@ pub fn max2_scalar<N: Number>(a: N, b: N) -> N {
 /// * [`max4_scalar`](fn.max4_scalar.html)
 /// * [`min3_scalar`](fn.min3_scalar.html)
 /// * [`min4_scalar`](fn.min4_scalar.html)
-pub fn min2_scalar<N: Number>(a: N, b: N) -> N {
+pub fn min2_scalar<T: Number>(a: T, b: T) -> T {
     if a <= b {
         a
     } else {
@@ -61,7 +61,7 @@ pub fn min2_scalar<N: Number>(a: N, b: N) -> N {
 /// * [`max4_scalar`](fn.max4_scalar.html)
 /// * [`min3_scalar`](fn.min3_scalar.html)
 /// * [`min4_scalar`](fn.min4_scalar.html)
-pub fn max3_scalar<N: Number>(a: N, b: N, c: N) -> N {
+pub fn max3_scalar<T: Number>(a: T, b: T, c: T) -> T {
     max2_scalar(max2_scalar(a, b), c)
 }
 
@@ -80,7 +80,7 @@ pub fn max3_scalar<N: Number>(a: N, b: N, c: N) -> N {
 /// * [`max3_scalar`](fn.max3_scalar.html)
 /// * [`min3_scalar`](fn.min3_scalar.html)
 /// * [`min4_scalar`](fn.min4_scalar.html)
-pub fn max4_scalar<N: Number>(a: N, b: N, c: N, d: N) -> N {
+pub fn max4_scalar<T: Number>(a: T, b: T, c: T, d: T) -> T {
     max2_scalar(max2_scalar(a, b), max2_scalar(c, d))
 }
 
@@ -99,7 +99,7 @@ pub fn max4_scalar<N: Number>(a: N, b: N, c: N, d: N) -> N {
 /// * [`max3_scalar`](fn.max3_scalar.html)
 /// * [`max4_scalar`](fn.max4_scalar.html)
 /// * [`min4_scalar`](fn.min4_scalar.html)
-pub fn min3_scalar<N: Number>(a: N, b: N, c: N) -> N {
+pub fn min3_scalar<T: Number>(a: T, b: T, c: T) -> T {
     min2_scalar(min2_scalar(a, b), c)
 }
 
@@ -118,6 +118,6 @@ pub fn min3_scalar<N: Number>(a: N, b: N, c: N) -> N {
 /// * [`max3_scalar`](fn.max3_scalar.html)
 /// * [`max4_scalar`](fn.max4_scalar.html)
 /// * [`min3_scalar`](fn.min3_scalar.html)
-pub fn min4_scalar<N: Number>(a: N, b: N, c: N, d: N) -> N {
+pub fn min4_scalar<T: Number>(a: T, b: T, c: T, d: T) -> T {
     min2_scalar(min2_scalar(a, b), min2_scalar(c, d))
 }

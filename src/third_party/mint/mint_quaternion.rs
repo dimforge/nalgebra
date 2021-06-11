@@ -1,13 +1,13 @@
 use crate::{Quaternion, Scalar, SimdValue, UnitQuaternion};
 
-impl<N: Scalar> From<mint::Quaternion<N>> for Quaternion<N> {
-    fn from(q: mint::Quaternion<N>) -> Self {
+impl<T: Scalar> From<mint::Quaternion<T>> for Quaternion<T> {
+    fn from(q: mint::Quaternion<T>) -> Self {
         Self::new(q.s, q.v.x, q.v.y, q.v.z)
     }
 }
 
-impl<N: Scalar> Into<mint::Quaternion<N>> for Quaternion<N> {
-    fn into(self) -> mint::Quaternion<N> {
+impl<T: Scalar> Into<mint::Quaternion<T>> for Quaternion<T> {
+    fn into(self) -> mint::Quaternion<T> {
         mint::Quaternion {
             v: mint::Vector3 {
                 x: self[0].inlined_clone(),
@@ -19,8 +19,8 @@ impl<N: Scalar> Into<mint::Quaternion<N>> for Quaternion<N> {
     }
 }
 
-impl<N: Scalar + SimdValue> Into<mint::Quaternion<N>> for UnitQuaternion<N> {
-    fn into(self) -> mint::Quaternion<N> {
+impl<T: Scalar + SimdValue> Into<mint::Quaternion<T>> for UnitQuaternion<T> {
+    fn into(self) -> mint::Quaternion<T> {
         mint::Quaternion {
             v: mint::Vector3 {
                 x: self[0].inlined_clone(),

@@ -1,17 +1,13 @@
-use na::{DefaultAllocator, RealField};
+use na::RealField;
 
 use crate::aliases::TVec;
-use crate::traits::{Alloc, Dimension};
 
 /// The squared distance between two points.
 ///
 /// # See also:
 ///
 /// * [`distance`](fn.distance.html)
-pub fn distance2<N: RealField, D: Dimension>(p0: &TVec<N, D>, p1: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn distance2<T: RealField, const D: usize>(p0: &TVec<T, D>, p1: &TVec<T, D>) -> T {
     (p1 - p0).norm_squared()
 }
 
@@ -22,10 +18,7 @@ where
 /// * [`l1_norm`](fn.l1_norm.html)
 /// * [`l2_distance`](fn.l2_distance.html)
 /// * [`l2_norm`](fn.l2_norm.html)
-pub fn l1_distance<N: RealField, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn l1_distance<T: RealField, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T {
     l1_norm(&(y - x))
 }
 
@@ -39,10 +32,7 @@ where
 /// * [`l1_distance`](fn.l1_distance.html)
 /// * [`l2_distance`](fn.l2_distance.html)
 /// * [`l2_norm`](fn.l2_norm.html)
-pub fn l1_norm<N: RealField, D: Dimension>(v: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn l1_norm<T: RealField, const D: usize>(v: &TVec<T, D>) -> T {
     crate::comp_add(&v.abs())
 }
 
@@ -60,10 +50,7 @@ where
 /// * [`length2`](fn.length2.html)
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
-pub fn l2_distance<N: RealField, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn l2_distance<T: RealField, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T {
     l2_norm(&(y - x))
 }
 
@@ -83,10 +70,7 @@ where
 /// * [`length2`](fn.length2.html)
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
-pub fn l2_norm<N: RealField, D: Dimension>(x: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn l2_norm<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm()
 }
 
@@ -101,10 +85,7 @@ where
 /// * [`length`](fn.length.html)
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
-pub fn length2<N: RealField, D: Dimension>(x: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn length2<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm_squared()
 }
 
@@ -119,19 +100,14 @@ where
 /// * [`length2`](fn.length2.html)
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`nalgebra::norm_squared`](../nalgebra/fn.norm_squared.html)
-pub fn magnitude2<N: RealField, D: Dimension>(x: &TVec<N, D>) -> N
-where
-    DefaultAllocator: Alloc<N, D>,
-{
+pub fn magnitude2<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm_squared()
 }
 
-//pub fn lxNorm<N: RealField, D: Dimension>(x: &TVec<N, D>, y: &TVec<N, D>, unsigned int Depth) -> N
-//    where DefaultAllocator: Alloc<N, D> {
+//pub fn lxNorm<T: RealField, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>, unsigned int Depth) -> T {
 //    unimplemented!()
 //}
 //
-//pub fn lxNorm<N: RealField, D: Dimension>(x: &TVec<N, D>, unsigned int Depth) -> N
-//    where DefaultAllocator: Alloc<N, D> {
+//pub fn lxNorm<T: RealField, const D: usize>(x: &TVec<T, D>, unsigned int Depth) -> T  {
 //    unimplemented!()
 //}

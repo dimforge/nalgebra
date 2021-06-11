@@ -4,6 +4,74 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.27.1]
+### Fixed
+- Fixed a bug in the conversion from `glam::Vec2` or `glam::DVec2` to `Isometry2`.
+
+## [0.27.0]
+This removes the `convert-glam` and `convert-glam-unchecked` optional features.
+Instead, this adds the `convert-glam013`, `convert-glam014`, and `convert-glam015` optional features for
+conversions targeting the versions 0.13, 0.14, and 0.15 of `glam`.
+
+### Added
+- Add macros `matrix!`, `dmatrix!`, `vector!`, `dvector!`, `point!` for constructing matrices/vectors/points in a
+  more convenient way. See [#886](https://github.com/dimforge/nalgebra/pull/886) and [#899](https://github.com/dimforge/nalgebra/pull/899).
+- Add `CooMatrix::reserve` to `nalgebra-sparse`.  
+- Add basic support for serialization using `rkyv`. Can be enabled with the features `rkyv-serialize` or
+  `rkyv-serialize-no-std`.
+
+
+### Fixed
+- Fixed a potential unsoundness issue after deserializing an invalid `DVector` using `serde`.
+
+## [0.26.2]
+### Added
+- Conversion from an array `[T; D]` to an isometry `Isometry<T, _, D>` (as a translation).
+- Conversion from a static vector `SVector<T; D>` to an isometry `Isometry<T, _, D>` (as a translation).
+- Conversion from a point `Point<T; D>` to an isometry `Isometry<T, _, D>` (as a translation).
+- Conversion of an array `[T; D]` from/to a translation `Translation<T, D>`.
+- Conversion of a point `Point<T, D>` to a translation `Translation<T, D>`.
+- Conversion of the tuple of glam types `(Vec3, Quat)` from/to an `Isometry2` or `Isometry3`.
+- Conversion of a glam type `Vec2/3/4` from/to a `Translation2/3/4`.
+
+## [0.26.1]
+Fix a regression introduced in 0.26.0 preventing `DVector` from being serialized with `serde`.
+
+## [0.26.0]
+This releases integrates `min-const-generics` to nalgebra. See
+[our blog post](https://www.dimforge.com/blog/2021/04/12/integrating-const-generics-to-nalgebra)
+for details about this release.
+
+### Added
+- Add type aliases for unit vector, e.g., `UnitVector3`.
+- Add a `pow` and `pow_mut` function to square matrices.
+- Add `Cholesky::determinant` to compute the determinant of a matrix decomposed
+  with Cholesky.
+- Add the `serde-serialize-no-std` feature to enable serialization of static matrices/vectors
+  with serde, but without requiring `std`.
+  
+
+### Modified
+- The `serde` crate isn't enabled by default now. Enable the `serde-serialize` or the
+  `serde-serialize-no-std` features instead.
+- The `Const<const D: usize>` type has been introduced to represent dimensions known
+  at compile-time. This replaces the type-level integers from `typenum` as well as
+  the `U1, U2, ..., U127` types from `nalgebra`. These `U1, U2, ..., U127` are now
+  just aliases for `Const<D>`, e.g., `type U2 = Const<2>`.
+- The `ArrayStorage` now uses a standard array `[[T; R]; C]` instead of a `GenericArray`.
+- Many trait bounds were changed to accommodate const-generics. Most of these changes
+  should be transparent wrt. non-generic code.
+- The `MatrixMN` alias has been deprecated. Use `OMatrix` or `SMatrix` instead.
+- The `MatrixN<T, D>` alias has been deprecated. Use `OMatrix<T, D, D>` or `SMatrix` instead.
+- The `VectorN<T, D>` alias has been deprecated. Use `OVector` or `SVector` instead.
+- The `Point`, `Translation`, `Isometry`, `Similarity`, and `Transformation` types now take an
+  integer for their dimension (instead of a type-level integer).
+- The type parameter order of `Isometry`, `Similarity`, `Transformation` changed to put
+  the integer dimensions in the last position (this is required by the compiler).
+- The `::new` constructors of translations, points, matrices, and vectors of dimensions `<= 6`
+  are now `const fn`, making them usable to define constant globals. The `Quaternion::new`
+  constructor is also a `const fn` now.
+
 ## [0.25.4]
 ### Fixed
 - Fix a compilation error when only the `serde-serialize` feature is enabled.

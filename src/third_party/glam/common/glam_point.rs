@@ -1,8 +1,8 @@
-use crate::{Point2, Point3, Point4};
-use glam::{
+use super::glam::{
     BVec2, BVec3, BVec4, DVec2, DVec3, DVec4, IVec2, IVec3, IVec4, UVec2, UVec3, UVec4, Vec2, Vec3,
     Vec3A, Vec4,
 };
+use crate::{Point2, Point3, Point4};
 
 macro_rules! impl_point_conversion(
     ($N: ty, $Vec2: ty, $Vec3: ty, $Vec4: ty) => {

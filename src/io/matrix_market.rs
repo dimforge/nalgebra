@@ -11,21 +11,21 @@ struct MatrixMarketParser;
 
 // TODO: return an Error instead of an Option.
 /// Parses a Matrix Market file at the given path, and returns the corresponding sparse matrix.
-pub fn cs_matrix_from_matrix_market<N: RealField, P: AsRef<Path>>(path: P) -> Option<CsMatrix<N>> {
+pub fn cs_matrix_from_matrix_market<T: RealField, P: AsRef<Path>>(path: P) -> Option<CsMatrix<T>> {
     let file = fs::read_to_string(path).ok()?;
     cs_matrix_from_matrix_market_str(&file)
 }
 
 // TODO: return an Error instead of an Option.
 /// Parses a Matrix Market file described by the given string, and returns the corresponding sparse matrix.
-pub fn cs_matrix_from_matrix_market_str<N: RealField>(data: &str) -> Option<CsMatrix<N>> {
+pub fn cs_matrix_from_matrix_market_str<T: RealField>(data: &str) -> Option<CsMatrix<T>> {
     let file = MatrixMarketParser::parse(Rule::Document, data)
         .unwrap()
         .next()?;
     let mut shape = (0, 0, 0);
     let mut rows: Vec<usize> = Vec::new();
     let mut cols: Vec<usize> = Vec::new();
-    let mut data: Vec<N> = Vec::new();
+    let mut data: Vec<T> = Vec::new();
 
     for line in file.into_inner() {
         match line.as_rule() {
