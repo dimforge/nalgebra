@@ -441,9 +441,9 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, UnitQuaternion<T>, 3>, rhs: UnitQuaternion<T>,
     Output = Isometry<T, UnitQuaternion<T>, 3>;
     [val val] => Isometry::from_parts(self.translation, self.rotation * rhs);
-    [ref val] => Isometry::from_parts(self.translation.clone(), self.rotation * rhs); // TODO: do not clone.
+    [ref val] => Isometry::from_parts(self.translation, self.rotation * rhs); // TODO: do not clone.
     [val ref] => Isometry::from_parts(self.translation, self.rotation * *rhs);
-    [ref ref] => Isometry::from_parts(self.translation.clone(), self.rotation * *rhs);
+    [ref ref] => Isometry::from_parts(self.translation, self.rotation * *rhs);
 );
 
 // UnitQuaternion × Isometry
@@ -468,9 +468,9 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, UnitQuaternion<T>, 3>, rhs: UnitQuaternion<T>,
     Output = Isometry<T, UnitQuaternion<T>, 3>;
     [val val] => Isometry::from_parts(self.translation, self.rotation / rhs);
-    [ref val] => Isometry::from_parts(self.translation.clone(), self.rotation / rhs); // TODO: do not clone.
+    [ref val] => Isometry::from_parts(self.translation, self.rotation / rhs); // TODO: do not clone.
     [val ref] => Isometry::from_parts(self.translation, self.rotation / *rhs);
-    [ref ref] => Isometry::from_parts(self.translation.clone(), self.rotation / *rhs);
+    [ref ref] => Isometry::from_parts(self.translation, self.rotation / *rhs);
 );
 
 // UnitQuaternion ÷ Isometry
