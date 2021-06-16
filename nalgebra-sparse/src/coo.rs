@@ -45,6 +45,43 @@ pub struct CooMatrix<T> {
     values: Vec<T>,
 }
 
+impl<T: na::Scalar> CooMatrix<T> {
+    /// Pushes a dense matrix into the sparse one.
+    ///
+    /// This adds the dense matrix `m` starting at the `r`th row and `c`th column
+    /// to the matrix.
+    ///
+    /// Panics
+    /// ------
+    ///
+    /// Panics if any part of the dense matrix is out of bounds of the sparse matrix
+    /// when inserted at `(r, c)`.
+    #[inline]
+    pub fn push_matrix<R: na::Dim, C: na::Dim, S: nalgebra::storage::Storage<T, R, C>>(
+        &mut self,
+        r: usize,
+        c: usize,
+        m: &na::Matrix<T, R, C, S>,
+    ) {
+        let block_nrows = m.nrows();
+        let block_ncols = m.ncols();
+        let max_row_with_block = r + block_nrows - 1;
+        let max_col_with_block = c + block_ncols - 1;
+        assert!(max_row_with_block < self.nrows);
+        assert!(max_col_with_block < self.ncols);
+
+        self.reserve(block_ncols * block_nrows);
+
+        for (col_idx, col) in m.column_iter().enumerate() {
+            for (row_idx, v) in col.iter().enumerate() {
+                self.row_indices.push(r + row_idx);
+                self.col_indices.push(c + col_idx);
+                self.values.push(v.clone());
+            }
+        }
+    }
+}
+
 impl<T> CooMatrix<T> {
     /// Construct a zero COO matrix of the given dimensions.
     ///

@@ -252,3 +252,95 @@ fn coo_push_out_of_bounds_entries() {
         assert_panics!(coo.clone().push(3, 2, 1));
     }
 }
+
+#[test]
+fn coo_push_matrix_valid_entries() {
+    let mut coo = CooMatrix::new(3, 3);
+
+    // Works with static
+    {
+        // new is row-major...
+        let inserted = nalgebra::SMatrix::<i32, 2, 2>::new(1, 2, 3, 4);
+        coo.push_matrix(1, 1, &inserted);
+
+        // insert happens column-major, so expect transposition when read this way
+        assert_eq!(
+            coo.triplet_iter().collect::<Vec<_>>(),
+            vec![(1, 1, &1), (2, 1, &3), (1, 2, &2), (2, 2, &4)]
+        );
+    }
+
+    // Works with owned dynamic
+    {
+        let inserted = nalgebra::DMatrix::<i32>::repeat(1, 2, 5);
+        coo.push_matrix(0, 0, &inserted);
+
+        assert_eq!(
+            coo.triplet_iter().collect::<Vec<_>>(),
+            vec![
+                (1, 1, &1),
+                (2, 1, &3),
+                (1, 2, &2),
+                (2, 2, &4),
+                (0, 0, &5),
+                (0, 1, &5)
+            ]
+        );
+    }
+
+    // Works with sliced
+    {
+        let source = nalgebra::SMatrix::<i32, 2, 2>::new(6, 7, 8, 9);
+        let sliced = source.fixed_slice::<2, 1>(0, 0);
+        coo.push_matrix(1, 0, &sliced);
+
+        assert_eq!(
+            coo.triplet_iter().collect::<Vec<_>>(),
+            vec![
+                (1, 1, &1),
+                (2, 1, &3),
+                (1, 2, &2),
+                (2, 2, &4),
+                (0, 0, &5),
+                (0, 1, &5),
+                (1, 0, &6),
+                (2, 0, &8)
+            ]
+        );
+    }
+}
+
+#[test]
+fn coo_push_matrix_out_of_bounds_entries() {
+    // 0x0
+    {
+        let inserted = nalgebra::SMatrix::<i32, 1, 1>::new(1);
+        assert_panics!(CooMatrix::new(0, 0).push_matrix(0, 0, &inserted));
+    }
+    // 0x1
+    {
+        let inserted = nalgebra::SMatrix::<i32, 1, 1>::new(1);
+        assert_panics!(CooMatrix::new(1, 0).push_matrix(0, 0, &inserted));
+    }
+    // 1x0
+    {
+        let inserted = nalgebra::SMatrix::<i32, 1, 1>::new(1);
+        assert_panics!(CooMatrix::new(0, 1).push_matrix(0, 0, &inserted));
+    }
+
+    // 3x3 exceeds col-dim
+    {
+        let inserted = nalgebra::SMatrix::<i32, 1, 2>::repeat(1);
+        assert_panics!(CooMatrix::new(3, 3).push_matrix(0, 2, &inserted));
+    }
+    // 3x3 exceeds row-dim
+    {
+        let inserted = nalgebra::SMatrix::<i32, 2, 1>::repeat(1);
+        assert_panics!(CooMatrix::new(3, 3).push_matrix(2, 0, &inserted));
+    }
+    // 3x3 exceeds row-dim and row-dim
+    {
+        let inserted = nalgebra::SMatrix::<i32, 2, 2>::repeat(1);
+        assert_panics!(CooMatrix::new(3, 3).push_matrix(2, 2, &inserted));
+    }
+}
