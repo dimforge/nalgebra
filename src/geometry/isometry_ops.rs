@@ -201,7 +201,7 @@ md_assign_impl_all!(
     const D; for; where;
     self: Isometry<T, Rotation<T, D>, D>, rhs: Rotation<T, D>;
     [val] => self.rotation *= rhs;
-    [ref] => self.rotation *= rhs.clone();
+    [ref] => self.rotation *= *rhs;
 );
 
 md_assign_impl_all!(
@@ -368,9 +368,9 @@ isometry_from_composition_impl_all!(
     D;
     self: Rotation<T, D>, right: Translation<T, D>, Output = Isometry<T, Rotation<T, D>, D>;
     [val val] => Isometry::from_parts(Translation::from(&self * right.vector),  self);
-    [ref val] => Isometry::from_parts(Translation::from(self * right.vector),   self.clone());
+    [ref val] => Isometry::from_parts(Translation::from(self * right.vector),   *self);
     [val ref] => Isometry::from_parts(Translation::from(&self * &right.vector), self);
-    [ref ref] => Isometry::from_parts(Translation::from(self * &right.vector),  self.clone());
+    [ref ref] => Isometry::from_parts(Translation::from(self * &right.vector),  *self);
 );
 
 // UnitQuaternion × Translation
@@ -393,8 +393,8 @@ isometry_from_composition_impl_all!(
     Output = Isometry<T, Rotation<T, D>, D>;
     [val val] => Isometry::from_parts(self.translation, self.rotation * rhs);
     [ref val] => Isometry::from_parts(self.translation, self.rotation * rhs);
-    [val ref] => Isometry::from_parts(self.translation, self.rotation * rhs.clone());
-    [ref ref] => Isometry::from_parts(self.translation, self.rotation * rhs.clone());
+    [val ref] => Isometry::from_parts(self.translation, self.rotation * *rhs);
+    [ref ref] => Isometry::from_parts(self.translation, self.rotation * *rhs);
 );
 
 // Rotation × Isometry

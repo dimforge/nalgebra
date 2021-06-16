@@ -239,7 +239,7 @@ where
 {
     #[inline]
     fn from(arr: [Isometry<T::Element, R::Element, D>; 2]) -> Self {
-        let tra = Translation::from([arr[0].translation.clone(), arr[1].translation.clone()]);
+        let tra = Translation::from([arr[0].translation, arr[1].translation]);
         let rot = R::from([arr[0].rotation, arr[0].rotation]);
 
         Self::from_parts(tra, rot)
@@ -258,10 +258,10 @@ where
     #[inline]
     fn from(arr: [Isometry<T::Element, R::Element, D>; 4]) -> Self {
         let tra = Translation::from([
-            arr[0].translation.clone(),
-            arr[1].translation.clone(),
-            arr[2].translation.clone(),
-            arr[3].translation.clone(),
+            arr[0].translation,
+            arr[1].translation,
+            arr[2].translation,
+            arr[3].translation,
         ]);
         let rot = R::from([
             arr[0].rotation,
@@ -286,14 +286,14 @@ where
     #[inline]
     fn from(arr: [Isometry<T::Element, R::Element, D>; 8]) -> Self {
         let tra = Translation::from([
-            arr[0].translation.clone(),
-            arr[1].translation.clone(),
-            arr[2].translation.clone(),
-            arr[3].translation.clone(),
-            arr[4].translation.clone(),
-            arr[5].translation.clone(),
-            arr[6].translation.clone(),
-            arr[7].translation.clone(),
+            arr[0].translation,
+            arr[1].translation,
+            arr[2].translation,
+            arr[3].translation,
+            arr[4].translation,
+            arr[5].translation,
+            arr[6].translation,
+            arr[7].translation,
         ]);
         let rot = R::from([
             arr[0].rotation,
@@ -322,22 +322,22 @@ where
     #[inline]
     fn from(arr: [Isometry<T::Element, R::Element, D>; 16]) -> Self {
         let tra = Translation::from([
-            arr[0].translation.clone(),
-            arr[1].translation.clone(),
-            arr[2].translation.clone(),
-            arr[3].translation.clone(),
-            arr[4].translation.clone(),
-            arr[5].translation.clone(),
-            arr[6].translation.clone(),
-            arr[7].translation.clone(),
-            arr[8].translation.clone(),
-            arr[9].translation.clone(),
-            arr[10].translation.clone(),
-            arr[11].translation.clone(),
-            arr[12].translation.clone(),
-            arr[13].translation.clone(),
-            arr[14].translation.clone(),
-            arr[15].translation.clone(),
+            arr[0].translation,
+            arr[1].translation,
+            arr[2].translation,
+            arr[3].translation,
+            arr[4].translation,
+            arr[5].translation,
+            arr[6].translation,
+            arr[7].translation,
+            arr[8].translation,
+            arr[9].translation,
+            arr[10].translation,
+            arr[11].translation,
+            arr[12].translation,
+            arr[13].translation,
+            arr[14].translation,
+            arr[15].translation,
         ]);
         let rot = R::from([
             arr[0].rotation,

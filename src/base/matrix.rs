@@ -567,6 +567,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Tests whether `self` and `rhs` are exactly equal.
     #[inline]
     #[must_use]
+    #[allow(clippy::should_implement_trait)]
     pub fn eq<R2, C2, SB>(&self, other: &Matrix<T, R2, C2, SB>) -> bool
     where
         T: PartialEq,

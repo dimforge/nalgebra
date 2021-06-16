@@ -1,3 +1,6 @@
+// The macros break if the references are taken out, for some reason.
+#![allow(clippy::op_ref)]
+
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
 use crate::base::storage::Storage;

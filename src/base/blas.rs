@@ -334,6 +334,7 @@ where
     /// assert_eq!(vec1, Vector3::new(6.0, 12.0, 18.0));
     /// ```
     #[inline]
+    #[allow(clippy::many_single_char_names)]
     pub fn axcpy<D2: Dim, SB>(&mut self, a: T, x: &Vector<T, D2, SB>, c: T, b: T)
     where
         SB: Storage<T, D2>,

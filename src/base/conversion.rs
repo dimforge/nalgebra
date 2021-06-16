@@ -2,7 +2,6 @@
 use alloc::vec::Vec;
 use simba::scalar::{SubsetOf, SupersetOf};
 use std::convert::{AsMut, AsRef, From, Into};
-use std::mem;
 
 use simba::simd::{PrimitiveSimdValue, SimdValue};
 
@@ -186,10 +185,10 @@ impl<T: Scalar, const R: usize, const C: usize> From<[[T; R]; C]> for SMatrix<T,
     }
 }
 
-impl<T: Scalar, const R: usize, const C: usize> Into<[[T; R]; C]> for SMatrix<T, R, C> {
+impl<T: Scalar, const R: usize, const C: usize> From<SMatrix<T, R, C>> for [[T; R]; C] {
     #[inline]
-    fn into(self) -> [[T; R]; C] {
-        self.data.0
+    fn from(vec:SMatrix<T, R, C>) -> Self {
+        vec.data.0
     }
 }
 
@@ -200,7 +199,7 @@ macro_rules! impl_from_into_asref_2D(
             #[inline]
             fn as_ref(&self) -> &[[T; $SZRows]; $SZCols] {
                 unsafe {
-                    mem::transmute(self.data.ptr())
+                    &*(self.data.ptr() as *const [[T; $SZRows]; $SZCols])
                 }
             }
         }
@@ -427,21 +426,21 @@ impl<'a, T: Scalar> From<Vec<T>> for DVector<T> {
     }
 }
 
-impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorage<T, R, C>> Into<&'a [T]>
-    for &'a Matrix<T, R, C, S>
+impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorage<T, R, C>> From<&'a Matrix<T, R, C, S>>
+    for &'a [T]
 {
     #[inline]
-    fn into(self) -> &'a [T] {
-        self.as_slice()
+    fn from(matrix:&'a Matrix<T, R, C, S>) -> Self {
+        matrix.as_slice()
     }
 }
 
-impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorageMut<T, R, C>> Into<&'a mut [T]>
-    for &'a mut Matrix<T, R, C, S>
+impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorageMut<T, R, C>> From<&'a mut Matrix<T, R, C, S>>
+    for &'a mut [T]
 {
     #[inline]
-    fn into(self) -> &'a mut [T] {
-        self.as_mut_slice()
+    fn from(matrix:&'a mut Matrix<T, R, C, S>) -> Self{
+        matrix.as_mut_slice()
     }
 }
 

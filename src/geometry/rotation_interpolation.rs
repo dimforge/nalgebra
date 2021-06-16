@@ -74,7 +74,7 @@ impl<T: SimdRealField> Rotation3<T> {
     where
         T: RealField,
     {
-        let q1 = Rotation3::from(*self);
+        let q1 = *self;
         q1.try_slerp(other, t, epsilon)
     }
 }

@@ -131,13 +131,13 @@ where
 
         while end != start {
             let subdim = end - start + 1;
-            
+
             #[allow(clippy::comparison_chain)]
             if subdim > 2 {
                 let m = end - 1;
                 let n = end;
 
-                let mut v = Vector2::new(
+                let mut vec = Vector2::new(
                     diag[start] - wilkinson_shift(diag[m], diag[n], off_diag[m]),
                     off_diag[start],
                 );
@@ -145,7 +145,7 @@ where
                 for i in start..n {
                     let j = i + 1;
 
-                    if let Some((rot, norm)) = GivensRotation::cancel_y(&v) {
+                    if let Some((rot, norm)) = GivensRotation::cancel_y(&vec) {
                         if i > start {
                             // Not the first iteration.
                             off_diag[i - 1] = norm;
@@ -166,8 +166,8 @@ where
                         off_diag[i] = cs * (mii - mjj) + mij * (cc - ss);
 
                         if i != n - 1 {
-                            v.x = off_diag[i];
-                            v.y = -rot.s() * off_diag[i + 1];
+                            vec.x = off_diag[i];
+                            vec.y = -rot.s() * off_diag[i + 1];
                             off_diag[i + 1] *= rot.c();
                         }
 
