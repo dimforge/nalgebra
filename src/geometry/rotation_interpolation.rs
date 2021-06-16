@@ -70,15 +70,12 @@ impl<T: SimdRealField> Rotation3<T> {
     /// must be to return `None`.
     #[inline]
     #[must_use]
-    pub fn try_slerp(&self, _other: &Self, _t: T, _epsilon: T) -> Option<Self>
+    pub fn try_slerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
     where
         T: RealField,
     {
-        todo!()
-
-        // This code just self-recurses, and I don't know how to fix it.
-      /* let q1 = Rotation3::from(*self);
-         let q2 = Rotation3::from(*other);
-         q1.try_slerp(&q2, t, epsilon).map(|q| q.into()) */
+        let q1 = UnitQuaternion::from(*self);
+        let q2 = UnitQuaternion::from(*other);
+        q1.try_slerp(&q2, t, epsilon).map(|q| q.into())
     }
 }
