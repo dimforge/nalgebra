@@ -272,8 +272,8 @@ where
 }
 
 impl<T: RealField> DualQuaternion<T> {
-    fn to_vector(&self) -> OVector<T, U8> {
-        self.as_ref().clone().into()
+    fn to_vector(self) -> OVector<T, U8> {
+        (*self.as_ref()).into()
     }
 }
 
@@ -721,7 +721,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn to_isometry(&self) -> Isometry3<T> {
+    pub fn to_isometry(self) -> Isometry3<T> {
         Isometry3::from_parts(self.translation(), self.rotation())
     }
 
@@ -872,7 +872,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn to_homogeneous(&self) -> Matrix4<T> {
+    pub fn to_homogeneous(self) -> Matrix4<T> {
         self.to_isometry().to_homogeneous()
     }
 }

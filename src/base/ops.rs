@@ -158,20 +158,17 @@ macro_rules! componentwise_binop_impl(
 
                 // This is the most common case and should be deduced at compile-time.
                 // TODO: use specialization instead?
-                if self.data.is_contiguous() && rhs.data.is_contiguous() && out.data.is_contiguous() {
-                    let arr1 = self.data.as_slice();
-                    let arr2 = rhs.data.as_slice();
-                    let out  = out.data.as_mut_slice();
-                    for i in 0 .. arr1.len() {
-                        unsafe {
+                unsafe {
+                    if self.data.is_contiguous() && rhs.data.is_contiguous() && out.data.is_contiguous() {
+                        let arr1 = self.data.as_slice_unchecked();
+                        let arr2 = rhs.data.as_slice_unchecked();
+                        let out  = out.data.as_mut_slice_unchecked();
+                        for i in 0 .. arr1.len() {
                             *out.get_unchecked_mut(i) = arr1.get_unchecked(i).inlined_clone().$method(arr2.get_unchecked(i).inlined_clone());
                         }
-                    }
-                }
-                else {
-                    for j in 0 .. self.ncols() {
-                        for i in 0 .. self.nrows() {
-                            unsafe {
+                    } else {
+                        for j in 0 .. self.ncols() {
+                            for i in 0 .. self.nrows() {
                                 let val = self.get_unchecked((i, j)).inlined_clone().$method(rhs.get_unchecked((i, j)).inlined_clone());
                                 *out.get_unchecked_mut((i, j)) = val;
                             }
@@ -191,19 +188,17 @@ macro_rules! componentwise_binop_impl(
 
                 // This is the most common case and should be deduced at compile-time.
                 // TODO: use specialization instead?
-                if self.data.is_contiguous() && rhs.data.is_contiguous() {
-                    let arr1 = self.data.as_mut_slice();
-                    let arr2 = rhs.data.as_slice();
-                    for i in 0 .. arr2.len() {
-                        unsafe {
+                unsafe {
+                    if self.data.is_contiguous() && rhs.data.is_contiguous() {
+                        let arr1 = self.data.as_mut_slice_unchecked();
+                        let arr2 = rhs.data.as_slice_unchecked();
+
+                        for i in 0 .. arr2.len() {
                             arr1.get_unchecked_mut(i).$method_assign(arr2.get_unchecked(i).inlined_clone());
                         }
-                    }
-                }
-                else {
-                    for j in 0 .. rhs.ncols() {
-                        for i in 0 .. rhs.nrows() {
-                            unsafe {
+                    } else {
+                        for j in 0 .. rhs.ncols() {
+                            for i in 0 .. rhs.nrows() {
                                 self.get_unchecked_mut((i, j)).$method_assign(rhs.get_unchecked((i, j)).inlined_clone())
                             }
                         }
@@ -221,20 +216,18 @@ macro_rules! componentwise_binop_impl(
 
                 // This is the most common case and should be deduced at compile-time.
                 // TODO: use specialization instead?
-                if self.data.is_contiguous() && rhs.data.is_contiguous() {
-                    let arr1 = self.data.as_slice();
-                    let arr2 = rhs.data.as_mut_slice();
-                    for i in 0 .. arr1.len() {
-                        unsafe {
+                unsafe {
+                    if self.data.is_contiguous() && rhs.data.is_contiguous() {
+                        let arr1 = self.data.as_slice_unchecked();
+                        let arr2 = rhs.data.as_mut_slice_unchecked();
+
+                        for i in 0 .. arr1.len() {
                             let res = arr1.get_unchecked(i).inlined_clone().$method(arr2.get_unchecked(i).inlined_clone());
                             *arr2.get_unchecked_mut(i) = res;
                         }
-                    }
-                }
-                else {
-                    for j in 0 .. self.ncols() {
-                        for i in 0 .. self.nrows() {
-                            unsafe {
+                    } else {
+                        for j in 0 .. self.ncols() {
+                            for i in 0 .. self.nrows() {
                                 let r = rhs.get_unchecked_mut((i, j));
                                 *r = self.get_unchecked((i, j)).inlined_clone().$method(r.inlined_clone())
                             }
