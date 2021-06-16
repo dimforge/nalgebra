@@ -1,3 +1,6 @@
+// The macros break if the references are taken out, for some reason.
+#![allow(clippy::op_ref)]
+
 use num::{One, Zero};
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
@@ -330,7 +333,6 @@ similarity_binop_impl_all!(
 );
 
 // Similarity × Point
-#[allow(clippy::op_ref)]
 similarity_binop_impl_all!(
     Mul, mul;
     self: Similarity<T, R, D>, right: Point<T, D>, Output = Point<T, D>;
@@ -374,7 +376,6 @@ similarity_binop_impl_all!(
 );
 
 // Translation × Similarity
-#[allow(clippy::op_ref)]
 similarity_binop_impl_all!(
     Mul, mul;
     self: Translation<T, D>, right: Similarity<T, R, D>, Output = Similarity<T, R, D>;
@@ -443,7 +444,6 @@ macro_rules! similarity_from_composition_impl_all(
 );
 
 // Similarity × Rotation
-#[allow(clippy::op_ref)]
 similarity_from_composition_impl_all!(
     Mul, mul;
     D;
@@ -462,7 +462,6 @@ similarity_from_composition_impl_all!(
 );
 
 // Rotation × Similarity
-#[allow(clippy::op_ref)]
 similarity_from_composition_impl_all!(
     Mul, mul;
     D;
@@ -475,7 +474,6 @@ similarity_from_composition_impl_all!(
 );
 
 // Similarity ÷ Rotation
-#[allow(clippy::op_ref)]
 similarity_from_composition_impl_all!(
     Div, div;
     D;
@@ -494,7 +492,6 @@ similarity_from_composition_impl_all!(
 );
 
 // Rotation ÷ Similarity
-#[allow(clippy::op_ref)]
 similarity_from_composition_impl_all!(
     Div, div;
     D;
@@ -508,7 +505,6 @@ similarity_from_composition_impl_all!(
 );
 
 // Similarity × UnitQuaternion
-#[allow(clippy::op_ref)]
 similarity_from_composition_impl_all!(
     Mul, mul;
     ;
@@ -527,7 +523,6 @@ similarity_from_composition_impl_all!(
 );
 
 // UnitQuaternion × Similarity
-#[allow(clippy::op_ref)]
 similarity_from_composition_impl_all!(
     Mul, mul;
     ;

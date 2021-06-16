@@ -110,11 +110,11 @@ impl<T: Scalar, const D: usize> From<[T; D]> for SVector<T, D> {
     }
 }
 
-impl<T: Scalar, const D: usize> Into<[T; D]> for SVector<T, D> {
+impl<T: Scalar, const D: usize> From<SVector<T, D>> for [T; D] {
     #[inline]
-    fn into(self) -> [T; D] {
+    fn from(vec: SVector<T, D>) -> Self {
         // TODO: unfortunately, we must clone because we can move out of an array.
-        self.data.0[0].clone()
+        vec.data.0[0].clone()
     }
 }
 
@@ -128,13 +128,13 @@ where
     }
 }
 
-impl<T: Scalar, const D: usize> Into<[T; D]> for RowSVector<T, D>
+impl<T: Scalar, const D: usize> From<RowSVector<T, D>> for [T; D]
 where
     Const<D>: IsNotStaticOne,
 {
     #[inline]
-    fn into(self) -> [T; D] {
-        self.transpose().into()
+    fn from(vec: RowSVector<T, D>) -> [T; D] {
+        vec.transpose().into()
     }
 }
 
@@ -146,7 +146,7 @@ macro_rules! impl_from_into_asref_1D(
             #[inline]
             fn as_ref(&self) -> &[T; $SZ] {
                 unsafe {
-                    mem::transmute(self.data.ptr())
+                    &*(self.data.ptr() as *const [T; $SZ])
                 }
             }
         }
@@ -157,7 +157,7 @@ macro_rules! impl_from_into_asref_1D(
             #[inline]
             fn as_mut(&mut self) -> &mut [T; $SZ] {
                 unsafe {
-                    mem::transmute(self.data.ptr_mut())
+                    &mut *(self.data.ptr_mut() as *mut [T; $SZ])
                 }
             }
         }

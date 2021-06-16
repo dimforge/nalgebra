@@ -146,6 +146,7 @@ where
             let subdim = end - start + 1;
 
             // Solve the subproblem.
+            #[allow(clippy::comparison_chain)]
             if subdim > 2 {
                 let m = end - 1;
                 let n = end;

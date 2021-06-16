@@ -1,3 +1,6 @@
+// The macros break if the references are taken out, for some reason.
+#![allow(clippy::op_ref)]
+
 use num::{One, Zero};
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
@@ -417,8 +420,8 @@ isometry_from_composition_impl_all!(
     Output = Isometry<T, Rotation<T, D>, D>;
     [val val] => Isometry::from_parts(self.translation, self.rotation / rhs);
     [ref val] => Isometry::from_parts(self.translation, self.rotation / rhs);
-    [val ref] => Isometry::from_parts(self.translation, self.rotation / rhs.clone());
-    [ref ref] => Isometry::from_parts(self.translation, self.rotation / rhs.clone());
+    [val ref] => Isometry::from_parts(self.translation, self.rotation / *rhs);
+    [ref ref] => Isometry::from_parts(self.translation, self.rotation / *rhs);
 );
 
 // Rotation ÷ Isometry
@@ -492,9 +495,9 @@ isometry_from_composition_impl_all!(
     D;
     self: Translation<T, D>, right: Rotation<T, D>, Output = Isometry<T, Rotation<T, D>, D>;
     [val val] => Isometry::from_parts(self, right);
-    [ref val] => Isometry::from_parts(self.clone(), right);
-    [val ref] => Isometry::from_parts(self, right.clone());
-    [ref ref] => Isometry::from_parts(self.clone(), right.clone());
+    [ref val] => Isometry::from_parts(*self, right);
+    [val ref] => Isometry::from_parts(self, *right);
+    [ref ref] => Isometry::from_parts(*self, *right);
 );
 
 // Translation × UnitQuaternion
@@ -503,9 +506,9 @@ isometry_from_composition_impl_all!(
     ;
     self: Translation<T, 3>, right: UnitQuaternion<T>, Output = Isometry<T, UnitQuaternion<T>, 3>;
     [val val] => Isometry::from_parts(self, right);
-    [ref val] => Isometry::from_parts(self.clone(), right);
+    [ref val] => Isometry::from_parts(*self, right);
     [val ref] => Isometry::from_parts(self, *right);
-    [ref ref] => Isometry::from_parts(self.clone(), *right);
+    [ref ref] => Isometry::from_parts(*self, *right);
 );
 
 // Isometry × UnitComplex

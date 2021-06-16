@@ -107,23 +107,23 @@ where
             matrix.unscale_mut(m_amax);
         }
 
-        let (mut q, mut diag, mut off_diag);
+        let (mut q_mat, mut diag, mut off_diag);
 
         if eigenvectors {
             let res = SymmetricTridiagonal::new(matrix).unpack();
-            q = Some(res.0);
+            q_mat = Some(res.0);
             diag = res.1;
             off_diag = res.2;
         } else {
             let res = SymmetricTridiagonal::new(matrix).unpack_tridiagonal();
-            q = None;
+            q_mat = None;
             diag = res.0;
             off_diag = res.1;
         }
 
         if dim == 1 {
             diag.scale_mut(m_amax);
-            return Some((diag, q));
+            return Some((diag, q_mat));
         }
 
         let mut niter = 0;
@@ -131,7 +131,8 @@ where
 
         while end != start {
             let subdim = end - start + 1;
-
+            
+            #[allow(clippy::comparison_chain)]
             if subdim > 2 {
                 let m = end - 1;
                 let n = end;
@@ -170,7 +171,7 @@ where
                             off_diag[i + 1] *= rot.c();
                         }
 
-                        if let Some(ref mut q) = q {
+                        if let Some(ref mut q) = q_mat {
                             let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
                             rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<2>(i));
                         }
@@ -195,7 +196,7 @@ where
                 diag[start] = eigvals[0];
                 diag[start + 1] = eigvals[1];
 
-                if let Some(ref mut q) = q {
+                if let Some(ref mut q) = q_mat {
                     if let Some((rot, _)) = GivensRotation::try_new(basis.x, basis.y, eps) {
                         let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
                         rot.rotate_rows(&mut q.fixed_columns_mut::<2>(start));
@@ -219,7 +220,7 @@ where
 
         diag.scale_mut(m_amax);
 
-        Some((diag, q))
+        Some((diag, q_mat))
     }
 
     fn delimit_subproblem(

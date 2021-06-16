@@ -96,6 +96,10 @@ macro_rules! iterator {
                             let stride = self.strides.0.value();
                             self.ptr = self.ptr.add(stride);
                         }
+
+                        // We want either `& *last` or `&mut *last` here, depending
+                        // on the mutability of `$Ref`.
+                        #[allow(clippy::transmute_ptr_to_ref)]
                         Some(mem::transmute(old))
                     }
                 }
