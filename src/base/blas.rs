@@ -1,5 +1,6 @@
 use crate::SimdComplexField;
 #[cfg(feature = "std")]
+#[allow(clippy::single_component_path_imports)]
 use matrixmultiply;
 use num::{One, Zero};
 use simba::scalar::{ClosedAdd, ClosedMul};
