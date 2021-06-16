@@ -451,7 +451,7 @@ where
         }
 
         let eta_2 = T::RealField::max(h.d4_tight(), h.d6_loose());
-        if eta_2 < convert(2.539_398_330_063_230e-1) && ell(&h.a, 5) == 0 {
+        if eta_2 < convert(2.539_398_330_063_23e-1) && ell(&h.a, 5) == 0 {
             let (u, v) = h.pade5();
             return solve_p_q(u, v);
         }
@@ -461,7 +461,7 @@ where
             let (u, v) = h.pade7();
             return solve_p_q(u, v);
         }
-        if eta_3 < convert(2.097_847_961_257_068e+0) && ell(&h.a, 9) == 0 {
+        if eta_3 < convert(2.097_847_961_257_068e0) && ell(&h.a, 9) == 0 {
             let (u, v) = h.pade9();
             return solve_p_q(u, v);
         }

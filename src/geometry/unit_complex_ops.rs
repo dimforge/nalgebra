@@ -314,10 +314,10 @@ complex_op_impl_all!(
     ;
     self: Translation<T, 2>, right: UnitComplex<T>,
     Output = Isometry<T, UnitComplex<T>, 2>;
-    [val val] => Isometry::from_parts(self, right);
-    [ref val] => Isometry::from_parts(self.clone(), right);
-    [val ref] => Isometry::from_parts(self, *right);
-    [ref ref] => Isometry::from_parts(self.clone(), *right);
+    [val val] => Isometry::from_parts(self,   right);
+    [ref val] => Isometry::from_parts(*self,  right);
+    [val ref] => Isometry::from_parts(self,  *right);
+    [ref ref] => Isometry::from_parts(*self, *right);
 );
 
 // UnitComplex ×= UnitComplex

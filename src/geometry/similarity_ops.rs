@@ -219,7 +219,7 @@ md_assign_impl_all!(
     const D; for; where;
     self: Similarity<T, Rotation<T, D>, D>, rhs: Rotation<T, D>;
     [val] => self.isometry.rotation *= rhs;
-    [ref] => self.isometry.rotation *= rhs.clone();
+    [ref] => self.isometry.rotation *= *rhs;
 );
 
 md_assign_impl_all!(

@@ -8,7 +8,6 @@ use rand::{
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
-use std::mem;
 
 use simba::scalar::RealField;
 
@@ -258,7 +257,7 @@ impl<T: RealField> Orthographic3<T> {
     #[inline]
     #[must_use]
     pub fn as_projective(&self) -> &Projective3<T> {
-        unsafe { mem::transmute(self) }
+        unsafe { &*(self as *const Orthographic3<T> as *const Projective3<T>) }
     }
 
     /// This transformation seen as a `Projective3`.

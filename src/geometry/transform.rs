@@ -399,11 +399,9 @@ where
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(self) -> Option<Transform<T, C, D>> {
-        if let Some(m) = self.matrix.try_inverse() {
-            Some(Transform::from_matrix_unchecked(m))
-        } else {
-            None
-        }
+        self.matrix
+            .try_inverse()
+            .map(Transform::from_matrix_unchecked)
     }
 
     /// Inverts this transformation. Use `.try_inverse` if this transform has the `TGeneral`

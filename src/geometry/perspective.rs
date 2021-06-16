@@ -9,7 +9,6 @@ use rand::{
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
-use std::mem;
 
 use simba::scalar::RealField;
 
@@ -140,7 +139,7 @@ impl<T: RealField> Perspective3<T> {
     #[inline]
     #[must_use]
     pub fn as_projective(&self) -> &Projective3<T> {
-        unsafe { mem::transmute(self) }
+        unsafe { &*(self as *const Perspective3<T> as *const Projective3<T>) }
     }
 
     /// This transformation seen as a `Projective3`.
@@ -256,8 +255,9 @@ impl<T: RealField> Perspective3<T> {
     #[inline]
     pub fn set_fovy(&mut self, fovy: T) {
         let old_m22 = self.matrix[(1, 1)];
-        self.matrix[(1, 1)] = T::one() / (fovy / crate::convert(2.0)).tan();
-        self.matrix[(0, 0)] = self.matrix[(0, 0)] * (self.matrix[(1, 1)] / old_m22);
+        let new_m22 = T::one() / (fovy / crate::convert(2.0)).tan();
+        self.matrix[(1, 1)] = new_m22;
+        self.matrix[(0, 0)] *= new_m22 / old_m22;
     }
 
     /// Updates this perspective matrix with a new near plane offset of the view frustum.
