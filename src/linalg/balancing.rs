@@ -53,6 +53,7 @@ where
             }
 
             let eps: T = crate::convert(0.95);
+            #[allow(clippy::suspicious_operation_groupings)]
             if c * c + r * r < eps * s {
                 converged = false;
                 d[i] *= f;

@@ -327,7 +327,7 @@ where
 {
     #[inline]
     fn mul_assign(&mut self, rhs: UnitComplex<T>) {
-        *self = &*self * rhs
+        *self = *self * rhs
     }
 }
 
@@ -337,7 +337,7 @@ where
 {
     #[inline]
     fn mul_assign(&mut self, rhs: &'b UnitComplex<T>) {
-        *self = &*self * rhs
+        *self = *self * rhs
     }
 }
 
@@ -348,7 +348,7 @@ where
 {
     #[inline]
     fn div_assign(&mut self, rhs: UnitComplex<T>) {
-        *self = &*self / rhs
+        *self = *self / rhs
     }
 }
 
@@ -358,7 +358,7 @@ where
 {
     #[inline]
     fn div_assign(&mut self, rhs: &'b UnitComplex<T>) {
-        *self = &*self / rhs
+        *self = *self / rhs
     }
 }
 
@@ -369,7 +369,7 @@ where
 {
     #[inline]
     fn mul_assign(&mut self, rhs: Rotation<T, 2>) {
-        *self = &*self * rhs
+        *self = *self * rhs
     }
 }
 
@@ -379,7 +379,7 @@ where
 {
     #[inline]
     fn mul_assign(&mut self, rhs: &'b Rotation<T, 2>) {
-        *self = &*self * rhs
+        *self = *self * rhs
     }
 }
 
@@ -390,7 +390,7 @@ where
 {
     #[inline]
     fn div_assign(&mut self, rhs: Rotation<T, 2>) {
-        *self = &*self / rhs
+        *self = *self / rhs
     }
 }
 
@@ -400,7 +400,7 @@ where
 {
     #[inline]
     fn div_assign(&mut self, rhs: &'b Rotation<T, 2>) {
-        *self = &*self / rhs
+        *self = *self / rhs
     }
 }
 

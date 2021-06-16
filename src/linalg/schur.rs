@@ -1,3 +1,4 @@
+#![allow(clippy::suspicious_operation_groupings)]
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 

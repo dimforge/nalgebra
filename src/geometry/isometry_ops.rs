@@ -389,7 +389,7 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, Rotation<T, D>, D>, rhs: Rotation<T, D>,
     Output = Isometry<T, Rotation<T, D>, D>;
     [val val] => Isometry::from_parts(self.translation, self.rotation * rhs);
-    [ref val] => Isometry::from_parts(self.translation, self.rotation * rhs); 
+    [ref val] => Isometry::from_parts(self.translation, self.rotation * rhs);
     [val ref] => Isometry::from_parts(self.translation, self.rotation * rhs.clone());
     [ref ref] => Isometry::from_parts(self.translation, self.rotation * rhs.clone());
 );
@@ -441,7 +441,7 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, UnitQuaternion<T>, 3>, rhs: UnitQuaternion<T>,
     Output = Isometry<T, UnitQuaternion<T>, 3>;
     [val val] => Isometry::from_parts(self.translation, self.rotation * rhs);
-    [ref val] => Isometry::from_parts(self.translation, self.rotation * rhs); 
+    [ref val] => Isometry::from_parts(self.translation, self.rotation * rhs);
     [val ref] => Isometry::from_parts(self.translation, self.rotation * *rhs);
     [ref ref] => Isometry::from_parts(self.translation, self.rotation * *rhs);
 );
@@ -468,7 +468,7 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, UnitQuaternion<T>, 3>, rhs: UnitQuaternion<T>,
     Output = Isometry<T, UnitQuaternion<T>, 3>;
     [val val] => Isometry::from_parts(self.translation, self.rotation / rhs);
-    [ref val] => Isometry::from_parts(self.translation, self.rotation / rhs); 
+    [ref val] => Isometry::from_parts(self.translation, self.rotation / rhs);
     [val ref] => Isometry::from_parts(self.translation, self.rotation / *rhs);
     [ref ref] => Isometry::from_parts(self.translation, self.rotation / *rhs);
 );
@@ -515,7 +515,7 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, UnitComplex<T>, 2>, rhs: UnitComplex<T>,
     Output = Isometry<T, UnitComplex<T>, 2>;
     [val val] => Isometry::from_parts(self.translation, self.rotation * rhs);
-    [ref val] => Isometry::from_parts(self.translation, self.rotation * rhs); 
+    [ref val] => Isometry::from_parts(self.translation, self.rotation * rhs);
     [val ref] => Isometry::from_parts(self.translation, self.rotation * *rhs);
     [ref ref] => Isometry::from_parts(self.translation, self.rotation * *rhs);
 );
@@ -527,7 +527,7 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, UnitComplex<T>, 2>, rhs: UnitComplex<T>,
     Output = Isometry<T, UnitComplex<T>, 2>;
     [val val] => Isometry::from_parts(self.translation, self.rotation / rhs);
-    [ref val] => Isometry::from_parts(self.translation, self.rotation / rhs); 
+    [ref val] => Isometry::from_parts(self.translation, self.rotation / rhs);
     [val ref] => Isometry::from_parts(self.translation, self.rotation / *rhs);
     [ref ref] => Isometry::from_parts(self.translation, self.rotation / *rhs);
 );

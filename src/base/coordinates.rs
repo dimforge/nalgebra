@@ -4,7 +4,6 @@
 //! components using their names. For example, if `v` is a 3D vector, one can write `v.z` instead
 //! of `v[2]`.
 
-use std::mem;
 use std::ops::{Deref, DerefMut};
 
 use crate::base::dimension::{U1, U2, U3, U4, U5, U6};
@@ -38,7 +37,7 @@ macro_rules! deref_impl(
 
             #[inline]
             fn deref(&self) -> &Self::Target {
-                unsafe { mem::transmute(self.data.ptr()) }
+                unsafe { &*(self.data.ptr() as *const Self::Target) }
             }
         }
 
@@ -46,7 +45,7 @@ macro_rules! deref_impl(
             where S: ContiguousStorageMut<T, $R, $C> {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {
-                unsafe { mem::transmute(self.data.ptr_mut()) }
+                unsafe { &mut *(self.data.ptr_mut() as *mut Self::Target) }
             }
         }
     }

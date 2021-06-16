@@ -139,10 +139,9 @@ macro_rules! iterator {
                         let inner_remaining = self.size % inner_size;
 
                         // Compute pointer to last element
-                        let last = self.ptr.offset(
-                            (outer_remaining * outer_stride + inner_remaining * inner_stride)
-                                as isize,
-                        );
+                        let last = self
+                            .ptr
+                            .add((outer_remaining * outer_stride + inner_remaining * inner_stride));
 
                         // We want either `& *last` or `&mut *last` here, depending
                         // on the mutability of `$Ref`.

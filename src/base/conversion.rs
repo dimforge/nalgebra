@@ -210,7 +210,7 @@ macro_rules! impl_from_into_asref_2D(
             #[inline]
             fn as_mut(&mut self) -> &mut [[T; $SZRows]; $SZCols] {
                 unsafe {
-                    mem::transmute(self.data.ptr_mut())
+                    &mut *(self.data.ptr_mut() as *mut [[T; $SZRows]; $SZCols])
                 }
             }
         }

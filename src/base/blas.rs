@@ -1,6 +1,5 @@
 use crate::SimdComplexField;
 #[cfg(feature = "std")]
-use matrixmultiply;
 use num::{One, Zero};
 use simba::scalar::{ClosedAdd, ClosedMul};
 #[cfg(feature = "std")]

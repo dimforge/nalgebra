@@ -1,4 +1,3 @@
-use std::mem;
 use std::ops::{Deref, DerefMut};
 
 use crate::base::coordinates::{X, XY, XYZ, XYZW, XYZWA, XYZWAB};
@@ -26,7 +25,7 @@ macro_rules! deref_impl(
         impl<T: Scalar> DerefMut for Translation<T, $D> {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {
-                unsafe { mem::transmute(self) }
+                unsafe { &mut *(self as *mut Translation<T, $D> as *mut Self::Target) }
             }
         }
     }
