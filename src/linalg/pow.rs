@@ -20,7 +20,6 @@ where
     /// matrix is non-invertible and `e` is negative, it leaves this matrix
     /// untouched and returns `Err(())`. Otherwise, it returns `Ok(())` and
     /// overwrites this matrix with the result.
-    #[must_use]
     pub fn pow_mut<I: PrimInt + DivAssign>(&mut self, mut e: I) -> Result<(), ()> {
         let zero = I::zero();
 

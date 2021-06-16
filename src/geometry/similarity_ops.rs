@@ -330,6 +330,7 @@ similarity_binop_impl_all!(
 );
 
 // Similarity × Point
+#[allow(clippy::op_ref)]
 similarity_binop_impl_all!(
     Mul, mul;
     self: Similarity<T, R, D>, right: Point<T, D>, Output = Point<T, D>;

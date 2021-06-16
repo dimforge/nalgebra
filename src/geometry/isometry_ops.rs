@@ -389,9 +389,9 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, Rotation<T, D>, D>, rhs: Rotation<T, D>,
     Output = Isometry<T, Rotation<T, D>, D>;
     [val val] => Isometry::from_parts(self.translation, self.rotation * rhs);
-    [ref val] => Isometry::from_parts(self.translation.clone(), self.rotation.clone() * rhs); // TODO: do not clone.
+    [ref val] => Isometry::from_parts(self.translation, self.rotation * rhs); 
     [val ref] => Isometry::from_parts(self.translation, self.rotation * rhs.clone());
-    [ref ref] => Isometry::from_parts(self.translation.clone(), self.rotation.clone() * rhs.clone());
+    [ref ref] => Isometry::from_parts(self.translation, self.rotation * rhs.clone());
 );
 
 // Rotation × Isometry
@@ -416,9 +416,9 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, Rotation<T, D>, D>, rhs: Rotation<T, D>,
     Output = Isometry<T, Rotation<T, D>, D>;
     [val val] => Isometry::from_parts(self.translation, self.rotation / rhs);
-    [ref val] => Isometry::from_parts(self.translation.clone(), self.rotation.clone() / rhs); // TODO: do not clone.
+    [ref val] => Isometry::from_parts(self.translation, self.rotation / rhs);
     [val ref] => Isometry::from_parts(self.translation, self.rotation / rhs.clone());
-    [ref ref] => Isometry::from_parts(self.translation.clone(), self.rotation.clone() / rhs.clone());
+    [ref ref] => Isometry::from_parts(self.translation, self.rotation / rhs.clone());
 );
 
 // Rotation ÷ Isometry
@@ -441,7 +441,7 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, UnitQuaternion<T>, 3>, rhs: UnitQuaternion<T>,
     Output = Isometry<T, UnitQuaternion<T>, 3>;
     [val val] => Isometry::from_parts(self.translation, self.rotation * rhs);
-    [ref val] => Isometry::from_parts(self.translation, self.rotation * rhs); // TODO: do not clone.
+    [ref val] => Isometry::from_parts(self.translation, self.rotation * rhs); 
     [val ref] => Isometry::from_parts(self.translation, self.rotation * *rhs);
     [ref ref] => Isometry::from_parts(self.translation, self.rotation * *rhs);
 );
@@ -468,7 +468,7 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, UnitQuaternion<T>, 3>, rhs: UnitQuaternion<T>,
     Output = Isometry<T, UnitQuaternion<T>, 3>;
     [val val] => Isometry::from_parts(self.translation, self.rotation / rhs);
-    [ref val] => Isometry::from_parts(self.translation, self.rotation / rhs); // TODO: do not clone.
+    [ref val] => Isometry::from_parts(self.translation, self.rotation / rhs); 
     [val ref] => Isometry::from_parts(self.translation, self.rotation / *rhs);
     [ref ref] => Isometry::from_parts(self.translation, self.rotation / *rhs);
 );
@@ -515,9 +515,9 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, UnitComplex<T>, 2>, rhs: UnitComplex<T>,
     Output = Isometry<T, UnitComplex<T>, 2>;
     [val val] => Isometry::from_parts(self.translation, self.rotation * rhs);
-    [ref val] => Isometry::from_parts(self.translation.clone(), self.rotation * rhs); // TODO: do not clone.
+    [ref val] => Isometry::from_parts(self.translation, self.rotation * rhs); 
     [val ref] => Isometry::from_parts(self.translation, self.rotation * *rhs);
-    [ref ref] => Isometry::from_parts(self.translation.clone(), self.rotation * *rhs);
+    [ref ref] => Isometry::from_parts(self.translation, self.rotation * *rhs);
 );
 
 // Isometry ÷ UnitComplex
@@ -527,7 +527,7 @@ isometry_from_composition_impl_all!(
     self: Isometry<T, UnitComplex<T>, 2>, rhs: UnitComplex<T>,
     Output = Isometry<T, UnitComplex<T>, 2>;
     [val val] => Isometry::from_parts(self.translation, self.rotation / rhs);
-    [ref val] => Isometry::from_parts(self.translation.clone(), self.rotation / rhs); // TODO: do not clone.
+    [ref val] => Isometry::from_parts(self.translation, self.rotation / rhs); 
     [val ref] => Isometry::from_parts(self.translation, self.rotation / *rhs);
-    [ref ref] => Isometry::from_parts(self.translation.clone(), self.rotation / *rhs);
+    [ref ref] => Isometry::from_parts(self.translation, self.rotation / *rhs);
 );
