@@ -277,6 +277,7 @@ where
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn array_axcpy<T>(
     y: &mut [T],
     a: T,

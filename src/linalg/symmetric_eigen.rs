@@ -87,7 +87,7 @@ where
     }
 
     fn do_decompose(
-        mut mat: OMatrix<T, D, D>,
+        mut matrix: OMatrix<T, D, D>,
         eigenvectors: bool,
         eps: T::RealField,
         max_niter: usize,
@@ -97,25 +97,25 @@ where
         DefaultAllocator: Allocator<T, DimDiff<D, U1>> + Allocator<T::RealField, DimDiff<D, U1>>,
     {
         assert!(
-            mat.is_square(),
+            matrix.is_square(),
             "Unable to compute the eigendecomposition of a non-square matrix."
         );
-        let dim = mat.nrows();
-        let m_amax = mat.camax();
+        let dim = matrix.nrows();
+        let m_amax = matrix.camax();
 
         if !m_amax.is_zero() {
-            mat.unscale_mut(m_amax);
+            matrix.unscale_mut(m_amax);
         }
 
         let (mut q, mut diag, mut off_diag);
 
         if eigenvectors {
-            let res = SymmetricTridiagonal::new(mat).unpack();
+            let res = SymmetricTridiagonal::new(matrix).unpack();
             q = Some(res.0);
             diag = res.1;
             off_diag = res.2;
         } else {
-            let res = SymmetricTridiagonal::new(mat).unpack_tridiagonal();
+            let res = SymmetricTridiagonal::new(matrix).unpack_tridiagonal();
             q = None;
             diag = res.0;
             off_diag = res.1;

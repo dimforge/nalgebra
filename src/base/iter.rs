@@ -145,6 +145,7 @@ macro_rules! iterator {
 
                         // We want either `& *last` or `&mut *last` here, depending
                         // on the mutability of `$Ref`.
+                        #[allow(clippy::transmute_ptr_to_ref)]
                         Some(mem::transmute(last))
                     }
                 }
