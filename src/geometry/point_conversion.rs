@@ -92,7 +92,7 @@ impl<T: Scalar, const D: usize> From<[T; D]> for Point<T, D> {
 
 impl<T: Scalar, const D: usize> From<Point<T, D>> for [T; D] {
     #[inline]
-    fn from(p:Point<T, D>) ->Self {
+    fn from(p: Point<T, D>) -> Self {
         p.coords.into()
     }
 }

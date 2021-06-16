@@ -144,7 +144,7 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
 }
 
 impl<T, R: Dim, C: Dim> From<VecStorage<T, R, C>> for Vec<T> {
-    fn from(vec:VecStorage<T, R, C>) -> Self {
+    fn from(vec: VecStorage<T, R, C>) -> Self {
         vec.data
     }
 }

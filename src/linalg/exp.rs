@@ -482,7 +482,10 @@ where
             }
         };
 
-        s += ell(&(&helper.a * convert::<f64, T>(2.0_f64.powf(-(s as f64)))), 13);
+        s += ell(
+            &(&helper.a * convert::<f64, T>(2.0_f64.powf(-(s as f64)))),
+            13,
+        );
 
         let (u, v) = helper.pade13_scaled(s);
         let mut x = solve_p_q(u, v);

@@ -187,7 +187,7 @@ impl<T: Scalar, const R: usize, const C: usize> From<[[T; R]; C]> for SMatrix<T,
 
 impl<T: Scalar, const R: usize, const C: usize> From<SMatrix<T, R, C>> for [[T; R]; C] {
     #[inline]
-    fn from(vec:SMatrix<T, R, C>) -> Self {
+    fn from(vec: SMatrix<T, R, C>) -> Self {
         vec.data.0
     }
 }
@@ -426,20 +426,20 @@ impl<'a, T: Scalar> From<Vec<T>> for DVector<T> {
     }
 }
 
-impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorage<T, R, C>> From<&'a Matrix<T, R, C, S>>
-    for &'a [T]
+impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorage<T, R, C>>
+    From<&'a Matrix<T, R, C, S>> for &'a [T]
 {
     #[inline]
-    fn from(matrix:&'a Matrix<T, R, C, S>) -> Self {
+    fn from(matrix: &'a Matrix<T, R, C, S>) -> Self {
         matrix.as_slice()
     }
 }
 
-impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorageMut<T, R, C>> From<&'a mut Matrix<T, R, C, S>>
-    for &'a mut [T]
+impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorageMut<T, R, C>>
+    From<&'a mut Matrix<T, R, C, S>> for &'a mut [T]
 {
     #[inline]
-    fn from(matrix:&'a mut Matrix<T, R, C, S>) -> Self{
+    fn from(matrix: &'a mut Matrix<T, R, C, S>) -> Self {
         matrix.as_mut_slice()
     }
 }
