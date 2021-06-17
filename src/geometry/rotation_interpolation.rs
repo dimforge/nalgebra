@@ -74,8 +74,8 @@ impl<T: SimdRealField> Rotation3<T> {
     where
         T: RealField,
     {
-        let q1 = Rotation3::from(*self);
-        let q2 = Rotation3::from(*other);
+        let q1 = UnitQuaternion::from(*self);
+        let q2 = UnitQuaternion::from(*other);
         q1.try_slerp(&q2, t, epsilon).map(|q| q.into())
     }
 }
