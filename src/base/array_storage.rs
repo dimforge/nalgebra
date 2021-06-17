@@ -79,7 +79,7 @@ where
     }
 
     #[inline]
-    fn is_contiguous(&self) -> bool {
+    unsafe fn is_contiguous(&self) -> bool {
         true
     }
 
@@ -101,8 +101,8 @@ where
     }
 
     #[inline]
-    fn as_slice(&self) -> &[T] {
-        unsafe { std::slice::from_raw_parts(self.ptr(), R * C) }
+    unsafe fn as_slice_unchecked(&self) -> &[T] {
+        std::slice::from_raw_parts(self.ptr(), R * C)
     }
 }
 
@@ -118,8 +118,8 @@ where
     }
 
     #[inline]
-    fn as_mut_slice(&mut self) -> &mut [T] {
-        unsafe { std::slice::from_raw_parts_mut(self.ptr_mut(), R * C) }
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
+        std::slice::from_raw_parts_mut(self.ptr_mut(), R * C)
     }
 }
 

@@ -127,7 +127,7 @@ fn do_inverse4<T: ComplexField, D: Dim, S: StorageMut<T, D, D>>(
 where
     DefaultAllocator: Allocator<T, D, D>,
 {
-    let m = m.data.as_slice();
+    let m = m.as_slice();
 
     out[(0, 0)] = m[5] * m[10] * m[15] - m[5] * m[11] * m[14] - m[9] * m[6] * m[15]
         + m[9] * m[7] * m[14]
