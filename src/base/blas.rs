@@ -344,13 +344,17 @@ where
         let rstride1 = self.strides().0;
         let rstride2 = x.strides().0;
 
-        let y = self.data.as_mut_slice();
-        let x = x.data.as_slice();
+        unsafe {
+            // SAFETY: the conversion to slices is OK because we access the
+            //         elements taking the strides into account.
+            let y = self.data.as_mut_slice_unchecked();
+            let x = x.data.as_slice_unchecked();
 
-        if !b.is_zero() {
-            array_axcpy(y, a, x, c, b, rstride1, rstride2, x.len());
-        } else {
-            array_axc(y, a, x, c, rstride1, rstride2, x.len());
+            if !b.is_zero() {
+                array_axcpy(y, a, x, c, b, rstride1, rstride2, x.len());
+            } else {
+                array_axc(y, a, x, c, rstride1, rstride2, x.len());
+            }
         }
     }
 

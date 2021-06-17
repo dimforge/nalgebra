@@ -178,7 +178,7 @@ where
     }
 
     #[inline]
-    fn is_contiguous(&self) -> bool {
+    unsafe fn is_contiguous(&self) -> bool {
         true
     }
 
@@ -199,7 +199,7 @@ where
     }
 
     #[inline]
-    fn as_slice(&self) -> &[T] {
+    unsafe fn as_slice_unchecked(&self) -> &[T] {
         &self.data
     }
 }
@@ -227,7 +227,7 @@ where
     }
 
     #[inline]
-    fn is_contiguous(&self) -> bool {
+    unsafe fn is_contiguous(&self) -> bool {
         true
     }
 
@@ -248,7 +248,7 @@ where
     }
 
     #[inline]
-    fn as_slice(&self) -> &[T] {
+    unsafe fn as_slice_unchecked(&self) -> &[T] {
         &self.data
     }
 }
@@ -268,7 +268,7 @@ where
     }
 
     #[inline]
-    fn as_mut_slice(&mut self) -> &mut [T] {
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
         &mut self.data[..]
     }
 }
@@ -329,7 +329,7 @@ where
     }
 
     #[inline]
-    fn as_mut_slice(&mut self) -> &mut [T] {
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
         &mut self.data[..]
     }
 }

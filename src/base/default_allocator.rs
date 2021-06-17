@@ -16,7 +16,7 @@ use crate::base::array_storage::ArrayStorage;
 #[cfg(any(feature = "alloc", feature = "std"))]
 use crate::base::dimension::Dynamic;
 use crate::base::dimension::{Dim, DimName};
-use crate::base::storage::{Storage, StorageMut};
+use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::vec_storage::VecStorage;
 use crate::base::Scalar;
