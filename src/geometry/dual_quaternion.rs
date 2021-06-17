@@ -276,7 +276,7 @@ where
 
 impl<T: RealField> DualQuaternion<T> {
     fn to_vector(&self) -> OVector<T, U8> {
-        self.as_ref().clone().into()
+        (*self.as_ref()).into()
     }
 }
 

@@ -200,19 +200,15 @@ where
         while val < min {
             val += width
         }
-
-        val
     } else if val > max {
         val -= width;
 
         while val > max {
             val -= width
         }
-
-        val
-    } else {
-        val
     }
+
+    val
 }
 
 /// Returns a reference to the input value clamped to the interval `[min, max]`.

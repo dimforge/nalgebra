@@ -38,7 +38,7 @@ where
     }
 }
 
-impl<T: Scalar + Copy, const D: usize> Copy for Translation<T, D> where Owned<T, Const<D>>: Copy {}
+impl<T: Scalar + Copy, const D: usize> Copy for Translation<T, D> {}
 
 impl<T: Scalar, const D: usize> Clone for Translation<T, D>
 where
