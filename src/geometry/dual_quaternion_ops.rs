@@ -1153,7 +1153,7 @@ dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
     self: UnitDualQuaternion<T>, rhs: &'b Translation3<T>;
-    *self = rhs * *self; 'b);
+    *self *= *rhs; 'b);
 
 // UnitDualQuaternion ÷= Translation3
 dual_quaternion_op_impl!(

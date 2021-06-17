@@ -31,10 +31,8 @@ where
 
         // If e is negative, we compute the inverse matrix, then raise it to the
         // power of -e.
-        if e < zero {
-            if !self.try_inverse_mut() {
-                return false;
-            }
+        if e < zero && !self.try_inverse_mut() {
+            return false;
         }
 
         let one = I::one();
