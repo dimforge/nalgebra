@@ -1,5 +1,5 @@
 use std::marker::PhantomData;
-use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
+use std::ops::{Range, RangeFrom, RangeFull, RangeInclusive, RangeTo};
 use std::slice;
 
 use crate::base::allocator::Allocator;
@@ -803,6 +803,25 @@ impl<D: Dim> SliceRange<D> for RangeFull {
     #[inline(always)]
     fn size(&self, dim: D) -> Self::Size {
         dim
+    }
+}
+
+impl<D: Dim> SliceRange<D> for RangeInclusive<usize> {
+    type Size = Dynamic;
+
+    #[inline(always)]
+    fn begin(&self, _: D) -> usize {
+        *self.start()
+    }
+
+    #[inline(always)]
+    fn end(&self, _: D) -> usize {
+        *self.end() + 1
+    }
+
+    #[inline(always)]
+    fn size(&self, _: D) -> Self::Size {
+        Dynamic::new(*self.end() + 1 - *self.start())
     }
 }
 
