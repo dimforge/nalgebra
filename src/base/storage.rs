@@ -1,7 +1,7 @@
 //! Abstract definition of a matrix data storage.
 
 use std::fmt::Debug;
-use std::mem;
+use std::ptr;
 
 use crate::base::allocator::{Allocator, SameShapeC, SameShapeR};
 use crate::base::default_allocator::DefaultAllocator;
@@ -158,7 +158,7 @@ pub unsafe trait StorageMut<T: Scalar, R: Dim, C: Dim = U1>: Storage<T, R, C> {
         let a = self.get_address_unchecked_linear_mut(i1);
         let b = self.get_address_unchecked_linear_mut(i2);
 
-        mem::swap(&mut *a, &mut *b);
+        ptr::swap(a, b);
     }
 
     /// Swaps two elements without bound-checking.
