@@ -222,7 +222,7 @@ impl<T: RealField> Orthographic3<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn to_homogeneous(&self) -> Matrix4<T> {
+    pub fn to_homogeneous(self) -> Matrix4<T> {
         self.matrix
     }
 
@@ -270,7 +270,7 @@ impl<T: RealField> Orthographic3<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn to_projective(&self) -> Projective3<T> {
+    pub fn to_projective(self) -> Projective3<T> {
         Projective3::from_matrix_unchecked(self.matrix)
     }
 

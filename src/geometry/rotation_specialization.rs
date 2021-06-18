@@ -883,7 +883,7 @@ impl<T: SimdRealField> Rotation3<T> {
     ///
     /// The angles are produced in the form (roll, pitch, yaw).
     #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
-    pub fn to_euler_angles(&self) -> (T, T, T)
+    pub fn to_euler_angles(self) -> (T, T, T)
     where
         T: RealField,
     {
