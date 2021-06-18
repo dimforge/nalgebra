@@ -80,6 +80,8 @@ macro_rules! slice_storage_impl(
 
         impl <'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
             $T<'a, T, R, C, RStride, CStride>
+        where
+            Self: ContiguousStorage<T, R, C>
         {
             /// Extracts the original slice from this storage
             pub fn into_slice(self) -> &'a [T] {
@@ -125,6 +127,8 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
 
 impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     SliceStorageMut<'a, T, R, C, RStride, CStride>
+where
+    Self: ContiguousStorageMut<T, R, C>,
 {
     /// Extracts the original slice from this storage
     pub fn into_slice_mut(self) -> &'a mut [T] {
