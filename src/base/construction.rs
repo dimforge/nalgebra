@@ -906,6 +906,7 @@ macro_rules! componentwise_constructors_impl(
         impl<T> Matrix<T, Const<$R>, Const<$C>, ArrayStorage<T, $R, $C>> {
             /// Initializes this matrix from its components.
             #[inline]
+            #[allow(clippy::too_many_arguments)]
             pub const fn new($($($args: T),*),*) -> Self {
                 unsafe {
                     Self::from_data_statically_unchecked(

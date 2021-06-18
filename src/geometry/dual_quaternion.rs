@@ -1,3 +1,6 @@
+// The macros break if the references are taken out, for some reason.
+#![allow(clippy::op_ref)]
+
 use crate::{
     Isometry3, Matrix4, Normed, OVector, Point3, Quaternion, Scalar, SimdRealField, Translation3,
     Unit, UnitQuaternion, Vector3, Zero, U8,
@@ -273,7 +276,7 @@ where
 
 impl<T: RealField> DualQuaternion<T> {
     fn to_vector(&self) -> OVector<T, U8> {
-        self.as_ref().clone().into()
+        (*self.as_ref()).into()
     }
 }
 
@@ -618,9 +621,9 @@ where
         let other = {
             let dot_product = self.as_ref().real.coords.dot(&other.as_ref().real.coords);
             if dot_product < T::zero() {
-                -other.clone()
+                -*other
             } else {
-                other.clone()
+                *other
             }
         };
 

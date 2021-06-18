@@ -270,7 +270,7 @@ where
     #[must_use]
     pub fn inv_mul(&self, rhs: &Isometry<T, R, D>) -> Self {
         let inv_rot1 = self.rotation.inverse();
-        let tr_12 = rhs.translation.vector.clone() - self.translation.vector.clone();
+        let tr_12 = rhs.translation.vector - self.translation.vector;
         Isometry::from_parts(
             inv_rot1.transform_vector(&tr_12).into(),
             inv_rot1 * rhs.rotation.clone(),
@@ -435,7 +435,7 @@ where
     #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.rotation
-            .inverse_transform_point(&(pt - &self.translation.vector))
+            .inverse_transform_point(&(pt - self.translation.vector))
     }
 
     /// Transform the given vector by the inverse of this isometry, ignoring the

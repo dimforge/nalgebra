@@ -121,11 +121,15 @@ where
             matrix.unscale_mut(m_amax);
         }
 
-        let b = Bidiagonal::new(matrix);
-        let mut u = if compute_u { Some(b.u()) } else { None };
-        let mut v_t = if compute_v { Some(b.v_t()) } else { None };
-        let mut diagonal = b.diagonal();
-        let mut off_diagonal = b.off_diagonal();
+        let bi_matrix = Bidiagonal::new(matrix);
+        let mut u = if compute_u { Some(bi_matrix.u()) } else { None };
+        let mut v_t = if compute_v {
+            Some(bi_matrix.v_t())
+        } else {
+            None
+        };
+        let mut diagonal = bi_matrix.diagonal();
+        let mut off_diagonal = bi_matrix.off_diagonal();
 
         let mut niter = 0;
         let (mut start, mut end) = Self::delimit_subproblem(
@@ -133,7 +137,7 @@ where
             &mut off_diagonal,
             &mut u,
             &mut v_t,
-            b.is_upper_diagonal(),
+            bi_matrix.is_upper_diagonal(),
             dim - 1,
             eps,
         );
@@ -142,6 +146,7 @@ where
             let subdim = end - start + 1;
 
             // Solve the subproblem.
+            #[allow(clippy::comparison_chain)]
             if subdim > 2 {
                 let m = end - 1;
                 let n = end;
@@ -201,7 +206,7 @@ where
                         subm[(0, 0)] = norm2;
 
                         if let Some(ref mut v_t) = v_t {
-                            if b.is_upper_diagonal() {
+                            if bi_matrix.is_upper_diagonal() {
                                 rot1.rotate(&mut v_t.fixed_rows_mut::<2>(k));
                             } else {
                                 rot2.rotate(&mut v_t.fixed_rows_mut::<2>(k));
@@ -209,7 +214,7 @@ where
                         }
 
                         if let Some(ref mut u) = u {
-                            if b.is_upper_diagonal() {
+                            if bi_matrix.is_upper_diagonal() {
                                 rot2.inverse().rotate_rows(&mut u.fixed_columns_mut::<2>(k));
                             } else {
                                 rot1.inverse().rotate_rows(&mut u.fixed_columns_mut::<2>(k));
@@ -236,8 +241,10 @@ where
                     diagonal[start],
                     off_diagonal[start],
                     diagonal[start + 1],
-                    compute_u && b.is_upper_diagonal() || compute_v && !b.is_upper_diagonal(),
-                    compute_v && b.is_upper_diagonal() || compute_u && !b.is_upper_diagonal(),
+                    compute_u && bi_matrix.is_upper_diagonal()
+                        || compute_v && !bi_matrix.is_upper_diagonal(),
+                    compute_v && bi_matrix.is_upper_diagonal()
+                        || compute_u && !bi_matrix.is_upper_diagonal(),
                 );
                 let u2 = u2.map(|u2| GivensRotation::new_unchecked(u2.c(), T::from_real(u2.s())));
                 let v2 = v2.map(|v2| GivensRotation::new_unchecked(v2.c(), T::from_real(v2.s())));
@@ -247,7 +254,7 @@ where
                 off_diagonal[start] = T::RealField::zero();
 
                 if let Some(ref mut u) = u {
-                    let rot = if b.is_upper_diagonal() {
+                    let rot = if bi_matrix.is_upper_diagonal() {
                         u2.unwrap()
                     } else {
                         v2.unwrap()
@@ -256,7 +263,7 @@ where
                 }
 
                 if let Some(ref mut v_t) = v_t {
-                    let rot = if b.is_upper_diagonal() {
+                    let rot = if bi_matrix.is_upper_diagonal() {
                         v2.unwrap()
                     } else {
                         u2.unwrap()
@@ -273,7 +280,7 @@ where
                 &mut off_diagonal,
                 &mut u,
                 &mut v_t,
-                b.is_upper_diagonal(),
+                bi_matrix.is_upper_diagonal(),
                 end,
                 eps,
             );

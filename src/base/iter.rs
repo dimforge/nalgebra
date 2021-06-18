@@ -96,6 +96,10 @@ macro_rules! iterator {
                             let stride = self.strides.0.value();
                             self.ptr = self.ptr.add(stride);
                         }
+
+                        // We want either `& *last` or `&mut *last` here, depending
+                        // on the mutability of `$Ref`.
+                        #[allow(clippy::transmute_ptr_to_ref)]
                         Some(mem::transmute(old))
                     }
                 }
@@ -139,13 +143,13 @@ macro_rules! iterator {
                         let inner_remaining = self.size % inner_size;
 
                         // Compute pointer to last element
-                        let last = self.ptr.offset(
-                            (outer_remaining * outer_stride + inner_remaining * inner_stride)
-                                as isize,
-                        );
+                        let last = self
+                            .ptr
+                            .add((outer_remaining * outer_stride + inner_remaining * inner_stride));
 
                         // We want either `& *last` or `&mut *last` here, depending
                         // on the mutability of `$Ref`.
+                        #[allow(clippy::transmute_ptr_to_ref)]
                         Some(mem::transmute(last))
                     }
                 }

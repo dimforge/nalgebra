@@ -529,7 +529,7 @@ macro_rules! left_scalar_mul_impl(
 
                 // for rhs in res.iter_mut() {
                 for rhs in res.as_mut_slice().iter_mut() {
-                    *rhs = self * *rhs
+                    *rhs *= self
                 }
 
                 res

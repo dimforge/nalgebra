@@ -186,9 +186,9 @@ where
     pub fn from_parts(translation: Translation3<T>, rotation: UnitQuaternion<T>) -> Self {
         let half: T = crate::convert(0.5f64);
         UnitDualQuaternion::new_unchecked(DualQuaternion {
-            real: rotation.clone().into_inner(),
+            real: rotation.into_inner(),
             dual: Quaternion::from_parts(T::zero(), translation.vector)
-                * rotation.clone().into_inner()
+                * rotation.into_inner()
                 * half,
         })
     }

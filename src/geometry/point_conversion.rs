@@ -90,10 +90,10 @@ impl<T: Scalar, const D: usize> From<[T; D]> for Point<T, D> {
     }
 }
 
-impl<T: Scalar, const D: usize> Into<[T; D]> for Point<T, D> {
+impl<T: Scalar, const D: usize> From<Point<T, D>> for [T; D] {
     #[inline]
-    fn into(self) -> [T; D] {
-        self.coords.into()
+    fn from(p: Point<T, D>) -> Self {
+        p.coords.into()
     }
 }
 

@@ -1,3 +1,6 @@
+// The macros break if the references are taken out, for some reason.
+#![allow(clippy::op_ref)]
+
 use num::{One, Zero};
 use std::ops::{Div, DivAssign, Index, IndexMut, Mul, MulAssign};
 

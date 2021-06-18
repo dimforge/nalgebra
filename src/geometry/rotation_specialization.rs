@@ -857,11 +857,7 @@ impl<T: SimdRealField> Rotation3<T> {
     where
         T: RealField,
     {
-        if let Some(axis) = self.axis() {
-            Some((axis, self.angle()))
-        } else {
-            None
-        }
+        self.axis().map(|axis| (axis, self.angle()))
     }
 
     /// The rotation angle needed to make `self` and `other` coincide.

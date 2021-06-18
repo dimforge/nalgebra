@@ -1,6 +1,5 @@
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
-use std::mem;
 use std::ops::Deref;
 
 #[cfg(feature = "serde-serialize-no-std")]
@@ -228,8 +227,8 @@ impl<T> Unit<T> {
 
     /// Wraps the given reference, assuming it is already normalized.
     #[inline]
-    pub fn from_ref_unchecked<'a>(value: &'a T) -> &'a Self {
-        unsafe { mem::transmute(value) }
+    pub fn from_ref_unchecked(value: &T) -> &Self {
+        unsafe { &*(value as *const T as *const Self) }
     }
 
     /// Retrieves the underlying value.
@@ -332,7 +331,7 @@ impl<T> Deref for Unit<T> {
 
     #[inline]
     fn deref(&self) -> &T {
-        unsafe { mem::transmute(self) }
+        unsafe { &*(self as *const Self as *const T) }
     }
 }
 

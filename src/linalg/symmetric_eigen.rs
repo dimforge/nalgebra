@@ -87,7 +87,7 @@ where
     }
 
     fn do_decompose(
-        mut m: OMatrix<T, D, D>,
+        mut matrix: OMatrix<T, D, D>,
         eigenvectors: bool,
         eps: T::RealField,
         max_niter: usize,
@@ -97,33 +97,33 @@ where
         DefaultAllocator: Allocator<T, DimDiff<D, U1>> + Allocator<T::RealField, DimDiff<D, U1>>,
     {
         assert!(
-            m.is_square(),
+            matrix.is_square(),
             "Unable to compute the eigendecomposition of a non-square matrix."
         );
-        let dim = m.nrows();
-        let m_amax = m.camax();
+        let dim = matrix.nrows();
+        let m_amax = matrix.camax();
 
         if !m_amax.is_zero() {
-            m.unscale_mut(m_amax);
+            matrix.unscale_mut(m_amax);
         }
 
-        let (mut q, mut diag, mut off_diag);
+        let (mut q_mat, mut diag, mut off_diag);
 
         if eigenvectors {
-            let res = SymmetricTridiagonal::new(m).unpack();
-            q = Some(res.0);
+            let res = SymmetricTridiagonal::new(matrix).unpack();
+            q_mat = Some(res.0);
             diag = res.1;
             off_diag = res.2;
         } else {
-            let res = SymmetricTridiagonal::new(m).unpack_tridiagonal();
-            q = None;
+            let res = SymmetricTridiagonal::new(matrix).unpack_tridiagonal();
+            q_mat = None;
             diag = res.0;
             off_diag = res.1;
         }
 
         if dim == 1 {
             diag.scale_mut(m_amax);
-            return Some((diag, q));
+            return Some((diag, q_mat));
         }
 
         let mut niter = 0;
@@ -132,11 +132,12 @@ where
         while end != start {
             let subdim = end - start + 1;
 
+            #[allow(clippy::comparison_chain)]
             if subdim > 2 {
                 let m = end - 1;
                 let n = end;
 
-                let mut v = Vector2::new(
+                let mut vec = Vector2::new(
                     diag[start] - wilkinson_shift(diag[m], diag[n], off_diag[m]),
                     off_diag[start],
                 );
@@ -144,7 +145,7 @@ where
                 for i in start..n {
                     let j = i + 1;
 
-                    if let Some((rot, norm)) = GivensRotation::cancel_y(&v) {
+                    if let Some((rot, norm)) = GivensRotation::cancel_y(&vec) {
                         if i > start {
                             // Not the first iteration.
                             off_diag[i - 1] = norm;
@@ -165,12 +166,12 @@ where
                         off_diag[i] = cs * (mii - mjj) + mij * (cc - ss);
 
                         if i != n - 1 {
-                            v.x = off_diag[i];
-                            v.y = -rot.s() * off_diag[i + 1];
+                            vec.x = off_diag[i];
+                            vec.y = -rot.s() * off_diag[i + 1];
                             off_diag[i + 1] *= rot.c();
                         }
 
-                        if let Some(ref mut q) = q {
+                        if let Some(ref mut q) = q_mat {
                             let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
                             rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<2>(i));
                         }
@@ -195,7 +196,7 @@ where
                 diag[start] = eigvals[0];
                 diag[start + 1] = eigvals[1];
 
-                if let Some(ref mut q) = q {
+                if let Some(ref mut q) = q_mat {
                     if let Some((rot, _)) = GivensRotation::try_new(basis.x, basis.y, eps) {
                         let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
                         rot.rotate_rows(&mut q.fixed_columns_mut::<2>(start));
@@ -219,7 +220,7 @@ where
 
         diag.scale_mut(m_amax);
 
-        Some((diag, q))
+        Some((diag, q_mat))
     }
 
     fn delimit_subproblem(

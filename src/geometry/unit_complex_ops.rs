@@ -1,3 +1,6 @@
+// The macros break if the references are taken out, for some reason.
+#![allow(clippy::op_ref)]
+
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
 use crate::base::storage::Storage;
@@ -314,10 +317,10 @@ complex_op_impl_all!(
     ;
     self: Translation<T, 2>, right: UnitComplex<T>,
     Output = Isometry<T, UnitComplex<T>, 2>;
-    [val val] => Isometry::from_parts(self, right);
-    [ref val] => Isometry::from_parts(self.clone(), right);
-    [val ref] => Isometry::from_parts(self, *right);
-    [ref ref] => Isometry::from_parts(self.clone(), *right);
+    [val val] => Isometry::from_parts(self,   right);
+    [ref val] => Isometry::from_parts(*self,  right);
+    [val ref] => Isometry::from_parts(self,  *right);
+    [ref ref] => Isometry::from_parts(*self, *right);
 );
 
 // UnitComplex ×= UnitComplex
@@ -327,7 +330,7 @@ where
 {
     #[inline]
     fn mul_assign(&mut self, rhs: UnitComplex<T>) {
-        *self = &*self * rhs
+        *self = *self * rhs
     }
 }
 
@@ -337,7 +340,7 @@ where
 {
     #[inline]
     fn mul_assign(&mut self, rhs: &'b UnitComplex<T>) {
-        *self = &*self * rhs
+        *self = *self * rhs
     }
 }
 
@@ -348,7 +351,7 @@ where
 {
     #[inline]
     fn div_assign(&mut self, rhs: UnitComplex<T>) {
-        *self = &*self / rhs
+        *self = *self / rhs
     }
 }
 
@@ -358,7 +361,7 @@ where
 {
     #[inline]
     fn div_assign(&mut self, rhs: &'b UnitComplex<T>) {
-        *self = &*self / rhs
+        *self = *self / rhs
     }
 }
 
@@ -369,7 +372,7 @@ where
 {
     #[inline]
     fn mul_assign(&mut self, rhs: Rotation<T, 2>) {
-        *self = &*self * rhs
+        *self = *self * rhs
     }
 }
 
@@ -379,7 +382,7 @@ where
 {
     #[inline]
     fn mul_assign(&mut self, rhs: &'b Rotation<T, 2>) {
-        *self = &*self * rhs
+        *self = *self * rhs
     }
 }
 
@@ -390,7 +393,7 @@ where
 {
     #[inline]
     fn div_assign(&mut self, rhs: Rotation<T, 2>) {
-        *self = &*self / rhs
+        *self = *self / rhs
     }
 }
 
@@ -400,7 +403,7 @@ where
 {
     #[inline]
     fn div_assign(&mut self, rhs: &'b Rotation<T, 2>) {
-        *self = &*self / rhs
+        *self = *self / rhs
     }
 }
 
