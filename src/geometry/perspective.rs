@@ -19,6 +19,7 @@ use crate::base::{Matrix4, Scalar, Vector, Vector3};
 use crate::geometry::{Point3, Projective3};
 
 /// A 3D perspective projection stored as a homogeneous 4x4 matrix.
+#[repr(C)]
 pub struct Perspective3<T: Scalar> {
     matrix: Matrix4<T>,
 }
