@@ -44,6 +44,12 @@ impl<T: RealField> PartialEq for Orthographic3<T> {
     }
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<T> bytemuck::Zeroable for Orthographic3<T> where Matrix4<T>: bytemuck::Zeroable {}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T> bytemuck::Pod for Orthographic3<T> where Matrix4<T>: bytemuck::Pod {}
+
 #[cfg(feature = "serde-serialize-no-std")]
 impl<T: RealField + Serialize> Serialize for Orthographic3<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
