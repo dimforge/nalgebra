@@ -85,6 +85,7 @@ where
 impl<T: Scalar + Serialize, D: DimName> Serialize for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
+    <DefaultAllocator as Allocator<T, D>>::Buffer: Serialize
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -98,12 +99,13 @@ where
 impl<'a, T: Scalar + Deserialize<'a>, D: DimName> Deserialize<'a> for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
+    <DefaultAllocator as Allocator<T, D>>::Buffer: Deserialize<'a>
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
         Des: Deserializer<'a>,
     {
-        let coords = SVector::<T, D>::deserialize(deserializer)?;
+        let coords = OVector::<T, D>::deserialize(deserializer)?;
 
         Ok(Self::from(coords))
     }
