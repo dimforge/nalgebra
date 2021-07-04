@@ -221,7 +221,7 @@ impl<T: Normed> Unit<T> {
 impl<T> Unit<T> {
     /// Wraps the given value, assuming it is already normalized.
     #[inline]
-    pub fn new_unchecked(value: T) -> Self {
+    pub const fn new_unchecked(value: T) -> Self {
         Unit { value }
     }
 

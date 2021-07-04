@@ -20,7 +20,7 @@ pub struct Dynamic {
 impl Dynamic {
     /// A dynamic size equal to `value`.
     #[inline]
-    pub fn new(value: usize) -> Self {
+    pub const fn new(value: usize) -> Self {
         Self { value }
     }
 }
