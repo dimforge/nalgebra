@@ -139,7 +139,7 @@ mod rkyv_impl {
 
     impl<T: Serialize<S>, S: Fallible + ?Sized> Serialize<S> for Quaternion<T> {
         fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            Ok(self.coords.serialize(serializer)?)
+            self.coords.serialize(serializer)
         }
     }
 

@@ -336,7 +336,7 @@ mod rkyv_impl {
         for Matrix<T, R, C, S>
     {
         fn serialize(&self, serializer: &mut _S) -> Result<Self::Resolver, _S::Error> {
-            Ok(self.data.serialize(serializer)?)
+            self.data.serialize(serializer)
         }
     }
 
@@ -1581,7 +1581,7 @@ impl<T: Scalar + Zero + One, D: DimAdd<U1> + IsNotStaticOne, S: Storage<T, D, D>
         let dim = DimSum::<D, U1>::from_usize(self.nrows() + 1);
         let mut res = OMatrix::identity_generic(dim, dim);
         res.generic_slice_mut::<D, D>((0, 0), self.data.shape())
-            .copy_from(&self);
+            .copy_from(self);
         res
     }
 }

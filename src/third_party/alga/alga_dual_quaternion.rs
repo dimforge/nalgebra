@@ -267,12 +267,12 @@ impl<T: RealField + simba::scalar::RealField> AffineTransformation<Point3<T>>
 
     #[inline]
     fn append_translation(&self, translation: &Self::Translation) -> Self {
-        self * Self::from_parts(translation.clone(), UnitQuaternion::identity())
+        self * Self::from_parts(*translation, UnitQuaternion::identity())
     }
 
     #[inline]
     fn prepend_translation(&self, translation: &Self::Translation) -> Self {
-        Self::from_parts(translation.clone(), UnitQuaternion::identity()) * self
+        Self::from_parts(*translation, UnitQuaternion::identity()) * self
     }
 
     #[inline]
@@ -287,12 +287,12 @@ impl<T: RealField + simba::scalar::RealField> AffineTransformation<Point3<T>>
 
     #[inline]
     fn append_scaling(&self, _: &Self::NonUniformScaling) -> Self {
-        self.clone()
+        *self
     }
 
     #[inline]
     fn prepend_scaling(&self, _: &Self::NonUniformScaling) -> Self {
-        self.clone()
+        *self
     }
 }
 

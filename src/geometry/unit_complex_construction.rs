@@ -383,8 +383,8 @@ where
         SB: Storage<T, U2>,
         SC: Storage<T, U2>,
     {
-        let sang = na.perp(&nb);
-        let cang = na.dot(&nb);
+        let sang = na.perp(nb);
+        let cang = na.dot(nb);
 
         Self::from_angle(sang.simd_atan2(cang) * s)
     }

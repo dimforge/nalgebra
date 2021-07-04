@@ -69,7 +69,7 @@ where
 {
     /// Generate an arbitrary random variate for testing purposes.
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Translation<T, D> {
+    fn sample<G: Rng + ?Sized>(&self, rng: &mut G) -> Translation<T, D> {
         Translation::from(rng.gen::<SVector<T, D>>())
     }
 }

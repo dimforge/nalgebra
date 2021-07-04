@@ -95,7 +95,7 @@ mod rkyv_impl {
 
     impl<T: Serialize<S>, S: Fallible + ?Sized> Serialize<S> for Unit<T> {
         fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            Ok(self.value.serialize(serializer)?)
+            self.value.serialize(serializer)
         }
     }
 
