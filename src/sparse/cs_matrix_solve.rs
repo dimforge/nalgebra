@@ -63,7 +63,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
                 let mut column = self.data.column_entries(j);
                 let mut diag_found = false;
 
-                while let Some((i, val)) = column.next() {
+                for (i, val) in &mut column {
                     if i == j {
                         if val.is_zero() {
                             return false;
@@ -109,7 +109,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
                 let mut column = self.data.column_entries(j);
                 let mut diag = None;
 
-                while let Some((i, val)) = column.next() {
+                for (i, val) in &mut column {
                     if i == j {
                         if val.is_zero() {
                             return false;
@@ -151,7 +151,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
         // We don't compute a postordered reach here because it will be sorted after anyway.
         self.lower_triangular_reach(b, &mut reach);
         // We sort the reach so the result matrix has sorted indices.
-        reach.sort();
+        reach.sort_unstable();
         let mut workspace =
             unsafe { crate::unimplemented_or_uninitialized_generic!(b.data.shape().0, Const::<1>) };
 
@@ -167,7 +167,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
             let mut column = self.data.column_entries(j);
             let mut diag_found = false;
 
-            while let Some((i, val)) = column.next() {
+            for (i, val) in &mut column {
                 if i == j {
                     if val.is_zero() {
                         break;

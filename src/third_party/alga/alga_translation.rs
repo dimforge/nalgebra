@@ -79,7 +79,7 @@ impl<T: RealField + simba::scalar::RealField, const D: usize> Transformation<Poi
 
     #[inline]
     fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
-        v.clone()
+        *v
     }
 }
 
@@ -93,7 +93,7 @@ impl<T: RealField + simba::scalar::RealField, const D: usize> ProjectiveTransfor
 
     #[inline]
     fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
-        v.clone()
+        *v
     }
 }
 
@@ -176,7 +176,7 @@ impl<T: RealField + simba::scalar::RealField, const D: usize> AlgaTranslation<Po
 {
     #[inline]
     fn to_vector(&self) -> SVector<T, D> {
-        self.vector.clone()
+        self.vector
     }
 
     #[inline]
@@ -186,7 +186,7 @@ impl<T: RealField + simba::scalar::RealField, const D: usize> AlgaTranslation<Po
 
     #[inline]
     fn powf(&self, n: T) -> Option<Self> {
-        Some(Self::from(&self.vector * n))
+        Some(Self::from(self.vector * n))
     }
 
     #[inline]

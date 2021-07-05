@@ -288,7 +288,7 @@ where
     Standard: Distribution<T>,
 {
     /// Generate an arbitrary random variate for testing purposes.
-    fn sample<'a, R: Rng + ?Sized>(&self, r: &'a mut R) -> Perspective3<T> {
+    fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Perspective3<T> {
         use crate::base::helper;
         let znear = r.gen();
         let zfar = helper::reject_rand(r, |&x: &T| !(x - znear).is_zero());

@@ -98,7 +98,7 @@ pub fn clear_row_unchecked<T: ComplexField, R: Dim, C: Dim>(
             reflection_norm.signum().conjugate(),
         );
         top.columns_range_mut(irow + shift..)
-            .tr_copy_from(&refl.axis());
+            .tr_copy_from(refl.axis());
     } else {
         top.columns_range_mut(irow + shift..).tr_copy_from(&axis);
     }

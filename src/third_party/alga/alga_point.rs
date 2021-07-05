@@ -23,7 +23,7 @@ impl<T: RealField + simba::scalar::RealField, const D: usize> EuclideanSpace for
 
     #[inline]
     fn coordinates(&self) -> Self::Coordinates {
-        self.coords.clone()
+        self.coords
     }
 
     #[inline]

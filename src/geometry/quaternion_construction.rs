@@ -171,7 +171,7 @@ where
     Standard: Distribution<T>,
 {
     #[inline]
-    fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Quaternion<T> {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Quaternion<T> {
         Quaternion::new(rng.gen(), rng.gen(), rng.gen(), rng.gen())
     }
 }
@@ -535,10 +535,10 @@ where
         SC: Storage<T, U3>,
     {
         // TODO: code duplication with Rotation.
-        let c = na.cross(&nb);
+        let c = na.cross(nb);
 
         if let Some(axis) = Unit::try_new(c, T::default_epsilon()) {
-            let cos = na.dot(&nb);
+            let cos = na.dot(nb);
 
             // The cosinus may be out of [-1, 1] because of inaccuracies.
             if cos <= -T::one() {
@@ -548,7 +548,7 @@ where
             } else {
                 Some(Self::from_axis_angle(&axis, cos.acos() * s))
             }
-        } else if na.dot(&nb) < T::zero() {
+        } else if na.dot(nb) < T::zero() {
             // PI
             //
             // The rotation axis is undefined but the angle not zero. This is not a
@@ -860,7 +860,7 @@ where
 {
     /// Generate a uniformly distributed random rotation quaternion.
     #[inline]
-    fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> UnitQuaternion<T> {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> UnitQuaternion<T> {
         // Ken Shoemake's Subgroup Algorithm
         // Uniform random rotations.
         // In D. Kirk, editor, Graphics Gems III, pages 124-132. Academic, New York, 1992.

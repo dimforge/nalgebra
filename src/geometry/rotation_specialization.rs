@@ -274,7 +274,7 @@ where
 {
     /// Generate a uniformly distributed random rotation.
     #[inline]
-    fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Rotation2<T> {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Rotation2<T> {
         let twopi = Uniform::new(T::zero(), T::simd_two_pi());
         Rotation2::new(rng.sample(twopi))
     }

@@ -1388,12 +1388,12 @@ where
     {
         work.gemv(T::one(), mid, &rhs.column(0), T::zero());
         self.column_mut(0)
-            .gemv_tr(alpha.inlined_clone(), &rhs, work, beta.inlined_clone());
+            .gemv_tr(alpha.inlined_clone(), rhs, work, beta.inlined_clone());
 
         for j in 1..rhs.ncols() {
             work.gemv(T::one(), mid, &rhs.column(j), T::zero());
             self.column_mut(j)
-                .gemv_tr(alpha.inlined_clone(), &rhs, work, beta.inlined_clone());
+                .gemv_tr(alpha.inlined_clone(), rhs, work, beta.inlined_clone());
         }
     }
 

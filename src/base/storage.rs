@@ -95,6 +95,7 @@ pub unsafe trait Storage<T: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
 
     /// Indicates whether this data buffer stores its elements contiguously.
     ///
+    /// # Safety
     /// This method is unsafe because unsafe code relies on this properties to performe
     /// some low-lever optimizations.
     unsafe fn is_contiguous(&self) -> bool;

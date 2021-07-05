@@ -271,7 +271,7 @@ where
 
             // Keep the output sorted.
             let range = res.data.p[j]..nz;
-            res.data.i[range.clone()].sort();
+            res.data.i[range.clone()].sort_unstable();
 
             for p in range {
                 res.data.vals[p] = workspace[res.data.i[p]].inlined_clone()

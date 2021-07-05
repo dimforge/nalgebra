@@ -90,7 +90,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
         }
 
         let m_two: T = crate::convert(-2.0f64);
-        lhs.gerc(m_two, &work, &self.axis, T::one());
+        lhs.gerc(m_two, work, &self.axis, T::one());
     }
 
     /// Applies the reflection to the rows of `lhs`.
@@ -111,6 +111,6 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
         }
 
         let m_two = sign.scale(crate::convert(-2.0f64));
-        lhs.gerc(m_two, &work, &self.axis, sign);
+        lhs.gerc(m_two, work, &self.axis, sign);
     }
 }

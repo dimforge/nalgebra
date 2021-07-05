@@ -587,6 +587,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Inserts `ninsert.value()` columns starting at the `i-th` place of this matrix.
     ///
+    /// # Safety
     /// The added column values are not initialized.
     #[inline]
     pub unsafe fn insert_columns_generic_uninitialized<D>(
@@ -668,6 +669,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Inserts `ninsert.value()` rows at the `i-th` place of this matrix.
     ///
+    /// # Safety
     /// The added rows values are not initialized.
     /// This is the generic implementation of `.insert_rows(...)` and
     /// `.insert_fixed_rows(...)` which have nicer API interfaces.

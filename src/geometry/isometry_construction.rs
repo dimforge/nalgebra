@@ -86,7 +86,7 @@ where
     Standard: Distribution<T> + Distribution<R>,
 {
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Isometry<T, R, D> {
+    fn sample<G: Rng + ?Sized>(&self, rng: &mut G) -> Isometry<T, R, D> {
         Isometry::from_parts(rng.gen(), rng.gen())
     }
 }
