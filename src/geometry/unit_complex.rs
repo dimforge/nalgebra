@@ -261,7 +261,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn to_rotation_matrix(&self) -> Rotation2<T> {
+    pub fn to_rotation_matrix(self) -> Rotation2<T> {
         let r = self.re;
         let i = self.im;
 
@@ -282,7 +282,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn to_homogeneous(&self) -> Matrix3<T> {
+    pub fn to_homogeneous(self) -> Matrix3<T> {
         self.to_rotation_matrix().to_homogeneous()
     }
 }

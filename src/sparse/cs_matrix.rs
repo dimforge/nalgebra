@@ -31,11 +31,9 @@ impl<'a, T: Clone> Iterator for ColumnEntries<'a, T> {
         if self.curr >= self.i.len() {
             None
         } else {
-            let res = Some(
-                (unsafe { self.i.get_unchecked(self.curr).clone() }, unsafe {
-                    self.v.get_unchecked(self.curr).clone()
-                }),
-            );
+            let res = Some((unsafe { *self.i.get_unchecked(self.curr) }, unsafe {
+                self.v.get_unchecked(self.curr).clone()
+            }));
             self.curr += 1;
             res
         }

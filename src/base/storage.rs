@@ -102,6 +102,7 @@ pub unsafe trait Storage<T: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
 
     /// Retrieves the data buffer as a contiguous slice.
     ///
+    /// # Safety
     /// The matrix components may not be stored in a contiguous way, depending on the strides.
     /// This method is unsafe because this can yield to invalid aliasing when called on some pairs
     /// of matrix slices originating from the same matrix with strides.
@@ -175,6 +176,7 @@ pub unsafe trait StorageMut<T: Scalar, R: Dim, C: Dim = U1>: Storage<T, R, C> {
     ///
     /// Matrix components may not be contiguous, depending on its strides.    
     ///
+    /// # Safety
     /// The matrix components may not be stored in a contiguous way, depending on the strides.
     /// This method is unsafe because this can yield to invalid aliasing when called on some pairs
     /// of matrix slices originating from the same matrix with strides.
