@@ -1,3 +1,5 @@
+cargo-features = ["resolver"]
+
 [package]
 name    = "nalgebra"
 version = "0.27.1"
