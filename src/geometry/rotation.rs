@@ -55,7 +55,7 @@ use crate::geometry::Point;
 ///
 #[repr(C)]
 #[derive(Debug)]
-pub struct Rotation<T: Scalar, const D: usize> {
+pub struct Rotation<T, const D: usize> {
     matrix: SMatrix<T, D, D>,
 }
 
