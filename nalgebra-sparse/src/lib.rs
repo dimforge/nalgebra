@@ -73,7 +73,7 @@
 //!
 //! # Example: COO -> CSR -> matrix-vector product
 //!
-//! ```rust
+//! ```
 //! use nalgebra_sparse::{coo::CooMatrix, csr::CsrMatrix};
 //! use nalgebra::{DMatrix, DVector};
 //! use matrixcompare::assert_matrix_eq;

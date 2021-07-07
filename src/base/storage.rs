@@ -58,7 +58,7 @@ pub unsafe trait Storage<T: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
     /// Compute the index corresponding to the irow-th row and icol-th column of this matrix. The
     /// index must be such that the following holds:
     ///
-    /// ```.ignore
+    /// ```ignore
     /// let lindex = self.linear_index(irow, icol);
     /// assert!(*self.get_unchecked(irow, icol) == *self.get_unchecked_linear(lindex))
     /// ```

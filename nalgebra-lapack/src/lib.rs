@@ -30,7 +30,7 @@
 //! the system installation of netlib without LAPACKE (note the E) or
 //! CBLAS:
 //!
-//! ```.ignore
+//! ```ignore
 //! sudo apt-get install gfortran libblas3gf liblapack3gf
 //! export CARGO_FEATURE_SYSTEM_NETLIB=1
 //! export CARGO_FEATURE_EXCLUDE_LAPACKE=1
@@ -44,7 +44,7 @@
 //!
 //! On macOS, do this to use Apple's Accelerate framework:
 //!
-//! ```.ignore
+//! ```ignore
 //! export CARGO_FEATURES="--no-default-features --features accelerate"
 //! cargo build ${CARGO_FEATURES}
 //! ```
