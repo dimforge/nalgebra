@@ -166,7 +166,7 @@ macro_rules! storage_impl(
             }
 
             #[inline]
-             fn is_contiguous(&self) -> bool {
+            fn is_contiguous(&self) -> bool {
                 // Common cases that can be deduced at compile-time even if one of the dimensions
                 // is Dynamic.
                 if (RStride::is::<U1>() && C::is::<U1>()) || // Column vector.
