@@ -14,7 +14,7 @@ and the official package manager: [cargo](https://github.com/rust-lang/cargo).
 
 Simply add the following to your `Cargo.toml` file:
 
-```.ignore
+```ignore
 [dependencies]
 // TODO: replace the * by the latest version.
 nalgebra = "*"
@@ -26,7 +26,7 @@ Most useful functionalities of **nalgebra** are grouped in the root module `nalg
 However, the recommended way to use **nalgebra** is to import types and traits
 explicitly, and call free-functions using the `na::` prefix:
 
-```.rust
+```
 #[macro_use]
 extern crate approx; // For the macro relative_eq!
 extern crate nalgebra as na;

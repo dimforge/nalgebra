@@ -19,7 +19,7 @@ use std::slice::{Iter, IterMut};
 ///
 /// # Usage
 ///
-/// ```rust
+/// ```
 /// use nalgebra_sparse::csc::CscMatrix;
 /// use nalgebra::{DMatrix, Matrix3x4};
 /// use matrixcompare::assert_matrix_eq;
@@ -97,7 +97,7 @@ use std::slice::{Iter, IterMut};
 /// represents the matrix in a column-by-column fashion. The entries associated with column `j` are
 /// determined as follows:
 ///
-/// ```rust
+/// ```
 /// # let col_offsets: Vec<usize> = vec![0, 0];
 /// # let row_indices: Vec<usize> = vec![];
 /// # let values: Vec<i32> = vec![];
