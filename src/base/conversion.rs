@@ -451,10 +451,22 @@ impl<'a, T: Scalar + Copy> From<&'a [T]> for DVectorSlice<'a, T> {
     }
 }
 
+impl<'a, T: Scalar> From<DVectorSlice<'a, T>> for &'a [T] {
+    fn from(vec: DVectorSlice<'a, T>) -> &'a [T] {
+        vec.data.into_slice()
+    }
+}
+
 impl<'a, T: Scalar + Copy> From<&'a mut [T]> for DVectorSliceMut<'a, T> {
     #[inline]
     fn from(slice: &'a mut [T]) -> Self {
         Self::from_slice(slice, slice.len())
+    }
+}
+
+impl<'a, T: Scalar> From<DVectorSliceMut<'a, T>> for &'a mut [T] {
+    fn from(vec: DVectorSliceMut<'a, T>) -> &'a mut [T] {
+        vec.data.into_slice_mut()
     }
 }
 

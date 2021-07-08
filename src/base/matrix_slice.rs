@@ -77,6 +77,23 @@ macro_rules! slice_storage_impl(
                 $T::from_raw_parts(storage.$get_addr(start.0, start.1), shape, strides)
             }
         }
+
+        impl <'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
+            $T<'a, T, R, C, RStride, CStride>
+        where
+            Self: ContiguousStorage<T, R, C>
+        {
+            /// Extracts the original slice from this storage
+            pub fn into_slice(self) -> &'a [T] {
+                let (nrows, ncols) = self.shape();
+                if nrows.value() != 0 && ncols.value() != 0 {
+                    let sz = self.linear_index(nrows.value() - 1, ncols.value() - 1);
+                    unsafe { slice::from_raw_parts(self.ptr, sz + 1) }
+                } else {
+                    unsafe { slice::from_raw_parts(self.ptr, 0) }
+                }
+            }
+        }
     }
 );
 
@@ -104,6 +121,23 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
             shape: self.shape,
             strides: self.strides,
             _phantoms: PhantomData,
+        }
+    }
+}
+
+impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
+    SliceStorageMut<'a, T, R, C, RStride, CStride>
+where
+    Self: ContiguousStorageMut<T, R, C>,
+{
+    /// Extracts the original slice from this storage
+    pub fn into_slice_mut(self) -> &'a mut [T] {
+        let (nrows, ncols) = self.shape();
+        if nrows.value() != 0 && ncols.value() != 0 {
+            let sz = self.linear_index(nrows.value() - 1, ncols.value() - 1);
+            unsafe { slice::from_raw_parts_mut(self.ptr, sz + 1) }
+        } else {
+            unsafe { slice::from_raw_parts_mut(self.ptr, 0) }
         }
     }
 }
