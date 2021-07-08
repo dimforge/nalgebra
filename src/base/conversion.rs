@@ -1,8 +1,8 @@
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 use simba::scalar::{SubsetOf, SupersetOf};
-use std::convert::{AsMut, AsRef, From, Into};
 use std::borrow::{Borrow, BorrowMut};
+use std::convert::{AsMut, AsRef, From, Into};
 
 use simba::simd::{PrimitiveSimdValue, SimdValue};
 
