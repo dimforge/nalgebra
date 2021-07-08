@@ -898,7 +898,41 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         Matrix::from_data(data)
     }
 
-    #[warn(missing_docs)]
+    ///
+    /// Concatenates the columns of this matrix together to form a vector of
+    /// dimension `self.nrows() * self.ncols()`.
+    ///
+    /// Note that since matrices in `nalgebra` are all column major, this can be done
+    /// most of the time in place without copies or moves. This is done with more or less
+    /// the same logic as in [`Matrix::reshape_generic()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Vector6, DMatrix, DVector};
+    ///
+    /// let m = Matrix2x3::new(
+    ///    1.1, 1.2, 1.3,
+    ///    2.1, 2.2, 2.3
+    /// );
+    /// let v = Vector6::new(1.1, 2.1, 1.2, 2.2, 1.3, 2.3);
+    /// assert_eq!(m.flatten_by_columns(), v);
+    ///
+    /// let dm = DMatrix::from_row_slice(
+    ///     4, 3,
+    ///     &[
+    ///         1.1, 1.2, 1.3,
+    ///         2.1, 2.2, 2.3,
+    ///         3.1, 3.2, 3.3,
+    ///         4.1, 4.2, 4.3
+    ///     ],
+    /// );
+    /// let dv = DVector::from_row_slice(
+    ///     &[1.1, 2.1, 3.1, 4.1, 1.2, 2.2, 3.2, 4.2, 1.3, 2.3, 3.3, 4.3]
+    /// );
+    /// assert_eq!(dm.flatten_by_columns(), dv);
+    /// ```
+    ///
     pub fn flatten_by_columns(self) -> Matrix<T, DimProd<R,C>, U1, S::Output>
     where
         R: DimMul<C>,
@@ -908,7 +942,41 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         self.reshape_generic(r.mul(c), U1::name())
     }
 
-    #[warn(missing_docs)]
+    ///
+    /// Concatenates the rows of this matrix together to form a vector of
+    /// dimension `self.nrows() * self.ncols()`.
+    ///
+    /// Note that since matrices in `nalgebra` are all column major, each entry
+    /// must be copied/moved into into its new position. As such, this method has a fair bit more
+    /// overhead than [`Matrix::flatten_by_columns()`] does.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Vector6, DMatrix, DVector};
+    ///
+    /// let m = Matrix2x3::new(
+    ///    1.1, 1.2, 1.3,
+    ///    2.1, 2.2, 2.3
+    /// );
+    /// let v = Vector6::new(1.1, 1.2, 1.3, 2.1, 2.2, 2.3);
+    /// assert_eq!(m.flatten_by_rows(), v);
+    ///
+    /// let dm = DMatrix::from_row_slice(
+    ///     4, 3,
+    ///     &[
+    ///         1.1, 1.2, 1.3,
+    ///         2.1, 2.2, 2.3,
+    ///         3.1, 3.2, 3.3,
+    ///         4.1, 4.2, 4.3
+    ///     ],
+    /// );
+    /// let dv = DVector::from_row_slice(
+    ///     &[1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 4.1, 4.2, 4.3]
+    /// );
+    /// assert_eq!(dm.flatten_by_rows(), dv);
+    /// ```
+    ///
     pub fn flatten_by_rows(self) -> OMatrix<T, DimProd<R,C>, U1>
     where
         R: DimMul<C>,
@@ -924,7 +992,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             //TODO: optimize with the same optimization transpose_to() gets
             for i in 0..nrows.value() {
                 for j in 0..ncols.value() {
-                    *res.get_unchecked_mut(i*nrows.value() + j) = self.get_unchecked((i, j)).inlined_clone();
+                    *res.get_unchecked_mut(i*ncols.value() + j) = self.get_unchecked((i, j)).inlined_clone();
                 }
             }
 
