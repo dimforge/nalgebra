@@ -168,7 +168,7 @@ where
     /// Generate a `Point` where each coordinate is an independent variate from `[0, 1)`.
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> OPoint<T, D> {
-        Point::from(rng.gen::<OVector<T, D>>())
+        OPoint::from(rng.gen::<OVector<T, D>>())
     }
 }
 
