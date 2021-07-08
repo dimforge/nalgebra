@@ -124,7 +124,7 @@ impl<T: RealField> Perspective3<T> {
     /// Computes the corresponding homogeneous matrix.
     #[inline]
     #[must_use]
-    pub fn to_homogeneous(&self) -> Matrix4<T> {
+    pub fn to_homogeneous(self) -> Matrix4<T> {
         self.matrix.clone_owned()
     }
 
@@ -145,7 +145,7 @@ impl<T: RealField> Perspective3<T> {
     /// This transformation seen as a `Projective3`.
     #[inline]
     #[must_use]
-    pub fn to_projective(&self) -> Projective3<T> {
+    pub fn to_projective(self) -> Projective3<T> {
         Projective3::from_matrix_unchecked(self.matrix)
     }
 
