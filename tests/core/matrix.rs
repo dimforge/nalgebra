@@ -1109,11 +1109,10 @@ fn partial_eq_different_types() {
     //assert_ne!(typenum_static_mat, static_mat);
 }
 
-
-
 fn generic_omatrix_to_string<D>(
     vector: &nalgebra::OVector<f64, D>,
-    matrix: &nalgebra::OMatrix<f64, D, D>) -> (String, String)
+    matrix: &nalgebra::OMatrix<f64, D, D>,
+) -> (String, String)
 where
     D: nalgebra::Dim,
     nalgebra::DefaultAllocator: nalgebra::base::allocator::Allocator<f64, D>,
@@ -1130,8 +1129,10 @@ fn omatrix_to_string() {
     let smatr: nalgebra::SMatrix<f64, 2, 2> = nalgebra::matrix![1.0, 2.0; 3.0, 4.0];
     assert_eq!(
         generic_omatrix_to_string(&dvec, &dmatr),
-        (dvec.to_string(), dmatr.to_string()));
+        (dvec.to_string(), dmatr.to_string())
+    );
     assert_eq!(
         generic_omatrix_to_string(&svec, &smatr),
-        (svec.to_string(), smatr.to_string()));
+        (svec.to_string(), smatr.to_string())
+    );
 }
