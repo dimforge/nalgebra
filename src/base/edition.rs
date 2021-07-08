@@ -11,7 +11,7 @@ use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, Shap
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::dimension::Dynamic;
 use crate::base::dimension::{
-    Const, Dim, DimName, DimAdd, DimMul, DimDiff, DimMin, DimMinimum, DimSub, DimSum, DimProd, U1
+    Const, Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimMul, DimName, DimProd, DimSub, DimSum, U1,
 };
 use crate::base::storage::{ContiguousStorageMut, ReshapableStorage, Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, OMatrix, RowVector, Scalar, Vector};
@@ -933,10 +933,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(dm.flatten_by_columns(), dv);
     /// ```
     ///
-    pub fn flatten_by_columns(self) -> Matrix<T, DimProd<R,C>, U1, S::Output>
+    pub fn flatten_by_columns(self) -> Matrix<T, DimProd<R, C>, U1, S::Output>
     where
         R: DimMul<C>,
-        S: ReshapableStorage<T,R,C,DimProd<R,C>,U1>
+        S: ReshapableStorage<T, R, C, DimProd<R, C>, U1>,
     {
         let (r, c) = self.data.shape();
         self.reshape_generic(r.mul(c), U1::name())
@@ -977,29 +977,30 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(dm.flatten_by_rows(), dv);
     /// ```
     ///
-    pub fn flatten_by_rows(self) -> OMatrix<T, DimProd<R,C>, U1>
+    pub fn flatten_by_rows(self) -> OMatrix<T, DimProd<R, C>, U1>
     where
         R: DimMul<C>,
-        DefaultAllocator: Allocator<T, DimProd<R,C>, U1>
+        DefaultAllocator: Allocator<T, DimProd<R, C>, U1>,
     {
         let (nrows, ncols) = self.data.shape();
 
         //Theoretically, we could do this by composing transpose() and flatten_by_columns(),
         //but doing so unnecessarily complicates the generic bounds on this function
         unsafe {
-            let mut res = crate::unimplemented_or_uninitialized_generic!(nrows.mul(ncols), U1::name());
+            let mut res =
+                crate::unimplemented_or_uninitialized_generic!(nrows.mul(ncols), U1::name());
 
             //TODO: optimize with the same optimization transpose_to() gets
             for i in 0..nrows.value() {
                 for j in 0..ncols.value() {
-                    *res.get_unchecked_mut(i*ncols.value() + j) = self.get_unchecked((i, j)).inlined_clone();
+                    *res.get_unchecked_mut(i * ncols.value() + j) =
+                        self.get_unchecked((i, j)).inlined_clone();
                 }
             }
 
             res
         }
     }
-
 }
 
 /// # In-place resizing
