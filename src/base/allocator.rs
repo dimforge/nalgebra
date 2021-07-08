@@ -22,7 +22,7 @@ pub trait Allocator<T: Scalar, R: Dim, C: Dim = U1>: Any + Sized {
     type Buffer: ContiguousStorageMut<T, R, C> + Clone;
 
     /// Allocates a buffer with the given number of rows and columns without initializing its content.
-    unsafe fn allocate_uninitialized(nrows: R, ncols: C) -> mem::MaybeUninit<Self::Buffer>;
+    fn allocate_uninitialized(nrows: R, ncols: C) -> mem::MaybeUninit<Self::Buffer>;
 
     /// Allocates a buffer initialized with the content of the given iterator.
     fn allocate_from_iterator<I: IntoIterator<Item = T>>(

@@ -4,8 +4,9 @@
 //! heap-allocated buffers for matrices with at least one dimension unknown at compile-time.
 
 use std::cmp;
-use std::mem;
+use std::mem::MaybeUninit;
 use std::ptr;
+use std::ptr::addr_of_mut;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
@@ -37,8 +38,8 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
     type Buffer = ArrayStorage<T, R, C>;
 
     #[inline]
-    unsafe fn allocate_uninitialized(_: Const<R>, _: Const<C>) -> mem::MaybeUninit<Self::Buffer> {
-        mem::MaybeUninit::<Self::Buffer>::uninit()
+    fn allocate_uninitialized(_: Const<R>, _: Const<C>) -> MaybeUninit<Self::Buffer> {
+        MaybeUninit::<Self::Buffer>::uninit()
     }
 
     #[inline]
@@ -74,13 +75,39 @@ impl<T: Scalar, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
     type Buffer = VecStorage<T, Dynamic, C>;
 
     #[inline]
-    unsafe fn allocate_uninitialized(nrows: Dynamic, ncols: C) -> mem::MaybeUninit<Self::Buffer> {
-        let mut res = Vec::new();
-        let length = nrows.value() * ncols.value();
-        res.reserve_exact(length);
-        res.set_len(length);
+    fn allocate_uninitialized(nrows: Dynamic, ncols: C) -> MaybeUninit<Self::Buffer> {
+        let mut uninit: MaybeUninit<Self::Buffer> = MaybeUninit::uninit();
+        let ptr = uninit.as_mut_ptr();
 
-        mem::MaybeUninit::new(VecStorage::new(nrows, ncols, res))
+        let mut data: Vec<MaybeUninit<T>> = Vec::new();
+        let length = nrows.value() * ncols.value();
+        data.reserve_exact(length);
+
+        // Safety: all elements are "initialized", since MaybeUninit doesn't actually require initialization.
+        // Furthermore, the length equals the capacity.
+        unsafe {
+            data.set_len(length);
+        }
+
+        // Safety: These addresses are valid and aligned.
+        unsafe {
+            addr_of_mut!((*ptr).nrows).write(nrows);
+            addr_of_mut!((*ptr).ncols).write(ncols);
+        }
+
+        // Safety:
+        // - T and MaybeUninit<T> have the same memory layout, so we can cast *mut MaybeUninit<T> to *mut T.
+        // - The length is equal to the capacity.
+        // - The capacity coincides with the pointer's capacity.
+        unsafe {
+            addr_of_mut!((*ptr).data).write(Vec::from_raw_parts(
+                data.as_mut_ptr() as *mut T,
+                data.len(),
+                data.capacity(),
+            ));
+        }
+
+        uninit
     }
 
     #[inline]
@@ -104,13 +131,35 @@ impl<T: Scalar, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
     type Buffer = VecStorage<T, R, Dynamic>;
 
     #[inline]
-    unsafe fn allocate_uninitialized(nrows: R, ncols: Dynamic) -> mem::MaybeUninit<Self::Buffer> {
-        let mut res = Vec::new();
-        let length = nrows.value() * ncols.value();
-        res.reserve_exact(length);
-        res.set_len(length);
+    fn allocate_uninitialized(nrows: R, ncols: Dynamic) -> MaybeUninit<Self::Buffer> {
+        let mut uninit: MaybeUninit<Self::Buffer> = MaybeUninit::uninit();
+        let ptr = uninit.as_mut_ptr();
 
-        mem::MaybeUninit::new(VecStorage::new(nrows, ncols, res))
+        let mut data: Vec<MaybeUninit<T>> = Vec::new();
+        let length = nrows.value() * ncols.value();
+        data.reserve_exact(length);
+
+        data.resize_with(length, MaybeUninit::uninit);
+
+        // Safety: These addresses are valid and aligned.
+        unsafe {
+            addr_of_mut!((*ptr).nrows).write(nrows);
+            addr_of_mut!((*ptr).ncols).write(ncols);
+        }
+
+        // Safety:
+        // - T and MaybeUninit<T> have the same memory layout, so we can cast *mut MaybeUninit<T> to *mut T.
+        // - The length is equal to the capacity.
+        // - The capacity coincides with the pointer's capacity.
+        unsafe {
+            addr_of_mut!((*ptr).data).write(Vec::from_raw_parts(
+                data.as_mut_ptr() as *mut T,
+                data.len(),
+                data.capacity(),
+            ));
+        }
+
+        uninit
     }
 
     #[inline]

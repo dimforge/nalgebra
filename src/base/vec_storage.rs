@@ -31,9 +31,9 @@ use abomonation::Abomonation;
 #[repr(C)]
 #[derive(Eq, Debug, Clone, PartialEq)]
 pub struct VecStorage<T, R: Dim, C: Dim> {
-    data: Vec<T>,
-    nrows: R,
-    ncols: C,
+    pub(crate) data: Vec<T>,
+    pub(crate) nrows: R,
+    pub(crate) ncols: C,
 }
 
 #[cfg(feature = "serde-serialize")]
