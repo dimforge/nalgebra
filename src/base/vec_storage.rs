@@ -180,7 +180,7 @@ where
     }
 
     #[inline]
-    unsafe fn is_contiguous(&self) -> bool {
+    fn is_contiguous(&self) -> bool {
         true
     }
 
@@ -229,7 +229,7 @@ where
     }
 
     #[inline]
-    unsafe fn is_contiguous(&self) -> bool {
+    fn is_contiguous(&self) -> bool {
         true
     }
 
