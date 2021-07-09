@@ -47,10 +47,20 @@ impl<T: RealField> PartialEq for Perspective3<T> {
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T> bytemuck::Zeroable for Perspective3<T> where Matrix4<T>: bytemuck::Zeroable {}
+unsafe impl<T> bytemuck::Zeroable for Perspective3<T>
+where
+    T: RealField + bytemuck::Zeroable,
+    Matrix4<T>: bytemuck::Zeroable,
+{
+}
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T> bytemuck::Pod for Perspective3<T> where Matrix4<T>: bytemuck::Pod {}
+unsafe impl<T> bytemuck::Pod for Perspective3<T>
+where
+    T: RealField + bytemuck::Pod,
+    Matrix4<T>: bytemuck::Pod,
+{
+}
 
 #[cfg(feature = "serde-serialize-no-std")]
 impl<T: RealField + Serialize> Serialize for Perspective3<T> {

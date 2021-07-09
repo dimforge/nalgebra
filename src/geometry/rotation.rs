@@ -86,7 +86,7 @@ where
 #[cfg(feature = "bytemuck")]
 unsafe impl<T, const D: usize> bytemuck::Zeroable for Rotation<T, D>
 where
-    T: Scalar,
+    T: Scalar + bytemuck::Zeroable,
     SMatrix<T, D, D>: bytemuck::Zeroable,
 {
 }
@@ -94,7 +94,7 @@ where
 #[cfg(feature = "bytemuck")]
 unsafe impl<T, const D: usize> bytemuck::Pod for Rotation<T, D>
 where
-    T: Scalar,
+    T: Scalar + bytemuck::Pod,
     SMatrix<T, D, D>: bytemuck::Pod,
 {
 }

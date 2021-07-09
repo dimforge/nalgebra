@@ -195,8 +195,9 @@ where
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T: RealField, C: TCategory, const D: usize> bytemuck::Zeroable for Transform<T, C, D>
+unsafe impl<T, C: TCategory, const D: usize> bytemuck::Zeroable for Transform<T, C, D>
 where
+    T: RealField + bytemuck::Zeroable,
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: bytemuck::Zeroable,
@@ -204,11 +205,13 @@ where
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T: RealField, C: TCategory, const D: usize> bytemuck::Pod for Transform<T, C, D>
+unsafe impl<T, C: TCategory, const D: usize> bytemuck::Pod for Transform<T, C, D>
 where
+    T: RealField + bytemuck::Pod,
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: bytemuck::Pod,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Copy,
 {
 }
 

@@ -242,10 +242,20 @@ where
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T> bytemuck::Zeroable for DualQuaternion<T> where Quaternion<T>: bytemuck::Zeroable {}
+unsafe impl<T> bytemuck::Zeroable for DualQuaternion<T>
+where
+    T: Scalar + bytemuck::Zeroable,
+    Quaternion<T>: bytemuck::Zeroable,
+{
+}
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T> bytemuck::Pod for DualQuaternion<T> where Quaternion<T>: bytemuck::Pod {}
+unsafe impl<T> bytemuck::Pod for DualQuaternion<T>
+where
+    T: Scalar + bytemuck::Pod,
+    Quaternion<T>: bytemuck::Pod,
+{
+}
 
 #[cfg(feature = "serde-serialize-no-std")]
 impl<T: SimdRealField> Serialize for DualQuaternion<T>

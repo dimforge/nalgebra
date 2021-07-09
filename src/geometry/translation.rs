@@ -53,7 +53,7 @@ where
 #[cfg(feature = "bytemuck")]
 unsafe impl<T, const D: usize> bytemuck::Zeroable for Translation<T, D>
 where
-    T: Scalar,
+    T: Scalar + bytemuck::Zeroable,
     SVector<T, D>: bytemuck::Zeroable,
 {
 }
@@ -61,7 +61,7 @@ where
 #[cfg(feature = "bytemuck")]
 unsafe impl<T, const D: usize> bytemuck::Pod for Translation<T, D>
 where
-    T: Scalar,
+    T: Scalar + bytemuck::Pod,
     SVector<T, D>: bytemuck::Pod,
 {
 }
