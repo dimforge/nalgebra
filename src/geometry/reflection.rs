@@ -1,5 +1,5 @@
 use crate::base::constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
-use crate::base::{Const, Matrix, Scalar, Unit, Vector};
+use crate::base::{Const, Matrix, Unit, Vector};
 use crate::dimension::{Dim, U1};
 use crate::storage::{Storage, StorageMut};
 use simba::scalar::ComplexField;
@@ -7,7 +7,7 @@ use simba::scalar::ComplexField;
 use crate::geometry::Point;
 
 /// A reflection wrt. a plane.
-pub struct Reflection<T: Scalar, D: Dim, S: Storage<T, D>> {
+pub struct Reflection<T, D, S> {
     axis: Vector<T, D, S>,
     bias: T,
 }

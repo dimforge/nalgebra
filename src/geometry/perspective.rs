@@ -14,12 +14,12 @@ use simba::scalar::RealField;
 
 use crate::base::dimension::U3;
 use crate::base::storage::Storage;
-use crate::base::{Matrix4, Scalar, Vector, Vector3};
+use crate::base::{Matrix4, Vector, Vector3};
 
 use crate::geometry::{Point3, Projective3};
 
 /// A 3D perspective projection stored as a homogeneous 4x4 matrix.
-pub struct Perspective3<T: Scalar> {
+pub struct Perspective3<T> {
     matrix: Matrix4<T>,
 }
 

@@ -27,19 +27,19 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(serialize = "T: Serialize,
+    serde(bound(serialize = "T: Scalar + Serialize,
                      R: Serialize,
                      DefaultAllocator: Allocator<T, Const<D>>,
                      Owned<T, Const<D>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(deserialize = "T: Deserialize<'de>,
+    serde(bound(deserialize = "T: Scalar + Deserialize<'de>,
                        R: Deserialize<'de>,
                        DefaultAllocator: Allocator<T, Const<D>>,
                        Owned<T, Const<D>>: Deserialize<'de>"))
 )]
-pub struct Similarity<T: Scalar, R, const D: usize> {
+pub struct Similarity<T, R, const D: usize> {
     /// The part of this similarity that does not include the scaling factor.
     pub isometry: Isometry<T, R, D>,
     scaling: T,

@@ -38,12 +38,21 @@ use simba::scalar::{ClosedNeg, RealField};
 ///  If a feature that you need is missing, feel free to open an issue or a PR.
 ///  See https://github.com/dimforge/nalgebra/issues/487
 #[repr(C)]
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
-pub struct DualQuaternion<T: Scalar> {
+#[derive(Debug, Copy, Clone)]
+pub struct DualQuaternion<T> {
     /// The real component of the quaternion
     pub real: Quaternion<T>,
     /// The dual component of the quaternion
     pub dual: Quaternion<T>,
+}
+
+impl<T: Scalar + Eq> Eq for DualQuaternion<T> {}
+
+impl<T: Scalar> PartialEq for DualQuaternion<T> {
+    #[inline]
+    fn eq(&self, right: &Self) -> bool {
+        self.real == right.real && self.dual == right.dual
+    }
 }
 
 impl<T: Scalar + Zero> Default for DualQuaternion<T> {
