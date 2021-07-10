@@ -67,7 +67,7 @@ where
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Scalar, D: DimName> bytemuck::Zeroable for OPoint<T, D>
 where
-    SVector<T, D>: bytemuck::Zeroable,
+    OVector<T, D>: bytemuck::Zeroable,
     DefaultAllocator: Allocator<T, D>,
 {
 }
@@ -76,7 +76,7 @@ where
 unsafe impl<T: Scalar, D: DimName> bytemuck::Pod for OPoint<T, D>
 where
     T: Copy,
-    SVector<T, D>: bytemuck::Pod,
+    OVector<T, D>: bytemuck::Pod,
     DefaultAllocator: Allocator<T, D>,
 {
 }
@@ -85,7 +85,7 @@ where
 impl<T: Scalar + Serialize, D: DimName> Serialize for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    <DefaultAllocator as Allocator<T, D>>::Buffer: Serialize
+    <DefaultAllocator as Allocator<T, D>>::Buffer: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -99,7 +99,7 @@ where
 impl<'a, T: Scalar + Deserialize<'a>, D: DimName> Deserialize<'a> for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    <DefaultAllocator as Allocator<T, D>>::Buffer: Deserialize<'a>
+    <DefaultAllocator as Allocator<T, D>>::Buffer: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
@@ -115,7 +115,7 @@ where
 impl<T, D: DimName> Abomonation for OPoint<T, D>
 where
     T: Scalar,
-    SVector<T, D>: Abomonation,
+    OVector<T, D>: Abomonation,
     DefaultAllocator: Allocator<T, D>,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
