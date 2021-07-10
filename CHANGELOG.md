@@ -4,6 +4,11 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.28.0]
+### Modified
+- The `Point::new` constructors are no longer const-fn. This is due to some limitations in const-fn
+  not allowing custom trait-bounds. Use the `point!` macro instead to build points in const environments.
+
 ## [0.27.1]
 ### Fixed
 - Fixed a bug in the conversion from `glam::Vec2` or `glam::DVec2` to `Isometry2`.
