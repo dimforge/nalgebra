@@ -87,7 +87,6 @@ an optimized set of tools for computer graphics and physics. Those features incl
     html_root_url = "https://docs.rs/nalgebra/0.25.0"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
 #![cfg_attr(feature = "no_unsound_assume_init", allow(unreachable_code))]
 
 #[cfg(feature = "rand-no-std")]
@@ -102,6 +101,7 @@ extern crate approx;
 extern crate num_traits as num;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
+#[cfg_attr(test, macro_use)]
 extern crate alloc;
 
 #[cfg(not(feature = "std"))]
