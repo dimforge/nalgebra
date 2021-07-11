@@ -5,9 +5,23 @@ documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [0.28.0]
+### Added
+- Implement `Hash` for `Transform`.
+
 ### Modified
+- The `OPoint<T, D>` type has been added. It takes the dimension number as a type-level integer (e.g. `Const<3>`) instead
+  of a const-generic. The type `Point<T, const D: usize>` is now an alias for `OPoint`. This changes doesn't affect any
+  of the existing code using `Point`. However, it will allow the use `OPoint` in a generic context where the dimension
+  cannot be easily expressed as a const-generic (because of the current limitation of const-generics in Rust).
+- Several clippy warnings were fixed. This results in some method signature changes (e.g. taking `self` instead of `&self`)
+  but this should not have any practical infulances on existing codebase.
 - The `Point::new` constructors are no longer const-fn. This is due to some limitations in const-fn
   not allowing custom trait-bounds. Use the `point!` macro instead to build points in const environments.
+- `Dynamic::new` and `Unit::new_unchecked` are now const-fn.
+- Methods returning `Result<(), ()>` now return `bool` instead.
+  
+### Fixed
+- Fixed a potential unsoundess issue when converting a mutable slice to a `&mut[T]`.
 
 ## [0.27.1]
 ### Fixed
