@@ -19,7 +19,7 @@ use std::slice::{Iter, IterMut};
 ///
 /// # Usage
 ///
-/// ```rust
+/// ```
 /// use nalgebra_sparse::csc::CscMatrix;
 /// use nalgebra::{DMatrix, Matrix3x4};
 /// use matrixcompare::assert_matrix_eq;
@@ -97,7 +97,7 @@ use std::slice::{Iter, IterMut};
 /// represents the matrix in a column-by-column fashion. The entries associated with column `j` are
 /// determined as follows:
 ///
-/// ```rust
+/// ```
 /// # let col_offsets: Vec<usize> = vec![0, 0];
 /// # let row_indices: Vec<usize> = vec![];
 /// # let values: Vec<i32> = vec![];
@@ -192,12 +192,14 @@ impl<T> CscMatrix<T> {
 
     /// The number of rows in the matrix.
     #[inline]
+    #[must_use]
     pub fn nrows(&self) -> usize {
         self.cs.pattern().minor_dim()
     }
 
     /// The number of columns in the matrix.
     #[inline]
+    #[must_use]
     pub fn ncols(&self) -> usize {
         self.cs.pattern().major_dim()
     }
@@ -208,24 +210,28 @@ impl<T> CscMatrix<T> {
     /// number of algebraically zero entries in the matrix. Explicitly stored entries can still
     /// be zero. Corresponds to the number of entries in the sparsity pattern.
     #[inline]
+    #[must_use]
     pub fn nnz(&self) -> usize {
         self.pattern().nnz()
     }
 
     /// The column offsets defining part of the CSC format.
     #[inline]
+    #[must_use]
     pub fn col_offsets(&self) -> &[usize] {
         self.pattern().major_offsets()
     }
 
     /// The row indices defining part of the CSC format.
     #[inline]
+    #[must_use]
     pub fn row_indices(&self) -> &[usize] {
         self.pattern().minor_indices()
     }
 
     /// The non-zero values defining part of the CSC format.
     #[inline]
+    #[must_use]
     pub fn values(&self) -> &[T] {
         self.cs.values()
     }
@@ -298,6 +304,7 @@ impl<T> CscMatrix<T> {
     /// ------
     /// Panics if column index is out of bounds.
     #[inline]
+    #[must_use]
     pub fn col(&self, index: usize) -> CscCol<T> {
         self.get_col(index).expect("Row index must be in bounds")
     }
@@ -315,12 +322,14 @@ impl<T> CscMatrix<T> {
 
     /// Return the column at the given column index, or `None` if out of bounds.
     #[inline]
+    #[must_use]
     pub fn get_col(&self, index: usize) -> Option<CscCol<T>> {
         self.cs.get_lane(index).map(|lane| CscCol { lane })
     }
 
     /// Mutable column access for the given column index, or `None` if out of bounds.
     #[inline]
+    #[must_use]
     pub fn get_col_mut(&mut self, index: usize) -> Option<CscColMut<T>> {
         self.cs.get_lane_mut(index).map(|lane| CscColMut { lane })
     }
@@ -381,6 +390,7 @@ impl<T> CscMatrix<T> {
     }
 
     /// Returns a reference to the underlying sparsity pattern.
+    #[must_use]
     pub fn pattern(&self) -> &SparsityPattern {
         self.cs.pattern()
     }
@@ -397,6 +407,7 @@ impl<T> CscMatrix<T> {
     ///
     /// Each call to this function incurs the cost of a binary search among the explicitly
     /// stored row entries for the given column.
+    #[must_use]
     pub fn get_entry(&self, row_index: usize, col_index: usize) -> Option<SparseEntry<T>> {
         self.cs.get_entry(col_index, row_index)
     }
@@ -422,6 +433,7 @@ impl<T> CscMatrix<T> {
     /// Panics
     /// ------
     /// Panics if `row_index` or `col_index` is out of bounds.
+    #[must_use]
     pub fn index_entry(&self, row_index: usize, col_index: usize) -> SparseEntry<T> {
         self.get_entry(row_index, col_index)
             .expect("Out of bounds matrix indices encountered")
@@ -441,6 +453,7 @@ impl<T> CscMatrix<T> {
     }
 
     /// Returns a triplet of slices `(col_offsets, row_indices, values)` that make up the CSC data.
+    #[must_use]
     pub fn csc_data(&self) -> (&[usize], &[usize], &[T]) {
         self.cs.cs_data()
     }
@@ -453,6 +466,7 @@ impl<T> CscMatrix<T> {
 
     /// Creates a sparse matrix that contains only the explicit entries decided by the
     /// given predicate.
+    #[must_use]
     pub fn filter<P>(&self, predicate: P) -> Self
     where
         T: Clone,
@@ -470,6 +484,7 @@ impl<T> CscMatrix<T> {
     /// Returns a new matrix representing the upper triangular part of this matrix.
     ///
     /// The result includes the diagonal of the matrix.
+    #[must_use]
     pub fn upper_triangle(&self) -> Self
     where
         T: Clone,
@@ -480,6 +495,7 @@ impl<T> CscMatrix<T> {
     /// Returns a new matrix representing the lower triangular part of this matrix.
     ///
     /// The result includes the diagonal of the matrix.
+    #[must_use]
     pub fn lower_triangle(&self) -> Self
     where
         T: Clone,
@@ -488,6 +504,7 @@ impl<T> CscMatrix<T> {
     }
 
     /// Returns the diagonal of the matrix as a sparse matrix.
+    #[must_use]
     pub fn diagonal_as_csc(&self) -> Self
     where
         T: Clone,
@@ -498,6 +515,7 @@ impl<T> CscMatrix<T> {
     }
 
     /// Compute the transpose of the matrix.
+    #[must_use]
     pub fn transpose(&self) -> CscMatrix<T>
     where
         T: Scalar,
@@ -617,24 +635,28 @@ macro_rules! impl_csc_col_common_methods {
         impl<'a, T> $name {
             /// The number of global rows in the column.
             #[inline]
+            #[must_use]
             pub fn nrows(&self) -> usize {
                 self.lane.minor_dim()
             }
 
             /// The number of non-zeros in this column.
             #[inline]
+            #[must_use]
             pub fn nnz(&self) -> usize {
                 self.lane.nnz()
             }
 
             /// The row indices corresponding to explicitly stored entries in this column.
             #[inline]
+            #[must_use]
             pub fn row_indices(&self) -> &[usize] {
                 self.lane.minor_indices()
             }
 
             /// The values corresponding to explicitly stored entries in this column.
             #[inline]
+            #[must_use]
             pub fn values(&self) -> &[T] {
                 self.lane.values()
             }
@@ -643,6 +665,7 @@ macro_rules! impl_csc_col_common_methods {
             ///
             /// Each call to this function incurs the cost of a binary search among the explicitly
             /// stored row entries.
+            #[must_use]
             pub fn get_entry(&self, global_row_index: usize) -> Option<SparseEntry<T>> {
                 self.lane.get_entry(global_row_index)
             }
@@ -669,6 +692,7 @@ impl<'a, T> CscColMut<'a, T> {
     }
 
     /// Returns a mutable entry for the given global row index.
+    #[must_use]
     pub fn get_entry_mut(&mut self, global_row_index: usize) -> Option<SparseEntryMut<T>> {
         self.lane.get_entry_mut(global_row_index)
     }

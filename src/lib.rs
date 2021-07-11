@@ -1,3 +1,4 @@
+#![allow(clippy::type_complexity)]
 /*!
 # nalgebra
 
@@ -13,7 +14,7 @@ and the official package manager: [cargo](https://github.com/rust-lang/cargo).
 
 Simply add the following to your `Cargo.toml` file:
 
-```.ignore
+```ignore
 [dependencies]
 // TODO: replace the * by the latest version.
 nalgebra = "*"
@@ -25,7 +26,7 @@ Most useful functionalities of **nalgebra** are grouped in the root module `nalg
 However, the recommended way to use **nalgebra** is to import types and traits
 explicitly, and call free-functions using the `na::` prefix:
 
-```.rust
+```
 #[macro_use]
 extern crate approx; // For the macro relative_eq!
 extern crate nalgebra as na;
@@ -86,7 +87,6 @@ an optimized set of tools for computer graphics and physics. Those features incl
     html_root_url = "https://docs.rs/nalgebra/0.25.0"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(all(feature = "alloc", not(feature = "std")), feature(alloc))]
 #![cfg_attr(feature = "no_unsound_assume_init", allow(unreachable_code))]
 
 #[cfg(feature = "rand-no-std")]
@@ -101,6 +101,7 @@ extern crate approx;
 extern crate num_traits as num;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
+#[cfg_attr(test, macro_use)]
 extern crate alloc;
 
 #[cfg(not(feature = "std"))]
@@ -184,6 +185,7 @@ pub fn zero<T: Zero>() -> T {
 /// Wraps `val` into the range `[min, max]` using modular arithmetics.
 ///
 /// The range must not be empty.
+#[must_use]
 #[inline]
 pub fn wrap<T>(mut val: T, min: T, max: T) -> T
 where
@@ -198,19 +200,15 @@ where
         while val < min {
             val += width
         }
-
-        val
     } else if val > max {
         val -= width;
 
         while val > max {
             val -= width
         }
-
-        val
-    } else {
-        val
     }
+
+    val
 }
 
 /// Returns a reference to the input value clamped to the interval `[min, max]`.
@@ -219,6 +217,7 @@ where
 ///     * If `min < val < max`, this returns `val`.
 ///     * If `val <= min`, this returns `min`.
 ///     * If `val >= max`, this returns `max`.
+#[must_use]
 #[inline]
 pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
     if val > min {
@@ -391,7 +390,7 @@ pub fn center<T: SimdComplexField, const D: usize>(
     p1: &Point<T, D>,
     p2: &Point<T, D>,
 ) -> Point<T, D> {
-    ((&p1.coords + &p2.coords) * convert::<_, T>(0.5)).into()
+    ((p1.coords + p2.coords) * convert::<_, T>(0.5)).into()
 }
 
 /// The distance between two points.
@@ -405,7 +404,7 @@ pub fn distance<T: SimdComplexField, const D: usize>(
     p1: &Point<T, D>,
     p2: &Point<T, D>,
 ) -> T::SimdRealField {
-    (&p2.coords - &p1.coords).norm()
+    (p2.coords - p1.coords).norm()
 }
 
 /// The squared distance between two points.
@@ -419,7 +418,7 @@ pub fn distance_squared<T: SimdComplexField, const D: usize>(
     p1: &Point<T, D>,
     p2: &Point<T, D>,
 ) -> T::SimdRealField {
-    (&p2.coords - &p1.coords).norm_squared()
+    (p2.coords - p1.coords).norm_squared()
 }
 
 /*

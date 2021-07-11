@@ -386,7 +386,7 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
                 (D::dim() - 1, 0),
                 (Const::<1>, DimNameDiff::<D, U1>::name()),
             )
-            .tr_dot(&shift);
+            .tr_dot(shift);
         let post_translation = self.generic_slice(
             (0, 0),
             (DimNameDiff::<D, U1>::name(), DimNameDiff::<D, U1>::name()),
@@ -423,7 +423,7 @@ where
             (D::dim() - 1, 0),
             (Const::<1>, DimNameDiff::<D, U1>::name()),
         );
-        let n = normalizer.tr_dot(&v);
+        let n = normalizer.tr_dot(v);
 
         if !n.is_zero() {
             return transform * (v / n);

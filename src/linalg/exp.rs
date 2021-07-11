@@ -435,37 +435,38 @@ where
         + Allocator<T::RealField, D, D>,
 {
     /// Computes exponential of this matrix
+    #[must_use]
     pub fn exp(&self) -> Self {
         // Simple case
         if self.nrows() == 1 {
             return self.map(|v| v.exp());
         }
 
-        let mut h = ExpmPadeHelper::new(self.clone(), true);
+        let mut helper = ExpmPadeHelper::new(self.clone(), true);
 
-        let eta_1 = T::RealField::max(h.d4_loose(), h.d6_loose());
-        if eta_1 < convert(1.495_585_217_958_292e-2) && ell(&h.a, 3) == 0 {
-            let (u, v) = h.pade3();
+        let eta_1 = T::RealField::max(helper.d4_loose(), helper.d6_loose());
+        if eta_1 < convert(1.495_585_217_958_292e-2) && ell(&helper.a, 3) == 0 {
+            let (u, v) = helper.pade3();
             return solve_p_q(u, v);
         }
 
-        let eta_2 = T::RealField::max(h.d4_tight(), h.d6_loose());
-        if eta_2 < convert(2.539_398_330_063_230e-1) && ell(&h.a, 5) == 0 {
-            let (u, v) = h.pade5();
+        let eta_2 = T::RealField::max(helper.d4_tight(), helper.d6_loose());
+        if eta_2 < convert(2.539_398_330_063_23e-1) && ell(&helper.a, 5) == 0 {
+            let (u, v) = helper.pade5();
             return solve_p_q(u, v);
         }
 
-        let eta_3 = T::RealField::max(h.d6_tight(), h.d8_loose());
-        if eta_3 < convert(9.504_178_996_162_932e-1) && ell(&h.a, 7) == 0 {
-            let (u, v) = h.pade7();
+        let eta_3 = T::RealField::max(helper.d6_tight(), helper.d8_loose());
+        if eta_3 < convert(9.504_178_996_162_932e-1) && ell(&helper.a, 7) == 0 {
+            let (u, v) = helper.pade7();
             return solve_p_q(u, v);
         }
-        if eta_3 < convert(2.097_847_961_257_068e+0) && ell(&h.a, 9) == 0 {
-            let (u, v) = h.pade9();
+        if eta_3 < convert(2.097_847_961_257_068e0) && ell(&helper.a, 9) == 0 {
+            let (u, v) = helper.pade9();
             return solve_p_q(u, v);
         }
 
-        let eta_4 = T::RealField::max(h.d8_loose(), h.d10_loose());
+        let eta_4 = T::RealField::max(helper.d8_loose(), helper.d10_loose());
         let eta_5 = T::RealField::min(eta_3, eta_4);
         let theta_13 = convert(4.25);
 
@@ -481,9 +482,12 @@ where
             }
         };
 
-        s += ell(&(&h.a * convert::<f64, T>(2.0_f64.powf(-(s as f64)))), 13);
+        s += ell(
+            &(&helper.a * convert::<f64, T>(2.0_f64.powf(-(s as f64)))),
+            13,
+        );
 
-        let (u, v) = h.pade13_scaled(s);
+        let (u, v) = helper.pade13_scaled(s);
         let mut x = solve_p_q(u, v);
 
         for _ in 0..s {

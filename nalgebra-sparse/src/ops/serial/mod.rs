@@ -96,11 +96,13 @@ impl OperationError {
     }
 
     /// The operation error kind.
+    #[must_use]
     pub fn kind(&self) -> &OperationErrorKind {
         &self.error_kind
     }
 
     /// The underlying error message.
+    #[must_use]
     pub fn message(&self) -> &str {
         self.message.as_str()
     }

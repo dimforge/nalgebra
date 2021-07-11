@@ -27,7 +27,7 @@
 //! In `proptest`, it is usually preferable to have free functions that generate *strategies*.
 //! Currently, the [matrix](fn.matrix.html) function fills this role. The analogous function for
 //! column vectors is [vector](fn.vector.html). Let's take a quick look at how it may be used:
-//! ```rust
+//! ```
 //! use nalgebra::proptest::matrix;
 //! use proptest::prelude::*;
 //!
@@ -52,7 +52,7 @@
 //! number of columns to vary. One way to do this is to use `proptest` combinators in combination
 //! with [matrix](fn.matrix.html) as follows:
 //!
-//! ```rust
+//! ```
 //! use nalgebra::{Dynamic, OMatrix, Const};
 //! use nalgebra::proptest::matrix;
 //! use proptest::prelude::*;
@@ -92,7 +92,7 @@
 //!
 //! If you don't care about the dimensions of matrices, you can write tests like these:
 //!
-//! ```rust
+//! ```
 //! use nalgebra::{DMatrix, DVector, Dynamic, Matrix3, OMatrix, Vector3, U3};
 //! use proptest::prelude::*;
 //!

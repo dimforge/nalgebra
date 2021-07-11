@@ -92,6 +92,7 @@ where
 
     /// Retrieves the lower-triangular factor of the Cholesky decomposition with its strictly
     /// uppen-triangular part filled with zeros.
+    #[must_use]
     pub fn l(&self) -> OMatrix<T, D, D> {
         self.chol.lower_triangle()
     }
@@ -101,6 +102,7 @@ where
     ///
     /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
     /// part are garbage and should be ignored by further computations.
+    #[must_use]
     pub fn l_dirty(&self) -> &OMatrix<T, D, D> {
         &self.chol
     }
@@ -119,6 +121,7 @@ where
 
     /// Returns the solution of the system `self * x = b` where `self` is the decomposed matrix and
     /// `x` the unknown.
+    #[must_use = "Did you mean to use solve_mut()?"]
     pub fn solve<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<T, R2, C2, S2>) -> OMatrix<T, R2, C2>
     where
         S2: Storage<T, R2, C2>,
@@ -131,6 +134,7 @@ where
     }
 
     /// Computes the inverse of the decomposed matrix.
+    #[must_use]
     pub fn inverse(&self) -> OMatrix<T, D, D> {
         let shape = self.chol.data.shape();
         let mut res = OMatrix::identity_generic(shape.0, shape.1);
@@ -140,6 +144,7 @@ where
     }
 
     /// Computes the determinant of the decomposed matrix.
+    #[must_use]
     pub fn determinant(&self) -> T::SimdRealField {
         let dim = self.chol.nrows();
         let mut prod_diag = T::one();
@@ -287,6 +292,7 @@ where
 
     /// Updates the decomposition such that we get the decomposition of the factored matrix with its `j`th column removed.
     /// Since the matrix is square, the `j`th row will also be removed.
+    #[must_use]
     pub fn remove_column(&self, j: usize) -> Cholesky<T, DimDiff<D, U1>>
     where
         D: DimSub<U1>,

@@ -90,7 +90,7 @@
 //! `C <- 3.0 * C + 2.0 * A^T * B`, where `A`, `B`, `C` are matrices and `A^T` is the transpose
 //! of `A`. The simplest way to write this is:
 //!
-//! ```rust
+//! ```
 //! # use nalgebra_sparse::csr::CsrMatrix;
 //! # let a = CsrMatrix::identity(10); let b = CsrMatrix::identity(10);
 //! # let mut c = CsrMatrix::identity(10);
@@ -109,7 +109,7 @@
 //!
 //! An alternative way to implement this expression (here using CSR matrices) is:
 //!
-//! ```rust
+//! ```
 //! # use nalgebra_sparse::csr::CsrMatrix;
 //! # let a = CsrMatrix::identity(10); let b = CsrMatrix::identity(10);
 //! # let mut c = CsrMatrix::identity(10);
@@ -140,11 +140,13 @@ pub enum Op<T> {
 
 impl<T> Op<T> {
     /// Returns a reference to the inner value that the operation applies to.
+    #[must_use]
     pub fn inner_ref(&self) -> &T {
         self.as_ref().into_inner()
     }
 
     /// Returns an `Op` applied to a reference of the inner value.
+    #[must_use]
     pub fn as_ref(&self) -> Op<&T> {
         match self {
             Op::NoOp(obj) => Op::NoOp(&obj),

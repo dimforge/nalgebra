@@ -70,6 +70,7 @@ where
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
     #[inline]
+    #[must_use]
     pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
         DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
@@ -96,6 +97,7 @@ where
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
+    #[must_use]
     pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
         DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
@@ -164,6 +166,7 @@ where
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
     /// Returns `None` if `self` is not invertible.
+    #[must_use = "Did you mean to use solve_mut()?"]
     pub fn solve<R2: Dim, C2: Dim, S2>(
         &self,
         b: &Matrix<T, R2, C2, S2>,
@@ -243,6 +246,7 @@ where
     /// Computes the inverse of the decomposed matrix.
     ///
     /// Returns `None` if the decomposed matrix is not invertible.
+    #[must_use]
     pub fn try_inverse(&self) -> Option<OMatrix<T, D, D>> {
         assert!(
             self.qr.is_square(),
@@ -261,6 +265,7 @@ where
     }
 
     /// Indicates if the decomposed matrix is invertible.
+    #[must_use]
     pub fn is_invertible(&self) -> bool {
         assert!(
             self.qr.is_square(),

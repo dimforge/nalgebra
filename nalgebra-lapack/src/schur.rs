@@ -138,6 +138,7 @@ where
     /// Computes the real eigenvalues of the decomposed matrix.
     ///
     /// Return `None` if some eigenvalues are complex.
+    #[must_use]
     pub fn eigenvalues(&self) -> Option<OVector<T, D>> {
         if self.im.iter().all(|e| e.is_zero()) {
             Some(self.re.clone())
@@ -147,6 +148,7 @@ where
     }
 
     /// Computes the complex eigenvalues of the decomposed matrix.
+    #[must_use]
     pub fn complex_eigenvalues(&self) -> OVector<Complex<T>, D>
     where
         DefaultAllocator: Allocator<Complex<T>, D>,

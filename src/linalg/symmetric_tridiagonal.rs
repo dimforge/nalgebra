@@ -131,6 +131,7 @@ where
     }
 
     /// The diagonal components of this decomposition.
+    #[must_use]
     pub fn diagonal(&self) -> OVector<T::RealField, D>
     where
         DefaultAllocator: Allocator<T::RealField, D>,
@@ -139,6 +140,7 @@ where
     }
 
     /// The off-diagonal components of this decomposition.
+    #[must_use]
     pub fn off_diagonal(&self) -> OVector<T::RealField, DimDiff<D, U1>>
     where
         DefaultAllocator: Allocator<T::RealField, DimDiff<D, U1>>,
@@ -147,6 +149,7 @@ where
     }
 
     /// Computes the orthogonal matrix `Q` of this decomposition.
+    #[must_use]
     pub fn q(&self) -> OMatrix<T, D, D> {
         householder::assemble_q(&self.tri, self.off_diagonal.as_slice())
     }

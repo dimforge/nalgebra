@@ -8,7 +8,6 @@ use rand::{
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
-use std::mem;
 
 use simba::scalar::RealField;
 
@@ -19,7 +18,7 @@ use crate::base::{Matrix4, Vector, Vector3};
 use crate::geometry::{Point3, Projective3};
 
 /// A 3D orthographic projection stored as a homogeneous 4x4 matrix.
-pub struct Orthographic3<T: RealField> {
+pub struct Orthographic3<T> {
     matrix: Matrix4<T>,
 }
 
@@ -188,6 +187,7 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_relative_eq!(proj.as_matrix() * inv, Matrix4::identity());
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse(&self) -> Matrix4<T> {
         let mut res = self.to_homogeneous();
 
@@ -221,7 +221,8 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_eq!(proj.to_homogeneous(), expected);
     /// ```
     #[inline]
-    pub fn to_homogeneous(&self) -> Matrix4<T> {
+    #[must_use]
+    pub fn to_homogeneous(self) -> Matrix4<T> {
         self.matrix
     }
 
@@ -240,6 +241,7 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_eq!(*proj.as_matrix(), expected);
     /// ```
     #[inline]
+    #[must_use]
     pub fn as_matrix(&self) -> &Matrix4<T> {
         &self.matrix
     }
@@ -253,8 +255,9 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_eq!(proj.as_projective().to_homogeneous(), proj.to_homogeneous());
     /// ```
     #[inline]
+    #[must_use]
     pub fn as_projective(&self) -> &Projective3<T> {
-        unsafe { mem::transmute(self) }
+        unsafe { &*(self as *const Orthographic3<T> as *const Projective3<T>) }
     }
 
     /// This transformation seen as a `Projective3`.
@@ -266,7 +269,8 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_eq!(proj.to_projective().to_homogeneous(), proj.to_homogeneous());
     /// ```
     #[inline]
-    pub fn to_projective(&self) -> Projective3<T> {
+    #[must_use]
+    pub fn to_projective(self) -> Projective3<T> {
         Projective3::from_matrix_unchecked(self.matrix)
     }
 
@@ -310,6 +314,7 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_relative_eq!(proj.left(), 10.0, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn left(&self) -> T {
         (-T::one() - self.matrix[(0, 3)]) / self.matrix[(0, 0)]
     }
@@ -326,6 +331,7 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_relative_eq!(proj.right(), 1.0, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn right(&self) -> T {
         (T::one() - self.matrix[(0, 3)]) / self.matrix[(0, 0)]
     }
@@ -342,6 +348,7 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_relative_eq!(proj.bottom(), 20.0, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn bottom(&self) -> T {
         (-T::one() - self.matrix[(1, 3)]) / self.matrix[(1, 1)]
     }
@@ -358,6 +365,7 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_relative_eq!(proj.top(), 2.0, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn top(&self) -> T {
         (T::one() - self.matrix[(1, 3)]) / self.matrix[(1, 1)]
     }
@@ -374,6 +382,7 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_relative_eq!(proj.znear(), 1000.0, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn znear(&self) -> T {
         (T::one() + self.matrix[(2, 3)]) / self.matrix[(2, 2)]
     }
@@ -390,6 +399,7 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_relative_eq!(proj.zfar(), 0.1, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn zfar(&self) -> T {
         (-T::one() + self.matrix[(2, 3)]) / self.matrix[(2, 2)]
     }
@@ -422,6 +432,7 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_relative_eq!(proj.project_point(&p8), Point3::new( 1.0,  1.0,  1.0));
     /// ```
     #[inline]
+    #[must_use]
     pub fn project_point(&self, p: &Point3<T>) -> Point3<T> {
         Point3::new(
             self.matrix[(0, 0)] * p[0] + self.matrix[(0, 3)],
@@ -457,6 +468,7 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_relative_eq!(proj.unproject_point(&p8), Point3::new(10.0, 20.0, -1000.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn unproject_point(&self, p: &Point3<T>) -> Point3<T> {
         Point3::new(
             (p[0] - self.matrix[(0, 3)]) / self.matrix[(0, 0)],
@@ -485,6 +497,7 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_relative_eq!(proj.project_vector(&v3), Vector3::z() * -2.0 / 999.9);
     /// ```
     #[inline]
+    #[must_use]
     pub fn project_vector<SB>(&self, p: &Vector<T, U3, SB>) -> Vector3<T>
     where
         SB: Storage<T, U3>,

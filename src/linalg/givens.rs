@@ -89,16 +89,19 @@ impl<T: ComplexField> GivensRotation<T> {
     }
 
     /// The cos part of this roration.
+    #[must_use]
     pub fn c(&self) -> T::RealField {
         self.c
     }
 
     /// The sin part of this roration.
+    #[must_use]
     pub fn s(&self) -> T {
         self.s
     }
 
     /// The inverse of this givens rotation.
+    #[must_use = "This function does not mutate self."]
     pub fn inverse(&self) -> Self {
         Self {
             c: self.c,

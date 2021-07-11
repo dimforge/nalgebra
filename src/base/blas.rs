@@ -193,6 +193,7 @@ where
     /// ```
     ///
     #[inline]
+    #[must_use]
     pub fn dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> T
     where
         SB: Storage<T, R2, C2>,
@@ -221,6 +222,7 @@ where
     /// assert_ne!(vec1.dotc(&vec2), vec1.dot(&vec2));
     /// ```
     #[inline]
+    #[must_use]
     pub fn dotc<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> T
     where
         T: SimdComplexField,
@@ -248,6 +250,7 @@ where
     /// assert_eq!(mat1.tr_dot(&mat2), 9.1);
     /// ```
     #[inline]
+    #[must_use]
     pub fn tr_dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> T
     where
         SB: Storage<T, R2, C2>,
@@ -275,6 +278,7 @@ where
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn array_axcpy<T>(
     y: &mut [T],
     a: T,
@@ -331,6 +335,7 @@ where
     /// assert_eq!(vec1, Vector3::new(6.0, 12.0, 18.0));
     /// ```
     #[inline]
+    #[allow(clippy::many_single_char_names)]
     pub fn axcpy<D2: Dim, SB>(&mut self, a: T, x: &Vector<T, D2, SB>, c: T, b: T)
     where
         SB: Storage<T, D2>,
@@ -341,13 +346,17 @@ where
         let rstride1 = self.strides().0;
         let rstride2 = x.strides().0;
 
-        let y = self.data.as_mut_slice();
-        let x = x.data.as_slice();
+        unsafe {
+            // SAFETY: the conversion to slices is OK because we access the
+            //         elements taking the strides into account.
+            let y = self.data.as_mut_slice_unchecked();
+            let x = x.data.as_slice_unchecked();
 
-        if !b.is_zero() {
-            array_axcpy(y, a, x, c, b, rstride1, rstride2, x.len());
-        } else {
-            array_axc(y, a, x, c, rstride1, rstride2, x.len());
+            if !b.is_zero() {
+                array_axcpy(y, a, x, c, b, rstride1, rstride2, x.len());
+            } else {
+                array_axc(y, a, x, c, rstride1, rstride2, x.len());
+            }
         }
     }
 
@@ -1379,12 +1388,12 @@ where
     {
         work.gemv(T::one(), mid, &rhs.column(0), T::zero());
         self.column_mut(0)
-            .gemv_tr(alpha.inlined_clone(), &rhs, work, beta.inlined_clone());
+            .gemv_tr(alpha.inlined_clone(), rhs, work, beta.inlined_clone());
 
         for j in 1..rhs.ncols() {
             work.gemv(T::one(), mid, &rhs.column(j), T::zero());
             self.column_mut(j)
-                .gemv_tr(alpha.inlined_clone(), &rhs, work, beta.inlined_clone());
+                .gemv_tr(alpha.inlined_clone(), rhs, work, beta.inlined_clone());
         }
     }
 

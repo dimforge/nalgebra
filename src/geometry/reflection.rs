@@ -1,5 +1,5 @@
 use crate::base::constraint::{AreMultipliable, DimEq, SameNumberOfRows, ShapeConstraint};
-use crate::base::{Const, Matrix, Scalar, Unit, Vector};
+use crate::base::{Const, Matrix, Unit, Vector};
 use crate::dimension::{Dim, U1};
 use crate::storage::{Storage, StorageMut};
 use simba::scalar::ComplexField;
@@ -7,7 +7,7 @@ use simba::scalar::ComplexField;
 use crate::geometry::Point;
 
 /// A reflection wrt. a plane.
-pub struct Reflection<T: Scalar, D: Dim, S: Storage<T, D>> {
+pub struct Reflection<T, D, S> {
     axis: Vector<T, D, S>,
     bias: T,
 }
@@ -34,6 +34,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
     }
 
     /// The reflexion axis.
+    #[must_use]
     pub fn axis(&self) -> &Vector<T, D, S> {
         &self.axis
     }
@@ -89,7 +90,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
         }
 
         let m_two: T = crate::convert(-2.0f64);
-        lhs.gerc(m_two, &work, &self.axis, T::one());
+        lhs.gerc(m_two, work, &self.axis, T::one());
     }
 
     /// Applies the reflection to the rows of `lhs`.
@@ -110,6 +111,6 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
         }
 
         let m_two = sign.scale(crate::convert(-2.0f64));
-        lhs.gerc(m_two, &work, &self.axis, sign);
+        lhs.gerc(m_two, work, &self.axis, sign);
     }
 }

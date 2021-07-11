@@ -101,8 +101,8 @@ where
     }
 
     #[inline]
-    fn as_slice(&self) -> &[T] {
-        unsafe { std::slice::from_raw_parts(self.ptr(), R * C) }
+    unsafe fn as_slice_unchecked(&self) -> &[T] {
+        std::slice::from_raw_parts(self.ptr(), R * C)
     }
 }
 
@@ -118,8 +118,8 @@ where
     }
 
     #[inline]
-    fn as_mut_slice(&mut self) -> &mut [T] {
-        unsafe { std::slice::from_raw_parts_mut(self.ptr_mut(), R * C) }
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
+        std::slice::from_raw_parts_mut(self.ptr_mut(), R * C)
     }
 }
 
@@ -286,11 +286,7 @@ where
     unsafe fn exhume<'a, 'b>(&'a mut self, mut bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
         for element in self.as_mut_slice() {
             let temp = bytes;
-            bytes = if let Some(remainder) = element.exhume(temp) {
-                remainder
-            } else {
-                return None;
-            }
+            bytes = element.exhume(temp)?
         }
         Some(bytes)
     }
@@ -327,7 +323,7 @@ mod rkyv_impl {
         for ArrayStorage<T, R, C>
     {
         fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            Ok(self.0.serialize(serializer)?)
+            self.0.serialize(serializer)
         }
     }
 

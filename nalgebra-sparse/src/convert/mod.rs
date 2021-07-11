@@ -7,7 +7,7 @@
 //! The following example illustrates how to convert between matrix formats with the `From`
 //! implementations.
 //!
-//! ```rust
+//! ```
 //! use nalgebra_sparse::{csr::CsrMatrix, csc::CscMatrix, coo::CooMatrix};
 //! use nalgebra::DMatrix;
 //!

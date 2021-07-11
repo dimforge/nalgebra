@@ -21,7 +21,7 @@
    **nalgebra-glm** using the module prefix `glm::`. For example you will write `glm::rotate(...)` instead
    of the more verbose `nalgebra_glm::rotate(...)`:
 
-   ```rust
+   ```
    extern crate nalgebra_glm as glm;
    ```
 

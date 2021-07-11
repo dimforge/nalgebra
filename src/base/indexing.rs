@@ -44,7 +44,7 @@ impl<D: Dim> DimRange<D> for usize {
 #[test]
 fn dimrange_usize() {
     assert_eq!(DimRange::contained_by(&0, Const::<0>), false);
-    assert_eq!(DimRange::contained_by(&0, Const::<1>), true);
+    assert!(DimRange::contained_by(&0, Const::<1>));
 }
 
 impl<D: Dim> DimRange<D> for ops::Range<usize> {
@@ -68,24 +68,23 @@ impl<D: Dim> DimRange<D> for ops::Range<usize> {
 
 #[test]
 fn dimrange_range_usize() {
-    use std::usize::MAX;
     assert_eq!(DimRange::contained_by(&(0..0), Const::<0>), false);
     assert_eq!(DimRange::contained_by(&(0..1), Const::<0>), false);
-    assert_eq!(DimRange::contained_by(&(0..1), Const::<1>), true);
+    assert!(DimRange::contained_by(&(0..1), Const::<1>));
+    assert!(DimRange::contained_by(
+        &((usize::MAX - 1)..usize::MAX),
+        Dynamic::new(usize::MAX)
+    ));
     assert_eq!(
-        DimRange::contained_by(&((MAX - 1)..MAX), Dynamic::new(MAX)),
-        true
-    );
-    assert_eq!(
-        DimRange::length(&((MAX - 1)..MAX), Dynamic::new(MAX)),
+        DimRange::length(&((usize::MAX - 1)..usize::MAX), Dynamic::new(usize::MAX)),
         Dynamic::new(1)
     );
     assert_eq!(
-        DimRange::length(&(MAX..(MAX - 1)), Dynamic::new(MAX)),
+        DimRange::length(&(usize::MAX..(usize::MAX - 1)), Dynamic::new(usize::MAX)),
         Dynamic::new(0)
     );
     assert_eq!(
-        DimRange::length(&(MAX..MAX), Dynamic::new(MAX)),
+        DimRange::length(&(usize::MAX..usize::MAX), Dynamic::new(usize::MAX)),
         Dynamic::new(0)
     );
 }
@@ -111,20 +110,19 @@ impl<D: Dim> DimRange<D> for ops::RangeFrom<usize> {
 
 #[test]
 fn dimrange_rangefrom_usize() {
-    use std::usize::MAX;
     assert_eq!(DimRange::contained_by(&(0..), Const::<0>), false);
     assert_eq!(DimRange::contained_by(&(0..), Const::<0>), false);
-    assert_eq!(DimRange::contained_by(&(0..), Const::<1>), true);
+    assert!(DimRange::contained_by(&(0..), Const::<1>));
+    assert!(DimRange::contained_by(
+        &((usize::MAX - 1)..),
+        Dynamic::new(usize::MAX)
+    ));
     assert_eq!(
-        DimRange::contained_by(&((MAX - 1)..), Dynamic::new(MAX)),
-        true
-    );
-    assert_eq!(
-        DimRange::length(&((MAX - 1)..), Dynamic::new(MAX)),
+        DimRange::length(&((usize::MAX - 1)..), Dynamic::new(usize::MAX)),
         Dynamic::new(1)
     );
     assert_eq!(
-        DimRange::length(&(MAX..), Dynamic::new(MAX)),
+        DimRange::length(&(usize::MAX..), Dynamic::new(usize::MAX)),
         Dynamic::new(0)
     );
 }
@@ -177,7 +175,7 @@ impl<D: Dim> DimRange<D> for ops::RangeFull {
 
 #[test]
 fn dimrange_rangefull() {
-    assert_eq!(DimRange::contained_by(&(..), Const::<0>), true);
+    assert!(DimRange::contained_by(&(..), Const::<0>));
     assert_eq!(DimRange::length(&(..), Const::<1>), Const::<1>);
 }
 
@@ -206,32 +204,31 @@ impl<D: Dim> DimRange<D> for ops::RangeInclusive<usize> {
 
 #[test]
 fn dimrange_rangeinclusive_usize() {
-    use std::usize::MAX;
     assert_eq!(DimRange::contained_by(&(0..=0), Const::<0>), false);
-    assert_eq!(DimRange::contained_by(&(0..=0), Const::<1>), true);
+    assert!(DimRange::contained_by(&(0..=0), Const::<1>));
     assert_eq!(
-        DimRange::contained_by(&(MAX..=MAX), Dynamic::new(MAX)),
+        DimRange::contained_by(&(usize::MAX..=usize::MAX), Dynamic::new(usize::MAX)),
         false
     );
     assert_eq!(
-        DimRange::contained_by(&((MAX - 1)..=MAX), Dynamic::new(MAX)),
+        DimRange::contained_by(&((usize::MAX - 1)..=usize::MAX), Dynamic::new(usize::MAX)),
         false
     );
-    assert_eq!(
-        DimRange::contained_by(&((MAX - 1)..=(MAX - 1)), Dynamic::new(MAX)),
-        true
-    );
+    assert!(DimRange::contained_by(
+        &((usize::MAX - 1)..=(usize::MAX - 1)),
+        Dynamic::new(usize::MAX)
+    ));
     assert_eq!(DimRange::length(&(0..=0), Const::<1>), Dynamic::new(1));
     assert_eq!(
-        DimRange::length(&((MAX - 1)..=MAX), Dynamic::new(MAX)),
+        DimRange::length(&((usize::MAX - 1)..=usize::MAX), Dynamic::new(usize::MAX)),
         Dynamic::new(2)
     );
     assert_eq!(
-        DimRange::length(&(MAX..=(MAX - 1)), Dynamic::new(MAX)),
+        DimRange::length(&(usize::MAX..=(usize::MAX - 1)), Dynamic::new(usize::MAX)),
         Dynamic::new(0)
     );
     assert_eq!(
-        DimRange::length(&(MAX..=MAX), Dynamic::new(MAX)),
+        DimRange::length(&(usize::MAX..=usize::MAX), Dynamic::new(usize::MAX)),
         Dynamic::new(1)
     );
 }
@@ -257,21 +254,20 @@ impl<D: Dim> DimRange<D> for ops::RangeTo<usize> {
 
 #[test]
 fn dimrange_rangeto_usize() {
-    use std::usize::MAX;
-    assert_eq!(DimRange::contained_by(&(..0), Const::<0>), true);
+    assert!(DimRange::contained_by(&(..0), Const::<0>));
     assert_eq!(DimRange::contained_by(&(..1), Const::<0>), false);
-    assert_eq!(DimRange::contained_by(&(..0), Const::<1>), true);
+    assert!(DimRange::contained_by(&(..0), Const::<1>));
+    assert!(DimRange::contained_by(
+        &(..(usize::MAX - 1)),
+        Dynamic::new(usize::MAX)
+    ));
     assert_eq!(
-        DimRange::contained_by(&(..(MAX - 1)), Dynamic::new(MAX)),
-        true
+        DimRange::length(&(..(usize::MAX - 1)), Dynamic::new(usize::MAX)),
+        Dynamic::new(usize::MAX - 1)
     );
     assert_eq!(
-        DimRange::length(&(..(MAX - 1)), Dynamic::new(MAX)),
-        Dynamic::new(MAX - 1)
-    );
-    assert_eq!(
-        DimRange::length(&(..MAX), Dynamic::new(MAX)),
-        Dynamic::new(MAX)
+        DimRange::length(&(..usize::MAX), Dynamic::new(usize::MAX)),
+        Dynamic::new(usize::MAX)
     );
 }
 
@@ -296,21 +292,20 @@ impl<D: Dim> DimRange<D> for ops::RangeToInclusive<usize> {
 
 #[test]
 fn dimrange_rangetoinclusive_usize() {
-    use std::usize::MAX;
     assert_eq!(DimRange::contained_by(&(..=0), Const::<0>), false);
     assert_eq!(DimRange::contained_by(&(..=1), Const::<0>), false);
-    assert_eq!(DimRange::contained_by(&(..=0), Const::<1>), true);
+    assert!(DimRange::contained_by(&(..=0), Const::<1>));
     assert_eq!(
-        DimRange::contained_by(&(..=(MAX)), Dynamic::new(MAX)),
+        DimRange::contained_by(&(..=(usize::MAX)), Dynamic::new(usize::MAX)),
         false
     );
+    assert!(DimRange::contained_by(
+        &(..=(usize::MAX - 1)),
+        Dynamic::new(usize::MAX)
+    ));
     assert_eq!(
-        DimRange::contained_by(&(..=(MAX - 1)), Dynamic::new(MAX)),
-        true
-    );
-    assert_eq!(
-        DimRange::length(&(..=(MAX - 1)), Dynamic::new(MAX)),
-        Dynamic::new(MAX)
+        DimRange::length(&(..=(usize::MAX - 1)), Dynamic::new(usize::MAX)),
+        Dynamic::new(usize::MAX)
     );
 }
 
@@ -485,6 +480,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Produces a view of the data at the given index, or
     /// `None` if the index is out of bounds.
     #[inline]
+    #[must_use]
     pub fn get<'a, I>(&'a self, index: I) -> Option<I::Output>
     where
         I: MatrixIndex<'a, T, R, C, S>,
@@ -495,6 +491,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Produces a mutable view of the data at the given index, or
     /// `None` if the index is out of bounds.
     #[inline]
+    #[must_use]
     pub fn get_mut<'a, I>(&'a mut self, index: I) -> Option<I::OutputMut>
     where
         S: StorageMut<T, R, C>,
@@ -506,6 +503,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Produces a view of the data at the given index, or
     /// panics if the index is out of bounds.
     #[inline]
+    #[must_use]
     pub fn index<'a, I>(&'a self, index: I) -> I::Output
     where
         I: MatrixIndex<'a, T, R, C, S>,
@@ -527,6 +525,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Produces a view of the data at the given index, without doing
     /// any bounds checking.
     #[inline]
+    #[must_use]
     pub unsafe fn get_unchecked<'a, I>(&'a self, index: I) -> I::Output
     where
         I: MatrixIndex<'a, T, R, C, S>,
@@ -537,6 +536,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Returns a mutable view of the data at the given index, without doing
     /// any bounds checking.
     #[inline]
+    #[must_use]
     pub unsafe fn get_unchecked_mut<'a, I>(&'a mut self, index: I) -> I::OutputMut
     where
         S: StorageMut<T, R, C>,

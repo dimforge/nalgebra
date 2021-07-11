@@ -11,13 +11,14 @@ use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, Shap
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::dimension::Dynamic;
 use crate::base::dimension::{Const, Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimSub, DimSum, U1};
-use crate::base::storage::{ReshapableStorage, Storage, StorageMut};
+use crate::base::storage::{ContiguousStorageMut, ReshapableStorage, Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, OMatrix, RowVector, Scalar, Vector};
 
 /// # Rows and columns extraction
 impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Extracts the upper triangular part of this matrix (including the diagonal).
     #[inline]
+    #[must_use]
     pub fn upper_triangle(&self) -> OMatrix<T, R, C>
     where
         DefaultAllocator: Allocator<T, R, C>,
@@ -30,6 +31,7 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Extracts the lower triangular part of this matrix (including the diagonal).
     #[inline]
+    #[must_use]
     pub fn lower_triangle(&self) -> OMatrix<T, R, C>
     where
         DefaultAllocator: Allocator<T, R, C>,
@@ -42,6 +44,7 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Creates a new matrix by extracting the given set of rows from `self`.
     #[cfg(any(feature = "std", feature = "alloc"))]
+    #[must_use]
     pub fn select_rows<'a, I>(&self, irows: I) -> OMatrix<T, Dynamic, C>
     where
         I: IntoIterator<Item = &'a usize>,
@@ -78,6 +81,7 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Creates a new matrix by extracting the given set of columns from `self`.
     #[cfg(any(feature = "std", feature = "alloc"))]
+    #[must_use]
     pub fn select_columns<'a, I>(&self, icols: I) -> OMatrix<T, R, Dynamic>
     where
         I: IntoIterator<Item = &'a usize>,
@@ -583,6 +587,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Inserts `ninsert.value()` columns starting at the `i-th` place of this matrix.
     ///
+    /// # Safety
     /// The added column values are not initialized.
     #[inline]
     pub unsafe fn insert_columns_generic_uninitialized<D>(
@@ -664,6 +669,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Inserts `ninsert.value()` rows at the `i-th` place of this matrix.
     ///
+    /// # Safety
     /// The added rows values are not initialized.
     /// This is the generic implementation of `.insert_rows(...)` and
     /// `.insert_fixed_rows(...)` which have nicer API interfaces.

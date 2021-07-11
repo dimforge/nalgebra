@@ -9,18 +9,17 @@ use rand::{
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
-use std::mem;
 
 use simba::scalar::RealField;
 
 use crate::base::dimension::U3;
 use crate::base::storage::Storage;
-use crate::base::{Matrix4, Scalar, Vector, Vector3};
+use crate::base::{Matrix4, Vector, Vector3};
 
 use crate::geometry::{Point3, Projective3};
 
 /// A 3D perspective projection stored as a homogeneous 4x4 matrix.
-pub struct Perspective3<T: Scalar> {
+pub struct Perspective3<T> {
     matrix: Matrix4<T>,
 }
 
@@ -104,6 +103,7 @@ impl<T: RealField> Perspective3<T> {
 
     /// Retrieves the inverse of the underlying homogeneous matrix.
     #[inline]
+    #[must_use]
     pub fn inverse(&self) -> Matrix4<T> {
         let mut res = self.to_homogeneous();
 
@@ -123,25 +123,29 @@ impl<T: RealField> Perspective3<T> {
 
     /// Computes the corresponding homogeneous matrix.
     #[inline]
-    pub fn to_homogeneous(&self) -> Matrix4<T> {
+    #[must_use]
+    pub fn to_homogeneous(self) -> Matrix4<T> {
         self.matrix.clone_owned()
     }
 
     /// A reference to the underlying homogeneous transformation matrix.
     #[inline]
+    #[must_use]
     pub fn as_matrix(&self) -> &Matrix4<T> {
         &self.matrix
     }
 
     /// A reference to this transformation seen as a `Projective3`.
     #[inline]
+    #[must_use]
     pub fn as_projective(&self) -> &Projective3<T> {
-        unsafe { mem::transmute(self) }
+        unsafe { &*(self as *const Perspective3<T> as *const Projective3<T>) }
     }
 
     /// This transformation seen as a `Projective3`.
     #[inline]
-    pub fn to_projective(&self) -> Projective3<T> {
+    #[must_use]
+    pub fn to_projective(self) -> Projective3<T> {
         Projective3::from_matrix_unchecked(self.matrix)
     }
 
@@ -161,18 +165,21 @@ impl<T: RealField> Perspective3<T> {
 
     /// Gets the `width / height` aspect ratio of the view frustum.
     #[inline]
+    #[must_use]
     pub fn aspect(&self) -> T {
         self.matrix[(1, 1)] / self.matrix[(0, 0)]
     }
 
     /// Gets the y field of view of the view frustum.
     #[inline]
+    #[must_use]
     pub fn fovy(&self) -> T {
         (T::one() / self.matrix[(1, 1)]).atan() * crate::convert(2.0)
     }
 
     /// Gets the near plane offset of the view frustum.
     #[inline]
+    #[must_use]
     pub fn znear(&self) -> T {
         let ratio = (-self.matrix[(2, 2)] + T::one()) / (-self.matrix[(2, 2)] - T::one());
 
@@ -182,6 +189,7 @@ impl<T: RealField> Perspective3<T> {
 
     /// Gets the far plane offset of the view frustum.
     #[inline]
+    #[must_use]
     pub fn zfar(&self) -> T {
         let ratio = (-self.matrix[(2, 2)] + T::one()) / (-self.matrix[(2, 2)] - T::one());
 
@@ -193,6 +201,7 @@ impl<T: RealField> Perspective3<T> {
     // TODO: when we get specialization, specialize the Mul impl instead.
     /// Projects a point. Faster than matrix multiplication.
     #[inline]
+    #[must_use]
     pub fn project_point(&self, p: &Point3<T>) -> Point3<T> {
         let inverse_denom = -T::one() / p[2];
         Point3::new(
@@ -204,6 +213,7 @@ impl<T: RealField> Perspective3<T> {
 
     /// Un-projects a point. Faster than multiplication by the matrix inverse.
     #[inline]
+    #[must_use]
     pub fn unproject_point(&self, p: &Point3<T>) -> Point3<T> {
         let inverse_denom = self.matrix[(2, 3)] / (p[2] + self.matrix[(2, 2)]);
 
@@ -217,6 +227,7 @@ impl<T: RealField> Perspective3<T> {
     // TODO: when we get specialization, specialize the Mul impl instead.
     /// Projects a vector. Faster than matrix multiplication.
     #[inline]
+    #[must_use]
     pub fn project_vector<SB>(&self, p: &Vector<T, U3, SB>) -> Vector3<T>
     where
         SB: Storage<T, U3>,
@@ -244,8 +255,9 @@ impl<T: RealField> Perspective3<T> {
     #[inline]
     pub fn set_fovy(&mut self, fovy: T) {
         let old_m22 = self.matrix[(1, 1)];
-        self.matrix[(1, 1)] = T::one() / (fovy / crate::convert(2.0)).tan();
-        self.matrix[(0, 0)] = self.matrix[(0, 0)] * (self.matrix[(1, 1)] / old_m22);
+        let new_m22 = T::one() / (fovy / crate::convert(2.0)).tan();
+        self.matrix[(1, 1)] = new_m22;
+        self.matrix[(0, 0)] *= new_m22 / old_m22;
     }
 
     /// Updates this perspective matrix with a new near plane offset of the view frustum.
@@ -276,7 +288,7 @@ where
     Standard: Distribution<T>,
 {
     /// Generate an arbitrary random variate for testing purposes.
-    fn sample<'a, R: Rng + ?Sized>(&self, r: &'a mut R) -> Perspective3<T> {
+    fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Perspective3<T> {
         use crate::base::helper;
         let znear = r.gen();
         let zfar = helper::reject_rand(r, |&x: &T| !(x - znear).is_zero());

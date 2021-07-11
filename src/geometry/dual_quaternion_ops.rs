@@ -1,3 +1,6 @@
+// The macros break if the references are taken out, for some reason.
+#![allow(clippy::op_ref)]
+
 /*
  * This file provides:
  *
@@ -49,7 +52,6 @@ use crate::{
     DualQuaternion, Isometry3, Point, Point3, Quaternion, SimdRealField, Translation3, Unit,
     UnitDualQuaternion, UnitQuaternion, Vector, Vector3, U3,
 };
-use std::mem;
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
@@ -57,14 +59,14 @@ use std::ops::{
 impl<T: SimdRealField> AsRef<[T; 8]> for DualQuaternion<T> {
     #[inline]
     fn as_ref(&self) -> &[T; 8] {
-        unsafe { mem::transmute(self) }
+        unsafe { &*(self as *const Self as *const [T; 8]) }
     }
 }
 
 impl<T: SimdRealField> AsMut<[T; 8]> for DualQuaternion<T> {
     #[inline]
     fn as_mut(&mut self) -> &mut [T; 8] {
-        unsafe { mem::transmute(self) }
+        unsafe { &mut *(self as *mut Self as *mut [T; 8]) }
     }
 }
 
@@ -564,7 +566,7 @@ dual_quaternion_op_impl!(
     (U4, U1), (U3, U1);
     self: &'a UnitDualQuaternion<T>, rhs: &'b Translation3<T>,
     Output = UnitDualQuaternion<T> => U3, U1;
-    self * UnitDualQuaternion::<T>::from_parts(rhs.clone(), UnitQuaternion::identity());
+    self * UnitDualQuaternion::<T>::from_parts(*rhs, UnitQuaternion::identity());
     'a, 'b);
 
 dual_quaternion_op_impl!(
@@ -580,7 +582,7 @@ dual_quaternion_op_impl!(
     (U4, U1), (U3, U3);
     self: UnitDualQuaternion<T>, rhs: &'b Translation3<T>,
     Output = UnitDualQuaternion<T> => U3, U1;
-    self * UnitDualQuaternion::<T>::from_parts(rhs.clone(), UnitQuaternion::identity());
+    self * UnitDualQuaternion::<T>::from_parts(*rhs, UnitQuaternion::identity());
     'b);
 
 dual_quaternion_op_impl!(
@@ -632,7 +634,7 @@ dual_quaternion_op_impl!(
     (U3, U1), (U4, U1);
     self: &'b Translation3<T>, rhs: &'a UnitDualQuaternion<T>,
     Output = UnitDualQuaternion<T> => U3, U1;
-    UnitDualQuaternion::<T>::from_parts(self.clone(), UnitQuaternion::identity()) * rhs;
+    UnitDualQuaternion::<T>::from_parts(*self, UnitQuaternion::identity()) * rhs;
     'a, 'b);
 
 dual_quaternion_op_impl!(
@@ -640,7 +642,7 @@ dual_quaternion_op_impl!(
     (U3, U1), (U4, U1);
     self: &'a Translation3<T>, rhs: UnitDualQuaternion<T>,
     Output = UnitDualQuaternion<T> => U3, U1;
-    UnitDualQuaternion::<T>::from_parts(self.clone(), UnitQuaternion::identity()) * rhs;
+    UnitDualQuaternion::<T>::from_parts(*self, UnitQuaternion::identity()) * rhs;
     'a);
 
 dual_quaternion_op_impl!(
@@ -664,7 +666,7 @@ dual_quaternion_op_impl!(
     (U3, U1), (U4, U1);
     self: &'b Translation3<T>, rhs: &'a UnitDualQuaternion<T>,
     Output = UnitDualQuaternion<T> => U3, U1;
-    UnitDualQuaternion::<T>::from_parts(self.clone(), UnitQuaternion::identity()) / rhs;
+    UnitDualQuaternion::<T>::from_parts(*self, UnitQuaternion::identity()) / rhs;
     'a, 'b);
 
 dual_quaternion_op_impl!(
@@ -672,7 +674,7 @@ dual_quaternion_op_impl!(
     (U3, U1), (U4, U1);
     self: &'a Translation3<T>, rhs: UnitDualQuaternion<T>,
     Output = UnitDualQuaternion<T> => U3, U1;
-    UnitDualQuaternion::<T>::from_parts(self.clone(), UnitQuaternion::identity()) / rhs;
+    UnitDualQuaternion::<T>::from_parts(*self, UnitQuaternion::identity()) / rhs;
     'a);
 
 dual_quaternion_op_impl!(
@@ -860,7 +862,7 @@ dual_quaternion_op_impl!(
     Output = Point3<T> => U3, U1;
     {
         let two: T = crate::convert(2.0f64);
-        let q_point = Quaternion::from_parts(T::zero(), rhs.coords.clone());
+        let q_point = Quaternion::from_parts(T::zero(), rhs.coords);
         Point::from(
             ((self.as_ref().real * q_point + self.as_ref().dual * two) * self.as_ref().real.conjugate())
                 .vector()
@@ -1115,7 +1117,7 @@ dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
     self: UnitDualQuaternion<T>, rhs: &'b UnitQuaternion<T>;
-    *self *= rhs.clone(); 'b);
+    *self *= *rhs; 'b);
 
 // UnitDualQuaternion ÷= UnitQuaternion
 dual_quaternion_op_impl!(
@@ -1151,7 +1153,7 @@ dual_quaternion_op_impl!(
     MulAssign, mul_assign;
     (U4, U1), (U4, U1);
     self: UnitDualQuaternion<T>, rhs: &'b Translation3<T>;
-    *self *= rhs.clone(); 'b);
+    *self *= *rhs; 'b);
 
 // UnitDualQuaternion ÷= Translation3
 dual_quaternion_op_impl!(

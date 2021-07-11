@@ -197,7 +197,7 @@ where
 {
     #[inline]
     fn from(arr: [Similarity<T::Element, R::Element, D>; 2]) -> Self {
-        let iso = Isometry::from([arr[0].isometry.clone(), arr[1].isometry.clone()]);
+        let iso = Isometry::from([arr[0].isometry, arr[1].isometry]);
         let scale = T::from([arr[0].scaling(), arr[1].scaling()]);
 
         Self::from_isometry(iso, scale)
@@ -216,10 +216,10 @@ where
     #[inline]
     fn from(arr: [Similarity<T::Element, R::Element, D>; 4]) -> Self {
         let iso = Isometry::from([
-            arr[0].isometry.clone(),
-            arr[1].isometry.clone(),
-            arr[2].isometry.clone(),
-            arr[3].isometry.clone(),
+            arr[0].isometry,
+            arr[1].isometry,
+            arr[2].isometry,
+            arr[3].isometry,
         ]);
         let scale = T::from([
             arr[0].scaling(),
@@ -244,14 +244,14 @@ where
     #[inline]
     fn from(arr: [Similarity<T::Element, R::Element, D>; 8]) -> Self {
         let iso = Isometry::from([
-            arr[0].isometry.clone(),
-            arr[1].isometry.clone(),
-            arr[2].isometry.clone(),
-            arr[3].isometry.clone(),
-            arr[4].isometry.clone(),
-            arr[5].isometry.clone(),
-            arr[6].isometry.clone(),
-            arr[7].isometry.clone(),
+            arr[0].isometry,
+            arr[1].isometry,
+            arr[2].isometry,
+            arr[3].isometry,
+            arr[4].isometry,
+            arr[5].isometry,
+            arr[6].isometry,
+            arr[7].isometry,
         ]);
         let scale = T::from([
             arr[0].scaling(),
@@ -280,22 +280,22 @@ where
     #[inline]
     fn from(arr: [Similarity<T::Element, R::Element, D>; 16]) -> Self {
         let iso = Isometry::from([
-            arr[0].isometry.clone(),
-            arr[1].isometry.clone(),
-            arr[2].isometry.clone(),
-            arr[3].isometry.clone(),
-            arr[4].isometry.clone(),
-            arr[5].isometry.clone(),
-            arr[6].isometry.clone(),
-            arr[7].isometry.clone(),
-            arr[8].isometry.clone(),
-            arr[9].isometry.clone(),
-            arr[10].isometry.clone(),
-            arr[11].isometry.clone(),
-            arr[12].isometry.clone(),
-            arr[13].isometry.clone(),
-            arr[14].isometry.clone(),
-            arr[15].isometry.clone(),
+            arr[0].isometry,
+            arr[1].isometry,
+            arr[2].isometry,
+            arr[3].isometry,
+            arr[4].isometry,
+            arr[5].isometry,
+            arr[6].isometry,
+            arr[7].isometry,
+            arr[8].isometry,
+            arr[9].isometry,
+            arr[10].isometry,
+            arr[11].isometry,
+            arr[12].isometry,
+            arr[13].isometry,
+            arr[14].isometry,
+            arr[15].isometry,
         ]);
         let scale = T::from([
             arr[0].scaling(),

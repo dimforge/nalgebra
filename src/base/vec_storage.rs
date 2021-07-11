@@ -95,12 +95,14 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
 
     /// The underlying data storage.
     #[inline]
+    #[must_use]
     pub fn as_vec(&self) -> &Vec<T> {
         &self.data
     }
 
     /// The underlying mutable data storage.
     ///
+    /// # Safety
     /// This is unsafe because this may cause UB if the size of the vector is changed
     /// by the user.
     #[inline]
@@ -110,6 +112,7 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
 
     /// Resizes the underlying mutable data storage and unwraps it.
     ///
+    /// # Safety
     /// If `sz` is larger than the current size, additional elements are uninitialized.
     /// If `sz` is smaller than the current size, additional elements are truncated.
     #[inline]
@@ -129,20 +132,22 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
 
     /// The number of elements on the underlying vector.
     #[inline]
+    #[must_use]
     pub fn len(&self) -> usize {
         self.data.len()
     }
 
     /// Returns true if the underlying vector contains no elements.
     #[inline]
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 }
 
-impl<T, R: Dim, C: Dim> Into<Vec<T>> for VecStorage<T, R, C> {
-    fn into(self) -> Vec<T> {
-        self.data
+impl<T, R: Dim, C: Dim> From<VecStorage<T, R, C>> for Vec<T> {
+    fn from(vec: VecStorage<T, R, C>) -> Self {
+        vec.data
     }
 }
 
@@ -196,7 +201,7 @@ where
     }
 
     #[inline]
-    fn as_slice(&self) -> &[T] {
+    unsafe fn as_slice_unchecked(&self) -> &[T] {
         &self.data
     }
 }
@@ -245,7 +250,7 @@ where
     }
 
     #[inline]
-    fn as_slice(&self) -> &[T] {
+    unsafe fn as_slice_unchecked(&self) -> &[T] {
         &self.data
     }
 }
@@ -265,7 +270,7 @@ where
     }
 
     #[inline]
-    fn as_mut_slice(&mut self) -> &mut [T] {
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
         &mut self.data[..]
     }
 }
@@ -326,7 +331,7 @@ where
     }
 
     #[inline]
-    fn as_mut_slice(&mut self) -> &mut [T] {
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
         &mut self.data[..]
     }
 }

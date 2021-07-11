@@ -53,7 +53,10 @@ impl<T: Scalar, R: Dim, C: Dim> OMatrix<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C>,
 {
-    /// Creates a new uninitialized matrix. If the matrix has a compile-time dimension, this panics
+    /// Creates a new uninitialized matrix.
+    ///
+    /// # Safety
+    /// If the matrix has a compile-time dimension, this panics
     /// if `nrows != R::to_usize()` or `ncols != C::to_usize()`.
     #[inline]
     pub unsafe fn new_uninitialized_generic(nrows: R, ncols: C) -> mem::MaybeUninit<Self> {
@@ -827,7 +830,7 @@ where
     Standard: Distribution<T>,
 {
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> OMatrix<T, R, C> {
+    fn sample<G: Rng + ?Sized>(&self, rng: &mut G) -> OMatrix<T, R, C> {
         let nrows = R::try_to_usize().unwrap_or_else(|| rng.gen_range(0..10));
         let ncols = C::try_to_usize().unwrap_or_else(|| rng.gen_range(0..10));
 
@@ -864,7 +867,7 @@ where
 {
     /// Generate a uniformly distributed random unit vector.
     #[inline]
-    fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> Unit<OVector<T, D>> {
+    fn sample<G: Rng + ?Sized>(&self, rng: &mut G) -> Unit<OVector<T, D>> {
         Unit::new_normalize(OVector::from_distribution_generic(
             D::name(),
             Const::<1>,
@@ -906,6 +909,7 @@ macro_rules! componentwise_constructors_impl(
         impl<T> Matrix<T, Const<$R>, Const<$C>, ArrayStorage<T, $R, $C>> {
             /// Initializes this matrix from its components.
             #[inline]
+            #[allow(clippy::too_many_arguments)]
             pub const fn new($($($args: T),*),*) -> Self {
                 unsafe {
                     Self::from_data_statically_unchecked(

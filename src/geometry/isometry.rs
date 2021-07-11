@@ -60,15 +60,17 @@ use crate::geometry::{AbstractRotation, Point, Translation};
     feature = "serde-serialize-no-std",
     serde(bound(serialize = "R: Serialize,
                      DefaultAllocator: Allocator<T, Const<D>>,
-                     Owned<T, Const<D>>: Serialize"))
+                     Owned<T, Const<D>>: Serialize,
+                     T: Scalar"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
     serde(bound(deserialize = "R: Deserialize<'de>,
                        DefaultAllocator: Allocator<T, Const<D>>,
-                       Owned<T, Const<D>>: Deserialize<'de>"))
+                       Owned<T, Const<D>>: Deserialize<'de>,
+                       T: Scalar"))
 )]
-pub struct Isometry<T: Scalar, R, const D: usize> {
+pub struct Isometry<T, R, const D: usize> {
     /// The pure rotational part of this isometry.
     pub rotation: R,
     /// The pure translational part of this isometry.
@@ -267,9 +269,10 @@ where
     /// assert_eq!(iso1.inverse() * iso2, iso1.inv_mul(&iso2));
     /// ```
     #[inline]
+    #[must_use]
     pub fn inv_mul(&self, rhs: &Isometry<T, R, D>) -> Self {
         let inv_rot1 = self.rotation.inverse();
-        let tr_12 = rhs.translation.vector.clone() - self.translation.vector.clone();
+        let tr_12 = rhs.translation.vector - self.translation.vector;
         Isometry::from_parts(
             inv_rot1.transform_vector(&tr_12).into(),
             inv_rot1 * rhs.rotation.clone(),
@@ -384,6 +387,7 @@ where
     /// assert_relative_eq!(transformed_point, Point3::new(3.0, 2.0, 2.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self * pt
     }
@@ -407,6 +411,7 @@ where
     /// assert_relative_eq!(transformed_point, Vector3::new(3.0, 2.0, -1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self * v
     }
@@ -429,9 +434,10 @@ where
     /// assert_relative_eq!(transformed_point, Point3::new(0.0, 2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.rotation
-            .inverse_transform_point(&(pt - &self.translation.vector))
+            .inverse_transform_point(&(pt - self.translation.vector))
     }
 
     /// Transform the given vector by the inverse of this isometry, ignoring the
@@ -453,6 +459,7 @@ where
     /// assert_relative_eq!(transformed_point, Vector3::new(-3.0, 2.0, 1.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.rotation.inverse_transform_vector(v)
     }
@@ -476,6 +483,7 @@ where
     /// assert_relative_eq!(transformed_point, -Vector3::y_axis(), epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn inverse_transform_unit_vector(&self, v: &Unit<SVector<T, D>>) -> Unit<SVector<T, D>> {
         self.rotation.inverse_transform_unit_vector(v)
     }
@@ -505,6 +513,7 @@ impl<T: SimdRealField, R, const D: usize> Isometry<T, R, D> {
     /// assert_relative_eq!(iso.to_homogeneous(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
     where
         Const<D>: DimNameAdd<U1>,
@@ -536,6 +545,7 @@ impl<T: SimdRealField, R, const D: usize> Isometry<T, R, D> {
     /// assert_relative_eq!(iso.to_matrix(), expected, epsilon = 1.0e-6);
     /// ```
     #[inline]
+    #[must_use]
     pub fn to_matrix(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
     where
         Const<D>: DimNameAdd<U1>,

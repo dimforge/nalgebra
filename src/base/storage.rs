@@ -1,7 +1,7 @@
 //! Abstract definition of a matrix data storage.
 
 use std::fmt::Debug;
-use std::mem;
+use std::ptr;
 
 use crate::base::allocator::{Allocator, SameShapeC, SameShapeR};
 use crate::base::default_allocator::DefaultAllocator;
@@ -58,7 +58,7 @@ pub unsafe trait Storage<T: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
     /// Compute the index corresponding to the irow-th row and icol-th column of this matrix. The
     /// index must be such that the following holds:
     ///
-    /// ```.ignore
+    /// ```ignore
     /// let lindex = self.linear_index(irow, icol);
     /// assert!(*self.get_unchecked(irow, icol) == *self.get_unchecked_linear(lindex))
     /// ```
@@ -70,36 +70,57 @@ pub unsafe trait Storage<T: Scalar, R: Dim, C: Dim = U1>: Debug + Sized {
     }
 
     /// Gets the address of the i-th matrix component without performing bound-checking.
+    ///
+    /// # Safety
+    /// If the index is out of bounds, dereferencing the result will cause undefined behavior.
     #[inline]
-    unsafe fn get_address_unchecked_linear(&self, i: usize) -> *const T {
+    fn get_address_unchecked_linear(&self, i: usize) -> *const T {
         self.ptr().wrapping_add(i)
     }
 
     /// Gets the address of the i-th matrix component without performing bound-checking.
+    ///
+    /// # Safety
+    /// If the index is out of bounds, dereferencing the result will cause undefined behavior.
     #[inline]
-    unsafe fn get_address_unchecked(&self, irow: usize, icol: usize) -> *const T {
+    fn get_address_unchecked(&self, irow: usize, icol: usize) -> *const T {
         self.get_address_unchecked_linear(self.linear_index(irow, icol))
     }
 
     /// Retrieves a reference to the i-th element without bound-checking.
+    ///
+    /// # Safety
+    /// If the index is out of bounds, the method will cause undefined behavior.
     #[inline]
     unsafe fn get_unchecked_linear(&self, i: usize) -> &T {
         &*self.get_address_unchecked_linear(i)
     }
 
     /// Retrieves a reference to the i-th element without bound-checking.
+    ///
+    /// # Safety
+    /// If the index is out of bounds, the method will cause undefined behavior.
     #[inline]
     unsafe fn get_unchecked(&self, irow: usize, icol: usize) -> &T {
         self.get_unchecked_linear(self.linear_index(irow, icol))
     }
 
     /// Indicates whether this data buffer stores its elements contiguously.
+    ///
+    /// # Safety
+    /// This function must not return `true` if the underlying storage is not contiguous,
+    /// or undefined behaviour will occur.
     fn is_contiguous(&self) -> bool;
 
     /// Retrieves the data buffer as a contiguous slice.
     ///
+    /// # Safety
     /// The matrix components may not be stored in a contiguous way, depending on the strides.
-    fn as_slice(&self) -> &[T];
+    /// This method is unsafe because this can yield to invalid aliasing when called on some pairs
+    /// of matrix slices originating from the same matrix with strides.
+    ///
+    /// Call the safe alternative `matrix.as_slice()` instead.
+    unsafe fn as_slice_unchecked(&self) -> &[T];
 
     /// Builds a matrix data storage that does not contain any reference.
     fn into_owned(self) -> Owned<T, R, C>
@@ -122,39 +143,57 @@ pub unsafe trait StorageMut<T: Scalar, R: Dim, C: Dim = U1>: Storage<T, R, C> {
     fn ptr_mut(&mut self) -> *mut T;
 
     /// Gets the mutable address of the i-th matrix component without performing bound-checking.
+    ///
+    /// # Safety
+    /// If the index is out of bounds, dereferencing the result will cause undefined behavior.
     #[inline]
-    unsafe fn get_address_unchecked_linear_mut(&mut self, i: usize) -> *mut T {
+    fn get_address_unchecked_linear_mut(&mut self, i: usize) -> *mut T {
         self.ptr_mut().wrapping_add(i)
     }
 
     /// Gets the mutable address of the i-th matrix component without performing bound-checking.
+    ///
+    /// # Safety
+    /// If the index is out of bounds, dereferencing the result will cause undefined behavior.
     #[inline]
-    unsafe fn get_address_unchecked_mut(&mut self, irow: usize, icol: usize) -> *mut T {
+    fn get_address_unchecked_mut(&mut self, irow: usize, icol: usize) -> *mut T {
         let lid = self.linear_index(irow, icol);
         self.get_address_unchecked_linear_mut(lid)
     }
 
     /// Retrieves a mutable reference to the i-th element without bound-checking.
+    ///
+    /// # Safety
+    /// If the index is out of bounds, the method will cause undefined behavior.
     unsafe fn get_unchecked_linear_mut(&mut self, i: usize) -> &mut T {
         &mut *self.get_address_unchecked_linear_mut(i)
     }
 
     /// Retrieves a mutable reference to the element at `(irow, icol)` without bound-checking.
+    ///
+    /// # Safety
+    /// If the index is out of bounds, the method will cause undefined behavior.
     #[inline]
     unsafe fn get_unchecked_mut(&mut self, irow: usize, icol: usize) -> &mut T {
         &mut *self.get_address_unchecked_mut(irow, icol)
     }
 
     /// Swaps two elements using their linear index without bound-checking.
+    ///
+    /// # Safety
+    /// If the indices are out of bounds, the method will cause undefined behavior.
     #[inline]
     unsafe fn swap_unchecked_linear(&mut self, i1: usize, i2: usize) {
         let a = self.get_address_unchecked_linear_mut(i1);
         let b = self.get_address_unchecked_linear_mut(i2);
 
-        mem::swap(&mut *a, &mut *b);
+        ptr::swap(a, b);
     }
 
     /// Swaps two elements without bound-checking.
+    ///
+    /// # Safety
+    /// If the indices are out of bounds, the method will cause undefined behavior.
     #[inline]
     unsafe fn swap_unchecked(&mut self, row_col1: (usize, usize), row_col2: (usize, usize)) {
         let lid1 = self.linear_index(row_col1.0, row_col1.1);
@@ -165,8 +204,13 @@ pub unsafe trait StorageMut<T: Scalar, R: Dim, C: Dim = U1>: Storage<T, R, C> {
 
     /// Retrieves the mutable data buffer as a contiguous slice.
     ///
-    /// Matrix components may not be contiguous, depending on its strides.
-    fn as_mut_slice(&mut self) -> &mut [T];
+    /// Matrix components may not be contiguous, depending on its strides.    
+    ///
+    /// # Safety
+    /// The matrix components may not be stored in a contiguous way, depending on the strides.
+    /// This method is unsafe because this can yield to invalid aliasing when called on some pairs
+    /// of matrix slices originating from the same matrix with strides.
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T];
 }
 
 /// A matrix storage that is stored contiguously in memory.
@@ -177,6 +221,12 @@ pub unsafe trait StorageMut<T: Scalar, R: Dim, C: Dim = U1>: Storage<T, R, C> {
 pub unsafe trait ContiguousStorage<T: Scalar, R: Dim, C: Dim = U1>:
     Storage<T, R, C>
 {
+    /// Converts this data storage to a contiguous slice.
+    fn as_slice(&self) -> &[T] {
+        // SAFETY: this is safe because this trait guarantees the fact
+        //         that the data is stored contiguously.
+        unsafe { self.as_slice_unchecked() }
+    }
 }
 
 /// A mutable matrix storage that is stored contiguously in memory.
@@ -187,6 +237,12 @@ pub unsafe trait ContiguousStorage<T: Scalar, R: Dim, C: Dim = U1>:
 pub unsafe trait ContiguousStorageMut<T: Scalar, R: Dim, C: Dim = U1>:
     ContiguousStorage<T, R, C> + StorageMut<T, R, C>
 {
+    /// Converts this data storage to a contiguous mutable slice.
+    fn as_mut_slice(&mut self) -> &mut [T] {
+        // SAFETY: this is safe because this trait guarantees the fact
+        //         that the data is stored contiguously.
+        unsafe { self.as_mut_slice_unchecked() }
+    }
 }
 
 /// A matrix storage that can be reshaped in-place.

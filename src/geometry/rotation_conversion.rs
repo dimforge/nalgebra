@@ -267,10 +267,7 @@ where
 {
     #[inline]
     fn from(arr: [Rotation<T::Element, D>; 2]) -> Self {
-        Self::from_matrix_unchecked(OMatrix::from([
-            arr[0].clone().into_inner(),
-            arr[1].clone().into_inner(),
-        ]))
+        Self::from_matrix_unchecked(OMatrix::from([arr[0].into_inner(), arr[1].into_inner()]))
     }
 }
 
@@ -283,10 +280,10 @@ where
     #[inline]
     fn from(arr: [Rotation<T::Element, D>; 4]) -> Self {
         Self::from_matrix_unchecked(OMatrix::from([
-            arr[0].clone().into_inner(),
-            arr[1].clone().into_inner(),
-            arr[2].clone().into_inner(),
-            arr[3].clone().into_inner(),
+            arr[0].into_inner(),
+            arr[1].into_inner(),
+            arr[2].into_inner(),
+            arr[3].into_inner(),
         ]))
     }
 }
@@ -300,14 +297,14 @@ where
     #[inline]
     fn from(arr: [Rotation<T::Element, D>; 8]) -> Self {
         Self::from_matrix_unchecked(OMatrix::from([
-            arr[0].clone().into_inner(),
-            arr[1].clone().into_inner(),
-            arr[2].clone().into_inner(),
-            arr[3].clone().into_inner(),
-            arr[4].clone().into_inner(),
-            arr[5].clone().into_inner(),
-            arr[6].clone().into_inner(),
-            arr[7].clone().into_inner(),
+            arr[0].into_inner(),
+            arr[1].into_inner(),
+            arr[2].into_inner(),
+            arr[3].into_inner(),
+            arr[4].into_inner(),
+            arr[5].into_inner(),
+            arr[6].into_inner(),
+            arr[7].into_inner(),
         ]))
     }
 }
@@ -321,22 +318,22 @@ where
     #[inline]
     fn from(arr: [Rotation<T::Element, D>; 16]) -> Self {
         Self::from_matrix_unchecked(OMatrix::from([
-            arr[0].clone().into_inner(),
-            arr[1].clone().into_inner(),
-            arr[2].clone().into_inner(),
-            arr[3].clone().into_inner(),
-            arr[4].clone().into_inner(),
-            arr[5].clone().into_inner(),
-            arr[6].clone().into_inner(),
-            arr[7].clone().into_inner(),
-            arr[8].clone().into_inner(),
-            arr[9].clone().into_inner(),
-            arr[10].clone().into_inner(),
-            arr[11].clone().into_inner(),
-            arr[12].clone().into_inner(),
-            arr[13].clone().into_inner(),
-            arr[14].clone().into_inner(),
-            arr[15].clone().into_inner(),
+            arr[0].into_inner(),
+            arr[1].into_inner(),
+            arr[2].into_inner(),
+            arr[3].into_inner(),
+            arr[4].into_inner(),
+            arr[5].into_inner(),
+            arr[6].into_inner(),
+            arr[7].into_inner(),
+            arr[8].into_inner(),
+            arr[9].into_inner(),
+            arr[10].into_inner(),
+            arr[11].into_inner(),
+            arr[12].into_inner(),
+            arr[13].into_inner(),
+            arr[14].into_inner(),
+            arr[15].into_inner(),
         ]))
     }
 }

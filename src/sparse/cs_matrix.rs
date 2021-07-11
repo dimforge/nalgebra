@@ -31,11 +31,9 @@ impl<'a, T: Clone> Iterator for ColumnEntries<'a, T> {
         if self.curr >= self.i.len() {
             None
         } else {
-            let res = Some(
-                (unsafe { self.i.get_unchecked(self.curr).clone() }, unsafe {
-                    self.v.get_unchecked(self.curr).clone()
-                }),
-            );
+            let res = Some((unsafe { *self.i.get_unchecked(self.curr) }, unsafe {
+                self.v.get_unchecked(self.curr).clone()
+            }));
             self.curr += 1;
             res
         }
@@ -80,10 +78,12 @@ pub trait CsStorage<T, R, C = U1>: for<'a> CsStorageIter<'a, T, R, C> {
     fn shape(&self) -> (R, C);
     /// Retrieve the i-th row index of the underlying row index buffer.
     ///
+    /// # Safety
     /// No bound-checking is performed.
     unsafe fn row_index_unchecked(&self, i: usize) -> usize;
     /// The i-th value on the contiguous value buffer of this storage.
     ///
+    /// # Safety
     /// No bound-checking is performed.
     unsafe fn get_value_unchecked(&self, i: usize) -> &T;
     /// The i-th value on the contiguous value buffer of this storage.
@@ -119,16 +119,19 @@ where
     DefaultAllocator: Allocator<usize, C>,
 {
     /// The value buffer of this storage.
+    #[must_use]
     pub fn values(&self) -> &[T] {
         &self.vals
     }
 
     /// The column shifts buffer.
+    #[must_use]
     pub fn p(&self) -> &[usize] {
         self.p.as_slice()
     }
 
     /// The row index buffers.
+    #[must_use]
     pub fn i(&self) -> &[usize] {
         &self.i
     }
@@ -152,7 +155,7 @@ where
     #[inline]
     fn column_row_indices(&'a self, j: usize) -> Self::ColumnRowIndices {
         let rng = self.column_range(j);
-        self.i[rng.clone()].iter().cloned()
+        self.i[rng].iter().cloned()
     }
 }
 
@@ -356,27 +359,32 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
     }
 
     /// The size of the data buffer.
+    #[must_use]
     pub fn len(&self) -> usize {
         self.data.len()
     }
 
     /// The number of rows of this matrix.
+    #[must_use]
     pub fn nrows(&self) -> usize {
         self.data.shape().0.value()
     }
 
     /// The number of rows of this matrix.
+    #[must_use]
     pub fn ncols(&self) -> usize {
         self.data.shape().1.value()
     }
 
     /// The shape of this matrix.
+    #[must_use]
     pub fn shape(&self) -> (usize, usize) {
         let (nrows, ncols) = self.data.shape();
         (nrows.value(), ncols.value())
     }
 
     /// Whether this matrix is square or not.
+    #[must_use]
     pub fn is_square(&self) -> bool {
         let (nrows, ncols) = self.data.shape();
         nrows.value() == ncols.value()
@@ -391,6 +399,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
     /// If at any time this `is_sorted` method returns `false`, then, something went wrong
     /// and an issue should be open on the nalgebra repository with details on how to reproduce
     /// this.
+    #[must_use]
     pub fn is_sorted(&self) -> bool {
         for j in 0..self.ncols() {
             let mut curr = None;
@@ -409,6 +418,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
     }
 
     /// Computes the transpose of this sparse matrix.
+    #[must_use = "This function does not mutate the matrix. Consider using the return value or removing the function call. There's also transpose_mut() for square matrices."]
     pub fn transpose(&self) -> CsMatrix<T, C, R>
     where
         DefaultAllocator: Allocator<usize, R>,
@@ -479,7 +489,7 @@ where
 
             // Sort the index vector.
             let range = self.data.column_range(j);
-            self.data.i[range.clone()].sort();
+            self.data.i[range.clone()].sort_unstable();
 
             // Permute the values too.
             for (i, irow) in range.clone().zip(self.data.i[range].iter().cloned()) {

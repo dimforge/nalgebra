@@ -20,6 +20,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(mat.len(), 12);
     /// ```
     #[inline]
+    #[must_use]
     pub fn len(&self) -> usize {
         let (nrows, ncols) = self.shape();
         nrows * ncols
@@ -35,12 +36,14 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert!(!mat.is_empty());
     /// ```
     #[inline]
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
     /// Indicates if this is a square matrix.
     #[inline]
+    #[must_use]
     pub fn is_square(&self) -> bool {
         let (nrows, ncols) = self.shape();
         nrows == ncols
@@ -52,6 +55,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// If the matrix is diagonal, this checks that diagonal elements (i.e. at coordinates `(i, i)`
     /// for i from `0` to `min(R, C)`) are equal one; and that all other elements are zero.
     #[inline]
+    #[must_use]
     pub fn is_identity(&self, eps: T::Epsilon) -> bool
     where
         T: Zero + One + RelativeEq,
@@ -112,6 +116,7 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// In this definition `Id` is approximately equal to the identity matrix with a relative error
     /// equal to `eps`.
     #[inline]
+    #[must_use]
     pub fn is_orthogonal(&self, eps: T::Epsilon) -> bool
     where
         T: Zero + One + ClosedAdd + ClosedMul + RelativeEq,
@@ -129,6 +134,7 @@ where
 {
     /// Checks that this matrix is orthogonal and has a determinant equal to 1.
     #[inline]
+    #[must_use]
     pub fn is_special_orthogonal(&self, eps: T) -> bool
     where
         D: DimMin<D, Output = D>,
@@ -139,6 +145,7 @@ where
 
     /// Returns `true` if this matrix is invertible.
     #[inline]
+    #[must_use]
     pub fn is_invertible(&self) -> bool {
         // TODO: improve this?
         self.clone_owned().try_inverse().is_some()

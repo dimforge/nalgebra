@@ -1,6 +1,7 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::any::Any;
 use std::fmt::Debug;
+use std::hash;
 use std::marker::PhantomData;
 
 #[cfg(feature = "serde-serialize-no-std")]
@@ -166,14 +167,16 @@ where
     _phantom: PhantomData<C>,
 }
 
-// TODO
-// impl<T: RealField + hash::Hash, D: DimNameAdd<U1> + hash::Hash, C: TCategory> hash::Hash for Transform<T, C, D>
-//     where DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-//           Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: hash::Hash {
-//     fn hash<H: hash::Hasher>(&self, state: &mut H) {
-//         self.matrix.hash(state);
-//     }
-// }
+impl<T: RealField + hash::Hash, C: TCategory, const D: usize> hash::Hash for Transform<T, C, D>
+where
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: hash::Hash,
+{
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.matrix.hash(state);
+    }
+}
 
 impl<T: RealField, C: TCategory, const D: usize> Copy for Transform<T, C, D>
 where
@@ -301,6 +304,7 @@ where
     /// assert_eq!(*t.matrix(), m);
     /// ```
     #[inline]
+    #[must_use]
     pub fn matrix(&self) -> &OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         &self.matrix
     }
@@ -367,6 +371,7 @@ where
     /// assert_eq!(t.into_inner(), m);
     /// ```
     #[inline]
+    #[must_use]
     pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         self.matrix().clone_owned()
     }
@@ -397,11 +402,9 @@ where
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(self) -> Option<Transform<T, C, D>> {
-        if let Some(m) = self.matrix.try_inverse() {
-            Some(Transform::from_matrix_unchecked(m))
-        } else {
-            None
-        }
+        self.matrix
+            .try_inverse()
+            .map(Transform::from_matrix_unchecked)
     }
 
     /// Inverts this transformation. Use `.try_inverse` if this transform has the `TGeneral`
@@ -498,6 +501,7 @@ where
     ///
     /// This is the same as the multiplication `self * pt`.
     #[inline]
+    #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self * pt
     }
@@ -507,6 +511,7 @@ where
     ///
     /// This is the same as the multiplication `self * v`.
     #[inline]
+    #[must_use]
     pub fn transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self * v
     }
@@ -524,6 +529,7 @@ where
     /// This may be cheaper than inverting the transformation and transforming
     /// the point.
     #[inline]
+    #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
         self.clone().inverse() * pt
     }
@@ -532,6 +538,7 @@ where
     /// This may be cheaper than inverting the transformation and transforming
     /// the vector.
     #[inline]
+    #[must_use]
     pub fn inverse_transform_vector(&self, v: &SVector<T, D>) -> SVector<T, D> {
         self.clone().inverse() * v
     }

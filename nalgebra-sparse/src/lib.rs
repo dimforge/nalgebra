@@ -73,7 +73,7 @@
 //!
 //! # Example: COO -> CSR -> matrix-vector product
 //!
-//! ```rust
+//! ```
 //! use nalgebra_sparse::{coo::CooMatrix, csr::CsrMatrix};
 //! use nalgebra::{DMatrix, DVector};
 //! use matrixcompare::assert_matrix_eq;
@@ -92,6 +92,9 @@
 //! coo.push(1, 0, 2.0);
 //! coo.push(1, 2, 1.3);
 //! coo.push(2, 2, 4.1);
+//!
+//! // ... or add entire dense matrices like so:
+//! // coo.push_matrix(0, 0, &dense);
 //!
 //! // The simplest way to construct a CSR matrix is to first construct a COO matrix, and
 //! // then convert it to CSR. The `From` trait is implemented for conversions between different
@@ -170,6 +173,7 @@ pub struct SparseFormatError {
 
 impl SparseFormatError {
     /// The type of error.
+    #[must_use]
     pub fn kind(&self) -> &SparseFormatErrorKind {
         &self.kind
     }

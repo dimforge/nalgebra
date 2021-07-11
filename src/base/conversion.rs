@@ -1,8 +1,8 @@
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 use simba::scalar::{SubsetOf, SupersetOf};
+use std::borrow::{Borrow, BorrowMut};
 use std::convert::{AsMut, AsRef, From, Into};
-use std::mem;
 
 use simba::simd::{PrimitiveSimdValue, SimdValue};
 
@@ -110,11 +110,11 @@ impl<T: Scalar, const D: usize> From<[T; D]> for SVector<T, D> {
     }
 }
 
-impl<T: Scalar, const D: usize> Into<[T; D]> for SVector<T, D> {
+impl<T: Scalar, const D: usize> From<SVector<T, D>> for [T; D] {
     #[inline]
-    fn into(self) -> [T; D] {
+    fn from(vec: SVector<T, D>) -> Self {
         // TODO: unfortunately, we must clone because we can move out of an array.
-        self.data.0[0].clone()
+        vec.data.0[0].clone()
     }
 }
 
@@ -128,13 +128,13 @@ where
     }
 }
 
-impl<T: Scalar, const D: usize> Into<[T; D]> for RowSVector<T, D>
+impl<T: Scalar, const D: usize> From<RowSVector<T, D>> for [T; D]
 where
     Const<D>: IsNotStaticOne,
 {
     #[inline]
-    fn into(self) -> [T; D] {
-        self.transpose().into()
+    fn from(vec: RowSVector<T, D>) -> [T; D] {
+        vec.transpose().into()
     }
 }
 
@@ -146,7 +146,7 @@ macro_rules! impl_from_into_asref_1D(
             #[inline]
             fn as_ref(&self) -> &[T; $SZ] {
                 unsafe {
-                    mem::transmute(self.data.ptr())
+                    &*(self.data.ptr() as *const [T; $SZ])
                 }
             }
         }
@@ -157,7 +157,7 @@ macro_rules! impl_from_into_asref_1D(
             #[inline]
             fn as_mut(&mut self) -> &mut [T; $SZ] {
                 unsafe {
-                    mem::transmute(self.data.ptr_mut())
+                    &mut *(self.data.ptr_mut() as *mut [T; $SZ])
                 }
             }
         }
@@ -186,39 +186,54 @@ impl<T: Scalar, const R: usize, const C: usize> From<[[T; R]; C]> for SMatrix<T,
     }
 }
 
-impl<T: Scalar, const R: usize, const C: usize> Into<[[T; R]; C]> for SMatrix<T, R, C> {
+impl<T: Scalar, const R: usize, const C: usize> From<SMatrix<T, R, C>> for [[T; R]; C] {
     #[inline]
-    fn into(self) -> [[T; R]; C] {
-        self.data.0
+    fn from(vec: SMatrix<T, R, C>) -> Self {
+        vec.data.0
     }
 }
 
-macro_rules! impl_from_into_asref_2D(
-    ($(($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr));* $(;)*) => {$(
-        impl<T: Scalar, S> AsRef<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
+macro_rules! impl_from_into_asref_borrow_2D(
+
+    //does the impls on one case for either AsRef/AsMut and Borrow/BorrowMut
+    (
+        ($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr);
+        $Ref:ident.$ref:ident(), $Mut:ident.$mut:ident()
+    ) => {
+        impl<T: Scalar, S> $Ref<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
         where S: ContiguousStorage<T, $NRows, $NCols> {
             #[inline]
-            fn as_ref(&self) -> &[[T; $SZRows]; $SZCols] {
+            fn $ref(&self) -> &[[T; $SZRows]; $SZCols] {
                 unsafe {
-                    mem::transmute(self.data.ptr())
+                    &*(self.data.ptr() as *const [[T; $SZRows]; $SZCols])
                 }
             }
         }
 
-        impl<T: Scalar, S> AsMut<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
+        impl<T: Scalar, S> $Mut<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
         where S: ContiguousStorageMut<T, $NRows, $NCols> {
             #[inline]
-            fn as_mut(&mut self) -> &mut [[T; $SZRows]; $SZCols] {
+            fn $mut(&mut self) -> &mut [[T; $SZRows]; $SZCols] {
                 unsafe {
-                    mem::transmute(self.data.ptr_mut())
+                    &mut *(self.data.ptr_mut() as *mut [[T; $SZRows]; $SZCols])
                 }
             }
         }
+    };
+
+    //collects the mappings from typenum pairs to consts
+    ($(($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr));* $(;)*) => {$(
+        impl_from_into_asref_borrow_2D!(
+            ($NRows, $NCols) => ($SZRows, $SZCols); AsRef.as_ref(), AsMut.as_mut()
+        );
+        impl_from_into_asref_borrow_2D!(
+            ($NRows, $NCols) => ($SZRows, $SZCols); Borrow.borrow(), BorrowMut.borrow_mut()
+        );
     )*}
 );
 
 // Implement for matrices with shape 2x2 .. 6x6.
-impl_from_into_asref_2D!(
+impl_from_into_asref_borrow_2D!(
     (U2, U2) => (2, 2); (U2, U3) => (2, 3); (U2, U4) => (2, 4); (U2, U5) => (2, 5); (U2, U6) => (2, 6);
     (U3, U2) => (3, 2); (U3, U3) => (3, 3); (U3, U4) => (3, 4); (U3, U5) => (3, 5); (U3, U6) => (3, 6);
     (U4, U2) => (4, 2); (U4, U3) => (4, 3); (U4, U4) => (4, 4); (U4, U5) => (4, 5); (U4, U6) => (4, 6);
@@ -427,21 +442,21 @@ impl<'a, T: Scalar> From<Vec<T>> for DVector<T> {
     }
 }
 
-impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorage<T, R, C>> Into<&'a [T]>
-    for &'a Matrix<T, R, C, S>
+impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorage<T, R, C>>
+    From<&'a Matrix<T, R, C, S>> for &'a [T]
 {
     #[inline]
-    fn into(self) -> &'a [T] {
-        self.as_slice()
+    fn from(matrix: &'a Matrix<T, R, C, S>) -> Self {
+        matrix.as_slice()
     }
 }
 
-impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorageMut<T, R, C>> Into<&'a mut [T]>
-    for &'a mut Matrix<T, R, C, S>
+impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: ContiguousStorageMut<T, R, C>>
+    From<&'a mut Matrix<T, R, C, S>> for &'a mut [T]
 {
     #[inline]
-    fn into(self) -> &'a mut [T] {
-        self.as_mut_slice()
+    fn from(matrix: &'a mut Matrix<T, R, C, S>) -> Self {
+        matrix.as_mut_slice()
     }
 }
 
@@ -452,10 +467,22 @@ impl<'a, T: Scalar + Copy> From<&'a [T]> for DVectorSlice<'a, T> {
     }
 }
 
+impl<'a, T: Scalar> From<DVectorSlice<'a, T>> for &'a [T] {
+    fn from(vec: DVectorSlice<'a, T>) -> &'a [T] {
+        vec.data.into_slice()
+    }
+}
+
 impl<'a, T: Scalar + Copy> From<&'a mut [T]> for DVectorSliceMut<'a, T> {
     #[inline]
     fn from(slice: &'a mut [T]) -> Self {
         Self::from_slice(slice, slice.len())
+    }
+}
+
+impl<'a, T: Scalar> From<DVectorSliceMut<'a, T>> for &'a mut [T] {
+    fn from(vec: DVectorSliceMut<'a, T>) -> &'a mut [T] {
+        vec.data.into_slice_mut()
     }
 }
 
