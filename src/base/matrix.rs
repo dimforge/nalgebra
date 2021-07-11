@@ -1819,7 +1819,6 @@ macro_rules! impl_fmt {
         where
             T: Scalar + $trait,
             S: Storage<T, R, C>,
-            DefaultAllocator: Allocator<usize, R, C>,
         {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
                 #[cfg(feature = "std")]
@@ -1837,20 +1836,17 @@ macro_rules! impl_fmt {
                     4
                 }
 
-                let (nrows, ncols) = self.data.shape();
+                let (nrows, ncols) = self.shape();
 
-                if nrows.value() == 0 || ncols.value() == 0 {
+                if nrows == 0 || ncols == 0 {
                     return write!(f, "[ ]");
                 }
 
                 let mut max_length = 0;
-                let mut lengths: OMatrix<usize, R, C> = Matrix::zeros_generic(nrows, ncols);
-                let (nrows, ncols) = self.shape();
 
                 for i in 0..nrows {
                     for j in 0..ncols {
-                        lengths[(i, j)] = val_width(&self[(i, j)], f);
-                        max_length = crate::max(max_length, lengths[(i, j)]);
+                        max_length = crate::max(max_length, val_width(&self[(i, j)], f));
                     }
                 }
 
@@ -1867,7 +1863,7 @@ macro_rules! impl_fmt {
                 for i in 0..nrows {
                     write!(f, "  │")?;
                     for j in 0..ncols {
-                        let number_length = lengths[(i, j)] + 1;
+                        let number_length = val_width(&self[(i, j)], f) + 1;
                         let pad = max_length_with_space - number_length;
                         write!(f, " {:>thepad$}", "", thepad = pad)?;
                         match f.precision() {
@@ -1900,19 +1896,29 @@ impl_fmt!(fmt::UpperHex, "{:X}", "{:1$X}");
 impl_fmt!(fmt::Binary, "{:b}", "{:.1$b}");
 impl_fmt!(fmt::Pointer, "{:p}", "{:.1$p}");
 
-#[test]
-fn lower_exp() {
-    let test = crate::Matrix2::new(1e6, 2e5, 2e-5, 1.);
-    assert_eq!(
-        format!("{:e}", test),
-        r"
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn empty_display() {
+        let vec: Vec<f64> = Vec::new();
+        let dvector = crate::DVector::from_vec(vec);
+        assert_eq!(format!("{}", dvector), "[ ]")
+    }
+
+    #[test]
+    fn lower_exp() {
+        let test = crate::Matrix2::new(1e6, 2e5, 2e-5, 1.);
+        assert_eq!(
+            format!("{:e}", test),
+            r"
   ┌           ┐
   │  1e6  2e5 │
   │ 2e-5  1e0 │
   └           ┘
 
 "
-    )
+        )
+    }
 }
 
 /// # Cross product
