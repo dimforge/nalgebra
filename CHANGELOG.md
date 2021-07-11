@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [0.28.0]
 ### Added
 - Implement `Hash` for `Transform`.
+- Implement `Borrow` and `BorrowMut` for contiguous slices.
 
 ### Modified
 - The `OPoint<T, D>` type has been added. It takes the dimension number as a type-level integer (e.g. `Const<3>`) instead
