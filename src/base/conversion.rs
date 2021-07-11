@@ -1,6 +1,7 @@
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 use simba::scalar::{SubsetOf, SupersetOf};
+use std::borrow::{Borrow, BorrowMut};
 use std::convert::{AsMut, AsRef, From, Into};
 
 use simba::simd::{PrimitiveSimdValue, SimdValue};
@@ -192,32 +193,47 @@ impl<T: Scalar, const R: usize, const C: usize> From<SMatrix<T, R, C>> for [[T; 
     }
 }
 
-macro_rules! impl_from_into_asref_2D(
-    ($(($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr));* $(;)*) => {$(
-        impl<T: Scalar, S> AsRef<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
+macro_rules! impl_from_into_asref_borrow_2D(
+
+    //does the impls on one case for either AsRef/AsMut and Borrow/BorrowMut
+    (
+        ($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr);
+        $Ref:ident.$ref:ident(), $Mut:ident.$mut:ident()
+    ) => {
+        impl<T: Scalar, S> $Ref<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
         where S: ContiguousStorage<T, $NRows, $NCols> {
             #[inline]
-            fn as_ref(&self) -> &[[T; $SZRows]; $SZCols] {
+            fn $ref(&self) -> &[[T; $SZRows]; $SZCols] {
                 unsafe {
                     &*(self.data.ptr() as *const [[T; $SZRows]; $SZCols])
                 }
             }
         }
 
-        impl<T: Scalar, S> AsMut<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
+        impl<T: Scalar, S> $Mut<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
         where S: ContiguousStorageMut<T, $NRows, $NCols> {
             #[inline]
-            fn as_mut(&mut self) -> &mut [[T; $SZRows]; $SZCols] {
+            fn $mut(&mut self) -> &mut [[T; $SZRows]; $SZCols] {
                 unsafe {
                     &mut *(self.data.ptr_mut() as *mut [[T; $SZRows]; $SZCols])
                 }
             }
         }
+    };
+
+    //collects the mappings from typenum pairs to consts
+    ($(($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr));* $(;)*) => {$(
+        impl_from_into_asref_borrow_2D!(
+            ($NRows, $NCols) => ($SZRows, $SZCols); AsRef.as_ref(), AsMut.as_mut()
+        );
+        impl_from_into_asref_borrow_2D!(
+            ($NRows, $NCols) => ($SZRows, $SZCols); Borrow.borrow(), BorrowMut.borrow_mut()
+        );
     )*}
 );
 
 // Implement for matrices with shape 2x2 .. 6x6.
-impl_from_into_asref_2D!(
+impl_from_into_asref_borrow_2D!(
     (U2, U2) => (2, 2); (U2, U3) => (2, 3); (U2, U4) => (2, 4); (U2, U5) => (2, 5); (U2, U6) => (2, 6);
     (U3, U2) => (3, 2); (U3, U3) => (3, 3); (U3, U4) => (3, 4); (U3, U5) => (3, 5); (U3, U6) => (3, 6);
     (U4, U2) => (4, 2); (U4, U3) => (4, 3); (U4, U4) => (4, 4); (U4, U5) => (4, 5); (U4, U6) => (4, 6);
