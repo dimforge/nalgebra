@@ -1,6 +1,5 @@
 //! Abstract definition of a matrix data storage allocator.
 
-use std::any::Any;
 use std::mem::MaybeUninit;
 
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
@@ -17,7 +16,7 @@ use crate::base::DefaultAllocator;
 ///
 /// Every allocator must be both static and dynamic. Though not all implementations may share the
 /// same `Buffer` type.
-pub trait Allocator<T, R: Dim, C: Dim = U1>: Any + Sized {
+pub trait Allocator<T, R: Dim, C: Dim = U1>: 'static + Sized {
     /// The type of buffer this allocator can instanciate.
     type Buffer: ContiguousStorageMut<T, R, C>;
 

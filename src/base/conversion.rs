@@ -3,6 +3,7 @@ use alloc::vec::Vec;
 use simba::scalar::{SubsetOf, SupersetOf};
 use std::borrow::{Borrow, BorrowMut};
 use std::convert::{AsMut, AsRef, From, Into};
+use std::mem::MaybeUninit;
 
 use simba::simd::{PrimitiveSimdValue, SimdValue};
 
@@ -44,17 +45,19 @@ where
         let nrows2 = R2::from_usize(nrows);
         let ncols2 = C2::from_usize(ncols);
 
-        let mut res: OMatrix<T2, R2, C2> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows2, ncols2) };
+        let mut res = OMatrix::<T2, R2, C2>::new_uninitialized_generic(nrows2, ncols2);
+
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {
-                    *res.get_unchecked_mut((i, j)) = T2::from_subset(self.get_unchecked((i, j)))
+                    *res.get_unchecked_mut((i, j)) =
+                        MaybeUninit::new(T2::from_subset(self.get_unchecked((i, j))));
                 }
             }
         }
 
-        res
+        // Safety: all entries have been initialized.
+        unsafe { Matrix::assume_init(res) }
     }
 
     #[inline]
@@ -68,16 +71,18 @@ where
         let nrows = R1::from_usize(nrows2);
         let ncols = C1::from_usize(ncols2);
 
-        let mut res: Self = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
+        let mut res = OMatrix::new_uninitialized_generic(nrows, ncols);
         for i in 0..nrows2 {
             for j in 0..ncols2 {
                 unsafe {
-                    *res.get_unchecked_mut((i, j)) = m.get_unchecked((i, j)).to_subset_unchecked()
+                    *res.get_unchecked_mut((i, j)) =
+                        MaybeUninit::new(m.get_unchecked((i, j)).to_subset_unchecked());
                 }
             }
         }
 
-        res
+        // Safety: all entries have been initialized.
+        unsafe { res.assume_init() }
     }
 }
 

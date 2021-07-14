@@ -68,7 +68,7 @@ impl<T, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>> for Def
         );
 
         // Safety: we have initialized all entries.
-        unsafe { Self::assume_init(res) }
+        unsafe { <Self as Allocator<T, Const<R>, Const<C>>>::assume_init(res) }
     }
 }
 

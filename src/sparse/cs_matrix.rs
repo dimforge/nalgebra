@@ -263,6 +263,8 @@ where
     /// `nvals` possible non-zero values.
     pub fn new_uninitialized_generic(nrows: R, ncols: C, nvals: usize) -> Self {
         let mut i = Vec::with_capacity(nvals);
+
+        //BEEP BEEP!!!! UNDEFINED BEHAVIOR ALERT!!! BEEP BEEEP!!!
         unsafe {
             i.set_len(nvals);
         }

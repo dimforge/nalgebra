@@ -34,6 +34,10 @@ use crate::{ArrayStorage, SMatrix, SimdComplexField};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::{DMatrix, DVector, Dynamic, VecStorage};
 
+/// An uninitialized matrix.
+pub type UninitMatrix<T, R, C> =
+    Matrix<MaybeUninit<T>, R, C, <DefaultAllocator as Allocator<T, R, C>>::UninitBuffer>;
+
 /// A square matrix.
 pub type SquareMatrix<T, D, S> = Matrix<T, D, D, S>;
 
@@ -347,39 +351,34 @@ impl<T, R, C, S> Matrix<T, R, C, S> {
     }
 }
 
-impl<T, R: Dim, C: Dim, S> Matrix<T, R, C, S>
+impl<T, R: Dim, C: Dim>
+    Matrix<MaybeUninit<T>, R, C, <DefaultAllocator as Allocator<T, R, C>>::UninitBuffer>
 where
-    S: Storage<T, R, C>,
-    DefaultAllocator: Allocator<T, R, C, Buffer = S>,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     /// Allocates a matrix with the given number of rows and columns without initializing its content.
-    pub fn new_uninitialized_generic(
-        nrows: R,
-        ncols: C,
-    ) -> Matrix<MaybeUninit<T>, R, C, <DefaultAllocator as Allocator<T, R, C>>::UninitBuffer> {
-        Matrix {
+    ///
+    /// Note: calling `Self::new_uninitialized_generic` is often **not** what you want to do. Consider
+    /// calling `Matrix::new_uninitialized_generic` instead.
+    pub fn new_uninitialized_generic(nrows: R, ncols: C) -> Self {
+        Self {
             data: <DefaultAllocator as Allocator<T, R, C>>::allocate_uninitialized(nrows, ncols),
             _phantoms: PhantomData,
         }
     }
 }
 
-impl<T, R: Dim, C: Dim, S> Matrix<MaybeUninit<T>, R, C, S>
+impl<T, R: Dim, C: Dim>
+    Matrix<MaybeUninit<T>, R, C, <DefaultAllocator as Allocator<T, R, C>>::UninitBuffer>
 where
-    S: Storage<T, R, C>,
-    DefaultAllocator: Allocator<T, R, C, Buffer = S>,
+    DefaultAllocator: Allocator<T, R, C>,
 {
     /// Assumes a matrix's entries to be initialized. This operation should be near zero-cost.
     pub unsafe fn assume_init(
-        uninit: Matrix<
-            MaybeUninit<T>,
-            R,
-            C,
-            <DefaultAllocator as Allocator<T, R, C>>::UninitBuffer,
-        >,
-    ) -> Matrix<T, R, C, S> {
+        self,
+    ) -> Matrix<T, R, C, <DefaultAllocator as Allocator<T, R, C>>::Buffer> {
         Matrix {
-            data: <DefaultAllocator as Allocator<T, R, C>>::assume_init(uninit.data),
+            data: <DefaultAllocator as Allocator<T, R, C>>::assume_init(self.data),
             _phantoms: PhantomData,
         }
     }
@@ -654,24 +653,25 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         let nrows: SameShapeR<R, R2> = Dim::from_usize(nrows);
         let ncols: SameShapeC<C, C2> = Dim::from_usize(ncols);
 
-        let mut res: MatrixSum<T, R, C, R2, C2> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
+        let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
 
         // TODO: use copy_from
         for j in 0..res.ncols() {
             for i in 0..res.nrows() {
                 unsafe {
-                    *res.get_unchecked_mut((i, j)) = self.get_unchecked((i, j)).clone();
+                    *res.get_unchecked_mut((i, j)) =
+                        MaybeUninit::new(self.get_unchecked((i, j)).clone());
                 }
             }
         }
 
-        res
+        unsafe { Matrix::assume_init(res) }
     }
 
-    /// Transposes `self` and store the result into `out`.
+    /// Transposes `self` and store the result into `out`, which will become
+    /// fully initialized.
     #[inline]
-    pub fn transpose_to<R2: Dim, C2: Dim, SB>(&self, out: &mut Matrix<T, R2, C2, SB>)
+    pub fn transpose_to<R2: Dim, C2: Dim, SB>(&self, out: &mut Matrix<MaybeUninit<T>, R2, C2, SB>)
     where
         T: Clone,
         SB: StorageMut<T, R2, C2>,
@@ -687,7 +687,8 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {
-                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).clone();
+                    *out.get_unchecked_mut((j, i)) =
+                        MaybeUninit::new(self.get_unchecked((i, j)).clone());
                 }
             }
         }
@@ -702,17 +703,18 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Allocator<T, C, R>,
     {
         let (nrows, ncols) = self.data.shape();
+        let mut res = OMatrix::new_uninitialized_generic(ncols, nrows);
+        self.transpose_to(&mut res);
 
         unsafe {
-            let mut res = crate::unimplemented_or_uninitialized_generic!(ncols, nrows);
-            self.transpose_to(&mut res);
-
-            res
+            // Safety: res is now fully initialized due to the guarantees of  transpose_to.
+            res.assume_init()
         }
     }
 }
 
 /// # Elementwise mapping and folding
+// Todo: maybe make ref versions of these methods that can be used when T is expensive to clone?
 impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Returns a matrix containing the result of `f` applied to each of its entries.
     #[inline]
@@ -724,19 +726,19 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     {
         let (nrows, ncols) = self.data.shape();
 
-        let mut res: OMatrix<T2, R, C> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
+        let mut res = OMatrix::new_uninitialized_generic(nrows, ncols);
 
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
                     let a = self.data.get_unchecked(i, j).clone();
-                    *res.data.get_unchecked_mut(i, j) = f(a)
+                    *res.data.get_unchecked_mut(i, j) = MaybeUninit::new(f(a));
                 }
             }
         }
 
-        res
+        // Safety: all entries have been initialized.
+        unsafe { res.assume_init() }
     }
 
     /// Cast the components of `self` to another type.
@@ -821,8 +823,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     {
         let (nrows, ncols) = self.data.shape();
 
-        let mut res: OMatrix<N3, R, C> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
+        let mut res = OMatrix::<N3, R, C>::new_uninitialized_generic(nrows, ncols);
 
         assert_eq!(
             (nrows.value(), ncols.value()),
@@ -835,12 +836,13 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                 unsafe {
                     let a = self.data.get_unchecked(i, j).clone();
                     let b = rhs.data.get_unchecked(i, j).clone();
-                    *res.data.get_unchecked_mut(i, j) = f(a, b)
+                    *res.data.get_unchecked_mut(i, j) = MaybeUninit::new(f(a, b));
                 }
             }
         }
 
-        res
+        // Safety: all entries have been initialized.
+        unsafe { res.assume_init() }
     }
 
     /// Returns a matrix containing the result of `f` applied to each entries of `self` and
@@ -862,8 +864,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     {
         let (nrows, ncols) = self.data.shape();
 
-        let mut res: OMatrix<N4, R, C> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
+        let mut res = OMatrix::new_uninitialized_generic(nrows, ncols);
 
         assert_eq!(
             (nrows.value(), ncols.value()),
@@ -882,12 +883,13 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                     let a = self.data.get_unchecked(i, j).clone();
                     let b = b.data.get_unchecked(i, j).clone();
                     let c = c.data.get_unchecked(i, j).clone();
-                    *res.data.get_unchecked_mut(i, j) = f(a, b, c)
+                    *res.data.get_unchecked_mut(i, j) = MaybeUninit::new(f(a, b, c));
                 }
             }
         }
 
-        res
+        // Safety: all entries have been initialized.
+        unsafe { res.assume_init() }
     }
 
     /// Folds a function `f` on each entry of `self`.
@@ -1322,7 +1324,7 @@ impl<T, D: Dim, S: StorageMut<T, D, D>> Matrix<T, D, D, S> {
 impl<T: SimdComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Takes the adjoint (aka. conjugate-transpose) of `self` and store the result into `out`.
     #[inline]
-    pub fn adjoint_to<R2, C2, SB>(&self, out: &mut Matrix<T, R2, C2, SB>)
+    pub fn adjoint_to<R2, C2, SB>(&self, out: &mut Matrix<MaybeUninit<T>, R2, C2, SB>)
     where
         R2: Dim,
         C2: Dim,
@@ -1339,7 +1341,8 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {
-                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).simd_conjugate();
+                    *out.get_unchecked_mut((j, i)) =
+                        MaybeUninit::new(self.get_unchecked((i, j)).simd_conjugate());
                 }
             }
         }
@@ -1355,8 +1358,7 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S
         let (nrows, ncols) = self.data.shape();
 
         unsafe {
-            let mut res: OMatrix<_, C, R> =
-                crate::unimplemented_or_uninitialized_generic!(ncols, nrows);
+            let mut res = OMatrix::new_uninitialized_generic(ncols, nrows);
             self.adjoint_to(&mut res);
 
             res
@@ -1480,7 +1482,7 @@ impl<T, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     pub fn diagonal(&self) -> OVector<T, D>
     where
         T: Clone,
-        DefaultAllocator: Allocator<T, D> + Allocator<MaybeUninit<T>, D>,
+        DefaultAllocator: Allocator<T, D>,
     {
         self.map_diagonal(|e| e)
     }
@@ -1493,7 +1495,7 @@ impl<T, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     pub fn map_diagonal<T2: Clone>(&self, mut f: impl FnMut(T) -> T2) -> OVector<T2, D>
     where
         T: Clone,
-        DefaultAllocator: Allocator<T2, D> + Allocator<MaybeUninit<T2>, D>,
+        DefaultAllocator: Allocator<T2, D>,
     {
         assert!(
             self.is_square(),
@@ -1648,7 +1650,7 @@ impl<T: Clone + Zero, D: DimAdd<U1>, S: Storage<T, D>> Vector<T, D, S> {
 
 impl<T, R: Dim, C: Dim, S> AbsDiffEq for Matrix<T, R, C, S>
 where
-    T:  AbsDiffEq,
+    T: AbsDiffEq,
     S: Storage<T, R, C>,
     T::Epsilon: Copy,
 {
@@ -1669,7 +1671,7 @@ where
 
 impl<T, R: Dim, C: Dim, S> RelativeEq for Matrix<T, R, C, S>
 where
-    T:  RelativeEq,
+    T: RelativeEq,
     S: Storage<T, R, C>,
     T::Epsilon: Copy,
 {
@@ -1691,7 +1693,7 @@ where
 
 impl<T, R: Dim, C: Dim, S> UlpsEq for Matrix<T, R, C, S>
 where
-    T:  UlpsEq,
+    T: UlpsEq,
     S: Storage<T, R, C>,
     T::Epsilon: Copy,
 {

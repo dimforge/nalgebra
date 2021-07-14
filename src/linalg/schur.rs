@@ -297,10 +297,10 @@ where
     /// Computes the complex eigenvalues of the decomposed matrix.
     fn do_complex_eigenvalues(
         t: &OMatrix<T, D, D>,
-        out: &mut OVector<MaybeUninit<NumComplex<T>>, D>,
+        out: &mut OVector<NumComplex<T>, D>,
     ) where
         T: RealField,
-        DefaultAllocator: Allocator<MaybeUninit<NumComplex<T>>, D>,
+        DefaultAllocator: Allocator<NumComplex<T>, D>,
     {
         let dim = t.nrows();
         let mut m = 0;

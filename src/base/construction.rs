@@ -30,16 +30,8 @@ use crate::base::{
 #[macro_export]
 macro_rules! unimplemented_or_uninitialized_generic {
     ($nrows:expr, $ncols:expr) => {{
-        #[cfg(feature="no_unsound_assume_init")] {
-            // Some of the call sites need the number of rows and columns from this to infer a type, so
-            // uninitialized memory is used to infer the type, as `T: Zero` isn't available at all callsites.
-            // This may technically still be UB even though the assume_init is dead code, but all callsites should be fixed before #556 is closed.
-            let typeinference_helper = crate::base::Matrix::new_uninitialized_generic($nrows, $ncols);
-            unimplemented!();
-            typeinference_helper.assume_init()
-        }
-        #[cfg(not(feature="no_unsound_assume_init"))] { crate::base::Matrix::new_uninitialized_generic($nrows, $ncols).assume_init() }
-    }}
+        crate::base::Matrix::new_uninitialized_generic($nrows, $ncols)
+    }};
 }
 
 /// # Generic constructors
@@ -78,7 +70,7 @@ where
     #[inline]
     pub fn zeros_generic(nrows: R, ncols: C) -> Self
     where
-        T: Zero,
+        T: Zero + Clone,
     {
         Self::from_element_generic(nrows, ncols, T::zero())
     }
@@ -98,22 +90,28 @@ where
     /// The order of elements in the slice must follow the usual mathematic writing, i.e.,
     /// row-by-row.
     #[inline]
-    pub fn from_row_slice_generic(nrows: R, ncols: C, slice: &[T]) -> Self {
+    pub fn from_row_slice_generic(nrows: R, ncols: C, slice: &[T]) -> Self
+    where
+        T: Clone,
+    {
         assert!(
             slice.len() == nrows.value() * ncols.value(),
             "Matrix init. error: the slice did not contain the right number of elements."
         );
 
-        let mut res = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
+        let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
         let mut iter = slice.iter();
 
         for i in 0..nrows.value() {
             for j in 0..ncols.value() {
-                unsafe { *res.get_unchecked_mut((i, j)) = iter.next().unwrap().inlined_clone() }
+                unsafe {
+                    *res.get_unchecked_mut((i, j)) = MaybeUninit::new(iter.next().unwrap().clone());
+                }
             }
         }
 
-        res
+        // Safety: all entries have been initialized.
+        unsafe { res.assume_init() }
     }
 
     /// Creates a matrix with its elements filled with the components provided by a slice. The
@@ -130,15 +128,18 @@ where
     where
         F: FnMut(usize, usize) -> T,
     {
-        let mut res: Self = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
+        let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
 
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
-                unsafe { *res.get_unchecked_mut((i, j)) = f(i, j) }
+                unsafe {
+                    *res.get_unchecked_mut((i, j)) = MaybeUninit::new(f(i, j));
+                }
             }
         }
 
-        res
+        // Safety: all entries have been initialized.
+        unsafe { Matrix::assume_init(res) }
     }
 
     /// Creates a new identity matrix.
@@ -160,7 +161,7 @@ where
     #[inline]
     pub fn from_diagonal_element_generic(nrows: R, ncols: C, elt: T) -> Self
     where
-        T: Zero + One,
+        T: Zero + One+Clone,
     {
         let mut res = Self::zeros_generic(nrows, ncols);
 
@@ -178,7 +179,7 @@ where
     #[inline]
     pub fn from_partial_diagonal_generic(nrows: R, ncols: C, elts: &[T]) -> Self
     where
-        T: Zero,
+        T: Zero+Clone,
     {
         let mut res = Self::zeros_generic(nrows, ncols);
         assert!(
@@ -187,7 +188,7 @@ where
         );
 
         for (i, elt) in elts.iter().enumerate() {
-            unsafe { *res.get_unchecked_mut((i, i)) = elt.inlined_clone() }
+            unsafe { *res.get_unchecked_mut((i, i)) = elt.clone() }
         }
 
         res
@@ -211,7 +212,7 @@ where
     /// ```
     #[inline]
     pub fn from_rows<SB>(rows: &[Matrix<T, Const<1>, C, SB>]) -> Self
-    where
+    where T:Clone,
         SB: Storage<T, Const<1>, C>,
     {
         assert!(!rows.is_empty(), "At least one row must be given.");
@@ -231,7 +232,7 @@ where
 
         // TODO: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
-            rows[i][(0, j)].inlined_clone()
+            rows[i][(0, j)].clone()
         })
     }
 
@@ -253,7 +254,7 @@ where
     /// ```
     #[inline]
     pub fn from_columns<SB>(columns: &[Vector<T, R, SB>]) -> Self
-    where
+    where T:Clone,
         SB: Storage<T, R>,
     {
         assert!(!columns.is_empty(), "At least one column must be given.");
@@ -273,7 +274,7 @@ where
 
         // TODO: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
-            columns[j][i].inlined_clone()
+            columns[j][i].clone()
         })
     }
 
@@ -457,8 +458,8 @@ macro_rules! impl_constructors(
         /// ```
         #[inline]
         pub fn zeros($($args: usize),*) -> Self
-        where 
-            T: Zero
+        where
+            T: Zero + Clone
         {
             Self::zeros_generic($($gargs),*)
         }
