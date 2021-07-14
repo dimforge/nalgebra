@@ -113,7 +113,7 @@ mod rkyv_impl {
 
 impl<T, R, C, S> PartialEq for Unit<Matrix<T, R, C, S>>
 where
-    T: Scalar + PartialEq,
+    T: PartialEq,
     R: Dim,
     C: Dim,
     S: Storage<T, R, C>,
@@ -126,7 +126,7 @@ where
 
 impl<T, R, C, S> Eq for Unit<Matrix<T, R, C, S>>
 where
-    T: Scalar + Eq,
+    T:  Eq,
     R: Dim,
     C: Dim,
     S: Storage<T, R, C>,

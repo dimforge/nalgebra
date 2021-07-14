@@ -8,7 +8,7 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
-use std::mem;
+use std::mem::{self, MaybeUninit};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -201,13 +201,7 @@ impl<T, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<T, R, C, S> {
     }
 }
 
-impl<T, R, C, S> Default for Matrix<T, R, C, S>
-where
-    T: Scalar,
-    R: Dim,
-    C: Dim,
-    S: Default,
-{
+impl<T, R: Dim, C: Dim, S: Default> Default for Matrix<T, R, C, S> {
     fn default() -> Self {
         Matrix {
             data: Default::default(),
@@ -217,13 +211,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T, R, C, S> Serialize for Matrix<T, R, C, S>
-where
-    T: Scalar,
-    R: Dim,
-    C: Dim,
-    S: Serialize,
-{
+impl<T, R: Dim, C: Dim, S: Serialize> Serialize for Matrix<T, R, C, S> {
     fn serialize<Ser>(&self, serializer: Ser) -> Result<Ser::Ok, Ser::Error>
     where
         Ser: Serializer,
@@ -233,13 +221,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'de, T, R, C, S> Deserialize<'de> for Matrix<T, R, C, S>
-where
-    T: Scalar,
-    R: Dim,
-    C: Dim,
-    S: Deserialize<'de>,
-{
+impl<'de, T: Dim, R: Dim, C, S: Serialize<'de>> Deserialize<'de> for Matrix<T, R, C, S> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -252,7 +234,7 @@ where
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<T: Scalar, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<T, R, C, S> {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         self.data.entomb(writer)
     }
@@ -267,7 +249,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<T, R, C, 
 }
 
 #[cfg(feature = "compare")]
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> matrixcompare_core::Matrix<T>
+impl<T: Clone, R: Dim, C: Dim, S: Storage<T, R, C>> matrixcompare_core::Matrix<T>
     for Matrix<T, R, C, S>
 {
     fn rows(&self) -> usize {
@@ -284,7 +266,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> matrixcompare_core::Matrix<
 }
 
 #[cfg(feature = "compare")]
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> matrixcompare_core::DenseAccess<T>
+impl<T: Clone, R: Dim, C: Dim, S: Storage<T, R, C>> matrixcompare_core::DenseAccess<T>
     for Matrix<T, R, C, S>
 {
     fn fetch_single(&self, row: usize, col: usize) -> T {
@@ -293,15 +275,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> matrixcompare_core::DenseAc
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> bytemuck::Zeroable
-    for Matrix<T, R, C, S>
-where
-    S: bytemuck::Zeroable,
+unsafe impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> bytemuck::Zeroable for Matrix<T, R, C, S> where
+    S: bytemuck::Zeroable
 {
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> bytemuck::Pod for Matrix<T, R, C, S>
+unsafe impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> bytemuck::Pod for Matrix<T, R, C, S>
 where
     S: bytemuck::Pod,
     Self: Copy,
@@ -367,6 +347,44 @@ impl<T, R, C, S> Matrix<T, R, C, S> {
     }
 }
 
+impl<T, R: Dim, C: Dim, S> Matrix<T, R, C, S>
+where
+    S: Storage<T, R, C>,
+    DefaultAllocator: Allocator<T, R, C, Buffer = S>,
+{
+    /// Allocates a matrix with the given number of rows and columns without initializing its content.
+    pub fn new_uninitialized_generic(
+        nrows: R,
+        ncols: C,
+    ) -> Matrix<MaybeUninit<T>, R, C, <DefaultAllocator as Allocator<T, R, C>>::UninitBuffer> {
+        Matrix {
+            data: <DefaultAllocator as Allocator<T, R, C>>::allocate_uninitialized(nrows, ncols),
+            _phantoms: PhantomData,
+        }
+    }
+}
+
+impl<T, R: Dim, C: Dim, S> Matrix<MaybeUninit<T>, R, C, S>
+where
+    S: Storage<T, R, C>,
+    DefaultAllocator: Allocator<T, R, C, Buffer = S>,
+{
+    /// Assumes a matrix's entries to be initialized. This operation should be near zero-cost.
+    pub unsafe fn assume_init(
+        uninit: Matrix<
+            MaybeUninit<T>,
+            R,
+            C,
+            <DefaultAllocator as Allocator<T, R, C>>::UninitBuffer,
+        >,
+    ) -> Matrix<T, R, C, S> {
+        Matrix {
+            data: <DefaultAllocator as Allocator<T, R, C>>::assume_init(uninit.data),
+            _phantoms: PhantomData,
+        }
+    }
+}
+
 impl<T, const R: usize, const C: usize> SMatrix<T, R, C> {
     /// Creates a new statically-allocated matrix from the given [ArrayStorage].
     ///
@@ -410,7 +428,7 @@ impl<T> DVector<T> {
     }
 }
 
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Creates a new matrix with the given data.
     #[inline(always)]
     pub fn from_data(data: S) -> Self {
@@ -418,17 +436,16 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     }
 
     /// Creates a new uninitialized matrix with the given uninitialized data
-    pub unsafe fn from_uninitialized_data(data: mem::MaybeUninit<S>) -> mem::MaybeUninit<Self> {
-        let res: Matrix<T, R, C, mem::MaybeUninit<S>> = Matrix {
+    pub unsafe fn from_uninitialized_data(data: MaybeUninit<S>) -> MaybeUninit<Self> {
+        let res: Matrix<T, R, C, MaybeUninit<S>> = Matrix {
             data,
             _phantoms: PhantomData,
         };
-        let res: mem::MaybeUninit<Matrix<T, R, C, mem::MaybeUninit<S>>> =
-            mem::MaybeUninit::new(res);
+        let res: MaybeUninit<Matrix<T, R, C, MaybeUninit<S>>> = MaybeUninit::new(res);
         // safety: since we wrap the inner MaybeUninit in an outer MaybeUninit above, the fact that the `data` field is partially-uninitialized is still opaque.
         // with s/transmute_copy/transmute/, rustc claims that `MaybeUninit<Matrix<T, R, C, MaybeUninit<S>>>` may be of a different size from `MaybeUninit<Matrix<T, R, C, S>>`
         // but MaybeUninit's documentation says "MaybeUninit<T> is guaranteed to have the same size, alignment, and ABI as T", which implies those types should be the same size
-        let res: mem::MaybeUninit<Matrix<T, R, C, S>> = mem::transmute_copy(&res);
+        let res: MaybeUninit<Matrix<T, R, C, S>> = mem::transmute_copy(&res);
         res
     }
 
@@ -544,7 +561,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// See `relative_eq` from the `RelativeEq` trait for more details.
     #[inline]
     #[must_use]
-    pub fn relative_eq<R2, C2, SB>(
+    pub fn relative_eq<R2: Dim, C2: Dim, SB>(
         &self,
         other: &Matrix<T, R2, C2, SB>,
         eps: T::Epsilon,
@@ -552,8 +569,6 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     ) -> bool
     where
         T: RelativeEq,
-        R2: Dim,
-        C2: Dim,
         SB: Storage<T, R2, C2>,
         T::Epsilon: Copy,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
@@ -568,11 +583,9 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     #[must_use]
     #[allow(clippy::should_implement_trait)]
-    pub fn eq<R2, C2, SB>(&self, other: &Matrix<T, R2, C2, SB>) -> bool
+    pub fn eq<R2: Dim, C2: Dim, SB: Dim>(&self, other: &Matrix<T, R2, C2, SB>) -> bool
     where
         T: PartialEq,
-        R2: Dim,
-        C2: Dim,
         SB: Storage<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
@@ -584,6 +597,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     pub fn into_owned(self) -> OMatrix<T, R, C>
     where
+        T: Clone,
         DefaultAllocator: Allocator<T, R, C>,
     {
         Matrix::from_data(self.data.into_owned())
@@ -594,10 +608,9 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Moves this matrix into one that owns its data. The actual type of the result depends on
     /// matrix storage combination rules for addition.
     #[inline]
-    pub fn into_owned_sum<R2, C2>(self) -> MatrixSum<T, R, C, R2, C2>
+    pub fn into_owned_sum<R2: Dim, C2: Dim>(self) -> MatrixSum<T, R, C, R2, C2>
     where
-        R2: Dim,
-        C2: Dim,
+        T: Clone + 'static,
         DefaultAllocator: SameShapeAllocator<T, R, C, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
@@ -621,6 +634,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn clone_owned(&self) -> OMatrix<T, R, C>
     where
+        T: Clone,
         DefaultAllocator: Allocator<T, R, C>,
     {
         Matrix::from_data(self.data.clone_owned())
@@ -630,10 +644,9 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// matrix storage combination rules for addition.
     #[inline]
     #[must_use]
-    pub fn clone_owned_sum<R2, C2>(&self) -> MatrixSum<T, R, C, R2, C2>
+    pub fn clone_owned_sum<R2: Dim, C2: Dim>(&self) -> MatrixSum<T, R, C, R2, C2>
     where
-        R2: Dim,
-        C2: Dim,
+        T: Clone,
         DefaultAllocator: SameShapeAllocator<T, R, C, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
@@ -648,7 +661,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..res.ncols() {
             for i in 0..res.nrows() {
                 unsafe {
-                    *res.get_unchecked_mut((i, j)) = self.get_unchecked((i, j)).inlined_clone();
+                    *res.get_unchecked_mut((i, j)) = self.get_unchecked((i, j)).clone();
                 }
             }
         }
@@ -658,10 +671,9 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Transposes `self` and store the result into `out`.
     #[inline]
-    pub fn transpose_to<R2, C2, SB>(&self, out: &mut Matrix<T, R2, C2, SB>)
+    pub fn transpose_to<R2: Dim, C2: Dim, SB>(&self, out: &mut Matrix<T, R2, C2, SB>)
     where
-        R2: Dim,
-        C2: Dim,
+        T: Clone,
         SB: StorageMut<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, C2> + SameNumberOfColumns<C, R2>,
     {
@@ -675,7 +687,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         for i in 0..nrows {
             for j in 0..ncols {
                 unsafe {
-                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).inlined_clone();
+                    *out.get_unchecked_mut((j, i)) = self.get_unchecked((i, j)).clone();
                 }
             }
         }
@@ -686,6 +698,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use = "Did you mean to use transpose_mut()?"]
     pub fn transpose(&self) -> OMatrix<T, C, R>
     where
+        T: Clone,
         DefaultAllocator: Allocator<T, C, R>,
     {
         let (nrows, ncols) = self.data.shape();
@@ -700,12 +713,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 }
 
 /// # Elementwise mapping and folding
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Returns a matrix containing the result of `f` applied to each of its entries.
     #[inline]
     #[must_use]
-    pub fn map<T2: Scalar, F: FnMut(T) -> T2>(&self, mut f: F) -> OMatrix<T2, R, C>
+    pub fn map<T2: Clone, F: FnMut(T) -> T2>(&self, mut f: F) -> OMatrix<T2, R, C>
     where
+        T: Clone,
         DefaultAllocator: Allocator<T2, R, C>,
     {
         let (nrows, ncols) = self.data.shape();
@@ -716,7 +730,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = self.data.get_unchecked(i, j).inlined_clone();
+                    let a = self.data.get_unchecked(i, j).clone();
                     *res.data.get_unchecked_mut(i, j) = f(a)
                 }
             }
@@ -734,7 +748,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// let q2 = q.cast::<f32>();
     /// assert_eq!(q2, Vector3::new(1.0f32, 2.0, 3.0));
     /// ```
-    pub fn cast<T2: Scalar>(self) -> OMatrix<T2, R, C>
+    pub fn cast<T2>(self) -> OMatrix<T2, R, C>
     where
         OMatrix<T2, R, C>: SupersetOf<Self>,
         DefaultAllocator: Allocator<T2, R, C>,
@@ -765,11 +779,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// `f` also gets passed the row and column index, i.e. `f(row, col, value)`.
     #[inline]
     #[must_use]
-    pub fn map_with_location<T2: Scalar, F: FnMut(usize, usize, T) -> T2>(
+    pub fn map_with_location<T2: Clone, F: FnMut(usize, usize, T) -> T2>(
         &self,
         mut f: F,
     ) -> OMatrix<T2, R, C>
     where
+        T: Clone,
         DefaultAllocator: Allocator<T2, R, C>,
     {
         let (nrows, ncols) = self.data.shape();
@@ -780,7 +795,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = self.data.get_unchecked(i, j).inlined_clone();
+                    let a = self.data.get_unchecked(i, j).clone();
                     *res.data.get_unchecked_mut(i, j) = f(i, j, a)
                 }
             }
@@ -793,10 +808,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// `rhs`.
     #[inline]
     #[must_use]
-    pub fn zip_map<T2, N3, S2, F>(&self, rhs: &Matrix<T2, R, C, S2>, mut f: F) -> OMatrix<N3, R, C>
+    pub fn zip_map<T2: Clone, N3, S2, F>(
+        &self,
+        rhs: &Matrix<T2, R, C, S2>,
+        mut f: F,
+    ) -> OMatrix<N3, R, C>
     where
-        T2: Scalar,
-        N3: Scalar,
+        T: Clone,
         S2: Storage<T2, R, C>,
         F: FnMut(T, T2) -> N3,
         DefaultAllocator: Allocator<N3, R, C>,
@@ -815,8 +833,8 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = self.data.get_unchecked(i, j).inlined_clone();
-                    let b = rhs.data.get_unchecked(i, j).inlined_clone();
+                    let a = self.data.get_unchecked(i, j).clone();
+                    let b = rhs.data.get_unchecked(i, j).clone();
                     *res.data.get_unchecked_mut(i, j) = f(a, b)
                 }
             }
@@ -829,16 +847,14 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// `b`, and `c`.
     #[inline]
     #[must_use]
-    pub fn zip_zip_map<T2, N3, N4, S2, S3, F>(
+    pub fn zip_zip_map<T2: Clone, N3: Clone, N4, S2, S3, F>(
         &self,
         b: &Matrix<T2, R, C, S2>,
         c: &Matrix<N3, R, C, S3>,
         mut f: F,
     ) -> OMatrix<N4, R, C>
     where
-        T2: Scalar,
-        N3: Scalar,
-        N4: Scalar,
+        T: Clone,
         S2: Storage<T2, R, C>,
         S3: Storage<N3, R, C>,
         F: FnMut(T, T2, N3) -> N4,
@@ -863,9 +879,9 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = self.data.get_unchecked(i, j).inlined_clone();
-                    let b = b.data.get_unchecked(i, j).inlined_clone();
-                    let c = c.data.get_unchecked(i, j).inlined_clone();
+                    let a = self.data.get_unchecked(i, j).clone();
+                    let b = b.data.get_unchecked(i, j).clone();
+                    let c = c.data.get_unchecked(i, j).clone();
                     *res.data.get_unchecked_mut(i, j) = f(a, b, c)
                 }
             }
@@ -877,7 +893,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Folds a function `f` on each entry of `self`.
     #[inline]
     #[must_use]
-    pub fn fold<Acc>(&self, init: Acc, mut f: impl FnMut(Acc, T) -> Acc) -> Acc {
+    pub fn fold<Acc>(&self, init: Acc, mut f: impl FnMut(Acc, T) -> Acc) -> Acc
+    where
+        T: Clone,
+    {
         let (nrows, ncols) = self.data.shape();
 
         let mut res = init;
@@ -885,7 +904,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = self.data.get_unchecked(i, j).inlined_clone();
+                    let a = self.data.get_unchecked(i, j).clone();
                     res = f(res, a)
                 }
             }
@@ -897,16 +916,14 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Folds a function `f` on each pairs of entries from `self` and `rhs`.
     #[inline]
     #[must_use]
-    pub fn zip_fold<T2, R2, C2, S2, Acc>(
+    pub fn zip_fold<T2: Clone, R2: Dim, C2: Dim, S2, Acc>(
         &self,
         rhs: &Matrix<T2, R2, C2, S2>,
         init: Acc,
         mut f: impl FnMut(Acc, T, T2) -> Acc,
     ) -> Acc
     where
-        T2: Scalar,
-        R2: Dim,
-        C2: Dim,
+        T: Clone,
         S2: Storage<T2, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
@@ -923,8 +940,8 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = self.data.get_unchecked(i, j).inlined_clone();
-                    let b = rhs.data.get_unchecked(i, j).inlined_clone();
+                    let a = self.data.get_unchecked(i, j).clone();
+                    let b = rhs.data.get_unchecked(i, j).clone();
                     res = f(res, a, b)
                 }
             }
@@ -945,7 +962,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             for i in 0..nrows {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
-                    *e = f(e.inlined_clone())
+                    *e = f(*e)
                 }
             }
         }
@@ -954,15 +971,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Replaces each component of `self` by the result of a closure `f` applied on its components
     /// joined with the components from `rhs`.
     #[inline]
-    pub fn zip_apply<T2, R2, C2, S2>(
+    pub fn zip_apply<T2: Clone, R2: Dim, C2: Dim, S2>(
         &mut self,
         rhs: &Matrix<T2, R2, C2, S2>,
         mut f: impl FnMut(T, T2) -> T,
     ) where
         S: StorageMut<T, R, C>,
-        T2: Scalar,
-        R2: Dim,
-        C2: Dim,
         S2: Storage<T2, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
@@ -978,8 +992,8 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             for i in 0..nrows {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
-                    let rhs = rhs.get_unchecked((i, j)).inlined_clone();
-                    *e = f(e.inlined_clone(), rhs)
+                    let rhs = rhs.get_unchecked((i, j)).clone();
+                    *e = f(*e, rhs)
                 }
             }
         }
@@ -988,20 +1002,14 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Replaces each component of `self` by the result of a closure `f` applied on its components
     /// joined with the components from `b` and `c`.
     #[inline]
-    pub fn zip_zip_apply<T2, R2, C2, S2, N3, R3, C3, S3>(
+    pub fn zip_zip_apply<T2: Clone, R2: Dim, C2: Dim, S2, N3: Clone, R3: Dim, C3: Dim, S3>(
         &mut self,
         b: &Matrix<T2, R2, C2, S2>,
         c: &Matrix<N3, R3, C3, S3>,
         mut f: impl FnMut(T, T2, N3) -> T,
     ) where
         S: StorageMut<T, R, C>,
-        T2: Scalar,
-        R2: Dim,
-        C2: Dim,
         S2: Storage<T2, R2, C2>,
-        N3: Scalar,
-        R3: Dim,
-        C3: Dim,
         S3: Storage<N3, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
@@ -1023,9 +1031,9 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             for i in 0..nrows {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
-                    let b = b.get_unchecked((i, j)).inlined_clone();
-                    let c = c.get_unchecked((i, j)).inlined_clone();
-                    *e = f(e.inlined_clone(), b, c)
+                    let b = b.get_unchecked((i, j)).clone();
+                    let c = c.get_unchecked((i, j)).clone();
+                    *e = f(*e, b, c)
                 }
             }
         }
@@ -1033,7 +1041,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 }
 
 /// # Iteration on components, rows, and columns
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Iterates through this matrix coordinates in column-major order.
     ///
     /// # Examples:
@@ -1142,7 +1150,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     }
 }
 
-impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Returns a mutable pointer to the start of the matrix.
     ///
     /// If the matrix is not empty, this pointer is guaranteed to be aligned
@@ -1179,7 +1187,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     ///
     /// The components of the slice are assumed to be ordered in column-major order.
     #[inline]
-    pub fn copy_from_slice(&mut self, slice: &[T]) {
+    pub fn copy_from_slice(&mut self, slice: &[T])
+    where
+        T: Clone,
+    {
         let (nrows, ncols) = self.shape();
 
         assert!(
@@ -1190,8 +1201,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..ncols {
             for i in 0..nrows {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) =
-                        slice.get_unchecked(i + j * nrows).inlined_clone();
+                    *self.get_unchecked_mut((i, j)) = slice.get_unchecked(i + j * nrows).clone();
                 }
             }
         }
@@ -1199,10 +1209,9 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 
     /// Fills this matrix with the content of another one. Both must have the same shape.
     #[inline]
-    pub fn copy_from<R2, C2, SB>(&mut self, other: &Matrix<T, R2, C2, SB>)
+    pub fn copy_from<R2: Dim, C2: Dim, SB>(&mut self, other: &Matrix<T, R2, C2, SB>)
     where
-        R2: Dim,
-        C2: Dim,
+        T: Clone,
         SB: Storage<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
@@ -1214,7 +1223,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..self.ncols() {
             for i in 0..self.nrows() {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = other.get_unchecked((i, j)).inlined_clone();
+                    *self.get_unchecked_mut((i, j)) = other.get_unchecked((i, j)).clone();
                 }
             }
         }
@@ -1222,10 +1231,9 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 
     /// Fills this matrix with the content of the transpose another one.
     #[inline]
-    pub fn tr_copy_from<R2, C2, SB>(&mut self, other: &Matrix<T, R2, C2, SB>)
+    pub fn tr_copy_from<R2: Dim, C2: Dim, SB>(&mut self, other: &Matrix<T, R2, C2, SB>)
     where
-        R2: Dim,
-        C2: Dim,
+        T: Clone,
         SB: Storage<T, R2, C2>,
         ShapeConstraint: DimEq<R, C2> + SameNumberOfColumns<C, R2>,
     {
@@ -1238,7 +1246,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..ncols {
             for i in 0..nrows {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = other.get_unchecked((j, i)).inlined_clone();
+                    *self.get_unchecked_mut((i, j)) = other.get_unchecked((j, i)).clone();
                 }
             }
         }
@@ -1253,7 +1261,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     }
 }
 
-impl<T: Scalar, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
+impl<T, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
     /// Gets a reference to the i-th element of this column vector without bound checking.
     #[inline]
     #[must_use]
@@ -1264,7 +1272,7 @@ impl<T: Scalar, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
     }
 }
 
-impl<T: Scalar, D: Dim, S: StorageMut<T, D>> Vector<T, D, S> {
+impl<T, D: Dim, S: StorageMut<T, D>> Vector<T, D, S> {
     /// Gets a mutable reference to the i-th element of this column vector without bound checking.
     #[inline]
     #[must_use]
@@ -1275,7 +1283,7 @@ impl<T: Scalar, D: Dim, S: StorageMut<T, D>> Vector<T, D, S> {
     }
 }
 
-impl<T: Scalar, R: Dim, C: Dim, S: ContiguousStorage<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: ContiguousStorage<T, R, C>> Matrix<T, R, C, S> {
     /// Extracts a slice containing the entire matrix entries ordered column-by-columns.
     #[inline]
     #[must_use]
@@ -1284,7 +1292,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: ContiguousStorage<T, R, C>> Matrix<T, R, C, S
     }
 }
 
-impl<T: Scalar, R: Dim, C: Dim, S: ContiguousStorageMut<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: ContiguousStorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Extracts a mutable slice containing the entire matrix entries ordered column-by-columns.
     #[inline]
     #[must_use]
@@ -1293,7 +1301,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: ContiguousStorageMut<T, R, C>> Matrix<T, R, C
     }
 }
 
-impl<T: Scalar, D: Dim, S: StorageMut<T, D, D>> Matrix<T, D, D, S> {
+impl<T, D: Dim, S: StorageMut<T, D, D>> Matrix<T, D, D, S> {
     /// Transposes the square matrix `self` in-place.
     pub fn transpose_mut(&mut self) {
         assert!(
@@ -1465,13 +1473,14 @@ impl<T: SimdComplexField, D: Dim, S: StorageMut<T, D, D>> Matrix<T, D, D, S> {
     }
 }
 
-impl<T: Scalar, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
+impl<T, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     /// The diagonal of this matrix.
     #[inline]
     #[must_use]
     pub fn diagonal(&self) -> OVector<T, D>
     where
-        DefaultAllocator: Allocator<T, D>,
+        T: Clone,
+        DefaultAllocator: Allocator<T, D> + Allocator<MaybeUninit<T>, D>,
     {
         self.map_diagonal(|e| e)
     }
@@ -1481,9 +1490,10 @@ impl<T: Scalar, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     /// This is a more efficient version of `self.diagonal().map(f)` since this
     /// allocates only once.
     #[must_use]
-    pub fn map_diagonal<T2: Scalar>(&self, mut f: impl FnMut(T) -> T2) -> OVector<T2, D>
+    pub fn map_diagonal<T2: Clone>(&self, mut f: impl FnMut(T) -> T2) -> OVector<T2, D>
     where
-        DefaultAllocator: Allocator<T2, D>,
+        T: Clone,
+        DefaultAllocator: Allocator<T2, D> + Allocator<MaybeUninit<T2>, D>,
     {
         assert!(
             self.is_square(),
@@ -1491,16 +1501,17 @@ impl<T: Scalar, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         );
 
         let dim = self.data.shape().0;
-        let mut res: OVector<T2, D> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(dim, Const::<1>) };
+        let mut res = OVector::<T2, D>::new_uninitialized_generic(dim, Const::<1>);
 
         for i in 0..dim.value() {
             unsafe {
-                *res.vget_unchecked_mut(i) = f(self.get_unchecked((i, i)).inlined_clone());
+                *res.vget_unchecked_mut(i) =
+                    MaybeUninit::new(f(self.get_unchecked((i, i)).clone()));
             }
         }
 
-        res
+        // Safety: we have initialized all entries.
+        unsafe { Matrix::assume_init(res) }
     }
 
     /// Computes a trace of a square matrix, i.e., the sum of its diagonal elements.
@@ -1615,7 +1626,7 @@ impl<T: Scalar + Zero, D: DimAdd<U1>, S: Storage<T, D>> Vector<T, D, S> {
     }
 }
 
-impl<T: Scalar + Zero, D: DimAdd<U1>, S: Storage<T, D>> Vector<T, D, S> {
+impl<T: Clone + Zero, D: DimAdd<U1>, S: Storage<T, D>> Vector<T, D, S> {
     /// Constructs a new vector of higher dimension by appending `element` to the end of `self`.
     #[inline]
     #[must_use]
@@ -1637,7 +1648,7 @@ impl<T: Scalar + Zero, D: DimAdd<U1>, S: Storage<T, D>> Vector<T, D, S> {
 
 impl<T, R: Dim, C: Dim, S> AbsDiffEq for Matrix<T, R, C, S>
 where
-    T: Scalar + AbsDiffEq,
+    T:  AbsDiffEq,
     S: Storage<T, R, C>,
     T::Epsilon: Copy,
 {
@@ -1658,7 +1669,7 @@ where
 
 impl<T, R: Dim, C: Dim, S> RelativeEq for Matrix<T, R, C, S>
 where
-    T: Scalar + RelativeEq,
+    T:  RelativeEq,
     S: Storage<T, R, C>,
     T::Epsilon: Copy,
 {
@@ -1680,7 +1691,7 @@ where
 
 impl<T, R: Dim, C: Dim, S> UlpsEq for Matrix<T, R, C, S>
 where
-    T: Scalar + UlpsEq,
+    T:  UlpsEq,
     S: Storage<T, R, C>,
     T::Epsilon: Copy,
 {
@@ -1698,9 +1709,8 @@ where
     }
 }
 
-impl<T, R: Dim, C: Dim, S> PartialOrd for Matrix<T, R, C, S>
+impl<T: PartialOrd, R: Dim, C: Dim, S> PartialOrd for Matrix<T, R, C, S>
 where
-    T: Scalar + PartialOrd,
     S: Storage<T, R, C>,
 {
     #[inline]
@@ -1790,20 +1800,11 @@ where
     }
 }
 
-impl<T, R: Dim, C: Dim, S> Eq for Matrix<T, R, C, S>
-where
-    T: Scalar + Eq,
-    S: Storage<T, R, C>,
-{
-}
+impl<T: Eq, R: Dim, C: Dim, S> Eq for Matrix<T, R, C, S> where S: Storage<T, R, C> {}
 
-impl<T, R, R2, C, C2, S, S2> PartialEq<Matrix<T, R2, C2, S2>> for Matrix<T, R, C, S>
+impl<T: PartialEq, R: Dim, R2: Dim, C: Dim, C2: Dim, S, S2> PartialEq<Matrix<T, R2, C2, S2>>
+    for Matrix<T, R, C, S>
 where
-    T: Scalar + PartialEq,
-    C: Dim,
-    C2: Dim,
-    R: Dim,
-    R2: Dim,
     S: Storage<T, R, C>,
     S2: Storage<T, R2, C2>,
 {

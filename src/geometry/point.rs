@@ -40,7 +40,7 @@ use crate::base::{Const, DefaultAllocator, OVector, Scalar};
 /// of said transformations for details.
 #[repr(C)]
 #[derive(Debug, Clone)]
-pub struct OPoint<T: Scalar, D: DimName>
+pub struct OPoint<T, D: DimName>
 where
     DefaultAllocator: Allocator<T, D>,
 {
@@ -373,9 +373,9 @@ where
     }
 }
 
-impl<T: Scalar + Eq, D: DimName> Eq for OPoint<T, D> where DefaultAllocator: Allocator<T, D> {}
+impl<T: Eq, D: DimName> Eq for OPoint<T, D> where DefaultAllocator: Allocator<T, D> {}
 
-impl<T: Scalar, D: DimName> PartialEq for OPoint<T, D>
+impl<T: PartialEq, D: DimName> PartialEq for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
@@ -385,7 +385,7 @@ where
     }
 }
 
-impl<T: Scalar + PartialOrd, D: DimName> PartialOrd for OPoint<T, D>
+impl<T:  PartialOrd, D: DimName> PartialOrd for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {

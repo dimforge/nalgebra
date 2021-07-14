@@ -39,9 +39,9 @@ impl<T: Scalar + Hash> Hash for Quaternion<T> {
     }
 }
 
-impl<T: Scalar + Eq> Eq for Quaternion<T> {}
+impl<T:  Eq> Eq for Quaternion<T> {}
 
-impl<T: Scalar> PartialEq for Quaternion<T> {
+impl<T: PartialEq> PartialEq for Quaternion<T> {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.coords == right.coords

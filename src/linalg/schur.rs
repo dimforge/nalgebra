@@ -6,6 +6,7 @@ use approx::AbsDiffEq;
 use num_complex::Complex as NumComplex;
 use simba::scalar::{ComplexField, RealField};
 use std::cmp;
+use std::mem::MaybeUninit;
 
 use crate::allocator::Allocator;
 use crate::base::dimension::{Const, Dim, DimDiff, DimSub, Dynamic, U1, U2};
@@ -294,10 +295,12 @@ where
     }
 
     /// Computes the complex eigenvalues of the decomposed matrix.
-    fn do_complex_eigenvalues(t: &OMatrix<T, D, D>, out: &mut OVector<NumComplex<T>, D>)
-    where
+    fn do_complex_eigenvalues(
+        t: &OMatrix<T, D, D>,
+        out: &mut OVector<MaybeUninit<NumComplex<T>>, D>,
+    ) where
         T: RealField,
-        DefaultAllocator: Allocator<NumComplex<T>, D>,
+        DefaultAllocator: Allocator<MaybeUninit<NumComplex<T>>, D>,
     {
         let dim = t.nrows();
         let mut m = 0;
@@ -324,15 +327,15 @@ where
                 let sqrt_discr = NumComplex::new(T::zero(), (-discr).sqrt());
 
                 let half_tra = (hnn + hmm) * crate::convert(0.5);
-                out[m] = NumComplex::new(half_tra, T::zero()) + sqrt_discr;
-                out[m + 1] = NumComplex::new(half_tra, T::zero()) - sqrt_discr;
+                out[m] = MaybeUninit::new(NumComplex::new(half_tra, T::zero()) + sqrt_discr);
+                out[m + 1] = MaybeUninit::new(NumComplex::new(half_tra, T::zero()) - sqrt_discr);
 
                 m += 2;
             }
         }
 
         if m == dim - 1 {
-            out[m] = NumComplex::new(t[(m, m)], T::zero());
+            out[m] = MaybeUninit::new(NumComplex::new(t[(m, m)], T::zero()));
         }
     }
 

@@ -1,12 +1,12 @@
 //! Abstract definition of a matrix data storage allocator.
 
 use std::any::Any;
-use std::mem;
+use std::mem::MaybeUninit;
 
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::{Dim, U1};
 use crate::base::storage::ContiguousStorageMut;
-use crate::base::{DefaultAllocator, Scalar};
+use crate::base::DefaultAllocator;
 
 /// A matrix allocator of a memory buffer that may contain `R::to_usize() * C::to_usize()`
 /// elements of type `T`.
@@ -17,12 +17,18 @@ use crate::base::{DefaultAllocator, Scalar};
 ///
 /// Every allocator must be both static and dynamic. Though not all implementations may share the
 /// same `Buffer` type.
-pub trait Allocator<T: Scalar, R: Dim, C: Dim = U1>: Any + Sized {
+pub trait Allocator<T, R: Dim, C: Dim = U1>: Any + Sized {
     /// The type of buffer this allocator can instanciate.
-    type Buffer: ContiguousStorageMut<T, R, C> + Clone;
+    type Buffer: ContiguousStorageMut<T, R, C>;
+
+    /// The corresponding uninitialized buffer.
+    type UninitBuffer: ContiguousStorageMut<MaybeUninit<T>, R, C>;
 
     /// Allocates a buffer with the given number of rows and columns without initializing its content.
-    unsafe fn allocate_uninitialized(nrows: R, ncols: C) -> mem::MaybeUninit<Self::Buffer>;
+    fn allocate_uninitialized(nrows: R, ncols: C) -> Self::UninitBuffer;
+
+    /// Assumes a data buffer to be initialized. This operation should be near zero-cost.
+    unsafe fn assume_init(uninit: Self::UninitBuffer) -> Self::Buffer;
 
     /// Allocates a buffer initialized with the content of the given iterator.
     fn allocate_from_iterator<I: IntoIterator<Item = T>>(
@@ -34,7 +40,7 @@ pub trait Allocator<T: Scalar, R: Dim, C: Dim = U1>: Any + Sized {
 
 /// A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
 /// CFrom) elements to a smaller or larger size (RTo, CTo).
-pub trait Reallocator<T: Scalar, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
+pub trait Reallocator<T, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
     Allocator<T, RFrom, CFrom> + Allocator<T, RTo, CTo>
 {
     /// Reallocates a buffer of shape `(RTo, CTo)`, possibly reusing a previously allocated buffer
@@ -67,7 +73,6 @@ where
     R2: Dim,
     C1: Dim,
     C2: Dim,
-    T: Scalar,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
 {
 }
@@ -78,7 +83,6 @@ where
     R2: Dim,
     C1: Dim,
     C2: Dim,
-    T: Scalar,
     DefaultAllocator: Allocator<T, R1, C1> + Allocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
 {
@@ -91,7 +95,7 @@ pub trait SameShapeVectorAllocator<T, R1, R2>:
 where
     R1: Dim,
     R2: Dim,
-    T: Scalar,
+
     ShapeConstraint: SameNumberOfRows<R1, R2>,
 {
 }
@@ -100,7 +104,7 @@ impl<T, R1, R2> SameShapeVectorAllocator<T, R1, R2> for DefaultAllocator
 where
     R1: Dim,
     R2: Dim,
-    T: Scalar,
+
     DefaultAllocator: Allocator<T, R1, U1> + Allocator<T, SameShapeR<R1, R2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2>,
 {

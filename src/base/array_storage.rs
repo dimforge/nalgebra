@@ -24,7 +24,6 @@ use crate::base::dimension::{Const, ToTypenum};
 use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, ReshapableStorage, Storage, StorageMut,
 };
-use crate::base::Scalar;
 
 /*
  *
@@ -57,7 +56,6 @@ impl<T: Debug, const R: usize, const C: usize> Debug for ArrayStorage<T, R, C> {
 unsafe impl<T, const R: usize, const C: usize> Storage<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    T: Scalar,
     DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
     type RStride = Const<1>;
@@ -94,6 +92,7 @@ where
     #[inline]
     fn clone_owned(&self) -> Owned<T, Const<R>, Const<C>>
     where
+        T: Clone,
         DefaultAllocator: Allocator<T, Const<R>, Const<C>>,
     {
         let it = self.as_slice().iter().cloned();
@@ -109,7 +108,6 @@ where
 unsafe impl<T, const R: usize, const C: usize> StorageMut<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    T: Scalar,
     DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
     #[inline]
@@ -126,7 +124,6 @@ where
 unsafe impl<T, const R: usize, const C: usize> ContiguousStorage<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    T: Scalar,
     DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
 }
@@ -134,7 +131,6 @@ where
 unsafe impl<T, const R: usize, const C: usize> ContiguousStorageMut<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    T: Scalar,
     DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
 }
@@ -142,7 +138,6 @@ where
 impl<T, const R1: usize, const C1: usize, const R2: usize, const C2: usize>
     ReshapableStorage<T, Const<R1>, Const<C1>, Const<R2>, Const<C2>> for ArrayStorage<T, R1, C1>
 where
-    T: Scalar,
     Const<R1>: ToTypenum,
     Const<C1>: ToTypenum,
     Const<R2>: ToTypenum,
@@ -176,7 +171,7 @@ where
 #[cfg(feature = "serde-serialize-no-std")]
 impl<T, const R: usize, const C: usize> Serialize for ArrayStorage<T, R, C>
 where
-    T: Scalar + Serialize,
+    T: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -195,7 +190,7 @@ where
 #[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T, const R: usize, const C: usize> Deserialize<'a> for ArrayStorage<T, R, C>
 where
-    T: Scalar + Deserialize<'a>,
+    T: Deserialize<'a>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -212,10 +207,7 @@ struct ArrayStorageVisitor<T, const R: usize, const C: usize> {
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T, const R: usize, const C: usize> ArrayStorageVisitor<T, R, C>
-where
-    T: Scalar,
-{
+impl<T, const R: usize, const C: usize> ArrayStorageVisitor<T, R, C> {
     /// Construct a new sequence visitor.
     pub fn new() -> Self {
         ArrayStorageVisitor {
@@ -227,7 +219,7 @@ where
 #[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T, const R: usize, const C: usize> Visitor<'a> for ArrayStorageVisitor<T, R, C>
 where
-    T: Scalar + Deserialize<'a>,
+    T: Deserialize<'a>,
 {
     type Value = ArrayStorage<T, R, C>;
 
@@ -259,13 +251,13 @@ where
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T: Scalar + Copy + bytemuck::Zeroable, const R: usize, const C: usize>
-    bytemuck::Zeroable for ArrayStorage<T, R, C>
+unsafe impl<T: Copy + bytemuck::Zeroable, const R: usize, const C: usize> bytemuck::Zeroable
+    for ArrayStorage<T, R, C>
 {
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T: Scalar + Copy + bytemuck::Pod, const R: usize, const C: usize> bytemuck::Pod
+unsafe impl<T: Copy + bytemuck::Pod, const R: usize, const C: usize> bytemuck::Pod
     for ArrayStorage<T, R, C>
 {
 }
@@ -273,7 +265,7 @@ unsafe impl<T: Scalar + Copy + bytemuck::Pod, const R: usize, const C: usize> by
 #[cfg(feature = "abomonation-serialize")]
 impl<T, const R: usize, const C: usize> Abomonation for ArrayStorage<T, R, C>
 where
-    T: Scalar + Abomonation,
+    T: Abomonation,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         for element in self.as_slice() {
