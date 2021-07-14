@@ -34,10 +34,6 @@ use crate::{ArrayStorage, SMatrix, SimdComplexField};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::{DMatrix, DVector, Dynamic, VecStorage};
 
-/// An uninitialized matrix.
-pub type UninitMatrix<T, R, C> =
-    Matrix<MaybeUninit<T>, R, C, <DefaultAllocator as Allocator<T, R, C>>::UninitBuffer>;
-
 /// A square matrix.
 pub type SquareMatrix<T, D, S> = Matrix<T, D, D, S>;
 
@@ -351,8 +347,7 @@ impl<T, R, C, S> Matrix<T, R, C, S> {
     }
 }
 
-impl<T, R: Dim, C: Dim>
-    Matrix<MaybeUninit<T>, R, C, <DefaultAllocator as Allocator<T, R, C>>::UninitBuffer>
+impl<T, R: Dim, C: Dim> OMatrix<MaybeUninit<T>, R, C>
 where
     DefaultAllocator: Allocator<T, R, C>,
 {
@@ -368,16 +363,13 @@ where
     }
 }
 
-impl<T, R: Dim, C: Dim>
-    Matrix<MaybeUninit<T>, R, C, <DefaultAllocator as Allocator<T, R, C>>::UninitBuffer>
+impl<T, R: Dim, C: Dim> OMatrix<MaybeUninit<T>, R, C>
 where
     DefaultAllocator: Allocator<T, R, C>,
 {
     /// Assumes a matrix's entries to be initialized. This operation should be near zero-cost.
-    pub unsafe fn assume_init(
-        self,
-    ) -> Matrix<T, R, C, <DefaultAllocator as Allocator<T, R, C>>::Buffer> {
-        Matrix {
+    pub unsafe fn assume_init(self) -> OMatrix<T, R, C> {
+        OMatrix {
             data: <DefaultAllocator as Allocator<T, R, C>>::assume_init(self.data),
             _phantoms: PhantomData,
         }
@@ -791,19 +783,19 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     {
         let (nrows, ncols) = self.data.shape();
 
-        let mut res: OMatrix<T2, R, C> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
+        let mut res = OMatrix::new_uninitialized_generic(nrows, ncols);
 
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
                     let a = self.data.get_unchecked(i, j).clone();
-                    *res.data.get_unchecked_mut(i, j) = f(i, j, a)
+                    *res.data.get_unchecked_mut(i, j) = MaybeUninit::new(f(i, j, a));
                 }
             }
         }
 
-        res
+        // Safety: all entries have been initialized.
+        unsafe { res.assume_init() }
     }
 
     /// Returns a matrix containing the result of `f` applied to each entries of `self` and

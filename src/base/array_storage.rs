@@ -18,7 +18,7 @@ use std::mem;
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use crate::base::allocator::Allocator;
+use crate::allocator::InnerAllocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, ToTypenum};
 use crate::base::storage::{
@@ -56,7 +56,7 @@ impl<T: Debug, const R: usize, const C: usize> Debug for ArrayStorage<T, R, C> {
 unsafe impl<T, const R: usize, const C: usize> Storage<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
+    DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
     type RStride = Const<1>;
     type CStride = Const<R>;
@@ -84,7 +84,7 @@ where
     #[inline]
     fn into_owned(self) -> Owned<T, Const<R>, Const<C>>
     where
-        DefaultAllocator: Allocator<T, Const<R>, Const<C>>,
+        DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>>,
     {
         self
     }
@@ -93,7 +93,7 @@ where
     fn clone_owned(&self) -> Owned<T, Const<R>, Const<C>>
     where
         T: Clone,
-        DefaultAllocator: Allocator<T, Const<R>, Const<C>>,
+        DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>>,
     {
         let it = self.as_slice().iter().cloned();
         DefaultAllocator::allocate_from_iterator(self.shape().0, self.shape().1, it)
@@ -108,7 +108,7 @@ where
 unsafe impl<T, const R: usize, const C: usize> StorageMut<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
+    DefaultAllocator:InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
     #[inline]
     fn ptr_mut(&mut self) -> *mut T {
@@ -124,14 +124,14 @@ where
 unsafe impl<T, const R: usize, const C: usize> ContiguousStorage<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
+    DefaultAllocator:InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
 }
 
 unsafe impl<T, const R: usize, const C: usize> ContiguousStorageMut<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
+    DefaultAllocator:InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
 }
 

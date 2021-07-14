@@ -1,11 +1,13 @@
 use num::{One, Zero};
 use std::iter;
+use std::mem::MaybeUninit;
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
 use simba::scalar::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
+use crate::allocator::InnerAllocator;
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
 use crate::base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
@@ -14,6 +16,7 @@ use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
 use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorSlice};
 use crate::SimdComplexField;
+use crate::storage::Owned;
 
 /*
  *
@@ -147,12 +150,12 @@ macro_rules! componentwise_binop_impl(
              *
              */
             #[inline]
-            fn $method_to_statically_unchecked<R2: Dim, C2: Dim, SB,
-                                               R3: Dim, C3: Dim, SC>(&self,
-                                                                     rhs: &Matrix<T, R2, C2, SB>,
-                                                                     out: &mut Matrix<T, R3, C3, SC>)
-                where SB: Storage<T, R2, C2>,
-                      SC: StorageMut<T, R3, C3> {
+            fn $method_to_statically_unchecked<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
+                &self, rhs: &Matrix<T, R2, C2, SB>, out: &mut Matrix<MaybeUninit<T>, R3, C3, SC>
+            ) where
+                SB: Storage<T, R2, C2>,
+                SC: StorageMut<T, R3, C3> + StorageMut<MaybeUninit<T>, R3, C3>
+            {
                 assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
                 assert_eq!(self.shape(), out.shape(), "Matrix addition/subtraction output dimensions mismatch.");
 
@@ -162,15 +165,18 @@ macro_rules! componentwise_binop_impl(
                     if self.data.is_contiguous() && rhs.data.is_contiguous() && out.data.is_contiguous() {
                         let arr1 = self.data.as_slice_unchecked();
                         let arr2 = rhs.data.as_slice_unchecked();
-                        let out  = out.data.as_mut_slice_unchecked();
-                        for i in 0 .. arr1.len() {
-                            *out.get_unchecked_mut(i) = arr1.get_unchecked(i).inlined_clone().$method(arr2.get_unchecked(i).inlined_clone());
+                        let out = out.data.as_mut_slice_unchecked();
+                        for i in 0..arr1.len() {
+                            *out.get_unchecked_mut(i) = MaybeUninit::new(
+                                arr1.get_unchecked(i).inlined_clone().$method(arr2.get_unchecked(i).inlined_clone()
+                            ));
                         }
                     } else {
-                        for j in 0 .. self.ncols() {
-                            for i in 0 .. self.nrows() {
-                                let val = self.get_unchecked((i, j)).inlined_clone().$method(rhs.get_unchecked((i, j)).inlined_clone());
-                                *out.get_unchecked_mut((i, j)) = val;
+                        for j in 0..self.ncols() {
+                            for i in 0..self.nrows() {
+                                *out.get_unchecked_mut((i, j)) = MaybeUninit::new(
+                                    self.get_unchecked((i, j)).inlined_clone().$method(rhs.get_unchecked((i, j)).inlined_clone())
+                                );
                             }
                         }
                     }
@@ -421,6 +427,11 @@ impl<'a, T, C: Dim> iter::Sum<&'a OMatrix<T, Dynamic, C>> for OMatrix<T, Dynamic
 where
     T: Scalar + ClosedAdd + Zero,
     DefaultAllocator: Allocator<T, Dynamic, C>,
+
+    // TODO: we should take out this trait bound, as T: Clone should suffice.
+    // The brute way to do it would be how it was already done: by adding this
+    // trait bound on the associated type itself.
+    Owned<T,Dynamic,C>: Clone,
 {
     /// # Example
     /// ```
@@ -635,7 +646,7 @@ where
     SB: Storage<T, R2, C1>,
     SA: ContiguousStorageMut<T, R1, C1> + Clone,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
-    DefaultAllocator: Allocator<T, R1, C1, Buffer = SA>,
+    DefaultAllocator: InnerAllocator<T, R1, C1, Buffer = SA>,
 {
     #[inline]
     fn mul_assign(&mut self, rhs: Matrix<T, R2, C1, SB>) {
@@ -653,7 +664,7 @@ where
     SA: ContiguousStorageMut<T, R1, C1> + Clone,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
     // TODO: this is too restrictive. See comments for the non-ref version.
-    DefaultAllocator: Allocator<T, R1, C1, Buffer = SA>,
+    DefaultAllocator: InnerAllocator<T, R1, C1, Buffer = SA>,
 {
     #[inline]
     fn mul_assign(&mut self, rhs: &'b Matrix<T, R2, C1, SB>) {

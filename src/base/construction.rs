@@ -149,7 +149,7 @@ where
     #[inline]
     pub fn identity_generic(nrows: R, ncols: C) -> Self
     where
-        T: Zero + One,
+        T: Zero + One + Scalar,
     {
         Self::from_diagonal_element_generic(nrows, ncols, T::one())
     }
@@ -161,7 +161,7 @@ where
     #[inline]
     pub fn from_diagonal_element_generic(nrows: R, ncols: C, elt: T) -> Self
     where
-        T: Zero + One+Clone,
+        T: Zero + One + Scalar,
     {
         let mut res = Self::zeros_generic(nrows, ncols);
 
@@ -179,7 +179,7 @@ where
     #[inline]
     pub fn from_partial_diagonal_generic(nrows: R, ncols: C, elts: &[T]) -> Self
     where
-        T: Zero+Clone,
+        T: Zero + Clone,
     {
         let mut res = Self::zeros_generic(nrows, ncols);
         assert!(
@@ -212,7 +212,8 @@ where
     /// ```
     #[inline]
     pub fn from_rows<SB>(rows: &[Matrix<T, Const<1>, C, SB>]) -> Self
-    where T:Clone,
+    where
+        T: Clone,
         SB: Storage<T, Const<1>, C>,
     {
         assert!(!rows.is_empty(), "At least one row must be given.");
@@ -254,7 +255,8 @@ where
     /// ```
     #[inline]
     pub fn from_columns<SB>(columns: &[Vector<T, R, SB>]) -> Self
-    where T:Clone,
+    where
+        T: Clone,
         SB: Storage<T, R>,
     {
         assert!(!columns.is_empty(), "At least one column must be given.");

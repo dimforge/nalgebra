@@ -16,18 +16,11 @@ use crate::base::DefaultAllocator;
 ///
 /// Every allocator must be both static and dynamic. Though not all implementations may share the
 /// same `Buffer` type.
-pub trait Allocator<T, R: Dim, C: Dim = U1>: 'static + Sized {
+///
+/// If you also want to be able to create uninitizalized memory buffers, see [`Allocator`].
+pub trait InnerAllocator<T, R: Dim, C: Dim = U1>: 'static + Sized {
     /// The type of buffer this allocator can instanciate.
     type Buffer: ContiguousStorageMut<T, R, C>;
-
-    /// The corresponding uninitialized buffer.
-    type UninitBuffer: ContiguousStorageMut<MaybeUninit<T>, R, C>;
-
-    /// Allocates a buffer with the given number of rows and columns without initializing its content.
-    fn allocate_uninitialized(nrows: R, ncols: C) -> Self::UninitBuffer;
-
-    /// Assumes a data buffer to be initialized. This operation should be near zero-cost.
-    unsafe fn assume_init(uninit: Self::UninitBuffer) -> Self::Buffer;
 
     /// Allocates a buffer initialized with the content of the given iterator.
     fn allocate_from_iterator<I: IntoIterator<Item = T>>(
@@ -37,10 +30,26 @@ pub trait Allocator<T, R: Dim, C: Dim = U1>: 'static + Sized {
     ) -> Self::Buffer;
 }
 
+/// Same as the [`InnerAllocator`] trait, but also provides methods to build uninitialized buffers.
+pub trait Allocator<T, R: Dim, C: Dim = U1>:
+    InnerAllocator<T, R, C> + InnerAllocator<MaybeUninit<T>, R, C>
+{
+    /// Allocates a buffer with the given number of rows and columns without initializing its content.
+    fn allocate_uninitialized(
+        nrows: R,
+        ncols: C,
+    ) -> <Self as InnerAllocator<MaybeUninit<T>, R, C>>::Buffer;
+
+    /// Assumes a data buffer to be initialized. This operation should be near zero-cost.
+    unsafe fn assume_init(
+        uninit: <Self as InnerAllocator<MaybeUninit<T>, R, C>>::Buffer,
+    ) -> <Self as InnerAllocator<T, R, C>>::Buffer;
+}
+
 /// A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
 /// CFrom) elements to a smaller or larger size (RTo, CTo).
 pub trait Reallocator<T, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
-    Allocator<T, RFrom, CFrom> + Allocator<T, RTo, CTo>
+    InnerAllocator<T, RFrom, CFrom> + InnerAllocator<T, RTo, CTo>
 {
     /// Reallocates a buffer of shape `(RTo, CTo)`, possibly reusing a previously allocated buffer
     /// `buf`. Data stored by `buf` are linearly copied to the output:
@@ -53,8 +62,8 @@ pub trait Reallocator<T, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
     unsafe fn reallocate_copy(
         nrows: RTo,
         ncols: CTo,
-        buf: <Self as Allocator<T, RFrom, CFrom>>::Buffer,
-    ) -> <Self as Allocator<T, RTo, CTo>>::Buffer;
+        buf: <Self as InnerAllocator<T, RFrom, CFrom>>::Buffer,
+    ) -> <Self as InnerAllocator<T, RTo, CTo>>::Buffer;
 }
 
 /// The number of rows of the result of a componentwise operation on two matrices.
@@ -65,46 +74,36 @@ pub type SameShapeC<C1, C2> = <ShapeConstraint as SameNumberOfColumns<C1, C2>>::
 
 // TODO: Bad name.
 /// Restricts the given number of rows and columns to be respectively the same.
-pub trait SameShapeAllocator<T, R1, C1, R2, C2>:
-    Allocator<T, R1, C1> + Allocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>
+pub trait SameShapeAllocator<T, R1: Dim, C1: Dim, R2: Dim, C2: Dim>:
+    InnerAllocator<T, R1, C1> + InnerAllocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>
 where
-    R1: Dim,
-    R2: Dim,
-    C1: Dim,
-    C2: Dim,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
 {
 }
 
-impl<T, R1, R2, C1, C2> SameShapeAllocator<T, R1, C1, R2, C2> for DefaultAllocator
+impl<T, R1: Dim, R2: Dim, C1: Dim, C2: Dim> SameShapeAllocator<T, R1, C1, R2, C2>
+    for DefaultAllocator
 where
-    R1: Dim,
-    R2: Dim,
-    C1: Dim,
-    C2: Dim,
-    DefaultAllocator: Allocator<T, R1, C1> + Allocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>,
+    DefaultAllocator:
+        InnerAllocator<T, R1, C1> + InnerAllocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
 {
 }
 
 // XXX: Bad name.
 /// Restricts the given number of rows to be equal.
-pub trait SameShapeVectorAllocator<T, R1, R2>:
-    Allocator<T, R1> + Allocator<T, SameShapeR<R1, R2>> + SameShapeAllocator<T, R1, U1, R2, U1>
+pub trait SameShapeVectorAllocator<T, R1: Dim, R2: Dim>:
+    InnerAllocator<T, R1>
+    + InnerAllocator<T, SameShapeR<R1, R2>>
+    + SameShapeAllocator<T, R1, U1, R2, U1>
 where
-    R1: Dim,
-    R2: Dim,
-
     ShapeConstraint: SameNumberOfRows<R1, R2>,
 {
 }
 
-impl<T, R1, R2> SameShapeVectorAllocator<T, R1, R2> for DefaultAllocator
+impl<T, R1: Dim, R2: Dim> SameShapeVectorAllocator<T, R1, R2> for DefaultAllocator
 where
-    R1: Dim,
-    R2: Dim,
-
-    DefaultAllocator: Allocator<T, R1, U1> + Allocator<T, SameShapeR<R1, R2>>,
+    DefaultAllocator: InnerAllocator<T, R1, U1> + InnerAllocator<T, SameShapeR<R1, R2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2>,
 {
 }

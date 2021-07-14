@@ -4,14 +4,14 @@ use std::io::{Result as IOResult, Write};
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 
-use crate::base::allocator::Allocator;
+use crate::allocator::InnerAllocator;
 use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, DimName, Dynamic, U1};
 use crate::base::storage::{
     ContiguousStorage, ContiguousStorageMut, Owned, ReshapableStorage, Storage, StorageMut,
 };
-use crate::base::{ Vector};
+use crate::base::Vector;
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{
@@ -159,7 +159,7 @@ impl<T, R: Dim, C: Dim> From<VecStorage<T, R, C>> for Vec<T> {
  */
 unsafe impl<T, C: Dim> Storage<T, Dynamic, C> for VecStorage<T, Dynamic, C>
 where
-    DefaultAllocator: Allocator<T, Dynamic, C, Buffer = Self>,
+    DefaultAllocator: InnerAllocator<T, Dynamic, C, Buffer = Self>,
 {
     type RStride = U1;
     type CStride = Dynamic;
@@ -187,7 +187,7 @@ where
     #[inline]
     fn into_owned(self) -> Owned<T, Dynamic, C>
     where
-        DefaultAllocator: Allocator<T, Dynamic, C>,
+        DefaultAllocator: InnerAllocator<T, Dynamic, C>,
     {
         self
     }
@@ -195,7 +195,7 @@ where
     #[inline]
     fn clone_owned(&self) -> Owned<T, Dynamic, C>
     where
-        DefaultAllocator: Allocator<T, Dynamic, C>,
+        DefaultAllocator: InnerAllocator<T, Dynamic, C>,
     {
         self.clone()
     }
@@ -208,7 +208,7 @@ where
 
 unsafe impl<T, R: DimName> Storage<T, R, Dynamic> for VecStorage<T, R, Dynamic>
 where
-    DefaultAllocator: Allocator<T, R, Dynamic, Buffer = Self>,
+    DefaultAllocator: InnerAllocator<T, R, Dynamic, Buffer = Self>,
 {
     type RStride = U1;
     type CStride = R;
@@ -236,7 +236,7 @@ where
     #[inline]
     fn into_owned(self) -> Owned<T, R, Dynamic>
     where
-        DefaultAllocator: Allocator<T, R, Dynamic>,
+        DefaultAllocator: InnerAllocator<T, R, Dynamic>,
     {
         self
     }
@@ -244,7 +244,7 @@ where
     #[inline]
     fn clone_owned(&self) -> Owned<T, R, Dynamic>
     where
-        DefaultAllocator: Allocator<T, R, Dynamic>,
+        DefaultAllocator: InnerAllocator<T, R, Dynamic>,
     {
         self.clone()
     }
@@ -262,7 +262,7 @@ where
  */
 unsafe impl<T, C: Dim> StorageMut<T, Dynamic, C> for VecStorage<T, Dynamic, C>
 where
-    DefaultAllocator: Allocator<T, Dynamic, C, Buffer = Self>,
+    DefaultAllocator: InnerAllocator<T, Dynamic, C, Buffer = Self>,
 {
     #[inline]
     fn ptr_mut(&mut self) -> *mut T {
@@ -276,12 +276,12 @@ where
 }
 
 unsafe impl<T, C: Dim> ContiguousStorage<T, Dynamic, C> for VecStorage<T, Dynamic, C> where
-    DefaultAllocator: Allocator<T, Dynamic, C, Buffer = Self>
+    DefaultAllocator: InnerAllocator<T, Dynamic, C, Buffer = Self>
 {
 }
 
 unsafe impl<T, C: Dim> ContiguousStorageMut<T, Dynamic, C> for VecStorage<T, Dynamic, C> where
-    DefaultAllocator: Allocator<T, Dynamic, C, Buffer = Self>
+    DefaultAllocator: InnerAllocator<T, Dynamic, C, Buffer = Self>
 {
 }
 
@@ -317,7 +317,7 @@ impl<T, C1: Dim, R2: DimName> ReshapableStorage<T, Dynamic, C1, R2, Dynamic>
 
 unsafe impl<T, R: DimName> StorageMut<T, R, Dynamic> for VecStorage<T, R, Dynamic>
 where
-    DefaultAllocator: Allocator<T, R, Dynamic, Buffer = Self>,
+    DefaultAllocator: InnerAllocator<T, R, Dynamic, Buffer = Self>,
 {
     #[inline]
     fn ptr_mut(&mut self) -> *mut T {
@@ -376,12 +376,12 @@ impl<T: Abomonation, R: Dim, C: Dim> Abomonation for VecStorage<T, R, C> {
 }
 
 unsafe impl<T, R: DimName> ContiguousStorage<T, R, Dynamic> for VecStorage<T, R, Dynamic> where
-    DefaultAllocator: Allocator<T, R, Dynamic, Buffer = Self>
+    DefaultAllocator: InnerAllocator<T, R, Dynamic, Buffer = Self>
 {
 }
 
 unsafe impl<T, R: DimName> ContiguousStorageMut<T, R, Dynamic> for VecStorage<T, R, Dynamic> where
-    DefaultAllocator: Allocator<T, R, Dynamic, Buffer = Self>
+    DefaultAllocator: InnerAllocator<T, R, Dynamic, Buffer = Self>
 {
 }
 

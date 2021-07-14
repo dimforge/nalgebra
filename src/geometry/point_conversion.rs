@@ -7,6 +7,7 @@ use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, Matrix, OVector, Scalar};
 
 use crate::geometry::Point;
+use crate::storage::Owned;
 use crate::{DimName, OPoint};
 
 /*
@@ -110,12 +111,11 @@ where
     }
 }
 
-impl<T: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 2]>
-    for Point<T, D>
+impl<T: Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 2]> for Point<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 2]>,
-    T::Element: Scalar + Copy,
-    <DefaultAllocator as Allocator<T::Element, Const<D>>>::Buffer: Copy,
+    T::Element: Copy,
+    Owned<T::Element, Const<D>>: Copy,
 {
     #[inline]
     fn from(arr: [Point<T::Element, D>; 2]) -> Self {
@@ -123,12 +123,11 @@ where
     }
 }
 
-impl<T: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 4]>
-    for Point<T, D>
+impl<T: Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 4]> for Point<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 4]>,
-    T::Element: Scalar + Copy,
-    <DefaultAllocator as Allocator<T::Element, Const<D>>>::Buffer: Copy,
+    T::Element: Copy,
+    Owned<T::Element, Const<D>>: Copy,
 {
     #[inline]
     fn from(arr: [Point<T::Element, D>; 4]) -> Self {
@@ -141,12 +140,11 @@ where
     }
 }
 
-impl<T: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 8]>
-    for Point<T, D>
+impl<T: Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 8]> for Point<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 8]>,
-    T::Element: Scalar + Copy,
-    <DefaultAllocator as Allocator<T::Element, Const<D>>>::Buffer: Copy,
+    T::Element: Copy,
+    Owned<T::Element, Const<D>>: Copy,
 {
     #[inline]
     fn from(arr: [Point<T::Element, D>; 8]) -> Self {
@@ -163,12 +161,11 @@ where
     }
 }
 
-impl<T: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 16]>
-    for Point<T, D>
+impl<T: Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 16]> for Point<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 16]>,
-    T::Element: Scalar + Copy,
-    <DefaultAllocator as Allocator<T::Element, Const<D>>>::Buffer: Copy,
+    T::Element: Copy,
+    Owned<T::Element, Const<D>>: Copy,
 {
     #[inline]
     fn from(arr: [Point<T::Element, D>; 16]) -> Self {

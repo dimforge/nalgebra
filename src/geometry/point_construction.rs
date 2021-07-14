@@ -173,10 +173,10 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<T: Scalar + Arbitrary + Send, D: DimName> Arbitrary for OPoint<T, D>
+impl<T: Arbitrary + Send, D: DimName> Arbitrary for OPoint<T, D>
 where
-    <DefaultAllocator as Allocator<T, D>>::Buffer: Send,
     DefaultAllocator: Allocator<T, D>,
+  crate::  base::storage::Owned<T, D>: Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {

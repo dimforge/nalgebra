@@ -18,6 +18,7 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::{Const, DefaultAllocator, OVector, Scalar};
+use crate::storage::Owned;
 
 /// A point in an euclidean space.
 ///
@@ -271,9 +272,7 @@ where
     /// assert_eq!(it.next(), Some(3.0));
     /// assert_eq!(it.next(), None);
     #[inline]
-    pub fn iter(
-        &self,
-    ) -> MatrixIter<T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
+    pub fn iter(&self) -> MatrixIter<T, D, Const<1>, Owned<T, D>> {
         self.coords.iter()
     }
 
@@ -297,9 +296,7 @@ where
     ///
     /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
     #[inline]
-    pub fn iter_mut(
-        &mut self,
-    ) -> MatrixIterMut<T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
+    pub fn iter_mut(&mut self) -> MatrixIterMut<T, D, Const<1>, Owned<T, D>> {
         self.coords.iter_mut()
     }
 
@@ -385,7 +382,7 @@ where
     }
 }
 
-impl<T:  PartialOrd, D: DimName> PartialOrd for OPoint<T, D>
+impl<T: PartialOrd, D: DimName> PartialOrd for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {

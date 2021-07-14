@@ -10,6 +10,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use crate::base::storage::Owned;
+use crate::storage::Owned;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -59,23 +60,20 @@ pub struct Rotation<T, const D: usize> {
     matrix: SMatrix<T, D, D>,
 }
 
-impl<T: Scalar + hash::Hash, const D: usize> hash::Hash for Rotation<T, D>
+impl<T: hash::Hash, const D: usize> hash::Hash for Rotation<T, D>
 where
-    <DefaultAllocator as Allocator<T, Const<D>, Const<D>>>::Buffer: hash::Hash,
+    Owned<T, Const<D>, Const<D>>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.matrix.hash(state)
     }
 }
 
-impl<T: Scalar + Copy, const D: usize> Copy for Rotation<T, D> where
-    <DefaultAllocator as Allocator<T, Const<D>, Const<D>>>::Buffer: Copy
-{
-}
+impl<T: Copy, const D: usize> Copy for Rotation<T, D> where Owned<T, Const<D>, Const<D>>: Copy {}
 
-impl<T: Scalar, const D: usize> Clone for Rotation<T, D>
+impl<T, const D: usize> Clone for Rotation<T, D>
 where
-    <DefaultAllocator as Allocator<T, Const<D>, Const<D>>>::Buffer: Clone,
+    Owned<T, Const<D>, Const<D>>: Clone,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -86,7 +84,6 @@ where
 #[cfg(feature = "abomonation-serialize")]
 impl<T, const D: usize> Abomonation for Rotation<T, D>
 where
-    T: Scalar,
     SMatrix<T, D, D>: Abomonation,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
@@ -116,7 +113,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'a, T: Scalar, const D: usize> Deserialize<'a> for Rotation<T, D>
+impl<'a, T, const D: usize> Deserialize<'a> for Rotation<T, D>
 where
     Owned<T, Const<D>, Const<D>>: Deserialize<'a>,
 {

@@ -2,7 +2,7 @@
 
 use std::ptr;
 
-use crate::base::allocator::{Allocator, SameShapeC, SameShapeR};
+use crate::base::allocator::{Allocator, InnerAllocator, SameShapeC, SameShapeR};
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, U1};
 
@@ -11,19 +11,19 @@ use crate::base::dimension::{Dim, U1};
  */
 /// The data storage for the sum of two matrices with dimensions `(R1, C1)` and `(R2, C2)`.
 pub type SameShapeStorage<T, R1, C1, R2, C2> =
-    <DefaultAllocator as Allocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>>::Buffer;
+    <DefaultAllocator as InnerAllocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>>::Buffer;
 
 // TODO: better name than Owned ?
 /// The owned data storage that can be allocated from `S`.
-pub type Owned<T, R, C = U1> = <DefaultAllocator as Allocator<T, R, C>>::Buffer;
+pub type Owned<T, R, C = U1> = <DefaultAllocator as InnerAllocator<T, R, C>>::Buffer;
 
 /// The row-stride of the owned data storage for a buffer of dimension `(R, C)`.
 pub type RStride<T, R, C = U1> =
-    <<DefaultAllocator as Allocator<T, R, C>>::Buffer as Storage<T, R, C>>::RStride;
+    <<DefaultAllocator as InnerAllocator<T, R, C>>::Buffer as Storage<T, R, C>>::RStride;
 
 /// The column-stride of the owned data storage for a buffer of dimension `(R, C)`.
 pub type CStride<T, R, C = U1> =
-    <<DefaultAllocator as Allocator<T, R, C>>::Buffer as Storage<T, R, C>>::CStride;
+    <<DefaultAllocator as InnerAllocator<T, R, C>>::Buffer as Storage<T, R, C>>::CStride;
 
 /// The trait shared by all matrix data storage.
 ///

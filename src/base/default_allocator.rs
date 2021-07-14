@@ -13,7 +13,7 @@ use std::ptr;
 use alloc::vec::Vec;
 
 use super::Const;
-use crate::base::allocator::{Allocator, Reallocator};
+use crate::base::allocator::{Allocator, InnerAllocator, Reallocator};
 use crate::base::array_storage::ArrayStorage;
 #[cfg(any(feature = "alloc", feature = "std"))]
 use crate::base::dimension::Dynamic;
@@ -21,6 +21,11 @@ use crate::base::dimension::{Dim, DimName};
 use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::vec_storage::VecStorage;
+use crate::storage::Owned;
+
+type DefaultBuffer<T, R, C> = <DefaultAllocator as InnerAllocator<T, R, C>>::Buffer;
+type DefaultUninitBuffer<T, R, C> =
+    <DefaultAllocator as InnerAllocator<MaybeUninit<T>, R, C>>::Buffer;
 
 /*
  *
@@ -32,21 +37,8 @@ use crate::base::vec_storage::VecStorage;
 pub struct DefaultAllocator;
 
 // Static - Static
-impl<T, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>> for DefaultAllocator {
+impl<T, const R: usize, const C: usize> InnerAllocator<T, Const<R>, Const<C>> for DefaultAllocator {
     type Buffer = ArrayStorage<T, R, C>;
-    type UninitBuffer = ArrayStorage<MaybeUninit<T>, R, C>;
-
-    #[inline]
-    fn allocate_uninitialized(_: Const<R>, _: Const<C>) -> Self::UninitBuffer {
-        ArrayStorage([[MaybeUninit::uninit(); R]; C])
-    }
-
-    #[inline]
-    unsafe fn assume_init(uninit: Self::UninitBuffer) -> Self::Buffer {
-        // Safety: MaybeUninit<T> has the same alignment and layout as T, and by
-        // extension so do arrays based on these.
-        mem::transmute(uninit)
-    }
 
     #[inline]
     fn allocate_from_iterator<I: IntoIterator<Item = T>>(
@@ -72,34 +64,30 @@ impl<T, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>> for Def
     }
 }
 
+impl<T, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>> for DefaultAllocator {
+    #[inline]
+    fn allocate_uninitialized(
+        _: Const<R>,
+        _: Const<C>,
+    ) -> Owned<MaybeUninit<T>, Const<R>, Const<C>> {
+        ArrayStorage([[MaybeUninit::uninit(); R]; C])
+    }
+
+    #[inline]
+    unsafe fn assume_init(
+        uninit: <Self as InnerAllocator<MaybeUninit<T>, Const<R>, Const<C>>>::Buffer,
+    ) -> Owned<T, Const<R>, Const<C>> {
+        // Safety: MaybeUninit<T> has the same alignment and layout as T, and by
+        // extension so do arrays based on these.
+        mem::transmute(uninit)
+    }
+}
+
 // Dynamic - Static
 // Dynamic - Dynamic
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
+impl<T, C: Dim> InnerAllocator<T, Dynamic, C> for DefaultAllocator {
     type Buffer = VecStorage<T, Dynamic, C>;
-    type UninitBuffer = VecStorage<MaybeUninit<T>, Dynamic, C>;
-
-    #[inline]
-    fn allocate_uninitialized(nrows: Dynamic, ncols: C) -> Self::UninitBuffer {
-        let mut data = Vec::new();
-        let length = nrows.value() * ncols.value();
-        data.reserve_exact(length);
-        data.resize_with(length, MaybeUninit::uninit);
-
-        VecStorage::new(nrows, ncols, data)
-    }
-
-    #[inline]
-    unsafe fn assume_init(uninit: Self::UninitBuffer) -> Self::Buffer {
-        let mut data = ManuallyDrop::new(uninit.data);
-
-        // Safety: MaybeUninit<T> has the same alignment and layout as T.
-        let new_data = unsafe {
-            Vec::from_raw_parts(data.as_mut_ptr() as *mut T, data.len(), data.capacity())
-        };
-
-        VecStorage::new(uninit.nrows, uninit.ncols, new_data)
-    }
 
     #[inline]
     fn allocate_from_iterator<I: IntoIterator<Item = T>>(
@@ -116,14 +104,9 @@ impl<T, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
     }
 }
 
-// Static - Dynamic
-#[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
-    type Buffer = VecStorage<T, R, Dynamic>;
-    type UninitBuffer = VecStorage<MaybeUninit<T>, R, Dynamic>;
-
+impl<T, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
     #[inline]
-    fn allocate_uninitialized(nrows: R, ncols: Dynamic) -> Self::UninitBuffer {
+    fn allocate_uninitialized(nrows: Dynamic, ncols: C) -> Owned<MaybeUninit<T>, Dynamic, C> {
         let mut data = Vec::new();
         let length = nrows.value() * ncols.value();
         data.reserve_exact(length);
@@ -133,7 +116,7 @@ impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
     }
 
     #[inline]
-    unsafe fn assume_init(uninit: Self::UninitBuffer) -> Self::Buffer {
+    unsafe fn assume_init(uninit: Owned<MaybeUninit<T>, Dynamic, C>) -> Owned<T, Dynamic, C> {
         let mut data = ManuallyDrop::new(uninit.data);
 
         // Safety: MaybeUninit<T> has the same alignment and layout as T.
@@ -143,19 +126,49 @@ impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
 
         VecStorage::new(uninit.nrows, uninit.ncols, new_data)
     }
+}
+
+// Static - Dynamic
+#[cfg(any(feature = "std", feature = "alloc"))]
+impl<T, R: DimName> InnerAllocator<T, R, Dynamic> for DefaultAllocator {
+    type Buffer = VecStorage<T, R, Dynamic>;
 
     #[inline]
     fn allocate_from_iterator<I: IntoIterator<Item = T>>(
         nrows: R,
         ncols: Dynamic,
         iter: I,
-    ) -> Self::Buffer {
+    ) -> Owned<T, R, Dynamic> {
         let it = iter.into_iter();
         let res: Vec<T> = it.collect();
         assert!(res.len() == nrows.value() * ncols.value(),
                 "Allocation from iterator error: the iterator did not yield the correct number of elements.");
 
         VecStorage::new(nrows, ncols, res)
+    }
+}
+
+impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
+    #[inline]
+    fn allocate_uninitialized(nrows: R, ncols: Dynamic) -> Owned<MaybeUninit<T>, R, Dynamic> {
+        let mut data = Vec::new();
+        let length = nrows.value() * ncols.value();
+        data.reserve_exact(length);
+        data.resize_with(length, MaybeUninit::uninit);
+
+        VecStorage::new(nrows, ncols, data)
+    }
+
+    #[inline]
+    unsafe fn assume_init(uninit: Owned<MaybeUninit<T>, R, Dynamic>) -> Owned<T, R, Dynamic> {
+        let mut data = ManuallyDrop::new(uninit.data);
+
+        // Safety: MaybeUninit<T> has the same alignment and layout as T.
+        let new_data = unsafe {
+            Vec::from_raw_parts(data.as_mut_ptr() as *mut T, data.len(), data.capacity())
+        };
+
+        VecStorage::new(uninit.nrows, uninit.ncols, new_data)
     }
 }
 
@@ -176,10 +189,10 @@ where
     unsafe fn reallocate_copy(
         rto: Const<RTO>,
         cto: Const<CTO>,
-        buf: <Self as Allocator<T, RFrom, CFrom>>::Buffer,
+        buf: Owned<T, RFrom, CFrom>,
     ) -> ArrayStorage<T, RTO, CTO> {
         let mut res =
-            <Self as Allocator<T, Const<RTO>, Const<CTO>>>::allocate_uninitialized(rto, cto);
+            <Self as Allocator<_, Const<RTO>, Const<CTO>>>::allocate_uninitialized(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
 
@@ -192,7 +205,7 @@ where
         );
 
         // Safety: TODO
-        <Self as Allocator<T, Const<RTO>, Const<CTO>>>::assume_init(res)
+        <Self as Allocator<_, RTO, CTO>>::assume_init(res)
     }
 }
 
