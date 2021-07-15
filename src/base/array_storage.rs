@@ -108,7 +108,7 @@ where
 unsafe impl<T, const R: usize, const C: usize> StorageMut<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    DefaultAllocator:InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
+    DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
     #[inline]
     fn ptr_mut(&mut self) -> *mut T {
@@ -124,14 +124,14 @@ where
 unsafe impl<T, const R: usize, const C: usize> ContiguousStorage<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    DefaultAllocator:InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
+    DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
 }
 
 unsafe impl<T, const R: usize, const C: usize> ContiguousStorageMut<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    DefaultAllocator:InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
+    DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
 }
 

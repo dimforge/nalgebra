@@ -657,7 +657,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             }
         }
 
-        unsafe { Matrix::assume_init(res) }
+        unsafe { res.assume_init()}
     }
 
     /// Transposes `self` and store the result into `out`, which will become
@@ -666,7 +666,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     pub fn transpose_to<R2: Dim, C2: Dim, SB>(&self, out: &mut Matrix<MaybeUninit<T>, R2, C2, SB>)
     where
         T: Clone,
-        SB: StorageMut<T, R2, C2>,
+        SB: StorageMut<MaybeUninit<T>, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, C2> + SameNumberOfColumns<C, R2>,
     {
         let (nrows, ncols) = self.shape();

@@ -158,12 +158,23 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 }
 
 /// # In-place filling
-impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Sets all the elements of this matrix to `val`.
     #[inline]
-    pub fn fill(&mut self, val: T) {
+    pub fn fill(&mut self, val: T)
+    where
+        T: Clone,
+    {
         for e in self.iter_mut() {
-            *e = val.inlined_clone()
+            *e = val.clone()
+        }
+    }
+
+    /// Sets all the elements of this matrix to `f()`.
+    #[inline]
+    pub fn fill_fn<F: FnMut() -> T>(&mut self, f: F) {
+        for e in self.iter_mut() {
+            *e = f();
         }
     }
 
@@ -171,7 +182,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     pub fn fill_with_identity(&mut self)
     where
-        T: Zero + One,
+        T: Zero + One + Scalar,
     {
         self.fill(T::zero());
         self.fill_diagonal(T::one());
@@ -184,7 +195,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
         let n = cmp::min(nrows, ncols);
 
         for i in 0..n {
-            unsafe { *self.get_unchecked_mut((i, i)) = val.inlined_clone() }
+            unsafe { *self.get_unchecked_mut((i, i)) = val.clone() }
         }
     }
 

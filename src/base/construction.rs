@@ -18,7 +18,7 @@ use typenum::{self, Cmp, Greater};
 
 use simba::scalar::{ClosedAdd, ClosedMul};
 
-use crate::base::allocator::Allocator;
+use crate::{base::allocator::Allocator};
 use crate::base::dimension::{Dim, DimName, Dynamic, ToTypenum};
 use crate::base::storage::Storage;
 use crate::base::{
@@ -117,7 +117,7 @@ where
     /// Creates a matrix with its elements filled with the components provided by a slice. The
     /// components must have the same layout as the matrix data storage (i.e. column-major).
     #[inline]
-    pub fn from_column_slice_generic(nrows: R, ncols: C, slice: &[T]) -> Self {
+    pub fn from_column_slice_generic(nrows: R, ncols: C, slice: &[T]) -> Self where T:Clone{
         Self::from_iterator_generic(nrows, ncols, slice.iter().cloned())
     }
 
@@ -139,7 +139,7 @@ where
         }
 
         // Safety: all entries have been initialized.
-        unsafe { Matrix::assume_init(res) }
+        unsafe { res.assume_init()}
     }
 
     /// Creates a new identity matrix.
@@ -352,7 +352,7 @@ where
     #[inline]
     pub fn from_diagonal<SB: Storage<T, D>>(diag: &Vector<T, D, SB>) -> Self
     where
-        T: Zero,
+        T: Zero+Scalar,
     {
         let (dim, _) = diag.data.shape();
         let mut res = Self::zeros_generic(dim, dim);

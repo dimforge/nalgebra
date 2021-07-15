@@ -1,10 +1,11 @@
-use crate::SimdComplexField;
+use crate::{OVector, SimdComplexField};
 #[cfg(feature = "std")]
 use matrixmultiply;
 use num::{One, Zero};
 use simba::scalar::{ClosedAdd, ClosedMul};
 #[cfg(feature = "std")]
 use std::mem;
+use std::mem::MaybeUninit;
 
 use crate::base::allocator::Allocator;
 use crate::base::constraint::{
@@ -311,6 +312,28 @@ where
             *y.get_unchecked_mut(i * stride1) = a.inlined_clone()
                 * x.get_unchecked(i * stride2).inlined_clone()
                 * c.inlined_clone();
+        }
+    }
+}
+
+fn array_axc_uninit<T>(
+    y: &mut [MaybeUninit<T>],
+    a: T,
+    x: &[T],
+    c: T,
+    stride1: usize,
+    stride2: usize,
+    len: usize,
+) where
+    T: Scalar + Zero + ClosedAdd + ClosedMul,
+{
+    for i in 0..len {
+        unsafe {
+            *y.get_unchecked_mut(i * stride1) = MaybeUninit::new(
+                a.inlined_clone()
+                    * x.get_unchecked(i * stride2).inlined_clone()
+                    * c.inlined_clone(),
+            );
         }
     }
 }
@@ -720,6 +743,80 @@ where
         ShapeConstraint: DimEq<D, C2> + AreMultipliable<C2, R2, D3, U1>,
     {
         self.gemv_xx(alpha, a, x, beta, |a, b| a.dotc(b))
+    }
+}
+
+impl<T, D: Dim> OVector<MaybeUninit<T>, D>
+where
+    T: Scalar + Zero + ClosedAdd + ClosedMul,
+    DefaultAllocator: Allocator<T, D>,
+{
+    pub fn axc<D2: Dim, SB>(&mut self, a: T, x: &Vector<T, D2, SB>, c: T) -> OVector<T, D>
+    where
+        SB: Storage<T, D2>,
+        ShapeConstraint: DimEq<D, D2>,
+    {
+        assert_eq!(self.nrows(), x.nrows(), "Axcpy: mismatched vector shapes.");
+
+        let rstride1 = self.strides().0;
+        let rstride2 = x.strides().0;
+
+        unsafe {
+            // SAFETY: the conversion to slices is OK because we access the
+            //         elements taking the strides into account.
+            let y = self.data.as_mut_slice_unchecked();
+            let x = x.data.as_slice_unchecked();
+
+            array_axc_uninit(y, a, x, c, rstride1, rstride2, x.len());
+            self.assume_init()
+        }
+    }
+
+    /// Computes `self = alpha * a * x, where `a` is a matrix, `x` a vector, and
+    /// `alpha` is a scalar.
+    ///
+    /// By the time this method returns, `self` will have been initialized.
+    #[inline]
+    pub fn gemv_uninit<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
+        mut self,
+        alpha: T,
+        a: &Matrix<T, R2, C2, SB>,
+        x: &Vector<T, D3, SC>,
+        beta: T,
+    ) -> OVector<T, D>
+    where
+        T: One,
+        SB: Storage<T, R2, C2>,
+        SC: Storage<T, D3>,
+        ShapeConstraint: DimEq<D, R2> + AreMultipliable<R2, C2, D3, U1>,
+    {
+        let dim1 = self.nrows();
+        let (nrows2, ncols2) = a.shape();
+        let dim3 = x.nrows();
+
+        assert!(
+            ncols2 == dim3 && dim1 == nrows2,
+            "Gemv: dimensions mismatch."
+        );
+
+        if ncols2 == 0 {
+            self.fill_fn(|| MaybeUninit::new(T::zero()));
+            return self.assume_init();
+        }
+
+        // TODO: avoid bound checks.
+        let col2 = a.column(0);
+        let val = unsafe { x.vget_unchecked(0).inlined_clone() };
+        let res = self.axc(alpha.inlined_clone(), &col2, val);
+
+        for j in 1..ncols2 {
+            let col2 = a.column(j);
+            let val = unsafe { x.vget_unchecked(j).inlined_clone() };
+
+            res.axcpy(alpha.inlined_clone(), &col2, val, T::one());
+        }
+
+        res
     }
 }
 
@@ -1275,29 +1372,25 @@ where
     ///
     /// mat.quadform_tr_with_workspace(&mut workspace, 10.0, &lhs, &mid, 5.0);
     /// assert_relative_eq!(mat, expected);
-    pub fn quadform_tr_with_workspace<D2, S2, R3, C3, S3, D4, S4>(
+    pub fn quadform_tr_with_workspace<D2: Dim, R3: Dim, C3: Dim, S3, D4: Dim, S4>(
         &mut self,
-        work: &mut Vector<T, D2, S2>,
+        work: &mut OVector<MaybeUninit<T>, D2>,
         alpha: T,
         lhs: &Matrix<T, R3, C3, S3>,
         mid: &SquareMatrix<T, D4, S4>,
         beta: T,
     ) where
-        D2: Dim,
-        R3: Dim,
-        C3: Dim,
-        D4: Dim,
-        S2: StorageMut<T, D2>,
         S3: Storage<T, R3, C3>,
         S4: Storage<T, D4, D4>,
         ShapeConstraint: DimEq<D1, D2> + DimEq<D1, R3> + DimEq<D2, R3> + DimEq<C3, D4>,
+        DefaultAllocator: Allocator<T, D2>,
     {
-        work.gemv(T::one(), lhs, &mid.column(0), T::zero());
-        self.ger(alpha.inlined_clone(), work, &lhs.column(0), beta);
+        let work = work.gemv_uninit(T::one(), lhs, &mid.column(0), T::zero());
+        self.ger(alpha.inlined_clone(), &work, &lhs.column(0), beta);
 
         for j in 1..mid.ncols() {
             work.gemv(T::one(), lhs, &mid.column(j), T::zero());
-            self.ger(alpha.inlined_clone(), work, &lhs.column(j), T::one());
+            self.ger(alpha.inlined_clone(), &work, &lhs.column(j), T::one());
         }
     }
 
@@ -1322,24 +1415,19 @@ where
     ///
     /// mat.quadform_tr(10.0, &lhs, &mid, 5.0);
     /// assert_relative_eq!(mat, expected);
-    pub fn quadform_tr<R3, C3, S3, D4, S4>(
+    pub fn quadform_tr<R3: Dim, C3: Dim, S3, D4: Dim, S4>(
         &mut self,
         alpha: T,
         lhs: &Matrix<T, R3, C3, S3>,
         mid: &SquareMatrix<T, D4, S4>,
         beta: T,
     ) where
-        R3: Dim,
-        C3: Dim,
-        D4: Dim,
         S3: Storage<T, R3, C3>,
         S4: Storage<T, D4, D4>,
         ShapeConstraint: DimEq<D1, D1> + DimEq<D1, R3> + DimEq<C3, D4>,
         DefaultAllocator: Allocator<T, D1>,
     {
-        let mut work = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, Const::<1>)
-        };
+        let mut work = Matrix::new_uninitialized_generic(self.data.shape().0, Const::<1>);
         self.quadform_tr_with_workspace(&mut work, alpha, lhs, mid, beta)
     }
 
@@ -1368,32 +1456,28 @@ where
     ///
     /// mat.quadform_with_workspace(&mut workspace, 10.0, &mid, &rhs, 5.0);
     /// assert_relative_eq!(mat, expected);
-    pub fn quadform_with_workspace<D2, S2, D3, S3, R4, C4, S4>(
+    pub fn quadform_with_workspace<D2: Dim, D3: Dim, S3, R4: Dim, C4: Dim, S4>(
         &mut self,
-        work: &mut Vector<T, D2, S2>,
+        work: &mut OVector<MaybeUninit<T>, D2>,
         alpha: T,
         mid: &SquareMatrix<T, D3, S3>,
         rhs: &Matrix<T, R4, C4, S4>,
         beta: T,
     ) where
-        D2: Dim,
-        D3: Dim,
-        R4: Dim,
-        C4: Dim,
-        S2: StorageMut<T, D2>,
         S3: Storage<T, D3, D3>,
         S4: Storage<T, R4, C4>,
         ShapeConstraint:
             DimEq<D3, R4> + DimEq<D1, C4> + DimEq<D2, D3> + AreMultipliable<C4, R4, D2, U1>,
+        DefaultAllocator: Allocator<T, D2>,
     {
-        work.gemv(T::one(), mid, &rhs.column(0), T::zero());
+        let work = work.gemv_uninit(T::one(), mid, &rhs.column(0), T::zero());
         self.column_mut(0)
-            .gemv_tr(alpha.inlined_clone(), rhs, work, beta.inlined_clone());
+            .gemv_tr(alpha.inlined_clone(), rhs, &work, beta.inlined_clone());
 
         for j in 1..rhs.ncols() {
             work.gemv(T::one(), mid, &rhs.column(j), T::zero());
             self.column_mut(j)
-                .gemv_tr(alpha.inlined_clone(), rhs, work, beta.inlined_clone());
+                .gemv_tr(alpha.inlined_clone(), rhs, &work, beta.inlined_clone());
         }
     }
 
@@ -1417,24 +1501,19 @@ where
     ///
     /// mat.quadform(10.0, &mid, &rhs, 5.0);
     /// assert_relative_eq!(mat, expected);
-    pub fn quadform<D2, S2, R3, C3, S3>(
+    pub fn quadform<D2: Dim, S2, R3: Dim, C3: Dim, S3>(
         &mut self,
         alpha: T,
         mid: &SquareMatrix<T, D2, S2>,
         rhs: &Matrix<T, R3, C3, S3>,
         beta: T,
     ) where
-        D2: Dim,
-        R3: Dim,
-        C3: Dim,
         S2: Storage<T, D2, D2>,
         S3: Storage<T, R3, C3>,
         ShapeConstraint: DimEq<D2, R3> + DimEq<D1, C3> + AreMultipliable<C3, R3, D2, U1>,
         DefaultAllocator: Allocator<T, D2>,
     {
-        let mut work = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(mid.data.shape().0, Const::<1>)
-        };
+        let mut work = Matrix::new_uninitialized_generic(mid.data.shape().0, Const::<1>);
         self.quadform_with_workspace(&mut work, alpha, mid, rhs, beta)
     }
 }

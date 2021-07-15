@@ -7,16 +7,17 @@ use std::ops::{
 
 use simba::scalar::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
 
-use crate::allocator::InnerAllocator;
-use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
+use crate::base::allocator::{
+    Allocator, InnerAllocator, SameShapeAllocator, SameShapeC, SameShapeR,
+};
 use crate::base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
 use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
 use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorSlice};
-use crate::SimdComplexField;
 use crate::storage::Owned;
+use crate::SimdComplexField;
 
 /*
  *
@@ -431,7 +432,7 @@ where
     // TODO: we should take out this trait bound, as T: Clone should suffice.
     // The brute way to do it would be how it was already done: by adding this
     // trait bound on the associated type itself.
-    Owned<T,Dynamic,C>: Clone,
+    Owned<T, Dynamic, C>: Clone,
 {
     /// # Example
     /// ```
@@ -575,11 +576,9 @@ where
 
     #[inline]
     fn mul(self, rhs: &'b Matrix<T, R2, C2, SB>) -> Self::Output {
-        let mut res = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, rhs.data.shape().1)
-        };
-        self.mul_to(rhs, &mut res);
-        res
+        let mut res =Matrix::new_uninitialized_generic(self.data.shape().0, rhs.data.shape().1);
+                self.mul_to(rhs, &mut res);
+      unsafe{  res.assume_init()}
     }
 }
 
@@ -687,12 +686,9 @@ where
         DefaultAllocator: Allocator<T, C1, C2>,
         ShapeConstraint: SameNumberOfRows<R1, R2>,
     {
-        let mut res = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(self.data.shape().1, rhs.data.shape().1)
-        };
-
+        let mut res = Matrix::new_uninitialized_generic(self.data.shape().1, rhs.data.shape().1);
         self.tr_mul_to(rhs, &mut res);
-        res
+        unsafe { res.assume_init() }
     }
 
     /// Equivalent to `self.adjoint() * rhs`.
@@ -701,30 +697,27 @@ where
     pub fn ad_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> OMatrix<T, C1, C2>
     where
         T: SimdComplexField,
-        SB: Storage<T, R2, C2>,
+        SB: Storage<MaybeUninit<T>, R2, C2>,
         DefaultAllocator: Allocator<T, C1, C2>,
         ShapeConstraint: SameNumberOfRows<R1, R2>,
     {
-        let mut res = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(self.data.shape().1, rhs.data.shape().1)
-        };
-
+        let mut res = Matrix::new_uninitialized_generic(self.data.shape().1, rhs.data.shape().1);
         self.ad_mul_to(rhs, &mut res);
-        res
+        unsafe { res.assume_init() }
     }
 
     #[inline(always)]
     fn xx_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
         rhs: &Matrix<T, R2, C2, SB>,
-        out: &mut Matrix<T, R3, C3, SC>,
+        out: &mut Matrix<MaybeUninit<T>, R3, C3, SC>,
         dot: impl Fn(
             &VectorSlice<T, R1, SA::RStride, SA::CStride>,
             &VectorSlice<T, R2, SB::RStride, SB::CStride>,
         ) -> T,
     ) where
         SB: Storage<T, R2, C2>,
-        SC: StorageMut<T, R3, C3>,
+        SC: StorageMut<MaybeUninit<T>, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, R2> + DimEq<C1, R3> + DimEq<C2, C3>,
     {
         let (nrows1, ncols1) = self.shape();
@@ -753,7 +746,7 @@ where
         for i in 0..ncols1 {
             for j in 0..ncols2 {
                 let dot = dot(&self.column(i), &rhs.column(j));
-                unsafe { *out.get_unchecked_mut((i, j)) = dot };
+                unsafe { *out.get_unchecked_mut((i, j)) = MaybeUninit::new(dot) ;}
             }
         }
     }
@@ -764,10 +757,10 @@ where
     pub fn tr_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
         rhs: &Matrix<T, R2, C2, SB>,
-        out: &mut Matrix<T, R3, C3, SC>,
+        out: &mut Matrix<MaybeUninit<T>, R3, C3, SC>,
     ) where
         SB: Storage<T, R2, C2>,
-        SC: StorageMut<T, R3, C3>,
+        SC: StorageMut<MaybeUninit<T>, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, R2> + DimEq<C1, R3> + DimEq<C2, C3>,
     {
         self.xx_mul_to(rhs, out, |a, b| a.dot(b))
@@ -779,11 +772,11 @@ where
     pub fn ad_mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
         rhs: &Matrix<T, R2, C2, SB>,
-        out: &mut Matrix<T, R3, C3, SC>,
+        out: &mut Matrix<MaybeUninit<T>, R3, C3, SC>,
     ) where
         T: SimdComplexField,
         SB: Storage<T, R2, C2>,
-        SC: StorageMut<T, R3, C3>,
+        SC: StorageMut<MaybeUninit<T>, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, R2> + DimEq<C1, R3> + DimEq<C2, C3>,
     {
         self.xx_mul_to(rhs, out, |a, b| a.dotc(b))
@@ -793,7 +786,7 @@ where
     #[inline]
     pub fn mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
-        rhs: &Matrix<T, R2, C2, SB>,
+        rhs: &Matrix<MaybeUninit<T>, R2, C2, SB>,
         out: &mut Matrix<T, R3, C3, SC>,
     ) where
         SB: Storage<T, R2, C2>,
