@@ -6,7 +6,7 @@
 //! that return an owned matrix that would otherwise result from setting a
 //! parameter to zero in the other methods.
 
-use crate::{OMatrix, OVector, SimdComplexField};
+use crate::{OMatrix, SimdComplexField};
 #[cfg(feature = "std")]
 use matrixmultiply;
 use num::{One, Zero};
@@ -795,7 +795,7 @@ where
     }
 }
 
-impl<T, R1: Dim, C1: Dim> OMatrix<T, R1, C1>
+impl<T, R1: Dim, C1: Dim, S: StorageMut<MaybeUninit<T>, R1, C1>> Matrix<MaybeUninit<T>, R1, C1, S>
 where
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     DefaultAllocator: Allocator<T, R1, C1>,
@@ -821,27 +821,18 @@ where
     /// ```
     #[inline]
     pub fn gemm_z<R2: Dim, C2: Dim, R3: Dim, C3: Dim, SB, SC>(
+        &mut self,
         alpha: T,
         a: &Matrix<T, R2, C2, SB>,
         b: &Matrix<T, R3, C3, SC>,
-    ) -> Self
-    where
+    ) where
         SB: Storage<T, R2, C2>,
         SC: Storage<T, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, R2>
             + SameNumberOfColumns<C1, C3>
             + AreMultipliable<R2, C2, R3, C3>,
     {
-        let (nrows1, ncols1) = a.shape();
-        let (nrows2, ncols2) = b.shape();
-
-        assert_eq!(
-            ncols1, nrows2,
-            "gemm: dimensions mismatch for multiplication."
-        );
-
-        let mut res =
-            Matrix::new_uninitialized_generic(R1::from_usize(nrows1), C1::from_usize(ncols2));
+        let ncols1 = self.ncols();
 
         #[cfg(feature = "std")]
         {
@@ -857,6 +848,9 @@ where
                 || C3::is::<Dynamic>()
             {
                 // matrixmultiply can be used only if the std feature is available.
+                let nrows1 = self.nrows();
+                let (nrows2, ncols2) = a.shape();
+                let (nrows3, ncols3) = b.shape();
 
                 // Threshold determined empirically.
                 const SMALL_DIM: usize = 5;
@@ -866,29 +860,35 @@ where
                     && nrows2 > SMALL_DIM
                     && ncols2 > SMALL_DIM
                 {
+                    assert_eq!(
+                        ncols1, nrows2,
+                        "gemm: dimensions mismatch for multiplication."
+                    );
+                    assert_eq!(
+                        (nrows1, ncols1),
+                        (nrows2, ncols3),
+                        "gemm: dimensions mismatch for addition."
+                    );
+
                     // NOTE: this case should never happen because we enter this
                     // codepath only when ncols2 > SMALL_DIM. Though we keep this
                     // here just in case if in the future we change the conditions to
                     // enter this codepath.
                     if ncols1 == 0 {
-                        // NOTE: we can't just always multiply by beta
-                        // because we documented the guaranty that `self` is
-                        // never read if `beta` is zero.
-
-                        // Safety: this buffer is empty.
-                        return res.assume_init();
+                        self.fill_fn(|| MaybeUninit::new(T::zero()));
+                        return;
                     }
 
                     let (rsa, csa) = a.strides();
                     let (rsb, csb) = b.strides();
-                    let (rsc, csc) = res.strides();
+                    let (rsc, csc) = self.strides();
 
                     if T::is::<f32>() {
                         unsafe {
                             matrixmultiply::sgemm(
-                                nrows1,
-                                ncols1,
+                                nrows2,
                                 ncols2,
+                                ncols3,
                                 mem::transmute_copy(&alpha),
                                 a.data.ptr() as *const f32,
                                 rsa as isize,
@@ -897,19 +897,19 @@ where
                                 rsb as isize,
                                 csb as isize,
                                 0.0,
-                                res.data.ptr_mut() as *mut f32,
+                                self.data.ptr_mut() as *mut f32,
                                 rsc as isize,
                                 csc as isize,
                             );
 
-                            return res.assume_init();
+                            return;
                         }
                     } else if T::is::<f64>() {
                         unsafe {
                             matrixmultiply::dgemm(
-                                nrows1,
-                                ncols1,
+                                nrows2,
                                 ncols2,
+                                ncols3,
                                 mem::transmute_copy(&alpha),
                                 a.data.ptr() as *const f64,
                                 rsa as isize,
@@ -918,12 +918,12 @@ where
                                 rsb as isize,
                                 csb as isize,
                                 0.0,
-                                res.data.ptr_mut() as *mut f64,
+                                self.data.ptr_mut() as *mut f64,
                                 rsc as isize,
                                 csc as isize,
                             );
 
-                            return res.assume_init();
+                            return ;
                         }
                     }
                 }
@@ -932,11 +932,9 @@ where
 
         for j1 in 0..ncols1 {
             // TODO: avoid bound checks.
-            res.column_mut(j1)
+            self.column_mut(j1)
                 .gemv_z(alpha.inlined_clone(), a, &b.column(j1));
         }
-
-        unsafe { res.assume_init() }
     }
 }
 

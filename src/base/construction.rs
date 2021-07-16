@@ -633,13 +633,13 @@ where
     ); // Arguments for non-generic constructors.
 }
 
-impl<T, R: DimName, C: DimName> OMatrix<MaybeUninit<T>, R, C>
+impl<T, R: DimName, C: DimName> OMatrix<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C>,
 {
     /// Creates a new uninitialized matrix or vector.
     #[inline]
-    pub fn new_uninitialized() -> Self {
+    pub fn new_uninitialized() -> OMatrix<MaybeUninit<T>, R, C> {
         Self::new_uninitialized_generic(R::name(), C::name())
     }
 }
@@ -655,13 +655,13 @@ where
                    ncols);
 }
 
-impl<T, R: DimName> OMatrix<MaybeUninit<T>, R, Dynamic>
+impl<T, R: DimName> OMatrix<T, R, Dynamic>
 where
     DefaultAllocator: Allocator<T, R, Dynamic>,
 {
     /// Creates a new uninitialized matrix or vector.
     #[inline]
-    pub fn new_uninitialized(ncols: usize) -> Self {
+    pub fn new_uninitialized(ncols: usize) -> OMatrix<MaybeUninit<T>, R, Dynamic> {
         Self::new_uninitialized_generic(R::name(), Dynamic::new(ncols))
     }
 }
@@ -677,13 +677,13 @@ where
                    nrows);
 }
 
-impl<T, C: DimName> OMatrix<MaybeUninit<T>, Dynamic, C>
+impl<T, C: DimName> OMatrix<T, Dynamic, C>
 where
     DefaultAllocator: Allocator<T, Dynamic, C>,
 {
     /// Creates a new uninitialized matrix or vector.
     #[inline]
-    pub fn new_uninitialized(nrows: usize) -> Self {
+    pub fn new_uninitialized(nrows: usize) ->  OMatrix<MaybeUninit<T>, Dynamic, C> {
         Self::new_uninitialized_generic(Dynamic::new(nrows), C::name())
     }
 }
@@ -699,13 +699,13 @@ where
                    nrows, ncols);
 }
 
-impl<T> OMatrix<MaybeUninit<T>, Dynamic, Dynamic>
+impl<T> OMatrix<T, Dynamic, Dynamic>
 where
     DefaultAllocator: Allocator<T, Dynamic, Dynamic>,
 {
     /// Creates a new uninitialized matrix or vector.
     #[inline]
-    pub fn new_uninitialized(nrows: usize, ncols: usize) -> Self {
+    pub fn new_uninitialized(nrows: usize, ncols: usize) -> OMatrix<MaybeUninit<T>, Dynamic, Dynamic> {
         Self::new_uninitialized_generic(Dynamic::new(nrows), Dynamic::new(ncols))
     }
 }

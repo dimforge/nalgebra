@@ -4,7 +4,6 @@
 //! heap-allocated buffers for matrices with at least one dimension unknown at compile-time.
 
 use std::cmp;
-use std::mem;
 use std::mem::ManuallyDrop;
 use std::mem::MaybeUninit;
 use std::ptr;

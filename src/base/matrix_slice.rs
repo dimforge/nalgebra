@@ -223,7 +223,7 @@ impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     SliceStorage<'a, MaybeUninit<T>, R, C, RStride, CStride>
 {
     pub unsafe fn assume_init(self) -> SliceStorage<'a, T, R, C, RStride, CStride> {
-        Self::from_raw_parts(self.ptr as *const T, self.shape, self.strides)
+        SliceStorage::from_raw_parts(self.ptr as *const T, self.shape, self.strides)
     }
 }
 
@@ -231,7 +231,7 @@ impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     SliceStorageMut<'a, MaybeUninit<T>, R, C, RStride, CStride>
 {
     pub unsafe fn assume_init(self) -> SliceStorageMut<'a, T, R, C, RStride, CStride> {
-        Self::from_raw_parts(self.ptr as *mut T, self.shape, self.strides)
+        SliceStorageMut::from_raw_parts(self.ptr as *mut T, self.shape, self.strides)
     }
 }
 
@@ -606,7 +606,7 @@ macro_rules! matrix_slice_impl(
         /// Returns a slice containing the entire matrix.
         pub fn $full_slice($me: $Me) -> $MatrixSlice<T, R, C, S::RStride, S::CStride> {
             let (nrows, ncols) = $me.shape();
-            $me.generic_slice((0, 0), (R::from_usize(nrows), C::from_usize(ncols)))
+            $me.$generic_slice((0, 0), (R::from_usize(nrows), C::from_usize(ncols)))
         }
 
         /*

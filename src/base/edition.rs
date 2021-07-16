@@ -53,7 +53,8 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     {
         let irows = irows.into_iter();
         let ncols = self.data.shape().1;
-        let mut res =  OMatrix::<T, Dynamic, C>::new_uninitialized_generic(Dynamic::new(irows.len()), ncols);
+        let mut res =
+            OMatrix::<T, Dynamic, C>::new_uninitialized_generic(Dynamic::new(irows.len()), ncols);
 
         // First, check that all the indices from irows are valid.
         // This will allow us to use unchecked access in the inner loop.

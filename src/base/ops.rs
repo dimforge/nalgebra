@@ -640,7 +640,8 @@ where
 // TODO: this is too restrictive:
 //    − we can't use `a *= b` when `a` is a mutable slice.
 //    − we can't use `a *= b` when C2 is not equal to C1.
-impl<T, R1: Dim, C1: Dim, R2: Dim, SA, SB> MulAssign<Matrix<T, R2, C1, SB>> for Matrix<T, R1, C1, SA>
+impl<T, R1: Dim, C1: Dim, R2: Dim, SA, SB> MulAssign<Matrix<T, R2, C1, SB>>
+    for Matrix<T, R1, C1, SA>
 where
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<T, R2, C1>,
@@ -654,7 +655,8 @@ where
     }
 }
 
-impl<'b, T, R1: Dim, C1: Dim, R2: Dim, SA, SB> MulAssign<&'b Matrix<T, R2, C1, SB>> for Matrix<T, R1, C1, SA>
+impl<'b, T, R1: Dim, C1: Dim, R2: Dim, SA, SB> MulAssign<&'b Matrix<T, R2, C1, SB>>
+    for Matrix<T, R1, C1, SA>
 where
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<T, R2, C1>,
@@ -794,6 +796,7 @@ where
         ShapeConstraint: SameNumberOfRows<R3, R1>
             + SameNumberOfColumns<C3, C2>
             + AreMultipliable<R1, C1, R2, C2>,
+        DefaultAllocator: Allocator<T, R3, C3>,
     {
         out.gemm_z(T::one(), self, rhs);
     }
