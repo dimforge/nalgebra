@@ -33,13 +33,13 @@ pub struct Quaternion<T> {
     pub coords: Vector4<T>,
 }
 
-impl<T: Scalar + Hash> Hash for Quaternion<T> {
+impl<T: Hash> Hash for Quaternion<T> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.coords.hash(state)
     }
 }
 
-impl<T:  Eq> Eq for Quaternion<T> {}
+impl<T: Eq> Eq for Quaternion<T> {}
 
 impl<T: PartialEq> PartialEq for Quaternion<T> {
     #[inline]
@@ -48,7 +48,7 @@ impl<T: PartialEq> PartialEq for Quaternion<T> {
     }
 }
 
-impl<T: Scalar + Zero> Default for Quaternion<T> {
+impl<T: Zero + Clone> Default for Quaternion<T> {
     fn default() -> Self {
         Quaternion {
             coords: Vector4::zeros(),

@@ -20,8 +20,7 @@ use crate::{DimName, OPoint};
 
 impl<T1, T2, D: DimName> SubsetOf<OPoint<T2, D>> for OPoint<T1, D>
 where
-    T1: Scalar,
-    T2: Scalar + SupersetOf<T1>,
+    T2: SupersetOf<T1>,
     DefaultAllocator: Allocator<T1, D> + Allocator<T2, D>,
 {
     #[inline]
@@ -45,7 +44,6 @@ where
 impl<T1, T2, D> SubsetOf<OVector<T2, DimNameSum<D, U1>>> for OPoint<T1, D>
 where
     D: DimNameAdd<U1>,
-    T1: Scalar,
     T2: Scalar + Zero + One + ClosedDiv + SupersetOf<T1>,
     DefaultAllocator: Allocator<T1, D>
         + Allocator<T2, D>
@@ -67,14 +65,14 @@ where
 
     #[inline]
     fn from_superset_unchecked(v: &OVector<T2, DimNameSum<D, U1>>) -> Self {
-        let coords = v.generic_slice((0, 0), (D::name(), Const::<1>)) / v[D::dim()].inlined_clone();
+        let coords = v.generic_slice((0, 0), (D::name(), Const::<1>)) / v[D::dim()].clone();
         Self {
             coords: crate::convert_unchecked(coords),
         }
     }
 }
 
-impl<T: Scalar + Zero + One, D: DimName> From<OPoint<T, D>> for OVector<T, DimNameSum<D, U1>>
+impl<T: Zero + One, D: DimName> From<OPoint<T, D>> for OVector<T, DimNameSum<D, U1>>
 where
     D: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<D, U1>> + Allocator<T, D>,
@@ -85,7 +83,7 @@ where
     }
 }
 
-impl<T: Scalar, const D: usize> From<[T; D]> for Point<T, D> {
+impl<T, const D: usize> From<[T; D]> for Point<T, D> {
     #[inline]
     fn from(coords: [T; D]) -> Self {
         Point {
@@ -94,14 +92,14 @@ impl<T: Scalar, const D: usize> From<[T; D]> for Point<T, D> {
     }
 }
 
-impl<T: Scalar, const D: usize> From<Point<T, D>> for [T; D] {
+impl<T, const D: usize> From<Point<T, D>> for [T; D] {
     #[inline]
     fn from(p: Point<T, D>) -> Self {
         p.coords.into()
     }
 }
 
-impl<T: Scalar, D: DimName> From<OVector<T, D>> for OPoint<T, D>
+impl<T, D: DimName> From<OVector<T, D>> for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {

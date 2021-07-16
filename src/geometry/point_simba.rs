@@ -1,13 +1,10 @@
 use simba::simd::SimdValue;
 
-use crate::base::{OVector, Scalar};
+use crate::base::OVector;
 
 use crate::geometry::Point;
 
-impl<T: Scalar + SimdValue, const D: usize> SimdValue for Point<T, D>
-where
-    T::Element: Scalar,
-{
+impl<T: SimdValue, const D: usize> SimdValue for Point<T, D> {
     type Element = Point<T::Element, D>;
     type SimdBool = T::SimdBool;
 

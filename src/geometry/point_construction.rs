@@ -1,3 +1,5 @@
+use std::mem::MaybeUninit;
+
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -20,17 +22,14 @@ use simba::scalar::{ClosedDiv, SupersetOf};
 use crate::geometry::Point;
 
 /// # Other construction methods
-impl<T: Scalar, D: DimName> OPoint<T, D>
+impl<T, D: DimName> OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
     /// Creates a new point with uninitialized coordinates.
     #[inline]
-    pub unsafe fn new_uninitialized() -> Self {
-        Self::from(crate::unimplemented_or_uninitialized_generic!(
-            D::name(),
-            Const::<1>
-        ))
+    pub unsafe fn new_uninitialized() -> OPoint<MaybeUninit<T>, D> {
+        OPoint::from(OVector::new_uninitialized_generic(D::name(), Const::<1>))
     }
 
     /// Creates a new point with all coordinates equal to zero.
@@ -130,7 +129,7 @@ where
     /// let pt2 = pt.cast::<f32>();
     /// assert_eq!(pt2, Point2::new(1.0f32, 2.0));
     /// ```
-    pub fn cast<To: Scalar>(self) -> OPoint<To, D>
+    pub fn cast<To>(self) -> OPoint<To, D>
     where
         OPoint<To, D>: SupersetOf<Self>,
         DefaultAllocator: Allocator<To, D>,
@@ -160,7 +159,7 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: Scalar, D: DimName> Distribution<OPoint<T, D>> for Standard
+impl<T, D: DimName> Distribution<OPoint<T, D>> for Standard
 where
     Standard: Distribution<T>,
     DefaultAllocator: Allocator<T, D>,
@@ -176,7 +175,7 @@ where
 impl<T: Arbitrary + Send, D: DimName> Arbitrary for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-  crate::  base::storage::Owned<T, D>: Send,
+    crate::base::storage::Owned<T, D>: Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {
@@ -192,7 +191,7 @@ where
 // NOTE: the impl for Point1 is not with the others so that we
 // can add a section with the impl block comment.
 /// # Construction from individual components
-impl<T: Scalar> Point1<T> {
+impl<T> Point1<T> {
     /// Initializes this point from its components.
     ///
     /// # Example
@@ -211,7 +210,7 @@ impl<T: Scalar> Point1<T> {
 }
 macro_rules! componentwise_constructors_impl(
     ($($doc: expr; $Point: ident, $Vector: ident, $($args: ident:$irow: expr),*);* $(;)*) => {$(
-        impl<T: Scalar> $Point<T> {
+        impl<T> $Point<T> {
             #[doc = "Initializes this point from its components."]
             #[doc = "# Example\n```"]
             #[doc = $doc]

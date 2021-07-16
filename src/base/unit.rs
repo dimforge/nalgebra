@@ -10,7 +10,7 @@ use abomonation::Abomonation;
 
 use crate::allocator::Allocator;
 use crate::base::DefaultAllocator;
-use crate::storage::Storage;
+use crate::storage::{Owned, Storage};
 use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealField};
 
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
@@ -126,7 +126,7 @@ where
 
 impl<T, R, C, S> Eq for Unit<Matrix<T, R, C, S>>
 where
-    T:  Eq,
+    T: Eq,
     R: Dim,
     C: Dim,
     S: Storage<T, R, C>,
@@ -344,6 +344,7 @@ where
     T: From<[<T as simba::simd::SimdValue>::Element; 2]>,
     T::Element: Scalar,
     DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    Owned<T::Element, R, C>: Clone,
 {
     #[inline]
     fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 2]) -> Self {
@@ -360,6 +361,7 @@ where
     T: From<[<T as simba::simd::SimdValue>::Element; 4]>,
     T::Element: Scalar,
     DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    Owned<T::Element, R, C>: Clone,
 {
     #[inline]
     fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 4]) -> Self {
@@ -378,6 +380,7 @@ where
     T: From<[<T as simba::simd::SimdValue>::Element; 8]>,
     T::Element: Scalar,
     DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    Owned<T::Element, R, C>: Clone,
 {
     #[inline]
     fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 8]) -> Self {
@@ -400,6 +403,7 @@ where
     T: From<[<T as simba::simd::SimdValue>::Element; 16]>,
     T::Element: Scalar,
     DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    Owned<T::Element, R, C>: Clone,
 {
     #[inline]
     fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 16]) -> Self {

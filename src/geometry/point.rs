@@ -14,10 +14,11 @@ use abomonation::Abomonation;
 
 use simba::simd::SimdPartialOrd;
 
+use crate::allocator::InnerAllocator;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
-use crate::base::{Const, DefaultAllocator, OVector, Scalar};
+use crate::base::{Const, DefaultAllocator, OVector};
 use crate::storage::Owned;
 
 /// A point in an euclidean space.
@@ -43,13 +44,13 @@ use crate::storage::Owned;
 #[derive(Debug, Clone)]
 pub struct OPoint<T, D: DimName>
 where
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: InnerAllocator<T, D>,
 {
     /// The coordinates of this point, i.e., the shift from the origin.
     pub coords: OVector<T, D>,
 }
 
-impl<T: Scalar + hash::Hash, D: DimName> hash::Hash for OPoint<T, D>
+impl<T: hash::Hash, D: DimName> hash::Hash for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
@@ -58,7 +59,7 @@ where
     }
 }
 
-impl<T: Scalar + Copy, D: DimName> Copy for OPoint<T, D>
+impl<T: Copy, D: DimName> Copy for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
     OVector<T, D>: Copy,
@@ -66,7 +67,7 @@ where
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T: Scalar, D: DimName> bytemuck::Zeroable for OPoint<T, D>
+unsafe impl<T, D: DimName> bytemuck::Zeroable for OPoint<T, D>
 where
     OVector<T, D>: bytemuck::Zeroable,
     DefaultAllocator: Allocator<T, D>,
@@ -74,7 +75,7 @@ where
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T: Scalar, D: DimName> bytemuck::Pod for OPoint<T, D>
+unsafe impl<T, D: DimName> bytemuck::Pod for OPoint<T, D>
 where
     T: Copy,
     OVector<T, D>: bytemuck::Pod,
@@ -83,7 +84,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T: Scalar + Serialize, D: DimName> Serialize for OPoint<T, D>
+impl<T: Serialize, D: DimName> Serialize for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
     <DefaultAllocator as Allocator<T, D>>::Buffer: Serialize,
@@ -97,7 +98,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'a, T: Scalar + Deserialize<'a>, D: DimName> Deserialize<'a> for OPoint<T, D>
+impl<'a, T: Deserialize<'a>, D: DimName> Deserialize<'a> for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
     <DefaultAllocator as Allocator<T, D>>::Buffer: Deserialize<'a>,
@@ -115,7 +116,6 @@ where
 #[cfg(feature = "abomonation-serialize")]
 impl<T, D: DimName> Abomonation for OPoint<T, D>
 where
-    T: Scalar,
     OVector<T, D>: Abomonation,
     DefaultAllocator: Allocator<T, D>,
 {
@@ -132,7 +132,7 @@ where
     }
 }
 
-impl<T: Scalar, D: DimName> OPoint<T, D>
+impl<T, D: DimName> OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
@@ -150,8 +150,8 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn map<T2: Scalar, F: FnMut(T) -> T2>(&self, f: F) -> OPoint<T2, D>
-    where
+    pub fn map<T2, F: FnMut(T) -> T2>(&self, f: F) -> OPoint<T2, D>
+    where T:Clone,
         DefaultAllocator: Allocator<T2, D>,
     {
         self.coords.map(f).into()
@@ -314,7 +314,7 @@ where
     }
 }
 
-impl<T: Scalar + AbsDiffEq, D: DimName> AbsDiffEq for OPoint<T, D>
+impl<T: AbsDiffEq, D: DimName> AbsDiffEq for OPoint<T, D>
 where
     T::Epsilon: Copy,
     DefaultAllocator: Allocator<T, D>,
@@ -332,7 +332,7 @@ where
     }
 }
 
-impl<T: Scalar + RelativeEq, D: DimName> RelativeEq for OPoint<T, D>
+impl<T: RelativeEq, D: DimName> RelativeEq for OPoint<T, D>
 where
     T::Epsilon: Copy,
     DefaultAllocator: Allocator<T, D>,
@@ -354,7 +354,7 @@ where
     }
 }
 
-impl<T: Scalar + UlpsEq, D: DimName> UlpsEq for OPoint<T, D>
+impl<T: UlpsEq, D: DimName> UlpsEq for OPoint<T, D>
 where
     T::Epsilon: Copy,
     DefaultAllocator: Allocator<T, D>,
@@ -415,7 +415,7 @@ where
 /*
  * inf/sup
  */
-impl<T: Scalar + SimdPartialOrd, D: DimName> OPoint<T, D>
+impl<T: SimdPartialOrd, D: DimName> OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
@@ -447,7 +447,7 @@ where
  * Display
  *
  */
-impl<T: Scalar + fmt::Display, D: DimName> fmt::Display for OPoint<T, D>
+impl<T: fmt::Display, D: DimName> fmt::Display for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {

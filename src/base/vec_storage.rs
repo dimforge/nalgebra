@@ -194,7 +194,7 @@ where
 
     #[inline]
     fn clone_owned(&self) -> Owned<T, Dynamic, C>
-    where
+    where T:Clone,
         DefaultAllocator: InnerAllocator<T, Dynamic, C>,
     {
         self.clone()
@@ -243,7 +243,7 @@ where
 
     #[inline]
     fn clone_owned(&self) -> Owned<T, R, Dynamic>
-    where
+    where T:Clone,
         DefaultAllocator: InnerAllocator<T, R, Dynamic>,
     {
         self.clone()
@@ -414,7 +414,7 @@ impl<'a, T: 'a + Copy, R: Dim> Extend<&'a T> for VecStorage<T, R, Dynamic> {
     }
 }
 
-impl<T, R: Dim, RV: Dim, SV> Extend<Vector<T, RV, SV>> for VecStorage<T, R, Dynamic>
+impl<T:Clone, R: Dim, RV: Dim, SV> Extend<Vector<T, RV, SV>> for VecStorage<T, R, Dynamic>
 where
     SV: Storage<T, RV>,
     ShapeConstraint: SameNumberOfRows<R, RV>,

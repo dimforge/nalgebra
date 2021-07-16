@@ -25,11 +25,11 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         for i in 0..ncols.value() {
             // TODO: avoid bound checking of column.
             unsafe {
-                *res.get_unchecked_mut((0, i)) =MaybeUninit::new( f(self.column(i)));
+                *res.get_unchecked_mut((0, i)) = MaybeUninit::new(f(self.column(i)));
             }
         }
 
-        res
+        unsafe { res.assume_init() }
     }
 
     /// Returns a column vector where each element is the result of the application of `f` on the
@@ -69,13 +69,11 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     where
         DefaultAllocator: Allocator<T, R>,
     {
-        let mut res = init;
-
         for i in 0..self.ncols() {
-            f(&mut res, self.column(i))
+            f(&mut init, self.column(i))
         }
 
-        res
+        init
     }
 }
 

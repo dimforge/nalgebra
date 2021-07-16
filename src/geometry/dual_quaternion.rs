@@ -46,16 +46,16 @@ pub struct DualQuaternion<T> {
     pub dual: Quaternion<T>,
 }
 
-impl<T: Scalar + Eq> Eq for DualQuaternion<T> {}
+impl<T: Eq> Eq for DualQuaternion<T> {}
 
-impl<T: Scalar> PartialEq for DualQuaternion<T> {
+impl<T: PartialEq> PartialEq for DualQuaternion<T> {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.real == right.real && self.dual == right.dual
     }
 }
 
-impl<T: Scalar + Zero> Default for DualQuaternion<T> {
+impl<T: Zero + Clone> Default for DualQuaternion<T> {
     fn default() -> Self {
         Self {
             real: Quaternion::default(),

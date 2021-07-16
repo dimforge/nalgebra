@@ -591,7 +591,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     #[must_use]
     #[allow(clippy::should_implement_trait)]
-    pub fn eq<R2: Dim, C2: Dim, SB: Dim>(&self, other: &Matrix<T, R2, C2, SB>) -> bool
+    pub fn eq<R2: Dim, C2: Dim, SB>(&self, other: &Matrix<T, R2, C2, SB>) -> bool
     where
         T: PartialEq,
         SB: Storage<T, R2, C2>,
@@ -2244,11 +2244,9 @@ where
     }
 }
 
-impl<T, R, C, S> Hash for Matrix<T, R, C, S>
+impl<T, R: Dim, C: Dim, S> Hash for Matrix<T, R, C, S>
 where
-    T: Scalar + Hash,
-    R: Dim,
-    C: Dim,
+    T: Hash,
     S: Storage<T, R, C>,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {

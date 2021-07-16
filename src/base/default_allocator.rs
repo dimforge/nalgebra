@@ -181,11 +181,9 @@ impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
  *
  */
 // Anything -> Static × Static
-impl<T, RFrom, CFrom, const RTO: usize, const CTO: usize>
+impl<T, RFrom:Dim, CFrom:Dim, const RTO: usize, const CTO: usize>
     Reallocator<T, RFrom, CFrom, Const<RTO>, Const<CTO>> for DefaultAllocator
 where
-    RFrom: Dim,
-    CFrom: Dim,
     Self: Allocator<T, RFrom, CFrom>,
 {
     #[inline]
