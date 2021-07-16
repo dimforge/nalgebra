@@ -1,4 +1,5 @@
 use std::marker::PhantomData;
+use std::mem::MaybeUninit;
 use std::ops::{Range, RangeFrom, RangeFull, RangeInclusive, RangeTo};
 use std::slice;
 
@@ -218,6 +219,22 @@ macro_rules! storage_impl(
 
 storage_impl!(SliceStorage, SliceStorageMut);
 
+impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
+    SliceStorage<'a, MaybeUninit<T>, R, C, RStride, CStride>
+{
+    pub unsafe fn assume_init(self) -> SliceStorage<'a, T, R, C, RStride, CStride> {
+        Self::from_raw_parts(self.ptr as *const T, self.shape, self.strides)
+    }
+}
+
+impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
+    SliceStorageMut<'a, MaybeUninit<T>, R, C, RStride, CStride>
+{
+    pub unsafe fn assume_init(self) -> SliceStorageMut<'a, T, R, C, RStride, CStride> {
+        Self::from_raw_parts(self.ptr as *mut T, self.shape, self.strides)
+    }
+}
+
 unsafe impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> StorageMut<T, R, C>
     for SliceStorageMut<'a, T, R, C, RStride, CStride>
 {
@@ -242,10 +259,12 @@ unsafe impl<'a, T, R: Dim, CStride: Dim> ContiguousStorage<T, R, U1>
     for SliceStorage<'a, T, R, U1, U1, CStride>
 {
 }
+
 unsafe impl<'a, T, R: Dim, CStride: Dim> ContiguousStorage<T, R, U1>
     for SliceStorageMut<'a, T, R, U1, U1, CStride>
 {
 }
+
 unsafe impl<'a, T, R: Dim, CStride: Dim> ContiguousStorageMut<T, R, U1>
     for SliceStorageMut<'a, T, R, U1, U1, CStride>
 {
@@ -255,10 +274,12 @@ unsafe impl<'a, T, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorage<T, R, 
     for SliceStorage<'a, T, R, C, U1, R>
 {
 }
+
 unsafe impl<'a, T, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorage<T, R, C>
     for SliceStorageMut<'a, T, R, C, U1, R>
 {
 }
+
 unsafe impl<'a, T, R: DimName, C: Dim + IsNotStaticOne> ContiguousStorageMut<T, R, C>
     for SliceStorageMut<'a, T, R, C, U1, R>
 {
@@ -312,6 +333,7 @@ macro_rules! matrix_slice_impl(
      $fixed_slice_with_steps: ident,
      $generic_slice: ident,
      $generic_slice_with_steps: ident,
+     $full_slice: ident,
      $rows_range_pair: ident,
      $columns_range_pair: ident) => {
         /*
@@ -370,7 +392,7 @@ macro_rules! matrix_slice_impl(
         pub fn $rows_generic<RSlice: Dim>($me: $Me, row_start: usize, nrows: RSlice)
             -> $MatrixSlice<T, RSlice, C, S::RStride, S::CStride> {
 
-            let my_shape   = $me.data.shape();
+            let my_shape  = $me.data.shape();
             $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (0, 0));
 
             let shape = (nrows, my_shape.1);
@@ -388,12 +410,12 @@ macro_rules! matrix_slice_impl(
             -> $MatrixSlice<T, RSlice, C, Dynamic, S::CStride>
             where RSlice: Dim {
 
-            let my_shape   = $me.data.shape();
+            let my_shape = $me.data.shape();
             let my_strides = $me.data.strides();
             $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (step, 0));
 
             let strides = (Dynamic::new((step + 1) * my_strides.0.value()), my_strides.1);
-            let shape   = (nrows, my_shape.1);
+            let shape = (nrows, my_shape.1);
 
             unsafe {
                 let data = $SliceStorage::new_with_strides_unchecked($data, (row_start, 0), shape, strides);
@@ -468,20 +490,19 @@ macro_rules! matrix_slice_impl(
             }
         }
 
-
         /// Extracts from this matrix `ncols` columns skipping `step` columns. Both argument may
         /// or may not be values known at compile-time.
         #[inline]
         pub fn $columns_generic_with_step<CSlice: Dim>($me: $Me, first_col: usize, ncols: CSlice, step: usize)
             -> $MatrixSlice<T, R, CSlice, S::RStride, Dynamic> {
 
-            let my_shape   = $me.data.shape();
+            let my_shape = $me.data.shape();
             let my_strides = $me.data.strides();
 
             $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, step));
 
             let strides = (my_strides.0, Dynamic::new((step + 1) * my_strides.1.value()));
-            let shape   = (my_shape.0, ncols);
+            let shape = (my_shape.0, ncols);
 
             unsafe {
                 let data = $SliceStorage::new_with_strides_unchecked($data, (0, first_col), shape, strides);
@@ -508,7 +529,6 @@ macro_rules! matrix_slice_impl(
                 Matrix::from_data_statically_unchecked(data)
             }
         }
-
 
         /// Slices this matrix starting at its component `(start.0, start.1)` and with
         /// `(shape.0, shape.1)` components. Each row (resp. column) of the sliced matrix is
@@ -550,11 +570,9 @@ macro_rules! matrix_slice_impl(
 
         /// Creates a slice that may or may not have a fixed size and stride.
         #[inline]
-        pub fn $generic_slice<RSlice, CSlice>($me: $Me, start: (usize, usize), shape: (RSlice, CSlice))
+        pub fn $generic_slice<RSlice: Dim, CSlice: Dim>($me: $Me, start: (usize, usize), shape: (RSlice, CSlice))
             -> $MatrixSlice<T, RSlice, CSlice, S::RStride, S::CStride>
-            where RSlice: Dim,
-                  CSlice: Dim {
-
+        {
             $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), (0, 0));
 
             unsafe {
@@ -583,6 +601,12 @@ macro_rules! matrix_slice_impl(
                 let data = $SliceStorage::new_with_strides_unchecked($data, start, shape, strides);
                 Matrix::from_data_statically_unchecked(data)
             }
+        }
+
+        /// Returns a slice containing the entire matrix.
+        pub fn $full_slice($me: $Me) -> $MatrixSlice<T, R, C, S::RStride, S::CStride> {
+            let (nrows, ncols) = $me.shape();
+            $me.generic_slice((0, 0), (R::from_usize(nrows), C::from_usize(ncols)))
         }
 
         /*
@@ -697,6 +721,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
      fixed_slice_with_steps,
      generic_slice,
      generic_slice_with_steps,
+     full_slice,
      rows_range_pair,
      columns_range_pair);
 }
@@ -727,8 +752,25 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
      fixed_slice_with_steps_mut,
      generic_slice_mut,
      generic_slice_with_steps_mut,
+     full_slice_mut,
      rows_range_pair_mut,
      columns_range_pair_mut);
+}
+
+impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
+    MatrixSlice<'a, MaybeUninit<T>, R, C, RStride, CStride>
+{
+    pub unsafe fn slice_assume_init(self) -> MatrixSlice<'a, T, R, C, RStride, CStride> {
+        Matrix::from_data(self.data.assume_init())
+    }
+}
+
+impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
+    MatrixSliceMut<'a, MaybeUninit<T>, R, C, RStride, CStride>
+{
+    pub unsafe fn slice_assume_init(self) -> MatrixSliceMut<'a, T, R, C, RStride, CStride> {
+        Matrix::from_data(self.data.assume_init())
+    }
 }
 
 /// A range with a size that may be known at compile-time.

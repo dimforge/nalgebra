@@ -1,3 +1,5 @@
+use std::mem::MaybeUninit;
+
 use crate::allocator::Allocator;
 use crate::storage::Storage;
 use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, RowOVector, Scalar, VectorSlice, U1};
@@ -18,13 +20,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Allocator<T, U1, C>,
     {
         let ncols = self.data.shape().1;
-        let mut res: RowOVector<T, C> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(Const::<1>, ncols) };
+        let mut res = RowOVector::new_uninitialized_generic(Const::<1>, ncols);
 
         for i in 0..ncols.value() {
             // TODO: avoid bound checking of column.
             unsafe {
-                *res.get_unchecked_mut((0, i)) = f(self.column(i));
+                *res.get_unchecked_mut((0, i)) =MaybeUninit::new( f(self.column(i)));
             }
         }
 
@@ -45,17 +46,16 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Allocator<T, C>,
     {
         let ncols = self.data.shape().1;
-        let mut res: OVector<T, C> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(ncols, Const::<1>) };
+        let mut res = Matrix::new_uninitialized_generic(ncols, Const::<1>);
 
         for i in 0..ncols.value() {
             // TODO: avoid bound checking of column.
             unsafe {
-                *res.vget_unchecked_mut(i) = f(self.column(i));
+                *res.vget_unchecked_mut(i) = MaybeUninit::new(f(self.column(i)));
             }
         }
 
-        res
+        unsafe { res.assume_init() }
     }
 
     /// Returns a column vector resulting from the folding of `f` on each column of this matrix.

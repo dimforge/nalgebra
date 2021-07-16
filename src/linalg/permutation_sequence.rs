@@ -1,3 +1,5 @@
+use std::mem::MaybeUninit;
+
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
@@ -8,7 +10,7 @@ use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, OVector, Scalar};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::dimension::Dynamic;
-use crate::dimension::{Const, Dim, DimName};
+use crate::dimension::{ Dim, DimName};
 use crate::storage::StorageMut;
 
 /// A sequence of row or column permutations.
@@ -29,13 +31,13 @@ where
     DefaultAllocator: Allocator<(usize, usize), D>,
 {
     len: usize,
-    ipiv: OVector<(usize, usize), D>,
+    ipiv: OVector<MaybeUninit<(usize, usize)>, D>,
 }
 
 impl<D: Dim> Copy for PermutationSequence<D>
 where
     DefaultAllocator: Allocator<(usize, usize), D>,
-    OVector<(usize, usize), D>: Copy,
+    OVector<MaybeUninit<(usize, usize)>, D>: Copy,
 {
 }
 
@@ -72,7 +74,7 @@ where
         unsafe {
             Self {
                 len: 0,
-                ipiv: crate::unimplemented_or_uninitialized_generic!(dim, Const::<1>),
+                ipiv: OVector::new_uninitialized(dim),
             }
         }
     }
@@ -97,7 +99,7 @@ where
     where
         S2: StorageMut<T, R2, C2>,
     {
-        for i in self.ipiv.rows_range(..self.len).iter() {
+        for i in self.ipiv.rows_range(..self.len).iter().map(MaybeUninit::assume_init) {
             rhs.swap_rows(i.0, i.1)
         }
     }

@@ -77,9 +77,13 @@ impl<T, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>> for Def
     unsafe fn assume_init(
         uninit: <Self as InnerAllocator<MaybeUninit<T>, Const<R>, Const<C>>>::Buffer,
     ) -> Owned<T, Const<R>, Const<C>> {
-        // Safety: MaybeUninit<T> has the same alignment and layout as T, and by
-        // extension so do arrays based on these.
-        mem::transmute(uninit)
+        // SAFETY:
+        // * The caller guarantees that all elements of the array are initialized
+        // * `MaybeUninit<T>` and T are guaranteed to have the same layout
+        // * MaybeUnint does not drop, so there are no double-frees
+        // * `ArrayStorage` is transparent.
+        // And thus the conversion is safe
+        ArrayStorage((&uninit as *const _ as *const [_; C]).read())
     }
 }
 
@@ -205,7 +209,7 @@ where
         );
 
         // Safety: TODO
-        <Self as Allocator<_, RTO, CTO>>::assume_init(res)
+        <Self as Allocator<_, Const<RTO>, Const<CTO>>>::assume_init(res)
     }
 }
 

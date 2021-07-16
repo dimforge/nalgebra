@@ -1,4 +1,12 @@
-use crate::{OVector, SimdComplexField};
+//! Implements a subset of the Basic Linear Algebra Subprograms (BLAS), a
+//! standard and highly optimized set of basic vector and matrix operations.
+//!
+//! To avoid unsoundness due to mishandling of uninitialized data, we divide our
+//! methods into two groups: those that take in a `&mut` to a matrix, and those
+//! that return an owned matrix that would otherwise result from setting a
+//! parameter to zero in the other methods.
+
+use crate::{OMatrix, OVector, SimdComplexField};
 #[cfg(feature = "std")]
 use matrixmultiply;
 use num::{One, Zero};
@@ -279,72 +287,16 @@ where
     }
 }
 
-#[allow(clippy::too_many_arguments)]
-fn array_axcpy<T>(
-    y: &mut [T],
-    a: T,
-    x: &[T],
-    c: T,
-    beta: T,
-    stride1: usize,
-    stride2: usize,
-    len: usize,
-) where
-    T: Scalar + Zero + ClosedAdd + ClosedMul,
-{
-    for i in 0..len {
-        unsafe {
-            let y = y.get_unchecked_mut(i * stride1);
-            *y = a.inlined_clone()
-                * x.get_unchecked(i * stride2).inlined_clone()
-                * c.inlined_clone()
-                + beta.inlined_clone() * y.inlined_clone();
-        }
-    }
-}
-
-fn array_axc<T>(y: &mut [T], a: T, x: &[T], c: T, stride1: usize, stride2: usize, len: usize)
-where
-    T: Scalar + Zero + ClosedAdd + ClosedMul,
-{
-    for i in 0..len {
-        unsafe {
-            *y.get_unchecked_mut(i * stride1) = a.inlined_clone()
-                * x.get_unchecked(i * stride2).inlined_clone()
-                * c.inlined_clone();
-        }
-    }
-}
-
-fn array_axc_uninit<T>(
-    y: &mut [MaybeUninit<T>],
-    a: T,
-    x: &[T],
-    c: T,
-    stride1: usize,
-    stride2: usize,
-    len: usize,
-) where
-    T: Scalar + Zero + ClosedAdd + ClosedMul,
-{
-    for i in 0..len {
-        unsafe {
-            *y.get_unchecked_mut(i * stride1) = MaybeUninit::new(
-                a.inlined_clone()
-                    * x.get_unchecked(i * stride2).inlined_clone()
-                    * c.inlined_clone(),
-            );
-        }
-    }
-}
-
 /// # BLAS functions
 impl<T, D: Dim, S> Vector<T, D, S>
 where
     T: Scalar + Zero + ClosedAdd + ClosedMul,
     S: StorageMut<T, D>,
 {
-    /// Computes `self = a * x * c + b * self`.
+    /// Computes `self = a * x * c + b * self`, where `a`, `b`, `c` are scalars,
+    /// and `x` is a vector of the same size as `self`.
+    ///
+    /// For commutative scalars, this is equivalent to an [`axpy`] call.
     ///
     /// If `b` is zero, `self` is never read from.
     ///
@@ -376,9 +328,24 @@ where
             let x = x.data.as_slice_unchecked();
 
             if !b.is_zero() {
-                array_axcpy(y, a, x, c, b, rstride1, rstride2, x.len());
+                for i in 0..x.len() {
+                    unsafe {
+                        let y = y.get_unchecked_mut(i * rstride1);
+                        *y = a.inlined_clone()
+                            * x.get_unchecked(i * rstride2).inlined_clone()
+                            * c.inlined_clone()
+                            + b.inlined_clone() * y.inlined_clone();
+                    }
+                }
             } else {
-                array_axc(y, a, x, c, rstride1, rstride2, x.len());
+                for i in 0..x.len() {
+                    unsafe {
+                        let y = y.get_unchecked_mut(i * rstride1);
+                        *y = a.inlined_clone()
+                            * x.get_unchecked(i * rstride2).inlined_clone()
+                            * c.inlined_clone();
+                    }
+                }
             }
         }
     }
@@ -746,49 +713,55 @@ where
     }
 }
 
-impl<T, D: Dim> OVector<MaybeUninit<T>, D>
+impl<T, D: Dim, S> Vector<MaybeUninit<T>, D, S>
 where
     T: Scalar + Zero + ClosedAdd + ClosedMul,
-    DefaultAllocator: Allocator<T, D>,
+    S: StorageMut<MaybeUninit<T>, D>,
 {
-    pub fn axc<D2: Dim, SB>(&mut self, a: T, x: &Vector<T, D2, SB>, c: T) -> OVector<T, D>
+    /// Computes `alpha * a * x`, where `a` is a matrix, `x` a vector, and
+    /// `alpha` is a scalar.
+    ///
+    /// # Safety
+    /// `self` must be completely uninitialized, or data leaks will occur. After
+    /// this method is called, all entries in `self` will be initialized.
+    pub fn axc<D2: Dim, S2>(&mut self, a: T, x: &Vector<T, D2, S2>, c: T)
     where
-        SB: Storage<T, D2>,
+        S2: Storage<T, D2>,
         ShapeConstraint: DimEq<D, D2>,
     {
-        assert_eq!(self.nrows(), x.nrows(), "Axcpy: mismatched vector shapes.");
-
         let rstride1 = self.strides().0;
         let rstride2 = x.strides().0;
 
         unsafe {
-            // SAFETY: the conversion to slices is OK because we access the
-            //         elements taking the strides into account.
             let y = self.data.as_mut_slice_unchecked();
             let x = x.data.as_slice_unchecked();
 
-            array_axc_uninit(y, a, x, c, rstride1, rstride2, x.len());
-            self.assume_init()
+            for i in 0..y.len() {
+                *y.get_unchecked_mut(i * rstride1) = MaybeUninit::new(
+                    a.inlined_clone()
+                        * x.get_unchecked(i * rstride2).inlined_clone()
+                        * c.inlined_clone(),
+                );
+            }
         }
     }
 
-    /// Computes `self = alpha * a * x, where `a` is a matrix, `x` a vector, and
+    /// Computes `alpha * a * x`, where `a` is a matrix, `x` a vector, and
     /// `alpha` is a scalar.
     ///
-    /// By the time this method returns, `self` will have been initialized.
+    /// Initializes `self`.
     #[inline]
-    pub fn gemv_uninit<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
-        mut self,
+    pub fn gemv_z<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
+        &mut self,
         alpha: T,
         a: &Matrix<T, R2, C2, SB>,
         x: &Vector<T, D3, SC>,
-        beta: T,
-    ) -> OVector<T, D>
-    where
+    ) where
         T: One,
         SB: Storage<T, R2, C2>,
         SC: Storage<T, D3>,
         ShapeConstraint: DimEq<D, R2> + AreMultipliable<R2, C2, D3, U1>,
+        // DefaultAllocator: Allocator<T, D>,
     {
         let dim1 = self.nrows();
         let (nrows2, ncols2) = a.shape();
@@ -801,22 +774,169 @@ where
 
         if ncols2 == 0 {
             self.fill_fn(|| MaybeUninit::new(T::zero()));
-            return self.assume_init();
+            return;
         }
 
         // TODO: avoid bound checks.
         let col2 = a.column(0);
         let val = unsafe { x.vget_unchecked(0).inlined_clone() };
-        let res = self.axc(alpha.inlined_clone(), &col2, val);
+        self.axc(alpha.inlined_clone(), &col2, val);
 
-        for j in 1..ncols2 {
-            let col2 = a.column(j);
-            let val = unsafe { x.vget_unchecked(j).inlined_clone() };
+        // Safety: axc initializes self.
+        unsafe {
+            let mut init = self.assume_init_mut();
 
-            res.axcpy(alpha.inlined_clone(), &col2, val, T::one());
+            for j in 1..ncols2 {
+                let col2 = a.column(j);
+                let val = unsafe { x.vget_unchecked(j).inlined_clone() };
+                init.axcpy(alpha.inlined_clone(), &col2, val, T::one());
+            }
+        }
+    }
+}
+
+impl<T, R1: Dim, C1: Dim> OMatrix<T, R1, C1>
+where
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    DefaultAllocator: Allocator<T, R1, C1>,
+{
+    /// Computes `alpha * a * b`, where `a` and `b` are matrices, and `alpha` is
+    /// a scalar.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Matrix2x3, Matrix3x4, Matrix2x4};
+    /// let mut mat1 = Matrix2x4::identity();
+    /// let mat2 = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                           4.0, 5.0, 6.0);
+    /// let mat3 = Matrix3x4::new(0.1, 0.2, 0.3, 0.4,
+    ///                           0.5, 0.6, 0.7, 0.8,
+    ///                           0.9, 1.0, 1.1, 1.2);
+    /// let expected = mat2 * mat3 * 10.0 + mat1 * 5.0;
+    ///
+    /// mat1.gemm(10.0, &mat2, &mat3, 5.0);
+    /// assert_relative_eq!(mat1, expected);
+    /// ```
+    #[inline]
+    pub fn gemm_z<R2: Dim, C2: Dim, R3: Dim, C3: Dim, SB, SC>(
+        alpha: T,
+        a: &Matrix<T, R2, C2, SB>,
+        b: &Matrix<T, R3, C3, SC>,
+    ) -> Self
+    where
+        SB: Storage<T, R2, C2>,
+        SC: Storage<T, R3, C3>,
+        ShapeConstraint: SameNumberOfRows<R1, R2>
+            + SameNumberOfColumns<C1, C3>
+            + AreMultipliable<R2, C2, R3, C3>,
+    {
+        let (nrows1, ncols1) = a.shape();
+        let (nrows2, ncols2) = b.shape();
+
+        assert_eq!(
+            ncols1, nrows2,
+            "gemm: dimensions mismatch for multiplication."
+        );
+
+        let mut res =
+            Matrix::new_uninitialized_generic(R1::from_usize(nrows1), C1::from_usize(ncols2));
+
+        #[cfg(feature = "std")]
+        {
+            // We assume large matrices will be Dynamic but small matrices static.
+            // We could use matrixmultiply for large statically-sized matrices but the performance
+            // threshold to activate it would be different from SMALL_DIM because our code optimizes
+            // better for statically-sized matrices.
+            if R1::is::<Dynamic>()
+                || C1::is::<Dynamic>()
+                || R2::is::<Dynamic>()
+                || C2::is::<Dynamic>()
+                || R3::is::<Dynamic>()
+                || C3::is::<Dynamic>()
+            {
+                // matrixmultiply can be used only if the std feature is available.
+
+                // Threshold determined empirically.
+                const SMALL_DIM: usize = 5;
+
+                if nrows1 > SMALL_DIM
+                    && ncols1 > SMALL_DIM
+                    && nrows2 > SMALL_DIM
+                    && ncols2 > SMALL_DIM
+                {
+                    // NOTE: this case should never happen because we enter this
+                    // codepath only when ncols2 > SMALL_DIM. Though we keep this
+                    // here just in case if in the future we change the conditions to
+                    // enter this codepath.
+                    if ncols1 == 0 {
+                        // NOTE: we can't just always multiply by beta
+                        // because we documented the guaranty that `self` is
+                        // never read if `beta` is zero.
+
+                        // Safety: this buffer is empty.
+                        return res.assume_init();
+                    }
+
+                    let (rsa, csa) = a.strides();
+                    let (rsb, csb) = b.strides();
+                    let (rsc, csc) = res.strides();
+
+                    if T::is::<f32>() {
+                        unsafe {
+                            matrixmultiply::sgemm(
+                                nrows1,
+                                ncols1,
+                                ncols2,
+                                mem::transmute_copy(&alpha),
+                                a.data.ptr() as *const f32,
+                                rsa as isize,
+                                csa as isize,
+                                b.data.ptr() as *const f32,
+                                rsb as isize,
+                                csb as isize,
+                                0.0,
+                                res.data.ptr_mut() as *mut f32,
+                                rsc as isize,
+                                csc as isize,
+                            );
+
+                            return res.assume_init();
+                        }
+                    } else if T::is::<f64>() {
+                        unsafe {
+                            matrixmultiply::dgemm(
+                                nrows1,
+                                ncols1,
+                                ncols2,
+                                mem::transmute_copy(&alpha),
+                                a.data.ptr() as *const f64,
+                                rsa as isize,
+                                csa as isize,
+                                b.data.ptr() as *const f64,
+                                rsb as isize,
+                                csb as isize,
+                                0.0,
+                                res.data.ptr_mut() as *mut f64,
+                                rsc as isize,
+                                csc as isize,
+                            );
+
+                            return res.assume_init();
+                        }
+                    }
+                }
+            }
         }
 
-        res
+        for j1 in 0..ncols1 {
+            // TODO: avoid bound checks.
+            res.column_mut(j1)
+                .gemv_z(alpha.inlined_clone(), a, &b.column(j1));
+        }
+
+        unsafe { res.assume_init() }
     }
 }
 
@@ -1372,49 +1492,6 @@ where
     ///
     /// mat.quadform_tr_with_workspace(&mut workspace, 10.0, &lhs, &mid, 5.0);
     /// assert_relative_eq!(mat, expected);
-    pub fn quadform_tr_with_workspace<D2: Dim, R3: Dim, C3: Dim, S3, D4: Dim, S4>(
-        &mut self,
-        work: &mut OVector<MaybeUninit<T>, D2>,
-        alpha: T,
-        lhs: &Matrix<T, R3, C3, S3>,
-        mid: &SquareMatrix<T, D4, S4>,
-        beta: T,
-    ) where
-        S3: Storage<T, R3, C3>,
-        S4: Storage<T, D4, D4>,
-        ShapeConstraint: DimEq<D1, D2> + DimEq<D1, R3> + DimEq<D2, R3> + DimEq<C3, D4>,
-        DefaultAllocator: Allocator<T, D2>,
-    {
-        let work = work.gemv_uninit(T::one(), lhs, &mid.column(0), T::zero());
-        self.ger(alpha.inlined_clone(), &work, &lhs.column(0), beta);
-
-        for j in 1..mid.ncols() {
-            work.gemv(T::one(), lhs, &mid.column(j), T::zero());
-            self.ger(alpha.inlined_clone(), &work, &lhs.column(j), T::one());
-        }
-    }
-
-    /// Computes the quadratic form `self = alpha * lhs * mid * lhs.transpose() + beta * self`.
-    ///
-    /// This allocates a workspace vector of dimension D1 for intermediate results.
-    /// If `D1` is a type-level integer, then the allocation is performed on the stack.
-    /// Use `.quadform_tr_with_workspace(...)` instead to avoid allocations.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::{Matrix2, Matrix3, Matrix2x3, Vector2};
-    /// let mut mat = Matrix2::identity();
-    /// let lhs = Matrix2x3::new(1.0, 2.0, 3.0,
-    ///                          4.0, 5.0, 6.0);
-    /// let mid = Matrix3::new(0.1, 0.2, 0.3,
-    ///                        0.5, 0.6, 0.7,
-    ///                        0.9, 1.0, 1.1);
-    /// let expected = lhs * mid * lhs.transpose() * 10.0 + mat * 5.0;
-    ///
-    /// mat.quadform_tr(10.0, &lhs, &mid, 5.0);
-    /// assert_relative_eq!(mat, expected);
     pub fn quadform_tr<R3: Dim, C3: Dim, S3, D4: Dim, S4>(
         &mut self,
         alpha: T,
@@ -1424,11 +1501,19 @@ where
     ) where
         S3: Storage<T, R3, C3>,
         S4: Storage<T, D4, D4>,
-        ShapeConstraint: DimEq<D1, D1> + DimEq<D1, R3> + DimEq<C3, D4>,
-        DefaultAllocator: Allocator<T, D1>,
+        ShapeConstraint: DimEq<D1, R3> + DimEq<C3, D4>,
+        DefaultAllocator: Allocator<T, R3>,
     {
-        let mut work = Matrix::new_uninitialized_generic(self.data.shape().0, Const::<1>);
-        self.quadform_tr_with_workspace(&mut work, alpha, lhs, mid, beta)
+        let work = Matrix::new_uninitialized_generic(R3::from_usize(self.shape().0), Const::<1>);
+        work.gemv_z(T::one(), lhs, &mid.column(0));
+        let work = unsafe { work.assume_init() };
+
+        self.ger(alpha.inlined_clone(), &work, &lhs.column(0), beta);
+
+        for j in 1..mid.ncols() {
+            work.gemv(T::one(), lhs, &mid.column(j), T::zero());
+            self.ger(alpha.inlined_clone(), &work, &lhs.column(j), T::one());
+        }
     }
 
     /// Computes the quadratic form `self = alpha * rhs.transpose() * mid * rhs + beta * self`.
@@ -1454,11 +1539,10 @@ where
     /// let mut workspace = DVector::new_random(3);
     /// let expected = rhs.transpose() * &mid * &rhs * 10.0 + &mat * 5.0;
     ///
-    /// mat.quadform_with_workspace(&mut workspace, 10.0, &mid, &rhs, 5.0);
+    /// mat.quadform(&mut workspace, 10.0, &mid, &rhs, 5.0);
     /// assert_relative_eq!(mat, expected);
-    pub fn quadform_with_workspace<D2: Dim, D3: Dim, S3, R4: Dim, C4: Dim, S4>(
+    pub fn quadform<D3: Dim, S3, R4: Dim, C4: Dim, S4>(
         &mut self,
-        work: &mut OVector<MaybeUninit<T>, D2>,
         alpha: T,
         mid: &SquareMatrix<T, D3, S3>,
         rhs: &Matrix<T, R4, C4, S4>,
@@ -1466,54 +1550,21 @@ where
     ) where
         S3: Storage<T, D3, D3>,
         S4: Storage<T, R4, C4>,
-        ShapeConstraint:
-            DimEq<D3, R4> + DimEq<D1, C4> + DimEq<D2, D3> + AreMultipliable<C4, R4, D2, U1>,
-        DefaultAllocator: Allocator<T, D2>,
+        ShapeConstraint: DimEq<R4, D3> + DimEq<D3, R4> + DimEq<D1, C4>,
+        DefaultAllocator: Allocator<T, D3>,
     {
-        let work = work.gemv_uninit(T::one(), mid, &rhs.column(0), T::zero());
+        // TODO: figure out why type inference wasn't doing its job.
+        let work = Matrix::new_uninitialized_generic(D3::from_usize(self.shape().0), Const::<1>);
+        work.gemv_z::<D3, D3, R4, S3, _>(T::one(), mid, &rhs.column(0));
+        let work = unsafe { work.assume_init() };
+
         self.column_mut(0)
             .gemv_tr(alpha.inlined_clone(), rhs, &work, beta.inlined_clone());
 
         for j in 1..rhs.ncols() {
-            work.gemv(T::one(), mid, &rhs.column(j), T::zero());
+            work.gemv::<D3, D3, R4, S3, _>(T::one(), mid, &rhs.column(j), T::zero());
             self.column_mut(j)
                 .gemv_tr(alpha.inlined_clone(), rhs, &work, beta.inlined_clone());
         }
-    }
-
-    /// Computes the quadratic form `self = alpha * rhs.transpose() * mid * rhs + beta * self`.
-    ///
-    /// This allocates a workspace vector of dimension D2 for intermediate results.
-    /// If `D2` is a type-level integer, then the allocation is performed on the stack.
-    /// Use `.quadform_with_workspace(...)` instead to avoid allocations.
-    ///
-    /// ```
-    /// # #[macro_use] extern crate approx;
-    /// # use nalgebra::{Matrix2, Matrix3x2, Matrix3};
-    /// let mut mat = Matrix2::identity();
-    /// let rhs = Matrix3x2::new(1.0, 2.0,
-    ///                          3.0, 4.0,
-    ///                          5.0, 6.0);
-    /// let mid = Matrix3::new(0.1, 0.2, 0.3,
-    ///                        0.5, 0.6, 0.7,
-    ///                        0.9, 1.0, 1.1);
-    /// let expected = rhs.transpose() * mid * rhs * 10.0 + mat * 5.0;
-    ///
-    /// mat.quadform(10.0, &mid, &rhs, 5.0);
-    /// assert_relative_eq!(mat, expected);
-    pub fn quadform<D2: Dim, S2, R3: Dim, C3: Dim, S3>(
-        &mut self,
-        alpha: T,
-        mid: &SquareMatrix<T, D2, S2>,
-        rhs: &Matrix<T, R3, C3, S3>,
-        beta: T,
-    ) where
-        S2: Storage<T, D2, D2>,
-        S3: Storage<T, R3, C3>,
-        ShapeConstraint: DimEq<D2, R3> + DimEq<D1, C3> + AreMultipliable<C3, R3, D2, U1>,
-        DefaultAllocator: Allocator<T, D2>,
-    {
-        let mut work = Matrix::new_uninitialized_generic(mid.data.shape().0, Const::<1>);
-        self.quadform_with_workspace(&mut work, alpha, mid, rhs, beta)
     }
 }

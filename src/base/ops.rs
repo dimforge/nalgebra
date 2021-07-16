@@ -24,7 +24,7 @@ use crate::SimdComplexField;
  * Indexing.
  *
  */
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Index<usize> for Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Index<usize> for Matrix<T, R, C, S> {
     type Output = T;
 
     #[inline]
@@ -36,7 +36,6 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Index<usize> for Matrix<T, 
 
 impl<T, R: Dim, C: Dim, S> Index<(usize, usize)> for Matrix<T, R, C, S>
 where
-    T: Scalar,
     S: Storage<T, R, C>,
 {
     type Output = T;
@@ -54,7 +53,7 @@ where
 }
 
 // Mutable versions.
-impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> IndexMut<usize> for Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> IndexMut<usize> for Matrix<T, R, C, S> {
     #[inline]
     fn index_mut(&mut self, i: usize) -> &mut T {
         let ij = self.vector_to_matrix_index(i);
@@ -64,7 +63,6 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> IndexMut<usize> for Matr
 
 impl<T, R: Dim, C: Dim, S> IndexMut<(usize, usize)> for Matrix<T, R, C, S>
 where
-    T: Scalar,
     S: StorageMut<T, R, C>,
 {
     #[inline]
@@ -139,15 +137,15 @@ macro_rules! componentwise_binop_impl(
      $TraitAssign: ident, $method_assign: ident, $method_assign_statically_unchecked: ident,
      $method_assign_statically_unchecked_rhs: ident;
      $method_to: ident, $method_to_statically_unchecked: ident) => {
-
         impl<T, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA>
-            where T: Scalar + $bound {
-
+        where
+            T: Scalar + $bound
+        {
             /*
              *
              * Methods without dimension checking at compile-time.
-             * This is useful for code reuse because the sum representative system does not plays
-             * easily with static checks.
+             * This is useful for code reuse because the sum representative system does not play
+             * nicely with static checks.
              *
              */
             #[inline]
@@ -155,7 +153,7 @@ macro_rules! componentwise_binop_impl(
                 &self, rhs: &Matrix<T, R2, C2, SB>, out: &mut Matrix<MaybeUninit<T>, R3, C3, SC>
             ) where
                 SB: Storage<T, R2, C2>,
-                SC: StorageMut<T, R3, C3> + StorageMut<MaybeUninit<T>, R3, C3>
+                SC: StorageMut<MaybeUninit<T>, R3, C3>
             {
                 assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
                 assert_eq!(self.shape(), out.shape(), "Matrix addition/subtraction output dimensions mismatch.");
@@ -184,13 +182,13 @@ macro_rules! componentwise_binop_impl(
                 }
             }
 
-
             #[inline]
-            fn $method_assign_statically_unchecked<R2, C2, SB>(&mut self, rhs: &Matrix<T, R2, C2, SB>)
-                where R2: Dim,
-                      C2: Dim,
-                      SA: StorageMut<T, R1, C1>,
-                      SB: Storage<T, R2, C2> {
+            fn $method_assign_statically_unchecked<R2: Dim, C2: Dim, SB>(
+                &mut self, rhs: &Matrix<T, R2, C2, SB>
+            ) where
+                SA: StorageMut<T, R1, C1>,
+                SB: Storage<T, R2, C2>
+            {
                 assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
 
                 // This is the most common case and should be deduced at compile-time.
@@ -213,12 +211,12 @@ macro_rules! componentwise_binop_impl(
                 }
             }
 
-
             #[inline]
-            fn $method_assign_statically_unchecked_rhs<R2, C2, SB>(&self, rhs: &mut Matrix<T, R2, C2, SB>)
-                where R2: Dim,
-                      C2: Dim,
-                      SB: StorageMut<T, R2, C2> {
+            fn $method_assign_statically_unchecked_rhs<R2: Dim, C2: Dim, SB>(
+                &self, rhs: &mut Matrix<T, R2, C2, SB>
+            ) where
+                SB: StorageMut<T, R2, C2>
+            {
                 assert_eq!(self.shape(), rhs.shape(), "Matrix addition/subtraction dimensions mismatch.");
 
                 // This is the most common case and should be deduced at compile-time.
@@ -253,14 +251,19 @@ macro_rules! componentwise_binop_impl(
              */
             /// Equivalent to `self + rhs` but stores the result into `out` to avoid allocations.
             #[inline]
-            pub fn $method_to<R2: Dim, C2: Dim, SB,
-                              R3: Dim, C3: Dim, SC>(&self,
-                                                    rhs: &Matrix<T, R2, C2, SB>,
-                                                    out: &mut Matrix<T, R3, C3, SC>)
-                where SB: Storage<T, R2, C2>,
-                      SC: StorageMut<T, R3, C3>,
-                      ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> +
-                                       SameNumberOfRows<R1, R3> + SameNumberOfColumns<C1, C3> {
+            pub fn $method_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
+                &self,
+                rhs: &Matrix<T, R2, C2, SB>,
+                out: &mut Matrix<MaybeUninit<T>, R3, C3, SC>
+            ) where
+                SB: Storage<T, R2, C2>,
+                SC: StorageMut<MaybeUninit<T>, R3, C3>,
+                ShapeConstraint:
+                    SameNumberOfRows<R1, R2> +
+                    SameNumberOfColumns<C1, C2> +
+                    SameNumberOfRows<R1, R3> +
+                    SameNumberOfColumns<C1, C3>
+            {
                 self.$method_to_statically_unchecked(rhs, out)
             }
         }
@@ -283,13 +286,14 @@ macro_rules! componentwise_binop_impl(
             }
         }
 
-        impl<'a, T, R1, C1, R2, C2, SA, SB> $Trait<Matrix<T, R2, C2, SB>> for &'a Matrix<T, R1, C1, SA>
-            where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  T: Scalar + $bound,
-                  SA: Storage<T, R1, C1>,
-                  SB: Storage<T, R2, C2>,
-                  DefaultAllocator: SameShapeAllocator<T, R2, C2, R1, C1>,
-                  ShapeConstraint:  SameNumberOfRows<R2, R1> + SameNumberOfColumns<C2, C1> {
+        impl<'a, T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> $Trait<Matrix<T, R2, C2, SB>> for &'a Matrix<T, R1, C1, SA>
+        where
+            T: Scalar + $bound,
+            SA: Storage<T, R1, C1>,
+            SB: Storage<T, R2, C2>,
+            DefaultAllocator: SameShapeAllocator<T, R2, C2, R1, C1>,
+            ShapeConstraint:  SameNumberOfRows<R2, R1> + SameNumberOfColumns<C2, C1>
+        {
             type Output = MatrixSum<T, R2, C2, R1, C1>;
 
             #[inline]
@@ -301,13 +305,14 @@ macro_rules! componentwise_binop_impl(
             }
         }
 
-        impl<T, R1, C1, R2, C2, SA, SB> $Trait<Matrix<T, R2, C2, SB>> for Matrix<T, R1, C1, SA>
-            where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  T: Scalar + $bound,
-                  SA: Storage<T, R1, C1>,
-                  SB: Storage<T, R2, C2>,
-                  DefaultAllocator: SameShapeAllocator<T, R1, C1, R2, C2>,
-                  ShapeConstraint:  SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
+        impl<T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> $Trait<Matrix<T, R2, C2, SB>> for Matrix<T, R1, C1, SA>
+        where
+            T: Scalar + $bound,
+            SA: Storage<T, R1, C1>,
+            SB: Storage<T, R2, C2>,
+            DefaultAllocator: SameShapeAllocator<T, R1, C1, R2, C2>,
+            ShapeConstraint:  SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>
+        {
             type Output = MatrixSum<T, R1, C1, R2, C2>;
 
             #[inline]
@@ -316,49 +321,48 @@ macro_rules! componentwise_binop_impl(
             }
         }
 
-        impl<'a, 'b, T, R1, C1, R2, C2, SA, SB> $Trait<&'b Matrix<T, R2, C2, SB>> for &'a Matrix<T, R1, C1, SA>
-            where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  T: Scalar + $bound,
-                  SA: Storage<T, R1, C1>,
-                  SB: Storage<T, R2, C2>,
-                  DefaultAllocator: SameShapeAllocator<T, R1, C1, R2, C2>,
-                  ShapeConstraint:  SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
+        impl<'a, 'b, T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> $Trait<&'b Matrix<T, R2, C2, SB>> for &'a Matrix<T, R1, C1, SA>
+        where
+            T: Scalar + $bound,
+            SA: Storage<T, R1, C1>,
+            SB: Storage<T, R2, C2>,
+            DefaultAllocator: SameShapeAllocator<T, R1, C1, R2, C2>,
+            ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>
+        {
             type Output = MatrixSum<T, R1, C1, R2, C2>;
 
             #[inline]
             fn $method(self, rhs: &'b Matrix<T, R2, C2, SB>) -> Self::Output {
-                let mut res = unsafe {
-                    let (nrows, ncols) = self.shape();
-                    let nrows: SameShapeR<R1, R2> = Dim::from_usize(nrows);
-                    let ncols: SameShapeC<C1, C2> = Dim::from_usize(ncols);
-                    crate::unimplemented_or_uninitialized_generic!(nrows, ncols)
-                };
+                let (nrows, ncols) = self.shape();
+                let nrows: SameShapeR<R1, R2> = Dim::from_usize(nrows);
+                let ncols: SameShapeC<C1, C2> = Dim::from_usize(ncols);
+                let mut res = Matrix::new_uninitialized_generic(nrows, ncols);
 
                 self.$method_to_statically_unchecked(rhs, &mut res);
-                res
+                unsafe { res.assume_init() }
             }
         }
 
-        impl<'b, T, R1, C1, R2, C2, SA, SB> $TraitAssign<&'b Matrix<T, R2, C2, SB>> for Matrix<T, R1, C1, SA>
-            where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  T: Scalar + $bound,
-                  SA: StorageMut<T, R1, C1>,
-                  SB: Storage<T, R2, C2>,
-                  ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
-
+        impl<'b, T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> $TraitAssign<&'b Matrix<T, R2, C2, SB>> for Matrix<T, R1, C1, SA>
+        where
+            T: Scalar + $bound,
+            SA: StorageMut<T, R1, C1>,
+            SB: Storage<T, R2, C2>,
+            ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>
+        {
             #[inline]
             fn $method_assign(&mut self, rhs: &'b Matrix<T, R2, C2, SB>) {
                 self.$method_assign_statically_unchecked(rhs)
             }
         }
 
-        impl<T, R1, C1, R2, C2, SA, SB> $TraitAssign<Matrix<T, R2, C2, SB>> for Matrix<T, R1, C1, SA>
-            where R1: Dim, C1: Dim, R2: Dim, C2: Dim,
-                  T: Scalar + $bound,
-                  SA: StorageMut<T, R1, C1>,
-                  SB: Storage<T, R2, C2>,
-                  ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
-
+        impl<T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> $TraitAssign<Matrix<T, R2, C2, SB>> for Matrix<T, R1, C1, SA>
+        where
+            T: Scalar + $bound,
+            SA: StorageMut<T, R1, C1>,
+            SB: Storage<T, R2, C2>,
+            ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>
+        {
             #[inline]
             fn $method_assign(&mut self, rhs: Matrix<T, R2, C2, SB>) {
                 self.$method_assign(&rhs)
@@ -576,9 +580,9 @@ where
 
     #[inline]
     fn mul(self, rhs: &'b Matrix<T, R2, C2, SB>) -> Self::Output {
-        let mut res =Matrix::new_uninitialized_generic(self.data.shape().0, rhs.data.shape().1);
-                self.mul_to(rhs, &mut res);
-      unsafe{  res.assume_init()}
+        let mut res = Matrix::new_uninitialized_generic(self.data.shape().0, rhs.data.shape().1);
+        self.mul_to(rhs, &mut res);
+        unsafe { res.assume_init() }
     }
 }
 
@@ -636,11 +640,8 @@ where
 // TODO: this is too restrictive:
 //    − we can't use `a *= b` when `a` is a mutable slice.
 //    − we can't use `a *= b` when C2 is not equal to C1.
-impl<T, R1, C1, R2, SA, SB> MulAssign<Matrix<T, R2, C1, SB>> for Matrix<T, R1, C1, SA>
+impl<T, R1: Dim, C1: Dim, R2: Dim, SA, SB> MulAssign<Matrix<T, R2, C1, SB>> for Matrix<T, R1, C1, SA>
 where
-    R1: Dim,
-    C1: Dim,
-    R2: Dim,
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<T, R2, C1>,
     SA: ContiguousStorageMut<T, R1, C1> + Clone,
@@ -653,11 +654,8 @@ where
     }
 }
 
-impl<'b, T, R1, C1, R2, SA, SB> MulAssign<&'b Matrix<T, R2, C1, SB>> for Matrix<T, R1, C1, SA>
+impl<'b, T, R1: Dim, C1: Dim, R2: Dim, SA, SB> MulAssign<&'b Matrix<T, R2, C1, SB>> for Matrix<T, R1, C1, SA>
 where
-    R1: Dim,
-    C1: Dim,
-    R2: Dim,
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<T, R2, C1>,
     SA: ContiguousStorageMut<T, R1, C1> + Clone,
@@ -697,7 +695,7 @@ where
     pub fn ad_mul<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> OMatrix<T, C1, C2>
     where
         T: SimdComplexField,
-        SB: Storage<MaybeUninit<T>, R2, C2>,
+        SB: Storage<T, R2, C2>,
         DefaultAllocator: Allocator<T, C1, C2>,
         ShapeConstraint: SameNumberOfRows<R1, R2>,
     {
@@ -746,7 +744,9 @@ where
         for i in 0..ncols1 {
             for j in 0..ncols2 {
                 let dot = dot(&self.column(i), &rhs.column(j));
-                unsafe { *out.get_unchecked_mut((i, j)) = MaybeUninit::new(dot) ;}
+                unsafe {
+                    *out.get_unchecked_mut((i, j)) = MaybeUninit::new(dot);
+                }
             }
         }
     }
@@ -786,16 +786,16 @@ where
     #[inline]
     pub fn mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
-        rhs: &Matrix<MaybeUninit<T>, R2, C2, SB>,
-        out: &mut Matrix<T, R3, C3, SC>,
+        rhs: &Matrix<T, R2, C2, SB>,
+        out: &mut Matrix<MaybeUninit<T>, R3, C3, SC>,
     ) where
         SB: Storage<T, R2, C2>,
-        SC: StorageMut<T, R3, C3>,
+        SC: StorageMut<MaybeUninit<T>, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R3, R1>
             + SameNumberOfColumns<C3, C2>
             + AreMultipliable<R1, C1, R2, C2>,
     {
-        out.gemm(T::one(), self, rhs, T::zero());
+        out.gemm_z(T::one(), self, rhs);
     }
 
     /// The kronecker product of two matrices (aka. tensor product of the corresponding linear

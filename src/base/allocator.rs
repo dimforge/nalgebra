@@ -49,7 +49,7 @@ pub trait Allocator<T, R: Dim, C: Dim = U1>:
 /// A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
 /// CFrom) elements to a smaller or larger size (RTo, CTo).
 pub trait Reallocator<T, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
-    InnerAllocator<T, RFrom, CFrom> + InnerAllocator<T, RTo, CTo>
+    Allocator<T, RFrom, CFrom> + Allocator<T, RTo, CTo>
 {
     /// Reallocates a buffer of shape `(RTo, CTo)`, possibly reusing a previously allocated buffer
     /// `buf`. Data stored by `buf` are linearly copied to the output:
@@ -75,7 +75,7 @@ pub type SameShapeC<C1, C2> = <ShapeConstraint as SameNumberOfColumns<C1, C2>>::
 // TODO: Bad name.
 /// Restricts the given number of rows and columns to be respectively the same.
 pub trait SameShapeAllocator<T, R1: Dim, C1: Dim, R2: Dim, C2: Dim>:
-    InnerAllocator<T, R1, C1> + InnerAllocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>
+    Allocator<T, R1, C1> + Allocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>
 where
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
 {
@@ -85,7 +85,7 @@ impl<T, R1: Dim, R2: Dim, C1: Dim, C2: Dim> SameShapeAllocator<T, R1, C1, R2, C2
     for DefaultAllocator
 where
     DefaultAllocator:
-        InnerAllocator<T, R1, C1> + InnerAllocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>,
+        Allocator<T, R1, C1> + Allocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
 {
 }
@@ -93,8 +93,8 @@ where
 // XXX: Bad name.
 /// Restricts the given number of rows to be equal.
 pub trait SameShapeVectorAllocator<T, R1: Dim, R2: Dim>:
-    InnerAllocator<T, R1>
-    + InnerAllocator<T, SameShapeR<R1, R2>>
+    Allocator<T, R1>
+    + Allocator<T, SameShapeR<R1, R2>>
     + SameShapeAllocator<T, R1, U1, R2, U1>
 where
     ShapeConstraint: SameNumberOfRows<R1, R2>,
@@ -103,7 +103,7 @@ where
 
 impl<T, R1: Dim, R2: Dim> SameShapeVectorAllocator<T, R1, R2> for DefaultAllocator
 where
-    DefaultAllocator: InnerAllocator<T, R1, U1> + InnerAllocator<T, SameShapeR<R1, R2>>,
+    DefaultAllocator: Allocator<T, R1, U1> + Allocator<T, SameShapeR<R1, R2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2>,
 {
 }

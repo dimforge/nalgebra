@@ -4,6 +4,7 @@ use std::cmp;
 use std::iter::ExactSizeIterator;
 #[cfg(any(feature = "std", feature = "alloc"))]
 use std::mem;
+use std::mem::MaybeUninit;
 use std::ptr;
 
 use crate::base::allocator::{Allocator, Reallocator};
@@ -49,13 +50,10 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     where
         I: IntoIterator<Item = &'a usize>,
         I::IntoIter: ExactSizeIterator + Clone,
-        DefaultAllocator: Allocator<T, Dynamic, C>,
     {
         let irows = irows.into_iter();
         let ncols = self.data.shape().1;
-        let mut res = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(Dynamic::new(irows.len()), ncols)
-        };
+        let mut res =  OMatrix::<T, Dynamic, C>::new_uninitialized_generic(Dynamic::new(irows.len()), ncols);
 
         // First, check that all the indices from irows are valid.
         // This will allow us to use unchecked access in the inner loop.
@@ -71,12 +69,12 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             for (destination, source) in irows.clone().enumerate() {
                 unsafe {
                     *res.vget_unchecked_mut(destination) =
-                        src.vget_unchecked(*source).inlined_clone()
+                        MaybeUninit::new(src.vget_unchecked(*source).inlined_clone());
                 }
             }
         }
 
-        res
+        unsafe { res.assume_init() }
     }
 
     /// Creates a new matrix by extracting the given set of columns from `self`.
@@ -90,15 +88,19 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     {
         let icols = icols.into_iter();
         let nrows = self.data.shape().0;
-        let mut res = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(nrows, Dynamic::new(icols.len()))
-        };
+        let mut res = Matrix::new_uninitialized_generic(nrows, Dynamic::new(icols.len()));
 
         for (destination, source) in icols.enumerate() {
-            res.column_mut(destination).copy_from(&self.column(*source))
+            for (d, s) in res
+                .column_mut(destination)
+                .iter_mut()
+                .zip(self.column(*source).iter())
+            {
+                *d = MaybeUninit::new(s.clone());
+            }
         }
 
-        res
+        unsafe { res.assume_init() }
     }
 }
 
@@ -190,7 +192,10 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 
     /// Sets all the diagonal elements of this matrix to `val`.
     #[inline]
-    pub fn fill_diagonal(&mut self, val: T) {
+    pub fn fill_diagonal(&mut self, val: T)
+    where
+        T: Clone,
+    {
         let (nrows, ncols) = self.shape();
         let n = cmp::min(nrows, ncols);
 
@@ -201,19 +206,25 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 
     /// Sets all the elements of the selected row to `val`.
     #[inline]
-    pub fn fill_row(&mut self, i: usize, val: T) {
+    pub fn fill_row(&mut self, i: usize, val: T)
+    where
+        T: Clone,
+    {
         assert!(i < self.nrows(), "Row index out of bounds.");
         for j in 0..self.ncols() {
-            unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
+            unsafe { *self.get_unchecked_mut((i, j)) = val.clone() }
         }
     }
 
     /// Sets all the elements of the selected column to `val`.
     #[inline]
-    pub fn fill_column(&mut self, j: usize, val: T) {
+    pub fn fill_column(&mut self, j: usize, val: T)
+    where
+        T: Clone,
+    {
         assert!(j < self.ncols(), "Row index out of bounds.");
         for i in 0..self.nrows() {
-            unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
+            unsafe { *self.get_unchecked_mut((i, j)) = val.clone() }
         }
     }
 
@@ -225,10 +236,13 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// * If `shift > 1`, then the diagonal and the first `shift - 1` subdiagonals are left
     /// untouched.
     #[inline]
-    pub fn fill_lower_triangle(&mut self, val: T, shift: usize) {
+    pub fn fill_lower_triangle(&mut self, val: T, shift: usize)
+    where
+        T: Clone,
+    {
         for j in 0..self.ncols() {
             for i in (j + shift)..self.nrows() {
-                unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
+                unsafe { *self.get_unchecked_mut((i, j)) = val.clone() }
             }
         }
     }
@@ -241,12 +255,15 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// * If `shift > 1`, then the diagonal and the first `shift - 1` superdiagonals are left
     /// untouched.
     #[inline]
-    pub fn fill_upper_triangle(&mut self, val: T, shift: usize) {
+    pub fn fill_upper_triangle(&mut self, val: T, shift: usize)
+    where
+        T: Clone,
+    {
         for j in shift..self.ncols() {
             // TODO: is there a more efficient way to avoid the min ?
             // (necessary for rectangular matrices)
             for i in 0..cmp::min(j + 1 - shift, self.nrows()) {
-                unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
+                unsafe { *self.get_unchecked_mut((i, j)) = val.clone() }
             }
         }
     }
@@ -921,9 +938,8 @@ impl<T: Scalar> OMatrix<T, Dynamic, Dynamic> {
     where
         DefaultAllocator: Reallocator<T, Dynamic, Dynamic, Dynamic, Dynamic>,
     {
-        let placeholder = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(Dynamic::new(0), Dynamic::new(0))
-        };
+        let placeholder =
+            Matrix::new_uninitialized_generic(Dynamic::new(0), Dynamic::new(0)).assume_init();
         let old = mem::replace(self, placeholder);
         let new = old.resize(new_nrows, new_ncols, val);
         let _ = mem::replace(self, new);
@@ -946,9 +962,7 @@ where
     where
         DefaultAllocator: Reallocator<T, Dynamic, C, Dynamic, C>,
     {
-        let placeholder = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(Dynamic::new(0), self.data.shape().1)
-        };
+        let placeholder = Matrix::from_fn_generic(Dynamic::new(0), self.data.shape().1, |_, _| val);
         let old = mem::replace(self, placeholder);
         let new = old.resize_vertically(new_nrows, val);
         let _ = mem::replace(self, new);
@@ -971,9 +985,7 @@ where
     where
         DefaultAllocator: Reallocator<T, R, Dynamic, R, Dynamic>,
     {
-        let placeholder = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, Dynamic::new(0))
-        };
+        let placeholder = Matrix::from_fn_generic(self.data.shape().0, Dynamic::new(0), |_, _| val);
         let old = mem::replace(self, placeholder);
         let new = old.resize_horizontally(new_ncols, val);
         let _ = mem::replace(self, new);

@@ -27,14 +27,10 @@ use crate::constraint::DimEq;
 use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector};
 
 // TODO: too bad this won't work for slice conversions.
-impl<T1, T2, R1, C1, R2, C2> SubsetOf<OMatrix<T2, R2, C2>> for OMatrix<T1, R1, C1>
+impl<T1, T2, R1: Dim, C1: Dim, R2: Dim, C2: Dim> SubsetOf<OMatrix<T2, R2, C2>>
+    for OMatrix<T1, R1, C1>
 where
-    R1: Dim,
-    C1: Dim,
-    R2: Dim,
-    C2: Dim,
-    T1: Scalar,
-    T2: Scalar + SupersetOf<T1>,
+    T2: SupersetOf<T1>,
     DefaultAllocator:
         Allocator<T2, R2, C2> + Allocator<T1, R1, C1> + SameShapeAllocator<T1, R1, C1, R2, C2>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
@@ -45,7 +41,7 @@ where
         let nrows2 = R2::from_usize(nrows);
         let ncols2 = C2::from_usize(ncols);
 
-        let mut res = OMatrix::<T2, R2, C2>::new_uninitialized_generic(nrows2, ncols2);
+        let mut res = Matrix::new_uninitialized_generic(nrows2, ncols2);
 
         for i in 0..nrows {
             for j in 0..ncols {
@@ -57,7 +53,7 @@ where
         }
 
         // Safety: all entries have been initialized.
-        unsafe { Matrix::assume_init(res) }
+        unsafe { res.assume_init() }
     }
 
     #[inline]
