@@ -6,7 +6,7 @@
 //! that return an owned matrix that would otherwise result from setting a
 //! parameter to zero in the other methods.
 
-use crate::{OMatrix, SimdComplexField};
+use crate::SimdComplexField;
 #[cfg(feature = "std")]
 use matrixmultiply;
 use num::{One, Zero};
@@ -923,7 +923,7 @@ where
                                 csc as isize,
                             );
 
-                            return ;
+                            return;
                         }
                     }
                 }

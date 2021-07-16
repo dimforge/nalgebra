@@ -647,7 +647,7 @@ where
     SB: Storage<T, R2, C1>,
     SA: ContiguousStorageMut<T, R1, C1> + Clone,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
-    DefaultAllocator: InnerAllocator<T, R1, C1, Buffer = SA>,
+    DefaultAllocator: Allocator<T, R1, C1> + InnerAllocator<T, R1, C1, Buffer = SA>,
 {
     #[inline]
     fn mul_assign(&mut self, rhs: Matrix<T, R2, C1, SB>) {
@@ -663,7 +663,7 @@ where
     SA: ContiguousStorageMut<T, R1, C1> + Clone,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
     // TODO: this is too restrictive. See comments for the non-ref version.
-    DefaultAllocator: InnerAllocator<T, R1, C1, Buffer = SA>,
+    DefaultAllocator: Allocator<T, R1, C1> + InnerAllocator<T, R1, C1, Buffer = SA>,
 {
     #[inline]
     fn mul_assign(&mut self, rhs: &'b Matrix<T, R2, C1, SB>) {
@@ -818,9 +818,7 @@ where
         let (nrows1, ncols1) = self.data.shape();
         let (nrows2, ncols2) = rhs.data.shape();
 
-        let mut res = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(nrows1.mul(nrows2), ncols1.mul(ncols2))
-        };
+        let mut res = Matrix::new_uninitialized_generic(nrows1.mul(nrows2), ncols1.mul(ncols2));
 
         {
             let mut data_res = res.data.ptr_mut();
@@ -832,8 +830,10 @@ where
                             let coeff = self.get_unchecked((i1, j1)).inlined_clone();
 
                             for i2 in 0..nrows2.value() {
-                                *data_res = coeff.inlined_clone()
-                                    * rhs.get_unchecked((i2, j2)).inlined_clone();
+                                *data_res = MaybeUninit::new(
+                                    coeff.inlined_clone()
+                                        * rhs.get_unchecked((i2, j2)).inlined_clone(),
+                                );
                                 data_res = data_res.offset(1);
                             }
                         }
@@ -842,7 +842,7 @@ where
             }
         }
 
-        res
+        unsafe { res.assume_init() }
     }
 }
 
