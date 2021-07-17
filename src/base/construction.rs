@@ -25,14 +25,6 @@ use crate::base::{
     ArrayStorage, Const, DefaultAllocator, Matrix, OMatrix, OVector, Scalar, Unit, Vector,
 };
 
-/// OBJECTIVE: GET RID OF THIS!
-#[macro_export]
-macro_rules! unimplemented_or_uninitialized_generic {
-    ($nrows:expr, $ncols:expr) => {{
-        crate::base::Matrix::new_uninitialized_generic($nrows, $ncols)
-    }};
-}
-
 /// # Generic constructors
 /// This set of matrix and vector construction functions are all generic
 /// with-regard to the matrix dimensions. They all expect to be given
