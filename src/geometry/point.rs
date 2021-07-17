@@ -5,6 +5,7 @@ use std::fmt;
 use std::hash;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
+use std::mem::MaybeUninit;
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -20,6 +21,7 @@ use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::{Const, DefaultAllocator, OVector};
 use crate::storage::Owned;
+use crate::Scalar;
 
 /// A point in an euclidean space.
 ///
@@ -41,7 +43,7 @@ use crate::storage::Owned;
 /// may have some other methods, e.g., `isometry.inverse_transform_point(&point)`. See the documentation
 /// of said transformations for details.
 #[repr(C)]
-#[derive(Debug, Clone)]
+// TODO: figure out why #[derive(Clone, Debug)] doesn't work!
 pub struct OPoint<T, D: DimName>
 where
     DefaultAllocator: InnerAllocator<T, D>,
@@ -64,6 +66,16 @@ where
     DefaultAllocator: Allocator<T, D>,
     OVector<T, D>: Copy,
 {
+}
+
+impl<T: Clone, D: DimName> Clone for OPoint<T, D>
+where
+    DefaultAllocator: Allocator<T, D>,
+    OVector<T, D>: Clone,
+{
+    fn clone(&self) -> Self {
+        Self::from(self.coords.clone())
+    }
 }
 
 #[cfg(feature = "bytemuck")]
@@ -151,7 +163,8 @@ where
     #[inline]
     #[must_use]
     pub fn map<T2, F: FnMut(T) -> T2>(&self, f: F) -> OPoint<T2, D>
-    where T:Clone,
+    where
+        T: Clone,
         DefaultAllocator: Allocator<T2, D>,
     {
         self.coords.map(f).into()
@@ -195,21 +208,43 @@ where
     #[must_use]
     pub fn to_homogeneous(&self) -> OVector<T, DimNameSum<D, U1>>
     where
+        T: One + Clone,
+        D: DimNameAdd<U1>,
+        DefaultAllocator: Allocator<T, DimNameSum<D, U1>>,
+    {
+        let mut res = OVector::<_, DimNameSum<D, U1>>::new_uninitialized();
+        for i in 0..D::dim() {
+            unsafe {
+                *res.get_unchecked(i) = MaybeUninit::new(self.coords[i].clone());
+            }
+        }
+
+        res[(D::dim(), 0)] = MaybeUninit::new(T::one());
+
+        unsafe { res.assume_init() }
+    }
+
+    pub fn into_homogeneous(self) -> OVector<T, DimNameSum<D, U1>>
+    where
         T: One,
         D: DimNameAdd<U1>,
         DefaultAllocator: Allocator<T, DimNameSum<D, U1>>,
     {
-        let mut res = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(
-                <DimNameSum<D, U1> as DimName>::name(),
-                Const::<1>
-            )
-        };
-        res.generic_slice_mut((0, 0), (D::name(), Const::<1>))
-            .copy_from(&self.coords);
-        res[(D::dim(), 0)] = T::one();
+        let mut res = OVector::<_, DimNameSum<D, U1>>::new_uninitialized();
 
-        res
+        // TODO: maybe we can move the whole array at once? Or use `into_iter`
+        // to avoid double-dropping.
+        for i in 0..D::dim() {
+            unsafe {
+                *res.get_unchecked(i) = MaybeUninit::new(self.coords[i]);
+            }
+        }
+
+        // Fix double drop
+
+        res[(D::dim(), 0)] = MaybeUninit::new(T::one());
+
+        unsafe { res.assume_init() }
     }
 
     /// Creates a new point with the given coordinates.
@@ -415,7 +450,7 @@ where
 /*
  * inf/sup
  */
-impl<T: SimdPartialOrd, D: DimName> OPoint<T, D>
+impl<T: Scalar + SimdPartialOrd, D: DimName> OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {

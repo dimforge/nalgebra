@@ -798,7 +798,7 @@ where
 impl<T, R1: Dim, C1: Dim, S: StorageMut<MaybeUninit<T>, R1, C1>> Matrix<MaybeUninit<T>, R1, C1, S>
 where
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
-    DefaultAllocator: Allocator<T, R1, C1>,
+   // DefaultAllocator: Allocator<T, R1, C1>,
 {
     /// Computes `alpha * a * b`, where `a` and `b` are matrices, and `alpha` is
     /// a scalar.

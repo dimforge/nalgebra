@@ -2,12 +2,11 @@ use num::{One, Zero};
 use simba::scalar::{ClosedDiv, SubsetOf, SupersetOf};
 use simba::simd::PrimitiveSimdValue;
 
-use crate::base::allocator::Allocator;
+use crate::base::allocator::{Allocator, InnerAllocator};
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, Matrix, OVector, Scalar};
 
 use crate::geometry::Point;
-use crate::storage::Owned;
 use crate::{DimName, OPoint};
 
 /*
@@ -55,7 +54,7 @@ where
     #[inline]
     fn to_superset(&self) -> OVector<T2, DimNameSum<D, U1>> {
         let p: OPoint<T2, D> = self.to_superset();
-        p.to_homogeneous()
+        p.into_homogeneous()
     }
 
     #[inline]
@@ -79,7 +78,7 @@ where
 {
     #[inline]
     fn from(t: OPoint<T, D>) -> Self {
-        t.to_homogeneous()
+        t.into_homogeneous()
     }
 }
 
@@ -101,7 +100,7 @@ impl<T, const D: usize> From<Point<T, D>> for [T; D] {
 
 impl<T, D: DimName> From<OVector<T, D>> for OPoint<T, D>
 where
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: InnerAllocator<T, D>,
 {
     #[inline]
     fn from(coords: OVector<T, D>) -> Self {
@@ -109,81 +108,81 @@ where
     }
 }
 
-impl<T: Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 2]> for Point<T, D>
+impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 2]> for Point<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 2]>,
-    T::Element: Copy,
-    Owned<T::Element, Const<D>>: Copy,
+    T::Element: Scalar,
 {
     #[inline]
     fn from(arr: [Point<T::Element, D>; 2]) -> Self {
-        Self::from(OVector::from([arr[0].coords, arr[1].coords]))
+        Self::from(OVector::from([
+            arr[0].coords.clone(),
+            arr[1].coords.clone(),
+        ]))
     }
 }
 
-impl<T: Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 4]> for Point<T, D>
+impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 4]> for Point<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 4]>,
-    T::Element: Copy,
-    Owned<T::Element, Const<D>>: Copy,
+    T::Element: Scalar,
 {
     #[inline]
     fn from(arr: [Point<T::Element, D>; 4]) -> Self {
         Self::from(OVector::from([
-            arr[0].coords,
-            arr[1].coords,
-            arr[2].coords,
-            arr[3].coords,
+            arr[0].coords.clone(),
+            arr[1].coords.clone(),
+            arr[2].coords.clone(),
+            arr[3].coords.clone(),
         ]))
     }
 }
 
-impl<T: Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 8]> for Point<T, D>
+impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 8]> for Point<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 8]>,
-    T::Element: Copy,
-    Owned<T::Element, Const<D>>: Copy,
+    T::Element: Scalar,
 {
     #[inline]
     fn from(arr: [Point<T::Element, D>; 8]) -> Self {
         Self::from(OVector::from([
-            arr[0].coords,
-            arr[1].coords,
-            arr[2].coords,
-            arr[3].coords,
-            arr[4].coords,
-            arr[5].coords,
-            arr[6].coords,
-            arr[7].coords,
+            arr[0].coords.clone(),
+            arr[1].coords.clone(),
+            arr[2].coords.clone(),
+            arr[3].coords.clone(),
+            arr[4].coords.clone(),
+            arr[5].coords.clone(),
+            arr[6].coords.clone(),
+            arr[7].coords.clone(),
         ]))
     }
 }
 
-impl<T: Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 16]> for Point<T, D>
+impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Point<T::Element, D>; 16]>
+    for Point<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 16]>,
-    T::Element: Copy,
-    Owned<T::Element, Const<D>>: Copy,
+    T::Element: Scalar,
 {
     #[inline]
     fn from(arr: [Point<T::Element, D>; 16]) -> Self {
         Self::from(OVector::from([
-            arr[0].coords,
-            arr[1].coords,
-            arr[2].coords,
-            arr[3].coords,
-            arr[4].coords,
-            arr[5].coords,
-            arr[6].coords,
-            arr[7].coords,
-            arr[8].coords,
-            arr[9].coords,
-            arr[10].coords,
-            arr[11].coords,
-            arr[12].coords,
-            arr[13].coords,
-            arr[14].coords,
-            arr[15].coords,
+            arr[0].coords.clone(),
+            arr[1].coords.clone(),
+            arr[2].coords.clone(),
+            arr[3].coords.clone(),
+            arr[4].coords.clone(),
+            arr[5].coords.clone(),
+            arr[6].coords.clone(),
+            arr[7].coords.clone(),
+            arr[8].coords.clone(),
+            arr[9].coords.clone(),
+            arr[10].coords.clone(),
+            arr[11].coords.clone(),
+            arr[12].coords.clone(),
+            arr[13].coords.clone(),
+            arr[14].coords.clone(),
+            arr[15].coords.clone(),
         ]))
     }
 }

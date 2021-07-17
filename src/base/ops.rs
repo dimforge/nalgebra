@@ -645,7 +645,7 @@ impl<T, R1: Dim, C1: Dim, R2: Dim, SA, SB> MulAssign<Matrix<T, R2, C1, SB>>
 where
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<T, R2, C1>,
-    SA: ContiguousStorageMut<T, R1, C1> + Clone,
+    SA: ContiguousStorageMut<T, R1, C1> ,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
     DefaultAllocator: Allocator<T, R1, C1> + InnerAllocator<T, R1, C1, Buffer = SA>,
 {
@@ -660,7 +660,7 @@ impl<'b, T, R1: Dim, C1: Dim, R2: Dim, SA, SB> MulAssign<&'b Matrix<T, R2, C1, S
 where
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<T, R2, C1>,
-    SA: ContiguousStorageMut<T, R1, C1> + Clone,
+    SA: ContiguousStorageMut<T, R1, C1> ,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
     // TODO: this is too restrictive. See comments for the non-ref version.
     DefaultAllocator: Allocator<T, R1, C1> + InnerAllocator<T, R1, C1, Buffer = SA>,
@@ -796,7 +796,6 @@ where
         ShapeConstraint: SameNumberOfRows<R3, R1>
             + SameNumberOfColumns<C3, C2>
             + AreMultipliable<R1, C1, R2, C2>,
-        DefaultAllocator: Allocator<T, R3, C3>,
     {
         out.gemm_z(T::one(), self, rhs);
     }

@@ -26,6 +26,8 @@ pub trait Scalar: 'static + Clone + Debug {
     fn inlined_clone(&self) -> Self;
 }
 
+// Unfortunately, this blanket impl leads to many misleading compiler messages
+// telling you to implement Copy, even though Scalar is what's really needed.
 impl<T: 'static + Copy + Debug> Scalar for T {
     #[inline(always)]
     fn inlined_clone(&self) -> T {

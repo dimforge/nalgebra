@@ -1,5 +1,7 @@
 //! Construction of householder elementary reflections.
 
+use std::mem::MaybeUninit;
+
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, OMatrix, OVector, Unit, Vector};
 use crate::dimension::Dim;
@@ -46,7 +48,7 @@ pub fn reflection_axis_mut<T: ComplexField, D: Dim, S: StorageMut<T, D>>(
 #[doc(hidden)]
 pub fn clear_column_unchecked<T: ComplexField, R: Dim, C: Dim>(
     matrix: &mut OMatrix<T, R, C>,
-    diag_elt: &mut T,
+    diag_elt: *mut T,
     icol: usize,
     shift: usize,
     bilateral: Option<&mut OVector<T, R>>,
@@ -57,7 +59,9 @@ pub fn clear_column_unchecked<T: ComplexField, R: Dim, C: Dim>(
     let mut axis = left.rows_range_mut(icol + shift..);
 
     let (reflection_norm, not_zero) = reflection_axis_mut(&mut axis);
-    *diag_elt = reflection_norm;
+    unsafe {
+        *diag_elt = reflection_norm;
+    }
 
     if not_zero {
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
@@ -74,9 +78,9 @@ pub fn clear_column_unchecked<T: ComplexField, R: Dim, C: Dim>(
 #[doc(hidden)]
 pub fn clear_row_unchecked<T: ComplexField, R: Dim, C: Dim>(
     matrix: &mut OMatrix<T, R, C>,
-    diag_elt: &mut T,
-    axis_packed: &mut OVector<T, C>,
-    work: &mut OVector<T, R>,
+    diag_elt: *mut T,
+    axis_packed: &mut OVector<MaybeUninit<T>, C>,
+    work: &mut OVector<MaybeUninit<T>, R>,
     irow: usize,
     shift: usize,
 ) where
@@ -88,7 +92,7 @@ pub fn clear_row_unchecked<T: ComplexField, R: Dim, C: Dim>(
 
     let (reflection_norm, not_zero) = reflection_axis_mut(&mut axis);
     axis.conjugate_mut(); // So that reflect_rows actually cancels the first row.
-    *diag_elt = reflection_norm;
+  unsafe{  *diag_elt = reflection_norm;}
 
     if not_zero {
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());

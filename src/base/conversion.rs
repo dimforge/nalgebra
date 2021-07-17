@@ -82,7 +82,7 @@ where
     }
 }
 
-impl<'a, T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> IntoIterator for &'a Matrix<T, R, C, S> {
+impl<'a, T, R: Dim, C: Dim, S: Storage<T, R, C>> IntoIterator for &'a Matrix<T, R, C, S> {
     type Item = &'a T;
     type IntoIter = MatrixIter<'a, T, R, C, S>;
 
@@ -92,9 +92,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> IntoIterator for &'a Ma
     }
 }
 
-impl<'a, T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> IntoIterator
-    for &'a mut Matrix<T, R, C, S>
-{
+impl<'a, T, R: Dim, C: Dim, S: StorageMut<T, R, C>> IntoIterator for &'a mut Matrix<T, R, C, S> {
     type Item = &'a mut T;
     type IntoIter = MatrixIterMut<'a, T, R, C, S>;
 
@@ -111,11 +109,13 @@ impl<T, const D: usize> From<[T; D]> for SVector<T, D> {
     }
 }
 
-impl<T: Clone, const D: usize> From<SVector<T, D>> for [T; D] {
+impl<T, const D: usize> From<SVector<T, D>> for [T; D] {
     #[inline]
     fn from(vec: SVector<T, D>) -> Self {
         // TODO: unfortunately, we must clone because we can move out of an array.
-        vec.data.0[0].clone()
+
+        // Counterpoint: this seems to work?
+        vec.data.0[0]
     }
 }
 
@@ -125,7 +125,7 @@ where
 {
     #[inline]
     fn from(arr: [T; D]) -> Self {
-        SVector::<T, D>::from(arr).transpose()
+        SVector::<T, D>::from(arr).transpose_into()
     }
 }
 

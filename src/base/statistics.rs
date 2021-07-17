@@ -7,7 +7,7 @@ use num::Zero;
 use simba::scalar::{ClosedAdd, Field, SupersetOf};
 
 /// # Folding on columns and rows
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Returns a row vector where each element is the result of the application of `f` on the
     /// corresponding column of the original matrix.
     #[inline]

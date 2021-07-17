@@ -70,7 +70,7 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             for (destination, source) in irows.clone().enumerate() {
                 unsafe {
                     *res.vget_unchecked_mut(destination) =
-                        MaybeUninit::new(src.vget_unchecked(*source).inlined_clone());
+                        MaybeUninit::new(src.vget_unchecked(*source).clone());
                 }
             }
         }
@@ -106,11 +106,12 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 }
 
 /// # Set rows, columns, and diagonal
-impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Fills the diagonal of this matrix with the content of the given vector.
     #[inline]
     pub fn set_diagonal<R2: Dim, S2>(&mut self, diag: &Vector<T, R2, S2>)
     where
+        T: Clone,
         R: DimMin<C>,
         S2: Storage<T, R2>,
         ShapeConstraint: DimEq<DimMinimum<R, C>, R2>,
@@ -120,7 +121,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
         assert_eq!(diag.len(), min_nrows_ncols, "Mismatched dimensions.");
 
         for i in 0..min_nrows_ncols {
-            unsafe { *self.get_unchecked_mut((i, i)) = diag.vget_unchecked(i).inlined_clone() }
+            unsafe { *self.get_unchecked_mut((i, i)) = diag.vget_unchecked(i).clone() }
         }
     }
 
@@ -143,6 +144,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     pub fn set_row<C2: Dim, S2>(&mut self, i: usize, row: &RowVector<T, C2, S2>)
     where
+        T: Clone,
         S2: Storage<T, U1, C2>,
         ShapeConstraint: SameNumberOfColumns<C, C2>,
     {
@@ -153,6 +155,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     pub fn set_column<R2: Dim, S2>(&mut self, i: usize, column: &Vector<T, R2, S2>)
     where
+        T: Clone,
         S2: Storage<T, R2, U1>,
         ShapeConstraint: SameNumberOfRows<R, R2>,
     {
@@ -270,7 +273,7 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     }
 }
 
-impl<T: Scalar, D: Dim, S: StorageMut<T, D, D>> Matrix<T, D, D, S> {
+impl<T: Clone, D: Dim, S: StorageMut<T, D, D>> Matrix<T, D, D, S> {
     /// Copies the upper-triangle of this matrix to its lower-triangular part.
     ///
     /// This makes the matrix symmetric. Panics if the matrix is not square.
@@ -281,7 +284,7 @@ impl<T: Scalar, D: Dim, S: StorageMut<T, D, D>> Matrix<T, D, D, S> {
         for j in 0..dim {
             for i in j + 1..dim {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = self.get_unchecked((j, i)).inlined_clone();
+                    *self.get_unchecked_mut((i, j)) = self.get_unchecked((j, i)).clone();
                 }
             }
         }
@@ -296,7 +299,7 @@ impl<T: Scalar, D: Dim, S: StorageMut<T, D, D>> Matrix<T, D, D, S> {
         for j in 1..self.ncols() {
             for i in 0..j {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = self.get_unchecked((j, i)).inlined_clone();
+                    *self.get_unchecked_mut((i, j)) = self.get_unchecked((j, i)).clone();
                 }
             }
         }
@@ -304,7 +307,7 @@ impl<T: Scalar, D: Dim, S: StorageMut<T, D, D>> Matrix<T, D, D, S> {
 }
 
 /// # In-place swapping
-impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Swaps two rows in-place.
     #[inline]
     pub fn swap_rows(&mut self, irow1: usize, irow2: usize) {
@@ -340,7 +343,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
  *
  */
 /// # Rows and columns removal
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T: Clone, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /*
      *
      * Column removal.
@@ -569,7 +572,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 }
 
 /// # Rows and columns insertion
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T: Clone, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /*
      *
      * Columns insertion.
@@ -738,7 +741,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 }
 
 /// # Resizing and reshaping
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T: Clone, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Resizes this matrix so that it contains `new_nrows` rows and `new_ncols` columns.
     ///
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
@@ -846,7 +849,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             }
 
             if new_ncols.value() > ncols {
-                res.columns_range_mut(ncols..).fill(val.inlined_clone());
+                res.columns_range_mut(ncols..).fill(val.clone());
             }
 
             if new_nrows.value() > nrows {
@@ -928,7 +931,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
 /// # In-place resizing
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar> OMatrix<T, Dynamic, Dynamic> {
+impl<T: Clone> OMatrix<T, Dynamic, Dynamic> {
     /// Resizes this matrix in-place.
     ///
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
@@ -948,7 +951,7 @@ impl<T: Scalar> OMatrix<T, Dynamic, Dynamic> {
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar, C: Dim> OMatrix<T, Dynamic, C>
+impl<T: Clone, C: Dim> OMatrix<T, Dynamic, C>
 where
     DefaultAllocator: Allocator<T, Dynamic, C>,
 {
@@ -971,7 +974,7 @@ where
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar, R: Dim> OMatrix<T, R, Dynamic>
+impl<T: Clone, R: Dim> OMatrix<T, R, Dynamic>
 where
     DefaultAllocator: Allocator<T, R, Dynamic>,
 {
@@ -993,13 +996,7 @@ where
     }
 }
 
-unsafe fn compress_rows<T: Scalar>(
-    data: &mut [T],
-    nrows: usize,
-    ncols: usize,
-    i: usize,
-    nremove: usize,
-) {
+unsafe fn compress_rows<T>(data: &mut [T], nrows: usize, ncols: usize, i: usize, nremove: usize) {
     let new_nrows = nrows - nremove;
 
     if new_nrows == 0 || ncols == 0 {
@@ -1032,13 +1029,7 @@ unsafe fn compress_rows<T: Scalar>(
 
 // Moves entries of a matrix buffer to make place for `ninsert` emty rows starting at the `i-th` row index.
 // The `data` buffer is assumed to contained at least `(nrows + ninsert) * ncols` elements.
-unsafe fn extend_rows<T: Scalar>(
-    data: &mut [T],
-    nrows: usize,
-    ncols: usize,
-    i: usize,
-    ninsert: usize,
-) {
+unsafe fn extend_rows<T>(data: &mut [T], nrows: usize, ncols: usize, i: usize, ninsert: usize) {
     let new_nrows = nrows + ninsert;
 
     if new_nrows == 0 || ncols == 0 {
@@ -1070,7 +1061,6 @@ unsafe fn extend_rows<T: Scalar>(
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<T, R, S> Extend<T> for Matrix<T, R, Dynamic, S>
 where
-    T: Scalar,
     R: Dim,
     S: Extend<T>,
 {
@@ -1118,7 +1108,6 @@ where
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<T, S> Extend<T> for Matrix<T, Dynamic, U1, S>
 where
-    T: Scalar,
     S: Extend<T>,
 {
     /// Extend the number of rows of a `Vector` with elements
@@ -1137,12 +1126,9 @@ where
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, R, S, RV, SV> Extend<Vector<T, RV, SV>> for Matrix<T, R, Dynamic, S>
+impl<T, R: Dim, S, RV: Dim, SV> Extend<Vector<T, RV, SV>> for Matrix<T, R, Dynamic, S>
 where
-    T: Scalar,
-    R: Dim,
     S: Extend<Vector<T, RV, SV>>,
-    RV: Dim,
     SV: Storage<T, RV>,
     ShapeConstraint: SameNumberOfRows<R, RV>,
 {

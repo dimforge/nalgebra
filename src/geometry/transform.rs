@@ -1,5 +1,6 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::any::Any;
+use std::fmt;
 use std::fmt::Debug;
 use std::hash;
 use std::marker::PhantomData;
@@ -7,7 +8,7 @@ use std::marker::PhantomData;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use simba::scalar::RealField;
+use simba::scalar::{ComplexField, RealField};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
@@ -119,7 +120,7 @@ macro_rules! category_mul_impl(
     )*}
 );
 
-// We require stability uppon multiplication.
+// We require stability upon multiplication.
 impl<T: TCategory> TCategoryMul<T> for T {
     type Representative = T;
 }
@@ -157,8 +158,7 @@ super_tcategory_impl!(
 /// It is stored as a matrix with dimensions `(D + 1, D + 1)`, e.g., it stores a 4x4 matrix for a
 /// 3D transformation.
 #[repr(C)]
-#[derive(Debug)]
-pub struct Transform<T: RealField, C: TCategory, const D: usize>
+pub struct Transform<T, C: TCategory, const D: usize>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
@@ -167,7 +167,7 @@ where
     _phantom: PhantomData<C>,
 }
 
-impl<T: RealField + hash::Hash, C: TCategory, const D: usize> hash::Hash for Transform<T, C, D>
+impl<T: hash::Hash, C: TCategory, const D: usize> hash::Hash for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
@@ -178,7 +178,7 @@ where
     }
 }
 
-impl<T: RealField, C: TCategory, const D: usize> Copy for Transform<T, C, D>
+impl<T: Copy, C: TCategory, const D: usize> Copy for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
@@ -186,10 +186,11 @@ where
 {
 }
 
-impl<T: RealField, C: TCategory, const D: usize> Clone for Transform<T, C, D>
+impl<T: Clone, C: TCategory, const D: usize> Clone for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Clone,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -197,8 +198,21 @@ where
     }
 }
 
+impl<T: Debug, C: TCategory, const D: usize> Debug for Transform<T, C, D>
+where
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("Transform")
+            .field("matrix", &self.matrix)
+            .finish()
+    }
+}
+
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T: RealField, C: TCategory, const D: usize> Serialize for Transform<T, C, D>
+impl<T, C: TCategory, const D: usize> Serialize for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
@@ -213,7 +227,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'a, T: RealField, C: TCategory, const D: usize> Deserialize<'a> for Transform<T, C, D>
+impl<'a, T, C: TCategory, const D: usize> Deserialize<'a> for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
@@ -231,14 +245,14 @@ where
     }
 }
 
-impl<T: RealField + Eq, C: TCategory, const D: usize> Eq for Transform<T, C, D>
+impl<T: Eq, C: TCategory, const D: usize> Eq for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
 }
 
-impl<T: RealField, C: TCategory, const D: usize> PartialEq for Transform<T, C, D>
+impl<T: PartialEq, C: TCategory, const D: usize> PartialEq for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
@@ -249,7 +263,7 @@ where
     }
 }
 
-impl<T: RealField, C: TCategory, const D: usize> Transform<T, C, D>
+impl<T, C: TCategory, const D: usize> Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
@@ -354,7 +368,10 @@ where
     #[deprecated(
         note = "This method is redundant with automatic `Copy` and the `.clone()` method and will be removed in a future release."
     )]
-    pub fn clone_owned(&self) -> Transform<T, C, D> {
+    pub fn clone_owned(&self) -> Transform<T, C, D>
+    where
+        T: Clone,
+    {
         Transform::from_matrix_unchecked(self.matrix.clone_owned())
     }
 
@@ -372,7 +389,10 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
+    pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+    where
+        T: Clone,
+    {
         self.matrix().clone_owned()
     }
 
@@ -401,7 +421,10 @@ where
     /// ```
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
-    pub fn try_inverse(self) -> Option<Transform<T, C, D>> {
+    pub fn try_inverse(self) -> Option<Transform<T, C, D>>
+    where
+        T: ComplexField,
+    {
         self.matrix
             .try_inverse()
             .map(Transform::from_matrix_unchecked)
@@ -427,6 +450,7 @@ where
     #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(self) -> Transform<T, C, D>
     where
+        T: ComplexField,
         C: SubTCategoryOf<TProjective>,
     {
         // TODO: specialize for TAffine?
@@ -458,7 +482,10 @@ where
     /// assert!(!t.try_inverse_mut());
     /// ```
     #[inline]
-    pub fn try_inverse_mut(&mut self) -> bool {
+    pub fn try_inverse_mut(&mut self) -> bool
+    where
+        T: ComplexField,
+    {
         self.matrix.try_inverse_mut()
     }
 
@@ -482,6 +509,7 @@ where
     #[inline]
     pub fn inverse_mut(&mut self)
     where
+        T: ComplexField,
         C: SubTCategoryOf<TProjective>,
     {
         let _ = self.matrix.try_inverse_mut();

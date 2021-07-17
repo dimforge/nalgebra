@@ -50,9 +50,9 @@ where
     #[inline]
     pub fn origin() -> Self
     where
-        T: Zero,
+        T: Zero + Clone,
     {
-        Self::from(OVector::from_element(T::zero()))
+        Self::from(OVector::<_, D>::zeros())
     }
 
     /// Creates a new point from a slice.
@@ -70,8 +70,11 @@ where
     /// assert_eq!(pt, Point3::new(1.0, 2.0, 3.0));
     /// ```
     #[inline]
-    pub fn from_slice(components: &[T]) -> Self {
-        Self::from(OVector::from_row_slice(components))
+    pub fn from_slice(components: &[T]) -> Self
+    where
+        T: Clone,
+    {
+        Self::from(OVector::<_, D>::from_row_slice(components))
     }
 
     /// Creates a new point from its homogeneous vector representation.
@@ -175,7 +178,7 @@ where
 impl<T: Arbitrary + Send, D: DimName> Arbitrary for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    crate::base::storage::Owned<T, D>: Send,
+    crate::base::storage::Owned<T, D>: Clone + Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {

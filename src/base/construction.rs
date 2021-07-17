@@ -683,7 +683,7 @@ where
 {
     /// Creates a new uninitialized matrix or vector.
     #[inline]
-    pub fn new_uninitialized(nrows: usize) ->  OMatrix<MaybeUninit<T>, Dynamic, C> {
+    pub fn new_uninitialized(nrows: usize) -> OMatrix<MaybeUninit<T>, Dynamic, C> {
         Self::new_uninitialized_generic(Dynamic::new(nrows), C::name())
     }
 }
@@ -705,7 +705,10 @@ where
 {
     /// Creates a new uninitialized matrix or vector.
     #[inline]
-    pub fn new_uninitialized(nrows: usize, ncols: usize) -> OMatrix<MaybeUninit<T>, Dynamic, Dynamic> {
+    pub fn new_uninitialized(
+        nrows: usize,
+        ncols: usize,
+    ) -> OMatrix<MaybeUninit<T>, Dynamic, Dynamic> {
         Self::new_uninitialized_generic(Dynamic::new(nrows), Dynamic::new(ncols))
     }
 }
@@ -899,13 +902,11 @@ where
 }
 
 #[cfg(feature = "arbitrary")]
-impl<T, R, C> Arbitrary for OMatrix<T, R, C>
+impl<T, R: Dim, C: Dim> Arbitrary for OMatrix<T, R, C>
 where
-    R: Dim,
-    C: Dim,
     T: Arbitrary + Send,
     DefaultAllocator: Allocator<T, R, C>,
-    Owned<T, R, C>: Clone + Send,
+    Owned<T, R, C>: Clone+Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {

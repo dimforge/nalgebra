@@ -716,7 +716,34 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         self.transpose_to(&mut res);
 
         unsafe {
-            // Safety: res is now fully initialized due to the guarantees of  transpose_to.
+            // Safety: res is now fully initialized due to the guarantees of transpose_to.
+            res.assume_init()
+        }
+    }
+
+    /// Transposes `self`. Does not require `T: Clone` like its other counteparts.
+    pub fn transpose_into(self) -> OMatrix<T, C, R>
+    where
+        DefaultAllocator: Allocator<T, C, R>,
+    {
+        let (nrows, ncols) = self.data.shape();
+        let mut res = OMatrix::new_uninitialized_generic(ncols, nrows);
+
+        let (nrows, ncols) = res.shape();
+
+        // TODO: optimize that.
+        for i in 0..nrows {
+            for j in 0..ncols {
+                unsafe {
+                    *res.get_unchecked_mut((j, i)) = MaybeUninit::new(*self.get_unchecked((i, j)));
+                }
+            }
+        }
+
+        // BEEP! BEEP! There's a double drop here that needs to be fixed.
+
+        unsafe {
+            // Safety: res is now fully initialized due to the guarantees of transpose_to.
             res.assume_init()
         }
     }
@@ -728,13 +755,12 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Returns a matrix containing the result of `f` applied to each of its entries.
     #[inline]
     #[must_use]
-    pub fn map<T2: Clone, F: FnMut(T) -> T2>(&self, mut f: F) -> OMatrix<T2, R, C>
+    pub fn map<T2, F: FnMut(T) -> T2>(&self, mut f: F) -> OMatrix<T2, R, C>
     where
         T: Clone,
         DefaultAllocator: Allocator<T2, R, C>,
     {
         let (nrows, ncols) = self.data.shape();
-
         let mut res = OMatrix::new_uninitialized_generic(nrows, ncols);
 
         for j in 0..ncols.value() {
@@ -1283,6 +1309,8 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
                 }
             }
         }
+
+        // BEEP BEEEP!!!!! I'm double-freeing! OH NO!!!! (todo)
     }
 
     /// Fills this matrix with the content of the transpose another one via clones.
@@ -1359,6 +1387,8 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
                 }
             }
         }
+
+        // BEEP BEEPP! Same thing as the non-transpose method, this is UB.
     }
 
     // TODO: rename `apply` to `apply_mut` and `apply_into` to `apply`?
@@ -1367,6 +1397,51 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     pub fn apply_into<F: FnMut(T) -> T>(mut self, f: F) -> Self {
         self.apply(f);
         self
+    }
+}
+
+impl<T, R: Dim, C: Dim, S: StorageMut<MaybeUninit<T>, R, C>> Matrix<MaybeUninit<T>, R, C, S> {
+    /// Initializes this matrix with the content of another one via clones. Both must have the same shape.
+    #[inline]
+    pub fn copy_init_from<R2: Dim, C2: Dim, SB>(&mut self, other: &Matrix<T, R2, C2, SB>)
+    where
+        T: Clone,
+        SB: Storage<T, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+    {
+        self.copy_from_fn(other, |e| MaybeUninit::new(e.clone()))
+    }
+
+    /// Initializes this matrix with the content of another one, after applying a function to
+    /// the entries of the other matrix. Both must have the same shape.
+    #[inline]
+    pub fn move_init_from<R2: Dim, C2: Dim, SB>(&mut self, other: Matrix<T, R2, C2, SB>)
+    where
+        SB: Storage<T, R2, C2>,
+        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+    {
+        self.move_from_fn(other, MaybeUninit::new)
+    }
+
+    /// Initializes this matrix with the content of the transpose another one via clones.
+    #[inline]
+    pub fn tr_copy_init_from<R2: Dim, C2: Dim, SB>(&mut self, other: &Matrix<T, R2, C2, SB>)
+    where
+        T: Clone,
+        SB: Storage<T, R2, C2>,
+        ShapeConstraint: DimEq<R, C2> + SameNumberOfColumns<C, R2>,
+    {
+        self.tr_copy_from_fn(other, |e| MaybeUninit::new(e.clone()))
+    }
+
+    /// Initializes this matrix with the content of the transpose another one via moves.
+    #[inline]
+    pub fn tr_move_init_from<R2: Dim, C2: Dim, SB>(&mut self, other: Matrix<T, R2, C2, SB>)
+    where
+        SB: Storage<T, R2, C2>,
+        ShapeConstraint: DimEq<R, C2> + SameNumberOfColumns<C, R2>,
+    {
+        self.tr_move_from_fn(other, MaybeUninit::new)
     }
 }
 
@@ -2185,9 +2260,8 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S
     }
 }
 
-impl<T, R: Dim, C: Dim, S> AbsDiffEq for Unit<Matrix<T, R, C, S>>
+impl<T: AbsDiffEq, R: Dim, C: Dim, S> AbsDiffEq for Unit<Matrix<T, R, C, S>>
 where
-    T: Scalar + AbsDiffEq,
     S: Storage<T, R, C>,
     T::Epsilon: Copy,
 {
@@ -2204,9 +2278,8 @@ where
     }
 }
 
-impl<T, R: Dim, C: Dim, S> RelativeEq for Unit<Matrix<T, R, C, S>>
+impl<T: RelativeEq, R: Dim, C: Dim, S> RelativeEq for Unit<Matrix<T, R, C, S>>
 where
-    T: Scalar + RelativeEq,
     S: Storage<T, R, C>,
     T::Epsilon: Copy,
 {
@@ -2227,9 +2300,8 @@ where
     }
 }
 
-impl<T, R: Dim, C: Dim, S> UlpsEq for Unit<Matrix<T, R, C, S>>
+impl<T: UlpsEq, R: Dim, C: Dim, S> UlpsEq for Unit<Matrix<T, R, C, S>>
 where
-    T: Scalar + UlpsEq,
     S: Storage<T, R, C>,
     T::Epsilon: Copy,
 {
@@ -2244,9 +2316,8 @@ where
     }
 }
 
-impl<T, R: Dim, C: Dim, S> Hash for Matrix<T, R, C, S>
+impl<T: Hash, R: Dim, C: Dim, S> Hash for Matrix<T, R, C, S>
 where
-    T: Hash,
     S: Storage<T, R, C>,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {

@@ -146,7 +146,7 @@ macro_rules! component_binop_impl(
 );
 
 /// # Componentwise operations
-impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> {
+impl<T:Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> {
     component_binop_impl!(
         component_mul, component_mul_mut, component_mul_assign, cmpy, ClosedMul.mul.mul_assign,
         r"

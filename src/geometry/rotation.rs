@@ -71,7 +71,7 @@ where
 
 impl<T: Copy, const D: usize> Copy for Rotation<T, D> where Owned<T, Const<D>, Const<D>>: Copy {}
 
-impl<T, const D: usize> Clone for Rotation<T, D>
+impl<T: Clone, const D: usize> Clone for Rotation<T, D>
 where
     Owned<T, Const<D>, Const<D>>: Clone,
 {
@@ -127,7 +127,7 @@ where
     }
 }
 
-impl<T: Scalar, const D: usize> Rotation<T, D> {
+impl<T, const D: usize> Rotation<T, D> {
     /// Creates a new rotation from the given square matrix.
     ///
     /// The matrix squareness is checked but not its orthonormality.
@@ -162,7 +162,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
 }
 
 /// # Conversion to a matrix
-impl<T: Scalar, const D: usize> Rotation<T, D> {
+impl<T, const D: usize> Rotation<T, D> {
     /// A reference to the underlying matrix representation of this rotation.
     ///
     /// # Example
@@ -263,7 +263,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     #[must_use]
     pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
     where
-        T: Zero + One,
+        T: Zero + One + Scalar,
         Const<D>: DimNameAdd<U1>,
         DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {

@@ -57,10 +57,10 @@ impl<T: Zero + Clone> Default for Quaternion<T> {
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T: Scalar> bytemuck::Zeroable for Quaternion<T> where Vector4<T>: bytemuck::Zeroable {}
+unsafe impl<T> bytemuck::Zeroable for Quaternion<T> where Vector4<T>: bytemuck::Zeroable {}
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T: Scalar> bytemuck::Pod for Quaternion<T>
+unsafe impl<T> bytemuck::Pod for Quaternion<T>
 where
     Vector4<T>: bytemuck::Pod,
     T: Copy,
@@ -68,7 +68,7 @@ where
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<T: Scalar> Abomonation for Quaternion<T>
+impl<T> Abomonation for Quaternion<T>
 where
     Vector4<T>: Abomonation,
 {
@@ -86,7 +86,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T: Scalar> Serialize for Quaternion<T>
+impl<T> Serialize for Quaternion<T>
 where
     Owned<T, U4>: Serialize,
 {
@@ -99,7 +99,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'a, T: Scalar> Deserialize<'a> for Quaternion<T>
+impl<'a, T> Deserialize<'a> for Quaternion<T>
 where
     Owned<T, U4>: Deserialize<'a>,
 {
@@ -1045,7 +1045,7 @@ impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for Quaternion<T> {
     }
 }
 
-impl<T: RealField + fmt::Display> fmt::Display for Quaternion<T> {
+impl<T: fmt::Display> fmt::Display for Quaternion<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -1097,7 +1097,7 @@ impl<T: SimdRealField> UnitQuaternion<T>
 where
     T::Element: SimdRealField,
 {
-    /// The rotation angle in [0; pi] of this unit quaternion.
+    /// The rotation angle in \[0; pi\] of this unit quaternion.
     ///
     /// # Example
     /// ```
