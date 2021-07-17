@@ -178,7 +178,7 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 
     /// Sets all the elements of this matrix to `f()`.
     #[inline]
-    pub fn fill_fn<F: FnMut() -> T>(&mut self, f: F) {
+    pub fn fill_fn<F: FnMut() -> T>(&mut self, mut f: F) {
         for e in self.iter_mut() {
             *e = f();
         }
@@ -942,8 +942,11 @@ impl<T: Clone> OMatrix<T, Dynamic, Dynamic> {
     where
         DefaultAllocator: Reallocator<T, Dynamic, Dynamic, Dynamic, Dynamic>,
     {
-        let placeholder =
-            Matrix::new_uninitialized_generic(Dynamic::new(0), Dynamic::new(0)).assume_init();
+        // BEEEP!!!! BEEEEEEEP!!!
+
+        let placeholder = unsafe {
+            Matrix::new_uninitialized_generic(Dynamic::new(0), Dynamic::new(0)).assume_init()
+        };
         let old = mem::replace(self, placeholder);
         let new = old.resize(new_nrows, new_ncols, val);
         let _ = mem::replace(self, new);
@@ -966,7 +969,8 @@ where
     where
         DefaultAllocator: Reallocator<T, Dynamic, C, Dynamic, C>,
     {
-        let placeholder = Matrix::from_fn_generic(Dynamic::new(0), self.data.shape().1, |_, _| val);
+        let placeholder =
+            Matrix::from_fn_generic(Dynamic::new(0), self.data.shape().1, |_, _| val.clone());
         let old = mem::replace(self, placeholder);
         let new = old.resize_vertically(new_nrows, val);
         let _ = mem::replace(self, new);
@@ -989,7 +993,8 @@ where
     where
         DefaultAllocator: Reallocator<T, R, Dynamic, R, Dynamic>,
     {
-        let placeholder = Matrix::from_fn_generic(self.data.shape().0, Dynamic::new(0), |_, _| val);
+        let placeholder =
+            Matrix::from_fn_generic(self.data.shape().0, Dynamic::new(0), |_, _| val.clone());
         let old = mem::replace(self, placeholder);
         let new = old.resize_horizontally(new_ncols, val);
         let _ = mem::replace(self, new);
@@ -1059,11 +1064,7 @@ unsafe fn extend_rows<T>(data: &mut [T], nrows: usize, ncols: usize, i: usize, n
 /// Extend the number of columns of the `Matrix` with elements from
 /// a given iterator.
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, R, S> Extend<T> for Matrix<T, R, Dynamic, S>
-where
-    R: Dim,
-    S: Extend<T>,
-{
+impl<T, R: Dim, S: Extend<T>> Extend<T> for Matrix<T, R, Dynamic, S> {
     /// Extend the number of columns of the `Matrix` with elements
     /// from the given iterator.
     ///

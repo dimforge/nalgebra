@@ -215,7 +215,7 @@ where
         let mut res = OVector::<_, DimNameSum<D, U1>>::new_uninitialized();
         for i in 0..D::dim() {
             unsafe {
-                *res.get_unchecked(i) = MaybeUninit::new(self.coords[i].clone());
+                *res.get_unchecked_mut(i) = MaybeUninit::new(self.coords[i].clone());
             }
         }
 
@@ -236,15 +236,16 @@ where
         // to avoid double-dropping.
         for i in 0..D::dim() {
             unsafe {
-                *res.get_unchecked(i) = MaybeUninit::new(self.coords[i]);
+                *res.get_unchecked_mut(i) = MaybeUninit::new(*self.coords.get_unchecked(i));
             }
         }
 
         // Fix double drop
 
-        res[(D::dim(), 0)] = MaybeUninit::new(T::one());
-
-        unsafe { res.assume_init() }
+        unsafe {
+            *res.get_unchecked_mut(D::dim()) = MaybeUninit::new(T::one());
+            res.assume_init()
+        }
     }
 
     /// Creates a new point with the given coordinates.

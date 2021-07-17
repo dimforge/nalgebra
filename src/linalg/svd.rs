@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
@@ -8,7 +10,7 @@ use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, Matrix2x3, OMatrix, OVector, Vector2};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1};
-use crate::storage::Storage;
+use crate::storage::{Owned, Storage};
 use simba::scalar::{ComplexField, RealField};
 
 use crate::linalg::givens::GivensRotation;
@@ -39,7 +41,6 @@ use crate::linalg::Bidiagonal;
          OVector<T::RealField, DimMinimum<R, C>>: Deserialize<'de>"
     ))
 )]
-#[derive(Clone, Debug)]
 pub struct SVD<T: ComplexField, R: DimMin<C>, C: Dim>
 where
     DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
@@ -59,10 +60,46 @@ where
     DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
         + Allocator<T, R, DimMinimum<R, C>>
         + Allocator<T::RealField, DimMinimum<R, C>>,
-    OMatrix<T, R, DimMinimum<R, C>>: Copy,
-    OMatrix<T, DimMinimum<R, C>, C>: Copy,
-    OVector<T::RealField, DimMinimum<R, C>>: Copy,
+    Owned<T, R, DimMinimum<R, C>>: Copy,
+    Owned<T, DimMinimum<R, C>, C>: Copy,
+    Owned<T::RealField, DimMinimum<R, C>>: Copy,
 {
+}
+
+impl<T: ComplexField, R: DimMin<C>, C: Dim> Clone for SVD<T, R, C>
+where
+    DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
+        + Allocator<T, R, DimMinimum<R, C>>
+        + Allocator<T::RealField, DimMinimum<R, C>>,
+    Owned<T, R, DimMinimum<R, C>>: Clone,
+    Owned<T, DimMinimum<R, C>, C>: Clone,
+    Owned<T::RealField, DimMinimum<R, C>>: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            u: self.u.clone(),
+            v_t: self.v_t.clone(),
+            singular_values: self.singular_values.clone(),
+        }
+    }
+}
+
+impl<T: ComplexField, R: DimMin<C>, C: Dim> fmt::Debug for SVD<T, R, C>
+where
+    DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
+        + Allocator<T, R, DimMinimum<R, C>>
+        + Allocator<T::RealField, DimMinimum<R, C>>,
+    Owned<T, R, DimMinimum<R, C>>: fmt::Debug,
+    Owned<T, DimMinimum<R, C>, C>: fmt::Debug,
+    Owned<T::RealField, DimMinimum<R, C>>: fmt::Debug,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("SVD")
+            .field("u", &self.u)
+            .field("v_t", &self.v_t)
+            .field("singular_values", &self.singular_values)
+            .finish()
+    }
 }
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> SVD<T, R, C>

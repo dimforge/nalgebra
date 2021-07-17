@@ -278,7 +278,8 @@ impl<'a, T: Deserialize<'a>> Deserialize<'a> for DualQuaternion<T> {
 }
 
 impl<T> DualQuaternion<T> {
-    fn to_vector(self) -> OVector<T, U8> {
+    // TODO: Cloning shouldn't be necessary.
+    fn to_vector(self) -> OVector<T, U8>where T:Clone {
         (*self.as_ref()).into()
     }
 }

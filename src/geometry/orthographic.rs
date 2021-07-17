@@ -28,7 +28,9 @@ impl<T: Copy> Copy for Orthographic3<T> {}
 impl<T: Clone> Clone for Orthographic3<T> {
     #[inline]
     fn clone(&self) -> Self {
-        Self::from_matrix_unchecked(self.matrix)
+        Self {
+            matrix: self.matrix.clone(),
+        }
     }
 }
 

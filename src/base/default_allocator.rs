@@ -31,9 +31,9 @@ type DefaultUninitBuffer<T, R, C> =
  * Allocator.
  *
  */
- /// A helper struct that controls how the storage for a matrix should be allocated.
- ///
- /// This struct is useless on its own. Instead, it's used in trait
+/// A helper struct that controls how the storage for a matrix should be allocated.
+///
+/// This struct is useless on its own. Instead, it's used in trait
 /// An allocator based on `GenericArray` and `VecStorage` for statically-sized and dynamically-sized
 /// matrices respectively.
 pub struct DefaultAllocator;
@@ -72,7 +72,9 @@ impl<T, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>> for Def
         _: Const<R>,
         _: Const<C>,
     ) -> Owned<MaybeUninit<T>, Const<R>, Const<C>> {
-        ArrayStorage([[MaybeUninit::uninit(); R]; C])
+        // SAFETY: An uninitialized `[MaybeUninit<_>; LEN]` is valid.
+        let array = unsafe { MaybeUninit::uninit().assume_init() };
+        ArrayStorage(array)
     }
 
     #[inline]
@@ -126,9 +128,8 @@ impl<T, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
         let mut data = ManuallyDrop::new(uninit.data);
 
         // Safety: MaybeUninit<T> has the same alignment and layout as T.
-        let new_data = unsafe {
-            Vec::from_raw_parts(data.as_mut_ptr() as *mut T, data.len(), data.capacity())
-        };
+        let new_data =
+            Vec::from_raw_parts(data.as_mut_ptr() as *mut T, data.len(), data.capacity());
 
         VecStorage::new(uninit.nrows, uninit.ncols, new_data)
     }
@@ -170,9 +171,8 @@ impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
         let mut data = ManuallyDrop::new(uninit.data);
 
         // Safety: MaybeUninit<T> has the same alignment and layout as T.
-        let new_data = unsafe {
-            Vec::from_raw_parts(data.as_mut_ptr() as *mut T, data.len(), data.capacity())
-        };
+        let new_data =
+            Vec::from_raw_parts(data.as_mut_ptr() as *mut T, data.len(), data.capacity());
 
         VecStorage::new(uninit.nrows, uninit.ncols, new_data)
     }
@@ -184,7 +184,7 @@ impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
  *
  */
 // Anything -> Static × Static
-impl<T, RFrom:Dim, CFrom:Dim, const RTO: usize, const CTO: usize>
+impl<T, RFrom: Dim, CFrom: Dim, const RTO: usize, const CTO: usize>
     Reallocator<T, RFrom, CFrom, Const<RTO>, Const<CTO>> for DefaultAllocator
 where
     Self: Allocator<T, RFrom, CFrom>,

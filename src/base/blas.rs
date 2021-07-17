@@ -329,22 +329,22 @@ where
 
             if !b.is_zero() {
                 for i in 0..x.len() {
-                    unsafe {
+                    
                         let y = y.get_unchecked_mut(i * rstride1);
                         *y = a.inlined_clone()
                             * x.get_unchecked(i * rstride2).inlined_clone()
                             * c.inlined_clone()
                             + b.inlined_clone() * y.inlined_clone();
-                    }
+                    
                 }
             } else {
                 for i in 0..x.len() {
-                    unsafe {
+                    
                         let y = y.get_unchecked_mut(i * rstride1);
                         *y = a.inlined_clone()
                             * x.get_unchecked(i * rstride2).inlined_clone()
                             * c.inlined_clone();
-                    }
+                    
                 }
             }
         }
@@ -788,17 +788,89 @@ where
 
             for j in 1..ncols2 {
                 let col2 = a.column(j);
-                let val = unsafe { x.vget_unchecked(j).inlined_clone() };
+                let val = x.vget_unchecked(j).inlined_clone() ;
                 init.axcpy(alpha.inlined_clone(), &col2, val, T::one());
             }
         }
+    }
+
+    #[inline(always)]
+    fn xxgemv_z<D2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: T,
+        a: &SquareMatrix<T, D2, SB>,
+        x: &Vector<T, D3, SC>,
+        dot: impl Fn(
+            &DVectorSlice<T, SB::RStride, SB::CStride>,
+            &DVectorSlice<T, SC::RStride, SC::CStride>,
+        ) -> T,
+    ) where
+        T: One,
+        SB: Storage<T, D2, D2>,
+        SC: Storage<T, D3>,
+        ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
+    {
+        let dim1 = self.nrows();
+        let dim2 = a.nrows();
+        let dim3 = x.nrows();
+
+        assert!(
+            a.is_square(),
+            "Symmetric cgemv: the input matrix must be square."
+        );
+        assert!(
+            dim2 == dim3 && dim1 == dim2,
+            "Symmetric cgemv: dimensions mismatch."
+        );
+
+        if dim2 == 0 {
+            return;
+        }
+
+        // TODO: avoid bound checks.
+        let col2 = a.column(0);
+        let val = unsafe { x.vget_unchecked(0).inlined_clone() };
+        self.axc(alpha.inlined_clone(), &col2, val);
+
+        let mut res = unsafe { self.assume_init_mut() };
+        res[0] += alpha.inlined_clone() * dot(&a.slice_range(1.., 0), &x.rows_range(1..));
+
+        for j in 1..dim2 {
+            let col2 = a.column(j);
+            let dot = dot(&col2.rows_range(j..), &x.rows_range(j..));
+
+            let val;
+            unsafe {
+                val = x.vget_unchecked(j).inlined_clone();
+                *res.vget_unchecked_mut(j) += alpha.inlined_clone() * dot;
+            }
+            res.rows_range_mut(j + 1..).axpy(
+                alpha.inlined_clone() * val,
+                &col2.rows_range(j + 1..),
+                T::one(),
+            );
+        }
+    }
+
+    pub fn hegemv_z<D2: Dim, D3: Dim, SB, SC>(
+        &mut self,
+        alpha: T,
+        a: &SquareMatrix<T, D2, SB>,
+        x: &Vector<T, D3, SC>,
+    ) where
+        T: SimdComplexField,
+        SB: Storage<T, D2, D2>,
+        SC: Storage<T, D3>,
+        ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
+    {
+        self.xxgemv_z(alpha, a, x, |a, b| a.dotc(b))
     }
 }
 
 impl<T, R1: Dim, C1: Dim, S: StorageMut<MaybeUninit<T>, R1, C1>> Matrix<MaybeUninit<T>, R1, C1, S>
 where
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
-   // DefaultAllocator: Allocator<T, R1, C1>,
+    // DefaultAllocator: Allocator<T, R1, C1>,
 {
     /// Computes `alpha * a * b`, where `a` and `b` are matrices, and `alpha` is
     /// a scalar.
@@ -850,7 +922,7 @@ where
                 // matrixmultiply can be used only if the std feature is available.
                 let nrows1 = self.nrows();
                 let (nrows2, ncols2) = a.shape();
-                let (nrows3, ncols3) = b.shape();
+                let (_, ncols3) = b.shape();
 
                 // Threshold determined empirically.
                 const SMALL_DIM: usize = 5;
@@ -1502,9 +1574,9 @@ where
         ShapeConstraint: DimEq<D1, R3> + DimEq<C3, D4>,
         DefaultAllocator: Allocator<T, R3>,
     {
-        let work = Matrix::new_uninitialized_generic(R3::from_usize(self.shape().0), Const::<1>);
+        let mut work = Matrix::new_uninitialized_generic(R3::from_usize(self.shape().0), Const::<1>);
         work.gemv_z(T::one(), lhs, &mid.column(0));
-        let work = unsafe { work.assume_init() };
+        let mut work = unsafe { work.assume_init() };
 
         self.ger(alpha.inlined_clone(), &work, &lhs.column(0), beta);
 
@@ -1552,9 +1624,9 @@ where
         DefaultAllocator: Allocator<T, D3>,
     {
         // TODO: figure out why type inference wasn't doing its job.
-        let work = Matrix::new_uninitialized_generic(D3::from_usize(self.shape().0), Const::<1>);
+        let mut work = Matrix::new_uninitialized_generic(D3::from_usize(self.shape().0), Const::<1>);
         work.gemv_z::<D3, D3, R4, S3, _>(T::one(), mid, &rhs.column(0));
-        let work = unsafe { work.assume_init() };
+        let mut work = unsafe { work.assume_init() };
 
         self.column_mut(0)
             .gemv_tr(alpha.inlined_clone(), rhs, &work, beta.inlined_clone());

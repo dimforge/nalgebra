@@ -307,7 +307,7 @@ where
         );
         chol.slice_range_mut(j + 1.., j).copy_init_from(&new_colj);
 
-        let chol = unsafe { chol.assume_init() };
+        let mut chol = unsafe { chol.assume_init() };
 
         // update the bottom right corner
         let mut bottom_right_corner = chol.slice_range_mut(j + 1.., j + 1..);
@@ -348,7 +348,7 @@ where
             .copy_init_from(&self.chol.slice_range(j + 1.., ..j));
         chol.slice_range_mut(j.., j..)
             .copy_init_from(&self.chol.slice_range(j + 1.., j + 1..));
-        let chol = unsafe { chol.assume_init() };
+        let mut chol = unsafe { chol.assume_init() };
 
         // updates the bottom right corner
         let mut bottom_right_corner = chol.slice_range_mut(j.., j..);

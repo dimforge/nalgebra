@@ -185,11 +185,13 @@ where
             );
         }
 
-        Bidiagonal {
-            uv: matrix,
-            diagonal: diagonal.assume_init(),
-            off_diagonal: off_diagonal.assume_init(),
-            upper_diagonal,
+        unsafe {
+            Bidiagonal {
+                uv: matrix,
+                diagonal: diagonal.assume_init(),
+                off_diagonal: off_diagonal.assume_init(),
+                upper_diagonal,
+            }
         }
     }
 
@@ -300,7 +302,7 @@ where
             let axis = self.uv.slice_range(i, i + shift..);
             let mut axis_packed = axis_packed.rows_range_mut(i + shift..);
             axis_packed.tr_copy_init_from(&axis);
-            let mut axis_packed = unsafe { axis_packed.slice_assume_init() };
+            let  axis_packed = unsafe { axis_packed.slice_assume_init() };
 
             // TODO: sometimes, the axis might have a zero magnitude.
             let refl = Reflection::new(Unit::new_unchecked(axis_packed), T::zero());

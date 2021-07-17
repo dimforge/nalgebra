@@ -91,7 +91,8 @@ impl<T, const D: usize> From<[T; D]> for Point<T, D> {
     }
 }
 
-impl<T, const D: usize> From<Point<T, D>> for [T; D] {
+impl<T, const D: usize> From<Point<T, D>> for [T; D] where
+T: Clone,{
     #[inline]
     fn from(p: Point<T, D>) -> Self {
         p.coords.into()

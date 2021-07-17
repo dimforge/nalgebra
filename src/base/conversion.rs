@@ -109,13 +109,14 @@ impl<T, const D: usize> From<[T; D]> for SVector<T, D> {
     }
 }
 
-impl<T, const D: usize> From<SVector<T, D>> for [T; D] {
+impl<T, const D: usize> From<SVector<T, D>> for [T; D]
+where
+    T: Clone,
+{
     #[inline]
     fn from(vec: SVector<T, D>) -> Self {
         // TODO: unfortunately, we must clone because we can move out of an array.
-
-        // Counterpoint: this seems to work?
-        vec.data.0[0]
+        vec.data.0[0].clone()
     }
 }
 

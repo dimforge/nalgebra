@@ -550,8 +550,8 @@ where
     Const<D>: DimNameAdd<U1>,
     C: SubTCategoryOf<TProjective>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T, DimNameSum<Const<D>, U1>>, // + Allocator<T, D, D>
-                                                  // + Allocator<T, D>
+        + Allocator<T, DimNameSum<Const<D>, U1>>,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Clone,
 {
     /// Transform the given point by the inverse of this transformation.
     /// This may be cheaper than inverting the transformation and transforming

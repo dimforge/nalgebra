@@ -1249,7 +1249,7 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Fills this matrix with the content of another one, after applying a function to
     /// the references of the entries of the other matrix. Both must have the same shape.
     #[inline]
-    pub fn copy_from_fn<U, R2: Dim, C2: Dim, SB, F>(&mut self, other: &Matrix<U, R2, C2, SB>, f: F)
+    pub fn copy_from_fn<U, R2: Dim, C2: Dim, SB, F>(&mut self, other: &Matrix<U, R2, C2, SB>,mut f: F)
     where
         SB: Storage<U, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
@@ -1282,7 +1282,7 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 
     /// Fills this matrix with the content of another one via moves. Both must have the same shape.
     #[inline]
-    pub fn move_from_fn<U, R2: Dim, C2: Dim, SB, F>(&mut self, other: Matrix<U, R2, C2, SB>, f: F)
+    pub fn move_from_fn<U, R2: Dim, C2: Dim, SB, F>(&mut self, other: Matrix<U, R2, C2, SB>, mut f: F)
     where
         SB: Storage<U, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
@@ -1322,7 +1322,7 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     pub fn tr_copy_from_fn<U, R2: Dim, C2: Dim, SB, F>(
         &mut self,
         other: &Matrix<U, R2, C2, SB>,
-        f: F,
+   mut     f: F,
     ) where
         SB: Storage<U, R2, C2>,
         ShapeConstraint: DimEq<R, C2> + SameNumberOfColumns<C, R2>,
@@ -1359,7 +1359,7 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     pub fn tr_move_from_fn<U, R2: Dim, C2: Dim, SB, F>(
         &mut self,
         other: Matrix<U, R2, C2, SB>,
-        f: F,
+      mut  f: F,
     ) where
         SB: Storage<U, R2, C2>,
         ShapeConstraint: DimEq<R, C2> + SameNumberOfColumns<C, R2>,
