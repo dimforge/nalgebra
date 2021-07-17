@@ -18,26 +18,27 @@ use crate::base::{Matrix4, Vector, Vector3};
 use crate::geometry::{Point3, Projective3};
 
 /// A 3D orthographic projection stored as a homogeneous 4x4 matrix.
+#[repr(C)]
 pub struct Orthographic3<T> {
     matrix: Matrix4<T>,
 }
 
-impl<T: RealField> Copy for Orthographic3<T> {}
+impl<T: Copy> Copy for Orthographic3<T> {}
 
-impl<T: RealField> Clone for Orthographic3<T> {
+impl<T: Clone> Clone for Orthographic3<T> {
     #[inline]
     fn clone(&self) -> Self {
         Self::from_matrix_unchecked(self.matrix)
     }
 }
 
-impl<T: RealField> fmt::Debug for Orthographic3<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+impl<T: fmt::Debug> fmt::Debug for Orthographic3<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.matrix.fmt(f)
     }
 }
 
-impl<T: RealField> PartialEq for Orthographic3<T> {
+impl<T: PartialEq> PartialEq for Orthographic3<T> {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.matrix == right.matrix
@@ -45,7 +46,7 @@ impl<T: RealField> PartialEq for Orthographic3<T> {
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T: RealField + Serialize> Serialize for Orthographic3<T> {
+impl<T: Serialize> Serialize for Orthographic3<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -55,7 +56,7 @@ impl<T: RealField + Serialize> Serialize for Orthographic3<T> {
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'a, T: RealField + Deserialize<'a>> Deserialize<'a> for Orthographic3<T> {
+impl<'a, T: Deserialize<'a>> Deserialize<'a> for Orthographic3<T> {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
         Des: Deserializer<'a>,
@@ -66,7 +67,8 @@ impl<'a, T: RealField + Deserialize<'a>> Deserialize<'a> for Orthographic3<T> {
     }
 }
 
-impl<T: RealField> Orthographic3<T> {
+/// # Basic methods and casts.
+impl<T> Orthographic3<T> {
     /// Creates a new orthographic projection matrix.
     ///
     /// This follows the OpenGL convention, so this will flip the `z` axis.
@@ -110,8 +112,11 @@ impl<T: RealField> Orthographic3<T> {
     /// assert_relative_eq!(proj.project_point(&p8), Point3::new(-1.0, -1.0, -1.0));
     /// ```
     #[inline]
-    pub fn new(left: T, right: T, bottom: T, top: T, znear: T, zfar: T) -> Self {
-        let matrix = Matrix4::<T>::identity();
+    pub fn new(left: T, right: T, bottom: T, top: T, znear: T, zfar: T) -> Self
+    where
+        T: RealField,
+    {
+        let matrix = Matrix4::identity();
         let mut res = Self::from_matrix_unchecked(matrix);
 
         res.set_left_and_right(left, right);
@@ -145,7 +150,10 @@ impl<T: RealField> Orthographic3<T> {
 
     /// Creates a new orthographic projection matrix from an aspect ratio and the vertical field of view.
     #[inline]
-    pub fn from_fov(aspect: T, vfov: T, znear: T, zfar: T) -> Self {
+    pub fn from_fov(aspect: T, vfov: T, znear: T, zfar: T) -> Self
+    where
+        T: RealField,
+    {
         assert!(
             znear != zfar,
             "The far plane must not be equal to the near plane."
@@ -188,7 +196,10 @@ impl<T: RealField> Orthographic3<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn inverse(&self) -> Matrix4<T> {
+    pub fn inverse(&self) -> Matrix4<T>
+    where
+        T: RealField,
+    {
         let mut res = self.to_homogeneous();
 
         let inv_m11 = T::one() / self.matrix[(0, 0)];
@@ -257,7 +268,8 @@ impl<T: RealField> Orthographic3<T> {
     #[inline]
     #[must_use]
     pub fn as_projective(&self) -> &Projective3<T> {
-        unsafe { &*(self as *const Orthographic3<T> as *const Projective3<T>) }
+        // Safety: Self and Projective3 are both #[repr(C)] of a matrix.
+        unsafe { &*(self as *const _ as *const Projective3<T>) }
     }
 
     /// This transformation seen as a `Projective3`.
@@ -301,7 +313,10 @@ impl<T: RealField> Orthographic3<T> {
     pub fn unwrap(self) -> Matrix4<T> {
         self.matrix
     }
+}
 
+/// # Mathematical methods.
+impl<T: RealField> Orthographic3<T> {
     /// The left offset of the view cuboid.
     ///
     /// ```

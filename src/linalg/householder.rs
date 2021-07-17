@@ -51,7 +51,7 @@ pub fn clear_column_unchecked<T: ComplexField, R: Dim, C: Dim>(
     diag_elt: *mut T,
     icol: usize,
     shift: usize,
-    bilateral: Option<&mut OVector<T, R>>,
+    bilateral: Option<&mut OVector<MaybeUninit<T>, R>>,
 ) where
     DefaultAllocator: Allocator<T, R, C> + Allocator<T, R>,
 {
@@ -88,11 +88,14 @@ pub fn clear_row_unchecked<T: ComplexField, R: Dim, C: Dim>(
 {
     let (mut top, mut bottom) = matrix.rows_range_pair_mut(irow, irow + 1..);
     let mut axis = axis_packed.rows_range_mut(irow + shift..);
-    axis.tr_copy_from(&top.columns_range(irow + shift..));
+    axis.tr_copy_init_from(&top.columns_range(irow + shift..));
+    let mut axis = unsafe { axis.assume_init_mut() };
 
     let (reflection_norm, not_zero) = reflection_axis_mut(&mut axis);
     axis.conjugate_mut(); // So that reflect_rows actually cancels the first row.
-  unsafe{  *diag_elt = reflection_norm;}
+    unsafe {
+        *diag_elt = reflection_norm;
+    }
 
     if not_zero {
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());

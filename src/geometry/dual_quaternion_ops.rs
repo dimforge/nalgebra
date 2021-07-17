@@ -59,14 +59,14 @@ use std::ops::{
 impl<T> AsRef<[T; 8]> for DualQuaternion<T> {
     #[inline]
     fn as_ref(&self) -> &[T; 8] {
-        unsafe { &*(self as *const Self as *const [T; 8]) }
+        unsafe { &*(self as *const _ as *const [T; 8]) }
     }
 }
 
 impl<T> AsMut<[T; 8]> for DualQuaternion<T> {
     #[inline]
     fn as_mut(&mut self) -> &mut [T; 8] {
-        unsafe { &mut *(self as *mut Self as *mut [T; 8]) }
+        unsafe { &mut *(self as *mut _ as *mut [T; 8]) }
     }
 }
 

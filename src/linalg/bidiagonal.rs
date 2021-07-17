@@ -7,7 +7,7 @@ use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, OMatrix, OVector, Unit};
 use crate::dimension::{Const, Dim, DimDiff, DimMin, DimMinimum, DimSub, U1};
 use crate::storage::{Owned, Storage};
-use crate::{Dynamic, };
+use crate::Dynamic;
 use simba::scalar::ComplexField;
 
 use crate::geometry::Reflection;

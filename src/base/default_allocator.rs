@@ -31,6 +31,9 @@ type DefaultUninitBuffer<T, R, C> =
  * Allocator.
  *
  */
+ /// A helper struct that controls how the storage for a matrix should be allocated.
+ ///
+ /// This struct is useless on its own. Instead, it's used in trait
 /// An allocator based on `GenericArray` and `VecStorage` for statically-sized and dynamically-sized
 /// matrices respectively.
 pub struct DefaultAllocator;
