@@ -9,7 +9,7 @@ use simba::scalar::ComplexField;
 use crate::geometry::Point;
 
 /// A reflection wrt. a plane.
-pub struct Reflection<T, D, S> {
+pub struct Reflection<T, D:Dim, S> {
     axis: Vector<T, D, S>,
     bias: T,
 }

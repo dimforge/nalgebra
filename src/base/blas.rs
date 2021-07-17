@@ -757,7 +757,6 @@ where
         SB: Storage<T, R2, C2>,
         SC: Storage<T, D3>,
         ShapeConstraint: DimEq<D, R2> + AreMultipliable<R2, C2, D3, U1>,
-        // DefaultAllocator: Allocator<T, D>,
     {
         let dim1 = self.nrows();
         let (nrows2, ncols2) = a.shape();
@@ -920,7 +919,7 @@ where
                 // matrixmultiply can be used only if the std feature is available.
                 let nrows1 = self.nrows();
                 let (nrows2, ncols2) = a.shape();
-                let (_, ncols3) = b.shape();
+                let (nrows3, ncols3) = b.shape();
 
                 // Threshold determined empirically.
                 const SMALL_DIM: usize = 5;
@@ -931,7 +930,7 @@ where
                     && ncols2 > SMALL_DIM
                 {
                     assert_eq!(
-                        ncols1, nrows2,
+                        ncols2, nrows3,
                         "gemm: dimensions mismatch for multiplication."
                     );
                     assert_eq!(
@@ -1553,12 +1552,10 @@ where
     /// let mid = DMatrix::from_row_slice(3, 3, &[0.1, 0.2, 0.3,
     ///                                           0.5, 0.6, 0.7,
     ///                                           0.9, 1.0, 1.1]);
-    /// // The random shows that values on the workspace do not
-    /// // matter as they will be overwritten.
-    /// let mut workspace = DVector::new_random(2);
+    ///
     /// let expected = &lhs * &mid * lhs.transpose() * 10.0 + &mat * 5.0;
     ///
-    /// mat.quadform_tr_with_workspace(&mut workspace, 10.0, &lhs, &mid, 5.0);
+    /// mat.quadform_tr(10.0, &lhs, &mid, 5.0);
     /// assert_relative_eq!(mat, expected);
     pub fn quadform_tr<R3: Dim, C3: Dim, S3, D4: Dim, S4>(
         &mut self,
@@ -1603,12 +1600,10 @@ where
     /// let mid = DMatrix::from_row_slice(3, 3, &[0.1, 0.2, 0.3,
     ///                                           0.5, 0.6, 0.7,
     ///                                           0.9, 1.0, 1.1]);
-    /// // The random shows that values on the workspace do not
-    /// // matter as they will be overwritten.
-    /// let mut workspace = DVector::new_random(3);
+    ///
     /// let expected = rhs.transpose() * &mid * &rhs * 10.0 + &mat * 5.0;
     ///
-    /// mat.quadform(&mut workspace, 10.0, &mid, &rhs, 5.0);
+    /// mat.quadform(10.0, &mid, &rhs, 5.0);
     /// assert_relative_eq!(mat, expected);
     pub fn quadform<D3: Dim, S3, R4: Dim, C4: Dim, S4>(
         &mut self,
@@ -1622,9 +1617,9 @@ where
         ShapeConstraint: DimEq<R4, D3> + DimEq<D3, R4> + DimEq<D1, C4>,
         DefaultAllocator: Allocator<T, D3>,
     {
-        // TODO: figure out why type inference wasn't doing its job.
+        // TODO: figure out why type inference isn't doing its job.
         let mut work =
-            Matrix::new_uninitialized_generic(D3::from_usize(self.shape().0), Const::<1>);
+            Matrix::new_uninitialized_generic(D3::from_usize(mid.shape().0), Const::<1>);
         work.gemv_z::<D3, D3, R4, S3, _>(T::one(), mid, &rhs.column(0));
         let mut work = unsafe { work.assume_init() };
 
