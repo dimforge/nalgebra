@@ -42,23 +42,24 @@ where
         // extra allocations.
         let (nrows, ncols) = self.data.shape();
         let mut multiplier = self.clone_owned();
-
-        // TODO: ACTUALLY MAKE BUF USEFUL! BEEEEEEEEP!!
+        let mut buf = Matrix::new_uninitialized_generic(nrows, ncols);
 
         // Exponentiation by squares.
         loop {
             if e % two == one {
-                let mut buf = Matrix::new_uninitialized_generic(nrows, ncols);
                 self.mul_to(&multiplier, &mut buf);
-                let buf = unsafe { buf.assume_init() };
-                self.copy_from(&buf);
+                unsafe {
+                    self.copy_from(&buf.assume_init_ref());
+                }
+                buf.reinitialize();
             }
 
             e /= two;
-            let mut buf = Matrix::new_uninitialized_generic(nrows, ncols);
             multiplier.mul_to(&multiplier, &mut buf);
-            let buf = unsafe { buf.assume_init() };
-            multiplier.copy_from(&buf);
+            unsafe {
+                multiplier.copy_from(&buf.assume_init_ref());
+            }
+            buf.reinitialize();
 
             if e == zero {
                 return true;

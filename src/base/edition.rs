@@ -942,7 +942,8 @@ impl<T: Clone> OMatrix<T, Dynamic, Dynamic> {
     where
         DefaultAllocator: Reallocator<T, Dynamic, Dynamic, Dynamic, Dynamic>,
     {
-        // BEEEP!!!! BEEEEEEEP!!!
+        // IMPORTANT TODO: this method is still UB, and we should decide how to
+        // update the API to take it into account.
 
         let placeholder = unsafe {
             Matrix::new_uninitialized_generic(Dynamic::new(0), Dynamic::new(0)).assume_init()

@@ -5,7 +5,7 @@ use std::io::{Result as IOResult, Write};
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::any::TypeId;
 use std::cmp::Ordering;
-use std::fmt;
+use std::fmt;use std::ptr;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 use std::mem::{self, ManuallyDrop, MaybeUninit};
@@ -341,6 +341,7 @@ impl<T, R, C, S> Matrix<T, R, C, S> {
     }
 }
 
+/// # Memory manipulation methods.
 impl<T, R: Dim, C: Dim> OMatrix<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C>,
@@ -365,6 +366,7 @@ where
     }
 }
 
+/// # More memory manipulation methods.
 impl<T, R: Dim, C: Dim> OMatrix<MaybeUninit<T>, R, C>
 where
     DefaultAllocator: Allocator<T, R, C>,
@@ -376,6 +378,18 @@ where
         OMatrix::from_data_statically_unchecked(
             <DefaultAllocator as Allocator<T, R, C>>::assume_init(self.data),
         )
+    }
+
+    /// Assumes a matrix's entries to be initialized, and drops them. This allows the
+    /// buffer to be safely reused.
+    pub fn reinitialize(&mut self) {
+        for i in 0..self.nrows() {
+            for j in 0..self.ncols() {
+                unsafe {
+                    ptr::drop_in_place(self.get_unchecked_mut((i, j)));
+                }
+            }
+        }
     }
 }
 
@@ -445,21 +459,6 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[inline(always)]
     pub fn from_data(data: S) -> Self {
         unsafe { Self::from_data_statically_unchecked(data) }
-    }
-
-    /// Creates a new uninitialized matrix with the given uninitialized data
-    pub unsafe fn from_uninitialized_data(data: MaybeUninit<S>) -> MaybeUninit<Self> {
-        // BEEP BEEP this doesn't seem good
-        let res: Matrix<T, R, C, MaybeUninit<S>> = Matrix {
-            data,
-            _phantoms: PhantomData,
-        };
-        let res: MaybeUninit<Matrix<T, R, C, MaybeUninit<S>>> = MaybeUninit::new(res);
-        // safety: since we wrap the inner MaybeUninit in an outer MaybeUninit above, the fact that the `data` field is partially-uninitialized is still opaque.
-        // with s/transmute_copy/transmute/, rustc claims that `MaybeUninit<Matrix<T, R, C, MaybeUninit<S>>>` may be of a different size from `MaybeUninit<Matrix<T, R, C, S>>`
-        // but MaybeUninit's documentation says "MaybeUninit<T> is guaranteed to have the same size, alignment, and ABI as T", which implies those types should be the same size
-        let res: MaybeUninit<Matrix<T, R, C, S>> = mem::transmute_copy(&res);
-        res
     }
 
     /// The shape of this matrix returned as the tuple (number of rows, number of columns).
@@ -941,24 +940,22 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Folds a function `f` on each entry of `self`.
     #[inline]
     #[must_use]
-    pub fn fold<Acc>(&self, init: Acc, mut f: impl FnMut(Acc, T) -> Acc) -> Acc
+    pub fn fold<Acc>(&self, mut init: Acc, mut f: impl FnMut(Acc, T) -> Acc) -> Acc
     where
         T: Clone,
     {
         let (nrows, ncols) = self.data.shape();
 
-        let mut res = init;
-
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
                     let a = self.data.get_unchecked(i, j).clone();
-                    res = f(res, a)
+                    init = f(init, a)
                 }
             }
         }
 
-        res
+        init
     }
 
     /// Folds a function `f` on each pairs of entries from `self` and `rhs`.
@@ -967,7 +964,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     pub fn zip_fold<T2: Clone, R2: Dim, C2: Dim, S2, Acc>(
         &self,
         rhs: &Matrix<T2, R2, C2, S2>,
-        init: Acc,
+        mut init: Acc,
         mut f: impl FnMut(Acc, T, T2) -> Acc,
     ) -> Acc
     where
@@ -976,7 +973,6 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
         let (nrows, ncols) = self.data.shape();
-        let mut res = init;
 
         assert_eq!(
             (nrows.value(), ncols.value()),
@@ -989,12 +985,12 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                 unsafe {
                     let a = self.data.get_unchecked(i, j).clone();
                     let b = rhs.data.get_unchecked(i, j).clone();
-                    res = f(res, a, b)
+                    init = f(init, a, b)
                 }
             }
         }
 
-        res
+        init
     }
 
     /// Replaces each component of `self` by the result of a closure `f` applied on it.

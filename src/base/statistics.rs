@@ -59,7 +59,6 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     }
 
     /// Returns a column vector resulting from the folding of `f` on each column of this matrix.
-    // BEEEEP!!!! Pretty sure there's something fishy here.
     #[inline]
     #[must_use]
     pub fn compress_columns(
