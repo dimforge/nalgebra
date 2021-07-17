@@ -99,8 +99,9 @@ macro_rules! svd_impl(
 
                 let lda = nrows.value() as i32;
 
+                // IMPORTANT TODO: this is still UB.
                 let mut u  = unsafe { Matrix::new_uninitialized_generic(nrows, nrows).assume_init() };
-                let mut s  = unsafe { Matrix::new_uninitialized_generic(nrows.min(ncols), U1).assume_init() };
+                let mut s  = unsafe { Matrix::new_uninitialized_generic(nrows.min(ncols), Const::<1>).assume_init() };
                 let mut vt = unsafe { Matrix::new_uninitialized_generic(ncols, ncols).assume_init() };
 
                 let ldu  = nrows.value();

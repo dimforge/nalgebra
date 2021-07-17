@@ -60,8 +60,9 @@ where
             "Unable to compute the hessenberg decomposition of an empty matrix."
         );
 
+        // IMPORTANT TODO: this is still UB.
         let mut tau = unsafe {
-            Matrix::new_uninitialized_generic(nrows.sub(U1), U1).assume_init()
+            Matrix::new_uninitialized_generic(nrows.sub(Const::<1>), Const::<1>).assume_init()
         };
 
         let mut info = 0;
