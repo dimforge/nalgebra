@@ -329,22 +329,18 @@ where
 
             if !b.is_zero() {
                 for i in 0..x.len() {
-                    
-                        let y = y.get_unchecked_mut(i * rstride1);
-                        *y = a.inlined_clone()
-                            * x.get_unchecked(i * rstride2).inlined_clone()
-                            * c.inlined_clone()
-                            + b.inlined_clone() * y.inlined_clone();
-                    
+                    let y = y.get_unchecked_mut(i * rstride1);
+                    *y = a.inlined_clone()
+                        * x.get_unchecked(i * rstride2).inlined_clone()
+                        * c.inlined_clone()
+                        + b.inlined_clone() * y.inlined_clone();
                 }
             } else {
                 for i in 0..x.len() {
-                    
-                        let y = y.get_unchecked_mut(i * rstride1);
-                        *y = a.inlined_clone()
-                            * x.get_unchecked(i * rstride2).inlined_clone()
-                            * c.inlined_clone();
-                    
+                    let y = y.get_unchecked_mut(i * rstride1);
+                    *y = a.inlined_clone()
+                        * x.get_unchecked(i * rstride2).inlined_clone()
+                        * c.inlined_clone();
                 }
             }
         }
@@ -788,7 +784,7 @@ where
 
             for j in 1..ncols2 {
                 let col2 = a.column(j);
-                let val = x.vget_unchecked(j).inlined_clone() ;
+                let val = x.vget_unchecked(j).inlined_clone();
                 init.axcpy(alpha.inlined_clone(), &col2, val, T::one());
             }
         }
@@ -852,6 +848,8 @@ where
         }
     }
 
+    /// Computes `self = alpha * a * x`, where `a` is an **hermitian** matrix, `x` a
+    /// vector, and `alpha, beta` two scalars.
     pub fn hegemv_z<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
         alpha: T,
@@ -1574,7 +1572,8 @@ where
         ShapeConstraint: DimEq<D1, R3> + DimEq<C3, D4>,
         DefaultAllocator: Allocator<T, R3>,
     {
-        let mut work = Matrix::new_uninitialized_generic(R3::from_usize(self.shape().0), Const::<1>);
+        let mut work =
+            Matrix::new_uninitialized_generic(R3::from_usize(self.shape().0), Const::<1>);
         work.gemv_z(T::one(), lhs, &mid.column(0));
         let mut work = unsafe { work.assume_init() };
 
@@ -1624,7 +1623,8 @@ where
         DefaultAllocator: Allocator<T, D3>,
     {
         // TODO: figure out why type inference wasn't doing its job.
-        let mut work = Matrix::new_uninitialized_generic(D3::from_usize(self.shape().0), Const::<1>);
+        let mut work =
+            Matrix::new_uninitialized_generic(D3::from_usize(self.shape().0), Const::<1>);
         work.gemv_z::<D3, D3, R4, S3, _>(T::one(), mid, &rhs.column(0));
         let mut work = unsafe { work.assume_init() };
 

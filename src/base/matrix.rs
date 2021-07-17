@@ -8,7 +8,7 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
-use std::mem::{self, MaybeUninit};
+use std::mem::{self, ManuallyDrop, MaybeUninit};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -194,10 +194,7 @@ pub struct Matrix<T, R, C, S> {
 
 impl<T, R: Dim, C: Dim, S: Default> Default for Matrix<T, R, C, S> {
     fn default() -> Self {
-        Matrix {
-            data: Default::default(),
-            _phantoms: PhantomData,
-        }
+        unsafe { Matrix::from_data_statically_unchecked(Default::default()) }
     }
 }
 
@@ -212,7 +209,7 @@ impl<T, R: Dim, C: Dim, S: Serialize> Serialize for Matrix<T, R, C, S> {
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'de, T: Dim, R: Dim, C, S: Serialize<'de>> Deserialize<'de> for Matrix<T, R, C, S> {
+impl<'de, T, R: Dim, C, S: Serialize<'de>> Deserialize<'de> for Matrix<T, R, C, S> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
@@ -344,9 +341,20 @@ where
 {
     /// Allocates a matrix with the given number of rows and columns without initializing its content.
     pub fn new_uninitialized_generic(nrows: R, ncols: C) -> OMatrix<MaybeUninit<T>, R, C> {
-        OMatrix {
-            data: <DefaultAllocator as Allocator<T, R, C>>::allocate_uninitialized(nrows, ncols),
-            _phantoms: PhantomData,
+        unsafe {
+            OMatrix::from_data_statically_unchecked(
+                <DefaultAllocator as Allocator<T, R, C>>::allocate_uninitialized(nrows, ncols),
+            )
+        }
+    }
+
+    /// Converts this matrix into one whose entries need to be manually dropped. This should be
+    /// near zero-cost.
+    pub fn manually_drop(self) -> OMatrix<ManuallyDrop<T>, R, C> {
+        unsafe {
+            OMatrix::from_data_statically_unchecked(
+                <DefaultAllocator as Allocator<T, R, C>>::manually_drop(self.data),
+            )
         }
     }
 }
@@ -356,11 +364,12 @@ where
     DefaultAllocator: Allocator<T, R, C>,
 {
     /// Assumes a matrix's entries to be initialized. This operation should be near zero-cost.
+    ///
+    /// For the similar method that operates on matrix slices, see [`slice_assume_init`].
     pub unsafe fn assume_init(self) -> OMatrix<T, R, C> {
-        OMatrix {
-            data: <DefaultAllocator as Allocator<T, R, C>>::assume_init(self.data),
-            _phantoms: PhantomData,
-        }
+        OMatrix::from_data_statically_unchecked(
+            <DefaultAllocator as Allocator<T, R, C>>::assume_init(self.data),
+        )
     }
 }
 
@@ -711,30 +720,35 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             res.assume_init()
         }
     }
+}
 
-    /// Transposes `self`. Does not require `T: Clone` like its other counteparts.
-    pub fn transpose_into(self) -> OMatrix<T, C, R>
-    where
-        DefaultAllocator: Allocator<T, C, R>,
-    {
+impl<T, R: Dim, C: Dim> OMatrix<T, R, C>
+where
+    DefaultAllocator: Allocator<T, C, R> + Allocator<T, R, C>,
+{
+    /// Transposes `self`. Does not require `T: Clone` like its other counterparts.
+    pub fn transpose_into(self) -> OMatrix<T, C, R> {
         let (nrows, ncols) = self.data.shape();
         let mut res = OMatrix::new_uninitialized_generic(ncols, nrows);
+        let mut md = self.manually_drop();
 
         let (nrows, ncols) = res.shape();
 
         // TODO: optimize that.
         for i in 0..nrows {
             for j in 0..ncols {
+                // Safety: the indices are within range, and since the indices
+                // don't repeat, we don't do any double-drops.
                 unsafe {
-                    *res.get_unchecked_mut((j, i)) = MaybeUninit::new(*self.get_unchecked((i, j)));
+                    *res.get_unchecked_mut((j, i)) =
+                        MaybeUninit::new(ManuallyDrop::take(md.get_unchecked_mut((i, j))));
                 }
             }
         }
 
-        // BEEP! BEEP! There's a double drop here that needs to be fixed.
-
         unsafe {
-            // Safety: res is now fully initialized due to the guarantees of transpose_to.
+            // Safety: res is now fully initialized, since we've initialized
+            // every single entry.
             res.assume_init()
         }
     }
@@ -956,7 +970,6 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
         let (nrows, ncols) = self.data.shape();
-
         let mut res = init;
 
         assert_eq!(
@@ -982,6 +995,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     pub fn apply<F: FnMut(T) -> T>(&mut self, mut f: F)
     where
+        T: Clone, // This could be removed by changing the function signature.
         S: StorageMut<T, R, C>,
     {
         let (nrows, ncols) = self.shape();
@@ -990,7 +1004,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             for i in 0..nrows {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
-                    *e = f(*e)
+                    *e = f(e.clone())
                 }
             }
         }
@@ -1004,6 +1018,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         rhs: &Matrix<T2, R2, C2, S2>,
         mut f: impl FnMut(T, T2) -> T,
     ) where
+        T: Clone, // This could be removed by changing the function signature.
         S: StorageMut<T, R, C>,
         S2: Storage<T2, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
@@ -1021,7 +1036,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
                     let rhs = rhs.get_unchecked((i, j)).clone();
-                    *e = f(*e, rhs)
+                    *e = f(e.clone(), rhs)
                 }
             }
         }
@@ -1036,6 +1051,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         c: &Matrix<N3, R3, C3, S3>,
         mut f: impl FnMut(T, T2, N3) -> T,
     ) where
+        T: Clone, // This could be removed by changing the function signature.
         S: StorageMut<T, R, C>,
         S2: Storage<T2, R2, C2>,
         S3: Storage<N3, R3, C3>,
@@ -1061,7 +1077,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                     let e = self.data.get_unchecked_mut(i, j);
                     let b = b.get_unchecked((i, j)).clone();
                     let c = c.get_unchecked((i, j)).clone();
-                    *e = f(*e, b, c)
+                    *e = f(e.clone(), b, c)
                 }
             }
         }
@@ -1249,8 +1265,11 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Fills this matrix with the content of another one, after applying a function to
     /// the references of the entries of the other matrix. Both must have the same shape.
     #[inline]
-    pub fn copy_from_fn<U, R2: Dim, C2: Dim, SB, F>(&mut self, other: &Matrix<U, R2, C2, SB>,mut f: F)
-    where
+    pub fn copy_from_fn<U, R2: Dim, C2: Dim, SB, F>(
+        &mut self,
+        other: &Matrix<U, R2, C2, SB>,
+        mut f: F,
+    ) where
         SB: Storage<U, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
         F: FnMut(&U) -> T,
@@ -1272,20 +1291,20 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Fills this matrix with the content of another one, after applying a function to
     /// the entries of the other matrix. Both must have the same shape.
     #[inline]
-    pub fn move_from<R2: Dim, C2: Dim, SB>(&mut self, other: Matrix<T, R2, C2, SB>)
+    pub fn move_from<R2: Dim, C2: Dim>(&mut self, other: OMatrix<T, R2, C2>)
     where
-        SB: Storage<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+        DefaultAllocator: Allocator<T, R2, C2>,
     {
         self.move_from_fn(other, |e| e)
     }
 
     /// Fills this matrix with the content of another one via moves. Both must have the same shape.
     #[inline]
-    pub fn move_from_fn<U, R2: Dim, C2: Dim, SB, F>(&mut self, other: Matrix<U, R2, C2, SB>, mut f: F)
+    pub fn move_from_fn<U, R2: Dim, C2: Dim, F>(&mut self, other: OMatrix<U, R2, C2>, mut f: F)
     where
-        SB: Storage<U, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+        DefaultAllocator: Allocator<U, R2, C2>,
         F: FnMut(U) -> T,
     {
         assert!(
@@ -1293,15 +1312,16 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
             "Unable to move from a matrix with a different shape."
         );
 
+        let mut md = other.manually_drop();
+
         for j in 0..self.ncols() {
             for i in 0..self.nrows() {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = f(*other.get_unchecked((i, j)));
+                    *self.get_unchecked_mut((i, j)) =
+                        f(ManuallyDrop::take(md.get_unchecked_mut((i, j))));
                 }
             }
         }
-
-        // BEEP BEEEP!!!!! I'm double-freeing! OH NO!!!! (todo)
     }
 
     /// Fills this matrix with the content of the transpose another one via clones.
@@ -1322,7 +1342,7 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     pub fn tr_copy_from_fn<U, R2: Dim, C2: Dim, SB, F>(
         &mut self,
         other: &Matrix<U, R2, C2, SB>,
-   mut     f: F,
+        mut f: F,
     ) where
         SB: Storage<U, R2, C2>,
         ShapeConstraint: DimEq<R, C2> + SameNumberOfColumns<C, R2>,
@@ -1345,9 +1365,9 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 
     /// Fills this matrix with the content of the transpose another one via moves.
     #[inline]
-    pub fn tr_move_from<R2: Dim, C2: Dim, SB>(&mut self, other: Matrix<T, R2, C2, SB>)
+    pub fn tr_move_from<R2: Dim, C2: Dim>(&mut self, other: OMatrix<T, R2, C2>)
     where
-        SB: Storage<T, R2, C2>,
+        DefaultAllocator: Allocator<T, R2, C2>,
         ShapeConstraint: DimEq<R, C2> + SameNumberOfColumns<C, R2>,
     {
         self.tr_move_from_fn(other, |e| e)
@@ -1356,13 +1376,10 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Fills this matrix with the content of the transpose of another one, after applying
     /// a function to the entries of the other matrix. Both must have the same shape.
     #[inline]
-    pub fn tr_move_from_fn<U, R2: Dim, C2: Dim, SB, F>(
-        &mut self,
-        other: Matrix<U, R2, C2, SB>,
-      mut  f: F,
-    ) where
-        SB: Storage<U, R2, C2>,
+    pub fn tr_move_from_fn<U, R2: Dim, C2: Dim, F>(&mut self, other: OMatrix<U, R2, C2>, mut f: F)
+    where
         ShapeConstraint: DimEq<R, C2> + SameNumberOfColumns<C, R2>,
+        DefaultAllocator: Allocator<U, R2, C2>,
         F: FnMut(U) -> T,
     {
         let (nrows, ncols) = self.shape();
@@ -1371,21 +1388,25 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
             "Unable to move from a matrix with incompatible shape."
         );
 
+        let mut md = other.manually_drop();
+
         for j in 0..ncols {
             for i in 0..nrows {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = f(*other.get_unchecked((j, i)));
+                    *self.get_unchecked_mut((i, j)) =
+                        f(ManuallyDrop::take(md.get_unchecked_mut((j, i))));
                 }
             }
         }
-
-        // BEEP BEEPP! Same thing as the non-transpose method, this is UB.
     }
 
     // TODO: rename `apply` to `apply_mut` and `apply_into` to `apply`?
     /// Returns `self` with each of its components replaced by the result of a closure `f` applied on it.
     #[inline]
-    pub fn apply_into<F: FnMut(T) -> T>(mut self, f: F) -> Self {
+    pub fn apply_into<F: FnMut(T) -> T>(mut self, f: F) -> Self
+    where
+        T: Clone,
+    {
         self.apply(f);
         self
     }
@@ -1406,9 +1427,10 @@ impl<T, R: Dim, C: Dim, S: StorageMut<MaybeUninit<T>, R, C>> Matrix<MaybeUninit<
     /// Initializes this matrix with the content of another one, after applying a function to
     /// the entries of the other matrix. Both must have the same shape.
     #[inline]
-    pub fn move_init_from<R2: Dim, C2: Dim, SB>(&mut self, other: Matrix<T, R2, C2, SB>)
+    pub fn move_init_from<R2: Dim, C2: Dim, SB>(&mut self, other: OMatrix<T, R2, C2>)
     where
         SB: Storage<T, R2, C2>,
+        DefaultAllocator: Allocator<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
         self.move_from_fn(other, MaybeUninit::new)
@@ -1427,9 +1449,9 @@ impl<T, R: Dim, C: Dim, S: StorageMut<MaybeUninit<T>, R, C>> Matrix<MaybeUninit<
 
     /// Initializes this matrix with the content of the transpose another one via moves.
     #[inline]
-    pub fn tr_move_init_from<R2: Dim, C2: Dim, SB>(&mut self, other: Matrix<T, R2, C2, SB>)
+    pub fn tr_move_init_from<R2: Dim, C2: Dim>(&mut self, other: OMatrix<T, R2, C2>)
     where
-        SB: Storage<T, R2, C2>,
+        DefaultAllocator: Allocator<T, R2, C2>,
         ShapeConstraint: DimEq<R, C2> + SameNumberOfColumns<C, R2>,
     {
         self.tr_move_from_fn(other, MaybeUninit::new)

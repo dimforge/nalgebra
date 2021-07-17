@@ -279,7 +279,7 @@ where
         CsMatrix {
             data: CsVecStorage {
                 shape: (nrows, ncols),
-                p: OVector::zeros_generic(ncols, Const::<1>),
+                p: OVector::zeros_generic(ncols, U1),
                 i,
                 vals,
             },
@@ -429,7 +429,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
 
         let nvals = self.len();
         let mut res = CsMatrix::new_uninitialized_generic(ncols, nrows, nvals);
-        let mut workspace = Vector::zeros_generic(nrows, Const::<1>);
+        let mut workspace = Vector::zeros_generic(nrows, U1);
 
         // Compute p.
         for i in 0..nvals {
@@ -473,7 +473,7 @@ where
         // Size = R
         let nrows = self.data.shape().0;
         let mut workspace =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, Const::<1>) };
+            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, U1) };
         self.sort_with_workspace(workspace.as_mut_slice());
     }
 

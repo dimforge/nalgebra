@@ -222,6 +222,7 @@ storage_impl!(SliceStorage, SliceStorageMut);
 impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     SliceStorage<'a, MaybeUninit<T>, R, C, RStride, CStride>
 {
+    /// Assumes a slice storage's entries to be initialized. This operation should be near zero-cost.
     pub unsafe fn assume_init(self) -> SliceStorage<'a, T, R, C, RStride, CStride> {
         SliceStorage::from_raw_parts(self.ptr as *const T, self.shape, self.strides)
     }
@@ -230,6 +231,7 @@ impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
 impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     SliceStorageMut<'a, MaybeUninit<T>, R, C, RStride, CStride>
 {
+    /// Assumes a slice storage's entries to be initialized. This operation should be near zero-cost.
     pub unsafe fn assume_init(self) -> SliceStorageMut<'a, T, R, C, RStride, CStride> {
         SliceStorageMut::from_raw_parts(self.ptr as *mut T, self.shape, self.strides)
     }
@@ -760,6 +762,7 @@ impl<T, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     MatrixSlice<'a, MaybeUninit<T>, R, C, RStride, CStride>
 {
+    /// Assumes a matrix slices's entries to be initialized. This operation should be near zero-cost.
     pub unsafe fn slice_assume_init(self) -> MatrixSlice<'a, T, R, C, RStride, CStride> {
         Matrix::from_data(self.data.assume_init())
     }
@@ -768,6 +771,7 @@ impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
 impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     MatrixSliceMut<'a, MaybeUninit<T>, R, C, RStride, CStride>
 {
+    /// Assumes a matrix slices's entries to be initialized. This operation should be near zero-cost.
     pub unsafe fn slice_assume_init(self) -> MatrixSliceMut<'a, T, R, C, RStride, CStride> {
         Matrix::from_data(self.data.assume_init())
     }

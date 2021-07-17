@@ -105,7 +105,7 @@ where
         ColPivQR {
             col_piv_qr: matrix,
             p,
-            diag:unsafe{diag.assume_init()},
+            diag: unsafe { diag.assume_init() },
         }
     }
 

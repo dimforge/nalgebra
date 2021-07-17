@@ -58,7 +58,7 @@ where
 
         let mut info = 0;
         let mut tau = unsafe {
-            Matrix::new_uninitialized_generic(nrows.min(ncols), Const::<1>).assume_init()
+            Matrix::new_uninitialized_generic(nrows.min(ncols), U1).assume_init()
         };
 
         if nrows.value() == 0 || ncols.value() == 0 {

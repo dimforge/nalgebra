@@ -279,8 +279,11 @@ impl<'a, T: Deserialize<'a>> Deserialize<'a> for DualQuaternion<T> {
 
 impl<T> DualQuaternion<T> {
     // TODO: Cloning shouldn't be necessary.
-    fn to_vector(self) -> OVector<T, U8>where T:Clone {
-        (*self.as_ref()).into()
+    fn to_vector(self) -> OVector<T, U8>
+    where
+        T: Clone,
+    {
+        (self.as_ref().clone()).into()
     }
 }
 
@@ -892,7 +895,7 @@ impl<T: RealField> Default for UnitDualQuaternion<T> {
     }
 }
 
-impl<T: RealField+fmt::Display> fmt::Display for UnitDualQuaternion<T> {
+impl<T: RealField + fmt::Display> fmt::Display for UnitDualQuaternion<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(axis) = self.rotation().axis() {
             let axis = axis.into_inner();

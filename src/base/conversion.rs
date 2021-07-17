@@ -361,7 +361,7 @@ where
     }
 }
 
-impl<'a, T: Dim, R: Dim, C: Dim, RSlice: Dim, CSlice: Dim, RStride: Dim, CStride: Dim, S>
+impl<'a, T, R: Dim, C: Dim, RSlice: Dim, CSlice: Dim, RStride: Dim, CStride: Dim, S>
     From<&'a mut Matrix<T, R, C, S>> for MatrixSliceMut<'a, T, RSlice, CSlice, RStride, CStride>
 where
     S: StorageMut<T, R, C>,

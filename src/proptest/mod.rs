@@ -329,7 +329,7 @@ where
     D: Dim,
     DefaultAllocator: Allocator<ScalarStrategy::Value, D>,
 {
-    matrix_(value_strategy, length.into(), Const::<1>.into())
+    matrix_(value_strategy, length.into(), U1.into())
 }
 
 impl<NParameters, R, C> Default for MatrixParameters<NParameters, R, C>

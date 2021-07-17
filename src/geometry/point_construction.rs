@@ -1,4 +1,4 @@
-use std::mem::MaybeUninit;
+use std::mem::{ManuallyDrop, MaybeUninit};
 
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
@@ -30,6 +30,13 @@ where
     #[inline]
     pub unsafe fn new_uninitialized() -> OPoint<MaybeUninit<T>, D> {
         OPoint::from(OVector::new_uninitialized_generic(D::name(), Const::<1>))
+    }
+
+    /// Converts `self` into a point whose coordinates must be manually dropped.
+    /// This should be zero-cost.
+    #[inline]
+    pub fn manually_drop(self) -> OPoint<ManuallyDrop<T>, D> {
+        OPoint::from(self.coords.manually_drop())
     }
 
     /// Creates a new point with all coordinates equal to zero.

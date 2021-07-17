@@ -99,11 +99,9 @@ where
     /// Creates a new sequence of D identity permutations.
     #[inline]
     pub fn identity_generic(dim: D) -> Self {
-  
-            Self {
-                len: 0,
-                ipiv: OVector::new_uninitialized_generic(dim, Const::<1>),
-            
+        Self {
+            len: 0,
+            ipiv: OVector::new_uninitialized_generic(dim, Const::<1>),
         }
     }
 

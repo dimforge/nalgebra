@@ -1,6 +1,6 @@
 //! Abstract definition of a matrix data storage allocator.
 
-use std::mem::MaybeUninit;
+use std::mem::{ManuallyDrop, MaybeUninit};
 
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::{Dim, U1};
@@ -30,9 +30,12 @@ pub trait InnerAllocator<T, R: Dim, C: Dim = U1>: 'static + Sized {
     ) -> Self::Buffer;
 }
 
-/// Same as the [`InnerAllocator`] trait, but also provides methods to build uninitialized buffers.
+/// Same as the [`InnerAllocator`] trait, but also provides methods to build uninitialized buffers,
+/// or buffers whose entries must be manually dropped.
 pub trait Allocator<T, R: Dim, C: Dim = U1>:
-    InnerAllocator<T, R, C> + InnerAllocator<MaybeUninit<T>, R, C>
+    InnerAllocator<T, R, C>
+    + InnerAllocator<MaybeUninit<T>, R, C>
+    + InnerAllocator<ManuallyDrop<T>, R, C>
 {
     /// Allocates a buffer with the given number of rows and columns without initializing its content.
     fn allocate_uninitialized(
@@ -44,6 +47,11 @@ pub trait Allocator<T, R: Dim, C: Dim = U1>:
     unsafe fn assume_init(
         uninit: <Self as InnerAllocator<MaybeUninit<T>, R, C>>::Buffer,
     ) -> <Self as InnerAllocator<T, R, C>>::Buffer;
+
+    /// Specifies that a given buffer's entries should be manually dropped.
+    fn manually_drop(
+        buf: <Self as InnerAllocator<T, R, C>>::Buffer,
+    ) -> <Self as InnerAllocator<ManuallyDrop<T>, R, C>>::Buffer;
 }
 
 /// A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
@@ -84,8 +92,7 @@ where
 impl<T, R1: Dim, R2: Dim, C1: Dim, C2: Dim> SameShapeAllocator<T, R1, C1, R2, C2>
     for DefaultAllocator
 where
-    DefaultAllocator:
-        Allocator<T, R1, C1> + Allocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>,
+    DefaultAllocator: Allocator<T, R1, C1> + Allocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
 {
 }
@@ -93,9 +100,7 @@ where
 // XXX: Bad name.
 /// Restricts the given number of rows to be equal.
 pub trait SameShapeVectorAllocator<T, R1: Dim, R2: Dim>:
-    Allocator<T, R1>
-    + Allocator<T, SameShapeR<R1, R2>>
-    + SameShapeAllocator<T, R1, U1, R2, U1>
+    Allocator<T, R1> + Allocator<T, SameShapeR<R1, R2>> + SameShapeAllocator<T, R1, U1, R2, U1>
 where
     ShapeConstraint: SameNumberOfRows<R1, R2>,
 {

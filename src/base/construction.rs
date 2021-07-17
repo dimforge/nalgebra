@@ -906,7 +906,7 @@ impl<T, R: Dim, C: Dim> Arbitrary for OMatrix<T, R, C>
 where
     T: Arbitrary + Send,
     DefaultAllocator: Allocator<T, R, C>,
-    Owned<T, R, C>: Clone+Send,
+    Owned<T, R, C>: Clone + Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {

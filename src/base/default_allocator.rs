@@ -4,8 +4,7 @@
 //! heap-allocated buffers for matrices with at least one dimension unknown at compile-time.
 
 use std::cmp;
-use std::mem::ManuallyDrop;
-use std::mem::MaybeUninit;
+use std::mem::{self, ManuallyDrop, MaybeUninit};
 use std::ptr;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
@@ -21,10 +20,6 @@ use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::vec_storage::VecStorage;
 use crate::storage::Owned;
-
-type DefaultBuffer<T, R, C> = <DefaultAllocator as InnerAllocator<T, R, C>>::Buffer;
-type DefaultUninitBuffer<T, R, C> =
-    <DefaultAllocator as InnerAllocator<MaybeUninit<T>, R, C>>::Buffer;
 
 /*
  *
@@ -72,7 +67,7 @@ impl<T, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>> for Def
         _: Const<R>,
         _: Const<C>,
     ) -> Owned<MaybeUninit<T>, Const<R>, Const<C>> {
-        // SAFETY: An uninitialized `[MaybeUninit<_>; LEN]` is valid.
+        // SAFETY: An uninitialized `[MaybeUninit<_>; _]` is valid.
         let array = unsafe { MaybeUninit::uninit().assume_init() };
         ArrayStorage(array)
     }
@@ -84,10 +79,23 @@ impl<T, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>> for Def
         // SAFETY:
         // * The caller guarantees that all elements of the array are initialized
         // * `MaybeUninit<T>` and T are guaranteed to have the same layout
-        // * MaybeUnint does not drop, so there are no double-frees
+        // * `MaybeUnint` does not drop, so there are no double-frees
         // * `ArrayStorage` is transparent.
         // And thus the conversion is safe
         ArrayStorage((&uninit as *const _ as *const [_; C]).read())
+    }
+
+    /// Specifies that a given buffer's entries should be manually dropped.
+    #[inline]
+    fn manually_drop(
+        buf: <Self as InnerAllocator<T, Const<R>, Const<C>>>::Buffer,
+    ) -> <Self as InnerAllocator<ManuallyDrop<T>, Const<R>, Const<C>>>::Buffer {
+        // SAFETY:
+        // * `ManuallyDrop<T>` and T are guaranteed to have the same layout
+        // * `ManuallyDrop` does not drop, so there are no double-frees
+        // * `ArrayStorage` is transparent.
+        // And thus the conversion is safe
+        ArrayStorage(unsafe { mem::transmute_copy(&ManuallyDrop::new(buf.0)) })
     }
 }
 
@@ -133,6 +141,25 @@ impl<T, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
 
         VecStorage::new(uninit.nrows, uninit.ncols, new_data)
     }
+
+    #[inline]
+    fn manually_drop(
+        buf: <Self as InnerAllocator<T, Dynamic, C>>::Buffer,
+    ) -> <Self as InnerAllocator<ManuallyDrop<T>, Dynamic, C>>::Buffer {
+        // Avoids dropping the buffer that will be used for the result.
+        let mut data = ManuallyDrop::new(buf.data);
+
+        // Safety: ManuallyDrop<T> has the same alignment and layout as T.
+        let new_data = unsafe {
+            Vec::from_raw_parts(
+                data.as_mut_ptr() as *mut ManuallyDrop<T>,
+                data.len(),
+                data.capacity(),
+            )
+        };
+
+        VecStorage::new(buf.nrows, buf.ncols, new_data)
+    }
 }
 
 // Static - Dynamic
@@ -175,6 +202,25 @@ impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
             Vec::from_raw_parts(data.as_mut_ptr() as *mut T, data.len(), data.capacity());
 
         VecStorage::new(uninit.nrows, uninit.ncols, new_data)
+    }
+
+    #[inline]
+    fn manually_drop(
+        buf: <Self as InnerAllocator<T, R, Dynamic>>::Buffer,
+    ) -> <Self as InnerAllocator<ManuallyDrop<T>, R, Dynamic>>::Buffer {
+        // Avoids dropping the buffer that will be used for the result.
+        let mut data = ManuallyDrop::new(buf.data);
+
+        // Safety: ManuallyDrop<T> has the same alignment and layout as T.
+        let new_data = unsafe {
+            Vec::from_raw_parts(
+                data.as_mut_ptr() as *mut ManuallyDrop<T>,
+                data.len(),
+                data.capacity(),
+            )
+        };
+
+        VecStorage::new(buf.nrows, buf.ncols, new_data)
     }
 }
 

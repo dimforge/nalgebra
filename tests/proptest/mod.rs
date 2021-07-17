@@ -180,11 +180,11 @@ macro_rules! generate_matrix_sanity_test {
 
 // Test all fixed-size matrices with row/col dimensions up to 3
 generate_matrix_sanity_test!(test_matrix_u0_u0, Const::<0>, Const::<0>);
-generate_matrix_sanity_test!(test_matrix_u1_u0, Const::<1>, Const::<0>);
-generate_matrix_sanity_test!(test_matrix_u0_u1, Const::<0>, Const::<1>);
-generate_matrix_sanity_test!(test_matrix_u1_u1, Const::<1>, Const::<1>);
-generate_matrix_sanity_test!(test_matrix_u2_u1, Const::<2>, Const::<1>);
-generate_matrix_sanity_test!(test_matrix_u1_u2, Const::<1>, Const::<2>);
+generate_matrix_sanity_test!(test_matrix_u1_u0, U1, Const::<0>);
+generate_matrix_sanity_test!(test_matrix_u0_u1, Const::<0>, U1);
+generate_matrix_sanity_test!(test_matrix_u1_u1, U1, U1);
+generate_matrix_sanity_test!(test_matrix_u2_u1, Const::<2>, U1);
+generate_matrix_sanity_test!(test_matrix_u1_u2, U1, Const::<2>);
 generate_matrix_sanity_test!(test_matrix_u2_u2, Const::<2>, Const::<2>);
 generate_matrix_sanity_test!(test_matrix_u3_u2, Const::<3>, Const::<2>);
 generate_matrix_sanity_test!(test_matrix_u2_u3, Const::<2>, Const::<3>);

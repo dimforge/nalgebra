@@ -8,7 +8,7 @@ use num_traits::Zero;
 
 impl<'a, T, R: Dim, C: Dim, S> From<&'a Matrix<T, R, C, S>> for CooMatrix<T>
 where
-    T: Scalar + Zero,
+    T: Scalar + Zero + PartialEq,
     S: Storage<T, R, C>,
 {
     fn from(matrix: &'a Matrix<T, R, C, S>) -> Self {
@@ -45,7 +45,7 @@ where
 
 impl<'a, T, R: Dim, C: Dim, S> From<&'a Matrix<T, R, C, S>> for CsrMatrix<T>
 where
-    T: Scalar + Zero,
+    T: Scalar + Zero + PartialEq,
     S: Storage<T, R, C>,
 {
     fn from(matrix: &'a Matrix<T, R, C, S>) -> Self {
@@ -82,7 +82,7 @@ where
 
 impl<'a, T, R: Dim, C: Dim, S> From<&'a Matrix<T, R, C, S>> for CscMatrix<T>
 where
-    T: Scalar + Zero,
+    T: Scalar + Zero + PartialEq,
     S: Storage<T, R, C>,
 {
     fn from(matrix: &'a Matrix<T, R, C, S>) -> Self {

@@ -153,7 +153,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
         // We sort the reach so the result matrix has sorted indices.
         reach.sort_unstable();
         let mut workspace =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(b.data.shape().0, Const::<1>) };
+            unsafe { crate::unimplemented_or_uninitialized_generic!(b.data.shape().0, U1) };
 
         for i in reach.iter().cloned() {
             workspace[i] = T::zero();
@@ -191,7 +191,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
 
         // Copy the result into a sparse vector.
         let mut result =
-            CsVector::new_uninitialized_generic(b.data.shape().0, Const::<1>, reach.len());
+            CsVector::new_uninitialized_generic(b.data.shape().0, U1, reach.len());
 
         for (i, val) in reach.iter().zip(result.data.vals.iter_mut()) {
             *val = workspace[*i];
@@ -255,7 +255,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
         S2: CsStorage<T, D2>,
         DefaultAllocator: Allocator<bool, D>,
     {
-        let mut visited = OVector::repeat_generic(self.data.shape().1, Const::<1>, false);
+        let mut visited = OVector::repeat_generic(self.data.shape().1, U1, false);
         let mut stack = Vec::new();
 
         for irow in b.data.column_row_indices(0) {

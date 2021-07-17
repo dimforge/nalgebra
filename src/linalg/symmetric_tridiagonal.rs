@@ -105,7 +105,7 @@ where
                 let mut p = p.rows_range_mut(i..);
 
                 p.hegemv_z(crate::convert(2.0), &m, &axis);
-                let  p = unsafe { p.slice_assume_init() };
+                let p = unsafe { p.slice_assume_init() };
 
                 let dot = axis.dotc(&p);
                 m.hegerc(-T::one(), &p, &axis, T::one());

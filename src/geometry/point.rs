@@ -5,7 +5,7 @@ use std::fmt;
 use std::hash;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
-use std::mem::MaybeUninit;
+use std::mem::{ManuallyDrop, MaybeUninit};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -43,7 +43,6 @@ use crate::Scalar;
 /// may have some other methods, e.g., `isometry.inverse_transform_point(&point)`. See the documentation
 /// of said transformations for details.
 #[repr(C)]
-// TODO: figure out why #[derive(Clone, Debug)] doesn't work!
 pub struct OPoint<T, D: DimName>
 where
     DefaultAllocator: InnerAllocator<T, D>,
@@ -76,6 +75,16 @@ where
     fn clone(&self) -> Self {
         Self::from(self.coords.clone())
     }
+}
+
+impl<T: fmt::Debug, D: DimName> fmt::Debug for OPoint<T, D>
+where
+    DefaultAllocator: Allocator<T, D>,
+    OVector<T, D>: fmt::Debug,
+{
+ fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+     f.debug_struct("OPoint").field("coords",&self.coords).finish()
+ }
 }
 
 #[cfg(feature = "bytemuck")]
@@ -185,7 +194,10 @@ where
     /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
     /// ```
     #[inline]
-    pub fn apply<F: FnMut(T) -> T>(&mut self, f: F) {
+    pub fn apply<F: FnMut(T) -> T>(&mut self, f: F)
+    where
+        T: Clone,
+    {
         self.coords.apply(f)
     }
 
@@ -224,6 +236,8 @@ where
         unsafe { res.assume_init() }
     }
 
+    /// Converts this point into a vector in homogeneous coordinates, i.e., appends a `1` at the
+    /// end of it. Unlike [`to_homogeneous`], this method does not require `T: Clone`.
     pub fn into_homogeneous(self) -> OVector<T, DimNameSum<D, U1>>
     where
         T: One,
@@ -231,16 +245,14 @@ where
         DefaultAllocator: Allocator<T, DimNameSum<D, U1>>,
     {
         let mut res = OVector::<_, DimNameSum<D, U1>>::new_uninitialized();
+        let mut md = self.manually_drop();
 
-        // TODO: maybe we can move the whole array at once? Or use `into_iter`
-        // to avoid double-dropping.
         for i in 0..D::dim() {
             unsafe {
-                *res.get_unchecked_mut(i) = MaybeUninit::new(*self.coords.get_unchecked(i));
+                *res.get_unchecked_mut(i) =
+                    MaybeUninit::new(ManuallyDrop::take(md.coords.get_unchecked_mut(i)));
             }
         }
-
-        // Fix double drop
 
         unsafe {
             *res.get_unchecked_mut(D::dim()) = MaybeUninit::new(T::one());

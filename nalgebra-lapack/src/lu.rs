@@ -66,7 +66,7 @@ where
         let nrows = nrows.value() as i32;
         let ncols = ncols.value() as i32;
 
-        let mut ipiv: OVector<i32, _> = Matrix::zeros_generic(min_nrows_ncols, Const::<1>);
+        let mut ipiv: OVector<i32, _> = Matrix::zeros_generic(min_nrows_ncols, U1);
 
         let mut info = 0;
 
