@@ -45,8 +45,17 @@ pub fn reflection_axis_mut<T: ComplexField, D: Dim, S: StorageMut<T, D>>(
 
 /// Uses an householder reflection to zero out the `icol`-th column, starting with the `shift + 1`-th
 /// subdiagonal element.
+///
+/// # Safety
+/// Behavior is undefined if any of the following conditions are violated:
+///
+/// - `diag_elt` must be valid for writes.
+/// - `diag_elt` must be properly aligned.
+///
+/// Furthermore, if `diag_elt` was previously initialized, this method will leak
+/// its data.
 #[doc(hidden)]
-pub fn clear_column_unchecked<T: ComplexField, R: Dim, C: Dim>(
+pub unsafe fn clear_column_unchecked<T: ComplexField, R: Dim, C: Dim>(
     matrix: &mut OMatrix<T, R, C>,
     diag_elt: *mut T,
     icol: usize,
@@ -59,9 +68,7 @@ pub fn clear_column_unchecked<T: ComplexField, R: Dim, C: Dim>(
     let mut axis = left.rows_range_mut(icol + shift..);
 
     let (reflection_norm, not_zero) = reflection_axis_mut(&mut axis);
-    unsafe {
-        *diag_elt = reflection_norm;
-    }
+    diag_elt.write(reflection_norm);
 
     if not_zero {
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
@@ -75,8 +82,17 @@ pub fn clear_column_unchecked<T: ComplexField, R: Dim, C: Dim>(
 
 /// Uses an householder reflection to zero out the `irow`-th row, ending before the `shift + 1`-th
 /// superdiagonal element.
+///
+/// # Safety
+/// Behavior is undefined if any of the following conditions are violated:
+///
+/// - `diag_elt` must be valid for writes.
+/// - `diag_elt` must be properly aligned.
+///
+/// Furthermore, if `diag_elt` was previously initialized, this method will leak
+/// its data.
 #[doc(hidden)]
-pub fn clear_row_unchecked<T: ComplexField, R: Dim, C: Dim>(
+pub unsafe fn clear_row_unchecked<T: ComplexField, R: Dim, C: Dim>(
     matrix: &mut OMatrix<T, R, C>,
     diag_elt: *mut T,
     axis_packed: &mut OVector<MaybeUninit<T>, C>,
@@ -89,13 +105,11 @@ pub fn clear_row_unchecked<T: ComplexField, R: Dim, C: Dim>(
     let (mut top, mut bottom) = matrix.rows_range_pair_mut(irow, irow + 1..);
     let mut axis = axis_packed.rows_range_mut(irow + shift..);
     axis.tr_copy_init_from(&top.columns_range(irow + shift..));
-    let mut axis = unsafe { axis.assume_init_mut() };
+    let mut axis = axis.assume_init_mut();
 
     let (reflection_norm, not_zero) = reflection_axis_mut(&mut axis);
     axis.conjugate_mut(); // So that reflect_rows actually cancels the first row.
-    unsafe {
-        *diag_elt = reflection_norm;
-    }
+    diag_elt.write(reflection_norm);
 
     if not_zero {
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());

@@ -1,4 +1,4 @@
-use std::fmt::{self, Debug, Formatter};
+use std::mem;use std::fmt::{self, Debug, Formatter};
 // use std::hash::{Hash, Hasher};
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
@@ -31,7 +31,7 @@ use crate::base::storage::{
  *
  */
 /// A array-based statically sized matrix data storage.
-#[repr(C)]
+#[repr(transparent)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ArrayStorage<T, const R: usize, const C: usize>(pub [[T; R]; C]);
 
@@ -155,8 +155,8 @@ where
 
     fn reshape_generic(self, _: Const<R2>, _: Const<C2>) -> Self::Output {
         unsafe {
-            let data: [[T; R2]; C2] = std::mem::transmute_copy(&self.0);
-            std::mem::forget(self.0);
+            let data: [[T; R2]; C2] = mem::transmute_copy(&self.0);
+            mem::forget(self.0);
             ArrayStorage(data)
         }
     }

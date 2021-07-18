@@ -5,10 +5,11 @@ use std::io::{Result as IOResult, Write};
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::any::TypeId;
 use std::cmp::Ordering;
-use std::fmt;use std::ptr;
+use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 use std::mem::{self, ManuallyDrop, MaybeUninit};
+use std::ptr;
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -26,7 +27,7 @@ use crate::base::iter::{
     ColumnIter, ColumnIterMut, MatrixIter, MatrixIterMut, RowIter, RowIterMut,
 };
 use crate::base::storage::{
-    ContiguousStorage, ContiguousStorageMut, Owned, SameShapeStorage, Storage, StorageMut,
+    ContiguousStorage, ContiguousStorageMut, SameShapeStorage, Storage, StorageMut,
 };
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector, Scalar, Unit};
 use crate::{ArrayStorage, MatrixSlice, MatrixSliceMut, SMatrix, SimdComplexField};
@@ -151,7 +152,7 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// Note that mixing `Dynamic` with type-level unsigned integers is allowed. Actually, a
 /// dynamically-sized column vector should be represented as a `Matrix<T, Dynamic, U1, S>` (given
 /// some concrete types for `T` and a compatible data storage type `S`).
-#[repr(C)]
+#[repr(transparent)]
 #[derive(Clone, Copy)]
 pub struct Matrix<T, R, C, S> {
     /// The data storage that contains all the matrix components. Disappointed?
@@ -187,8 +188,8 @@ pub struct Matrix<T, R, C, S> {
     //       Note that it would probably make sense to just have
     //       the type `Matrix<S>`, and have `T, R, C` be associated-types
     //       of the `Storage` trait. However, because we don't have
-    //       specialization, this is not bossible because these `T, R, C`
-    //       allows us to desambiguate a lot of configurations.
+    //       specialization, this is not possible because these `T, R, C`
+    //       allows us to disambiguate a lot of configurations.
     _phantoms: PhantomData<(T, R, C)>,
 }
 
@@ -198,9 +199,12 @@ impl<T, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<T, R, C, S> {
     }
 }
 
-impl<T, R: Dim, C: Dim, S: Default> Default for Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S> Default for Matrix<T, R, C, S>
+where
+    S: Storage<T, R, C> + Default,
+{
     fn default() -> Self {
-        unsafe { Matrix::from_data_statically_unchecked(Default::default()) }
+        Matrix::from_data(Default::default())
     }
 }
 
@@ -330,8 +334,19 @@ mod rkyv_impl {
 }
 
 impl<T, R, C, S> Matrix<T, R, C, S> {
-    /// Creates a new matrix with the given data without statically checking that the matrix
-    /// dimension matches the storage dimension.
+    /// Creates a new matrix with the given data without statically checking
+    /// that the matrix dimension matches the storage dimension.
+    ///
+    /// There's only two instances in which you should use this method instead
+    /// of the safe counterpart [`from_data`]:
+    /// - You can't get the type checker to validate your matrices, even though
+    ///   you're **certain** that they're of the right dimensions.
+    /// - You want to declare a matrix in a `const` context.
+    ///
+    /// # Safety
+    /// If the storage dimension does not match the matrix dimension, any other
+    /// method called on this matrix may behave erroneously, panic, or cause
+    /// Undefined Behavior.
     #[inline(always)]
     pub const unsafe fn from_data_statically_unchecked(data: S) -> Matrix<T, R, C, S> {
         Matrix {
@@ -348,21 +363,17 @@ where
 {
     /// Allocates a matrix with the given number of rows and columns without initializing its content.
     pub fn new_uninitialized_generic(nrows: R, ncols: C) -> OMatrix<MaybeUninit<T>, R, C> {
-        unsafe {
-            OMatrix::from_data_statically_unchecked(
-                <DefaultAllocator as Allocator<T, R, C>>::allocate_uninitialized(nrows, ncols),
-            )
-        }
+        OMatrix::from_data(
+            <DefaultAllocator as Allocator<T, R, C>>::allocate_uninitialized(nrows, ncols),
+        )
     }
 
     /// Converts this matrix into one whose entries need to be manually dropped. This should be
     /// near zero-cost.
     pub fn manually_drop(self) -> OMatrix<ManuallyDrop<T>, R, C> {
-        unsafe {
-            OMatrix::from_data_statically_unchecked(
-                <DefaultAllocator as Allocator<T, R, C>>::manually_drop(self.data),
-            )
-        }
+        OMatrix::from_data(<DefaultAllocator as Allocator<T, R, C>>::manually_drop(
+            self.data,
+        ))
     }
 }
 
@@ -375,19 +386,21 @@ where
     ///
     /// For the similar method that operates on matrix slices, see [`slice_assume_init`].
     pub unsafe fn assume_init(self) -> OMatrix<T, R, C> {
-        OMatrix::from_data_statically_unchecked(
-            <DefaultAllocator as Allocator<T, R, C>>::assume_init(self.data),
-        )
+        OMatrix::from_data(<DefaultAllocator as Allocator<T, R, C>>::assume_init(
+            self.data,
+        ))
     }
 
-    /// Assumes a matrix's entries to be initialized, and drops them. This allows the
-    /// buffer to be safely reused.
-    pub fn reinitialize(&mut self) {
+    /// Assumes a matrix's entries to be initialized, and drops them in place.
+    /// This allows the buffer to be safely reused.
+    ///
+    /// # Safety
+    /// All of the matrix's entries need to be uninitialized. Otherwise,
+    /// Undefined Behavior will be triggered.
+    pub unsafe fn reinitialize(&mut self) {
         for i in 0..self.nrows() {
             for j in 0..self.ncols() {
-                unsafe {
-                    ptr::drop_in_place(self.get_unchecked_mut((i, j)));
-                }
+                ptr::drop_in_place(self.get_unchecked_mut((i, j)));
             }
         }
     }
@@ -418,8 +431,8 @@ impl<T, const R: usize, const C: usize> SMatrix<T, R, C> {
     /// work in `const fn` contexts.
     #[inline(always)]
     pub const fn from_array_storage(storage: ArrayStorage<T, R, C>) -> Self {
-        // This is sound because the row and column types are exactly the same as that of the
-        // storage, so there can be no mismatch
+        // Safety: This is sound because the row and column types are exactly
+        // the same as that of the storage, so there can be no mismatch.
         unsafe { Self::from_data_statically_unchecked(storage) }
     }
 }
@@ -433,8 +446,8 @@ impl<T> DMatrix<T> {
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
     pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, Dynamic>) -> Self {
-        // This is sound because the dimensions of the matrix and the storage are guaranteed
-        // to be the same
+        // Safety: This is sound because the dimensions of the matrix and the
+        // storage are guaranteed to be the same.
         unsafe { Self::from_data_statically_unchecked(storage) }
     }
 }
@@ -448,8 +461,8 @@ impl<T> DVector<T> {
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
     pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, U1>) -> Self {
-        // This is sound because the dimensions of the matrix and the storage are guaranteed
-        // to be the same
+        // Safety: This is sound because the dimensions of the matrix and the
+        // storage are guaranteed to be the same.
         unsafe { Self::from_data_statically_unchecked(storage) }
     }
 }
@@ -458,6 +471,8 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Creates a new matrix with the given data.
     #[inline(always)]
     pub fn from_data(data: S) -> Self {
+        // Safety: This is sound because the dimensions of the matrix and the
+        // storage are guaranteed to be the same.
         unsafe { Self::from_data_statically_unchecked(data) }
     }
 
@@ -623,19 +638,22 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     pub fn into_owned_sum<R2: Dim, C2: Dim>(self) -> MatrixSum<T, R, C, R2, C2>
     where
-        T: Clone + 'static,
+        T: Clone,
         DefaultAllocator: SameShapeAllocator<T, R, C, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
-        if TypeId::of::<SameShapeStorage<T, R, C, R2, C2>>() == TypeId::of::<Owned<T, R, C>>() {
-            // We can just return `self.into_owned()`.
-
+        // If both storages are the same, we can just return `self.into_owned()`.
+        // Unfortunately, it's not trivial to convince the compiler of this.
+        if TypeId::of::<SameShapeR<R, R2>>() == TypeId::of::<R>()
+            && TypeId::of::<SameShapeC<C, C2>>() == TypeId::of::<C>()
+        {
+            // Safety: we're transmuting from a type into itself, and we make
+            // sure not to leak anything.
             unsafe {
-                // TODO: check that those copies are optimized away by the compiler.
-                let owned = self.into_owned();
-                let res = mem::transmute_copy(&owned);
-                mem::forget(owned);
-                res
+                let mat = self.into_owned();
+                let mat_copy = mem::transmute_copy(&mat);
+                mem::forget(mat);
+                mat_copy
             }
         } else {
             self.clone_owned_sum()

@@ -28,7 +28,7 @@ where
 {
     /// Creates a new point with uninitialized coordinates.
     #[inline]
-    pub unsafe fn new_uninitialized() -> OPoint<MaybeUninit<T>, D> {
+    pub fn new_uninitialized() -> OPoint<MaybeUninit<T>, D> {
         OPoint::from(OVector::new_uninitialized_generic(D::name(), Const::<1>))
     }
 

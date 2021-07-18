@@ -17,7 +17,7 @@ use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
 use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorSlice};
 use crate::storage::Owned;
-use crate::SimdComplexField;
+use crate::{MatrixSliceMut, SimdComplexField};
 
 /*
  *
@@ -581,7 +581,7 @@ where
     #[inline]
     fn mul(self, rhs: &'b Matrix<T, R2, C2, SB>) -> Self::Output {
         let mut res = Matrix::new_uninitialized_generic(self.data.shape().0, rhs.data.shape().1);
-        self.mul_to(rhs, &mut res);
+        let _ = self.mul_to(rhs, &mut res);
         unsafe { res.assume_init() }
     }
 }
@@ -645,7 +645,7 @@ impl<T, R1: Dim, C1: Dim, R2: Dim, SA, SB> MulAssign<Matrix<T, R2, C1, SB>>
 where
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<T, R2, C1>,
-    SA: ContiguousStorageMut<T, R1, C1> ,
+    SA: ContiguousStorageMut<T, R1, C1>,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
     DefaultAllocator: Allocator<T, R1, C1> + InnerAllocator<T, R1, C1, Buffer = SA>,
 {
@@ -660,7 +660,7 @@ impl<'b, T, R1: Dim, C1: Dim, R2: Dim, SA, SB> MulAssign<&'b Matrix<T, R2, C1, S
 where
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     SB: Storage<T, R2, C1>,
-    SA: ContiguousStorageMut<T, R1, C1> ,
+    SA: ContiguousStorageMut<T, R1, C1>,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
     // TODO: this is too restrictive. See comments for the non-ref version.
     DefaultAllocator: Allocator<T, R1, C1> + InnerAllocator<T, R1, C1, Buffer = SA>,
@@ -786,18 +786,19 @@ where
 
     /// Equivalent to `self * rhs` but stores the result into `out` to avoid allocations.
     #[inline]
-    pub fn mul_to<R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
+    pub fn mul_to<'a, R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
         rhs: &Matrix<T, R2, C2, SB>,
-        out: &mut Matrix<MaybeUninit<T>, R3, C3, SC>,
-    ) where
+        out: &'a mut Matrix<MaybeUninit<T>, R3, C3, SC>,
+    ) -> MatrixSliceMut<'a, T, R3, C3, SC::RStride, SC::CStride>
+    where
         SB: Storage<T, R2, C2>,
         SC: StorageMut<MaybeUninit<T>, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R3, R1>
             + SameNumberOfColumns<C3, C2>
             + AreMultipliable<R1, C1, R2, C2>,
     {
-        out.gemm_z(T::one(), self, rhs);
+        out.gemm_z(T::one(), self, rhs)
     }
 
     /// The kronecker product of two matrices (aka. tensor product of the corresponding linear

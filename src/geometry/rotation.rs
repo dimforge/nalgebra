@@ -54,7 +54,7 @@ use crate::geometry::Point;
 /// # Conversion
 /// * [Conversion to a matrix <span style="float:right;">`matrix`, `to_homogeneous`…</span>](#conversion-to-a-matrix)
 ///
-#[repr(C)]
+#[repr(transparent)]
 #[derive(Debug)]
 pub struct Rotation<T, const D: usize> {
     matrix: SMatrix<T, D, D>,
@@ -190,7 +190,7 @@ impl<T, const D: usize> Rotation<T, D> {
     /// A mutable reference to the underlying matrix representation of this rotation.
     #[inline]
     #[deprecated(note = "Use `.matrix_mut_unchecked()` instead.")]
-    pub unsafe fn matrix_mut(&mut self) -> &mut SMatrix<T, D, D> {
+    pub  fn matrix_mut(&mut self) -> &mut SMatrix<T, D, D> {
         &mut self.matrix
     }
 

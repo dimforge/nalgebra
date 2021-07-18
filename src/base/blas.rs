@@ -6,7 +6,7 @@
 //! that return an owned matrix that would otherwise result from setting a
 //! parameter to zero in the other methods.
 
-use crate::SimdComplexField;
+use crate::{MatrixSliceMut, SimdComplexField, VectorSliceMut};
 #[cfg(feature = "std")]
 use matrixmultiply;
 use num::{One, Zero};
@@ -717,10 +717,15 @@ where
     /// Computes `alpha * a * x`, where `a` is a matrix, `x` a vector, and
     /// `alpha` is a scalar.
     ///
-    /// # Safety
     /// `self` must be completely uninitialized, or data leaks will occur. After
     /// this method is called, all entries in `self` will be initialized.
-    pub fn axc<D2: Dim, S2>(&mut self, a: T, x: &Vector<T, D2, S2>, c: T)
+    #[inline]
+    pub fn axc<D2: Dim, S2>(
+        &mut self,
+        a: T,
+        x: &Vector<T, D2, S2>,
+        c: T,
+    ) -> VectorSliceMut<T, D, S::RStride, S::CStride>
     where
         S2: Storage<T, D2>,
         ShapeConstraint: DimEq<D, D2>,
@@ -728,10 +733,15 @@ where
         let rstride1 = self.strides().0;
         let rstride2 = x.strides().0;
 
+        // Safety: see each individual remark.
         unsafe {
+            // We don't mind `x` and `y` not being contiguous, as we'll only
+            // access the elements we're allowed to. (TODO: double check this)
             let y = self.data.as_mut_slice_unchecked();
             let x = x.data.as_slice_unchecked();
 
+            // The indices are within range, and only access elements that belong
+            // to `x` and `y` themselves.
             for i in 0..y.len() {
                 *y.get_unchecked_mut(i * rstride1) = MaybeUninit::new(
                     a.inlined_clone()
@@ -739,20 +749,26 @@ where
                         * c.inlined_clone(),
                 );
             }
+
+            // We've initialized all elements.
+            self.assume_init_mut()
         }
     }
 
     /// Computes `alpha * a * x`, where `a` is a matrix, `x` a vector, and
     /// `alpha` is a scalar.
     ///
-    /// Initializes `self`.
+    /// `self` must be completely uninitialized, or data leaks will occur. After
+    /// the method is called, `self` will be completely initialized. We return
+    /// an initialized mutable vector slice to `self` for convenience.
     #[inline]
     pub fn gemv_z<R2: Dim, C2: Dim, D3: Dim, SB, SC>(
         &mut self,
         alpha: T,
         a: &Matrix<T, R2, C2, SB>,
         x: &Vector<T, D3, SC>,
-    ) where
+    ) -> VectorSliceMut<T, D, S::RStride, S::CStride>
+    where
         T: One,
         SB: Storage<T, R2, C2>,
         SC: Storage<T, D3>,
@@ -769,24 +785,28 @@ where
 
         if ncols2 == 0 {
             self.fill_fn(|| MaybeUninit::new(T::zero()));
-            return;
+
+            // Safety: all entries have just been initialized.
+            unsafe {
+                return self.assume_init_mut();
+            }
         }
 
         // TODO: avoid bound checks.
         let col2 = a.column(0);
         let val = unsafe { x.vget_unchecked(0).inlined_clone() };
-        self.axc(alpha.inlined_clone(), &col2, val);
+        let mut init = self.axc(alpha.inlined_clone(), &col2, val);
 
-        // Safety: axc initializes self.
+        // Safety: all indices are within range.
         unsafe {
-            let mut init = self.assume_init_mut();
-
             for j in 1..ncols2 {
                 let col2 = a.column(j);
                 let val = x.vget_unchecked(j).inlined_clone();
                 init.axcpy(alpha.inlined_clone(), &col2, val, T::one());
             }
         }
+
+        init
     }
 
     #[inline(always)]
@@ -825,9 +845,8 @@ where
         // TODO: avoid bound checks.
         let col2 = a.column(0);
         let val = unsafe { x.vget_unchecked(0).inlined_clone() };
-        self.axc(alpha.inlined_clone(), &col2, val);
+        let mut res = self.axc(alpha.inlined_clone(), &col2, val);
 
-        let mut res = unsafe { self.assume_init_mut() };
         res[0] += alpha.inlined_clone() * dot(&a.slice_range(1.., 0), &x.rows_range(1..));
 
         for j in 1..dim2 {
@@ -894,7 +913,8 @@ where
         alpha: T,
         a: &Matrix<T, R2, C2, SB>,
         b: &Matrix<T, R3, C3, SC>,
-    ) where
+    ) -> MatrixSliceMut<T, R1, C1, S::RStride, S::CStride>
+    where
         SB: Storage<T, R2, C2>,
         SC: Storage<T, R3, C3>,
         ShapeConstraint: SameNumberOfRows<R1, R2>
@@ -945,7 +965,9 @@ where
                     // enter this codepath.
                     if ncols1 == 0 {
                         self.fill_fn(|| MaybeUninit::new(T::zero()));
-                        return;
+
+                        // Safety: there's no (uninitialized) values.
+                        return unsafe{self.assume_init_mut()};
                     }
 
                     let (rsa, csa) = a.strides();
@@ -970,8 +992,6 @@ where
                                 rsc as isize,
                                 csc as isize,
                             );
-
-                            return;
                         }
                     } else if T::is::<f64>() {
                         unsafe {
@@ -991,9 +1011,12 @@ where
                                 rsc as isize,
                                 csc as isize,
                             );
-
-                            return;
                         }
+                    }
+
+                    // Safety: all entries have been initialized.
+                    unsafe {
+                        return self.assume_init_mut();
                     }
                 }
             }
@@ -1001,9 +1024,13 @@ where
 
         for j1 in 0..ncols1 {
             // TODO: avoid bound checks.
-            self.column_mut(j1)
+            let _ = self
+                .column_mut(j1)
                 .gemv_z(alpha.inlined_clone(), a, &b.column(j1));
         }
+
+        // Safety: all entries have been initialized.
+        unsafe { self.assume_init_mut() }
     }
 }
 
@@ -1571,8 +1598,7 @@ where
     {
         let mut work =
             Matrix::new_uninitialized_generic(R3::from_usize(self.shape().0), Const::<1>);
-        work.gemv_z(T::one(), lhs, &mid.column(0));
-        let mut work = unsafe { work.assume_init() };
+        let mut work = work.gemv_z(T::one(), lhs, &mid.column(0));
 
         self.ger(alpha.inlined_clone(), &work, &lhs.column(0), beta);
 
@@ -1614,14 +1640,12 @@ where
     ) where
         S3: Storage<T, D3, D3>,
         S4: Storage<T, R4, C4>,
-        ShapeConstraint: DimEq<R4, D3> + DimEq<D3, R4> + DimEq<D1, C4>,
+        ShapeConstraint: DimEq<D3, R4> + DimEq<R4, D3> + DimEq<D1, C4>,
         DefaultAllocator: Allocator<T, D3>,
     {
         // TODO: figure out why type inference isn't doing its job.
-        let mut work =
-            Matrix::new_uninitialized_generic(D3::from_usize(mid.shape().0), Const::<1>);
-        work.gemv_z::<D3, D3, R4, S3, _>(T::one(), mid, &rhs.column(0));
-        let mut work = unsafe { work.assume_init() };
+        let mut work = Matrix::new_uninitialized_generic(D3::from_usize(mid.shape().0), Const::<1>);
+        let mut work = work.gemv_z::<D3, _, _, _, _>(T::one(), mid, &rhs.column(0));
 
         self.column_mut(0)
             .gemv_tr(alpha.inlined_clone(), rhs, &work, beta.inlined_clone());

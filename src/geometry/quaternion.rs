@@ -26,7 +26,7 @@ use crate::geometry::{Point3, Rotation};
 
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
-#[repr(C)]
+#[repr(transparent)]
 #[derive(Debug, Copy, Clone)]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.

@@ -130,61 +130,66 @@ where
         let mut work = Matrix::new_uninitialized_generic(nrows, Const::<1>);
 
         let upper_diagonal = nrows.value() >= ncols.value();
-        if upper_diagonal {
-            for ite in 0..dim - 1 {
+
+        // Safety: all pointers involved are valid for writes, aligned, and uninitialized.
+        unsafe {
+            if upper_diagonal {
+                for ite in 0..dim - 1 {
+                    householder::clear_column_unchecked(
+                        &mut matrix,
+                        diagonal[ite].as_mut_ptr(),
+                        ite,
+                        0,
+                        None,
+                    );
+                    householder::clear_row_unchecked(
+                        &mut matrix,
+                        off_diagonal[ite].as_mut_ptr(),
+                        &mut axis_packed,
+                        &mut work,
+                        ite,
+                        1,
+                    );
+                }
+
                 householder::clear_column_unchecked(
                     &mut matrix,
-                    diagonal[ite].as_mut_ptr(),
-                    ite,
+                    diagonal[dim - 1].as_mut_ptr(),
+                    dim - 1,
                     0,
                     None,
                 );
-                householder::clear_row_unchecked(
-                    &mut matrix,
-                    off_diagonal[ite].as_mut_ptr(),
-                    &mut axis_packed,
-                    &mut work,
-                    ite,
-                    1,
-                );
-            }
+            } else {
+                for ite in 0..dim - 1 {
+                    householder::clear_row_unchecked(
+                        &mut matrix,
+                        diagonal[ite].as_mut_ptr(),
+                        &mut axis_packed,
+                        &mut work,
+                        ite,
+                        0,
+                    );
+                    householder::clear_column_unchecked(
+                        &mut matrix,
+                        off_diagonal[ite].as_mut_ptr(),
+                        ite,
+                        1,
+                        None,
+                    );
+                }
 
-            householder::clear_column_unchecked(
-                &mut matrix,
-                diagonal[dim - 1].as_mut_ptr(),
-                dim - 1,
-                0,
-                None,
-            );
-        } else {
-            for ite in 0..dim - 1 {
                 householder::clear_row_unchecked(
                     &mut matrix,
-                    diagonal[ite].as_mut_ptr(),
+                    diagonal[dim - 1].as_mut_ptr(),
                     &mut axis_packed,
                     &mut work,
-                    ite,
+                    dim - 1,
                     0,
                 );
-                householder::clear_column_unchecked(
-                    &mut matrix,
-                    off_diagonal[ite].as_mut_ptr(),
-                    ite,
-                    1,
-                    None,
-                );
             }
-
-            householder::clear_row_unchecked(
-                &mut matrix,
-                diagonal[dim - 1].as_mut_ptr(),
-                &mut axis_packed,
-                &mut work,
-                dim - 1,
-                0,
-            );
         }
 
+        // Safety: all values have been initialized.
         unsafe {
             Bidiagonal {
                 uv: matrix,

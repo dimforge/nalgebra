@@ -94,12 +94,18 @@ where
         }
 
         for i in 0..min_nrows_ncols.value() {
-            householder::clear_column_unchecked(&mut matrix, diag[i].as_mut_ptr(), i, 0, None);
+            // Safety: the pointer is valid for writes, aligned, and uninitialized.
+            unsafe {
+                householder::clear_column_unchecked(&mut matrix, diag[i].as_mut_ptr(), i, 0, None);
+            }
         }
 
-        Self {
-            qr: matrix,
-            diag: unsafe { diag.assume_init() },
+        // Safety: all values have been initialized.
+        unsafe {
+            Self {
+                qr: matrix,
+                diag: diag.assume_init(),
+            }
         }
     }
 

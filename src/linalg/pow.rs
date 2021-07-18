@@ -47,19 +47,24 @@ where
         // Exponentiation by squares.
         loop {
             if e % two == one {
-                self.mul_to(&multiplier, &mut buf);
+                let init_buf = self.mul_to(&multiplier, &mut buf);
+                self.copy_from(&init_buf);
+
+                // Safety: `mul_to` leaves `buf` completely initialized.
                 unsafe {
-                    self.copy_from(&buf.assume_init_ref());
+                    buf.reinitialize();
                 }
-                buf.reinitialize();
             }
 
             e /= two;
-            multiplier.mul_to(&multiplier, &mut buf);
+
+            let init_buf = multiplier.mul_to(&multiplier, &mut buf);
+            multiplier.copy_from(&init_buf);
+
+            // Safety: `mul_to` leaves `buf` completely initialized.
             unsafe {
-                multiplier.copy_from(&buf.assume_init_ref());
+                buf.reinitialize();
             }
-            buf.reinitialize();
 
             if e == zero {
                 return true;

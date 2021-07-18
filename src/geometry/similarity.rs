@@ -22,7 +22,6 @@ use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
 use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
-#[repr(C)]
 #[derive(Debug)]
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(

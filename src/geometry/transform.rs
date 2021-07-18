@@ -157,7 +157,7 @@ super_tcategory_impl!(
 ///
 /// It is stored as a matrix with dimensions `(D + 1, D + 1)`, e.g., it stores a 4x4 matrix for a
 /// 3D transformation.
-#[repr(C)]
+#[repr(transparent)]
 pub struct Transform<T, C: TCategory, const D: usize>
 where
     Const<D>: DimNameAdd<U1>,

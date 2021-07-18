@@ -17,7 +17,8 @@ use crate::base::DefaultAllocator;
 /// Every allocator must be both static and dynamic. Though not all implementations may share the
 /// same `Buffer` type.
 ///
-/// If you also want to be able to create uninitizalized memory buffers, see [`Allocator`].
+/// If you also want to be able to create uninitizalized or manually dropped memory buffers, see
+/// [`Allocator`].
 pub trait InnerAllocator<T, R: Dim, C: Dim = U1>: 'static + Sized {
     /// The type of buffer this allocator can instanciate.
     type Buffer: ContiguousStorageMut<T, R, C>;
@@ -44,6 +45,10 @@ pub trait Allocator<T, R: Dim, C: Dim = U1>:
     ) -> <Self as InnerAllocator<MaybeUninit<T>, R, C>>::Buffer;
 
     /// Assumes a data buffer to be initialized. This operation should be near zero-cost.
+    ///
+    /// # Safety
+    /// The user must make sure that every single entry of the buffer has been initialized,
+    /// or Undefined Behavior will immediately occur.    
     unsafe fn assume_init(
         uninit: <Self as InnerAllocator<MaybeUninit<T>, R, C>>::Buffer,
     ) -> <Self as InnerAllocator<T, R, C>>::Buffer;

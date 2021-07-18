@@ -139,7 +139,8 @@ impl<T: RealField> Perspective3<T> {
     #[inline]
     #[must_use]
     pub fn as_projective(&self) -> &Projective3<T> {
-        unsafe { &*(self as *const _ as *const Projective3<T>) }
+        // Safety: Self and Projective3 are both #[repr(transparent)] of a matrix.
+        unsafe { &*(self as *const _ as *const _) }
     }
 
     /// This transformation seen as a `Projective3`.

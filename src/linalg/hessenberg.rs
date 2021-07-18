@@ -111,25 +111,34 @@ where
         let mut subdiag = Matrix::new_uninitialized_generic(dim.sub(Const::<1>), Const::<1>);
 
         if dim.value() == 0 {
-            return Self {
-                hess,
-                subdiag: unsafe { subdiag.assume_init() },
-            };
+            // Safety: there's no (uninitialized) values.
+            unsafe {
+                return Self {
+                    hess,
+                    subdiag: subdiag.assume_init(),
+                };
+            }
         }
 
         for ite in 0..dim.value() - 1 {
-            householder::clear_column_unchecked(
-                &mut hess,
-                subdiag[ite].as_mut_ptr(),
-                ite,
-                1,
-                Some(work),
-            );
+            // Safety: the pointer is valid for writes, aligned, and uninitialized.
+            unsafe {
+                householder::clear_column_unchecked(
+                    &mut hess,
+                    subdiag[ite].as_mut_ptr(),
+                    ite,
+                    1,
+                    Some(work),
+                );
+            }
         }
 
-        Self {
-            hess,
-            subdiag: unsafe { subdiag.assume_init() },
+        // Safety: all values have been initialized.
+        unsafe {
+            Self {
+                hess,
+                subdiag: subdiag.assume_init(),
+            }
         }
     }
 

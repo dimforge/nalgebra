@@ -21,7 +21,7 @@ use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
 use crate::geometry::Point;
 
 /// A translation.
-#[repr(C)]
+#[repr(transparent)]
 #[derive(Debug)]
 pub struct Translation<T, const D: usize> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is

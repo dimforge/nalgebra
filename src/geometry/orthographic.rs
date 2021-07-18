@@ -18,7 +18,7 @@ use crate::base::{Matrix4, Vector, Vector3};
 use crate::geometry::{Point3, Projective3};
 
 /// A 3D orthographic projection stored as a homogeneous 4x4 matrix.
-#[repr(C)]
+#[repr(transparent)]
 pub struct Orthographic3<T> {
     matrix: Matrix4<T>,
 }
@@ -235,6 +235,7 @@ impl<T> Orthographic3<T> {
     /// ```
     #[inline]
     #[must_use]
+    // TODO: rename into `into_homogeneous` to appease clippy.
     pub fn to_homogeneous(self) -> Matrix4<T> {
         self.matrix
     }
@@ -270,8 +271,8 @@ impl<T> Orthographic3<T> {
     #[inline]
     #[must_use]
     pub fn as_projective(&self) -> &Projective3<T> {
-        // Safety: Self and Projective3 are both #[repr(C)] of a matrix.
-        unsafe { &*(self as *const _ as *const Projective3<T>) }
+        // Safety: Self and Projective3 are both #[repr(transparent)] of a matrix.
+        unsafe { &*(self as *const _ as *const _) }
     }
 
     /// This transformation seen as a `Projective3`.
@@ -284,6 +285,7 @@ impl<T> Orthographic3<T> {
     /// ```
     #[inline]
     #[must_use]
+    // TODO: rename into `into_projective` to appease clippy.
     pub fn to_projective(self) -> Projective3<T> {
         Projective3::from_matrix_unchecked(self.matrix)
     }

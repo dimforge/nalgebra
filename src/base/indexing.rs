@@ -673,7 +673,7 @@ macro_rules! impl_index_pair {
                         (rows.lower(nrows),  cols.lower(ncols)),
                         (rows.length(nrows), cols.length(ncols)));
 
-                Matrix::from_data_statically_unchecked(data)
+                Matrix::from_data(data)
             }
         }
 
@@ -699,7 +699,7 @@ macro_rules! impl_index_pair {
                         (rows.lower(nrows),  cols.lower(ncols)),
                         (rows.length(nrows), cols.length(ncols)));
 
-                Matrix::from_data_statically_unchecked(data)
+                Matrix::from_data(data)
             }
         }
     }

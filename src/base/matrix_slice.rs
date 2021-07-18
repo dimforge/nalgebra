@@ -222,7 +222,12 @@ storage_impl!(SliceStorage, SliceStorageMut);
 impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     SliceStorage<'a, MaybeUninit<T>, R, C, RStride, CStride>
 {
-    /// Assumes a slice storage's entries to be initialized. This operation should be near zero-cost.
+    /// Assumes a slice storage's entries to be initialized. This operation
+    /// should be near zero-cost.
+    ///
+    /// # Safety
+    /// All of the slice storage's entries must be initialized, otherwise
+    /// Undefined Behavior will be triggered.
     pub unsafe fn assume_init(self) -> SliceStorage<'a, T, R, C, RStride, CStride> {
         SliceStorage::from_raw_parts(self.ptr as *const T, self.shape, self.strides)
     }
@@ -401,7 +406,7 @@ macro_rules! matrix_slice_impl(
 
             unsafe {
                 let data = $SliceStorage::new_unchecked($data, (row_start, 0), shape);
-                Matrix::from_data_statically_unchecked(data)
+                Matrix::from_data(data)
             }
         }
 
@@ -421,7 +426,7 @@ macro_rules! matrix_slice_impl(
 
             unsafe {
                 let data = $SliceStorage::new_with_strides_unchecked($data, (row_start, 0), shape, strides);
-                Matrix::from_data_statically_unchecked(data)
+                Matrix::from_data(data)
             }
         }
 
@@ -488,7 +493,7 @@ macro_rules! matrix_slice_impl(
 
             unsafe {
                 let data = $SliceStorage::new_unchecked($data, (0, first_col), shape);
-                Matrix::from_data_statically_unchecked(data)
+                Matrix::from_data(data)
             }
         }
 
@@ -508,7 +513,7 @@ macro_rules! matrix_slice_impl(
 
             unsafe {
                 let data = $SliceStorage::new_with_strides_unchecked($data, (0, first_col), shape, strides);
-                Matrix::from_data_statically_unchecked(data)
+                Matrix::from_data(data)
             }
         }
 
@@ -528,7 +533,7 @@ macro_rules! matrix_slice_impl(
 
             unsafe {
                 let data = $SliceStorage::new_unchecked($data, start, shape);
-                Matrix::from_data_statically_unchecked(data)
+                Matrix::from_data(data)
             }
         }
 
@@ -555,7 +560,7 @@ macro_rules! matrix_slice_impl(
 
             unsafe {
                 let data = $SliceStorage::new_unchecked($data, (irow, icol), shape);
-                Matrix::from_data_statically_unchecked(data)
+                Matrix::from_data(data)
             }
         }
 
@@ -579,7 +584,7 @@ macro_rules! matrix_slice_impl(
 
             unsafe {
                 let data = $SliceStorage::new_unchecked($data, start, shape);
-                Matrix::from_data_statically_unchecked(data)
+                Matrix::from_data(data)
             }
         }
 
@@ -601,7 +606,7 @@ macro_rules! matrix_slice_impl(
 
             unsafe {
                 let data = $SliceStorage::new_with_strides_unchecked($data, start, shape, strides);
-                Matrix::from_data_statically_unchecked(data)
+                Matrix::from_data(data)
             }
         }
 
@@ -645,8 +650,8 @@ macro_rules! matrix_slice_impl(
 
                 let data1  = $SliceStorage::from_raw_parts(ptr1, (nrows1, ncols), strides);
                 let data2  = $SliceStorage::from_raw_parts(ptr2, (nrows2, ncols), strides);
-                let slice1 = Matrix::from_data_statically_unchecked(data1);
-                let slice2 = Matrix::from_data_statically_unchecked(data2);
+                let slice1 = Matrix::from_data(data1);
+                let slice2 = Matrix::from_data(data2);
 
                 (slice1, slice2)
             }
@@ -681,8 +686,8 @@ macro_rules! matrix_slice_impl(
 
                 let data1  = $SliceStorage::from_raw_parts(ptr1, (nrows, ncols1), strides);
                 let data2  = $SliceStorage::from_raw_parts(ptr2, (nrows, ncols2), strides);
-                let slice1 = Matrix::from_data_statically_unchecked(data1);
-                let slice2 = Matrix::from_data_statically_unchecked(data2);
+                let slice1 = Matrix::from_data(data1);
+                let slice2 = Matrix::from_data(data2);
 
                 (slice1, slice2)
             }
@@ -1007,6 +1012,6 @@ impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
             _phantoms: PhantomData,
         };
 
-        unsafe { Matrix::from_data_statically_unchecked(data) }
+       Matrix::from_data(data) 
     }
 }

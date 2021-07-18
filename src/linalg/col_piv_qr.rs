@@ -86,10 +86,13 @@ where
         let mut diag = Matrix::new_uninitialized_generic(min_nrows_ncols, Const::<1>);
 
         if min_nrows_ncols.value() == 0 {
-            return ColPivQR {
-                col_piv_qr: matrix,
-                p,
-                diag: unsafe { diag.assume_init() },
+            // Safety: there's no (uninitialized) values.
+            unsafe {
+                return ColPivQR {
+                    col_piv_qr: matrix,
+                    p,
+                    diag: diag.assume_init(),
+                };
             };
         }
 
@@ -99,13 +102,19 @@ where
             matrix.swap_columns(i, col_piv);
             p.append_permutation(i, col_piv);
 
-            householder::clear_column_unchecked(&mut matrix, diag[i].as_mut_ptr(), i, 0, None);
+            // Safety: the pointer is valid for writes, aligned, and uninitialized.
+            unsafe {
+                householder::clear_column_unchecked(&mut matrix, diag[i].as_mut_ptr(), i, 0, None);
+            }
         }
 
-        ColPivQR {
-            col_piv_qr: matrix,
-            p,
-            diag: unsafe { diag.assume_init() },
+        // Safety: all values have been initialized.
+        unsafe {
+            ColPivQR {
+                col_piv_qr: matrix,
+                p,
+                diag: diag.assume_init(),
+            }
         }
     }
 

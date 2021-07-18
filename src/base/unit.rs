@@ -228,7 +228,7 @@ impl<T> Unit<T> {
     /// Wraps the given reference, assuming it is already normalized.
     #[inline]
     pub fn from_ref_unchecked(value: &T) -> &Self {
-        unsafe { &*(value as *const _ as *const Self) }
+        unsafe { &*(value as *const _ as *const _) }
     }
 
     /// Retrieves the underlying value.

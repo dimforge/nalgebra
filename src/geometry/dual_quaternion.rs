@@ -279,6 +279,7 @@ impl<'a, T: Deserialize<'a>> Deserialize<'a> for DualQuaternion<T> {
 
 impl<T> DualQuaternion<T> {
     // TODO: Cloning shouldn't be necessary.
+    // TODO: rename into `into_vector` to appease clippy.
     fn to_vector(self) -> OVector<T, U8>
     where
         T: Clone,

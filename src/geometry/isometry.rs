@@ -53,7 +53,6 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 /// # Conversion to a matrix
 /// * [Conversion to a matrix <span style="float:right;">`to_matrix`…</span>](#conversion-to-a-matrix)
 ///
-#[repr(C)]
 #[derive(Debug)]
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(

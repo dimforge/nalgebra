@@ -2,7 +2,7 @@
 
 //! Traits and tags for identifying the dimension of all algebraic entities.
 
-use std::any::{Any, TypeId};
+use std::any::TypeId;
 use std::cmp;
 use std::fmt::Debug;
 use std::ops::{Add, Div, Mul, Sub};
@@ -11,7 +11,7 @@ use typenum::{self, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, Unsigned}
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-/// Dim of dynamically-sized algebraic entities.
+/// Stores the dimension of dynamically-sized algebraic entities.
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
 pub struct Dynamic {
     value: usize,
@@ -55,7 +55,7 @@ impl IsNotStaticOne for Dynamic {}
 
 /// Trait implemented by any type that can be used as a dimension. This includes type-level
 /// integers and `Dynamic` (for dimensions not known at compile-time).
-pub trait Dim: Any + Debug + Copy + PartialEq + Send + Sync {
+pub trait Dim: 'static + Debug + Copy + PartialEq + Send + Sync {
     #[inline(always)]
     fn is<D: Dim>() -> bool {
         TypeId::of::<Self>() == TypeId::of::<D>()
@@ -196,6 +196,9 @@ dim_ops!(
     DimMax, DimNameMax, Max, max, cmp::max, DimMaximum, DimNameMaximum, Maximum;
 );
 
+/// A wrapper around const types, which provides the capability of performing
+/// type-level arithmetic. This might get removed if const-generics become
+/// more powerful in the future.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Const<const R: usize>;
 

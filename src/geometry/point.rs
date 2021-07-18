@@ -42,7 +42,7 @@ use crate::Scalar;
 /// achieved by multiplication, e.g., `isometry * point` or `rotation * point`. Some of these transformation
 /// may have some other methods, e.g., `isometry.inverse_transform_point(&point)`. See the documentation
 /// of said transformations for details.
-#[repr(C)]
+#[repr(transparent)]
 pub struct OPoint<T, D: DimName>
 where
     DefaultAllocator: InnerAllocator<T, D>,

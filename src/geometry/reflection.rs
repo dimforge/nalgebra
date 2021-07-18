@@ -9,7 +9,7 @@ use simba::scalar::ComplexField;
 use crate::geometry::Point;
 
 /// A reflection wrt. a plane.
-pub struct Reflection<T, D:Dim, S> {
+pub struct Reflection<T, D: Dim, S> {
     axis: Vector<T, D, S>,
     bias: T,
 }
@@ -85,8 +85,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
         S3: StorageMut<MaybeUninit<T>, R2>,
         ShapeConstraint: DimEq<C2, D> + AreMultipliable<R2, C2, D, U1>,
     {
-        lhs.mul_to(&self.axis, work);
-        let mut work = unsafe { work.assume_init_mut() };
+        let mut work = lhs.mul_to(&self.axis, work);
 
         if !self.bias.is_zero() {
             work.add_scalar_mut(-self.bias);
@@ -107,8 +106,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
         S3: StorageMut<MaybeUninit<T>, R2>,
         ShapeConstraint: DimEq<C2, D> + AreMultipliable<R2, C2, D, U1>,
     {
-        lhs.mul_to(&self.axis, work);
-        let mut work = unsafe { work.assume_init_mut() };
+        let mut work = lhs.mul_to(&self.axis, work);
 
         if !self.bias.is_zero() {
             work.add_scalar_mut(-self.bias);

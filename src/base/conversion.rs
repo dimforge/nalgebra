@@ -1,9 +1,10 @@
+use std::borrow::{Borrow, BorrowMut};
+use std::convert::{AsMut, AsRef, From, Into};
+use std::mem::{self, ManuallyDrop, MaybeUninit};
+
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 use simba::scalar::{SubsetOf, SupersetOf};
-use std::borrow::{Borrow, BorrowMut};
-use std::convert::{AsMut, AsRef, From, Into};
-use std::mem::MaybeUninit;
 
 use simba::simd::{PrimitiveSimdValue, SimdValue};
 
@@ -105,18 +106,18 @@ impl<'a, T, R: Dim, C: Dim, S: StorageMut<T, R, C>> IntoIterator for &'a mut Mat
 impl<T, const D: usize> From<[T; D]> for SVector<T, D> {
     #[inline]
     fn from(arr: [T; D]) -> Self {
-        unsafe { Self::from_data_statically_unchecked(ArrayStorage([arr; 1])) }
+        Self::from_data(ArrayStorage([arr; 1]))
     }
 }
 
-impl<T, const D: usize> From<SVector<T, D>> for [T; D]
-where
-    T: Clone,
-{
+impl<T, const D: usize> From<SVector<T, D>> for [T; D] {
     #[inline]
     fn from(vec: SVector<T, D>) -> Self {
-        // TODO: unfortunately, we must clone because we can move out of an array.
-        vec.data.0[0].clone()
+        let data = ManuallyDrop::new(vec.data.0);
+        // Safety: [[T; D]; 1] always has the same data layout as [T; D].
+        let res = unsafe { (data.as_ptr() as *const [_; D]).read() };
+        mem::forget(data);
+        res
     }
 }
 
@@ -184,7 +185,7 @@ impl_from_into_asref_1D!(
 impl<T, const R: usize, const C: usize> From<[[T; R]; C]> for SMatrix<T, R, C> {
     #[inline]
     fn from(arr: [[T; R]; C]) -> Self {
-        unsafe { Self::from_data_statically_unchecked(ArrayStorage(arr)) }
+        Self::from_data(ArrayStorage(arr))
     }
 }
 
@@ -326,7 +327,8 @@ where
                 (row_slice, col_slice),
                 (rstride_slice, cstride_slice),
             );
-            Matrix::from_data_statically_unchecked(data)
+
+            Self::from_data(data)
         }
     }
 }
@@ -356,7 +358,8 @@ where
                 (row_slice, col_slice),
                 (rstride_slice, cstride_slice),
             );
-            Matrix::from_data_statically_unchecked(data)
+
+            Matrix::from_data(data)
         }
     }
 }
@@ -386,7 +389,8 @@ where
                 (row_slice, col_slice),
                 (rstride_slice, cstride_slice),
             );
-            Matrix::from_data_statically_unchecked(data)
+
+            Matrix::from_data(data)
         }
     }
 }
