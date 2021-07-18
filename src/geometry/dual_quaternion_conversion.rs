@@ -48,7 +48,7 @@ where
 
 impl<T1, T2> SubsetOf<UnitDualQuaternion<T2>> for UnitDualQuaternion<T1>
 where
-    T2:  SupersetOf<T1>,
+    T2: SupersetOf<T1>,
 {
     #[inline]
     fn to_superset(&self) -> UnitDualQuaternion<T2> {

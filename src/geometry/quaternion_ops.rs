@@ -59,7 +59,7 @@ use std::ops::{
 
 use crate::base::dimension::U3;
 use crate::base::storage::Storage;
-use crate::base::{Const,  Unit, Vector, Vector3};
+use crate::base::{Const, Unit, Vector, Vector3};
 use crate::SimdRealField;
 
 use crate::geometry::{Point3, Quaternion, Rotation, UnitQuaternion};

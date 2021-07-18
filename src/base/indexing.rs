@@ -643,7 +643,7 @@ macro_rules! impl_index_pair {
         $(where $CConstraintType: ty: $CConstraintBound: ident $(<$($CConstraintBoundParams: ty $( = $CEqBound: ty )*),*>)* )*]
     ) =>
     {
-        impl<'a, T: 'a, $R: Dim, $C: Dim, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*> 
+        impl<'a, T: 'a, $R: Dim, $C: Dim, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*>
             MatrixIndex<'a, T, $R, $C, S> for ($RIdx, $CIdx)
         where
             S: Storage<T, R, C>,

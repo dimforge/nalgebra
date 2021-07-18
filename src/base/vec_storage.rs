@@ -30,9 +30,9 @@ use abomonation::Abomonation;
 /// A Vec-based matrix data storage. It may be dynamically-sized.
 #[derive(Eq, Debug, Clone, PartialEq)]
 pub struct VecStorage<T, R: Dim, C: Dim> {
-    pub(crate) data: Vec<T>,
-    pub(crate) nrows: R,
-    pub(crate) ncols: C,
+    data: Vec<T>,
+    nrows: R,
+    ncols: C,
 }
 
 #[cfg(feature = "serde-serialize")]
@@ -193,7 +193,8 @@ where
 
     #[inline]
     fn clone_owned(&self) -> Owned<T, Dynamic, C>
-    where T:Clone,
+    where
+        T: Clone,
         DefaultAllocator: InnerAllocator<T, Dynamic, C>,
     {
         self.clone()
@@ -242,7 +243,8 @@ where
 
     #[inline]
     fn clone_owned(&self) -> Owned<T, R, Dynamic>
-    where T:Clone,
+    where
+        T: Clone,
         DefaultAllocator: InnerAllocator<T, R, Dynamic>,
     {
         self.clone()
@@ -413,7 +415,7 @@ impl<'a, T: 'a + Copy, R: Dim> Extend<&'a T> for VecStorage<T, R, Dynamic> {
     }
 }
 
-impl<T:Clone, R: Dim, RV: Dim, SV> Extend<Vector<T, RV, SV>> for VecStorage<T, R, Dynamic>
+impl<T: Clone, R: Dim, RV: Dim, SV> Extend<Vector<T, RV, SV>> for VecStorage<T, R, Dynamic>
 where
     SV: Storage<T, RV>,
     ShapeConstraint: SameNumberOfRows<R, RV>,

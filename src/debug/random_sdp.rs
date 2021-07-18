@@ -1,8 +1,6 @@
 use std::fmt;
 
 #[cfg(feature = "arbitrary")]
-use crate::base::storage::Owned;
-#[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
 use crate::base::allocator::Allocator;

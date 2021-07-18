@@ -1,4 +1,5 @@
-use std::mem;use std::fmt::{self, Debug, Formatter};
+use std::fmt::{self, Debug, Formatter};
+use std::mem;
 // use std::hash::{Hash, Hasher};
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
@@ -12,8 +13,6 @@ use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "serde-serialize-no-std")]
 use std::marker::PhantomData;
-#[cfg(feature = "serde-serialize-no-std")]
-use std::mem;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;

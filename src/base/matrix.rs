@@ -385,6 +385,10 @@ where
     /// Assumes a matrix's entries to be initialized. This operation should be near zero-cost.
     ///
     /// For the similar method that operates on matrix slices, see [`slice_assume_init`].
+    ///
+    /// # Safety
+    /// The user must make sure that every single entry of the buffer has been initialized,
+    /// or Undefined Behavior will immediately occur.    
     pub unsafe fn assume_init(self) -> OMatrix<T, R, C> {
         OMatrix::from_data(<DefaultAllocator as Allocator<T, R, C>>::assume_init(
             self.data,
@@ -408,6 +412,10 @@ where
 
 impl<T, R: Dim, C: Dim, S> Matrix<MaybeUninit<T>, R, C, S> {
     /// Creates a full slice from `self` and assumes it to be initialized.
+    ///
+    /// # Safety
+    /// The user must make sure that every single entry of the buffer has been initialized,
+    /// or Undefined Behavior will immediately occur.    
     pub unsafe fn assume_init_ref(&self) -> MatrixSlice<T, R, C, S::RStride, S::CStride>
     where
         S: Storage<MaybeUninit<T>, R, C>,
@@ -416,6 +424,10 @@ impl<T, R: Dim, C: Dim, S> Matrix<MaybeUninit<T>, R, C, S> {
     }
 
     /// Creates a full mutable slice from `self` and assumes it to be initialized.
+    ///
+    /// # Safety
+    /// The user must make sure that every single entry of the buffer has been initialized,
+    /// or Undefined Behavior will immediately occur.    
     pub unsafe fn assume_init_mut(&mut self) -> MatrixSliceMut<T, R, C, S::RStride, S::CStride>
     where
         S: StorageMut<MaybeUninit<T>, R, C>,

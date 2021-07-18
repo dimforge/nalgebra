@@ -237,6 +237,10 @@ impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     SliceStorageMut<'a, MaybeUninit<T>, R, C, RStride, CStride>
 {
     /// Assumes a slice storage's entries to be initialized. This operation should be near zero-cost.
+    ///
+    /// # Safety
+    /// The user must make sure that every single entry of the buffer has been initialized,
+    /// or Undefined Behavior will immediately occur.    
     pub unsafe fn assume_init(self) -> SliceStorageMut<'a, T, R, C, RStride, CStride> {
         SliceStorageMut::from_raw_parts(self.ptr as *mut T, self.shape, self.strides)
     }
@@ -1012,6 +1016,6 @@ impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
             _phantoms: PhantomData,
         };
 
-       Matrix::from_data(data) 
+        Matrix::from_data(data)
     }
 }

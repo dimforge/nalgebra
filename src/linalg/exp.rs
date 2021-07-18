@@ -1,11 +1,16 @@
 //! This module provides the matrix exponent (exp) function to square matrices.
 //!
-use crate::{ComplexField, OMatrix, RealField, base::{
+use crate::{
+    base::{
         allocator::Allocator,
         dimension::{Const, Dim, DimMin, DimMinimum},
         storage::Storage,
         DefaultAllocator,
-    }, convert, storage::Owned, try_convert};
+    },
+    convert,
+    storage::Owned,
+    try_convert, ComplexField, OMatrix, RealField,
+};
 
 use crate::num::Zero;
 

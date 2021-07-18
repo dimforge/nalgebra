@@ -474,7 +474,7 @@ where
     {
         // Size = R
         let nrows = self.data.shape().0;
-        let mut workspace = Matrix::new_uninitialized_generic(nrows, Const::<1>);
+        let mut workspace = CsMatrix::new_uninitialized_generic(nrows, Const::<1>);
         self.sort_with_workspace(workspace.as_mut_slice());
     }
 

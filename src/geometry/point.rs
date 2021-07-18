@@ -108,7 +108,7 @@ where
 impl<T: Serialize, D: DimName> Serialize for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    <DefaultAllocator as Allocator<T, D>>::Buffer: Serialize,
+    <DefaultAllocator as InnerAllocator<T, D>>::Buffer: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -122,7 +122,7 @@ where
 impl<'a, T: Deserialize<'a>, D: DimName> Deserialize<'a> for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    <DefaultAllocator as Allocator<T, D>>::Buffer: Deserialize<'a>,
+    <DefaultAllocator as InnerAllocator<T, D>>::Buffer: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
