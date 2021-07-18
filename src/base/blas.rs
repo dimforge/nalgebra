@@ -967,7 +967,7 @@ where
                         self.fill_fn(|| MaybeUninit::new(T::zero()));
 
                         // Safety: there's no (uninitialized) values.
-                        return unsafe{self.assume_init_mut()};
+                        return unsafe { self.assume_init_mut() };
                     }
 
                     let (rsa, csa) = a.strides();

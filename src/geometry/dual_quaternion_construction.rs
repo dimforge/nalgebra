@@ -1,5 +1,5 @@
 use crate::{
-    DualQuaternion, Isometry3, Quaternion,  SimdRealField, Translation3, UnitDualQuaternion,
+    DualQuaternion, Isometry3, Quaternion, SimdRealField, Translation3, UnitDualQuaternion,
     UnitQuaternion,
 };
 use num::{One, Zero};

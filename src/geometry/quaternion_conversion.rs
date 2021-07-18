@@ -28,7 +28,7 @@ use crate::geometry::{
 
 impl<T1, T2> SubsetOf<Quaternion<T2>> for Quaternion<T1>
 where
-    T2 : SupersetOf<T1>,
+    T2: SupersetOf<T1>,
 {
     #[inline]
     fn to_superset(&self) -> Quaternion<T2> {
@@ -49,8 +49,8 @@ where
 }
 
 impl<T1, T2> SubsetOf<UnitQuaternion<T2>> for UnitQuaternion<T1>
-where 
-    T2:  SupersetOf<T1>,
+where
+    T2: SupersetOf<T1>,
 {
     #[inline]
     fn to_superset(&self) -> UnitQuaternion<T2> {

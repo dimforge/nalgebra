@@ -266,7 +266,7 @@ where
 
         // IMPORTANT TODO: this method is still UB, and we should decide how to
         // update the API to take it into account.
-        
+
         unsafe {
             i.set_len(nvals);
         }

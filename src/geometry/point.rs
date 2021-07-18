@@ -82,9 +82,11 @@ where
     DefaultAllocator: Allocator<T, D>,
     OVector<T, D>: fmt::Debug,
 {
- fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-     f.debug_struct("OPoint").field("coords",&self.coords).finish()
- }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("OPoint")
+            .field("coords", &self.coords)
+            .finish()
+    }
 }
 
 #[cfg(feature = "bytemuck")]
