@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, OMatrix, OVector, Unit};
 use crate::dimension::{Const, Dim, DimDiff, DimMin, DimMinimum, DimSub, U1};
-use crate::storage::{Owned, Storage};
+use crate::storage::{InnerOwned, Storage};
 use crate::Dynamic;
 use simba::scalar::ComplexField;
 
@@ -58,9 +58,9 @@ where
     DefaultAllocator: Allocator<T, R, C>
         + Allocator<T, DimMinimum<R, C>>
         + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>,
-    Owned<T, R, C>: Clone,
-    Owned<T, DimMinimum<R, C>>: Clone,
-    Owned<T, DimDiff<DimMinimum<R, C>, U1>>: Clone,
+    InnerOwned<T, R, C>: Clone,
+    InnerOwned<T, DimMinimum<R, C>>: Clone,
+    InnerOwned<T, DimDiff<DimMinimum<R, C>, U1>>: Clone,
 {
     fn clone(&self) -> Self {
         Self {
@@ -72,17 +72,19 @@ where
     }
 }
 
+/*
 impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for Bidiagonal<T, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>,
     DefaultAllocator: Allocator<T, R, C>
         + Allocator<T, DimMinimum<R, C>>
         + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>,
-    Owned<T, R, C>: Copy,
-    Owned<T, DimMinimum<R, C>>: Copy,
-    Owned<T, DimDiff<DimMinimum<R, C>, U1>>: Copy,
+    InnerOwned<T, R, C>: Copy,
+    InnerOwned<T, DimMinimum<R, C>>: Copy,
+    InnerOwned<T, DimDiff<DimMinimum<R, C>, U1>>: Copy,
 {
 }
+*/
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> fmt::Debug for Bidiagonal<T, R, C>
 where
@@ -90,9 +92,9 @@ where
     DefaultAllocator: Allocator<T, R, C>
         + Allocator<T, DimMinimum<R, C>>
         + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>,
-    Owned<T, R, C>: fmt::Debug,
-    Owned<T, DimMinimum<R, C>>: fmt::Debug,
-    Owned<T, DimDiff<DimMinimum<R, C>, U1>>: fmt::Debug,
+    InnerOwned<T, R, C>: fmt::Debug,
+    InnerOwned<T, DimMinimum<R, C>>: fmt::Debug,
+    InnerOwned<T, DimDiff<DimMinimum<R, C>, U1>>: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("Bidiagonal")

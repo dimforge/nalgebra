@@ -5,8 +5,7 @@ use quickcheck::{Arbitrary, Gen};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, Dynamic};
-use crate::base::{DefaultAllocator, OMatrix};
-use crate::storage::Owned;
+use crate::base::{DefaultAllocator, OMatrix, Owned};
 use simba::scalar::ComplexField;
 
 use crate::debug::RandomOrthogonal;

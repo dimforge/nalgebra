@@ -9,9 +9,9 @@ use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, DimName, Dynamic, U1};
 use crate::base::storage::{
-    ContiguousStorage, ContiguousStorageMut, Owned, ReshapableStorage, Storage, StorageMut,
+    ContiguousStorage, ContiguousStorageMut, ReshapableStorage, Storage, StorageMut,
 };
-use crate::base::Vector;
+use crate::base::{Owned, Vector};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{
@@ -31,8 +31,8 @@ use abomonation::Abomonation;
 #[derive(Eq, Debug, Clone, PartialEq)]
 pub struct VecStorage<T, R: Dim, C: Dim> {
     data: Vec<T>,
-    nrows: R,
-    ncols: C,
+    pub(crate) nrows: R,
+    pub(crate) ncols: C,
 }
 
 #[cfg(feature = "serde-serialize")]
@@ -184,20 +184,16 @@ where
     }
 
     #[inline]
-    fn into_owned(self) -> Owned<T, Dynamic, C>
-    where
-        DefaultAllocator: InnerAllocator<T, Dynamic, C>,
-    {
-        self
+    fn into_owned(self) -> Owned<T, Dynamic, C> {
+        Owned(self)
     }
 
     #[inline]
     fn clone_owned(&self) -> Owned<T, Dynamic, C>
     where
         T: Clone,
-        DefaultAllocator: InnerAllocator<T, Dynamic, C>,
     {
-        self.clone()
+        Owned(self.clone())
     }
 
     #[inline]
@@ -234,20 +230,16 @@ where
     }
 
     #[inline]
-    fn into_owned(self) -> Owned<T, R, Dynamic>
-    where
-        DefaultAllocator: InnerAllocator<T, R, Dynamic>,
-    {
-        self
+    fn into_owned(self) -> Owned<T, R, Dynamic> {
+        Owned(self)
     }
 
     #[inline]
     fn clone_owned(&self) -> Owned<T, R, Dynamic>
     where
         T: Clone,
-        DefaultAllocator: InnerAllocator<T, R, Dynamic>,
     {
-        self.clone()
+        Owned(self.clone())
     }
 
     #[inline]

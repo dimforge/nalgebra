@@ -7,8 +7,8 @@ use crate::base::allocator::{Allocator, InnerAllocator};
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, Dim, DimName, Dynamic, IsNotStaticOne, U1};
 use crate::base::iter::MatrixIter;
-use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Owned, Storage, StorageMut};
-use crate::base::Matrix;
+use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
+use crate::base::{Matrix, Owned};
 
 macro_rules! slice_storage_impl(
     ($doc: expr; $Storage: ident as $SRef: ty; $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {
@@ -199,7 +199,7 @@ macro_rules! storage_impl(
             {
                 let (nrows, ncols) = self.shape();
                 let it = MatrixIter::new(self).cloned();
-                DefaultAllocator::allocate_from_iterator(nrows, ncols, it)
+             Owned(   DefaultAllocator::allocate_from_iterator(nrows, ncols, it))
             }
 
             #[inline]

@@ -8,7 +8,7 @@ use crate::allocator::{Allocator, Reallocator};
 use crate::base::{DefaultAllocator, Matrix, OMatrix, OVector, Unit};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Const, Dim, DimMin, DimMinimum};
-use crate::storage::{Owned, Storage, StorageMut};
+use crate::storage::{InnerOwned, Storage, StorageMut};
 use simba::scalar::ComplexField;
 
 use crate::geometry::Reflection;
@@ -39,19 +39,21 @@ where
     diag: OVector<T, DimMinimum<R, C>>,
 }
 
+/*
 impl<T: Copy, R: DimMin<C>, C: Dim> Copy for QR<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
-    Owned<T, R, C>: Copy,
-    Owned<T, DimMinimum<R, C>>: Copy,
+    InnerOwned<T, R, C>: Copy,
+    InnerOwned<T, DimMinimum<R, C>>: Copy,
 {
 }
+*/
 
 impl<T: Clone, R: DimMin<C>, C: Dim> Clone for QR<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
-    Owned<T, R, C>: Clone,
-    Owned<T, DimMinimum<R, C>>: Clone,
+    InnerOwned<T, R, C>: Clone,
+    InnerOwned<T, DimMinimum<R, C>>: Clone,
 {
     fn clone(&self) -> Self {
         Self {
@@ -64,8 +66,8 @@ where
 impl<T: fmt::Debug, R: DimMin<C>, C: Dim> fmt::Debug for QR<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
-    Owned<T, R, C>: fmt::Debug,
-    Owned<T, DimMinimum<R, C>>: fmt::Debug,
+    InnerOwned<T, R, C>: fmt::Debug,
+    InnerOwned<T, DimMinimum<R, C>>: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("QR")

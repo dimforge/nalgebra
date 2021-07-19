@@ -20,7 +20,7 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::{Const, DefaultAllocator, OVector};
-use crate::storage::Owned;
+use crate::storage::InnerOwned;
 use crate::Scalar;
 
 /// A point in an euclidean space.
@@ -322,7 +322,7 @@ where
     /// assert_eq!(it.next(), Some(3.0));
     /// assert_eq!(it.next(), None);
     #[inline]
-    pub fn iter(&self) -> MatrixIter<T, D, Const<1>, Owned<T, D>> {
+    pub fn iter(&self) -> MatrixIter<T, D, Const<1>, InnerOwned<T, D>> {
         self.coords.iter()
     }
 
@@ -346,7 +346,7 @@ where
     ///
     /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
     #[inline]
-    pub fn iter_mut(&mut self) -> MatrixIterMut<T, D, Const<1>, Owned<T, D>> {
+    pub fn iter_mut(&mut self) -> MatrixIterMut<T, D, Const<1>, InnerOwned<T, D>> {
         self.coords.iter_mut()
     }
 

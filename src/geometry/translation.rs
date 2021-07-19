@@ -15,7 +15,7 @@ use simba::scalar::{ClosedAdd, ClosedNeg, ClosedSub};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
-use crate::base::storage::Owned;
+use crate::base::storage::InnerOwned;
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
 
 use crate::geometry::Point;
@@ -31,7 +31,7 @@ pub struct Translation<T, const D: usize> {
 
 impl<T: hash::Hash, const D: usize> hash::Hash for Translation<T, D>
 where
-    Owned<T, Const<D>>: hash::Hash,
+    InnerOwned<T, Const<D>>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.vector.hash(state)
@@ -42,7 +42,7 @@ impl<T: Copy, const D: usize> Copy for Translation<T, D> {}
 
 impl<T: Clone, const D: usize> Clone for Translation<T, D>
 where
-    Owned<T, Const<D>>: Clone,
+    InnerOwned<T, Const<D>>: Clone,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -71,7 +71,7 @@ where
 #[cfg(feature = "serde-serialize-no-std")]
 impl<T, const D: usize> Serialize for Translation<T, D>
 where
-    Owned<T, Const<D>>: Serialize,
+    InnerOwned<T, Const<D>>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -84,7 +84,7 @@ where
 #[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T, const D: usize> Deserialize<'a> for Translation<T, D>
 where
-    Owned<T, Const<D>>: Deserialize<'a>,
+    InnerOwned<T, Const<D>>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where

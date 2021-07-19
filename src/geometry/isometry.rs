@@ -15,7 +15,7 @@ use simba::simd::SimdRealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
-use crate::base::storage::Owned;
+use crate::base::storage::InnerOwned;
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar, Unit};
 use crate::geometry::{AbstractRotation, Point, Translation};
 
@@ -157,7 +157,7 @@ mod rkyv_impl {
 
 impl<T: hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Isometry<T, R, D>
 where
-    Owned<T, Const<D>>: hash::Hash,
+    InnerOwned<T, Const<D>>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.translation.hash(state);
@@ -165,7 +165,7 @@ where
     }
 }
 
-impl<T: Copy, R: Copy, const D: usize> Copy for Isometry<T, R, D> where Owned<T, Const<D>>: Copy {}
+impl<T: Copy, R: Copy, const D: usize> Copy for Isometry<T, R, D> where InnerOwned<T, Const<D>>: Copy {}
 
 impl<T: Clone, R: Clone, const D: usize> Clone for Isometry<T, R, D> {
     #[inline]

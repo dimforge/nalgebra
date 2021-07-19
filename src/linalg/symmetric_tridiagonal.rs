@@ -6,8 +6,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, OMatrix, OVector};
-use crate::dimension::{Const, DimDiff, DimSub, U1};
-use crate::storage::{Owned, Storage};
+use crate::dimension::{Const, DimDiff, DimName, DimSub, U1};
+use crate::storage::{InnerOwned, Storage};
 use simba::scalar::ComplexField;
 
 use crate::linalg::householder;
@@ -36,19 +36,19 @@ where
     off_diagonal: OVector<T, DimDiff<D, U1>>,
 }
 
-impl<T: Copy, D: DimSub<U1>> Copy for SymmetricTridiagonal<T, D>
+impl<T: Copy, D: DimSub<U1> + DimName> Copy for SymmetricTridiagonal<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
-    Owned<T, D, D>: Copy,
-    Owned<T, DimDiff<D, U1>>: Copy,
+    InnerOwned<T, D, D>: Copy,
+    InnerOwned<T, DimDiff<D, U1>>: Copy,
 {
 }
 
 impl<T: Clone, D: DimSub<U1>> Clone for SymmetricTridiagonal<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
-    Owned<T, D, D>: Clone,
-    Owned<T, DimDiff<D, U1>>: Clone,
+    InnerOwned<T, D, D>: Clone,
+    InnerOwned<T, DimDiff<D, U1>>: Clone,
 {
     fn clone(&self) -> Self {
         Self {
@@ -61,8 +61,8 @@ where
 impl<T: fmt::Debug, D: DimSub<U1>> fmt::Debug for SymmetricTridiagonal<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
-    Owned<T, D, D>: fmt::Debug,
-    Owned<T, DimDiff<D, U1>>: fmt::Debug,
+    InnerOwned<T, D, D>: fmt::Debug,
+    InnerOwned<T, DimDiff<D, U1>>: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("SymmetricTridiagonal")

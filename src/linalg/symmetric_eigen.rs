@@ -8,8 +8,8 @@ use num::Zero;
 
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix2, OMatrix, OVector, SquareMatrix, Vector2};
-use crate::dimension::{Dim, DimDiff, DimSub, U1};
-use crate::storage::{Owned, Storage};
+use crate::dimension::{Dim, DimDiff, DimName, DimSub, U1};
+use crate::storage::{InnerOwned, Storage};
 use simba::scalar::ComplexField;
 
 use crate::linalg::givens::GivensRotation;
@@ -42,19 +42,19 @@ where
     pub eigenvalues: OVector<T::RealField, D>,
 }
 
-impl<T: ComplexField, D: Dim> Copy for SymmetricEigen<T, D>
+impl<T: ComplexField, D: DimName> Copy for SymmetricEigen<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T::RealField, D>,
-    Owned<T, D, D>: Copy,
-    Owned<T::RealField, D>: Copy,
+    InnerOwned<T, D, D>: Copy,
+    InnerOwned<T::RealField, D>: Copy,
 {
 }
 
 impl<T: ComplexField, D: Dim> Clone for SymmetricEigen<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T::RealField, D>,
-    Owned<T, D, D>: Clone,
-    Owned<T::RealField, D>: Clone,
+    InnerOwned<T, D, D>: Clone,
+    InnerOwned<T::RealField, D>: Clone,
 {
     fn clone(&self) -> Self {
         Self {
@@ -67,8 +67,8 @@ where
 impl<T: ComplexField, D: Dim> fmt::Debug for SymmetricEigen<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T::RealField, D>,
-    Owned<T, D, D>: fmt::Debug,
-    Owned<T::RealField, D>: fmt::Debug,
+    InnerOwned<T, D, D>: fmt::Debug,
+    InnerOwned<T::RealField, D>: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("SymmetricEigen")
@@ -301,7 +301,7 @@ where
     #[must_use]
     pub fn recompose(&self) -> OMatrix<T, D, D>
     where
-        Owned<T, D, D>: Clone,
+        InnerOwned<T, D, D>: Clone,
     {
         let mut u_t = self.eigenvectors.clone();
         for i in 0..self.eigenvalues.len() {

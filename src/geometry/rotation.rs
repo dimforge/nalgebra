@@ -9,8 +9,8 @@ use std::io::{Result as IOResult, Write};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "serde-serialize-no-std")]
-use crate::base::storage::Owned;
-use crate::storage::Owned;
+use crate::base::storage::InnerOwned;
+use crate::storage::InnerOwned;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -62,18 +62,18 @@ pub struct Rotation<T, const D: usize> {
 
 impl<T: hash::Hash, const D: usize> hash::Hash for Rotation<T, D>
 where
-    Owned<T, Const<D>, Const<D>>: hash::Hash,
+    InnerOwned<T, Const<D>, Const<D>>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.matrix.hash(state)
     }
 }
 
-impl<T: Copy, const D: usize> Copy for Rotation<T, D> where Owned<T, Const<D>, Const<D>>: Copy {}
+impl<T: Copy, const D: usize> Copy for Rotation<T, D> where InnerOwned<T, Const<D>, Const<D>>: Copy {}
 
 impl<T: Clone, const D: usize> Clone for Rotation<T, D>
 where
-    Owned<T, Const<D>, Const<D>>: Clone,
+    InnerOwned<T, Const<D>, Const<D>>: Clone,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -102,7 +102,7 @@ where
 #[cfg(feature = "serde-serialize-no-std")]
 impl<T: Scalar, const D: usize> Serialize for Rotation<T, D>
 where
-    Owned<T, Const<D>, Const<D>>: Serialize,
+    InnerOwned<T, Const<D>, Const<D>>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -115,7 +115,7 @@ where
 #[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T, const D: usize> Deserialize<'a> for Rotation<T, D>
 where
-    Owned<T, Const<D>, Const<D>>: Deserialize<'a>,
+    InnerOwned<T, Const<D>, Const<D>>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where

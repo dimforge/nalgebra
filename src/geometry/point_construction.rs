@@ -185,7 +185,7 @@ where
 impl<T: Arbitrary + Send, D: DimName> Arbitrary for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    crate::base::storage::Owned<T, D>: Clone + Send,
+    crate::base::storage::InnerOwned<T, D>: Clone + Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {

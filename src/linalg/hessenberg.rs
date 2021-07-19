@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, OMatrix, OVector};
 use crate::dimension::{Const, DimDiff, DimSub, U1};
-use crate::storage::{Owned, Storage};
+use crate::storage::{InnerOwned, Storage};
 use crate::Matrix;
 use simba::scalar::ComplexField;
 
@@ -37,19 +37,21 @@ where
     subdiag: OVector<T, DimDiff<D, U1>>,
 }
 
+/*
 impl<T: ComplexField, D: DimSub<U1>> Copy for Hessenberg<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
-    Owned<T, D, D>: Copy,
-    Owned<T, DimDiff<D, U1>>: Copy,
+    InnerOwned<T, D, D>: Copy,
+    InnerOwned<T, DimDiff<D, U1>>: Copy,
 {
 }
+*/
 
 impl<T: ComplexField, D: DimSub<U1>> Clone for Hessenberg<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
-    Owned<T, D, D>: Clone,
-    Owned<T, DimDiff<D, U1>>: Clone,
+    InnerOwned<T, D, D>: Clone,
+    InnerOwned<T, DimDiff<D, U1>>: Clone,
 {
     fn clone(&self) -> Self {
         Self {
@@ -62,8 +64,8 @@ where
 impl<T: ComplexField, D: DimSub<U1>> fmt::Debug for Hessenberg<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
-    Owned<T, D, D>: fmt::Debug,
-    Owned<T, DimDiff<D, U1>>: fmt::Debug,
+    InnerOwned<T, D, D>: fmt::Debug,
+    InnerOwned<T, DimDiff<D, U1>>: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("Hessenberg")
@@ -170,7 +172,7 @@ where
     #[must_use]
     pub fn h(&self) -> OMatrix<T, D, D>
     where
-        Owned<T, D, D>: Clone,
+        InnerOwned<T, D, D>: Clone,
     {
         let dim = self.hess.nrows();
         let mut res = self.hess.clone();

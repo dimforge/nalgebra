@@ -21,8 +21,9 @@ use crate::allocator::InnerAllocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, ToTypenum};
 use crate::base::storage::{
-    ContiguousStorage, ContiguousStorageMut, Owned, ReshapableStorage, Storage, StorageMut,
+    ContiguousStorage, ContiguousStorageMut, ReshapableStorage, Storage, StorageMut,
 };
+use crate::base::Owned;
 
 /*
  *
@@ -85,7 +86,7 @@ where
     where
         DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>>,
     {
-        self
+        Owned(self)
     }
 
     #[inline]
@@ -95,7 +96,11 @@ where
         DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>>,
     {
         let it = self.as_slice().iter().cloned();
-        DefaultAllocator::allocate_from_iterator(self.shape().0, self.shape().1, it)
+        Owned(DefaultAllocator::allocate_from_iterator(
+            self.shape().0,
+            self.shape().1,
+            it,
+        ))
     }
 
     #[inline]

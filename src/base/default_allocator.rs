@@ -4,22 +4,25 @@
 //! heap-allocated buffers for matrices with at least one dimension unknown at compile-time.
 
 use std::cmp;
-use std::mem::{ManuallyDrop, MaybeUninit};
+use std::fmt;
+use std::mem::{self, ManuallyDrop, MaybeUninit};
 use std::ptr;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 
+#[cfg(any(feature = "alloc", feature = "std"))]
+use crate::base::dimension::Dynamic;
+
 use super::Const;
 use crate::base::allocator::{Allocator, InnerAllocator, Reallocator};
 use crate::base::array_storage::ArrayStorage;
-#[cfg(any(feature = "alloc", feature = "std"))]
-use crate::base::dimension::Dynamic;
 use crate::base::dimension::{Dim, DimName};
-use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
-#[cfg(any(feature = "std", feature = "alloc"))]
+use crate::base::storage::{
+    ContiguousStorage, ContiguousStorageMut, InnerOwned, Storage, StorageMut,
+};
 use crate::base::vec_storage::VecStorage;
-use crate::storage::Owned;
+use crate::U1;
 
 /*
  *
@@ -66,7 +69,7 @@ impl<T, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>> for Def
     fn allocate_uninitialized(
         _: Const<R>,
         _: Const<C>,
-    ) -> Owned<MaybeUninit<T>, Const<R>, Const<C>> {
+    ) -> InnerOwned<MaybeUninit<T>, Const<R>, Const<C>> {
         // SAFETY: An uninitialized `[MaybeUninit<_>; _]` is valid.
         let array = unsafe { MaybeUninit::uninit().assume_init() };
         ArrayStorage(array)
@@ -75,7 +78,7 @@ impl<T, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>> for Def
     #[inline]
     unsafe fn assume_init(
         uninit: <Self as InnerAllocator<MaybeUninit<T>, Const<R>, Const<C>>>::Buffer,
-    ) -> Owned<T, Const<R>, Const<C>> {
+    ) -> InnerOwned<T, Const<R>, Const<C>> {
         // Safety:
         // * The caller guarantees that all elements of the array are initialized
         // * `MaybeUninit<T>` and T are guaranteed to have the same layout
@@ -120,7 +123,7 @@ impl<T, C: Dim> InnerAllocator<T, Dynamic, C> for DefaultAllocator {
 
 impl<T, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
     #[inline]
-    fn allocate_uninitialized(nrows: Dynamic, ncols: C) -> Owned<MaybeUninit<T>, Dynamic, C> {
+    fn allocate_uninitialized(nrows: Dynamic, ncols: C) -> InnerOwned<MaybeUninit<T>, Dynamic, C> {
         let mut data = Vec::new();
         let length = nrows.value() * ncols.value();
         data.reserve_exact(length);
@@ -130,7 +133,9 @@ impl<T, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
     }
 
     #[inline]
-    unsafe fn assume_init(uninit: Owned<MaybeUninit<T>, Dynamic, C>) -> Owned<T, Dynamic, C> {
+    unsafe fn assume_init(
+        uninit: InnerOwned<MaybeUninit<T>, Dynamic, C>,
+    ) -> InnerOwned<T, Dynamic, C> {
         // Avoids a double-drop.
         let (nrows, ncols) = uninit.shape();
         let vec: Vec<_> = uninit.into();
@@ -173,7 +178,7 @@ impl<T, R: DimName> InnerAllocator<T, R, Dynamic> for DefaultAllocator {
         nrows: R,
         ncols: Dynamic,
         iter: I,
-    ) -> Owned<T, R, Dynamic> {
+    ) -> InnerOwned<T, R, Dynamic> {
         let it = iter.into_iter();
         let res: Vec<T> = it.collect();
         assert!(res.len() == nrows.value() * ncols.value(),
@@ -185,7 +190,7 @@ impl<T, R: DimName> InnerAllocator<T, R, Dynamic> for DefaultAllocator {
 
 impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
     #[inline]
-    fn allocate_uninitialized(nrows: R, ncols: Dynamic) -> Owned<MaybeUninit<T>, R, Dynamic> {
+    fn allocate_uninitialized(nrows: R, ncols: Dynamic) -> InnerOwned<MaybeUninit<T>, R, Dynamic> {
         let mut data = Vec::new();
         let length = nrows.value() * ncols.value();
         data.reserve_exact(length);
@@ -195,7 +200,9 @@ impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
     }
 
     #[inline]
-    unsafe fn assume_init(uninit: Owned<MaybeUninit<T>, R, Dynamic>) -> Owned<T, R, Dynamic> {
+    unsafe fn assume_init(
+        uninit: InnerOwned<MaybeUninit<T>, R, Dynamic>,
+    ) -> InnerOwned<T, R, Dynamic> {
         // Avoids a double-drop.
         let (nrows, ncols) = uninit.shape();
         let vec: Vec<_> = uninit.into();
@@ -228,6 +235,170 @@ impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
     }
 }
 
+/// The owned storage type for a matrix.
+#[repr(transparent)]
+pub struct Owned<T, R: Dim, C: Dim>(pub InnerOwned<T, R, C>)
+where
+    DefaultAllocator: Allocator<T, R, C>;
+
+impl<T: Copy, R: DimName, C: DimName> Copy for Owned<T, R, C>
+where
+    DefaultAllocator: Allocator<T, R, C>,
+    InnerOwned<T, R, C>: Copy,
+{
+}
+
+impl<T: Clone, R: Dim, C: Dim> Clone for Owned<T, R, C>
+where
+    DefaultAllocator: Allocator<T, R, C>,
+{
+    fn clone(&self) -> Self {
+        if Self::is_array() {
+            // We first clone the data.
+            let slice = unsafe { self.as_slice_unchecked() };
+            let vec = ManuallyDrop::new(slice.to_owned());
+
+            // We then transmute it back into an array and then an Owned.
+            unsafe { mem::transmute_copy(&*vec.as_ptr()) }
+
+            // TODO: check that the auxiliary copy is elided.
+        } else {
+            // We first clone the data.
+            let clone = ManuallyDrop::new(self.as_vec_storage().clone());
+
+            // We then transmute it back into an Owned.
+            unsafe { mem::transmute_copy(&clone) }
+
+            // TODO: check that the auxiliary copy is elided.
+        }
+    }
+}
+
+impl<T: fmt::Debug, R: Dim, C: Dim> fmt::Debug for Owned<T, R, C>
+where
+    DefaultAllocator: Allocator<T, R, C>,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if Self::is_array() {
+            let slice = unsafe { self.as_slice_unchecked() };
+            slice.fmt(f)
+        } else {
+            self.as_vec_storage().fmt(f)
+        }
+    }
+}
+
+impl<T, R: Dim, C: Dim> Owned<T, R, C>
+where
+    DefaultAllocator: Allocator<T, R, C>,
+{
+    /// Returns whether `Self` stores an [`ArrayStorage`].
+    fn is_array() -> bool {
+        R::is_static() && C::is_static()
+    }
+
+    /// Returns whether `Self` stores a [`VecStorage`].
+    fn is_vec() -> bool {
+        !Self::is_array()
+    }
+
+    /// Returns the underlying [`VecStorage`]. Does not do any sort of static
+    /// type checking.
+    ///
+    /// # Panics
+    /// This method will panic if `Self` does not contain a [`VecStorage`].
+    fn as_vec_storage(&self) -> &VecStorage<T, R, C> {
+        assert!(Self::is_vec());
+
+        // Safety: `self` is transparent and must contain a `VecStorage`.
+        unsafe { &*(&self as *const _ as *const _) }
+    }
+}
+
+unsafe impl<T, R: Dim, C: Dim> Storage<T, R, C> for Owned<T, R, C>
+where
+    DefaultAllocator: Allocator<T, R, C>,
+{
+    type RStride = U1;
+
+    type CStride = R;
+
+    fn ptr(&self) -> *const T {
+        if Self::is_array() {
+            &self as *const _ as *const T
+        } else {
+            self.as_vec_storage().as_vec().as_ptr()
+        }
+    }
+
+    fn shape(&self) -> (R, C) {
+        if Self::is_array() {
+            (R::default(), C::default())
+        } else {
+            let vec = self.as_vec_storage();
+            (vec.nrows, vec.ncols)
+        }
+    }
+
+    fn strides(&self) -> (Self::RStride, Self::CStride) {
+        if Self::is_array() {
+            (U1::name(), R::default())
+        } else {
+            let vec = self.as_vec_storage();
+            (U1::name(), vec.nrows)
+        }
+    }
+
+    fn is_contiguous(&self) -> bool {
+        true
+    }
+
+    unsafe fn as_slice_unchecked(&self) -> &[T] {
+        if Self::is_array() {
+            std::slice::from_raw_parts(
+                self.ptr(),
+                R::try_to_usize().unwrap() * C::try_to_usize().unwrap(),
+            )
+        } else {
+            self.as_vec_storage().as_vec().as_ref()
+        }
+    }
+
+    fn into_owned(self) -> Owned<T, R, C> {
+        self
+    }
+
+    fn clone_owned(&self) -> Owned<T, R, C>
+    where
+        T: Clone,
+    {
+        self.clone()
+    }
+}
+
+unsafe impl<T, R: Dim, C: Dim> StorageMut<T, R, C> for Owned<T, R, C>
+where
+    DefaultAllocator: Allocator<T, R, C>,
+{
+    fn ptr_mut(&mut self) -> *mut T {
+        todo!()
+    }
+
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
+        todo!()
+    }
+}
+
+unsafe impl<T, R: Dim, C: Dim> ContiguousStorage<T, R, C> for Owned<T, R, C> where
+    DefaultAllocator: Allocator<T, R, C>
+{
+}
+
+unsafe impl<T, R: Dim, C: Dim> ContiguousStorageMut<T, R, C> for Owned<T, R, C> where
+    DefaultAllocator: Allocator<T, R, C>
+{
+}
+
 /*
  *
  * Reallocator.
@@ -243,7 +414,7 @@ where
     unsafe fn reallocate_copy(
         rto: Const<RTO>,
         cto: Const<CTO>,
-        buf: Owned<T, RFrom, CFrom>,
+        buf: InnerOwned<T, RFrom, CFrom>,
     ) -> ArrayStorage<T, RTO, CTO> {
         let mut res =
             <Self as Allocator<_, Const<RTO>, Const<CTO>>>::allocate_uninitialized(rto, cto);

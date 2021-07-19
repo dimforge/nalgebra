@@ -9,7 +9,7 @@ use simba::scalar::{ClosedAdd, ClosedMul, RealField, SubsetOf};
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
-use crate::storage::Owned;
+use crate::storage::InnerOwned;
 
 use crate::geometry::{
     Isometry, Point, Rotation, Similarity, SubTCategoryOf, SuperTCategoryOf, TAffine, TCategory,
@@ -589,7 +589,7 @@ md_assign_impl_all!(
     for CA, CB;
     where Const<D>: DimNameAdd<U1>, CA: SuperTCategoryOf<CB>, CB: SubTCategoryOf<TProjective>,
           DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-          Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Clone;
+          InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Clone;
     self: Transform<T, CA, D>, rhs: Transform<T, CB, D>;
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.clone().inverse() };

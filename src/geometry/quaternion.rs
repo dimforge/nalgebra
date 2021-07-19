@@ -6,7 +6,7 @@ use std::hash::{Hash, Hasher};
 use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize-no-std")]
-use crate::base::storage::Owned;
+use crate::base::storage::InnerOwned;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 

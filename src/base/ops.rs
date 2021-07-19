@@ -16,7 +16,7 @@ use crate::base::constraint::{
 use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
 use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorSlice};
-use crate::storage::Owned;
+use crate::storage::InnerOwned;
 use crate::{MatrixSliceMut, SimdComplexField};
 
 /*
@@ -436,7 +436,7 @@ where
     // TODO: we should take out this trait bound, as T: Clone should suffice.
     // The brute way to do it would be how it was already done: by adding this
     // trait bound on the associated type itself.
-    Owned<T, Dynamic, C>: Clone,
+    InnerOwned<T, Dynamic, C>: Clone,
 {
     /// # Example
     /// ```

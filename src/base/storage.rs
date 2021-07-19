@@ -5,6 +5,7 @@ use std::ptr;
 use crate::base::allocator::{Allocator, InnerAllocator, SameShapeC, SameShapeR};
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, U1};
+use crate::base::Owned;
 
 /*
  * Aliases for allocation results.
@@ -15,7 +16,7 @@ pub type SameShapeStorage<T, R1, C1, R2, C2> =
 
 // TODO: better name than Owned ?
 /// The owned data storage that can be allocated from `S`.
-pub type Owned<T, R, C = U1> = <DefaultAllocator as InnerAllocator<T, R, C>>::Buffer;
+pub type InnerOwned<T, R, C = U1> = <DefaultAllocator as InnerAllocator<T, R, C>>::Buffer;
 
 /// The row-stride of the owned data storage for a buffer of dimension `(R, C)`.
 pub type RStride<T, R, C = U1> =

@@ -12,7 +12,7 @@ use crate::allocator::Allocator;
 use crate::base::{Const, DefaultAllocator, Matrix, OMatrix, Vector};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum, U1};
-use crate::storage::{Owned, Storage, StorageMut};
+use crate::storage::{InnerOwned, Storage, StorageMut};
 
 /// The Cholesky decomposition of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -33,17 +33,19 @@ where
     chol: OMatrix<T, D, D>,
 }
 
+/*
 impl<T: SimdComplexField, D: Dim> Copy for Cholesky<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
-    Owned<T, D, D>: Copy,
+    InnerOwned<T, D, D>: Copy,
 {
 }
+*/
 
 impl<T: SimdComplexField, D: Dim> Clone for Cholesky<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
-    Owned<T, D, D>: Clone,
+    InnerOwned<T, D, D>: Clone,
 {
     fn clone(&self) -> Self {
         Self {
@@ -55,7 +57,7 @@ where
 impl<T: SimdComplexField, D: Dim> fmt::Debug for Cholesky<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
-    Owned<T, D, D>: fmt::Debug,
+    InnerOwned<T, D, D>: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("Cholesky")

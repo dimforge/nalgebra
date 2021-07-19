@@ -8,7 +8,7 @@ use crate::allocator::{Allocator, Reallocator};
 use crate::base::{DefaultAllocator, Matrix, OMatrix, Scalar};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimMin, DimMinimum};
-use crate::storage::{Owned, Storage, StorageMut};
+use crate::storage::{InnerOwned, Storage, StorageMut};
 use simba::scalar::{ComplexField, Field};
 
 use crate::linalg::PermutationSequence;
@@ -37,19 +37,21 @@ where
     p: PermutationSequence<DimMinimum<R, C>>,
 }
 
+/*
 impl<T: Copy, R: DimMin<C>, C: Dim> Copy for LU<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
     PermutationSequence<DimMinimum<R, C>>: Copy,
-    Owned<T, R, C>: Copy,
+    InnerOwned<T, R, C>: Copy,
 {
 }
+*/
 
 impl<T: Clone, R: DimMin<C>, C: Dim> Clone for LU<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
     PermutationSequence<DimMinimum<R, C>>: Clone,
-    Owned<T, R, C>: Clone,
+    InnerOwned<T, R, C>: Clone,
 {
     fn clone(&self) -> Self {
         Self {
@@ -63,7 +65,7 @@ impl<T: ComplexField, R: DimMin<C>, C: Dim> fmt::Debug for LU<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
     PermutationSequence<DimMinimum<R, C>>: fmt::Debug,
-    Owned<T, R, C>: fmt::Debug,
+    InnerOwned<T, R, C>: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("LU")

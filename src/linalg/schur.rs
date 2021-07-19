@@ -11,9 +11,11 @@ use num_complex::Complex as NumComplex;
 use simba::scalar::{ComplexField, RealField};
 
 use crate::allocator::Allocator;
-use crate::base::dimension::{Const, Dim, DimDiff, DimSub, Dynamic, U1, U2};
-use crate::base::storage::{Owned, Storage};
-use crate::base::{DefaultAllocator, OMatrix, OVector, SquareMatrix, Unit, Vector2, Vector3};
+use crate::base::dimension::{Const, Dim, DimDiff, DimName, DimSub, Dynamic, U1, U2};
+use crate::base::storage::{InnerOwned, Storage};
+use crate::base::{
+    DefaultAllocator, OMatrix, OVector, Owned, SquareMatrix, Unit, Vector2, Vector3,
+};
 
 use crate::geometry::Reflection;
 use crate::linalg::givens::GivensRotation;
@@ -42,7 +44,7 @@ where
     t: OMatrix<T, D, D>,
 }
 
-impl<T: Copy, D: Dim> Copy for Schur<T, D>
+impl<T: Copy, D: DimName> Copy for Schur<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
     Owned<T, D, D>: Copy,
@@ -52,7 +54,7 @@ where
 impl<T: Clone, D: Dim> Clone for Schur<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
-    Owned<T, D, D>: Clone,
+    InnerOwned<T, D, D>: Clone,
 {
     fn clone(&self) -> Self {
         Self {
@@ -65,7 +67,7 @@ where
 impl<T: fmt::Debug, D: Dim> fmt::Debug for Schur<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
-    Owned<T, D, D>: fmt::Debug,
+    InnerOwned<T, D, D>: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("Schur")

@@ -2,7 +2,7 @@
 use alloc::vec::Vec;
 
 #[cfg(feature = "arbitrary")]
-use crate::base::storage::Owned;
+use crate::base::storage::InnerOwned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
@@ -898,7 +898,7 @@ impl<T, R: Dim, C: Dim> Arbitrary for OMatrix<T, R, C>
 where
     T: Arbitrary + Send,
     DefaultAllocator: Allocator<T, R, C>,
-    Owned<T, R, C>: Clone + Send,
+    InnerOwned<T, R, C>: Clone + Send,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {

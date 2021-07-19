@@ -12,7 +12,7 @@ use simba::scalar::{ComplexField, RealField};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
-use crate::base::storage::Owned;
+use crate::base::storage::InnerOwned;
 use crate::base::{Const, DefaultAllocator, DimName, OMatrix, SVector};
 
 use crate::geometry::Point;
@@ -171,26 +171,28 @@ impl<T: hash::Hash, C: TCategory, const D: usize> hash::Hash for Transform<T, C,
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: hash::Hash,
+    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.matrix.hash(state);
     }
 }
 
+/*
 impl<T: Copy, C: TCategory, const D: usize> Copy for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Copy,
+    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Copy,
 {
 }
+*/
 
 impl<T: Clone, C: TCategory, const D: usize> Clone for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Clone,
+    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Clone,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -202,7 +204,7 @@ impl<T: Debug, C: TCategory, const D: usize> Debug for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Debug,
+    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("Transform")
@@ -216,7 +218,7 @@ impl<T, C: TCategory, const D: usize> Serialize for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Serialize,
+    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -231,7 +233,7 @@ impl<'a, T, C: TCategory, const D: usize> Deserialize<'a> for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Deserialize<'a>,
+    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
@@ -551,7 +553,7 @@ where
     C: SubTCategoryOf<TProjective>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
         + Allocator<T, DimNameSum<Const<D>, U1>>,
-    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Clone,
+    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Clone,
 {
     /// Transform the given point by the inverse of this transformation.
     /// This may be cheaper than inverting the transformation and transforming

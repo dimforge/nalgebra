@@ -59,6 +59,7 @@ pub trait Allocator<T, R: Dim, C: Dim = U1>:
     ) -> <Self as InnerAllocator<ManuallyDrop<T>, R, C>>::Buffer;
 }
 
+
 /// A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
 /// CFrom) elements to a smaller or larger size (RTo, CTo).
 pub trait Reallocator<T, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
@@ -68,6 +69,7 @@ pub trait Reallocator<T, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
     /// `buf`. Data stored by `buf` are linearly copied to the output:
     ///
     /// # Safety
+    /// **NO! THIS IS STILL UB!**
     /// * The copy is performed as if both were just arrays (without a matrix structure).
     /// * If `buf` is larger than the output size, then extra elements of `buf` are truncated.
     /// * If `buf` is smaller than the output size, then extra elements of the output are left

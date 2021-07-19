@@ -13,7 +13,7 @@ use crate::base::{DefaultAllocator, Matrix, OVector, Scalar};
 use crate::dimension::Dynamic;
 use crate::dimension::{Dim, DimName};
 use crate::iter::MatrixIter;
-use crate::storage::{Owned, StorageMut};
+use crate::storage::{InnerOwned, StorageMut};
 use crate::{Const, U1};
 
 /// A sequence of row or column permutations.
@@ -200,7 +200,7 @@ where
                     MaybeUninit<(usize, usize)>,
                     D,
                     U1,
-                    Owned<MaybeUninit<(usize, usize)>, D, U1>,
+                    InnerOwned<MaybeUninit<(usize, usize)>, D, U1>,
                 >,
             >,
         >,

@@ -812,7 +812,7 @@ impl<T: Clone, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         let mut data = self.data.into_owned();
 
         if new_nrows.value() == nrows {
-            let res = unsafe { DefaultAllocator::reallocate_copy(new_nrows, new_ncols, data) };
+            let res = unsafe { DefaultAllocator::reallocate_copy(new_nrows, new_ncols, data.0) };
             let mut res = Matrix::from_data(res);
             if new_ncols.value() > ncols {
                 res.columns_range_mut(ncols..).fill(val);
@@ -832,11 +832,11 @@ impl<T: Clone, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                         nrows - new_nrows.value(),
                     );
                     res = Matrix::from_data(DefaultAllocator::reallocate_copy(
-                        new_nrows, new_ncols, data,
+                        new_nrows, new_ncols, data.0,
                     ));
                 } else {
                     res = Matrix::from_data(DefaultAllocator::reallocate_copy(
-                        new_nrows, new_ncols, data,
+                        new_nrows, new_ncols, data.0,
                     ));
                     extend_rows(
                         &mut res.data.as_mut_slice(),

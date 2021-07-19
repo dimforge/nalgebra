@@ -9,8 +9,8 @@ use num::{One, Zero};
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, Matrix2x3, OMatrix, OVector, Vector2};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1};
-use crate::storage::{Owned, Storage};
+use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimName, DimSub, U1};
+use crate::storage::{InnerOwned, Storage};
 use simba::scalar::{ComplexField, RealField};
 
 use crate::linalg::givens::GivensRotation;
@@ -55,14 +55,14 @@ where
     pub singular_values: OVector<T::RealField, DimMinimum<R, C>>,
 }
 
-impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for SVD<T, R, C>
+impl<T: ComplexField + Copy, R: DimName + DimMin<C>, C: DimName> Copy for SVD<T, R, C>
 where
     DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
         + Allocator<T, R, DimMinimum<R, C>>
         + Allocator<T::RealField, DimMinimum<R, C>>,
-    Owned<T, R, DimMinimum<R, C>>: Copy,
-    Owned<T, DimMinimum<R, C>, C>: Copy,
-    Owned<T::RealField, DimMinimum<R, C>>: Copy,
+    InnerOwned<T, R, DimMinimum<R, C>>: Copy,
+    InnerOwned<T, DimMinimum<R, C>, C>: Copy,
+    InnerOwned<T::RealField, DimMinimum<R, C>>: Copy,
 {
 }
 
@@ -71,9 +71,9 @@ where
     DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
         + Allocator<T, R, DimMinimum<R, C>>
         + Allocator<T::RealField, DimMinimum<R, C>>,
-    Owned<T, R, DimMinimum<R, C>>: Clone,
-    Owned<T, DimMinimum<R, C>, C>: Clone,
-    Owned<T::RealField, DimMinimum<R, C>>: Clone,
+    InnerOwned<T, R, DimMinimum<R, C>>: Clone,
+    InnerOwned<T, DimMinimum<R, C>, C>: Clone,
+    InnerOwned<T::RealField, DimMinimum<R, C>>: Clone,
 {
     fn clone(&self) -> Self {
         Self {
@@ -89,9 +89,9 @@ where
     DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
         + Allocator<T, R, DimMinimum<R, C>>
         + Allocator<T::RealField, DimMinimum<R, C>>,
-    Owned<T, R, DimMinimum<R, C>>: fmt::Debug,
-    Owned<T, DimMinimum<R, C>, C>: fmt::Debug,
-    Owned<T::RealField, DimMinimum<R, C>>: fmt::Debug,
+    InnerOwned<T, R, DimMinimum<R, C>>: fmt::Debug,
+    InnerOwned<T, DimMinimum<R, C>, C>: fmt::Debug,
+    InnerOwned<T::RealField, DimMinimum<R, C>>: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("SVD")

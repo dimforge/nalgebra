@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector};
-use crate::dimension::Dim;
-use crate::storage::{Owned, Storage};
+use crate::dimension::{Dim, DimName};
+use crate::storage::{InnerOwned, Storage};
 use simba::scalar::RealField;
 
 /// UDU factorization.
@@ -31,19 +31,19 @@ where
     pub d: OVector<T, D>,
 }
 
-impl<T: Copy, D: Dim> Copy for UDU<T, D>
+impl<T: Copy, D: DimName> Copy for UDU<T, D>
 where
     DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
-    Owned<T, D>: Copy,
-    Owned<T, D, D>: Copy,
+    InnerOwned<T, D>: Copy,
+    InnerOwned<T, D, D>: Copy,
 {
 }
 
 impl<T: Clone, D: Dim> Clone for UDU<T, D>
 where
     DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
-    Owned<T, D>: Clone,
-    Owned<T, D, D>: Clone,
+    InnerOwned<T, D>: Clone,
+    InnerOwned<T, D, D>: Clone,
 {
     fn clone(&self) -> Self {
         Self {
@@ -56,8 +56,8 @@ where
 impl<T: fmt::Debug, D: Dim> fmt::Debug for UDU<T, D>
 where
     DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
-    Owned<T, D>: fmt::Debug,
-    Owned<T, D, D>: fmt::Debug,
+    InnerOwned<T, D>: fmt::Debug,
+    InnerOwned<T, D, D>: fmt::Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("UDU")

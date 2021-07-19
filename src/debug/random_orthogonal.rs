@@ -4,7 +4,7 @@ use std::fmt;
 use quickcheck::{Arbitrary, Gen};
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{Dim, Dynamic};
+use crate::base::dimension::{Dim, DimName, Dynamic};
 use crate::base::{DefaultAllocator, OMatrix};
 use crate::linalg::givens::GivensRotation;
 use crate::storage::Owned;
@@ -18,7 +18,7 @@ where
     m: OMatrix<T, D, D>,
 }
 
-impl<T: Copy, D: Dim> Copy for RandomOrthogonal<T, D>
+impl<T: Copy, D: DimName> Copy for RandomOrthogonal<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
     Owned<T, D, D>: Copy,
