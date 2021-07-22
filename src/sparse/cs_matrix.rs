@@ -31,11 +31,9 @@ impl<'a, T: Clone> Iterator for ColumnEntries<'a, T> {
         if self.curr >= self.i.len() {
             None
         } else {
-            let res = Some(
-                (unsafe { self.i.get_unchecked(self.curr).clone() }, unsafe {
-                    self.v.get_unchecked(self.curr).clone()
-                }),
-            );
+            let res = Some((unsafe { *self.i.get_unchecked(self.curr) }, unsafe {
+                self.v.get_unchecked(self.curr).clone()
+            }));
             self.curr += 1;
             res
         }
@@ -80,10 +78,12 @@ pub trait CsStorage<T, R, C = U1>: for<'a> CsStorageIter<'a, T, R, C> {
     fn shape(&self) -> (R, C);
     /// Retrieve the i-th row index of the underlying row index buffer.
     ///
+    /// # Safety
     /// No bound-checking is performed.
     unsafe fn row_index_unchecked(&self, i: usize) -> usize;
     /// The i-th value on the contiguous value buffer of this storage.
     ///
+    /// # Safety
     /// No bound-checking is performed.
     unsafe fn get_value_unchecked(&self, i: usize) -> &T;
     /// The i-th value on the contiguous value buffer of this storage.
@@ -155,7 +155,7 @@ where
     #[inline]
     fn column_row_indices(&'a self, j: usize) -> Self::ColumnRowIndices {
         let rng = self.column_range(j);
-        self.i[rng.clone()].iter().cloned()
+        self.i[rng].iter().cloned()
     }
 }
 
@@ -489,7 +489,7 @@ where
 
             // Sort the index vector.
             let range = self.data.column_range(j);
-            self.data.i[range.clone()].sort();
+            self.data.i[range.clone()].sort_unstable();
 
             // Permute the values too.
             for (i, irow) in range.clone().zip(self.data.i[range].iter().cloned()) {

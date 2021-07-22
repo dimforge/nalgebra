@@ -139,7 +139,7 @@ mod rkyv_impl {
 
     impl<T: Serialize<S>, S: Fallible + ?Sized> Serialize<S> for Quaternion<T> {
         fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            Ok(self.coords.serialize(serializer)?)
+            self.coords.serialize(serializer)
         }
     }
 
@@ -1478,7 +1478,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn to_rotation_matrix(&self) -> Rotation<T, 3> {
+    pub fn to_rotation_matrix(self) -> Rotation<T, 3> {
         let i = self.as_ref()[0];
         let j = self.as_ref()[1];
         let k = self.as_ref()[2];
@@ -1513,7 +1513,7 @@ where
     /// The angles are produced in the form (roll, pitch, yaw).
     #[inline]
     #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
-    pub fn to_euler_angles(&self) -> (T, T, T)
+    pub fn to_euler_angles(self) -> (T, T, T)
     where
         T: RealField,
     {
@@ -1561,7 +1561,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn to_homogeneous(&self) -> Matrix4<T> {
+    pub fn to_homogeneous(self) -> Matrix4<T> {
         self.to_rotation_matrix().to_homogeneous()
     }
 

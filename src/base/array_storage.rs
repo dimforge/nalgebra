@@ -79,7 +79,7 @@ where
     }
 
     #[inline]
-    unsafe fn is_contiguous(&self) -> bool {
+    fn is_contiguous(&self) -> bool {
         true
     }
 
@@ -286,11 +286,7 @@ where
     unsafe fn exhume<'a, 'b>(&'a mut self, mut bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
         for element in self.as_mut_slice() {
             let temp = bytes;
-            bytes = if let Some(remainder) = element.exhume(temp) {
-                remainder
-            } else {
-                return None;
-            }
+            bytes = element.exhume(temp)?
         }
         Some(bytes)
     }
@@ -327,7 +323,7 @@ mod rkyv_impl {
         for ArrayStorage<T, R, C>
     {
         fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            Ok(self.0.serialize(serializer)?)
+            self.0.serialize(serializer)
         }
     }
 

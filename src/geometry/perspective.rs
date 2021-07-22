@@ -14,13 +14,13 @@ use simba::scalar::RealField;
 
 use crate::base::dimension::U3;
 use crate::base::storage::Storage;
-use crate::base::{Matrix4, Scalar, Vector, Vector3};
+use crate::base::{Matrix4, Vector, Vector3};
 
 use crate::geometry::{Point3, Projective3};
 
 /// A 3D perspective projection stored as a homogeneous 4x4 matrix.
 #[repr(C)]
-pub struct Perspective3<T: Scalar> {
+pub struct Perspective3<T> {
     matrix: Matrix4<T>,
 }
 
@@ -141,7 +141,7 @@ impl<T: RealField> Perspective3<T> {
     /// Computes the corresponding homogeneous matrix.
     #[inline]
     #[must_use]
-    pub fn to_homogeneous(&self) -> Matrix4<T> {
+    pub fn to_homogeneous(self) -> Matrix4<T> {
         self.matrix.clone_owned()
     }
 
@@ -162,7 +162,7 @@ impl<T: RealField> Perspective3<T> {
     /// This transformation seen as a `Projective3`.
     #[inline]
     #[must_use]
-    pub fn to_projective(&self) -> Projective3<T> {
+    pub fn to_projective(self) -> Projective3<T> {
         Projective3::from_matrix_unchecked(self.matrix)
     }
 
@@ -305,7 +305,7 @@ where
     Standard: Distribution<T>,
 {
     /// Generate an arbitrary random variate for testing purposes.
-    fn sample<'a, R: Rng + ?Sized>(&self, r: &'a mut R) -> Perspective3<T> {
+    fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Perspective3<T> {
         use crate::base::helper;
         let znear = r.gen();
         let zfar = helper::reject_rand(r, |&x: &T| !(x - znear).is_zero());

@@ -95,7 +95,7 @@ mod rkyv_impl {
 
     impl<T: Serialize<S>, S: Fallible + ?Sized> Serialize<S> for Unit<T> {
         fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            Ok(self.value.serialize(serializer)?)
+            self.value.serialize(serializer)
         }
     }
 
@@ -221,7 +221,7 @@ impl<T: Normed> Unit<T> {
 impl<T> Unit<T> {
     /// Wraps the given value, assuming it is already normalized.
     #[inline]
-    pub fn new_unchecked(value: T) -> Self {
+    pub const fn new_unchecked(value: T) -> Self {
         Unit { value }
     }
 

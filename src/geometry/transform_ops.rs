@@ -124,7 +124,7 @@ md_impl_all!(
 
         if C::has_normalizer() {
             let normalizer = self.matrix().fixed_slice::<1, D>(D, 0);
-            let n = normalizer.tr_dot(&rhs);
+            let n = normalizer.tr_dot(rhs);
 
             if !n.is_zero() {
                 return transform * (rhs / n);

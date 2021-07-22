@@ -1,4 +1,8 @@
-use crate::geometry::Point;
+use crate::geometry::OPoint;
+use crate::Const;
+
+/// A point with `D` elements.
+pub type Point<T, const D: usize> = OPoint<T, Const<D>>;
 
 /// A statically sized 1-dimensional column point.
 ///

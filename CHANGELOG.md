@@ -4,6 +4,26 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.28.0]
+### Added
+- Implement `Hash` for `Transform`.
+- Implement `Borrow` and `BorrowMut` for contiguous slices.
+
+### Modified
+- The `OPoint<T, D>` type has been added. It takes the dimension number as a type-level integer (e.g. `Const<3>`) instead
+  of a const-generic. The type `Point<T, const D: usize>` is now an alias for `OPoint`. This changes doesn't affect any
+  of the existing code using `Point`. However, it will allow the use `OPoint` in a generic context where the dimension
+  cannot be easily expressed as a const-generic (because of the current limitation of const-generics in Rust).
+- Several clippy warnings were fixed. This results in some method signature changes (e.g. taking `self` instead of `&self`)
+  but this should not have any practical infulances on existing codebase.
+- The `Point::new` constructors are no longer const-fn. This is due to some limitations in const-fn
+  not allowing custom trait-bounds. Use the `point!` macro instead to build points in const environments.
+- `Dynamic::new` and `Unit::new_unchecked` are now const-fn.
+- Methods returning `Result<(), ()>` now return `bool` instead.
+  
+### Fixed
+- Fixed a potential unsoundess issue when converting a mutable slice to a `&mut[T]`.
+
 ## [0.27.1]
 ### Fixed
 - Fixed a bug in the conversion from `glam::Vec2` or `glam::DVec2` to `Isometry2`.
@@ -38,7 +58,7 @@ conversions targeting the versions 0.13, 0.14, and 0.15 of `glam`.
 Fix a regression introduced in 0.26.0 preventing `DVector` from being serialized with `serde`.
 
 ## [0.26.0]
-This releases integrates `min-const-generics` to nalgebra. See
+This release integrates `min-const-generics` to nalgebra. See
 [our blog post](https://www.dimforge.com/blog/2021/04/12/integrating-const-generics-to-nalgebra)
 for details about this release.
 
@@ -78,7 +98,7 @@ for details about this release.
 
 ## [0.25.3]
 ### Added
-- The `Vector::simd_cap_magnitude` method to cap the magnitude of the a vector with
+- The `Vector::simd_cap_magnitude` method to cap the magnitude of the vector with
   SIMD components.
 
 ## [0.25.2]
@@ -109,7 +129,7 @@ This updates all the dependencies of nalgebra to their latest version, including
 
 ### New crate: nalgebra-sparse
 Alongside this release of `nalgebra`, we are releasing `nalgebra-sparse`: a crate dedicated to sparse matrix
-computation with `nalgebra`. The `sparse` module of `nalgebra`itself still exists for backward compatibility
+computation with `nalgebra`. The `sparse` module of `nalgebra`itself still exists for backward compatibility,
 but it will be deprecated soon in favor of the `nalgebra-sparse` crate.
 
 ### Added
@@ -125,12 +145,12 @@ but it will be deprecated soon in favor of the `nalgebra-sparse` crate.
 ## [0.24.0]
 
 ### Added
-* The `DualQuaternion` type. It is still work-in-progress but the basics are here:
+* The `DualQuaternion` type. It is still work-in-progress, but the basics are here:
   creation from its real and dual part, multiplication of two dual quaternions,
   and normalization.
   
 ### Removed
-* There is no blanket `impl<T> PartialEq for Unit<T>` any more. Instead, it is
+* There is no blanket `impl<T> PartialEq for Unit<T>` anymore. Instead, it is
   implemented specifically for `UnitComplex`, `UnitQuaternion` and `Unit<Vector>`.
 
 ## [0.23.2]
@@ -157,7 +177,7 @@ In this release we improved the documentation of the matrix and vector types by:
    and `Vector.apply(f)`.
  * The `Quaternion::from([N; 4])` conversion to build a quaternion from an array of four elements.
  * The `Isometry::from(Translation)` conversion to build an isometry from a translation.
- * The `Vector::ith_axis(i)` which build a unit vector, e.g., `Unit<Vector3<f32>>` with its i-th component set to 1.0 and the
+ * The `Vector::ith_axis(i)` which build a unit vector, e.g., `Unit<Vector3<f32>>` with its i-th component set to 1.0, and the
    others set to zero.
  * The `Isometry.lerp_slerp` and `Isometry.try_lerp_slerp` methods to interpolate between two isometries using linear
    interpolation for the translational part, and spherical interpolation for the rotational part.
@@ -166,7 +186,7 @@ In this release we improved the documentation of the matrix and vector types by:
    
 ## [0.22.0]
 In this release, we are using the new version 0.2 of simba. One major change of that version is that the
-use of `libm` is now opt-in when building targetting `no-std` environment. If you are using floating-point
+use of `libm` is now opt-in when building targeting `no-std` environment. If you are using floating-point
 operations with nalgebra in a `no-std` environment, you will need to enable the new `libm` feature
 of nalgebra for your code to compile again.
 
@@ -174,7 +194,7 @@ of nalgebra for your code to compile again.
  * The `libm` feature that enables `libm` when building for `no-std` environment.
  * The `libm-force` feature that enables `libm` even when building for a not `no-std` environment.
  * `Cholesky::new_unchecked` which build a Cholesky decomposition without checking that its input is
- positive-definite. It can be use with SIMD types.
+ positive-definite. It can be used with SIMD types.
  * The `Default` trait is now implemented for matrices, and quaternions. They are all filled with zeros,
  except for `UnitQuaternion` which is initialized with the identity.
  * Matrix exponential `matrix.exp()`.
@@ -345,7 +365,7 @@ library (i.e. it supports `#![no_std]`). See the corresponding [documentation](h
   * Add methods `.rotation_between_axis(...)` and `.scaled_rotation_between_axis(...)` to `UnitComplex`
     to compute the rotation matrix between two 2D **unit** vectors.
   * Add methods `.axis_angle()` to `UnitComplex` and `UnitQuaternion` in order to retrieve both the
-    unit rotation axis and the rotation angle simultaneously.
+    unit rotation axis, and the rotation angle simultaneously.
   * Add functions to construct a random matrix with a user-defined distribution: `::from_distribution(...)`.
 
 ## [0.14.0]
@@ -366,7 +386,7 @@ library (i.e. it supports `#![no_std]`). See the corresponding [documentation](h
     the matrix `M` such that for all vector `v` we have
     `M * v == self.cross(&v)`.
   * `.iamin()` that returns the index of the vector entry with
-    smallest absolute value.
+    the smallest absolute value.
   * The `mint` feature that can be enabled in order to allow conversions from
     and to types of the [mint](https://crates.io/crates/mint) crate.
   * Aliases for matrix and vector slices. Their are named by adding `Slice`
@@ -404,7 +424,7 @@ This adds support for serialization using the
   * The alias `MatrixNM` is now deprecated. Use `MatrixMN` instead (we
     reordered M and N to be in alphabetical order).
   * In-place componentwise multiplication and division
-    `.component_mul_mut(...)` and `.component_div_mut(...)` have bee deprecated
+    `.component_mul_mut(...)` and `.component_div_mut(...)` have been deprecated
     for a future renaming. Use `.component_mul_assign(...)` and
     `.component_div_assign(...)` instead.
 
@@ -506,7 +526,7 @@ This version is a major rewrite of the library. Major changes are:
   All other mathematical traits, except `Axpy` have been removed from
   **nalgebra**.
   * Methods are now preferred to free functions because they do not require any
-    trait to be used any more.
+    trait to be used anymore.
   * Most algebraic entities can be parametrized by type-level integers
     to specify their dimensions. Using `Dynamic` instead of a type-level
     integer indicates that the dimension known at run-time only.
@@ -582,7 +602,7 @@ only:
   * The free functions `::prepend_rotation`, `::append_rotation`,
     `::append_rotation_wrt_center`, `::append_rotation_wrt_point`,
     `::append_transformation`, and `::append_translation ` have been removed.
-    Instead create the rotation or translation object explicitly and use
+    Instead, create the rotation or translation object explicitly and use
     multiplication to compose it with anything else.
 
   * The free function `::outer` has been removed. Use column-vector ×
@@ -608,7 +628,7 @@ Binary operations are now allowed between references as well. For example
 
 ### Modified
 Removed unused parameters to methods from the `ApproxEq` trait. Those were
-required before rust 1.0 to help type inference. The are not needed any more
+required before rust 1.0 to help type inference. They are not needed any more
 since it now allowed to write for a type `T` that implements `ApproxEq`:
 `<T as ApproxEq>::approx_epsilon()`. This replaces the old form:
 `ApproxEq::approx_epsilon(None::<T>)`.
@@ -627,7 +647,7 @@ since it now allowed to write for a type `T` that implements `ApproxEq`:
       `UnitQuaternion::from_axisangle`. The new `::new` method now requires a
       not-normalized quaternion.
 
-Methods names starting with `new_with_` now start with `from_`. This is more
+Method names starting with `new_with_` now start with `from_`. This is more
 idiomatic in Rust.
 
 The `Norm` trait now uses an associated type instead of a type parameter.
@@ -658,8 +678,8 @@ crate for vectors, rotations and points. To enable them, activate the
 
 ## [0.8.0]
 ### Modified
-  * Almost everything (types, methods, and traits) now use full names instead
-    of abbreviations (e.g. `Vec3` becomes `Vector3`). Most changes are abvious.
+  * Almost everything (types, methods, and traits) now use fulls names instead
+    of abbreviations (e.g. `Vec3` becomes `Vector3`). Most changes are obvious.
     Note however that:
     - `::sqnorm` becomes `::norm_squared`.
     - `::sqdist` becomes `::distance_squared`.
@@ -693,11 +713,11 @@ you [there](https://users.nphysics.org)!
 
 ### Removed
   * Removed zero-sized elements `Vector0`, `Point0`.
-  * Removed 4-dimensional transformations `Rotation4` and `Isometry4` (which had an implementation to incomplete to be useful).
+  * Removed 4-dimensional transformations `Rotation4` and `Isometry4` (which had an implementation too incomplete to be useful).
 
 ### Modified
   * Vectors are now multipliable with isometries. This will result into a pure rotation (this is how
-  vectors differ from point semantically: they design directions so they are not translatable).
+  vectors differ from point semantically: they design directions, so they are not translatable).
   * `{Isometry3, Rotation3}::look_at` reimplemented and renamed to `::look_at_rh` and `::look_at_lh` to agree
   with the computer graphics community (in particular, the GLM library). Use the `::look_at_rh`
   variant to build a view matrix that

@@ -1,6 +1,7 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::any::Any;
 use std::fmt::Debug;
+use std::hash;
 use std::marker::PhantomData;
 
 #[cfg(feature = "serde-serialize-no-std")]
@@ -166,14 +167,16 @@ where
     _phantom: PhantomData<C>,
 }
 
-// TODO
-// impl<T: RealField + hash::Hash, D: DimNameAdd<U1> + hash::Hash, C: TCategory> hash::Hash for Transform<T, C, D>
-//     where DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-//           Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: hash::Hash {
-//     fn hash<H: hash::Hasher>(&self, state: &mut H) {
-//         self.matrix.hash(state);
-//     }
-// }
+impl<T: RealField + hash::Hash, C: TCategory, const D: usize> hash::Hash for Transform<T, C, D>
+where
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: hash::Hash,
+{
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.matrix.hash(state);
+    }
+}
 
 impl<T: RealField, C: TCategory, const D: usize> Copy for Transform<T, C, D>
 where

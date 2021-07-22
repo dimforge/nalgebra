@@ -102,6 +102,7 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
 
     /// The underlying mutable data storage.
     ///
+    /// # Safety
     /// This is unsafe because this may cause UB if the size of the vector is changed
     /// by the user.
     #[inline]
@@ -111,6 +112,7 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
 
     /// Resizes the underlying mutable data storage and unwraps it.
     ///
+    /// # Safety
     /// If `sz` is larger than the current size, additional elements are uninitialized.
     /// If `sz` is smaller than the current size, additional elements are truncated.
     #[inline]
@@ -178,7 +180,7 @@ where
     }
 
     #[inline]
-    unsafe fn is_contiguous(&self) -> bool {
+    fn is_contiguous(&self) -> bool {
         true
     }
 
@@ -227,7 +229,7 @@ where
     }
 
     #[inline]
-    unsafe fn is_contiguous(&self) -> bool {
+    fn is_contiguous(&self) -> bool {
         true
     }
 

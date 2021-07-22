@@ -90,7 +90,7 @@
 //! `C <- 3.0 * C + 2.0 * A^T * B`, where `A`, `B`, `C` are matrices and `A^T` is the transpose
 //! of `A`. The simplest way to write this is:
 //!
-//! ```rust
+//! ```
 //! # use nalgebra_sparse::csr::CsrMatrix;
 //! # let a = CsrMatrix::identity(10); let b = CsrMatrix::identity(10);
 //! # let mut c = CsrMatrix::identity(10);
@@ -109,7 +109,7 @@
 //!
 //! An alternative way to implement this expression (here using CSR matrices) is:
 //!
-//! ```rust
+//! ```
 //! # use nalgebra_sparse::csr::CsrMatrix;
 //! # let a = CsrMatrix::identity(10); let b = CsrMatrix::identity(10);
 //! # let mut c = CsrMatrix::identity(10);

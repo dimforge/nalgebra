@@ -274,7 +274,7 @@ where
 {
     /// Generate a uniformly distributed random rotation.
     #[inline]
-    fn sample<'a, R: Rng + ?Sized>(&self, rng: &'a mut R) -> Rotation2<T> {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Rotation2<T> {
         let twopi = Uniform::new(T::zero(), T::simd_two_pi());
         Rotation2::new(rng.sample(twopi))
     }
@@ -883,7 +883,7 @@ impl<T: SimdRealField> Rotation3<T> {
     ///
     /// The angles are produced in the form (roll, pitch, yaw).
     #[deprecated(note = "This is renamed to use `.euler_angles()`.")]
-    pub fn to_euler_angles(&self) -> (T, T, T)
+    pub fn to_euler_angles(self) -> (T, T, T)
     where
         T: RealField,
     {

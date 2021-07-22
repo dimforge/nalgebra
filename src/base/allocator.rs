@@ -40,6 +40,7 @@ pub trait Reallocator<T: Scalar, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
     /// Reallocates a buffer of shape `(RTo, CTo)`, possibly reusing a previously allocated buffer
     /// `buf`. Data stored by `buf` are linearly copied to the output:
     ///
+    /// # Safety
     /// * The copy is performed as if both were just arrays (without a matrix structure).
     /// * If `buf` is larger than the output size, then extra elements of `buf` are truncated.
     /// * If `buf` is smaller than the output size, then extra elements of the output are left

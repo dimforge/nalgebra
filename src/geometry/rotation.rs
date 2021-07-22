@@ -55,7 +55,7 @@ use crate::geometry::Point;
 ///
 #[repr(C)]
 #[derive(Debug)]
-pub struct Rotation<T: Scalar, const D: usize> {
+pub struct Rotation<T, const D: usize> {
     matrix: SMatrix<T, D, D>,
 }
 
@@ -215,9 +215,9 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
 
     /// A mutable reference to the underlying matrix representation of this rotation.
     ///
-    /// This is suffixed by "_unchecked" because this allows the user to replace the matrix by another one that is
-    /// non-square, non-inversible, or non-orthonormal. If one of those properties is broken,
-    /// subsequent method calls may be UB.
+    /// This is suffixed by "_unchecked" because this allows the user to replace the
+    /// matrix by another one that is non-inversible or non-orthonormal. If one of
+    /// those properties is broken, subsequent method calls may return bogus results.
     #[inline]
     pub fn matrix_mut_unchecked(&mut self) -> &mut SMatrix<T, D, D> {
         &mut self.matrix

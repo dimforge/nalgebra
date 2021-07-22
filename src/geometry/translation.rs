@@ -139,7 +139,7 @@ mod rkyv_impl {
 
     impl<T: Serialize<S>, S: Fallible + ?Sized, const D: usize> Serialize<S> for Translation<T, D> {
         fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            Ok(self.vector.serialize(serializer)?)
+            self.vector.serialize(serializer)
         }
     }
 

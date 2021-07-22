@@ -20,7 +20,7 @@ use crate::SparseFormatError;
 ///
 /// # Examples
 ///
-/// ```rust
+/// ```
 /// use nalgebra_sparse::{coo::CooMatrix, csr::CsrMatrix, csc::CscMatrix};
 ///
 /// // Initialize a matrix with all zeros (no explicitly stored entries).
