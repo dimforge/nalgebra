@@ -67,6 +67,17 @@ impl<'a, T: RealField + Deserialize<'a>> Deserialize<'a> for Perspective3<T> {
     }
 }
 
+impl<T> Perspective3<T> {
+    /// Wraps the given matrix to interpret it as a 3D perspective matrix.
+    ///
+    /// It is not checked whether or not the given matrix actually represents a perspective
+    /// projection.
+    #[inline]
+    pub const fn from_matrix_unchecked(matrix: Matrix4<T>) -> Self {
+        Self { matrix }
+    }
+}
+
 impl<T: RealField> Perspective3<T> {
     /// Creates a new perspective matrix from the aspect ratio, y field of view, and near/far planes.
     pub fn new(aspect: T, fovy: T, znear: T, zfar: T) -> Self {
@@ -90,15 +101,6 @@ impl<T: RealField> Perspective3<T> {
         res.matrix[(3, 2)] = -T::one();
 
         res
-    }
-
-    /// Wraps the given matrix to interpret it as a 3D perspective matrix.
-    ///
-    /// It is not checked whether or not the given matrix actually represents a perspective
-    /// projection.
-    #[inline]
-    pub fn from_matrix_unchecked(matrix: Matrix4<T>) -> Self {
-        Self { matrix }
     }
 
     /// Retrieves the inverse of the underlying homogeneous matrix.

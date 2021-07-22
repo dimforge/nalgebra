@@ -130,10 +130,10 @@ where
     }
 }
 
-impl<T: Scalar, const D: usize> Rotation<T, D> {
+impl<T, const D: usize> Rotation<T, D> {
     /// Creates a new rotation from the given square matrix.
     ///
-    /// The matrix squareness is checked but not its orthonormality.
+    /// The matrix orthonormality is not checked.
     ///
     /// # Example
     /// ```
@@ -154,12 +154,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// assert_eq!(*rot.matrix(), mat);
     /// ```
     #[inline]
-    pub fn from_matrix_unchecked(matrix: SMatrix<T, D, D>) -> Self {
-        assert!(
-            matrix.is_square(),
-            "Unable to create a rotation from a non-square matrix."
-        );
-
+    pub const fn from_matrix_unchecked(matrix: SMatrix<T, D, D>) -> Self {
         Self { matrix }
     }
 }
