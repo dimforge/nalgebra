@@ -77,7 +77,7 @@ impl<T: RealField> Orthographic3<T> {
     /// # use nalgebra::{Orthographic3, Point3};
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// // Check this projection actually transforms the view cuboid into the double-unit cube.
-    /// // See https://www.nalgebra.org/projections/#orthographic-projection for more details.
+    /// // See https://www.nalgebra.org/docs/user_guide/projections#orthographic-projection for more details.
     /// let p1 = Point3::new(1.0, 2.0, -0.1);
     /// let p2 = Point3::new(1.0, 2.0, -1000.0);
     /// let p3 = Point3::new(1.0, 20.0, -0.1);
