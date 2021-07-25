@@ -376,8 +376,8 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         b: &mut Vector<T, R2, S2>,
         conjugate: impl Fn(T) -> T,
         dot: impl Fn(
-            &DVectorSlice<T, S::RStride, S::CStride>,
-            &DVectorSlice<T, S2::RStride, S2::CStride>,
+            &DVectorSlice<'_, T, S::RStride, S::CStride>,
+            &DVectorSlice<'_, T, S2::RStride, S2::CStride>,
         ) -> T,
     ) -> bool
     where
@@ -411,8 +411,8 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         b: &mut Vector<T, R2, S2>,
         conjugate: impl Fn(T) -> T,
         dot: impl Fn(
-            &DVectorSlice<T, S::RStride, S::CStride>,
-            &DVectorSlice<T, S2::RStride, S2::CStride>,
+            &DVectorSlice<'_, T, S::RStride, S::CStride>,
+            &DVectorSlice<'_, T, S2::RStride, S2::CStride>,
         ) -> T,
     ) -> bool
     where
@@ -734,8 +734,8 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         b: &mut Vector<T, R2, S2>,
         conjugate: impl Fn(T) -> T,
         dot: impl Fn(
-            &DVectorSlice<T, S::RStride, S::CStride>,
-            &DVectorSlice<T, S2::RStride, S2::CStride>,
+            &DVectorSlice<'_, T, S::RStride, S::CStride>,
+            &DVectorSlice<'_, T, S2::RStride, S2::CStride>,
         ) -> T,
     ) where
         S2: StorageMut<T, R2, U1>,
@@ -760,8 +760,8 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         b: &mut Vector<T, R2, S2>,
         conjugate: impl Fn(T) -> T,
         dot: impl Fn(
-            &DVectorSlice<T, S::RStride, S::CStride>,
-            &DVectorSlice<T, S2::RStride, S2::CStride>,
+            &DVectorSlice<'_, T, S::RStride, S::CStride>,
+            &DVectorSlice<'_, T, S2::RStride, S2::CStride>,
         ) -> T,
     ) where
         S2: StorageMut<T, R2, U1>,

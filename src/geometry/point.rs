@@ -273,7 +273,7 @@ where
     #[inline]
     pub fn iter(
         &self,
-    ) -> MatrixIter<T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
+    ) -> MatrixIter<'_, T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
         self.coords.iter()
     }
 
@@ -299,7 +299,7 @@ where
     #[inline]
     pub fn iter_mut(
         &mut self,
-    ) -> MatrixIterMut<T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
+    ) -> MatrixIterMut<'_, T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
         self.coords.iter_mut()
     }
 
@@ -454,7 +454,7 @@ impl<T: Scalar + fmt::Display, D: DimName> fmt::Display for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{{")?;
 
         let mut it = self.coords.iter();

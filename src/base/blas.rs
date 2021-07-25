@@ -455,8 +455,8 @@ where
         x: &Vector<T, D3, SC>,
         beta: T,
         dot: impl Fn(
-            &DVectorSlice<T, SB::RStride, SB::CStride>,
-            &DVectorSlice<T, SC::RStride, SC::CStride>,
+            &DVectorSlice<'_, T, SB::RStride, SB::CStride>,
+            &DVectorSlice<'_, T, SC::RStride, SC::CStride>,
         ) -> T,
     ) where
         T: One,
@@ -619,7 +619,7 @@ where
         a: &Matrix<T, R2, C2, SB>,
         x: &Vector<T, D3, SC>,
         beta: T,
-        dot: impl Fn(&VectorSlice<T, R2, SB::RStride, SB::CStride>, &Vector<T, D3, SC>) -> T,
+        dot: impl Fn(&VectorSlice<'_, T, R2, SB::RStride, SB::CStride>, &Vector<T, D3, SC>) -> T,
     ) where
         T: One,
         SB: Storage<T, R2, C2>,

@@ -412,7 +412,7 @@ where
 }
 
 impl<T: RealField + fmt::Display> fmt::Display for UnitComplex<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "UnitComplex angle: {}", self.angle())
     }
 }

@@ -894,9 +894,9 @@ where
 #[cfg(test)]
 #[cfg(feature = "rand")]
 mod tests {
-    extern crate rand_xorshift;
     use super::*;
     use rand::SeedableRng;
+    use rand_xorshift;
 
     #[test]
     fn random_unit_quats_are_unit() {

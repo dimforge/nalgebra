@@ -49,7 +49,7 @@ where
 
 impl<T: Debug, const R: usize, const C: usize> Debug for ArrayStorage<T, R, C> {
     #[inline]
-    fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         self.0.fmt(fmt)
     }
 }
@@ -231,7 +231,7 @@ where
 {
     type Value = ArrayStorage<T, R, C>;
 
-    fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn expecting(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter.write_str("a matrix array")
     }
 
