@@ -82,7 +82,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T: Scalar + Serialize, D: DimName> Serialize for OPoint<T, D>
+impl<T: Scalar, D: DimName> Serialize for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
     <DefaultAllocator as Allocator<T, D>>::Buffer: Serialize,
@@ -96,7 +96,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'a, T: Scalar + Deserialize<'a>, D: DimName> Deserialize<'a> for OPoint<T, D>
+impl<'a, T: Scalar, D: DimName> Deserialize<'a> for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
     <DefaultAllocator as Allocator<T, D>>::Buffer: Deserialize<'a>,
