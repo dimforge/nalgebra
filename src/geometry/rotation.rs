@@ -244,7 +244,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     }
 
     /// Unwraps the underlying matrix.
-    /// Deprecated: Use [Rotation::into_inner] instead.
+    /// Deprecated: Use [`Rotation::into_inner`] instead.
     #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> SMatrix<T, D, D> {

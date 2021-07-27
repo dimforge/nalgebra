@@ -131,12 +131,15 @@
 //!     assert_matrix_eq!(y, y_expected, comp = abs, tol = 1e-9);
 //! }
 //! ```
-#![deny(non_camel_case_types)]
-#![deny(unused_parens)]
-#![deny(non_upper_case_globals)]
-#![deny(unused_qualifications)]
-#![deny(unused_results)]
-#![deny(missing_docs)]
+#![deny(
+    nonstandard_style,
+    unused,
+    missing_docs,
+    rust_2018_idioms,
+    rust_2018_compatibility,
+    future_incompatible,
+    missing_copy_implementations
+)]
 
 pub extern crate nalgebra as na;
 pub mod convert;
@@ -190,7 +193,7 @@ impl SparseFormatError {
 
 /// The type of format error described by a [SparseFormatError](struct.SparseFormatError.html).
 #[non_exhaustive]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum SparseFormatErrorKind {
     /// Indicates that the index data associated with the format contains at least one index
     /// out of bounds.
@@ -208,7 +211,7 @@ pub enum SparseFormatErrorKind {
 }
 
 impl fmt::Display for SparseFormatError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.error)
     }
 }

@@ -262,7 +262,7 @@ impl<T> CsrMatrix<T> {
     /// let triplets: Vec<_> = csr.triplet_iter().map(|(i, j, v)| (i, j, *v)).collect();
     /// assert_eq!(triplets, vec![(0, 0, 1), (0, 2, 2), (1, 1, 3), (2, 0, 4)]);
     /// ```
-    pub fn triplet_iter(&self) -> CsrTripletIter<T> {
+    pub fn triplet_iter(&self) -> CsrTripletIter<'_, T> {
         CsrTripletIter {
             pattern_iter: self.pattern().entries(),
             values_iter: self.values().iter(),
@@ -292,7 +292,7 @@ impl<T> CsrMatrix<T> {
     /// let triplets: Vec<_> = csr.triplet_iter().map(|(i, j, v)| (i, j, *v)).collect();
     /// assert_eq!(triplets, vec![(0, 0, 1), (0, 2, 2), (1, 1, 3), (2, 0, 0)]);
     /// ```
-    pub fn triplet_iter_mut(&mut self) -> CsrTripletIterMut<T> {
+    pub fn triplet_iter_mut(&mut self) -> CsrTripletIterMut<'_, T> {
         let (pattern, values) = self.cs.pattern_and_values_mut();
         CsrTripletIterMut {
             pattern_iter: pattern.entries(),
@@ -307,7 +307,7 @@ impl<T> CsrMatrix<T> {
     /// Panics if row index is out of bounds.
     #[inline]
     #[must_use]
-    pub fn row(&self, index: usize) -> CsrRow<T> {
+    pub fn row(&self, index: usize) -> CsrRow<'_, T> {
         self.get_row(index).expect("Row index must be in bounds")
     }
 
@@ -317,7 +317,7 @@ impl<T> CsrMatrix<T> {
     /// ------
     /// Panics if row index is out of bounds.
     #[inline]
-    pub fn row_mut(&mut self, index: usize) -> CsrRowMut<T> {
+    pub fn row_mut(&mut self, index: usize) -> CsrRowMut<'_, T> {
         self.get_row_mut(index)
             .expect("Row index must be in bounds")
     }
@@ -325,26 +325,26 @@ impl<T> CsrMatrix<T> {
     /// Return the row at the given row index, or `None` if out of bounds.
     #[inline]
     #[must_use]
-    pub fn get_row(&self, index: usize) -> Option<CsrRow<T>> {
+    pub fn get_row(&self, index: usize) -> Option<CsrRow<'_, T>> {
         self.cs.get_lane(index).map(|lane| CsrRow { lane })
     }
 
     /// Mutable row access for the given row index, or `None` if out of bounds.
     #[inline]
     #[must_use]
-    pub fn get_row_mut(&mut self, index: usize) -> Option<CsrRowMut<T>> {
+    pub fn get_row_mut(&mut self, index: usize) -> Option<CsrRowMut<'_, T>> {
         self.cs.get_lane_mut(index).map(|lane| CsrRowMut { lane })
     }
 
     /// An iterator over rows in the matrix.
-    pub fn row_iter(&self) -> CsrRowIter<T> {
+    pub fn row_iter(&self) -> CsrRowIter<'_, T> {
         CsrRowIter {
             lane_iter: CsLaneIter::new(self.pattern(), self.values()),
         }
     }
 
     /// A mutable iterator over rows in the matrix.
-    pub fn row_iter_mut(&mut self) -> CsrRowIterMut<T> {
+    pub fn row_iter_mut(&mut self) -> CsrRowIterMut<'_, T> {
         let (pattern, values) = self.cs.pattern_and_values_mut();
         CsrRowIterMut {
             lane_iter: CsLaneIterMut::new(pattern, values),
@@ -410,7 +410,7 @@ impl<T> CsrMatrix<T> {
     /// Each call to this function incurs the cost of a binary search among the explicitly
     /// stored column entries for the given row.
     #[must_use]
-    pub fn get_entry(&self, row_index: usize, col_index: usize) -> Option<SparseEntry<T>> {
+    pub fn get_entry(&self, row_index: usize, col_index: usize) -> Option<SparseEntry<'_, T>> {
         self.cs.get_entry(row_index, col_index)
     }
 
@@ -423,7 +423,7 @@ impl<T> CsrMatrix<T> {
         &mut self,
         row_index: usize,
         col_index: usize,
-    ) -> Option<SparseEntryMut<T>> {
+    ) -> Option<SparseEntryMut<'_, T>> {
         self.cs.get_entry_mut(row_index, col_index)
     }
 
@@ -436,7 +436,7 @@ impl<T> CsrMatrix<T> {
     /// ------
     /// Panics if `row_index` or `col_index` is out of bounds.
     #[must_use]
-    pub fn index_entry(&self, row_index: usize, col_index: usize) -> SparseEntry<T> {
+    pub fn index_entry(&self, row_index: usize, col_index: usize) -> SparseEntry<'_, T> {
         self.get_entry(row_index, col_index)
             .expect("Out of bounds matrix indices encountered")
     }
@@ -449,7 +449,7 @@ impl<T> CsrMatrix<T> {
     /// Panics
     /// ------
     /// Panics if `row_index` or `col_index` is out of bounds.
-    pub fn index_entry_mut(&mut self, row_index: usize, col_index: usize) -> SparseEntryMut<T> {
+    pub fn index_entry_mut(&mut self, row_index: usize, col_index: usize) -> SparseEntryMut<'_, T> {
         self.get_entry_mut(row_index, col_index)
             .expect("Out of bounds matrix indices encountered")
     }
@@ -667,7 +667,7 @@ macro_rules! impl_csr_row_common_methods {
             /// stored column entries.
             #[inline]
             #[must_use]
-            pub fn get_entry(&self, global_col_index: usize) -> Option<SparseEntry<T>> {
+            pub fn get_entry(&self, global_col_index: usize) -> Option<SparseEntry<'_, T>> {
                 self.lane.get_entry(global_col_index)
             }
         }
@@ -697,7 +697,7 @@ impl<'a, T> CsrRowMut<'a, T> {
     /// Returns a mutable entry for the given global column index.
     #[inline]
     #[must_use]
-    pub fn get_entry_mut(&mut self, global_col_index: usize) -> Option<SparseEntryMut<T>> {
+    pub fn get_entry_mut(&mut self, global_col_index: usize) -> Option<SparseEntryMut<'_, T>> {
         self.lane.get_entry_mut(global_col_index)
     }
 }

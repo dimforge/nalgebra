@@ -16,7 +16,7 @@ use simba::scalar::{ClosedNeg, RealField};
 ///
 /// # Indexing
 ///
-/// DualQuaternions are stored as \[..real, ..dual\].
+/// `DualQuaternions` are stored as \[..real, ..dual\].
 /// Both of the quaternion components are laid out in `i, j, k, w` order.
 ///
 /// ```
@@ -36,7 +36,7 @@ use simba::scalar::{ClosedNeg, RealField};
 /// NOTE:
 ///  As of December 2020, dual quaternion support is a work in progress.
 ///  If a feature that you need is missing, feel free to open an issue or a PR.
-///  See https://github.com/dimforge/nalgebra/issues/487
+///  See <https://github.com/dimforge/nalgebra/issues/487>
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct DualQuaternion<T> {

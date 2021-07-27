@@ -3,7 +3,18 @@
 //! This crate is not intended for direct consumption. Instead, the macros are re-exported by
 //! `nalgebra` if the `macros` feature is enabled (enabled by default).
 
-extern crate proc_macro;
+#![deny(
+    nonstandard_style,
+    unused,
+    missing_docs,
+    rust_2018_idioms,
+    rust_2018_compatibility,
+    future_incompatible,
+    missing_copy_implementations,
+    missing_debug_implementations,
+    clippy::all,
+    clippy::pedantic
+)]
 
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
@@ -60,7 +71,7 @@ impl Matrix {
 type MatrixRowSyntax = Punctuated<Expr, Token![,]>;
 
 impl Parse for Matrix {
-    fn parse(input: ParseStream) -> Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self> {
         let mut rows = Vec::new();
         let mut ncols = None;
 
@@ -205,7 +216,7 @@ impl Vector {
 }
 
 impl Parse for Vector {
-    fn parse(input: ParseStream) -> Result<Self> {
+    fn parse(input: ParseStream<'_>) -> Result<Self> {
         // The syntax of a vector is just the syntax of a single matrix row
         if input.is_empty() {
             Ok(Self {

@@ -79,7 +79,7 @@ where
 }
 
 #[deprecated(note = "renamed to `VecStorage`")]
-/// Renamed to [VecStorage].
+/// Renamed to [`VecStorage`].
 pub type MatrixVec<T, R, C> = VecStorage<T, R, C>;
 
 impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {

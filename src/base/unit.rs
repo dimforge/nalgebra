@@ -238,7 +238,7 @@ impl<T> Unit<T> {
     }
 
     /// Retrieves the underlying value.
-    /// Deprecated: use [Unit::into_inner] instead.
+    /// Deprecated: use [`Unit::into_inner`] instead.
     #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> T {

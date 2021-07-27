@@ -483,7 +483,7 @@ where
         ))
     }
 
-    /// Deprecated: Use [Rotation3::face_towards] instead.
+    /// Deprecated: Use [`Rotation3::face_towards`] instead.
     #[deprecated(note = "renamed to `face_towards`")]
     pub fn new_observer_frames<SB, SC>(dir: &Vector<T, U3, SB>, up: &Vector<T, U3, SC>) -> Self
     where

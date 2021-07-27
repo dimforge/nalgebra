@@ -84,7 +84,7 @@ where
         );
         lapack_panic!(info);
 
-        Self { h: m, tau: tau }
+        Self { h: m, tau }
     }
 
     /// Computes the hessenberg matrix of this decomposition.

@@ -308,7 +308,7 @@ macro_rules! look_at_isometry_construction_impl(
                 $RotId::face_towards(&(target - eye), up))
         }
 
-        /// Deprecated: Use [Isometry::face_towards] instead.
+        /// Deprecated: Use [`Isometry::face_towards`] instead.
         #[deprecated(note="renamed to `face_towards`")]
         pub fn new_observer_frame(eye:    &Point3<T>,
                                   target: &Point3<T>,

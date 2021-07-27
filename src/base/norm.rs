@@ -40,10 +40,13 @@ pub trait Norm<T: SimdComplexField> {
 }
 
 /// Euclidean norm.
+#[derive(Copy, Clone, Debug)]
 pub struct EuclideanNorm;
 /// Lp norm.
+#[derive(Copy, Clone, Debug)]
 pub struct LpNorm(pub i32);
 /// L-infinite norm aka. Chebytchev norm aka. uniform norm aka. suppremum norm.
+#[derive(Copy, Clone, Debug)]
 pub struct UniformNorm;
 
 impl<T: SimdComplexField> Norm<T> for EuclideanNorm {

@@ -175,7 +175,7 @@ impl<T: RealField> Perspective3<T> {
     }
 
     /// Retrieves the underlying homogeneous matrix.
-    /// Deprecated: Use [Perspective3::into_inner] instead.
+    /// Deprecated: Use [`Perspective3::into_inner`] instead.
     #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> Matrix4<T> {

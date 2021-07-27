@@ -11,7 +11,7 @@ use crate::base::{Const, DefaultAllocator, OMatrix, OVector};
 /// Applies in-place a modified Parlett and Reinsch matrix balancing with 2-norm to the matrix and returns
 /// the corresponding diagonal transformation.
 ///
-/// See https://arxiv.org/pdf/1401.5766.pdf
+/// See <https://arxiv.org/pdf/1401.5766.pdf>
 pub fn balance_parlett_reinsch<T: RealField, D: Dim>(matrix: &mut OMatrix<T, D, D>) -> OVector<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,

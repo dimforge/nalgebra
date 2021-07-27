@@ -368,7 +368,7 @@ impl<T, R, C, S> Matrix<T, R, C, S> {
 }
 
 impl<T, const R: usize, const C: usize> SMatrix<T, R, C> {
-    /// Creates a new statically-allocated matrix from the given [ArrayStorage].
+    /// Creates a new statically-allocated matrix from the given [`ArrayStorage`].
     ///
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
@@ -384,7 +384,7 @@ impl<T, const R: usize, const C: usize> SMatrix<T, R, C> {
 // `from_data` const fn compatible
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<T> DMatrix<T> {
-    /// Creates a new heap-allocated matrix from the given [VecStorage].
+    /// Creates a new heap-allocated matrix from the given [`VecStorage`].
     ///
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
@@ -399,7 +399,7 @@ impl<T> DMatrix<T> {
 // `from_data` const fn compatible
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<T> DVector<T> {
-    /// Creates a new heap-allocated matrix from the given [VecStorage].
+    /// Creates a new heap-allocated matrix from the given [`VecStorage`].
     ///
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
