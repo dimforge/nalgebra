@@ -642,7 +642,7 @@ impl<T: RealField + fmt::Display, R, const D: usize> fmt::Display for Isometry<T
 where
     R: fmt::Display,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
         writeln!(f, "Isometry {{")?;

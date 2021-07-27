@@ -565,7 +565,7 @@ impl<T, const D: usize> fmt::Display for Rotation<T, D>
 where
     T: RealField + fmt::Display,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
         writeln!(f, "Rotation matrix {{")?;

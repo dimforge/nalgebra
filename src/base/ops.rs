@@ -708,8 +708,8 @@ where
         rhs: &Matrix<T, R2, C2, SB>,
         out: &mut Matrix<T, R3, C3, SC>,
         dot: impl Fn(
-            &VectorSlice<T, R1, SA::RStride, SA::CStride>,
-            &VectorSlice<T, R2, SB::RStride, SB::CStride>,
+            &VectorSlice<'_, T, R1, SA::RStride, SA::CStride>,
+            &VectorSlice<'_, T, R2, SB::RStride, SB::CStride>,
         ) -> T,
     ) where
         SB: Storage<T, R2, C2>,

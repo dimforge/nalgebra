@@ -32,7 +32,7 @@ impl<T: RealField> Clone for Orthographic3<T> {
 }
 
 impl<T: RealField> fmt::Debug for Orthographic3<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         self.matrix.fmt(f)
     }
 }
