@@ -66,6 +66,30 @@ impl<'a, T: RealField + Deserialize<'a>> Deserialize<'a> for Orthographic3<T> {
     }
 }
 
+impl<T> Orthographic3<T> {
+    /// Wraps the given matrix to interpret it as a 3D orthographic matrix.
+    ///
+    /// It is not checked whether or not the given matrix actually represents an orthographic
+    /// projection.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Orthographic3, Point3, Matrix4};
+    /// let mat = Matrix4::new(
+    ///     2.0 / 9.0, 0.0,        0.0,         -11.0 / 9.0,
+    ///     0.0,       2.0 / 18.0, 0.0,         -22.0 / 18.0,
+    ///     0.0,       0.0,       -2.0 / 999.9, -1000.1 / 999.9,
+    ///     0.0,       0.0,        0.0,         1.0
+    /// );
+    /// let proj = Orthographic3::from_matrix_unchecked(mat);
+    /// assert_eq!(proj, Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0));
+    /// ```
+    #[inline]
+    pub const fn from_matrix_unchecked(matrix: Matrix4<T>) -> Self {
+        Self { matrix }
+    }
+}
+
 impl<T: RealField> Orthographic3<T> {
     /// Creates a new orthographic projection matrix.
     ///
@@ -119,28 +143,6 @@ impl<T: RealField> Orthographic3<T> {
         res.set_znear_and_zfar(znear, zfar);
 
         res
-    }
-
-    /// Wraps the given matrix to interpret it as a 3D orthographic matrix.
-    ///
-    /// It is not checked whether or not the given matrix actually represents an orthographic
-    /// projection.
-    ///
-    /// # Example
-    /// ```
-    /// # use nalgebra::{Orthographic3, Point3, Matrix4};
-    /// let mat = Matrix4::new(
-    ///     2.0 / 9.0, 0.0,        0.0,         -11.0 / 9.0,
-    ///     0.0,       2.0 / 18.0, 0.0,         -22.0 / 18.0,
-    ///     0.0,       0.0,       -2.0 / 999.9, -1000.1 / 999.9,
-    ///     0.0,       0.0,        0.0,         1.0
-    /// );
-    /// let proj = Orthographic3::from_matrix_unchecked(mat);
-    /// assert_eq!(proj, Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0));
-    /// ```
-    #[inline]
-    pub fn from_matrix_unchecked(matrix: Matrix4<T>) -> Self {
-        Self { matrix }
     }
 
     /// Creates a new orthographic projection matrix from an aspect ratio and the vertical field of view.
