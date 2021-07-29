@@ -16,7 +16,6 @@ use crate::base::constraint::{
 use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
 use crate::base::storage::{ContiguousStorageMut, Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorSlice};
-use crate::storage::InnerOwned;
 use crate::{MatrixSliceMut, SimdComplexField};
 
 /*
@@ -432,11 +431,6 @@ impl<'a, T, C: Dim> iter::Sum<&'a OMatrix<T, Dynamic, C>> for OMatrix<T, Dynamic
 where
     T: Scalar + ClosedAdd + Zero,
     DefaultAllocator: Allocator<T, Dynamic, C>,
-
-    // TODO: we should take out this trait bound, as T: Clone should suffice.
-    // The brute way to do it would be how it was already done: by adding this
-    // trait bound on the associated type itself.
-    InnerOwned<T, Dynamic, C>: Clone,
 {
     /// # Example
     /// ```

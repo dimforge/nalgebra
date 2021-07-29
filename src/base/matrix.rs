@@ -153,7 +153,7 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// dynamically-sized column vector should be represented as a `Matrix<T, Dynamic, U1, S>` (given
 /// some concrete types for `T` and a compatible data storage type `S`).
 #[repr(transparent)]
-#[derive(Clone,Copy,Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Matrix<T, R, C, S> {
     /// The data storage that contains all the matrix components. Disappointed?
     ///

@@ -1,6 +1,5 @@
 #![allow(clippy::suspicious_operation_groupings)]
 use std::cmp;
-use std::fmt;
 use std::mem::MaybeUninit;
 
 #[cfg(feature = "serde-serialize-no-std")]
@@ -11,10 +10,10 @@ use num_complex::Complex as NumComplex;
 use simba::scalar::{ComplexField, RealField};
 
 use crate::allocator::Allocator;
-use crate::base::dimension::{Const, Dim, DimDiff, DimName, DimSub, Dynamic, U1, U2};
+use crate::base::dimension::{Const, Dim, DimDiff,  DimSub, Dynamic, U1, U2};
 use crate::base::storage::{InnerOwned, Storage};
 use crate::base::{
-    DefaultAllocator, OMatrix, OVector, Owned, SquareMatrix, Unit, Vector2, Vector3,
+    DefaultAllocator, OMatrix, OVector,  SquareMatrix, Unit, Vector2, Vector3,
 };
 
 use crate::geometry::Reflection;
@@ -36,6 +35,7 @@ use crate::linalg::Hessenberg;
     serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
+#[derive(Clone, Debug)]
 pub struct Schur<T, D: Dim>
 where
     DefaultAllocator: Allocator<T, D, D>,
@@ -44,37 +44,11 @@ where
     t: OMatrix<T, D, D>,
 }
 
-impl<T: Copy, D: DimName> Copy for Schur<T, D>
+impl<T: Copy, D: Dim> Copy for Schur<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
-    Owned<T, D, D>: Copy,
+    InnerOwned<T, D, D>: Copy,
 {
-}
-
-impl<T: Clone, D: Dim> Clone for Schur<T, D>
-where
-    DefaultAllocator: Allocator<T, D, D>,
-    InnerOwned<T, D, D>: Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            q: self.q.clone(),
-            t: self.t.clone(),
-        }
-    }
-}
-
-impl<T: fmt::Debug, D: Dim> fmt::Debug for Schur<T, D>
-where
-    DefaultAllocator: Allocator<T, D, D>,
-    InnerOwned<T, D, D>: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("Schur")
-            .field("q", &self.q)
-            .field("t", &self.t)
-            .finish()
-    }
 }
 
 impl<T: ComplexField, D: Dim> Schur<T, D>
