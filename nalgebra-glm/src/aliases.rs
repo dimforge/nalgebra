@@ -320,7 +320,7 @@ pub type DMat4x4 = Matrix4<f64>;
 pub type Mat2 = Matrix2<f32>;
 /// A 2x2 matrix with `f32` components.
 pub type Mat2x2 = Matrix2<f32>;
-/// A 2x2 matrix with `f32` components.
+/// A 2x3 matrix with `f32` components.
 pub type Mat2x3 = Matrix2x3<f32>;
 /// A 2x4 matrix with `f32` components.
 pub type Mat2x4 = Matrix2x4<f32>;
