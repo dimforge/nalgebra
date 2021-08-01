@@ -32,8 +32,8 @@ pub trait Allocator<T: Scalar, R: Dim, C: Dim = U1>: Any + Sized {
     ) -> Self::Buffer;
 }
 
-/// A matrix reallocator. Changes the size of the memory buffer that initially contains (RFrom ×
-/// CFrom) elements to a smaller or larger size (RTo, CTo).
+/// A matrix reallocator. Changes the size of the memory buffer that initially contains (`RFrom` ×
+/// `CFrom`) elements to a smaller or larger size (`RTo`, `CTo`).
 pub trait Reallocator<T: Scalar, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
     Allocator<T, RFrom, CFrom> + Allocator<T, RTo, CTo>
 {

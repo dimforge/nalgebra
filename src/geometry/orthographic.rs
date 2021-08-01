@@ -314,7 +314,7 @@ impl<T: RealField> Orthographic3<T> {
     }
 
     /// Retrieves the underlying homogeneous matrix.
-    /// Deprecated: Use [Orthographic3::into_inner] instead.
+    /// Deprecated: Use [`Orthographic3::into_inner`] instead.
     #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> Matrix4<T> {

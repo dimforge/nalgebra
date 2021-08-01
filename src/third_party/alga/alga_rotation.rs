@@ -105,17 +105,17 @@ impl<T: RealField + simba::scalar::RealField, const D: usize> AffineTransformati
 
     #[inline]
     fn decompose(&self) -> (Id, Self, Id, Self) {
-        (Id::new(), self.clone(), Id::new(), Self::identity())
+        (Id::new(), *self, Id::new(), Self::identity())
     }
 
     #[inline]
     fn append_translation(&self, _: &Self::Translation) -> Self {
-        self.clone()
+        *self
     }
 
     #[inline]
     fn prepend_translation(&self, _: &Self::Translation) -> Self {
-        self.clone()
+        *self
     }
 
     #[inline]
@@ -130,12 +130,12 @@ impl<T: RealField + simba::scalar::RealField, const D: usize> AffineTransformati
 
     #[inline]
     fn append_scaling(&self, _: &Self::NonUniformScaling) -> Self {
-        self.clone()
+        *self
     }
 
     #[inline]
     fn prepend_scaling(&self, _: &Self::NonUniformScaling) -> Self {
-        self.clone()
+        *self
     }
 }
 
@@ -151,7 +151,7 @@ impl<T: RealField + simba::scalar::RealField, const D: usize> Similarity<Point<T
 
     #[inline]
     fn rotation(&self) -> Self {
-        self.clone()
+        *self
     }
 
     #[inline]

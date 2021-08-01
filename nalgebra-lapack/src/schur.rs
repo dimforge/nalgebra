@@ -125,7 +125,7 @@ where
             re: wr,
             im: wi,
             t: m,
-            q: q,
+            q,
         })
     }
 

@@ -591,7 +591,7 @@ where
         Self::from_rotation_matrix(&Rotation3::face_towards(dir, up))
     }
 
-    /// Deprecated: Use [UnitQuaternion::face_towards] instead.
+    /// Deprecated: Use [`UnitQuaternion::face_towards`] instead.
     #[deprecated(note = "renamed to `face_towards`")]
     pub fn new_observer_frames<SB, SC>(dir: &Vector<T, U3, SB>, up: &Vector<T, U3, SC>) -> Self
     where
@@ -785,7 +785,7 @@ where
         Self::new_eps(axisangle, eps)
     }
 
-    /// Create the mean unit quaternion from a data structure implementing IntoIterator
+    /// Create the mean unit quaternion from a data structure implementing `IntoIterator`
     /// returning unit quaternions.
     ///
     /// The method will panic if the iterator does not return any quaternions.

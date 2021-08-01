@@ -11,6 +11,7 @@ use crate::base::{Matrix, MatrixSlice, MatrixSliceMut, Scalar};
 macro_rules! iterator {
     (struct $Name:ident for $Storage:ident.$ptr: ident -> $Ptr:ty, $Ref:ty, $SRef: ty) => {
         /// An iterator through a dense matrix with arbitrary strides matrix.
+        #[derive(Debug)]
         pub struct $Name<'a, T: Scalar, R: Dim, C: Dim, S: 'a + $Storage<T, R, C>> {
             ptr: $Ptr,
             inner_ptr: $Ptr,
@@ -180,7 +181,7 @@ iterator!(struct MatrixIterMut for StorageMut.ptr_mut -> *mut T, &'a mut T, &'a 
  * Row iterators.
  *
  */
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 /// An iterator through the rows of a matrix.
 pub struct RowIter<'a, T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> {
     mat: &'a Matrix<T, R, C, S>,
@@ -231,6 +232,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + Storage<T, R, C>> ExactSizeIterator
 }
 
 /// An iterator through the mutable rows of a matrix.
+#[derive(Debug)]
 pub struct RowIterMut<'a, T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> {
     mat: *mut Matrix<T, R, C, S>,
     curr: usize,
@@ -292,7 +294,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + StorageMut<T, R, C>> ExactSizeIterat
  * Column iterators.
  *
  */
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 /// An iterator through the columns of a matrix.
 pub struct ColumnIter<'a, T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> {
     mat: &'a Matrix<T, R, C, S>,
@@ -345,6 +347,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + Storage<T, R, C>> ExactSizeIterator
 }
 
 /// An iterator through the mutable columns of a matrix.
+#[derive(Debug)]
 pub struct ColumnIterMut<'a, T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> {
     mat: *mut Matrix<T, R, C, S>,
     curr: usize,

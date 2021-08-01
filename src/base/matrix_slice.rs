@@ -584,7 +584,7 @@ macro_rules! matrix_slice_impl(
          * Splitting.
          *
          */
-        /// Splits this NxM matrix into two parts delimited by two ranges.
+        /// Splits this `NxM` matrix into two parts delimited by two ranges.
         ///
         /// Panics if the ranges overlap or if the first range is empty.
         #[inline]
@@ -620,7 +620,7 @@ macro_rules! matrix_slice_impl(
             }
         }
 
-        /// Splits this NxM matrix into two parts delimited by two ranges.
+        /// Splits this `NxM` matrix into two parts delimited by two ranges.
         ///
         /// Panics if the ranges overlap or if the first range is empty.
         #[inline]

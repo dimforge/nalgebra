@@ -62,7 +62,7 @@ where
         };
 
         if nrows.value() == 0 || ncols.value() == 0 {
-            return Self { qr: m, tau: tau };
+            return Self { qr: m, tau };
         }
 
         let lwork = T::xgeqrf_work_size(
@@ -87,7 +87,7 @@ where
             &mut info,
         );
 
-        Self { qr: m, tau: tau }
+        Self { qr: m, tau }
     }
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.

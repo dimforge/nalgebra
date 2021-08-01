@@ -74,7 +74,7 @@ pub struct OperationError {
 
 /// The different kinds of operation errors that may occur.
 #[non_exhaustive]
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum OperationErrorKind {
     /// Indicates that one or more sparsity patterns involved in the operation violate the
     /// expectations of the routine.

@@ -120,7 +120,7 @@ where
     #[inline]
     fn decompose(&self) -> (Self::Translation, R, Id, R) {
         (
-            self.translation.clone(),
+            self.translation,
             self.rotation.clone(),
             Id::new(),
             <R as AbstractRotation<T, D>>::identity(),
@@ -145,7 +145,7 @@ where
 
     #[inline]
     fn prepend_rotation(&self, r: &Self::Rotation) -> Self {
-        Isometry::from_parts(self.translation.clone(), self.rotation.prepend_rotation(r))
+        Isometry::from_parts(self.translation, self.rotation.prepend_rotation(r))
     }
 
     #[inline]
@@ -175,7 +175,7 @@ where
 
     #[inline]
     fn translation(&self) -> Translation<T, D> {
-        self.translation.clone()
+        self.translation
     }
 
     #[inline]

@@ -79,7 +79,7 @@ impl<T: RealField> Matrix3<T> {
 
     /// Creates a new homogeneous matrix that applies a scaling factor for each dimension with respect to point.
     ///
-    /// Can be used to implement "zoom_to" functionality.
+    /// Can be used to implement `zoom_to` functionality.
     #[inline]
     pub fn new_nonuniform_scaling_wrt_point(scaling: &Vector2<T>, pt: &Point2<T>) -> Self {
         let zero = T::zero();
@@ -119,7 +119,7 @@ impl<T: RealField> Matrix4<T> {
 
     /// Creates a new homogeneous matrix that applies a scaling factor for each dimension with respect to point.
     ///
-    /// Can be used to implement "zoom_to" functionality.
+    /// Can be used to implement `zoom_to` functionality.
     #[inline]
     pub fn new_nonuniform_scaling_wrt_point(scaling: &Vector3<T>, pt: &Point3<T>) -> Self {
         let zero = T::zero();
@@ -187,7 +187,7 @@ impl<T: RealField> Matrix4<T> {
         IsometryMatrix3::face_towards(eye, target, up).to_homogeneous()
     }
 
-    /// Deprecated: Use [Matrix4::face_towards] instead.
+    /// Deprecated: Use [`Matrix4::face_towards`] instead.
     #[deprecated(note = "renamed to `face_towards`")]
     pub fn new_observer_frame(eye: &Point3<T>, target: &Point3<T>, up: &Vector3<T>) -> Self {
         Matrix4::face_towards(eye, target, up)

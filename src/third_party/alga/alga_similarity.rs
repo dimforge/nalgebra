@@ -117,7 +117,7 @@ where
     #[inline]
     fn decompose(&self) -> (Translation<T, D>, R, T, R) {
         (
-            self.isometry.translation.clone(),
+            self.isometry.translation,
             self.isometry.rotation.clone(),
             self.scaling(),
             <R as AbstractRotation<T, D>>::identity(),

@@ -72,7 +72,7 @@ pub struct CscCholesky<T> {
     work_c: Vec<usize>,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
 #[non_exhaustive]
 /// Possible errors produced by the Cholesky factorization.
 pub enum CholeskyError {

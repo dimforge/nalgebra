@@ -22,10 +22,10 @@ pub fn spmm_csr_dense<'a, T>(
 
 fn spmm_csr_dense_<T>(
     beta: T,
-    c: DMatrixSliceMut<T>,
+    c: DMatrixSliceMut<'_, T>,
     alpha: T,
     a: Op<&CsrMatrix<T>>,
-    b: Op<DMatrixSlice<T>>,
+    b: Op<DMatrixSlice<'_, T>>,
 ) where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {

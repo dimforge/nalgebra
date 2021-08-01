@@ -19,7 +19,7 @@ use crate::linalg::Hessenberg;
 
 /// Schur decomposition of a square matrix.
 ///
-/// If this is a real matrix, this will be a RealField Schur decomposition.
+/// If this is a real matrix, this will be a `RealField` Schur decomposition.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",

@@ -131,10 +131,10 @@ where
 /// the transposed operation must be specified for the CSC matrix.
 pub fn spmm_cs_dense<T>(
     beta: T,
-    mut c: DMatrixSliceMut<T>,
+    mut c: DMatrixSliceMut<'_, T>,
     alpha: T,
     a: Op<&CsMatrix<T>>,
-    b: Op<DMatrixSlice<T>>,
+    b: Op<DMatrixSlice<'_, T>>,
 ) where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {

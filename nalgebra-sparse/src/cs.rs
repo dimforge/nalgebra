@@ -116,7 +116,7 @@ impl<T> CsMatrix<T> {
     /// Returns an entry for the given major/minor indices, or `None` if the indices are out
     /// of bounds.
     #[must_use]
-    pub fn get_entry(&self, major_index: usize, minor_index: usize) -> Option<SparseEntry<T>> {
+    pub fn get_entry(&self, major_index: usize, minor_index: usize) -> Option<SparseEntry<'_, T>> {
         let row_range = self.get_index_range(major_index)?;
         let (_, minor_indices, values) = self.cs_data();
         let minor_indices = &minor_indices[row_range.clone()];
@@ -135,7 +135,7 @@ impl<T> CsMatrix<T> {
         &mut self,
         major_index: usize,
         minor_index: usize,
-    ) -> Option<SparseEntryMut<T>> {
+    ) -> Option<SparseEntryMut<'_, T>> {
         let row_range = self.get_index_range(major_index)?;
         let minor_dim = self.pattern().minor_dim();
         let (_, minor_indices, values) = self.cs_data_mut();
@@ -145,7 +145,7 @@ impl<T> CsMatrix<T> {
     }
 
     #[must_use]
-    pub fn get_lane(&self, index: usize) -> Option<CsLane<T>> {
+    pub fn get_lane(&self, index: usize) -> Option<CsLane<'_, T>> {
         let range = self.get_index_range(index)?;
         let (_, minor_indices, values) = self.cs_data();
         Some(CsLane {
@@ -157,7 +157,7 @@ impl<T> CsMatrix<T> {
 
     #[inline]
     #[must_use]
-    pub fn get_lane_mut(&mut self, index: usize) -> Option<CsLaneMut<T>> {
+    pub fn get_lane_mut(&mut self, index: usize) -> Option<CsLaneMut<'_, T>> {
         let range = self.get_index_range(index)?;
         let minor_dim = self.pattern().minor_dim();
         let (_, minor_indices, values) = self.cs_data_mut();
@@ -169,12 +169,12 @@ impl<T> CsMatrix<T> {
     }
 
     #[inline]
-    pub fn lane_iter(&self) -> CsLaneIter<T> {
+    pub fn lane_iter(&self) -> CsLaneIter<'_, T> {
         CsLaneIter::new(self.pattern(), self.values())
     }
 
     #[inline]
-    pub fn lane_iter_mut(&mut self) -> CsLaneIterMut<T> {
+    pub fn lane_iter_mut(&mut self) -> CsLaneIterMut<'_, T> {
         CsLaneIterMut::new(&self.sparsity_pattern, &mut self.values)
     }
 
@@ -406,7 +406,7 @@ macro_rules! impl_cs_lane_common_methods {
 
             #[inline]
             #[must_use]
-            pub fn get_entry(&self, global_col_index: usize) -> Option<SparseEntry<T>> {
+            pub fn get_entry(&self, global_col_index: usize) -> Option<SparseEntry<'_, T>> {
                 get_entry_from_slices(
                     self.minor_dim,
                     self.minor_indices,
@@ -431,7 +431,7 @@ impl<'a, T> CsLaneMut<'a, T> {
     }
 
     #[must_use]
-    pub fn get_entry_mut(&mut self, global_minor_index: usize) -> Option<SparseEntryMut<T>> {
+    pub fn get_entry_mut(&mut self, global_minor_index: usize) -> Option<SparseEntryMut<'_, T>> {
         get_mut_entry_from_slices(
             self.minor_dim,
             self.minor_indices,
