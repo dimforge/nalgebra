@@ -73,6 +73,7 @@ mod transform_ops;
 mod transform_simba;
 
 mod reflection;
+mod reflection_alias;
 
 mod orthographic;
 mod perspective;
@@ -104,6 +105,7 @@ pub use self::transform::*;
 pub use self::transform_alias::*;
 
 pub use self::reflection::*;
+pub use self::reflection_alias::*;
 
 pub use self::orthographic::Orthographic3;
 pub use self::perspective::Perspective3;

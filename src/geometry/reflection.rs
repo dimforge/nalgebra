@@ -22,7 +22,7 @@ impl<T: ComplexField, S: Storage<T, Const<D>>, const D: usize> Reflection<T, Con
 }
 
 impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
-    /// Creates a new reflection wrt the plane orthogonal to the given axis and bias.
+    /// Creates a new reflection wrt. the plane orthogonal to the given axis and bias.
     ///
     /// The bias is the position of the plane on the axis. In particular, a bias equal to zero
     /// represents a plane that passes through the origin.
@@ -33,10 +33,19 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
         }
     }
 
-    /// The reflexion axis.
+    /// The reflection axis.
     #[must_use]
     pub fn axis(&self) -> &Vector<T, D, S> {
         &self.axis
+    }
+
+    /// The reflection bias.
+    ///
+    /// The bias is the position of the plane on the axis. In particular, a bias equal to zero
+    /// represents a plane that passes through the origin.
+    #[must_use]
+    pub fn bias(&self) -> T {
+        self.bias
     }
 
     // TODO: naming convention: reflect_to, reflect_assign ?
