@@ -300,7 +300,7 @@ where
     }
 
     /// Retrieves the underlying matrix.
-    /// Deprecated: Use [Transform::into_inner] instead.
+    /// Deprecated: Use [`Transform::into_inner`] instead.
     #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {

@@ -178,7 +178,7 @@ iterator!(struct MatrixIterMut for StorageMut.ptr_mut -> *mut T, &'a mut T, &'a 
  * Row iterators.
  *
  */
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 /// An iterator through the rows of a matrix.
 pub struct RowIter<'a, T, R: Dim, C: Dim, S: Storage<T, R, C>> {
     mat: &'a Matrix<T, R, C, S>,
@@ -288,7 +288,7 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + StorageMut<T, R, C>> ExactSizeIterator
  * Column iterators.
  *
  */
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 /// An iterator through the columns of a matrix.
 pub struct ColumnIter<'a, T, R: Dim, C: Dim, S: Storage<T, R, C>> {
     mat: &'a Matrix<T, R, C, S>,

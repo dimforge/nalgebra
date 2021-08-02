@@ -19,6 +19,7 @@ use crate::base::{Matrix4, Vector, Vector3};
 use crate::geometry::{Point3, Projective3};
 
 /// A 3D perspective projection stored as a homogeneous 4x4 matrix.
+#[repr(C)]
 pub struct Perspective3<T> {
     matrix: Matrix4<T>,
 }
@@ -45,6 +46,22 @@ impl<T: RealField> PartialEq for Perspective3<T> {
     }
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<T> bytemuck::Zeroable for Perspective3<T>
+where
+    T: RealField + bytemuck::Zeroable,
+    Matrix4<T>: bytemuck::Zeroable,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T> bytemuck::Pod for Perspective3<T>
+where
+    T: RealField + bytemuck::Pod,
+    Matrix4<T>: bytemuck::Pod,
+{
+}
+
 #[cfg(feature = "serde-serialize-no-std")]
 impl<T: RealField + Serialize> Serialize for Perspective3<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -64,6 +81,17 @@ impl<'a, T: RealField + Deserialize<'a>> Deserialize<'a> for Perspective3<T> {
         let matrix = Matrix4::<T>::deserialize(deserializer)?;
 
         Ok(Self::from_matrix_unchecked(matrix))
+    }
+}
+
+impl<T> Perspective3<T> {
+    /// Wraps the given matrix to interpret it as a 3D perspective matrix.
+    ///
+    /// It is not checked whether or not the given matrix actually represents a perspective
+    /// projection.
+    #[inline]
+    pub const fn from_matrix_unchecked(matrix: Matrix4<T>) -> Self {
+        Self { matrix }
     }
 }
 
@@ -90,15 +118,6 @@ impl<T: RealField> Perspective3<T> {
         res.matrix[(3, 2)] = -T::one();
 
         res
-    }
-
-    /// Wraps the given matrix to interpret it as a 3D perspective matrix.
-    ///
-    /// It is not checked whether or not the given matrix actually represents a perspective
-    /// projection.
-    #[inline]
-    pub fn from_matrix_unchecked(matrix: Matrix4<T>) -> Self {
-        Self { matrix }
     }
 
     /// Retrieves the inverse of the underlying homogeneous matrix.
@@ -157,7 +176,7 @@ impl<T: RealField> Perspective3<T> {
     }
 
     /// Retrieves the underlying homogeneous matrix.
-    /// Deprecated: Use [Perspective3::into_inner] instead.
+    /// Deprecated: Use [`Perspective3::into_inner`] instead.
     #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> Matrix4<T> {

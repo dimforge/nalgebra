@@ -16,7 +16,7 @@ use simba::scalar::RealField;
 ///
 /// # Indexing
 ///
-/// DualQuaternions are stored as \[..real, ..dual\].
+/// `DualQuaternions` are stored as \[..real, ..dual\].
 /// Both of the quaternion components are laid out in `i, j, k, w` order.
 ///
 /// ```
@@ -36,7 +36,7 @@ use simba::scalar::RealField;
 /// NOTE:
 ///  As of December 2020, dual quaternion support is a work in progress.
 ///  If a feature that you need is missing, feel free to open an issue or a PR.
-///  See https://github.com/dimforge/nalgebra/issues/487
+///  See <https://github.com/dimforge/nalgebra/issues/487>
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct DualQuaternion<T> {
@@ -248,6 +248,22 @@ where
     pub fn lerp(&self, other: &Self, t: T) -> Self {
         self * (T::one() - t) + other * t
     }
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T> bytemuck::Zeroable for DualQuaternion<T>
+where
+    T: Scalar + bytemuck::Zeroable,
+    Quaternion<T>: bytemuck::Zeroable,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T> bytemuck::Pod for DualQuaternion<T>
+where
+    T: Scalar + bytemuck::Pod,
+    Quaternion<T>: bytemuck::Pod,
+{
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
@@ -897,7 +913,7 @@ impl<T: RealField> Default for UnitDualQuaternion<T> {
 }
 
 impl<T: RealField + fmt::Display> fmt::Display for UnitDualQuaternion<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(axis) = self.rotation().axis() {
             let axis = axis.into_inner();
             write!(

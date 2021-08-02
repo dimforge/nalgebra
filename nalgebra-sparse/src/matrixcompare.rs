@@ -28,7 +28,7 @@ macro_rules! impl_matrix_for_csr_csc {
                 self.ncols()
             }
 
-            fn access(&self) -> Access<T> {
+            fn access(&self) -> Access<'_, T> {
                 Access::Sparse(self)
             }
         }
@@ -59,7 +59,7 @@ impl<T: Clone> matrixcompare_core::Matrix<T> for CooMatrix<T> {
         self.ncols()
     }
 
-    fn access(&self) -> Access<T> {
+    fn access(&self) -> Access<'_, T> {
         Access::Sparse(self)
     }
 }

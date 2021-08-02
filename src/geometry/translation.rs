@@ -50,6 +50,22 @@ where
     }
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<T, const D: usize> bytemuck::Zeroable for Translation<T, D>
+where
+    T: Scalar + bytemuck::Zeroable,
+    SVector<T, D>: bytemuck::Zeroable,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T, const D: usize> bytemuck::Pod for Translation<T, D>
+where
+    T: Scalar + bytemuck::Pod,
+    SVector<T, D>: bytemuck::Pod,
+{
+}
+
 #[cfg(feature = "abomonation-serialize")]
 impl<T, const D: usize> Abomonation for Translation<T, D>
 where
@@ -331,7 +347,7 @@ where
  *
  */
 impl<T: Scalar + fmt::Display, const D: usize> fmt::Display for Translation<T, D> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
         writeln!(f, "Translation {{")?;

@@ -46,7 +46,7 @@ impl<'a, T: Clone> Iterator for ColumnEntries<'a, T> {
 pub trait CsStorageIter<'a, T, R, C = U1> {
     /// Iterator through all the rows of a specific columns.
     ///
-    /// The elements are given as a tuple (row_index, value).
+    /// The elements are given as a tuple (`row_index`, value).
     type ColumnEntries: Iterator<Item = (usize, T)>;
     /// Iterator through the row indices of a specific column.
     type ColumnRowIndices: Iterator<Item = usize>;
@@ -63,7 +63,7 @@ pub trait CsStorageIterMut<'a, T: 'a, R, C = U1> {
     type ValuesMut: Iterator<Item = &'a mut T>;
     /// Mutable iterator through all the rows of a specific columns.
     ///
-    /// The elements are given as a tuple (row_index, value).
+    /// The elements are given as a tuple (`row_index`, value).
     type ColumnEntriesMut: Iterator<Item = (usize, &'a mut T)>;
 
     /// A mutable iterator through the values buffer of the sparse matrix.

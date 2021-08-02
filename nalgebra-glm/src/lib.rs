@@ -110,6 +110,16 @@
    and keep in mind it is possible to convert, e.g., an `Isometry3` to a `Mat4` and vice-versa (see the [conversions section](#conversions)).
 */
 
+#![deny(
+    nonstandard_style,
+    unused,
+    missing_docs,
+    rust_2018_idioms,
+    rust_2018_compatibility,
+    future_incompatible,
+    missing_copy_implementations,
+    missing_debug_implementations
+)]
 #![doc(html_favicon_url = "https://nalgebra.org/img/favicon.ico")]
 #![cfg_attr(not(feature = "std"), no_std)]
 

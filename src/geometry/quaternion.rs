@@ -241,7 +241,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn vector(&self) -> MatrixSlice<T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
+    pub fn vector(&self) -> MatrixSlice<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
         self.coords.fixed_rows::<3>(0)
     }
 
@@ -633,7 +633,7 @@ where
     #[inline]
     pub fn vector_mut(
         &mut self,
-    ) -> MatrixSliceMut<T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
+    ) -> MatrixSliceMut<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
         self.coords.fixed_rows_mut::<3>(0)
     }
 
@@ -1692,7 +1692,7 @@ impl<T: RealField> Default for UnitQuaternion<T> {
 }
 
 impl<T: RealField + fmt::Display> fmt::Display for UnitQuaternion<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(axis) = self.axis() {
             let axis = axis.into_inner();
             write!(

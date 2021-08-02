@@ -13,7 +13,7 @@ use crate::storage::InnerOwned;
 
 use crate::geometry::{
     Isometry, Point, Rotation, Similarity, SubTCategoryOf, SuperTCategoryOf, TAffine, TCategory,
-    TCategoryMul, TGeneral, TProjective, Transform, Translation, UnitQuaternion,
+    TCategoryMul, TGeneral, TProjective, Transform, Translation, UnitComplex, UnitQuaternion,
 };
 
 /*
@@ -31,7 +31,7 @@ use crate::geometry::{
  * Transform × Similarity
  * Transform × Transform
  * Transform × UnitQuaternion
- * TODO: Transform × UnitComplex
+ * Transform × UnitComplex
  * Transform × Translation
  * Transform × Vector
  * Transform × Point
@@ -41,7 +41,7 @@ use crate::geometry::{
  * Similarity     × Transform
  * Translation    × Transform
  * UnitQuaternion × Transform
- * TODO: UnitComplex × Transform
+ * UnitComplex    × Transform
  *
  * TODO: Transform ÷ Isometry
  * Transform ÷ Rotation
@@ -66,7 +66,7 @@ use crate::geometry::{
  * Transform ×= Isometry
  * Transform ×= Rotation
  * Transform ×= UnitQuaternion
- * TODO: Transform ×= UnitComplex
+ * Transform ×= UnitComplex
  * Transform ×= Translation
  *
  * Transform ÷= Transform
@@ -74,7 +74,7 @@ use crate::geometry::{
  * TODO: Transform ÷= Isometry
  * Transform ÷= Rotation
  * Transform ÷= UnitQuaternion
- * TODO: Transform ÷= UnitComplex
+ * Transform ÷= UnitComplex
  *
  */
 
@@ -226,6 +226,20 @@ md_impl_all!(
     [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
 );
 
+// Transform × UnitComplex
+md_impl_all!(
+    Mul, mul where T: RealField;
+    (U3, U3), (U2, U1)
+    const;
+    for C;
+    where C: TCategoryMul<TAffine>;
+    self: Transform<T, C, 2>, rhs: UnitComplex<T>, Output = Transform<T, C::Representative, 2>;
+    [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
+    [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
+    [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
+    [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
+);
+
 // UnitQuaternion × Transform
 md_impl_all!(
     Mul, mul where T: RealField;
@@ -234,6 +248,20 @@ md_impl_all!(
     for C;
     where C: TCategoryMul<TAffine>;
     self: UnitQuaternion<T>, rhs: Transform<T, C, 3>, Output = Transform<T, C::Representative, 3>;
+    [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
+    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
+    [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
+    [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
+);
+
+// UnitComplex × Transform
+md_impl_all!(
+    Mul, mul where T: RealField;
+    (U2, U1), (U3, U3)
+    const;
+    for C;
+    where C: TCategoryMul<TAffine>;
+    self: UnitComplex<T>, rhs: Transform<T, C, 2>, Output = Transform<T, C::Representative, 2>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
@@ -581,6 +609,18 @@ md_assign_impl_all!(
     [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
 );
 
+// Transform ×= UnitComplex
+md_assign_impl_all!(
+    MulAssign, mul_assign where T: RealField;
+    (U3, U3), (U2, U1)
+    const;
+    for C;
+    where C: TCategory;
+    self: Transform<T, C, 2>, rhs: UnitComplex<T>;
+    [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
+    [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
+);
+
 // Transform ÷= Transform
 md_assign_impl_all!(
     DivAssign, div_assign where T: RealField;
@@ -650,6 +690,18 @@ md_assign_impl_all!(
     for C;
     where C: TCategory;
     self: Transform<T, C, 3>, rhs: UnitQuaternion<T>;
+    [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
+    [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
+);
+
+// Transform ÷= UnitComplex
+md_assign_impl_all!(
+    DivAssign, div_assign where T: RealField;
+    (U3, U3), (U2, U1)
+    const;
+    for C;
+    where C: TCategory;
+    self: Transform<T, C, 2>, rhs: UnitComplex<T>;
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
 );

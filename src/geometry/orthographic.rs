@@ -47,6 +47,22 @@ impl<T: PartialEq> PartialEq for Orthographic3<T> {
     }
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<T> bytemuck::Zeroable for Orthographic3<T>
+where
+    T: RealField + bytemuck::Zeroable,
+    Matrix4<T>: bytemuck::Zeroable,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T> bytemuck::Pod for Orthographic3<T>
+where
+    T: RealField + bytemuck::Pod,
+    Matrix4<T>: bytemuck::Pod,
+{
+}
+
 #[cfg(feature = "serde-serialize-no-std")]
 impl<T: Serialize> Serialize for Orthographic3<T> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -81,7 +97,7 @@ impl<T> Orthographic3<T> {
     /// # use nalgebra::{Orthographic3, Point3};
     /// let proj = Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0);
     /// // Check this projection actually transforms the view cuboid into the double-unit cube.
-    /// // See https://www.nalgebra.org/projections/#orthographic-projection for more details.
+    /// // See https://www.nalgebra.org/docs/user_guide/projections#orthographic-projection for more details.
     /// let p1 = Point3::new(1.0, 2.0, -0.1);
     /// let p2 = Point3::new(1.0, 2.0, -1000.0);
     /// let p3 = Point3::new(1.0, 20.0, -0.1);
@@ -126,28 +142,6 @@ impl<T> Orthographic3<T> {
         res.set_znear_and_zfar(znear, zfar);
 
         res
-    }
-
-    /// Wraps the given matrix to interpret it as a 3D orthographic matrix.
-    ///
-    /// It is not checked whether or not the given matrix actually represents an orthographic
-    /// projection.
-    ///
-    /// # Example
-    /// ```
-    /// # use nalgebra::{Orthographic3, Point3, Matrix4};
-    /// let mat = Matrix4::new(
-    ///     2.0 / 9.0, 0.0,        0.0,         -11.0 / 9.0,
-    ///     0.0,       2.0 / 18.0, 0.0,         -22.0 / 18.0,
-    ///     0.0,       0.0,       -2.0 / 999.9, -1000.1 / 999.9,
-    ///     0.0,       0.0,        0.0,         1.0
-    /// );
-    /// let proj = Orthographic3::from_matrix_unchecked(mat);
-    /// assert_eq!(proj, Orthographic3::new(1.0, 10.0, 2.0, 20.0, 0.1, 1000.0));
-    /// ```
-    #[inline]
-    pub fn from_matrix_unchecked(matrix: Matrix4<T>) -> Self {
-        Self { matrix }
     }
 
     /// Creates a new orthographic projection matrix from an aspect ratio and the vertical field of view.
@@ -311,7 +305,7 @@ impl<T> Orthographic3<T> {
     }
 
     /// Retrieves the underlying homogeneous matrix.
-    /// Deprecated: Use [Orthographic3::into_inner] instead.
+    /// Deprecated: Use [`Orthographic3::into_inner`] instead.
     #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> Matrix4<T> {

@@ -34,6 +34,7 @@ use crate::U1;
 /// This struct is useless on its own. Instead, it's used in trait
 /// An allocator based on `GenericArray` and `VecStorage` for statically-sized and dynamically-sized
 /// matrices respectively.
+#[derive(Copy, Clone, Debug)]
 pub struct DefaultAllocator;
 
 // Static - Static

@@ -25,7 +25,7 @@ use crate::Scalar;
 
 /// A point in an euclidean space.
 ///
-/// The difference between a point and a vector is only semantic. See [the user guide](https://www.nalgebra.org/points_and_transformations/)
+/// The difference between a point and a vector is only semantic. See [the user guide](https://www.nalgebra.org/docs/user_guide/points_and_transformations)
 /// for details on the distinction. The most notable difference that vectors ignore translations.
 /// In particular, an [`Isometry2`](crate::Isometry2) or [`Isometry3`](crate::Isometry3) will
 /// transform points by applying a rotation and a translation on them. However, these isometries
@@ -501,7 +501,7 @@ impl<T: fmt::Display, D: DimName> fmt::Display for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{{")?;
 
         let mut it = self.coords.iter();

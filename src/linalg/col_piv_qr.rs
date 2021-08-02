@@ -77,7 +77,7 @@ where
         + Allocator<T, DimMinimum<R, C>>
         + Allocator<(usize, usize), DimMinimum<R, C>>,
 {
-    /// Computes the ColPivQR decomposition using householder reflections.
+    /// Computes the `ColPivQR` decomposition using householder reflections.
     pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
         let (nrows, ncols) = matrix.data.shape();
         let min_nrows_ncols = nrows.min(ncols);

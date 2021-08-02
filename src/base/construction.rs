@@ -938,19 +938,19 @@ macro_rules! transpose_array(
         [$([$a]),*]
     };
     [$($a: ident),*; $($b: ident),*;] => {
-        [$([$a, $b]),*];
+        [$([$a, $b]),*]
     };
     [$($a: ident),*; $($b: ident),*; $($c: ident),*;] => {
-        [$([$a, $b, $c]),*];
+        [$([$a, $b, $c]),*]
     };
     [$($a: ident),*; $($b: ident),*; $($c: ident),*; $($d: ident),*;] => {
-        [$([$a, $b, $c, $d]),*];
+        [$([$a, $b, $c, $d]),*]
     };
     [$($a: ident),*; $($b: ident),*; $($c: ident),*; $($d: ident),*; $($e: ident),*;] => {
-        [$([$a, $b, $c, $d, $e]),*];
+        [$([$a, $b, $c, $d, $e]),*]
     };
     [$($a: ident),*; $($b: ident),*; $($c: ident),*; $($d: ident),*; $($e: ident),*; $($f: ident),*;] => {
-        [$([$a, $b, $c, $d, $e, $f]),*];
+        [$([$a, $b, $c, $d, $e, $f]),*]
     };
 );
 

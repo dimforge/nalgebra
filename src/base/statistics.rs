@@ -14,7 +14,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn compress_rows(
         &self,
-        f: impl Fn(VectorSlice<T, R, S::RStride, S::CStride>) -> T,
+        f: impl Fn(VectorSlice<'_, T, R, S::RStride, S::CStride>) -> T,
     ) -> RowOVector<T, C>
     where
         DefaultAllocator: Allocator<T, U1, C>,
@@ -40,7 +40,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn compress_rows_tr(
         &self,
-        f: impl Fn(VectorSlice<T, R, S::RStride, S::CStride>) -> T,
+        f: impl Fn(VectorSlice<'_, T, R, S::RStride, S::CStride>) -> T,
     ) -> OVector<T, C>
     where
         DefaultAllocator: Allocator<T, C>,

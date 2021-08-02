@@ -260,7 +260,7 @@ impl<T> CscMatrix<T> {
     /// let triplets: Vec<_> = csc.triplet_iter().map(|(i, j, v)| (i, j, *v)).collect();
     /// assert_eq!(triplets, vec![(0, 0, 1), (2, 0, 3), (1, 1, 2), (0, 2, 4)]);
     /// ```
-    pub fn triplet_iter(&self) -> CscTripletIter<T> {
+    pub fn triplet_iter(&self) -> CscTripletIter<'_, T> {
         CscTripletIter {
             pattern_iter: self.pattern().entries(),
             values_iter: self.values().iter(),
@@ -290,7 +290,7 @@ impl<T> CscMatrix<T> {
     /// let triplets: Vec<_> = csc.triplet_iter().map(|(i, j, v)| (i, j, *v)).collect();
     /// assert_eq!(triplets, vec![(0, 0, 1), (2, 0, 0), (1, 1, 2), (0, 2, 4)]);
     /// ```
-    pub fn triplet_iter_mut(&mut self) -> CscTripletIterMut<T> {
+    pub fn triplet_iter_mut(&mut self) -> CscTripletIterMut<'_, T> {
         let (pattern, values) = self.cs.pattern_and_values_mut();
         CscTripletIterMut {
             pattern_iter: pattern.entries(),
@@ -305,7 +305,7 @@ impl<T> CscMatrix<T> {
     /// Panics if column index is out of bounds.
     #[inline]
     #[must_use]
-    pub fn col(&self, index: usize) -> CscCol<T> {
+    pub fn col(&self, index: usize) -> CscCol<'_, T> {
         self.get_col(index).expect("Row index must be in bounds")
     }
 
@@ -315,7 +315,7 @@ impl<T> CscMatrix<T> {
     /// ------
     /// Panics if column index is out of bounds.
     #[inline]
-    pub fn col_mut(&mut self, index: usize) -> CscColMut<T> {
+    pub fn col_mut(&mut self, index: usize) -> CscColMut<'_, T> {
         self.get_col_mut(index)
             .expect("Row index must be in bounds")
     }
@@ -323,26 +323,26 @@ impl<T> CscMatrix<T> {
     /// Return the column at the given column index, or `None` if out of bounds.
     #[inline]
     #[must_use]
-    pub fn get_col(&self, index: usize) -> Option<CscCol<T>> {
+    pub fn get_col(&self, index: usize) -> Option<CscCol<'_, T>> {
         self.cs.get_lane(index).map(|lane| CscCol { lane })
     }
 
     /// Mutable column access for the given column index, or `None` if out of bounds.
     #[inline]
     #[must_use]
-    pub fn get_col_mut(&mut self, index: usize) -> Option<CscColMut<T>> {
+    pub fn get_col_mut(&mut self, index: usize) -> Option<CscColMut<'_, T>> {
         self.cs.get_lane_mut(index).map(|lane| CscColMut { lane })
     }
 
     /// An iterator over columns in the matrix.
-    pub fn col_iter(&self) -> CscColIter<T> {
+    pub fn col_iter(&self) -> CscColIter<'_, T> {
         CscColIter {
             lane_iter: CsLaneIter::new(self.pattern(), self.values()),
         }
     }
 
     /// A mutable iterator over columns in the matrix.
-    pub fn col_iter_mut(&mut self) -> CscColIterMut<T> {
+    pub fn col_iter_mut(&mut self) -> CscColIterMut<'_, T> {
         let (pattern, values) = self.cs.pattern_and_values_mut();
         CscColIterMut {
             lane_iter: CsLaneIterMut::new(pattern, values),
@@ -408,7 +408,7 @@ impl<T> CscMatrix<T> {
     /// Each call to this function incurs the cost of a binary search among the explicitly
     /// stored row entries for the given column.
     #[must_use]
-    pub fn get_entry(&self, row_index: usize, col_index: usize) -> Option<SparseEntry<T>> {
+    pub fn get_entry(&self, row_index: usize, col_index: usize) -> Option<SparseEntry<'_, T>> {
         self.cs.get_entry(col_index, row_index)
     }
 
@@ -421,7 +421,7 @@ impl<T> CscMatrix<T> {
         &mut self,
         row_index: usize,
         col_index: usize,
-    ) -> Option<SparseEntryMut<T>> {
+    ) -> Option<SparseEntryMut<'_, T>> {
         self.cs.get_entry_mut(col_index, row_index)
     }
 
@@ -434,7 +434,7 @@ impl<T> CscMatrix<T> {
     /// ------
     /// Panics if `row_index` or `col_index` is out of bounds.
     #[must_use]
-    pub fn index_entry(&self, row_index: usize, col_index: usize) -> SparseEntry<T> {
+    pub fn index_entry(&self, row_index: usize, col_index: usize) -> SparseEntry<'_, T> {
         self.get_entry(row_index, col_index)
             .expect("Out of bounds matrix indices encountered")
     }
@@ -447,7 +447,7 @@ impl<T> CscMatrix<T> {
     /// Panics
     /// ------
     /// Panics if `row_index` or `col_index` is out of bounds.
-    pub fn index_entry_mut(&mut self, row_index: usize, col_index: usize) -> SparseEntryMut<T> {
+    pub fn index_entry_mut(&mut self, row_index: usize, col_index: usize) -> SparseEntryMut<'_, T> {
         self.get_entry_mut(row_index, col_index)
             .expect("Out of bounds matrix indices encountered")
     }
@@ -666,7 +666,7 @@ macro_rules! impl_csc_col_common_methods {
             /// Each call to this function incurs the cost of a binary search among the explicitly
             /// stored row entries.
             #[must_use]
-            pub fn get_entry(&self, global_row_index: usize) -> Option<SparseEntry<T>> {
+            pub fn get_entry(&self, global_row_index: usize) -> Option<SparseEntry<'_, T>> {
                 self.lane.get_entry(global_row_index)
             }
         }
@@ -693,7 +693,7 @@ impl<'a, T> CscColMut<'a, T> {
 
     /// Returns a mutable entry for the given global row index.
     #[must_use]
-    pub fn get_entry_mut(&mut self, global_row_index: usize) -> Option<SparseEntryMut<T>> {
+    pub fn get_entry_mut(&mut self, global_row_index: usize) -> Option<SparseEntryMut<'_, T>> {
         self.lane.get_entry_mut(global_row_index)
     }
 }

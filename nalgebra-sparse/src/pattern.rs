@@ -205,7 +205,7 @@ impl SparsityPattern {
     /// ```
     ///
     #[must_use]
-    pub fn entries(&self) -> SparsityPatternIter {
+    pub fn entries(&self) -> SparsityPatternIter<'_> {
         SparsityPatternIter::from_pattern(self)
     }
 
@@ -260,7 +260,7 @@ impl SparsityPattern {
 
 /// Error type for `SparsityPattern` format errors.
 #[non_exhaustive]
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum SparsityPatternFormatError {
     /// Indicates an invalid number of offsets.
     ///

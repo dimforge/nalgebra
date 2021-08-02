@@ -252,7 +252,7 @@ impl<T: Clone, R: Dim, C: Dim, S: Storage<T, R, C>> matrixcompare_core::Matrix<T
         self.ncols()
     }
 
-    fn access(&self) -> matrixcompare_core::Access<T> {
+    fn access(&self) -> matrixcompare_core::Access<'_, T> {
         matrixcompare_core::Access::Dense(self)
     }
 }
@@ -431,7 +431,7 @@ impl<T, R: Dim, C: Dim, S> Matrix<MaybeUninit<T>, R, C, S> {
 }
 
 impl<T, const R: usize, const C: usize> SMatrix<T, R, C> {
-    /// Creates a new statically-allocated matrix from the given [ArrayStorage].
+    /// Creates a new statically-allocated matrix from the given [`ArrayStorage`].
     ///
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
@@ -447,7 +447,7 @@ impl<T, const R: usize, const C: usize> SMatrix<T, R, C> {
 // `from_data` const fn compatible
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<T> DMatrix<T> {
-    /// Creates a new heap-allocated matrix from the given [VecStorage].
+    /// Creates a new heap-allocated matrix from the given [`VecStorage`].
     ///
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
@@ -462,7 +462,7 @@ impl<T> DMatrix<T> {
 // `from_data` const fn compatible
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<T> DVector<T> {
-    /// Creates a new heap-allocated matrix from the given [VecStorage].
+    /// Creates a new heap-allocated matrix from the given [`VecStorage`].
     ///
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
@@ -1129,7 +1129,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(*it.next().unwrap(), 23);
     /// assert!(it.next().is_none());
     #[inline]
-    pub fn iter(&self) -> MatrixIter<T, R, C, S> {
+    pub fn iter(&self) -> MatrixIter<'_, T, R, C, S> {
         MatrixIter::new(&self.data)
     }
 
@@ -1145,7 +1145,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// }
     /// ```
     #[inline]
-    pub fn row_iter(&self) -> RowIter<T, R, C, S> {
+    pub fn row_iter(&self) -> RowIter<'_, T, R, C, S> {
         RowIter::new(self)
     }
 
@@ -1160,13 +1160,13 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// }
     /// ```
     #[inline]
-    pub fn column_iter(&self) -> ColumnIter<T, R, C, S> {
+    pub fn column_iter(&self) -> ColumnIter<'_, T, R, C, S> {
         ColumnIter::new(self)
     }
 
     /// Mutably iterates through this matrix coordinates.
     #[inline]
-    pub fn iter_mut(&mut self) -> MatrixIterMut<T, R, C, S>
+    pub fn iter_mut(&mut self) -> MatrixIterMut<'_, T, R, C, S>
     where
         S: StorageMut<T, R, C>,
     {
@@ -1189,7 +1189,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(a, expected);
     /// ```
     #[inline]
-    pub fn row_iter_mut(&mut self) -> RowIterMut<T, R, C, S>
+    pub fn row_iter_mut(&mut self) -> RowIterMut<'_, T, R, C, S>
     where
         S: StorageMut<T, R, C>,
     {
@@ -1212,7 +1212,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(a, expected);
     /// ```
     #[inline]
-    pub fn column_iter_mut(&mut self) -> ColumnIterMut<T, R, C, S>
+    pub fn column_iter_mut(&mut self) -> ColumnIterMut<'_, T, R, C, S>
     where
         S: StorageMut<T, R, C>,
     {
@@ -2038,9 +2038,9 @@ macro_rules! impl_fmt {
             T: Scalar + $trait,
             S: Storage<T, R, C>,
         {
-            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 #[cfg(feature = "std")]
-                fn val_width<T: Scalar + $trait>(val: &T, f: &mut fmt::Formatter) -> usize {
+                fn val_width<T: Scalar + $trait>(val: &T, f: &mut fmt::Formatter<'_>) -> usize {
                     match f.precision() {
                         Some(precision) => format!($fmt_str_with_precision, val, precision)
                             .chars()
@@ -2050,7 +2050,7 @@ macro_rules! impl_fmt {
                 }
 
                 #[cfg(not(feature = "std"))]
-                fn val_width<T: Scalar + $trait>(_: &T, _: &mut fmt::Formatter) -> usize {
+                fn val_width<T: Scalar + $trait>(_: &T, _: &mut fmt::Formatter<'_>) -> usize {
                     4
                 }
 

@@ -27,10 +27,10 @@ pub fn spmm_csc_dense<'a, T>(
 
 fn spmm_csc_dense_<T>(
     beta: T,
-    c: DMatrixSliceMut<T>,
+    c: DMatrixSliceMut<'_, T>,
     alpha: T,
     a: Op<&CscMatrix<T>>,
-    b: Op<DMatrixSlice<T>>,
+    b: Op<DMatrixSlice<'_, T>>,
 ) where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {
@@ -147,7 +147,7 @@ pub fn spsolve_csc_lower_triangular<'a, T: RealField>(
 
 fn spsolve_csc_lower_triangular_no_transpose<T: RealField>(
     l: &CscMatrix<T>,
-    b: DMatrixSliceMut<T>,
+    b: DMatrixSliceMut<'_, T>,
 ) -> Result<(), OperationError> {
     let mut x = b;
 
@@ -205,7 +205,7 @@ fn spsolve_encountered_zero_diagonal() -> Result<(), OperationError> {
 
 fn spsolve_csc_lower_triangular_transpose<T: RealField>(
     l: &CscMatrix<T>,
-    b: DMatrixSliceMut<T>,
+    b: DMatrixSliceMut<'_, T>,
 ) -> Result<(), OperationError> {
     let mut x = b;
 

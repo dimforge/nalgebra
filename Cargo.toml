@@ -119,4 +119,4 @@ lto = true
 
 [package.metadata.docs.rs]
 # Enable certain features when building docs for docs.rs
-features = [ "proptest-support", "compare", "macros" ]
+features = [ "proptest-support", "compare", "macros", "rand" ]

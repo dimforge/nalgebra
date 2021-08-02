@@ -306,7 +306,7 @@ macro_rules! similarity_construction_impl(
                 Self::from_isometry(Isometry::<_, $Rot<T>, 3>::face_towards(eye, target, up), scaling)
             }
 
-            /// Deprecated: Use [SimilarityMatrix3::face_towards] instead.
+            /// Deprecated: Use [`SimilarityMatrix3::face_towards`] instead.
             #[deprecated(note="renamed to `face_towards`")]
             pub fn new_observer_frames(eye:    &Point3<T>,
                                        target: &Point3<T>,
