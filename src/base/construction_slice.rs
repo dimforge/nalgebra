@@ -1,11 +1,13 @@
 use crate::base::dimension::{Const, Dim, DimName, Dynamic};
 use crate::base::matrix_slice::{SliceStorage, SliceStorageMut};
-use crate::base::{MatrixSlice, MatrixSliceMutMN};
+use crate::base::{MatrixSlice, MatrixSliceMutMN, Scalar};
 
 use num_rational::Ratio;
 
 /// # Creating matrix slices from `&[T]`
-impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> MatrixSlice<'a, T, R, C, RStride, CStride> {
+impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
+    MatrixSlice<'a, T, R, C, RStride, CStride>
+{
     /// Creates, without bound-checking, a matrix slice from an array and with dimensions and strides specified by generic types instances.
     ///
     /// # Safety
@@ -55,7 +57,7 @@ impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> MatrixSlice<'a, T, R, C,
     }
 }
 
-impl<'a, T, R: Dim, C: Dim> MatrixSlice<'a, T, R, C> {
+impl<'a, T: Scalar, R: Dim, C: Dim> MatrixSlice<'a, T, R, C> {
     /// Creates, without bound-checking, a matrix slice from an array and with dimensions specified by generic types instances.
     ///
     /// # Safety
@@ -85,7 +87,7 @@ impl<'a, T, R: Dim, C: Dim> MatrixSlice<'a, T, R, C> {
 
 macro_rules! impl_constructors(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<'a, T, $($DimIdent: $DimBound),*> MatrixSlice<'a, T, $($Dims),*> {
+        impl<'a, T: Scalar, $($DimIdent: $DimBound),*> MatrixSlice<'a, T, $($Dims),*> {
             /// Creates a new matrix slice from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
@@ -101,7 +103,7 @@ macro_rules! impl_constructors(
             }
         }
 
-        impl<'a, T, $($DimIdent: $DimBound, )*> MatrixSlice<'a, T, $($Dims,)* Dynamic, Dynamic> {
+        impl<'a, T: Scalar, $($DimIdent: $DimBound, )*> MatrixSlice<'a, T, $($Dims,)* Dynamic, Dynamic> {
             /// Creates a new matrix slice with the specified strides from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
@@ -141,7 +143,7 @@ impl_constructors!(Dynamic, Dynamic;
                    nrows, ncols);
 
 /// # Creating mutable matrix slices from `&mut [T]`
-impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
+impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     MatrixSliceMutMN<'a, T, R, C, RStride, CStride>
 {
     /// Creates, without bound-checking, a mutable matrix slice from an array and with dimensions and strides specified by generic types instances.
@@ -215,7 +217,7 @@ impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     }
 }
 
-impl<'a, T, R: Dim, C: Dim> MatrixSliceMutMN<'a, T, R, C> {
+impl<'a, T: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, T, R, C> {
     /// Creates, without bound-checking, a mutable matrix slice from an array and with dimensions specified by generic types instances.
     ///
     /// # Safety
@@ -245,7 +247,7 @@ impl<'a, T, R: Dim, C: Dim> MatrixSliceMutMN<'a, T, R, C> {
 
 macro_rules! impl_constructors_mut(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<'a, T, $($DimIdent: $DimBound),*> MatrixSliceMutMN<'a, T, $($Dims),*> {
+        impl<'a, T: Scalar, $($DimIdent: $DimBound),*> MatrixSliceMutMN<'a, T, $($Dims),*> {
             /// Creates a new mutable matrix slice from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
@@ -261,7 +263,7 @@ macro_rules! impl_constructors_mut(
             }
         }
 
-        impl<'a, T, $($DimIdent: $DimBound, )*> MatrixSliceMutMN<'a, T, $($Dims,)* Dynamic, Dynamic> {
+        impl<'a, T: Scalar, $($DimIdent: $DimBound, )*> MatrixSliceMutMN<'a, T, $($Dims,)* Dynamic, Dynamic> {
             /// Creates a new mutable matrix slice with the specified strides from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.

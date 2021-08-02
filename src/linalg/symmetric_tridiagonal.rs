@@ -1,16 +1,14 @@
-use std::fmt;
-use std::mem::MaybeUninit;
-
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, OMatrix, OVector};
-use crate::dimension::{Const, DimDiff, DimName, DimSub, U1};
-use crate::storage::{InnerOwned, Storage};
+use crate::dimension::{Const, DimDiff, DimSub, U1};
 use simba::scalar::ComplexField;
 
 use crate::linalg::householder;
+use crate::Matrix;
+use std::mem::MaybeUninit;
 
 /// Tridiagonalization of a symmetric matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -28,7 +26,8 @@ use crate::linalg::householder;
          OMatrix<T, D, D>: Deserialize<'de>,
          OVector<T, DimDiff<D, U1>>: Deserialize<'de>"))
 )]
-pub struct SymmetricTridiagonal<T, D: DimSub<U1>>
+#[derive(Clone, Debug)]
+pub struct SymmetricTridiagonal<T: ComplexField, D: DimSub<U1>>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
 {
@@ -36,40 +35,12 @@ where
     off_diagonal: OVector<T, DimDiff<D, U1>>,
 }
 
-impl<T: Copy, D: DimSub<U1> + DimName> Copy for SymmetricTridiagonal<T, D>
+impl<T: ComplexField, D: DimSub<U1>> Copy for SymmetricTridiagonal<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
-    InnerOwned<T, D, D>: Copy,
-    InnerOwned<T, DimDiff<D, U1>>: Copy,
+    OMatrix<T, D, D>: Copy,
+    OVector<T, DimDiff<D, U1>>: Copy,
 {
-}
-
-impl<T: Clone, D: DimSub<U1>> Clone for SymmetricTridiagonal<T, D>
-where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
-    InnerOwned<T, D, D>: Clone,
-    InnerOwned<T, DimDiff<D, U1>>: Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            tri: self.tri.clone(),
-            off_diagonal: self.off_diagonal.clone(),
-        }
-    }
-}
-
-impl<T: fmt::Debug, D: DimSub<U1>> fmt::Debug for SymmetricTridiagonal<T, D>
-where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
-    InnerOwned<T, D, D>: fmt::Debug,
-    InnerOwned<T, DimDiff<D, U1>>: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("SymmetricTridiagonal")
-            .field("tri", &self.tri)
-            .field("off_diagonal", &self.off_diagonal)
-            .finish()
-    }
 }
 
 impl<T: ComplexField, D: DimSub<U1>> SymmetricTridiagonal<T, D>
@@ -80,7 +51,7 @@ where
     ///
     /// Only the lower-triangular part (including the diagonal) of `m` is read.
     pub fn new(mut m: OMatrix<T, D, D>) -> Self {
-        let dim = m.data.shape().0;
+        let dim = m.shape_generic().0;
 
         assert!(
             m.is_square(),
@@ -91,8 +62,8 @@ where
             "Unable to compute the symmetric tridiagonal decomposition of an empty matrix."
         );
 
-        let mut off_diagonal = OVector::new_uninitialized_generic(dim.sub(Const::<1>), Const::<1>);
-        let mut p = OVector::new_uninitialized_generic(dim.sub(Const::<1>), Const::<1>);
+        let mut off_diagonal = Matrix::uninit(dim.sub(Const::<1>), Const::<1>);
+        let mut p = Matrix::zeros_generic(dim.sub(Const::<1>), Const::<1>);
 
         for i in 0..dim.value() - 1 {
             let mut m = m.rows_range_mut(i + 1..);
@@ -104,8 +75,7 @@ where
             if not_zero {
                 let mut p = p.rows_range_mut(i..);
 
-                p.hegemv_z(crate::convert(2.0), &m, &axis);
-                let p = unsafe { p.slice_assume_init() };
+                p.hegemv(crate::convert(2.0), &m, &axis, T::zero());
 
                 let dot = axis.dotc(&p);
                 m.hegerc(-T::one(), &p, &axis, T::one());
@@ -114,9 +84,11 @@ where
             }
         }
 
+        // Safety: off_diagonal has been fully initialized.
+        let off_diagonal = unsafe { off_diagonal.assume_init() };
         Self {
             tri: m,
-            off_diagonal: unsafe { off_diagonal.assume_init() },
+            off_diagonal,
         }
     }
 

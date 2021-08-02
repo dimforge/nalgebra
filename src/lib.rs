@@ -77,12 +77,12 @@ an optimized set of tools for computer graphics and physics. Those features incl
     unused_parens,
     unused_qualifications,
     unused_results,
-    missing_docs,
     rust_2018_idioms,
     rust_2018_compatibility,
     future_incompatible,
     missing_copy_implementations
 )]
+// #![deny(missing_docs)] // XXX: deny that
 #![doc(
     html_favicon_url = "https://nalgebra.org/img/favicon.ico",
     html_root_url = "https://docs.rs/nalgebra/0.25.0"

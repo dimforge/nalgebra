@@ -1,5 +1,3 @@
-use std::fmt;
-
 use num::Zero;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
@@ -8,11 +6,12 @@ use crate::allocator::{Allocator, Reallocator};
 use crate::base::{DefaultAllocator, Matrix, OMatrix, OVector, Unit};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Const, Dim, DimMin, DimMinimum};
-use crate::storage::{InnerOwned, Storage, StorageMut};
+use crate::storage::{Storage, StorageMut};
 use simba::scalar::ComplexField;
 
 use crate::geometry::Reflection;
 use crate::linalg::householder;
+use std::mem::MaybeUninit;
 
 /// The QR decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -30,8 +29,8 @@ use crate::linalg::householder;
          OMatrix<T, R, C>: Deserialize<'de>,
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
-
-pub struct QR<T, R: DimMin<C>, C: Dim>
+#[derive(Clone, Debug)]
+pub struct QR<T: ComplexField, R: DimMin<C>, C: Dim>
 where
     DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
 {
@@ -39,42 +38,12 @@ where
     diag: OVector<T, DimMinimum<R, C>>,
 }
 
-/*
-impl<T: Copy, R: DimMin<C>, C: Dim> Copy for QR<T, R, C>
+impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for QR<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
-    InnerOwned<T, R, C>: Copy,
-    InnerOwned<T, DimMinimum<R, C>>: Copy,
+    OMatrix<T, R, C>: Copy,
+    OVector<T, DimMinimum<R, C>>: Copy,
 {
-}
-*/
-
-impl<T: Clone, R: DimMin<C>, C: Dim> Clone for QR<T, R, C>
-where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
-    InnerOwned<T, R, C>: Clone,
-    InnerOwned<T, DimMinimum<R, C>>: Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            qr: self.qr.clone(),
-            diag: self.diag.clone(),
-        }
-    }
-}
-
-impl<T: fmt::Debug, R: DimMin<C>, C: Dim> fmt::Debug for QR<T, R, C>
-where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
-    InnerOwned<T, R, C>: fmt::Debug,
-    InnerOwned<T, DimMinimum<R, C>>: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("QR")
-            .field("qr", &self.qr)
-            .field("diag", &self.diag)
-            .finish()
-    }
 }
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> QR<T, R, C>
@@ -83,32 +52,26 @@ where
 {
     /// Computes the QR decomposition using householder reflections.
     pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
-        let (nrows, ncols) = matrix.data.shape();
+        let (nrows, ncols) = matrix.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
 
-        let mut diag = Matrix::new_uninitialized_generic(min_nrows_ncols, Const::<1>);
-
         if min_nrows_ncols.value() == 0 {
-            return Self {
+            return QR {
                 qr: matrix,
-                diag: unsafe { diag.assume_init() },
+                diag: Matrix::zeros_generic(min_nrows_ncols, Const::<1>),
             };
         }
 
+        let mut diag = Matrix::uninit(min_nrows_ncols, Const::<1>);
+
         for i in 0..min_nrows_ncols.value() {
-            // Safety: the pointer is valid for writes, aligned, and uninitialized.
-            unsafe {
-                householder::clear_column_unchecked(&mut matrix, diag[i].as_mut_ptr(), i, 0, None);
-            }
+            diag[i] =
+                MaybeUninit::new(householder::clear_column_unchecked(&mut matrix, i, 0, None));
         }
 
-        // Safety: all values have been initialized.
-        unsafe {
-            Self {
-                qr: matrix,
-                diag: diag.assume_init(),
-            }
-        }
+        // Safety: diag is now fully initialized.
+        let diag = unsafe { diag.assume_init() };
+        QR { qr: matrix, diag }
     }
 
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
@@ -118,7 +81,7 @@ where
     where
         DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
     {
-        let (nrows, ncols) = self.qr.data.shape();
+        let (nrows, ncols) = self.qr.shape_generic();
         let mut res = self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle();
         res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.modulus())));
         res
@@ -132,7 +95,7 @@ where
     where
         DefaultAllocator: Reallocator<T, R, C, DimMinimum<R, C>, C>,
     {
-        let (nrows, ncols) = self.qr.data.shape();
+        let (nrows, ncols) = self.qr.shape_generic();
         let mut res = self.qr.resize_generic(nrows.min(ncols), ncols, T::zero());
         res.fill_lower_triangle(T::zero(), 1);
         res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.modulus())));
@@ -145,7 +108,7 @@ where
     where
         DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
     {
-        let (nrows, ncols) = self.qr.data.shape();
+        let (nrows, ncols) = self.qr.shape_generic();
 
         // NOTE: we could build the identity matrix and call q_mul on it.
         // Instead we don't so that we take in account the matrix sparseness.
@@ -297,7 +260,7 @@ where
         );
 
         // TODO: is there a less naive method ?
-        let (nrows, ncols) = self.qr.data.shape();
+        let (nrows, ncols) = self.qr.shape_generic();
         let mut res = OMatrix::identity_generic(nrows, ncols);
 
         if self.solve_mut(&mut res) {

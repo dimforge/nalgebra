@@ -38,7 +38,7 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
             .data
             .shape()
             .0
-            .add(kernel.data.shape().0)
+            .add(kernel.shape_generic().0)
             .sub(Const::<1>);
         let mut conv = OVector::zeros_generic(result_len, Const::<1>);
 
@@ -92,7 +92,7 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
             .shape()
             .0
             .add(Const::<1>)
-            .sub(kernel.data.shape().0);
+            .sub(kernel.shape_generic().0);
         let mut conv = OVector::zeros_generic(result_len, Const::<1>);
 
         for i in 0..(vec - ker + 1) {
@@ -126,7 +126,7 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
             panic!("convolve_same expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",vec,ker);
         }
 
-        let mut conv = OVector::zeros_generic(self.data.shape().0, Const::<1>);
+        let mut conv = OVector::zeros_generic(self.shape_generic().0, Const::<1>);
 
         for i in 0..vec {
             for j in 0..ker {

@@ -1,6 +1,3 @@
-use std::fmt;
-use std::mem::MaybeUninit;
-
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
@@ -11,10 +8,8 @@ use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, OVector, Scalar};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::dimension::Dynamic;
-use crate::dimension::{Dim, DimName};
-use crate::iter::MatrixIter;
-use crate::storage::{InnerOwned, StorageMut};
-use crate::{Const, U1};
+use crate::dimension::{Const, Dim, DimName};
+use crate::storage::StorageMut;
 
 /// A sequence of row or column permutations.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -28,45 +23,20 @@ use crate::{Const, U1};
     serde(bound(deserialize = "DefaultAllocator: Allocator<(usize, usize), D>,
          OVector<(usize, usize), D>: Deserialize<'de>"))
 )]
+#[derive(Clone, Debug)]
 pub struct PermutationSequence<D: Dim>
 where
     DefaultAllocator: Allocator<(usize, usize), D>,
 {
     len: usize,
-    ipiv: OVector<MaybeUninit<(usize, usize)>, D>,
+    ipiv: OVector<(usize, usize), D>,
 }
 
 impl<D: Dim> Copy for PermutationSequence<D>
 where
     DefaultAllocator: Allocator<(usize, usize), D>,
-    OVector<MaybeUninit<(usize, usize)>, D>: Copy,
+    OVector<(usize, usize), D>: Copy,
 {
-}
-
-impl<D: Dim> Clone for PermutationSequence<D>
-where
-    DefaultAllocator: Allocator<(usize, usize), D>,
-    OVector<MaybeUninit<(usize, usize)>, D>: Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            len: self.len,
-            ipiv: self.ipiv.clone(),
-        }
-    }
-}
-
-impl<D: Dim> fmt::Debug for PermutationSequence<D>
-where
-    DefaultAllocator: Allocator<(usize, usize), D>,
-    OVector<MaybeUninit<(usize, usize)>, D>: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("PermutationSequence")
-            .field("len", &self.len)
-            .field("ipiv", &self.ipiv)
-            .finish()
-    }
 }
 
 impl<D: DimName> PermutationSequence<D>
@@ -101,7 +71,9 @@ where
     pub fn identity_generic(dim: D) -> Self {
         Self {
             len: 0,
-            ipiv: OVector::new_uninitialized_generic(dim, Const::<1>),
+            // TODO: using a uninitialized matrix would save some computation, but
+            //       that loos difficult to setup with MaybeUninit.
+            ipiv: Matrix::repeat_generic(dim, Const::<1>, (0, 0)),
         }
     }
 
@@ -114,7 +86,7 @@ where
                 self.len < self.ipiv.len(),
                 "Maximum number of permutations exceeded."
             );
-            self.ipiv[self.len] = MaybeUninit::new((i, i2));
+            self.ipiv[self.len] = (i, i2);
             self.len += 1;
         }
     }
@@ -125,8 +97,8 @@ where
     where
         S2: StorageMut<T, R2, C2>,
     {
-        for perm in self.iter() {
-            rhs.swap_rows(perm.0, perm.1)
+        for i in self.ipiv.rows_range(..self.len).iter() {
+            rhs.swap_rows(i.0, i.1)
         }
     }
 
@@ -136,8 +108,8 @@ where
     where
         S2: StorageMut<T, R2, C2>,
     {
-        for perm in self.iter().rev() {
-            let (i1, i2) = perm;
+        for i in 0..self.len {
+            let (i1, i2) = self.ipiv[self.len - i - 1];
             rhs.swap_rows(i1, i2)
         }
     }
@@ -148,8 +120,8 @@ where
     where
         S2: StorageMut<T, R2, C2>,
     {
-        for perm in self.iter() {
-            rhs.swap_columns(perm.0, perm.1)
+        for i in self.ipiv.rows_range(..self.len).iter() {
+            rhs.swap_columns(i.0, i.1)
         }
     }
 
@@ -161,8 +133,8 @@ where
     ) where
         S2: StorageMut<T, R2, C2>,
     {
-        for perm in self.iter().rev() {
-            let (i1, i2) = perm;
+        for i in 0..self.len {
+            let (i1, i2) = self.ipiv[self.len - i - 1];
             rhs.swap_columns(i1, i2)
         }
     }
@@ -188,28 +160,5 @@ where
         } else {
             -T::one()
         }
-    }
-
-    /// Iterates over the permutations that have been initialized.
-    pub fn iter(
-        &self,
-    ) -> std::iter::Map<
-        std::iter::Copied<
-            std::iter::Take<
-                MatrixIter<
-                    MaybeUninit<(usize, usize)>,
-                    D,
-                    U1,
-                    InnerOwned<MaybeUninit<(usize, usize)>, D, U1>,
-                >,
-            >,
-        >,
-        impl FnMut(MaybeUninit<(usize, usize)>) -> (usize, usize),
-    > {
-        self.ipiv
-            .iter()
-            .take(self.len)
-            .copied()
-            .map(|e| unsafe { e.assume_init() })
     }
 }

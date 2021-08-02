@@ -4,7 +4,7 @@ use std::ptr;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{U1, U2, U3, U4};
-use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
+use crate::base::storage::{IsContiguous, RawStorage, RawStorageMut};
 use crate::base::{DefaultAllocator, Matrix, OMatrix, Scalar};
 
 macro_rules! impl_from_into_mint_1D(
@@ -25,9 +25,10 @@ macro_rules! impl_from_into_mint_1D(
 
         impl<T, S> Into<mint::$VT<T>> for Matrix<T, $NRows, U1, S>
         where T: Scalar,
-              S: ContiguousStorage<T, $NRows, U1> {
+              S: RawStorage<T, $NRows, U1> + IsContiguous {
             #[inline]
             fn into(self) -> mint::$VT<T> {
+                // SAFETY: this is OK thanks to the IsContiguous bound.
                 unsafe {
                     let mut res: mint::$VT<T> = mem::MaybeUninit::uninit().assume_init();
                     ptr::copy_nonoverlapping(self.data.ptr(), &mut res.x, $SZ);
@@ -38,9 +39,10 @@ macro_rules! impl_from_into_mint_1D(
 
         impl<T, S> AsRef<mint::$VT<T>> for Matrix<T, $NRows, U1, S>
         where T: Scalar,
-              S: ContiguousStorage<T, $NRows, U1> {
+              S: RawStorage<T, $NRows, U1> + IsContiguous {
             #[inline]
             fn as_ref(&self) -> &mint::$VT<T> {
+                // SAFETY: this is OK thanks to the IsContiguous bound.
                 unsafe {
                     mem::transmute(self.data.ptr())
                 }
@@ -49,9 +51,10 @@ macro_rules! impl_from_into_mint_1D(
 
         impl<T, S> AsMut<mint::$VT<T>> for Matrix<T, $NRows, U1, S>
         where T: Scalar,
-              S: ContiguousStorageMut<T, $NRows, U1> {
+              S: RawStorageMut<T, $NRows, U1> + IsContiguous {
             #[inline]
             fn as_mut(&mut self) -> &mut mint::$VT<T> {
+                // SAFETY: this is OK thanks to the IsContiguous bound.
                 unsafe {
                     mem::transmute(self.data.ptr_mut())
                 }

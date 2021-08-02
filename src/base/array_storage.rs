@@ -1,5 +1,4 @@
 use std::fmt::{self, Debug, Formatter};
-use std::mem;
 // use std::hash::{Hash, Hasher};
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
@@ -13,27 +12,42 @@ use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "serde-serialize-no-std")]
 use std::marker::PhantomData;
+#[cfg(feature = "serde-serialize-no-std")]
+use std::mem;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use crate::allocator::InnerAllocator;
+use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, ToTypenum};
-use crate::base::storage::{
-    ContiguousStorage, ContiguousStorageMut, ReshapableStorage, Storage, StorageMut,
-};
-use crate::base::Owned;
+use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, ReshapableStorage};
+use crate::base::Scalar;
+use crate::Storage;
 
 /*
  *
- * Static Storage.
+ * Static RawStorage.
  *
  */
 /// A array-based statically sized matrix data storage.
-#[repr(transparent)]
+#[repr(C)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ArrayStorage<T, const R: usize, const C: usize>(pub [[T; R]; C]);
+
+impl<T, const R: usize, const C: usize> ArrayStorage<T, R, C> {
+    #[inline]
+    pub fn as_slice(&self) -> &[T] {
+        // SAFETY: this is OK because ArrayStorage is contiguous.
+        unsafe { self.as_slice_unchecked() }
+    }
+
+    #[inline]
+    pub fn as_mut_slice(&mut self) -> &mut [T] {
+        // SAFETY: this is OK because ArrayStorage is contiguous.
+        unsafe { self.as_mut_slice_unchecked() }
+    }
+}
 
 // TODO: remove this once the stdlib implements Default for arrays.
 impl<T: Default, const R: usize, const C: usize> Default for ArrayStorage<T, R, C>
@@ -53,10 +67,8 @@ impl<T: Debug, const R: usize, const C: usize> Debug for ArrayStorage<T, R, C> {
     }
 }
 
-unsafe impl<T, const R: usize, const C: usize> Storage<T, Const<R>, Const<C>>
+unsafe impl<T, const R: usize, const C: usize> RawStorage<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
-where
-    DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
     type RStride = Const<1>;
     type CStride = Const<R>;
@@ -82,37 +94,35 @@ where
     }
 
     #[inline]
-    fn into_owned(self) -> Owned<T, Const<R>, Const<C>>
-    where
-        DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>>,
-    {
-        Owned(self)
-    }
-
-    #[inline]
-    fn clone_owned(&self) -> Owned<T, Const<R>, Const<C>>
-    where
-        T: Clone,
-        DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>>,
-    {
-        let it = self.as_slice().iter().cloned();
-        Owned(DefaultAllocator::allocate_from_iterator(
-            self.shape().0,
-            self.shape().1,
-            it,
-        ))
-    }
-
-    #[inline]
     unsafe fn as_slice_unchecked(&self) -> &[T] {
         std::slice::from_raw_parts(self.ptr(), R * C)
     }
 }
 
-unsafe impl<T, const R: usize, const C: usize> StorageMut<T, Const<R>, Const<C>>
+unsafe impl<T: Scalar, const R: usize, const C: usize> Storage<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
+    DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
+{
+    #[inline]
+    fn into_owned(self) -> Owned<T, Const<R>, Const<C>>
+    where
+        DefaultAllocator: Allocator<T, Const<R>, Const<C>>,
+    {
+        self
+    }
+
+    #[inline]
+    fn clone_owned(&self) -> Owned<T, Const<R>, Const<C>>
+    where
+        DefaultAllocator: Allocator<T, Const<R>, Const<C>>,
+    {
+        self.clone()
+    }
+}
+
+unsafe impl<T, const R: usize, const C: usize> RawStorageMut<T, Const<R>, Const<C>>
+    for ArrayStorage<T, R, C>
 {
     #[inline]
     fn ptr_mut(&mut self) -> *mut T {
@@ -125,23 +135,12 @@ where
     }
 }
 
-unsafe impl<T, const R: usize, const C: usize> ContiguousStorage<T, Const<R>, Const<C>>
-    for ArrayStorage<T, R, C>
-where
-    DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
-{
-}
-
-unsafe impl<T, const R: usize, const C: usize> ContiguousStorageMut<T, Const<R>, Const<C>>
-    for ArrayStorage<T, R, C>
-where
-    DefaultAllocator: InnerAllocator<T, Const<R>, Const<C>, Buffer = Self>,
-{
-}
+unsafe impl<T, const R: usize, const C: usize> IsContiguous for ArrayStorage<T, R, C> {}
 
 impl<T, const R1: usize, const C1: usize, const R2: usize, const C2: usize>
     ReshapableStorage<T, Const<R1>, Const<C1>, Const<R2>, Const<C2>> for ArrayStorage<T, R1, C1>
 where
+    T: Scalar,
     Const<R1>: ToTypenum,
     Const<C1>: ToTypenum,
     Const<R2>: ToTypenum,
@@ -159,8 +158,8 @@ where
 
     fn reshape_generic(self, _: Const<R2>, _: Const<C2>) -> Self::Output {
         unsafe {
-            let data: [[T; R2]; C2] = mem::transmute_copy(&self.0);
-            mem::forget(self.0);
+            let data: [[T; R2]; C2] = std::mem::transmute_copy(&self.0);
+            std::mem::forget(self.0);
             ArrayStorage(data)
         }
     }
@@ -175,7 +174,7 @@ where
 #[cfg(feature = "serde-serialize-no-std")]
 impl<T, const R: usize, const C: usize> Serialize for ArrayStorage<T, R, C>
 where
-    T: Serialize,
+    T: Scalar + Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -194,7 +193,7 @@ where
 #[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T, const R: usize, const C: usize> Deserialize<'a> for ArrayStorage<T, R, C>
 where
-    T: Deserialize<'a>,
+    T: Scalar + Deserialize<'a>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -211,7 +210,10 @@ struct ArrayStorageVisitor<T, const R: usize, const C: usize> {
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T, const R: usize, const C: usize> ArrayStorageVisitor<T, R, C> {
+impl<T, const R: usize, const C: usize> ArrayStorageVisitor<T, R, C>
+where
+    T: Scalar,
+{
     /// Construct a new sequence visitor.
     pub fn new() -> Self {
         ArrayStorageVisitor {
@@ -223,7 +225,7 @@ impl<T, const R: usize, const C: usize> ArrayStorageVisitor<T, R, C> {
 #[cfg(feature = "serde-serialize-no-std")]
 impl<'a, T, const R: usize, const C: usize> Visitor<'a> for ArrayStorageVisitor<T, R, C>
 where
-    T: Deserialize<'a>,
+    T: Scalar + Deserialize<'a>,
 {
     type Value = ArrayStorage<T, R, C>;
 
@@ -255,13 +257,13 @@ where
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T: Copy + bytemuck::Zeroable, const R: usize, const C: usize> bytemuck::Zeroable
-    for ArrayStorage<T, R, C>
+unsafe impl<T: Scalar + Copy + bytemuck::Zeroable, const R: usize, const C: usize>
+    bytemuck::Zeroable for ArrayStorage<T, R, C>
 {
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T: Copy + bytemuck::Pod, const R: usize, const C: usize> bytemuck::Pod
+unsafe impl<T: Scalar + Copy + bytemuck::Pod, const R: usize, const C: usize> bytemuck::Pod
     for ArrayStorage<T, R, C>
 {
 }
@@ -269,7 +271,7 @@ unsafe impl<T: Copy + bytemuck::Pod, const R: usize, const C: usize> bytemuck::P
 #[cfg(feature = "abomonation-serialize")]
 impl<T, const R: usize, const C: usize> Abomonation for ArrayStorage<T, R, C>
 where
-    T: Abomonation,
+    T: Scalar + Abomonation,
 {
     unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
         for element in self.as_slice() {

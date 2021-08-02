@@ -4,7 +4,7 @@ use num_complex::Complex;
 use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Const, Dim, DimMin, DimMinimum};
-use na::storage::Storage;
+use na::storage::RawStorage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
@@ -61,7 +61,7 @@ where
 {
     /// Computes the LU decomposition with partial (row) pivoting of `matrix`.
     pub fn new(mut m: OMatrix<T, R, C>) -> Self {
-        let (nrows, ncols) = m.data.shape();
+        let (nrows, ncols) = m.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
         let nrows = nrows.value() as i32;
         let ncols = ncols.value() as i32;
@@ -87,7 +87,7 @@ where
     #[inline]
     #[must_use]
     pub fn l(&self) -> OMatrix<T, R, DimMinimum<R, C>> {
-        let (nrows, ncols) = self.lu.data.shape();
+        let (nrows, ncols) = self.lu.shape_generic();
         let mut res = self.lu.columns_generic(0, nrows.min(ncols)).into_owned();
 
         res.fill_upper_triangle(Zero::zero(), 1);
@@ -100,7 +100,7 @@ where
     #[inline]
     #[must_use]
     pub fn u(&self) -> OMatrix<T, DimMinimum<R, C>, C> {
-        let (nrows, ncols) = self.lu.data.shape();
+        let (nrows, ncols) = self.lu.shape_generic();
         let mut res = self.lu.rows_generic(0, nrows.min(ncols)).into_owned();
 
         res.fill_lower_triangle(Zero::zero(), 1);
@@ -115,7 +115,7 @@ where
     #[inline]
     #[must_use]
     pub fn p(&self) -> OMatrix<T, R, R> {
-        let (dim, _) = self.lu.data.shape();
+        let (dim, _) = self.lu.shape_generic();
         let mut id = Matrix::identity_generic(dim, dim);
         self.permute(&mut id);
 
@@ -191,7 +191,7 @@ where
         b: &Matrix<T, R2, C2, S2>,
     ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: Storage<T, R2, C2>,
+        S2: RawStorage<T, R2, C2>,
         DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
     {
         let mut res = b.clone_owned();
@@ -209,7 +209,7 @@ where
         b: &Matrix<T, R2, C2, S2>,
     ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: Storage<T, R2, C2>,
+        S2: RawStorage<T, R2, C2>,
         DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
     {
         let mut res = b.clone_owned();
@@ -227,7 +227,7 @@ where
         b: &Matrix<T, R2, C2, S2>,
     ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: Storage<T, R2, C2>,
+        S2: RawStorage<T, R2, C2>,
         DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
     {
         let mut res = b.clone_owned();

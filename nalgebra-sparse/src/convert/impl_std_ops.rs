@@ -2,14 +2,16 @@ use crate::convert::serial::*;
 use crate::coo::CooMatrix;
 use crate::csc::CscMatrix;
 use crate::csr::CsrMatrix;
-use nalgebra::storage::Storage;
+use nalgebra::storage::RawStorage;
 use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
 use num_traits::Zero;
 
-impl<'a, T, R: Dim, C: Dim, S> From<&'a Matrix<T, R, C, S>> for CooMatrix<T>
+impl<'a, T, R, C, S> From<&'a Matrix<T, R, C, S>> for CooMatrix<T>
 where
-    T: Scalar + Zero + PartialEq,
-    S: Storage<T, R, C>,
+    T: Scalar + Zero,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T, R, C>,
 {
     fn from(matrix: &'a Matrix<T, R, C, S>) -> Self {
         convert_dense_coo(matrix)
@@ -43,10 +45,12 @@ where
     }
 }
 
-impl<'a, T, R: Dim, C: Dim, S> From<&'a Matrix<T, R, C, S>> for CsrMatrix<T>
+impl<'a, T, R, C, S> From<&'a Matrix<T, R, C, S>> for CsrMatrix<T>
 where
-    T: Scalar + Zero + PartialEq,
-    S: Storage<T, R, C>,
+    T: Scalar + Zero,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T, R, C>,
 {
     fn from(matrix: &'a Matrix<T, R, C, S>) -> Self {
         convert_dense_csr(matrix)
@@ -80,10 +84,12 @@ where
     }
 }
 
-impl<'a, T, R: Dim, C: Dim, S> From<&'a Matrix<T, R, C, S>> for CscMatrix<T>
+impl<'a, T, R, C, S> From<&'a Matrix<T, R, C, S>> for CscMatrix<T>
 where
-    T: Scalar + Zero + PartialEq,
-    S: Storage<T, R, C>,
+    T: Scalar + Zero,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T, R, C>,
 {
     fn from(matrix: &'a Matrix<T, R, C, S>) -> Self {
         convert_dense_csc(matrix)

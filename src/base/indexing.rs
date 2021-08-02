@@ -1,8 +1,8 @@
 //! Indexing
 
-use crate::base::storage::{Storage, StorageMut};
+use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::base::{
-    Const, Dim, DimDiff, DimName, DimSub, Dynamic, Matrix, MatrixSlice, MatrixSliceMut, U1,
+    Const, Dim, DimDiff, DimName, DimSub, Dynamic, Matrix, MatrixSlice, MatrixSliceMut, Scalar, U1,
 };
 
 use std::ops;
@@ -310,7 +310,7 @@ fn dimrange_rangetoinclusive_usize() {
 }
 
 /// A helper trait used for indexing operations.
-pub trait MatrixIndex<'a, T, R: Dim, C: Dim, S: Storage<T, R, C>>: Sized {
+pub trait MatrixIndex<'a, T, R: Dim, C: Dim, S: RawStorage<T, R, C>>: Sized {
     /// The output type returned by methods.
     type Output: 'a;
 
@@ -345,7 +345,7 @@ pub trait MatrixIndex<'a, T, R: Dim, C: Dim, S: Storage<T, R, C>>: Sized {
 }
 
 /// A helper trait used for indexing operations.
-pub trait MatrixIndexMut<'a, T, R: Dim, C: Dim, S: StorageMut<T, R, C>>:
+pub trait MatrixIndexMut<'a, T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>>:
     MatrixIndex<'a, T, R, C, S>
 {
     /// The output type returned by methods.
@@ -476,7 +476,7 @@ pub trait MatrixIndexMut<'a, T, R: Dim, C: Dim, S: StorageMut<T, R, C>>:
 ///                         4, 7,
 ///                         5, 8)));
 /// ```
-impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// Produces a view of the data at the given index, or
     /// `None` if the index is out of bounds.
     #[inline]
@@ -494,7 +494,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn get_mut<'a, I>(&'a mut self, index: I) -> Option<I::OutputMut>
     where
-        S: StorageMut<T, R, C>,
+        S: RawStorageMut<T, R, C>,
         I: MatrixIndexMut<'a, T, R, C, S>,
     {
         index.get_mut(self)
@@ -516,7 +516,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     pub fn index_mut<'a, I>(&'a mut self, index: I) -> I::OutputMut
     where
-        S: StorageMut<T, R, C>,
+        S: RawStorageMut<T, R, C>,
         I: MatrixIndexMut<'a, T, R, C, S>,
     {
         index.index_mut(self)
@@ -539,7 +539,7 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub unsafe fn get_unchecked_mut<'a, I>(&'a mut self, index: I) -> I::OutputMut
     where
-        S: StorageMut<T, R, C>,
+        S: RawStorageMut<T, R, C>,
         I: MatrixIndexMut<'a, T, R, C, S>,
     {
         index.get_unchecked_mut(self)
@@ -548,9 +548,12 @@ impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
 // EXTRACT A SINGLE ELEMENT BY 1D LINEAR ADDRESS
 
-impl<'a, T: 'a, R: Dim, C: Dim, S> MatrixIndex<'a, T, R, C, S> for usize
+impl<'a, T, R, C, S> MatrixIndex<'a, T, R, C, S> for usize
 where
-    S: Storage<T, R, C>,
+    T: Scalar,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T, R, C>,
 {
     type Output = &'a T;
 
@@ -567,9 +570,12 @@ where
     }
 }
 
-impl<'a, T: 'a, R: Dim, C: Dim, S> MatrixIndexMut<'a, T, R, C, S> for usize
+impl<'a, T, R, C, S> MatrixIndexMut<'a, T, R, C, S> for usize
 where
-    S: StorageMut<T, R, C>,
+    T: Scalar,
+    R: Dim,
+    C: Dim,
+    S: RawStorageMut<T, R, C>,
 {
     type OutputMut = &'a mut T;
 
@@ -577,7 +583,7 @@ where
     #[inline(always)]
     unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T, R, C, S>) -> Self::OutputMut
     where
-        S: StorageMut<T, R, C>,
+        S: RawStorageMut<T, R, C>,
     {
         matrix.data.get_unchecked_linear_mut(self)
     }
@@ -585,9 +591,11 @@ where
 
 // EXTRACT A SINGLE ELEMENT BY 2D COORDINATES
 
-impl<'a, T: 'a, R: Dim, C: Dim, S> MatrixIndex<'a, T, R, C, S> for (usize, usize)
+impl<'a, T: 'a, R, C, S> MatrixIndex<'a, T, R, C, S> for (usize, usize)
 where
-    S: Storage<T, R, C>,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T, R, C>,
 {
     type Output = &'a T;
 
@@ -595,7 +603,7 @@ where
     #[inline(always)]
     fn contained_by(&self, matrix: &Matrix<T, R, C, S>) -> bool {
         let (rows, cols) = self;
-        let (nrows, ncols) = matrix.data.shape();
+        let (nrows, ncols) = matrix.shape_generic();
         DimRange::contained_by(rows, nrows) && DimRange::contained_by(cols, ncols)
     }
 
@@ -607,9 +615,11 @@ where
     }
 }
 
-impl<'a, T: 'a, R: Dim, C: Dim, S> MatrixIndexMut<'a, T, R, C, S> for (usize, usize)
+impl<'a, T: 'a, R, C, S> MatrixIndexMut<'a, T, R, C, S> for (usize, usize)
 where
-    S: StorageMut<T, R, C>,
+    R: Dim,
+    C: Dim,
+    S: RawStorageMut<T, R, C>,
 {
     type OutputMut = &'a mut T;
 
@@ -617,7 +627,7 @@ where
     #[inline(always)]
     unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T, R, C, S>) -> Self::OutputMut
     where
-        S: StorageMut<T, R, C>,
+        S: RawStorageMut<T, R, C>,
     {
         let (row, col) = self;
         matrix.data.get_unchecked_mut(row, col)
@@ -643,10 +653,12 @@ macro_rules! impl_index_pair {
         $(where $CConstraintType: ty: $CConstraintBound: ident $(<$($CConstraintBoundParams: ty $( = $CEqBound: ty )*),*>)* )*]
     ) =>
     {
-        impl<'a, T: 'a, $R: Dim, $C: Dim, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*>
-            MatrixIndex<'a, T, $R, $C, S> for ($RIdx, $CIdx)
+        impl<'a, T, $R, $C, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*> MatrixIndex<'a, T, $R, $C, S> for ($RIdx, $CIdx)
         where
-            S: Storage<T, R, C>,
+            T: Scalar,
+            $R: Dim,
+            $C: Dim,
+            S: RawStorage<T, R, C>,
             $( $RConstraintType: $RConstraintBound $(<$( $RConstraintBoundParams $( = $REqBound )*),*>)* ,)*
             $( $CConstraintType: $CConstraintBound $(<$( $CConstraintBoundParams $( = $CEqBound )*),*>)* ),*
         {
@@ -656,7 +668,7 @@ macro_rules! impl_index_pair {
             #[inline(always)]
             fn contained_by(&self, matrix: &Matrix<T, $R, $C, S>) -> bool {
                 let (rows, cols) = self;
-                let (nrows, ncols) = matrix.data.shape();
+                let (nrows, ncols) = matrix.shape_generic();
                 DimRange::contained_by(rows, nrows) && DimRange::contained_by(cols, ncols)
             }
 
@@ -666,21 +678,23 @@ macro_rules! impl_index_pair {
                 use crate::base::SliceStorage;
 
                 let (rows, cols) = self;
-                let (nrows, ncols) = matrix.data.shape();
+                let (nrows, ncols) = matrix.shape_generic();
 
                 let data =
                     SliceStorage::new_unchecked(&matrix.data,
                         (rows.lower(nrows),  cols.lower(ncols)),
                         (rows.length(nrows), cols.length(ncols)));
 
-                Matrix::from_data(data)
+                Matrix::from_data_statically_unchecked(data)
             }
         }
 
-        impl<'a, T: 'a, $R: Dim, $C: Dim, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*>
-            MatrixIndexMut<'a, T, $R, $C, S> for ($RIdx, $CIdx)
+        impl<'a, T, $R, $C, S, $($RTyP : $RTyPB,)* $($CTyP : $CTyPB),*> MatrixIndexMut<'a, T, $R, $C, S> for ($RIdx, $CIdx)
         where
-            S: StorageMut<T, R, C>,
+            T: Scalar,
+            $R: Dim,
+            $C: Dim,
+            S: RawStorageMut<T, R, C>,
             $( $RConstraintType: $RConstraintBound $(<$( $RConstraintBoundParams $( = $REqBound )*),*>)* ,)*
             $( $CConstraintType: $CConstraintBound $(<$( $CConstraintBoundParams $( = $CEqBound )*),*>)* ),*
         {
@@ -692,14 +706,14 @@ macro_rules! impl_index_pair {
                 use crate::base::SliceStorageMut;
 
                 let (rows, cols) = self;
-                let (nrows, ncols) = matrix.data.shape();
+                let (nrows, ncols) = matrix.shape_generic();
 
                 let data =
                     SliceStorageMut::new_unchecked(&mut matrix.data,
                         (rows.lower(nrows),  cols.lower(ncols)),
                         (rows.length(nrows), cols.length(ncols)));
 
-                Matrix::from_data(data)
+                Matrix::from_data_statically_unchecked(data)
             }
         }
     }

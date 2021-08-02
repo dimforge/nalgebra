@@ -15,8 +15,9 @@ use alga::linear::{
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimName};
-use crate::base::storage::{Storage, StorageMut};
-use crate::base::{DefaultAllocator, OMatrix, Scalar};
+use crate::base::storage::{RawStorage, RawStorageMut};
+use crate::base::{DefaultAllocator, Matrix, OMatrix, Scalar};
+use std::mem::MaybeUninit;
 
 /*
  *
@@ -427,14 +428,14 @@ where
 {
     #[inline]
     fn meet_join(&self, other: &Self) -> (Self, Self) {
-        let shape = self.data.shape();
+        let shape = self.shape_generic();
         assert!(
-            shape == other.data.shape(),
+            shape == other.shape_generic(),
             "Matrix meet/join error: mismatched dimensions."
         );
 
-        let mut mres = Matrix::new_uninitialized_generic(shape.0, shape.1);
-        let mut jres = Matrix::new_uninitialized_generic(shape.0, shape.1);
+        let mut mres = Matrix::uninit(shape.0, shape.1);
+        let mut jres = Matrix::uninit(shape.0, shape.1);
 
         for i in 0..shape.0.value() * shape.1.value() {
             unsafe {
@@ -442,11 +443,12 @@ where
                     .data
                     .get_unchecked_linear(i)
                     .meet_join(other.data.get_unchecked_linear(i));
-                *mres.data.get_unchecked_linear_mut(i) = mj.0;
-                *jres.data.get_unchecked_linear_mut(i) = mj.1;
+                *mres.data.get_unchecked_linear_mut(i) = MaybeUninit::new(mj.0);
+                *jres.data.get_unchecked_linear_mut(i) = MaybeUninit::new(mj.1);
             }
         }
 
-        (mres, jres)
+        // Safety: both mres and jres are now completely initialized.
+        unsafe { (mres.assume_init(), jres.assume_init()) }
     }
 }

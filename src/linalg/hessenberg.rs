@@ -1,17 +1,14 @@
-use std::fmt;
-use std::mem::MaybeUninit;
-
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, OMatrix, OVector};
 use crate::dimension::{Const, DimDiff, DimSub, U1};
-use crate::storage::{InnerOwned, Storage};
-use crate::Matrix;
 use simba::scalar::ComplexField;
 
 use crate::linalg::householder;
+use crate::Matrix;
+use std::mem::MaybeUninit;
 
 /// Hessenberg decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -29,6 +26,7 @@ use crate::linalg::householder;
          OMatrix<T, D, D>: Deserialize<'de>,
          OVector<T, DimDiff<D, U1>>: Deserialize<'de>"))
 )]
+#[derive(Clone, Debug)]
 pub struct Hessenberg<T: ComplexField, D: DimSub<U1>>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
@@ -37,42 +35,12 @@ where
     subdiag: OVector<T, DimDiff<D, U1>>,
 }
 
-/*
 impl<T: ComplexField, D: DimSub<U1>> Copy for Hessenberg<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
-    InnerOwned<T, D, D>: Copy,
-    InnerOwned<T, DimDiff<D, U1>>: Copy,
+    OMatrix<T, D, D>: Copy,
+    OVector<T, DimDiff<D, U1>>: Copy,
 {
-}
-*/
-
-impl<T: ComplexField, D: DimSub<U1>> Clone for Hessenberg<T, D>
-where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
-    InnerOwned<T, D, D>: Clone,
-    InnerOwned<T, DimDiff<D, U1>>: Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            hess: self.hess.clone(),
-            subdiag: self.subdiag.clone(),
-        }
-    }
-}
-
-impl<T: ComplexField, D: DimSub<U1>> fmt::Debug for Hessenberg<T, D>
-where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
-    InnerOwned<T, D, D>: fmt::Debug,
-    InnerOwned<T, DimDiff<D, U1>>: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("Hessenberg")
-            .field("hess", &self.hess)
-            .field("subdiag", &self.subdiag)
-            .finish()
-    }
 }
 
 impl<T: ComplexField, D: DimSub<U1>> Hessenberg<T, D>
@@ -81,7 +49,7 @@ where
 {
     /// Computes the Hessenberg decomposition using householder reflections.
     pub fn new(hess: OMatrix<T, D, D>) -> Self {
-        let mut work = OVector::new_uninitialized_generic(hess.data.shape().0, Const::<1>);
+        let mut work = Matrix::zeros_generic(hess.shape_generic().0, Const::<1>);
         Self::new_with_workspace(hess, &mut work)
     }
 
@@ -89,16 +57,13 @@ where
     ///
     /// The workspace containing `D` elements must be provided but its content does not have to be
     /// initialized.
-    pub fn new_with_workspace(
-        mut hess: OMatrix<T, D, D>,
-        work: &mut OVector<MaybeUninit<T>, D>,
-    ) -> Self {
+    pub fn new_with_workspace(mut hess: OMatrix<T, D, D>, work: &mut OVector<T, D>) -> Self {
         assert!(
             hess.is_square(),
             "Cannot compute the hessenberg decomposition of a non-square matrix."
         );
 
-        let dim = hess.data.shape().0;
+        let dim = hess.shape_generic().0;
 
         assert!(
             dim.value() != 0,
@@ -110,38 +75,27 @@ where
             "Hessenberg: invalid workspace size."
         );
 
-        let mut subdiag = Matrix::new_uninitialized_generic(dim.sub(Const::<1>), Const::<1>);
-
         if dim.value() == 0 {
-            // Safety: there's no (uninitialized) values.
-            unsafe {
-                return Self {
-                    hess,
-                    subdiag: subdiag.assume_init(),
-                };
-            }
+            return Hessenberg {
+                hess,
+                subdiag: Matrix::zeros_generic(dim.sub(Const::<1>), Const::<1>),
+            };
         }
+
+        let mut subdiag = Matrix::uninit(dim.sub(Const::<1>), Const::<1>);
 
         for ite in 0..dim.value() - 1 {
-            // Safety: the pointer is valid for writes, aligned, and uninitialized.
-            unsafe {
-                householder::clear_column_unchecked(
-                    &mut hess,
-                    subdiag[ite].as_mut_ptr(),
-                    ite,
-                    1,
-                    Some(work),
-                );
-            }
+            subdiag[ite] = MaybeUninit::new(householder::clear_column_unchecked(
+                &mut hess,
+                ite,
+                1,
+                Some(work),
+            ));
         }
 
-        // Safety: all values have been initialized.
-        unsafe {
-            Self {
-                hess,
-                subdiag: subdiag.assume_init(),
-            }
-        }
+        // Safety: subdiag is now fully initialized.
+        let subdiag = unsafe { subdiag.assume_init() };
+        Hessenberg { hess, subdiag }
     }
 
     /// Retrieves `(q, h)` with `q` the orthogonal matrix of this decomposition and `h` the
@@ -170,10 +124,7 @@ where
     /// This is less efficient than `.unpack_h()` as it allocates a new matrix.
     #[inline]
     #[must_use]
-    pub fn h(&self) -> OMatrix<T, D, D>
-    where
-        InnerOwned<T, D, D>: Clone,
-    {
+    pub fn h(&self) -> OMatrix<T, D, D> {
         let dim = self.hess.nrows();
         let mut res = self.hess.clone();
         res.fill_lower_triangle(T::zero(), 2);

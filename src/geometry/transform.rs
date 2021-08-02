@@ -1,6 +1,5 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::any::Any;
-use std::fmt;
 use std::fmt::Debug;
 use std::hash;
 use std::marker::PhantomData;
@@ -8,11 +7,11 @@ use std::marker::PhantomData;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use simba::scalar::{ComplexField, RealField};
+use simba::scalar::RealField;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
-use crate::base::storage::InnerOwned;
+use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, DimName, OMatrix, SVector};
 
 use crate::geometry::Point;
@@ -120,7 +119,7 @@ macro_rules! category_mul_impl(
     )*}
 );
 
-// We require stability upon multiplication.
+// We require stability uppon multiplication.
 impl<T: TCategory> TCategoryMul<T> for T {
     type Representative = T;
 }
@@ -157,8 +156,9 @@ super_tcategory_impl!(
 ///
 /// It is stored as a matrix with dimensions `(D + 1, D + 1)`, e.g., it stores a 4x4 matrix for a
 /// 3D transformation.
-#[repr(transparent)]
-pub struct Transform<T, C: TCategory, const D: usize>
+#[repr(C)]
+#[derive(Debug)]
+pub struct Transform<T: RealField, C: TCategory, const D: usize>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
@@ -167,32 +167,29 @@ where
     _phantom: PhantomData<C>,
 }
 
-impl<T: hash::Hash, C: TCategory, const D: usize> hash::Hash for Transform<T, C, D>
+impl<T: RealField + hash::Hash, C: TCategory, const D: usize> hash::Hash for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: hash::Hash,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.matrix.hash(state);
     }
 }
 
-/*
-impl<T: Copy, C: TCategory, const D: usize> Copy for Transform<T, C, D>
+impl<T: RealField, C: TCategory, const D: usize> Copy for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Copy,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Copy,
 {
 }
-*/
 
-impl<T: Clone, C: TCategory, const D: usize> Clone for Transform<T, C, D>
+impl<T: RealField, C: TCategory, const D: usize> Clone for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Clone,
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -200,25 +197,33 @@ where
     }
 }
 
-impl<T: Debug, C: TCategory, const D: usize> Debug for Transform<T, C, D>
+#[cfg(feature = "bytemuck")]
+unsafe impl<T, C: TCategory, const D: usize> bytemuck::Zeroable for Transform<T, C, D>
 where
+    T: RealField + bytemuck::Zeroable,
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Debug,
+    OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: bytemuck::Zeroable,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("Transform")
-            .field("matrix", &self.matrix)
-            .finish()
-    }
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T, C: TCategory, const D: usize> bytemuck::Pod for Transform<T, C, D>
+where
+    T: RealField + bytemuck::Pod,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: bytemuck::Pod,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Copy,
+{
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T, C: TCategory, const D: usize> Serialize for Transform<T, C, D>
+impl<T: RealField, C: TCategory, const D: usize> Serialize for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Serialize,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -229,11 +234,11 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'a, T, C: TCategory, const D: usize> Deserialize<'a> for Transform<T, C, D>
+impl<'a, T: RealField, C: TCategory, const D: usize> Deserialize<'a> for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Deserialize<'a>,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
@@ -247,14 +252,14 @@ where
     }
 }
 
-impl<T: Eq, C: TCategory, const D: usize> Eq for Transform<T, C, D>
+impl<T: RealField + Eq, C: TCategory, const D: usize> Eq for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
 }
 
-impl<T: PartialEq, C: TCategory, const D: usize> PartialEq for Transform<T, C, D>
+impl<T: RealField, C: TCategory, const D: usize> PartialEq for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
@@ -265,7 +270,7 @@ where
     }
 }
 
-impl<T, C: TCategory, const D: usize> Transform<T, C, D>
+impl<T: RealField, C: TCategory, const D: usize> Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
@@ -370,10 +375,7 @@ where
     #[deprecated(
         note = "This method is redundant with automatic `Copy` and the `.clone()` method and will be removed in a future release."
     )]
-    pub fn clone_owned(&self) -> Transform<T, C, D>
-    where
-        T: Clone,
-    {
+    pub fn clone_owned(&self) -> Transform<T, C, D> {
         Transform::from_matrix_unchecked(self.matrix.clone_owned())
     }
 
@@ -391,10 +393,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-    where
-        T: Clone,
-    {
+    pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         self.matrix().clone_owned()
     }
 
@@ -423,10 +422,7 @@ where
     /// ```
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
-    pub fn try_inverse(self) -> Option<Transform<T, C, D>>
-    where
-        T: ComplexField,
-    {
+    pub fn try_inverse(self) -> Option<Transform<T, C, D>> {
         self.matrix
             .try_inverse()
             .map(Transform::from_matrix_unchecked)
@@ -452,7 +448,6 @@ where
     #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(self) -> Transform<T, C, D>
     where
-        T: ComplexField,
         C: SubTCategoryOf<TProjective>,
     {
         // TODO: specialize for TAffine?
@@ -484,10 +479,7 @@ where
     /// assert!(!t.try_inverse_mut());
     /// ```
     #[inline]
-    pub fn try_inverse_mut(&mut self) -> bool
-    where
-        T: ComplexField,
-    {
+    pub fn try_inverse_mut(&mut self) -> bool {
         self.matrix.try_inverse_mut()
     }
 
@@ -511,7 +503,6 @@ where
     #[inline]
     pub fn inverse_mut(&mut self)
     where
-        T: ComplexField,
         C: SubTCategoryOf<TProjective>,
     {
         let _ = self.matrix.try_inverse_mut();
@@ -552,8 +543,8 @@ where
     Const<D>: DimNameAdd<U1>,
     C: SubTCategoryOf<TProjective>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T, DimNameSum<Const<D>, U1>>,
-    InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Clone,
+        + Allocator<T, DimNameSum<Const<D>, U1>>, // + Allocator<T, D, D>
+                                                  // + Allocator<T, D>
 {
     /// Transform the given point by the inverse of this transformation.
     /// This may be cheaper than inverting the transformation and transforming

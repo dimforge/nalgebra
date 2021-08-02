@@ -40,31 +40,19 @@ where
 
         // We use the buffer to hold the result of multiplier ^ 2, thus avoiding
         // extra allocations.
-        let (nrows, ncols) = self.data.shape();
         let mut multiplier = self.clone_owned();
-        let mut buf = Matrix::new_uninitialized_generic(nrows, ncols);
+        let mut buf = self.clone_owned();
 
         // Exponentiation by squares.
         loop {
             if e % two == one {
-                let init_buf = self.mul_to(&multiplier, &mut buf);
-                self.copy_from(&init_buf);
-
-                // Safety: `mul_to` leaves `buf` completely initialized.
-                unsafe {
-                    buf.reinitialize();
-                }
+                self.mul_to(&multiplier, &mut buf);
+                self.copy_from(&buf);
             }
 
             e /= two;
-
-            let init_buf = multiplier.mul_to(&multiplier, &mut buf);
-            multiplier.copy_from(&init_buf);
-
-            // Safety: `mul_to` leaves `buf` completely initialized.
-            unsafe {
-                buf.reinitialize();
-            }
+            multiplier.mul_to(&multiplier, &mut buf);
+            multiplier.copy_from(&buf);
 
             if e == zero {
                 return true;

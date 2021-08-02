@@ -5,7 +5,6 @@ use std::fmt;
 use std::hash;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
-use std::mem::{ManuallyDrop, MaybeUninit};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -15,13 +14,11 @@ use abomonation::Abomonation;
 
 use simba::simd::SimdPartialOrd;
 
-use crate::allocator::InnerAllocator;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
-use crate::base::{Const, DefaultAllocator, OVector};
-use crate::storage::InnerOwned;
-use crate::Scalar;
+use crate::base::{Const, DefaultAllocator, OVector, Scalar};
+use std::mem::MaybeUninit;
 
 /// A point in an euclidean space.
 ///
@@ -42,16 +39,17 @@ use crate::Scalar;
 /// achieved by multiplication, e.g., `isometry * point` or `rotation * point`. Some of these transformation
 /// may have some other methods, e.g., `isometry.inverse_transform_point(&point)`. See the documentation
 /// of said transformations for details.
-#[repr(transparent)]
-pub struct OPoint<T, D: DimName>
+#[repr(C)]
+#[derive(Debug, Clone)]
+pub struct OPoint<T: Scalar, D: DimName>
 where
-    DefaultAllocator: InnerAllocator<T, D>,
+    DefaultAllocator: Allocator<T, D>,
 {
     /// The coordinates of this point, i.e., the shift from the origin.
     pub coords: OVector<T, D>,
 }
 
-impl<T: hash::Hash, D: DimName> hash::Hash for OPoint<T, D>
+impl<T: Scalar + hash::Hash, D: DimName> hash::Hash for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
@@ -60,37 +58,15 @@ where
     }
 }
 
-impl<T: Copy, D: DimName> Copy for OPoint<T, D>
+impl<T: Scalar + Copy, D: DimName> Copy for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
     OVector<T, D>: Copy,
 {
 }
 
-impl<T: Clone, D: DimName> Clone for OPoint<T, D>
-where
-    DefaultAllocator: Allocator<T, D>,
-    OVector<T, D>: Clone,
-{
-    fn clone(&self) -> Self {
-        Self::from(self.coords.clone())
-    }
-}
-
-impl<T: fmt::Debug, D: DimName> fmt::Debug for OPoint<T, D>
-where
-    DefaultAllocator: Allocator<T, D>,
-    OVector<T, D>: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("OPoint")
-            .field("coords", &self.coords)
-            .finish()
-    }
-}
-
 #[cfg(feature = "bytemuck")]
-unsafe impl<T, D: DimName> bytemuck::Zeroable for OPoint<T, D>
+unsafe impl<T: Scalar, D: DimName> bytemuck::Zeroable for OPoint<T, D>
 where
     OVector<T, D>: bytemuck::Zeroable,
     DefaultAllocator: Allocator<T, D>,
@@ -98,7 +74,7 @@ where
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T, D: DimName> bytemuck::Pod for OPoint<T, D>
+unsafe impl<T: Scalar, D: DimName> bytemuck::Pod for OPoint<T, D>
 where
     T: Copy,
     OVector<T, D>: bytemuck::Pod,
@@ -107,10 +83,10 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T: Serialize, D: DimName> Serialize for OPoint<T, D>
+impl<T: Scalar, D: DimName> Serialize for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    <DefaultAllocator as InnerAllocator<T, D>>::Buffer: Serialize,
+    <DefaultAllocator as Allocator<T, D>>::Buffer: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -121,10 +97,10 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'a, T: Deserialize<'a>, D: DimName> Deserialize<'a> for OPoint<T, D>
+impl<'a, T: Scalar, D: DimName> Deserialize<'a> for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    <DefaultAllocator as InnerAllocator<T, D>>::Buffer: Deserialize<'a>,
+    <DefaultAllocator as Allocator<T, D>>::Buffer: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
@@ -139,6 +115,7 @@ where
 #[cfg(feature = "abomonation-serialize")]
 impl<T, D: DimName> Abomonation for OPoint<T, D>
 where
+    T: Scalar,
     OVector<T, D>: Abomonation,
     DefaultAllocator: Allocator<T, D>,
 {
@@ -155,7 +132,7 @@ where
     }
 }
 
-impl<T, D: DimName> OPoint<T, D>
+impl<T: Scalar, D: DimName> OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
@@ -173,9 +150,8 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn map<T2, F: FnMut(T) -> T2>(&self, f: F) -> OPoint<T2, D>
+    pub fn map<T2: Scalar, F: FnMut(T) -> T2>(&self, f: F) -> OPoint<T2, D>
     where
-        T: Clone,
         DefaultAllocator: Allocator<T2, D>,
     {
         self.coords.map(f).into()
@@ -187,19 +163,16 @@ where
     /// ```
     /// # use nalgebra::{Point2, Point3};
     /// let mut p = Point2::new(1.0, 2.0);
-    /// p.apply(|e| e * 10.0);
+    /// p.apply(|e| *e = *e * 10.0);
     /// assert_eq!(p, Point2::new(10.0, 20.0));
     ///
     /// // This works in any dimension.
     /// let mut p = Point3::new(1.0, 2.0, 3.0);
-    /// p.apply(|e| e * 10.0);
+    /// p.apply(|e| *e = *e * 10.0);
     /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
     /// ```
     #[inline]
-    pub fn apply<F: FnMut(T) -> T>(&mut self, f: F)
-    where
-        T: Clone,
-    {
+    pub fn apply<F: FnMut(&mut T)>(&mut self, f: F) {
         self.coords.apply(f)
     }
 
@@ -222,44 +195,24 @@ where
     #[must_use]
     pub fn to_homogeneous(&self) -> OVector<T, DimNameSum<D, U1>>
     where
-        T: One + Clone,
-        D: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<T, DimNameSum<D, U1>>,
-    {
-        let mut res = OVector::<_, DimNameSum<D, U1>>::new_uninitialized();
-        for i in 0..D::dim() {
-            unsafe {
-                *res.get_unchecked_mut(i) = MaybeUninit::new(self.coords[i].clone());
-            }
-        }
-
-        res[(D::dim(), 0)] = MaybeUninit::new(T::one());
-
-        unsafe { res.assume_init() }
-    }
-
-    /// Converts this point into a vector in homogeneous coordinates, i.e., appends a `1` at the
-    /// end of it. Unlike [`to_homogeneous`], this method does not require `T: Clone`.
-    pub fn into_homogeneous(self) -> OVector<T, DimNameSum<D, U1>>
-    where
         T: One,
         D: DimNameAdd<U1>,
         DefaultAllocator: Allocator<T, DimNameSum<D, U1>>,
     {
-        let mut res = OVector::<_, DimNameSum<D, U1>>::new_uninitialized();
-        let mut md = self.manually_drop();
+        // TODO: this is mostly a copy-past from Vector::push.
+        //       But we can’t use Vector::push because of the DimAdd bound
+        //       (which we don’t use because we use DimNameAdd).
+        //       We should find a way to re-use Vector::push.
+        let len = self.len();
+        let mut res = crate::Matrix::uninit(DimNameSum::<D, U1>::name(), Const::<1>);
+        // This is basically a copy_from except that we warp the copied
+        // values into MaybeUninit.
+        res.generic_slice_mut((0, 0), self.coords.shape_generic())
+            .zip_apply(&self.coords, |out, e| *out = MaybeUninit::new(e));
+        res[(len, 0)] = MaybeUninit::new(T::one());
 
-        for i in 0..D::dim() {
-            unsafe {
-                *res.get_unchecked_mut(i) =
-                    MaybeUninit::new(ManuallyDrop::take(md.coords.get_unchecked_mut(i)));
-            }
-        }
-
-        unsafe {
-            *res.get_unchecked_mut(D::dim()) = MaybeUninit::new(T::one());
-            res.assume_init()
-        }
+        // Safety: res has been fully initialized.
+        unsafe { res.assume_init() }
     }
 
     /// Creates a new point with the given coordinates.
@@ -322,7 +275,9 @@ where
     /// assert_eq!(it.next(), Some(3.0));
     /// assert_eq!(it.next(), None);
     #[inline]
-    pub fn iter(&self) -> MatrixIter<T, D, Const<1>, InnerOwned<T, D>> {
+    pub fn iter(
+        &self,
+    ) -> MatrixIter<'_, T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
         self.coords.iter()
     }
 
@@ -346,7 +301,9 @@ where
     ///
     /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
     #[inline]
-    pub fn iter_mut(&mut self) -> MatrixIterMut<T, D, Const<1>, InnerOwned<T, D>> {
+    pub fn iter_mut(
+        &mut self,
+    ) -> MatrixIterMut<'_, T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
         self.coords.iter_mut()
     }
 
@@ -364,7 +321,7 @@ where
     }
 }
 
-impl<T: AbsDiffEq, D: DimName> AbsDiffEq for OPoint<T, D>
+impl<T: Scalar + AbsDiffEq, D: DimName> AbsDiffEq for OPoint<T, D>
 where
     T::Epsilon: Copy,
     DefaultAllocator: Allocator<T, D>,
@@ -382,7 +339,7 @@ where
     }
 }
 
-impl<T: RelativeEq, D: DimName> RelativeEq for OPoint<T, D>
+impl<T: Scalar + RelativeEq, D: DimName> RelativeEq for OPoint<T, D>
 where
     T::Epsilon: Copy,
     DefaultAllocator: Allocator<T, D>,
@@ -404,7 +361,7 @@ where
     }
 }
 
-impl<T: UlpsEq, D: DimName> UlpsEq for OPoint<T, D>
+impl<T: Scalar + UlpsEq, D: DimName> UlpsEq for OPoint<T, D>
 where
     T::Epsilon: Copy,
     DefaultAllocator: Allocator<T, D>,
@@ -420,9 +377,9 @@ where
     }
 }
 
-impl<T: Eq, D: DimName> Eq for OPoint<T, D> where DefaultAllocator: Allocator<T, D> {}
+impl<T: Scalar + Eq, D: DimName> Eq for OPoint<T, D> where DefaultAllocator: Allocator<T, D> {}
 
-impl<T: PartialEq, D: DimName> PartialEq for OPoint<T, D>
+impl<T: Scalar, D: DimName> PartialEq for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
@@ -432,7 +389,7 @@ where
     }
 }
 
-impl<T: PartialOrd, D: DimName> PartialOrd for OPoint<T, D>
+impl<T: Scalar + PartialOrd, D: DimName> PartialOrd for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
@@ -497,7 +454,7 @@ where
  * Display
  *
  */
-impl<T: fmt::Display, D: DimName> fmt::Display for OPoint<T, D>
+impl<T: Scalar + fmt::Display, D: DimName> fmt::Display for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {

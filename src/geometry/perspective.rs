@@ -34,7 +34,7 @@ impl<T: RealField> Clone for Perspective3<T> {
 }
 
 impl<T: RealField> fmt::Debug for Perspective3<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         self.matrix.fmt(f)
     }
 }
@@ -158,8 +158,7 @@ impl<T: RealField> Perspective3<T> {
     #[inline]
     #[must_use]
     pub fn as_projective(&self) -> &Projective3<T> {
-        // Safety: Self and Projective3 are both #[repr(transparent)] of a matrix.
-        unsafe { &*(self as *const _ as *const _) }
+        unsafe { &*(self as *const Perspective3<T> as *const Projective3<T>) }
     }
 
     /// This transformation seen as a `Projective3`.

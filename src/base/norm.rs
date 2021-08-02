@@ -434,7 +434,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     {
         let n = self.norm();
         let le = n.simd_le(min_norm);
-        self.apply(|e| e.simd_unscale(n).select(le, e));
+        self.apply(|e| *e = e.simd_unscale(n).select(le, *e));
         SimdOption::new(n, le)
     }
 
@@ -508,13 +508,8 @@ where
     /// The i-the canonical basis element.
     #[inline]
     fn canonical_basis_element(i: usize) -> Self {
-        assert!(i < D::dim(), "Index out of bound.");
-
         let mut res = Self::zero();
-        unsafe {
-            *res.data.get_unchecked_linear_mut(i) = T::one();
-        }
-
+        res[i] = T::one();
         res
     }
 

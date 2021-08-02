@@ -1,25 +1,23 @@
 #![allow(clippy::suspicious_operation_groupings)]
-use std::cmp;
-use std::mem::MaybeUninit;
-
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use approx::AbsDiffEq;
 use num_complex::Complex as NumComplex;
 use simba::scalar::{ComplexField, RealField};
+use std::cmp;
 
 use crate::allocator::Allocator;
-use crate::base::dimension::{Const, Dim, DimDiff,  DimSub, Dynamic, U1, U2};
-use crate::base::storage::{InnerOwned, Storage};
-use crate::base::{
-    DefaultAllocator, OMatrix, OVector,  SquareMatrix, Unit, Vector2, Vector3,
-};
+use crate::base::dimension::{Const, Dim, DimDiff, DimSub, Dynamic, U1, U2};
+use crate::base::storage::Storage;
+use crate::base::{DefaultAllocator, OMatrix, OVector, SquareMatrix, Unit, Vector2, Vector3};
 
 use crate::geometry::Reflection;
 use crate::linalg::givens::GivensRotation;
 use crate::linalg::householder;
 use crate::linalg::Hessenberg;
+use crate::{Matrix, UninitVector};
+use std::mem::MaybeUninit;
 
 /// Schur decomposition of a square matrix.
 ///
@@ -36,7 +34,7 @@ use crate::linalg::Hessenberg;
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct Schur<T, D: Dim>
+pub struct Schur<T: ComplexField, D: Dim>
 where
     DefaultAllocator: Allocator<T, D, D>,
 {
@@ -44,10 +42,10 @@ where
     t: OMatrix<T, D, D>,
 }
 
-impl<T: Copy, D: Dim> Copy for Schur<T, D>
+impl<T: ComplexField, D: Dim> Copy for Schur<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
-    InnerOwned<T, D, D>: Copy,
+    OMatrix<T, D, D>: Copy,
 {
 }
 
@@ -76,7 +74,7 @@ where
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
     pub fn try_new(m: OMatrix<T, D, D>, eps: T::RealField, max_niter: usize) -> Option<Self> {
-        let mut work = OVector::new_uninitialized_generic(m.data.shape().0, Const::<1>);
+        let mut work = Matrix::zeros_generic(m.shape_generic().0, Const::<1>);
 
         Self::do_decompose(m, &mut work, eps, max_niter, true)
             .map(|(q, t)| Schur { q: q.unwrap(), t })
@@ -84,7 +82,7 @@ where
 
     fn do_decompose(
         mut m: OMatrix<T, D, D>,
-        work: &mut OVector<MaybeUninit<T>, D>,
+        work: &mut OVector<T, D>,
         eps: T::RealField,
         max_niter: usize,
         compute_q: bool,
@@ -94,7 +92,7 @@ where
             "Unable to compute the eigenvectors and eigenvalues of a non-square matrix."
         );
 
-        let dim = m.data.shape().0;
+        let dim = m.shape_generic().0;
 
         // Specialization would make this easier.
         if dim.value() == 0 {
@@ -273,9 +271,7 @@ where
     }
 
     /// Computes the eigenvalues of the decomposed matrix.
-    fn do_eigenvalues(t: &OMatrix<T, D, D>, out: &mut OVector<MaybeUninit<T>, D>) -> bool {
-        // TODO: check dropping stuff.
-
+    fn do_eigenvalues(t: &OMatrix<T, D, D>, out: &mut OVector<T, D>) -> bool {
         let dim = t.nrows();
         let mut m = 0;
 
@@ -283,7 +279,7 @@ where
             let n = m + 1;
 
             if t[(n, m)].is_zero() {
-                out[m] = MaybeUninit::new(t[(m, m)]);
+                out[m] = t[(m, m)];
                 m += 1;
             } else {
                 // Complex eigenvalue.
@@ -292,22 +288,18 @@ where
         }
 
         if m == dim - 1 {
-            out[m] = MaybeUninit::new(t[(m, m)]);
+            out[m] = t[(m, m)];
         }
 
         true
     }
 
     /// Computes the complex eigenvalues of the decomposed matrix.
-    fn do_complex_eigenvalues(
-        t: &OMatrix<T, D, D>,
-        out: &mut OVector<MaybeUninit<NumComplex<T>>, D>,
-    ) where
+    fn do_complex_eigenvalues(t: &OMatrix<T, D, D>, out: &mut UninitVector<NumComplex<T>, D>)
+    where
         T: RealField,
         DefaultAllocator: Allocator<NumComplex<T>, D>,
     {
-        // TODO: check for dropping behavior.
-
         let dim = t.nrows();
         let mut m = 0;
 
@@ -397,9 +389,9 @@ where
     /// Return `None` if some eigenvalues are complex.
     #[must_use]
     pub fn eigenvalues(&self) -> Option<OVector<T, D>> {
-        let mut out = OVector::new_uninitialized_generic(self.t.data.shape().0, Const::<1>);
+        let mut out = Matrix::zeros_generic(self.t.shape_generic().0, Const::<1>);
         if Self::do_eigenvalues(&self.t, &mut out) {
-            Some(unsafe { out.assume_init() })
+            Some(out)
         } else {
             None
         }
@@ -412,8 +404,9 @@ where
         T: RealField,
         DefaultAllocator: Allocator<NumComplex<T>, D>,
     {
-        let mut out = OVector::new_uninitialized_generic(self.t.data.shape().0, Const::<1>);
+        let mut out = Matrix::uninit(self.t.shape_generic().0, Const::<1>);
         Self::do_complex_eigenvalues(&self.t, &mut out);
+        // Safety: out has been fully initialized by do_complex_eigenvalues.
         unsafe { out.assume_init() }
     }
 }
@@ -425,7 +418,7 @@ fn decompose_2x2<T: ComplexField, D: Dim>(
 where
     DefaultAllocator: Allocator<T, D, D>,
 {
-    let dim = m.data.shape().0;
+    let dim = m.shape_generic().0;
     let mut q = None;
     match compute_2x2_basis(&m.fixed_slice::<2, 2>(0, 0)) {
         Some(rot) => {
@@ -519,14 +512,12 @@ where
     /// Computes the eigenvalues of this matrix.
     #[must_use]
     pub fn eigenvalues(&self) -> Option<OVector<T, D>> {
-        // TODO: check drop stuff.
-
         assert!(
             self.is_square(),
             "Unable to compute eigenvalues of a non-square matrix."
         );
 
-        let mut work = OVector::new_uninitialized_generic(self.data.shape().0, Const::<1>);
+        let mut work = Matrix::zeros_generic(self.shape_generic().0, Const::<1>);
 
         // Special case for 2x2 matrices.
         if self.nrows() == 2 {
@@ -535,9 +526,9 @@ where
             let me = self.fixed_slice::<2, 2>(0, 0);
             return match compute_2x2_eigvals(&me) {
                 Some((a, b)) => {
-                    work[0] = MaybeUninit::new(a);
-                    work[1] = MaybeUninit::new(b);
-                    Some(unsafe { work.assume_init() })
+                    work[0] = a;
+                    work[1] = b;
+                    Some(work)
                 }
                 None => None,
             };
@@ -552,8 +543,9 @@ where
             false,
         )
         .unwrap();
+
         if Schur::do_eigenvalues(&schur.1, &mut work) {
-            Some(unsafe { work.assume_init() })
+            Some(work)
         } else {
             None
         }
@@ -567,8 +559,8 @@ where
         T: RealField,
         DefaultAllocator: Allocator<NumComplex<T>, D>,
     {
-        let dim = self.data.shape().0;
-        let mut work = OVector::new_uninitialized_generic(dim, Const::<1>);
+        let dim = self.shape_generic().0;
+        let mut work = Matrix::zeros_generic(dim, Const::<1>);
 
         let schur = Schur::do_decompose(
             self.clone_owned(),
@@ -578,8 +570,9 @@ where
             false,
         )
         .unwrap();
-        let mut eig = OVector::new_uninitialized_generic(dim, Const::<1>);
+        let mut eig = Matrix::uninit(dim, Const::<1>);
         Schur::do_complex_eigenvalues(&schur.1, &mut eig);
+        // Safety: eig has been fully initialized by do_complex_eigenvalues.
         unsafe { eig.assume_init() }
     }
 }

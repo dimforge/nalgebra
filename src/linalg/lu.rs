@@ -1,6 +1,3 @@
-use std::fmt;
-use std::mem;
-
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
@@ -8,8 +5,9 @@ use crate::allocator::{Allocator, Reallocator};
 use crate::base::{DefaultAllocator, Matrix, OMatrix, Scalar};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimMin, DimMinimum};
-use crate::storage::{InnerOwned, Storage, StorageMut};
+use crate::storage::{Storage, StorageMut};
 use simba::scalar::{ComplexField, Field};
+use std::mem;
 
 use crate::linalg::PermutationSequence;
 
@@ -29,7 +27,8 @@ use crate::linalg::PermutationSequence;
          OMatrix<T, R, C>: Deserialize<'de>,
          PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
 )]
-pub struct LU<T, R: DimMin<C>, C: Dim>
+#[derive(Clone, Debug)]
+pub struct LU<T: ComplexField, R: DimMin<C>, C: Dim>
 where
     DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
 {
@@ -37,42 +36,12 @@ where
     p: PermutationSequence<DimMinimum<R, C>>,
 }
 
-/*
-impl<T: Copy, R: DimMin<C>, C: Dim> Copy for LU<T, R, C>
+impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for LU<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+    OMatrix<T, R, C>: Copy,
     PermutationSequence<DimMinimum<R, C>>: Copy,
-    InnerOwned<T, R, C>: Copy,
 {
-}
-*/
-
-impl<T: Clone, R: DimMin<C>, C: Dim> Clone for LU<T, R, C>
-where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
-    PermutationSequence<DimMinimum<R, C>>: Clone,
-    InnerOwned<T, R, C>: Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            lu: self.lu.clone(),
-            p: self.p.clone(),
-        }
-    }
-}
-
-impl<T: ComplexField, R: DimMin<C>, C: Dim> fmt::Debug for LU<T, R, C>
-where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
-    PermutationSequence<DimMinimum<R, C>>: fmt::Debug,
-    InnerOwned<T, R, C>: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("LU")
-            .field("lu", &self.lu)
-            .field("p", &self.p)
-            .finish()
-    }
 }
 
 /// Performs a LU decomposition to overwrite `out` with the inverse of `matrix`.
@@ -121,7 +90,7 @@ where
 {
     /// Computes the LU decomposition with partial (row) pivoting of `matrix`.
     pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
-        let (nrows, ncols) = matrix.data.shape();
+        let (nrows, ncols) = matrix.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
 
         let mut p = PermutationSequence::identity_generic(min_nrows_ncols);
@@ -163,7 +132,7 @@ where
     where
         DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
     {
-        let (nrows, ncols) = self.lu.data.shape();
+        let (nrows, ncols) = self.lu.shape_generic();
         let mut m = self.lu.columns_generic(0, nrows.min(ncols)).into_owned();
         m.fill_upper_triangle(T::zero(), 1);
         m.fill_diagonal(T::one());
@@ -180,7 +149,7 @@ where
     where
         DefaultAllocator: Reallocator<T, R, C, R, DimMinimum<R, C>>,
     {
-        let (nrows, ncols) = self.lu.data.shape();
+        let (nrows, ncols) = self.lu.shape_generic();
         let mut m = self.lu.resize_generic(nrows, nrows.min(ncols), T::zero());
         m.fill_upper_triangle(T::zero(), 1);
         m.fill_diagonal(T::one());
@@ -193,7 +162,7 @@ where
     where
         DefaultAllocator: Reallocator<T, R, C, R, DimMinimum<R, C>>,
     {
-        let (nrows, ncols) = self.lu.data.shape();
+        let (nrows, ncols) = self.lu.shape_generic();
         let mut m = self.lu.resize_generic(nrows, nrows.min(ncols), T::zero());
         m.fill_upper_triangle(T::zero(), 1);
         m.fill_diagonal(T::one());
@@ -207,7 +176,7 @@ where
     where
         DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
     {
-        let (nrows, ncols) = self.lu.data.shape();
+        let (nrows, ncols) = self.lu.shape_generic();
         self.lu.rows_generic(0, nrows.min(ncols)).upper_triangle()
     }
 
@@ -299,7 +268,7 @@ where
             "LU inverse: unable to compute the inverse of a non-square matrix."
         );
 
-        let (nrows, ncols) = self.lu.data.shape();
+        let (nrows, ncols) = self.lu.shape_generic();
         let mut res = OMatrix::identity_generic(nrows, ncols);
         if self.try_inverse_to(&mut res) {
             Some(res)

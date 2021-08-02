@@ -9,7 +9,7 @@ use simba::scalar::RealField;
 use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Const, Dim};
-use na::storage::Storage;
+use na::storage::RawStorage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
@@ -71,7 +71,7 @@ where
             "Unable to compute the eigenvalue decomposition of a non-square matrix."
         );
 
-        let (nrows, ncols) = m.data.shape();
+        let (nrows, ncols) = m.shape_generic();
         let n = nrows.value();
 
         let lda = n as i32;
@@ -153,15 +153,15 @@ where
     where
         DefaultAllocator: Allocator<Complex<T>, D>,
     {
-        let mut out =
-            unsafe { OVector::new_uninitialized_generic(self.t.data.shape().0, Const::<1>) };
+        let mut out = unsafe {
+            OVector::new_uninitialized_generic(self.t.shape_generic().0, Const::<1>).assume_init()
+        };
 
         for i in 0..out.len() {
-            out[i] = MaybeUninit::new(Complex::new(self.re[i], self.im[i]));
+            out[i] = Complex::new(self.re[i], self.im[i])
         }
 
-        // Safety: all entries have been initialized.
-        unsafe { out.assume_init() }
+        out
     }
 }
 

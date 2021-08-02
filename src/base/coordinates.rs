@@ -7,8 +7,8 @@
 use std::ops::{Deref, DerefMut};
 
 use crate::base::dimension::{U1, U2, U3, U4, U5, U6};
-use crate::base::storage::{ContiguousStorage, ContiguousStorageMut};
-use crate::base::Matrix;
+use crate::base::storage::{IsContiguous, RawStorage, RawStorageMut};
+use crate::base::{Matrix, Scalar};
 
 /*
  *
@@ -23,7 +23,7 @@ macro_rules! coords_impl(
         #[repr(C)]
         #[derive(Eq, PartialEq, Clone, Hash, Debug, Copy)]
         #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
-        pub struct $T<T> {
+        pub struct $T<T: Scalar> {
             $(pub $comps: T),*
         }
     }
@@ -31,20 +31,22 @@ macro_rules! coords_impl(
 
 macro_rules! deref_impl(
     ($R: ty, $C: ty; $Target: ident) => {
-        impl<T, S> Deref for Matrix<T, $R, $C, S>
-            where S: ContiguousStorage<T, $R, $C> {
+        impl<T: Scalar, S> Deref for Matrix<T, $R, $C, S>
+            where S: RawStorage<T, $R, $C> + IsContiguous {
             type Target = $Target<T>;
 
             #[inline]
             fn deref(&self) -> &Self::Target {
+                // Safety: this is OK because of the IsContiguous trait.
                 unsafe { &*(self.data.ptr() as *const Self::Target) }
             }
         }
 
-        impl<T, S> DerefMut for Matrix<T, $R, $C, S>
-            where S: ContiguousStorageMut<T, $R, $C> {
+        impl<T: Scalar, S> DerefMut for Matrix<T, $R, $C, S>
+            where S: RawStorageMut<T, $R, $C> + IsContiguous {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {
+                // Safety: this is OK because of the IsContiguous trait.
                 unsafe { &mut *(self.data.ptr_mut() as *mut Self::Target) }
             }
         }

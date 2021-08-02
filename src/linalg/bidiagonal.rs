@@ -1,17 +1,14 @@
-use std::fmt;
-
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, OMatrix, OVector, Unit};
 use crate::dimension::{Const, Dim, DimDiff, DimMin, DimMinimum, DimSub, U1};
-use crate::storage::{InnerOwned, Storage};
-use crate::Dynamic;
 use simba::scalar::ComplexField;
 
 use crate::geometry::Reflection;
 use crate::linalg::householder;
+use std::mem::MaybeUninit;
 
 /// The bidiagonalization of a general matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -35,6 +32,7 @@ use crate::linalg::householder;
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>,
          OVector<T, DimDiff<DimMinimum<R, C>, U1>>: Deserialize<'de>"))
 )]
+#[derive(Clone, Debug)]
 pub struct Bidiagonal<T: ComplexField, R: DimMin<C>, C: Dim>
 where
     DimMinimum<R, C>: DimSub<U1>,
@@ -52,58 +50,16 @@ where
     upper_diagonal: bool,
 }
 
-impl<T: ComplexField, R: DimMin<C>, C: Dim> Clone for Bidiagonal<T, R, C>
-where
-    DimMinimum<R, C>: DimSub<U1>,
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>,
-    InnerOwned<T, R, C>: Clone,
-    InnerOwned<T, DimMinimum<R, C>>: Clone,
-    InnerOwned<T, DimDiff<DimMinimum<R, C>, U1>>: Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            uv: self.uv.clone(),
-            diagonal: self.diagonal.clone(),
-            off_diagonal: self.off_diagonal.clone(),
-            upper_diagonal: self.upper_diagonal,
-        }
-    }
-}
-
-/*
 impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for Bidiagonal<T, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>,
     DefaultAllocator: Allocator<T, R, C>
         + Allocator<T, DimMinimum<R, C>>
         + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>,
-    InnerOwned<T, R, C>: Copy,
-    InnerOwned<T, DimMinimum<R, C>>: Copy,
-    InnerOwned<T, DimDiff<DimMinimum<R, C>, U1>>: Copy,
+    OMatrix<T, R, C>: Copy,
+    OVector<T, DimMinimum<R, C>>: Copy,
+    OVector<T, DimDiff<DimMinimum<R, C>, U1>>: Copy,
 {
-}
-*/
-
-impl<T: ComplexField, R: DimMin<C>, C: Dim> fmt::Debug for Bidiagonal<T, R, C>
-where
-    DimMinimum<R, C>: DimSub<U1>,
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>,
-    InnerOwned<T, R, C>: fmt::Debug,
-    InnerOwned<T, DimMinimum<R, C>>: fmt::Debug,
-    InnerOwned<T, DimDiff<DimMinimum<R, C>, U1>>: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("Bidiagonal")
-            .field("uv", &self.uv)
-            .field("diagonal", &self.diagonal)
-            .field("off_diagonal", &self.off_diagonal)
-            .field("upper_diagonal", &self.upper_diagonal)
-            .finish()
-    }
 }
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> Bidiagonal<T, R, C>
@@ -117,7 +73,7 @@ where
 {
     /// Computes the Bidiagonal decomposition using householder reflections.
     pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
-        let (nrows, ncols) = matrix.data.shape();
+        let (nrows, ncols) = matrix.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
         let dim = min_nrows_ncols.value();
         assert!(
@@ -125,80 +81,70 @@ where
             "Cannot compute the bidiagonalization of an empty matrix."
         );
 
-        let mut diagonal = Matrix::new_uninitialized_generic(min_nrows_ncols, Const::<1>);
-        let mut off_diagonal =
-            Matrix::new_uninitialized_generic(min_nrows_ncols.sub(Const::<1>), Const::<1>);
-        let mut axis_packed = Matrix::new_uninitialized_generic(ncols, Const::<1>);
-        let mut work = Matrix::new_uninitialized_generic(nrows, Const::<1>);
+        let mut diagonal = Matrix::uninit(min_nrows_ncols, Const::<1>);
+        let mut off_diagonal = Matrix::uninit(min_nrows_ncols.sub(Const::<1>), Const::<1>);
+        let mut axis_packed = Matrix::zeros_generic(ncols, Const::<1>);
+        let mut work = Matrix::zeros_generic(nrows, Const::<1>);
 
         let upper_diagonal = nrows.value() >= ncols.value();
-
-        // Safety: all pointers involved are valid for writes, aligned, and uninitialized.
-        unsafe {
-            if upper_diagonal {
-                for ite in 0..dim - 1 {
-                    householder::clear_column_unchecked(
-                        &mut matrix,
-                        diagonal[ite].as_mut_ptr(),
-                        ite,
-                        0,
-                        None,
-                    );
-                    householder::clear_row_unchecked(
-                        &mut matrix,
-                        off_diagonal[ite].as_mut_ptr(),
-                        &mut axis_packed,
-                        &mut work,
-                        ite,
-                        1,
-                    );
-                }
-
-                householder::clear_column_unchecked(
+        if upper_diagonal {
+            for ite in 0..dim - 1 {
+                diagonal[ite] = MaybeUninit::new(householder::clear_column_unchecked(
                     &mut matrix,
-                    diagonal[dim - 1].as_mut_ptr(),
-                    dim - 1,
+                    ite,
                     0,
                     None,
-                );
-            } else {
-                for ite in 0..dim - 1 {
-                    householder::clear_row_unchecked(
-                        &mut matrix,
-                        diagonal[ite].as_mut_ptr(),
-                        &mut axis_packed,
-                        &mut work,
-                        ite,
-                        0,
-                    );
-                    householder::clear_column_unchecked(
-                        &mut matrix,
-                        off_diagonal[ite].as_mut_ptr(),
-                        ite,
-                        1,
-                        None,
-                    );
-                }
-
-                householder::clear_row_unchecked(
+                ));
+                off_diagonal[ite] = MaybeUninit::new(householder::clear_row_unchecked(
                     &mut matrix,
-                    diagonal[dim - 1].as_mut_ptr(),
                     &mut axis_packed,
                     &mut work,
-                    dim - 1,
-                    0,
-                );
+                    ite,
+                    1,
+                ));
             }
+
+            diagonal[dim - 1] = MaybeUninit::new(householder::clear_column_unchecked(
+                &mut matrix,
+                dim - 1,
+                0,
+                None,
+            ));
+        } else {
+            for ite in 0..dim - 1 {
+                diagonal[ite] = MaybeUninit::new(householder::clear_row_unchecked(
+                    &mut matrix,
+                    &mut axis_packed,
+                    &mut work,
+                    ite,
+                    0,
+                ));
+                off_diagonal[ite] = MaybeUninit::new(householder::clear_column_unchecked(
+                    &mut matrix,
+                    ite,
+                    1,
+                    None,
+                ));
+            }
+
+            diagonal[dim - 1] = MaybeUninit::new(householder::clear_row_unchecked(
+                &mut matrix,
+                &mut axis_packed,
+                &mut work,
+                dim - 1,
+                0,
+            ));
         }
 
-        // Safety: all values have been initialized.
-        unsafe {
-            Bidiagonal {
-                uv: matrix,
-                diagonal: diagonal.assume_init(),
-                off_diagonal: off_diagonal.assume_init(),
-                upper_diagonal,
-            }
+        // Safety: diagonal and off_diagonal have been fully initialized.
+        let (diagonal, off_diagonal) =
+            unsafe { (diagonal.assume_init(), off_diagonal.assume_init()) };
+
+        Bidiagonal {
+            uv: matrix,
+            diagonal,
+            off_diagonal,
+            upper_diagonal,
         }
     }
 
@@ -245,7 +191,7 @@ where
     where
         DefaultAllocator: Allocator<T, DimMinimum<R, C>, DimMinimum<R, C>>,
     {
-        let (nrows, ncols) = self.uv.data.shape();
+        let (nrows, ncols) = self.uv.shape_generic();
 
         let d = nrows.min(ncols);
         let mut res = OMatrix::identity_generic(d, d);
@@ -265,7 +211,7 @@ where
     where
         DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
     {
-        let (nrows, ncols) = self.uv.data.shape();
+        let (nrows, ncols) = self.uv.shape_generic();
 
         let mut res = Matrix::identity_generic(nrows, nrows.min(ncols));
         let dim = self.diagonal.len();
@@ -294,23 +240,21 @@ where
     #[must_use]
     pub fn v_t(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
-        DefaultAllocator: Allocator<T, DimMinimum<R, C>, C> + Allocator<T, Dynamic, U1>,
+        DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
     {
-        let (nrows, ncols) = self.uv.data.shape();
+        let (nrows, ncols) = self.uv.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
 
         let mut res = Matrix::identity_generic(min_nrows_ncols, ncols);
-        let mut work = Matrix::new_uninitialized_generic(min_nrows_ncols, Const::<1>);
-        let mut axis_packed = Matrix::new_uninitialized_generic(ncols, Const::<1>);
+        let mut work = Matrix::zeros_generic(min_nrows_ncols, Const::<1>);
+        let mut axis_packed = Matrix::zeros_generic(ncols, Const::<1>);
 
         let shift = self.axis_shift().1;
 
         for i in (0..min_nrows_ncols.value() - shift).rev() {
             let axis = self.uv.slice_range(i, i + shift..);
             let mut axis_packed = axis_packed.rows_range_mut(i + shift..);
-            axis_packed.tr_copy_init_from(&axis);
-            let axis_packed = unsafe { axis_packed.slice_assume_init() };
-
+            axis_packed.tr_copy_from(&axis);
             // TODO: sometimes, the axis might have a zero magnitude.
             let refl = Reflection::new(Unit::new_unchecked(axis_packed), T::zero());
 
@@ -404,7 +348,7 @@ where
 //         assert!(self.uv.is_square(), "Bidiagonal inverse: unable to compute the inverse of a non-square matrix.");
 //
 //         // TODO: is there a less naive method ?
-//         let (nrows, ncols) = self.uv.data.shape();
+//         let (nrows, ncols) = self.uv.shape_generic();
 //         let mut res = OMatrix::identity_generic(nrows, ncols);
 //         self.solve_mut(&mut res);
 //         res

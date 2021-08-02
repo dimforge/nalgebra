@@ -1,5 +1,3 @@
-use std::fmt;
-
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
 
@@ -11,7 +9,7 @@ use simba::scalar::RealField;
 use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Const, Dim};
-use na::storage::Storage;
+use na::storage::RawStorage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
@@ -34,7 +32,8 @@ use lapack;
          OMatrix<T, D, D>: Deserialize<'de>")
     )
 )]
-pub struct Eigen<T, D: Dim>
+#[derive(Clone, Debug)]
+pub struct Eigen<T: Scalar, D: Dim>
 where
     DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
 {
@@ -46,42 +45,12 @@ where
     pub left_eigenvectors: Option<OMatrix<T, D, D>>,
 }
 
-impl<T: Copy, D: Dim> Copy for Eigen<T, D>
+impl<T: Scalar + Copy, D: Dim> Copy for Eigen<T, D>
 where
     DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
     OVector<T, D>: Copy,
     OMatrix<T, D, D>: Copy,
 {
-}
-
-impl<T: Clone, D: Dim> Clone for Eigen<T, D>
-where
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
-    OVector<T, D>: Clone,
-    OMatrix<T, D, D>: Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            eigenvalues: self.eigenvalues.clone(),
-            eigenvectors: self.eigenvectors.clone(),
-            left_eigenvectors: self.left_eigenvectors.clone(),
-        }
-    }
-}
-
-impl<T: fmt::Debug, D: Dim> fmt::Debug for Eigen<T, D>
-where
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
-    OVector<T, D>: fmt::Debug,
-    OMatrix<T, D, D>: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("Eigen")
-            .field("eigenvalues", &self.eigenvalues)
-            .field("eigenvectors", &self.eigenvectors)
-            .field("left_eigenvectors", &self.left_eigenvectors)
-            .finish()
-    }
 }
 
 impl<T: EigenScalar + RealField, D: Dim> Eigen<T, D>
@@ -104,12 +73,10 @@ where
         let ljob = if left_eigenvectors { b'V' } else { b'T' };
         let rjob = if eigenvectors { b'V' } else { b'T' };
 
-        let (nrows, ncols) = m.data.shape();
+        let (nrows, ncols) = m.shape_generic();
         let n = nrows.value();
 
         let lda = n as i32;
-
-        // IMPORTANT TODO: this is still UB.
 
         let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
         // TODO: Tap into the workspace.
@@ -275,7 +242,7 @@ where
             "Unable to compute the eigenvalue decomposition of a non-square matrix."
         );
 
-        let nrows = m.data.shape().0;
+        let nrows = m.shape_generic().0;
         let n = nrows.value();
 
         let lda = n as i32;

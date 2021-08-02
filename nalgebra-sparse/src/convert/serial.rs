@@ -7,7 +7,7 @@ use std::ops::Add;
 
 use num_traits::Zero;
 
-use nalgebra::storage::Storage;
+use nalgebra::storage::RawStorage;
 use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
 
 use crate::coo::CooMatrix;
@@ -16,10 +16,12 @@ use crate::csc::CscMatrix;
 use crate::csr::CsrMatrix;
 
 /// Converts a dense matrix to [`CooMatrix`].
-pub fn convert_dense_coo<T, R: Dim, C: Dim, S>(dense: &Matrix<T, R, C, S>) -> CooMatrix<T>
+pub fn convert_dense_coo<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CooMatrix<T>
 where
-    T: Scalar + Zero + PartialEq,
-    S: Storage<T, R, C>,
+    T: Scalar + Zero,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T, R, C>,
 {
     let mut coo = CooMatrix::new(dense.nrows(), dense.ncols());
 
@@ -91,10 +93,10 @@ where
 /// Converts a dense matrix to a [`CsrMatrix`].
 pub fn convert_dense_csr<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CsrMatrix<T>
 where
-    T: Scalar + Zero + PartialEq,
+    T: Scalar + Zero,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>,
+    S: RawStorage<T, R, C>,
 {
     let mut row_offsets = Vec::with_capacity(dense.nrows() + 1);
     let mut col_idx = Vec::new();
@@ -168,10 +170,10 @@ where
 /// Converts a dense matrix to a [`CscMatrix`].
 pub fn convert_dense_csc<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CscMatrix<T>
 where
-    T: Scalar + Zero + PartialEq,
+    T: Scalar + Zero,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>,
+    S: RawStorage<T, R, C>,
 {
     let mut col_offsets = Vec::with_capacity(dense.ncols() + 1);
     let mut row_idx = Vec::new();

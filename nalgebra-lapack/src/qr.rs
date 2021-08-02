@@ -7,7 +7,7 @@ use num_complex::Complex;
 use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Const, Dim, DimMin, DimMinimum};
-use na::storage::Storage;
+use na::storage::RawStorage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
@@ -54,11 +54,12 @@ where
 {
     /// Computes the QR decomposition of the matrix `m`.
     pub fn new(mut m: OMatrix<T, R, C>) -> Self {
-        let (nrows, ncols) = m.data.shape();
+        let (nrows, ncols) = m.shape_generic();
 
         let mut info = 0;
-        let mut tau =
-            unsafe { Matrix::new_uninitialized_generic(nrows.min(ncols), U1).assume_init() };
+        let mut tau = unsafe {
+            Matrix::new_uninitialized_generic(nrows.min(ncols), Const::<1>).assume_init()
+        };
 
         if nrows.value() == 0 || ncols.value() == 0 {
             return Self { qr: m, tau };
@@ -93,7 +94,7 @@ where
     #[inline]
     #[must_use]
     pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C> {
-        let (nrows, ncols) = self.qr.data.shape();
+        let (nrows, ncols) = self.qr.shape_generic();
         self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle()
     }
 }
@@ -119,7 +120,7 @@ where
     #[inline]
     #[must_use]
     pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>> {
-        let (nrows, ncols) = self.qr.data.shape();
+        let (nrows, ncols) = self.qr.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
 
         if min_nrows_ncols.value() == 0 {

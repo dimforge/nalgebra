@@ -57,7 +57,7 @@ impl<T: na::Scalar> CooMatrix<T> {
     /// Panics if any part of the dense matrix is out of bounds of the sparse matrix
     /// when inserted at `(r, c)`.
     #[inline]
-    pub fn push_matrix<R: na::Dim, C: na::Dim, S: nalgebra::storage::Storage<T, R, C>>(
+    pub fn push_matrix<R: na::Dim, C: na::Dim, S: nalgebra::storage::RawStorage<T, R, C>>(
         &mut self,
         r: usize,
         c: usize,

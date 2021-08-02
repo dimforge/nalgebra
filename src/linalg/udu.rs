@@ -1,12 +1,9 @@
-use std::fmt;
-
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
 use crate::allocator::Allocator;
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector};
-use crate::dimension::{Dim, DimName};
-use crate::storage::{InnerOwned, Storage};
+use crate::dimension::Dim;
 use simba::scalar::RealField;
 
 /// UDU factorization.
@@ -21,7 +18,8 @@ use simba::scalar::RealField;
         deserialize = "OVector<T, D>: Deserialize<'de>, OMatrix<T, D, D>: Deserialize<'de>"
     ))
 )]
-pub struct UDU<T, D: Dim>
+#[derive(Clone, Debug)]
+pub struct UDU<T: RealField, D: Dim>
 where
     DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
 {
@@ -31,40 +29,12 @@ where
     pub d: OVector<T, D>,
 }
 
-impl<T: Copy, D: DimName> Copy for UDU<T, D>
+impl<T: RealField, D: Dim> Copy for UDU<T, D>
 where
     DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
-    InnerOwned<T, D>: Copy,
-    InnerOwned<T, D, D>: Copy,
+    OVector<T, D>: Copy,
+    OMatrix<T, D, D>: Copy,
 {
-}
-
-impl<T: Clone, D: Dim> Clone for UDU<T, D>
-where
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
-    InnerOwned<T, D>: Clone,
-    InnerOwned<T, D, D>: Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            u: self.u.clone(),
-            d: self.d.clone(),
-        }
-    }
-}
-
-impl<T: fmt::Debug, D: Dim> fmt::Debug for UDU<T, D>
-where
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
-    InnerOwned<T, D>: fmt::Debug,
-    InnerOwned<T, D, D>: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("UDU")
-            .field("u", &self.u)
-            .field("d", &self.d)
-            .finish()
-    }
 }
 
 impl<T: RealField, D: Dim> UDU<T, D>
@@ -79,7 +49,7 @@ where
     /// Ref.: "Optimal control and estimation-Dover Publications", Robert F. Stengel, (1994) page 360
     pub fn new(p: OMatrix<T, D, D>) -> Option<Self> {
         let n = p.ncols();
-        let n_dim = p.data.shape().1;
+        let n_dim = p.shape_generic().1;
 
         let mut d = OVector::zeros_generic(n_dim, Const::<1>);
         let mut u = OMatrix::zeros_generic(n_dim, n_dim);

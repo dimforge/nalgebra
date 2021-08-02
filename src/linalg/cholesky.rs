@@ -1,6 +1,3 @@
-use std::fmt;
-use std::mem::MaybeUninit;
-
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
@@ -12,7 +9,7 @@ use crate::allocator::Allocator;
 use crate::base::{Const, DefaultAllocator, Matrix, OMatrix, Vector};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimAdd, DimDiff, DimSub, DimSum, U1};
-use crate::storage::{InnerOwned, Storage, StorageMut};
+use crate::storage::{Storage, StorageMut};
 
 /// The Cholesky decomposition of a symmetric-definite-positive matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -26,6 +23,7 @@ use crate::storage::{InnerOwned, Storage, StorageMut};
     serde(bound(deserialize = "DefaultAllocator: Allocator<T, D>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
+#[derive(Clone, Debug)]
 pub struct Cholesky<T: SimdComplexField, D: Dim>
 where
     DefaultAllocator: Allocator<T, D, D>,
@@ -33,37 +31,11 @@ where
     chol: OMatrix<T, D, D>,
 }
 
-/*
 impl<T: SimdComplexField, D: Dim> Copy for Cholesky<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
-    InnerOwned<T, D, D>: Copy,
+    OMatrix<T, D, D>: Copy,
 {
-}
-*/
-
-impl<T: SimdComplexField, D: Dim> Clone for Cholesky<T, D>
-where
-    DefaultAllocator: Allocator<T, D, D>,
-    InnerOwned<T, D, D>: Clone,
-{
-    fn clone(&self) -> Self {
-        Self {
-            chol: self.chol.clone(),
-        }
-    }
-}
-
-impl<T: SimdComplexField, D: Dim> fmt::Debug for Cholesky<T, D>
-where
-    DefaultAllocator: Allocator<T, D, D>,
-    InnerOwned<T, D, D>: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("Cholesky")
-            .field("chol", &self.chol)
-            .finish()
-    }
 }
 
 impl<T: SimdComplexField, D: Dim> Cholesky<T, D>
@@ -164,7 +136,7 @@ where
     /// Computes the inverse of the decomposed matrix.
     #[must_use]
     pub fn inverse(&self) -> OMatrix<T, D, D> {
-        let shape = self.chol.data.shape();
+        let shape = self.chol.shape_generic();
         let mut res = OMatrix::identity_generic(shape.0, shape.1);
 
         self.solve_mut(&mut res);
@@ -254,8 +226,6 @@ where
         DefaultAllocator: Allocator<T, DimSum<D, U1>, DimSum<D, U1>> + Allocator<T, R2>,
         ShapeConstraint: SameNumberOfRows<R2, DimSum<D, U1>>,
     {
-        // TODO: check that MaybeUninit manipulations are sound!
-
         let mut col = col.into_owned();
         // for an explanation of the formulas, see https://en.wikipedia.org/wiki/Cholesky_decomposition#Updating_the_decomposition
         let n = col.nrows();
@@ -267,20 +237,19 @@ where
         assert!(j < n, "j needs to be within the bound of the new matrix.");
 
         // loads the data into a new matrix with an additional jth row/column
-        let mut chol = Matrix::new_uninitialized_generic(
-            self.chol.data.shape().0.add(Const::<1>),
-            self.chol.data.shape().1.add(Const::<1>),
+        // TODO: would it be worth it to avoid the zero-initialization?
+        let mut chol = Matrix::zeros_generic(
+            self.chol.shape_generic().0.add(Const::<1>),
+            self.chol.shape_generic().1.add(Const::<1>),
         );
-
-        // TODO: checked that every entry is initialized EXACTLY once.
         chol.slice_range_mut(..j, ..j)
-            .copy_init_from(&self.chol.slice_range(..j, ..j));
+            .copy_from(&self.chol.slice_range(..j, ..j));
         chol.slice_range_mut(..j, j + 1..)
-            .copy_init_from(&self.chol.slice_range(..j, j..));
+            .copy_from(&self.chol.slice_range(..j, j..));
         chol.slice_range_mut(j + 1.., ..j)
-            .copy_init_from(&self.chol.slice_range(j.., ..j));
+            .copy_from(&self.chol.slice_range(j.., ..j));
         chol.slice_range_mut(j + 1.., j + 1..)
-            .copy_init_from(&self.chol.slice_range(j.., j..));
+            .copy_from(&self.chol.slice_range(j.., j..));
 
         // update the jth row
         let top_left_corner = self.chol.slice_range(..j, ..j);
@@ -296,7 +265,7 @@ where
 
         // update the center element
         let center_element = T::sqrt(col_j - T::from_real(new_rowj_adjoint.norm_squared()));
-        chol[(j, j)] = MaybeUninit::new(center_element);
+        chol[(j, j)] = center_element;
 
         // update the jth column
         let bottom_left_corner = self.chol.slice_range(j.., ..j);
@@ -307,9 +276,7 @@ where
             &new_rowj_adjoint,
             T::one() / center_element,
         );
-        chol.slice_range_mut(j + 1.., j).copy_init_from(&new_colj);
-
-        let mut chol = unsafe { chol.assume_init() };
+        chol.slice_range_mut(j + 1.., j).copy_from(&new_colj);
 
         // update the bottom right corner
         let mut bottom_right_corner = chol.slice_range_mut(j + 1.., j + 1..);
@@ -330,27 +297,24 @@ where
         D: DimSub<U1>,
         DefaultAllocator: Allocator<T, DimDiff<D, U1>, DimDiff<D, U1>> + Allocator<T, D>,
     {
-        // TODO: check that MaybeUninit manipulations are sound!
-
         let n = self.chol.nrows();
         assert!(n > 0, "The matrix needs at least one column.");
         assert!(j < n, "j needs to be within the bound of the matrix.");
 
         // loads the data into a new matrix except for the jth row/column
-        let mut chol = Matrix::new_uninitialized_generic(
-            self.chol.data.shape().0.sub(Const::<1>),
-            self.chol.data.shape().1.sub(Const::<1>),
+        // TODO: would it be worth it to avoid this zero initialization?
+        let mut chol = Matrix::zeros_generic(
+            self.chol.shape_generic().0.sub(Const::<1>),
+            self.chol.shape_generic().1.sub(Const::<1>),
         );
-
         chol.slice_range_mut(..j, ..j)
-            .copy_init_from(&self.chol.slice_range(..j, ..j));
+            .copy_from(&self.chol.slice_range(..j, ..j));
         chol.slice_range_mut(..j, j..)
-            .copy_init_from(&self.chol.slice_range(..j, j + 1..));
+            .copy_from(&self.chol.slice_range(..j, j + 1..));
         chol.slice_range_mut(j.., ..j)
-            .copy_init_from(&self.chol.slice_range(j + 1.., ..j));
+            .copy_from(&self.chol.slice_range(j + 1.., ..j));
         chol.slice_range_mut(j.., j..)
-            .copy_init_from(&self.chol.slice_range(j + 1.., j + 1..));
-        let mut chol = unsafe { chol.assume_init() };
+            .copy_from(&self.chol.slice_range(j + 1.., j + 1..));
 
         // updates the bottom right corner
         let mut bottom_right_corner = chol.slice_range_mut(j.., j..);
@@ -366,12 +330,14 @@ where
     ///
     /// This helper method is called by `rank_one_update` but also `insert_column` and `remove_column`
     /// where it is used on a square slice of the decomposition
-    fn xx_rank_one_update<Dm: Dim, Sm, Rx: Dim, Sx>(
+    fn xx_rank_one_update<Dm, Sm, Rx, Sx>(
         chol: &mut Matrix<T, Dm, Dm, Sm>,
         x: &mut Vector<T, Rx, Sx>,
         sigma: T::RealField,
     ) where
         //T: ComplexField,
+        Dm: Dim,
+        Rx: Dim,
         Sm: StorageMut<T, Dm, Dm>,
         Sx: StorageMut<T, Rx, U1>,
     {

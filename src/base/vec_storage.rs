@@ -4,14 +4,12 @@ use std::io::{Result as IOResult, Write};
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 
-use crate::allocator::InnerAllocator;
+use crate::base::allocator::Allocator;
 use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, DimName, Dynamic, U1};
-use crate::base::storage::{
-    ContiguousStorage, ContiguousStorageMut, ReshapableStorage, Storage, StorageMut,
-};
-use crate::base::{Owned, Vector};
+use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, ReshapableStorage};
+use crate::base::{Scalar, Vector};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{
@@ -19,20 +17,22 @@ use serde::{
     ser::{Serialize, Serializer},
 };
 
+use crate::Storage;
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
 /*
  *
- * Storage.
+ * RawStorage.
  *
  */
 /// A Vec-based matrix data storage. It may be dynamically-sized.
+#[repr(C)]
 #[derive(Eq, Debug, Clone, PartialEq)]
 pub struct VecStorage<T, R: Dim, C: Dim> {
     data: Vec<T>,
-    pub(crate) nrows: R,
-    pub(crate) ncols: C,
+    nrows: R,
+    ncols: C,
 }
 
 #[cfg(feature = "serde-serialize")]
@@ -142,6 +142,18 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
+
+    /// A slice containing all the components stored in this storage in column-major order.
+    #[inline]
+    pub fn as_slice(&self) -> &[T] {
+        &self.data[..]
+    }
+
+    /// A mutable slice containing all the components stored in this storage in column-major order.
+    #[inline]
+    pub fn as_mut_slice(&mut self) -> &mut [T] {
+        &mut self.data[..]
+    }
 }
 
 impl<T, R: Dim, C: Dim> From<VecStorage<T, R, C>> for Vec<T> {
@@ -156,10 +168,7 @@ impl<T, R: Dim, C: Dim> From<VecStorage<T, R, C>> for Vec<T> {
  * Dynamic − Dynamic
  *
  */
-unsafe impl<T, C: Dim> Storage<T, Dynamic, C> for VecStorage<T, Dynamic, C>
-where
-    DefaultAllocator: InnerAllocator<T, Dynamic, C, Buffer = Self>,
-{
+unsafe impl<T, C: Dim> RawStorage<T, Dynamic, C> for VecStorage<T, Dynamic, C> {
     type RStride = U1;
     type CStride = Dynamic;
 
@@ -184,28 +193,33 @@ where
     }
 
     #[inline]
-    fn into_owned(self) -> Owned<T, Dynamic, C> {
-        Owned(self)
-    }
-
-    #[inline]
-    fn clone_owned(&self) -> Owned<T, Dynamic, C>
-    where
-        T: Clone,
-    {
-        Owned(self.clone())
-    }
-
-    #[inline]
     unsafe fn as_slice_unchecked(&self) -> &[T] {
         &self.data
     }
 }
 
-unsafe impl<T, R: DimName> Storage<T, R, Dynamic> for VecStorage<T, R, Dynamic>
+unsafe impl<T: Scalar, C: Dim> Storage<T, Dynamic, C> for VecStorage<T, Dynamic, C>
 where
-    DefaultAllocator: InnerAllocator<T, R, Dynamic, Buffer = Self>,
+    DefaultAllocator: Allocator<T, Dynamic, C, Buffer = Self>,
 {
+    #[inline]
+    fn into_owned(self) -> Owned<T, Dynamic, C>
+    where
+        DefaultAllocator: Allocator<T, Dynamic, C>,
+    {
+        self
+    }
+
+    #[inline]
+    fn clone_owned(&self) -> Owned<T, Dynamic, C>
+    where
+        DefaultAllocator: Allocator<T, Dynamic, C>,
+    {
+        self.clone()
+    }
+}
+
+unsafe impl<T, R: DimName> RawStorage<T, R, Dynamic> for VecStorage<T, R, Dynamic> {
     type RStride = U1;
     type CStride = R;
 
@@ -230,33 +244,38 @@ where
     }
 
     #[inline]
-    fn into_owned(self) -> Owned<T, R, Dynamic> {
-        Owned(self)
-    }
-
-    #[inline]
-    fn clone_owned(&self) -> Owned<T, R, Dynamic>
-    where
-        T: Clone,
-    {
-        Owned(self.clone())
-    }
-
-    #[inline]
     unsafe fn as_slice_unchecked(&self) -> &[T] {
         &self.data
     }
 }
 
+unsafe impl<T: Scalar, R: DimName> Storage<T, R, Dynamic> for VecStorage<T, R, Dynamic>
+where
+    DefaultAllocator: Allocator<T, R, Dynamic, Buffer = Self>,
+{
+    #[inline]
+    fn into_owned(self) -> Owned<T, R, Dynamic>
+    where
+        DefaultAllocator: Allocator<T, R, Dynamic>,
+    {
+        self
+    }
+
+    #[inline]
+    fn clone_owned(&self) -> Owned<T, R, Dynamic>
+    where
+        DefaultAllocator: Allocator<T, R, Dynamic>,
+    {
+        self.clone()
+    }
+}
+
 /*
  *
- * StorageMut, ContiguousStorage.
+ * RawStorageMut, ContiguousStorage.
  *
  */
-unsafe impl<T, C: Dim> StorageMut<T, Dynamic, C> for VecStorage<T, Dynamic, C>
-where
-    DefaultAllocator: InnerAllocator<T, Dynamic, C, Buffer = Self>,
-{
+unsafe impl<T, C: Dim> RawStorageMut<T, Dynamic, C> for VecStorage<T, Dynamic, C> {
     #[inline]
     fn ptr_mut(&mut self) -> *mut T {
         self.data.as_mut_ptr()
@@ -268,18 +287,13 @@ where
     }
 }
 
-unsafe impl<T, C: Dim> ContiguousStorage<T, Dynamic, C> for VecStorage<T, Dynamic, C> where
-    DefaultAllocator: InnerAllocator<T, Dynamic, C, Buffer = Self>
-{
-}
+unsafe impl<T, R: Dim, C: Dim> IsContiguous for VecStorage<T, R, C> {}
 
-unsafe impl<T, C: Dim> ContiguousStorageMut<T, Dynamic, C> for VecStorage<T, Dynamic, C> where
-    DefaultAllocator: InnerAllocator<T, Dynamic, C, Buffer = Self>
-{
-}
-
-impl<T, C1: Dim, C2: Dim> ReshapableStorage<T, Dynamic, C1, Dynamic, C2>
-    for VecStorage<T, Dynamic, C1>
+impl<T, C1, C2> ReshapableStorage<T, Dynamic, C1, Dynamic, C2> for VecStorage<T, Dynamic, C1>
+where
+    T: Scalar,
+    C1: Dim,
+    C2: Dim,
 {
     type Output = VecStorage<T, Dynamic, C2>;
 
@@ -293,8 +307,11 @@ impl<T, C1: Dim, C2: Dim> ReshapableStorage<T, Dynamic, C1, Dynamic, C2>
     }
 }
 
-impl<T, C1: Dim, R2: DimName> ReshapableStorage<T, Dynamic, C1, R2, Dynamic>
-    for VecStorage<T, Dynamic, C1>
+impl<T, C1, R2> ReshapableStorage<T, Dynamic, C1, R2, Dynamic> for VecStorage<T, Dynamic, C1>
+where
+    T: Scalar,
+    C1: Dim,
+    R2: DimName,
 {
     type Output = VecStorage<T, R2, Dynamic>;
 
@@ -308,10 +325,7 @@ impl<T, C1: Dim, R2: DimName> ReshapableStorage<T, Dynamic, C1, R2, Dynamic>
     }
 }
 
-unsafe impl<T, R: DimName> StorageMut<T, R, Dynamic> for VecStorage<T, R, Dynamic>
-where
-    DefaultAllocator: InnerAllocator<T, R, Dynamic, Buffer = Self>,
-{
+unsafe impl<T, R: DimName> RawStorageMut<T, R, Dynamic> for VecStorage<T, R, Dynamic> {
     #[inline]
     fn ptr_mut(&mut self) -> *mut T {
         self.data.as_mut_ptr()
@@ -323,8 +337,11 @@ where
     }
 }
 
-impl<T, R1: DimName, C2: Dim> ReshapableStorage<T, R1, Dynamic, Dynamic, C2>
-    for VecStorage<T, R1, Dynamic>
+impl<T, R1, C2> ReshapableStorage<T, R1, Dynamic, Dynamic, C2> for VecStorage<T, R1, Dynamic>
+where
+    T: Scalar,
+    R1: DimName,
+    C2: Dim,
 {
     type Output = VecStorage<T, Dynamic, C2>;
 
@@ -338,8 +355,11 @@ impl<T, R1: DimName, C2: Dim> ReshapableStorage<T, R1, Dynamic, Dynamic, C2>
     }
 }
 
-impl<T, R1: DimName, R2: DimName> ReshapableStorage<T, R1, Dynamic, R2, Dynamic>
-    for VecStorage<T, R1, Dynamic>
+impl<T, R1, R2> ReshapableStorage<T, R1, Dynamic, R2, Dynamic> for VecStorage<T, R1, Dynamic>
+where
+    T: Scalar,
+    R1: DimName,
+    R2: DimName,
 {
     type Output = VecStorage<T, R2, Dynamic>;
 
@@ -366,16 +386,6 @@ impl<T: Abomonation, R: Dim, C: Dim> Abomonation for VecStorage<T, R, C> {
     fn extent(&self) -> usize {
         self.data.extent()
     }
-}
-
-unsafe impl<T, R: DimName> ContiguousStorage<T, R, Dynamic> for VecStorage<T, R, Dynamic> where
-    DefaultAllocator: InnerAllocator<T, R, Dynamic, Buffer = Self>
-{
-}
-
-unsafe impl<T, R: DimName> ContiguousStorageMut<T, R, Dynamic> for VecStorage<T, R, Dynamic> where
-    DefaultAllocator: InnerAllocator<T, R, Dynamic, Buffer = Self>
-{
 }
 
 impl<T, R: Dim> Extend<T> for VecStorage<T, R, Dynamic> {
@@ -407,9 +417,12 @@ impl<'a, T: 'a + Copy, R: Dim> Extend<&'a T> for VecStorage<T, R, Dynamic> {
     }
 }
 
-impl<T: Clone, R: Dim, RV: Dim, SV> Extend<Vector<T, RV, SV>> for VecStorage<T, R, Dynamic>
+impl<T, R, RV, SV> Extend<Vector<T, RV, SV>> for VecStorage<T, R, Dynamic>
 where
-    SV: Storage<T, RV>,
+    T: Scalar,
+    R: Dim,
+    RV: Dim,
+    SV: RawStorage<T, RV>,
     ShapeConstraint: SameNumberOfRows<R, RV>,
 {
     /// Extends the number of columns of the `VecStorage` with vectors

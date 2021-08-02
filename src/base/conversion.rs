@@ -1,10 +1,8 @@
-use std::borrow::{Borrow, BorrowMut};
-use std::convert::{AsMut, AsRef, From, Into};
-use std::mem::{self, ManuallyDrop, MaybeUninit};
-
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 use simba::scalar::{SubsetOf, SupersetOf};
+use std::borrow::{Borrow, BorrowMut};
+use std::convert::{AsMut, AsRef, From, Into};
 
 use simba::simd::{PrimitiveSimdValue, SimdValue};
 
@@ -16,7 +14,7 @@ use crate::base::dimension::{
     Const, Dim, DimName, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
 };
 use crate::base::iter::{MatrixIter, MatrixIterMut};
-use crate::base::storage::{ContiguousStorage, ContiguousStorageMut, Storage, StorageMut};
+use crate::base::storage::{IsContiguous, RawStorage, RawStorageMut};
 use crate::base::{
     ArrayStorage, DVectorSlice, DVectorSliceMut, DefaultAllocator, Matrix, MatrixSlice,
     MatrixSliceMut, OMatrix, Scalar,
@@ -26,12 +24,17 @@ use crate::base::{DVector, VecStorage};
 use crate::base::{SliceStorage, SliceStorageMut};
 use crate::constraint::DimEq;
 use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector};
+use std::mem::MaybeUninit;
 
 // TODO: too bad this won't work for slice conversions.
-impl<T1, T2, R1: Dim, C1: Dim, R2: Dim, C2: Dim> SubsetOf<OMatrix<T2, R2, C2>>
-    for OMatrix<T1, R1, C1>
+impl<T1, T2, R1, C1, R2, C2> SubsetOf<OMatrix<T2, R2, C2>> for OMatrix<T1, R1, C1>
 where
-    T2: SupersetOf<T1>,
+    R1: Dim,
+    C1: Dim,
+    R2: Dim,
+    C2: Dim,
+    T1: Scalar,
+    T2: Scalar + SupersetOf<T1>,
     DefaultAllocator:
         Allocator<T2, R2, C2> + Allocator<T1, R1, C1> + SameShapeAllocator<T1, R1, C1, R2, C2>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
@@ -41,11 +44,11 @@ where
         let (nrows, ncols) = self.shape();
         let nrows2 = R2::from_usize(nrows);
         let ncols2 = C2::from_usize(ncols);
-
-        let mut res = Matrix::new_uninitialized_generic(nrows2, ncols2);
+        let mut res = Matrix::uninit(nrows2, ncols2);
 
         for i in 0..nrows {
             for j in 0..ncols {
+                // Safety: all indices are in range.
                 unsafe {
                     *res.get_unchecked_mut((i, j)) =
                         MaybeUninit::new(T2::from_subset(self.get_unchecked((i, j))));
@@ -53,7 +56,7 @@ where
             }
         }
 
-        // Safety: all entries have been initialized.
+        // Safety: res is now fully initialized.
         unsafe { res.assume_init() }
     }
 
@@ -67,23 +70,25 @@ where
         let (nrows2, ncols2) = m.shape();
         let nrows = R1::from_usize(nrows2);
         let ncols = C1::from_usize(ncols2);
+        let mut res = Matrix::uninit(nrows, ncols);
 
-        let mut res = OMatrix::new_uninitialized_generic(nrows, ncols);
         for i in 0..nrows2 {
             for j in 0..ncols2 {
+                // Safety: all indices are in range.
                 unsafe {
                     *res.get_unchecked_mut((i, j)) =
-                        MaybeUninit::new(m.get_unchecked((i, j)).to_subset_unchecked());
+                        MaybeUninit::new(m.get_unchecked((i, j)).to_subset_unchecked())
                 }
             }
         }
 
-        // Safety: all entries have been initialized.
         unsafe { res.assume_init() }
     }
 }
 
-impl<'a, T, R: Dim, C: Dim, S: Storage<T, R, C>> IntoIterator for &'a Matrix<T, R, C, S> {
+impl<'a, T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> IntoIterator
+    for &'a Matrix<T, R, C, S>
+{
     type Item = &'a T;
     type IntoIter = MatrixIter<'a, T, R, C, S>;
 
@@ -93,7 +98,9 @@ impl<'a, T, R: Dim, C: Dim, S: Storage<T, R, C>> IntoIterator for &'a Matrix<T, 
     }
 }
 
-impl<'a, T, R: Dim, C: Dim, S: StorageMut<T, R, C>> IntoIterator for &'a mut Matrix<T, R, C, S> {
+impl<'a, T: Scalar, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> IntoIterator
+    for &'a mut Matrix<T, R, C, S>
+{
     type Item = &'a mut T;
     type IntoIter = MatrixIterMut<'a, T, R, C, S>;
 
@@ -103,35 +110,32 @@ impl<'a, T, R: Dim, C: Dim, S: StorageMut<T, R, C>> IntoIterator for &'a mut Mat
     }
 }
 
-impl<T, const D: usize> From<[T; D]> for SVector<T, D> {
+impl<T: Scalar, const D: usize> From<[T; D]> for SVector<T, D> {
     #[inline]
     fn from(arr: [T; D]) -> Self {
-        Self::from_data(ArrayStorage([arr; 1]))
+        unsafe { Self::from_data_statically_unchecked(ArrayStorage([arr; 1])) }
     }
 }
 
-impl<T, const D: usize> From<SVector<T, D>> for [T; D] {
+impl<T: Scalar, const D: usize> From<SVector<T, D>> for [T; D] {
     #[inline]
     fn from(vec: SVector<T, D>) -> Self {
-        let data = ManuallyDrop::new(vec.data.0);
-        // Safety: [[T; D]; 1] always has the same data layout as [T; D].
-        let res = unsafe { (data.as_ptr() as *const [_; D]).read() };
-        mem::forget(data);
-        res
+        // TODO: unfortunately, we must clone because we can move out of an array.
+        vec.data.0[0].clone()
     }
 }
 
-impl<T: Clone, const D: usize> From<[T; D]> for RowSVector<T, D>
+impl<T: Scalar, const D: usize> From<[T; D]> for RowSVector<T, D>
 where
     Const<D>: IsNotStaticOne,
 {
     #[inline]
     fn from(arr: [T; D]) -> Self {
-        SVector::<T, D>::from(arr).transpose_into()
+        SVector::<T, D>::from(arr).transpose()
     }
 }
 
-impl<T: Clone, const D: usize> From<RowSVector<T, D>> for [T; D]
+impl<T: Scalar, const D: usize> From<RowSVector<T, D>> for [T; D]
 where
     Const<D>: IsNotStaticOne,
 {
@@ -144,10 +148,11 @@ where
 macro_rules! impl_from_into_asref_1D(
     ($(($NRows: ident, $NCols: ident) => $SZ: expr);* $(;)*) => {$(
         impl<T, S> AsRef<[T; $SZ]> for Matrix<T, $NRows, $NCols, S>
-        where
-              S: ContiguousStorage<T, $NRows, $NCols> {
+        where T: Scalar,
+              S: RawStorage<T, $NRows, $NCols> + IsContiguous {
             #[inline]
             fn as_ref(&self) -> &[T; $SZ] {
+                // Safety: this is OK thanks to the IsContiguous trait.
                 unsafe {
                     &*(self.data.ptr() as *const [T; $SZ])
                 }
@@ -155,10 +160,11 @@ macro_rules! impl_from_into_asref_1D(
         }
 
         impl<T, S> AsMut<[T; $SZ]> for Matrix<T, $NRows, $NCols, S>
-        where
-              S: ContiguousStorageMut<T, $NRows, $NCols> {
+        where T: Scalar,
+              S: RawStorageMut<T, $NRows, $NCols> + IsContiguous {
             #[inline]
             fn as_mut(&mut self) -> &mut [T; $SZ] {
+                // Safety: this is OK thanks to the IsContiguous trait.
                 unsafe {
                     &mut *(self.data.ptr_mut() as *mut [T; $SZ])
                 }
@@ -182,14 +188,14 @@ impl_from_into_asref_1D!(
     (U13, U1) => 13; (U14, U1) => 14; (U15, U1) => 15; (U16, U1) => 16;
 );
 
-impl<T, const R: usize, const C: usize> From<[[T; R]; C]> for SMatrix<T, R, C> {
+impl<T: Scalar, const R: usize, const C: usize> From<[[T; R]; C]> for SMatrix<T, R, C> {
     #[inline]
     fn from(arr: [[T; R]; C]) -> Self {
-        Self::from_data(ArrayStorage(arr))
+        unsafe { Self::from_data_statically_unchecked(ArrayStorage(arr)) }
     }
 }
 
-impl<T, const R: usize, const C: usize> From<SMatrix<T, R, C>> for [[T; R]; C] {
+impl<T: Scalar, const R: usize, const C: usize> From<SMatrix<T, R, C>> for [[T; R]; C] {
     #[inline]
     fn from(vec: SMatrix<T, R, C>) -> Self {
         vec.data.0
@@ -203,20 +209,22 @@ macro_rules! impl_from_into_asref_borrow_2D(
         ($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr);
         $Ref:ident.$ref:ident(), $Mut:ident.$mut:ident()
     ) => {
-        impl<T, S> $Ref<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
-        where S: ContiguousStorage<T, $NRows, $NCols> {
+        impl<T: Scalar, S> $Ref<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
+        where S: RawStorage<T, $NRows, $NCols> + IsContiguous {
             #[inline]
             fn $ref(&self) -> &[[T; $SZRows]; $SZCols] {
+                // Safety: OK thanks to the IsContiguous trait.
                 unsafe {
                     &*(self.data.ptr() as *const [[T; $SZRows]; $SZCols])
                 }
             }
         }
 
-        impl<T, S> $Mut<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
-        where S: ContiguousStorageMut<T, $NRows, $NCols> {
+        impl<T: Scalar, S> $Mut<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
+        where S: RawStorageMut<T, $NRows, $NCols> + IsContiguous {
             #[inline]
             fn $mut(&mut self) -> &mut [[T; $SZRows]; $SZCols] {
+                // Safety: OK thanks to the IsContiguous trait.
                 unsafe {
                     &mut *(self.data.ptr_mut() as *mut [[T; $SZRows]; $SZCols])
                 }
@@ -244,9 +252,13 @@ impl_from_into_asref_borrow_2D!(
     (U6, U2) => (6, 2); (U6, U3) => (6, 3); (U6, U4) => (6, 4); (U6, U5) => (6, 5); (U6, U6) => (6, 6);
 );
 
-impl<'a, T: Clone, RStride: Dim, CStride: Dim, const R: usize, const C: usize>
+impl<'a, T, RStride, CStride, const R: usize, const C: usize>
     From<MatrixSlice<'a, T, Const<R>, Const<C>, RStride, CStride>>
     for Matrix<T, Const<R>, Const<C>, ArrayStorage<T, R, C>>
+where
+    T: Scalar,
+    RStride: Dim,
+    CStride: Dim,
 {
     fn from(matrix_slice: MatrixSlice<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
@@ -254,9 +266,13 @@ impl<'a, T: Clone, RStride: Dim, CStride: Dim, const R: usize, const C: usize>
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T: Clone, C: Dim, RStride: Dim, CStride: Dim>
-    From<MatrixSlice<'a, T, Dynamic, C, RStride, CStride>>
+impl<'a, T, C, RStride, CStride> From<MatrixSlice<'a, T, Dynamic, C, RStride, CStride>>
     for Matrix<T, Dynamic, C, VecStorage<T, Dynamic, C>>
+where
+    T: Scalar,
+    C: Dim,
+    RStride: Dim,
+    CStride: Dim,
 {
     fn from(matrix_slice: MatrixSlice<'a, T, Dynamic, C, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
@@ -264,18 +280,26 @@ impl<'a, T: Clone, C: Dim, RStride: Dim, CStride: Dim>
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T: Clone, R: DimName, RStride: Dim, CStride: Dim>
-    From<MatrixSlice<'a, T, R, Dynamic, RStride, CStride>>
+impl<'a, T, R, RStride, CStride> From<MatrixSlice<'a, T, R, Dynamic, RStride, CStride>>
     for Matrix<T, R, Dynamic, VecStorage<T, R, Dynamic>>
+where
+    T: Scalar,
+    R: DimName,
+    RStride: Dim,
+    CStride: Dim,
 {
     fn from(matrix_slice: MatrixSlice<'a, T, R, Dynamic, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
     }
 }
 
-impl<'a, T: Clone, RStride: Dim, CStride: Dim, const R: usize, const C: usize>
+impl<'a, T, RStride, CStride, const R: usize, const C: usize>
     From<MatrixSliceMut<'a, T, Const<R>, Const<C>, RStride, CStride>>
     for Matrix<T, Const<R>, Const<C>, ArrayStorage<T, R, C>>
+where
+    T: Scalar,
+    RStride: Dim,
+    CStride: Dim,
 {
     fn from(matrix_slice: MatrixSliceMut<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
@@ -283,9 +307,13 @@ impl<'a, T: Clone, RStride: Dim, CStride: Dim, const R: usize, const C: usize>
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T: Clone, C: Dim, RStride: Dim, CStride: Dim>
-    From<MatrixSliceMut<'a, T, Dynamic, C, RStride, CStride>>
+impl<'a, T, C, RStride, CStride> From<MatrixSliceMut<'a, T, Dynamic, C, RStride, CStride>>
     for Matrix<T, Dynamic, C, VecStorage<T, Dynamic, C>>
+where
+    T: Scalar,
+    C: Dim,
+    RStride: Dim,
+    CStride: Dim,
 {
     fn from(matrix_slice: MatrixSliceMut<'a, T, Dynamic, C, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
@@ -293,26 +321,37 @@ impl<'a, T: Clone, C: Dim, RStride: Dim, CStride: Dim>
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T: Clone, R: DimName, RStride: Dim, CStride: Dim>
-    From<MatrixSliceMut<'a, T, R, Dynamic, RStride, CStride>>
+impl<'a, T, R, RStride, CStride> From<MatrixSliceMut<'a, T, R, Dynamic, RStride, CStride>>
     for Matrix<T, R, Dynamic, VecStorage<T, R, Dynamic>>
+where
+    T: Scalar,
+    R: DimName,
+    RStride: Dim,
+    CStride: Dim,
 {
     fn from(matrix_slice: MatrixSliceMut<'a, T, R, Dynamic, RStride, CStride>) -> Self {
         matrix_slice.into_owned()
     }
 }
 
-impl<'a, T, R: Dim, C: Dim, RSlice: Dim, CSlice: Dim, RStride: Dim, CStride: Dim, S>
-    From<&'a Matrix<T, R, C, S>> for MatrixSlice<'a, T, RSlice, CSlice, RStride, CStride>
+impl<'a, T, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a Matrix<T, R, C, S>>
+    for MatrixSlice<'a, T, RSlice, CSlice, RStride, CStride>
 where
-    S: Storage<T, R, C>,
+    T: Scalar,
+    R: Dim,
+    C: Dim,
+    RSlice: Dim,
+    CSlice: Dim,
+    RStride: Dim,
+    CStride: Dim,
+    S: RawStorage<T, R, C>,
     ShapeConstraint: DimEq<R, RSlice>
         + DimEq<C, CSlice>
         + DimEq<RStride, S::RStride>
         + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a Matrix<T, R, C, S>) -> Self {
-        let (row, col) = m.data.shape();
+        let (row, col) = m.shape_generic();
         let row_slice = RSlice::from_usize(row.value());
         let col_slice = CSlice::from_usize(col.value());
 
@@ -327,23 +366,29 @@ where
                 (row_slice, col_slice),
                 (rstride_slice, cstride_slice),
             );
-
-            Self::from_data(data)
+            Matrix::from_data_statically_unchecked(data)
         }
     }
 }
 
-impl<'a, T, R: Dim, C: Dim, RSlice: Dim, CSlice: Dim, RStride: Dim, CStride: Dim, S>
-    From<&'a mut Matrix<T, R, C, S>> for MatrixSlice<'a, T, RSlice, CSlice, RStride, CStride>
+impl<'a, T, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a mut Matrix<T, R, C, S>>
+    for MatrixSlice<'a, T, RSlice, CSlice, RStride, CStride>
 where
-    S: Storage<T, R, C>,
+    T: Scalar,
+    R: Dim,
+    C: Dim,
+    RSlice: Dim,
+    CSlice: Dim,
+    RStride: Dim,
+    CStride: Dim,
+    S: RawStorage<T, R, C>,
     ShapeConstraint: DimEq<R, RSlice>
         + DimEq<C, CSlice>
         + DimEq<RStride, S::RStride>
         + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a mut Matrix<T, R, C, S>) -> Self {
-        let (row, col) = m.data.shape();
+        let (row, col) = m.shape_generic();
         let row_slice = RSlice::from_usize(row.value());
         let col_slice = CSlice::from_usize(col.value());
 
@@ -358,23 +403,29 @@ where
                 (row_slice, col_slice),
                 (rstride_slice, cstride_slice),
             );
-
-            Matrix::from_data(data)
+            Matrix::from_data_statically_unchecked(data)
         }
     }
 }
 
-impl<'a, T, R: Dim, C: Dim, RSlice: Dim, CSlice: Dim, RStride: Dim, CStride: Dim, S>
-    From<&'a mut Matrix<T, R, C, S>> for MatrixSliceMut<'a, T, RSlice, CSlice, RStride, CStride>
+impl<'a, T, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a mut Matrix<T, R, C, S>>
+    for MatrixSliceMut<'a, T, RSlice, CSlice, RStride, CStride>
 where
-    S: StorageMut<T, R, C>,
+    T: Scalar,
+    R: Dim,
+    C: Dim,
+    RSlice: Dim,
+    CSlice: Dim,
+    RStride: Dim,
+    CStride: Dim,
+    S: RawStorageMut<T, R, C>,
     ShapeConstraint: DimEq<R, RSlice>
         + DimEq<C, CSlice>
         + DimEq<RStride, S::RStride>
         + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a mut Matrix<T, R, C, S>) -> Self {
-        let (row, col) = m.data.shape();
+        let (row, col) = m.shape_generic();
         let row_slice = RSlice::from_usize(row.value());
         let col_slice = CSlice::from_usize(col.value());
 
@@ -389,22 +440,21 @@ where
                 (row_slice, col_slice),
                 (rstride_slice, cstride_slice),
             );
-
-            Matrix::from_data(data)
+            Matrix::from_data_statically_unchecked(data)
         }
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T> From<Vec<T>> for DVector<T> {
+impl<'a, T: Scalar> From<Vec<T>> for DVector<T> {
     #[inline]
     fn from(vec: Vec<T>) -> Self {
         Self::from_vec(vec)
     }
 }
 
-impl<'a, T, R: Dim, C: Dim, S: ContiguousStorage<T, R, C>> From<&'a Matrix<T, R, C, S>>
-    for &'a [T]
+impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: RawStorage<T, R, C> + IsContiguous>
+    From<&'a Matrix<T, R, C, S>> for &'a [T]
 {
     #[inline]
     fn from(matrix: &'a Matrix<T, R, C, S>) -> Self {
@@ -412,8 +462,8 @@ impl<'a, T, R: Dim, C: Dim, S: ContiguousStorage<T, R, C>> From<&'a Matrix<T, R,
     }
 }
 
-impl<'a, T, R: Dim, C: Dim, S: ContiguousStorageMut<T, R, C>> From<&'a mut Matrix<T, R, C, S>>
-    for &'a mut [T]
+impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: RawStorageMut<T, R, C> + IsContiguous>
+    From<&'a mut Matrix<T, R, C, S>> for &'a mut [T]
 {
     #[inline]
     fn from(matrix: &'a mut Matrix<T, R, C, S>) -> Self {
@@ -421,27 +471,27 @@ impl<'a, T, R: Dim, C: Dim, S: ContiguousStorageMut<T, R, C>> From<&'a mut Matri
     }
 }
 
-impl<'a, T> From<&'a [T]> for DVectorSlice<'a, T> {
+impl<'a, T: Scalar + Copy> From<&'a [T]> for DVectorSlice<'a, T> {
     #[inline]
     fn from(slice: &'a [T]) -> Self {
         Self::from_slice(slice, slice.len())
     }
 }
 
-impl<'a, T> From<DVectorSlice<'a, T>> for &'a [T] {
+impl<'a, T: Scalar> From<DVectorSlice<'a, T>> for &'a [T] {
     fn from(vec: DVectorSlice<'a, T>) -> &'a [T] {
         vec.data.into_slice()
     }
 }
 
-impl<'a, T> From<&'a mut [T]> for DVectorSliceMut<'a, T> {
+impl<'a, T: Scalar + Copy> From<&'a mut [T]> for DVectorSliceMut<'a, T> {
     #[inline]
     fn from(slice: &'a mut [T]) -> Self {
         Self::from_slice(slice, slice.len())
     }
 }
 
-impl<'a, T> From<DVectorSliceMut<'a, T>> for &'a mut [T] {
+impl<'a, T: Scalar> From<DVectorSliceMut<'a, T>> for &'a mut [T] {
     fn from(vec: DVectorSliceMut<'a, T>) -> &'a mut [T] {
         vec.data.into_slice_mut()
     }
@@ -456,7 +506,7 @@ where
 {
     #[inline]
     fn from(arr: [OMatrix<T::Element, R, C>; 2]) -> Self {
-        let (nrows, ncols) = arr[0].data.shape();
+        let (nrows, ncols) = arr[0].shape_generic();
 
         Self::from_fn_generic(nrows, ncols, |i, j| {
             [
@@ -477,7 +527,7 @@ where
 {
     #[inline]
     fn from(arr: [OMatrix<T::Element, R, C>; 4]) -> Self {
-        let (nrows, ncols) = arr[0].data.shape();
+        let (nrows, ncols) = arr[0].shape_generic();
 
         Self::from_fn_generic(nrows, ncols, |i, j| {
             [
@@ -500,7 +550,7 @@ where
 {
     #[inline]
     fn from(arr: [OMatrix<T::Element, R, C>; 8]) -> Self {
-        let (nrows, ncols) = arr[0].data.shape();
+        let (nrows, ncols) = arr[0].shape_generic();
 
         Self::from_fn_generic(nrows, ncols, |i, j| {
             [
@@ -526,7 +576,7 @@ where
     DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
 {
     fn from(arr: [OMatrix<T::Element, R, C>; 16]) -> Self {
-        let (nrows, ncols) = arr[0].data.shape();
+        let (nrows, ncols) = arr[0].shape_generic();
 
         Self::from_fn_generic(nrows, ncols, |i, j| {
             [

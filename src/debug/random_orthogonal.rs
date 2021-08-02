@@ -1,50 +1,22 @@
-use std::fmt;
-
+#[cfg(feature = "arbitrary")]
+use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{Dim, DimName, Dynamic};
+use crate::base::dimension::{Dim, Dynamic};
+use crate::base::Scalar;
 use crate::base::{DefaultAllocator, OMatrix};
 use crate::linalg::givens::GivensRotation;
-use crate::storage::Owned;
 use simba::scalar::ComplexField;
 
 /// A random orthogonal matrix.
-pub struct RandomOrthogonal<T, D: Dim = Dynamic>
+#[derive(Clone, Debug)]
+pub struct RandomOrthogonal<T: Scalar, D: Dim = Dynamic>
 where
     DefaultAllocator: Allocator<T, D, D>,
 {
     m: OMatrix<T, D, D>,
-}
-
-impl<T: Copy, D: DimName> Copy for RandomOrthogonal<T, D>
-where
-    DefaultAllocator: Allocator<T, D, D>,
-    Owned<T, D, D>: Copy,
-{
-}
-
-impl<T: Clone, D: Dim> Clone for RandomOrthogonal<T, D>
-where
-    DefaultAllocator: Allocator<T, D, D>,
-    Owned<T, D, D>: Clone,
-{
-    fn clone(&self) -> Self {
-        Self { m: self.m.clone() }
-    }
-}
-
-impl<T: fmt::Debug, D: Dim> fmt::Debug for RandomOrthogonal<T, D>
-where
-    DefaultAllocator: Allocator<T, D, D>,
-    Owned<T, D, D>: fmt::Debug,
-{
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_struct("RandomOrthogonal")
-            .field("m", &self.m)
-            .finish()
-    }
 }
 
 impl<T: ComplexField, D: Dim> RandomOrthogonal<T, D>

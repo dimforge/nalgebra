@@ -6,7 +6,7 @@ use std::cmp;
 
 use na::allocator::Allocator;
 use na::dimension::{Const, Dim, DimMin, DimMinimum, U1};
-use na::storage::Storage;
+use na::storage::RawStorage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
@@ -89,7 +89,7 @@ macro_rules! svd_impl(
                                         Allocator<$t, DimMinimum<R, C>> {
 
             fn compute(mut m: OMatrix<$t, R, C>) -> Option<SVD<$t, R, C>> {
-                let (nrows, ncols) = m.data.shape();
+                let (nrows, ncols) = m.shape_generic();
 
                 if nrows.value() == 0 || ncols.value() == 0 {
                     return None;
@@ -99,7 +99,6 @@ macro_rules! svd_impl(
 
                 let lda = nrows.value() as i32;
 
-                // IMPORTANT TODO: this is still UB.
                 let mut u  = unsafe { Matrix::new_uninitialized_generic(nrows, nrows).assume_init() };
                 let mut s  = unsafe { Matrix::new_uninitialized_generic(nrows.min(ncols), Const::<1>).assume_init() };
                 let mut vt = unsafe { Matrix::new_uninitialized_generic(ncols, ncols).assume_init() };
@@ -152,8 +151,8 @@ macro_rules! svd_impl(
             /// been manually changed by the user.
             #[inline]
             pub fn recompose(self) -> OMatrix<$t, R, C> {
-                let nrows           = self.u.data.shape().0;
-                let ncols           = self.vt.data.shape().1;
+                let nrows           = self.u.shape_generic().0;
+                let ncols           = self.vt.shape_generic().1;
                 let min_nrows_ncols = nrows.min(ncols);
 
                 let mut res: OMatrix<_, R, C> = Matrix::zeros_generic(nrows, ncols);
@@ -178,8 +177,8 @@ macro_rules! svd_impl(
             #[inline]
             #[must_use]
             pub fn pseudo_inverse(&self, epsilon: $t) -> OMatrix<$t, C, R> {
-                let nrows           = self.u.data.shape().0;
-                let ncols           = self.vt.data.shape().1;
+                let nrows           = self.u.shape_generic().0;
+                let ncols           = self.vt.shape_generic().1;
                 let min_nrows_ncols = nrows.min(ncols);
 
                 let mut res: OMatrix<_, C, R> = Matrix::zeros_generic(ncols, nrows);
@@ -242,7 +241,7 @@ macro_rules! svd_complex_impl(
                             Allocator<Complex<$t>, R, R>         +
                             Allocator<Complex<$t>, C, C>         +
                             Allocator<$t, DimMinimum<R, C>> {
-            let (nrows, ncols) = m.data.shape();
+            let (nrows, ncols) = m.shape_generic();
 
             if nrows.value() == 0 || ncols.value() == 0 {
                 return None;

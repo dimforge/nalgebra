@@ -6,7 +6,7 @@ use crate::allocator::Allocator;
 use crate::constraint::{AreMultipliable, DimEq, ShapeConstraint};
 use crate::sparse::{CsMatrix, CsStorage, CsStorageMut, CsVector};
 use crate::storage::StorageMut;
-use crate::{Const, DefaultAllocator, Dim, OVector, Scalar, Vector};
+use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, Scalar, Vector};
 
 impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
     fn scatter<R2: Dim, C2: Dim>(
@@ -242,7 +242,7 @@ where
 
         let mut res = CsMatrix::new_uninitialized_generic(nrows1, ncols2, self.len() + rhs.len());
         let mut timestamps = OVector::zeros_generic(nrows1, Const::<1>);
-        let mut workspace = Matrix::new_uninitialized_generic(nrows1, Const::<1>);
+        let mut workspace = Matrix::zeros_generic(nrows1, Const::<1>);
         let mut nz = 0;
 
         for j in 0..ncols2.value() {

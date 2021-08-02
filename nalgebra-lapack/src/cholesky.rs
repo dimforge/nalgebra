@@ -6,7 +6,7 @@ use num_complex::Complex;
 
 use na::allocator::Allocator;
 use na::dimension::Dim;
-use na::storage::Storage;
+use na::storage::RawStorage;
 use na::{DefaultAllocator, Matrix, OMatrix, Scalar};
 
 use lapack;
@@ -24,17 +24,17 @@ use lapack;
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
-pub struct Cholesky<T, D: Dim>
+pub struct Cholesky<T: Scalar, D: Dim>
 where
     DefaultAllocator: Allocator<T, D, D>,
 {
     l: OMatrix<T, D, D>,
 }
 
-impl<T: Copy, D: Dim> Copy for Cholesky<T, D>
+impl<T: Scalar + Copy, D: Dim> Copy for Cholesky<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
-    Owned<T, D, D>: Copy,
+    OMatrix<T, D, D>: Copy,
 {
 }
 
@@ -104,7 +104,7 @@ where
         b: &Matrix<T, R2, C2, S2>,
     ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: Storage<T, R2, C2>,
+        S2: RawStorage<T, R2, C2>,
         DefaultAllocator: Allocator<T, R2, C2>,
     {
         let mut res = b.clone_owned();

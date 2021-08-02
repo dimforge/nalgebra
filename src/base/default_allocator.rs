@@ -4,72 +4,50 @@
 //! heap-allocated buffers for matrices with at least one dimension unknown at compile-time.
 
 use std::cmp;
-use std::fmt;
-use std::mem::{self, ManuallyDrop, MaybeUninit};
+use std::mem;
 use std::ptr;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 
+use super::Const;
+use crate::base::allocator::{Allocator, Reallocator};
+use crate::base::array_storage::ArrayStorage;
 #[cfg(any(feature = "alloc", feature = "std"))]
 use crate::base::dimension::Dynamic;
-
-use super::Const;
-use crate::base::allocator::{Allocator, InnerAllocator, Reallocator};
-use crate::base::array_storage::ArrayStorage;
 use crate::base::dimension::{Dim, DimName};
-use crate::base::storage::{
-    ContiguousStorage, ContiguousStorageMut, InnerOwned, Storage, StorageMut,
-};
+use crate::base::storage::{RawStorage, RawStorageMut};
+#[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::vec_storage::VecStorage;
-use crate::U1;
+use crate::base::Scalar;
+use std::mem::{ManuallyDrop, MaybeUninit};
 
 /*
  *
  * Allocator.
  *
  */
-/// A helper struct that controls how the storage for a matrix should be allocated.
-///
-/// This struct is useless on its own. Instead, it's used in trait
 /// An allocator based on `GenericArray` and `VecStorage` for statically-sized and dynamically-sized
 /// matrices respectively.
 #[derive(Copy, Clone, Debug)]
 pub struct DefaultAllocator;
 
 // Static - Static
-impl<T, const R: usize, const C: usize> InnerAllocator<T, Const<R>, Const<C>> for DefaultAllocator {
+impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
+    for DefaultAllocator
+{
     type Buffer = ArrayStorage<T, R, C>;
+    type BufferUninit = ArrayStorage<MaybeUninit<T>, R, C>;
 
     #[inline]
-    fn allocate_from_iterator<I: IntoIterator<Item = T>>(
-        nrows: Const<R>,
-        ncols: Const<C>,
-        iter: I,
-    ) -> Self::Buffer {
-        let mut res = Self::allocate_uninitialized(nrows, ncols);
-        let mut count = 0;
-
-        for (res, e) in res.as_mut_slice().iter_mut().zip(iter.into_iter()) {
-            *res = MaybeUninit::new(e);
-            count += 1;
-        }
-
-        assert!(
-            count == nrows.value() * ncols.value(),
-            "Matrix init. from iterator: iterator not long enough."
-        );
-
-        // Safety: we have initialized all entries.
-        unsafe { <Self as Allocator<T, Const<R>, Const<C>>>::assume_init(res) }
+    unsafe fn allocate_uninitialized(_: Const<R>, _: Const<C>) -> MaybeUninit<Self::Buffer> {
+        mem::MaybeUninit::<Self::Buffer>::uninit()
     }
-}
 
-impl<T, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>> for DefaultAllocator {
     #[inline]
-    fn allocate_uninitialized(_: Const<R>, _: Const<C>) -> ArrayStorage<MaybeUninit<T>, R, C> {
+    fn allocate_uninit(_: Const<R>, _: Const<C>) -> ArrayStorage<MaybeUninit<T>, R, C> {
         // SAFETY: An uninitialized `[MaybeUninit<_>; _]` is valid.
-        let array = unsafe { MaybeUninit::uninit().assume_init() };
+        let array: [[MaybeUninit<T>; R]; C] = unsafe { MaybeUninit::uninit().assume_init() };
         ArrayStorage(array)
     }
 
@@ -83,41 +61,53 @@ impl<T, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>> for Def
         ArrayStorage((&uninit as *const _ as *const [_; C]).read())
     }
 
-    /// Specifies that a given buffer's entries should be manually dropped.
     #[inline]
-    fn manually_drop(buf: ArrayStorage<T, R, C>) -> ArrayStorage<ManuallyDrop<T>, R, C> {
-        // SAFETY:
-        // * `ManuallyDrop<T>` and T are guaranteed to have the same layout
-        // * `ManuallyDrop` does not drop, so there are no double-frees
-        // And thus the conversion is safe
-        unsafe { ArrayStorage((&ManuallyDrop::new(buf) as *const _ as *const [_; C]).read()) }
+    fn allocate_from_iterator<I: IntoIterator<Item = T>>(
+        nrows: Const<R>,
+        ncols: Const<C>,
+        iter: I,
+    ) -> Self::Buffer {
+        #[cfg(feature = "no_unsound_assume_init")]
+        let mut res: Self::Buffer = unimplemented!();
+        #[cfg(not(feature = "no_unsound_assume_init"))]
+        let mut res = unsafe { Self::allocate_uninitialized(nrows, ncols).assume_init() };
+        let mut count = 0;
+
+        // Safety: this is OK because the Buffer is known to be contiguous.
+        let res_slice = unsafe { res.as_mut_slice_unchecked() };
+        for (res, e) in res_slice.iter_mut().zip(iter.into_iter()) {
+            *res = e;
+            count += 1;
+        }
+
+        assert!(
+            count == nrows.value() * ncols.value(),
+            "Matrix init. from iterator: iterator not long enough."
+        );
+
+        res
     }
 }
 
 // Dynamic - Static
 // Dynamic - Dynamic
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, C: Dim> InnerAllocator<T, Dynamic, C> for DefaultAllocator {
+impl<T: Scalar, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
     type Buffer = VecStorage<T, Dynamic, C>;
+    type BufferUninit = VecStorage<MaybeUninit<T>, Dynamic, C>;
 
     #[inline]
-    fn allocate_from_iterator<I: IntoIterator<Item = T>>(
-        nrows: Dynamic,
-        ncols: C,
-        iter: I,
-    ) -> Self::Buffer {
-        let it = iter.into_iter();
-        let res: Vec<T> = it.collect();
-        assert!(res.len() == nrows.value() * ncols.value(),
-                "Allocation from iterator error: the iterator did not yield the correct number of elements.");
+    unsafe fn allocate_uninitialized(nrows: Dynamic, ncols: C) -> MaybeUninit<Self::Buffer> {
+        let mut res = Vec::new();
+        let length = nrows.value() * ncols.value();
+        res.reserve_exact(length);
+        res.set_len(length);
 
-        VecStorage::new(nrows, ncols, res)
+        mem::MaybeUninit::new(VecStorage::new(nrows, ncols, res))
     }
-}
 
-impl<T, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
     #[inline]
-    fn allocate_uninitialized(nrows: Dynamic, ncols: C) -> VecStorage<MaybeUninit<T>, Dynamic, C> {
+    fn allocate_uninit(nrows: Dynamic, ncols: C) -> VecStorage<MaybeUninit<T>, Dynamic, C> {
         let mut data = Vec::new();
         let length = nrows.value() * ncols.value();
         data.reserve_exact(length);
@@ -144,31 +134,9 @@ impl<T, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
     }
 
     #[inline]
-    fn manually_drop(buf: VecStorage<T, Dynamic, C>) -> VecStorage<ManuallyDrop<T>, Dynamic, C> {
-        // Avoids a double-drop.
-        let (nrows, ncols) = buf.shape();
-        let vec: Vec<_> = buf.into();
-        let mut md = ManuallyDrop::new(vec);
-
-        // Safety:
-        // - ManuallyDrop<T> has the same alignment and layout as T.
-        // - The length and capacity come from a valid vector.
-        let new_data =
-            unsafe { Vec::from_raw_parts(md.as_mut_ptr() as *mut _, md.len(), md.capacity()) };
-
-        VecStorage::new(nrows, ncols, new_data)
-    }
-}
-
-// Static - Dynamic
-#[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, R: DimName> InnerAllocator<T, R, Dynamic> for DefaultAllocator {
-    type Buffer = VecStorage<T, R, Dynamic>;
-
-    #[inline]
     fn allocate_from_iterator<I: IntoIterator<Item = T>>(
-        nrows: R,
-        ncols: Dynamic,
+        nrows: Dynamic,
+        ncols: C,
         iter: I,
     ) -> Self::Buffer {
         let it = iter.into_iter();
@@ -180,9 +148,24 @@ impl<T, R: DimName> InnerAllocator<T, R, Dynamic> for DefaultAllocator {
     }
 }
 
-impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
+// Static - Dynamic
+#[cfg(any(feature = "std", feature = "alloc"))]
+impl<T: Scalar, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
+    type Buffer = VecStorage<T, R, Dynamic>;
+    type BufferUninit = VecStorage<MaybeUninit<T>, R, Dynamic>;
+
     #[inline]
-    fn allocate_uninitialized(nrows: R, ncols: Dynamic) -> VecStorage<MaybeUninit<T>, R, Dynamic> {
+    unsafe fn allocate_uninitialized(nrows: R, ncols: Dynamic) -> MaybeUninit<Self::Buffer> {
+        let mut res = Vec::new();
+        let length = nrows.value() * ncols.value();
+        res.reserve_exact(length);
+        res.set_len(length);
+
+        mem::MaybeUninit::new(VecStorage::new(nrows, ncols, res))
+    }
+
+    #[inline]
+    fn allocate_uninit(nrows: R, ncols: Dynamic) -> VecStorage<MaybeUninit<T>, R, Dynamic> {
         let mut data = Vec::new();
         let length = nrows.value() * ncols.value();
         data.reserve_exact(length);
@@ -209,213 +192,18 @@ impl<T, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
     }
 
     #[inline]
-    fn manually_drop(buf: VecStorage<T, R, Dynamic>) -> VecStorage<ManuallyDrop<T>, R, Dynamic> {
-        // Avoids a double-drop.
-        let (nrows, ncols) = buf.shape();
-        let vec: Vec<_> = buf.into();
-        let mut md = ManuallyDrop::new(vec);
+    fn allocate_from_iterator<I: IntoIterator<Item = T>>(
+        nrows: R,
+        ncols: Dynamic,
+        iter: I,
+    ) -> Self::Buffer {
+        let it = iter.into_iter();
+        let res: Vec<T> = it.collect();
+        assert!(res.len() == nrows.value() * ncols.value(),
+                "Allocation from iterator error: the iterator did not yield the correct number of elements.");
 
-        // Safety:
-        // - ManuallyDrop<T> has the same alignment and layout as T.
-        // - The length and capacity come from a valid vector.
-        let new_data =
-            unsafe { Vec::from_raw_parts(md.as_mut_ptr() as *mut _, md.len(), md.capacity()) };
-
-        VecStorage::new(nrows, ncols, new_data)
+        VecStorage::new(nrows, ncols, res)
     }
-}
-
-/// The owned storage type for a matrix.
-#[repr(transparent)]
-pub struct Owned<T, R: Dim, C: Dim>(pub InnerOwned<T, R, C>)
-where
-    DefaultAllocator: InnerAllocator<T, R, C>;
-
-impl<T: Copy, R: Dim, C: Dim> Copy for Owned<T, R, C>
-where
-    DefaultAllocator: InnerAllocator<T, R, C>,
-    InnerOwned<T, R, C>: Copy,
-{
-}
-
-impl<T: Clone, R: Dim, C: Dim> Clone for Owned<T, R, C>
-where
-    DefaultAllocator: InnerAllocator<T, R, C>,
-{
-    fn clone(&self) -> Self {
-        if Self::is_array() {
-            // We first clone the data.
-            let slice = unsafe { self.as_slice_unchecked() };
-            let vec = ManuallyDrop::new(slice.to_owned());
-
-            // We then transmute it back into an array and then an Owned.
-            unsafe { mem::transmute_copy(&*vec.as_ptr()) }
-        } else {
-            // We first clone the data.
-            let clone = ManuallyDrop::new(self.as_vec_storage().clone());
-
-            // We then transmute it back into an Owned.
-            unsafe { mem::transmute_copy(&clone) }
-        }
-
-        // TODO: check that the auxiliary copies are elided.
-    }
-}
-
-impl<T: fmt::Debug, R: Dim, C: Dim> fmt::Debug for Owned<T, R, C>
-where
-    DefaultAllocator: InnerAllocator<T, R, C>,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if Self::is_array() {
-            let slice = unsafe { self.as_slice_unchecked() };
-            slice.fmt(f)
-        } else {
-            self.as_vec_storage().fmt(f)
-        }
-    }
-}
-
-impl<T, const R: usize, const C: usize> Owned<T, Const<R>, Const<C>> {
-    fn new(array: [[T; R]; C]) -> Self {
-        Self(ArrayStorage(array))
-    }
-}
-
-impl<T, R: Dim, C: Dim> Owned<T, R, C>
-where
-    DefaultAllocator: InnerAllocator<T, R, C>,
-{
-    /// Returns whether `Self` stores an [`ArrayStorage`]. This is a zero-cost
-    /// operation.
-    const fn is_array() -> bool {
-        R::is_static() && C::is_static()
-    }
-
-    /// Returns whether `Self` stores a [`VecStorage`].
-    const fn is_vec() -> bool {
-        !Self::is_array()
-    }
-
-    /// Returns a reference to the underlying [`VecStorage`].
-    ///
-    /// # Panics
-    /// This method will panic if `Self` does not contain a [`VecStorage`].
-    fn as_vec_storage(&self) -> &VecStorage<T, R, C> {
-        assert!(Self::is_vec());
-
-        // Safety: `self` is transparent and must contain a `VecStorage`.
-        unsafe { &*(self as *const _ as *const _) }
-    }
-
-    /// Returns a mutable reference to the underlying [`VecStorage`].
-    ///
-    /// # Panics
-    /// This method will panic if `Self` does not contain a [`VecStorage`].
-    fn as_vec_storage_mut(&mut self) -> &mut VecStorage<T, R, C> {
-        assert!(Self::is_vec());
-
-        // Safety: `self` is transparent and must contain a `VecStorage`.
-        unsafe { &mut *(self as *mut _ as *mut _) }
-    }
-}
-
-unsafe impl<T, R: Dim, C: Dim> Storage<T, R, C> for Owned<T, R, C>
-where
-    DefaultAllocator: InnerAllocator<T, R, C>,
-{
-    type RStride = U1;
-
-    type CStride = R;
-
-    fn ptr(&self) -> *const T {
-        if Self::is_array() {
-            &self as *const _ as *const T
-        } else {
-            self.as_vec_storage().as_vec().as_ptr()
-        }
-    }
-
-    fn shape(&self) -> (R, C) {
-        if Self::is_array() {
-            (R::default(), C::default())
-        } else {
-            let vec = self.as_vec_storage();
-            (vec.nrows, vec.ncols)
-        }
-    }
-
-    fn strides(&self) -> (Self::RStride, Self::CStride) {
-        if Self::is_array() {
-            (U1::name(), R::default())
-        } else {
-            let vec = self.as_vec_storage();
-            (U1::name(), vec.nrows)
-        }
-    }
-
-    #[inline(always)]
-    fn is_contiguous(&self) -> bool {
-        true
-    }
-
-    unsafe fn as_slice_unchecked(&self) -> &[T] {
-        if Self::is_array() {
-            std::slice::from_raw_parts(
-                self.ptr(),
-                R::try_to_usize().unwrap() * C::try_to_usize().unwrap(),
-            )
-        } else {
-            self.as_vec_storage().as_vec().as_ref()
-        }
-    }
-
-    #[inline(always)]
-    fn into_owned(self) -> Self {
-        self
-    }
-
-    #[inline(always)]
-    fn clone_owned(&self) -> Self
-    where
-        T: Clone,
-    {
-        self.clone()
-    }
-}
-
-unsafe impl<T, R: Dim, C: Dim> StorageMut<T, R, C> for Owned<T, R, C>
-where
-    DefaultAllocator: InnerAllocator<T, R, C>,
-{
-    fn ptr_mut(&mut self) -> *mut T {
-        if Self::is_array() {
-            &mut self as *mut _ as *mut T
-        } else {
-            self.as_vec_storage_mut().as_vec().as_ptr()
-        }
-    }
-
-    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
-        if Self::is_array() {
-            std::slice::from_raw_parts(
-                self.ptr_mut(),
-                R::try_to_usize().unwrap() * C::try_to_usize().unwrap(),
-            )
-        } else {
-            self.as_vec_storage_mut().as_vec_mut().as_mut()
-        }
-    }
-}
-
-unsafe impl<T, R: Dim, C: Dim> ContiguousStorage<T, R, C> for Owned<T, R, C> where
-    DefaultAllocator: InnerAllocator<T, R, C>
-{
-}
-
-unsafe impl<T, R: Dim, C: Dim> ContiguousStorageMut<T, R, C> for Owned<T, R, C> where
-    DefaultAllocator: InnerAllocator<T, R, C>
-{
 }
 
 /*
@@ -424,38 +212,39 @@ unsafe impl<T, R: Dim, C: Dim> ContiguousStorageMut<T, R, C> for Owned<T, R, C> 
  *
  */
 // Anything -> Static × Static
-impl<T, RFrom: Dim, CFrom: Dim, const RTO: usize, const CTO: usize>
+impl<T: Scalar, RFrom, CFrom, const RTO: usize, const CTO: usize>
     Reallocator<T, RFrom, CFrom, Const<RTO>, Const<CTO>> for DefaultAllocator
 where
+    RFrom: Dim,
+    CFrom: Dim,
     Self: Allocator<T, RFrom, CFrom>,
 {
     #[inline]
     unsafe fn reallocate_copy(
         rto: Const<RTO>,
         cto: Const<CTO>,
-        buf: InnerOwned<T, RFrom, CFrom>,
+        buf: <Self as Allocator<T, RFrom, CFrom>>::Buffer,
     ) -> ArrayStorage<T, RTO, CTO> {
+        #[cfg(feature = "no_unsound_assume_init")]
+        let mut res: ArrayStorage<T, RTO, CTO> = unimplemented!();
+        #[cfg(not(feature = "no_unsound_assume_init"))]
         let mut res =
-            <Self as Allocator<_, Const<RTO>, Const<CTO>>>::allocate_uninitialized(rto, cto);
+            <Self as Allocator<T, Const<RTO>, Const<CTO>>>::allocate_uninitialized(rto, cto)
+                .assume_init();
 
         let (rfrom, cfrom) = buf.shape();
 
         let len_from = rfrom.value() * cfrom.value();
         let len_to = rto.value() * cto.value();
-        ptr::copy_nonoverlapping(
-            buf.ptr(),
-            res.ptr_mut() as *mut T,
-            cmp::min(len_from, len_to),
-        );
+        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut(), cmp::min(len_from, len_to));
 
-        // Safety: TODO
-        <Self as Allocator<_, Const<RTO>, Const<CTO>>>::assume_init(res)
+        res
     }
 }
 
 // Static × Static -> Dynamic × Any
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, CTo, const RFROM: usize, const CFROM: usize>
+impl<T: Scalar, CTo, const RFROM: usize, const CFROM: usize>
     Reallocator<T, Const<RFROM>, Const<CFROM>, Dynamic, CTo> for DefaultAllocator
 where
     CTo: Dim,
@@ -466,25 +255,25 @@ where
         cto: CTo,
         buf: ArrayStorage<T, RFROM, CFROM>,
     ) -> VecStorage<T, Dynamic, CTo> {
-        let mut res = <Self as Allocator<T, Dynamic, CTo>>::allocate_uninitialized(rto, cto);
+        #[cfg(feature = "no_unsound_assume_init")]
+        let mut res: VecStorage<T, Dynamic, CTo> = unimplemented!();
+        #[cfg(not(feature = "no_unsound_assume_init"))]
+        let mut res =
+            <Self as Allocator<T, Dynamic, CTo>>::allocate_uninitialized(rto, cto).assume_init();
 
         let (rfrom, cfrom) = buf.shape();
 
         let len_from = rfrom.value() * cfrom.value();
         let len_to = rto.value() * cto.value();
-        ptr::copy_nonoverlapping(
-            buf.ptr(),
-            res.ptr_mut() as *mut T,
-            cmp::min(len_from, len_to),
-        );
+        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut(), cmp::min(len_from, len_to));
 
-        <Self as Allocator<T, Dynamic, CTo>>::assume_init(res)
+        res
     }
 }
 
 // Static × Static -> Static × Dynamic
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, RTo, const RFROM: usize, const CFROM: usize>
+impl<T: Scalar, RTo, const RFROM: usize, const CFROM: usize>
     Reallocator<T, Const<RFROM>, Const<CFROM>, RTo, Dynamic> for DefaultAllocator
 where
     RTo: DimName,
@@ -495,25 +284,27 @@ where
         cto: Dynamic,
         buf: ArrayStorage<T, RFROM, CFROM>,
     ) -> VecStorage<T, RTo, Dynamic> {
-        let mut res = <Self as Allocator<T, RTo, Dynamic>>::allocate_uninitialized(rto, cto);
+        #[cfg(feature = "no_unsound_assume_init")]
+        let mut res: VecStorage<T, RTo, Dynamic> = unimplemented!();
+        #[cfg(not(feature = "no_unsound_assume_init"))]
+        let mut res =
+            <Self as Allocator<T, RTo, Dynamic>>::allocate_uninitialized(rto, cto).assume_init();
 
         let (rfrom, cfrom) = buf.shape();
 
         let len_from = rfrom.value() * cfrom.value();
         let len_to = rto.value() * cto.value();
-        ptr::copy_nonoverlapping(
-            buf.ptr(),
-            res.ptr_mut() as *mut T,
-            cmp::min(len_from, len_to),
-        );
+        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut(), cmp::min(len_from, len_to));
 
-        <Self as Allocator<T, RTo, Dynamic>>::assume_init(res)
+        res
     }
 }
 
 // All conversion from a dynamic buffer to a dynamic buffer.
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, CFrom: Dim, CTo: Dim> Reallocator<T, Dynamic, CFrom, Dynamic, CTo> for DefaultAllocator {
+impl<T: Scalar, CFrom: Dim, CTo: Dim> Reallocator<T, Dynamic, CFrom, Dynamic, CTo>
+    for DefaultAllocator
+{
     #[inline]
     unsafe fn reallocate_copy(
         rto: Dynamic,
@@ -526,7 +317,7 @@ impl<T, CFrom: Dim, CTo: Dim> Reallocator<T, Dynamic, CFrom, Dynamic, CTo> for D
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, CFrom: Dim, RTo: DimName> Reallocator<T, Dynamic, CFrom, RTo, Dynamic>
+impl<T: Scalar, CFrom: Dim, RTo: DimName> Reallocator<T, Dynamic, CFrom, RTo, Dynamic>
     for DefaultAllocator
 {
     #[inline]
@@ -541,7 +332,7 @@ impl<T, CFrom: Dim, RTo: DimName> Reallocator<T, Dynamic, CFrom, RTo, Dynamic>
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, RFrom: DimName, CTo: Dim> Reallocator<T, RFrom, Dynamic, Dynamic, CTo>
+impl<T: Scalar, RFrom: DimName, CTo: Dim> Reallocator<T, RFrom, Dynamic, Dynamic, CTo>
     for DefaultAllocator
 {
     #[inline]
@@ -556,7 +347,7 @@ impl<T, RFrom: DimName, CTo: Dim> Reallocator<T, RFrom, Dynamic, Dynamic, CTo>
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, RFrom: DimName, RTo: DimName> Reallocator<T, RFrom, Dynamic, RTo, Dynamic>
+impl<T: Scalar, RFrom: DimName, RTo: DimName> Reallocator<T, RFrom, Dynamic, RTo, Dynamic>
     for DefaultAllocator
 {
     #[inline]

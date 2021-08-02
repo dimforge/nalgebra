@@ -1,0 +1,359 @@
+/*
+ * This file implements some BLAS operations in such a way that they work
+ * even if the first argument (the output parameter) is an uninitialized matrix.
+ *
+ * Because doing this makes the code harder to read, we only implemented the operations that we
+ * know would benefit from this performance-wise, namely, GEMM (which we use for our matrix
+ * multiplication code). If we identify other operations like that in the future, we could add
+ * them here.
+ */
+
+#[cfg(feature = "std")]
+use matrixmultiply;
+use num::{One, Zero};
+use simba::scalar::{ClosedAdd, ClosedMul};
+#[cfg(feature = "std")]
+use std::mem;
+
+use crate::base::constraint::{
+    AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
+};
+use crate::base::dimension::{Dim, Dynamic, U1};
+use crate::base::storage::{RawStorage, RawStorageMut};
+use crate::base::uninit::{InitStatus, Initialized};
+use crate::base::{Matrix, Scalar, Vector};
+
+// # Safety
+// The content of `y` must only contain values for which
+// `Status::assume_init_mut` is sound.
+#[allow(clippy::too_many_arguments)]
+unsafe fn array_axcpy<Status, T>(
+    _: Status,
+    y: &mut [Status::Value],
+    a: T,
+    x: &[T],
+    c: T,
+    beta: T,
+    stride1: usize,
+    stride2: usize,
+    len: usize,
+) where
+    Status: InitStatus<T>,
+    T: Scalar + Zero + ClosedAdd + ClosedMul,
+{
+    for i in 0..len {
+        let y = Status::assume_init_mut(y.get_unchecked_mut(i * stride1));
+        *y = a.inlined_clone() * x.get_unchecked(i * stride2).inlined_clone() * c.inlined_clone()
+            + beta.inlined_clone() * y.inlined_clone();
+    }
+}
+
+fn array_axc<Status, T>(
+    _: Status,
+    y: &mut [Status::Value],
+    a: T,
+    x: &[T],
+    c: T,
+    stride1: usize,
+    stride2: usize,
+    len: usize,
+) where
+    Status: InitStatus<T>,
+    T: Scalar + Zero + ClosedAdd + ClosedMul,
+{
+    for i in 0..len {
+        unsafe {
+            Status::init(
+                y.get_unchecked_mut(i * stride1),
+                a.inlined_clone()
+                    * x.get_unchecked(i * stride2).inlined_clone()
+                    * c.inlined_clone(),
+            );
+        }
+    }
+}
+
+/// Computes `self = a * x * c + b * self`.
+///
+/// If `b` is zero, `self` is never read from.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra::Vector3;
+/// let mut vec1 = Vector3::new(1.0, 2.0, 3.0);
+/// let vec2 = Vector3::new(0.1, 0.2, 0.3);
+/// vec1.axcpy(5.0, &vec2, 2.0, 5.0);
+/// assert_eq!(vec1, Vector3::new(6.0, 12.0, 18.0));
+/// ```
+#[inline]
+#[allow(clippy::many_single_char_names)]
+pub unsafe fn axcpy_uninit<Status, T, D1: Dim, D2: Dim, SA, SB>(
+    status: Status,
+    y: &mut Vector<Status::Value, D1, SA>,
+    a: T,
+    x: &Vector<T, D2, SB>,
+    c: T,
+    b: T,
+) where
+    T: Scalar + Zero + ClosedAdd + ClosedMul,
+    SA: RawStorageMut<Status::Value, D1>,
+    SB: RawStorage<T, D2>,
+    ShapeConstraint: DimEq<D1, D2>,
+    Status: InitStatus<T>,
+{
+    assert_eq!(y.nrows(), x.nrows(), "Axcpy: mismatched vector shapes.");
+
+    let rstride1 = y.strides().0;
+    let rstride2 = x.strides().0;
+
+    // SAFETY: the conversion to slices is OK because we access the
+    //         elements taking the strides into account.
+    let y = y.data.as_mut_slice_unchecked();
+    let x = x.data.as_slice_unchecked();
+
+    if !b.is_zero() {
+        array_axcpy(status, y, a, x, c, b, rstride1, rstride2, x.len());
+    } else {
+        array_axc(status, y, a, x, c, rstride1, rstride2, x.len());
+    }
+}
+
+/// Computes `self = alpha * a * x + beta * self`, where `a` is a matrix, `x` a vector, and
+/// `alpha, beta` two scalars.
+///
+/// If `beta` is zero, `self` is never read.
+///
+/// # Examples:
+///
+/// ```
+/// # use nalgebra::{Matrix2, Vector2};
+/// let mut vec1 = Vector2::new(1.0, 2.0);
+/// let vec2 = Vector2::new(0.1, 0.2);
+/// let mat = Matrix2::new(1.0, 2.0,
+///                        3.0, 4.0);
+/// vec1.gemv(10.0, &mat, &vec2, 5.0);
+/// assert_eq!(vec1, Vector2::new(10.0, 21.0));
+/// ```
+#[inline]
+pub unsafe fn gemv_uninit<Status, T, D1: Dim, R2: Dim, C2: Dim, D3: Dim, SA, SB, SC>(
+    status: Status,
+    y: &mut Vector<Status::Value, D1, SA>,
+    alpha: T,
+    a: &Matrix<T, R2, C2, SB>,
+    x: &Vector<T, D3, SC>,
+    beta: T,
+) where
+    Status: InitStatus<T>,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SA: RawStorageMut<Status::Value, D1>,
+    SB: RawStorage<T, R2, C2>,
+    SC: RawStorage<T, D3>,
+    ShapeConstraint: DimEq<D1, R2> + AreMultipliable<R2, C2, D3, U1>,
+{
+    let dim1 = y.nrows();
+    let (nrows2, ncols2) = a.shape();
+    let dim3 = x.nrows();
+
+    assert!(
+        ncols2 == dim3 && dim1 == nrows2,
+        "Gemv: dimensions mismatch."
+    );
+
+    if ncols2 == 0 {
+        if beta.is_zero() {
+            y.apply(|e| Status::init(e, T::zero()));
+        } else {
+            // SAFETY: this is UB if y is uninitialized.
+            y.apply(|e| *Status::assume_init_mut(e) *= beta.inlined_clone());
+        }
+        return;
+    }
+
+    // TODO: avoid bound checks.
+    let col2 = a.column(0);
+    let val = x.vget_unchecked(0).inlined_clone();
+
+    // SAFETY: this is the call that makes this method unsafe: it is UB if Status = Uninit and beta != 0.
+    axcpy_uninit(status, y, alpha.inlined_clone(), &col2, val, beta);
+
+    for j in 1..ncols2 {
+        let col2 = a.column(j);
+        let val = x.vget_unchecked(j).inlined_clone();
+
+        // SAFETY: because y was initialized above, we can use the initialized status.
+        axcpy_uninit(
+            Initialized(status),
+            y,
+            alpha.inlined_clone(),
+            &col2,
+            val,
+            T::one(),
+        );
+    }
+}
+
+/// Computes `self = alpha * a * b + beta * self`, where `a, b, self` are matrices.
+/// `alpha` and `beta` are scalar.
+///
+/// If `beta` is zero, `self` is never read.
+///
+/// # Examples:
+///
+/// ```
+/// # #[macro_use] extern crate approx;
+/// # use nalgebra::{Matrix2x3, Matrix3x4, Matrix2x4};
+/// let mut mat1 = Matrix2x4::identity();
+/// let mat2 = Matrix2x3::new(1.0, 2.0, 3.0,
+///                           4.0, 5.0, 6.0);
+/// let mat3 = Matrix3x4::new(0.1, 0.2, 0.3, 0.4,
+///                           0.5, 0.6, 0.7, 0.8,
+///                           0.9, 1.0, 1.1, 1.2);
+/// let expected = mat2 * mat3 * 10.0 + mat1 * 5.0;
+///
+/// mat1.gemm(10.0, &mat2, &mat3, 5.0);
+/// assert_relative_eq!(mat1, expected);
+/// ```
+#[inline]
+pub unsafe fn gemm_uninit<
+    Status,
+    T,
+    R1: Dim,
+    C1: Dim,
+    R2: Dim,
+    C2: Dim,
+    R3: Dim,
+    C3: Dim,
+    SA,
+    SB,
+    SC,
+>(
+    status: Status,
+    y: &mut Matrix<Status::Value, R1, C1, SA>,
+    alpha: T,
+    a: &Matrix<T, R2, C2, SB>,
+    b: &Matrix<T, R3, C3, SC>,
+    beta: T,
+) where
+    Status: InitStatus<T>,
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    SA: RawStorageMut<Status::Value, R1, C1>,
+    SB: RawStorage<T, R2, C2>,
+    SC: RawStorage<T, R3, C3>,
+    ShapeConstraint:
+        SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C3> + AreMultipliable<R2, C2, R3, C3>,
+{
+    let ncols1 = y.ncols();
+
+    #[cfg(feature = "std")]
+    {
+        // We assume large matrices will be Dynamic but small matrices static.
+        // We could use matrixmultiply for large statically-sized matrices but the performance
+        // threshold to activate it would be different from SMALL_DIM because our code optimizes
+        // better for statically-sized matrices.
+        if R1::is::<Dynamic>()
+            || C1::is::<Dynamic>()
+            || R2::is::<Dynamic>()
+            || C2::is::<Dynamic>()
+            || R3::is::<Dynamic>()
+            || C3::is::<Dynamic>()
+        {
+            // matrixmultiply can be used only if the std feature is available.
+            let nrows1 = y.nrows();
+            let (nrows2, ncols2) = a.shape();
+            let (nrows3, ncols3) = b.shape();
+
+            // Threshold determined empirically.
+            const SMALL_DIM: usize = 5;
+
+            if nrows1 > SMALL_DIM && ncols1 > SMALL_DIM && nrows2 > SMALL_DIM && ncols2 > SMALL_DIM
+            {
+                assert_eq!(
+                    ncols2, nrows3,
+                    "gemm: dimensions mismatch for multiplication."
+                );
+                assert_eq!(
+                    (nrows1, ncols1),
+                    (nrows2, ncols3),
+                    "gemm: dimensions mismatch for addition."
+                );
+
+                // NOTE: this case should never happen because we enter this
+                // codepath only when ncols2 > SMALL_DIM. Though we keep this
+                // here just in case if in the future we change the conditions to
+                // enter this codepath.
+                if ncols2 == 0 {
+                    // NOTE: we can't just always multiply by beta
+                    // because we documented the guaranty that `self` is
+                    // never read if `beta` is zero.
+                    if beta.is_zero() {
+                        y.apply(|e| Status::init(e, T::zero()));
+                    } else {
+                        // SAFETY: this is UB if Status = Uninit
+                        y.apply(|e| *Status::assume_init_mut(e) *= beta.inlined_clone());
+                    }
+                    return;
+                }
+
+                if T::is::<f32>() {
+                    let (rsa, csa) = a.strides();
+                    let (rsb, csb) = b.strides();
+                    let (rsc, csc) = y.strides();
+
+                    matrixmultiply::sgemm(
+                        nrows2,
+                        ncols2,
+                        ncols3,
+                        mem::transmute_copy(&alpha),
+                        a.data.ptr() as *const f32,
+                        rsa as isize,
+                        csa as isize,
+                        b.data.ptr() as *const f32,
+                        rsb as isize,
+                        csb as isize,
+                        mem::transmute_copy(&beta),
+                        y.data.ptr_mut() as *mut f32,
+                        rsc as isize,
+                        csc as isize,
+                    );
+                    return;
+                } else if T::is::<f64>() {
+                    let (rsa, csa) = a.strides();
+                    let (rsb, csb) = b.strides();
+                    let (rsc, csc) = y.strides();
+
+                    matrixmultiply::dgemm(
+                        nrows2,
+                        ncols2,
+                        ncols3,
+                        mem::transmute_copy(&alpha),
+                        a.data.ptr() as *const f64,
+                        rsa as isize,
+                        csa as isize,
+                        b.data.ptr() as *const f64,
+                        rsb as isize,
+                        csb as isize,
+                        mem::transmute_copy(&beta),
+                        y.data.ptr_mut() as *mut f64,
+                        rsc as isize,
+                        csc as isize,
+                    );
+                    return;
+                }
+            }
+        }
+    }
+
+    for j1 in 0..ncols1 {
+        // TODO: avoid bound checks.
+        // SAFETY: this is UB if Status = Uninit && beta != 0
+        gemv_uninit(
+            status,
+            &mut y.column_mut(j1),
+            alpha.inlined_clone(),
+            a,
+            &b.column(j1),
+            beta.inlined_clone(),
+        );
+    }
+}

@@ -263,7 +263,7 @@ where
 }
 
 /// Same as `matrix`, but without the additional anonymous generic types
-fn matrix_<R: Dim, C: Dim, ScalarStrategy>(
+fn matrix_<R, C, ScalarStrategy>(
     value_strategy: ScalarStrategy,
     rows: DimRange<R>,
     cols: DimRange<C>,
@@ -271,6 +271,8 @@ fn matrix_<R: Dim, C: Dim, ScalarStrategy>(
 where
     ScalarStrategy: Strategy + Clone + 'static,
     ScalarStrategy::Value: Scalar,
+    R: Dim,
+    C: Dim,
     DefaultAllocator: Allocator<ScalarStrategy::Value, R, C>,
 {
     let nrows = rows.lower_bound().value()..=rows.upper_bound().value();
@@ -330,7 +332,12 @@ where
     matrix_(value_strategy, length.into(), Const::<1>.into())
 }
 
-impl<NParameters: Default, R: DimName, C: DimName> Default for MatrixParameters<NParameters, R, C> {
+impl<NParameters, R, C> Default for MatrixParameters<NParameters, R, C>
+where
+    NParameters: Default,
+    R: DimName,
+    C: DimName,
+{
     fn default() -> Self {
         Self {
             rows: DimRange::from(R::name()),

@@ -2,27 +2,32 @@
 
 use std::ptr;
 
-use crate::base::allocator::{Allocator, InnerAllocator, SameShapeC, SameShapeR};
+use crate::base::allocator::{Allocator, SameShapeC, SameShapeR};
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, U1};
-use crate::base::Owned;
+use crate::base::Scalar;
 
 /*
  * Aliases for allocation results.
  */
+/// The data storage for the sum of two matrices with dimensions `(R1, C1)` and `(R2, C2)`.
+pub type SameShapeStorage<T, R1, C1, R2, C2> =
+    <DefaultAllocator as Allocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>>::Buffer;
 
 // TODO: better name than Owned ?
 /// The owned data storage that can be allocated from `S`.
-pub type InnerOwned<T, R, C = U1> = <DefaultAllocator as InnerAllocator<T, R, C>>::Buffer;
+pub type Owned<T, R, C = U1> = <DefaultAllocator as Allocator<T, R, C>>::Buffer;
 
-/// The data storage for the sum of two matrices with dimensions `(R1, C1)` and `(R2, C2)`.
-pub type SameShapeStorage<T, R1, C1, R2, C2> = Owned<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>;
+/// The owned data storage that can be allocated from `S`.
+pub type OwnedUninit<T, R, C = U1> = <DefaultAllocator as Allocator<T, R, C>>::BufferUninit;
 
 /// The row-stride of the owned data storage for a buffer of dimension `(R, C)`.
-pub type RStride<T, R, C = U1> = <InnerOwned<T, R, C> as Storage<T, R, C>>::RStride;
+pub type RStride<T, R, C = U1> =
+    <<DefaultAllocator as Allocator<T, R, C>>::Buffer as RawStorage<T, R, C>>::RStride;
 
 /// The column-stride of the owned data storage for a buffer of dimension `(R, C)`.
-pub type CStride<T, R, C = U1> = <InnerOwned<T, R, C> as Storage<T, R, C>>::CStride;
+pub type CStride<T, R, C = U1> =
+    <<DefaultAllocator as Allocator<T, R, C>>::Buffer as RawStorage<T, R, C>>::CStride;
 
 /// The trait shared by all matrix data storage.
 ///
@@ -33,7 +38,7 @@ pub type CStride<T, R, C = U1> = <InnerOwned<T, R, C> as Storage<T, R, C>>::CStr
 /// should **not** allow the user to modify the size of the underlying buffer with safe methods
 /// (for example the `VecStorage::data_mut` method is unsafe because the user could change the
 /// vector's size so that it no longer contains enough elements: this will lead to UB.
-pub unsafe trait Storage<T, R: Dim, C: Dim = U1>: Sized {
+pub unsafe trait RawStorage<T, R: Dim, C: Dim = U1>: Sized {
     /// The static stride of this storage's rows.
     type RStride: Dim;
 
@@ -118,17 +123,17 @@ pub unsafe trait Storage<T, R: Dim, C: Dim = U1>: Sized {
     ///
     /// Call the safe alternative `matrix.as_slice()` instead.
     unsafe fn as_slice_unchecked(&self) -> &[T];
+}
 
+pub unsafe trait Storage<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     /// Builds a matrix data storage that does not contain any reference.
     fn into_owned(self) -> Owned<T, R, C>
     where
-        T: Clone,
         DefaultAllocator: Allocator<T, R, C>;
 
     /// Clones this data storage to one that does not contain any reference.
     fn clone_owned(&self) -> Owned<T, R, C>
     where
-        T: Clone,
         DefaultAllocator: Allocator<T, R, C>;
 }
 
@@ -137,7 +142,7 @@ pub unsafe trait Storage<T, R: Dim, C: Dim = U1>: Sized {
 /// Note that a mutable access does not mean that the matrix owns its data. For example, a mutable
 /// matrix slice can provide mutable access to its elements even if it does not own its data (it
 /// contains only an internal reference to them).
-pub unsafe trait StorageMut<T, R: Dim, C: Dim = U1>: Storage<T, R, C> {
+pub unsafe trait RawStorageMut<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     /// The matrix mutable data pointer.
     fn ptr_mut(&mut self) -> *mut T;
 
@@ -212,40 +217,37 @@ pub unsafe trait StorageMut<T, R: Dim, C: Dim = U1>: Storage<T, R, C> {
     unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T];
 }
 
-/// A matrix storage that is stored contiguously in memory.
-///
-/// The storage requirement means that for any value of `i` in `[0, nrows * ncols - 1]`, the value
-/// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because
-/// failing to comply to this may cause Undefined Behaviors.
-pub unsafe trait ContiguousStorage<T, R: Dim, C: Dim = U1>: Storage<T, R, C> {
-    /// Converts this data storage to a contiguous slice.
-    fn as_slice(&self) -> &[T] {
-        // SAFETY: this is safe because this trait guarantees the fact
-        //         that the data is stored contiguously.
-        unsafe { self.as_slice_unchecked() }
-    }
+pub unsafe trait StorageMut<T, R: Dim, C: Dim = U1>:
+    Storage<T, R, C> + RawStorageMut<T, R, C>
+{
 }
 
-/// A mutable matrix storage that is stored contiguously in memory.
+unsafe impl<S, T, R, C> StorageMut<T, R, C> for S
+where
+    R: Dim,
+    C: Dim,
+    S: Storage<T, R, C> + RawStorageMut<T, R, C>,
+{
+}
+
+/// Marker trait indicating that a storage is stored contiguously in memory.
 ///
 /// The storage requirement means that for any value of `i` in `[0, nrows * ncols - 1]`, the value
 /// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because
 /// failing to comply to this may cause Undefined Behaviors.
-pub unsafe trait ContiguousStorageMut<T, R: Dim, C: Dim = U1>:
-    ContiguousStorage<T, R, C> + StorageMut<T, R, C>
-{
-    /// Converts this data storage to a contiguous mutable slice.
-    fn as_mut_slice(&mut self) -> &mut [T] {
-        // SAFETY: this is safe because this trait guarantees the fact
-        //         that the data is stored contiguously.
-        unsafe { self.as_mut_slice_unchecked() }
-    }
-}
+pub unsafe trait IsContiguous {}
 
 /// A matrix storage that can be reshaped in-place.
-pub trait ReshapableStorage<T, R1: Dim, C1: Dim, R2: Dim, C2: Dim>: Storage<T, R1, C1> {
+pub trait ReshapableStorage<T, R1, C1, R2, C2>: RawStorage<T, R1, C1>
+where
+    T: Scalar,
+    R1: Dim,
+    C1: Dim,
+    R2: Dim,
+    C2: Dim,
+{
     /// The reshaped storage type.
-    type Output: Storage<T, R2, C2>;
+    type Output: RawStorage<T, R2, C2>;
 
     /// Reshapes the storage into the output storage type.
     fn reshape_generic(self, nrows: R2, ncols: C2) -> Self::Output;

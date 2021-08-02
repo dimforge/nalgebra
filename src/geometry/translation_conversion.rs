@@ -27,7 +27,8 @@ use crate::Point;
 
 impl<T1, T2, const D: usize> SubsetOf<Translation<T2, D>> for Translation<T1, D>
 where
-    T2: SupersetOf<T1>,
+    T1: Scalar,
+    T2: Scalar + SupersetOf<T1>,
 {
     #[inline]
     fn to_superset(&self) -> Translation<T2, D> {
@@ -192,14 +193,14 @@ where
     }
 }
 
-impl<T, const D: usize> From<OVector<T, Const<D>>> for Translation<T, D> {
+impl<T: Scalar, const D: usize> From<OVector<T, Const<D>>> for Translation<T, D> {
     #[inline]
     fn from(vector: OVector<T, Const<D>>) -> Self {
         Translation { vector }
     }
 }
 
-impl<T, const D: usize> From<[T; D]> for Translation<T, D> {
+impl<T: Scalar, const D: usize> From<[T; D]> for Translation<T, D> {
     #[inline]
     fn from(coords: [T; D]) -> Self {
         Translation {
@@ -208,17 +209,14 @@ impl<T, const D: usize> From<[T; D]> for Translation<T, D> {
     }
 }
 
-impl<T, const D: usize> From<Point<T, D>> for Translation<T, D> {
+impl<T: Scalar, const D: usize> From<Point<T, D>> for Translation<T, D> {
     #[inline]
     fn from(pt: Point<T, D>) -> Self {
         Translation { vector: pt.coords }
     }
 }
 
-impl<T, const D: usize> From<Translation<T, D>> for [T; D]
-where
-    T: Clone,
-{
+impl<T: Scalar, const D: usize> From<Translation<T, D>> for [T; D] {
     #[inline]
     fn from(t: Translation<T, D>) -> Self {
         t.vector.into()

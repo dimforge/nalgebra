@@ -9,7 +9,7 @@ use simba::scalar::RealField;
 use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Const, Dim};
-use na::storage::Storage;
+use na::storage::RawStorage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
@@ -89,12 +89,11 @@ where
 
         let jobz = if eigenvectors { b'V' } else { b'T' };
 
-        let nrows = m.data.shape().0;
+        let nrows = m.shape_generic().0;
         let n = nrows.value();
 
         let lda = n as i32;
 
-        // IMPORTANT TODO: this is still UB.
         let mut values =
             unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
         let mut info = 0;

@@ -4,12 +4,9 @@ use crate::{
     base::{
         allocator::Allocator,
         dimension::{Const, Dim, DimMin, DimMinimum},
-        storage::Storage,
         DefaultAllocator,
     },
-    convert,
-    storage::InnerOwned,
-    try_convert, ComplexField, OMatrix, RealField,
+    convert, try_convert, ComplexField, OMatrix, RealField,
 };
 
 use crate::num::Zero;
@@ -49,7 +46,7 @@ where
     DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
 {
     fn new(a: OMatrix<T, D, D>, use_exact_norm: bool) -> Self {
-        let (nrows, ncols) = a.data.shape();
+        let (nrows, ncols) = a.shape_generic();
         ExpmPadeHelper {
             use_exact_norm,
             ident: OMatrix::<T, D, D>::identity_generic(nrows, ncols),
@@ -350,7 +347,7 @@ where
     D: Dim,
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
-    let nrows = a.data.shape().0;
+    let nrows = a.shape_generic().0;
     let mut v = crate::OVector::<T, D>::repeat_generic(nrows, Const::<1>, convert(1.0));
     let m = a.transpose();
 
@@ -435,7 +432,6 @@ where
         + Allocator<T, D>
         + Allocator<T::RealField, D>
         + Allocator<T::RealField, D, D>,
-    InnerOwned<T, D, D>: Clone,
 {
     /// Computes exponential of this matrix
     #[must_use]

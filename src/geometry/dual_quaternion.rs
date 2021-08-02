@@ -2,15 +2,15 @@
 #![allow(clippy::op_ref)]
 
 use crate::{
-    Isometry3, Matrix4, Normed, OVector, Point3, Quaternion, SimdRealField, Translation3, Unit,
-    UnitQuaternion, Vector3, Zero, U8,
+    Isometry3, Matrix4, Normed, OVector, Point3, Quaternion, Scalar, SimdRealField, Translation3,
+    Unit, UnitQuaternion, Vector3, Zero, U8,
 };
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
-use simba::scalar::RealField;
+use simba::scalar::{ClosedNeg, RealField};
 
 /// A dual quaternion.
 ///
@@ -46,16 +46,16 @@ pub struct DualQuaternion<T> {
     pub dual: Quaternion<T>,
 }
 
-impl<T: Eq> Eq for DualQuaternion<T> {}
+impl<T: Scalar + Eq> Eq for DualQuaternion<T> {}
 
-impl<T: PartialEq> PartialEq for DualQuaternion<T> {
+impl<T: Scalar> PartialEq for DualQuaternion<T> {
     #[inline]
     fn eq(&self, right: &Self) -> bool {
         self.real == right.real && self.dual == right.dual
     }
 }
 
-impl<T: Zero + Clone> Default for DualQuaternion<T> {
+impl<T: Scalar + Zero> Default for DualQuaternion<T> {
     fn default() -> Self {
         Self {
             real: Quaternion::default(),
@@ -267,7 +267,10 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T: Serialize> Serialize for DualQuaternion<T> {
+impl<T: SimdRealField> Serialize for DualQuaternion<T>
+where
+    T: Serialize,
+{
     fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
     where
         S: Serializer,
@@ -277,7 +280,10 @@ impl<T: Serialize> Serialize for DualQuaternion<T> {
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'a, T: Deserialize<'a>> Deserialize<'a> for DualQuaternion<T> {
+impl<'a, T: SimdRealField> Deserialize<'a> for DualQuaternion<T>
+where
+    T: Deserialize<'a>,
+{
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
         Des: Deserializer<'a>,
@@ -293,14 +299,9 @@ impl<'a, T: Deserialize<'a>> Deserialize<'a> for DualQuaternion<T> {
     }
 }
 
-impl<T> DualQuaternion<T> {
-    // TODO: Cloning shouldn't be necessary.
-    // TODO: rename into `into_vector` to appease clippy.
-    fn to_vector(self) -> OVector<T, U8>
-    where
-        T: Clone,
-    {
-        (self.as_ref().clone()).into()
+impl<T: RealField> DualQuaternion<T> {
+    fn to_vector(self) -> OVector<T, U8> {
+        (*self.as_ref()).into()
     }
 }
 
@@ -356,14 +357,14 @@ impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for DualQuaternion<T> {
 /// A unit quaternions. May be used to represent a rotation followed by a translation.
 pub type UnitDualQuaternion<T> = Unit<DualQuaternion<T>>;
 
-impl<T: PartialEq> PartialEq for UnitDualQuaternion<T> {
+impl<T: Scalar + ClosedNeg + PartialEq + SimdRealField> PartialEq for UnitDualQuaternion<T> {
     #[inline]
     fn eq(&self, rhs: &Self) -> bool {
         self.as_ref().eq(rhs.as_ref())
     }
 }
 
-impl<T: Eq> Eq for UnitDualQuaternion<T> {}
+impl<T: Scalar + ClosedNeg + Eq + SimdRealField> Eq for UnitDualQuaternion<T> {}
 
 impl<T: SimdRealField> Normed for DualQuaternion<T> {
     type Norm = T::SimdRealField;
@@ -391,7 +392,10 @@ impl<T: SimdRealField> Normed for DualQuaternion<T> {
     }
 }
 
-impl<T> UnitDualQuaternion<T> {
+impl<T: SimdRealField> UnitDualQuaternion<T>
+where
+    T::Element: SimdRealField,
+{
     /// The underlying dual quaternion.
     ///
     /// Same as `self.as_ref()`.
@@ -410,12 +414,7 @@ impl<T> UnitDualQuaternion<T> {
     pub fn dual_quaternion(&self) -> &DualQuaternion<T> {
         self.as_ref()
     }
-}
 
-impl<T: SimdRealField> UnitDualQuaternion<T>
-where
-    T::Element: SimdRealField,
-{
     /// Compute the conjugate of this unit quaternion.
     ///
     /// # Example
@@ -617,7 +616,7 @@ where
     #[must_use]
     pub fn sclerp(&self, other: &Self, t: T) -> Self
     where
-        T: RealField + RelativeEq<Epsilon = T>,
+        T: RealField,
     {
         self.try_sclerp(other, t, T::default_epsilon())
             .expect("DualQuaternion sclerp: ambiguous configuration.")
@@ -637,7 +636,7 @@ where
     #[must_use]
     pub fn try_sclerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
     where
-        T: RealField + RelativeEq<Epsilon = T>,
+        T: RealField,
     {
         let two = T::one() + T::one();
         let half = T::one() / two;

@@ -9,7 +9,6 @@ use simba::scalar::{ClosedAdd, ClosedMul, RealField, SubsetOf};
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
-use crate::storage::InnerOwned;
 
 use crate::geometry::{
     Isometry, Point, Rotation, Similarity, SubTCategoryOf, SuperTCategoryOf, TAffine, TCategory,
@@ -373,8 +372,7 @@ md_impl_all!(
     const D;
     for CA, CB;
     where Const<D>: DimNameAdd<U1>, CA: TCategoryMul<CB>, CB: SubTCategoryOf<TProjective>,
-          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-          Transform<T, CB, D>: Clone; // There's probably a better bound here.
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, CA, D>, rhs: Transform<T, CB, D>, Output = Transform<T, CA::Representative, D>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
     [ref val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * rhs.inverse() };
@@ -628,8 +626,7 @@ md_assign_impl_all!(
     const D;
     for CA, CB;
     where Const<D>: DimNameAdd<U1>, CA: SuperTCategoryOf<CB>, CB: SubTCategoryOf<TProjective>,
-          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-          InnerOwned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Clone;
+          DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>;
     self: Transform<T, CA, D>, rhs: Transform<T, CB, D>;
     [val] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.inverse() };
     [ref] => #[allow(clippy::suspicious_op_assign_impl)] { *self *= rhs.clone().inverse() };

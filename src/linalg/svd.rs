@@ -7,8 +7,8 @@ use num::{One, Zero};
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, Matrix2x3, OMatrix, OVector, Vector2};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
-use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimName, DimSub, U1};
-use crate::storage::{InnerOwned, Storage};
+use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1};
+use crate::storage::Storage;
 use simba::scalar::{ComplexField, RealField};
 
 use crate::linalg::givens::GivensRotation;
@@ -54,14 +54,14 @@ where
     pub singular_values: OVector<T::RealField, DimMinimum<R, C>>,
 }
 
-impl<T: ComplexField + Copy, R: DimName + DimMin<C>, C: DimName> Copy for SVD<T, R, C>
+impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for SVD<T, R, C>
 where
     DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
         + Allocator<T, R, DimMinimum<R, C>>
         + Allocator<T::RealField, DimMinimum<R, C>>,
-    InnerOwned<T, R, DimMinimum<R, C>>: Copy,
-    InnerOwned<T, DimMinimum<R, C>, C>: Copy,
-    InnerOwned<T::RealField, DimMinimum<R, C>>: Copy,
+    OMatrix<T, R, DimMinimum<R, C>>: Copy,
+    OMatrix<T, DimMinimum<R, C>, C>: Copy,
+    OVector<T::RealField, DimMinimum<R, C>>: Copy,
 {
 }
 
@@ -111,7 +111,7 @@ where
             !matrix.is_empty(),
             "Cannot compute the SVD of an empty matrix."
         );
-        let (nrows, ncols) = matrix.data.shape();
+        let (nrows, ncols) = matrix.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
         let dim = min_nrows_ncols.value();
 

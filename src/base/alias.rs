@@ -1,9 +1,12 @@
 #[cfg(any(feature = "alloc", feature = "std"))]
 use crate::base::dimension::Dynamic;
 use crate::base::dimension::{U1, U2, U3, U4, U5, U6};
+use crate::base::storage::Owned;
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::vec_storage::VecStorage;
-use crate::base::{ArrayStorage, Const, Matrix, Owned, Unit};
+use crate::base::{ArrayStorage, Const, Matrix, Unit};
+use crate::storage::OwnedUninit;
+use std::mem::MaybeUninit;
 
 /*
  *
@@ -18,13 +21,16 @@ use crate::base::{ArrayStorage, Const, Matrix, Owned, Unit};
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 pub type OMatrix<T, R, C> = Matrix<T, R, C, Owned<T, R, C>>;
 
+/// An owned matrix with uninitialized data.
+pub type UninitMatrix<T, R, C> = Matrix<MaybeUninit<T>, R, C, OwnedUninit<T, R, C>>;
+
 /// An owned matrix column-major matrix with `R` rows and `C` columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 #[deprecated(
     note = "use SMatrix for a statically-sized matrix using integer dimensions, or OMatrix for an owned matrix using types as dimensions."
 )]
-pub type MatrixMN<T, R, C> = OMatrix<T, R, C>;
+pub type MatrixMN<T, R, C> = Matrix<T, R, C, Owned<T, R, C>>;
 
 /// An owned matrix column-major matrix with `D` columns.
 ///
@@ -276,6 +282,9 @@ pub type DVector<T> = Matrix<T, Dynamic, U1, VecStorage<T, Dynamic, U1>>;
 pub type OVector<T, D> = Matrix<T, D, U1, Owned<T, D, U1>>;
 /// A statically sized D-dimensional column vector.
 pub type SVector<T, const D: usize> = Matrix<T, Const<D>, U1, ArrayStorage<T, D, 1>>; // Owned<T, Const<D>, U1>>;
+
+/// An owned matrix with uninitialized data.
+pub type UninitVector<T, D> = Matrix<MaybeUninit<T>, D, U1, OwnedUninit<T, D, U1>>;
 
 /// An owned matrix column-major matrix with `R` rows and `C` columns.
 ///
