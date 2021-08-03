@@ -9,10 +9,10 @@ use crate::base::constraint::{
 };
 use crate::base::dimension::{Const, Dim, Dynamic, U1, U2, U3, U4};
 use crate::base::storage::{Storage, StorageMut};
+use crate::base::uninit::Init;
 use crate::base::{
     DVectorSlice, DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, VectorSlice,
 };
-use crate::core::uninit::Init;
 
 /// # Dot/scalar product
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S>

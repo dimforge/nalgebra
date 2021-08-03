@@ -466,6 +466,7 @@ where
 {
     pub(crate) fn sort(&mut self)
     where
+        T: Zero,
         DefaultAllocator: Allocator<T, R>,
     {
         // Size = R

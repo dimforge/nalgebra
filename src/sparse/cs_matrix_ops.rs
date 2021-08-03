@@ -219,7 +219,7 @@ where
 impl<'a, 'b, T, R1, R2, C1, C2, S1, S2> Add<&'b CsMatrix<T, R2, C2, S2>>
     for &'a CsMatrix<T, R1, C1, S1>
 where
-    T: Scalar + ClosedAdd + ClosedMul + One,
+    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
     R1: Dim,
     C1: Dim,
     R2: Dim,
