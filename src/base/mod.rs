@@ -38,6 +38,7 @@ mod blas_uninit;
 pub mod helper;
 mod interpolation;
 mod min_max;
+/// Mechanisms for working with values that may not be initialized.
 pub mod uninit;
 
 pub use self::matrix::*;

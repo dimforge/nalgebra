@@ -73,19 +73,12 @@ fn array_axc<Status, T>(
     }
 }
 
-/// Computes `self = a * x * c + b * self`.
+/// Computes `y = a * x * c + b * y`.
 ///
-/// If `b` is zero, `self` is never read from.
+/// If `b` is zero, `y` is never read from and may be uninitialized.
 ///
-/// # Examples:
-///
-/// ```
-/// # use nalgebra::Vector3;
-/// let mut vec1 = Vector3::new(1.0, 2.0, 3.0);
-/// let vec2 = Vector3::new(0.1, 0.2, 0.3);
-/// vec1.axcpy(5.0, &vec2, 2.0, 5.0);
-/// assert_eq!(vec1, Vector3::new(6.0, 12.0, 18.0));
-/// ```
+/// # Safety
+/// This is UB if `Status == Uninit && b != 0`.
 #[inline]
 #[allow(clippy::many_single_char_names)]
 pub unsafe fn axcpy_uninit<Status, T, D1: Dim, D2: Dim, SA, SB>(
@@ -119,22 +112,13 @@ pub unsafe fn axcpy_uninit<Status, T, D1: Dim, D2: Dim, SA, SB>(
     }
 }
 
-/// Computes `self = alpha * a * x + beta * self`, where `a` is a matrix, `x` a vector, and
+/// Computes `y = alpha * a * x + beta * y`, where `a` is a matrix, `x` a vector, and
 /// `alpha, beta` two scalars.
 ///
-/// If `beta` is zero, `self` is never read.
+/// If `beta` is zero, `y` is never read from and may be uninitialized.
 ///
-/// # Examples:
-///
-/// ```
-/// # use nalgebra::{Matrix2, Vector2};
-/// let mut vec1 = Vector2::new(1.0, 2.0);
-/// let vec2 = Vector2::new(0.1, 0.2);
-/// let mat = Matrix2::new(1.0, 2.0,
-///                        3.0, 4.0);
-/// vec1.gemv(10.0, &mat, &vec2, 5.0);
-/// assert_eq!(vec1, Vector2::new(10.0, 21.0));
-/// ```
+/// # Safety
+/// This is UB if `Status == Uninit && beta != 0`.
 #[inline]
 pub unsafe fn gemv_uninit<Status, T, D1: Dim, R2: Dim, C2: Dim, D3: Dim, SA, SB, SC>(
     status: Status,
@@ -193,27 +177,13 @@ pub unsafe fn gemv_uninit<Status, T, D1: Dim, R2: Dim, C2: Dim, D3: Dim, SA, SB,
     }
 }
 
-/// Computes `self = alpha * a * b + beta * self`, where `a, b, self` are matrices.
+/// Computes `y = alpha * a * b + beta * y`, where `a, b, y` are matrices.
 /// `alpha` and `beta` are scalar.
 ///
-/// If `beta` is zero, `self` is never read.
+/// If `beta` is zero, `y` is never read from and may be uninitialized.
 ///
-/// # Examples:
-///
-/// ```
-/// # #[macro_use] extern crate approx;
-/// # use nalgebra::{Matrix2x3, Matrix3x4, Matrix2x4};
-/// let mut mat1 = Matrix2x4::identity();
-/// let mat2 = Matrix2x3::new(1.0, 2.0, 3.0,
-///                           4.0, 5.0, 6.0);
-/// let mat3 = Matrix3x4::new(0.1, 0.2, 0.3, 0.4,
-///                           0.5, 0.6, 0.7, 0.8,
-///                           0.9, 1.0, 1.1, 1.2);
-/// let expected = mat2 * mat3 * 10.0 + mat1 * 5.0;
-///
-/// mat1.gemm(10.0, &mat2, &mat3, 5.0);
-/// assert_relative_eq!(mat1, expected);
-/// ```
+/// # Safety
+/// This is UB if `Status == Uninit && beta != 0`.
 #[inline]
 pub unsafe fn gemm_uninit<
     Status,

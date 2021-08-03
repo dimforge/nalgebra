@@ -31,6 +31,7 @@ impl<T: Scalar, R: Dim, C: Dim> UninitMatrix<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C>,
 {
+    /// Builds a matrix with uninitialized elements of type `MaybeUninit<T>`.
     pub fn uninit(nrows: R, ncols: C) -> Self {
         // SAFETY: this is OK because the dimension automatically match the storage
         //         because we are building an owned storage.

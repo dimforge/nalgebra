@@ -73,6 +73,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 
 #![allow(unused_variables, unused_mut)]
 #![deny(
+    missing_docs,
     nonstandard_style,
     unused_parens,
     unused_qualifications,
@@ -82,7 +83,6 @@ an optimized set of tools for computer graphics and physics. Those features incl
     future_incompatible,
     missing_copy_implementations
 )]
-// #![deny(missing_docs)] // XXX: deny that
 #![doc(
     html_favicon_url = "https://nalgebra.org/img/favicon.ico",
     html_root_url = "https://docs.rs/nalgebra/0.25.0"

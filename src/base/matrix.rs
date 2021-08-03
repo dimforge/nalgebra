@@ -451,6 +451,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         (nrows.value(), ncols.value())
     }
 
+    /// The shape of this matrix wrapped into their representative types (`Const` or `Dynamic`).
     #[inline]
     #[must_use]
     pub fn shape_generic(&self) -> (R, C) {

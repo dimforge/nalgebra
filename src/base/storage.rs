@@ -32,6 +32,9 @@ pub type CStride<T, R, C = U1> =
 /// The trait shared by all matrix data storage.
 ///
 /// TODO: doc
+/// In generic code, it is recommended use the `Storage` trait bound instead. The `RawStorage`
+/// trait bound is generally used by code that needs to work with storages that contains
+/// `MaybeUninit<T>` elements.
 ///
 /// Note that `Self` must always have a number of elements compatible with the matrix length (given
 /// by `R` and `C` if they are known at compile-time). For example, implementors of this trait
@@ -125,6 +128,7 @@ pub unsafe trait RawStorage<T, R: Dim, C: Dim = U1>: Sized {
     unsafe fn as_slice_unchecked(&self) -> &[T];
 }
 
+/// Trait shared by all matrix data storage that don’t contain any uninitialized elements.
 pub unsafe trait Storage<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     /// Builds a matrix data storage that does not contain any reference.
     fn into_owned(self) -> Owned<T, R, C>
@@ -138,6 +142,10 @@ pub unsafe trait Storage<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
 }
 
 /// Trait implemented by matrix data storage that can provide a mutable access to its elements.
+///
+/// In generic code, it is recommended use the `StorageMut` trait bound instead. The
+/// `RawStorageMut` trait bound is generally used by code that needs to work with storages that
+/// contains `MaybeUninit<T>` elements.
 ///
 /// Note that a mutable access does not mean that the matrix owns its data. For example, a mutable
 /// matrix slice can provide mutable access to its elements even if it does not own its data (it
@@ -217,6 +225,7 @@ pub unsafe trait RawStorageMut<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T];
 }
 
+/// Trait shared by all mutable matrix data storage that don’t contain any uninitialized elements.
 pub unsafe trait StorageMut<T, R: Dim, C: Dim = U1>:
     Storage<T, R, C> + RawStorageMut<T, R, C>
 {

@@ -4,7 +4,7 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.29.0]
+## [0.29.0] - WIP
 ### Modified
 - The closure given to `apply`, `zip_apply`, `zip_zip_apply` must now modify the
   first argument inplace, instead of returning a new value. This makes these

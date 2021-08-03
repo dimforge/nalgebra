@@ -22,7 +22,7 @@ use crate::base::dimension::{Const, ToTypenum};
 use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, ReshapableStorage};
 use crate::base::Scalar;
 use crate::Storage;
-use std::mem::{self, MaybeUninit};
+use std::mem;
 
 /*
  *
@@ -35,12 +35,14 @@ use std::mem::{self, MaybeUninit};
 pub struct ArrayStorage<T, const R: usize, const C: usize>(pub [[T; R]; C]);
 
 impl<T, const R: usize, const C: usize> ArrayStorage<T, R, C> {
+    /// Converts this array storage to a slice.
     #[inline]
     pub fn as_slice(&self) -> &[T] {
         // SAFETY: this is OK because ArrayStorage is contiguous.
         unsafe { self.as_slice_unchecked() }
     }
 
+    /// Converts this array storage to a mutable slice.
     #[inline]
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         // SAFETY: this is OK because ArrayStorage is contiguous.
@@ -237,14 +239,15 @@ where
     where
         V: SeqAccess<'a>,
     {
-        let mut out: ArrayStorage<MaybeUninit<T>, R, C> =
+        let mut out: ArrayStorage<core::mem::MaybeUninit<T>, R, C> =
             DefaultAllocator::allocate_uninit(Const::<R>, Const::<C>);
         let mut curr = 0;
 
         while let Some(value) = visitor.next_element()? {
             *out.as_mut_slice()
                 .get_mut(curr)
-                .ok_or_else(|| V::Error::invalid_length(curr, &self))? = MaybeUninit::new(value);
+                .ok_or_else(|| V::Error::invalid_length(curr, &self))? =
+                core::mem::MaybeUninit::new(value);
             curr += 1;
         }
 
