@@ -4,7 +4,7 @@ use num_complex::Complex;
 use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Const, Dim, DimMin, DimMinimum};
-use na::storage::RawStorage;
+use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
@@ -191,7 +191,7 @@ where
         b: &Matrix<T, R2, C2, S2>,
     ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: RawStorage<T, R2, C2>,
+        S2: Storage<T, R2, C2>,
         DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
     {
         let mut res = b.clone_owned();
@@ -209,7 +209,7 @@ where
         b: &Matrix<T, R2, C2, S2>,
     ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: RawStorage<T, R2, C2>,
+        S2: Storage<T, R2, C2>,
         DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
     {
         let mut res = b.clone_owned();
@@ -227,7 +227,7 @@ where
         b: &Matrix<T, R2, C2, S2>,
     ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: RawStorage<T, R2, C2>,
+        S2: Storage<T, R2, C2>,
         DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
     {
         let mut res = b.clone_owned();

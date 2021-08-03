@@ -9,7 +9,6 @@ use simba::scalar::RealField;
 use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Const, Dim};
-use na::storage::RawStorage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;

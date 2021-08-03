@@ -4,7 +4,6 @@ use num_complex::Complex;
 use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Const, DimDiff, DimSub, U1};
-use na::storage::RawStorage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;

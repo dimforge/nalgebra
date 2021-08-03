@@ -6,7 +6,7 @@ use num_complex::Complex;
 
 use na::allocator::Allocator;
 use na::dimension::Dim;
-use na::storage::RawStorage;
+use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, OMatrix, Scalar};
 
 use lapack;
@@ -104,7 +104,7 @@ where
         b: &Matrix<T, R2, C2, S2>,
     ) -> Option<OMatrix<T, R2, C2>>
     where
-        S2: RawStorage<T, R2, C2>,
+        S2: Storage<T, R2, C2>,
         DefaultAllocator: Allocator<T, R2, C2>,
     {
         let mut res = b.clone_owned();

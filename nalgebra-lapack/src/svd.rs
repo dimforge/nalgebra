@@ -6,7 +6,6 @@ use std::cmp;
 
 use na::allocator::Allocator;
 use na::dimension::{Const, Dim, DimMin, DimMinimum, U1};
-use na::storage::RawStorage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
