@@ -59,14 +59,12 @@ where
             "Unable to compute the hessenberg decomposition of an empty matrix."
         );
 
-        let mut tau = unsafe {
-            Matrix::new_uninitialized_generic(nrows.sub(Const::<1>), Const::<1>).assume_init()
-        };
+        let mut tau = Matrix::zeros_generic(nrows.sub(Const::<1>), Const::<1>);
 
         let mut info = 0;
         let lwork =
             T::xgehrd_work_size(n, 1, n, m.as_mut_slice(), n, tau.as_mut_slice(), &mut info);
-        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
+        let mut work = vec![T::zero(); lwork as usize];
 
         lapack_panic!(info);
 

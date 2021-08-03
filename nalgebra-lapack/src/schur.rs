@@ -77,9 +77,9 @@ where
 
         let mut info = 0;
 
-        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
-        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
-        let mut q = unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
+        let mut wr = Matrix::zeros_generic(nrows, Const::<1>);
+        let mut wi = Matrix::zeros_generic(nrows, Const::<1>);
+        let mut q = Matrix::zeros_generic(nrows, ncols);
         // Placeholders:
         let mut bwork = [0i32];
         let mut unused = 0;
@@ -100,7 +100,7 @@ where
         );
         lapack_check!(info);
 
-        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
+        let mut work = vec![T::zero(); lwork as usize];
 
         T::xgees(
             b'V',
@@ -152,9 +152,7 @@ where
     where
         DefaultAllocator: Allocator<Complex<T>, D>,
     {
-        let mut out = unsafe {
-            OVector::new_uninitialized_generic(self.t.shape_generic().0, Const::<1>).assume_init()
-        };
+        let mut out = Matrix::zeros_generic(self.t.shape_generic().0, Const::<1>);
 
         for i in 0..out.len() {
             out[i] = Complex::new(self.re[i], self.im[i])

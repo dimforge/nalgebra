@@ -290,7 +290,7 @@ where
         );
         lapack_check!(info);
 
-        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
+        let mut work = vec![T::zero(); lwork as usize];
 
         T::xgetri(
             dim,

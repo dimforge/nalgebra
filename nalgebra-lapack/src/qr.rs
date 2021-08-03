@@ -56,9 +56,7 @@ where
         let (nrows, ncols) = m.shape_generic();
 
         let mut info = 0;
-        let mut tau = unsafe {
-            Matrix::new_uninitialized_generic(nrows.min(ncols), Const::<1>).assume_init()
-        };
+        let mut tau = Matrix::zeros_generic(nrows.min(ncols), Const::<1>);
 
         if nrows.value() == 0 || ncols.value() == 0 {
             return Self { qr: m, tau };
@@ -73,7 +71,7 @@ where
             &mut info,
         );
 
-        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
+        let mut work = vec![T::zero(); lwork as usize];
 
         T::xgeqrf(
             nrows.value() as i32,

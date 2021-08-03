@@ -77,9 +77,10 @@ where
 
         let lda = n as i32;
 
-        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
+        // TODO: avoid the initialization?
+        let mut wr = Matrix::zeros_generic(nrows, Const::<1>);
         // TODO: Tap into the workspace.
-        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
+        let mut wi = Matrix::zeros_generic(nrows, Const::<1>);
 
         let mut info = 0;
         let mut placeholder1 = [T::zero()];
@@ -102,14 +103,13 @@ where
 
         lapack_check!(info);
 
-        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
+        let mut work = vec![T::zero(); lwork as usize];
 
         match (left_eigenvectors, eigenvectors) {
             (true, true) => {
-                let mut vl =
-                    unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
-                let mut vr =
-                    unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
+                // TODO: avoid the initializations?
+                let mut vl = Matrix::zeros_generic(nrows, ncols);
+                let mut vr = Matrix::zeros_generic(nrows, ncols);
 
                 T::xgeev(
                     ljob,
@@ -138,8 +138,8 @@ where
                 }
             }
             (true, false) => {
-                let mut vl =
-                    unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
+                // TODO: avoid the initialization?
+                let mut vl = Matrix::zeros_generic(nrows, ncols);
 
                 T::xgeev(
                     ljob,
@@ -168,8 +168,8 @@ where
                 }
             }
             (false, true) => {
-                let mut vr =
-                    unsafe { Matrix::new_uninitialized_generic(nrows, ncols).assume_init() };
+                // TODO: avoid the initialization?
+                let mut vr = Matrix::zeros_generic(nrows, ncols);
 
                 T::xgeev(
                     ljob,
@@ -246,8 +246,9 @@ where
 
         let lda = n as i32;
 
-        let mut wr = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
-        let mut wi = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
+        // TODO: avoid the initialization?
+        let mut wr = Matrix::zeros_generic(nrows, Const::<1>);
+        let mut wi = Matrix::zeros_generic(nrows, Const::<1>);
 
         let mut info = 0;
         let mut placeholder1 = [T::zero()];
@@ -270,7 +271,7 @@ where
 
         lapack_panic!(info);
 
-        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
+        let mut work = vec![T::zero(); lwork as usize];
 
         T::xgeev(
             b'T',
@@ -290,7 +291,7 @@ where
         );
         lapack_panic!(info);
 
-        let mut res = unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
+        let mut res = Matrix::zeros_generic(nrows, Const::<1>);
 
         for i in 0..res.len() {
             res[i] = Complex::new(wr[i], wi[i]);

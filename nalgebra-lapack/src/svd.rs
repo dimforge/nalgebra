@@ -98,9 +98,9 @@ macro_rules! svd_impl(
 
                 let lda = nrows.value() as i32;
 
-                let mut u  = unsafe { Matrix::new_uninitialized_generic(nrows, nrows).assume_init() };
-                let mut s  = unsafe { Matrix::new_uninitialized_generic(nrows.min(ncols), Const::<1>).assume_init() };
-                let mut vt = unsafe { Matrix::new_uninitialized_generic(ncols, ncols).assume_init() };
+                let mut u  = Matrix::zeros_generic(nrows, nrows);
+                let mut s  = Matrix::zeros_generic(nrows.min(ncols), Const::<1>);
+                let mut vt = Matrix::zeros_generic(ncols, ncols);
 
                 let ldu  = nrows.value();
                 let ldvt = ncols.value();
@@ -108,7 +108,7 @@ macro_rules! svd_impl(
                 let mut work  = [ 0.0 ];
                 let mut lwork = -1 as i32;
                 let mut info  = 0;
-                let mut iwork = unsafe { crate::uninitialized_vec(8 * cmp::min(nrows.value(), ncols.value())) };
+                let mut iwork = vec![0; 8 * cmp::min(nrows.value(), ncols.value())];
 
                 unsafe {
                     $lapack_func(job, nrows.value() as i32, ncols.value() as i32, m.as_mut_slice(),
@@ -118,7 +118,7 @@ macro_rules! svd_impl(
                 lapack_check!(info);
 
                 lwork = work[0] as i32;
-                let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
+                let mut work = vec![0.0; lwork as usize];
 
                 unsafe {
                 $lapack_func(job, nrows.value() as i32, ncols.value() as i32, m.as_mut_slice(),
@@ -253,9 +253,9 @@ macro_rules! svd_complex_impl(
             let min_nrows_ncols = nrows.min(ncols);
 
 
-            let mut u  = unsafe { Matrix::new_uninitialized_generic(nrows, nrows) };
-            let mut s  = unsafe { Matrix::new_uninitialized_generic(min_nrows_ncols, U1) };
-            let mut vt = unsafe { Matrix::new_uninitialized_generic(ncols, ncols) };
+            let mut u  = Matrix::zeros_generic(nrows, nrows);
+            let mut s  = Matrix::zeros_generic(min_nrows_ncols, U1);
+            let mut vt = Matrix::zeros_generic(ncols, ncols);
 
             let ldu  = nrows.value();
             let ldvt = ncols.value();
