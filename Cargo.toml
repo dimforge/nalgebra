@@ -31,7 +31,6 @@ io      = [ "pest", "pest_derive" ]
 compare = [ "matrixcompare-core" ]
 libm    = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
-no_unsound_assume_init = [ ]
 macros = [ "nalgebra-macros" ]
 
 # Conversion

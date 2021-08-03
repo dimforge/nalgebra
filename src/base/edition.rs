@@ -369,12 +369,23 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         let mut target: usize = 0;
         while offset + target < ncols.value() {
             if indices.contains(&(target + offset)) {
+                // Safety: the resulting pointer is within range.
+                let col_ptr = unsafe { m.data.ptr_mut().add((target + offset) * nrows.value()) };
+                // Drop every element in the column we are about to overwrite.
+                // We use the a similar technique as in `Vec::truncate`.
+                let s = ptr::slice_from_raw_parts_mut(col_ptr, nrows.value());
+                // Safety: we drop the column in-place, which is OK because we will overwrite these
+                //         entries later in the loop, or discard them with the `reallocate_copy`
+                //         afterwards.
+                unsafe { ptr::drop_in_place(s) };
+
                 offset += 1;
             } else {
                 unsafe {
                     let ptr_source = m.data.ptr().add((target + offset) * nrows.value());
                     let ptr_target = m.data.ptr_mut().add(target * nrows.value());
 
+                    // Copy the data, overwriting what we dropped.
                     ptr::copy(ptr_source, ptr_target, nrows.value());
                     target += 1;
                 }
@@ -409,12 +420,21 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         let mut target: usize = 0;
         while offset + target < nrows.value() * ncols.value() {
             if indices.contains(&((target + offset) % nrows.value())) {
+                // Safety: the resulting pointer is within range.
+                unsafe {
+                    let elt_ptr = m.data.ptr_mut().add(target + offset);
+                    // Safety: we drop the component in-place, which is OK because we will overwrite these
+                    //         entries later in the loop, or discard them with the `reallocate_copy`
+                    //         afterwards.
+                    ptr::drop_in_place(elt_ptr)
+                };
                 offset += 1;
             } else {
                 unsafe {
                     let ptr_source = m.data.ptr().add(target + offset);
                     let ptr_target = m.data.ptr_mut().add(target);
 
+                    // Copy the data, overwriting what we dropped in the previous iterations.
                     ptr::copy(ptr_source, ptr_target, 1);
                     target += 1;
                 }
@@ -479,7 +499,8 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             "Column index out of range."
         );
 
-        if nremove.value() != 0 && i + nremove.value() < ncols.value() {
+        let need_column_shifts = nremove.value() != 0 && i + nremove.value() < ncols.value();
+        if need_column_shifts {
             // The first `deleted_i * nrows` are left untouched.
             let copied_value_start = i + nremove.value();
 
@@ -487,12 +508,26 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                 let ptr_in = m.data.ptr().add(copied_value_start * nrows.value());
                 let ptr_out = m.data.ptr_mut().add(i * nrows.value());
 
+                // Drop all the elements of the columns we are about to overwrite.
+                // We use the a similar technique as in `Vec::truncate`.
+                let s = ptr::slice_from_raw_parts_mut(ptr_out, nremove.value() * nrows.value());
+                // Safety: we drop the column in-place, which is OK because we will overwrite these
+                //         entries with `ptr::copy` afterward.
+                ptr::drop_in_place(s);
+
                 ptr::copy(
                     ptr_in,
                     ptr_out,
                     (ncols.value() - copied_value_start) * nrows.value(),
                 );
             }
+        } else {
+            // All the columns to remove are at the end of the buffer. Drop them.
+            unsafe {
+                let ptr = m.data.ptr_mut().add(i * nrows.value());
+                let s = ptr::slice_from_raw_parts_mut(ptr, nremove.value() * nrows.value());
+                ptr::drop_in_place(s)
+            };
         }
 
         // Safety: The new size is smaller than the old size, so
@@ -844,8 +879,21 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         let mut data = self.into_owned();
 
         if new_nrows.value() == nrows {
+            if new_ncols.value() < ncols {
+                unsafe {
+                    let num_cols_to_delete = ncols - new_ncols.value();
+                    let col_ptr = data.data.ptr_mut().add(new_ncols.value() * nrows);
+                    let s = ptr::slice_from_raw_parts_mut(col_ptr, num_cols_to_delete * nrows);
+                    // Safety: drop the elements of the deleted columns.
+                    //         these are the elements that will be truncated
+                    //         by the `reallocate_copy` afterward.
+                    ptr::drop_in_place(s)
+                };
+            }
+
             let res = unsafe { DefaultAllocator::reallocate_copy(new_nrows, new_ncols, data.data) };
             let mut res = Matrix::from_data(res);
+
             if new_ncols.value() > ncols {
                 res.columns_range_mut(ncols..)
                     .fill_with(|| MaybeUninit::new(val.inlined_clone()));
@@ -1027,6 +1075,10 @@ where
     }
 }
 
+// Move the elements of `data` in such a way that the matrix with
+// the rows `[i, i + nremove[` deleted is represented in a contigous
+// way in `data` after this method completes.
+// Every deleted element are manually dropped by this method.
 unsafe fn compress_rows<T: Scalar>(
     data: &mut [T],
     nrows: usize,
@@ -1036,16 +1088,28 @@ unsafe fn compress_rows<T: Scalar>(
 ) {
     let new_nrows = nrows - nremove;
 
-    if new_nrows == 0 || ncols == 0 {
-        return; // Nothing to do as the output matrix is empty.
+    if nremove == 0 {
+        return; // Nothing to remove or drop.
     }
 
+    if new_nrows == 0 || ncols == 0 {
+        // The output matrix is empty, drop everything.
+        ptr::drop_in_place(data.as_mut());
+        return;
+    }
+
+    // Safety: because `nremove != 0`, the pointers given to `ptr::copy`
+    //         won’t alias.
     let ptr_in = data.as_ptr();
     let ptr_out = data.as_mut_ptr();
 
     let mut curr_i = i;
 
     for k in 0..ncols - 1 {
+        // Safety: we drop the row elements in-place because we will overwrite these
+        //         entries later with the `ptr::copy`.
+        let s = ptr::slice_from_raw_parts_mut(ptr_out.add(curr_i), nremove);
+        ptr::drop_in_place(s);
         ptr::copy(
             ptr_in.add(curr_i + (k + 1) * nremove),
             ptr_out.add(curr_i),
@@ -1055,7 +1119,13 @@ unsafe fn compress_rows<T: Scalar>(
         curr_i += new_nrows;
     }
 
-    // Deal with the last column from which less values have to be copied.
+    /*
+     * Deal with the last column from which less values have to be copied.
+     */
+    // Safety: we drop the row elements in-place because we will overwrite these
+    //         entries later with the `ptr::copy`.
+    let s = ptr::slice_from_raw_parts_mut(ptr_out.add(curr_i), nremove);
+    ptr::drop_in_place(s);
     let remaining_len = nrows - i - nremove;
     ptr::copy(
         ptr_in.add(nrows * ncols - remaining_len),

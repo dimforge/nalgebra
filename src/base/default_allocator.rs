@@ -4,7 +4,6 @@
 //! heap-allocated buffers for matrices with at least one dimension unknown at compile-time.
 
 use std::cmp;
-use std::mem;
 use std::ptr;
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
@@ -38,11 +37,6 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
 {
     type Buffer = ArrayStorage<T, R, C>;
     type BufferUninit = ArrayStorage<MaybeUninit<T>, R, C>;
-
-    #[inline]
-    unsafe fn allocate_uninitialized(_: Const<R>, _: Const<C>) -> MaybeUninit<Self::Buffer> {
-        mem::MaybeUninit::<Self::Buffer>::uninit()
-    }
 
     #[inline]
     fn allocate_uninit(_: Const<R>, _: Const<C>) -> ArrayStorage<MaybeUninit<T>, R, C> {
@@ -96,22 +90,11 @@ impl<T: Scalar, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
     type BufferUninit = VecStorage<MaybeUninit<T>, Dynamic, C>;
 
     #[inline]
-    unsafe fn allocate_uninitialized(nrows: Dynamic, ncols: C) -> MaybeUninit<Self::Buffer> {
-        let mut res = Vec::new();
-        let length = nrows.value() * ncols.value();
-        res.reserve_exact(length);
-        res.set_len(length);
-
-        mem::MaybeUninit::new(VecStorage::new(nrows, ncols, res))
-    }
-
-    #[inline]
     fn allocate_uninit(nrows: Dynamic, ncols: C) -> VecStorage<MaybeUninit<T>, Dynamic, C> {
         let mut data = Vec::new();
         let length = nrows.value() * ncols.value();
         data.reserve_exact(length);
         data.resize_with(length, MaybeUninit::uninit);
-
         VecStorage::new(nrows, ncols, data)
     }
 
@@ -152,16 +135,6 @@ impl<T: Scalar, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
 impl<T: Scalar, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
     type Buffer = VecStorage<T, R, Dynamic>;
     type BufferUninit = VecStorage<MaybeUninit<T>, R, Dynamic>;
-
-    #[inline]
-    unsafe fn allocate_uninitialized(nrows: R, ncols: Dynamic) -> MaybeUninit<Self::Buffer> {
-        let mut res = Vec::new();
-        let length = nrows.value() * ncols.value();
-        res.reserve_exact(length);
-        res.set_len(length);
-
-        mem::MaybeUninit::new(VecStorage::new(nrows, ncols, res))
-    }
 
     #[inline]
     fn allocate_uninit(nrows: R, ncols: Dynamic) -> VecStorage<MaybeUninit<T>, R, Dynamic> {
@@ -222,25 +195,21 @@ where
     unsafe fn reallocate_copy(
         rto: Const<RTO>,
         cto: Const<CTO>,
-        buf: <Self as Allocator<T, RFrom, CFrom>>::Buffer,
+        mut buf: <Self as Allocator<T, RFrom, CFrom>>::Buffer,
     ) -> ArrayStorage<MaybeUninit<T>, RTO, CTO> {
-        #[cfg(feature = "no_unsound_assume_init")]
-        let mut res: ArrayStorage<T, RTO, CTO> = unimplemented!();
-        #[cfg(not(feature = "no_unsound_assume_init"))]
-        let mut res =
-            <Self as Allocator<T, Const<RTO>, Const<CTO>>>::allocate_uninitialized(rto, cto)
-                .assume_init();
         let mut res = <Self as Allocator<T, Const<RTO>, Const<CTO>>>::allocate_uninit(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
 
         let len_from = rfrom.value() * cfrom.value();
         let len_to = rto.value() * cto.value();
-        ptr::copy_nonoverlapping(
-            buf.ptr(),
-            res.ptr_mut() as *mut T,
-            cmp::min(len_from, len_to),
-        );
+        let len_copied = cmp::min(len_from, len_to);
+        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut() as *mut T, len_copied);
+
+        // Safety:
+        // - We don’t care about dropping elements because the caller is responsible for dropping things.
+        // - We forget `buf` so that we don’t drop the other elements.
+        std::mem::forget(buf);
 
         res
     }
@@ -257,7 +226,7 @@ where
     unsafe fn reallocate_copy(
         rto: Dynamic,
         cto: CTo,
-        buf: ArrayStorage<T, RFROM, CFROM>,
+        mut buf: ArrayStorage<T, RFROM, CFROM>,
     ) -> VecStorage<MaybeUninit<T>, Dynamic, CTo> {
         let mut res = <Self as Allocator<T, Dynamic, CTo>>::allocate_uninit(rto, cto);
 
@@ -265,11 +234,13 @@ where
 
         let len_from = rfrom.value() * cfrom.value();
         let len_to = rto.value() * cto.value();
-        ptr::copy_nonoverlapping(
-            buf.ptr(),
-            res.ptr_mut() as *mut T,
-            cmp::min(len_from, len_to),
-        );
+        let len_copied = cmp::min(len_from, len_to);
+        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut() as *mut T, len_copied);
+
+        // Safety:
+        // - We don’t care about dropping elements because the caller is responsible for dropping things.
+        // - We forget `buf` so that we don’t drop the other elements.
+        std::mem::forget(buf);
 
         res
     }
@@ -286,7 +257,7 @@ where
     unsafe fn reallocate_copy(
         rto: RTo,
         cto: Dynamic,
-        buf: ArrayStorage<T, RFROM, CFROM>,
+        mut buf: ArrayStorage<T, RFROM, CFROM>,
     ) -> VecStorage<MaybeUninit<T>, RTo, Dynamic> {
         let mut res = <Self as Allocator<T, RTo, Dynamic>>::allocate_uninit(rto, cto);
 
@@ -294,11 +265,13 @@ where
 
         let len_from = rfrom.value() * cfrom.value();
         let len_to = rto.value() * cto.value();
-        ptr::copy_nonoverlapping(
-            buf.ptr(),
-            res.ptr_mut() as *mut T,
-            cmp::min(len_from, len_to),
-        );
+        let len_copied = cmp::min(len_from, len_to);
+        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut() as *mut T, len_copied);
+
+        // Safety:
+        // - We don’t care about dropping elements because the caller is responsible for dropping things.
+        // - We forget `buf` so that we don’t drop the other elements.
+        std::mem::forget(buf);
 
         res
     }

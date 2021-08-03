@@ -436,20 +436,6 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         unsafe { Self::from_data_statically_unchecked(data) }
     }
 
-    /// Creates a new uninitialized matrix with the given uninitialized data
-    pub unsafe fn from_uninitialized_data(data: MaybeUninit<S>) -> MaybeUninit<Self> {
-        let res: Matrix<T, R, C, MaybeUninit<S>> = Matrix {
-            data,
-            _phantoms: PhantomData,
-        };
-        let res: MaybeUninit<Matrix<T, R, C, MaybeUninit<S>>> = MaybeUninit::new(res);
-        // safety: since we wrap the inner MaybeUninit in an outer MaybeUninit above, the fact that the `data` field is partially-uninitialized is still opaque.
-        // with s/transmute_copy/transmute/, rustc claims that `MaybeUninit<Matrix<T, R, C, MaybeUninit<S>>>` may be of a different size from `MaybeUninit<Matrix<T, R, C, S>>`
-        // but MaybeUninit's documentation says "MaybeUninit<T> is guaranteed to have the same size, alignment, and ABI as T", which implies those types should be the same size
-        let res: MaybeUninit<Matrix<T, R, C, S>> = mem::transmute_copy(&res);
-        res
-    }
-
     /// The shape of this matrix returned as the tuple (number of rows, number of columns).
     ///
     /// # Examples:
@@ -1209,7 +1195,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     }
 }
 
-impl<T: Scalar, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Returns a mutable pointer to the start of the matrix.
     ///
     /// If the matrix is not empty, this pointer is guaranteed to be aligned
@@ -1246,7 +1232,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     ///
     /// The components of the slice are assumed to be ordered in column-major order.
     #[inline]
-    pub fn copy_from_slice(&mut self, slice: &[T]) {
+    pub fn copy_from_slice(&mut self, slice: &[T])
+    where
+        T: Scalar,
+    {
         let (nrows, ncols) = self.shape();
 
         assert!(
@@ -1268,6 +1257,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     pub fn copy_from<R2, C2, SB>(&mut self, other: &Matrix<T, R2, C2, SB>)
     where
+        T: Scalar,
         R2: Dim,
         C2: Dim,
         SB: RawStorage<T, R2, C2>,
@@ -1291,6 +1281,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     pub fn tr_copy_from<R2, C2, SB>(&mut self, other: &Matrix<T, R2, C2, SB>)
     where
+        T: Scalar,
         R2: Dim,
         C2: Dim,
         SB: RawStorage<T, R2, C2>,

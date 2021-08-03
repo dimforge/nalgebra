@@ -113,14 +113,17 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
     /// Resizes the underlying mutable data storage and unwraps it.
     ///
     /// # Safety
-    /// If `sz` is larger than the current size, additional elements are uninitialized.
-    /// If `sz` is smaller than the current size, additional elements are truncated.
+    /// - If `sz` is larger than the current size, additional elements are uninitialized.
+    /// - If `sz` is smaller than the current size, additional elements are truncated but **not** dropped.
+    ///   It is the responsibility of the caller of this method to drop these elements.
     #[inline]
     pub unsafe fn resize(mut self, sz: usize) -> Vec<MaybeUninit<T>> {
         let len = self.len();
 
-        if sz < len {
-            self.data.truncate(sz);
+        let new_data = if sz < len {
+            // Use `set_len` instead of `truncate` because we don’t want to
+            // drop the removed elements (it’s the caller’s responsibility).
+            self.data.set_len(sz);
             self.data.shrink_to_fit();
 
             // Safety:
@@ -147,7 +150,12 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
             //         to be initialized.
             new_data.set_len(sz);
             new_data
-        }
+        };
+
+        // Avoid double-free by forgetting `self` because its data buffer has
+        // been transfered to `new_data`.
+        std::mem::forget(self);
+        new_data
     }
 
     /// The number of elements on the underlying vector.

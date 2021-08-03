@@ -50,16 +50,6 @@ impl<T: Scalar, R: Dim, C: Dim> OMatrix<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C>,
 {
-    /// Creates a new uninitialized matrix.
-    ///
-    /// # Safety
-    /// If the matrix has a compile-time dimension, this panics
-    /// if `nrows != R::to_usize()` or `ncols != C::to_usize()`.
-    #[inline]
-    pub unsafe fn new_uninitialized_generic(nrows: R, ncols: C) -> MaybeUninit<Self> {
-        Self::from_uninitialized_data(DefaultAllocator::allocate_uninitialized(nrows, ncols))
-    }
-
     /// Creates a matrix with all its elements set to `elem`.
     #[inline]
     pub fn from_element_generic(nrows: R, ncols: C, elem: T) -> Self {
@@ -381,12 +371,6 @@ where
  */
 macro_rules! impl_constructors(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        /// Creates a new uninitialized matrix or vector.
-        #[inline]
-        pub unsafe fn new_uninitialized($($args: usize),*) -> MaybeUninit<Self> {
-            Self::new_uninitialized_generic($($gargs),*)
-        }
-
         /// Creates a matrix or vector with all its elements set to `elem`.
         ///
         /// # Example

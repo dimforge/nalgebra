@@ -12,8 +12,6 @@ use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "serde-serialize-no-std")]
 use std::marker::PhantomData;
-#[cfg(feature = "serde-serialize-no-std")]
-use std::mem;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -24,6 +22,7 @@ use crate::base::dimension::{Const, ToTypenum};
 use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, ReshapableStorage};
 use crate::base::Scalar;
 use crate::Storage;
+use std::mem::{self, MaybeUninit};
 
 /*
  *
@@ -158,8 +157,8 @@ where
 
     fn reshape_generic(self, _: Const<R2>, _: Const<C2>) -> Self::Output {
         unsafe {
-            let data: [[T; R2]; C2] = std::mem::transmute_copy(&self.0);
-            std::mem::forget(self.0);
+            let data: [[T; R2]; C2] = mem::transmute_copy(&self.0);
+            mem::forget(self.0);
             ArrayStorage(data)
         }
     }
@@ -238,19 +237,27 @@ where
     where
         V: SeqAccess<'a>,
     {
-        let mut out: Self::Value = unsafe { mem::MaybeUninit::uninit().assume_init() };
+        let mut out: ArrayStorage<MaybeUninit<T>, R, C> =
+            DefaultAllocator::allocate_uninit(Const::<R>, Const::<C>);
         let mut curr = 0;
 
         while let Some(value) = visitor.next_element()? {
             *out.as_mut_slice()
                 .get_mut(curr)
-                .ok_or_else(|| V::Error::invalid_length(curr, &self))? = value;
+                .ok_or_else(|| V::Error::invalid_length(curr, &self))? = MaybeUninit::new(value);
             curr += 1;
         }
 
         if curr == R * C {
-            Ok(out)
+            // Safety: all the elements have been initialized.
+            unsafe { Ok(<DefaultAllocator as Allocator<T, Const<R>, Const<C>>>::assume_init(out)) }
         } else {
+            for i in 0..curr {
+                // Safety:
+                // - We couldn’t initialize the whole storage. Drop the ones we initialized.
+                unsafe { std::ptr::drop_in_place(out.as_mut_slice()[i].as_mut_ptr()) };
+            }
+
             Err(V::Error::invalid_length(curr, &self))
         }
     }

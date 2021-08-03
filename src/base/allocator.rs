@@ -26,8 +26,6 @@ pub trait Allocator<T, R: Dim, C: Dim = U1>: Any + Sized {
     type BufferUninit: RawStorageMut<MaybeUninit<T>, R, C> + IsContiguous;
 
     /// Allocates a buffer with the given number of rows and columns without initializing its content.
-    unsafe fn allocate_uninitialized(nrows: R, ncols: C) -> MaybeUninit<Self::Buffer>;
-    /// Allocates a buffer with the given number of rows and columns without initializing its content.
     fn allocate_uninit(nrows: R, ncols: C) -> Self::BufferUninit;
 
     /// Assumes a data buffer to be initialized.
@@ -55,10 +53,9 @@ pub trait Reallocator<T: Scalar, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
     ///
     /// # Safety
     /// The following invariants must be respected by the implementors of this method:
-    /// * The copy is performed as if both were just arrays (without a matrix structure).
-    /// * If `buf` is larger than the output size, then extra elements of `buf` are truncated.
-    /// * If `buf` is smaller than the output size, then extra elements at the end of the output
-    ///   matrix (seen as an array) are left uninitialized.
+    /// * The copy is performed as if both were just arrays (without taking into account the matrix structure).
+    /// * If the underlying buffer is being shrunk, the removed elements must **not** be dropped
+    ///   by this method. Dropping them is the responsibility of the caller.
     unsafe fn reallocate_copy(
         nrows: RTo,
         ncols: CTo,
