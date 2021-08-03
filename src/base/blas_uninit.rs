@@ -22,6 +22,7 @@ use crate::base::dimension::{Dim, Dynamic, U1};
 use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::base::uninit::{InitStatus, Initialized};
 use crate::base::{Matrix, Scalar, Vector};
+use std::any::TypeId;
 
 // # Safety
 // The content of `y` must only contain values for which
@@ -265,7 +266,7 @@ pub unsafe fn gemm_uninit<
                     return;
                 }
 
-                if T::is::<f32>() {
+                if TypeId::of::<T>() == TypeId::of::<f32>() {
                     let (rsa, csa) = a.strides();
                     let (rsb, csb) = b.strides();
                     let (rsc, csc) = y.strides();
@@ -287,7 +288,7 @@ pub unsafe fn gemm_uninit<
                         csc as isize,
                     );
                     return;
-                } else if T::is::<f64>() {
+                } else if TypeId::of::<T>() == TypeId::of::<f64>() {
                     let (rsa, csa) = a.strides();
                     let (rsb, csb) = b.strides();
                     let (rsc, csc) = y.strides();
