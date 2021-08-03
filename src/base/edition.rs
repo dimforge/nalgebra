@@ -11,7 +11,7 @@ use crate::base::dimension::Dynamic;
 use crate::base::dimension::{Const, Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimSub, DimSum, U1};
 use crate::base::storage::{RawStorage, RawStorageMut, ReshapableStorage};
 use crate::base::{DefaultAllocator, Matrix, OMatrix, RowVector, Scalar, Vector};
-use crate::Storage;
+use crate::{Storage, UninitMatrix};
 use std::mem::MaybeUninit;
 
 /// # Rows and columns extraction
@@ -381,12 +381,18 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             }
         }
 
+        // Safety: The new size is smaller than the old size, so
+        //         DefaultAllocator::reallocate_copy will initialize
+        //         every element of the new matrix which can then
+        //         be assumed to be initialized.
         unsafe {
-            Matrix::from_data(DefaultAllocator::reallocate_copy(
+            let new_data = DefaultAllocator::reallocate_copy(
                 nrows,
                 ncols.sub(Dynamic::from_usize(offset)),
                 m.data,
-            ))
+            );
+
+            Matrix::from_data(new_data).assume_init()
         }
     }
 
@@ -415,12 +421,18 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             }
         }
 
+        // Safety: The new size is smaller than the old size, so
+        //         DefaultAllocator::reallocate_copy will initialize
+        //         every element of the new matrix which can then
+        //         be assumed to be initialized.
         unsafe {
-            Matrix::from_data(DefaultAllocator::reallocate_copy(
+            let new_data = DefaultAllocator::reallocate_copy(
                 nrows.sub(Dynamic::from_usize(offset / ncols.value())),
                 ncols,
                 m.data,
-            ))
+            );
+
+            Matrix::from_data(new_data).assume_init()
         }
     }
 
@@ -483,12 +495,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             }
         }
 
+        // Safety: The new size is smaller than the old size, so
+        //         DefaultAllocator::reallocate_copy will initialize
+        //         every element of the new matrix which can then
+        //         be assumed to be initialized.
         unsafe {
-            Matrix::from_data(DefaultAllocator::reallocate_copy(
-                nrows,
-                ncols.sub(nremove),
-                m.data,
-            ))
+            let new_data = DefaultAllocator::reallocate_copy(nrows, ncols.sub(nremove), m.data);
+            Matrix::from_data(new_data).assume_init()
         }
     }
 
@@ -558,12 +571,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             }
         }
 
+        // Safety: The new size is smaller than the old size, so
+        //         DefaultAllocator::reallocate_copy will initialize
+        //         every element of the new matrix which can then
+        //         be assumed to be initialized.
         unsafe {
-            Matrix::from_data(DefaultAllocator::reallocate_copy(
-                nrows.sub(nremove),
-                ncols,
-                m.data,
-            ))
+            let new_data = DefaultAllocator::reallocate_copy(nrows.sub(nremove), ncols, m.data);
+            Matrix::from_data(new_data).assume_init()
         }
     }
 }
@@ -597,8 +611,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, R, DimSum<C, Const<D>>>,
     {
         let mut res = unsafe { self.insert_columns_generic_uninitialized(i, Const::<D>) };
-        res.fixed_columns_mut::<D>(i).fill(val);
-        res
+        res.fixed_columns_mut::<D>(i)
+            .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+
+        // Safety: the result is now fully initialized. The added columns have
+        //         been initialized by the `fill_with` above, and the rest have
+        //         been initialized by `insert_columns_generic_uninitialized`.
+        unsafe { res.assume_init() }
     }
 
     /// Inserts `n` columns filled with `val` starting at the `i-th` position.
@@ -610,20 +629,26 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, R, Dynamic>,
     {
         let mut res = unsafe { self.insert_columns_generic_uninitialized(i, Dynamic::new(n)) };
-        res.columns_mut(i, n).fill(val);
-        res
+        res.columns_mut(i, n)
+            .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+
+        // Safety: the result is now fully initialized. The added columns have
+        //         been initialized by the `fill_with` above, and the rest have
+        //         been initialized by `insert_columns_generic_uninitialized`.
+        unsafe { res.assume_init() }
     }
 
     /// Inserts `ninsert.value()` columns starting at the `i-th` place of this matrix.
     ///
     /// # Safety
-    /// The added column values are not initialized.
+    /// The output matrix has all its elements initialized except for the the components of the
+    /// added columns.
     #[inline]
     pub unsafe fn insert_columns_generic_uninitialized<D>(
         self,
         i: usize,
         ninsert: D,
-    ) -> OMatrix<T, R, DimSum<C, D>>
+    ) -> UninitMatrix<T, R, DimSum<C, D>>
     where
         D: Dim,
         C: DimAdd<D>,
@@ -679,8 +704,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, DimSum<R, Const<D>>, C>,
     {
         let mut res = unsafe { self.insert_rows_generic_uninitialized(i, Const::<D>) };
-        res.fixed_rows_mut::<D>(i).fill(val);
-        res
+        res.fixed_rows_mut::<D>(i)
+            .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+
+        // Safety: the result is now fully initialized. The added rows have
+        //         been initialized by the `fill_with` above, and the rest have
+        //         been initialized by `insert_rows_generic_uninitialized`.
+        unsafe { res.assume_init() }
     }
 
     /// Inserts `n` rows filled with `val` starting at the `i-th` position.
@@ -692,8 +722,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, Dynamic, C>,
     {
         let mut res = unsafe { self.insert_rows_generic_uninitialized(i, Dynamic::new(n)) };
-        res.rows_mut(i, n).fill(val);
-        res
+        res.rows_mut(i, n)
+            .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+
+        // Safety: the result is now fully initialized. The added rows have
+        //         been initialized by the `fill_with` above, and the rest have
+        //         been initialized by `insert_rows_generic_uninitialized`.
+        unsafe { res.assume_init() }
     }
 
     /// Inserts `ninsert.value()` rows at the `i-th` place of this matrix.
@@ -707,7 +742,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         self,
         i: usize,
         ninsert: D,
-    ) -> OMatrix<T, DimSum<R, D>, C>
+    ) -> UninitMatrix<T, DimSum<R, D>, C>
     where
         D: Dim,
         R: DimAdd<D>,
@@ -812,10 +847,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             let res = unsafe { DefaultAllocator::reallocate_copy(new_nrows, new_ncols, data.data) };
             let mut res = Matrix::from_data(res);
             if new_ncols.value() > ncols {
-                res.columns_range_mut(ncols..).fill(val);
+                res.columns_range_mut(ncols..)
+                    .fill_with(|| MaybeUninit::new(val.inlined_clone()));
             }
 
-            res
+            // Safety: the result is now fully initialized by `reallocate_copy` and
+            //         `fill_with` (if the output has more columns than the input).
+            unsafe { res.assume_init() }
         } else {
             let mut res;
 
@@ -846,15 +884,18 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             }
 
             if new_ncols.value() > ncols {
-                res.columns_range_mut(ncols..).fill(val.inlined_clone());
+                res.columns_range_mut(ncols..)
+                    .fill_with(|| MaybeUninit::new(val.inlined_clone()));
             }
 
             if new_nrows.value() > nrows {
                 res.slice_range_mut(nrows.., ..cmp::min(ncols, new_ncols.value()))
-                    .fill(val);
+                    .fill_with(|| MaybeUninit::new(val.inlined_clone()));
             }
 
-            res
+            // Safety: the result is now fully initialized by `reallocate_copy` and
+            //         `fill_with` (whenever applicable).
+            unsafe { res.assume_init() }
         }
     }
 
@@ -1023,15 +1064,9 @@ unsafe fn compress_rows<T: Scalar>(
     );
 }
 
-// Moves entries of a matrix buffer to make place for `ninsert` emty rows starting at the `i-th` row index.
+// Moves entries of a matrix buffer to make place for `ninsert` empty rows starting at the `i-th` row index.
 // The `data` buffer is assumed to contained at least `(nrows + ninsert) * ncols` elements.
-unsafe fn extend_rows<T: Scalar>(
-    data: &mut [T],
-    nrows: usize,
-    ncols: usize,
-    i: usize,
-    ninsert: usize,
-) {
+unsafe fn extend_rows<T>(data: &mut [T], nrows: usize, ncols: usize, i: usize, ninsert: usize) {
     let new_nrows = nrows + ninsert;
 
     if new_nrows == 0 || ncols == 0 {

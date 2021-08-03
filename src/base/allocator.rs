@@ -54,15 +54,16 @@ pub trait Reallocator<T: Scalar, RFrom: Dim, CFrom: Dim, RTo: Dim, CTo: Dim>:
     /// `buf`. Data stored by `buf` are linearly copied to the output:
     ///
     /// # Safety
+    /// The following invariants must be respected by the implementors of this method:
     /// * The copy is performed as if both were just arrays (without a matrix structure).
     /// * If `buf` is larger than the output size, then extra elements of `buf` are truncated.
-    /// * If `buf` is smaller than the output size, then extra elements of the output are left
-    /// uninitialized.
+    /// * If `buf` is smaller than the output size, then extra elements at the end of the output
+    ///   matrix (seen as an array) are left uninitialized.
     unsafe fn reallocate_copy(
         nrows: RTo,
         ncols: CTo,
         buf: <Self as Allocator<T, RFrom, CFrom>>::Buffer,
-    ) -> <Self as Allocator<T, RTo, CTo>>::Buffer;
+    ) -> <Self as Allocator<T, RTo, CTo>>::BufferUninit;
 }
 
 /// The number of rows of the result of a componentwise operation on two matrices.

@@ -67,16 +67,13 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
         ncols: Const<C>,
         iter: I,
     ) -> Self::Buffer {
-        #[cfg(feature = "no_unsound_assume_init")]
-        let mut res: Self::Buffer = unimplemented!();
-        #[cfg(not(feature = "no_unsound_assume_init"))]
-        let mut res = unsafe { Self::allocate_uninitialized(nrows, ncols).assume_init() };
+        let mut res = Self::allocate_uninit(nrows, ncols);
         let mut count = 0;
 
-        // Safety: this is OK because the Buffer is known to be contiguous.
+        // Safety: conversion to a slice is OK because the Buffer is known to be contiguous.
         let res_slice = unsafe { res.as_mut_slice_unchecked() };
         for (res, e) in res_slice.iter_mut().zip(iter.into_iter()) {
-            *res = e;
+            *res = MaybeUninit::new(e);
             count += 1;
         }
 
@@ -85,7 +82,9 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
             "Matrix init. from iterator: iterator not long enough."
         );
 
-        res
+        // Safety: the assertion above made sure that the iterator
+        //         yielded enough elements to initialize our matrix.
+        unsafe { <Self as Allocator<T, Const<R>, Const<C>>>::assume_init(res) }
     }
 }
 
@@ -224,19 +223,24 @@ where
         rto: Const<RTO>,
         cto: Const<CTO>,
         buf: <Self as Allocator<T, RFrom, CFrom>>::Buffer,
-    ) -> ArrayStorage<T, RTO, CTO> {
+    ) -> ArrayStorage<MaybeUninit<T>, RTO, CTO> {
         #[cfg(feature = "no_unsound_assume_init")]
         let mut res: ArrayStorage<T, RTO, CTO> = unimplemented!();
         #[cfg(not(feature = "no_unsound_assume_init"))]
         let mut res =
             <Self as Allocator<T, Const<RTO>, Const<CTO>>>::allocate_uninitialized(rto, cto)
                 .assume_init();
+        let mut res = <Self as Allocator<T, Const<RTO>, Const<CTO>>>::allocate_uninit(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
 
         let len_from = rfrom.value() * cfrom.value();
         let len_to = rto.value() * cto.value();
-        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut(), cmp::min(len_from, len_to));
+        ptr::copy_nonoverlapping(
+            buf.ptr(),
+            res.ptr_mut() as *mut T,
+            cmp::min(len_from, len_to),
+        );
 
         res
     }
@@ -254,18 +258,18 @@ where
         rto: Dynamic,
         cto: CTo,
         buf: ArrayStorage<T, RFROM, CFROM>,
-    ) -> VecStorage<T, Dynamic, CTo> {
-        #[cfg(feature = "no_unsound_assume_init")]
-        let mut res: VecStorage<T, Dynamic, CTo> = unimplemented!();
-        #[cfg(not(feature = "no_unsound_assume_init"))]
-        let mut res =
-            <Self as Allocator<T, Dynamic, CTo>>::allocate_uninitialized(rto, cto).assume_init();
+    ) -> VecStorage<MaybeUninit<T>, Dynamic, CTo> {
+        let mut res = <Self as Allocator<T, Dynamic, CTo>>::allocate_uninit(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
 
         let len_from = rfrom.value() * cfrom.value();
         let len_to = rto.value() * cto.value();
-        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut(), cmp::min(len_from, len_to));
+        ptr::copy_nonoverlapping(
+            buf.ptr(),
+            res.ptr_mut() as *mut T,
+            cmp::min(len_from, len_to),
+        );
 
         res
     }
@@ -283,18 +287,18 @@ where
         rto: RTo,
         cto: Dynamic,
         buf: ArrayStorage<T, RFROM, CFROM>,
-    ) -> VecStorage<T, RTo, Dynamic> {
-        #[cfg(feature = "no_unsound_assume_init")]
-        let mut res: VecStorage<T, RTo, Dynamic> = unimplemented!();
-        #[cfg(not(feature = "no_unsound_assume_init"))]
-        let mut res =
-            <Self as Allocator<T, RTo, Dynamic>>::allocate_uninitialized(rto, cto).assume_init();
+    ) -> VecStorage<MaybeUninit<T>, RTo, Dynamic> {
+        let mut res = <Self as Allocator<T, RTo, Dynamic>>::allocate_uninit(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
 
         let len_from = rfrom.value() * cfrom.value();
         let len_to = rto.value() * cto.value();
-        ptr::copy_nonoverlapping(buf.ptr(), res.ptr_mut(), cmp::min(len_from, len_to));
+        ptr::copy_nonoverlapping(
+            buf.ptr(),
+            res.ptr_mut() as *mut T,
+            cmp::min(len_from, len_to),
+        );
 
         res
     }
@@ -310,7 +314,7 @@ impl<T: Scalar, CFrom: Dim, CTo: Dim> Reallocator<T, Dynamic, CFrom, Dynamic, CT
         rto: Dynamic,
         cto: CTo,
         buf: VecStorage<T, Dynamic, CFrom>,
-    ) -> VecStorage<T, Dynamic, CTo> {
+    ) -> VecStorage<MaybeUninit<T>, Dynamic, CTo> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
     }
@@ -325,7 +329,7 @@ impl<T: Scalar, CFrom: Dim, RTo: DimName> Reallocator<T, Dynamic, CFrom, RTo, Dy
         rto: RTo,
         cto: Dynamic,
         buf: VecStorage<T, Dynamic, CFrom>,
-    ) -> VecStorage<T, RTo, Dynamic> {
+    ) -> VecStorage<MaybeUninit<T>, RTo, Dynamic> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
     }
@@ -340,7 +344,7 @@ impl<T: Scalar, RFrom: DimName, CTo: Dim> Reallocator<T, RFrom, Dynamic, Dynamic
         rto: Dynamic,
         cto: CTo,
         buf: VecStorage<T, RFrom, Dynamic>,
-    ) -> VecStorage<T, Dynamic, CTo> {
+    ) -> VecStorage<MaybeUninit<T>, Dynamic, CTo> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
     }
@@ -355,7 +359,7 @@ impl<T: Scalar, RFrom: DimName, RTo: DimName> Reallocator<T, RFrom, Dynamic, RTo
         rto: RTo,
         cto: Dynamic,
         buf: VecStorage<T, RFrom, Dynamic>,
-    ) -> VecStorage<T, RTo, Dynamic> {
+    ) -> VecStorage<MaybeUninit<T>, RTo, Dynamic> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
     }

@@ -20,6 +20,7 @@ use serde::{
 use crate::Storage;
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
+use std::mem::MaybeUninit;
 
 /*
  *
@@ -115,18 +116,38 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
     /// If `sz` is larger than the current size, additional elements are uninitialized.
     /// If `sz` is smaller than the current size, additional elements are truncated.
     #[inline]
-    pub unsafe fn resize(mut self, sz: usize) -> Vec<T> {
+    pub unsafe fn resize(mut self, sz: usize) -> Vec<MaybeUninit<T>> {
         let len = self.len();
 
         if sz < len {
-            self.data.set_len(sz);
+            self.data.truncate(sz);
             self.data.shrink_to_fit();
+
+            // Safety:
+            // - MaybeUninit<T> has the same alignment and layout as T.
+            // - The length and capacity come from a valid vector.
+            Vec::from_raw_parts(
+                self.data.as_mut_ptr() as *mut MaybeUninit<T>,
+                self.data.len(),
+                self.data.capacity(),
+            )
         } else {
             self.data.reserve_exact(sz - len);
-            self.data.set_len(sz);
-        }
 
-        self.data
+            // Safety:
+            // - MaybeUninit<T> has the same alignment and layout as T.
+            // - The length and capacity come from a valid vector.
+            let mut new_data = Vec::from_raw_parts(
+                self.data.as_mut_ptr() as *mut MaybeUninit<T>,
+                self.data.len(),
+                self.data.capacity(),
+            );
+
+            // Safety: we can set the length here because MaybeUninit is always assumed
+            //         to be initialized.
+            new_data.set_len(sz);
+            new_data
+        }
     }
 
     /// The number of elements on the underlying vector.
