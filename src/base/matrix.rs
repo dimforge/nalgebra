@@ -323,7 +323,7 @@ mod rkyv_impl {
             &self,
             pos: usize,
             resolver: Self::Resolver,
-            out: &mut core::meme::MaybeUninit<Self::Archived>,
+            out: &mut core::mem::MaybeUninit<Self::Archived>,
         ) {
             self.data.resolve(
                 pos + offset_of!(Self::Archived, data),
