@@ -8,7 +8,6 @@
 //! some operations which will be able to dynamically adapt the output pattern to fit the
 //! result, but these have yet to be implemented.
 
-#[macro_use]
 macro_rules! assert_compatible_spmm_dims {
     ($c:expr, $a:expr, $b:expr) => {{
         use crate::ops::Op::{NoOp, Transpose};
@@ -37,7 +36,6 @@ macro_rules! assert_compatible_spmm_dims {
     }};
 }
 
-#[macro_use]
 macro_rules! assert_compatible_spadd_dims {
     ($c:expr, $a:expr) => {
         use crate::ops::Op;
