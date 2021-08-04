@@ -2,7 +2,7 @@ use super::glam::{
     BVec2, BVec3, BVec4, DMat2, DMat3, DMat4, DVec2, DVec3, DVec4, IVec2, IVec3, IVec4, Mat2, Mat3,
     Mat4, UVec2, UVec3, UVec4, Vec2, Vec3, Vec3A, Vec4,
 };
-use crate::storage::Storage;
+use crate::storage::RawStorage;
 use crate::{Matrix, Matrix2, Matrix3, Matrix4, Vector, Vector2, Vector3, Vector4, U2, U3, U4};
 
 macro_rules! impl_vec_conversion(
@@ -16,7 +16,7 @@ macro_rules! impl_vec_conversion(
 
         impl<S> From<Vector<$N, U2, S>> for $Vec2
         where
-            S: Storage<$N, U2>,
+            S: RawStorage<$N, U2>,
         {
             #[inline]
             fn from(e: Vector<$N, U2, S>) -> $Vec2 {
@@ -33,7 +33,7 @@ macro_rules! impl_vec_conversion(
 
         impl<S> From<Vector<$N, U3, S>> for $Vec3
         where
-            S: Storage<$N, U3>,
+            S: RawStorage<$N, U3>,
         {
             #[inline]
             fn from(e: Vector<$N, U3, S>) -> $Vec3 {
@@ -50,7 +50,7 @@ macro_rules! impl_vec_conversion(
 
         impl<S> From<Vector<$N, U4, S>> for $Vec4
         where
-            S: Storage<$N, U4>,
+            S: RawStorage<$N, U4>,
         {
             #[inline]
             fn from(e: Vector<$N, U4, S>) -> $Vec4 {
@@ -75,7 +75,7 @@ impl From<Vec3A> for Vector3<f32> {
 
 impl<S> From<Vector<f32, U3, S>> for Vec3A
 where
-    S: Storage<f32, U3>,
+    S: RawStorage<f32, U3>,
 {
     #[inline]
     fn from(e: Vector<f32, U3, S>) -> Vec3A {
@@ -92,7 +92,7 @@ impl From<Mat2> for Matrix2<f32> {
 
 impl<S> From<Matrix<f32, U2, U2, S>> for Mat2
 where
-    S: Storage<f32, U2, U2>,
+    S: RawStorage<f32, U2, U2>,
 {
     #[inline]
     fn from(e: Matrix<f32, U2, U2, S>) -> Mat2 {
@@ -112,7 +112,7 @@ impl From<Mat3> for Matrix3<f32> {
 
 impl<S> From<Matrix<f32, U3, U3, S>> for Mat3
 where
-    S: Storage<f32, U3, U3>,
+    S: RawStorage<f32, U3, U3>,
 {
     #[inline]
     fn from(e: Matrix<f32, U3, U3, S>) -> Mat3 {
@@ -133,7 +133,7 @@ impl From<Mat4> for Matrix4<f32> {
 
 impl<S> From<Matrix<f32, U4, U4, S>> for Mat4
 where
-    S: Storage<f32, U4, U4>,
+    S: RawStorage<f32, U4, U4>,
 {
     #[inline]
     fn from(e: Matrix<f32, U4, U4, S>) -> Mat4 {
@@ -155,7 +155,7 @@ impl From<DMat2> for Matrix2<f64> {
 
 impl<S> From<Matrix<f64, U2, U2, S>> for DMat2
 where
-    S: Storage<f64, U2, U2>,
+    S: RawStorage<f64, U2, U2>,
 {
     #[inline]
     fn from(e: Matrix<f64, U2, U2, S>) -> DMat2 {
@@ -175,7 +175,7 @@ impl From<DMat3> for Matrix3<f64> {
 
 impl<S> From<Matrix<f64, U3, U3, S>> for DMat3
 where
-    S: Storage<f64, U3, U3>,
+    S: RawStorage<f64, U3, U3>,
 {
     #[inline]
     fn from(e: Matrix<f64, U3, U3, S>) -> DMat3 {
@@ -196,7 +196,7 @@ impl From<DMat4> for Matrix4<f64> {
 
 impl<S> From<Matrix<f64, U4, U4, S>> for DMat4
 where
-    S: Storage<f64, U4, U4>,
+    S: RawStorage<f64, U4, U4>,
 {
     #[inline]
     fn from(e: Matrix<f64, U4, U4, S>) -> DMat4 {

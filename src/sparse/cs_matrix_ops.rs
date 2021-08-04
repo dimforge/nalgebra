@@ -6,7 +6,7 @@ use crate::allocator::Allocator;
 use crate::constraint::{AreMultipliable, DimEq, ShapeConstraint};
 use crate::sparse::{CsMatrix, CsStorage, CsStorageMut, CsVector};
 use crate::storage::StorageMut;
-use crate::{Const, DefaultAllocator, Dim, OVector, Scalar, Vector};
+use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, Scalar, Vector};
 
 impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
     fn scatter<R2: Dim, C2: Dim>(
@@ -219,7 +219,7 @@ where
 impl<'a, 'b, T, R1, R2, C1, C2, S1, S2> Add<&'b CsMatrix<T, R2, C2, S2>>
     for &'a CsMatrix<T, R1, C1, S1>
 where
-    T: Scalar + ClosedAdd + ClosedMul + One,
+    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
     R1: Dim,
     C1: Dim,
     R2: Dim,
@@ -242,8 +242,7 @@ where
 
         let mut res = CsMatrix::new_uninitialized_generic(nrows1, ncols2, self.len() + rhs.len());
         let mut timestamps = OVector::zeros_generic(nrows1, Const::<1>);
-        let mut workspace =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows1, Const::<1>) };
+        let mut workspace = Matrix::zeros_generic(nrows1, Const::<1>);
         let mut nz = 0;
 
         for j in 0..ncols2.value() {

@@ -139,10 +139,3 @@ impl ComplexHelper for Complex<f64> {
         self.re
     }
 }
-
-unsafe fn uninitialized_vec<T: Copy>(n: usize) -> Vec<T> {
-    let mut res = Vec::new();
-    res.reserve_exact(n);
-    res.set_len(n);
-    res
-}

@@ -136,7 +136,7 @@ where
     /// Computes the inverse of the decomposed matrix.
     #[must_use]
     pub fn inverse(&self) -> OMatrix<T, D, D> {
-        let shape = self.chol.data.shape();
+        let shape = self.chol.shape_generic();
         let mut res = OMatrix::identity_generic(shape.0, shape.1);
 
         self.solve_mut(&mut res);
@@ -237,12 +237,11 @@ where
         assert!(j < n, "j needs to be within the bound of the new matrix.");
 
         // loads the data into a new matrix with an additional jth row/column
-        let mut chol = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(
-                self.chol.data.shape().0.add(Const::<1>),
-                self.chol.data.shape().1.add(Const::<1>)
-            )
-        };
+        // TODO: would it be worth it to avoid the zero-initialization?
+        let mut chol = Matrix::zeros_generic(
+            self.chol.shape_generic().0.add(Const::<1>),
+            self.chol.shape_generic().1.add(Const::<1>),
+        );
         chol.slice_range_mut(..j, ..j)
             .copy_from(&self.chol.slice_range(..j, ..j));
         chol.slice_range_mut(..j, j + 1..)
@@ -303,12 +302,11 @@ where
         assert!(j < n, "j needs to be within the bound of the matrix.");
 
         // loads the data into a new matrix except for the jth row/column
-        let mut chol = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(
-                self.chol.data.shape().0.sub(Const::<1>),
-                self.chol.data.shape().1.sub(Const::<1>)
-            )
-        };
+        // TODO: would it be worth it to avoid this zero initialization?
+        let mut chol = Matrix::zeros_generic(
+            self.chol.shape_generic().0.sub(Const::<1>),
+            self.chol.shape_generic().1.sub(Const::<1>),
+        );
         chol.slice_range_mut(..j, ..j)
             .copy_from(&self.chol.slice_range(..j, ..j));
         chol.slice_range_mut(..j, j..)

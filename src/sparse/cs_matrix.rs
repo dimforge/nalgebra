@@ -7,7 +7,7 @@ use std::slice;
 
 use crate::allocator::Allocator;
 use crate::sparse::cs_utils;
-use crate::{Const, DefaultAllocator, Dim, Dynamic, OVector, Scalar, Vector, U1};
+use crate::{Const, DefaultAllocator, Dim, Dynamic, Matrix, OVector, Scalar, Vector, U1};
 
 pub struct ColumnEntries<'a, T> {
     curr: usize,
@@ -466,12 +466,12 @@ where
 {
     pub(crate) fn sort(&mut self)
     where
+        T: Zero,
         DefaultAllocator: Allocator<T, R>,
     {
         // Size = R
         let nrows = self.data.shape().0;
-        let mut workspace =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, Const::<1>) };
+        let mut workspace = Matrix::zeros_generic(nrows, Const::<1>);
         self.sort_with_workspace(workspace.as_mut_slice());
     }
 

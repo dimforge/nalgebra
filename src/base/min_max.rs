@@ -1,10 +1,10 @@
-use crate::storage::Storage;
+use crate::storage::RawStorage;
 use crate::{ComplexField, Dim, Matrix, Scalar, SimdComplexField, SimdPartialOrd, Vector};
 use num::{Signed, Zero};
 use simba::simd::SimdSigned;
 
 /// # Find the min and max components
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// Returns the absolute value of the component with the largest absolute value.
     /// # Example
     /// ```
@@ -167,7 +167,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     }
 }
 
-impl<T: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// Computes the index of the matrix component with the largest absolute value.
     ///
     /// # Examples:
@@ -203,7 +203,7 @@ impl<T: Scalar + PartialOrd + Signed, R: Dim, C: Dim, S: Storage<T, R, C>> Matri
 
 // TODO: find a way to avoid code duplication just for complex number support.
 /// # Find the min and max components (vector-specific methods)
-impl<T: Scalar, D: Dim, S: Storage<T, D>> Vector<T, D, S> {
+impl<T: Scalar, D: Dim, S: RawStorage<T, D>> Vector<T, D, S> {
     /// Computes the index of the vector component with the largest complex or real absolute value.
     ///
     /// # Examples:

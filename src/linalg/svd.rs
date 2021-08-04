@@ -111,7 +111,7 @@ where
             !matrix.is_empty(),
             "Cannot compute the SVD of an empty matrix."
         );
-        let (nrows, ncols) = matrix.data.shape();
+        let (nrows, ncols) = matrix.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
         let dim = min_nrows_ncols.value();
 

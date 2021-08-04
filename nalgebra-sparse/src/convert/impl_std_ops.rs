@@ -2,7 +2,7 @@ use crate::convert::serial::*;
 use crate::coo::CooMatrix;
 use crate::csc::CscMatrix;
 use crate::csr::CsrMatrix;
-use nalgebra::storage::Storage;
+use nalgebra::storage::RawStorage;
 use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
 use num_traits::Zero;
 
@@ -11,7 +11,7 @@ where
     T: Scalar + Zero,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>,
+    S: RawStorage<T, R, C>,
 {
     fn from(matrix: &'a Matrix<T, R, C, S>) -> Self {
         convert_dense_coo(matrix)
@@ -50,7 +50,7 @@ where
     T: Scalar + Zero,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>,
+    S: RawStorage<T, R, C>,
 {
     fn from(matrix: &'a Matrix<T, R, C, S>) -> Self {
         convert_dense_csr(matrix)
@@ -89,7 +89,7 @@ where
     T: Scalar + Zero,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>,
+    S: RawStorage<T, R, C>,
 {
     fn from(matrix: &'a Matrix<T, R, C, S>) -> Self {
         convert_dense_csc(matrix)

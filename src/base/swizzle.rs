@@ -1,5 +1,5 @@
 use crate::base::{DimName, Scalar, ToTypenum, Vector, Vector2, Vector3};
-use crate::storage::Storage;
+use crate::storage::RawStorage;
 use typenum::{self, Cmp, Greater};
 
 macro_rules! impl_swizzle {
@@ -19,7 +19,7 @@ macro_rules! impl_swizzle {
 }
 
 /// # Swizzling
-impl<T: Scalar, D, S: Storage<T, D>> Vector<T, D, S>
+impl<T: Scalar, D, S: RawStorage<T, D>> Vector<T, D, S>
 where
     D: DimName + ToTypenum,
 {

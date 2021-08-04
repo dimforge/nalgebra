@@ -44,7 +44,6 @@ where
     fn replace(&mut self, i: usize, val: Self::Element) {
         self.zip_apply(&val, |mut a, b| {
             a.replace(i, b);
-            a
         })
     }
 
@@ -52,7 +51,6 @@ where
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
         self.zip_apply(&val, |mut a, b| {
             a.replace_unchecked(i, b);
-            a
         })
     }
 

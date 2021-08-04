@@ -73,11 +73,11 @@ an optimized set of tools for computer graphics and physics. Those features incl
 
 #![allow(unused_variables, unused_mut)]
 #![deny(
+    missing_docs,
     nonstandard_style,
     unused_parens,
     unused_qualifications,
     unused_results,
-    missing_docs,
     rust_2018_idioms,
     rust_2018_compatibility,
     future_incompatible,
@@ -88,7 +88,6 @@ an optimized set of tools for computer graphics and physics. Those features incl
     html_root_url = "https://docs.rs/nalgebra/0.25.0"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(feature = "no_unsound_assume_init", allow(unreachable_code))]
 
 #[cfg(feature = "rand-no-std")]
 extern crate rand_package as rand;

@@ -1,4 +1,4 @@
-use crate::base::storage::{Storage, StorageMut};
+use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::{OVector, Point, Scalar};
 use std::convert::{AsMut, AsRef};
 

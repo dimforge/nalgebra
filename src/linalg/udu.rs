@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use crate::allocator::Allocator;
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector};
 use crate::dimension::Dim;
-use crate::storage::Storage;
 use simba::scalar::RealField;
 
 /// UDU factorization.
@@ -50,7 +49,7 @@ where
     /// Ref.: "Optimal control and estimation-Dover Publications", Robert F. Stengel, (1994) page 360
     pub fn new(p: OMatrix<T, D, D>) -> Option<Self> {
         let n = p.ncols();
-        let n_dim = p.data.shape().1;
+        let n_dim = p.shape_generic().1;
 
         let mut d = OVector::zeros_generic(n_dim, Const::<1>);
         let mut u = OMatrix::zeros_generic(n_dim, n_dim);

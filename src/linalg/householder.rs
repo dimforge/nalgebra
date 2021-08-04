@@ -3,7 +3,7 @@
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, OMatrix, OVector, Unit, Vector};
 use crate::dimension::Dim;
-use crate::storage::{Storage, StorageMut};
+use crate::storage::StorageMut;
 use num::Zero;
 use simba::scalar::ComplexField;
 
@@ -43,21 +43,23 @@ pub fn reflection_axis_mut<T: ComplexField, D: Dim, S: StorageMut<T, D>>(
 
 /// Uses an householder reflection to zero out the `icol`-th column, starting with the `shift + 1`-th
 /// subdiagonal element.
+///
+/// Returns the signed norm of the column.
 #[doc(hidden)]
+#[must_use]
 pub fn clear_column_unchecked<T: ComplexField, R: Dim, C: Dim>(
     matrix: &mut OMatrix<T, R, C>,
-    diag_elt: &mut T,
     icol: usize,
     shift: usize,
     bilateral: Option<&mut OVector<T, R>>,
-) where
+) -> T
+where
     DefaultAllocator: Allocator<T, R, C> + Allocator<T, R>,
 {
     let (mut left, mut right) = matrix.columns_range_pair_mut(icol, icol + 1..);
     let mut axis = left.rows_range_mut(icol + shift..);
 
     let (reflection_norm, not_zero) = reflection_axis_mut(&mut axis);
-    *diag_elt = reflection_norm;
 
     if not_zero {
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
@@ -67,19 +69,24 @@ pub fn clear_column_unchecked<T: ComplexField, R: Dim, C: Dim>(
         }
         refl.reflect_with_sign(&mut right.rows_range_mut(icol + shift..), sign.conjugate());
     }
+
+    reflection_norm
 }
 
 /// Uses an householder reflection to zero out the `irow`-th row, ending before the `shift + 1`-th
 /// superdiagonal element.
+///
+/// Returns the signed norm of the column.
 #[doc(hidden)]
+#[must_use]
 pub fn clear_row_unchecked<T: ComplexField, R: Dim, C: Dim>(
     matrix: &mut OMatrix<T, R, C>,
-    diag_elt: &mut T,
     axis_packed: &mut OVector<T, C>,
     work: &mut OVector<T, R>,
     irow: usize,
     shift: usize,
-) where
+) -> T
+where
     DefaultAllocator: Allocator<T, R, C> + Allocator<T, R> + Allocator<T, C>,
 {
     let (mut top, mut bottom) = matrix.rows_range_pair_mut(irow, irow + 1..);
@@ -88,7 +95,6 @@ pub fn clear_row_unchecked<T: ComplexField, R: Dim, C: Dim>(
 
     let (reflection_norm, not_zero) = reflection_axis_mut(&mut axis);
     axis.conjugate_mut(); // So that reflect_rows actually cancels the first row.
-    *diag_elt = reflection_norm;
 
     if not_zero {
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
@@ -102,6 +108,8 @@ pub fn clear_row_unchecked<T: ComplexField, R: Dim, C: Dim>(
     } else {
         top.columns_range_mut(irow + shift..).tr_copy_from(&axis);
     }
+
+    reflection_norm
 }
 
 /// Computes the orthogonal transformation described by the elementary reflector axii stored on
@@ -113,7 +121,7 @@ where
     DefaultAllocator: Allocator<T, D, D>,
 {
     assert!(m.is_square());
-    let dim = m.data.shape().0;
+    let dim = m.shape_generic().0;
 
     // NOTE: we could build the identity matrix and call p_mult on it.
     // Instead we don't so that we take in account the matrix sparseness.

@@ -24,15 +24,6 @@ impl<T: Scalar, D: DimName> OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
-    /// Creates a new point with uninitialized coordinates.
-    #[inline]
-    pub unsafe fn new_uninitialized() -> Self {
-        Self::from(crate::unimplemented_or_uninitialized_generic!(
-            D::name(),
-            Const::<1>
-        ))
-    }
-
     /// Creates a new point with all coordinates equal to zero.
     ///
     /// # Example

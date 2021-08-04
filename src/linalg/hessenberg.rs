@@ -4,10 +4,11 @@ use serde::{Deserialize, Serialize};
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, OMatrix, OVector};
 use crate::dimension::{Const, DimDiff, DimSub, U1};
-use crate::storage::Storage;
 use simba::scalar::ComplexField;
 
 use crate::linalg::householder;
+use crate::Matrix;
+use std::mem::MaybeUninit;
 
 /// Hessenberg decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -48,9 +49,7 @@ where
 {
     /// Computes the Hessenberg decomposition using householder reflections.
     pub fn new(hess: OMatrix<T, D, D>) -> Self {
-        let mut work = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(hess.data.shape().0, Const::<1>)
-        };
+        let mut work = Matrix::zeros_generic(hess.shape_generic().0, Const::<1>);
         Self::new_with_workspace(hess, &mut work)
     }
 
@@ -64,7 +63,7 @@ where
             "Cannot compute the hessenberg decomposition of a non-square matrix."
         );
 
-        let dim = hess.data.shape().0;
+        let dim = hess.shape_generic().0;
 
         assert!(
             dim.value() != 0,
@@ -76,18 +75,26 @@ where
             "Hessenberg: invalid workspace size."
         );
 
-        let mut subdiag = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(dim.sub(Const::<1>), Const::<1>)
-        };
-
         if dim.value() == 0 {
-            return Hessenberg { hess, subdiag };
+            return Hessenberg {
+                hess,
+                subdiag: Matrix::zeros_generic(dim.sub(Const::<1>), Const::<1>),
+            };
         }
+
+        let mut subdiag = Matrix::uninit(dim.sub(Const::<1>), Const::<1>);
 
         for ite in 0..dim.value() - 1 {
-            householder::clear_column_unchecked(&mut hess, &mut subdiag[ite], ite, 1, Some(work));
+            subdiag[ite] = MaybeUninit::new(householder::clear_column_unchecked(
+                &mut hess,
+                ite,
+                1,
+                Some(work),
+            ));
         }
 
+        // Safety: subdiag is now fully initialized.
+        let subdiag = unsafe { subdiag.assume_init() };
         Hessenberg { hess, subdiag }
     }
 

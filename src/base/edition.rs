@@ -2,8 +2,6 @@ use num::{One, Zero};
 use std::cmp;
 #[cfg(any(feature = "std", feature = "alloc"))]
 use std::iter::ExactSizeIterator;
-#[cfg(any(feature = "std", feature = "alloc"))]
-use std::mem;
 use std::ptr;
 
 use crate::base::allocator::{Allocator, Reallocator};
@@ -11,8 +9,10 @@ use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, Shap
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::dimension::Dynamic;
 use crate::base::dimension::{Const, Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimSub, DimSum, U1};
-use crate::base::storage::{ContiguousStorageMut, ReshapableStorage, Storage, StorageMut};
+use crate::base::storage::{RawStorage, RawStorageMut, ReshapableStorage};
 use crate::base::{DefaultAllocator, Matrix, OMatrix, RowVector, Scalar, Vector};
+use crate::{Storage, UninitMatrix};
+use std::mem::MaybeUninit;
 
 /// # Rows and columns extraction
 impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
@@ -52,10 +52,8 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Allocator<T, Dynamic, C>,
     {
         let irows = irows.into_iter();
-        let ncols = self.data.shape().1;
-        let mut res = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(Dynamic::new(irows.len()), ncols)
-        };
+        let ncols = self.shape_generic().1;
+        let mut res = Matrix::uninit(Dynamic::new(irows.len()), ncols);
 
         // First, check that all the indices from irows are valid.
         // This will allow us to use unchecked access in the inner loop.
@@ -69,14 +67,16 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             let src = self.column(j);
 
             for (destination, source) in irows.clone().enumerate() {
+                // Safety: all indices are in range.
                 unsafe {
                     *res.vget_unchecked_mut(destination) =
-                        src.vget_unchecked(*source).inlined_clone()
+                        MaybeUninit::new(src.vget_unchecked(*source).inlined_clone());
                 }
             }
         }
 
-        res
+        // Safety: res is now fully initialized.
+        unsafe { res.assume_init() }
     }
 
     /// Creates a new matrix by extracting the given set of columns from `self`.
@@ -89,27 +89,30 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Allocator<T, R, Dynamic>,
     {
         let icols = icols.into_iter();
-        let nrows = self.data.shape().0;
-        let mut res = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(nrows, Dynamic::new(icols.len()))
-        };
+        let nrows = self.shape_generic().0;
+        let mut res = Matrix::uninit(nrows, Dynamic::new(icols.len()));
 
         for (destination, source) in icols.enumerate() {
-            res.column_mut(destination).copy_from(&self.column(*source))
+            // NOTE: this is basically a copy_frow but wrapping the values insnide of MaybeUninit.
+            res.column_mut(destination)
+                .zip_apply(&self.column(*source), |out, e| {
+                    *out = MaybeUninit::new(e.inlined_clone())
+                });
         }
 
-        res
+        // Safety: res is now fully initialized.
+        unsafe { res.assume_init() }
     }
 }
 
 /// # Set rows, columns, and diagonal
-impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
+impl<T: Scalar, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Fills the diagonal of this matrix with the content of the given vector.
     #[inline]
     pub fn set_diagonal<R2: Dim, S2>(&mut self, diag: &Vector<T, R2, S2>)
     where
         R: DimMin<C>,
-        S2: Storage<T, R2>,
+        S2: RawStorage<T, R2>,
         ShapeConstraint: DimEq<DimMinimum<R, C>, R2>,
     {
         let (nrows, ncols) = self.shape();
@@ -140,7 +143,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     pub fn set_row<C2: Dim, S2>(&mut self, i: usize, row: &RowVector<T, C2, S2>)
     where
-        S2: Storage<T, U1, C2>,
+        S2: RawStorage<T, U1, C2>,
         ShapeConstraint: SameNumberOfColumns<C, C2>,
     {
         self.row_mut(i).copy_from(row);
@@ -150,7 +153,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     pub fn set_column<R2: Dim, S2>(&mut self, i: usize, column: &Vector<T, R2, S2>)
     where
-        S2: Storage<T, R2, U1>,
+        S2: RawStorage<T, R2, U1>,
         ShapeConstraint: SameNumberOfRows<R, R2>,
     {
         self.column_mut(i).copy_from(column);
@@ -158,10 +161,21 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 }
 
 /// # In-place filling
-impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
+    /// Sets all the elements of this matrix to the value returned by the closure.
+    #[inline]
+    pub fn fill_with(&mut self, val: impl Fn() -> T) {
+        for e in self.iter_mut() {
+            *e = val()
+        }
+    }
+
     /// Sets all the elements of this matrix to `val`.
     #[inline]
-    pub fn fill(&mut self, val: T) {
+    pub fn fill(&mut self, val: T)
+    where
+        T: Scalar,
+    {
         for e in self.iter_mut() {
             *e = val.inlined_clone()
         }
@@ -171,7 +185,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     pub fn fill_with_identity(&mut self)
     where
-        T: Zero + One,
+        T: Scalar + Zero + One,
     {
         self.fill(T::zero());
         self.fill_diagonal(T::one());
@@ -179,7 +193,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 
     /// Sets all the diagonal elements of this matrix to `val`.
     #[inline]
-    pub fn fill_diagonal(&mut self, val: T) {
+    pub fn fill_diagonal(&mut self, val: T)
+    where
+        T: Scalar,
+    {
         let (nrows, ncols) = self.shape();
         let n = cmp::min(nrows, ncols);
 
@@ -190,7 +207,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 
     /// Sets all the elements of the selected row to `val`.
     #[inline]
-    pub fn fill_row(&mut self, i: usize, val: T) {
+    pub fn fill_row(&mut self, i: usize, val: T)
+    where
+        T: Scalar,
+    {
         assert!(i < self.nrows(), "Row index out of bounds.");
         for j in 0..self.ncols() {
             unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
@@ -199,7 +219,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 
     /// Sets all the elements of the selected column to `val`.
     #[inline]
-    pub fn fill_column(&mut self, j: usize, val: T) {
+    pub fn fill_column(&mut self, j: usize, val: T)
+    where
+        T: Scalar,
+    {
         assert!(j < self.ncols(), "Row index out of bounds.");
         for i in 0..self.nrows() {
             unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
@@ -214,7 +237,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// * If `shift > 1`, then the diagonal and the first `shift - 1` subdiagonals are left
     /// untouched.
     #[inline]
-    pub fn fill_lower_triangle(&mut self, val: T, shift: usize) {
+    pub fn fill_lower_triangle(&mut self, val: T, shift: usize)
+    where
+        T: Scalar,
+    {
         for j in 0..self.ncols() {
             for i in (j + shift)..self.nrows() {
                 unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
@@ -230,7 +256,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// * If `shift > 1`, then the diagonal and the first `shift - 1` superdiagonals are left
     /// untouched.
     #[inline]
-    pub fn fill_upper_triangle(&mut self, val: T, shift: usize) {
+    pub fn fill_upper_triangle(&mut self, val: T, shift: usize)
+    where
+        T: Scalar,
+    {
         for j in shift..self.ncols() {
             // TODO: is there a more efficient way to avoid the min ?
             // (necessary for rectangular matrices)
@@ -241,7 +270,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     }
 }
 
-impl<T: Scalar, D: Dim, S: StorageMut<T, D, D>> Matrix<T, D, D, S> {
+impl<T: Scalar, D: Dim, S: RawStorageMut<T, D, D>> Matrix<T, D, D, S> {
     /// Copies the upper-triangle of this matrix to its lower-triangular part.
     ///
     /// This makes the matrix symmetric. Panics if the matrix is not square.
@@ -275,7 +304,7 @@ impl<T: Scalar, D: Dim, S: StorageMut<T, D, D>> Matrix<T, D, D, S> {
 }
 
 /// # In-place swapping
-impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
+impl<T: Scalar, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Swaps two rows in-place.
     #[inline]
     pub fn swap_rows(&mut self, irow1: usize, irow2: usize) {
@@ -335,29 +364,46 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, R, Dynamic>,
     {
         let mut m = self.into_owned();
-        let (nrows, ncols) = m.data.shape();
+        let (nrows, ncols) = m.shape_generic();
         let mut offset: usize = 0;
         let mut target: usize = 0;
         while offset + target < ncols.value() {
             if indices.contains(&(target + offset)) {
+                // Safety: the resulting pointer is within range.
+                let col_ptr = unsafe { m.data.ptr_mut().add((target + offset) * nrows.value()) };
+                // Drop every element in the column we are about to overwrite.
+                // We use the a similar technique as in `Vec::truncate`.
+                let s = ptr::slice_from_raw_parts_mut(col_ptr, nrows.value());
+                // Safety: we drop the column in-place, which is OK because we will overwrite these
+                //         entries later in the loop, or discard them with the `reallocate_copy`
+                //         afterwards.
+                unsafe { ptr::drop_in_place(s) };
+
                 offset += 1;
             } else {
                 unsafe {
                     let ptr_source = m.data.ptr().add((target + offset) * nrows.value());
                     let ptr_target = m.data.ptr_mut().add(target * nrows.value());
 
+                    // Copy the data, overwriting what we dropped.
                     ptr::copy(ptr_source, ptr_target, nrows.value());
                     target += 1;
                 }
             }
         }
 
+        // Safety: The new size is smaller than the old size, so
+        //         DefaultAllocator::reallocate_copy will initialize
+        //         every element of the new matrix which can then
+        //         be assumed to be initialized.
         unsafe {
-            Matrix::from_data(DefaultAllocator::reallocate_copy(
+            let new_data = DefaultAllocator::reallocate_copy(
                 nrows,
                 ncols.sub(Dynamic::from_usize(offset)),
                 m.data,
-            ))
+            );
+
+            Matrix::from_data(new_data).assume_init()
         }
     }
 
@@ -369,29 +415,44 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, Dynamic, C>,
     {
         let mut m = self.into_owned();
-        let (nrows, ncols) = m.data.shape();
+        let (nrows, ncols) = m.shape_generic();
         let mut offset: usize = 0;
         let mut target: usize = 0;
         while offset + target < nrows.value() * ncols.value() {
             if indices.contains(&((target + offset) % nrows.value())) {
+                // Safety: the resulting pointer is within range.
+                unsafe {
+                    let elt_ptr = m.data.ptr_mut().add(target + offset);
+                    // Safety: we drop the component in-place, which is OK because we will overwrite these
+                    //         entries later in the loop, or discard them with the `reallocate_copy`
+                    //         afterwards.
+                    ptr::drop_in_place(elt_ptr)
+                };
                 offset += 1;
             } else {
                 unsafe {
                     let ptr_source = m.data.ptr().add(target + offset);
                     let ptr_target = m.data.ptr_mut().add(target);
 
+                    // Copy the data, overwriting what we dropped in the previous iterations.
                     ptr::copy(ptr_source, ptr_target, 1);
                     target += 1;
                 }
             }
         }
 
+        // Safety: The new size is smaller than the old size, so
+        //         DefaultAllocator::reallocate_copy will initialize
+        //         every element of the new matrix which can then
+        //         be assumed to be initialized.
         unsafe {
-            Matrix::from_data(DefaultAllocator::reallocate_copy(
+            let new_data = DefaultAllocator::reallocate_copy(
                 nrows.sub(Dynamic::from_usize(offset / ncols.value())),
                 ncols,
                 m.data,
-            ))
+            );
+
+            Matrix::from_data(new_data).assume_init()
         }
     }
 
@@ -432,13 +493,14 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, R, DimDiff<C, D>>,
     {
         let mut m = self.into_owned();
-        let (nrows, ncols) = m.data.shape();
+        let (nrows, ncols) = m.shape_generic();
         assert!(
             i + nremove.value() <= ncols.value(),
             "Column index out of range."
         );
 
-        if nremove.value() != 0 && i + nremove.value() < ncols.value() {
+        let need_column_shifts = nremove.value() != 0 && i + nremove.value() < ncols.value();
+        if need_column_shifts {
             // The first `deleted_i * nrows` are left untouched.
             let copied_value_start = i + nremove.value();
 
@@ -446,20 +508,35 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                 let ptr_in = m.data.ptr().add(copied_value_start * nrows.value());
                 let ptr_out = m.data.ptr_mut().add(i * nrows.value());
 
+                // Drop all the elements of the columns we are about to overwrite.
+                // We use the a similar technique as in `Vec::truncate`.
+                let s = ptr::slice_from_raw_parts_mut(ptr_out, nremove.value() * nrows.value());
+                // Safety: we drop the column in-place, which is OK because we will overwrite these
+                //         entries with `ptr::copy` afterward.
+                ptr::drop_in_place(s);
+
                 ptr::copy(
                     ptr_in,
                     ptr_out,
                     (ncols.value() - copied_value_start) * nrows.value(),
                 );
             }
+        } else {
+            // All the columns to remove are at the end of the buffer. Drop them.
+            unsafe {
+                let ptr = m.data.ptr_mut().add(i * nrows.value());
+                let s = ptr::slice_from_raw_parts_mut(ptr, nremove.value() * nrows.value());
+                ptr::drop_in_place(s)
+            };
         }
 
+        // Safety: The new size is smaller than the old size, so
+        //         DefaultAllocator::reallocate_copy will initialize
+        //         every element of the new matrix which can then
+        //         be assumed to be initialized.
         unsafe {
-            Matrix::from_data(DefaultAllocator::reallocate_copy(
-                nrows,
-                ncols.sub(nremove),
-                m.data,
-            ))
+            let new_data = DefaultAllocator::reallocate_copy(nrows, ncols.sub(nremove), m.data);
+            Matrix::from_data(new_data).assume_init()
         }
     }
 
@@ -511,7 +588,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, DimDiff<R, D>, C>,
     {
         let mut m = self.into_owned();
-        let (nrows, ncols) = m.data.shape();
+        let (nrows, ncols) = m.shape_generic();
         assert!(
             i + nremove.value() <= nrows.value(),
             "Row index out of range."
@@ -520,7 +597,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         if nremove.value() != 0 {
             unsafe {
                 compress_rows(
-                    &mut m.data.as_mut_slice(),
+                    &mut m.as_mut_slice(),
                     nrows.value(),
                     ncols.value(),
                     i,
@@ -529,12 +606,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             }
         }
 
+        // Safety: The new size is smaller than the old size, so
+        //         DefaultAllocator::reallocate_copy will initialize
+        //         every element of the new matrix which can then
+        //         be assumed to be initialized.
         unsafe {
-            Matrix::from_data(DefaultAllocator::reallocate_copy(
-                nrows.sub(nremove),
-                ncols,
-                m.data,
-            ))
+            let new_data = DefaultAllocator::reallocate_copy(nrows.sub(nremove), ncols, m.data);
+            Matrix::from_data(new_data).assume_init()
         }
     }
 }
@@ -568,8 +646,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, R, DimSum<C, Const<D>>>,
     {
         let mut res = unsafe { self.insert_columns_generic_uninitialized(i, Const::<D>) };
-        res.fixed_columns_mut::<D>(i).fill(val);
-        res
+        res.fixed_columns_mut::<D>(i)
+            .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+
+        // Safety: the result is now fully initialized. The added columns have
+        //         been initialized by the `fill_with` above, and the rest have
+        //         been initialized by `insert_columns_generic_uninitialized`.
+        unsafe { res.assume_init() }
     }
 
     /// Inserts `n` columns filled with `val` starting at the `i-th` position.
@@ -581,27 +664,33 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, R, Dynamic>,
     {
         let mut res = unsafe { self.insert_columns_generic_uninitialized(i, Dynamic::new(n)) };
-        res.columns_mut(i, n).fill(val);
-        res
+        res.columns_mut(i, n)
+            .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+
+        // Safety: the result is now fully initialized. The added columns have
+        //         been initialized by the `fill_with` above, and the rest have
+        //         been initialized by `insert_columns_generic_uninitialized`.
+        unsafe { res.assume_init() }
     }
 
     /// Inserts `ninsert.value()` columns starting at the `i-th` place of this matrix.
     ///
     /// # Safety
-    /// The added column values are not initialized.
+    /// The output matrix has all its elements initialized except for the the components of the
+    /// added columns.
     #[inline]
     pub unsafe fn insert_columns_generic_uninitialized<D>(
         self,
         i: usize,
         ninsert: D,
-    ) -> OMatrix<T, R, DimSum<C, D>>
+    ) -> UninitMatrix<T, R, DimSum<C, D>>
     where
         D: Dim,
         C: DimAdd<D>,
         DefaultAllocator: Reallocator<T, R, C, R, DimSum<C, D>>,
     {
         let m = self.into_owned();
-        let (nrows, ncols) = m.data.shape();
+        let (nrows, ncols) = m.shape_generic();
         let mut res = Matrix::from_data(DefaultAllocator::reallocate_copy(
             nrows,
             ncols.add(ninsert),
@@ -650,8 +739,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, DimSum<R, Const<D>>, C>,
     {
         let mut res = unsafe { self.insert_rows_generic_uninitialized(i, Const::<D>) };
-        res.fixed_rows_mut::<D>(i).fill(val);
-        res
+        res.fixed_rows_mut::<D>(i)
+            .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+
+        // Safety: the result is now fully initialized. The added rows have
+        //         been initialized by the `fill_with` above, and the rest have
+        //         been initialized by `insert_rows_generic_uninitialized`.
+        unsafe { res.assume_init() }
     }
 
     /// Inserts `n` rows filled with `val` starting at the `i-th` position.
@@ -663,8 +757,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, Dynamic, C>,
     {
         let mut res = unsafe { self.insert_rows_generic_uninitialized(i, Dynamic::new(n)) };
-        res.rows_mut(i, n).fill(val);
-        res
+        res.rows_mut(i, n)
+            .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+
+        // Safety: the result is now fully initialized. The added rows have
+        //         been initialized by the `fill_with` above, and the rest have
+        //         been initialized by `insert_rows_generic_uninitialized`.
+        unsafe { res.assume_init() }
     }
 
     /// Inserts `ninsert.value()` rows at the `i-th` place of this matrix.
@@ -678,14 +777,14 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         self,
         i: usize,
         ninsert: D,
-    ) -> OMatrix<T, DimSum<R, D>, C>
+    ) -> UninitMatrix<T, DimSum<R, D>, C>
     where
         D: Dim,
         R: DimAdd<D>,
         DefaultAllocator: Reallocator<T, R, C, DimSum<R, D>, C>,
     {
         let m = self.into_owned();
-        let (nrows, ncols) = m.data.shape();
+        let (nrows, ncols) = m.shape_generic();
         let mut res = Matrix::from_data(DefaultAllocator::reallocate_copy(
             nrows.add(ninsert),
             ncols,
@@ -696,7 +795,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
         if ninsert.value() != 0 {
             extend_rows(
-                &mut res.data.as_mut_slice(),
+                &mut res.as_mut_slice(),
                 nrows.value(),
                 ncols.value(),
                 i,
@@ -731,7 +830,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     where
         DefaultAllocator: Reallocator<T, R, C, Dynamic, C>,
     {
-        let ncols = self.data.shape().1;
+        let ncols = self.shape_generic().1;
         self.resize_generic(Dynamic::new(new_nrows), ncols, val)
     }
 
@@ -744,7 +843,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     where
         DefaultAllocator: Reallocator<T, R, C, R, Dynamic>,
     {
-        let nrows = self.data.shape().0;
+        let nrows = self.shape_generic().0;
         self.resize_generic(nrows, Dynamic::new(new_ncols), val)
     }
 
@@ -777,16 +876,32 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Reallocator<T, R, C, R2, C2>,
     {
         let (nrows, ncols) = self.shape();
-        let mut data = self.data.into_owned();
+        let mut data = self.into_owned();
 
         if new_nrows.value() == nrows {
-            let res = unsafe { DefaultAllocator::reallocate_copy(new_nrows, new_ncols, data) };
-            let mut res = Matrix::from_data(res);
-            if new_ncols.value() > ncols {
-                res.columns_range_mut(ncols..).fill(val);
+            if new_ncols.value() < ncols {
+                unsafe {
+                    let num_cols_to_delete = ncols - new_ncols.value();
+                    let col_ptr = data.data.ptr_mut().add(new_ncols.value() * nrows);
+                    let s = ptr::slice_from_raw_parts_mut(col_ptr, num_cols_to_delete * nrows);
+                    // Safety: drop the elements of the deleted columns.
+                    //         these are the elements that will be truncated
+                    //         by the `reallocate_copy` afterward.
+                    ptr::drop_in_place(s)
+                };
             }
 
-            res
+            let res = unsafe { DefaultAllocator::reallocate_copy(new_nrows, new_ncols, data.data) };
+            let mut res = Matrix::from_data(res);
+
+            if new_ncols.value() > ncols {
+                res.columns_range_mut(ncols..)
+                    .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+            }
+
+            // Safety: the result is now fully initialized by `reallocate_copy` and
+            //         `fill_with` (if the output has more columns than the input).
+            unsafe { res.assume_init() }
         } else {
             let mut res;
 
@@ -800,14 +915,14 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                         nrows - new_nrows.value(),
                     );
                     res = Matrix::from_data(DefaultAllocator::reallocate_copy(
-                        new_nrows, new_ncols, data,
+                        new_nrows, new_ncols, data.data,
                     ));
                 } else {
                     res = Matrix::from_data(DefaultAllocator::reallocate_copy(
-                        new_nrows, new_ncols, data,
+                        new_nrows, new_ncols, data.data,
                     ));
                     extend_rows(
-                        &mut res.data.as_mut_slice(),
+                        &mut res.as_mut_slice(),
                         nrows,
                         new_ncols.value(),
                         nrows,
@@ -817,15 +932,18 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             }
 
             if new_ncols.value() > ncols {
-                res.columns_range_mut(ncols..).fill(val.inlined_clone());
+                res.columns_range_mut(ncols..)
+                    .fill_with(|| MaybeUninit::new(val.inlined_clone()));
             }
 
             if new_nrows.value() > nrows {
                 res.slice_range_mut(nrows.., ..cmp::min(ncols, new_ncols.value()))
-                    .fill(val);
+                    .fill_with(|| MaybeUninit::new(val.inlined_clone()));
             }
 
-            res
+            // Safety: the result is now fully initialized by `reallocate_copy` and
+            //         `fill_with` (whenever applicable).
+            unsafe { res.assume_init() }
         }
     }
 
@@ -910,12 +1028,8 @@ impl<T: Scalar> OMatrix<T, Dynamic, Dynamic> {
     where
         DefaultAllocator: Reallocator<T, Dynamic, Dynamic, Dynamic, Dynamic>,
     {
-        let placeholder = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(Dynamic::new(0), Dynamic::new(0))
-        };
-        let old = mem::replace(self, placeholder);
-        let new = old.resize(new_nrows, new_ncols, val);
-        let _ = mem::replace(self, new);
+        // TODO: avoid the clone.
+        *self = self.clone().resize(new_nrows, new_ncols, val);
     }
 }
 
@@ -935,12 +1049,8 @@ where
     where
         DefaultAllocator: Reallocator<T, Dynamic, C, Dynamic, C>,
     {
-        let placeholder = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(Dynamic::new(0), self.data.shape().1)
-        };
-        let old = mem::replace(self, placeholder);
-        let new = old.resize_vertically(new_nrows, val);
-        let _ = mem::replace(self, new);
+        // TODO: avoid the clone.
+        *self = self.clone().resize_vertically(new_nrows, val);
     }
 }
 
@@ -960,15 +1070,15 @@ where
     where
         DefaultAllocator: Reallocator<T, R, Dynamic, R, Dynamic>,
     {
-        let placeholder = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, Dynamic::new(0))
-        };
-        let old = mem::replace(self, placeholder);
-        let new = old.resize_horizontally(new_ncols, val);
-        let _ = mem::replace(self, new);
+        // TODO: avoid the clone.
+        *self = self.clone().resize_horizontally(new_ncols, val);
     }
 }
 
+// Move the elements of `data` in such a way that the matrix with
+// the rows `[i, i + nremove[` deleted is represented in a contigous
+// way in `data` after this method completes.
+// Every deleted element are manually dropped by this method.
 unsafe fn compress_rows<T: Scalar>(
     data: &mut [T],
     nrows: usize,
@@ -978,16 +1088,28 @@ unsafe fn compress_rows<T: Scalar>(
 ) {
     let new_nrows = nrows - nremove;
 
-    if new_nrows == 0 || ncols == 0 {
-        return; // Nothing to do as the output matrix is empty.
+    if nremove == 0 {
+        return; // Nothing to remove or drop.
     }
 
+    if new_nrows == 0 || ncols == 0 {
+        // The output matrix is empty, drop everything.
+        ptr::drop_in_place(data.as_mut());
+        return;
+    }
+
+    // Safety: because `nremove != 0`, the pointers given to `ptr::copy`
+    //         won’t alias.
     let ptr_in = data.as_ptr();
     let ptr_out = data.as_mut_ptr();
 
     let mut curr_i = i;
 
     for k in 0..ncols - 1 {
+        // Safety: we drop the row elements in-place because we will overwrite these
+        //         entries later with the `ptr::copy`.
+        let s = ptr::slice_from_raw_parts_mut(ptr_out.add(curr_i), nremove);
+        ptr::drop_in_place(s);
         ptr::copy(
             ptr_in.add(curr_i + (k + 1) * nremove),
             ptr_out.add(curr_i),
@@ -997,7 +1119,13 @@ unsafe fn compress_rows<T: Scalar>(
         curr_i += new_nrows;
     }
 
-    // Deal with the last column from which less values have to be copied.
+    /*
+     * Deal with the last column from which less values have to be copied.
+     */
+    // Safety: we drop the row elements in-place because we will overwrite these
+    //         entries later with the `ptr::copy`.
+    let s = ptr::slice_from_raw_parts_mut(ptr_out.add(curr_i), nremove);
+    ptr::drop_in_place(s);
     let remaining_len = nrows - i - nremove;
     ptr::copy(
         ptr_in.add(nrows * ncols - remaining_len),
@@ -1006,15 +1134,9 @@ unsafe fn compress_rows<T: Scalar>(
     );
 }
 
-// Moves entries of a matrix buffer to make place for `ninsert` emty rows starting at the `i-th` row index.
+// Moves entries of a matrix buffer to make place for `ninsert` empty rows starting at the `i-th` row index.
 // The `data` buffer is assumed to contained at least `(nrows + ninsert) * ncols` elements.
-unsafe fn extend_rows<T: Scalar>(
-    data: &mut [T],
-    nrows: usize,
-    ncols: usize,
-    i: usize,
-    ninsert: usize,
-) {
+unsafe fn extend_rows<T>(data: &mut [T], nrows: usize, ncols: usize, i: usize, ninsert: usize) {
     let new_nrows = nrows + ninsert;
 
     if new_nrows == 0 || ncols == 0 {
@@ -1119,7 +1241,7 @@ where
     R: Dim,
     S: Extend<Vector<T, RV, SV>>,
     RV: Dim,
-    SV: Storage<T, RV>,
+    SV: RawStorage<T, RV>,
     ShapeConstraint: SameNumberOfRows<R, RV>,
 {
     /// Extends the number of columns of a `Matrix` with `Vector`s

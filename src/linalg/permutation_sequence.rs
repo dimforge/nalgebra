@@ -69,11 +69,11 @@ where
     /// Creates a new sequence of D identity permutations.
     #[inline]
     pub fn identity_generic(dim: D) -> Self {
-        unsafe {
-            Self {
-                len: 0,
-                ipiv: crate::unimplemented_or_uninitialized_generic!(dim, Const::<1>),
-            }
+        Self {
+            len: 0,
+            // TODO: using a uninitialized matrix would save some computation, but
+            //       that loos difficult to setup with MaybeUninit.
+            ipiv: Matrix::repeat_generic(dim, Const::<1>, (0, 0)),
         }
     }
 

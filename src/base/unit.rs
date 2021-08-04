@@ -10,7 +10,7 @@ use abomonation::Abomonation;
 
 use crate::allocator::Allocator;
 use crate::base::DefaultAllocator;
-use crate::storage::Storage;
+use crate::storage::RawStorage;
 use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealField};
 
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
@@ -116,7 +116,7 @@ where
     T: Scalar + PartialEq,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>,
+    S: RawStorage<T, R, C>,
 {
     #[inline]
     fn eq(&self, rhs: &Self) -> bool {
@@ -129,7 +129,7 @@ where
     T: Scalar + Eq,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>,
+    S: RawStorage<T, R, C>,
 {
 }
 

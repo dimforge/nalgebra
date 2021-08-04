@@ -5,7 +5,6 @@ use std::ops::{DivAssign, MulAssign};
 
 use crate::allocator::Allocator;
 use crate::base::dimension::Dim;
-use crate::base::storage::Storage;
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector};
 
 /// Applies in-place a modified Parlett and Reinsch matrix balancing with 2-norm to the matrix and returns
@@ -18,7 +17,7 @@ where
 {
     assert!(matrix.is_square(), "Unable to balance a non-square matrix.");
 
-    let dim = matrix.data.shape().0;
+    let dim = matrix.shape_generic().0;
     let radix: T = crate::convert(2.0f64);
     let mut d = OVector::from_element_generic(dim, Const::<1>, T::one());
 

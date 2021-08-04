@@ -18,6 +18,7 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::{Const, DefaultAllocator, OVector, Scalar};
+use std::mem::MaybeUninit;
 
 /// A point in an euclidean space.
 ///
@@ -162,16 +163,16 @@ where
     /// ```
     /// # use nalgebra::{Point2, Point3};
     /// let mut p = Point2::new(1.0, 2.0);
-    /// p.apply(|e| e * 10.0);
+    /// p.apply(|e| *e = *e * 10.0);
     /// assert_eq!(p, Point2::new(10.0, 20.0));
     ///
     /// // This works in any dimension.
     /// let mut p = Point3::new(1.0, 2.0, 3.0);
-    /// p.apply(|e| e * 10.0);
+    /// p.apply(|e| *e = *e * 10.0);
     /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
     /// ```
     #[inline]
-    pub fn apply<F: FnMut(T) -> T>(&mut self, f: F) {
+    pub fn apply<F: FnMut(&mut T)>(&mut self, f: F) {
         self.coords.apply(f)
     }
 
@@ -198,17 +199,20 @@ where
         D: DimNameAdd<U1>,
         DefaultAllocator: Allocator<T, DimNameSum<D, U1>>,
     {
-        let mut res = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(
-                <DimNameSum<D, U1> as DimName>::name(),
-                Const::<1>
-            )
-        };
-        res.generic_slice_mut((0, 0), (D::name(), Const::<1>))
-            .copy_from(&self.coords);
-        res[(D::dim(), 0)] = T::one();
+        // TODO: this is mostly a copy-past from Vector::push.
+        //       But we can’t use Vector::push because of the DimAdd bound
+        //       (which we don’t use because we use DimNameAdd).
+        //       We should find a way to re-use Vector::push.
+        let len = self.len();
+        let mut res = crate::Matrix::uninit(DimNameSum::<D, U1>::name(), Const::<1>);
+        // This is basically a copy_from except that we warp the copied
+        // values into MaybeUninit.
+        res.generic_slice_mut((0, 0), self.coords.shape_generic())
+            .zip_apply(&self.coords, |out, e| *out = MaybeUninit::new(e));
+        res[(len, 0)] = MaybeUninit::new(T::one());
 
-        res
+        // Safety: res has been fully initialized.
+        unsafe { res.assume_init() }
     }
 
     /// Creates a new point with the given coordinates.

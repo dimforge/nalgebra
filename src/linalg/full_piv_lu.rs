@@ -53,7 +53,7 @@ where
     ///
     /// This effectively computes `P, L, U, Q` such that `P * matrix * Q = LU`.
     pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
-        let (nrows, ncols) = matrix.data.shape();
+        let (nrows, ncols) = matrix.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
 
         let mut p = PermutationSequence::identity_generic(min_nrows_ncols);
@@ -101,7 +101,7 @@ where
     where
         DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
     {
-        let (nrows, ncols) = self.lu.data.shape();
+        let (nrows, ncols) = self.lu.shape_generic();
         let mut m = self.lu.columns_generic(0, nrows.min(ncols)).into_owned();
         m.fill_upper_triangle(T::zero(), 1);
         m.fill_diagonal(T::one());
@@ -115,7 +115,7 @@ where
     where
         DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
     {
-        let (nrows, ncols) = self.lu.data.shape();
+        let (nrows, ncols) = self.lu.shape_generic();
         self.lu.rows_generic(0, nrows.min(ncols)).upper_triangle()
     }
 
@@ -222,7 +222,7 @@ where
             "FullPivLU inverse: unable to compute the inverse of a non-square matrix."
         );
 
-        let (nrows, ncols) = self.lu.data.shape();
+        let (nrows, ncols) = self.lu.shape_generic();
 
         let mut res = OMatrix::identity_generic(nrows, ncols);
         if self.solve_mut(&mut res) {
