@@ -22,7 +22,7 @@ proptest-support = [ "nalgebra/proptest-support" ]
 arbitrary        = [ "nalgebra/arbitrary" ]
 
 # For BLAS/LAPACK
-default    = ["intel-mkl"]
+default    = ["netlib"]
 openblas   = ["lapack-src/openblas"]
 netlib     = ["lapack-src/netlib"]
 accelerate = ["lapack-src/accelerate"]
