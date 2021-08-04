@@ -509,11 +509,7 @@ where
         let (nrows, ncols) = arr[0].shape_generic();
 
         Self::from_fn_generic(nrows, ncols, |i, j| {
-            [
-                arr[0][(i, j)].inlined_clone(),
-                arr[1][(i, j)].inlined_clone(),
-            ]
-            .into()
+            [arr[0][(i, j)].clone(), arr[1][(i, j)].clone()].into()
         })
     }
 }
@@ -531,10 +527,10 @@ where
 
         Self::from_fn_generic(nrows, ncols, |i, j| {
             [
-                arr[0][(i, j)].inlined_clone(),
-                arr[1][(i, j)].inlined_clone(),
-                arr[2][(i, j)].inlined_clone(),
-                arr[3][(i, j)].inlined_clone(),
+                arr[0][(i, j)].clone(),
+                arr[1][(i, j)].clone(),
+                arr[2][(i, j)].clone(),
+                arr[3][(i, j)].clone(),
             ]
             .into()
         })
@@ -554,14 +550,14 @@ where
 
         Self::from_fn_generic(nrows, ncols, |i, j| {
             [
-                arr[0][(i, j)].inlined_clone(),
-                arr[1][(i, j)].inlined_clone(),
-                arr[2][(i, j)].inlined_clone(),
-                arr[3][(i, j)].inlined_clone(),
-                arr[4][(i, j)].inlined_clone(),
-                arr[5][(i, j)].inlined_clone(),
-                arr[6][(i, j)].inlined_clone(),
-                arr[7][(i, j)].inlined_clone(),
+                arr[0][(i, j)].clone(),
+                arr[1][(i, j)].clone(),
+                arr[2][(i, j)].clone(),
+                arr[3][(i, j)].clone(),
+                arr[4][(i, j)].clone(),
+                arr[5][(i, j)].clone(),
+                arr[6][(i, j)].clone(),
+                arr[7][(i, j)].clone(),
             ]
             .into()
         })
@@ -580,22 +576,22 @@ where
 
         Self::from_fn_generic(nrows, ncols, |i, j| {
             [
-                arr[0][(i, j)].inlined_clone(),
-                arr[1][(i, j)].inlined_clone(),
-                arr[2][(i, j)].inlined_clone(),
-                arr[3][(i, j)].inlined_clone(),
-                arr[4][(i, j)].inlined_clone(),
-                arr[5][(i, j)].inlined_clone(),
-                arr[6][(i, j)].inlined_clone(),
-                arr[7][(i, j)].inlined_clone(),
-                arr[8][(i, j)].inlined_clone(),
-                arr[9][(i, j)].inlined_clone(),
-                arr[10][(i, j)].inlined_clone(),
-                arr[11][(i, j)].inlined_clone(),
-                arr[12][(i, j)].inlined_clone(),
-                arr[13][(i, j)].inlined_clone(),
-                arr[14][(i, j)].inlined_clone(),
-                arr[15][(i, j)].inlined_clone(),
+                arr[0][(i, j)].clone(),
+                arr[1][(i, j)].clone(),
+                arr[2][(i, j)].clone(),
+                arr[3][(i, j)].clone(),
+                arr[4][(i, j)].clone(),
+                arr[5][(i, j)].clone(),
+                arr[6][(i, j)].clone(),
+                arr[7][(i, j)].clone(),
+                arr[8][(i, j)].clone(),
+                arr[9][(i, j)].clone(),
+                arr[10][(i, j)].clone(),
+                arr[11][(i, j)].clone(),
+                arr[12][(i, j)].clone(),
+                arr[13][(i, j)].clone(),
+                arr[14][(i, j)].clone(),
+                arr[15][(i, j)].clone(),
             ]
             .into()
         })

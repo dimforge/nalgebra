@@ -31,33 +31,33 @@ where
             let mut n_row = matrix.row(i).norm_squared();
             let mut f = T::one();
 
-            let s = n_col + n_row;
+            let s = n_col.clone() + n_row.clone();
             n_col = n_col.sqrt();
             n_row = n_row.sqrt();
 
-            if n_col.is_zero() || n_row.is_zero() {
+            if n_col.clone().is_zero() || n_row.clone().is_zero() {
                 continue;
             }
 
-            while n_col < n_row / radix {
-                n_col *= radix;
-                n_row /= radix;
-                f *= radix;
+            while n_col.clone() < n_row.clone() / radix.clone() {
+                n_col *= radix.clone();
+                n_row /= radix.clone();
+                f *= radix.clone();
             }
 
-            while n_col >= n_row * radix {
-                n_col /= radix;
-                n_row *= radix;
-                f /= radix;
+            while n_col.clone() >= n_row.clone() * radix.clone() {
+                n_col /= radix.clone();
+                n_row *= radix.clone();
+                f /= radix.clone();
             }
 
             let eps: T = crate::convert(0.95);
             #[allow(clippy::suspicious_operation_groupings)]
-            if n_col * n_col + n_row * n_row < eps * s {
+            if n_col.clone() * n_col + n_row.clone() * n_row < eps * s {
                 converged = false;
-                d[i] *= f;
-                matrix.column_mut(i).mul_assign(f);
-                matrix.row_mut(i).div_assign(f);
+                d[i] *= f.clone();
+                matrix.column_mut(i).mul_assign(f.clone());
+                matrix.row_mut(i).div_assign(f.clone());
             }
         }
     }
@@ -75,10 +75,10 @@ where
 
     for j in 0..d.len() {
         let mut col = m.column_mut(j);
-        let denom = T::one() / d[j];
+        let denom = T::one() / d[j].clone();
 
         for i in 0..d.len() {
-            col[i] *= d[i] * denom;
+            col[i] *= d[i].clone() * denom.clone();
         }
     }
 }

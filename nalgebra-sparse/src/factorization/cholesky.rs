@@ -225,7 +225,7 @@ impl<T: RealField> CscCholesky<T> {
                         let col_j_entries = col_j.row_indices().iter().zip(col_j.values());
                         for (&z, val) in col_j_entries {
                             if z >= k {
-                                *self.work_x.get_unchecked_mut(z) += val.inlined_clone() * factor;
+                                *self.work_x.get_unchecked_mut(z) += val.clone() * factor;
                             }
                         }
                     }

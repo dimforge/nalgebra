@@ -567,13 +567,13 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         R2: Dim,
         C2: Dim,
         SB: Storage<T, R2, C2>,
-        T::Epsilon: Copy,
+        T::Epsilon: Clone,
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
         assert!(self.shape() == other.shape());
         self.iter()
             .zip(other.iter())
-            .all(|(a, b)| a.relative_eq(b, eps, max_relative))
+            .all(|(a, b)| a.relative_eq(b, eps.clone(), max_relative.clone()))
     }
 
     /// Tests whether `self` and `rhs` are exactly equal.
@@ -668,7 +668,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
             for j in 0..res.ncols() {
                 for i in 0..res.nrows() {
                     *res.get_unchecked_mut((i, j)) =
-                        MaybeUninit::new(self.get_unchecked((i, j)).inlined_clone());
+                        MaybeUninit::new(self.get_unchecked((i, j)).clone());
                 }
             }
 
@@ -704,7 +704,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
                 unsafe {
                     Status::init(
                         out.get_unchecked_mut((j, i)),
-                        self.get_unchecked((i, j)).inlined_clone(),
+                        self.get_unchecked((i, j)).clone(),
                     );
                 }
             }
@@ -758,7 +758,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
             for i in 0..nrows.value() {
                 // Safety: all indices are in range.
                 unsafe {
-                    let a = self.data.get_unchecked(i, j).inlined_clone();
+                    let a = self.data.get_unchecked(i, j).clone();
                     *res.data.get_unchecked_mut(i, j) = MaybeUninit::new(f(a));
                 }
             }
@@ -827,7 +827,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
             for i in 0..nrows.value() {
                 // Safety: all indices are in range.
                 unsafe {
-                    let a = self.data.get_unchecked(i, j).inlined_clone();
+                    let a = self.data.get_unchecked(i, j).clone();
                     *res.data.get_unchecked_mut(i, j) = MaybeUninit::new(f(i, j, a));
                 }
             }
@@ -863,8 +863,8 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
             for i in 0..nrows.value() {
                 // Safety: all indices are in range.
                 unsafe {
-                    let a = self.data.get_unchecked(i, j).inlined_clone();
-                    let b = rhs.data.get_unchecked(i, j).inlined_clone();
+                    let a = self.data.get_unchecked(i, j).clone();
+                    let b = rhs.data.get_unchecked(i, j).clone();
                     *res.data.get_unchecked_mut(i, j) = MaybeUninit::new(f(a, b))
                 }
             }
@@ -912,9 +912,9 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
             for i in 0..nrows.value() {
                 // Safety: all indices are in range.
                 unsafe {
-                    let a = self.data.get_unchecked(i, j).inlined_clone();
-                    let b = b.data.get_unchecked(i, j).inlined_clone();
-                    let c = c.data.get_unchecked(i, j).inlined_clone();
+                    let a = self.data.get_unchecked(i, j).clone();
+                    let b = b.data.get_unchecked(i, j).clone();
+                    let c = c.data.get_unchecked(i, j).clone();
                     *res.data.get_unchecked_mut(i, j) = MaybeUninit::new(f(a, b, c))
                 }
             }
@@ -939,7 +939,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
             for i in 0..nrows.value() {
                 // Safety: all indices are in range.
                 unsafe {
-                    let a = self.data.get_unchecked(i, j).inlined_clone();
+                    let a = self.data.get_unchecked(i, j).clone();
                     res = f(res, a)
                 }
             }
@@ -978,8 +978,8 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..ncols.value() {
             for i in 0..nrows.value() {
                 unsafe {
-                    let a = self.data.get_unchecked(i, j).inlined_clone();
-                    let b = rhs.data.get_unchecked(i, j).inlined_clone();
+                    let a = self.data.get_unchecked(i, j).clone();
+                    let b = rhs.data.get_unchecked(i, j).clone();
                     res = f(res, a, b)
                 }
             }
@@ -1033,7 +1033,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
             for i in 0..nrows {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
-                    let rhs = rhs.get_unchecked((i, j)).inlined_clone();
+                    let rhs = rhs.get_unchecked((i, j)).clone();
                     f(e, rhs)
                 }
             }
@@ -1078,8 +1078,8 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
             for i in 0..nrows {
                 unsafe {
                     let e = self.data.get_unchecked_mut(i, j);
-                    let b = b.get_unchecked((i, j)).inlined_clone();
-                    let c = c.get_unchecked((i, j)).inlined_clone();
+                    let b = b.get_unchecked((i, j)).clone();
+                    let c = c.get_unchecked((i, j)).clone();
                     f(e, b, c)
                 }
             }
@@ -1248,8 +1248,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..ncols {
             for i in 0..nrows {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) =
-                        slice.get_unchecked(i + j * nrows).inlined_clone();
+                    *self.get_unchecked_mut((i, j)) = slice.get_unchecked(i + j * nrows).clone();
                 }
             }
         }
@@ -1273,7 +1272,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..self.ncols() {
             for i in 0..self.nrows() {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = other.get_unchecked((i, j)).inlined_clone();
+                    *self.get_unchecked_mut((i, j)) = other.get_unchecked((i, j)).clone();
                 }
             }
         }
@@ -1298,7 +1297,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         for j in 0..ncols {
             for i in 0..nrows {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = other.get_unchecked((j, i)).inlined_clone();
+                    *self.get_unchecked_mut((i, j)) = other.get_unchecked((j, i)).clone();
                 }
             }
         }
@@ -1400,7 +1399,7 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C
                 unsafe {
                     Status::init(
                         out.get_unchecked_mut((j, i)),
-                        self.get_unchecked((i, j)).simd_conjugate(),
+                        self.get_unchecked((i, j)).clone().simd_conjugate(),
                     );
                 }
             }
@@ -1475,7 +1474,7 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C
     where
         DefaultAllocator: Allocator<T, R, C>,
     {
-        self.map(|e| e.simd_unscale(real))
+        self.map(|e| e.simd_unscale(real.clone()))
     }
 
     /// Multiplies each component of the complex matrix `self` by the given real.
@@ -1485,7 +1484,7 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C
     where
         DefaultAllocator: Allocator<T, R, C>,
     {
-        self.map(|e| e.simd_scale(real))
+        self.map(|e| e.simd_scale(real.clone()))
     }
 }
 
@@ -1493,19 +1492,19 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R
     /// The conjugate of the complex matrix `self` computed in-place.
     #[inline]
     pub fn conjugate_mut(&mut self) {
-        self.apply(|e| *e = e.simd_conjugate())
+        self.apply(|e| *e = e.clone().simd_conjugate())
     }
 
     /// Divides each component of the complex matrix `self` by the given real.
     #[inline]
     pub fn unscale_mut(&mut self, real: T::SimdRealField) {
-        self.apply(|e| *e = e.simd_unscale(real))
+        self.apply(|e| *e = e.clone().simd_unscale(real.clone()))
     }
 
     /// Multiplies each component of the complex matrix `self` by the given real.
     #[inline]
     pub fn scale_mut(&mut self, real: T::SimdRealField) {
-        self.apply(|e| *e = e.simd_scale(real))
+        self.apply(|e| *e = e.clone().simd_scale(real.clone()))
     }
 }
 
@@ -1528,18 +1527,18 @@ impl<T: SimdComplexField, D: Dim, S: RawStorageMut<T, D, D>> Matrix<T, D, D, S> 
         for i in 0..dim {
             for j in 0..i {
                 unsafe {
-                    let ref_ij = self.get_unchecked_mut((i, j)) as *mut T;
-                    let ref_ji = self.get_unchecked_mut((j, i)) as *mut T;
-                    let conj_ij = (*ref_ij).simd_conjugate();
-                    let conj_ji = (*ref_ji).simd_conjugate();
-                    *ref_ij = conj_ji;
-                    *ref_ji = conj_ij;
+                    let ref_ij = self.get_unchecked((i, j)).clone();
+                    let ref_ji = self.get_unchecked((j, i)).clone();
+                    let conj_ij = ref_ij.simd_conjugate();
+                    let conj_ji = ref_ji.simd_conjugate();
+                    *self.get_unchecked_mut((i, j)) = conj_ji;
+                    *self.get_unchecked_mut((j, i)) = conj_ij;
                 }
             }
 
             {
                 let diag = unsafe { self.get_unchecked_mut((i, i)) };
-                *diag = diag.simd_conjugate();
+                *diag = diag.clone().simd_conjugate();
             }
         }
     }
@@ -1577,7 +1576,7 @@ impl<T: Scalar, D: Dim, S: RawStorage<T, D, D>> SquareMatrix<T, D, S> {
             // Safety: all indices are in range.
             unsafe {
                 *res.vget_unchecked_mut(i) =
-                    MaybeUninit::new(f(self.get_unchecked((i, i)).inlined_clone()));
+                    MaybeUninit::new(f(self.get_unchecked((i, i)).clone()));
             }
         }
 
@@ -1601,7 +1600,7 @@ impl<T: Scalar, D: Dim, S: RawStorage<T, D, D>> SquareMatrix<T, D, S> {
         let mut res = T::zero();
 
         for i in 0..dim.value() {
-            res += unsafe { self.get_unchecked((i, i)).inlined_clone() };
+            res += unsafe { self.get_unchecked((i, i)).clone() };
         }
 
         res
@@ -1723,7 +1722,7 @@ impl<T, R: Dim, C: Dim, S> AbsDiffEq for Matrix<T, R, C, S>
 where
     T: Scalar + AbsDiffEq,
     S: RawStorage<T, R, C>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     type Epsilon = T::Epsilon;
 
@@ -1736,7 +1735,7 @@ where
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
         self.iter()
             .zip(other.iter())
-            .all(|(a, b)| a.abs_diff_eq(b, epsilon))
+            .all(|(a, b)| a.abs_diff_eq(b, epsilon.clone()))
     }
 }
 
@@ -1744,7 +1743,7 @@ impl<T, R: Dim, C: Dim, S> RelativeEq for Matrix<T, R, C, S>
 where
     T: Scalar + RelativeEq,
     S: Storage<T, R, C>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
@@ -1766,7 +1765,7 @@ impl<T, R: Dim, C: Dim, S> UlpsEq for Matrix<T, R, C, S>
 where
     T: Scalar + UlpsEq,
     S: RawStorage<T, R, C>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_ulps() -> u32 {
@@ -1778,7 +1777,7 @@ where
         assert!(self.shape() == other.shape());
         self.iter()
             .zip(other.iter())
-            .all(|(a, b)| a.ulps_eq(b, epsilon, max_ulps))
+            .all(|(a, b)| a.ulps_eq(b, epsilon.clone(), max_ulps.clone()))
     }
 }
 
@@ -2029,9 +2028,8 @@ impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: RawStorag
         );
 
         unsafe {
-            self.get_unchecked((0, 0)).inlined_clone() * b.get_unchecked((1, 0)).inlined_clone()
-                - self.get_unchecked((1, 0)).inlined_clone()
-                    * b.get_unchecked((0, 0)).inlined_clone()
+            self.get_unchecked((0, 0)).clone() * b.get_unchecked((1, 0)).clone()
+                - self.get_unchecked((1, 0)).clone() * b.get_unchecked((0, 0)).clone()
         }
     }
 
@@ -2073,18 +2071,12 @@ impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: RawStorag
                 let by = b.get_unchecked((1, 0));
                 let bz = b.get_unchecked((2, 0));
 
-                *res.get_unchecked_mut((0, 0)) = MaybeUninit::new(
-                    ay.inlined_clone() * bz.inlined_clone()
-                        - az.inlined_clone() * by.inlined_clone(),
-                );
-                *res.get_unchecked_mut((1, 0)) = MaybeUninit::new(
-                    az.inlined_clone() * bx.inlined_clone()
-                        - ax.inlined_clone() * bz.inlined_clone(),
-                );
-                *res.get_unchecked_mut((2, 0)) = MaybeUninit::new(
-                    ax.inlined_clone() * by.inlined_clone()
-                        - ay.inlined_clone() * bx.inlined_clone(),
-                );
+                *res.get_unchecked_mut((0, 0)) =
+                    MaybeUninit::new(ay.clone() * bz.clone() - az.clone() * by.clone());
+                *res.get_unchecked_mut((1, 0)) =
+                    MaybeUninit::new(az.clone() * bx.clone() - ax.clone() * bz.clone());
+                *res.get_unchecked_mut((2, 0)) =
+                    MaybeUninit::new(ax.clone() * by.clone() - ay.clone() * bx.clone());
 
                 // Safety: res is now fully initialized.
                 res.assume_init()
@@ -2104,18 +2096,12 @@ impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: RawStorag
                 let by = b.get_unchecked((0, 1));
                 let bz = b.get_unchecked((0, 2));
 
-                *res.get_unchecked_mut((0, 0)) = MaybeUninit::new(
-                    ay.inlined_clone() * bz.inlined_clone()
-                        - az.inlined_clone() * by.inlined_clone(),
-                );
-                *res.get_unchecked_mut((0, 1)) = MaybeUninit::new(
-                    az.inlined_clone() * bx.inlined_clone()
-                        - ax.inlined_clone() * bz.inlined_clone(),
-                );
-                *res.get_unchecked_mut((0, 2)) = MaybeUninit::new(
-                    ax.inlined_clone() * by.inlined_clone()
-                        - ay.inlined_clone() * bx.inlined_clone(),
-                );
+                *res.get_unchecked_mut((0, 0)) =
+                    MaybeUninit::new(ay.clone() * bz.clone() - az.clone() * by.clone());
+                *res.get_unchecked_mut((0, 1)) =
+                    MaybeUninit::new(az.clone() * bx.clone() - ax.clone() * bz.clone());
+                *res.get_unchecked_mut((0, 2)) =
+                    MaybeUninit::new(ax.clone() * by.clone() - ay.clone() * bx.clone());
 
                 // Safety: res is now fully initialized.
                 res.assume_init()
@@ -2131,13 +2117,13 @@ impl<T: Scalar + Field, S: RawStorage<T, U3>> Vector<T, U3, S> {
     pub fn cross_matrix(&self) -> OMatrix<T, U3, U3> {
         OMatrix::<T, U3, U3>::new(
             T::zero(),
-            -self[2].inlined_clone(),
-            self[1].inlined_clone(),
-            self[2].inlined_clone(),
+            -self[2].clone(),
+            self[1].clone(),
+            self[2].clone(),
             T::zero(),
-            -self[0].inlined_clone(),
-            -self[1].inlined_clone(),
-            self[0].inlined_clone(),
+            -self[0].clone(),
+            -self[1].clone(),
+            self[0].clone(),
             T::zero(),
         )
     }
@@ -2170,7 +2156,7 @@ impl<T, R: Dim, C: Dim, S> AbsDiffEq for Unit<Matrix<T, R, C, S>>
 where
     T: Scalar + AbsDiffEq,
     S: RawStorage<T, R, C>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     type Epsilon = T::Epsilon;
 
@@ -2189,7 +2175,7 @@ impl<T, R: Dim, C: Dim, S> RelativeEq for Unit<Matrix<T, R, C, S>>
 where
     T: Scalar + RelativeEq,
     S: Storage<T, R, C>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
@@ -2212,7 +2198,7 @@ impl<T, R: Dim, C: Dim, S> UlpsEq for Unit<Matrix<T, R, C, S>>
 where
     T: Scalar + UlpsEq,
     S: RawStorage<T, R, C>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_ulps() -> u32 {

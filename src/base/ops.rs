@@ -116,7 +116,7 @@ where
     #[inline]
     pub fn neg_mut(&mut self) {
         for e in self.iter_mut() {
-            *e = -e.inlined_clone()
+            *e = -e.clone()
         }
     }
 }
@@ -163,12 +163,12 @@ macro_rules! componentwise_binop_impl(
                         let arr2 = rhs.data.as_slice_unchecked();
                         let out  = out.data.as_mut_slice_unchecked();
                         for i in 0 .. arr1.len() {
-                            Status::init(out.get_unchecked_mut(i), arr1.get_unchecked(i).inlined_clone().$method(arr2.get_unchecked(i).inlined_clone()));
+                            Status::init(out.get_unchecked_mut(i), arr1.get_unchecked(i).clone().$method(arr2.get_unchecked(i).clone()));
                         }
                     } else {
                         for j in 0 .. self.ncols() {
                             for i in 0 .. self.nrows() {
-                                let val = self.get_unchecked((i, j)).inlined_clone().$method(rhs.get_unchecked((i, j)).inlined_clone());
+                                let val = self.get_unchecked((i, j)).clone().$method(rhs.get_unchecked((i, j)).clone());
                                 Status::init(out.get_unchecked_mut((i, j)), val);
                             }
                         }
@@ -193,12 +193,12 @@ macro_rules! componentwise_binop_impl(
                         let arr2 = rhs.data.as_slice_unchecked();
 
                         for i in 0 .. arr2.len() {
-                            arr1.get_unchecked_mut(i).$method_assign(arr2.get_unchecked(i).inlined_clone());
+                            arr1.get_unchecked_mut(i).$method_assign(arr2.get_unchecked(i).clone());
                         }
                     } else {
                         for j in 0 .. rhs.ncols() {
                             for i in 0 .. rhs.nrows() {
-                                self.get_unchecked_mut((i, j)).$method_assign(rhs.get_unchecked((i, j)).inlined_clone())
+                                self.get_unchecked_mut((i, j)).$method_assign(rhs.get_unchecked((i, j)).clone())
                             }
                         }
                     }
@@ -221,14 +221,14 @@ macro_rules! componentwise_binop_impl(
                         let arr2 = rhs.data.as_mut_slice_unchecked();
 
                         for i in 0 .. arr1.len() {
-                            let res = arr1.get_unchecked(i).inlined_clone().$method(arr2.get_unchecked(i).inlined_clone());
+                            let res = arr1.get_unchecked(i).clone().$method(arr2.get_unchecked(i).clone());
                             *arr2.get_unchecked_mut(i) = res;
                         }
                     } else {
                         for j in 0 .. self.ncols() {
                             for i in 0 .. self.nrows() {
                                 let r = rhs.get_unchecked_mut((i, j));
-                                *r = self.get_unchecked((i, j)).inlined_clone().$method(r.inlined_clone())
+                                *r = self.get_unchecked((i, j)).clone().$method(r.clone())
                             }
                         }
                     }
@@ -472,7 +472,7 @@ macro_rules! componentwise_scalarop_impl(
 
                 // for left in res.iter_mut() {
                 for left in res.as_mut_slice().iter_mut() {
-                    *left = left.inlined_clone().$method(rhs.inlined_clone())
+                    *left = left.clone().$method(rhs.clone())
                 }
 
                 res
@@ -498,7 +498,7 @@ macro_rules! componentwise_scalarop_impl(
             fn $method_assign(&mut self, rhs: T) {
                 for j in 0 .. self.ncols() {
                     for i in 0 .. self.nrows() {
-                        unsafe { self.get_unchecked_mut((i, j)).$method_assign(rhs.inlined_clone()) };
+                        unsafe { self.get_unchecked_mut((i, j)).$method_assign(rhs.clone()) };
                     }
                 }
             }
@@ -815,11 +815,11 @@ where
             for j1 in 0..ncols1.value() {
                 for j2 in 0..ncols2.value() {
                     for i1 in 0..nrows1.value() {
-                        let coeff = self.get_unchecked((i1, j1)).inlined_clone();
+                        let coeff = self.get_unchecked((i1, j1)).clone();
 
                         for i2 in 0..nrows2.value() {
                             *data_res = MaybeUninit::new(
-                                coeff.inlined_clone() * rhs.get_unchecked((i2, j2)).inlined_clone(),
+                                coeff.clone() * rhs.get_unchecked((i2, j2)).clone(),
                             );
                             data_res = data_res.offset(1);
                         }

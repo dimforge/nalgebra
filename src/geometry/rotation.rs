@@ -514,7 +514,7 @@ impl<T: Scalar + PartialEq, const D: usize> PartialEq for Rotation<T, D> {
 impl<T, const D: usize> AbsDiffEq for Rotation<T, D>
 where
     T: Scalar + AbsDiffEq,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     type Epsilon = T::Epsilon;
 
@@ -532,7 +532,7 @@ where
 impl<T, const D: usize> RelativeEq for Rotation<T, D>
 where
     T: Scalar + RelativeEq,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
@@ -554,7 +554,7 @@ where
 impl<T, const D: usize> UlpsEq for Rotation<T, D>
 where
     T: Scalar + UlpsEq,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_ulps() -> u32 {

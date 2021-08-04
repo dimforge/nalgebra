@@ -124,7 +124,7 @@ impl<T: Scalar, R, const D: usize> Similarity<T, R, D> {
     #[inline]
     #[must_use]
     pub fn scaling(&self) -> T {
-        self.scaling.inlined_clone()
+        self.scaling.clone()
     }
 }
 
@@ -151,9 +151,9 @@ where
     /// Inverts `self` in-place.
     #[inline]
     pub fn inverse_mut(&mut self) {
-        self.scaling = T::one() / self.scaling;
+        self.scaling = T::one() / self.scaling.clone();
         self.isometry.inverse_mut();
-        self.isometry.translation.vector *= self.scaling;
+        self.isometry.translation.vector *= self.scaling.clone();
     }
 
     /// The similarity transformation that applies a scaling factor `scaling` before `self`.
@@ -165,7 +165,7 @@ where
             "The similarity scaling factor must not be zero."
         );
 
-        Self::from_isometry(self.isometry.clone(), self.scaling * scaling)
+        Self::from_isometry(self.isometry.clone(), self.scaling.clone() * scaling)
     }
 
     /// The similarity transformation that applies a scaling factor `scaling` after `self`.
@@ -178,9 +178,9 @@ where
         );
 
         Self::from_parts(
-            Translation::from(self.isometry.translation.vector * scaling),
+            Translation::from(&self.isometry.translation.vector * scaling.clone()),
             self.isometry.rotation.clone(),
-            self.scaling * scaling,
+            self.scaling.clone() * scaling,
         )
     }
 
@@ -203,7 +203,7 @@ where
             "The similarity scaling factor must not be zero."
         );
 
-        self.isometry.translation.vector *= scaling;
+        self.isometry.translation.vector *= scaling.clone();
         self.scaling *= scaling;
     }
 
@@ -336,7 +336,7 @@ impl<T: SimdRealField, R, const D: usize> Similarity<T, R, D> {
         let mut res = self.isometry.to_homogeneous();
 
         for e in res.fixed_slice_mut::<D, D>(0, 0).iter_mut() {
-            *e *= self.scaling
+            *e *= self.scaling.clone()
         }
 
         res
@@ -361,7 +361,7 @@ where
 impl<T: RealField, R, const D: usize> AbsDiffEq for Similarity<T, R, D>
 where
     R: AbstractRotation<T, D> + AbsDiffEq<Epsilon = T::Epsilon>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     type Epsilon = T::Epsilon;
 
@@ -372,7 +372,7 @@ where
 
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
-        self.isometry.abs_diff_eq(&other.isometry, epsilon)
+        self.isometry.abs_diff_eq(&other.isometry, epsilon.clone())
             && self.scaling.abs_diff_eq(&other.scaling, epsilon)
     }
 }
@@ -380,7 +380,7 @@ where
 impl<T: RealField, R, const D: usize> RelativeEq for Similarity<T, R, D>
 where
     R: AbstractRotation<T, D> + RelativeEq<Epsilon = T::Epsilon>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
@@ -395,7 +395,7 @@ where
         max_relative: Self::Epsilon,
     ) -> bool {
         self.isometry
-            .relative_eq(&other.isometry, epsilon, max_relative)
+            .relative_eq(&other.isometry, epsilon.clone(), max_relative.clone())
             && self
                 .scaling
                 .relative_eq(&other.scaling, epsilon, max_relative)
@@ -405,7 +405,7 @@ where
 impl<T: RealField, R, const D: usize> UlpsEq for Similarity<T, R, D>
 where
     R: AbstractRotation<T, D> + UlpsEq<Epsilon = T::Epsilon>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_ulps() -> u32 {
@@ -414,7 +414,8 @@ where
 
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        self.isometry.ulps_eq(&other.isometry, epsilon, max_ulps)
+        self.isometry
+            .ulps_eq(&other.isometry, epsilon.clone(), max_ulps.clone())
             && self.scaling.ulps_eq(&other.scaling, epsilon, max_ulps)
     }
 }

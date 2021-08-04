@@ -114,7 +114,11 @@ where
         self.hess.fill_lower_triangle(T::zero(), 2);
         self.hess
             .slice_mut((1, 0), (dim - 1, dim - 1))
-            .set_partial_diagonal(self.subdiag.iter().map(|e| T::from_real(e.modulus())));
+            .set_partial_diagonal(
+                self.subdiag
+                    .iter()
+                    .map(|e| T::from_real(e.clone().modulus())),
+            );
         self.hess
     }
 
@@ -129,7 +133,11 @@ where
         let mut res = self.hess.clone();
         res.fill_lower_triangle(T::zero(), 2);
         res.slice_mut((1, 0), (dim - 1, dim - 1))
-            .set_partial_diagonal(self.subdiag.iter().map(|e| T::from_real(e.modulus())));
+            .set_partial_diagonal(
+                self.subdiag
+                    .iter()
+                    .map(|e| T::from_real(e.clone().modulus())),
+            );
         res
     }
 

@@ -109,7 +109,7 @@ where
             .col_piv_qr
             .rows_generic(0, nrows.min(ncols))
             .upper_triangle();
-        res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.modulus())));
+        res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.clone().modulus())));
         res
     }
 
@@ -126,7 +126,7 @@ where
             .col_piv_qr
             .resize_generic(nrows.min(ncols), ncols, T::zero());
         res.fill_lower_triangle(T::zero(), 1);
-        res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.modulus())));
+        res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.clone().modulus())));
         res
     }
 
@@ -149,7 +149,7 @@ where
             let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
             let mut res_rows = res.slice_range_mut(i.., i..);
-            refl.reflect_with_sign(&mut res_rows, self.diag[i].signum());
+            refl.reflect_with_sign(&mut res_rows, self.diag[i].clone().signum());
         }
 
         res
@@ -195,7 +195,7 @@ where
             let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
             let mut rhs_rows = rhs.rows_range_mut(i..);
-            refl.reflect_with_sign(&mut rhs_rows, self.diag[i].signum().conjugate());
+            refl.reflect_with_sign(&mut rhs_rows, self.diag[i].clone().signum().conjugate());
         }
     }
 }
@@ -270,14 +270,14 @@ where
                 let coeff;
 
                 unsafe {
-                    let diag = self.diag.vget_unchecked(i).modulus();
+                    let diag = self.diag.vget_unchecked(i).clone().modulus();
 
                     if diag.is_zero() {
                         return false;
                     }
 
-                    coeff = b.vget_unchecked(i).unscale(diag);
-                    *b.vget_unchecked_mut(i) = coeff;
+                    coeff = b.vget_unchecked(i).clone().unscale(diag);
+                    *b.vget_unchecked_mut(i) = coeff.clone();
                 }
 
                 b.rows_range_mut(..i)
@@ -337,7 +337,7 @@ where
 
         let mut res = T::one();
         for i in 0..dim {
-            res *= unsafe { *self.diag.vget_unchecked(i) };
+            res *= unsafe { self.diag.vget_unchecked(i).clone() };
         }
 
         res * self.p.determinant()

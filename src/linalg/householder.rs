@@ -20,16 +20,16 @@ pub fn reflection_axis_mut<T: ComplexField, D: Dim, S: StorageMut<T, D>>(
     column: &mut Vector<T, D, S>,
 ) -> (T, bool) {
     let reflection_sq_norm = column.norm_squared();
-    let reflection_norm = reflection_sq_norm.sqrt();
+    let reflection_norm = reflection_sq_norm.clone().sqrt();
 
     let factor;
     let signed_norm;
 
     unsafe {
-        let (modulus, sign) = column.vget_unchecked(0).to_exp();
-        signed_norm = sign.scale(reflection_norm);
+        let (modulus, sign) = column.vget_unchecked(0).clone().to_exp();
+        signed_norm = sign.scale(reflection_norm.clone());
         factor = (reflection_sq_norm + modulus * reflection_norm) * crate::convert(2.0);
-        *column.vget_unchecked_mut(0) += signed_norm;
+        *column.vget_unchecked_mut(0) += signed_norm.clone();
     };
 
     if !factor.is_zero() {
@@ -63,9 +63,9 @@ where
 
     if not_zero {
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
-        let sign = reflection_norm.signum();
+        let sign = reflection_norm.clone().signum();
         if let Some(mut work) = bilateral {
-            refl.reflect_rows_with_sign(&mut right, &mut work, sign);
+            refl.reflect_rows_with_sign(&mut right, &mut work, sign.clone());
         }
         refl.reflect_with_sign(&mut right.rows_range_mut(icol + shift..), sign.conjugate());
     }
@@ -101,7 +101,7 @@ where
         refl.reflect_rows_with_sign(
             &mut bottom.columns_range_mut(irow + shift..),
             &mut work.rows_range_mut(irow + 1..),
-            reflection_norm.signum().conjugate(),
+            reflection_norm.clone().signum().conjugate(),
         );
         top.columns_range_mut(irow + shift..)
             .tr_copy_from(refl.axis());
@@ -132,7 +132,7 @@ where
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
         let mut res_rows = res.slice_range_mut(i + 1.., i..);
-        refl.reflect_with_sign(&mut res_rows, signs[i].signum());
+        refl.reflect_with_sign(&mut res_rows, signs[i].clone().signum());
     }
 
     res

@@ -67,7 +67,7 @@ where
             let piv = matrix.slice_range(i.., i..).icamax_full();
             let row_piv = piv.0 + i;
             let col_piv = piv.1 + i;
-            let diag = matrix[(row_piv, col_piv)];
+            let diag = matrix[(row_piv, col_piv)].clone();
 
             if diag.is_zero() {
                 // The remaining of the matrix is zero.
@@ -253,10 +253,10 @@ where
         );
 
         let dim = self.lu.nrows();
-        let mut res = self.lu[(dim - 1, dim - 1)];
+        let mut res = self.lu[(dim - 1, dim - 1)].clone();
         if !res.is_zero() {
             for i in 0..dim - 1 {
-                res *= unsafe { *self.lu.get_unchecked((i, i)) };
+                res *= unsafe { self.lu.get_unchecked((i, i)).clone() };
             }
 
             res * self.p.determinant() * self.q.determinant()

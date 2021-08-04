@@ -179,7 +179,7 @@ fn spsolve_csc_lower_triangular_no_transpose<T: RealField>(
                     // Note: The remaining entries are below the diagonal
                     for (&i, l_ik) in row_indices.iter().zip(l_values) {
                         let x_ij = &mut x_col_j[i];
-                        *x_ij -= l_ik.inlined_clone() * x_kj;
+                        *x_ij -= l_ik.clone() * x_kj;
                     }
 
                     x_col_j[k] = x_kj;

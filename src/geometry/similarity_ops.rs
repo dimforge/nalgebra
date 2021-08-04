@@ -222,7 +222,7 @@ md_assign_impl_all!(
     const D; for; where;
     self: Similarity<T, Rotation<T, D>, D>, rhs: Rotation<T, D>;
     [val] => self.isometry.rotation *= rhs;
-    [ref] => self.isometry.rotation *= *rhs;
+    [ref] => self.isometry.rotation *= rhs.clone();
 );
 
 md_assign_impl_all!(
@@ -241,7 +241,7 @@ md_assign_impl_all!(
     const; for; where;
     self: Similarity<T, UnitQuaternion<T>, 3>, rhs: UnitQuaternion<T>;
     [val] => self.isometry.rotation *= rhs;
-    [ref] => self.isometry.rotation *= *rhs;
+    [ref] => self.isometry.rotation *= rhs.clone();
 );
 
 md_assign_impl_all!(
@@ -260,7 +260,7 @@ md_assign_impl_all!(
     const; for; where;
     self: Similarity<T, UnitComplex<T>, 2>, rhs: UnitComplex<T>;
     [val] => self.isometry.rotation *= rhs;
-    [ref] => self.isometry.rotation *= *rhs;
+    [ref] => self.isometry.rotation *= rhs.clone();
 );
 
 md_assign_impl_all!(

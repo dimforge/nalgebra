@@ -160,8 +160,8 @@ where
         self.tri.fill_upper_triangle(T::zero(), 2);
 
         for i in 0..self.off_diagonal.len() {
-            let val = T::from_real(self.off_diagonal[i].modulus());
-            self.tri[(i + 1, i)] = val;
+            let val = T::from_real(self.off_diagonal[i].clone().modulus());
+            self.tri[(i + 1, i)] = val.clone();
             self.tri[(i, i + 1)] = val;
         }
 

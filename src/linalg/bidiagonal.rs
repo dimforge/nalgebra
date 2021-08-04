@@ -195,11 +195,19 @@ where
 
         let d = nrows.min(ncols);
         let mut res = OMatrix::identity_generic(d, d);
-        res.set_partial_diagonal(self.diagonal.iter().map(|e| T::from_real(e.modulus())));
+        res.set_partial_diagonal(
+            self.diagonal
+                .iter()
+                .map(|e| T::from_real(e.clone().modulus())),
+        );
 
         let start = self.axis_shift();
         res.slice_mut(start, (d.value() - 1, d.value() - 1))
-            .set_partial_diagonal(self.off_diagonal.iter().map(|e| T::from_real(e.modulus())));
+            .set_partial_diagonal(
+                self.off_diagonal
+                    .iter()
+                    .map(|e| T::from_real(e.clone().modulus())),
+            );
         res
     }
 
@@ -225,9 +233,9 @@ where
             let mut res_rows = res.slice_range_mut(i + shift.., i..);
 
             let sign = if self.upper_diagonal {
-                self.diagonal[i].signum()
+                self.diagonal[i].clone().signum()
             } else {
-                self.off_diagonal[i].signum()
+                self.off_diagonal[i].clone().signum()
             };
 
             refl.reflect_with_sign(&mut res_rows, sign);
@@ -261,9 +269,9 @@ where
             let mut res_rows = res.slice_range_mut(i.., i + shift..);
 
             let sign = if self.upper_diagonal {
-                self.off_diagonal[i].signum()
+                self.off_diagonal[i].clone().signum()
             } else {
-                self.diagonal[i].signum()
+                self.diagonal[i].clone().signum()
             };
 
             refl.reflect_rows_with_sign(&mut res_rows, &mut work.rows_range_mut(i..), sign);

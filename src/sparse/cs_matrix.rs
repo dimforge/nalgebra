@@ -493,7 +493,7 @@ where
 
             // Permute the values too.
             for (i, irow) in range.clone().zip(self.data.i[range].iter().cloned()) {
-                self.data.vals[i] = workspace[irow].inlined_clone();
+                self.data.vals[i] = workspace[irow].clone();
             }
         }
     }
@@ -517,11 +517,11 @@ where
                     let curr_irow = self.data.i[idx];
 
                     if curr_irow == irow {
-                        value += self.data.vals[idx].inlined_clone();
+                        value += self.data.vals[idx].clone();
                     } else {
                         self.data.i[curr_i] = irow;
                         self.data.vals[curr_i] = value;
-                        value = self.data.vals[idx].inlined_clone();
+                        value = self.data.vals[idx].clone();
                         irow = curr_irow;
                         curr_i += 1;
                     }

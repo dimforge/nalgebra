@@ -31,7 +31,7 @@ pub trait TCategory: Any + Debug + Copy + PartialEq + Send {
     /// category `Self`.
     fn check_homogeneous_invariants<T: RealField, D: DimName>(mat: &OMatrix<T, D, D>) -> bool
     where
-        T::Epsilon: Copy,
+        T::Epsilon: Clone,
         DefaultAllocator: Allocator<T, D, D>;
 }
 
@@ -74,7 +74,7 @@ impl TCategory for TGeneral {
     #[inline]
     fn check_homogeneous_invariants<T: RealField, D: DimName>(_: &OMatrix<T, D, D>) -> bool
     where
-        T::Epsilon: Copy,
+        T::Epsilon: Clone,
         DefaultAllocator: Allocator<T, D, D>,
     {
         true
@@ -85,7 +85,7 @@ impl TCategory for TProjective {
     #[inline]
     fn check_homogeneous_invariants<T: RealField, D: DimName>(mat: &OMatrix<T, D, D>) -> bool
     where
-        T::Epsilon: Copy,
+        T::Epsilon: Clone,
         DefaultAllocator: Allocator<T, D, D>,
     {
         mat.is_invertible()
@@ -101,7 +101,7 @@ impl TCategory for TAffine {
     #[inline]
     fn check_homogeneous_invariants<T: RealField, D: DimName>(mat: &OMatrix<T, D, D>) -> bool
     where
-        T::Epsilon: Copy,
+        T::Epsilon: Clone,
         DefaultAllocator: Allocator<T, D, D>,
     {
         let last = D::dim() - 1;
@@ -178,7 +178,7 @@ where
     }
 }
 
-impl<T: RealField, C: TCategory, const D: usize> Copy for Transform<T, C, D>
+impl<T: RealField + Copy, C: TCategory, const D: usize> Copy for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
@@ -583,7 +583,7 @@ where
 impl<T: RealField, C: TCategory, const D: usize> AbsDiffEq for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     type Epsilon = T::Epsilon;
@@ -602,7 +602,7 @@ where
 impl<T: RealField, C: TCategory, const D: usize> RelativeEq for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
@@ -625,7 +625,7 @@ where
 impl<T: RealField, C: TCategory, const D: usize> UlpsEq for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]

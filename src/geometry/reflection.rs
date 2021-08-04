@@ -45,7 +45,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
     /// represents a plane that passes through the origin.
     #[must_use]
     pub fn bias(&self) -> T {
-        self.bias
+        self.bias.clone()
     }
 
     // TODO: naming convention: reflect_to, reflect_assign ?
@@ -60,7 +60,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
             // dot product, and then mutably. Somehow, this allows significantly
             // better optimizations of the dot product from the compiler.
             let m_two: T = crate::convert(-2.0f64);
-            let factor = (self.axis.dotc(&rhs.column(i)) - self.bias) * m_two;
+            let factor = (self.axis.dotc(&rhs.column(i)) - self.bias.clone()) * m_two;
             rhs.column_mut(i).axpy(factor, &self.axis, T::one());
         }
     }
@@ -76,9 +76,9 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
             // NOTE: we borrow the column twice here. First it is borrowed immutably for the
             // dot product, and then mutably. Somehow, this allows significantly
             // better optimizations of the dot product from the compiler.
-            let m_two = sign.scale(crate::convert(-2.0f64));
-            let factor = (self.axis.dotc(&rhs.column(i)) - self.bias) * m_two;
-            rhs.column_mut(i).axpy(factor, &self.axis, sign);
+            let m_two = sign.clone().scale(crate::convert(-2.0f64));
+            let factor = (self.axis.dotc(&rhs.column(i)) - self.bias.clone()) * m_two;
+            rhs.column_mut(i).axpy(factor, &self.axis, sign.clone());
         }
     }
 
@@ -95,7 +95,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
         lhs.mul_to(&self.axis, work);
 
         if !self.bias.is_zero() {
-            work.add_scalar_mut(-self.bias);
+            work.add_scalar_mut(-self.bias.clone());
         }
 
         let m_two: T = crate::convert(-2.0f64);
@@ -116,10 +116,10 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
         lhs.mul_to(&self.axis, work);
 
         if !self.bias.is_zero() {
-            work.add_scalar_mut(-self.bias);
+            work.add_scalar_mut(-self.bias.clone());
         }
 
-        let m_two = sign.scale(crate::convert(-2.0f64));
+        let m_two = sign.clone().scale(crate::convert(-2.0f64));
         lhs.gerc(m_two, work, &self.axis, sign);
     }
 }

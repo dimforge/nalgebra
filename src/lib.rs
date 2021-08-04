@@ -390,7 +390,7 @@ pub fn center<T: SimdComplexField, const D: usize>(
     p1: &Point<T, D>,
     p2: &Point<T, D>,
 ) -> Point<T, D> {
-    ((p1.coords + p2.coords) * convert::<_, T>(0.5)).into()
+    ((&p1.coords + &p2.coords) * convert::<_, T>(0.5)).into()
 }
 
 /// The distance between two points.
@@ -404,7 +404,7 @@ pub fn distance<T: SimdComplexField, const D: usize>(
     p1: &Point<T, D>,
     p2: &Point<T, D>,
 ) -> T::SimdRealField {
-    (p2.coords - p1.coords).norm()
+    (&p2.coords - &p1.coords).norm()
 }
 
 /// The squared distance between two points.
@@ -418,7 +418,7 @@ pub fn distance_squared<T: SimdComplexField, const D: usize>(
     p1: &Point<T, D>,
     p2: &Point<T, D>,
 ) -> T::SimdRealField {
-    (p2.coords - p1.coords).norm_squared()
+    (&p2.coords - &p1.coords).norm_squared()
 }
 
 /*

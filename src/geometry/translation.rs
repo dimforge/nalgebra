@@ -291,7 +291,7 @@ impl<T: Scalar + PartialEq, const D: usize> PartialEq for Translation<T, D> {
 
 impl<T: Scalar + AbsDiffEq, const D: usize> AbsDiffEq for Translation<T, D>
 where
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     type Epsilon = T::Epsilon;
 
@@ -308,7 +308,7 @@ where
 
 impl<T: Scalar + RelativeEq, const D: usize> RelativeEq for Translation<T, D>
 where
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
@@ -329,7 +329,7 @@ where
 
 impl<T: Scalar + UlpsEq, const D: usize> UlpsEq for Translation<T, D>
 where
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_ulps() -> u32 {

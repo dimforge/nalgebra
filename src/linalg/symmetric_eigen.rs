@@ -104,7 +104,7 @@ where
         let m_amax = matrix.camax();
 
         if !m_amax.is_zero() {
-            matrix.unscale_mut(m_amax);
+            matrix.unscale_mut(m_amax.clone());
         }
 
         let (mut q_mat, mut diag, mut off_diag);
@@ -127,7 +127,8 @@ where
         }
 
         let mut niter = 0;
-        let (mut start, mut end) = Self::delimit_subproblem(&diag, &mut off_diag, dim - 1, eps);
+        let (mut start, mut end) =
+            Self::delimit_subproblem(&diag, &mut off_diag, dim - 1, eps.clone());
 
         while end != start {
             let subdim = end - start + 1;
@@ -138,8 +139,13 @@ where
                 let n = end;
 
                 let mut vec = Vector2::new(
-                    diag[start] - wilkinson_shift(diag[m], diag[n], off_diag[m]),
-                    off_diag[start],
+                    diag[start].clone()
+                        - wilkinson_shift(
+                            diag[m].clone().clone(),
+                            diag[n].clone(),
+                            off_diag[m].clone().clone(),
+                        ),
+                    off_diag[start].clone(),
                 );
 
                 for i in start..n {
@@ -151,23 +157,23 @@ where
                             off_diag[i - 1] = norm;
                         }
 
-                        let mii = diag[i];
-                        let mjj = diag[j];
-                        let mij = off_diag[i];
+                        let mii = diag[i].clone();
+                        let mjj = diag[j].clone();
+                        let mij = off_diag[i].clone();
 
                         let cc = rot.c() * rot.c();
                         let ss = rot.s() * rot.s();
                         let cs = rot.c() * rot.s();
 
-                        let b = cs * crate::convert(2.0) * mij;
+                        let b = cs.clone() * crate::convert(2.0) * mij.clone();
 
-                        diag[i] = (cc * mii + ss * mjj) - b;
-                        diag[j] = (ss * mii + cc * mjj) + b;
+                        diag[i] = (cc.clone() * mii.clone() + ss.clone() * mjj.clone()) - b.clone();
+                        diag[j] = (ss.clone() * mii.clone() + cc.clone() * mjj.clone()) + b;
                         off_diag[i] = cs * (mii - mjj) + mij * (cc - ss);
 
                         if i != n - 1 {
-                            vec.x = off_diag[i];
-                            vec.y = -rot.s() * off_diag[i + 1];
+                            vec.x = off_diag[i].clone();
+                            vec.y = -rot.s() * off_diag[i + 1].clone();
                             off_diag[i + 1] *= rot.c();
                         }
 
@@ -180,24 +186,31 @@ where
                     }
                 }
 
-                if off_diag[m].norm1() <= eps * (diag[m].norm1() + diag[n].norm1()) {
+                if off_diag[m].clone().norm1()
+                    <= eps.clone() * (diag[m].clone().norm1() + diag[n].clone().norm1())
+                {
                     end -= 1;
                 }
             } else if subdim == 2 {
                 let m = Matrix2::new(
-                    diag[start],
-                    off_diag[start].conjugate(),
-                    off_diag[start],
-                    diag[start + 1],
+                    diag[start].clone(),
+                    off_diag[start].clone().conjugate(),
+                    off_diag[start].clone(),
+                    diag[start + 1].clone(),
                 );
                 let eigvals = m.eigenvalues().unwrap();
-                let basis = Vector2::new(eigvals.x - diag[start + 1], off_diag[start]);
+                let basis = Vector2::new(
+                    eigvals.x.clone() - diag[start + 1].clone(),
+                    off_diag[start].clone(),
+                );
 
-                diag[start] = eigvals[0];
-                diag[start + 1] = eigvals[1];
+                diag[start] = eigvals[0].clone();
+                diag[start + 1] = eigvals[1].clone();
 
                 if let Some(ref mut q) = q_mat {
-                    if let Some((rot, _)) = GivensRotation::try_new(basis.x, basis.y, eps) {
+                    if let Some((rot, _)) =
+                        GivensRotation::try_new(basis.x.clone(), basis.y.clone(), eps.clone())
+                    {
                         let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
                         rot.rotate_rows(&mut q.fixed_columns_mut::<2>(start));
                     }
@@ -207,7 +220,7 @@ where
             }
 
             // Re-delimit the subproblem in case some decoupling occurred.
-            let sub = Self::delimit_subproblem(&diag, &mut off_diag, end, eps);
+            let sub = Self::delimit_subproblem(&diag, &mut off_diag, end, eps.clone());
 
             start = sub.0;
             end = sub.1;
@@ -238,7 +251,9 @@ where
         while n > 0 {
             let m = n - 1;
 
-            if off_diag[m].norm1() > eps * (diag[n].norm1() + diag[m].norm1()) {
+            if off_diag[m].clone().norm1()
+                > eps.clone() * (diag[n].clone().norm1() + diag[m].clone().norm1())
+            {
                 break;
             }
 
@@ -253,8 +268,9 @@ where
         while new_start > 0 {
             let m = new_start - 1;
 
-            if off_diag[m].is_zero()
-                || off_diag[m].norm1() <= eps * (diag[new_start].norm1() + diag[m].norm1())
+            if off_diag[m].clone().is_zero()
+                || off_diag[m].clone().norm1()
+                    <= eps.clone() * (diag[new_start].clone().norm1() + diag[m].clone().norm1())
             {
                 off_diag[m] = T::RealField::zero();
                 break;
@@ -273,7 +289,7 @@ where
     pub fn recompose(&self) -> OMatrix<T, D, D> {
         let mut u_t = self.eigenvectors.clone();
         for i in 0..self.eigenvalues.len() {
-            let val = self.eigenvalues[i];
+            let val = self.eigenvalues[i].clone();
             u_t.column_mut(i).scale_mut(val);
         }
         u_t.adjoint_mut();
@@ -288,11 +304,11 @@ where
 ///     tmm  tmn
 ///     tmn  tnn
 pub fn wilkinson_shift<T: ComplexField>(tmm: T, tnn: T, tmn: T) -> T {
-    let sq_tmn = tmn * tmn;
+    let sq_tmn = tmn.clone() * tmn;
     if !sq_tmn.is_zero() {
         // We have the guarantee that the denominator won't be zero.
-        let d = (tmm - tnn) * crate::convert(0.5);
-        tnn - sq_tmn / (d + d.signum() * (d * d + sq_tmn).sqrt())
+        let d = (tmm - tnn.clone()) * crate::convert(0.5);
+        tnn - sq_tmn.clone() / (d.clone() + d.clone().signum() * (d.clone() * d + sq_tmn).sqrt())
     } else {
         tnn
     }

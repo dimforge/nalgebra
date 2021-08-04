@@ -522,7 +522,7 @@ where
             let entry_offset = target_offsets[source_minor_idx] + *target_lane_count;
             target_indices[entry_offset] = source_major_idx;
             unsafe {
-                target_values.set(entry_offset, val.inlined_clone());
+                target_values.set(entry_offset, val.clone());
             }
             *target_lane_count += 1;
         }
