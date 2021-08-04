@@ -36,10 +36,6 @@ pub struct Init;
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 /// A type implementing `InitStatus` indicating that the value is completely unitialized.
 pub struct Uninit;
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-/// A type implementing `InitStatus` indicating that the value is initialized even if the value
-/// has the type `MaybeUninit` (i.e. when `Status == Uninit`).
-pub struct Initialized<Status>(pub Status);
 
 unsafe impl<T> InitStatus<T> for Init {
     type Value = T;
@@ -76,26 +72,5 @@ unsafe impl<T> InitStatus<T> for Uninit {
     #[inline(always)]
     unsafe fn assume_init_mut(t: &mut MaybeUninit<T>) -> &mut T {
         std::mem::transmute(t.as_mut_ptr()) // TODO: use t.assume_init_mut()
-    }
-}
-
-unsafe impl<T, Status: InitStatus<T>> InitStatus<T> for Initialized<Status> {
-    type Value = Status::Value;
-
-    #[inline(always)]
-    fn init(out: &mut Status::Value, t: T) {
-        unsafe {
-            *Status::assume_init_mut(out) = t;
-        }
-    }
-
-    #[inline(always)]
-    unsafe fn assume_init_ref(t: &Status::Value) -> &T {
-        Status::assume_init_ref(t)
-    }
-
-    #[inline(always)]
-    unsafe fn assume_init_mut(t: &mut Status::Value) -> &mut T {
-        Status::assume_init_mut(t)
     }
 }

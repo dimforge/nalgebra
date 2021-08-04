@@ -38,19 +38,19 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
     type Buffer = ArrayStorage<T, R, C>;
     type BufferUninit = ArrayStorage<MaybeUninit<T>, R, C>;
 
-    #[inline]
+    #[inline(always)]
     fn allocate_uninit(_: Const<R>, _: Const<C>) -> ArrayStorage<MaybeUninit<T>, R, C> {
         // SAFETY: An uninitialized `[MaybeUninit<_>; _]` is valid.
         let array: [[MaybeUninit<T>; R]; C] = unsafe { MaybeUninit::uninit().assume_init() };
         ArrayStorage(array)
     }
 
-    #[inline]
+    #[inline(always)]
     unsafe fn assume_init(uninit: ArrayStorage<MaybeUninit<T>, R, C>) -> ArrayStorage<T, R, C> {
         // Safety:
         // * The caller guarantees that all elements of the array are initialized
         // * `MaybeUninit<T>` and T are guaranteed to have the same layout
-        // * `MaybeUnint` does not drop, so there are no double-frees
+        // * `MaybeUninit` does not drop, so there are no double-frees
         // And thus the conversion is safe
         ArrayStorage((&uninit as *const _ as *const [_; C]).read())
     }

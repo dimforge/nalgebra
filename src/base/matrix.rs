@@ -421,7 +421,8 @@ where
     ///
     /// # Safety
     /// The user must make sure that every single entry of the buffer has been initialized,
-    /// or Undefined Behavior will immediately occur.    
+    /// or Undefined Behavior will immediately occur.
+    #[inline(always)]
     pub unsafe fn assume_init(self) -> OMatrix<T, R, C> {
         OMatrix::from_data(<DefaultAllocator as Allocator<T, R, C>>::assume_init(
             self.data,

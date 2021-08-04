@@ -30,7 +30,7 @@ use std::mem;
  *
  */
 /// A array-based statically sized matrix data storage.
-#[repr(C)]
+#[repr(transparent)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ArrayStorage<T, const R: usize, const C: usize>(pub [[T; R]; C]);
 

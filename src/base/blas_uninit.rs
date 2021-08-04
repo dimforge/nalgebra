@@ -20,7 +20,7 @@ use crate::base::constraint::{
 };
 use crate::base::dimension::{Dim, Dynamic, U1};
 use crate::base::storage::{RawStorage, RawStorageMut};
-use crate::base::uninit::{InitStatus, Initialized};
+use crate::base::uninit::InitStatus;
 use crate::base::{Matrix, Scalar, Vector};
 use std::any::TypeId;
 
@@ -79,8 +79,8 @@ fn array_axc<Status, T>(
 /// If `b` is zero, `y` is never read from and may be uninitialized.
 ///
 /// # Safety
-/// This is UB if `Status == Uninit && b != 0`.
-#[inline]
+/// This is UB if b != 0 and any component of `y` is uninitialized.
+#[inline(always)]
 #[allow(clippy::many_single_char_names)]
 pub unsafe fn axcpy_uninit<Status, T, D1: Dim, D2: Dim, SA, SB>(
     status: Status,
@@ -119,8 +119,8 @@ pub unsafe fn axcpy_uninit<Status, T, D1: Dim, D2: Dim, SA, SB>(
 /// If `beta` is zero, `y` is never read from and may be uninitialized.
 ///
 /// # Safety
-/// This is UB if `Status == Uninit && beta != 0`.
-#[inline]
+/// This is UB if beta != 0 and any component of `y` is uninitialized.
+#[inline(always)]
 pub unsafe fn gemv_uninit<Status, T, D1: Dim, R2: Dim, C2: Dim, D3: Dim, SA, SB, SC>(
     status: Status,
     y: &mut Vector<Status::Value, D1, SA>,
@@ -166,15 +166,8 @@ pub unsafe fn gemv_uninit<Status, T, D1: Dim, R2: Dim, C2: Dim, D3: Dim, SA, SB,
         let col2 = a.column(j);
         let val = x.vget_unchecked(j).inlined_clone();
 
-        // SAFETY: because y was initialized above, we can use the initialized status.
-        axcpy_uninit(
-            Initialized(status),
-            y,
-            alpha.inlined_clone(),
-            &col2,
-            val,
-            T::one(),
-        );
+        // SAFETY: safe because y was initialized above.
+        axcpy_uninit(status, y, alpha.inlined_clone(), &col2, val, T::one());
     }
 }
 
@@ -184,8 +177,8 @@ pub unsafe fn gemv_uninit<Status, T, D1: Dim, R2: Dim, C2: Dim, D3: Dim, SA, SB,
 /// If `beta` is zero, `y` is never read from and may be uninitialized.
 ///
 /// # Safety
-/// This is UB if `Status == Uninit && beta != 0`.
-#[inline]
+/// This is UB if beta != 0 and any component of `y` is uninitialized.
+#[inline(always)]
 pub unsafe fn gemm_uninit<
     Status,
     T,
