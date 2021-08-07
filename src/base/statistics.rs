@@ -111,7 +111,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
     /// The sum of all the rows of this matrix.
     ///
-    /// Use `.row_variance_tr` if you need the result in a column vector instead.
+    /// Use `.row_sum_tr` if you need the result in a column vector instead.
     ///
     /// # Example
     ///
