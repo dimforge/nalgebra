@@ -1,10 +1,10 @@
-use na::{Quaternion, RealField, Scalar};
+use na::{Quaternion, Scalar};
 
 use crate::aliases::{
     Qua, TMat, TMat2, TMat2x3, TMat2x4, TMat3, TMat3x2, TMat3x4, TMat4, TMat4x2, TMat4x3, TVec1,
     TVec2, TVec3, TVec4,
 };
-use crate::traits::Number;
+use crate::traits::{Number, RealNumber};
 
 /// Creates a 2x2 matrix from a slice arranged in column-major order.
 pub fn make_mat2<T: Scalar>(ptr: &[T]) -> TMat2<T> {
@@ -120,7 +120,7 @@ pub fn mat4_to_mat2<T: Scalar>(m: &TMat4<T>) -> TMat2<T> {
 }
 
 /// Creates a quaternion from a slice arranged as `[x, y, z, w]`.
-pub fn make_quat<T: RealField>(ptr: &[T]) -> Qua<T> {
+pub fn make_quat<T: RealNumber>(ptr: &[T]) -> Qua<T> {
     Quaternion::from(TVec4::from_column_slice(ptr))
 }
 

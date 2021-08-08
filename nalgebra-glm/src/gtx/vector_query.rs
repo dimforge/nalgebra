@@ -1,4 +1,4 @@
-use na::RealField;
+use crate::RealNumber;
 
 use crate::aliases::{TVec, TVec2, TVec3};
 use crate::traits::Number;
@@ -40,7 +40,7 @@ pub fn is_comp_null<T: Number, const D: usize>(v: &TVec<T, D>, epsilon: T) -> TV
 }
 
 /// Returns `true` if `v` has a magnitude of 1 (up to an epsilon).
-pub fn is_normalized<T: RealField, const D: usize>(v: &TVec<T, D>, epsilon: T) -> bool {
+pub fn is_normalized<T: RealNumber, const D: usize>(v: &TVec<T, D>, epsilon: T) -> bool {
     abs_diff_eq!(v.norm_squared(), T::one(), epsilon = epsilon * epsilon)
 }
 

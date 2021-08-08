@@ -1,4 +1,4 @@
-use na::{DefaultAllocator, RealField, Scalar, U3, U4};
+use na::{DefaultAllocator, RealNumber, Scalar, U3, U4};
 
 use crate::aliases::*;
 
@@ -53,7 +53,7 @@ pub fn packRGBM<T: Scalar>(rgb: &TVec3<T>) -> TVec4<T> {
     unimplemented!()
 }
 
-pub fn packSnorm<I: Scalar, T: RealField, const D: usize>(v: TVec<T, D>) -> TVec<I, D>
+pub fn packSnorm<I: Scalar, T: RealNumber, const D: usize>(v: TVec<T, D>) -> TVec<I, D>
 where
     DefaultAllocator: Alloc<T, D> + Alloc<I, D>,
 {
@@ -104,7 +104,7 @@ pub fn packUint4x8(v: &U8Vec4) -> i32 {
     unimplemented!()
 }
 
-pub fn packUnorm<UI: Scalar, T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<UI, D>
+pub fn packUnorm<UI: Scalar, T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<UI, D>
 where
     DefaultAllocator: Alloc<T, D> + Alloc<UI, D>,
 {
@@ -199,7 +199,7 @@ pub fn unpackRGBM<T: Scalar>(rgbm: &TVec4<T>) -> TVec3<T> {
     unimplemented!()
 }
 
-pub fn unpackSnorm<I: Scalar, T: RealField, const D: usize>(v: &TVec<I, D>) -> TVec<T, D>
+pub fn unpackSnorm<I: Scalar, T: RealNumber, const D: usize>(v: &TVec<I, D>) -> TVec<T, D>
 where
     DefaultAllocator: Alloc<T, D> + Alloc<I, D>,
 {
@@ -250,7 +250,7 @@ pub fn unpackUint4x8(p: i32) -> U8Vec4 {
     unimplemented!()
 }
 
-pub fn unpackUnorm<UI: Scalar, T: RealField, const D: usize>(v: &TVec<UI, D>) -> TVec<T, D>
+pub fn unpackUnorm<UI: Scalar, T: RealNumber, const D: usize>(v: &TVec<UI, D>) -> TVec<T, D>
 where
     DefaultAllocator: Alloc<T, D> + Alloc<UI, D>,
 {

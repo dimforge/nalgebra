@@ -1,7 +1,7 @@
-use na::{Point3, RealField, Rotation3, Unit};
+use na::{Point3, Rotation3, Unit};
 
 use crate::aliases::{TMat, TMat4, TVec, TVec3};
-use crate::traits::Number;
+use crate::traits::{Number, RealNumber};
 
 /// The identity matrix.
 pub fn identity<T: Number, const D: usize>() -> TMat<T, D, D> {
@@ -20,7 +20,7 @@ pub fn identity<T: Number, const D: usize>() -> TMat<T, D, D> {
 ///
 /// * [`look_at_lh`](fn.look_at_lh.html)
 /// * [`look_at_rh`](fn.look_at_rh.html)
-pub fn look_at<T: RealField>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
+pub fn look_at<T: RealNumber>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
     look_at_rh(eye, center, up)
 }
 
@@ -36,7 +36,7 @@ pub fn look_at<T: RealField>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -
 ///
 /// * [`look_at`](fn.look_at.html)
 /// * [`look_at_rh`](fn.look_at_rh.html)
-pub fn look_at_lh<T: RealField>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
+pub fn look_at_lh<T: RealNumber>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
     TMat::look_at_lh(&Point3::from(*eye), &Point3::from(*center), up)
 }
 
@@ -52,7 +52,7 @@ pub fn look_at_lh<T: RealField>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>
 ///
 /// * [`look_at`](fn.look_at.html)
 /// * [`look_at_lh`](fn.look_at_lh.html)
-pub fn look_at_rh<T: RealField>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
+pub fn look_at_rh<T: RealNumber>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
     TMat::look_at_rh(&Point3::from(*eye), &Point3::from(*center), up)
 }
 
@@ -71,7 +71,7 @@ pub fn look_at_rh<T: RealField>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>
 /// * [`rotate_z`](fn.rotate_z.html)
 /// * [`scale`](fn.scale.html)
 /// * [`translate`](fn.translate.html)
-pub fn rotate<T: RealField>(m: &TMat4<T>, angle: T, axis: &TVec3<T>) -> TMat4<T> {
+pub fn rotate<T: RealNumber>(m: &TMat4<T>, angle: T, axis: &TVec3<T>) -> TMat4<T> {
     m * Rotation3::from_axis_angle(&Unit::new_normalize(*axis), angle).to_homogeneous()
 }
 
@@ -89,7 +89,7 @@ pub fn rotate<T: RealField>(m: &TMat4<T>, angle: T, axis: &TVec3<T>) -> TMat4<T>
 /// * [`rotate_z`](fn.rotate_z.html)
 /// * [`scale`](fn.scale.html)
 /// * [`translate`](fn.translate.html)
-pub fn rotate_x<T: RealField>(m: &TMat4<T>, angle: T) -> TMat4<T> {
+pub fn rotate_x<T: RealNumber>(m: &TMat4<T>, angle: T) -> TMat4<T> {
     rotate(m, angle, &TVec::x())
 }
 
@@ -107,7 +107,7 @@ pub fn rotate_x<T: RealField>(m: &TMat4<T>, angle: T) -> TMat4<T> {
 /// * [`rotate_z`](fn.rotate_z.html)
 /// * [`scale`](fn.scale.html)
 /// * [`translate`](fn.translate.html)
-pub fn rotate_y<T: RealField>(m: &TMat4<T>, angle: T) -> TMat4<T> {
+pub fn rotate_y<T: RealNumber>(m: &TMat4<T>, angle: T) -> TMat4<T> {
     rotate(m, angle, &TVec::y())
 }
 
@@ -125,7 +125,7 @@ pub fn rotate_y<T: RealField>(m: &TMat4<T>, angle: T) -> TMat4<T> {
 /// * [`rotate_y`](fn.rotate_y.html)
 /// * [`scale`](fn.scale.html)
 /// * [`translate`](fn.translate.html)
-pub fn rotate_z<T: RealField>(m: &TMat4<T>, angle: T) -> TMat4<T> {
+pub fn rotate_z<T: RealNumber>(m: &TMat4<T>, angle: T) -> TMat4<T> {
     rotate(m, angle, &TVec::z())
 }
 

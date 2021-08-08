@@ -31,7 +31,7 @@ pub fn reflect2d<T: Number>(m: &TMat3<T>, normal: &TVec2<T>) -> TMat3<T> {
 
     {
         let mut part = res.fixed_slice_mut::<2, 2>(0, 0);
-        part -= (normal * T::from_f64(2.0).unwrap()) * normal.transpose();
+        part -= (normal * T::from_subset(&2.0)) * normal.transpose();
     }
 
     m * res
@@ -43,7 +43,7 @@ pub fn reflect<T: Number>(m: &TMat4<T>, normal: &TVec3<T>) -> TMat4<T> {
 
     {
         let mut part = res.fixed_slice_mut::<3, 3>(0, 0);
-        part -= (normal * T::from_f64(2.0).unwrap()) * normal.transpose();
+        part -= (normal * T::from_subset(&2.0)) * normal.transpose();
     }
 
     m * res

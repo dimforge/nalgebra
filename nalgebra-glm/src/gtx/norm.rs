@@ -1,13 +1,12 @@
-use na::RealField;
-
 use crate::aliases::TVec;
+use crate::RealNumber;
 
 /// The squared distance between two points.
 ///
 /// # See also:
 ///
 /// * [`distance`](fn.distance.html)
-pub fn distance2<T: RealField, const D: usize>(p0: &TVec<T, D>, p1: &TVec<T, D>) -> T {
+pub fn distance2<T: RealNumber, const D: usize>(p0: &TVec<T, D>, p1: &TVec<T, D>) -> T {
     (p1 - p0).norm_squared()
 }
 
@@ -18,7 +17,7 @@ pub fn distance2<T: RealField, const D: usize>(p0: &TVec<T, D>, p1: &TVec<T, D>)
 /// * [`l1_norm`](fn.l1_norm.html)
 /// * [`l2_distance`](fn.l2_distance.html)
 /// * [`l2_norm`](fn.l2_norm.html)
-pub fn l1_distance<T: RealField, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T {
+pub fn l1_distance<T: RealNumber, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T {
     l1_norm(&(y - x))
 }
 
@@ -32,7 +31,7 @@ pub fn l1_distance<T: RealField, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>)
 /// * [`l1_distance`](fn.l1_distance.html)
 /// * [`l2_distance`](fn.l2_distance.html)
 /// * [`l2_norm`](fn.l2_norm.html)
-pub fn l1_norm<T: RealField, const D: usize>(v: &TVec<T, D>) -> T {
+pub fn l1_norm<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> T {
     crate::comp_add(&v.abs())
 }
 
@@ -50,7 +49,7 @@ pub fn l1_norm<T: RealField, const D: usize>(v: &TVec<T, D>) -> T {
 /// * [`length2`](fn.length2.html)
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
-pub fn l2_distance<T: RealField, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T {
+pub fn l2_distance<T: RealNumber, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T {
     l2_norm(&(y - x))
 }
 
@@ -70,7 +69,7 @@ pub fn l2_distance<T: RealField, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>)
 /// * [`length2`](fn.length2.html)
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
-pub fn l2_norm<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
+pub fn l2_norm<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm()
 }
 
@@ -85,7 +84,7 @@ pub fn l2_norm<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
 /// * [`length`](fn.length.html)
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
-pub fn length2<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
+pub fn length2<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm_squared()
 }
 
@@ -100,14 +99,14 @@ pub fn length2<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
 /// * [`length2`](fn.length2.html)
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`nalgebra::norm_squared`](../nalgebra/fn.norm_squared.html)
-pub fn magnitude2<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
+pub fn magnitude2<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm_squared()
 }
 
-//pub fn lxNorm<T: RealField, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>, unsigned int Depth) -> T {
+//pub fn lxNorm<T: RealNumber, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>, unsigned int Depth) -> T {
 //    unimplemented!()
 //}
 //
-//pub fn lxNorm<T: RealField, const D: usize>(x: &TVec<T, D>, unsigned int Depth) -> T  {
+//pub fn lxNorm<T: RealNumber, const D: usize>(x: &TVec<T, D>, unsigned int Depth) -> T  {
 //    unimplemented!()
 //}
