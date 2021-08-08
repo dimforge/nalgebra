@@ -77,7 +77,7 @@ where
 {
     #[inline]
     fn to_superset(&self) -> UnitDualQuaternion<T2> {
-        let dq = UnitDualQuaternion::<T1>::from_parts(*self, UnitQuaternion::identity());
+        let dq = UnitDualQuaternion::<T1>::from_parts(self.clone(), UnitQuaternion::identity());
         dq.to_superset()
     }
 

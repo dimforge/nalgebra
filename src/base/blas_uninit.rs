@@ -44,8 +44,8 @@ unsafe fn array_axcpy<Status, T>(
 {
     for i in 0..len {
         let y = Status::assume_init_mut(y.get_unchecked_mut(i * stride1));
-        *y = a.inlined_clone() * x.get_unchecked(i * stride2).inlined_clone() * c.inlined_clone()
-            + beta.inlined_clone() * y.inlined_clone();
+        *y =
+            a.clone() * x.get_unchecked(i * stride2).clone() * c.clone() + beta.clone() * y.clone();
     }
 }
 
@@ -66,9 +66,7 @@ fn array_axc<Status, T>(
         unsafe {
             Status::init(
                 y.get_unchecked_mut(i * stride1),
-                a.inlined_clone()
-                    * x.get_unchecked(i * stride2).inlined_clone()
-                    * c.inlined_clone(),
+                a.clone() * x.get_unchecked(i * stride2).clone() * c.clone(),
             );
         }
     }
@@ -150,24 +148,24 @@ pub unsafe fn gemv_uninit<Status, T, D1: Dim, R2: Dim, C2: Dim, D3: Dim, SA, SB,
             y.apply(|e| Status::init(e, T::zero()));
         } else {
             // SAFETY: this is UB if y is uninitialized.
-            y.apply(|e| *Status::assume_init_mut(e) *= beta.inlined_clone());
+            y.apply(|e| *Status::assume_init_mut(e) *= beta.clone());
         }
         return;
     }
 
     // TODO: avoid bound checks.
     let col2 = a.column(0);
-    let val = x.vget_unchecked(0).inlined_clone();
+    let val = x.vget_unchecked(0).clone();
 
     // SAFETY: this is the call that makes this method unsafe: it is UB if Status = Uninit and beta != 0.
-    axcpy_uninit(status, y, alpha.inlined_clone(), &col2, val, beta);
+    axcpy_uninit(status, y, alpha.clone(), &col2, val, beta);
 
     for j in 1..ncols2 {
         let col2 = a.column(j);
-        let val = x.vget_unchecked(j).inlined_clone();
+        let val = x.vget_unchecked(j).clone();
 
         // SAFETY: safe because y was initialized above.
-        axcpy_uninit(status, y, alpha.inlined_clone(), &col2, val, T::one());
+        axcpy_uninit(status, y, alpha.clone(), &col2, val, T::one());
     }
 }
 
@@ -254,7 +252,7 @@ pub unsafe fn gemm_uninit<
                         y.apply(|e| Status::init(e, T::zero()));
                     } else {
                         // SAFETY: this is UB if Status = Uninit
-                        y.apply(|e| *Status::assume_init_mut(e) *= beta.inlined_clone());
+                        y.apply(|e| *Status::assume_init_mut(e) *= beta.clone());
                     }
                     return;
                 }
@@ -314,10 +312,10 @@ pub unsafe fn gemm_uninit<
         gemv_uninit(
             status,
             &mut y.column_mut(j1),
-            alpha.inlined_clone(),
+            alpha.clone(),
             a,
             &b.column(j1),
-            beta.inlined_clone(),
+            beta.clone(),
         );
     }
 }

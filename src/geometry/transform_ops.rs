@@ -154,7 +154,7 @@ md_impl_all!(
         if C::has_normalizer() {
             let normalizer = self.matrix().fixed_slice::<1, D>(D, 0);
             #[allow(clippy::suspicious_arithmetic_impl)]
-            let n = normalizer.tr_dot(&rhs.coords) + unsafe { *self.matrix().get_unchecked((D, D)) };
+            let n = normalizer.tr_dot(&rhs.coords) + unsafe { self.matrix().get_unchecked((D, D)).clone() };
 
             if !n.is_zero() {
                 return (transform * rhs + translation) / n;
@@ -221,8 +221,8 @@ md_impl_all!(
     self: Transform<T, C, 3>, rhs: UnitQuaternion<T>, Output = Transform<T, C::Representative, 3>;
     [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
-    [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
-    [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
+    [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.clone().to_homogeneous());
+    [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.clone().to_homogeneous());
 );
 
 // Transform × UnitComplex
@@ -235,8 +235,8 @@ md_impl_all!(
     self: Transform<T, C, 2>, rhs: UnitComplex<T>, Output = Transform<T, C::Representative, 2>;
     [val val] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
     [ref val] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
-    [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.to_homogeneous());
-    [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.to_homogeneous());
+    [val ref] => Self::Output::from_matrix_unchecked(self.into_inner() * rhs.clone().to_homogeneous());
+    [ref ref] => Self::Output::from_matrix_unchecked(self.matrix() * rhs.clone().to_homogeneous());
 );
 
 // UnitQuaternion × Transform
@@ -248,9 +248,9 @@ md_impl_all!(
     where C: TCategoryMul<TAffine>;
     self: UnitQuaternion<T>, rhs: Transform<T, C, 3>, Output = Transform<T, C::Representative, 3>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
-    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
+    [ref val] => Self::Output::from_matrix_unchecked(self.clone().to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
-    [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
+    [ref ref] => Self::Output::from_matrix_unchecked(self.clone().to_homogeneous() * rhs.matrix());
 );
 
 // UnitComplex × Transform
@@ -262,9 +262,9 @@ md_impl_all!(
     where C: TCategoryMul<TAffine>;
     self: UnitComplex<T>, rhs: Transform<T, C, 2>, Output = Transform<T, C::Representative, 2>;
     [val val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
-    [ref val] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.into_inner());
+    [ref val] => Self::Output::from_matrix_unchecked(self.clone().to_homogeneous() * rhs.into_inner());
     [val ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
-    [ref ref] => Self::Output::from_matrix_unchecked(self.to_homogeneous() * rhs.matrix());
+    [ref ref] => Self::Output::from_matrix_unchecked(self.clone().to_homogeneous() * rhs.matrix());
 );
 
 // Transform × Isometry
@@ -604,7 +604,7 @@ md_assign_impl_all!(
     where C: TCategory;
     self: Transform<T, C, 3>, rhs: UnitQuaternion<T>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
-    [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
+    [ref] => *self.matrix_mut_unchecked() *= rhs.clone().to_homogeneous();
 );
 
 // Transform ×= UnitComplex
@@ -616,7 +616,7 @@ md_assign_impl_all!(
     where C: TCategory;
     self: Transform<T, C, 2>, rhs: UnitComplex<T>;
     [val] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
-    [ref] => *self.matrix_mut_unchecked() *= rhs.to_homogeneous();
+    [ref] => *self.matrix_mut_unchecked() *= rhs.clone().to_homogeneous();
 );
 
 // Transform ÷= Transform

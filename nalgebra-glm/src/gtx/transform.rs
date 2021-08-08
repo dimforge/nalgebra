@@ -1,7 +1,7 @@
-use na::{RealField, Rotation2, Rotation3, Unit};
+use na::{Rotation2, Rotation3, Unit};
 
 use crate::aliases::{TMat3, TMat4, TVec2, TVec3};
-use crate::traits::Number;
+use crate::traits::{Number, RealNumber};
 
 /// A rotation 4 * 4 matrix created from an axis of 3 scalars and an angle expressed in radians.
 ///
@@ -12,7 +12,7 @@ use crate::traits::Number;
 /// * [`rotation2d`](fn.rotation2d.html)
 /// * [`scaling2d`](fn.scaling2d.html)
 /// * [`translation2d`](fn.translation2d.html)
-pub fn rotation<T: RealField>(angle: T, v: &TVec3<T>) -> TMat4<T> {
+pub fn rotation<T: RealNumber>(angle: T, v: &TVec3<T>) -> TMat4<T> {
     Rotation3::from_axis_angle(&Unit::new_normalize(*v), angle).to_homogeneous()
 }
 
@@ -51,7 +51,7 @@ pub fn translation<T: Number>(v: &TVec3<T>) -> TMat4<T> {
 /// * [`translation`](fn.translation.html)
 /// * [`scaling2d`](fn.scaling2d.html)
 /// * [`translation2d`](fn.translation2d.html)
-pub fn rotation2d<T: RealField>(angle: T) -> TMat3<T> {
+pub fn rotation2d<T: RealNumber>(angle: T) -> TMat3<T> {
     Rotation2::new(angle).to_homogeneous()
 }
 

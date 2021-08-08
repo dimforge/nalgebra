@@ -323,7 +323,7 @@ where
 
 impl<T: Scalar + AbsDiffEq, D: DimName> AbsDiffEq for OPoint<T, D>
 where
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
     DefaultAllocator: Allocator<T, D>,
 {
     type Epsilon = T::Epsilon;
@@ -341,7 +341,7 @@ where
 
 impl<T: Scalar + RelativeEq, D: DimName> RelativeEq for OPoint<T, D>
 where
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
     DefaultAllocator: Allocator<T, D>,
 {
     #[inline]
@@ -363,7 +363,7 @@ where
 
 impl<T: Scalar + UlpsEq, D: DimName> UlpsEq for OPoint<T, D>
 where
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
     DefaultAllocator: Allocator<T, D>,
 {
     #[inline]

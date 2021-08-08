@@ -52,7 +52,7 @@ where
 
         for j in 0..n {
             for k in 0..j {
-                let factor = unsafe { -*matrix.get_unchecked((j, k)) };
+                let factor = unsafe { -matrix.get_unchecked((j, k)).clone() };
 
                 let (mut col_j, col_k) = matrix.columns_range_pair_mut(j, k);
                 let mut col_j = col_j.rows_range_mut(j..);
@@ -60,11 +60,11 @@ where
                 col_j.axpy(factor.simd_conjugate(), &col_k, T::one());
             }
 
-            let diag = unsafe { *matrix.get_unchecked((j, j)) };
+            let diag = unsafe { matrix.get_unchecked((j, j)).clone() };
             let denom = diag.simd_sqrt();
 
             unsafe {
-                *matrix.get_unchecked_mut((j, j)) = denom;
+                *matrix.get_unchecked_mut((j, j)) = denom.clone();
             }
 
             let mut col = matrix.slice_range_mut(j + 1.., j);
@@ -149,7 +149,7 @@ where
         let dim = self.chol.nrows();
         let mut prod_diag = T::one();
         for i in 0..dim {
-            prod_diag *= unsafe { *self.chol.get_unchecked((i, i)) };
+            prod_diag *= unsafe { self.chol.get_unchecked((i, i)).clone() };
         }
         prod_diag.simd_modulus_squared()
     }
@@ -170,7 +170,7 @@ where
 
         for j in 0..n {
             for k in 0..j {
-                let factor = unsafe { -*matrix.get_unchecked((j, k)) };
+                let factor = unsafe { -matrix.get_unchecked((j, k)).clone() };
 
                 let (mut col_j, col_k) = matrix.columns_range_pair_mut(j, k);
                 let mut col_j = col_j.rows_range_mut(j..);
@@ -179,11 +179,11 @@ where
                 col_j.axpy(factor.conjugate(), &col_k, T::one());
             }
 
-            let diag = unsafe { *matrix.get_unchecked((j, j)) };
+            let diag = unsafe { matrix.get_unchecked((j, j)).clone() };
             if !diag.is_zero() {
                 if let Some(denom) = diag.try_sqrt() {
                     unsafe {
-                        *matrix.get_unchecked_mut((j, j)) = denom;
+                        *matrix.get_unchecked_mut((j, j)) = denom.clone();
                     }
 
                     let mut col = matrix.slice_range_mut(j + 1.., j);
@@ -254,7 +254,7 @@ where
         // update the jth row
         let top_left_corner = self.chol.slice_range(..j, ..j);
 
-        let col_j = col[j];
+        let col_j = col[j].clone();
         let (mut new_rowj_adjoint, mut new_colj) = col.rows_range_pair_mut(..j, j + 1..);
         assert!(
             top_left_corner.solve_lower_triangular_mut(&mut new_rowj_adjoint),
@@ -265,13 +265,13 @@ where
 
         // update the center element
         let center_element = T::sqrt(col_j - T::from_real(new_rowj_adjoint.norm_squared()));
-        chol[(j, j)] = center_element;
+        chol[(j, j)] = center_element.clone();
 
         // update the jth column
         let bottom_left_corner = self.chol.slice_range(j.., ..j);
         // new_colj = (col_jplus - bottom_left_corner * new_rowj.adjoint()) / center_element;
         new_colj.gemm(
-            -T::one() / center_element,
+            -T::one() / center_element.clone(),
             &bottom_left_corner,
             &new_rowj_adjoint,
             T::one() / center_element,
@@ -353,23 +353,23 @@ where
 
         for j in 0..n {
             // updates the diagonal
-            let diag = T::real(unsafe { *chol.get_unchecked((j, j)) });
-            let diag2 = diag * diag;
-            let xj = unsafe { *x.get_unchecked(j) };
-            let sigma_xj2 = sigma * T::modulus_squared(xj);
-            let gamma = diag2 * beta + sigma_xj2;
-            let new_diag = (diag2 + sigma_xj2 / beta).sqrt();
-            unsafe { *chol.get_unchecked_mut((j, j)) = T::from_real(new_diag) };
+            let diag = T::real(unsafe { chol.get_unchecked((j, j)).clone() });
+            let diag2 = diag.clone() * diag.clone();
+            let xj = unsafe { x.get_unchecked(j).clone() };
+            let sigma_xj2 = sigma.clone() * T::modulus_squared(xj.clone());
+            let gamma = diag2.clone() * beta.clone() + sigma_xj2.clone();
+            let new_diag = (diag2.clone() + sigma_xj2.clone() / beta.clone()).sqrt();
+            unsafe { *chol.get_unchecked_mut((j, j)) = T::from_real(new_diag.clone()) };
             beta += sigma_xj2 / diag2;
             // updates the terms of L
             let mut xjplus = x.rows_range_mut(j + 1..);
             let mut col_j = chol.slice_range_mut(j + 1.., j);
             // temp_jplus -= (wj / T::from_real(diag)) * col_j;
-            xjplus.axpy(-xj / T::from_real(diag), &col_j, T::one());
+            xjplus.axpy(-xj.clone() / T::from_real(diag.clone()), &col_j, T::one());
             if gamma != crate::zero::<T::RealField>() {
                 // col_j = T::from_real(nljj / diag) * col_j  + (T::from_real(nljj * sigma / gamma) * T::conjugate(wj)) * temp_jplus;
                 col_j.axpy(
-                    T::from_real(new_diag * sigma / gamma) * T::conjugate(xj),
+                    T::from_real(new_diag.clone() * sigma.clone() / gamma) * T::conjugate(xj),
                     &xjplus,
                     T::from_real(new_diag / diag),
                 );

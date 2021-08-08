@@ -40,7 +40,7 @@ impl<T: ComplexField, D: Dim, S: StorageMut<T, D, D>> SquareMatrix<T, D, S> {
             match dim {
                 0 => true,
                 1 => {
-                    let determinant = *self.get_unchecked((0, 0));
+                    let determinant = self.get_unchecked((0, 0)).clone();
                     if determinant.is_zero() {
                         false
                     } else {
@@ -49,58 +49,66 @@ impl<T: ComplexField, D: Dim, S: StorageMut<T, D, D>> SquareMatrix<T, D, S> {
                     }
                 }
                 2 => {
-                    let m11 = *self.get_unchecked((0, 0));
-                    let m12 = *self.get_unchecked((0, 1));
-                    let m21 = *self.get_unchecked((1, 0));
-                    let m22 = *self.get_unchecked((1, 1));
+                    let m11 = self.get_unchecked((0, 0)).clone();
+                    let m12 = self.get_unchecked((0, 1)).clone();
+                    let m21 = self.get_unchecked((1, 0)).clone();
+                    let m22 = self.get_unchecked((1, 1)).clone();
 
-                    let determinant = m11 * m22 - m21 * m12;
+                    let determinant = m11.clone() * m22.clone() - m21.clone() * m12.clone();
 
                     if determinant.is_zero() {
                         false
                     } else {
-                        *self.get_unchecked_mut((0, 0)) = m22 / determinant;
-                        *self.get_unchecked_mut((0, 1)) = -m12 / determinant;
+                        *self.get_unchecked_mut((0, 0)) = m22 / determinant.clone();
+                        *self.get_unchecked_mut((0, 1)) = -m12 / determinant.clone();
 
-                        *self.get_unchecked_mut((1, 0)) = -m21 / determinant;
+                        *self.get_unchecked_mut((1, 0)) = -m21 / determinant.clone();
                         *self.get_unchecked_mut((1, 1)) = m11 / determinant;
 
                         true
                     }
                 }
                 3 => {
-                    let m11 = *self.get_unchecked((0, 0));
-                    let m12 = *self.get_unchecked((0, 1));
-                    let m13 = *self.get_unchecked((0, 2));
+                    let m11 = self.get_unchecked((0, 0)).clone();
+                    let m12 = self.get_unchecked((0, 1)).clone();
+                    let m13 = self.get_unchecked((0, 2)).clone();
 
-                    let m21 = *self.get_unchecked((1, 0));
-                    let m22 = *self.get_unchecked((1, 1));
-                    let m23 = *self.get_unchecked((1, 2));
+                    let m21 = self.get_unchecked((1, 0)).clone();
+                    let m22 = self.get_unchecked((1, 1)).clone();
+                    let m23 = self.get_unchecked((1, 2)).clone();
 
-                    let m31 = *self.get_unchecked((2, 0));
-                    let m32 = *self.get_unchecked((2, 1));
-                    let m33 = *self.get_unchecked((2, 2));
+                    let m31 = self.get_unchecked((2, 0)).clone();
+                    let m32 = self.get_unchecked((2, 1)).clone();
+                    let m33 = self.get_unchecked((2, 2)).clone();
 
-                    let minor_m12_m23 = m22 * m33 - m32 * m23;
-                    let minor_m11_m23 = m21 * m33 - m31 * m23;
-                    let minor_m11_m22 = m21 * m32 - m31 * m22;
+                    let minor_m12_m23 = m22.clone() * m33.clone() - m32.clone() * m23.clone();
+                    let minor_m11_m23 = m21.clone() * m33.clone() - m31.clone() * m23.clone();
+                    let minor_m11_m22 = m21.clone() * m32.clone() - m31.clone() * m22.clone();
 
-                    let determinant =
-                        m11 * minor_m12_m23 - m12 * minor_m11_m23 + m13 * minor_m11_m22;
+                    let determinant = m11.clone() * minor_m12_m23.clone()
+                        - m12.clone() * minor_m11_m23.clone()
+                        + m13.clone() * minor_m11_m22.clone();
 
                     if determinant.is_zero() {
                         false
                     } else {
-                        *self.get_unchecked_mut((0, 0)) = minor_m12_m23 / determinant;
-                        *self.get_unchecked_mut((0, 1)) = (m13 * m32 - m33 * m12) / determinant;
-                        *self.get_unchecked_mut((0, 2)) = (m12 * m23 - m22 * m13) / determinant;
+                        *self.get_unchecked_mut((0, 0)) = minor_m12_m23 / determinant.clone();
+                        *self.get_unchecked_mut((0, 1)) = (m13.clone() * m32.clone()
+                            - m33.clone() * m12.clone())
+                            / determinant.clone();
+                        *self.get_unchecked_mut((0, 2)) = (m12.clone() * m23.clone()
+                            - m22.clone() * m13.clone())
+                            / determinant.clone();
 
-                        *self.get_unchecked_mut((1, 0)) = -minor_m11_m23 / determinant;
-                        *self.get_unchecked_mut((1, 1)) = (m11 * m33 - m31 * m13) / determinant;
-                        *self.get_unchecked_mut((1, 2)) = (m13 * m21 - m23 * m11) / determinant;
+                        *self.get_unchecked_mut((1, 0)) = -minor_m11_m23 / determinant.clone();
+                        *self.get_unchecked_mut((1, 1)) =
+                            (m11.clone() * m33 - m31.clone() * m13.clone()) / determinant.clone();
+                        *self.get_unchecked_mut((1, 2)) =
+                            (m13 * m21.clone() - m23 * m11.clone()) / determinant.clone();
 
-                        *self.get_unchecked_mut((2, 0)) = minor_m11_m22 / determinant;
-                        *self.get_unchecked_mut((2, 1)) = (m12 * m31 - m32 * m11) / determinant;
+                        *self.get_unchecked_mut((2, 0)) = minor_m11_m22 / determinant.clone();
+                        *self.get_unchecked_mut((2, 1)) =
+                            (m12.clone() * m31 - m32 * m11.clone()) / determinant.clone();
                         *self.get_unchecked_mut((2, 2)) = (m11 * m22 - m21 * m12) / determinant;
 
                         true
@@ -129,94 +137,129 @@ where
 {
     let m = m.as_slice();
 
-    out[(0, 0)] = m[5] * m[10] * m[15] - m[5] * m[11] * m[14] - m[9] * m[6] * m[15]
-        + m[9] * m[7] * m[14]
-        + m[13] * m[6] * m[11]
-        - m[13] * m[7] * m[10];
+    out[(0, 0)] = m[5].clone() * m[10].clone() * m[15].clone()
+        - m[5].clone() * m[11].clone() * m[14].clone()
+        - m[9].clone() * m[6].clone() * m[15].clone()
+        + m[9].clone() * m[7].clone() * m[14].clone()
+        + m[13].clone() * m[6].clone() * m[11].clone()
+        - m[13].clone() * m[7].clone() * m[10].clone();
 
-    out[(1, 0)] = -m[1] * m[10] * m[15] + m[1] * m[11] * m[14] + m[9] * m[2] * m[15]
-        - m[9] * m[3] * m[14]
-        - m[13] * m[2] * m[11]
-        + m[13] * m[3] * m[10];
+    out[(1, 0)] = -m[1].clone() * m[10].clone() * m[15].clone()
+        + m[1].clone() * m[11].clone() * m[14].clone()
+        + m[9].clone() * m[2].clone() * m[15].clone()
+        - m[9].clone() * m[3].clone() * m[14].clone()
+        - m[13].clone() * m[2].clone() * m[11].clone()
+        + m[13].clone() * m[3].clone() * m[10].clone();
 
-    out[(2, 0)] = m[1] * m[6] * m[15] - m[1] * m[7] * m[14] - m[5] * m[2] * m[15]
-        + m[5] * m[3] * m[14]
-        + m[13] * m[2] * m[7]
-        - m[13] * m[3] * m[6];
+    out[(2, 0)] = m[1].clone() * m[6].clone() * m[15].clone()
+        - m[1].clone() * m[7].clone() * m[14].clone()
+        - m[5].clone() * m[2].clone() * m[15].clone()
+        + m[5].clone() * m[3].clone() * m[14].clone()
+        + m[13].clone() * m[2].clone() * m[7].clone()
+        - m[13].clone() * m[3].clone() * m[6].clone();
 
-    out[(3, 0)] = -m[1] * m[6] * m[11] + m[1] * m[7] * m[10] + m[5] * m[2] * m[11]
-        - m[5] * m[3] * m[10]
-        - m[9] * m[2] * m[7]
-        + m[9] * m[3] * m[6];
+    out[(3, 0)] = -m[1].clone() * m[6].clone() * m[11].clone()
+        + m[1].clone() * m[7].clone() * m[10].clone()
+        + m[5].clone() * m[2].clone() * m[11].clone()
+        - m[5].clone() * m[3].clone() * m[10].clone()
+        - m[9].clone() * m[2].clone() * m[7].clone()
+        + m[9].clone() * m[3].clone() * m[6].clone();
 
-    out[(0, 1)] = -m[4] * m[10] * m[15] + m[4] * m[11] * m[14] + m[8] * m[6] * m[15]
-        - m[8] * m[7] * m[14]
-        - m[12] * m[6] * m[11]
-        + m[12] * m[7] * m[10];
+    out[(0, 1)] = -m[4].clone() * m[10].clone() * m[15].clone()
+        + m[4].clone() * m[11].clone() * m[14].clone()
+        + m[8].clone() * m[6].clone() * m[15].clone()
+        - m[8].clone() * m[7].clone() * m[14].clone()
+        - m[12].clone() * m[6].clone() * m[11].clone()
+        + m[12].clone() * m[7].clone() * m[10].clone();
 
-    out[(1, 1)] = m[0] * m[10] * m[15] - m[0] * m[11] * m[14] - m[8] * m[2] * m[15]
-        + m[8] * m[3] * m[14]
-        + m[12] * m[2] * m[11]
-        - m[12] * m[3] * m[10];
+    out[(1, 1)] = m[0].clone() * m[10].clone() * m[15].clone()
+        - m[0].clone() * m[11].clone() * m[14].clone()
+        - m[8].clone() * m[2].clone() * m[15].clone()
+        + m[8].clone() * m[3].clone() * m[14].clone()
+        + m[12].clone() * m[2].clone() * m[11].clone()
+        - m[12].clone() * m[3].clone() * m[10].clone();
 
-    out[(2, 1)] = -m[0] * m[6] * m[15] + m[0] * m[7] * m[14] + m[4] * m[2] * m[15]
-        - m[4] * m[3] * m[14]
-        - m[12] * m[2] * m[7]
-        + m[12] * m[3] * m[6];
+    out[(2, 1)] = -m[0].clone() * m[6].clone() * m[15].clone()
+        + m[0].clone() * m[7].clone() * m[14].clone()
+        + m[4].clone() * m[2].clone() * m[15].clone()
+        - m[4].clone() * m[3].clone() * m[14].clone()
+        - m[12].clone() * m[2].clone() * m[7].clone()
+        + m[12].clone() * m[3].clone() * m[6].clone();
 
-    out[(3, 1)] = m[0] * m[6] * m[11] - m[0] * m[7] * m[10] - m[4] * m[2] * m[11]
-        + m[4] * m[3] * m[10]
-        + m[8] * m[2] * m[7]
-        - m[8] * m[3] * m[6];
+    out[(3, 1)] = m[0].clone() * m[6].clone() * m[11].clone()
+        - m[0].clone() * m[7].clone() * m[10].clone()
+        - m[4].clone() * m[2].clone() * m[11].clone()
+        + m[4].clone() * m[3].clone() * m[10].clone()
+        + m[8].clone() * m[2].clone() * m[7].clone()
+        - m[8].clone() * m[3].clone() * m[6].clone();
 
-    out[(0, 2)] = m[4] * m[9] * m[15] - m[4] * m[11] * m[13] - m[8] * m[5] * m[15]
-        + m[8] * m[7] * m[13]
-        + m[12] * m[5] * m[11]
-        - m[12] * m[7] * m[9];
+    out[(0, 2)] = m[4].clone() * m[9].clone() * m[15].clone()
+        - m[4].clone() * m[11].clone() * m[13].clone()
+        - m[8].clone() * m[5].clone() * m[15].clone()
+        + m[8].clone() * m[7].clone() * m[13].clone()
+        + m[12].clone() * m[5].clone() * m[11].clone()
+        - m[12].clone() * m[7].clone() * m[9].clone();
 
-    out[(1, 2)] = -m[0] * m[9] * m[15] + m[0] * m[11] * m[13] + m[8] * m[1] * m[15]
-        - m[8] * m[3] * m[13]
-        - m[12] * m[1] * m[11]
-        + m[12] * m[3] * m[9];
+    out[(1, 2)] = -m[0].clone() * m[9].clone() * m[15].clone()
+        + m[0].clone() * m[11].clone() * m[13].clone()
+        + m[8].clone() * m[1].clone() * m[15].clone()
+        - m[8].clone() * m[3].clone() * m[13].clone()
+        - m[12].clone() * m[1].clone() * m[11].clone()
+        + m[12].clone() * m[3].clone() * m[9].clone();
 
-    out[(2, 2)] = m[0] * m[5] * m[15] - m[0] * m[7] * m[13] - m[4] * m[1] * m[15]
-        + m[4] * m[3] * m[13]
-        + m[12] * m[1] * m[7]
-        - m[12] * m[3] * m[5];
+    out[(2, 2)] = m[0].clone() * m[5].clone() * m[15].clone()
+        - m[0].clone() * m[7].clone() * m[13].clone()
+        - m[4].clone() * m[1].clone() * m[15].clone()
+        + m[4].clone() * m[3].clone() * m[13].clone()
+        + m[12].clone() * m[1].clone() * m[7].clone()
+        - m[12].clone() * m[3].clone() * m[5].clone();
 
-    out[(0, 3)] = -m[4] * m[9] * m[14] + m[4] * m[10] * m[13] + m[8] * m[5] * m[14]
-        - m[8] * m[6] * m[13]
-        - m[12] * m[5] * m[10]
-        + m[12] * m[6] * m[9];
+    out[(0, 3)] = -m[4].clone() * m[9].clone() * m[14].clone()
+        + m[4].clone() * m[10].clone() * m[13].clone()
+        + m[8].clone() * m[5].clone() * m[14].clone()
+        - m[8].clone() * m[6].clone() * m[13].clone()
+        - m[12].clone() * m[5].clone() * m[10].clone()
+        + m[12].clone() * m[6].clone() * m[9].clone();
 
-    out[(3, 2)] = -m[0] * m[5] * m[11] + m[0] * m[7] * m[9] + m[4] * m[1] * m[11]
-        - m[4] * m[3] * m[9]
-        - m[8] * m[1] * m[7]
-        + m[8] * m[3] * m[5];
+    out[(3, 2)] = -m[0].clone() * m[5].clone() * m[11].clone()
+        + m[0].clone() * m[7].clone() * m[9].clone()
+        + m[4].clone() * m[1].clone() * m[11].clone()
+        - m[4].clone() * m[3].clone() * m[9].clone()
+        - m[8].clone() * m[1].clone() * m[7].clone()
+        + m[8].clone() * m[3].clone() * m[5].clone();
 
-    out[(1, 3)] = m[0] * m[9] * m[14] - m[0] * m[10] * m[13] - m[8] * m[1] * m[14]
-        + m[8] * m[2] * m[13]
-        + m[12] * m[1] * m[10]
-        - m[12] * m[2] * m[9];
+    out[(1, 3)] = m[0].clone() * m[9].clone() * m[14].clone()
+        - m[0].clone() * m[10].clone() * m[13].clone()
+        - m[8].clone() * m[1].clone() * m[14].clone()
+        + m[8].clone() * m[2].clone() * m[13].clone()
+        + m[12].clone() * m[1].clone() * m[10].clone()
+        - m[12].clone() * m[2].clone() * m[9].clone();
 
-    out[(2, 3)] = -m[0] * m[5] * m[14] + m[0] * m[6] * m[13] + m[4] * m[1] * m[14]
-        - m[4] * m[2] * m[13]
-        - m[12] * m[1] * m[6]
-        + m[12] * m[2] * m[5];
+    out[(2, 3)] = -m[0].clone() * m[5].clone() * m[14].clone()
+        + m[0].clone() * m[6].clone() * m[13].clone()
+        + m[4].clone() * m[1].clone() * m[14].clone()
+        - m[4].clone() * m[2].clone() * m[13].clone()
+        - m[12].clone() * m[1].clone() * m[6].clone()
+        + m[12].clone() * m[2].clone() * m[5].clone();
 
-    out[(3, 3)] = m[0] * m[5] * m[10] - m[0] * m[6] * m[9] - m[4] * m[1] * m[10]
-        + m[4] * m[2] * m[9]
-        + m[8] * m[1] * m[6]
-        - m[8] * m[2] * m[5];
+    out[(3, 3)] = m[0].clone() * m[5].clone() * m[10].clone()
+        - m[0].clone() * m[6].clone() * m[9].clone()
+        - m[4].clone() * m[1].clone() * m[10].clone()
+        + m[4].clone() * m[2].clone() * m[9].clone()
+        + m[8].clone() * m[1].clone() * m[6].clone()
+        - m[8].clone() * m[2].clone() * m[5].clone();
 
-    let det = m[0] * out[(0, 0)] + m[1] * out[(0, 1)] + m[2] * out[(0, 2)] + m[3] * out[(0, 3)];
+    let det = m[0].clone() * out[(0, 0)].clone()
+        + m[1].clone() * out[(0, 1)].clone()
+        + m[2].clone() * out[(0, 2)].clone()
+        + m[3].clone() * out[(0, 3)].clone();
 
     if !det.is_zero() {
         let inv_det = T::one() / det;
 
         for j in 0..4 {
             for i in 0..4 {
-                out[(i, j)] *= inv_det;
+                out[(i, j)] *= inv_det.clone();
             }
         }
         true

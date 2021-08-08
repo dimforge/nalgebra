@@ -70,7 +70,7 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                 // Safety: all indices are in range.
                 unsafe {
                     *res.vget_unchecked_mut(destination) =
-                        MaybeUninit::new(src.vget_unchecked(*source).inlined_clone());
+                        MaybeUninit::new(src.vget_unchecked(*source).clone());
                 }
             }
         }
@@ -96,7 +96,7 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             // NOTE: this is basically a copy_frow but wrapping the values insnide of MaybeUninit.
             res.column_mut(destination)
                 .zip_apply(&self.column(*source), |out, e| {
-                    *out = MaybeUninit::new(e.inlined_clone())
+                    *out = MaybeUninit::new(e.clone())
                 });
         }
 
@@ -120,7 +120,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         assert_eq!(diag.len(), min_nrows_ncols, "Mismatched dimensions.");
 
         for i in 0..min_nrows_ncols {
-            unsafe { *self.get_unchecked_mut((i, i)) = diag.vget_unchecked(i).inlined_clone() }
+            unsafe { *self.get_unchecked_mut((i, i)) = diag.vget_unchecked(i).clone() }
         }
     }
 
@@ -177,7 +177,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         T: Scalar,
     {
         for e in self.iter_mut() {
-            *e = val.inlined_clone()
+            *e = val.clone()
         }
     }
 
@@ -201,7 +201,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         let n = cmp::min(nrows, ncols);
 
         for i in 0..n {
-            unsafe { *self.get_unchecked_mut((i, i)) = val.inlined_clone() }
+            unsafe { *self.get_unchecked_mut((i, i)) = val.clone() }
         }
     }
 
@@ -213,7 +213,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     {
         assert!(i < self.nrows(), "Row index out of bounds.");
         for j in 0..self.ncols() {
-            unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
+            unsafe { *self.get_unchecked_mut((i, j)) = val.clone() }
         }
     }
 
@@ -225,7 +225,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     {
         assert!(j < self.ncols(), "Row index out of bounds.");
         for i in 0..self.nrows() {
-            unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
+            unsafe { *self.get_unchecked_mut((i, j)) = val.clone() }
         }
     }
 
@@ -243,7 +243,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     {
         for j in 0..self.ncols() {
             for i in (j + shift)..self.nrows() {
-                unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
+                unsafe { *self.get_unchecked_mut((i, j)) = val.clone() }
             }
         }
     }
@@ -264,7 +264,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
             // TODO: is there a more efficient way to avoid the min ?
             // (necessary for rectangular matrices)
             for i in 0..cmp::min(j + 1 - shift, self.nrows()) {
-                unsafe { *self.get_unchecked_mut((i, j)) = val.inlined_clone() }
+                unsafe { *self.get_unchecked_mut((i, j)) = val.clone() }
             }
         }
     }
@@ -281,7 +281,7 @@ impl<T: Scalar, D: Dim, S: RawStorageMut<T, D, D>> Matrix<T, D, D, S> {
         for j in 0..dim {
             for i in j + 1..dim {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = self.get_unchecked((j, i)).inlined_clone();
+                    *self.get_unchecked_mut((i, j)) = self.get_unchecked((j, i)).clone();
                 }
             }
         }
@@ -296,7 +296,7 @@ impl<T: Scalar, D: Dim, S: RawStorageMut<T, D, D>> Matrix<T, D, D, S> {
         for j in 1..self.ncols() {
             for i in 0..j {
                 unsafe {
-                    *self.get_unchecked_mut((i, j)) = self.get_unchecked((j, i)).inlined_clone();
+                    *self.get_unchecked_mut((i, j)) = self.get_unchecked((j, i)).clone();
                 }
             }
         }
@@ -647,7 +647,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     {
         let mut res = unsafe { self.insert_columns_generic_uninitialized(i, Const::<D>) };
         res.fixed_columns_mut::<D>(i)
-            .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+            .fill_with(|| MaybeUninit::new(val.clone()));
 
         // Safety: the result is now fully initialized. The added columns have
         //         been initialized by the `fill_with` above, and the rest have
@@ -665,7 +665,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     {
         let mut res = unsafe { self.insert_columns_generic_uninitialized(i, Dynamic::new(n)) };
         res.columns_mut(i, n)
-            .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+            .fill_with(|| MaybeUninit::new(val.clone()));
 
         // Safety: the result is now fully initialized. The added columns have
         //         been initialized by the `fill_with` above, and the rest have
@@ -740,7 +740,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     {
         let mut res = unsafe { self.insert_rows_generic_uninitialized(i, Const::<D>) };
         res.fixed_rows_mut::<D>(i)
-            .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+            .fill_with(|| MaybeUninit::new(val.clone()));
 
         // Safety: the result is now fully initialized. The added rows have
         //         been initialized by the `fill_with` above, and the rest have
@@ -758,7 +758,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     {
         let mut res = unsafe { self.insert_rows_generic_uninitialized(i, Dynamic::new(n)) };
         res.rows_mut(i, n)
-            .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+            .fill_with(|| MaybeUninit::new(val.clone()));
 
         // Safety: the result is now fully initialized. The added rows have
         //         been initialized by the `fill_with` above, and the rest have
@@ -896,7 +896,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
             if new_ncols.value() > ncols {
                 res.columns_range_mut(ncols..)
-                    .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+                    .fill_with(|| MaybeUninit::new(val.clone()));
             }
 
             // Safety: the result is now fully initialized by `reallocate_copy` and
@@ -933,12 +933,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
             if new_ncols.value() > ncols {
                 res.columns_range_mut(ncols..)
-                    .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+                    .fill_with(|| MaybeUninit::new(val.clone()));
             }
 
             if new_nrows.value() > nrows {
                 res.slice_range_mut(nrows.., ..cmp::min(ncols, new_ncols.value()))
-                    .fill_with(|| MaybeUninit::new(val.inlined_clone()));
+                    .fill_with(|| MaybeUninit::new(val.clone()));
             }
 
             // Safety: the result is now fully initialized by `reallocate_copy` and

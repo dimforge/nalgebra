@@ -159,10 +159,10 @@ quaternion_op_impl!(
     ;
     self: &'a Quaternion<T>, rhs: &'b Quaternion<T>, Output = Quaternion<T>;
     Quaternion::new(
-        self[3] * rhs[3] - self[0] * rhs[0] - self[1] * rhs[1] - self[2] * rhs[2],
-        self[3] * rhs[0] + self[0] * rhs[3] + self[1] * rhs[2] - self[2] * rhs[1],
-        self[3] * rhs[1] - self[0] * rhs[2] + self[1] * rhs[3] + self[2] * rhs[0],
-        self[3] * rhs[2] + self[0] * rhs[1] - self[1] * rhs[0] + self[2] * rhs[3]);
+        self[3].clone() * rhs[3].clone() - self[0].clone() * rhs[0].clone() - self[1].clone() * rhs[1].clone() - self[2].clone() * rhs[2].clone(),
+        self[3].clone() * rhs[0].clone() + self[0].clone() * rhs[3].clone() + self[1].clone() * rhs[2].clone() - self[2].clone() * rhs[1].clone(),
+        self[3].clone() * rhs[1].clone() - self[0].clone() * rhs[2].clone() + self[1].clone() * rhs[3].clone() + self[2].clone() * rhs[0].clone(),
+        self[3].clone() * rhs[2].clone() + self[0].clone() * rhs[1].clone() - self[1].clone() * rhs[0].clone() + self[2].clone() * rhs[3].clone());
     'a, 'b);
 
 quaternion_op_impl!(

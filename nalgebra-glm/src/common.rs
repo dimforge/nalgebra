@@ -1,9 +1,9 @@
 use core::mem;
-use na::{self, RealField};
-use num::FromPrimitive;
+use na;
 
 use crate::aliases::{TMat, TVec};
 use crate::traits::Number;
+use crate::RealNumber;
 
 /// For each matrix or vector component `x` if `x >= 0`; otherwise, it returns `-x`.
 ///
@@ -42,7 +42,7 @@ pub fn abs<T: Number, const R: usize, const C: usize>(x: &TMat<T, R, C>) -> TMat
 /// * [`fract`](fn.fract.html)
 /// * [`round`](fn.round.html)
 /// * [`trunc`](fn.trunc.html)
-pub fn ceil<T: RealField, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
+pub fn ceil<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.map(|x| x.ceil())
 }
 
@@ -214,7 +214,7 @@ pub fn float_bits_to_uint_vec<const D: usize>(v: &TVec<f32, D>) -> TVec<u32, D> 
 /// * [`fract`](fn.fract.html)
 /// * [`round`](fn.round.html)
 /// * [`trunc`](fn.trunc.html)
-pub fn floor<T: RealField, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
+pub fn floor<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.map(|x| x.floor())
 }
 
@@ -240,13 +240,13 @@ pub fn floor<T: RealField, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
 /// * [`floor`](fn.floor.html)
 /// * [`round`](fn.round.html)
 /// * [`trunc`](fn.trunc.html)
-pub fn fract<T: RealField, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
+pub fn fract<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.map(|x| x.fract())
 }
 
 //// TODO: should be implemented for TVec/TMat?
 ///// Returns the (significant, exponent) of this float number.
-//pub fn frexp<T: RealField>(x: T, exp: T) -> (T, T) {
+//pub fn frexp<T: RealNumber>(x: T, exp: T) -> (T, T) {
 //    // TODO: is there a better approach?
 //    let e = x.log2().ceil();
 //    (x * (-e).exp2(), e)
@@ -297,7 +297,7 @@ pub fn int_bits_to_float_vec<const D: usize>(v: &TVec<i32, D>) -> TVec<f32, D> {
 //}
 
 ///// Returns the (significant, exponent) of this float number.
-//pub fn ldexp<T: RealField>(x: T, exp: T) -> T {
+//pub fn ldexp<T: RealNumber>(x: T, exp: T) -> T {
 //    // TODO: is there a better approach?
 //    x * (exp).exp2()
 //}
@@ -477,7 +477,7 @@ pub fn modf<T: Number>(x: T, i: T) -> T {
 /// * [`floor`](fn.floor.html)
 /// * [`fract`](fn.fract.html)
 /// * [`trunc`](fn.trunc.html)
-pub fn round<T: RealField, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
+pub fn round<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.map(|x| x.round())
 }
 
@@ -507,9 +507,9 @@ pub fn sign<T: Number, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
 ///
 /// This is useful in cases where you would want a threshold function with a smooth transition.
 /// This is equivalent to: `let result = clamp((x - edge0) / (edge1 - edge0), 0, 1); return t * t * (3 - 2 * t);` Results are undefined if `edge0 >= edge1`.
-pub fn smoothstep<T: Number>(edge0: T, edge1: T, x: T) -> T {
-    let _3: T = FromPrimitive::from_f64(3.0).unwrap();
-    let _2: T = FromPrimitive::from_f64(2.0).unwrap();
+pub fn smoothstep<T: RealNumber>(edge0: T, edge1: T, x: T) -> T {
+    let _3 = T::from_subset(&3.0f64);
+    let _2 = T::from_subset(&2.0f64);
     let t = na::clamp((x - edge0) / (edge1 - edge0), T::zero(), T::one());
     t * t * (_3 - t * _2)
 }
@@ -549,7 +549,7 @@ pub fn step_vec<T: Number, const D: usize>(edge: &TVec<T, D>, x: &TVec<T, D>) ->
 /// * [`floor`](fn.floor.html)
 /// * [`fract`](fn.fract.html)
 /// * [`round`](fn.round.html)
-pub fn trunc<T: RealField, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
+pub fn trunc<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.map(|x| x.trunc())
 }
 

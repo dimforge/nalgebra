@@ -111,7 +111,7 @@ where
         }
 
         let amax_m = m.camax();
-        m.unscale_mut(amax_m);
+        m.unscale_mut(amax_m.clone());
 
         let hess = Hessenberg::new_with_workspace(m, work);
         let mut q;
@@ -130,7 +130,7 @@ where
 
         // Implicit double-shift QR method.
         let mut niter = 0;
-        let (mut start, mut end) = Self::delimit_subproblem(&mut t, eps, dim.value() - 1);
+        let (mut start, mut end) = Self::delimit_subproblem(&mut t, eps.clone(), dim.value() - 1);
 
         while end != start {
             let subdim = end - start + 1;
@@ -139,23 +139,23 @@ where
                 let m = end - 1;
                 let n = end;
 
-                let h11 = t[(start, start)];
-                let h12 = t[(start, start + 1)];
-                let h21 = t[(start + 1, start)];
-                let h22 = t[(start + 1, start + 1)];
-                let h32 = t[(start + 2, start + 1)];
+                let h11 = t[(start, start)].clone();
+                let h12 = t[(start, start + 1)].clone();
+                let h21 = t[(start + 1, start)].clone();
+                let h22 = t[(start + 1, start + 1)].clone();
+                let h32 = t[(start + 2, start + 1)].clone();
 
-                let hnn = t[(n, n)];
-                let hmm = t[(m, m)];
-                let hnm = t[(n, m)];
-                let hmn = t[(m, n)];
+                let hnn = t[(n, n)].clone();
+                let hmm = t[(m, m)].clone();
+                let hnm = t[(n, m)].clone();
+                let hmn = t[(m, n)].clone();
 
-                let tra = hnn + hmm;
+                let tra = hnn.clone() + hmm.clone();
                 let det = hnn * hmm - hnm * hmn;
 
                 let mut axis = Vector3::new(
-                    h11 * h11 + h12 * h21 - tra * h11 + det,
-                    h21 * (h11 + h22 - tra),
+                    h11.clone() * h11.clone() + h12 * h21.clone() - tra.clone() * h11.clone() + det,
+                    h21.clone() * (h11 + h22 - tra),
                     h21 * h32,
                 );
 
@@ -169,7 +169,7 @@ where
                             t[(k + 2, k - 1)] = T::zero();
                         }
 
-                        let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
+                        let refl = Reflection::new(Unit::new_unchecked(axis.clone()), T::zero());
 
                         {
                             let krows = cmp::min(k + 4, end + 1);
@@ -192,15 +192,15 @@ where
                         }
                     }
 
-                    axis.x = t[(k + 1, k)];
-                    axis.y = t[(k + 2, k)];
+                    axis.x = t[(k + 1, k)].clone();
+                    axis.y = t[(k + 2, k)].clone();
 
                     if k < n - 2 {
-                        axis.z = t[(k + 3, k)];
+                        axis.z = t[(k + 3, k)].clone();
                     }
                 }
 
-                let mut axis = Vector2::new(axis.x, axis.y);
+                let mut axis = Vector2::new(axis.x.clone(), axis.y.clone());
                 let (norm, not_zero) = householder::reflection_axis_mut(&mut axis);
 
                 if not_zero {
@@ -254,7 +254,7 @@ where
                 }
             }
 
-            let sub = Self::delimit_subproblem(&mut t, eps, end);
+            let sub = Self::delimit_subproblem(&mut t, eps.clone(), end);
 
             start = sub.0;
             end = sub.1;
@@ -279,7 +279,7 @@ where
             let n = m + 1;
 
             if t[(n, m)].is_zero() {
-                out[m] = t[(m, m)];
+                out[m] = t[(m, m)].clone();
                 m += 1;
             } else {
                 // Complex eigenvalue.
@@ -288,7 +288,7 @@ where
         }
 
         if m == dim - 1 {
-            out[m] = t[(m, m)];
+            out[m] = t[(m, m)].clone();
         }
 
         true
@@ -307,33 +307,36 @@ where
             let n = m + 1;
 
             if t[(n, m)].is_zero() {
-                out[m] = MaybeUninit::new(NumComplex::new(t[(m, m)], T::zero()));
+                out[m] = MaybeUninit::new(NumComplex::new(t[(m, m)].clone(), T::zero()));
                 m += 1;
             } else {
                 // Solve the 2x2 eigenvalue subproblem.
-                let hmm = t[(m, m)];
-                let hnm = t[(n, m)];
-                let hmn = t[(m, n)];
-                let hnn = t[(n, n)];
+                let hmm = t[(m, m)].clone();
+                let hnm = t[(n, m)].clone();
+                let hmn = t[(m, n)].clone();
+                let hnn = t[(n, n)].clone();
 
                 // NOTE: use the same algorithm as in compute_2x2_eigvals.
-                let val = (hmm - hnn) * crate::convert(0.5);
-                let discr = hnm * hmn + val * val;
+                let val = (hmm.clone() - hnn.clone()) * crate::convert(0.5);
+                let discr = hnm * hmn + val.clone() * val;
 
                 // All 2x2 blocks have negative discriminant because we already decoupled those
                 // with positive eigenvalues.
                 let sqrt_discr = NumComplex::new(T::zero(), (-discr).sqrt());
 
                 let half_tra = (hnn + hmm) * crate::convert(0.5);
-                out[m] = MaybeUninit::new(NumComplex::new(half_tra, T::zero()) + sqrt_discr);
-                out[m + 1] = MaybeUninit::new(NumComplex::new(half_tra, T::zero()) - sqrt_discr);
+                out[m] = MaybeUninit::new(
+                    NumComplex::new(half_tra.clone(), T::zero()) + sqrt_discr.clone(),
+                );
+                out[m + 1] =
+                    MaybeUninit::new(NumComplex::new(half_tra, T::zero()) - sqrt_discr.clone());
 
                 m += 2;
             }
         }
 
         if m == dim - 1 {
-            out[m] = MaybeUninit::new(NumComplex::new(t[(m, m)], T::zero()));
+            out[m] = MaybeUninit::new(NumComplex::new(t[(m, m)].clone(), T::zero()));
         }
     }
 
@@ -347,7 +350,9 @@ where
         while n > 0 {
             let m = n - 1;
 
-            if t[(n, m)].norm1() <= eps * (t[(n, n)].norm1() + t[(m, m)].norm1()) {
+            if t[(n, m)].clone().norm1()
+                <= eps.clone() * (t[(n, n)].clone().norm1() + t[(m, m)].clone().norm1())
+            {
                 t[(n, m)] = T::zero();
             } else {
                 break;
@@ -364,9 +369,11 @@ where
         while new_start > 0 {
             let m = new_start - 1;
 
-            let off_diag = t[(new_start, m)];
+            let off_diag = t[(new_start, m)].clone();
             if off_diag.is_zero()
-                || off_diag.norm1() <= eps * (t[(new_start, new_start)].norm1() + t[(m, m)].norm1())
+                || off_diag.norm1()
+                    <= eps.clone()
+                        * (t[(new_start, new_start)].clone().norm1() + t[(m, m)].clone().norm1())
             {
                 t[(new_start, m)] = T::zero();
                 break;
@@ -435,7 +442,7 @@ where
                 q = Some(OMatrix::from_column_slice_generic(
                     dim,
                     dim,
-                    &[c, rot.s(), -rot.s().conjugate(), c],
+                    &[c.clone(), rot.s(), -rot.s().conjugate(), c],
                 ));
             }
         }
@@ -453,20 +460,20 @@ fn compute_2x2_eigvals<T: ComplexField, S: Storage<T, U2, U2>>(
     m: &SquareMatrix<T, U2, S>,
 ) -> Option<(T, T)> {
     // Solve the 2x2 eigenvalue subproblem.
-    let h00 = m[(0, 0)];
-    let h10 = m[(1, 0)];
-    let h01 = m[(0, 1)];
-    let h11 = m[(1, 1)];
+    let h00 = m[(0, 0)].clone();
+    let h10 = m[(1, 0)].clone();
+    let h01 = m[(0, 1)].clone();
+    let h11 = m[(1, 1)].clone();
 
     // NOTE: this discriminant computation is more stable than the
     // one based on the trace and determinant: 0.25 * tra * tra - det
     // because it ensures positiveness for symmetric matrices.
-    let val = (h00 - h11) * crate::convert(0.5);
-    let discr = h10 * h01 + val * val;
+    let val = (h00.clone() - h11.clone()) * crate::convert(0.5);
+    let discr = h10 * h01 + val.clone() * val;
 
     discr.try_sqrt().map(|sqrt_discr| {
         let half_tra = (h00 + h11) * crate::convert(0.5);
-        (half_tra + sqrt_discr, half_tra - sqrt_discr)
+        (half_tra.clone() + sqrt_discr.clone(), half_tra - sqrt_discr)
     })
 }
 
@@ -478,20 +485,20 @@ fn compute_2x2_eigvals<T: ComplexField, S: Storage<T, U2, U2>>(
 fn compute_2x2_basis<T: ComplexField, S: Storage<T, U2, U2>>(
     m: &SquareMatrix<T, U2, S>,
 ) -> Option<GivensRotation<T>> {
-    let h10 = m[(1, 0)];
+    let h10 = m[(1, 0)].clone();
 
     if h10.is_zero() {
         return None;
     }
 
     if let Some((eigval1, eigval2)) = compute_2x2_eigvals(m) {
-        let x1 = eigval1 - m[(1, 1)];
-        let x2 = eigval2 - m[(1, 1)];
+        let x1 = eigval1 - m[(1, 1)].clone();
+        let x2 = eigval2 - m[(1, 1)].clone();
 
         // NOTE: Choose the one that yields a larger x component.
         // This is necessary for numerical stability of the normalization of the complex
         // number.
-        if x1.norm1() > x2.norm1() {
+        if x1.clone().norm1() > x2.clone().norm1() {
             Some(GivensRotation::new(x1, h10).0)
         } else {
             Some(GivensRotation::new(x2, h10).0)

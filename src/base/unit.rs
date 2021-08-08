@@ -170,7 +170,7 @@ impl<T: Normed> Unit<T> {
     #[inline]
     pub fn new_and_get(mut value: T) -> (Self, T::Norm) {
         let n = value.norm();
-        value.unscale_mut(n);
+        value.unscale_mut(n.clone());
         (Unit { value }, n)
     }
 
@@ -184,9 +184,9 @@ impl<T: Normed> Unit<T> {
     {
         let sq_norm = value.norm_squared();
 
-        if sq_norm > min_norm * min_norm {
+        if sq_norm > min_norm.clone() * min_norm {
             let n = sq_norm.simd_sqrt();
-            value.unscale_mut(n);
+            value.unscale_mut(n.clone());
             Some((Unit { value }, n))
         } else {
             None
@@ -201,7 +201,7 @@ impl<T: Normed> Unit<T> {
     #[inline]
     pub fn renormalize(&mut self) -> T::Norm {
         let n = self.norm();
-        self.value.unscale_mut(n);
+        self.value.unscale_mut(n.clone());
         n
     }
 

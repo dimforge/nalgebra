@@ -26,7 +26,7 @@ impl<T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
         DefaultAllocator: Allocator<T, D>,
     {
         let mut res = self.clone_owned();
-        res.axpy(t.inlined_clone(), rhs, T::one() - t);
+        res.axpy(t.clone(), rhs, T::one() - t);
         res
     }
 
@@ -109,14 +109,14 @@ impl<T: RealField, D: Dim, S: Storage<T, D>> Unit<Vector<T, D, S>> {
             return Some(Unit::new_unchecked(self.clone_owned()));
         }
 
-        let hang = c_hang.acos();
-        let s_hang = (T::one() - c_hang * c_hang).sqrt();
+        let hang = c_hang.clone().acos();
+        let s_hang = (T::one() - c_hang.clone() * c_hang).sqrt();
 
         // TODO: what if s_hang is 0.0 ? The result is not well-defined.
         if relative_eq!(s_hang, T::zero(), epsilon = epsilon) {
             None
         } else {
-            let ta = ((T::one() - t) * hang).sin() / s_hang;
+            let ta = ((T::one() - t.clone()) * hang.clone()).sin() / s_hang.clone();
             let tb = (t * hang).sin() / s_hang;
             let mut res = self.scale(ta);
             res.axpy(tb, &**rhs, T::one());

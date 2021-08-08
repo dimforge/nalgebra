@@ -40,8 +40,8 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         T: SimdComplexField,
     {
         self.fold_with(
-            |e| e.unwrap_or(&T::zero()).simd_norm1(),
-            |a, b| a.simd_max(b.simd_norm1()),
+            |e| e.unwrap_or(&T::zero()).clone().simd_norm1(),
+            |a, b| a.simd_max(b.clone().simd_norm1()),
         )
     }
 
@@ -60,8 +60,8 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         T: SimdPartialOrd + Zero,
     {
         self.fold_with(
-            |e| e.map(|e| e.inlined_clone()).unwrap_or_else(T::zero),
-            |a, b| a.simd_max(b.inlined_clone()),
+            |e| e.map(|e| e.clone()).unwrap_or_else(T::zero),
+            |a, b| a.simd_max(b.clone()),
         )
     }
 
@@ -101,10 +101,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     {
         self.fold_with(
             |e| {
-                e.map(|e| e.simd_norm1())
+                e.map(|e| e.clone().simd_norm1())
                     .unwrap_or_else(T::SimdRealField::zero)
             },
-            |a, b| a.simd_min(b.simd_norm1()),
+            |a, b| a.simd_min(b.clone().simd_norm1()),
         )
     }
 
@@ -123,8 +123,8 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         T: SimdPartialOrd + Zero,
     {
         self.fold_with(
-            |e| e.map(|e| e.inlined_clone()).unwrap_or_else(T::zero),
-            |a, b| a.simd_min(b.inlined_clone()),
+            |e| e.map(|e| e.clone()).unwrap_or_else(T::zero),
+            |a, b| a.simd_min(b.clone()),
         )
     }
 
@@ -149,12 +149,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     {
         assert!(!self.is_empty(), "The input matrix must not be empty.");
 
-        let mut the_max = unsafe { self.get_unchecked((0, 0)).norm1() };
+        let mut the_max = unsafe { self.get_unchecked((0, 0)).clone().norm1() };
         let mut the_ij = (0, 0);
 
         for j in 0..self.ncols() {
             for i in 0..self.nrows() {
-                let val = unsafe { self.get_unchecked((i, j)).norm1() };
+                let val = unsafe { self.get_unchecked((i, j)).clone().norm1() };
 
                 if val > the_max {
                     the_max = val;
@@ -224,11 +224,11 @@ impl<T: Scalar, D: Dim, S: RawStorage<T, D>> Vector<T, D, S> {
     {
         assert!(!self.is_empty(), "The input vector must not be empty.");
 
-        let mut the_max = unsafe { self.vget_unchecked(0).norm1() };
+        let mut the_max = unsafe { self.vget_unchecked(0).clone().norm1() };
         let mut the_i = 0;
 
         for i in 1..self.nrows() {
-            let val = unsafe { self.vget_unchecked(i).norm1() };
+            let val = unsafe { self.vget_unchecked(i).clone().norm1() };
 
             if val > the_max {
                 the_max = val;
@@ -268,7 +268,7 @@ impl<T: Scalar, D: Dim, S: RawStorage<T, D>> Vector<T, D, S> {
             }
         }
 
-        (the_i, the_max.inlined_clone())
+        (the_i, the_max.clone())
     }
 
     /// Computes the index of the vector component with the largest value.
@@ -350,7 +350,7 @@ impl<T: Scalar, D: Dim, S: RawStorage<T, D>> Vector<T, D, S> {
             }
         }
 
-        (the_i, the_min.inlined_clone())
+        (the_i, the_min.clone())
     }
 
     /// Computes the index of the vector component with the smallest value.

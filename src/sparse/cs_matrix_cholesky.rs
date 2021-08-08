@@ -107,28 +107,29 @@ where
                     let irow = *self.original_i.get_unchecked(p);
 
                     if irow >= k {
-                        *self.work_x.vget_unchecked_mut(irow) = *values.get_unchecked(p);
+                        *self.work_x.vget_unchecked_mut(irow) = values.get_unchecked(p).clone();
                     }
                 }
 
                 for j in self.u.data.column_row_indices(k) {
-                    let factor = -*self
+                    let factor = -self
                         .l
                         .data
                         .vals
-                        .get_unchecked(*self.work_c.vget_unchecked(j));
+                        .get_unchecked(*self.work_c.vget_unchecked(j))
+                        .clone();
                     *self.work_c.vget_unchecked_mut(j) += 1;
 
                     if j < k {
                         for (z, val) in self.l.data.column_entries(j) {
                             if z >= k {
-                                *self.work_x.vget_unchecked_mut(z) += val * factor;
+                                *self.work_x.vget_unchecked_mut(z) += val * factor.clone();
                             }
                         }
                     }
                 }
 
-                let diag = *self.work_x.vget_unchecked(k);
+                let diag = self.work_x.vget_unchecked(k).clone();
 
                 if diag > T::zero() {
                     let denom = diag.sqrt();
@@ -136,10 +137,10 @@ where
                         .l
                         .data
                         .vals
-                        .get_unchecked_mut(*self.l.data.p.vget_unchecked(k)) = denom;
+                        .get_unchecked_mut(*self.l.data.p.vget_unchecked(k)) = denom.clone();
 
                     for (p, val) in self.l.data.column_entries_mut(k) {
-                        *val = *self.work_x.vget_unchecked(p) / denom;
+                        *val = self.work_x.vget_unchecked(p).clone() / denom.clone();
                         *self.work_x.vget_unchecked_mut(p) = T::zero();
                     }
                 } else {
@@ -176,11 +177,11 @@ where
                     let irow = *self.original_i.get_unchecked(p);
 
                     if irow <= k {
-                        *self.work_x.vget_unchecked_mut(irow) = *values.get_unchecked(p);
+                        *self.work_x.vget_unchecked_mut(irow) = values.get_unchecked(p).clone();
                     }
                 }
 
-                let mut diag = *self.work_x.vget_unchecked(k);
+                let mut diag = self.work_x.vget_unchecked(k).clone();
                 *self.work_x.vget_unchecked_mut(k) = T::zero();
 
                 // Triangular solve.
@@ -189,12 +190,13 @@ where
                         continue;
                     }
 
-                    let lki = *self.work_x.vget_unchecked(irow)
-                        / *self
+                    let lki = self.work_x.vget_unchecked(irow).clone()
+                        / self
                             .l
                             .data
                             .vals
-                            .get_unchecked(*self.l.data.p.vget_unchecked(irow));
+                            .get_unchecked(*self.l.data.p.vget_unchecked(irow))
+                            .clone();
                     *self.work_x.vget_unchecked_mut(irow) = T::zero();
 
                     for p in
@@ -203,10 +205,10 @@ where
                         *self
                             .work_x
                             .vget_unchecked_mut(*self.l.data.i.get_unchecked(p)) -=
-                            *self.l.data.vals.get_unchecked(p) * lki;
+                            self.l.data.vals.get_unchecked(p).clone() * lki.clone();
                     }
 
-                    diag -= lki * lki;
+                    diag -= lki.clone() * lki.clone();
                     let p = *self.work_c.vget_unchecked(irow);
                     *self.work_c.vget_unchecked_mut(irow) += 1;
                     *self.l.data.i.get_unchecked_mut(p) = k;

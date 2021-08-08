@@ -64,7 +64,7 @@ macro_rules! component_binop_impl(
             for j in 0 .. res.ncols() {
                 for i in 0 .. res.nrows() {
                     unsafe {
-                        res.get_unchecked_mut((i, j)).$op_assign(rhs.get_unchecked((i, j)).inlined_clone());
+                        res.get_unchecked_mut((i, j)).$op_assign(rhs.get_unchecked((i, j)).clone());
                     }
                 }
             }
@@ -91,7 +91,7 @@ macro_rules! component_binop_impl(
                 for j in 0 .. self.ncols() {
                     for i in 0 .. self.nrows() {
                         unsafe {
-                            let res = alpha.inlined_clone() * a.get_unchecked((i, j)).inlined_clone().$op(b.get_unchecked((i, j)).inlined_clone());
+                            let res = alpha.clone() * a.get_unchecked((i, j)).clone().$op(b.get_unchecked((i, j)).clone());
                             *self.get_unchecked_mut((i, j)) = res;
                         }
                     }
@@ -101,8 +101,8 @@ macro_rules! component_binop_impl(
                 for j in 0 .. self.ncols() {
                     for i in 0 .. self.nrows() {
                         unsafe {
-                            let res = alpha.inlined_clone() * a.get_unchecked((i, j)).inlined_clone().$op(b.get_unchecked((i, j)).inlined_clone());
-                            *self.get_unchecked_mut((i, j)) = beta.inlined_clone() * self.get_unchecked((i, j)).inlined_clone() + res;
+                            let res = alpha.clone() * a.get_unchecked((i, j)).clone().$op(b.get_unchecked((i, j)).clone());
+                            *self.get_unchecked_mut((i, j)) = beta.clone() * self.get_unchecked((i, j)).clone() + res;
                         }
                     }
                 }
@@ -124,7 +124,7 @@ macro_rules! component_binop_impl(
             for j in 0 .. self.ncols() {
                 for i in 0 .. self.nrows() {
                     unsafe {
-                        self.get_unchecked_mut((i, j)).$op_assign(rhs.get_unchecked((i, j)).inlined_clone());
+                        self.get_unchecked_mut((i, j)).$op_assign(rhs.get_unchecked((i, j)).clone());
                     }
                 }
             }
@@ -347,7 +347,7 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
         SA: StorageMut<T, R1, C1>,
     {
         for e in self.iter_mut() {
-            *e += rhs.inlined_clone()
+            *e += rhs.clone()
         }
     }
 }

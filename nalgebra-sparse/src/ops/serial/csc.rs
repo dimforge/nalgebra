@@ -165,13 +165,13 @@ fn spsolve_csc_lower_triangular_no_transpose<T: RealField>(
             // a severe penalty)
             let diag_csc_index = l_col_k.row_indices().iter().position(|&i| i == k);
             if let Some(diag_csc_index) = diag_csc_index {
-                let l_kk = l_col_k.values()[diag_csc_index];
+                let l_kk = l_col_k.values()[diag_csc_index].clone();
 
                 if l_kk != T::zero() {
                     // Update entry associated with diagonal
                     x_col_j[k] /= l_kk;
                     // Copy value after updating (so we don't run into the borrow checker)
-                    let x_kj = x_col_j[k];
+                    let x_kj = x_col_j[k].clone();
 
                     let row_indices = &l_col_k.row_indices()[(diag_csc_index + 1)..];
                     let l_values = &l_col_k.values()[(diag_csc_index + 1)..];
@@ -179,7 +179,7 @@ fn spsolve_csc_lower_triangular_no_transpose<T: RealField>(
                     // Note: The remaining entries are below the diagonal
                     for (&i, l_ik) in row_indices.iter().zip(l_values) {
                         let x_ij = &mut x_col_j[i];
-                        *x_ij -= l_ik.inlined_clone() * x_kj;
+                        *x_ij -= l_ik.clone() * x_kj.clone();
                     }
 
                     x_col_j[k] = x_kj;
@@ -223,22 +223,22 @@ fn spsolve_csc_lower_triangular_transpose<T: RealField>(
             // TODO: Can use exponential search here to quickly skip entries
             let diag_csc_index = l_col_i.row_indices().iter().position(|&k| i == k);
             if let Some(diag_csc_index) = diag_csc_index {
-                let l_ii = l_col_i.values()[diag_csc_index];
+                let l_ii = l_col_i.values()[diag_csc_index].clone();
 
                 if l_ii != T::zero() {
                     // // Update entry associated with diagonal
                     // x_col_j[k] /= a_kk;
 
                     // Copy value after updating (so we don't run into the borrow checker)
-                    let mut x_ii = x_col_j[i];
+                    let mut x_ii = x_col_j[i].clone();
 
                     let row_indices = &l_col_i.row_indices()[(diag_csc_index + 1)..];
                     let a_values = &l_col_i.values()[(diag_csc_index + 1)..];
 
                     // Note: The remaining entries are below the diagonal
-                    for (&k, &l_ki) in row_indices.iter().zip(a_values) {
-                        let x_kj = x_col_j[k];
-                        x_ii -= l_ki * x_kj;
+                    for (k, l_ki) in row_indices.iter().zip(a_values) {
+                        let x_kj = x_col_j[*k].clone();
+                        x_ii -= l_ki.clone() * x_kj;
                     }
 
                     x_col_j[i] = x_ii / l_ii;

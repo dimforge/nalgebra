@@ -11,7 +11,7 @@ macro_rules! impl_swizzle {
                 #[must_use]
                 pub fn $name(&self) -> $Result<T>
                  where <Const<D> as ToTypenum>::Typenum: Cmp<typenum::$BaseDim, Output=Greater> {
-                    $Result::new($(self[$i].inlined_clone()),*)
+                    $Result::new($(self[$i].clone()),*)
                 }
             )*
         )*

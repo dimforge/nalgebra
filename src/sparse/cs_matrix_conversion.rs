@@ -102,7 +102,7 @@ where
             for i in 0..nrows.value() {
                 if !column[i].is_zero() {
                     res.data.i[nz] = i;
-                    res.data.vals[nz] = column[i].inlined_clone();
+                    res.data.vals[nz] = column[i].clone();
                     nz += 1;
                 }
             }

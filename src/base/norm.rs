@@ -328,7 +328,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
     {
         let n = self.norm();
-        let le = n.simd_le(min_norm);
+        let le = n.clone().simd_le(min_norm);
         let val = self.unscale(n);
         SimdOption::new(val, le)
     }
@@ -377,7 +377,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
     {
         let n = self.norm();
-        let scaled = self.scale(max / n);
+        let scaled = self.scale(max.clone() / n.clone());
         let use_scaled = n.simd_gt(max);
         scaled.select(use_scaled, self.clone_owned())
     }
@@ -413,7 +413,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
         T: SimdComplexField,
     {
         let n = self.norm();
-        self.unscale_mut(n);
+        self.unscale_mut(n.clone());
 
         n
     }
@@ -433,8 +433,13 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
     {
         let n = self.norm();
-        let le = n.simd_le(min_norm);
-        self.apply(|e| *e = e.simd_unscale(n).select(le, *e));
+        let le = n.clone().simd_le(min_norm);
+        self.apply(|e| {
+            *e = e
+                .clone()
+                .simd_unscale(n.clone())
+                .select(le.clone(), e.clone())
+        });
         SimdOption::new(n, le)
     }
 
@@ -451,7 +456,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
         if n <= min_norm {
             None
         } else {
-            self.unscale_mut(n);
+            self.unscale_mut(n.clone());
             Some(n)
         }
     }
@@ -572,7 +577,7 @@ where
                         && f(&Self::canonical_basis_element(1));
                 } else if vs.len() == 1 {
                     let v = &vs[0];
-                    let res = Self::from_column_slice(&[-v[1], v[0]]);
+                    let res = Self::from_column_slice(&[-v[1].clone(), v[0].clone()]);
 
                     let _ = f(&res.normalize());
                 }
@@ -588,10 +593,10 @@ where
                     let v = &vs[0];
                     let mut a;
 
-                    if v[0].norm1() > v[1].norm1() {
-                        a = Self::from_column_slice(&[v[2], T::zero(), -v[0]]);
+                    if v[0].clone().norm1() > v[1].clone().norm1() {
+                        a = Self::from_column_slice(&[v[2].clone(), T::zero(), -v[0].clone()]);
                     } else {
-                        a = Self::from_column_slice(&[T::zero(), -v[2], v[1]]);
+                        a = Self::from_column_slice(&[T::zero(), -v[2].clone(), v[1].clone()]);
                     };
 
                     let _ = a.normalize_mut();

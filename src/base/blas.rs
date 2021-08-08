@@ -47,36 +47,36 @@ where
         // because the `for` loop below won't be very efficient on those.
         if (R::is::<U2>() || R2::is::<U2>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = conjugate(self.get_unchecked((0, 0)).inlined_clone())
-                    * rhs.get_unchecked((0, 0)).inlined_clone();
-                let b = conjugate(self.get_unchecked((1, 0)).inlined_clone())
-                    * rhs.get_unchecked((1, 0)).inlined_clone();
+                let a = conjugate(self.get_unchecked((0, 0)).clone())
+                    * rhs.get_unchecked((0, 0)).clone();
+                let b = conjugate(self.get_unchecked((1, 0)).clone())
+                    * rhs.get_unchecked((1, 0)).clone();
 
                 return a + b;
             }
         }
         if (R::is::<U3>() || R2::is::<U3>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = conjugate(self.get_unchecked((0, 0)).inlined_clone())
-                    * rhs.get_unchecked((0, 0)).inlined_clone();
-                let b = conjugate(self.get_unchecked((1, 0)).inlined_clone())
-                    * rhs.get_unchecked((1, 0)).inlined_clone();
-                let c = conjugate(self.get_unchecked((2, 0)).inlined_clone())
-                    * rhs.get_unchecked((2, 0)).inlined_clone();
+                let a = conjugate(self.get_unchecked((0, 0)).clone())
+                    * rhs.get_unchecked((0, 0)).clone();
+                let b = conjugate(self.get_unchecked((1, 0)).clone())
+                    * rhs.get_unchecked((1, 0)).clone();
+                let c = conjugate(self.get_unchecked((2, 0)).clone())
+                    * rhs.get_unchecked((2, 0)).clone();
 
                 return a + b + c;
             }
         }
         if (R::is::<U4>() || R2::is::<U4>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let mut a = conjugate(self.get_unchecked((0, 0)).inlined_clone())
-                    * rhs.get_unchecked((0, 0)).inlined_clone();
-                let mut b = conjugate(self.get_unchecked((1, 0)).inlined_clone())
-                    * rhs.get_unchecked((1, 0)).inlined_clone();
-                let c = conjugate(self.get_unchecked((2, 0)).inlined_clone())
-                    * rhs.get_unchecked((2, 0)).inlined_clone();
-                let d = conjugate(self.get_unchecked((3, 0)).inlined_clone())
-                    * rhs.get_unchecked((3, 0)).inlined_clone();
+                let mut a = conjugate(self.get_unchecked((0, 0)).clone())
+                    * rhs.get_unchecked((0, 0)).clone();
+                let mut b = conjugate(self.get_unchecked((1, 0)).clone())
+                    * rhs.get_unchecked((1, 0)).clone();
+                let c = conjugate(self.get_unchecked((2, 0)).clone())
+                    * rhs.get_unchecked((2, 0)).clone();
+                let d = conjugate(self.get_unchecked((3, 0)).clone())
+                    * rhs.get_unchecked((3, 0)).clone();
 
                 a += c;
                 b += d;
@@ -117,36 +117,36 @@ where
 
             while self.nrows() - i >= 8 {
                 acc0 += unsafe {
-                    conjugate(self.get_unchecked((i, j)).inlined_clone())
-                        * rhs.get_unchecked((i, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i, j)).clone())
+                        * rhs.get_unchecked((i, j)).clone()
                 };
                 acc1 += unsafe {
-                    conjugate(self.get_unchecked((i + 1, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 1, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 1, j)).clone())
+                        * rhs.get_unchecked((i + 1, j)).clone()
                 };
                 acc2 += unsafe {
-                    conjugate(self.get_unchecked((i + 2, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 2, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 2, j)).clone())
+                        * rhs.get_unchecked((i + 2, j)).clone()
                 };
                 acc3 += unsafe {
-                    conjugate(self.get_unchecked((i + 3, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 3, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 3, j)).clone())
+                        * rhs.get_unchecked((i + 3, j)).clone()
                 };
                 acc4 += unsafe {
-                    conjugate(self.get_unchecked((i + 4, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 4, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 4, j)).clone())
+                        * rhs.get_unchecked((i + 4, j)).clone()
                 };
                 acc5 += unsafe {
-                    conjugate(self.get_unchecked((i + 5, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 5, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 5, j)).clone())
+                        * rhs.get_unchecked((i + 5, j)).clone()
                 };
                 acc6 += unsafe {
-                    conjugate(self.get_unchecked((i + 6, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 6, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 6, j)).clone())
+                        * rhs.get_unchecked((i + 6, j)).clone()
                 };
                 acc7 += unsafe {
-                    conjugate(self.get_unchecked((i + 7, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 7, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 7, j)).clone())
+                        * rhs.get_unchecked((i + 7, j)).clone()
                 };
                 i += 8;
             }
@@ -158,8 +158,8 @@ where
 
             for k in i..self.nrows() {
                 res += unsafe {
-                    conjugate(self.get_unchecked((k, j)).inlined_clone())
-                        * rhs.get_unchecked((k, j)).inlined_clone()
+                    conjugate(self.get_unchecked((k, j)).clone())
+                        * rhs.get_unchecked((k, j)).clone()
                 }
             }
         }
@@ -266,8 +266,7 @@ where
         for j in 0..self.nrows() {
             for i in 0..self.ncols() {
                 res += unsafe {
-                    self.get_unchecked((j, i)).inlined_clone()
-                        * rhs.get_unchecked((i, j)).inlined_clone()
+                    self.get_unchecked((j, i)).clone() * rhs.get_unchecked((i, j)).clone()
                 }
             }
         }
@@ -398,9 +397,9 @@ where
 
         // TODO: avoid bound checks.
         let col2 = a.column(0);
-        let val = unsafe { x.vget_unchecked(0).inlined_clone() };
-        self.axpy(alpha.inlined_clone() * val, &col2, beta);
-        self[0] += alpha.inlined_clone() * dot(&a.slice_range(1.., 0), &x.rows_range(1..));
+        let val = unsafe { x.vget_unchecked(0).clone() };
+        self.axpy(alpha.clone() * val, &col2, beta);
+        self[0] += alpha.clone() * dot(&a.slice_range(1.., 0), &x.rows_range(1..));
 
         for j in 1..dim2 {
             let col2 = a.column(j);
@@ -408,11 +407,11 @@ where
 
             let val;
             unsafe {
-                val = x.vget_unchecked(j).inlined_clone();
-                *self.vget_unchecked_mut(j) += alpha.inlined_clone() * dot;
+                val = x.vget_unchecked(j).clone();
+                *self.vget_unchecked_mut(j) += alpha.clone() * dot;
             }
             self.rows_range_mut(j + 1..).axpy(
-                alpha.inlined_clone() * val,
+                alpha.clone() * val,
                 &col2.rows_range(j + 1..),
                 T::one(),
             );
@@ -538,13 +537,12 @@ where
         if beta.is_zero() {
             for j in 0..ncols2 {
                 let val = unsafe { self.vget_unchecked_mut(j) };
-                *val = alpha.inlined_clone() * dot(&a.column(j), x)
+                *val = alpha.clone() * dot(&a.column(j), x)
             }
         } else {
             for j in 0..ncols2 {
                 let val = unsafe { self.vget_unchecked_mut(j) };
-                *val = alpha.inlined_clone() * dot(&a.column(j), x)
-                    + beta.inlined_clone() * val.inlined_clone();
+                *val = alpha.clone() * dot(&a.column(j), x) + beta.clone() * val.clone();
             }
         }
     }
@@ -648,9 +646,9 @@ where
 
         for j in 0..ncols1 {
             // TODO: avoid bound checks.
-            let val = unsafe { conjugate(y.vget_unchecked(j).inlined_clone()) };
+            let val = unsafe { conjugate(y.vget_unchecked(j).clone()) };
             self.column_mut(j)
-                .axpy(alpha.inlined_clone() * val, x, beta.inlined_clone());
+                .axpy(alpha.clone() * val, x, beta.clone());
         }
     }
 
@@ -813,12 +811,8 @@ where
 
         for j1 in 0..ncols1 {
             // TODO: avoid bound checks.
-            self.column_mut(j1).gemv_tr(
-                alpha.inlined_clone(),
-                a,
-                &b.column(j1),
-                beta.inlined_clone(),
-            );
+            self.column_mut(j1)
+                .gemv_tr(alpha.clone(), a, &b.column(j1), beta.clone());
         }
     }
 
@@ -875,7 +869,8 @@ where
 
         for j1 in 0..ncols1 {
             // TODO: avoid bound checks.
-            self.column_mut(j1).gemv_ad(alpha, a, &b.column(j1), beta);
+            self.column_mut(j1)
+                .gemv_ad(alpha.clone(), a, &b.column(j1), beta.clone());
         }
     }
 }
@@ -909,13 +904,13 @@ where
         assert!(dim1 == dim2 && dim1 == dim3, "ger: dimensions mismatch.");
 
         for j in 0..dim1 {
-            let val = unsafe { conjugate(y.vget_unchecked(j).inlined_clone()) };
+            let val = unsafe { conjugate(y.vget_unchecked(j).clone()) };
             let subdim = Dynamic::new(dim1 - j);
             // TODO: avoid bound checks.
             self.generic_slice_mut((j, j), (subdim, Const::<1>)).axpy(
-                alpha.inlined_clone() * val,
+                alpha.clone() * val,
                 &x.rows_range(j..),
-                beta.inlined_clone(),
+                beta.clone(),
             );
         }
     }
@@ -1076,11 +1071,11 @@ where
         ShapeConstraint: DimEq<D1, D2> + DimEq<D1, R3> + DimEq<D2, R3> + DimEq<C3, D4>,
     {
         work.gemv(T::one(), lhs, &mid.column(0), T::zero());
-        self.ger(alpha.inlined_clone(), work, &lhs.column(0), beta);
+        self.ger(alpha.clone(), work, &lhs.column(0), beta);
 
         for j in 1..mid.ncols() {
             work.gemv(T::one(), lhs, &mid.column(j), T::zero());
-            self.ger(alpha.inlined_clone(), work, &lhs.column(j), T::one());
+            self.ger(alpha.clone(), work, &lhs.column(j), T::one());
         }
     }
 
@@ -1170,12 +1165,12 @@ where
     {
         work.gemv(T::one(), mid, &rhs.column(0), T::zero());
         self.column_mut(0)
-            .gemv_tr(alpha.inlined_clone(), rhs, work, beta.inlined_clone());
+            .gemv_tr(alpha.clone(), rhs, work, beta.clone());
 
         for j in 1..rhs.ncols() {
             work.gemv(T::one(), mid, &rhs.column(j), T::zero());
             self.column_mut(j)
-                .gemv_tr(alpha.inlined_clone(), rhs, work, beta.inlined_clone());
+                .gemv_tr(alpha.clone(), rhs, work, beta.clone());
         }
     }
 

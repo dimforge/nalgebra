@@ -104,8 +104,7 @@ where
         unsafe {
             for i in 0..nrows.value() {
                 for j in 0..ncols.value() {
-                    *res.get_unchecked_mut((i, j)) =
-                        MaybeUninit::new(iter.next().unwrap().inlined_clone())
+                    *res.get_unchecked_mut((i, j)) = MaybeUninit::new(iter.next().unwrap().clone())
                 }
             }
 
@@ -166,7 +165,7 @@ where
         let mut res = Self::zeros_generic(nrows, ncols);
 
         for i in 0..crate::min(nrows.value(), ncols.value()) {
-            unsafe { *res.get_unchecked_mut((i, i)) = elt.inlined_clone() }
+            unsafe { *res.get_unchecked_mut((i, i)) = elt.clone() }
         }
 
         res
@@ -188,7 +187,7 @@ where
         );
 
         for (i, elt) in elts.iter().enumerate() {
-            unsafe { *res.get_unchecked_mut((i, i)) = elt.inlined_clone() }
+            unsafe { *res.get_unchecked_mut((i, i)) = elt.clone() }
         }
 
         res
@@ -232,7 +231,7 @@ where
 
         // TODO: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
-            rows[i][(0, j)].inlined_clone()
+            rows[i][(0, j)].clone()
         })
     }
 
@@ -274,7 +273,7 @@ where
 
         // TODO: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
-            columns[j][i].inlined_clone()
+            columns[j][i].clone()
         })
     }
 
@@ -358,7 +357,7 @@ where
 
         for i in 0..diag.len() {
             unsafe {
-                *res.get_unchecked_mut((i, i)) = diag.vget_unchecked(i).inlined_clone();
+                *res.get_unchecked_mut((i, i)) = diag.vget_unchecked(i).clone();
             }
         }
 

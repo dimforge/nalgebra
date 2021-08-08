@@ -47,11 +47,11 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
             let u_f = cmp::min(i, vec - 1);
 
             if u_i == u_f {
-                conv[i] += self[u_i] * kernel[(i - u_i)];
+                conv[i] += self[u_i].clone() * kernel[(i - u_i)].clone();
             } else {
                 for u in u_i..(u_f + 1) {
                     if i - u < ker {
-                        conv[i] += self[u] * kernel[(i - u)];
+                        conv[i] += self[u].clone() * kernel[(i - u)].clone();
                     }
                 }
             }
@@ -97,7 +97,7 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
 
         for i in 0..(vec - ker + 1) {
             for j in 0..ker {
-                conv[i] += self[i + j] * kernel[ker - j - 1];
+                conv[i] += self[i + j].clone() * kernel[ker - j - 1].clone();
             }
         }
         conv
@@ -133,9 +133,9 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
                 let val = if i + j < 1 || i + j >= vec + 1 {
                     zero::<T>()
                 } else {
-                    self[i + j - 1]
+                    self[i + j - 1].clone()
                 };
-                conv[i] += val * kernel[ker - j - 1];
+                conv[i] += val * kernel[ker - j - 1].clone();
             }
         }
 

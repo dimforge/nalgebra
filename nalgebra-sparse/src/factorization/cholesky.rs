@@ -3,7 +3,7 @@ use crate::ops::serial::spsolve_csc_lower_triangular;
 use crate::ops::Op;
 use crate::pattern::SparsityPattern;
 use core::{iter, mem};
-use nalgebra::{DMatrix, DMatrixSlice, DMatrixSliceMut, RealField, Scalar};
+use nalgebra::{DMatrix, DMatrixSlice, DMatrixSliceMut, RealField};
 use std::fmt::{Display, Formatter};
 
 /// A symbolic sparse Cholesky factorization of a CSC matrix.
@@ -209,15 +209,16 @@ impl<T: RealField> CscCholesky<T> {
                     let irow = *self.m_pattern.minor_indices().get_unchecked(p);
 
                     if irow >= k {
-                        *self.work_x.get_unchecked_mut(irow) = *values.get_unchecked(p);
+                        *self.work_x.get_unchecked_mut(irow) = values.get_unchecked(p).clone();
                     }
                 }
 
                 for &j in self.u_pattern.lane(k) {
-                    let factor = -*self
+                    let factor = -self
                         .l_factor
                         .values()
-                        .get_unchecked(*self.work_c.get_unchecked(j));
+                        .get_unchecked(*self.work_c.get_unchecked(j))
+                        .clone();
                     *self.work_c.get_unchecked_mut(j) += 1;
 
                     if j < k {
@@ -225,27 +226,27 @@ impl<T: RealField> CscCholesky<T> {
                         let col_j_entries = col_j.row_indices().iter().zip(col_j.values());
                         for (&z, val) in col_j_entries {
                             if z >= k {
-                                *self.work_x.get_unchecked_mut(z) += val.inlined_clone() * factor;
+                                *self.work_x.get_unchecked_mut(z) += val.clone() * factor.clone();
                             }
                         }
                     }
                 }
 
-                let diag = *self.work_x.get_unchecked(k);
+                let diag = self.work_x.get_unchecked(k).clone();
 
                 if diag > T::zero() {
                     let denom = diag.sqrt();
 
                     {
                         let (offsets, _, values) = self.l_factor.csc_data_mut();
-                        *values.get_unchecked_mut(*offsets.get_unchecked(k)) = denom;
+                        *values.get_unchecked_mut(*offsets.get_unchecked(k)) = denom.clone();
                     }
 
                     let mut col_k = self.l_factor.col_mut(k);
                     let (col_k_rows, col_k_values) = col_k.rows_and_values_mut();
                     let col_k_entries = col_k_rows.iter().zip(col_k_values);
                     for (&p, val) in col_k_entries {
-                        *val = *self.work_x.get_unchecked(p) / denom;
+                        *val = self.work_x.get_unchecked(p).clone() / denom.clone();
                         *self.work_x.get_unchecked_mut(p) = T::zero();
                     }
                 } else {

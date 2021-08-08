@@ -141,7 +141,7 @@ macro_rules! impl_scalar_mul {
         impl_mul!(<'a, T>(a: &'a $matrix_type<T>, b: &'a T) -> $matrix_type<T> {
             let values: Vec<_> = a.values()
                 .iter()
-                .map(|v_i| v_i.inlined_clone() * b.inlined_clone())
+                .map(|v_i| v_i.clone() * b.clone())
                 .collect();
             $matrix_type::try_from_pattern_and_values(a.pattern().clone(), values).unwrap()
         });
@@ -151,7 +151,7 @@ macro_rules! impl_scalar_mul {
         impl_mul!(<'a, T>(a: $matrix_type<T>, b: &'a T) -> $matrix_type<T> {
             let mut a = a;
             for value in a.values_mut() {
-                *value = b.inlined_clone() * value.inlined_clone();
+                *value = b.clone() * value.clone();
             }
             a
         });
@@ -168,7 +168,7 @@ macro_rules! impl_scalar_mul {
         {
             fn mul_assign(&mut self, scalar: T) {
                 for val in self.values_mut() {
-                    *val *= scalar.inlined_clone();
+                    *val *= scalar.clone();
                 }
             }
         }
@@ -179,7 +179,7 @@ macro_rules! impl_scalar_mul {
         {
             fn mul_assign(&mut self, scalar: &'a T) {
                 for val in self.values_mut() {
-                    *val *= scalar.inlined_clone();
+                    *val *= scalar.clone();
                 }
             }
         }
@@ -199,7 +199,7 @@ macro_rules! impl_neg {
 
             fn neg(mut self) -> Self::Output {
                 for v_i in self.values_mut() {
-                    *v_i = -v_i.inlined_clone();
+                    *v_i = -v_i.clone();
                 }
                 self
             }
@@ -233,25 +233,25 @@ macro_rules! impl_div {
             matrix
         });
         impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: $matrix_type<T>, scalar: &T) -> $matrix_type<T> {
-            matrix / scalar.inlined_clone()
+            matrix / scalar.clone()
         });
         impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: &'a $matrix_type<T>, scalar: T) -> $matrix_type<T> {
             let new_values = matrix.values()
                 .iter()
-                .map(|v_i| v_i.inlined_clone() / scalar.inlined_clone())
+                .map(|v_i| v_i.clone() / scalar.clone())
                 .collect();
             $matrix_type::try_from_pattern_and_values(matrix.pattern().clone(), new_values)
                 .unwrap()
         });
         impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: &'a $matrix_type<T>, scalar: &'a T) -> $matrix_type<T> {
-            matrix / scalar.inlined_clone()
+            matrix / scalar.clone()
         });
 
         impl<T> DivAssign<T> for $matrix_type<T>
             where T : Scalar + ClosedAdd + ClosedMul + ClosedDiv + Zero + One
         {
             fn div_assign(&mut self, scalar: T) {
-                self.values_mut().iter_mut().for_each(|v_i| *v_i /= scalar.inlined_clone());
+                self.values_mut().iter_mut().for_each(|v_i| *v_i /= scalar.clone());
             }
         }
 
@@ -259,7 +259,7 @@ macro_rules! impl_div {
             where T : Scalar + ClosedAdd + ClosedMul + ClosedDiv + Zero + One
         {
             fn div_assign(&mut self, scalar: &'a T) {
-                *self /= scalar.inlined_clone();
+                *self /= scalar.clone();
             }
         }
     }

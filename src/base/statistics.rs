@@ -216,11 +216,11 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
             T::zero()
         } else {
             let val = self.iter().cloned().fold((T::zero(), T::zero()), |a, b| {
-                (a.0 + b.inlined_clone() * b.inlined_clone(), a.1 + b)
+                (a.0 + b.clone() * b.clone(), a.1 + b)
             });
             let denom = T::one() / crate::convert::<_, T>(self.len() as f64);
-            let vd = val.1 * denom.inlined_clone();
-            val.0 * denom - vd.inlined_clone() * vd
+            let vd = val.1 * denom.clone();
+            val.0 * denom - vd.clone() * vd
         }
     }
 
@@ -289,15 +289,14 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         let (nrows, ncols) = self.shape_generic();
 
         let mut mean = self.column_mean();
-        mean.apply(|e| *e = -(e.inlined_clone() * e.inlined_clone()));
+        mean.apply(|e| *e = -(e.clone() * e.clone()));
 
         let denom = T::one() / crate::convert::<_, T>(ncols.value() as f64);
         self.compress_columns(mean, |out, col| {
             for i in 0..nrows.value() {
                 unsafe {
                     let val = col.vget_unchecked(i);
-                    *out.vget_unchecked_mut(i) +=
-                        denom.inlined_clone() * val.inlined_clone() * val.inlined_clone()
+                    *out.vget_unchecked_mut(i) += denom.clone() * val.clone() * val.clone()
                 }
             }
         })
@@ -397,7 +396,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         let (nrows, ncols) = self.shape_generic();
         let denom = T::one() / crate::convert::<_, T>(ncols.value() as f64);
         self.compress_columns(OVector::zeros_generic(nrows, Const::<1>), |out, col| {
-            out.axpy(denom.inlined_clone(), &col, T::one())
+            out.axpy(denom.clone(), &col, T::one())
         })
     }
 }

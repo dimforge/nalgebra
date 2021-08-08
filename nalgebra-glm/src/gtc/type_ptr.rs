@@ -1,10 +1,10 @@
-use na::{Quaternion, RealField, Scalar};
+use na::{Quaternion, Scalar};
 
 use crate::aliases::{
     Qua, TMat, TMat2, TMat2x3, TMat2x4, TMat3, TMat3x2, TMat3x4, TMat4, TMat4x2, TMat4x3, TVec1,
     TVec2, TVec3, TVec4,
 };
-use crate::traits::Number;
+use crate::traits::{Number, RealNumber};
 
 /// Creates a 2x2 matrix from a slice arranged in column-major order.
 pub fn make_mat2<T: Scalar>(ptr: &[T]) -> TMat2<T> {
@@ -76,12 +76,7 @@ pub fn mat2_to_mat3<T: Number>(m: &TMat2<T>) -> TMat3<T> {
 
 /// Converts a 3x3 matrix to a 2x2 matrix.
 pub fn mat3_to_mat2<T: Scalar>(m: &TMat3<T>) -> TMat2<T> {
-    TMat2::new(
-        m.m11.inlined_clone(),
-        m.m12.inlined_clone(),
-        m.m21.inlined_clone(),
-        m.m22.inlined_clone(),
-    )
+    TMat2::new(m.m11.clone(), m.m12.clone(), m.m21.clone(), m.m22.clone())
 }
 
 /// Converts a 3x3 matrix to a 4x4 matrix.
@@ -97,15 +92,15 @@ pub fn mat3_to_mat4<T: Number>(m: &TMat3<T>) -> TMat4<T> {
 /// Converts a 4x4 matrix to a 3x3 matrix.
 pub fn mat4_to_mat3<T: Scalar>(m: &TMat4<T>) -> TMat3<T> {
     TMat3::new(
-        m.m11.inlined_clone(),
-        m.m12.inlined_clone(),
-        m.m13.inlined_clone(),
-        m.m21.inlined_clone(),
-        m.m22.inlined_clone(),
-        m.m23.inlined_clone(),
-        m.m31.inlined_clone(),
-        m.m32.inlined_clone(),
-        m.m33.inlined_clone(),
+        m.m11.clone(),
+        m.m12.clone(),
+        m.m13.clone(),
+        m.m21.clone(),
+        m.m22.clone(),
+        m.m23.clone(),
+        m.m31.clone(),
+        m.m32.clone(),
+        m.m33.clone(),
     )
 }
 
@@ -121,16 +116,11 @@ pub fn mat2_to_mat4<T: Number>(m: &TMat2<T>) -> TMat4<T> {
 
 /// Converts a 4x4 matrix to a 2x2 matrix.
 pub fn mat4_to_mat2<T: Scalar>(m: &TMat4<T>) -> TMat2<T> {
-    TMat2::new(
-        m.m11.inlined_clone(),
-        m.m12.inlined_clone(),
-        m.m21.inlined_clone(),
-        m.m22.inlined_clone(),
-    )
+    TMat2::new(m.m11.clone(), m.m12.clone(), m.m21.clone(), m.m22.clone())
 }
 
 /// Creates a quaternion from a slice arranged as `[x, y, z, w]`.
-pub fn make_quat<T: RealField>(ptr: &[T]) -> Qua<T> {
+pub fn make_quat<T: RealNumber>(ptr: &[T]) -> Qua<T> {
     Quaternion::from(TVec4::from_column_slice(ptr))
 }
 
@@ -156,7 +146,7 @@ pub fn make_vec1<T: Scalar>(v: &TVec1<T>) -> TVec1<T> {
 /// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
 /// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
 pub fn vec2_to_vec1<T: Scalar>(v: &TVec2<T>) -> TVec1<T> {
-    TVec1::new(v.x.inlined_clone())
+    TVec1::new(v.x.clone())
 }
 
 /// Creates a 1D vector from another vector.
@@ -170,7 +160,7 @@ pub fn vec2_to_vec1<T: Scalar>(v: &TVec2<T>) -> TVec1<T> {
 /// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
 /// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
 pub fn vec3_to_vec1<T: Scalar>(v: &TVec3<T>) -> TVec1<T> {
-    TVec1::new(v.x.inlined_clone())
+    TVec1::new(v.x.clone())
 }
 
 /// Creates a 1D vector from another vector.
@@ -184,7 +174,7 @@ pub fn vec3_to_vec1<T: Scalar>(v: &TVec3<T>) -> TVec1<T> {
 /// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
 /// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
 pub fn vec4_to_vec1<T: Scalar>(v: &TVec4<T>) -> TVec1<T> {
-    TVec1::new(v.x.inlined_clone())
+    TVec1::new(v.x.clone())
 }
 
 /// Creates a 2D vector from another vector.
@@ -200,7 +190,7 @@ pub fn vec4_to_vec1<T: Scalar>(v: &TVec4<T>) -> TVec1<T> {
 /// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
 /// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
 pub fn vec1_to_vec2<T: Number>(v: &TVec1<T>) -> TVec2<T> {
-    TVec2::new(v.x.inlined_clone(), T::zero())
+    TVec2::new(v.x.clone(), T::zero())
 }
 
 /// Creates a 2D vector from another vector.
@@ -229,7 +219,7 @@ pub fn vec2_to_vec2<T: Scalar>(v: &TVec2<T>) -> TVec2<T> {
 /// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
 /// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
 pub fn vec3_to_vec2<T: Scalar>(v: &TVec3<T>) -> TVec2<T> {
-    TVec2::new(v.x.inlined_clone(), v.y.inlined_clone())
+    TVec2::new(v.x.clone(), v.y.clone())
 }
 
 /// Creates a 2D vector from another vector.
@@ -243,7 +233,7 @@ pub fn vec3_to_vec2<T: Scalar>(v: &TVec3<T>) -> TVec2<T> {
 /// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
 /// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
 pub fn vec4_to_vec2<T: Scalar>(v: &TVec4<T>) -> TVec2<T> {
-    TVec2::new(v.x.inlined_clone(), v.y.inlined_clone())
+    TVec2::new(v.x.clone(), v.y.clone())
 }
 
 /// Creates a 2D vector from a slice.
@@ -269,7 +259,7 @@ pub fn make_vec2<T: Scalar>(ptr: &[T]) -> TVec2<T> {
 /// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
 /// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
 pub fn vec1_to_vec3<T: Number>(v: &TVec1<T>) -> TVec3<T> {
-    TVec3::new(v.x.inlined_clone(), T::zero(), T::zero())
+    TVec3::new(v.x.clone(), T::zero(), T::zero())
 }
 
 /// Creates a 3D vector from another vector.
@@ -285,7 +275,7 @@ pub fn vec1_to_vec3<T: Number>(v: &TVec1<T>) -> TVec3<T> {
 /// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
 /// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
 pub fn vec2_to_vec3<T: Number>(v: &TVec2<T>) -> TVec3<T> {
-    TVec3::new(v.x.inlined_clone(), v.y.inlined_clone(), T::zero())
+    TVec3::new(v.x.clone(), v.y.clone(), T::zero())
 }
 
 /// Creates a 3D vector from another vector.
@@ -313,11 +303,7 @@ pub fn vec3_to_vec3<T: Scalar>(v: &TVec3<T>) -> TVec3<T> {
 /// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
 /// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
 pub fn vec4_to_vec3<T: Scalar>(v: &TVec4<T>) -> TVec3<T> {
-    TVec3::new(
-        v.x.inlined_clone(),
-        v.y.inlined_clone(),
-        v.z.inlined_clone(),
-    )
+    TVec3::new(v.x.clone(), v.y.clone(), v.z.clone())
 }
 
 /// Creates a 3D vector from another vector.

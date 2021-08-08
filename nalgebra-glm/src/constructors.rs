@@ -2,7 +2,8 @@ use crate::aliases::{
     Qua, TMat, TMat2, TMat2x3, TMat2x4, TMat3, TMat3x2, TMat3x4, TMat4, TMat4x2, TMat4x3, TVec1,
     TVec2, TVec3, TVec4,
 };
-use na::{RealField, Scalar};
+use crate::RealNumber;
+use na::Scalar;
 
 /// Creates a new 1D vector.
 ///
@@ -178,6 +179,6 @@ pub fn mat4<T: Scalar>(m11: T, m12: T, m13: T, m14: T,
 }
 
 /// Creates a new quaternion.
-pub fn quat<T: RealField>(x: T, y: T, z: T, w: T) -> Qua<T> {
+pub fn quat<T: RealNumber>(x: T, y: T, z: T, w: T) -> Qua<T> {
     Qua::new(w, x, y, z)
 }
