@@ -1,6 +1,6 @@
 [package]
 name = "nalgebra-sparse"
-version = "0.4.0"
+version = "0.5.0"
 authors = [ "Andreas Longva", "Sébastien Crozet <developer@crozet.re>" ]
 edition = "2018"
 description = "Sparse matrix computation based on nalgebra."
