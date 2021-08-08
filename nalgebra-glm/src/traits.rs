@@ -1,8 +1,8 @@
 use approx::AbsDiffEq;
-use num::{Bounded, FromPrimitive, Signed};
+use num::{Bounded, Signed};
 
 use na::Scalar;
-use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub};
+use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, RealField};
 use std::cmp::PartialOrd;
 
 /// A number that can either be an integer or a float.
@@ -15,7 +15,6 @@ pub trait Number:
     + ClosedMul
     + AbsDiffEq<Epsilon = Self>
     + Signed
-    + FromPrimitive
     + Bounded
 {
 }
@@ -29,8 +28,12 @@ impl<
             + ClosedMul
             + AbsDiffEq<Epsilon = Self>
             + Signed
-            + FromPrimitive
             + Bounded,
     > Number for T
 {
 }
+
+/// A number that can be any float type.
+pub trait RealNumber: Number + RealField {}
+
+impl<T: Number + RealField> RealNumber for T {}

@@ -7,7 +7,7 @@ use std::slice;
 
 use crate::allocator::Allocator;
 use crate::sparse::cs_utils;
-use crate::{Const, DefaultAllocator, Dim, Dynamic, OVector, Scalar, Vector, U1};
+use crate::{Const, DefaultAllocator, Dim, Dynamic, Matrix, OVector, Scalar, Vector, U1};
 
 pub struct ColumnEntries<'a, T> {
     curr: usize,
@@ -46,7 +46,7 @@ impl<'a, T: Clone> Iterator for ColumnEntries<'a, T> {
 pub trait CsStorageIter<'a, T, R, C = U1> {
     /// Iterator through all the rows of a specific columns.
     ///
-    /// The elements are given as a tuple (row_index, value).
+    /// The elements are given as a tuple (`row_index`, value).
     type ColumnEntries: Iterator<Item = (usize, T)>;
     /// Iterator through the row indices of a specific column.
     type ColumnRowIndices: Iterator<Item = usize>;
@@ -63,7 +63,7 @@ pub trait CsStorageIterMut<'a, T: 'a, R, C = U1> {
     type ValuesMut: Iterator<Item = &'a mut T>;
     /// Mutable iterator through all the rows of a specific columns.
     ///
-    /// The elements are given as a tuple (row_index, value).
+    /// The elements are given as a tuple (`row_index`, value).
     type ColumnEntriesMut: Iterator<Item = (usize, &'a mut T)>;
 
     /// A mutable iterator through the values buffer of the sparse matrix.
@@ -466,12 +466,12 @@ where
 {
     pub(crate) fn sort(&mut self)
     where
+        T: Zero,
         DefaultAllocator: Allocator<T, R>,
     {
         // Size = R
         let nrows = self.data.shape().0;
-        let mut workspace =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, Const::<1>) };
+        let mut workspace = Matrix::zeros_generic(nrows, Const::<1>);
         self.sort_with_workspace(workspace.as_mut_slice());
     }
 
@@ -493,7 +493,7 @@ where
 
             // Permute the values too.
             for (i, irow) in range.clone().zip(self.data.i[range].iter().cloned()) {
-                self.data.vals[i] = workspace[irow].inlined_clone();
+                self.data.vals[i] = workspace[irow].clone();
             }
         }
     }
@@ -517,11 +517,11 @@ where
                     let curr_irow = self.data.i[idx];
 
                     if curr_irow == irow {
-                        value += self.data.vals[idx].inlined_clone();
+                        value += self.data.vals[idx].clone();
                     } else {
                         self.data.i[curr_i] = irow;
                         self.data.vals[curr_i] = value;
-                        value = self.data.vals[idx].inlined_clone();
+                        value = self.data.vals[idx].clone();
                         irow = curr_irow;
                         curr_i += 1;
                     }

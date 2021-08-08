@@ -83,6 +83,22 @@ where
     }
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<T, const D: usize> bytemuck::Zeroable for Rotation<T, D>
+where
+    T: Scalar + bytemuck::Zeroable,
+    SMatrix<T, D, D>: bytemuck::Zeroable,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T, const D: usize> bytemuck::Pod for Rotation<T, D>
+where
+    T: Scalar + bytemuck::Pod,
+    SMatrix<T, D, D>: bytemuck::Pod,
+{
+}
+
 #[cfg(feature = "abomonation-serialize")]
 impl<T, const D: usize> Abomonation for Rotation<T, D>
 where
@@ -130,10 +146,10 @@ where
     }
 }
 
-impl<T: Scalar, const D: usize> Rotation<T, D> {
+impl<T, const D: usize> Rotation<T, D> {
     /// Creates a new rotation from the given square matrix.
     ///
-    /// The matrix squareness is checked but not its orthonormality.
+    /// The matrix orthonormality is not checked.
     ///
     /// # Example
     /// ```
@@ -154,12 +170,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// assert_eq!(*rot.matrix(), mat);
     /// ```
     #[inline]
-    pub fn from_matrix_unchecked(matrix: SMatrix<T, D, D>) -> Self {
-        assert!(
-            matrix.is_square(),
-            "Unable to create a rotation from a non-square matrix."
-        );
-
+    pub const fn from_matrix_unchecked(matrix: SMatrix<T, D, D>) -> Self {
         Self { matrix }
     }
 }
@@ -233,7 +244,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     }
 
     /// Unwraps the underlying matrix.
-    /// Deprecated: Use [Rotation::into_inner] instead.
+    /// Deprecated: Use [`Rotation::into_inner`] instead.
     #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> SMatrix<T, D, D> {
@@ -503,7 +514,7 @@ impl<T: Scalar + PartialEq, const D: usize> PartialEq for Rotation<T, D> {
 impl<T, const D: usize> AbsDiffEq for Rotation<T, D>
 where
     T: Scalar + AbsDiffEq,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     type Epsilon = T::Epsilon;
 
@@ -521,7 +532,7 @@ where
 impl<T, const D: usize> RelativeEq for Rotation<T, D>
 where
     T: Scalar + RelativeEq,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
@@ -543,7 +554,7 @@ where
 impl<T, const D: usize> UlpsEq for Rotation<T, D>
 where
     T: Scalar + UlpsEq,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_ulps() -> u32 {
@@ -565,7 +576,7 @@ impl<T, const D: usize> fmt::Display for Rotation<T, D>
 where
     T: RealField + fmt::Display,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
         writeln!(f, "Rotation matrix {{")?;

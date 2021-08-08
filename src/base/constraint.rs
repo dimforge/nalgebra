@@ -3,6 +3,7 @@
 use crate::base::dimension::{Dim, DimName, Dynamic};
 
 /// A type used in `where` clauses for enforcing constraints.
+#[derive(Copy, Clone, Debug)]
 pub struct ShapeConstraint;
 
 /// Constraints `C1` and `R2` to be equivalent.

@@ -1,10 +1,10 @@
-use na::{Const, DimMin, RealField, Scalar};
+use na::{Const, DimMin, Scalar};
 
 use crate::aliases::{TMat, TVec};
-use crate::traits::Number;
+use crate::traits::{Number, RealNumber};
 
 /// The determinant of the matrix `m`.
-pub fn determinant<T: RealField, const D: usize>(m: &TMat<T, D, D>) -> T
+pub fn determinant<T: RealNumber, const D: usize>(m: &TMat<T, D, D>) -> T
 where
     Const<D>: DimMin<Const<D>, Output = Const<D>>,
 {
@@ -12,7 +12,7 @@ where
 }
 
 /// The inverse of the matrix `m`.
-pub fn inverse<T: RealField, const D: usize>(m: &TMat<T, D, D>) -> TMat<T, D, D> {
+pub fn inverse<T: RealNumber, const D: usize>(m: &TMat<T, D, D>) -> TMat<T, D, D> {
     m.clone()
         .try_inverse()
         .unwrap_or_else(TMat::<T, D, D>::zeros)

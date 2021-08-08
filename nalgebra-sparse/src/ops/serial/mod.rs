@@ -8,7 +8,6 @@
 //! some operations which will be able to dynamically adapt the output pattern to fit the
 //! result, but these have yet to be implemented.
 
-#[macro_use]
 macro_rules! assert_compatible_spmm_dims {
     ($c:expr, $a:expr, $b:expr) => {{
         use crate::ops::Op::{NoOp, Transpose};
@@ -37,7 +36,6 @@ macro_rules! assert_compatible_spmm_dims {
     }};
 }
 
-#[macro_use]
 macro_rules! assert_compatible_spadd_dims {
     ($c:expr, $a:expr) => {
         use crate::ops::Op;
@@ -74,7 +72,7 @@ pub struct OperationError {
 
 /// The different kinds of operation errors that may occur.
 #[non_exhaustive]
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum OperationErrorKind {
     /// Indicates that one or more sparsity patterns involved in the operation violate the
     /// expectations of the routine.

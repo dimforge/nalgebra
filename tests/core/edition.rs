@@ -218,47 +218,67 @@ fn remove_columns() {
         21, 22, 23, 24, 25,
         31, 32, 33, 34, 35);
 
-    let expected1 = Matrix3x4::new(
+    let expected_a1 = Matrix3x4::new(
         12, 13, 14, 15,
         22, 23, 24, 25,
         32, 33, 34, 35);
 
-    let expected2 = Matrix3x4::new(
+    let expected_a2 = Matrix3x4::new(
         11, 12, 13, 14,
         21, 22, 23, 24,
         31, 32, 33, 34);
 
-    let expected3 = Matrix3x4::new(
+    let expected_a3 = Matrix3x4::new(
         11, 12, 14, 15,
         21, 22, 24, 25,
         31, 32, 34, 35);
 
-    assert_eq!(m.remove_column(0), expected1);
-    assert_eq!(m.remove_column(4), expected2);
-    assert_eq!(m.remove_column(2), expected3);
+    assert_eq!(m.remove_column(0), expected_a1);
+    assert_eq!(m.remove_column(4), expected_a2);
+    assert_eq!(m.remove_column(2), expected_a3);
 
-    let expected1 = Matrix3::new(
+    let expected_b1 = Matrix3::new(
         13, 14, 15,
         23, 24, 25,
         33, 34, 35);
 
-    let expected2 = Matrix3::new(
+    let expected_b2 = Matrix3::new(
         11, 12, 13,
         21, 22, 23,
         31, 32, 33);
 
-    let expected3 = Matrix3::new(
+    let expected_b3 = Matrix3::new(
         11, 12, 15,
         21, 22, 25,
         31, 32, 35);
 
-    assert_eq!(m.remove_fixed_columns::<2>(0), expected1);
-    assert_eq!(m.remove_fixed_columns::<2>(3), expected2);
-    assert_eq!(m.remove_fixed_columns::<2>(2), expected3);
+    assert_eq!(m.remove_fixed_columns::<2>(0), expected_b1);
+    assert_eq!(m.remove_fixed_columns::<2>(3), expected_b2);
+    assert_eq!(m.remove_fixed_columns::<2>(2), expected_b3);
 
     // The following is just to verify that the return type dimensions is correctly inferred.
     let computed: Matrix<_, U3, Dynamic, _> = m.remove_columns(3, 2);
-    assert!(computed.eq(&expected2));
+    assert!(computed.eq(&expected_b2));
+
+    /*
+     * Same thing but using a non-copy scalar type.
+     */
+    let m = m.map(Box::new);
+    let expected_a1 = expected_a1.map(Box::new);
+    let expected_a2 = expected_a2.map(Box::new);
+    let expected_a3 = expected_a3.map(Box::new);
+
+    assert_eq!(m.clone().remove_column(0), expected_a1);
+    assert_eq!(m.clone().remove_column(4), expected_a2);
+    assert_eq!(m.clone().remove_column(2), expected_a3);
+    
+    let expected_b1 = expected_b1.map(Box::new);
+    let expected_b2 = expected_b2.map(Box::new);
+    let expected_b3 = expected_b3.map(Box::new);
+
+    assert_eq!(m.clone().remove_fixed_columns::<2>(0), expected_b1);
+    assert_eq!(m.clone().remove_fixed_columns::<2>(3), expected_b2);
+    assert_eq!(m.remove_fixed_columns::<2>(2), expected_b3);
 }
 
 #[test]

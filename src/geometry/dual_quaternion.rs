@@ -16,7 +16,7 @@ use simba::scalar::{ClosedNeg, RealField};
 ///
 /// # Indexing
 ///
-/// DualQuaternions are stored as \[..real, ..dual\].
+/// `DualQuaternions` are stored as \[..real, ..dual\].
 /// Both of the quaternion components are laid out in `i, j, k, w` order.
 ///
 /// ```
@@ -36,7 +36,7 @@ use simba::scalar::{ClosedNeg, RealField};
 /// NOTE:
 ///  As of December 2020, dual quaternion support is a work in progress.
 ///  If a feature that you need is missing, feel free to open an issue or a PR.
-///  See https://github.com/dimforge/nalgebra/issues/487
+///  See <https://github.com/dimforge/nalgebra/issues/487>
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct DualQuaternion<T> {
@@ -87,7 +87,10 @@ where
     pub fn normalize(&self) -> Self {
         let real_norm = self.real.norm();
 
-        Self::from_real_and_dual(self.real / real_norm, self.dual / real_norm)
+        Self::from_real_and_dual(
+            self.real.clone() / real_norm.clone(),
+            self.dual.clone() / real_norm,
+        )
     }
 
     /// Normalizes this quaternion.
@@ -107,8 +110,8 @@ where
     #[inline]
     pub fn normalize_mut(&mut self) -> T {
         let real_norm = self.real.norm();
-        self.real /= real_norm;
-        self.dual /= real_norm;
+        self.real /= real_norm.clone();
+        self.dual /= real_norm.clone();
         real_norm
     }
 
@@ -182,7 +185,7 @@ where
     where
         T: RealField,
     {
-        let mut res = *self;
+        let mut res = self.clone();
         if res.try_inverse_mut() {
             Some(res)
         } else {
@@ -216,7 +219,7 @@ where
     {
         let inverted = self.real.try_inverse_mut();
         if inverted {
-            self.dual = -self.real * self.dual * self.real;
+            self.dual = -self.real.clone() * self.dual.clone() * self.real.clone();
             true
         } else {
             false
@@ -246,8 +249,24 @@ where
     #[inline]
     #[must_use]
     pub fn lerp(&self, other: &Self, t: T) -> Self {
-        self * (T::one() - t) + other * t
+        self * (T::one() - t.clone()) + other * t
     }
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T> bytemuck::Zeroable for DualQuaternion<T>
+where
+    T: Scalar + bytemuck::Zeroable,
+    Quaternion<T>: bytemuck::Zeroable,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T> bytemuck::Pod for DualQuaternion<T>
+where
+    T: Scalar + bytemuck::Pod,
+    Quaternion<T>: bytemuck::Pod,
+{
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
@@ -277,15 +296,15 @@ where
         let dq: Dq<T> = Dq::<T>::deserialize(deserializer)?;
 
         Ok(Self {
-            real: Quaternion::new(dq[3], dq[0], dq[1], dq[2]),
-            dual: Quaternion::new(dq[7], dq[4], dq[5], dq[6]),
+            real: Quaternion::new(dq[3].clone(), dq[0].clone(), dq[1].clone(), dq[2].clone()),
+            dual: Quaternion::new(dq[7].clone(), dq[4].clone(), dq[5].clone(), dq[6].clone()),
         })
     }
 }
 
 impl<T: RealField> DualQuaternion<T> {
     fn to_vector(self) -> OVector<T, U8> {
-        (*self.as_ref()).into()
+        self.as_ref().clone().into()
     }
 }
 
@@ -299,9 +318,9 @@ impl<T: RealField + AbsDiffEq<Epsilon = T>> AbsDiffEq for DualQuaternion<T> {
 
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
-        self.to_vector().abs_diff_eq(&other.to_vector(), epsilon) ||
+        self.clone().to_vector().abs_diff_eq(&other.clone().to_vector(), epsilon.clone()) ||
         // Account for the double-covering of S², i.e. q = -q
-        self.to_vector().iter().zip(other.to_vector().iter()).all(|(a, b)| a.abs_diff_eq(&-*b, epsilon))
+        self.clone().to_vector().iter().zip(other.clone().to_vector().iter()).all(|(a, b)| a.abs_diff_eq(&-b.clone(), epsilon.clone()))
     }
 }
 
@@ -318,9 +337,9 @@ impl<T: RealField + RelativeEq<Epsilon = T>> RelativeEq for DualQuaternion<T> {
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
     ) -> bool {
-        self.to_vector().relative_eq(&other.to_vector(), epsilon, max_relative) ||
+        self.clone().to_vector().relative_eq(&other.clone().to_vector(), epsilon.clone(), max_relative.clone()) ||
         // Account for the double-covering of S², i.e. q = -q
-        self.to_vector().iter().zip(other.to_vector().iter()).all(|(a, b)| a.relative_eq(&-*b, epsilon, max_relative))
+        self.clone().to_vector().iter().zip(other.clone().to_vector().iter()).all(|(a, b)| a.relative_eq(&-b.clone(), epsilon.clone(), max_relative.clone()))
     }
 }
 
@@ -332,9 +351,9 @@ impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for DualQuaternion<T> {
 
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        self.to_vector().ulps_eq(&other.to_vector(), epsilon, max_ulps) ||
+        self.clone().to_vector().ulps_eq(&other.clone().to_vector(), epsilon.clone(), max_ulps.clone()) ||
         // Account for the double-covering of S², i.e. q = -q.
-        self.to_vector().iter().zip(other.to_vector().iter()).all(|(a, b)| a.ulps_eq(&-*b, epsilon, max_ulps))
+        self.clone().to_vector().iter().zip(other.clone().to_vector().iter()).all(|(a, b)| a.ulps_eq(&-b.clone(), epsilon.clone(), max_ulps.clone()))
     }
 }
 
@@ -365,13 +384,13 @@ impl<T: SimdRealField> Normed for DualQuaternion<T> {
 
     #[inline]
     fn scale_mut(&mut self, n: Self::Norm) {
-        self.real.scale_mut(n);
+        self.real.scale_mut(n.clone());
         self.dual.scale_mut(n);
     }
 
     #[inline]
     fn unscale_mut(&mut self, n: Self::Norm) {
-        self.real.unscale_mut(n);
+        self.real.unscale_mut(n.clone());
         self.dual.unscale_mut(n);
     }
 }
@@ -455,10 +474,10 @@ where
     #[inline]
     #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(&self) -> Self {
-        let real = Unit::new_unchecked(self.as_ref().real)
+        let real = Unit::new_unchecked(self.as_ref().real.clone())
             .inverse()
             .into_inner();
-        let dual = -real * self.as_ref().dual * real;
+        let dual = -real.clone() * self.as_ref().dual.clone() * real.clone();
         UnitDualQuaternion::new_unchecked(DualQuaternion { real, dual })
     }
 
@@ -479,8 +498,10 @@ where
     #[inline]
     pub fn inverse_mut(&mut self) {
         let quat = self.as_mut_unchecked();
-        quat.real = Unit::new_unchecked(quat.real).inverse().into_inner();
-        quat.dual = -quat.real * quat.dual * quat.real;
+        quat.real = Unit::new_unchecked(quat.real.clone())
+            .inverse()
+            .into_inner();
+        quat.dual = -quat.real.clone() * quat.dual.clone() * quat.real.clone();
     }
 
     /// The unit dual quaternion needed to make `self` and `other` coincide.
@@ -623,16 +644,16 @@ where
         T: RealField,
     {
         let two = T::one() + T::one();
-        let half = T::one() / two;
+        let half = T::one() / two.clone();
 
         // Invert one of the quaternions if we've got a longest-path
         // interpolation.
         let other = {
             let dot_product = self.as_ref().real.coords.dot(&other.as_ref().real.coords);
             if dot_product < T::zero() {
-                -*other
+                -other.clone()
             } else {
-                *other
+                other.clone()
             }
         };
 
@@ -645,21 +666,21 @@ where
         let inverse_norm_squared = T::one() / norm_squared;
         let inverse_norm = inverse_norm_squared.sqrt();
 
-        let mut angle = two * difference.real.scalar().acos();
-        let mut pitch = -two * difference.dual.scalar() * inverse_norm;
-        let direction = difference.real.vector() * inverse_norm;
+        let mut angle = two.clone() * difference.real.scalar().acos();
+        let mut pitch = -two * difference.dual.scalar() * inverse_norm.clone();
+        let direction = difference.real.vector() * inverse_norm.clone();
         let moment = (difference.dual.vector()
-            - direction * (pitch * difference.real.scalar() * half))
+            - direction.clone() * (pitch.clone() * difference.real.scalar() * half.clone()))
             * inverse_norm;
 
-        angle *= t;
+        angle *= t.clone();
         pitch *= t;
 
-        let sin = (half * angle).sin();
-        let cos = (half * angle).cos();
-        let real = Quaternion::from_parts(cos, direction * sin);
+        let sin = (half.clone() * angle.clone()).sin();
+        let cos = (half.clone() * angle).cos();
+        let real = Quaternion::from_parts(cos.clone(), direction.clone() * sin.clone());
         let dual = Quaternion::from_parts(
-            -pitch * half * sin,
+            -pitch.clone() * half.clone() * sin.clone(),
             moment * sin + direction * (pitch * half * cos),
         );
 
@@ -687,7 +708,7 @@ where
     #[inline]
     #[must_use]
     pub fn rotation(&self) -> UnitQuaternion<T> {
-        Unit::new_unchecked(self.as_ref().real)
+        Unit::new_unchecked(self.as_ref().real.clone())
     }
 
     /// Return the translation part of this unit dual quaternion.
@@ -709,7 +730,7 @@ where
     pub fn translation(&self) -> Translation3<T> {
         let two = T::one() + T::one();
         Translation3::from(
-            ((self.as_ref().dual * self.as_ref().real.conjugate()) * two)
+            ((self.as_ref().dual.clone() * self.as_ref().real.clone().conjugate()) * two)
                 .vector()
                 .into_owned(),
         )
@@ -896,7 +917,7 @@ impl<T: RealField> Default for UnitDualQuaternion<T> {
 }
 
 impl<T: RealField + fmt::Display> fmt::Display for UnitDualQuaternion<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(axis) = self.rotation().axis() {
             let axis = axis.into_inner();
             write!(

@@ -45,7 +45,7 @@ where
     {
         let mut res = Self::identity();
         for i in 0..scaling.len() {
-            res[(i, i)] = scaling[i].inlined_clone();
+            res[(i, i)] = scaling[i].clone();
         }
 
         res
@@ -79,19 +79,19 @@ impl<T: RealField> Matrix3<T> {
 
     /// Creates a new homogeneous matrix that applies a scaling factor for each dimension with respect to point.
     ///
-    /// Can be used to implement "zoom_to" functionality.
+    /// Can be used to implement `zoom_to` functionality.
     #[inline]
     pub fn new_nonuniform_scaling_wrt_point(scaling: &Vector2<T>, pt: &Point2<T>) -> Self {
         let zero = T::zero();
         let one = T::one();
         Matrix3::new(
-            scaling.x,
-            zero,
-            pt.x - pt.x * scaling.x,
-            zero,
-            scaling.y,
-            pt.y - pt.y * scaling.y,
-            zero,
+            scaling.x.clone(),
+            zero.clone(),
+            pt.x.clone() - pt.x.clone() * scaling.x.clone(),
+            zero.clone(),
+            scaling.y.clone(),
+            pt.y.clone() - pt.y.clone() * scaling.y.clone(),
+            zero.clone(),
             zero,
             one,
         )
@@ -119,26 +119,26 @@ impl<T: RealField> Matrix4<T> {
 
     /// Creates a new homogeneous matrix that applies a scaling factor for each dimension with respect to point.
     ///
-    /// Can be used to implement "zoom_to" functionality.
+    /// Can be used to implement `zoom_to` functionality.
     #[inline]
     pub fn new_nonuniform_scaling_wrt_point(scaling: &Vector3<T>, pt: &Point3<T>) -> Self {
         let zero = T::zero();
         let one = T::one();
         Matrix4::new(
-            scaling.x,
-            zero,
-            zero,
-            pt.x - pt.x * scaling.x,
-            zero,
-            scaling.y,
-            zero,
-            pt.y - pt.y * scaling.y,
-            zero,
-            zero,
-            scaling.z,
-            pt.z - pt.z * scaling.z,
-            zero,
-            zero,
+            scaling.x.clone(),
+            zero.clone(),
+            zero.clone(),
+            pt.x.clone() - pt.x.clone() * scaling.x.clone(),
+            zero.clone(),
+            scaling.y.clone(),
+            zero.clone(),
+            pt.y.clone() - pt.y.clone() * scaling.y.clone(),
+            zero.clone(),
+            zero.clone(),
+            scaling.z.clone(),
+            pt.z.clone() - pt.z.clone() * scaling.z.clone(),
+            zero.clone(),
+            zero.clone(),
             zero,
             one,
         )
@@ -187,7 +187,7 @@ impl<T: RealField> Matrix4<T> {
         IsometryMatrix3::face_towards(eye, target, up).to_homogeneous()
     }
 
-    /// Deprecated: Use [Matrix4::face_towards] instead.
+    /// Deprecated: Use [`Matrix4::face_towards`] instead.
     #[deprecated(note = "renamed to `face_towards`")]
     pub fn new_observer_frame(eye: &Point3<T>, target: &Point3<T>, up: &Vector3<T>) -> Self {
         Matrix4::face_towards(eye, target, up)
@@ -336,7 +336,7 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
     {
         for i in 0..scaling.len() {
             let mut to_scale = self.fixed_rows_mut::<1>(i);
-            to_scale *= scaling[i].inlined_clone();
+            to_scale *= scaling[i].clone();
         }
     }
 
@@ -352,7 +352,7 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
     {
         for i in 0..scaling.len() {
             let mut to_scale = self.fixed_columns_mut::<1>(i);
-            to_scale *= scaling[i].inlined_clone();
+            to_scale *= scaling[i].clone();
         }
     }
 
@@ -366,7 +366,7 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
     {
         for i in 0..D::dim() {
             for j in 0..D::dim() - 1 {
-                let add = shift[j].inlined_clone() * self[(D::dim() - 1, i)].inlined_clone();
+                let add = shift[j].clone() * self[(D::dim() - 1, i)].clone();
                 self[(j, i)] += add;
             }
         }
@@ -440,7 +440,7 @@ impl<T: RealField, S: Storage<T, Const<3>, Const<3>>> SquareMatrix<T, Const<3>, 
         let transform = self.fixed_slice::<2, 2>(0, 0);
         let translation = self.fixed_slice::<2, 1>(0, 2);
         let normalizer = self.fixed_slice::<1, 2>(2, 0);
-        let n = normalizer.tr_dot(&pt.coords) + unsafe { *self.get_unchecked((2, 2)) };
+        let n = normalizer.tr_dot(&pt.coords) + unsafe { self.get_unchecked((2, 2)).clone() };
 
         if !n.is_zero() {
             (transform * pt + translation) / n
@@ -457,7 +457,7 @@ impl<T: RealField, S: Storage<T, Const<4>, Const<4>>> SquareMatrix<T, Const<4>, 
         let transform = self.fixed_slice::<3, 3>(0, 0);
         let translation = self.fixed_slice::<3, 1>(0, 3);
         let normalizer = self.fixed_slice::<1, 3>(3, 0);
-        let n = normalizer.tr_dot(&pt.coords) + unsafe { *self.get_unchecked((3, 3)) };
+        let n = normalizer.tr_dot(&pt.coords) + unsafe { self.get_unchecked((3, 3)).clone() };
 
         if !n.is_zero() {
             (transform * pt + translation) / n

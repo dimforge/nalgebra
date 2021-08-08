@@ -47,25 +47,25 @@ impl<T: SimdRealField> Normed for Complex<T> {
     fn norm(&self) -> T::SimdRealField {
         // We don't use `.norm_sqr()` because it requires
         // some very strong Num trait requirements.
-        (self.re * self.re + self.im * self.im).simd_sqrt()
+        (self.re.clone() * self.re.clone() + self.im.clone() * self.im.clone()).simd_sqrt()
     }
 
     #[inline]
     fn norm_squared(&self) -> T::SimdRealField {
         // We don't use `.norm_sqr()` because it requires
         // some very strong Num trait requirements.
-        self.re * self.re + self.im * self.im
+        self.re.clone() * self.re.clone() + self.im.clone() * self.im.clone()
     }
 
     #[inline]
     fn scale_mut(&mut self, n: Self::Norm) {
-        self.re *= n;
+        self.re *= n.clone();
         self.im *= n;
     }
 
     #[inline]
     fn unscale_mut(&mut self, n: Self::Norm) {
-        self.re /= n;
+        self.re /= n.clone();
         self.im /= n;
     }
 }
@@ -86,7 +86,7 @@ where
     #[inline]
     #[must_use]
     pub fn angle(&self) -> T {
-        self.im.simd_atan2(self.re)
+        self.im.clone().simd_atan2(self.re.clone())
     }
 
     /// The sine of the rotation angle.
@@ -101,7 +101,7 @@ where
     #[inline]
     #[must_use]
     pub fn sin_angle(&self) -> T {
-        self.im
+        self.im.clone()
     }
 
     /// The cosine of the rotation angle.
@@ -116,7 +116,7 @@ where
     #[inline]
     #[must_use]
     pub fn cos_angle(&self) -> T {
-        self.re
+        self.re.clone()
     }
 
     /// The rotation angle returned as a 1-dimensional vector.
@@ -144,10 +144,10 @@ where
 
         if ang.is_zero() {
             None
-        } else if ang.is_sign_negative() {
-            Some((Unit::new_unchecked(Vector1::x()), -ang))
+        } else if ang.is_sign_positive() {
+            Some((Unit::new_unchecked(Vector1::x()), ang))
         } else {
-            Some((Unit::new_unchecked(-Vector1::<T>::x()), ang))
+            Some((Unit::new_unchecked(-Vector1::<T>::x()), -ang))
         }
     }
 
@@ -223,7 +223,7 @@ where
     #[inline]
     pub fn conjugate_mut(&mut self) {
         let me = self.as_mut_unchecked();
-        me.im = -me.im;
+        me.im = -me.im.clone();
     }
 
     /// Inverts in-place this unit complex number.
@@ -262,10 +262,10 @@ where
     #[inline]
     #[must_use]
     pub fn to_rotation_matrix(self) -> Rotation2<T> {
-        let r = self.re;
-        let i = self.im;
+        let r = self.re.clone();
+        let i = self.im.clone();
 
-        Rotation2::from_matrix_unchecked(Matrix2::new(r, -i, i, r))
+        Rotation2::from_matrix_unchecked(Matrix2::new(r.clone(), -i.clone(), i, r))
     }
 
     /// Converts this unit complex number into its equivalent homogeneous transformation matrix.
@@ -407,12 +407,12 @@ where
     #[inline]
     #[must_use]
     pub fn slerp(&self, other: &Self, t: T) -> Self {
-        Self::new(self.angle() * (T::one() - t) + other.angle() * t)
+        Self::new(self.angle() * (T::one() - t.clone()) + other.angle() * t)
     }
 }
 
 impl<T: RealField + fmt::Display> fmt::Display for UnitComplex<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "UnitComplex angle: {}", self.angle())
     }
 }
@@ -427,7 +427,7 @@ impl<T: RealField> AbsDiffEq for UnitComplex<T> {
 
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
-        self.re.abs_diff_eq(&other.re, epsilon) && self.im.abs_diff_eq(&other.im, epsilon)
+        self.re.abs_diff_eq(&other.re, epsilon.clone()) && self.im.abs_diff_eq(&other.im, epsilon)
     }
 }
 
@@ -444,7 +444,8 @@ impl<T: RealField> RelativeEq for UnitComplex<T> {
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
     ) -> bool {
-        self.re.relative_eq(&other.re, epsilon, max_relative)
+        self.re
+            .relative_eq(&other.re, epsilon.clone(), max_relative.clone())
             && self.im.relative_eq(&other.im, epsilon, max_relative)
     }
 }
@@ -457,7 +458,8 @@ impl<T: RealField> UlpsEq for UnitComplex<T> {
 
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        self.re.ulps_eq(&other.re, epsilon, max_ulps)
+        self.re
+            .ulps_eq(&other.re, epsilon.clone(), max_ulps.clone())
             && self.im.ulps_eq(&other.im, epsilon, max_ulps)
     }
 }

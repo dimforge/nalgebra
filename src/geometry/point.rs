@@ -18,10 +18,11 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::{Const, DefaultAllocator, OVector, Scalar};
+use std::mem::MaybeUninit;
 
 /// A point in an euclidean space.
 ///
-/// The difference between a point and a vector is only semantic. See [the user guide](https://www.nalgebra.org/points_and_transformations/)
+/// The difference between a point and a vector is only semantic. See [the user guide](https://www.nalgebra.org/docs/user_guide/points_and_transformations)
 /// for details on the distinction. The most notable difference that vectors ignore translations.
 /// In particular, an [`Isometry2`](crate::Isometry2) or [`Isometry3`](crate::Isometry3) will
 /// transform points by applying a rotation and a translation on them. However, these isometries
@@ -82,7 +83,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T: Scalar + Serialize, D: DimName> Serialize for OPoint<T, D>
+impl<T: Scalar, D: DimName> Serialize for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
     <DefaultAllocator as Allocator<T, D>>::Buffer: Serialize,
@@ -96,7 +97,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'a, T: Scalar + Deserialize<'a>, D: DimName> Deserialize<'a> for OPoint<T, D>
+impl<'a, T: Scalar, D: DimName> Deserialize<'a> for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
     <DefaultAllocator as Allocator<T, D>>::Buffer: Deserialize<'a>,
@@ -162,16 +163,16 @@ where
     /// ```
     /// # use nalgebra::{Point2, Point3};
     /// let mut p = Point2::new(1.0, 2.0);
-    /// p.apply(|e| e * 10.0);
+    /// p.apply(|e| *e = *e * 10.0);
     /// assert_eq!(p, Point2::new(10.0, 20.0));
     ///
     /// // This works in any dimension.
     /// let mut p = Point3::new(1.0, 2.0, 3.0);
-    /// p.apply(|e| e * 10.0);
+    /// p.apply(|e| *e = *e * 10.0);
     /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
     /// ```
     #[inline]
-    pub fn apply<F: FnMut(T) -> T>(&mut self, f: F) {
+    pub fn apply<F: FnMut(&mut T)>(&mut self, f: F) {
         self.coords.apply(f)
     }
 
@@ -198,17 +199,20 @@ where
         D: DimNameAdd<U1>,
         DefaultAllocator: Allocator<T, DimNameSum<D, U1>>,
     {
-        let mut res = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(
-                <DimNameSum<D, U1> as DimName>::name(),
-                Const::<1>
-            )
-        };
-        res.generic_slice_mut((0, 0), (D::name(), Const::<1>))
-            .copy_from(&self.coords);
-        res[(D::dim(), 0)] = T::one();
+        // TODO: this is mostly a copy-past from Vector::push.
+        //       But we can’t use Vector::push because of the DimAdd bound
+        //       (which we don’t use because we use DimNameAdd).
+        //       We should find a way to re-use Vector::push.
+        let len = self.len();
+        let mut res = crate::Matrix::uninit(DimNameSum::<D, U1>::name(), Const::<1>);
+        // This is basically a copy_from except that we warp the copied
+        // values into MaybeUninit.
+        res.generic_slice_mut((0, 0), self.coords.shape_generic())
+            .zip_apply(&self.coords, |out, e| *out = MaybeUninit::new(e));
+        res[(len, 0)] = MaybeUninit::new(T::one());
 
-        res
+        // Safety: res has been fully initialized.
+        unsafe { res.assume_init() }
     }
 
     /// Creates a new point with the given coordinates.
@@ -273,7 +277,7 @@ where
     #[inline]
     pub fn iter(
         &self,
-    ) -> MatrixIter<T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
+    ) -> MatrixIter<'_, T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
         self.coords.iter()
     }
 
@@ -299,7 +303,7 @@ where
     #[inline]
     pub fn iter_mut(
         &mut self,
-    ) -> MatrixIterMut<T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
+    ) -> MatrixIterMut<'_, T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
         self.coords.iter_mut()
     }
 
@@ -319,7 +323,7 @@ where
 
 impl<T: Scalar + AbsDiffEq, D: DimName> AbsDiffEq for OPoint<T, D>
 where
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
     DefaultAllocator: Allocator<T, D>,
 {
     type Epsilon = T::Epsilon;
@@ -337,7 +341,7 @@ where
 
 impl<T: Scalar + RelativeEq, D: DimName> RelativeEq for OPoint<T, D>
 where
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
     DefaultAllocator: Allocator<T, D>,
 {
     #[inline]
@@ -359,7 +363,7 @@ where
 
 impl<T: Scalar + UlpsEq, D: DimName> UlpsEq for OPoint<T, D>
 where
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
     DefaultAllocator: Allocator<T, D>,
 {
     #[inline]
@@ -454,7 +458,7 @@ impl<T: Scalar + fmt::Display, D: DimName> fmt::Display for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{{")?;
 
         let mut it = self.coords.iter();

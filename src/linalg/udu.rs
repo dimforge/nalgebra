@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use crate::allocator::Allocator;
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector};
 use crate::dimension::Dim;
-use crate::storage::Storage;
 use simba::scalar::RealField;
 
 /// UDU factorization.
@@ -50,39 +49,39 @@ where
     /// Ref.: "Optimal control and estimation-Dover Publications", Robert F. Stengel, (1994) page 360
     pub fn new(p: OMatrix<T, D, D>) -> Option<Self> {
         let n = p.ncols();
-        let n_dim = p.data.shape().1;
+        let n_dim = p.shape_generic().1;
 
         let mut d = OVector::zeros_generic(n_dim, Const::<1>);
         let mut u = OMatrix::zeros_generic(n_dim, n_dim);
 
-        d[n - 1] = p[(n - 1, n - 1)];
+        d[n - 1] = p[(n - 1, n - 1)].clone();
 
         if d[n - 1].is_zero() {
             return None;
         }
 
         u.column_mut(n - 1)
-            .axpy(T::one() / d[n - 1], &p.column(n - 1), T::zero());
+            .axpy(T::one() / d[n - 1].clone(), &p.column(n - 1), T::zero());
 
         for j in (0..n - 1).rev() {
-            let mut d_j = d[j];
+            let mut d_j = d[j].clone();
             for k in j + 1..n {
-                d_j += d[k] * u[(j, k)].powi(2);
+                d_j += d[k].clone() * u[(j, k)].clone().powi(2);
             }
 
-            d[j] = p[(j, j)] - d_j;
+            d[j] = p[(j, j)].clone() - d_j;
 
             if d[j].is_zero() {
                 return None;
             }
 
             for i in (0..=j).rev() {
-                let mut u_ij = u[(i, j)];
+                let mut u_ij = u[(i, j)].clone();
                 for k in j + 1..n {
-                    u_ij += d[k] * u[(j, k)] * u[(i, k)];
+                    u_ij += d[k].clone() * u[(j, k)].clone() * u[(i, k)].clone();
                 }
 
-                u[(i, j)] = (p[(i, j)] - u_ij) / d[j];
+                u[(i, j)] = (p[(i, j)].clone() - u_ij) / d[j].clone();
             }
 
             u[(j, j)] = T::one();

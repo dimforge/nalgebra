@@ -8,8 +8,9 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimMin};
 use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
+use crate::RawStorage;
 
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// The total number of elements of this matrix.
     ///
     /// # Examples:
@@ -59,7 +60,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     pub fn is_identity(&self, eps: T::Epsilon) -> bool
     where
         T: Zero + One + RelativeEq,
-        T::Epsilon: Copy,
+        T::Epsilon: Clone,
     {
         let (nrows, ncols) = self.shape();
         let d;
@@ -69,7 +70,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
             for i in d..nrows {
                 for j in 0..ncols {
-                    if !relative_eq!(self[(i, j)], T::zero(), epsilon = eps) {
+                    if !relative_eq!(self[(i, j)], T::zero(), epsilon = eps.clone()) {
                         return false;
                     }
                 }
@@ -80,7 +81,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
             for i in 0..nrows {
                 for j in d..ncols {
-                    if !relative_eq!(self[(i, j)], T::zero(), epsilon = eps) {
+                    if !relative_eq!(self[(i, j)], T::zero(), epsilon = eps.clone()) {
                         return false;
                     }
                 }
@@ -91,8 +92,8 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         for i in 1..d {
             for j in 0..i {
                 // TODO: use unsafe indexing.
-                if !relative_eq!(self[(i, j)], T::zero(), epsilon = eps)
-                    || !relative_eq!(self[(j, i)], T::zero(), epsilon = eps)
+                if !relative_eq!(self[(i, j)], T::zero(), epsilon = eps.clone())
+                    || !relative_eq!(self[(j, i)], T::zero(), epsilon = eps.clone())
                 {
                     return false;
                 }
@@ -101,7 +102,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
         // Diagonal elements of the sub-square matrix.
         for i in 0..d {
-            if !relative_eq!(self[(i, i)], T::one(), epsilon = eps) {
+            if !relative_eq!(self[(i, i)], T::one(), epsilon = eps.clone()) {
                 return false;
             }
         }
@@ -121,7 +122,7 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     where
         T: Zero + One + ClosedAdd + ClosedMul + RelativeEq,
         S: Storage<T, R, C>,
-        T::Epsilon: Copy,
+        T::Epsilon: Clone,
         DefaultAllocator: Allocator<T, R, C> + Allocator<T, C, C>,
     {
         (self.ad_mul(self)).is_identity(eps)

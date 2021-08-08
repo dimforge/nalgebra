@@ -1,12 +1,12 @@
 use crate::aliases::TVec;
-use na::RealField;
+use crate::RealNumber;
 
 /// Component-wise exponential.
 ///
 /// # See also:
 ///
 /// * [`exp2`](fn.exp2.html)
-pub fn exp<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
+pub fn exp<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.exp())
 }
 
@@ -15,7 +15,7 @@ pub fn exp<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
 /// # See also:
 ///
 /// * [`exp`](fn.exp.html)
-pub fn exp2<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
+pub fn exp2<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.exp2())
 }
 
@@ -24,7 +24,7 @@ pub fn exp2<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
 /// # See also:
 ///
 /// * [`sqrt`](fn.sqrt.html)
-pub fn inversesqrt<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
+pub fn inversesqrt<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| T::one() / x.sqrt())
 }
 
@@ -33,7 +33,7 @@ pub fn inversesqrt<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
 /// # See also:
 ///
 /// * [`log2`](fn.log2.html)
-pub fn log<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
+pub fn log<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.ln())
 }
 
@@ -42,12 +42,12 @@ pub fn log<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
 /// # See also:
 ///
 /// * [`log`](fn.log.html)
-pub fn log2<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
+pub fn log2<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.log2())
 }
 
 /// Component-wise power.
-pub fn pow<T: RealField, const D: usize>(base: &TVec<T, D>, exponent: &TVec<T, D>) -> TVec<T, D> {
+pub fn pow<T: RealNumber, const D: usize>(base: &TVec<T, D>, exponent: &TVec<T, D>) -> TVec<T, D> {
     base.zip_map(exponent, |b, e| b.powf(e))
 }
 
@@ -59,6 +59,6 @@ pub fn pow<T: RealField, const D: usize>(base: &TVec<T, D>, exponent: &TVec<T, D
 /// * [`exp2`](fn.exp2.html)
 /// * [`inversesqrt`](fn.inversesqrt.html)
 /// * [`pow`](fn.pow.html)
-pub fn sqrt<T: RealField, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
+pub fn sqrt<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.sqrt())
 }

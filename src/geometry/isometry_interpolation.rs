@@ -31,7 +31,10 @@ impl<T: SimdRealField> Isometry3<T> {
     where
         T: RealField,
     {
-        let tr = self.translation.vector.lerp(&other.translation.vector, t);
+        let tr = self
+            .translation
+            .vector
+            .lerp(&other.translation.vector, t.clone());
         let rot = self.rotation.slerp(&other.rotation, t);
         Self::from_parts(tr.into(), rot)
     }
@@ -65,7 +68,10 @@ impl<T: SimdRealField> Isometry3<T> {
     where
         T: RealField,
     {
-        let tr = self.translation.vector.lerp(&other.translation.vector, t);
+        let tr = self
+            .translation
+            .vector
+            .lerp(&other.translation.vector, t.clone());
         let rot = self.rotation.try_slerp(&other.rotation, t, epsilon)?;
         Some(Self::from_parts(tr.into(), rot))
     }
@@ -101,7 +107,10 @@ impl<T: SimdRealField> IsometryMatrix3<T> {
     where
         T: RealField,
     {
-        let tr = self.translation.vector.lerp(&other.translation.vector, t);
+        let tr = self
+            .translation
+            .vector
+            .lerp(&other.translation.vector, t.clone());
         let rot = self.rotation.slerp(&other.rotation, t);
         Self::from_parts(tr.into(), rot)
     }
@@ -135,7 +144,10 @@ impl<T: SimdRealField> IsometryMatrix3<T> {
     where
         T: RealField,
     {
-        let tr = self.translation.vector.lerp(&other.translation.vector, t);
+        let tr = self
+            .translation
+            .vector
+            .lerp(&other.translation.vector, t.clone());
         let rot = self.rotation.try_slerp(&other.rotation, t, epsilon)?;
         Some(Self::from_parts(tr.into(), rot))
     }
@@ -172,7 +184,10 @@ impl<T: SimdRealField> Isometry2<T> {
     where
         T: RealField,
     {
-        let tr = self.translation.vector.lerp(&other.translation.vector, t);
+        let tr = self
+            .translation
+            .vector
+            .lerp(&other.translation.vector, t.clone());
         let rot = self.rotation.slerp(&other.rotation, t);
         Self::from_parts(tr.into(), rot)
     }
@@ -209,7 +224,10 @@ impl<T: SimdRealField> IsometryMatrix2<T> {
     where
         T: RealField,
     {
-        let tr = self.translation.vector.lerp(&other.translation.vector, t);
+        let tr = self
+            .translation
+            .vector
+            .lerp(&other.translation.vector, t.clone());
         let rot = self.rotation.slerp(&other.rotation, t);
         Self::from_parts(tr.into(), rot)
     }

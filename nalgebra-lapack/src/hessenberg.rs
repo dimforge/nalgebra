@@ -4,7 +4,6 @@ use num_complex::Complex;
 use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Const, DimDiff, DimSub, U1};
-use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
@@ -48,7 +47,7 @@ where
 {
     /// Computes the hessenberg decomposition of the matrix `m`.
     pub fn new(mut m: OMatrix<T, D, D>) -> Self {
-        let nrows = m.data.shape().0;
+        let nrows = m.shape_generic().0;
         let n = nrows.value() as i32;
 
         assert!(
@@ -60,14 +59,12 @@ where
             "Unable to compute the hessenberg decomposition of an empty matrix."
         );
 
-        let mut tau = unsafe {
-            Matrix::new_uninitialized_generic(nrows.sub(Const::<1>), Const::<1>).assume_init()
-        };
+        let mut tau = Matrix::zeros_generic(nrows.sub(Const::<1>), Const::<1>);
 
         let mut info = 0;
         let lwork =
             T::xgehrd_work_size(n, 1, n, m.as_mut_slice(), n, tau.as_mut_slice(), &mut info);
-        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
+        let mut work = vec![T::zero(); lwork as usize];
 
         lapack_panic!(info);
 
@@ -84,7 +81,7 @@ where
         );
         lapack_panic!(info);
 
-        Self { h: m, tau: tau }
+        Self { h: m, tau }
     }
 
     /// Computes the hessenberg matrix of this decomposition.

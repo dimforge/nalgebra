@@ -14,33 +14,32 @@ use rand::{
 };
 
 use std::iter;
-use std::mem;
 use typenum::{self, Cmp, Greater};
 
 use simba::scalar::{ClosedAdd, ClosedMul};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimName, Dynamic, ToTypenum};
-use crate::base::storage::Storage;
+use crate::base::storage::RawStorage;
 use crate::base::{
     ArrayStorage, Const, DefaultAllocator, Matrix, OMatrix, OVector, Scalar, Unit, Vector,
 };
+use crate::UninitMatrix;
+use std::mem::MaybeUninit;
 
-/// When "no_unsound_assume_init" is enabled, expands to `unimplemented!()` instead of `new_uninitialized_generic().assume_init()`.
-/// Intended as a placeholder, each callsite should be refactored to use uninitialized memory soundly
-#[macro_export]
-macro_rules! unimplemented_or_uninitialized_generic {
-    ($nrows:expr, $ncols:expr) => {{
-        #[cfg(feature="no_unsound_assume_init")] {
-            // Some of the call sites need the number of rows and columns from this to infer a type, so
-            // uninitialized memory is used to infer the type, as `T: Zero` isn't available at all callsites.
-            // This may technically still be UB even though the assume_init is dead code, but all callsites should be fixed before #556 is closed.
-            let typeinference_helper = crate::base::Matrix::new_uninitialized_generic($nrows, $ncols);
-            unimplemented!();
-            typeinference_helper.assume_init()
+impl<T: Scalar, R: Dim, C: Dim> UninitMatrix<T, R, C>
+where
+    DefaultAllocator: Allocator<T, R, C>,
+{
+    /// Builds a matrix with uninitialized elements of type `MaybeUninit<T>`.
+    #[inline(always)]
+    pub fn uninit(nrows: R, ncols: C) -> Self {
+        // SAFETY: this is OK because the dimension automatically match the storage
+        //         because we are building an owned storage.
+        unsafe {
+            Self::from_data_statically_unchecked(DefaultAllocator::allocate_uninit(nrows, ncols))
         }
-        #[cfg(not(feature="no_unsound_assume_init"))] { crate::base::Matrix::new_uninitialized_generic($nrows, $ncols).assume_init() }
-    }}
+    }
 }
 
 /// # Generic constructors
@@ -53,16 +52,6 @@ impl<T: Scalar, R: Dim, C: Dim> OMatrix<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C>,
 {
-    /// Creates a new uninitialized matrix.
-    ///
-    /// # Safety
-    /// If the matrix has a compile-time dimension, this panics
-    /// if `nrows != R::to_usize()` or `ncols != C::to_usize()`.
-    #[inline]
-    pub unsafe fn new_uninitialized_generic(nrows: R, ncols: C) -> mem::MaybeUninit<Self> {
-        Self::from_uninitialized_data(DefaultAllocator::allocate_uninitialized(nrows, ncols))
-    }
-
     /// Creates a matrix with all its elements set to `elem`.
     #[inline]
     pub fn from_element_generic(nrows: R, ncols: C, elem: T) -> Self {
@@ -109,16 +98,19 @@ where
             "Matrix init. error: the slice did not contain the right number of elements."
         );
 
-        let mut res = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
+        let mut res = Matrix::uninit(nrows, ncols);
         let mut iter = slice.iter();
 
-        for i in 0..nrows.value() {
-            for j in 0..ncols.value() {
-                unsafe { *res.get_unchecked_mut((i, j)) = iter.next().unwrap().inlined_clone() }
+        unsafe {
+            for i in 0..nrows.value() {
+                for j in 0..ncols.value() {
+                    *res.get_unchecked_mut((i, j)) = MaybeUninit::new(iter.next().unwrap().clone())
+                }
             }
-        }
 
-        res
+            // SAFETY: the result has been fully initialized above.
+            res.assume_init()
+        }
     }
 
     /// Creates a matrix with its elements filled with the components provided by a slice. The
@@ -135,15 +127,18 @@ where
     where
         F: FnMut(usize, usize) -> T,
     {
-        let mut res: Self = unsafe { crate::unimplemented_or_uninitialized_generic!(nrows, ncols) };
+        let mut res = Matrix::uninit(nrows, ncols);
 
-        for j in 0..ncols.value() {
-            for i in 0..nrows.value() {
-                unsafe { *res.get_unchecked_mut((i, j)) = f(i, j) }
+        unsafe {
+            for j in 0..ncols.value() {
+                for i in 0..nrows.value() {
+                    *res.get_unchecked_mut((i, j)) = MaybeUninit::new(f(i, j));
+                }
             }
-        }
 
-        res
+            // SAFETY: the result has been fully initialized above.
+            res.assume_init()
+        }
     }
 
     /// Creates a new identity matrix.
@@ -170,7 +165,7 @@ where
         let mut res = Self::zeros_generic(nrows, ncols);
 
         for i in 0..crate::min(nrows.value(), ncols.value()) {
-            unsafe { *res.get_unchecked_mut((i, i)) = elt.inlined_clone() }
+            unsafe { *res.get_unchecked_mut((i, i)) = elt.clone() }
         }
 
         res
@@ -192,7 +187,7 @@ where
         );
 
         for (i, elt) in elts.iter().enumerate() {
-            unsafe { *res.get_unchecked_mut((i, i)) = elt.inlined_clone() }
+            unsafe { *res.get_unchecked_mut((i, i)) = elt.clone() }
         }
 
         res
@@ -217,7 +212,7 @@ where
     #[inline]
     pub fn from_rows<SB>(rows: &[Matrix<T, Const<1>, C, SB>]) -> Self
     where
-        SB: Storage<T, Const<1>, C>,
+        SB: RawStorage<T, Const<1>, C>,
     {
         assert!(!rows.is_empty(), "At least one row must be given.");
         let nrows = R::try_to_usize().unwrap_or_else(|| rows.len());
@@ -236,7 +231,7 @@ where
 
         // TODO: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
-            rows[i][(0, j)].inlined_clone()
+            rows[i][(0, j)].clone()
         })
     }
 
@@ -259,7 +254,7 @@ where
     #[inline]
     pub fn from_columns<SB>(columns: &[Vector<T, R, SB>]) -> Self
     where
-        SB: Storage<T, R>,
+        SB: RawStorage<T, R>,
     {
         assert!(!columns.is_empty(), "At least one column must be given.");
         let ncols = C::try_to_usize().unwrap_or_else(|| columns.len());
@@ -278,7 +273,7 @@ where
 
         // TODO: optimize that.
         Self::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |i, j| {
-            columns[j][i].inlined_clone()
+            columns[j][i].clone()
         })
     }
 
@@ -353,16 +348,16 @@ where
     ///         dm[(2, 0)] == 0.0 && dm[(2, 1)] == 0.0 && dm[(2, 2)] == 3.0);
     /// ```
     #[inline]
-    pub fn from_diagonal<SB: Storage<T, D>>(diag: &Vector<T, D, SB>) -> Self
+    pub fn from_diagonal<SB: RawStorage<T, D>>(diag: &Vector<T, D, SB>) -> Self
     where
         T: Zero,
     {
-        let (dim, _) = diag.data.shape();
+        let (dim, _) = diag.shape_generic();
         let mut res = Self::zeros_generic(dim, dim);
 
         for i in 0..diag.len() {
             unsafe {
-                *res.get_unchecked_mut((i, i)) = diag.vget_unchecked(i).inlined_clone();
+                *res.get_unchecked_mut((i, i)) = diag.vget_unchecked(i).clone();
             }
         }
 
@@ -377,12 +372,6 @@ where
  */
 macro_rules! impl_constructors(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        /// Creates a new uninitialized matrix or vector.
-        #[inline]
-        pub unsafe fn new_uninitialized($($args: usize),*) -> mem::MaybeUninit<Self> {
-            Self::new_uninitialized_generic($($gargs),*)
-        }
-
         /// Creates a matrix or vector with all its elements set to `elem`.
         ///
         /// # Example
@@ -888,19 +877,19 @@ macro_rules! transpose_array(
         [$([$a]),*]
     };
     [$($a: ident),*; $($b: ident),*;] => {
-        [$([$a, $b]),*];
+        [$([$a, $b]),*]
     };
     [$($a: ident),*; $($b: ident),*; $($c: ident),*;] => {
-        [$([$a, $b, $c]),*];
+        [$([$a, $b, $c]),*]
     };
     [$($a: ident),*; $($b: ident),*; $($c: ident),*; $($d: ident),*;] => {
-        [$([$a, $b, $c, $d]),*];
+        [$([$a, $b, $c, $d]),*]
     };
     [$($a: ident),*; $($b: ident),*; $($c: ident),*; $($d: ident),*; $($e: ident),*;] => {
-        [$([$a, $b, $c, $d, $e]),*];
+        [$([$a, $b, $c, $d, $e]),*]
     };
     [$($a: ident),*; $($b: ident),*; $($c: ident),*; $($d: ident),*; $($e: ident),*; $($f: ident),*;] => {
-        [$([$a, $b, $c, $d, $e, $f]),*];
+        [$([$a, $b, $c, $d, $e, $f]),*]
     };
 );
 

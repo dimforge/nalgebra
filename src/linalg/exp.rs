@@ -4,7 +4,6 @@ use crate::{
     base::{
         allocator::Allocator,
         dimension::{Const, Dim, DimMin, DimMinimum},
-        storage::Storage,
         DefaultAllocator,
     },
     convert, try_convert, ComplexField, OMatrix, RealField,
@@ -47,7 +46,7 @@ where
     DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
 {
     fn new(a: OMatrix<T, D, D>, use_exact_norm: bool) -> Self {
-        let (nrows, ncols) = a.data.shape();
+        let (nrows, ncols) = a.shape_generic();
         ExpmPadeHelper {
             use_exact_norm,
             ident: OMatrix::<T, D, D>::identity_generic(nrows, ncols),
@@ -117,7 +116,7 @@ where
             self.calc_a4();
             self.d4_exact = Some(one_norm(self.a4.as_ref().unwrap()).powf(convert(0.25)));
         }
-        self.d4_exact.unwrap()
+        self.d4_exact.clone().unwrap()
     }
 
     fn d6_tight(&mut self) -> T::RealField {
@@ -125,7 +124,7 @@ where
             self.calc_a6();
             self.d6_exact = Some(one_norm(self.a6.as_ref().unwrap()).powf(convert(1.0 / 6.0)));
         }
-        self.d6_exact.unwrap()
+        self.d6_exact.clone().unwrap()
     }
 
     fn d8_tight(&mut self) -> T::RealField {
@@ -133,7 +132,7 @@ where
             self.calc_a8();
             self.d8_exact = Some(one_norm(self.a8.as_ref().unwrap()).powf(convert(1.0 / 8.0)));
         }
-        self.d8_exact.unwrap()
+        self.d8_exact.clone().unwrap()
     }
 
     fn d10_tight(&mut self) -> T::RealField {
@@ -141,7 +140,7 @@ where
             self.calc_a10();
             self.d10_exact = Some(one_norm(self.a10.as_ref().unwrap()).powf(convert(1.0 / 10.0)));
         }
-        self.d10_exact.unwrap()
+        self.d10_exact.clone().unwrap()
     }
 
     fn d4_loose(&mut self) -> T::RealField {
@@ -150,7 +149,7 @@ where
         }
 
         if self.d4_exact.is_some() {
-            return self.d4_exact.unwrap();
+            return self.d4_exact.clone().unwrap();
         }
 
         if self.d4_approx.is_none() {
@@ -158,7 +157,7 @@ where
             self.d4_approx = Some(one_norm(self.a4.as_ref().unwrap()).powf(convert(0.25)));
         }
 
-        self.d4_approx.unwrap()
+        self.d4_approx.clone().unwrap()
     }
 
     fn d6_loose(&mut self) -> T::RealField {
@@ -167,7 +166,7 @@ where
         }
 
         if self.d6_exact.is_some() {
-            return self.d6_exact.unwrap();
+            return self.d6_exact.clone().unwrap();
         }
 
         if self.d6_approx.is_none() {
@@ -175,7 +174,7 @@ where
             self.d6_approx = Some(one_norm(self.a6.as_ref().unwrap()).powf(convert(1.0 / 6.0)));
         }
 
-        self.d6_approx.unwrap()
+        self.d6_approx.clone().unwrap()
     }
 
     fn d8_loose(&mut self) -> T::RealField {
@@ -184,7 +183,7 @@ where
         }
 
         if self.d8_exact.is_some() {
-            return self.d8_exact.unwrap();
+            return self.d8_exact.clone().unwrap();
         }
 
         if self.d8_approx.is_none() {
@@ -192,7 +191,7 @@ where
             self.d8_approx = Some(one_norm(self.a8.as_ref().unwrap()).powf(convert(1.0 / 8.0)));
         }
 
-        self.d8_approx.unwrap()
+        self.d8_approx.clone().unwrap()
     }
 
     fn d10_loose(&mut self) -> T::RealField {
@@ -201,7 +200,7 @@ where
         }
 
         if self.d10_exact.is_some() {
-            return self.d10_exact.unwrap();
+            return self.d10_exact.clone().unwrap();
         }
 
         if self.d10_approx.is_none() {
@@ -209,15 +208,15 @@ where
             self.d10_approx = Some(one_norm(self.a10.as_ref().unwrap()).powf(convert(1.0 / 10.0)));
         }
 
-        self.d10_approx.unwrap()
+        self.d10_approx.clone().unwrap()
     }
 
     fn pade3(&mut self) -> (OMatrix<T, D, D>, OMatrix<T, D, D>) {
         let b: [T; 4] = [convert(120.0), convert(60.0), convert(12.0), convert(1.0)];
         self.calc_a2();
         let a2 = self.a2.as_ref().unwrap();
-        let u = &self.a * (a2 * b[3] + &self.ident * b[1]);
-        let v = a2 * b[2] + &self.ident * b[0];
+        let u = &self.a * (a2 * b[3].clone() + &self.ident * b[1].clone());
+        let v = a2 * b[2].clone() + &self.ident * b[0].clone();
         (u, v)
     }
 
@@ -233,12 +232,12 @@ where
         self.calc_a2();
         self.calc_a6();
         let u = &self.a
-            * (self.a4.as_ref().unwrap() * b[5]
-                + self.a2.as_ref().unwrap() * b[3]
-                + &self.ident * b[1]);
-        let v = self.a4.as_ref().unwrap() * b[4]
-            + self.a2.as_ref().unwrap() * b[2]
-            + &self.ident * b[0];
+            * (self.a4.as_ref().unwrap() * b[5].clone()
+                + self.a2.as_ref().unwrap() * b[3].clone()
+                + &self.ident * b[1].clone());
+        let v = self.a4.as_ref().unwrap() * b[4].clone()
+            + self.a2.as_ref().unwrap() * b[2].clone()
+            + &self.ident * b[0].clone();
         (u, v)
     }
 
@@ -257,14 +256,14 @@ where
         self.calc_a4();
         self.calc_a6();
         let u = &self.a
-            * (self.a6.as_ref().unwrap() * b[7]
-                + self.a4.as_ref().unwrap() * b[5]
-                + self.a2.as_ref().unwrap() * b[3]
-                + &self.ident * b[1]);
-        let v = self.a6.as_ref().unwrap() * b[6]
-            + self.a4.as_ref().unwrap() * b[4]
-            + self.a2.as_ref().unwrap() * b[2]
-            + &self.ident * b[0];
+            * (self.a6.as_ref().unwrap() * b[7].clone()
+                + self.a4.as_ref().unwrap() * b[5].clone()
+                + self.a2.as_ref().unwrap() * b[3].clone()
+                + &self.ident * b[1].clone());
+        let v = self.a6.as_ref().unwrap() * b[6].clone()
+            + self.a4.as_ref().unwrap() * b[4].clone()
+            + self.a2.as_ref().unwrap() * b[2].clone()
+            + &self.ident * b[0].clone();
         (u, v)
     }
 
@@ -286,16 +285,16 @@ where
         self.calc_a6();
         self.calc_a8();
         let u = &self.a
-            * (self.a8.as_ref().unwrap() * b[9]
-                + self.a6.as_ref().unwrap() * b[7]
-                + self.a4.as_ref().unwrap() * b[5]
-                + self.a2.as_ref().unwrap() * b[3]
-                + &self.ident * b[1]);
-        let v = self.a8.as_ref().unwrap() * b[8]
-            + self.a6.as_ref().unwrap() * b[6]
-            + self.a4.as_ref().unwrap() * b[4]
-            + self.a2.as_ref().unwrap() * b[2]
-            + &self.ident * b[0];
+            * (self.a8.as_ref().unwrap() * b[9].clone()
+                + self.a6.as_ref().unwrap() * b[7].clone()
+                + self.a4.as_ref().unwrap() * b[5].clone()
+                + self.a2.as_ref().unwrap() * b[3].clone()
+                + &self.ident * b[1].clone());
+        let v = self.a8.as_ref().unwrap() * b[8].clone()
+            + self.a6.as_ref().unwrap() * b[6].clone()
+            + self.a4.as_ref().unwrap() * b[4].clone()
+            + self.a2.as_ref().unwrap() * b[2].clone()
+            + &self.ident * b[0].clone();
         (u, v)
     }
 
@@ -322,14 +321,23 @@ where
         self.calc_a2();
         self.calc_a4();
         self.calc_a6();
-        let mb2 = self.a2.as_ref().unwrap() * convert::<f64, T>(2.0_f64.powf(-2.0 * s));
-        let mb4 = self.a4.as_ref().unwrap() * convert::<f64, T>(2.0.powf(-4.0 * s));
+        let mb2 = self.a2.as_ref().unwrap() * convert::<f64, T>(2.0_f64.powf(-2.0 * s.clone()));
+        let mb4 = self.a4.as_ref().unwrap() * convert::<f64, T>(2.0.powf(-4.0 * s.clone()));
         let mb6 = self.a6.as_ref().unwrap() * convert::<f64, T>(2.0.powf(-6.0 * s));
 
-        let u2 = &mb6 * (&mb6 * b[13] + &mb4 * b[11] + &mb2 * b[9]);
-        let u = &mb * (&u2 + &mb6 * b[7] + &mb4 * b[5] + &mb2 * b[3] + &self.ident * b[1]);
-        let v2 = &mb6 * (&mb6 * b[12] + &mb4 * b[10] + &mb2 * b[8]);
-        let v = v2 + &mb6 * b[6] + &mb4 * b[4] + &mb2 * b[2] + &self.ident * b[0];
+        let u2 = &mb6 * (&mb6 * b[13].clone() + &mb4 * b[11].clone() + &mb2 * b[9].clone());
+        let u = &mb
+            * (&u2
+                + &mb6 * b[7].clone()
+                + &mb4 * b[5].clone()
+                + &mb2 * b[3].clone()
+                + &self.ident * b[1].clone());
+        let v2 = &mb6 * (&mb6 * b[12].clone() + &mb4 * b[10].clone() + &mb2 * b[8].clone());
+        let v = v2
+            + &mb6 * b[6].clone()
+            + &mb4 * b[4].clone()
+            + &mb2 * b[2].clone()
+            + &self.ident * b[0].clone();
         (u, v)
     }
 }
@@ -348,7 +356,7 @@ where
     D: Dim,
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
-    let nrows = a.data.shape().0;
+    let nrows = a.shape_generic().0;
     let mut v = crate::OVector::<T, D>::repeat_generic(nrows, Const::<1>, convert(1.0));
     let m = a.transpose();
 
@@ -418,7 +426,9 @@ where
         let col = m.column(i);
         max = max.max(
             col.iter()
-                .fold(<T as ComplexField>::RealField::zero(), |a, b| a + b.abs()),
+                .fold(<T as ComplexField>::RealField::zero(), |a, b| {
+                    a + b.clone().abs()
+                }),
         );
     }
 

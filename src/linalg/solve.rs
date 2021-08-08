@@ -82,14 +82,14 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             let coeff;
 
             unsafe {
-                let diag = *self.get_unchecked((i, i));
+                let diag = self.get_unchecked((i, i)).clone();
 
                 if diag.is_zero() {
                     return false;
                 }
 
-                coeff = *b.vget_unchecked(i) / diag;
-                *b.vget_unchecked_mut(i) = coeff;
+                coeff = b.vget_unchecked(i).clone() / diag;
+                *b.vget_unchecked_mut(i) = coeff.clone();
             }
 
             b.rows_range_mut(i + 1..)
@@ -123,7 +123,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             let mut bcol = b.column_mut(k);
 
             for i in 0..dim - 1 {
-                let coeff = unsafe { *bcol.vget_unchecked(i) } / diag;
+                let coeff = unsafe { bcol.vget_unchecked(i).clone() } / diag.clone();
                 bcol.rows_range_mut(i + 1..)
                     .axpy(-coeff, &self.slice_range(i + 1.., i), T::one());
             }
@@ -164,14 +164,14 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             let coeff;
 
             unsafe {
-                let diag = *self.get_unchecked((i, i));
+                let diag = self.get_unchecked((i, i)).clone();
 
                 if diag.is_zero() {
                     return false;
                 }
 
-                coeff = *b.vget_unchecked(i) / diag;
-                *b.vget_unchecked_mut(i) = coeff;
+                coeff = b.vget_unchecked(i).clone() / diag;
+                *b.vget_unchecked_mut(i) = coeff.clone();
             }
 
             b.rows_range_mut(..i)
@@ -376,8 +376,8 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         b: &mut Vector<T, R2, S2>,
         conjugate: impl Fn(T) -> T,
         dot: impl Fn(
-            &DVectorSlice<T, S::RStride, S::CStride>,
-            &DVectorSlice<T, S2::RStride, S2::CStride>,
+            &DVectorSlice<'_, T, S::RStride, S::CStride>,
+            &DVectorSlice<'_, T, S2::RStride, S2::CStride>,
         ) -> T,
     ) -> bool
     where
@@ -392,13 +392,13 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             unsafe {
                 let b_i = b.vget_unchecked_mut(i);
 
-                let diag = conjugate(*self.get_unchecked((i, i)));
+                let diag = conjugate(self.get_unchecked((i, i)).clone());
 
                 if diag.is_zero() {
                     return false;
                 }
 
-                *b_i = (*b_i - dot) / diag;
+                *b_i = (b_i.clone() - dot) / diag;
             }
         }
 
@@ -411,8 +411,8 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         b: &mut Vector<T, R2, S2>,
         conjugate: impl Fn(T) -> T,
         dot: impl Fn(
-            &DVectorSlice<T, S::RStride, S::CStride>,
-            &DVectorSlice<T, S2::RStride, S2::CStride>,
+            &DVectorSlice<'_, T, S::RStride, S::CStride>,
+            &DVectorSlice<'_, T, S2::RStride, S2::CStride>,
         ) -> T,
     ) -> bool
     where
@@ -426,13 +426,13 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 
             unsafe {
                 let b_i = b.vget_unchecked_mut(i);
-                let diag = conjugate(*self.get_unchecked((i, i)));
+                let diag = conjugate(self.get_unchecked((i, i)).clone());
 
                 if diag.is_zero() {
                     return false;
                 }
 
-                *b_i = (*b_i - dot) / diag;
+                *b_i = (b_i.clone() - dot) / diag;
             }
         }
 
@@ -508,13 +508,13 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             let coeff;
 
             unsafe {
-                let diag = *self.get_unchecked((i, i));
-                coeff = *b.vget_unchecked(i) / diag;
-                *b.vget_unchecked_mut(i) = coeff;
+                let diag = self.get_unchecked((i, i)).clone();
+                coeff = b.vget_unchecked(i).clone() / diag;
+                *b.vget_unchecked_mut(i) = coeff.clone();
             }
 
             b.rows_range_mut(i + 1..)
-                .axpy(-coeff, &self.slice_range(i + 1.., i), T::one());
+                .axpy(-coeff.clone(), &self.slice_range(i + 1.., i), T::one());
         }
     }
 
@@ -537,7 +537,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             let mut bcol = b.column_mut(k);
 
             for i in 0..dim - 1 {
-                let coeff = unsafe { *bcol.vget_unchecked(i) } / diag;
+                let coeff = unsafe { bcol.vget_unchecked(i).clone() } / diag.clone();
                 bcol.rows_range_mut(i + 1..)
                     .axpy(-coeff, &self.slice_range(i + 1.., i), T::one());
             }
@@ -569,9 +569,9 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             let coeff;
 
             unsafe {
-                let diag = *self.get_unchecked((i, i));
-                coeff = *b.vget_unchecked(i) / diag;
-                *b.vget_unchecked_mut(i) = coeff;
+                let diag = self.get_unchecked((i, i)).clone();
+                coeff = b.vget_unchecked(i).clone() / diag;
+                *b.vget_unchecked_mut(i) = coeff.clone();
             }
 
             b.rows_range_mut(..i)
@@ -734,8 +734,8 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         b: &mut Vector<T, R2, S2>,
         conjugate: impl Fn(T) -> T,
         dot: impl Fn(
-            &DVectorSlice<T, S::RStride, S::CStride>,
-            &DVectorSlice<T, S2::RStride, S2::CStride>,
+            &DVectorSlice<'_, T, S::RStride, S::CStride>,
+            &DVectorSlice<'_, T, S2::RStride, S2::CStride>,
         ) -> T,
     ) where
         S2: StorageMut<T, R2, U1>,
@@ -748,8 +748,8 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 
             unsafe {
                 let b_i = b.vget_unchecked_mut(i);
-                let diag = conjugate(*self.get_unchecked((i, i)));
-                *b_i = (*b_i - dot) / diag;
+                let diag = conjugate(self.get_unchecked((i, i)).clone());
+                *b_i = (b_i.clone() - dot) / diag;
             }
         }
     }
@@ -760,8 +760,8 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         b: &mut Vector<T, R2, S2>,
         conjugate: impl Fn(T) -> T,
         dot: impl Fn(
-            &DVectorSlice<T, S::RStride, S::CStride>,
-            &DVectorSlice<T, S2::RStride, S2::CStride>,
+            &DVectorSlice<'_, T, S::RStride, S::CStride>,
+            &DVectorSlice<'_, T, S2::RStride, S2::CStride>,
         ) -> T,
     ) where
         S2: StorageMut<T, R2, U1>,
@@ -772,8 +772,8 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 
             unsafe {
                 let b_i = b.vget_unchecked_mut(i);
-                let diag = conjugate(*self.get_unchecked((i, i)));
-                *b_i = (*b_i - dot) / diag;
+                let diag = conjugate(self.get_unchecked((i, i)).clone());
+                *b_i = (b_i.clone() - dot) / diag;
             }
         }
     }

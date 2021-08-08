@@ -12,8 +12,6 @@ use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "serde-serialize-no-std")]
 use std::marker::PhantomData;
-#[cfg(feature = "serde-serialize-no-std")]
-use std::mem;
 
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
@@ -21,20 +19,36 @@ use abomonation::Abomonation;
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, ToTypenum};
-use crate::base::storage::{
-    ContiguousStorage, ContiguousStorageMut, Owned, ReshapableStorage, Storage, StorageMut,
-};
+use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, ReshapableStorage};
 use crate::base::Scalar;
+use crate::Storage;
+use std::mem;
 
 /*
  *
- * Static Storage.
+ * Static RawStorage.
  *
  */
 /// A array-based statically sized matrix data storage.
-#[repr(C)]
+#[repr(transparent)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ArrayStorage<T, const R: usize, const C: usize>(pub [[T; R]; C]);
+
+impl<T, const R: usize, const C: usize> ArrayStorage<T, R, C> {
+    /// Converts this array storage to a slice.
+    #[inline]
+    pub fn as_slice(&self) -> &[T] {
+        // SAFETY: this is OK because ArrayStorage is contiguous.
+        unsafe { self.as_slice_unchecked() }
+    }
+
+    /// Converts this array storage to a mutable slice.
+    #[inline]
+    pub fn as_mut_slice(&mut self) -> &mut [T] {
+        // SAFETY: this is OK because ArrayStorage is contiguous.
+        unsafe { self.as_mut_slice_unchecked() }
+    }
+}
 
 // TODO: remove this once the stdlib implements Default for arrays.
 impl<T: Default, const R: usize, const C: usize> Default for ArrayStorage<T, R, C>
@@ -49,16 +63,13 @@ where
 
 impl<T: Debug, const R: usize, const C: usize> Debug for ArrayStorage<T, R, C> {
     #[inline]
-    fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         self.0.fmt(fmt)
     }
 }
 
-unsafe impl<T, const R: usize, const C: usize> Storage<T, Const<R>, Const<C>>
+unsafe impl<T, const R: usize, const C: usize> RawStorage<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
-where
-    T: Scalar,
-    DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
     type RStride = Const<1>;
     type CStride = Const<R>;
@@ -84,6 +95,17 @@ where
     }
 
     #[inline]
+    unsafe fn as_slice_unchecked(&self) -> &[T] {
+        std::slice::from_raw_parts(self.ptr(), R * C)
+    }
+}
+
+unsafe impl<T: Scalar, const R: usize, const C: usize> Storage<T, Const<R>, Const<C>>
+    for ArrayStorage<T, R, C>
+where
+    DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
+{
+    #[inline]
     fn into_owned(self) -> Owned<T, Const<R>, Const<C>>
     where
         DefaultAllocator: Allocator<T, Const<R>, Const<C>>,
@@ -96,21 +118,12 @@ where
     where
         DefaultAllocator: Allocator<T, Const<R>, Const<C>>,
     {
-        let it = self.as_slice().iter().cloned();
-        DefaultAllocator::allocate_from_iterator(self.shape().0, self.shape().1, it)
-    }
-
-    #[inline]
-    unsafe fn as_slice_unchecked(&self) -> &[T] {
-        std::slice::from_raw_parts(self.ptr(), R * C)
+        self.clone()
     }
 }
 
-unsafe impl<T, const R: usize, const C: usize> StorageMut<T, Const<R>, Const<C>>
+unsafe impl<T, const R: usize, const C: usize> RawStorageMut<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
-where
-    T: Scalar,
-    DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
 {
     #[inline]
     fn ptr_mut(&mut self) -> *mut T {
@@ -123,21 +136,7 @@ where
     }
 }
 
-unsafe impl<T, const R: usize, const C: usize> ContiguousStorage<T, Const<R>, Const<C>>
-    for ArrayStorage<T, R, C>
-where
-    T: Scalar,
-    DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
-{
-}
-
-unsafe impl<T, const R: usize, const C: usize> ContiguousStorageMut<T, Const<R>, Const<C>>
-    for ArrayStorage<T, R, C>
-where
-    T: Scalar,
-    DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
-{
-}
+unsafe impl<T, const R: usize, const C: usize> IsContiguous for ArrayStorage<T, R, C> {}
 
 impl<T, const R1: usize, const C1: usize, const R2: usize, const C2: usize>
     ReshapableStorage<T, Const<R1>, Const<C1>, Const<R2>, Const<C2>> for ArrayStorage<T, R1, C1>
@@ -160,8 +159,8 @@ where
 
     fn reshape_generic(self, _: Const<R2>, _: Const<C2>) -> Self::Output {
         unsafe {
-            let data: [[T; R2]; C2] = std::mem::transmute_copy(&self.0);
-            std::mem::forget(self.0);
+            let data: [[T; R2]; C2] = mem::transmute_copy(&self.0);
+            mem::forget(self.0);
             ArrayStorage(data)
         }
     }
@@ -231,7 +230,7 @@ where
 {
     type Value = ArrayStorage<T, R, C>;
 
-    fn expecting(&self, formatter: &mut Formatter) -> fmt::Result {
+    fn expecting(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
         formatter.write_str("a matrix array")
     }
 
@@ -240,19 +239,28 @@ where
     where
         V: SeqAccess<'a>,
     {
-        let mut out: Self::Value = unsafe { mem::MaybeUninit::uninit().assume_init() };
+        let mut out: ArrayStorage<core::mem::MaybeUninit<T>, R, C> =
+            DefaultAllocator::allocate_uninit(Const::<R>, Const::<C>);
         let mut curr = 0;
 
         while let Some(value) = visitor.next_element()? {
             *out.as_mut_slice()
                 .get_mut(curr)
-                .ok_or_else(|| V::Error::invalid_length(curr, &self))? = value;
+                .ok_or_else(|| V::Error::invalid_length(curr, &self))? =
+                core::mem::MaybeUninit::new(value);
             curr += 1;
         }
 
         if curr == R * C {
-            Ok(out)
+            // Safety: all the elements have been initialized.
+            unsafe { Ok(<DefaultAllocator as Allocator<T, Const<R>, Const<C>>>::assume_init(out)) }
         } else {
+            for i in 0..curr {
+                // Safety:
+                // - We couldn’t initialize the whole storage. Drop the ones we initialized.
+                unsafe { std::ptr::drop_in_place(out.as_mut_slice()[i].as_mut_ptr()) };
+            }
+
             Err(V::Error::invalid_length(curr, &self))
         }
     }

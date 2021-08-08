@@ -80,7 +80,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
                 }
 
                 for (i, val) in column {
-                    let bj = b[j];
+                    let bj = b[j].clone();
                     b[i] -= bj * val;
                 }
             }
@@ -122,7 +122,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
 
                 if let Some(diag) = diag {
                     for (i, val) in column {
-                        let bi = b[i];
+                        let bi = b[i].clone();
                         b[j] -= val * bi;
                     }
 
@@ -152,8 +152,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
         self.lower_triangular_reach(b, &mut reach);
         // We sort the reach so the result matrix has sorted indices.
         reach.sort_unstable();
-        let mut workspace =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(b.data.shape().0, Const::<1>) };
+        let mut workspace = Matrix::zeros_generic(b.data.shape().0, Const::<1>);
 
         for i in reach.iter().cloned() {
             workspace[i] = T::zero();
@@ -184,7 +183,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
             }
 
             for (i, val) in column {
-                let wj = workspace[j];
+                let wj = workspace[j].clone();
                 workspace[i] -= wj * val;
             }
         }
@@ -194,7 +193,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
             CsVector::new_uninitialized_generic(b.data.shape().0, Const::<1>, reach.len());
 
         for (i, val) in reach.iter().zip(result.data.vals.iter_mut()) {
-            *val = workspace[*i];
+            *val = workspace[*i].clone();
         }
 
         result.data.i = reach;

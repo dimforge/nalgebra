@@ -24,15 +24,6 @@ impl<T: Scalar, D: DimName> OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
-    /// Creates a new point with uninitialized coordinates.
-    #[inline]
-    pub unsafe fn new_uninitialized() -> Self {
-        Self::from(crate::unimplemented_or_uninitialized_generic!(
-            D::name(),
-            Const::<1>
-        ))
-    }
-
     /// Creates a new point with all coordinates equal to zero.
     ///
     /// # Example
@@ -113,8 +104,7 @@ where
         DefaultAllocator: Allocator<T, DimNameSum<D, U1>>,
     {
         if !v[D::dim()].is_zero() {
-            let coords =
-                v.generic_slice((0, 0), (D::name(), Const::<1>)) / v[D::dim()].inlined_clone();
+            let coords = v.generic_slice((0, 0), (D::name(), Const::<1>)) / v[D::dim()].clone();
             Some(Self::from(coords))
         } else {
             None

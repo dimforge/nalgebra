@@ -186,7 +186,7 @@ where
     pub fn from_parts(translation: Translation3<T>, rotation: UnitQuaternion<T>) -> Self {
         let half: T = crate::convert(0.5f64);
         UnitDualQuaternion::new_unchecked(DualQuaternion {
-            real: rotation.into_inner(),
+            real: rotation.clone().into_inner(),
             dual: Quaternion::from_parts(T::zero(), translation.vector)
                 * rotation.into_inner()
                 * half,
@@ -210,6 +210,8 @@ where
     /// ```
     #[inline]
     pub fn from_isometry(isometry: &Isometry3<T>) -> Self {
+        // TODO: take the isometry by-move instead of cloning it.
+        let isometry = isometry.clone();
         UnitDualQuaternion::from_parts(isometry.translation, isometry.rotation)
     }
 

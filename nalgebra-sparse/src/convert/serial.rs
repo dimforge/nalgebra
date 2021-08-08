@@ -7,7 +7,7 @@ use std::ops::Add;
 
 use num_traits::Zero;
 
-use nalgebra::storage::Storage;
+use nalgebra::storage::RawStorage;
 use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
 
 use crate::coo::CooMatrix;
@@ -21,7 +21,7 @@ where
     T: Scalar + Zero,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>,
+    S: RawStorage<T, R, C>,
 {
     let mut coo = CooMatrix::new(dense.nrows(), dense.ncols());
 
@@ -30,7 +30,7 @@ where
             // We use the fact that matrix iteration is guaranteed to be column-major
             let i = index % dense.nrows();
             let j = index / dense.nrows();
-            coo.push(i, j, v.inlined_clone());
+            coo.push(i, j, v.clone());
         }
     }
 
@@ -44,7 +44,7 @@ where
 {
     let mut output = DMatrix::repeat(coo.nrows(), coo.ncols(), T::zero());
     for (i, j, v) in coo.triplet_iter() {
-        output[(i, j)] += v.inlined_clone();
+        output[(i, j)] += v.clone();
     }
     output
 }
@@ -71,7 +71,7 @@ where
 pub fn convert_csr_coo<T: Scalar>(csr: &CsrMatrix<T>) -> CooMatrix<T> {
     let mut result = CooMatrix::new(csr.nrows(), csr.ncols());
     for (i, j, v) in csr.triplet_iter() {
-        result.push(i, j, v.inlined_clone());
+        result.push(i, j, v.clone());
     }
     result
 }
@@ -84,7 +84,7 @@ where
     let mut output = DMatrix::zeros(csr.nrows(), csr.ncols());
 
     for (i, j, v) in csr.triplet_iter() {
-        output[(i, j)] += v.inlined_clone();
+        output[(i, j)] += v.clone();
     }
 
     output
@@ -96,7 +96,7 @@ where
     T: Scalar + Zero,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>,
+    S: RawStorage<T, R, C>,
 {
     let mut row_offsets = Vec::with_capacity(dense.nrows() + 1);
     let mut col_idx = Vec::new();
@@ -111,7 +111,7 @@ where
             let v = dense.index((i, j));
             if v != &T::zero() {
                 col_idx.push(j);
-                values.push(v.inlined_clone());
+                values.push(v.clone());
             }
         }
         row_offsets.push(col_idx.len());
@@ -148,7 +148,7 @@ where
 {
     let mut coo = CooMatrix::new(csc.nrows(), csc.ncols());
     for (i, j, v) in csc.triplet_iter() {
-        coo.push(i, j, v.inlined_clone());
+        coo.push(i, j, v.clone());
     }
     coo
 }
@@ -161,7 +161,7 @@ where
     let mut output = DMatrix::zeros(csc.nrows(), csc.ncols());
 
     for (i, j, v) in csc.triplet_iter() {
-        output[(i, j)] += v.inlined_clone();
+        output[(i, j)] += v.clone();
     }
 
     output
@@ -173,7 +173,7 @@ where
     T: Scalar + Zero,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>,
+    S: RawStorage<T, R, C>,
 {
     let mut col_offsets = Vec::with_capacity(dense.ncols() + 1);
     let mut row_idx = Vec::new();
@@ -185,7 +185,7 @@ where
             let v = dense.index((i, j));
             if v != &T::zero() {
                 row_idx.push(i);
-                values.push(v.inlined_clone());
+                values.push(v.clone());
             }
         }
         col_offsets.push(row_idx.len());

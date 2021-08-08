@@ -95,7 +95,12 @@ impl<T: SimdRealField> Quaternion<T> {
     where
         SB: Storage<T, U3>,
     {
-        Self::new(scalar, vector[0], vector[1], vector[2])
+        Self::new(
+            scalar,
+            vector[0].clone(),
+            vector[1].clone(),
+            vector[2].clone(),
+        )
     }
 
     /// Constructs a real quaternion.
@@ -296,9 +301,9 @@ where
         let (sy, cy) = (yaw * crate::convert(0.5f64)).simd_sin_cos();
 
         let q = Quaternion::new(
-            cr * cp * cy + sr * sp * sy,
-            sr * cp * cy - cr * sp * sy,
-            cr * sp * cy + sr * cp * sy,
+            cr.clone() * cp.clone() * cy.clone() + sr.clone() * sp.clone() * sy.clone(),
+            sr.clone() * cp.clone() * cy.clone() - cr.clone() * sp.clone() * sy.clone(),
+            cr.clone() * sp.clone() * cy.clone() + sr.clone() * cp.clone() * sy.clone(),
             cr * cp * sy - sr * sp * cy,
         );
 
@@ -334,56 +339,65 @@ where
     pub fn from_rotation_matrix(rotmat: &Rotation3<T>) -> Self {
         // Robust matrix to quaternion transformation.
         // See https://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion
-        let tr = rotmat[(0, 0)] + rotmat[(1, 1)] + rotmat[(2, 2)];
+        let tr = rotmat[(0, 0)].clone() + rotmat[(1, 1)].clone() + rotmat[(2, 2)].clone();
         let quarter: T = crate::convert(0.25);
 
-        let res = tr.simd_gt(T::zero()).if_else3(
+        let res = tr.clone().simd_gt(T::zero()).if_else3(
             || {
-                let denom = (tr + T::one()).simd_sqrt() * crate::convert(2.0);
+                let denom = (tr.clone() + T::one()).simd_sqrt() * crate::convert(2.0);
                 Quaternion::new(
-                    quarter * denom,
-                    (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
-                    (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
-                    (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
+                    quarter.clone() * denom.clone(),
+                    (rotmat[(2, 1)].clone() - rotmat[(1, 2)].clone()) / denom.clone(),
+                    (rotmat[(0, 2)].clone() - rotmat[(2, 0)].clone()) / denom.clone(),
+                    (rotmat[(1, 0)].clone() - rotmat[(0, 1)].clone()) / denom,
                 )
             },
             (
-                || rotmat[(0, 0)].simd_gt(rotmat[(1, 1)]) & rotmat[(0, 0)].simd_gt(rotmat[(2, 2)]),
                 || {
-                    let denom = (T::one() + rotmat[(0, 0)] - rotmat[(1, 1)] - rotmat[(2, 2)])
-                        .simd_sqrt()
+                    rotmat[(0, 0)].clone().simd_gt(rotmat[(1, 1)].clone())
+                        & rotmat[(0, 0)].clone().simd_gt(rotmat[(2, 2)].clone())
+                },
+                || {
+                    let denom = (T::one() + rotmat[(0, 0)].clone()
+                        - rotmat[(1, 1)].clone()
+                        - rotmat[(2, 2)].clone())
+                    .simd_sqrt()
                         * crate::convert(2.0);
                     Quaternion::new(
-                        (rotmat[(2, 1)] - rotmat[(1, 2)]) / denom,
-                        quarter * denom,
-                        (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
-                        (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
+                        (rotmat[(2, 1)].clone() - rotmat[(1, 2)].clone()) / denom.clone(),
+                        quarter.clone() * denom.clone(),
+                        (rotmat[(0, 1)].clone() + rotmat[(1, 0)].clone()) / denom.clone(),
+                        (rotmat[(0, 2)].clone() + rotmat[(2, 0)].clone()) / denom,
                     )
                 },
             ),
             (
-                || rotmat[(1, 1)].simd_gt(rotmat[(2, 2)]),
+                || rotmat[(1, 1)].clone().simd_gt(rotmat[(2, 2)].clone()),
                 || {
-                    let denom = (T::one() + rotmat[(1, 1)] - rotmat[(0, 0)] - rotmat[(2, 2)])
-                        .simd_sqrt()
+                    let denom = (T::one() + rotmat[(1, 1)].clone()
+                        - rotmat[(0, 0)].clone()
+                        - rotmat[(2, 2)].clone())
+                    .simd_sqrt()
                         * crate::convert(2.0);
                     Quaternion::new(
-                        (rotmat[(0, 2)] - rotmat[(2, 0)]) / denom,
-                        (rotmat[(0, 1)] + rotmat[(1, 0)]) / denom,
-                        quarter * denom,
-                        (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
+                        (rotmat[(0, 2)].clone() - rotmat[(2, 0)].clone()) / denom.clone(),
+                        (rotmat[(0, 1)].clone() + rotmat[(1, 0)].clone()) / denom.clone(),
+                        quarter.clone() * denom.clone(),
+                        (rotmat[(1, 2)].clone() + rotmat[(2, 1)].clone()) / denom,
                     )
                 },
             ),
             || {
-                let denom = (T::one() + rotmat[(2, 2)] - rotmat[(0, 0)] - rotmat[(1, 1)])
-                    .simd_sqrt()
+                let denom = (T::one() + rotmat[(2, 2)].clone()
+                    - rotmat[(0, 0)].clone()
+                    - rotmat[(1, 1)].clone())
+                .simd_sqrt()
                     * crate::convert(2.0);
                 Quaternion::new(
-                    (rotmat[(1, 0)] - rotmat[(0, 1)]) / denom,
-                    (rotmat[(0, 2)] + rotmat[(2, 0)]) / denom,
-                    (rotmat[(1, 2)] + rotmat[(2, 1)]) / denom,
-                    quarter * denom,
+                    (rotmat[(1, 0)].clone() - rotmat[(0, 1)].clone()) / denom.clone(),
+                    (rotmat[(0, 2)].clone() + rotmat[(2, 0)].clone()) / denom.clone(),
+                    (rotmat[(1, 2)].clone() + rotmat[(2, 1)].clone()) / denom.clone(),
+                    quarter.clone() * denom,
                 )
             },
         );
@@ -591,7 +605,7 @@ where
         Self::from_rotation_matrix(&Rotation3::face_towards(dir, up))
     }
 
-    /// Deprecated: Use [UnitQuaternion::face_towards] instead.
+    /// Deprecated: Use [`UnitQuaternion::face_towards`] instead.
     #[deprecated(note = "renamed to `face_towards`")]
     pub fn new_observer_frames<SB, SC>(dir: &Vector<T, U3, SB>, up: &Vector<T, U3, SC>) -> Self
     where
@@ -785,7 +799,7 @@ where
         Self::new_eps(axisangle, eps)
     }
 
-    /// Create the mean unit quaternion from a data structure implementing IntoIterator
+    /// Create the mean unit quaternion from a data structure implementing `IntoIterator`
     /// returning unit quaternions.
     ///
     /// The method will panic if the iterator does not return any quaternions.
@@ -833,10 +847,10 @@ where
 
         let max_eigenvector = eigen_matrix.eigenvectors.column(max_eigenvalue_index);
         UnitQuaternion::from_quaternion(Quaternion::new(
-            max_eigenvector[0],
-            max_eigenvector[1],
-            max_eigenvector[2],
-            max_eigenvector[3],
+            max_eigenvector[0].clone(),
+            max_eigenvector[1].clone(),
+            max_eigenvector[2].clone(),
+            max_eigenvector[3].clone(),
         ))
     }
 }
@@ -868,13 +882,18 @@ where
         let twopi = Uniform::new(T::zero(), T::simd_two_pi());
         let theta1 = rng.sample(&twopi);
         let theta2 = rng.sample(&twopi);
-        let s1 = theta1.simd_sin();
+        let s1 = theta1.clone().simd_sin();
         let c1 = theta1.simd_cos();
-        let s2 = theta2.simd_sin();
+        let s2 = theta2.clone().simd_sin();
         let c2 = theta2.simd_cos();
-        let r1 = (T::one() - x0).simd_sqrt();
+        let r1 = (T::one() - x0.clone()).simd_sqrt();
         let r2 = x0.simd_sqrt();
-        Unit::new_unchecked(Quaternion::new(s1 * r1, c1 * r1, s2 * r2, c2 * r2))
+        Unit::new_unchecked(Quaternion::new(
+            s1 * r1.clone(),
+            c1 * r1,
+            s2 * r2.clone(),
+            c2 * r2,
+        ))
     }
 }
 
@@ -894,9 +913,9 @@ where
 #[cfg(test)]
 #[cfg(feature = "rand")]
 mod tests {
-    extern crate rand_xorshift;
     use super::*;
     use rand::SeedableRng;
+    use rand_xorshift;
 
     #[test]
     fn random_unit_quats_are_unit() {

@@ -66,7 +66,7 @@ where
 
     #[inline]
     fn from_superset_unchecked(v: &OVector<T2, DimNameSum<D, U1>>) -> Self {
-        let coords = v.generic_slice((0, 0), (D::name(), Const::<1>)) / v[D::dim()].inlined_clone();
+        let coords = v.generic_slice((0, 0), (D::name(), Const::<1>)) / v[D::dim()].clone();
         Self {
             coords: crate::convert_unchecked(coords),
         }

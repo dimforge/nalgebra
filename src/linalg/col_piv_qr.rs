@@ -6,11 +6,12 @@ use crate::allocator::{Allocator, Reallocator};
 use crate::base::{Const, DefaultAllocator, Matrix, OMatrix, OVector, Unit};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimMin, DimMinimum};
-use crate::storage::{Storage, StorageMut};
+use crate::storage::StorageMut;
 use crate::ComplexField;
 
 use crate::geometry::Reflection;
 use crate::linalg::{householder, PermutationSequence};
+use std::mem::MaybeUninit;
 
 /// The QR decomposition (with column pivoting) of a general matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -60,22 +61,21 @@ where
         + Allocator<T, DimMinimum<R, C>>
         + Allocator<(usize, usize), DimMinimum<R, C>>,
 {
-    /// Computes the ColPivQR decomposition using householder reflections.
+    /// Computes the `ColPivQR` decomposition using householder reflections.
     pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
-        let (nrows, ncols) = matrix.data.shape();
+        let (nrows, ncols) = matrix.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
         let mut p = PermutationSequence::identity_generic(min_nrows_ncols);
-
-        let mut diag =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(min_nrows_ncols, Const::<1>) };
 
         if min_nrows_ncols.value() == 0 {
             return ColPivQR {
                 col_piv_qr: matrix,
                 p,
-                diag,
+                diag: Matrix::zeros_generic(min_nrows_ncols, Const::<1>),
             };
         }
+
+        let mut diag = Matrix::uninit(min_nrows_ncols, Const::<1>);
 
         for i in 0..min_nrows_ncols.value() {
             let piv = matrix.slice_range(i.., i..).icamax_full();
@@ -83,8 +83,12 @@ where
             matrix.swap_columns(i, col_piv);
             p.append_permutation(i, col_piv);
 
-            householder::clear_column_unchecked(&mut matrix, &mut diag[i], i, 0, None);
+            diag[i] =
+                MaybeUninit::new(householder::clear_column_unchecked(&mut matrix, i, 0, None));
         }
+
+        // Safety: diag is now fully initialized.
+        let diag = unsafe { diag.assume_init() };
 
         ColPivQR {
             col_piv_qr: matrix,
@@ -100,12 +104,12 @@ where
     where
         DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
     {
-        let (nrows, ncols) = self.col_piv_qr.data.shape();
+        let (nrows, ncols) = self.col_piv_qr.shape_generic();
         let mut res = self
             .col_piv_qr
             .rows_generic(0, nrows.min(ncols))
             .upper_triangle();
-        res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.modulus())));
+        res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.clone().modulus())));
         res
     }
 
@@ -117,12 +121,12 @@ where
     where
         DefaultAllocator: Reallocator<T, R, C, DimMinimum<R, C>, C>,
     {
-        let (nrows, ncols) = self.col_piv_qr.data.shape();
+        let (nrows, ncols) = self.col_piv_qr.shape_generic();
         let mut res = self
             .col_piv_qr
             .resize_generic(nrows.min(ncols), ncols, T::zero());
         res.fill_lower_triangle(T::zero(), 1);
-        res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.modulus())));
+        res.set_partial_diagonal(self.diag.iter().map(|e| T::from_real(e.clone().modulus())));
         res
     }
 
@@ -132,7 +136,7 @@ where
     where
         DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
     {
-        let (nrows, ncols) = self.col_piv_qr.data.shape();
+        let (nrows, ncols) = self.col_piv_qr.shape_generic();
 
         // NOTE: we could build the identity matrix and call q_mul on it.
         // Instead we don't so that we take in account the matrix sparseness.
@@ -145,7 +149,7 @@ where
             let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
             let mut res_rows = res.slice_range_mut(i.., i..);
-            refl.reflect_with_sign(&mut res_rows, self.diag[i].signum());
+            refl.reflect_with_sign(&mut res_rows, self.diag[i].clone().signum());
         }
 
         res
@@ -191,7 +195,7 @@ where
             let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
             let mut rhs_rows = rhs.rows_range_mut(i..);
-            refl.reflect_with_sign(&mut rhs_rows, self.diag[i].signum().conjugate());
+            refl.reflect_with_sign(&mut rhs_rows, self.diag[i].clone().signum().conjugate());
         }
     }
 }
@@ -266,14 +270,14 @@ where
                 let coeff;
 
                 unsafe {
-                    let diag = self.diag.vget_unchecked(i).modulus();
+                    let diag = self.diag.vget_unchecked(i).clone().modulus();
 
                     if diag.is_zero() {
                         return false;
                     }
 
-                    coeff = b.vget_unchecked(i).unscale(diag);
-                    *b.vget_unchecked_mut(i) = coeff;
+                    coeff = b.vget_unchecked(i).clone().unscale(diag);
+                    *b.vget_unchecked_mut(i) = coeff.clone();
                 }
 
                 b.rows_range_mut(..i)
@@ -295,7 +299,7 @@ where
         );
 
         // TODO: is there a less naive method ?
-        let (nrows, ncols) = self.col_piv_qr.data.shape();
+        let (nrows, ncols) = self.col_piv_qr.shape_generic();
         let mut res = OMatrix::identity_generic(nrows, ncols);
 
         if self.solve_mut(&mut res) {
@@ -333,7 +337,7 @@ where
 
         let mut res = T::one();
         for i in 0..dim {
-            res *= unsafe { *self.diag.vget_unchecked(i) };
+            res *= unsafe { self.diag.vget_unchecked(i).clone() };
         }
 
         res * self.p.determinant()

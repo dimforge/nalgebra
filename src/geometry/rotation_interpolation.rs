@@ -23,8 +23,8 @@ impl<T: SimdRealField> Rotation2<T> {
     where
         T::Element: SimdRealField,
     {
-        let c1 = UnitComplex::from(*self);
-        let c2 = UnitComplex::from(*other);
+        let c1 = UnitComplex::from(self.clone());
+        let c2 = UnitComplex::from(other.clone());
         c1.slerp(&c2, t).into()
     }
 }
@@ -53,8 +53,8 @@ impl<T: SimdRealField> Rotation3<T> {
     where
         T: RealField,
     {
-        let q1 = UnitQuaternion::from(*self);
-        let q2 = UnitQuaternion::from(*other);
+        let q1 = UnitQuaternion::from(self.clone());
+        let q2 = UnitQuaternion::from(other.clone());
         q1.slerp(&q2, t).into()
     }
 
@@ -74,8 +74,8 @@ impl<T: SimdRealField> Rotation3<T> {
     where
         T: RealField,
     {
-        let q1 = UnitQuaternion::from(*self);
-        let q2 = UnitQuaternion::from(*other);
+        let q1 = UnitQuaternion::from(self.clone());
+        let q2 = UnitQuaternion::from(other.clone());
         q1.try_slerp(&q2, t, epsilon).map(|q| q.into())
     }
 }

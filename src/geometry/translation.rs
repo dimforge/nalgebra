@@ -50,6 +50,22 @@ where
     }
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<T, const D: usize> bytemuck::Zeroable for Translation<T, D>
+where
+    T: Scalar + bytemuck::Zeroable,
+    SVector<T, D>: bytemuck::Zeroable,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T, const D: usize> bytemuck::Pod for Translation<T, D>
+where
+    T: Scalar + bytemuck::Pod,
+    SVector<T, D>: bytemuck::Pod,
+{
+}
+
 #[cfg(feature = "abomonation-serialize")]
 impl<T, const D: usize> Abomonation for Translation<T, D>
 where
@@ -275,7 +291,7 @@ impl<T: Scalar + PartialEq, const D: usize> PartialEq for Translation<T, D> {
 
 impl<T: Scalar + AbsDiffEq, const D: usize> AbsDiffEq for Translation<T, D>
 where
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     type Epsilon = T::Epsilon;
 
@@ -292,7 +308,7 @@ where
 
 impl<T: Scalar + RelativeEq, const D: usize> RelativeEq for Translation<T, D>
 where
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_relative() -> Self::Epsilon {
@@ -313,7 +329,7 @@ where
 
 impl<T: Scalar + UlpsEq, const D: usize> UlpsEq for Translation<T, D>
 where
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
 {
     #[inline]
     fn default_max_ulps() -> u32 {
@@ -332,7 +348,7 @@ where
  *
  */
 impl<T: Scalar + fmt::Display, const D: usize> fmt::Display for Translation<T, D> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
         writeln!(f, "Translation {{")?;

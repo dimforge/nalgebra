@@ -111,14 +111,14 @@ where
             !matrix.is_empty(),
             "Cannot compute the SVD of an empty matrix."
         );
-        let (nrows, ncols) = matrix.data.shape();
+        let (nrows, ncols) = matrix.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
         let dim = min_nrows_ncols.value();
 
         let m_amax = matrix.camax();
 
         if !m_amax.is_zero() {
-            matrix.unscale_mut(m_amax);
+            matrix.unscale_mut(m_amax.clone());
         }
 
         let bi_matrix = Bidiagonal::new(matrix);
@@ -139,7 +139,7 @@ where
             &mut v_t,
             bi_matrix.is_upper_diagonal(),
             dim - 1,
-            eps,
+            eps.clone(),
         );
 
         while end != start {
@@ -153,19 +153,20 @@ where
 
                 let mut vec;
                 {
-                    let dm = diagonal[m];
-                    let dn = diagonal[n];
-                    let fm = off_diagonal[m];
+                    let dm = diagonal[m].clone();
+                    let dn = diagonal[n].clone();
+                    let fm = off_diagonal[m].clone();
 
-                    let tmm = dm * dm + off_diagonal[m - 1] * off_diagonal[m - 1];
-                    let tmn = dm * fm;
-                    let tnn = dn * dn + fm * fm;
+                    let tmm = dm.clone() * dm.clone()
+                        + off_diagonal[m - 1].clone() * off_diagonal[m - 1].clone();
+                    let tmn = dm * fm.clone();
+                    let tnn = dn.clone() * dn + fm.clone() * fm;
 
                     let shift = symmetric_eigen::wilkinson_shift(tmm, tnn, tmn);
 
                     vec = Vector2::new(
-                        diagonal[start] * diagonal[start] - shift,
-                        diagonal[start] * off_diagonal[start],
+                        diagonal[start].clone() * diagonal[start].clone() - shift,
+                        diagonal[start].clone() * off_diagonal[start].clone(),
                     );
                 }
 
@@ -173,15 +174,15 @@ where
                     let m12 = if k == n - 1 {
                         T::RealField::zero()
                     } else {
-                        off_diagonal[k + 1]
+                        off_diagonal[k + 1].clone()
                     };
 
                     let mut subm = Matrix2x3::new(
-                        diagonal[k],
-                        off_diagonal[k],
+                        diagonal[k].clone(),
+                        off_diagonal[k].clone(),
                         T::RealField::zero(),
                         T::RealField::zero(),
-                        diagonal[k + 1],
+                        diagonal[k + 1].clone(),
                         m12,
                     );
 
@@ -195,10 +196,10 @@ where
                             off_diagonal[k - 1] = norm1;
                         }
 
-                        let v = Vector2::new(subm[(0, 0)], subm[(1, 0)]);
+                        let v = Vector2::new(subm[(0, 0)].clone(), subm[(1, 0)].clone());
                         // TODO: does the case `v.y == 0` ever happen?
                         let (rot2, norm2) = GivensRotation::cancel_y(&v)
-                            .unwrap_or((GivensRotation::identity(), subm[(0, 0)]));
+                            .unwrap_or((GivensRotation::identity(), subm[(0, 0)].clone()));
 
                         rot2.rotate(&mut subm.fixed_columns_mut::<2>(1));
                         let rot2 = GivensRotation::new_unchecked(rot2.c(), T::from_real(rot2.s()));
@@ -221,16 +222,16 @@ where
                             }
                         }
 
-                        diagonal[k] = subm[(0, 0)];
-                        diagonal[k + 1] = subm[(1, 1)];
-                        off_diagonal[k] = subm[(0, 1)];
+                        diagonal[k] = subm[(0, 0)].clone();
+                        diagonal[k + 1] = subm[(1, 1)].clone();
+                        off_diagonal[k] = subm[(0, 1)].clone();
 
                         if k != n - 1 {
-                            off_diagonal[k + 1] = subm[(1, 2)];
+                            off_diagonal[k + 1] = subm[(1, 2)].clone();
                         }
 
-                        vec.x = subm[(0, 1)];
-                        vec.y = subm[(0, 2)];
+                        vec.x = subm[(0, 1)].clone();
+                        vec.y = subm[(0, 2)].clone();
                     } else {
                         break;
                     }
@@ -238,9 +239,9 @@ where
             } else if subdim == 2 {
                 // Solve the remaining 2x2 subproblem.
                 let (u2, s, v2) = compute_2x2_uptrig_svd(
-                    diagonal[start],
-                    off_diagonal[start],
-                    diagonal[start + 1],
+                    diagonal[start].clone(),
+                    off_diagonal[start].clone(),
+                    diagonal[start + 1].clone(),
                     compute_u && bi_matrix.is_upper_diagonal()
                         || compute_v && !bi_matrix.is_upper_diagonal(),
                     compute_v && bi_matrix.is_upper_diagonal()
@@ -249,15 +250,15 @@ where
                 let u2 = u2.map(|u2| GivensRotation::new_unchecked(u2.c(), T::from_real(u2.s())));
                 let v2 = v2.map(|v2| GivensRotation::new_unchecked(v2.c(), T::from_real(v2.s())));
 
-                diagonal[start] = s[0];
-                diagonal[start + 1] = s[1];
+                diagonal[start] = s[0].clone();
+                diagonal[start + 1] = s[1].clone();
                 off_diagonal[start] = T::RealField::zero();
 
                 if let Some(ref mut u) = u {
                     let rot = if bi_matrix.is_upper_diagonal() {
-                        u2.unwrap()
+                        u2.clone().unwrap()
                     } else {
-                        v2.unwrap()
+                        v2.clone().unwrap()
                     };
                     rot.rotate_rows(&mut u.fixed_columns_mut::<2>(start));
                 }
@@ -282,7 +283,7 @@ where
                 &mut v_t,
                 bi_matrix.is_upper_diagonal(),
                 end,
-                eps,
+                eps.clone(),
             );
             start = sub.0;
             end = sub.1;
@@ -297,7 +298,7 @@ where
 
         // Ensure all singular value are non-negative.
         for i in 0..dim {
-            let sval = diagonal[i];
+            let sval = diagonal[i].clone();
 
             if sval < T::RealField::zero() {
                 diagonal[i] = -sval;
@@ -345,10 +346,11 @@ where
             let m = n - 1;
 
             if off_diagonal[m].is_zero()
-                || off_diagonal[m].norm1() <= eps * (diagonal[n].norm1() + diagonal[m].norm1())
+                || off_diagonal[m].clone().norm1()
+                    <= eps.clone() * (diagonal[n].clone().norm1() + diagonal[m].clone().norm1())
             {
                 off_diagonal[m] = T::RealField::zero();
-            } else if diagonal[m].norm1() <= eps {
+            } else if diagonal[m].clone().norm1() <= eps {
                 diagonal[m] = T::RealField::zero();
                 Self::cancel_horizontal_off_diagonal_elt(
                     diagonal,
@@ -370,7 +372,7 @@ where
                         m - 1,
                     );
                 }
-            } else if diagonal[n].norm1() <= eps {
+            } else if diagonal[n].clone().norm1() <= eps {
                 diagonal[n] = T::RealField::zero();
                 Self::cancel_vertical_off_diagonal_elt(
                     diagonal,
@@ -395,13 +397,14 @@ where
         while new_start > 0 {
             let m = new_start - 1;
 
-            if off_diagonal[m].norm1() <= eps * (diagonal[new_start].norm1() + diagonal[m].norm1())
+            if off_diagonal[m].clone().norm1()
+                <= eps.clone() * (diagonal[new_start].clone().norm1() + diagonal[m].clone().norm1())
             {
                 off_diagonal[m] = T::RealField::zero();
                 break;
             }
             // TODO: write a test that enters this case.
-            else if diagonal[m].norm1() <= eps {
+            else if diagonal[m].clone().norm1() <= eps {
                 diagonal[m] = T::RealField::zero();
                 Self::cancel_horizontal_off_diagonal_elt(
                     diagonal,
@@ -442,7 +445,7 @@ where
         i: usize,
         end: usize,
     ) {
-        let mut v = Vector2::new(off_diagonal[i], diagonal[i + 1]);
+        let mut v = Vector2::new(off_diagonal[i].clone(), diagonal[i + 1].clone());
         off_diagonal[i] = T::RealField::zero();
 
         for k in i..end {
@@ -460,8 +463,8 @@ where
                 }
 
                 if k + 1 != end {
-                    v.x = -rot.s().real() * off_diagonal[k + 1];
-                    v.y = diagonal[k + 2];
+                    v.x = -rot.s().real() * off_diagonal[k + 1].clone();
+                    v.y = diagonal[k + 2].clone();
                     off_diagonal[k + 1] *= rot.c();
                 }
             } else {
@@ -479,7 +482,7 @@ where
         is_upper_diagonal: bool,
         i: usize,
     ) {
-        let mut v = Vector2::new(diagonal[i], off_diagonal[i]);
+        let mut v = Vector2::new(diagonal[i].clone(), off_diagonal[i].clone());
         off_diagonal[i] = T::RealField::zero();
 
         for k in (0..i + 1).rev() {
@@ -497,8 +500,8 @@ where
                 }
 
                 if k > 0 {
-                    v.x = diagonal[k - 1];
-                    v.y = rot.s().real() * off_diagonal[k - 1];
+                    v.x = diagonal[k - 1].clone();
+                    v.y = rot.s().real() * off_diagonal[k - 1].clone();
                     off_diagonal[k - 1] *= rot.c();
                 }
             } else {
@@ -527,7 +530,7 @@ where
         match (self.u, self.v_t) {
             (Some(mut u), Some(v_t)) => {
                 for i in 0..self.singular_values.len() {
-                    let val = self.singular_values[i];
+                    let val = self.singular_values[i].clone();
                     u.column_mut(i).scale_mut(val);
                 }
                 Ok(u * v_t)
@@ -551,7 +554,7 @@ where
             Err("SVD pseudo inverse: the epsilon must be non-negative.")
         } else {
             for i in 0..self.singular_values.len() {
-                let val = self.singular_values[i];
+                let val = self.singular_values[i].clone();
 
                 if val > eps {
                     self.singular_values[i] = T::RealField::one() / val;
@@ -590,9 +593,9 @@ where
                         let mut col = ut_b.column_mut(j);
 
                         for i in 0..self.singular_values.len() {
-                            let val = self.singular_values[i];
+                            let val = self.singular_values[i].clone();
                             if val > eps {
-                                col[i] = col[i].unscale(val);
+                                col[i] = col[i].clone().unscale(val);
                             } else {
                                 col[i] = T::zero();
                             }
@@ -665,33 +668,37 @@ fn compute_2x2_uptrig_svd<T: RealField>(
     let two: T::RealField = crate::convert(2.0f64);
     let half: T::RealField = crate::convert(0.5f64);
 
-    let denom = (m11 + m22).hypot(m12) + (m11 - m22).hypot(m12);
+    let denom = (m11.clone() + m22.clone()).hypot(m12.clone())
+        + (m11.clone() - m22.clone()).hypot(m12.clone());
 
     // NOTE: v1 is the singular value that is the closest to m22.
     // This prevents cancellation issues when constructing the vector `csv` below. If we chose
     // otherwise, we would have v1 ~= m11 when m12 is small. This would cause catastrophic
     // cancellation on `v1 * v1 - m11 * m11` below.
-    let mut v1 = m11 * m22 * two / denom;
+    let mut v1 = m11.clone() * m22.clone() * two / denom.clone();
     let mut v2 = half * denom;
 
     let mut u = None;
     let mut v_t = None;
 
     if compute_u || compute_v {
-        let (csv, sgn_v) = GivensRotation::new(m11 * m12, v1 * v1 - m11 * m11);
-        v1 *= sgn_v;
+        let (csv, sgn_v) = GivensRotation::new(
+            m11.clone() * m12.clone(),
+            v1.clone() * v1.clone() - m11.clone() * m11.clone(),
+        );
+        v1 *= sgn_v.clone();
         v2 *= sgn_v;
 
         if compute_v {
-            v_t = Some(csv);
+            v_t = Some(csv.clone());
         }
 
         if compute_u {
-            let cu = (m11.scale(csv.c()) + m12 * csv.s()) / v1;
-            let su = (m22 * csv.s()) / v1;
+            let cu = (m11.scale(csv.c()) + m12 * csv.s()) / v1.clone();
+            let su = (m22 * csv.s()) / v1.clone();
             let (csu, sgn_u) = GivensRotation::new(cu, su);
 
-            v1 *= sgn_u;
+            v1 *= sgn_u.clone();
             v2 *= sgn_u;
             u = Some(csu);
         }

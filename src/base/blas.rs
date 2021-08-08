@@ -1,23 +1,21 @@
-use crate::SimdComplexField;
-#[cfg(feature = "std")]
-use matrixmultiply;
+use crate::{RawStorage, SimdComplexField};
 use num::{One, Zero};
 use simba::scalar::{ClosedAdd, ClosedMul};
-#[cfg(feature = "std")]
-use std::mem;
 
 use crate::base::allocator::Allocator;
+use crate::base::blas_uninit::{axcpy_uninit, gemm_uninit, gemv_uninit};
 use crate::base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
 use crate::base::dimension::{Const, Dim, Dynamic, U1, U2, U3, U4};
 use crate::base::storage::{Storage, StorageMut};
+use crate::base::uninit::Init;
 use crate::base::{
     DVectorSlice, DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, VectorSlice,
 };
 
 /// # Dot/scalar product
-impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S>
+impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S>
 where
     T: Scalar + Zero + ClosedAdd + ClosedMul,
 {
@@ -28,7 +26,7 @@ where
         conjugate: impl Fn(T) -> T,
     ) -> T
     where
-        SB: Storage<T, R2, C2>,
+        SB: RawStorage<T, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
         assert!(
@@ -49,36 +47,36 @@ where
         // because the `for` loop below won't be very efficient on those.
         if (R::is::<U2>() || R2::is::<U2>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = conjugate(self.get_unchecked((0, 0)).inlined_clone())
-                    * rhs.get_unchecked((0, 0)).inlined_clone();
-                let b = conjugate(self.get_unchecked((1, 0)).inlined_clone())
-                    * rhs.get_unchecked((1, 0)).inlined_clone();
+                let a = conjugate(self.get_unchecked((0, 0)).clone())
+                    * rhs.get_unchecked((0, 0)).clone();
+                let b = conjugate(self.get_unchecked((1, 0)).clone())
+                    * rhs.get_unchecked((1, 0)).clone();
 
                 return a + b;
             }
         }
         if (R::is::<U3>() || R2::is::<U3>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let a = conjugate(self.get_unchecked((0, 0)).inlined_clone())
-                    * rhs.get_unchecked((0, 0)).inlined_clone();
-                let b = conjugate(self.get_unchecked((1, 0)).inlined_clone())
-                    * rhs.get_unchecked((1, 0)).inlined_clone();
-                let c = conjugate(self.get_unchecked((2, 0)).inlined_clone())
-                    * rhs.get_unchecked((2, 0)).inlined_clone();
+                let a = conjugate(self.get_unchecked((0, 0)).clone())
+                    * rhs.get_unchecked((0, 0)).clone();
+                let b = conjugate(self.get_unchecked((1, 0)).clone())
+                    * rhs.get_unchecked((1, 0)).clone();
+                let c = conjugate(self.get_unchecked((2, 0)).clone())
+                    * rhs.get_unchecked((2, 0)).clone();
 
                 return a + b + c;
             }
         }
         if (R::is::<U4>() || R2::is::<U4>()) && (C::is::<U1>() || C2::is::<U1>()) {
             unsafe {
-                let mut a = conjugate(self.get_unchecked((0, 0)).inlined_clone())
-                    * rhs.get_unchecked((0, 0)).inlined_clone();
-                let mut b = conjugate(self.get_unchecked((1, 0)).inlined_clone())
-                    * rhs.get_unchecked((1, 0)).inlined_clone();
-                let c = conjugate(self.get_unchecked((2, 0)).inlined_clone())
-                    * rhs.get_unchecked((2, 0)).inlined_clone();
-                let d = conjugate(self.get_unchecked((3, 0)).inlined_clone())
-                    * rhs.get_unchecked((3, 0)).inlined_clone();
+                let mut a = conjugate(self.get_unchecked((0, 0)).clone())
+                    * rhs.get_unchecked((0, 0)).clone();
+                let mut b = conjugate(self.get_unchecked((1, 0)).clone())
+                    * rhs.get_unchecked((1, 0)).clone();
+                let c = conjugate(self.get_unchecked((2, 0)).clone())
+                    * rhs.get_unchecked((2, 0)).clone();
+                let d = conjugate(self.get_unchecked((3, 0)).clone())
+                    * rhs.get_unchecked((3, 0)).clone();
 
                 a += c;
                 b += d;
@@ -119,36 +117,36 @@ where
 
             while self.nrows() - i >= 8 {
                 acc0 += unsafe {
-                    conjugate(self.get_unchecked((i, j)).inlined_clone())
-                        * rhs.get_unchecked((i, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i, j)).clone())
+                        * rhs.get_unchecked((i, j)).clone()
                 };
                 acc1 += unsafe {
-                    conjugate(self.get_unchecked((i + 1, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 1, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 1, j)).clone())
+                        * rhs.get_unchecked((i + 1, j)).clone()
                 };
                 acc2 += unsafe {
-                    conjugate(self.get_unchecked((i + 2, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 2, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 2, j)).clone())
+                        * rhs.get_unchecked((i + 2, j)).clone()
                 };
                 acc3 += unsafe {
-                    conjugate(self.get_unchecked((i + 3, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 3, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 3, j)).clone())
+                        * rhs.get_unchecked((i + 3, j)).clone()
                 };
                 acc4 += unsafe {
-                    conjugate(self.get_unchecked((i + 4, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 4, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 4, j)).clone())
+                        * rhs.get_unchecked((i + 4, j)).clone()
                 };
                 acc5 += unsafe {
-                    conjugate(self.get_unchecked((i + 5, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 5, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 5, j)).clone())
+                        * rhs.get_unchecked((i + 5, j)).clone()
                 };
                 acc6 += unsafe {
-                    conjugate(self.get_unchecked((i + 6, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 6, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 6, j)).clone())
+                        * rhs.get_unchecked((i + 6, j)).clone()
                 };
                 acc7 += unsafe {
-                    conjugate(self.get_unchecked((i + 7, j)).inlined_clone())
-                        * rhs.get_unchecked((i + 7, j)).inlined_clone()
+                    conjugate(self.get_unchecked((i + 7, j)).clone())
+                        * rhs.get_unchecked((i + 7, j)).clone()
                 };
                 i += 8;
             }
@@ -160,8 +158,8 @@ where
 
             for k in i..self.nrows() {
                 res += unsafe {
-                    conjugate(self.get_unchecked((k, j)).inlined_clone())
-                        * rhs.get_unchecked((k, j)).inlined_clone()
+                    conjugate(self.get_unchecked((k, j)).clone())
+                        * rhs.get_unchecked((k, j)).clone()
                 }
             }
         }
@@ -196,7 +194,7 @@ where
     #[must_use]
     pub fn dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> T
     where
-        SB: Storage<T, R2, C2>,
+        SB: RawStorage<T, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
         self.dotx(rhs, |e| e)
@@ -226,7 +224,7 @@ where
     pub fn dotc<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> T
     where
         T: SimdComplexField,
-        SB: Storage<T, R2, C2>,
+        SB: RawStorage<T, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
         self.dotx(rhs, T::simd_conjugate)
@@ -253,7 +251,7 @@ where
     #[must_use]
     pub fn tr_dot<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> T
     where
-        SB: Storage<T, R2, C2>,
+        SB: RawStorage<T, R2, C2>,
         ShapeConstraint: DimEq<C, R2> + DimEq<R, C2>,
     {
         let (nrows, ncols) = self.shape();
@@ -268,50 +266,12 @@ where
         for j in 0..self.nrows() {
             for i in 0..self.ncols() {
                 res += unsafe {
-                    self.get_unchecked((j, i)).inlined_clone()
-                        * rhs.get_unchecked((i, j)).inlined_clone()
+                    self.get_unchecked((j, i)).clone() * rhs.get_unchecked((i, j)).clone()
                 }
             }
         }
 
         res
-    }
-}
-
-#[allow(clippy::too_many_arguments)]
-fn array_axcpy<T>(
-    y: &mut [T],
-    a: T,
-    x: &[T],
-    c: T,
-    beta: T,
-    stride1: usize,
-    stride2: usize,
-    len: usize,
-) where
-    T: Scalar + Zero + ClosedAdd + ClosedMul,
-{
-    for i in 0..len {
-        unsafe {
-            let y = y.get_unchecked_mut(i * stride1);
-            *y = a.inlined_clone()
-                * x.get_unchecked(i * stride2).inlined_clone()
-                * c.inlined_clone()
-                + beta.inlined_clone() * y.inlined_clone();
-        }
-    }
-}
-
-fn array_axc<T>(y: &mut [T], a: T, x: &[T], c: T, stride1: usize, stride2: usize, len: usize)
-where
-    T: Scalar + Zero + ClosedAdd + ClosedMul,
-{
-    for i in 0..len {
-        unsafe {
-            *y.get_unchecked_mut(i * stride1) = a.inlined_clone()
-                * x.get_unchecked(i * stride2).inlined_clone()
-                * c.inlined_clone();
-        }
     }
 }
 
@@ -341,23 +301,7 @@ where
         SB: Storage<T, D2>,
         ShapeConstraint: DimEq<D, D2>,
     {
-        assert_eq!(self.nrows(), x.nrows(), "Axcpy: mismatched vector shapes.");
-
-        let rstride1 = self.strides().0;
-        let rstride2 = x.strides().0;
-
-        unsafe {
-            // SAFETY: the conversion to slices is OK because we access the
-            //         elements taking the strides into account.
-            let y = self.data.as_mut_slice_unchecked();
-            let x = x.data.as_slice_unchecked();
-
-            if !b.is_zero() {
-                array_axcpy(y, a, x, c, b, rstride1, rstride2, x.len());
-            } else {
-                array_axc(y, a, x, c, rstride1, rstride2, x.len());
-            }
-        }
+        unsafe { axcpy_uninit(Init, self, a, x, c, b) };
     }
 
     /// Computes `self = a * x + b * self`.
@@ -413,38 +357,8 @@ where
         SC: Storage<T, D3>,
         ShapeConstraint: DimEq<D, R2> + AreMultipliable<R2, C2, D3, U1>,
     {
-        let dim1 = self.nrows();
-        let (nrows2, ncols2) = a.shape();
-        let dim3 = x.nrows();
-
-        assert!(
-            ncols2 == dim3 && dim1 == nrows2,
-            "Gemv: dimensions mismatch."
-        );
-
-        if ncols2 == 0 {
-            // NOTE: we can't just always multiply by beta
-            // because we documented the guaranty that `self` is
-            // never read if `beta` is zero.
-            if beta.is_zero() {
-                self.fill(T::zero());
-            } else {
-                *self *= beta;
-            }
-            return;
-        }
-
-        // TODO: avoid bound checks.
-        let col2 = a.column(0);
-        let val = unsafe { x.vget_unchecked(0).inlined_clone() };
-        self.axcpy(alpha.inlined_clone(), &col2, val, beta);
-
-        for j in 1..ncols2 {
-            let col2 = a.column(j);
-            let val = unsafe { x.vget_unchecked(j).inlined_clone() };
-
-            self.axcpy(alpha.inlined_clone(), &col2, val, T::one());
-        }
+        // Safety: this is safe because we are passing Status == Init.
+        unsafe { gemv_uninit(Init, self, alpha, a, x, beta) }
     }
 
     #[inline(always)]
@@ -455,8 +369,8 @@ where
         x: &Vector<T, D3, SC>,
         beta: T,
         dot: impl Fn(
-            &DVectorSlice<T, SB::RStride, SB::CStride>,
-            &DVectorSlice<T, SC::RStride, SC::CStride>,
+            &DVectorSlice<'_, T, SB::RStride, SB::CStride>,
+            &DVectorSlice<'_, T, SC::RStride, SC::CStride>,
         ) -> T,
     ) where
         T: One,
@@ -483,9 +397,9 @@ where
 
         // TODO: avoid bound checks.
         let col2 = a.column(0);
-        let val = unsafe { x.vget_unchecked(0).inlined_clone() };
-        self.axpy(alpha.inlined_clone() * val, &col2, beta);
-        self[0] += alpha.inlined_clone() * dot(&a.slice_range(1.., 0), &x.rows_range(1..));
+        let val = unsafe { x.vget_unchecked(0).clone() };
+        self.axpy(alpha.clone() * val, &col2, beta);
+        self[0] += alpha.clone() * dot(&a.slice_range(1.., 0), &x.rows_range(1..));
 
         for j in 1..dim2 {
             let col2 = a.column(j);
@@ -493,34 +407,15 @@ where
 
             let val;
             unsafe {
-                val = x.vget_unchecked(j).inlined_clone();
-                *self.vget_unchecked_mut(j) += alpha.inlined_clone() * dot;
+                val = x.vget_unchecked(j).clone();
+                *self.vget_unchecked_mut(j) += alpha.clone() * dot;
             }
             self.rows_range_mut(j + 1..).axpy(
-                alpha.inlined_clone() * val,
+                alpha.clone() * val,
                 &col2.rows_range(j + 1..),
                 T::one(),
             );
         }
-    }
-
-    /// Computes `self = alpha * a * x + beta * self`, where `a` is a **symmetric** matrix, `x` a
-    /// vector, and `alpha, beta` two scalars. DEPRECATED: use `sygemv` instead.
-    #[inline]
-    #[deprecated(note = "This is renamed `sygemv` to match the original BLAS terminology.")]
-    pub fn gemv_symm<D2: Dim, D3: Dim, SB, SC>(
-        &mut self,
-        alpha: T,
-        a: &SquareMatrix<T, D2, SB>,
-        x: &Vector<T, D3, SC>,
-        beta: T,
-    ) where
-        T: One,
-        SB: Storage<T, D2, D2>,
-        SC: Storage<T, D3>,
-        ShapeConstraint: DimEq<D, D2> + AreMultipliable<D2, D2, D3, U1>,
-    {
-        self.sygemv(alpha, a, x, beta)
     }
 
     /// Computes `self = alpha * a * x + beta * self`, where `a` is a **symmetric** matrix, `x` a
@@ -619,7 +514,7 @@ where
         a: &Matrix<T, R2, C2, SB>,
         x: &Vector<T, D3, SC>,
         beta: T,
-        dot: impl Fn(&VectorSlice<T, R2, SB::RStride, SB::CStride>, &Vector<T, D3, SC>) -> T,
+        dot: impl Fn(&VectorSlice<'_, T, R2, SB::RStride, SB::CStride>, &Vector<T, D3, SC>) -> T,
     ) where
         T: One,
         SB: Storage<T, R2, C2>,
@@ -642,13 +537,12 @@ where
         if beta.is_zero() {
             for j in 0..ncols2 {
                 let val = unsafe { self.vget_unchecked_mut(j) };
-                *val = alpha.inlined_clone() * dot(&a.column(j), x)
+                *val = alpha.clone() * dot(&a.column(j), x)
             }
         } else {
             for j in 0..ncols2 {
                 let val = unsafe { self.vget_unchecked_mut(j) };
-                *val = alpha.inlined_clone() * dot(&a.column(j), x)
-                    + beta.inlined_clone() * val.inlined_clone();
+                *val = alpha.clone() * dot(&a.column(j), x) + beta.clone() * val.clone();
             }
         }
     }
@@ -752,9 +646,9 @@ where
 
         for j in 0..ncols1 {
             // TODO: avoid bound checks.
-            let val = unsafe { conjugate(y.vget_unchecked(j).inlined_clone()) };
+            let val = unsafe { conjugate(y.vget_unchecked(j).clone()) };
             self.column_mut(j)
-                .axpy(alpha.inlined_clone() * val, x, beta.inlined_clone());
+                .axpy(alpha.clone() * val, x, beta.clone());
         }
     }
 
@@ -859,122 +753,9 @@ where
             + SameNumberOfColumns<C1, C3>
             + AreMultipliable<R2, C2, R3, C3>,
     {
-        let ncols1 = self.ncols();
-
-        #[cfg(feature = "std")]
-        {
-            // We assume large matrices will be Dynamic but small matrices static.
-            // We could use matrixmultiply for large statically-sized matrices but the performance
-            // threshold to activate it would be different from SMALL_DIM because our code optimizes
-            // better for statically-sized matrices.
-            if R1::is::<Dynamic>()
-                || C1::is::<Dynamic>()
-                || R2::is::<Dynamic>()
-                || C2::is::<Dynamic>()
-                || R3::is::<Dynamic>()
-                || C3::is::<Dynamic>()
-            {
-                // matrixmultiply can be used only if the std feature is available.
-                let nrows1 = self.nrows();
-                let (nrows2, ncols2) = a.shape();
-                let (nrows3, ncols3) = b.shape();
-
-                // Threshold determined empirically.
-                const SMALL_DIM: usize = 5;
-
-                if nrows1 > SMALL_DIM
-                    && ncols1 > SMALL_DIM
-                    && nrows2 > SMALL_DIM
-                    && ncols2 > SMALL_DIM
-                {
-                    assert_eq!(
-                        ncols2, nrows3,
-                        "gemm: dimensions mismatch for multiplication."
-                    );
-                    assert_eq!(
-                        (nrows1, ncols1),
-                        (nrows2, ncols3),
-                        "gemm: dimensions mismatch for addition."
-                    );
-
-                    // NOTE: this case should never happen because we enter this
-                    // codepath only when ncols2 > SMALL_DIM. Though we keep this
-                    // here just in case if in the future we change the conditions to
-                    // enter this codepath.
-                    if ncols2 == 0 {
-                        // NOTE: we can't just always multiply by beta
-                        // because we documented the guaranty that `self` is
-                        // never read if `beta` is zero.
-                        if beta.is_zero() {
-                            self.fill(T::zero());
-                        } else {
-                            *self *= beta;
-                        }
-                        return;
-                    }
-
-                    if T::is::<f32>() {
-                        let (rsa, csa) = a.strides();
-                        let (rsb, csb) = b.strides();
-                        let (rsc, csc) = self.strides();
-
-                        unsafe {
-                            matrixmultiply::sgemm(
-                                nrows2,
-                                ncols2,
-                                ncols3,
-                                mem::transmute_copy(&alpha),
-                                a.data.ptr() as *const f32,
-                                rsa as isize,
-                                csa as isize,
-                                b.data.ptr() as *const f32,
-                                rsb as isize,
-                                csb as isize,
-                                mem::transmute_copy(&beta),
-                                self.data.ptr_mut() as *mut f32,
-                                rsc as isize,
-                                csc as isize,
-                            );
-                        }
-                        return;
-                    } else if T::is::<f64>() {
-                        let (rsa, csa) = a.strides();
-                        let (rsb, csb) = b.strides();
-                        let (rsc, csc) = self.strides();
-
-                        unsafe {
-                            matrixmultiply::dgemm(
-                                nrows2,
-                                ncols2,
-                                ncols3,
-                                mem::transmute_copy(&alpha),
-                                a.data.ptr() as *const f64,
-                                rsa as isize,
-                                csa as isize,
-                                b.data.ptr() as *const f64,
-                                rsb as isize,
-                                csb as isize,
-                                mem::transmute_copy(&beta),
-                                self.data.ptr_mut() as *mut f64,
-                                rsc as isize,
-                                csc as isize,
-                            );
-                        }
-                        return;
-                    }
-                }
-            }
-        }
-
-        for j1 in 0..ncols1 {
-            // TODO: avoid bound checks.
-            self.column_mut(j1).gemv(
-                alpha.inlined_clone(),
-                a,
-                &b.column(j1),
-                beta.inlined_clone(),
-            );
-        }
+        // SAFETY: this is valid because our matrices are initialized and
+        // we are using status = Init.
+        unsafe { gemm_uninit(Init, self, alpha, a, b, beta) }
     }
 
     /// Computes `self = alpha * a.transpose() * b + beta * self`, where `a, b, self` are matrices.
@@ -1030,12 +811,8 @@ where
 
         for j1 in 0..ncols1 {
             // TODO: avoid bound checks.
-            self.column_mut(j1).gemv_tr(
-                alpha.inlined_clone(),
-                a,
-                &b.column(j1),
-                beta.inlined_clone(),
-            );
+            self.column_mut(j1)
+                .gemv_tr(alpha.clone(), a, &b.column(j1), beta.clone());
         }
     }
 
@@ -1092,7 +869,8 @@ where
 
         for j1 in 0..ncols1 {
             // TODO: avoid bound checks.
-            self.column_mut(j1).gemv_ad(alpha, a, &b.column(j1), beta);
+            self.column_mut(j1)
+                .gemv_ad(alpha.clone(), a, &b.column(j1), beta.clone());
         }
     }
 }
@@ -1126,13 +904,13 @@ where
         assert!(dim1 == dim2 && dim1 == dim3, "ger: dimensions mismatch.");
 
         for j in 0..dim1 {
-            let val = unsafe { conjugate(y.vget_unchecked(j).inlined_clone()) };
+            let val = unsafe { conjugate(y.vget_unchecked(j).clone()) };
             let subdim = Dynamic::new(dim1 - j);
             // TODO: avoid bound checks.
             self.generic_slice_mut((j, j), (subdim, Const::<1>)).axpy(
-                alpha.inlined_clone() * val,
+                alpha.clone() * val,
                 &x.rows_range(j..),
-                beta.inlined_clone(),
+                beta.clone(),
             );
         }
     }
@@ -1293,11 +1071,11 @@ where
         ShapeConstraint: DimEq<D1, D2> + DimEq<D1, R3> + DimEq<D2, R3> + DimEq<C3, D4>,
     {
         work.gemv(T::one(), lhs, &mid.column(0), T::zero());
-        self.ger(alpha.inlined_clone(), work, &lhs.column(0), beta);
+        self.ger(alpha.clone(), work, &lhs.column(0), beta);
 
         for j in 1..mid.ncols() {
             work.gemv(T::one(), lhs, &mid.column(j), T::zero());
-            self.ger(alpha.inlined_clone(), work, &lhs.column(j), T::one());
+            self.ger(alpha.clone(), work, &lhs.column(j), T::one());
         }
     }
 
@@ -1337,9 +1115,8 @@ where
         ShapeConstraint: DimEq<D1, D1> + DimEq<D1, R3> + DimEq<C3, D4>,
         DefaultAllocator: Allocator<T, D1>,
     {
-        let mut work = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(self.data.shape().0, Const::<1>)
-        };
+        // TODO: would it be useful to avoid the zero-initialization of the workspace data?
+        let mut work = Matrix::zeros_generic(self.shape_generic().0, Const::<1>);
         self.quadform_tr_with_workspace(&mut work, alpha, lhs, mid, beta)
     }
 
@@ -1388,12 +1165,12 @@ where
     {
         work.gemv(T::one(), mid, &rhs.column(0), T::zero());
         self.column_mut(0)
-            .gemv_tr(alpha.inlined_clone(), rhs, work, beta.inlined_clone());
+            .gemv_tr(alpha.clone(), rhs, work, beta.clone());
 
         for j in 1..rhs.ncols() {
             work.gemv(T::one(), mid, &rhs.column(j), T::zero());
             self.column_mut(j)
-                .gemv_tr(alpha.inlined_clone(), rhs, work, beta.inlined_clone());
+                .gemv_tr(alpha.clone(), rhs, work, beta.clone());
         }
     }
 
@@ -1432,9 +1209,8 @@ where
         ShapeConstraint: DimEq<D2, R3> + DimEq<D1, C3> + AreMultipliable<C3, R3, D2, U1>,
         DefaultAllocator: Allocator<T, D2>,
     {
-        let mut work = unsafe {
-            crate::unimplemented_or_uninitialized_generic!(mid.data.shape().0, Const::<1>)
-        };
+        // TODO: would it be useful to avoid the zero-initialization of the workspace data?
+        let mut work = Vector::zeros_generic(mid.shape_generic().0, Const::<1>);
         self.quadform_with_workspace(&mut work, alpha, mid, rhs, beta)
     }
 }

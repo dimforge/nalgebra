@@ -9,7 +9,6 @@ use simba::scalar::RealField;
 use crate::ComplexHelper;
 use na::allocator::Allocator;
 use na::dimension::{Const, Dim};
-use na::storage::Storage;
 use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
@@ -89,19 +88,18 @@ where
 
         let jobz = if eigenvectors { b'V' } else { b'T' };
 
-        let nrows = m.data.shape().0;
+        let nrows = m.shape_generic().0;
         let n = nrows.value();
 
         let lda = n as i32;
 
-        let mut values =
-            unsafe { Matrix::new_uninitialized_generic(nrows, Const::<1>).assume_init() };
+        let mut values = Matrix::zeros_generic(nrows, Const::<1>);
         let mut info = 0;
 
         let lwork = T::xsyev_work_size(jobz, b'L', n as i32, m.as_mut_slice(), lda, &mut info);
         lapack_check!(info);
 
-        let mut work = unsafe { crate::uninitialized_vec(lwork as usize) };
+        let mut work = vec![T::zero(); lwork as usize];
 
         T::xsyev(
             jobz,

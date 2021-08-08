@@ -1,4 +1,3 @@
-#![allow(clippy::type_complexity)]
 /*!
 # nalgebra
 
@@ -72,22 +71,23 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * Insertion and removal of rows of columns of a matrix.
 */
 
-// #![feature(plugin)]
-//
-// #![plugin(clippy)]
-
-#![deny(non_camel_case_types)]
-#![deny(unused_parens)]
-#![deny(non_upper_case_globals)]
-#![deny(unused_qualifications)]
-#![deny(unused_results)]
-#![deny(missing_docs)]
+#![allow(unused_variables, unused_mut)]
+#![deny(
+    missing_docs,
+    nonstandard_style,
+    unused_parens,
+    unused_qualifications,
+    unused_results,
+    rust_2018_idioms,
+    rust_2018_compatibility,
+    future_incompatible,
+    missing_copy_implementations
+)]
 #![doc(
     html_favicon_url = "https://nalgebra.org/img/favicon.ico",
     html_root_url = "https://docs.rs/nalgebra/0.25.0"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(feature = "no_unsound_assume_init", allow(unreachable_code))]
 
 #[cfg(feature = "rand-no-std")]
 extern crate rand_package as rand;
@@ -245,7 +245,7 @@ pub fn min<T: Ord>(a: T, b: T) -> T {
 
 /// The absolute value of `a`.
 ///
-/// Deprecated: Use [Matrix::abs] or [RealField::abs] instead.
+/// Deprecated: Use [`Matrix::abs`] or [`RealField::abs`] instead.
 #[deprecated(note = "use the inherent method `Matrix::abs` or `RealField::abs` instead")]
 #[inline]
 pub fn abs<T: Signed>(a: &T) -> T {
@@ -384,13 +384,13 @@ pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'
 /// # See also:
 ///
 /// * [distance](fn.distance.html)
-/// * [distance_squared](fn.distance_squared.html)
+/// * [`distance_squared`](fn.distance_squared.html)
 #[inline]
 pub fn center<T: SimdComplexField, const D: usize>(
     p1: &Point<T, D>,
     p2: &Point<T, D>,
 ) -> Point<T, D> {
-    ((p1.coords + p2.coords) * convert::<_, T>(0.5)).into()
+    ((&p1.coords + &p2.coords) * convert::<_, T>(0.5)).into()
 }
 
 /// The distance between two points.
@@ -398,13 +398,13 @@ pub fn center<T: SimdComplexField, const D: usize>(
 /// # See also:
 ///
 /// * [center](fn.center.html)
-/// * [distance_squared](fn.distance_squared.html)
+/// * [`distance_squared`](fn.distance_squared.html)
 #[inline]
 pub fn distance<T: SimdComplexField, const D: usize>(
     p1: &Point<T, D>,
     p2: &Point<T, D>,
 ) -> T::SimdRealField {
-    (p2.coords - p1.coords).norm()
+    (&p2.coords - &p1.coords).norm()
 }
 
 /// The squared distance between two points.
@@ -418,7 +418,7 @@ pub fn distance_squared<T: SimdComplexField, const D: usize>(
     p1: &Point<T, D>,
     p2: &Point<T, D>,
 ) -> T::SimdRealField {
-    (p2.coords - p1.coords).norm_squared()
+    (&p2.coords - &p1.coords).norm_squared()
 }
 
 /*
@@ -430,11 +430,11 @@ pub fn distance_squared<T: SimdComplexField, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [convert_ref](fn.convert_ref.html)
-/// * [convert_ref_unchecked](fn.convert_ref_unchecked.html)
-/// * [is_convertible](../nalgebra/fn.is_convertible.html)
-/// * [try_convert](fn.try_convert.html)
-/// * [try_convert_ref](fn.try_convert_ref.html)
+/// * [`convert_ref`](fn.convert_ref.html)
+/// * [`convert_ref_unchecked`](fn.convert_ref_unchecked.html)
+/// * [`is_convertible`](../nalgebra/fn.is_convertible.html)
+/// * [`try_convert`](fn.try_convert.html)
+/// * [`try_convert_ref`](fn.try_convert_ref.html)
 #[inline]
 pub fn convert<From, To: SupersetOf<From>>(t: From) -> To {
     To::from_subset(&t)
@@ -447,10 +447,10 @@ pub fn convert<From, To: SupersetOf<From>>(t: From) -> To {
 /// # See also:
 ///
 /// * [convert](fn.convert.html)
-/// * [convert_ref](fn.convert_ref.html)
-/// * [convert_ref_unchecked](fn.convert_ref_unchecked.html)
-/// * [is_convertible](../nalgebra/fn.is_convertible.html)
-/// * [try_convert_ref](fn.try_convert_ref.html)
+/// * [`convert_ref`](fn.convert_ref.html)
+/// * [`convert_ref_unchecked`](fn.convert_ref_unchecked.html)
+/// * [`is_convertible`](../nalgebra/fn.is_convertible.html)
+/// * [`try_convert_ref`](fn.try_convert_ref.html)
 #[inline]
 pub fn try_convert<From: SupersetOf<To>, To>(t: From) -> Option<To> {
     t.to_subset()
@@ -462,10 +462,10 @@ pub fn try_convert<From: SupersetOf<To>, To>(t: From) -> Option<To> {
 /// # See also:
 ///
 /// * [convert](fn.convert.html)
-/// * [convert_ref](fn.convert_ref.html)
-/// * [convert_ref_unchecked](fn.convert_ref_unchecked.html)
-/// * [try_convert](fn.try_convert.html)
-/// * [try_convert_ref](fn.try_convert_ref.html)
+/// * [`convert_ref`](fn.convert_ref.html)
+/// * [`convert_ref_unchecked`](fn.convert_ref_unchecked.html)
+/// * [`try_convert`](fn.try_convert.html)
+/// * [`try_convert_ref`](fn.try_convert_ref.html)
 #[inline]
 pub fn is_convertible<From: SupersetOf<To>, To>(t: &From) -> bool {
     t.is_in_subset()
@@ -477,11 +477,11 @@ pub fn is_convertible<From: SupersetOf<To>, To>(t: &From) -> bool {
 /// # See also:
 ///
 /// * [convert](fn.convert.html)
-/// * [convert_ref](fn.convert_ref.html)
-/// * [convert_ref_unchecked](fn.convert_ref_unchecked.html)
-/// * [is_convertible](../nalgebra/fn.is_convertible.html)
-/// * [try_convert](fn.try_convert.html)
-/// * [try_convert_ref](fn.try_convert_ref.html)
+/// * [`convert_ref`](fn.convert_ref.html)
+/// * [`convert_ref_unchecked`](fn.convert_ref_unchecked.html)
+/// * [`is_convertible`](../nalgebra/fn.is_convertible.html)
+/// * [`try_convert`](fn.try_convert.html)
+/// * [`try_convert_ref`](fn.try_convert_ref.html)
 #[inline]
 pub fn convert_unchecked<From: SupersetOf<To>, To>(t: From) -> To {
     t.to_subset_unchecked()
@@ -492,10 +492,10 @@ pub fn convert_unchecked<From: SupersetOf<To>, To>(t: From) -> To {
 /// # See also:
 ///
 /// * [convert](fn.convert.html)
-/// * [convert_ref_unchecked](fn.convert_ref_unchecked.html)
-/// * [is_convertible](../nalgebra/fn.is_convertible.html)
-/// * [try_convert](fn.try_convert.html)
-/// * [try_convert_ref](fn.try_convert_ref.html)
+/// * [`convert_ref_unchecked`](fn.convert_ref_unchecked.html)
+/// * [`is_convertible`](../nalgebra/fn.is_convertible.html)
+/// * [`try_convert`](fn.try_convert.html)
+/// * [`try_convert_ref`](fn.try_convert_ref.html)
 #[inline]
 pub fn convert_ref<From, To: SupersetOf<From>>(t: &From) -> To {
     To::from_subset(t)
@@ -506,10 +506,10 @@ pub fn convert_ref<From, To: SupersetOf<From>>(t: &From) -> To {
 /// # See also:
 ///
 /// * [convert](fn.convert.html)
-/// * [convert_ref](fn.convert_ref.html)
-/// * [convert_ref_unchecked](fn.convert_ref_unchecked.html)
-/// * [is_convertible](../nalgebra/fn.is_convertible.html)
-/// * [try_convert](fn.try_convert.html)
+/// * [`convert_ref`](fn.convert_ref.html)
+/// * [`convert_ref_unchecked`](fn.convert_ref_unchecked.html)
+/// * [`is_convertible`](../nalgebra/fn.is_convertible.html)
+/// * [`try_convert`](fn.try_convert.html)
 #[inline]
 pub fn try_convert_ref<From: SupersetOf<To>, To>(t: &From) -> Option<To> {
     t.to_subset()
@@ -521,10 +521,10 @@ pub fn try_convert_ref<From: SupersetOf<To>, To>(t: &From) -> Option<To> {
 /// # See also:
 ///
 /// * [convert](fn.convert.html)
-/// * [convert_ref](fn.convert_ref.html)
-/// * [is_convertible](../nalgebra/fn.is_convertible.html)
-/// * [try_convert](fn.try_convert.html)
-/// * [try_convert_ref](fn.try_convert_ref.html)
+/// * [`convert_ref`](fn.convert_ref.html)
+/// * [`is_convertible`](../nalgebra/fn.is_convertible.html)
+/// * [`try_convert`](fn.try_convert.html)
+/// * [`try_convert_ref`](fn.try_convert_ref.html)
 #[inline]
 pub fn convert_ref_unchecked<From: SupersetOf<To>, To>(t: &From) -> To {
     t.to_subset_unchecked()

@@ -7,7 +7,7 @@ use crate::ops::serial::{
 };
 use crate::ops::Op;
 use nalgebra::allocator::Allocator;
-use nalgebra::base::storage::Storage;
+use nalgebra::base::storage::RawStorage;
 use nalgebra::constraint::{DimEq, ShapeConstraint};
 use nalgebra::{
     ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, DefaultAllocator, Dim, Dynamic, Matrix, OMatrix,
@@ -141,7 +141,7 @@ macro_rules! impl_scalar_mul {
         impl_mul!(<'a, T>(a: &'a $matrix_type<T>, b: &'a T) -> $matrix_type<T> {
             let values: Vec<_> = a.values()
                 .iter()
-                .map(|v_i| v_i.inlined_clone() * b.inlined_clone())
+                .map(|v_i| v_i.clone() * b.clone())
                 .collect();
             $matrix_type::try_from_pattern_and_values(a.pattern().clone(), values).unwrap()
         });
@@ -151,7 +151,7 @@ macro_rules! impl_scalar_mul {
         impl_mul!(<'a, T>(a: $matrix_type<T>, b: &'a T) -> $matrix_type<T> {
             let mut a = a;
             for value in a.values_mut() {
-                *value = b.inlined_clone() * value.inlined_clone();
+                *value = b.clone() * value.clone();
             }
             a
         });
@@ -168,7 +168,7 @@ macro_rules! impl_scalar_mul {
         {
             fn mul_assign(&mut self, scalar: T) {
                 for val in self.values_mut() {
-                    *val *= scalar.inlined_clone();
+                    *val *= scalar.clone();
                 }
             }
         }
@@ -179,7 +179,7 @@ macro_rules! impl_scalar_mul {
         {
             fn mul_assign(&mut self, scalar: &'a T) {
                 for val in self.values_mut() {
-                    *val *= scalar.inlined_clone();
+                    *val *= scalar.clone();
                 }
             }
         }
@@ -199,7 +199,7 @@ macro_rules! impl_neg {
 
             fn neg(mut self) -> Self::Output {
                 for v_i in self.values_mut() {
-                    *v_i = -v_i.inlined_clone();
+                    *v_i = -v_i.clone();
                 }
                 self
             }
@@ -233,25 +233,25 @@ macro_rules! impl_div {
             matrix
         });
         impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: $matrix_type<T>, scalar: &T) -> $matrix_type<T> {
-            matrix / scalar.inlined_clone()
+            matrix / scalar.clone()
         });
         impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: &'a $matrix_type<T>, scalar: T) -> $matrix_type<T> {
             let new_values = matrix.values()
                 .iter()
-                .map(|v_i| v_i.inlined_clone() / scalar.inlined_clone())
+                .map(|v_i| v_i.clone() / scalar.clone())
                 .collect();
             $matrix_type::try_from_pattern_and_values(matrix.pattern().clone(), new_values)
                 .unwrap()
         });
         impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: &'a $matrix_type<T>, scalar: &'a T) -> $matrix_type<T> {
-            matrix / scalar.inlined_clone()
+            matrix / scalar.clone()
         });
 
         impl<T> DivAssign<T> for $matrix_type<T>
             where T : Scalar + ClosedAdd + ClosedMul + ClosedDiv + Zero + One
         {
             fn div_assign(&mut self, scalar: T) {
-                self.values_mut().iter_mut().for_each(|v_i| *v_i /= scalar.inlined_clone());
+                self.values_mut().iter_mut().for_each(|v_i| *v_i /= scalar.clone());
             }
         }
 
@@ -259,7 +259,7 @@ macro_rules! impl_div {
             where T : Scalar + ClosedAdd + ClosedMul + ClosedDiv + Zero + One
         {
             fn div_assign(&mut self, scalar: &'a T) {
-                *self /= scalar.inlined_clone();
+                *self /= scalar.clone();
             }
         }
     }
@@ -272,7 +272,7 @@ macro_rules! impl_spmm_cs_dense {
     ($matrix_type_name:ident, $spmm_fn:ident) => {
         // Implement ref-ref
         impl_spmm_cs_dense!(&'a $matrix_type_name<T>, &'a Matrix<T, R, C, S>, $spmm_fn, |lhs, rhs| {
-            let (_, ncols) = rhs.data.shape();
+            let (_, ncols) = rhs.shape_generic();
             let nrows = Dynamic::new(lhs.nrows());
             let mut result = OMatrix::<T, Dynamic, C>::zeros_generic(nrows, ncols);
             $spmm_fn(T::zero(), &mut result, T::one(), Op::NoOp(lhs), Op::NoOp(rhs));
@@ -301,14 +301,14 @@ macro_rules! impl_spmm_cs_dense {
             T: Scalar + ClosedMul + ClosedAdd + ClosedSub + ClosedDiv + Neg + Zero + One,
             R: Dim,
             C: Dim,
-            S: Storage<T, R, C>,
+            S: RawStorage<T, R, C>,
             DefaultAllocator: Allocator<T, Dynamic, C>,
             // TODO: Is it possible to simplify these bounds?
             ShapeConstraint:
                 // Bounds so that we can turn OMatrix<T, Dynamic, C> into a DMatrixSliceMut
-                  DimEq<U1, <<DefaultAllocator as Allocator<T, Dynamic, C>>::Buffer as Storage<T, Dynamic, C>>::RStride>
+                  DimEq<U1, <<DefaultAllocator as Allocator<T, Dynamic, C>>::Buffer as RawStorage<T, Dynamic, C>>::RStride>
                 + DimEq<C, Dynamic>
-                + DimEq<Dynamic, <<DefaultAllocator as Allocator<T, Dynamic, C>>::Buffer as Storage<T, Dynamic, C>>::CStride>
+                + DimEq<Dynamic, <<DefaultAllocator as Allocator<T, Dynamic, C>>::Buffer as RawStorage<T, Dynamic, C>>::CStride>
                 // Bounds so that we can turn &Matrix<T, R, C, S> into a DMatrixSlice
                 + DimEq<U1, S::RStride>
                 + DimEq<R, Dynamic>

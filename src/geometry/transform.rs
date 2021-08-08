@@ -31,7 +31,7 @@ pub trait TCategory: Any + Debug + Copy + PartialEq + Send {
     /// category `Self`.
     fn check_homogeneous_invariants<T: RealField, D: DimName>(mat: &OMatrix<T, D, D>) -> bool
     where
-        T::Epsilon: Copy,
+        T::Epsilon: Clone,
         DefaultAllocator: Allocator<T, D, D>;
 }
 
@@ -74,7 +74,7 @@ impl TCategory for TGeneral {
     #[inline]
     fn check_homogeneous_invariants<T: RealField, D: DimName>(_: &OMatrix<T, D, D>) -> bool
     where
-        T::Epsilon: Copy,
+        T::Epsilon: Clone,
         DefaultAllocator: Allocator<T, D, D>,
     {
         true
@@ -85,7 +85,7 @@ impl TCategory for TProjective {
     #[inline]
     fn check_homogeneous_invariants<T: RealField, D: DimName>(mat: &OMatrix<T, D, D>) -> bool
     where
-        T::Epsilon: Copy,
+        T::Epsilon: Clone,
         DefaultAllocator: Allocator<T, D, D>,
     {
         mat.is_invertible()
@@ -101,7 +101,7 @@ impl TCategory for TAffine {
     #[inline]
     fn check_homogeneous_invariants<T: RealField, D: DimName>(mat: &OMatrix<T, D, D>) -> bool
     where
-        T::Epsilon: Copy,
+        T::Epsilon: Clone,
         DefaultAllocator: Allocator<T, D, D>,
     {
         let last = D::dim() - 1;
@@ -178,7 +178,7 @@ where
     }
 }
 
-impl<T: RealField, C: TCategory, const D: usize> Copy for Transform<T, C, D>
+impl<T: RealField + Copy, C: TCategory, const D: usize> Copy for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
@@ -195,6 +195,27 @@ where
     fn clone(&self) -> Self {
         Transform::from_matrix_unchecked(self.matrix.clone())
     }
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T, C: TCategory, const D: usize> bytemuck::Zeroable for Transform<T, C, D>
+where
+    T: RealField + bytemuck::Zeroable,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: bytemuck::Zeroable,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T, C: TCategory, const D: usize> bytemuck::Pod for Transform<T, C, D>
+where
+    T: RealField + bytemuck::Pod,
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: bytemuck::Pod,
+    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Copy,
+{
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
@@ -284,7 +305,7 @@ where
     }
 
     /// Retrieves the underlying matrix.
-    /// Deprecated: Use [Transform::into_inner] instead.
+    /// Deprecated: Use [`Transform::into_inner`] instead.
     #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
@@ -562,7 +583,7 @@ where
 impl<T: RealField, C: TCategory, const D: usize> AbsDiffEq for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     type Epsilon = T::Epsilon;
@@ -581,7 +602,7 @@ where
 impl<T: RealField, C: TCategory, const D: usize> RelativeEq for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
@@ -604,7 +625,7 @@ where
 impl<T: RealField, C: TCategory, const D: usize> UlpsEq for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
-    T::Epsilon: Copy,
+    T::Epsilon: Clone,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]

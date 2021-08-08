@@ -10,7 +10,7 @@ use abomonation::Abomonation;
 
 use crate::allocator::Allocator;
 use crate::base::DefaultAllocator;
-use crate::storage::Storage;
+use crate::storage::RawStorage;
 use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealField};
 
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
@@ -116,7 +116,7 @@ where
     T: Scalar + PartialEq,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>,
+    S: RawStorage<T, R, C>,
 {
     #[inline]
     fn eq(&self, rhs: &Self) -> bool {
@@ -129,7 +129,7 @@ where
     T: Scalar + Eq,
     R: Dim,
     C: Dim,
-    S: Storage<T, R, C>,
+    S: RawStorage<T, R, C>,
 {
 }
 
@@ -170,7 +170,7 @@ impl<T: Normed> Unit<T> {
     #[inline]
     pub fn new_and_get(mut value: T) -> (Self, T::Norm) {
         let n = value.norm();
-        value.unscale_mut(n);
+        value.unscale_mut(n.clone());
         (Unit { value }, n)
     }
 
@@ -184,9 +184,9 @@ impl<T: Normed> Unit<T> {
     {
         let sq_norm = value.norm_squared();
 
-        if sq_norm > min_norm * min_norm {
+        if sq_norm > min_norm.clone() * min_norm {
             let n = sq_norm.simd_sqrt();
-            value.unscale_mut(n);
+            value.unscale_mut(n.clone());
             Some((Unit { value }, n))
         } else {
             None
@@ -201,7 +201,7 @@ impl<T: Normed> Unit<T> {
     #[inline]
     pub fn renormalize(&mut self) -> T::Norm {
         let n = self.norm();
-        self.value.unscale_mut(n);
+        self.value.unscale_mut(n.clone());
         n
     }
 
@@ -238,7 +238,7 @@ impl<T> Unit<T> {
     }
 
     /// Retrieves the underlying value.
-    /// Deprecated: use [Unit::into_inner] instead.
+    /// Deprecated: use [`Unit::into_inner`] instead.
     #[deprecated(note = "use `.into_inner()` instead")]
     #[inline]
     pub fn unwrap(self) -> T {

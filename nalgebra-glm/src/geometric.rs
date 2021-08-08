@@ -1,4 +1,4 @@
-use na::RealField;
+use crate::RealNumber;
 
 use crate::aliases::{TVec, TVec3};
 use crate::traits::Number;
@@ -13,7 +13,7 @@ pub fn cross<T: Number>(x: &TVec3<T>, y: &TVec3<T>) -> TVec3<T> {
 /// # See also:
 ///
 /// * [`distance2`](fn.distance2.html)
-pub fn distance<T: RealField, const D: usize>(p0: &TVec<T, D>, p1: &TVec<T, D>) -> T {
+pub fn distance<T: RealNumber, const D: usize>(p0: &TVec<T, D>, p1: &TVec<T, D>) -> T {
     (p1 - p0).norm()
 }
 
@@ -44,7 +44,7 @@ pub fn faceforward<T: Number, const D: usize>(
 /// * [`length2`](fn.length2.html)
 /// * [`magnitude`](fn.magnitude.html)
 /// * [`magnitude2`](fn.magnitude2.html)
-pub fn length<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
+pub fn length<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm()
 }
 
@@ -57,12 +57,12 @@ pub fn length<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
 /// * [`length`](fn.length.html)
 /// * [`magnitude2`](fn.magnitude2.html)
 /// * [`nalgebra::norm`](../nalgebra/fn.norm.html)
-pub fn magnitude<T: RealField, const D: usize>(x: &TVec<T, D>) -> T {
+pub fn magnitude<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm()
 }
 
 /// Normalizes a vector.
-pub fn normalize<T: RealField, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
+pub fn normalize<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.normalize()
 }
 
@@ -73,7 +73,7 @@ pub fn reflect_vec<T: Number, const D: usize>(i: &TVec<T, D>, n: &TVec<T, D>) ->
 }
 
 /// For the incident vector `i` and surface normal `n`, and the ratio of indices of refraction `eta`, return the refraction vector.
-pub fn refract_vec<T: RealField, const D: usize>(
+pub fn refract_vec<T: RealNumber, const D: usize>(
     i: &TVec<T, D>,
     n: &TVec<T, D>,
     eta: T,

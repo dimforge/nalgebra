@@ -1,34 +1,36 @@
 use crate::allocator::Allocator;
-use crate::storage::Storage;
+use crate::storage::RawStorage;
 use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, RowOVector, Scalar, VectorSlice, U1};
 use num::Zero;
 use simba::scalar::{ClosedAdd, Field, SupersetOf};
+use std::mem::MaybeUninit;
 
 /// # Folding on columns and rows
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// Returns a row vector where each element is the result of the application of `f` on the
     /// corresponding column of the original matrix.
     #[inline]
     #[must_use]
     pub fn compress_rows(
         &self,
-        f: impl Fn(VectorSlice<T, R, S::RStride, S::CStride>) -> T,
+        f: impl Fn(VectorSlice<'_, T, R, S::RStride, S::CStride>) -> T,
     ) -> RowOVector<T, C>
     where
         DefaultAllocator: Allocator<T, U1, C>,
     {
-        let ncols = self.data.shape().1;
-        let mut res: RowOVector<T, C> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(Const::<1>, ncols) };
+        let ncols = self.shape_generic().1;
+        let mut res = Matrix::uninit(Const::<1>, ncols);
 
         for i in 0..ncols.value() {
             // TODO: avoid bound checking of column.
+            // Safety: all indices are in range.
             unsafe {
-                *res.get_unchecked_mut((0, i)) = f(self.column(i));
+                *res.get_unchecked_mut((0, i)) = MaybeUninit::new(f(self.column(i)));
             }
         }
 
-        res
+        // Safety: res is now fully initialized.
+        unsafe { res.assume_init() }
     }
 
     /// Returns a column vector where each element is the result of the application of `f` on the
@@ -39,23 +41,24 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn compress_rows_tr(
         &self,
-        f: impl Fn(VectorSlice<T, R, S::RStride, S::CStride>) -> T,
+        f: impl Fn(VectorSlice<'_, T, R, S::RStride, S::CStride>) -> T,
     ) -> OVector<T, C>
     where
         DefaultAllocator: Allocator<T, C>,
     {
-        let ncols = self.data.shape().1;
-        let mut res: OVector<T, C> =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(ncols, Const::<1>) };
+        let ncols = self.shape_generic().1;
+        let mut res = Matrix::uninit(ncols, Const::<1>);
 
         for i in 0..ncols.value() {
             // TODO: avoid bound checking of column.
+            // Safety: all indices are in range.
             unsafe {
-                *res.vget_unchecked_mut(i) = f(self.column(i));
+                *res.vget_unchecked_mut(i) = MaybeUninit::new(f(self.column(i)));
             }
         }
 
-        res
+        // Safety: res is now fully initialized.
+        unsafe { res.assume_init() }
     }
 
     /// Returns a column vector resulting from the folding of `f` on each column of this matrix.
@@ -64,7 +67,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     pub fn compress_columns(
         &self,
         init: OVector<T, R>,
-        f: impl Fn(&mut OVector<T, R>, VectorSlice<T, R, S::RStride, S::CStride>),
+        f: impl Fn(&mut OVector<T, R>, VectorSlice<'_, T, R, S::RStride, S::CStride>),
     ) -> OVector<T, R>
     where
         DefaultAllocator: Allocator<T, R>,
@@ -80,7 +83,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 }
 
 /// # Common statistics operations
-impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /*
      *
      * Sum computation.
@@ -108,7 +111,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// The sum of all the rows of this matrix.
     ///
-    /// Use `.row_variance_tr` if you need the result in a column vector instead.
+    /// Use `.row_sum_tr` if you need the result in a column vector instead.
     ///
     /// # Example
     ///
@@ -180,7 +183,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         T: ClosedAdd + Zero,
         DefaultAllocator: Allocator<T, R>,
     {
-        let nrows = self.data.shape().0;
+        let nrows = self.shape_generic().0;
         self.compress_columns(OVector::zeros_generic(nrows, Const::<1>), |out, col| {
             *out += col;
         })
@@ -213,11 +216,11 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             T::zero()
         } else {
             let val = self.iter().cloned().fold((T::zero(), T::zero()), |a, b| {
-                (a.0 + b.inlined_clone() * b.inlined_clone(), a.1 + b)
+                (a.0 + b.clone() * b.clone(), a.1 + b)
             });
             let denom = T::one() / crate::convert::<_, T>(self.len() as f64);
-            let vd = val.1 * denom.inlined_clone();
-            val.0 * denom - vd.inlined_clone() * vd
+            let vd = val.1 * denom.clone();
+            val.0 * denom - vd.clone() * vd
         }
     }
 
@@ -283,18 +286,17 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         T: Field + SupersetOf<f64>,
         DefaultAllocator: Allocator<T, R>,
     {
-        let (nrows, ncols) = self.data.shape();
+        let (nrows, ncols) = self.shape_generic();
 
         let mut mean = self.column_mean();
-        mean.apply(|e| -(e.inlined_clone() * e));
+        mean.apply(|e| *e = -(e.clone() * e.clone()));
 
         let denom = T::one() / crate::convert::<_, T>(ncols.value() as f64);
         self.compress_columns(mean, |out, col| {
             for i in 0..nrows.value() {
                 unsafe {
                     let val = col.vget_unchecked(i);
-                    *out.vget_unchecked_mut(i) +=
-                        denom.inlined_clone() * val.inlined_clone() * val.inlined_clone()
+                    *out.vget_unchecked_mut(i) += denom.clone() * val.clone() * val.clone()
                 }
             }
         })
@@ -391,10 +393,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         T: Field + SupersetOf<f64>,
         DefaultAllocator: Allocator<T, R>,
     {
-        let (nrows, ncols) = self.data.shape();
+        let (nrows, ncols) = self.shape_generic();
         let denom = T::one() / crate::convert::<_, T>(ncols.value() as f64);
         self.compress_columns(OVector::zeros_generic(nrows, Const::<1>), |out, col| {
-            out.axpy(denom.inlined_clone(), &col, T::one())
+            out.axpy(denom.clone(), &col, T::one())
         })
     }
 }

@@ -6,7 +6,7 @@ use crate::allocator::Allocator;
 use crate::constraint::{AreMultipliable, DimEq, ShapeConstraint};
 use crate::sparse::{CsMatrix, CsStorage, CsStorageMut, CsVector};
 use crate::storage::StorageMut;
-use crate::{Const, DefaultAllocator, Dim, OVector, Scalar, Vector};
+use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, Scalar, Vector};
 
 impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
     fn scatter<R2: Dim, C2: Dim>(
@@ -28,9 +28,9 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
                 timestamps[i] = timestamp;
                 res.data.i[nz] = i;
                 nz += 1;
-                workspace[i] = val * beta.inlined_clone();
+                workspace[i] = val * beta.clone();
             } else {
-                workspace[i] += val * beta.inlined_clone();
+                workspace[i] += val * beta.clone();
             }
         }
 
@@ -88,18 +88,18 @@ impl<T: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<T, D>> Vect
                 unsafe {
                     let k = x.data.row_index_unchecked(i);
                     let y = self.vget_unchecked_mut(k);
-                    *y = alpha.inlined_clone() * x.data.get_value_unchecked(i).inlined_clone();
+                    *y = alpha.clone() * x.data.get_value_unchecked(i).clone();
                 }
             }
         } else {
             // Needed to be sure even components not present on `x` are multiplied.
-            *self *= beta.inlined_clone();
+            *self *= beta.clone();
 
             for i in 0..x.len() {
                 unsafe {
                     let k = x.data.row_index_unchecked(i);
                     let y = self.vget_unchecked_mut(k);
-                    *y += alpha.inlined_clone() * x.data.get_value_unchecked(i).inlined_clone();
+                    *y += alpha.clone() * x.data.get_value_unchecked(i).clone();
                 }
             }
         }
@@ -159,14 +159,14 @@ where
 
             for (i, beta) in rhs.data.column_entries(j) {
                 for (k, val) in self.data.column_entries(i) {
-                    workspace[k] += val.inlined_clone() * beta.inlined_clone();
+                    workspace[k] += val.clone() * beta.clone();
                 }
             }
 
             for (i, val) in workspace.as_mut_slice().iter_mut().enumerate() {
                 if !val.is_zero() {
                     res.data.i[nz] = i;
-                    res.data.vals[nz] = val.inlined_clone();
+                    res.data.vals[nz] = val.clone();
                     *val = T::zero();
                     nz += 1;
                 }
@@ -219,7 +219,7 @@ where
 impl<'a, 'b, T, R1, R2, C1, C2, S1, S2> Add<&'b CsMatrix<T, R2, C2, S2>>
     for &'a CsMatrix<T, R1, C1, S1>
 where
-    T: Scalar + ClosedAdd + ClosedMul + One,
+    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
     R1: Dim,
     C1: Dim,
     R2: Dim,
@@ -242,8 +242,7 @@ where
 
         let mut res = CsMatrix::new_uninitialized_generic(nrows1, ncols2, self.len() + rhs.len());
         let mut timestamps = OVector::zeros_generic(nrows1, Const::<1>);
-        let mut workspace =
-            unsafe { crate::unimplemented_or_uninitialized_generic!(nrows1, Const::<1>) };
+        let mut workspace = Matrix::zeros_generic(nrows1, Const::<1>);
         let mut nz = 0;
 
         for j in 0..ncols2.value() {
@@ -274,7 +273,7 @@ where
             res.data.i[range.clone()].sort_unstable();
 
             for p in range {
-                res.data.vals[p] = workspace[res.data.i[p]].inlined_clone()
+                res.data.vals[p] = workspace[res.data.i[p]].clone()
             }
         }
 
@@ -297,7 +296,7 @@ where
 
     fn mul(mut self, rhs: T) -> Self::Output {
         for e in self.values_mut() {
-            *e *= rhs.inlined_clone()
+            *e *= rhs.clone()
         }
 
         self

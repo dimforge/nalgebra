@@ -1,5 +1,6 @@
 use crate::aliases::{TMat3, TMat4, TVec2, TVec3};
 use crate::traits::Number;
+use crate::RealNumber;
 
 /// Build planar projection matrix along normal axis and right-multiply it to `m`.
 pub fn proj2d<T: Number>(m: &TMat3<T>, normal: &TVec2<T>) -> TMat3<T> {
@@ -26,24 +27,24 @@ pub fn proj<T: Number>(m: &TMat4<T>, normal: &TVec3<T>) -> TMat4<T> {
 }
 
 /// Builds a reflection matrix and right-multiply it to `m`.
-pub fn reflect2d<T: Number>(m: &TMat3<T>, normal: &TVec2<T>) -> TMat3<T> {
+pub fn reflect2d<T: RealNumber>(m: &TMat3<T>, normal: &TVec2<T>) -> TMat3<T> {
     let mut res = TMat3::identity();
 
     {
         let mut part = res.fixed_slice_mut::<2, 2>(0, 0);
-        part -= (normal * T::from_f64(2.0).unwrap()) * normal.transpose();
+        part -= (normal * T::from_subset(&2.0)) * normal.transpose();
     }
 
     m * res
 }
 
 /// Builds a reflection matrix, and right-multiply it to `m`.
-pub fn reflect<T: Number>(m: &TMat4<T>, normal: &TVec3<T>) -> TMat4<T> {
+pub fn reflect<T: RealNumber>(m: &TMat4<T>, normal: &TVec3<T>) -> TMat4<T> {
     let mut res = TMat4::identity();
 
     {
         let mut part = res.fixed_slice_mut::<3, 3>(0, 0);
-        part -= (normal * T::from_f64(2.0).unwrap()) * normal.transpose();
+        part -= (normal * T::from_subset(&2.0)) * normal.transpose();
     }
 
     m * res

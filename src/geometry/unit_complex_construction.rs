@@ -109,7 +109,7 @@ where
     /// the `::new(angle)` method instead is more common.
     #[inline]
     pub fn from_scaled_axis<SB: Storage<T, U1>>(axisangle: Vector<T, U1, SB>) -> Self {
-        Self::from_angle(axisangle[0])
+        Self::from_angle(axisangle[0].clone())
     }
 }
 
@@ -166,8 +166,8 @@ where
     /// The input complex number will be normalized. Returns the norm of the complex number as well.
     #[inline]
     pub fn from_complex_and_get(q: Complex<T>) -> (Self, T) {
-        let norm = (q.im * q.im + q.re * q.re).simd_sqrt();
-        (Self::new_unchecked(q / norm), norm)
+        let norm = (q.im.clone() * q.im.clone() + q.re.clone() * q.re.clone()).simd_sqrt();
+        (Self::new_unchecked(q / norm.clone()), norm)
     }
 
     /// Builds the unit complex number from the corresponding 2D rotation matrix.
@@ -182,7 +182,7 @@ where
     // TODO: add UnitComplex::from(...) instead?
     #[inline]
     pub fn from_rotation_matrix(rotmat: &Rotation2<T>) -> Self {
-        Self::new_unchecked(Complex::new(rotmat[(0, 0)], rotmat[(1, 0)]))
+        Self::new_unchecked(Complex::new(rotmat[(0, 0)].clone(), rotmat[(1, 0)].clone()))
     }
 
     /// Builds a rotation from a basis assumed to be orthonormal.
@@ -410,7 +410,7 @@ where
     #[inline]
     fn sample<'a, R: Rng + ?Sized>(&self, rng: &mut R) -> UnitComplex<T> {
         let x = rng.sample(rand_distr::UnitCircle);
-        UnitComplex::new_unchecked(Complex::new(x[0], x[1]))
+        UnitComplex::new_unchecked(Complex::new(x[0].clone(), x[1].clone()))
     }
 }
 

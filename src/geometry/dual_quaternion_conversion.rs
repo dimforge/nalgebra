@@ -122,7 +122,7 @@ where
 {
     #[inline]
     fn to_superset(&self) -> Transform<T2, C, 3> {
-        Transform::from_matrix_unchecked(self.to_homogeneous().to_superset())
+        Transform::from_matrix_unchecked(self.clone().to_homogeneous().to_superset())
     }
 
     #[inline]
@@ -141,7 +141,7 @@ impl<T1: RealField, T2: RealField + SupersetOf<T1>> SubsetOf<Matrix4<T2>>
 {
     #[inline]
     fn to_superset(&self) -> Matrix4<T2> {
-        self.to_homogeneous().to_superset()
+        self.clone().to_homogeneous().to_superset()
     }
 
     #[inline]

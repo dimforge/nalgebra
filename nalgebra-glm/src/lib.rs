@@ -110,6 +110,16 @@
    and keep in mind it is possible to convert, e.g., an `Isometry3` to a `Mat4` and vice-versa (see the [conversions section](#conversions)).
 */
 
+#![deny(
+    nonstandard_style,
+    unused,
+    missing_docs,
+    rust_2018_idioms,
+    rust_2018_compatibility,
+    future_incompatible,
+    missing_copy_implementations,
+    missing_debug_implementations
+)]
 #![doc(html_favicon_url = "https://nalgebra.org/img/favicon.ico")]
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -119,7 +129,7 @@ extern crate approx;
 extern crate nalgebra as na;
 
 pub use crate::aliases::*;
-pub use crate::traits::Number;
+pub use crate::traits::{Number, RealNumber};
 pub use common::{
     abs, ceil, clamp, clamp_scalar, clamp_vec, float_bits_to_int, float_bits_to_int_vec,
     float_bits_to_uint, float_bits_to_uint_vec, floor, fract, int_bits_to_float,
@@ -191,7 +201,7 @@ pub use gtx::{
 pub use na::{
     convert, convert_ref, convert_ref_unchecked, convert_unchecked, try_convert, try_convert_ref,
 };
-pub use na::{DefaultAllocator, RealField, Scalar, U1, U2, U3, U4};
+pub use na::{DefaultAllocator, Scalar, U1, U2, U3, U4};
 
 mod aliases;
 mod common;

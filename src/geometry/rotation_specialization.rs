@@ -42,7 +42,7 @@ impl<T: SimdRealField> Rotation2<T> {
     /// ```
     pub fn new(angle: T) -> Self {
         let (sia, coa) = angle.simd_sin_cos();
-        Self::from_matrix_unchecked(Matrix2::new(coa, -sia, sia, coa))
+        Self::from_matrix_unchecked(Matrix2::new(coa.clone(), -sia.clone(), sia, coa))
     }
 
     /// Builds a 2 dimensional rotation matrix from an angle in radian wrapped in a 1-dimensional vector.
@@ -52,7 +52,7 @@ impl<T: SimdRealField> Rotation2<T> {
     /// the `::new(angle)` method instead is more common.
     #[inline]
     pub fn from_scaled_axis<SB: Storage<T, U1>>(axisangle: Vector<T, U1, SB>) -> Self {
-        Self::new(axisangle[0])
+        Self::new(axisangle[0].clone())
     }
 }
 
@@ -108,7 +108,7 @@ impl<T: SimdRealField> Rotation2<T> {
             let denom = rot.column(0).dot(&m.column(0)) + rot.column(1).dot(&m.column(1));
 
             let angle = axis / (denom.abs() + T::default_epsilon());
-            if angle.abs() > eps {
+            if angle.clone().abs() > eps {
                 rot = Self::new(angle) * rot;
             } else {
                 break;
@@ -198,7 +198,7 @@ impl<T: SimdRealField> Rotation2<T> {
     where
         T: RealField,
     {
-        let mut c = UnitComplex::from(*self);
+        let mut c = UnitComplex::from(self.clone());
         let _ = c.renormalize();
 
         *self = Self::from_matrix_eps(self.matrix(), T::default_epsilon(), 0, c.into())
@@ -236,7 +236,9 @@ impl<T: SimdRealField> Rotation2<T> {
     #[inline]
     #[must_use]
     pub fn angle(&self) -> T {
-        self.matrix()[(1, 0)].simd_atan2(self.matrix()[(0, 0)])
+        self.matrix()[(1, 0)]
+            .clone()
+            .simd_atan2(self.matrix()[(0, 0)].clone())
     }
 
     /// The rotation angle needed to make `self` and `other` coincide.
@@ -382,27 +384,27 @@ where
     where
         SB: Storage<T, U3>,
     {
-        angle.simd_ne(T::zero()).if_else(
+        angle.clone().simd_ne(T::zero()).if_else(
             || {
-                let ux = axis.as_ref()[0];
-                let uy = axis.as_ref()[1];
-                let uz = axis.as_ref()[2];
-                let sqx = ux * ux;
-                let sqy = uy * uy;
-                let sqz = uz * uz;
+                let ux = axis.as_ref()[0].clone();
+                let uy = axis.as_ref()[1].clone();
+                let uz = axis.as_ref()[2].clone();
+                let sqx = ux.clone() * ux.clone();
+                let sqy = uy.clone() * uy.clone();
+                let sqz = uz.clone() * uz.clone();
                 let (sin, cos) = angle.simd_sin_cos();
-                let one_m_cos = T::one() - cos;
+                let one_m_cos = T::one() - cos.clone();
 
                 Self::from_matrix_unchecked(SMatrix::<T, 3, 3>::new(
-                    sqx + (T::one() - sqx) * cos,
-                    ux * uy * one_m_cos - uz * sin,
-                    ux * uz * one_m_cos + uy * sin,
-                    ux * uy * one_m_cos + uz * sin,
-                    sqy + (T::one() - sqy) * cos,
-                    uy * uz * one_m_cos - ux * sin,
-                    ux * uz * one_m_cos - uy * sin,
+                    sqx.clone() + (T::one() - sqx) * cos.clone(),
+                    ux.clone() * uy.clone() * one_m_cos.clone() - uz.clone() * sin.clone(),
+                    ux.clone() * uz.clone() * one_m_cos.clone() + uy.clone() * sin.clone(),
+                    ux.clone() * uy.clone() * one_m_cos.clone() + uz.clone() * sin.clone(),
+                    sqy.clone() + (T::one() - sqy) * cos.clone(),
+                    uy.clone() * uz.clone() * one_m_cos.clone() - ux.clone() * sin.clone(),
+                    ux.clone() * uz.clone() * one_m_cos.clone() - uy.clone() * sin.clone(),
                     uy * uz * one_m_cos + ux * sin,
-                    sqz + (T::one() - sqz) * cos,
+                    sqz.clone() + (T::one() - sqz) * cos,
                 ))
             },
             Self::identity,
@@ -429,14 +431,14 @@ where
         let (sy, cy) = yaw.simd_sin_cos();
 
         Self::from_matrix_unchecked(SMatrix::<T, 3, 3>::new(
-            cy * cp,
-            cy * sp * sr - sy * cr,
-            cy * sp * cr + sy * sr,
-            sy * cp,
-            sy * sp * sr + cy * cr,
-            sy * sp * cr - cy * sr,
+            cy.clone() * cp.clone(),
+            cy.clone() * sp.clone() * sr.clone() - sy.clone() * cr.clone(),
+            cy.clone() * sp.clone() * cr.clone() + sy.clone() * sr.clone(),
+            sy.clone() * cp.clone(),
+            sy.clone() * sp.clone() * sr.clone() + cy.clone() * cr.clone(),
+            sy * sp.clone() * cr.clone() - cy * sr.clone(),
             -sp,
-            cp * sr,
+            cp.clone() * sr,
             cp * cr,
         ))
     }
@@ -479,11 +481,19 @@ where
         let yaxis = zaxis.cross(&xaxis).normalize();
 
         Self::from_matrix_unchecked(SMatrix::<T, 3, 3>::new(
-            xaxis.x, yaxis.x, zaxis.x, xaxis.y, yaxis.y, zaxis.y, xaxis.z, yaxis.z, zaxis.z,
+            xaxis.x.clone(),
+            yaxis.x.clone(),
+            zaxis.x.clone(),
+            xaxis.y.clone(),
+            yaxis.y.clone(),
+            zaxis.y.clone(),
+            xaxis.z.clone(),
+            yaxis.z.clone(),
+            zaxis.z.clone(),
         ))
     }
 
-    /// Deprecated: Use [Rotation3::face_towards] instead.
+    /// Deprecated: Use [`Rotation3::face_towards`] instead.
     #[deprecated(note = "renamed to `face_towards`")]
     pub fn new_observer_frames<SB, SC>(dir: &Vector<T, U3, SB>, up: &Vector<T, U3, SC>) -> Self
     where
@@ -735,7 +745,7 @@ where
 
             let axisangle = axis / (denom.abs() + T::default_epsilon());
 
-            if let Some((axis, angle)) = Unit::try_new_and_get(axisangle, eps) {
+            if let Some((axis, angle)) = Unit::try_new_and_get(axisangle, eps.clone()) {
                 rot = Rotation3::from_axis_angle(&axis, angle) * rot;
             } else {
                 break;
@@ -752,7 +762,7 @@ where
     where
         T: RealField,
     {
-        let mut c = UnitQuaternion::from(*self);
+        let mut c = UnitQuaternion::from(self.clone());
         let _ = c.renormalize();
 
         *self = Self::from_matrix_eps(self.matrix(), T::default_epsilon(), 0, c.into())
@@ -774,7 +784,10 @@ impl<T: SimdRealField> Rotation3<T> {
     #[inline]
     #[must_use]
     pub fn angle(&self) -> T {
-        ((self.matrix()[(0, 0)] + self.matrix()[(1, 1)] + self.matrix()[(2, 2)] - T::one())
+        ((self.matrix()[(0, 0)].clone()
+            + self.matrix()[(1, 1)].clone()
+            + self.matrix()[(2, 2)].clone()
+            - T::one())
             / crate::convert(2.0))
         .simd_acos()
     }
@@ -800,10 +813,11 @@ impl<T: SimdRealField> Rotation3<T> {
     where
         T: RealField,
     {
+        let rotmat = self.matrix();
         let axis = SVector::<T, 3>::new(
-            self.matrix()[(2, 1)] - self.matrix()[(1, 2)],
-            self.matrix()[(0, 2)] - self.matrix()[(2, 0)],
-            self.matrix()[(1, 0)] - self.matrix()[(0, 1)],
+            rotmat[(2, 1)].clone() - rotmat[(1, 2)].clone(),
+            rotmat[(0, 2)].clone() - rotmat[(2, 0)].clone(),
+            rotmat[(1, 0)].clone() - rotmat[(0, 1)].clone(),
         );
 
         Unit::try_new(axis, T::default_epsilon())
@@ -911,16 +925,22 @@ impl<T: SimdRealField> Rotation3<T> {
     {
         // Implementation informed by "Computing Euler angles from a rotation matrix", by Gregory G. Slabaugh
         //  https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.371.6578
-        if self[(2, 0)].abs() < T::one() {
-            let yaw = -self[(2, 0)].asin();
-            let roll = (self[(2, 1)] / yaw.cos()).atan2(self[(2, 2)] / yaw.cos());
-            let pitch = (self[(1, 0)] / yaw.cos()).atan2(self[(0, 0)] / yaw.cos());
+        if self[(2, 0)].clone().abs() < T::one() {
+            let yaw = -self[(2, 0)].clone().asin();
+            let roll = (self[(2, 1)].clone() / yaw.clone().cos())
+                .atan2(self[(2, 2)].clone() / yaw.clone().cos());
+            let pitch = (self[(1, 0)].clone() / yaw.clone().cos())
+                .atan2(self[(0, 0)].clone() / yaw.clone().cos());
             (roll, yaw, pitch)
-        } else if self[(2, 0)] <= -T::one() {
-            (self[(0, 1)].atan2(self[(0, 2)]), T::frac_pi_2(), T::zero())
+        } else if self[(2, 0)].clone() <= -T::one() {
+            (
+                self[(0, 1)].clone().atan2(self[(0, 2)].clone()),
+                T::frac_pi_2(),
+                T::zero(),
+            )
         } else {
             (
-                -self[(0, 1)].atan2(-self[(0, 2)]),
+                -self[(0, 1)].clone().atan2(-self[(0, 2)].clone()),
                 -T::frac_pi_2(),
                 T::zero(),
             )
@@ -947,8 +967,8 @@ where
         let theta = rng.sample(&twopi);
         let (ts, tc) = theta.simd_sin_cos();
         let a = SMatrix::<T, 3, 3>::new(
-            tc,
-            ts,
+            tc.clone(),
+            ts.clone(),
             T::zero(),
             -ts,
             tc,
@@ -962,10 +982,10 @@ where
         let phi = rng.sample(&twopi);
         let z = rng.sample(OpenClosed01);
         let (ps, pc) = phi.simd_sin_cos();
-        let sqrt_z = z.simd_sqrt();
-        let v = Vector3::new(pc * sqrt_z, ps * sqrt_z, (T::one() - z).simd_sqrt());
-        let mut b = v * v.transpose();
-        b += b;
+        let sqrt_z = z.clone().simd_sqrt();
+        let v = Vector3::new(pc * sqrt_z.clone(), ps * sqrt_z, (T::one() - z).simd_sqrt());
+        let mut b = v.clone() * v.transpose();
+        b += b.clone();
         b -= SMatrix::<T, 3, 3>::identity();
 
         Rotation3::from_matrix_unchecked(b * a)
