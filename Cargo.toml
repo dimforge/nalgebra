@@ -39,6 +39,8 @@ convert-bytemuck = [ "bytemuck" ]
 convert-glam013 = [ "glam013" ]
 convert-glam014 = [ "glam014" ]
 convert-glam015 = [ "glam015" ]
+convert-glam016 = [ "glam016" ]
+convert-glam017 = [ "glam017" ]
 
 # Serialization
 ## To use serde in a #[no-std] environment, enable the
@@ -87,6 +89,8 @@ proptest           = { version = "1", optional = true, default-features = false,
 glam013        = { package = "glam", version = "0.13", optional = true }
 glam014        = { package = "glam", version = "0.14", optional = true }
 glam015        = { package = "glam", version = "0.15", optional = true }
+glam016        = { package = "glam", version = "0.16", optional = true }
+glam017        = { package = "glam", version = "0.17", optional = true }
 
 
 [dev-dependencies]
