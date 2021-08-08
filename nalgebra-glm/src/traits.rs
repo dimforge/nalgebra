@@ -2,7 +2,7 @@ use approx::AbsDiffEq;
 use num::{Bounded, Signed};
 
 use na::Scalar;
-use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, RealField, SupersetOf};
+use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, RealField};
 use std::cmp::PartialOrd;
 
 /// A number that can either be an integer or a float.
@@ -16,7 +16,6 @@ pub trait Number:
     + AbsDiffEq<Epsilon = Self>
     + Signed
     + Bounded
-    + SupersetOf<f64>
 {
 }
 
@@ -29,8 +28,7 @@ impl<
             + ClosedMul
             + AbsDiffEq<Epsilon = Self>
             + Signed
-            + Bounded
-            + SupersetOf<f64>,
+            + Bounded,
     > Number for T
 {
 }

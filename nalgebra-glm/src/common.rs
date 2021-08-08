@@ -507,7 +507,7 @@ pub fn sign<T: Number, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
 ///
 /// This is useful in cases where you would want a threshold function with a smooth transition.
 /// This is equivalent to: `let result = clamp((x - edge0) / (edge1 - edge0), 0, 1); return t * t * (3 - 2 * t);` Results are undefined if `edge0 >= edge1`.
-pub fn smoothstep<T: Number>(edge0: T, edge1: T, x: T) -> T {
+pub fn smoothstep<T: RealNumber>(edge0: T, edge1: T, x: T) -> T {
     let _3 = T::from_subset(&3.0f64);
     let _2 = T::from_subset(&2.0f64);
     let t = na::clamp((x - edge0) / (edge1 - edge0), T::zero(), T::one());
