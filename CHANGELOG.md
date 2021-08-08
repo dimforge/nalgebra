@@ -4,12 +4,31 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.29.0] - WIP
-### Modified
+## [0.29.0]
+### Breaking changes
+- We updated to the version 0.6 of `simba`. This means that the trait bounds `T: na::RealField`, `na::ComplexField`,
+ `na::SimdRealField`, `na:SimdComplexField` no imply that `T: Copy` (they only imply that `T: Clone`). This may affect
+  generic code.
 - The closure given to `apply`, `zip_apply`, `zip_zip_apply` must now modify the
   first argument inplace, instead of returning a new value. This makes these
   methods more versatile, and avoid useless clones when using non-Copy scalar
   types.
+- The `Allocator` trait signature has been significantly modified in order to handle uninitialized matrices in a sound
+  way.
+
+### Modified
+- `Orthographic3::from_matrix_unchecked` is now `const fn`.
+- `Perspective3::from_matrix_unchecked` is now `const fn`.
+- `Rotation::from_matrix_unchecked` is now `const fn`.
+- The `Scalar` is now automatically implemented for most `'static + Clone` types. Type that implement `Clone` but not
+  `Copy` are now much safer to work with thanks to the refactoring of the `Allocator` system.
+
+### Added
+- The conversion traits form the `bytemuck` crates are now implemented for the geometric types too.
+- Added operator overloading for `Transform * UnitComplex`, `UnitComplex * Transform`, `Transform ×= UnitComplex`,
+  `Transform ÷= UnitComplex`.
+- Added `Reflection::bias()` to retrieve the bias of the reflection.
+- Added `Reflection1..Reflection6` aliases for 1D to 6D reflections.
 
 ## [0.28.0]
 ### Added
