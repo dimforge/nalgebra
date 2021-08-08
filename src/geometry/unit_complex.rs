@@ -144,10 +144,10 @@ where
 
         if ang.is_zero() {
             None
-        } else if ang.is_sign_negative() {
-            Some((Unit::new_unchecked(Vector1::x()), -ang.clone()))
+        } else if ang.is_sign_positive() {
+            Some((Unit::new_unchecked(Vector1::x()), ang))
         } else {
-            Some((Unit::new_unchecked(-Vector1::<T>::x()), ang))
+            Some((Unit::new_unchecked(-Vector1::<T>::x()), -ang))
         }
     }
 
