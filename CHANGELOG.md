@@ -29,6 +29,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   `Transform ÷= UnitComplex`.
 - Added `Reflection::bias()` to retrieve the bias of the reflection.
 - Added `Reflection1..Reflection6` aliases for 1D to 6D reflections.
+- Added implementation of `From` and `Into` for converting between `nalgebra` types and types from
+  `glam 0.16` and `glam 0.17`. These can be enabled by enabling the `convert-glam016`, and/or `convert-glam017`
+  cargo features.
 
 ## [0.28.0]
 ### Added
