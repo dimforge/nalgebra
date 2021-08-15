@@ -8,8 +8,7 @@ use crate::{
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::fmt;
-
+use std::{fmt, ops::Mul};
 use simba::scalar::{ClosedNeg, RealField};
 
 /// A dual quaternion.
@@ -250,6 +249,26 @@ where
     #[must_use]
     pub fn lerp(&self, other: &Self, t: T) -> Self {
         self * (T::one() - t.clone()) + other * t
+    }
+
+    /// Get the translation the dual part of this dual quaternion represents.
+    /// Due to floating-point errors, this will have slight inaccuracies.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{DualQuaternion, Quaternion, Vector3};
+    /// let rot = Quaternion::new(0.71, 0.0, 0.0, -0.71);
+    /// let translation = Vector3::new(1.0, 0.0, 0.0);
+    ///
+    /// let dq = DualQuaternion::<f32>::from_real_and_translation(rot, translation);
+    /// let t = dq.translation();
+    /// assert!((t.x - translation.x).abs() < 0.01);
+    /// assert!((t.y - translation.y).abs() < 0.01);
+    /// assert!((t.z - translation.z).abs() < 0.01);
+    /// ```
+    #[inline]
+    pub fn translation(&self) -> Vector3<T> {
+        self.dual.clone().mul(T::one() + T::one()).mul(self.real.conjugate()).vector().into()
     }
 }
 
