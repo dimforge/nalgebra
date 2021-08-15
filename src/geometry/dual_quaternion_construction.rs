@@ -1,11 +1,9 @@
-use crate::{
-    DualQuaternion, Isometry3, Quaternion, Scalar, SimdRealField, Translation3, UnitDualQuaternion,
-    UnitQuaternion,
-};
+use crate::{DualQuaternion, Isometry3, Quaternion, Scalar, SimdRealField, Translation3, UnitDualQuaternion, UnitQuaternion, Vector3};
 use num::{One, Zero};
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 use simba::scalar::SupersetOf;
+use std::ops::{Mul, Div};
 
 impl<T: Scalar> DualQuaternion<T> {
     /// Creates a dual quaternion from its rotation and translation components.
@@ -89,6 +87,34 @@ where
         Self {
             real,
             dual: Quaternion::zero(),
+        }
+    }
+
+    /// Creates a dual quaternion from a real part and a vector representing a 3d translation.
+    /// The real part is generally expected to be a unit quaternion. 
+    ///
+    /// **It is your responsibility to normalize the real part before calling this function.**
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{DualQuaternion, Quaternion, Vector3};
+    /// let rot = Quaternion::new(0.71, 0.0, 0.0, -0.71);
+    /// let translation = Vector3::new(1.0, 0.0, 0.0);
+    ///
+    /// let dq = DualQuaternion::from_real_and_translation(rot, translation);
+    /// assert_eq!(dq.real.w, 0.71);
+    /// assert_eq!(dq.dual.w, 0.0);
+    /// assert_eq!(dq.dual.i, 0.355);
+    /// assert_eq!(dq.dual.j, 0.355);
+    /// assert_eq!(dq.dual.k, 0.0);
+    /// ```
+    #[inline]
+    pub fn from_real_and_translation(real: Quaternion<T>, translation: Vector3<T>) -> Self
+    {
+        let dual = Quaternion::from_imag(translation).mul(&real).div(T::one() + T::one());
+        Self {
+            real,
+            dual,
         }
     }
 }
