@@ -4,6 +4,7 @@ use std::fmt;
 use std::hash::{Hash, Hasher};
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
+use std::ops::Mul;
 
 #[cfg(feature = "serde-serialize-no-std")]
 use crate::base::storage::Owned;
@@ -352,6 +353,25 @@ where
     #[must_use]
     pub fn dot(&self, rhs: &Self) -> T {
         self.coords.dot(&rhs.coords)
+    }
+
+    /// Rotate a vector by this quaternion.
+    /// Due to floating-point errors, this will have slight inaccuracies.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Vector3, Quaternion};
+    /// let q = Quaternion::<f32>::new(0.71, 0.0, 0.0, -0.71);
+    /// let v_in = Vector3::new(1.0, 0.0, 0.0);
+    /// let v_out = Vector3::new(0.0, -1.0, 0.0);
+    /// let r = q.rotate(&v_in);
+    /// assert!((r.x - v_out.x).abs() < 0.01);
+    /// assert!((r.y - v_out.y).abs() < 0.01);
+    /// assert!((r.z - v_out.z).abs() < 0.01);
+    /// ```
+    #[inline]
+    pub fn rotate(&self, vector: &Vector3<T>) -> Vector3<T> {
+        self.mul(Quaternion::from_imag(vector.clone())).mul(self.conjugate()).vector().into()
     }
 }
 
