@@ -1777,7 +1777,7 @@ where
         assert!(self.shape() == other.shape());
         self.iter()
             .zip(other.iter())
-            .all(|(a, b)| a.ulps_eq(b, epsilon.clone(), max_ulps.clone()))
+            .all(|(a, b)| a.ulps_eq(b, epsilon.clone(), max_ulps))
     }
 }
 

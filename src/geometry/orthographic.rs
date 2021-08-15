@@ -175,7 +175,7 @@ impl<T: RealField> Orthographic3<T> {
         );
 
         let half: T = crate::convert(0.5);
-        let width = zfar.clone() * (vfov.clone() * half.clone()).tan();
+        let width = zfar.clone() * (vfov * half.clone()).tan();
         let height = width.clone() / aspect;
 
         Self::new(

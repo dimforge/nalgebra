@@ -60,7 +60,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         T: SimdPartialOrd + Zero,
     {
         self.fold_with(
-            |e| e.map(|e| e.clone()).unwrap_or_else(T::zero),
+            |e| e.cloned().unwrap_or_else(T::zero),
             |a, b| a.simd_max(b.clone()),
         )
     }
@@ -123,7 +123,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         T: SimdPartialOrd + Zero,
     {
         self.fold_with(
-            |e| e.map(|e| e.clone()).unwrap_or_else(T::zero),
+            |e| e.cloned().unwrap_or_else(T::zero),
             |a, b| a.simd_min(b.clone()),
         )
     }

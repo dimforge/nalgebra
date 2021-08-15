@@ -3,6 +3,7 @@ extern crate approx;
 extern crate nalgebra as na;
 
 use na::{Matrix4, Point3, Vector3};
+use std::f32::consts;
 
 fn main() {
     // Create a uniform scaling matrix with scaling factor 2.
@@ -28,7 +29,7 @@ fn main() {
     );
 
     // Create rotation.
-    let rot = Matrix4::from_scaled_axis(&Vector3::x() * 3.14);
+    let rot = Matrix4::from_scaled_axis(Vector3::x() * consts::PI);
     let rot_then_m = m * rot; // Right-multiplication is equivalent to prepending `rot` to `m`.
     let m_then_rot = rot * m; // Left-multiplication is equivalent to appending `rot` to `m`.
 
