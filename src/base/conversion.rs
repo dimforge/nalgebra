@@ -20,7 +20,7 @@ use crate::base::{
     MatrixSliceMut, OMatrix, Scalar,
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::{DVector, VecStorage};
+use crate::base::{DVector, RowDVector, VecStorage};
 use crate::base::{SliceStorage, SliceStorageMut};
 use crate::constraint::DimEq;
 use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector};
@@ -447,6 +447,14 @@ where
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, T: Scalar> From<Vec<T>> for DVector<T> {
+    #[inline]
+    fn from(vec: Vec<T>) -> Self {
+        Self::from_vec(vec)
+    }
+}
+
+#[cfg(any(feature = "std", feature = "alloc"))]
+impl<'a, T: Scalar> From<Vec<T>> for RowDVector<T> {
     #[inline]
     fn from(vec: Vec<T>) -> Self {
         Self::from_vec(vec)
