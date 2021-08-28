@@ -32,7 +32,7 @@ use crate::{ArrayStorage, SMatrix, SimdComplexField, Storage, UninitMatrix};
 use crate::storage::IsContiguous;
 use crate::uninit::{Init, InitStatus, Uninit};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::{DMatrix, DVector, Dynamic, VecStorage};
+use crate::{DMatrix, DVector, Dynamic, RowDVector, VecStorage};
 use std::mem::MaybeUninit;
 
 /// A square matrix.
@@ -405,6 +405,21 @@ impl<T> DVector<T> {
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
     pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, U1>) -> Self {
+        // This is sound because the dimensions of the matrix and the storage are guaranteed
+        // to be the same
+        unsafe { Self::from_data_statically_unchecked(storage) }
+    }
+}
+
+// TODO: Consider removing/deprecating `from_vec_storage` once we are able to make
+// `from_data` const fn compatible
+#[cfg(any(feature = "std", feature = "alloc"))]
+impl<T> RowDVector<T> {
+    /// Creates a new heap-allocated matrix from the given [`VecStorage`].
+    ///
+    /// This method exists primarily as a workaround for the fact that `from_data` can not
+    /// work in `const fn` contexts.
+    pub const fn from_vec_storage(storage: VecStorage<T, U1, Dynamic>) -> Self {
         // This is sound because the dimensions of the matrix and the storage are guaranteed
         // to be the same
         unsafe { Self::from_data_statically_unchecked(storage) }

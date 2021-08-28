@@ -4,6 +4,12 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.29.1] - WIP
+
+### Added
+
+- The conversion trait `From<Vec<T>>` and method `from_vec_storage` for `RowDVector`. See [#975](https://github.com/dimforge/nalgebra/issues/975)
+
 ## [0.29.0]
 ### Breaking changes
 - We updated to the version 0.6 of `simba`. This means that the trait bounds `T: na::RealField`, `na::ComplexField`,
@@ -242,21 +248,21 @@ for details about this switch and its benefits.
    geometric types.
 ### Modified
  * Use of traits like `alga::general::{RealField, ComplexField}` have now been replaced by
-  `simba::scalar::{RealField, ComplexField}`.
+    `simba::scalar::{RealField, ComplexField}`.
  * The implementation of traits from the __alga__ crate (and well as the dependency to _alga__) are now
    omitted unless the `alga` cargo feature is activated.
 ### Removed
  * The `Neg` unary operator is no longer implemented for `UnitComplex` and `UnitQuaternion`. This caused
    hard-to-track errors when we mistakenly write, e.g., `-q * v` instead of `-(q * v)`.
  * The `na::convert_unchecked` is no longer marked as unsafe.
- 
+
 ## [0.20.0]
 ### Added
   * `cholesky.rank_one_update(...)` which performs a rank-one update on the cholesky decomposition of a matrix.
   * `From<&Matrix>` is now implemented for matrix slices.
   * `.try_set_magnitude(...)` which sets the magnitude of a vector, while keeping its direction.
   * Implementations of `From` and `Into` for the conversion between matrix slices and standard (`&[N]` `&mut [N]`) slices.
-  
+
 ### Modified
   * We started some major changes in order to allow non-Copy types to be used as scalar types inside of matrices/vectors.
 
@@ -264,16 +270,16 @@ for details about this switch and its benefits.
 ### Added
   * `.remove_rows_at` and `remove_columns_at` which removes a set of rows or columns (specified by indices) from a matrix.
   * Several formatting traits have been implemented for all matrices/vectors: `LowerExp`, `UpperExp`, `Octal`, `LowerHex`,
-  `UpperHex`, `Binary`, `Pointer`.
+    `UpperHex`, `Binary`, `Pointer`.
   * `UnitQuaternion::quaternions_mean(...)` which computes the mean rotation of a set of unit quaternions. This implements
-  the algorithm from _Oshman, Yaakov, and Avishy Carmi, "Attitude estimation from vector observations using a genetic-algorithm-embedded quaternion particle filter."
+    the algorithm from _Oshman, Yaakov, and Avishy Carmi, "Attitude estimation from vector observations using a genetic-algorithm-embedded quaternion particle filter."
 
 ### Modified
   * It is now possible to get the `min/max` element of unsigned integer matrices.
 
 ### Added to nalgebra-glm
   * Some infinite and reversed perspectives: `::infinite_perspective_rh_no`, `::infinite_perspective_rh_zo`,
-  `::reversed_perspective_rh_zo`, and `::reversed_infinite_perspective_rh_zo`.
+    `::reversed_perspective_rh_zo`, and `::reversed_infinite_perspective_rh_zo`.
 
 ## [0.18.0]
 This release adds full complex number support to nalgebra. This includes all common vector/matrix operations as well
@@ -287,12 +293,12 @@ as matrix decomposition. This excludes geometric type (like `Isometry`, `Rotatio
   * Add `.left_div, .right_div` for quaternions.
   * Add `.renormalize` to `Unit<...>` and `Rotation3` to correct potential drift due to repeated operations.
     Those drifts could cause them not to be pure rotations anymore.
-  
+
 #### Convolution
   * `.convolve_full(kernel)` returns the convolution of `self` by `kernel`.
   * `.convolve_valid(kernel)` returns the convolution of `self` by `kernel` after removal of all the elements relying on zero-padding.
   * `.convolve_same(kernel)` returns the convolution of `self` by `kernel` with a result of the same size as `self`.
-  
+
 #### Complex number support
   * Add the `::from_matrix` constructor too all rotation types to extract a rotation from a raw matrix.
   * Add the `::from_matrix_eps` constructor too all rotation types to extract a rotation from a raw matrix. This takes
@@ -329,22 +335,22 @@ Note that all the other BLAS operation will continue to work for all fields, inc
   * Add `.slerp` and `.try_slerp` to unit vectors.
   * Add `.lerp` to vectors.
   * Add `.to_projective` and `.as_projective` to `Perspective3` and `Orthographic3` in order to
-  use them as `Projective3` structures.
+    use them as `Projective3` structures.
   * Add `From/Into` impls to allow the conversion of any transformation type to a matrix.
   * Add `Into` impls to convert a matrix slice into an owned matrix.
   * Add `Point*::from_slice` to create a point from a slice.
   * Add `.map_with_location` to matrices to apply a map which passes the component indices to the user-defined closure alongside
-  the component itself.
+    the component itself.
   * Add impl `From<Vector>` for `Point`.
   * Add impl `From<Vector4>` for `Quaternion`.
   * Add impl `From<Vector>` for `Translation`.
   * Add the `::from_vec` constructor to construct a matrix from a `Vec` (a `DMatrix` will reuse the original `Vec`
-  as-is for its storage).
+    as-is for its storage).
   * Add `.to_homogeneous` to square matrices (and with dimensions higher than 1x1). This will increase their number of row
-  and columns by 1. The new column and row are filled with 0, except for the diagonal element which is set to 1.
+    and columns by 1. The new column and row are filled with 0, except for the diagonal element which is set to 1.
   * Implement `Extend<Vec>` for matrices with a dynamic storage. The provided `Vec` is assumed to represent a column-major
-  matrix with the same number of rows as the one being extended. This will effectively append new columns on the right of
-  the matrix being extended.
+    matrix with the same number of rows as the one being extended. This will effectively append new columns on the right of
+    the matrix being extended.
   * Implement `Extend<Vec>` for vectors with a dynamic storage. This will concatenate the vector with the given `Vec`.
   * Implement `Extend<Matrix<...>>` for matrices with dynamic storage. This will concatenate the columns of both matrices.
   * Implement `Into<Vec>` for the `MatrixVec` storage.
@@ -353,10 +359,10 @@ Note that all the other BLAS operation will continue to work for all fields, inc
 
 ### Modified
   * The orthographic projection no longer require that `bottom < top`, that `left < right`, and that `znear < zfar`. The
-  only restriction now ith that they must not be equal (in which case the projection would be singular).
+    only restriction now ith that they must not be equal (in which case the projection would be singular).
   * The `Point::from_coordinates` methods is deprecated. Use `Point::from` instead.
   * The `.transform_point` and `.transform_vector` methods are now inherent methods for matrices so that the user does not have to
-  explicitly import the `Transform` trait from the alga crate.
+    explicitly import the `Transform` trait from the alga crate.
   * Renamed the matrix storage types: `MatrixArray` -> `ArrayStorage` and `MatrixVec` -> `VecStorage`.
   * Renamed `.unwrap()` to `.into_inner()` for geometric types that wrap another type.
     This is for the case of `Unit`, `Transform`, `Orthographic3`, `Perspective3`, `Rotation`.
@@ -552,8 +558,8 @@ overview of all the added/modified features.
 
 This version is a major rewrite of the library. Major changes are:
   * Algebraic traits are now defined by the [alga](https://crates.io/crates/alga) crate.
-  All other mathematical traits, except `Axpy` have been removed from
-  **nalgebra**.
+    All other mathematical traits, except `Axpy` have been removed from
+    **nalgebra**.
   * Methods are now preferred to free functions because they do not require any
     trait to be used anymore.
   * Most algebraic entities can be parametrized by type-level integers
@@ -746,11 +752,11 @@ you [there](https://users.nphysics.org)!
 
 ### Modified
   * Vectors are now multipliable with isometries. This will result into a pure rotation (this is how
-  vectors differ from point semantically: they design directions, so they are not translatable).
+    vectors differ from point semantically: they design directions, so they are not translatable).
   * `{Isometry3, Rotation3}::look_at` reimplemented and renamed to `::look_at_rh` and `::look_at_lh` to agree
-  with the computer graphics community (in particular, the GLM library). Use the `::look_at_rh`
-  variant to build a view matrix that
-  may be successfully used with `Persp` and `Ortho`.
+    with the computer graphics community (in particular, the GLM library). Use the `::look_at_rh`
+    variant to build a view matrix that
+    may be successfully used with `Persp` and `Ortho`.
   * The old `{Isometry3, Rotation3}::look_at` implementations are now called `::new_observer_frame`.
   * Rename every `fov` on `Persp` to `fovy`.
   * Fixed the perspective and orthographic projection matrices.
