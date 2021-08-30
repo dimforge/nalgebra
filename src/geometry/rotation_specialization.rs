@@ -60,7 +60,7 @@ impl<T: SimdRealField> Rotation2<T> {
 impl<T: SimdRealField> Rotation2<T> {
     /// Builds a rotation from a basis assumed to be orthonormal.
     ///
-    /// In order to get a valid unit-quaternion, the input must be an
+    /// In order to get a valid rotation matrix, the input must be an
     /// orthonormal basis, i.e., all vectors are normalized, and the are
     /// all orthogonal to each other. These invariants are not checked
     /// by this method.
@@ -204,7 +204,7 @@ impl<T: SimdRealField> Rotation2<T> {
         *self = Self::from_matrix_eps(self.matrix(), T::default_epsilon(), 0, c.into())
     }
 
-    /// Raise the quaternion to a given floating power, i.e., returns the rotation with the angle
+    /// Raise the rotation to a given floating power, i.e., returns the rotation with the angle
     /// of `self` multiplied by `n`.
     ///
     /// # Example
@@ -660,7 +660,7 @@ where
         other * self.inverse()
     }
 
-    /// Raise the quaternion to a given floating power, i.e., returns the rotation with the same
+    /// Raise the rotation to a given floating power, i.e., returns the rotation with the same
     /// axis as `self` and an angle equal to `self.angle()` multiplied by `n`.
     ///
     /// # Example
@@ -692,7 +692,7 @@ where
 
     /// Builds a rotation from a basis assumed to be orthonormal.
     ///
-    /// In order to get a valid unit-quaternion, the input must be an
+    /// In order to get a valid rotation matrix, the input must be an
     /// orthonormal basis, i.e., all vectors are normalized, and the are
     /// all orthogonal to each other. These invariants are not checked
     /// by this method.
@@ -846,7 +846,7 @@ impl<T: SimdRealField> Rotation3<T> {
         }
     }
 
-    /// The rotation axis and angle in ]0, pi] of this unit quaternion.
+    /// The rotation axis and angle in ]0, pi] of this rotation matrix.
     ///
     /// Returns `None` if the angle is zero.
     ///

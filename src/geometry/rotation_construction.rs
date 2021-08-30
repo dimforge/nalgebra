@@ -15,9 +15,16 @@ where
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::Quaternion;
-    /// let rot1 = Quaternion::identity();
-    /// let rot2 = Quaternion::new(1.0, 2.0, 3.0, 4.0);
+    /// # use nalgebra::{Rotation2, Rotation3};
+    /// # use nalgebra::Vector3;
+    /// let rot1 = Rotation2::identity();
+    /// let rot2 = Rotation2::new(std::f32::consts::FRAC_PI_2);
+    ///
+    /// assert_eq!(rot1 * rot2, rot2);
+    /// assert_eq!(rot2 * rot1, rot2);
+    ///
+    /// let rot1 = Rotation3::identity();
+    /// let rot2 = Rotation3::from_axis_angle(&Vector3::z_axis(), std::f32::consts::FRAC_PI_2);
     ///
     /// assert_eq!(rot1 * rot2, rot2);
     /// assert_eq!(rot2 * rot1, rot2);
