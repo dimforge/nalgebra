@@ -12,6 +12,7 @@ fn main() {
 
     /* Then pass the raw pointer to some graphics API. */
 
+    #[allow(clippy::float_cmp)]
     unsafe {
         assert_eq!(*iso_pointer, 1.0);
         assert_eq!(*iso_pointer.offset(5), 1.0);

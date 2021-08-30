@@ -3,6 +3,7 @@
 extern crate nalgebra as na;
 
 use na::{Isometry3, Perspective3, Point3, Vector3};
+use std::f32::consts;
 
 fn main() {
     // Our object is translated along the x axis.
@@ -15,7 +16,7 @@ fn main() {
     let view = Isometry3::look_at_rh(&eye, &target, &Vector3::y());
 
     // A perspective projection.
-    let projection = Perspective3::new(16.0 / 9.0, 3.14 / 2.0, 1.0, 1000.0);
+    let projection = Perspective3::new(16.0 / 9.0, consts::PI / 2.0, 1.0, 1000.0);
 
     // The combination of the model with the view is still an isometry.
     let model_view = view * model;

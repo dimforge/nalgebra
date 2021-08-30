@@ -1039,9 +1039,9 @@ impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for Quaternion<T> {
 
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        self.as_vector().ulps_eq(other.as_vector(), epsilon.clone(), max_ulps.clone()) ||
+        self.as_vector().ulps_eq(other.as_vector(), epsilon.clone(), max_ulps) ||
         // Account for the double-covering of S², i.e. q = -q.
-        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.ulps_eq(&-b.clone(), epsilon.clone(), max_ulps.clone()))
+        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.ulps_eq(&-b.clone(), epsilon.clone(), max_ulps))
     }
 }
 
@@ -1492,18 +1492,18 @@ where
         let wk = w.clone() * k.clone() * crate::convert(2.0f64);
         let wj = w.clone() * j.clone() * crate::convert(2.0f64);
         let ik = i.clone() * k.clone() * crate::convert(2.0f64);
-        let jk = j.clone() * k.clone() * crate::convert(2.0f64);
-        let wi = w.clone() * i.clone() * crate::convert(2.0f64);
+        let jk = j * k * crate::convert(2.0f64);
+        let wi = w * i * crate::convert(2.0f64);
 
         Rotation::from_matrix_unchecked(Matrix3::new(
             ww.clone() + ii.clone() - jj.clone() - kk.clone(),
             ij.clone() - wk.clone(),
             wj.clone() + ik.clone(),
-            wk.clone() + ij.clone(),
+            wk + ij,
             ww.clone() - ii.clone() + jj.clone() - kk.clone(),
             jk.clone() - wi.clone(),
-            ik.clone() - wj.clone(),
-            wi.clone() + jk.clone(),
+            ik - wj,
+            wi + jk,
             ww - ii - jj + kk,
         ))
     }

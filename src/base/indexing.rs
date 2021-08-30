@@ -1,4 +1,5 @@
 //! Indexing
+#![allow(clippy::reversed_empty_ranges)]
 
 use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::base::{
@@ -43,7 +44,7 @@ impl<D: Dim> DimRange<D> for usize {
 
 #[test]
 fn dimrange_usize() {
-    assert_eq!(DimRange::contained_by(&0, Const::<0>), false);
+    assert!(!DimRange::contained_by(&0, Const::<0>));
     assert!(DimRange::contained_by(&0, Const::<1>));
 }
 
@@ -68,8 +69,8 @@ impl<D: Dim> DimRange<D> for ops::Range<usize> {
 
 #[test]
 fn dimrange_range_usize() {
-    assert_eq!(DimRange::contained_by(&(0..0), Const::<0>), false);
-    assert_eq!(DimRange::contained_by(&(0..1), Const::<0>), false);
+    assert!(!DimRange::contained_by(&(0..0), Const::<0>));
+    assert!(!DimRange::contained_by(&(0..1), Const::<0>));
     assert!(DimRange::contained_by(&(0..1), Const::<1>));
     assert!(DimRange::contained_by(
         &((usize::MAX - 1)..usize::MAX),
@@ -110,8 +111,8 @@ impl<D: Dim> DimRange<D> for ops::RangeFrom<usize> {
 
 #[test]
 fn dimrange_rangefrom_usize() {
-    assert_eq!(DimRange::contained_by(&(0..), Const::<0>), false);
-    assert_eq!(DimRange::contained_by(&(0..), Const::<0>), false);
+    assert!(!DimRange::contained_by(&(0..), Const::<0>));
+    assert!(!DimRange::contained_by(&(0..), Const::<0>));
     assert!(DimRange::contained_by(&(0..), Const::<1>));
     assert!(DimRange::contained_by(
         &((usize::MAX - 1)..),
@@ -204,16 +205,16 @@ impl<D: Dim> DimRange<D> for ops::RangeInclusive<usize> {
 
 #[test]
 fn dimrange_rangeinclusive_usize() {
-    assert_eq!(DimRange::contained_by(&(0..=0), Const::<0>), false);
+    assert!(!DimRange::contained_by(&(0..=0), Const::<0>));
     assert!(DimRange::contained_by(&(0..=0), Const::<1>));
-    assert_eq!(
-        DimRange::contained_by(&(usize::MAX..=usize::MAX), Dynamic::new(usize::MAX)),
-        false
-    );
-    assert_eq!(
-        DimRange::contained_by(&((usize::MAX - 1)..=usize::MAX), Dynamic::new(usize::MAX)),
-        false
-    );
+    assert!(!DimRange::contained_by(
+        &(usize::MAX..=usize::MAX),
+        Dynamic::new(usize::MAX)
+    ));
+    assert!(!DimRange::contained_by(
+        &((usize::MAX - 1)..=usize::MAX),
+        Dynamic::new(usize::MAX)
+    ));
     assert!(DimRange::contained_by(
         &((usize::MAX - 1)..=(usize::MAX - 1)),
         Dynamic::new(usize::MAX)
@@ -255,7 +256,7 @@ impl<D: Dim> DimRange<D> for ops::RangeTo<usize> {
 #[test]
 fn dimrange_rangeto_usize() {
     assert!(DimRange::contained_by(&(..0), Const::<0>));
-    assert_eq!(DimRange::contained_by(&(..1), Const::<0>), false);
+    assert!(!DimRange::contained_by(&(..1), Const::<0>));
     assert!(DimRange::contained_by(&(..0), Const::<1>));
     assert!(DimRange::contained_by(
         &(..(usize::MAX - 1)),
@@ -292,13 +293,13 @@ impl<D: Dim> DimRange<D> for ops::RangeToInclusive<usize> {
 
 #[test]
 fn dimrange_rangetoinclusive_usize() {
-    assert_eq!(DimRange::contained_by(&(..=0), Const::<0>), false);
-    assert_eq!(DimRange::contained_by(&(..=1), Const::<0>), false);
+    assert!(!DimRange::contained_by(&(..=0), Const::<0>));
+    assert!(!DimRange::contained_by(&(..=1), Const::<0>));
     assert!(DimRange::contained_by(&(..=0), Const::<1>));
-    assert_eq!(
-        DimRange::contained_by(&(..=(usize::MAX)), Dynamic::new(usize::MAX)),
-        false
-    );
+    assert!(!DimRange::contained_by(
+        &(..=(usize::MAX)),
+        Dynamic::new(usize::MAX)
+    ));
     assert!(DimRange::contained_by(
         &(..=(usize::MAX - 1)),
         Dynamic::new(usize::MAX)

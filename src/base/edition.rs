@@ -95,9 +95,7 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         for (destination, source) in icols.enumerate() {
             // NOTE: this is basically a copy_frow but wrapping the values insnide of MaybeUninit.
             res.column_mut(destination)
-                .zip_apply(&self.column(*source), |out, e| {
-                    *out = MaybeUninit::new(e.clone())
-                });
+                .zip_apply(&self.column(*source), |out, e| *out = MaybeUninit::new(e));
         }
 
         // Safety: res is now fully initialized.
@@ -1094,7 +1092,7 @@ unsafe fn compress_rows<T: Scalar>(
 
     if new_nrows == 0 || ncols == 0 {
         // The output matrix is empty, drop everything.
-        ptr::drop_in_place(data.as_mut());
+        ptr::drop_in_place(data);
         return;
     }
 

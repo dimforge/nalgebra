@@ -434,12 +434,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     {
         let n = self.norm();
         let le = n.clone().simd_le(min_norm);
-        self.apply(|e| {
-            *e = e
-                .clone()
-                .simd_unscale(n.clone())
-                .select(le.clone(), e.clone())
-        });
+        self.apply(|e| *e = e.clone().simd_unscale(n.clone()).select(le, e.clone()));
         SimdOption::new(n, le)
     }
 

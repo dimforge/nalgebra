@@ -47,7 +47,7 @@ impl<T: ComplexField> GivensRotation<T> {
         if denom > eps {
             let norm = sign0.scale(denom.clone());
             let c = mod0 / denom;
-            let s = s.clone() / norm.clone();
+            let s = s / norm.clone();
             Some((Self { c, s }, norm))
         } else {
             None
