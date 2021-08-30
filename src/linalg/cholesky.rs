@@ -74,6 +74,14 @@ where
         Cholesky { chol: matrix }
     }
 
+    /// Uses the given matrix as-is without any checks or modifications as the
+    /// Cholesky decomposition.
+    ///
+    /// It is up to the user to ensure all invariants hold.
+    pub fn pack_dirty(matrix: OMatrix<T, D, D>) -> Self {
+        Cholesky { chol: matrix }
+    }
+
     /// Retrieves the lower-triangular factor of the Cholesky decomposition with its strictly
     /// upper-triangular part filled with zeros.
     pub fn unpack(mut self) -> OMatrix<T, D, D> {
