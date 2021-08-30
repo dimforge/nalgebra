@@ -171,7 +171,32 @@ where
     ///
     /// Returns `None` if the input matrix is not definite-positive. The input matrix is assumed
     /// to be symmetric and only the lower-triangular part is read.
-    pub fn new(mut matrix: OMatrix<T, D, D>) -> Option<Self> {
+    pub fn new(matrix: OMatrix<T, D, D>) -> Option<Self> {
+        Self::new_internal(matrix, None)
+    }
+
+    /// Attempts to approximate the Cholesky decomposition of `matrix` by
+    /// replacing non-positive values on the diagonals during the decomposition
+    /// with the given `substitute`.
+    ///
+    /// [`try_sqrt`](ComplexField::try_sqrt) will be applied to the `substitute`
+    /// when it has to be used.
+    ///
+    /// If your input matrix results only in positive values on the diagonals
+    /// during the decomposition, `substitute` is unused and the result is just
+    /// the same as if you used [`new`](Cholesky::new).
+    ///
+    /// This method allows to compensate for matrices with very small or even
+    /// negative values due to numerical errors but necessarily results in only
+    /// an approximation: it is basically a hack. If you don't specifically need
+    /// Cholesky, it may be better to consider alternatives like the
+    /// [`LU`](crate::linalg::LU) decomposition/factorization.
+    pub fn new_with_substitute(matrix: OMatrix<T, D, D>, substitute: T) -> Option<Self> {
+        Self::new_internal(matrix, Some(substitute))
+    }
+
+    /// Common implementation for `new` and `new_with_substitute`.
+    fn new_internal(mut matrix: OMatrix<T, D, D>, substitute: Option<T>) -> Option<Self> {
         assert!(matrix.is_square(), "The input matrix must be square.");
 
         let n = matrix.nrows();
@@ -187,17 +212,25 @@ where
                 col_j.axpy(factor.conjugate(), &col_k, T::one());
             }
 
-            let diag = unsafe { matrix.get_unchecked((j, j)).clone() };
-            if !diag.is_zero() {
-                if let Some(denom) = diag.try_sqrt() {
-                    unsafe {
-                        *matrix.get_unchecked_mut((j, j)) = denom.clone();
-                    }
-
-                    let mut col = matrix.slice_range_mut(j + 1.., j);
-                    col /= denom;
-                    continue;
+            let sqrt_denom = |v: T| {
+                if v.is_zero() {
+                    return None;
                 }
+                v.try_sqrt()
+            };
+
+            let diag = unsafe { matrix.get_unchecked((j, j)).clone() };
+
+            if let Some(denom) =
+                sqrt_denom(diag).or_else(|| substitute.clone().and_then(sqrt_denom))
+            {
+                unsafe {
+                    *matrix.get_unchecked_mut((j, j)) = denom.clone();
+                }
+
+                let mut col = matrix.slice_range_mut(j + 1.., j);
+                col /= denom;
+                continue;
             }
 
             // The diagonal element is either zero or its square root could not
