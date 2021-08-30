@@ -9,6 +9,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - The conversion trait `From<Vec<T>>` and method `from_vec_storage` for `RowDVector`. See [#975](https://github.com/dimforge/nalgebra/issues/975)
+- Added implementation of `From` and `Into` for converting between `nalgebra` types and types from
+  `glam 0.18`. These can be enabled by enabling the `convert-glam018` cargo features.
 
 ## [0.29.0]
 ### Breaking changes
