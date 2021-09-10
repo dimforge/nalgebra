@@ -105,8 +105,8 @@ pub fn mat3x3<T: Scalar>(m11: T, m12: T, m13: T,
                          m31: T, m32: T, m33: T) -> TMat3<T> {
     TMat::<T, 3, 3>::new(
         m11, m12, m13,
-        m31, m32, m33,
         m21, m22, m23,
+        m31, m32, m33,
     )
 }
 
