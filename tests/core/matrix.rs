@@ -80,8 +80,8 @@ fn iter() {
 #[test]
 fn debug_output_corresponds_to_data_container() {
     let m = Matrix2::new(1.0, 2.0, 3.0, 4.0);
-    let output_stable = "Matrix { data: [[1, 3], [2, 4]] }"; // Current output on the stable channel.
-    let output_nightly = "Matrix { data: [[1.0, 3.0], [2.0, 4.0]] }"; // Current output on the nightly channel.
+    let output_stable = "[[1, 3], [2, 4]]"; // Current output on the stable channel.
+    let output_nightly = "[[1.0, 3.0], [2.0, 4.0]]"; // Current output on the nightly channel.
     let current_output = format!("{:?}", m);
     dbg!(output_stable);
     dbg!(output_nightly);
