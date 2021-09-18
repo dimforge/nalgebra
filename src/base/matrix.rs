@@ -53,8 +53,7 @@ pub type VectorSum<T, R1, R2> =
     Matrix<T, SameShapeR<R1, R2>, U1, SameShapeStorage<T, R1, U1, R2, U1>>;
 
 /// The type of the result of a matrix cross product.
-pub type MatrixCross<T, R1, C1, R2, C2> =
-    Matrix<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>, SameShapeStorage<T, R1, C1, R2, C2>>;
+pub type MatrixCross<T, R, C> = Matrix<T, R, C, Owned<T, R, C>>;
 
 /// The most generic column-major matrix (and vector) type.
 ///
@@ -2019,108 +2018,90 @@ mod tests {
     }
 }
 
-/// # Cross product
-impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: RawStorage<T, R, C>>
-    Matrix<T, R, C, S>
-{
+/// # Cross product (2, 1) x (2, 1)
+impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, S: RawStorage<T, U2, U1>> Matrix<T, U2, U1, S> {
     /// The perpendicular product between two 2D column vectors, i.e. `a.x * b.y - a.y * b.x`.
     #[inline]
     #[must_use]
-    pub fn perp<R2, C2, SB>(&self, b: &Matrix<T, R2, C2, SB>) -> T
+    pub fn perp<SB>(&self, b: &Matrix<T, U2, U1, SB>) -> T
     where
-        R2: Dim,
-        C2: Dim,
-        SB: RawStorage<T, R2, C2>,
-        ShapeConstraint: SameNumberOfRows<R, U2>
-            + SameNumberOfColumns<C, U1>
-            + SameNumberOfRows<R2, U2>
-            + SameNumberOfColumns<C2, U1>,
+        SB: RawStorage<T, U2, U1>,
     {
-        assert!(
-            self.shape() == (2, 1),
-            "2D perpendicular product requires (2, 1) vector but found {:?}",
-            self.shape()
-        );
-
         unsafe {
             self.get_unchecked((0, 0)).clone() * b.get_unchecked((1, 0)).clone()
                 - self.get_unchecked((1, 0)).clone() * b.get_unchecked((0, 0)).clone()
         }
     }
+}
 
-    // TODO: use specialization instead of an assertion.
+/// Cross product (3, 1) x (3, 1)
+impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, S: RawStorage<T, U3, U1>> Matrix<T, U3, U1, S> {
     /// The 3D cross product between two vectors.
-    ///
-    /// Panics if the shape is not 3D vector. In the future, this will be implemented only for
-    /// dynamically-sized matrices and statically-sized 3D matrices.
     #[inline]
     #[must_use]
-    pub fn cross<R2, C2, SB>(&self, b: &Matrix<T, R2, C2, SB>) -> MatrixCross<T, R, C, R2, C2>
+    pub fn cross<SB>(&self, b: &Matrix<T, U3, U1, SB>) -> MatrixCross<T, U3, U1>
     where
-        R2: Dim,
-        C2: Dim,
-        SB: RawStorage<T, R2, C2>,
-        DefaultAllocator: SameShapeAllocator<T, R, C, R2, C2>,
-        ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
+        SB: RawStorage<T, U3, U1>,
     {
-        let shape = self.shape();
-        assert_eq!(shape, b.shape(), "Vector cross product dimension mismatch.");
-        assert!(
-            (shape.0 == 3 && shape.1 == 1) || (shape.0 == 1 && shape.1 == 3),
-            "Vector cross product dimension mismatch: must be (3, 1) or (1, 3) but found {:?}.",
-            shape
-        );
+        unsafe {
+            // TODO: soooo ugly!
+            let nrows = SameShapeR::<U3, U3>::from_usize(3);
+            let ncols = SameShapeC::<U1, U1>::from_usize(1);
+            let mut res = Matrix::uninit(nrows, ncols);
 
-        if shape.0 == 3 {
-            unsafe {
-                // TODO: soooo ugly!
-                let nrows = SameShapeR::<R, R2>::from_usize(3);
-                let ncols = SameShapeC::<C, C2>::from_usize(1);
-                let mut res = Matrix::uninit(nrows, ncols);
+            let ax = self.get_unchecked((0, 0));
+            let ay = self.get_unchecked((1, 0));
+            let az = self.get_unchecked((2, 0));
 
-                let ax = self.get_unchecked((0, 0));
-                let ay = self.get_unchecked((1, 0));
-                let az = self.get_unchecked((2, 0));
+            let bx = b.get_unchecked((0, 0));
+            let by = b.get_unchecked((1, 0));
+            let bz = b.get_unchecked((2, 0));
 
-                let bx = b.get_unchecked((0, 0));
-                let by = b.get_unchecked((1, 0));
-                let bz = b.get_unchecked((2, 0));
+            *res.get_unchecked_mut((0, 0)) =
+                MaybeUninit::new(ay.clone() * bz.clone() - az.clone() * by.clone());
+            *res.get_unchecked_mut((1, 0)) =
+                MaybeUninit::new(az.clone() * bx.clone() - ax.clone() * bz.clone());
+            *res.get_unchecked_mut((2, 0)) =
+                MaybeUninit::new(ax.clone() * by.clone() - ay.clone() * bx.clone());
 
-                *res.get_unchecked_mut((0, 0)) =
-                    MaybeUninit::new(ay.clone() * bz.clone() - az.clone() * by.clone());
-                *res.get_unchecked_mut((1, 0)) =
-                    MaybeUninit::new(az.clone() * bx.clone() - ax.clone() * bz.clone());
-                *res.get_unchecked_mut((2, 0)) =
-                    MaybeUninit::new(ax.clone() * by.clone() - ay.clone() * bx.clone());
+            // Safety: res is now fully initialized.
+            res.assume_init()
+        }
+    }
+}
 
-                // Safety: res is now fully initialized.
-                res.assume_init()
-            }
-        } else {
-            unsafe {
-                // TODO: ugly!
-                let nrows = SameShapeR::<R, R2>::from_usize(1);
-                let ncols = SameShapeC::<C, C2>::from_usize(3);
-                let mut res = Matrix::uninit(nrows, ncols);
+/// Cross product (1, 3) x (1, 3)
+impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, S: RawStorage<T, U1, U3>> Matrix<T, U1, U3, S> {
+    /// The 3D cross product between two vectors.
+    #[inline]
+    #[must_use]
+    pub fn cross<SB>(&self, b: &Matrix<T, U1, U3, SB>) -> MatrixCross<T, U1, U3>
+    where
+        SB: RawStorage<T, U1, U3>,
+    {
+        unsafe {
+            // TODO: ugly!
+            let nrows = SameShapeR::<U1, U1>::from_usize(1);
+            let ncols = SameShapeC::<U3, U3>::from_usize(3);
+            let mut res = Matrix::uninit(nrows, ncols);
 
-                let ax = self.get_unchecked((0, 0));
-                let ay = self.get_unchecked((0, 1));
-                let az = self.get_unchecked((0, 2));
+            let ax = self.get_unchecked((0, 0));
+            let ay = self.get_unchecked((0, 1));
+            let az = self.get_unchecked((0, 2));
 
-                let bx = b.get_unchecked((0, 0));
-                let by = b.get_unchecked((0, 1));
-                let bz = b.get_unchecked((0, 2));
+            let bx = b.get_unchecked((0, 0));
+            let by = b.get_unchecked((0, 1));
+            let bz = b.get_unchecked((0, 2));
 
-                *res.get_unchecked_mut((0, 0)) =
-                    MaybeUninit::new(ay.clone() * bz.clone() - az.clone() * by.clone());
-                *res.get_unchecked_mut((0, 1)) =
-                    MaybeUninit::new(az.clone() * bx.clone() - ax.clone() * bz.clone());
-                *res.get_unchecked_mut((0, 2)) =
-                    MaybeUninit::new(ax.clone() * by.clone() - ay.clone() * bx.clone());
+            *res.get_unchecked_mut((0, 0)) =
+                MaybeUninit::new(ay.clone() * bz.clone() - az.clone() * by.clone());
+            *res.get_unchecked_mut((0, 1)) =
+                MaybeUninit::new(az.clone() * bx.clone() - ax.clone() * bz.clone());
+            *res.get_unchecked_mut((0, 2)) =
+                MaybeUninit::new(ax.clone() * by.clone() - ay.clone() * bx.clone());
 
-                // Safety: res is now fully initialized.
-                res.assume_init()
-            }
+            // Safety: res is now fully initialized.
+            res.assume_init()
         }
     }
 }

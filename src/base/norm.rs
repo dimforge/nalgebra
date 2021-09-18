@@ -5,6 +5,7 @@ use num::Zero;
 use std::ops::Neg;
 
 use crate::allocator::Allocator;
+use crate::base::dimension::{U1, U2, U3};
 use crate::base::{DefaultAllocator, Dim, DimName, Matrix, Normed, OMatrix, OVector};
 use crate::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::storage::{Storage, StorageMut};
@@ -544,7 +545,11 @@ where
 
         nbasis_elements
     }
+}
 
+/// # Basis and orthogonalization
+// TODO: tests
+impl<T: ComplexField> OVector<T, U1> {
     /// Applies the given closure to each element of the orthonormal basis of the subspace
     /// orthogonal to free family of vectors `vs`. If `vs` is not a free family, the result is
     /// unspecified.
@@ -554,86 +559,104 @@ where
     where
         F: FnMut(&Self) -> bool,
     {
-        // TODO: is this necessary?
-        assert!(
-            vs.len() <= D::dim(),
-            "The given set of vectors has no chance of being a free family."
-        );
+        if vs.is_empty() {
+            let _ = f(&Self::x());
+        }
+    }
+}
 
-        match D::dim() {
-            1 => {
-                if vs.is_empty() {
-                    let _ = f(&Self::canonical_basis_element(0));
-                }
+// TODO: tests
+impl<T: ComplexField> OVector<T, U2> {
+    /// Applies the given closure to each element of the orthonormal basis of the subspace
+    /// orthogonal to free family of vectors `vs`. If `vs` is not a free family, the result is
+    /// unspecified.
+    // TODO: return an iterator instead when `-> impl Iterator` will be supported by Rust.
+    #[inline]
+    pub fn orthonormal_subspace_basis<F>(vs: &[Self], mut f: F)
+    where
+        F: FnMut(&Self) -> bool,
+    {
+        if vs.is_empty() {
+            let _ = f(&Self::x()) && f(&Self::y());
+        } else if vs.len() == 1 {
+            let v = &vs[0];
+            let res = Self::new(-v[1].clone(), v[0].clone());
+
+            let _ = f(&res.normalize());
+        }
+    }
+}
+
+// TOOD: tests
+impl<T: ComplexField> OVector<T, U3> {
+    /// Applies the given closure to each element of the orthonormal basis of the subspace
+    /// orthogonal to free family of vectors `vs`. If `vs` is not a free family, the result is
+    /// unspecified.
+    // TODO: return an iterator instead when `-> impl Iterator` will be supported by Rust.
+    #[inline]
+    pub fn orthonormal_subspace_basis<F>(vs: &[Self], mut f: F)
+    where
+        F: FnMut(&Self) -> bool,
+    {
+        if vs.is_empty() {
+            let _ = f(&Self::x()) && f(&Self::y()) && f(&Self::z());
+        } else if vs.len() == 1 {
+            let v = &vs[0];
+            let mut a;
+
+            if v[0].clone().norm1() > v[1].clone().norm1() {
+                a = Self::new(v[2].clone(), T::zero(), -v[0].clone());
+            } else {
+                a = Self::new(T::zero(), -v[2].clone(), v[1].clone());
+            };
+
+            let _ = a.normalize_mut();
+
+            if f(&a.cross(v)) {
+                let _ = f(&a);
             }
-            2 => {
-                if vs.is_empty() {
-                    let _ = f(&Self::canonical_basis_element(0))
-                        && f(&Self::canonical_basis_element(1));
-                } else if vs.len() == 1 {
-                    let v = &vs[0];
-                    let res = Self::from_column_slice(&[-v[1].clone(), v[0].clone()]);
+        } else if vs.len() == 2 {
+            let _ = f(&vs[0].cross(&vs[1]).normalize());
+        }
+    }
+}
 
-                    let _ = f(&res.normalize());
-                }
+// TODO: tests
+#[cfg(any(feature = "std", feature = "alloc"))]
+impl<T: ComplexField, D: DimName> OVector<T, D>
+where
+    DefaultAllocator: Allocator<T, D>,
+    D: typenum::type_operators::Cmp<U3, Output = typenum::Greater>,
+{
+    /// Applies the given closure to each element of the orthonormal basis of the subspace
+    /// orthogonal to free family of vectors `vs`. If `vs` is not a free family, the result is
+    /// unspecified.
+    // TODO: return an iterator instead when `-> impl Iterator` will be supported by Rust.
+    #[inline]
+    pub fn orthonormal_subspace_basis<F>(vs: &[Self], mut f: F)
+    where
+        F: FnMut(&Self) -> bool,
+    {
+        // XXX: use a GenericArray instead.
+        let mut known_basis = Vec::new();
 
-                // Otherwise, nothing.
+        for v in vs.iter() {
+            known_basis.push(v.normalize())
+        }
+
+        for i in 0..D::dim() - vs.len() {
+            let mut elt = Self::canonical_basis_element(i);
+
+            for v in &known_basis {
+                elt -= v * elt.dot(v)
             }
-            3 => {
-                if vs.is_empty() {
-                    let _ = f(&Self::canonical_basis_element(0))
-                        && f(&Self::canonical_basis_element(1))
-                        && f(&Self::canonical_basis_element(2));
-                } else if vs.len() == 1 {
-                    let v = &vs[0];
-                    let mut a;
 
-                    if v[0].clone().norm1() > v[1].clone().norm1() {
-                        a = Self::from_column_slice(&[v[2].clone(), T::zero(), -v[0].clone()]);
-                    } else {
-                        a = Self::from_column_slice(&[T::zero(), -v[2].clone(), v[1].clone()]);
-                    };
+            if let Some(subsp_elt) = elt.try_normalize(T::RealField::zero()) {
+                if !f(&subsp_elt) {
+                    return;
+                };
 
-                    let _ = a.normalize_mut();
-
-                    if f(&a.cross(v)) {
-                        let _ = f(&a);
-                    }
-                } else if vs.len() == 2 {
-                    let _ = f(&vs[0].cross(&vs[1]).normalize());
-                }
-            }
-            _ => {
-                #[cfg(any(feature = "std", feature = "alloc"))]
-                {
-                    // XXX: use a GenericArray instead.
-                    let mut known_basis = Vec::new();
-
-                    for v in vs.iter() {
-                        known_basis.push(v.normalize())
-                    }
-
-                    for i in 0..D::dim() - vs.len() {
-                        let mut elt = Self::canonical_basis_element(i);
-
-                        for v in &known_basis {
-                            elt -= v * elt.dot(v)
-                        }
-
-                        if let Some(subsp_elt) = elt.try_normalize(T::RealField::zero()) {
-                            if !f(&subsp_elt) {
-                                return;
-                            };
-
-                            known_basis.push(subsp_elt);
-                        }
-                    }
-                }
-                #[cfg(all(not(feature = "std"), not(feature = "alloc")))]
-                {
-                    panic!("Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
-                            if #![no_std] is enabled and the 'alloc' feature is not enabled.")
-                }
+                known_basis.push(subsp_elt);
             }
         }
     }
