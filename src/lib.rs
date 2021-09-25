@@ -217,17 +217,18 @@ where
 ///     * If `min < val < max`, this returns `val`.
 ///     * If `val <= min`, this returns `min`.
 ///     * If `val >= max`, this returns `max`.
+///
+/// Deprecated: Use `f32::clamp()`, `f64::clamp()` or `cmp::Ord::clamp` instead.
+#[deprecated(note = "use `f32::clamp()`, `f64::clamp()` or `cmp::Ord::clamp` instead")]
 #[must_use]
 #[inline]
 pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
-    if val > min {
-        if val < max {
-            val
-        } else {
-            max
-        }
-    } else {
+    if val < min {
         min
+    } else if val > max {
+        max
+    } else {
+        val
     }
 }
 
