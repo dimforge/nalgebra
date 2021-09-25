@@ -75,6 +75,21 @@ pub fn mat2x4<T: Scalar>(m11: T, m12: T, m13: T, m14: T,
 }
 
 /// Create a new 3x3 matrix.
+///
+/// # Example
+/// ```
+/// # use nalgebra_glm::mat3;
+/// let m = mat3(
+///     1.0, 2.0, 3.0,
+///     4.0, 5.0, 6.0,
+///     7.0, 8.0, 9.0
+/// );
+/// assert!(
+///     m.m11 == 1.0 && m.m12 == 2.0 && m.m13 == 3.0 &&
+///     m.m21 == 4.0 && m.m22 == 5.0 && m.m23 == 6.0 &&
+///     m.m31 == 7.0 && m.m32 == 8.0 && m.m33 == 9.0
+/// );
+/// ```
 #[rustfmt::skip]
 pub fn mat3<T: Scalar>(m11: T, m12: T, m13: T,
                        m21: T, m22: T, m23: T,
