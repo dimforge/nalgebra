@@ -696,7 +696,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     fn transpose_to_uninit<Status, R2, C2, SB>(
         &self,
-        status: Status,
+        _status: Status,
         out: &mut Matrix<Status::Value, R2, C2, SB>,
     ) where
         Status: InitStatus<T>,
@@ -1392,7 +1392,7 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C
     #[inline]
     fn adjoint_to_uninit<Status, R2, C2, SB>(
         &self,
-        status: Status,
+        _status: Status,
         out: &mut Matrix<Status::Value, R2, C2, SB>,
     ) where
         Status: InitStatus<T>,

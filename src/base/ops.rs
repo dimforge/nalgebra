@@ -146,7 +146,7 @@ macro_rules! componentwise_binop_impl(
             #[inline]
             fn $method_to_statically_unchecked_uninit<Status, R2: Dim, C2: Dim, SB,
                                                        R3: Dim, C3: Dim, SC>(&self,
-                                                                     status: Status,
+                                                                     _status: Status,
                                                                      rhs: &Matrix<T, R2, C2, SB>,
                                                                      out: &mut Matrix<Status::Value, R3, C3, SC>)
                 where Status: InitStatus<T>,
@@ -699,7 +699,7 @@ where
     #[inline(always)]
     fn xx_mul_to_uninit<Status, R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
-        status: Status,
+        _status: Status,
         rhs: &Matrix<T, R2, C2, SB>,
         out: &mut Matrix<Status::Value, R3, C3, SC>,
         dot: impl Fn(

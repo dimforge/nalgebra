@@ -195,7 +195,7 @@ where
     unsafe fn reallocate_copy(
         rto: Const<RTO>,
         cto: Const<CTO>,
-        mut buf: <Self as Allocator<T, RFrom, CFrom>>::Buffer,
+        buf: <Self as Allocator<T, RFrom, CFrom>>::Buffer,
     ) -> ArrayStorage<MaybeUninit<T>, RTO, CTO> {
         let mut res = <Self as Allocator<T, Const<RTO>, Const<CTO>>>::allocate_uninit(rto, cto);
 
@@ -226,7 +226,7 @@ where
     unsafe fn reallocate_copy(
         rto: Dynamic,
         cto: CTo,
-        mut buf: ArrayStorage<T, RFROM, CFROM>,
+        buf: ArrayStorage<T, RFROM, CFROM>,
     ) -> VecStorage<MaybeUninit<T>, Dynamic, CTo> {
         let mut res = <Self as Allocator<T, Dynamic, CTo>>::allocate_uninit(rto, cto);
 
@@ -257,7 +257,7 @@ where
     unsafe fn reallocate_copy(
         rto: RTo,
         cto: Dynamic,
-        mut buf: ArrayStorage<T, RFROM, CFROM>,
+        buf: ArrayStorage<T, RFROM, CFROM>,
     ) -> VecStorage<MaybeUninit<T>, RTo, Dynamic> {
         let mut res = <Self as Allocator<T, RTo, Dynamic>>::allocate_uninit(rto, cto);
 
