@@ -27,10 +27,16 @@ use crate::geometry::{Point3, Rotation};
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<T>,
+}
+
+impl<T: fmt::Debug> fmt::Debug for Quaternion<T> {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        self.coords.as_slice().fmt(formatter)
+    }
 }
 
 impl<T: Scalar + Hash> Hash for Quaternion<T> {

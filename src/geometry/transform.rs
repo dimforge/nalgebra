@@ -1,6 +1,6 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::any::Any;
-use std::fmt::Debug;
+use std::fmt::{self, Debug};
 use std::hash;
 use std::marker::PhantomData;
 
@@ -157,7 +157,6 @@ super_tcategory_impl!(
 /// It is stored as a matrix with dimensions `(D + 1, D + 1)`, e.g., it stores a 4x4 matrix for a
 /// 3D transformation.
 #[repr(C)]
-#[derive(Debug)]
 pub struct Transform<T: RealField, C: TCategory, const D: usize>
 where
     Const<D>: DimNameAdd<U1>,
@@ -165,6 +164,16 @@ where
 {
     matrix: OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     _phantom: PhantomData<C>,
+}
+
+impl<T: RealField + Debug, C: TCategory, const D: usize> Debug for Transform<T, C, D>
+where
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+{
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        self.matrix.fmt(formatter)
+    }
 }
 
 impl<T: RealField + hash::Hash, C: TCategory, const D: usize> hash::Hash for Transform<T, C, D>
