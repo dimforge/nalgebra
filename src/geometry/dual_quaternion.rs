@@ -351,7 +351,7 @@ impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for DualQuaternion<T> {
 
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        self.clone().to_vector().ulps_eq(&other.clone().to_vector(), epsilon.clone(), max_ulps.clone()) ||
+        self.clone().to_vector().ulps_eq(&other.clone().to_vector(), epsilon.clone(), max_ulps) ||
         // Account for the double-covering of S², i.e. q = -q.
         self.clone().to_vector().iter().zip(other.clone().to_vector().iter()).all(|(a, b)| a.ulps_eq(&-b.clone(), epsilon.clone(), max_ulps))
     }

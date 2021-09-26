@@ -415,7 +415,7 @@ where
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
         self.isometry
-            .ulps_eq(&other.isometry, epsilon.clone(), max_ulps.clone())
+            .ulps_eq(&other.isometry, epsilon.clone(), max_ulps)
             && self.scaling.ulps_eq(&other.scaling, epsilon, max_ulps)
     }
 }

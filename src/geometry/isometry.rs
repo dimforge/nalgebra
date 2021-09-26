@@ -629,7 +629,7 @@ where
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
         self.translation
-            .ulps_eq(&other.translation, epsilon.clone(), max_ulps.clone())
+            .ulps_eq(&other.translation, epsilon.clone(), max_ulps)
             && self.rotation.ulps_eq(&other.rotation, epsilon, max_ulps)
     }
 }
