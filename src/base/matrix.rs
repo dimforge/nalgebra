@@ -2033,16 +2033,26 @@ impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: RawStorag
             + SameNumberOfRows<R2, U2>
             + SameNumberOfColumns<C2, U1>,
     {
-        assert!(
-            self.shape() == (2, 1),
-            "2D perpendicular product requires (2, 1) vector but found {:?}",
-            self.shape()
+        let shape = self.shape();
+        assert_eq!(
+            shape,
+            b.shape(),
+            "2D vector perpendicular product dimension mismatch."
+        );
+        assert_eq!(
+            shape,
+            (2, 1),
+            "2D perpendicular product requires (2, 1) vectors {:?}",
+            shape
         );
 
-        unsafe {
-            self.get_unchecked((0, 0)).clone() * b.get_unchecked((1, 0)).clone()
-                - self.get_unchecked((1, 0)).clone() * b.get_unchecked((0, 0)).clone()
-        }
+        // SAFETY: assertion above ensures correct shape
+        let ax = unsafe { self.get_unchecked((0, 0)).clone() };
+        let ay = unsafe { self.get_unchecked((1, 0)).clone() };
+        let bx = unsafe { b.get_unchecked((0, 0)).clone() };
+        let by = unsafe { b.get_unchecked((1, 0)).clone() };
+
+        ax * by - ay * bx
     }
 
     // TODO: use specialization instead of an assertion.
@@ -2063,17 +2073,14 @@ impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: RawStorag
         let shape = self.shape();
         assert_eq!(shape, b.shape(), "Vector cross product dimension mismatch.");
         assert!(
-            (shape.0 == 3 && shape.1 == 1) || (shape.0 == 1 && shape.1 == 3),
+            shape == (3, 1) || shape == (1, 3),
             "Vector cross product dimension mismatch: must be (3, 1) or (1, 3) but found {:?}.",
             shape
         );
 
         if shape.0 == 3 {
             unsafe {
-                // TODO: soooo ugly!
-                let nrows = SameShapeR::<R, R2>::from_usize(3);
-                let ncols = SameShapeC::<C, C2>::from_usize(1);
-                let mut res = Matrix::uninit(nrows, ncols);
+                let mut res = Matrix::uninit(Dim::from_usize(3), Dim::from_usize(1));
 
                 let ax = self.get_unchecked((0, 0));
                 let ay = self.get_unchecked((1, 0));
@@ -2095,10 +2102,7 @@ impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: RawStorag
             }
         } else {
             unsafe {
-                // TODO: ugly!
-                let nrows = SameShapeR::<R, R2>::from_usize(1);
-                let ncols = SameShapeC::<C, C2>::from_usize(3);
-                let mut res = Matrix::uninit(nrows, ncols);
+                let mut res = Matrix::uninit(Dim::from_usize(1), Dim::from_usize(3));
 
                 let ax = self.get_unchecked((0, 0));
                 let ay = self.get_unchecked((0, 1));
