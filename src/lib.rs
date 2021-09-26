@@ -71,10 +71,11 @@ an optimized set of tools for computer graphics and physics. Those features incl
 * Insertion and removal of rows of columns of a matrix.
 */
 
-#![allow(unused_variables, unused_mut)]
 #![deny(
     missing_docs,
     nonstandard_style,
+    unused_variables,
+    unused_mut,
     unused_parens,
     unused_qualifications,
     unused_results,
