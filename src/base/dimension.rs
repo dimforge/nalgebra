@@ -2,7 +2,7 @@
 
 //! Traits and tags for identifying the dimension of all algebraic entities.
 
-use std::any::{Any, TypeId};
+use std::any::Any;
 use std::cmp;
 use std::fmt::Debug;
 use std::ops::{Add, Div, Mul, Sub};
@@ -55,12 +55,7 @@ impl IsNotStaticOne for Dynamic {}
 
 /// Trait implemented by any type that can be used as a dimension. This includes type-level
 /// integers and `Dynamic` (for dimensions not known at compile-time).
-pub trait Dim: Any + Debug + Copy + PartialEq + Send + Sync {
-    #[inline(always)]
-    fn is<D: Dim>() -> bool {
-        TypeId::of::<Self>() == TypeId::of::<D>()
-    }
-
+pub trait Dim: Any + Debug + Copy + PartialEq + Send + Sync + 'static {
     /// Gets the compile-time value of `Self`. Returns `None` if it is not known, i.e., if `Self =
     /// Dynamic`.
     fn try_to_usize() -> Option<usize>;

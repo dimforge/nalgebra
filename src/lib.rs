@@ -142,6 +142,7 @@ pub use base as core;
 pub use nalgebra_macros::{dmatrix, dvector, matrix, point, vector};
 
 use simba::scalar::SupersetOf;
+use std::any::TypeId;
 use std::cmp::{self, Ordering, PartialOrd};
 
 use num::{One, Signed, Zero};
@@ -530,3 +531,21 @@ pub fn try_convert_ref<From: SupersetOf<To>, To>(t: &From) -> Option<To> {
 pub fn convert_ref_unchecked<From: SupersetOf<To>, To>(t: &From) -> To {
     t.to_subset_unchecked()
 }
+
+/// A trait for comparing types.
+///
+/// # Safety
+///
+/// Poorly implemented `is()` function may cause undefined behavior.
+///
+/// If implementer of this trait wishes to override the provided `is()` function, extra care must
+/// be taken.
+pub unsafe trait TypeEq: 'static {
+    /// Checks if `Self` is `T`
+    fn is<T: 'static>() -> bool {
+        TypeId::of::<Self>() == TypeId::of::<T>()
+    }
+}
+
+/// SAFETY: we don't override `is()` function, so we're good.
+unsafe impl<T: 'static> TypeEq for T {}

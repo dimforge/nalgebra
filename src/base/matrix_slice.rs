@@ -8,6 +8,7 @@ use crate::base::dimension::{Const, Dim, DimName, Dynamic, IsNotStaticOne, U1};
 use crate::base::iter::MatrixIter;
 use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, Storage};
 use crate::base::{Matrix, Scalar};
+use crate::TypeEq;
 
 macro_rules! slice_storage_impl(
     ($doc: expr; $Storage: ident as $SRef: ty; $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {

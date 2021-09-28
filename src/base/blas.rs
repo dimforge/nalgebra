@@ -7,7 +7,7 @@ use crate::base::blas_uninit::{axcpy_uninit, gemm_uninit, gemv_uninit};
 use crate::base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
-use crate::base::dimension::{Const, Dim, Dynamic, U1, U2, U3, U4};
+use crate::base::dimension::{Const, Dim, Dynamic, U1};
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::uninit::Init;
 use crate::base::{
@@ -29,23 +29,12 @@ where
         SB: RawStorage<T, R2, C2>,
         ShapeConstraint: DimEq<R, R2> + DimEq<C, C2>,
     {
-        assert!(
-            self.nrows() == rhs.nrows(),
-            "Dot product dimensions mismatch for shapes {:?} and {:?}: left rows != right rows.",
-            self.shape(),
-            rhs.shape(),
-        );
-
-        assert!(
-            self.ncols() == rhs.ncols(),
-            "Dot product dimensions mismatch for shapes {:?} and {:?}: left cols != right cols.",
-            self.shape(),
-            rhs.shape(),
-        );
+        let shape = self.shape();
+        assert_eq!(shape, rhs.shape(), "Dot product dimensions mismatch",);
 
         // So we do some special cases for common fixed-size vectors of dimension lower than 8
         // because the `for` loop below won't be very efficient on those.
-        if (R::is::<U2>() || R2::is::<U2>()) && (C::is::<U1>() || C2::is::<U1>()) {
+        if shape == (2, 1) {
             unsafe {
                 let a = conjugate(self.get_unchecked((0, 0)).clone())
                     * rhs.get_unchecked((0, 0)).clone();
@@ -55,7 +44,7 @@ where
                 return a + b;
             }
         }
-        if (R::is::<U3>() || R2::is::<U3>()) && (C::is::<U1>() || C2::is::<U1>()) {
+        if shape == (3, 1) {
             unsafe {
                 let a = conjugate(self.get_unchecked((0, 0)).clone())
                     * rhs.get_unchecked((0, 0)).clone();
@@ -67,7 +56,7 @@ where
                 return a + b + c;
             }
         }
-        if (R::is::<U4>() || R2::is::<U4>()) && (C::is::<U1>() || C2::is::<U1>()) {
+        if shape == (4, 1) {
             unsafe {
                 let mut a = conjugate(self.get_unchecked((0, 0)).clone())
                     * rhs.get_unchecked((0, 0)).clone();

@@ -22,6 +22,7 @@ use crate::base::dimension::{Dim, Dynamic, U1};
 use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::base::uninit::InitStatus;
 use crate::base::{Matrix, Scalar, Vector};
+use crate::TypeEq;
 use std::any::TypeId;
 
 // # Safety
