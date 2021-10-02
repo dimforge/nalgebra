@@ -170,6 +170,24 @@ impl<T> CsrMatrix<T> {
         Self::try_from_pattern_and_values(pattern, values)
     }
 
+    /// Try to construct a CSR matrix from raw CSR data with unsorted columns.
+    pub fn try_from_unsorted_csr_data(
+        num_rows: usize,
+        num_cols: usize,
+        row_offsets: Vec<usize>,
+        col_indices: Vec<usize>,
+        values: Vec<T>,
+    ) -> Result<Self, SparseFormatError> {
+        let sorted_num_cols: Vec<usize> = row_offsets[0..row_offsets.len() - 1]
+            .iter()
+            .enumerate()
+            .flat_map(|(index, &offset)| {
+                Self::sorted(col_indices[offset..row_offsets[index + 1]].to_vec())
+            })
+            .collect();
+        return Self::try_from_csr_data(num_rows, num_cols, row_offsets, sorted_num_cols, values);
+    }
+
     /// Try to construct a CSR matrix from a sparsity pattern and associated non-zero values.
     ///
     /// Returns an error if the number of values does not match the number of minor indices
@@ -188,6 +206,15 @@ impl<T> CsrMatrix<T> {
                 "Number of values and column indices must be the same",
             ))
         }
+    }
+
+    /// Return sorted vector.
+    #[inline]
+    #[must_use]
+    pub fn sorted(row_offsets: Vec<usize>) -> Vec<usize> {
+        let mut sorted = row_offsets.clone();
+        sorted.sort();
+        return sorted;
     }
 
     /// The number of rows in the matrix.

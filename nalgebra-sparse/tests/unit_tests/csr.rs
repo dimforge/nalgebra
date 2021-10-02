@@ -172,6 +172,29 @@ fn csr_matrix_valid_data() {
 }
 
 #[test]
+fn csr_matrix_valid_data_unsorted_column_indices() {
+    let csr = CsrMatrix::try_from_unsorted_csr_data(
+        3,
+        4,
+        vec![0, 1, 2, 5],
+        vec![1, 3, 2, 3, 0],
+        vec![5, 4, 1, 1, 4],
+    )
+    .unwrap();
+
+    let expected_csr = CsrMatrix::try_from_csr_data(
+        3,
+        4,
+        vec![0, 1, 2, 5],
+        vec![1, 3, 0, 2, 3],
+        vec![5, 4, 1, 1, 4],
+    )
+    .unwrap();
+
+    assert_eq!(csr, expected_csr);
+}
+
+#[test]
 fn csr_matrix_try_from_invalid_csr_data() {
     {
         // Empty offset array (invalid length)
