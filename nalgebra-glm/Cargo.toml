@@ -23,6 +23,16 @@ arbitrary             = [ "nalgebra/arbitrary" ]
 serde-serialize       = [ "nalgebra/serde-serialize-no-std" ]
 abomonation-serialize = [ "nalgebra/abomonation-serialize" ]
 
+# Conversion
+convert-mint = [ "nalgebra/mint" ]
+convert-bytemuck = [ "nalgebra/bytemuck" ]
+convert-glam013 = [ "nalgebra/glam013" ]
+convert-glam014 = [ "nalgebra/glam014" ]
+convert-glam015 = [ "nalgebra/glam015" ]
+convert-glam016 = [ "nalgebra/glam016" ]
+convert-glam017 = [ "nalgebra/glam017" ]
+convert-glam018 = [ "nalgebra/glam018" ]
+
 [dependencies]
 num-traits = { version = "0.2", default-features = false }
 approx = { version = "0.5", default-features = false }
