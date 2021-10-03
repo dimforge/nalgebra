@@ -55,7 +55,7 @@ impl IsNotStaticOne for Dynamic {}
 
 /// Trait implemented by any type that can be used as a dimension. This includes type-level
 /// integers and `Dynamic` (for dimensions not known at compile-time).
-pub trait Dim: Any + Debug + Copy + PartialEq + Send + Sync {
+pub unsafe trait Dim: Any + Debug + Copy + PartialEq + Send + Sync {
     #[inline(always)]
     fn is<D: Dim>() -> bool {
         TypeId::of::<Self>() == TypeId::of::<D>()
@@ -74,7 +74,7 @@ pub trait Dim: Any + Debug + Copy + PartialEq + Send + Sync {
     fn from_usize(dim: usize) -> Self;
 }
 
-impl Dim for Dynamic {
+unsafe impl Dim for Dynamic {
     #[inline]
     fn try_to_usize() -> Option<usize> {
         None
@@ -270,7 +270,7 @@ pub trait ToTypenum {
     type Typenum: Unsigned;
 }
 
-impl<const T: usize> Dim for Const<T> {
+unsafe impl<const T: usize> Dim for Const<T> {
     fn try_to_usize() -> Option<usize> {
         Some(T)
     }
