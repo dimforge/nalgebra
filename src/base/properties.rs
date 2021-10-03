@@ -7,10 +7,10 @@ use simba::scalar::{ClosedAdd, ClosedMul, ComplexField, RealField};
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimMin};
 use crate::base::storage::Storage;
-use crate::base::{DefaultAllocator, Matrix, Scalar, SquareMatrix};
+use crate::base::{DefaultAllocator, Matrix, SquareMatrix};
 use crate::RawStorage;
 
-impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
+impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// The total number of elements of this matrix.
     ///
     /// # Examples:
@@ -63,47 +63,15 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         T::Epsilon: Clone,
     {
         let (nrows, ncols) = self.shape();
-        let d;
 
-        if nrows > ncols {
-            d = ncols;
-
-            for i in d..nrows {
-                for j in 0..ncols {
-                    if !relative_eq!(self[(i, j)], T::zero(), epsilon = eps.clone()) {
-                        return false;
-                    }
-                }
-            }
-        } else {
-            // nrows <= ncols
-            d = nrows;
-
+        for j in 0..ncols {
             for i in 0..nrows {
-                for j in d..ncols {
-                    if !relative_eq!(self[(i, j)], T::zero(), epsilon = eps.clone()) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        // Off-diagonal elements of the sub-square matrix.
-        for i in 1..d {
-            for j in 0..i {
-                // TODO: use unsafe indexing.
-                if !relative_eq!(self[(i, j)], T::zero(), epsilon = eps.clone())
-                    || !relative_eq!(self[(j, i)], T::zero(), epsilon = eps.clone())
+                let el = unsafe { self.get_unchecked((i, j)) };
+                if (i == j && !relative_eq!(*el, T::one(), epsilon = eps.clone()))
+                    || (i != j && !relative_eq!(*el, T::zero(), epsilon = eps.clone()))
                 {
                     return false;
                 }
-            }
-        }
-
-        // Diagonal elements of the sub-square matrix.
-        for i in 0..d {
-            if !relative_eq!(self[(i, i)], T::one(), epsilon = eps.clone()) {
-                return false;
             }
         }
 
