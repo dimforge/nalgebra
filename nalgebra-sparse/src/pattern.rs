@@ -125,6 +125,7 @@ impl SparsityPattern {
         major_offsets: Vec<usize>,
         minor_indices: Vec<usize>,
     ) -> Result<Self, SparsityPatternFormatError> {
+        use nalgebra::base::helper;
         use SparsityPatternFormatError::*;
 
         if major_offsets.len() != major_dim + 1 {
@@ -132,12 +133,8 @@ impl SparsityPattern {
         }
 
         // Check that the first and last offsets conform to the specification
-        {
-            let first_offset_ok = *major_offsets.first().unwrap() == 0;
-            let last_offset_ok = *major_offsets.last().unwrap() == minor_indices.len();
-            if !first_offset_ok || !last_offset_ok {
-                return Err(InvalidOffsetFirstLast);
-            }
+        if !helper::first_and_last_offsets_are_ok(&major_offsets, &minor_indices) {
+            return Err(InvalidOffsetFirstLast);
         }
 
         // Test that each lane has strictly monotonically increasing minor indices, i.e.
