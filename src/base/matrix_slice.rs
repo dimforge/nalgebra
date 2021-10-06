@@ -73,7 +73,6 @@ macro_rules! slice_storage_impl(
                       S: $Storage<T, RStor, CStor>,
                       RStride: Dim,
                       CStride: Dim {
-
                 $T::from_raw_parts(storage.$get_addr(start.0, start.1), shape, strides)
             }
         }

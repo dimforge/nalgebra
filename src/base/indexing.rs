@@ -567,7 +567,10 @@ where
     #[doc(hidden)]
     #[inline(always)]
     unsafe fn get_unchecked(self, matrix: &'a Matrix<T, R, C, S>) -> Self::Output {
-        matrix.data.get_unchecked_linear(self)
+        let nrows = matrix.shape().0;
+        let row = self % nrows;
+        let col = self / nrows;
+        matrix.data.get_unchecked(row, col)
     }
 }
 
