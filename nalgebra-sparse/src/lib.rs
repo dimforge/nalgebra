@@ -149,6 +149,7 @@ pub mod csr;
 pub mod factorization;
 pub mod ops;
 pub mod pattern;
+pub mod utils;
 
 pub(crate) mod cs;
 

@@ -178,7 +178,7 @@ fn csr_matrix_valid_data_unsorted_column_indices() {
         4,
         vec![0, 1, 2, 5],
         vec![1, 3, 2, 3, 0],
-        vec![5, 4, 1, 1, 4],
+        vec![5, 4, 1, 4, 1],
     )
     .unwrap();
 

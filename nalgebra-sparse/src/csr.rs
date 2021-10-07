@@ -5,11 +5,13 @@
 use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
 use crate::csc::CscMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
+use crate::utils::{apply_permutation, first_and_last_offsets_are_ok};
 use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
 
 use nalgebra::Scalar;
 use num_traits::One;
 
+use num_traits::Zero;
 use std::slice::{Iter, IterMut};
 
 /// A CSR representation of a sparse matrix.
@@ -184,20 +186,40 @@ impl<T> CsrMatrix<T> {
         row_offsets: Vec<usize>,
         col_indices: Vec<usize>,
         values: Vec<T>,
-    ) -> Result<Self, SparseFormatError> {
-        use nalgebra::base::helper;
+    ) -> Result<Self, SparseFormatError>
+    where
+        T: Scalar + Zero,
+    {
         use SparsityPatternFormatError::*;
-        if helper::first_and_last_offsets_are_ok(&row_offsets, &col_indices) {
-            let mut sorted_col_indices = col_indices.clone();
+
+        let mut p: Vec<usize> = (0..col_indices.len()).collect();
+
+        if col_indices.len() != values.len() {
+            return (Err(DifferentValuesIndicesLengths)).map_err(pattern_format_error_to_csr_error);
+        }
+
+        if first_and_last_offsets_are_ok(&row_offsets, &col_indices) {
             for (index, &offset) in row_offsets[0..row_offsets.len() - 1].iter().enumerate() {
-                sorted_col_indices[offset..row_offsets[index + 1]].sort_unstable();
+                p[offset..row_offsets[index + 1]].sort_by(|a, b| {
+                    let x = &col_indices[*a];
+                    let y = &col_indices[*b];
+                    x.partial_cmp(y).unwrap()
+                });
             }
+
+            // permute indices
+            let sorted_col_indices: Vec<usize> = p.iter().map(|i| col_indices[*i]).collect();
+
+            // permute values
+            let mut output: Vec<T> = vec![T::zero(); p.len()];
+            apply_permutation(&mut output[..p.len()], &values[..p.len()], &p[..p.len()]);
+
             return Self::try_from_csr_data(
                 num_rows,
                 num_cols,
                 row_offsets,
                 sorted_col_indices,
-                values,
+                output,
             );
         }
         return (Err(InvalidOffsetFirstLast)).map_err(pattern_format_error_to_csr_error);
@@ -568,6 +590,10 @@ fn pattern_format_error_to_csr_error(err: SparsityPatternFormatError) -> SparseF
     use SparsityPatternFormatError::*;
 
     match err {
+        DifferentValuesIndicesLengths => E::from_kind_and_msg(
+            K::InvalidStructure,
+            "Lengths of values and column indices are not equal.",
+        ),
         InvalidOffsetArrayLength => E::from_kind_and_msg(
             K::InvalidStructure,
             "Length of row offset array is not equal to nrows + 1.",

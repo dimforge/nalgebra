@@ -535,6 +535,10 @@ fn pattern_format_error_to_csc_error(err: SparsityPatternFormatError) -> SparseF
     use SparsityPatternFormatError::*;
 
     match err {
+        DifferentValuesIndicesLengths => E::from_kind_and_msg(
+            K::InvalidStructure,
+            "Lengths of values and column indices are not equal.",
+        ),
         InvalidOffsetArrayLength => E::from_kind_and_msg(
             K::InvalidStructure,
             "Length of col offset array is not equal to ncols + 1.",
