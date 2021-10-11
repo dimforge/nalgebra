@@ -1,6 +1,5 @@
 //! Sparsity patterns for CSR and CSC matrices.
 use crate::cs::transpose_cs;
-use crate::utils::first_and_last_offsets_are_ok;
 use crate::SparseFormatError;
 use std::error::Error;
 use std::fmt;
@@ -133,8 +132,12 @@ impl SparsityPattern {
         }
 
         // Check that the first and last offsets conform to the specification
-        if !first_and_last_offsets_are_ok(&major_offsets, &minor_indices) {
-            return Err(InvalidOffsetFirstLast);
+        {
+            let first_offset_ok = *major_offsets.first().unwrap() == 0;
+            let last_offset_ok = *major_offsets.last().unwrap() == minor_indices.len();
+            if !first_offset_ok || !last_offset_ok {
+                return Err(InvalidOffsetFirstLast);
+            }
         }
 
         // Test that each lane has strictly monotonically increasing minor indices, i.e.
@@ -261,8 +264,6 @@ impl SparsityPattern {
 pub enum SparsityPatternFormatError {
     /// Indicates an invalid number of offsets.
     ///
-    /// Indicates that column indices and values have different lengths.
-    DifferentValuesIndicesLengths,
     /// The number of offsets must be equal to (major_dim + 1).
     InvalidOffsetArrayLength,
     /// Indicates that the first or last entry in the offset array did not conform to
@@ -291,8 +292,7 @@ impl From<SparsityPatternFormatError> for SparseFormatError {
         use SparsityPatternFormatError::DuplicateEntry as PatternDuplicateEntry;
         use SparsityPatternFormatError::*;
         match err {
-            DifferentValuesIndicesLengths
-            | InvalidOffsetArrayLength
+            InvalidOffsetArrayLength
             | InvalidOffsetFirstLast
             | NonmonotonicOffsets
             | NonmonotonicMinorIndices => {
@@ -313,9 +313,6 @@ impl From<SparsityPatternFormatError> for SparseFormatError {
 impl fmt::Display for SparsityPatternFormatError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            SparsityPatternFormatError::DifferentValuesIndicesLengths => {
-                write!(f, "Lengths of values and column indices are not equal.")
-            }
             SparsityPatternFormatError::InvalidOffsetArrayLength => {
                 write!(f, "Length of offset array is not equal to (major_dim + 1).")
             }

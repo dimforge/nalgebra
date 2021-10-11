@@ -5,13 +5,13 @@
 use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
 use crate::csc::CscMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
-use crate::utils::{apply_permutation, first_and_last_offsets_are_ok};
+use crate::utils::apply_permutation;
 use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
 
 use nalgebra::Scalar;
 use num_traits::One;
-
 use num_traits::Zero;
+
 use std::slice::{Iter, IterMut};
 
 /// A CSR representation of a sparse matrix.
@@ -190,39 +190,52 @@ impl<T> CsrMatrix<T> {
     where
         T: Scalar + Zero,
     {
-        use SparsityPatternFormatError::*;
-
-        let mut p: Vec<usize> = (0..col_indices.len()).collect();
+        let count = col_indices.len();
+        let mut p: Vec<usize> = (0..count).collect();
 
         if col_indices.len() != values.len() {
-            return (Err(DifferentValuesIndicesLengths)).map_err(pattern_format_error_to_csr_error);
+            return Err(SparseFormatError::from_kind_and_msg(
+                SparseFormatErrorKind::InvalidStructure,
+                "Number of values and column indices must be the same",
+            ));
         }
 
-        if first_and_last_offsets_are_ok(&row_offsets, &col_indices) {
-            for (index, &offset) in row_offsets[0..row_offsets.len() - 1].iter().enumerate() {
-                p[offset..row_offsets[index + 1]].sort_by(|a, b| {
-                    let x = &col_indices[*a];
-                    let y = &col_indices[*b];
-                    x.partial_cmp(y).unwrap()
-                });
+        if row_offsets.len() == 0 {
+            return Err(SparseFormatError::from_kind_and_msg(
+                SparseFormatErrorKind::InvalidStructure,
+                "Number of offsets should be greater than 0",
+            ));
+        }
+
+        for (index, &offset) in row_offsets[0..row_offsets.len() - 1].iter().enumerate() {
+            let next_offset = row_offsets[index + 1];
+            if next_offset > count {
+                return Err(SparseFormatError::from_kind_and_msg(
+                    SparseFormatErrorKind::InvalidStructure,
+                    "No row offset should be greater than the number of column indices",
+                ));
             }
-
-            // permute indices
-            let sorted_col_indices: Vec<usize> = p.iter().map(|i| col_indices[*i]).collect();
-
-            // permute values
-            let mut output: Vec<T> = vec![T::zero(); p.len()];
-            apply_permutation(&mut output[..p.len()], &values[..p.len()], &p[..p.len()]);
-
-            return Self::try_from_csr_data(
-                num_rows,
-                num_cols,
-                row_offsets,
-                sorted_col_indices,
-                output,
-            );
+            p[offset..next_offset].sort_by(|a, b| {
+                let x = &col_indices[*a];
+                let y = &col_indices[*b];
+                x.partial_cmp(y).unwrap()
+            });
         }
-        return (Err(InvalidOffsetFirstLast)).map_err(pattern_format_error_to_csr_error);
+
+        // permute indices
+        let sorted_col_indices: Vec<usize> = p.iter().map(|i| col_indices[*i]).collect();
+
+        // permute values
+        let mut sorted_vaues: Vec<T> = vec![T::zero(); count];
+        apply_permutation(&mut sorted_vaues[..count], &values[..count], &p[..count]);
+
+        return Self::try_from_csr_data(
+            num_rows,
+            num_cols,
+            row_offsets,
+            sorted_col_indices,
+            sorted_vaues,
+        );
     }
 
     /// Try to construct a CSR matrix from a sparsity pattern and associated non-zero values.
@@ -590,10 +603,6 @@ fn pattern_format_error_to_csr_error(err: SparsityPatternFormatError) -> SparseF
     use SparsityPatternFormatError::*;
 
     match err {
-        DifferentValuesIndicesLengths => E::from_kind_and_msg(
-            K::InvalidStructure,
-            "Lengths of values and column indices are not equal.",
-        ),
         InvalidOffsetArrayLength => E::from_kind_and_msg(
             K::InvalidStructure,
             "Length of row offset array is not equal to nrows + 1.",

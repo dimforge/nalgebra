@@ -149,9 +149,9 @@ pub mod csr;
 pub mod factorization;
 pub mod ops;
 pub mod pattern;
-pub mod utils;
 
 pub(crate) mod cs;
+pub(crate) mod utils;
 
 #[cfg(feature = "proptest-support")]
 pub mod proptest;
