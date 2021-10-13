@@ -178,7 +178,7 @@ fn csr_matrix_valid_data_unsorted_column_indices() {
         4,
         vec![0, 1, 2, 5],
         vec![1, 3, 2, 3, 0],
-        vec![5, 4, 1, 4, 1],
+        vec![5, 4, 2, 3, 1],
     )
     .unwrap();
 
@@ -187,11 +187,109 @@ fn csr_matrix_valid_data_unsorted_column_indices() {
         4,
         vec![0, 1, 2, 5],
         vec![1, 3, 0, 2, 3],
-        vec![5, 4, 1, 1, 4],
+        vec![5, 4, 1, 2, 3],
     )
     .unwrap();
 
     assert_eq!(csr, expected_csr);
+}
+
+#[test]
+fn csr_matrix_try_from_invalid_csr_data2() {
+    {
+        // Empty offset array (invalid length)
+        let matrix =
+            CsrMatrix::try_from_unsorted_csr_data(0, 0, Vec::new(), Vec::new(), Vec::<u32>::new());
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Offset array invalid length for arbitrary data
+        let offsets = vec![0, 3, 5];
+        let indices = vec![0, 1, 2, 3, 5];
+        let values = vec![0, 1, 2, 3, 4];
+
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Invalid first entry in offsets array
+        let offsets = vec![1, 2, 2, 5];
+        let indices = vec![0, 5, 1, 2, 3];
+        let values = vec![0, 1, 2, 3, 4];
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Invalid last entry in offsets array
+        let offsets = vec![0, 2, 2, 4];
+        let indices = vec![0, 5, 1, 2, 3];
+        let values = vec![0, 1, 2, 3, 4];
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Invalid length of offsets array
+        let offsets = vec![0, 2, 2];
+        let indices = vec![0, 5, 1, 2, 3];
+        let values = vec![0, 1, 2, 3, 4];
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Nonmonotonic offsets
+        let offsets = vec![0, 3, 2, 5];
+        let indices = vec![0, 1, 2, 3, 4];
+        let values = vec![0, 1, 2, 3, 4];
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Minor index out of bounds
+        let offsets = vec![0, 2, 2, 5];
+        let indices = vec![0, 6, 1, 2, 3];
+        let values = vec![0, 1, 2, 3, 4];
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::IndexOutOfBounds
+        );
+    }
+
+    {
+        // Duplicate entry
+        let offsets = vec![0, 2, 2, 5];
+        let indices = vec![0, 5, 2, 2, 3];
+        let values = vec![0, 1, 2, 3, 4];
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::DuplicateEntry
+        );
+    }
 }
 
 #[test]

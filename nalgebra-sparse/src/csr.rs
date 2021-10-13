@@ -178,7 +178,8 @@ impl<T> CsrMatrix<T> {
     /// bounds with respect to the number of columns in the matrix. If this is not the case,
     /// an error is returned to indicate the failure.
     ///
-    /// An error is returned if the data given does not conform to the CSR storage format.
+    /// An error is returned if the data given does not conform to the CSR storage format
+    /// with the exception of having unsorted column indices and values.
     /// See the documentation for [CsrMatrix](struct.CsrMatrix.html) for more information.
     pub fn try_from_unsorted_csr_data(
         num_rows: usize,
@@ -190,6 +191,7 @@ impl<T> CsrMatrix<T> {
     where
         T: Scalar + Zero,
     {
+        use SparsityPatternFormatError::*;
         let count = col_indices.len();
         let mut p: Vec<usize> = (0..count).collect();
 
@@ -215,6 +217,9 @@ impl<T> CsrMatrix<T> {
                     "No row offset should be greater than the number of column indices",
                 ));
             }
+            if offset > next_offset {
+                return Err(NonmonotonicOffsets).map_err(pattern_format_error_to_csr_error);
+            }
             p[offset..next_offset].sort_by(|a, b| {
                 let x = &col_indices[*a];
                 let y = &col_indices[*b];
@@ -226,15 +231,15 @@ impl<T> CsrMatrix<T> {
         let sorted_col_indices: Vec<usize> = p.iter().map(|i| col_indices[*i]).collect();
 
         // permute values
-        let mut sorted_vaues: Vec<T> = vec![T::zero(); count];
-        apply_permutation(&mut sorted_vaues[..count], &values[..count], &p[..count]);
+        let mut sorted_values: Vec<T> = vec![T::zero(); count];
+        apply_permutation(&mut sorted_values, &values, &p);
 
         return Self::try_from_csr_data(
             num_rows,
             num_cols,
             row_offsets,
             sorted_col_indices,
-            sorted_vaues,
+            sorted_values,
         );
     }
 
