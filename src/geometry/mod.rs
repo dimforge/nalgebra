@@ -1,6 +1,28 @@
 //! [Reexported at the root of this crate.] Data structures for points and usual transformations
 //! (rotations, isometries, etc.)
 
+pub use self::abstract_rotation::AbstractRotation;
+pub use self::dual_quaternion::*;
+pub use self::isometry::*;
+pub use self::isometry_alias::*;
+pub use self::orthographic::Orthographic3;
+pub use self::perspective::Perspective3;
+pub use self::point::*;
+pub use self::point_alias::*;
+pub use self::quaternion::*;
+pub use self::reflection::*;
+pub use self::reflection_alias::*;
+pub use self::rotation::*;
+pub use self::rotation_alias::*;
+pub use self::similarity::*;
+pub use self::similarity_alias::*;
+pub use self::transform::*;
+pub use self::transform_alias::*;
+pub use self::translation::*;
+pub use self::translation_alias::*;
+pub use self::unit_complex::*;
+pub use self::scaling::*;
+
 mod op_macros;
 
 mod abstract_rotation;
@@ -77,35 +99,5 @@ mod reflection_alias;
 
 mod orthographic;
 mod perspective;
+mod scaling;
 
-pub use self::abstract_rotation::AbstractRotation;
-
-pub use self::point::*;
-pub use self::point_alias::*;
-
-pub use self::rotation::*;
-pub use self::rotation_alias::*;
-
-pub use self::quaternion::*;
-
-pub use self::dual_quaternion::*;
-
-pub use self::unit_complex::*;
-
-pub use self::translation::*;
-pub use self::translation_alias::*;
-
-pub use self::isometry::*;
-pub use self::isometry_alias::*;
-
-pub use self::similarity::*;
-pub use self::similarity_alias::*;
-
-pub use self::transform::*;
-pub use self::transform_alias::*;
-
-pub use self::reflection::*;
-pub use self::reflection_alias::*;
-
-pub use self::orthographic::Orthographic3;
-pub use self::perspective::Perspective3;
