@@ -1,8 +1,8 @@
 use crate::allocator::Allocator;
 use crate::storage::RawStorage;
 use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, RowOVector, Scalar, VectorSlice, U1};
-use num::Zero;
-use simba::scalar::{ClosedAdd, Field, SupersetOf};
+use num::{One, Zero};
+use simba::scalar::{ClosedAdd, ClosedMul, Field, SupersetOf};
 use std::mem::MaybeUninit;
 
 /// # Folding on columns and rows
@@ -123,7 +123,9 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     ///                        4.0, 5.0, 6.0);
     /// assert_eq!(m.row_sum(), RowVector3::new(5.0, 7.0, 9.0));
     ///
-    /// let mint = Matrix3x2::new(1,2,3,4,5,6);
+    /// let mint = Matrix3x2::new(1, 2,
+    ///                           3, 4,
+    ///                           5, 6);
     /// assert_eq!(mint.row_sum(), RowVector2::new(9,12));
     /// ```
     #[inline]
@@ -148,8 +150,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     ///                        4.0, 5.0, 6.0);
     /// assert_eq!(m.row_sum_tr(), Vector3::new(5.0, 7.0, 9.0));
     ///
-    /// let mint = Matrix3x2::new(1,2,3,4,5,6);
-    /// assert_eq!(mint.row_sum_tr(), Vector2::new(9,12));
+    /// let mint = Matrix3x2::new(1, 2,
+    ///                           3, 4,
+    ///                           5, 6);
+    /// assert_eq!(mint.row_sum_tr(), Vector2::new(9, 12));
     /// ```
     #[inline]
     #[must_use]
@@ -173,8 +177,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     ///                        4.0, 5.0, 6.0);
     /// assert_eq!(m.column_sum(), Vector2::new(6.0, 15.0));
     ///
-    /// let mint = Matrix3x2::new(1,2,3,4,5,6);
-    /// assert_eq!(mint.column_sum(), Vector3::new(3,7,11));
+    /// let mint = Matrix3x2::new(1, 2,
+    ///                           3, 4,
+    ///                           5, 6);
+    /// assert_eq!(mint.column_sum(), Vector3::new(3, 7, 11));
     /// ```
     #[inline]
     #[must_use]
@@ -187,6 +193,120 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         self.compress_columns(OVector::zeros_generic(nrows, Const::<1>), |out, col| {
             *out += col;
         })
+    }
+
+    /*
+     *
+     * Product computation.
+     *
+     */
+    /// The product of all the elements of this matrix.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2x3;
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.product(), 720.0);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn product(&self) -> T
+    where
+        T: ClosedMul + One,
+    {
+        self.iter().cloned().fold(T::one(), |a, b| a * b)
+    }
+
+    /// The product of all the rows of this matrix.
+    ///
+    /// Use `.row_sum_tr` if you need the result in a column vector instead.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Matrix3x2};
+    /// # use nalgebra::{RowVector2, RowVector3};
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.row_product(), RowVector3::new(4.0, 10.0, 18.0));
+    ///
+    /// let mint = Matrix3x2::new(1, 2,
+    ///                           3, 4,
+    ///                           5, 6);
+    /// assert_eq!(mint.row_product(), RowVector2::new(15, 48));
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn row_product(&self) -> RowOVector<T, C>
+    where
+        T: ClosedMul + One,
+        DefaultAllocator: Allocator<T, U1, C>,
+    {
+        self.compress_rows(|col| col.product())
+    }
+
+    /// The product of all the rows of this matrix. The result is transposed and returned as a column vector.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Matrix3x2};
+    /// # use nalgebra::{Vector2, Vector3};
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.row_product_tr(), Vector3::new(4.0, 10.0, 18.0));
+    ///
+    /// let mint = Matrix3x2::new(1, 2,
+    ///                           3, 4,
+    ///                           5, 6);
+    /// assert_eq!(mint.row_product_tr(), Vector2::new(15, 48));
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn row_product_tr(&self) -> OVector<T, C>
+    where
+        T: ClosedMul + One,
+        DefaultAllocator: Allocator<T, C>,
+    {
+        self.compress_rows_tr(|col| col.product())
+    }
+
+    /// The product of all the columns of this matrix.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::{Matrix2x3, Matrix3x2};
+    /// # use nalgebra::{Vector2, Vector3};
+    ///
+    /// let m = Matrix2x3::new(1.0, 2.0, 3.0,
+    ///                        4.0, 5.0, 6.0);
+    /// assert_eq!(m.column_product(), Vector2::new(6.0, 120.0));
+    ///
+    /// let mint = Matrix3x2::new(1, 2,
+    ///                           3, 4,
+    ///                           5, 6);
+    /// assert_eq!(mint.column_product(), Vector3::new(2, 12, 30));
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn column_product(&self) -> OVector<T, R>
+    where
+        T: ClosedMul + One,
+        DefaultAllocator: Allocator<T, R>,
+    {
+        let nrows = self.shape_generic().0;
+        self.compress_columns(
+            OVector::repeat_generic(nrows, Const::<1>, T::one()),
+            |out, col| {
+                out.component_mul_assign(&col);
+            },
+        )
     }
 
     /*
