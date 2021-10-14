@@ -20,6 +20,16 @@ use crate::{
     Translation, UnitComplex, UnitQuaternion,
 };
 
+impl<T: SimdRealField, R, const D: usize> Default for Similarity<T, R, D>
+where
+    T::Element: SimdRealField,
+    R: AbstractRotation<T, D>,
+{
+    fn default() -> Self {
+        Self::identity()
+    }
+}
+
 impl<T: SimdRealField, R, const D: usize> Similarity<T, R, D>
 where
     T::Element: SimdRealField,

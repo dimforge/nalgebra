@@ -6,6 +6,15 @@ use crate::base::{SMatrix, Scalar};
 
 use crate::geometry::Rotation;
 
+impl<T, const D: usize> Default for Rotation<T, D>
+where
+    T: Scalar + Zero + One,
+{
+    fn default() -> Self {
+        Self::identity()
+    }
+}
+
 /// # Identity
 impl<T, const D: usize> Rotation<T, D>
 where

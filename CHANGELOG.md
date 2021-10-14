@@ -13,6 +13,8 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   `glam 0.18`. These can be enabled by enabling the `convert-glam018` cargo features.
 - Added the methods `Matrix::product`, `::row_product`, `::row_product_tr`, and `::column_product` to compute the
   product of the components, rows, or columns, of a single matrix or vector.
+- The `Default` trait is now implemented for most geometric types: `Point`, `Isometry`, `Rotation`, `Similarity`,
+  `Transform`, `UnitComplex`, and `UnitQuaternion`.
 
 ## [0.29.0]
 ### Breaking changes
