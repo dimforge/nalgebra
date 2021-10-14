@@ -197,6 +197,15 @@ where
     }
 }
 
+impl<T: SimdRealField> Default for UnitQuaternion<T>
+where
+    T::Element: SimdRealField,
+{
+    fn default() -> Self {
+        Self::identity()
+    }
+}
+
 impl<T: SimdRealField> UnitQuaternion<T>
 where
     T::Element: SimdRealField,

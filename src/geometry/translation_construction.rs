@@ -15,6 +15,12 @@ use simba::scalar::{ClosedAdd, SupersetOf};
 use crate::base::{SVector, Scalar};
 use crate::geometry::Translation;
 
+impl<T: Scalar + Zero, const D: usize> Default for Translation<T, D> {
+    fn default() -> Self {
+        Self::identity()
+    }
+}
+
 impl<T: Scalar, const D: usize> Translation<T, D> {
     /// Creates a new identity translation.
     ///
