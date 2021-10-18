@@ -1,24 +1,21 @@
-use crate::{DefaultAllocator, DimName, OVector, allocator::Allocator, Scalar, Const};
+use crate::{SVector, Scalar};
 
-/// A scaling
-pub type Scaling<T, const D: usize> = OScaling<T, Const<D>>;
+/// A scaling represents a non-uniform scale transformation
+pub struct Scaling<T: Scalar, const D: usize>(pub SVector<T, D>);
 
-/// An owned scaling represents a non-uniform scale transformation
-pub struct OScaling<T: Scalar, D: DimName>(pub OVector<T, D>) where DefaultAllocator: Allocator<T, D>;
-
-impl<T, D: DimName> From<OVector<T, D>> for OScaling<T, D>
-    where T: Scalar, DefaultAllocator: Allocator<T, D>
+impl<T, const D: usize> From<SVector<T, D>> for Scaling<T, D>
+    where T: Scalar
 {
-    fn from(other: OVector<T, D>) -> Self
+    fn from(other: SVector<T, D>) -> Self
     {
-        return OScaling::<T, D>(other);
+        return Scaling::<T, D>(other);
     }
 }
 
-impl<T, D: DimName> Into<OVector<T, D>> for OScaling<T, D>
-    where T: Scalar, DefaultAllocator: Allocator<T, D>
+impl<T, const D: usize> Into<SVector<T, D>> for Scaling<T, D>
+    where T: Scalar
 {
-    fn into(self) -> OVector<T, D>
+    fn into(self) -> SVector<T, D>
     {
         return self.0;
     }

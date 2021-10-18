@@ -5,107 +5,107 @@ use std::ops::{
     DivAssign
 };
 
-use crate::OScaling;
-use crate::{ClosedDiv, ClosedMul, DefaultAllocator, DimName, OVector, allocator::Allocator, Scalar, OPoint};
+use crate::Scaling;
+use crate::{ClosedDiv, ClosedMul, SVector, Scalar, Point};
 
-impl<T, D: DimName> Mul<OVector<T, D>> for OScaling<T, D>
-    where T: Scalar + ClosedMul, DefaultAllocator: Allocator<T, D>
+impl<T, const D: usize> Mul<SVector<T, D>> for Scaling<T, D>
+    where T: Scalar + ClosedMul
 {
-    type Output = OScaling<T, D>;
+    type Output = Scaling<T, D>;
 
-    fn mul(self, rhs: OVector<T, D>) -> Self::Output
+    fn mul(self, rhs: SVector<T, D>) -> Self::Output
     {
-        return OScaling::<T, D>(self.0.component_mul(&rhs));
+        return Scaling::<T, D>(self.0.component_mul(&rhs));
     }
 }
 
-impl<T, D: DimName> MulAssign<OVector<T, D>> for OScaling<T, D>
-    where T: Scalar + ClosedMul, DefaultAllocator: Allocator<T, D>
+impl<T, const D: usize> MulAssign<SVector<T, D>> for Scaling<T, D>
+    where T: Scalar + ClosedMul
 {
-    fn mul_assign(&mut self, rhs: OVector<T, D>)
+    fn mul_assign(&mut self, rhs: SVector<T, D>)
     {
         self.0.component_mul_assign(&rhs);
     }
 }
 
-impl<T, D: DimName> Div<OVector<T, D>> for OScaling<T, D>
-    where T: Scalar + ClosedDiv, DefaultAllocator: Allocator<T, D>
+impl<T, const D: usize> Div<SVector<T, D>> for Scaling<T, D>
+    where T: Scalar + ClosedDiv
 {
-    type Output = OScaling<T, D>;
+    type Output = Scaling<T, D>;
 
-    fn div(self, rhs: OVector<T, D>) -> Self::Output
+    fn div(self, rhs: SVector<T, D>) -> Self::Output
     {
-        return OScaling::<T, D>(self.0.component_div(&rhs));
+        return Scaling::<T, D>(self.0.component_div(&rhs));
     }
 }
 
-impl<T, D: DimName> DivAssign<OVector<T, D>> for OScaling<T, D>
-    where T: Scalar + ClosedDiv, DefaultAllocator: Allocator<T, D>
+impl<T, const D: usize> DivAssign<SVector<T, D>> for Scaling<T, D>
+    where T: Scalar + ClosedDiv
 {
-    fn div_assign(&mut self, rhs: OVector<T, D>)
+    fn div_assign(&mut self, rhs: SVector<T, D>)
     {
         self.0.component_div_assign(&rhs);
     }
 }
 
-impl<T, D: DimName> Mul<OScaling<T, D>> for OScaling<T, D>
-    where T: Scalar + ClosedMul, DefaultAllocator: Allocator<T, D>
+impl<T, const D: usize> Mul<Scaling<T, D>> for Scaling<T, D>
+    where T: Scalar + ClosedMul
 {
-    type Output = OScaling<T, D>;
+    type Output = Scaling<T, D>;
 
-    fn mul(self, rhs: OScaling<T, D>) -> Self::Output
+    fn mul(self, rhs: Scaling<T, D>) -> Self::Output
     {
-        return OScaling::<T, D>(self.0.component_mul(&rhs.0));
+        return Scaling::<T, D>(self.0.component_mul(&rhs.0));
     }
 }
 
-impl<T, D: DimName> MulAssign<OScaling<T, D>> for OScaling<T, D>
-    where T: Scalar + ClosedMul, DefaultAllocator: Allocator<T, D>
+impl<T, const D: usize> MulAssign<Scaling<T, D>> for Scaling<T, D>
+    where T: Scalar + ClosedMul
 {
-    fn mul_assign(&mut self, rhs: OScaling<T, D>)
+    fn mul_assign(&mut self, rhs: Scaling<T, D>)
     {
         self.0.component_mul_assign(&rhs.0);
     }
 }
 
-impl<T, D: DimName> Div<OScaling<T, D>> for OScaling<T, D>
-    where T: Scalar + ClosedDiv, DefaultAllocator: Allocator<T, D>
+impl<T, const D: usize> Div<Scaling<T, D>> for Scaling<T, D>
+    where T: Scalar + ClosedDiv
 {
-    type Output = OScaling<T, D>;
+    type Output = Scaling<T, D>;
 
-    fn div(self, rhs: OScaling<T, D>) -> Self::Output
+    fn div(self, rhs: Scaling<T, D>) -> Self::Output
     {
-        return OScaling::<T, D>(self.0.component_div(&rhs.0));
+        return Scaling::<T, D>(self.0.component_div(&rhs.0));
     }
 }
 
-impl<T, D: DimName> DivAssign<OScaling<T, D>> for OScaling<T, D>
-    where T: Scalar + ClosedDiv, DefaultAllocator: Allocator<T, D>
+impl<T, const D: usize> DivAssign<Scaling<T, D>> for Scaling<T, D>
+    where T: Scalar + ClosedDiv
 {
-    fn div_assign(&mut self, rhs: OScaling<T, D>)
+    fn div_assign(&mut self, rhs: Scaling<T, D>)
     {
         self.0.component_div_assign(&rhs.0);
     }
 }
 
-impl<T, D: DimName> Mul<OPoint<T, D>> for OScaling<T, D>
-    where T: Scalar + ClosedMul, DefaultAllocator: Allocator<T, D>
+impl<T, const D: usize> Mul<Point<T, D>> for Scaling<T, D>
+    where T: Scalar + ClosedMul
 {
-    type Output = OPoint<T, D>;
+    type Output = Point<T, D>;
 
-    fn mul(self, rhs: OPoint<T, D>) -> Self::Output
+    fn mul(self, rhs: Point<T, D>) -> Self::Output
     {
-        return OPoint::from(self.0.component_mul(&rhs.coords));
+        return Point::from(self.0.component_mul(&rhs.coords));
     }
 }
 
-impl<T, D: DimName> Div<OPoint<T, D>> for OScaling<T, D>
-    where T: Scalar + ClosedDiv, DefaultAllocator: Allocator<T, D>
+impl<T, const D: usize> Div<Point<T, D>> for Scaling<T, D>
+    where T: Scalar + ClosedDiv
 {
-    type Output = OPoint<T, D>;
+    type Output = Point<T, D>;
 
-    fn div(self, rhs: OPoint<T, D>) -> Self::Output
+    fn div(self, rhs: Point<T, D>) -> Self::Output
     {
-        return OPoint::from(self.0.component_div(&rhs.coords));
+        return Point::from(self.0.component_div(&rhs.coords));
     }
 }

@@ -1,56 +1,56 @@
-use crate::OScaling;
-use crate::{OVector, Scalar, Const};
+use crate::Scaling;
+use crate::{SVector, Scalar};
 
-impl<T: Scalar> OScaling<T, Const<1_usize>>
+impl<T: Scalar> Scaling<T, 1>
 {
     /// Initializes this scaling from its components.
-    pub fn new(x: T) -> OScaling<T, Const<1_usize>>
+    pub fn new(x: T) -> Scaling<T, 1>
     {
-        return OScaling(OVector::<T, Const<1_usize>>::new(x));
+        return Scaling(SVector::<T, 1>::new(x));
     }
 }
 
-impl<T: Scalar> OScaling<T, Const<2_usize>>
+impl<T: Scalar> Scaling<T, 2>
 {
     /// Initializes this scaling from its components.
-    pub fn new(x: T, y: T) -> OScaling<T, Const<2_usize>>
+    pub fn new(x: T, y: T) -> Scaling<T, 2>
     {
-        return OScaling(OVector::<T, Const<2_usize>>::new(x, y));
+        return Scaling(SVector::<T, 2>::new(x, y));
     }
 }
 
-impl<T: Scalar> OScaling<T, Const<3_usize>>
+impl<T: Scalar> Scaling<T, 3>
 {
     /// Initializes this scaling from its components.
-    pub fn new(x: T, y: T, z: T) -> OScaling<T, Const<3_usize>>
+    pub fn new(x: T, y: T, z: T) -> Scaling<T, 3>
     {
-        return OScaling(OVector::<T, Const<3_usize>>::new(x, y, z));
+        return Scaling(SVector::<T, 3>::new(x, y, z));
     }
 }
 
-impl<T: Scalar> OScaling<T, Const<4_usize>>
+impl<T: Scalar> Scaling<T, 4>
 {
     /// Initializes this scaling from its components.
-    pub fn new(x: T, y: T, z: T, w: T) -> OScaling<T, Const<4_usize>>
+    pub fn new(x: T, y: T, z: T, w: T) -> Scaling<T, 4>
     {
-        return OScaling(OVector::<T, Const<4_usize>>::new(x, y, z, w));
+        return Scaling(SVector::<T, 4>::new(x, y, z, w));
     }
 }
 
-impl<T: Scalar> OScaling<T, Const<5_usize>>
+impl<T: Scalar> Scaling<T, 5>
 {
     /// Initializes this scaling from its components.
-    pub fn new(x: T, y: T, z: T, w: T, a: T) -> OScaling<T, Const<5_usize>>
+    pub fn new(x: T, y: T, z: T, w: T, a: T) -> Scaling<T, 5>
     {
-        return OScaling(OVector::<T, Const<5_usize>>::new(x, y, z, w, a));
+        return Scaling(SVector::<T, 5>::new(x, y, z, w, a));
     }
 }
 
-impl<T: Scalar> OScaling<T, Const<6_usize>>
+impl<T: Scalar> Scaling<T, 6>
 {
     /// Initializes this scaling from its components.
-    pub fn new(x: T, y: T, z: T, w: T, a: T, b: T) -> OScaling<T, Const<6_usize>>
+    pub fn new(x: T, y: T, z: T, w: T, a: T, b: T) -> Scaling<T, 6>
     {
-        return OScaling(OVector::<T, Const<6_usize>>::new(x, y, z, w, a, b));
+        return Scaling(SVector::<T, 6>::new(x, y, z, w, a, b));
     }
 }
