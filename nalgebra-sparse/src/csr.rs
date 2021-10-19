@@ -5,13 +5,12 @@
 use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
 use crate::csc::CscMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
-use crate::utils::apply_permutation;
 use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
 
 use nalgebra::Scalar;
 use num_traits::One;
-use num_traits::Zero;
 
+use std::iter::FromIterator;
 use std::slice::{Iter, IterMut};
 
 /// A CSR representation of a sparse matrix.
@@ -189,7 +188,7 @@ impl<T> CsrMatrix<T> {
         values: Vec<T>,
     ) -> Result<Self, SparseFormatError>
     where
-        T: Scalar + Zero,
+        T: Scalar,
     {
         use SparsityPatternFormatError::*;
         let count = col_indices.len();
@@ -228,11 +227,10 @@ impl<T> CsrMatrix<T> {
         }
 
         // permute indices
-        let sorted_col_indices: Vec<usize> = p.iter().map(|i| col_indices[*i]).collect();
+        let sorted_col_indices: Vec<usize> = Vec::from_iter((p.iter().map(|i| &col_indices[*i])).cloned());
 
         // permute values
-        let mut sorted_values: Vec<T> = vec![T::zero(); count];
-        apply_permutation(&mut sorted_values, &values, &p);
+        let sorted_values: Vec<T> = Vec::from_iter((p.iter().map(|i| &values[*i])).cloned());
 
         return Self::try_from_csr_data(
             num_rows,

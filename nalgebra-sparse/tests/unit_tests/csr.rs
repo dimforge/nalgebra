@@ -292,7 +292,7 @@ fn csr_matrix_try_from_invalid_csr_data() {
 }
 
 #[test]
-fn csr_matrix_try_from_invalid_csr_data_with_new_constructor() {
+fn csr_matrix_try_from_unsorted_invalid_csr_data() {
     let invalid_data: InvalidCsrDataExamples = InvalidCsrDataExamples::new();
     {
         // Empty offset array (invalid length)
