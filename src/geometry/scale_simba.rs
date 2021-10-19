@@ -3,13 +3,13 @@ use simba::simd::SimdValue;
 use crate::base::OVector;
 use crate::Scalar;
 
-use crate::geometry::Translation;
+use crate::geometry::Scale;
 
-impl<T: Scalar + SimdValue, const D: usize> SimdValue for Translation<T, D>
+impl<T: Scalar + SimdValue, const D: usize> SimdValue for Scale<T, D>
 where
     T::Element: Scalar,
 {
-    type Element = Translation<T::Element, D>;
+    type Element = Scale<T::Element, D>;
     type SimdBool = T::SimdBool;
 
     #[inline]

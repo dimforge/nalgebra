@@ -54,6 +54,7 @@ mod scale_construction;
 mod scale_conversion;
 mod scale_coordinates;
 mod scale_ops;
+mod scale_simba;
 
 mod isometry;
 mod isometry_alias;
