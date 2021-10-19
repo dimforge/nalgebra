@@ -3,7 +3,7 @@ use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
-use num::{One};
+use num::One;
 #[cfg(feature = "rand-no-std")]
 use rand::{
     distributions::{Distribution, Standard},

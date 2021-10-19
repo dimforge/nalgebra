@@ -1,6 +1,6 @@
 use std::ops::{Mul, MulAssign};
 
-use simba::scalar::{ClosedMul};
+use simba::scalar::ClosedMul;
 
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::U1;

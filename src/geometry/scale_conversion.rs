@@ -7,9 +7,7 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, DimName, OMatrix, OVector, SVector, Scalar};
 
-use crate::geometry::{
-    SuperTCategoryOf, TAffine, Transform, Scale
-};
+use crate::geometry::{Scale, SuperTCategoryOf, TAffine, Transform};
 use crate::Point;
 
 /*
@@ -50,8 +48,7 @@ where
     T2: RealField + SupersetOf<T1>,
     C: SuperTCategoryOf<TAffine>,
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator:
-        Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
         + Allocator<T1, DimNameSum<Const<D>, U1>, U1>
         + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
@@ -77,8 +74,7 @@ where
     T1: RealField,
     T2: RealField + SupersetOf<T1>,
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator:
-        Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
         + Allocator<T1, DimNameSum<Const<D>, U1>, U1>
         + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     // + Allocator<T1, D>
@@ -116,8 +112,7 @@ impl<T: Scalar + Zero + One, const D: usize> From<Scale<T, D>>
     for OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
 where
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator:
-        Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
         + Allocator<T, DimNameSum<Const<D>, U1>, U1>
         + Allocator<T, Const<D>>,
 {
@@ -157,8 +152,7 @@ impl<T: Scalar, const D: usize> From<Scale<T, D>> for [T; D] {
     }
 }
 
-impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 2]>
-    for Scale<T, D>
+impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 2]> for Scale<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 2]>,
     T::Element: Scalar,
@@ -172,8 +166,7 @@ where
     }
 }
 
-impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 4]>
-    for Scale<T, D>
+impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 4]> for Scale<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 4]>,
     T::Element: Scalar,
@@ -189,8 +182,7 @@ where
     }
 }
 
-impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 8]>
-    for Scale<T, D>
+impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 8]> for Scale<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 8]>,
     T::Element: Scalar,

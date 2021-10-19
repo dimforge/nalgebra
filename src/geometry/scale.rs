@@ -210,7 +210,8 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     where
         T: Zero + One + Clone,
         Const<D>: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> + Allocator<T, DimNameSum<Const<D>, U1>, U1>,
+        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+            + Allocator<T, DimNameSum<Const<D>, U1>, U1>,
     {
         // Unfortunately rust refuses at all costs to allow calling .to_homogeneous on a SVector
         // (self.vector) so I had to do a manual copy in a new OVector
