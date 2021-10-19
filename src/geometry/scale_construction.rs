@@ -10,7 +10,7 @@ use rand::{
     Rng,
 };
 
-use simba::scalar::{ClosedAdd, SupersetOf};
+use simba::scalar::{ClosedMul, SupersetOf};
 
 use crate::base::{SVector, Scalar};
 use crate::geometry::Scale;
@@ -55,7 +55,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     }
 }
 
-impl<T: Scalar + Zero + ClosedAdd, const D: usize> One for Scale<T, D> {
+impl<T: Scalar + Zero + ClosedMul, const D: usize> One for Scale<T, D> {
     #[inline]
     fn one() -> Self {
         Self::identity()
