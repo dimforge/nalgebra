@@ -11,12 +11,12 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "abomonation-serialize")]
 use abomonation::Abomonation;
 
-use simba::scalar::{ClosedAdd, ClosedNeg, ClosedSub};
-
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
+use crate::ClosedDiv;
+use crate::ClosedMul;
 
 use crate::geometry::Point;
 
@@ -162,13 +162,6 @@ mod rkyv_impl {
 }
 
 impl<T: Scalar, const D: usize> Scale<T, D> {
-    /// Creates a new Scale from the given vector.
-    #[inline]
-    #[deprecated(note = "Use `::from` instead.")]
-    pub fn from_vector(vector: SVector<T, D>) -> Scale<T, D> {
-        Scale { vector }
-    }
-
     /// Inverts `self`.
     ///
     /// # Example
@@ -187,9 +180,10 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(&self) -> Scale<T, D>
     where
-        T: ClosedNeg,
+        T: ClosedDiv + One,
     {
-        todo!();
+        let useless: SVector<T, D> = SVector::from_element(T::one());
+        return useless.component_div(&self.vector).into();
     }
 
     /// Converts this Scale into its equivalent homogeneous transformation matrix.
@@ -242,13 +236,13 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[inline]
     pub fn inverse_mut(&mut self)
     where
-        T: ClosedNeg,
+        T: ClosedDiv + One,
     {
-        todo!();
+        self.vector = self.inverse().vector;
     }
 }
 
-impl<T: Scalar + ClosedAdd, const D: usize> Scale<T, D> {
+impl<T: Scalar + ClosedMul, const D: usize> Scale<T, D> {
     /// Translate the given point.
     ///
     /// This is the same as the multiplication `self * pt`.
@@ -262,11 +256,11 @@ impl<T: Scalar + ClosedAdd, const D: usize> Scale<T, D> {
     #[inline]
     #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
-        todo!();
+        return self * pt;
     }
 }
 
-impl<T: Scalar + ClosedSub, const D: usize> Scale<T, D> {
+impl<T: Scalar + ClosedDiv + ClosedMul + One, const D: usize> Scale<T, D> {
     /// Translate the given point by the inverse of this Scale.
     ///
     /// # Example
@@ -278,7 +272,7 @@ impl<T: Scalar + ClosedSub, const D: usize> Scale<T, D> {
     #[inline]
     #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
-        todo!();
+        return self.inverse() * pt;
     }
 }
 
