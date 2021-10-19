@@ -8,8 +8,7 @@ use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, DimName, OMatrix, OVector, SVector, Scalar};
 
 use crate::geometry::{
-    AbstractRotation, Isometry, Similarity, SuperTCategoryOf, TAffine, Transform, Translation,
-    Translation3, UnitDualQuaternion, UnitQuaternion,
+    SuperTCategoryOf, TAffine, Transform, Scale
 };
 use crate::Point;
 
@@ -17,106 +16,35 @@ use crate::Point;
  * This file provides the following conversions:
  * =============================================
  *
- * Translation -> Translation
- * Translation -> Isometry
- * Translation3 -> UnitDualQuaternion
- * Translation -> Similarity
- * Translation -> Transform
- * Translation -> Matrix (homogeneous)
+ * Scale -> Scale
+ * Scale -> Transform
+ * Scale -> Matrix (homogeneous)
  */
 
-impl<T1, T2, const D: usize> SubsetOf<Translation<T2, D>> for Translation<T1, D>
+impl<T1, T2, const D: usize> SubsetOf<Scale<T2, D>> for Scale<T1, D>
 where
     T1: Scalar,
     T2: Scalar + SupersetOf<T1>,
 {
     #[inline]
-    fn to_superset(&self) -> Translation<T2, D> {
-        Translation::from(self.vector.to_superset())
+    fn to_superset(&self) -> Scale<T2, D> {
+        Scale::from(self.vector.to_superset())
     }
 
     #[inline]
-    fn is_in_subset(rot: &Translation<T2, D>) -> bool {
+    fn is_in_subset(rot: &Scale<T2, D>) -> bool {
         crate::is_convertible::<_, SVector<T1, D>>(&rot.vector)
     }
 
     #[inline]
-    fn from_superset_unchecked(rot: &Translation<T2, D>) -> Self {
-        Translation {
+    fn from_superset_unchecked(rot: &Scale<T2, D>) -> Self {
+        Scale {
             vector: rot.vector.to_subset_unchecked(),
         }
     }
 }
 
-impl<T1, T2, R, const D: usize> SubsetOf<Isometry<T2, R, D>> for Translation<T1, D>
-where
-    T1: RealField,
-    T2: RealField + SupersetOf<T1>,
-    R: AbstractRotation<T2, D>,
-{
-    #[inline]
-    fn to_superset(&self) -> Isometry<T2, R, D> {
-        Isometry::from_parts(self.to_superset(), R::identity())
-    }
-
-    #[inline]
-    fn is_in_subset(iso: &Isometry<T2, R, D>) -> bool {
-        iso.rotation == R::identity()
-    }
-
-    #[inline]
-    fn from_superset_unchecked(iso: &Isometry<T2, R, D>) -> Self {
-        Self::from_superset_unchecked(&iso.translation)
-    }
-}
-
-impl<T1, T2> SubsetOf<UnitDualQuaternion<T2>> for Translation3<T1>
-where
-    T1: RealField,
-    T2: RealField + SupersetOf<T1>,
-{
-    #[inline]
-    fn to_superset(&self) -> UnitDualQuaternion<T2> {
-        let dq = UnitDualQuaternion::<T1>::from_parts(self.clone(), UnitQuaternion::identity());
-        dq.to_superset()
-    }
-
-    #[inline]
-    fn is_in_subset(dq: &UnitDualQuaternion<T2>) -> bool {
-        crate::is_convertible::<_, Translation<T1, 3>>(&dq.translation())
-            && dq.rotation() == UnitQuaternion::identity()
-    }
-
-    #[inline]
-    fn from_superset_unchecked(dq: &UnitDualQuaternion<T2>) -> Self {
-        let dq: UnitDualQuaternion<T1> = crate::convert_ref_unchecked(dq);
-        dq.translation()
-    }
-}
-
-impl<T1, T2, R, const D: usize> SubsetOf<Similarity<T2, R, D>> for Translation<T1, D>
-where
-    T1: RealField,
-    T2: RealField + SupersetOf<T1>,
-    R: AbstractRotation<T2, D>,
-{
-    #[inline]
-    fn to_superset(&self) -> Similarity<T2, R, D> {
-        Similarity::from_parts(self.to_superset(), R::identity(), T2::one())
-    }
-
-    #[inline]
-    fn is_in_subset(sim: &Similarity<T2, R, D>) -> bool {
-        sim.isometry.rotation == R::identity() && sim.scaling() == T2::one()
-    }
-
-    #[inline]
-    fn from_superset_unchecked(sim: &Similarity<T2, R, D>) -> Self {
-        Self::from_superset_unchecked(&sim.isometry.translation)
-    }
-}
-
-impl<T1, T2, C, const D: usize> SubsetOf<Transform<T2, C, D>> for Translation<T1, D>
+impl<T1, T2, C, const D: usize> SubsetOf<Transform<T2, C, D>> for Scale<T1, D>
 where
     T1: RealField,
     T2: RealField + SupersetOf<T1>,
@@ -142,7 +70,7 @@ where
 }
 
 impl<T1, T2, const D: usize>
-    SubsetOf<OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>> for Translation<T1, D>
+    SubsetOf<OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>> for Scale<T1, D>
 where
     T1: RealField,
     T2: RealField + SupersetOf<T1>,
@@ -180,7 +108,7 @@ where
     }
 }
 
-impl<T: Scalar + Zero + One, const D: usize> From<Translation<T, D>>
+impl<T: Scalar + Zero + One, const D: usize> From<Scale<T, D>>
     for OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
 where
     Const<D>: DimNameAdd<U1>,
@@ -188,49 +116,49 @@ where
         Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> + Allocator<T, Const<D>>,
 {
     #[inline]
-    fn from(t: Translation<T, D>) -> Self {
+    fn from(t: Scale<T, D>) -> Self {
         t.to_homogeneous()
     }
 }
 
-impl<T: Scalar, const D: usize> From<OVector<T, Const<D>>> for Translation<T, D> {
+impl<T: Scalar, const D: usize> From<OVector<T, Const<D>>> for Scale<T, D> {
     #[inline]
     fn from(vector: OVector<T, Const<D>>) -> Self {
-        Translation { vector }
+        Scale { vector }
     }
 }
 
-impl<T: Scalar, const D: usize> From<[T; D]> for Translation<T, D> {
+impl<T: Scalar, const D: usize> From<[T; D]> for Scale<T, D> {
     #[inline]
     fn from(coords: [T; D]) -> Self {
-        Translation {
+        Scale {
             vector: coords.into(),
         }
     }
 }
 
-impl<T: Scalar, const D: usize> From<Point<T, D>> for Translation<T, D> {
+impl<T: Scalar, const D: usize> From<Point<T, D>> for Scale<T, D> {
     #[inline]
     fn from(pt: Point<T, D>) -> Self {
-        Translation { vector: pt.coords }
+        Scale { vector: pt.coords }
     }
 }
 
-impl<T: Scalar, const D: usize> From<Translation<T, D>> for [T; D] {
+impl<T: Scalar, const D: usize> From<Scale<T, D>> for [T; D] {
     #[inline]
-    fn from(t: Translation<T, D>) -> Self {
+    fn from(t: Scale<T, D>) -> Self {
         t.vector.into()
     }
 }
 
-impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Translation<T::Element, D>; 2]>
-    for Translation<T, D>
+impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 2]>
+    for Scale<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 2]>,
     T::Element: Scalar,
 {
     #[inline]
-    fn from(arr: [Translation<T::Element, D>; 2]) -> Self {
+    fn from(arr: [Scale<T::Element, D>; 2]) -> Self {
         Self::from(OVector::from([
             arr[0].vector.clone(),
             arr[1].vector.clone(),
@@ -238,14 +166,14 @@ where
     }
 }
 
-impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Translation<T::Element, D>; 4]>
-    for Translation<T, D>
+impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 4]>
+    for Scale<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 4]>,
     T::Element: Scalar,
 {
     #[inline]
-    fn from(arr: [Translation<T::Element, D>; 4]) -> Self {
+    fn from(arr: [Scale<T::Element, D>; 4]) -> Self {
         Self::from(OVector::from([
             arr[0].vector.clone(),
             arr[1].vector.clone(),
@@ -255,14 +183,14 @@ where
     }
 }
 
-impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Translation<T::Element, D>; 8]>
-    for Translation<T, D>
+impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 8]>
+    for Scale<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 8]>,
     T::Element: Scalar,
 {
     #[inline]
-    fn from(arr: [Translation<T::Element, D>; 8]) -> Self {
+    fn from(arr: [Scale<T::Element, D>; 8]) -> Self {
         Self::from(OVector::from([
             arr[0].vector.clone(),
             arr[1].vector.clone(),
@@ -276,14 +204,14 @@ where
     }
 }
 
-impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Translation<T::Element, D>; 16]>
-    for Translation<T, D>
+impl<T: Scalar + PrimitiveSimdValue, const D: usize> From<[Scale<T::Element, D>; 16]>
+    for Scale<T, D>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 16]>,
     T::Element: Scalar,
 {
     #[inline]
-    fn from(arr: [Translation<T::Element, D>; 16]) -> Self {
+    fn from(arr: [Scale<T::Element, D>; 16]) -> Self {
         Self::from(OVector::from([
             arr[0].vector.clone(),
             arr[1].vector.clone(),

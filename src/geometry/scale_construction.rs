@@ -13,49 +13,49 @@ use rand::{
 use simba::scalar::{ClosedAdd, SupersetOf};
 
 use crate::base::{SVector, Scalar};
-use crate::geometry::Translation;
+use crate::geometry::Scale;
 
-impl<T: Scalar, const D: usize> Translation<T, D> {
-    /// Creates a new identity translation.
+impl<T: Scalar, const D: usize> Scale<T, D> {
+    /// Creates a new identity scale.
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::{Point2, Point3, Translation2, Translation3};
-    /// let t = Translation2::identity();
+    /// # use nalgebra::{Point2, Point3, Scale2, Scale3};
+    /// let t = Scale2::identity();
     /// let p = Point2::new(1.0, 2.0);
     /// assert_eq!(t * p, p);
     ///
     /// // Works in all dimensions.
-    /// let t = Translation3::identity();
+    /// let t = Scale3::identity();
     /// let p = Point3::new(1.0, 2.0, 3.0);
     /// assert_eq!(t * p, p);
     /// ```
     #[inline]
-    pub fn identity() -> Translation<T, D>
+    pub fn identity() -> Scale<T, D>
     where
         T: Zero,
     {
-        Self::from(SVector::<T, D>::from_element(T::zero()))
+        todo!();
     }
 
     /// Cast the components of `self` to another type.
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::Translation2;
-    /// let tra = Translation2::new(1.0f64, 2.0);
+    /// # use nalgebra::Scale2;
+    /// let tra = Scale2::new(1.0f64, 2.0);
     /// let tra2 = tra.cast::<f32>();
-    /// assert_eq!(tra2, Translation2::new(1.0f32, 2.0));
+    /// assert_eq!(tra2, Scale2::new(1.0f32, 2.0));
     /// ```
-    pub fn cast<To: Scalar>(self) -> Translation<To, D>
+    pub fn cast<To: Scalar>(self) -> Scale<To, D>
     where
-        Translation<To, D>: SupersetOf<Self>,
+        Scale<To, D>: SupersetOf<Self>,
     {
         crate::convert(self)
     }
 }
 
-impl<T: Scalar + Zero + ClosedAdd, const D: usize> One for Translation<T, D> {
+impl<T: Scalar + Zero + ClosedAdd, const D: usize> One for Scale<T, D> {
     #[inline]
     fn one() -> Self {
         Self::identity()
@@ -63,19 +63,19 @@ impl<T: Scalar + Zero + ClosedAdd, const D: usize> One for Translation<T, D> {
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: Scalar, const D: usize> Distribution<Translation<T, D>> for Standard
+impl<T: Scalar, const D: usize> Distribution<Scale<T, D>> for Standard
 where
     Standard: Distribution<T>,
 {
     /// Generate an arbitrary random variate for testing purposes.
     #[inline]
-    fn sample<G: Rng + ?Sized>(&self, rng: &mut G) -> Translation<T, D> {
-        Translation::from(rng.gen::<SVector<T, D>>())
+    fn sample<G: Rng + ?Sized>(&self, rng: &mut G) -> Scale<T, D> {
+        Scale::from(rng.gen::<SVector<T, D>>())
     }
 }
 
 #[cfg(feature = "arbitrary")]
-impl<T: Scalar + Arbitrary + Send, const D: usize> Arbitrary for Translation<T, D>
+impl<T: Scalar + Arbitrary + Send, const D: usize> Arbitrary for Scale<T, D>
 where
     Owned<T, crate::Const<D>>: Send,
 {
@@ -88,14 +88,14 @@ where
 
 /*
  *
- * Small translation construction from components.
+ * Small Scale construction from components.
  *
  */
 macro_rules! componentwise_constructors_impl(
     ($($doc: expr; $D: expr, $($args: ident:$irow: expr),*);* $(;)*) => {$(
-        impl<T> Translation<T, $D>
+        impl<T> Scale<T, $D>
              {
-            #[doc = "Initializes this translation from its components."]
+            #[doc = "Initializes this Scale from its components."]
             #[doc = "# Example\n```"]
             #[doc = $doc]
             #[doc = "```"]
@@ -108,16 +108,16 @@ macro_rules! componentwise_constructors_impl(
 );
 
 componentwise_constructors_impl!(
-    "# use nalgebra::Translation1;\nlet t = Translation1::new(1.0);\nassert!(t.vector.x == 1.0);";
+    "# use nalgebra::Scale1;\nlet t = Scale1::new(1.0);\nassert!(t.vector.x == 1.0);";
     1, x:0;
-    "# use nalgebra::Translation2;\nlet t = Translation2::new(1.0, 2.0);\nassert!(t.vector.x == 1.0 && t.vector.y == 2.0);";
+    "# use nalgebra::Scale2;\nlet t = Scale2::new(1.0, 2.0);\nassert!(t.vector.x == 1.0 && t.vector.y == 2.0);";
     2, x:0, y:1;
-    "# use nalgebra::Translation3;\nlet t = Translation3::new(1.0, 2.0, 3.0);\nassert!(t.vector.x == 1.0 && t.vector.y == 2.0 && t.vector.z == 3.0);";
+    "# use nalgebra::Scale3;\nlet t = Scale3::new(1.0, 2.0, 3.0);\nassert!(t.vector.x == 1.0 && t.vector.y == 2.0 && t.vector.z == 3.0);";
     3, x:0, y:1, z:2;
-    "# use nalgebra::Translation4;\nlet t = Translation4::new(1.0, 2.0, 3.0, 4.0);\nassert!(t.vector.x == 1.0 && t.vector.y == 2.0 && t.vector.z == 3.0 && t.vector.w == 4.0);";
+    "# use nalgebra::Scale4;\nlet t = Scale4::new(1.0, 2.0, 3.0, 4.0);\nassert!(t.vector.x == 1.0 && t.vector.y == 2.0 && t.vector.z == 3.0 && t.vector.w == 4.0);";
     4, x:0, y:1, z:2, w:3;
-    "# use nalgebra::Translation5;\nlet t = Translation5::new(1.0, 2.0, 3.0, 4.0, 5.0);\nassert!(t.vector.x == 1.0 && t.vector.y == 2.0 && t.vector.z == 3.0 && t.vector.w == 4.0 && t.vector.a == 5.0);";
+    "# use nalgebra::Scale5;\nlet t = Scale5::new(1.0, 2.0, 3.0, 4.0, 5.0);\nassert!(t.vector.x == 1.0 && t.vector.y == 2.0 && t.vector.z == 3.0 && t.vector.w == 4.0 && t.vector.a == 5.0);";
     5, x:0, y:1, z:2, w:3, a:4;
-    "# use nalgebra::Translation6;\nlet t = Translation6::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);\nassert!(t.vector.x == 1.0 && t.vector.y == 2.0 && t.vector.z == 3.0 && t.vector.w == 4.0 && t.vector.a == 5.0 && t.vector.b == 6.0);";
+    "# use nalgebra::Scale6;\nlet t = Scale6::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);\nassert!(t.vector.x == 1.0 && t.vector.y == 2.0 && t.vector.z == 3.0 && t.vector.w == 4.0 && t.vector.a == 5.0 && t.vector.b == 6.0);";
     6, x:0, y:1, z:2, w:3, a:4, b:5;
 );

@@ -3,29 +3,29 @@ use std::ops::{Deref, DerefMut};
 use crate::base::coordinates::{X, XY, XYZ, XYZW, XYZWA, XYZWAB};
 use crate::base::Scalar;
 
-use crate::geometry::Translation;
+use crate::geometry::Scale;
 
 /*
  *
- * Give coordinates to Translation{1 .. 6}
+ * Give coordinates to Scale{1 .. 6}
  *
  */
 
 macro_rules! deref_impl(
     ($D: expr, $Target: ident $(, $comps: ident)*) => {
-        impl<T: Scalar> Deref for Translation<T, $D> {
+        impl<T: Scalar> Deref for Scale<T, $D> {
             type Target = $Target<T>;
 
             #[inline]
             fn deref(&self) -> &Self::Target {
-                unsafe { &*(self as *const Translation<T, $D> as *const Self::Target) }
+                unsafe { &*(self as *const Scale<T, $D> as *const Self::Target) }
             }
         }
 
-        impl<T: Scalar> DerefMut for Translation<T, $D> {
+        impl<T: Scalar> DerefMut for Scale<T, $D> {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {
-                unsafe { &mut *(self as *mut Translation<T, $D> as *mut Self::Target) }
+                unsafe { &mut *(self as *mut Scale<T, $D> as *mut Self::Target) }
             }
         }
     }

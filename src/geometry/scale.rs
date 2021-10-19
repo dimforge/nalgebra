@@ -20,21 +20,21 @@ use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
 
 use crate::geometry::Point;
 
-/// A translation.
+/// A scale which supports non-uniform scaling.
 #[repr(C)]
-pub struct Translation<T, const D: usize> {
-    /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
-    /// translated.
+pub struct Scale<T, const D: usize> {
+    /// The scale coordinates, i.e., how much is multiplied to a point's coordinates when it is
+    /// scaled.
     pub vector: SVector<T, D>,
 }
 
-impl<T: fmt::Debug, const D: usize> fmt::Debug for Translation<T, D> {
+impl<T: fmt::Debug, const D: usize> fmt::Debug for Scale<T, D> {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         self.vector.as_slice().fmt(formatter)
     }
 }
 
-impl<T: Scalar + hash::Hash, const D: usize> hash::Hash for Translation<T, D>
+impl<T: Scalar + hash::Hash, const D: usize> hash::Hash for Scale<T, D>
 where
     Owned<T, Const<D>>: hash::Hash,
 {
@@ -43,20 +43,20 @@ where
     }
 }
 
-impl<T: Scalar + Copy, const D: usize> Copy for Translation<T, D> {}
+impl<T: Scalar + Copy, const D: usize> Copy for Scale<T, D> {}
 
-impl<T: Scalar, const D: usize> Clone for Translation<T, D>
+impl<T: Scalar, const D: usize> Clone for Scale<T, D>
 where
     Owned<T, Const<D>>: Clone,
 {
     #[inline]
     fn clone(&self) -> Self {
-        Translation::from(self.vector.clone())
+        Scale::from(self.vector.clone())
     }
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T, const D: usize> bytemuck::Zeroable for Translation<T, D>
+unsafe impl<T, const D: usize> bytemuck::Zeroable for Scale<T, D>
 where
     T: Scalar + bytemuck::Zeroable,
     SVector<T, D>: bytemuck::Zeroable,
@@ -64,7 +64,7 @@ where
 }
 
 #[cfg(feature = "bytemuck")]
-unsafe impl<T, const D: usize> bytemuck::Pod for Translation<T, D>
+unsafe impl<T, const D: usize> bytemuck::Pod for Scale<T, D>
 where
     T: Scalar + bytemuck::Pod,
     SVector<T, D>: bytemuck::Pod,
@@ -72,7 +72,7 @@ where
 }
 
 #[cfg(feature = "abomonation-serialize")]
-impl<T, const D: usize> Abomonation for Translation<T, D>
+impl<T, const D: usize> Abomonation for Scale<T, D>
 where
     T: Scalar,
     SVector<T, D>: Abomonation,
@@ -91,7 +91,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<T: Scalar, const D: usize> Serialize for Translation<T, D>
+impl<T: Scalar, const D: usize> Serialize for Scale<T, D>
 where
     Owned<T, Const<D>>: Serialize,
 {
@@ -104,7 +104,7 @@ where
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'a, T: Scalar, const D: usize> Deserialize<'a> for Translation<T, D>
+impl<'a, T: Scalar, const D: usize> Deserialize<'a> for Scale<T, D>
 where
     Owned<T, Const<D>>: Deserialize<'a>,
 {
@@ -114,18 +114,18 @@ where
     {
         let matrix = SVector::<T, D>::deserialize(deserializer)?;
 
-        Ok(Translation::from(matrix))
+        Ok(Scale::from(matrix))
     }
 }
 
 #[cfg(feature = "rkyv-serialize-no-std")]
 mod rkyv_impl {
-    use super::Translation;
+    use super::Scale;
     use crate::base::SVector;
     use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
 
-    impl<T: Archive, const D: usize> Archive for Translation<T, D> {
-        type Archived = Translation<T::Archived, D>;
+    impl<T: Archive, const D: usize> Archive for Scale<T, D> {
+        type Archived = Scale<T::Archived, D>;
         type Resolver = <SVector<T, D> as Archive>::Resolver;
 
         fn resolve(
@@ -142,69 +142,69 @@ mod rkyv_impl {
         }
     }
 
-    impl<T: Serialize<S>, S: Fallible + ?Sized, const D: usize> Serialize<S> for Translation<T, D> {
+    impl<T: Serialize<S>, S: Fallible + ?Sized, const D: usize> Serialize<S> for Scale<T, D> {
         fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
             self.vector.serialize(serializer)
         }
     }
 
-    impl<T: Archive, _D: Fallible + ?Sized, const D: usize> Deserialize<Translation<T, D>, _D>
-        for Translation<T::Archived, D>
+    impl<T: Archive, _D: Fallible + ?Sized, const D: usize> Deserialize<Scale<T, D>, _D>
+        for Scale<T::Archived, D>
     where
         T::Archived: Deserialize<T, _D>,
     {
-        fn deserialize(&self, deserializer: &mut _D) -> Result<Translation<T, D>, _D::Error> {
-            Ok(Translation {
+        fn deserialize(&self, deserializer: &mut _D) -> Result<Scale<T, D>, _D::Error> {
+            Ok(Scale {
                 vector: self.vector.deserialize(deserializer)?,
             })
         }
     }
 }
 
-impl<T: Scalar, const D: usize> Translation<T, D> {
-    /// Creates a new translation from the given vector.
+impl<T: Scalar, const D: usize> Scale<T, D> {
+    /// Creates a new Scale from the given vector.
     #[inline]
     #[deprecated(note = "Use `::from` instead.")]
-    pub fn from_vector(vector: SVector<T, D>) -> Translation<T, D> {
-        Translation { vector }
+    pub fn from_vector(vector: SVector<T, D>) -> Scale<T, D> {
+        Scale { vector }
     }
 
     /// Inverts `self`.
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::{Translation2, Translation3};
-    /// let t = Translation3::new(1.0, 2.0, 3.0);
-    /// assert_eq!(t * t.inverse(), Translation3::identity());
-    /// assert_eq!(t.inverse() * t, Translation3::identity());
+    /// # use nalgebra::{Scale2, Scale3};
+    /// let t = Scale3::new(1.0, 2.0, 3.0);
+    /// assert_eq!(t * t.inverse(), Scale3::identity());
+    /// assert_eq!(t.inverse() * t, Scale3::identity());
     ///
     /// // Work in all dimensions.
-    /// let t = Translation2::new(1.0, 2.0);
-    /// assert_eq!(t * t.inverse(), Translation2::identity());
-    /// assert_eq!(t.inverse() * t, Translation2::identity());
+    /// let t = Scale2::new(1.0, 2.0);
+    /// assert_eq!(t * t.inverse(), Scale2::identity());
+    /// assert_eq!(t.inverse() * t, Scale2::identity());
     /// ```
     #[inline]
     #[must_use = "Did you mean to use inverse_mut()?"]
-    pub fn inverse(&self) -> Translation<T, D>
+    pub fn inverse(&self) -> Scale<T, D>
     where
         T: ClosedNeg,
     {
-        Translation::from(-&self.vector)
+        todo!();
     }
 
-    /// Converts this translation into its equivalent homogeneous transformation matrix.
+    /// Converts this Scale into its equivalent homogeneous transformation matrix.
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::{Translation2, Translation3, Matrix3, Matrix4};
-    /// let t = Translation3::new(10.0, 20.0, 30.0);
+    /// # use nalgebra::{Scale2, Scale3, Matrix3, Matrix4};
+    /// let t = Scale3::new(10.0, 20.0, 30.0);
     /// let expected = Matrix4::new(1.0, 0.0, 0.0, 10.0,
     ///                             0.0, 1.0, 0.0, 20.0,
     ///                             0.0, 0.0, 1.0, 30.0,
     ///                             0.0, 0.0, 0.0, 1.0);
     /// assert_eq!(t.to_homogeneous(), expected);
     ///
-    /// let t = Translation2::new(10.0, 20.0);
+    /// let t = Scale2::new(10.0, 20.0);
     /// let expected = Matrix3::new(1.0, 0.0, 10.0,
     ///                             0.0, 1.0, 20.0,
     ///                             0.0, 0.0, 1.0);
@@ -218,83 +218,80 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
         Const<D>: DimNameAdd<U1>,
         DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
-        let mut res = OMatrix::<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>::identity();
-        res.fixed_slice_mut::<D, 1>(0, D).copy_from(&self.vector);
-
-        res
+        todo!();
     }
 
     /// Inverts `self` in-place.
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::{Translation2, Translation3};
-    /// let t = Translation3::new(1.0, 2.0, 3.0);
-    /// let mut inv_t = Translation3::new(1.0, 2.0, 3.0);
+    /// # use nalgebra::{Scale2, Scale3};
+    /// let t = Scale3::new(1.0, 2.0, 3.0);
+    /// let mut inv_t = Scale3::new(1.0, 2.0, 3.0);
     /// inv_t.inverse_mut();
-    /// assert_eq!(t * inv_t, Translation3::identity());
-    /// assert_eq!(inv_t * t, Translation3::identity());
+    /// assert_eq!(t * inv_t, Scale3::identity());
+    /// assert_eq!(inv_t * t, Scale3::identity());
     ///
     /// // Work in all dimensions.
-    /// let t = Translation2::new(1.0, 2.0);
-    /// let mut inv_t = Translation2::new(1.0, 2.0);
+    /// let t = Scale2::new(1.0, 2.0);
+    /// let mut inv_t = Scale2::new(1.0, 2.0);
     /// inv_t.inverse_mut();
-    /// assert_eq!(t * inv_t, Translation2::identity());
-    /// assert_eq!(inv_t * t, Translation2::identity());
+    /// assert_eq!(t * inv_t, Scale2::identity());
+    /// assert_eq!(inv_t * t, Scale2::identity());
     /// ```
     #[inline]
     pub fn inverse_mut(&mut self)
     where
         T: ClosedNeg,
     {
-        self.vector.neg_mut()
+        todo!();
     }
 }
 
-impl<T: Scalar + ClosedAdd, const D: usize> Translation<T, D> {
+impl<T: Scalar + ClosedAdd, const D: usize> Scale<T, D> {
     /// Translate the given point.
     ///
     /// This is the same as the multiplication `self * pt`.
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::{Translation3, Point3};
-    /// let t = Translation3::new(1.0, 2.0, 3.0);
+    /// # use nalgebra::{Scale3, Point3};
+    /// let t = Scale3::new(1.0, 2.0, 3.0);
     /// let transformed_point = t.transform_point(&Point3::new(4.0, 5.0, 6.0));
     /// assert_eq!(transformed_point, Point3::new(5.0, 7.0, 9.0));
     #[inline]
     #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
-        pt + &self.vector
+        todo!();
     }
 }
 
-impl<T: Scalar + ClosedSub, const D: usize> Translation<T, D> {
-    /// Translate the given point by the inverse of this translation.
+impl<T: Scalar + ClosedSub, const D: usize> Scale<T, D> {
+    /// Translate the given point by the inverse of this Scale.
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::{Translation3, Point3};
-    /// let t = Translation3::new(1.0, 2.0, 3.0);
+    /// # use nalgebra::{Scale3, Point3};
+    /// let t = Scale3::new(1.0, 2.0, 3.0);
     /// let transformed_point = t.inverse_transform_point(&Point3::new(4.0, 5.0, 6.0));
     /// assert_eq!(transformed_point, Point3::new(3.0, 3.0, 3.0));
     #[inline]
     #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
-        pt - &self.vector
+        todo!();
     }
 }
 
-impl<T: Scalar + Eq, const D: usize> Eq for Translation<T, D> {}
+impl<T: Scalar + Eq, const D: usize> Eq for Scale<T, D> {}
 
-impl<T: Scalar + PartialEq, const D: usize> PartialEq for Translation<T, D> {
+impl<T: Scalar + PartialEq, const D: usize> PartialEq for Scale<T, D> {
     #[inline]
-    fn eq(&self, right: &Translation<T, D>) -> bool {
+    fn eq(&self, right: &Scale<T, D>) -> bool {
         self.vector == right.vector
     }
 }
 
-impl<T: Scalar + AbsDiffEq, const D: usize> AbsDiffEq for Translation<T, D>
+impl<T: Scalar + AbsDiffEq, const D: usize> AbsDiffEq for Scale<T, D>
 where
     T::Epsilon: Clone,
 {
@@ -311,7 +308,7 @@ where
     }
 }
 
-impl<T: Scalar + RelativeEq, const D: usize> RelativeEq for Translation<T, D>
+impl<T: Scalar + RelativeEq, const D: usize> RelativeEq for Scale<T, D>
 where
     T::Epsilon: Clone,
 {
@@ -332,7 +329,7 @@ where
     }
 }
 
-impl<T: Scalar + UlpsEq, const D: usize> UlpsEq for Translation<T, D>
+impl<T: Scalar + UlpsEq, const D: usize> UlpsEq for Scale<T, D>
 where
     T::Epsilon: Clone,
 {
@@ -352,11 +349,11 @@ where
  * Display
  *
  */
-impl<T: Scalar + fmt::Display, const D: usize> fmt::Display for Translation<T, D> {
+impl<T: Scalar + fmt::Display, const D: usize> fmt::Display for Scale<T, D> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let precision = f.precision().unwrap_or(3);
 
-        writeln!(f, "Translation {{")?;
+        writeln!(f, "Scale {{")?;
         write!(f, "{:.*}", precision, self.vector)?;
         writeln!(f, "}}")
     }
