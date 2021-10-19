@@ -3,7 +3,7 @@ use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
-use num::{One, Zero};
+use num::{One};
 #[cfg(feature = "rand-no-std")]
 use rand::{
     distributions::{Distribution, Standard},
@@ -33,9 +33,9 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[inline]
     pub fn identity() -> Scale<T, D>
     where
-        T: Zero,
+        T: One,
     {
-        todo!();
+        Scale::from(SVector::from_element(T::one()))
     }
 
     /// Cast the components of `self` to another type.
@@ -55,7 +55,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     }
 }
 
-impl<T: Scalar + Zero + ClosedMul, const D: usize> One for Scale<T, D> {
+impl<T: Scalar + One + ClosedMul, const D: usize> One for Scale<T, D> {
     #[inline]
     fn one() -> Self {
         Self::identity()
