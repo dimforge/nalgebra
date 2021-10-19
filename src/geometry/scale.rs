@@ -192,15 +192,15 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     /// ```
     /// # use nalgebra::{Scale2, Scale3, Matrix3, Matrix4};
     /// let t = Scale3::new(10.0, 20.0, 30.0);
-    /// let expected = Matrix4::new(1.0, 0.0, 0.0, 10.0,
-    ///                             0.0, 1.0, 0.0, 20.0,
-    ///                             0.0, 0.0, 1.0, 30.0,
+    /// let expected = Matrix4::new(10.0, 0.0, 0.0, 0.0,
+    ///                             0.0, 20.0, 0.0, 0.0,
+    ///                             0.0, 0.0, 30.0, 0.0,
     ///                             0.0, 0.0, 0.0, 1.0);
     /// assert_eq!(t.to_homogeneous(), expected);
     ///
     /// let t = Scale2::new(10.0, 20.0);
-    /// let expected = Matrix3::new(1.0, 0.0, 10.0,
-    ///                             0.0, 1.0, 20.0,
+    /// let expected = Matrix3::new(10.0, 0.0, 0.0,
+    ///                             0.0, 20.0, 0.0,
     ///                             0.0, 0.0, 1.0);
     /// assert_eq!(t.to_homogeneous(), expected);
     /// ```
@@ -261,7 +261,7 @@ impl<T: Scalar + ClosedMul, const D: usize> Scale<T, D> {
     /// # use nalgebra::{Scale3, Point3};
     /// let t = Scale3::new(1.0, 2.0, 3.0);
     /// let transformed_point = t.transform_point(&Point3::new(4.0, 5.0, 6.0));
-    /// assert_eq!(transformed_point, Point3::new(5.0, 7.0, 9.0));
+    /// assert_eq!(transformed_point, Point3::new(4.0, 10.0, 18.0));
     #[inline]
     #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
@@ -276,8 +276,8 @@ impl<T: Scalar + ClosedDiv + ClosedMul + One, const D: usize> Scale<T, D> {
     /// ```
     /// # use nalgebra::{Scale3, Point3};
     /// let t = Scale3::new(1.0, 2.0, 3.0);
-    /// let transformed_point = t.inverse_transform_point(&Point3::new(4.0, 5.0, 6.0));
-    /// assert_eq!(transformed_point, Point3::new(3.0, 3.0, 3.0));
+    /// let transformed_point = t.inverse_transform_point(&Point3::new(4.0, 6.0, 6.0));
+    /// assert_eq!(transformed_point, Point3::new(4.0, 3.0, 2.0));
     #[inline]
     #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
