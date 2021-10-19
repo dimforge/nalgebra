@@ -14,8 +14,8 @@ use abomonation::Abomonation;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
-use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
-use crate::ClosedDiv;
+use crate::base::{Const, DefaultAllocator, OMatrix, OVector, SVector, Scalar};
+use crate::{ClosedAdd, ClosedDiv};
 use crate::ClosedMul;
 
 use crate::geometry::Point;
@@ -208,11 +208,16 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[must_use]
     pub fn to_homogeneous(&self) -> OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
     where
-        T: Zero + One,
+        T: Zero + One + ClosedAdd + Clone,
         Const<D>: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> + Allocator<T, DimNameSum<Const<D>, U1>, U1>,
     {
-        todo!();
+        let mut v = OVector::<T, DimNameSum<Const<D>, U1>>::zero();
+        for i in 0..D {
+            v[(i, 0)] = self.vector[(i, 0)].clone();
+        }
+        v[(D, 0)] = T::one();
+        return OMatrix::<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>::from_diagonal(&v);
     }
 
     /// Inverts `self` in-place.

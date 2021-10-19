@@ -10,7 +10,7 @@ use crate::base::{Const, DefaultAllocator, DimName, OMatrix, OVector, SVector, S
 use crate::geometry::{
     SuperTCategoryOf, TAffine, Transform, Scale
 };
-use crate::Point;
+use crate::{ClosedAdd, Point};
 
 /*
  * This file provides the following conversions:
@@ -50,7 +50,9 @@ where
     T2: RealField + SupersetOf<T1>,
     C: SuperTCategoryOf<TAffine>,
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+    DefaultAllocator:
+        Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<T1, DimNameSum<Const<D>, U1>, U1>
         + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
@@ -75,7 +77,9 @@ where
     T1: RealField,
     T2: RealField + SupersetOf<T1>,
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+    DefaultAllocator:
+        Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<T1, DimNameSum<Const<D>, U1>, U1>
         + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     // + Allocator<T1, D>
     // + Allocator<T2, D>
@@ -108,12 +112,14 @@ where
     }
 }
 
-impl<T: Scalar + Zero + One, const D: usize> From<Scale<T, D>>
+impl<T: Scalar + Zero + One + ClosedAdd, const D: usize> From<Scale<T, D>>
     for OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator:
-        Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> + Allocator<T, Const<D>>,
+        Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<T, DimNameSum<Const<D>, U1>, U1>
+        + Allocator<T, Const<D>>,
 {
     #[inline]
     fn from(t: Scale<T, D>) -> Self {
