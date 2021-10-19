@@ -10,7 +10,7 @@ use crate::base::{Const, DefaultAllocator, DimName, OMatrix, OVector, SVector, S
 use crate::geometry::{
     SuperTCategoryOf, TAffine, Transform, Scale
 };
-use crate::{ClosedAdd, Point};
+use crate::Point;
 
 /*
  * This file provides the following conversions:
@@ -112,7 +112,7 @@ where
     }
 }
 
-impl<T: Scalar + Zero + One + ClosedAdd, const D: usize> From<Scale<T, D>>
+impl<T: Scalar + Zero + One, const D: usize> From<Scale<T, D>>
     for OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
 where
     Const<D>: DimNameAdd<U1>,
