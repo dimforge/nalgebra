@@ -227,7 +227,8 @@ impl<T> CsrMatrix<T> {
         }
 
         // permute indices
-        let sorted_col_indices: Vec<usize> = Vec::from_iter((p.iter().map(|i| &col_indices[*i])).cloned());
+        let sorted_col_indices: Vec<usize> =
+            Vec::from_iter((p.iter().map(|i| &col_indices[*i])).cloned());
 
         // permute values
         let sorted_values: Vec<T> = Vec::from_iter((p.iter().map(|i| &values[*i])).cloned());
