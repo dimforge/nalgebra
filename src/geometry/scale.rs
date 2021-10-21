@@ -207,8 +207,8 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[inline]
     #[must_use]
     pub unsafe fn inverse_unchecked(&self) -> Scale<T, D>
-        where
-            T: ClosedDiv + One,
+    where
+        T: ClosedDiv + One,
     {
         return self.vector.map(|e| T::one() / e).into();
     }
@@ -230,16 +230,19 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[inline]
     #[must_use]
     pub fn pseudo_inverse(&self) -> Scale<T, D>
-        where
-            T: ClosedDiv + One + Zero,
+    where
+        T: ClosedDiv + One + Zero,
     {
-        return self.vector.map(|e| {
-            if e != T::zero() {
-                return T::one() / e;
-            } else {
-                return T::zero();
-            }
-        }).into();
+        return self
+            .vector
+            .map(|e| {
+                if e != T::zero() {
+                    return T::one() / e;
+                } else {
+                    return T::zero();
+                }
+            })
+            .into();
     }
 
     /// Converts this Scale into its equivalent homogeneous transformation matrix.
@@ -302,7 +305,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool
     where
-        T: ClosedDiv + One + Zero
+        T: ClosedDiv + One + Zero,
     {
         if let Some(v) = self.try_inverse() {
             self.vector = v.vector;
