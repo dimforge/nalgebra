@@ -177,13 +177,69 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     /// assert_eq!(t.inverse() * t, Scale2::identity());
     /// ```
     #[inline]
-    #[must_use = "Did you mean to use inverse_mut()?"]
-    pub fn inverse(&self) -> Scale<T, D>
+    #[must_use = "Did you mean to use try_inverse_mut()?"]
+    pub fn try_inverse(&self) -> Option<Scale<T, D>>
     where
-        T: ClosedDiv + One,
+        T: ClosedDiv + One + Zero,
     {
-        let useless: SVector<T, D> = SVector::from_element(T::one());
-        return useless.component_div(&self.vector).into();
+        for i in 0..D {
+            if self.vector[(i, 0)] == T::zero() {
+                return None;
+            }
+        }
+        return Some(self.vector.map(|e| T::one() / e).into());
+    }
+
+    /// Inverts `self`.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Scale2, Scale3};
+    /// let t = Scale3::new(1.0, 2.0, 3.0);
+    /// assert_eq!(t * t.inverse(), Scale3::identity());
+    /// assert_eq!(t.inverse() * t, Scale3::identity());
+    ///
+    /// // Work in all dimensions.
+    /// let t = Scale2::new(1.0, 2.0);
+    /// assert_eq!(t * t.inverse(), Scale2::identity());
+    /// assert_eq!(t.inverse() * t, Scale2::identity());
+    /// ```
+    #[inline]
+    #[must_use]
+    pub unsafe fn inverse_unchecked(&self) -> Scale<T, D>
+        where
+            T: ClosedDiv + One,
+    {
+        return self.vector.map(|e| T::one() / e).into();
+    }
+
+    /// Inverts `self`.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Scale2, Scale3};
+    /// let t = Scale3::new(1.0, 2.0, 3.0);
+    /// assert_eq!(t * t.inverse(), Scale3::identity());
+    /// assert_eq!(t.inverse() * t, Scale3::identity());
+    ///
+    /// // Work in all dimensions.
+    /// let t = Scale2::new(1.0, 2.0);
+    /// assert_eq!(t * t.inverse(), Scale2::identity());
+    /// assert_eq!(t.inverse() * t, Scale2::identity());
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn pseudo_inverse(&self) -> Scale<T, D>
+        where
+            T: ClosedDiv + One + Zero,
+    {
+        return self.vector.map(|e| {
+            if e != T::zero() {
+                return T::one() / e;
+            } else {
+                return T::zero();
+            }
+        }).into();
     }
 
     /// Converts this Scale into its equivalent homogeneous transformation matrix.
@@ -244,11 +300,15 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     /// assert_eq!(inv_t * t, Scale2::identity());
     /// ```
     #[inline]
-    pub fn inverse_mut(&mut self)
+    pub fn try_inverse_mut(&mut self) -> bool
     where
-        T: ClosedDiv + One,
+        T: ClosedDiv + One + Zero
     {
-        self.vector = self.inverse().vector;
+        if let Some(v) = self.try_inverse() {
+            self.vector = v.vector;
+            return true;
+        }
+        return false;
     }
 }
 
@@ -270,7 +330,7 @@ impl<T: Scalar + ClosedMul, const D: usize> Scale<T, D> {
     }
 }
 
-impl<T: Scalar + ClosedDiv + ClosedMul + One, const D: usize> Scale<T, D> {
+impl<T: Scalar + ClosedDiv + ClosedMul + One + Zero, const D: usize> Scale<T, D> {
     /// Translate the given point by the inverse of this Scale.
     ///
     /// # Example
@@ -281,8 +341,11 @@ impl<T: Scalar + ClosedDiv + ClosedMul + One, const D: usize> Scale<T, D> {
     /// assert_eq!(transformed_point, Point3::new(4.0, 3.0, 2.0));
     #[inline]
     #[must_use]
-    pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
-        return self.inverse() * pt;
+    pub fn try_inverse_transform_point(&self, pt: &Point<T, D>) -> Option<Point<T, D>> {
+        if let Some(s) = self.try_inverse() {
+            return Some(s * pt);
+        }
+        return None;
     }
 }
 
