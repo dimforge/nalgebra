@@ -168,13 +168,17 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     /// ```
     /// # use nalgebra::{Scale2, Scale3};
     /// let t = Scale3::new(1.0, 2.0, 3.0);
-    /// assert_eq!(t * t.inverse(), Scale3::identity());
-    /// assert_eq!(t.inverse() * t, Scale3::identity());
+    /// assert_eq!(t * t.try_inverse().unwrap(), Scale3::identity());
+    /// assert_eq!(t.try_inverse().unwrap() * t, Scale3::identity());
     ///
     /// // Work in all dimensions.
     /// let t = Scale2::new(1.0, 2.0);
-    /// assert_eq!(t * t.inverse(), Scale2::identity());
-    /// assert_eq!(t.inverse() * t, Scale2::identity());
+    /// assert_eq!(t * t.try_inverse().unwrap(), Scale2::identity());
+    /// assert_eq!(t.try_inverse().unwrap() * t, Scale2::identity());
+    ///
+    /// // Returns None if any coordinate is 0.
+    /// let t = Scale2::new(0.0, 2.0);
+    /// assert_eq!(t.try_inverse(), None);
     /// ```
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
@@ -195,14 +199,17 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     /// # Example
     /// ```
     /// # use nalgebra::{Scale2, Scale3};
-    /// let t = Scale3::new(1.0, 2.0, 3.0);
-    /// assert_eq!(t * t.inverse(), Scale3::identity());
-    /// assert_eq!(t.inverse() * t, Scale3::identity());
     ///
-    /// // Work in all dimensions.
-    /// let t = Scale2::new(1.0, 2.0);
-    /// assert_eq!(t * t.inverse(), Scale2::identity());
-    /// assert_eq!(t.inverse() * t, Scale2::identity());
+    /// unsafe {
+    ///     let t = Scale3::new(1.0, 2.0, 3.0);
+    ///     assert_eq!(t * t.inverse_unchecked(), Scale3::identity());
+    ///     assert_eq!(t.inverse_unchecked() * t, Scale3::identity());
+    ///
+    ///     // Work in all dimensions.
+    ///     let t = Scale2::new(1.0, 2.0);
+    ///     assert_eq!(t * t.inverse_unchecked(), Scale2::identity());
+    ///     assert_eq!(t.inverse_unchecked() * t, Scale2::identity());
+    /// }
     /// ```
     #[inline]
     #[must_use]
@@ -219,13 +226,18 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     /// ```
     /// # use nalgebra::{Scale2, Scale3};
     /// let t = Scale3::new(1.0, 2.0, 3.0);
-    /// assert_eq!(t * t.inverse(), Scale3::identity());
-    /// assert_eq!(t.inverse() * t, Scale3::identity());
+    /// assert_eq!(t * t.pseudo_inverse(), Scale3::identity());
+    /// assert_eq!(t.pseudo_inverse() * t, Scale3::identity());
     ///
     /// // Work in all dimensions.
     /// let t = Scale2::new(1.0, 2.0);
-    /// assert_eq!(t * t.inverse(), Scale2::identity());
-    /// assert_eq!(t.inverse() * t, Scale2::identity());
+    /// assert_eq!(t * t.pseudo_inverse(), Scale2::identity());
+    /// assert_eq!(t.pseudo_inverse() * t, Scale2::identity());
+    ///
+    /// // Inverts only non-zero coordinates.
+    /// let t = Scale2::new(0.0, 2.0);
+    /// assert_eq!(t * t.pseudo_inverse(), Scale2::new(0.0, 1.0));
+    /// assert_eq!(t.pseudo_inverse() * t, Scale2::new(0.0, 1.0));
     /// ```
     #[inline]
     #[must_use]
@@ -291,16 +303,20 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     /// # use nalgebra::{Scale2, Scale3};
     /// let t = Scale3::new(1.0, 2.0, 3.0);
     /// let mut inv_t = Scale3::new(1.0, 2.0, 3.0);
-    /// inv_t.inverse_mut();
+    /// assert!(inv_t.try_inverse_mut());
     /// assert_eq!(t * inv_t, Scale3::identity());
     /// assert_eq!(inv_t * t, Scale3::identity());
     ///
     /// // Work in all dimensions.
     /// let t = Scale2::new(1.0, 2.0);
     /// let mut inv_t = Scale2::new(1.0, 2.0);
-    /// inv_t.inverse_mut();
+    /// assert!(inv_t.try_inverse_mut());
     /// assert_eq!(t * inv_t, Scale2::identity());
     /// assert_eq!(inv_t * t, Scale2::identity());
+    ///
+    /// // Does not perform any operation if a coordinate is 0.
+    /// let mut t = Scale2::new(0.0, 2.0);
+    /// assert!(!t.try_inverse_mut());
     /// ```
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool
@@ -326,6 +342,7 @@ impl<T: Scalar + ClosedMul, const D: usize> Scale<T, D> {
     /// let t = Scale3::new(1.0, 2.0, 3.0);
     /// let transformed_point = t.transform_point(&Point3::new(4.0, 5.0, 6.0));
     /// assert_eq!(transformed_point, Point3::new(4.0, 10.0, 18.0));
+    /// ```
     #[inline]
     #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
@@ -340,8 +357,14 @@ impl<T: Scalar + ClosedDiv + ClosedMul + One + Zero, const D: usize> Scale<T, D>
     /// ```
     /// # use nalgebra::{Scale3, Point3};
     /// let t = Scale3::new(1.0, 2.0, 3.0);
-    /// let transformed_point = t.inverse_transform_point(&Point3::new(4.0, 6.0, 6.0));
+    /// let transformed_point = t.try_inverse_transform_point(&Point3::new(4.0, 6.0, 6.0)).unwrap();
     /// assert_eq!(transformed_point, Point3::new(4.0, 3.0, 2.0));
+    ///
+    /// // Returns None if the inverse doesn't exist.
+    /// let t = Scale3::new(1.0, 0.0, 3.0);
+    /// let transformed_point = t.try_inverse_transform_point(&Point3::new(4.0, 6.0, 6.0));
+    /// assert_eq!(transformed_point, None);
+    /// ```
     #[inline]
     #[must_use]
     pub fn try_inverse_transform_point(&self, pt: &Point<T, D>) -> Option<Point<T, D>> {
