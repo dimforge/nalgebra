@@ -5,7 +5,7 @@ use simba::simd::PrimitiveSimdValue;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
-use crate::base::{Const, DefaultAllocator, DimName, OMatrix, OVector, SVector, Scalar};
+use crate::base::{Const, DefaultAllocator, OMatrix, OVector, SVector, Scalar};
 
 use crate::geometry::{Scale, SuperTCategoryOf, TAffine, Transform};
 use crate::Point;
@@ -77,8 +77,6 @@ where
     DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
         + Allocator<T1, DimNameSum<Const<D>, U1>, U1>
         + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    // + Allocator<T1, D>
-    // + Allocator<T2, D>
 {
     #[inline]
     fn to_superset(&self) -> OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
@@ -87,14 +85,17 @@ where
 
     #[inline]
     fn is_in_subset(m: &OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>) -> bool {
-        let id = m.generic_slice((0, 0), (DimNameSum::<Const<D>, U1>::name(), Const::<D>));
-
-        // Scalar types agree.
-        m.iter().all(|e| SupersetOf::<T1>::is_in_subset(e)) &&
-        // The block part does nothing.
-        id.is_identity(T2::zero()) &&
-        // The normalization factor is one.
-        m[(D, D)] == T2::one()
+        if m[(D, D)] != T2::one() {
+            return false;
+        }
+        for i in 0..D + 1 {
+            for j in 0..D + 1 {
+                if i != j && m[(i, j)] != T2::zero() {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     #[inline]
