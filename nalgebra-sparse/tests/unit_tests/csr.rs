@@ -5,6 +5,8 @@ use nalgebra_sparse::{SparseEntry, SparseEntryMut, SparseFormatErrorKind};
 use proptest::prelude::*;
 use proptest::sample::subsequence;
 
+use super::test_data_examples::InvalidCsrDataExamples;
+
 use crate::assert_panics;
 use crate::common::csr_strategy;
 
@@ -172,10 +174,35 @@ fn csr_matrix_valid_data() {
 }
 
 #[test]
+fn csr_matrix_valid_data_unsorted_column_indices() {
+    let csr = CsrMatrix::try_from_unsorted_csr_data(
+        4,
+        5,
+        vec![0, 3, 5, 8, 11],
+        vec![4, 1, 3, 3, 1, 2, 3, 0, 3, 4, 1],
+        vec![5, 1, 4, 7, 4, 2, 3, 1, 8, 9, 6],
+    )
+    .unwrap();
+
+    let expected_csr = CsrMatrix::try_from_csr_data(
+        4,
+        5,
+        vec![0, 3, 5, 8, 11],
+        vec![1, 3, 4, 1, 3, 0, 2, 3, 1, 3, 4],
+        vec![1, 4, 5, 4, 7, 1, 2, 3, 6, 8, 9],
+    )
+    .unwrap();
+
+    assert_eq!(csr, expected_csr);
+}
+
+#[test]
 fn csr_matrix_try_from_invalid_csr_data() {
+    let invalid_data: InvalidCsrDataExamples = InvalidCsrDataExamples::new();
     {
         // Empty offset array (invalid length)
-        let matrix = CsrMatrix::try_from_csr_data(0, 0, Vec::new(), Vec::new(), Vec::<u32>::new());
+        let (offsets, indices, values) = invalid_data.empty_offset_array;
+        let matrix = CsrMatrix::try_from_csr_data(0, 0, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
             &SparseFormatErrorKind::InvalidStructure
@@ -184,10 +211,8 @@ fn csr_matrix_try_from_invalid_csr_data() {
 
     {
         // Offset array invalid length for arbitrary data
-        let offsets = vec![0, 3, 5];
-        let indices = vec![0, 1, 2, 3, 5];
-        let values = vec![0, 1, 2, 3, 4];
-
+        let (offsets, indices, values) =
+            invalid_data.offset_array_invalid_length_for_arbitrary_data;
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -197,9 +222,7 @@ fn csr_matrix_try_from_invalid_csr_data() {
 
     {
         // Invalid first entry in offsets array
-        let offsets = vec![1, 2, 2, 5];
-        let indices = vec![0, 5, 1, 2, 3];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.invalid_first_entry_in_offsets_array;
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -209,9 +232,7 @@ fn csr_matrix_try_from_invalid_csr_data() {
 
     {
         // Invalid last entry in offsets array
-        let offsets = vec![0, 2, 2, 4];
-        let indices = vec![0, 5, 1, 2, 3];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.invalid_last_entry_in_offsets_array;
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -221,9 +242,7 @@ fn csr_matrix_try_from_invalid_csr_data() {
 
     {
         // Invalid length of offsets array
-        let offsets = vec![0, 2, 2];
-        let indices = vec![0, 5, 1, 2, 3];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.invalid_length_of_offsets_array;
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -233,9 +252,7 @@ fn csr_matrix_try_from_invalid_csr_data() {
 
     {
         // Nonmonotonic offsets
-        let offsets = vec![0, 3, 2, 5];
-        let indices = vec![0, 1, 2, 3, 4];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.nonmonotonic_offsets;
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -245,9 +262,7 @@ fn csr_matrix_try_from_invalid_csr_data() {
 
     {
         // Nonmonotonic minor indices
-        let offsets = vec![0, 2, 2, 5];
-        let indices = vec![0, 2, 3, 1, 4];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.nonmonotonic_minor_indices;
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -257,9 +272,7 @@ fn csr_matrix_try_from_invalid_csr_data() {
 
     {
         // Minor index out of bounds
-        let offsets = vec![0, 2, 2, 5];
-        let indices = vec![0, 6, 1, 2, 3];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.minor_index_out_of_bounds;
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -269,10 +282,93 @@ fn csr_matrix_try_from_invalid_csr_data() {
 
     {
         // Duplicate entry
-        let offsets = vec![0, 2, 2, 5];
-        let indices = vec![0, 5, 2, 2, 3];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.duplicate_entry;
         let matrix = CsrMatrix::try_from_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::DuplicateEntry
+        );
+    }
+}
+
+#[test]
+fn csr_matrix_try_from_unsorted_invalid_csr_data() {
+    let invalid_data: InvalidCsrDataExamples = InvalidCsrDataExamples::new();
+    {
+        // Empty offset array (invalid length)
+        let (offsets, indices, values) = invalid_data.empty_offset_array;
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(0, 0, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Offset array invalid length for arbitrary data
+        let (offsets, indices, values) =
+            invalid_data.offset_array_invalid_length_for_arbitrary_data;
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Invalid first entry in offsets array
+        let (offsets, indices, values) = invalid_data.invalid_first_entry_in_offsets_array;
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Invalid last entry in offsets array
+        let (offsets, indices, values) = invalid_data.invalid_last_entry_in_offsets_array;
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Invalid length of offsets array
+        let (offsets, indices, values) = invalid_data.invalid_length_of_offsets_array;
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Nonmonotonic offsets
+        let (offsets, indices, values) = invalid_data.nonmonotonic_offsets;
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Minor index out of bounds
+        let (offsets, indices, values) = invalid_data.minor_index_out_of_bounds;
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::IndexOutOfBounds
+        );
+    }
+
+    {
+        // Duplicate entry
+        let (offsets, indices, values) = invalid_data.duplicate_entry;
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
             &SparseFormatErrorKind::DuplicateEntry

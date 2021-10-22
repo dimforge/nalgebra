@@ -10,6 +10,7 @@ use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKin
 use nalgebra::Scalar;
 use num_traits::One;
 
+use std::iter::FromIterator;
 use std::slice::{Iter, IterMut};
 
 /// A CSR representation of a sparse matrix.
@@ -168,6 +169,77 @@ impl<T> CsrMatrix<T> {
         )
         .map_err(pattern_format_error_to_csr_error)?;
         Self::try_from_pattern_and_values(pattern, values)
+    }
+
+    /// Try to construct a CSR matrix from raw CSR data with unsorted column indices.
+    ///
+    /// It is assumed that each row contains unique column indices that are in
+    /// bounds with respect to the number of columns in the matrix. If this is not the case,
+    /// an error is returned to indicate the failure.
+    ///
+    /// An error is returned if the data given does not conform to the CSR storage format
+    /// with the exception of having unsorted column indices and values.
+    /// See the documentation for [CsrMatrix](struct.CsrMatrix.html) for more information.
+    pub fn try_from_unsorted_csr_data(
+        num_rows: usize,
+        num_cols: usize,
+        row_offsets: Vec<usize>,
+        col_indices: Vec<usize>,
+        values: Vec<T>,
+    ) -> Result<Self, SparseFormatError>
+    where
+        T: Scalar,
+    {
+        use SparsityPatternFormatError::*;
+        let count = col_indices.len();
+        let mut p: Vec<usize> = (0..count).collect();
+
+        if col_indices.len() != values.len() {
+            return Err(SparseFormatError::from_kind_and_msg(
+                SparseFormatErrorKind::InvalidStructure,
+                "Number of values and column indices must be the same",
+            ));
+        }
+
+        if row_offsets.len() == 0 {
+            return Err(SparseFormatError::from_kind_and_msg(
+                SparseFormatErrorKind::InvalidStructure,
+                "Number of offsets should be greater than 0",
+            ));
+        }
+
+        for (index, &offset) in row_offsets[0..row_offsets.len() - 1].iter().enumerate() {
+            let next_offset = row_offsets[index + 1];
+            if next_offset > count {
+                return Err(SparseFormatError::from_kind_and_msg(
+                    SparseFormatErrorKind::InvalidStructure,
+                    "No row offset should be greater than the number of column indices",
+                ));
+            }
+            if offset > next_offset {
+                return Err(NonmonotonicOffsets).map_err(pattern_format_error_to_csr_error);
+            }
+            p[offset..next_offset].sort_by(|a, b| {
+                let x = &col_indices[*a];
+                let y = &col_indices[*b];
+                x.partial_cmp(y).unwrap()
+            });
+        }
+
+        // permute indices
+        let sorted_col_indices: Vec<usize> =
+            Vec::from_iter((p.iter().map(|i| &col_indices[*i])).cloned());
+
+        // permute values
+        let sorted_values: Vec<T> = Vec::from_iter((p.iter().map(|i| &values[*i])).cloned());
+
+        return Self::try_from_csr_data(
+            num_rows,
+            num_cols,
+            row_offsets,
+            sorted_col_indices,
+            sorted_values,
+        );
     }
 
     /// Try to construct a CSR matrix from a sparsity pattern and associated non-zero values.

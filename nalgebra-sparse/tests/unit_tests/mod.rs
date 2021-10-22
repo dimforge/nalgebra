@@ -6,3 +6,4 @@ mod csr;
 mod ops;
 mod pattern;
 mod proptest;
+mod test_data_examples;
