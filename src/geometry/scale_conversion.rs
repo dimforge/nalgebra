@@ -95,7 +95,7 @@ where
                 }
             }
         }
-        return true;
+        true
     }
 
     #[inline]
