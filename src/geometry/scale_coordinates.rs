@@ -25,7 +25,7 @@ macro_rules! deref_impl(
         impl<T: Scalar> DerefMut for Scale<T, $D> {
             #[inline]
             fn deref_mut(&mut self) -> &mut Self::Target {
-                unsafe { &mut *(self as *mut Scale<T, $D> as *mut Self::Target) }
+                self.vector.deref_mut()
             }
         }
     }
