@@ -249,9 +249,9 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
             .vector
             .map(|e| {
                 if e != T::zero() {
-                    return T::one() / e;
+                    T::one() / e
                 } else {
-                    return T::zero();
+                    T::zero()
                 }
             })
             .into();
