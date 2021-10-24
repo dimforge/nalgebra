@@ -18,7 +18,7 @@ macro_rules! deref_impl(
 
             #[inline]
             fn deref(&self) -> &Self::Target {
-                unsafe { &*(self as *const Scale<T, $D> as *const Self::Target) }
+                self.vector.deref()
             }
         }
 
