@@ -78,18 +78,6 @@ add_sub_impl!(Mul, mul, ClosedMul;
     self: Scale<T, D>, right: Point<T, D>, Output = Point<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { Point::from(self.vector.component_mul(&right.coords)) }; );
 
-// Scale *= Scale
-add_sub_assign_impl!(MulAssign, mul_assign, ClosedMul;
-    const D;
-    self: Scale<T, D>, right: &'b Scale<T, D>;
-    #[allow(clippy::suspicious_op_assign_impl)] { self.vector.component_mul_assign(&right.vector); };
-    'b);
-
-add_sub_assign_impl!(MulAssign, mul_assign, ClosedMul;
-    const D;
-    self: Scale<T, D>, right: Scale<T, D>;
-    #[allow(clippy::suspicious_op_assign_impl)] { self.vector.component_mul_assign(&right.vector); }; );
-
 // Scale * Vector
 add_sub_impl!(Mul, mul, ClosedMul;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>, U1)
@@ -117,3 +105,21 @@ add_sub_impl!(Mul, mul, ClosedMul;
     const D; for; where;
     self: Scale<T, D>, right: SVector<T, D>, Output = SVector<T, D>;
     #[allow(clippy::suspicious_arithmetic_impl)] { SVector::from(self.vector.component_mul(&right)) }; );
+
+// Scale *= Scale
+add_sub_assign_impl!(MulAssign, mul_assign, ClosedMul;
+    const D;
+    self: Scale<T, D>, right: &'b Scale<T, D>;
+    #[allow(clippy::suspicious_op_assign_impl)] { self.vector.component_mul_assign(&right.vector); };
+    'b);
+
+add_sub_assign_impl!(MulAssign, mul_assign, ClosedMul;
+    const D;
+    self: Scale<T, D>, right: Scale<T, D>;
+    #[allow(clippy::suspicious_op_assign_impl)] { self.vector.component_mul_assign(&right.vector); }; );
+
+// Scale ×= scalar
+add_sub_assign_impl!(MulAssign, mul_assign, ClosedMul;
+    const D;
+    self: Scale<T, D>, right: T;
+    #[allow(clippy::suspicious_op_assign_impl)] { self.vector *= right }; );
