@@ -104,7 +104,7 @@ where
     ) -> Self {
         let t = m.fixed_slice::<D, 1>(0, D).into_owned();
         Self {
-            vector: crate::convert_unchecked(t.into_owned()),
+            vector: crate::convert_unchecked(t),
         }
     }
 }
