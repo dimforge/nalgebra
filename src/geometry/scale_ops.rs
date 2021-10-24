@@ -90,30 +90,30 @@ add_sub_assign_impl!(MulAssign, mul_assign, ClosedMul;
     self: Scale<T, D>, right: Scale<T, D>;
     #[allow(clippy::suspicious_op_assign_impl)] { self.vector.component_mul_assign(&right.vector); }; );
 
-// Point * Vector
+// Scale * Vector
 add_sub_impl!(Mul, mul, ClosedMul;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>, U1)
     const D; for; where;
-    self: &'a Point<T, D>, right: &'b SVector<T, D>, Output = Point<T, D>;
-    #[allow(clippy::suspicious_arithmetic_impl)] { Point::from(self.coords.component_mul(&right)) };
+    self: &'a Scale<T, D>, right: &'b SVector<T, D>, Output = SVector<T, D>;
+    #[allow(clippy::suspicious_arithmetic_impl)] { SVector::from(self.vector.component_mul(&right)) };
     'a, 'b);
 
 add_sub_impl!(Mul, mul, ClosedMul;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>, U1)
     const D; for; where;
-    self: &'a Point<T, D>, right: SVector<T, D>, Output = Point<T, D>;
-    #[allow(clippy::suspicious_arithmetic_impl)] { Point::from(self.coords.component_mul(&right)) };
+    self: &'a Scale<T, D>, right: SVector<T, D>, Output = SVector<T, D>;
+    #[allow(clippy::suspicious_arithmetic_impl)] { SVector::from(self.vector.component_mul(&right)) };
     'a);
 
 add_sub_impl!(Mul, mul, ClosedMul;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>, U1)
     const D; for; where;
-    self: Point<T, D>, right: &'b SVector<T, D>, Output = Point<T, D>;
-    #[allow(clippy::suspicious_arithmetic_impl)] { Point::from(self.coords.component_mul(&right)) };
+    self: Scale<T, D>, right: &'b SVector<T, D>, Output = SVector<T, D>;
+    #[allow(clippy::suspicious_arithmetic_impl)] { SVector::from(self.vector.component_mul(&right)) };
     'b);
 
 add_sub_impl!(Mul, mul, ClosedMul;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>, U1)
     const D; for; where;
-    self: Point<T, D>, right: SVector<T, D>, Output = Point<T, D>;
-    #[allow(clippy::suspicious_arithmetic_impl)] { Point::from(self.coords.component_mul(&right)) }; );
+    self: Scale<T, D>, right: SVector<T, D>, Output = SVector<T, D>;
+    #[allow(clippy::suspicious_arithmetic_impl)] { SVector::from(self.vector.component_mul(&right)) }; );
