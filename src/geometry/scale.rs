@@ -325,9 +325,10 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     {
         if let Some(v) = self.try_inverse() {
             self.vector = v.vector;
-            return true;
+            true
+        } else {
+            false
         }
-        return false;
     }
 }
 
