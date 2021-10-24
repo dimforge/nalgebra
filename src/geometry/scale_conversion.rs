@@ -102,9 +102,9 @@ where
     fn from_superset_unchecked(
         m: &OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     ) -> Self {
-        let t = m.fixed_slice::<D, 1>(0, D).into_owned();
+        let v = m.fixed_slice::<D, D>(0, 0).into_owned().diagonal();
         Self {
-            vector: crate::convert_unchecked(t),
+            vector: crate::convert_unchecked(v),
         }
     }
 }
