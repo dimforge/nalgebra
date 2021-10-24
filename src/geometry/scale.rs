@@ -369,10 +369,7 @@ impl<T: Scalar + ClosedDiv + ClosedMul + One + Zero, const D: usize> Scale<T, D>
     #[inline]
     #[must_use]
     pub fn try_inverse_transform_point(&self, pt: &Point<T, D>) -> Option<Point<T, D>> {
-        if let Some(s) = self.try_inverse() {
-            return Some(s * pt);
-        }
-        return None;
+        self.try_inverse().map(|s| s * pt)
     }
 }
 
