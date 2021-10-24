@@ -187,7 +187,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
         T: ClosedDiv + One + Zero,
     {
         for i in 0..D {
-            if self.vector[(i, 0)] == T::zero() {
+            if self.vector[i] == T::zero() {
                 return None;
             }
         }
