@@ -346,7 +346,7 @@ impl<T: Scalar + ClosedMul, const D: usize> Scale<T, D> {
     #[inline]
     #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
-        return self * pt;
+        self * pt
     }
 }
 
