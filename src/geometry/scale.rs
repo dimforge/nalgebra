@@ -284,17 +284,15 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
         DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
             + Allocator<T, DimNameSum<Const<D>, U1>, U1>,
     {
-        // Unfortunately rust refuses at all costs to allow calling .to_homogeneous on a SVector
-        // (self.vector) so I had to do a manual copy in a new OVector
-        // The exact error is that to_homogeneous when called on a SVector requires DimAdd on Const<D>
-        // not DimNameAdd which will strangely bring rust into thinking that DimNameAdd is a
-        // trait object and no longer a generic parameter.
-        let mut v = OVector::<T, DimNameSum<Const<D>, U1>>::from_element(T::one());
+        // TODO: use self.vector.push() instead. We can’t right now because
+        //       that would require the DimAdd bound (but here we use DimNameAdd).
+        //       This should be fixable once Rust gets a more complete support of
+        //       const-generics.
+        let mut v = OVector::from_element(T::one());
         for i in 0..D {
-            v[(i, 0)] = self.vector[(i, 0)].clone();
+            v[i] = self.vector[i].clone();
         }
-        return OMatrix::<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>::from_diagonal(&v);
-    }
+        return OMatrix::from_diagonal(&v);
 
     /// Inverts `self` in-place.
     ///
