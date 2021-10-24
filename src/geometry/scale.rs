@@ -293,6 +293,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
             v[i] = self.vector[i].clone();
         }
         return OMatrix::from_diagonal(&v);
+    }
 
     /// Inverts `self` in-place.
     ///
