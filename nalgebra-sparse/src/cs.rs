@@ -1,3 +1,4 @@
+use std::iter::FromIterator;
 use std::mem::replace;
 use std::ops::Range;
 
@@ -211,7 +212,15 @@ impl<T> CsMatrix<T> {
         )
         .expect("Internal error: Sparsity pattern must always be valid.");
 
-        Self::from_pattern_and_values(new_pattern, new_values)
+        // permute values
+        let sorted_values: Vec<T> = Vec::from_iter(
+            (new_pattern
+                .minor_index_permutation
+                .iter()
+                .map(|i| &new_values[*i]))
+            .cloned(),
+        );
+        Self::from_pattern_and_values(new_pattern, sorted_values)
     }
 
     /// Returns the diagonal of the matrix as a sparse matrix.

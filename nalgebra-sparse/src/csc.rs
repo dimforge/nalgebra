@@ -13,6 +13,7 @@ use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKin
 
 use nalgebra::Scalar;
 use num_traits::One;
+use std::iter::FromIterator;
 use std::slice::{Iter, IterMut};
 
 /// A CSC representation of a sparse matrix.
@@ -150,7 +151,7 @@ impl<T> CscMatrix<T> {
 
     /// Try to construct a CSC matrix from raw CSC data.
     ///
-    /// It is assumed that each column contains unique and sorted row indices that are in
+    /// It is assumed that each column contains unique row indices that are in
     /// bounds with respect to the number of rows in the matrix. If this is not the case,
     /// an error is returned to indicate the failure.
     ///
@@ -162,7 +163,10 @@ impl<T> CscMatrix<T> {
         col_offsets: Vec<usize>,
         row_indices: Vec<usize>,
         values: Vec<T>,
-    ) -> Result<Self, SparseFormatError> {
+    ) -> Result<Self, SparseFormatError>
+    where
+        T: Scalar,
+    {
         let pattern = SparsityPattern::try_from_offsets_and_indices(
             num_cols,
             num_rows,
@@ -170,7 +174,10 @@ impl<T> CscMatrix<T> {
             row_indices,
         )
         .map_err(pattern_format_error_to_csc_error)?;
-        Self::try_from_pattern_and_values(pattern, values)
+        // permute values
+        let sorted_values: Vec<T> =
+            Vec::from_iter((pattern.minor_index_permutation.iter().map(|i| &values[*i])).cloned());
+        Self::try_from_pattern_and_values(pattern, sorted_values)
     }
 
     /// Try to construct a CSC matrix from a sparsity pattern and associated non-zero values.

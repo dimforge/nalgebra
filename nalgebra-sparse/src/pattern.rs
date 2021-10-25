@@ -7,6 +7,7 @@ use crate::cs::transpose_cs;
 use crate::SparseFormatError;
 use std::error::Error;
 use std::fmt;
+use std::iter::FromIterator;
 
 /// A representation of the sparsity pattern of a CSR or CSC matrix.
 ///
@@ -50,6 +51,8 @@ pub struct SparsityPattern {
     major_offsets: Vec<usize>,
     minor_indices: Vec<usize>,
     minor_dim: usize,
+    /// Permutation for getting minor indices and values sorted
+    pub minor_index_permutation: Vec<usize>,
 }
 
 impl SparsityPattern {
@@ -59,6 +62,7 @@ impl SparsityPattern {
             major_offsets: vec![0; major_dim + 1],
             minor_indices: vec![],
             minor_dim,
+            minor_index_permutation: vec![],
         }
     }
 
@@ -144,6 +148,8 @@ impl SparsityPattern {
             }
         }
 
+        let mut p: Vec<usize> = (0..minor_indices.len()).collect();
+
         // Test that each lane has strictly monotonically increasing minor indices, i.e.
         // minor indices within a lane are sorted, unique. In addition, each minor index
         // must be in bounds with respect to the minor dimension.
@@ -164,6 +170,8 @@ impl SparsityPattern {
                 let mut iter = minor_indices.iter();
                 let mut prev = None;
 
+                let mut unsorted = false;
+
                 while let Some(next) = iter.next().copied() {
                     if next >= minor_dim {
                         return Err(MinorIndexOutOfBounds);
@@ -171,20 +179,33 @@ impl SparsityPattern {
 
                     if let Some(prev) = prev {
                         if prev > next {
-                            return Err(NonmonotonicMinorIndices);
+                            unsorted = true;
                         } else if prev == next {
                             return Err(DuplicateEntry);
                         }
                     }
                     prev = Some(next);
                 }
+
+                if unsorted {
+                    p[range_start..range_end].sort_by(|a, b| {
+                        let x = &minor_indices[*a - range_start];
+                        let y = &minor_indices[*b - range_start];
+                        x.partial_cmp(y).unwrap()
+                    });
+                }
             }
         }
 
+        // permute indices
+        let sorted_col_indices: Vec<usize> =
+            Vec::from_iter((p.iter().map(|i| &minor_indices[*i])).cloned());
+
         Ok(Self {
             major_offsets,
-            minor_indices,
+            minor_indices: sorted_col_indices,
             minor_dim,
+            minor_index_permutation: p,
         })
     }
 
