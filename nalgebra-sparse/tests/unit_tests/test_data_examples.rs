@@ -1,5 +1,31 @@
 /// Examples of *invalid* raw CSR data `(offsets, indices, values)`.
-pub struct InvalidCsrDataExamples {
+pub struct ValidCsDataExamples {
+    pub valid_cs_data: (Vec<usize>, Vec<usize>, Vec<i32>),
+    pub valid_unsorted_cs_data: (Vec<usize>, Vec<usize>, Vec<i32>),
+}
+
+impl ValidCsDataExamples {
+    pub fn new() -> Self {
+        let valid_cs_data = (
+            vec![0, 3, 5, 8, 11],
+            vec![1, 3, 4, 1, 3, 0, 2, 3, 1, 3, 4],
+            vec![1, 4, 5, 4, 7, 1, 2, 3, 6, 8, 9],
+        );
+        let valid_unsorted_cs_data = (
+            vec![0, 3, 5, 8, 11],
+            vec![4, 1, 3, 3, 1, 2, 3, 0, 3, 4, 1],
+            vec![5, 1, 4, 7, 4, 2, 3, 1, 8, 9, 6],
+        );
+
+        return Self {
+            valid_cs_data,
+            valid_unsorted_cs_data,
+        };
+    }
+}
+
+/// Examples of *invalid* raw CSR data `(offsets, indices, values)`.
+pub struct InvalidCsDataExamples {
     pub empty_offset_array: (Vec<usize>, Vec<usize>, Vec<i32>),
     pub offset_array_invalid_length_for_arbitrary_data: (Vec<usize>, Vec<usize>, Vec<i32>),
     pub invalid_first_entry_in_offsets_array: (Vec<usize>, Vec<usize>, Vec<i32>),
@@ -11,7 +37,7 @@ pub struct InvalidCsrDataExamples {
     pub duplicate_entry: (Vec<usize>, Vec<usize>, Vec<i32>),
 }
 
-impl InvalidCsrDataExamples {
+impl InvalidCsDataExamples {
     pub fn new() -> Self {
         let empty_offset_array = (Vec::<usize>::new(), Vec::<usize>::new(), Vec::<i32>::new());
         let offset_array_invalid_length_for_arbitrary_data =

@@ -148,7 +148,7 @@ impl SparsityPattern {
             }
         }
 
-        let mut p: Vec<usize> = (0..minor_indices.len()).collect();
+        let mut minor_index_permutation: Vec<usize> = (0..minor_indices.len()).collect();
 
         // Test that each lane has strictly monotonically increasing minor indices, i.e.
         // minor indices within a lane are sorted, unique. In addition, each minor index
@@ -169,8 +169,7 @@ impl SparsityPattern {
                 // to ensure that we only visit each minor index once
                 let mut iter = minor_indices.iter();
                 let mut prev = None;
-
-                let mut unsorted = false;
+                let mut nonmonotonic = false;
 
                 while let Some(next) = iter.next().copied() {
                     if next >= minor_dim {
@@ -179,7 +178,7 @@ impl SparsityPattern {
 
                     if let Some(prev) = prev {
                         if prev > next {
-                            unsorted = true;
+                            nonmonotonic = true;
                         } else if prev == next {
                             return Err(DuplicateEntry);
                         }
@@ -187,8 +186,9 @@ impl SparsityPattern {
                     prev = Some(next);
                 }
 
-                if unsorted {
-                    p[range_start..range_end].sort_by(|a, b| {
+                if nonmonotonic {
+                    // sort permutation values for monotonic index order
+                    minor_index_permutation[range_start..range_end].sort_by(|a, b| {
                         let x = &minor_indices[*a - range_start];
                         let y = &minor_indices[*b - range_start];
                         x.partial_cmp(y).unwrap()
@@ -198,14 +198,14 @@ impl SparsityPattern {
         }
 
         // permute indices
-        let sorted_col_indices: Vec<usize> =
-            Vec::from_iter((p.iter().map(|i| &minor_indices[*i])).cloned());
+        let sorted_minor_indices: Vec<usize> =
+            Vec::from_iter((minor_index_permutation.iter().map(|i| &minor_indices[*i])).cloned());
 
         Ok(Self {
             major_offsets,
-            minor_indices: sorted_col_indices,
+            minor_indices: sorted_minor_indices,
             minor_dim,
-            minor_index_permutation: p,
+            minor_index_permutation,
         })
     }
 

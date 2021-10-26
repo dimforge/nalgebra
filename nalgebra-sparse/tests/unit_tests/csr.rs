@@ -5,7 +5,7 @@ use nalgebra_sparse::{SparseEntry, SparseEntryMut, SparseFormatErrorKind};
 use proptest::prelude::*;
 use proptest::sample::subsequence;
 
-use super::test_data_examples::InvalidCsrDataExamples;
+use super::test_data_examples::{InvalidCsDataExamples, ValidCsDataExamples};
 
 use crate::assert_panics;
 use crate::common::csr_strategy;
@@ -175,34 +175,23 @@ fn csr_matrix_valid_data() {
 
 #[test]
 fn csr_matrix_valid_data_unsorted_column_indices() {
-    let csr = CsrMatrix::try_from_csr_data(
-        4,
-        5,
-        vec![0, 3, 5, 8, 11],
-        vec![4, 1, 3, 3, 1, 2, 3, 0, 3, 4, 1],
-        vec![5, 1, 4, 7, 4, 2, 3, 1, 8, 9, 6],
-    )
-    .unwrap();
-    let (offsets, indices, values) = csr.disassemble();
+    let valid_data: ValidCsDataExamples = ValidCsDataExamples::new();
+    let (offsets, indices, values) = valid_data.valid_unsorted_cs_data;
+    let csr = CsrMatrix::try_from_csr_data(4, 5, offsets, indices, values).unwrap();
+    let (result_offsets, result_indices, result_values) = csr.disassemble();
 
-    let expected_csr = CsrMatrix::try_from_csr_data(
-        4,
-        5,
-        vec![0, 3, 5, 8, 11],
-        vec![1, 3, 4, 1, 3, 0, 2, 3, 1, 3, 4],
-        vec![1, 4, 5, 4, 7, 1, 2, 3, 6, 8, 9],
-    )
-    .unwrap();
-    let (offsets2, indices2, values2) = expected_csr.disassemble();
+    let (offsets2, indices2, values2) = valid_data.valid_cs_data;
+    let expected_csr = CsrMatrix::try_from_csr_data(4, 5, offsets2, indices2, values2).unwrap();
+    let (result_offsets2, result_indices2, result_values2) = expected_csr.disassemble();
 
-    assert_eq!(offsets, offsets2);
-    assert_eq!(indices, indices2);
-    assert_eq!(values, values2);
+    assert_eq!(result_offsets, result_offsets2);
+    assert_eq!(result_indices, result_indices2);
+    assert_eq!(result_values, result_values2);
 }
 
 #[test]
 fn csr_matrix_try_from_invalid_csr_data() {
-    let invalid_data: InvalidCsrDataExamples = InvalidCsrDataExamples::new();
+    let invalid_data: InvalidCsDataExamples = InvalidCsDataExamples::new();
     {
         // Empty offset array (invalid length)
         let (offsets, indices, values) = invalid_data.empty_offset_array;
