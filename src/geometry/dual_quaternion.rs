@@ -354,7 +354,7 @@ impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for DualQuaternion<T> {
     }
 }
 
-/// A unit quaternions. May be used to represent a rotation followed by a
+/// A unit dual quaternion. May be used to represent a rotation followed by a
 /// translation.
 pub type UnitDualQuaternion<T> = Unit<DualQuaternion<T>>;
 
