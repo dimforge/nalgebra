@@ -9,7 +9,7 @@
         <img src="https://circleci.com/gh/dimforge/nalgebra.svg?style=svg" alt="Build status">
     </a>
     <a href="https://crates.io/crates/nalgebra">
-         <img src="https://meritbadge.herokuapp.com/nalgebra?style=flat-square" alt="crates.io">
+         <img src="https://img.shields.io/crates/v/nalgebra.svg?style=flat-square" alt="crates.io">
     </a>
     <a href="https://opensource.org/licenses/Apache-2.0">
         <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg">
