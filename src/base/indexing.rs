@@ -589,7 +589,10 @@ where
     where
         S: RawStorageMut<T, R, C>,
     {
-        matrix.data.get_unchecked_linear_mut(self)
+        let nrows = matrix.shape().0;
+        let row = self % nrows;
+        let col = self / nrows;
+        matrix.data.get_unchecked_mut(row, col)
     }
 }
 
