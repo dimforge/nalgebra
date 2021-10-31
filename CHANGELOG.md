@@ -4,17 +4,31 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.29.1] - WIP
+## [0.30.0]
+
+### Breaking changes
+- The `Dim` trait is now marked as unsafe.
+
+### Modified
+- Use more concise debug impls for matrices and geometric transformation types.
 
 ### Added
-
-- The conversion trait `From<Vec<T>>` and method `from_vec_storage` for `RowDVector`. See [#975](https://github.com/dimforge/nalgebra/issues/975)
+- Added the conversion trait `From<Vec<T>>` and method `from_vec_storage` for `RowDVector`.
 - Added implementation of `From` and `Into` for converting between `nalgebra` types and types from
   `glam 0.18`. These can be enabled by enabling the `convert-glam018` cargo features.
 - Added the methods `Matrix::product`, `::row_product`, `::row_product_tr`, and `::column_product` to compute the
   product of the components, rows, or columns, of a single matrix or vector.
 - The `Default` trait is now implemented for most geometric types: `Point`, `Isometry`, `Rotation`, `Similarity`,
   `Transform`, `UnitComplex`, and `UnitQuaternion`.
+- Added the `Scale` geometric type for representing non-uniform scaling.
+- `nalgebra-sparse`: provide constructors for unsorted but otherwise valid data using the CSR format.
+- Added `Cholesky::new_with_substitute` that will replace diagonal elements by a given constant whenever `Cholesky`
+  meets a non-definite-positiveness.
+
+### Fixed
+- Fixed a potential unsoundness with `matrix.get(i)` and `matrix.get_mut(i)` where `i`  is an `usize`, and `matrix`
+  is a matrix slice with non-default strides.
+- Fixed potential unsoundness with `vector.perp` where `vector` isn’t actually a 2D vector as expected.
 
 ## [0.29.0]
 ### Breaking changes
