@@ -142,11 +142,19 @@
 )]
 
 pub extern crate nalgebra as na;
+#[cfg(feature = "io")]
+extern crate pest;
+#[macro_use]
+#[cfg(feature = "io")]
+extern crate pest_derive;
+
 pub mod convert;
 pub mod coo;
 pub mod csc;
 pub mod csr;
 pub mod factorization;
+#[cfg(feature = "io")]
+pub mod io;
 pub mod ops;
 pub mod pattern;
 

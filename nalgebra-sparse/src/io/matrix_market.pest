@@ -1,0 +1,44 @@
+WHITESPACE = _{ " " }
+
+//
+
+// dense matrix(array) not supported here
+Sparsity = {^"coordinate"}
+DataType = {^"real" | ^"complex" | ^"pattern" | ^"integer" }
+StorageScheme  = {^"symmetric"  | ^"general" | ^"skew-symmetric"  | ^"hermitian"}
+// Only consider matrices here.
+Header = { ^"%%matrixmarket matrix" ~ Sparsity ~ DataType ~ StorageScheme }
+
+//
+
+Comments = _{ "%" ~ (!NEWLINE ~ ANY)* }
+
+//
+
+Dimension = @{ ASCII_DIGIT+ }
+Shape = { Dimension ~ Dimension ~ Dimension }
+
+//
+
+// grammar from https://doc.rust-lang.org/std/primitive.f64.html#grammar
+
+Sign = {("+" | "-")}
+Exp = @{ ^"e" ~ Sign? ~ ASCII_DIGIT+}
+Number = @{ ((ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*) | (ASCII_DIGIT* ~ "." ~ASCII_DIGIT+) | ASCII_DIGIT+ ) ~ Exp? } 
+Value = @{ Sign? ~ ("inf" | "NaN" | Number) }
+
+// zero value: pattern
+// one Value: real or int number
+// two values:  complex number
+Entry = { Dimension ~ Dimension ~ Value? ~ Value? }
+
+//
+
+Document = {
+    SOI ~
+    NEWLINE* ~
+    Header ~
+    (NEWLINE ~ Comments)* ~
+    (NEWLINE ~ Shape) ~
+    (NEWLINE ~ Entry?)*
+}

@@ -15,6 +15,7 @@ license = "Apache-2.0"
 [features]
 proptest-support = ["proptest", "nalgebra/proptest-support"]
 compare = [ "matrixcompare-core" ]
+io      = [ "pest", "pest_derive" ]
 
 # Enable to enable running some tests that take a lot of time to run
 slow-tests = []
@@ -24,6 +25,8 @@ nalgebra = { version="0.29", path = "../" }
 num-traits = { version = "0.2", default-features = false }
 proptest = { version = "1.0", optional = true }
 matrixcompare-core = { version = "0.1.0", optional = true }
+pest           = { version = "2", optional = true }
+pest_derive    = { version = "2", optional = true }
 
 [dev-dependencies]
 itertools = "0.10"
