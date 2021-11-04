@@ -7,8 +7,9 @@ use crate::cs::transpose_cs;
 use crate::SparseFormatError;
 use std::error::Error;
 use std::fmt;
-use std::iter::FromIterator;
 
+use nalgebra::Scalar;
+use std::iter::FromIterator;
 /// A representation of the sparsity pattern of a CSR or CSC matrix.
 ///
 /// CSR and CSC matrices store matrices in a very similar fashion. In fact, in a certain sense,
@@ -51,8 +52,6 @@ pub struct SparsityPattern {
     major_offsets: Vec<usize>,
     minor_indices: Vec<usize>,
     minor_dim: usize,
-    /// Permutation for getting minor indices and values sorted
-    pub minor_index_permutation: Vec<usize>,
 }
 
 impl SparsityPattern {
@@ -62,7 +61,6 @@ impl SparsityPattern {
             major_offsets: vec![0; major_dim + 1],
             minor_indices: vec![],
             minor_dim,
-            minor_index_permutation: vec![],
         }
     }
 
@@ -148,8 +146,6 @@ impl SparsityPattern {
             }
         }
 
-        let mut minor_index_permutation: Vec<usize> = (0..minor_indices.len()).collect();
-
         // Test that each lane has strictly monotonically increasing minor indices, i.e.
         // minor indices within a lane are sorted, unique. In addition, each minor index
         // must be in bounds with respect to the minor dimension.
@@ -169,6 +165,111 @@ impl SparsityPattern {
                 // to ensure that we only visit each minor index once
                 let mut iter = minor_indices.iter();
                 let mut prev = None;
+
+                while let Some(next) = iter.next().copied() {
+                    if next >= minor_dim {
+                        return Err(MinorIndexOutOfBounds);
+                    }
+
+                    if let Some(prev) = prev {
+                        if prev > next {
+                            return Err(NonmonotonicMinorIndices);
+                        } else if prev == next {
+                            return Err(DuplicateEntry);
+                        }
+                    }
+                    prev = Some(next);
+                }
+            }
+        }
+
+        Ok(Self {
+            major_offsets,
+            minor_indices,
+            minor_dim,
+        })
+    }
+
+    /// Try to construct a sparsity pattern from the given dimensions, major offsets
+    /// and minor indices.
+    ///
+    /// Returns an error if the data does not conform to the requirements.
+    pub fn from_offset_and_indices_unchecked(
+        major_dim: usize,
+        minor_dim: usize,
+        major_offsets: Vec<usize>,
+        minor_indices: Vec<usize>,
+    ) -> Result<Self, SparsityPatternFormatError> {
+        use SparsityPatternFormatError::*;
+
+        if major_offsets.len() != major_dim + 1 {
+            return Err(InvalidOffsetArrayLength);
+        }
+
+        // Check that the first and last offsets conform to the specification
+        {
+            let first_offset_ok = *major_offsets.first().unwrap() == 0;
+            let last_offset_ok = *major_offsets.last().unwrap() == minor_indices.len();
+            if !first_offset_ok || !last_offset_ok {
+                return Err(InvalidOffsetFirstLast);
+            }
+        }
+
+        Ok(Self {
+            major_offsets,
+            minor_indices,
+            minor_dim,
+        })
+    }
+
+    /// Validates cs data, sorts minor indices and values
+    pub fn validate_and_optionally_sort_cs_data<T>(
+        major_dim: usize,
+        minor_dim: usize,
+        major_offsets: &[usize],
+        minor_indices: &mut [usize],
+        values: Option<&mut [T]>,
+        sort: bool,
+    ) -> Result<(), SparsityPatternFormatError>
+    where
+        T: Scalar,
+    {
+        use SparsityPatternFormatError::*;
+
+        if major_offsets.len() != major_dim + 1 {
+            return Err(InvalidOffsetArrayLength);
+        }
+
+        // Check that the first and last offsets conform to the specification
+        {
+            let first_offset_ok = *major_offsets.first().unwrap() == 0;
+            let last_offset_ok = *major_offsets.last().unwrap() == minor_indices.len();
+            if !first_offset_ok || !last_offset_ok {
+                return Err(InvalidOffsetFirstLast);
+            }
+        }
+
+        let mut minor_index_permutation: Vec<usize> = (0..minor_indices.len()).collect();
+
+        // Test that each lane has strictly monotonically increasing minor indices, i.e.
+        // minor indices within a lane are sorted, unique. In addition, each minor index
+        // must be in bounds with respect to the minor dimension.
+        {
+            for lane_idx in 0..major_dim {
+                let range_start = major_offsets[lane_idx];
+                let range_end = major_offsets[lane_idx + 1];
+
+                // Test that major offsets are monotonically increasing
+                if range_start > range_end {
+                    return Err(NonmonotonicOffsets);
+                }
+
+                let minor_indices2 = &minor_indices[range_start..range_end];
+
+                // We test for in-bounds, uniqueness and monotonicity at the same time
+                // to ensure that we only visit each minor index once
+                let mut iter = minor_indices2.iter();
+                let mut prev = None;
                 let mut nonmonotonic = false;
 
                 while let Some(next) = iter.next().copied() {
@@ -185,28 +286,33 @@ impl SparsityPattern {
                     }
                     prev = Some(next);
                 }
-
-                if nonmonotonic {
+                if nonmonotonic && sort {
                     // sort permutation values for monotonic index order
                     minor_index_permutation[range_start..range_end].sort_by(|a, b| {
-                        let x = &minor_indices[*a - range_start];
-                        let y = &minor_indices[*b - range_start];
+                        let x = &minor_indices2[*a - range_start];
+                        let y = &minor_indices2[*b - range_start];
                         x.partial_cmp(y).unwrap()
                     });
                 }
             }
         }
 
-        // permute indices
-        let sorted_minor_indices: Vec<usize> =
-            Vec::from_iter((minor_index_permutation.iter().map(|i| &minor_indices[*i])).cloned());
-
-        Ok(Self {
-            major_offsets,
-            minor_indices: sorted_minor_indices,
-            minor_dim,
-            minor_index_permutation,
-        })
+        if sort {
+            let unsorted_indices: Vec<usize> = minor_indices.iter().map(|i| i.clone()).collect();
+            for (index, &offset) in minor_index_permutation.iter().enumerate() {
+                let u: usize = unsorted_indices[offset];
+                minor_indices[index] = u;
+            }
+            if let Some(values) = values {
+                let unsorted_values: Vec<T> =
+                    Vec::from_iter(((0..values.len()).map(|i| &values[i])).cloned());
+                for (index, &offset) in minor_index_permutation.iter().enumerate() {
+                    let u: T = unsorted_values[offset].clone();
+                    values[index] = u;
+                }
+            }
+        }
+        Ok(())
     }
 
     /// An iterator over the explicitly stored "non-zero" entries (i, j).
