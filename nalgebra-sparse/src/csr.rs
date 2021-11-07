@@ -10,6 +10,9 @@ use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKin
 use nalgebra::Scalar;
 use num_traits::One;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+
 use std::iter::FromIterator;
 use std::slice::{Iter, IterMut};
 
@@ -593,6 +596,67 @@ impl<T> CsrMatrix<T> {
         T: Scalar,
     {
         CscMatrix::from(self).transpose_as_csr()
+    }
+}
+
+#[cfg_attr(feature = "serde-serialize", derive(Serialize))]
+struct CsrMatrixSerializationHelper<'a, T> {
+    nrows: usize,
+    ncols: usize,
+    row_offsets: &'a [usize],
+    col_indices: &'a [usize],
+    values: &'a [T],
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<T> Serialize for CsrMatrix<T>
+where
+    T: Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        CsrMatrixSerializationHelper {
+            nrows: self.nrows(),
+            ncols: self.ncols(),
+            row_offsets: self.row_offsets(),
+            col_indices: self.col_indices(),
+            values: self.values(),
+        }
+        .serialize(serializer)
+    }
+}
+
+#[cfg_attr(feature = "serde-serialize", derive(Deserialize))]
+struct CsrMatrixDeserializationHelper<T> {
+    nrows: usize,
+    ncols: usize,
+    row_offsets: Vec<usize>,
+    col_indices: Vec<usize>,
+    values: Vec<T>,
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, T> Deserialize<'de> for CsrMatrix<T>
+where
+    T: for<'de2> Deserialize<'de2>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<CsrMatrix<T>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let CsrMatrixDeserializationHelper {
+            nrows,
+            ncols,
+            row_offsets,
+            col_indices,
+            values,
+        } = CsrMatrixDeserializationHelper::deserialize(deserializer)?;
+        CsrMatrix::try_from_csr_data(nrows, ncols, row_offsets, col_indices, values)
+            .map(|m| m.into())
+            // TODO: More specific error
+            .map_err(|_e| de::Error::invalid_value(de::Unexpected::Other("invalid CSR matrix"), &"a valid CSR matrix"))
     }
 }
 
