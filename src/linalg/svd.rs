@@ -9,6 +9,7 @@ use crate::base::{DefaultAllocator, Matrix, Matrix2x3, OMatrix, OVector, Vector2
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1};
 use crate::storage::Storage;
+use crate::RawStorage;
 use simba::scalar::{ComplexField, RealField};
 
 use crate::linalg::givens::GivensRotation;
@@ -79,8 +80,10 @@ where
         + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
 {
     /// Computes the Singular Value Decomposition of `matrix` using implicit shift.
-    pub fn new(matrix: OMatrix<T, R, C>, compute_u: bool, compute_v: bool) -> Self {
-        Self::try_new(
+    /// The singular values are not guaranteed to be sorted in any particular order.
+    /// If a descending order is required, consider using `new` instead.
+    pub fn new_unordered(matrix: OMatrix<T, R, C>, compute_u: bool, compute_v: bool) -> Self {
+        Self::try_new_unordered(
             matrix,
             compute_u,
             compute_v,
@@ -91,6 +94,8 @@ where
     }
 
     /// Attempts to compute the Singular Value Decomposition of `matrix` using implicit shift.
+    /// The singular values are not guaranteed to be sorted in any particular order.
+    /// If a descending order is required, consider using `try_new` instead.
     ///
     /// # Arguments
     ///
@@ -100,7 +105,7 @@ where
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
     /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
     /// continues indefinitely until convergence.
-    pub fn try_new(
+    pub fn try_new_unordered(
         mut matrix: OMatrix<T, R, C>,
         compute_u: bool,
         compute_v: bool,
@@ -612,6 +617,114 @@ where
     }
 }
 
+impl<T: ComplexField, R: DimMin<C>, C: Dim> SVD<T, R, C>
+where
+    DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
+    DefaultAllocator: Allocator<T, R, C>
+        + Allocator<T, C>
+        + Allocator<T, R>
+        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
+        + Allocator<T, DimMinimum<R, C>, C>
+        + Allocator<T, R, DimMinimum<R, C>>
+        + Allocator<T, DimMinimum<R, C>>
+        + Allocator<T::RealField, DimMinimum<R, C>>
+        + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>
+        + Allocator<(usize, usize), DimMinimum<R, C>> // for sorted singular values
+        + Allocator<(T::RealField, usize), DimMinimum<R, C>>, // for sorted singular values
+{
+    /// Computes the Singular Value Decomposition of `matrix` using implicit shift.
+    /// The singular values are guaranteed to be sorted in descending order.
+    /// If this order is not required consider using `new_unordered`.
+    pub fn new(matrix: OMatrix<T, R, C>, compute_u: bool, compute_v: bool) -> Self {
+        let mut svd = Self::new_unordered(matrix, compute_u, compute_v);
+        svd.sort_by_singular_values();
+        svd
+    }
+
+    /// Attempts to compute the Singular Value Decomposition of `matrix` using implicit shift.
+    /// The singular values are guaranteed to be sorted in descending order.
+    /// If this order is not required consider using `try_new_unordered`.
+    ///
+    /// # Arguments
+    ///
+    /// * `compute_u` − set this to `true` to enable the computation of left-singular vectors.
+    /// * `compute_v` − set this to `true` to enable the computation of right-singular vectors.
+    /// * `eps`       − tolerance used to determine when a value converged to 0.
+    /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
+    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    /// continues indefinitely until convergence.
+    pub fn try_new(
+        matrix: OMatrix<T, R, C>,
+        compute_u: bool,
+        compute_v: bool,
+        eps: T::RealField,
+        max_niter: usize,
+    ) -> Option<Self> {
+        Self::try_new_unordered(matrix, compute_u, compute_v, eps, max_niter).map(|mut svd| {
+            svd.sort_by_singular_values();
+            svd
+        })
+    }
+
+    /// Sort the estimated components of the SVD by its singular values in descending order.
+    /// Such an ordering is often implicitly required when the decompositions are used for estimation or fitting purposes.
+    /// Using this function is only required if `new_unordered` or `try_new_unorderd` were used and the specific sorting is required afterward.
+    pub fn sort_by_singular_values(&mut self) {
+        const VALUE_PROCESSED: usize = usize::MAX;
+
+        // Collect the singular values with their original index, ...
+        let mut singular_values = self.singular_values.map_with_location(|r, _, e| (e, r));
+        assert_ne!(
+            singular_values.data.shape().0.value(),
+            VALUE_PROCESSED,
+            "Too many singular values"
+        );
+
+        // ... sort the singular values, ...
+        singular_values
+            .as_mut_slice()
+            .sort_unstable_by(|(a, _), (b, _)| b.partial_cmp(a).expect("Singular value was NaN"));
+
+        // ... and store them.
+        self.singular_values
+            .zip_apply(&singular_values, |value, (new_value, _)| {
+                value.clone_from(&new_value)
+            });
+
+        // Calculate required permutations given the sorted indices.
+        // We need to identify all circles to calculate the required swaps.
+        let mut permutations =
+            crate::PermutationSequence::identity_generic(singular_values.data.shape().0);
+
+        for i in 0..singular_values.len() {
+            let mut index_1 = i;
+            let mut index_2 = singular_values[i].1;
+
+            // Check whether the value was already visited ...
+            while index_2 != VALUE_PROCESSED // ... or a "double swap" must be avoided.
+                && singular_values[index_2].1 != VALUE_PROCESSED
+            {
+                // Add the permutation ...
+                permutations.append_permutation(index_1, index_2);
+                // ... and mark the value as visited.
+                singular_values[index_1].1 = VALUE_PROCESSED;
+
+                index_1 = index_2;
+                index_2 = singular_values[index_1].1;
+            }
+        }
+
+        // Permute the optional components
+        if let Some(u) = self.u.as_mut() {
+            permutations.permute_columns(u);
+        }
+
+        if let Some(v_t) = self.v_t.as_mut() {
+            permutations.permute_rows(v_t);
+        }
+    }
+}
+
 impl<T: ComplexField, R: DimMin<C>, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S>
 where
     DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
@@ -626,9 +739,11 @@ where
         + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
 {
     /// Computes the singular values of this matrix.
+    /// The singular values are not guaranteed to be sorted in any particular order.
+    /// If a descending order is required, consider using `singular_values` instead.
     #[must_use]
-    pub fn singular_values(&self) -> OVector<T::RealField, DimMinimum<R, C>> {
-        SVD::new(self.clone_owned(), false, false).singular_values
+    pub fn singular_values_unordered(&self) -> OVector<T::RealField, DimMinimum<R, C>> {
+        SVD::new_unordered(self.clone_owned(), false, false).singular_values
     }
 
     /// Computes the rank of this matrix.
@@ -636,7 +751,7 @@ where
     /// All singular values below `eps` are considered equal to 0.
     #[must_use]
     pub fn rank(&self, eps: T::RealField) -> usize {
-        let svd = SVD::new(self.clone_owned(), false, false);
+        let svd = SVD::new_unordered(self.clone_owned(), false, false);
         svd.rank(eps)
     }
 
@@ -647,7 +762,31 @@ where
     where
         DefaultAllocator: Allocator<T, C, R>,
     {
-        SVD::new(self.clone_owned(), true, true).pseudo_inverse(eps)
+        SVD::new_unordered(self.clone_owned(), true, true).pseudo_inverse(eps)
+    }
+}
+
+impl<T: ComplexField, R: DimMin<C>, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S>
+where
+    DimMinimum<R, C>: DimSub<U1>,
+    DefaultAllocator: Allocator<T, R, C>
+        + Allocator<T, C>
+        + Allocator<T, R>
+        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
+        + Allocator<T, DimMinimum<R, C>, C>
+        + Allocator<T, R, DimMinimum<R, C>>
+        + Allocator<T, DimMinimum<R, C>>
+        + Allocator<T::RealField, DimMinimum<R, C>>
+        + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>
+        + Allocator<(usize, usize), DimMinimum<R, C>>
+        + Allocator<(T::RealField, usize), DimMinimum<R, C>>,
+{
+    /// Computes the singular values of this matrix.
+    /// The singular values are guaranteed to be sorted in descending order.
+    /// If this order is not required consider using `singular_values_unordered`.
+    #[must_use]
+    pub fn singular_values(&self) -> OVector<T::RealField, DimMinimum<R, C>> {
+        SVD::new(self.clone_owned(), false, false).singular_values
     }
 }
 
