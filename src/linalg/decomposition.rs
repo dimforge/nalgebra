@@ -74,7 +74,31 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     }
 
     /// Computes the Singular Value Decomposition using implicit shift.
+    /// The singular values are guaranteed to be sorted in descending order.
+    /// If this order is not required consider using `svd_unordered`.
     pub fn svd(self, compute_u: bool, compute_v: bool) -> SVD<T, R, C>
+    where
+        R: DimMin<C>,
+        DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
+        DefaultAllocator: Allocator<T, R, C>
+            + Allocator<T, C>
+            + Allocator<T, R>
+            + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
+            + Allocator<T, DimMinimum<R, C>, C>
+            + Allocator<T, R, DimMinimum<R, C>>
+            + Allocator<T, DimMinimum<R, C>>
+            + Allocator<T::RealField, DimMinimum<R, C>>
+            + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>
+            + Allocator<(usize, usize), DimMinimum<R, C>>
+            + Allocator<(T::RealField, usize), DimMinimum<R, C>>,
+    {
+        SVD::new(self.into_owned(), compute_u, compute_v)
+    }
+
+    /// Computes the Singular Value Decomposition using implicit shift.
+    /// The singular values are not guaranteed to be sorted in any particular order.
+    /// If a descending order is required, consider using `svd` instead.
+    pub fn svd_unordered(self, compute_u: bool, compute_v: bool) -> SVD<T, R, C>
     where
         R: DimMin<C>,
         DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
@@ -88,10 +112,12 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             + Allocator<T::RealField, DimMinimum<R, C>>
             + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
     {
-        SVD::new(self.into_owned(), compute_u, compute_v)
+        SVD::new_unordered(self.into_owned(), compute_u, compute_v)
     }
 
     /// Attempts to compute the Singular Value Decomposition of `matrix` using implicit shift.
+    /// The singular values are guaranteed to be sorted in descending order.
+    /// If this order is not required consider using `try_svd_unordered`.
     ///
     /// # Arguments
     ///
@@ -119,9 +145,46 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             + Allocator<T, R, DimMinimum<R, C>>
             + Allocator<T, DimMinimum<R, C>>
             + Allocator<T::RealField, DimMinimum<R, C>>
-            + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
+            + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>
+            + Allocator<(usize, usize), DimMinimum<R, C>>
+            + Allocator<(T::RealField, usize), DimMinimum<R, C>>,
     {
         SVD::try_new(self.into_owned(), compute_u, compute_v, eps, max_niter)
+    }
+
+    /// Attempts to compute the Singular Value Decomposition of `matrix` using implicit shift.
+    /// The singular values are not guaranteed to be sorted in any particular order.
+    /// If a descending order is required, consider using `try_svd` instead.
+    ///
+    /// # Arguments
+    ///
+    /// * `compute_u` − set this to `true` to enable the computation of left-singular vectors.
+    /// * `compute_v` − set this to `true` to enable the computation of right-singular vectors.
+    /// * `eps`       − tolerance used to determine when a value converged to 0.
+    /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
+    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    /// continues indefinitely until convergence.
+    pub fn try_svd_unordered(
+        self,
+        compute_u: bool,
+        compute_v: bool,
+        eps: T::RealField,
+        max_niter: usize,
+    ) -> Option<SVD<T, R, C>>
+    where
+        R: DimMin<C>,
+        DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
+        DefaultAllocator: Allocator<T, R, C>
+            + Allocator<T, C>
+            + Allocator<T, R>
+            + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
+            + Allocator<T, DimMinimum<R, C>, C>
+            + Allocator<T, R, DimMinimum<R, C>>
+            + Allocator<T, DimMinimum<R, C>>
+            + Allocator<T::RealField, DimMinimum<R, C>>
+            + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
+    {
+        SVD::try_new_unordered(self.into_owned(), compute_u, compute_v, eps, max_niter)
     }
 }
 

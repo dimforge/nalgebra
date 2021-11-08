@@ -326,6 +326,13 @@ fn svd_fail() {
         0.07311092531259344,   0.5579247949052946,  0.14518764691585773,  0.03502980663114896,   0.7991329455957719,   0.4929930019965745,
         0.12293810556077789,   0.6617084679545999,   0.9002240700227326, 0.027153062135304884,   0.3630189466989524,  0.18207502727558866,
         0.843196731466686,  0.08951878746549924,   0.7533450877576973, 0.009558876499740077,   0.9429679490873482,   0.9355764454129878);
+    
+    // Check unordered ...
+    let svd = m.clone().svd_unordered(true, true);
+    let recomp = svd.recompose().unwrap();
+    assert_relative_eq!(m, recomp, epsilon = 1.0e-5);
+
+    // ... and ordered SVD.
     let svd = m.clone().svd(true, true);
     let recomp = svd.recompose().unwrap();
     assert_relative_eq!(m, recomp, epsilon = 1.0e-5);
@@ -342,5 +349,47 @@ fn svd_err() {
     assert_eq!(
         Err("SVD pseudo inverse: the epsilon must be non-negative."),
         svd.clone().pseudo_inverse(-1.0)
+    );
+}
+
+#[test]
+#[rustfmt::skip]
+fn svd_sorted() {
+    let reference = nalgebra::matrix![
+        1.0, 2.0, 3.0, 4.0;
+        5.0, 6.0, 7.0, 8.0;
+        9.0, 10.0, 11.0, 12.0
+    ];
+
+    let mut svd = nalgebra::SVD {
+        singular_values: nalgebra::matrix![1.72261225; 2.54368356e+01; 5.14037515e-16],
+        u: Some(nalgebra::matrix![
+            -0.88915331, -0.20673589, 0.40824829;
+            -0.25438183, -0.51828874, -0.81649658;
+            0.38038964, -0.82984158, 0.40824829
+        ]),
+        v_t: Some(nalgebra::matrix![
+            0.73286619,  0.28984978, -0.15316664, -0.59618305;
+            -0.40361757, -0.46474413, -0.52587069, -0.58699725;
+            0.44527162, -0.83143156,  0.32704826,  0.05911168
+        ]),
+    };
+
+    assert_relative_eq!(
+        svd.recompose().expect("valid SVD"),
+        reference,
+        epsilon = 1.0e-5
+    );
+
+    svd.sort_by_singular_values();
+
+    // Ensure successful sorting
+    assert_relative_eq!(svd.singular_values.x, 2.54368356e+01, epsilon = 1.0e-5);
+
+    // Ensure that the sorted components represent the same decomposition
+    assert_relative_eq!(
+        svd.recompose().expect("valid SVD"),
+        reference,
+        epsilon = 1.0e-5
     );
 }
