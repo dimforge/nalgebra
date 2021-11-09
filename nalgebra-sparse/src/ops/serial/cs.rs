@@ -8,7 +8,7 @@ use num_traits::{One, Zero};
 fn spmm_cs_unexpected_entry() -> OperationError {
     OperationError::from_kind_and_message(
         OperationErrorKind::InvalidPattern,
-        String::from("found unexpected entry that is not present in `c`"),
+        String::from("Found unexpected entry that is not present in `c`."),
     )
 }
 
@@ -62,7 +62,7 @@ where
 fn spadd_cs_unexpected_entry() -> OperationError {
     OperationError::from_kind_and_message(
         OperationErrorKind::InvalidPattern,
-        String::from("found entry in `op(a)` that is not present in `c`"),
+        String::from("Found entry in `op(a)` that is not present in `c`."),
     )
 }
 
