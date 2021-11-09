@@ -127,12 +127,12 @@ impl<T> CooMatrix<T> {
         if row_indices.len() != col_indices.len() {
             return Err(SparseFormatError::from_kind_and_msg(
                 InvalidStructure,
-                "Number of row and col indices must be the same.",
+                "number of row and col indices must be the same",
             ));
         } else if col_indices.len() != values.len() {
             return Err(SparseFormatError::from_kind_and_msg(
                 InvalidStructure,
-                "Number of col indices and values must be the same.",
+                "number of col indices and values must be the same",
             ));
         }
 
@@ -142,12 +142,12 @@ impl<T> CooMatrix<T> {
         if !row_indices_in_bounds {
             Err(SparseFormatError::from_kind_and_msg(
                 IndexOutOfBounds,
-                "Row index out of bounds.",
+                "row index out of bounds",
             ))
         } else if !col_indices_in_bounds {
             Err(SparseFormatError::from_kind_and_msg(
                 IndexOutOfBounds,
-                "Col index out of bounds.",
+                "col index out of bounds",
             ))
         } else {
             Ok(Self {
@@ -327,9 +327,14 @@ where
         D: Deserializer<'de>,
     {
         let de = CooMatrixDeserializationData::deserialize(deserializer)?;
-        CooMatrix::try_from_triplets(de.nrows, de.ncols, de.row_indices, de.col_indices, de.values)
-            .map(|m| m.into())
-            // TODO: More specific error
-            .map_err(|_e| de::Error::invalid_value(de::Unexpected::Other("invalid COO matrix"), &"a valid COO matrix"))
+        CooMatrix::try_from_triplets(
+            de.nrows,
+            de.ncols,
+            de.row_indices,
+            de.col_indices,
+            de.values,
+        )
+        .map(|m| m.into())
+        .map_err(|e| de::Error::custom(e))
     }
 }

@@ -183,7 +183,7 @@ impl<T> CscMatrix<T> {
         } else {
             Err(SparseFormatError::from_kind_and_msg(
                 SparseFormatErrorKind::InvalidStructure,
-                "Number of values and row indices must be the same",
+                "number of values and row indices must be the same",
             ))
         }
     }
@@ -572,10 +572,15 @@ where
         D: Deserializer<'de>,
     {
         let de = CscMatrixDeserializationData::deserialize(deserializer)?;
-        CscMatrix::try_from_csc_data(de.nrows, de.ncols, de.col_offsets, de.row_indices, de.values)
-            .map(|m| m.into())
-            // TODO: More specific error
-            .map_err(|_e| de::Error::invalid_value(de::Unexpected::Other("invalid CSC matrix"), &"a valid CSC matrix"))
+        CscMatrix::try_from_csc_data(
+            de.nrows,
+            de.ncols,
+            de.col_offsets,
+            de.row_indices,
+            de.values,
+        )
+        .map(|m| m.into())
+        .map_err(|e| de::Error::custom(e))
     }
 }
 
@@ -592,28 +597,28 @@ fn pattern_format_error_to_csc_error(err: SparsityPatternFormatError) -> SparseF
     match err {
         InvalidOffsetArrayLength => E::from_kind_and_msg(
             K::InvalidStructure,
-            "Length of col offset array is not equal to ncols + 1.",
+            "length of col offset array is not equal to ncols + 1",
         ),
         InvalidOffsetFirstLast => E::from_kind_and_msg(
             K::InvalidStructure,
-            "First or last col offset is inconsistent with format specification.",
+            "first or last col offset is inconsistent with format specification",
         ),
         NonmonotonicOffsets => E::from_kind_and_msg(
             K::InvalidStructure,
-            "Col offsets are not monotonically increasing.",
+            "col offsets are not monotonically increasing",
         ),
         NonmonotonicMinorIndices => E::from_kind_and_msg(
             K::InvalidStructure,
-            "Row indices are not monotonically increasing (sorted) within each column.",
+            "row indices are not monotonically increasing (sorted) within each column",
         ),
         MajorIndexOutOfBounds => {
-            E::from_kind_and_msg(K::IndexOutOfBounds, "Column indices are out of bounds.")
+            E::from_kind_and_msg(K::IndexOutOfBounds, "column indices are out of bounds")
         }
         MinorIndexOutOfBounds => {
-            E::from_kind_and_msg(K::IndexOutOfBounds, "Row indices are out of bounds.")
+            E::from_kind_and_msg(K::IndexOutOfBounds, "row indices are out of bounds")
         }
         PatternDuplicateEntry => {
-            E::from_kind_and_msg(K::DuplicateEntry, "Matrix data contains duplicate entries.")
+            E::from_kind_and_msg(K::DuplicateEntry, "matrix data contains duplicate entries")
         }
     }
 }
