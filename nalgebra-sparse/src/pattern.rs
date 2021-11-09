@@ -157,9 +157,7 @@ impl SparsityPattern {
                     return Err(NonmonotonicOffsets);
                 }
 
-                let minor_indices = minor_indices
-                    .get(range_start..range_end)
-                    .ok_or(MajorIndexOutOfBounds)?;
+                let minor_indices = &minor_indices[range_start..range_end];
 
                 // We test for in-bounds, uniqueness and monotonicity at the same time
                 // to ensure that we only visit each minor index once
@@ -280,8 +278,6 @@ pub enum SparsityPatternFormatError {
     InvalidOffsetFirstLast,
     /// Indicates that the major offsets are not monotonically increasing.
     NonmonotonicOffsets,
-    /// One or more major indices are out of bounds.
-    MajorIndexOutOfBounds,
     /// One or more minor indices are out of bounds.
     MinorIndexOutOfBounds,
     /// One or more duplicate entries were detected.
@@ -306,7 +302,7 @@ impl From<SparsityPatternFormatError> for SparseFormatError {
             | NonmonotonicMinorIndices => {
                 SparseFormatError::from_kind_and_error(InvalidStructure, Box::from(err))
             }
-            MajorIndexOutOfBounds | MinorIndexOutOfBounds => {
+            MinorIndexOutOfBounds => {
                 SparseFormatError::from_kind_and_error(IndexOutOfBounds, Box::from(err))
             }
             PatternDuplicateEntry => SparseFormatError::from_kind_and_error(
@@ -329,9 +325,6 @@ impl fmt::Display for SparsityPatternFormatError {
             }
             SparsityPatternFormatError::NonmonotonicOffsets => {
                 write!(f, "Offsets are not monotonically increasing.")
-            }
-            SparsityPatternFormatError::MajorIndexOutOfBounds => {
-                write!(f, "A major index is out of bounds.")
             }
             SparsityPatternFormatError::MinorIndexOutOfBounds => {
                 write!(f, "A minor index is out of bounds.")
