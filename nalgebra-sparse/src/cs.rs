@@ -8,6 +8,9 @@ use nalgebra::Scalar;
 use crate::pattern::SparsityPattern;
 use crate::{SparseEntry, SparseEntryMut};
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
 /// An abstract compressed matrix.
 ///
 /// For the time being, this is only used internally to share implementation between
@@ -16,6 +19,11 @@ use crate::{SparseEntry, SparseEntryMut};
 /// A CSR matrix is obtained by associating rows with the major dimension, while a CSC matrix
 /// is obtained by associating columns with the major dimension.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    derive(Serialize, Deserialize),
+    serde(remote = "Self")
+)]
 pub struct CsMatrix<T> {
     sparsity_pattern: SparsityPattern,
     values: Vec<T>,
@@ -541,5 +549,32 @@ pub fn convert_counts_to_offsets(counts: &mut [usize]) {
         let count = *i_offset;
         *i_offset = offset;
         offset += count;
+    }
+}
+
+impl<T: Serialize> Serialize for CsMatrix<T> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        Self::serialize(self, serializer)
+    }
+}
+
+impl<'de, T: Deserialize<'de>> Deserialize<'de> for CsMatrix<T> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let unchecked = Self::deserialize(deserializer)?;
+        if unchecked.sparsity_pattern.nnz() != unchecked.values.len() {
+            return Err(serde::de::Error::custom(
+                "Pattern non-zero count doesn't match number of values",
+            ));
+        }
+        Ok(Self::from_pattern_and_values(
+            unchecked.sparsity_pattern,
+            unchecked.values,
+        ))
     }
 }
