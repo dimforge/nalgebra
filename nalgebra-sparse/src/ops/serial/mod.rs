@@ -108,16 +108,16 @@ impl OperationError {
 
 impl fmt::Display for OperationError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "Sparse matrix operation error: ")?;
+        write!(f, "sparse matrix operation error: ")?;
         match self.kind() {
             OperationErrorKind::InvalidPattern => {
-                write!(f, "InvalidPattern")?;
+                write!(f, "invalid pattern")?;
             }
             OperationErrorKind::Singular => {
-                write!(f, "Singular")?;
+                write!(f, "singular")?;
             }
         }
-        write!(f, " Message: {}", self.message)
+        write!(f, " message: {}", self.message)
     }
 }
 

@@ -31,7 +31,7 @@ impl CscSymbolicCholesky {
         assert_eq!(
             pattern.major_dim(),
             pattern.minor_dim(),
-            "Major and minor dimensions must be the same (square matrix)."
+            "major and minor dimensions must be the same (square matrix)"
         );
         let (l_pattern, u_pattern) = nonzero_pattern(&pattern);
         Self {
@@ -82,7 +82,7 @@ pub enum CholeskyError {
 
 impl Display for CholeskyError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Matrix is not positive definite")
+        write!(f, "matrix is not positive definite")
     }
 }
 
@@ -279,7 +279,7 @@ impl<T: RealField> CscCholesky<T> {
     ///
     /// Panics if `b` is not square.
     pub fn solve_mut<'a>(&'a self, b: impl Into<DMatrixSliceMut<'a, T>>) {
-        let expect_msg = "If the Cholesky factorization succeeded,\
+        let expect_msg = "if the Cholesky factorization succeeded,\
             then the triangular solve should never fail";
         // Solve LY = B
         let mut y = b.into();

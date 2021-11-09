@@ -259,7 +259,7 @@ impl SparsityPattern {
             new_offsets,
             new_indices,
         )
-        .expect("internal error: Transpose should never fail")
+        .expect("internal error: transpose should never fail")
     }
 }
 

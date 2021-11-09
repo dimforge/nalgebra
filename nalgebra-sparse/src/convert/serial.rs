@@ -64,7 +64,7 @@ where
     // TODO: Avoid "try_from" since it validates the data? (requires unsafe, should benchmark
     // to see if it can be justified for performance reasons)
     CsrMatrix::try_from_csr_data(coo.nrows(), coo.ncols(), offsets, indices, values)
-        .expect("Internal error: Invalid CSR data during COO->CSR conversion")
+        .expect("internal error: invalid CSR data during COO->CSR conversion")
 }
 
 /// Converts a [`CsrMatrix`] to a [`CooMatrix`].
@@ -120,7 +120,7 @@ where
     // TODO: Consider circumventing the data validity check here
     // (would require unsafe, should benchmark)
     CsrMatrix::try_from_csr_data(dense.nrows(), dense.ncols(), row_offsets, col_idx, values)
-        .expect("Internal error: Invalid CsrMatrix format during dense-> CSR conversion")
+        .expect("internal error: invalid CsrMatrix format during dense -> CSR conversion")
 }
 
 /// Converts a [`CooMatrix`] to a [`CscMatrix`].
@@ -138,7 +138,7 @@ where
     // TODO: Avoid "try_from" since it validates the data? (requires unsafe, should benchmark
     // to see if it can be justified for performance reasons)
     CscMatrix::try_from_csc_data(coo.nrows(), coo.ncols(), offsets, indices, values)
-        .expect("Internal error: Invalid CSC data during COO->CSC conversion")
+        .expect("internal error: invalid CSC data during COO -> CSC conversion")
 }
 
 /// Converts a [`CscMatrix`] to a [`CooMatrix`].
@@ -194,7 +194,7 @@ where
     // TODO: Consider circumventing the data validity check here
     // (would require unsafe, should benchmark)
     CscMatrix::try_from_csc_data(dense.nrows(), dense.ncols(), col_offsets, row_idx, values)
-        .expect("Internal error: Invalid CscMatrix format during dense-> CSC conversion")
+        .expect("internal error: invalid CscMatrix format during dense -> CSC conversion")
 }
 
 /// Converts a [`CsrMatrix`] to a [`CscMatrix`].
@@ -212,7 +212,7 @@ where
 
     // TODO: Avoid data validity check?
     CscMatrix::try_from_csc_data(csr.nrows(), csr.ncols(), offsets, indices, values)
-        .expect("Internal error: Invalid CSC data during CSR->CSC conversion")
+        .expect("internal error: invalid CSC data during CSR -> CSC conversion")
 }
 
 /// Converts a [`CscMatrix`] to a [`CsrMatrix`].
@@ -230,7 +230,7 @@ where
 
     // TODO: Avoid data validity check?
     CsrMatrix::try_from_csr_data(csc.nrows(), csc.ncols(), offsets, indices, values)
-        .expect("Internal error: Invalid CSR data during CSC->CSR conversion")
+        .expect("internal error: invalid CSR data during CSC -> CSR conversion")
 }
 
 fn convert_coo_cs<T>(

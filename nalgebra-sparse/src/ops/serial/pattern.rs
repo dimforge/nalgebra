@@ -16,12 +16,12 @@ pub fn spadd_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPatter
     assert_eq!(
         a.major_dim(),
         b.major_dim(),
-        "Patterns must have identical major dimensions."
+        "patterns must have identical major dimensions"
     );
     assert_eq!(
         a.minor_dim(),
         b.minor_dim(),
-        "Patterns must have identical minor dimensions."
+        "patterns must have identical minor dimensions"
     );
 
     let mut offsets = Vec::new();
@@ -40,7 +40,7 @@ pub fn spadd_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPatter
 
     // TODO: Consider circumventing format checks? (requires unsafe, should benchmark first)
     SparsityPattern::try_from_offsets_and_indices(a.major_dim(), a.minor_dim(), offsets, indices)
-        .expect("Internal error: Pattern must be valid by definition")
+        .expect("internal error: pattern must be valid by definition")
 }
 
 /// Sparse matrix multiplication pattern construction, `C <- A * B`.
@@ -114,7 +114,7 @@ pub fn spmm_csr_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPat
     }
 
     SparsityPattern::try_from_offsets_and_indices(a.major_dim(), b.minor_dim(), offsets, indices)
-        .expect("Internal error: Invalid pattern during matrix multiplication pattern construction")
+        .expect("internal error: invalid pattern during matrix multiplication pattern construction")
 }
 
 /// Iterate over the union of the two sets represented by sorted slices

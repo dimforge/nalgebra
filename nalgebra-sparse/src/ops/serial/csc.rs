@@ -132,12 +132,12 @@ pub fn spsolve_csc_lower_triangular<'a, T: RealField>(
     assert_eq!(
         l_matrix.nrows(),
         l_matrix.ncols(),
-        "Matrix must be square for triangular solve."
+        "matrix must be square for triangular solve"
     );
     assert_eq!(
         l_matrix.nrows(),
         b.nrows(),
-        "Dimension mismatch in sparse lower triangular solver."
+        "dimension mismatch in sparse lower triangular solver"
     );
     match l {
         Op::NoOp(a) => spsolve_csc_lower_triangular_no_transpose(a, b),
@@ -196,7 +196,7 @@ fn spsolve_csc_lower_triangular_no_transpose<T: RealField>(
 }
 
 fn spsolve_encountered_zero_diagonal() -> Result<(), OperationError> {
-    let message = "Matrix contains at least one diagonal entry that is zero.";
+    let message = "matrix contains at least one diagonal entry that is zero";
     Err(OperationError::from_kind_and_message(
         OperationErrorKind::Singular,
         String::from(message),
