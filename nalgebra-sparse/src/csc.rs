@@ -10,6 +10,8 @@ use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKin
 
 use nalgebra::Scalar;
 use num_traits::One;
+#[cfg(feature = "serde-serialize")]
+use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::slice::{Iter, IterMut};
 
 /// A CSC representation of a sparse matrix.
@@ -521,6 +523,63 @@ impl<T> CscMatrix<T> {
         T: Scalar,
     {
         CsrMatrix::from(self).transpose_as_csc()
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+#[derive(Serialize)]
+struct CscMatrixSerializationData<'a, T> {
+    nrows: usize,
+    ncols: usize,
+    col_offsets: &'a [usize],
+    row_indices: &'a [usize],
+    values: &'a [T],
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<T> Serialize for CscMatrix<T>
+where
+    T: Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        CscMatrixSerializationData {
+            nrows: self.nrows(),
+            ncols: self.ncols(),
+            col_offsets: self.col_offsets(),
+            row_indices: self.row_indices(),
+            values: self.values(),
+        }
+        .serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+#[derive(Deserialize)]
+struct CscMatrixDeserializationData<T> {
+    nrows: usize,
+    ncols: usize,
+    col_offsets: Vec<usize>,
+    row_indices: Vec<usize>,
+    values: Vec<T>,
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, T> Deserialize<'de> for CscMatrix<T>
+where
+    T: for<'de2> Deserialize<'de2>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<CscMatrix<T>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let de = CscMatrixDeserializationData::deserialize(deserializer)?;
+        CscMatrix::try_from_csc_data(de.nrows, de.ncols, de.col_offsets, de.row_indices, de.values)
+            .map(|m| m.into())
+            // TODO: More specific error
+            .map_err(|_e| de::Error::invalid_value(de::Unexpected::Other("invalid CSC matrix"), &"a valid CSC matrix"))
     }
 }
 

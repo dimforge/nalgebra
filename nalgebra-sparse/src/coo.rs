@@ -2,6 +2,9 @@
 
 use crate::SparseFormatError;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+
 /// A COO representation of a sparse matrix.
 ///
 /// A COO matrix stores entries in coordinate-form, that is triplets `(i, j, v)`, where `i` and `j`
@@ -271,5 +274,62 @@ impl<T> CooMatrix<T> {
     /// ```
     pub fn disassemble(self) -> (Vec<usize>, Vec<usize>, Vec<T>) {
         (self.row_indices, self.col_indices, self.values)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+#[derive(Serialize)]
+struct CooMatrixSerializationData<'a, T> {
+    nrows: usize,
+    ncols: usize,
+    row_indices: &'a [usize],
+    col_indices: &'a [usize],
+    values: &'a [T],
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<T> Serialize for CooMatrix<T>
+where
+    T: Serialize,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        CooMatrixSerializationData {
+            nrows: self.nrows(),
+            ncols: self.ncols(),
+            row_indices: self.row_indices(),
+            col_indices: self.col_indices(),
+            values: self.values(),
+        }
+        .serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+#[derive(Deserialize)]
+struct CooMatrixDeserializationData<T> {
+    nrows: usize,
+    ncols: usize,
+    row_indices: Vec<usize>,
+    col_indices: Vec<usize>,
+    values: Vec<T>,
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, T> Deserialize<'de> for CooMatrix<T>
+where
+    T: for<'de2> Deserialize<'de2>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<CooMatrix<T>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let de = CooMatrixDeserializationData::deserialize(deserializer)?;
+        CooMatrix::try_from_triplets(de.nrows, de.ncols, de.row_indices, de.col_indices, de.values)
+            .map(|m| m.into())
+            // TODO: More specific error
+            .map_err(|_e| de::Error::invalid_value(de::Unexpected::Other("invalid COO matrix"), &"a valid COO matrix"))
     }
 }

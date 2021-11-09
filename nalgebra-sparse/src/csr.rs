@@ -9,10 +9,8 @@ use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKin
 
 use nalgebra::Scalar;
 use num_traits::One;
-
 #[cfg(feature = "serde-serialize")]
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-
 use std::iter::FromIterator;
 use std::slice::{Iter, IterMut};
 
@@ -600,6 +598,16 @@ impl<T> CsrMatrix<T> {
 }
 
 #[cfg(feature = "serde-serialize")]
+#[derive(Serialize)]
+struct CsrMatrixSerializationData<'a, T> {
+    nrows: usize,
+    ncols: usize,
+    row_offsets: &'a [usize],
+    col_indices: &'a [usize],
+    values: &'a [T],
+}
+
+#[cfg(feature = "serde-serialize")]
 impl<T> Serialize for CsrMatrix<T>
 where
     T: Serialize,
@@ -608,15 +616,6 @@ where
     where
         S: Serializer,
     {
-        #[derive(Serialize)]
-        struct CsrMatrixSerializationData<'a, T> {
-            nrows: usize,
-            ncols: usize,
-            row_offsets: &'a [usize],
-            col_indices: &'a [usize],
-            values: &'a [T],
-        }
-
         CsrMatrixSerializationData {
             nrows: self.nrows(),
             ncols: self.ncols(),
@@ -629,6 +628,16 @@ where
 }
 
 #[cfg(feature = "serde-serialize")]
+#[derive(Deserialize)]
+struct CsrMatrixDeserializationData<T> {
+    nrows: usize,
+    ncols: usize,
+    row_offsets: Vec<usize>,
+    col_indices: Vec<usize>,
+    values: Vec<T>,
+}
+
+#[cfg(feature = "serde-serialize")]
 impl<'de, T> Deserialize<'de> for CsrMatrix<T>
 where
     T: for<'de2> Deserialize<'de2>,
@@ -637,15 +646,6 @@ where
     where
         D: Deserializer<'de>,
     {
-        #[derive(Deserialize)]
-        struct CsrMatrixDeserializationData<T> {
-            nrows: usize,
-            ncols: usize,
-            row_offsets: Vec<usize>,
-            col_indices: Vec<usize>,
-            values: Vec<T>,
-        }
-
         let de = CsrMatrixDeserializationData::deserialize(deserializer)?;
         CsrMatrix::try_from_csr_data(de.nrows, de.ncols, de.row_offsets, de.col_indices, de.values)
             .map(|m| m.into())
