@@ -12,6 +12,9 @@ use nalgebra::Scalar;
 use num_traits::One;
 use std::slice::{Iter, IterMut};
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Deserialize, Serialize};
+
 /// A CSC representation of a sparse matrix.
 ///
 /// The Compressed Sparse Column (CSC) format is well-suited as a general-purpose storage format
@@ -121,6 +124,7 @@ use std::slice::{Iter, IterMut};
 ///
 /// [Wikipedia article]: https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct CscMatrix<T> {
     // Cols are major, rows are minor in the sparsity pattern
     pub(crate) cs: CsMatrix<T>,
