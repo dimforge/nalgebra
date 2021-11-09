@@ -152,3 +152,20 @@ fn sparsity_pattern_try_from_invalid_data() {
         assert_eq!(pattern, Err(SparsityPatternFormatError::DuplicateEntry));
     }
 }
+
+#[test]
+fn sparsity_pattern_serde() {
+    // Round trip
+    {
+        // Arbitrary pattern
+        let offsets = vec![0, 2, 2, 5];
+        let indices = vec![0, 5, 1, 2, 3];
+        let pattern =
+            SparsityPattern::try_from_offsets_and_indices(3, 6, offsets.clone(), indices.clone())
+                .unwrap();
+
+        let serialized = serde_json::to_string(&pattern).unwrap();
+        let deserialized = serde_json::from_str::<SparsityPattern>(&serialized).unwrap();
+        assert_eq!(pattern, deserialized);
+    }
+}

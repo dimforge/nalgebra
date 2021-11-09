@@ -4,6 +4,9 @@ use crate::SparseFormatError;
 use std::error::Error;
 use std::fmt;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
 /// A representation of the sparsity pattern of a CSR or CSC matrix.
 ///
 /// CSR and CSC matrices store matrices in a very similar fashion. In fact, in a certain sense,
@@ -40,6 +43,11 @@ use std::fmt;
 /// as for `row_offsets` and `col_indices` in the [CSR](`crate::csr::CsrMatrix`) format
 /// specification.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    derive(Serialize, Deserialize),
+    serde(remote = "Self")
+)]
 // TODO: Make SparsityPattern parametrized by index type
 // (need a solid abstraction for index types though)
 pub struct SparsityPattern {
@@ -396,6 +404,124 @@ impl<'a> Iterator for SparsityPatternIter<'a> {
                         return Some((self.current_lane_idx, self.minor_indices[lower]));
                     }
                 }
+            }
+        }
+    }
+}
+
+impl Serialize for SparsityPattern {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        Self::serialize(self, serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for SparsityPattern {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let unchecked = SparsityPattern::deserialize(deserializer)?;
+        if unchecked.major_offsets.len() == 0 {
+            return Err(serde::de::Error::custom(
+                "Deserializing from pattern with no major offset.
+                    There should always be at least one major offset",
+            ));
+        }
+        let major_dim = unchecked.major_offsets.len() - 1;
+        let minor_dim = unchecked.minor_dim();
+        let major_offsets = unchecked.major_offsets;
+        let minor_indices = unchecked.minor_indices;
+        SparsityPattern::try_from_offsets_and_indices(
+            major_dim,
+            minor_dim,
+            major_offsets,
+            minor_indices,
+        )
+        .map_err(|e| serde::de::Error::custom(e.to_string()))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn pattern_serde() {
+        // Round trip
+        {
+            // Arbitrary pattern
+            let offsets = vec![0, 2, 2, 5];
+            let indices = vec![0, 5, 1, 2, 3];
+            let pattern = SparsityPattern::try_from_offsets_and_indices(
+                3,
+                6,
+                offsets.clone(),
+                indices.clone(),
+            )
+            .unwrap();
+
+            let serialized = serde_json::to_string(&pattern).unwrap();
+            let deserialized = serde_json::from_str::<SparsityPattern>(&serialized).unwrap();
+            assert_eq!(pattern, deserialized);
+        }
+
+        // Empty Major Offsets
+        {
+            let sp = SparsityPattern {
+                major_offsets: vec![0; 0],
+                minor_indices: vec![0; 0],
+                minor_dim: 0,
+            };
+            let serialized = serde_json::to_string(&sp).unwrap();
+            let deserialized = serde_json::from_str::<SparsityPattern>(&serialized);
+            match deserialized {
+                Ok(_) => assert!(false, "Should error if major offsets is empty"),
+                Err(_e) => assert!(true, "asdf"), // TODO check message
+            }
+        }
+        // InvalidOffsetArrayLength
+        {
+            let sp = SparsityPattern {
+                major_offsets: vec![0, 1, 2, 3],
+                minor_indices: vec![0; 0],
+                minor_dim: 3,
+            };
+            let serialized = serde_json::to_string(&sp).unwrap();
+            let deserialized = serde_json::from_str::<SparsityPattern>(&serialized);
+            match deserialized {
+                Ok(_) => assert!(false, "Should error if major offsets is empty"),
+                Err(_e) => assert!(true, "asdf"), // TODO check message
+            }
+        }
+        // Nonmonotonic Minor Indiices
+        {
+            let sp = SparsityPattern {
+                major_offsets: vec![0, 1, 2, 3],
+                minor_indices: vec![3, 2, 1, 0],
+                minor_dim: 3,
+            };
+            let serialized = serde_json::to_string(&sp).unwrap();
+            let deserialized = serde_json::from_str::<SparsityPattern>(&serialized);
+            match deserialized {
+                Ok(_) => assert!(false, "Should error if major offsets is empty"),
+                Err(_e) => assert!(true, "asdf"), // TODO check message
+            }
+        }
+        // Duplicate Entries
+        {
+            let sp = SparsityPattern {
+                major_offsets: vec![0, 1, 2, 3],
+                minor_indices: vec![0, 1, 2, 2],
+                minor_dim: 3,
+            };
+            let serialized = serde_json::to_string(&sp).unwrap();
+            let deserialized = serde_json::from_str::<SparsityPattern>(&serialized);
+            match deserialized {
+                Ok(_) => assert!(false, "Should error if major offsets is empty"),
+                Err(_e) => assert!(true, "asdf"), // TODO check message
             }
         }
     }
