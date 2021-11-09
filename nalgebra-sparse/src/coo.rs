@@ -2,6 +2,9 @@
 
 use crate::SparseFormatError;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
 /// A COO representation of a sparse matrix.
 ///
 /// A COO matrix stores entries in coordinate-form, that is triplets `(i, j, v)`, where `i` and `j`
@@ -37,6 +40,11 @@ use crate::SparseFormatError;
 /// let csc = CscMatrix::from(&coo);
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(
+    feature = "serde-serialize",
+    derive(Serialize, Deserialize),
+    serde(remote = "Self")
+)]
 pub struct CooMatrix<T> {
     nrows: usize,
     ncols: usize,
@@ -271,5 +279,31 @@ impl<T> CooMatrix<T> {
     /// ```
     pub fn disassemble(self) -> (Vec<usize>, Vec<usize>, Vec<T>) {
         (self.row_indices, self.col_indices, self.values)
+    }
+}
+
+impl<T: Serialize> Serialize for CooMatrix<T> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        Self::serialize(self, serializer)
+    }
+}
+
+impl<'de, T: Deserialize<'de>> Deserialize<'de> for CooMatrix<T> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let unchecked = Self::deserialize(deserializer)?;
+        Self::try_from_triplets(
+            unchecked.nrows,
+            unchecked.ncols,
+            unchecked.row_indices,
+            unchecked.col_indices,
+            unchecked.values,
+        )
+        .map_err(|e| serde::de::Error::custom(e.to_string()))
     }
 }

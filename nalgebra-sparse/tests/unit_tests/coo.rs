@@ -344,3 +344,16 @@ fn coo_push_matrix_out_of_bounds_entries() {
         assert_panics!(CooMatrix::new(3, 3).push_matrix(2, 2, &inserted));
     }
 }
+
+#[test]
+fn coo_serde() {
+    // Arbitrary matrix, with duplicates
+    let i = vec![0, 1, 0, 0, 0, 0, 2, 1];
+    let j = vec![0, 2, 0, 1, 0, 3, 3, 2];
+    let v = vec![2, 3, 4, 7, 1, 3, 1, 5];
+    let coo = CooMatrix::<i32>::try_from_triplets(3, 5, i.clone(), j.clone(), v.clone()).unwrap();
+
+    let serialized = serde_json::to_string(&coo).unwrap();
+    let deserialized = serde_json::from_str::<CooMatrix<i32>>(&serialized).unwrap();
+    assert_eq!(coo, deserialized);
+}
