@@ -13,6 +13,9 @@ use num_traits::One;
 use std::iter::FromIterator;
 use std::slice::{Iter, IterMut};
 
+#[cfg(feature = "serde-serialize")]
+use serde::{Deserialize, Serialize};
+
 /// A CSR representation of a sparse matrix.
 ///
 /// The Compressed Sparse Row (CSR) format is well-suited as a general-purpose storage format
@@ -122,6 +125,7 @@ use std::slice::{Iter, IterMut};
 ///
 /// [Wikipedia article]: https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_row_(CSR,_CRS_or_Yale_format)
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 pub struct CsrMatrix<T> {
     // Rows are major, cols are minor in the sparsity pattern
     pub(crate) cs: CsMatrix<T>,

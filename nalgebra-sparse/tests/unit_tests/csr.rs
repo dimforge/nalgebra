@@ -620,6 +620,42 @@ fn csr_matrix_row_iter() {
     }
 }
 
+#[test]
+fn csr_matrix_serde_roundtrip() {
+    let offsets = vec![0, 2, 2, 5];
+    let indices = vec![0, 5, 1, 2, 3];
+    let values = vec![0, 1, 2, 3, 4];
+    let matrix =
+        CsrMatrix::try_from_csr_data(3, 6, offsets.clone(), indices.clone(), values.clone())
+            .unwrap();
+    let serialized = serde_json::to_string(&matrix).unwrap();
+    let deserialized = serde_json::from_str::<CsrMatrix<i32>>(&serialized).unwrap();
+    assert_eq!(matrix, deserialized);
+}
+
+#[test]
+#[should_panic(expected = "Pattern non-zero count doesn't match number of values")]
+fn csr_matrix_serde() {
+    let offsets = vec![0, 2, 2, 5];
+    let indices = vec![0, 5, 1, 2, 3];
+    let values = vec![0, 1, 2, 3, 4];
+    let matrix =
+        CsrMatrix::try_from_csr_data(3, 6, offsets.clone(), indices.clone(), values.clone())
+            .unwrap();
+    let mut serialized = serde_json::to_value(&matrix).unwrap();
+    let obj = serialized.as_object_mut().unwrap();
+    // Patch the JSON to introduce
+    let values_array = obj
+        .get_mut("cs")
+        .unwrap()
+        .get_mut("values")
+        .unwrap()
+        .as_array_mut()
+        .unwrap();
+    values_array.pop();
+    let _deserialized = serde_json::from_value::<CsrMatrix<i32>>(serialized).unwrap();
+}
+
 proptest! {
     #[test]
     fn csr_double_transpose_is_identity(csr in csr_strategy()) {
