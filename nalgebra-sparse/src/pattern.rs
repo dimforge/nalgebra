@@ -4,6 +4,9 @@ use crate::SparseFormatError;
 use std::error::Error;
 use std::fmt;
 
+#[cfg(feature = "serde-serialize")]
+use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+
 /// A representation of the sparsity pattern of a CSR or CSC matrix.
 ///
 /// CSR and CSC matrices store matrices in a very similar fashion. In fact, in a certain sense,
@@ -283,6 +286,54 @@ pub enum SparsityPatternFormatError {
     DuplicateEntry,
     /// Indicates that minor indices are not monotonically increasing within each lane.
     NonmonotonicMinorIndices,
+}
+
+#[cfg(feature = "serde-serialize")]
+#[derive(Serialize)]
+struct SparsityPatternSerializationData<'a> {
+    major_dim: usize,
+    minor_dim: usize,
+    major_offsets: &'a [usize],
+    minor_indices: &'a [usize],
+}
+
+#[cfg(feature = "serde-serialize")]
+impl Serialize for SparsityPattern {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        SparsityPatternSerializationData {
+            major_dim: self.major_dim(),
+            minor_dim: self.minor_dim(),
+            major_offsets: self.major_offsets(),
+            minor_indices: self.minor_indices(),
+        }
+        .serialize(serializer)
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+#[derive(Deserialize)]
+struct SparsityPatternDeserializationData {
+    major_dim: usize,
+    minor_dim: usize,
+    major_offsets: Vec<usize>,
+    minor_indices: Vec<usize>,
+}
+
+#[cfg(feature = "serde-serialize")]
+impl<'de> Deserialize<'de> for SparsityPattern {
+    fn deserialize<D>(deserializer: D) -> Result<SparsityPattern, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let de = SparsityPatternDeserializationData::deserialize(deserializer)?;
+        SparsityPattern::try_from_offsets_and_indices(de.major_dim, de.minor_dim, de.major_offsets, de.minor_indices)
+            .map(|m| m.into())
+            // TODO: More specific error
+            .map_err(|_e| de::Error::invalid_value(de::Unexpected::Other("invalid sparsity pattern"), &"a valid sparsity pattern"))
+    }
 }
 
 impl From<SparsityPatternFormatError> for SparseFormatError {
