@@ -156,19 +156,15 @@ impl<T> CscMatrix<T> {
     /// An error is returned if the data given does not conform to the CSC storage format.
     /// See the documentation for [CscMatrix](struct.CscMatrix.html) for more information.
     pub fn try_from_csc_data(
-        num_rows: usize,
-        num_cols: usize,
+        nrows: usize,
+        ncols: usize,
         col_offsets: Vec<usize>,
         row_indices: Vec<usize>,
         values: Vec<T>,
     ) -> Result<Self, SparseFormatError> {
-        let pattern = SparsityPattern::try_from_offsets_and_indices(
-            num_cols,
-            num_rows,
-            col_offsets,
-            row_indices,
-        )
-        .map_err(pattern_format_error_to_csc_error)?;
+        let pattern =
+            SparsityPattern::try_from_offsets_and_indices(ncols, nrows, col_offsets, row_indices)
+                .map_err(pattern_format_error_to_csc_error)?;
         Self::try_from_pattern_and_values(pattern, values)
     }
 

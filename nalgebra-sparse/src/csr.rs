@@ -156,19 +156,15 @@ impl<T> CsrMatrix<T> {
     /// An error is returned if the data given does not conform to the CSR storage format.
     /// See the documentation for [CsrMatrix](struct.CsrMatrix.html) for more information.
     pub fn try_from_csr_data(
-        num_rows: usize,
-        num_cols: usize,
+        nrows: usize,
+        ncols: usize,
         row_offsets: Vec<usize>,
         col_indices: Vec<usize>,
         values: Vec<T>,
     ) -> Result<Self, SparseFormatError> {
-        let pattern = SparsityPattern::try_from_offsets_and_indices(
-            num_rows,
-            num_cols,
-            row_offsets,
-            col_indices,
-        )
-        .map_err(pattern_format_error_to_csr_error)?;
+        let pattern =
+            SparsityPattern::try_from_offsets_and_indices(nrows, ncols, row_offsets, col_indices)
+                .map_err(pattern_format_error_to_csr_error)?;
         Self::try_from_pattern_and_values(pattern, values)
     }
 
