@@ -636,7 +636,7 @@ struct CsrMatrixDeserializationData<T> {
 #[cfg(feature = "serde-serialize")]
 impl<'de, T> Deserialize<'de> for CsrMatrix<T>
 where
-    T: for<'de2> Deserialize<'de2>,
+    T: Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<CsrMatrix<T>, D::Error>
     where

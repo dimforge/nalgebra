@@ -320,7 +320,7 @@ struct CooMatrixDeserializationData<T> {
 #[cfg(feature = "serde-serialize")]
 impl<'de, T> Deserialize<'de> for CooMatrix<T>
 where
-    T: for<'de2> Deserialize<'de2>,
+    T: Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<CooMatrix<T>, D::Error>
     where
