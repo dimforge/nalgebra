@@ -134,6 +134,17 @@ fn sparsity_pattern_try_from_invalid_data() {
     }
 
     {
+        // Major index out of bounds
+        let offsets = vec![0, 10, 2, 5];
+        let indices = vec![0, 1, 2, 3, 4];
+        let pattern = SparsityPattern::try_from_offsets_and_indices(3, 6, offsets, indices);
+        assert_eq!(
+            pattern,
+            Err(SparsityPatternFormatError::MajorIndexOutOfBounds)
+        );
+    }
+
+    {
         // Minor index out of bounds
         let offsets = vec![0, 2, 2, 5];
         let indices = vec![0, 6, 1, 2, 3];
