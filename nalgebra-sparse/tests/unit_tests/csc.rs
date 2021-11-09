@@ -28,21 +28,21 @@ fn csc_matrix_valid_data() {
         assert_eq!(matrix.ncols(), 3);
         assert_eq!(matrix.nnz(), 0);
         assert_eq!(matrix.col_offsets(), &[0, 0, 0, 0]);
-        assert_eq!(matrix.row_indices(), &[]);
-        assert_eq!(matrix.values(), &[]);
+        assert_eq!(matrix.row_indices(), &[0; 0]);
+        assert_eq!(matrix.values(), &[0; 0]);
 
         assert!(matrix.triplet_iter().next().is_none());
         assert!(matrix.triplet_iter_mut().next().is_none());
 
         assert_eq!(matrix.col(0).nrows(), 2);
         assert_eq!(matrix.col(0).nnz(), 0);
-        assert_eq!(matrix.col(0).row_indices(), &[]);
-        assert_eq!(matrix.col(0).values(), &[]);
+        assert_eq!(matrix.col(0).row_indices(), &[0; 0]);
+        assert_eq!(matrix.col(0).values(), &[0; 0]);
         assert_eq!(matrix.col_mut(0).nrows(), 2);
         assert_eq!(matrix.col_mut(0).nnz(), 0);
-        assert_eq!(matrix.col_mut(0).row_indices(), &[]);
-        assert_eq!(matrix.col_mut(0).values(), &[]);
-        assert_eq!(matrix.col_mut(0).values_mut(), &[]);
+        assert_eq!(matrix.col_mut(0).row_indices(), &[0; 0]);
+        assert_eq!(matrix.col_mut(0).values(), &[0; 0]);
+        assert_eq!(matrix.col_mut(0).values_mut(), &[0; 0]);
         assert_eq!(
             matrix.col_mut(0).rows_and_values_mut(),
             ([].as_ref(), [].as_mut())
@@ -50,13 +50,13 @@ fn csc_matrix_valid_data() {
 
         assert_eq!(matrix.col(1).nrows(), 2);
         assert_eq!(matrix.col(1).nnz(), 0);
-        assert_eq!(matrix.col(1).row_indices(), &[]);
-        assert_eq!(matrix.col(1).values(), &[]);
+        assert_eq!(matrix.col(1).row_indices(), &[0; 0]);
+        assert_eq!(matrix.col(1).values(), &[0; 0]);
         assert_eq!(matrix.col_mut(1).nrows(), 2);
         assert_eq!(matrix.col_mut(1).nnz(), 0);
-        assert_eq!(matrix.col_mut(1).row_indices(), &[]);
-        assert_eq!(matrix.col_mut(1).values(), &[]);
-        assert_eq!(matrix.col_mut(1).values_mut(), &[]);
+        assert_eq!(matrix.col_mut(1).row_indices(), &[0; 0]);
+        assert_eq!(matrix.col_mut(1).values(), &[0; 0]);
+        assert_eq!(matrix.col_mut(1).values_mut(), &[0; 0]);
         assert_eq!(
             matrix.col_mut(1).rows_and_values_mut(),
             ([].as_ref(), [].as_mut())
@@ -64,13 +64,13 @@ fn csc_matrix_valid_data() {
 
         assert_eq!(matrix.col(2).nrows(), 2);
         assert_eq!(matrix.col(2).nnz(), 0);
-        assert_eq!(matrix.col(2).row_indices(), &[]);
-        assert_eq!(matrix.col(2).values(), &[]);
+        assert_eq!(matrix.col(2).row_indices(), &[0; 0]);
+        assert_eq!(matrix.col(2).values(), &[0; 0]);
         assert_eq!(matrix.col_mut(2).nrows(), 2);
         assert_eq!(matrix.col_mut(2).nnz(), 0);
-        assert_eq!(matrix.col_mut(2).row_indices(), &[]);
-        assert_eq!(matrix.col_mut(2).values(), &[]);
-        assert_eq!(matrix.col_mut(2).values_mut(), &[]);
+        assert_eq!(matrix.col_mut(2).row_indices(), &[0; 0]);
+        assert_eq!(matrix.col_mut(2).values(), &[0; 0]);
+        assert_eq!(matrix.col_mut(2).values_mut(), &[0; 0]);
         assert_eq!(
             matrix.col_mut(2).rows_and_values_mut(),
             ([].as_ref(), [].as_mut())
@@ -82,8 +82,8 @@ fn csc_matrix_valid_data() {
         let (offsets, indices, values) = matrix.disassemble();
 
         assert_eq!(offsets, vec![0, 0, 0, 0]);
-        assert_eq!(indices, vec![]);
-        assert_eq!(values, vec![]);
+        assert_eq!(indices, Vec::<usize>::new());
+        assert_eq!(values, Vec::<i32>::new());
     }
 
     {
@@ -134,13 +134,13 @@ fn csc_matrix_valid_data() {
 
         assert_eq!(matrix.col(1).nrows(), 6);
         assert_eq!(matrix.col(1).nnz(), 0);
-        assert_eq!(matrix.col(1).row_indices(), &[]);
-        assert_eq!(matrix.col(1).values(), &[]);
+        assert_eq!(matrix.col(1).row_indices(), &[0; 0]);
+        assert_eq!(matrix.col(1).values(), &[0; 0]);
         assert_eq!(matrix.col_mut(1).nrows(), 6);
         assert_eq!(matrix.col_mut(1).nnz(), 0);
-        assert_eq!(matrix.col_mut(1).row_indices(), &[]);
-        assert_eq!(matrix.col_mut(1).values(), &[]);
-        assert_eq!(matrix.col_mut(1).values_mut(), &[]);
+        assert_eq!(matrix.col_mut(1).row_indices(), &[0; 0]);
+        assert_eq!(matrix.col_mut(1).values(), &[0; 0]);
+        assert_eq!(matrix.col_mut(1).values_mut(), &[0; 0]);
         assert_eq!(
             matrix.col_mut(1).rows_and_values_mut(),
             ([].as_ref(), [].as_mut())

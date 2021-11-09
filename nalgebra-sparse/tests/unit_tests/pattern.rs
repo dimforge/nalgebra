@@ -15,17 +15,17 @@ fn sparsity_pattern_valid_data() {
         assert_eq!(pattern.minor_dim(), 2);
         assert_eq!(pattern.nnz(), 0);
         assert_eq!(pattern.major_offsets(), &[0, 0, 0, 0]);
-        assert_eq!(pattern.minor_indices(), &[]);
-        assert_eq!(pattern.lane(0), &[]);
-        assert_eq!(pattern.lane(1), &[]);
-        assert_eq!(pattern.lane(2), &[]);
+        assert_eq!(pattern.minor_indices(), &[0; 0]);
+        assert_eq!(pattern.lane(0), &[0; 0]);
+        assert_eq!(pattern.lane(1), &[0; 0]);
+        assert_eq!(pattern.lane(2), &[0; 0]);
         assert!(pattern.entries().next().is_none());
 
         assert_eq!(pattern, SparsityPattern::zeros(3, 2));
 
         let (offsets, indices) = pattern.disassemble();
         assert_eq!(offsets, vec![0, 0, 0, 0]);
-        assert_eq!(indices, vec![]);
+        assert_eq!(indices, Vec::<usize>::new());
     }
 
     {
@@ -42,7 +42,7 @@ fn sparsity_pattern_valid_data() {
         assert_eq!(pattern.minor_indices(), indices.as_slice());
         assert_eq!(pattern.nnz(), 5);
         assert_eq!(pattern.lane(0), &[0, 5]);
-        assert_eq!(pattern.lane(1), &[]);
+        assert_eq!(pattern.lane(1), &[0; 0]);
         assert_eq!(pattern.lane(2), &[1, 2, 3]);
         assert_eq!(
             pattern.entries().collect::<Vec<_>>(),
