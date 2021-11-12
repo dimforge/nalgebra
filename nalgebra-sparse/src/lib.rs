@@ -142,29 +142,23 @@
 )]
 
 pub extern crate nalgebra as na;
-pub mod convert;
+//pub mod convert;
 pub mod coo;
-pub mod csc;
-pub mod csr;
-pub mod factorization;
-pub mod ops;
-pub mod pattern;
+pub mod cs;
+// pub mod factorization;
+// pub mod ops;
 
-pub(crate) mod cs;
-
-#[cfg(feature = "proptest-support")]
-pub mod proptest;
-
-#[cfg(feature = "compare")]
-mod matrixcompare;
+// #[cfg(feature = "proptest-support")]
+// pub mod proptest;
+//
+// #[cfg(feature = "compare")]
+// mod matrixcompare;
 
 use num_traits::Zero;
 use std::error::Error;
 use std::fmt;
 
 pub use self::coo::CooMatrix;
-pub use self::csc::CscMatrix;
-pub use self::csr::CsrMatrix;
 
 /// Errors produced by functions that expect well-formed sparse format data.
 #[derive(Debug)]
