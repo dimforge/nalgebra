@@ -720,7 +720,7 @@ pub fn load_coo_from_matrix_market_str<T>(data: &str) -> Result<CooMatrix<T>, Ma
 where
     T: MatrixMarketScalar,
 {
-    // unwrap() in this function are guaranteed by pasing the data
+    // unwrap() in this function are guaranteed by parsing the data
     let file = MMParser::parse(Rule::Document, data)?.next().unwrap();
 
     let mut rows: Vec<usize> = Vec::new();
@@ -935,7 +935,7 @@ fn check_lower_triangle(r: usize, c: usize) -> Result<(), MatrixMarketError> {
 #[inline]
 /// Parse a pest structure to a Typecode of the matrix.
 fn parse_header(inner: &mut Pairs<'_, Rule>) -> Typecode {
-    // unwrap() in this function are guaranteed by pasing the data
+    // unwrap() in this function are guaranteed by parsing the data
     Typecode {
         sparsity: inner
             .next()
@@ -968,7 +968,7 @@ fn parse_sparse_shape(
     inner: &mut Pairs<'_, Rule>,
     storagescheme: &StorageScheme,
 ) -> Result<(usize, usize, usize), MatrixMarketError> {
-    // unwrap() in this function are guaranteed by pasing the data
+    // unwrap() in this function are guaranteed by parsing the data
     let shape_inner = inner.next().unwrap();
     if shape_inner.as_rule() != Rule::SparseShape {
         return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::ParsingError,format!("
@@ -1007,7 +1007,7 @@ fn parse_dense_shape(
     inner: &mut Pairs<'_, Rule>,
     storagescheme: &StorageScheme,
 ) -> Result<(usize, usize, usize), MatrixMarketError> {
-    // unwrap() in this function are guaranteed by pasing the data
+    // unwrap() in this function are guaranteed by parsing the data
     let shape_inner = inner.next().unwrap();
     if shape_inner.as_rule() != Rule::DenseShape {
         return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::ParsingError,format!("
@@ -1066,7 +1066,7 @@ fn parse_sparse_real<T>(inner: &mut Pairs<'_, Rule>) -> Result<(usize, usize, T)
 where
     T: MatrixMarketScalar,
 {
-    // unwrap() in this function are guaranteed by pasing the data
+    // unwrap() in this function are guaranteed by parsing the data
     let entry_inner = inner.next().unwrap();
     if entry_inner.as_rule() != Rule::SparseReal {
         return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::ParsingError,format!("
@@ -1085,7 +1085,7 @@ fn parse_sparse_int<T>(inner: &mut Pairs<'_, Rule>) -> Result<(usize, usize, T),
 where
     T: MatrixMarketScalar,
 {
-    // unwrap() in this function are guaranteed by pasing the data
+    // unwrap() in this function are guaranteed by parsing the data
     let entry_inner = inner.next().unwrap();
     // Because integer numbers can also be parsed as float numbers, it will be checked again in `parse::<i128>()?`
     if entry_inner.as_rule() != Rule::SparseReal {
@@ -1113,7 +1113,7 @@ fn parse_sparse_pattern<T>(
 where
     T: MatrixMarketScalar,
 {
-    // unwrap() in this function are guaranteed by pasing the data
+    // unwrap() in this function are guaranteed by parsing the data
     let entry_inner = inner.next().unwrap();
     if entry_inner.as_rule() != Rule::SparsePattern {
         return Err(MatrixMarketError::from_kind_and_message(
@@ -1138,7 +1138,7 @@ fn parse_sparse_complex<T>(
 where
     T: MatrixMarketScalar,
 {
-    // unwrap() in this function are guaranteed by pasing the data
+    // unwrap() in this function are guaranteed by parsing the data
     let entry_inner = inner.next().unwrap();
     if entry_inner.as_rule() != Rule::SparseComplex {
         return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::ParsingError,format!("
@@ -1158,7 +1158,7 @@ fn parse_dense_real<T>(inner: &mut Pairs<'_, Rule>) -> Result<T, MatrixMarketErr
 where
     T: MatrixMarketScalar,
 {
-    // unwrap() in this function are guaranteed by pasing the data
+    // unwrap() in this function are guaranteed by parsing the data
     let entry_inner = inner.next().unwrap();
     if entry_inner.as_rule() != Rule::DenseReal {
         return Err(MatrixMarketError::from_kind_and_message(
@@ -1181,7 +1181,7 @@ fn parse_dense_int<T>(inner: &mut Pairs<'_, Rule>) -> Result<T, MatrixMarketErro
 where
     T: MatrixMarketScalar,
 {
-    // unwrap() in this function are guaranteed by pasing the data
+    // unwrap() in this function are guaranteed by parsing the data
     let entry_inner = inner.next().unwrap();
     // Because integer numbers can also be parsed as float numbers, it will be checked again in `parse::<i128>()?`
     if entry_inner.as_rule() != Rule::DenseReal {
@@ -1206,7 +1206,7 @@ fn parse_dense_complex<T>(inner: &mut Pairs<'_, Rule>) -> Result<T, MatrixMarket
 where
     T: MatrixMarketScalar,
 {
-    // unwrap() in this function are guaranteed by pasing the data
+    // unwrap() in this function are guaranteed by parsing the data
     let entry_inner = inner.next().unwrap();
     // Note: theoretically, 2 positive integers could also become the complex number,
     // but it would be parsed as SparsePattern, because SparsePattern has higher priority.
@@ -1236,7 +1236,7 @@ where
 fn parse_sparse_coordiante(
     inner: &mut Pairs<'_, Rule>,
 ) -> Result<(usize, usize), MatrixMarketError> {
-    // unwrap() in this function are guaranteed by pasing the data
+    // unwrap() in this function are guaranteed by parsing the data
     let r = inner.next().unwrap().as_str().parse::<usize>().unwrap();
     let c = inner.next().unwrap().as_str().parse::<usize>().unwrap();
     if r * c == 0 {
