@@ -1,9 +1,8 @@
-WHITESPACE = _{ " " }
+WHITESPACE = _{ " "|"\t" }
 
 //
 
-// dense matrix(array) not supported here
-Sparsity = {^"coordinate"}
+Sparsity = {^"coordinate" | ^"array"}
 DataType = {^"real" | ^"complex" | ^"pattern" | ^"integer" }
 StorageScheme  = {^"symmetric"  | ^"general" | ^"skew-symmetric"  | ^"hermitian"}
 // Only consider matrices here.
@@ -16,7 +15,9 @@ Comments = _{ "%" ~ (!NEWLINE ~ ANY)* }
 //
 
 Dimension = @{ ASCII_DIGIT+ }
-Shape = { Dimension ~ Dimension ~ Dimension }
+SparseShape = { Dimension ~ Dimension ~ Dimension}
+DenseShape = { Dimension ~ Dimension}
+Shape = {SparseShape | DenseShape  }
 
 //
 
@@ -25,14 +26,21 @@ Shape = { Dimension ~ Dimension ~ Dimension }
 Sign = {("+" | "-")}
 Exp = @{ ^"e" ~ Sign? ~ ASCII_DIGIT+}
 Number = @{ ((ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*) | (ASCII_DIGIT* ~ "." ~ASCII_DIGIT+) | ASCII_DIGIT+ ) ~ Exp? } 
-Value = @{ Sign? ~ ("inf" | "NaN" | Number) }
+Real = @{ Sign? ~ ("inf" | "NaN" | Number) }
 
-// zero value: pattern
-// one Value: real or int number
-// two values:  complex number
-Entry = { Dimension ~ Dimension ~ Value? ~ Value? }
 
-//
+SparseReal =  {Dimension~ Dimension~ Real }
+SparseComplex = {Dimension ~ Dimension ~ Real ~ Real}
+SparsePattern = {Dimension ~ Dimension}
+
+DenseReal = {Real}
+DenseComplex = {Real ~ Real}
+
+
+Entry = {  SparseComplex  | SparseReal |   SparsePattern | DenseComplex  | DenseReal }
+
+// end of file, a silent way, see https://github.com/pest-parser/pest/issues/304#issuecomment-427198507
+eoi = _{ !ANY }
 
 Document = {
     SOI ~
@@ -40,5 +48,6 @@ Document = {
     Header ~
     (NEWLINE ~ Comments)* ~
     (NEWLINE ~ Shape) ~
-    (NEWLINE ~ Entry?)*
+    (NEWLINE ~ Entry?)* ~
+    eoi
 }
