@@ -73,8 +73,8 @@ mod private {
 /// This type is parameterized by the following types:
 ///
 /// - `T`: The data type of each element
-/// - `Offset`: An unsigned numeric type for describing how many elements are in each major axis
-/// lane.
+/// - `Offset`: An unsigned numeric type for describing how many elements in `indices` and `data`
+/// to traverse to get to the start of a given lane.
 /// - `Index`: An unsigned numeric type for describing the positions of elements in each minor axis
 /// lane.
 /// - `MajorOffsets`: A type for holding the offsets for each major axis lane.
@@ -123,8 +123,8 @@ mod private {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CsMatrix<T, Offset, MajorOffsets, MinorIndices, Data, CompressionKind, Index = Offset>
 where
-    Offset: Add<usize, Output = usize> + Clone + Into<usize> + Unsigned + Ord,
-    Index: Clone + Into<usize> + Unsigned + Ord,
+    Offset: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    Index: Copy + Clone + Into<usize> + Unsigned + Ord,
     MajorOffsets: Borrow<[Offset]>,
     MinorIndices: Borrow<[Index]>,
     Data: Borrow<[T]>,
@@ -143,8 +143,8 @@ where
     /// number of columns in e.g. a CSC matrix.
     ///
     /// Each element of the slice contains an offset, which is a number denoting the number of
-    /// explicit non-zero elements along the minor axis at that major index. So for example, if we
-    /// had the following matrix in CSC (column-major) format:
+    /// explicit non-zero elements in `Data` to skip in order to get to that major axis lane. So
+    /// for example, if we had the following matrix in CSC (column-major) format:
     ///
     /// ```text
     /// | 2 | 0 | 0 |
@@ -158,21 +158,26 @@ where
     /// third. So our offsets would:
     ///
     /// ```rust
-    /// let offsets = vec![1, 2, 0];
+    /// // One non-zero element in lane with index 0
+    /// // Two non-zero elements in lane with index 1
+    /// // Zero non-zero elements in lane with index 2
+    /// let counts = vec![1, 2, 0];
+    ///
+    /// // Zero non-zero elements before lane with index 0
+    /// // One non-zero element before lane with index 1
+    /// // Three non-zero elements before lane with index 2
+    /// let offsets = vec![0, 1, 3];
     /// ```
     ///
-    /// To get the total offsets into the `data` for e.g. column `i`, one might then write
-    /// something like:
+    /// One can view the offsets as an accumulated sum of all the previous counts.
     ///
     /// ```rust
     /// // Pretend you have a matrix where these offsets are valid
-    /// let offsets = vec![1, 2, 7, 4, 0, 2, 0, 4, 0, 0, 5];
+    /// let offsets = vec![0, 2, 7, 11, 11, 13, 13, 17, 17, 17, 23];
     /// // Assume we want to get data at column 4
     /// let i = 4;
     ///
-    /// let total_offset = offsets[0..i]
-    ///     .iter()
-    ///     .fold(0usize, |k, x| x.clone() + k);
+    /// let offset_column_i = offsets[i];
     /// ```
     offsets: MajorOffsets,
 
@@ -196,7 +201,7 @@ where
     /// Then your offsets and indices would look like:
     ///
     /// ```rust
-    /// let offsets = vec![2, 2, 1];
+    /// let offsets = vec![0, 2, 4];
     /// let indices = vec![0, 3, 1, 2, 3];
     /// let data = vec![7, 7, 4, 9, 6];
     /// ```
@@ -227,8 +232,8 @@ pub type CscMatrix<T, O, I = O> =
 impl<T, Offset, MajorOffsets, MinorIndices, Data, CompressionKind, Index>
     CsMatrix<T, Offset, MajorOffsets, MinorIndices, Data, CompressionKind, Index>
 where
-    Offset: Add<usize, Output = usize> + Clone + Into<usize> + Unsigned + Ord,
-    Index: Clone + Into<usize> + Unsigned + Ord,
+    Offset: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    Index: Copy + Clone + Into<usize> + Unsigned + Ord,
     MajorOffsets: Borrow<[Offset]>,
     MinorIndices: Borrow<[Index]>,
     Data: Borrow<[T]>,
@@ -316,38 +321,39 @@ where
     ///
     /// This function will return `None` if and only if the requested entry is out-of-bounds of the
     /// underlying matrix.
-    pub fn get_entry(&self, major_index: Offset, minor_index: Index) -> Option<SparseEntry<'_, T>> {
+    pub fn get_entry(&self, major_index: usize, minor_index: usize) -> Option<SparseEntry<'_, T>> {
         let nmajor = self.nmajor();
         let nminor = self.nminor();
 
         let major_index: usize = major_index.into();
         let minor_index: usize = minor_index.into();
 
-        if major_index > nmajor || minor_index > nminor {
+        if major_index >= nmajor || minor_index >= nminor {
             return None;
         }
 
-        let offsets = &self.offsets.borrow();
-        let offset = offsets
-            .get(0..major_index)?
-            .iter()
-            .fold(0usize, |k, x| x.clone() + k);
+        let offset = self.offsets.borrow()[major_index].into();
 
-        let nelems_in_minor = &offsets[major_index];
-        let indices = self.indices.borrow();
-        let indices = &indices[offset..nelems_in_minor.clone() + offset];
+        let (indices, data) = if major_index + 1 < self.nmajor() {
+            let offset_upper = self.offsets.borrow()[major_index + 1].into();
 
-        let values = self.data.borrow();
-        let values = &values[offset..nelems_in_minor.clone() + offset];
+            let indices = &self.indices.borrow()[offset..offset_upper];
+            let data = &self.data.borrow()[offset..offset_upper];
 
-        let entry = if let Ok(local_index) = indices.binary_search_by(|x| {
-            let x: usize = x.clone().into();
-            x.cmp(&minor_index)
-        }) {
-            SparseEntry::NonZero(&values[local_index])
+            (indices, data)
         } else {
-            SparseEntry::Zero
+            let indices = &self.indices.borrow()[offset..];
+            let data = &self.data.borrow()[offset..];
+
+            (indices, data)
         };
+
+        let entry =
+            if let Ok(local_index) = indices.binary_search_by(|&x| x.into().cmp(&minor_index)) {
+                SparseEntry::NonZero(&data[local_index])
+            } else {
+                SparseEntry::Zero
+            };
 
         Some(entry)
     }
@@ -380,18 +386,25 @@ where
     /// Returns `None` iff the major index does not correspond to a lane in the `CsMatrix` (e.g. if
     /// you ask for lane 100 on a 3x3 sparse matrix).
     pub fn get_lane(&self, major_index: usize) -> Option<CsLaneIter<'_, T, Index>> {
-        let offsets = self.offsets.borrow();
-
-        if major_index >= offsets.len() {
+        if major_index >= self.nmajor() {
             return None;
         }
 
-        let offset = offsets[0..major_index].iter().fold(0, |k, x| x.clone() + k);
+        let offset = self.offsets.borrow()[major_index].into();
 
-        let nelems_in_minor = &offsets[major_index];
+        let (indices, data) = if major_index + 1 < self.nmajor() {
+            let offset_upper = self.offsets.borrow()[major_index + 1].into();
 
-        let indices = &self.indices.borrow()[offset..nelems_in_minor.clone() + offset];
-        let data = &self.data.borrow()[offset..nelems_in_minor.clone() + offset];
+            let indices = &self.indices.borrow()[offset..offset_upper];
+            let data = &self.data.borrow()[offset..offset_upper];
+
+            (indices, data)
+        } else {
+            let indices = &self.indices.borrow()[offset..];
+            let data = &self.data.borrow()[offset..];
+
+            (indices, data)
+        };
 
         Some(CsLaneIter {
             current_local_index: 0,
@@ -406,7 +419,6 @@ where
 
         CsMatrixIter {
             current_major_index: 0,
-            current_total_offset: 0,
             offsets,
             indices,
             data,
@@ -416,8 +428,8 @@ where
 
 impl<T, O, I, C> CsMatrix<T, O, Vec<O>, Vec<I>, Vec<T>, C, I>
 where
-    O: Add<usize, Output = usize> + Clone + Into<usize> + Unsigned + Ord + Clone,
-    I: Clone + Into<usize> + Unsigned + Ord,
+    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord + Clone,
+    I: Copy + Clone + Into<usize> + Unsigned + Ord,
     C: Compression,
 {
     /// Returns an owned `CsMatrix` of shape `(nrows, ncols)` entirely comprised of implicit zeros,
@@ -479,8 +491,8 @@ where
 
 impl<'a, T, Offset, Index> Iterator for AllElementsIter<'a, T, Offset, Index>
 where
-    Offset: Add<usize, Output = usize> + Clone + Into<usize> + Unsigned + Ord,
-    Index: Clone + Into<usize> + Unsigned + Ord,
+    Offset: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    Index: Copy + Clone + Into<usize> + Unsigned + Ord,
 {
     type Item = (usize, usize, SparseEntry<'a, T>);
 
@@ -492,22 +504,28 @@ where
         let major_index = self.current_major_index;
         let minor_index = self.current_minor_index;
 
-        let offset = self.offsets[0..major_index]
-            .iter()
-            .fold(0usize, |k, x| x.clone() + k);
+        let offset = self.offsets[major_index].into();
 
-        let nelems_in_minor = &self.offsets[major_index];
-        let indices = &self.indices[offset..nelems_in_minor.clone() + offset];
-        let values = &self.data[offset..nelems_in_minor.clone() + offset];
+        let (indices, data) = if major_index + 1 < self.offsets.len() {
+            let offset_upper = self.offsets[major_index + 1].into();
 
-        let entry = if let Ok(local_index) = indices.binary_search_by(|x| {
-            let x = x.clone().into();
-            x.cmp(&minor_index)
-        }) {
-            SparseEntry::NonZero(&values[local_index])
+            let indices = &self.indices[offset..offset_upper];
+            let data = &self.data[offset..offset_upper];
+
+            (indices, data)
         } else {
-            SparseEntry::Zero
+            let indices = &self.indices[offset..];
+            let data = &self.data[offset..];
+
+            (indices, data)
         };
+
+        let entry =
+            if let Ok(local_index) = indices.binary_search_by(|&x| x.into().cmp(&minor_index)) {
+                SparseEntry::NonZero(&data[local_index])
+            } else {
+                SparseEntry::Zero
+            };
 
         self.current_minor_index += 1;
 
@@ -523,8 +541,8 @@ where
 
 impl<'a, T, Offset, Index> ExactSizeIterator for AllElementsIter<'a, T, Offset, Index>
 where
-    Offset: Add<usize, Output = usize> + Clone + Into<usize> + Unsigned + Ord,
-    Index: Clone + Into<usize> + Unsigned + Ord,
+    Offset: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    Index: Copy + Clone + Into<usize> + Unsigned + Ord,
 {
     fn len(&self) -> usize {
         let nelems = self.minor_length * self.offsets.len();
@@ -549,7 +567,6 @@ where
     Index: Unsigned + Ord,
 {
     current_major_index: usize,
-    current_total_offset: usize,
     offsets: &'a [Offset],
     indices: &'a [Index],
     data: &'a [T],
@@ -557,8 +574,8 @@ where
 
 impl<'a, T, Offset, Index> Iterator for CsMatrixIter<'a, T, Offset, Index>
 where
-    Offset: Add<usize, Output = usize> + Clone + Into<usize> + Unsigned + Ord,
-    Index: Clone + Into<usize> + Unsigned + Ord,
+    Offset: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    Index: Copy + Clone + Into<usize> + Unsigned + Ord,
 {
     type Item = CsLaneIter<'a, T, Index>;
 
@@ -567,13 +584,21 @@ where
             return None;
         }
 
-        let nelems_in_minor = &self.offsets[self.current_major_index];
+        let offset = self.offsets[self.current_major_index].into();
 
-        let offset = self.current_total_offset;
-        self.current_total_offset += nelems_in_minor.clone().into();
+        let (indices, data) = if self.current_major_index + 1 < self.offsets.len() {
+            let offset_upper = self.offsets[self.current_major_index + 1].into();
 
-        let indices = &self.indices[offset..self.current_total_offset];
-        let data = &self.data[offset..self.current_total_offset];
+            let indices = &self.indices[offset..offset_upper];
+            let data = &self.data[offset..offset_upper];
+
+            (indices, data)
+        } else {
+            let indices = &self.indices[offset..];
+            let data = &self.data[offset..];
+
+            (indices, data)
+        };
 
         self.current_major_index += 1;
 
@@ -587,8 +612,8 @@ where
 
 impl<'a, T, Offset, Index> ExactSizeIterator for CsMatrixIter<'a, T, Offset, Index>
 where
-    Offset: Add<usize, Output = usize> + Clone + Into<usize> + Unsigned + Ord,
-    Index: Clone + Into<usize> + Unsigned + Ord,
+    Offset: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    Index: Copy + Clone + Into<usize> + Unsigned + Ord,
 {
     fn len(&self) -> usize {
         let nlanes = self.offsets.len();
