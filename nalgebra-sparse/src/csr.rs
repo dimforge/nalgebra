@@ -6,6 +6,7 @@
 #[cfg(feature = "serde-serialize")]
 mod csr_serde;
 
+use crate::cs;
 use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
 use crate::csc::CscMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
@@ -193,25 +194,27 @@ impl<T> CsrMatrix<T> {
     where
         T: Scalar + Zero,
     {
-        SparsityPattern::validate_and_optionally_sort_cs_data(
+        let result = cs::validate_and_optionally_sort_cs_data(
             num_rows,
             num_cols,
             &row_offsets,
             &mut col_indices,
             Some(&mut values),
             true,
-        )
-        .map_err(pattern_format_error_to_csr_error)?;
+        );
 
-        let pattern = SparsityPattern::try_from_offsets_and_indices(
-            num_rows,
-            num_cols,
-            row_offsets,
-            col_indices,
-        )
-        .map_err(pattern_format_error_to_csr_error)?;
-
-        return Self::try_from_pattern_and_values(pattern, values);
+        match result {
+            Ok(()) => unsafe {
+                let pattern = SparsityPattern::from_offset_and_indices_unchecked(
+                    num_rows,
+                    num_cols,
+                    row_offsets,
+                    col_indices,
+                );
+                Self::try_from_pattern_and_values(pattern, values)
+            },
+            Err(err) => Err(err),
+        }
     }
 
     /// Try to construct a CSR matrix from a sparsity pattern and associated non-zero values.

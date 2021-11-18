@@ -107,7 +107,7 @@ where
 
 impl<'a, T> From<&'a CscMatrix<T>> for CsrMatrix<T>
 where
-    T: Scalar + Zero,
+    T: Scalar,
 {
     fn from(matrix: &'a CscMatrix<T>) -> Self {
         convert_csc_csr(matrix)

@@ -218,7 +218,7 @@ where
 /// Converts a [`CscMatrix`] to a [`CsrMatrix`].
 pub fn convert_csc_csr<T>(csc: &CscMatrix<T>) -> CsrMatrix<T>
 where
-    T: Scalar + Zero,
+    T: Scalar,
 {
     let (offsets, indices, values) = cs::transpose_cs(
         csc.ncols(),

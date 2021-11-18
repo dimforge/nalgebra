@@ -6,6 +6,7 @@
 #[cfg(feature = "serde-serialize")]
 mod csc_serde;
 
+use crate::cs;
 use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
 use crate::csr::CsrMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
@@ -192,25 +193,27 @@ impl<T> CscMatrix<T> {
     where
         T: Scalar + Zero,
     {
-        SparsityPattern::validate_and_optionally_sort_cs_data(
+        let result = cs::validate_and_optionally_sort_cs_data(
             num_cols,
             num_rows,
             &col_offsets,
             &mut row_indices,
             Some(&mut values),
             true,
-        )
-        .map_err(pattern_format_error_to_csc_error)?;
+        );
 
-        let pattern = SparsityPattern::try_from_offsets_and_indices(
-            num_cols,
-            num_rows,
-            col_offsets,
-            row_indices,
-        )
-        .map_err(pattern_format_error_to_csc_error)?;
-
-        return Self::try_from_pattern_and_values(pattern, values);
+        match result {
+            Ok(()) => unsafe {
+                let pattern = SparsityPattern::from_offset_and_indices_unchecked(
+                    num_cols,
+                    num_rows,
+                    col_offsets,
+                    row_indices,
+                );
+                Self::try_from_pattern_and_values(pattern, values)
+            },
+            Err(err) => Err(err),
+        }
     }
 
     /// Try to construct a CSC matrix from a sparsity pattern and associated non-zero values.
