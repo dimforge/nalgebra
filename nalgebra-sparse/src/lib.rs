@@ -142,7 +142,7 @@
 )]
 
 pub extern crate nalgebra as na;
-//pub mod convert;
+pub mod convert;
 pub mod coo;
 pub mod cs;
 pub mod error;
