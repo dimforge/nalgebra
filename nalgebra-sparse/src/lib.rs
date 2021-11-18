@@ -151,9 +151,9 @@ pub mod error;
 
 // #[cfg(feature = "proptest-support")]
 // pub mod proptest;
-//
-// #[cfg(feature = "compare")]
-// mod matrixcompare;
+
+#[cfg(feature = "compare")]
+mod matrixcompare;
 
 use num_traits::Zero;
 
