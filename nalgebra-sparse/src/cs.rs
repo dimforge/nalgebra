@@ -1,8 +1,11 @@
 //! A type for representing compressed sparse (row-major / column-major) matrices.
 
-use crate::SparseEntry;
+use super::{
+    error::{SparseFormatError, SparsityPatternFormatError},
+    SparseEntry,
+};
 use num_traits::{One, Unsigned};
-use std::{borrow::Borrow, cmp::Ord, marker::PhantomData, ops::Add};
+use std::{borrow::Borrow, cmp::Ord, cmp::Ordering, marker::PhantomData, ops::Add};
 
 /// An empty type to represent CSC-like storage convention.
 #[derive(Clone, Copy)]
@@ -281,6 +284,112 @@ where
     #[must_use]
     pub fn nnz(&self) -> usize {
         self.indices.borrow().len()
+    }
+
+    unsafe fn from_parts_unchecked(
+        nrows: usize,
+        ncols: usize,
+        offsets: MajorOffsets,
+        indices: MinorIndices,
+        data: Data,
+    ) -> Self {
+        Self {
+            shape: (nrows, ncols),
+            offsets,
+            indices,
+            data,
+            _phantom: PhantomData,
+        }
+    }
+
+    /// Constructor for the `CsMatrix` type that checks for shape / size / compression consistency.
+    ///
+    /// # Errors
+    ///
+    /// This function will error out in any of the following (non-exhaustive) scenarios:
+    ///
+    /// - `offsets` does not have a length equal to the major dimension length of the matrix plus
+    /// one.
+    /// - The first entry in `offsets` is not zero.
+    /// - The elements of `offsets` are not monotonically increasing.
+    /// - The elements of `indices` are not monotonically increasing per lane.
+    /// - `indices` has an element that is greater than the minor dimension length of the matrix.
+    /// - Duplicate entries were detected (i.e. two entries have the same major and minor index).
+    pub fn try_from_parts(
+        nrows: usize,
+        ncols: usize,
+        offsets: MajorOffsets,
+        indices: MinorIndices,
+        data: Data,
+    ) -> Result<Self, SparseFormatError> {
+        let nmajor = CompressionKind::nmajor(nrows, ncols);
+        let nminor = CompressionKind::nminor(nrows, ncols);
+        let borrowed_offsets = offsets.borrow();
+        let borrowed_indices = indices.borrow();
+
+        if borrowed_offsets.len() != nmajor {
+            // size mismatch
+            return Err(SparsityPatternFormatError::InvalidOffsetArrayLength.into());
+        }
+
+        if let Some(first) = borrowed_offsets.first() {
+            if first != &Offset::zero() {
+                // First entry exists and is not zero
+                return Err(SparsityPatternFormatError::InvalidFirstOffset.into());
+            }
+        }
+
+        if borrowed_indices.len() != data.borrow().len() {
+            // size mismatch
+            return Err(SparsityPatternFormatError::DataAndIndicesSizeMismatch.into());
+        }
+
+        if borrowed_indices.iter().any(|&index| index.into() >= nminor) {
+            // Index out-of-bounds
+            return Err(SparsityPatternFormatError::MinorIndexOutOfBounds.into());
+        }
+
+        for major_index in 0..nmajor {
+            let lower = borrowed_offsets[major_index].into();
+
+            let lane_indices = if major_index + 1 < nmajor {
+                let upper = borrowed_offsets[major_index + 1].into();
+
+                if lower > upper {
+                    // Offsets do not monotonically increase
+                    return Err(SparsityPatternFormatError::NonmonotonicOffsets.into());
+                }
+
+                &borrowed_indices[lower..upper]
+            } else {
+                &borrowed_indices[lower..]
+            };
+
+            if let Some(err) = lane_indices
+                .iter()
+                .zip(&lane_indices[1..])
+                .filter_map(|(lower_index, upper_index)| {
+                    match lower_index.cmp(upper_index) {
+                        Ordering::Less => None,
+                        Ordering::Equal => {
+                            // Duplicates detected
+                            Some(Err(SparsityPatternFormatError::DuplicateEntry.into()))
+                        }
+                        Ordering::Greater => {
+                            // Indices in lane do not monotonically increase
+                            Some(Err(
+                                SparsityPatternFormatError::NonmonotonicMinorIndices.into()
+                            ))
+                        }
+                    }
+                })
+                .next()
+            {
+                return err;
+            }
+        }
+
+        Ok(unsafe { Self::from_parts_unchecked(nrows, ncols, offsets, indices, data) })
     }
 
     /// Consumes self and returns the underlying major offsets, minor indices, and data contained

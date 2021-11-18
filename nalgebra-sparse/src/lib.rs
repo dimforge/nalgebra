@@ -145,6 +145,7 @@ pub extern crate nalgebra as na;
 //pub mod convert;
 pub mod coo;
 pub mod cs;
+pub mod error;
 // pub mod factorization;
 // pub mod ops;
 
@@ -155,62 +156,8 @@ pub mod cs;
 // mod matrixcompare;
 
 use num_traits::Zero;
-use std::error::Error;
-use std::fmt;
 
 pub use self::coo::CooMatrix;
-
-/// Errors produced by functions that expect well-formed sparse format data.
-#[derive(Debug)]
-pub struct SparseFormatError {
-    kind: SparseFormatErrorKind,
-    // Currently we only use an underlying error for generating the `Display` impl
-    error: Box<dyn Error>,
-}
-
-impl SparseFormatError {
-    /// The type of error.
-    #[must_use]
-    pub fn kind(&self) -> &SparseFormatErrorKind {
-        &self.kind
-    }
-
-    pub(crate) fn from_kind_and_error(kind: SparseFormatErrorKind, error: Box<dyn Error>) -> Self {
-        Self { kind, error }
-    }
-
-    /// Helper functionality for more conveniently creating errors.
-    pub(crate) fn from_kind_and_msg(kind: SparseFormatErrorKind, msg: &'static str) -> Self {
-        Self::from_kind_and_error(kind, Box::<dyn Error>::from(msg))
-    }
-}
-
-/// The type of format error described by a [SparseFormatError](struct.SparseFormatError.html).
-#[non_exhaustive]
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum SparseFormatErrorKind {
-    /// Indicates that the index data associated with the format contains at least one index
-    /// out of bounds.
-    IndexOutOfBounds,
-
-    /// Indicates that the provided data contains at least one duplicate entry, and the
-    /// current format does not support duplicate entries.
-    DuplicateEntry,
-
-    /// Indicates that the provided data for the format does not conform to the high-level
-    /// structure of the format.
-    ///
-    /// For example, the arrays defining the format data might have incompatible sizes.
-    InvalidStructure,
-}
-
-impl fmt::Display for SparseFormatError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.error)
-    }
-}
-
-impl Error for SparseFormatError {}
 
 /// An entry in a sparse matrix.
 ///
