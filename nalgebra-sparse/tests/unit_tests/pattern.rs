@@ -123,6 +123,17 @@ fn sparsity_pattern_try_from_invalid_data() {
     }
 
     {
+        // Nonmonotonic minor indices
+        let offsets = vec![0, 2, 2, 5];
+        let indices = vec![0, 2, 3, 1, 4];
+        let pattern = SparsityPattern::try_from_offsets_and_indices(3, 6, offsets, indices);
+        assert_eq!(
+            pattern,
+            Err(SparsityPatternFormatError::NonmonotonicMinorIndices)
+        );
+    }
+
+    {
         // Minor index out of bounds
         let offsets = vec![0, 2, 2, 5];
         let indices = vec![0, 6, 1, 2, 3];
