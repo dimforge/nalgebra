@@ -6,12 +6,12 @@
 use super::utils;
 use crate::{
     coo::CooMatrix,
-    cs::{CscMatrix, CsrMatrix},
+    cs::{CompressedColumnStorage, CompressedRowStorage, CsMatrix, CscMatrix, CsrMatrix},
 };
 use nalgebra::storage::RawStorage;
 use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
 use num_traits::{Unsigned, Zero};
-use std::ops::Add;
+use std::{borrow::Borrow, ops::Add};
 
 /// Converts a dense matrix to [`CooMatrix`].
 pub fn convert_dense_coo<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CooMatrix<T>
@@ -40,7 +40,7 @@ pub fn convert_coo_dense<T>(coo: &CooMatrix<T>) -> DMatrix<T>
 where
     T: Scalar + Zero + ClosedAdd,
 {
-    let mut output = DMatrix::repeat(coo.nrows(), coo.ncols(), T::zero());
+    let mut output = DMatrix::<T>::zeros(coo.nrows(), coo.ncols());
     for (i, j, v) in coo.triplet_iter() {
         output[(i, j)] += v.clone();
     }
@@ -59,18 +59,20 @@ where
         coo.values(),
     );
 
-    // TODO: Avoid "try_from" since it validates the data? (requires unsafe, should benchmark
-    // to see if it can be justified for performance reasons)
-    CsrMatrix::try_from_parts(coo.nrows(), coo.ncols(), offsets, indices, values)
-        .expect("Internal error: Invalid CSR data during COO->CSR conversion")
+    unsafe { CsrMatrix::from_parts_unchecked(coo.nrows(), coo.ncols(), offsets, indices, values) }
 }
 
 /// Converts a [`CsrMatrix`] to a [`CooMatrix`].
-pub fn convert_csr_coo<T, O, I>(csr: &CsrMatrix<T, O, I>) -> CooMatrix<T>
+pub fn convert_csr_coo<T, O, MO, MI, D, I>(
+    csr: &CsMatrix<T, O, MO, MI, D, CompressedRowStorage, I>,
+) -> CooMatrix<T>
 where
-    T: Scalar,
+    T: Clone,
     O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO: Borrow<[O]>,
+    MI: Borrow<[I]>,
+    D: Borrow<[T]>,
 {
     let mut result = CooMatrix::new(csr.nrows(), csr.ncols());
     for (i, j, v) in csr.triplet_iter() {
@@ -80,11 +82,16 @@ where
 }
 
 /// Converts a [`CsrMatrix`] to a dense matrix.
-pub fn convert_csr_dense<T, O, I>(csr: &CsrMatrix<T, O, I>) -> DMatrix<T>
+pub fn convert_csr_dense<T, O, MO, MI, D, I>(
+    csr: &CsMatrix<T, O, MO, MI, D, CompressedRowStorage, I>,
+) -> DMatrix<T>
 where
     T: Scalar + ClosedAdd + Zero,
     O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO: Borrow<[O]>,
+    MI: Borrow<[I]>,
+    D: Borrow<[T]>,
 {
     let mut output = DMatrix::zeros(csr.nrows(), csr.ncols());
 
@@ -122,10 +129,9 @@ where
         row_offsets.push(col_idx.len());
     }
 
-    // TODO: Consider circumventing the data validity check here
-    // (would require unsafe, should benchmark)
-    CsrMatrix::try_from_parts(dense.nrows(), dense.ncols(), row_offsets, col_idx, values)
-        .expect("Internal error: Invalid CsrMatrix format during dense-> CSR conversion")
+    unsafe {
+        CsrMatrix::from_parts_unchecked(dense.nrows(), dense.ncols(), row_offsets, col_idx, values)
+    }
 }
 
 /// Converts a [`CooMatrix`] to a [`CscMatrix`].
@@ -140,37 +146,44 @@ where
         coo.values(),
     );
 
-    // TODO: Avoid "try_from" since it validates the data? (requires unsafe, should benchmark
-    // to see if it can be justified for performance reasons)
-    CscMatrix::try_from_parts(coo.nrows(), coo.ncols(), offsets, indices, values)
-        .expect("Internal error: Invalid CSC data during COO->CSC conversion")
+    unsafe { CscMatrix::from_parts_unchecked(coo.nrows(), coo.ncols(), offsets, indices, values) }
 }
 
 /// Converts a [`CscMatrix`] to a [`CooMatrix`].
-pub fn convert_csc_coo<T, O, I>(csc: &CscMatrix<T, O, I>) -> CooMatrix<T>
+pub fn convert_csc_coo<T, O, MO, MI, D, I>(
+    csc: &CsMatrix<T, O, MO, MI, D, CompressedColumnStorage, I>,
+) -> CooMatrix<T>
 where
     T: Scalar,
     O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO: Borrow<[O]>,
+    MI: Borrow<[I]>,
+    D: Borrow<[T]>,
 {
     let mut coo = CooMatrix::new(csc.nrows(), csc.ncols());
     for (i, j, v) in csc.triplet_iter() {
-        coo.push(i, j, v.clone());
+        coo.push(j, i, v.clone());
     }
     coo
 }
 
 /// Converts a [`CscMatrix`] to a dense matrix.
-pub fn convert_csc_dense<T, O, I>(csc: &CscMatrix<T, O, I>) -> DMatrix<T>
+pub fn convert_csc_dense<T, O, MO, MI, D, I>(
+    csc: &CsMatrix<T, O, MO, MI, D, CompressedColumnStorage, I>,
+) -> DMatrix<T>
 where
     T: Scalar + ClosedAdd + Zero,
     O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO: Borrow<[O]>,
+    MI: Borrow<[I]>,
+    D: Borrow<[T]>,
 {
     let mut output = DMatrix::zeros(csc.nrows(), csc.ncols());
 
     for (i, j, v) in csc.triplet_iter() {
-        output[(i, j)] += v.clone();
+        output[(j, i)] += v.clone();
     }
 
     output
@@ -200,44 +213,49 @@ where
         col_offsets.push(row_idx.len());
     }
 
-    // TODO: Consider circumventing the data validity check here
-    // (would require unsafe, should benchmark)
-    CscMatrix::try_from_parts(dense.nrows(), dense.ncols(), col_offsets, row_idx, values)
-        .expect("Internal error: Invalid CscMatrix format during dense-> CSC conversion")
+    unsafe {
+        CscMatrix::from_parts_unchecked(dense.nrows(), dense.ncols(), col_offsets, row_idx, values)
+    }
 }
 
 /// Converts a [`CsrMatrix`] to a [`CscMatrix`].
-pub fn convert_csr_csc<T, O, I>(csr: &CsrMatrix<T, O, I>) -> CscMatrix<T, usize>
+pub fn convert_csr_csc<T, O, MO, MI, D, I>(
+    csr: &CsMatrix<T, O, MO, MI, D, CompressedRowStorage, I>,
+) -> CscMatrix<T, usize>
 where
-    T: Scalar,
+    T: Clone,
     O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO: Borrow<[O]>,
+    MI: Borrow<[I]>,
+    D: Borrow<[T]>,
 {
     let (offsets, indices, values) = csr.cs_data();
 
     let (offsets, indices, values) =
         utils::transpose_convert(csr.nrows(), csr.ncols(), offsets, indices, values);
 
-    // TODO: Avoid data validity check?
-    CscMatrix::try_from_parts(csr.nrows(), csr.ncols(), offsets, indices, values)
-        .expect("Internal error: Invalid CSC data during CSR->CSC conversion")
+    unsafe { CscMatrix::from_parts_unchecked(csr.nrows(), csr.ncols(), offsets, indices, values) }
 }
 
 /// Converts a [`CscMatrix`] to a [`CsrMatrix`].
-pub fn convert_csc_csr<T, O, I>(csc: &CscMatrix<T, O, I>) -> CsrMatrix<T, usize>
+pub fn convert_csc_csr<T, O, MO, MI, D, I>(
+    csc: &CsMatrix<T, O, MO, MI, D, CompressedColumnStorage, I>,
+) -> CsrMatrix<T, usize>
 where
-    T: Scalar,
+    T: Clone,
     O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO: Borrow<[O]>,
+    MI: Borrow<[I]>,
+    D: Borrow<[T]>,
 {
     let (offsets, indices, values) = csc.cs_data();
 
     let (offsets, indices, values) =
         utils::transpose_convert(csc.ncols(), csc.nrows(), offsets, indices, values);
 
-    // TODO: Avoid data validity check?
-    CsrMatrix::try_from_parts(csc.nrows(), csc.ncols(), offsets, indices, values)
-        .expect("Internal error: Invalid CSR data during CSC->CSR conversion")
+    unsafe { CsrMatrix::from_parts_unchecked(csc.nrows(), csc.ncols(), offsets, indices, values) }
 }
 
 fn convert_coo_cs<T>(
@@ -346,7 +364,8 @@ fn coo_to_unsorted_cs<T: Clone>(
         major_offsets[*major_idx] += 1;
     }
 
-    utils::convert_counts_to_offsets(major_offsets);
+    let major_offsets =
+        utils::CountToOffsetIter::new(major_offsets.iter().map(|&x| x)).collect::<Vec<_>>();
 
     {
         // TODO: Instead of allocating a whole new vector storing the current counts,

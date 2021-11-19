@@ -1,6 +1,5 @@
 //! Module for utility functions used in format conversions.
 
-use nalgebra::Scalar;
 use num_traits::Unsigned;
 use std::ops::Add;
 
@@ -123,7 +122,7 @@ pub(crate) fn transpose_convert<T, Offset, Index>(
     values: &[T],
 ) -> (Vec<usize>, Vec<usize>, Vec<T>)
 where
-    T: Scalar,
+    T: Clone,
     Offset: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     Index: Copy + Clone + Into<usize> + Unsigned + Ord,
 {
@@ -136,9 +135,7 @@ where
     for minor_idx in source_minor_indices {
         minor_counts[(*minor_idx).into()] += 1;
     }
-    convert_counts_to_offsets(&mut minor_counts);
-    let mut target_offsets = minor_counts;
-    target_offsets.push(nnz);
+    let target_offsets = CountToOffsetIter::new(minor_counts).collect::<Vec<_>>();
     let mut target_indices = vec![usize::MAX; nnz];
 
     // We have to use uninitialized storage, because we don't have any kind of "default" value
@@ -172,12 +169,38 @@ where
     (target_offsets, target_indices, target_values)
 }
 
-pub(crate) fn convert_counts_to_offsets(counts: &mut [usize]) {
-    // Convert the counts to an offset
-    let mut offset = 0;
-    for i_offset in counts.iter_mut() {
-        let count = *i_offset;
-        *i_offset = offset;
-        offset += count;
+pub(crate) struct CountToOffsetIter<I>
+where
+    I: Iterator<Item = usize>,
+{
+    offset: usize,
+    count_iter: I,
+}
+
+impl<I> CountToOffsetIter<I>
+where
+    I: Iterator<Item = usize>,
+{
+    pub(crate) fn new<T: IntoIterator<IntoIter = I, Item = usize>>(counts: T) -> Self {
+        CountToOffsetIter {
+            offset: 0,
+            count_iter: counts.into_iter(),
+        }
+    }
+}
+
+impl<I> Iterator for CountToOffsetIter<I>
+where
+    I: Iterator<Item = usize>,
+{
+    type Item = usize;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let next = self.count_iter.next()?;
+
+        let current_offset = self.offset;
+        self.offset += next;
+
+        Some(current_offset)
     }
 }

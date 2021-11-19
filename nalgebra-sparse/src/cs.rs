@@ -286,7 +286,7 @@ where
         self.indices.borrow().len()
     }
 
-    unsafe fn from_parts_unchecked(
+    pub(crate) unsafe fn from_parts_unchecked(
         nrows: usize,
         ncols: usize,
         offsets: MajorOffsets,
