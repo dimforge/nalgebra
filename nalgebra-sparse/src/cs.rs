@@ -123,7 +123,7 @@ mod private {
 ///    upon construction. Thanks to the previous point (immutability), it is possible to guarantee
 ///    correctness of the data layout for the lifetime of the object, until it is consumed.
 ///
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct CsMatrix<T, Offset, MajorOffsets, MinorIndices, Data, CompressionKind, Index = Offset>
 where
     Offset: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
