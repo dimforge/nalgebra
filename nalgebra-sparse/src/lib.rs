@@ -149,8 +149,8 @@ pub mod error;
 // pub mod factorization;
 // pub mod ops;
 
-// #[cfg(feature = "proptest-support")]
-// pub mod proptest;
+#[cfg(feature = "proptest-support")]
+pub mod proptest;
 
 #[cfg(feature = "compare")]
 mod matrixcompare;

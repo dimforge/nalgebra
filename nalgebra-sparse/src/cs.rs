@@ -8,11 +8,11 @@ use num_traits::{One, Unsigned};
 use std::{borrow::Borrow, cmp::Ord, cmp::Ordering, marker::PhantomData, ops::Add};
 
 /// An empty type to represent CSC-like storage convention.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct CompressedColumnStorage {}
 
 /// An empty type to represent CSR-like storage convention.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct CompressedRowStorage {}
 
 /// A trait denoting a type that represents a compression format for `CsMatrix` types.

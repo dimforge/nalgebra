@@ -10,17 +10,17 @@
 // See docs in file for more details.
 mod proptest_patched;
 
-use crate::coo::CooMatrix;
-use crate::csc::CscMatrix;
-use crate::csr::CsrMatrix;
-use crate::pattern::SparsityPattern;
-use nalgebra::proptest::DimRange;
-use nalgebra::{Dim, Scalar};
-use proptest::collection::{btree_set, hash_map, vec};
-use proptest::prelude::*;
-use proptest::sample::Index;
-use std::cmp::min;
-use std::iter::repeat;
+use crate::{
+    coo::CooMatrix,
+    cs::{CscMatrix, CsrMatrix},
+};
+use nalgebra::{proptest::DimRange, Dim, Scalar};
+use proptest::{
+    collection::{btree_set, hash_map, vec},
+    prelude::*,
+    sample::Index,
+};
+use std::{cmp::min, iter::repeat};
 
 fn dense_row_major_coord_strategy(
     nrows: usize,
@@ -247,7 +247,7 @@ fn sparsity_pattern_from_row_major_coords<I>(
     nmajor: usize,
     nminor: usize,
     coords: I,
-) -> SparsityPattern
+) -> ((usize, usize), Vec<usize>, Vec<usize>)
 where
     I: Iterator<Item = (usize, usize)> + ExactSizeIterator,
 {
@@ -274,10 +274,10 @@ where
     }
 
     assert_eq!(offsets.first().unwrap(), &0);
-    assert_eq!(offsets.len(), nmajor + 1);
 
-    SparsityPattern::try_from_offsets_and_indices(nmajor, nminor, offsets, minors)
-        .expect("Internal error: Generated sparsity pattern is invalid")
+    let shape = (nmajor, nminor);
+
+    (shape, offsets, minors)
 }
 
 /// A strategy for generating sparsity patterns.
@@ -285,7 +285,7 @@ pub fn sparsity_pattern(
     major_lanes: impl Into<DimRange>,
     minor_lanes: impl Into<DimRange>,
     max_nonzeros: usize,
-) -> impl Strategy<Value = SparsityPattern> {
+) -> impl Strategy<Value = ((usize, usize), Vec<usize>, Vec<usize>)> {
     (
         major_lanes.into().to_range_inclusive(),
         minor_lanes.into().to_range_inclusive(),
@@ -307,8 +307,7 @@ pub fn sparsity_pattern(
                 // we instead use a dense sampling
                 dense_row_major_coord_strategy(nmajor, nminor, nnz)
                     .prop_map(move |coords| {
-                        let coords = coords.into_iter();
-                        sparsity_pattern_from_row_major_coords(nmajor, nminor, coords)
+                        sparsity_pattern_from_row_major_coords(nmajor, nminor, coords.into_iter())
                     })
                     .boxed()
             }
@@ -321,7 +320,7 @@ pub fn csr<T>(
     rows: impl Into<DimRange>,
     cols: impl Into<DimRange>,
     max_nonzeros: usize,
-) -> impl Strategy<Value = CsrMatrix<T::Value>>
+) -> impl Strategy<Value = CsrMatrix<T::Value, usize>>
 where
     T: Strategy + Clone + 'static,
     T::Value: Scalar,
@@ -333,13 +332,13 @@ where
         cols.lower_bound().value()..=cols.upper_bound().value(),
         max_nonzeros,
     )
-    .prop_flat_map(move |pattern| {
-        let nnz = pattern.nnz();
-        let values = vec![value_strategy.clone(); nnz];
-        (Just(pattern), values)
+    .prop_flat_map(move |(shape, offsets, indices)| {
+        let nnz = indices.len();
+        let data = vec![value_strategy.clone(); nnz];
+        (Just(shape), Just(offsets), Just(indices), data)
     })
-    .prop_map(|(pattern, values)| {
-        CsrMatrix::try_from_pattern_and_values(pattern, values)
+    .prop_map(|((nmajor, nminor), offsets, indices, data)| {
+        CsrMatrix::try_from_parts(nmajor, nminor, offsets, indices, data)
             .expect("Internal error: Generated CsrMatrix is invalid")
     })
 }
@@ -350,7 +349,7 @@ pub fn csc<T>(
     rows: impl Into<DimRange>,
     cols: impl Into<DimRange>,
     max_nonzeros: usize,
-) -> impl Strategy<Value = CscMatrix<T::Value>>
+) -> impl Strategy<Value = CscMatrix<T::Value, usize>>
 where
     T: Strategy + Clone + 'static,
     T::Value: Scalar,
@@ -362,13 +361,14 @@ where
         rows.lower_bound().value()..=rows.upper_bound().value(),
         max_nonzeros,
     )
-    .prop_flat_map(move |pattern| {
-        let nnz = pattern.nnz();
-        let values = vec![value_strategy.clone(); nnz];
-        (Just(pattern), values)
+    .prop_flat_map(move |(shape, offsets, indices)| {
+        let nnz = indices.len();
+        let data = vec![value_strategy.clone(); nnz];
+
+        (Just(shape), Just(offsets), Just(indices), data)
     })
-    .prop_map(|(pattern, values)| {
-        CscMatrix::try_from_pattern_and_values(pattern, values)
+    .prop_map(|((nmajor, nminor), offsets, indices, data)| {
+        CscMatrix::try_from_parts(nminor, nmajor, offsets, indices, data)
             .expect("Internal error: Generated CscMatrix is invalid")
     })
 }
