@@ -553,6 +553,21 @@ where
             _phantom: PhantomData,
         }
     }
+
+    /// Takes the transpose of the current matrix by taking ownership of the underlying data.
+    ///
+    /// Behaves like [`CsMatrix::transpose`], but takes `self` instead of `&self`.
+    pub fn transpose_owned(self) -> CsMatrix<T, O, Vec<O>, Vec<I>, Vec<T>, C::Transpose, I> {
+        let (nrows, ncols) = self.shape;
+
+        CsMatrix {
+            shape: (ncols, nrows),
+            offsets: self.offsets,
+            indices: self.indices,
+            data: self.data,
+            _phantom: PhantomData,
+        }
+    }
 }
 
 impl<T> CscMatrix<T, usize, usize>
