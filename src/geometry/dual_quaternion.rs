@@ -57,7 +57,10 @@ impl<T: Scalar> PartialEq for DualQuaternion<T> {
 
 impl<T: Scalar + Zero> Default for DualQuaternion<T> {
     fn default() -> Self {
-        Self { real: Quaternion::default(), dual: Quaternion::default() }
+        Self {
+            real: Quaternion::default(),
+            dual: Quaternion::default(),
+        }
     }
 }
 
@@ -472,7 +475,9 @@ where
     #[inline]
     #[must_use = "Did you mean to use inverse_mut()?"]
     pub fn inverse(&self) -> Self {
-        let real = Unit::new_unchecked(self.as_ref().real.clone()).inverse().into_inner();
+        let real = Unit::new_unchecked(self.as_ref().real.clone())
+            .inverse()
+            .into_inner();
         let dual = -real.clone() * self.as_ref().dual.clone() * real.clone();
         UnitDualQuaternion::new_unchecked(DualQuaternion { real, dual })
     }
@@ -494,7 +499,9 @@ where
     #[inline]
     pub fn inverse_mut(&mut self) {
         let quat = self.as_mut_unchecked();
-        quat.real = Unit::new_unchecked(quat.real.clone()).inverse().into_inner();
+        quat.real = Unit::new_unchecked(quat.real.clone())
+            .inverse()
+            .into_inner();
         quat.dual = -quat.real.clone() * quat.dual.clone() * quat.real.clone();
     }
 
@@ -661,8 +668,11 @@ where
         let norm_squared = difference.real.vector().norm_squared();
         if relative_eq!(norm_squared, T::zero(), epsilon = epsilon) {
             return Some(Self::from_parts(
-                self.translation().vector.lerp(&other.translation().vector, t).into(),
-                self.rotation()
+                self.translation()
+                    .vector
+                    .lerp(&other.translation().vector, t)
+                    .into(),
+                self.rotation(),
             ));
         }
 
@@ -675,8 +685,7 @@ where
         let mut pitch = -two * difference.dual.scalar() * inverse_norm.clone();
         let direction = difference.real.vector() * inverse_norm.clone();
         let moment = (difference.dual.vector()
-            - direction.clone()
-                * (pitch.clone() * difference.real.scalar() * half.clone()))
+            - direction.clone() * (pitch.clone() * difference.real.scalar() * half.clone()))
             * inverse_norm;
 
         angle *= t.clone();
@@ -974,7 +983,8 @@ impl<T: RealField + RelativeEq<Epsilon = T>> RelativeEq for UnitDualQuaternion<T
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
     ) -> bool {
-        self.as_ref().relative_eq(other.as_ref(), epsilon, max_relative)
+        self.as_ref()
+            .relative_eq(other.as_ref(), epsilon, max_relative)
     }
 }
 
