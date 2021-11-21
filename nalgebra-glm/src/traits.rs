@@ -1,9 +1,9 @@
 use approx::AbsDiffEq;
 use num::{Bounded, Signed};
 
+use core::cmp::PartialOrd;
 use na::Scalar;
 use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, RealField};
-use core::cmp::PartialOrd;
 
 /// A number that can either be an integer or a float.
 pub trait Number:
