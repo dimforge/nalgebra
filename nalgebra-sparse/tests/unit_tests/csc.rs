@@ -348,6 +348,16 @@ fn csc_matrix_try_from_unsorted_invalid_csc_data() {
     }
 
     {
+        // Major offset out of bounds
+        let (offsets, indices, values) = invalid_data.major_offset_out_of_bounds;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::IndexOutOfBounds
+        );
+    }
+
+    {
         // Minor index out of bounds
         let (offsets, indices, values) = invalid_data.minor_index_out_of_bounds;
         let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);

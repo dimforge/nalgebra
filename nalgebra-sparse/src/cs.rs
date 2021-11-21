@@ -609,7 +609,7 @@ where
             let minor_idx_in_lane = minor_indices.get(range_start..range_end).ok_or(
                 SparseFormatError::from_kind_and_msg(
                     SparseFormatErrorKind::IndexOutOfBounds,
-                    "A major index is out of bounds.",
+                    "A major offset is out of bounds.",
                 ),
             )?;
 

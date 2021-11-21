@@ -346,6 +346,16 @@ fn csr_matrix_try_from_unsorted_invalid_csr_data() {
     }
 
     {
+        // Major offset out of bounds
+        let (offsets, indices, values) = invalid_data.major_offset_out_of_bounds;
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::IndexOutOfBounds
+        );
+    }
+
+    {
         // Minor index out of bounds
         let (offsets, indices, values) = invalid_data.minor_index_out_of_bounds;
         let matrix = CsrMatrix::try_from_unsorted_csr_data(3, 6, offsets, indices, values);
