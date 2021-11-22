@@ -557,12 +557,27 @@ pub(crate) fn validate_and_optionally_sort_cs_data<T>(
 where
     T: Scalar,
 {
-    if sort && minor_indices.len() > 0 && values.is_none() {
-        return Err(SparseFormatError::from_kind_and_msg(
-            SparseFormatErrorKind::InvalidStructure,
-            "No values provided for sorting.",
-        ));
+    let mut value_refs: &mut [T] = &mut Vec::new();
+    match values {
+        Some(values) => {
+            if minor_indices.len() != values.len() {
+                return Err(SparseFormatError::from_kind_and_msg(
+                    SparseFormatErrorKind::InvalidStructure,
+                    "Number of values and minor indices must be the same",
+                ));
+            }
+            value_refs = values;
+        }
+        None => {
+            if sort && minor_indices.len() > 0 {
+                return Err(SparseFormatError::from_kind_and_msg(
+                    SparseFormatErrorKind::InvalidStructure,
+                    "No values provided for sorting.",
+                ));
+            }
+        }
     }
+
     if major_offsets.len() == 0 {
         return Err(SparseFormatError::from_kind_and_msg(
             SparseFormatErrorKind::InvalidStructure,
@@ -587,8 +602,6 @@ where
             ));
         }
     }
-
-    let mut minor_index_permutation: Vec<usize> = (0..minor_indices.len()).collect();
 
     // Test that each lane has strictly monotonically increasing minor indices, i.e.
     // minor indices within a lane are sorted, unique. Sort minor indices within a lane if needed.
@@ -640,37 +653,31 @@ where
                 }
                 prev = Some(next);
             }
+
+            // sort if indices are nonmonotonic and sorting is expected
             if nonmonotonic && sort {
+                let mut minor_index_permutation: Vec<usize> = (range_start..range_end).collect();
                 // sort permutation values for monotonic index order
-                minor_index_permutation[range_start..range_end].sort_by(|a, b| {
+                minor_index_permutation.sort_by(|a, b| {
                     let x = &minor_idx_in_lane[*a - range_start];
                     let y = &minor_idx_in_lane[*b - range_start];
                     x.partial_cmp(y).unwrap()
                 });
+                let unsorted_indices: Vec<usize> = minor_indices[range_start..range_end]
+                    .iter()
+                    .map(|i| i.clone())
+                    .collect();
+                let unsorted_values: Vec<T> =
+                    Vec::from_iter(((range_start..range_end).map(|i| &value_refs[i])).cloned());
+                for (index, &offset) in minor_index_permutation.iter().enumerate() {
+                    let i: usize = unsorted_indices[offset - range_start];
+                    minor_indices[index + range_start] = i;
+                    let v: T = unsorted_values[offset - range_start].clone();
+                    value_refs[index + range_start] = v;
+                }
             }
         }
     }
 
-    if sort {
-        let unsorted_indices: Vec<usize> = minor_indices.iter().map(|i| i.clone()).collect();
-        for (index, &offset) in minor_index_permutation.iter().enumerate() {
-            let u: usize = unsorted_indices[offset];
-            minor_indices[index] = u;
-        }
-        if let Some(values) = values {
-            if minor_indices.len() != values.len() {
-                return Err(SparseFormatError::from_kind_and_msg(
-                    SparseFormatErrorKind::InvalidStructure,
-                    "Number of values and minor indices must be the same",
-                ));
-            }
-            let unsorted_values: Vec<T> =
-                Vec::from_iter(((0..values.len()).map(|i| &values[i])).cloned());
-            for (index, &offset) in minor_index_permutation.iter().enumerate() {
-                let u: T = unsorted_values[offset].clone();
-                values[index] = u;
-            }
-        }
-    }
     Ok(())
 }
