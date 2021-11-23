@@ -116,7 +116,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: Jimver/cuda-toolkit@v0.2.4
+      - uses: actions/checkout@v2
       - name: build --no-default-features --features cuda
         run: cargo build --no-default-features --features cuda
       - name: build --no-default-features --features cuda  --target=nvptx-nvidia-cuda
-        run: cargo build --no-default-features --features cuda --target=nvptx-nvidia-cuda
+        run: cargo build --no-default-features --features cuda --target=nvptx64-nvidia-cuda
