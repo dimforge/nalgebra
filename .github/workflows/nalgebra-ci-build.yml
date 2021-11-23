@@ -29,8 +29,8 @@ jobs:
 #    env:
 #      RUSTFLAGS: -D warnings
     steps:
+      # Needed for the --all-features build which enables cuda support.
     - uses: Jimver/cuda-toolkit@v0.2.4
-      id: cuda-toolkit
     - uses: actions/checkout@v2
     - name: Build --no-default-feature
       run: cargo build --no-default-features;
@@ -112,3 +112,11 @@ jobs:
         run: xargo build --verbose --no-default-features -p nalgebra-glm --target=x86_64-unknown-linux-gnu;
       - name: build thumbv7em-none-eabihf nalgebra-glm
         run: xargo build --verbose --no-default-features -p nalgebra-glm --target=thumbv7em-none-eabihf;
+  build-cuda:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Jimver/cuda-toolkit@v0.2.4
+      - name: build --no-default-features --features cuda
+        run: cargo build --no-default-features --features cuda
+      - name: build --no-default-features --features cuda  --target=nvptx-nvidia-cuda
+        run: cargo build --no-default-features --features cuda --target=nvptx-nvidia-cuda
