@@ -22,6 +22,11 @@ use crate::geometry::Point;
 
 /// A translation.
 #[repr(C)]
+#[cfg_attr(
+    all(not(target_os = "cuda"), feature = "cuda"),
+    derive(cust::DeviceCopy)
+)]
+#[derive(Copy, Clone)]
 pub struct Translation<T, const D: usize> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
     /// translated.
@@ -40,18 +45,6 @@ where
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.vector.hash(state)
-    }
-}
-
-impl<T: Scalar + Copy, const D: usize> Copy for Translation<T, D> {}
-
-impl<T: Scalar, const D: usize> Clone for Translation<T, D>
-where
-    Owned<T, Const<D>>: Clone,
-{
-    #[inline]
-    fn clone(&self) -> Self {
-        Translation::from(self.vector.clone())
     }
 }
 

@@ -22,6 +22,11 @@ use crate::geometry::Point;
 
 /// A scale which supports non-uniform scaling.
 #[repr(C)]
+#[cfg_attr(
+    all(not(target_os = "cuda"), feature = "cuda"),
+    derive(cust::DeviceCopy)
+)]
+#[derive(Copy, Clone)]
 pub struct Scale<T, const D: usize> {
     /// The scale coordinates, i.e., how much is multiplied to a point's coordinates when it is
     /// scaled.
@@ -40,18 +45,6 @@ where
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.vector.hash(state)
-    }
-}
-
-impl<T: Scalar + Copy, const D: usize> Copy for Scale<T, D> {}
-
-impl<T: Scalar, const D: usize> Clone for Scale<T, D>
-where
-    Owned<T, Const<D>>: Clone,
-{
-    #[inline]
-    fn clone(&self) -> Self {
-        Scale::from(self.vector.clone())
     }
 }
 

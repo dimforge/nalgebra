@@ -54,7 +54,11 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 /// * [Conversion to a matrix <span style="float:right;">`to_matrix`…</span>](#conversion-to-a-matrix)
 ///
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(
+    all(not(target_os = "cuda"), feature = "cuda"),
+    derive(cust::DeviceCopy)
+)]
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
@@ -170,20 +174,6 @@ where
     }
 }
 
-impl<T: Scalar + Copy, R: Copy, const D: usize> Copy for Isometry<T, R, D> where
-    Owned<T, Const<D>>: Copy
-{
-}
-
-impl<T: Scalar, R: Clone, const D: usize> Clone for Isometry<T, R, D> {
-    #[inline]
-    fn clone(&self) -> Self {
-        Self {
-            rotation: self.rotation.clone(),
-            translation: self.translation.clone(),
-        }
-    }
-}
 /// # From the translation and rotation parts
 impl<T: Scalar, R: AbstractRotation<T, D>, const D: usize> Isometry<T, R, D> {
     /// Creates a new isometry from its rotational and translational parts.
