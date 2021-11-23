@@ -114,3 +114,49 @@ impl From<SparsityPatternFormatError> for SparseFormatError {
         }
     }
 }
+
+/// A description of the error that occurred during an arithmetic operation.
+#[derive(Clone, Debug, Error)]
+#[error("Sparse matrix operation error - Kind: {error_kind}; Message: {message}")]
+pub struct OperationError {
+    error_kind: OperationErrorKind,
+    message: String,
+}
+
+/// The different kinds of operation errors that may occur.
+#[non_exhaustive]
+#[derive(Copy, Clone, Debug, Error)]
+pub enum OperationErrorKind {
+    /// Indicates that one or more sparsity patterns involved in the operation violate the
+    /// expectations of the routine.
+    ///
+    /// For example, this could indicate that the sparsity pattern of the output is not able to
+    /// contain the result of the operation.
+    #[error("InvalidPattern")]
+    InvalidPattern,
+
+    /// Indicates that a matrix is singular when it is expected to be invertible.
+    #[error("Singular")]
+    Singular,
+}
+
+impl OperationError {
+    pub(crate) fn from_kind_and_message(error_type: OperationErrorKind, message: String) -> Self {
+        Self {
+            error_kind: error_type,
+            message,
+        }
+    }
+
+    /// The operation error kind.
+    #[must_use]
+    pub fn kind(&self) -> &OperationErrorKind {
+        &self.error_kind
+    }
+
+    /// The underlying error message.
+    #[must_use]
+    pub fn message(&self) -> &str {
+        self.message.as_str()
+    }
+}
