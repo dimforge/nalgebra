@@ -29,8 +29,6 @@ jobs:
 #    env:
 #      RUSTFLAGS: -D warnings
     steps:
-      # Needed for the --all-features build which enables cuda support.
-    - uses: Jimver/cuda-toolkit@v0.2.4
     - uses: actions/checkout@v2
     - name: Build --no-default-feature
       run: cargo build --no-default-features;
@@ -38,14 +36,20 @@ jobs:
       run: cargo build;
     - name: Build --features serde-serialize
       run: cargo build --features serde-serialize
-    - name: Build --all-features
-      run: cargo build --all-features;
-    - name: Build nalgebra-glm
-      run: cargo build -p nalgebra-glm --all-features;
     - name: Build nalgebra-lapack
       run: cd nalgebra-lapack; cargo build;
     - name: Build nalgebra-sparse
       run: cd nalgebra-sparse; cargo build;
+  # Run this on it’s own job because it alone takes a lot of time.
+  # So it’s best to let it run in parallel to the other jobs.
+  build-nalgebra-all-features:
+    runs-on: ubuntu-latest
+    steps:
+      # Needed because the --all-features build which enables cuda support.
+      - uses: Jimver/cuda-toolkit@v0.2.4
+      - uses: actions/checkout@v2
+      - run: cargo build --all-features;
+      - run: cargo build -p nalgebra-glm --all-features;
   test-nalgebra:
     runs-on: ubuntu-latest
 #    env:
@@ -118,7 +122,5 @@ jobs:
       - uses: Jimver/cuda-toolkit@v0.2.4
       - uses: actions/checkout@v2
       - run: rustup target add nvptx64-nvidia-cuda
-      - name: build --no-default-features --features cuda
-        run: cargo build --no-default-features --features cuda
-      - name: build --no-default-features --features cuda  --target=nvptx64-nvidia-cuda
-        run: cargo build --no-default-features --features cuda --target=nvptx64-nvidia-cuda
+      - run: cargo build --no-default-features --features cuda
+      - run: cargo build --no-default-features --features cuda --target=nvptx64-nvidia-cuda
