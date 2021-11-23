@@ -117,7 +117,8 @@ jobs:
     steps:
       - uses: Jimver/cuda-toolkit@v0.2.4
       - uses: actions/checkout@v2
+      - run: rustup target add nvptx64-nvidia-cuda
       - name: build --no-default-features --features cuda
         run: cargo build --no-default-features --features cuda
-      - name: build --no-default-features --features cuda  --target=nvptx-nvidia-cuda
+      - name: build --no-default-features --features cuda  --target=nvptx64-nvidia-cuda
         run: cargo build --no-default-features --features cuda --target=nvptx64-nvidia-cuda
