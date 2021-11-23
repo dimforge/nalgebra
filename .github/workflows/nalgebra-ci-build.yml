@@ -28,9 +28,9 @@ jobs:
     runs-on: ubuntu-latest
 #    env:
 #      RUSTFLAGS: -D warnings
+    steps:
     - uses: Jimver/cuda-toolkit@v0.2.4
       id: cuda-toolkit
-    steps:
     - uses: actions/checkout@v2
     - name: Build --no-default-feature
       run: cargo build --no-default-features;
