@@ -357,7 +357,8 @@ impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for DualQuaternion<T> {
     }
 }
 
-/// A unit quaternions. May be used to represent a rotation followed by a translation.
+/// A unit dual quaternion. May be used to represent a rotation followed by a
+/// translation.
 pub type UnitDualQuaternion<T> = Unit<DualQuaternion<T>>;
 
 impl<T: Scalar + ClosedNeg + PartialEq + SimdRealField> PartialEq for UnitDualQuaternion<T> {
@@ -593,8 +594,9 @@ where
     /// Screw linear interpolation between two unit quaternions. This creates a
     /// smooth arc from one dual-quaternion to another.
     ///
-    /// Panics if the angle between both quaternion is 180 degrees (in which case the interpolation
-    /// is not well-defined). Use `.try_sclerp` instead to avoid the panic.
+    /// Panics if the angle between both quaternion is 180 degrees (in which
+    /// case the interpolation is not well-defined). Use `.try_sclerp`
+    /// instead to avoid the panic.
     ///
     /// # Example
     /// ```
@@ -627,15 +629,16 @@ where
             .expect("DualQuaternion sclerp: ambiguous configuration.")
     }
 
-    /// Computes the screw-linear interpolation between two unit quaternions or returns `None`
-    /// if both quaternions are approximately 180 degrees apart (in which case the interpolation is
-    /// not well-defined).
+    /// Computes the screw-linear interpolation between two unit quaternions or
+    /// returns `None` if both quaternions are approximately 180 degrees
+    /// apart (in which case the interpolation is not well-defined).
     ///
     /// # Arguments
     /// * `self`: the first quaternion to interpolate from.
     /// * `other`: the second quaternion to interpolate toward.
     /// * `t`: the interpolation parameter. Should be between 0 and 1.
-    /// * `epsilon`: the value below which the sinus of the angle separating both quaternion
+    /// * `epsilon`: the value below which the sinus of the angle separating
+    ///   both quaternion
     /// must be to return `None`.
     #[inline]
     #[must_use]
@@ -650,6 +653,10 @@ where
         // interpolation.
         let other = {
             let dot_product = self.as_ref().real.coords.dot(&other.as_ref().real.coords);
+            if relative_eq!(dot_product, T::zero(), epsilon = epsilon.clone()) {
+                return None;
+            }
+
             if dot_product < T::zero() {
                 -other.clone()
             } else {
@@ -660,13 +667,21 @@ where
         let difference = self.as_ref().conjugate() * other.as_ref();
         let norm_squared = difference.real.vector().norm_squared();
         if relative_eq!(norm_squared, T::zero(), epsilon = epsilon) {
-            return None;
+            return Some(Self::from_parts(
+                self.translation()
+                    .vector
+                    .lerp(&other.translation().vector, t)
+                    .into(),
+                self.rotation(),
+            ));
         }
 
-        let inverse_norm_squared = T::one() / norm_squared;
+        let scalar: T = difference.real.scalar();
+        let mut angle = two.clone() * scalar.acos();
+
+        let inverse_norm_squared: T = T::one() / norm_squared;
         let inverse_norm = inverse_norm_squared.sqrt();
 
-        let mut angle = two.clone() * difference.real.scalar().acos();
         let mut pitch = -two * difference.dual.scalar() * inverse_norm.clone();
         let direction = difference.real.vector() * inverse_norm.clone();
         let moment = (difference.dual.vector()
@@ -678,6 +693,7 @@ where
 
         let sin = (half.clone() * angle.clone()).sin();
         let cos = (half.clone() * angle).cos();
+
         let real = Quaternion::from_parts(cos.clone(), direction.clone() * sin.clone());
         let dual = Quaternion::from_parts(
             -pitch.clone() * half.clone() * sin.clone(),

@@ -1,7 +1,7 @@
 #![cfg(feature = "proptest-support")]
 #![allow(non_snake_case)]
 
-use na::{DualQuaternion, Point3, UnitDualQuaternion, Vector3};
+use na::{DualQuaternion, Point3, Unit, UnitDualQuaternion, UnitQuaternion, Vector3};
 
 use crate::proptest::*;
 use proptest::{prop_assert, proptest};
@@ -72,6 +72,98 @@ proptest!(
         // (dual quaternion × translation) * point = dual quaternion × (translation * point)
         prop_assert!(relative_eq!((dq * t) * v, dq * v,       epsilon = 1.0e-7));
         prop_assert!(relative_eq!((dq * t) * p, dq * (t * p), epsilon = 1.0e-7));
+    }
+
+    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[test]
+    fn sclerp_is_defined_for_identical_orientations(
+        dq in unit_dual_quaternion(),
+        s in -1.0f64..2.0f64,
+        t in translation3(),
+    ) {
+        // Should not panic.
+        prop_assert!(relative_eq!(dq.sclerp(&dq, 0.0), dq, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(dq.sclerp(&dq, 0.5), dq, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(dq.sclerp(&dq, 1.0), dq, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(dq.sclerp(&dq, s), dq, epsilon = 1.0e-7));
+
+        let unit = UnitDualQuaternion::identity();
+        prop_assert!(relative_eq!(unit.sclerp(&unit, 0.0), unit, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(unit.sclerp(&unit, 0.5), unit, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(unit.sclerp(&unit, 1.0), unit, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(unit.sclerp(&unit, s), unit, epsilon = 1.0e-7));
+
+        // ScLERPing two unit dual quaternions with nearly equal rotation
+        // components should result in a unit dual quaternion with a rotation
+        // component nearly equal to either input.
+        let dq2 = t * dq;
+        prop_assert!(relative_eq!(dq.sclerp(&dq2, 0.0).real, dq.real, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(dq.sclerp(&dq2, 0.5).real, dq.real, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(dq.sclerp(&dq2, 1.0).real, dq.real, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(dq.sclerp(&dq2, s).real, dq.real, epsilon = 1.0e-7));
+
+        // ScLERPing two unit dual quaternions with nearly equal rotation
+        // components should result in a unit dual quaternion with a translation
+        // component which is nearly equal to linearly interpolating the
+        // translation components of the inputs.
+        prop_assert!(relative_eq!(
+            dq.sclerp(&dq2, s).translation().vector,
+            dq.translation().vector.lerp(&dq2.translation().vector, s),
+            epsilon = 1.0e-7
+        ));
+
+        let unit2 = t * unit;
+        prop_assert!(relative_eq!(unit.sclerp(&unit2, 0.0).real, unit.real, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(unit.sclerp(&unit2, 0.5).real, unit.real, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(unit.sclerp(&unit2, 1.0).real, unit.real, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(unit.sclerp(&unit2, s).real, unit.real, epsilon = 1.0e-7));
+
+        prop_assert!(relative_eq!(
+            unit.sclerp(&unit2, s).translation().vector,
+            unit.translation().vector.lerp(&unit2.translation().vector, s),
+            epsilon = 1.0e-7
+        ));
+    }
+
+    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[test]
+    fn sclerp_is_not_defined_for_opposite_orientations(
+        dq in unit_dual_quaternion(),
+        s in 0.1f64..0.9f64,
+        t in translation3(),
+        t2 in translation3(),
+        v in vector3(),
+    ) {
+        let iso = dq.to_isometry();
+        let rot = iso.rotation;
+        if let Some((axis, angle)) = rot.axis_angle() {
+            let flipped = UnitQuaternion::from_axis_angle(&axis, angle + std::f64::consts::PI);
+            let dqf = flipped * rot.inverse() * dq.clone();
+            prop_assert!(dq.try_sclerp(&dqf, 0.5, 1.0e-7).is_none());
+            prop_assert!(dq.try_sclerp(&dqf, s, 1.0e-7).is_none());
+        }
+
+        let dq2 = t * dq;
+        let iso2 = dq2.to_isometry();
+        let rot2 = iso2.rotation;
+        if let Some((axis, angle)) = rot2.axis_angle() {
+            let flipped = UnitQuaternion::from_axis_angle(&axis, angle + std::f64::consts::PI);
+            let dq3f = t2 * flipped * rot.inverse() * dq.clone();
+            prop_assert!(dq2.try_sclerp(&dq3f, 0.5, 1.0e-7).is_none());
+            prop_assert!(dq2.try_sclerp(&dq3f, s, 1.0e-7).is_none());
+        }
+
+        if let Some(axis) = Unit::try_new(v, 1.0e-7) {
+            let unit = UnitDualQuaternion::identity();
+            let flip = UnitQuaternion::from_axis_angle(&axis, std::f64::consts::PI);
+            let unitf = flip * unit;
+            prop_assert!(unit.try_sclerp(&unitf, 0.5, 1.0e-7).is_none());
+            prop_assert!(unit.try_sclerp(&unitf, s, 1.0e-7).is_none());
+
+            let unit2f = t * unit * flip;
+            prop_assert!(unit.try_sclerp(&unit2f, 0.5, 1.0e-7).is_none());
+            prop_assert!(unit.try_sclerp(&unit2f, s, 1.0e-7).is_none());
+        }
     }
 
     #[cfg_attr(rustfmt, rustfmt_skip)]
