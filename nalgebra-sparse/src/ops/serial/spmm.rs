@@ -1,3 +1,101 @@
+//! Module holding the various sparse-matrix multiply functions.
+//!
+//! Sparse-matrix multiplication performance is something that can depend heavily on the underlying
+//! data types. In particular, CSR and CSC matrices heavily lean towards optimized access along the
+//! major axis of the format (i.e. rows in CSR and columns in CSC).
+//!
+//! # Performance
+//!
+//! Because of this, the contained `spmm_x_y` functions may all have different performance
+//! characteristics. Where possible, we have attempted to leverage known aspects of the data
+//! formats or made effective use of caching intermediate lane data in order to provide the best
+//! possible performance. When writing code that necessitates high-performance, once should take
+//! care to remember that certain operations are faster than others.
+//!
+//! In general, one should prefer to pose their problems as a combination of one of the following
+//! functions:
+//!
+//! - CSR times CSC
+//! - Dense times CSC
+//! - CSR times Dense
+//!
+//! An example may perhaps be illustrative. Assuming that we have three matrices, `a`, `b`, and
+//! `c`, let's look at various ways we might perform the operation `a * b * c`.
+//!
+//! For the first case, let's assume `a` is CSR, and `b` and `c` are both CSC format. In such a
+//! scenario, the following code produces the optimal matrix multiplication:
+//!
+//! ```rust
+//! use nalgebra_sparse::{CsrMatrix, CscMatrix, serial::{spmm_csr_csc}};
+//!
+//! # fn spmm(a: CsrMatrix<f32, usize>, b: CscMatrix<f32, usize>, c: CscMatrix<f32, usize>) {
+//! let product = spmm_csr_csc(spmm_csr_csc(a, b), c);
+//!
+//! // SLOWER!!!
+//! //
+//! // let product = spmm_csr_csc(a, spmm_csc_csc(b, c));
+//! # }
+//! ```
+//!
+//! By chaining this together with the correct types, we can guarantee that the fastest
+//! matrix-multiply operation is used for both products. Let's assume instead that `a` is still
+//! CSR, `b` is CSC, and `c` is CSR. This multiplication is tricky because we might accidentally
+//! use `spmm_csc_csr`, which is the slowest possible product. Unfortunately we cannot express the
+//! entire problem in terms of `spmm_csr_csc` without making a potentially expensive conversion on
+//! `c`. So instead, we can formulate the example as:
+//!
+//! ```rust
+//! use nalgebra_sparse::{CsrMatrix, CscMatrix, serial::{spmm_csr_csc}};
+//!
+//! # fn spmm(a: CsrMatrix<f32, usize>, b: CscMatrix<f32, usize>, c: CscMatrix<f32, usize>) {
+//! let product = spmm_csr_csr(spmm_csr_csc(a, b), c);
+//!
+//! // Avoid this as much as possible, it is the slowest possible form!
+//! //
+//! // let product = spmm_csr_csr(a, spmm_csc_csr(b, c));
+//! # }
+//! ```
+//!
+//! `spmm_csr_csr` is not as fast as `spmm_csr_csc`, because we have to access the second matrix
+//! out-of-order relative to its lane ordering. However, given the format of the problem we make
+//! the best of the situation and avoid an expensive reconfiguration / re-allocation for the data
+//! in `c`.
+//!
+//! NOTE: These interfaces are primarily meant for advanced users who wish to get the most
+//! performance out of their sparse operations. If you're not benchmarking an issue where
+//! `spmm_csc_csr` is slowing down your whole pipeline, this may not be worth investing your time
+//! in.
+//!
+//! # Sparse-Dense products
+//!
+//! Here we have opted to output sparse matrix types when performing sparse-dense matrix
+//! multiplications. This is driven from the fact that for any two matrices, the product of those
+//! matrices will always have fewer or equal number of non-zero elements. Put in terms of
+//! mathematics:
+//!
+//! ```text
+//! C := A * B
+//!
+//! nnz(C) <= min(nnz(A), nnz(B))
+//! ```
+//!
+//! The direct question about this choice is: when is sparse output from a matrix multiplication
+//! the wrong choice? From there, we would ask ourselves, when is sparse representation the wrong
+//! choice? And that is something that is largely application dependent! For some applications, 50%
+//! density may be too dense to be worth the overhead of the compressed format. On the other hand,
+//! others might be comfortable with much higher number of non-zeros in their matrix, since they
+//! are using the sparse format primarily for numerical stability (and not successively adding or
+//! multiplying by small, almost zero values).
+//!
+//! The thinking then goes like this: since we know that if either `A` or `B` in the above example
+//! are sparse, then another matrix `C` with exactly the same number of non-zero elements as `B`
+//! should also be sparse (according to whatever logic / decision structure led to users making `B`
+//! sparse). In this way, we avoid making decisions based on heuristics and simply follow what
+//! should be natural for the API.
+//!
+//! Note that at any time one can convert between any of the supported formats. For more info, see
+//! the [`convert`](crate::convert) module.
+
 use crate::{
     convert::utils::CountToOffsetIter,
     cs::{CompressedColumnStorage, CompressedRowStorage, CsMatrix, CscMatrix, CsrMatrix},
@@ -60,7 +158,7 @@ where
         .map(move |lane| {
             // See the below comment about index comparisons for why we clone / convert to usize here.
             let lane = lane
-                .map(|(i, v)| (i.clone().into(), *v))
+                .map(|(j, v)| (j.clone().into(), *v))
                 .collect::<Vec<_>>();
 
             let (row_indices, row_data) = csc
@@ -195,7 +293,7 @@ where
     let (counts, indices_and_data) = csc
         .minor_lane_iter()
         .map(move |lane| {
-            let lane = lane.map(|(i, v)| (i, *v)).collect::<Vec<_>>();
+            let lane = lane.map(|(j, v)| (j, *v)).collect::<Vec<_>>();
 
             let (row_indices, row_data) = csr
                 .minor_lane_iter()
@@ -306,7 +404,7 @@ where
     let (counts, indices_and_data) = lhs
         .minor_lane_iter()
         .map(move |lane| {
-            let lane = lane.map(|(i, v)| (i, *v)).collect::<Vec<_>>();
+            let lane = lane.map(|(j, v)| (j, *v)).collect::<Vec<_>>();
 
             let (row_indices, row_data) = rhs
                 .iter()
