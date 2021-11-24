@@ -1,185 +1,415 @@
-use crate::cs::CsMatrix;
-use crate::ops::serial::{OperationError, OperationErrorKind};
-use crate::ops::Op;
-use crate::SparseEntryMut;
-use nalgebra::{ClosedAdd, ClosedMul, DMatrixSlice, DMatrixSliceMut, Scalar};
-use num_traits::{One, Zero};
+use crate::{
+    convert::utils::CountToOffsetIter,
+    cs::{CompressedColumnStorage, CompressedRowStorage, CsMatrix, CscMatrix, CsrMatrix},
+    error::{OperationError, OperationErrorKind},
+};
+use num_traits::{Unsigned, Zero};
+use std::{
+    borrow::Borrow,
+    cmp::Ordering,
+    ops::{Add, AddAssign, Mul},
+};
 
-fn spmm_cs_unexpected_entry() -> OperationError {
-    OperationError::from_kind_and_message(
-        OperationErrorKind::InvalidPattern,
-        String::from("Found unexpected entry that is not present in `c`."),
-    )
-}
-
-/// Helper functionality for implementing CSR/CSC SPMM.
+/// The fundamental (fastest) sparse-matrix multiply.
 ///
-/// Since CSR/CSC matrices are basically transpositions of each other, which lets us use the same
-/// algorithm for the SPMM implementation. The implementation here is written in a CSR-centric
-/// manner. This means that when using it for CSC, the order of the matrices needs to be
-/// reversed (since transpose(AB) = transpose(B) * transpose(A) and CSC(A) = transpose(CSR(A)).
+/// This function takes two arguments, a CSR matrix and a CSC matrix, and performs a sparse-matrix
+/// multiplication with the CSR matrix on the left side and the CSC matrix on the right.
 ///
-/// We assume here that the matrices have already been verified to be dimensionally compatible.
-pub fn spmm_cs_prealloc<T>(
-    beta: T,
-    c: &mut CsMatrix<T>,
-    alpha: T,
-    a: &CsMatrix<T>,
-    b: &CsMatrix<T>,
-) -> Result<(), OperationError>
+/// Because of the way that lane access works on the underlying data structures, this is the
+/// theoretical fastest matrix product.
+///
+/// # Errors
+///
+/// This function fails and produces an [`OperationError`] with kind
+/// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
+/// matrix product.
+pub fn spmm_csr_csc<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
+    csr: CsMatrix<T1, O1, MO1, MI1, D1, CompressedRowStorage, I1>,
+    csc: CsMatrix<T2, O2, MO2, MI2, D2, CompressedColumnStorage, I2>,
+) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output, usize, usize>, OperationError>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T1: Copy + Mul<T2>,
+    <T1 as Mul<T2>>::Output: AddAssign + Zero,
+    T2: Copy,
+    O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    I1: Copy + Clone + Into<usize> + Unsigned + Ord,
+    I2: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO1: Borrow<[O1]>,
+    MO2: Borrow<[O2]>,
+    MI1: Borrow<[I1]>,
+    MI2: Borrow<[I2]>,
+    D1: Borrow<[T1]>,
+    D2: Borrow<[T2]>,
 {
-    for i in 0..c.pattern().major_dim() {
-        let a_lane_i = a.get_lane(i).unwrap();
-        let mut c_lane_i = c.get_lane_mut(i).unwrap();
-        for c_ij in c_lane_i.values_mut() {
-            *c_ij = beta.clone() * c_ij.clone();
-        }
+    let (rows, lc) = csr.shape();
+    let (rr, columns) = csc.shape();
 
-        for (&k, a_ik) in a_lane_i.minor_indices().iter().zip(a_lane_i.values()) {
-            let b_lane_k = b.get_lane(k).unwrap();
-            let (mut c_lane_i_cols, mut c_lane_i_values) = c_lane_i.indices_and_values_mut();
-            let alpha_aik = alpha.clone() * a_ik.clone();
-            for (j, b_kj) in b_lane_k.minor_indices().iter().zip(b_lane_k.values()) {
-                // Determine the location in C to append the value
-                let (c_local_idx, _) = c_lane_i_cols
-                    .iter()
-                    .enumerate()
-                    .find(|(_, c_col)| *c_col == j)
-                    .ok_or_else(spmm_cs_unexpected_entry)?;
-
-                c_lane_i_values[c_local_idx] += alpha_aik.clone() * b_kj.clone();
-                c_lane_i_cols = &c_lane_i_cols[c_local_idx..];
-                c_lane_i_values = &mut c_lane_i_values[c_local_idx..];
-            }
-        }
+    if lc != rr {
+        return Err(OperationError::from_kind_and_message(
+            OperationErrorKind::InvalidPattern,
+            String::from(
+                "The two matrices have incompatible shapes (M × K1 and K2 × N where K1 ≠ K2)",
+            ),
+        ));
     }
 
-    Ok(())
-}
+    let (counts, indices_and_data) = csr
+        .iter()
+        .map(move |lane| {
+            // See the below comment about index comparisons for why we clone / convert to usize here.
+            let lane = lane
+                .map(|(i, v)| (i.clone().into(), *v))
+                .collect::<Vec<_>>();
 
-fn spadd_cs_unexpected_entry() -> OperationError {
-    OperationError::from_kind_and_message(
-        OperationErrorKind::InvalidPattern,
-        String::from("Found entry in `op(a)` that is not present in `c`."),
-    )
-}
+            let (row_indices, row_data) = csc
+                .iter()
+                .enumerate()
+                .filter_map(|(k, mut sublane)| {
+                    let mut lane_iter = lane.iter();
 
-/// Helper functionality for implementing CSR/CSC SPADD.
-pub fn spadd_cs_prealloc<T>(
-    beta: T,
-    c: &mut CsMatrix<T>,
-    alpha: T,
-    a: Op<&CsMatrix<T>>,
-) -> Result<(), OperationError>
-where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
-{
-    match a {
-        Op::NoOp(a) => {
-            for (mut c_lane_i, a_lane_i) in c.lane_iter_mut().zip(a.lane_iter()) {
-                if beta != T::one() {
-                    for c_ij in c_lane_i.values_mut() {
-                        *c_ij *= beta.clone();
-                    }
-                }
+                    let mut lhs = lane_iter.next();
+                    let mut rhs = sublane.next();
 
-                let (mut c_minors, mut c_vals) = c_lane_i.indices_and_values_mut();
-                let (a_minors, a_vals) = (a_lane_i.minor_indices(), a_lane_i.values());
+                    let mut total = <T1 as Mul<T2>>::Output::zero();
+                    let mut is_nonzero = false;
 
-                for (a_col, a_val) in a_minors.iter().zip(a_vals) {
-                    // TODO: Use exponential search instead of linear search.
-                    // If C has substantially more entries in the row than A, then a line search
-                    // will needlessly visit many entries in C.
-                    let (c_idx, _) = c_minors
-                        .iter()
-                        .enumerate()
-                        .find(|(_, c_col)| *c_col == a_col)
-                        .ok_or_else(spadd_cs_unexpected_entry)?;
-                    c_vals[c_idx] += alpha.clone() * a_val.clone();
-                    c_minors = &c_minors[c_idx..];
-                    c_vals = &mut c_vals[c_idx..];
-                }
-            }
-        }
-        Op::Transpose(a) => {
-            if beta != T::one() {
-                for c_ij in c.values_mut() {
-                    *c_ij *= beta.clone();
-                }
-            }
+                    while lhs.is_some() && rhs.is_some() {
+                        let (jl, vl) = lhs.unwrap();
+                        let (jr, &vr) = rhs.unwrap();
 
-            for (i, a_lane_i) in a.lane_iter().enumerate() {
-                for (&j, a_val) in a_lane_i.minor_indices().iter().zip(a_lane_i.values()) {
-                    let a_val = a_val.clone();
-                    let alpha = alpha.clone();
-                    match c.get_entry_mut(j, i).unwrap() {
-                        SparseEntryMut::NonZero(c_ji) => *c_ji += alpha * a_val,
-                        SparseEntryMut::Zero => return Err(spadd_cs_unexpected_entry()),
-                    }
-                }
-            }
-        }
-    }
-    Ok(())
-}
+                        // The below conversion may seem strange; however, it is necessary.
+                        //
+                        // For any two matrices with differing index types I1 and I2, where I1 ≠ I2, we
+                        // cannot guarantee that there is an ordering between them. Rust provides two
+                        // traits to determine ordering:
+                        //
+                        // - PartialOrd, for claiming that there is a partial ordering between two
+                        // types (i.e. not all pairs of I1 / I2 will have a defined ordering)
+                        // - Ord, for claiming there is a complete ordering for a single type. (i.e.
+                        // all pairs of `a` and `b` of type T will be ordered)
+                        //
+                        // You might think that we could mandate the trait bound `I1: PartialOrd<I2>`
+                        // and avoid the copies / conversion into `usize`. However, the standard
+                        // library does not define PartialOrd for any types where the right hand side
+                        // is not equal to self, at least for all the unsigned types we care about for
+                        // our indices. Instead, clone + converting these up into `usize` means that we
+                        // can use `Ord` and `a.cmp(&b)` for all comparisons, which is guaranteed to be
+                        // "safe" for any dimension size (Safe in quotes because you shouldn't be able
+                        // to make a sparse matrix with dimensions larger than usize).
+                        //
+                        // This has the effect that we effectively have to clone all of our indices in
+                        // order to be able to compare them. To save on the cost of this conversion,
+                        // all `jl` indices are converted outside of this loop, and all `jr` indices
+                        // are converted inside the loop.
+                        let jr = jr.clone().into();
 
-/// Helper functionality for implementing CSR/CSC SPMM.
-///
-/// The implementation essentially assumes that `a` is a CSR matrix. To use it with CSC matrices,
-/// the transposed operation must be specified for the CSC matrix.
-pub fn spmm_cs_dense<T>(
-    beta: T,
-    mut c: DMatrixSliceMut<'_, T>,
-    alpha: T,
-    a: Op<&CsMatrix<T>>,
-    b: Op<DMatrixSlice<'_, T>>,
-) where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
-{
-    match a {
-        Op::NoOp(a) => {
-            for j in 0..c.ncols() {
-                let mut c_col_j = c.column_mut(j);
-                for (c_ij, a_row_i) in c_col_j.iter_mut().zip(a.lane_iter()) {
-                    let mut dot_ij = T::zero();
-                    for (&k, a_ik) in a_row_i.minor_indices().iter().zip(a_row_i.values()) {
-                        let b_contrib = match b {
-                            Op::NoOp(ref b) => b.index((k, j)),
-                            Op::Transpose(ref b) => b.index((j, k)),
-                        };
-                        dot_ij += a_ik.clone() * b_contrib.clone();
-                    }
-                    *c_ij = beta.clone() * c_ij.clone() + alpha.clone() * dot_ij;
-                }
-            }
-        }
-        Op::Transpose(a) => {
-            // In this case, we have to pre-multiply C by beta
-            c *= beta;
-
-            for k in 0..a.pattern().major_dim() {
-                let a_row_k = a.get_lane(k).unwrap();
-                for (&i, a_ki) in a_row_k.minor_indices().iter().zip(a_row_k.values()) {
-                    let gamma_ki = alpha.clone() * a_ki.clone();
-                    let mut c_row_i = c.row_mut(i);
-                    match b {
-                        Op::NoOp(ref b) => {
-                            let b_row_k = b.row(k);
-                            for (c_ij, b_kj) in c_row_i.iter_mut().zip(b_row_k.iter()) {
-                                *c_ij += gamma_ki.clone() * b_kj.clone();
+                        match jl.cmp(&jr) {
+                            Ordering::Less => {
+                                lhs = lane_iter.next();
+                                continue;
                             }
-                        }
-                        Op::Transpose(ref b) => {
-                            let b_col_k = b.column(k);
-                            for (c_ij, b_jk) in c_row_i.iter_mut().zip(b_col_k.iter()) {
-                                *c_ij += gamma_ki.clone() * b_jk.clone();
+                            Ordering::Equal => {
+                                total += *vl * vr;
+                                is_nonzero = true;
+                            }
+                            Ordering::Greater => {
+                                rhs = sublane.next();
+                                continue;
                             }
                         }
                     }
-                }
-            }
-        }
+
+                    if is_nonzero {
+                        Some((k, total))
+                    } else {
+                        None
+                    }
+                })
+                .unzip::<_, _, Vec<_>, Vec<_>>();
+
+            (row_indices.len(), (row_indices, row_data))
+        })
+        .unzip::<_, _, Vec<_>, Vec<_>>();
+
+    let nnz = counts.iter().sum();
+    let offsets = CountToOffsetIter::new(counts).collect();
+
+    let mut indices = Vec::with_capacity(nnz);
+    let mut data = Vec::with_capacity(nnz);
+
+    for (mut row_indices, mut row_data) in indices_and_data {
+        indices.append(&mut row_indices);
+        data.append(&mut row_data);
     }
+
+    Ok(unsafe { CsMatrix::from_parts_unchecked(rows, columns, offsets, indices, data) })
+}
+
+/// The fundamental (slowest) sparse-matrix multiply.
+///
+/// This function takes two arguments, a CSC matrix and a CSR matrix, and performs a sparse-matrix
+/// multiplication with the CSC matrix on the left side and the CSR matrix on the right.
+///
+/// This matrix product is the slowest because lane orientation on both matrices is opposite of the
+/// most efficient access pattern. As a result, we end up using the more expensive
+/// [`CsMatrix::minor_lane_iter`] in order to iterate through lanes of the underlying data. As a
+/// result, there is little that can be done for good cache performance since the access pattern
+/// needed for `spmm` is antithetical to the structure of the matrices.
+///
+/// # Errors
+///
+/// This function fails and produces an [`OperationError`] with kind
+/// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
+/// matrix product.
+pub fn spmm_csc_csr<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
+    csc: CsMatrix<T1, O1, MO1, MI1, D1, CompressedColumnStorage, I1>,
+    csr: CsMatrix<T2, O2, MO2, MI2, D2, CompressedRowStorage, I2>,
+) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output, usize, usize>, OperationError>
+where
+    T1: Copy + Mul<T2>,
+    <T1 as Mul<T2>>::Output: AddAssign + Zero,
+    T2: Copy,
+    O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    I1: Copy + Clone + Into<usize> + Unsigned + Ord,
+    I2: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO1: Borrow<[O1]>,
+    MO2: Borrow<[O2]>,
+    MI1: Borrow<[I1]>,
+    MI2: Borrow<[I2]>,
+    D1: Borrow<[T1]>,
+    D2: Borrow<[T2]>,
+{
+    let (rows, lc) = csc.shape();
+    let (rr, columns) = csr.shape();
+
+    if lc != rr {
+        return Err(OperationError::from_kind_and_message(
+            OperationErrorKind::InvalidPattern,
+            String::from(
+                "The two matrices have incompatible shapes (M × K1 and K2 × N where K1 ≠ K2)",
+            ),
+        ));
+    }
+
+    let (counts, indices_and_data) = csc
+        .minor_lane_iter()
+        .map(move |lane| {
+            let lane = lane.map(|(i, v)| (i, *v)).collect::<Vec<_>>();
+
+            let (row_indices, row_data) = csr
+                .minor_lane_iter()
+                .enumerate()
+                .filter_map(|(k, mut sublane)| {
+                    let mut lane_iter = lane.iter();
+
+                    let mut lhs = lane_iter.next();
+                    let mut rhs = sublane.next();
+
+                    let mut total = <T1 as Mul<T2>>::Output::zero();
+                    let mut is_nonzero = false;
+
+                    while lhs.is_some() && rhs.is_some() {
+                        let (jl, vl) = lhs.unwrap();
+                        let (jr, &vr) = rhs.unwrap();
+
+                        match jl.cmp(&jr) {
+                            Ordering::Less => {
+                                lhs = lane_iter.next();
+                                continue;
+                            }
+                            Ordering::Equal => {
+                                total += *vl * vr;
+                                is_nonzero = true;
+                            }
+                            Ordering::Greater => {
+                                rhs = sublane.next();
+                                continue;
+                            }
+                        }
+                    }
+
+                    if is_nonzero {
+                        Some((k, total))
+                    } else {
+                        None
+                    }
+                })
+                .unzip::<_, _, Vec<_>, Vec<_>>();
+
+            (row_indices.len(), (row_indices, row_data))
+        })
+        .unzip::<_, _, Vec<_>, Vec<_>>();
+
+    let nnz = counts.iter().sum();
+    let offsets = CountToOffsetIter::new(counts).collect();
+
+    let mut indices = Vec::with_capacity(nnz);
+    let mut data = Vec::with_capacity(nnz);
+
+    for (mut row_indices, mut row_data) in indices_and_data {
+        indices.append(&mut row_indices);
+        data.append(&mut row_data);
+    }
+
+    Ok(unsafe { CsMatrix::from_parts_unchecked(rows, columns, offsets, indices, data) })
+}
+
+/// The fundamental sparse-matrix multiply for sparse matrices of similar structure.
+///
+/// This function takes in two arguments, both CSC matrices, and computes the sparse matrix product
+/// of the left and right hand sides. In this product, the lane access of the left hand side is the
+/// opposite of what we want -- lanes are along columns, not rows. However, the right hand side
+/// matrix has the correct layout and so therefore can be made fast and cache-friendly.
+///
+/// Unlike the `CSR * CSC` case, we have to use [`CsMatrix::minor_lane_iter`] for the left-hand
+/// side matrix. However, rather than iterate through that iterator for every row / col pairing of
+/// the matrix product we can cache it once to make the minor-lane access far less expensive and
+/// cache friendly on re-use. This means that we have a slightly slower matrix product than in the
+/// `CSR * CSC` case, but otherwise performs well on average at the cost of some extra memory
+/// (retaining an extra copy of the current minor lane of the left hand side matrix).
+///
+/// # Errors
+///
+/// This function fails and produces an [`OperationError`] with kind
+/// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
+/// matrix product.
+pub fn spmm_csc_csc<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
+    lhs: CsMatrix<T1, O1, MO1, MI1, D1, CompressedColumnStorage, I1>,
+    rhs: CsMatrix<T2, O2, MO2, MI2, D2, CompressedColumnStorage, I2>,
+) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output, usize, usize>, OperationError>
+where
+    T1: Copy + Mul<T2>,
+    <T1 as Mul<T2>>::Output: AddAssign + Zero,
+    T2: Copy,
+    O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    I1: Copy + Clone + Into<usize> + Unsigned + Ord,
+    I2: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO1: Borrow<[O1]>,
+    MO2: Borrow<[O2]>,
+    MI1: Borrow<[I1]>,
+    MI2: Borrow<[I2]>,
+    D1: Borrow<[T1]>,
+    D2: Borrow<[T2]>,
+{
+    let (rows, lc) = lhs.shape();
+    let (rr, columns) = rhs.shape();
+
+    if lc != rr {
+        return Err(OperationError::from_kind_and_message(
+            OperationErrorKind::InvalidPattern,
+            String::from(
+                "The two matrices have incompatible shapes (M × K1 and K2 × N where K1 ≠ K2)",
+            ),
+        ));
+    }
+
+    let (counts, indices_and_data) = lhs
+        .minor_lane_iter()
+        .map(move |lane| {
+            let lane = lane.map(|(i, v)| (i, *v)).collect::<Vec<_>>();
+
+            let (row_indices, row_data) = rhs
+                .iter()
+                .enumerate()
+                .filter_map(|(k, mut sublane)| {
+                    let mut lane_iter = lane.iter();
+
+                    let mut lhs = lane_iter.next();
+                    let mut rhs = sublane.next();
+
+                    let mut total = <T1 as Mul<T2>>::Output::zero();
+                    let mut is_nonzero = false;
+
+                    while lhs.is_some() && rhs.is_some() {
+                        let (jl, vl) = lhs.unwrap();
+                        let (jr, &vr) = rhs.unwrap();
+
+                        // See comment in `spmm_csr_csc` for why this is necessary
+                        let jr = jr.clone().into();
+
+                        match jl.cmp(&jr) {
+                            Ordering::Less => {
+                                lhs = lane_iter.next();
+                                continue;
+                            }
+                            Ordering::Equal => {
+                                total += *vl * vr;
+                                is_nonzero = true;
+                            }
+                            Ordering::Greater => {
+                                rhs = sublane.next();
+                                continue;
+                            }
+                        }
+                    }
+
+                    if is_nonzero {
+                        Some((k, total))
+                    } else {
+                        None
+                    }
+                })
+                .unzip::<_, _, Vec<_>, Vec<_>>();
+
+            (row_indices.len(), (row_indices, row_data))
+        })
+        .unzip::<_, _, Vec<_>, Vec<_>>();
+
+    let nnz = counts.iter().sum();
+    let offsets = CountToOffsetIter::new(counts).collect();
+
+    let mut indices = Vec::with_capacity(nnz);
+    let mut data = Vec::with_capacity(nnz);
+
+    for (mut row_indices, mut row_data) in indices_and_data {
+        indices.append(&mut row_indices);
+        data.append(&mut row_data);
+    }
+
+    Ok(unsafe { CsMatrix::from_parts_unchecked(rows, columns, offsets, indices, data) })
+}
+
+/// The fundamental matrix product of two CSR matrices.
+///
+/// This function behaves identically to the `CSC * CSC` matrix product. It does this by exploiting
+/// an identity in mathematics:
+///
+/// ```text
+/// (B' <dot> A')' = A <dot> B
+/// ```
+///
+/// Where the apostrophes in the above identity refer to matrix transposition. Matrix
+/// transposition with the [`CsMatrix`] type is "free" in the sense that it doesn't require us to
+/// reconfigure or move any data, only re-interpret it (see [`CsMatrix::transpose`] and
+/// [`CsMatrix::transpose_owned`]). As a result, we can define the `CSR * CSR` product in terms of
+/// the `CSC * CSC` product, and get the exact same performance as a result.
+///
+/// # Errors
+///
+/// This function fails and produces an [`OperationError`] with kind
+/// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
+/// matrix product.
+pub fn spmm_csr_csr<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
+    lhs: CsMatrix<T1, O1, MO1, MI1, D1, CompressedRowStorage, I1>,
+    rhs: CsMatrix<T2, O2, MO2, MI2, D2, CompressedRowStorage, I2>,
+) -> Result<CscMatrix<<T2 as Mul<T1>>::Output, usize, usize>, OperationError>
+where
+    T2: Copy + Mul<T1>,
+    <T2 as Mul<T1>>::Output: AddAssign + Zero,
+    T1: Copy,
+    O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    I1: Copy + Clone + Into<usize> + Unsigned + Ord,
+    I2: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO1: Borrow<[O1]>,
+    MO2: Borrow<[O2]>,
+    MI1: Borrow<[I1]>,
+    MI2: Borrow<[I2]>,
+    D1: Borrow<[T1]>,
+    D2: Borrow<[T2]>,
+{
+    Ok(spmm_csc_csc(rhs.transpose(), lhs.transpose())?.transpose_owned())
 }
