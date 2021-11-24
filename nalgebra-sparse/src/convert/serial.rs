@@ -230,12 +230,31 @@ where
     MI: Borrow<[I]>,
     D: Borrow<[T]>,
 {
-    let (offsets, indices, values) = csr.cs_data();
+    let (nrows, ncols) = csr.shape();
 
-    let (offsets, indices, values) =
-        utils::transpose_convert(csr.nrows(), csr.ncols(), offsets, indices, values);
+    let (counts, indices_and_data) = csr
+        .minor_lane_iter()
+        .map(|lane| {
+            let (indices, data) = lane
+                .map(|(i, v)| (i, v.clone()))
+                .unzip::<_, _, Vec<_>, Vec<_>>();
 
-    unsafe { CscMatrix::from_parts_unchecked(csr.nrows(), csr.ncols(), offsets, indices, values) }
+            (indices.len(), (indices, data))
+        })
+        .unzip::<_, _, Vec<_>, Vec<_>>();
+
+    let nnz = counts.iter().sum();
+    let offsets = utils::CountToOffsetIter::new(counts).collect();
+
+    let mut indices = Vec::with_capacity(nnz);
+    let mut data = Vec::with_capacity(nnz);
+
+    for (mut row_indices, mut row_data) in indices_and_data {
+        indices.append(&mut row_indices);
+        data.append(&mut row_data);
+    }
+
+    unsafe { CscMatrix::from_parts_unchecked(nrows, ncols, offsets, indices, data) }
 }
 
 /// Converts a [`CscMatrix`] to a [`CsrMatrix`].
@@ -250,12 +269,31 @@ where
     MI: Borrow<[I]>,
     D: Borrow<[T]>,
 {
-    let (offsets, indices, values) = csc.cs_data();
+    let (nrows, ncols) = csc.shape();
 
-    let (offsets, indices, values) =
-        utils::transpose_convert(csc.ncols(), csc.nrows(), offsets, indices, values);
+    let (counts, indices_and_data) = csc
+        .minor_lane_iter()
+        .map(|lane| {
+            let (indices, data) = lane
+                .map(|(i, v)| (i, v.clone()))
+                .unzip::<_, _, Vec<_>, Vec<_>>();
 
-    unsafe { CsrMatrix::from_parts_unchecked(csc.nrows(), csc.ncols(), offsets, indices, values) }
+            (indices.len(), (indices, data))
+        })
+        .unzip::<_, _, Vec<_>, Vec<_>>();
+
+    let nnz = counts.iter().sum();
+    let offsets = utils::CountToOffsetIter::new(counts).collect();
+
+    let mut indices = Vec::with_capacity(nnz);
+    let mut data = Vec::with_capacity(nnz);
+
+    for (mut row_indices, mut row_data) in indices_and_data {
+        indices.append(&mut row_indices);
+        data.append(&mut row_data);
+    }
+
+    unsafe { CsrMatrix::from_parts_unchecked(nrows, ncols, offsets, indices, data) }
 }
 
 fn convert_coo_cs<T>(
