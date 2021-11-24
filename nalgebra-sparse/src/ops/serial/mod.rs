@@ -8,9 +8,4 @@
 //! some operations which will be able to dynamically adapt the output pattern to fit the
 //! result, but these have yet to be implemented.
 
-mod spmm;
-
-pub use spmm::{
-    spmm_csc_csc, spmm_csc_csr, spmm_csc_dense, spmm_csr_csc, spmm_csr_csr, spmm_csr_dense,
-    spmm_dense_csc, spmm_dense_csr,
-};
+pub mod spmm;
