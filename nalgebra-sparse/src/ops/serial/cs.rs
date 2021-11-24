@@ -3,6 +3,7 @@ use crate::{
     cs::{CompressedColumnStorage, CompressedRowStorage, CsMatrix, CscMatrix, CsrMatrix},
     error::{OperationError, OperationErrorKind},
 };
+use nalgebra::{Dim, Matrix, RawStorage, Scalar};
 use num_traits::{Unsigned, Zero};
 use std::{
     borrow::Borrow,
@@ -406,4 +407,342 @@ where
     D2: Borrow<[T2]>,
 {
     Ok(spmm_csc_csc(rhs.transpose(), lhs.transpose())?.transpose_owned())
+}
+
+/// Sparse-Dense matrix multiplication.
+///
+/// This function takes in two matrices, one dense and one sparse in CSC format, and computes the
+/// `Dense * CSC` matrix product.
+///
+/// # Errors
+///
+/// This function fails and produces an [`OperationError`] with kind
+/// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
+/// matrix product.
+pub fn spmm_dense_csc<T1, T2, R, C, S, O, MO, MI, D, I>(
+    dense: Matrix<T1, R, C, S>,
+    csc: CsMatrix<T2, O, MO, MI, D, CompressedColumnStorage, I>,
+) -> Result<CsrMatrix<<T2 as Mul<T1>>::Output, usize>, OperationError>
+where
+    T1: Scalar,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T1, R, C>,
+    T2: Copy + Mul<T1>,
+    <T2 as Mul<T1>>::Output: Add + Zero,
+    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    I: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO: Borrow<[O]>,
+    MI: Borrow<[I]>,
+    D: Borrow<[T2]>,
+{
+    let (rows, lc) = dense.shape();
+    let (rr, columns) = csc.shape();
+
+    if lc != rr {
+        return Err(OperationError::from_kind_and_message(
+            OperationErrorKind::InvalidPattern,
+            String::from(
+                "The two matrices have incompatible shapes (M × K1 and K2 × N where K1 ≠ K2)",
+            ),
+        ));
+    }
+
+    let (counts, indices_and_data) = (0..rows)
+        .map(|i| {
+            let dense_row = dense.row(i);
+
+            let (row_indices, row_data) = csc
+                .iter()
+                .enumerate()
+                .filter_map(|(k, lane)| {
+                    if lane.len() == 0 {
+                        None
+                    } else {
+                        let total = lane.fold(<T2 as Mul<T1>>::Output::zero(), |total, (j, &v)| {
+                            total + (v * dense_row[j.clone().into()].clone())
+                        });
+
+                        Some((k, total))
+                    }
+                })
+                .unzip::<_, _, Vec<_>, Vec<_>>();
+
+            (row_indices.len(), (row_indices, row_data))
+        })
+        .unzip::<_, _, Vec<_>, Vec<_>>();
+
+    let nnz = counts.iter().sum();
+    let offsets = CountToOffsetIter::new(counts).collect();
+
+    let mut indices = Vec::with_capacity(nnz);
+    let mut data = Vec::with_capacity(nnz);
+
+    for (mut row_indices, mut row_data) in indices_and_data {
+        indices.append(&mut row_indices);
+        data.append(&mut row_data);
+    }
+
+    Ok(unsafe { CsMatrix::from_parts_unchecked(rows, columns, offsets, indices, data) })
+}
+
+/// Sparse-Dense matrix multiplication.
+///
+/// This function takes in two matrices, one sparse in CSR format and one dense, and computes the
+/// `CSR * Dense` matrix product.
+///
+/// # Errors
+///
+/// This function fails and produces an [`OperationError`] with kind
+/// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
+/// matrix product.
+pub fn spmm_csr_dense<T1, T2, R, C, S, O, MO, MI, D, I>(
+    csr: CsMatrix<T1, O, MO, MI, D, CompressedRowStorage, I>,
+    dense: Matrix<T2, R, C, S>,
+) -> Result<CscMatrix<<T1 as Mul<T2>>::Output, usize>, OperationError>
+where
+    T2: Scalar,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T2, R, C>,
+    T1: Copy + Mul<T2>,
+    <T1 as Mul<T2>>::Output: Add + Zero,
+    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    I: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO: Borrow<[O]>,
+    MI: Borrow<[I]>,
+    D: Borrow<[T1]>,
+{
+    let (rows, lc) = csr.shape();
+    let (rr, columns) = dense.shape();
+
+    if lc != rr {
+        return Err(OperationError::from_kind_and_message(
+            OperationErrorKind::InvalidPattern,
+            String::from(
+                "The two matrices have incompatible shapes (M × K1 and K2 × N where K1 ≠ K2)",
+            ),
+        ));
+    }
+
+    // The trick to this function is to exploit the fact that:
+    //
+    // (B' <dot> A')' = A <dot> B
+    //
+    // However, we don't want to take an expensive transpose of the dense data -- instead we
+    // transpose the CSR matrix directly (rather, we pretend we did, because we just need major
+    // lane iteration), and then iterate through columns in the dense matrix instead of rows.
+    //
+    // This saves us from doing an expensive transpose + alloc on the dense matrix, while still
+    // getting the same output. The only major difference is that unlike spmm_dense_csc we output a
+    // CscMatrix as a final result (the transpose of the CsrMatrix constructed below).
+    let (counts, indices_and_data) = (0..columns)
+        .map(|i| {
+            let dense_col = dense.column(i);
+
+            let (row_indices, row_data) = csr
+                .iter()
+                .enumerate()
+                .filter_map(|(k, lane)| {
+                    if lane.len() == 0 {
+                        None
+                    } else {
+                        let total = lane.fold(<T1 as Mul<T2>>::Output::zero(), |total, (j, &v)| {
+                            total + (v * dense_col[j.clone().into()].clone())
+                        });
+
+                        Some((k, total))
+                    }
+                })
+                .unzip::<_, _, Vec<_>, Vec<_>>();
+
+            (row_indices.len(), (row_indices, row_data))
+        })
+        .unzip::<_, _, Vec<_>, Vec<_>>();
+
+    let nnz = counts.iter().sum();
+    let offsets = CountToOffsetIter::new(counts).collect();
+
+    let mut indices = Vec::with_capacity(nnz);
+    let mut data = Vec::with_capacity(nnz);
+
+    for (mut row_indices, mut row_data) in indices_and_data {
+        indices.append(&mut row_indices);
+        data.append(&mut row_data);
+    }
+
+    // The last step is to construct the final matrix (B' <dot> A').
+    //
+    // We have to remember that columns and rows are swapped here (so the below is not a typo), and
+    // that we're immediately going to take an owned transpose of the data.
+    Ok(
+        unsafe { CsrMatrix::from_parts_unchecked(columns, rows, offsets, indices, data) }
+            .transpose_owned(),
+    )
+}
+
+/// Sparse-Dense matrix multiplication.
+///
+/// This function takes in two matrices, one sparse in CSC format and one dense, and computes the
+/// `CSC * Dense` matrix product.
+///
+/// # Errors
+///
+/// This function fails and produces an [`OperationError`] with kind
+/// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
+/// matrix product.
+pub fn spmm_csc_dense<T1, T2, R, C, S, O, MO, MI, D, I>(
+    csc: CsMatrix<T1, O, MO, MI, D, CompressedColumnStorage, I>,
+    dense: Matrix<T2, R, C, S>,
+) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output, usize>, OperationError>
+where
+    T2: Scalar,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T2, R, C>,
+    T1: Copy + Mul<T2>,
+    <T1 as Mul<T2>>::Output: Add + Zero,
+    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    I: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO: Borrow<[O]>,
+    MI: Borrow<[I]>,
+    D: Borrow<[T1]>,
+{
+    let (rows, lc) = csc.shape();
+    let (rr, columns) = dense.shape();
+
+    if lc != rr {
+        return Err(OperationError::from_kind_and_message(
+            OperationErrorKind::InvalidPattern,
+            String::from(
+                "The two matrices have incompatible shapes (M × K1 and K2 × N where K1 ≠ K2)",
+            ),
+        ));
+    }
+
+    let (counts, indices_and_data) = csc
+        .minor_lane_iter()
+        .map(|lane| {
+            let lane = lane.map(|(j, v)| (j, *v)).collect::<Vec<_>>();
+
+            if lane.is_empty() {
+                (0, (Vec::new(), Vec::new()))
+            } else {
+                let (row_indices, row_data) = (0..columns)
+                    .map(|k| {
+                        let dense_col = dense.column(k);
+                        let total = lane
+                            .iter()
+                            .fold(<T1 as Mul<T2>>::Output::zero(), |total, (j, v)| {
+                                total + *v * dense_col[*j].clone()
+                            });
+
+                        (k, total)
+                    })
+                    .unzip::<_, _, Vec<_>, Vec<_>>();
+
+                (row_indices.len(), (row_indices, row_data))
+            }
+        })
+        .unzip::<_, _, Vec<_>, Vec<_>>();
+
+    let nnz = counts.iter().sum();
+    let offsets = CountToOffsetIter::new(counts).collect();
+
+    let mut indices = Vec::with_capacity(nnz);
+    let mut data = Vec::with_capacity(nnz);
+
+    for (mut row_indices, mut row_data) in indices_and_data {
+        indices.append(&mut row_indices);
+        data.append(&mut row_data);
+    }
+
+    Ok(unsafe { CsMatrix::from_parts_unchecked(rows, columns, offsets, indices, data) })
+}
+
+/// Sparse-Dense matrix multiplication.
+///
+/// This function takes in two matrices, one dense and one sparse in CSC format, and computes the
+/// `Dense * CSR` matrix product.
+///
+/// # Errors
+///
+/// This function fails and produces an [`OperationError`] with kind
+/// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
+/// matrix product.
+pub fn spmm_dense_csr<T1, T2, R, C, S, O, MO, MI, D, I>(
+    dense: Matrix<T1, R, C, S>,
+    csr: CsMatrix<T2, O, MO, MI, D, CompressedColumnStorage, I>,
+) -> Result<CscMatrix<<T2 as Mul<T1>>::Output, usize>, OperationError>
+where
+    T1: Scalar,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T1, R, C>,
+    T2: Copy + Mul<T1>,
+    <T2 as Mul<T1>>::Output: Add + Zero,
+    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
+    I: Copy + Clone + Into<usize> + Unsigned + Ord,
+    MO: Borrow<[O]>,
+    MI: Borrow<[I]>,
+    D: Borrow<[T2]>,
+{
+    let (rows, lc) = dense.shape();
+    let (rr, columns) = csr.shape();
+
+    if lc != rr {
+        return Err(OperationError::from_kind_and_message(
+            OperationErrorKind::InvalidPattern,
+            String::from(
+                "The two matrices have incompatible shapes (M × K1 and K2 × N where K1 ≠ K2)",
+            ),
+        ));
+    }
+
+    // Like with spmm_csr_dense, this function shares the transposed relationship with
+    // spmm_csc_dense. We can exploit this in a similar way, by swapping column / row references
+    // for the dense matrix and transposing the final matrix.
+    let (counts, indices_and_data) = csr
+        .minor_lane_iter()
+        .map(|lane| {
+            let lane = lane.map(|(j, v)| (j, *v)).collect::<Vec<_>>();
+
+            if lane.is_empty() {
+                (0, (Vec::new(), Vec::new()))
+            } else {
+                let (row_indices, row_data) = (0..rows)
+                    .map(|k| {
+                        let dense_row = dense.row(k);
+                        let total = lane
+                            .iter()
+                            .fold(<T2 as Mul<T1>>::Output::zero(), |total, (j, v)| {
+                                total + *v * dense_row[*j].clone()
+                            });
+
+                        (k, total)
+                    })
+                    .unzip::<_, _, Vec<_>, Vec<_>>();
+
+                (row_indices.len(), (row_indices, row_data))
+            }
+        })
+        .unzip::<_, _, Vec<_>, Vec<_>>();
+
+    let nnz = counts.iter().sum();
+    let offsets = CountToOffsetIter::new(counts).collect();
+
+    let mut indices = Vec::with_capacity(nnz);
+    let mut data = Vec::with_capacity(nnz);
+
+    for (mut row_indices, mut row_data) in indices_and_data {
+        indices.append(&mut row_indices);
+        data.append(&mut row_data);
+    }
+
+    // Columns and rows are intentionally swapped here since we're taking the transpose of the
+    // final data.
+    Ok(
+        unsafe { CsrMatrix::from_parts_unchecked(columns, rows, offsets, indices, data) }
+            .transpose_owned(),
+    )
 }

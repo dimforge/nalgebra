@@ -10,4 +10,7 @@
 
 mod cs;
 
-pub use cs::{spmm_csc_csc, spmm_csc_csr, spmm_csr_csc, spmm_csr_csr};
+pub use cs::{
+    spmm_csc_csc, spmm_csc_csr, spmm_csc_dense, spmm_csr_csc, spmm_csr_csr, spmm_csr_dense,
+    spmm_dense_csc, spmm_dense_csr,
+};
