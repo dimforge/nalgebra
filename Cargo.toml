@@ -32,7 +32,7 @@ compare = [ "matrixcompare-core" ]
 libm    = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 macros = [ "nalgebra-macros" ]
-cuda   = [ "cust" ]
+cuda   = [ "cust", "simba/cuda" ]
 
 # Conversion
 convert-mint = [ "mint" ]
@@ -133,3 +133,6 @@ lto = true
 [package.metadata.docs.rs]
 # Enable certain features when building docs for docs.rs
 features = [ "proptest-support", "compare", "macros", "rand" ]
+
+[patch.crates-io]
+simba = { git = "https://github.com/dimforge/simba"}
