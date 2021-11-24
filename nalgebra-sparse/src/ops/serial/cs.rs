@@ -107,7 +107,6 @@ where
                         match jl.cmp(&jr) {
                             Ordering::Less => {
                                 lhs = lane_iter.next();
-                                continue;
                             }
                             Ordering::Equal => {
                                 total += *vl * vr;
@@ -115,7 +114,6 @@ where
                             }
                             Ordering::Greater => {
                                 rhs = sublane.next();
-                                continue;
                             }
                         }
                     }
@@ -217,7 +215,6 @@ where
                         match jl.cmp(&jr) {
                             Ordering::Less => {
                                 lhs = lane_iter.next();
-                                continue;
                             }
                             Ordering::Equal => {
                                 total += *vl * vr;
@@ -225,7 +222,6 @@ where
                             }
                             Ordering::Greater => {
                                 rhs = sublane.next();
-                                continue;
                             }
                         }
                     }
@@ -333,7 +329,6 @@ where
                         match jl.cmp(&jr) {
                             Ordering::Less => {
                                 lhs = lane_iter.next();
-                                continue;
                             }
                             Ordering::Equal => {
                                 total += *vl * vr;
@@ -341,7 +336,6 @@ where
                             }
                             Ordering::Greater => {
                                 rhs = sublane.next();
-                                continue;
                             }
                         }
                     }
