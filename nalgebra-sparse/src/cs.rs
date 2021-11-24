@@ -603,6 +603,8 @@ where
         }
     }
 
+    let mut minor_index_permutation: Vec<usize> = Vec::new();
+
     // Test that each lane has strictly monotonically increasing minor indices, i.e.
     // minor indices within a lane are sorted, unique. Sort minor indices within a lane if needed.
     // In addition, each minor index must be in bounds with respect to the minor dimension.
@@ -656,7 +658,11 @@ where
 
             // sort if indices are nonmonotonic and sorting is expected
             if nonmonotonic && sort {
-                let mut minor_index_permutation: Vec<usize> = (range_start..range_end).collect();
+                minor_index_permutation.resize(range_end - range_start, 0);
+                for (index, value) in (range_start..range_end).enumerate() {
+                    minor_index_permutation[index] = value;
+                }
+
                 // sort permutation values for monotonic index order
                 minor_index_permutation.sort_by(|a, b| {
                     let x = &minor_idx_in_lane[*a - range_start];
