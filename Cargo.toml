@@ -32,6 +32,7 @@ compare = [ "matrixcompare-core" ]
 libm    = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 macros = [ "nalgebra-macros" ]
+cuda   = [ "cust", "simba/cuda" ]
 
 # Conversion
 convert-mint = [ "mint" ]
@@ -86,13 +87,16 @@ pest           = { version = "2", optional = true }
 pest_derive    = { version = "2", optional = true }
 bytemuck       = { version = "1.5", optional = true }
 matrixcompare-core = { version = "0.1", optional = true }
-proptest           = { version = "1", optional = true, default-features = false, features = ["std"] }
+proptest       = { version = "1", optional = true, default-features = false, features = ["std"] }
 glam013        = { package = "glam", version = "0.13", optional = true }
 glam014        = { package = "glam", version = "0.14", optional = true }
 glam015        = { package = "glam", version = "0.15", optional = true }
 glam016        = { package = "glam", version = "0.16", optional = true }
 glam017        = { package = "glam", version = "0.17", optional = true }
 glam018        = { package = "glam", version = "0.18", optional = true }
+
+[target.'cfg(not(target_os = "cuda"))'.dependencies]
+cust           = { version = "0.1", optional = true }
 
 
 [dev-dependencies]
@@ -129,3 +133,6 @@ lto = true
 [package.metadata.docs.rs]
 # Enable certain features when building docs for docs.rs
 features = [ "proptest-support", "compare", "macros", "rand" ]
+
+[patch.crates-io]
+simba = { git = "https://github.com/dimforge/simba"}

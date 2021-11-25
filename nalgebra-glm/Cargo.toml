@@ -22,6 +22,7 @@ std                   = [ "nalgebra/std", "simba/std" ]
 arbitrary             = [ "nalgebra/arbitrary" ]
 serde-serialize       = [ "nalgebra/serde-serialize-no-std" ]
 abomonation-serialize = [ "nalgebra/abomonation-serialize" ]
+cuda                  = [ "nalgebra/cuda" ]
 
 # Conversion
 convert-mint = [ "nalgebra/mint" ]
