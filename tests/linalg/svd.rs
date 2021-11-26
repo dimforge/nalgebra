@@ -98,6 +98,18 @@ mod proptest_tests {
                     }
 
                     #[test]
+                    fn svd_static_square_3x3(m in matrix3_($scalar)) {
+                        let svd = m.svd(true, true);
+                        let (u, s, v_t) = (svd.u.unwrap(), svd.singular_values, svd.v_t.unwrap());
+                        let ds = Matrix3::from_diagonal(&s.map(|e| ComplexField::from_real(e)));
+
+                        prop_assert!(s.iter().all(|e| *e >= 0.0));
+                        prop_assert!(relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5));
+                        prop_assert!(u.is_orthogonal(1.0e-5));
+                        prop_assert!(v_t.is_orthogonal(1.0e-5));
+                    }
+
+                    #[test]
                     fn svd_pseudo_inverse(m in dmatrix_($scalar)) {
                         let svd = m.clone().svd(true, true);
                         let pinv = svd.pseudo_inverse(1.0e-10).unwrap();

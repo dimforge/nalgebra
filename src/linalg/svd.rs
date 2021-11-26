@@ -1,5 +1,6 @@
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
+use std::any::TypeId;
 
 use approx::AbsDiffEq;
 use num::{One, Zero};
@@ -9,7 +10,7 @@ use crate::base::{DefaultAllocator, Matrix, Matrix2x3, OMatrix, OVector, Vector2
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimDiff, DimMin, DimMinimum, DimSub, U1};
 use crate::storage::Storage;
-use crate::RawStorage;
+use crate::{Matrix2, Matrix3, RawStorage, U2, U3};
 use simba::scalar::{ComplexField, RealField};
 
 use crate::linalg::givens::GivensRotation;
@@ -118,6 +119,25 @@ where
         );
         let (nrows, ncols) = matrix.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
+
+        if TypeId::of::<OMatrix<T, R, C>>() == TypeId::of::<Matrix2<T::RealField>>()
+            && TypeId::of::<Self>() == TypeId::of::<SVD<T::RealField, U2, U2>>()
+        {
+            // SAFETY: the reference transmutes are OK since we checked that the types match exactly.
+            let matrix: &Matrix2<T::RealField> = unsafe { std::mem::transmute(&matrix) };
+            let result = super::svd2::svd2(matrix, compute_u, compute_v);
+            let typed_result: &Self = unsafe { std::mem::transmute(&result) };
+            return Some(typed_result.clone());
+        } else if TypeId::of::<OMatrix<T, R, C>>() == TypeId::of::<Matrix3<T::RealField>>()
+            && TypeId::of::<Self>() == TypeId::of::<SVD<T::RealField, U3, U3>>()
+        {
+            // SAFETY: the reference transmutes are OK since we checked that the types match exactly.
+            let matrix: &Matrix3<T::RealField> = unsafe { std::mem::transmute(&matrix) };
+            let result = super::svd3::svd3(matrix, compute_u, compute_v, eps, max_niter);
+            let typed_result: &Self = unsafe { std::mem::transmute(&result) };
+            return Some(typed_result.clone());
+        }
+
         let dim = min_nrows_ncols.value();
 
         let m_amax = matrix.camax();

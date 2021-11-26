@@ -147,6 +147,11 @@ where
         &self.qr
     }
 
+    #[must_use]
+    pub(crate) fn diag_internal(&self) -> &OVector<T, DimMinimum<R, C>> {
+        &self.diag
+    }
+
     /// Multiplies the provided matrix by the transpose of the `Q` matrix of this decomposition.
     pub fn q_tr_mul<R2: Dim, C2: Dim, S2>(&self, rhs: &mut Matrix<T, R2, C2, S2>)
     // TODO: do we need a static constraint on the number of rows of rhs?

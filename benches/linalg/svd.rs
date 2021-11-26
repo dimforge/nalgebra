@@ -1,4 +1,18 @@
-use na::{Matrix4, SVD};
+use na::{Matrix2, Matrix3, Matrix4, SVD};
+
+fn svd_decompose_2x2_f32(bh: &mut criterion::Criterion) {
+    let m = Matrix2::<f32>::new_random();
+    bh.bench_function("svd_decompose_2x2", move |bh| {
+        bh.iter(|| std::hint::black_box(SVD::new_unordered(m.clone(), true, true)))
+    });
+}
+
+fn svd_decompose_3x3_f32(bh: &mut criterion::Criterion) {
+    let m = Matrix3::<f32>::new_random();
+    bh.bench_function("svd_decompose_3x3", move |bh| {
+        bh.iter(|| std::hint::black_box(SVD::new_unordered(m.clone(), true, true)))
+    });
+}
 
 fn svd_decompose_4x4(bh: &mut criterion::Criterion) {
     let m = Matrix4::<f64>::new_random();
@@ -114,6 +128,8 @@ fn pseudo_inverse_200x200(bh: &mut criterion::Criterion) {
 
 criterion_group!(
     svd,
+    svd_decompose_2x2_f32,
+    svd_decompose_3x3_f32,
     svd_decompose_4x4,
     svd_decompose_10x10,
     svd_decompose_100x100,
