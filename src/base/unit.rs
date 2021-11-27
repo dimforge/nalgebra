@@ -26,10 +26,10 @@ use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealF
 /// in their documentation, read their dedicated pages directly.
 #[repr(transparent)]
 #[derive(Clone, Hash, Copy)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+// #[cfg_attr(
+//     all(not(target_os = "cuda"), feature = "cuda"),
+//     derive(cust::DeviceCopy)
+// )]
 pub struct Unit<T> {
     pub(crate) value: T,
 }
@@ -120,6 +120,17 @@ mod rkyv_impl {
             })
         }
     }
+}
+
+#[cfg(all(not(target_os = "cuda"), feature = "cuda"))]
+unsafe impl<T: cust::memory::DeviceCopy, R, C, S> cust::memory::DeviceCopy
+    for Unit<Matrix<T, R, C, S>>
+where
+    T: Scalar,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T, R, C> + Copy,
+{
 }
 
 impl<T, R, C, S> PartialEq for Unit<Matrix<T, R, C, S>>

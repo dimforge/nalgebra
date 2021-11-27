@@ -1068,6 +1068,9 @@ impl<T: RealField + fmt::Display> fmt::Display for Quaternion<T> {
 /// A unit quaternions. May be used to represent a rotation.
 pub type UnitQuaternion<T> = Unit<Quaternion<T>>;
 
+#[cfg(all(not(target_os = "cuda"), feature = "cuda"))]
+unsafe impl<T: cust::memory::DeviceCopy> cust::memory::DeviceCopy for UnitQuaternion<T> {}
+
 impl<T: Scalar + ClosedNeg + PartialEq> PartialEq for UnitQuaternion<T> {
     #[inline]
     fn eq(&self, rhs: &Self) -> bool {
