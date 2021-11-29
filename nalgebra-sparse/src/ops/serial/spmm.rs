@@ -127,9 +127,9 @@ pub fn spmm_csr_csc<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
     csc: CsMatrix<T2, O2, MO2, MI2, D2, CompressedColumnStorage, I2>,
 ) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output, usize, usize>, OperationError>
 where
-    T1: Copy + Mul<T2>,
+    T1: Clone + Mul<T2>,
     <T1 as Mul<T2>>::Output: AddAssign + Zero,
-    T2: Copy,
+    T2: Clone,
     O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I1: Copy + Clone + Into<usize> + Unsigned + Ord,
@@ -158,7 +158,7 @@ where
         .map(move |lane| {
             // See the below comment about index comparisons for why we clone / convert to usize here.
             let lane = lane
-                .map(|(j, v)| (j.clone().into(), *v))
+                .map(|(j, v)| (j.clone().into(), v.clone()))
                 .collect::<Vec<_>>();
 
             let (row_indices, row_data) = csc
@@ -175,7 +175,7 @@ where
 
                     while lhs.is_some() && rhs.is_some() {
                         let (jl, vl) = lhs.unwrap();
-                        let (jr, &vr) = rhs.unwrap();
+                        let (jr, vr) = rhs.unwrap();
 
                         // The below conversion may seem strange; however, it is necessary.
                         //
@@ -208,7 +208,7 @@ where
                                 lhs = lane_iter.next();
                             }
                             Ordering::Equal => {
-                                total += *vl * vr;
+                                total += vl.clone() * vr.clone();
                                 is_nonzero = true;
                             }
                             Ordering::Greater => {
@@ -264,9 +264,9 @@ pub fn spmm_csc_csr<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
     csr: CsMatrix<T2, O2, MO2, MI2, D2, CompressedRowStorage, I2>,
 ) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output, usize, usize>, OperationError>
 where
-    T1: Copy + Mul<T2>,
+    T1: Clone + Mul<T2>,
     <T1 as Mul<T2>>::Output: AddAssign + Zero,
-    T2: Copy,
+    T2: Clone,
     O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I1: Copy + Clone + Into<usize> + Unsigned + Ord,
@@ -293,7 +293,7 @@ where
     let (counts, indices_and_data) = csc
         .minor_lane_iter()
         .map(move |lane| {
-            let lane = lane.map(|(j, v)| (j, *v)).collect::<Vec<_>>();
+            let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
 
             let (row_indices, row_data) = csr
                 .minor_lane_iter()
@@ -309,14 +309,14 @@ where
 
                     while lhs.is_some() && rhs.is_some() {
                         let (jl, vl) = lhs.unwrap();
-                        let (jr, &vr) = rhs.unwrap();
+                        let (jr, vr) = rhs.unwrap();
 
                         match jl.cmp(&jr) {
                             Ordering::Less => {
                                 lhs = lane_iter.next();
                             }
                             Ordering::Equal => {
-                                total += *vl * vr;
+                                total += vl.clone() * vr.clone();
                                 is_nonzero = true;
                             }
                             Ordering::Greater => {
@@ -375,9 +375,9 @@ pub fn spmm_csc_csc<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
     rhs: CsMatrix<T2, O2, MO2, MI2, D2, CompressedColumnStorage, I2>,
 ) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output, usize, usize>, OperationError>
 where
-    T1: Copy + Mul<T2>,
+    T1: Clone + Mul<T2>,
     <T1 as Mul<T2>>::Output: AddAssign + Zero,
-    T2: Copy,
+    T2: Clone,
     O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I1: Copy + Clone + Into<usize> + Unsigned + Ord,
@@ -404,7 +404,7 @@ where
     let (counts, indices_and_data) = lhs
         .minor_lane_iter()
         .map(move |lane| {
-            let lane = lane.map(|(j, v)| (j, *v)).collect::<Vec<_>>();
+            let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
 
             let (row_indices, row_data) = rhs
                 .iter()
@@ -420,7 +420,7 @@ where
 
                     while lhs.is_some() && rhs.is_some() {
                         let (jl, vl) = lhs.unwrap();
-                        let (jr, &vr) = rhs.unwrap();
+                        let (jr, vr) = rhs.unwrap();
 
                         // See comment in `spmm_csr_csc` for why this is necessary
                         let jr = jr.clone().into();
@@ -430,7 +430,7 @@ where
                                 lhs = lane_iter.next();
                             }
                             Ordering::Equal => {
-                                total += *vl * vr;
+                                total += vl.clone() * vr.clone();
                                 is_nonzero = true;
                             }
                             Ordering::Greater => {
@@ -490,9 +490,9 @@ pub fn spmm_csr_csr<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
     rhs: CsMatrix<T2, O2, MO2, MI2, D2, CompressedRowStorage, I2>,
 ) -> Result<CscMatrix<<T2 as Mul<T1>>::Output, usize, usize>, OperationError>
 where
-    T2: Copy + Mul<T1>,
+    T2: Clone + Mul<T1>,
     <T2 as Mul<T1>>::Output: AddAssign + Zero,
-    T1: Copy,
+    T1: Clone,
     O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I1: Copy + Clone + Into<usize> + Unsigned + Ord,
@@ -526,7 +526,7 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T1, R, C>,
-    T2: Copy + Mul<T1>,
+    T2: Clone + Mul<T1>,
     <T2 as Mul<T1>>::Output: Add + Zero,
     O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I: Copy + Clone + Into<usize> + Unsigned + Ord,
@@ -557,8 +557,8 @@ where
                     if lane.len() == 0 {
                         None
                     } else {
-                        let total = lane.fold(<T2 as Mul<T1>>::Output::zero(), |total, (j, &v)| {
-                            total + (v * dense_row[j.clone().into()].clone())
+                        let total = lane.fold(<T2 as Mul<T1>>::Output::zero(), |total, (j, v)| {
+                            total + (v.clone() * dense_row[j.clone().into()].clone())
                         });
 
                         Some((k, total))
@@ -603,7 +603,7 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T2, R, C>,
-    T1: Copy + Mul<T2>,
+    T1: Clone + Mul<T2>,
     <T1 as Mul<T2>>::Output: Add + Zero,
     O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I: Copy + Clone + Into<usize> + Unsigned + Ord,
@@ -645,8 +645,8 @@ where
                     if lane.len() == 0 {
                         None
                     } else {
-                        let total = lane.fold(<T1 as Mul<T2>>::Output::zero(), |total, (j, &v)| {
-                            total + (v * dense_col[j.clone().into()].clone())
+                        let total = lane.fold(<T1 as Mul<T2>>::Output::zero(), |total, (j, v)| {
+                            total + (v.clone() * dense_col[j.clone().into()].clone())
                         });
 
                         Some((k, total))
@@ -698,7 +698,7 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T2, R, C>,
-    T1: Copy + Mul<T2>,
+    T1: Clone + Mul<T2>,
     <T1 as Mul<T2>>::Output: Add + Zero,
     O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I: Copy + Clone + Into<usize> + Unsigned + Ord,
@@ -721,7 +721,7 @@ where
     let (counts, indices_and_data) = csc
         .minor_lane_iter()
         .map(|lane| {
-            let lane = lane.map(|(j, v)| (j, *v)).collect::<Vec<_>>();
+            let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
 
             if lane.is_empty() {
                 (0, (Vec::new(), Vec::new()))
@@ -732,7 +732,7 @@ where
                         let total = lane
                             .iter()
                             .fold(<T1 as Mul<T2>>::Output::zero(), |total, (j, v)| {
-                                total + *v * dense_col[*j].clone()
+                                total + v.clone() * dense_col[*j].clone()
                             });
 
                         (k, total)
@@ -777,7 +777,7 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T1, R, C>,
-    T2: Copy + Mul<T1>,
+    T2: Clone + Mul<T1>,
     <T2 as Mul<T1>>::Output: Add + Zero,
     O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
     I: Copy + Clone + Into<usize> + Unsigned + Ord,
@@ -803,7 +803,7 @@ where
     let (counts, indices_and_data) = csr
         .minor_lane_iter()
         .map(|lane| {
-            let lane = lane.map(|(j, v)| (j, *v)).collect::<Vec<_>>();
+            let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
 
             if lane.is_empty() {
                 (0, (Vec::new(), Vec::new()))
@@ -814,7 +814,7 @@ where
                         let total = lane
                             .iter()
                             .fold(<T2 as Mul<T1>>::Output::zero(), |total, (j, v)| {
-                                total + *v * dense_row[*j].clone()
+                                total + v.clone() * dense_row[*j].clone()
                             });
 
                         (k, total)
