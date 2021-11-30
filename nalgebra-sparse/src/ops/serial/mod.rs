@@ -10,3 +10,4 @@
 
 pub mod spadd;
 pub mod spmm;
+pub mod spsub;
