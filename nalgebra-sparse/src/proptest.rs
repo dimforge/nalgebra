@@ -320,7 +320,7 @@ pub fn csr<T>(
     rows: impl Into<DimRange>,
     cols: impl Into<DimRange>,
     max_nonzeros: usize,
-) -> impl Strategy<Value = CsrMatrix<T::Value, usize>>
+) -> impl Strategy<Value = CsrMatrix<T::Value>>
 where
     T: Strategy + Clone + 'static,
     T::Value: Scalar,
@@ -349,7 +349,7 @@ pub fn csc<T>(
     rows: impl Into<DimRange>,
     cols: impl Into<DimRange>,
     max_nonzeros: usize,
-) -> impl Strategy<Value = CscMatrix<T::Value, usize>>
+) -> impl Strategy<Value = CscMatrix<T::Value>>
 where
     T: Strategy + Clone + 'static,
     T::Value: Scalar,

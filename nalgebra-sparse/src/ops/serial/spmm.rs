@@ -102,7 +102,7 @@ use crate::{
     error::{OperationError, OperationErrorKind},
 };
 use nalgebra::{Dim, Matrix, RawStorage, Scalar};
-use num_traits::{Unsigned, Zero};
+use num_traits::Zero;
 use std::{
     borrow::Borrow,
     cmp::Ordering,
@@ -122,22 +122,18 @@ use std::{
 /// This function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
 /// matrix product.
-pub fn spmm_csr_csc<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
-    csr: CsMatrix<T1, O1, MO1, MI1, D1, CompressedRowStorage, I1>,
-    csc: CsMatrix<T2, O2, MO2, MI2, D2, CompressedColumnStorage, I2>,
-) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output, usize, usize>, OperationError>
+pub fn spmm_csr_csc<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
+    csr: CsMatrix<T1, MO1, MI1, D1, CompressedRowStorage>,
+    csc: CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>,
+) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output>, OperationError>
 where
     T1: Clone + Mul<T2>,
     <T1 as Mul<T2>>::Output: AddAssign + Zero,
     T2: Clone,
-    O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I1: Copy + Clone + Into<usize> + Unsigned + Ord,
-    I2: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO1: Borrow<[O1]>,
-    MO2: Borrow<[O2]>,
-    MI1: Borrow<[I1]>,
-    MI2: Borrow<[I2]>,
+    MO1: Borrow<[usize]>,
+    MO2: Borrow<[usize]>,
+    MI1: Borrow<[usize]>,
+    MI2: Borrow<[usize]>,
     D1: Borrow<[T1]>,
     D2: Borrow<[T2]>,
 {
@@ -157,9 +153,7 @@ where
         .iter()
         .map(move |lane| {
             // See the below comment about index comparisons for why we clone / convert to usize here.
-            let lane = lane
-                .map(|(j, v)| (j.clone().into(), v.clone()))
-                .collect::<Vec<_>>();
+            let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
 
             let (row_indices, row_data) = csc
                 .iter()
@@ -176,32 +170,6 @@ where
                     while lhs.is_some() && rhs.is_some() {
                         let (jl, vl) = lhs.unwrap();
                         let (jr, vr) = rhs.unwrap();
-
-                        // The below conversion may seem strange; however, it is necessary.
-                        //
-                        // For any two matrices with differing index types I1 and I2, where I1 ≠ I2, we
-                        // cannot guarantee that there is an ordering between them. Rust provides two
-                        // traits to determine ordering:
-                        //
-                        // - PartialOrd, for claiming that there is a partial ordering between two
-                        // types (i.e. not all pairs of I1 / I2 will have a defined ordering)
-                        // - Ord, for claiming there is a complete ordering for a single type. (i.e.
-                        // all pairs of `a` and `b` of type T will be ordered)
-                        //
-                        // You might think that we could mandate the trait bound `I1: PartialOrd<I2>`
-                        // and avoid the copies / conversion into `usize`. However, the standard
-                        // library does not define PartialOrd for any types where the right hand side
-                        // is not equal to self, at least for all the unsigned types we care about for
-                        // our indices. Instead, clone + converting these up into `usize` means that we
-                        // can use `Ord` and `a.cmp(&b)` for all comparisons, which is guaranteed to be
-                        // "safe" for any dimension size (Safe in quotes because you shouldn't be able
-                        // to make a sparse matrix with dimensions larger than usize).
-                        //
-                        // This has the effect that we effectively have to clone all of our indices in
-                        // order to be able to compare them. To save on the cost of this conversion,
-                        // all `jl` indices are converted outside of this loop, and all `jr` indices
-                        // are converted inside the loop.
-                        let jr = jr.clone().into();
 
                         match jl.cmp(&jr) {
                             Ordering::Less => {
@@ -259,22 +227,18 @@ where
 /// This function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
 /// matrix product.
-pub fn spmm_csc_csr<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
-    csc: CsMatrix<T1, O1, MO1, MI1, D1, CompressedColumnStorage, I1>,
-    csr: CsMatrix<T2, O2, MO2, MI2, D2, CompressedRowStorage, I2>,
-) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output, usize, usize>, OperationError>
+pub fn spmm_csc_csr<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
+    csc: CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>,
+    csr: CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>,
+) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output>, OperationError>
 where
     T1: Clone + Mul<T2>,
     <T1 as Mul<T2>>::Output: AddAssign + Zero,
     T2: Clone,
-    O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I1: Copy + Clone + Into<usize> + Unsigned + Ord,
-    I2: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO1: Borrow<[O1]>,
-    MO2: Borrow<[O2]>,
-    MI1: Borrow<[I1]>,
-    MI2: Borrow<[I2]>,
+    MO1: Borrow<[usize]>,
+    MO2: Borrow<[usize]>,
+    MI1: Borrow<[usize]>,
+    MI2: Borrow<[usize]>,
     D1: Borrow<[T1]>,
     D2: Borrow<[T2]>,
 {
@@ -370,22 +334,18 @@ where
 /// This function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
 /// matrix product.
-pub fn spmm_csc_csc<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
-    lhs: CsMatrix<T1, O1, MO1, MI1, D1, CompressedColumnStorage, I1>,
-    rhs: CsMatrix<T2, O2, MO2, MI2, D2, CompressedColumnStorage, I2>,
-) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output, usize, usize>, OperationError>
+pub fn spmm_csc_csc<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
+    lhs: CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>,
+    rhs: CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>,
+) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output>, OperationError>
 where
     T1: Clone + Mul<T2>,
     <T1 as Mul<T2>>::Output: AddAssign + Zero,
     T2: Clone,
-    O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I1: Copy + Clone + Into<usize> + Unsigned + Ord,
-    I2: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO1: Borrow<[O1]>,
-    MO2: Borrow<[O2]>,
-    MI1: Borrow<[I1]>,
-    MI2: Borrow<[I2]>,
+    MO1: Borrow<[usize]>,
+    MO2: Borrow<[usize]>,
+    MI1: Borrow<[usize]>,
+    MI2: Borrow<[usize]>,
     D1: Borrow<[T1]>,
     D2: Borrow<[T2]>,
 {
@@ -423,7 +383,7 @@ where
                         let (jr, vr) = rhs.unwrap();
 
                         // See comment in `spmm_csr_csc` for why this is necessary
-                        let jr = jr.clone().into();
+                        let jr = jr.clone();
 
                         match jl.cmp(&jr) {
                             Ordering::Less => {
@@ -485,22 +445,18 @@ where
 /// This function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
 /// matrix product.
-pub fn spmm_csr_csr<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
-    lhs: CsMatrix<T1, O1, MO1, MI1, D1, CompressedRowStorage, I1>,
-    rhs: CsMatrix<T2, O2, MO2, MI2, D2, CompressedRowStorage, I2>,
-) -> Result<CscMatrix<<T2 as Mul<T1>>::Output, usize, usize>, OperationError>
+pub fn spmm_csr_csr<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
+    lhs: CsMatrix<T1, MO1, MI1, D1, CompressedRowStorage>,
+    rhs: CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>,
+) -> Result<CscMatrix<<T2 as Mul<T1>>::Output>, OperationError>
 where
     T2: Clone + Mul<T1>,
     <T2 as Mul<T1>>::Output: AddAssign + Zero,
     T1: Clone,
-    O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I1: Copy + Clone + Into<usize> + Unsigned + Ord,
-    I2: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO1: Borrow<[O1]>,
-    MO2: Borrow<[O2]>,
-    MI1: Borrow<[I1]>,
-    MI2: Borrow<[I2]>,
+    MO1: Borrow<[usize]>,
+    MO2: Borrow<[usize]>,
+    MI1: Borrow<[usize]>,
+    MI2: Borrow<[usize]>,
     D1: Borrow<[T1]>,
     D2: Borrow<[T2]>,
 {
@@ -517,10 +473,10 @@ where
 /// This function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
 /// matrix product.
-pub fn spmm_dense_csc<T1, T2, R, C, S, O, MO, MI, D, I>(
+pub fn spmm_dense_csc<T1, T2, R, C, S, MO, MI, D>(
     dense: Matrix<T1, R, C, S>,
-    csc: CsMatrix<T2, O, MO, MI, D, CompressedColumnStorage, I>,
-) -> Result<CsrMatrix<<T2 as Mul<T1>>::Output, usize>, OperationError>
+    csc: CsMatrix<T2, MO, MI, D, CompressedColumnStorage>,
+) -> Result<CsrMatrix<<T2 as Mul<T1>>::Output>, OperationError>
 where
     T1: Scalar,
     R: Dim,
@@ -528,10 +484,8 @@ where
     S: RawStorage<T1, R, C>,
     T2: Clone + Mul<T1>,
     <T2 as Mul<T1>>::Output: Add + Zero,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T2]>,
 {
     let (rows, lc) = dense.shape();
@@ -558,7 +512,7 @@ where
                         None
                     } else {
                         let total = lane.fold(<T2 as Mul<T1>>::Output::zero(), |total, (j, v)| {
-                            total + (v.clone() * dense_row[j.clone().into()].clone())
+                            total + (v.clone() * dense_row[j.clone()].clone())
                         });
 
                         Some((k, total))
@@ -594,10 +548,10 @@ where
 /// This function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
 /// matrix product.
-pub fn spmm_csr_dense<T1, T2, R, C, S, O, MO, MI, D, I>(
-    csr: CsMatrix<T1, O, MO, MI, D, CompressedRowStorage, I>,
+pub fn spmm_csr_dense<T1, T2, R, C, S, MO, MI, D>(
+    csr: CsMatrix<T1, MO, MI, D, CompressedRowStorage>,
     dense: Matrix<T2, R, C, S>,
-) -> Result<CscMatrix<<T1 as Mul<T2>>::Output, usize>, OperationError>
+) -> Result<CscMatrix<<T1 as Mul<T2>>::Output>, OperationError>
 where
     T2: Scalar,
     R: Dim,
@@ -605,10 +559,8 @@ where
     S: RawStorage<T2, R, C>,
     T1: Clone + Mul<T2>,
     <T1 as Mul<T2>>::Output: Add + Zero,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
 {
     let (rows, lc) = csr.shape();
@@ -646,7 +598,7 @@ where
                         None
                     } else {
                         let total = lane.fold(<T1 as Mul<T2>>::Output::zero(), |total, (j, v)| {
-                            total + (v.clone() * dense_col[j.clone().into()].clone())
+                            total + (v.clone() * dense_col[j.clone()].clone())
                         });
 
                         Some((k, total))
@@ -689,10 +641,10 @@ where
 /// This function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
 /// matrix product.
-pub fn spmm_csc_dense<T1, T2, R, C, S, O, MO, MI, D, I>(
-    csc: CsMatrix<T1, O, MO, MI, D, CompressedColumnStorage, I>,
+pub fn spmm_csc_dense<T1, T2, R, C, S, MO, MI, D>(
+    csc: CsMatrix<T1, MO, MI, D, CompressedColumnStorage>,
     dense: Matrix<T2, R, C, S>,
-) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output, usize>, OperationError>
+) -> Result<CsrMatrix<<T1 as Mul<T2>>::Output>, OperationError>
 where
     T2: Scalar,
     R: Dim,
@@ -700,10 +652,8 @@ where
     S: RawStorage<T2, R, C>,
     T1: Clone + Mul<T2>,
     <T1 as Mul<T2>>::Output: Add + Zero,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
 {
     let (rows, lc) = csc.shape();
@@ -768,10 +718,10 @@ where
 /// This function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices have incompatible shapes for a
 /// matrix product.
-pub fn spmm_dense_csr<T1, T2, R, C, S, O, MO, MI, D, I>(
+pub fn spmm_dense_csr<T1, T2, R, C, S, MO, MI, D>(
     dense: Matrix<T1, R, C, S>,
-    csr: CsMatrix<T2, O, MO, MI, D, CompressedColumnStorage, I>,
-) -> Result<CscMatrix<<T2 as Mul<T1>>::Output, usize>, OperationError>
+    csr: CsMatrix<T2, MO, MI, D, CompressedColumnStorage>,
+) -> Result<CscMatrix<<T2 as Mul<T1>>::Output>, OperationError>
 where
     T1: Scalar,
     R: Dim,
@@ -779,10 +729,8 @@ where
     S: RawStorage<T1, R, C>,
     T2: Clone + Mul<T1>,
     <T2 as Mul<T1>>::Output: Add + Zero,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T2]>,
 {
     let (rows, lc) = dense.shape();

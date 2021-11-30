@@ -4,8 +4,8 @@ use crate::{
     cs::{CompressedColumnStorage, CompressedRowStorage, CsMatrix, CscMatrix, CsrMatrix},
 };
 use nalgebra::{storage::RawStorage, ClosedAdd, DMatrix, Dim, Matrix, Scalar};
-use num_traits::{Unsigned, Zero};
-use std::{borrow::Borrow, ops::Add};
+use num_traits::Zero;
+use std::borrow::Borrow;
 
 impl<'a, T, R, C, S> From<&'a Matrix<T, R, C, S>> for CooMatrix<T>
 where
@@ -28,7 +28,7 @@ where
     }
 }
 
-impl<'a, T> From<&'a CooMatrix<T>> for CsrMatrix<T, usize>
+impl<'a, T> From<&'a CooMatrix<T>> for CsrMatrix<T>
 where
     T: Scalar + Zero + ClosedAdd,
 {
@@ -37,18 +37,16 @@ where
     }
 }
 
-impl<'a, T, O, I> From<&'a CsrMatrix<T, O, I>> for CooMatrix<T>
+impl<'a, T> From<&'a CsrMatrix<T>> for CooMatrix<T>
 where
     T: Scalar + Zero + ClosedAdd,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
 {
-    fn from(matrix: &'a CsrMatrix<T, O, I>) -> Self {
+    fn from(matrix: &'a CsrMatrix<T>) -> Self {
         convert_csr_coo(matrix)
     }
 }
 
-impl<'a, T, R, C, S> From<&'a Matrix<T, R, C, S>> for CsrMatrix<T, usize>
+impl<'a, T, R, C, S> From<&'a Matrix<T, R, C, S>> for CsrMatrix<T>
 where
     T: Scalar + Zero,
     R: Dim,
@@ -60,18 +58,16 @@ where
     }
 }
 
-impl<'a, T, O, I> From<&'a CsrMatrix<T, O, I>> for DMatrix<T>
+impl<'a, T> From<&'a CsrMatrix<T>> for DMatrix<T>
 where
     T: Scalar + Zero + ClosedAdd,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
 {
-    fn from(matrix: &'a CsrMatrix<T, O, I>) -> Self {
+    fn from(matrix: &'a CsrMatrix<T>) -> Self {
         convert_csr_dense(matrix)
     }
 }
 
-impl<'a, T> From<&'a CooMatrix<T>> for CscMatrix<T, usize>
+impl<'a, T> From<&'a CooMatrix<T>> for CscMatrix<T>
 where
     T: Scalar + Zero + ClosedAdd,
 {
@@ -80,18 +76,16 @@ where
     }
 }
 
-impl<'a, T, O, I> From<&'a CscMatrix<T, O, I>> for CooMatrix<T>
+impl<'a, T> From<&'a CscMatrix<T>> for CooMatrix<T>
 where
     T: Scalar + Zero,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
 {
-    fn from(matrix: &'a CscMatrix<T, O, I>) -> Self {
+    fn from(matrix: &'a CscMatrix<T>) -> Self {
         convert_csc_coo(matrix)
     }
 }
 
-impl<'a, T, R, C, S> From<&'a Matrix<T, R, C, S>> for CscMatrix<T, usize>
+impl<'a, T, R, C, S> From<&'a Matrix<T, R, C, S>> for CscMatrix<T>
 where
     T: Scalar + Zero,
     R: Dim,
@@ -103,49 +97,39 @@ where
     }
 }
 
-impl<'a, T, O, I> From<&'a CscMatrix<T, O, I>> for DMatrix<T>
+impl<'a, T> From<&'a CscMatrix<T>> for DMatrix<T>
 where
     T: Scalar + Zero + ClosedAdd,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
 {
-    fn from(matrix: &'a CscMatrix<T, O, I>) -> Self {
+    fn from(matrix: &'a CscMatrix<T>) -> Self {
         convert_csc_dense(matrix)
     }
 }
 
-impl<T, O, MajorOffsets, MinorIndices, Data, I>
-    From<CsMatrix<T, O, MajorOffsets, MinorIndices, Data, CompressedColumnStorage, I>>
-    for CsrMatrix<T, usize>
+impl<T, MajorOffsets, MinorIndices, Data>
+    From<CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressedColumnStorage>> for CsrMatrix<T>
 where
     T: Scalar,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MajorOffsets: Borrow<[O]>,
-    MinorIndices: Borrow<[I]>,
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
     Data: Borrow<[T]>,
 {
     fn from(
-        matrix: CsMatrix<T, O, MajorOffsets, MinorIndices, Data, CompressedColumnStorage, I>,
+        matrix: CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressedColumnStorage>,
     ) -> Self {
         convert_csc_csr(&matrix)
     }
 }
 
-impl<T, O, MajorOffsets, MinorIndices, Data, I>
-    From<CsMatrix<T, O, MajorOffsets, MinorIndices, Data, CompressedRowStorage, I>>
-    for CscMatrix<T, usize>
+impl<T, MajorOffsets, MinorIndices, Data>
+    From<CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressedRowStorage>> for CscMatrix<T>
 where
     T: Scalar,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MajorOffsets: Borrow<[O]>,
-    MinorIndices: Borrow<[I]>,
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
     Data: Borrow<[T]>,
 {
-    fn from(
-        matrix: CsMatrix<T, O, MajorOffsets, MinorIndices, Data, CompressedRowStorage, I>,
-    ) -> Self {
+    fn from(matrix: CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressedRowStorage>) -> Self {
         convert_csr_csc(&matrix)
     }
 }

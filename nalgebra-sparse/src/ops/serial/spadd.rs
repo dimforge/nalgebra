@@ -12,7 +12,7 @@
 //! `spadd_csr_csc` is slightly slower due to needing to iterate along the minor lane of the
 //! secondary matrix.
 //!
-//! One shoudl prefer to pose their problems as a combination of CSX <-> CSX additions, or
+//! One should prefer to pose their problems as a combination of CSX <-> CSX additions, or
 //! dense-sparse additions.
 
 use crate::{
@@ -21,7 +21,6 @@ use crate::{
     error::{OperationError, OperationErrorKind},
 };
 use nalgebra::{Dim, Matrix, RawStorage, RawStorageMut, Scalar};
-use num_traits::Unsigned;
 use std::{borrow::Borrow, cmp::Ordering, ops::Add};
 
 /// Sparse-sparse matrix addition.
@@ -33,21 +32,17 @@ use std::{borrow::Borrow, cmp::Ordering, ops::Add};
 ///
 /// This function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices do not have the exact same shape.
-pub fn spadd_csr_csc<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
-    csr: CsMatrix<T1, O1, MO1, MI1, D1, CompressedRowStorage, I1>,
-    csc: CsMatrix<T2, O2, MO2, MI2, D2, CompressedColumnStorage, I2>,
-) -> Result<CsrMatrix<<T1 as Add<T2>>::Output, usize, usize>, OperationError>
+pub fn spadd_csr_csc<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
+    csr: CsMatrix<T1, MO1, MI1, D1, CompressedRowStorage>,
+    csc: CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>,
+) -> Result<CsrMatrix<<T1 as Add<T2>>::Output>, OperationError>
 where
     T1: Clone + Into<<T1 as Add<T2>>::Output> + Add<T2>,
     T2: Clone + Into<<T1 as Add<T2>>::Output>,
-    O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I1: Copy + Clone + Into<usize> + Unsigned + Ord,
-    I2: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO1: Borrow<[O1]>,
-    MO2: Borrow<[O2]>,
-    MI1: Borrow<[I1]>,
-    MI2: Borrow<[I2]>,
+    MO1: Borrow<[usize]>,
+    MO2: Borrow<[usize]>,
+    MI1: Borrow<[usize]>,
+    MI2: Borrow<[usize]>,
     D1: Borrow<[T1]>,
     D2: Borrow<[T2]>,
 {
@@ -102,21 +97,17 @@ where
 ///
 /// This function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices do not have the exact same shape.
-pub fn spadd_csc_csr<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
-    csc: CsMatrix<T1, O1, MO1, MI1, D1, CompressedColumnStorage, I1>,
-    csr: CsMatrix<T2, O2, MO2, MI2, D2, CompressedRowStorage, I2>,
-) -> Result<CsrMatrix<<T2 as Add<T1>>::Output, usize, usize>, OperationError>
+pub fn spadd_csc_csr<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
+    csc: CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>,
+    csr: CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>,
+) -> Result<CsrMatrix<<T2 as Add<T1>>::Output>, OperationError>
 where
     T1: Clone + Into<<T2 as Add<T1>>::Output>,
     T2: Clone + Into<<T2 as Add<T1>>::Output> + Add<T1>,
-    O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I1: Copy + Clone + Into<usize> + Unsigned + Ord,
-    I2: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO1: Borrow<[O1]>,
-    MO2: Borrow<[O2]>,
-    MI1: Borrow<[I1]>,
-    MI2: Borrow<[I2]>,
+    MO1: Borrow<[usize]>,
+    MO2: Borrow<[usize]>,
+    MI1: Borrow<[usize]>,
+    MI2: Borrow<[usize]>,
     D1: Borrow<[T1]>,
     D2: Borrow<[T2]>,
 {
@@ -131,21 +122,17 @@ where
 ///
 /// This function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices do not have the exact same shape.
-pub fn spadd_csc_csc<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
-    lhs: CsMatrix<T1, O1, MO1, MI1, D1, CompressedColumnStorage, I1>,
-    rhs: CsMatrix<T2, O2, MO2, MI2, D2, CompressedColumnStorage, I2>,
-) -> Result<CscMatrix<<T1 as Add<T2>>::Output, usize, usize>, OperationError>
+pub fn spadd_csc_csc<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
+    lhs: CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>,
+    rhs: CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>,
+) -> Result<CscMatrix<<T1 as Add<T2>>::Output>, OperationError>
 where
     T1: Clone + Into<<T1 as Add<T2>>::Output> + Add<T2>,
     T2: Clone + Into<<T1 as Add<T2>>::Output>,
-    O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I1: Copy + Clone + Into<usize> + Unsigned + Ord,
-    I2: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO1: Borrow<[O1]>,
-    MO2: Borrow<[O2]>,
-    MI1: Borrow<[I1]>,
-    MI2: Borrow<[I2]>,
+    MO1: Borrow<[usize]>,
+    MO2: Borrow<[usize]>,
+    MI1: Borrow<[usize]>,
+    MI2: Borrow<[usize]>,
     D1: Borrow<[T1]>,
     D2: Borrow<[T2]>,
 {
@@ -196,21 +183,17 @@ where
 ///
 /// This function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices do not have the exact same shape.
-pub fn spadd_csr_csr<T1, T2, O1, O2, I1, I2, MO1, MO2, MI1, MI2, D1, D2>(
-    lhs: CsMatrix<T1, O1, MO1, MI1, D1, CompressedRowStorage, I1>,
-    rhs: CsMatrix<T2, O2, MO2, MI2, D2, CompressedRowStorage, I2>,
-) -> Result<CsrMatrix<<T1 as Add<T2>>::Output, usize, usize>, OperationError>
+pub fn spadd_csr_csr<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
+    lhs: CsMatrix<T1, MO1, MI1, D1, CompressedRowStorage>,
+    rhs: CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>,
+) -> Result<CsrMatrix<<T1 as Add<T2>>::Output>, OperationError>
 where
     T1: Clone + Into<<T1 as Add<T2>>::Output> + Add<T2>,
     T2: Clone + Into<<T1 as Add<T2>>::Output>,
-    O1: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    O2: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I1: Copy + Clone + Into<usize> + Unsigned + Ord,
-    I2: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO1: Borrow<[O1]>,
-    MO2: Borrow<[O2]>,
-    MI1: Borrow<[I1]>,
-    MI2: Borrow<[I2]>,
+    MO1: Borrow<[usize]>,
+    MO2: Borrow<[usize]>,
+    MI1: Borrow<[usize]>,
+    MI2: Borrow<[usize]>,
     D1: Borrow<[T1]>,
     D2: Borrow<[T2]>,
 {
@@ -226,9 +209,9 @@ where
 ///
 /// Thsi function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices do not have the exact same shape.
-pub fn spadd_dense_csc<T1, T2, R, C, S, O, MO, MI, D, I>(
+pub fn spadd_dense_csc<T1, T2, R, C, S, MO, MI, D>(
     mut dense: Matrix<T1, R, C, S>,
-    csc: CsMatrix<T2, O, MO, MI, D, CompressedColumnStorage, I>,
+    csc: CsMatrix<T2, MO, MI, D, CompressedColumnStorage>,
 ) -> Result<Matrix<T1, R, C, S>, OperationError>
 where
     T1: Scalar + Add<T2, Output = T1>,
@@ -236,10 +219,8 @@ where
     C: Dim,
     S: RawStorage<T1, R, C> + RawStorageMut<T1, R, C>,
     T2: Clone,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T2]>,
 {
     let (lrows, lcols) = dense.shape();
@@ -269,8 +250,8 @@ where
 ///
 /// Thsi function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices do not have the exact same shape.
-pub fn spadd_csc_dense<T1, T2, R, C, S, O, MO, MI, D, I>(
-    csc: CsMatrix<T1, O, MO, MI, D, CompressedColumnStorage, I>,
+pub fn spadd_csc_dense<T1, T2, R, C, S, MO, MI, D>(
+    csc: CsMatrix<T1, MO, MI, D, CompressedColumnStorage>,
     dense: Matrix<T2, R, C, S>,
 ) -> Result<Matrix<T2, R, C, S>, OperationError>
 where
@@ -279,10 +260,8 @@ where
     C: Dim,
     S: RawStorage<T2, R, C> + RawStorageMut<T2, R, C>,
     T1: Clone,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
 {
     spadd_dense_csc(dense, csc)
@@ -297,9 +276,9 @@ where
 ///
 /// Thsi function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices do not have the exact same shape.
-pub fn spadd_dense_csr<T1, T2, R, C, S, O, MO, MI, D, I>(
+pub fn spadd_dense_csr<T1, T2, R, C, S, MO, MI, D>(
     mut dense: Matrix<T1, R, C, S>,
-    csr: CsMatrix<T2, O, MO, MI, D, CompressedRowStorage, I>,
+    csr: CsMatrix<T2, MO, MI, D, CompressedRowStorage>,
 ) -> Result<Matrix<T1, R, C, S>, OperationError>
 where
     T1: Scalar + Add<T2, Output = T1>,
@@ -307,10 +286,8 @@ where
     C: Dim,
     S: RawStorage<T1, R, C> + RawStorageMut<T1, R, C>,
     T2: Clone,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T2]>,
 {
     let (lrows, lcols) = dense.shape();
@@ -340,8 +317,8 @@ where
 ///
 /// Thsi function fails and produces an [`OperationError`] with kind
 /// [`OperationErrorKind::InvalidPattern`] if the two matrices do not have the exact same shape.
-pub fn spadd_csr_dense<T1, T2, R, C, S, O, MO, MI, D, I>(
-    csr: CsMatrix<T1, O, MO, MI, D, CompressedRowStorage, I>,
+pub fn spadd_csr_dense<T1, T2, R, C, S, MO, MI, D>(
+    csr: CsMatrix<T1, MO, MI, D, CompressedRowStorage>,
     dense: Matrix<T2, R, C, S>,
 ) -> Result<Matrix<T2, R, C, S>, OperationError>
 where
@@ -350,10 +327,8 @@ where
     C: Dim,
     S: RawStorage<T2, R, C> + RawStorageMut<T2, R, C>,
     T1: Clone,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
 {
     spadd_dense_csr(dense, csr)

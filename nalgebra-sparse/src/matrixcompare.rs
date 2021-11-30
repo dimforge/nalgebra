@@ -4,17 +4,14 @@ use crate::{
     cs::{Compression, CsMatrix},
 };
 use matrixcompare_core::{self, Access, SparseAccess};
-use num_traits::Unsigned;
-use std::{borrow::Borrow, ops::Add};
+use std::borrow::Borrow;
 
-impl<T, Offset, MajorOffsets, MinorIndices, Data, CompressionKind, Index> SparseAccess<T>
-    for CsMatrix<T, Offset, MajorOffsets, MinorIndices, Data, CompressionKind, Index>
+impl<T, MajorOffsets, MinorIndices, Data, CompressionKind> SparseAccess<T>
+    for CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressionKind>
 where
     T: Clone,
-    Offset: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    Index: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MajorOffsets: Borrow<[Offset]>,
-    MinorIndices: Borrow<[Index]>,
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
     Data: Borrow<[T]>,
     CompressionKind: Compression,
 {
@@ -29,15 +26,12 @@ where
     }
 }
 
-impl<T, Offset, MajorOffsets, MinorIndices, Data, CompressionKind, Index>
-    matrixcompare_core::Matrix<T>
-    for CsMatrix<T, Offset, MajorOffsets, MinorIndices, Data, CompressionKind, Index>
+impl<T, MajorOffsets, MinorIndices, Data, CompressionKind> matrixcompare_core::Matrix<T>
+    for CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressionKind>
 where
     T: Clone,
-    Offset: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    Index: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MajorOffsets: Borrow<[Offset]>,
-    MinorIndices: Borrow<[Index]>,
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
     Data: Borrow<[T]>,
     CompressionKind: Compression,
 {

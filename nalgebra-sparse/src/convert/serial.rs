@@ -10,7 +10,7 @@ use crate::{
 };
 use nalgebra::storage::RawStorage;
 use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
-use num_traits::{Unsigned, Zero};
+use num_traits::Zero;
 use std::{borrow::Borrow, ops::Add};
 
 /// Converts a dense matrix to [`CooMatrix`].
@@ -48,7 +48,7 @@ where
 }
 
 /// Converts a [`CooMatrix`] to a [`CsrMatrix`].
-pub fn convert_coo_csr<T>(coo: &CooMatrix<T>) -> CsrMatrix<T, usize>
+pub fn convert_coo_csr<T>(coo: &CooMatrix<T>) -> CsrMatrix<T>
 where
     T: Scalar + Zero,
 {
@@ -63,15 +63,13 @@ where
 }
 
 /// Converts a [`CsrMatrix`] to a [`CooMatrix`].
-pub fn convert_csr_coo<T, O, MO, MI, D, I>(
-    csr: &CsMatrix<T, O, MO, MI, D, CompressedRowStorage, I>,
+pub fn convert_csr_coo<T, MO, MI, D>(
+    csr: &CsMatrix<T, MO, MI, D, CompressedRowStorage>,
 ) -> CooMatrix<T>
 where
     T: Clone,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T]>,
 {
     let mut result = CooMatrix::new(csr.nrows(), csr.ncols());
@@ -82,15 +80,13 @@ where
 }
 
 /// Converts a [`CsrMatrix`] to a dense matrix.
-pub fn convert_csr_dense<T, O, MO, MI, D, I>(
-    csr: &CsMatrix<T, O, MO, MI, D, CompressedRowStorage, I>,
+pub fn convert_csr_dense<T, MO, MI, D>(
+    csr: &CsMatrix<T, MO, MI, D, CompressedRowStorage>,
 ) -> DMatrix<T>
 where
     T: Scalar + ClosedAdd + Zero,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T]>,
 {
     let mut output = DMatrix::zeros(csr.nrows(), csr.ncols());
@@ -103,7 +99,7 @@ where
 }
 
 /// Converts a dense matrix to a [`CsrMatrix`].
-pub fn convert_dense_csr<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CsrMatrix<T, usize>
+pub fn convert_dense_csr<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CsrMatrix<T>
 where
     T: Scalar + Zero,
     R: Dim,
@@ -135,7 +131,7 @@ where
 }
 
 /// Converts a [`CooMatrix`] to a [`CscMatrix`].
-pub fn convert_coo_csc<T>(coo: &CooMatrix<T>) -> CscMatrix<T, usize>
+pub fn convert_coo_csc<T>(coo: &CooMatrix<T>) -> CscMatrix<T>
 where
     T: Scalar + Zero,
 {
@@ -150,15 +146,13 @@ where
 }
 
 /// Converts a [`CscMatrix`] to a [`CooMatrix`].
-pub fn convert_csc_coo<T, O, MO, MI, D, I>(
-    csc: &CsMatrix<T, O, MO, MI, D, CompressedColumnStorage, I>,
+pub fn convert_csc_coo<T, MO, MI, D>(
+    csc: &CsMatrix<T, MO, MI, D, CompressedColumnStorage>,
 ) -> CooMatrix<T>
 where
     T: Scalar,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T]>,
 {
     let mut coo = CooMatrix::new(csc.nrows(), csc.ncols());
@@ -169,15 +163,13 @@ where
 }
 
 /// Converts a [`CscMatrix`] to a dense matrix.
-pub fn convert_csc_dense<T, O, MO, MI, D, I>(
-    csc: &CsMatrix<T, O, MO, MI, D, CompressedColumnStorage, I>,
+pub fn convert_csc_dense<T, MO, MI, D>(
+    csc: &CsMatrix<T, MO, MI, D, CompressedColumnStorage>,
 ) -> DMatrix<T>
 where
     T: Scalar + ClosedAdd + Zero,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T]>,
 {
     let mut output = DMatrix::zeros(csc.nrows(), csc.ncols());
@@ -190,7 +182,7 @@ where
 }
 
 /// Converts a dense matrix to a [`CscMatrix`].
-pub fn convert_dense_csc<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CscMatrix<T, usize>
+pub fn convert_dense_csc<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CscMatrix<T>
 where
     T: Scalar + Zero,
     R: Dim,
@@ -219,15 +211,13 @@ where
 }
 
 /// Converts a [`CsrMatrix`] to a [`CscMatrix`].
-pub fn convert_csr_csc<T, O, MO, MI, D, I>(
-    csr: &CsMatrix<T, O, MO, MI, D, CompressedRowStorage, I>,
-) -> CscMatrix<T, usize>
+pub fn convert_csr_csc<T, MO, MI, D>(
+    csr: &CsMatrix<T, MO, MI, D, CompressedRowStorage>,
+) -> CscMatrix<T>
 where
     T: Clone,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T]>,
 {
     let (nrows, ncols) = csr.shape();
@@ -258,15 +248,13 @@ where
 }
 
 /// Converts a [`CscMatrix`] to a [`CsrMatrix`].
-pub fn convert_csc_csr<T, O, MO, MI, D, I>(
-    csc: &CsMatrix<T, O, MO, MI, D, CompressedColumnStorage, I>,
-) -> CsrMatrix<T, usize>
+pub fn convert_csc_csr<T, MO, MI, D>(
+    csc: &CsMatrix<T, MO, MI, D, CompressedColumnStorage>,
+) -> CsrMatrix<T>
 where
     T: Clone,
-    O: Add<usize, Output = usize> + Copy + Clone + Into<usize> + Unsigned + Ord,
-    I: Copy + Clone + Into<usize> + Unsigned + Ord,
-    MO: Borrow<[O]>,
-    MI: Borrow<[I]>,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
     D: Borrow<[T]>,
 {
     let (nrows, ncols) = csc.shape();
