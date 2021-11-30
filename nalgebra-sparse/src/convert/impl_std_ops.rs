@@ -1,10 +1,11 @@
-use crate::convert::serial::*;
-use crate::coo::CooMatrix;
-use crate::csc::CscMatrix;
-use crate::csr::CsrMatrix;
-use nalgebra::storage::RawStorage;
-use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
+use crate::{
+    convert::serial::*,
+    coo::CooMatrix,
+    cs::{CompressedColumnStorage, CompressedRowStorage, CsMatrix, CscMatrix, CsrMatrix},
+};
+use nalgebra::{storage::RawStorage, ClosedAdd, DMatrix, Dim, Matrix, Scalar};
 use num_traits::Zero;
+use std::borrow::Borrow;
 
 impl<'a, T, R, C, S> From<&'a Matrix<T, R, C, S>> for CooMatrix<T>
 where
@@ -105,20 +106,30 @@ where
     }
 }
 
-impl<'a, T> From<&'a CscMatrix<T>> for CsrMatrix<T>
+impl<T, MajorOffsets, MinorIndices, Data>
+    From<CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressedColumnStorage>> for CsrMatrix<T>
 where
     T: Scalar,
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
+    Data: Borrow<[T]>,
 {
-    fn from(matrix: &'a CscMatrix<T>) -> Self {
-        convert_csc_csr(matrix)
+    fn from(
+        matrix: CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressedColumnStorage>,
+    ) -> Self {
+        convert_csc_csr(&matrix)
     }
 }
 
-impl<'a, T> From<&'a CsrMatrix<T>> for CscMatrix<T>
+impl<T, MajorOffsets, MinorIndices, Data>
+    From<CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressedRowStorage>> for CscMatrix<T>
 where
     T: Scalar,
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
+    Data: Borrow<[T]>,
 {
-    fn from(matrix: &'a CsrMatrix<T>) -> Self {
-        convert_csr_csc(matrix)
+    fn from(matrix: CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressedRowStorage>) -> Self {
+        convert_csr_csc(&matrix)
     }
 }

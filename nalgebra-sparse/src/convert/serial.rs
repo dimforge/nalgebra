@@ -3,17 +3,15 @@
 //! All routines in this module are single-threaded. At present these routines offer no
 //! advantage over using the [`From`] trait, but future changes to the API might offer more
 //! control to the user.
-use std::ops::Add;
-
-use num_traits::Zero;
-
+use super::utils;
+use crate::{
+    coo::CooMatrix,
+    cs::{CompressedColumnStorage, CompressedRowStorage, CsMatrix, CscMatrix, CsrMatrix},
+};
 use nalgebra::storage::RawStorage;
 use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
-
-use crate::coo::CooMatrix;
-use crate::cs;
-use crate::csc::CscMatrix;
-use crate::csr::CsrMatrix;
+use num_traits::Zero;
+use std::{borrow::Borrow, ops::Add};
 
 /// Converts a dense matrix to [`CooMatrix`].
 pub fn convert_dense_coo<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CooMatrix<T>
@@ -42,7 +40,7 @@ pub fn convert_coo_dense<T>(coo: &CooMatrix<T>) -> DMatrix<T>
 where
     T: Scalar + Zero + ClosedAdd,
 {
-    let mut output = DMatrix::repeat(coo.nrows(), coo.ncols(), T::zero());
+    let mut output = DMatrix::<T>::zeros(coo.nrows(), coo.ncols());
     for (i, j, v) in coo.triplet_iter() {
         output[(i, j)] += v.clone();
     }
@@ -61,14 +59,19 @@ where
         coo.values(),
     );
 
-    // TODO: Avoid "try_from" since it validates the data? (requires unsafe, should benchmark
-    // to see if it can be justified for performance reasons)
-    CsrMatrix::try_from_csr_data(coo.nrows(), coo.ncols(), offsets, indices, values)
-        .expect("Internal error: Invalid CSR data during COO->CSR conversion")
+    unsafe { CsrMatrix::from_parts_unchecked(coo.nrows(), coo.ncols(), offsets, indices, values) }
 }
 
 /// Converts a [`CsrMatrix`] to a [`CooMatrix`].
-pub fn convert_csr_coo<T: Scalar>(csr: &CsrMatrix<T>) -> CooMatrix<T> {
+pub fn convert_csr_coo<T, MO, MI, D>(
+    csr: &CsMatrix<T, MO, MI, D, CompressedRowStorage>,
+) -> CooMatrix<T>
+where
+    T: Clone,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
+    D: Borrow<[T]>,
+{
     let mut result = CooMatrix::new(csr.nrows(), csr.ncols());
     for (i, j, v) in csr.triplet_iter() {
         result.push(i, j, v.clone());
@@ -77,9 +80,14 @@ pub fn convert_csr_coo<T: Scalar>(csr: &CsrMatrix<T>) -> CooMatrix<T> {
 }
 
 /// Converts a [`CsrMatrix`] to a dense matrix.
-pub fn convert_csr_dense<T>(csr: &CsrMatrix<T>) -> DMatrix<T>
+pub fn convert_csr_dense<T, MO, MI, D>(
+    csr: &CsMatrix<T, MO, MI, D, CompressedRowStorage>,
+) -> DMatrix<T>
 where
     T: Scalar + ClosedAdd + Zero,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
+    D: Borrow<[T]>,
 {
     let mut output = DMatrix::zeros(csr.nrows(), csr.ncols());
 
@@ -117,10 +125,9 @@ where
         row_offsets.push(col_idx.len());
     }
 
-    // TODO: Consider circumventing the data validity check here
-    // (would require unsafe, should benchmark)
-    CsrMatrix::try_from_csr_data(dense.nrows(), dense.ncols(), row_offsets, col_idx, values)
-        .expect("Internal error: Invalid CsrMatrix format during dense-> CSR conversion")
+    unsafe {
+        CsrMatrix::from_parts_unchecked(dense.nrows(), dense.ncols(), row_offsets, col_idx, values)
+    }
 }
 
 /// Converts a [`CooMatrix`] to a [`CscMatrix`].
@@ -135,33 +142,40 @@ where
         coo.values(),
     );
 
-    // TODO: Avoid "try_from" since it validates the data? (requires unsafe, should benchmark
-    // to see if it can be justified for performance reasons)
-    CscMatrix::try_from_csc_data(coo.nrows(), coo.ncols(), offsets, indices, values)
-        .expect("Internal error: Invalid CSC data during COO->CSC conversion")
+    unsafe { CscMatrix::from_parts_unchecked(coo.nrows(), coo.ncols(), offsets, indices, values) }
 }
 
 /// Converts a [`CscMatrix`] to a [`CooMatrix`].
-pub fn convert_csc_coo<T>(csc: &CscMatrix<T>) -> CooMatrix<T>
+pub fn convert_csc_coo<T, MO, MI, D>(
+    csc: &CsMatrix<T, MO, MI, D, CompressedColumnStorage>,
+) -> CooMatrix<T>
 where
     T: Scalar,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
+    D: Borrow<[T]>,
 {
     let mut coo = CooMatrix::new(csc.nrows(), csc.ncols());
     for (i, j, v) in csc.triplet_iter() {
-        coo.push(i, j, v.clone());
+        coo.push(j, i, v.clone());
     }
     coo
 }
 
 /// Converts a [`CscMatrix`] to a dense matrix.
-pub fn convert_csc_dense<T>(csc: &CscMatrix<T>) -> DMatrix<T>
+pub fn convert_csc_dense<T, MO, MI, D>(
+    csc: &CsMatrix<T, MO, MI, D, CompressedColumnStorage>,
+) -> DMatrix<T>
 where
     T: Scalar + ClosedAdd + Zero,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
+    D: Borrow<[T]>,
 {
     let mut output = DMatrix::zeros(csc.nrows(), csc.ncols());
 
     for (i, j, v) in csc.triplet_iter() {
-        output[(i, j)] += v.clone();
+        output[(j, i)] += v.clone();
     }
 
     output
@@ -191,46 +205,83 @@ where
         col_offsets.push(row_idx.len());
     }
 
-    // TODO: Consider circumventing the data validity check here
-    // (would require unsafe, should benchmark)
-    CscMatrix::try_from_csc_data(dense.nrows(), dense.ncols(), col_offsets, row_idx, values)
-        .expect("Internal error: Invalid CscMatrix format during dense-> CSC conversion")
+    unsafe {
+        CscMatrix::from_parts_unchecked(dense.nrows(), dense.ncols(), col_offsets, row_idx, values)
+    }
 }
 
 /// Converts a [`CsrMatrix`] to a [`CscMatrix`].
-pub fn convert_csr_csc<T>(csr: &CsrMatrix<T>) -> CscMatrix<T>
+pub fn convert_csr_csc<T, MO, MI, D>(
+    csr: &CsMatrix<T, MO, MI, D, CompressedRowStorage>,
+) -> CscMatrix<T>
 where
-    T: Scalar,
+    T: Clone,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
+    D: Borrow<[T]>,
 {
-    let (offsets, indices, values) = cs::transpose_cs(
-        csr.nrows(),
-        csr.ncols(),
-        csr.row_offsets(),
-        csr.col_indices(),
-        csr.values(),
-    );
+    let (nrows, ncols) = csr.shape();
 
-    // TODO: Avoid data validity check?
-    CscMatrix::try_from_csc_data(csr.nrows(), csr.ncols(), offsets, indices, values)
-        .expect("Internal error: Invalid CSC data during CSR->CSC conversion")
+    let (counts, indices_and_data) = csr
+        .minor_lane_iter()
+        .map(|lane| {
+            let (indices, data) = lane
+                .map(|(i, v)| (i, v.clone()))
+                .unzip::<_, _, Vec<_>, Vec<_>>();
+
+            (indices.len(), (indices, data))
+        })
+        .unzip::<_, _, Vec<_>, Vec<_>>();
+
+    let nnz = counts.iter().sum();
+    let offsets = utils::CountToOffsetIter::new(counts).collect();
+
+    let mut indices = Vec::with_capacity(nnz);
+    let mut data = Vec::with_capacity(nnz);
+
+    for (mut row_indices, mut row_data) in indices_and_data {
+        indices.append(&mut row_indices);
+        data.append(&mut row_data);
+    }
+
+    unsafe { CscMatrix::from_parts_unchecked(nrows, ncols, offsets, indices, data) }
 }
 
 /// Converts a [`CscMatrix`] to a [`CsrMatrix`].
-pub fn convert_csc_csr<T>(csc: &CscMatrix<T>) -> CsrMatrix<T>
+pub fn convert_csc_csr<T, MO, MI, D>(
+    csc: &CsMatrix<T, MO, MI, D, CompressedColumnStorage>,
+) -> CsrMatrix<T>
 where
-    T: Scalar,
+    T: Clone,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
+    D: Borrow<[T]>,
 {
-    let (offsets, indices, values) = cs::transpose_cs(
-        csc.ncols(),
-        csc.nrows(),
-        csc.col_offsets(),
-        csc.row_indices(),
-        csc.values(),
-    );
+    let (nrows, ncols) = csc.shape();
 
-    // TODO: Avoid data validity check?
-    CsrMatrix::try_from_csr_data(csc.nrows(), csc.ncols(), offsets, indices, values)
-        .expect("Internal error: Invalid CSR data during CSC->CSR conversion")
+    let (counts, indices_and_data) = csc
+        .minor_lane_iter()
+        .map(|lane| {
+            let (indices, data) = lane
+                .map(|(i, v)| (i, v.clone()))
+                .unzip::<_, _, Vec<_>, Vec<_>>();
+
+            (indices.len(), (indices, data))
+        })
+        .unzip::<_, _, Vec<_>, Vec<_>>();
+
+    let nnz = counts.iter().sum();
+    let offsets = utils::CountToOffsetIter::new(counts).collect();
+
+    let mut indices = Vec::with_capacity(nnz);
+    let mut data = Vec::with_capacity(nnz);
+
+    for (mut row_indices, mut row_data) in indices_and_data {
+        indices.append(&mut row_indices);
+        data.append(&mut row_data);
+    }
+
+    unsafe { CsrMatrix::from_parts_unchecked(nrows, ncols, offsets, indices, data) }
 }
 
 fn convert_coo_cs<T>(
@@ -290,7 +341,7 @@ where
         perm_workspace.resize(count, 0);
         idx_workspace.resize(count, 0);
         values_workspace.resize(count, T::zero());
-        sort_lane(
+        utils::sort_lane(
             &mut idx_workspace[..count],
             &mut values_workspace[..count],
             &unsorted_minor_idx[range.clone()],
@@ -300,7 +351,7 @@ where
 
         let sorted_ja_current_len = sorted_minor_idx.len();
 
-        combine_duplicates(
+        utils::combine_duplicates(
             |idx| sorted_minor_idx.push(idx),
             |val| sorted_vals.push(val),
             &idx_workspace[..count],
@@ -339,7 +390,8 @@ fn coo_to_unsorted_cs<T: Clone>(
         major_offsets[*major_idx] += 1;
     }
 
-    cs::convert_counts_to_offsets(major_offsets);
+    let major_offsets =
+        utils::CountToOffsetIter::new(major_offsets.iter().map(|&x| x)).collect::<Vec<_>>();
 
     {
         // TODO: Instead of allocating a whole new vector storing the current counts,
@@ -353,75 +405,5 @@ fn coo_to_unsorted_cs<T: Clone>(
             cs_values[current_offset] = value.clone();
             current_counts[*i] += 1;
         }
-    }
-}
-
-/// Sort the indices of the given lane.
-///
-/// The indices and values in `minor_idx` and `values` are sorted according to the
-/// minor indices and stored in `minor_idx_result` and `values_result` respectively.
-///
-/// All input slices are expected to be of the same length. The contents of mutable slices
-/// can be arbitrary, as they are anyway overwritten.
-fn sort_lane<T: Clone>(
-    minor_idx_result: &mut [usize],
-    values_result: &mut [T],
-    minor_idx: &[usize],
-    values: &[T],
-    workspace: &mut [usize],
-) {
-    assert_eq!(minor_idx_result.len(), values_result.len());
-    assert_eq!(values_result.len(), minor_idx.len());
-    assert_eq!(minor_idx.len(), values.len());
-    assert_eq!(values.len(), workspace.len());
-
-    let permutation = workspace;
-    // Set permutation to identity
-    for (i, p) in permutation.iter_mut().enumerate() {
-        *p = i;
-    }
-
-    // Compute permutation needed to bring minor indices into sorted order
-    // Note: Using sort_unstable here avoids internal allocations, which is crucial since
-    // each lane might have a small number of elements
-    permutation.sort_unstable_by_key(|idx| minor_idx[*idx]);
-
-    apply_permutation(minor_idx_result, minor_idx, permutation);
-    apply_permutation(values_result, values, permutation);
-}
-
-// TODO: Move this into `utils` or something?
-fn apply_permutation<T: Clone>(out_slice: &mut [T], in_slice: &[T], permutation: &[usize]) {
-    assert_eq!(out_slice.len(), in_slice.len());
-    assert_eq!(out_slice.len(), permutation.len());
-    for (out_element, old_pos) in out_slice.iter_mut().zip(permutation) {
-        *out_element = in_slice[*old_pos].clone();
-    }
-}
-
-/// Given *sorted* indices and corresponding scalar values, combines duplicates with the given
-/// associative combiner and calls the provided produce methods with combined indices and values.
-fn combine_duplicates<T: Clone>(
-    mut produce_idx: impl FnMut(usize),
-    mut produce_value: impl FnMut(T),
-    idx_array: &[usize],
-    values: &[T],
-    combiner: impl Fn(T, T) -> T,
-) {
-    assert_eq!(idx_array.len(), values.len());
-
-    let mut i = 0;
-    while i < idx_array.len() {
-        let idx = idx_array[i];
-        let mut combined_value = values[i].clone();
-        let mut j = i + 1;
-        while j < idx_array.len() && idx_array[j] == idx {
-            let j_val = values[j].clone();
-            combined_value = combiner(combined_value, j_val);
-            j += 1;
-        }
-        produce_idx(idx);
-        produce_value(combined_value);
-        i = j;
     }
 }

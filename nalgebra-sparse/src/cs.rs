@@ -1,545 +1,884 @@
-use std::mem::replace;
-use std::ops::Range;
+//! A type for representing compressed sparse (row-major / column-major) matrices.
 
+use super::{
+    error::{SparseFormatError, SparsityPatternFormatError},
+    SparseEntry,
+};
 use num_traits::One;
+use std::{borrow::Borrow, cmp::Ord, cmp::Ordering, marker::PhantomData};
 
-use nalgebra::Scalar;
+/// An empty type to represent CSC-like storage convention.
+#[derive(Debug, Clone, Copy)]
+pub struct CompressedColumnStorage {}
 
-use crate::pattern::SparsityPattern;
-use crate::{SparseEntry, SparseEntryMut};
+/// An empty type to represent CSR-like storage convention.
+#[derive(Debug, Clone, Copy)]
+pub struct CompressedRowStorage {}
 
-/// An abstract compressed matrix.
+/// A trait denoting a type that represents a compression format for `CsMatrix` types.
 ///
-/// For the time being, this is only used internally to share implementation between
-/// CSR and CSC matrices.
-///
-/// A CSR matrix is obtained by associating rows with the major dimension, while a CSC matrix
-/// is obtained by associating columns with the major dimension.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CsMatrix<T> {
-    sparsity_pattern: SparsityPattern,
-    values: Vec<T>,
+/// The trait is sealed, as there are only two types (at present) to denote CSC and CSR style
+/// compression.
+pub trait Compression: private::Sealed {
+    /// The type of compression of the transpose of a `CsMatrix` with the given `Compression`.
+    type Transpose: Compression;
+
+    /// The number of rows or columns along the major dimension for this compressed type, given a
+    /// shape.
+    fn nmajor(rows: usize, cols: usize) -> usize;
+
+    /// The number of rows or columns along the minor dimension for this compressed type, given a
+    /// shape.
+    fn nminor(rows: usize, cols: usize) -> usize;
 }
 
-impl<T> CsMatrix<T> {
-    /// Create a zero matrix with no explicitly stored entries.
+impl Compression for CompressedColumnStorage {
+    type Transpose = CompressedRowStorage;
+
+    fn nmajor(_rows: usize, cols: usize) -> usize {
+        cols
+    }
+
+    fn nminor(rows: usize, _cols: usize) -> usize {
+        rows
+    }
+}
+
+impl Compression for CompressedRowStorage {
+    type Transpose = CompressedColumnStorage;
+
+    fn nmajor(rows: usize, _cols: usize) -> usize {
+        rows
+    }
+
+    fn nminor(_rows: usize, cols: usize) -> usize {
+        cols
+    }
+}
+
+/// Module for adding a trait to "seal" the implementation of `Compression`.
+mod private {
+    /// Private trait to seal impl of `Compression`.
+    pub trait Sealed {}
+
+    impl Sealed for super::CompressedColumnStorage {}
+    impl Sealed for super::CompressedRowStorage {}
+}
+
+/// An abstract compressed matrix for representing sparse matrix data.
+///
+/// This type is the preferred format for performing sparse-matrix operations due to its
+/// compact representation. Constructing this type directly requires a deep knowledge of the
+/// internals of the compressed matrix format, so it is typically advised that one constructs their
+/// matrix using the `CooMatrix` type, and then converting to a compressed representation for
+/// linear algebra operations after the fact.
+///
+/// This type is parameterized by the following types:
+///
+/// - `T`: The data type of each element
+/// - `MajorOffsets`: A type for holding the offsets for each major axis lane.
+/// - `MinorIndices`: A type for holding the indices for each minor axis entry.
+/// - `Data`: A type for holding the explicit non-zero element values of the sparse matrix.
+/// - `CompressionKind`: A type describing the compression (CSR or CSC).
+///
+/// ## Storage Format
+///
+/// In a compressed sparse matrix, values of a sparse matrix are stored as the row and column
+/// locations of what are referred to as explicit values, or explicit non-zero values.
+///
+/// **Caveat**: while we may call them 'non-zero' values, nothing stops one from adding a `0.0` or
+/// some such to the matrix. In such a case, this would be called an explicit zero, rather than an
+/// implicit zero, which isn't directly stored (i.e. implicitly there). Nonetheless, when referring
+/// to "explicit non-zero" values, we are also including explicit zeros into that grouping.
+///
+/// The difference between the CSC and CSR formats is fundamentally about which axis is the major
+/// and minor axis. In a column format (CSC), the data is stored in column-major form, which means
+/// the `MajorOffsets` correspond to columns, and `MinorIndices` directly to row indices of
+/// explicit values in the matrix. CSR is similar, except for rows.
+///
+/// This API denotes the major storage as "lanes." So if your compression kind is CSC, then your
+/// storage layout means that 1 lane is 1 column. Conversely, if your compression kind is CSR, then
+/// your storage layout means that 1 lane is 1 row.
+///
+/// ## Construction & Use
+///
+/// The `CsMatrix` type limits the ways in which it can be constructed for the most part, because
+/// it relies on some invariants. The main things that need to be maintained for this type are:
+///
+/// 1. **Sorting**. The offsets, indices, and data need to be sorted such that the data is in major
+///    -> minor ordering. Specifically, all indices in `MinorIndices` should be monotonically
+///    increasing for a given lane. Obviously, lanes should be ordered according to the matrix
+///    layout.
+/// 2. **Immutability**. One may notice that there are no associated `impl` functions that take the
+///    type as `&mut self`. The type therefore enforces that the owned data is immutable. That is
+///    not to say that no mutability is allowed, but in almost every case borrowed mutability does
+///    not make a lot of sense. e.g. you cannot add a new non-zero element to the matrix without
+///    fully re-computing the offsets and indices, so you are better off owning the type as `self`
+///    and constructing a new `CsMatrix` rather than borrowing as `&mut self`.
+/// 3. **Shape** and **Sizes**. Matrix shape and offsets / indices / data lengths are validated
+///    upon construction. Thanks to the previous point (immutability), it is possible to guarantee
+///    correctness of the data layout for the lifetime of the object, until it is consumed.
+///
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressionKind>
+where
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
+    Data: Borrow<[T]>,
+    CompressionKind: Compression,
+{
+    /// The shape of the matrix `(nrows, ncols)`
+    ///
+    /// The shape is always rows then columns, regardless of whether the `CompressionKind` is CSR
+    /// or CSC.
+    shape: (usize, usize),
+
+    /// A collection of the offsets for each row of the matrix.
+    ///
+    /// `MajorOffsets` is a type that can be borrowed as `&[usize]`, which should represent an
+    /// slice of length `nmajor`, where `nmajor` is the number of rows in e.g. a CSR matrix, or the
+    /// number of columns in e.g. a CSC matrix.
+    ///
+    /// Each element of the slice contains an offset, which is a number denoting the number of
+    /// explicit non-zero elements in `Data` to skip in order to get to that major axis lane. So
+    /// for example, if we had the following matrix in CSC (column-major) format:
+    ///
+    /// ```text
+    /// | 2 | 0 | 0 |
+    /// |---|---|---|
+    /// | 0 | 1 | 0 |
+    /// |---|---|---|
+    /// | 0 | 3 | 0 |
+    /// ```
+    ///
+    /// There is one non-zero element in the first column, two in the second, and zero in the
+    /// third. So our offsets would:
+    ///
+    /// ```rust
+    /// // One non-zero element in lane with index 0
+    /// // Two non-zero elements in lane with index 1
+    /// // Zero non-zero elements in lane with index 2
+    /// let counts = vec![1, 2, 0];
+    ///
+    /// // Zero non-zero elements before lane with index 0
+    /// // One non-zero element before lane with index 1
+    /// // Three non-zero elements before lane with index 2
+    /// let offsets = vec![0, 1, 3];
+    /// ```
+    ///
+    /// One can view the offsets as an accumulated sum of all the previous counts.
+    ///
+    /// ```rust
+    /// // Pretend you have a matrix where these offsets are valid
+    /// let offsets = vec![0, 2, 7, 11, 11, 13, 13, 17, 17, 17, 23];
+    /// // Assume we want to get data at column 4
+    /// let i = 4;
+    ///
+    /// let offset_column_i = offsets[i];
+    /// ```
+    offsets: MajorOffsets,
+
+    /// A collection of the minor axis indices directly corresponding to the values in `data`.
+    ///
+    /// Unlike `offsets`, this holds a collection of index positions in the matrix for each value
+    /// in `data`. `MinorIndices` is a type that can be borrowed as `&[usize]`, which should
+    /// represent the minor-axis indices of each explicit non-zero element in `data`.
+    ///
+    /// If you have the following matrix in CSC (column-major) format:
+    /// ```text
+    /// | 7 | 0 | 0 |
+    /// |---|---|---|
+    /// | 0 | 4 | 0 |
+    /// |---|---|---|
+    /// | 0 | 9 | 0 |
+    /// |---|---|---|
+    /// | 7 | 0 | 6 |
+    /// ```
+    ///
+    /// Then your offsets and indices would look like:
+    ///
+    /// ```rust
+    /// let offsets = vec![0, 2, 4];
+    /// let indices = vec![0, 3, 1, 2, 3];
+    /// let data = vec![7, 7, 4, 9, 6];
+    /// ```
+    ///
+    /// The length of indices directly corresponds to the number of explicit non-zero elements in
+    /// the matrix.
+    indices: MinorIndices,
+
+    /// The explicit non-zero values contained within the sparse matrix, sorted in major -> minor
+    /// order.
+    ///
+    /// `Data` is a type that can be borrowed as `&[T]`. The length of that slice should be equal
+    /// to the number of explicit non-zero elements in the matrix.
+    data: Data,
+
+    /// Phantom type for the extra generic parameters that allow us to specify the `CsMatrix` type,
+    /// but otherwise are not directly held by the struct itself.
+    _phantom: PhantomData<(T, CompressionKind)>,
+}
+
+/// An alias for producing an owned, row-major compressed sparse matrix.
+pub type CsrMatrix<T> = CsMatrix<T, Vec<usize>, Vec<usize>, Vec<T>, CompressedRowStorage>;
+
+/// An alias for producing an owned, column-major compressed sparse matrix.
+pub type CscMatrix<T> = CsMatrix<T, Vec<usize>, Vec<usize>, Vec<T>, CompressedColumnStorage>;
+
+impl<T, MajorOffsets, MinorIndices, Data, CompressionKind>
+    CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressionKind>
+where
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
+    Data: Borrow<[T]>,
+    CompressionKind: Compression,
+{
+    /// The shape of the matrix, as (nrows, ncols).
     #[inline]
-    pub fn new(major_dim: usize, minor_dim: usize) -> Self {
+    #[must_use]
+    pub fn shape(&self) -> (usize, usize) {
+        self.shape
+    }
+
+    /// The number of rows in this matrix.
+    #[inline]
+    #[must_use]
+    pub fn nrows(&self) -> usize {
+        let (rows, _) = self.shape;
+        rows
+    }
+
+    /// The number of columns in this matrix.
+    #[inline]
+    #[must_use]
+    pub fn ncols(&self) -> usize {
+        let (_, cols) = self.shape;
+        cols
+    }
+
+    /// The number of lanes along the major dimension of this matrix.
+    #[inline]
+    pub fn nmajor(&self) -> usize {
+        let (rows, cols) = self.shape;
+        CompressionKind::nmajor(rows, cols)
+    }
+
+    /// The number of lanes along the minor dimension of this matrix.
+    #[inline]
+    pub fn nminor(&self) -> usize {
+        let (rows, cols) = self.shape;
+        CompressionKind::nminor(rows, cols)
+    }
+
+    /// Returns the number of non-zero entries in the sparse matrix.
+    #[inline]
+    #[must_use]
+    pub fn nnz(&self) -> usize {
+        self.indices.borrow().len()
+    }
+
+    pub(crate) unsafe fn from_parts_unchecked(
+        nrows: usize,
+        ncols: usize,
+        offsets: MajorOffsets,
+        indices: MinorIndices,
+        data: Data,
+    ) -> Self {
         Self {
-            sparsity_pattern: SparsityPattern::zeros(major_dim, minor_dim),
-            values: vec![],
+            shape: (nrows, ncols),
+            offsets,
+            indices,
+            data,
+            _phantom: PhantomData,
         }
     }
 
-    #[inline]
-    #[must_use]
-    pub fn pattern(&self) -> &SparsityPattern {
-        &self.sparsity_pattern
-    }
+    /// Constructor for the `CsMatrix` type that checks for shape / size / compression consistency.
+    ///
+    /// # Errors
+    ///
+    /// This function will error out in any of the following (non-exhaustive) scenarios:
+    ///
+    /// - `offsets` does not have a length equal to the major dimension length of the matrix plus
+    /// one.
+    /// - The first entry in `offsets` is not zero.
+    /// - The elements of `offsets` are not monotonically increasing.
+    /// - The elements of `indices` are not monotonically increasing per lane.
+    /// - `indices` has an element that is greater than the minor dimension length of the matrix.
+    /// - Duplicate entries were detected (i.e. two entries have the same major and minor index).
+    pub fn try_from_parts(
+        nrows: usize,
+        ncols: usize,
+        offsets: MajorOffsets,
+        indices: MinorIndices,
+        data: Data,
+    ) -> Result<Self, SparseFormatError> {
+        let nmajor = CompressionKind::nmajor(nrows, ncols);
+        let nminor = CompressionKind::nminor(nrows, ncols);
+        let borrowed_offsets = offsets.borrow();
+        let borrowed_indices = indices.borrow();
 
-    #[inline]
-    #[must_use]
-    pub fn values(&self) -> &[T] {
-        &self.values
-    }
-
-    #[inline]
-    pub fn values_mut(&mut self) -> &mut [T] {
-        &mut self.values
-    }
-
-    /// Returns the raw data represented as a tuple `(major_offsets, minor_indices, values)`.
-    #[inline]
-    #[must_use]
-    pub fn cs_data(&self) -> (&[usize], &[usize], &[T]) {
-        let pattern = self.pattern();
-        (
-            pattern.major_offsets(),
-            pattern.minor_indices(),
-            &self.values,
-        )
-    }
-
-    /// Returns the raw data represented as a tuple `(major_offsets, minor_indices, values)`.
-    #[inline]
-    pub fn cs_data_mut(&mut self) -> (&[usize], &[usize], &mut [T]) {
-        let pattern = &mut self.sparsity_pattern;
-        (
-            pattern.major_offsets(),
-            pattern.minor_indices(),
-            &mut self.values,
-        )
-    }
-
-    #[inline]
-    pub fn pattern_and_values_mut(&mut self) -> (&SparsityPattern, &mut [T]) {
-        (&self.sparsity_pattern, &mut self.values)
-    }
-
-    #[inline]
-    pub fn from_pattern_and_values(pattern: SparsityPattern, values: Vec<T>) -> Self {
-        assert_eq!(
-            pattern.nnz(),
-            values.len(),
-            "Internal error: consumers should verify shape compatibility."
-        );
-        Self {
-            sparsity_pattern: pattern,
-            values,
+        if borrowed_offsets.len() != nmajor {
+            // size mismatch
+            return Err(SparsityPatternFormatError::InvalidOffsetArrayLength.into());
         }
-    }
 
-    /// Internal method for simplifying access to a lane's data
-    #[inline]
-    #[must_use]
-    pub fn get_index_range(&self, row_index: usize) -> Option<Range<usize>> {
-        let row_begin = *self.sparsity_pattern.major_offsets().get(row_index)?;
-        let row_end = *self.sparsity_pattern.major_offsets().get(row_index + 1)?;
-        Some(row_begin..row_end)
-    }
-
-    pub fn take_pattern_and_values(self) -> (SparsityPattern, Vec<T>) {
-        (self.sparsity_pattern, self.values)
-    }
-
-    #[inline]
-    pub fn disassemble(self) -> (Vec<usize>, Vec<usize>, Vec<T>) {
-        let (offsets, indices) = self.sparsity_pattern.disassemble();
-        (offsets, indices, self.values)
-    }
-
-    #[inline]
-    pub fn into_pattern_and_values(self) -> (SparsityPattern, Vec<T>) {
-        (self.sparsity_pattern, self.values)
-    }
-
-    /// Returns an entry for the given major/minor indices, or `None` if the indices are out
-    /// of bounds.
-    #[must_use]
-    pub fn get_entry(&self, major_index: usize, minor_index: usize) -> Option<SparseEntry<'_, T>> {
-        let row_range = self.get_index_range(major_index)?;
-        let (_, minor_indices, values) = self.cs_data();
-        let minor_indices = &minor_indices[row_range.clone()];
-        let values = &values[row_range];
-        get_entry_from_slices(
-            self.pattern().minor_dim(),
-            minor_indices,
-            values,
-            minor_index,
-        )
-    }
-
-    /// Returns a mutable entry for the given major/minor indices, or `None` if the indices are out
-    /// of bounds.
-    pub fn get_entry_mut(
-        &mut self,
-        major_index: usize,
-        minor_index: usize,
-    ) -> Option<SparseEntryMut<'_, T>> {
-        let row_range = self.get_index_range(major_index)?;
-        let minor_dim = self.pattern().minor_dim();
-        let (_, minor_indices, values) = self.cs_data_mut();
-        let minor_indices = &minor_indices[row_range.clone()];
-        let values = &mut values[row_range];
-        get_mut_entry_from_slices(minor_dim, minor_indices, values, minor_index)
-    }
-
-    #[must_use]
-    pub fn get_lane(&self, index: usize) -> Option<CsLane<'_, T>> {
-        let range = self.get_index_range(index)?;
-        let (_, minor_indices, values) = self.cs_data();
-        Some(CsLane {
-            minor_indices: &minor_indices[range.clone()],
-            values: &values[range],
-            minor_dim: self.pattern().minor_dim(),
-        })
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn get_lane_mut(&mut self, index: usize) -> Option<CsLaneMut<'_, T>> {
-        let range = self.get_index_range(index)?;
-        let minor_dim = self.pattern().minor_dim();
-        let (_, minor_indices, values) = self.cs_data_mut();
-        Some(CsLaneMut {
-            minor_dim,
-            minor_indices: &minor_indices[range.clone()],
-            values: &mut values[range],
-        })
-    }
-
-    #[inline]
-    pub fn lane_iter(&self) -> CsLaneIter<'_, T> {
-        CsLaneIter::new(self.pattern(), self.values())
-    }
-
-    #[inline]
-    pub fn lane_iter_mut(&mut self) -> CsLaneIterMut<'_, T> {
-        CsLaneIterMut::new(&self.sparsity_pattern, &mut self.values)
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn filter<P>(&self, predicate: P) -> Self
-    where
-        T: Clone,
-        P: Fn(usize, usize, &T) -> bool,
-    {
-        let (major_dim, minor_dim) = (self.pattern().major_dim(), self.pattern().minor_dim());
-        let mut new_offsets = Vec::with_capacity(self.pattern().major_dim() + 1);
-        let mut new_indices = Vec::new();
-        let mut new_values = Vec::new();
-
-        new_offsets.push(0);
-        for (i, lane) in self.lane_iter().enumerate() {
-            for (&j, value) in lane.minor_indices().iter().zip(lane.values) {
-                if predicate(i, j, value) {
-                    new_indices.push(j);
-                    new_values.push(value.clone());
-                }
+        if let Some(first) = borrowed_offsets.first() {
+            if *first != 0 {
+                // First entry exists and is not zero
+                return Err(SparsityPatternFormatError::InvalidFirstOffset.into());
             }
-
-            new_offsets.push(new_indices.len());
         }
 
-        // TODO: Avoid checks here
-        let new_pattern = SparsityPattern::try_from_offsets_and_indices(
-            major_dim,
-            minor_dim,
-            new_offsets,
-            new_indices,
-        )
-        .expect("Internal error: Sparsity pattern must always be valid.");
+        if borrowed_indices.len() != data.borrow().len() {
+            // size mismatch
+            return Err(SparsityPatternFormatError::DataAndIndicesSizeMismatch.into());
+        }
 
-        Self::from_pattern_and_values(new_pattern, new_values)
+        if borrowed_indices.iter().any(|&index| index >= nminor) {
+            // Index out-of-bounds
+            return Err(SparsityPatternFormatError::MinorIndexOutOfBounds.into());
+        }
+
+        for major_index in 0..nmajor {
+            let lower = borrowed_offsets[major_index];
+
+            let lane_indices = if major_index + 1 < nmajor {
+                let upper = borrowed_offsets[major_index + 1];
+
+                if lower > upper {
+                    // Offsets do not monotonically increase
+                    return Err(SparsityPatternFormatError::NonmonotonicOffsets.into());
+                }
+
+                &borrowed_indices[lower..upper]
+            } else {
+                &borrowed_indices[lower..]
+            };
+
+            if let Some(err) = lane_indices
+                .iter()
+                .zip(&lane_indices[1..])
+                .filter_map(|(lower_index, upper_index)| {
+                    match lower_index.cmp(upper_index) {
+                        Ordering::Less => None,
+                        Ordering::Equal => {
+                            // Duplicates detected
+                            Some(Err(SparsityPatternFormatError::DuplicateEntry.into()))
+                        }
+                        Ordering::Greater => {
+                            // Indices in lane do not monotonically increase
+                            Some(Err(
+                                SparsityPatternFormatError::NonmonotonicMinorIndices.into()
+                            ))
+                        }
+                    }
+                })
+                .next()
+            {
+                return err;
+            }
+        }
+
+        Ok(unsafe { Self::from_parts_unchecked(nrows, ncols, offsets, indices, data) })
     }
 
-    /// Returns the diagonal of the matrix as a sparse matrix.
-    #[must_use]
-    pub fn diagonal_as_matrix(&self) -> Self
-    where
-        T: Clone,
-    {
-        // TODO: This might be faster with a binary search for each diagonal entry
-        self.filter(|i, j, _| i == j)
+    /// Consumes self and returns the underlying major offsets, minor indices, and data contained
+    /// within the sparse matrix format.
+    pub fn disassemble(self) -> (MajorOffsets, MinorIndices, Data) {
+        (self.offsets, self.indices, self.data)
+    }
+
+    /// Borrows self and returns three slices to the major offsets, minor indices, and data
+    /// contained within the sparse matrix format.
+    pub fn cs_data(&self) -> (&[usize], &[usize], &[T]) {
+        (
+            self.offsets.borrow(),
+            self.indices.borrow(),
+            self.data.borrow(),
+        )
+    }
+
+    /// Produces an immutable view of the transpose of the data by borrowing the underlying lanes
+    /// and sparsity pattern data.
+    pub fn transpose(&self) -> CsMatrix<T, &[usize], &[usize], &[T], CompressionKind::Transpose> {
+        let (nrows, ncols) = self.shape;
+        let shape = (ncols, nrows);
+
+        CsMatrix {
+            shape,
+            offsets: self.offsets.borrow(),
+            indices: self.indices.borrow(),
+            data: self.data.borrow(),
+            _phantom: PhantomData,
+        }
+    }
+
+    /// Gets `Some` immutable reference to the sparse entry at `(major_index, minor_index)` if it is
+    /// explicitly non-zero, otherwise returns `Some(SparseEntry::Zero)`.
+    ///
+    /// This function will return `None` if and only if the requested entry is out-of-bounds of the
+    /// underlying matrix.
+    pub fn get_entry(&self, major_index: usize, minor_index: usize) -> Option<SparseEntry<'_, T>> {
+        let nmajor = self.nmajor();
+        let nminor = self.nminor();
+
+        if major_index >= nmajor || minor_index >= nminor {
+            return None;
+        }
+
+        let offset = self.offsets.borrow()[major_index];
+
+        let (indices, data) = if major_index + 1 < self.nmajor() {
+            let offset_upper = self.offsets.borrow()[major_index + 1];
+
+            let indices = &self.indices.borrow()[offset..offset_upper];
+            let data = &self.data.borrow()[offset..offset_upper];
+
+            (indices, data)
+        } else {
+            let indices = &self.indices.borrow()[offset..];
+            let data = &self.data.borrow()[offset..];
+
+            (indices, data)
+        };
+
+        let entry = if let Ok(local_index) = indices.binary_search_by(|&x| x.cmp(&minor_index)) {
+            SparseEntry::NonZero(&data[local_index])
+        } else {
+            SparseEntry::Zero
+        };
+
+        Some(entry)
+    }
+
+    /// An iterator that iterates through every implicit and explicit entry in the matrix.
+    pub fn all_entries(&self) -> AllElementsIter<'_, T> {
+        let minor_length = self.nminor();
+        let (offsets, indices, data) = self.cs_data();
+
+        AllElementsIter {
+            current_major_index: 0,
+            current_minor_index: 0,
+            minor_length,
+            offsets,
+            indices,
+            data,
+        }
+    }
+
+    /// An iterator that iterates through every explicit non-zero triplet `(major_index,
+    /// minor_index, value)` in the Matrix, in major -> minor (i.e. sorted) order.
+    pub fn triplet_iter(&self) -> impl Iterator<Item = (usize, usize, &T)> {
+        self.iter().enumerate().flat_map(|(major_index, lane)| {
+            lane.map(move |(minor_index, value)| (major_index, minor_index, value))
+        })
+    }
+
+    /// Gets a major-axis lane of the data given a major index.
+    ///
+    /// Returns `None` iff the major index does not correspond to a lane in the `CsMatrix` (e.g. if
+    /// you ask for lane 100 on a 3x3 sparse matrix).
+    pub fn get_lane(&self, major_index: usize) -> Option<CsLaneIter<'_, T>> {
+        if major_index >= self.nmajor() {
+            return None;
+        }
+
+        let offset = self.offsets.borrow()[major_index];
+
+        let (indices, data) = if major_index + 1 < self.nmajor() {
+            let offset_upper = self.offsets.borrow()[major_index + 1];
+
+            let indices = &self.indices.borrow()[offset..offset_upper];
+            let data = &self.data.borrow()[offset..offset_upper];
+
+            (indices, data)
+        } else {
+            let indices = &self.indices.borrow()[offset..];
+            let data = &self.data.borrow()[offset..];
+
+            (indices, data)
+        };
+
+        Some(CsLaneIter {
+            current_local_index: 0,
+            indices,
+            data,
+        })
+    }
+
+    /// An iterator that iterates across every major lane of the `CsMatrix`, in order.
+    pub fn iter(&self) -> CsMatrixIter<'_, T> {
+        let (offsets, indices, data) = self.cs_data();
+
+        CsMatrixIter {
+            current_major_index: 0,
+            offsets,
+            indices,
+            data,
+        }
+    }
+
+    /// An iterator that iterates across every minor lane of the `CsMatrix`, in order.
+    ///
+    /// NOTE: From a performance perspective, this iterator and [`CsMinorLaneIter`] is not necessarily
+    /// ideal. Compressed-Sparse formats are most effective in algorithms where the major ordering is
+    /// exploited. Because the matrix is compressed along the opposite dimension (the major dimension),
+    /// it is necessary to search backwards through the compression in order to produce the right major
+    /// indices for the minor lane.
+    pub fn minor_lane_iter(&self) -> CsMatrixMinorLaneIter<'_, T> {
+        let (offsets, indices, data) = self.cs_data();
+
+        CsMatrixMinorLaneIter {
+            current_minor_index: 0,
+            minor_dim: self.nminor(),
+            offsets,
+            indices,
+            data,
+        }
     }
 }
 
-impl<T: Scalar + One> CsMatrix<T> {
+impl<T, C> CsMatrix<T, Vec<usize>, Vec<usize>, Vec<T>, C>
+where
+    C: Compression,
+{
+    /// Returns an owned `CsMatrix` of shape `(nrows, ncols)` entirely comprised of implicit zeros,
+    pub fn zeros(nrows: usize, ncols: usize) -> Self {
+        let nmajor = C::nmajor(nrows, ncols);
+
+        Self {
+            shape: (nrows, ncols),
+            offsets: vec![0; nmajor + 1],
+            indices: Vec::new(),
+            data: Vec::new(),
+            _phantom: PhantomData,
+        }
+    }
+
+    /// Takes the transpose of the current matrix by taking ownership of the underlying data.
+    ///
+    /// Behaves like [`CsMatrix::transpose`], but takes `self` instead of `&self`.
+    pub fn transpose_owned(self) -> CsMatrix<T, Vec<usize>, Vec<usize>, Vec<T>, C::Transpose> {
+        let (nrows, ncols) = self.shape;
+
+        CsMatrix {
+            shape: (ncols, nrows),
+            offsets: self.offsets,
+            indices: self.indices,
+            data: self.data,
+            _phantom: PhantomData,
+        }
+    }
+}
+
+impl<T, C> CsMatrix<T, Vec<usize>, Vec<usize>, Vec<T>, C>
+where
+    T: One + Clone,
+    C: Compression,
+{
+    /// Produces an owned identity matrix of shape `(n, n)` in CSC format.
     #[inline]
     pub fn identity(n: usize) -> Self {
-        let offsets: Vec<_> = (0..=n).collect();
-        let indices: Vec<_> = (0..n).collect();
-        let values = vec![T::one(); n];
+        let offsets = (0..=n).collect();
+        let indices = (0..n).collect();
+        let data = vec![T::one(); n];
 
-        // TODO: We should skip checks here
-        let pattern =
-            SparsityPattern::try_from_offsets_and_indices(n, n, offsets, indices).unwrap();
-        Self::from_pattern_and_values(pattern, values)
-    }
-}
-
-fn get_entry_from_slices<'a, T>(
-    minor_dim: usize,
-    minor_indices: &'a [usize],
-    values: &'a [T],
-    global_minor_index: usize,
-) -> Option<SparseEntry<'a, T>> {
-    let local_index = minor_indices.binary_search(&global_minor_index);
-    if let Ok(local_index) = local_index {
-        Some(SparseEntry::NonZero(&values[local_index]))
-    } else if global_minor_index < minor_dim {
-        Some(SparseEntry::Zero)
-    } else {
-        None
-    }
-}
-
-fn get_mut_entry_from_slices<'a, T>(
-    minor_dim: usize,
-    minor_indices: &'a [usize],
-    values: &'a mut [T],
-    global_minor_indices: usize,
-) -> Option<SparseEntryMut<'a, T>> {
-    let local_index = minor_indices.binary_search(&global_minor_indices);
-    if let Ok(local_index) = local_index {
-        Some(SparseEntryMut::NonZero(&mut values[local_index]))
-    } else if global_minor_indices < minor_dim {
-        Some(SparseEntryMut::Zero)
-    } else {
-        None
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CsLane<'a, T> {
-    minor_dim: usize,
-    minor_indices: &'a [usize],
-    values: &'a [T],
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub struct CsLaneMut<'a, T> {
-    minor_dim: usize,
-    minor_indices: &'a [usize],
-    values: &'a mut [T],
-}
-
-pub struct CsLaneIter<'a, T> {
-    // The index of the lane that will be returned on the next iteration
-    current_lane_idx: usize,
-    pattern: &'a SparsityPattern,
-    remaining_values: &'a [T],
-}
-
-impl<'a, T> CsLaneIter<'a, T> {
-    pub fn new(pattern: &'a SparsityPattern, values: &'a [T]) -> Self {
         Self {
-            current_lane_idx: 0,
-            pattern,
-            remaining_values: values,
+            shape: (n, n),
+            offsets,
+            indices,
+            data,
+            _phantom: PhantomData,
         }
     }
 }
 
-impl<'a, T> Iterator for CsLaneIter<'a, T>
-where
-    T: 'a,
-{
-    type Item = CsLane<'a, T>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let lane = self.pattern.get_lane(self.current_lane_idx);
-        let minor_dim = self.pattern.minor_dim();
-
-        if let Some(minor_indices) = lane {
-            let count = minor_indices.len();
-            let values_in_lane = &self.remaining_values[..count];
-            self.remaining_values = &self.remaining_values[count..];
-            self.current_lane_idx += 1;
-
-            Some(CsLane {
-                minor_dim,
-                minor_indices,
-                values: values_in_lane,
-            })
-        } else {
-            None
-        }
-    }
-}
-
-pub struct CsLaneIterMut<'a, T> {
-    // The index of the lane that will be returned on the next iteration
-    current_lane_idx: usize,
-    pattern: &'a SparsityPattern,
-    remaining_values: &'a mut [T],
-}
-
-impl<'a, T> CsLaneIterMut<'a, T> {
-    pub fn new(pattern: &'a SparsityPattern, values: &'a mut [T]) -> Self {
-        Self {
-            current_lane_idx: 0,
-            pattern,
-            remaining_values: values,
-        }
-    }
-}
-
-impl<'a, T> Iterator for CsLaneIterMut<'a, T>
-where
-    T: 'a,
-{
-    type Item = CsLaneMut<'a, T>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let lane = self.pattern.get_lane(self.current_lane_idx);
-        let minor_dim = self.pattern.minor_dim();
-
-        if let Some(minor_indices) = lane {
-            let count = minor_indices.len();
-
-            let remaining = replace(&mut self.remaining_values, &mut []);
-            let (values_in_lane, remaining) = remaining.split_at_mut(count);
-            self.remaining_values = remaining;
-            self.current_lane_idx += 1;
-
-            Some(CsLaneMut {
-                minor_dim,
-                minor_indices,
-                values: values_in_lane,
-            })
-        } else {
-            None
-        }
-    }
-}
-
-/// Implement the methods common to both CsLane and CsLaneMut. See the documentation for the
-/// methods delegated here by CsrMatrix and CscMatrix members for more information.
-macro_rules! impl_cs_lane_common_methods {
-    ($name:ty) => {
-        impl<'a, T> $name {
-            #[inline]
-            #[must_use]
-            pub fn minor_dim(&self) -> usize {
-                self.minor_dim
-            }
-
-            #[inline]
-            #[must_use]
-            pub fn nnz(&self) -> usize {
-                self.minor_indices.len()
-            }
-
-            #[inline]
-            #[must_use]
-            pub fn minor_indices(&self) -> &[usize] {
-                self.minor_indices
-            }
-
-            #[inline]
-            #[must_use]
-            pub fn values(&self) -> &[T] {
-                self.values
-            }
-
-            #[inline]
-            #[must_use]
-            pub fn get_entry(&self, global_col_index: usize) -> Option<SparseEntry<'_, T>> {
-                get_entry_from_slices(
-                    self.minor_dim,
-                    self.minor_indices,
-                    self.values,
-                    global_col_index,
-                )
-            }
-        }
-    };
-}
-
-impl_cs_lane_common_methods!(CsLane<'a, T>);
-impl_cs_lane_common_methods!(CsLaneMut<'a, T>);
-
-impl<'a, T> CsLaneMut<'a, T> {
-    pub fn values_mut(&mut self) -> &mut [T] {
-        self.values
-    }
-
-    pub fn indices_and_values_mut(&mut self) -> (&[usize], &mut [T]) {
-        (self.minor_indices, self.values)
-    }
-
-    #[must_use]
-    pub fn get_entry_mut(&mut self, global_minor_index: usize) -> Option<SparseEntryMut<'_, T>> {
-        get_mut_entry_from_slices(
-            self.minor_dim,
-            self.minor_indices,
-            self.values,
-            global_minor_index,
-        )
-    }
-}
-
-/// Helper struct for working with uninitialized data in vectors.
-/// TODO: This doesn't belong here.
-struct UninitVec<T> {
-    vec: Vec<T>,
-    len: usize,
-}
-
-impl<T> UninitVec<T> {
-    pub fn from_len(len: usize) -> Self {
-        Self {
-            vec: Vec::with_capacity(len),
-            // We need to store len separately, because for zero-sized types,
-            // Vec::with_capacity(len) does not give vec.capacity() == len
-            len,
-        }
-    }
-
-    /// Sets the element associated with the given index to the provided value.
-    ///
-    /// Must be called exactly once per index, otherwise results in undefined behavior.
-    pub unsafe fn set(&mut self, index: usize, value: T) {
-        self.vec.as_mut_ptr().add(index).write(value)
-    }
-
-    /// Marks the vector data as initialized by returning a full vector.
-    ///
-    /// It is undefined behavior to call this function unless *all* elements have been written to
-    /// exactly once.
-    pub unsafe fn assume_init(mut self) -> Vec<T> {
-        self.vec.set_len(self.len);
-        self.vec
-    }
-}
-
-/// Transposes the compressed format.
+/// A type to represent iteration through all the elements (zeros and explicit non-zeros) of a
+/// `CsMatrix`.
 ///
-/// This means that major and minor roles are switched. This is used for converting between CSR
-/// and CSC formats.
-pub fn transpose_cs<T>(
-    major_dim: usize,
-    minor_dim: usize,
-    source_major_offsets: &[usize],
-    source_minor_indices: &[usize],
-    values: &[T],
-) -> (Vec<usize>, Vec<usize>, Vec<T>)
-where
-    T: Scalar,
-{
-    assert_eq!(source_major_offsets.len(), major_dim + 1);
-    assert_eq!(source_minor_indices.len(), values.len());
-    let nnz = values.len();
-
-    // Count the number of occurences of each minor index
-    let mut minor_counts = vec![0; minor_dim];
-    for minor_idx in source_minor_indices {
-        minor_counts[*minor_idx] += 1;
-    }
-    convert_counts_to_offsets(&mut minor_counts);
-    let mut target_offsets = minor_counts;
-    target_offsets.push(nnz);
-    let mut target_indices = vec![usize::MAX; nnz];
-
-    // We have to use uninitialized storage, because we don't have any kind of "default" value
-    // available for `T`. Unfortunately this necessitates some small amount of unsafe code
-    let mut target_values = UninitVec::from_len(nnz);
-
-    // Keep track of how many entries we have placed in each target major lane
-    let mut current_target_major_counts = vec![0; minor_dim];
-
-    for source_major_idx in 0..major_dim {
-        let source_lane_begin = source_major_offsets[source_major_idx];
-        let source_lane_end = source_major_offsets[source_major_idx + 1];
-        let source_lane_indices = &source_minor_indices[source_lane_begin..source_lane_end];
-        let source_lane_values = &values[source_lane_begin..source_lane_end];
-
-        for (&source_minor_idx, val) in source_lane_indices.iter().zip(source_lane_values) {
-            // Compute the offset in the target data for this particular source entry
-            let target_lane_count = &mut current_target_major_counts[source_minor_idx];
-            let entry_offset = target_offsets[source_minor_idx] + *target_lane_count;
-            target_indices[entry_offset] = source_major_idx;
-            unsafe {
-                target_values.set(entry_offset, val.clone());
-            }
-            *target_lane_count += 1;
-        }
-    }
-
-    // At this point, we should have written to each element in target_values exactly once,
-    // so initialization should be sound
-    let target_values = unsafe { target_values.assume_init() };
-    (target_offsets, target_indices, target_values)
+/// As an iterator yields `(major_index, minor_index, value)` as `(usize, usize, SparseEntry<'_,
+/// T>)`, for every index. Note that for most matrices you probably don't want this, since this
+/// will include implicit zeros as well (returned as `SparseEntry::Zero`). However, this can be
+/// useful if one is trying to pretty-print a matrix to the screen, or checking the explicit
+/// structure of the matrix in a test.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AllElementsIter<'a, T> {
+    current_major_index: usize,
+    current_minor_index: usize,
+    minor_length: usize,
+    offsets: &'a [usize],
+    indices: &'a [usize],
+    data: &'a [T],
 }
 
-pub fn convert_counts_to_offsets(counts: &mut [usize]) {
-    // Convert the counts to an offset
-    let mut offset = 0;
-    for i_offset in counts.iter_mut() {
-        let count = *i_offset;
-        *i_offset = offset;
-        offset += count;
+impl<'a, T> Iterator for AllElementsIter<'a, T> {
+    type Item = (usize, usize, SparseEntry<'a, T>);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current_major_index >= self.offsets.len() {
+            return None;
+        }
+
+        let major_index = self.current_major_index;
+        let minor_index = self.current_minor_index;
+
+        let offset = self.offsets[major_index];
+
+        let (indices, data) = if major_index + 1 < self.offsets.len() {
+            let offset_upper = self.offsets[major_index + 1];
+
+            let indices = &self.indices[offset..offset_upper];
+            let data = &self.data[offset..offset_upper];
+
+            (indices, data)
+        } else {
+            let indices = &self.indices[offset..];
+            let data = &self.data[offset..];
+
+            (indices, data)
+        };
+
+        let entry = if let Ok(local_index) = indices.binary_search_by(|&x| x.cmp(&minor_index)) {
+            SparseEntry::NonZero(&data[local_index])
+        } else {
+            SparseEntry::Zero
+        };
+
+        self.current_minor_index += 1;
+
+        if self.current_minor_index >= self.minor_length {
+            self.current_minor_index = 0;
+            self.current_major_index += 1;
+        }
+
+        // We don't use `self.current_XXXXX_index` here because those were just modified.
+        Some((major_index, minor_index, entry))
+    }
+}
+
+impl<'a, T> ExactSizeIterator for AllElementsIter<'a, T> {
+    fn len(&self) -> usize {
+        let nelems = self.minor_length * self.offsets.len();
+        let ntraversed = self.current_major_index * self.minor_length + self.current_minor_index;
+
+        if nelems > ntraversed {
+            nelems - ntraversed
+        } else {
+            0
+        }
+    }
+}
+
+/// An iterator through each of the major lanes of a `CsMatrix`.
+///
+/// This yields `CsLaneIter<'_, T>` for every lane. If you want the major index of each lane
+/// alongside it, we suggest that users use `.enumerate()` on the resulting iterator.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CsMatrixIter<'a, T> {
+    current_major_index: usize,
+    offsets: &'a [usize],
+    indices: &'a [usize],
+    data: &'a [T],
+}
+
+impl<'a, T> Iterator for CsMatrixIter<'a, T> {
+    type Item = CsLaneIter<'a, T>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current_major_index >= self.offsets.len() {
+            return None;
+        }
+
+        let offset = self.offsets[self.current_major_index];
+
+        let (indices, data) = if self.current_major_index + 1 < self.offsets.len() {
+            let offset_upper = self.offsets[self.current_major_index + 1];
+
+            let indices = &self.indices[offset..offset_upper];
+            let data = &self.data[offset..offset_upper];
+
+            (indices, data)
+        } else {
+            let indices = &self.indices[offset..];
+            let data = &self.data[offset..];
+
+            (indices, data)
+        };
+
+        self.current_major_index += 1;
+
+        Some(CsLaneIter {
+            current_local_index: 0,
+            indices,
+            data,
+        })
+    }
+}
+
+impl<'a, T> ExactSizeIterator for CsMatrixIter<'a, T> {
+    fn len(&self) -> usize {
+        let nlanes = self.offsets.len();
+
+        if nlanes > self.current_major_index {
+            nlanes - self.current_major_index
+        } else {
+            0
+        }
+    }
+}
+
+/// An iterator through each of the minor lanes of a `CsMatrix`.
+///
+/// "Minor lane" here refers to a lane along the minor axis, i.e. if you have a CSC matrix, you get
+/// lanes over rows; conversely, if you have a CSR matrix you get lanes along columns. This is the
+/// opposite of the default iterator which iterates through major lanes of the data.
+///
+/// This yields `CsMinorLaneIter<'_, T, usize>` for every lane. If you want the minor index of each
+/// lane alongside it, we suggest that users use `.enumerate()` on the resulting iterator.
+///
+/// NOTE: From a performance perspective, this iterator and [`CsMinorLaneIter`] is not necessarily
+/// ideal. Compressed-Sparse formats are most effective in algorithms where the major ordering is
+/// exploited. Because the matrix is compressed along the opposite dimension (the major dimension),
+/// it is necessary to search backwards through the compression in order to produce the right major
+/// indices for the minor lane.
+///
+/// All that said, this is still faster in most cases than re-allocating / re-computing the
+/// opposite compression strategy, so it is provided for algorithms that need it (such as
+/// sparse-matrix-multiply).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CsMatrixMinorLaneIter<'a, T> {
+    current_minor_index: usize,
+    minor_dim: usize,
+    offsets: &'a [usize],
+    indices: &'a [usize],
+    data: &'a [T],
+}
+
+impl<'a, T> Iterator for CsMatrixMinorLaneIter<'a, T> {
+    type Item = CsMinorLaneIter<'a, T>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current_minor_index < self.minor_dim {
+            let minor_index = self.current_minor_index;
+            self.current_minor_index += 1;
+
+            Some(CsMinorLaneIter {
+                current_major_index: 0,
+                minor_index,
+                offsets: self.offsets,
+                indices: self.indices,
+                data: self.data,
+            })
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a, T> ExactSizeIterator for CsMatrixMinorLaneIter<'a, T> {
+    fn len(&self) -> usize {
+        let nlanes = self.minor_dim;
+
+        if nlanes > self.current_minor_index {
+            nlanes - self.current_minor_index
+        } else {
+            0
+        }
+    }
+}
+
+/// An iterator representing a single lane in a `CsMatrix`.
+///
+/// For CSC matrices, this represents a column. For CSR matrices, this represents a row.
+///
+/// As an iterator yields `(usize, &T)` pairs for every element in the lane.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CsLaneIter<'a, T> {
+    current_local_index: usize,
+    indices: &'a [usize],
+    data: &'a [T],
+}
+
+impl<'a, T> Iterator for CsLaneIter<'a, T> {
+    type Item = (usize, &'a T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current_local_index > self.indices.len() {
+            return None;
+        }
+
+        let local_index = self.current_local_index;
+
+        let index = &self.indices[local_index];
+        let value = &self.data[local_index];
+
+        self.current_local_index += 1;
+
+        Some((index.clone(), value))
+    }
+}
+
+impl<'a, T> ExactSizeIterator for CsLaneIter<'a, T> {
+    fn len(&self) -> usize {
+        let nnz = self.indices.len();
+
+        if nnz > self.current_local_index {
+            nnz - self.current_local_index
+        } else {
+            0
+        }
+    }
+}
+
+/// An iterator representing a single minor lane in a `CsMatrix`.
+///
+/// For CSC matrices, this represents a row. For CSR matrices, this represents a column.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CsMinorLaneIter<'a, T> {
+    current_major_index: usize,
+    minor_index: usize,
+    offsets: &'a [usize],
+    indices: &'a [usize],
+    data: &'a [T],
+}
+
+impl<'a, T> Iterator for CsMinorLaneIter<'a, T> {
+    type Item = (usize, &'a T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut result = None;
+
+        let nmajor = self.offsets.len();
+
+        while self.current_major_index < nmajor {
+            let offset = self.offsets[self.current_major_index];
+
+            let (indices, data) = if self.current_major_index + 1 < nmajor {
+                let offset_upper = self.offsets[self.current_major_index + 1];
+
+                let indices = &self.indices[offset..offset_upper];
+                let data = &self.data[offset..offset_upper];
+
+                (indices, data)
+            } else {
+                let indices = &self.indices[offset..];
+                let data = &self.data[offset..];
+
+                (indices, data)
+            };
+
+            if let Ok(local_index) = indices.binary_search_by(|&x| x.cmp(&self.minor_index)) {
+                let entry = &data[local_index];
+                result = Some((self.current_major_index, entry));
+
+                self.current_major_index += 1;
+                break;
+            } else {
+                self.current_major_index += 1;
+            }
+        }
+
+        result
     }
 }

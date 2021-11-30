@@ -1,6 +1,6 @@
 //! An implementation of the COO sparse matrix format.
 
-use crate::SparseFormatError;
+use super::error::SparseFormatError;
 
 /// A COO representation of a sparse matrix.
 ///
@@ -120,7 +120,8 @@ impl<T> CooMatrix<T> {
         col_indices: Vec<usize>,
         values: Vec<T>,
     ) -> Result<Self, SparseFormatError> {
-        use crate::SparseFormatErrorKind::*;
+        use crate::error::SparseFormatErrorKind::*;
+
         if row_indices.len() != col_indices.len() {
             return Err(SparseFormatError::from_kind_and_msg(
                 InvalidStructure,

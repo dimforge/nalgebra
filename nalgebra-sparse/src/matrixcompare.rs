@@ -1,42 +1,52 @@
 //! Implements core traits for use with `matrixcompare`.
-use crate::coo::CooMatrix;
-use crate::csc::CscMatrix;
-use crate::csr::CsrMatrix;
-use matrixcompare_core;
-use matrixcompare_core::{Access, SparseAccess};
+use crate::{
+    coo::CooMatrix,
+    cs::{Compression, CsMatrix},
+};
+use matrixcompare_core::{self, Access, SparseAccess};
+use std::borrow::Borrow;
 
-macro_rules! impl_matrix_for_csr_csc {
-    ($MatrixType:ident) => {
-        impl<T: Clone> SparseAccess<T> for $MatrixType<T> {
-            fn nnz(&self) -> usize {
-                $MatrixType::nnz(self)
-            }
+impl<T, MajorOffsets, MinorIndices, Data, CompressionKind> SparseAccess<T>
+    for CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressionKind>
+where
+    T: Clone,
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
+    Data: Borrow<[T]>,
+    CompressionKind: Compression,
+{
+    fn nnz(&self) -> usize {
+        Self::nnz(self)
+    }
 
-            fn fetch_triplets(&self) -> Vec<(usize, usize, T)> {
-                self.triplet_iter()
-                    .map(|(i, j, v)| (i, j, v.clone()))
-                    .collect()
-            }
-        }
-
-        impl<T: Clone> matrixcompare_core::Matrix<T> for $MatrixType<T> {
-            fn rows(&self) -> usize {
-                self.nrows()
-            }
-
-            fn cols(&self) -> usize {
-                self.ncols()
-            }
-
-            fn access(&self) -> Access<'_, T> {
-                Access::Sparse(self)
-            }
-        }
-    };
+    fn fetch_triplets(&self) -> Vec<(usize, usize, T)> {
+        self.triplet_iter()
+            .map(|(i, j, v)| (i, j, v.clone()))
+            .collect()
+    }
 }
 
-impl_matrix_for_csr_csc!(CsrMatrix);
-impl_matrix_for_csr_csc!(CscMatrix);
+impl<T, MajorOffsets, MinorIndices, Data, CompressionKind> matrixcompare_core::Matrix<T>
+    for CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressionKind>
+where
+    T: Clone,
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
+    Data: Borrow<[T]>,
+    CompressionKind: Compression,
+{
+    fn rows(&self) -> usize {
+        self.nrows()
+    }
+
+    fn cols(&self) -> usize {
+        self.ncols()
+    }
+
+    fn access(&self) -> Access<'_, T> {
+        Access::Sparse(self)
+    }
+}
 
 impl<T: Clone> SparseAccess<T> for CooMatrix<T> {
     fn nnz(&self) -> usize {
