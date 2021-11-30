@@ -8,4 +8,5 @@
 //! some operations which will be able to dynamically adapt the output pattern to fit the
 //! result, but these have yet to be implemented.
 
+pub mod spadd;
 pub mod spmm;
