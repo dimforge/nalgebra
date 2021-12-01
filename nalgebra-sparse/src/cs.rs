@@ -399,11 +399,56 @@ where
         )
     }
 
+    /// Produces an immutable view of the data by borrowing the underlying lanes and sparsity
+    /// pattern data.
+    ///
+    /// This function can be useful when needing to pass an "owned" copy of the data around, but
+    /// not wanting to make a true copy of the data. For example, standard operations like `Add`,
+    /// `Mul`, `Sub`, etc. require that the types passed in are owned.
+    ///
+    /// Alternatively you can implement `Add<&CsMatrix<...>>`; however, this means that every
+    /// operation needs to take matrices by reference, which not only reads strange but complicates
+    /// the types.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use nalgebra_sparse::{CompressedColumnStorage, CsMatrix};
+    /// #
+    /// # fn add_mat(rows: usize, cols: usize, offsets: &[usize], indices: &[usize], data:
+    /// # Vec<f64>)
+    /// # {
+    /// // Data is a Vec<f64> here, so copying all of `A` means that we copy that full vector.
+    /// let A = CsMatrix::try_from_parts(rows, cols, offsets, indices, data).unwrap();
+    ///
+    /// // This forces a full copy of `A`, because we implement the `Copy` trait.
+    /// let C1 = A + A;
+    ///
+    /// // Instead, we use a view
+    /// let B = A.to_view();
+    ///
+    /// // This also does a full copy of `B`; however, because `B` is parameterized by slices and
+    /// // not a Vec<f64>, this is vastly cheaper than the full copy of the underlying data.
+    /// let C2 = B + B;
+    /// # }
+    /// ```
+    pub fn to_view(&self) -> CsMatrix<T, &[usize], &[usize], &[T], CompressionKind> {
+        let shape = self.shape();
+        let (offsets, indices, data) = self.cs_data();
+
+        CsMatrix {
+            shape,
+            offsets,
+            indices,
+            data,
+            _phantom: PhantomData,
+        }
+    }
+
     /// Produces an immutable view of the transpose of the data by borrowing the underlying lanes
     /// and sparsity pattern data.
     pub fn transpose(&self) -> CsMatrix<T, &[usize], &[usize], &[T], CompressionKind::Transpose> {
-        let (nrows, ncols) = self.shape;
-        let shape = (ncols, nrows);
+        let shape = self.shape();
 
         CsMatrix {
             shape,
