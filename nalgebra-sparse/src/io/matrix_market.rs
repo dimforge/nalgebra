@@ -27,11 +27,12 @@ pub struct MatrixMarketError {
 }
 
 /// Errors produced by functions that expect well-formed matrix market format data.
-/// > _NOTE:_ Since the matrix market design didn't mention if multiple sparse entries with the same coordiantes are allowed or not, so, it's allowed here.
 #[non_exhaustive]
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum MatrixMarketErrorKind {
-    /// Indicates that some word is not known to MM format
+    /// Parsing failure.
+    ///
+    /// Indicates that the parser failed, for example due to an unexpected string.
     ///
     /// Examples
     /// --------
@@ -39,17 +40,17 @@ pub enum MatrixMarketErrorKind {
     /// # use nalgebra_sparse::io::load_coo_from_matrix_market_str;
     /// # use nalgebra_sparse::io::MatrixMarketErrorKind;
     /// let str = r#"
-    /// %%MatrixMarket whatever whatever whatever whatever
+    /// %%MatrixMarket invalid invalid invalid invalid
     /// 1 1 1
     /// 1 1 5
     /// "#;
-    /// let matrix_error = load_coo_from_matrix_market_str::<f64>(str);
-    /// assert_eq!(matrix_error.is_err(), true);
-    /// assert_eq!(matrix_error.unwrap_err().kind(),MatrixMarketErrorKind::ParsingError);
+    /// let matrix_result = load_coo_from_matrix_market_str::<f64>(str);
+    /// assert_eq!(matrix_result.is_err(), true);
+    /// assert_eq!(matrix_result.unwrap_err().kind(), MatrixMarketErrorKind::ParsingError);
     /// ```
     ParsingError,
 
-    /// Indicates that header is not valid
+    /// Indicates that the matrix market header is invalid.
     ///
     /// Examples
     /// --------
@@ -62,13 +63,13 @@ pub enum MatrixMarketErrorKind {
     /// 1 1 1
     /// 1 1 5
     /// "#;
-    /// let matrix_error = load_coo_from_matrix_market_str::<f64>(str);
-    /// assert_eq!(matrix_error.is_err(), true);
-    /// assert_eq!(matrix_error.unwrap_err().kind(),MatrixMarketErrorKind::InvalidHeader);
+    /// let matrix_result = load_coo_from_matrix_market_str::<f64>(str);
+    /// assert_eq!(matrix_result.is_err(), true);
+    /// assert_eq!(matrix_result.unwrap_err().kind(),MatrixMarketErrorKind::InvalidHeader);
     /// ```
     InvalidHeader,
 
-    /// Indicates that the data entries in .mtx file are more or less than entries specified in .mtx file
+    /// Indicates that the number of data entries in the matrix market file does not match the header.
     ///
     /// Examples
     /// --------
@@ -82,13 +83,14 @@ pub enum MatrixMarketErrorKind {
     /// 2 2 2
     /// 2 3 2
     /// "#;
-    /// let matrix_error = load_coo_from_matrix_market_str::<f64>(str);
-    /// assert_eq!(matrix_error.is_err(), true);
-    /// assert_eq!(matrix_error.unwrap_err().kind(),MatrixMarketErrorKind::EntryNumUnmatched);
+    /// let matrix_result = load_coo_from_matrix_market_str::<f64>(str);
+    /// assert_eq!(matrix_result.is_err(), true);
+    /// assert_eq!(matrix_result.unwrap_err().kind(),MatrixMarketErrorKind::EntryMismatch);
     /// ```
-    EntryNumUnmatched,
+    EntryMismatch,
 
-    /// Indicates that the type T is not matched with the function it called.
+    /// Indicates that the scalar type requested is not compatible with the scalar type stored
+    /// in the matrix market file.
     ///
     /// Examples
     /// --------
@@ -97,18 +99,20 @@ pub enum MatrixMarketErrorKind {
     /// # use nalgebra_sparse::io::MatrixMarketErrorKind;
     /// let str = r#"
     /// %%matrixmarket matrix coordinate real general
-    /// % it should be called by load_coo_from_matrix_market_str::<f64>(str), or f32;
+    /// % it should be loaded with load_coo_from_matrix_market_str::<f64>(str) (or f32)
     /// 3 3 2
     /// 2 2 2.22
     /// 2 3 2.22
     /// "#;
-    /// let matrix_error = load_coo_from_matrix_market_str::<i32>(str);
-    /// assert_eq!(matrix_error.is_err(), true);
-    /// assert_eq!(matrix_error.unwrap_err().kind(),MatrixMarketErrorKind::TypeUnmatched);
+    /// let matrix_result = load_coo_from_matrix_market_str::<i32>(str);
+    /// assert_eq!(matrix_result.is_err(), true);
+    /// assert_eq!(matrix_result.unwrap_err().kind(),MatrixMarketErrorKind::TypeMismatch);
     /// ```
-    TypeUnmatched,
+    TypeMismatch,
 
-    /// Indicates that zero has been used as an index in the data, or the shape of the matrix, which is not allowed.
+    /// Indicates that zero has been used as an index in the data.
+    ///
+    /// **Note**: The matrix market format uses 1-based indexing.
     ///
     /// Examples
     /// --------
@@ -120,13 +124,14 @@ pub enum MatrixMarketErrorKind {
     /// 1 1 1
     /// 0 0 10
     /// "#;
-    /// let matrix_error = load_coo_from_matrix_market_str::<f64>(str);
-    /// assert_eq!(matrix_error.is_err(), true);
-    /// assert_eq!(matrix_error.unwrap_err().kind(),MatrixMarketErrorKind::ZeroError);
+    /// let matrix_result = load_coo_from_matrix_market_str::<f64>(str);
+    /// assert_eq!(matrix_result.is_err(), true);
+    /// assert_eq!(matrix_result.unwrap_err().kind(),MatrixMarketErrorKind::ZeroError);
     /// ```
     ZeroError,
 
-    /// Indicates [SparseFormatError], while creating the sparse matrix.
+    /// Indicates [SparseFormatError] while creating the sparse matrix.
+    ///
     ///
     /// Examples
     /// --------
@@ -139,13 +144,14 @@ pub enum MatrixMarketErrorKind {
     /// 1 1 1
     /// 4 2 10
     /// "#;
-    /// let matrix_error = load_coo_from_matrix_market_str::<f64>(str);
-    /// assert_eq!(matrix_error.is_err(), true);
-    /// assert_eq!(matrix_error.unwrap_err().kind(),MatrixMarketErrorKind::SparseFormatError(SparseFormatErrorKind::IndexOutOfBounds));
+    /// let matrix_result = load_coo_from_matrix_market_str::<f64>(str);
+    /// assert_eq!(matrix_result.is_err(), true);
+    /// assert_eq!(matrix_result.unwrap_err().kind(),
+    ///     MatrixMarketErrorKind::SparseFormatError(SparseFormatErrorKind::IndexOutOfBounds));
     /// ```
     SparseFormatError(SparseFormatErrorKind),
 
-    /// Indicates that a wrong diagonal element has been provieded to the matrix
+    /// Indicates that a wrong diagonal element has been provided to the matrix.
     ///
     /// Examples
     /// --------
@@ -160,9 +166,9 @@ pub enum MatrixMarketErrorKind {
     /// 1 1 10
     /// 2 1 5
     /// "#;
-    /// let matrix_error = load_coo_from_matrix_market_str::<f64>(str);
-    /// assert_eq!(matrix_error.is_err(), true);
-    /// assert_eq!(matrix_error.unwrap_err().kind(),MatrixMarketErrorKind::DiagonalError);
+    /// let matrix_result = load_coo_from_matrix_market_str::<f64>(str);
+    /// assert_eq!(matrix_result.is_err(), true);
+    /// assert_eq!(matrix_result.unwrap_err().kind(),MatrixMarketErrorKind::DiagonalError);
     ///
     /// let str = r#"
     /// %%matrixmarket matrix coordinate complex hermitian
@@ -171,28 +177,27 @@ pub enum MatrixMarketErrorKind {
     /// 1 1 10 2
     /// 2 1 5 2
     /// "#;
-    /// let matrix_error = load_coo_from_matrix_market_str::<Complex<f64>>(str);
-    /// assert_eq!(matrix_error.is_err(), true);
-    /// assert_eq!(matrix_error.unwrap_err().kind(),MatrixMarketErrorKind::DiagonalError);
+    /// let matrix_result = load_coo_from_matrix_market_str::<Complex<f64>>(str);
+    /// assert_eq!(matrix_result.is_err(), true);
+    /// assert_eq!(matrix_result.unwrap_err().kind(),MatrixMarketErrorKind::DiagonalError);
     /// ```
-    /// Here the skew matrix shouldn't have an element on the diagonal
+    /// Here the skew matrix shouldn't have an element on the diagonal.
     DiagonalError,
 
-    /// Indicates [io error](`std::io::Error`), while reading the data from file.
+    /// Indicates an [IO error](`std::io::Error`) while reading the data from file.
     ///
     /// Examples
     /// --------
     /// ```rust
     /// # use nalgebra_sparse::io::load_coo_from_matrix_market_file;
     /// # use nalgebra_sparse::io::MatrixMarketErrorKind;
-    /// let file_name = "whatever.mtx";
-    /// let matrix_error = load_coo_from_matrix_market_file::<f64,_>(file_name);
-    /// assert_eq!(matrix_error.is_err(), true);
-    /// assert_eq!(matrix_error.unwrap_err().kind(),MatrixMarketErrorKind::IOError(std::io::ErrorKind::NotFound));
+    /// let matrix_result = load_coo_from_matrix_market_file::<f64,_>("matrix.mtx");
+    /// assert_eq!(matrix_result.is_err(), true);
+    /// assert_eq!(matrix_result.unwrap_err().kind(),MatrixMarketErrorKind::IOError(std::io::ErrorKind::NotFound));
     /// ```
     IOError(std::io::ErrorKind),
 
-    /// Indicates (skew-)symmetric (or hermitian) matrix is not lower triangle matrix.  
+    /// Indicates that a (skew-)symmetric (or hermitian) matrix is not a lower triangular matrix.
     ///
     /// Examples
     /// --------
@@ -205,13 +210,13 @@ pub enum MatrixMarketErrorKind {
     /// 1 1 10
     /// 2 3 5
     /// "#;
-    /// let matrix_error = load_coo_from_matrix_market_str::<i32>(str);
-    /// assert_eq!(matrix_error.is_err(), true);
-    /// assert_eq!(matrix_error.unwrap_err().kind(),MatrixMarketErrorKind::NotLowerTriangle);
+    /// let matrix_result = load_coo_from_matrix_market_str::<i32>(str);
+    /// assert_eq!(matrix_result.is_err(), true);
+    /// assert_eq!(matrix_result.unwrap_err().kind(),MatrixMarketErrorKind::NotLowerTriangle);
     /// ```
     NotLowerTriangle,
 
-    /// Indicates (skew-)symmetric (or hermitian) matrix is not square matrix.  
+    /// Indicates that a (skew-)symmetric (or hermitian) matrix is not a square matrix.
     ///
     /// Examples
     /// --------
@@ -224,11 +229,11 @@ pub enum MatrixMarketErrorKind {
     /// 1 1 10
     /// 2 3 5
     /// "#;
-    /// let matrix_error = load_coo_from_matrix_market_str::<i32>(str);
-    /// assert_eq!(matrix_error.is_err(), true);
-    /// assert_eq!(matrix_error.unwrap_err().kind(),MatrixMarketErrorKind::NotSquareMatrix);
+    /// let matrix_result = load_coo_from_matrix_market_str::<i32>(str);
+    /// assert_eq!(matrix_result.is_err(), true);
+    /// assert_eq!(matrix_result.unwrap_err().kind(),MatrixMarketErrorKind::NonSquare);
     /// ```
-    NotSquareMatrix,
+    NonSquare,
 }
 
 impl MatrixMarketError {
@@ -239,7 +244,7 @@ impl MatrixMarketError {
         }
     }
 
-    /// The operation error kind.
+    /// The matrix market error kind.
     #[must_use]
     pub fn kind(&self) -> MatrixMarketErrorKind {
         self.error_kind
@@ -254,7 +259,7 @@ impl MatrixMarketError {
 
 impl fmt::Display for MatrixMarketError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "Matrix Market load error: ")?;
+        write!(f, "Matrix Market error: ")?;
         match self.kind() {
             MatrixMarketErrorKind::ParsingError => {
                 write!(f, "ParsingError,")?;
@@ -262,11 +267,11 @@ impl fmt::Display for MatrixMarketError {
             MatrixMarketErrorKind::InvalidHeader => {
                 write!(f, "InvalidHeader,")?;
             }
-            MatrixMarketErrorKind::EntryNumUnmatched => {
+            MatrixMarketErrorKind::EntryMismatch => {
                 write!(f, "EntryNumUnmatched,")?;
             }
-            MatrixMarketErrorKind::TypeUnmatched => {
-                write!(f, "TypeUnmatched,")?;
+            MatrixMarketErrorKind::TypeMismatch => {
+                write!(f, "TypeMismatch,")?;
             }
             MatrixMarketErrorKind::SparseFormatError(_) => {
                 write!(f, "SparseFormatError,")?;
@@ -283,11 +288,11 @@ impl fmt::Display for MatrixMarketError {
             MatrixMarketErrorKind::NotLowerTriangle => {
                 write!(f, "NotLowerTriangle,")?;
             }
-            MatrixMarketErrorKind::NotSquareMatrix => {
+            MatrixMarketErrorKind::NonSquare => {
                 write!(f, "NotSquareMatrix,")?;
             }
         }
-        write!(f, " Message: {}", self.message)
+        write!(f, " message: {}", self.message)
     }
 }
 
@@ -334,9 +339,9 @@ impl From<std::io::Error> for MatrixMarketError {
 impl From<TryFromIntError> for MatrixMarketError {
     fn from(err: TryFromIntError) -> Self {
         Self::from_kind_and_message(
-            MatrixMarketErrorKind::TypeUnmatched,
+            MatrixMarketErrorKind::TypeMismatch,
             format!(
-                "Please consider using a larger integery type. Error message: {}",
+                "Please consider using a larger integer type. Error message: {}",
                 &err
             ),
         )
@@ -348,7 +353,7 @@ impl From<TryFromIntError> for MatrixMarketError {
 impl From<Infallible> for MatrixMarketError {
     fn from(_err: Infallible) -> Self {
         Self::from_kind_and_message(
-            MatrixMarketErrorKind::TypeUnmatched,
+            MatrixMarketErrorKind::TypeMismatch,
             format!("This won't happen"),
         )
     }
@@ -479,9 +484,9 @@ fn typecode_precheck(tc: &Typecode) -> Result<(), MatrixMarketError> {
     }
 }
 
-/// Base trait for matrix market types.
+/// Scalar types supported by the matrix market parser.
 pub trait MatrixMarketScalar: Scalar {
-    /// When matrix is an Integer matrix, it will convert a [i128] number to this type.
+    /// When the matrix is an integer matrix, it will convert a [i128] number to this type.
     fn from_i128(i: i128) -> Result<Self, MatrixMarketError>;
     /// When matrix is a Real matrix, it will convert a [f64] number to this type.
     fn from_f64(f: f64) -> Result<Self, MatrixMarketError>;
@@ -494,6 +499,7 @@ pub trait MatrixMarketScalar: Scalar {
     /// When matrix is a Hermitian matrix, it will convert itself to its conjugate.
     fn conjugate(self) -> Result<Self, MatrixMarketError>;
 }
+
 /// Implement MatrixMarketScalar for primitive integer types.
 macro_rules! mm_int_impl {
     ($T:ty) => {
@@ -505,28 +511,28 @@ macro_rules! mm_int_impl {
             #[inline]
             fn from_f64(_f: f64) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("Int type can't be parsed from f64"),
                 ))
             }
             #[inline]
             fn from_c64(_c: Complex<f64>) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("Int type can't be parsed from Complex<f64>"),
                 ))
             }
             #[inline]
             fn from_pattern(_p: ()) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("Int type can't be parsed from ()"),
                 ))
             }
             #[inline]
             fn conjugate(self) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("Int type has no conjugate"),
                 ))
             }
@@ -544,7 +550,7 @@ macro_rules! mm_real_impl {
             #[inline]
             fn from_i128(_i: i128) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("real type can't be parsed from i128"),
                 ))
             }
@@ -555,21 +561,21 @@ macro_rules! mm_real_impl {
             #[inline]
             fn from_c64(_c: Complex<f64>) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("real type can't be parsed from Complex<f64>"),
                 ))
             }
             #[inline]
             fn from_pattern(_p: ()) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("real type can't be parsed from ()"),
                 ))
             }
             #[inline]
             fn conjugate(self) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("real type has no conjugate"),
                 ))
             }
@@ -580,6 +586,7 @@ macro_rules! mm_real_impl {
         }
     };
 }
+
 /// Implement MatrixMarketScalar for primitive complex types.
 macro_rules! mm_complex_impl {
     ($T:ty) => {
@@ -587,14 +594,14 @@ macro_rules! mm_complex_impl {
             #[inline]
             fn from_i128(_i: i128) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("Complex type can't be parsed from i128"),
                 ))
             }
             #[inline]
             fn from_f64(_f: f64) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("Complex type can't be parsed from f64"),
                 ))
             }
@@ -608,7 +615,7 @@ macro_rules! mm_complex_impl {
             #[inline]
             fn from_pattern(_p: ()) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("Complex type can't be parsed from ()"),
                 ))
             }
@@ -630,21 +637,21 @@ macro_rules! mm_pattern_impl {
             #[inline]
             fn from_i128(_i: i128) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("Pattern type can't be parsed from i128"),
                 ))
             }
             #[inline]
             fn from_f64(_f: f64) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("Pattern type can't be parsed from f64"),
                 ))
             }
             #[inline]
             fn from_c64(_c: Complex<f64>) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("Pattern type can't be parsed from Complex<f64>"),
                 ))
             }
@@ -656,14 +663,14 @@ macro_rules! mm_pattern_impl {
             #[inline]
             fn conjugate(self) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("Pattern type has no conjugate"),
                 ))
             }
             #[inline]
             fn negative(self) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
-                    MatrixMarketErrorKind::TypeUnmatched,
+                    MatrixMarketErrorKind::TypeMismatch,
                     format!("Pattern type has no negative"),
                 ))
             }
@@ -687,16 +694,31 @@ mm_pattern_impl!(());
 
 #[derive(Parser)]
 #[grammar = "io/matrix_market.pest"]
-struct MMParser;
+struct MatrixMarketParser;
 
-/// Parses a Matrix Market file at the given path, and returns the corresponding sparse matrix as CooMatrix format.
+/// Parses a Matrix Market file at the given path as a `CooMatrix`.
+///
+/// The matrix market format specification does not clarify whether duplicate entries are allowed. Our importer
+/// assumes that this is permitted and produces a `CooMatrix` with possibly duplicate entries.
+///
+/// **Note**: A current restriction of the importer is that you must use a compatible scalar type when importing.
+/// For example, in order to import a matrix stored as `integer` in the matrix market format, you must
+/// import it as an integer matrix, otherwise a [TypeMismatch](MatrixMarketErrorKind::TypeMismatch) error
+/// will be returned. This restriction may be lifted in the future, and is
+/// tracked by issue [#1038](https://github.com/dimforge/nalgebra/issues/1038).
 ///
 /// Errors
 /// --------
 ///
 /// See [MatrixMarketErrorKind] for a list of possible error conditions.
 ///
-/// > _NOTE:_ Here uses strong type requirements, which means if the matrix is an integer matrix, e.g. `%%matrixmarket matrix cooridnate integer general`, then you have to load it by `load_coo_from_matrix_market_file<T>`, where T is an integer type. Trying `load_coo_from_matrix_market_file<f64>` will give [TypeUnmatched](MatrixMarketErrorKind::TypeUnmatched) Error. After loading it, you can cast it into a `f64` matrix, by calling [cast](`nalgebra::base::Matrix::cast()`), but be aware of accuracy lose.
+/// Examples
+/// --------
+/// ```
+/// use nalgebra_sparse::io::load_coo_from_matrix_market_file;
+/// // Use e.g. `f64` for floating-point matrices
+/// let matrix = load_coo_from_matrix_market_file::<i32>("path/to/matrix.mtx")?;
+/// ```
 pub fn load_coo_from_matrix_market_file<T, P: AsRef<Path>>(
     path: P,
 ) -> Result<CooMatrix<T>, MatrixMarketError>
@@ -707,21 +729,34 @@ where
     load_coo_from_matrix_market_str(&file)
 }
 
-/// Parses a Matrix Market file described by the given string, and returns the corresponding as CooMatrix format.
+/// Parses a Matrix Market file described by the given string as a `CooMatrix`.
+///
+/// See [load_coo_from_matrix_market_file] for more information.
 ///
 /// Errors
 /// --------
 ///
 /// See [MatrixMarketErrorKind] for a list of possible error conditions.
 ///
-/// > _NOTE:_ Here uses strong type requirements, which means if the matrix is an integer matrix, e.g. `%%matrixmarket matrix cooridnate integer general`, then you have to load it by `load_coo_from_matrix_market_str<T>`, where T is an integer type. Trying `load_coo_from_matrix_market_str<f64>` will give [TypeUnmatched](MatrixMarketErrorKind::TypeUnmatched) Error. After loading it, you can cast it into a `f64` matrix, by calling [cast](`nalgebra::base::Matrix::cast()`),but be aware of accuracy lose.
-
+/// Examples
+/// --------
+/// ```
+/// # use nalgebra_sparse::io::load_coo_from_matrix_market_str;
+/// # use nalgebra_sparse::io::MatrixMarketErrorKind;
+/// let str = r#"
+/// %%matrixmarket matrix coordinate integer symmetric
+/// 5 4 2
+/// 1 1 10
+/// 2 3 5
+/// "#;
+/// let matrix = load_coo_from_matrix_market_str::<i32>(str)?;
+/// ```
 pub fn load_coo_from_matrix_market_str<T>(data: &str) -> Result<CooMatrix<T>, MatrixMarketError>
 where
     T: MatrixMarketScalar,
 {
     // unwrap() in this function are guaranteed by parsing the data
-    let file = MMParser::parse(Rule::Document, data)?.next().unwrap();
+    let file = MatrixMarketParser::parse(Rule::Document, data)?.next().unwrap();
 
     let mut rows: Vec<usize> = Vec::new();
     let mut cols: Vec<usize> = Vec::new();
@@ -755,7 +790,7 @@ where
     let count = lines.clone().count();
     if count != shape.2 {
         return Err(MatrixMarketError::from_kind_and_message(
-            MatrixMarketErrorKind::EntryNumUnmatched,
+            MatrixMarketErrorKind::EntryMismatch,
             format!(
                 "{} entries required for the matrix, but {} was provided",
                 shape.2, count,
@@ -996,7 +1031,7 @@ fn parse_sparse_shape(
 
     // check for square matirx, when it's not a general matrix
     if *storagescheme != StorageScheme::General && r != c {
-        return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::NotSquareMatrix,format!("(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}",r,c)));
+        return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::NonSquare, format!("(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}", r, c)));
     }
 
     Ok((r, c, nnz))
@@ -1032,7 +1067,7 @@ fn parse_dense_shape(
 
     // check for square matirx, when it's not a general matrix
     if *storagescheme != StorageScheme::General && r != c {
-        return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::NotSquareMatrix,format!("(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}",r,c)));
+        return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::NonSquare, format!("(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}", r, c)));
     }
 
     let n: usize;
