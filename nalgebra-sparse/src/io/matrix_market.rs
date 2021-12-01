@@ -298,13 +298,14 @@ impl fmt::Display for MatrixMarketError {
 
 impl std::error::Error for MatrixMarketError {}
 
-impl<T: fmt::Debug + std::hash::Hash + std::marker::Copy + Ord> From<pest::error::Error<T>>
-    for MatrixMarketError
-{
-    fn from(err: pest::error::Error<T>) -> Self {
+impl MatrixMarketError {
+    fn from_pest_error<T>(error: pest::error::Error<T>) -> Self
+    where
+        T: fmt::Debug + std::hash::Hash + std::marker::Copy + Ord
+    {
         Self::from_kind_and_message(
             MatrixMarketErrorKind::ParsingError,
-            format!("Can't parse the data.\n Error: {}", err),
+            format!("Can't parse the data.\n Error: {}", error),
         )
     }
 }
@@ -756,7 +757,9 @@ where
     T: MatrixMarketScalar,
 {
     // unwrap() in this function are guaranteed by parsing the data
-    let file = MatrixMarketParser::parse(Rule::Document, data)?.next().unwrap();
+    let file = MatrixMarketParser::parse(Rule::Document, data)
+        .map_err(MatrixMarketError::from_pest_error)?
+        .next().unwrap();
 
     let mut rows: Vec<usize> = Vec::new();
     let mut cols: Vec<usize> = Vec::new();
