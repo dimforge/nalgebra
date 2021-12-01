@@ -498,7 +498,7 @@ mod internal {
         fn from_i128(i: i128) -> Result<Self, MatrixMarketError>;
         /// When matrix is a Real matrix, it will convert a [f64] number to this type.
         fn from_f64(f: f64) -> Result<Self, MatrixMarketError>;
-        /// When matrix is a Complx matrix, it will convert a [Complex<f64>] number to this type.
+        /// When matrix is a Complex matrix, it will convert a [Complex<f64>] number to this type.
         fn from_c64(c: Complex<f64>) -> Result<Self, MatrixMarketError>;
         /// When matrix is a Pattern matrix, it will convert a unit type [unit] to this type.
         fn from_pattern(p: ()) -> Result<Self, MatrixMarketError>;
@@ -806,10 +806,10 @@ where
 
     // used when constructing dense matrix.
     // If it's sparse matrix, it has no effect.
-    let mut current_dense_coordiante: (usize, usize) = (0, 0);
+    let mut current_dense_coordinate: (usize, usize) = (0, 0);
     if header_type.storagescheme == StorageScheme::Skew {
         // for skew dense matrix, the first element starts from (1,0)
-        current_dense_coordiante = (1, 0);
+        current_dense_coordinate = (1, 0);
     }
     // count how many entries in the matrix data
     let count = lines.clone().count();
@@ -860,12 +860,12 @@ where
                 ..
             } => {
                 entry = (
-                    current_dense_coordiante.0,
-                    current_dense_coordiante.1,
+                    current_dense_coordinate.0,
+                    current_dense_coordinate.1,
                     parse_dense_complex::<T>(&mut data_line.into_inner())?,
                 );
-                next_dense_coordiante(
-                    &mut current_dense_coordiante,
+                next_dense_coordinate(
+                    &mut current_dense_coordinate,
                     shape,
                     &header_type.storagescheme,
                 );
@@ -876,13 +876,13 @@ where
                 ..
             } => {
                 entry = (
-                    current_dense_coordiante.0,
-                    current_dense_coordiante.1,
+                    current_dense_coordinate.0,
+                    current_dense_coordinate.1,
                     parse_dense_real::<T>(&mut data_line.into_inner())?,
                 );
 
-                next_dense_coordiante(
-                    &mut current_dense_coordiante,
+                next_dense_coordinate(
+                    &mut current_dense_coordinate,
                     shape,
                     &header_type.storagescheme,
                 );
@@ -893,12 +893,12 @@ where
                 ..
             } => {
                 entry = (
-                    current_dense_coordiante.0,
-                    current_dense_coordiante.1,
+                    current_dense_coordinate.0,
+                    current_dense_coordinate.1,
                     parse_dense_int::<T>(&mut data_line.into_inner())?,
                 );
-                next_dense_coordiante(
-                    &mut current_dense_coordiante,
+                next_dense_coordinate(
+                    &mut current_dense_coordinate,
                     shape,
                     &header_type.storagescheme,
                 );
@@ -1023,7 +1023,7 @@ fn parse_header(inner: &mut Pairs<'_, Rule>) -> Typecode {
 
 // Parse shape starts here-------------------------------------------------
 
-/// Parse a pest structure to sparse shape information, including 3 int, which are number of rols, cols and non-zeros.
+/// Parse a pest structure to sparse shape information, including 3 int, which are number of rows, cols and non-zeros.
 fn parse_sparse_shape(
     inner: &mut Pairs<'_, Rule>,
     storagescheme: &StorageScheme,
@@ -1054,7 +1054,7 @@ fn parse_sparse_shape(
         ));
     }
 
-    // check for square matirx, when it's not a general matrix
+    // check for square matrix, when it's not a general matrix
     if *storagescheme != StorageScheme::General && r != c {
         return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::NonSquare, format!("(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}", r, c)));
     }
@@ -1062,7 +1062,7 @@ fn parse_sparse_shape(
     Ok((r, c, nnz))
 }
 
-/// Parse a pest structure to dense shape information, including 2 int, which are number of rols, cols.
+/// Parse a pest structure to dense shape information, including 2 int, which are number of rows, cols.
 fn parse_dense_shape(
     inner: &mut Pairs<'_, Rule>,
     storagescheme: &StorageScheme,
@@ -1090,7 +1090,7 @@ fn parse_dense_shape(
         ));
     }
 
-    // check for square matirx, when it's not a general matrix
+    // check for square matrix, when it's not a general matrix
     if *storagescheme != StorageScheme::General && r != c {
         return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::NonSquare, format!("(Skew-)Symmetric or hermitian matrix should be square matrix, but it has dimension {} and {}", r, c)));
     }
@@ -1121,7 +1121,7 @@ fn parse_dense_shape(
 
 // Parse entry starts here-------------------------------------------------
 
-/// Parse a pest structure to sparse real entry, including 2 int, which are number of rols, cols, and a real number as data
+/// Parse a pest structure to sparse real entry, including 2 int, which are number of rows, cols, and a real number as data
 fn parse_sparse_real<T>(inner: &mut Pairs<'_, Rule>) -> Result<(usize, usize, T), MatrixMarketError>
 where
     T: MatrixMarketScalar,
@@ -1130,17 +1130,17 @@ where
     let entry_inner = inner.next().unwrap();
     if entry_inner.as_rule() != Rule::SparseReal {
         return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::ParsingError,format!("
-        Spare real matrix requires 2 int number as coordiantes and 1 real number as data, but line {} was provided.  
+        Spare real matrix requires 2 int number as coordinates and 1 real number as data, but line {} was provided.  
         ",entry_inner.as_str() )));
     }
 
     let mut inner = entry_inner.into_inner();
-    let (r, c) = parse_sparse_coordiante(&mut inner)?;
+    let (r, c) = parse_sparse_coordinate(&mut inner)?;
     let d = inner.next().unwrap().as_str().parse::<f64>().unwrap();
     Ok((r, c, T::from_f64(d)?))
 }
 
-/// Parse a pest structure to sparse integer entry, including 2 int, which are number of rols, cols, and a int number as data
+/// Parse a pest structure to sparse integer entry, including 2 int, which are number of rows, cols, and a int number as data
 fn parse_sparse_int<T>(inner: &mut Pairs<'_, Rule>) -> Result<(usize, usize, T), MatrixMarketError>
 where
     T: MatrixMarketScalar,
@@ -1153,20 +1153,20 @@ where
             MatrixMarketErrorKind::ParsingError,
             format!(
                 "
-        Spare real matrix requires 3 int number as coordiantes and data, but line {} was provided.  
+        Spare real matrix requires 3 int number as coordinates and data, but line {} was provided.  
         ",
                 entry_inner.as_str()
             ),
         ));
     }
     let mut inner = entry_inner.into_inner();
-    let (r, c) = parse_sparse_coordiante(&mut inner)?;
+    let (r, c) = parse_sparse_coordinate(&mut inner)?;
     // Here to guarantee it is an integer number
     let d = inner.next().unwrap().as_str().parse::<i128>()?;
     Ok((r, c, T::from_i128(d)?))
 }
 
-/// Parse a pest structure to sparse pattern entry, including 2 int, which are number of rols, cols
+/// Parse a pest structure to sparse pattern entry, including 2 int, which are number of rows, cols
 fn parse_sparse_pattern<T>(
     inner: &mut Pairs<'_, Rule>,
 ) -> Result<(usize, usize, T), MatrixMarketError>
@@ -1180,18 +1180,18 @@ where
             MatrixMarketErrorKind::ParsingError,
             format!(
                 "
-        Spare real matrix requires 2 int number as coordiantes, but line {} was provided.  
+        Spare real matrix requires 2 int number as coordinates, but line {} was provided.  
         ",
                 entry_inner.as_str()
             ),
         ));
     }
     let mut inner = entry_inner.into_inner();
-    let (r, c) = parse_sparse_coordiante(&mut inner)?;
+    let (r, c) = parse_sparse_coordinate(&mut inner)?;
     Ok((r, c, T::from_pattern(())?))
 }
 
-/// Parse a pest structure to sparse complex entry, including 2 int, which are number of rols, cols, and 2 real number as complex data
+/// Parse a pest structure to sparse complex entry, including 2 int, which are number of rows, cols, and 2 real number as complex data
 fn parse_sparse_complex<T>(
     inner: &mut Pairs<'_, Rule>,
 ) -> Result<(usize, usize, T), MatrixMarketError>
@@ -1202,11 +1202,11 @@ where
     let entry_inner = inner.next().unwrap();
     if entry_inner.as_rule() != Rule::SparseComplex {
         return Err(MatrixMarketError::from_kind_and_message(MatrixMarketErrorKind::ParsingError,format!("
-        Spare real matrix requires 2 int number as coordiantes and 2 real number as complex data, but line {} was provided.  
+        Spare real matrix requires 2 int number as coordinates and 2 real number as complex data, but line {} was provided.  
         ",entry_inner.as_str() )));
     }
     let mut inner = entry_inner.into_inner();
-    let (r, c) = parse_sparse_coordiante(&mut inner)?;
+    let (r, c) = parse_sparse_coordinate(&mut inner)?;
     let real = inner.next().unwrap().as_str().parse::<f64>().unwrap();
     let imag = inner.next().unwrap().as_str().parse::<f64>().unwrap();
     let complex = Complex::<f64>::new(real, imag);
@@ -1292,8 +1292,8 @@ where
 
 // Parse entry ends here-------------------------------------------------
 
-/// Parse the coordiantes information used for sparse matrix
-fn parse_sparse_coordiante(
+/// Parse the coordinates information used for sparse matrix
+fn parse_sparse_coordinate(
     inner: &mut Pairs<'_, Rule>,
 ) -> Result<(usize, usize), MatrixMarketError> {
     // unwrap() in this function are guaranteed by parsing the data
@@ -1302,51 +1302,51 @@ fn parse_sparse_coordiante(
     if r * c == 0 {
         return Err(MatrixMarketError::from_kind_and_message(
             MatrixMarketErrorKind::ZeroError,
-            String::from("The data has to be one-indixed"),
+            String::from("The data has to be one-indexed"),
         ));
     }
-    // The coordiantes in matrix market is one-based, but in CooMatrix is zero-based.
+    // The coordinates in matrix market is one-based, but in CooMatrix is zero-based.
     Ok((r - 1, c - 1))
 }
 
-/// Calculate the next coordiantes used for dense matrix
-fn next_dense_coordiante(
-    current_dense_coordiante: &mut (usize, usize),
+/// Calculate the next coordinates used for dense matrix
+fn next_dense_coordinate(
+    current_dense_coordinate: &mut (usize, usize),
     shape: (usize, usize, usize),
     storagescheme: &StorageScheme,
 ) {
     // matrix market is column based format.
     // so it follows the order (0,0) -> (1,0) -> ... -> (row, 0) -> (0,1) -> ... ->(row,col)
-    // current_dense_coordiante is (row, column)
+    // current_dense_coordinate is (row, column)
     match storagescheme {
         StorageScheme::General => {
-            if current_dense_coordiante.0 < shape.0 - 1 {
-                current_dense_coordiante.0 += 1
+            if current_dense_coordinate.0 < shape.0 - 1 {
+                current_dense_coordinate.0 += 1
             } else {
                 // jump to next column, reset row to 1, column add 1
-                current_dense_coordiante.0 = 0;
-                current_dense_coordiante.1 += 1;
+                current_dense_coordinate.0 = 0;
+                current_dense_coordinate.1 += 1;
             }
         }
         StorageScheme::Symmetric | StorageScheme::Hermitian => {
-            if current_dense_coordiante.0 < shape.0 - 1 {
-                current_dense_coordiante.0 += 1
+            if current_dense_coordinate.0 < shape.0 - 1 {
+                current_dense_coordinate.0 += 1
             } else {
                 // jump to next column, column add 1, then set row equals to current column
                 // for example   (0,0) -> (1,0) -> ... -> (row, 0) -> (1,1) -> ...
-                current_dense_coordiante.1 += 1;
-                current_dense_coordiante.0 = current_dense_coordiante.1;
+                current_dense_coordinate.1 += 1;
+                current_dense_coordinate.0 = current_dense_coordinate.1;
             }
         }
         StorageScheme::Skew => {
-            if current_dense_coordiante.0 < shape.0 - 1 {
-                current_dense_coordiante.0 += 1;
+            if current_dense_coordinate.0 < shape.0 - 1 {
+                current_dense_coordinate.0 += 1;
             } else {
                 // jump to next column, set row equals to current column, then column add 1
                 // skew matrix doesn't have element on diagonal
                 // for example  (1,0) -> (2,0) -> ... -> (row, 0) -> (2,1) -> ...
-                current_dense_coordiante.1 += 1;
-                current_dense_coordiante.0 = current_dense_coordiante.1 + 1;
+                current_dense_coordinate.1 += 1;
+                current_dense_coordinate.0 = current_dense_coordinate.1 + 1;
             }
         }
     }
