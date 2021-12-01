@@ -382,9 +382,6 @@ where
                         let (jl, vl) = lhs.unwrap();
                         let (jr, vr) = rhs.unwrap();
 
-                        // See comment in `spmm_csr_csc` for why this is necessary
-                        let jr = jr.clone();
-
                         match jl.cmp(&jr) {
                             Ordering::Less => {
                                 lhs = lane_iter.next();
