@@ -6,6 +6,24 @@ use nalgebra_sparse::CooMatrix;
 
 #[test]
 #[rustfmt::skip]
+fn test_matrixmarket_sparse_real_general_empty() {
+    // Test several valid zero-shapes of a matrix
+    let shapes = vec![ (0, 0), (1, 0), (0, 1) ];
+    let strings: Vec<String> = shapes
+        .into_iter()
+        .map(|(m, n)| format!("%%MatrixMarket matrix coordinate real general\n {} {} 0", m, n))
+        .collect();
+
+    for string in &strings {
+        let sparse_mat = load_coo_from_matrix_market_str::<f32>(string).unwrap();
+        assert_eq!(sparse_mat.nrows(), 0);
+        assert_eq!(sparse_mat.ncols(), 0);
+        assert_eq!(sparse_mat.nnz(), 0);
+    }
+}
+
+#[test]
+#[rustfmt::skip]
 fn test_matrixmarket_sparse_real_general() {
     let file_str = r#"
 %%MatrixMarket matrix CoOrdinate real general
