@@ -124,5 +124,5 @@
 //! directly calling kernels may sometimes lead to better performance. However, this should
 //! always be verified by performance profiling!
 
-// mod impl_std_ops;
+mod impl_std_ops;
 pub mod serial;
