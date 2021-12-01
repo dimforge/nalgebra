@@ -4,7 +4,6 @@
 use crate::coo::CooMatrix;
 use crate::SparseFormatError;
 use crate::SparseFormatErrorKind;
-use nalgebra::base::Scalar;
 use nalgebra::Complex;
 use pest::iterators::Pairs;
 use pest::Parser;
@@ -486,25 +485,38 @@ fn typecode_precheck(tc: &Typecode) -> Result<(), MatrixMarketError> {
 }
 
 /// Scalar types supported by the matrix market parser.
-pub trait MatrixMarketScalar: Scalar {
-    /// When the matrix is an integer matrix, it will convert a [i128] number to this type.
-    fn from_i128(i: i128) -> Result<Self, MatrixMarketError>;
-    /// When matrix is a Real matrix, it will convert a [f64] number to this type.
-    fn from_f64(f: f64) -> Result<Self, MatrixMarketError>;
-    /// When matrix is a Complx matrix, it will convert a [Complex<f64>] number to this type.
-    fn from_c64(c: Complex<f64>) -> Result<Self, MatrixMarketError>;
-    /// When matrix is a Pattern matrix, it will convert a unit type [unit] to this type.
-    fn from_pattern(p: ()) -> Result<Self, MatrixMarketError>;
-    /// When matrix is a Skew-symmetric matrix, it will convert itself to its negative.
-    fn negative(self) -> Result<Self, MatrixMarketError>;
-    /// When matrix is a Hermitian matrix, it will convert itself to its conjugate.
-    fn conjugate(self) -> Result<Self, MatrixMarketError>;
+mod internal {
+    use crate::io::MatrixMarketError;
+    use na::{Complex, Scalar};
+
+    pub trait SupportedMatrixMarketScalar: Scalar {
+        /// When the matrix is an integer matrix, it will convert a [i128] number to this type.
+        fn from_i128(i: i128) -> Result<Self, MatrixMarketError>;
+        /// When matrix is a Real matrix, it will convert a [f64] number to this type.
+        fn from_f64(f: f64) -> Result<Self, MatrixMarketError>;
+        /// When matrix is a Complx matrix, it will convert a [Complex<f64>] number to this type.
+        fn from_c64(c: Complex<f64>) -> Result<Self, MatrixMarketError>;
+        /// When matrix is a Pattern matrix, it will convert a unit type [unit] to this type.
+        fn from_pattern(p: ()) -> Result<Self, MatrixMarketError>;
+        /// When matrix is a Skew-symmetric matrix, it will convert itself to its negative.
+        fn negative(self) -> Result<Self, MatrixMarketError>;
+        /// When matrix is a Hermitian matrix, it will convert itself to its conjugate.
+        fn conjugate(self) -> Result<Self, MatrixMarketError>;
+    }
 }
+
+/// A marker trait for supported matrix market scalars.
+///
+/// This is a sealed trait; it cannot be implemented by external crates. This is done in order to prevent leaking
+/// some of the implementation details we currently rely on. We may relax this restriction in the future.
+pub trait MatrixMarketScalar: internal::SupportedMatrixMarketScalar {}
 
 /// Implement MatrixMarketScalar for primitive integer types.
 macro_rules! mm_int_impl {
     ($T:ty) => {
-        impl MatrixMarketScalar for $T {
+        impl MatrixMarketScalar for $T {}
+
+        impl internal::SupportedMatrixMarketScalar for $T {
             #[inline]
             fn from_i128(i: i128) -> Result<Self, MatrixMarketError> {
                 Ok(Self::try_from(i)?)
@@ -547,7 +559,9 @@ macro_rules! mm_int_impl {
 /// Implement MatrixMarketScalar for primitive real types.
 macro_rules! mm_real_impl {
     ($T:ty) => {
-        impl MatrixMarketScalar for $T {
+        impl MatrixMarketScalar for $T {}
+
+        impl internal::SupportedMatrixMarketScalar for $T {
             #[inline]
             fn from_i128(_i: i128) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
@@ -591,7 +605,9 @@ macro_rules! mm_real_impl {
 /// Implement MatrixMarketScalar for primitive complex types.
 macro_rules! mm_complex_impl {
     ($T:ty) => {
-        impl MatrixMarketScalar for Complex<$T> {
+        impl MatrixMarketScalar for Complex<$T> {}
+
+        impl internal::SupportedMatrixMarketScalar for Complex<$T> {
             #[inline]
             fn from_i128(_i: i128) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
@@ -634,7 +650,9 @@ macro_rules! mm_complex_impl {
 /// Implement MatrixMarketScalar for primitive unit types.
 macro_rules! mm_pattern_impl {
     ($T:ty) => {
-        impl MatrixMarketScalar for $T {
+        impl MatrixMarketScalar for $T {}
+
+        impl internal::SupportedMatrixMarketScalar for $T {
             #[inline]
             fn from_i128(_i: i128) -> Result<Self, MatrixMarketError> {
                 Err(MatrixMarketError::from_kind_and_message(
