@@ -436,7 +436,11 @@ impl FromStr for StorageScheme {
 
 /// Precheck if it's a valid header.
 ///
-/// For more details, please check Boisvert, Ronald F., Roldan Pozo, and Karin A. Remington. The matrix market formats: Initial design. Technical report, Applied and Computational Mathematics Division, NIST, 1996.  Section 3.
+/// For more details, please check
+///
+/// Boisvert, Ronald F., Roldan Pozo, and Karin A. Remington.
+/// The matrix market formats: Initial design.
+/// Technical report, Applied and Computational Mathematics Division, NIST, 1996.  Section 3.
 fn typecode_precheck(tc: &Typecode) -> Result<(), MatrixMarketError> {
     match tc {
         Typecode {
