@@ -53,7 +53,7 @@ pub fn degrees<T: RealNumber, const D: usize>(radians: &TVec<T, D>) -> TVec<T, D
     radians.map(|e| e * na::convert(180.0) / T::pi())
 }
 
-/// Component-wise conversion fro degrees to radians.
+/// Component-wise conversion from degrees to radians.
 pub fn radians<T: RealNumber, const D: usize>(degrees: &TVec<T, D>) -> TVec<T, D> {
     degrees.map(|e| e * T::pi() / na::convert(180.0))
 }
