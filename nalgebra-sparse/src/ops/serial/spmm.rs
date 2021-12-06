@@ -152,7 +152,6 @@ where
     let (counts, indices_and_data) = csr
         .iter()
         .map(move |lane| {
-            // See the below comment about index comparisons for why we clone / convert to usize here.
             let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
 
             let (row_indices, row_data) = csc
@@ -509,7 +508,7 @@ where
                         None
                     } else {
                         let total = lane.fold(<T2 as Mul<T1>>::Output::zero(), |total, (j, v)| {
-                            total + (v.clone() * dense_row[j.clone()].clone())
+                            total + (v.clone() * dense_row[j].clone())
                         });
 
                         Some((k, total))
@@ -595,7 +594,7 @@ where
                         None
                     } else {
                         let total = lane.fold(<T1 as Mul<T2>>::Output::zero(), |total, (j, v)| {
-                            total + (v.clone() * dense_col[j.clone()].clone())
+                            total + (v.clone() * dense_col[j].clone())
                         });
 
                         Some((k, total))
