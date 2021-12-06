@@ -1,51 +1,22 @@
-use crate::csc::CscMatrix;
-use crate::ops::serial::spsolve_csc_lower_triangular;
-use crate::ops::Op;
-use crate::pattern::SparsityPattern;
-use core::{iter, mem};
+use crate::{
+    convert::utils::CountToOffsetIter,
+    cs::{Compression, CsMatrix, CscMatrix},
+};
 use nalgebra::{DMatrix, DMatrixSlice, DMatrixSliceMut, RealField};
-use std::fmt::{Display, Formatter};
+use std::{borrow::Borrow, iter};
+use thiserror::Error;
 
-/// A symbolic sparse Cholesky factorization of a CSC matrix.
-///
-/// The symbolic factorization computes the sparsity pattern of `L`, the Cholesky factor.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CscSymbolicCholesky {
-    // Pattern of the original matrix that was decomposed
-    m_pattern: SparsityPattern,
-    l_pattern: SparsityPattern,
-    // u in this context is L^T, so that M = L L^T
-    u_pattern: SparsityPattern,
-}
+/// Intermediate struct to hold the offsets and indices of a Cholesky factor.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CholeskyPattern {
+    /// The shape of the matrix
+    pub shape: (usize, usize),
 
-impl CscSymbolicCholesky {
-    /// Compute the symbolic factorization for a sparsity pattern belonging to a CSC matrix.
-    ///
-    /// The sparsity pattern must be symmetric. However, this is not enforced, and it is the
-    /// responsibility of the user to ensure that this property holds.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the sparsity pattern is not square.
-    pub fn factor(pattern: SparsityPattern) -> Self {
-        assert_eq!(
-            pattern.major_dim(),
-            pattern.minor_dim(),
-            "Major and minor dimensions must be the same (square matrix)."
-        );
-        let (l_pattern, u_pattern) = nonzero_pattern(&pattern);
-        Self {
-            m_pattern: pattern,
-            l_pattern,
-            u_pattern,
-        }
-    }
+    /// The offsets of the sparsity pattern of the Cholesky factor.
+    pub offsets: Vec<usize>,
 
-    /// The pattern of the Cholesky factor `L`.
-    #[must_use]
-    pub fn l_pattern(&self) -> &SparsityPattern {
-        &self.l_pattern
-    }
+    /// The indices of the sparsity pattern of the Cholesky factor.
+    pub indices: Vec<usize>,
 }
 
 /// A sparse Cholesky factorization `A = L L^T` of a [`CscMatrix`].
@@ -63,78 +34,32 @@ impl CscSymbolicCholesky {
 // TODO: We should probably implement PartialEq/Eq, but in that case we'd probably need a
 // custom implementation, due to the need to exclude the workspace arrays
 #[derive(Debug, Clone)]
-pub struct CscCholesky<T> {
-    // Pattern of the original matrix
-    m_pattern: SparsityPattern,
-    l_factor: CscMatrix<T>,
-    u_pattern: SparsityPattern,
-    work_x: Vec<T>,
-    work_c: Vec<usize>,
+pub struct CsCholesky<T> {
+    l_matrix: CscMatrix<T>,
 }
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(Copy, Clone, Debug, Eq, Error, PartialEq)]
 #[non_exhaustive]
 /// Possible errors produced by the Cholesky factorization.
 pub enum CholeskyError {
     /// The matrix is not positive definite.
+    #[error("The matrix is not positive definite.")]
     NotPositiveDefinite,
+
+    /// The matrix doesn't have nrows == ncols
+    #[error("The matrix is not square.")]
+    NotSquare,
+
+    /// The matrix and cholesky pattern have different shapes.
+    #[error("The matrix and cholesky pattern have different shapes.")]
+    ShapeMismatch,
+
+    /// The number of nonzeros in the matrix and Cholesky pattern are not equal.
+    #[error("The number of nonzeros in the matrix and Cholesky pattern are not equal.")]
+    NonzerosMismatch,
 }
 
-impl Display for CholeskyError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Matrix is not positive definite")
-    }
-}
-
-impl std::error::Error for CholeskyError {}
-
-impl<T: RealField> CscCholesky<T> {
-    /// Computes the numerical Cholesky factorization associated with the given
-    /// symbolic factorization and the provided values.
-    ///
-    /// The values correspond to the non-zero values of the CSC matrix for which the
-    /// symbolic factorization was computed.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the numerical factorization fails. This can occur if the matrix is not
-    /// symmetric positive definite.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the number of values differ from the number of non-zeros of the sparsity pattern
-    /// of the matrix that was symbolically factored.
-    pub fn factor_numerical(
-        symbolic: CscSymbolicCholesky,
-        values: &[T],
-    ) -> Result<Self, CholeskyError> {
-        assert_eq!(
-            symbolic.l_pattern.nnz(),
-            symbolic.u_pattern.nnz(),
-            "u is just the transpose of l, so should have the same nnz"
-        );
-
-        let l_nnz = symbolic.l_pattern.nnz();
-        let l_values = vec![T::zero(); l_nnz];
-        let l_factor =
-            CscMatrix::try_from_pattern_and_values(symbolic.l_pattern, l_values).unwrap();
-
-        let (nrows, ncols) = (l_factor.nrows(), l_factor.ncols());
-
-        let mut factorization = CscCholesky {
-            m_pattern: symbolic.m_pattern,
-            l_factor,
-            u_pattern: symbolic.u_pattern,
-            work_x: vec![T::zero(); nrows],
-            // Fill with MAX so that things hopefully totally fail if values are not
-            // overwritten. Might be easier to debug this way
-            work_c: vec![usize::MAX, ncols],
-        };
-
-        factorization.refactor(values)?;
-        Ok(factorization)
-    }
-
+impl<T: RealField> CsCholesky<T> {
     /// Computes the Cholesky factorization of the provided matrix.
     ///
     /// The matrix must be symmetric positive definite. Symmetry is not checked, and it is up
@@ -148,114 +73,175 @@ impl<T: RealField> CscCholesky<T> {
     /// # Panics
     ///
     /// Panics if the matrix is not square.
-    pub fn factor(matrix: &CscMatrix<T>) -> Result<Self, CholeskyError> {
-        let symbolic = CscSymbolicCholesky::factor(matrix.pattern().clone());
-        Self::factor_numerical(symbolic, matrix.values())
+    pub fn factor<MO, MI, D, C>(matrix: &CsMatrix<T, MO, MI, D, C>) -> Result<Self, CholeskyError>
+    where
+        MO: Borrow<[usize]>,
+        MI: Borrow<[usize]>,
+        D: Borrow<[T]>,
+        C: Compression,
+    {
+        let (nrows, ncols) = matrix.shape();
+
+        if nrows == ncols {
+            let cholesky_pattern = nonzero_pattern(matrix);
+            Self::decompose_left_looking(cholesky_pattern, matrix)
+        } else {
+            Err(CholeskyError::NotSquare)
+        }
     }
 
-    /// Re-computes the factorization for a new set of non-zero values.
-    ///
-    /// This is useful when the values of a matrix changes, but the sparsity pattern remains
-    /// constant.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the numerical factorization fails. This can occur if the matrix is not
-    /// symmetric positive definite.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the number of values does not match the number of non-zeros in the sparsity
-    /// pattern.
-    pub fn refactor(&mut self, values: &[T]) -> Result<(), CholeskyError> {
-        self.decompose_left_looking(values)
+    pub fn factor_with_pattern<MO, MI, D, C>(
+        pattern: CholeskyPattern,
+        matrix: &CsMatrix<T, MO, MI, D, C>,
+    ) -> Result<Self, CholeskyError>
+    where
+        MO: Borrow<[usize]>,
+        MI: Borrow<[usize]>,
+        D: Borrow<[T]>,
+        C: Compression,
+    {
+        if pattern.shape != matrix.shape() {
+            return Err(CholeskyError::ShapeMismatch);
+        }
+
+        let (nrows, ncols) = matrix.shape();
+
+        if nrows == ncols {
+            Self::decompose_left_looking(pattern, matrix)
+        } else {
+            Err(CholeskyError::NotSquare)
+        }
+    }
+
+    /// Perform a numerical left-looking cholesky decomposition of a matrix with the same structure as the
+    /// one used to initialize `self`, but with different non-zero values provided by `values`.
+    fn decompose_left_looking<MO, MI, D, C>(
+        pattern: CholeskyPattern,
+        matrix: &CsMatrix<T, MO, MI, D, C>,
+    ) -> Result<Self, CholeskyError>
+    where
+        MO: Borrow<[usize]>,
+        MI: Borrow<[usize]>,
+        D: Borrow<[T]>,
+        C: Compression,
+    {
+        let work_c = Vec::new();
+        work_c.copy_from_slice(pattern.offsets.borrow());
+
+        // Fill with MAX so that things hopefully totally fail if values are not overwritten. Might
+        // be easier to debug this way
+        let work_x = vec![T::zero(); matrix.nmajor()];
+
+        if matrix.nnz() != pattern.indices.len() {
+            return Err(CholeskyError::NonzerosMismatch);
+        }
+
+        let data = vec![T::zero(); matrix.nnz()];
+
+        for (i, lane) in matrix.iter().enumerate() {
+            for (j, val) in lane {
+                if j >= i {
+                    work_x[j] = val.clone();
+                }
+            }
+
+            let offset = pattern.offsets[i];
+
+            {
+                let (pattern_lane_indices, pattern_lane_data) = if (i + 1) < pattern.offsets.len() {
+                    let offset_upper = pattern.offsets[i + 1];
+                    let indices = &pattern.indices[offset..offset_upper];
+                    let data = &data[offset..offset_upper];
+
+                    (indices, data)
+                } else {
+                    let indices = &pattern.indices[offset..];
+                    let data = &data[offset..];
+
+                    (indices, data)
+                };
+
+                for &j in pattern_lane_indices {
+                    work_c[j] += 1;
+
+                    if j < i {
+                        let factor = -data[work_c[j]].clone();
+
+                        for (&j_t, val) in pattern_lane_indices.iter().zip(pattern_lane_data) {
+                            if j_t >= i {
+                                work_x[j_t] += val.clone() * factor.clone();
+                            }
+                        }
+                    }
+                }
+            }
+
+            let diag = work_x[i].clone();
+
+            if diag > T::zero() {
+                let denom = diag.sqrt();
+
+                data[offset] = denom.clone();
+
+                let (pattern_lane_indices, pattern_lane_data) = if (i + 1) < pattern.offsets.len() {
+                    let offset_upper = pattern.offsets[i + 1];
+                    let indices = &pattern.indices[offset..offset_upper];
+                    let data = &mut data[offset..offset_upper];
+
+                    (indices, data)
+                } else {
+                    let indices = &pattern.indices[offset..];
+                    let data = &mut data[offset..];
+
+                    (indices, data)
+                };
+
+                for (&p, val) in pattern_lane_indices.iter().zip(pattern_lane_data) {
+                    *val = work_x[p].clone() / denom.clone();
+                    work_x[p] = T::zero();
+                }
+            } else {
+                return Err(CholeskyError::NotPositiveDefinite);
+            }
+        }
+
+        let CholeskyPattern {
+            shape: (nrows, ncols),
+            offsets,
+            indices,
+        } = pattern;
+
+        Ok(Self {
+            l_matrix: unsafe {
+                CscMatrix::from_parts_unchecked(nrows, ncols, offsets, indices, data)
+            },
+        })
     }
 
     /// Returns a reference to the Cholesky factor `L`.
     #[must_use]
     pub fn l(&self) -> &CscMatrix<T> {
-        &self.l_factor
+        &self.l_matrix
     }
 
     /// Returns the Cholesky factor `L`.
     pub fn take_l(self) -> CscMatrix<T> {
-        self.l_factor
+        self.l_matrix
     }
 
-    /// Perform a numerical left-looking cholesky decomposition of a matrix with the same structure as the
-    /// one used to initialize `self`, but with different non-zero values provided by `values`.
-    fn decompose_left_looking(&mut self, values: &[T]) -> Result<(), CholeskyError> {
-        assert!(
-            values.len() >= self.m_pattern.nnz(),
-            // TODO: Improve error message
-            "The set of values is too small."
-        );
+    /// Returns the cholesky pattern of the current `L` matrix.
+    ///
+    /// Useful if you want to re-use the sparsity pattern, e.g. if the values in a matrix are
+    /// changed but the layout of the non-zeros did not.
+    pub fn into_pattern(self) -> CholeskyPattern {
+        let shape = self.l_matrix.shape();
+        let (offsets, indices, _) = self.l_matrix.disassemble();
 
-        let n = self.l_factor.nrows();
-
-        // Reset `work_c` to the column pointers of `l`.
-        self.work_c.clear();
-        self.work_c.extend_from_slice(self.l_factor.col_offsets());
-
-        unsafe {
-            for k in 0..n {
-                // Scatter the k-th column of the original matrix with the values provided.
-                let range_begin = *self.m_pattern.major_offsets().get_unchecked(k);
-                let range_end = *self.m_pattern.major_offsets().get_unchecked(k + 1);
-                let range_k = range_begin..range_end;
-
-                *self.work_x.get_unchecked_mut(k) = T::zero();
-                for p in range_k.clone() {
-                    let irow = *self.m_pattern.minor_indices().get_unchecked(p);
-
-                    if irow >= k {
-                        *self.work_x.get_unchecked_mut(irow) = values.get_unchecked(p).clone();
-                    }
-                }
-
-                for &j in self.u_pattern.lane(k) {
-                    let factor = -self
-                        .l_factor
-                        .values()
-                        .get_unchecked(*self.work_c.get_unchecked(j))
-                        .clone();
-                    *self.work_c.get_unchecked_mut(j) += 1;
-
-                    if j < k {
-                        let col_j = self.l_factor.col(j);
-                        let col_j_entries = col_j.row_indices().iter().zip(col_j.values());
-                        for (&z, val) in col_j_entries {
-                            if z >= k {
-                                *self.work_x.get_unchecked_mut(z) += val.clone() * factor.clone();
-                            }
-                        }
-                    }
-                }
-
-                let diag = self.work_x.get_unchecked(k).clone();
-
-                if diag > T::zero() {
-                    let denom = diag.sqrt();
-
-                    {
-                        let (offsets, _, values) = self.l_factor.csc_data_mut();
-                        *values.get_unchecked_mut(*offsets.get_unchecked(k)) = denom.clone();
-                    }
-
-                    let mut col_k = self.l_factor.col_mut(k);
-                    let (col_k_rows, col_k_values) = col_k.rows_and_values_mut();
-                    let col_k_entries = col_k_rows.iter().zip(col_k_values);
-                    for (&p, val) in col_k_entries {
-                        *val = self.work_x.get_unchecked(p).clone() / denom.clone();
-                        *self.work_x.get_unchecked_mut(p) = T::zero();
-                    }
-                } else {
-                    return Err(CholeskyError::NotPositiveDefinite);
-                }
-            }
+        CholeskyPattern {
+            shape,
+            offsets,
+            indices,
         }
-
-        Ok(())
     }
 
     /// Solves the system `A X = B`, where `X` and `B` are dense matrices.
@@ -291,84 +277,91 @@ impl<T: RealField> CscCholesky<T> {
     }
 }
 
-fn reach(
-    pattern: &SparsityPattern,
-    j: usize,
-    max_j: usize,
-    tree: &[usize],
-    marks: &mut Vec<bool>,
-    out: &mut Vec<usize>,
-) {
-    marks.clear();
-    marks.resize(tree.len(), false);
+/// Computes the pattern of non-zeros for the Cholesky decomposition of the input matrix.
+fn nonzero_pattern<T, MO, MI, D, C>(matrix: &CsMatrix<T, MO, MI, D, C>) -> CholeskyPattern
+where
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
+    D: Borrow<[T]>,
+    C: Compression,
+{
+    let etree = elimination_tree(matrix);
 
-    // TODO: avoid all those allocations.
-    let mut tmp = Vec::new();
-    let mut res = Vec::new();
+    let nmajor = matrix.nmajor();
 
-    for &irow in pattern.lane(j) {
-        let mut curr = irow;
-        while curr != usize::max_value() && curr <= max_j && !marks[curr] {
-            marks[curr] = true;
-            tmp.push(curr);
-            curr = tree[curr];
-        }
+    let mut new_indices = Vec::with_capacity(matrix.nnz());
+    let mut marks = vec![false; etree.len()];
 
-        tmp.append(&mut res);
-        mem::swap(&mut tmp, &mut res);
+    let new_offsets = CountToOffsetIter::new(matrix.iter().enumerate().map(|(i, lane)| {
+        marks.fill(false);
+
+        let indices = lane
+            .flat_map(|(j, _)| {
+                let mut res = Vec::with_capacity(nmajor - i);
+                let mut current = Some(j);
+
+                while let Some(curr) = current {
+                    if curr > i || marks[curr] {
+                        break;
+                    }
+
+                    marks[curr] = true;
+                    res.push(curr);
+
+                    current = etree[curr];
+                }
+
+                res
+            })
+            .collect::<Vec<_>>();
+
+        let count = indices.len();
+
+        indices.sort_unstable();
+        new_indices.append(&mut indices);
+
+        count
+    }))
+    .collect();
+
+    CholeskyPattern {
+        shape: matrix.shape(),
+        offsets: new_offsets,
+        indices: new_indices,
     }
-
-    res.sort_unstable();
-
-    out.append(&mut res);
 }
 
-fn nonzero_pattern(m: &SparsityPattern) -> (SparsityPattern, SparsityPattern) {
-    let etree = elimination_tree(m);
-    // Note: We assume CSC, therefore rows == minor and cols == major
-    let (nrows, ncols) = (m.minor_dim(), m.major_dim());
-    let mut rows = Vec::with_capacity(m.nnz());
-    let mut col_offsets = Vec::with_capacity(ncols + 1);
-    let mut marks = Vec::new();
+/// Computes the elimination tree of the input matrix.
+fn elimination_tree<T, MO, MI, D, C>(matrix: &CsMatrix<T, MO, MI, D, C>) -> Vec<Option<usize>>
+where
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
+    D: Borrow<[T]>,
+    C: Compression,
+{
+    let nminor = matrix.nminor();
 
-    // NOTE: the following will actually compute the non-zero pattern of
-    // the transpose of l.
-    col_offsets.push(0);
-    for i in 0..nrows {
-        reach(m, i, i, &etree, &mut marks, &mut rows);
-        col_offsets.push(rows.len());
-    }
+    let mut forest = iter::repeat(None).take(nminor).collect::<Vec<_>>();
+    let mut ancestor = iter::repeat(None).take(nminor).collect::<Vec<_>>();
 
-    let u_pattern =
-        SparsityPattern::try_from_offsets_and_indices(nrows, ncols, col_offsets, rows).unwrap();
+    for (k, lane) in matrix.iter().enumerate() {
+        for (i_minor, _) in lane {
+            let mut index = Some(i_minor);
 
-    // TODO: Avoid this transpose?
-    let l_pattern = u_pattern.transpose();
-
-    (l_pattern, u_pattern)
-}
-
-fn elimination_tree(pattern: &SparsityPattern) -> Vec<usize> {
-    // Note: The pattern is assumed to of a CSC matrix, so the number of rows is
-    // given by the minor dimension
-    let nrows = pattern.minor_dim();
-    let mut forest: Vec<_> = iter::repeat(usize::max_value()).take(nrows).collect();
-    let mut ancestor: Vec<_> = iter::repeat(usize::max_value()).take(nrows).collect();
-
-    for k in 0..nrows {
-        for &irow in pattern.lane(k) {
-            let mut i = irow;
-
-            while i < k {
-                let i_ancestor = ancestor[i];
-                ancestor[i] = k;
-
-                if i_ancestor == usize::max_value() {
-                    forest[i] = k;
+            while let Some(i) = index {
+                if i >= k {
                     break;
                 }
 
-                i = i_ancestor;
+                let i_ancestor = ancestor[i];
+                ancestor[i] = Some(k);
+
+                if i_ancestor.is_none() {
+                    forest[i] = Some(k);
+                    break;
+                }
+
+                index = i_ancestor;
             }
         }
     }

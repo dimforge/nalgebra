@@ -146,7 +146,7 @@ pub mod convert;
 pub mod coo;
 pub mod cs;
 pub mod error;
-// pub mod factorization;
+pub mod factorization;
 pub mod ops;
 
 #[cfg(feature = "proptest-support")]
