@@ -1,8 +1,12 @@
 use crate::{
     convert::utils::CountToOffsetIter,
     cs::{Compression, CsMatrix, CscMatrix},
+    ops::serial::spsolve::*,
 };
-use nalgebra::{DMatrix, DMatrixSlice, DMatrixSliceMut, RealField};
+use nalgebra::{
+    allocator::Allocator, DefaultAllocator, Dim, Matrix, MatrixSlice, RealField, Storage,
+    StorageMut,
+};
 use std::{borrow::Borrow, iter};
 use thiserror::Error;
 
@@ -90,6 +94,20 @@ impl<T: RealField> CsCholesky<T> {
         }
     }
 
+    /// Takes in an existing Cholesky pattern and a matrix, and recomputes the factors.
+    ///
+    /// This is a useful constructor for the CsCholesky type if you're re-using a pattern from a
+    /// previous matrix where the values have been updated but the sparsity pattern hasn't changed
+    /// at all.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the numerical factorization fails. This can occur if:
+    ///
+    /// - The pattern and matrix shapes are not equivalent.
+    /// - The pattern and / or matrix are not square.
+    /// - The pattern and matrix have an inequal number of nonzeros.
+    /// - The matrix is not positive-definite.
     pub fn factor_with_pattern<MO, MI, D, C>(
         pattern: CholeskyPattern,
         matrix: &CsMatrix<T, MO, MI, D, C>,
@@ -125,18 +143,18 @@ impl<T: RealField> CsCholesky<T> {
         D: Borrow<[T]>,
         C: Compression,
     {
-        let work_c = Vec::new();
+        let mut work_c = Vec::new();
         work_c.copy_from_slice(pattern.offsets.borrow());
 
         // Fill with MAX so that things hopefully totally fail if values are not overwritten. Might
         // be easier to debug this way
-        let work_x = vec![T::zero(); matrix.nmajor()];
+        let mut work_x = vec![T::zero(); matrix.nmajor()];
 
         if matrix.nnz() != pattern.indices.len() {
             return Err(CholeskyError::NonzerosMismatch);
         }
 
-        let data = vec![T::zero(); matrix.nnz()];
+        let mut data = vec![T::zero(); matrix.nnz()];
 
         for (i, lane) in matrix.iter().enumerate() {
             for (j, val) in lane {
@@ -248,32 +266,45 @@ impl<T: RealField> CsCholesky<T> {
     ///
     /// # Panics
     ///
-    /// Panics if `B` is not square.
+    /// Panics if `B` is the wrong size i.e. for an N×N matrix `A`, `B` must be some N×M matrix.
     #[must_use = "Did you mean to use solve_mut()?"]
-    pub fn solve<'a>(&'a self, b: impl Into<DMatrixSlice<'a, T>>) -> DMatrix<T> {
+    pub fn solve<'a, Mat, R, C>(
+        &'a self,
+        b: Mat,
+    ) -> Matrix<T, R, C, <DefaultAllocator as Allocator<T, R, C>>::Buffer>
+    where
+        Mat: Into<MatrixSlice<'a, T, R, C>>,
+        R: Dim,
+        C: Dim,
+        DefaultAllocator: Allocator<T, R, C>,
+    {
         let b = b.into();
-        let mut output = b.clone_owned();
-        self.solve_mut(&mut output);
-        output
+        let b_clone = b.clone_owned();
+        self.solve_mut(b_clone)
     }
 
     /// Solves the system `AX = B`, where `X` and `B` are dense matrices.
     ///
-    /// The result is stored in-place in `b`.
+    /// The result is stored in-place in `b`. We take ownership of `b`, mutate it directly, and
+    /// then return the same matrix.
     ///
     /// # Panics
     ///
-    /// Panics if `b` is not square.
-    pub fn solve_mut<'a>(&'a self, b: impl Into<DMatrixSliceMut<'a, T>>) {
-        let expect_msg = "If the Cholesky factorization succeeded,\
-            then the triangular solve should never fail";
+    /// Panics if `B` is the wrong size i.e. for an N×N matrix `A`, `B` must be some N×M matrix.
+    pub fn solve_mut<R, C, S>(&self, b: Matrix<T, R, C, S>) -> Matrix<T, R, C, S>
+    where
+        R: Dim,
+        C: Dim,
+        S: Storage<T, R, C> + StorageMut<T, R, C>,
+    {
+        // If the factorization succeeded, then the solve should only fail if the input matrix is
+        // of the wrong size. Therefore, we merely unwrap here.
+
         // Solve LY = B
-        let mut y = b.into();
-        spsolve_csc_lower_triangular(Op::NoOp(self.l()), &mut y).expect(expect_msg);
+        let y = spsolve_lower_triangular_csc_dense(self.l_matrix.to_view(), b).unwrap();
 
         // Solve L^T X = Y
-        let mut x = y;
-        spsolve_csc_lower_triangular(Op::Transpose(self.l()), &mut x).expect(expect_msg);
+        spsolve_upper_triangular_csr_dense(self.l_matrix.transpose(), y).unwrap()
     }
 }
 
@@ -295,7 +326,7 @@ where
     let new_offsets = CountToOffsetIter::new(matrix.iter().enumerate().map(|(i, lane)| {
         marks.fill(false);
 
-        let indices = lane
+        let mut indices = lane
             .flat_map(|(j, _)| {
                 let mut res = Vec::with_capacity(nmajor - i);
                 let mut current = Some(j);

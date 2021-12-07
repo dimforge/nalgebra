@@ -11,4 +11,5 @@
 pub mod scalar;
 pub mod spadd;
 pub mod spmm;
+pub(crate) mod spsolve;
 pub mod spsub;

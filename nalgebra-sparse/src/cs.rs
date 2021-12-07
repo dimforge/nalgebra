@@ -558,6 +558,7 @@ where
 
         CsMatrixIter {
             current_major_index: 0,
+            number_of_lanes: offsets.len(),
             offsets,
             indices,
             data,
@@ -722,6 +723,7 @@ impl<'a, T> ExactSizeIterator for AllElementsIter<'a, T> {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CsMatrixIter<'a, T> {
     current_major_index: usize,
+    number_of_lanes: usize,
     offsets: &'a [usize],
     indices: &'a [usize],
     data: &'a [T],
@@ -731,7 +733,7 @@ impl<'a, T> Iterator for CsMatrixIter<'a, T> {
     type Item = CsLaneIter<'a, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current_major_index >= self.offsets.len() {
+        if self.current_major_index >= self.number_of_lanes {
             return None;
         }
 
@@ -763,13 +765,43 @@ impl<'a, T> Iterator for CsMatrixIter<'a, T> {
 
 impl<'a, T> ExactSizeIterator for CsMatrixIter<'a, T> {
     fn len(&self) -> usize {
-        let nlanes = self.offsets.len();
-
-        if nlanes > self.current_major_index {
-            nlanes - self.current_major_index
+        if self.number_of_lanes > self.current_major_index {
+            self.number_of_lanes - self.current_major_index
         } else {
             0
         }
+    }
+}
+
+impl<'a, T> DoubleEndedIterator for CsMatrixIter<'a, T> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        if self.current_major_index >= self.number_of_lanes {
+            return None;
+        }
+
+        self.number_of_lanes -= 1;
+
+        let offset = self.offsets[self.number_of_lanes];
+
+        let (indices, data) = if self.number_of_lanes + 1 < self.offsets.len() {
+            let offset_upper = self.offsets[self.number_of_lanes + 1];
+
+            let indices = &self.indices[offset..offset_upper];
+            let data = &self.data[offset..offset_upper];
+
+            (indices, data)
+        } else {
+            let indices = &self.indices[offset..];
+            let data = &self.data[offset..];
+
+            (indices, data)
+        };
+
+        Some(CsLaneIter {
+            current_local_index: 0,
+            indices,
+            data,
+        })
     }
 }
 
