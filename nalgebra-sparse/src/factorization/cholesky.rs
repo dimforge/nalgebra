@@ -4,8 +4,7 @@ use crate::{
     ops::serial::spsolve::*,
 };
 use nalgebra::{
-    allocator::Allocator, DefaultAllocator, Dim, Matrix, MatrixSlice, RealField, Storage,
-    StorageMut,
+    allocator::Allocator, DefaultAllocator, Dim, Matrix, RealField, Storage, StorageMut,
 };
 use std::{borrow::Borrow, iter};
 use thiserror::Error;
@@ -267,18 +266,17 @@ impl<T: RealField> CsCholesky<T> {
     /// # Panics
     ///
     /// Panics if `B` is the wrong size i.e. for an N×N matrix `A`, `B` must be some N×M matrix.
-    #[must_use = "Did you mean to use solve_mut()?"]
-    pub fn solve<'a, Mat, R, C>(
-        &'a self,
-        b: Mat,
+    #[must_use]
+    pub fn solve<R, C, S>(
+        &self,
+        b: &Matrix<T, R, C, S>,
     ) -> Matrix<T, R, C, <DefaultAllocator as Allocator<T, R, C>>::Buffer>
     where
-        Mat: Into<MatrixSlice<'a, T, R, C>>,
         R: Dim,
         C: Dim,
+        S: Storage<T, R, C>,
         DefaultAllocator: Allocator<T, R, C>,
     {
-        let b = b.into();
         let b_clone = b.clone_owned();
         self.solve_mut(b_clone)
     }
@@ -291,6 +289,7 @@ impl<T: RealField> CsCholesky<T> {
     /// # Panics
     ///
     /// Panics if `B` is the wrong size i.e. for an N×N matrix `A`, `B` must be some N×M matrix.
+    #[must_use]
     pub fn solve_mut<R, C, S>(&self, b: Matrix<T, R, C, S>) -> Matrix<T, R, C, S>
     where
         R: Dim,
