@@ -356,27 +356,29 @@ where
                 &borrowed_indices[lower..]
             };
 
-            if let Some(err) = lane_indices
-                .iter()
-                .zip(&lane_indices[1..])
-                .filter_map(|(lower_index, upper_index)| {
-                    match lower_index.cmp(upper_index) {
-                        Ordering::Less => None,
-                        Ordering::Equal => {
-                            // Duplicates detected
-                            Some(Err(SparsityPatternFormatError::DuplicateEntry.into()))
+            if !lane_indices.is_empty() {
+                if let Some(err) = lane_indices
+                    .iter()
+                    .zip(&lane_indices[1..])
+                    .filter_map(|(lower_index, upper_index)| {
+                        match lower_index.cmp(upper_index) {
+                            Ordering::Less => None,
+                            Ordering::Equal => {
+                                // Duplicates detected
+                                Some(Err(SparsityPatternFormatError::DuplicateEntry.into()))
+                            }
+                            Ordering::Greater => {
+                                // Indices in lane do not monotonically increase
+                                Some(Err(
+                                    SparsityPatternFormatError::NonmonotonicMinorIndices.into()
+                                ))
+                            }
                         }
-                        Ordering::Greater => {
-                            // Indices in lane do not monotonically increase
-                            Some(Err(
-                                SparsityPatternFormatError::NonmonotonicMinorIndices.into()
-                            ))
-                        }
-                    }
-                })
-                .next()
-            {
-                return err;
+                    })
+                    .next()
+                {
+                    return err;
+                }
             }
         }
 
@@ -413,7 +415,7 @@ where
     /// # Example
     ///
     /// ```rust
-    /// # use nalgebra_sparse::{CompressedColumnStorage, CsMatrix};
+    /// # use nalgebra_sparse::cs::{CompressedColumnStorage, CsMatrix};
     /// #
     /// # fn add_mat(rows: usize, cols: usize, offsets: &[usize], indices: &[usize], data:
     /// # Vec<f64>)
@@ -448,7 +450,8 @@ where
     /// Produces an immutable view of the transpose of the data by borrowing the underlying lanes
     /// and sparsity pattern data.
     pub fn transpose(&self) -> CsMatrix<T, &[usize], &[usize], &[T], CompressionKind::Transpose> {
-        let shape = self.shape();
+        let (nrows, ncols) = self.shape();
+        let shape = (ncols, nrows);
 
         CsMatrix {
             shape,
@@ -464,7 +467,11 @@ where
     ///
     /// This function will return `None` if and only if the requested entry is out-of-bounds of the
     /// underlying matrix.
-    pub fn get_entry(&self, major_index: usize, minor_index: usize) -> Option<SparseEntry<'_, T>> {
+    fn get_entry_major_minor(
+        &self,
+        major_index: usize,
+        minor_index: usize,
+    ) -> Option<SparseEntry<'_, T>> {
         let nmajor = self.nmajor();
         let nminor = self.nminor();
 
@@ -585,6 +592,40 @@ where
     }
 }
 
+impl<T, MajorOffsets, MinorIndices, Data>
+    CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressedRowStorage>
+where
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
+    Data: Borrow<[T]>,
+{
+    /// Gets a value in the sparse matrix from a `(row, column)` index pair.
+    ///
+    /// This function will return `None` if and only if the requested entry is out-of-bounds of the
+    /// underlying matrix.
+    #[inline]
+    pub fn get_entry(&self, row: usize, column: usize) -> Option<SparseEntry<'_, T>> {
+        self.get_entry_major_minor(row, column)
+    }
+}
+
+impl<T, MajorOffsets, MinorIndices, Data>
+    CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressedColumnStorage>
+where
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
+    Data: Borrow<[T]>,
+{
+    /// Gets a value in the sparse matrix from a `(row, column)` index pair.
+    ///
+    /// This function will return `None` if and only if the requested entry is out-of-bounds of the
+    /// underlying matrix.
+    #[inline]
+    pub fn get_entry(&self, row: usize, column: usize) -> Option<SparseEntry<'_, T>> {
+        self.get_entry_major_minor(column, row)
+    }
+}
+
 impl<T, C> CsMatrix<T, Vec<usize>, Vec<usize>, Vec<T>, C>
 where
     C: Compression,
@@ -595,7 +636,7 @@ where
 
         Self {
             shape: (nrows, ncols),
-            offsets: vec![0; nmajor + 1],
+            offsets: vec![0; nmajor],
             indices: Vec::new(),
             data: Vec::new(),
             _phantom: PhantomData,
@@ -626,7 +667,7 @@ where
     /// Produces an owned identity matrix of shape `(n, n)` in CSC format.
     #[inline]
     pub fn identity(n: usize) -> Self {
-        let offsets = (0..=n).collect();
+        let offsets = (0..n).collect();
         let indices = (0..n).collect();
         let data = vec![T::one(); n];
 
@@ -662,7 +703,9 @@ impl<'a, T> Iterator for AllElementsIter<'a, T> {
     type Item = (usize, usize, SparseEntry<'a, T>);
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current_major_index >= self.offsets.len() {
+        if self.current_major_index >= self.offsets.len()
+            || self.current_minor_index >= self.minor_length
+        {
             return None;
         }
 
@@ -881,7 +924,7 @@ impl<'a, T> Iterator for CsLaneIter<'a, T> {
     type Item = (usize, &'a T);
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current_local_index > self.indices.len() {
+        if self.current_local_index >= self.indices.len() {
             return None;
         }
 
@@ -957,5 +1000,544 @@ impl<'a, T> Iterator for CsMinorLaneIter<'a, T> {
         }
 
         result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{error::*, proptest::*};
+    use nalgebra::{DMatrix, SMatrix};
+    use proptest::prelude::*;
+
+    #[test]
+    fn matrix_has_valid_data() {
+        const NROWS: usize = 6;
+        const NCOLS: usize = 3;
+        const NNZ: usize = 5;
+
+        const OFFSETS: [usize; NCOLS] = [0, 2, 2];
+        const INDICES: [usize; NNZ] = [0, 5, 1, 2, 3];
+        const DATA: [usize; NNZ] = [0, 1, 2, 3, 4];
+
+        let mat = CscMatrix::try_from_parts(
+            NROWS,
+            NCOLS,
+            OFFSETS.to_vec(),
+            INDICES.to_vec(),
+            DATA.to_vec(),
+        )
+        .unwrap();
+
+        assert_eq!(NROWS, mat.nrows());
+        assert_eq!(NCOLS, mat.ncols());
+        assert_eq!(5, mat.nnz());
+
+        let (mo, mi, d) = mat.cs_data();
+
+        assert_eq!(mo, &OFFSETS);
+        assert_eq!(mi, &INDICES);
+        assert_eq!(d, &DATA);
+
+        assert_eq!(mi.len(), mat.nnz());
+        assert_eq!(d.len(), mat.nnz());
+
+        const EXPECTED_TRIPLETS: [(usize, usize, usize); NNZ] =
+            [(0, 0, 0), (0, 5, 1), (2, 1, 2), (2, 2, 3), (2, 3, 4)];
+
+        assert!(mat.triplet_iter().zip(EXPECTED_TRIPLETS).all(
+            |((major, minor, &val), (expected_major, expected_minor, expected_value))| {
+                major == expected_major && minor == expected_minor && val == expected_value
+            }
+        ));
+
+        let mat_iter = mat.iter();
+
+        assert_eq!(NCOLS, mat_iter.len());
+
+        for lane in mat_iter {
+            assert!(lane.len() <= NROWS);
+        }
+
+        assert_eq!(NROWS, mat.minor_lane_iter().len());
+
+        let (mo, mi, d) = mat.disassemble();
+
+        assert_eq!(&mo, &OFFSETS);
+        assert_eq!(&mi, &INDICES);
+        assert_eq!(&d, &DATA);
+    }
+
+    #[test]
+    fn empty_matrix_does_not_panic() {
+        // An empty 0x0 matrix doesn't make a lot of sense in practical usage but there's no reason
+        // it can't exist.
+        let mat =
+            CscMatrix::try_from_parts(0, 0, Vec::new(), Vec::new(), Vec::<u32>::new()).unwrap();
+
+        assert_eq!(0, mat.nrows());
+        assert_eq!(0, mat.ncols());
+        assert_eq!(0, mat.nmajor());
+        assert_eq!(0, mat.nminor());
+        assert_eq!(0, mat.nnz());
+
+        assert_eq!((0, 0), mat.shape());
+
+        assert_eq!(0, mat.all_entries().len());
+        assert!(mat.triplet_iter().next().is_none());
+        assert_eq!(0, mat.iter().len());
+        assert_eq!(0, mat.minor_lane_iter().len());
+    }
+
+    #[test]
+    fn invalid_first_offset_fails_with_invalid_structure() {
+        // Invalid first entry in offsets array; should be zero
+        let offsets = vec![1, 2, 2];
+        let indices = vec![0, 5, 1, 2, 3];
+        let values = vec![0, 1, 2, 3, 4];
+        let error = CscMatrix::try_from_parts(6, 3, offsets, indices, values).unwrap_err();
+
+        assert_eq!(error.kind(), &SparseFormatErrorKind::InvalidStructure);
+    }
+
+    #[test]
+    fn offsets_larger_than_ncols_fails_with_invalid_structure() {
+        // Offsets has length 1 larger than the number of columns in the matrix.
+        let offsets = vec![0, 2, 2, 5];
+        let indices = vec![0, 5, 1, 2, 3];
+        let values = vec![0, 1, 2, 3, 4];
+        let error = CscMatrix::try_from_parts(6, 3, offsets, indices, values).unwrap_err();
+
+        assert_eq!(error.kind(), &SparseFormatErrorKind::InvalidStructure);
+    }
+
+    #[test]
+    fn offsets_smaller_than_ncols_fails_with_invalid_structure() {
+        // Offsets has length 1 smaller than the number of columns in the matrix.
+        let offsets = vec![0, 2];
+        let indices = vec![0, 5, 1, 2, 3];
+        let values = vec![0, 1, 2, 3, 4];
+        let error = CscMatrix::try_from_parts(6, 3, offsets, indices, values).unwrap_err();
+
+        assert_eq!(error.kind(), &SparseFormatErrorKind::InvalidStructure);
+    }
+
+    #[test]
+    fn nonmonotonic_offsets_fails_with_invalid_structure() {
+        let offsets = vec![0, 3, 2];
+        let indices = vec![0, 1, 2, 3, 4];
+        let values = vec![0, 1, 2, 3, 4];
+        let error = CscMatrix::try_from_parts(6, 3, offsets, indices, values).unwrap_err();
+
+        assert_eq!(error.kind(), &SparseFormatErrorKind::InvalidStructure);
+    }
+
+    #[test]
+    fn nonmonotonic_minor_indices_fails_with_invalid_structure() {
+        let offsets = vec![0, 2, 2];
+        let indices = vec![0, 2, 3, 1, 4];
+        let values = vec![0, 1, 2, 3, 4];
+        let error = CscMatrix::try_from_parts(6, 3, offsets, indices, values).unwrap_err();
+
+        assert_eq!(error.kind(), &SparseFormatErrorKind::InvalidStructure);
+    }
+
+    #[test]
+    fn minor_index_out_of_bounds_fails_with_index_out_of_bounds() {
+        let offsets = vec![0, 2, 2];
+        let indices = vec![0, 6, 1, 2, 3];
+        let values = vec![0, 1, 2, 3, 4];
+        let error = CscMatrix::try_from_parts(6, 3, offsets, indices, values).unwrap_err();
+
+        assert_eq!(error.kind(), &SparseFormatErrorKind::IndexOutOfBounds);
+    }
+
+    #[test]
+    fn duplicate_entry_in_minor_indices_fails_with_duplicate_entry() {
+        let offsets = vec![0, 2, 2];
+        let indices = vec![0, 5, 2, 2, 3];
+        let values = vec![0, 1, 2, 3, 4];
+        let error = CscMatrix::try_from_parts(6, 3, offsets, indices, values).unwrap_err();
+
+        assert_eq!(error.kind(), &SparseFormatErrorKind::DuplicateEntry);
+    }
+
+    #[test]
+    fn csc_matrix_get_entry() {
+        #[rustfmt::skip]
+        let dense = SMatrix::<usize, 2, 3>::from_row_slice(&[
+            1, 0, 3,
+            0, 5, 6
+        ]);
+
+        let csc = CscMatrix::from(&dense);
+
+        assert_eq!(csc.get_entry(0, 0), Some(SparseEntry::NonZero(&1)));
+        assert_eq!(csc.get_entry(0, 1), Some(SparseEntry::Zero));
+        assert_eq!(csc.get_entry(0, 2), Some(SparseEntry::NonZero(&3)));
+        assert_eq!(csc.get_entry(1, 0), Some(SparseEntry::Zero));
+        assert_eq!(csc.get_entry(1, 1), Some(SparseEntry::NonZero(&5)));
+        assert_eq!(csc.get_entry(1, 2), Some(SparseEntry::NonZero(&6)));
+
+        // Check some out of bounds with .get_entry
+        assert_eq!(csc.get_entry(0, 3), None);
+        assert_eq!(csc.get_entry(0, 4), None);
+        assert_eq!(csc.get_entry(1, 3), None);
+        assert_eq!(csc.get_entry(1, 4), None);
+        assert_eq!(csc.get_entry(2, 0), None);
+        assert_eq!(csc.get_entry(2, 1), None);
+        assert_eq!(csc.get_entry(2, 2), None);
+        assert_eq!(csc.get_entry(2, 3), None);
+        assert_eq!(csc.get_entry(2, 4), None);
+    }
+
+    #[test]
+    fn csr_matrix_get_entry() {
+        #[rustfmt::skip]
+        let dense = SMatrix::<usize, 2, 3>::from_row_slice(&[
+            1, 0, 3,
+            0, 5, 6
+        ]);
+
+        let csr = CsrMatrix::from(&dense);
+
+        assert_eq!(csr.get_entry(0, 0), Some(SparseEntry::NonZero(&1)));
+        assert_eq!(csr.get_entry(0, 1), Some(SparseEntry::Zero));
+        assert_eq!(csr.get_entry(0, 2), Some(SparseEntry::NonZero(&3)));
+        assert_eq!(csr.get_entry(1, 0), Some(SparseEntry::Zero));
+        assert_eq!(csr.get_entry(1, 1), Some(SparseEntry::NonZero(&5)));
+        assert_eq!(csr.get_entry(1, 2), Some(SparseEntry::NonZero(&6)));
+
+        // Check some out of bounds with .get_entry
+        assert_eq!(csr.get_entry(0, 3), None);
+        assert_eq!(csr.get_entry(0, 4), None);
+        assert_eq!(csr.get_entry(1, 3), None);
+        assert_eq!(csr.get_entry(1, 4), None);
+        assert_eq!(csr.get_entry(2, 0), None);
+        assert_eq!(csr.get_entry(2, 1), None);
+        assert_eq!(csr.get_entry(2, 2), None);
+        assert_eq!(csr.get_entry(2, 3), None);
+        assert_eq!(csr.get_entry(2, 4), None);
+    }
+
+    #[test]
+    fn csc_iteration_through_columns() {
+        const NROWS: usize = 4;
+        const NCOLS: usize = 3;
+
+        #[rustfmt::skip]
+        let dense = SMatrix::<usize, NROWS, NCOLS>::from_row_slice(&[
+            0, 3, 0,
+            1, 0, 4,
+            2, 0, 0,
+            0, 0, 5,
+        ]);
+
+        let csc = CscMatrix::from(&dense);
+
+        assert_eq!(NROWS, csc.nrows());
+        assert_eq!(NCOLS, csc.ncols());
+
+        let mut column_iter = csc.iter();
+
+        assert_eq!(NCOLS, column_iter.len());
+
+        let mut first_column = column_iter.next().unwrap();
+        assert_eq!(first_column.len(), 2);
+        assert_eq!((1, &1), first_column.next().unwrap());
+        assert_eq!((2, &2), first_column.next().unwrap());
+        assert!(first_column.next().is_none());
+
+        let mut second_column = column_iter.next().unwrap();
+        assert_eq!(second_column.len(), 1);
+        assert_eq!((0, &3), second_column.next().unwrap());
+        assert!(second_column.next().is_none());
+
+        let mut third_column = column_iter.next().unwrap();
+        assert_eq!(third_column.len(), 2);
+        assert_eq!((1, &4), third_column.next().unwrap());
+        assert_eq!((3, &5), third_column.next().unwrap());
+        assert!(third_column.next().is_none());
+
+        assert!(column_iter.next().is_none());
+    }
+
+    #[test]
+    fn csc_iteration_through_rows() {
+        const NROWS: usize = 4;
+        const NCOLS: usize = 3;
+
+        #[rustfmt::skip]
+        let dense = SMatrix::<usize, NROWS, NCOLS>::from_row_slice(&[
+            0, 3, 0,
+            1, 0, 4,
+            2, 0, 0,
+            0, 0, 5,
+        ]);
+
+        let csc = CscMatrix::from(&dense);
+
+        assert_eq!(NROWS, csc.nrows());
+        assert_eq!(NCOLS, csc.ncols());
+
+        let mut row_iter = csc.minor_lane_iter();
+
+        assert_eq!(NROWS, row_iter.len());
+
+        let mut first_row = row_iter.next().unwrap();
+        assert_eq!((1, &3), first_row.next().unwrap());
+        assert!(first_row.next().is_none());
+
+        let mut second_row = row_iter.next().unwrap();
+        assert_eq!((0, &1), second_row.next().unwrap());
+        assert_eq!((2, &4), second_row.next().unwrap());
+        assert!(second_row.next().is_none());
+
+        let mut third_row = row_iter.next().unwrap();
+        assert_eq!((0, &2), third_row.next().unwrap());
+        assert!(third_row.next().is_none());
+
+        let mut fourth_row = row_iter.next().unwrap();
+        assert_eq!((2, &5), fourth_row.next().unwrap());
+        assert!(fourth_row.next().is_none());
+
+        assert!(row_iter.next().is_none());
+    }
+
+    #[test]
+    fn csr_iteration_through_columns() {
+        const NROWS: usize = 4;
+        const NCOLS: usize = 3;
+
+        #[rustfmt::skip]
+        let dense = SMatrix::<usize, NROWS, NCOLS>::from_row_slice(&[
+            0, 3, 0,
+            1, 0, 4,
+            2, 0, 0,
+            0, 0, 5,
+        ]);
+
+        let csr = CsrMatrix::from(&dense);
+
+        assert_eq!(NROWS, csr.nrows());
+        assert_eq!(NCOLS, csr.ncols());
+
+        let mut column_iter = csr.minor_lane_iter();
+
+        assert_eq!(NCOLS, column_iter.len());
+
+        let mut first_column = column_iter.next().unwrap();
+        assert_eq!((1, &1), first_column.next().unwrap());
+        assert_eq!((2, &2), first_column.next().unwrap());
+        assert!(first_column.next().is_none());
+
+        let mut second_column = column_iter.next().unwrap();
+        assert_eq!((0, &3), second_column.next().unwrap());
+        assert!(second_column.next().is_none());
+
+        let mut third_column = column_iter.next().unwrap();
+        assert_eq!((1, &4), third_column.next().unwrap());
+        assert_eq!((3, &5), third_column.next().unwrap());
+        assert!(third_column.next().is_none());
+
+        assert!(column_iter.next().is_none());
+    }
+
+    #[test]
+    fn csr_iteration_through_rows() {
+        const NROWS: usize = 4;
+        const NCOLS: usize = 3;
+
+        #[rustfmt::skip]
+        let dense = SMatrix::<usize, NROWS, NCOLS>::from_row_slice(&[
+            0, 3, 0,
+            1, 0, 4,
+            2, 0, 0,
+            0, 0, 5,
+        ]);
+
+        let csr = CsrMatrix::from(&dense);
+
+        assert_eq!(NROWS, csr.nrows());
+        assert_eq!(NCOLS, csr.ncols());
+
+        let mut row_iter = csr.iter();
+
+        assert_eq!(NROWS, row_iter.len());
+
+        let mut first_row = row_iter.next().unwrap();
+        assert_eq!(1, first_row.len());
+        assert_eq!((1, &3), first_row.next().unwrap());
+        assert!(first_row.next().is_none());
+
+        let mut second_row = row_iter.next().unwrap();
+        assert_eq!(2, second_row.len());
+        assert_eq!((0, &1), second_row.next().unwrap());
+        assert_eq!((2, &4), second_row.next().unwrap());
+        assert!(second_row.next().is_none());
+
+        let mut third_row = row_iter.next().unwrap();
+        assert_eq!(1, third_row.len());
+        assert_eq!((0, &2), third_row.next().unwrap());
+        assert!(third_row.next().is_none());
+
+        let mut fourth_row = row_iter.next().unwrap();
+        assert_eq!(1, fourth_row.len());
+        assert_eq!((2, &5), fourth_row.next().unwrap());
+        assert!(fourth_row.next().is_none());
+
+        assert!(row_iter.next().is_none());
+    }
+
+    proptest! {
+        #[test]
+        fn csc_double_transpose_is_identity(csc in csc_strategy()) {
+            let csc_t = csc.transpose();
+            let csc_t_t = csc_t.transpose();
+
+            let (offsets, indices, data) = csc.cs_data();
+            let (t_offsets, t_indices, t_data) = csc_t_t.cs_data();
+
+            prop_assert_eq!(csc.shape(), csc_t_t.shape());
+
+            prop_assert!(offsets.iter().zip(t_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(t_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(t_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn csr_double_transpose_is_identity(csr in csr_strategy()) {
+            let csr_t = csr.transpose();
+            let csr_t_t = csr_t.transpose();
+
+            let (offsets, indices, data) = csr.cs_data();
+            let (t_offsets, t_indices, t_data) = csr_t_t.cs_data();
+
+            prop_assert_eq!(csr.shape(), csr_t_t.shape());
+
+            prop_assert!(offsets.iter().zip(t_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(t_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(t_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn csc_transpose_agrees_with_dense(csc in csc_strategy()) {
+            let dense_transpose = DMatrix::from(&csc).transpose();
+            let csc_transpose = csc.transpose();
+
+            prop_assert_eq!(dense_transpose, DMatrix::from(&csc_transpose));
+            prop_assert_eq!(csc.nnz(), csc_transpose.nnz());
+        }
+
+        #[test]
+        fn csr_transpose_agrees_with_dense(csr in csr_strategy()) {
+            let dense_transpose = DMatrix::from(&csr).transpose();
+            let csr_transpose = csr.transpose();
+
+            prop_assert_eq!(dense_transpose, DMatrix::from(&csr_transpose));
+            prop_assert_eq!(csr.nnz(), csr_transpose.nnz());
+        }
+
+        #[test]
+        fn zero_matrix_valid_data(nrows in 0..500usize, ncols in 0..500usize) {
+            let mat = CsrMatrix::<f32>::zeros(nrows, ncols);
+
+            prop_assert_eq!(nrows, mat.nrows());
+            prop_assert_eq!(ncols, mat.ncols());
+
+            prop_assert_eq!((nrows, ncols), mat.shape());
+
+            prop_assert_eq!(nrows, mat.nmajor());
+            prop_assert_eq!(ncols, mat.nminor());
+
+            prop_assert_eq!(0, mat.nnz());
+
+            let (offsets, indices, data) = mat.cs_data();
+
+            prop_assert!(offsets.iter().all(|&o| o == 0usize));
+            prop_assert_eq!(offsets.len(), nrows);
+            prop_assert_eq!(indices, &[]);
+            prop_assert_eq!(data, &[]);
+
+            prop_assert!(mat.triplet_iter().next().is_none());
+
+            prop_assert_eq!(nrows, mat.iter().len());
+
+            for mut lane in mat.iter() {
+                prop_assert_eq!(0, lane.len());
+                prop_assert!(lane.next().is_none());
+            }
+
+            prop_assert_eq!(ncols, mat.minor_lane_iter().len());
+
+            for mut lane in mat.minor_lane_iter() {
+                prop_assert!(lane.next().is_none());
+            }
+
+            prop_assert_eq!(nrows * ncols, mat.all_entries().len());
+
+            for (major, minor, entry) in mat.all_entries() {
+                prop_assert!(major < nrows);
+                prop_assert!(minor < ncols);
+
+                match entry {
+                    SparseEntry::Zero => (),
+                    _ => unreachable!(),
+                }
+            }
+        }
+
+        #[test]
+        fn identity_matrix_valid_data(n in 0..500usize) {
+            let mat = CsrMatrix::<f32>::identity(n);
+
+            prop_assert_eq!(n, mat.nrows());
+            prop_assert_eq!(n, mat.ncols());
+
+            prop_assert_eq!((n, n), mat.shape());
+
+            prop_assert_eq!(n, mat.nmajor());
+            prop_assert_eq!(n, mat.nminor());
+
+            prop_assert_eq!(n, mat.nnz());
+
+            for (major, minor, &val) in mat.triplet_iter() {
+                prop_assert_eq!(val, f32::one());
+                prop_assert_eq!(major, minor);
+            }
+
+            prop_assert_eq!(n, mat.iter().len());
+
+            for mut lane in mat.iter() {
+                prop_assert_eq!(1, lane.len());
+
+                prop_assert!(lane.next().is_some());
+                prop_assert!(lane.next().is_none());
+            }
+
+            prop_assert_eq!(n, mat.minor_lane_iter().len());
+
+            for mut lane in mat.minor_lane_iter() {
+                prop_assert!(lane.next().is_some());
+                prop_assert!(lane.next().is_none());
+            }
+
+            prop_assert_eq!(n * n, mat.all_entries().len());
+
+            for (major, minor, entry) in mat.all_entries() {
+                prop_assert!(major < n);
+                prop_assert!(minor < n);
+
+                match entry {
+                    SparseEntry::NonZero(&val) => {
+                        prop_assert_eq!(val, f32::one());
+                        prop_assert_eq!(major, minor);
+                    }
+                    SparseEntry::Zero => {
+                        prop_assert_ne!(major, minor);
+                    }
+                }
+            }
+        }
     }
 }

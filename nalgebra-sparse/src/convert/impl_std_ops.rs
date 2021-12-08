@@ -58,11 +58,14 @@ where
     }
 }
 
-impl<'a, T> From<&'a CsrMatrix<T>> for DMatrix<T>
+impl<'a, T, MO, MI, D> From<&'a CsMatrix<T, MO, MI, D, CompressedRowStorage>> for DMatrix<T>
 where
     T: Scalar + Zero + ClosedAdd,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
+    D: Borrow<[T]>,
 {
-    fn from(matrix: &'a CsrMatrix<T>) -> Self {
+    fn from(matrix: &'a CsMatrix<T, MO, MI, D, CompressedRowStorage>) -> Self {
         convert_csr_dense(matrix)
     }
 }
@@ -97,11 +100,14 @@ where
     }
 }
 
-impl<'a, T> From<&'a CscMatrix<T>> for DMatrix<T>
+impl<'a, T, MO, MI, D> From<&'a CsMatrix<T, MO, MI, D, CompressedColumnStorage>> for DMatrix<T>
 where
     T: Scalar + Zero + ClosedAdd,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
+    D: Borrow<[T]>,
 {
-    fn from(matrix: &'a CscMatrix<T>) -> Self {
+    fn from(matrix: &'a CsMatrix<T, MO, MI, D, CompressedColumnStorage>) -> Self {
         convert_csc_dense(matrix)
     }
 }

@@ -20,7 +20,7 @@ use proptest::{
     prelude::*,
     sample::Index,
 };
-use std::{cmp::min, iter::repeat};
+use std::{cmp::min, convert::TryFrom, fmt::Debug, iter::repeat, ops::RangeInclusive};
 
 fn dense_row_major_coord_strategy(
     nrows: usize,
@@ -252,28 +252,25 @@ where
     I: Iterator<Item = (usize, usize)> + ExactSizeIterator,
 {
     let mut minors = Vec::with_capacity(coords.len());
-    let mut offsets = Vec::with_capacity(nmajor + 1);
-    let mut current_major = 0;
-    offsets.push(0);
-    for (idx, (i, j)) in coords.enumerate() {
-        assert!(i >= current_major);
+    let mut counts = vec![0usize; nmajor];
+
+    for (i, j) in coords {
         assert!(
             i < nmajor && j < nminor,
             "Generated coords are out of bounds"
         );
-        while current_major < i {
-            offsets.push(idx);
-            current_major += 1;
-        }
+
+        counts[i] += 1;
         minors.push(j);
     }
 
-    while current_major < nmajor {
-        offsets.push(minors.len());
-        current_major += 1;
-    }
-
-    assert_eq!(offsets.first().unwrap(), &0);
+    let (_, offsets) =
+        counts
+            .into_iter()
+            .fold((0, Vec::with_capacity(nmajor)), |(total, mut v), count| {
+                v.push(total);
+                (total + count, v)
+            });
 
     let shape = (nmajor, nminor);
 
@@ -371,4 +368,50 @@ where
         CscMatrix::try_from_parts(nminor, nmajor, offsets, indices, data)
             .expect("Internal error: Generated CscMatrix is invalid")
     })
+}
+
+pub const PROPTEST_MATRIX_DIM: RangeInclusive<usize> = 0..=6;
+pub const PROPTEST_MAX_NNZ: usize = 40;
+pub const PROPTEST_I32_VALUE_STRATEGY: RangeInclusive<i32> = -5..=5;
+
+pub fn value_strategy<T>() -> RangeInclusive<T>
+where
+    T: TryFrom<i32>,
+    T::Error: Debug,
+{
+    let (start, end) = (
+        PROPTEST_I32_VALUE_STRATEGY.start(),
+        PROPTEST_I32_VALUE_STRATEGY.end(),
+    );
+    T::try_from(*start).unwrap()..=T::try_from(*end).unwrap()
+}
+
+pub fn non_zero_i32_value_strategy() -> impl Strategy<Value = i32> {
+    let (start, end) = (
+        PROPTEST_I32_VALUE_STRATEGY.start(),
+        PROPTEST_I32_VALUE_STRATEGY.end(),
+    );
+    assert!(start < &0);
+    assert!(end > &0);
+    // Note: we don't use RangeInclusive for the second range, because then we'd have different
+    // types, which would require boxing
+    (*start..0).prop_union(1..*end + 1)
+}
+
+pub fn csr_strategy() -> impl Strategy<Value = CsrMatrix<i32>> {
+    csr(
+        PROPTEST_I32_VALUE_STRATEGY,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MAX_NNZ,
+    )
+}
+
+pub fn csc_strategy() -> impl Strategy<Value = CscMatrix<i32>> {
+    csc(
+        PROPTEST_I32_VALUE_STRATEGY,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MAX_NNZ,
+    )
 }

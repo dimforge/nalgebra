@@ -106,7 +106,7 @@ where
     C: Dim,
     S: RawStorage<T, R, C>,
 {
-    let mut row_offsets = Vec::with_capacity(dense.nrows() + 1);
+    let mut row_offsets = Vec::with_capacity(dense.nrows());
     let mut col_idx = Vec::new();
     let mut values = Vec::new();
 
@@ -122,7 +122,10 @@ where
                 values.push(v.clone());
             }
         }
-        row_offsets.push(col_idx.len());
+
+        if i < dense.nrows() - 1 {
+            row_offsets.push(col_idx.len());
+        }
     }
 
     unsafe {
@@ -189,11 +192,12 @@ where
     C: Dim,
     S: RawStorage<T, R, C>,
 {
-    let mut col_offsets = Vec::with_capacity(dense.ncols() + 1);
+    let mut col_offsets = Vec::with_capacity(dense.ncols());
     let mut row_idx = Vec::new();
     let mut values = Vec::new();
 
     col_offsets.push(0);
+
     for j in 0..dense.ncols() {
         for i in 0..dense.nrows() {
             let v = dense.index((i, j));
@@ -202,7 +206,10 @@ where
                 values.push(v.clone());
             }
         }
-        col_offsets.push(row_idx.len());
+
+        if j < dense.ncols() - 1 {
+            col_offsets.push(row_idx.len());
+        }
     }
 
     unsafe {

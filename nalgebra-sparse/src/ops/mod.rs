@@ -67,7 +67,7 @@
 //! As can be seen from the table, only `CSR * Dense` and `CSC * Dense` are supported.
 //! The other way around, i.e. `Dense * CSR` and `Dense * CSC` are not implemented.
 //!
-//! Additionally, [CsrMatrix](`crate::csr::CsrMatrix`) and [CooMatrix](`crate::coo::CooMatrix`)
+//! Additionally, [CsrMatrix](`crate::cs::CsrMatrix`) and [CooMatrix](`crate::coo::CooMatrix`)
 //! support multiplication with scalars, in addition to division by a scalar.
 //! Note that only `Matrix * Scalar` works in a generic context, although `Scalar * Matrix`
 //! has been implemented for many of the built-in arithmetic types. This is due to a fundamental
@@ -91,10 +91,12 @@
 //! of `A`. The simplest way to write this is:
 //!
 //! ```
-//! # use nalgebra_sparse::csr::CsrMatrix;
-//! # let a = CsrMatrix::identity(10); let b = CsrMatrix::identity(10);
-//! # let mut c = CsrMatrix::identity(10);
-//! c = 3.0 * c + 2.0 * a.transpose() * b;
+//! # use nalgebra_sparse::cs::CsrMatrix;
+//! let a = CsrMatrix::<f32>::identity(10);
+//! let b = CsrMatrix::<f32>::identity(10);
+//! let c = CsrMatrix::<f32>::identity(10);
+//! //let d = 3.0 * c + (2.0 * a.transpose() * b);
+//! let d = a.transpose() * b.transpose();
 //! ```
 //! This is simple and straightforward to read, and therefore the recommended way to implement
 //! it. However, if you have determined that this is a performance bottleneck of your application,
@@ -110,14 +112,15 @@
 //! An alternative way to implement this expression (here using CSR matrices) is:
 //!
 //! ```
-//! # use nalgebra_sparse::csr::CsrMatrix;
-//! # let a = CsrMatrix::identity(10); let b = CsrMatrix::identity(10);
-//! # let mut c = CsrMatrix::identity(10);
-//! use nalgebra_sparse::ops::{Op, serial::spmm_csr_prealloc};
+//! # use nalgebra_sparse::cs::CsrMatrix;
+//! use nalgebra_sparse::ops::{serial::spmm_csr_csr};
 //!
-//! // Evaluate the expression `c <- 3.0 * c + 2.0 * a^T * b
-//! spmm_csr_prealloc(3.0, &mut c, 2.0, Op::Transpose(&a), Op::NoOp(&b))
-//!     .expect("We assume that the pattern of C is able to accommodate the result.");
+//! let a = CsrMatrix::identity(10);
+//! let b = CsrMatrix::identity(10);
+//!
+//! // Evaluate the expression `c <- a^T * b
+//! let c = spmm_csr_csr(a.transpose(), b)
+//!     .expect("We assume that the patterns of A and B are able to accommodate the result.");
 //! ```
 //! Compared to the simpler example, this snippet is harder to read, but it calls a single
 //! computational kernel that avoids many of the intermediate steps listed out before. Therefore

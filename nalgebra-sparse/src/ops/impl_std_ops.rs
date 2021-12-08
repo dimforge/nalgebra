@@ -385,6 +385,22 @@ macro_rules! impl_sparse_scalar_product_and_div {
             }
         }
 
+        impl<T1, MO, MI, D, C> Mul<CsMatrix<T1, MO, MI, D, C>> for $t
+        where
+            T1: Clone + Mul<$t>,
+            MO: Borrow<[usize]>,
+            MI: Borrow<[usize]>,
+            D: Borrow<[T1]>,
+            C: Compression,
+        {
+            type Output =
+                CsMatrix<<T1 as Mul<$t>>::Output, MO, MI, Vec<<T1 as Mul<$t>>::Output>, C>;
+
+            fn mul(self, rhs: CsMatrix<T1, MO, MI, D, C>) -> Self::Output {
+                sp_cs_scalar_prod(rhs, self)
+            }
+        }
+
         impl<T1, MO, MI, D, C> Div<$t> for CsMatrix<T1, MO, MI, D, C>
         where
             T1: Clone + Div<$t>,

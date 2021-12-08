@@ -13,7 +13,7 @@
 //!
 //! ## Highlighted current features
 //!
-//! - [CSR](csr::CsrMatrix), [CSC](csc::CscMatrix) and [COO](coo::CooMatrix) formats, and
+//! - [CSR](cs::CsrMatrix), [CSC](cs::CscMatrix) and [COO](coo::CooMatrix) formats, and
 //!   [conversions](`convert`) between them.
 //! - Common arithmetic operations are implemented. See the [`ops`] module.
 //! - Sparsity patterns in CSR and CSC matrices are explicitly represented by the
@@ -54,8 +54,8 @@
 //! | Format                  | Notes                                        |
 //! | ------------------------|--------------------------------------------- |
 //! | [COO](`coo::CooMatrix`) | Well-suited for matrix construction. <br /> Ill-suited for algebraic operations. |
-//! | [CSR](`csr::CsrMatrix`) | Immutable sparsity pattern, suitable for algebraic operations. <br /> Fast row access. |
-//! | [CSC](`csc::CscMatrix`) | Immutable sparsity pattern, suitable for algebraic operations. <br /> Fast column access. |
+//! | [CSR](`cs::CsrMatrix`) | Immutable sparsity pattern, suitable for algebraic operations. <br /> Fast row access. |
+//! | [CSC](`cs::CscMatrix`) | Immutable sparsity pattern, suitable for algebraic operations. <br /> Fast column access. |
 //!
 //! What format is best to use depends on the application. The most common use case for sparse
 //! matrices in science is the solution of sparse linear systems. Here we can differentiate between
@@ -74,7 +74,7 @@
 //! # Example: COO -> CSR -> matrix-vector product
 //!
 //! ```
-//! use nalgebra_sparse::{coo::CooMatrix, csr::CsrMatrix};
+//! use nalgebra_sparse::{coo::CooMatrix, cs::CsrMatrix};
 //! use nalgebra::{DMatrix, DVector};
 //! use matrixcompare::assert_matrix_eq;
 //!
@@ -113,23 +113,11 @@
 //!
 //! // Compute the matrix-vector product y = A * x. We don't need to specify the type here,
 //! // but let's just do it to make sure we get what we expect
-//! let y: DVector<_> = &csr * &x;
+//! let y = csr * x;
 //!
 //! // Verify the result with a small element-wise absolute tolerance
 //! let y_expected = DVector::from_column_slice(&[11.8, 7.15, 14.35]);
 //! assert_matrix_eq!(y, y_expected, comp = abs, tol = 1e-9);
-//!
-//! // The above expression is simple, and gives easy to read code, but if we're doing this in a
-//! // loop, we'll have to keep allocating new vectors. If we determine that this is a bottleneck,
-//! // then we can resort to the lower level APIs for more control over the operations
-//! {
-//!     use nalgebra_sparse::ops::{Op, serial::spmm_csr_dense};
-//!     let mut y = y;
-//!     // Compute y <- 0.0 * y + 1.0 * csr * dense. We store the result directly in `y`, without
-//!     // any intermediate allocations
-//!     spmm_csr_dense(0.0, &mut y, 1.0, Op::NoOp(&csr), Op::NoOp(&x));
-//!     assert_matrix_eq!(y, y_expected, comp = abs, tol = 1e-9);
-//! }
 //! ```
 #![deny(
     nonstandard_style,

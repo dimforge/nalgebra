@@ -21,7 +21,7 @@ use super::error::SparseFormatError;
 /// # Examples
 ///
 /// ```
-/// use nalgebra_sparse::{coo::CooMatrix, csr::CsrMatrix, csc::CscMatrix};
+/// use nalgebra_sparse::{coo::CooMatrix, cs::{CsrMatrix, CscMatrix}};
 ///
 /// // Initialize a matrix with all zeros (no explicitly stored entries).
 /// let mut coo = CooMatrix::new(4, 4);
