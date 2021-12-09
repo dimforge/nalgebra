@@ -26,6 +26,7 @@ mod proptest_tests {
                         prop_assert!(s.iter().all(|e| *e >= 0.0));
                         prop_assert!(relative_eq!(&u * ds * &v_t, recomp_m, epsilon = 1.0e-5));
                         prop_assert!(relative_eq!(m, recomp_m, epsilon = 1.0e-5));
+                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
                     }
 
                     #[test]
@@ -38,6 +39,7 @@ mod proptest_tests {
                         prop_assert!(relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5));
                         prop_assert!(u.is_orthogonal(1.0e-5));
                         prop_assert!(v_t.is_orthogonal(1.0e-5));
+                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
                     }
 
                     #[test]
@@ -50,6 +52,7 @@ mod proptest_tests {
                         prop_assert!(relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5));
                         prop_assert!(u.is_orthogonal(1.0e-5));
                         prop_assert!(v_t.is_orthogonal(1.0e-5));
+                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
                     }
 
                     #[test]
@@ -61,6 +64,7 @@ mod proptest_tests {
 
                         prop_assert!(s.iter().all(|e| *e >= 0.0));
                         prop_assert!(relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5));
+                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
                     }
 
                     #[test]
@@ -71,6 +75,7 @@ mod proptest_tests {
 
                         prop_assert!(s.iter().all(|e| *e >= 0.0));
                         prop_assert!(relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5));
+                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
                     }
 
                     #[test]
@@ -83,6 +88,7 @@ mod proptest_tests {
                         prop_assert!(relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5));
                         prop_assert!(u.is_orthogonal(1.0e-5));
                         prop_assert!(v_t.is_orthogonal(1.0e-5));
+                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
                     }
 
                     #[test]
@@ -95,6 +101,7 @@ mod proptest_tests {
                         prop_assert!(relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5));
                         prop_assert!(u.is_orthogonal(1.0e-5));
                         prop_assert!(v_t.is_orthogonal(1.0e-5));
+                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
                     }
 
                     #[test]
@@ -107,6 +114,7 @@ mod proptest_tests {
                         prop_assert!(relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5));
                         prop_assert!(u.is_orthogonal(1.0e-5));
                         prop_assert!(v_t.is_orthogonal(1.0e-5));
+                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
                     }
 
                     #[test]
@@ -187,6 +195,7 @@ fn svd_singular() {
     let ds = DMatrix::from_diagonal(&s);
 
     assert!(s.iter().all(|e| *e >= 0.0));
+    assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
     assert!(u.is_orthogonal(1.0e-5));
     assert!(v_t.is_orthogonal(1.0e-5));
     assert_relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5);
@@ -229,6 +238,7 @@ fn svd_singular_vertical() {
     let ds = DMatrix::from_diagonal(&s);
 
     assert!(s.iter().all(|e| *e >= 0.0));
+    assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
     assert_relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5);
 }
 
@@ -267,6 +277,7 @@ fn svd_singular_horizontal() {
     let ds = DMatrix::from_diagonal(&s);
 
     assert!(s.iter().all(|e| *e >= 0.0));
+    assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
     assert_relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5);
 }
 
@@ -346,6 +357,26 @@ fn svd_fail() {
 
     // ... and ordered SVD.
     let svd = m.clone().svd(true, true);
+    let recomp = svd.recompose().unwrap();
+    assert_relative_eq!(m, recomp, epsilon = 1.0e-5);
+}
+
+#[test]
+#[rustfmt::skip]
+fn svd3_fail() {
+    let m = nalgebra::matrix![
+        0.0, 1.0, 0.0;
+        0.0, 1.7320508075688772, 0.0;
+        0.0, 0.0, 0.0
+    ];
+
+    // Check unordered ...
+    let svd = m.svd_unordered(true, true);
+    let recomp = svd.recompose().unwrap();
+    assert_relative_eq!(m, recomp, epsilon = 1.0e-5);
+
+    // ... and ordered SVD.
+    let svd = m.svd(true, true);
     let recomp = svd.recompose().unwrap();
     assert_relative_eq!(m, recomp, epsilon = 1.0e-5);
 }

@@ -80,6 +80,16 @@ where
         + Allocator<T::RealField, DimMinimum<R, C>>
         + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
 {
+    fn use_special_always_ordered_svd2() -> bool {
+        TypeId::of::<OMatrix<T, R, C>>() == TypeId::of::<Matrix2<T::RealField>>()
+            && TypeId::of::<Self>() == TypeId::of::<SVD<T::RealField, U2, U2>>()
+    }
+
+    fn use_special_always_ordered_svd3() -> bool {
+        TypeId::of::<OMatrix<T, R, C>>() == TypeId::of::<Matrix3<T::RealField>>()
+            && TypeId::of::<Self>() == TypeId::of::<SVD<T::RealField, U3, U3>>()
+    }
+
     /// Computes the Singular Value Decomposition of `matrix` using implicit shift.
     /// The singular values are not guaranteed to be sorted in any particular order.
     /// If a descending order is required, consider using `new` instead.
@@ -120,20 +130,16 @@ where
         let (nrows, ncols) = matrix.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
 
-        if TypeId::of::<OMatrix<T, R, C>>() == TypeId::of::<Matrix2<T::RealField>>()
-            && TypeId::of::<Self>() == TypeId::of::<SVD<T::RealField, U2, U2>>()
-        {
+        if Self::use_special_always_ordered_svd2() {
             // SAFETY: the reference transmutes are OK since we checked that the types match exactly.
             let matrix: &Matrix2<T::RealField> = unsafe { std::mem::transmute(&matrix) };
-            let result = super::svd2::svd2(matrix, compute_u, compute_v);
+            let result = super::svd2::svd_ordered2(matrix, compute_u, compute_v);
             let typed_result: &Self = unsafe { std::mem::transmute(&result) };
             return Some(typed_result.clone());
-        } else if TypeId::of::<OMatrix<T, R, C>>() == TypeId::of::<Matrix3<T::RealField>>()
-            && TypeId::of::<Self>() == TypeId::of::<SVD<T::RealField, U3, U3>>()
-        {
+        } else if Self::use_special_always_ordered_svd3() {
             // SAFETY: the reference transmutes are OK since we checked that the types match exactly.
             let matrix: &Matrix3<T::RealField> = unsafe { std::mem::transmute(&matrix) };
-            let result = super::svd3::svd3(matrix, compute_u, compute_v, eps, max_niter);
+            let result = super::svd3::svd_ordered3(matrix, compute_u, compute_v, eps, max_niter);
             let typed_result: &Self = unsafe { std::mem::transmute(&result) };
             return Some(typed_result.clone());
         }
@@ -657,7 +663,11 @@ where
     /// If this order is not required consider using `new_unordered`.
     pub fn new(matrix: OMatrix<T, R, C>, compute_u: bool, compute_v: bool) -> Self {
         let mut svd = Self::new_unordered(matrix, compute_u, compute_v);
-        svd.sort_by_singular_values();
+
+        if !Self::use_special_always_ordered_svd3() && !Self::use_special_always_ordered_svd2() {
+            svd.sort_by_singular_values();
+        }
+
         svd
     }
 
@@ -681,7 +691,11 @@ where
         max_niter: usize,
     ) -> Option<Self> {
         Self::try_new_unordered(matrix, compute_u, compute_v, eps, max_niter).map(|mut svd| {
-            svd.sort_by_singular_values();
+            if !Self::use_special_always_ordered_svd3() && !Self::use_special_always_ordered_svd2()
+            {
+                svd.sort_by_singular_values();
+            }
+
             svd
         })
     }

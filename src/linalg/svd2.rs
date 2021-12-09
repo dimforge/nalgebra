@@ -2,7 +2,11 @@ use crate::{Matrix2, RealField, Vector2, SVD, U2};
 
 // Implementation of the 2D SVD from https://ieeexplore.ieee.org/document/486688
 // See also https://scicomp.stackexchange.com/questions/8899/robust-algorithm-for-2-times-2-svd
-pub fn svd2<T: RealField>(m: &Matrix2<T>, compute_u: bool, compute_v: bool) -> SVD<T, U2, U2> {
+pub fn svd_ordered2<T: RealField>(
+    m: &Matrix2<T>,
+    compute_u: bool,
+    compute_v: bool,
+) -> SVD<T, U2, U2> {
     let half: T = crate::convert(0.5);
     let one: T = crate::convert(1.0);
 
@@ -12,6 +16,9 @@ pub fn svd2<T: RealField>(m: &Matrix2<T>, compute_u: bool, compute_v: bool) -> S
     let h = (m.m21.clone() - m.m12.clone()) * half.clone();
     let q = (e.clone() * e.clone() + h.clone() * h.clone()).sqrt();
     let r = (f.clone() * f.clone() + g.clone() * g.clone()).sqrt();
+
+    // Note that the singular values are always sorted because sx >= sy
+    // because q >= 0 and r >= 0.
     let sx = q.clone() + r.clone();
     let sy = q - r;
     let sy_sign = if sy < T::zero() { -one.clone() } else { one };
