@@ -1,10 +1,11 @@
 //! An implementation of the COO sparse matrix format.
 
 use crate::SparseFormatError;
-use std::borrow::Cow;
 
 #[cfg(feature = "serde-serialize")]
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+#[cfg(feature = "serde-serialize")]
+use std::borrow::Cow;
 
 /// A COO representation of a sparse matrix.
 ///

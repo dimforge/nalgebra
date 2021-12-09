@@ -1,12 +1,13 @@
 //! Sparsity patterns for CSR and CSC matrices.
 use crate::cs::transpose_cs;
 use crate::SparseFormatError;
-use std::borrow::Cow;
 use std::error::Error;
 use std::fmt;
 
 #[cfg(feature = "serde-serialize")]
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+#[cfg(feature = "serde-serialize")]
+use std::borrow::Cow;
 
 /// A representation of the sparsity pattern of a CSR or CSC matrix.
 ///

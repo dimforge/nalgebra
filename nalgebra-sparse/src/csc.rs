@@ -7,12 +7,13 @@ use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
 use crate::csr::CsrMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
 use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
-use std::borrow::Cow;
 
 use nalgebra::Scalar;
 use num_traits::One;
 #[cfg(feature = "serde-serialize")]
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+#[cfg(feature = "serde-serialize")]
+use std::borrow::Cow;
 use std::slice::{Iter, IterMut};
 
 /// A CSC representation of a sparse matrix.
