@@ -366,7 +366,9 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::proptest::*;
     use nalgebra::SMatrix;
+    use proptest::prelude::*;
 
     #[test]
     fn coo_from_dense_and_dense_from_coo_are_symmetric() {
@@ -632,5 +634,231 @@ mod tests {
         .unwrap();
 
         assert_eq!(convert_csc_coo(&csc), expected_coo);
+    }
+
+    // FIXME: This test isn't _exactly_ correct. Explicit zeros stored in the matrix will be
+    // removed when convert_dense_csr is called (kind of the whole point of the format).
+    //
+    // Anyways, be careful as dense <-> cs matrix conversions can imply this sort of thing, and
+    // you'll wonder why e.g. proptest can generate matrices for where this isn't true.
+    #[test]
+    fn csr_dense_conversion_is_reflective() {
+        let csr = CsrMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 3, 4],
+            vec![1, 2, 3, 0, 1, 3],
+            vec![5, 3, 2, 2, 1, 4],
+        )
+        .unwrap();
+
+        #[rustfmt::skip]
+        let dense = DMatrix::from_row_slice(3, 4, &[
+            0, 5, 3, 2,
+            2, 0, 0, 0,
+            0, 1, 0, 4
+        ]);
+
+        assert_eq!(convert_csr_dense(&csr), dense);
+
+        let final_csr = convert_dense_csr(&dense);
+
+        assert_eq!(csr.shape(), final_csr.shape());
+
+        let (offsets, indices, data) = csr.cs_data();
+        let (expected_offsets, expected_indices, expected_data) = final_csr.cs_data();
+
+        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+    }
+
+    // FIXME: Same as previous test, this can fail when explicit zeros are stored.
+    #[test]
+    fn csc_dense_conversion_is_reflective() {
+        let csc = CscMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 1, 3, 4],
+            vec![1, 0, 2, 0, 0, 2],
+            vec![2, 5, 1, 3, 2, 4],
+        )
+        .unwrap();
+
+        #[rustfmt::skip]
+        let dense = DMatrix::from_row_slice(3, 4, &[
+            0, 5, 3, 2,
+            2, 0, 0, 0,
+            0, 1, 0, 4
+        ]);
+
+        assert_eq!(convert_csc_dense(&csc), dense);
+
+        let final_csc = convert_dense_csc(&dense);
+
+        assert_eq!(csc.shape(), final_csc.shape());
+
+        let (offsets, indices, data) = csc.cs_data();
+        let (expected_offsets, expected_indices, expected_data) = final_csc.cs_data();
+
+        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+    }
+
+    proptest! {
+        #[test]
+        fn csc_csr_csc_conversion_is_reflective(csc in csc_strategy()) {
+            let csr = convert_csc_csr(&csc);
+            let final_csc = convert_csr_csc(&csr);
+
+            prop_assert_eq!(csc.shape(), final_csc.shape());
+
+            let (offsets, indices, data) = csc.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = final_csc.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn csr_csc_csr_conversion_is_reflective(csr in csr_strategy()) {
+            let csc = convert_csr_csc(&csr);
+            let final_csr = convert_csc_csr(&csc);
+
+            prop_assert_eq!(csr.shape(), final_csr.shape());
+
+            let (offsets, indices, data) = csr.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = final_csr.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn dense_coo_dense_is_reflective(dense in dense_strategy()) {
+            let coo = convert_dense_coo(&dense);
+            let final_dense = convert_coo_dense(&coo);
+            prop_assert_eq!(dense, final_dense);
+        }
+
+        #[test]
+        fn coo_dense_coo_conversion_is_reflective(coo in coo_strategy()) {
+            // We cannot compare the result of the roundtrip coo -> dense -> coo directly for
+            // two reasons:
+            //  1. the COO matrices will generally have different ordering of elements
+            //  2. explicitly stored zero entries in the original matrix will be discarded
+            //     when converting back to COO
+            // Therefore we instead compare the results of converting the COO matrix
+            // at the end of the roundtrip with its dense representation
+            let dense = convert_coo_dense(&coo);
+            let coo2 = convert_dense_coo(&dense);
+            let dense2 = convert_coo_dense(&coo2);
+            prop_assert_eq!(dense, dense2);
+        }
+
+        #[test]
+        fn coo_csr_agrees_with_csr_dense(coo in coo_strategy()) {
+            let coo_dense = convert_coo_dense(&coo);
+            let csr = convert_coo_csr(coo.clone());
+            let csr_dense = convert_csr_dense(&csr);
+            prop_assert_eq!(csr_dense, coo_dense);
+
+            // It might be that COO matrices have a higher nnz due to duplicates,
+            // so we can only check that the CSR matrix has no more than the original COO matrix
+            prop_assert!(csr.nnz() <= coo.nnz());
+        }
+
+        #[test]
+        fn coo_csr_equal_nnz_when_no_duplicates(coo in coo_no_duplicates_strategy()) {
+            // Check that the NNZ are equal when converting from a CooMatrix without
+            // duplicates to a CSR matrix
+            let csr = convert_coo_csr(coo.clone());
+            prop_assert_eq!(csr.nnz(), coo.nnz());
+        }
+
+        #[test]
+        fn coo_csc_agrees_with_csc_dense(coo in coo_strategy()) {
+            let coo_dense = convert_coo_dense(&coo);
+            let csc = convert_coo_csc(coo.clone());
+            let csc_dense = convert_csc_dense(&csc);
+            prop_assert_eq!(csc_dense, coo_dense);
+
+            // It might be that COO matrices have a higher nnz due to duplicates,
+            // so we can only check that the csc matrix has no more than the original COO matrix
+            prop_assert!(csc.nnz() <= coo.nnz());
+        }
+
+        #[test]
+        fn coo_csc_equal_nnz_when_no_duplicates(coo in coo_no_duplicates_strategy()) {
+            // Check that the NNZ are equal when converting from a CooMatrix without
+            // duplicates to a csc matrix
+            let csc = convert_coo_csc(coo.clone());
+            prop_assert_eq!(csc.nnz(), coo.nnz());
+        }
+
+        #[test]
+        fn csr_coo_csr_is_reflective(csr in csr_strategy()) {
+            let coo = convert_csr_coo(&csr);
+            let final_csr = convert_coo_csr(coo);
+
+            prop_assert_eq!(csr.shape(), final_csr.shape());
+
+            let (offsets, indices, data) = csr.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = final_csr.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn csc_coo_csc_is_reflective(csc in csc_strategy()) {
+            let coo = convert_csc_coo(&csc);
+            let final_csc = convert_coo_csc(coo);
+
+            prop_assert_eq!(csc.shape(), final_csc.shape());
+
+            let (offsets, indices, data) = csc.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = final_csc.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        // Test is only valid if there are no explicit zeros in the matrix
+        #[test]
+        fn csr_dense_csr_is_reflective(csr in non_zero_csr_strategy()) {
+            let dense = convert_csr_dense(&csr);
+            let final_csr = convert_dense_csr(&dense);
+
+            prop_assert_eq!(csr.shape(), final_csr.shape());
+
+            let (offsets, indices, data) = csr.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = final_csr.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        // Test is only valid if there are no explicit zeros in the matrix
+        #[test]
+        fn csc_dense_csc_is_reflective(csc in non_zero_csc_strategy()) {
+            let dense = convert_csc_dense(&csc);
+            let final_csc = convert_dense_csc(&dense);
+
+            prop_assert_eq!(csc.shape(), final_csc.shape());
+
+            let (offsets, indices, data) = csc.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = final_csc.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
     }
 }

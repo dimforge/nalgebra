@@ -14,7 +14,10 @@ use crate::{
     coo::CooMatrix,
     cs::{CscMatrix, CsrMatrix},
 };
-use nalgebra::{proptest::DimRange, Dim, Scalar};
+use nalgebra::{
+    proptest::{matrix, DimRange},
+    DMatrix, Dim, Scalar,
+};
 use proptest::{
     collection::{btree_set, hash_map, vec},
     prelude::*,
@@ -413,5 +416,52 @@ pub fn csc_strategy() -> impl Strategy<Value = CscMatrix<i32>> {
         PROPTEST_MATRIX_DIM,
         PROPTEST_MATRIX_DIM,
         PROPTEST_MAX_NNZ,
+    )
+}
+
+pub fn coo_strategy() -> impl Strategy<Value = CooMatrix<i32>> {
+    coo_with_duplicates(
+        PROPTEST_I32_VALUE_STRATEGY,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MAX_NNZ,
+        2,
+    )
+}
+
+pub fn coo_no_duplicates_strategy() -> impl Strategy<Value = CooMatrix<i32>> {
+    coo_no_duplicates(
+        PROPTEST_I32_VALUE_STRATEGY,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MAX_NNZ,
+    )
+}
+
+/// Avoid generating explicit zero values so that it is possible to reason about sparsity patterns
+pub fn non_zero_csr_strategy() -> impl Strategy<Value = CsrMatrix<i32>> {
+    csr(
+        1..=5,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MAX_NNZ,
+    )
+}
+
+/// Avoid generating explicit zero values so that it is possible to reason about sparsity patterns
+pub fn non_zero_csc_strategy() -> impl Strategy<Value = CscMatrix<i32>> {
+    csc(
+        1..=5,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MAX_NNZ,
+    )
+}
+
+pub fn dense_strategy() -> impl Strategy<Value = DMatrix<i32>> {
+    matrix(
+        PROPTEST_I32_VALUE_STRATEGY,
+        PROPTEST_MATRIX_DIM,
+        PROPTEST_MATRIX_DIM,
     )
 }
