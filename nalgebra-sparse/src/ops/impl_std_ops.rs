@@ -16,8 +16,9 @@ use std::{
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Add<CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedRowStorage>
 where
-    T1: Clone + Into<<T1 as Add<T2>>::Output> + Add<T2>,
-    T2: Clone + Into<<T1 as Add<T2>>::Output>,
+    T1: Scalar + Into<<T1 as Add<T2>>::Output> + Add<T2>,
+    T2: Scalar + Into<<T1 as Add<T2>>::Output>,
+    <T1 as Add<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -35,8 +36,9 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Add<CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>
 where
-    T1: Clone + Into<<T2 as Add<T1>>::Output>,
-    T2: Clone + Into<<T2 as Add<T1>>::Output> + Add<T1>,
+    T1: Scalar + Into<<T2 as Add<T1>>::Output>,
+    T2: Scalar + Into<<T2 as Add<T1>>::Output> + Add<T1>,
+    <T2 as Add<T1>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -54,8 +56,9 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Add<CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>
 where
-    T1: Clone + Into<<T1 as Add<T2>>::Output> + Add<T2>,
-    T2: Clone + Into<<T1 as Add<T2>>::Output>,
+    T1: Scalar + Into<<T1 as Add<T2>>::Output> + Add<T2>,
+    T2: Scalar + Into<<T1 as Add<T2>>::Output>,
+    <T1 as Add<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -73,8 +76,9 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Add<CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedRowStorage>
 where
-    T1: Clone + Into<<T1 as Add<T2>>::Output> + Add<T2>,
-    T2: Clone + Into<<T1 as Add<T2>>::Output>,
+    T1: Scalar + Into<<T1 as Add<T2>>::Output> + Add<T2>,
+    T2: Scalar + Into<<T1 as Add<T2>>::Output>,
+    <T1 as Add<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -96,7 +100,7 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T2, R, C> + RawStorageMut<T2, R, C>,
-    T1: Clone,
+    T1: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
@@ -115,7 +119,7 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T2, R, C> + RawStorageMut<T2, R, C>,
-    T1: Clone,
+    T1: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
@@ -132,8 +136,9 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Sub<CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedRowStorage>
 where
-    T1: Clone + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
-    T2: Clone + Into<<T1 as Sub<T2>>::Output>,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
+    T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
+    <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -151,8 +156,9 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Sub<CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>
 where
-    T1: Clone + Into<<T2 as Sub<T1>>::Output>,
-    T2: Clone + Into<<T2 as Sub<T1>>::Output> + Sub<T1>,
+    T1: Scalar + Into<<T2 as Sub<T1>>::Output>,
+    T2: Scalar + Into<<T2 as Sub<T1>>::Output> + Sub<T1>,
+    <T2 as Sub<T1>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -170,8 +176,9 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Sub<CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>
 where
-    T1: Clone + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
-    T2: Clone + Into<<T1 as Sub<T2>>::Output>,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
+    T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
+    <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -189,8 +196,9 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Sub<CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedRowStorage>
 where
-    T1: Clone + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
-    T2: Clone + Into<<T1 as Sub<T2>>::Output>,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
+    T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
+    <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -212,7 +220,7 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T2, R, C> + RawStorageMut<T2, R, C>,
-    T1: Clone,
+    T1: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
@@ -231,7 +239,7 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T2, R, C> + RawStorageMut<T2, R, C>,
-    T1: Clone,
+    T1: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
@@ -248,9 +256,9 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Mul<CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedRowStorage>
 where
-    T1: Clone + Mul<T2>,
-    <T1 as Mul<T2>>::Output: AddAssign + Zero,
-    T2: Clone,
+    T1: Scalar + Mul<T2>,
+    <T1 as Mul<T2>>::Output: Scalar + AddAssign + Zero,
+    T2: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -268,9 +276,9 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Mul<CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>
 where
-    T1: Clone + Mul<T2>,
-    <T1 as Mul<T2>>::Output: AddAssign + Zero,
-    T2: Clone,
+    T1: Scalar + Mul<T2>,
+    <T1 as Mul<T2>>::Output: Scalar + AddAssign + Zero,
+    T2: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -288,9 +296,9 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Mul<CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>
 where
-    T1: Clone + Mul<T2>,
-    <T1 as Mul<T2>>::Output: AddAssign + Zero,
-    T2: Clone,
+    T1: Scalar + Mul<T2>,
+    <T1 as Mul<T2>>::Output: Scalar + AddAssign + Zero,
+    T2: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -308,9 +316,9 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Mul<CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedRowStorage>
 where
-    T2: Clone + Mul<T1>,
-    <T2 as Mul<T1>>::Output: AddAssign + Zero,
-    T1: Clone,
+    T2: Scalar + Mul<T1>,
+    <T2 as Mul<T1>>::Output: Scalar + AddAssign + Zero,
+    T1: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -332,8 +340,8 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T2, R, C>,
-    T1: Clone + Mul<T2>,
-    <T1 as Mul<T2>>::Output: Add + Zero,
+    T1: Scalar + Mul<T2>,
+    <T1 as Mul<T2>>::Output: Scalar + Add + Zero,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
@@ -352,8 +360,8 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T2, R, C>,
-    T1: Clone + Mul<T2>,
-    <T1 as Mul<T2>>::Output: Add + Zero,
+    T1: Scalar + Mul<T2>,
+    <T1 as Mul<T2>>::Output: Scalar + Add + Zero,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
@@ -371,7 +379,8 @@ macro_rules! impl_sparse_scalar_product_and_div {
     ($($t:ty)*) =>  ($(
         impl<T1, MO, MI, D, C> Mul<$t> for CsMatrix<T1, MO, MI, D, C>
         where
-            T1: Clone + Mul<$t>,
+            T1: Scalar + Mul<$t>,
+            <T1 as Mul<$t>>::Output: Scalar,
             MO: Borrow<[usize]>,
             MI: Borrow<[usize]>,
             D: Borrow<[T1]>,
@@ -387,7 +396,8 @@ macro_rules! impl_sparse_scalar_product_and_div {
 
         impl<T1, MO, MI, D, C> Mul<CsMatrix<T1, MO, MI, D, C>> for $t
         where
-            T1: Clone + Mul<$t>,
+            T1: Scalar + Mul<$t>,
+            <T1 as Mul<$t>>::Output: Scalar,
             MO: Borrow<[usize]>,
             MI: Borrow<[usize]>,
             D: Borrow<[T1]>,
@@ -403,7 +413,8 @@ macro_rules! impl_sparse_scalar_product_and_div {
 
         impl<T1, MO, MI, D, C> Div<$t> for CsMatrix<T1, MO, MI, D, C>
         where
-            T1: Clone + Div<$t>,
+            T1: Scalar + Div<$t>,
+            <T1 as Div<$t>>::Output: Scalar,
             MO: Borrow<[usize]>,
             MI: Borrow<[usize]>,
             D: Borrow<[T1]>,

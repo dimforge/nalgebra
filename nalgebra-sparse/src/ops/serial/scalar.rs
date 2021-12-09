@@ -1,6 +1,7 @@
 //! Module holding the various sparse-matrix scalar operation functions.
 
 use crate::cs::{Compression, CsMatrix};
+use nalgebra::Scalar;
 use std::{
     borrow::Borrow,
     ops::{Div, Mul},
@@ -16,8 +17,9 @@ pub fn sp_cs_scalar_prod<T1, T2, MO, MI, D, C>(
     scalar: T2,
 ) -> CsMatrix<<T1 as Mul<T2>>::Output, MO, MI, Vec<<T1 as Mul<T2>>::Output>, C>
 where
-    T1: Clone + Mul<T2>,
-    T2: Clone,
+    T1: Scalar + Mul<T2>,
+    T2: Scalar,
+    <T1 as Mul<T2>>::Output: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
@@ -45,8 +47,9 @@ pub fn sp_cs_scalar_div<T1, T2, MO, MI, D, C>(
     scalar: T2,
 ) -> CsMatrix<<T1 as Div<T2>>::Output, MO, MI, Vec<<T1 as Div<T2>>::Output>, C>
 where
-    T1: Clone + Div<T2>,
-    T2: Clone,
+    T1: Scalar + Div<T2>,
+    T2: Scalar,
+    <T1 as Div<T2>>::Output: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T1]>,

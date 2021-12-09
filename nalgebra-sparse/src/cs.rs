@@ -4,6 +4,7 @@ use super::{
     error::{SparseFormatError, SparsityPatternFormatError},
     SparseEntry,
 };
+use nalgebra::Scalar;
 use num_traits::One;
 use std::{borrow::Borrow, cmp::Ord, cmp::Ordering, marker::PhantomData};
 
@@ -122,6 +123,7 @@ mod private {
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressionKind>
 where
+    T: Scalar,
     MajorOffsets: Borrow<[usize]>,
     MinorIndices: Borrow<[usize]>,
     Data: Borrow<[T]>,
@@ -228,6 +230,7 @@ pub type CscMatrix<T> = CsMatrix<T, Vec<usize>, Vec<usize>, Vec<T>, CompressedCo
 impl<T, MajorOffsets, MinorIndices, Data, CompressionKind>
     CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressionKind>
 where
+    T: Scalar,
     MajorOffsets: Borrow<[usize]>,
     MinorIndices: Borrow<[usize]>,
     Data: Borrow<[T]>,
@@ -595,6 +598,7 @@ where
 impl<T, MajorOffsets, MinorIndices, Data>
     CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressedRowStorage>
 where
+    T: Scalar,
     MajorOffsets: Borrow<[usize]>,
     MinorIndices: Borrow<[usize]>,
     Data: Borrow<[T]>,
@@ -612,6 +616,7 @@ where
 impl<T, MajorOffsets, MinorIndices, Data>
     CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressedColumnStorage>
 where
+    T: Scalar,
     MajorOffsets: Borrow<[usize]>,
     MinorIndices: Borrow<[usize]>,
     Data: Borrow<[T]>,
@@ -628,6 +633,7 @@ where
 
 impl<T, C> CsMatrix<T, Vec<usize>, Vec<usize>, Vec<T>, C>
 where
+    T: Scalar,
     C: Compression,
 {
     /// Returns an owned `CsMatrix` of shape `(nrows, ncols)` entirely comprised of implicit zeros,
@@ -661,7 +667,7 @@ where
 
 impl<T, C> CsMatrix<T, Vec<usize>, Vec<usize>, Vec<T>, C>
 where
-    T: One + Clone,
+    T: Scalar + One,
     C: Compression,
 {
     /// Produces an owned identity matrix of shape `(n, n)` in CSC format.

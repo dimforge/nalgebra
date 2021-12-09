@@ -4,7 +4,7 @@ use crate::{
     ops::serial::spsolve::*,
 };
 use nalgebra::{
-    allocator::Allocator, DefaultAllocator, Dim, Matrix, RealField, Storage, StorageMut,
+    allocator::Allocator, DefaultAllocator, Dim, Matrix, RealField, Scalar, Storage, StorageMut,
 };
 use std::{borrow::Borrow, iter};
 use thiserror::Error;
@@ -37,7 +37,10 @@ pub struct CholeskyPattern {
 // TODO: We should probably implement PartialEq/Eq, but in that case we'd probably need a
 // custom implementation, due to the need to exclude the workspace arrays
 #[derive(Debug, Clone)]
-pub struct CsCholesky<T> {
+pub struct CsCholesky<T>
+where
+    T: Scalar + RealField,
+{
     l_matrix: CscMatrix<T>,
 }
 
@@ -62,7 +65,7 @@ pub enum CholeskyError {
     NonzerosMismatch,
 }
 
-impl<T: RealField> CsCholesky<T> {
+impl<T: Scalar + RealField> CsCholesky<T> {
     /// Computes the Cholesky factorization of the provided matrix.
     ///
     /// The matrix must be symmetric positive definite. Symmetry is not checked, and it is up
@@ -310,6 +313,7 @@ impl<T: RealField> CsCholesky<T> {
 /// Computes the pattern of non-zeros for the Cholesky decomposition of the input matrix.
 fn nonzero_pattern<T, MO, MI, D, C>(matrix: &CsMatrix<T, MO, MI, D, C>) -> CholeskyPattern
 where
+    T: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T]>,
@@ -364,6 +368,7 @@ where
 /// Computes the elimination tree of the input matrix.
 fn elimination_tree<T, MO, MI, D, C>(matrix: &CsMatrix<T, MO, MI, D, C>) -> Vec<Option<usize>>
 where
+    T: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T]>,

@@ -41,8 +41,9 @@ pub fn spsub_csr_csc<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
     csc: CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>,
 ) -> Result<CsrMatrix<<T1 as Sub<T2>>::Output>, OperationError>
 where
-    T1: Clone + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
-    T2: Clone + Into<<T1 as Sub<T2>>::Output>,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
+    T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
+    <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -106,8 +107,9 @@ pub fn spsub_csc_csr<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
     csr: CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>,
 ) -> Result<CsrMatrix<<T2 as Sub<T1>>::Output>, OperationError>
 where
-    T1: Clone + Into<<T2 as Sub<T1>>::Output>,
-    T2: Clone + Into<<T2 as Sub<T1>>::Output> + Sub<T1>,
+    T1: Scalar + Into<<T2 as Sub<T1>>::Output>,
+    T2: Scalar + Into<<T2 as Sub<T1>>::Output> + Sub<T1>,
+    <T2 as Sub<T1>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -131,8 +133,9 @@ pub fn spsub_csc_csc<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
     rhs: CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>,
 ) -> Result<CscMatrix<<T1 as Sub<T2>>::Output>, OperationError>
 where
-    T1: Clone + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
-    T2: Clone + Into<<T1 as Sub<T2>>::Output>,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
+    T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
+    <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -192,8 +195,9 @@ pub fn spsub_csr_csr<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
     rhs: CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>,
 ) -> Result<CsrMatrix<<T1 as Sub<T2>>::Output>, OperationError>
 where
-    T1: Clone + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
-    T2: Clone + Into<<T1 as Sub<T2>>::Output>,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
+    T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
+    <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -222,7 +226,7 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T1, R, C> + RawStorageMut<T1, R, C>,
-    T2: Clone,
+    T2: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T2]>,
@@ -263,7 +267,7 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T2, R, C> + RawStorageMut<T2, R, C>,
-    T1: Clone,
+    T1: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
@@ -309,7 +313,7 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T1, R, C> + RawStorageMut<T1, R, C>,
-    T2: Clone,
+    T2: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T2]>,
@@ -350,7 +354,7 @@ where
     R: Dim,
     C: Dim,
     S: RawStorage<T2, R, C> + RawStorageMut<T2, R, C>,
-    T1: Clone,
+    T1: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T1]>,
@@ -421,8 +425,8 @@ where
 /// matrix instead of a row-major matrix.
 struct TripletSubtractionIter<'a, TL, TR, IL, IR>
 where
-    TL: Clone + Into<<TL as Sub<TR>>::Output> + Sub<TR>,
-    TR: Clone + Into<<TL as Sub<TR>>::Output>,
+    TL: Scalar + Into<<TL as Sub<TR>>::Output> + Sub<TR>,
+    TR: Scalar + Into<<TL as Sub<TR>>::Output>,
     IL: Iterator<Item = (usize, usize, &'a TL)>,
     IR: Iterator<Item = (usize, usize, &'a TR)>,
 {
@@ -434,8 +438,8 @@ where
 
 impl<'a, TL, TR, IL, IR> Iterator for TripletSubtractionIter<'a, TL, TR, IL, IR>
 where
-    TL: Clone + Into<<TL as Sub<TR>>::Output> + Sub<TR>,
-    TR: Clone + Into<<TL as Sub<TR>>::Output>,
+    TL: Scalar + Into<<TL as Sub<TR>>::Output> + Sub<TR>,
+    TR: Scalar + Into<<TL as Sub<TR>>::Output>,
     IL: Iterator<Item = (usize, usize, &'a TL)>,
     IR: Iterator<Item = (usize, usize, &'a TR)>,
 {

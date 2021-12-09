@@ -30,7 +30,7 @@ where
 
 impl<T> From<CooMatrix<T>> for CsrMatrix<T>
 where
-    T: Clone + Add<Output = T>,
+    T: Scalar + Add<Output = T>,
 {
     fn from(matrix: CooMatrix<T>) -> Self {
         convert_coo_csr(matrix)
@@ -72,7 +72,7 @@ where
 
 impl<T> From<CooMatrix<T>> for CscMatrix<T>
 where
-    T: Clone + Add<Output = T>,
+    T: Scalar + Add<Output = T>,
 {
     fn from(matrix: CooMatrix<T>) -> Self {
         convert_coo_csc(matrix)

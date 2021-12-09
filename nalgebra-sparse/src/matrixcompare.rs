@@ -4,12 +4,13 @@ use crate::{
     cs::{Compression, CsMatrix},
 };
 use matrixcompare_core::{self, Access, SparseAccess};
+use nalgebra::Scalar;
 use std::borrow::Borrow;
 
 impl<T, MajorOffsets, MinorIndices, Data, CompressionKind> SparseAccess<T>
     for CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressionKind>
 where
-    T: Clone,
+    T: Scalar,
     MajorOffsets: Borrow<[usize]>,
     MinorIndices: Borrow<[usize]>,
     Data: Borrow<[T]>,
@@ -29,7 +30,7 @@ where
 impl<T, MajorOffsets, MinorIndices, Data, CompressionKind> matrixcompare_core::Matrix<T>
     for CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressionKind>
 where
-    T: Clone,
+    T: Scalar,
     MajorOffsets: Borrow<[usize]>,
     MinorIndices: Borrow<[usize]>,
     Data: Borrow<[T]>,

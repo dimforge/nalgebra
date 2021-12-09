@@ -10,8 +10,7 @@ use crate::{
         CompressedColumnStorage, CompressedRowStorage, Compression, CsMatrix, CscMatrix, CsrMatrix,
     },
 };
-use nalgebra::storage::RawStorage;
-use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
+use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, RawStorage, Scalar};
 use num_traits::Zero;
 use std::{borrow::Borrow, ops::Add};
 
@@ -52,7 +51,7 @@ where
 /// Converts a [`CooMatrix`] to a [`CsrMatrix`].
 pub fn convert_coo_csr<T>(coo: CooMatrix<T>) -> CsrMatrix<T>
 where
-    T: Clone + Add<Output = T>,
+    T: Scalar + Add<Output = T>,
 {
     convert_coo_cs(coo, &Add::add)
 }
@@ -62,7 +61,7 @@ pub fn convert_csr_coo<T, MO, MI, D>(
     csr: &CsMatrix<T, MO, MI, D, CompressedRowStorage>,
 ) -> CooMatrix<T>
 where
-    T: Clone,
+    T: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T]>,
@@ -131,7 +130,7 @@ where
 /// Converts a [`CooMatrix`] to a [`CscMatrix`].
 pub fn convert_coo_csc<T>(coo: CooMatrix<T>) -> CscMatrix<T>
 where
-    T: Clone + Add<Output = T>,
+    T: Scalar + Add<Output = T>,
 {
     convert_coo_cs(coo, &Add::add)
 }
@@ -210,7 +209,7 @@ pub fn convert_csr_csc<T, MO, MI, D>(
     csr: &CsMatrix<T, MO, MI, D, CompressedRowStorage>,
 ) -> CscMatrix<T>
 where
-    T: Clone,
+    T: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T]>,
@@ -247,7 +246,7 @@ pub fn convert_csc_csr<T, MO, MI, D>(
     csc: &CsMatrix<T, MO, MI, D, CompressedColumnStorage>,
 ) -> CsrMatrix<T>
 where
-    T: Clone,
+    T: Scalar,
     MO: Borrow<[usize]>,
     MI: Borrow<[usize]>,
     D: Borrow<[T]>,
@@ -285,7 +284,7 @@ fn convert_coo_cs<T, C, F>(
     combinator: F,
 ) -> CsMatrix<F::Output, Vec<usize>, Vec<usize>, Vec<F::Output>, C>
 where
-    T: Clone,
+    T: Scalar,
     C: Compression,
     F: Fn(T, T) -> T,
 {
