@@ -6,7 +6,9 @@
 use super::utils;
 use crate::{
     coo::CooMatrix,
-    cs::{CompressedColumnStorage, CompressedRowStorage, CsMatrix, CscMatrix, CsrMatrix},
+    cs::{
+        CompressedColumnStorage, CompressedRowStorage, Compression, CsMatrix, CscMatrix, CsrMatrix,
+    },
 };
 use nalgebra::storage::RawStorage;
 use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
@@ -48,18 +50,11 @@ where
 }
 
 /// Converts a [`CooMatrix`] to a [`CsrMatrix`].
-pub fn convert_coo_csr<T>(coo: &CooMatrix<T>) -> CsrMatrix<T>
+pub fn convert_coo_csr<T>(coo: CooMatrix<T>) -> CsrMatrix<T>
 where
-    T: Scalar + Zero,
+    T: Clone + Add<Output = T>,
 {
-    let (offsets, indices, values) = convert_coo_cs(
-        coo.nrows(),
-        coo.row_indices(),
-        coo.col_indices(),
-        coo.values(),
-    );
-
-    unsafe { CsrMatrix::from_parts_unchecked(coo.nrows(), coo.ncols(), offsets, indices, values) }
+    convert_coo_cs(coo, &Add::add)
 }
 
 /// Converts a [`CsrMatrix`] to a [`CooMatrix`].
@@ -134,18 +129,11 @@ where
 }
 
 /// Converts a [`CooMatrix`] to a [`CscMatrix`].
-pub fn convert_coo_csc<T>(coo: &CooMatrix<T>) -> CscMatrix<T>
+pub fn convert_coo_csc<T>(coo: CooMatrix<T>) -> CscMatrix<T>
 where
-    T: Scalar + Zero,
+    T: Clone + Add<Output = T>,
 {
-    let (offsets, indices, values) = convert_coo_cs(
-        coo.ncols(),
-        coo.col_indices(),
-        coo.row_indices(),
-        coo.values(),
-    );
-
-    unsafe { CscMatrix::from_parts_unchecked(coo.nrows(), coo.ncols(), offsets, indices, values) }
+    convert_coo_cs(coo, &Add::add)
 }
 
 /// Converts a [`CscMatrix`] to a [`CooMatrix`].
@@ -291,126 +279,359 @@ where
     unsafe { CsrMatrix::from_parts_unchecked(nrows, ncols, offsets, indices, data) }
 }
 
-fn convert_coo_cs<T>(
-    major_dim: usize,
-    major_indices: &[usize],
-    minor_indices: &[usize],
-    values: &[T],
-) -> (Vec<usize>, Vec<usize>, Vec<T>)
+/// Converts a COO matrix to a CsMatrix, resolving duplicates with the provided combinator.
+fn convert_coo_cs<T, C, F>(
+    coo: CooMatrix<T>,
+    combinator: F,
+) -> CsMatrix<F::Output, Vec<usize>, Vec<usize>, Vec<F::Output>, C>
 where
-    T: Scalar + Zero,
+    T: Clone,
+    C: Compression,
+    F: Fn(T, T) -> T,
 {
-    assert_eq!(major_indices.len(), minor_indices.len());
-    assert_eq!(minor_indices.len(), values.len());
-    let nnz = major_indices.len();
+    let nrows = coo.nrows();
+    let ncols = coo.ncols();
 
-    let (unsorted_major_offsets, unsorted_minor_idx, unsorted_vals) = {
-        let mut offsets = vec![0usize; major_dim + 1];
-        let mut minor_idx = vec![0usize; nnz];
-        let mut vals = vec![T::zero(); nnz];
-        coo_to_unsorted_cs(
-            &mut offsets,
-            &mut minor_idx,
-            &mut vals,
-            major_dim,
-            major_indices,
-            minor_indices,
-            values,
-        );
-        (offsets, minor_idx, vals)
-    };
+    let nmajor = C::nmajor(nrows, ncols);
 
-    // TODO: If input is sorted and/or without duplicates, we can avoid additional allocations
-    // and work. Might want to take advantage of this.
+    let (coo_rows, coo_cols, coo_data) = coo.disassemble();
 
-    // At this point, assembly is essentially complete. However, we must ensure
-    // that minor indices are sorted within each lane and without duplicates.
-    let mut sorted_major_offsets = Vec::new();
-    let mut sorted_minor_idx = Vec::new();
-    let mut sorted_vals = Vec::new();
+    let mut triplets = coo_rows
+        .into_iter()
+        .zip(coo_cols)
+        .map(|(r, c)| {
+            let nmajor = C::nmajor(r, c);
+            let nminor = C::nminor(r, c);
 
-    sorted_major_offsets.push(0);
+            (nmajor, nminor)
+        })
+        .zip(coo_data)
+        .collect::<Vec<_>>();
 
-    // We need some temporary storage when working with each lane. Since lanes often have a
-    // very small number of non-zero entries, we try to amortize allocations across
-    // lanes by reusing workspace vectors
-    let mut idx_workspace = Vec::new();
-    let mut perm_workspace = Vec::new();
-    let mut values_workspace = Vec::new();
+    // Sort the triplets according to their index positions, lexicographically.
+    //
+    // This gives us the triplets in the correct ordering, because we already mapped every "index"
+    // pair as (nmajor, nminor), and tuples sort lexicographically.
+    //
+    // In particular, we should expect it to be sorted according to major -> minor so that we get
+    // e.g.
+    //
+    // - (0, 0)
+    // - (0, 1)
+    // - (1, 3)
+    // - (1, 3)
+    // - (1, 4)
+    // - (2, 4)
+    // - etc.
+    //
+    // Where the first number is the major axis, and the second is the minor axis.
+    triplets.sort_unstable_by(|(left_idx, _), (right_idx, _)| left_idx.cmp(right_idx));
 
-    for lane in 0..major_dim {
-        let begin = unsorted_major_offsets[lane];
-        let end = unsorted_major_offsets[lane + 1];
-        let count = end - begin;
-        let range = begin..end;
+    let mut counts = vec![0usize; nmajor];
+    let mut indices = Vec::with_capacity(triplets.len());
+    let mut data = Vec::<T>::with_capacity(triplets.len());
 
-        // Ensure that workspaces can hold enough data
-        perm_workspace.resize(count, 0);
-        idx_workspace.resize(count, 0);
-        values_workspace.resize(count, T::zero());
-        utils::sort_lane(
-            &mut idx_workspace[..count],
-            &mut values_workspace[..count],
-            &unsorted_minor_idx[range.clone()],
-            &unsorted_vals[range.clone()],
-            &mut perm_workspace[..count],
-        );
+    let mut i_prev = None;
 
-        let sorted_ja_current_len = sorted_minor_idx.len();
+    for ((i, j), val) in triplets {
+        // This checks for duplicates, and resolves them with the appropriate combinator.
+        //
+        // We can check for duplicates merely by seeing if the last i and j are the same, since we
+        // know that the triplets have been sorted.
+        if let Some(i_prev) = i_prev {
+            if i == i_prev {
+                if let Some(j_prev) = indices.last() {
+                    if j == *j_prev {
+                        // We know this should exist if indices.last() exists
+                        let prev_val = data.last_mut().unwrap();
+                        *prev_val = combinator(prev_val.clone(), val);
 
-        utils::combine_duplicates(
-            |idx| sorted_minor_idx.push(idx),
-            |val| sorted_vals.push(val),
-            &idx_workspace[..count],
-            &values_workspace[..count],
-            &Add::add,
-        );
+                        continue;
+                    }
+                }
+            }
+        }
 
-        let new_col_count = sorted_minor_idx.len() - sorted_ja_current_len;
-        sorted_major_offsets.push(sorted_major_offsets.last().unwrap() + new_col_count);
+        counts[i] += 1;
+        indices.push(j);
+        data.push(val);
+
+        i_prev = Some(i);
     }
 
-    (sorted_major_offsets, sorted_minor_idx, sorted_vals)
+    let offsets = utils::CountToOffsetIter::new(counts).collect();
+
+    unsafe { CsMatrix::from_parts_unchecked(nrows, ncols, offsets, indices, data) }
 }
 
-/// Converts matrix data given in triplet format to unsorted CSR/CSC, retaining any duplicated
-/// indices.
-///
-/// Here `major/minor` is `row/col` for CSR and `col/row` for CSC.
-fn coo_to_unsorted_cs<T: Clone>(
-    major_offsets: &mut [usize],
-    cs_minor_idx: &mut [usize],
-    cs_values: &mut [T],
-    major_dim: usize,
-    major_indices: &[usize],
-    minor_indices: &[usize],
-    coo_values: &[T],
-) {
-    assert_eq!(major_offsets.len(), major_dim + 1);
-    assert_eq!(cs_minor_idx.len(), cs_values.len());
-    assert_eq!(cs_values.len(), major_indices.len());
-    assert_eq!(major_indices.len(), minor_indices.len());
-    assert_eq!(minor_indices.len(), coo_values.len());
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use nalgebra::SMatrix;
 
-    // Count the number of occurrences of each row
-    for major_idx in major_indices {
-        major_offsets[*major_idx] += 1;
+    #[test]
+    fn coo_from_dense_and_dense_from_coo_are_symmetric() {
+        #[rustfmt::skip]
+        let dense = SMatrix::<usize, 2, 3>::from_row_slice(&[
+            1, 0, 3,
+            0, 5, 0,
+        ]);
+
+        // The COO representation of a dense matrix is not unique.
+        // Here we implicitly test that the coo matrix is indeed constructed from column-major
+        // iteration of the dense matrix.
+        let coo = CooMatrix::try_from_triplets(2, 3, vec![0, 1, 0], vec![0, 1, 2], vec![1, 5, 3])
+            .unwrap();
+
+        assert_eq!(convert_dense_coo(&dense), coo);
+        assert_eq!(convert_coo_dense(&coo), dense);
     }
 
-    let major_offsets =
-        utils::CountToOffsetIter::new(major_offsets.iter().map(|&x| x)).collect::<Vec<_>>();
+    #[test]
+    fn coo_with_duplicates_from_dense_and_dense_from_coo_with_duplicates_are_symmetric() {
+        #[rustfmt::skip]
+        let dense = SMatrix::<i64, 2, 3>::from_row_slice(&[
+            1, 0, 3,
+            0, 5, 0,
+        ]);
 
-    {
-        // TODO: Instead of allocating a whole new vector storing the current counts,
-        // I think it's possible to be a bit more clever by storing each count
-        // in the last of the column indices for each row
-        let mut current_counts = vec![0usize; major_dim + 1];
-        let triplet_iter = major_indices.iter().zip(minor_indices).zip(coo_values);
-        for ((i, j), value) in triplet_iter {
-            let current_offset = major_offsets[*i] + current_counts[*i];
-            cs_minor_idx[current_offset] = *j;
-            cs_values[current_offset] = value.clone();
-            current_counts[*i] += 1;
-        }
+        let coo_no_dup =
+            CooMatrix::try_from_triplets(2, 3, vec![0, 1, 0], vec![0, 1, 2], vec![1, 5, 3])
+                .unwrap();
+
+        let coo_dup = CooMatrix::try_from_triplets(
+            2,
+            3,
+            vec![0, 1, 0, 1],
+            vec![0, 1, 2, 1],
+            vec![1, -2, 3, 7],
+        )
+        .unwrap();
+
+        let converted_coo = convert_coo_dense(&coo_dup);
+
+        assert_eq!(&converted_coo, &dense);
+
+        let converted_coo_without_duplicates = convert_dense_coo(&converted_coo);
+
+        assert_eq!(converted_coo_without_duplicates, coo_no_dup);
+    }
+
+    #[test]
+    fn csr_from_coo_has_expected_format() {
+        let coo = {
+            let mut coo = CooMatrix::new(3, 4);
+            coo.push(1, 3, 4);
+            coo.push(0, 1, 2);
+            coo.push(2, 0, 1);
+            coo.push(2, 3, 2);
+            coo.push(2, 2, 1);
+            coo
+        };
+
+        let expected_csr = CsrMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 1, 2],
+            vec![1, 3, 0, 2, 3],
+            vec![2, 4, 1, 1, 2],
+        )
+        .unwrap();
+
+        let converted_csr = convert_coo_csr(coo);
+
+        assert_eq!(converted_csr.shape(), expected_csr.shape());
+
+        let (expected_offsets, expected_indices, expected_data) = expected_csr.cs_data();
+        let (converted_offsets, converted_indices, converted_data) = converted_csr.cs_data();
+
+        assert!(expected_offsets
+            .iter()
+            .zip(converted_offsets)
+            .all(|(a, b)| a == b));
+        assert!(expected_indices
+            .iter()
+            .zip(converted_indices)
+            .all(|(a, b)| a == b));
+        assert!(expected_data
+            .iter()
+            .zip(converted_data)
+            .all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn csr_from_coo_with_duplicates_has_expected_format() {
+        let coo = {
+            let mut coo = CooMatrix::new(3, 4);
+            coo.push(1, 3, 4);
+            coo.push(2, 3, 2);
+            coo.push(0, 1, 2);
+            coo.push(2, 0, 1);
+            coo.push(2, 3, 2);
+            coo.push(0, 1, 3);
+            coo.push(2, 2, 1);
+            coo
+        };
+
+        let expected_csr = CsrMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 1, 2],
+            vec![1, 3, 0, 2, 3],
+            vec![5, 4, 1, 1, 4],
+        )
+        .unwrap();
+
+        let converted_csr = convert_coo_csr(coo);
+
+        assert_eq!(converted_csr.shape(), expected_csr.shape());
+
+        let (expected_offsets, expected_indices, expected_data) = expected_csr.cs_data();
+        let (converted_offsets, converted_indices, converted_data) = converted_csr.cs_data();
+
+        assert!(expected_offsets
+            .iter()
+            .zip(converted_offsets)
+            .all(|(a, b)| a == b));
+        assert!(expected_indices
+            .iter()
+            .zip(converted_indices)
+            .all(|(a, b)| a == b));
+        assert!(expected_data
+            .iter()
+            .zip(converted_data)
+            .all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn csc_from_coo_has_expected_format() {
+        let coo = {
+            let mut coo = CooMatrix::new(3, 4);
+            coo.push(1, 3, 4);
+            coo.push(0, 1, 2);
+            coo.push(2, 0, 1);
+            coo.push(2, 3, 2);
+            coo.push(2, 2, 1);
+            coo
+        };
+
+        let expected_csc = CscMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 1, 2, 3],
+            vec![2, 0, 2, 1, 2],
+            vec![1, 2, 1, 4, 2],
+        )
+        .unwrap();
+
+        let converted_csc = convert_coo_csc(coo);
+
+        assert_eq!(converted_csc.shape(), expected_csc.shape());
+
+        let (expected_offsets, expected_indices, expected_data) = expected_csc.cs_data();
+        let (converted_offsets, converted_indices, converted_data) = converted_csc.cs_data();
+
+        assert!(expected_offsets
+            .iter()
+            .zip(converted_offsets)
+            .all(|(a, b)| a == b));
+        assert!(expected_indices
+            .iter()
+            .zip(converted_indices)
+            .all(|(a, b)| a == b));
+        assert!(expected_data
+            .iter()
+            .zip(converted_data)
+            .all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn csc_from_coo_with_duplicates_has_expected_format() {
+        let coo = {
+            let mut coo = CooMatrix::new(3, 4);
+            coo.push(1, 3, 4);
+            coo.push(2, 3, 2);
+            coo.push(0, 1, 2);
+            coo.push(2, 0, 1);
+            coo.push(2, 3, 2);
+            coo.push(0, 1, 3);
+            coo.push(2, 2, 1);
+            coo
+        };
+
+        let expected_csc = CscMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 1, 2, 3],
+            vec![2, 0, 2, 1, 2],
+            vec![1, 5, 1, 4, 4],
+        )
+        .unwrap();
+
+        let converted_csc = convert_coo_csc(coo);
+
+        assert_eq!(converted_csc.shape(), expected_csc.shape());
+
+        let (expected_offsets, expected_indices, expected_data) = expected_csc.cs_data();
+        let (converted_offsets, converted_indices, converted_data) = converted_csc.cs_data();
+
+        assert!(expected_offsets
+            .iter()
+            .zip(converted_offsets)
+            .all(|(a, b)| a == b));
+        assert!(expected_indices
+            .iter()
+            .zip(converted_indices)
+            .all(|(a, b)| a == b));
+        assert!(expected_data
+            .iter()
+            .zip(converted_data)
+            .all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn coo_from_csr_has_expected_format() {
+        let csr = CsrMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 1, 2],
+            vec![1, 3, 0, 2, 3],
+            vec![5, 4, 1, 1, 4],
+        )
+        .unwrap();
+
+        let expected_coo = CooMatrix::try_from_triplets(
+            3,
+            4,
+            vec![0, 1, 2, 2, 2],
+            vec![1, 3, 0, 2, 3],
+            vec![5, 4, 1, 1, 4],
+        )
+        .unwrap();
+
+        assert_eq!(convert_csr_coo(&csr), expected_coo);
+    }
+
+    #[test]
+    fn coo_from_csc_has_expected_format() {
+        let csc = CscMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 1, 2, 3],
+            vec![2, 0, 2, 1, 2],
+            vec![1, 2, 1, 4, 2],
+        )
+        .unwrap();
+
+        let expected_coo = CooMatrix::try_from_triplets(
+            3,
+            4,
+            vec![2, 0, 2, 1, 2],
+            vec![0, 1, 2, 3, 3],
+            vec![1, 2, 1, 4, 2],
+        )
+        .unwrap();
+
+        assert_eq!(convert_csc_coo(&csc), expected_coo);
     }
 }

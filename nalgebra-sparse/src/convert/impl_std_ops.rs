@@ -5,7 +5,7 @@ use crate::{
 };
 use nalgebra::{storage::RawStorage, ClosedAdd, DMatrix, Dim, Matrix, Scalar};
 use num_traits::Zero;
-use std::borrow::Borrow;
+use std::{borrow::Borrow, ops::Add};
 
 impl<'a, T, R, C, S> From<&'a Matrix<T, R, C, S>> for CooMatrix<T>
 where
@@ -28,11 +28,11 @@ where
     }
 }
 
-impl<'a, T> From<&'a CooMatrix<T>> for CsrMatrix<T>
+impl<T> From<CooMatrix<T>> for CsrMatrix<T>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Clone + Add<Output = T>,
 {
-    fn from(matrix: &'a CooMatrix<T>) -> Self {
+    fn from(matrix: CooMatrix<T>) -> Self {
         convert_coo_csr(matrix)
     }
 }
@@ -70,11 +70,11 @@ where
     }
 }
 
-impl<'a, T> From<&'a CooMatrix<T>> for CscMatrix<T>
+impl<T> From<CooMatrix<T>> for CscMatrix<T>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Clone + Add<Output = T>,
 {
-    fn from(matrix: &'a CooMatrix<T>) -> Self {
+    fn from(matrix: CooMatrix<T>) -> Self {
         convert_coo_csc(matrix)
     }
 }
