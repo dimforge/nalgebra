@@ -33,3 +33,10 @@ mod proptest;
 //#[cfg(all(feature = "debug", feature = "compare", feature = "rand"))]
 //#[cfg(feature = "sparse")]
 //mod sparse;
+
+mod utils {
+    /// Checks if a slice is sorted in descending order.
+    pub fn is_sorted_descending<T: PartialOrd>(slice: &[T]) -> bool {
+        slice.windows(2).all(|elts| elts[0] >= elts[1])
+    }
+}
