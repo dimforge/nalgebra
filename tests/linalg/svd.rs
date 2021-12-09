@@ -364,6 +364,9 @@ fn svd_fail() {
 #[test]
 #[rustfmt::skip]
 fn svd3_fail() {
+    // NOTE: this matrix fails the special case done for 3x3 SVDs.
+    // It was found on an actual application using SVD as part of the minimization of a
+    // quadratic error function.
     let m = nalgebra::matrix![
         0.0, 1.0, 0.0;
         0.0, 1.7320508075688772, 0.0;
