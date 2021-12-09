@@ -1,6 +1,7 @@
 //! An implementation of the COO sparse matrix format.
 
 use crate::SparseFormatError;
+use std::borrow::Cow;
 
 #[cfg(feature = "serde-serialize")]
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
@@ -278,19 +279,19 @@ impl<T> CooMatrix<T> {
 }
 
 #[cfg(feature = "serde-serialize")]
-#[derive(Serialize)]
-struct CooMatrixSerializationData<'a, T> {
+#[derive(Serialize, Deserialize)]
+struct CooMatrixSerializationData<'a, T: Clone> {
     nrows: usize,
     ncols: usize,
-    row_indices: &'a [usize],
-    col_indices: &'a [usize],
-    values: &'a [T],
+    row_indices: Cow<'a, [usize]>,
+    col_indices: Cow<'a, [usize]>,
+    values: Cow<'a, [T]>,
 }
 
 #[cfg(feature = "serde-serialize")]
 impl<T> Serialize for CooMatrix<T>
 where
-    T: Serialize,
+    T: Serialize + Clone,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -299,42 +300,31 @@ where
         CooMatrixSerializationData {
             nrows: self.nrows(),
             ncols: self.ncols(),
-            row_indices: self.row_indices(),
-            col_indices: self.col_indices(),
-            values: self.values(),
+            row_indices: self.row_indices().into(),
+            col_indices: self.col_indices().into(),
+            values: self.values().into(),
         }
         .serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde-serialize")]
-#[derive(Deserialize)]
-struct CooMatrixDeserializationData<T> {
-    nrows: usize,
-    ncols: usize,
-    row_indices: Vec<usize>,
-    col_indices: Vec<usize>,
-    values: Vec<T>,
-}
-
-#[cfg(feature = "serde-serialize")]
 impl<'de, T> Deserialize<'de> for CooMatrix<T>
 where
-    T: Deserialize<'de>,
+    T: Deserialize<'de> + Clone,
 {
     fn deserialize<D>(deserializer: D) -> Result<CooMatrix<T>, D::Error>
     where
         D: Deserializer<'de>,
     {
-        let de = CooMatrixDeserializationData::deserialize(deserializer)?;
+        let de = CooMatrixSerializationData::deserialize(deserializer)?;
         CooMatrix::try_from_triplets(
             de.nrows,
             de.ncols,
-            de.row_indices,
-            de.col_indices,
-            de.values,
+            de.row_indices.into(),
+            de.col_indices.into(),
+            de.values.into(),
         )
-        .map(|m| m.into())
         .map_err(|e| de::Error::custom(e))
     }
 }

@@ -1,6 +1,7 @@
 //! Sparsity patterns for CSR and CSC matrices.
 use crate::cs::transpose_cs;
 use crate::SparseFormatError;
+use std::borrow::Cow;
 use std::error::Error;
 use std::fmt;
 
@@ -293,12 +294,12 @@ pub enum SparsityPatternFormatError {
 }
 
 #[cfg(feature = "serde-serialize")]
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 struct SparsityPatternSerializationData<'a> {
     major_dim: usize,
     minor_dim: usize,
-    major_offsets: &'a [usize],
-    minor_indices: &'a [usize],
+    major_offsets: Cow<'a, [usize]>,
+    minor_indices: Cow<'a, [usize]>,
 }
 
 #[cfg(feature = "serde-serialize")]
@@ -310,20 +311,11 @@ impl Serialize for SparsityPattern {
         SparsityPatternSerializationData {
             major_dim: self.major_dim(),
             minor_dim: self.minor_dim(),
-            major_offsets: self.major_offsets(),
-            minor_indices: self.minor_indices(),
+            major_offsets: Cow::Borrowed(self.major_offsets()),
+            minor_indices: Cow::Borrowed(self.minor_indices()),
         }
         .serialize(serializer)
     }
-}
-
-#[cfg(feature = "serde-serialize")]
-#[derive(Deserialize)]
-struct SparsityPatternDeserializationData {
-    major_dim: usize,
-    minor_dim: usize,
-    major_offsets: Vec<usize>,
-    minor_indices: Vec<usize>,
 }
 
 #[cfg(feature = "serde-serialize")]
@@ -332,14 +324,13 @@ impl<'de> Deserialize<'de> for SparsityPattern {
     where
         D: Deserializer<'de>,
     {
-        let de = SparsityPatternDeserializationData::deserialize(deserializer)?;
+        let de = SparsityPatternSerializationData::deserialize(deserializer)?;
         SparsityPattern::try_from_offsets_and_indices(
             de.major_dim,
             de.minor_dim,
-            de.major_offsets,
-            de.minor_indices,
+            de.major_offsets.into(),
+            de.minor_indices.into(),
         )
-        .map(|m| m.into())
         .map_err(|e| de::Error::custom(e))
     }
 }

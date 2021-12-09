@@ -7,6 +7,7 @@ use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
 use crate::csr::CsrMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
 use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
+use std::borrow::Cow;
 
 use nalgebra::Scalar;
 use num_traits::One;
@@ -523,19 +524,19 @@ impl<T> CscMatrix<T> {
 }
 
 #[cfg(feature = "serde-serialize")]
-#[derive(Serialize)]
-struct CscMatrixSerializationData<'a, T> {
+#[derive(Serialize, Deserialize)]
+struct CscMatrixSerializationData<'a, T: Clone> {
     nrows: usize,
     ncols: usize,
-    col_offsets: &'a [usize],
-    row_indices: &'a [usize],
-    values: &'a [T],
+    col_offsets: Cow<'a, [usize]>,
+    row_indices: Cow<'a, [usize]>,
+    values: Cow<'a, [T]>,
 }
 
 #[cfg(feature = "serde-serialize")]
 impl<T> Serialize for CscMatrix<T>
 where
-    T: Serialize,
+    T: Serialize + Clone,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -544,42 +545,31 @@ where
         CscMatrixSerializationData {
             nrows: self.nrows(),
             ncols: self.ncols(),
-            col_offsets: self.col_offsets(),
-            row_indices: self.row_indices(),
-            values: self.values(),
+            col_offsets: Cow::Borrowed(self.col_offsets()),
+            row_indices: Cow::Borrowed(self.row_indices()),
+            values: Cow::Borrowed(self.values()),
         }
         .serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde-serialize")]
-#[derive(Deserialize)]
-struct CscMatrixDeserializationData<T> {
-    nrows: usize,
-    ncols: usize,
-    col_offsets: Vec<usize>,
-    row_indices: Vec<usize>,
-    values: Vec<T>,
-}
-
-#[cfg(feature = "serde-serialize")]
 impl<'de, T> Deserialize<'de> for CscMatrix<T>
 where
-    T: Deserialize<'de>,
+    T: Deserialize<'de> + Clone,
 {
     fn deserialize<D>(deserializer: D) -> Result<CscMatrix<T>, D::Error>
     where
         D: Deserializer<'de>,
     {
-        let de = CscMatrixDeserializationData::deserialize(deserializer)?;
+        let de = CscMatrixSerializationData::deserialize(deserializer)?;
         CscMatrix::try_from_csc_data(
             de.nrows,
             de.ncols,
-            de.col_offsets,
-            de.row_indices,
-            de.values,
+            de.col_offsets.into(),
+            de.row_indices.into(),
+            de.values.into(),
         )
-        .map(|m| m.into())
         .map_err(|e| de::Error::custom(e))
     }
 }
