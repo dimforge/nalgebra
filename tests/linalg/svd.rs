@@ -1,3 +1,4 @@
+use crate::utils::is_sorted_descending;
 use na::{DMatrix, Matrix6};
 
 #[cfg(feature = "proptest-support")]
@@ -14,6 +15,7 @@ mod proptest_tests {
                 use crate::core::helper::{RandScalar, RandComplex};
                 use crate::proptest::*;
                 use proptest::{prop_assert, proptest};
+                use crate::utils::is_sorted_descending;
 
                 proptest! {
                     #[test]
@@ -26,7 +28,7 @@ mod proptest_tests {
                         prop_assert!(s.iter().all(|e| *e >= 0.0));
                         prop_assert!(relative_eq!(&u * ds * &v_t, recomp_m, epsilon = 1.0e-5));
                         prop_assert!(relative_eq!(m, recomp_m, epsilon = 1.0e-5));
-                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
+                        prop_assert!(is_sorted_descending(s.as_slice()));
                     }
 
                     #[test]
@@ -39,7 +41,7 @@ mod proptest_tests {
                         prop_assert!(relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5));
                         prop_assert!(u.is_orthogonal(1.0e-5));
                         prop_assert!(v_t.is_orthogonal(1.0e-5));
-                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
+                        prop_assert!(is_sorted_descending(s.as_slice()));
                     }
 
                     #[test]
@@ -52,7 +54,7 @@ mod proptest_tests {
                         prop_assert!(relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5));
                         prop_assert!(u.is_orthogonal(1.0e-5));
                         prop_assert!(v_t.is_orthogonal(1.0e-5));
-                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
+                        prop_assert!(is_sorted_descending(s.as_slice()));
                     }
 
                     #[test]
@@ -64,7 +66,7 @@ mod proptest_tests {
 
                         prop_assert!(s.iter().all(|e| *e >= 0.0));
                         prop_assert!(relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5));
-                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
+                        prop_assert!(is_sorted_descending(s.as_slice()));
                     }
 
                     #[test]
@@ -75,7 +77,7 @@ mod proptest_tests {
 
                         prop_assert!(s.iter().all(|e| *e >= 0.0));
                         prop_assert!(relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5));
-                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
+                        prop_assert!(is_sorted_descending(s.as_slice()));
                     }
 
                     #[test]
@@ -88,7 +90,7 @@ mod proptest_tests {
                         prop_assert!(relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5));
                         prop_assert!(u.is_orthogonal(1.0e-5));
                         prop_assert!(v_t.is_orthogonal(1.0e-5));
-                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
+                        prop_assert!(is_sorted_descending(s.as_slice()));
                     }
 
                     #[test]
@@ -101,7 +103,7 @@ mod proptest_tests {
                         prop_assert!(relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5));
                         prop_assert!(u.is_orthogonal(1.0e-5));
                         prop_assert!(v_t.is_orthogonal(1.0e-5));
-                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
+                        prop_assert!(is_sorted_descending(s.as_slice()));
                     }
 
                     #[test]
@@ -114,7 +116,7 @@ mod proptest_tests {
                         prop_assert!(relative_eq!(m, u * ds * v_t, epsilon = 1.0e-5));
                         prop_assert!(u.is_orthogonal(1.0e-5));
                         prop_assert!(v_t.is_orthogonal(1.0e-5));
-                        prop_assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
+                        prop_assert!(is_sorted_descending(s.as_slice()));
                     }
 
                     #[test]
@@ -195,7 +197,7 @@ fn svd_singular() {
     let ds = DMatrix::from_diagonal(&s);
 
     assert!(s.iter().all(|e| *e >= 0.0));
-    assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
+    assert!(is_sorted_descending(s.as_slice()));
     assert!(u.is_orthogonal(1.0e-5));
     assert!(v_t.is_orthogonal(1.0e-5));
     assert_relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5);
@@ -238,7 +240,7 @@ fn svd_singular_vertical() {
     let ds = DMatrix::from_diagonal(&s);
 
     assert!(s.iter().all(|e| *e >= 0.0));
-    assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
+    assert!(is_sorted_descending(s.as_slice()));
     assert_relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5);
 }
 
@@ -277,7 +279,7 @@ fn svd_singular_horizontal() {
     let ds = DMatrix::from_diagonal(&s);
 
     assert!(s.iter().all(|e| *e >= 0.0));
-    assert!(s.as_slice().windows(2).all(|elts| elts[0] >= elts[1]));
+    assert!(is_sorted_descending(s.as_slice()));
     assert_relative_eq!(m, &u * ds * &v_t, epsilon = 1.0e-5);
 }
 
