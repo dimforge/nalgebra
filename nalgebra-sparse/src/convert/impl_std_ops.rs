@@ -139,3 +139,86 @@ where
         convert_csr_csc(&matrix)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::proptest::*;
+    use proptest::prelude::*;
+
+    proptest! {
+        #[test]
+        fn dense_from_coo_from_dense_is_reflective(dense in dense_strategy()) {
+            let final_dense = DMatrix::from(&CooMatrix::from(&dense));
+            prop_assert_eq!(dense, final_dense);
+        }
+
+        #[test]
+        fn csr_from_coo_from_csr_is_reflective(csr in csr_strategy()) {
+            let final_csr = CsrMatrix::from(CooMatrix::from(&csr));
+
+            prop_assert_eq!(csr.shape(), final_csr.shape());
+
+            let (offsets, indices, data) = csr.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = final_csr.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn csr_from_dense_from_csr_is_reflective(csr in non_zero_csr_strategy()) {
+            let final_csr = CsrMatrix::from(&DMatrix::from(&csr));
+
+            prop_assert_eq!(csr.shape(), final_csr.shape());
+
+            let (offsets, indices, data) = csr.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = final_csr.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn dense_from_csr_from_dense_is_reflective(dense in dense_strategy()) {
+            let final_dense = DMatrix::from(&CsrMatrix::from(&dense));
+            prop_assert_eq!(dense, final_dense);
+        }
+
+        #[test]
+        fn csc_from_coo_from_csc_is_reflective(csc in csc_strategy()) {
+            let final_csc = CscMatrix::from(CooMatrix::from(&csc));
+
+            prop_assert_eq!(csc.shape(), final_csc.shape());
+
+            let (offsets, indices, data) = csc.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = final_csc.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn csc_from_dense_from_csc_is_reflective(csc in non_zero_csc_strategy()) {
+            let final_csc = CscMatrix::from(&DMatrix::from(&csc));
+
+            prop_assert_eq!(csc.shape(), final_csc.shape());
+
+            let (offsets, indices, data) = csc.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = final_csc.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn dense_from_csc_from_dense_is_reflective(dense in dense_strategy()) {
+            let final_dense = DMatrix::from(&CscMatrix::from(&dense));
+            prop_assert_eq!(dense, final_dense);
+        }
+    }
+}
