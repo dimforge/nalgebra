@@ -25,7 +25,7 @@ use std::{borrow::Borrow, cmp::Ordering, ops::Add};
 
 /// Sparse-sparse matrix addition.
 ///
-/// This function takes two arguments, a CSR matrix and CSC matrix, and performs sparse-matrix
+/// This function takes two arguments, a CSR matrix and CSC matrix.to_view(), and performs sparse-matrix
 /// addition between the two.
 ///
 /// # Errors
@@ -91,7 +91,7 @@ where
 
 /// Sparse-sparse matrix addition.
 ///
-/// This function takes two arguments, a CSC matrix and a CSR matrix, and performs sparse-matrix
+/// This function takes two arguments, a CSC matrix and a CSR matrix.to_view(), and performs sparse-matrix
 /// addition between the two.
 ///
 /// # Errors
@@ -163,7 +163,7 @@ where
     };
 
     let max_nnz = lhs.nnz() + rhs.nnz();
-    let mut counts = vec![0; lrows];
+    let mut counts = vec![0; lcols];
     let mut indices = Vec::with_capacity(max_nnz);
     let mut data = Vec::with_capacity(max_nnz);
 
@@ -206,7 +206,7 @@ where
 
 /// Dense-sparse matrix addition.
 ///
-/// This function takes in two matrices, one dense and one CSC matrix, and performs dense-sparse
+/// This function takes in two matrices, one dense and one CSC matrix.to_view(), and performs dense-sparse
 /// addition between the two.
 ///
 /// # Errors
@@ -247,7 +247,7 @@ where
 
 /// Dense-sparse matrix addition.
 ///
-/// This function takes in two matrices, one dense and one CSC matrix, and performs dense-sparse
+/// This function takes in two matrices, one dense and one CSC matrix.to_view(), and performs dense-sparse
 /// addition between the two.
 ///
 /// # Errors
@@ -273,7 +273,7 @@ where
 
 /// Dense-sparse matrix addition.
 ///
-/// This function takes in two matrices, one dense and one CSR matrix, and performs dense-sparse
+/// This function takes in two matrices, one dense and one CSR matrix.to_view(), and performs dense-sparse
 /// addition between the two.
 ///
 /// # Errors
@@ -314,7 +314,7 @@ where
 
 /// Dense-sparse matrix addition.
 ///
-/// This function takes in two matrices, one dense and one CSR matrix, and performs dense-sparse
+/// This function takes in two matrices, one dense and one CSR matrix.to_view(), and performs dense-sparse
 /// addition between the two.
 ///
 /// # Errors
@@ -347,7 +347,7 @@ where
 /// foremost, `left_val` and `right_val` need to not be `None` immediately, or this will always
 /// return `None`. Secondly, this iterator is difficult to use directly outside of the above
 /// `spadd_csx_csx` functions because it relies on the fact that both iterators are outputting
-/// triplets in the same major ordering. This means that if you want to add a CSC and CSR matrix,
+/// triplets in the same major ordering. This means that if you want to add a CSC and CSR matrix.to_view(),
 /// you cannot do the following:
 ///
 /// ```ignore
@@ -437,6 +437,495 @@ where
 
             // Both are exhausted
             (None, None) => None,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::proptest::*;
+    use nalgebra::DMatrix;
+    use proptest::prelude::*;
+
+    #[test]
+    fn spadd_csr_csr_is_commutative() {
+        let lhs = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let rhs = CsrMatrix::<i32>::identity(4);
+
+        let lhs_plus_rhs = spadd_csr_csr(lhs.to_view(), rhs.to_view()).unwrap();
+        let rhs_plus_lhs = spadd_csr_csr(rhs, lhs).unwrap();
+
+        assert_eq!(lhs_plus_rhs.shape(), rhs_plus_lhs.shape());
+
+        let (offsets, indices, data) = lhs_plus_rhs.cs_data();
+        let (expected_offsets, expected_indices, expected_data) = rhs_plus_lhs.cs_data();
+
+        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn spadd_csr_csr_is_distributive() {
+        let a = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let c = CsrMatrix::<i32>::identity(4);
+
+        let a_b_then_c = spadd_csr_csr(
+            spadd_csr_csr(a.to_view(), b.to_view()).unwrap(),
+            c.to_view(),
+        )
+        .unwrap();
+        let a_then_b_c = spadd_csr_csr(a, spadd_csr_csr(b, c).unwrap()).unwrap();
+
+        assert_eq!(a_b_then_c.shape(), a_then_b_c.shape());
+
+        let (offsets, indices, data) = a_b_then_c.cs_data();
+        let (expected_offsets, expected_indices, expected_data) = a_then_b_c.cs_data();
+
+        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn spadd_csr_csc_is_commutative() {
+        let lhs = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let rhs = CscMatrix::<i32>::identity(4);
+
+        let lhs_plus_rhs = spadd_csr_csc(lhs.to_view(), rhs.to_view()).unwrap();
+        let rhs_plus_lhs = spadd_csc_csr(rhs, lhs).unwrap();
+
+        assert_eq!(lhs_plus_rhs.shape(), rhs_plus_lhs.shape());
+
+        let (offsets, indices, data) = lhs_plus_rhs.cs_data();
+        let (expected_offsets, expected_indices, expected_data) = rhs_plus_lhs.cs_data();
+
+        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn spadd_csr_csc_is_distributive() {
+        let a = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let c = CsrMatrix::<i32>::identity(4);
+
+        let a_b_then_c = spadd_csr_csr(
+            spadd_csr_csc(a.to_view(), b.to_view()).unwrap(),
+            c.to_view(),
+        )
+        .unwrap();
+        let a_then_b_c = spadd_csr_csr(a, spadd_csc_csr(b, c).unwrap()).unwrap();
+
+        assert_eq!(a_b_then_c.shape(), a_then_b_c.shape());
+
+        let (offsets, indices, data) = a_b_then_c.cs_data();
+        let (expected_offsets, expected_indices, expected_data) = a_then_b_c.cs_data();
+
+        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn spadd_csc_csc_is_commutative() {
+        let lhs = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let rhs = CscMatrix::<i32>::identity(4);
+
+        let lhs_plus_rhs = spadd_csc_csc(lhs.to_view(), rhs.to_view()).unwrap();
+        let rhs_plus_lhs = spadd_csc_csc(rhs, lhs).unwrap();
+
+        assert_eq!(lhs_plus_rhs.shape(), rhs_plus_lhs.shape());
+
+        let (offsets, indices, data) = lhs_plus_rhs.cs_data();
+        let (expected_offsets, expected_indices, expected_data) = rhs_plus_lhs.cs_data();
+
+        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn spadd_csc_csc_is_distributive() {
+        let a = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let c = CscMatrix::<i32>::identity(4);
+
+        let a_b_then_c = spadd_csc_csc(
+            spadd_csc_csc(a.to_view(), b.to_view()).unwrap(),
+            c.to_view(),
+        )
+        .unwrap();
+        let a_then_b_c = spadd_csc_csc(a, spadd_csc_csc(b, c).unwrap()).unwrap();
+
+        assert_eq!(a_b_then_c.shape(), a_then_b_c.shape());
+
+        let (offsets, indices, data) = a_b_then_c.cs_data();
+        let (expected_offsets, expected_indices, expected_data) = a_then_b_c.cs_data();
+
+        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+    }
+
+    #[test]
+    fn spadd_csr_dense_is_commutative() {
+        let lhs = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let rhs = DMatrix::<i32>::identity(4, 4);
+
+        let lhs_plus_rhs = spadd_csr_dense(lhs.to_view(), rhs.clone()).unwrap();
+        let rhs_plus_lhs = spadd_dense_csr(rhs, lhs).unwrap();
+
+        assert_eq!(lhs_plus_rhs, rhs_plus_lhs);
+    }
+
+    #[test]
+    fn spadd_csr_dense_is_distributive() {
+        let a = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let c = DMatrix::<i32>::identity(4, 4);
+
+        let a_b_then_c =
+            spadd_csr_dense(spadd_csr_csr(a.to_view(), b.to_view()).unwrap(), c.clone()).unwrap();
+        let a_then_b_c = spadd_csr_dense(a, spadd_csr_dense(b, c).unwrap()).unwrap();
+
+        assert_eq!(a_b_then_c, a_then_b_c);
+    }
+
+    #[test]
+    fn spadd_csc_dense_is_commutative() {
+        let lhs = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let rhs = DMatrix::<i32>::identity(4, 4);
+
+        let lhs_plus_rhs = spadd_csc_dense(lhs.to_view(), rhs.clone()).unwrap();
+        let rhs_plus_lhs = spadd_dense_csc(rhs, lhs).unwrap();
+
+        assert_eq!(lhs_plus_rhs, rhs_plus_lhs);
+    }
+
+    #[test]
+    fn spadd_csc_dense_is_distributive() {
+        let a = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let c = DMatrix::<i32>::identity(4, 4);
+
+        let a_b_then_c =
+            spadd_csc_dense(spadd_csc_csc(a.to_view(), b.to_view()).unwrap(), c.clone()).unwrap();
+        let a_then_b_c = spadd_csc_dense(a, spadd_csc_dense(b, c).unwrap()).unwrap();
+
+        assert_eq!(a_b_then_c, a_then_b_c);
+    }
+
+    #[test]
+    fn spadd_csr_csr_agrees_with_dense() {
+        let a = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let dense_a = DMatrix::from(&a);
+        let dense_b = DMatrix::from(&b);
+
+        let sum = DMatrix::from(&spadd_csr_csr(a, b).unwrap());
+        let dense_sum = dense_a + dense_b;
+
+        assert_eq!(sum, dense_sum);
+    }
+
+    #[test]
+    fn spadd_csr_csc_agrees_with_dense() {
+        let a = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let dense_a = DMatrix::from(&a);
+        let dense_b = DMatrix::from(&b);
+
+        let sum = DMatrix::from(&spadd_csr_csc(a, b).unwrap());
+        let dense_sum = dense_a + dense_b;
+
+        assert_eq!(sum, dense_sum);
+    }
+
+    #[test]
+    fn spadd_csc_csr_agrees_with_dense() {
+        let a = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let dense_a = DMatrix::from(&a);
+        let dense_b = DMatrix::from(&b);
+
+        let sum = DMatrix::from(&spadd_csc_csr(a, b).unwrap());
+        let dense_sum = dense_a + dense_b;
+
+        assert_eq!(sum, dense_sum);
+    }
+
+    #[test]
+    fn spadd_csc_csc_agrees_with_dense() {
+        let a = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let dense_a = DMatrix::from(&a);
+        let dense_b = DMatrix::from(&b);
+
+        let sum = DMatrix::from(&spadd_csc_csc(a, b).unwrap());
+        let dense_sum = dense_a + dense_b;
+
+        assert_eq!(sum, dense_sum);
+    }
+
+    proptest! {
+        #[test]
+        fn spadd_csr_csr_additive_identity(matrix in csr_strategy()) {
+            let (nrows, ncols) = matrix.shape();
+
+            let zero = CsrMatrix::<i32>::zeros(nrows, ncols);
+
+            let sum = spadd_csr_csr(matrix.to_view(), zero).unwrap();
+
+            prop_assert_eq!(sum.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn spadd_csr_csc_additive_identity(matrix in csr_strategy()) {
+            let (nrows, ncols) = matrix.shape();
+
+            let zero = CscMatrix::<i32>::zeros(nrows, ncols);
+
+            let sum = spadd_csr_csc(matrix.to_view(), zero).unwrap();
+
+            prop_assert_eq!(sum.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn spadd_csc_csr_additive_identity(matrix in csc_strategy()) {
+            let (nrows, ncols) = matrix.shape();
+
+            let zero = CsrMatrix::<i32>::zeros(nrows, ncols);
+
+            let sum = CscMatrix::from(spadd_csc_csr(matrix.to_view(), zero).unwrap());
+
+            prop_assert_eq!(sum.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn spadd_csc_csc_additive_identity(matrix in csc_strategy()) {
+            let (nrows, ncols) = matrix.shape();
+
+            let zero = CscMatrix::<i32>::zeros(nrows, ncols);
+
+            let sum = spadd_csc_csc(matrix.to_view(), zero).unwrap();
+
+            prop_assert_eq!(sum.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
         }
     }
 }
