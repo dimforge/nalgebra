@@ -21,6 +21,7 @@ use crate::{
     error::{OperationError, OperationErrorKind},
 };
 use nalgebra::{Dim, Matrix, RawStorage, RawStorageMut, Scalar};
+use num_traits::Zero;
 use std::{
     borrow::Borrow,
     cmp::Ordering,
@@ -41,8 +42,8 @@ pub fn spsub_csr_csc<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
     csc: CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>,
 ) -> Result<CsrMatrix<<T1 as Sub<T2>>::Output>, OperationError>
 where
-    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
-    T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2> + Zero,
+    T2: Scalar,
     <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
@@ -105,11 +106,11 @@ where
 pub fn spsub_csc_csr<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
     csc: CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>,
     csr: CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>,
-) -> Result<CsrMatrix<<T2 as Sub<T1>>::Output>, OperationError>
+) -> Result<CscMatrix<<T1 as Sub<T2>>::Output>, OperationError>
 where
-    T1: Scalar + Into<<T2 as Sub<T1>>::Output>,
-    T2: Scalar + Into<<T2 as Sub<T1>>::Output> + Sub<T1>,
-    <T2 as Sub<T1>>::Output: Scalar,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2> + Zero,
+    T2: Scalar,
+    <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -117,7 +118,46 @@ where
     D1: Borrow<[T1]>,
     D2: Borrow<[T2]>,
 {
-    spsub_csr_csc(csr, csc)
+    let (lrows, lcols) = csc.shape();
+    let (rrows, rcols) = csr.shape();
+
+    if lrows != rrows || lcols != rcols {
+        return Err(OperationError::from_kind_and_message(
+            OperationErrorKind::InvalidPattern,
+            String::from("The two matrices have differing shapes (both should be M × N)"),
+        ));
+    }
+
+    let mut left_iter = csc.triplet_iter();
+    let mut right_iter = csr
+        .minor_lane_iter()
+        .enumerate()
+        .flat_map(|(i, lane)| lane.map(move |(j, value)| (i, j, value)));
+
+    let left_val = left_iter.next();
+    let right_val = right_iter.next();
+
+    let added_triplets = TripletSubtractionIter {
+        left_val,
+        right_val,
+        left_iter,
+        right_iter,
+    };
+
+    let max_nnz = csr.nnz() + csc.nnz();
+    let mut counts = vec![0; lcols];
+    let mut indices = Vec::with_capacity(max_nnz);
+    let mut data = Vec::with_capacity(max_nnz);
+
+    for (i, j, v) in added_triplets {
+        counts[i] += 1;
+        indices.push(j);
+        data.push(v);
+    }
+
+    let offsets = CountToOffsetIter::new(counts).collect();
+
+    Ok(unsafe { CsMatrix::from_parts_unchecked(lrows, lcols, offsets, indices, data) })
 }
 
 /// Sparse-sparse matrix subtraction.
@@ -133,8 +173,8 @@ pub fn spsub_csc_csc<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
     rhs: CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>,
 ) -> Result<CscMatrix<<T1 as Sub<T2>>::Output>, OperationError>
 where
-    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
-    T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2> + Zero,
+    T2: Scalar,
     <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
@@ -167,7 +207,7 @@ where
     };
 
     let max_nnz = lhs.nnz() + rhs.nnz();
-    let mut counts = vec![0; lrows];
+    let mut counts = vec![0; lcols];
     let mut indices = Vec::with_capacity(max_nnz);
     let mut data = Vec::with_capacity(max_nnz);
 
@@ -195,8 +235,8 @@ pub fn spsub_csr_csr<T1, T2, MO1, MO2, MI1, MI2, D1, D2>(
     rhs: CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>,
 ) -> Result<CsrMatrix<<T1 as Sub<T2>>::Output>, OperationError>
 where
-    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
-    T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2> + Zero,
+    T2: Scalar,
     <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
@@ -425,8 +465,8 @@ where
 /// matrix instead of a row-major matrix.
 struct TripletSubtractionIter<'a, TL, TR, IL, IR>
 where
-    TL: Scalar + Into<<TL as Sub<TR>>::Output> + Sub<TR>,
-    TR: Scalar + Into<<TL as Sub<TR>>::Output>,
+    TL: Scalar + Into<<TL as Sub<TR>>::Output> + Sub<TR> + Zero,
+    TR: Scalar,
     IL: Iterator<Item = (usize, usize, &'a TL)>,
     IR: Iterator<Item = (usize, usize, &'a TR)>,
 {
@@ -438,8 +478,8 @@ where
 
 impl<'a, TL, TR, IL, IR> Iterator for TripletSubtractionIter<'a, TL, TR, IL, IR>
 where
-    TL: Scalar + Into<<TL as Sub<TR>>::Output> + Sub<TR>,
-    TR: Scalar + Into<<TL as Sub<TR>>::Output>,
+    TL: Scalar + Into<<TL as Sub<TR>>::Output> + Sub<TR> + Zero,
+    TR: Scalar,
     IL: Iterator<Item = (usize, usize, &'a TL)>,
     IR: Iterator<Item = (usize, usize, &'a TR)>,
 {
@@ -456,7 +496,7 @@ where
 
                 (Ordering::Greater, _) | (Ordering::Equal, Ordering::Greater) => {
                     self.right_val = self.right_iter.next();
-                    Some((ir, jr, vr.clone().into()))
+                    Some((ir, jr, TL::zero() - vr.clone()))
                 }
 
                 (Ordering::Equal, Ordering::Equal) => {
@@ -476,11 +516,209 @@ where
             // Only left is exhausted
             (None, Some((i, j, v))) => {
                 self.right_val = self.right_iter.next();
-                Some((i, j, v.clone().into()))
+                Some((i, j, TL::zero() - v.clone()))
             }
 
             // Both are exhausted
             (None, None) => None,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::proptest::*;
+    use nalgebra::DMatrix;
+    use proptest::prelude::*;
+
+    #[test]
+    fn spsub_csr_csr_agrees_with_dense() {
+        let a = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let dense_a = DMatrix::from(&a);
+        let dense_b = DMatrix::from(&b);
+
+        let sum = DMatrix::from(&spsub_csr_csr(a, b).unwrap());
+        let dense_sum = dense_a - dense_b;
+
+        assert_eq!(sum, dense_sum);
+    }
+
+    #[test]
+    fn spsub_csr_csc_agrees_with_dense() {
+        let a = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let dense_a = DMatrix::from(&a);
+        let dense_b = DMatrix::from(&b);
+
+        let sum = DMatrix::from(&spsub_csr_csc(a, b).unwrap());
+        let dense_sum = dense_a - dense_b;
+
+        assert_eq!(sum, dense_sum);
+    }
+
+    #[test]
+    fn spsub_csc_csr_agrees_with_dense() {
+        let a = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CsrMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let dense_a = DMatrix::from(&a);
+        let dense_b = DMatrix::from(&b);
+
+        let sum = DMatrix::from(&spsub_csc_csr(a, b).unwrap());
+        let dense_sum = dense_a - dense_b;
+
+        assert_eq!(sum, dense_sum);
+    }
+
+    #[test]
+    fn spsub_csc_csc_agrees_with_dense() {
+        let a = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 7, 10],
+            vec![0, 1, 2, 3, 0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![1, 2, 3, 4, -1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CscMatrix::try_from_parts(
+            4,
+            4,
+            vec![0, 4, 6, 8],
+            vec![0, 1, 2, 3, 1, 3, 1, 3, 0, 1, 2, 3],
+            vec![6, 4, 2, 8, 1, 7, 2, 6, 4, 1, 6, 3],
+        )
+        .unwrap();
+
+        let dense_a = DMatrix::from(&a);
+        let dense_b = DMatrix::from(&b);
+
+        let sum = DMatrix::from(&spsub_csc_csc(a, b).unwrap());
+        let dense_sum = dense_a - dense_b;
+
+        assert_eq!(sum, dense_sum);
+    }
+
+    proptest! {
+        #[test]
+        fn spsub_csr_csr_subtractive_identity(matrix in csr_strategy()) {
+            let (nrows, ncols) = matrix.shape();
+
+            let zero = CsrMatrix::<i32>::zeros(nrows, ncols);
+
+            let sum = spsub_csr_csr(matrix.to_view(), zero).unwrap();
+
+            prop_assert_eq!(sum.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn spsub_csr_csc_subtractive_identity(matrix in csr_strategy()) {
+            let (nrows, ncols) = matrix.shape();
+
+            let zero = CscMatrix::<i32>::zeros(nrows, ncols);
+
+            let sum = spsub_csr_csc(matrix.to_view(), zero).unwrap();
+
+            prop_assert_eq!(sum.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn spsub_csc_csr_subtractive_identity(matrix in csc_strategy()) {
+            let (nrows, ncols) = matrix.shape();
+
+            let zero = CsrMatrix::<i32>::zeros(nrows, ncols);
+
+            let sum = CscMatrix::from(spsub_csc_csr(matrix.to_view(), zero).unwrap());
+
+            prop_assert_eq!(sum.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn spsub_csc_csc_subtractive_identity(matrix in csc_strategy()) {
+            let (nrows, ncols) = matrix.shape();
+
+            let zero = CscMatrix::<i32>::zeros(nrows, ncols);
+
+            let sum = spsub_csc_csc(matrix.to_view(), zero).unwrap();
+
+            prop_assert_eq!(sum.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
         }
     }
 }

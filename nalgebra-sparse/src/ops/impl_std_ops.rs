@@ -136,7 +136,7 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Sub<CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedRowStorage>
 where
-    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2> + Zero,
     T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
     <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
@@ -156,9 +156,9 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Sub<CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>
 where
-    T1: Scalar + Into<<T2 as Sub<T1>>::Output>,
-    T2: Scalar + Into<<T2 as Sub<T1>>::Output> + Sub<T1>,
-    <T2 as Sub<T1>>::Output: Scalar,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2> + Zero,
+    T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
+    <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
     MO2: Borrow<[usize]>,
     MI1: Borrow<[usize]>,
@@ -166,7 +166,7 @@ where
     D1: Borrow<[T1]>,
     D2: Borrow<[T2]>,
 {
-    type Output = CsrMatrix<<T2 as Sub<T1>>::Output>;
+    type Output = CscMatrix<<T1 as Sub<T2>>::Output>;
 
     fn sub(self, rhs: CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>) -> Self::Output {
         spsub_csc_csr(self, rhs).unwrap()
@@ -176,7 +176,7 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Sub<CsMatrix<T2, MO2, MI2, D2, CompressedColumnStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedColumnStorage>
 where
-    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2> + Zero,
     T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
     <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
@@ -196,7 +196,7 @@ where
 impl<T1, T2, MO1, MO2, MI1, MI2, D1, D2> Sub<CsMatrix<T2, MO2, MI2, D2, CompressedRowStorage>>
     for CsMatrix<T1, MO1, MI1, D1, CompressedRowStorage>
 where
-    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2>,
+    T1: Scalar + Into<<T1 as Sub<T2>>::Output> + Sub<T2> + Zero,
     T2: Scalar + Into<<T1 as Sub<T2>>::Output>,
     <T1 as Sub<T2>>::Output: Scalar,
     MO1: Borrow<[usize]>,
