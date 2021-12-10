@@ -149,63 +149,60 @@ where
         ));
     }
 
-    let (counts, indices_and_data) = csr
-        .iter()
-        .map(move |lane| {
-            let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
+    let nnz = csr.nnz().min(csc.nnz());
 
-            let (row_indices, row_data) = csc
-                .iter()
-                .enumerate()
-                .filter_map(|(k, mut sublane)| {
-                    let mut lane_iter = lane.iter();
+    let triplets = csr.iter().enumerate().flat_map(move |(i, lane)| {
+        csc.iter()
+            .enumerate()
+            .filter_map(|(k, mut sublane)| {
+                let mut lane_iter = lane.clone();
 
-                    let mut lhs = lane_iter.next();
-                    let mut rhs = sublane.next();
+                let mut lhs = lane_iter.next();
+                let mut rhs = sublane.next();
 
-                    let mut total = <T1 as Mul<T2>>::Output::zero();
-                    let mut is_nonzero = false;
+                let mut total = <T1 as Mul<T2>>::Output::zero();
+                let mut is_nonzero = false;
 
-                    while lhs.is_some() && rhs.is_some() {
-                        let (jl, vl) = lhs.unwrap();
-                        let (jr, vr) = rhs.unwrap();
+                while lhs.is_some() && rhs.is_some() {
+                    let (jl, vl) = lhs.unwrap();
+                    let (jr, vr) = rhs.unwrap();
 
-                        match jl.cmp(&jr) {
-                            Ordering::Less => {
-                                lhs = lane_iter.next();
-                            }
-                            Ordering::Equal => {
-                                total += vl.clone() * vr.clone();
-                                is_nonzero = true;
-                            }
-                            Ordering::Greater => {
-                                rhs = sublane.next();
-                            }
+                    match jl.cmp(&jr) {
+                        Ordering::Less => {
+                            lhs = lane_iter.next();
+                        }
+                        Ordering::Equal => {
+                            total += vl.clone() * vr.clone();
+                            is_nonzero = true;
+                            lhs = lane_iter.next();
+                            rhs = sublane.next();
+                        }
+                        Ordering::Greater => {
+                            rhs = sublane.next();
                         }
                     }
+                }
 
-                    if is_nonzero {
-                        Some((k, total))
-                    } else {
-                        None
-                    }
-                })
-                .unzip::<_, _, Vec<_>, Vec<_>>();
+                if is_nonzero {
+                    Some((i, k, total))
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>()
+    });
 
-            (row_indices.len(), (row_indices, row_data))
-        })
-        .unzip::<_, _, Vec<_>, Vec<_>>();
-
-    let nnz = counts.iter().sum();
-    let offsets = CountToOffsetIter::new(counts).collect();
-
+    let mut counts = vec![0usize; rows];
     let mut indices = Vec::with_capacity(nnz);
     let mut data = Vec::with_capacity(nnz);
 
-    for (mut row_indices, mut row_data) in indices_and_data {
-        indices.append(&mut row_indices);
-        data.append(&mut row_data);
+    for (i, k, val) in triplets {
+        counts[i] += 1;
+        indices.push(k);
+        data.push(val);
     }
+
+    let offsets = CountToOffsetIter::new(counts).collect();
 
     Ok(unsafe { CsMatrix::from_parts_unchecked(rows, columns, offsets, indices, data) })
 }
@@ -253,13 +250,15 @@ where
         ));
     }
 
-    let (counts, indices_and_data) = csc
+    let nnz = csc.nnz().min(csr.nnz());
+
+    let triplets = csc
         .minor_lane_iter()
-        .map(move |lane| {
+        .enumerate()
+        .flat_map(move |(i, lane)| {
             let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
 
-            let (row_indices, row_data) = csr
-                .minor_lane_iter()
+            csr.minor_lane_iter()
                 .enumerate()
                 .filter_map(|(k, mut sublane)| {
                     let mut lane_iter = lane.iter();
@@ -281,6 +280,8 @@ where
                             Ordering::Equal => {
                                 total += vl.clone() * vr.clone();
                                 is_nonzero = true;
+                                lhs = lane_iter.next();
+                                rhs = sublane.next();
                             }
                             Ordering::Greater => {
                                 rhs = sublane.next();
@@ -289,27 +290,25 @@ where
                     }
 
                     if is_nonzero {
-                        Some((k, total))
+                        Some((i, k, total))
                     } else {
                         None
                     }
                 })
-                .unzip::<_, _, Vec<_>, Vec<_>>();
+                .collect::<Vec<_>>()
+        });
 
-            (row_indices.len(), (row_indices, row_data))
-        })
-        .unzip::<_, _, Vec<_>, Vec<_>>();
-
-    let nnz = counts.iter().sum();
-    let offsets = CountToOffsetIter::new(counts).collect();
-
+    let mut counts = vec![0usize; rows];
     let mut indices = Vec::with_capacity(nnz);
     let mut data = Vec::with_capacity(nnz);
 
-    for (mut row_indices, mut row_data) in indices_and_data {
-        indices.append(&mut row_indices);
-        data.append(&mut row_data);
+    for (i, k, val) in triplets {
+        counts[i] += 1;
+        indices.push(k);
+        data.push(val);
     }
+
+    let offsets = CountToOffsetIter::new(counts).collect();
 
     Ok(unsafe { CsMatrix::from_parts_unchecked(rows, columns, offsets, indices, data) })
 }
@@ -360,13 +359,15 @@ where
         ));
     }
 
-    let (counts, indices_and_data) = lhs
+    let nnz = lhs.nnz().min(rhs.nnz());
+
+    let triplets = lhs
         .minor_lane_iter()
-        .map(move |lane| {
+        .enumerate()
+        .flat_map(move |(i, lane)| {
             let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
 
-            let (row_indices, row_data) = rhs
-                .iter()
+            rhs.iter()
                 .enumerate()
                 .filter_map(|(k, mut sublane)| {
                     let mut lane_iter = lane.iter();
@@ -388,6 +389,8 @@ where
                             Ordering::Equal => {
                                 total += vl.clone() * vr.clone();
                                 is_nonzero = true;
+                                lhs = lane_iter.next();
+                                rhs = sublane.next();
                             }
                             Ordering::Greater => {
                                 rhs = sublane.next();
@@ -396,27 +399,25 @@ where
                     }
 
                     if is_nonzero {
-                        Some((k, total))
+                        Some((i, k, total))
                     } else {
                         None
                     }
                 })
-                .unzip::<_, _, Vec<_>, Vec<_>>();
+                .collect::<Vec<_>>()
+        });
 
-            (row_indices.len(), (row_indices, row_data))
-        })
-        .unzip::<_, _, Vec<_>, Vec<_>>();
-
-    let nnz = counts.iter().sum();
-    let offsets = CountToOffsetIter::new(counts).collect();
-
+    let mut counts = vec![0usize; rows];
     let mut indices = Vec::with_capacity(nnz);
     let mut data = Vec::with_capacity(nnz);
 
-    for (mut row_indices, mut row_data) in indices_and_data {
-        indices.append(&mut row_indices);
-        data.append(&mut row_data);
+    for (i, k, val) in triplets {
+        counts[i] += 1;
+        indices.push(k);
+        data.push(val);
     }
+
+    let offsets = CountToOffsetIter::new(counts).collect();
 
     Ok(unsafe { CsMatrix::from_parts_unchecked(rows, columns, offsets, indices, data) })
 }
@@ -496,40 +497,38 @@ where
         ));
     }
 
-    let (counts, indices_and_data) = (0..rows)
-        .map(|i| {
-            let dense_row = dense.row(i);
+    let nnz = csc.nnz();
 
-            let (row_indices, row_data) = csc
-                .iter()
-                .enumerate()
-                .filter_map(|(k, lane)| {
-                    if lane.len() == 0 {
-                        None
-                    } else {
-                        let total = lane.fold(<T2 as Mul<T1>>::Output::zero(), |total, (j, v)| {
-                            total + (v.clone() * dense_row[j].clone())
-                        });
+    let triplets = (0..rows).flat_map(|i| {
+        let dense_row = dense.row(i);
 
-                        Some((k, total))
-                    }
-                })
-                .unzip::<_, _, Vec<_>, Vec<_>>();
+        csc.iter()
+            .enumerate()
+            .filter_map(|(k, lane)| {
+                if lane.len() == 0 {
+                    None
+                } else {
+                    let total = lane.fold(<T2 as Mul<T1>>::Output::zero(), |total, (j, v)| {
+                        total + (v.clone() * dense_row[j].clone())
+                    });
 
-            (row_indices.len(), (row_indices, row_data))
-        })
-        .unzip::<_, _, Vec<_>, Vec<_>>();
+                    Some((i, k, total))
+                }
+            })
+            .collect::<Vec<_>>()
+    });
 
-    let nnz = counts.iter().sum();
-    let offsets = CountToOffsetIter::new(counts).collect();
-
+    let mut counts = vec![0usize; rows];
     let mut indices = Vec::with_capacity(nnz);
     let mut data = Vec::with_capacity(nnz);
 
-    for (mut row_indices, mut row_data) in indices_and_data {
-        indices.append(&mut row_indices);
-        data.append(&mut row_data);
+    for (i, k, val) in triplets {
+        counts[i] += 1;
+        indices.push(k);
+        data.push(val);
     }
+
+    let offsets = CountToOffsetIter::new(counts).collect();
 
     Ok(unsafe { CsMatrix::from_parts_unchecked(rows, columns, offsets, indices, data) })
 }
@@ -571,6 +570,8 @@ where
         ));
     }
 
+    let nnz = csr.nnz();
+
     // The trick to this function is to exploit the fact that:
     //
     // (B' <dot> A')' = A <dot> B
@@ -582,40 +583,36 @@ where
     // This saves us from doing an expensive transpose + alloc on the dense matrix, while still
     // getting the same output. The only major difference is that unlike spmm_dense_csc we output a
     // CscMatrix as a final result (the transpose of the CsrMatrix constructed below).
-    let (counts, indices_and_data) = (0..columns)
-        .map(|i| {
-            let dense_col = dense.column(i);
+    let triplets = (0..columns).flat_map(|i| {
+        let dense_col = dense.column(i);
 
-            let (row_indices, row_data) = csr
-                .iter()
-                .enumerate()
-                .filter_map(|(k, lane)| {
-                    if lane.len() == 0 {
-                        None
-                    } else {
-                        let total = lane.fold(<T1 as Mul<T2>>::Output::zero(), |total, (j, v)| {
-                            total + (v.clone() * dense_col[j].clone())
-                        });
+        csr.iter()
+            .enumerate()
+            .filter_map(|(k, lane)| {
+                if lane.len() == 0 {
+                    None
+                } else {
+                    let total = lane.fold(<T1 as Mul<T2>>::Output::zero(), |total, (j, v)| {
+                        total + (v.clone() * dense_col[j].clone())
+                    });
 
-                        Some((k, total))
-                    }
-                })
-                .unzip::<_, _, Vec<_>, Vec<_>>();
+                    Some((i, k, total))
+                }
+            })
+            .collect::<Vec<_>>()
+    });
 
-            (row_indices.len(), (row_indices, row_data))
-        })
-        .unzip::<_, _, Vec<_>, Vec<_>>();
-
-    let nnz = counts.iter().sum();
-    let offsets = CountToOffsetIter::new(counts).collect();
-
+    let mut counts = vec![0usize; columns];
     let mut indices = Vec::with_capacity(nnz);
     let mut data = Vec::with_capacity(nnz);
 
-    for (mut row_indices, mut row_data) in indices_and_data {
-        indices.append(&mut row_indices);
-        data.append(&mut row_data);
+    for (i, k, val) in triplets {
+        counts[i] += 1;
+        indices.push(k);
+        data.push(val);
     }
+
+    let offsets = CountToOffsetIter::new(counts).collect();
 
     // The last step is to construct the final matrix (B' <dot> A').
     //
@@ -664,42 +661,40 @@ where
         ));
     }
 
-    let (counts, indices_and_data) = csc
-        .minor_lane_iter()
-        .map(|lane| {
-            let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
+    let nnz = csc.nnz();
 
-            if lane.is_empty() {
-                (0, (Vec::new(), Vec::new()))
-            } else {
-                let (row_indices, row_data) = (0..columns)
-                    .map(|k| {
-                        let dense_col = dense.column(k);
-                        let total = lane
-                            .iter()
-                            .fold(<T1 as Mul<T2>>::Output::zero(), |total, (j, v)| {
-                                total + v.clone() * dense_col[*j].clone()
-                            });
+    let triplets = csc.minor_lane_iter().enumerate().flat_map(|(i, lane)| {
+        let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
 
-                        (k, total)
-                    })
-                    .unzip::<_, _, Vec<_>, Vec<_>>();
+        if lane.is_empty() {
+            Vec::with_capacity(0)
+        } else {
+            (0..columns)
+                .map(|k| {
+                    let dense_col = dense.column(k);
+                    let total = lane
+                        .iter()
+                        .fold(<T1 as Mul<T2>>::Output::zero(), |total, (j, v)| {
+                            total + v.clone() * dense_col[*j].clone()
+                        });
 
-                (row_indices.len(), (row_indices, row_data))
-            }
-        })
-        .unzip::<_, _, Vec<_>, Vec<_>>();
+                    (i, k, total)
+                })
+                .collect::<Vec<_>>()
+        }
+    });
 
-    let nnz = counts.iter().sum();
-    let offsets = CountToOffsetIter::new(counts).collect();
-
+    let mut counts = vec![0usize; rows];
     let mut indices = Vec::with_capacity(nnz);
     let mut data = Vec::with_capacity(nnz);
 
-    for (mut row_indices, mut row_data) in indices_and_data {
-        indices.append(&mut row_indices);
-        data.append(&mut row_data);
+    for (i, k, val) in triplets {
+        counts[i] += 1;
+        indices.push(k);
+        data.push(val);
     }
+
+    let offsets = CountToOffsetIter::new(counts).collect();
 
     Ok(unsafe { CsMatrix::from_parts_unchecked(rows, columns, offsets, indices, data) })
 }
@@ -716,7 +711,7 @@ where
 /// matrix product.
 pub fn spmm_dense_csr<T1, T2, R, C, S, MO, MI, D>(
     dense: Matrix<T1, R, C, S>,
-    csr: CsMatrix<T2, MO, MI, D, CompressedColumnStorage>,
+    csr: CsMatrix<T2, MO, MI, D, CompressedRowStorage>,
 ) -> Result<CscMatrix<<T2 as Mul<T1>>::Output>, OperationError>
 where
     T1: Scalar,
@@ -741,45 +736,43 @@ where
         ));
     }
 
+    let nnz = csr.nnz();
+
     // Like with spmm_csr_dense, this function shares the transposed relationship with
     // spmm_csc_dense. We can exploit this in a similar way, by swapping column / row references
     // for the dense matrix and transposing the final matrix.
-    let (counts, indices_and_data) = csr
-        .minor_lane_iter()
-        .map(|lane| {
-            let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
+    let triplets = csr.minor_lane_iter().enumerate().flat_map(|(i, lane)| {
+        let lane = lane.map(|(j, v)| (j, v.clone())).collect::<Vec<_>>();
 
-            if lane.is_empty() {
-                (0, (Vec::new(), Vec::new()))
-            } else {
-                let (row_indices, row_data) = (0..rows)
-                    .map(|k| {
-                        let dense_row = dense.row(k);
-                        let total = lane
-                            .iter()
-                            .fold(<T2 as Mul<T1>>::Output::zero(), |total, (j, v)| {
-                                total + v.clone() * dense_row[*j].clone()
-                            });
+        if lane.is_empty() {
+            Vec::with_capacity(0)
+        } else {
+            (0..rows)
+                .map(|k| {
+                    let dense_row = dense.row(k);
+                    let total = lane
+                        .iter()
+                        .fold(<T2 as Mul<T1>>::Output::zero(), |total, (j, v)| {
+                            total + v.clone() * dense_row[*j].clone()
+                        });
 
-                        (k, total)
-                    })
-                    .unzip::<_, _, Vec<_>, Vec<_>>();
+                    (i, k, total)
+                })
+                .collect::<Vec<_>>()
+        }
+    });
 
-                (row_indices.len(), (row_indices, row_data))
-            }
-        })
-        .unzip::<_, _, Vec<_>, Vec<_>>();
-
-    let nnz = counts.iter().sum();
-    let offsets = CountToOffsetIter::new(counts).collect();
-
+    let mut counts = vec![0usize; rows];
     let mut indices = Vec::with_capacity(nnz);
     let mut data = Vec::with_capacity(nnz);
 
-    for (mut row_indices, mut row_data) in indices_and_data {
-        indices.append(&mut row_indices);
-        data.append(&mut row_data);
+    for (i, k, val) in triplets {
+        counts[i] += 1;
+        indices.push(k);
+        data.push(val);
     }
+
+    let offsets = CountToOffsetIter::new(counts).collect();
 
     // Columns and rows are intentionally swapped here since we're taking the transpose of the
     // final data.
@@ -787,4 +780,386 @@ where
         unsafe { CsrMatrix::from_parts_unchecked(columns, rows, offsets, indices, data) }
             .transpose_owned(),
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::proptest::*;
+    use nalgebra::{DMatrix, SMatrix};
+    use proptest::prelude::*;
+
+    #[test]
+    fn spmm_csr_csc_agrees_with_dense() {
+        let a = CsrMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 3, 6],
+            vec![0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![-1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CscMatrix::try_from_parts(
+            4,
+            2,
+            vec![0, 4],
+            vec![0, 1, 2, 3, 1, 3],
+            vec![6, 4, 2, 8, 1, 7],
+        )
+        .unwrap();
+
+        let expected_final_shape = (a.nrows(), b.ncols());
+
+        let dense_a = DMatrix::from(&a);
+        let dense_b = DMatrix::from(&b);
+
+        let product = spmm_csr_csc(a, b).unwrap();
+        let dense_product = dense_a * dense_b;
+
+        assert_eq!(expected_final_shape, product.shape());
+        assert_eq!(dense_product.shape(), product.shape());
+
+        assert_eq!(dense_product, DMatrix::from(&product));
+    }
+
+    #[test]
+    fn spmm_csr_csr_agrees_with_dense() {
+        let a = CsrMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 3, 6],
+            vec![0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![-1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        let b = CsrMatrix::try_from_parts(
+            4,
+            2,
+            vec![0, 1, 3, 4],
+            vec![0, 0, 1, 0, 0, 1],
+            vec![6, 4, 1, 2, 8, 7],
+        )
+        .unwrap();
+
+        let expected_final_shape = (a.nrows(), b.ncols());
+
+        let dense_a = DMatrix::from(&a);
+        let dense_b = DMatrix::from(&b);
+
+        let product = spmm_csr_csr(a, b).unwrap();
+        let dense_product = dense_a * dense_b;
+
+        assert_eq!(expected_final_shape, product.shape());
+        assert_eq!(dense_product.shape(), product.shape());
+
+        assert_eq!(dense_product, DMatrix::from(&product));
+    }
+
+    #[test]
+    fn spmm_csc_csr_agrees_with_dense() {
+        let a = CscMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 2, 5, 6],
+            vec![0, 2, 0, 1, 2, 1, 0, 1, 2],
+            vec![-1, 2, 2, 4, 4, -2, 5, 6, 6],
+        )
+        .unwrap();
+
+        let b = CsrMatrix::try_from_parts(
+            4,
+            2,
+            vec![0, 1, 3, 4],
+            vec![0, 0, 1, 0, 0, 1],
+            vec![6, 4, 1, 2, 8, 7],
+        )
+        .unwrap();
+
+        let expected_final_shape = (a.nrows(), b.ncols());
+
+        let dense_a = DMatrix::from(&a);
+        let dense_b = DMatrix::from(&b);
+
+        let product = spmm_csc_csr(a, b).unwrap();
+        let dense_product = dense_a * dense_b;
+
+        assert_eq!(expected_final_shape, product.shape());
+        assert_eq!(dense_product.shape(), product.shape());
+
+        assert_eq!(dense_product, DMatrix::from(&product));
+    }
+
+    #[test]
+    fn spmm_csc_csc_agrees_with_dense() {
+        let a = CscMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 2, 5, 6],
+            vec![0, 2, 0, 1, 2, 1, 0, 1, 2],
+            vec![-1, 2, 2, 4, 4, -2, 5, 6, 6],
+        )
+        .unwrap();
+
+        let b = CscMatrix::try_from_parts(
+            4,
+            2,
+            vec![0, 4],
+            vec![0, 1, 2, 3, 1, 3],
+            vec![6, 4, 2, 8, 1, 7],
+        )
+        .unwrap();
+
+        let expected_final_shape = (a.nrows(), b.ncols());
+
+        let dense_a = DMatrix::from(&a);
+        let dense_b = DMatrix::from(&b);
+
+        let product = spmm_csc_csc(a, b).unwrap();
+        let dense_product = dense_a * dense_b;
+
+        assert_eq!(expected_final_shape, product.shape());
+        assert_eq!(dense_product.shape(), product.shape());
+
+        assert_eq!(dense_product, DMatrix::from(&product));
+    }
+
+    #[test]
+    fn spmm_dense_csr_agrees_with_dense() {
+        #[rustfmt::skip]
+        let a = SMatrix::<i32, 3, 4>::from_row_slice(&[
+            -1,  2,  0,  5,
+             0,  4, -2,  6,
+             2,  4,  0,  6,
+        ]);
+
+        let b = CsrMatrix::try_from_parts(
+            4,
+            2,
+            vec![0, 1, 3, 4],
+            vec![0, 0, 1, 0, 0, 1],
+            vec![6, 4, 1, 2, 8, 7],
+        )
+        .unwrap();
+
+        let dense_b = DMatrix::from(&b);
+        let product = spmm_dense_csr(a, b).unwrap();
+        let dense_product = a * dense_b;
+
+        assert_eq!(dense_product, DMatrix::from(&product));
+    }
+
+    #[test]
+    fn spmm_dense_csc_agrees_with_dense() {
+        #[rustfmt::skip]
+        let a = SMatrix::<i32, 3, 4>::from_row_slice(&[
+            -1,  2,  0,  5,
+             0,  4, -2,  6,
+             2,  4,  0,  6,
+        ]);
+
+        let b = CscMatrix::try_from_parts(
+            4,
+            2,
+            vec![0, 4],
+            vec![0, 1, 2, 3, 1, 3],
+            vec![6, 4, 2, 8, 1, 7],
+        )
+        .unwrap();
+
+        let dense_b = DMatrix::from(&b);
+        let product = spmm_dense_csc(a, b).unwrap();
+        let dense_product = a * dense_b;
+
+        assert_eq!(dense_product, DMatrix::from(&product));
+    }
+
+    #[test]
+    fn spmm_csr_dense_agrees_with_dense() {
+        let a = CsrMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 3, 6],
+            vec![0, 1, 3, 1, 2, 3, 0, 1, 3],
+            vec![-1, 2, 5, 4, -2, 6, 2, 4, 6],
+        )
+        .unwrap();
+
+        #[rustfmt::skip]
+        let b = SMatrix::<i32, 4, 2>::from_row_slice(&[
+            6, 0,
+            4, 1,
+            2, 0,
+            8, 7,
+        ]);
+
+        let expected_final_shape = (a.nrows(), b.ncols());
+
+        let dense_a = DMatrix::from(&a);
+
+        let product = spmm_csr_dense(a, b).unwrap();
+        let dense_product = dense_a * b;
+
+        assert_eq!(expected_final_shape, product.shape());
+        assert_eq!(dense_product.shape(), product.shape());
+
+        assert_eq!(dense_product, DMatrix::from(&product));
+    }
+
+    #[test]
+    fn spmm_csc_dense_agrees_with_dense() {
+        let a = CscMatrix::try_from_parts(
+            3,
+            4,
+            vec![0, 2, 5, 6],
+            vec![0, 2, 0, 1, 2, 1, 0, 1, 2],
+            vec![-1, 2, 2, 4, 4, -2, 5, 6, 6],
+        )
+        .unwrap();
+
+        #[rustfmt::skip]
+        let b = SMatrix::<i32, 4, 2>::from_row_slice(&[
+            6, 0,
+            4, 1,
+            2, 0,
+            8, 7,
+        ]);
+
+        let expected_final_shape = (a.nrows(), b.ncols());
+
+        let dense_a = DMatrix::from(&a);
+
+        let product = spmm_csc_dense(a, b).unwrap();
+        let dense_product = dense_a * b;
+
+        assert_eq!(expected_final_shape, product.shape());
+        assert_eq!(dense_product.shape(), product.shape());
+
+        assert_eq!(dense_product, DMatrix::from(&product));
+    }
+
+    proptest! {
+        #[test]
+        fn spmm_csr_csr_multiplicative_right_identity(matrix in csr_strategy()) {
+            let eye = CsrMatrix::<i32>::identity(matrix.ncols());
+            let product = CsrMatrix::from(spmm_csr_csr(matrix.to_view(), eye).unwrap());
+
+            prop_assert_eq!(product.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn spmm_csr_csc_multiplicative_right_identity(matrix in csr_strategy()) {
+            let eye = CscMatrix::<i32>::identity(matrix.ncols());
+            let product = CsrMatrix::from(spmm_csr_csc(matrix.to_view(), eye).unwrap());
+
+            prop_assert_eq!(product.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn spmm_csc_csr_multiplicative_right_identity(matrix in csc_strategy()) {
+            let eye = CsrMatrix::<i32>::identity(matrix.ncols());
+            let product = CscMatrix::from(spmm_csc_csr(matrix.to_view(), eye).unwrap());
+
+            prop_assert_eq!(product.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+
+        #[test]
+        fn spmm_csc_csc_multiplicative_right_identity(matrix in csc_strategy()) {
+            let eye = CscMatrix::<i32>::identity(matrix.ncols());
+            let product = CscMatrix::from(spmm_csc_csc(matrix.to_view(), eye).unwrap());
+
+            prop_assert_eq!(product.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn spmm_csr_csr_multiplicative_left_identity(matrix in csr_strategy()) {
+            let eye = CsrMatrix::<i32>::identity(matrix.nrows());
+            let product = CsrMatrix::from(spmm_csr_csr(eye, matrix.to_view()).unwrap());
+
+            prop_assert_eq!(product.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn spmm_csr_csc_multiplicative_left_identity(matrix in csc_strategy()) {
+            let eye = CsrMatrix::<i32>::identity(matrix.nrows());
+            let product = CscMatrix::from(spmm_csr_csc(eye, matrix.to_view()).unwrap());
+
+            prop_assert_eq!(product.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+        #[test]
+        fn spmm_csc_csr_multiplicative_left_identity(matrix in csr_strategy()) {
+            let eye = CscMatrix::<i32>::identity(matrix.nrows());
+            let product = CsrMatrix::from(spmm_csc_csr(eye, matrix.to_view()).unwrap());
+
+            prop_assert_eq!(product.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+
+
+        #[test]
+        fn spmm_csc_csc_multiplicative_left_identity(matrix in csc_strategy()) {
+            let eye = CscMatrix::<i32>::identity(matrix.nrows());
+            let product = CscMatrix::from(spmm_csc_csc(eye, matrix.to_view()).unwrap());
+
+            prop_assert_eq!(product.shape(), matrix.shape());
+
+            let (offsets, indices, data) = matrix.cs_data();
+            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
+
+            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
+            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
+            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        }
+    }
 }

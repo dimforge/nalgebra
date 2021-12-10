@@ -94,9 +94,7 @@
 //! # use nalgebra_sparse::cs::CsrMatrix;
 //! let a = CsrMatrix::<f32>::identity(10);
 //! let b = CsrMatrix::<f32>::identity(10);
-//! let c = CsrMatrix::<f32>::identity(10);
-//! //let d = 3.0 * c + (2.0 * a.transpose() * b);
-//! let d = a.transpose() * b.transpose();
+//! let c = (2.0 * a.transpose()) * b;
 //! ```
 //! This is simple and straightforward to read, and therefore the recommended way to implement
 //! it. However, if you have determined that this is a performance bottleneck of your application,
@@ -119,7 +117,7 @@
 //! let b = CsrMatrix::identity(10);
 //!
 //! // Evaluate the expression `c <- a^T * b
-//! let c = spmm_csr_csr(a.transpose(), b)
+//! let c = spmm_csr_csr(2.0 * a.transpose(), b)
 //!     .expect("We assume that the patterns of A and B are able to accommodate the result.");
 //! ```
 //! Compared to the simpler example, this snippet is harder to read, but it calls a single
