@@ -300,7 +300,7 @@ impl std::error::Error for MatrixMarketError {}
 impl MatrixMarketError {
     fn from_pest_error<T>(error: pest::error::Error<T>) -> Self
     where
-        T: fmt::Debug + std::hash::Hash + std::marker::Copy + Ord
+        T: fmt::Debug + std::hash::Hash + std::marker::Copy + Ord,
     {
         Self::from_kind_and_message(
             MatrixMarketErrorKind::ParsingError,
@@ -739,8 +739,10 @@ struct MatrixMarketParser;
 /// --------
 /// ```
 /// use nalgebra_sparse::io::load_coo_from_matrix_market_file;
-/// // Use e.g. `f64` for floating-point matrices
-/// let matrix = load_coo_from_matrix_market_file::<i32>("path/to/matrix.mtx")?;
+/// // Use e.g. `i32` for integer matrices
+/// let matrix = load_coo_from_matrix_market_file::<i32,_>("path/to/matrix.mtx");
+/// // extract the real matrix here by
+/// // let matrix = matrix.unwrap();
 /// ```
 pub fn load_coo_from_matrix_market_file<T, P: AsRef<Path>>(
     path: P,
@@ -767,12 +769,15 @@ where
 /// # use nalgebra_sparse::io::load_coo_from_matrix_market_str;
 /// # use nalgebra_sparse::io::MatrixMarketErrorKind;
 /// let str = r#"
-/// %%matrixmarket matrix coordinate integer symmetric
+/// %%matrixmarket matrix coordinate integer general
 /// 5 4 2
 /// 1 1 10
 /// 2 3 5
 /// "#;
-/// let matrix = load_coo_from_matrix_market_str::<i32>(str)?;
+/// // Use e.g. `i32` for integer matrices
+/// let matrix = load_coo_from_matrix_market_str::<i32>(str);
+/// // extract the real matrix here by
+/// // let matrix = matrix.unwrap();
 /// ```
 pub fn load_coo_from_matrix_market_str<T>(data: &str) -> Result<CooMatrix<T>, MatrixMarketError>
 where
@@ -781,7 +786,8 @@ where
     // unwrap() in this function are guaranteed by parsing the data
     let file = MatrixMarketParser::parse(Rule::Document, data)
         .map_err(MatrixMarketError::from_pest_error)?
-        .next().unwrap();
+        .next()
+        .unwrap();
 
     let mut rows: Vec<usize> = Vec::new();
     let mut cols: Vec<usize> = Vec::new();
@@ -1041,18 +1047,6 @@ fn parse_sparse_shape(
     let r = inner.next().unwrap().as_str().parse::<usize>().unwrap();
     let c = inner.next().unwrap().as_str().parse::<usize>().unwrap();
     let nnz = inner.next().unwrap().as_str().parse::<usize>().unwrap();
-
-    // shape information can't use 0 as dimension
-    if r * c * nnz == 0 {
-        return Err(MatrixMarketError::from_kind_and_message(
-            MatrixMarketErrorKind::ZeroError,
-            String::from(
-                "
-        Matrix can't have 0 as shape dimensions.
-        ",
-            ),
-        ));
-    }
 
     // check for square matrix, when it's not a general matrix
     if *storagescheme != StorageScheme::General && r != c {
