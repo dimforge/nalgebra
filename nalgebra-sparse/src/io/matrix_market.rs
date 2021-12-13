@@ -1072,17 +1072,6 @@ fn parse_dense_shape(
     let mut inner = shape_inner.into_inner();
     let r = inner.next().unwrap().as_str().parse::<usize>().unwrap();
     let c = inner.next().unwrap().as_str().parse::<usize>().unwrap();
-    // shape information can't use 0 as dimension
-    if r * c == 0 {
-        return Err(MatrixMarketError::from_kind_and_message(
-            MatrixMarketErrorKind::ZeroError,
-            String::from(
-                "
-        Matrix can't have 0 as shape dimensions.
-        ",
-            ),
-        ));
-    }
 
     // check for square matrix, when it's not a general matrix
     if *storagescheme != StorageScheme::General && r != c {

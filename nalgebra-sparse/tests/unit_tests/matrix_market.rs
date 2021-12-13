@@ -7,11 +7,29 @@ use nalgebra_sparse::CooMatrix;
 #[test]
 #[rustfmt::skip]
 fn test_matrixmarket_sparse_real_general_empty() {
-    // Test several valid zero-shapes of a matrix
+    // Test several valid zero-shapes of a sparse matrix
     let shapes = vec![ (0, 0), (1, 0), (0, 1) ];
     let strings: Vec<String> = shapes
         .iter()
         .map(|(m, n)| format!("%%MatrixMarket matrix coordinate real general\n {} {} 0", m, n))
+        .collect();
+
+    for (shape,string) in shapes.iter().zip(strings.iter()) {
+        let sparse_mat = load_coo_from_matrix_market_str::<f32>(string).unwrap();
+        assert_eq!(sparse_mat.nrows(), shape.0);
+        assert_eq!(sparse_mat.ncols(), shape.1);
+        assert_eq!(sparse_mat.nnz(), 0);
+    }
+}
+
+#[test]
+#[rustfmt::skip]
+fn test_matrixmarket_dense_real_general_empty() {
+    // Test several valid zero-shapes of a dense matrix
+    let shapes = vec![ (0, 0), (1, 0), (0, 1) ];
+    let strings: Vec<String> = shapes
+        .iter()
+        .map(|(m, n)| format!("%%MatrixMarket matrix array real general\n {} {}", m, n))
         .collect();
 
     for (shape,string) in shapes.iter().zip(strings.iter()) {
