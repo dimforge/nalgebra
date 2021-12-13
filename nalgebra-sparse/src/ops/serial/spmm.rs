@@ -786,6 +786,7 @@ where
 mod tests {
     use super::*;
     use crate::proptest::*;
+    use matrixcompare::{assert_matrix_eq, prop_assert_matrix_eq};
     use nalgebra::{DMatrix, SMatrix};
     use proptest::prelude::*;
 
@@ -818,9 +819,7 @@ mod tests {
         let dense_product = dense_a * dense_b;
 
         assert_eq!(expected_final_shape, product.shape());
-        assert_eq!(dense_product.shape(), product.shape());
-
-        assert_eq!(dense_product, DMatrix::from(&product));
+        assert_matrix_eq!(dense_product, product);
     }
 
     #[test]
@@ -852,9 +851,7 @@ mod tests {
         let dense_product = dense_a * dense_b;
 
         assert_eq!(expected_final_shape, product.shape());
-        assert_eq!(dense_product.shape(), product.shape());
-
-        assert_eq!(dense_product, DMatrix::from(&product));
+        assert_matrix_eq!(dense_product, product);
     }
 
     #[test]
@@ -886,9 +883,7 @@ mod tests {
         let dense_product = dense_a * dense_b;
 
         assert_eq!(expected_final_shape, product.shape());
-        assert_eq!(dense_product.shape(), product.shape());
-
-        assert_eq!(dense_product, DMatrix::from(&product));
+        assert_matrix_eq!(dense_product, product);
     }
 
     #[test]
@@ -920,9 +915,7 @@ mod tests {
         let dense_product = dense_a * dense_b;
 
         assert_eq!(expected_final_shape, product.shape());
-        assert_eq!(dense_product.shape(), product.shape());
-
-        assert_eq!(dense_product, DMatrix::from(&product));
+        assert_matrix_eq!(dense_product, product);
     }
 
     #[test]
@@ -947,7 +940,7 @@ mod tests {
         let product = spmm_dense_csr(a, b).unwrap();
         let dense_product = a * dense_b;
 
-        assert_eq!(dense_product, DMatrix::from(&product));
+        assert_matrix_eq!(dense_product, product);
     }
 
     #[test]
@@ -972,7 +965,7 @@ mod tests {
         let product = spmm_dense_csc(a, b).unwrap();
         let dense_product = a * dense_b;
 
-        assert_eq!(dense_product, DMatrix::from(&product));
+        assert_matrix_eq!(dense_product, product);
     }
 
     #[test]
@@ -1002,9 +995,7 @@ mod tests {
         let dense_product = dense_a * b;
 
         assert_eq!(expected_final_shape, product.shape());
-        assert_eq!(dense_product.shape(), product.shape());
-
-        assert_eq!(dense_product, DMatrix::from(&product));
+        assert_matrix_eq!(dense_product, product);
     }
 
     #[test]
@@ -1034,9 +1025,7 @@ mod tests {
         let dense_product = dense_a * b;
 
         assert_eq!(expected_final_shape, product.shape());
-        assert_eq!(dense_product.shape(), product.shape());
-
-        assert_eq!(dense_product, DMatrix::from(&product));
+        assert_matrix_eq!(dense_product, product);
     }
 
     proptest! {
@@ -1045,14 +1034,7 @@ mod tests {
             let eye = CsrMatrix::<i32>::identity(matrix.ncols());
             let product = CsrMatrix::from(spmm_csr_csr(matrix.to_view(), eye).unwrap());
 
-            prop_assert_eq!(product.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(product, matrix);
         }
 
         #[test]
@@ -1060,14 +1042,7 @@ mod tests {
             let eye = CscMatrix::<i32>::identity(matrix.ncols());
             let product = CsrMatrix::from(spmm_csr_csc(matrix.to_view(), eye).unwrap());
 
-            prop_assert_eq!(product.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(product, matrix);
         }
 
         #[test]
@@ -1075,14 +1050,7 @@ mod tests {
             let eye = CsrMatrix::<i32>::identity(matrix.ncols());
             let product = CscMatrix::from(spmm_csc_csr(matrix.to_view(), eye).unwrap());
 
-            prop_assert_eq!(product.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(product, matrix);
         }
 
 
@@ -1091,14 +1059,7 @@ mod tests {
             let eye = CscMatrix::<i32>::identity(matrix.ncols());
             let product = CscMatrix::from(spmm_csc_csc(matrix.to_view(), eye).unwrap());
 
-            prop_assert_eq!(product.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(product, matrix);
         }
 
         #[test]
@@ -1106,14 +1067,7 @@ mod tests {
             let eye = CsrMatrix::<i32>::identity(matrix.nrows());
             let product = CsrMatrix::from(spmm_csr_csr(eye, matrix.to_view()).unwrap());
 
-            prop_assert_eq!(product.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(product, matrix);
         }
 
         #[test]
@@ -1121,14 +1075,7 @@ mod tests {
             let eye = CsrMatrix::<i32>::identity(matrix.nrows());
             let product = CscMatrix::from(spmm_csr_csc(eye, matrix.to_view()).unwrap());
 
-            prop_assert_eq!(product.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(product, matrix);
         }
 
         #[test]
@@ -1136,14 +1083,7 @@ mod tests {
             let eye = CscMatrix::<i32>::identity(matrix.nrows());
             let product = CsrMatrix::from(spmm_csc_csr(eye, matrix.to_view()).unwrap());
 
-            prop_assert_eq!(product.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(product, matrix);
         }
 
 
@@ -1152,14 +1092,7 @@ mod tests {
             let eye = CscMatrix::<i32>::identity(matrix.nrows());
             let product = CscMatrix::from(spmm_csc_csc(eye, matrix.to_view()).unwrap());
 
-            prop_assert_eq!(product.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = product.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(product, matrix);
         }
     }
 }

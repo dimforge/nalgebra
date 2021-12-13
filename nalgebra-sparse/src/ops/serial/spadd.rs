@@ -445,6 +445,7 @@ where
 mod tests {
     use super::*;
     use crate::proptest::*;
+    use matrixcompare::{assert_matrix_eq, prop_assert_matrix_eq};
     use nalgebra::DMatrix;
     use proptest::prelude::*;
 
@@ -464,14 +465,7 @@ mod tests {
         let lhs_plus_rhs = spadd_csr_csr(lhs.to_view(), rhs.to_view()).unwrap();
         let rhs_plus_lhs = spadd_csr_csr(rhs, lhs).unwrap();
 
-        assert_eq!(lhs_plus_rhs.shape(), rhs_plus_lhs.shape());
-
-        let (offsets, indices, data) = lhs_plus_rhs.cs_data();
-        let (expected_offsets, expected_indices, expected_data) = rhs_plus_lhs.cs_data();
-
-        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        assert_matrix_eq!(lhs_plus_rhs, rhs_plus_lhs);
     }
 
     #[test]
@@ -503,14 +497,7 @@ mod tests {
         .unwrap();
         let a_then_b_c = spadd_csr_csr(a, spadd_csr_csr(b, c).unwrap()).unwrap();
 
-        assert_eq!(a_b_then_c.shape(), a_then_b_c.shape());
-
-        let (offsets, indices, data) = a_b_then_c.cs_data();
-        let (expected_offsets, expected_indices, expected_data) = a_then_b_c.cs_data();
-
-        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        assert_matrix_eq!(a_b_then_c, a_then_b_c);
     }
 
     #[test]
@@ -529,14 +516,7 @@ mod tests {
         let lhs_plus_rhs = spadd_csr_csc(lhs.to_view(), rhs.to_view()).unwrap();
         let rhs_plus_lhs = spadd_csc_csr(rhs, lhs).unwrap();
 
-        assert_eq!(lhs_plus_rhs.shape(), rhs_plus_lhs.shape());
-
-        let (offsets, indices, data) = lhs_plus_rhs.cs_data();
-        let (expected_offsets, expected_indices, expected_data) = rhs_plus_lhs.cs_data();
-
-        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        assert_matrix_eq!(lhs_plus_rhs, rhs_plus_lhs);
     }
 
     #[test]
@@ -568,14 +548,7 @@ mod tests {
         .unwrap();
         let a_then_b_c = spadd_csr_csr(a, spadd_csc_csr(b, c).unwrap()).unwrap();
 
-        assert_eq!(a_b_then_c.shape(), a_then_b_c.shape());
-
-        let (offsets, indices, data) = a_b_then_c.cs_data();
-        let (expected_offsets, expected_indices, expected_data) = a_then_b_c.cs_data();
-
-        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        assert_matrix_eq!(a_b_then_c, a_then_b_c);
     }
 
     #[test]
@@ -594,14 +567,7 @@ mod tests {
         let lhs_plus_rhs = spadd_csc_csc(lhs.to_view(), rhs.to_view()).unwrap();
         let rhs_plus_lhs = spadd_csc_csc(rhs, lhs).unwrap();
 
-        assert_eq!(lhs_plus_rhs.shape(), rhs_plus_lhs.shape());
-
-        let (offsets, indices, data) = lhs_plus_rhs.cs_data();
-        let (expected_offsets, expected_indices, expected_data) = rhs_plus_lhs.cs_data();
-
-        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        assert_matrix_eq!(lhs_plus_rhs, rhs_plus_lhs);
     }
 
     #[test]
@@ -633,14 +599,7 @@ mod tests {
         .unwrap();
         let a_then_b_c = spadd_csc_csc(a, spadd_csc_csc(b, c).unwrap()).unwrap();
 
-        assert_eq!(a_b_then_c.shape(), a_then_b_c.shape());
-
-        let (offsets, indices, data) = a_b_then_c.cs_data();
-        let (expected_offsets, expected_indices, expected_data) = a_then_b_c.cs_data();
-
-        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        assert_matrix_eq!(a_b_then_c, a_then_b_c);
     }
 
     #[test]
@@ -659,7 +618,7 @@ mod tests {
         let lhs_plus_rhs = spadd_csr_dense(lhs.to_view(), rhs.clone()).unwrap();
         let rhs_plus_lhs = spadd_dense_csr(rhs, lhs).unwrap();
 
-        assert_eq!(lhs_plus_rhs, rhs_plus_lhs);
+        assert_matrix_eq!(lhs_plus_rhs, rhs_plus_lhs);
     }
 
     #[test]
@@ -688,7 +647,7 @@ mod tests {
             spadd_csr_dense(spadd_csr_csr(a.to_view(), b.to_view()).unwrap(), c.clone()).unwrap();
         let a_then_b_c = spadd_csr_dense(a, spadd_csr_dense(b, c).unwrap()).unwrap();
 
-        assert_eq!(a_b_then_c, a_then_b_c);
+        assert_matrix_eq!(a_b_then_c, a_then_b_c);
     }
 
     #[test]
@@ -707,7 +666,7 @@ mod tests {
         let lhs_plus_rhs = spadd_csc_dense(lhs.to_view(), rhs.clone()).unwrap();
         let rhs_plus_lhs = spadd_dense_csc(rhs, lhs).unwrap();
 
-        assert_eq!(lhs_plus_rhs, rhs_plus_lhs);
+        assert_matrix_eq!(lhs_plus_rhs, rhs_plus_lhs);
     }
 
     #[test]
@@ -736,7 +695,7 @@ mod tests {
             spadd_csc_dense(spadd_csc_csc(a.to_view(), b.to_view()).unwrap(), c.clone()).unwrap();
         let a_then_b_c = spadd_csc_dense(a, spadd_csc_dense(b, c).unwrap()).unwrap();
 
-        assert_eq!(a_b_then_c, a_then_b_c);
+        assert_matrix_eq!(a_b_then_c, a_then_b_c);
     }
 
     #[test]
@@ -762,10 +721,10 @@ mod tests {
         let dense_a = DMatrix::from(&a);
         let dense_b = DMatrix::from(&b);
 
-        let sum = DMatrix::from(&spadd_csr_csr(a, b).unwrap());
+        let sum = spadd_csr_csr(a, b).unwrap();
         let dense_sum = dense_a + dense_b;
 
-        assert_eq!(sum, dense_sum);
+        assert_matrix_eq!(sum, dense_sum);
     }
 
     #[test]
@@ -791,10 +750,10 @@ mod tests {
         let dense_a = DMatrix::from(&a);
         let dense_b = DMatrix::from(&b);
 
-        let sum = DMatrix::from(&spadd_csr_csc(a, b).unwrap());
+        let sum = spadd_csr_csc(a, b).unwrap();
         let dense_sum = dense_a + dense_b;
 
-        assert_eq!(sum, dense_sum);
+        assert_matrix_eq!(sum, dense_sum);
     }
 
     #[test]
@@ -820,10 +779,10 @@ mod tests {
         let dense_a = DMatrix::from(&a);
         let dense_b = DMatrix::from(&b);
 
-        let sum = DMatrix::from(&spadd_csc_csr(a, b).unwrap());
+        let sum = spadd_csc_csr(a, b).unwrap();
         let dense_sum = dense_a + dense_b;
 
-        assert_eq!(sum, dense_sum);
+        assert_matrix_eq!(sum, dense_sum);
     }
 
     #[test]
@@ -849,83 +808,47 @@ mod tests {
         let dense_a = DMatrix::from(&a);
         let dense_b = DMatrix::from(&b);
 
-        let sum = DMatrix::from(&spadd_csc_csc(a, b).unwrap());
+        let sum = spadd_csc_csc(a, b).unwrap();
         let dense_sum = dense_a + dense_b;
 
-        assert_eq!(sum, dense_sum);
+        assert_matrix_eq!(sum, dense_sum);
     }
 
     proptest! {
         #[test]
         fn spadd_csr_csr_additive_identity(matrix in csr_strategy()) {
             let (nrows, ncols) = matrix.shape();
-
             let zero = CsrMatrix::<i32>::zeros(nrows, ncols);
-
             let sum = spadd_csr_csr(matrix.to_view(), zero).unwrap();
 
-            prop_assert_eq!(sum.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(sum, matrix);
         }
 
         #[test]
         fn spadd_csr_csc_additive_identity(matrix in csr_strategy()) {
             let (nrows, ncols) = matrix.shape();
-
             let zero = CscMatrix::<i32>::zeros(nrows, ncols);
-
             let sum = spadd_csr_csc(matrix.to_view(), zero).unwrap();
 
-            prop_assert_eq!(sum.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(sum, matrix);
         }
 
         #[test]
         fn spadd_csc_csr_additive_identity(matrix in csc_strategy()) {
             let (nrows, ncols) = matrix.shape();
-
             let zero = CsrMatrix::<i32>::zeros(nrows, ncols);
-
             let sum = CscMatrix::from(spadd_csc_csr(matrix.to_view(), zero).unwrap());
 
-            prop_assert_eq!(sum.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(sum, matrix);
         }
 
         #[test]
         fn spadd_csc_csc_additive_identity(matrix in csc_strategy()) {
             let (nrows, ncols) = matrix.shape();
-
             let zero = CscMatrix::<i32>::zeros(nrows, ncols);
-
             let sum = spadd_csc_csc(matrix.to_view(), zero).unwrap();
 
-            prop_assert_eq!(sum.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(sum, matrix);
         }
     }
 }

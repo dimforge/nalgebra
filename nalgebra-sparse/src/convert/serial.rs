@@ -367,6 +367,7 @@ where
 mod tests {
     use super::*;
     use crate::proptest::*;
+    use matrixcompare::{assert_matrix_eq, prop_assert_matrix_eq};
     use nalgebra::SMatrix;
     use proptest::prelude::*;
 
@@ -441,23 +442,7 @@ mod tests {
 
         let converted_csr = convert_coo_csr(coo);
 
-        assert_eq!(converted_csr.shape(), expected_csr.shape());
-
-        let (expected_offsets, expected_indices, expected_data) = expected_csr.cs_data();
-        let (converted_offsets, converted_indices, converted_data) = converted_csr.cs_data();
-
-        assert!(expected_offsets
-            .iter()
-            .zip(converted_offsets)
-            .all(|(a, b)| a == b));
-        assert!(expected_indices
-            .iter()
-            .zip(converted_indices)
-            .all(|(a, b)| a == b));
-        assert!(expected_data
-            .iter()
-            .zip(converted_data)
-            .all(|(a, b)| a == b));
+        assert_matrix_eq!(converted_csr, expected_csr);
     }
 
     #[test]
@@ -485,23 +470,7 @@ mod tests {
 
         let converted_csr = convert_coo_csr(coo);
 
-        assert_eq!(converted_csr.shape(), expected_csr.shape());
-
-        let (expected_offsets, expected_indices, expected_data) = expected_csr.cs_data();
-        let (converted_offsets, converted_indices, converted_data) = converted_csr.cs_data();
-
-        assert!(expected_offsets
-            .iter()
-            .zip(converted_offsets)
-            .all(|(a, b)| a == b));
-        assert!(expected_indices
-            .iter()
-            .zip(converted_indices)
-            .all(|(a, b)| a == b));
-        assert!(expected_data
-            .iter()
-            .zip(converted_data)
-            .all(|(a, b)| a == b));
+        assert_matrix_eq!(converted_csr, expected_csr);
     }
 
     #[test]
@@ -527,23 +496,7 @@ mod tests {
 
         let converted_csc = convert_coo_csc(coo);
 
-        assert_eq!(converted_csc.shape(), expected_csc.shape());
-
-        let (expected_offsets, expected_indices, expected_data) = expected_csc.cs_data();
-        let (converted_offsets, converted_indices, converted_data) = converted_csc.cs_data();
-
-        assert!(expected_offsets
-            .iter()
-            .zip(converted_offsets)
-            .all(|(a, b)| a == b));
-        assert!(expected_indices
-            .iter()
-            .zip(converted_indices)
-            .all(|(a, b)| a == b));
-        assert!(expected_data
-            .iter()
-            .zip(converted_data)
-            .all(|(a, b)| a == b));
+        assert_matrix_eq!(converted_csc, expected_csc);
     }
 
     #[test]
@@ -571,23 +524,7 @@ mod tests {
 
         let converted_csc = convert_coo_csc(coo);
 
-        assert_eq!(converted_csc.shape(), expected_csc.shape());
-
-        let (expected_offsets, expected_indices, expected_data) = expected_csc.cs_data();
-        let (converted_offsets, converted_indices, converted_data) = converted_csc.cs_data();
-
-        assert!(expected_offsets
-            .iter()
-            .zip(converted_offsets)
-            .all(|(a, b)| a == b));
-        assert!(expected_indices
-            .iter()
-            .zip(converted_indices)
-            .all(|(a, b)| a == b));
-        assert!(expected_data
-            .iter()
-            .zip(converted_data)
-            .all(|(a, b)| a == b));
+        assert_matrix_eq!(converted_csc, expected_csc);
     }
 
     #[test]
@@ -610,7 +547,7 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(convert_csr_coo(&csr), expected_coo);
+        assert_matrix_eq!(convert_csr_coo(&csr), expected_coo);
     }
 
     #[test]
@@ -633,7 +570,7 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(convert_csc_coo(&csc), expected_coo);
+        assert_matrix_eq!(convert_csc_coo(&csc), expected_coo);
     }
 
     // FIXME: This test isn't _exactly_ correct. Explicit zeros stored in the matrix will be
@@ -659,18 +596,11 @@ mod tests {
             0, 1, 0, 4
         ]);
 
-        assert_eq!(convert_csr_dense(&csr), dense);
+        assert_matrix_eq!(convert_csr_dense(&csr), dense);
 
         let final_csr = convert_dense_csr(&dense);
 
-        assert_eq!(csr.shape(), final_csr.shape());
-
-        let (offsets, indices, data) = csr.cs_data();
-        let (expected_offsets, expected_indices, expected_data) = final_csr.cs_data();
-
-        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        assert_matrix_eq!(csr, final_csr);
     }
 
     // FIXME: Same as previous test, this can fail when explicit zeros are stored.
@@ -692,18 +622,11 @@ mod tests {
             0, 1, 0, 4
         ]);
 
-        assert_eq!(convert_csc_dense(&csc), dense);
+        assert_matrix_eq!(convert_csc_dense(&csc), dense);
 
         let final_csc = convert_dense_csc(&dense);
 
-        assert_eq!(csc.shape(), final_csc.shape());
-
-        let (offsets, indices, data) = csc.cs_data();
-        let (expected_offsets, expected_indices, expected_data) = final_csc.cs_data();
-
-        assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-        assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-        assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+        assert_matrix_eq!(csc, final_csc);
     }
 
     proptest! {
@@ -712,14 +635,7 @@ mod tests {
             let csr = convert_csc_csr(&csc);
             let final_csc = convert_csr_csc(&csr);
 
-            prop_assert_eq!(csc.shape(), final_csc.shape());
-
-            let (offsets, indices, data) = csc.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = final_csc.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(csc, final_csc);
         }
 
         #[test]
@@ -727,21 +643,15 @@ mod tests {
             let csc = convert_csr_csc(&csr);
             let final_csr = convert_csc_csr(&csc);
 
-            prop_assert_eq!(csr.shape(), final_csr.shape());
-
-            let (offsets, indices, data) = csr.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = final_csr.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(csr, final_csr);
         }
 
         #[test]
         fn dense_coo_dense_is_reflective(dense in dense_strategy()) {
             let coo = convert_dense_coo(&dense);
             let final_dense = convert_coo_dense(&coo);
-            prop_assert_eq!(dense, final_dense);
+
+            prop_assert_matrix_eq!(dense, final_dense);
         }
 
         #[test]
@@ -756,7 +666,7 @@ mod tests {
             let dense = convert_coo_dense(&coo);
             let coo2 = convert_dense_coo(&dense);
             let dense2 = convert_coo_dense(&coo2);
-            prop_assert_eq!(dense, dense2);
+            prop_assert_matrix_eq!(dense, dense2);
         }
 
         #[test]
@@ -764,11 +674,8 @@ mod tests {
             let coo_dense = convert_coo_dense(&coo);
             let csr = convert_coo_csr(coo.clone());
             let csr_dense = convert_csr_dense(&csr);
-            prop_assert_eq!(csr_dense, coo_dense);
 
-            // It might be that COO matrices have a higher nnz due to duplicates,
-            // so we can only check that the CSR matrix has no more than the original COO matrix
-            prop_assert!(csr.nnz() <= coo.nnz());
+            prop_assert_matrix_eq!(csr_dense, coo_dense);
         }
 
         #[test]
@@ -784,11 +691,8 @@ mod tests {
             let coo_dense = convert_coo_dense(&coo);
             let csc = convert_coo_csc(coo.clone());
             let csc_dense = convert_csc_dense(&csc);
-            prop_assert_eq!(csc_dense, coo_dense);
 
-            // It might be that COO matrices have a higher nnz due to duplicates,
-            // so we can only check that the csc matrix has no more than the original COO matrix
-            prop_assert!(csc.nnz() <= coo.nnz());
+            prop_assert_matrix_eq!(csc_dense, coo_dense);
         }
 
         #[test]
@@ -804,14 +708,7 @@ mod tests {
             let coo = convert_csr_coo(&csr);
             let final_csr = convert_coo_csr(coo);
 
-            prop_assert_eq!(csr.shape(), final_csr.shape());
-
-            let (offsets, indices, data) = csr.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = final_csr.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(csr, final_csr);
         }
 
         #[test]
@@ -819,14 +716,7 @@ mod tests {
             let coo = convert_csc_coo(&csc);
             let final_csc = convert_coo_csc(coo);
 
-            prop_assert_eq!(csc.shape(), final_csc.shape());
-
-            let (offsets, indices, data) = csc.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = final_csc.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(csc, final_csc);
         }
 
         // Test is only valid if there are no explicit zeros in the matrix
@@ -835,14 +725,7 @@ mod tests {
             let dense = convert_csr_dense(&csr);
             let final_csr = convert_dense_csr(&dense);
 
-            prop_assert_eq!(csr.shape(), final_csr.shape());
-
-            let (offsets, indices, data) = csr.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = final_csr.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(csr, final_csr);
         }
 
         // Test is only valid if there are no explicit zeros in the matrix
@@ -851,14 +734,7 @@ mod tests {
             let dense = convert_csc_dense(&csc);
             let final_csc = convert_dense_csc(&dense);
 
-            prop_assert_eq!(csc.shape(), final_csc.shape());
-
-            let (offsets, indices, data) = csc.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = final_csc.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(csc, final_csc);
         }
     }
 }

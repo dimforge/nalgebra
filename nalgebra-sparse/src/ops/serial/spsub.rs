@@ -529,6 +529,7 @@ where
 mod tests {
     use super::*;
     use crate::proptest::*;
+    use matrixcompare::{assert_matrix_eq, prop_assert_matrix_eq};
     use nalgebra::DMatrix;
     use proptest::prelude::*;
 
@@ -555,10 +556,10 @@ mod tests {
         let dense_a = DMatrix::from(&a);
         let dense_b = DMatrix::from(&b);
 
-        let sum = DMatrix::from(&spsub_csr_csr(a, b).unwrap());
-        let dense_sum = dense_a - dense_b;
+        let diff = spsub_csr_csr(a, b).unwrap();
+        let dense_diff = dense_a - dense_b;
 
-        assert_eq!(sum, dense_sum);
+        assert_matrix_eq!(diff, dense_diff);
     }
 
     #[test]
@@ -584,10 +585,10 @@ mod tests {
         let dense_a = DMatrix::from(&a);
         let dense_b = DMatrix::from(&b);
 
-        let sum = DMatrix::from(&spsub_csr_csc(a, b).unwrap());
-        let dense_sum = dense_a - dense_b;
+        let diff = spsub_csr_csc(a, b).unwrap();
+        let dense_diff = dense_a - dense_b;
 
-        assert_eq!(sum, dense_sum);
+        assert_matrix_eq!(diff, dense_diff);
     }
 
     #[test]
@@ -613,10 +614,10 @@ mod tests {
         let dense_a = DMatrix::from(&a);
         let dense_b = DMatrix::from(&b);
 
-        let sum = DMatrix::from(&spsub_csc_csr(a, b).unwrap());
-        let dense_sum = dense_a - dense_b;
+        let diff = spsub_csc_csr(a, b).unwrap();
+        let dense_diff = dense_a - dense_b;
 
-        assert_eq!(sum, dense_sum);
+        assert_matrix_eq!(diff, dense_diff);
     }
 
     #[test]
@@ -642,83 +643,47 @@ mod tests {
         let dense_a = DMatrix::from(&a);
         let dense_b = DMatrix::from(&b);
 
-        let sum = DMatrix::from(&spsub_csc_csc(a, b).unwrap());
-        let dense_sum = dense_a - dense_b;
+        let diff = spsub_csc_csc(a, b).unwrap();
+        let dense_diff = dense_a - dense_b;
 
-        assert_eq!(sum, dense_sum);
+        assert_matrix_eq!(diff, dense_diff);
     }
 
     proptest! {
         #[test]
         fn spsub_csr_csr_subtractive_identity(matrix in csr_strategy()) {
             let (nrows, ncols) = matrix.shape();
-
             let zero = CsrMatrix::<i32>::zeros(nrows, ncols);
+            let diff = spsub_csr_csr(matrix.to_view(), zero).unwrap();
 
-            let sum = spsub_csr_csr(matrix.to_view(), zero).unwrap();
-
-            prop_assert_eq!(sum.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(diff, matrix);
         }
 
         #[test]
         fn spsub_csr_csc_subtractive_identity(matrix in csr_strategy()) {
             let (nrows, ncols) = matrix.shape();
-
             let zero = CscMatrix::<i32>::zeros(nrows, ncols);
+            let diff = spsub_csr_csc(matrix.to_view(), zero).unwrap();
 
-            let sum = spsub_csr_csc(matrix.to_view(), zero).unwrap();
-
-            prop_assert_eq!(sum.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(diff, matrix);
         }
 
         #[test]
         fn spsub_csc_csr_subtractive_identity(matrix in csc_strategy()) {
             let (nrows, ncols) = matrix.shape();
-
             let zero = CsrMatrix::<i32>::zeros(nrows, ncols);
+            let diff = CscMatrix::from(spsub_csc_csr(matrix.to_view(), zero).unwrap());
 
-            let sum = CscMatrix::from(spsub_csc_csr(matrix.to_view(), zero).unwrap());
-
-            prop_assert_eq!(sum.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(diff, matrix);
         }
 
         #[test]
         fn spsub_csc_csc_subtractive_identity(matrix in csc_strategy()) {
             let (nrows, ncols) = matrix.shape();
-
             let zero = CscMatrix::<i32>::zeros(nrows, ncols);
+            let diff = spsub_csc_csc(matrix.to_view(), zero).unwrap();
 
-            let sum = spsub_csc_csc(matrix.to_view(), zero).unwrap();
-
-            prop_assert_eq!(sum.shape(), matrix.shape());
-
-            let (offsets, indices, data) = matrix.cs_data();
-            let (expected_offsets, expected_indices, expected_data) = sum.cs_data();
-
-            prop_assert!(offsets.iter().zip(expected_offsets).all(|(a, b)| a == b));
-            prop_assert!(indices.iter().zip(expected_indices).all(|(a, b)| a == b));
-            prop_assert!(data.iter().zip(expected_data).all(|(a, b)| a == b));
+            prop_assert_matrix_eq!(diff, matrix);
         }
     }
 }
