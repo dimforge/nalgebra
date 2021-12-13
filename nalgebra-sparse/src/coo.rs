@@ -33,8 +33,8 @@ use super::error::SparseFormatError;
 /// coo.push(0, 1, 2.0);
 ///
 /// // Convert to other matrix formats
-/// let csr = CsrMatrix::from(&coo);
-/// let csc = CscMatrix::from(&coo);
+/// let csr = CsrMatrix::from(coo.clone());
+/// let csc = CscMatrix::from(coo);
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CooMatrix<T> {

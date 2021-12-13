@@ -26,10 +26,10 @@
 //! scenario, the following code produces the optimal matrix multiplication:
 //!
 //! ```rust
-//! use nalgebra_sparse::{cs::{CsrMatrix, CscMatrix}, ops::serial::{spmm_csr_csc}};
+//! use nalgebra_sparse::{cs::{CsrMatrix, CscMatrix}, ops::serial::spmm::spmm_csr_csc};
 //!
 //! # fn spmm(a: CsrMatrix<f32>, b: CscMatrix<f32>, c: CscMatrix<f32>) {
-//! let product = spmm_csr_csc(spmm_csr_csc(a, b), c);
+//! let product = spmm_csr_csc(spmm_csr_csc(a, b).unwrap(), c);
 //!
 //! // SLOWER!!!
 //! //
@@ -45,10 +45,10 @@
 //! `c`. So instead, we can formulate the example as:
 //!
 //! ```rust
-//! use nalgebra_sparse::{cs::{CsrMatrix, CscMatrix}, ops::serial::{spmm_csr_csr, spmm_csr_csc}};
+//! use nalgebra_sparse::{cs::{CsrMatrix, CscMatrix}, ops::serial::spmm::{spmm_csr_csr, spmm_csr_csc}};
 //!
 //! # fn spmm(a: CsrMatrix<f32>, b: CscMatrix<f32>, c: CscMatrix<f32>) {
-//! let product = spmm_csr_csr(spmm_csr_csc(a, b), c);
+//! let product = spmm_csr_csc(spmm_csr_csc(a, b).unwrap(), c);
 //!
 //! // Avoid this as much as possible, it is the slowest possible form!
 //! //

@@ -411,30 +411,27 @@ where
     /// not wanting to make a true copy of the data. For example, standard operations like `Add`,
     /// `Mul`, `Sub`, etc. require that the types passed in are owned.
     ///
-    /// Alternatively you can implement `Add<&CsMatrix<...>>`; however, this means that every
-    /// operation needs to take matrices by reference, which not only reads strange but complicates
-    /// the types.
+    /// This can be used in most places where `.clone()` is used for the same semantic effect while
+    /// reducing the overall memory footprint of your program.
     ///
     /// # Example
     ///
     /// ```rust
-    /// # use nalgebra_sparse::cs::{CompressedColumnStorage, CsMatrix};
+    /// # use nalgebra_sparse::cs::CsrMatrix;
     /// #
-    /// # fn add_mat(rows: usize, cols: usize, offsets: &[usize], indices: &[usize], data:
+    /// # fn add_mat(rows: usize, cols: usize, offsets: Vec<usize>, indices: Vec<usize>, data:
     /// # Vec<f64>)
     /// # {
-    /// // Data is a Vec<f64> here, so copying all of `A` means that we copy that full vector.
-    /// let A = CsMatrix::try_from_parts(rows, cols, offsets, indices, data).unwrap();
+    /// let A = CsrMatrix::<f64>::try_from_parts(rows, cols, offsets, indices, data).unwrap();
     ///
-    /// // This forces a full copy of `A`, because we implement the `Copy` trait.
-    /// let C1 = A + A;
+    /// // In order to do this, we need to perform at least one full copy of A.
+    /// let C1 = A.clone() + A.clone();
     ///
-    /// // Instead, we use a view
-    /// let B = A.to_view();
-    ///
-    /// // This also does a full copy of `B`; however, because `B` is parameterized by slices and
-    /// // not a Vec<f64>, this is vastly cheaper than the full copy of the underlying data.
-    /// let C2 = B + B;
+    /// // Instead we use a view.
+    /// //
+    /// // Here, rather than do two full copies + allocs, we instead take views of the matrix,
+    /// // which won't allocate extra memory for the operation.
+    /// let C2 = A.to_view() + A.to_view();
     /// # }
     /// ```
     pub fn to_view(&self) -> CsMatrix<T, &[usize], &[usize], &[T], CompressionKind> {

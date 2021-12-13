@@ -8,7 +8,7 @@
 //! implementations.
 //!
 //! ```
-//! use nalgebra_sparse::{csr::CsrMatrix, csc::CscMatrix, coo::CooMatrix};
+//! use nalgebra_sparse::{cs::{CsrMatrix, CscMatrix}, coo::CooMatrix};
 //! use nalgebra::DMatrix;
 //!
 //! // Conversion from dense
@@ -18,16 +18,16 @@
 //! let coo = CooMatrix::from(&dense);
 //!
 //! // CSR <-> CSC
-//! let _ = CsrMatrix::from(&csc);
-//! let _ = CscMatrix::from(&csr);
+//! let _ = CsrMatrix::from(csc.clone());
+//! let _ = CscMatrix::from(csr.clone());
 //!
 //! // CSR <-> COO
 //! let _ = CooMatrix::from(&csr);
-//! let _ = CsrMatrix::from(&coo);
+//! let _ = CsrMatrix::from(coo.clone());
 //!
 //! // CSC <-> COO
 //! let _ = CooMatrix::from(&csc);
-//! let _ = CscMatrix::from(&coo);
+//! let _ = CscMatrix::from(coo);
 //! ```
 //!
 //! The routines available here are able to provide more specialized APIs, giving

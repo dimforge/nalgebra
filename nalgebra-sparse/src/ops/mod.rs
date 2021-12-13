@@ -110,11 +110,11 @@
 //! An alternative way to implement this expression (here using CSR matrices) is:
 //!
 //! ```
-//! # use nalgebra_sparse::cs::CsrMatrix;
-//! use nalgebra_sparse::ops::{serial::spmm_csr_csr};
+//! # use nalgebra_sparse::cs::{CscMatrix, CsrMatrix};
+//! use nalgebra_sparse::ops::serial::spmm::spmm_csr_csr;
 //!
-//! let a = CsrMatrix::identity(10);
-//! let b = CsrMatrix::identity(10);
+//! let a = CscMatrix::<f64>::identity(10);
+//! let b = CsrMatrix::<f64>::identity(10);
 //!
 //! // Evaluate the expression `c <- a^T * b
 //! let c = spmm_csr_csr(2.0 * a.transpose(), b)

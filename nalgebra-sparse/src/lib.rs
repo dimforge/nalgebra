@@ -86,6 +86,7 @@
 //!
 //! // Build the equivalent COO representation. We only add the non-zero values
 //! let mut coo = CooMatrix::new(3, 3);
+//!
 //! // We can add elements in any order. For clarity, we do so in row-major order here.
 //! coo.push(0, 0, 1.0);
 //! coo.push(0, 2, 3.0);
@@ -101,7 +102,7 @@
 //! // sparse matrix types.
 //! // Alternatively, we can construct a matrix directly from the CSR data.
 //! // See the docs for CsrMatrix for how to do that.
-//! let csr = CsrMatrix::from(&coo);
+//! let csr = CsrMatrix::from(coo);
 //!
 //! // Let's check that the CSR matrix and the dense matrix represent the same matrix.
 //! // We can use macros from the `matrixcompare` crate to easily do this, despite the fact that
@@ -117,6 +118,7 @@
 //!
 //! // Verify the result with a small element-wise absolute tolerance
 //! let y_expected = DVector::from_column_slice(&[11.8, 7.15, 14.35]);
+//!
 //! assert_matrix_eq!(y, y_expected, comp = abs, tol = 1e-9);
 //! ```
 #![deny(

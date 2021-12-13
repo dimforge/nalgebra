@@ -373,10 +373,17 @@ where
     })
 }
 
+/// Range of acceptable matrix dimensions
 pub const PROPTEST_MATRIX_DIM: RangeInclusive<usize> = 0..=6;
+
+/// Max number of non-zero elements in a sparse matrix.
 pub const PROPTEST_MAX_NNZ: usize = 40;
+
+/// Value strategy for generating explicit values in the sparse matrix.
 pub const PROPTEST_I32_VALUE_STRATEGY: RangeInclusive<i32> = -5..=5;
 
+/// Value strategy adapter that maps to a range of values from PROPTEST_I32_VALUE_STRATEGY. This
+/// only works if the type `T` can be converted into from an `i32`.
 pub fn value_strategy<T>() -> RangeInclusive<T>
 where
     T: TryFrom<i32>,
@@ -389,6 +396,7 @@ where
     T::try_from(*start).unwrap()..=T::try_from(*end).unwrap()
 }
 
+/// A strategy for producing values for a sparse matrix, without including explicit zeros.
 pub fn non_zero_i32_value_strategy() -> impl Strategy<Value = i32> {
     let (start, end) = (
         PROPTEST_I32_VALUE_STRATEGY.start(),
@@ -401,6 +409,7 @@ pub fn non_zero_i32_value_strategy() -> impl Strategy<Value = i32> {
     (*start..0).prop_union(1..*end + 1)
 }
 
+/// Produces a random CSR matrix, which may contain explicit zeros or be zero sized.
 pub fn csr_strategy() -> impl Strategy<Value = CsrMatrix<i32>> {
     csr(
         PROPTEST_I32_VALUE_STRATEGY,
@@ -410,6 +419,7 @@ pub fn csr_strategy() -> impl Strategy<Value = CsrMatrix<i32>> {
     )
 }
 
+/// Produces a random CSC matrix, which may contain explicit zeros or be zero sized.
 pub fn csc_strategy() -> impl Strategy<Value = CscMatrix<i32>> {
     csc(
         PROPTEST_I32_VALUE_STRATEGY,
@@ -419,6 +429,8 @@ pub fn csc_strategy() -> impl Strategy<Value = CscMatrix<i32>> {
     )
 }
 
+/// Produces a random COO matrix, which may contain explicit zeros, be zero sized, or may contain
+/// duplicate entries.
 pub fn coo_strategy() -> impl Strategy<Value = CooMatrix<i32>> {
     coo_with_duplicates(
         PROPTEST_I32_VALUE_STRATEGY,
@@ -429,6 +441,7 @@ pub fn coo_strategy() -> impl Strategy<Value = CooMatrix<i32>> {
     )
 }
 
+/// Strategy for producing COO matrices without duplicate entries.
 pub fn coo_no_duplicates_strategy() -> impl Strategy<Value = CooMatrix<i32>> {
     coo_no_duplicates(
         PROPTEST_I32_VALUE_STRATEGY,
@@ -458,6 +471,7 @@ pub fn non_zero_csc_strategy() -> impl Strategy<Value = CscMatrix<i32>> {
     )
 }
 
+/// A strategy for generating random dynamically sized matrices.
 pub fn dense_strategy() -> impl Strategy<Value = DMatrix<i32>> {
     matrix(
         PROPTEST_I32_VALUE_STRATEGY,
