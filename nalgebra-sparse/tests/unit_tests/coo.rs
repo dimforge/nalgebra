@@ -1,7 +1,7 @@
 use crate::assert_panics;
 use nalgebra::DMatrix;
 use nalgebra_sparse::coo::CooMatrix;
-use nalgebra_sparse::SparseFormatErrorKind;
+use nalgebra_sparse::error::SparseFormatErrorKind;
 
 #[test]
 fn coo_construction_for_valid_data() {
