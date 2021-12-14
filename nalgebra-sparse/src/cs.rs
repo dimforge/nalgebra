@@ -2,9 +2,10 @@
 
 use super::{
     error::{SparseFormatError, SparsityPatternFormatError},
+    factorization::CsCholesky,
     SparseEntry,
 };
-use nalgebra::Scalar;
+use nalgebra::{RealField, Scalar};
 use num_traits::One;
 use std::{borrow::Borrow, cmp::Ord, cmp::Ordering, marker::PhantomData};
 
@@ -589,6 +590,23 @@ where
             indices,
             data,
         }
+    }
+}
+
+impl<T, MajorOffsets, MinorIndices, Data, CompressionKind>
+    CsMatrix<T, MajorOffsets, MinorIndices, Data, CompressionKind>
+where
+    T: Scalar + RealField,
+    MajorOffsets: Borrow<[usize]>,
+    MinorIndices: Borrow<[usize]>,
+    Data: Borrow<[T]>,
+    CompressionKind: Compression,
+{
+    /// Gets the Cholesky factorization of the matrix, if it exists.
+    ///
+    /// The factorization will exist only if this matrix is symmetric and positive definite.
+    pub fn cholesky(&self) -> Option<CsCholesky<T>> {
+        CsCholesky::factor(&self).ok()
     }
 }
 
