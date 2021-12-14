@@ -353,6 +353,26 @@ where
     }
 }
 
+impl<T1, T2, R, C, S, MO, MI, D> Mul<CsMatrix<T2, MO, MI, D, CompressedRowStorage>>
+    for Matrix<T1, R, C, S>
+where
+    T1: Scalar,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T1, R, C>,
+    T2: Scalar + Mul<T1>,
+    <T2 as Mul<T1>>::Output: Scalar + Add + Zero,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
+    D: Borrow<[T2]>,
+{
+    type Output = CscMatrix<<T2 as Mul<T1>>::Output>;
+
+    fn mul(self, rhs: CsMatrix<T2, MO, MI, D, CompressedRowStorage>) -> Self::Output {
+        spmm_dense_csr(self, rhs).unwrap()
+    }
+}
+
 impl<T1, T2, R, C, S, MO, MI, D> Mul<Matrix<T2, R, C, S>>
     for CsMatrix<T1, MO, MI, D, CompressedColumnStorage>
 where
@@ -370,6 +390,26 @@ where
 
     fn mul(self, rhs: Matrix<T2, R, C, S>) -> Self::Output {
         spmm_csc_dense(self, rhs).unwrap()
+    }
+}
+
+impl<T1, T2, R, C, S, MO, MI, D> Mul<CsMatrix<T2, MO, MI, D, CompressedColumnStorage>>
+    for Matrix<T1, R, C, S>
+where
+    T1: Scalar,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T1, R, C>,
+    T2: Scalar + Mul<T1>,
+    <T2 as Mul<T1>>::Output: Scalar + Add + Zero,
+    MO: Borrow<[usize]>,
+    MI: Borrow<[usize]>,
+    D: Borrow<[T2]>,
+{
+    type Output = CsrMatrix<<T2 as Mul<T1>>::Output>;
+
+    fn mul(self, rhs: CsMatrix<T2, MO, MI, D, CompressedColumnStorage>) -> Self::Output {
+        spmm_dense_csc(self, rhs).unwrap()
     }
 }
 

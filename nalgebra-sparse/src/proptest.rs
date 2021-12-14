@@ -479,3 +479,16 @@ pub fn dense_strategy() -> impl Strategy<Value = DMatrix<i32>> {
         PROPTEST_MATRIX_DIM,
     )
 }
+
+/// Produces a positive definite CSR matrix
+pub fn csr_positive_definite() -> impl Strategy<Value = CsrMatrix<f64>> {
+    csc(1.0..=5.0, 1..=10, 1..=10, PROPTEST_MAX_NNZ).prop_map(|x| {
+        // Add a small multiple of the identity to ensure positive definiteness
+        x.transpose() * x.to_view() + CscMatrix::<f64>::identity(x.ncols())
+    })
+}
+
+/// Produces a positive definite CSC matrix
+pub fn csc_positive_definite() -> impl Strategy<Value = CscMatrix<f64>> {
+    csr_positive_definite().prop_map(|csr| csr.transpose_owned())
+}

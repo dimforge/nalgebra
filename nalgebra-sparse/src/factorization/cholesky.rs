@@ -22,6 +22,40 @@ pub struct CholeskyPattern {
     pub indices: Vec<usize>,
 }
 
+impl CholeskyPattern {
+    fn transpose(&self) -> Self {
+        let (nrows, ncols) = self.shape;
+
+        let mut counts = vec![0usize; ncols];
+        let mut new_indices = Vec::with_capacity(self.indices.len());
+
+        for i in 0..ncols {
+            for j in 0..self.offsets.len() {
+                let offset = self.offsets[j];
+                let indices = if (j + 1) < self.offsets.len() {
+                    let offset_upper = self.offsets[j + 1];
+                    &self.indices[offset..offset_upper]
+                } else {
+                    &self.indices[offset..]
+                };
+
+                if let Ok(_) = indices.binary_search_by(|&x| x.cmp(&i)) {
+                    counts[i] += 1;
+                    new_indices.push(j);
+                }
+            }
+        }
+
+        let new_offsets = CountToOffsetIter::new(counts).collect();
+
+        Self {
+            shape: (ncols, nrows),
+            offsets: new_offsets,
+            indices: new_indices,
+        }
+    }
+}
+
 /// A sparse Cholesky factorization `A = L L^T` of a [`CscMatrix`].
 ///
 /// The factor `L` is a sparse, lower-triangular matrix. See the article on [Wikipedia] for
@@ -59,10 +93,6 @@ pub enum CholeskyError {
     /// The matrix and cholesky pattern have different shapes.
     #[error("The matrix and cholesky pattern have different shapes.")]
     ShapeMismatch,
-
-    /// The number of nonzeros in the matrix and Cholesky pattern are not equal.
-    #[error("The number of nonzeros in the matrix and Cholesky pattern are not equal.")]
-    NonzerosMismatch,
 }
 
 impl<T: Scalar + RealField> CsCholesky<T> {
@@ -89,8 +119,8 @@ impl<T: Scalar + RealField> CsCholesky<T> {
         let (nrows, ncols) = matrix.shape();
 
         if nrows == ncols {
-            let cholesky_pattern = nonzero_pattern(matrix);
-            Self::decompose_left_looking(cholesky_pattern, matrix)
+            let lt_pattern = nonzero_pattern(matrix);
+            Self::decompose_left_looking(lt_pattern.transpose(), lt_pattern, matrix)
         } else {
             Err(CholeskyError::NotSquare)
         }
@@ -111,7 +141,7 @@ impl<T: Scalar + RealField> CsCholesky<T> {
     /// - The pattern and matrix have an inequal number of nonzeros.
     /// - The matrix is not positive-definite.
     pub fn factor_with_pattern<MO, MI, D, C>(
-        pattern: CholeskyPattern,
+        l_pattern: CholeskyPattern,
         matrix: &CsMatrix<T, MO, MI, D, C>,
     ) -> Result<Self, CholeskyError>
     where
@@ -120,14 +150,15 @@ impl<T: Scalar + RealField> CsCholesky<T> {
         D: Borrow<[T]>,
         C: Compression,
     {
-        if pattern.shape != matrix.shape() {
+        if l_pattern.shape != matrix.shape() {
             return Err(CholeskyError::ShapeMismatch);
         }
 
         let (nrows, ncols) = matrix.shape();
 
         if nrows == ncols {
-            Self::decompose_left_looking(pattern, matrix)
+            let lt_pattern = l_pattern.transpose();
+            Self::decompose_left_looking(l_pattern, lt_pattern, matrix)
         } else {
             Err(CholeskyError::NotSquare)
         }
@@ -136,7 +167,8 @@ impl<T: Scalar + RealField> CsCholesky<T> {
     /// Perform a numerical left-looking cholesky decomposition of a matrix with the same structure as the
     /// one used to initialize `self`, but with different non-zero values provided by `values`.
     fn decompose_left_looking<MO, MI, D, C>(
-        pattern: CholeskyPattern,
+        l_pattern: CholeskyPattern,
+        u_pattern: CholeskyPattern,
         matrix: &CsMatrix<T, MO, MI, D, C>,
     ) -> Result<Self, CholeskyError>
     where
@@ -145,49 +177,50 @@ impl<T: Scalar + RealField> CsCholesky<T> {
         D: Borrow<[T]>,
         C: Compression,
     {
-        let mut work_c = Vec::new();
-        work_c.copy_from_slice(pattern.offsets.borrow());
-
-        // Fill with MAX so that things hopefully totally fail if values are not overwritten. Might
-        // be easier to debug this way
+        let mut work_c = l_pattern.offsets.clone();
         let mut work_x = vec![T::zero(); matrix.nmajor()];
 
-        if matrix.nnz() != pattern.indices.len() {
-            return Err(CholeskyError::NonzerosMismatch);
-        }
-
-        let mut data = vec![T::zero(); matrix.nnz()];
+        let mut data = vec![T::zero(); l_pattern.indices.len()];
 
         for (i, lane) in matrix.iter().enumerate() {
+            work_x[i] = T::zero();
+
             for (j, val) in lane {
                 if j >= i {
                     work_x[j] = val.clone();
                 }
             }
 
-            let offset = pattern.offsets[i];
-
             {
-                let (pattern_lane_indices, pattern_lane_data) = if (i + 1) < pattern.offsets.len() {
-                    let offset_upper = pattern.offsets[i + 1];
-                    let indices = &pattern.indices[offset..offset_upper];
-                    let data = &data[offset..offset_upper];
+                let offset = u_pattern.offsets[i];
 
-                    (indices, data)
+                let lane_i_indices = if (i + 1) < u_pattern.offsets.len() {
+                    let offset_upper = u_pattern.offsets[i + 1];
+                    &u_pattern.indices[offset..offset_upper]
                 } else {
-                    let indices = &pattern.indices[offset..];
-                    let data = &data[offset..];
-
-                    (indices, data)
+                    &u_pattern.indices[offset..]
                 };
 
-                for &j in pattern_lane_indices {
+                for &j in lane_i_indices {
+                    let factor = -data[work_c[j]].clone();
                     work_c[j] += 1;
 
                     if j < i {
-                        let factor = -data[work_c[j]].clone();
+                        let offset_j = l_pattern.offsets[j];
+                        let (lane_j_indices, lane_j_data) = if (j + 1) < l_pattern.offsets.len() {
+                            let offset_upper = l_pattern.offsets[j + 1];
+                            let indices = &l_pattern.indices[offset_j..offset_upper];
+                            let data = &data[offset_j..offset_upper];
 
-                        for (&j_t, val) in pattern_lane_indices.iter().zip(pattern_lane_data) {
+                            (indices, data)
+                        } else {
+                            let indices = &l_pattern.indices[offset_j..];
+                            let data = &data[offset_j..];
+
+                            (indices, data)
+                        };
+
+                        for (&j_t, val) in lane_j_indices.iter().zip(lane_j_data) {
                             if j_t >= i {
                                 work_x[j_t] += val.clone() * factor.clone();
                             }
@@ -201,16 +234,18 @@ impl<T: Scalar + RealField> CsCholesky<T> {
             if diag > T::zero() {
                 let denom = diag.sqrt();
 
+                let offset = l_pattern.offsets[i];
                 data[offset] = denom.clone();
 
-                let (pattern_lane_indices, pattern_lane_data) = if (i + 1) < pattern.offsets.len() {
-                    let offset_upper = pattern.offsets[i + 1];
-                    let indices = &pattern.indices[offset..offset_upper];
+                let (pattern_lane_indices, pattern_lane_data) = if (i + 1) < l_pattern.offsets.len()
+                {
+                    let offset_upper = l_pattern.offsets[i + 1];
+                    let indices = &l_pattern.indices[offset..offset_upper];
                     let data = &mut data[offset..offset_upper];
 
                     (indices, data)
                 } else {
-                    let indices = &pattern.indices[offset..];
+                    let indices = &l_pattern.indices[offset..];
                     let data = &mut data[offset..];
 
                     (indices, data)
@@ -229,7 +264,7 @@ impl<T: Scalar + RealField> CsCholesky<T> {
             shape: (nrows, ncols),
             offsets,
             indices,
-        } = pattern;
+        } = l_pattern;
 
         Ok(Self {
             l_matrix: unsafe {
@@ -320,13 +355,13 @@ where
     C: Compression,
 {
     let etree = elimination_tree(matrix);
-
     let nmajor = matrix.nmajor();
 
+    let mut counts = vec![0usize; nmajor];
     let mut new_indices = Vec::with_capacity(matrix.nnz());
     let mut marks = vec![false; etree.len()];
 
-    let new_offsets = CountToOffsetIter::new(matrix.iter().enumerate().map(|(i, lane)| {
+    for (i, lane) in matrix.iter().enumerate() {
         marks.fill(false);
 
         let mut indices = lane
@@ -354,9 +389,10 @@ where
         indices.sort_unstable();
         new_indices.append(&mut indices);
 
-        count
-    }))
-    .collect();
+        counts[i] += count;
+    }
+
+    let new_offsets = CountToOffsetIter::new(counts).collect();
 
     CholeskyPattern {
         shape: matrix.shape(),
@@ -374,10 +410,10 @@ where
     D: Borrow<[T]>,
     C: Compression,
 {
-    let nminor = matrix.nminor();
+    let n = matrix.nmajor();
 
-    let mut forest = iter::repeat(None).take(nminor).collect::<Vec<_>>();
-    let mut ancestor = iter::repeat(None).take(nminor).collect::<Vec<_>>();
+    let mut forest = iter::repeat(None).take(n).collect::<Vec<_>>();
+    let mut ancestor = iter::repeat(None).take(n).collect::<Vec<_>>();
 
     for (k, lane) in matrix.iter().enumerate() {
         for (i_minor, _) in lane {
@@ -402,4 +438,208 @@ where
     }
 
     forest
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        cs::{CscMatrix, CsrMatrix},
+        proptest::*,
+    };
+    use matrixcompare::{assert_matrix_eq, prop_assert_matrix_eq};
+    use nalgebra::{proptest::matrix, DMatrix, Matrix5, Vector5};
+    use proptest::prelude::*;
+
+    /// The tolerance at which we will make value comparisons when performing matrix equality
+    /// checks.
+    const TOLERANCE: f64 = 1e-12;
+
+    #[test]
+    fn cholesky_correct_for_positive_definite_example_1() {
+        #[rustfmt::skip]
+        let mut a = Matrix5::new(
+            40.0, 0.0, 0.0, 0.0, 0.0,
+            2.0, 60.0, 0.0, 0.0, 0.0,
+            1.0, 0.0, 11.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 50.0, 0.0,
+            1.0, 0.0, 0.0, 4.0, 10.0
+        );
+        a.fill_upper_triangle_with_lower_triangle();
+
+        let csc = CscMatrix::from(&a);
+
+        let chol_a = a.cholesky().unwrap();
+        let chol_cs_a = CsCholesky::factor(&csc).unwrap();
+
+        let l = chol_a.unpack();
+        let cs_l = chol_cs_a.take_l();
+
+        assert_matrix_eq!(l, cs_l, comp = abs, tol = TOLERANCE);
+    }
+
+    #[test]
+    fn cholesky_correct_for_positive_definite_example_2() {
+        #[rustfmt::skip]
+        let mut a = Matrix5::new(
+            40.0, 0.0, 0.0, 0.0, 0.0,
+            2.0, 60.0, 0.0, 0.0, 0.0,
+            1.0, 0.0, 11.0, 0.0, 0.0,
+            1.0, 0.0, 0.0, 50.0, 0.0,
+            0.0, 0.0, 0.0, 4.0, 10.0
+        );
+        a.fill_upper_triangle_with_lower_triangle();
+
+        let csc = CscMatrix::from(&a);
+
+        let chol_a = a.cholesky().unwrap();
+        let chol_cs_a = CsCholesky::factor(&csc).unwrap();
+
+        let l = chol_a.unpack();
+        let cs_l = chol_cs_a.take_l();
+
+        assert_matrix_eq!(l, cs_l, comp = abs, tol = TOLERANCE);
+    }
+
+    #[test]
+    fn cholesky_correct_for_positive_definite_example_3() {
+        let a = Matrix5::from_diagonal(&Vector5::new(40.0, 60.0, 11.0, 50.0, 10.0));
+
+        let csc = CscMatrix::from(&a);
+
+        let chol_a = a.cholesky().unwrap();
+        let chol_cs_a = CsCholesky::factor(&csc).unwrap();
+
+        let l = chol_a.unpack();
+        let cs_l = chol_cs_a.take_l();
+
+        assert_matrix_eq!(l, cs_l, comp = abs, tol = TOLERANCE);
+    }
+
+    #[test]
+    fn cholesky_correct_for_positive_definite_example_4() {
+        #[rustfmt::skip]
+        let mut a = Matrix5::new(
+            2.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 2.0, 0.0, 0.0, 0.0,
+            1.0, 1.0, 2.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 2.0, 0.0,
+            1.0, 1.0, 0.0, 0.0, 2.0
+        );
+        a.fill_upper_triangle_with_lower_triangle();
+
+        let csc = CscMatrix::from(&a);
+
+        let chol_a = a.cholesky().unwrap();
+        let chol_cs_a = CsCholesky::factor(&csc).unwrap();
+
+        let l = chol_a.unpack();
+        let cs_l = chol_cs_a.take_l();
+
+        assert_matrix_eq!(l, cs_l, comp = abs, tol = TOLERANCE);
+    }
+
+    proptest! {
+        #[test]
+        fn nonzero_cholesky_pattern_of_identity_matrix_is_same_as_identity(n in 0..100usize) {
+            let eye = CsrMatrix::<f32>::identity(n);
+            let pattern = nonzero_pattern(&eye);
+
+            let (offsets, indices, _) = eye.cs_data();
+
+            prop_assert_eq!(offsets, pattern.offsets);
+            prop_assert_eq!(indices, pattern.indices);
+            prop_assert_eq!(indices.len(), eye.nnz());
+        }
+
+        #[test]
+        fn nonzero_pattern_of_cholesky_agrees_with_dense(matrix in csc_positive_definite()) {
+            let dense = DMatrix::from(&matrix);
+            let l_dense = dense.cholesky().unwrap().unpack();
+            let lt_dense = l_dense.transpose();
+
+            let l_as_csc = CscMatrix::from(&l_dense);
+            let lt_as_csc = CscMatrix::from(&lt_dense);
+
+            let (l_offsets, l_indices, _) = l_as_csc.disassemble();
+            let (lt_offsets, lt_indices, _) = lt_as_csc.disassemble();
+
+            // nonzero_pattern computes L^T
+            let lt_pattern = nonzero_pattern(&matrix);
+            let l_pattern = lt_pattern.transpose();
+
+            prop_assert_eq!(l_pattern.offsets, l_offsets);
+            prop_assert_eq!(l_pattern.indices, l_indices);
+
+            prop_assert_eq!(lt_pattern.offsets, lt_offsets);
+            prop_assert_eq!(lt_pattern.indices, lt_indices);
+        }
+
+        #[test]
+        fn cholesky_of_csr_identity_matrix_is_identity(n in 0..100usize) {
+            let eye = CsrMatrix::<f64>::identity(n);
+            let cholesky = CsCholesky::factor(&eye).unwrap();
+            let l = cholesky.take_l();
+
+            let reconstructed = l.to_view() * l.transpose();
+
+            prop_assert_matrix_eq!(eye, l, comp = abs, tol = TOLERANCE);
+            prop_assert_matrix_eq!(eye, reconstructed, comp = abs, tol = TOLERANCE);
+        }
+
+        #[test]
+        fn cholesky_of_csc_identity_matrix_is_identity(n in 0..100usize) {
+            let eye = CscMatrix::<f64>::identity(n);
+            let cholesky = CsCholesky::factor(&eye).unwrap();
+            let l = cholesky.take_l();
+
+            let reconstructed = l.to_view() * l.transpose();
+
+            prop_assert_matrix_eq!(eye, reconstructed, comp = abs, tol = TOLERANCE);
+        }
+
+        #[test]
+        fn csc_cholesky_correct_for_positive_definite_matrices(matrix in csc_positive_definite()) {
+            let cholesky = CsCholesky::factor(&matrix).unwrap();
+            let l = cholesky.take_l();
+            let matrix_reconstructed = l.to_view() * l.transpose();
+
+            prop_assert_matrix_eq!(matrix_reconstructed, matrix, comp = abs, tol = TOLERANCE);
+
+            let is_lower_triangular = l.triplet_iter().all(|(i, j, _)| i <= j);
+            prop_assert!(is_lower_triangular);
+        }
+
+        #[test]
+        fn csr_cholesky_correct_for_positive_definite_matrices(matrix in csr_positive_definite()) {
+            let cholesky = CsCholesky::factor(&matrix).unwrap();
+            let l = cholesky.take_l();
+            let matrix_reconstructed = l.to_view() * l.transpose();
+
+            prop_assert_matrix_eq!(matrix_reconstructed, matrix, comp = abs, tol = TOLERANCE);
+
+            let is_lower_triangular = l.triplet_iter().all(|(i, j, _)| i <= j);
+            prop_assert!(is_lower_triangular);
+        }
+
+        #[test]
+        fn cholesky_solve_positive_definite((matrix, rhs) in csc_positive_definite().prop_flat_map(|csc| {
+            let rhs = matrix(value_strategy::<f64>(), csc.nrows(), PROPTEST_MATRIX_DIM);
+            (Just(csc), rhs)
+        })) {
+            let cholesky = CsCholesky::factor(&matrix).unwrap();
+
+            // solve_mut
+            {
+                let x = cholesky.solve_mut(rhs.clone());
+                prop_assert_matrix_eq!(matrix.to_view() * x, rhs, comp = abs, tol = TOLERANCE);
+            }
+
+            // solve
+            {
+                let x = cholesky.solve(&rhs);
+                prop_assert_matrix_eq!(matrix.to_view() * x, rhs, comp = abs, tol = TOLERANCE);
+            }
+        }
+    }
 }
