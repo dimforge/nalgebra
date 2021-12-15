@@ -12,8 +12,6 @@ use nalgebra::Scalar;
 use num_traits::One;
 #[cfg(feature = "serde-serialize")]
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-#[cfg(feature = "serde-serialize")]
-use std::borrow::Cow;
 use std::slice::{Iter, IterMut};
 
 /// A CSC representation of a sparse matrix.
@@ -526,12 +524,12 @@ impl<T> CscMatrix<T> {
 
 #[cfg(feature = "serde-serialize")]
 #[derive(Serialize, Deserialize)]
-struct CscMatrixSerializationData<'a, T: Clone> {
+struct CscMatrixSerializationData<Indices, Values> {
     nrows: usize,
     ncols: usize,
-    col_offsets: Cow<'a, [usize]>,
-    row_indices: Cow<'a, [usize]>,
-    values: Cow<'a, [T]>,
+    col_offsets: Indices,
+    row_indices: Indices,
+    values: Values,
 }
 
 #[cfg(feature = "serde-serialize")]
@@ -543,12 +541,12 @@ where
     where
         S: Serializer,
     {
-        CscMatrixSerializationData {
+        CscMatrixSerializationData::<&[usize], &[T]> {
             nrows: self.nrows(),
             ncols: self.ncols(),
-            col_offsets: Cow::Borrowed(self.col_offsets()),
-            row_indices: Cow::Borrowed(self.row_indices()),
-            values: Cow::Borrowed(self.values()),
+            col_offsets: self.col_offsets(),
+            row_indices: self.row_indices(),
+            values: self.values(),
         }
         .serialize(serializer)
     }
@@ -563,13 +561,13 @@ where
     where
         D: Deserializer<'de>,
     {
-        let de = CscMatrixSerializationData::deserialize(deserializer)?;
+        let de = CscMatrixSerializationData::<Vec<usize>, Vec<T>>::deserialize(deserializer)?;
         CscMatrix::try_from_csc_data(
             de.nrows,
             de.ncols,
-            de.col_offsets.into(),
-            de.row_indices.into(),
-            de.values.into(),
+            de.col_offsets,
+            de.row_indices,
+            de.values,
         )
         .map_err(|e| de::Error::custom(e))
     }

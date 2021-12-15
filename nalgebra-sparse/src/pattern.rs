@@ -6,8 +6,6 @@ use std::fmt;
 
 #[cfg(feature = "serde-serialize")]
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-#[cfg(feature = "serde-serialize")]
-use std::borrow::Cow;
 
 /// A representation of the sparsity pattern of a CSR or CSC matrix.
 ///
@@ -296,11 +294,11 @@ pub enum SparsityPatternFormatError {
 
 #[cfg(feature = "serde-serialize")]
 #[derive(Serialize, Deserialize)]
-struct SparsityPatternSerializationData<'a> {
+struct SparsityPatternSerializationData<Indices> {
     major_dim: usize,
     minor_dim: usize,
-    major_offsets: Cow<'a, [usize]>,
-    minor_indices: Cow<'a, [usize]>,
+    major_offsets: Indices,
+    minor_indices: Indices,
 }
 
 #[cfg(feature = "serde-serialize")]
@@ -309,11 +307,11 @@ impl Serialize for SparsityPattern {
     where
         S: Serializer,
     {
-        SparsityPatternSerializationData {
+        SparsityPatternSerializationData::<&[usize]> {
             major_dim: self.major_dim(),
             minor_dim: self.minor_dim(),
-            major_offsets: Cow::Borrowed(self.major_offsets()),
-            minor_indices: Cow::Borrowed(self.minor_indices()),
+            major_offsets: self.major_offsets(),
+            minor_indices: self.minor_indices(),
         }
         .serialize(serializer)
     }
@@ -325,12 +323,12 @@ impl<'de> Deserialize<'de> for SparsityPattern {
     where
         D: Deserializer<'de>,
     {
-        let de = SparsityPatternSerializationData::deserialize(deserializer)?;
+        let de = SparsityPatternSerializationData::<Vec<usize>>::deserialize(deserializer)?;
         SparsityPattern::try_from_offsets_and_indices(
             de.major_dim,
             de.minor_dim,
-            de.major_offsets.into(),
-            de.minor_indices.into(),
+            de.major_offsets,
+            de.minor_indices,
         )
         .map_err(|e| de::Error::custom(e))
     }

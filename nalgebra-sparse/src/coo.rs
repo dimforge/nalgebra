@@ -4,8 +4,6 @@ use crate::SparseFormatError;
 
 #[cfg(feature = "serde-serialize")]
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-#[cfg(feature = "serde-serialize")]
-use std::borrow::Cow;
 
 /// A COO representation of a sparse matrix.
 ///
@@ -281,12 +279,12 @@ impl<T> CooMatrix<T> {
 
 #[cfg(feature = "serde-serialize")]
 #[derive(Serialize, Deserialize)]
-struct CooMatrixSerializationData<'a, T: Clone> {
+struct CooMatrixSerializationData<Indices, Values> {
     nrows: usize,
     ncols: usize,
-    row_indices: Cow<'a, [usize]>,
-    col_indices: Cow<'a, [usize]>,
-    values: Cow<'a, [T]>,
+    row_indices: Indices,
+    col_indices: Indices,
+    values: Values,
 }
 
 #[cfg(feature = "serde-serialize")]
@@ -298,12 +296,12 @@ where
     where
         S: Serializer,
     {
-        CooMatrixSerializationData {
+        CooMatrixSerializationData::<&[usize], &[T]> {
             nrows: self.nrows(),
             ncols: self.ncols(),
-            row_indices: self.row_indices().into(),
-            col_indices: self.col_indices().into(),
-            values: self.values().into(),
+            row_indices: self.row_indices(),
+            col_indices: self.col_indices(),
+            values: self.values(),
         }
         .serialize(serializer)
     }
@@ -318,13 +316,13 @@ where
     where
         D: Deserializer<'de>,
     {
-        let de = CooMatrixSerializationData::deserialize(deserializer)?;
+        let de = CooMatrixSerializationData::<Vec<usize>, Vec<T>>::deserialize(deserializer)?;
         CooMatrix::try_from_triplets(
             de.nrows,
             de.ncols,
-            de.row_indices.into(),
-            de.col_indices.into(),
-            de.values.into(),
+            de.row_indices,
+            de.col_indices,
+            de.values,
         )
         .map_err(|e| de::Error::custom(e))
     }

@@ -11,8 +11,6 @@ use nalgebra::Scalar;
 use num_traits::One;
 #[cfg(feature = "serde-serialize")]
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-#[cfg(feature = "serde-serialize")]
-use std::borrow::Cow;
 use std::iter::FromIterator;
 use std::slice::{Iter, IterMut};
 
@@ -597,12 +595,12 @@ impl<T> CsrMatrix<T> {
 
 #[cfg(feature = "serde-serialize")]
 #[derive(Serialize, Deserialize)]
-struct CsrMatrixSerializationData<'a, T: Clone> {
+struct CsrMatrixSerializationData<Indices, Values> {
     nrows: usize,
     ncols: usize,
-    row_offsets: Cow<'a, [usize]>,
-    col_indices: Cow<'a, [usize]>,
-    values: Cow<'a, [T]>,
+    row_offsets: Indices,
+    col_indices: Indices,
+    values: Values,
 }
 
 #[cfg(feature = "serde-serialize")]
@@ -614,12 +612,12 @@ where
     where
         S: Serializer,
     {
-        CsrMatrixSerializationData {
+        CsrMatrixSerializationData::<&[usize], &[T]> {
             nrows: self.nrows(),
             ncols: self.ncols(),
-            row_offsets: Cow::Borrowed(self.row_offsets()),
-            col_indices: Cow::Borrowed(self.col_indices()),
-            values: Cow::Borrowed(self.values()),
+            row_offsets: self.row_offsets(),
+            col_indices: self.col_indices(),
+            values: self.values(),
         }
         .serialize(serializer)
     }
@@ -634,13 +632,13 @@ where
     where
         D: Deserializer<'de>,
     {
-        let de = CsrMatrixSerializationData::deserialize(deserializer)?;
+        let de = CsrMatrixSerializationData::<Vec<usize>, Vec<T>>::deserialize(deserializer)?;
         CsrMatrix::try_from_csr_data(
             de.nrows,
             de.ncols,
-            de.row_offsets.into(),
-            de.col_indices.into(),
-            de.values.into(),
+            de.row_offsets,
+            de.col_indices,
+            de.values,
         )
         .map_err(|e| de::Error::custom(e))
     }
