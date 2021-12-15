@@ -1,4 +1,4 @@
-/// Examples of *invalid* raw CSR data `(offsets, indices, values)`.
+/// Examples of *valid* raw CS data `(offsets, indices, values)`.
 pub struct ValidCsDataExamples {
     pub valid_cs_data: (Vec<usize>, Vec<usize>, Vec<i32>),
     pub valid_unsorted_cs_data: (Vec<usize>, Vec<usize>, Vec<i32>),
@@ -24,7 +24,7 @@ impl ValidCsDataExamples {
     }
 }
 
-/// Examples of *invalid* raw CSR data `(offsets, indices, values)`.
+/// Examples of *invalid* raw CS data `(offsets, indices, values)`.
 pub struct InvalidCsDataExamples {
     pub empty_offset_array: (Vec<usize>, Vec<usize>, Vec<i32>),
     pub offset_array_invalid_length_for_arbitrary_data: (Vec<usize>, Vec<usize>, Vec<i32>),
