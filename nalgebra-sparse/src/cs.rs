@@ -1,8 +1,7 @@
-use std::iter::FromIterator;
 use std::mem::replace;
 use std::ops::Range;
 
-use num_traits::One;
+use num_traits::{One, Zero};
 
 use nalgebra::Scalar;
 
@@ -555,7 +554,7 @@ pub(crate) fn validate_and_optionally_sort_cs_data<T>(
     sort: bool,
 ) -> Result<(), SparseFormatError>
 where
-    T: Scalar,
+    T: Scalar + Zero,
 {
     let mut value_refs: &mut [T] = &mut Vec::new();
     match values {
@@ -631,6 +630,10 @@ where
             let mut prev = None;
             let mut nonmonotonic = false;
 
+            // Set up *all* buffers up front (i.e. at the beginning of function, e.g. `Vec::new()`
+            let mut minor_idx_buffer: Vec<usize> = Vec::new();
+            let mut values_buffer: Vec<T> = Vec::new();
+
             for &minor_idx in minor_idx_in_lane {
                 if minor_idx >= minor_dim {
                     return Err(SparseFormatError::from_kind_and_msg(
@@ -672,16 +675,19 @@ where
                     let y = &minor_idx_in_lane[*b - range_start];
                     x.partial_cmp(y).unwrap()
                 });
-                let unsorted_indices: Vec<usize> = minor_indices[range_start..range_end]
-                    .iter()
-                    .map(|i| i.clone())
-                    .collect();
-                let unsorted_values: Vec<T> =
-                    Vec::from_iter(((range_start..range_end).map(|i| &value_refs[i])).cloned());
+
+                minor_idx_buffer.resize(range_end, 0);
+                values_buffer.resize(range_end, T::zero());
+                for (index, &value) in minor_indices[range_start..range_end].iter().enumerate() {
+                    minor_idx_buffer[index + range_start] = value;
+                    let v: T = value_refs[index + range_start].clone();
+                    values_buffer[index + range_start] = v;
+                }
+                
                 for (index, &offset) in minor_index_permutation.iter().enumerate() {
-                    let i: usize = unsorted_indices[offset - range_start];
+                    let i: usize = minor_idx_buffer[offset];
                     minor_indices[index + range_start] = i;
-                    let v: T = unsorted_values[offset - range_start].clone();
+                    let v: T = values_buffer[offset].clone();
                     value_refs[index + range_start] = v;
                 }
             }
