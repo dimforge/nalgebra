@@ -545,7 +545,7 @@ pub fn convert_counts_to_offsets(counts: &mut [usize]) {
     }
 }
 
-/// Validates cs data, sorts minor indices and values
+/// Validates cs data, optionally sorts minor indices and values
 pub(crate) fn validate_and_optionally_sort_cs_data<T>(
     major_dim: usize,
     minor_dim: usize,
@@ -569,12 +569,10 @@ where
             value_refs = values;
         }
         None => {
-            if sort && minor_indices.len() > 0 {
-                return Err(SparseFormatError::from_kind_and_msg(
-                    SparseFormatErrorKind::InvalidStructure,
-                    "No values provided for sorting.",
-                ));
-            }
+            assert!(
+                sort && minor_indices.len() > 0,
+                "No values provided for sorting."
+            );
         }
     }
 
@@ -630,12 +628,11 @@ where
 
             // We test for in-bounds, uniqueness and monotonicity at the same time
             // to ensure that we only visit each minor index once
-            let mut iter = minor_idx_in_lane.iter();
             let mut prev = None;
             let mut nonmonotonic = false;
 
-            while let Some(next) = iter.next().copied() {
-                if next >= minor_dim {
+            for &minor_idx in minor_idx_in_lane {
+                if minor_idx >= minor_dim {
                     return Err(SparseFormatError::from_kind_and_msg(
                         SparseFormatErrorKind::IndexOutOfBounds,
                         "A minor index is out of bounds.",
@@ -643,17 +640,23 @@ where
                 }
 
                 if let Some(prev) = prev {
-                    if prev == next {
+                    if prev == minor_idx {
                         return Err(SparseFormatError::from_kind_and_msg(
                             SparseFormatErrorKind::DuplicateEntry,
                             "Input data contains duplicate entries.",
                         ));
                     }
-                    if prev > next {
+                    if prev > minor_idx {
+                        if !sort {
+                            return Err(SparseFormatError::from_kind_and_msg(
+                                SparseFormatErrorKind::InvalidStructure,
+                                "Minor indices are not monotonically increasing within each lane.",
+                            ));
+                        }
                         nonmonotonic = true;
                     }
                 }
-                prev = Some(next);
+                prev = Some(minor_idx);
             }
 
             // sort if indices are nonmonotonic and sorting is expected
