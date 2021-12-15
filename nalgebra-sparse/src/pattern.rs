@@ -4,9 +4,6 @@ use crate::SparseFormatError;
 use std::error::Error;
 use std::fmt;
 
-#[cfg(feature = "serde-serialize")]
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-
 /// A representation of the sparsity pattern of a CSR or CSC matrix.
 ///
 /// CSR and CSC matrices store matrices in a very similar fashion. In fact, in a certain sense,
@@ -293,44 +290,47 @@ pub enum SparsityPatternFormatError {
 }
 
 #[cfg(feature = "serde-serialize")]
-#[derive(Serialize, Deserialize)]
-struct SparsityPatternSerializationData<Indices> {
-    major_dim: usize,
-    minor_dim: usize,
-    major_offsets: Indices,
-    minor_indices: Indices,
-}
+mod serde_serialize {
+    use super::SparsityPattern;
+    use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
-#[cfg(feature = "serde-serialize")]
-impl Serialize for SparsityPattern {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        SparsityPatternSerializationData::<&[usize]> {
-            major_dim: self.major_dim(),
-            minor_dim: self.minor_dim(),
-            major_offsets: self.major_offsets(),
-            minor_indices: self.minor_indices(),
-        }
-        .serialize(serializer)
+    #[derive(Serialize, Deserialize)]
+    struct SparsityPatternSerializationData<Indices> {
+        major_dim: usize,
+        minor_dim: usize,
+        major_offsets: Indices,
+        minor_indices: Indices,
     }
-}
 
-#[cfg(feature = "serde-serialize")]
-impl<'de> Deserialize<'de> for SparsityPattern {
-    fn deserialize<D>(deserializer: D) -> Result<SparsityPattern, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let de = SparsityPatternSerializationData::<Vec<usize>>::deserialize(deserializer)?;
-        SparsityPattern::try_from_offsets_and_indices(
-            de.major_dim,
-            de.minor_dim,
-            de.major_offsets,
-            de.minor_indices,
-        )
-        .map_err(|e| de::Error::custom(e))
+    impl Serialize for SparsityPattern {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+        {
+            SparsityPatternSerializationData::<&[usize]> {
+                major_dim: self.major_dim(),
+                minor_dim: self.minor_dim(),
+                major_offsets: self.major_offsets(),
+                minor_indices: self.minor_indices(),
+            }
+            .serialize(serializer)
+        }
+    }
+
+    impl<'de> Deserialize<'de> for SparsityPattern {
+        fn deserialize<D>(deserializer: D) -> Result<SparsityPattern, D::Error>
+        where
+            D: Deserializer<'de>,
+        {
+            let de = SparsityPatternSerializationData::<Vec<usize>>::deserialize(deserializer)?;
+            SparsityPattern::try_from_offsets_and_indices(
+                de.major_dim,
+                de.minor_dim,
+                de.major_offsets,
+                de.minor_indices,
+            )
+            .map_err(|e| de::Error::custom(e))
+        }
     }
 }
 

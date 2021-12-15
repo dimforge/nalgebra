@@ -10,8 +10,6 @@ use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKin
 
 use nalgebra::Scalar;
 use num_traits::One;
-#[cfg(feature = "serde-serialize")]
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::slice::{Iter, IterMut};
 
 /// A CSC representation of a sparse matrix.
@@ -523,53 +521,56 @@ impl<T> CscMatrix<T> {
 }
 
 #[cfg(feature = "serde-serialize")]
-#[derive(Serialize, Deserialize)]
-struct CscMatrixSerializationData<Indices, Values> {
-    nrows: usize,
-    ncols: usize,
-    col_offsets: Indices,
-    row_indices: Indices,
-    values: Values,
-}
+mod serde_serialize {
+    use super::CscMatrix;
+    use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
-#[cfg(feature = "serde-serialize")]
-impl<T> Serialize for CscMatrix<T>
-where
-    T: Serialize + Clone,
-{
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        CscMatrixSerializationData::<&[usize], &[T]> {
-            nrows: self.nrows(),
-            ncols: self.ncols(),
-            col_offsets: self.col_offsets(),
-            row_indices: self.row_indices(),
-            values: self.values(),
-        }
-        .serialize(serializer)
+    #[derive(Serialize, Deserialize)]
+    struct CscMatrixSerializationData<Indices, Values> {
+        nrows: usize,
+        ncols: usize,
+        col_offsets: Indices,
+        row_indices: Indices,
+        values: Values,
     }
-}
 
-#[cfg(feature = "serde-serialize")]
-impl<'de, T> Deserialize<'de> for CscMatrix<T>
-where
-    T: Deserialize<'de> + Clone,
-{
-    fn deserialize<D>(deserializer: D) -> Result<CscMatrix<T>, D::Error>
+    impl<T> Serialize for CscMatrix<T>
     where
-        D: Deserializer<'de>,
+        T: Serialize + Clone,
     {
-        let de = CscMatrixSerializationData::<Vec<usize>, Vec<T>>::deserialize(deserializer)?;
-        CscMatrix::try_from_csc_data(
-            de.nrows,
-            de.ncols,
-            de.col_offsets,
-            de.row_indices,
-            de.values,
-        )
-        .map_err(|e| de::Error::custom(e))
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+        {
+            CscMatrixSerializationData::<&[usize], &[T]> {
+                nrows: self.nrows(),
+                ncols: self.ncols(),
+                col_offsets: self.col_offsets(),
+                row_indices: self.row_indices(),
+                values: self.values(),
+            }
+            .serialize(serializer)
+        }
+    }
+
+    impl<'de, T> Deserialize<'de> for CscMatrix<T>
+    where
+        T: Deserialize<'de> + Clone,
+    {
+        fn deserialize<D>(deserializer: D) -> Result<CscMatrix<T>, D::Error>
+        where
+            D: Deserializer<'de>,
+        {
+            let de = CscMatrixSerializationData::<Vec<usize>, Vec<T>>::deserialize(deserializer)?;
+            CscMatrix::try_from_csc_data(
+                de.nrows,
+                de.ncols,
+                de.col_offsets,
+                de.row_indices,
+                de.values,
+            )
+            .map_err(|e| de::Error::custom(e))
+        }
     }
 }
 

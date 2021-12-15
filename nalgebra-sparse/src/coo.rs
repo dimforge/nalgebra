@@ -2,9 +2,6 @@
 
 use crate::SparseFormatError;
 
-#[cfg(feature = "serde-serialize")]
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
-
 /// A COO representation of a sparse matrix.
 ///
 /// A COO matrix stores entries in coordinate-form, that is triplets `(i, j, v)`, where `i` and `j`
@@ -278,52 +275,55 @@ impl<T> CooMatrix<T> {
 }
 
 #[cfg(feature = "serde-serialize")]
-#[derive(Serialize, Deserialize)]
-struct CooMatrixSerializationData<Indices, Values> {
-    nrows: usize,
-    ncols: usize,
-    row_indices: Indices,
-    col_indices: Indices,
-    values: Values,
-}
+mod serde_serialize {
+    use super::CooMatrix;
+    use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
-#[cfg(feature = "serde-serialize")]
-impl<T> Serialize for CooMatrix<T>
-where
-    T: Serialize + Clone,
-{
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        CooMatrixSerializationData::<&[usize], &[T]> {
-            nrows: self.nrows(),
-            ncols: self.ncols(),
-            row_indices: self.row_indices(),
-            col_indices: self.col_indices(),
-            values: self.values(),
-        }
-        .serialize(serializer)
+    #[derive(Serialize, Deserialize)]
+    struct CooMatrixSerializationData<Indices, Values> {
+        nrows: usize,
+        ncols: usize,
+        row_indices: Indices,
+        col_indices: Indices,
+        values: Values,
     }
-}
 
-#[cfg(feature = "serde-serialize")]
-impl<'de, T> Deserialize<'de> for CooMatrix<T>
-where
-    T: Deserialize<'de> + Clone,
-{
-    fn deserialize<D>(deserializer: D) -> Result<CooMatrix<T>, D::Error>
+    impl<T> Serialize for CooMatrix<T>
     where
-        D: Deserializer<'de>,
+        T: Serialize + Clone,
     {
-        let de = CooMatrixSerializationData::<Vec<usize>, Vec<T>>::deserialize(deserializer)?;
-        CooMatrix::try_from_triplets(
-            de.nrows,
-            de.ncols,
-            de.row_indices,
-            de.col_indices,
-            de.values,
-        )
-        .map_err(|e| de::Error::custom(e))
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+        {
+            CooMatrixSerializationData::<&[usize], &[T]> {
+                nrows: self.nrows(),
+                ncols: self.ncols(),
+                row_indices: self.row_indices(),
+                col_indices: self.col_indices(),
+                values: self.values(),
+            }
+            .serialize(serializer)
+        }
+    }
+
+    impl<'de, T> Deserialize<'de> for CooMatrix<T>
+    where
+        T: Deserialize<'de> + Clone,
+    {
+        fn deserialize<D>(deserializer: D) -> Result<CooMatrix<T>, D::Error>
+        where
+            D: Deserializer<'de>,
+        {
+            let de = CooMatrixSerializationData::<Vec<usize>, Vec<T>>::deserialize(deserializer)?;
+            CooMatrix::try_from_triplets(
+                de.nrows,
+                de.ncols,
+                de.row_indices,
+                de.col_indices,
+                de.values,
+            )
+            .map_err(|e| de::Error::custom(e))
+        }
     }
 }

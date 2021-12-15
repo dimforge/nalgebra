@@ -9,8 +9,6 @@ use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKin
 
 use nalgebra::Scalar;
 use num_traits::One;
-#[cfg(feature = "serde-serialize")]
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::iter::FromIterator;
 use std::slice::{Iter, IterMut};
 
@@ -594,53 +592,56 @@ impl<T> CsrMatrix<T> {
 }
 
 #[cfg(feature = "serde-serialize")]
-#[derive(Serialize, Deserialize)]
-struct CsrMatrixSerializationData<Indices, Values> {
-    nrows: usize,
-    ncols: usize,
-    row_offsets: Indices,
-    col_indices: Indices,
-    values: Values,
-}
+mod serde_serialize {
+    use super::CsrMatrix;
+    use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
-#[cfg(feature = "serde-serialize")]
-impl<T> Serialize for CsrMatrix<T>
-where
-    T: Serialize + Clone,
-{
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        CsrMatrixSerializationData::<&[usize], &[T]> {
-            nrows: self.nrows(),
-            ncols: self.ncols(),
-            row_offsets: self.row_offsets(),
-            col_indices: self.col_indices(),
-            values: self.values(),
-        }
-        .serialize(serializer)
+    #[derive(Serialize, Deserialize)]
+    struct CsrMatrixSerializationData<Indices, Values> {
+        nrows: usize,
+        ncols: usize,
+        row_offsets: Indices,
+        col_indices: Indices,
+        values: Values,
     }
-}
 
-#[cfg(feature = "serde-serialize")]
-impl<'de, T> Deserialize<'de> for CsrMatrix<T>
-where
-    T: Deserialize<'de> + Clone,
-{
-    fn deserialize<D>(deserializer: D) -> Result<CsrMatrix<T>, D::Error>
+    impl<T> Serialize for CsrMatrix<T>
     where
-        D: Deserializer<'de>,
+        T: Serialize + Clone,
     {
-        let de = CsrMatrixSerializationData::<Vec<usize>, Vec<T>>::deserialize(deserializer)?;
-        CsrMatrix::try_from_csr_data(
-            de.nrows,
-            de.ncols,
-            de.row_offsets,
-            de.col_indices,
-            de.values,
-        )
-        .map_err(|e| de::Error::custom(e))
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+        {
+            CsrMatrixSerializationData::<&[usize], &[T]> {
+                nrows: self.nrows(),
+                ncols: self.ncols(),
+                row_offsets: self.row_offsets(),
+                col_indices: self.col_indices(),
+                values: self.values(),
+            }
+            .serialize(serializer)
+        }
+    }
+
+    impl<'de, T> Deserialize<'de> for CsrMatrix<T>
+    where
+        T: Deserialize<'de> + Clone,
+    {
+        fn deserialize<D>(deserializer: D) -> Result<CsrMatrix<T>, D::Error>
+        where
+            D: Deserializer<'de>,
+        {
+            let de = CsrMatrixSerializationData::<Vec<usize>, Vec<T>>::deserialize(deserializer)?;
+            CsrMatrix::try_from_csr_data(
+                de.nrows,
+                de.ncols,
+                de.row_offsets,
+                de.col_indices,
+                de.values,
+            )
+            .map_err(|e| de::Error::custom(e))
+        }
     }
 }
 
