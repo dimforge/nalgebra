@@ -226,7 +226,7 @@ pub enum MatrixMarketErrorKind {
     /// %%matrixmarket matrix coordinate integer symmetric
     /// 5 4 2
     /// 1 1 10
-    /// 2 3 5
+    /// 3 2 5
     /// "#;
     /// let matrix_result = load_coo_from_matrix_market_str::<i32>(str);
     /// assert_eq!(matrix_result.is_err(), true);
@@ -737,12 +737,10 @@ struct MatrixMarketParser;
 ///
 /// Examples
 /// --------
-/// ```
+/// ```no_run
 /// use nalgebra_sparse::io::load_coo_from_matrix_market_file;
 /// // Use e.g. `i32` for integer matrices
-/// let matrix = load_coo_from_matrix_market_file::<i32,_>("path/to/matrix.mtx");
-/// // extract the real matrix here by
-/// // let matrix = matrix.unwrap();
+/// let matrix = load_coo_from_matrix_market_file::<i32,_>("path/to/matrix.mtx").unwrap();
 /// ```
 pub fn load_coo_from_matrix_market_file<T, P: AsRef<Path>>(
     path: P,
@@ -766,8 +764,7 @@ where
 /// Examples
 /// --------
 /// ```
-/// # use nalgebra_sparse::io::load_coo_from_matrix_market_str;
-/// # use nalgebra_sparse::io::MatrixMarketErrorKind;
+/// use nalgebra_sparse::io::load_coo_from_matrix_market_str;
 /// let str = r#"
 /// %%matrixmarket matrix coordinate integer general
 /// 5 4 2
@@ -775,9 +772,7 @@ where
 /// 2 3 5
 /// "#;
 /// // Use e.g. `i32` for integer matrices
-/// let matrix = load_coo_from_matrix_market_str::<i32>(str);
-/// // extract the real matrix here by
-/// // let matrix = matrix.unwrap();
+/// let matrix = load_coo_from_matrix_market_str::<i32>(str).unwrap();
 /// ```
 pub fn load_coo_from_matrix_market_str<T>(data: &str) -> Result<CooMatrix<T>, MatrixMarketError>
 where
