@@ -6,6 +6,7 @@ use num_traits::{One, Zero};
 use nalgebra::Scalar;
 
 use crate::pattern::SparsityPattern;
+use crate::utils::apply_permutation;
 use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
 
 /// An abstract compressed matrix.
@@ -544,6 +545,23 @@ pub fn convert_counts_to_offsets(counts: &mut [usize]) {
     }
 }
 
+fn compute_sort_permutation(minor_index_permutation: &mut [usize], minor_idx_in_lane: &[usize]) {
+    assert_eq!(
+        minor_index_permutation.len(),
+        minor_idx_in_lane.len(),
+        "Length of permutation slice and number of indices must be the same."
+    );
+    for (index, value) in (0..minor_idx_in_lane.len()).enumerate() {
+        minor_index_permutation[index] = value;
+    }
+    // sort permutation values for monotonic index order
+    minor_index_permutation.sort_by(|a, b| {
+        let x = &minor_idx_in_lane[*a];
+        let y = &minor_idx_in_lane[*b];
+        x.partial_cmp(y).unwrap()
+    });
+}
+
 /// Validates cs data, optionally sorts minor indices and values
 pub(crate) fn validate_and_optionally_sort_cs_data<T>(
     major_dim: usize,
@@ -665,30 +683,34 @@ where
             // sort if indices are nonmonotonic and sorting is expected
             if nonmonotonic && sort {
                 minor_index_permutation.resize(range_end - range_start, 0);
-                for (index, value) in (range_start..range_end).enumerate() {
-                    minor_index_permutation[index] = value;
-                }
-
-                // sort permutation values for monotonic index order
-                minor_index_permutation.sort_by(|a, b| {
-                    let x = &minor_idx_in_lane[*a - range_start];
-                    let y = &minor_idx_in_lane[*b - range_start];
-                    x.partial_cmp(y).unwrap()
-                });
+                compute_sort_permutation(
+                    &mut minor_index_permutation,
+                    &minor_indices[range_start..range_end],
+                );
 
                 minor_idx_buffer.resize(range_end, 0);
-                values_buffer.resize(range_end, T::zero());
+
                 for (index, &value) in minor_indices[range_start..range_end].iter().enumerate() {
                     minor_idx_buffer[index + range_start] = value;
-                    let v: T = value_refs[index + range_start].clone();
-                    values_buffer[index + range_start] = v;
                 }
-                
-                for (index, &offset) in minor_index_permutation.iter().enumerate() {
-                    let i: usize = minor_idx_buffer[offset];
-                    minor_indices[index + range_start] = i;
-                    let v: T = values_buffer[offset].clone();
-                    value_refs[index + range_start] = v;
+
+                apply_permutation(
+                    &mut minor_indices[range_start..range_end],
+                    &minor_idx_buffer[range_start..range_end],
+                    &minor_index_permutation,
+                );
+
+                if !value_refs.is_empty() {
+                    values_buffer.resize(range_end, T::zero());
+                    for index in range_start..range_end {
+                        let v: T = value_refs[index].clone();
+                        values_buffer[index] = v;
+                    }
+                    apply_permutation(
+                        &mut value_refs[range_start..range_end],
+                        &values_buffer[range_start..range_end],
+                        &minor_index_permutation,
+                    );
                 }
             }
         }
