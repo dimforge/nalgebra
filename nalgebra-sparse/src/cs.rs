@@ -601,6 +601,9 @@ where
         }
     }
 
+    // Set up required buffers up front
+    let mut minor_idx_buffer: Vec<usize> = Vec::new();
+    let mut values_buffer: Vec<T> = Vec::new();
     let mut minor_index_permutation: Vec<usize> = Vec::new();
 
     // Test that each lane has strictly monotonically increasing minor indices, i.e.
@@ -630,10 +633,6 @@ where
             // to ensure that we only visit each minor index once
             let mut prev = None;
             let mut nonmonotonic = false;
-
-            // Set up *all* buffers up front (i.e. at the beginning of function, e.g. `Vec::new()`
-            let mut minor_idx_buffer: Vec<usize> = Vec::new();
-            let mut values_buffer: Vec<T> = Vec::new();
 
             for &minor_idx in minor_idx_in_lane {
                 if minor_idx >= minor_dim {
