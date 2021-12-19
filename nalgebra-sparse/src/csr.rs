@@ -204,15 +204,17 @@ impl<T> CsrMatrix<T> {
         );
 
         match result {
-            Ok(()) => unsafe {
-                let pattern = SparsityPattern::from_offset_and_indices_unchecked(
-                    num_rows,
-                    num_cols,
-                    row_offsets,
-                    col_indices,
-                );
+            Ok(()) => {
+                let pattern = unsafe {
+                    SparsityPattern::from_offset_and_indices_unchecked(
+                        num_rows,
+                        num_cols,
+                        row_offsets,
+                        col_indices,
+                    )
+                };
                 Self::try_from_pattern_and_values(pattern, values)
-            },
+            }
             Err(err) => Err(err),
         }
     }
