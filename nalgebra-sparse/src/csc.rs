@@ -566,7 +566,7 @@ impl<T> CscMatrix<T> {
     #[must_use]
     pub fn transpose(&self) -> CscMatrix<T>
     where
-        T: Scalar + Zero,
+        T: Scalar,
     {
         CsrMatrix::from(self).transpose_as_csc()
     }
