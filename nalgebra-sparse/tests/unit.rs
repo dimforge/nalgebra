@@ -1,6 +1,9 @@
 //! Unit tests
-#[cfg(any(not(feature = "proptest-support"), not(feature = "compare")))]
-compile_error!("Tests must be run with features `proptest-support` and `compare`");
+#[cfg(not(all(feature = "proptest-support", feature = "compare", feature = "io",)))]
+compile_error!(
+    "Please enable the `proptest-support`, `compare` and `io` features in order to compile and run the tests.
+     Example: `cargo test -p nalgebra-sparse --features proptest-support,compare,io`"
+);
 
 mod unit_tests;
 

@@ -71,10 +71,10 @@ jobs:
       - name: test nalgebra-sparse
         # Manifest-path is necessary because cargo otherwise won't correctly forward features
         # We increase number of proptest cases to hopefully catch more potential bugs
-        run: PROPTEST_CASES=10000 cargo test --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support
+        run: PROPTEST_CASES=10000 cargo test --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support,io
       - name: test nalgebra-sparse (slow tests)
         # Unfortunately, the "slow-tests" take so much time that we need to run them with --release
-        run: PROPTEST_CASES=10000 cargo test --release --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support,slow-tests slow
+        run: PROPTEST_CASES=10000 cargo test --release --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support,io,slow-tests slow
   test-nalgebra-macros:
     runs-on: ubuntu-latest
     steps:
