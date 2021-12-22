@@ -441,3 +441,14 @@ fn svd_sorted() {
         epsilon = 1.0e-5
     );
 }
+
+#[test]
+fn svd_polar_decomposition() {
+
+    let m  = DMatrix::<f64>::new_random(4, 4);
+    let svd = m.clone().svd(true, true);
+    let (p,u) = svd.to_polar().unwrap();
+
+    assert_relative_eq!(m, p*u, epsilon = 1.0e-5);
+
+}
