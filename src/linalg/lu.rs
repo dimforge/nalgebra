@@ -317,7 +317,7 @@ where
     pub fn is_invertible(&self) -> bool {
         assert!(
             self.lu.is_square(),
-            "QR: unable to test the invertibility of a non-square matrix."
+            "LU: unable to test the invertibility of a non-square matrix."
         );
 
         for i in 0..self.lu.nrows() {
