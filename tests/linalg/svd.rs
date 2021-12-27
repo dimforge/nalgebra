@@ -449,7 +449,11 @@ fn dynamic_square_matrix_polar_decomposition() {
     let svd = m.clone().svd(true, true);
     let (p,u) = svd.to_polar().unwrap();
 
-    assert_relative_eq!(m, p*u, epsilon = 1.0e-5);
+    assert_relative_eq!(m, &p*&u, epsilon = 1.0e-5);
+    // unitary check
+    assert_eq!(true, u.is_orthogonal(1.0e-5));
+    // hermitian check
+    assert_relative_eq!(p, p.adjoint(), epsilon = 1.0e-5);
 
 }
 
@@ -460,5 +464,9 @@ fn dynamic_rectangular_matrix_polar_decomposition() {
     let svd = m.clone().svd(true, true);
     let (p,u) = svd.to_polar().unwrap();
 
-    assert_relative_eq!(m, p*u, epsilon = 1.0e-5);
+    assert_relative_eq!(m, &p*&u, epsilon = 1.0e-5);
+    // semi-unitary check
+    assert_eq!(true, (u.is_orthogonal(1.0e-5)));
+    // hermitian check
+    assert_relative_eq!(p, p.adjoint(), epsilon = 1.0e-5);
 }
