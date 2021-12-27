@@ -443,12 +443,22 @@ fn svd_sorted() {
 }
 
 #[test]
-fn svd_polar_decomposition() {
+fn dynamic_square_matrix_polar_decomposition() {
 
-    let m  = DMatrix::<f64>::new_random(4, 4);
+    let m  = DMatrix::<f64>::new_random(10, 10);
     let svd = m.clone().svd(true, true);
     let (p,u) = svd.to_polar().unwrap();
 
     assert_relative_eq!(m, p*u, epsilon = 1.0e-5);
 
+}
+
+#[test]
+fn dynamic_rectangular_matrix_polar_decomposition() {
+
+    let m  = DMatrix::<f64>::new_random(7, 5);
+    let svd = m.clone().svd(true, true);
+    let (p,u) = svd.to_polar().unwrap();
+
+    assert_relative_eq!(m, p*u, epsilon = 1.0e-5);
 }

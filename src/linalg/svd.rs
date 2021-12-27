@@ -641,33 +641,26 @@ where
             }
         }
     }
-}
 
-impl<T: ComplexField, R: DimMin<C>, C: Dim> SVD<T, R, C>
-where
-    DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>,
-{
-    /// converts SVD results to a polar form
-
-    pub fn to_polar(&self) -> Result<(OMatrix<T, R, R>, OMatrix<T, R, C>), &'static str>
-    where DefaultAllocator: Allocator<T, R, C> //result
+    /// converts SVD results to Polar decomposition form of the original Matrix
+    ///      A = P'U
+    /// The polar decomposition used here is Left Polar Decomposition (or Reverse Polar Decomposition)
+    /// Returns None if the SVD hasn't been calculated
+    pub fn to_polar(&self) -> Option<(OMatrix<T, R, R>, OMatrix<T, R, C>)>
+    where
+        DefaultAllocator: Allocator<T, R, C> //result
             + Allocator<T, DimMinimum<R, C>, R> // adjoint
             + Allocator<T, DimMinimum<R, C>> // mapped vals
-            + Allocator<T, R, R> // square matrix & result
-            + Allocator<T, DimMinimum<R, C>, DimMinimum<R, C>> // ?
-        ,
+            + Allocator<T, R, R> // result
+            + Allocator<T, DimMinimum<R, C>, DimMinimum<R, C>>, // square matrix
     {
         match (&self.u, &self.v_t) {
-            (Some(u), Some(v_t)) => Ok((
+            (Some(u), Some(v_t)) => Some((
                 u * OMatrix::from_diagonal(&self.singular_values.map(|e| T::from_real(e)))
                     * u.adjoint(),
                 u * v_t,
             )),
-            (None, None) => Err("SVD solve: U and V^t have not been computed."),
-            (None, _) => Err("SVD solve: U has not been computed."),
-            (_, None) => Err("SVD solve: V^t has not been computed."),
+            _ => None,
         }
     }
 }
