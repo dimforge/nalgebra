@@ -188,7 +188,7 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         SVD::try_new_unordered(self.into_owned(), compute_u, compute_v, eps, max_niter)
     }
 
-    /// Attempts to compute the Polar Decomposition of  a `matrix
+    /// Attempts to compute the Polar Decomposition of  a `matrix` (indirectly uses SVD)
     ///
     /// # Arguments
     ///
