@@ -124,12 +124,12 @@ impl<T> CooMatrix<T> {
         if row_indices.len() != col_indices.len() {
             return Err(SparseFormatError::from_kind_and_msg(
                 InvalidStructure,
-                "number of row and col indices must be the same",
+                "Number of row and col indices must be the same.",
             ));
         } else if col_indices.len() != values.len() {
             return Err(SparseFormatError::from_kind_and_msg(
                 InvalidStructure,
-                "number of col indices and values must be the same",
+                "Number of col indices and values must be the same.",
             ));
         }
 
@@ -139,12 +139,12 @@ impl<T> CooMatrix<T> {
         if !row_indices_in_bounds {
             Err(SparseFormatError::from_kind_and_msg(
                 IndexOutOfBounds,
-                "row index out of bounds",
+                "Row index out of bounds.",
             ))
         } else if !col_indices_in_bounds {
             Err(SparseFormatError::from_kind_and_msg(
                 IndexOutOfBounds,
-                "col index out of bounds",
+                "Col index out of bounds.",
             ))
         } else {
             Ok(Self {

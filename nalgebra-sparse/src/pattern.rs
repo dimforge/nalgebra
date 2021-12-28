@@ -256,7 +256,7 @@ impl SparsityPattern {
             new_offsets,
             new_indices,
         )
-        .expect("internal error: Transpose should never fail")
+        .expect("Internal error: Transpose should never fail.")
     }
 }
 
@@ -363,27 +363,27 @@ impl fmt::Display for SparsityPatternFormatError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             SparsityPatternFormatError::InvalidOffsetArrayLength => {
-                write!(f, "length of offset array is not equal to (major_dim + 1)")
+                write!(f, "Length of offset array is not equal to (major_dim + 1).")
             }
             SparsityPatternFormatError::InvalidOffsetFirstLast => {
-                write!(f, "first or last offset is incompatible with format")
+                write!(f, "First or last offset is incompatible with format.")
             }
             SparsityPatternFormatError::NonmonotonicOffsets => {
-                write!(f, "offsets are not monotonically increasing")
+                write!(f, "Offsets are not monotonically increasing.")
             }
             SparsityPatternFormatError::MajorIndexOutOfBounds => {
-                write!(f, "a major index is out of bounds")
+                write!(f, "A major index is out of bounds.")
             }
             SparsityPatternFormatError::MinorIndexOutOfBounds => {
-                write!(f, "a minor index is out of bounds")
+                write!(f, "A minor index is out of bounds.")
             }
             SparsityPatternFormatError::DuplicateEntry => {
-                write!(f, "input data contains duplicate entries")
+                write!(f, "Input data contains duplicate entries.")
             }
             SparsityPatternFormatError::NonmonotonicMinorIndices => {
                 write!(
                     f,
-                    "minor indices are not monotonically increasing within each lane"
+                    "Minor indices are not monotonically increasing within each lane."
                 )
             }
         }

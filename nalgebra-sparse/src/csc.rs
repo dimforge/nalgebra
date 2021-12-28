@@ -181,7 +181,7 @@ impl<T> CscMatrix<T> {
         } else {
             Err(SparseFormatError::from_kind_and_msg(
                 SparseFormatErrorKind::InvalidStructure,
-                "number of values and row indices must be the same",
+                "Number of values and row indices must be the same",
             ))
         }
     }
@@ -587,28 +587,28 @@ fn pattern_format_error_to_csc_error(err: SparsityPatternFormatError) -> SparseF
     match err {
         InvalidOffsetArrayLength => E::from_kind_and_msg(
             K::InvalidStructure,
-            "length of col offset array is not equal to ncols + 1",
+            "Length of col offset array is not equal to ncols + 1.",
         ),
         InvalidOffsetFirstLast => E::from_kind_and_msg(
             K::InvalidStructure,
-            "first or last col offset is inconsistent with format specification",
+            "First or last col offset is inconsistent with format specification.",
         ),
         NonmonotonicOffsets => E::from_kind_and_msg(
             K::InvalidStructure,
-            "col offsets are not monotonically increasing",
+            "Col offsets are not monotonically increasing.",
         ),
         NonmonotonicMinorIndices => E::from_kind_and_msg(
             K::InvalidStructure,
-            "row indices are not monotonically increasing (sorted) within each column",
+            "Row indices are not monotonically increasing (sorted) within each column.",
         ),
         MajorIndexOutOfBounds => {
-            E::from_kind_and_msg(K::IndexOutOfBounds, "column indices are out of bounds")
+            E::from_kind_and_msg(K::IndexOutOfBounds, "Column indices are out of bounds.")
         }
         MinorIndexOutOfBounds => {
-            E::from_kind_and_msg(K::IndexOutOfBounds, "row indices are out of bounds")
+            E::from_kind_and_msg(K::IndexOutOfBounds, "Row indices are out of bounds.")
         }
         PatternDuplicateEntry => {
-            E::from_kind_and_msg(K::DuplicateEntry, "matrix data contains duplicate entries")
+            E::from_kind_and_msg(K::DuplicateEntry, "Matrix data contains duplicate entries.")
         }
     }
 }
