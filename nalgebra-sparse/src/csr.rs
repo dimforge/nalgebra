@@ -596,6 +596,21 @@ mod serde_serialize {
     use super::CsrMatrix;
     use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
+    /// This is an intermediate type for (de)serializing `CsrMatrix`.
+    ///
+    /// Deserialization requires using a `try_from_*` function for validation. We could have used
+    /// the `remote = "Self"` trick (https://github.com/serde-rs/serde/issues/1220) which allows
+    /// to directly serialize/deserialize the original fields and combine it with validation.
+    /// However, this would lead to nested serialization of the `CsMatrix` and `SparsityPattern`
+    /// types. Instead, we decided that we want a more human-readable serialization format using
+    /// field names like `row_offsets` and `cal_indices`. The easiest way to achieve this is to
+    /// introduce an intermediate type. It also allows the serialization format to stay constant
+    /// even if the internal layout in `nalgebra` changes.
+    ///
+    /// We want to avoid unnecessary copies when serializing (i.e. cloning slices into owned
+    /// storage). Therefore, we use generic arguments to allow using slices during serialization and
+    /// owned storage (i.e. `Vec`) during deserialization. Without a major update of serde, slices
+    /// and `Vec`s should always (de)serialize identically.
     #[derive(Serialize, Deserialize)]
     struct CsrMatrixSerializationData<Indices, Values> {
         nrows: usize,
