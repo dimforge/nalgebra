@@ -192,7 +192,7 @@ pub struct Matrix<T, R, C, S> {
     //       Note that it would probably make sense to just have
     //       the type `Matrix<S>`, and have `T, R, C` be associated-types
     //       of the `RawStorage` trait. However, because we don't have
-    //       specialization, this is not bossible because these `T, R, C`
+    //       specialization, this is not possible because these `T, R, C`
     //       allows us to desambiguate a lot of configurations.
     _phantoms: PhantomData<(T, R, C)>,
 }
