@@ -642,10 +642,10 @@ where
         }
     }
 
-    /// converts SVD results to Polar decomposition form of the original Matrix
-    ///      A = P' * U
+    /// converts SVD results to Polar decomposition form of the original Matrix: `A = P' * U`.
+    ///
     /// The polar decomposition used here is Left Polar Decomposition (or Reverse Polar Decomposition)
-    /// Returns None if the SVD hasn't been calculated
+    /// Returns None if the singular vectors of the SVD haven't been calculated
     pub fn to_polar(&self) -> Option<(OMatrix<T, R, R>, OMatrix<T, R, C>)>
     where
         DefaultAllocator: Allocator<T, R, C> //result

@@ -188,13 +188,37 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         SVD::try_new_unordered(self.into_owned(), compute_u, compute_v, eps, max_niter)
     }
 
-    /// Attempts to compute the Polar Decomposition of  a `matrix` (indirectly uses SVD)
+    /// Computes the Polar Decomposition of  a `matrix` (indirectly uses SVD).
+    pub fn polar(self) -> (OMatrix<T, R, R>, OMatrix<T, R, C>)
+    where
+        R: DimMin<C>,
+        DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
+        DefaultAllocator: Allocator<T, R, C>
+            + Allocator<T, DimMinimum<R, C>, R>
+            + Allocator<T, DimMinimum<R, C>>
+            + Allocator<T, R, R>
+            + Allocator<T, DimMinimum<R, C>, DimMinimum<R, C>>
+            + Allocator<T, C>
+            + Allocator<T, R>
+            + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
+            + Allocator<T, DimMinimum<R, C>, C>
+            + Allocator<T, R, DimMinimum<R, C>>
+            + Allocator<T, DimMinimum<R, C>>
+            + Allocator<T::RealField, DimMinimum<R, C>>
+            + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
+    {
+        SVD::new_unordered(self.into_owned(), true, true)
+            .to_polar()
+            .unwrap()
+    }
+
+    /// Attempts to compute the Polar Decomposition of  a `matrix` (indirectly uses SVD).
     ///
     /// # Arguments
     ///
-    /// * `eps`       − tolerance used to determine when a value converged to 0.
-    /// * `max_niter` − maximum total number of iterations performed by the algorithm
-    pub fn polar(
+    /// * `eps`       − tolerance used to determine when a value converged to 0 when computing the SVD.
+    /// * `max_niter` − maximum total number of iterations performed by the SVD computation algorithm.
+    pub fn try_polar(
         self,
         eps: T::RealField,
         max_niter: usize,
