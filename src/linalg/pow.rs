@@ -1,83 +1,71 @@
 //! This module provides the matrix exponential (pow) function to square matrices.
 
-use std::ops::DivAssign;
-
 use crate::{
     allocator::Allocator,
     storage::{Storage, StorageMut},
-    DefaultAllocator, DimMin, Matrix, OMatrix,
+    DefaultAllocator, DimMin, Matrix, OMatrix, Scalar,
 };
-use num::PrimInt;
-use simba::scalar::ComplexField;
+use num::{One, Zero};
+use simba::scalar::{ClosedAdd, ClosedMul};
 
-impl<T: ComplexField, D, S> Matrix<T, D, D, S>
+impl<T, D, S> Matrix<T, D, D, S>
 where
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     D: DimMin<D, Output = D>,
     S: StorageMut<T, D, D>,
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
-    /// Attempts to raise this matrix to an integral power `e` in-place. If this
-    /// matrix is non-invertible and `e` is negative, it leaves this matrix
-    /// untouched and returns `false`. Otherwise, it returns `true` and
-    /// overwrites this matrix with the result.
-    pub fn pow_mut<I: PrimInt + DivAssign>(&mut self, mut e: I) -> bool {
-        let zero = I::zero();
-
+    /// Raises this matrix to an integral power `exp` in-place.
+    pub fn pow_mut(&mut self, mut exp: u32) {
         // A matrix raised to the zeroth power is just the identity.
-        if e == zero {
+        if exp == 0 {
             self.fill_with_identity();
-            return true;
-        }
+        } else if exp > 1 {
+            // We use the buffer to hold the result of multiplier^2, thus avoiding
+            // extra allocations.
+            let mut x = self.clone_owned();
+            let mut workspace = self.clone_owned();
 
-        // If e is negative, we compute the inverse matrix, then raise it to the
-        // power of -e.
-        if e < zero && !self.try_inverse_mut() {
-            return false;
-        }
-
-        let one = I::one();
-        let two = I::from(2u8).unwrap();
-
-        // We use the buffer to hold the result of multiplier ^ 2, thus avoiding
-        // extra allocations.
-        let mut multiplier = self.clone_owned();
-        let mut buf = self.clone_owned();
-
-        // Exponentiation by squares.
-        loop {
-            if e % two == one {
-                self.mul_to(&multiplier, &mut buf);
-                self.copy_from(&buf);
+            if exp % 2 == 0 {
+                self.fill_with_identity();
+            } else {
+                // Avoid an useless multiplication by the identity
+                // if the exponent is odd.
+                exp -= 1;
             }
 
-            e /= two;
-            multiplier.mul_to(&multiplier, &mut buf);
-            multiplier.copy_from(&buf);
+            // Exponentiation by squares.
+            loop {
+                if exp % 2 == 1 {
+                    self.mul_to(&x, &mut workspace);
+                    self.copy_from(&workspace);
+                }
 
-            if e == zero {
-                return true;
+                exp /= 2;
+
+                if exp == 0 {
+                    break;
+                }
+
+                x.mul_to(&x, &mut workspace);
+                x.copy_from(&workspace);
             }
         }
     }
 }
 
-impl<T: ComplexField, D, S: Storage<T, D, D>> Matrix<T, D, D, S>
+impl<T, D, S: Storage<T, D, D>> Matrix<T, D, D, S>
 where
+    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     D: DimMin<D, Output = D>,
     S: StorageMut<T, D, D>,
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
-    /// Attempts to raise this matrix to an integral power `e`. If this matrix
-    /// is non-invertible and `e` is negative, it returns `None`. Otherwise, it
-    /// returns the result as a new matrix. Uses exponentiation by squares.
+    /// Raise this matrix to an integral power `exp`.
     #[must_use]
-    pub fn pow<I: PrimInt + DivAssign>(&self, e: I) -> Option<OMatrix<T, D, D>> {
-        let mut clone = self.clone_owned();
-
-        if clone.pow_mut(e) {
-            Some(clone)
-        } else {
-            None
-        }
+    pub fn pow(&self, exp: u32) -> OMatrix<T, D, D> {
+        let mut result = self.clone_owned();
+        result.pow_mut(exp);
+        result
     }
 }
