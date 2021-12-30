@@ -14,7 +14,7 @@ use crate::base::{DefaultAllocator, Matrix, OMatrix, RowVector, Scalar, Vector};
 use crate::{Storage, UninitMatrix};
 use std::mem::MaybeUninit;
 
-/// # Rows and columns extraction
+/// # Triangular matrix extraction
 impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Extracts the upper triangular part of this matrix (including the diagonal).
     #[inline]
@@ -41,7 +41,10 @@ impl<T: Scalar + Zero, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
         res
     }
+}
 
+/// # Rows and columns extraction
+impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Creates a new matrix by extracting the given set of rows from `self`.
     #[cfg(any(feature = "std", feature = "alloc"))]
     #[must_use]

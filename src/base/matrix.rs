@@ -92,6 +92,7 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// - [Interpolation <span style="float:right;">`lerp`, `slerp`…</span>](#interpolation)
 /// - [BLAS functions <span style="float:right;">`gemv`, `gemm`, `syger`…</span>](#blas-functions)
 /// - [Swizzling <span style="float:right;">`xx`, `yxz`…</span>](#swizzling)
+/// - [Triangular matrix extraction <span style="float:right;">`upper_triangle`, `lower_triangle`</span>](#triangular-matrix-extraction)
 ///
 /// #### Statistics
 /// - [Common operations <span style="float:right;">`row_sum`, `column_mean`, `variance`…</span>](#common-statistics-operations)
