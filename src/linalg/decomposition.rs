@@ -1,8 +1,8 @@
 use crate::storage::Storage;
 use crate::{
     Allocator, Bidiagonal, Cholesky, ColPivQR, ComplexField, DefaultAllocator, Dim, DimDiff,
-    DimMin, DimMinimum, DimSub, FullPivLU, Hessenberg, Matrix, RealField, Schur, SymmetricEigen,
-    SymmetricTridiagonal, LU, QR, SVD, U1, UDU,
+    DimMin, DimMinimum, DimSub, FullPivLU, Hessenberg, Matrix, OMatrix, RealField, Schur,
+    SymmetricEigen, SymmetricTridiagonal, LU, QR, SVD, U1, UDU,
 };
 
 /// # Rectangular matrix decomposition
@@ -17,6 +17,7 @@ use crate::{
 /// | LU with partial pivoting | `P⁻¹ * L * U`       | `L` is lower-triangular with a diagonal filled with `1` and `U` is upper-triangular. `P` is a permutation matrix. |
 /// | LU with full pivoting    | `P⁻¹ * L * U * Q⁻¹` | `L` is lower-triangular with a diagonal filled with `1` and `U` is upper-triangular. `P` and `Q` are permutation matrices. |
 /// | SVD                      | `U * Σ * Vᵀ`        | `U` and `V` are two orthogonal matrices and `Σ` is a diagonal matrix containing the singular values. |
+/// | Polar (Left Polar)       | `P' * U`            | `U` is semi-unitary/unitary and `P'` is a positive semi-definite Hermitian Matrix
 impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Computes the bidiagonalization using householder reflections.
     pub fn bidiagonalize(self) -> Bidiagonal<T, R, C>
@@ -185,6 +186,62 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
     {
         SVD::try_new_unordered(self.into_owned(), compute_u, compute_v, eps, max_niter)
+    }
+
+    /// Computes the Polar Decomposition of  a `matrix` (indirectly uses SVD).
+    pub fn polar(self) -> (OMatrix<T, R, R>, OMatrix<T, R, C>)
+    where
+        R: DimMin<C>,
+        DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
+        DefaultAllocator: Allocator<T, R, C>
+            + Allocator<T, DimMinimum<R, C>, R>
+            + Allocator<T, DimMinimum<R, C>>
+            + Allocator<T, R, R>
+            + Allocator<T, DimMinimum<R, C>, DimMinimum<R, C>>
+            + Allocator<T, C>
+            + Allocator<T, R>
+            + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
+            + Allocator<T, DimMinimum<R, C>, C>
+            + Allocator<T, R, DimMinimum<R, C>>
+            + Allocator<T, DimMinimum<R, C>>
+            + Allocator<T::RealField, DimMinimum<R, C>>
+            + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
+    {
+        SVD::new_unordered(self.into_owned(), true, true)
+            .to_polar()
+            .unwrap()
+    }
+
+    /// Attempts to compute the Polar Decomposition of  a `matrix` (indirectly uses SVD).
+    ///
+    /// # Arguments
+    ///
+    /// * `eps`       − tolerance used to determine when a value converged to 0 when computing the SVD.
+    /// * `max_niter` − maximum total number of iterations performed by the SVD computation algorithm.
+    pub fn try_polar(
+        self,
+        eps: T::RealField,
+        max_niter: usize,
+    ) -> Option<(OMatrix<T, R, R>, OMatrix<T, R, C>)>
+    where
+        R: DimMin<C>,
+        DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
+        DefaultAllocator: Allocator<T, R, C>
+            + Allocator<T, DimMinimum<R, C>, R>
+            + Allocator<T, DimMinimum<R, C>>
+            + Allocator<T, R, R>
+            + Allocator<T, DimMinimum<R, C>, DimMinimum<R, C>>
+            + Allocator<T, C>
+            + Allocator<T, R>
+            + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
+            + Allocator<T, DimMinimum<R, C>, C>
+            + Allocator<T, R, DimMinimum<R, C>>
+            + Allocator<T, DimMinimum<R, C>>
+            + Allocator<T::RealField, DimMinimum<R, C>>
+            + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
+    {
+        SVD::try_new_unordered(self.into_owned(), true, true, eps, max_niter)
+            .and_then(|svd| svd.to_polar())
     }
 }
 

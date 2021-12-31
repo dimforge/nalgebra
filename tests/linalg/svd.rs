@@ -153,6 +153,25 @@ mod proptest_tests {
                             prop_assert!(relative_eq!(&m * &sol2, b2, epsilon = 1.0e-6));
                         }
                     }
+
+                    #[test]
+                    fn svd_polar_decomposition(m in dmatrix_($scalar)) {
+                        let svd = m.clone().svd_unordered(true, true);
+                        let (p, u) = svd.to_polar().unwrap();
+
+                        assert_relative_eq!(m, &p*  &u, epsilon = 1.0e-5);
+                        // semi-unitary check
+                        assert!(u.is_orthogonal(1.0e-5) || u.transpose().is_orthogonal(1.0e-5));
+                        // hermitian check
+                        assert_relative_eq!(p, p.adjoint(), epsilon = 1.0e-5);
+
+                        /*
+                         * Same thing, but using the method instead of calling the SVD explicitly.
+                         */
+                        let (p2, u2) = m.clone().polar();
+                        assert_eq!(p, p2);
+                        assert_eq!(u, u2);
+                    }
                 }
             }
         }

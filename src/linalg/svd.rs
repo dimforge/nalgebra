@@ -641,6 +641,28 @@ where
             }
         }
     }
+
+    /// converts SVD results to Polar decomposition form of the original Matrix: `A = P' * U`.
+    ///
+    /// The polar decomposition used here is Left Polar Decomposition (or Reverse Polar Decomposition)
+    /// Returns None if the singular vectors of the SVD haven't been calculated
+    pub fn to_polar(&self) -> Option<(OMatrix<T, R, R>, OMatrix<T, R, C>)>
+    where
+        DefaultAllocator: Allocator<T, R, C> //result
+            + Allocator<T, DimMinimum<R, C>, R> // adjoint
+            + Allocator<T, DimMinimum<R, C>> // mapped vals
+            + Allocator<T, R, R> // result
+            + Allocator<T, DimMinimum<R, C>, DimMinimum<R, C>>, // square matrix
+    {
+        match (&self.u, &self.v_t) {
+            (Some(u), Some(v_t)) => Some((
+                u * OMatrix::from_diagonal(&self.singular_values.map(|e| T::from_real(e)))
+                    * u.adjoint(),
+                u * v_t,
+            )),
+            _ => None,
+        }
+    }
 }
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> SVD<T, R, C>
