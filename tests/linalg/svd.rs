@@ -161,7 +161,7 @@ mod proptest_tests {
 
                         assert_relative_eq!(m, &p*  &u, epsilon = 1.0e-5);
                         // semi-unitary check
-                        //assert!(u.is_orthogonal(1.0e-5));
+                        assert!(u.is_orthogonal(1.0e-5) || u.transpose().is_orthogonal(1.0e-5));
                         // hermitian check
                         assert_relative_eq!(p, p.adjoint(), epsilon = 1.0e-5);
 
