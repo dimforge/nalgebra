@@ -19,17 +19,13 @@ use crate::geometry::{Point3, Projective3};
 
 /// A 3D orthographic projection stored as a homogeneous 4x4 matrix.
 #[repr(C)]
+#[cfg_attr(
+    all(not(target_os = "cuda"), feature = "cuda"),
+    derive(cust::DeviceCopy)
+)]
+#[derive(Copy, Clone)]
 pub struct Orthographic3<T> {
     matrix: Matrix4<T>,
-}
-
-impl<T: RealField + Copy> Copy for Orthographic3<T> {}
-
-impl<T: RealField> Clone for Orthographic3<T> {
-    #[inline]
-    fn clone(&self) -> Self {
-        Self::from_matrix_unchecked(self.matrix.clone())
-    }
 }
 
 impl<T: RealField> fmt::Debug for Orthographic3<T> {
@@ -175,7 +171,7 @@ impl<T: RealField> Orthographic3<T> {
         );
 
         let half: T = crate::convert(0.5);
-        let width = zfar.clone() * (vfov.clone() * half.clone()).tan();
+        let width = zfar.clone() * (vfov * half.clone()).tan();
         let height = width.clone() / aspect;
 
         Self::new(

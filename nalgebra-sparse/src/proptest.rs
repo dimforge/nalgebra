@@ -5,11 +5,6 @@
 //! The strategies provided here are generally expected to be able to generate the entire range
 //! of possible outputs given the constraints on dimensions and values. However, there are no
 //! particular guarantees on the distribution of possible values.
-
-// Contains some patched code from proptest that we can remove in the (hopefully near) future.
-// See docs in file for more details.
-mod proptest_patched;
-
 use crate::coo::CooMatrix;
 use crate::csc::CscMatrix;
 use crate::csr::CsrMatrix;
@@ -31,16 +26,10 @@ fn dense_row_major_coord_strategy(
     let mut booleans = vec![true; nnz];
     booleans.append(&mut vec![false; (nrows * ncols) - nnz]);
     // Make sure that exactly `nnz` of the booleans are true
-
-    // TODO: We cannot use the below code because of a bug in proptest, see
-    // https://github.com/AltSysrq/proptest/pull/217
-    // so for now we're using a patched version of the Shuffle adapter
-    // (see also docs in `proptest_patched`
-    // Just(booleans)
-    //     // Need to shuffle to make sure they are randomly distributed
-    //     .prop_shuffle()
-
-    proptest_patched::Shuffle(Just(booleans)).prop_map(move |booleans| {
+    Just(booleans)
+        // Need to shuffle to make sure they are randomly distributed
+        .prop_shuffle()
+        .prop_map(move |booleans| {
         booleans
             .into_iter()
             .enumerate()

@@ -19,6 +19,7 @@
 //! - Sparsity patterns in CSR and CSC matrices are explicitly represented by the
 //!   [SparsityPattern](pattern::SparsityPattern) type, which encodes the invariants of the
 //!   associated index data structures.
+//! - [Matrix market format support](`io`) when the `io` feature is enabled.
 //! - [proptest strategies](`proptest`) for sparse matrices when the feature
 //!   `proptest-support` is enabled.
 //! - [matrixcompare support](https://crates.io/crates/matrixcompare) for effortless
@@ -142,11 +143,19 @@
 )]
 
 pub extern crate nalgebra as na;
+#[cfg(feature = "io")]
+extern crate pest;
+#[macro_use]
+#[cfg(feature = "io")]
+extern crate pest_derive;
+
 pub mod convert;
 pub mod coo;
 pub mod csc;
 pub mod csr;
 pub mod factorization;
+#[cfg(feature = "io")]
+pub mod io;
 pub mod ops;
 pub mod pattern;
 

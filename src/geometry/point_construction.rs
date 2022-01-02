@@ -19,6 +19,15 @@ use simba::scalar::{ClosedDiv, SupersetOf};
 
 use crate::geometry::Point;
 
+impl<T: Scalar + Zero, D: DimName> Default for OPoint<T, D>
+where
+    DefaultAllocator: Allocator<T, D>,
+{
+    fn default() -> Self {
+        Self::origin()
+    }
+}
+
 /// # Other construction methods
 impl<T: Scalar, D: DimName> OPoint<T, D>
 where

@@ -21,6 +21,15 @@ use crate::{
     UnitQuaternion,
 };
 
+impl<T: SimdRealField, R: AbstractRotation<T, D>, const D: usize> Default for Isometry<T, R, D>
+where
+    T::Element: SimdRealField,
+{
+    fn default() -> Self {
+        Self::identity()
+    }
+}
+
 impl<T: SimdRealField, R: AbstractRotation<T, D>, const D: usize> Isometry<T, R, D>
 where
     T::Element: SimdRealField,

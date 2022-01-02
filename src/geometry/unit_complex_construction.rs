@@ -17,6 +17,15 @@ use crate::geometry::{Rotation2, UnitComplex};
 use simba::scalar::{RealField, SupersetOf};
 use simba::simd::SimdRealField;
 
+impl<T: SimdRealField> Default for UnitComplex<T>
+where
+    T::Element: SimdRealField,
+{
+    fn default() -> Self {
+        Self::identity()
+    }
+}
+
 /// # Identity
 impl<T: SimdRealField> UnitComplex<T>
 where

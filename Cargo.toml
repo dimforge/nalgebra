@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.29.0"
+version = "0.30.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "General-purpose linear algebra library with transformations and statically-sized or dynamically-sized matrices."
@@ -32,6 +32,7 @@ compare = [ "matrixcompare-core" ]
 libm    = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 macros = [ "nalgebra-macros" ]
+cuda   = [ "cust", "simba/cuda" ]
 
 # Conversion
 convert-mint = [ "mint" ]
@@ -41,6 +42,7 @@ convert-glam014 = [ "glam014" ]
 convert-glam015 = [ "glam015" ]
 convert-glam016 = [ "glam016" ]
 convert-glam017 = [ "glam017" ]
+convert-glam018 = [ "glam018" ]
 
 # Serialization
 ## To use serde in a #[no-std] environment, enable the
@@ -72,7 +74,7 @@ num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.4", default-features = false }
 num-rational   = { version = "0.4", default-features = false }
 approx         = { version = "0.5", default-features = false }
-simba          = { version = "0.6", default-features = false }
+simba          = { version = "0.7", default-features = false }
 alga           = { version = "0.9", default-features = false, optional = true }
 rand_distr     = { version = "0.4", default-features = false, optional = true }
 matrixmultiply = { version = "0.3", optional = true }
@@ -85,12 +87,16 @@ pest           = { version = "2", optional = true }
 pest_derive    = { version = "2", optional = true }
 bytemuck       = { version = "1.5", optional = true }
 matrixcompare-core = { version = "0.1", optional = true }
-proptest           = { version = "1", optional = true, default-features = false, features = ["std"] }
+proptest       = { version = "1", optional = true, default-features = false, features = ["std"] }
 glam013        = { package = "glam", version = "0.13", optional = true }
 glam014        = { package = "glam", version = "0.14", optional = true }
 glam015        = { package = "glam", version = "0.15", optional = true }
 glam016        = { package = "glam", version = "0.16", optional = true }
 glam017        = { package = "glam", version = "0.17", optional = true }
+glam018        = { package = "glam", version = "0.18", optional = true }
+
+[target.'cfg(not(target_os = "cuda"))'.dependencies]
+cust           = { version = "0.2", optional = true }
 
 
 [dev-dependencies]
@@ -127,3 +133,4 @@ lto = true
 [package.metadata.docs.rs]
 # Enable certain features when building docs for docs.rs
 features = [ "proptest-support", "compare", "macros", "rand" ]
+

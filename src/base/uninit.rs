@@ -66,11 +66,11 @@ unsafe impl<T> InitStatus<T> for Uninit {
 
     #[inline(always)]
     unsafe fn assume_init_ref(t: &MaybeUninit<T>) -> &T {
-        std::mem::transmute(t.as_ptr()) // TODO: use t.assume_init_ref()
+        &*t.as_ptr() // TODO: use t.assume_init_ref()
     }
 
     #[inline(always)]
     unsafe fn assume_init_mut(t: &mut MaybeUninit<T>) -> &mut T {
-        std::mem::transmute(t.as_mut_ptr()) // TODO: use t.assume_init_mut()
+        &mut *t.as_mut_ptr() // TODO: use t.assume_init_mut()
     }
 }

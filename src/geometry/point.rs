@@ -40,13 +40,22 @@ use std::mem::MaybeUninit;
 /// may have some other methods, e.g., `isometry.inverse_transform_point(&point)`. See the documentation
 /// of said transformations for details.
 #[repr(C)]
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct OPoint<T: Scalar, D: DimName>
 where
     DefaultAllocator: Allocator<T, D>,
 {
     /// The coordinates of this point, i.e., the shift from the origin.
     pub coords: OVector<T, D>,
+}
+
+impl<T: Scalar + fmt::Debug, D: DimName> fmt::Debug for OPoint<T, D>
+where
+    DefaultAllocator: Allocator<T, D>,
+{
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        self.coords.as_slice().fmt(formatter)
+    }
 }
 
 impl<T: Scalar + hash::Hash, D: DimName> hash::Hash for OPoint<T, D>
@@ -62,6 +71,15 @@ impl<T: Scalar + Copy, D: DimName> Copy for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
     OVector<T, D>: Copy,
+{
+}
+
+#[cfg(all(not(target_os = "cuda"), feature = "cuda"))]
+unsafe impl<T: Scalar + cust::memory::DeviceCopy, D: DimName> cust::memory::DeviceCopy
+    for OPoint<T, D>
+where
+    DefaultAllocator: Allocator<T, D>,
+    OVector<T, D>: cust::memory::DeviceCopy,
 {
 }
 

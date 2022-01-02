@@ -1,5 +1,16 @@
 #![cfg(all(feature = "proptest-support", feature = "debug"))]
 
+#[test]
+// #[rustfmt::skip]
+fn cholesky_with_substitute() {
+    // Make a tiny covariance matrix with a small covariance value.
+    let m = na::Matrix2::new(1.0, f64::NAN, 1.0, 1e-32);
+    // Show that the cholesky fails for our matrix. We then try again with a substitute.
+    assert!(na::Cholesky::new(m).is_none());
+    // ...and show that we get some result this time around.
+    assert!(na::Cholesky::new_with_substitute(m, 1e-8).is_some());
+}
+
 macro_rules! gen_tests(
     ($module: ident, $scalar: ty) => {
         mod $module {

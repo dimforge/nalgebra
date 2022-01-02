@@ -54,9 +54,19 @@ use crate::geometry::Point;
 /// * [Conversion to a matrix <span style="float:right;">`matrix`, `to_homogeneous`…</span>](#conversion-to-a-matrix)
 ///
 #[repr(C)]
-#[derive(Debug)]
+#[cfg_attr(
+    all(not(target_os = "cuda"), feature = "cuda"),
+    derive(cust::DeviceCopy)
+)]
+#[derive(Copy, Clone)]
 pub struct Rotation<T, const D: usize> {
     matrix: SMatrix<T, D, D>,
+}
+
+impl<T: fmt::Debug, const D: usize> fmt::Debug for Rotation<T, D> {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        self.matrix.fmt(formatter)
+    }
 }
 
 impl<T: Scalar + hash::Hash, const D: usize> hash::Hash for Rotation<T, D>
@@ -65,21 +75,6 @@ where
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.matrix.hash(state)
-    }
-}
-
-impl<T: Scalar + Copy, const D: usize> Copy for Rotation<T, D> where
-    <DefaultAllocator as Allocator<T, Const<D>, Const<D>>>::Buffer: Copy
-{
-}
-
-impl<T: Scalar, const D: usize> Clone for Rotation<T, D>
-where
-    <DefaultAllocator as Allocator<T, Const<D>, Const<D>>>::Buffer: Clone,
-{
-    #[inline]
-    fn clone(&self) -> Self {
-        Self::from_matrix_unchecked(self.matrix.clone())
     }
 }
 

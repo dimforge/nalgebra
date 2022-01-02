@@ -32,7 +32,7 @@ use crate::{ArrayStorage, SMatrix, SimdComplexField, Storage, UninitMatrix};
 use crate::storage::IsContiguous;
 use crate::uninit::{Init, InitStatus, Uninit};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::{DMatrix, DVector, Dynamic, VecStorage};
+use crate::{DMatrix, DVector, Dynamic, RowDVector, VecStorage};
 use std::mem::MaybeUninit;
 
 /// A square matrix.
@@ -92,6 +92,7 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// - [Interpolation <span style="float:right;">`lerp`, `slerp`…</span>](#interpolation)
 /// - [BLAS functions <span style="float:right;">`gemv`, `gemm`, `syger`…</span>](#blas-functions)
 /// - [Swizzling <span style="float:right;">`xx`, `yxz`…</span>](#swizzling)
+/// - [Triangular matrix extraction <span style="float:right;">`upper_triangle`, `lower_triangle`</span>](#triangular-matrix-extraction)
 ///
 /// #### Statistics
 /// - [Common operations <span style="float:right;">`row_sum`, `column_mean`, `variance`…</span>](#common-statistics-operations)
@@ -154,6 +155,10 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// some concrete types for `T` and a compatible data storage type `S`).
 #[repr(C)]
 #[derive(Clone, Copy)]
+#[cfg_attr(
+    all(not(target_os = "cuda"), feature = "cuda"),
+    derive(cust::DeviceCopy)
+)]
 pub struct Matrix<T, R, C, S> {
     /// The data storage that contains all the matrix components. Disappointed?
     ///
@@ -188,17 +193,14 @@ pub struct Matrix<T, R, C, S> {
     //       Note that it would probably make sense to just have
     //       the type `Matrix<S>`, and have `T, R, C` be associated-types
     //       of the `RawStorage` trait. However, because we don't have
-    //       specialization, this is not bossible because these `T, R, C`
+    //       specialization, this is not possible because these `T, R, C`
     //       allows us to desambiguate a lot of configurations.
     _phantoms: PhantomData<(T, R, C)>,
 }
 
 impl<T, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<T, R, C, S> {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        formatter
-            .debug_struct("Matrix")
-            .field("data", &self.data)
-            .finish()
+        self.data.fmt(formatter)
     }
 }
 
@@ -405,6 +407,21 @@ impl<T> DVector<T> {
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
     pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, U1>) -> Self {
+        // This is sound because the dimensions of the matrix and the storage are guaranteed
+        // to be the same
+        unsafe { Self::from_data_statically_unchecked(storage) }
+    }
+}
+
+// TODO: Consider removing/deprecating `from_vec_storage` once we are able to make
+// `from_data` const fn compatible
+#[cfg(any(feature = "std", feature = "alloc"))]
+impl<T> RowDVector<T> {
+    /// Creates a new heap-allocated matrix from the given [`VecStorage`].
+    ///
+    /// This method exists primarily as a workaround for the fact that `from_data` can not
+    /// work in `const fn` contexts.
+    pub const fn from_vec_storage(storage: VecStorage<T, U1, Dynamic>) -> Self {
         // This is sound because the dimensions of the matrix and the storage are guaranteed
         // to be the same
         unsafe { Self::from_data_statically_unchecked(storage) }
@@ -681,7 +698,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
     fn transpose_to_uninit<Status, R2, C2, SB>(
         &self,
-        status: Status,
+        _status: Status,
         out: &mut Matrix<Status::Value, R2, C2, SB>,
     ) where
         Status: InitStatus<T>,
@@ -1377,7 +1394,7 @@ impl<T: SimdComplexField, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C
     #[inline]
     fn adjoint_to_uninit<Status, R2, C2, SB>(
         &self,
-        status: Status,
+        _status: Status,
         out: &mut Matrix<Status::Value, R2, C2, SB>,
     ) where
         Status: InitStatus<T>,
@@ -1777,7 +1794,7 @@ where
         assert!(self.shape() == other.shape());
         self.iter()
             .zip(other.iter())
-            .all(|(a, b)| a.ulps_eq(b, epsilon.clone(), max_ulps.clone()))
+            .all(|(a, b)| a.ulps_eq(b, epsilon.clone(), max_ulps))
     }
 }
 
@@ -2021,16 +2038,26 @@ impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: RawStorag
             + SameNumberOfRows<R2, U2>
             + SameNumberOfColumns<C2, U1>,
     {
-        assert!(
-            self.shape() == (2, 1),
-            "2D perpendicular product requires (2, 1) vector but found {:?}",
-            self.shape()
+        let shape = self.shape();
+        assert_eq!(
+            shape,
+            b.shape(),
+            "2D vector perpendicular product dimension mismatch."
+        );
+        assert_eq!(
+            shape,
+            (2, 1),
+            "2D perpendicular product requires (2, 1) vectors {:?}",
+            shape
         );
 
-        unsafe {
-            self.get_unchecked((0, 0)).clone() * b.get_unchecked((1, 0)).clone()
-                - self.get_unchecked((1, 0)).clone() * b.get_unchecked((0, 0)).clone()
-        }
+        // SAFETY: assertion above ensures correct shape
+        let ax = unsafe { self.get_unchecked((0, 0)).clone() };
+        let ay = unsafe { self.get_unchecked((1, 0)).clone() };
+        let bx = unsafe { b.get_unchecked((0, 0)).clone() };
+        let by = unsafe { b.get_unchecked((1, 0)).clone() };
+
+        ax * by - ay * bx
     }
 
     // TODO: use specialization instead of an assertion.
@@ -2051,17 +2078,14 @@ impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: RawStorag
         let shape = self.shape();
         assert_eq!(shape, b.shape(), "Vector cross product dimension mismatch.");
         assert!(
-            (shape.0 == 3 && shape.1 == 1) || (shape.0 == 1 && shape.1 == 3),
+            shape == (3, 1) || shape == (1, 3),
             "Vector cross product dimension mismatch: must be (3, 1) or (1, 3) but found {:?}.",
             shape
         );
 
         if shape.0 == 3 {
             unsafe {
-                // TODO: soooo ugly!
-                let nrows = SameShapeR::<R, R2>::from_usize(3);
-                let ncols = SameShapeC::<C, C2>::from_usize(1);
-                let mut res = Matrix::uninit(nrows, ncols);
+                let mut res = Matrix::uninit(Dim::from_usize(3), Dim::from_usize(1));
 
                 let ax = self.get_unchecked((0, 0));
                 let ay = self.get_unchecked((1, 0));
@@ -2083,10 +2107,7 @@ impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: RawStorag
             }
         } else {
             unsafe {
-                // TODO: ugly!
-                let nrows = SameShapeR::<R, R2>::from_usize(1);
-                let ncols = SameShapeC::<C, C2>::from_usize(3);
-                let mut res = Matrix::uninit(nrows, ncols);
+                let mut res = Matrix::uninit(Dim::from_usize(1), Dim::from_usize(3));
 
                 let ax = self.get_unchecked((0, 0));
                 let ay = self.get_unchecked((0, 1));

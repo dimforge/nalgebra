@@ -9,6 +9,7 @@ mod full_piv_lu;
 mod hessenberg;
 mod inverse;
 mod lu;
+mod pow;
 mod qr;
 mod schur;
 mod solve;

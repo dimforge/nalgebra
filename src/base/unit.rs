@@ -1,3 +1,4 @@
+use std::fmt;
 #[cfg(feature = "abomonation-serialize")]
 use std::io::{Result as IOResult, Write};
 use std::ops::Deref;
@@ -24,9 +25,19 @@ use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealF
 /// and [`UnitQuaternion`](crate::UnitQuaternion); both built on top of `Unit`.  If you are interested
 /// in their documentation, read their dedicated pages directly.
 #[repr(transparent)]
-#[derive(Clone, Hash, Debug, Copy)]
+#[derive(Clone, Hash, Copy)]
+// #[cfg_attr(
+//     all(not(target_os = "cuda"), feature = "cuda"),
+//     derive(cust::DeviceCopy)
+// )]
 pub struct Unit<T> {
     pub(crate) value: T,
+}
+
+impl<T: fmt::Debug> fmt::Debug for Unit<T> {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        self.value.fmt(formatter)
+    }
 }
 
 #[cfg(feature = "bytemuck")]
@@ -109,6 +120,17 @@ mod rkyv_impl {
             })
         }
     }
+}
+
+#[cfg(all(not(target_os = "cuda"), feature = "cuda"))]
+unsafe impl<T: cust::memory::DeviceCopy, R, C, S> cust::memory::DeviceCopy
+    for Unit<Matrix<T, R, C, S>>
+where
+    T: Scalar,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T, R, C> + Copy,
+{
 }
 
 impl<T, R, C, S> PartialEq for Unit<Matrix<T, R, C, S>>

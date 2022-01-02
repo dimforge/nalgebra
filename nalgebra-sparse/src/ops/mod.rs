@@ -67,7 +67,7 @@
 //! As can be seen from the table, only `CSR * Dense` and `CSC * Dense` are supported.
 //! The other way around, i.e. `Dense * CSR` and `Dense * CSC` are not implemented.
 //!
-//! Additionally, [CsrMatrix](`crate::csr::CsrMatrix`) and [CooMatrix](`crate::coo::CooMatrix`)
+//! Additionally, [CsrMatrix](`crate::csr::CsrMatrix`) and [CscMatrix](`crate::csc::CscMatrix`)
 //! support multiplication with scalars, in addition to division by a scalar.
 //! Note that only `Matrix * Scalar` works in a generic context, although `Scalar * Matrix`
 //! has been implemented for many of the built-in arithmetic types. This is due to a fundamental

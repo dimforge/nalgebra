@@ -20,10 +20,10 @@ use crate::base::{
     MatrixSliceMut, OMatrix, Scalar,
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::{DVector, VecStorage};
+use crate::base::{DVector, RowDVector, VecStorage};
 use crate::base::{SliceStorage, SliceStorageMut};
 use crate::constraint::DimEq;
-use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector};
+use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector, VectorSlice, VectorSliceMut};
 use std::mem::MaybeUninit;
 
 // TODO: too bad this won't work for slice conversions.
@@ -125,6 +125,24 @@ impl<T: Scalar, const D: usize> From<SVector<T, D>> for [T; D] {
     }
 }
 
+impl<'a, T: Scalar, RStride: Dim, CStride: Dim, const D: usize>
+    From<VectorSlice<'a, T, Const<D>, RStride, CStride>> for [T; D]
+{
+    #[inline]
+    fn from(vec: VectorSlice<'a, T, Const<D>, RStride, CStride>) -> Self {
+        vec.into_owned().into()
+    }
+}
+
+impl<'a, T: Scalar, RStride: Dim, CStride: Dim, const D: usize>
+    From<VectorSliceMut<'a, T, Const<D>, RStride, CStride>> for [T; D]
+{
+    #[inline]
+    fn from(vec: VectorSliceMut<'a, T, Const<D>, RStride, CStride>) -> Self {
+        vec.into_owned().into()
+    }
+}
+
 impl<T: Scalar, const D: usize> From<[T; D]> for RowSVector<T, D>
 where
     Const<D>: IsNotStaticOne,
@@ -197,8 +215,26 @@ impl<T: Scalar, const R: usize, const C: usize> From<[[T; R]; C]> for SMatrix<T,
 
 impl<T: Scalar, const R: usize, const C: usize> From<SMatrix<T, R, C>> for [[T; R]; C] {
     #[inline]
-    fn from(vec: SMatrix<T, R, C>) -> Self {
-        vec.data.0
+    fn from(mat: SMatrix<T, R, C>) -> Self {
+        mat.data.0
+    }
+}
+
+impl<'a, T: Scalar, RStride: Dim, CStride: Dim, const R: usize, const C: usize>
+    From<MatrixSlice<'a, T, Const<R>, Const<C>, RStride, CStride>> for [[T; R]; C]
+{
+    #[inline]
+    fn from(mat: MatrixSlice<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
+        mat.into_owned().into()
+    }
+}
+
+impl<'a, T: Scalar, RStride: Dim, CStride: Dim, const R: usize, const C: usize>
+    From<MatrixSliceMut<'a, T, Const<R>, Const<C>, RStride, CStride>> for [[T; R]; C]
+{
+    #[inline]
+    fn from(mat: MatrixSliceMut<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
+        mat.into_owned().into()
     }
 }
 
@@ -447,6 +483,14 @@ where
 
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, T: Scalar> From<Vec<T>> for DVector<T> {
+    #[inline]
+    fn from(vec: Vec<T>) -> Self {
+        Self::from_vec(vec)
+    }
+}
+
+#[cfg(any(feature = "std", feature = "alloc"))]
+impl<'a, T: Scalar> From<Vec<T>> for RowDVector<T> {
     #[inline]
     fn from(vec: Vec<T>) -> Self {
         Self::from_vec(vec)

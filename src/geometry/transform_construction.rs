@@ -8,6 +8,16 @@ use crate::base::{Const, DefaultAllocator, OMatrix};
 
 use crate::geometry::{TCategory, Transform};
 
+impl<T: RealField, C: TCategory, const D: usize> Default for Transform<T, C, D>
+where
+    Const<D>: DimNameAdd<U1>,
+    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+{
+    fn default() -> Self {
+        Self::identity()
+    }
+}
+
 impl<T: RealField, C: TCategory, const D: usize> Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,

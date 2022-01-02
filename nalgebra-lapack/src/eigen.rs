@@ -294,7 +294,7 @@ where
         let mut res = Matrix::zeros_generic(nrows, Const::<1>);
 
         for i in 0..res.len() {
-            res[i] = Complex::new(wr[i], wi[i]);
+            res[i] = Complex::new(wr[i].clone(), wi[i].clone());
         }
 
         res
@@ -306,7 +306,7 @@ where
     pub fn determinant(&self) -> T {
         let mut det = T::one();
         for e in self.eigenvalues.iter() {
-            det *= *e;
+            det *= e.clone();
         }
 
         det

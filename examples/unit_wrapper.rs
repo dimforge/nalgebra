@@ -1,3 +1,4 @@
+#![allow(clippy::float_cmp)]
 extern crate nalgebra as na;
 
 use na::{Unit, Vector3};

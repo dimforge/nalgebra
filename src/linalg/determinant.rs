@@ -49,7 +49,7 @@ impl<T: ComplexField, D: DimMin<D, Output = D>, S: Storage<T, D, D>> SquareMatri
                     let m33 = self.get_unchecked((2, 2)).clone();
 
                     let minor_m12_m23 = m22.clone() * m33.clone() - m32.clone() * m23.clone();
-                    let minor_m11_m23 = m21.clone() * m33.clone() - m31.clone() * m23.clone();
+                    let minor_m11_m23 = m21.clone() * m33 - m31.clone() * m23;
                     let minor_m11_m22 = m21 * m32 - m31 * m22;
 
                     m11 * minor_m12_m23 - m12 * minor_m11_m23 + m13 * minor_m11_m22

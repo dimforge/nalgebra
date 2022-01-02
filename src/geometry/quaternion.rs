@@ -27,10 +27,20 @@ use crate::geometry::{Point3, Rotation};
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
+#[cfg_attr(
+    all(not(target_os = "cuda"), feature = "cuda"),
+    derive(cust::DeviceCopy)
+)]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<T>,
+}
+
+impl<T: fmt::Debug> fmt::Debug for Quaternion<T> {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        self.coords.as_slice().fmt(formatter)
+    }
 }
 
 impl<T: Scalar + Hash> Hash for Quaternion<T> {
@@ -1039,9 +1049,9 @@ impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for Quaternion<T> {
 
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        self.as_vector().ulps_eq(other.as_vector(), epsilon.clone(), max_ulps.clone()) ||
+        self.as_vector().ulps_eq(other.as_vector(), epsilon.clone(), max_ulps) ||
         // Account for the double-covering of S², i.e. q = -q.
-        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.ulps_eq(&-b.clone(), epsilon.clone(), max_ulps.clone()))
+        self.as_vector().iter().zip(other.as_vector().iter()).all(|(a, b)| a.ulps_eq(&-b.clone(), epsilon.clone(), max_ulps))
     }
 }
 
@@ -1057,6 +1067,9 @@ impl<T: RealField + fmt::Display> fmt::Display for Quaternion<T> {
 
 /// A unit quaternions. May be used to represent a rotation.
 pub type UnitQuaternion<T> = Unit<Quaternion<T>>;
+
+#[cfg(all(not(target_os = "cuda"), feature = "cuda"))]
+unsafe impl<T: cust::memory::DeviceCopy> cust::memory::DeviceCopy for UnitQuaternion<T> {}
 
 impl<T: Scalar + ClosedNeg + PartialEq> PartialEq for UnitQuaternion<T> {
     #[inline]
@@ -1492,18 +1505,18 @@ where
         let wk = w.clone() * k.clone() * crate::convert(2.0f64);
         let wj = w.clone() * j.clone() * crate::convert(2.0f64);
         let ik = i.clone() * k.clone() * crate::convert(2.0f64);
-        let jk = j.clone() * k.clone() * crate::convert(2.0f64);
-        let wi = w.clone() * i.clone() * crate::convert(2.0f64);
+        let jk = j * k * crate::convert(2.0f64);
+        let wi = w * i * crate::convert(2.0f64);
 
         Rotation::from_matrix_unchecked(Matrix3::new(
             ww.clone() + ii.clone() - jj.clone() - kk.clone(),
             ij.clone() - wk.clone(),
             wj.clone() + ik.clone(),
-            wk.clone() + ij.clone(),
+            wk + ij,
             ww.clone() - ii.clone() + jj.clone() - kk.clone(),
             jk.clone() - wi.clone(),
-            ik.clone() - wj.clone(),
-            wi.clone() + jk.clone(),
+            ik - wj,
+            wi + jk,
             ww - ii - jj + kk,
         ))
     }

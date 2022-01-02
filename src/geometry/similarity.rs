@@ -23,7 +23,11 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(
+    all(not(target_os = "cuda"), feature = "cuda"),
+    derive(cust::DeviceCopy)
+)]
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
@@ -70,22 +74,6 @@ where
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.isometry.hash(state);
         self.scaling.hash(state);
-    }
-}
-
-impl<T: Scalar + Copy + Zero, R: AbstractRotation<T, D> + Copy, const D: usize> Copy
-    for Similarity<T, R, D>
-where
-    Owned<T, Const<D>>: Copy,
-{
-}
-
-impl<T: Scalar + Zero, R: AbstractRotation<T, D> + Clone, const D: usize> Clone
-    for Similarity<T, R, D>
-{
-    #[inline]
-    fn clone(&self) -> Self {
-        Similarity::from_isometry(self.isometry.clone(), self.scaling.clone())
     }
 }
 
@@ -415,7 +403,7 @@ where
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
         self.isometry
-            .ulps_eq(&other.isometry, epsilon.clone(), max_ulps.clone())
+            .ulps_eq(&other.isometry, epsilon.clone(), max_ulps)
             && self.scaling.ulps_eq(&other.scaling, epsilon, max_ulps)
     }
 }

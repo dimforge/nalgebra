@@ -1,0 +1,53 @@
+WHITESPACE = _{ " "|"\t" }
+
+//
+
+Sparsity = {^"coordinate" | ^"array"}
+DataType = {^"real" | ^"complex" | ^"pattern" | ^"integer" }
+StorageScheme  = {^"symmetric"  | ^"general" | ^"skew-symmetric"  | ^"hermitian"}
+// Only consider matrices here.
+Header = { ^"%%matrixmarket matrix" ~ Sparsity ~ DataType ~ StorageScheme }
+
+//
+
+Comments = _{ "%" ~ (!NEWLINE ~ ANY)* }
+
+//
+
+Dimension = @{ ASCII_DIGIT+ }
+SparseShape = { Dimension ~ Dimension ~ Dimension}
+DenseShape = { Dimension ~ Dimension}
+Shape = {SparseShape | DenseShape  }
+
+//
+
+// grammar from https://doc.rust-lang.org/std/primitive.f64.html#grammar
+
+Sign = {("+" | "-")}
+Exp = @{ ^"e" ~ Sign? ~ ASCII_DIGIT+}
+Number = @{ ((ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT*) | (ASCII_DIGIT* ~ "." ~ASCII_DIGIT+) | ASCII_DIGIT+ ) ~ Exp? } 
+Real = @{ Sign? ~ ("inf" | "NaN" | Number) }
+
+
+SparseReal =  {Dimension~ Dimension~ Real }
+SparseComplex = {Dimension ~ Dimension ~ Real ~ Real}
+SparsePattern = {Dimension ~ Dimension}
+
+DenseReal = {Real}
+DenseComplex = {Real ~ Real}
+
+
+Entry = {  SparseComplex  | SparseReal |   SparsePattern | DenseComplex  | DenseReal }
+
+// end of file, a silent way, see https://github.com/pest-parser/pest/issues/304#issuecomment-427198507
+eoi = _{ !ANY }
+
+Document = {
+    SOI ~
+    NEWLINE* ~
+    Header ~
+    (NEWLINE ~ Comments)* ~
+    (NEWLINE ~ Shape) ~
+    (NEWLINE ~ Entry?)* ~
+    eoi
+}

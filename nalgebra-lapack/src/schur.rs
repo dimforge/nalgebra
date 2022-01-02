@@ -155,7 +155,7 @@ where
         let mut out = Matrix::zeros_generic(self.t.shape_generic().0, Const::<1>);
 
         for i in 0..out.len() {
-            out[i] = Complex::new(self.re[i], self.im[i])
+            out[i] = Complex::new(self.re[i].clone(), self.im[i].clone())
         }
 
         out
