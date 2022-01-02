@@ -4,13 +4,21 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.30.0]
+## [0.30.0] (02 Jan. 2022)
 
 ### Breaking changes
 - The `Dim` trait is now marked as unsafe.
+- The `Matrix::pow` and `Matrix::pow_mut` methods only allow positive integer exponents now. To compute negative
+  exponents, the user is free to invert the matrix before calling `pow` with the exponent’s absolute value.
 
 ### Modified
 - Use more concise debug impls for matrices and geometric transformation types.
+- The singular values computed by the SVD are now sorted in increasing order by default. Use `SVD::new_unordered`
+  instead to reproduce the older behavior without the sorting overhead.
+- The `UnitDualQuaternion::sclerp` method will no longer panic when given two equal rotations.
+- The `Matrix::select_rows` and `Matrix::select_columns` methods no longer require the matrix components to implement
+  the trait `Zero`.
+- The `Matrix::pow` and `Matrix::pow_mut` methods will now also work with integer matrices.
 
 ### Added
 - Added the conversion trait `From<Vec<T>>` and method `from_vec_storage` for `RowDVector`.
@@ -21,14 +29,26 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - The `Default` trait is now implemented for most geometric types: `Point`, `Isometry`, `Rotation`, `Similarity`,
   `Transform`, `UnitComplex`, and `UnitQuaternion`.
 - Added the `Scale` geometric type for representing non-uniform scaling.
-- `nalgebra-sparse`: provide constructors for unsorted but otherwise valid data using the CSR format.
 - Added `Cholesky::new_with_substitute` that will replace diagonal elements by a given constant whenever `Cholesky`
   meets a non-definite-positiveness.
+- Re-added the conversion from a vector/matrix slice to a static array.
+- Added the `cuda` feature that enables the support of [rust-cuda](https://github.com/Rust-GPU/Rust-CUDA) for using
+  `nalgebra` features with CUDA kernels written in Rust.
+- Added special-cases implementations for the 2x2 and 3x3 SVDs for better accuracy and performances.
+- Added the methods `Matrix::polar`, `Matrix::try_polar`, and `SVD::to_polar` to compute the polar decomposition of
+  a matrix, based on its SVD.
+- `nalgebra-sparse`: provide constructors for unsorted but otherwise valid data using the CSR format.
+- `nalgebra-sparse`: added reading MatrixMarked data files to a sparse `CooMatrix`.
 
 ### Fixed
 - Fixed a potential unsoundness with `matrix.get(i)` and `matrix.get_mut(i)` where `i`  is an `usize`, and `matrix`
   is a matrix slice with non-default strides.
 - Fixed potential unsoundness with `vector.perp` where `vector` isn’t actually a 2D vector as expected.
+- Fixed linkage issue with `nalgebra-lapack`: the user of `nalgebra-lapack` no longer have to add
+  `extern crate lapack-src` to their `main.rs`.
+- Fixed the `no-std` build of `nalgebra-glm`.
+- Fix the `pow` and `pow_mut` functions (the result was incorrect for some exponent values).
+
 
 ## [0.29.0]
 ### Breaking changes

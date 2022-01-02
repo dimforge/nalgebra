@@ -140,7 +140,7 @@ where
     pub fn determinant(&self) -> T {
         let mut det = T::one();
         for e in self.eigenvalues.iter() {
-            det *= *e;
+            det *= e.clone();
         }
 
         det
@@ -153,7 +153,7 @@ where
     pub fn recompose(&self) -> OMatrix<T, D, D> {
         let mut u_t = self.eigenvectors.clone();
         for i in 0..self.eigenvalues.len() {
-            let val = self.eigenvalues[i];
+            let val = self.eigenvalues[i].clone();
             u_t.column_mut(i).mul_assign(val);
         }
         u_t.transpose_mut();
