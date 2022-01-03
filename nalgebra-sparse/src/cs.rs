@@ -1,7 +1,7 @@
 use std::mem::replace;
 use std::ops::Range;
 
-use num_traits::{One, Zero};
+use num_traits::One;
 
 use nalgebra::Scalar;
 
@@ -555,7 +555,7 @@ pub(crate) fn validate_and_optionally_sort_cs_data<T>(
     sort: bool,
 ) -> Result<(), SparseFormatError>
 where
-    T: Scalar + Zero,
+    T: Scalar,
 {
     let mut value_refs: &mut [T] = &mut Vec::new();
     match values {
@@ -667,9 +667,10 @@ where
                 let range_size = range_end - range_start;
                 minor_index_permutation.resize(range_size, 0);
                 compute_sort_permutation(&mut minor_index_permutation, &minor_idx_in_lane);
-                minor_idx_buffer.resize(range_size, 0);
-                for (index, &value) in minor_idx_in_lane.iter().enumerate() {
-                    minor_idx_buffer[index] = value;
+                minor_idx_buffer.clear();
+                minor_idx_buffer.reserve(range_size);
+                for &value in minor_idx_in_lane.iter() {
+                    minor_idx_buffer.push(value);
                 }
                 apply_permutation(
                     &mut minor_indices[range_start..range_end],
@@ -679,9 +680,10 @@ where
 
                 // sort values if they exist
                 if !value_refs.is_empty() {
-                    values_buffer.resize(range_size, T::zero());
+                    values_buffer.clear();
+                    values_buffer.reserve(range_size);
                     for index in range_start..range_end {
-                        values_buffer[index - range_start] = value_refs[index].clone();
+                        values_buffer.push(value_refs[index].clone());
                     }
                     apply_permutation(
                         &mut value_refs[range_start..range_end],
