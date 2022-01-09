@@ -14,6 +14,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - The `Dim` trait is now marked as unsafe.
 - The `Matrix::pow` and `Matrix::pow_mut` methods only allow positive integer exponents now. To compute negative
   exponents, the user is free to invert the matrix before calling `pow` with the exponent’s absolute value.
+- Remove the `Bounded` requirement from `RealField`. Replace it by methods returning `Option<Self>` so that they can
+  still be implemented by unbounded types (by returning `None`).
+- The `ComplexField` trait derives  from `FromPrimitive` again. We can actually keep this because all its methods
+  return `Option<Self>`, meaning that it could be implemented by any type.
 
 ### Modified
 - Use more concise debug impls for matrices and geometric transformation types.
