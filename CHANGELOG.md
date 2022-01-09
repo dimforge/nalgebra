@@ -4,6 +4,10 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.30.1] (09 Jan. 2022)
+### Added
+- Add conversion from/to types of `glam` 0.19 and 0.20.
+
 ## [0.30.0] (02 Jan. 2022)
 
 ### Breaking changes
