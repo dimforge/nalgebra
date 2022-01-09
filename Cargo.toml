@@ -43,6 +43,8 @@ convert-glam015 = [ "glam015" ]
 convert-glam016 = [ "glam016" ]
 convert-glam017 = [ "glam017" ]
 convert-glam018 = [ "glam018" ]
+convert-glam019 = [ "glam019" ]
+convert-glam020 = [ "glam020" ]
 
 # Serialization
 ## To use serde in a #[no-std] environment, enable the
@@ -94,6 +96,8 @@ glam015        = { package = "glam", version = "0.15", optional = true }
 glam016        = { package = "glam", version = "0.16", optional = true }
 glam017        = { package = "glam", version = "0.17", optional = true }
 glam018        = { package = "glam", version = "0.18", optional = true }
+glam019        = { package = "glam", version = "0.19", optional = true }
+glam020        = { package = "glam", version = "0.20", optional = true }
 
 [target.'cfg(not(target_os = "cuda"))'.dependencies]
 cust           = { version = "0.2", optional = true }
