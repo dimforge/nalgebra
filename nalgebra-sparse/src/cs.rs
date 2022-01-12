@@ -557,22 +557,10 @@ pub(crate) fn validate_and_optionally_sort_cs_data<T>(
 where
     T: Scalar,
 {
-    let mut value_refs: &mut [T] = &mut Vec::new();
-    match values {
-        Some(values) => {
-            if minor_indices.len() != values.len() {
-                return Err(SparseFormatError::from_kind_and_msg(
-                    SparseFormatErrorKind::InvalidStructure,
-                    "Number of values and minor indices must be the same",
-                ));
-            }
-            value_refs = values;
-        }
-        None => {
-            assert!(
-                sort && minor_indices.len() > 0,
-                "No values provided for sorting."
-            );
+    let mut values_option = values;
+    if values_option.is_none() {
+        if sort {
+            panic!("Internal error: Sorting currently not supported if no values are present.");
         }
     }
 
@@ -651,10 +639,9 @@ where
                     }
                     if prev > minor_idx {
                         if !sort {
-                            return Err(SparseFormatError::from_kind_and_msg(
-                                SparseFormatErrorKind::InvalidStructure,
-                                "Minor indices are not monotonically increasing within each lane.",
-                            ));
+                            panic!(
+                                "Minor indices are not monotonically increasing within each lane while sorting is not expected." 
+                            );
                         }
                         nonmonotonic = true;
                     }
@@ -679,14 +666,22 @@ where
                 );
 
                 // sort values if they exist
-                if !value_refs.is_empty() {
+                if let Some(values) = values_option.as_mut() {
+                    if values.len() == 0 {
+                        panic!(
+                            "Internal error: Sorting currently not supported if values are empty."
+                        );
+                    }
+                    if minor_indices.len() != values.len() {
+                        panic!("Number of values and minor indices must be the same.");
+                    }
                     values_buffer.clear();
                     values_buffer.reserve(range_size);
                     for index in range_start..range_end {
-                        values_buffer.push(value_refs[index].clone());
+                        values_buffer.push(values[index].clone());
                     }
                     apply_permutation(
-                        &mut value_refs[range_start..range_end],
+                        &mut values[range_start..range_end],
                         &values_buffer,
                         &minor_index_permutation,
                     );
