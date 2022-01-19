@@ -38,11 +38,11 @@ where
 {
     alphar: OVector<T, D>,
     alphai: OVector<T, D>,
-    beta:   OVector<T,D>,
-    vsl:    OMatrix<T, D, D>,
-    s:      OMatrix<T, D, D>,
-    vsr:    OMatrix<T, D, D>,
-    t:      OMatrix<T, D, D>
+    beta: OVector<T, D>,
+    vsl: OMatrix<T, D, D>,
+    s: OMatrix<T, D, D>,
+    vsr: OMatrix<T, D, D>,
+    t: OMatrix<T, D, D>,
 }
 
 impl<T: Scalar + Copy, D: Dim> Copy for QZ<T, D>
@@ -61,7 +61,7 @@ where
     ///
     /// Panics if the method did not converge.
     pub fn new(a: OMatrix<T, D, D>, b: OMatrix<T, D, D>) -> Self {
-        Self::try_new(a,b).expect("Schur decomposition: convergence failed.")
+        Self::try_new(a, b).expect("Schur decomposition: convergence failed.")
     }
 
     /// Computes the eigenvalues and real Schur form of the matrix `m`.
@@ -85,9 +85,9 @@ where
 
         let mut alphar = Matrix::zeros_generic(nrows, Const::<1>);
         let mut alphai = Matrix::zeros_generic(nrows, Const::<1>);
-        let mut beta   = Matrix::zeros_generic(nrows, Const::<1>);
-        let mut vsl    = Matrix::zeros_generic(nrows, ncols);
-        let mut vsr    = Matrix::zeros_generic(nrows, ncols);
+        let mut beta = Matrix::zeros_generic(nrows, Const::<1>);
+        let mut vsl = Matrix::zeros_generic(nrows, ncols);
+        let mut vsr = Matrix::zeros_generic(nrows, ncols);
         // Placeholders:
         let mut bwork = [0i32];
         let mut unused = 0;
@@ -140,14 +140,27 @@ where
         );
         lapack_check!(info);
 
-        Some(QZ {alphar, alphai, beta,
-                 vsl, s:a,
-                 vsr, t:b})
+        Some(QZ {
+            alphar,
+            alphai,
+            beta,
+            vsl,
+            s: a,
+            vsr,
+            t: b,
+        })
     }
 
     /// Retrieves the unitary matrix `Q` and the upper-quasitriangular matrix `T` such that the
     /// decomposed matrix equals `Q * T * Q.transpose()`.
-    pub fn unpack(self) -> (OMatrix<T, D, D>, OMatrix<T, D, D>, OMatrix<T, D, D>, OMatrix<T, D, D>){
+    pub fn unpack(
+        self,
+    ) -> (
+        OMatrix<T, D, D>,
+        OMatrix<T, D, D>,
+        OMatrix<T, D, D>,
+        OMatrix<T, D, D>,
+    ) {
         (self.vsl, self.s, self.t, self.vsr)
     }
 
@@ -160,8 +173,10 @@ where
         let mut out = Matrix::zeros_generic(self.t.shape_generic().0, Const::<1>);
 
         for i in 0..out.len() {
-            out[i] = Complex::new(self.alphar[i].clone()/self.beta[i].clone(),
-                                  self.alphai[i].clone()/self.beta[i].clone())
+            out[i] = Complex::new(
+                self.alphar[i].clone() / self.beta[i].clone(),
+                self.alphai[i].clone() / self.beta[i].clone(),
+            )
         }
 
         out
@@ -177,50 +192,50 @@ where
 pub trait QZScalar: Scalar {
     #[allow(missing_docs)]
     fn xgges(
-        jobvsl:  u8,
-        jobvsr:  u8,
-        sort:   u8,
+        jobvsl: u8,
+        jobvsr: u8,
+        sort: u8,
         // select: ???
-        n:      i32,
-        a:      &mut [Self],
-        lda:    i32,
-        b:      &mut [Self],
-        ldb:    i32,
-        sdim:   &mut i32,
+        n: i32,
+        a: &mut [Self],
+        lda: i32,
+        b: &mut [Self],
+        ldb: i32,
+        sdim: &mut i32,
         alphar: &mut [Self],
         alphai: &mut [Self],
-        beta  : &mut [Self],
-        vsl:    &mut [Self],
-        ldvsl:  i32,
-        vsr:    &mut [Self],
-        ldvsr:  i32,
-        work:   &mut [Self],
-        lwork:  i32,
-        bwork:  &mut [i32],
-        info:   &mut i32
+        beta: &mut [Self],
+        vsl: &mut [Self],
+        ldvsl: i32,
+        vsr: &mut [Self],
+        ldvsr: i32,
+        work: &mut [Self],
+        lwork: i32,
+        bwork: &mut [i32],
+        info: &mut i32,
     );
 
     #[allow(missing_docs)]
     fn xgges_work_size(
-        jobvsl:  u8,
-        jobvsr:  u8,
-        sort:   u8,
+        jobvsl: u8,
+        jobvsr: u8,
+        sort: u8,
         // select: ???
-        n:      i32,
-        a:      &mut [Self],
-        lda:    i32,
-        b:      &mut [Self],
-        ldb:    i32,
-        sdim:   &mut i32,
+        n: i32,
+        a: &mut [Self],
+        lda: i32,
+        b: &mut [Self],
+        ldb: i32,
+        sdim: &mut i32,
         alphar: &mut [Self],
         alphai: &mut [Self],
-        beta  : &mut [Self],
-        vsl:    &mut [Self],
-        ldvsl:  i32,
-        vsr:    &mut [Self],
-        ldvsr:  i32,
-        bwork:  &mut [i32],
-        info:   &mut i32
+        beta: &mut [Self],
+        vsl: &mut [Self],
+        ldvsl: i32,
+        vsr: &mut [Self],
+        ldvsr: i32,
+        bwork: &mut [i32],
+        info: &mut i32,
     ) -> i32;
 }
 
