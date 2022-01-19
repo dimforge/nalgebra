@@ -13,7 +13,7 @@ use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
 
-/// Eigendecomposition of a real square matrix with complex eigenvalues.
+/// Generalized eigendecomposition of a pair of N*N square matrices.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
@@ -57,14 +57,15 @@ impl<T: QZScalar + RealField, D: Dim> QZ<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
-    /// Computes the eigenvalues and real Schur form of the matrix `m`.
+    /// Attempts to compute the QZ decomposition of input square matrices `a` and `b`.
     ///
     /// Panics if the method did not converge.
     pub fn new(a: OMatrix<T, D, D>, b: OMatrix<T, D, D>) -> Self {
-        Self::try_new(a, b).expect("Schur decomposition: convergence failed.")
+        Self::try_new(a, b).expect("QZ decomposition: convergence failed.")
     }
 
-    /// Computes the eigenvalues and real Schur form of the matrix `m`.
+    /// Computes the decomposition of input matrices `a` and `b` into a pair of matrices of Schur vectors
+    /// , a quasi-upper triangular matrix and an upper-triangular matrix .
     ///
     /// Returns `None` if the method did not converge.
     pub fn try_new(mut a: OMatrix<T, D, D>, mut b: OMatrix<T, D, D>) -> Option<Self> {
@@ -73,13 +74,13 @@ where
             "Unable to compute the qz decomposition of non-square matrices."
         );
 
-        // another assert to compare shape?
+        assert!(
+            a.shape_generic() ==  b.shape_generic(),
+            "Unable to compute the qz decomposition of two square matrices of different dimensions."
+        );
 
         let (nrows, ncols) = a.shape_generic();
         let n = nrows.value();
-
-        let lda = n as i32;
-        let ldb = lda.clone();
 
         let mut info = 0;
 
@@ -151,8 +152,10 @@ where
         })
     }
 
-    /// Retrieves the unitary matrix `Q` and the upper-quasitriangular matrix `T` such that the
-    /// decomposed matrix equals `Q * T * Q.transpose()`.
+    /// Retrieves the left and right matrices of Schur Vectors (VSL and VSR)
+    /// the upper-quasitriangular matrix `S` and upper triangular matrix `T` such that the
+    /// decomposed matrix `A`  equals `VSL * S * VSL.transpose()` and
+    /// decomposed matrix `B`  equals `VSL * T * VSL.transpose()`.
     pub fn unpack(
         self,
     ) -> (
