@@ -176,16 +176,26 @@ where
         let mut out = Matrix::zeros_generic(self.t.shape_generic().0, Const::<1>);
 
         for i in 0..out.len() {
-            let b = self.beta[i].clone();
-            out[i] = {
-                if b < T::RealField::zero() {
-                    Complex::<T>::zero()
+            out[i] = if self.beta[i].clone() < T::RealField::default_epsilon() {
+                Complex::zero()
+            } else {
+                let mut cr = self.alphar[i].clone();
+                let mut ci = self.alphai[i].clone();
+                let b = self.beta[i].clone();
+
+                if cr < T::RealField::default_epsilon() {
+                    cr = T::RealField::zero()
                 } else {
-                    Complex::new(
-                        self.alphar[i].clone() / b.clone(),
-                        self.alphai[i].clone() / b.clone(),
-                    )
-                }
+                    cr = cr / b.clone()
+                };
+
+                if ci < T::RealField::default_epsilon() {
+                    ci = T::RealField::zero()
+                } else {
+                    ci = ci / b
+                };
+
+                Complex::new(cr, ci)
             }
         }
 
