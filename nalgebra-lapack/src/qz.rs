@@ -176,10 +176,17 @@ where
         let mut out = Matrix::zeros_generic(self.t.shape_generic().0, Const::<1>);
 
         for i in 0..out.len() {
-            out[i] = Complex::new(
-                self.alphar[i].clone() / self.beta[i].clone(),
-                self.alphai[i].clone() / self.beta[i].clone(),
-            )
+            let b = self.beta[i].clone();
+            out[i] = {
+                if b < T::RealField::zero() {
+                    Complex::<T>::zero()
+                } else {
+                    Complex::new(
+                        self.alphar[i].clone() / b.clone(),
+                        self.alphai[i].clone() / b.clone(),
+                    )
+                }
+            }
         }
 
         out
