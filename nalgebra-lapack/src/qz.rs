@@ -167,6 +167,8 @@ where
         (self.vsl, self.s, self.t, self.vsr)
     }
 
+
+
     /// computes the generalized eigenvalues
     #[must_use]
     pub fn eigenvalues(&self) -> OVector<Complex<T>, D>
@@ -176,20 +178,20 @@ where
         let mut out = Matrix::zeros_generic(self.t.shape_generic().0, Const::<1>);
 
         for i in 0..out.len() {
-            out[i] = if self.beta[i].clone() < T::RealField::default_epsilon() {
+            out[i] = if self.beta[i].clone().abs() < T::RealField::default_epsilon() {
                 Complex::zero()
             } else {
                 let mut cr = self.alphar[i].clone();
                 let mut ci = self.alphai[i].clone();
                 let b = self.beta[i].clone();
 
-                if cr < T::RealField::default_epsilon() {
+                if cr.clone().abs() < T::RealField::default_epsilon() {
                     cr = T::RealField::zero()
                 } else {
                     cr = cr / b.clone()
                 };
 
-                if ci < T::RealField::default_epsilon() {
+                if ci.clone().abs() < T::RealField::default_epsilon() {
                     ci = T::RealField::zero()
                 } else {
                     ci = ci / b
