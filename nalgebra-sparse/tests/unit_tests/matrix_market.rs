@@ -1,7 +1,7 @@
 use matrixcompare::assert_matrix_eq;
 use nalgebra::dmatrix;
 use nalgebra::Complex;
-use nalgebra_sparse::io::load_coo_from_matrix_market_str;
+use nalgebra_sparse::io::{load_coo_from_matrix_market_str, write_to_matrix_market_str};
 use nalgebra_sparse::CooMatrix;
 
 #[test]
@@ -19,6 +19,10 @@ fn test_matrixmarket_sparse_real_general_empty() {
         assert_eq!(sparse_mat.nrows(), shape.0);
         assert_eq!(sparse_mat.ncols(), shape.1);
         assert_eq!(sparse_mat.nnz(), 0);
+
+        let generated_matrixmarket_str = write_to_matrix_market_str(&sparse_mat);
+        let generated_matrix = load_coo_from_matrix_market_str::<f32>(&generated_matrixmarket_str).unwrap();
+        assert_matrix_eq!(sparse_mat, generated_matrix);
     }
 }
 
@@ -37,6 +41,10 @@ fn test_matrixmarket_dense_real_general_empty() {
         assert_eq!(sparse_mat.nrows(), shape.0);
         assert_eq!(sparse_mat.ncols(), shape.1);
         assert_eq!(sparse_mat.nnz(), 0);
+
+        let generated_matrixmarket_str = write_to_matrix_market_str(&sparse_mat);
+        let generated_matrix = load_coo_from_matrix_market_str::<f32>(&generated_matrixmarket_str).unwrap();
+        assert_matrix_eq!(sparse_mat, generated_matrix);
     }
 }
 
@@ -97,6 +105,10 @@ fn test_matrixmarket_sparse_real_general() {
         0.0,   0.0,    0.0,    0.0,    12.0;
     ];
     assert_matrix_eq!(sparse_mat, expected);
+
+    let generated_matrixmarket_str = write_to_matrix_market_str(&sparse_mat);
+    let generated_matrix = load_coo_from_matrix_market_str::<f32>(&generated_matrixmarket_str).unwrap();
+    assert_matrix_eq!(expected, generated_matrix);
 }
 
 #[test]
@@ -125,6 +137,10 @@ fn test_matrixmarket_sparse_int_symmetric() {
         -15,  0, 35,   0,  55;
     ];
     assert_matrix_eq!(sparse_mat, expected);
+
+    let generated_matrixmarket_str = write_to_matrix_market_str(&sparse_mat);
+    let generated_matrix = load_coo_from_matrix_market_str::<i128>(&generated_matrixmarket_str).unwrap();
+    assert_matrix_eq!(expected, generated_matrix);
 }
 
 #[test]
@@ -152,6 +168,10 @@ fn test_matrixmarket_sparse_complex_hermitian() {
         Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:0.0,im:33.32},Complex::<f64>{re:12.0,im:0.0};
     ];
     assert_matrix_eq!(sparse_mat, expected);
+
+    let generated_matrixmarket_str = write_to_matrix_market_str(&sparse_mat);
+    let generated_matrix = load_coo_from_matrix_market_str::<Complex<f64>>(&generated_matrixmarket_str).unwrap();
+    assert_matrix_eq!(expected, generated_matrix);
 }
 
 #[test]
@@ -175,6 +195,10 @@ fn test_matrixmarket_sparse_real_skew() {
     -15.0,    0.0, -35.0,   0.0,   0.0;
     ];
     assert_matrix_eq!(sparse_mat, expected);
+    
+    let generated_matrixmarket_str = write_to_matrix_market_str(&sparse_mat);
+    let generated_matrix = load_coo_from_matrix_market_str::<f64>(&generated_matrixmarket_str).unwrap();
+    assert_matrix_eq!(expected, generated_matrix);
 }
 
 #[test]
@@ -198,7 +222,7 @@ fn test_matrixmarket_sparse_pattern_general() {
     let pattern_matrix = load_coo_from_matrix_market_str::<()>(file_str).unwrap();
     let nrows = pattern_matrix.nrows();
     let ncols = pattern_matrix.ncols();
-    let (row_idx, col_idx, val) = pattern_matrix.disassemble();
+    let (row_idx, col_idx, val) = pattern_matrix.clone().disassemble();
     let values = vec![1; val.len()];
     let sparse_mat = CooMatrix::try_from_triplets(nrows, ncols, row_idx, col_idx, values).unwrap();
     let expected = dmatrix![
@@ -209,6 +233,17 @@ fn test_matrixmarket_sparse_pattern_general() {
         0, 1, 0, 1, 1;
     ];
     assert_matrix_eq!(sparse_mat, expected);
+
+    let generated_matrixmarket_str = write_to_matrix_market_str(&pattern_matrix);
+    let generated_matrix = load_coo_from_matrix_market_str::<()>(&generated_matrixmarket_str).unwrap();
+
+    let nrows = generated_matrix.nrows();
+    let ncols = generated_matrix.ncols();
+    let (row_idx, col_idx, val) = generated_matrix.clone().disassemble();
+    let values = vec![1; val.len()];
+    let generated_sparse_mat = CooMatrix::try_from_triplets(nrows, ncols, row_idx, col_idx, values).unwrap();
+
+    assert_matrix_eq!(expected, generated_sparse_mat);
 }
 
 #[test]
@@ -240,6 +275,10 @@ fn test_matrixmarket_dense_real_general() {
         4.0, 8.0, 12.0;
     ];
     assert_matrix_eq!(sparse_mat, expected);
+
+    let generated_matrixmarket_str = write_to_matrix_market_str(&sparse_mat);
+    let generated_matrix = load_coo_from_matrix_market_str::<f32>(&generated_matrixmarket_str).unwrap();
+    assert_matrix_eq!(expected, generated_matrix);
 }
 
 #[test]
@@ -269,6 +308,10 @@ fn test_matrixmarket_dense_real_symmetric() {
         4.0, 7.0, 9.0, 10.0;
     ];
     assert_matrix_eq!(sparse_mat, expected);
+
+    let generated_matrixmarket_str = write_to_matrix_market_str(&sparse_mat);
+    let generated_matrix = load_coo_from_matrix_market_str::<f32>(&generated_matrixmarket_str).unwrap();
+    assert_matrix_eq!(expected, generated_matrix);
 }
 
 #[test]
@@ -298,6 +341,10 @@ fn test_matrixmarket_dense_complex_hermitian() {
         Complex::<f64>{re:4.0,im:4.0}, Complex::<f64>{re:7.0,im:7.0} ,Complex::<f64>{re:9.0,im:9.0} ,Complex::<f64>{re:10.0,im:0.0};
     ];
     assert_matrix_eq!(sparse_mat, expected);
+
+    let generated_matrixmarket_str = write_to_matrix_market_str(&sparse_mat);
+    let generated_matrix = load_coo_from_matrix_market_str::<Complex<f64>>(&generated_matrixmarket_str).unwrap();
+    assert_matrix_eq!(expected, generated_matrix);
 }
 
 #[test]
@@ -322,6 +369,10 @@ fn test_matrixmarket_dense_int_skew() {
         3, 5, 6, 0;
     ];
     assert_matrix_eq!(sparse_mat, expected);
+
+    let generated_matrixmarket_str = write_to_matrix_market_str(&sparse_mat);
+    let generated_matrix = load_coo_from_matrix_market_str::<i32>(&generated_matrixmarket_str).unwrap();
+    assert_matrix_eq!(expected, generated_matrix);
 }
 
 #[test]
@@ -342,4 +393,8 @@ fn test_matrixmarket_dense_complex_general() {
         Complex::<f32>{re:1.0,im:0.0},Complex::<f32>{re:1.0,im:0.0};
     ];
     assert_matrix_eq!(sparse_mat, expected);
+
+    let generated_matrixmarket_str = write_to_matrix_market_str(&sparse_mat);
+    let generated_matrix = load_coo_from_matrix_market_str::<Complex<f32>>(&generated_matrixmarket_str).unwrap();
+    assert_matrix_eq!(expected, generated_matrix);
 }

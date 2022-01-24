@@ -1,9 +1,10 @@
 //! Implementation of matrix market io code.
 //!
 //! See the [website](https://math.nist.gov/MatrixMarket/formats.html) or the [paper](https://www.researchgate.net/publication/2630533_The_Matrix_Market_Exchange_Formats_Initial_Design) for more details about matrix market.
-use crate::coo::CooMatrix;
+use crate::CooMatrix;
 use crate::SparseFormatError;
 use crate::SparseFormatErrorKind;
+use matrixcompare_core::SparseAccess;
 use nalgebra::Complex;
 use pest::iterators::Pairs;
 use pest::Parser;
@@ -12,7 +13,8 @@ use std::convert::Infallible;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::Formatter;
-use std::fs;
+use std::fs::{self, File};
+use std::io::Write;
 use std::num::ParseIntError;
 use std::num::TryFromIntError;
 use std::path::Path;
@@ -267,7 +269,7 @@ impl fmt::Display for MatrixMarketError {
                 write!(f, "InvalidHeader,")?;
             }
             MatrixMarketErrorKind::EntryMismatch => {
-                write!(f, "EntryNumUnmatched,")?;
+                write!(f, "EntryMismatch,")?;
             }
             MatrixMarketErrorKind::TypeMismatch => {
                 write!(f, "TypeMismatch,")?;
@@ -288,7 +290,7 @@ impl fmt::Display for MatrixMarketError {
                 write!(f, "NotLowerTriangle,")?;
             }
             MatrixMarketErrorKind::NonSquare => {
-                write!(f, "NotSquareMatrix,")?;
+                write!(f, "NonSquare,")?;
             }
         }
         write!(f, " message: {}", self.message)
@@ -506,6 +508,10 @@ mod internal {
         fn negative(self) -> Result<Self, MatrixMarketError>;
         /// When matrix is a Hermitian matrix, it will convert itself to its conjugate.
         fn conjugate(self) -> Result<Self, MatrixMarketError>;
+        /// Returns the name of SupportedMatrixMarketScalar, used when write the matrix
+        fn typename() -> &'static str;
+        /// Convert the data to string
+        fn to_matrixmarket_string(&self) -> String;
     }
 }
 
@@ -557,6 +563,14 @@ macro_rules! mm_int_impl {
             fn negative(self) -> Result<Self, MatrixMarketError> {
                 Ok(-self)
             }
+            #[inline]
+            fn typename() -> &'static str {
+                "integer"
+            }
+            #[inline]
+            fn to_matrixmarket_string(&self) -> String {
+                self.to_string()
+            }
         }
     };
 }
@@ -601,6 +615,14 @@ macro_rules! mm_real_impl {
             #[inline]
             fn negative(self) -> Result<Self, MatrixMarketError> {
                 Ok(-self)
+            }
+            #[inline]
+            fn typename() -> &'static str {
+                "real"
+            }
+            #[inline]
+            fn to_matrixmarket_string(&self) -> String {
+                self.to_string()
             }
         }
     };
@@ -647,6 +669,14 @@ macro_rules! mm_complex_impl {
             #[inline]
             fn negative(self) -> Result<Self, MatrixMarketError> {
                 Ok(-self)
+            }
+            #[inline]
+            fn typename() -> &'static str {
+                "complex"
+            }
+            #[inline]
+            fn to_matrixmarket_string(&self) -> String {
+                self.re.to_string() + " " + &self.im.to_string()
             }
         }
     };
@@ -696,6 +726,15 @@ macro_rules! mm_pattern_impl {
                     MatrixMarketErrorKind::TypeMismatch,
                     format!("Pattern type has no negative"),
                 ))
+            }
+            #[inline]
+            fn typename() -> &'static str {
+                "pattern"
+            }
+            #[inline]
+            fn to_matrixmarket_string(&self) -> String {
+                // pattern type will return an empty string
+                String::new()
             }
         }
     };
@@ -1328,4 +1367,90 @@ fn next_dense_coordinate(
             }
         }
     }
+}
+
+/// Write a sparse matrix into Matrix Market format string.
+///
+/// Our exporter only writes matrix into `coordiante` and `general` format.
+///
+///
+/// Examples
+/// --------
+/// ```
+/// # use matrixcompare::assert_matrix_eq;
+/// use nalgebra_sparse::io::{write_to_matrix_market_str,load_coo_from_matrix_market_str};
+/// let str = r#"
+/// %%matrixmarket matrix coordinate integer general
+/// 5 4 2
+/// 1 1 10
+/// 2 3 5
+/// "#;
+/// let matrix = load_coo_from_matrix_market_str::<i32>(&str).unwrap();
+/// let generated_matrixmarket_string = write_to_matrix_market_str(&matrix);
+/// // 'generated_matrixmarket' should equal to the 'matrix'
+/// let generated_matrixmarket = load_coo_from_matrix_market_str::<i32>(&generated_matrixmarket_string).unwrap();
+/// assert_matrix_eq!(matrix,generated_matrixmarket);
+/// ```
+pub fn write_to_matrix_market_str<T: MatrixMarketScalar, S: SparseAccess<T>>(
+    sparse_matrix: &S,
+) -> String {
+    let mut matrixmarket_string = String::new();
+    // write header
+    matrixmarket_string.push_str("%%matrixmarket matrix coordinate ");
+    matrixmarket_string.push_str(T::typename());
+    matrixmarket_string.push_str(" general\n% matrixmarket file generated by nalgebra-sparse.\n");
+    // write shape information
+    matrixmarket_string.push_str(&sparse_matrix.rows().to_string());
+    matrixmarket_string.push(' ');
+    matrixmarket_string.push_str(&sparse_matrix.cols().to_string());
+    matrixmarket_string.push(' ');
+    matrixmarket_string.push_str(&sparse_matrix.nnz().to_string());
+    matrixmarket_string.push('\n');
+
+    for (r, c, d) in sparse_matrix.fetch_triplets() {
+        matrixmarket_string.push_str(&(r + 1).to_string());
+        matrixmarket_string.push_str("  ");
+        matrixmarket_string.push_str(&(c + 1).to_string());
+        matrixmarket_string.push_str("  ");
+        matrixmarket_string.push_str(&d.to_matrixmarket_string());
+        matrixmarket_string.push_str("\n");
+    }
+
+    matrixmarket_string
+}
+
+/// Write a sparse matrix into Matrix Market format file.
+///
+/// Our exporter only writes matrix into `coordiante` and `general` format.
+///
+///
+/// Errors
+/// --------
+///
+/// See [MatrixMarketErrorKind] for a list of possible error conditions.
+///
+/// Examples
+/// --------
+/// ```
+/// use nalgebra_sparse::io::{write_to_matrix_market_file,load_coo_from_matrix_market_str};
+/// let str = r#"
+/// %%matrixmarket matrix coordinate integer general
+/// 5 4 2
+/// 1 1 10
+/// 2 3 5
+/// "#;
+/// let matrix = load_coo_from_matrix_market_str::<i32>(&str).unwrap();
+/// let res = write_to_matrix_market_file(&matrix,"path/to/matrix.mtx");
+/// if res.is_err(){
+/// // do something   
+/// }
+/// ```
+pub fn write_to_matrix_market_file<T: MatrixMarketScalar, S: SparseAccess<T>, P: AsRef<Path>>(
+    matrix: &S,
+    path: P,
+) -> Result<(), MatrixMarketError> {
+    let matrixmarket_string = write_to_matrix_market_str(matrix);
+    let mut file = File::create(path)?;
+    write!(file, "{}", matrixmarket_string)?;
+    Ok(())
 }

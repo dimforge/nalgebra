@@ -6,7 +6,7 @@
 //!
 //! | Format                                          |  Import    |   Export   |
 //! | ------------------------------------------------|------------|------------|
-//! | [Matrix market](#matrix-market-format)          |  Yes       |    No      |
+//! | [Matrix market](#matrix-market-format)          |  Yes       |    Yes     |
 //!
 //! [Matrix market]: https://math.nist.gov/MatrixMarket/formats.html
 //!
@@ -32,7 +32,7 @@
 //! > "*The Matrix Market Exchange Formats: Initial Design.*" (1996).
 
 pub use self::matrix_market::{
-    load_coo_from_matrix_market_file, load_coo_from_matrix_market_str, MatrixMarketError,
-    MatrixMarketErrorKind, MatrixMarketScalar,
+    load_coo_from_matrix_market_file, load_coo_from_matrix_market_str, write_to_matrix_market_file,
+    write_to_matrix_market_str, MatrixMarketError, MatrixMarketErrorKind, MatrixMarketScalar,
 };
 mod matrix_market;
