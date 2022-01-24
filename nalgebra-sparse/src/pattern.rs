@@ -1,4 +1,8 @@
 //! Sparsity patterns for CSR and CSC matrices.
+
+#[cfg(feature = "serde-serialize")]
+mod pattern_serde;
+
 use crate::cs::transpose_cs;
 use crate::SparseFormatError;
 use std::error::Error;

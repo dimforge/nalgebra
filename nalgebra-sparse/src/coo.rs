@@ -1,5 +1,8 @@
 //! An implementation of the COO sparse matrix format.
 
+#[cfg(feature = "serde-serialize")]
+mod coo_serde;
+
 use crate::SparseFormatError;
 
 /// A COO representation of a sparse matrix.

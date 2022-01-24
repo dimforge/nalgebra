@@ -3,6 +3,9 @@
 //! This is the module-level documentation. See [`CscMatrix`] for the main documentation of the
 //! CSC implementation.
 
+#[cfg(feature = "serde-serialize")]
+mod csc_serde;
+
 use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
 use crate::csr::CsrMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};

@@ -2,6 +2,10 @@
 //!
 //! This is the module-level documentation. See [`CsrMatrix`] for the main documentation of the
 //! CSC implementation.
+
+#[cfg(feature = "serde-serialize")]
+mod csr_serde;
+
 use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
 use crate::csc::CscMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
@@ -9,7 +13,6 @@ use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKin
 
 use nalgebra::Scalar;
 use num_traits::One;
-
 use std::iter::FromIterator;
 use std::slice::{Iter, IterMut};
 
