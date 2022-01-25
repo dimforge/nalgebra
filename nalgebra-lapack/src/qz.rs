@@ -13,7 +13,11 @@ use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
 
-/// Generalized eigendecomposition of a pair of N*N square matrices.
+/// QZ decomposition of a pair of N*N square matrices.
+/// Retrieves the left and right matrices of Schur Vectors (VSL and VSR)
+/// the upper-quasitriangular matrix `S` and upper triangular matrix `T` such that the
+/// decomposed input matrix `a`  equals `VSL * S * VSL.transpose()` and
+/// decomposed input matrix `b`  equals `VSL * T * VSL.transpose()`.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
@@ -58,6 +62,11 @@ where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
     /// Attempts to compute the QZ decomposition of input square matrices `a` and `b`.
+    ///
+    /// i.e retrieves the left and right matrices of Schur Vectors (VSL and VSR)
+    /// the upper-quasitriangular matrix `S` and upper triangular matrix `T` such that the
+    /// decomposed matrix `a`  equals `VSL * S * VSL.transpose()` and
+    /// decomposed matrix `b`  equals `VSL * T * VSL.transpose()`.
     ///
     /// Panics if the method did not converge.
     pub fn new(a: OMatrix<T, D, D>, b: OMatrix<T, D, D>) -> Self {
@@ -154,8 +163,8 @@ where
 
     /// Retrieves the left and right matrices of Schur Vectors (VSL and VSR)
     /// the upper-quasitriangular matrix `S` and upper triangular matrix `T` such that the
-    /// decomposed matrix `A`  equals `VSL * S * VSL.transpose()` and
-    /// decomposed matrix `B`  equals `VSL * T * VSL.transpose()`.
+    /// decomposed input matrix `a`  equals `VSL * S * VSL.transpose()` and
+    /// decomposed input matrix `b`  equals `VSL * T * VSL.transpose()`.
     pub fn unpack(
         self,
     ) -> (
@@ -166,8 +175,6 @@ where
     ) {
         (self.vsl, self.s, self.t, self.vsr)
     }
-
-
 
     /// computes the generalized eigenvalues
     #[must_use]
