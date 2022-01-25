@@ -2,6 +2,7 @@ mod cholesky;
 mod lu;
 mod qr;
 mod qz;
+mod generalized_eigenvalues;
 mod real_eigensystem;
 mod schur;
 mod svd;
