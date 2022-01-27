@@ -655,10 +655,7 @@ where
                 minor_index_permutation.resize(range_size, 0);
                 compute_sort_permutation(&mut minor_index_permutation, &minor_idx_in_lane);
                 minor_idx_buffer.clear();
-                minor_idx_buffer.reserve(range_size);
-                for &value in minor_idx_in_lane.iter() {
-                    minor_idx_buffer.push(value);
-                }
+                minor_idx_buffer.extend_from_slice(&minor_idx_in_lane);
                 apply_permutation(
                     &mut minor_indices[range_start..range_end],
                     &minor_idx_buffer,
@@ -671,15 +668,14 @@ where
                         panic!(
                             "Internal error: Sorting currently not supported if values are empty."
                         );
-                    }
-                    if minor_indices.len() != values.len() {
-                        panic!("Number of values and minor indices must be the same.");
+                    } else if minor_indices.len() != values.len() {
+                        return Err(SparseFormatError::from_kind_and_msg(
+                            SparseFormatErrorKind::InvalidStructure,
+                            "Number of values and minor indices must be the same.",
+                        ));
                     }
                     values_buffer.clear();
-                    values_buffer.reserve(range_size);
-                    for index in range_start..range_end {
-                        values_buffer.push(values[index].clone());
-                    }
+                    values_buffer.extend_from_slice(&values[range_start..range_end]);
                     apply_permutation(
                         &mut values[range_start..range_end],
                         &values_buffer,

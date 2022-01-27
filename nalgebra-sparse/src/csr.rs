@@ -13,7 +13,7 @@ use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatter
 use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
 
 use nalgebra::Scalar;
-use num_traits::{One, Zero};
+use num_traits::One;
 
 use std::slice::{Iter, IterMut};
 
@@ -192,7 +192,7 @@ impl<T> CsrMatrix<T> {
         mut values: Vec<T>,
     ) -> Result<Self, SparseFormatError>
     where
-        T: Scalar + Zero,
+        T: Scalar,
     {
         let result = cs::validate_and_optionally_sort_cs_data(
             num_rows,

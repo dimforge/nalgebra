@@ -374,6 +374,16 @@ fn csr_matrix_try_from_unsorted_invalid_csr_data() {
             &SparseFormatErrorKind::DuplicateEntry
         );
     }
+
+    {
+        // Wrong values length
+        let (offsets, indices, values) = invalid_data.wrong_values_length;
+        let matrix = CsrMatrix::try_from_unsorted_csr_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
 }
 
 #[test]
