@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use num::Zero;
 use num_complex::Complex;
 
-use simba::scalar:: RealField;
+use simba::scalar::RealField;
 
 use crate::ComplexHelper;
 use na::allocator::Allocator;
@@ -14,6 +14,19 @@ use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 use lapack;
 
 /// Generalized eigenvalues and generalized eigenvectors(left and right) of a pair of N*N square matrices.
+///
+/// Each generalized eigenvalue (lambda) satisfies determinant(A - lambda*B) = 0
+///
+/// The right eigenvector v(j) corresponding to the eigenvalue lambda(j)
+/// of (A,B) satisfies
+///
+/// A * v(j) = lambda(j) * B * v(j).
+///
+/// The left eigenvector u(j) corresponding to the eigenvalue lambda(j)
+/// of (A,B) satisfies
+///
+/// u(j)**H * A  = lambda(j) * u(j)**H * B .
+/// where u(j)**H is the conjugate-transpose of u(j).
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
@@ -55,11 +68,21 @@ impl<T: GEScalar + RealField + Copy, D: Dim> GE<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
-    /// Attempts to compute the generalized eigenvalues (and eigenvectors) via the raw returns from LAPACK's
-    /// dggev and sggev routines
+    /// Attempts to compute the generalized eigenvalues, and left and right associated eigenvectors
+    /// via the raw returns from LAPACK's dggev and sggev routines
     ///
-    /// For each e in generalized eigenvalues and the associated eigenvectors e_l and e_r (left andf right)
-    /// it satisfies e_l*a = e*e_l*b and a*e_r = e*b*e_r
+    /// Each generalized eigenvalue (lambda) satisfies determinant(A - lambda*B) = 0
+    ///
+    /// The right eigenvector v(j) corresponding to the eigenvalue lambda(j)
+    /// of (A,B) satisfies
+    ///
+    /// A * v(j) = lambda(j) * B * v(j).
+    ///
+    /// The left eigenvector u(j) corresponding to the eigenvalue lambda(j)
+    /// of (A,B) satisfies
+    ///
+    /// u(j)**H * A  = lambda(j) * u(j)**H * B .
+    /// where u(j)**H is the conjugate-transpose of u(j).
     ///
     /// Panics if the method did not converge.
     pub fn new(a: OMatrix<T, D, D>, b: OMatrix<T, D, D>) -> Self {
@@ -69,8 +92,18 @@ where
     /// Attempts to compute the generalized eigenvalues (and eigenvectors) via the raw returns from LAPACK's
     /// dggev and sggev routines
     ///
-    /// For each e in generalized eigenvalues and the associated eigenvectors e_l and e_r (left andf right)
-    /// it satisfies e_l*a = e*e_l*b and a*e_r = e*b*e_r
+    ///  Each generalized eigenvalue (lambda) satisfies determinant(A - lambda*B) = 0
+    ///
+    ///  The right eigenvector v(j) corresponding to the eigenvalue lambda(j)
+    ///  of (A,B) satisfies
+    ///
+    ///  A * v(j) = lambda(j) * B * v(j).
+    ///
+    ///  The left eigenvector u(j) corresponding to the eigenvalue lambda(j)
+    ///  of (A,B) satisfies
+    ///
+    ///  u(j)**H * A  = lambda(j) * u(j)**H * B .
+    ///  where u(j)**H is the conjugate-transpose of u(j).
     ///
     /// Returns `None` if the method did not converge.
     pub fn try_new(mut a: OMatrix<T, D, D>, mut b: OMatrix<T, D, D>) -> Option<Self> {
@@ -147,9 +180,24 @@ where
     }
 
     /// Calculates the generalized eigenvectors (left and right) associated with the generalized eigenvalues
+    /// Outputs two matrices, the first one containing the left eigenvectors of the generalized eigenvalues
+    /// as columns and the second matrix contains the right eigenvectors of the generalized eigenvalues
+    /// as columns
+    ///
+    ///  The right eigenvector v(j) corresponding to the eigenvalue lambda(j)
+    ///  of (A,B) satisfies
+    ///
+    ///  A * v(j) = lambda(j) * B * v(j).
+    ///
+    ///  The left eigenvector u(j) corresponding to the eigenvalue lambda(j)
+    ///  of (A,B) satisfies
+    ///
+    ///  u(j)**H * A  = lambda(j) * u(j)**H * B .
+    ///  where u(j)**H is the conjugate-transpose of u(j).
     pub fn eigenvectors(self) -> (OMatrix<Complex<T>, D, D>, OMatrix<Complex<T>, D, D>)
     where
-        DefaultAllocator: Allocator<Complex<T>, D, D> + Allocator<Complex<T>, D>,
+        DefaultAllocator:
+            Allocator<Complex<T>, D, D> + Allocator<Complex<T>, D> + Allocator<(Complex<T>, T), D>,
     {
         let n = self.vsl.shape().0;
         let mut l = self
@@ -199,9 +247,10 @@ where
         (l, r)
     }
 
-    /// computes the generalized eigenvalues
+    /// computes the generalized eigenvalues i.e values of lambda  that satisfy the following equation
+    /// determinant(A - lambda* B) = 0
     #[must_use]
-    pub fn eigenvalues(&self) -> OVector<Complex<T>, D>
+    fn eigenvalues(&self) -> OVector<Complex<T>, D>
     where
         DefaultAllocator: Allocator<Complex<T>, D>,
     {
@@ -229,6 +278,26 @@ where
 
                 Complex::new(cr, ci)
             }
+        }
+
+        out
+    }
+
+    /// outputs the unprocessed (almost) version of  generalized eigenvalues ((alphar, alpai), beta)
+    /// straight from LAPACK
+    #[must_use]
+    pub fn raw_eigenvalues(&self) -> OVector<(Complex<T>, T), D>
+    where
+        DefaultAllocator: Allocator<(Complex<T>, T), D>,
+    {
+        let mut out = Matrix::from_element_generic(
+            self.vsl.shape_generic().0,
+            Const::<1>,
+            (Complex::zero(), T::RealField::zero()),
+        );
+
+        for i in 0..out.len() {
+            out[i] = (Complex::new(self.alphar[i], self.alphai[i]), self.beta[i])
         }
 
         out
