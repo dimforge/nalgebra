@@ -42,11 +42,11 @@ where
 {
     alphar: OVector<T, D>,
     alphai: OVector<T, D>,
-    beta: OVector<T, D>,
-    vsl: OMatrix<T, D, D>,
-    s: OMatrix<T, D, D>,
-    vsr: OMatrix<T, D, D>,
-    t: OMatrix<T, D, D>,
+    beta:   OVector<T, D>,
+    vsl:    OMatrix<T, D, D>,
+    s:      OMatrix<T, D, D>,
+    vsr:    OMatrix<T, D, D>,
+    t:      OMatrix<T, D, D>,
 }
 
 impl<T: Scalar + Copy, D: Dim> Copy for QZ<T, D>
@@ -176,36 +176,19 @@ where
         (self.vsl, self.s, self.t, self.vsr)
     }
 
-    /// computes the generalized eigenvalues
+    /// outputs the unprocessed (almost) version of  generalized eigenvalues ((alphar, alpai), beta)
+    /// straight from LAPACK
     #[must_use]
-    pub fn eigenvalues(&self) -> OVector<Complex<T>, D>
+    pub fn raw_eigenvalues(&self) -> OVector<(Complex<T>, T), D>
     where
-        DefaultAllocator: Allocator<Complex<T>, D>,
+        DefaultAllocator: Allocator<(Complex<T>, T), D>,
     {
-        let mut out = Matrix::zeros_generic(self.t.shape_generic().0, Const::<1>);
+        let mut out = Matrix::from_element_generic(self.vsl.shape_generic().0, Const::<1>, (Complex::zero(), T::RealField::zero()));
 
         for i in 0..out.len() {
-            out[i] = if self.beta[i].clone().abs() < T::RealField::default_epsilon() {
-                Complex::zero()
-            } else {
-                let mut cr = self.alphar[i].clone();
-                let mut ci = self.alphai[i].clone();
-                let b = self.beta[i].clone();
-
-                if cr.clone().abs() < T::RealField::default_epsilon() {
-                    cr = T::RealField::zero()
-                } else {
-                    cr = cr / b.clone()
-                };
-
-                if ci.clone().abs() < T::RealField::default_epsilon() {
-                    ci = T::RealField::zero()
-                } else {
-                    ci = ci / b
-                };
-
-                Complex::new(cr, ci)
-            }
+            out[i] = (Complex::new(self.alphar[i].clone(),
+                                   self.alphai[i].clone()),
+                      self.beta[i].clone())
         }
 
         out
