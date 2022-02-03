@@ -42,11 +42,11 @@ where
 {
     alphar: OVector<T, D>,
     alphai: OVector<T, D>,
-    beta:   OVector<T, D>,
-    vsl:    OMatrix<T, D, D>,
-    s:      OMatrix<T, D, D>,
-    vsr:    OMatrix<T, D, D>,
-    t:      OMatrix<T, D, D>,
+    beta: OVector<T, D>,
+    vsl: OMatrix<T, D, D>,
+    s: OMatrix<T, D, D>,
+    vsr: OMatrix<T, D, D>,
+    t: OMatrix<T, D, D>,
 }
 
 impl<T: Scalar + Copy, D: Dim> Copy for QZ<T, D>
@@ -183,12 +183,17 @@ where
     where
         DefaultAllocator: Allocator<(Complex<T>, T), D>,
     {
-        let mut out = Matrix::from_element_generic(self.vsl.shape_generic().0, Const::<1>, (Complex::zero(), T::RealField::zero()));
+        let mut out = Matrix::from_element_generic(
+            self.vsl.shape_generic().0,
+            Const::<1>,
+            (Complex::zero(), T::RealField::zero()),
+        );
 
         for i in 0..out.len() {
-            out[i] = (Complex::new(self.alphar[i].clone(),
-                                   self.alphai[i].clone()),
-                      self.beta[i].clone())
+            out[i] = (
+                Complex::new(self.alphar[i].clone(), self.alphai[i].clone()),
+                self.beta[i].clone(),
+            )
         }
 
         out
