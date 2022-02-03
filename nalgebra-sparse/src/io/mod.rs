@@ -33,6 +33,7 @@
 
 pub use self::matrix_market::{
     load_coo_from_matrix_market_file, load_coo_from_matrix_market_str, write_to_matrix_market_file,
-    write_to_matrix_market_str, MatrixMarketError, MatrixMarketErrorKind, MatrixMarketScalar,
+    write_to_matrix_market_str, MatrixMarketError, MatrixMarketErrorKind, MatrixMarketExport,
+    MatrixMarketScalar,
 };
 mod matrix_market;
