@@ -83,11 +83,11 @@ mod lapack_check;
 
 mod cholesky;
 mod eigen;
+mod generalized_eigenvalues;
 mod hessenberg;
 mod lu;
 mod qr;
 mod qz;
-mod generalized_eigenvalues;
 mod schur;
 mod svd;
 mod symmetric_eigen;
@@ -96,11 +96,11 @@ use num_complex::Complex;
 
 pub use self::cholesky::{Cholesky, CholeskyScalar};
 pub use self::eigen::Eigen;
+pub use self::generalized_eigenvalues::GE;
 pub use self::hessenberg::Hessenberg;
 pub use self::lu::{LUScalar, LU};
 pub use self::qr::QR;
 pub use self::qz::QZ;
-pub use self::generalized_eigenvalues::GE;
 pub use self::schur::Schur;
 pub use self::svd::SVD;
 pub use self::symmetric_eigen::SymmetricEigen;
