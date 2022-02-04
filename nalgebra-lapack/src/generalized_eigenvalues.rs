@@ -197,8 +197,8 @@ where
     ///
     /// What is going on below?
     ///  If the j-th and (j+1)-th eigenvalues form a complex conjugate pair,
-    ///  then v_l(j) = VSL(:,j)+i*VSL(:,j+1) and v_l(j+1) = VSL(:,j)-i*VSL(:,j+1).
-    ///  and then v_r(j) = VSR(:,j)+i*VSR(:,j+1) and v_r(j+1) = VSR(:,j)-i*VSR(:,j+1).
+    ///  then u(j) = VSL(:,j)+i*VSL(:,j+1) and u(j+1) = VSL(:,j)-i*VSL(:,j+1).
+    ///  and then v(j) = VSR(:,j)+i*VSR(:,j+1) and v(j+1) = VSR(:,j)-i*VSR(:,j+1).
     pub fn eigenvectors(self) -> (OMatrix<Complex<T>, D, D>, OMatrix<Complex<T>, D, D>)
     where
         DefaultAllocator:
