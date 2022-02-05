@@ -2,16 +2,11 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::Zero;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use crate::base::storage::Owned;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use simba::scalar::{ClosedNeg, RealField};
 use simba::simd::{SimdBool, SimdOption, SimdRealField};
@@ -75,24 +70,6 @@ where
     Vector4<T>: bytemuck::Pod,
     T: Copy,
 {
-}
-
-#[cfg(feature = "abomonation-serialize")]
-impl<T: Scalar> Abomonation for Quaternion<T>
-where
-    Vector4<T>: Abomonation,
-{
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.coords.entomb(writer)
-    }
-
-    fn extent(&self) -> usize {
-        self.coords.extent()
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.coords.exhume(bytes)
-    }
 }
 
 #[cfg(feature = "serde-serialize-no-std")]

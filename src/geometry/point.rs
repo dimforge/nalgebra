@@ -3,14 +3,9 @@ use num::One;
 use std::cmp::Ordering;
 use std::fmt;
 use std::hash;
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use simba::simd::SimdPartialOrd;
 
@@ -127,26 +122,6 @@ where
         let coords = OVector::<T, D>::deserialize(deserializer)?;
 
         Ok(Self::from(coords))
-    }
-}
-
-#[cfg(feature = "abomonation-serialize")]
-impl<T, D: DimName> Abomonation for OPoint<T, D>
-where
-    T: Scalar,
-    OVector<T, D>: Abomonation,
-    DefaultAllocator: Allocator<T, D>,
-{
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.coords.entomb(writer)
-    }
-
-    fn extent(&self) -> usize {
-        self.coords.extent()
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.coords.exhume(bytes)
     }
 }
 
