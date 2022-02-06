@@ -205,10 +205,12 @@ where
             Allocator<Complex<T>, D, D> + Allocator<Complex<T>, D> + Allocator<(Complex<T>, T), D>,
     {
         let n = self.vsl.shape().0;
+
         let mut l = self
             .vsl
             .clone()
             .map(|x| Complex::new(x, T::RealField::zero()));
+
         let mut r = self
             .vsr
             .clone()
@@ -216,8 +218,8 @@ where
 
         let eigenvalues = &self.eigenvalues();
 
-        let mut ll;
         let mut c = 0;
+
         while c < n {
             if eigenvalues[c].im.abs() > T::RealField::default_epsilon() && c + 1 < n && {
                 let e_conj = eigenvalues[c].conj();
@@ -225,22 +227,20 @@ where
                 ((e_conj.re - e.re).abs() < T::RealField::default_epsilon())
                     && ((e_conj.im - e.im).abs() < T::RealField::default_epsilon())
             } {
-                ll = l.column(c + 1).into_owned();
-                l.column_mut(c).zip_apply(&ll, |r, i| {
-                    *r = Complex::new(r.re.clone(), i.re);
+                // taking care of the left eigenvector matrix
+                l.column_mut(c).zip_apply(&self.vsl.column(c + 1), |r, i| {
+                    *r = Complex::new(r.re.clone(), i.clone());
                 });
-                ll.copy_from(&l.column(c));
-                l.column_mut(c + 1).zip_apply(&ll, |r, i| {
-                    *r = i.conj();
+                l.column_mut(c + 1).zip_apply(&self.vsl.column(c), |i, r| {
+                    *i = Complex::new(r.clone(), -i.re.clone());
                 });
 
-                ll.copy_from(&r.column(c + 1));
-                r.column_mut(c).zip_apply(&ll, |r, i| {
-                    *r = Complex::new(r.re, i.re);
+                // taking care of the right eigenvector matrix
+                r.column_mut(c).zip_apply(&self.vsr.column(c + 1), |r, i| {
+                    *r = Complex::new(r.re.clone(), i.clone());
                 });
-                ll.copy_from(&r.column(c));
-                r.column_mut(c + 1).zip_apply(&ll, |r, i| {
-                    *r = i.conj();
+                r.column_mut(c + 1).zip_apply(&self.vsr.column(c), |i, r| {
+                    *i = Complex::new(r.clone(), -i.re.clone());
                 });
 
                 c += 2;
