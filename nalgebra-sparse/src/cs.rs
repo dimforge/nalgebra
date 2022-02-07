@@ -560,7 +560,9 @@ where
     let mut values_option = values;
     if values_option.is_none() {
         if sort {
-            unreachable!("Internal error: Sorting currently not supported if no values are present.");
+            unreachable!(
+                "Internal error: Sorting currently not supported if no values are present."
+            );
         }
     }
 
