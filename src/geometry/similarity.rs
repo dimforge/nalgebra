@@ -3,14 +3,8 @@ use num::Zero;
 use std::fmt;
 use std::hash;
 
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
-
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use simba::scalar::{RealField, SubsetOf};
 use simba::simd::SimdRealField;
@@ -47,24 +41,6 @@ pub struct Similarity<T, R, const D: usize> {
     /// The part of this similarity that does not include the scaling factor.
     pub isometry: Isometry<T, R, D>,
     scaling: T,
-}
-
-#[cfg(feature = "abomonation-serialize")]
-impl<T: Scalar, R, const D: usize> Abomonation for Similarity<T, R, D>
-where
-    Isometry<T, R, D>: Abomonation,
-{
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.isometry.entomb(writer)
-    }
-
-    fn extent(&self) -> usize {
-        self.isometry.extent()
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.isometry.exhume(bytes)
-    }
 }
 
 impl<T: Scalar + hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Similarity<T, R, D>

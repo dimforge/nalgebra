@@ -1,7 +1,5 @@
 use std::fmt::{self, Debug, Formatter};
 // use std::hash::{Hash, Hasher};
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 use std::ops::Mul;
 
 #[cfg(feature = "serde-serialize-no-std")]
@@ -12,9 +10,6 @@ use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "serde-serialize-no-std")]
 use std::marker::PhantomData;
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
@@ -280,32 +275,6 @@ unsafe impl<T: Scalar + Copy + bytemuck::Zeroable, const R: usize, const C: usiz
 unsafe impl<T: Scalar + Copy + bytemuck::Pod, const R: usize, const C: usize> bytemuck::Pod
     for ArrayStorage<T, R, C>
 {
-}
-
-#[cfg(feature = "abomonation-serialize")]
-impl<T, const R: usize, const C: usize> Abomonation for ArrayStorage<T, R, C>
-where
-    T: Scalar + Abomonation,
-{
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        for element in self.as_slice() {
-            element.entomb(writer)?;
-        }
-
-        Ok(())
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, mut bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        for element in self.as_mut_slice() {
-            let temp = bytes;
-            bytes = element.exhume(temp)?
-        }
-        Some(bytes)
-    }
-
-    fn extent(&self) -> usize {
-        self.as_slice().iter().fold(0, |acc, e| acc + e.extent())
-    }
 }
 
 #[cfg(feature = "rkyv-serialize-no-std")]
