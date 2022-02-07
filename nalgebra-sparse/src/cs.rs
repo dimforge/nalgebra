@@ -560,7 +560,7 @@ where
     let mut values_option = values;
     if values_option.is_none() {
         if sort {
-            panic!("Internal error: Sorting currently not supported if no values are present.");
+            unreachable!("Internal error: Sorting currently not supported if no values are present.");
         }
     }
 
@@ -620,7 +620,7 @@ where
             // We test for in-bounds, uniqueness and monotonicity at the same time
             // to ensure that we only visit each minor index once
             let mut prev = None;
-            let mut nonmonotonic = false;
+            let mut monotonic = true;
 
             for &minor_idx in minor_idx_in_lane {
                 if minor_idx >= minor_dim {
@@ -631,26 +631,21 @@ where
                 }
 
                 if let Some(prev) = prev {
-                    if prev == minor_idx {
-                        return Err(SparseFormatError::from_kind_and_msg(
-                            SparseFormatErrorKind::DuplicateEntry,
-                            "Input data contains duplicate entries.",
-                        ));
-                    }
-                    if prev > minor_idx {
+                    if prev >= minor_idx {
                         if !sort {
-                            panic!(
-                                "Minor indices are not monotonically increasing within each lane while sorting is not expected." 
-                            );
+                            return Err(SparseFormatError::from_kind_and_msg(
+                                SparseFormatErrorKind::InvalidStructure,
+                                "Minor indices are not monotonically increasing within each lane while sorting is not expected.",
+                            ));
                         }
-                        nonmonotonic = true;
+                        monotonic = false;
                     }
                 }
                 prev = Some(minor_idx);
             }
 
-            // sort if indices are nonmonotonic and sorting is expected
-            if nonmonotonic && sort {
+            // sort if indices are not monotonic and sorting is expected
+            if !monotonic && sort {
                 let range_size = range_end - range_start;
                 minor_index_permutation.resize(range_size, 0);
                 compute_sort_permutation(&mut minor_index_permutation, &minor_idx_in_lane);
@@ -662,13 +657,23 @@ where
                     &minor_index_permutation,
                 );
 
+                // check duplicates
+                prev = None;
+                for &minor_idx in &minor_indices[range_start..range_end] {
+                    if let Some(prev) = prev {
+                        if prev == minor_idx {
+                            return Err(SparseFormatError::from_kind_and_msg(
+                                SparseFormatErrorKind::DuplicateEntry,
+                                "Input data contains duplicate entries.",
+                            ));
+                        }
+                    }
+                    prev = Some(minor_idx);
+                }
+
                 // sort values if they exist
                 if let Some(values) = values_option.as_mut() {
-                    if values.len() == 0 {
-                        panic!(
-                            "Internal error: Sorting currently not supported if values are empty."
-                        );
-                    } else if minor_indices.len() != values.len() {
+                    if minor_indices.len() != values.len() {
                         return Err(SparseFormatError::from_kind_and_msg(
                             SparseFormatErrorKind::InvalidStructure,
                             "Number of values and minor indices must be the same.",

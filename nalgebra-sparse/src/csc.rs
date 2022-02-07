@@ -174,14 +174,14 @@ impl<T> CscMatrix<T> {
         Self::try_from_pattern_and_values(pattern, values)
     }
 
-    /// Try to construct a CSC matrix from raw CSC data with unsorted column indices.
+    /// Try to construct a CSC matrix from raw CSC data with unsorted row indices.
     ///
-    /// It is assumed that each row contains unique column indices that are in
-    /// bounds with respect to the number of columns in the matrix. If this is not the case,
+    /// It is assumed that each column contains unique row indices that are in
+    /// bounds with respect to the number of rows in the matrix. If this is not the case,
     /// an error is returned to indicate the failure.
     ///
     /// An error is returned if the data given does not conform to the CSC storage format
-    /// with the exception of having unsorted column indices and values.
+    /// with the exception of having unsorted row indices and values.
     /// See the documentation for [CscMatrix](struct.CscMatrix.html) for more information.
     pub fn try_from_unsorted_csc_data(
         num_rows: usize,

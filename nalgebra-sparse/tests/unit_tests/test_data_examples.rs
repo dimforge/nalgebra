@@ -36,6 +36,7 @@ pub struct InvalidCsDataExamples {
     pub major_offset_out_of_bounds: (Vec<usize>, Vec<usize>, Vec<i32>),
     pub minor_index_out_of_bounds: (Vec<usize>, Vec<usize>, Vec<i32>),
     pub duplicate_entry: (Vec<usize>, Vec<usize>, Vec<i32>),
+    pub duplicate_entry_unsorted: (Vec<usize>, Vec<usize>, Vec<i32>),
     pub wrong_values_length: (Vec<usize>, Vec<usize>, Vec<i32>),
 }
 
@@ -57,7 +58,8 @@ impl InvalidCsDataExamples {
             (vec![0, 7, 2, 5], vec![0, 2, 3, 1, 4], vec![0, 1, 2, 3, 4]);
         let minor_index_out_of_bounds =
             (vec![0, 2, 2, 5], vec![0, 6, 1, 2, 3], vec![0, 1, 2, 3, 4]);
-        let duplicate_entry = (vec![0, 2, 2, 5], vec![0, 5, 2, 2, 3], vec![0, 1, 2, 3, 4]);
+        let duplicate_entry = (vec![0, 1, 2, 5], vec![1, 3, 2, 3, 3], vec![0, 1, 2, 3, 4]);
+        let duplicate_entry_unsorted = (vec![0, 1, 4, 5], vec![1, 3, 2, 3, 3], vec![0, 1, 2, 3, 4]);
         let wrong_values_length = (vec![0, 1, 2, 5], vec![1, 3, 2, 3, 0], vec![5, 4]);
 
         return Self {
@@ -71,6 +73,7 @@ impl InvalidCsDataExamples {
             major_offset_out_of_bounds,
             minor_index_out_of_bounds,
             duplicate_entry,
+            duplicate_entry_unsorted,
             wrong_values_length,
         };
     }

@@ -191,10 +191,6 @@ impl SparsityPattern {
     /// Try to construct a sparsity pattern from the given dimensions, major offsets
     /// and minor indices.
     ///
-    /// # Errors
-    ///
-    /// Returns an error if the data does not conform to the requirements.
-    ///
     /// # Panics
     ///
     /// Panics if the number of major offsets is not exactly one greater than the major dimension

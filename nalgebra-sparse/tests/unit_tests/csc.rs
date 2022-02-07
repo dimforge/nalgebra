@@ -378,6 +378,16 @@ fn csc_matrix_try_from_unsorted_invalid_csc_data() {
     }
 
     {
+        // Duplicate entry in unsorted lane
+        let (offsets, indices, values) = invalid_data.duplicate_entry_unsorted;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::DuplicateEntry
+        );
+    }
+
+    {
         // Wrong values length
         let (offsets, indices, values) = invalid_data.wrong_values_length;
         let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
