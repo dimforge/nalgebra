@@ -558,14 +558,21 @@ where
     T: Scalar,
 {
     let mut values_option = values;
-    if values_option.is_none() {
-        if sort {
+
+    if sort {
+        if let Some(values) = values_option.as_mut() {
+            if minor_indices.len() != values.len() {
+                return Err(SparseFormatError::from_kind_and_msg(
+                    SparseFormatErrorKind::InvalidStructure,
+                    "Number of values and minor indices must be the same.",
+                ));
+            }
+        } else {
             unreachable!(
                 "Internal error: Sorting currently not supported if no values are present."
             );
         }
     }
-
     if major_offsets.len() == 0 {
         return Err(SparseFormatError::from_kind_and_msg(
             SparseFormatErrorKind::InvalidStructure,
@@ -637,7 +644,7 @@ where
                         if !sort {
                             return Err(SparseFormatError::from_kind_and_msg(
                                 SparseFormatErrorKind::InvalidStructure,
-                                "Minor indices are not monotonically increasing within each lane while sorting is not expected.",
+                                "Minor indices are not strictly monotonically increasing in each lane.",
                             ));
                         }
                         monotonic = false;
@@ -675,12 +682,6 @@ where
 
                 // sort values if they exist
                 if let Some(values) = values_option.as_mut() {
-                    if minor_indices.len() != values.len() {
-                        return Err(SparseFormatError::from_kind_and_msg(
-                            SparseFormatErrorKind::InvalidStructure,
-                            "Number of values and minor indices must be the same.",
-                        ));
-                    }
                     values_buffer.clear();
                     values_buffer.extend_from_slice(&values[range_start..range_end]);
                     apply_permutation(
