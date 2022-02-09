@@ -40,7 +40,7 @@ use lapack;
     feature = "serde-serialize",
     serde(
         bound(deserialize = "DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
-         OVector<T, D>: Serialize,
+         OVector<T, D>: Deserialize<'de>,
          OMatrix<T, D, D>: Deserialize<'de>")
     )
 )]
