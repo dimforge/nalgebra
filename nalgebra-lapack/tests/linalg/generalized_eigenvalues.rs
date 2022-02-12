@@ -1,6 +1,6 @@
 use na::dimension::Const;
 use na::{DMatrix, OMatrix};
-use nl::GE;
+use nl::GeneralizedEigen;
 use num_complex::Complex;
 use simba::scalar::ComplexField;
 
@@ -20,7 +20,7 @@ proptest! {
         let b_c = b.clone().map(|x| Complex::new(x, 0.0));
         let n = a.shape_generic().0;
 
-        let ge = GE::new(a.clone(), b.clone());
+        let ge = GeneralizedEigen::new(a.clone(), b.clone());
         let (vsl,vsr) = ge.clone().eigenvectors();
 
 
@@ -45,7 +45,7 @@ proptest! {
     #[test]
     fn ge_static(a in matrix4(), b in matrix4()) {
 
-        let ge = GE::new(a.clone(), b.clone());
+        let ge = GeneralizedEigen::new(a.clone(), b.clone());
         let a_c =a.clone().map(|x| Complex::new(x, 0.0));
         let b_c = b.clone().map(|x| Complex::new(x, 0.0));
         let (vsl,vsr) = ge.eigenvectors();
