@@ -13,7 +13,7 @@ use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
 
-/// Generalized eigenvalues and generalized eigenvectors(left and right) of a pair of N*N square matrices.
+/// Generalized eigenvalues and generalized eigenvectors (left and right) of a pair of N*N square matrices.
 ///
 /// Each generalized eigenvalue (lambda) satisfies determinant(A - lambda*B) = 0
 ///

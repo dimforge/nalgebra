@@ -14,6 +14,7 @@ use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 use lapack;
 
 /// QZ decomposition of a pair of N*N square matrices.
+///
 /// Retrieves the left and right matrices of Schur Vectors (VSL and VSR)
 /// the upper-quasitriangular matrix `S` and upper triangular matrix `T` such that the
 /// decomposed input matrix `a`  equals `VSL * S * VSL.transpose()` and
