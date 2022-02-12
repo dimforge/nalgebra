@@ -220,12 +220,13 @@ where
 
         let mut c = 0;
 
+        let epsilon = T::RealField::default_epsilon();
+
         while c < n {
-            if eigenvalues[c].im.abs() > T::RealField::default_epsilon() && c + 1 < n && {
+            if eigenvalues[c].im.abs() > epsilon && c + 1 < n && {
                 let e_conj = eigenvalues[c].conj();
                 let e = eigenvalues[c + 1];
-                ((e_conj.re - e.re).abs() < T::RealField::default_epsilon())
-                    && ((e_conj.im - e.im).abs() < T::RealField::default_epsilon())
+                (&e_conj.re).ulps_eq(&e.re, epsilon, 6) && (&e_conj.im).ulps_eq(&e.im, epsilon, 6)
             } {
                 // taking care of the left eigenvector matrix
                 l.column_mut(c).zip_apply(&self.vsl.column(c + 1), |r, i| {
@@ -255,7 +256,7 @@ where
     /// computes the generalized eigenvalues i.e values of lambda  that satisfy the following equation
     /// determinant(A - lambda* B) = 0
     #[must_use]
-    fn eigenvalues(&self) -> OVector<Complex<T>, D>
+    pub fn eigenvalues(&self) -> OVector<Complex<T>, D>
     where
         DefaultAllocator: Allocator<Complex<T>, D>,
     {
@@ -265,23 +266,8 @@ where
             out[i] = if self.beta[i].clone().abs() < T::RealField::default_epsilon() {
                 Complex::zero()
             } else {
-                let mut cr = self.alphar[i].clone();
-                let mut ci = self.alphai[i].clone();
-                let b = self.beta[i].clone();
-
-                if cr.clone().abs() < T::RealField::default_epsilon() {
-                    cr = T::RealField::zero()
-                } else {
-                    cr = cr / b.clone()
-                };
-
-                if ci.clone().abs() < T::RealField::default_epsilon() {
-                    ci = T::RealField::zero()
-                } else {
-                    ci = ci / b
-                };
-
-                Complex::new(cr, ci)
+                Complex::new(self.alphar[i].clone(), self.alphai[i].clone())
+                    * (Complex::new(self.beta[i].clone(), T::RealField::zero()).inv())
             }
         }
 
