@@ -45,7 +45,7 @@ use lapack;
     )
 )]
 #[derive(Clone, Debug)]
-pub struct GE<T: Scalar, D: Dim>
+pub struct GeneralizedEigen<T: Scalar, D: Dim>
 where
     DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
 {
@@ -56,7 +56,7 @@ where
     vsr: OMatrix<T, D, D>,
 }
 
-impl<T: Scalar + Copy, D: Dim> Copy for GE<T, D>
+impl<T: Scalar + Copy, D: Dim> Copy for GeneralizedEigen<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
     OMatrix<T, D, D>: Copy,
@@ -64,7 +64,7 @@ where
 {
 }
 
-impl<T: GEScalar + RealField + Copy, D: Dim> GE<T, D>
+impl<T: GeneralizedEigenScalar + RealField + Copy, D: Dim> GeneralizedEigen<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
@@ -170,7 +170,7 @@ where
         );
         lapack_check!(info);
 
-        Some(GE {
+        Some(GeneralizedEigen {
             alphar,
             alphai,
             beta,
@@ -300,8 +300,8 @@ where
  * Lapack functions dispatch.
  *
  */
-/// Trait implemented by scalars for which Lapack implements the RealField GE decomposition.
-pub trait GEScalar: Scalar {
+/// Trait implemented by scalars for which Lapack implements the RealField GeneralizedEigen decomposition.
+pub trait GeneralizedEigenScalar: Scalar {
     #[allow(missing_docs)]
     fn xggev(
         jobvsl: u8,
@@ -345,7 +345,7 @@ pub trait GEScalar: Scalar {
 
 macro_rules! real_eigensystem_scalar_impl (
     ($N: ty, $xggev: path) => (
-        impl GEScalar for $N {
+        impl GeneralizedEigenScalar for $N {
             #[inline]
             fn xggev(jobvsl:  u8,
                      jobvsr:  u8,

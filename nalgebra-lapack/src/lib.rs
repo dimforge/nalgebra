@@ -96,7 +96,7 @@ use num_complex::Complex;
 
 pub use self::cholesky::{Cholesky, CholeskyScalar};
 pub use self::eigen::Eigen;
-pub use self::generalized_eigenvalues::GE;
+pub use self::generalized_eigenvalues::GeneralizedEigen;
 pub use self::hessenberg::Hessenberg;
 pub use self::lu::{LUScalar, LU};
 pub use self::qr::QR;
