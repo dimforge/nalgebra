@@ -257,7 +257,7 @@ pub trait QZScalar: Scalar {
     ) -> i32;
 }
 
-macro_rules! real_eigensystem_scalar_impl (
+macro_rules! qz_scalar_impl (
     ($N: ty, $xgges: path) => (
         impl QZScalar for $N {
             #[inline]
@@ -317,5 +317,5 @@ macro_rules! real_eigensystem_scalar_impl (
     )
 );
 
-real_eigensystem_scalar_impl!(f32, lapack::sgges);
-real_eigensystem_scalar_impl!(f64, lapack::dgges);
+qz_scalar_impl!(f32, lapack::sgges);
+qz_scalar_impl!(f64, lapack::dgges);

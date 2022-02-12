@@ -343,7 +343,7 @@ pub trait GeneralizedEigenScalar: Scalar {
     ) -> i32;
 }
 
-macro_rules! real_eigensystem_scalar_impl (
+macro_rules! generalized_eigen_scalar_impl (
     ($N: ty, $xggev: path) => (
         impl GeneralizedEigenScalar for $N {
             #[inline]
@@ -395,5 +395,5 @@ macro_rules! real_eigensystem_scalar_impl (
     )
 );
 
-real_eigensystem_scalar_impl!(f32, lapack::sggev);
-real_eigensystem_scalar_impl!(f64, lapack::dggev);
+generalized_eigen_scalar_impl!(f32, lapack::sggev);
+generalized_eigen_scalar_impl!(f64, lapack::dggev);
