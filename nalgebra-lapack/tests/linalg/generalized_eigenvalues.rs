@@ -8,13 +8,15 @@ use crate::proptest::*;
 use proptest::{prop_assert, prop_compose, proptest};
 
 prop_compose! {
-fn f64_squares() (n in PROPTEST_MATRIX_DIM) (a in matrix(PROPTEST_F64,n,n), b in matrix(PROPTEST_F64,n,n)) -> (DMatrix<f64>, DMatrix<f64>){
+    fn f64_dynamic_dim_squares()
+        (n in PROPTEST_MATRIX_DIM)
+        (a in matrix(PROPTEST_F64,n,n), b in matrix(PROPTEST_F64,n,n)) -> (DMatrix<f64>, DMatrix<f64>){
     (a,b)
 }}
 
 proptest! {
     #[test]
-    fn ge((a,b) in f64_squares()){
+    fn ge((a,b) in f64_dynamic_dim_squares()){
 
         let a_c = a.clone().map(|x| Complex::new(x, 0.0));
         let b_c = b.clone().map(|x| Complex::new(x, 0.0));
