@@ -253,17 +253,21 @@ where
         (l, r)
     }
 
-    /// computes the generalized eigenvalues i.e values of lambda  that satisfy the following equation
-    /// determinant(A - lambda* B) = 0
-    #[must_use]
-    pub fn eigenvalues(&self) -> OVector<Complex<T>, D>
+    // only used for internal calculation for assembling eigenvectors based on realness of
+    // eigenvalues and complex-conjugate checks of subsequent non-real eigenvalues
+    fn eigenvalues(&self) -> OVector<Complex<T>, D>
     where
         DefaultAllocator: Allocator<Complex<T>, D>,
     {
         let mut out = Matrix::zeros_generic(self.vsl.shape_generic().0, Const::<1>);
 
+        let epsilon = T::RealField::default_epsilon();
+
         for i in 0..out.len() {
-            out[i] = if self.beta[i].clone().abs() < T::RealField::default_epsilon() {
+            out[i] = if self.beta[i].clone().abs() < epsilon
+                || (self.alphai[i].clone().abs() < epsilon
+                    && self.alphar[i].clone().abs() < epsilon)
+            {
                 Complex::zero()
             } else {
                 Complex::new(self.alphar[i].clone(), self.alphai[i].clone())
