@@ -4,7 +4,7 @@ use nalgebra::{
     Point1, Point2, Point3, Point4, Point5, Point6, SMatrix, SVector, Vector1, Vector2, Vector3,
     Vector4, Vector5, Vector6,
 };
-use nalgebra_macros::{dmatrix, dvector, matrix, point, vector};
+use nalgebra_macros::{dmatrix, dvector, matrix, point, vector, cat};
 
 fn check_statically_same_type<T>(_: &T, _: &T) {}
 
@@ -304,4 +304,64 @@ fn dvector_arbitrary_expressions() {
     let a = dvector![1 + 2, 2 * 3, 4 * f(5 + 6), 7 - 8 * 9];
     let a_expected = DVector::from_column_slice(&[1 + 2, 2 * 3, 4 * f(5 + 6), 7 - 8 * 9]);
     assert_eq_and_type!(a, a_expected);
+}
+
+#[test]
+fn cat_simple() {
+    let m = cat![
+        &Matrix2::<usize>::identity(), 0;
+        0, &Matrix2::identity();
+    ];
+
+    assert_eq_and_type!(m, Matrix4::identity());
+}
+
+#[test]
+fn cat_diag() {
+    let m = cat![
+        1, &matrix![1, 2; 3, 4;];
+        &matrix![5, 6; 7, 8;], 1;
+    ];
+
+    let res = matrix![
+        1, 0, 1, 2;
+        0, 1, 3, 4;
+        5, 6, 1, 0;
+        7, 8, 0, 1;
+    ];
+
+    assert_eq_and_type!(m, res);
+}
+
+#[test]
+fn cat_dynamic() {
+    let m = cat![
+        &matrix![ 1, 2; 3, 4; ], 0;
+        0, &dmatrix![7, 8, 9; 10, 11, 12; ];
+    ];
+
+    let res = dmatrix![
+        1, 2, 0, 0, 0;
+        3, 4, 0, 0, 0;
+        0, 0, 7, 8, 9;
+        0, 0, 10, 11, 12;
+    ];
+
+    assert_eq_and_type!(m, res);
+}
+
+#[test]
+fn cat_nested() {
+    let m = cat![
+        &cat![ &matrix![1, 2; 3, 4;]; &matrix![5, 6;]],
+        &cat![ &matrix![7;9;10;], &matrix![11; 12; 13;] ];
+    ];
+
+    let res = matrix![
+        1, 2, 7, 11;
+        3, 4, 9, 12;
+        5, 6, 10, 13;
+    ];
+
+    assert_eq_and_type!(m, res);
 }
