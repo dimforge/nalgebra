@@ -338,3 +338,42 @@ from_to_typenum!(
 /// The constant dimension 1.
 // Note: We add U1 separately since it's not covered by the from_to_typenum! macro.
 pub const U1: U1 = Const::<1>;
+
+
+pub trait DimUnify<D> {
+    type Output;
+
+    fn unify(self, other: D) -> Option<Self::Output>;
+}
+
+impl<const A: usize> DimUnify<Const<A>> for Const<A> {
+    type Output = Const<A>;
+
+    fn unify(self, _other: Const<A>) -> Option<Const<A>> {
+        Some(self)
+    }
+}
+
+impl<D: Dim> DimUnify<D> for Dynamic {
+    type Output = D;
+
+    fn unify(self, other: D) -> Option<D> {
+        if other.value() == self.value() {
+            Some(other)
+        } else {
+            None
+        }
+    }
+}
+
+impl<const A: usize> DimUnify<Dynamic> for Const<A> {
+    type Output = Const<A>;
+
+    fn unify(self, other: Dynamic) -> Option<Const<A>> {
+        if other.value() == self.value() {
+            Some(self)
+        } else {
+            None
+        }
+    }
+}
