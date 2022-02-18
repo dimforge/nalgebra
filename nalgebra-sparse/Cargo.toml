@@ -48,3 +48,9 @@ path = "example/spmm.rs"
 [package.metadata.docs.rs]
 # Enable certain features when building docs for docs.rs
 features = [ "proptest-support", "compare" ]
+
+[profile.release]
+opt-level = 3 
+lto = "fat"
+codegen-units = 1
+panic = "abort"
