@@ -559,19 +559,15 @@ where
 {
     let mut values_option = values;
 
-    if sort {
-        if let Some(values) = values_option.as_mut() {
-            if minor_indices.len() != values.len() {
-                return Err(SparseFormatError::from_kind_and_msg(
-                    SparseFormatErrorKind::InvalidStructure,
-                    "Number of values and minor indices must be the same.",
-                ));
-            }
-        } else {
-            unreachable!(
-                "Internal error: Sorting currently not supported if no values are present."
-            );
+    if let Some(values) = values_option.as_mut() {
+        if minor_indices.len() != values.len() {
+            return Err(SparseFormatError::from_kind_and_msg(
+                SparseFormatErrorKind::InvalidStructure,
+                "Number of values and minor indices must be the same.",
+            ));
         }
+    } else if sort {
+        unreachable!("Internal error: Sorting currently not supported if no values are present.");
     }
     if major_offsets.len() == 0 {
         return Err(SparseFormatError::from_kind_and_msg(
