@@ -480,7 +480,7 @@ pub fn cat(stream: TokenStream) -> TokenStream {
             let ident_shape = format_ident!("cat_{}_{}_shape", i, j);
             quote!{ #ident_shape.0 }
         }).reduce(|a, b| quote!{
-            <_ as nalgebra::DimUnify<_>>::unify(#a, #b)
+            <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::DimEq<_, _>>::representative(#a, #b)
                 .expect("The concatenated matrices do not have the same number of columns")
         }).expect("At least one element in each row must be an expression of type `Matrix`");
 
@@ -506,7 +506,7 @@ pub fn cat(stream: TokenStream) -> TokenStream {
             let ident_shape = format_ident!("cat_{}_{}_shape", i, j);
             quote!{ #ident_shape.1 }
         }).reduce(|a, b| quote!{
-            <_ as nalgebra::DimUnify<_>>::unify(#a, #b)
+            <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::DimEq<_, _>>::representative(#a, #b)
                 .expect("The concatenated matrices do not have the same number of rows")
         }).expect("At least one element in each column must be an expression of type `Matrix`");
 
