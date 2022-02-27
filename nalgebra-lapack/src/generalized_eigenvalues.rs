@@ -180,25 +180,44 @@ where
     }
 
     /// Calculates the generalized eigenvectors (left and right) associated with the generalized eigenvalues
-    /// Outputs two matrices, the first one containing the left eigenvectors of the generalized eigenvalues
-    /// as columns and the second matrix contains the right eigenvectors of the generalized eigenvalues
-    /// as columns
+    /// Outputs two matrices.
+    /// The first output matix contains the left eigenvectors of the generalized eigenvalues
+    /// as columns.
+    /// The second matrix contains the right eigenvectors of the generalized eigenvalues
+    /// as columns.
     ///
-    ///  The right eigenvector v(j) corresponding to the eigenvalue lambda(j)
-    ///  of (A,B) satisfies
+    /// The right eigenvector v(j) corresponding to the eigenvalue lambda(j)
+    /// of (A,B) satisfies
     ///
-    ///  A * v(j) = lambda(j) * B * v(j).
+    /// A * v(j) = lambda(j) * B * v(j)
     ///
-    ///  The left eigenvector u(j) corresponding to the eigenvalue lambda(j)
-    ///  of (A,B) satisfies
+    /// The left eigenvector u(j) corresponding to the eigenvalue lambda(j)
+    /// of (A,B) satisfies
     ///
-    ///  u(j)**H * A  = lambda(j) * u(j)**H * B .
-    ///  where u(j)**H is the conjugate-transpose of u(j).
+    /// u(j)**H * A  = lambda(j) * u(j)**H * B
+    /// where u(j)**H is the conjugate-transpose of u(j).
     ///
-    /// What is going on below?
-    ///  If the j-th and (j+1)-th eigenvalues form a complex conjugate pair,
-    ///  then u(j) = VSL(:,j)+i*VSL(:,j+1) and u(j+1) = VSL(:,j)-i*VSL(:,j+1).
-    ///  and then v(j) = VSR(:,j)+i*VSR(:,j+1) and v(j+1) = VSR(:,j)-i*VSR(:,j+1).
+    /// How the eigenvectors are build up:
+    ///
+    /// Since the input entries are all real, the generalized eigenvalues if complex come in pairs
+    /// as a consequence of <https://en.wikipedia.org/wiki/Complex_conjugate_root_theorem>
+    /// The Lapack routine output reflects this by expecting the user to unpack the complex eigenvalues associated
+    /// eigenvectors from the real matrix output via the following procedure
+    ///
+    /// (Note: VL stands for the lapack real matrix output containing the left eigenvectors as columns,
+    ///        VR stands for the lapack real matrix output containing the right eigenvectors as columns)
+    ///
+    /// If the j-th and (j+1)-th eigenvalues form a complex conjugate pair,
+    /// then
+    ///
+    ///  u(j) = VL(:,j)+i*VL(:,j+1)
+    ///  u(j+1) = VL(:,j)-i*VL(:,j+1)
+    ///
+    /// and
+    ///
+    ///  u(j) = VR(:,j)+i*VR(:,j+1)
+    ///  v(j+1) = VR(:,j)-i*VR(:,j+1).
+    ///
     pub fn eigenvectors(self) -> (OMatrix<Complex<T>, D, D>, OMatrix<Complex<T>, D, D>)
     where
         DefaultAllocator:
@@ -216,18 +235,14 @@ where
             .clone()
             .map(|x| Complex::new(x, T::RealField::zero()));
 
-        let eigenvalues = &self.eigenvalues();
+        let eigenvalues = &self.raw_eigenvalues();
 
         let mut c = 0;
 
         let epsilon = T::RealField::default_epsilon();
 
         while c < n {
-            if eigenvalues[c].im.abs() > epsilon && c + 1 < n && {
-                let e_conj = eigenvalues[c].conj();
-                let e = eigenvalues[c + 1];
-                (&e_conj.re).ulps_eq(&e.re, epsilon, 6) && (&e_conj.im).ulps_eq(&e.im, epsilon, 6)
-            } {
+            if eigenvalues[c].0.im.abs() > epsilon && c + 1 < n {
                 // taking care of the left eigenvector matrix
                 l.column_mut(c).zip_apply(&self.vsl.column(c + 1), |r, i| {
                     *r = Complex::new(r.re.clone(), i.clone());
@@ -253,32 +268,7 @@ where
         (l, r)
     }
 
-    // only used for internal calculation for assembling eigenvectors based on realness of
-    // eigenvalues and complex-conjugate checks of subsequent non-real eigenvalues
-    fn eigenvalues(&self) -> OVector<Complex<T>, D>
-    where
-        DefaultAllocator: Allocator<Complex<T>, D>,
-    {
-        let mut out = Matrix::zeros_generic(self.vsl.shape_generic().0, Const::<1>);
-
-        let epsilon = T::RealField::default_epsilon();
-
-        for i in 0..out.len() {
-            out[i] = if self.beta[i].clone().abs() < epsilon
-                || (self.alphai[i].clone().abs() < epsilon
-                    && self.alphar[i].clone().abs() < epsilon)
-            {
-                Complex::zero()
-            } else {
-                Complex::new(self.alphar[i].clone(), self.alphai[i].clone())
-                    * (Complex::new(self.beta[i].clone(), T::RealField::zero()).inv())
-            }
-        }
-
-        out
-    }
-
-    /// outputs the unprocessed (almost) version of  generalized eigenvalues ((alphar, alpai), beta)
+    /// outputs the unprocessed (almost) version of  generalized eigenvalues ((alphar, alphai), beta)
     /// straight from LAPACK
     #[must_use]
     pub fn raw_eigenvalues(&self) -> OVector<(Complex<T>, T), D>
