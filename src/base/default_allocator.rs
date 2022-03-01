@@ -87,10 +87,7 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
         ncols: Const<C>,
         iter: I,
     ) -> Self::Buffer {
-        #[cfg(feature = "no_unsound_assume_init")]
-        let mut res: Self::Buffer = unimplemented!();
-        #[cfg(not(feature = "no_unsound_assume_init"))]
-        let mut res = unsafe { Self::allocate_uninitialized(nrows, ncols).assume_init() };
+        let mut res = Self::allocate_uninit(nrows, ncols);
         let mut count = 0;
         let res_ptr = res.as_mut_slice();
 
@@ -101,7 +98,7 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
         {
             unsafe {
                 *res_ptr
-                    .get_unchecked_mut((i % ncols.value()) * nrows.value() + i / ncols.value()) = e;
+                    .get_unchecked_mut((i % ncols.value()) * nrows.value() + i / ncols.value()) = MaybeUninit::new(e);
             }
             // res_ptr[(i % ncols.value()) * nrows.value() + i / ncols.value()] = e;
             count += 1;
@@ -112,7 +109,7 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
             "Matrix init. from row iterator: iterator not long enough."
         );
 
-        res
+        unsafe { <Self as Allocator<T, Const<R>, Const<C>>>::assume_init(res) }
     }
 }
 
@@ -250,7 +247,7 @@ impl<T: Scalar, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
 
         unsafe {
             for (i, e) in it.enumerate() {
-                *res_ptr.add((i % ncols.value()) * nrows.value() + i / ncols.value()) = e;
+                *res_ptr.add((i % ncols.value()) * nrows.value() + i / ncols.value()) = MaybeUninit::new(e).assume_init();
                 count += 1;
             }
             res.set_len(nrows.value() * ncols.value());
