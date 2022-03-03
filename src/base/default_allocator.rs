@@ -98,7 +98,8 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
         {
             unsafe {
                 *res_ptr
-                    .get_unchecked_mut((i % ncols.value()) * nrows.value() + i / ncols.value()) = MaybeUninit::new(e);
+                    .get_unchecked_mut((i % ncols.value()) * nrows.value() + i / ncols.value()) =
+                    MaybeUninit::new(e);
             }
             // res_ptr[(i % ncols.value()) * nrows.value() + i / ncols.value()] = e;
             count += 1;
@@ -247,7 +248,8 @@ impl<T: Scalar, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
 
         unsafe {
             for (i, e) in it.enumerate() {
-                *res_ptr.add((i % ncols.value()) * nrows.value() + i / ncols.value()) = MaybeUninit::new(e).assume_init();
+                *res_ptr.add((i % ncols.value()) * nrows.value() + i / ncols.value()) =
+                    MaybeUninit::new(e).assume_init();
                 count += 1;
             }
             res.set_len(nrows.value() * ncols.value());
