@@ -453,6 +453,10 @@ impl ConcatElem {
 #[proc_macro]
 pub fn cat(stream: TokenStream) -> TokenStream {
     let matrix = parse_macro_input!(stream as Matrix);
+    proc_macro::TokenStream::from(cat_impl(matrix))
+}
+
+fn cat_impl(matrix: Matrix) -> TokenStream2 {
     let n_macro_rows = matrix.nrows();
     let n_macro_cols = matrix.ncols();
 
@@ -579,10 +583,124 @@ pub fn cat(stream: TokenStream) -> TokenStream {
         }
     }
 
-    proc_macro::TokenStream::from(quote!{
+    quote!{
         {
             #output
             matrix
         }
-    })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cat_simple_generation() {
+        let input: Matrix = syn::parse_quote![
+            a, 0;
+            0, b;
+        ];
+
+        let result = cat_impl(input);
+
+        let expected = quote!{{
+            let cat_0_0 = a;
+            let cat_0_0_shape = cat_0_0.shape_generic();
+            let cat_1_1 = b;
+            let cat_1_1_shape = cat_1_1.shape_generic();
+            let cat_row_0_size = cat_0_0_shape.0;
+            let cat_row_0_offset = 0;
+            let cat_row_1_size = cat_1_1_shape.0;
+            let cat_row_1_offset = cat_row_0_offset + <_ as nalgebra::Dim>::value(&cat_row_0_size);
+            let cat_col_0_size = cat_0_0_shape.1;
+            let cat_col_0_offset = 0;
+            let cat_col_1_size = cat_1_1_shape.1;
+            let cat_col_1_offset = cat_col_0_offset + <_ as nalgebra::Dim>::value(&cat_col_0_size);
+            let mut matrix = nalgebra::Matrix::zeros_generic(
+                <_ as nalgebra::DimAdd<_>>::add(cat_row_0_size, cat_row_1_size),
+                <_ as nalgebra::DimAdd<_>>::add(cat_col_0_size, cat_col_1_size)
+            );
+            let start = (cat_row_0_offset, cat_col_0_offset);
+            let shape = (cat_row_0_size, cat_col_0_size);
+            let mut slice = matrix.generic_slice_mut(start, shape);
+            slice.copy_from(cat_0_0);
+            let start = (cat_row_1_offset, cat_col_1_offset);
+            let shape = (cat_row_1_size, cat_col_1_size);
+            let mut slice = matrix.generic_slice_mut(start, shape);
+            slice.copy_from(cat_1_1);
+            matrix
+        }};
+
+        assert_eq!(format!("{}", result), format!("{}", expected));
+    }
+
+    #[test]
+    fn cat_complex_generation() {
+        let input: Matrix = syn::parse_quote![
+            a, 0, b;
+            0, c, d;
+            e, 0, 0;
+        ];
+
+        let result = cat_impl(input);
+
+        let expected = quote!{{
+            let cat_0_0 = a;
+            let cat_0_0_shape = cat_0_0.shape_generic();
+            let cat_0_2 = b;
+            let cat_0_2_shape = cat_0_2.shape_generic();
+            let cat_1_1 = c;
+            let cat_1_1_shape = cat_1_1.shape_generic();
+            let cat_1_2 = d;
+            let cat_1_2_shape = cat_1_2.shape_generic();
+            let cat_2_0 = e;
+            let cat_2_0_shape = cat_2_0.shape_generic();
+            let cat_row_0_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (cat_0_0_shape . 0 , cat_0_2_shape . 0) . expect ("The concatenated matrices do not have the same number of columns") ;
+            let cat_row_0_offset = 0;
+            let cat_row_1_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (cat_1_1_shape . 0 , cat_1_2_shape . 0) . expect ("The concatenated matrices do not have the same number of columns") ;
+            let cat_row_1_offset = cat_row_0_offset + <_ as nalgebra::Dim>::value(&cat_row_0_size);
+            let cat_row_2_size = cat_2_0_shape.0;
+            let cat_row_2_offset = cat_row_1_offset + <_ as nalgebra::Dim>::value(&cat_row_1_size);
+            let cat_col_0_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (cat_0_0_shape . 1 , cat_2_0_shape . 1) . expect ("The concatenated matrices do not have the same number of rows") ;
+            let cat_col_0_offset = 0;
+            let cat_col_1_size = cat_1_1_shape.1;
+            let cat_col_1_offset = cat_col_0_offset + <_ as nalgebra::Dim>::value(&cat_col_0_size);
+            let cat_col_2_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (cat_0_2_shape . 1 , cat_1_2_shape . 1) . expect ("The concatenated matrices do not have the same number of rows") ;
+            let cat_col_2_offset = cat_col_1_offset + <_ as nalgebra::Dim>::value(&cat_col_1_size);
+            let mut matrix = nalgebra::Matrix::zeros_generic(
+                <_ as nalgebra::DimAdd<_>>::add(
+                    <_ as nalgebra::DimAdd<_>>::add(cat_row_0_size, cat_row_1_size),
+                    cat_row_2_size
+                ),
+                <_ as nalgebra::DimAdd<_>>::add(
+                    <_ as nalgebra::DimAdd<_>>::add(cat_col_0_size, cat_col_1_size),
+                    cat_col_2_size
+                )
+            );
+            let start = (cat_row_0_offset, cat_col_0_offset);
+            let shape = (cat_row_0_size, cat_col_0_size);
+            let mut slice = matrix.generic_slice_mut(start, shape);
+            slice.copy_from(cat_0_0);
+            let start = (cat_row_0_offset, cat_col_2_offset);
+            let shape = (cat_row_0_size, cat_col_2_size);
+            let mut slice = matrix.generic_slice_mut(start, shape);
+            slice.copy_from(cat_0_2);
+            let start = (cat_row_1_offset, cat_col_1_offset);
+            let shape = (cat_row_1_size, cat_col_1_size);
+            let mut slice = matrix.generic_slice_mut(start, shape);
+            slice.copy_from(cat_1_1);
+            let start = (cat_row_1_offset, cat_col_2_offset);
+            let shape = (cat_row_1_size, cat_col_2_size);
+            let mut slice = matrix.generic_slice_mut(start, shape);
+            slice.copy_from(cat_1_2);
+            let start = (cat_row_2_offset, cat_col_0_offset);
+            let shape = (cat_row_2_size, cat_col_0_size);
+            let mut slice = matrix.generic_slice_mut(start, shape);
+            slice.copy_from(cat_2_0);
+            matrix
+        }};
+        
+        assert_eq!(format!("{}", result), format!("{}", expected));
+    }
 }
