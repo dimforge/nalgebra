@@ -6,6 +6,7 @@
 #[cfg(feature = "serde-serialize")]
 mod csc_serde;
 
+use crate::cs;
 use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
 use crate::csr::CsrMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
@@ -171,6 +172,50 @@ impl<T> CscMatrix<T> {
         )
         .map_err(pattern_format_error_to_csc_error)?;
         Self::try_from_pattern_and_values(pattern, values)
+    }
+
+    /// Try to construct a CSC matrix from raw CSC data with unsorted row indices.
+    ///
+    /// It is assumed that each column contains unique row indices that are in
+    /// bounds with respect to the number of rows in the matrix. If this is not the case,
+    /// an error is returned to indicate the failure.
+    ///
+    /// An error is returned if the data given does not conform to the CSC storage format
+    /// with the exception of having unsorted row indices and values.
+    /// See the documentation for [CscMatrix](struct.CscMatrix.html) for more information.
+    pub fn try_from_unsorted_csc_data(
+        num_rows: usize,
+        num_cols: usize,
+        col_offsets: Vec<usize>,
+        mut row_indices: Vec<usize>,
+        mut values: Vec<T>,
+    ) -> Result<Self, SparseFormatError>
+    where
+        T: Scalar,
+    {
+        let result = cs::validate_and_optionally_sort_cs_data(
+            num_cols,
+            num_rows,
+            &col_offsets,
+            &mut row_indices,
+            Some(&mut values),
+            true,
+        );
+
+        match result {
+            Ok(()) => {
+                let pattern = unsafe {
+                    SparsityPattern::from_offset_and_indices_unchecked(
+                        num_cols,
+                        num_rows,
+                        col_offsets,
+                        row_indices,
+                    )
+                };
+                Self::try_from_pattern_and_values(pattern, values)
+            }
+            Err(err) => Err(err),
+        }
     }
 
     /// Try to construct a CSC matrix from a sparsity pattern and associated non-zero values.
