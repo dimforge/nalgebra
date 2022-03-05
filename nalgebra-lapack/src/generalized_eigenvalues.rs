@@ -226,13 +226,9 @@ where
 
         let n = self.vsl.shape().0;
 
-        let mut l = self
-            .vsl
-            .map(|x| Complex::new(x, T::RealField::zero()));
+        let mut l = self.vsl.map(|x| Complex::new(x, T::RealField::zero()));
 
-        let mut r = self
-            .vsr
-            .map(|x| Complex::new(x, T::RealField::zero()));
+        let mut r = self.vsr.map(|x| Complex::new(x, T::RealField::zero()));
 
         let eigenvalues = self.raw_eigenvalues();
 
