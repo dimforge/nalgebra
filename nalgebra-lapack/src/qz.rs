@@ -62,7 +62,7 @@ impl<T: QZScalar + RealField, D: Dim> QZ<T, D>
 where
     DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
 {
-    /// Attempts to compute the QZ decomposition of input square matrices `a` and `b`.
+    /// Attempts to compute the QZ decomposition of input real square matrices `a` and `b`.
     ///
     /// i.e retrieves the left and right matrices of Schur Vectors (VSL and VSR)
     /// the upper-quasitriangular matrix `S` and upper triangular matrix `T` such that the
