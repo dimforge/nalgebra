@@ -181,7 +181,7 @@ where
 
     /// Calculates the generalized eigenvectors (left and right) associated with the generalized eigenvalues
     /// Outputs two matrices.
-    /// The first output matix contains the left eigenvectors of the generalized eigenvalues
+    /// The first output matrix contains the left eigenvectors of the generalized eigenvalues
     /// as columns.
     /// The second matrix contains the right eigenvectors of the generalized eigenvalues
     /// as columns.
@@ -196,46 +196,45 @@ where
     ///
     /// u(j)**H * A  = lambda(j) * u(j)**H * B
     /// where u(j)**H is the conjugate-transpose of u(j).
-    ///
-    /// How the eigenvectors are build up:
-    ///
-    /// Since the input entries are all real, the generalized eigenvalues if complex come in pairs
-    /// as a consequence of <https://en.wikipedia.org/wiki/Complex_conjugate_root_theorem>
-    /// The Lapack routine output reflects this by expecting the user to unpack the complex eigenvalues associated
-    /// eigenvectors from the real matrix output via the following procedure
-    ///
-    /// (Note: VL stands for the lapack real matrix output containing the left eigenvectors as columns,
-    ///        VR stands for the lapack real matrix output containing the right eigenvectors as columns)
-    ///
-    /// If the j-th and (j+1)-th eigenvalues form a complex conjugate pair,
-    /// then
-    ///
-    ///  u(j) = VL(:,j)+i*VL(:,j+1)
-    ///  u(j+1) = VL(:,j)-i*VL(:,j+1)
-    ///
-    /// and
-    ///
-    ///  u(j) = VR(:,j)+i*VR(:,j+1)
-    ///  v(j+1) = VR(:,j)-i*VR(:,j+1).
-    ///
-    pub fn eigenvectors(self) -> (OMatrix<Complex<T>, D, D>, OMatrix<Complex<T>, D, D>)
+    pub fn eigenvectors(&self) -> (OMatrix<Complex<T>, D, D>, OMatrix<Complex<T>, D, D>)
     where
         DefaultAllocator:
             Allocator<Complex<T>, D, D> + Allocator<Complex<T>, D> + Allocator<(Complex<T>, T), D>,
     {
+        /*
+         How the eigenvectors are built up:
+
+         Since the input entries are all real, the generalized eigenvalues if complex come in pairs
+         as a consequence of the [complex conjugate root thorem](https://en.wikipedia.org/wiki/Complex_conjugate_root_theorem)
+         The Lapack routine output reflects this by expecting the user to unpack the complex eigenvalues associated
+         eigenvectors from the real matrix output via the following procedure
+
+         (Note: VL stands for the lapack real matrix output containing the left eigenvectors as columns,
+                VR stands for the lapack real matrix output containing the right eigenvectors as columns)
+
+         If the j-th and (j+1)-th eigenvalues form a complex conjugate pair,
+         then
+
+          u(j) = VL(:,j)+i*VL(:,j+1)
+          u(j+1) = VL(:,j)-i*VL(:,j+1)
+
+         and
+
+          u(j) = VR(:,j)+i*VR(:,j+1)
+          v(j+1) = VR(:,j)-i*VR(:,j+1).
+        */
+
         let n = self.vsl.shape().0;
 
         let mut l = self
             .vsl
-            .clone()
             .map(|x| Complex::new(x, T::RealField::zero()));
 
         let mut r = self
             .vsr
-            .clone()
             .map(|x| Complex::new(x, T::RealField::zero()));
 
-        let eigenvalues = &self.raw_eigenvalues();
+        let eigenvalues = self.raw_eigenvalues();
 
         let mut c = 0;
 
