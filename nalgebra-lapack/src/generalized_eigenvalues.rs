@@ -206,7 +206,7 @@ where
 
          Since the input entries are all real, the generalized eigenvalues if complex come in pairs
          as a consequence of the [complex conjugate root thorem](https://en.wikipedia.org/wiki/Complex_conjugate_root_theorem)
-         The Lapack routine output reflects this by expecting the user to unpack the complex eigenvalues associated
+         The Lapack routine output reflects this by expecting the user to unpack the real and complex eigenvalues associated
          eigenvectors from the real matrix output via the following procedure
 
          (Note: VL stands for the lapack real matrix output containing the left eigenvectors as columns,
