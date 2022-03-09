@@ -460,3 +460,27 @@ fn svd_sorted() {
         epsilon = 1.0e-5
     );
 }
+
+#[test]
+// Exercises bug reported in issue #983 of nalgebra
+fn svd_consistent() {
+    let m = nalgebra::dmatrix![
+        10.74785316637712f64, -5.994983325167452, -6.064492921857296;
+        -4.149751381521569, 20.654504205822462, -4.470436210703133;
+        -22.772715014220207, -1.4554372570788008, 18.108113992170573
+    ]
+    .transpose();
+    let svd1 = m.clone().svd(true, true);
+    let svd2 = m.clone().svd(false, true);
+    let svd3 = m.clone().svd(true, false);
+    let svd4 = m.svd(false, false);
+
+    assert_relative_eq!(svd1.singular_values, svd2.singular_values, epsilon = 1e-5);
+    assert_relative_eq!(svd1.singular_values, svd3.singular_values, epsilon = 1e-5);
+    assert_relative_eq!(svd1.singular_values, svd4.singular_values, epsilon = 1e-5);
+    assert_relative_eq!(
+        svd1.singular_values,
+        nalgebra::dvector![3.16188022e+01, 2.23811978e+01, 0.],
+        epsilon = 1e-5
+    );
+}

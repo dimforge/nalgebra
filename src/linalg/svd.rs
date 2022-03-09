@@ -2,7 +2,6 @@
 use serde::{Deserialize, Serialize};
 use std::any::TypeId;
 
-use approx::AbsDiffEq;
 use num::{One, Zero};
 
 use crate::allocator::Allocator;
@@ -94,14 +93,7 @@ where
     /// The singular values are not guaranteed to be sorted in any particular order.
     /// If a descending order is required, consider using `new` instead.
     pub fn new_unordered(matrix: OMatrix<T, R, C>, compute_u: bool, compute_v: bool) -> Self {
-        Self::try_new_unordered(
-            matrix,
-            compute_u,
-            compute_v,
-            T::RealField::default_epsilon(),
-            0,
-        )
-        .unwrap()
+        Self::try_new_unordered(matrix, compute_u, compute_v, crate::convert(1e-15), 0).unwrap()
     }
 
     /// Attempts to compute the Singular Value Decomposition of `matrix` using implicit shift.
@@ -888,13 +880,13 @@ fn compute_2x2_uptrig_svd<T: RealField>(
             v_t = Some(csv.clone());
         }
 
-        if compute_u {
-            let cu = (m11.scale(csv.c()) + m12 * csv.s()) / v1.clone();
-            let su = (m22 * csv.s()) / v1.clone();
-            let (csu, sgn_u) = GivensRotation::new(cu, su);
+        let cu = (m11.scale(csv.c()) + m12 * csv.s()) / v1.clone();
+        let su = (m22 * csv.s()) / v1.clone();
+        let (csu, sgn_u) = GivensRotation::new(cu, su);
+        v1 *= sgn_u.clone();
+        v2 *= sgn_u;
 
-            v1 *= sgn_u.clone();
-            v2 *= sgn_u;
+        if compute_u {
             u = Some(csu);
         }
     }
