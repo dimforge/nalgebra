@@ -98,7 +98,7 @@ where
             matrix,
             compute_u,
             compute_v,
-            T::RealField::default_epsilon(),
+            T::RealField::default_epsilon() * crate::convert(5.0),
             0,
         )
         .unwrap()
@@ -888,13 +888,13 @@ fn compute_2x2_uptrig_svd<T: RealField>(
             v_t = Some(csv.clone());
         }
 
-        if compute_u {
-            let cu = (m11.scale(csv.c()) + m12 * csv.s()) / v1.clone();
-            let su = (m22 * csv.s()) / v1.clone();
-            let (csu, sgn_u) = GivensRotation::new(cu, su);
+        let cu = (m11.scale(csv.c()) + m12 * csv.s()) / v1.clone();
+        let su = (m22 * csv.s()) / v1.clone();
+        let (csu, sgn_u) = GivensRotation::new(cu, su);
+        v1 *= sgn_u.clone();
+        v2 *= sgn_u;
 
-            v1 *= sgn_u.clone();
-            v2 *= sgn_u;
+        if compute_u {
             u = Some(csu);
         }
     }

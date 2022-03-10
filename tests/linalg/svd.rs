@@ -460,3 +460,42 @@ fn svd_sorted() {
         epsilon = 1.0e-5
     );
 }
+
+#[test]
+// Exercises bug reported in issue #983 of nalgebra (https://github.com/dimforge/nalgebra/issues/983)
+fn svd_regression_issue_983() {
+    let m = nalgebra::dmatrix![
+        10.74785316637712f64, -5.994983325167452, -6.064492921857296;
+        -4.149751381521569, 20.654504205822462, -4.470436210703133;
+        -22.772715014220207, -1.4554372570788008, 18.108113992170573
+    ]
+    .transpose();
+    let svd1 = m.clone().svd(true, true);
+    let svd2 = m.clone().svd(false, true);
+    let svd3 = m.clone().svd(true, false);
+    let svd4 = m.svd(false, false);
+
+    assert_relative_eq!(svd1.singular_values, svd2.singular_values, epsilon = 1e-9);
+    assert_relative_eq!(svd1.singular_values, svd3.singular_values, epsilon = 1e-9);
+    assert_relative_eq!(svd1.singular_values, svd4.singular_values, epsilon = 1e-9);
+    assert_relative_eq!(
+        svd1.singular_values,
+        nalgebra::dvector![3.16188022e+01, 2.23811978e+01, 0.],
+        epsilon = 1e-6
+    );
+}
+
+#[test]
+// Exercises bug reported in issue #1072 of nalgebra (https://github.com/dimforge/nalgebra/issues/1072)
+fn svd_regression_issue_1072() {
+    let x = nalgebra::dmatrix![-6.206610118536945f64, -3.67612186839874; -1.2755730783423473, 6.047238193479124];
+    let mut x_svd = x.svd(true, true);
+    x_svd.singular_values = nalgebra::dvector![1.0, 0.0];
+    let y = x_svd.recompose().unwrap();
+    let y_svd = y.svd(true, true);
+    assert_relative_eq!(
+        y_svd.singular_values,
+        nalgebra::dvector![1.0, 0.0],
+        epsilon = 1e-9
+    );
+}
