@@ -2,6 +2,7 @@
 use serde::{Deserialize, Serialize};
 use std::any::TypeId;
 
+use approx::AbsDiffEq;
 use num::{One, Zero};
 
 use crate::allocator::Allocator;
@@ -93,7 +94,14 @@ where
     /// The singular values are not guaranteed to be sorted in any particular order.
     /// If a descending order is required, consider using `new` instead.
     pub fn new_unordered(matrix: OMatrix<T, R, C>, compute_u: bool, compute_v: bool) -> Self {
-        Self::try_new_unordered(matrix, compute_u, compute_v, crate::convert(1e-15), 0).unwrap()
+        Self::try_new_unordered(
+            matrix,
+            compute_u,
+            compute_v,
+            T::RealField::default_epsilon() * crate::convert(5.0),
+            0,
+        )
+        .unwrap()
     }
 
     /// Attempts to compute the Singular Value Decomposition of `matrix` using implicit shift.

@@ -462,8 +462,8 @@ fn svd_sorted() {
 }
 
 #[test]
-// Exercises bug reported in issue #983 of nalgebra
-fn svd_consistent() {
+// Exercises bug reported in issue #983 of nalgebra (https://github.com/dimforge/nalgebra/issues/983)
+fn svd_regression_issue_983() {
     let m = nalgebra::dmatrix![
         10.74785316637712f64, -5.994983325167452, -6.064492921857296;
         -4.149751381521569, 20.654504205822462, -4.470436210703133;
@@ -475,12 +475,12 @@ fn svd_consistent() {
     let svd3 = m.clone().svd(true, false);
     let svd4 = m.svd(false, false);
 
-    assert_relative_eq!(svd1.singular_values, svd2.singular_values, epsilon = 1e-5);
-    assert_relative_eq!(svd1.singular_values, svd3.singular_values, epsilon = 1e-5);
-    assert_relative_eq!(svd1.singular_values, svd4.singular_values, epsilon = 1e-5);
+    assert_relative_eq!(svd1.singular_values, svd2.singular_values, epsilon = 1e-9);
+    assert_relative_eq!(svd1.singular_values, svd3.singular_values, epsilon = 1e-9);
+    assert_relative_eq!(svd1.singular_values, svd4.singular_values, epsilon = 1e-9);
     assert_relative_eq!(
         svd1.singular_values,
         nalgebra::dvector![3.16188022e+01, 2.23811978e+01, 0.],
-        epsilon = 1e-5
+        epsilon = 1e-6
     );
 }
