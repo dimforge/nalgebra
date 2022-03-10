@@ -484,3 +484,18 @@ fn svd_regression_issue_983() {
         epsilon = 1e-6
     );
 }
+
+#[test]
+// Exercises bug reported in issue #1072 of nalgebra (https://github.com/dimforge/nalgebra/issues/1072)
+fn svd_regression_issue_1072() {
+    let x = nalgebra::dmatrix![-6.206610118536945f64, -3.67612186839874; -1.2755730783423473, 6.047238193479124];
+    let mut x_svd = x.svd(true, true);
+    x_svd.singular_values = nalgebra::dvector![1.0, 0.0];
+    let y = x_svd.recompose().unwrap();
+    let y_svd = y.svd(true, true);
+    assert_relative_eq!(
+        y_svd.singular_values,
+        nalgebra::dvector![1.0, 0.0],
+        epsilon = 1e-9
+    );
+}
