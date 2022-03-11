@@ -98,7 +98,7 @@ glam019        = { package = "glam", version = "0.19", optional = true }
 glam020        = { package = "glam", version = "0.20", optional = true }
 
 [target.'cfg(not(target_os = "cuda"))'.dependencies]
-cust           = { version = "0.2", optional = true }
+cust           = { version = "0.3", optional = true }
 
 
 [dev-dependencies]
