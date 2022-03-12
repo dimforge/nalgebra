@@ -47,10 +47,9 @@ where
                 scratchpad_values[*j] += alpha_aik.clone() * b_kj.clone();
             }
         }
-        // sort the indices, and then access the relevant indices (in sorted order) from values
-        // into C.
-        let (indices, values) = c_lane_i.indices_and_values_mut();
 
+        //Get indices from C pattern and gather from the dense scratchpad_values
+        let (indices, values) = c_lane_i.indices_and_values_mut();
         values
             .iter_mut()
             .zip(indices)
