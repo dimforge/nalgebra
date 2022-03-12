@@ -34,9 +34,6 @@ where
 {
     let some_val = Zero::zero();
     let mut scratchpad_values: Vec<T> = vec![some_val; b.pattern().minor_dim()];
-    let mut scratchpad_indices: Vec<usize> = vec![0; b.pattern().minor_dim()];
-    let mut scratchpad_used: Vec<bool> = vec![false; b.pattern().minor_dim()];
-    let mut right_end = 0usize;
     for i in 0..c.pattern().major_dim() {
         let a_lane_i = a.get_lane(i).unwrap();
 
@@ -48,26 +45,19 @@ where
             for (j, b_kj) in b_lane_k.minor_indices().iter().zip(b_lane_k.values()) {
                 // Determine the location in C to append the value
                 scratchpad_values[*j] += alpha_aik.clone() * b_kj.clone();
-                if !scratchpad_used[*j] {
-                    scratchpad_indices[right_end] = *j;
-                    right_end += 1;
-                    scratchpad_used[*j] = true;
-                }
             }
         }
         // sort the indices, and then access the relevant indices (in sorted order) from values
         // into C.
-        scratchpad_indices[0..right_end].sort_unstable();
-        c_lane_i
-            .values_mut()
+        let (indices, values) = c_lane_i.indices_and_values_mut();
+
+        values
             .iter_mut()
-            .zip(scratchpad_indices[0..right_end].iter())
+            .zip(indices)
             .for_each(|(output_ref, index)| {
                 *output_ref = beta.clone() * output_ref.clone() + scratchpad_values[*index].clone();
-                scratchpad_used[*index] = false;
                 scratchpad_values[*index] = Zero::zero();
             });
-        right_end = 0usize;
     }
 
     Ok(())
