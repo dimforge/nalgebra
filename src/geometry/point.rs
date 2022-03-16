@@ -69,12 +69,11 @@ where
 {
 }
 
-#[cfg(all(not(target_os = "cuda"), feature = "cuda"))]
-unsafe impl<T: Scalar + cust::memory::DeviceCopy, D: DimName> cust::memory::DeviceCopy
-    for OPoint<T, D>
+#[cfg(feature = "cuda")]
+unsafe impl<T: Scalar + cust_core::DeviceCopy, D: DimName> cust_core::DeviceCopy for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    OVector<T, D>: cust::memory::DeviceCopy,
+    OVector<T, D>: cust_core::DeviceCopy,
 {
 }
 
