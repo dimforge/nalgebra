@@ -32,7 +32,7 @@ compare = [ "matrixcompare-core" ]
 libm    = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 macros = [ "nalgebra-macros" ]
-cuda   = [ "cust", "simba/cuda" ]
+cuda   = [ "cust_core", "simba/cuda" ]
 
 # Conversion
 convert-mint = [ "mint" ]
@@ -96,9 +96,7 @@ glam017        = { package = "glam", version = "0.17", optional = true }
 glam018        = { package = "glam", version = "0.18", optional = true }
 glam019        = { package = "glam", version = "0.19", optional = true }
 glam020        = { package = "glam", version = "0.20", optional = true }
-
-[target.'cfg(not(target_os = "cuda"))'.dependencies]
-cust           = { version = "0.3", optional = true }
+cust_core      = { version = "0.1", optional = true }
 
 
 [dev-dependencies]

@@ -39,10 +39,7 @@ use simba::scalar::{ClosedNeg, RealField};
 ///  See <https://github.com/dimforge/nalgebra/issues/487>
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct DualQuaternion<T> {
     /// The real component of the quaternion
     pub real: Quaternion<T>,

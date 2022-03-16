@@ -27,10 +27,7 @@ use std::mem;
 /// A array-based statically sized matrix data storage.
 #[repr(transparent)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct ArrayStorage<T, const R: usize, const C: usize>(pub [[T; R]; C]);
 
 impl<T, const R: usize, const C: usize> ArrayStorage<T, R, C> {

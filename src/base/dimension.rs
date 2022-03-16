@@ -13,10 +13,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Dim of dynamically-sized algebraic entities.
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Dynamic {
     value: usize,
 }
@@ -201,10 +198,7 @@ dim_ops!(
 );
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Const<const R: usize>;
 
 /// Trait implemented exclusively by type-level integers.
