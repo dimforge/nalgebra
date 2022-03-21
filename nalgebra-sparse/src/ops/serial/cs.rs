@@ -1,5 +1,3 @@
-//use std::collections::HashSet;
-
 use crate::cs::CsMatrix;
 use crate::ops::serial::{OperationError, OperationErrorKind};
 use crate::ops::Op;
@@ -7,12 +5,12 @@ use crate::SparseEntryMut;
 use nalgebra::{ClosedAdd, ClosedMul, DMatrixSlice, DMatrixSliceMut, Scalar};
 use num_traits::{One, Zero};
 
-//fn spmm_cs_unexpected_entry() -> OperationError {
-//    OperationError::from_kind_and_message(
-//        OperationErrorKind::InvalidPattern,
-//        String::from("Found unexpected entry that is not present in `c`."),
-//    )
-//}
+fn spmm_cs_unexpected_entry() -> OperationError {
+    OperationError::from_kind_and_message(
+        OperationErrorKind::InvalidPattern,
+        String::from("Found unexpected entry that is not present in `c`."),
+    )
+}
 
 /// Helper functionality for implementing CSR/CSC SPMM.
 ///
@@ -22,7 +20,7 @@ use num_traits::{One, Zero};
 /// reversed (since transpose(AB) = transpose(B) * transpose(A) and CSC(A) = transpose(CSR(A)).
 ///
 /// We assume here that the matrices have already been verified to be dimensionally compatible.
-pub fn spmm_cs_prealloc<T>(
+pub fn spmm_cs_prealloc_unchecked<T>(
     beta: T,
     c: &mut CsMatrix<T>,
     alpha: T,
@@ -43,8 +41,10 @@ where
             let b_lane_k = b.get_lane(k).unwrap();
             let alpha_aik = alpha.clone() * a_ik.clone();
             for (j, b_kj) in b_lane_k.minor_indices().iter().zip(b_lane_k.values()) {
-                // Determine the location in C to append the value
-                scratchpad_values[*j] += alpha_aik.clone() * b_kj.clone();
+                // use a dense scatter vector to accumulate non-zeros quickly
+                unsafe {
+                    *scratchpad_values.get_unchecked_mut(*j) += alpha_aik.clone() * b_kj.clone();
+                }
             }
         }
 
@@ -53,10 +53,50 @@ where
         values
             .iter_mut()
             .zip(indices)
-            .for_each(|(output_ref, index)| {
-                *output_ref = beta.clone() * output_ref.clone() + scratchpad_values[*index].clone();
-                scratchpad_values[*index] = Zero::zero();
+            .for_each(|(output_ref, index)| unsafe {
+                *output_ref = beta.clone() * output_ref.clone()
+                    + scratchpad_values.get_unchecked(*index).clone();
+                *scratchpad_values.get_unchecked_mut(*index) = Zero::zero();
             });
+    }
+
+    Ok(())
+}
+
+pub fn spmm_cs_prealloc_checked<T>(
+    beta: T,
+    c: &mut CsMatrix<T>,
+    alpha: T,
+    a: &CsMatrix<T>,
+    b: &CsMatrix<T>,
+) -> Result<(), OperationError>
+where
+    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+{
+    for i in 0..c.pattern().major_dim() {
+        let a_lane_i = a.get_lane(i).unwrap();
+        let mut c_lane_i = c.get_lane_mut(i).unwrap();
+        for c_ij in c_lane_i.values_mut() {
+            *c_ij = beta.clone() * c_ij.clone();
+        }
+
+        for (&k, a_ik) in a_lane_i.minor_indices().iter().zip(a_lane_i.values()) {
+            let b_lane_k = b.get_lane(k).unwrap();
+            let (mut c_lane_i_cols, mut c_lane_i_values) = c_lane_i.indices_and_values_mut();
+            let alpha_aik = alpha.clone() * a_ik.clone();
+            for (j, b_kj) in b_lane_k.minor_indices().iter().zip(b_lane_k.values()) {
+                // Determine the location in C to append the value
+                let (c_local_idx, _) = c_lane_i_cols
+                    .iter()
+                    .enumerate()
+                    .find(|(_, c_col)| *c_col == j)
+                    .ok_or_else(spmm_cs_unexpected_entry)?;
+
+                c_lane_i_values[c_local_idx] += alpha_aik.clone() * b_kj.clone();
+                c_lane_i_cols = &c_lane_i_cols[c_local_idx..];
+                c_lane_i_values = &mut c_lane_i_values[c_local_idx..];
+            }
+        }
     }
 
     Ok(())
