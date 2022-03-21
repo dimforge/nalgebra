@@ -277,23 +277,15 @@ unsafe impl<T: Scalar + Copy + bytemuck::Pod, const R: usize, const C: usize> by
 #[cfg(feature = "rkyv-serialize-no-std")]
 mod rkyv_impl {
     use super::ArrayStorage;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
+    use rkyv::{out_field, Archive, Deserialize, Fallible, Serialize};
 
     impl<T: Archive, const R: usize, const C: usize> Archive for ArrayStorage<T, R, C> {
         type Archived = ArrayStorage<T::Archived, R, C>;
         type Resolver = <[[T; R]; C] as Archive>::Resolver;
 
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.0.resolve(
-                pos + offset_of!(Self::Archived, 0),
-                resolver,
-                project_struct!(out: Self::Archived => 0),
-            );
+        unsafe fn resolve(&self, pos: usize, resolver: Self::Resolver, out: *mut Self::Archived) {
+            let (fp, fo) = out_field!(out.0);
+            self.0.resolve(pos + fp, resolver, fo);
         }
     }
 

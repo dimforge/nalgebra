@@ -292,23 +292,15 @@ where
 mod rkyv_impl {
     use super::Matrix;
     use core::marker::PhantomData;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
+    use rkyv::{out_field, Archive, Deserialize, Fallible, Serialize};
 
     impl<T: Archive, R: Archive, C: Archive, S: Archive> Archive for Matrix<T, R, C, S> {
         type Archived = Matrix<T::Archived, R::Archived, C::Archived, S::Archived>;
         type Resolver = S::Resolver;
 
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.data.resolve(
-                pos + offset_of!(Self::Archived, data),
-                resolver,
-                project_struct!(out: Self::Archived => data),
-            );
+        unsafe fn resolve(&self, pos: usize, resolver: Self::Resolver, out: *mut Self::Archived) {
+            let (fp, fo) = out_field!(out.data);
+            self.data.resolve(pos + fp, resolver, fo);
         }
     }
 

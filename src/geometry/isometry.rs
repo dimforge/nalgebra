@@ -77,7 +77,7 @@ pub struct Isometry<T, R, const D: usize> {
 mod rkyv_impl {
     use super::Isometry;
     use crate::{base::Scalar, geometry::Translation};
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
+    use rkyv::{out_field, Archive, Deserialize, Fallible, Serialize};
 
     impl<T: Scalar + Archive, R: Archive, const D: usize> Archive for Isometry<T, R, D>
     where
@@ -86,22 +86,11 @@ mod rkyv_impl {
         type Archived = Isometry<T::Archived, R::Archived, D>;
         type Resolver = (R::Resolver, <Translation<T, D> as Archive>::Resolver);
 
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.rotation.resolve(
-                pos + offset_of!(Self::Archived, rotation),
-                resolver.0,
-                project_struct!(out: Self::Archived => rotation),
-            );
-            self.translation.resolve(
-                pos + offset_of!(Self::Archived, translation),
-                resolver.1,
-                project_struct!(out: Self::Archived => translation),
-            );
+        unsafe fn resolve(&self, pos: usize, resolver: Self::Resolver, out: *mut Self::Archived) {
+            let (fp, fo) = out_field!(out.rotation);
+            self.rotation.resolve(pos + fp, resolver.0, fo);
+            let (fp, fo) = out_field!(out.translation);
+            self.translation.resolve(pos + fp, resolver.1, fo);
         }
     }
 

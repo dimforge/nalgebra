@@ -242,13 +242,7 @@ mod rkyv_impl {
         type Archived = Self;
         type Resolver = ();
 
-        fn resolve(
-            &self,
-            _: usize,
-            _: Self::Resolver,
-            _: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-        }
+        unsafe fn resolve(&self, _: usize, _: Self::Resolver, _: *mut Self::Archived) {}
     }
 
     impl<S: Fallible + ?Sized, const R: usize> Serialize<S> for Const<R> {

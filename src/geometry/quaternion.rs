@@ -101,23 +101,15 @@ where
 mod rkyv_impl {
     use super::Quaternion;
     use crate::base::Vector4;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
+    use rkyv::{out_field, Archive, Deserialize, Fallible, Serialize};
 
     impl<T: Archive> Archive for Quaternion<T> {
         type Archived = Quaternion<T::Archived>;
         type Resolver = <Vector4<T> as Archive>::Resolver;
 
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.coords.resolve(
-                pos + offset_of!(Self::Archived, coords),
-                resolver,
-                project_struct!(out: Self::Archived => coords),
-            );
+        unsafe fn resolve(&self, pos: usize, resolver: Self::Resolver, out: *mut Self::Archived) {
+            let (fp, fo) = out_field!(out.coords);
+            self.coords.resolve(pos + fp, resolver, fo);
         }
     }
 
