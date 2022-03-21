@@ -293,6 +293,7 @@ mod rkyv_impl {
     use super::Matrix;
     use core::marker::PhantomData;
     use rkyv::{out_field, Archive, Deserialize, Fallible, Serialize};
+    use bytecheck::CheckBytes;
 
     impl<T: Archive, R: Archive, C: Archive, S: Archive> Archive for Matrix<T, R, C, S> {
         type Archived = Matrix<T::Archived, R::Archived, C::Archived, S::Archived>;
@@ -323,6 +324,22 @@ mod rkyv_impl {
                 data: self.data.deserialize(deserializer)?,
                 _phantoms: PhantomData,
             })
+        }
+    }
+
+    impl<__C: ?Sized, T, R, C, S: CheckBytes<__C>>
+        CheckBytes<__C>
+        for Matrix<T, R, C, S>
+    where
+        S: CheckBytes<__C>,
+    {
+        type Error = <S as CheckBytes<__C>>::Error;
+        unsafe fn check_bytes<'a>(
+            value: *const Matrix<T, R, C, S>,
+            context: &mut __C,
+        ) -> Result<&'a Self, Self::Error> {
+            let _ = S::check_bytes(::core::ptr::addr_of!((*value).data), context)?;
+            Ok(&*value)
         }
     }
 }
