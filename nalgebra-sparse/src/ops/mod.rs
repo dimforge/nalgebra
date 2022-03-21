@@ -113,10 +113,10 @@
 //! # use nalgebra_sparse::csr::CsrMatrix;
 //! # let a = CsrMatrix::identity(10); let b = CsrMatrix::identity(10);
 //! # let mut c = CsrMatrix::identity(10);
-//! use nalgebra_sparse::ops::{Op, serial::spmm_csr_prealloc};
+//! use nalgebra_sparse::ops::{Op, serial::spmm_csr_prealloc_checked};
 //!
 //! // Evaluate the expression `c <- 3.0 * c + 2.0 * a^T * b
-//! spmm_csr_prealloc(3.0, &mut c, 2.0, Op::Transpose(&a), Op::NoOp(&b))
+//! spmm_csr_prealloc_checked(3.0, &mut c, 2.0, Op::Transpose(&a), Op::NoOp(&b))
 //!     .expect("We assume that the pattern of C is able to accommodate the result.");
 //! ```
 //! Compared to the simpler example, this snippet is harder to read, but it calls a single
