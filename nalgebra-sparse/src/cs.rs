@@ -6,7 +6,8 @@ use num_traits::One;
 use nalgebra::Scalar;
 
 use crate::pattern::SparsityPattern;
-use crate::{SparseEntry, SparseEntryMut};
+use crate::utils::{apply_permutation, compute_sort_permutation};
+use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
 
 /// An abstract compressed matrix.
 ///
@@ -542,4 +543,152 @@ pub fn convert_counts_to_offsets(counts: &mut [usize]) {
         *i_offset = offset;
         offset += count;
     }
+}
+
+/// Validates cs data, optionally sorts minor indices and values
+pub(crate) fn validate_and_optionally_sort_cs_data<T>(
+    major_dim: usize,
+    minor_dim: usize,
+    major_offsets: &[usize],
+    minor_indices: &mut [usize],
+    values: Option<&mut [T]>,
+    sort: bool,
+) -> Result<(), SparseFormatError>
+where
+    T: Scalar,
+{
+    let mut values_option = values;
+
+    if let Some(values) = values_option.as_mut() {
+        if minor_indices.len() != values.len() {
+            return Err(SparseFormatError::from_kind_and_msg(
+                SparseFormatErrorKind::InvalidStructure,
+                "Number of values and minor indices must be the same.",
+            ));
+        }
+    } else if sort {
+        unreachable!("Internal error: Sorting currently not supported if no values are present.");
+    }
+    if major_offsets.len() == 0 {
+        return Err(SparseFormatError::from_kind_and_msg(
+            SparseFormatErrorKind::InvalidStructure,
+            "Number of offsets should be greater than 0.",
+        ));
+    }
+    if major_offsets.len() != major_dim + 1 {
+        return Err(SparseFormatError::from_kind_and_msg(
+            SparseFormatErrorKind::InvalidStructure,
+            "Length of offset array is not equal to (major_dim + 1).",
+        ));
+    }
+
+    // Check that the first and last offsets conform to the specification
+    {
+        let first_offset_ok = *major_offsets.first().unwrap() == 0;
+        let last_offset_ok = *major_offsets.last().unwrap() == minor_indices.len();
+        if !first_offset_ok || !last_offset_ok {
+            return Err(SparseFormatError::from_kind_and_msg(
+                SparseFormatErrorKind::InvalidStructure,
+                "First or last offset is incompatible with format.",
+            ));
+        }
+    }
+
+    // Set up required buffers up front
+    let mut minor_idx_buffer: Vec<usize> = Vec::new();
+    let mut values_buffer: Vec<T> = Vec::new();
+    let mut minor_index_permutation: Vec<usize> = Vec::new();
+
+    // Test that each lane has strictly monotonically increasing minor indices, i.e.
+    // minor indices within a lane are sorted, unique. Sort minor indices within a lane if needed.
+    // In addition, each minor index must be in bounds with respect to the minor dimension.
+    {
+        for lane_idx in 0..major_dim {
+            let range_start = major_offsets[lane_idx];
+            let range_end = major_offsets[lane_idx + 1];
+
+            // Test that major offsets are monotonically increasing
+            if range_start > range_end {
+                return Err(SparseFormatError::from_kind_and_msg(
+                    SparseFormatErrorKind::InvalidStructure,
+                    "Offsets are not monotonically increasing.",
+                ));
+            }
+
+            let minor_idx_in_lane = minor_indices.get(range_start..range_end).ok_or(
+                SparseFormatError::from_kind_and_msg(
+                    SparseFormatErrorKind::IndexOutOfBounds,
+                    "A major offset is out of bounds.",
+                ),
+            )?;
+
+            // We test for in-bounds, uniqueness and monotonicity at the same time
+            // to ensure that we only visit each minor index once
+            let mut prev = None;
+            let mut monotonic = true;
+
+            for &minor_idx in minor_idx_in_lane {
+                if minor_idx >= minor_dim {
+                    return Err(SparseFormatError::from_kind_and_msg(
+                        SparseFormatErrorKind::IndexOutOfBounds,
+                        "A minor index is out of bounds.",
+                    ));
+                }
+
+                if let Some(prev) = prev {
+                    if prev >= minor_idx {
+                        if !sort {
+                            return Err(SparseFormatError::from_kind_and_msg(
+                                SparseFormatErrorKind::InvalidStructure,
+                                "Minor indices are not strictly monotonically increasing in each lane.",
+                            ));
+                        }
+                        monotonic = false;
+                    }
+                }
+                prev = Some(minor_idx);
+            }
+
+            // sort if indices are not monotonic and sorting is expected
+            if !monotonic && sort {
+                let range_size = range_end - range_start;
+                minor_index_permutation.resize(range_size, 0);
+                compute_sort_permutation(&mut minor_index_permutation, &minor_idx_in_lane);
+                minor_idx_buffer.clear();
+                minor_idx_buffer.extend_from_slice(&minor_idx_in_lane);
+                apply_permutation(
+                    &mut minor_indices[range_start..range_end],
+                    &minor_idx_buffer,
+                    &minor_index_permutation,
+                );
+
+                // check duplicates
+                prev = None;
+                for &minor_idx in &minor_indices[range_start..range_end] {
+                    if let Some(prev) = prev {
+                        if prev == minor_idx {
+                            return Err(SparseFormatError::from_kind_and_msg(
+                                SparseFormatErrorKind::DuplicateEntry,
+                                "Input data contains duplicate entries.",
+                            ));
+                        }
+                    }
+                    prev = Some(minor_idx);
+                }
+
+                // sort values if they exist
+                if let Some(values) = values_option.as_mut() {
+                    values_buffer.clear();
+                    values_buffer.extend_from_slice(&values[range_start..range_end]);
+                    apply_permutation(
+                        &mut values[range_start..range_end],
+                        &values_buffer,
+                        &minor_index_permutation,
+                    );
+                }
+            }
+        }
+    }
+
+    Ok(())
 }
