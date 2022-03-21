@@ -410,7 +410,8 @@ where
     #[inline]
     #[must_use]
     pub fn slerp(&self, other: &Self, t: T) -> Self {
-        Self::new(self.angle() * (T::one() - t.clone()) + other.angle() * t)
+        let delta = other / self;
+        self * Self::new(delta.angle()*t)
     }
 }
 
