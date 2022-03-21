@@ -61,23 +61,15 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for Unit<T> {
 #[cfg(feature = "rkyv-serialize-no-std")]
 mod rkyv_impl {
     use super::Unit;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
+    use rkyv::{out_field, Archive, Deserialize, Fallible, Serialize};
 
     impl<T: Archive> Archive for Unit<T> {
         type Archived = Unit<T::Archived>;
         type Resolver = T::Resolver;
 
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut ::core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.value.resolve(
-                pos + offset_of!(Self::Archived, value),
-                resolver,
-                project_struct!(out: Self::Archived => value),
-            );
+        unsafe fn resolve(&self, pos: usize, resolver: Self::Resolver, out: *mut Self::Archived) {
+            let (fp, fo) = out_field!(out.value);
+            self.value.resolve(pos + fp, resolver, fo);
         }
     }
 

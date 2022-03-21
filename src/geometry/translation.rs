@@ -88,23 +88,15 @@ where
 mod rkyv_impl {
     use super::Translation;
     use crate::base::SVector;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
+    use rkyv::{out_field, Archive, Deserialize, Fallible, Serialize};
 
     impl<T: Archive, const D: usize> Archive for Translation<T, D> {
         type Archived = Translation<T::Archived, D>;
         type Resolver = <SVector<T, D> as Archive>::Resolver;
 
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.vector.resolve(
-                pos + offset_of!(Self::Archived, vector),
-                resolver,
-                project_struct!(out: Self::Archived => vector),
-            );
+        unsafe fn resolve(&self, pos: usize, resolver: Self::Resolver, out: *mut Self::Archived) {
+            let (fp, fo) = out_field!(out.vector);
+            self.vector.resolve(pos + fp, resolver, fo);
         }
     }
 
