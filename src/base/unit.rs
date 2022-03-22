@@ -90,6 +90,27 @@ mod rkyv_impl {
         }
     }
 }
+#[cfg(feature = "rkyv-serialize")]
+mod bytecheck_impl {
+    use std::ptr::addr_of;
+
+    use bytecheck::CheckBytes;
+
+    use super::Unit;
+    impl<__C: ?Sized, T: CheckBytes<__C>> CheckBytes<__C> for Unit<T>
+    where
+        T: CheckBytes<__C>,
+    {
+        type Error = <T as CheckBytes<__C>>::Error;
+        unsafe fn check_bytes<'a>(
+            value: *const Unit<T>,
+            context: &mut __C,
+        ) -> Result<&'a Self, Self::Error> {
+            let _ = T::check_bytes(addr_of!((*value).value), context)?;
+            Ok(&*value)
+        }
+    }
+}
 
 #[cfg(feature = "cuda")]
 unsafe impl<T: cust_core::DeviceCopy, R, C, S> cust_core::DeviceCopy for Unit<Matrix<T, R, C, S>>

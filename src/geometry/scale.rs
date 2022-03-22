@@ -118,6 +118,27 @@ mod rkyv_impl {
         }
     }
 }
+#[cfg(feature = "rkyv-serialize")]
+mod bytecheck_impl {
+    use std::ptr::addr_of;
+
+    use bytecheck::CheckBytes;
+
+    use crate::{SVector, Scale};
+    impl<__C: ?Sized, T: CheckBytes<__C>, const D: usize> CheckBytes<__C> for Scale<T, D>
+    where
+        T: CheckBytes<__C>,
+    {
+        type Error = <SVector<T, D> as CheckBytes<__C>>::Error;
+        unsafe fn check_bytes<'a>(
+            value: *const Scale<T, D>,
+            context: &mut __C,
+        ) -> Result<&'a Self, Self::Error> {
+            let _ = SVector::<T, D>::check_bytes(addr_of!((*value).vector), context)?;
+            Ok(&*value)
+        }
+    }
+}
 
 impl<T: Scalar, const D: usize> Scale<T, D> {
     /// Inverts `self`.
