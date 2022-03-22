@@ -175,8 +175,7 @@ where
     /// Note that this is **not** the matrix multiplication as in, e.g., numpy. For matrix
     /// multiplication, use one of: `.gemm`, `.mul_to`, `.mul`, the `*` operator.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::{Vector3, Matrix2x3};
     /// let vec1 = Vector3::new(1.0, 2.0, 3.0);
@@ -207,8 +206,7 @@ where
     /// Note that this is **not** the matrix multiplication as in, e.g., numpy. For matrix
     /// multiplication, use one of: `.gemm`, `.mul_to`, `.mul`, the `*` operator.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::{Vector2, Complex};
     /// let vec1 = Vector2::new(Complex::new(1.0, 2.0), Complex::new(3.0, 4.0));
@@ -232,8 +230,7 @@ where
 
     /// The dot product between the transpose of `self` and `rhs`.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::{Vector3, RowVector3, Matrix2x3, Matrix3x2};
     /// let vec1 = Vector3::new(1.0, 2.0, 3.0);
@@ -285,8 +282,7 @@ where
     ///
     /// If `b` is zero, `self` is never read from.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::Vector3;
     /// let mut vec1 = Vector3::new(1.0, 2.0, 3.0);
@@ -308,8 +304,7 @@ where
     ///
     /// If `b` is zero, `self` is never read from.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::Vector3;
     /// let mut vec1 = Vector3::new(1.0, 2.0, 3.0);
@@ -333,8 +328,7 @@ where
     ///
     /// If `beta` is zero, `self` is never read.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::{Matrix2, Vector2};
     /// let mut vec1 = Vector2::new(1.0, 2.0);
@@ -425,8 +419,7 @@ where
     /// If `beta` is zero, `self` is never read. If `self` is read, only its lower-triangular part
     /// (including the diagonal) is actually read.
     ///
-    /// # Examples:
-    ///
+    /// # Examples
     /// ```
     /// # use nalgebra::{Matrix2, Vector2};
     /// let mat = Matrix2::new(1.0, 2.0,
@@ -468,8 +461,7 @@ where
     /// If `beta` is zero, `self` is never read. If `self` is read, only its lower-triangular part
     /// (including the diagonal) is actually read.
     ///
-    /// # Examples:
-    ///
+    /// # Examples
     /// ```
     /// # use nalgebra::{Matrix2, Vector2, Complex};
     /// let mat = Matrix2::new(Complex::new(1.0, 0.0), Complex::new(2.0, -0.1),
@@ -552,8 +544,7 @@ where
     ///
     /// If `beta` is zero, `self` is never read.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::{Matrix2, Vector2};
     /// let mat = Matrix2::new(1.0, 3.0,
@@ -587,8 +578,7 @@ where
     /// For real matrices, this is the same as `.gemv_tr`.
     /// If `beta` is zero, `self` is never read.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::{Matrix2, Vector2, Complex};
     /// let mat = Matrix2::new(Complex::new(1.0, 2.0), Complex::new(3.0, 4.0),
@@ -656,8 +646,7 @@ where
     ///
     /// If `beta` is zero, `self` is never read.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::{Matrix2x3, Vector2, Vector3};
     /// let mut mat = Matrix2x3::repeat(4.0);
@@ -688,8 +677,7 @@ where
     ///
     /// If `beta` is zero, `self` is never read.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{Matrix2x3, Vector2, Vector3, Complex};
@@ -722,8 +710,7 @@ where
     ///
     /// If `beta` is zero, `self` is never read.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{Matrix2x3, Matrix3x4, Matrix2x4};
@@ -763,8 +750,7 @@ where
     ///
     /// If `beta` is zero, `self` is never read.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{Matrix3x2, Matrix3x4, Matrix2x4};
@@ -821,8 +807,7 @@ where
     ///
     /// If `beta` is zero, `self` is never read.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{Matrix3x2, Matrix3x4, Matrix2x4, Complex};
@@ -921,8 +906,7 @@ where
     /// If `beta` is zero, `self` is never read. The result is symmetric. Only the lower-triangular
     /// (including the diagonal) part of `self` is read/written.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::{Matrix2, Vector2};
     /// let mut mat = Matrix2::identity();
@@ -934,6 +918,7 @@ where
     /// mat.ger_symm(10.0, &vec1, &vec2, 5.0);
     /// assert_eq!(mat.lower_triangle(), expected.lower_triangle());
     /// assert_eq!(mat.m12, 99999.99999); // This was untouched.
+    /// ```
     #[inline]
     #[deprecated(note = "This is renamed `syger` to match the original BLAS terminology.")]
     pub fn ger_symm<D2: Dim, D3: Dim, SB, SC>(
@@ -958,8 +943,7 @@ where
     /// If `beta` is zero, `self` is never read. The result is symmetric. Only the lower-triangular
     /// (including the diagonal) part of `self` is read/written.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::{Matrix2, Vector2};
     /// let mut mat = Matrix2::identity();
@@ -971,6 +955,7 @@ where
     /// mat.syger(10.0, &vec1, &vec2, 5.0);
     /// assert_eq!(mat.lower_triangle(), expected.lower_triangle());
     /// assert_eq!(mat.m12, 99999.99999); // This was untouched.
+    /// ```
     #[inline]
     pub fn syger<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
@@ -993,8 +978,7 @@ where
     /// If `beta` is zero, `self` is never read. The result is symmetric. Only the lower-triangular
     /// (including the diagonal) part of `self` is read/written.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::{Matrix2, Vector2, Complex};
     /// let mut mat = Matrix2::identity();
@@ -1006,6 +990,7 @@ where
     /// mat.hegerc(Complex::new(10.0, 20.0), &vec1, &vec2, Complex::new(5.0, 15.0));
     /// assert_eq!(mat.lower_triangle(), expected.lower_triangle());
     /// assert_eq!(mat.m12, Complex::new(99999.99999, 88888.88888)); // This was untouched.
+    /// ```
     #[inline]
     pub fn hegerc<D2: Dim, D3: Dim, SB, SC>(
         &mut self,
@@ -1031,8 +1016,7 @@ where
     ///
     /// This uses the provided workspace `work` to avoid allocations for intermediate results.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{DMatrix, DVector};
@@ -1053,6 +1037,7 @@ where
     ///
     /// mat.quadform_tr_with_workspace(&mut workspace, 10.0, &lhs, &mid, 5.0);
     /// assert_relative_eq!(mat, expected);
+    /// ```
     pub fn quadform_tr_with_workspace<D2, S2, R3, C3, S3, D4, S4>(
         &mut self,
         work: &mut Vector<T, D2, S2>,
@@ -1085,8 +1070,7 @@ where
     /// If `D1` is a type-level integer, then the allocation is performed on the stack.
     /// Use `.quadform_tr_with_workspace(...)` instead to avoid allocations.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{Matrix2, Matrix3, Matrix2x3, Vector2};
@@ -1100,6 +1084,7 @@ where
     ///
     /// mat.quadform_tr(10.0, &lhs, &mid, 5.0);
     /// assert_relative_eq!(mat, expected);
+    /// ```
     pub fn quadform_tr<R3, C3, S3, D4, S4>(
         &mut self,
         alpha: T,
@@ -1124,6 +1109,7 @@ where
     ///
     /// This uses the provided workspace `work` to avoid allocations for intermediate results.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{DMatrix, DVector};
@@ -1145,6 +1131,7 @@ where
     ///
     /// mat.quadform_with_workspace(&mut workspace, 10.0, &mid, &rhs, 5.0);
     /// assert_relative_eq!(mat, expected);
+    /// ```
     pub fn quadform_with_workspace<D2, S2, D3, S3, R4, C4, S4>(
         &mut self,
         work: &mut Vector<T, D2, S2>,
@@ -1180,6 +1167,7 @@ where
     /// If `D2` is a type-level integer, then the allocation is performed on the stack.
     /// Use `.quadform_with_workspace(...)` instead to avoid allocations.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{Matrix2, Matrix3x2, Matrix3};
@@ -1194,6 +1182,7 @@ where
     ///
     /// mat.quadform(10.0, &mid, &rhs, 5.0);
     /// assert_relative_eq!(mat, expected);
+    /// ```
     pub fn quadform<D2, S2, R3, C3, S3>(
         &mut self,
         alpha: T,

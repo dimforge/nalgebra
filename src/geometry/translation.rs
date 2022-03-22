@@ -231,6 +231,7 @@ impl<T: Scalar + ClosedAdd, const D: usize> Translation<T, D> {
     /// let t = Translation3::new(1.0, 2.0, 3.0);
     /// let transformed_point = t.transform_point(&Point3::new(4.0, 5.0, 6.0));
     /// assert_eq!(transformed_point, Point3::new(5.0, 7.0, 9.0));
+    /// ```
     #[inline]
     #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
@@ -247,6 +248,7 @@ impl<T: Scalar + ClosedSub, const D: usize> Translation<T, D> {
     /// let t = Translation3::new(1.0, 2.0, 3.0);
     /// let transformed_point = t.inverse_transform_point(&Point3::new(4.0, 5.0, 6.0));
     /// assert_eq!(transformed_point, Point3::new(3.0, 3.0, 3.0));
+    /// ```
     #[inline]
     #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
