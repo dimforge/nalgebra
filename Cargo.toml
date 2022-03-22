@@ -52,8 +52,8 @@ convert-glam020 = [ "glam020" ]
 ## `serde-serialize`.
 serde-serialize-no-std = [ "serde", "num-complex/serde" ]
 serde-serialize        = [ "serde-serialize-no-std", "serde/std" ]
-rkyv-serialize-no-std  = [ "rkyv", "bytecheck" ]
-rkyv-serialize         = [ "rkyv-serialize-no-std", "rkyv/std" ]
+rkyv-serialize-no-std  = [ "rkyv" ]
+rkyv-serialize         = [ "rkyv-serialize-no-std", "rkyv/std", "bytecheck" ]
 
 # Randomness
 ## To use rand in a #[no-std] environment, enable the
