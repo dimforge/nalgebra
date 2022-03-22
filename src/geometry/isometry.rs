@@ -121,6 +121,48 @@ mod rkyv_impl {
         }
     }
 }
+#[cfg(feature = "rkyv-serialize")]
+mod bytecheck_impl {
+    use crate::{Isometry, Scalar, Translation};
+    use bytecheck::CheckBytes;
+    use std::{error::Error, fmt, ptr::addr_of};
+
+    #[derive(Debug)]
+    pub enum IsometryCheckBytesError<T, R> {
+        Rotation(R),
+        Translation(T),
+    }
+    impl<T, R> fmt::Display for IsometryCheckBytesError<T, R> {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            match self {
+                Self::Rotation(_) => write!(f, "failed to check bytes of isometry rotation"),
+                Self::Translation(_) => write!(f, "failed to check bytes of isometry translation"),
+            }
+        }
+    }
+    impl<T: Error, R: Error> Error for IsometryCheckBytesError<T, R> {}
+
+    impl<__C: ?Sized, T: Scalar + CheckBytes<__C>, R: CheckBytes<__C>, const D: usize>
+        CheckBytes<__C> for Isometry<T, R, D>
+    where
+        T: CheckBytes<__C>,
+    {
+        type Error = IsometryCheckBytesError<
+            <Translation<T, D> as CheckBytes<__C>>::Error,
+            <R as CheckBytes<__C>>::Error,
+        >;
+        unsafe fn check_bytes<'a>(
+            value: *const Isometry<T, R, D>,
+            context: &mut __C,
+        ) -> Result<&'a Self, Self::Error> {
+            let _ = R::check_bytes(addr_of!((*value).rotation), context)
+                .map_err(|e| IsometryCheckBytesError::Rotation(e))?;
+            let _ = Translation::<T, D>::check_bytes(addr_of!((*value).translation), context)
+                .map_err(|e| IsometryCheckBytesError::Translation(e))?;
+            Ok(&*value)
+        }
+    }
+}
 
 impl<T: Scalar + hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Isometry<T, R, D>
 where

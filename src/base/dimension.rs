@@ -257,6 +257,21 @@ mod rkyv_impl {
         }
     }
 }
+#[cfg(feature = "rkyv-serialize")]
+mod bytecheck_impl {
+    use bytecheck::CheckBytes;
+
+    use super::Const;
+    impl<__C: ?Sized, const R: usize> CheckBytes<__C> for Const<R> {
+        type Error = core::convert::Infallible;
+        unsafe fn check_bytes<'a>(
+            value: *const Const<R>,
+            _context: &mut __C,
+        ) -> Result<&'a Self, Self::Error> {
+            Ok(&*value)
+        }
+    }
+}
 
 pub trait ToConst {
     type Const: DimName;

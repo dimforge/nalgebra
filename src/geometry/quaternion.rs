@@ -130,6 +130,28 @@ mod rkyv_impl {
         }
     }
 }
+#[cfg(feature = "rkyv-serialize")]
+mod bytecheck_impl {
+    use std::ptr::addr_of;
+
+    use bytecheck::CheckBytes;
+
+    use super::Quaternion;
+    use crate::Vector4;
+    impl<__C: ?Sized, T: CheckBytes<__C>> CheckBytes<__C> for Quaternion<T>
+    where
+        T: CheckBytes<__C>,
+    {
+        type Error = <Vector4<T> as CheckBytes<__C>>::Error;
+        unsafe fn check_bytes<'a>(
+            value: *const Quaternion<T>,
+            context: &mut __C,
+        ) -> Result<&'a Self, Self::Error> {
+            let _ = Vector4::check_bytes(addr_of!((*value).coords), context)?;
+            Ok(&*value)
+        }
+    }
+}
 
 impl<T: SimdRealField> Quaternion<T>
 where

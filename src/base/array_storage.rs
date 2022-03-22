@@ -307,3 +307,25 @@ mod rkyv_impl {
         }
     }
 }
+#[cfg(feature = "rkyv-serialize")]
+mod bytecheck_impl {
+    use std::ptr::addr_of;
+
+    use bytecheck::{ArrayCheckError, CheckBytes};
+
+    use super::ArrayStorage;
+
+    impl<__C: ?Sized, T, const R: usize, const C: usize> CheckBytes<__C> for ArrayStorage<T, R, C>
+    where
+        T: CheckBytes<__C>,
+    {
+        type Error = ArrayCheckError<ArrayCheckError<<T as CheckBytes<__C>>::Error>>;
+        unsafe fn check_bytes<'a>(
+            value: *const ArrayStorage<T, R, C>,
+            context: &mut __C,
+        ) -> Result<&'a Self, Self::Error> {
+            let _ = <[[T; R]; C] as CheckBytes<__C>>::check_bytes(addr_of!((*value).0), context)?;
+            Ok(&*value)
+        }
+    }
+}
