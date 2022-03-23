@@ -20,10 +20,7 @@ use crate::geometry::{Point3, Projective3};
 
 /// A 3D perspective projection stored as a homogeneous 4x4 matrix.
 #[repr(C)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[derive(Copy, Clone)]
 pub struct Perspective3<T> {
     matrix: Matrix4<T>,

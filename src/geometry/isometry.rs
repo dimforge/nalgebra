@@ -50,10 +50,7 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 ///
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
