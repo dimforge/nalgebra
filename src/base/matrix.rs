@@ -411,8 +411,6 @@ where
 {
     /// Assumes a matrix's entries to be initialized. This operation should be near zero-cost.
     ///
-    /// For the similar method that operates on matrix slices, see [`slice_assume_init`].
-    ///
     /// # Safety
     /// The user must make sure that every single entry of the buffer has been initialized,
     /// or Undefined Behavior will immediately occur.
@@ -433,12 +431,12 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
     /// The shape of this matrix returned as the tuple (number of rows, number of columns).
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::Matrix3x4;
     /// let mat = Matrix3x4::<f32>::zeros();
     /// assert_eq!(mat.shape(), (3, 4));
+    /// ```
     #[inline]
     #[must_use]
     pub fn shape(&self) -> (usize, usize) {
@@ -455,12 +453,12 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
     /// The number of rows of this matrix.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::Matrix3x4;
     /// let mat = Matrix3x4::<f32>::zeros();
     /// assert_eq!(mat.nrows(), 3);
+    /// ```
     #[inline]
     #[must_use]
     pub fn nrows(&self) -> usize {
@@ -469,12 +467,12 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
     /// The number of columns of this matrix.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::Matrix3x4;
     /// let mat = Matrix3x4::<f32>::zeros();
     /// assert_eq!(mat.ncols(), 4);
+    /// ```
     #[inline]
     #[must_use]
     pub fn ncols(&self) -> usize {
@@ -483,14 +481,14 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
     /// The strides (row stride, column stride) of this matrix.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::DMatrix;
     /// let mat = DMatrix::<f32>::zeros(10, 10);
     /// let slice = mat.slice_with_steps((0, 0), (5, 3), (1, 2));
     /// // The column strides is the number of steps (here 2) multiplied by the corresponding dimension.
     /// assert_eq!(mat.strides(), (1, 10));
+    /// ```
     #[inline]
     #[must_use]
     pub fn strides(&self) -> (usize, usize) {
@@ -1085,8 +1083,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// Iterates through this matrix coordinates in column-major order.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::Matrix2x3;
     /// let mat = Matrix2x3::new(11, 12, 13,
@@ -1099,6 +1096,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(*it.next().unwrap(), 13);
     /// assert_eq!(*it.next().unwrap(), 23);
     /// assert!(it.next().is_none());
+    /// ```
     #[inline]
     pub fn iter(&self) -> MatrixIter<'_, T, R, C, S> {
         MatrixIter::new(&self.data)
@@ -1121,6 +1119,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     }
 
     /// Iterate through the columns of this matrix.
+    ///
     /// # Example
     /// ```
     /// # use nalgebra::Matrix2x3;

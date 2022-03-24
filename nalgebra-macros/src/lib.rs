@@ -125,7 +125,6 @@ impl Parse for Matrix {
 /// (`;`) designates that a new row begins.
 ///
 /// # Examples
-///
 /// ```
 /// use nalgebra::matrix;
 ///
@@ -170,6 +169,7 @@ pub fn matrix(stream: TokenStream) -> TokenStream {
 /// `SMatrix`, it produces instances of `DMatrix`. At the moment it is not usable
 /// in `const fn` contexts.
 ///
+/// # Example
 /// ```
 /// use nalgebra::dmatrix;
 ///
@@ -243,8 +243,7 @@ impl Parse for Vector {
 /// `vector!` is intended to be the most readable and performant way of constructing small,
 /// fixed-size vectors, and it is usable in `const fn` contexts.
 ///
-/// ## Examples
-///
+/// # Example
 /// ```
 /// use nalgebra::vector;
 ///
@@ -271,6 +270,7 @@ pub fn vector(stream: TokenStream) -> TokenStream {
 /// `SVector`, it produces instances of `DVector`. At the moment it is not usable
 /// in `const fn` contexts.
 ///
+/// # Example
 /// ```
 /// use nalgebra::dvector;
 ///
@@ -301,8 +301,7 @@ pub fn dvector(stream: TokenStream) -> TokenStream {
 /// `point!` is intended to be the most readable and performant way of constructing small,
 /// points, and it is usable in `const fn` contexts.
 ///
-/// ## Examples
-///
+/// # Example
 /// ```
 /// use nalgebra::point;
 ///

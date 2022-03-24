@@ -402,6 +402,7 @@ where
     /// let expected = Quaternion::new(-20.0, 0.0, 0.0, 0.0);
     /// let result = a.inner(&b);
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-5);
+    /// ```
     #[inline]
     #[must_use]
     pub fn inner(&self, other: &Self) -> Self {
@@ -1227,8 +1228,7 @@ where
     /// Panics if the angle between both quaternion is 180 degrees (in which case the interpolation
     /// is not well-defined). Use `.try_slerp` instead to avoid the panic.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::geometry::UnitQuaternion;
     ///
@@ -1450,7 +1450,6 @@ where
     /// Builds a rotation matrix from this unit quaternion.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1533,7 +1532,6 @@ where
     /// Converts this unit quaternion into its equivalent homogeneous transformation matrix.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1557,7 +1555,6 @@ where
     /// This is the same as the multiplication `self * pt`.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1578,7 +1575,6 @@ where
     /// This is the same as the multiplication `self * v`.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1599,7 +1595,6 @@ where
     /// point.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1622,7 +1617,6 @@ where
     /// vector.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1643,7 +1637,6 @@ where
     /// vector.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
