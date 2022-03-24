@@ -118,11 +118,15 @@ impl<T:RealField, const D: usize> Rotation<T,D> where
     pub fn general_pow(self, t:T) -> Self {
         if D<=1 { return self; }
 
+        println!("r:{}", self);
+
         //taking the (real) schur form is guaranteed to produce a block-diagonal matrix
         //where each block is either a 1 (if there's no rotation in that axis) or a 2x2
         //rotation matrix in a particular plane
         let schur = self.into_inner().schur();
         let (q, mut d) = schur.unpack();
+
+        println!("q:{}d:{:.3}", q, d);
 
         //go down the diagonal and pow every block
         for i in 0..(D-1) {
@@ -131,9 +135,13 @@ impl<T:RealField, const D: usize> Rotation<T,D> where
             //NOTE: the impl of the schur decomposition always sets the inferior diagonal to 0
             if !d[(i+1,i)].is_zero() {
 
+                println!("{}", i);
+
                 //convert to a complex num and take the arg()
                 let (c, s) = (d[(i,i)].clone(), d[(i+1,i)].clone());
                 let angle = s.atan2(c);
+
+                println!("{}", angle);
 
                 //scale the arg and exponentiate back
                 let angle2 = angle * t.clone();
@@ -148,6 +156,7 @@ impl<T:RealField, const D: usize> Rotation<T,D> where
             }
 
         }
+        println!("d:{:.3}", d);
 
         let qt = q.transpose(); //avoids an extra clone
 
