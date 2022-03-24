@@ -1119,7 +1119,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     }
 
     /// Iterate through the columns of this matrix.
-    /// 
+    ///
     /// # Example
     /// ```
     /// # use nalgebra::Matrix2x3;
