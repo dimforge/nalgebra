@@ -39,6 +39,69 @@ mod proptest_tests {
     use crate::proptest::*;
     use proptest::{prop_assert, prop_assert_eq, proptest};
 
+    macro_rules! gen_powf_rotation_test {
+        ($(
+            fn $powf_rot_n:ident($($v1:ident in $vec1:ident(), $v2:ident in $vec2:ident()),*);
+        )*) => {
+            proptest!{$(
+
+                #[test]
+                fn $powf_rot_n(
+                    $($v1 in $vec1(), $v2 in $vec2(),)*
+                    pow in PROPTEST_F64
+                ) {
+
+                    use nalgebra::*;
+                    use num_traits::Zero;
+
+                    //make an orthonormal basis
+                    let mut basis = [$($v1, $v2),*];
+                    Vector::orthonormalize(&mut basis);
+                    let [$($v1, $v2),*] = basis;
+
+                    //"wedge" the vectors to make an arrary 2-blades representing rotation planes.
+                    let mut bivectors = [
+                        //Since we start with vector pairs, each bivector is guaranteed to be simple
+                        $($v1.transpose().kronecker(&$v2) - $v2.transpose().kronecker(&$v1)),*
+                    ];
+
+                    //condition the bivectors
+                    for b in &mut bivectors {
+                        if let Some((unit, norm)) = Unit::try_new_and_get(*b, 0.0) {
+                            //every component is duplicated once, so there's an extra factor of
+                            //sqrt(2) in the norm
+                            let mut angle = norm / 2.0f64.sqrt();
+                            angle = na::wrap(angle, -f64::pi(), f64::pi());
+                            *b = unit.into_inner() * angle * 2.0f64.sqrt();
+                        }
+                    }
+
+                    let mut bivector = bivectors[0].clone();
+                    for i in 1..bivectors.len() {
+                        bivector += bivectors[i];
+                    }
+
+                    let r1 = Rotation::from_matrix_unchecked(bivector.exp()).general_pow(pow);
+                    let r2 = Rotation::from_matrix_unchecked((bivector * pow).exp());
+
+                    prop_assert!(relative_eq!(r1, r2, epsilon=1e-7));
+
+                }
+
+            )*}
+        }
+    }
+
+    gen_powf_rotation_test!(
+        fn powf_rotation_4(v1 in vector4(), v2 in vector4(), v3 in vector4(), v4 in vector4());
+        fn powf_rotation_5(v1 in vector5(), v2 in vector5(), v3 in vector5(), v4 in vector5());
+        fn powf_rotation_6(
+            v1 in vector6(), v2 in vector6(),
+            v3 in vector6(), v4 in vector6(),
+            v5 in vector6(), v6 in vector6()
+        );
+    );
+
     proptest! {
         /*
          *
@@ -229,79 +292,6 @@ mod proptest_tests {
                 prop_assert_eq!(r, Rotation3::identity())
             }
         }
-
-        // macro_rules! gen_pof_rotation_test {
-        //     ($(
-        //         fn $powf_rot_n:ident($($v1:ident in $vec1:ident(), $v2:ident in $vec2:ident()),*);
-        //     )*) => {$
-        //
-        //         #[test]
-        //         fn $powf_rot_n(
-        //             $($v1 in $vec1(), $v2 in $vec2(),)*
-        //             pow in PROPTEST_F64
-        //         ) {
-        //
-        //         }
-        //
-        //     )*}
-        // }
-
-        #[test]
-        fn powf_rotation_4(
-            v1 in vector4(), v2 in vector4(),
-            v3 in vector4(), v4 in vector4(),
-            pow in PROPTEST_F64
-        ) {
-
-            use nalgebra::*;
-            use num_traits::Zero;
-
-            type Rotation4<T> = Rotation<T,4>;
-
-            //make an orthonormal basis
-            let mut basis = [v1,v2,v3,v4];
-            Vector::orthonormalize(&mut basis);
-            let [v1,v2,v3,v4] = basis;
-
-            //"wedge" the vectors to make two 2-blades representing two rotation planes
-            //since we start with vector pairs, each bivector is guaranteed to be simple
-            let mut b1 = v1.transpose().kronecker(&v2) - v2.transpose().kronecker(&v1);
-            let mut b2 = v3.transpose().kronecker(&v4) - v4.transpose().kronecker(&v3);
-
-            //condition b1
-            if let Some((unit, norm)) = Unit::try_new_and_get(b1, 0.0) {
-                //every component is duplicated once, so there's an extra factor or sqrt(2) in the norm
-                //and wrap angle into the correct range
-                let mut angle = norm / 2.0f64.sqrt();
-                angle = na::wrap(angle, -f64::pi(), f64::pi());
-                b1 = unit.into_inner() * angle * 2.0f64.sqrt();
-            }
-
-            //condition b2
-            if let Some((unit, norm)) = Unit::try_new_and_get(b2, 0.0) {
-                let mut angle = norm / 2.0f64.sqrt();
-                angle = na::wrap(angle, -f64::pi(), f64::pi());
-                b2 = unit.into_inner() * angle * 2.0f64.sqrt();
-            }
-
-            let bivector  = b1+b2;
-
-            println!("b:{:.3}", bivector);
-
-            let r1 = Rotation4::from_matrix_unchecked(bivector.exp());
-            let r2 = Rotation4::from_matrix_unchecked((bivector * pow).exp());
-
-            // println!("{}{}", r1, r2);
-            // println!("{}", r1.general_pow(pow));
-
-            prop_assert!(
-                relative_eq!(r1.general_pow(pow), r2, epsilon=1e-7)
-            );
-
-
-        }
-
-
 
     }
 }
