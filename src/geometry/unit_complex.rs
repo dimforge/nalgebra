@@ -411,7 +411,7 @@ where
     #[must_use]
     pub fn slerp(&self, other: &Self, t: T) -> Self {
         let delta = other / self;
-        self * Self::new(delta.angle()*t)
+        self * Self::new(delta.angle() * t)
     }
 }
 
