@@ -52,7 +52,6 @@ mod proptest_tests {
                 ) {
 
                     use nalgebra::*;
-                    use num_traits::Zero;
 
                     //make an orthonormal basis
                     let mut basis = [$($v1, $v2),*];
@@ -81,7 +80,7 @@ mod proptest_tests {
                         bivector += bivectors[i];
                     }
 
-                    let r1 = Rotation::from_matrix_unchecked(bivector.exp()).general_pow(pow);
+                    let r1 = Rotation::from_matrix_unchecked(bivector.exp()).powf(pow);
                     let r2 = Rotation::from_matrix_unchecked((bivector * pow).exp());
 
                     prop_assert!(relative_eq!(r1, r2, epsilon=1e-7));

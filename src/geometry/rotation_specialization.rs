@@ -15,11 +15,13 @@ use simba::scalar::RealField;
 use simba::simd::{SimdBool, SimdRealField};
 use std::ops::Neg;
 
-use crate::base::dimension::{U1, U2, U3};
+use crate::base::dimension::{Const, U1, U2, U3, DimSub, DimDiff};
+use crate::base::allocator::Allocator;
 use crate::base::storage::Storage;
-use crate::base::{Matrix2, Matrix3, SMatrix, SVector, Unit, Vector, Vector1, Vector2, Vector3};
+use crate::base::{ Matrix2, Matrix3, SMatrix, SVector, Unit, Vector, Vector1, Vector2, Vector3};
+use crate::base::{ArrayStorage, DefaultAllocator};
 
-use crate::geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
+use crate::geometry::{Rotation, Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 
 /*
  *
@@ -217,7 +219,7 @@ impl<T: SimdRealField> Rotation2<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn powf(&self, n: T) -> Self {
+    fn powf_2d(&self, n: T) -> Self {
         Self::new(self.angle() * n)
     }
 }
@@ -676,7 +678,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn powf(&self, n: T) -> Self
+    fn powf_3d(&self, n: T) -> Self
     where
         T: RealField,
     {
@@ -1003,4 +1005,99 @@ where
     fn arbitrary(g: &mut Gen) -> Self {
         Self::new(SVector::arbitrary(g))
     }
+}
+
+impl<T:RealField, const D: usize> Rotation<T,D>
+{
+
+    //FIXME: merging powf for Rotation2 into this raises the trait bounds from SimdRealField to RealField
+    #[warn(missing_docs)]
+    pub fn powf(&self, t: T) -> Self where
+        Const<D>: DimSub<U1>,
+        ArrayStorage<T,D,D>: Storage<T,Const<D>,Const<D>>,
+        DefaultAllocator: Allocator<T,Const<D>,Const<D>,Buffer=ArrayStorage<T,D,D>> + Allocator<T,Const<D>> +
+            Allocator<T,Const<D>,DimDiff<Const<D>,U1>> +
+            Allocator<T,DimDiff<Const<D>,U1>>
+    {
+        use std::mem::*;
+
+        //The best option here would be to use #[feature(specialization)], but until
+        //that's stabilized, this is the best we can do. Theoretically, the compiler should
+        //pretty thoroughly optimize away all the excess checks and conversions
+        match D {
+
+            0 => self.clone(),
+            1 => self.clone(),
+
+            //NOTE: Not pretty, but without refactoring the API, this is the best we can do
+            //NOTE: This is safe because we directly check the dimension first
+            2 => unsafe {
+                let r2d = transmute::<&Self,&Rotation2<T>>(self).powf_2d(t);
+                transmute::<&Rotation2<T>,&Self>(&r2d).clone()
+            },
+            3 => unsafe {
+                let r3d = transmute::<&Self,&Rotation3<T>>(self).powf_3d(t);
+                transmute::<&Rotation3<T>,&Self>(&r3d).clone()
+            },
+
+            _ => self.clone().general_pow(t)
+        }
+    }
+
+    fn general_pow(self, t:T) -> Self where
+        Const<D>: DimSub<U1>,
+        ArrayStorage<T,D,D>: Storage<T,Const<D>,Const<D>>,
+        DefaultAllocator: Allocator<T,Const<D>,Const<D>,Buffer=ArrayStorage<T,D,D>> + Allocator<T,Const<D>> +
+            Allocator<T,Const<D>,DimDiff<Const<D>,U1>> +
+            Allocator<T,DimDiff<Const<D>,U1>>
+    {
+        if D<=1 { return self; }
+
+        // println!("r:{}", self);
+        // println!("{}", self.clone().into_inner().hessenberg().unpack_h());
+
+        //taking the (real) schur form is guaranteed to produce a block-diagonal matrix
+        //where each block is either a 1 (if there's no rotation in that axis) or a 2x2
+        //rotation matrix in a particular plane
+        let schur = self.into_inner().schur();
+        let (q, mut d) = schur.unpack();
+
+        // println!("q:{}d:{:.3}", q, d);
+
+        //go down the diagonal and pow every block
+        for i in 0..(D-1) {
+
+            //we've found a 2x2 block!
+            //NOTE: the impl of the schur decomposition always sets the inferior diagonal to 0
+            if !d[(i+1,i)].is_zero() {
+
+                // println!("{}", i);
+
+                //convert to a complex num and take the arg()
+                let (c, s) = (d[(i,i)].clone(), d[(i+1,i)].clone());
+                let angle = s.atan2(c);
+
+                // println!("{}", angle);
+
+                //scale the arg and exponentiate back
+                let angle2 = angle * t.clone();
+                let (s2, c2) = angle2.sin_cos();
+
+                //convert back into a rot block
+                d[(i,  i  )] =  c2.clone();
+                d[(i,  i+1)] = -s2.clone();
+                d[(i+1,i  )] =  s2;
+                d[(i+1,i+1)] =  c2;
+
+            }
+
+        }
+        // println!("d:{:.3}", d);
+
+        let qt = q.transpose(); //avoids an extra clone
+
+        Self::from_matrix_unchecked(q * d * qt)
+
+    }
+
 }
