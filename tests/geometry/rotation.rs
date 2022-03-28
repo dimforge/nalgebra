@@ -102,6 +102,53 @@ mod proptest_tests {
         };
     }
 
+    macro_rules! gen_powf_180deg_rotation_test {
+        ($(
+            fn $powf_rot_n:ident($($v:ident in $vec:ident()),*);
+        )*) => {$(
+            proptest! {
+
+                #[test]
+                fn $powf_rot_n($($v in $vec(),)*) {
+
+                    use nalgebra::*;
+                    use num_traits::Zero;
+                    use std::f64::consts::PI;
+
+                    //an array of tuples with the unit plane and angle
+                    let plane_angles = gen_rotation_planes!($($v),*).iter().map(
+                        |b| Unit::try_new_and_get(*b,0.0).map_or_else(
+                            || (Matrix::zero(), 0.0),
+                            |(b,a)| (b.into_inner(), a)
+                        )
+                    ).collect::<Vec<_>>();
+
+                    //loop over every choice of between the original angle and swapping to 180 deg
+                    let n = plane_angles.len();
+                    for mask in 0..(1<<n) {
+
+                        let mut b = SMatrix::zero();
+                        for i in 0..n {
+                            let (bi, ai) = plane_angles[i];
+                            if mask & (1<<i) != 0 {
+                                b += PI*bi;
+                            } else {
+                                b += ai*bi;
+                            }
+                        }
+
+                        //makes sure that e^(B/2)^2 == e^B
+                        let r1 = Rotation::from_matrix_unchecked(b.exp());
+                        let r2 = Rotation::from_matrix_unchecked((b/2.0).exp());
+                        prop_assert!(relative_eq!(r1.powf(0.5), r2, epsilon=1e-7));
+
+                    }
+                }
+            }
+        )*}
+    }
+
+
     gen_powf_rotation_test!(
         fn powf_rotation_4(v1 in vector4(), v2 in vector4(), v3 in vector4(), v4 in vector4());
         fn powf_rotation_5(v1 in vector5(), v2 in vector5(), v3 in vector5(), v4 in vector5());
@@ -112,49 +159,17 @@ mod proptest_tests {
         );
     );
 
-    proptest! {
-
-        #[test]
-        fn powf_180deg_rotation_4d(v1 in vector4(), v2 in vector4(), v3 in vector4(), v4 in vector4()) {
-
-            use nalgebra::*;
-            use std::f64::consts::PI;
-
-            let [b1,b2] = gen_rotation_planes!(v1,v2,v3,v4);
-
-            if let (Some((b1,a1)), Some((b2,a2))) = (
-                Unit::try_new_and_get(b1,0.0), Unit::try_new_and_get(b2,0.0)
-            ) {
-
-                let (b1, b2) = (b1.into_inner(), b2.into_inner());
-                {
-                    let b = a1*b1 + PI*b2;
-                    let r1 = Rotation::from_matrix_unchecked(b.exp());
-                    let r2 = Rotation::from_matrix_unchecked((b/2.0).exp());
-                    prop_assert!(relative_eq!(r1.powf(0.5), r2, epsilon=1e-7));
-                }
-
-                {
-                    let b = PI*b1 + a2*b2;
-                    let r1 = Rotation::from_matrix_unchecked(b.exp());
-                    let r2 = Rotation::from_matrix_unchecked((b/2.0).exp());
-                    prop_assert!(relative_eq!(r1.powf(0.5), r2, epsilon=1e-7));
-                }
-
-                {
-                    let b = PI*b1 + PI*b2;
-                    let r1 = Rotation::from_matrix_unchecked(b.exp());
-                    let r2 = Rotation::from_matrix_unchecked((b/2.0).exp());
-                    prop_assert!(relative_eq!(r1.powf(0.5), r2, epsilon=1e-7));
-                }
-
-            }
-
-
-
-        }
-
-    }
+    gen_powf_180deg_rotation_test!(
+        fn powf_180deg_rotation_2(v1 in vector2(), v2 in vector2());
+        fn powf_180deg_rotation_3(v1 in vector3(), v2 in vector3());
+        fn powf_180deg_rotation_4(v1 in vector4(), v2 in vector4(), v3 in vector4(), v4 in vector4());
+        fn powf_180deg_rotation_5(v1 in vector5(), v2 in vector5(), v3 in vector5(), v4 in vector5());
+        fn powf_180deg_rotation_6(
+            v1 in vector6(), v2 in vector6(),
+            v3 in vector6(), v4 in vector6(),
+            v5 in vector6(), v6 in vector6()
+        );
+    );
 
     proptest! {
         /*
