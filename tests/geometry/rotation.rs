@@ -32,144 +32,13 @@ fn quaternion_euler_angles_issue_494() {
 
 #[cfg(feature = "proptest-support")]
 mod proptest_tests {
-    use na::{self, Rotation, Rotation2, Rotation3, Unit};
+    use na::{self, Rotation, Rotation2, Rotation3, Unit, Vector, Matrix, SMatrix};
     use simba::scalar::RealField;
+    use num_traits::Zero;
     use std::f64;
 
     use crate::proptest::*;
     use proptest::{prop_assert, prop_assert_eq, proptest};
-
-    //creates N rotation planes and angles
-    macro_rules! gen_rotation_planes {
-        ($($v1:ident, $v2:ident),*) => {
-            {
-                //make an orthonormal basis
-                let mut basis = [$($v1, $v2),*];
-                Vector::orthonormalize(&mut basis);
-                let [$($v1, $v2),*] = basis;
-
-                //"wedge" the vectors to make an arrary 2-blades representing rotation planes.
-                [
-                    //Since we start with vector pairs, each bivector is guaranteed to be simple
-                    $($v1.transpose().kronecker(&$v2) - $v2.transpose().kronecker(&$v1)),*
-                ]
-            }
-
-        };
-    }
-
-    macro_rules! gen_powf_rotation_test {
-        ($(
-            fn $powf_rot_n:ident($($v:ident in $vec:ident()),*);
-        )*) => {
-            proptest!{$(
-
-                #[test]
-                fn $powf_rot_n(
-                    $($v in $vec(),)*
-                    pow in PROPTEST_F64
-                ) {
-
-                    use nalgebra::*;
-
-                    //"wedge" the vectors to make an arrary 2-blades representing rotation planes.
-                    let mut bivectors = gen_rotation_planes!($($v),*);
-
-                    //condition the bivectors
-                    for b in &mut bivectors {
-                        if let Some((unit, norm)) = Unit::try_new_and_get(*b, 0.0) {
-                            //every component is duplicated once, so there's an extra factor of
-                            //sqrt(2) in the norm
-                            let mut angle = norm / 2.0f64.sqrt();
-                            angle = na::wrap(angle, -f64::pi(), f64::pi());
-                            *b = unit.into_inner() * angle * 2.0f64.sqrt();
-                        }
-                    }
-
-                    let mut bivector = bivectors[0].clone();
-                    for i in 1..bivectors.len() {
-                        bivector += bivectors[i];
-                    }
-
-                    let r1 = Rotation::from_matrix_unchecked(bivector.exp()).powf(pow);
-                    let r2 = Rotation::from_matrix_unchecked((bivector * pow).exp());
-
-                    prop_assert!(relative_eq!(r1, r2, epsilon=1e-7));
-
-                }
-
-            )*}
-        };
-    }
-
-    macro_rules! gen_powf_180deg_rotation_test {
-        ($(
-            fn $powf_rot_n:ident($($v:ident in $vec:ident()),*);
-        )*) => {$(
-            proptest! {
-
-                #[test]
-                fn $powf_rot_n($($v in $vec(),)*) {
-
-                    use nalgebra::*;
-                    use num_traits::Zero;
-                    use std::f64::consts::PI;
-
-                    //an array of tuples with the unit plane and angle
-                    let plane_angles = gen_rotation_planes!($($v),*).iter().map(
-                        |b| Unit::try_new_and_get(*b,0.0).map_or_else(
-                            || (Matrix::zero(), 0.0),
-                            |(b,a)| (b.into_inner(), a)
-                        )
-                    ).collect::<Vec<_>>();
-
-                    //loop over every choice of between the original angle and swapping to 180 deg
-                    let n = plane_angles.len();
-                    for mask in 0..(1<<n) {
-
-                        let mut b = SMatrix::zero();
-                        for i in 0..n {
-                            let (bi, ai) = plane_angles[i];
-                            if mask & (1<<i) != 0 {
-                                b += PI*bi;
-                            } else {
-                                b += ai*bi;
-                            }
-                        }
-
-                        //makes sure that e^(B/2)^2 == e^B
-                        let r1 = Rotation::from_matrix_unchecked(b.exp());
-                        let r2 = Rotation::from_matrix_unchecked((b/2.0).exp());
-                        prop_assert!(relative_eq!(r1.powf(0.5), r2, epsilon=1e-7));
-
-                    }
-                }
-            }
-        )*}
-    }
-
-
-    gen_powf_rotation_test!(
-        fn powf_rotation_4(v1 in vector4(), v2 in vector4(), v3 in vector4(), v4 in vector4());
-        fn powf_rotation_5(v1 in vector5(), v2 in vector5(), v3 in vector5(), v4 in vector5());
-        fn powf_rotation_6(
-            v1 in vector6(), v2 in vector6(),
-            v3 in vector6(), v4 in vector6(),
-            v5 in vector6(), v6 in vector6()
-        );
-    );
-
-    gen_powf_180deg_rotation_test!(
-        fn powf_180deg_rotation_2(v1 in vector2(), v2 in vector2());
-        fn powf_180deg_rotation_3(v1 in vector3(), v2 in vector3());
-        fn powf_180deg_rotation_4(v1 in vector4(), v2 in vector4(), v3 in vector4(), v4 in vector4());
-        fn powf_180deg_rotation_5(v1 in vector5(), v2 in vector5(), v3 in vector5(), v4 in vector5());
-        fn powf_180deg_rotation_6(
-            v1 in vector6(), v2 in vector6(),
-            v3 in vector6(), v4 in vector6(),
-            v5 in vector6(), v6 in vector6()
-        );
-    );
 
     proptest! {
         /*
@@ -363,4 +232,132 @@ mod proptest_tests {
         }
 
     }
+
+    //creates N rotation planes and angles
+    macro_rules! gen_rotation_planes {
+        ($($v1:ident, $v2:ident),*) => {
+            {
+                //make an orthonormal basis
+                let mut basis = [$($v1, $v2),*];
+                Vector::orthonormalize(&mut basis);
+                let [$($v1, $v2),*] = basis;
+
+                //"wedge" the vectors to make an arrary 2-blades representing rotation planes.
+                [
+                    //Since we start with vector pairs, each bivector is guaranteed to be simple
+                    $($v1.transpose().kronecker(&$v2) - $v2.transpose().kronecker(&$v1)),*
+                ]
+            }
+
+        };
+    }
+
+    macro_rules! gen_powf_rotation_test {
+        ($(
+            fn $powf_rot_n:ident($($v:ident in $vec:ident()),*);
+        )*) => {
+            proptest!{$(
+
+                #[test]
+                fn $powf_rot_n(
+                    $($v in $vec(),)*
+                    pow in PROPTEST_F64
+                ) {
+
+                    //"wedge" the vectors to make an arrary 2-blades representing rotation planes.
+                    let mut bivectors = gen_rotation_planes!($($v),*);
+
+                    //condition the bivectors
+                    for b in &mut bivectors {
+                        if let Some((unit, norm)) = Unit::try_new_and_get(*b, 0.0) {
+                            //every component is duplicated once, so there's an extra factor of
+                            //sqrt(2) in the norm
+                            let mut angle = norm / 2.0f64.sqrt();
+                            angle = na::wrap(angle, -f64::pi(), f64::pi());
+                            *b = unit.into_inner() * angle * 2.0f64.sqrt();
+                        }
+                    }
+
+                    let mut bivector = bivectors[0].clone();
+                    for i in 1..bivectors.len() {
+                        bivector += bivectors[i];
+                    }
+
+                    let r1 = Rotation::from_matrix_unchecked(bivector.exp()).powf(pow);
+                    let r2 = Rotation::from_matrix_unchecked((bivector * pow).exp());
+
+                    prop_assert!(relative_eq!(r1, r2, epsilon=1e-7));
+
+                }
+
+            )*}
+        };
+    }
+
+    macro_rules! gen_powf_180deg_rotation_test {
+        ($(
+            fn $powf_rot_n:ident($($v:ident in $vec:ident()),*);
+        )*) => {$(
+            proptest! {
+
+                #[test]
+                fn $powf_rot_n($($v in $vec(),)*) {
+
+                    use std::f64::consts::PI;
+
+                    //an array of tuples with the unit plane and angle
+                    let plane_angles = gen_rotation_planes!($($v),*).iter().map(
+                        |b| Unit::try_new_and_get(*b,0.0).map_or_else(
+                            || (Matrix::zero(), 0.0),
+                            |(b,a)| (b.into_inner(), a)
+                        )
+                    ).collect::<Vec<_>>();
+
+                    //loop over every choice of between the original angle and swapping to 180 deg
+                    let n = plane_angles.len();
+                    for mask in 0..(1<<n) {
+
+                        let mut b = SMatrix::zero();
+                        for i in 0..n {
+                            let (bi, ai) = plane_angles[i];
+                            if mask & (1<<i) != 0 {
+                                b += PI*bi;
+                            } else {
+                                b += ai*bi;
+                            }
+                        }
+
+                        //makes sure that e^(B/2)^2 == e^B
+                        let r1 = Rotation::from_matrix_unchecked(b.exp());
+                        let r2 = Rotation::from_matrix_unchecked((b/2.0).exp());
+                        prop_assert!(relative_eq!(r1.powf(0.5), r2, epsilon=1e-7));
+
+                    }
+                }
+            }
+        )*}
+    }
+
+
+    gen_powf_rotation_test!(
+        fn powf_rotation_4(v1 in vector4(), v2 in vector4(), v3 in vector4(), v4 in vector4());
+        fn powf_rotation_5(v1 in vector5(), v2 in vector5(), v3 in vector5(), v4 in vector5());
+        fn powf_rotation_6(
+            v1 in vector6(), v2 in vector6(),
+            v3 in vector6(), v4 in vector6(),
+            v5 in vector6(), v6 in vector6()
+        );
+    );
+
+    gen_powf_180deg_rotation_test!(
+        fn powf_180deg_rotation_2(v1 in vector2(), v2 in vector2());
+        fn powf_180deg_rotation_3(v1 in vector3(), v2 in vector3());
+        fn powf_180deg_rotation_4(v1 in vector4(), v2 in vector4(), v3 in vector4(), v4 in vector4());
+        fn powf_180deg_rotation_5(v1 in vector5(), v2 in vector5(), v3 in vector5(), v4 in vector5());
+        fn powf_180deg_rotation_6(
+            v1 in vector6(), v2 in vector6(),
+            v3 in vector6(), v4 in vector6(),
+            v5 in vector6(), v6 in vector6()
+        );
+    );
 }

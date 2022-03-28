@@ -1,6 +1,5 @@
 use crate::{RealField, Rotation, Rotation2, Rotation3, SimdRealField, UnitComplex, UnitQuaternion};
 use crate::{Const, U1, DimSub, DimDiff, Storage, ArrayStorage, Allocator, DefaultAllocator};
-use crate::SMatrix;
 
 /// # Interpolation
 impl<T: SimdRealField> Rotation2<T> {
