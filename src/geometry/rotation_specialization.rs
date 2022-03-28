@@ -1065,19 +1065,21 @@ impl<T:RealField, const D: usize> Rotation<T,D>
         // println!("q:{}d:{:.3}", q, d);
 
         //go down the diagonal and pow every block
-        for i in 0..(D-1) {
+        let mut i = 0;
+        while i < D-1 {
 
-            //we've found a 2x2 block!
-            //NOTE: the impl of the schur decomposition always sets the inferior diagonal to 0
-            if !d[(i+1,i)].is_zero() {
+            if
+                //For most 2x2 blocks
+                //NOTE: we use strict equality since `nalgebra`'s schur decomp sets the infradiagonal to zero
+                !d[(i+1,i)].is_zero() ||
 
-                // println!("{}", i);
+                //for +-180 deg rotations
+                d[(i,i)]<T::zero() && d[(i+1,i+1)]<T::zero()
+            {
 
-                //convert to a complex num and take the arg()
+                //convert to a complex num and find the arg()
                 let (c, s) = (d[(i,i)].clone(), d[(i+1,i)].clone());
-                let angle = s.atan2(c);
-
-                // println!("{}", angle);
+                let angle = s.atan2(c); //for +-180deg rots, this implicitely takes the +180 branch
 
                 //scale the arg and exponentiate back
                 let angle2 = angle * t.clone();
@@ -1089,6 +1091,12 @@ impl<T:RealField, const D: usize> Rotation<T,D>
                 d[(i+1,i  )] =  s2;
                 d[(i+1,i+1)] =  c2;
 
+                //increase by 2 so we don't accidentally misinterpret the
+                //next line as a 180deg rotation
+                i += 2;
+
+            } else {
+                i += 1;
             }
 
         }

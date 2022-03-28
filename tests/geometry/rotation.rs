@@ -39,30 +39,41 @@ mod proptest_tests {
     use crate::proptest::*;
     use proptest::{prop_assert, prop_assert_eq, proptest};
 
+    //creates N rotation planes and angles
+    macro_rules! gen_rotation_planes {
+        ($($v1:ident, $v2:ident),*) => {
+            {
+                //make an orthonormal basis
+                let mut basis = [$($v1, $v2),*];
+                Vector::orthonormalize(&mut basis);
+                let [$($v1, $v2),*] = basis;
+
+                //"wedge" the vectors to make an arrary 2-blades representing rotation planes.
+                [
+                    //Since we start with vector pairs, each bivector is guaranteed to be simple
+                    $($v1.transpose().kronecker(&$v2) - $v2.transpose().kronecker(&$v1)),*
+                ]
+            }
+
+        };
+    }
+
     macro_rules! gen_powf_rotation_test {
         ($(
-            fn $powf_rot_n:ident($($v1:ident in $vec1:ident(), $v2:ident in $vec2:ident()),*);
+            fn $powf_rot_n:ident($($v:ident in $vec:ident()),*);
         )*) => {
             proptest!{$(
 
                 #[test]
                 fn $powf_rot_n(
-                    $($v1 in $vec1(), $v2 in $vec2(),)*
+                    $($v in $vec(),)*
                     pow in PROPTEST_F64
                 ) {
 
                     use nalgebra::*;
 
-                    //make an orthonormal basis
-                    let mut basis = [$($v1, $v2),*];
-                    Vector::orthonormalize(&mut basis);
-                    let [$($v1, $v2),*] = basis;
-
                     //"wedge" the vectors to make an arrary 2-blades representing rotation planes.
-                    let mut bivectors = [
-                        //Since we start with vector pairs, each bivector is guaranteed to be simple
-                        $($v1.transpose().kronecker(&$v2) - $v2.transpose().kronecker(&$v1)),*
-                    ];
+                    let mut bivectors = gen_rotation_planes!($($v),*);
 
                     //condition the bivectors
                     for b in &mut bivectors {
@@ -88,7 +99,7 @@ mod proptest_tests {
                 }
 
             )*}
-        }
+        };
     }
 
     gen_powf_rotation_test!(
@@ -100,6 +111,50 @@ mod proptest_tests {
             v5 in vector6(), v6 in vector6()
         );
     );
+
+    proptest! {
+
+        #[test]
+        fn powf_180deg_rotation_4d(v1 in vector4(), v2 in vector4(), v3 in vector4(), v4 in vector4()) {
+
+            use nalgebra::*;
+            use std::f64::consts::PI;
+
+            let [b1,b2] = gen_rotation_planes!(v1,v2,v3,v4);
+
+            if let (Some((b1,a1)), Some((b2,a2))) = (
+                Unit::try_new_and_get(b1,0.0), Unit::try_new_and_get(b2,0.0)
+            ) {
+
+                let (b1, b2) = (b1.into_inner(), b2.into_inner());
+                {
+                    let b = a1*b1 + PI*b2;
+                    let r1 = Rotation::from_matrix_unchecked(b.exp());
+                    let r2 = Rotation::from_matrix_unchecked((b/2.0).exp());
+                    prop_assert!(relative_eq!(r1.powf(0.5), r2, epsilon=1e-7));
+                }
+
+                {
+                    let b = PI*b1 + a2*b2;
+                    let r1 = Rotation::from_matrix_unchecked(b.exp());
+                    let r2 = Rotation::from_matrix_unchecked((b/2.0).exp());
+                    prop_assert!(relative_eq!(r1.powf(0.5), r2, epsilon=1e-7));
+                }
+
+                {
+                    let b = PI*b1 + PI*b2;
+                    let r1 = Rotation::from_matrix_unchecked(b.exp());
+                    let r2 = Rotation::from_matrix_unchecked((b/2.0).exp());
+                    prop_assert!(relative_eq!(r1.powf(0.5), r2, epsilon=1e-7));
+                }
+
+            }
+
+
+
+        }
+
+    }
 
     proptest! {
         /*
