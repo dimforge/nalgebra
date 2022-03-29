@@ -32,10 +32,10 @@ fn quaternion_euler_angles_issue_494() {
 
 #[cfg(feature = "proptest-support")]
 mod proptest_tests {
+    use approx::AbsDiffEq;
     use na::{self, Rotation2, Rotation3, Unit};
     use na::{UnitComplex, UnitQuaternion};
     use simba::scalar::RealField;
-    use approx::AbsDiffEq;
     use std::f64;
 
     use crate::proptest::*;
