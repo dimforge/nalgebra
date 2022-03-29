@@ -89,11 +89,26 @@ impl<T:RealField, const D: usize> Rotation<T,D> where
         Allocator<T,DimDiff<Const<D>,U1>>
 {
 
+    ///
+    /// Computes the spherical linear interpolation between two general rotations.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::geometry::Rotation3;
+    ///
+    /// let q1 = Rotation3::from_euler_angles(std::f32::consts::FRAC_PI_4, 0.0, 0.0);
+    /// let q2 = Rotation3::from_euler_angles(-std::f32::consts::PI, 0.0, 0.0);
+    ///
+    /// let q = q1.slerp(&q2, 1.0 / 3.0);
+    ///
+    /// assert_eq!(q.euler_angles(), (std::f32::consts::FRAC_PI_2, 0.0, 0.0));
+    /// ```
+    ///
     //FIXME: merging slerp for Rotation2 and Rotation3 into this raises the trait bounds
     //from SimdRealField to RealField
     #[inline]
     #[must_use]
-    #[warn(missing_docs)]
     pub fn slerp(&self, other: &Self, t:T) -> Self {
 
         use std::mem::transmute;

@@ -1010,8 +1010,24 @@ where
 impl<T:RealField, const D: usize> Rotation<T,D>
 {
 
+    ///
+    /// Raise the rotation to a given floating power, i.e., returns the rotation with the same
+    /// axis as `self` and an angle equal to `self.angle()` multiplied by `n`.
+    ///
+    /// # Example
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// # use nalgebra::{Rotation3, Vector3, Unit};
+    ///
+    /// let axis = Unit::new_normalize(Vector3::new(1.0, 2.0, 3.0));
+    /// let angle = 1.2;
+    /// let rot = Rotation3::from_axis_angle(&axis, angle);
+    /// let pow = rot.powf(2.0);
+    ///
+    /// assert_relative_eq!(pow.axis().unwrap(), axis, epsilon = 1.0e-6);
+    /// assert_eq!(pow.angle(), 2.4);
+    /// ```
     //FIXME: merging powf for Rotation2 into this raises the trait bounds from SimdRealField to RealField
-    #[warn(missing_docs)]
     pub fn powf(&self, t: T) -> Self where
         Const<D>: DimSub<U1>,
         ArrayStorage<T,D,D>: Storage<T,Const<D>,Const<D>>,
