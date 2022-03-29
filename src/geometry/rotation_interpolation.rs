@@ -140,7 +140,8 @@ impl<T:RealField, const D: usize> Rotation<T,D> where
                 transmute::<&Rotation3<T>,&Self>(&self3d.slerp_3d(other3d, t)).clone()
             },
 
-            _ => self * (self/other).powf(t)
+            //the multiplication order matters here
+            _ => (other/self).powf(t) * self
         }
 
     }
