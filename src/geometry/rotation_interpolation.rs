@@ -1,5 +1,7 @@
-use crate::{RealField, Rotation, Rotation2, Rotation3, SimdRealField, UnitComplex, UnitQuaternion};
-use crate::{Const, U1, DimSub, DimDiff, Storage, ArrayStorage, Allocator, DefaultAllocator};
+use crate::{Allocator, ArrayStorage, Const, DefaultAllocator, DimDiff, DimSub, Storage, U1};
+use crate::{
+    RealField, Rotation, Rotation2, Rotation3, SimdRealField, UnitComplex, UnitQuaternion,
+};
 
 /// # Interpolation
 impl<T: SimdRealField> Rotation2<T> {
@@ -81,14 +83,15 @@ impl<T: SimdRealField> Rotation3<T> {
     }
 }
 
-impl<T:RealField, const D: usize> Rotation<T,D> where
+impl<T: RealField, const D: usize> Rotation<T, D>
+where
     Const<D>: DimSub<U1>,
-    ArrayStorage<T,D,D>: Storage<T,Const<D>,Const<D>>,
-    DefaultAllocator: Allocator<T,Const<D>,Const<D>,Buffer=ArrayStorage<T,D,D>> + Allocator<T,Const<D>> +
-        Allocator<T,Const<D>,DimDiff<Const<D>,U1>> +
-        Allocator<T,DimDiff<Const<D>,U1>>
+    ArrayStorage<T, D, D>: Storage<T, Const<D>, Const<D>>,
+    DefaultAllocator: Allocator<T, Const<D>, Const<D>, Buffer = ArrayStorage<T, D, D>>
+        + Allocator<T, Const<D>>
+        + Allocator<T, Const<D>, DimDiff<Const<D>, U1>>
+        + Allocator<T, DimDiff<Const<D>, U1>>,
 {
-
     ///
     /// Computes the spherical linear interpolation between two general rotations.
     ///
@@ -109,15 +112,13 @@ impl<T:RealField, const D: usize> Rotation<T,D> where
     //from SimdRealField to RealField
     #[inline]
     #[must_use]
-    pub fn slerp(&self, other: &Self, t:T) -> Self {
-
+    pub fn slerp(&self, other: &Self, t: T) -> Self {
         use std::mem::transmute;
 
         //The best option here would be to use #[feature(specialization)], but until
         //that's stabilized, this is the best we can do. Theoretically, the compiler should
         //pretty thoroughly optimize away all the excess checks and conversions
         match D {
-
             0 => self.clone(),
 
             //FIXME: this doesn't really work in 1D since we can't interp between -1 and 1
@@ -127,23 +128,21 @@ impl<T:RealField, const D: usize> Rotation<T,D> where
             //NOTE: This is safe because we directly check the dimension first
             2 => unsafe {
                 let (self2d, other2d) = (
-                    transmute::<&Self,&Rotation2<T>>(self),
-                    transmute::<&Self,&Rotation2<T>>(other),
+                    transmute::<&Self, &Rotation2<T>>(self),
+                    transmute::<&Self, &Rotation2<T>>(other),
                 );
-                transmute::<&Rotation2<T>,&Self>(&self2d.slerp_2d(other2d, t)).clone()
+                transmute::<&Rotation2<T>, &Self>(&self2d.slerp_2d(other2d, t)).clone()
             },
             3 => unsafe {
                 let (self3d, other3d) = (
-                    transmute::<&Self,&Rotation3<T>>(self),
-                    transmute::<&Self,&Rotation3<T>>(other),
+                    transmute::<&Self, &Rotation3<T>>(self),
+                    transmute::<&Self, &Rotation3<T>>(other),
                 );
-                transmute::<&Rotation3<T>,&Self>(&self3d.slerp_3d(other3d, t)).clone()
+                transmute::<&Rotation3<T>, &Self>(&self3d.slerp_3d(other3d, t)).clone()
             },
 
             //the multiplication order matters here
-            _ => (other/self).powf(t) * self
+            _ => (other / self).powf(t) * self,
         }
-
     }
-
 }

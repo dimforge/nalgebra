@@ -15,11 +15,11 @@ use simba::scalar::RealField;
 use simba::simd::{SimdBool, SimdRealField};
 use std::ops::Neg;
 
-use crate::base::dimension::{Const, U1, U2, U3, DimSub, DimDiff};
 use crate::base::allocator::Allocator;
+use crate::base::dimension::{Const, DimDiff, DimSub, U1, U2, U3};
 use crate::base::storage::Storage;
-use crate::base::{ Matrix2, Matrix3, SMatrix, SVector, Unit, Vector, Vector1, Vector2, Vector3};
 use crate::base::{ArrayStorage, DefaultAllocator};
+use crate::base::{Matrix2, Matrix3, SMatrix, SVector, Unit, Vector, Vector1, Vector2, Vector3};
 
 use crate::geometry::{Rotation, Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 
@@ -1007,9 +1007,7 @@ where
     }
 }
 
-impl<T:RealField, const D: usize> Rotation<T,D>
-{
-
+impl<T: RealField, const D: usize> Rotation<T, D> {
     ///
     /// Raise the rotation to a given floating power, i.e., returns the rotation with the same
     /// axis as `self` and an angle equal to `self.angle()` multiplied by `n`.
@@ -1028,12 +1026,14 @@ impl<T:RealField, const D: usize> Rotation<T,D>
     /// assert_eq!(pow.angle(), 2.4);
     /// ```
     //FIXME: merging powf for Rotation2 into this raises the trait bounds from SimdRealField to RealField
-    pub fn powf(&self, t: T) -> Self where
+    pub fn powf(&self, t: T) -> Self
+    where
         Const<D>: DimSub<U1>,
-        ArrayStorage<T,D,D>: Storage<T,Const<D>,Const<D>>,
-        DefaultAllocator: Allocator<T,Const<D>,Const<D>,Buffer=ArrayStorage<T,D,D>> + Allocator<T,Const<D>> +
-            Allocator<T,Const<D>,DimDiff<Const<D>,U1>> +
-            Allocator<T,DimDiff<Const<D>,U1>>
+        ArrayStorage<T, D, D>: Storage<T, Const<D>, Const<D>>,
+        DefaultAllocator: Allocator<T, Const<D>, Const<D>, Buffer = ArrayStorage<T, D, D>>
+            + Allocator<T, Const<D>>
+            + Allocator<T, Const<D>, DimDiff<Const<D>, U1>>
+            + Allocator<T, DimDiff<Const<D>, U1>>,
     {
         use std::mem::*;
 
@@ -1041,33 +1041,36 @@ impl<T:RealField, const D: usize> Rotation<T,D>
         //that's stabilized, this is the best we can do. Theoretically, the compiler should
         //pretty thoroughly optimize away all the excess checks and conversions
         match D {
-
             0 => self.clone(),
             1 => self.clone(),
 
             //NOTE: Not pretty, but without refactoring the API, this is the best we can do
             //NOTE: This is safe because we directly check the dimension first
             2 => unsafe {
-                let r2d = transmute::<&Self,&Rotation2<T>>(self).powf_2d(t);
-                transmute::<&Rotation2<T>,&Self>(&r2d).clone()
+                let r2d = transmute::<&Self, &Rotation2<T>>(self).powf_2d(t);
+                transmute::<&Rotation2<T>, &Self>(&r2d).clone()
             },
             3 => unsafe {
-                let r3d = transmute::<&Self,&Rotation3<T>>(self).powf_3d(t);
-                transmute::<&Rotation3<T>,&Self>(&r3d).clone()
+                let r3d = transmute::<&Self, &Rotation3<T>>(self).powf_3d(t);
+                transmute::<&Rotation3<T>, &Self>(&r3d).clone()
             },
 
-            _ => self.clone().general_pow(t)
+            _ => self.clone().general_pow(t),
         }
     }
 
-    fn general_pow(self, t:T) -> Self where
+    fn general_pow(self, t: T) -> Self
+    where
         Const<D>: DimSub<U1>,
-        ArrayStorage<T,D,D>: Storage<T,Const<D>,Const<D>>,
-        DefaultAllocator: Allocator<T,Const<D>,Const<D>,Buffer=ArrayStorage<T,D,D>> + Allocator<T,Const<D>> +
-            Allocator<T,Const<D>,DimDiff<Const<D>,U1>> +
-            Allocator<T,DimDiff<Const<D>,U1>>
+        ArrayStorage<T, D, D>: Storage<T, Const<D>, Const<D>>,
+        DefaultAllocator: Allocator<T, Const<D>, Const<D>, Buffer = ArrayStorage<T, D, D>>
+            + Allocator<T, Const<D>>
+            + Allocator<T, Const<D>, DimDiff<Const<D>, U1>>
+            + Allocator<T, DimDiff<Const<D>, U1>>,
     {
-        if D<=1 { return self; }
+        if D <= 1 {
+            return self;
+        }
 
         // println!("r:{}", self);
         // println!("{}", self.clone().into_inner().hessenberg().unpack_h());
@@ -1082,19 +1085,17 @@ impl<T:RealField, const D: usize> Rotation<T,D>
 
         //go down the diagonal and pow every block
         let mut i = 0;
-        while i < D-1 {
-
+        while i < D - 1 {
             if
-                //For most 2x2 blocks
-                //NOTE: we use strict equality since `nalgebra`'s schur decomp sets the infradiagonal to zero
-                !d[(i+1,i)].is_zero() ||
+            //For most 2x2 blocks
+            //NOTE: we use strict equality since `nalgebra`'s schur decomp sets the infradiagonal to zero
+            !d[(i+1,i)].is_zero() ||
 
                 //for +-180 deg rotations
                 d[(i,i)]<T::zero() && d[(i+1,i+1)]<T::zero()
             {
-
                 //convert to a complex num and find the arg()
-                let (c, s) = (d[(i,i)].clone(), d[(i+1,i)].clone());
+                let (c, s) = (d[(i, i)].clone(), d[(i + 1, i)].clone());
                 let angle = s.atan2(c); //for +-180deg rots, this implicitely takes the +180 branch
 
                 //scale the arg and exponentiate back
@@ -1102,26 +1103,22 @@ impl<T:RealField, const D: usize> Rotation<T,D>
                 let (s2, c2) = angle2.sin_cos();
 
                 //convert back into a rot block
-                d[(i,  i  )] =  c2.clone();
-                d[(i,  i+1)] = -s2.clone();
-                d[(i+1,i  )] =  s2;
-                d[(i+1,i+1)] =  c2;
+                d[(i, i)] = c2.clone();
+                d[(i, i + 1)] = -s2.clone();
+                d[(i + 1, i)] = s2;
+                d[(i + 1, i + 1)] = c2;
 
                 //increase by 2 so we don't accidentally misinterpret the
                 //next line as a 180deg rotation
                 i += 2;
-
             } else {
                 i += 1;
             }
-
         }
         // println!("d:{:.3}", d);
 
         let qt = q.transpose(); //avoids an extra clone
 
         Self::from_matrix_unchecked(q * d * qt)
-
     }
-
 }

@@ -32,9 +32,9 @@ fn quaternion_euler_angles_issue_494() {
 
 #[cfg(feature = "proptest-support")]
 mod proptest_tests {
-    use na::{self, Rotation, Rotation2, Rotation3, Unit, Vector, Matrix, SMatrix};
-    use simba::scalar::RealField;
+    use na::{self, Matrix, Rotation, Rotation2, Rotation3, SMatrix, Unit, Vector};
     use num_traits::Zero;
+    use simba::scalar::RealField;
     use std::f64;
 
     use crate::proptest::*;
@@ -337,7 +337,6 @@ mod proptest_tests {
             }
         )*}
     }
-
 
     gen_powf_rotation_test!(
         fn powf_rotation_4(v1 in vector4(), v2 in vector4(), v3 in vector4(), v4 in vector4());
