@@ -410,9 +410,11 @@ where
     /// This is an iterative method. See `.from_matrix_eps` to provide mover
     /// convergence parameters and starting solution.
     /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    #[cfg(feature = "rand-no-std")]
     pub fn from_matrix(m: &Matrix3<T>) -> Self
     where
-        T: RealField,
+        T: RealField + Scalar,
+        Standard: Distribution<Rotation3<T>>,
     {
         Rotation3::from_matrix(m).into()
     }

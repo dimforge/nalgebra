@@ -706,11 +706,15 @@ where
     /// This is an iterative method. See `.from_matrix_eps` to provide mover
     /// convergence parameters and starting solution.
     /// This implements "A Robust Method to Extract the Rotational Part of Deformations" by Müller et al.
+    #[cfg(feature = "rand-no-std")]
     pub fn from_matrix(m: &Matrix3<T>) -> Self
     where
-        T: RealField,
+        T: RealField + crate::Scalar,
+        Standard: Distribution<Rotation3<T>>,
     {
-        Self::from_matrix_eps(m, T::default_epsilon(), 0, Self::identity())
+        // Starting from a random rotation has almost zero likelihood to end up in a maximum if `m` is already a rotation matrix
+        let random_rotation: Rotation3<T> = rand::thread_rng().gen();
+        Self::from_matrix_eps(m, T::default_epsilon(), 0, random_rotation)
     }
 
     /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
@@ -730,7 +734,7 @@ where
         T: RealField,
     {
         if max_iter == 0 {
-            max_iter = usize::max_value();
+            max_iter = usize::MAX;
         }
 
         let mut rot = guess.into_inner();
