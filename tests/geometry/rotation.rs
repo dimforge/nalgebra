@@ -1,4 +1,5 @@
-use na::{Quaternion, RealField, UnitQuaternion, Vector2, Vector3};
+use std::f64::consts::PI;
+use na::{Matrix3, Quaternion, RealField, Rotation3, UnitQuaternion, UnitVector3, Vector2, Vector3};
 
 #[test]
 fn angle_2() {
@@ -14,6 +15,28 @@ fn angle_3() {
     let b = Vector3::new(8.0, 0.0, 1.0);
 
     assert_eq!(a.angle(&b), 0.0);
+}
+
+#[test]
+fn from_rotation_matrix() {
+    // Test degenerate case when from_matrix gets stuck in Identity rotation
+    let identity = Rotation3::from_matrix(&Matrix3::new(
+        1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+    ));
+    assert_relative_eq!(identity, &Rotation3::identity(), epsilon = 0.001);
+    let rotated_z = Rotation3::from_matrix(&Matrix3::new(
+        1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -1.0,
+    ));
+    assert_relative_eq!(rotated_z, &Rotation3::from_axis_angle(&UnitVector3::new_unchecked(Vector3::new(1.0, 0.0, 0.0)), PI), epsilon = 0.001);
+    // Test that issue 628 is fixed
+    let m_628 = nalgebra::Matrix3::<f64>::new(-1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0);
+    assert_relative_ne!(identity, nalgebra::Rotation3::from_matrix(&m_628), epsilon = 0.01);
+    assert_relative_eq!(nalgebra::Rotation3::from_matrix_unchecked(m_628.clone()), nalgebra::Rotation3::from_matrix(&m_628), epsilon = 0.001);
+
+    // Test that issue 1078 is fixed
+    let m_1078 = nalgebra::Matrix3::<f64>::new(0.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0);
+    assert_relative_ne!(identity, nalgebra::Rotation3::from_matrix(&m_1078), epsilon = 0.01);
+    assert_relative_eq!(nalgebra::Rotation3::from_matrix_unchecked(m_1078.clone()), nalgebra::Rotation3::from_matrix(&m_1078), epsilon = 0.001);
 }
 
 #[test]
