@@ -63,7 +63,7 @@ where
     Ok(())
 }
 
-pub fn spmm_cs_prealloc_checked<T>(
+pub fn spmm_cs_prealloc<T>(
     beta: T,
     c: &mut CsMatrix<T>,
     alpha: T,

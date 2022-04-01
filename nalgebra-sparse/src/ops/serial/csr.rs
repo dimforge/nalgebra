@@ -1,6 +1,6 @@
 use crate::csr::CsrMatrix;
 use crate::ops::serial::cs::{
-    spadd_cs_prealloc, spmm_cs_dense, spmm_cs_prealloc_checked, spmm_cs_prealloc_unchecked,
+    spadd_cs_prealloc, spmm_cs_dense, spmm_cs_prealloc, spmm_cs_prealloc_unchecked,
 };
 use crate::ops::serial::OperationError;
 use crate::ops::Op;
@@ -67,7 +67,7 @@ where
 /// # Panics
 ///
 /// Panics if the dimensions of the matrices involved are not compatible with the expression.
-pub fn spmm_csr_prealloc_checked<T>(
+pub fn spmm_csr_prealloc<T>(
     beta: T,
     c: &mut CsrMatrix<T>,
     alpha: T,
@@ -82,10 +82,8 @@ where
     use Op::NoOp;
 
     match (&a, &b) {
-        (NoOp(ref a), NoOp(ref b)) => {
-            spmm_cs_prealloc_checked(beta, &mut c.cs, alpha, &a.cs, &b.cs)
-        }
-        _ => do_transposes(beta, c, alpha, a, b, spmm_csr_prealloc_checked),
+        (NoOp(ref a), NoOp(ref b)) => spmm_cs_prealloc(beta, &mut c.cs, alpha, &a.cs, &b.cs),
+        _ => spmm_csr_transposed(beta, c, alpha, a, b, spmm_csr_prealloc),
     }
 }
 
@@ -94,7 +92,7 @@ where
 /// Should be used for situations where pattern creation immediately preceeds multiplication.
 ///
 /// Panics if the dimensions of the matrices involved are not compatible with the expression.
-pub(crate) fn spmm_csr_prealloc_unchecked<T>(
+pub fn spmm_csr_prealloc_unchecked<T>(
     beta: T,
     c: &mut CsrMatrix<T>,
     alpha: T,
@@ -112,17 +110,17 @@ where
         (NoOp(ref a), NoOp(ref b)) => {
             spmm_cs_prealloc_unchecked(beta, &mut c.cs, alpha, &a.cs, &b.cs)
         }
-        _ => do_transposes(beta, c, alpha, a, b, spmm_csr_prealloc_unchecked),
+        _ => spmm_csr_transposed(beta, c, alpha, a, b, spmm_csr_prealloc_unchecked),
     }
 }
 
-fn do_transposes<T, F>(
+fn spmm_csr_transposed<T, F>(
     beta: T,
     c: &mut CsrMatrix<T>,
     alpha: T,
     a: Op<&CsrMatrix<T>>,
     b: Op<&CsrMatrix<T>>,
-    caller: F,
+    spmm_kernel: F,
 ) -> Result<(), OperationError>
 where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One,
@@ -149,5 +147,5 @@ where
             (Transpose(ref a), Transpose(ref b)) => (Owned(a.transpose()), Owned(b.transpose())),
         }
     };
-    caller(beta, c, alpha, NoOp(a.as_ref()), NoOp(b.as_ref()))
+    spmm_kernel(beta, c, alpha, NoOp(a.as_ref()), NoOp(b.as_ref()))
 }
