@@ -733,6 +733,8 @@ where
             max_iter = usize::MAX;
         }
 
+        // Assuming eps is smaller 1
+        let eps_disturbance = eps.clone().sqrt();
         let mut perturbation_axes = UnitVector3::new_unchecked(Vector3::new(T::one(), T::zero(), T::zero()));
         let mut rot = guess.into_inner();
 
@@ -746,7 +748,7 @@ where
 
             let axisangle = axis / (denom.abs() + T::default_epsilon());
 
-            if let Some((axis, angle)) = Unit::try_new_and_get(axisangle, eps.clone()) {
+            if let Some((axis, angle)) = Unit::try_new_and_get(axisangle, eps_disturbance.clone()) {
                 rot = Rotation3::from_axis_angle(&axis, angle) * rot;
             } else {
                 // Check if stuck in a maximum w.r.t. the norm (m - rot).norm()
@@ -755,9 +757,9 @@ where
                 let mut new_norm_squared: T;
                 // Perturb until the new norm is significantly different
                 loop {
-                    perturbed *= Rotation3::from_axis_angle(&perturbation_axes, T::frac_pi_8());
+                    perturbed *= Rotation3::from_axis_angle(&perturbation_axes, eps_disturbance.clone());
                     new_norm_squared = (m - &perturbed).norm_squared();
-                    if relative_ne!(norm_squared, new_norm_squared) {
+                    if relative_ne!(norm_squared, new_norm_squared, epsilon = eps_disturbance.clone()) {
                         break;
                     }
                 }
