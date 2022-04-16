@@ -180,6 +180,7 @@ where
     }
 
     /// Calculates the generalized eigenvectors (left and right) associated with the generalized eigenvalues
+    ///
     /// Outputs two matrices.
     /// The first output matrix contains the left eigenvectors of the generalized eigenvalues
     /// as columns.
