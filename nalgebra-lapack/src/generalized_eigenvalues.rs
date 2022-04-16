@@ -234,10 +234,8 @@ where
 
         let mut c = 0;
 
-        let epsilon = T::RealField::default_epsilon();
-
         while c < n {
-            if eigenvalues[c].0.im.abs() > epsilon && c + 1 < n {
+            if eigenvalues[c].0.im.abs() != T::RealField::zero() && c + 1 < n {
                 // taking care of the left eigenvector matrix
                 l.column_mut(c).zip_apply(&self.vsl.column(c + 1), |r, i| {
                     *r = Complex::new(r.re.clone(), i.clone());
