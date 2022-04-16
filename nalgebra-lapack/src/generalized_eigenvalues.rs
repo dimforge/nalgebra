@@ -71,19 +71,6 @@ where
     /// Attempts to compute the generalized eigenvalues, and left and right associated eigenvectors
     /// via the raw returns from LAPACK's dggev and sggev routines
     ///
-    /// Each generalized eigenvalue (lambda) satisfies determinant(A - lambda*B) = 0
-    ///
-    /// The right eigenvector v(j) corresponding to the eigenvalue lambda(j)
-    /// of (A,B) satisfies
-    ///
-    /// A * v(j) = lambda(j) * B * v(j).
-    ///
-    /// The left eigenvector u(j) corresponding to the eigenvalue lambda(j)
-    /// of (A,B) satisfies
-    ///
-    /// u(j)**H * A  = lambda(j) * u(j)**H * B .
-    /// where u(j)**H is the conjugate-transpose of u(j).
-    ///
     /// Panics if the method did not converge.
     pub fn new(a: OMatrix<T, D, D>, b: OMatrix<T, D, D>) -> Self {
         Self::try_new(a, b).expect("Calculation of generalized eigenvalues failed.")
@@ -91,19 +78,6 @@ where
 
     /// Attempts to compute the generalized eigenvalues (and eigenvectors) via the raw returns from LAPACK's
     /// dggev and sggev routines
-    ///
-    ///  Each generalized eigenvalue (lambda) satisfies determinant(A - lambda*B) = 0
-    ///
-    ///  The right eigenvector v(j) corresponding to the eigenvalue lambda(j)
-    ///  of (A,B) satisfies
-    ///
-    ///  A * v(j) = lambda(j) * B * v(j).
-    ///
-    ///  The left eigenvector u(j) corresponding to the eigenvalue lambda(j)
-    ///  of (A,B) satisfies
-    ///
-    ///  u(j)**H * A  = lambda(j) * u(j)**H * B .
-    ///  where u(j)**H is the conjugate-transpose of u(j).
     ///
     /// Returns `None` if the method did not converge.
     pub fn try_new(mut a: OMatrix<T, D, D>, mut b: OMatrix<T, D, D>) -> Option<Self> {
@@ -186,17 +160,6 @@ where
     /// as columns.
     /// The second matrix contains the right eigenvectors of the generalized eigenvalues
     /// as columns.
-    ///
-    /// The right eigenvector v(j) corresponding to the eigenvalue lambda(j)
-    /// of (A,B) satisfies
-    ///
-    /// A * v(j) = lambda(j) * B * v(j)
-    ///
-    /// The left eigenvector u(j) corresponding to the eigenvalue lambda(j)
-    /// of (A,B) satisfies
-    ///
-    /// u(j)**H * A  = lambda(j) * u(j)**H * B
-    /// where u(j)**H is the conjugate-transpose of u(j).
     pub fn eigenvectors(&self) -> (OMatrix<Complex<T>, D, D>, OMatrix<Complex<T>, D, D>)
     where
         DefaultAllocator:
@@ -262,7 +225,7 @@ where
         (l, r)
     }
 
-    /// outputs the unprocessed (almost) version of  generalized eigenvalues ((alphar, alphai), beta)
+    /// Outputs the unprocessed (almost) version of  generalized eigenvalues ((alphar, alphai), beta)
     /// straight from LAPACK
     #[must_use]
     pub fn raw_eigenvalues(&self) -> OVector<(Complex<T>, T), D>
