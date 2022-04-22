@@ -9,8 +9,6 @@ compile_error!(
      Example: `cargo test --features debug,compare,rand,macros`"
 );
 
-#[cfg(feature = "abomonation-serialize")]
-extern crate abomonation;
 #[cfg(all(feature = "debug", feature = "compare", feature = "rand"))]
 #[macro_use]
 extern crate approx;

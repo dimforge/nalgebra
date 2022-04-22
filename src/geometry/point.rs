@@ -3,14 +3,9 @@ use num::One;
 use std::cmp::Ordering;
 use std::fmt;
 use std::hash;
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use simba::simd::SimdPartialOrd;
 
@@ -74,12 +69,11 @@ where
 {
 }
 
-#[cfg(all(not(target_os = "cuda"), feature = "cuda"))]
-unsafe impl<T: Scalar + cust::memory::DeviceCopy, D: DimName> cust::memory::DeviceCopy
-    for OPoint<T, D>
+#[cfg(feature = "cuda")]
+unsafe impl<T: Scalar + cust_core::DeviceCopy, D: DimName> cust_core::DeviceCopy for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    OVector<T, D>: cust::memory::DeviceCopy,
+    OVector<T, D>: cust_core::DeviceCopy,
 {
 }
 
@@ -127,26 +121,6 @@ where
         let coords = OVector::<T, D>::deserialize(deserializer)?;
 
         Ok(Self::from(coords))
-    }
-}
-
-#[cfg(feature = "abomonation-serialize")]
-impl<T, D: DimName> Abomonation for OPoint<T, D>
-where
-    T: Scalar,
-    OVector<T, D>: Abomonation,
-    DefaultAllocator: Allocator<T, D>,
-{
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.coords.entomb(writer)
-    }
-
-    fn extent(&self) -> usize {
-        self.coords.extent()
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.coords.exhume(bytes)
     }
 }
 
@@ -292,6 +266,7 @@ where
     /// assert_eq!(it.next(), Some(2.0));
     /// assert_eq!(it.next(), Some(3.0));
     /// assert_eq!(it.next(), None);
+    /// ```
     #[inline]
     pub fn iter(
         &self,
@@ -318,6 +293,7 @@ where
     /// }
     ///
     /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
+    /// ```
     #[inline]
     pub fn iter_mut(
         &mut self,

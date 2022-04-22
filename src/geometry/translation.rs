@@ -2,14 +2,9 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
 use std::fmt;
 use std::hash;
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use simba::scalar::{ClosedAdd, ClosedNeg, ClosedSub};
 
@@ -22,10 +17,7 @@ use crate::geometry::Point;
 
 /// A translation.
 #[repr(C)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[derive(Copy, Clone)]
 pub struct Translation<T, const D: usize> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
@@ -62,25 +54,6 @@ where
     T: Scalar + bytemuck::Pod,
     SVector<T, D>: bytemuck::Pod,
 {
-}
-
-#[cfg(feature = "abomonation-serialize")]
-impl<T, const D: usize> Abomonation for Translation<T, D>
-where
-    T: Scalar,
-    SVector<T, D>: Abomonation,
-{
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.vector.entomb(writer)
-    }
-
-    fn extent(&self) -> usize {
-        self.vector.extent()
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.vector.exhume(bytes)
-    }
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
@@ -255,6 +228,7 @@ impl<T: Scalar + ClosedAdd, const D: usize> Translation<T, D> {
     /// let t = Translation3::new(1.0, 2.0, 3.0);
     /// let transformed_point = t.transform_point(&Point3::new(4.0, 5.0, 6.0));
     /// assert_eq!(transformed_point, Point3::new(5.0, 7.0, 9.0));
+    /// ```
     #[inline]
     #[must_use]
     pub fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
@@ -271,6 +245,7 @@ impl<T: Scalar + ClosedSub, const D: usize> Translation<T, D> {
     /// let t = Translation3::new(1.0, 2.0, 3.0);
     /// let transformed_point = t.inverse_transform_point(&Point3::new(4.0, 5.0, 6.0));
     /// assert_eq!(transformed_point, Point3::new(3.0, 3.0, 3.0));
+    /// ```
     #[inline]
     #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {

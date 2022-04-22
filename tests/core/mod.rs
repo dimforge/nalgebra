@@ -1,5 +1,3 @@
-#[cfg(feature = "abomonation-serialize")]
-mod abomonation;
 mod blas;
 mod cg;
 mod conversion;

@@ -13,10 +13,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Dim of dynamically-sized algebraic entities.
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Dynamic {
     value: usize,
 }
@@ -201,10 +198,7 @@ dim_ops!(
 );
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Const<const R: usize>;
 
 /// Trait implemented exclusively by type-level integers.
@@ -309,24 +303,24 @@ impl<const T: usize> DimName for Const<T> {
 
 pub type U1 = Const<1>;
 
-impl ToTypenum for Const<{ typenum::U1::USIZE }> {
+impl ToTypenum for Const<1> {
     type Typenum = typenum::U1;
 }
 
 impl ToConst for typenum::U1 {
-    type Const = Const<{ typenum::U1::USIZE }>;
+    type Const = Const<1>;
 }
 
 macro_rules! from_to_typenum (
-    ($($D: ident),* $(,)*) => {$(
-        pub type $D = Const<{ typenum::$D::USIZE }>;
+    ($($D: ident, $VAL: expr);* $(;)*) => {$(
+        pub type $D = Const<$VAL>;
 
-        impl ToTypenum for Const<{ typenum::$D::USIZE }> {
+        impl ToTypenum for Const<$VAL> {
             type Typenum = typenum::$D;
         }
 
         impl ToConst for typenum::$D {
-            type Const = Const<{ typenum::$D::USIZE }>;
+            type Const = Const<$VAL>;
         }
 
         impl IsNotStaticOne for $D { }
@@ -334,12 +328,12 @@ macro_rules! from_to_typenum (
 );
 
 from_to_typenum!(
-    U0, /*U1,*/ U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18,
-    U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, U32, U33, U34, U35, U36, U37,
-    U38, U39, U40, U41, U42, U43, U44, U45, U46, U47, U48, U49, U50, U51, U52, U53, U54, U55, U56,
-    U57, U58, U59, U60, U61, U62, U63, U64, U65, U66, U67, U68, U69, U70, U71, U72, U73, U74, U75,
-    U76, U77, U78, U79, U80, U81, U82, U83, U84, U85, U86, U87, U88, U89, U90, U91, U92, U93, U94,
-    U95, U96, U97, U98, U99, U100, U101, U102, U103, U104, U105, U106, U107, U108, U109, U110,
-    U111, U112, U113, U114, U115, U116, U117, U118, U119, U120, U121, U122, U123, U124, U125, U126,
-    U127
+    U0, 0; /*U1,1;*/ U2, 2; U3, 3; U4, 4; U5, 5; U6, 6; U7, 7; U8, 8; U9, 9; U10, 10; U11, 11; U12, 12; U13, 13; U14, 14; U15, 15; U16, 16; U17, 17; U18, 18;
+    U19, 19; U20, 20; U21, 21; U22, 22; U23, 23; U24, 24; U25, 25; U26, 26; U27, 27; U28, 28; U29, 29; U30, 30; U31, 31; U32, 32; U33, 33; U34, 34; U35, 35; U36, 36; U37, 37;
+    U38, 38; U39, 39; U40, 40; U41, 41; U42, 42; U43, 43; U44, 44; U45, 45; U46, 46; U47, 47; U48, 48; U49, 49; U50, 50; U51, 51; U52, 52; U53, 53; U54, 54; U55, 55; U56, 56;
+    U57, 57; U58, 58; U59, 59; U60, 60; U61, 61; U62, 62; U63, 63; U64, 64; U65, 65; U66, 66; U67, 67; U68, 68; U69, 69; U70, 70; U71, 71; U72, 72; U73, 73; U74, 74; U75, 75;
+    U76, 76; U77, 77; U78, 78; U79, 79; U80, 80; U81, 81; U82, 82; U83, 83; U84, 84; U85, 85; U86, 86; U87, 87; U88, 88; U89, 89; U90, 90; U91, 91; U92, 92; U93, 93; U94, 94;
+    U95, 95; U96, 96; U97, 97; U98, 98; U99, 99; U100, 100; U101, 101; U102, 102; U103, 103; U104, 104; U105, 105; U106, 106; U107, 107; U108, 108; U109, 109; U110, 110;
+    U111, 111; U112, 112; U113, 113; U114, 114; U115, 115; U116, 116; U117, 117; U118, 118; U119, 119; U120, 120; U121, 121; U122, 122; U123, 123; U124, 124; U125, 125; U126, 126;
+    U127, 127
 );

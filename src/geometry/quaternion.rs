@@ -2,16 +2,11 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::Zero;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use crate::base::storage::Owned;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use simba::scalar::{ClosedNeg, RealField};
 use simba::simd::{SimdBool, SimdOption, SimdRealField};
@@ -28,10 +23,7 @@ use crate::geometry::{Point3, Rotation};
 /// that may be used as a rotation.
 #[repr(C)]
 #[derive(Copy, Clone)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<T>,
@@ -75,24 +67,6 @@ where
     Vector4<T>: bytemuck::Pod,
     T: Copy,
 {
-}
-
-#[cfg(feature = "abomonation-serialize")]
-impl<T: Scalar> Abomonation for Quaternion<T>
-where
-    Vector4<T>: Abomonation,
-{
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.coords.entomb(writer)
-    }
-
-    fn extent(&self) -> usize {
-        self.coords.extent()
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.coords.exhume(bytes)
-    }
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
@@ -428,6 +402,7 @@ where
     /// let expected = Quaternion::new(-20.0, 0.0, 0.0, 0.0);
     /// let result = a.inner(&b);
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-5);
+    /// ```
     #[inline]
     #[must_use]
     pub fn inner(&self, other: &Self) -> Self {
@@ -1068,8 +1043,8 @@ impl<T: RealField + fmt::Display> fmt::Display for Quaternion<T> {
 /// A unit quaternions. May be used to represent a rotation.
 pub type UnitQuaternion<T> = Unit<Quaternion<T>>;
 
-#[cfg(all(not(target_os = "cuda"), feature = "cuda"))]
-unsafe impl<T: cust::memory::DeviceCopy> cust::memory::DeviceCopy for UnitQuaternion<T> {}
+#[cfg(feature = "cuda")]
+unsafe impl<T: cust_core::DeviceCopy> cust_core::DeviceCopy for UnitQuaternion<T> {}
 
 impl<T: Scalar + ClosedNeg + PartialEq> PartialEq for UnitQuaternion<T> {
     #[inline]
@@ -1253,8 +1228,7 @@ where
     /// Panics if the angle between both quaternion is 180 degrees (in which case the interpolation
     /// is not well-defined). Use `.try_slerp` instead to avoid the panic.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::geometry::UnitQuaternion;
     ///
@@ -1476,7 +1450,6 @@ where
     /// Builds a rotation matrix from this unit quaternion.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1559,7 +1532,6 @@ where
     /// Converts this unit quaternion into its equivalent homogeneous transformation matrix.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1583,7 +1555,6 @@ where
     /// This is the same as the multiplication `self * pt`.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1604,7 +1575,6 @@ where
     /// This is the same as the multiplication `self * v`.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1625,7 +1595,6 @@ where
     /// point.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1648,7 +1617,6 @@ where
     /// vector.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1669,7 +1637,6 @@ where
     /// vector.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;

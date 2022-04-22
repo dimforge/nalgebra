@@ -19,6 +19,7 @@ use simba::scalar::{ClosedNeg, RealField};
 /// `DualQuaternions` are stored as \[..real, ..dual\].
 /// Both of the quaternion components are laid out in `i, j, k, w` order.
 ///
+/// # Example
 /// ```
 /// # use nalgebra::{DualQuaternion, Quaternion};
 ///
@@ -39,10 +40,7 @@ use simba::scalar::{ClosedNeg, RealField};
 ///  See <https://github.com/dimforge/nalgebra/issues/487>
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct DualQuaternion<T> {
     /// The real component of the quaternion
     pub real: Quaternion<T>,
@@ -623,6 +621,7 @@ where
     ///     dq.rotation().euler_angles().0, std::f32::consts::FRAC_PI_2, epsilon = 1.0e-6
     /// );
     /// assert_relative_eq!(dq.translation().vector.y, 3.0, epsilon = 1.0e-6);
+    /// ```
     #[inline]
     #[must_use]
     pub fn sclerp(&self, other: &Self, t: T) -> Self
@@ -713,6 +712,7 @@ where
 
     /// Return the rotation part of this unit dual quaternion.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
@@ -733,6 +733,7 @@ where
 
     /// Return the translation part of this unit dual quaternion.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
@@ -758,6 +759,7 @@ where
 
     /// Builds an isometry from this unit dual quaternion.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
@@ -783,6 +785,7 @@ where
     ///
     /// This is the same as the multiplication `self * pt`.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, Point3};
@@ -807,6 +810,7 @@ where
     ///
     /// This is the same as the multiplication `self * v`.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
@@ -831,6 +835,7 @@ where
     /// This may be cheaper than inverting the unit dual quaternion and
     /// transforming the point.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3, Point3};
@@ -856,6 +861,7 @@ where
     /// This may be cheaper than inverting the unit dual quaternion and
     /// transforming the vector.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Vector3};
@@ -880,6 +886,7 @@ where
     /// cheaper than inverting the unit dual quaternion and transforming the
     /// vector.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{UnitDualQuaternion, UnitQuaternion, Unit, Vector3};
@@ -909,6 +916,7 @@ where
     /// Converts this unit dual quaternion interpreted as an isometry
     /// into its equivalent homogeneous transformation matrix.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::{Matrix4, UnitDualQuaternion, UnitQuaternion, Vector3};

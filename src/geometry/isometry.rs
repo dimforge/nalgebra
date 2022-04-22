@@ -1,14 +1,9 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::fmt;
 use std::hash;
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use simba::scalar::{RealField, SubsetOf};
 use simba::simd::SimdRealField;
@@ -55,10 +50,7 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 ///
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
@@ -79,29 +71,6 @@ pub struct Isometry<T, R, const D: usize> {
     pub rotation: R,
     /// The pure translational part of this isometry.
     pub translation: Translation<T, D>,
-}
-
-#[cfg(feature = "abomonation-serialize")]
-impl<T, R, const D: usize> Abomonation for Isometry<T, R, D>
-where
-    T: SimdRealField,
-    R: Abomonation,
-    Translation<T, D>: Abomonation,
-{
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.rotation.entomb(writer)?;
-        self.translation.entomb(writer)
-    }
-
-    fn extent(&self) -> usize {
-        self.rotation.extent() + self.translation.extent()
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.rotation
-            .exhume(bytes)
-            .and_then(|bytes| self.translation.exhume(bytes))
-    }
 }
 
 #[cfg(feature = "rkyv-serialize-no-std")]

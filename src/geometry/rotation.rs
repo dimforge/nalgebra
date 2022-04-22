@@ -2,17 +2,12 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
 use std::fmt;
 use std::hash;
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use crate::base::storage::Owned;
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use simba::scalar::RealField;
 use simba::simd::SimdRealField;
@@ -54,10 +49,7 @@ use crate::geometry::Point;
 /// * [Conversion to a matrix <span style="float:right;">`matrix`, `to_homogeneous`…</span>](#conversion-to-a-matrix)
 ///
 #[repr(C)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[derive(Copy, Clone)]
 pub struct Rotation<T, const D: usize> {
     matrix: SMatrix<T, D, D>,
@@ -92,25 +84,6 @@ where
     T: Scalar + bytemuck::Pod,
     SMatrix<T, D, D>: bytemuck::Pod,
 {
-}
-
-#[cfg(feature = "abomonation-serialize")]
-impl<T, const D: usize> Abomonation for Rotation<T, D>
-where
-    T: Scalar,
-    SMatrix<T, D, D>: Abomonation,
-{
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.matrix.entomb(writer)
-    }
-
-    fn extent(&self) -> usize {
-        self.matrix.extent()
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.matrix.exhume(bytes)
-    }
 }
 
 #[cfg(feature = "serde-serialize-no-std")]

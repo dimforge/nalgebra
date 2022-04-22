@@ -1,13 +1,8 @@
 use std::fmt;
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 use std::ops::Deref;
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use crate::allocator::Allocator;
 use crate::base::DefaultAllocator;
@@ -26,10 +21,7 @@ use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealF
 /// in their documentation, read their dedicated pages directly.
 #[repr(transparent)]
 #[derive(Clone, Hash, Copy)]
-// #[cfg_attr(
-//     all(not(target_os = "cuda"), feature = "cuda"),
-//     derive(cust::DeviceCopy)
-// )]
+// #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Unit<T> {
     pub(crate) value: T,
 }
@@ -63,21 +55,6 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for Unit<T> {
         D: Deserializer<'de>,
     {
         T::deserialize(deserializer).map(|x| Unit { value: x })
-    }
-}
-
-#[cfg(feature = "abomonation-serialize")]
-impl<T: Abomonation> Abomonation for Unit<T> {
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.value.entomb(writer)
-    }
-
-    fn extent(&self) -> usize {
-        self.value.extent()
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.value.exhume(bytes)
     }
 }
 
@@ -122,9 +99,8 @@ mod rkyv_impl {
     }
 }
 
-#[cfg(all(not(target_os = "cuda"), feature = "cuda"))]
-unsafe impl<T: cust::memory::DeviceCopy, R, C, S> cust::memory::DeviceCopy
-    for Unit<Matrix<T, R, C, S>>
+#[cfg(feature = "cuda")]
+unsafe impl<T: cust_core::DeviceCopy, R, C, S> cust_core::DeviceCopy for Unit<Matrix<T, R, C, S>>
 where
     T: Scalar,
     R: Dim,

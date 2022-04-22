@@ -31,8 +31,8 @@ use std::cmp::{Eq, PartialEq};
 /// * [Conversion to a matrix <span style="float:right;">`to_rotation_matrix`, `to_homogeneous`…</span>](#conversion-to-a-matrix)
 pub type UnitComplex<T> = Unit<Complex<T>>;
 
-#[cfg(all(not(target_os = "cuda"), feature = "cuda"))]
-unsafe impl<T: cust::memory::DeviceCopy> cust::memory::DeviceCopy for UnitComplex<T> {}
+#[cfg(feature = "cuda")]
+unsafe impl<T: cust_core::DeviceCopy> cust_core::DeviceCopy for UnitComplex<T> {}
 
 impl<T: Scalar + PartialEq> PartialEq for UnitComplex<T> {
     #[inline]
