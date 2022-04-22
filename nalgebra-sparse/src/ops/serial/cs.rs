@@ -30,6 +30,8 @@ pub fn spmm_cs_prealloc_unchecked<T>(
 where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {
+    assert_eq!(c.pattern().major_dim(), a.pattern().major_dim());
+    assert_eq!(c.pattern().minor_dim(), b.pattern().minor_dim());
     let some_val = Zero::zero();
     let mut scratchpad_values: Vec<T> = vec![some_val; b.pattern().minor_dim()];
     for i in 0..c.pattern().major_dim() {
