@@ -1,4 +1,4 @@
-use super::glam::{DMat2, DQuat, DVec3, Mat2, Quat, Vec3};
+use super::glam::{DMat2, Mat2};
 use crate::{Complex, UnitComplex};
 
 impl From<UnitComplex<f32>> for Mat2 {

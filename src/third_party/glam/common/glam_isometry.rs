@@ -1,5 +1,5 @@
 use super::glam::{DMat3, DMat4, DQuat, DVec2, DVec3, Mat3, Mat4, Quat, Vec2, Vec3};
-use crate::{Isometry2, Isometry3, Matrix3, Matrix4, Translation3, UnitQuaternion, Vector2};
+use crate::{Isometry2, Isometry3, Matrix3, Matrix4, Translation3, UnitQuaternion};
 use std::convert::TryFrom;
 
 impl From<Isometry2<f32>> for Mat3 {
