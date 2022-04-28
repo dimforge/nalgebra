@@ -36,18 +36,18 @@ impl From<Isometry3<f64>> for (DVec3, DQuat) {
     }
 }
 
-impl From<Isometry2<f32>> for (Vec3, Quat) {
-    fn from(iso: Isometry2<f32>) -> (Vec3, Quat) {
-        let tra = Vec3::new(iso.translation.x, iso.translation.y, 0.0);
-        let rot = Quat::from_axis_angle(Vec3::Z, iso.rotation.angle());
+impl From<Isometry2<f32>> for (Vec2, f32) {
+    fn from(iso: Isometry2<f32>) -> (Vec2, f32) {
+        let tra = Vec2::new(iso.translation.x, iso.translation.y);
+        let rot = iso.rotation.angle();
         (tra, rot)
     }
 }
 
-impl From<Isometry2<f64>> for (DVec3, DQuat) {
-    fn from(iso: Isometry2<f64>) -> (DVec3, DQuat) {
-        let tra = DVec3::new(iso.translation.x, iso.translation.y, 0.0);
-        let rot = DQuat::from_axis_angle(DVec3::Z, iso.rotation.angle());
+impl From<Isometry2<f64>> for (DVec2, f64) {
+    fn from(iso: Isometry2<f64>) -> (DVec2, f64) {
+        let tra = DVec2::new(iso.translation.x, iso.translation.y);
+        let rot = iso.rotation.angle();
         (tra, rot)
     }
 }
@@ -61,30 +61,6 @@ impl From<(Vec3, Quat)> for Isometry3<f32> {
 impl From<(DVec3, DQuat)> for Isometry3<f64> {
     fn from((tra, rot): (DVec3, DQuat)) -> Self {
         Isometry3::from_parts(tra.into(), rot.into())
-    }
-}
-
-impl From<(Vec3, Quat)> for Isometry2<f32> {
-    fn from((tra, rot): (Vec3, Quat)) -> Self {
-        Isometry2::new([tra.x, tra.y].into(), rot.to_axis_angle().1)
-    }
-}
-
-impl From<(DVec3, DQuat)> for Isometry2<f64> {
-    fn from((tra, rot): (DVec3, DQuat)) -> Self {
-        Isometry2::new([tra.x, tra.y].into(), rot.to_axis_angle().1)
-    }
-}
-
-impl From<(Vec2, Quat)> for Isometry2<f32> {
-    fn from((tra, rot): (Vec2, Quat)) -> Self {
-        Isometry2::new(tra.into(), rot.to_axis_angle().1)
-    }
-}
-
-impl From<(DVec2, DQuat)> for Isometry2<f64> {
-    fn from((tra, rot): (DVec2, DQuat)) -> Self {
-        Isometry2::new(tra.into(), rot.to_axis_angle().1)
     }
 }
 
@@ -112,18 +88,6 @@ impl From<DQuat> for Isometry3<f64> {
     }
 }
 
-impl From<Quat> for Isometry2<f32> {
-    fn from(rot: Quat) -> Self {
-        Isometry2::new(Vector2::zeros(), rot.to_axis_angle().1)
-    }
-}
-
-impl From<DQuat> for Isometry2<f64> {
-    fn from(rot: DQuat) -> Self {
-        Isometry2::new(Vector2::zeros(), rot.to_axis_angle().1)
-    }
-}
-
 impl From<Vec3> for Isometry3<f32> {
     fn from(tra: Vec3) -> Self {
         Isometry3::from_parts(tra.into(), UnitQuaternion::identity())
@@ -145,18 +109,6 @@ impl From<Vec2> for Isometry2<f32> {
 impl From<DVec2> for Isometry2<f64> {
     fn from(tra: DVec2) -> Self {
         Isometry2::new(tra.into(), 0.0)
-    }
-}
-
-impl From<Vec3> for Isometry2<f32> {
-    fn from(tra: Vec3) -> Self {
-        Isometry2::new([tra.x, tra.y].into(), 0.0)
-    }
-}
-
-impl From<DVec3> for Isometry2<f64> {
-    fn from(tra: DVec3) -> Self {
-        Isometry2::new([tra.x, tra.y].into(), 0.0)
     }
 }
 

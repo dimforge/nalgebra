@@ -3,7 +3,11 @@ use super::glam::{
     Mat4, UVec2, UVec3, UVec4, Vec2, Vec3, Vec3A, Vec4,
 };
 use crate::storage::RawStorage;
-use crate::{Matrix, Matrix2, Matrix3, Matrix4, Vector, Vector2, Vector3, Vector4, U2, U3, U4};
+use crate::{
+    Matrix, Matrix2, Matrix3, Matrix4, Unit, UnitVector2, UnitVector3, UnitVector4, Vector,
+    Vector2, Vector3, Vector4, U2, U3, U4,
+};
+use std::convert::TryFrom;
 
 macro_rules! impl_vec_conversion(
     ($N: ty, $Vec2: ty, $Vec3: ty, $Vec4: ty) => {
@@ -66,6 +70,63 @@ impl_vec_conversion!(i32, IVec2, IVec3, IVec4);
 impl_vec_conversion!(u32, UVec2, UVec3, UVec4);
 impl_vec_conversion!(bool, BVec2, BVec3, BVec4);
 
+const ERR: &'static str = "Normalization failed.";
+
+macro_rules! impl_unit_vec_conversion(
+    ($N: ty, $Vec2: ty, $Vec3: ty, $Vec4: ty) => {
+        impl TryFrom<$Vec2> for UnitVector2<$N> {
+            type Error = &'static str;
+            #[inline]
+            fn try_from(e: $Vec2) -> Result<Self, Self::Error> {
+                Unit::try_new(e.into(), 0.0).ok_or(ERR)
+            }
+        }
+
+        impl From<UnitVector2<$N>> for $Vec2
+        {
+            #[inline]
+            fn from(e: UnitVector2<$N>) -> $Vec2 {
+                e.into_inner().into()
+            }
+        }
+
+        impl TryFrom<$Vec3> for UnitVector3<$N> {
+            type Error = &'static str;
+            #[inline]
+            fn try_from(e: $Vec3) -> Result<Self, Self::Error> {
+                Unit::try_new(e.into(), 0.0).ok_or(ERR)
+            }
+        }
+
+        impl From<UnitVector3<$N>> for $Vec3
+        {
+            #[inline]
+            fn from(e: UnitVector3<$N>) -> $Vec3 {
+                e.into_inner().into()
+            }
+        }
+
+        impl TryFrom<$Vec4> for UnitVector4<$N> {
+            type Error = &'static str;
+            #[inline]
+            fn try_from(e: $Vec4) -> Result<Self, Self::Error> {
+                Unit::try_new(e.into(), 0.0).ok_or(ERR)
+            }
+        }
+
+        impl From<UnitVector4<$N>> for $Vec4
+        {
+            #[inline]
+            fn from(e: UnitVector4<$N>) -> $Vec4 {
+                e.into_inner().into()
+            }
+        }
+    }
+);
+
+impl_unit_vec_conversion!(f32, Vec2, Vec3, Vec4);
+impl_unit_vec_conversion!(f64, DVec2, DVec3, DVec4);
+
 impl From<Vec3A> for Vector3<f32> {
     #[inline]
     fn from(e: Vec3A) -> Vector3<f32> {
@@ -80,6 +141,21 @@ where
     #[inline]
     fn from(e: Vector<f32, U3, S>) -> Vec3A {
         Vec3A::new(e[0], e[1], e[2])
+    }
+}
+
+impl TryFrom<Vec3A> for UnitVector3<f32> {
+    type Error = &'static str;
+    #[inline]
+    fn try_from(e: Vec3A) -> Result<Self, Self::Error> {
+        Unit::try_new(e.into(), 0.0).ok_or(ERR)
+    }
+}
+
+impl From<UnitVector3<f32>> for Vec3A {
+    #[inline]
+    fn from(e: UnitVector3<f32>) -> Vec3A {
+        e.into_inner().into()
     }
 }
 
