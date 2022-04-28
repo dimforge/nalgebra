@@ -26,7 +26,6 @@ cuda                  = [ "nalgebra/cuda" ]
 # Conversion
 convert-mint = [ "nalgebra/mint" ]
 convert-bytemuck = [ "nalgebra/bytemuck" ]
-convert-glam013 = [ "nalgebra/glam013" ]
 convert-glam014 = [ "nalgebra/glam014" ]
 convert-glam015 = [ "nalgebra/glam015" ]
 convert-glam016 = [ "nalgebra/glam016" ]
