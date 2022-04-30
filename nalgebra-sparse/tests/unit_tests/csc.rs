@@ -5,6 +5,8 @@ use nalgebra_sparse::{SparseEntry, SparseEntryMut, SparseFormatErrorKind};
 use proptest::prelude::*;
 use proptest::sample::subsequence;
 
+use super::test_data_examples::{InvalidCsDataExamples, ValidCsDataExamples};
+
 use crate::assert_panics;
 use crate::common::csc_strategy;
 
@@ -172,10 +174,25 @@ fn csc_matrix_valid_data() {
 }
 
 #[test]
+fn csc_matrix_valid_data_unsorted_column_indices() {
+    let valid_data: ValidCsDataExamples = ValidCsDataExamples::new();
+
+    let (offsets, indices, values) = valid_data.valid_unsorted_cs_data;
+    let csc = CscMatrix::try_from_unsorted_csc_data(5, 4, offsets, indices, values).unwrap();
+
+    let (offsets2, indices2, values2) = valid_data.valid_cs_data;
+    let expected_csc = CscMatrix::try_from_csc_data(5, 4, offsets2, indices2, values2).unwrap();
+
+    assert_eq!(csc, expected_csc);
+}
+
+#[test]
 fn csc_matrix_try_from_invalid_csc_data() {
+    let invalid_data: InvalidCsDataExamples = InvalidCsDataExamples::new();
     {
         // Empty offset array (invalid length)
-        let matrix = CscMatrix::try_from_csc_data(0, 0, Vec::new(), Vec::new(), Vec::<u32>::new());
+        let (offsets, indices, values) = invalid_data.empty_offset_array;
+        let matrix = CscMatrix::try_from_csc_data(0, 0, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
             &SparseFormatErrorKind::InvalidStructure
@@ -184,10 +201,8 @@ fn csc_matrix_try_from_invalid_csc_data() {
 
     {
         // Offset array invalid length for arbitrary data
-        let offsets = vec![0, 3, 5];
-        let indices = vec![0, 1, 2, 3, 5];
-        let values = vec![0, 1, 2, 3, 4];
-
+        let (offsets, indices, values) =
+            invalid_data.offset_array_invalid_length_for_arbitrary_data;
         let matrix = CscMatrix::try_from_csc_data(6, 3, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -197,9 +212,7 @@ fn csc_matrix_try_from_invalid_csc_data() {
 
     {
         // Invalid first entry in offsets array
-        let offsets = vec![1, 2, 2, 5];
-        let indices = vec![0, 5, 1, 2, 3];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.invalid_first_entry_in_offsets_array;
         let matrix = CscMatrix::try_from_csc_data(6, 3, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -209,9 +222,7 @@ fn csc_matrix_try_from_invalid_csc_data() {
 
     {
         // Invalid last entry in offsets array
-        let offsets = vec![0, 2, 2, 4];
-        let indices = vec![0, 5, 1, 2, 3];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.invalid_last_entry_in_offsets_array;
         let matrix = CscMatrix::try_from_csc_data(6, 3, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -221,9 +232,7 @@ fn csc_matrix_try_from_invalid_csc_data() {
 
     {
         // Invalid length of offsets array
-        let offsets = vec![0, 2, 2];
-        let indices = vec![0, 5, 1, 2, 3];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.invalid_length_of_offsets_array;
         let matrix = CscMatrix::try_from_csc_data(6, 3, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -233,9 +242,7 @@ fn csc_matrix_try_from_invalid_csc_data() {
 
     {
         // Nonmonotonic offsets
-        let offsets = vec![0, 3, 2, 5];
-        let indices = vec![0, 1, 2, 3, 4];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.nonmonotonic_offsets;
         let matrix = CscMatrix::try_from_csc_data(6, 3, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -257,9 +264,7 @@ fn csc_matrix_try_from_invalid_csc_data() {
 
     {
         // Minor index out of bounds
-        let offsets = vec![0, 2, 2, 5];
-        let indices = vec![0, 6, 1, 2, 3];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.minor_index_out_of_bounds;
         let matrix = CscMatrix::try_from_csc_data(6, 3, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
@@ -269,13 +274,126 @@ fn csc_matrix_try_from_invalid_csc_data() {
 
     {
         // Duplicate entry
-        let offsets = vec![0, 2, 2, 5];
-        let indices = vec![0, 5, 2, 2, 3];
-        let values = vec![0, 1, 2, 3, 4];
+        let (offsets, indices, values) = invalid_data.duplicate_entry;
         let matrix = CscMatrix::try_from_csc_data(6, 3, offsets, indices, values);
         assert_eq!(
             matrix.unwrap_err().kind(),
             &SparseFormatErrorKind::DuplicateEntry
+        );
+    }
+}
+
+#[test]
+fn csc_matrix_try_from_unsorted_invalid_csc_data() {
+    let invalid_data: InvalidCsDataExamples = InvalidCsDataExamples::new();
+    {
+        // Empty offset array (invalid length)
+        let (offsets, indices, values) = invalid_data.empty_offset_array;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(0, 0, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Offset array invalid length for arbitrary data
+        let (offsets, indices, values) =
+            invalid_data.offset_array_invalid_length_for_arbitrary_data;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Invalid first entry in offsets array
+        let (offsets, indices, values) = invalid_data.invalid_first_entry_in_offsets_array;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Invalid last entry in offsets array
+        let (offsets, indices, values) = invalid_data.invalid_last_entry_in_offsets_array;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Invalid length of offsets array
+        let (offsets, indices, values) = invalid_data.invalid_length_of_offsets_array;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Nonmonotonic offsets
+        let (offsets, indices, values) = invalid_data.nonmonotonic_offsets;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
+        );
+    }
+
+    {
+        // Major offset out of bounds
+        let (offsets, indices, values) = invalid_data.major_offset_out_of_bounds;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::IndexOutOfBounds
+        );
+    }
+
+    {
+        // Minor index out of bounds
+        let (offsets, indices, values) = invalid_data.minor_index_out_of_bounds;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::IndexOutOfBounds
+        );
+    }
+
+    {
+        // Duplicate entry
+        let (offsets, indices, values) = invalid_data.duplicate_entry;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::DuplicateEntry
+        );
+    }
+
+    {
+        // Duplicate entry in unsorted lane
+        let (offsets, indices, values) = invalid_data.duplicate_entry_unsorted;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::DuplicateEntry
+        );
+    }
+
+    {
+        // Wrong values length
+        let (offsets, indices, values) = invalid_data.wrong_values_length;
+        let matrix = CscMatrix::try_from_unsorted_csc_data(6, 3, offsets, indices, values);
+        assert_eq!(
+            matrix.unwrap_err().kind(),
+            &SparseFormatErrorKind::InvalidStructure
         );
     }
 }

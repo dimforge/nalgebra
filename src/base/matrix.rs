@@ -1,6 +1,4 @@
 use num::{One, Zero};
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::any::TypeId;
@@ -12,9 +10,6 @@ use std::mem;
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, Field, SupersetOf};
 use simba::simd::SimdPartialOrd;
@@ -155,10 +150,12 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// some concrete types for `T` and a compatible data storage type `S`).
 #[repr(C)]
 #[derive(Clone, Copy)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Matrix<T, R, C, S> {
     /// The data storage that contains all the matrix components. Disappointed?
     ///
@@ -254,21 +251,6 @@ where
     }
 }
 
-#[cfg(feature = "abomonation-serialize")]
-impl<T: Scalar, R: Dim, C: Dim, S: Abomonation> Abomonation for Matrix<T, R, C, S> {
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.data.entomb(writer)
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.data.exhume(bytes)
-    }
-
-    fn extent(&self) -> usize {
-        self.data.extent()
-    }
-}
-
 #[cfg(feature = "compare")]
 impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> matrixcompare_core::Matrix<T>
     for Matrix<T, R, C, S>
@@ -309,53 +291,6 @@ where
     S: bytemuck::Pod,
     Self: Copy,
 {
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Matrix;
-    use core::marker::PhantomData;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Archive, R: Archive, C: Archive, S: Archive> Archive for Matrix<T, R, C, S> {
-        type Archived = Matrix<T::Archived, R::Archived, C::Archived, S::Archived>;
-        type Resolver = S::Resolver;
-
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.data.resolve(
-                pos + offset_of!(Self::Archived, data),
-                resolver,
-                project_struct!(out: Self::Archived => data),
-            );
-        }
-    }
-
-    impl<T: Archive, R: Archive, C: Archive, S: Serialize<_S>, _S: Fallible + ?Sized> Serialize<_S>
-        for Matrix<T, R, C, S>
-    {
-        fn serialize(&self, serializer: &mut _S) -> Result<Self::Resolver, _S::Error> {
-            self.data.serialize(serializer)
-        }
-    }
-
-    impl<T: Archive, R: Archive, C: Archive, S: Archive, D: Fallible + ?Sized>
-        Deserialize<Matrix<T, R, C, S>, D>
-        for Matrix<T::Archived, R::Archived, C::Archived, S::Archived>
-    where
-        S::Archived: Deserialize<S, D>,
-    {
-        fn deserialize(&self, deserializer: &mut D) -> Result<Matrix<T, R, C, S>, D::Error> {
-            Ok(Matrix {
-                data: self.data.deserialize(deserializer)?,
-                _phantoms: PhantomData,
-            })
-        }
-    }
 }
 
 impl<T, R, C, S> Matrix<T, R, C, S> {
@@ -434,8 +369,6 @@ where
 {
     /// Assumes a matrix's entries to be initialized. This operation should be near zero-cost.
     ///
-    /// For the similar method that operates on matrix slices, see [`slice_assume_init`].
-    ///
     /// # Safety
     /// The user must make sure that every single entry of the buffer has been initialized,
     /// or Undefined Behavior will immediately occur.
@@ -456,12 +389,12 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
     /// The shape of this matrix returned as the tuple (number of rows, number of columns).
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::Matrix3x4;
     /// let mat = Matrix3x4::<f32>::zeros();
     /// assert_eq!(mat.shape(), (3, 4));
+    /// ```
     #[inline]
     #[must_use]
     pub fn shape(&self) -> (usize, usize) {
@@ -478,12 +411,12 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
     /// The number of rows of this matrix.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::Matrix3x4;
     /// let mat = Matrix3x4::<f32>::zeros();
     /// assert_eq!(mat.nrows(), 3);
+    /// ```
     #[inline]
     #[must_use]
     pub fn nrows(&self) -> usize {
@@ -492,12 +425,12 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
     /// The number of columns of this matrix.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::Matrix3x4;
     /// let mat = Matrix3x4::<f32>::zeros();
     /// assert_eq!(mat.ncols(), 4);
+    /// ```
     #[inline]
     #[must_use]
     pub fn ncols(&self) -> usize {
@@ -506,14 +439,14 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
     /// The strides (row stride, column stride) of this matrix.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::DMatrix;
     /// let mat = DMatrix::<f32>::zeros(10, 10);
     /// let slice = mat.slice_with_steps((0, 0), (5, 3), (1, 2));
     /// // The column strides is the number of steps (here 2) multiplied by the corresponding dimension.
     /// assert_eq!(mat.strides(), (1, 10));
+    /// ```
     #[inline]
     #[must_use]
     pub fn strides(&self) -> (usize, usize) {
@@ -1108,8 +1041,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// Iterates through this matrix coordinates in column-major order.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::Matrix2x3;
     /// let mat = Matrix2x3::new(11, 12, 13,
@@ -1122,6 +1054,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(*it.next().unwrap(), 13);
     /// assert_eq!(*it.next().unwrap(), 23);
     /// assert!(it.next().is_none());
+    /// ```
     #[inline]
     pub fn iter(&self) -> MatrixIter<'_, T, R, C, S> {
         MatrixIter::new(&self.data)
@@ -1144,6 +1077,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     }
 
     /// Iterate through the columns of this matrix.
+    ///
     /// # Example
     /// ```
     /// # use nalgebra::Matrix2x3;

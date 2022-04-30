@@ -4,12 +4,42 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.31.0] (30 Apr. 2022)
+
+### Breaking changes
+- Switch to `cust` 0.3 (for CUDA support).
+- Switch to `rkyv` 0.7
+- Remove support for serialization based on `abomonation`.
+- Remove support for conversions between `nalgebra` types and `glam` 0.13.
+
+### Modified
+- The aliases for `Const` types have been simplified to help `rust-analyzer`.
+
+### Added
+- Add `TryFrom` conversion between `UnitVector2/3/4` and `glam`’s `Vec2/3/4`.
+- `nalgebra-sparse`: added support for serialization of sparse matrices with `serde`.
+- `nalgebra-sparse`: add a CSC matrix constructor from unsorted (but valid) data.
+- `nalgebra-lapack`: add generalized eigenvalues/eigenvectors calculation + QZ decomposition.
+
+### Fixed
+- Improve stability of SVD.
+- Fix slerp for `UnitComplex`.
+
+## [0.30.1] (09 Jan. 2022)
+
+### Added
+- Add conversion from/to types of `glam` 0.19 and 0.20.
+
 ## [0.30.0] (02 Jan. 2022)
 
 ### Breaking changes
 - The `Dim` trait is now marked as unsafe.
 - The `Matrix::pow` and `Matrix::pow_mut` methods only allow positive integer exponents now. To compute negative
   exponents, the user is free to invert the matrix before calling `pow` with the exponent’s absolute value.
+- Remove the `Bounded` requirement from `RealField`. Replace it by methods returning `Option<Self>` so that they can
+  still be implemented by unbounded types (by returning `None`).
+- The `ComplexField` trait derives  from `FromPrimitive` again. We can actually keep this because all its methods
+  return `Option<Self>`, meaning that it could be implemented by any type.
 
 ### Modified
 - Use more concise debug impls for matrices and geometric transformation types.

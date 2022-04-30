@@ -2,16 +2,11 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::Zero;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use crate::base::storage::Owned;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use simba::scalar::{ClosedNeg, RealField};
 use simba::simd::{SimdBool, SimdOption, SimdRealField};
@@ -28,10 +23,12 @@ use crate::geometry::{Point3, Rotation};
 /// that may be used as a rotation.
 #[repr(C)]
 #[derive(Copy, Clone)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<T>,
@@ -77,24 +74,6 @@ where
 {
 }
 
-#[cfg(feature = "abomonation-serialize")]
-impl<T: Scalar> Abomonation for Quaternion<T>
-where
-    Vector4<T>: Abomonation,
-{
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.coords.entomb(writer)
-    }
-
-    fn extent(&self) -> usize {
-        self.coords.extent()
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.coords.exhume(bytes)
-    }
-}
-
 #[cfg(feature = "serde-serialize-no-std")]
 impl<T: Scalar> Serialize for Quaternion<T>
 where
@@ -120,48 +99,6 @@ where
         let coords = Vector4::<T>::deserialize(deserializer)?;
 
         Ok(Self::from(coords))
-    }
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Quaternion;
-    use crate::base::Vector4;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Archive> Archive for Quaternion<T> {
-        type Archived = Quaternion<T::Archived>;
-        type Resolver = <Vector4<T> as Archive>::Resolver;
-
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.coords.resolve(
-                pos + offset_of!(Self::Archived, coords),
-                resolver,
-                project_struct!(out: Self::Archived => coords),
-            );
-        }
-    }
-
-    impl<T: Serialize<S>, S: Fallible + ?Sized> Serialize<S> for Quaternion<T> {
-        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            self.coords.serialize(serializer)
-        }
-    }
-
-    impl<T: Archive, D: Fallible + ?Sized> Deserialize<Quaternion<T>, D> for Quaternion<T::Archived>
-    where
-        T::Archived: Deserialize<T, D>,
-    {
-        fn deserialize(&self, deserializer: &mut D) -> Result<Quaternion<T>, D::Error> {
-            Ok(Quaternion {
-                coords: self.coords.deserialize(deserializer)?,
-            })
-        }
     }
 }
 
@@ -428,6 +365,7 @@ where
     /// let expected = Quaternion::new(-20.0, 0.0, 0.0, 0.0);
     /// let result = a.inner(&b);
     /// assert_relative_eq!(expected, result, epsilon = 1.0e-5);
+    /// ```
     #[inline]
     #[must_use]
     pub fn inner(&self, other: &Self) -> Self {
@@ -1068,8 +1006,8 @@ impl<T: RealField + fmt::Display> fmt::Display for Quaternion<T> {
 /// A unit quaternions. May be used to represent a rotation.
 pub type UnitQuaternion<T> = Unit<Quaternion<T>>;
 
-#[cfg(all(not(target_os = "cuda"), feature = "cuda"))]
-unsafe impl<T: cust::memory::DeviceCopy> cust::memory::DeviceCopy for UnitQuaternion<T> {}
+#[cfg(feature = "cuda")]
+unsafe impl<T: cust_core::DeviceCopy> cust_core::DeviceCopy for UnitQuaternion<T> {}
 
 impl<T: Scalar + ClosedNeg + PartialEq> PartialEq for UnitQuaternion<T> {
     #[inline]
@@ -1253,8 +1191,7 @@ where
     /// Panics if the angle between both quaternion is 180 degrees (in which case the interpolation
     /// is not well-defined). Use `.try_slerp` instead to avoid the panic.
     ///
-    /// # Examples:
-    ///
+    /// # Example
     /// ```
     /// # use nalgebra::geometry::UnitQuaternion;
     ///
@@ -1476,7 +1413,6 @@ where
     /// Builds a rotation matrix from this unit quaternion.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1559,7 +1495,6 @@ where
     /// Converts this unit quaternion into its equivalent homogeneous transformation matrix.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1583,7 +1518,6 @@ where
     /// This is the same as the multiplication `self * pt`.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1604,7 +1538,6 @@ where
     /// This is the same as the multiplication `self * v`.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1625,7 +1558,6 @@ where
     /// point.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1648,7 +1580,6 @@ where
     /// vector.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;
@@ -1669,7 +1600,6 @@ where
     /// vector.
     ///
     /// # Example
-    ///
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use std::f32;

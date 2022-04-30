@@ -19,10 +19,12 @@ use crate::geometry::{Point3, Projective3};
 
 /// A 3D orthographic projection stored as a homogeneous 4x4 matrix.
 #[repr(C)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[derive(Copy, Clone)]
 pub struct Orthographic3<T> {
     matrix: Matrix4<T>,
@@ -319,6 +321,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// The left offset of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -336,6 +339,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// The right offset of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -353,6 +357,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// The bottom offset of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -370,6 +375,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// The top offset of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -387,6 +393,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// The near plane offset of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -404,6 +411,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// The far plane offset of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -526,6 +534,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// Sets the left offset of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -545,6 +554,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// Sets the right offset of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -564,6 +574,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// Sets the bottom offset of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -583,6 +594,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// Sets the top offset of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -602,6 +614,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// Sets the near plane offset of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -621,6 +634,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// Sets the far plane offset of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -640,6 +654,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// Sets the view cuboid offsets along the `x` axis.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -665,6 +680,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// Sets the view cuboid offsets along the `y` axis.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;
@@ -690,6 +706,7 @@ impl<T: RealField> Orthographic3<T> {
 
     /// Sets the near and far plane offsets of the view cuboid.
     ///
+    /// # Example
     /// ```
     /// # #[macro_use] extern crate approx;
     /// # use nalgebra::Orthographic3;

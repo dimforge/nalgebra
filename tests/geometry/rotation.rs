@@ -32,7 +32,9 @@ fn quaternion_euler_angles_issue_494() {
 
 #[cfg(feature = "proptest-support")]
 mod proptest_tests {
+    use approx::AbsDiffEq;
     use na::{self, Rotation2, Rotation3, Unit};
+    use na::{UnitComplex, UnitQuaternion};
     use simba::scalar::RealField;
     use std::f64;
 
@@ -229,5 +231,74 @@ mod proptest_tests {
                 prop_assert_eq!(r, Rotation3::identity())
             }
         }
+
+        //
+        //In general, `slerp(a,b,t)` should equal `(b/a)^t * a` even though in practice,
+        //we may not use that formula directly for complex numbers or quaternions
+        //
+
+        #[test]
+        fn slerp_powf_agree_2(a in unit_complex(), b in unit_complex(), t in PROPTEST_F64) {
+            let z1 = a.slerp(&b, t);
+            let z2 = (b/a).powf(t) * a;
+            prop_assert!(relative_eq!(z1,z2,epsilon=1e-10));
+        }
+
+        #[test]
+        fn slerp_powf_agree_3(a in unit_quaternion(), b in unit_quaternion(), t in PROPTEST_F64) {
+            if let Some(z1) = a.try_slerp(&b, t, f64::default_epsilon()) {
+                let z2 = (b/a).powf(t) * a;
+                prop_assert!(relative_eq!(z1,z2,epsilon=1e-10));
+            }
+        }
+
+        //
+        //when not antipodal, slerp should always take the shortest path between two orientations
+        //
+
+        #[test]
+        fn slerp_takes_shortest_path_2(
+            z in unit_complex(), dtheta in -f64::pi()..f64::pi(), t in 0.0..1.0f64
+        ) {
+
+            //ambiguous when at ends of angle range, so we don't really care here
+            if dtheta.abs() != f64::pi() {
+
+                //make two complex numbers separated by an angle between -pi and pi
+                let (z1, z2) = (z, z * UnitComplex::new(dtheta));
+                let z3 = z1.slerp(&z2, t);
+
+                //since the angle is no larger than a half-turn, and t is between 0 and 1,
+                //the shortest path just corresponds to adding the scaled angle
+                let a1 = z3.angle();
+                let a2 = na::wrap(z1.angle() + dtheta*t, -f64::pi(), f64::pi());
+
+                prop_assert!(relative_eq!(a1, a2, epsilon=1e-10));
+            }
+
+        }
+
+        #[test]
+        fn slerp_takes_shortest_path_3(
+            q in unit_quaternion(), dtheta in -f64::pi()..f64::pi(), t in 0.0..1.0f64
+        ) {
+
+            //ambiguous when at ends of angle range, so we don't really care here
+            if let Some(axis) = q.axis() {
+
+                //make two quaternions separated by an angle between -pi and pi
+                let (q1, q2) = (q, q * UnitQuaternion::from_axis_angle(&axis, dtheta));
+                let q3 = q1.slerp(&q2, t);
+
+                //since the angle is no larger than a half-turn, and t is between 0 and 1,
+                //the shortest path just corresponds to adding the scaled angle
+                let q4 = q1 * UnitQuaternion::from_axis_angle(&axis, dtheta*t);
+                prop_assert!(relative_eq!(q3, q4, epsilon=1e-10));
+
+            }
+
+        }
+
+
     }
 }

@@ -1,14 +1,9 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::fmt;
 use std::hash;
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use simba::scalar::{RealField, SubsetOf};
 use simba::simd::SimdRealField;
@@ -55,10 +50,7 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 ///
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
@@ -74,94 +66,16 @@ use crate::geometry::{AbstractRotation, Point, Translation};
                        Owned<T, Const<D>>: Deserialize<'de>,
                        T: Scalar"))
 )]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Isometry<T, R, const D: usize> {
     /// The pure rotational part of this isometry.
     pub rotation: R,
     /// The pure translational part of this isometry.
     pub translation: Translation<T, D>,
-}
-
-#[cfg(feature = "abomonation-serialize")]
-impl<T, R, const D: usize> Abomonation for Isometry<T, R, D>
-where
-    T: SimdRealField,
-    R: Abomonation,
-    Translation<T, D>: Abomonation,
-{
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.rotation.entomb(writer)?;
-        self.translation.entomb(writer)
-    }
-
-    fn extent(&self) -> usize {
-        self.rotation.extent() + self.translation.extent()
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.rotation
-            .exhume(bytes)
-            .and_then(|bytes| self.translation.exhume(bytes))
-    }
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Isometry;
-    use crate::{base::Scalar, geometry::Translation};
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Scalar + Archive, R: Archive, const D: usize> Archive for Isometry<T, R, D>
-    where
-        T::Archived: Scalar,
-    {
-        type Archived = Isometry<T::Archived, R::Archived, D>;
-        type Resolver = (R::Resolver, <Translation<T, D> as Archive>::Resolver);
-
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.rotation.resolve(
-                pos + offset_of!(Self::Archived, rotation),
-                resolver.0,
-                project_struct!(out: Self::Archived => rotation),
-            );
-            self.translation.resolve(
-                pos + offset_of!(Self::Archived, translation),
-                resolver.1,
-                project_struct!(out: Self::Archived => translation),
-            );
-        }
-    }
-
-    impl<T: Scalar + Serialize<S>, R: Serialize<S>, S: Fallible + ?Sized, const D: usize>
-        Serialize<S> for Isometry<T, R, D>
-    where
-        T::Archived: Scalar,
-    {
-        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            Ok((
-                self.rotation.serialize(serializer)?,
-                self.translation.serialize(serializer)?,
-            ))
-        }
-    }
-
-    impl<T: Scalar + Archive, R: Archive, _D: Fallible + ?Sized, const D: usize>
-        Deserialize<Isometry<T, R, D>, _D> for Isometry<T::Archived, R::Archived, D>
-    where
-        T::Archived: Scalar + Deserialize<T, _D>,
-        R::Archived: Scalar + Deserialize<R, _D>,
-    {
-        fn deserialize(&self, deserializer: &mut _D) -> Result<Isometry<T, R, D>, _D::Error> {
-            Ok(Isometry {
-                rotation: self.rotation.deserialize(deserializer)?,
-                translation: self.translation.deserialize(deserializer)?,
-            })
-        }
-    }
 }
 
 impl<T: Scalar + hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Isometry<T, R, D>

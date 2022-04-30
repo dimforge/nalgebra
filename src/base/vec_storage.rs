@@ -1,6 +1,3 @@
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
-
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
 
@@ -18,8 +15,6 @@ use serde::{
 };
 
 use crate::Storage;
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 use std::mem::MaybeUninit;
 
 /*
@@ -399,21 +394,6 @@ where
             nrows,
             ncols,
         }
-    }
-}
-
-#[cfg(feature = "abomonation-serialize")]
-impl<T: Abomonation, R: Dim, C: Dim> Abomonation for VecStorage<T, R, C> {
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.data.entomb(writer)
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.data.exhume(bytes)
-    }
-
-    fn extent(&self) -> usize {
-        self.data.extent()
     }
 }
 

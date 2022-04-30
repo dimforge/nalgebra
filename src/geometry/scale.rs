@@ -2,14 +2,9 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
 use std::fmt;
 use std::hash;
-#[cfg(feature = "abomonation-serialize")]
-use std::io::{Result as IOResult, Write};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-#[cfg(feature = "abomonation-serialize")]
-use abomonation::Abomonation;
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
@@ -22,10 +17,12 @@ use crate::geometry::Point;
 
 /// A scale which supports non-uniform scaling.
 #[repr(C)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[derive(Copy, Clone)]
 pub struct Scale<T, const D: usize> {
     /// The scale coordinates, i.e., how much is multiplied to a point's coordinates when it is
@@ -64,25 +61,6 @@ where
 {
 }
 
-#[cfg(feature = "abomonation-serialize")]
-impl<T, const D: usize> Abomonation for Scale<T, D>
-where
-    T: Scalar,
-    SVector<T, D>: Abomonation,
-{
-    unsafe fn entomb<W: Write>(&self, writer: &mut W) -> IOResult<()> {
-        self.vector.entomb(writer)
-    }
-
-    fn extent(&self) -> usize {
-        self.vector.extent()
-    }
-
-    unsafe fn exhume<'a, 'b>(&'a mut self, bytes: &'b mut [u8]) -> Option<&'b mut [u8]> {
-        self.vector.exhume(bytes)
-    }
-}
-
 #[cfg(feature = "serde-serialize-no-std")]
 impl<T: Scalar, const D: usize> Serialize for Scale<T, D>
 where
@@ -108,49 +86,6 @@ where
         let matrix = SVector::<T, D>::deserialize(deserializer)?;
 
         Ok(Scale::from(matrix))
-    }
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Scale;
-    use crate::base::SVector;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Archive, const D: usize> Archive for Scale<T, D> {
-        type Archived = Scale<T::Archived, D>;
-        type Resolver = <SVector<T, D> as Archive>::Resolver;
-
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.vector.resolve(
-                pos + offset_of!(Self::Archived, vector),
-                resolver,
-                project_struct!(out: Self::Archived => vector),
-            );
-        }
-    }
-
-    impl<T: Serialize<S>, S: Fallible + ?Sized, const D: usize> Serialize<S> for Scale<T, D> {
-        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            self.vector.serialize(serializer)
-        }
-    }
-
-    impl<T: Archive, _D: Fallible + ?Sized, const D: usize> Deserialize<Scale<T, D>, _D>
-        for Scale<T::Archived, D>
-    where
-        T::Archived: Deserialize<T, _D>,
-    {
-        fn deserialize(&self, deserializer: &mut _D) -> Result<Scale<T, D>, _D::Error> {
-            Ok(Scale {
-                vector: self.vector.deserialize(deserializer)?,
-            })
-        }
     }
 }
 

@@ -111,7 +111,7 @@ impl Parse for Matrix {
 
 /// Construct a fixed-size matrix directly from data.
 ///
-/// **Note: Requires the `macro` feature to be enabled (enabled by default)**.
+/// **Note: Requires the `macros` feature to be enabled (enabled by default)**.
 ///
 /// This macro facilitates easy construction of matrices when the entries of the matrix are known
 /// (either as constants or expressions). This macro produces an instance of `SMatrix`. This means
@@ -125,7 +125,6 @@ impl Parse for Matrix {
 /// (`;`) designates that a new row begins.
 ///
 /// # Examples
-///
 /// ```
 /// use nalgebra::matrix;
 ///
@@ -164,12 +163,13 @@ pub fn matrix(stream: TokenStream) -> TokenStream {
 
 /// Construct a dynamic matrix directly from data.
 ///
-/// **Note: Requires the `macro` feature to be enabled (enabled by default)**.
+/// **Note: Requires the `macros` feature to be enabled (enabled by default)**.
 ///
 /// The syntax is exactly the same as for [`matrix!`], but instead of producing instances of
 /// `SMatrix`, it produces instances of `DMatrix`. At the moment it is not usable
 /// in `const fn` contexts.
 ///
+/// # Example
 /// ```
 /// use nalgebra::dmatrix;
 ///
@@ -233,7 +233,7 @@ impl Parse for Vector {
 
 /// Construct a fixed-size column vector directly from data.
 ///
-/// **Note: Requires the `macro` feature to be enabled (enabled by default)**.
+/// **Note: Requires the `macros` feature to be enabled (enabled by default)**.
 ///
 /// Similarly to [`matrix!`], this macro facilitates easy construction of fixed-size vectors.
 /// However, whereas the [`matrix!`] macro expects each row to be separated by a semi-colon,
@@ -243,8 +243,7 @@ impl Parse for Vector {
 /// `vector!` is intended to be the most readable and performant way of constructing small,
 /// fixed-size vectors, and it is usable in `const fn` contexts.
 ///
-/// ## Examples
-///
+/// # Example
 /// ```
 /// use nalgebra::vector;
 ///
@@ -265,12 +264,13 @@ pub fn vector(stream: TokenStream) -> TokenStream {
 
 /// Construct a dynamic column vector directly from data.
 ///
-/// **Note: Requires the `macro` feature to be enabled (enabled by default)**.
+/// **Note: Requires the `macros` feature to be enabled (enabled by default)**.
 ///
 /// The syntax is exactly the same as for [`vector!`], but instead of producing instances of
 /// `SVector`, it produces instances of `DVector`. At the moment it is not usable
 /// in `const fn` contexts.
 ///
+/// # Example
 /// ```
 /// use nalgebra::dvector;
 ///
@@ -294,15 +294,14 @@ pub fn dvector(stream: TokenStream) -> TokenStream {
 
 /// Construct a fixed-size point directly from data.
 ///
-/// **Note: Requires the `macro` feature to be enabled (enabled by default)**.
+/// **Note: Requires the `macros` feature to be enabled (enabled by default)**.
 ///
 /// Similarly to [`vector!`], this macro facilitates easy construction of points.
 ///
 /// `point!` is intended to be the most readable and performant way of constructing small,
 /// points, and it is usable in `const fn` contexts.
 ///
-/// ## Examples
-///
+/// # Example
 /// ```
 /// use nalgebra::point;
 ///
