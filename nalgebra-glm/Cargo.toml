@@ -1,6 +1,6 @@
 [package]
 name = "nalgebra-glm"
-version = "0.16.0"
+version = "0.17.0"
 authors = ["sebcrozet <developer@crozet.re>"]
 
 description = "A computer-graphics oriented API for nalgebra, inspired by the C++ GLM library."
@@ -36,4 +36,4 @@ convert-glam018 = [ "nalgebra/glam018" ]
 num-traits = { version = "0.2", default-features = false }
 approx = { version = "0.5", default-features = false }
 simba = { version = "0.7", default-features = false }
-nalgebra = { path =  "..", version = "0.30", default-features = false }
+nalgebra = { path =  "..", version = "0.31", default-features = false }
