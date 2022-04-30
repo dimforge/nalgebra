@@ -66,71 +66,16 @@ use crate::geometry::{AbstractRotation, Point, Translation};
                        Owned<T, Const<D>>: Deserialize<'de>,
                        T: Scalar"))
 )]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Isometry<T, R, const D: usize> {
     /// The pure rotational part of this isometry.
     pub rotation: R,
     /// The pure translational part of this isometry.
     pub translation: Translation<T, D>,
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Isometry;
-    use crate::{base::Scalar, geometry::Translation};
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Scalar + Archive, R: Archive, const D: usize> Archive for Isometry<T, R, D>
-    where
-        T::Archived: Scalar,
-    {
-        type Archived = Isometry<T::Archived, R::Archived, D>;
-        type Resolver = (R::Resolver, <Translation<T, D> as Archive>::Resolver);
-
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.rotation.resolve(
-                pos + offset_of!(Self::Archived, rotation),
-                resolver.0,
-                project_struct!(out: Self::Archived => rotation),
-            );
-            self.translation.resolve(
-                pos + offset_of!(Self::Archived, translation),
-                resolver.1,
-                project_struct!(out: Self::Archived => translation),
-            );
-        }
-    }
-
-    impl<T: Scalar + Serialize<S>, R: Serialize<S>, S: Fallible + ?Sized, const D: usize>
-        Serialize<S> for Isometry<T, R, D>
-    where
-        T::Archived: Scalar,
-    {
-        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            Ok((
-                self.rotation.serialize(serializer)?,
-                self.translation.serialize(serializer)?,
-            ))
-        }
-    }
-
-    impl<T: Scalar + Archive, R: Archive, _D: Fallible + ?Sized, const D: usize>
-        Deserialize<Isometry<T, R, D>, _D> for Isometry<T::Archived, R::Archived, D>
-    where
-        T::Archived: Scalar + Deserialize<T, _D>,
-        R::Archived: Scalar + Deserialize<R, _D>,
-    {
-        fn deserialize(&self, deserializer: &mut _D) -> Result<Isometry<T, R, D>, _D::Error> {
-            Ok(Isometry {
-                rotation: self.rotation.deserialize(deserializer)?,
-                translation: self.translation.deserialize(deserializer)?,
-            })
-        }
-    }
 }
 
 impl<T: Scalar + hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Isometry<T, R, D>
