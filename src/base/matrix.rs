@@ -150,6 +150,11 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// some concrete types for `T` and a compatible data storage type `S`).
 #[repr(C)]
 #[derive(Clone, Copy)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Matrix<T, R, C, S> {
     /// The data storage that contains all the matrix components. Disappointed?
@@ -286,66 +291,6 @@ where
     S: bytemuck::Pod,
     Self: Copy,
 {
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Matrix;
-    use core::marker::PhantomData;
-    use rkyv::{out_field, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Archive, R: Archive, C: Archive, S: Archive> Archive for Matrix<T, R, C, S> {
-        type Archived = Matrix<T::Archived, R::Archived, C::Archived, S::Archived>;
-        type Resolver = S::Resolver;
-
-        unsafe fn resolve(&self, pos: usize, resolver: Self::Resolver, out: *mut Self::Archived) {
-            let (fp, fo) = out_field!(out.data);
-            self.data.resolve(pos + fp, resolver, fo);
-        }
-    }
-
-    impl<T: Archive, R: Archive, C: Archive, S: Serialize<_S>, _S: Fallible + ?Sized> Serialize<_S>
-        for Matrix<T, R, C, S>
-    {
-        fn serialize(&self, serializer: &mut _S) -> Result<Self::Resolver, _S::Error> {
-            self.data.serialize(serializer)
-        }
-    }
-
-    impl<T: Archive, R: Archive, C: Archive, S: Archive, D: Fallible + ?Sized>
-        Deserialize<Matrix<T, R, C, S>, D>
-        for Matrix<T::Archived, R::Archived, C::Archived, S::Archived>
-    where
-        S::Archived: Deserialize<S, D>,
-    {
-        fn deserialize(&self, deserializer: &mut D) -> Result<Matrix<T, R, C, S>, D::Error> {
-            Ok(Matrix {
-                data: self.data.deserialize(deserializer)?,
-                _phantoms: PhantomData,
-            })
-        }
-    }
-}
-#[cfg(feature = "rkyv-serialize")]
-mod bytecheck_impl {
-    use bytecheck::CheckBytes;
-    use std::ptr::addr_of;
-
-    use super::Matrix;
-
-    impl<__C: ?Sized, T, R, C, S: CheckBytes<__C>> CheckBytes<__C> for Matrix<T, R, C, S>
-    where
-        S: CheckBytes<__C>,
-    {
-        type Error = <S as CheckBytes<__C>>::Error;
-        unsafe fn check_bytes<'a>(
-            value: *const Matrix<T, R, C, S>,
-            context: &mut __C,
-        ) -> Result<&'a Self, Self::Error> {
-            let _ = S::check_bytes(addr_of!((*value).data), context)?;
-            Ok(&*value)
-        }
-    }
 }
 
 impl<T, R, C, S> Matrix<T, R, C, S> {

@@ -27,6 +27,11 @@ use std::mem;
 /// A array-based statically sized matrix data storage.
 #[repr(transparent)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct ArrayStorage<T, const R: usize, const C: usize>(pub [[T; R]; C]);
 
@@ -272,60 +277,4 @@ unsafe impl<T: Scalar + Copy + bytemuck::Zeroable, const R: usize, const C: usiz
 unsafe impl<T: Scalar + Copy + bytemuck::Pod, const R: usize, const C: usize> bytemuck::Pod
     for ArrayStorage<T, R, C>
 {
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::ArrayStorage;
-    use rkyv::{out_field, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Archive, const R: usize, const C: usize> Archive for ArrayStorage<T, R, C> {
-        type Archived = ArrayStorage<T::Archived, R, C>;
-        type Resolver = <[[T; R]; C] as Archive>::Resolver;
-
-        unsafe fn resolve(&self, pos: usize, resolver: Self::Resolver, out: *mut Self::Archived) {
-            let (fp, fo) = out_field!(out.0);
-            self.0.resolve(pos + fp, resolver, fo);
-        }
-    }
-
-    impl<T: Serialize<S>, S: Fallible + ?Sized, const R: usize, const C: usize> Serialize<S>
-        for ArrayStorage<T, R, C>
-    {
-        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            self.0.serialize(serializer)
-        }
-    }
-
-    impl<T: Archive, D: Fallible + ?Sized, const R: usize, const C: usize>
-        Deserialize<ArrayStorage<T, R, C>, D> for ArrayStorage<T::Archived, R, C>
-    where
-        T::Archived: Deserialize<T, D>,
-    {
-        fn deserialize(&self, deserializer: &mut D) -> Result<ArrayStorage<T, R, C>, D::Error> {
-            Ok(ArrayStorage(self.0.deserialize(deserializer)?))
-        }
-    }
-}
-#[cfg(feature = "rkyv-serialize")]
-mod bytecheck_impl {
-    use std::ptr::addr_of;
-
-    use bytecheck::{ArrayCheckError, CheckBytes};
-
-    use super::ArrayStorage;
-
-    impl<__C: ?Sized, T, const R: usize, const C: usize> CheckBytes<__C> for ArrayStorage<T, R, C>
-    where
-        T: CheckBytes<__C>,
-    {
-        type Error = ArrayCheckError<ArrayCheckError<<T as CheckBytes<__C>>::Error>>;
-        unsafe fn check_bytes<'a>(
-            value: *const ArrayStorage<T, R, C>,
-            context: &mut __C,
-        ) -> Result<&'a Self, Self::Error> {
-            let _ = <[[T; R]; C] as CheckBytes<__C>>::check_bytes(addr_of!((*value).0), context)?;
-            Ok(&*value)
-        }
-    }
 }
