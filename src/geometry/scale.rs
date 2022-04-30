@@ -17,6 +17,11 @@ use crate::geometry::Point;
 
 /// A scale which supports non-uniform scaling.
 #[repr(C)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[derive(Copy, Clone)]
 pub struct Scale<T, const D: usize> {
@@ -81,62 +86,6 @@ where
         let matrix = SVector::<T, D>::deserialize(deserializer)?;
 
         Ok(Scale::from(matrix))
-    }
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Scale;
-    use crate::base::SVector;
-    use rkyv::{out_field, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Archive, const D: usize> Archive for Scale<T, D> {
-        type Archived = Scale<T::Archived, D>;
-        type Resolver = <SVector<T, D> as Archive>::Resolver;
-
-        unsafe fn resolve(&self, pos: usize, resolver: Self::Resolver, out: *mut Self::Archived) {
-            let (fp, fo) = out_field!(out.vector);
-            self.vector.resolve(pos + fp, resolver, fo);
-        }
-    }
-
-    impl<T: Serialize<S>, S: Fallible + ?Sized, const D: usize> Serialize<S> for Scale<T, D> {
-        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            self.vector.serialize(serializer)
-        }
-    }
-
-    impl<T: Archive, _D: Fallible + ?Sized, const D: usize> Deserialize<Scale<T, D>, _D>
-        for Scale<T::Archived, D>
-    where
-        T::Archived: Deserialize<T, _D>,
-    {
-        fn deserialize(&self, deserializer: &mut _D) -> Result<Scale<T, D>, _D::Error> {
-            Ok(Scale {
-                vector: self.vector.deserialize(deserializer)?,
-            })
-        }
-    }
-}
-#[cfg(feature = "rkyv-serialize")]
-mod bytecheck_impl {
-    use std::ptr::addr_of;
-
-    use bytecheck::CheckBytes;
-
-    use crate::{SVector, Scale};
-    impl<__C: ?Sized, T: CheckBytes<__C>, const D: usize> CheckBytes<__C> for Scale<T, D>
-    where
-        T: CheckBytes<__C>,
-    {
-        type Error = <SVector<T, D> as CheckBytes<__C>>::Error;
-        unsafe fn check_bytes<'a>(
-            value: *const Scale<T, D>,
-            context: &mut __C,
-        ) -> Result<&'a Self, Self::Error> {
-            let _ = SVector::<T, D>::check_bytes(addr_of!((*value).vector), context)?;
-            Ok(&*value)
-        }
     }
 }
 

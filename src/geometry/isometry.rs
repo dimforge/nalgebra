@@ -66,102 +66,16 @@ use crate::geometry::{AbstractRotation, Point, Translation};
                        Owned<T, Const<D>>: Deserialize<'de>,
                        T: Scalar"))
 )]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Isometry<T, R, const D: usize> {
     /// The pure rotational part of this isometry.
     pub rotation: R,
     /// The pure translational part of this isometry.
     pub translation: Translation<T, D>,
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Isometry;
-    use crate::{base::Scalar, geometry::Translation};
-    use rkyv::{out_field, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Scalar + Archive, R: Archive, const D: usize> Archive for Isometry<T, R, D>
-    where
-        T::Archived: Scalar,
-    {
-        type Archived = Isometry<T::Archived, R::Archived, D>;
-        type Resolver = (R::Resolver, <Translation<T, D> as Archive>::Resolver);
-
-        unsafe fn resolve(&self, pos: usize, resolver: Self::Resolver, out: *mut Self::Archived) {
-            let (fp, fo) = out_field!(out.rotation);
-            self.rotation.resolve(pos + fp, resolver.0, fo);
-            let (fp, fo) = out_field!(out.translation);
-            self.translation.resolve(pos + fp, resolver.1, fo);
-        }
-    }
-
-    impl<T: Scalar + Serialize<S>, R: Serialize<S>, S: Fallible + ?Sized, const D: usize>
-        Serialize<S> for Isometry<T, R, D>
-    where
-        T::Archived: Scalar,
-    {
-        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            Ok((
-                self.rotation.serialize(serializer)?,
-                self.translation.serialize(serializer)?,
-            ))
-        }
-    }
-
-    impl<T: Scalar + Archive, R: Archive, _D: Fallible + ?Sized, const D: usize>
-        Deserialize<Isometry<T, R, D>, _D> for Isometry<T::Archived, R::Archived, D>
-    where
-        T::Archived: Scalar + Deserialize<T, _D>,
-        R::Archived: Scalar + Deserialize<R, _D>,
-    {
-        fn deserialize(&self, deserializer: &mut _D) -> Result<Isometry<T, R, D>, _D::Error> {
-            Ok(Isometry {
-                rotation: self.rotation.deserialize(deserializer)?,
-                translation: self.translation.deserialize(deserializer)?,
-            })
-        }
-    }
-}
-#[cfg(feature = "rkyv-serialize")]
-mod bytecheck_impl {
-    use crate::{Isometry, Scalar, Translation};
-    use bytecheck::CheckBytes;
-    use std::{error::Error, fmt, ptr::addr_of};
-
-    #[derive(Debug)]
-    pub enum IsometryCheckBytesError<T, R> {
-        Rotation(R),
-        Translation(T),
-    }
-    impl<T, R> fmt::Display for IsometryCheckBytesError<T, R> {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            match self {
-                Self::Rotation(_) => write!(f, "failed to check bytes of isometry rotation"),
-                Self::Translation(_) => write!(f, "failed to check bytes of isometry translation"),
-            }
-        }
-    }
-    impl<T: Error, R: Error> Error for IsometryCheckBytesError<T, R> {}
-
-    impl<__C: ?Sized, T: Scalar + CheckBytes<__C>, R: CheckBytes<__C>, const D: usize>
-        CheckBytes<__C> for Isometry<T, R, D>
-    where
-        T: CheckBytes<__C>,
-    {
-        type Error = IsometryCheckBytesError<
-            <Translation<T, D> as CheckBytes<__C>>::Error,
-            <R as CheckBytes<__C>>::Error,
-        >;
-        unsafe fn check_bytes<'a>(
-            value: *const Isometry<T, R, D>,
-            context: &mut __C,
-        ) -> Result<&'a Self, Self::Error> {
-            let _ = R::check_bytes(addr_of!((*value).rotation), context)
-                .map_err(|e| IsometryCheckBytesError::Rotation(e))?;
-            let _ = Translation::<T, D>::check_bytes(addr_of!((*value).translation), context)
-                .map_err(|e| IsometryCheckBytesError::Translation(e))?;
-            Ok(&*value)
-        }
-    }
 }
 
 impl<T: Scalar + hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Isometry<T, R, D>
