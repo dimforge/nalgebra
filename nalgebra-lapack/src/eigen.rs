@@ -308,7 +308,7 @@ where
                     res[i] = Complex::new(wr[i].clone(), wi[i].clone());
                 }
         
-                return (res, Some(vl), Some(vr))
+                (res, Some(vl), Some(vr))
             }
             (true, false) => {
                 // TODO: avoid the initialization?
@@ -338,7 +338,7 @@ where
                     res[i] = Complex::new(wr[i].clone(), wi[i].clone());
                 }
         
-                return (res, Some(vl), None)
+                (res, Some(vl), None)
             }
             (false, true) => {
                 // TODO: avoid the initialization?
@@ -368,7 +368,7 @@ where
                     res[i] = Complex::new(wr[i].clone(), wi[i].clone());
                 }
         
-                return (res, None, Some(vr))
+                (res, None, Some(vr))
             }
             (false, false) => {
                 T::xgeev(
@@ -395,7 +395,7 @@ where
                     res[i] = Complex::new(wr[i].clone(), wi[i].clone());
                 }
         
-                return (res, None, None)
+                (res, None, None)
             }
         }
 
