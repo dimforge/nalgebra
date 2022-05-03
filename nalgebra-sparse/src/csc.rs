@@ -7,7 +7,9 @@
 mod csc_serde;
 
 use crate::cs;
-use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
+use crate::cs::{
+    CsInnerIter, CsInnerIterMut, CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix,
+};
 use crate::csr::CsrMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
 use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
@@ -717,6 +719,14 @@ macro_rules! impl_csc_col_common_methods {
             pub fn get_entry(&self, global_row_index: usize) -> Option<SparseEntry<'_, T>> {
                 self.lane.get_entry(global_row_index)
             }
+
+            /// Iterator over the row indices and elements of a column of a CSC matrix.
+            /// Equivalent to `col.row_indices().iter().zip(col.values().iter())`.
+            #[inline]
+            #[must_use]
+            pub fn iter(&self) -> CsInnerIter<'_, T> {
+                self.lane.iter()
+            }
         }
     };
 }
@@ -743,6 +753,14 @@ impl<'a, T> CscColMut<'a, T> {
     #[must_use]
     pub fn get_entry_mut(&mut self, global_row_index: usize) -> Option<SparseEntryMut<'_, T>> {
         self.lane.get_entry_mut(global_row_index)
+    }
+
+    /// Iterator over the row indices and mutable elements of a column of a CSC matrix.
+    /// Equivalent to `col.row_indices().iter().zip(col.values_mut().iter_mut())`.
+    #[inline]
+    #[must_use]
+    pub fn iter_mut(&mut self) -> CsInnerIterMut<'_, T> {
+        self.lane.iter_mut()
     }
 }
 

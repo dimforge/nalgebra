@@ -1,5 +1,7 @@
+use std::iter::Zip;
 use std::mem::replace;
 use std::ops::Range;
+use std::slice::{Iter, IterMut};
 
 use num_traits::One;
 
@@ -272,6 +274,54 @@ fn get_mut_entry_from_slices<'a, T>(
     }
 }
 
+pub struct CsInnerIter<'a, T> {
+    inner_iter: Zip<Iter<'a, usize>, Iter<'a, T>>,
+}
+
+pub struct CsInnerIterMut<'a, T> {
+    inner_iter_mut: Zip<Iter<'a, usize>, IterMut<'a, T>>,
+}
+
+impl<'a, T> CsInnerIter<'a, T> {
+    pub fn new(indices: &'a [usize], values: &'a [T]) -> Self {
+        Self {
+            inner_iter: indices.iter().zip(values.iter()),
+        }
+    }
+}
+
+impl<'a, T> CsInnerIterMut<'a, T> {
+    pub fn new(indices: &'a [usize], values: &'a mut [T]) -> Self {
+        Self {
+            inner_iter_mut: indices.iter().zip(values.iter_mut()),
+        }
+    }
+}
+
+impl<'a, T> Iterator for CsInnerIter<'a, T>
+where
+    T: 'a,
+{
+    type Item = (usize, &'a T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner_iter.next().map(|(index, value)| (*index, value))
+    }
+}
+
+impl<'a, T> Iterator for CsInnerIterMut<'a, T>
+where
+    T: 'a,
+{
+    type Item = (usize, &'a mut T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner_iter_mut
+            .next()
+            .map(|(index, value)| (*index, value))
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CsLane<'a, T> {
     minor_dim: usize,
@@ -415,6 +465,12 @@ macro_rules! impl_cs_lane_common_methods {
                     global_col_index,
                 )
             }
+
+            #[inline]
+            #[must_use]
+            pub fn iter(&self) -> CsInnerIter<'_, T> {
+                CsInnerIter::new(self.minor_indices, self.values)
+            }
         }
     };
 }
@@ -439,6 +495,12 @@ impl<'a, T> CsLaneMut<'a, T> {
             self.values,
             global_minor_index,
         )
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn iter_mut(&mut self) -> CsInnerIterMut<'_, T> {
+        CsInnerIterMut::new(self.minor_indices, self.values)
     }
 }
 
