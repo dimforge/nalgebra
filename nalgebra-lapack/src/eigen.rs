@@ -307,7 +307,6 @@ where
                 for i in 0..res.len() {
                     res[i] = Complex::new(wr[i].clone(), wi[i].clone());
                 }
-        
                 (res, Some(vl), Some(vr))
             }
             (true, false) => {
@@ -337,7 +336,6 @@ where
                 for i in 0..res.len() {
                     res[i] = Complex::new(wr[i].clone(), wi[i].clone());
                 }
-        
                 (res, Some(vl), None)
             }
             (false, true) => {
@@ -367,7 +365,6 @@ where
                 for i in 0..res.len() {
                     res[i] = Complex::new(wr[i].clone(), wi[i].clone());
                 }
-        
                 (res, None, Some(vr))
             }
             (false, false) => {
@@ -394,7 +391,6 @@ where
                 for i in 0..res.len() {
                     res[i] = Complex::new(wr[i].clone(), wi[i].clone());
                 }
-        
                 (res, None, None)
             }
         }
