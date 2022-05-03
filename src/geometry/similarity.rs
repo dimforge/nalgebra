@@ -18,10 +18,7 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-#[cfg_attr(
-    all(not(target_os = "cuda"), feature = "cuda"),
-    derive(cust::DeviceCopy)
-)]
+#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
@@ -37,6 +34,11 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
                        DefaultAllocator: Allocator<T, Const<D>>,
                        Owned<T, Const<D>>: Deserialize<'de>"))
 )]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Similarity<T, R, const D: usize> {
     /// The part of this similarity that does not include the scaling factor.
     pub isometry: Isometry<T, R, D>,

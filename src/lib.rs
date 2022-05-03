@@ -78,12 +78,13 @@ an optimized set of tools for computer graphics and physics. Those features incl
     unused_mut,
     unused_parens,
     unused_qualifications,
-    unused_results,
     rust_2018_idioms,
     rust_2018_compatibility,
     future_incompatible,
     missing_copy_implementations
 )]
+#![cfg_attr(feature = "rkyv-serialize-no-std", warn(unused_results))] // TODO: deny this once bytecheck stops generating warnings.
+#![cfg_attr(not(feature = "rkyv-serialize-no-std"), deny(unused_results))]
 #![doc(
     html_favicon_url = "https://nalgebra.org/img/favicon.ico",
     html_root_url = "https://docs.rs/nalgebra/0.25.0"
@@ -246,8 +247,8 @@ pub fn min<T: Ord>(a: T, b: T) -> T {
 
 /// The absolute value of `a`.
 ///
-/// Deprecated: Use [`Matrix::abs`] or [`RealField::abs`] instead.
-#[deprecated(note = "use the inherent method `Matrix::abs` or `RealField::abs` instead")]
+/// Deprecated: Use [`Matrix::abs`] or [`ComplexField::abs`] instead.
+#[deprecated(note = "use the inherent method `Matrix::abs` or `ComplexField::abs` instead")]
 #[inline]
 pub fn abs<T: Signed>(a: &T) -> T {
     a.abs()

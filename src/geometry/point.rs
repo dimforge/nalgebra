@@ -36,6 +36,11 @@ use std::mem::MaybeUninit;
 /// of said transformations for details.
 #[repr(C)]
 #[derive(Clone)]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct OPoint<T: Scalar, D: DimName>
 where
     DefaultAllocator: Allocator<T, D>,
@@ -69,12 +74,11 @@ where
 {
 }
 
-#[cfg(all(not(target_os = "cuda"), feature = "cuda"))]
-unsafe impl<T: Scalar + cust::memory::DeviceCopy, D: DimName> cust::memory::DeviceCopy
-    for OPoint<T, D>
+#[cfg(feature = "cuda")]
+unsafe impl<T: Scalar + cust_core::DeviceCopy, D: DimName> cust_core::DeviceCopy for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    OVector<T, D>: cust::memory::DeviceCopy,
+    OVector<T, D>: cust_core::DeviceCopy,
 {
 }
 
@@ -267,6 +271,7 @@ where
     /// assert_eq!(it.next(), Some(2.0));
     /// assert_eq!(it.next(), Some(3.0));
     /// assert_eq!(it.next(), None);
+    /// ```
     #[inline]
     pub fn iter(
         &self,
@@ -293,6 +298,7 @@ where
     /// }
     ///
     /// assert_eq!(p, Point3::new(10.0, 20.0, 30.0));
+    /// ```
     #[inline]
     pub fn iter_mut(
         &mut self,
