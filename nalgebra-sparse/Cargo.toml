@@ -34,6 +34,7 @@ pest_derive    = { version = "2", optional = true }
 itertools = "0.10"
 matrixcompare = { version = "0.3.0", features = [ "proptest-support" ] }
 nalgebra = { version="0.30", path = "../", features = ["compare"] }
+tempfile = "3"
 
 [package.metadata.docs.rs]
 # Enable certain features when building docs for docs.rs

@@ -1487,10 +1487,7 @@ pub fn write_to_matrix_market_str<T: MatrixMarketScalar, S: MatrixMarketExport<T
 /// 2 3 5
 /// "#;
 /// let matrix = load_coo_from_matrix_market_str::<i32>(&str).unwrap();
-/// // create a temporary file 'temp.mtx'
-/// let mut tempdir = std::env::temp_dir();
-/// tempdir.push("temp.mtx");
-/// write_to_matrix_market_file(&matrix,tempdir).unwrap();
+/// write_to_matrix_market_file(&matrix,"path/to/matrix.mtx").unwrap();
 /// ```
 pub fn write_to_matrix_market_file<
     T: MatrixMarketScalar,

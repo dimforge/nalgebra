@@ -8,6 +8,7 @@ use nalgebra_sparse::io::{
 use nalgebra_sparse::proptest::coo_no_duplicates;
 use nalgebra_sparse::CooMatrix;
 use proptest::prelude::*;
+use tempfile::tempdir;
 
 type C64 = Complex<f64>;
 type C32 = Complex<f32>;
@@ -457,10 +458,11 @@ proptest! {
 proptest! {
     #[test]
     fn coo_matrix_market_roundtrip_file(coo in coo_no_duplicates(-10 ..= 10, 0 ..= 10, 0..= 10, 100)) {
-        let mut tempdir = std::env::temp_dir();
-        tempdir.push("temp.mtx");
-        write_to_matrix_market_file(&coo,&tempdir).unwrap();
-        let generated_matrix = load_coo_from_matrix_market_file(tempdir).unwrap();
+        let temp_dir = tempdir().expect("Unable to create temporary directory");
+        let file_path = temp_dir.path().join("temp.mtx");
+        write_to_matrix_market_file(&coo,&file_path).unwrap();
+        let generated_matrix = load_coo_from_matrix_market_file(file_path).unwrap();
         assert_matrix_eq!(generated_matrix, coo);
+        temp_dir.close().expect("Unable to delete temporary directory");
     }
 }
