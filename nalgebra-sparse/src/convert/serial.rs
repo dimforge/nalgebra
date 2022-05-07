@@ -14,6 +14,7 @@ use crate::coo::CooMatrix;
 use crate::cs;
 use crate::csc::CscMatrix;
 use crate::csr::CsrMatrix;
+use crate::utils::{apply_permutation, compute_sort_permutation};
 
 /// Converts a dense matrix to [`CooMatrix`].
 pub fn convert_dense_coo<T, R, C, S>(dense: &Matrix<T, R, C, S>) -> CooMatrix<T>
@@ -376,27 +377,10 @@ fn sort_lane<T: Clone>(
     assert_eq!(values.len(), workspace.len());
 
     let permutation = workspace;
-    // Set permutation to identity
-    for (i, p) in permutation.iter_mut().enumerate() {
-        *p = i;
-    }
-
-    // Compute permutation needed to bring minor indices into sorted order
-    // Note: Using sort_unstable here avoids internal allocations, which is crucial since
-    // each lane might have a small number of elements
-    permutation.sort_unstable_by_key(|idx| minor_idx[*idx]);
+    compute_sort_permutation(permutation, minor_idx);
 
     apply_permutation(minor_idx_result, minor_idx, permutation);
     apply_permutation(values_result, values, permutation);
-}
-
-// TODO: Move this into `utils` or something?
-fn apply_permutation<T: Clone>(out_slice: &mut [T], in_slice: &[T], permutation: &[usize]) {
-    assert_eq!(out_slice.len(), in_slice.len());
-    assert_eq!(out_slice.len(), permutation.len());
-    for (out_element, old_pos) in out_slice.iter_mut().zip(permutation) {
-        *out_element = in_slice[*old_pos].clone();
-    }
 }
 
 /// Given *sorted* indices and corresponding scalar values, combines duplicates with the given

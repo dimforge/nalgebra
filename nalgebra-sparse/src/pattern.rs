@@ -1,4 +1,8 @@
 //! Sparsity patterns for CSR and CSC matrices.
+
+#[cfg(feature = "serde-serialize")]
+mod pattern_serde;
+
 use crate::cs::transpose_cs;
 use crate::SparseFormatError;
 use std::error::Error;
@@ -182,6 +186,35 @@ impl SparsityPattern {
             minor_indices,
             minor_dim,
         })
+    }
+
+    /// Try to construct a sparsity pattern from the given dimensions, major offsets
+    /// and minor indices.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the number of major offsets is not exactly one greater than the major dimension
+    /// or if major offsets do not start with 0 and end with the number of minor indices.
+    pub unsafe fn from_offset_and_indices_unchecked(
+        major_dim: usize,
+        minor_dim: usize,
+        major_offsets: Vec<usize>,
+        minor_indices: Vec<usize>,
+    ) -> Self {
+        assert_eq!(major_offsets.len(), major_dim + 1);
+
+        // Check that the first and last offsets conform to the specification
+        {
+            let first_offset_ok = *major_offsets.first().unwrap() == 0;
+            let last_offset_ok = *major_offsets.last().unwrap() == minor_indices.len();
+            assert!(first_offset_ok && last_offset_ok);
+        }
+
+        Self {
+            major_offsets,
+            minor_indices,
+            minor_dim,
+        }
     }
 
     /// An iterator over the explicitly stored "non-zero" entries (i, j).

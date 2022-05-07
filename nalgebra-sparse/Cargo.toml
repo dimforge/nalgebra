@@ -15,6 +15,7 @@ license = "Apache-2.0"
 [features]
 proptest-support = ["proptest", "nalgebra/proptest-support"]
 compare = [ "matrixcompare-core" ]
+serde-serialize = [ "serde/std" ]
 
 # Enable matrix market I/O
 io      = [ "pest", "pest_derive" ]
@@ -29,13 +30,15 @@ proptest = { version = "1.0", optional = true }
 matrixcompare-core = { version = "0.1.0", optional = true }
 pest           = { version = "2", optional = true }
 pest_derive    = { version = "2", optional = true }
+serde = { version = "1.0", default-features = false, features = [ "derive" ], optional = true }
 
 [dev-dependencies]
 itertools = "0.10"
 matrixcompare = { version = "0.3.0", features = [ "proptest-support" ] }
 nalgebra = { version="0.30", path = "../", features = ["compare"] }
 tempfile = "3"
+serde_json = "1.0"
 
 [package.metadata.docs.rs]
 # Enable certain features when building docs for docs.rs
-features = [ "proptest-support", "compare" , "io"]
+features = [ "proptest-support", "compare", "io"]

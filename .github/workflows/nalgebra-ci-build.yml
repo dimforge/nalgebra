@@ -38,8 +38,12 @@ jobs:
       run: cargo build --features serde-serialize
     - name: Build nalgebra-lapack
       run: cd nalgebra-lapack; cargo build;
-    - name: Build nalgebra-sparse
+    - name: Build nalgebra-sparse --no-default-features
+      run: cd nalgebra-sparse; cargo build --no-default-features;
+    - name: Build nalgebra-sparse (default features)
       run: cd nalgebra-sparse; cargo build;
+    - name: Build nalgebra-sparse --all-features
+      run: cd nalgebra-sparse; cargo build --all-features;
   # Run this on it’s own job because it alone takes a lot of time.
   # So it’s best to let it run in parallel to the other jobs.
   build-nalgebra-all-features:
@@ -57,13 +61,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: test
-        run: cargo test --features arbitrary,rand,serde-serialize,abomonation-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
+        run: cargo test --features arbitrary,rand,serde-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
   test-nalgebra-glm:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: test nalgebra-glm
-        run: cargo test -p nalgebra-glm --features arbitrary,serde-serialize,abomonation-serialize;
+        run: cargo test -p nalgebra-glm --features arbitrary,serde-serialize;
   test-nalgebra-sparse:
     runs-on: ubuntu-latest
     steps:
@@ -71,10 +75,10 @@ jobs:
       - name: test nalgebra-sparse
         # Manifest-path is necessary because cargo otherwise won't correctly forward features
         # We increase number of proptest cases to hopefully catch more potential bugs
-        run: PROPTEST_CASES=10000 cargo test --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support,io
+        run: PROPTEST_CASES=10000 cargo test --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support,io,serde-serialize
       - name: test nalgebra-sparse (slow tests)
         # Unfortunately, the "slow-tests" take so much time that we need to run them with --release
-        run: PROPTEST_CASES=10000 cargo test --release --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support,io,slow-tests slow
+        run: PROPTEST_CASES=10000 cargo test --release --manifest-path=nalgebra-sparse/Cargo.toml --features compare,proptest-support,io,serde-serialize,slow-tests slow
   test-nalgebra-macros:
     runs-on: ubuntu-latest
     steps:
@@ -120,6 +124,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: Jimver/cuda-toolkit@v0.2.4
+        with:
+          cuda: '11.2.2'
       - name: Install nightly-2021-12-04
         uses: actions-rs/toolchain@v1
         with:
@@ -129,3 +135,5 @@ jobs:
       - run: rustup target add nvptx64-nvidia-cuda
       - run: cargo build --no-default-features --features cuda
       - run: cargo build --no-default-features --features cuda --target=nvptx64-nvidia-cuda
+        env: 
+          CUDA_ARCH: "350"
