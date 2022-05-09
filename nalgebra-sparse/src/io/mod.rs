@@ -21,10 +21,10 @@
 //! We currently offer functionality for importing a Matrix market file to an instance of a
 //! [CooMatrix](crate::CooMatrix) through the function [load_coo_from_matrix_market_file],
 //! as well as functionality for writing various sparse matrices to the matrix market format
-//! through [write_to_matrix_market_file]. It is also possible to load
+//! through [save_to_matrix_market_file]. It is also possible to load
 //! a matrix stored as a string in the matrix market format with the function
 //! [load_coo_from_matrix_market_str], or similarly write to a string with
-//! [write_to_matrix_market_str].
+//! [save_to_matrix_market_str].
 //!
 //! Our implementation is based on the [format description](https://math.nist.gov/MatrixMarket/formats.html)
 //! on the Matrix Market website and the
@@ -34,8 +34,8 @@
 //! > "*The Matrix Market Exchange Formats: Initial Design.*" (1996).
 
 pub use self::matrix_market::{
-    load_coo_from_matrix_market_file, load_coo_from_matrix_market_str, write_to_matrix_market,
-    write_to_matrix_market_file, write_to_matrix_market_str, MatrixMarketError,
+    load_coo_from_matrix_market_file, load_coo_from_matrix_market_str, save_to_matrix_market,
+    save_to_matrix_market_file, save_to_matrix_market_str, MatrixMarketError,
     MatrixMarketErrorKind, MatrixMarketExport, MatrixMarketScalar,
 };
 mod matrix_market;

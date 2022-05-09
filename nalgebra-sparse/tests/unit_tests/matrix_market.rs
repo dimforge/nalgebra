@@ -2,8 +2,8 @@ use matrixcompare::assert_matrix_eq;
 use nalgebra::matrix;
 use nalgebra::Complex;
 use nalgebra_sparse::io::{
-    load_coo_from_matrix_market_file, load_coo_from_matrix_market_str, write_to_matrix_market_file,
-    write_to_matrix_market_str,
+    load_coo_from_matrix_market_file, load_coo_from_matrix_market_str, save_to_matrix_market_file,
+    save_to_matrix_market_str,
 };
 use nalgebra_sparse::proptest::coo_no_duplicates;
 use nalgebra_sparse::CooMatrix;
@@ -374,7 +374,7 @@ fn test_matrixmarket_write_real(){
 1 3 3
 2 3 3
 "#;
-    let matrixmarket_str = write_to_matrix_market_str(&coo_matrix);
+    let matrixmarket_str = save_to_matrix_market_str(&coo_matrix);
     assert_eq!(matrixmarket_str,expected);
 }
 
@@ -398,7 +398,7 @@ fn test_matrixmarket_write_int() {
 1 3 3
 2 3 3
 "#;
-    let matrixmarket_str = write_to_matrix_market_str(&coo_matrix);
+    let matrixmarket_str = save_to_matrix_market_str(&coo_matrix);
     assert_eq!(matrixmarket_str, expected);
 }
 
@@ -417,7 +417,7 @@ fn test_matrixmarket_write_pattern() {
 1 3 
 2 3 
 "#;
-    let matrixmarket_str = write_to_matrix_market_str(&coo_matrix);
+    let matrixmarket_str = save_to_matrix_market_str(&coo_matrix);
     assert_eq!(matrixmarket_str, expected);
 }
 
@@ -442,14 +442,14 @@ fn test_matrixmarket_write_complex() {
 1 3 4 5
 2 3 5 6
 "#;
-    let matrixmarket_str = write_to_matrix_market_str(&coo_matrix);
+    let matrixmarket_str = save_to_matrix_market_str(&coo_matrix);
     assert_eq!(matrixmarket_str, expected);
 }
 
 proptest! {
     #[test]
     fn coo_matrix_market_roundtrip_str(coo in coo_no_duplicates(-10 ..= 10, 0 ..= 10, 0..= 10, 100)) {
-        let generated_matrixmarket_string = write_to_matrix_market_str(&coo);
+        let generated_matrixmarket_string = save_to_matrix_market_str(&coo);
         let generated_matrix = load_coo_from_matrix_market_str(&generated_matrixmarket_string).unwrap();
         assert_matrix_eq!(generated_matrix, coo);
     }
@@ -460,7 +460,7 @@ proptest! {
     fn coo_matrix_market_roundtrip_file(coo in coo_no_duplicates(-10 ..= 10, 0 ..= 10, 0..= 10, 100)) {
         let temp_dir = tempdir().expect("Unable to create temporary directory");
         let file_path = temp_dir.path().join("temp.mtx");
-        write_to_matrix_market_file(&coo,&file_path).unwrap();
+        save_to_matrix_market_file(&coo,&file_path).unwrap();
         let generated_matrix = load_coo_from_matrix_market_file(file_path).unwrap();
         assert_matrix_eq!(generated_matrix, coo);
         temp_dir.close().expect("Unable to delete temporary directory");
