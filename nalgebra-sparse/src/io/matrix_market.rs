@@ -1430,9 +1430,9 @@ fn next_dense_coordinate(
     }
 }
 
-/// Write a sparse matrix into Matrix Market format string.
+/// Save a sparse matrix as a Matrix Market format string.
 ///
-/// The exporter only writes matrix into `coordinate` and `general` format.
+/// The exporter only writes the matrix into `coordinate` and `general` format.
 ///
 ///
 /// Examples
@@ -1453,9 +1453,13 @@ fn next_dense_coordinate(
 /// let generated_matrixmarket_str = save_to_matrix_market_str(&matrix);
 /// assert_eq!(expected_str,generated_matrixmarket_str);
 /// ```
-pub fn save_to_matrix_market_str<T: MatrixMarketScalar, S: MatrixMarketExport<T>>(
+pub fn save_to_matrix_market_str<T, S>(
     sparse_matrix: &S,
-) -> String {
+) -> String
+where
+    T: MatrixMarketScalar,
+    S: MatrixMarketExport<T>
+{
     let mut bytes = Vec::<u8>::new();
     // This will call impl<A: Allocator> Write for Vec<u8, A>
     // The vector will grow as needed.
@@ -1488,14 +1492,15 @@ pub fn save_to_matrix_market_str<T: MatrixMarketScalar, S: MatrixMarketExport<T>
 /// let matrix = load_coo_from_matrix_market_str::<i32>(&str).unwrap();
 /// save_to_matrix_market_file(&matrix,"path/to/matrix.mtx").unwrap();
 /// ```
-pub fn save_to_matrix_market_file<
+pub fn save_to_matrix_market_file<T, S, P>(
+    sparse_matrix: &S,
+    path: P,
+) -> Result<(), std::io::Error>
+where
     T: MatrixMarketScalar,
     S: MatrixMarketExport<T>,
     P: AsRef<Path>,
->(
-    sparse_matrix: &S,
-    path: P,
-) -> Result<(), std::io::Error> {
+{
     let file = File::create(path)?;
     let mut file = BufWriter::new(file);
     save_to_matrix_market(&mut file, sparse_matrix)?;
@@ -1506,11 +1511,19 @@ pub fn save_to_matrix_market_file<
     Ok(())
 }
 
-/// low level implementation of writing sparse matrix into any [std::io::Write] object
-pub fn save_to_matrix_market<T: MatrixMarketScalar, S: MatrixMarketExport<T>, W: Write>(
+/// Save a sparse matrix to an [std::io::Write] instance.
+///
+/// This is the most general save functionality. See [save_to_matrix_market_file] and
+/// [save_to_matrix_market_str] for higher-level functionality.
+pub fn save_to_matrix_market<T, S, W>(
     mut w: W,
     sparse_matrix: &S,
-) -> Result<(), std::io::Error> {
+) -> Result<(), std::io::Error>
+where
+    T: MatrixMarketScalar,
+    S: MatrixMarketExport<T>,
+    W: Write
+{
     // write header
     writeln!(
         w,
