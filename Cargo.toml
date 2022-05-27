@@ -45,6 +45,9 @@ convert-glam018 = [ "glam018" ]
 convert-glam019 = [ "glam019" ]
 convert-glam020 = [ "glam020" ]
 
+# Const Generic specializations through Const<1024>
+const-generics-1024 = [ ]
+
 # Serialization
 ## To use serde in a #[no-std] environment, enable the
 ## `serde-serialize-no-std` feature instead of `serde-serialize`.

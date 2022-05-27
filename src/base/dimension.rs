@@ -314,7 +314,12 @@ from_to_typenum!(
     U76, 76; U77, 77; U78, 78; U79, 79; U80, 80; U81, 81; U82, 82; U83, 83; U84, 84; U85, 85; U86, 86; U87, 87; U88, 88; U89, 89; U90, 90; U91, 91; U92, 92; U93, 93; U94, 94;
     U95, 95; U96, 96; U97, 97; U98, 98; U99, 99; U100, 100; U101, 101; U102, 102; U103, 103; U104, 104; U105, 105; U106, 106; U107, 107; U108, 108; U109, 109; U110, 110;
     U111, 111; U112, 112; U113, 113; U114, 114; U115, 115; U116, 116; U117, 117; U118, 118; U119, 119; U120, 120; U121, 121; U122, 122; U123, 123; U124, 124; U125, 125; U126, 126;
-    U127, 127; U128, 128; U129, 129; U130, 130; U131, 131; U132, 132; U133, 133; U134, 134; U135, 135; U136, 136; U137, 137; U138, 138; U139, 139; U140, 140; U141, 141; U142, 142; 
+    U127, 127;
+);
+
+#[cfg(feature = "const-generics-1024")]
+from_to_typenum!(
+    U128, 128; U129, 129; U130, 130; U131, 131; U132, 132; U133, 133; U134, 134; U135, 135; U136, 136; U137, 137; U138, 138; U139, 139; U140, 140; U141, 141; U142, 142; 
     U143, 143; U144, 144; U145, 145; U146, 146; U147, 147; U148, 148; U149, 149; U150, 150; U151, 151; U152, 152; U153, 153; U154, 154; U155, 155; U156, 156; U157, 157; U158, 158;
     U159, 159; U160, 160; U161, 161; U162, 162; U163, 163; U164, 164; U165, 165; U166, 166; U167, 167; U168, 168; U169, 169; U170, 170; U171, 171; U172, 172; U173, 173; U174, 174; 
     U175, 175; U176, 176; U177, 177; U178, 178; U179, 179; U180, 180; U181, 181; U182, 182; U183, 183; U184, 184; U185, 185; U186, 186; U187, 187; U188, 188; U189, 189; U190, 190; 
@@ -380,7 +385,19 @@ mod tests {
 
     fn use_totypenum<T: ToTypenum>(_c: T) { }
 
-    // Const<R> implements ToTypenum conversion, where R in [0, 1024]
+    // By default, Const<R> implements ToTypenum conversion, where R in [0, 127]
+    #[test]
+    fn can_use_typenum_upto_127() {
+        let c: Const<0> = Const{};
+        use_totypenum(c);
+        let c: Const<1> = Const{};
+        use_totypenum(c);
+        let c: Const<127> = Const{};
+        use_totypenum(c);
+    }
+
+    // Behind a feature flag, Const<R> implements ToTypenum conversion, where R in [0, 1024]
+    #[cfg(feature = "const-generics-1024")]
     #[test]
     fn can_use_typenum_upto_1024() {
         let c: Const<0> = Const{};
