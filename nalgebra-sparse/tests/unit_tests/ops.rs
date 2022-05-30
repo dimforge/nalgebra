@@ -6,7 +6,8 @@ use nalgebra_sparse::csc::CscMatrix;
 use nalgebra_sparse::csr::CsrMatrix;
 use nalgebra_sparse::ops::serial::{
     spadd_csc_prealloc, spadd_csr_prealloc, spadd_pattern, spmm_csc_dense, spmm_csc_prealloc,
-    spmm_csr_dense, spmm_csr_pattern, spmm_csr_prealloc, spsolve_csc_lower_triangular,
+    spmm_csc_prealloc_unchecked, spmm_csr_dense, spmm_csr_pattern, spmm_csr_prealloc,
+    spmm_csr_prealloc_unchecked, spsolve_csc_lower_triangular,
 };
 use nalgebra_sparse::ops::Op;
 use nalgebra_sparse::pattern::SparsityPattern;
@@ -544,6 +545,29 @@ proptest! {
     }
 
     #[test]
+    fn spmm_csr_prealloc_unchecked_test(SpmmCsrArgs { c, beta, alpha, a, b }
+        in spmm_csr_prealloc_args_strategy()
+    ) {
+        // Test that we get the expected result by comparing to an equivalent dense operation
+        // (here we give in the C matrix, so the sparsity pattern is essentially fixed)
+        let mut c_sparse = c.clone();
+        spmm_csr_prealloc_unchecked(beta, &mut c_sparse, alpha, a.as_ref(), b.as_ref()).unwrap();
+
+        let mut c_dense = DMatrix::from(&c);
+        let op_a_dense = match a {
+            Op::NoOp(ref a) => DMatrix::from(a),
+            Op::Transpose(ref a) => DMatrix::from(a).transpose(),
+        };
+        let op_b_dense = match b {
+            Op::NoOp(ref b) => DMatrix::from(b),
+            Op::Transpose(ref b) => DMatrix::from(b).transpose(),
+        };
+        c_dense = beta * c_dense + alpha * &op_a_dense * op_b_dense;
+
+        prop_assert_eq!(&DMatrix::from(&c_sparse), &c_dense);
+    }
+
+    #[test]
     fn spmm_csr_prealloc_test(SpmmCsrArgs { c, beta, alpha, a, b }
         in spmm_csr_prealloc_args_strategy()
     ) {
@@ -690,6 +714,29 @@ proptest! {
         // (here we give in the C matrix, so the sparsity pattern is essentially fixed)
         let mut c_sparse = c.clone();
         spmm_csc_prealloc(beta, &mut c_sparse, alpha, a.as_ref(), b.as_ref()).unwrap();
+
+        let mut c_dense = DMatrix::from(&c);
+        let op_a_dense = match a {
+            Op::NoOp(ref a) => DMatrix::from(a),
+            Op::Transpose(ref a) => DMatrix::from(a).transpose(),
+        };
+        let op_b_dense = match b {
+            Op::NoOp(ref b) => DMatrix::from(b),
+            Op::Transpose(ref b) => DMatrix::from(b).transpose(),
+        };
+        c_dense = beta * c_dense + alpha * &op_a_dense * op_b_dense;
+
+        prop_assert_eq!(&DMatrix::from(&c_sparse), &c_dense);
+    }
+
+    #[test]
+    fn spmm_csc_prealloc_unchecked_test(SpmmCscArgs { c, beta, alpha, a, b }
+        in spmm_csc_prealloc_args_strategy()
+    ) {
+        // Test that we get the expected result by comparing to an equivalent dense operation
+        // (here we give in the C matrix, so the sparsity pattern is essentially fixed)
+        let mut c_sparse = c.clone();
+        spmm_csc_prealloc_unchecked(beta, &mut c_sparse, alpha, a.as_ref(), b.as_ref()).unwrap();
 
         let mut c_dense = DMatrix::from(&c);
         let op_a_dense = match a {

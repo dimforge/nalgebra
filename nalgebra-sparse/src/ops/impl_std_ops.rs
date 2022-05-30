@@ -3,7 +3,7 @@ use crate::csr::CsrMatrix;
 
 use crate::ops::serial::{
     spadd_csc_prealloc, spadd_csr_prealloc, spadd_pattern, spmm_csc_dense, spmm_csc_pattern,
-    spmm_csc_prealloc, spmm_csr_dense, spmm_csr_pattern, spmm_csr_prealloc,
+    spmm_csc_prealloc_unchecked, spmm_csr_dense, spmm_csr_pattern, spmm_csr_prealloc_unchecked,
 };
 use crate::ops::Op;
 use nalgebra::allocator::Allocator;
@@ -112,9 +112,9 @@ macro_rules! impl_spmm {
     }
 }
 
-impl_spmm!(CsrMatrix, spmm_csr_pattern, spmm_csr_prealloc);
+impl_spmm!(CsrMatrix, spmm_csr_pattern, spmm_csr_prealloc_unchecked);
 // Need to switch order of operations for CSC pattern
-impl_spmm!(CscMatrix, spmm_csc_pattern, spmm_csc_prealloc);
+impl_spmm!(CscMatrix, spmm_csc_pattern, spmm_csc_prealloc_unchecked);
 
 /// Implements Scalar * Matrix operations for *concrete* scalar types. The reason this is necessary
 /// is that we are not able to implement Mul<Matrix<T>> for all T generically due to orphan rules.
