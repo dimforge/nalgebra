@@ -458,10 +458,8 @@ where
     DefaultAllocator: Allocator<T, D>,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let precision = f.precision().unwrap_or(3);
-
         write!(f, "Point {{")?;
-        write!(f, "{:.*}", precision, self.coords)?;
+        self.coords.fmt(f)?;
         write!(f, "}}")
     }
 }
