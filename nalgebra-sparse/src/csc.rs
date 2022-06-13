@@ -720,12 +720,14 @@ macro_rules! impl_csc_col_common_methods {
                 self.lane.get_entry(global_row_index)
             }
 
-            /// Iterator over the row indices and elements of a column of a CSC matrix.
+            /// Iterator over `(row_idx, value)`, the row indices and elements of a column of a CSC matrix.
             /// Equivalent to `col.row_indices().iter().zip(col.values().iter())`.
             #[inline]
             #[must_use]
-            pub fn iter(&self) -> CsInnerIter<'_, T> {
-                self.lane.iter()
+            pub fn iter(&self) -> CscInnerIter<'_, T> {
+                CscInnerIter {
+                    inner_iter: self.lane.iter(),
+                }
             }
         }
     };
@@ -755,12 +757,14 @@ impl<'a, T> CscColMut<'a, T> {
         self.lane.get_entry_mut(global_row_index)
     }
 
-    /// Iterator over the row indices and mutable elements of a column of a CSC matrix.
+    /// Iterator over `(row_idx, mut_value)`, the row indices and mutable elements of a column of a CSC matrix.
     /// Equivalent to `col.row_indices().iter().zip(col.values_mut().iter_mut())`.
     #[inline]
     #[must_use]
-    pub fn iter_mut(&mut self) -> CsInnerIterMut<'_, T> {
-        self.lane.iter_mut()
+    pub fn iter_mut(&mut self) -> CscInnerIterMut<'_, T> {
+        CscInnerIterMut {
+            inner_iter: self.lane.iter_mut(),
+        }
     }
 }
 
@@ -790,5 +794,37 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         self.lane_iter.next().map(|lane| CscColMut { lane })
+    }
+}
+
+/// Iterator for [CscCol](struct.CscCol.html).
+pub struct CscInnerIter<'a, T> {
+    inner_iter: CsInnerIter<'a, T>,
+}
+
+impl<'a, T> Iterator for CscInnerIter<'a, T>
+where
+    T: 'a,
+{
+    type Item = (usize, &'a T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner_iter.next()
+    }
+}
+
+/// Mutable iterator for [CscCol](struct.CscCol.html).
+pub struct CscInnerIterMut<'a, T> {
+    inner_iter: CsInnerIterMut<'a, T>,
+}
+
+impl<'a, T> Iterator for CscInnerIterMut<'a, T>
+where
+    T: 'a,
+{
+    type Item = (usize, &'a mut T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner_iter.next()
     }
 }
