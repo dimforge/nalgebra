@@ -36,8 +36,9 @@ serde = { version = "1.0", default-features = false, features = [ "derive" ], op
 itertools = "0.10"
 matrixcompare = { version = "0.3.0", features = [ "proptest-support" ] }
 nalgebra = { version="0.31", path = "../", features = ["compare"] }
+tempfile = "3.3"
 serde_json = "1.0"
 
 [package.metadata.docs.rs]
 # Enable certain features when building docs for docs.rs
-features = [ "proptest-support", "compare" ]
+features = [ "proptest-support", "compare", "io"]
