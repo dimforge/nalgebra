@@ -150,6 +150,11 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// some concrete types for `T` and a compatible data storage type `S`).
 #[repr(C)]
 #[derive(Clone, Copy)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Matrix<T, R, C, S> {
     /// The data storage that contains all the matrix components. Disappointed?
@@ -286,53 +291,6 @@ where
     S: bytemuck::Pod,
     Self: Copy,
 {
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Matrix;
-    use core::marker::PhantomData;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Archive, R: Archive, C: Archive, S: Archive> Archive for Matrix<T, R, C, S> {
-        type Archived = Matrix<T::Archived, R::Archived, C::Archived, S::Archived>;
-        type Resolver = S::Resolver;
-
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.data.resolve(
-                pos + offset_of!(Self::Archived, data),
-                resolver,
-                project_struct!(out: Self::Archived => data),
-            );
-        }
-    }
-
-    impl<T: Archive, R: Archive, C: Archive, S: Serialize<_S>, _S: Fallible + ?Sized> Serialize<_S>
-        for Matrix<T, R, C, S>
-    {
-        fn serialize(&self, serializer: &mut _S) -> Result<Self::Resolver, _S::Error> {
-            self.data.serialize(serializer)
-        }
-    }
-
-    impl<T: Archive, R: Archive, C: Archive, S: Archive, D: Fallible + ?Sized>
-        Deserialize<Matrix<T, R, C, S>, D>
-        for Matrix<T::Archived, R::Archived, C::Archived, S::Archived>
-    where
-        S::Archived: Deserialize<S, D>,
-    {
-        fn deserialize(&self, deserializer: &mut D) -> Result<Matrix<T, R, C, S>, D::Error> {
-            Ok(Matrix {
-                data: self.data.deserialize(deserializer)?,
-                _phantoms: PhantomData,
-            })
-        }
-    }
 }
 
 impl<T, R, C, S> Matrix<T, R, C, S> {

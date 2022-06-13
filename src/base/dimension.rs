@@ -13,6 +13,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Dim of dynamically-sized algebraic entities.
 #[derive(Clone, Copy, Eq, PartialEq, Debug)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Dynamic {
     value: usize,
@@ -198,6 +203,11 @@ dim_ops!(
 );
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Const<const R: usize>;
 
@@ -230,37 +240,6 @@ impl<'de, const D: usize> Deserialize<'de> for Const<D> {
         Des: Deserializer<'de>,
     {
         <()>::deserialize(deserializer).map(|_| Const::<D>)
-    }
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Const;
-    use rkyv::{Archive, Deserialize, Fallible, Serialize};
-
-    impl<const R: usize> Archive for Const<R> {
-        type Archived = Self;
-        type Resolver = ();
-
-        fn resolve(
-            &self,
-            _: usize,
-            _: Self::Resolver,
-            _: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-        }
-    }
-
-    impl<S: Fallible + ?Sized, const R: usize> Serialize<S> for Const<R> {
-        fn serialize(&self, _: &mut S) -> Result<Self::Resolver, S::Error> {
-            Ok(())
-        }
-    }
-
-    impl<D: Fallible + ?Sized, const R: usize> Deserialize<Self, D> for Const<R> {
-        fn deserialize(&self, _: &mut D) -> Result<Self, D::Error> {
-            Ok(Const)
-        }
     }
 }
 

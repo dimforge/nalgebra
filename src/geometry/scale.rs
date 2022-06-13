@@ -17,6 +17,11 @@ use crate::geometry::Point;
 
 /// A scale which supports non-uniform scaling.
 #[repr(C)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[derive(Copy, Clone)]
 pub struct Scale<T, const D: usize> {
@@ -81,49 +86,6 @@ where
         let matrix = SVector::<T, D>::deserialize(deserializer)?;
 
         Ok(Scale::from(matrix))
-    }
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Scale;
-    use crate::base::SVector;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Archive, const D: usize> Archive for Scale<T, D> {
-        type Archived = Scale<T::Archived, D>;
-        type Resolver = <SVector<T, D> as Archive>::Resolver;
-
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.vector.resolve(
-                pos + offset_of!(Self::Archived, vector),
-                resolver,
-                project_struct!(out: Self::Archived => vector),
-            );
-        }
-    }
-
-    impl<T: Serialize<S>, S: Fallible + ?Sized, const D: usize> Serialize<S> for Scale<T, D> {
-        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            self.vector.serialize(serializer)
-        }
-    }
-
-    impl<T: Archive, _D: Fallible + ?Sized, const D: usize> Deserialize<Scale<T, D>, _D>
-        for Scale<T::Archived, D>
-    where
-        T::Archived: Deserialize<T, _D>,
-    {
-        fn deserialize(&self, deserializer: &mut _D) -> Result<Scale<T, D>, _D::Error> {
-            Ok(Scale {
-                vector: self.vector.deserialize(deserializer)?,
-            })
-        }
     }
 }
 
