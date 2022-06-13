@@ -1455,12 +1455,10 @@ fn next_dense_coordinate(
 /// assert_eq!(expected_str,generated_matrixmarket_str);
 /// # Ok(()) }
 /// ```
-pub fn save_to_matrix_market_str<T, S>(
-    sparse_matrix: &S,
-) -> String
+pub fn save_to_matrix_market_str<T, S>(sparse_matrix: &S) -> String
 where
     T: MatrixMarketScalar,
-    S: MatrixMarketExport<T>
+    S: MatrixMarketExport<T>,
 {
     let mut bytes = Vec::<u8>::new();
     // This will call impl<A: Allocator> Write for Vec<u8, A>
@@ -1496,10 +1494,7 @@ where
 /// save_to_matrix_market_file(&matrix,"path/to/matrix.mtx")?;
 /// # Ok(()) }
 /// ```
-pub fn save_to_matrix_market_file<T, S, P>(
-    sparse_matrix: &S,
-    path: P,
-) -> Result<(), std::io::Error>
+pub fn save_to_matrix_market_file<T, S, P>(sparse_matrix: &S, path: P) -> Result<(), std::io::Error>
 where
     T: MatrixMarketScalar,
     S: MatrixMarketExport<T>,
@@ -1519,14 +1514,11 @@ where
 ///
 /// This is the most general save functionality. See [save_to_matrix_market_file] and
 /// [save_to_matrix_market_str] for higher-level functionality.
-pub fn save_to_matrix_market<T, S, W>(
-    mut w: W,
-    sparse_matrix: &S,
-) -> Result<(), std::io::Error>
+pub fn save_to_matrix_market<T, S, W>(mut w: W, sparse_matrix: &S) -> Result<(), std::io::Error>
 where
     T: MatrixMarketScalar,
     S: MatrixMarketExport<T>,
-    W: Write
+    W: Write,
 {
     // write header
     writeln!(
