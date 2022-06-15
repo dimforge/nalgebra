@@ -1968,6 +1968,21 @@ impl_fmt!(fmt::UpperHex, "{:X}", "{:1$X}");
 impl_fmt!(fmt::Binary, "{:b}", "{:.1$b}");
 impl_fmt!(fmt::Pointer, "{:p}", "{:.1$p}");
 
+/// Displays a vector using commas as the delimiter
+pub fn display_column_vec_as_row<T: Scalar + fmt::Display, D: crate::DimName>(vector: &OVector<T, D>, f: &mut fmt::Formatter<'_>) -> fmt::Result
+where
+    DefaultAllocator: Allocator<T, D>,
+{
+    write!(f, "[")?;
+    let mut it = vector.iter();
+    std::fmt::Display::fmt(it.next().unwrap(), f)?;
+    for comp in it {
+        write!(f, ", ")?;
+        std::fmt::Display::fmt(comp, f)?;
+    }
+    write!(f, "]")
+}
+
 #[cfg(test)]
 mod tests {
     #[test]

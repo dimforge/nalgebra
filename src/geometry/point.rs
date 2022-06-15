@@ -35,7 +35,7 @@ use std::mem::MaybeUninit;
 /// may have some other methods, e.g., `isometry.inverse_transform_point(&point)`. See the documentation
 /// of said transformations for details.
 #[repr(C)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
@@ -47,15 +47,6 @@ where
 {
     /// The coordinates of this point, i.e., the shift from the origin.
     pub coords: OVector<T, D>,
-}
-
-impl<T: Scalar + fmt::Debug, D: DimName> fmt::Debug for OPoint<T, D>
-where
-    DefaultAllocator: Allocator<T, D>,
-{
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        self.coords.as_slice().fmt(formatter)
-    }
 }
 
 impl<T: Scalar + hash::Hash, D: DimName> hash::Hash for OPoint<T, D>
@@ -457,17 +448,19 @@ impl<T: Scalar + fmt::Display, D: DimName> fmt::Display for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
 {
+    /// ```rust
+    /// # use nalgebra::Point3;
+    /// let point = Point3::new(1.12345678, 2.12345678, 3.12345678);
+    /// let rounded = format!("{:#.4}", point); // print point in compact representation
+    /// assert_eq!(rounded, "[1.1235, 2.1235, 3.1235]");
+    /// let vertical = format!("{}", point); // print point as a column
+    /// assert_eq!(vertical, "\n  ┌            ┐\n  │ 1.12345678 │\n  │ 2.12345678 │\n  │ 3.12345678 │\n  └            ┘");
+    /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{{")?;
-
-        let mut it = self.coords.iter();
-
-        write!(f, "{}", *it.next().unwrap())?;
-
-        for comp in it {
-            write!(f, ", {}", *comp)?;
+        if f.alternate() {
+            crate::display_column_vec_as_row(&self.coords, f)
+        } else {
+            std::fmt::Display::fmt(&self.coords, f) // pretty-prints vector
         }
-
-        write!(f, "}}")
     }
 }
