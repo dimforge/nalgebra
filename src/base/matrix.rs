@@ -199,11 +199,10 @@ impl<T: fmt::Debug, R: Dim, C: Dim, S: RawStorage<T, R, C> + fmt::Debug> fmt::De
     for Matrix<T, R, C, S>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        write!(f, "Matrix {{ ")?;
         if f.alternate() {
-            write!(f, "\n    ")?;
+            writeln!(f, "")?;
         }
-        write!(f, "data: [")?;
+        write!(f, "[")?;
         let nrows = self.nrows();
         let ncols = self.ncols();
         for i in 0..nrows {
@@ -220,22 +219,10 @@ impl<T: fmt::Debug, R: Dim, C: Dim, S: RawStorage<T, R, C> + fmt::Debug> fmt::De
                 write!(f, "; ")?;
             }
             if f.alternate() && i != nrows - 1 {
-                write!(f, "\n           ")?;
+                write!(f, "\n ")?;
             }
         }
-        write!(f, "], ")?;
-        if f.alternate() {
-            write!(f, "\n    ")?;
-        }
-        write!(f, "nrows: {:?}, ", nrows)?;
-        if f.alternate() {
-            write!(f, "\n    ")?;
-        }
-        write!(f, "ncols: {:?} ", ncols)?;
-        if f.alternate() {
-            writeln!(f, "")?;
-        }
-        write!(f, "}}")
+        write!(f, "]")
     }
 }
 
@@ -2028,9 +2015,7 @@ mod tests {
   ┌           ┐
   │  1e6  2e5 │
   │ 2e-5  1e0 │
-  └           ┘
-
-"
+  └           ┘"
         )
     }
 }
