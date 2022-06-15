@@ -10,6 +10,8 @@ use serde::ser::SerializeSeq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "serde-serialize-no-std")]
 use std::marker::PhantomData;
+#[cfg(feature = "serde-serialize-no-std")]
+use std::fmt::{self, Formatter};
 
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
