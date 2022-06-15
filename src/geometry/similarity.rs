@@ -398,7 +398,7 @@ where
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{{ translation: ")?;
-        crate::display_column_vec_as_row(&self.isometry.translation.vector, f)?;
+        crate::format_column_vec_as_row(&self.isometry.translation.vector, f)?;
         write!(f, ", ")?;
         write!(f, "rotation: ")?;
         std::fmt::Display::fmt(&self.isometry.rotation, f)?;

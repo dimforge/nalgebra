@@ -1993,7 +1993,10 @@ impl_fmt!(fmt::Binary, "{:b}", "{:.1$b}");
 impl_fmt!(fmt::Pointer, "{:p}", "{:.1$p}");
 
 /// Displays a vector using commas as the delimiter
-pub fn display_column_vec_as_row<T: Scalar + fmt::Display, D: crate::DimName>(vector: &OVector<T, D>, f: &mut fmt::Formatter<'_>) -> fmt::Result
+pub fn format_column_vec_as_row<T: Scalar + fmt::Display, D: crate::DimName>(
+    vector: &OVector<T, D>,
+    f: &mut fmt::Formatter<'_>,
+) -> fmt::Result
 where
     DefaultAllocator: Allocator<T, D>,
 {

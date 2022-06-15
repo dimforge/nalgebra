@@ -35,7 +35,7 @@ use std::mem::MaybeUninit;
 /// may have some other methods, e.g., `isometry.inverse_transform_point(&point)`. See the documentation
 /// of said transformations for details.
 #[repr(C)]
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
@@ -47,6 +47,15 @@ where
 {
     /// The coordinates of this point, i.e., the shift from the origin.
     pub coords: OVector<T, D>,
+}
+
+impl<T: Scalar + fmt::Debug, D: DimName> fmt::Debug for OPoint<T, D>
+where
+    DefaultAllocator: Allocator<T, D>,
+{
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        self.coords.as_slice().fmt(formatter)
+    }
 }
 
 impl<T: Scalar + hash::Hash, D: DimName> hash::Hash for OPoint<T, D>
@@ -458,7 +467,7 @@ where
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if f.alternate() {
-            crate::display_column_vec_as_row(&self.coords, f)
+            crate::format_column_vec_as_row(&self.coords, f)
         } else {
             std::fmt::Display::fmt(&self.coords, f) // pretty-prints vector
         }

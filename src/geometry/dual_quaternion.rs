@@ -952,7 +952,7 @@ impl<T: RealField> Default for UnitDualQuaternion<T> {
 impl<T: RealField + fmt::Display> fmt::Display for UnitDualQuaternion<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{{ translation: ")?;
-        crate::display_column_vec_as_row(&self.translation().vector, f)?;
+        crate::format_column_vec_as_row(&self.translation().vector, f)?;
         write!(f, ", ")?;
         write!(f, "rotation: ")?;
         std::fmt::Display::fmt(&self.rotation(), f)?;

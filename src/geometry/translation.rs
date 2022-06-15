@@ -23,11 +23,17 @@ use crate::geometry::Point;
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
 pub struct Translation<T, const D: usize> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
     /// translated.
     pub vector: SVector<T, D>,
+}
+
+impl<T: fmt::Debug, const D: usize> fmt::Debug for Translation<T, D> {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        self.vector.as_slice().fmt(formatter)
+    }
 }
 
 impl<T: Scalar + hash::Hash, const D: usize> hash::Hash for Translation<T, D>
@@ -279,7 +285,7 @@ where
 impl<T: Scalar + fmt::Display, const D: usize> fmt::Display for Translation<T, D> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if f.alternate() {
-            crate::display_column_vec_as_row(&self.vector, f)
+            crate::format_column_vec_as_row(&self.vector, f)
         } else {
             std::fmt::Display::fmt(&self.vector, f) // pretty-prints vector
         }
