@@ -1880,7 +1880,8 @@ macro_rules! impl_fmt {
             S: RawStorage<T, R, C>,
         {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                if !f.alternate() { // pretty print in 2D layout
+                if !f.alternate() {
+                    // pretty print in 2D layout
                     #[cfg(feature = "std")]
                     fn val_width<T: Scalar + $trait>(val: &T, f: &mut fmt::Formatter<'_>) -> usize {
                         match f.precision() {
@@ -1942,7 +1943,8 @@ macro_rules! impl_fmt {
                         "",
                         width = max_length_with_space * ncols - 1
                     )
-                } else { // print on single line with semicolon-delimited rows and comma-delimited columns
+                } else {
+                    // print on single line with semicolon-delimited rows and comma-delimited columns
                     let (nrows, ncols) = self.shape();
                     write!(f, "[")?;
                     for row in 0..nrows {
