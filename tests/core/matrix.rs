@@ -78,16 +78,14 @@ fn iter() {
 }
 
 #[test]
-fn debug_output_corresponds_to_data_container() {
+fn debug_output_semicolon_delimited_rowwise() {
     let m = Matrix2::new(1.0, 2.0, 3.0, 4.0);
-    let output_stable = "[[1, 3], [2, 4]]"; // Current output on the stable channel.
-    let output_nightly = "[[1.0, 3.0], [2.0, 4.0]]"; // Current output on the nightly channel.
+    let expected_output = "[1.0, 2.0; 3.0, 4.0]"; // Current output on the nightly channel.
     let current_output = format!("{:?}", m);
-    dbg!(output_stable);
-    dbg!(output_nightly);
+    dbg!(expected_output);
     dbg!(&current_output);
 
-    assert!(current_output == output_stable || current_output == output_nightly);
+    assert!(current_output == expected_output);
 }
 
 #[test]
