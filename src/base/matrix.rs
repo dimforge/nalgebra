@@ -195,9 +195,47 @@ pub struct Matrix<T, R, C, S> {
     _phantoms: PhantomData<(T, R, C)>,
 }
 
-impl<T, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<T, R, C, S> {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        self.data.fmt(formatter)
+impl<T: fmt::Debug, R: Dim, C: Dim, S: RawStorage<T, R, C> + fmt::Debug> fmt::Debug
+    for Matrix<T, R, C, S>
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "Matrix {{ ")?;
+        if f.alternate() {
+            write!(f, "\n    ")?;
+        }
+        write!(f, "data: [")?;
+        let nrows = self.nrows();
+        let ncols = self.ncols();
+        for i in 0..nrows {
+            for j in 0..ncols {
+                if j != 0 {
+                    write!(f, ", ")?;
+                }
+                // Safety: the indices are within range
+                unsafe {
+                    (*self.data.get_unchecked(i, j)).fmt(f)?;
+                }
+            }
+            if i != nrows - 1 {
+                write!(f, "; ")?;
+            }
+            if f.alternate() && i != nrows - 1 {
+                write!(f, "\n           ")?;
+            }
+        }
+        write!(f, "], ")?;
+        if f.alternate() {
+            write!(f, "\n    ")?;
+        }
+        write!(f, "nrows: {:?}, ", nrows)?;
+        if f.alternate() {
+            write!(f, "\n    ")?;
+        }
+        write!(f, "ncols: {:?} ", ncols)?;
+        if f.alternate() {
+            writeln!(f, "")?;
+        }
+        write!(f, "}}")
     }
 }
 
