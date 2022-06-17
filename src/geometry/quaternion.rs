@@ -36,10 +36,7 @@ pub struct Quaternion<T> {
 
 impl<T: fmt::Debug> fmt::Debug for Quaternion<T> {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        formatter
-            .debug_list()
-            .entries(self.coords.iter())
-            .finish()
+        formatter.debug_list().entries(self.coords.iter()).finish()
     }
 }
 
