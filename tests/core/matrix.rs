@@ -80,8 +80,20 @@ fn iter() {
 #[test]
 fn debug_output_semicolon_delimited_rowwise() {
     let m = Matrix2::new(1.0, 2.0, 3.0, 4.0);
-    let expected_output = "[1.0, 2.0; 3.0, 4.0]"; // Current output on the nightly channel.
+    let expected_output = "[1.0, 2.0; 3.0, 4.0]";
     let current_output = format!("{:?}", m);
+    dbg!(expected_output);
+    dbg!(&current_output);
+
+    assert!(current_output == expected_output);
+}
+
+#[test]
+fn format_empty_matrix() {
+    let empty_row: [f32; 0] = [];
+    let m = na::DMatrix::from_row_slice(0, 0, &empty_row);
+    let expected_output = "[ ]";
+    let current_output = format!("{}", m);
     dbg!(expected_output);
     dbg!(&current_output);
 
