@@ -92,12 +92,19 @@ fn debug_output_semicolon_delimited_rowwise() {
 fn format_empty_matrix() {
     let empty_row: [f32; 0] = [];
     let m = na::DMatrix::from_row_slice(0, 0, &empty_row);
-    let expected_output = "[ ]";
-    let current_output = format!("{}", m);
-    dbg!(expected_output);
-    dbg!(&current_output);
+    let expected_output_display = "[ ]";
+    let expected_output_debug = "[]";
+    let current_output_display = format!("{}", m);
+    let current_output_debug = format!("{:?}", m);
+    dbg!(expected_output_display);
+    dbg!(expected_output_debug);
+    dbg!(&current_output_debug);
+    dbg!(&current_output_display);
 
-    assert!(current_output == expected_output);
+    assert!(
+        current_output_display == expected_output_display
+            && current_output_debug == expected_output_debug
+    );
 }
 
 #[test]
