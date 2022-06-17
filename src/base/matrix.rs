@@ -203,20 +203,21 @@ impl<T: fmt::Debug, R: Dim, C: Dim, S: RawStorage<T, R, C> + fmt::Debug> fmt::De
             writeln!(f, "")?;
         }
         write!(f, "[")?;
-        let nrows = self.nrows();
-        let ncols = self.ncols();
-        for i in 0..nrows {
-            for j in 0..ncols {
-                if j != 0 {
+
+        let row_separator = match f.alternate() {
+            true => ";\n ",
+            false => "; ",
+        };
+
+        for (i, row) in self.row_iter().enumerate() {
+            if i > 0 {
+                write!(f, "{row_separator}")?;
+            }
+            for (j, element) in row.iter().enumerate() {
+                if j > 0 {
                     write!(f, ", ")?;
                 }
-                self[(i, j)].fmt(f)?;
-            }
-            if i != nrows - 1 {
-                write!(f, "; ")?;
-            }
-            if f.alternate() && i != nrows - 1 {
-                write!(f, "\n ")?;
+                element.fmt(f)?;
             }
         }
         write!(f, "]")
