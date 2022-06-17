@@ -1986,6 +1986,10 @@ pub fn format_column_vec_as_row<T: Scalar + fmt::Display, D: crate::DimName>(
 where
     DefaultAllocator: Allocator<T, D>,
 {
+    if vector.is_empty() {
+        return write!(f, "[ ]");
+    }
+
     write!(f, "[")?;
     let mut it = vector.iter();
     std::fmt::Display::fmt(it.next().unwrap(), f)?;
