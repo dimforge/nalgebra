@@ -210,10 +210,7 @@ impl<T: fmt::Debug, R: Dim, C: Dim, S: RawStorage<T, R, C> + fmt::Debug> fmt::De
                 if j != 0 {
                     write!(f, ", ")?;
                 }
-                // Safety: the indices are within range
-                unsafe {
-                    (*self.data.get_unchecked(i, j)).fmt(f)?;
-                }
+                self[(i, j)].fmt(f)?;
             }
             if i != nrows - 1 {
                 write!(f, "; ")?;
