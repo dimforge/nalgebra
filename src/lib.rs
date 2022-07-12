@@ -77,7 +77,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
     unused_variables,
     unused_mut,
     unused_parens,
-    unused_qualifications,
+    // unused_qualifications,
     rust_2018_idioms,
     rust_2018_compatibility,
     future_incompatible,
