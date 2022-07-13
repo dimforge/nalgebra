@@ -8,6 +8,7 @@ mod matrix_slice;
 #[cfg(feature = "mint")]
 mod mint;
 mod serde;
+mod rkyv;
 
 #[cfg(feature = "compare")]
 mod matrixcompare;
