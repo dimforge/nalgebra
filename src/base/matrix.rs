@@ -11,6 +11,11 @@ use std::mem;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+#[cfg(feature = "rkyv-serialize-no-std")]
+use rkyv::{Archive, Archived, with::With};
+#[cfg(feature = "rkyv-serialize-no-std")]
+use rkyv_wrappers::custom_phantom::CustomPhantom;
+
 use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, Field, SupersetOf};
 use simba::simd::SimdPartialOrd;
 
@@ -152,10 +157,11 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 #[derive(Clone, Copy)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(as = "Self", bound(archive = "
-        S: rkyv::Archive<Archived = S>,
-        PhantomData<(T, R, C)>: rkyv::Archive<Archived = PhantomData<(T, R, C)>>
+    derive(Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(as = "Matrix<T::Archived, R, C, S::Archived>", bound(archive = "
+        T: Archive,
+        S: Archive,
+        With<PhantomData<(T, R, C)>, CustomPhantom<(Archived<T>, R, C)>>: Archive<Archived = PhantomData<(Archived<T>, R, C)>>
     "))
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
@@ -196,6 +202,7 @@ pub struct Matrix<T, R, C, S> {
     //       of the `RawStorage` trait. However, because we don't have
     //       specialization, this is not possible because these `T, R, C`
     //       allows us to desambiguate a lot of configurations.
+    #[cfg_attr(feature = "rkyv-serialize-no-std", with(CustomPhantom<(T::Archived, R, C)>))]
     _phantoms: PhantomData<(T, R, C)>,
 }
 

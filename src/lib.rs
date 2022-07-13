@@ -77,14 +77,13 @@ an optimized set of tools for computer graphics and physics. Those features incl
     unused_variables,
     unused_mut,
     unused_parens,
-    // unused_qualifications,
     rust_2018_idioms,
     rust_2018_compatibility,
     future_incompatible,
     missing_copy_implementations
 )]
-#![cfg_attr(feature = "rkyv-serialize-no-std", warn(unused_results))] // TODO: deny this once bytecheck stops generating warnings.
-#![cfg_attr(not(feature = "rkyv-serialize-no-std"), deny(unused_results))]
+#![cfg_attr(feature = "rkyv-serialize-no-std", allow(unused_results))] // TODO: deny this once bytecheck stops generating warnings.
+#![cfg_attr(not(feature = "rkyv-serialize-no-std"), deny(unused_results), deny(unused_qualifications))] // TODO: deny this globally
 #![doc(
     html_favicon_url = "https://nalgebra.org/img/favicon.ico",
     html_root_url = "https://docs.rs/nalgebra/0.25.0"
