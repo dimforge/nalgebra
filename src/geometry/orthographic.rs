@@ -23,10 +23,13 @@ use crate::geometry::{Point3, Projective3};
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(as = "Orthographic3<T::Archived>", bound(archive = "
+    archive(
+        as = "Orthographic3<T::Archived>",
+        bound(archive = "
         T: rkyv::Archive,
         Matrix4<T>: rkyv::Archive<Archived = Matrix4<T::Archived>>
-    "))
+    ")
+    )
 )]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[derive(Copy, Clone)]

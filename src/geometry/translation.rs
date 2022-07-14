@@ -21,10 +21,13 @@ use crate::geometry::Point;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(as = "Translation<T::Archived, D>", bound(archive = "
+    archive(
+        as = "Translation<T::Archived, D>",
+        bound(archive = "
         T: rkyv::Archive,
         SVector<T, D>: rkyv::Archive<Archived = SVector<T::Archived, D>>
-    "))
+    ")
+    )
 )]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[derive(Copy, Clone)]

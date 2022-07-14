@@ -44,10 +44,13 @@ use simba::scalar::{ClosedNeg, RealField};
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(as = "DualQuaternion<T::Archived>", bound(archive = "
+    archive(
+        as = "DualQuaternion<T::Archived>",
+        bound(archive = "
         T: rkyv::Archive,
         Quaternion<T>: rkyv::Archive<Archived = Quaternion<T::Archived>>
-    "))
+    ")
+    )
 )]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct DualQuaternion<T> {

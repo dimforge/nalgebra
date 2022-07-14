@@ -6,7 +6,7 @@ use na::{
     SimilarityMatrix3, Translation2, Translation3, Unit, Vector2,
 };
 use rand;
-use rkyv::{Archive, Serialize, Deserialize, Infallible};
+use rkyv::{Archive, Deserialize, Infallible, Serialize};
 
 macro_rules! test_rkyv_archived_impls(
     ($($test: ident, $ty: ident);* $(;)*) => {$(

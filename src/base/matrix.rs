@@ -12,7 +12,7 @@ use std::mem;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "rkyv-serialize-no-std")]
-use rkyv::{Archive, Archived, with::With};
+use rkyv::{with::With, Archive, Archived};
 #[cfg(feature = "rkyv-serialize-no-std")]
 use rkyv_wrappers::custom_phantom::CustomPhantom;
 
@@ -158,11 +158,14 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(as = "Matrix<T::Archived, R, C, S::Archived>", bound(archive = "
+    archive(
+        as = "Matrix<T::Archived, R, C, S::Archived>",
+        bound(archive = "
         T: Archive,
         S: Archive,
         With<PhantomData<(T, R, C)>, CustomPhantom<(Archived<T>, R, C)>>: Archive<Archived = PhantomData<(Archived<T>, R, C)>>
-    "))
+    ")
+    )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]

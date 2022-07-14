@@ -69,11 +69,14 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(as = "Isometry<T::Archived, R::Archived, D>", bound(archive = "
+    archive(
+        as = "Isometry<T::Archived, R::Archived, D>",
+        bound(archive = "
         T: rkyv::Archive,
         R: rkyv::Archive,
         Translation<T, D>: rkyv::Archive<Archived = Translation<T::Archived, D>>
-    "))
+    ")
+    )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Isometry<T, R, const D: usize> {

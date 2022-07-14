@@ -30,10 +30,13 @@ use std::mem;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(as = "ArrayStorage<T::Archived, R, C>", bound(archive = "
+    archive(
+        as = "ArrayStorage<T::Archived, R, C>",
+        bound(archive = "
         T: rkyv::Archive,
         [[T; R]; C]: rkyv::Archive<Archived = [[T::Archived; R]; C]>
-    "))
+    ")
+    )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
