@@ -8,7 +8,7 @@ use na::{
 use rand;
 use rkyv::{Archive, Deserialize, Infallible, Serialize};
 
-macro_rules! test_rkyv_archived_impls(
+macro_rules! test_rkyv_same_type(
     ($($test: ident, $ty: ident);* $(;)*) => {$(
         #[test]
         fn $test() {
@@ -16,44 +16,48 @@ macro_rules! test_rkyv_archived_impls(
 			let bytes = rkyv::to_bytes::<_, 256>(&value).unwrap();
 
 			let archived = rkyv::check_archived_root::<$ty<f32>>(&bytes[..]).unwrap();
+            // Compare archived and non-archived
 			assert_eq!(archived, &value);
 
+            // Make sure Debug implementations are the same for Archived and non-Archived versions.
 			assert_eq!(format!("{:?}", value), format!("{:?}", archived));
         }
     )*}
 );
-macro_rules! test_rkyv(
+macro_rules! test_rkyv_diff_type(
     ($($test: ident, $ty: ident);* $(;)*) => {$(
         #[test]
         fn $test() {
-            let value: $ty<f32> = rand::random();
+            let value: $ty<String> = Default::default();
 			let bytes = rkyv::to_bytes::<_, 256>(&value).unwrap();
 
-			let archived = rkyv::check_archived_root::<$ty<f32>>(&bytes[..]).unwrap();
-            let deserialized: $ty<f32> = archived.deserialize(&mut Infallible).unwrap();
+			let archived = rkyv::check_archived_root::<$ty<String>>(&bytes[..]).unwrap();
+            let deserialized: $ty<String> = archived.deserialize(&mut Infallible).unwrap();
 			assert_eq!(deserialized, value);
         }
     )*}
 );
 
-test_rkyv_archived_impls!(
-    rkyv_matrix3x4,         Matrix3x4;
+// Tests to make sure
+test_rkyv_same_type!(
+    rkyv_same_type_matrix3x4,          Matrix3x4;
+    rkyv_same_type_point3,             Point3;
+    rkyv_same_type_translation3,       Translation3;
+    rkyv_same_type_rotation3,          Rotation3;
+    rkyv_same_type_isometry3,          Isometry3;
+    rkyv_same_type_isometry_matrix3,   IsometryMatrix3;
+    rkyv_same_type_similarity3,        Similarity3;
+    rkyv_same_type_similarity_matrix3, SimilarityMatrix3;
+    rkyv_same_type_quaternion,         Quaternion;
+    rkyv_same_type_point2,             Point2;
+    rkyv_same_type_translation2,       Translation2;
+    rkyv_same_type_rotation2,          Rotation2;
+    rkyv_same_type_isometry2,          Isometry2;
+    rkyv_same_type_isometry_matrix2,   IsometryMatrix2;
+    rkyv_same_type_similarity2,        Similarity2;
+    rkyv_same_type_similarity_matrix2, SimilarityMatrix2;
 );
 
-test_rkyv!(
-    // rkyv_point3,             Point3;
-    rkyv_translation3,       Translation3;
-    /* rkyv_rotation3,          Rotation3;
-    rkyv_isometry3,          Isometry3;
-    rkyv_isometry_matrix3,   IsometryMatrix3;
-    rkyv_similarity3,        Similarity3;
-    rkyv_similarity_matrix3, SimilarityMatrix3;
-    rkyv_quaternion,         Quaternion; */
-    // rkyv_point2,             Point2;
-    rkyv_translation2,       Translation2;
-    /* rkyv_rotation2,          Rotation2;
-    rkyv_isometry2,          Isometry2;
-    rkyv_isometry_matrix2,   IsometryMatrix2;
-    rkyv_similarity2,        Similarity2;
-    rkyv_similarity_matrix2, SimilarityMatrix2; */
-);
+test_rkyv_diff_type! {
+    rkyv_diff_type_matrix3x4,          Matrix3x4;
+}

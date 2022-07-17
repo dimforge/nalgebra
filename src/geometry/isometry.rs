@@ -66,6 +66,7 @@ use crate::geometry::{AbstractRotation, Point, Translation};
                        Owned<T, Const<D>>: Deserialize<'de>,
                        T: Scalar"))
 )]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
@@ -78,7 +79,6 @@ use crate::geometry::{AbstractRotation, Point, Translation};
     ")
     )
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Isometry<T, R, const D: usize> {
     /// The pure rotational part of this isometry.
     pub rotation: R,
