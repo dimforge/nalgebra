@@ -44,6 +44,7 @@ convert-glam017 = [ "glam017" ]
 convert-glam018 = [ "glam018" ]
 convert-glam019 = [ "glam019" ]
 convert-glam020 = [ "glam020" ]
+convert-glam021 = [ "glam021" ]
 
 # Serialization
 ## To use serde in a #[no-std] environment, enable the
@@ -95,6 +96,7 @@ glam017        = { package = "glam", version = "0.17", optional = true }
 glam018        = { package = "glam", version = "0.18", optional = true }
 glam019        = { package = "glam", version = "0.19", optional = true }
 glam020        = { package = "glam", version = "0.20", optional = true }
+glam021        = { package = "glam", version = "0.21", optional = true }
 cust_core      = { version = "0.1", optional = true }
 
 
