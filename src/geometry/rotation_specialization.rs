@@ -17,7 +17,9 @@ use std::ops::Neg;
 
 use crate::base::dimension::{U1, U2, U3};
 use crate::base::storage::Storage;
-use crate::base::{Matrix2, Matrix3, SMatrix, SVector, Unit, Vector, Vector1, Vector2, Vector3};
+use crate::base::{
+    Matrix2, Matrix3, SMatrix, SVector, Unit, UnitVector3, Vector, Vector1, Vector2, Vector3,
+};
 
 use crate::geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 
@@ -730,9 +732,12 @@ where
         T: RealField,
     {
         if max_iter == 0 {
-            max_iter = usize::max_value();
+            max_iter = usize::MAX;
         }
 
+        // Using sqrt(eps) ensures we perturb with something larger than eps; clamp to eps to handle the case of eps > 1.0
+        let eps_disturbance = eps.clone().sqrt().max(eps.clone() * eps.clone());
+        let mut perturbation_axes = Vector3::x_axis();
         let mut rot = guess.into_inner();
 
         for _ in 0..max_iter {
@@ -748,7 +753,33 @@ where
             if let Some((axis, angle)) = Unit::try_new_and_get(axisangle, eps.clone()) {
                 rot = Rotation3::from_axis_angle(&axis, angle) * rot;
             } else {
-                break;
+                // Check if stuck in a maximum w.r.t. the norm (m - rot).norm()
+                let mut perturbed = rot.clone();
+                let norm_squared = (m - &rot).norm_squared();
+                let mut new_norm_squared: T;
+
+                // Perturb until the new norm is significantly different
+                loop {
+                    perturbed *=
+                        Rotation3::from_axis_angle(&perturbation_axes, eps_disturbance.clone());
+                    new_norm_squared = (m - &perturbed).norm_squared();
+                    if abs_diff_ne!(
+                        norm_squared,
+                        new_norm_squared,
+                        epsilon = T::default_epsilon()
+                    ) {
+                        break;
+                    }
+                }
+
+                // If new norm is larger, it's a minimum
+                if norm_squared < new_norm_squared {
+                    break;
+                }
+
+                // If not, continue from perturbed rotation, but use a different axes for the next perturbation
+                perturbation_axes = UnitVector3::new_unchecked(perturbation_axes.yzx());
+                rot = perturbed;
             }
         }
 
