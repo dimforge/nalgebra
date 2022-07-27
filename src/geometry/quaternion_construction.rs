@@ -413,8 +413,7 @@ where
     #[cfg(feature = "rand-no-std")]
     pub fn from_matrix(m: &Matrix3<T>) -> Self
     where
-        T: RealField + Scalar,
-        Standard: Distribution<Rotation3<T>>,
+        T: RealField,
     {
         Rotation3::from_matrix(m).into()
     }

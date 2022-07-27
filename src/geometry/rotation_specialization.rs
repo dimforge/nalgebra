@@ -17,7 +17,9 @@ use std::ops::Neg;
 
 use crate::base::dimension::{U1, U2, U3};
 use crate::base::storage::Storage;
-use crate::base::{Matrix2, Matrix3, SMatrix, SVector, Unit, Vector, Vector1, Vector2, Vector3, UnitVector3};
+use crate::base::{
+    Matrix2, Matrix3, SMatrix, SVector, Unit, UnitVector3, Vector, Vector1, Vector2, Vector3,
+};
 
 use crate::geometry::{Rotation2, Rotation3, UnitComplex, UnitQuaternion};
 
@@ -710,8 +712,7 @@ where
     where
         T: RealField,
     {
-        // Starting from a random rotation has almost zero likelihood to end up in a maximum if `m` is already a rotation matrix
-        Self::from_matrix_eps(m, T::default_epsilon(), 0, Rotation3::identity())
+        Self::from_matrix_eps(m, T::default_epsilon(), 0, Self::identity())
     }
 
     /// Builds a rotation matrix by extracting the rotation part of the given transformation `m`.
@@ -734,7 +735,7 @@ where
             max_iter = usize::MAX;
         }
 
-        let mut perturbation_axes = UnitVector3::new_unchecked(Vector3::new(T::one(), T::zero(), T::zero()));
+        let mut perturbation_axes = Vector3::x_axis();
         let mut rot = guess.into_inner();
 
         for _ in 0..max_iter {
@@ -754,20 +755,24 @@ where
                 let mut perturbed = rot.clone();
                 let norm_squared = (m - &rot).norm_squared();
                 let mut new_norm_squared: T;
+
                 // Perturb until the new norm is significantly different
                 loop {
                     perturbed *= Rotation3::from_axis_angle(&perturbation_axes, T::frac_pi_8());
                     new_norm_squared = (m - &perturbed).norm_squared();
+
                     if relative_ne!(norm_squared, new_norm_squared) {
                         break;
                     }
                 }
+
                 // If new norm is larger, it's a minimum
                 if norm_squared < new_norm_squared {
                     break;
                 }
+
                 // If not, continue from perturbed rotation, but use a different axes for the next perturbation
-                perturbation_axes = UnitVector3::new_unchecked(Vector3::new(perturbation_axes.y.clone(), perturbation_axes.z.clone(), perturbation_axes.x.clone()));
+                perturbation_axes = UnitVector3::new_unchecked(perturbation_axes.yzx());
                 rot = perturbed;
             }
         }
