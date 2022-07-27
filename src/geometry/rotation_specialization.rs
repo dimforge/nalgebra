@@ -760,9 +760,14 @@ where
 
                 // Perturb until the new norm is significantly different
                 loop {
-                    perturbed *= Rotation3::from_axis_angle(&perturbation_axes, eps_disturbance.clone());
+                    perturbed *=
+                        Rotation3::from_axis_angle(&perturbation_axes, eps_disturbance.clone());
                     new_norm_squared = (m - &perturbed).norm_squared();
-                    if abs_diff_ne!(norm_squared, new_norm_squared, epsilon = T::default_epsilon()) {
+                    if abs_diff_ne!(
+                        norm_squared,
+                        new_norm_squared,
+                        epsilon = T::default_epsilon()
+                    ) {
                         break;
                     }
                 }

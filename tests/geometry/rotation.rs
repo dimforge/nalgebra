@@ -34,11 +34,7 @@ fn from_rotation_matrix() {
     );
     // Test that issue 627 is fixed
     let m_627 = Matrix3::<f64>::new(-1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0);
-    assert_relative_ne!(
-        identity,
-        Rotation3::from_matrix(&m_627),
-        epsilon = 0.01
-    );
+    assert_relative_ne!(identity, Rotation3::from_matrix(&m_627), epsilon = 0.01);
     assert_relative_eq!(
         Rotation3::from_matrix_unchecked(m_627.clone()),
         Rotation3::from_matrix(&m_627),
@@ -46,11 +42,7 @@ fn from_rotation_matrix() {
     );
     // Test that issue 1078 is fixed
     let m_1078 = Matrix3::<f64>::new(0.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0);
-    assert_relative_ne!(
-        identity,
-        Rotation3::from_matrix(&m_1078),
-        epsilon = 0.01
-    );
+    assert_relative_ne!(identity, Rotation3::from_matrix(&m_1078), epsilon = 0.01);
     assert_relative_eq!(
         Rotation3::from_matrix_unchecked(m_1078.clone()),
         Rotation3::from_matrix(&m_1078),
