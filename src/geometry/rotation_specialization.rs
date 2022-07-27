@@ -735,6 +735,8 @@ where
             max_iter = usize::MAX;
         }
 
+        // Using sqrt(eps) ensures we perturb with something larger than eps; clamp to eps to handle the case of eps > 1.0
+        let eps_disturbance = eps.clone().sqrt().max(eps.clone() * eps.clone());
         let mut perturbation_axes = Vector3::x_axis();
         let mut rot = guess.into_inner();
 
@@ -758,10 +760,9 @@ where
 
                 // Perturb until the new norm is significantly different
                 loop {
-                    perturbed *= Rotation3::from_axis_angle(&perturbation_axes, T::frac_pi_8());
+                    perturbed *= Rotation3::from_axis_angle(&perturbation_axes, eps_disturbance.clone());
                     new_norm_squared = (m - &perturbed).norm_squared();
-
-                    if relative_ne!(norm_squared, new_norm_squared) {
+                    if abs_diff_ne!(norm_squared, new_norm_squared, epsilon = T::default_epsilon()) {
                         break;
                     }
                 }

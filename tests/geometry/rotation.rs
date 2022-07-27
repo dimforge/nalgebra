@@ -32,30 +32,50 @@ fn from_rotation_matrix() {
         &Rotation3::from_axis_angle(&UnitVector3::new_unchecked(Vector3::new(1.0, 0.0, 0.0)), PI),
         epsilon = 0.001
     );
-    // Test that issue 628 is fixed
-    let m_628 = nalgebra::Matrix3::<f64>::new(-1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0);
+    // Test that issue 627 is fixed
+    let m_627 = Matrix3::<f64>::new(-1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0);
     assert_relative_ne!(
         identity,
-        nalgebra::Rotation3::from_matrix(&m_628),
+        Rotation3::from_matrix(&m_627),
         epsilon = 0.01
     );
     assert_relative_eq!(
-        nalgebra::Rotation3::from_matrix_unchecked(m_628.clone()),
-        nalgebra::Rotation3::from_matrix(&m_628),
+        Rotation3::from_matrix_unchecked(m_627.clone()),
+        Rotation3::from_matrix(&m_627),
         epsilon = 0.001
     );
-
     // Test that issue 1078 is fixed
-    let m_1078 = nalgebra::Matrix3::<f64>::new(0.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0);
+    let m_1078 = Matrix3::<f64>::new(0.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0);
     assert_relative_ne!(
         identity,
-        nalgebra::Rotation3::from_matrix(&m_1078),
+        Rotation3::from_matrix(&m_1078),
         epsilon = 0.01
     );
     assert_relative_eq!(
-        nalgebra::Rotation3::from_matrix_unchecked(m_1078.clone()),
-        nalgebra::Rotation3::from_matrix(&m_1078),
+        Rotation3::from_matrix_unchecked(m_1078.clone()),
+        Rotation3::from_matrix(&m_1078),
         epsilon = 0.001
+    );
+    // Additional test cases for eps >= 1.0
+    assert_relative_ne!(
+        identity,
+        Rotation3::from_matrix_eps(&m_627, 1.2, 0, Rotation3::identity()),
+        epsilon = 0.6
+    );
+    assert_relative_eq!(
+        Rotation3::from_matrix_unchecked(m_627.clone()),
+        Rotation3::from_matrix_eps(&m_627, 1.2, 0, Rotation3::identity()),
+        epsilon = 0.6
+    );
+    assert_relative_ne!(
+        identity,
+        Rotation3::from_matrix_eps(&m_1078, 1.0, 0, Rotation3::identity()),
+        epsilon = 0.1
+    );
+    assert_relative_eq!(
+        Rotation3::from_matrix_unchecked(m_1078.clone()),
+        Rotation3::from_matrix_eps(&m_1078, 1.0, 0, Rotation3::identity()),
+        epsilon = 0.1
     );
 }
 
