@@ -143,8 +143,6 @@
 )]
 
 pub extern crate nalgebra as na;
-#[cfg(feature = "io")]
-extern crate pest;
 #[macro_use]
 #[cfg(feature = "io")]
 extern crate pest_derive;
