@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.31.0"
+version = "0.31.1"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "General-purpose linear algebra library with transformations and statically-sized or dynamically-sized matrices."
@@ -132,6 +132,6 @@ required-features = ["rand"]
 lto = true
 
 [package.metadata.docs.rs]
-# Enable certain features when building docs for docs.rs
-features = [ "proptest-support", "compare", "macros", "rand" ]
+# Enable all the features when building the docs on docs.rs
+all-features = true
 
