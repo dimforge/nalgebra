@@ -1,5 +1,7 @@
 use crate::csr::CsrMatrix;
-use crate::ops::serial::cs::{spadd_cs_prealloc, spmm_cs_dense, spmm_cs_prealloc};
+use crate::ops::serial::cs::{
+    spadd_cs_prealloc, spmm_cs_dense, spmm_cs_prealloc, spmm_cs_prealloc_unchecked,
+};
 use crate::ops::serial::OperationError;
 use crate::ops::Op;
 use nalgebra::{ClosedAdd, ClosedMul, DMatrixSlice, DMatrixSliceMut, Scalar};
@@ -77,30 +79,73 @@ where
 {
     assert_compatible_spmm_dims!(c, a, b);
 
-    use Op::{NoOp, Transpose};
+    use Op::NoOp;
 
     match (&a, &b) {
         (NoOp(ref a), NoOp(ref b)) => spmm_cs_prealloc(beta, &mut c.cs, alpha, &a.cs, &b.cs),
-        _ => {
-            // Currently we handle transposition by explicitly precomputing transposed matrices
-            // and calling the operation again without transposition
-            // TODO: At least use workspaces to allow control of allocations. Maybe
-            // consider implementing certain patterns (like A^T * B) explicitly
-            let a_ref: &CsrMatrix<T> = a.inner_ref();
-            let b_ref: &CsrMatrix<T> = b.inner_ref();
-            let (a, b) = {
-                use Cow::*;
-                match (&a, &b) {
-                    (NoOp(_), NoOp(_)) => unreachable!(),
-                    (Transpose(ref a), NoOp(_)) => (Owned(a.transpose()), Borrowed(b_ref)),
-                    (NoOp(_), Transpose(ref b)) => (Borrowed(a_ref), Owned(b.transpose())),
-                    (Transpose(ref a), Transpose(ref b)) => {
-                        (Owned(a.transpose()), Owned(b.transpose()))
-                    }
-                }
-            };
-
-            spmm_csr_prealloc(beta, c, alpha, NoOp(a.as_ref()), NoOp(b.as_ref()))
-        }
+        _ => spmm_csr_transposed(beta, c, alpha, a, b, spmm_csr_prealloc),
     }
+}
+
+/// Faster sparse-sparse matrix multiplication, `C <- beta * C + alpha * op(A) * op(B)`.
+/// This will not return an error even if the patterns don't match.
+/// Should be used for situations where pattern creation immediately preceeds multiplication.
+///
+/// Panics if the dimensions of the matrices involved are not compatible with the expression.
+pub fn spmm_csr_prealloc_unchecked<T>(
+    beta: T,
+    c: &mut CsrMatrix<T>,
+    alpha: T,
+    a: Op<&CsrMatrix<T>>,
+    b: Op<&CsrMatrix<T>>,
+) -> Result<(), OperationError>
+where
+    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+{
+    assert_compatible_spmm_dims!(c, a, b);
+
+    use Op::NoOp;
+
+    match (&a, &b) {
+        (NoOp(ref a), NoOp(ref b)) => {
+            spmm_cs_prealloc_unchecked(beta, &mut c.cs, alpha, &a.cs, &b.cs)
+        }
+        _ => spmm_csr_transposed(beta, c, alpha, a, b, spmm_csr_prealloc_unchecked),
+    }
+}
+
+fn spmm_csr_transposed<T, F>(
+    beta: T,
+    c: &mut CsrMatrix<T>,
+    alpha: T,
+    a: Op<&CsrMatrix<T>>,
+    b: Op<&CsrMatrix<T>>,
+    spmm_kernel: F,
+) -> Result<(), OperationError>
+where
+    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    F: Fn(
+        T,
+        &mut CsrMatrix<T>,
+        T,
+        Op<&CsrMatrix<T>>,
+        Op<&CsrMatrix<T>>,
+    ) -> Result<(), OperationError>,
+{
+    use Op::{NoOp, Transpose};
+
+    // Currently we handle transposition by explicitly precomputing transposed matrices
+    // and calling the operation again without transposition
+    let a_ref: &CsrMatrix<T> = a.inner_ref();
+    let b_ref: &CsrMatrix<T> = b.inner_ref();
+    let (a, b) = {
+        use Cow::*;
+        match (&a, &b) {
+            (NoOp(_), NoOp(_)) => unreachable!(),
+            (Transpose(ref a), NoOp(_)) => (Owned(a.transpose()), Borrowed(b_ref)),
+            (NoOp(_), Transpose(ref b)) => (Borrowed(a_ref), Owned(b.transpose())),
+            (Transpose(ref a), Transpose(ref b)) => (Owned(a.transpose()), Owned(b.transpose())),
+        }
+    };
+    spmm_kernel(beta, c, alpha, NoOp(a.as_ref()), NoOp(b.as_ref()))
 }
