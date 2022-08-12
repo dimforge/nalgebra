@@ -252,14 +252,17 @@ pub trait ToTypenum {
 }
 
 unsafe impl<const T: usize> Dim for Const<T> {
+    #[inline]
     fn try_to_usize() -> Option<usize> {
         Some(T)
     }
 
+    #[inline]
     fn value(&self) -> usize {
         T
     }
 
+    #[inline]
     fn from_usize(dim: usize) -> Self {
         assert_eq!(dim, T);
         Self
