@@ -214,7 +214,7 @@ impl<T> CooMatrix<T> {
     /// Remove a single triplet from the matrix.
     ///
     /// This removes the value `v` from the `i`th row and `j`th column in the matrix.
-    pub fn clear_triplet(&mut self, i: usize, j: usize, v: T) -> Option<(usize, usize, T)>
+    pub fn clear_triplet(&mut self, i: usize, j: usize, v: T) -> Option<T>
     where
         T: PartialEq,
     {
@@ -224,8 +224,8 @@ impl<T> CooMatrix<T> {
         if let Some(triple_idx) = triple_idx {
             self.row_indices.remove(triple_idx);
             self.col_indices.remove(triple_idx);
-            let retv = self.values.remove(triple_idx);
-            Some((i, j, retv))
+            let removed_value = self.values.remove(triple_idx);
+            Some(removed_value)
         } else {
             None
         }

@@ -242,16 +242,16 @@ fn coo_clear_triplet_valid_entries() {
         vec![(0, 0, &1), (0, 0, &2), (2, 2, &3)]
     );
     let triplet = coo.clear_triplet(0, 0, 1);
-    assert_eq!(triplet, Some((0, 0, 1)));
+    assert_eq!(triplet, Some(1));
     assert_eq!(
         coo.triplet_iter().collect::<Vec<_>>(),
         vec![(0, 0, &2), (2, 2, &3)]
     );
     let triplet = coo.clear_triplet(0, 0, 2);
-    assert_eq!(triplet, Some((0, 0, 2)));
+    assert_eq!(triplet, Some(2));
     assert_eq!(coo.triplet_iter().collect::<Vec<_>>(), vec![(2, 2, &3)]);
     let triplet = coo.clear_triplet(2, 2, 3);
-    assert_eq!(triplet, Some((2, 2, 3)));
+    assert_eq!(triplet, Some(3));
     assert_eq!(coo.triplet_iter().collect::<Vec<_>>(), vec![]);
 }
 
