@@ -227,32 +227,18 @@ fn coo_push_valid_entries() {
 }
 
 #[test]
-fn coo_clear_triplet_valid_entries() {
+fn coo_clear_triplets_valid_entries() {
     let mut coo = CooMatrix::new(3, 3);
 
     coo.push(0, 0, 1);
     coo.push(0, 0, 2);
     coo.push(2, 2, 3);
-
-    // clear a triplet that is not included
-    let triplet = coo.clear_triplet(0, 0, 0);
-    assert_eq!(triplet, None);
     assert_eq!(
         coo.triplet_iter().collect::<Vec<_>>(),
         vec![(0, 0, &1), (0, 0, &2), (2, 2, &3)]
     );
-    let triplet = coo.clear_triplet(0, 0, 1);
-    assert_eq!(triplet, Some(1));
-    assert_eq!(
-        coo.triplet_iter().collect::<Vec<_>>(),
-        vec![(0, 0, &2), (2, 2, &3)]
-    );
-    let triplet = coo.clear_triplet(0, 0, 2);
-    assert_eq!(triplet, Some(2));
-    assert_eq!(coo.triplet_iter().collect::<Vec<_>>(), vec![(2, 2, &3)]);
-    let triplet = coo.clear_triplet(2, 2, 3);
-    assert_eq!(triplet, Some(3));
-    assert_eq!(coo.triplet_iter().collect::<Vec<_>>(), vec![]);
+    coo.clear_triplets();
+    assert_eq(coo.triplet_iter.collect::<Vec<_>>(), vec![]);
 }
 
 #[test]
