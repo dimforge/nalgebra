@@ -238,7 +238,7 @@ fn coo_clear_triplets_valid_entries() {
         vec![(0, 0, &1), (0, 0, &2), (2, 2, &3)]
     );
     coo.clear_triplets();
-    assert_eq(coo.triplet_iter.collect::<Vec<_>>(), vec![]);
+    assert_eq!(coo.triplet_iter().collect::<Vec<_>>(), vec![]);
     // making sure everyhting works after clearing
     coo.push(0, 0, 1);
     coo.push(0, 0, 2);

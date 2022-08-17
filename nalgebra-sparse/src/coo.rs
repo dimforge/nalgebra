@@ -212,7 +212,7 @@ impl<T> CooMatrix<T> {
     }
 
     /// Clear all triplets from the matrix.
-    pub fn clear_triplets(&mut self, i: usize, j: usize, v: T)
+    pub fn clear_triplets(&mut self)
     where
         T: PartialEq,
     {
