@@ -212,10 +212,7 @@ impl<T> CooMatrix<T> {
     }
 
     /// Clear all triplets from the matrix.
-    pub fn clear_triplets(&mut self)
-    where
-        T: PartialEq,
-    {
+    pub fn clear_triplets(&mut self) {
         self.col_indices.clear();
         self.row_indices.clear();
         self.values.clear();
