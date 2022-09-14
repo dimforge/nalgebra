@@ -394,7 +394,6 @@ where
                 (res, None, None)
             }
         }
-
     }
 
     /// The determinant of the decomposed matrix.
