@@ -232,8 +232,15 @@ where
     /// The complex eigen decomposition of the given matrix.
     ///
     /// Panics if the eigenvalue computation does not converge.
-    pub fn complex_eigen_decomposition(mut m: OMatrix<T, D, D>, left_eigenvectors: bool, eigenvectors: bool) 
-        -> (OVector<Complex<T>, D>,  Option<OMatrix<T, D, D>>,  Option<OMatrix<T, D, D>>)
+    pub fn complex_eigen_decomposition(
+        mut m: OMatrix<T, D, D>,
+        left_eigenvectors: bool,
+        eigenvectors: bool,
+    ) -> (
+        OVector<Complex<T>, D>,
+        Option<OMatrix<T, D, D>>,
+        Option<OMatrix<T, D, D>>,
+    )
     where
         DefaultAllocator: Allocator<Complex<T>, D> + Allocator<Complex<T>, D, D>,
     {
