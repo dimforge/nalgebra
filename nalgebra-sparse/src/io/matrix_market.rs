@@ -1,9 +1,9 @@
 //! Implementation of matrix market io code.
 //!
 //! See the [website](https://math.nist.gov/MatrixMarket/formats.html) or the [paper](https://www.researchgate.net/publication/2630533_The_Matrix_Market_Exchange_Formats_Initial_Design) for more details about matrix market.
-use crate::coo::CooMatrix;
 use crate::SparseFormatError;
 use crate::SparseFormatErrorKind;
+use crate::{CooMatrix, CscMatrix, CsrMatrix};
 use nalgebra::Complex;
 use pest::iterators::Pairs;
 use pest::Parser;
@@ -12,7 +12,8 @@ use std::convert::Infallible;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::Formatter;
-use std::fs;
+use std::fs::{self, File};
+use std::io::{BufWriter, Write};
 use std::num::ParseIntError;
 use std::num::TryFromIntError;
 use std::path::Path;
@@ -267,7 +268,7 @@ impl fmt::Display for MatrixMarketError {
                 write!(f, "InvalidHeader,")?;
             }
             MatrixMarketErrorKind::EntryMismatch => {
-                write!(f, "EntryNumUnmatched,")?;
+                write!(f, "EntryMismatch,")?;
             }
             MatrixMarketErrorKind::TypeMismatch => {
                 write!(f, "TypeMismatch,")?;
@@ -288,7 +289,7 @@ impl fmt::Display for MatrixMarketError {
                 write!(f, "NotLowerTriangle,")?;
             }
             MatrixMarketErrorKind::NonSquare => {
-                write!(f, "NotSquareMatrix,")?;
+                write!(f, "NonSquare,")?;
             }
         }
         write!(f, " message: {}", self.message)
@@ -506,6 +507,21 @@ mod internal {
         fn negative(self) -> Result<Self, MatrixMarketError>;
         /// When matrix is a Hermitian matrix, it will convert itself to its conjugate.
         fn conjugate(self) -> Result<Self, MatrixMarketError>;
+        /// Returns the name of SupportedMatrixMarketScalar, used when write the matrix
+        fn typename() -> &'static str;
+        /// Write the data self to w
+        fn write_matrix_market<W: std::fmt::Write>(&self, w: W) -> Result<(), std::fmt::Error>;
+    }
+
+    pub trait SupportedMatrixMarketExport<T: SupportedMatrixMarketScalar> {
+        /// iterate over triplets
+        fn triplet_iter(&self) -> Box<dyn Iterator<Item = (usize, usize, &T)> + '_>;
+        /// number of rows
+        fn nrows(&self) -> usize;
+        /// number of columns
+        fn ncols(&self) -> usize;
+        /// number of non-zeros
+        fn nnz(&self) -> usize;
     }
 }
 
@@ -557,6 +573,17 @@ macro_rules! mm_int_impl {
             fn negative(self) -> Result<Self, MatrixMarketError> {
                 Ok(-self)
             }
+            #[inline]
+            fn typename() -> &'static str {
+                "integer"
+            }
+            #[inline]
+            fn write_matrix_market<W: std::fmt::Write>(
+                &self,
+                mut w: W,
+            ) -> Result<(), std::fmt::Error> {
+                write!(w, "{}", self)
+            }
         }
     };
 }
@@ -601,6 +628,17 @@ macro_rules! mm_real_impl {
             #[inline]
             fn negative(self) -> Result<Self, MatrixMarketError> {
                 Ok(-self)
+            }
+            #[inline]
+            fn typename() -> &'static str {
+                "real"
+            }
+            #[inline]
+            fn write_matrix_market<W: std::fmt::Write>(
+                &self,
+                mut w: W,
+            ) -> Result<(), std::fmt::Error> {
+                write!(w, "{}", self)
             }
         }
     };
@@ -647,6 +685,17 @@ macro_rules! mm_complex_impl {
             #[inline]
             fn negative(self) -> Result<Self, MatrixMarketError> {
                 Ok(-self)
+            }
+            #[inline]
+            fn typename() -> &'static str {
+                "complex"
+            }
+            #[inline]
+            fn write_matrix_market<W: std::fmt::Write>(
+                &self,
+                mut w: W,
+            ) -> Result<(), std::fmt::Error> {
+                write!(w, "{} {}", self.re, self.im)
             }
         }
     };
@@ -697,6 +746,17 @@ macro_rules! mm_pattern_impl {
                     format!("Pattern type has no negative"),
                 ))
             }
+            #[inline]
+            fn typename() -> &'static str {
+                "pattern"
+            }
+            #[inline]
+            fn write_matrix_market<W: std::fmt::Write>(
+                &self,
+                mut _w: W,
+            ) -> Result<(), std::fmt::Error> {
+                Ok(())
+            }
         }
     };
 }
@@ -714,6 +774,46 @@ mm_complex_impl!(f32);
 mm_complex_impl!(f64);
 
 mm_pattern_impl!(());
+
+/// A marker trait for sparse matrix types that can be exported to the matrix market format.
+///
+/// This is a sealed trait; it cannot be implemented by external crates. This is done in order to prevent leaking
+/// some of the implementation details we currently rely on. We may relax this restriction in the future.
+pub trait MatrixMarketExport<T: MatrixMarketScalar>:
+    internal::SupportedMatrixMarketExport<T>
+{
+}
+
+macro_rules! mm_matrix_impl {
+    ($T_MATRIX:ty) => {
+        impl<T: MatrixMarketScalar> MatrixMarketExport<T> for $T_MATRIX {}
+
+        impl<T: internal::SupportedMatrixMarketScalar> internal::SupportedMatrixMarketExport<T>
+            for $T_MATRIX
+        {
+            #[inline]
+            fn triplet_iter(&self) -> Box<dyn Iterator<Item = (usize, usize, &T)> + '_> {
+                Box::new(self.triplet_iter())
+            }
+            #[inline]
+            fn nrows(&self) -> usize {
+                self.nrows()
+            }
+            #[inline]
+            fn ncols(&self) -> usize {
+                self.ncols()
+            }
+            #[inline]
+            fn nnz(&self) -> usize {
+                self.nnz()
+            }
+        }
+    };
+}
+
+mm_matrix_impl!(CooMatrix<T>);
+mm_matrix_impl!(CsrMatrix<T>);
+mm_matrix_impl!(CscMatrix<T>);
 
 #[derive(Parser)]
 #[grammar = "io/matrix_market.pest"]
@@ -1328,4 +1428,124 @@ fn next_dense_coordinate(
             }
         }
     }
+}
+
+/// Save a sparse matrix as a Matrix Market format string.
+///
+/// The exporter only writes the matrix into `coordinate` and `general` format.
+///
+///
+/// Examples
+/// --------
+/// ```
+/// # use nalgebra_sparse::CooMatrix;
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// use nalgebra_sparse::io::{save_to_matrix_market_str};
+/// let expected_str = r#"%%matrixmarket matrix coordinate integer general
+/// % matrixmarket file generated by nalgebra-sparse.
+/// 5 4 2
+/// 1 1 10
+/// 2 3 5
+/// "#;
+/// let row_indices = vec![0,1];
+/// let col_indices = vec![0,2];
+/// let values = vec![10,5];
+/// let matrix = CooMatrix::try_from_triplets(5,4,row_indices,col_indices,values)?;
+/// let generated_matrixmarket_str = save_to_matrix_market_str(&matrix);
+/// assert_eq!(expected_str,generated_matrixmarket_str);
+/// # Ok(()) }
+/// ```
+pub fn save_to_matrix_market_str<T, S>(sparse_matrix: &S) -> String
+where
+    T: MatrixMarketScalar,
+    S: MatrixMarketExport<T>,
+{
+    let mut bytes = Vec::<u8>::new();
+    // This will call impl<A: Allocator> Write for Vec<u8, A>
+    // The vector will grow as needed.
+    // So, unwrap here won't cause any issue.
+    save_to_matrix_market(&mut bytes, sparse_matrix).unwrap();
+
+    String::from_utf8(bytes)
+        .expect("Unexpected non UTF-8 data was generated when export to matrix market string")
+}
+
+/// Save a sparse matrix to a Matrix Market format file.
+///
+/// The exporter only saves the matrix with the `coordinate` and `general` matrix market formats.
+///
+/// Errors
+/// --------
+///
+/// See [MatrixMarketErrorKind] for a list of possible error conditions.
+///
+/// Examples
+/// --------
+/// ```no_run
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// use nalgebra_sparse::io::{save_to_matrix_market_file,load_coo_from_matrix_market_str};
+/// let str = r#"
+/// %%matrixmarket matrix coordinate integer general
+/// 5 4 2
+/// 1 1 10
+/// 2 3 5
+/// "#;
+/// let matrix = load_coo_from_matrix_market_str::<i32>(&str)?;
+/// save_to_matrix_market_file(&matrix,"path/to/matrix.mtx")?;
+/// # Ok(()) }
+/// ```
+pub fn save_to_matrix_market_file<T, S, P>(sparse_matrix: &S, path: P) -> Result<(), std::io::Error>
+where
+    T: MatrixMarketScalar,
+    S: MatrixMarketExport<T>,
+    P: AsRef<Path>,
+{
+    let file = File::create(path)?;
+    let mut file = BufWriter::new(file);
+    save_to_matrix_market(&mut file, sparse_matrix)?;
+    // Quote from BufWriter doc.
+    // > It is critical to call flush before BufWriter<W> is dropped. Though dropping will attempt to flush the contents of the buffer, any errors that happen in the process of dropping will be ignored. Calling flush ensures that the buffer is empty and thus dropping will not even attempt file operations.
+    file.flush()
+        .expect("Unexpected error when flushing the buffer data to File");
+    Ok(())
+}
+
+/// Save a sparse matrix to an [std::io::Write] instance.
+///
+/// This is the most general save functionality. See [save_to_matrix_market_file] and
+/// [save_to_matrix_market_str] for higher-level functionality.
+pub fn save_to_matrix_market<T, S, W>(mut w: W, sparse_matrix: &S) -> Result<(), std::io::Error>
+where
+    T: MatrixMarketScalar,
+    S: MatrixMarketExport<T>,
+    W: Write,
+{
+    // write header
+    writeln!(
+        w,
+        "%%matrixmarket matrix coordinate {} general",
+        T::typename()
+    )?;
+
+    //write comment
+    writeln!(w, "% matrixmarket file generated by nalgebra-sparse.")?;
+
+    // write shape information
+    writeln!(
+        w,
+        "{} {} {}",
+        sparse_matrix.nrows(),
+        sparse_matrix.ncols(),
+        sparse_matrix.nnz()
+    )?;
+
+    //write triplets
+    let mut buffer = String::new();
+    for (r, c, d) in sparse_matrix.triplet_iter() {
+        buffer.clear();
+        d.write_matrix_market(&mut buffer)
+            .expect("Unexpected format error was generated when write to String");
+        writeln!(w, "{} {} {}", r + 1, c + 1, buffer)?;
+    }
+    Ok(())
 }

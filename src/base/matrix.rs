@@ -2186,3 +2186,28 @@ where
         }
     }
 }
+
+impl<T, D, S> Unit<Vector<T, D, S>>
+where
+    T: Scalar,
+    D: Dim,
+    S: RawStorage<T, D, U1>,
+{
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::<f64>::y_axis();
+    /// let v2 = v.cast::<f32>();
+    /// assert_eq!(v2, Vector3::<f32>::y_axis());
+    /// ```
+    pub fn cast<T2: Scalar>(self) -> Unit<OVector<T2, D>>
+    where
+        T: Scalar,
+        OVector<T2, D>: SupersetOf<Vector<T, D, S>>,
+        DefaultAllocator: Allocator<T2, D, U1>,
+    {
+        Unit::new_unchecked(crate::convert_ref(self.as_ref()))
+    }
+}
