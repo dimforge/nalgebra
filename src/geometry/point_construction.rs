@@ -216,7 +216,20 @@ macro_rules! componentwise_constructors_impl(
             #[doc = $doc]
             #[doc = "```"]
             #[inline]
+            #[cfg(not(feature = "cuda"))]
             pub const fn new($($args: T),*) -> Self {
+                Point { coords: $Vector::new($($args),*) }
+            }
+
+            // TODO: always let new be const once CUDA updates its supported
+            //       nightly version to something more recent.
+            #[doc = "Initializes this point from its components."]
+            #[doc = "# Example\n```"]
+            #[doc = $doc]
+            #[doc = "```"]
+            #[inline]
+            #[cfg(feature = "cuda")]
+            pub fn new($($args: T),*) -> Self {
                 Point { coords: $Vector::new($($args),*) }
             }
         }
