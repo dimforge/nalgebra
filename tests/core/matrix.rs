@@ -78,16 +78,33 @@ fn iter() {
 }
 
 #[test]
-fn debug_output_corresponds_to_data_container() {
+fn debug_output_semicolon_delimited_rowwise() {
     let m = Matrix2::new(1.0, 2.0, 3.0, 4.0);
-    let output_stable = "[[1, 3], [2, 4]]"; // Current output on the stable channel.
-    let output_nightly = "[[1.0, 3.0], [2.0, 4.0]]"; // Current output on the nightly channel.
+    let expected_output = "[1.0, 2.0; 3.0, 4.0]";
     let current_output = format!("{:?}", m);
-    dbg!(output_stable);
-    dbg!(output_nightly);
+    dbg!(expected_output);
     dbg!(&current_output);
 
-    assert!(current_output == output_stable || current_output == output_nightly);
+    assert!(current_output == expected_output);
+}
+
+#[test]
+fn format_empty_matrix() {
+    let empty_row: [f32; 0] = [];
+    let m = na::DMatrix::from_row_slice(0, 0, &empty_row);
+    let expected_output_display = "[ ]";
+    let expected_output_debug = "[]";
+    let current_output_display = format!("{}", m);
+    let current_output_debug = format!("{:?}", m);
+    dbg!(expected_output_display);
+    dbg!(expected_output_debug);
+    dbg!(&current_output_debug);
+    dbg!(&current_output_display);
+
+    assert!(
+        current_output_display == expected_output_display
+            && current_output_debug == expected_output_debug
+    );
 }
 
 #[test]

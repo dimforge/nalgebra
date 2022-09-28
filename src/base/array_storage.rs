@@ -1,4 +1,4 @@
-use std::fmt::{self, Debug, Formatter};
+use std::fmt::Debug;
 // use std::hash::{Hash, Hasher};
 use std::ops::Mul;
 
@@ -8,6 +8,8 @@ use serde::de::{Error, SeqAccess, Visitor};
 use serde::ser::SerializeSeq;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+#[cfg(feature = "serde-serialize-no-std")]
+use std::fmt::{self, Formatter};
 #[cfg(feature = "serde-serialize-no-std")]
 use std::marker::PhantomData;
 
@@ -26,7 +28,7 @@ use std::mem;
  */
 /// A array-based statically sized matrix data storage.
 #[repr(transparent)]
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
@@ -59,13 +61,6 @@ where
     #[inline]
     fn default() -> Self {
         Self(Default::default())
-    }
-}
-
-impl<T: Debug, const R: usize, const C: usize> Debug for ArrayStorage<T, R, C> {
-    #[inline]
-    fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
-        self.0.fmt(fmt)
     }
 }
 

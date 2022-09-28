@@ -284,10 +284,10 @@ where
  */
 impl<T: Scalar + fmt::Display, const D: usize> fmt::Display for Translation<T, D> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let precision = f.precision().unwrap_or(3);
-
-        writeln!(f, "Translation {{")?;
-        write!(f, "{:.*}", precision, self.vector)?;
-        writeln!(f, "}}")
+        if f.alternate() {
+            crate::format_column_vec_as_row(&self.vector, f)
+        } else {
+            std::fmt::Display::fmt(&self.vector, f) // pretty-prints vector
+        }
     }
 }

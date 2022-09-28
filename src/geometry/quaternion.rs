@@ -36,7 +36,7 @@ pub struct Quaternion<T> {
 
 impl<T: fmt::Debug> fmt::Debug for Quaternion<T> {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        self.coords.as_slice().fmt(formatter)
+        formatter.debug_list().entries(self.coords.iter()).finish()
     }
 }
 
@@ -995,11 +995,16 @@ impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for Quaternion<T> {
 
 impl<T: RealField + fmt::Display> fmt::Display for Quaternion<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "Quaternion {} − ({}, {}, {})",
-            self[3], self[0], self[1], self[2]
-        )
+        // Formatting of each item is forwarded to standard fmt display so that formatting
+        // flags are followed correctly.
+        std::fmt::Display::fmt(&self[0], f)?;
+        write!(f, " + ")?;
+        std::fmt::Display::fmt(&self[1], f)?;
+        write!(f, "i + ")?;
+        std::fmt::Display::fmt(&self[2], f)?;
+        write!(f, "j + ")?;
+        std::fmt::Display::fmt(&self[3], f)?;
+        write!(f, "k")
     }
 }
 
@@ -1636,23 +1641,22 @@ impl<T: RealField> Default for UnitQuaternion<T> {
 
 impl<T: RealField + fmt::Display> fmt::Display for UnitQuaternion<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Formatting of each item is forwarded to standard fmt Display so that formatting
+        // flags are followed correctly.
+        write!(f, "{{ angle: ")?;
+        std::fmt::Display::fmt(&self.angle(), f)?;
+        write!(f, ", axis: (")?;
         if let Some(axis) = self.axis() {
             let axis = axis.into_inner();
-            write!(
-                f,
-                "UnitQuaternion angle: {} − axis: ({}, {}, {})",
-                self.angle(),
-                axis[0],
-                axis[1],
-                axis[2]
-            )
+            std::fmt::Display::fmt(&axis[0], f)?;
+            write!(f, ", ")?;
+            std::fmt::Display::fmt(&axis[1], f)?;
+            write!(f, ", ")?;
+            std::fmt::Display::fmt(&axis[2], f)?;
         } else {
-            write!(
-                f,
-                "UnitQuaternion angle: {} − axis: (undefined)",
-                self.angle()
-            )
+            write!(f, "undefined")?;
         }
+        write!(f, ") }}")
     }
 }
 

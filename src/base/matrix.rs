@@ -195,9 +195,32 @@ pub struct Matrix<T, R, C, S> {
     _phantoms: PhantomData<(T, R, C)>,
 }
 
-impl<T, R: Dim, C: Dim, S: fmt::Debug> fmt::Debug for Matrix<T, R, C, S> {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        self.data.fmt(formatter)
+impl<T: fmt::Debug, R: Dim, C: Dim, S: RawStorage<T, R, C> + fmt::Debug> fmt::Debug
+    for Matrix<T, R, C, S>
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        if f.alternate() {
+            writeln!(f, "")?;
+        }
+        write!(f, "[")?;
+
+        let row_separator = match f.alternate() {
+            true => ";\n ",
+            false => "; ",
+        };
+
+        for (i, row) in self.row_iter().enumerate() {
+            if i > 0 {
+                write!(f, "{row_separator}")?;
+            }
+            for (j, element) in row.iter().enumerate() {
+                if j > 0 {
+                    write!(f, ", ")?;
+                }
+                element.fmt(f)?;
+            }
+        }
+        write!(f, "]")
     }
 }
 
@@ -1855,68 +1878,94 @@ macro_rules! impl_fmt {
             S: RawStorage<T, R, C>,
         {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                #[cfg(feature = "std")]
-                fn val_width<T: Scalar + $trait>(val: &T, f: &mut fmt::Formatter<'_>) -> usize {
-                    match f.precision() {
-                        Some(precision) => format!($fmt_str_with_precision, val, precision)
-                            .chars()
-                            .count(),
-                        None => format!($fmt_str_without_precision, val).chars().count(),
-                    }
-                }
-
-                #[cfg(not(feature = "std"))]
-                fn val_width<T: Scalar + $trait>(_: &T, _: &mut fmt::Formatter<'_>) -> usize {
-                    4
-                }
-
-                let (nrows, ncols) = self.shape();
-
-                if nrows == 0 || ncols == 0 {
-                    return write!(f, "[ ]");
-                }
-
-                let mut max_length = 0;
-
-                for i in 0..nrows {
-                    for j in 0..ncols {
-                        max_length = crate::max(max_length, val_width(&self[(i, j)], f));
-                    }
-                }
-
-                let max_length_with_space = max_length + 1;
-
-                writeln!(f)?;
-                writeln!(
-                    f,
-                    "  ┌ {:>width$} ┐",
-                    "",
-                    width = max_length_with_space * ncols - 1
-                )?;
-
-                for i in 0..nrows {
-                    write!(f, "  │")?;
-                    for j in 0..ncols {
-                        let number_length = val_width(&self[(i, j)], f) + 1;
-                        let pad = max_length_with_space - number_length;
-                        write!(f, " {:>thepad$}", "", thepad = pad)?;
+                if !f.alternate() {
+                    // pretty print in 2D layout
+                    #[cfg(feature = "std")]
+                    fn val_width<T: Scalar + $trait>(val: &T, f: &mut fmt::Formatter<'_>) -> usize {
                         match f.precision() {
-                            Some(precision) => {
-                                write!(f, $fmt_str_with_precision, (*self)[(i, j)], precision)?
-                            }
-                            None => write!(f, $fmt_str_without_precision, (*self)[(i, j)])?,
+                            Some(precision) => format!($fmt_str_with_precision, val, precision)
+                                .chars()
+                                .count(),
+                            None => format!($fmt_str_without_precision, val).chars().count(),
                         }
                     }
-                    writeln!(f, " │")?;
-                }
 
-                writeln!(
-                    f,
-                    "  └ {:>width$} ┘",
-                    "",
-                    width = max_length_with_space * ncols - 1
-                )?;
-                writeln!(f)
+                    #[cfg(not(feature = "std"))]
+                    fn val_width<T: Scalar + $trait>(_: &T, _: &mut fmt::Formatter<'_>) -> usize {
+                        4
+                    }
+
+                    let (nrows, ncols) = self.shape();
+
+                    if nrows == 0 || ncols == 0 {
+                        return write!(f, "[ ]");
+                    }
+
+                    let mut max_length = 0;
+
+                    for i in 0..nrows {
+                        for j in 0..ncols {
+                            max_length = crate::max(max_length, val_width(&self[(i, j)], f));
+                        }
+                    }
+
+                    let max_length_with_space = max_length + 1;
+
+                    writeln!(f)?; // leading newline to ensure no offset from previous prints
+                    writeln!(
+                        f,
+                        "  ┌ {:>width$} ┐",
+                        "",
+                        width = max_length_with_space * ncols - 1
+                    )?;
+
+                    for i in 0..nrows {
+                        write!(f, "  │")?;
+                        for j in 0..ncols {
+                            let number_length = val_width(&self[(i, j)], f) + 1;
+                            let pad = max_length_with_space - number_length;
+                            write!(f, " {:>thepad$}", "", thepad = pad)?;
+                            match f.precision() {
+                                Some(precision) => {
+                                    write!(f, $fmt_str_with_precision, (*self)[(i, j)], precision)?
+                                }
+                                None => write!(f, $fmt_str_without_precision, (*self)[(i, j)])?,
+                            }
+                        }
+                        writeln!(f, " │")?;
+                    }
+
+                    write!(
+                        f,
+                        "  └ {:>width$} ┘",
+                        "",
+                        width = max_length_with_space * ncols - 1
+                    )
+                } else {
+                    // print on single line with semicolon-delimited rows and comma-delimited columns
+                    let (nrows, ncols) = self.shape();
+                    write!(f, "[")?;
+                    for row in 0..nrows {
+                        for col in 0..ncols {
+                            if col != 0 {
+                                write!(f, ", ")?;
+                            }
+                            match f.precision() {
+                                Some(precision) => write!(
+                                    f,
+                                    $fmt_str_with_precision,
+                                    (*self)[(row, col)],
+                                    precision
+                                )?,
+                                None => write!(f, $fmt_str_without_precision, (*self)[(row, col)])?,
+                            }
+                        }
+                        if row != nrows - 1 {
+                            write!(f, "; ")?;
+                        }
+                    }
+                    write!(f, "]")
+                }
             }
         }
     };
@@ -1929,6 +1978,28 @@ impl_fmt!(fmt::LowerHex, "{:x}", "{:1$x}");
 impl_fmt!(fmt::UpperHex, "{:X}", "{:1$X}");
 impl_fmt!(fmt::Binary, "{:b}", "{:.1$b}");
 impl_fmt!(fmt::Pointer, "{:p}", "{:.1$p}");
+
+/// Displays a vector using commas as the delimiter
+pub fn format_column_vec_as_row<T: Scalar + fmt::Display, D: crate::DimName>(
+    vector: &OVector<T, D>,
+    f: &mut fmt::Formatter<'_>,
+) -> fmt::Result
+where
+    DefaultAllocator: Allocator<T, D>,
+{
+    if vector.is_empty() {
+        return write!(f, "[ ]");
+    }
+
+    write!(f, "[")?;
+    let mut it = vector.iter();
+    std::fmt::Display::fmt(it.next().unwrap(), f)?;
+    for comp in it {
+        write!(f, ", ")?;
+        std::fmt::Display::fmt(comp, f)?;
+    }
+    write!(f, "]")
+}
 
 #[cfg(test)]
 mod tests {
@@ -1948,9 +2019,7 @@ mod tests {
   ┌           ┐
   │  1e6  2e5 │
   │ 2e-5  1e0 │
-  └           ┘
-
-"
+  └           ┘"
         )
     }
 }
