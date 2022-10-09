@@ -211,6 +211,13 @@ impl<T> CooMatrix<T> {
         self.values.push(v);
     }
 
+    /// Clear all triplets from the matrix.
+    pub fn clear_triplets(&mut self) {
+        self.col_indices.clear();
+        self.row_indices.clear();
+        self.values.clear();
+    }
+
     /// The number of rows in the matrix.
     #[inline]
     #[must_use]

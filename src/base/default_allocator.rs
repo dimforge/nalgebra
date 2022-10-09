@@ -26,7 +26,7 @@ use std::mem::{ManuallyDrop, MaybeUninit};
  * Allocator.
  *
  */
-/// An allocator based on `GenericArray` and `VecStorage` for statically-sized and dynamically-sized
+/// An allocator based on [`ArrayStorage`] and [`VecStorage`] for statically-sized and dynamically-sized
 /// matrices respectively.
 #[derive(Copy, Clone, Debug)]
 pub struct DefaultAllocator;

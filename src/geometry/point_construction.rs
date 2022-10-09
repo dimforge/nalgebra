@@ -202,6 +202,24 @@ impl<T: Scalar> Point1<T> {
     /// assert_eq!(p.x, 1.0);
     /// ```
     #[inline]
+    #[cfg(not(feature = "cuda"))]
+    pub const fn new(x: T) -> Self {
+        Point {
+            coords: Vector1::new(x),
+        }
+    }
+
+    /// Initializes this point from its components.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Point1;
+    /// let p = Point1::new(1.0);
+    /// assert_eq!(p.x, 1.0);
+    /// ```
+    #[inline]
+    #[cfg(feature = "cuda")]
     pub fn new(x: T) -> Self {
         Point {
             coords: Vector1::new(x),
@@ -216,6 +234,19 @@ macro_rules! componentwise_constructors_impl(
             #[doc = $doc]
             #[doc = "```"]
             #[inline]
+            #[cfg(not(feature = "cuda"))]
+            pub const fn new($($args: T),*) -> Self {
+                Point { coords: $Vector::new($($args),*) }
+            }
+
+            // TODO: always let new be const once CUDA updates its supported
+            //       nightly version to something more recent.
+            #[doc = "Initializes this point from its components."]
+            #[doc = "# Example\n```"]
+            #[doc = $doc]
+            #[doc = "```"]
+            #[inline]
+            #[cfg(feature = "cuda")]
             pub fn new($($args: T),*) -> Self {
                 Point { coords: $Vector::new($($args),*) }
             }

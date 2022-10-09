@@ -227,6 +227,29 @@ fn coo_push_valid_entries() {
 }
 
 #[test]
+fn coo_clear_triplets_valid_entries() {
+    let mut coo = CooMatrix::new(3, 3);
+
+    coo.push(0, 0, 1);
+    coo.push(0, 0, 2);
+    coo.push(2, 2, 3);
+    assert_eq!(
+        coo.triplet_iter().collect::<Vec<_>>(),
+        vec![(0, 0, &1), (0, 0, &2), (2, 2, &3)]
+    );
+    coo.clear_triplets();
+    assert_eq!(coo.triplet_iter().collect::<Vec<_>>(), vec![]);
+    // making sure everyhting works after clearing
+    coo.push(0, 0, 1);
+    coo.push(0, 0, 2);
+    coo.push(2, 2, 3);
+    assert_eq!(
+        coo.triplet_iter().collect::<Vec<_>>(),
+        vec![(0, 0, &1), (0, 0, &2), (2, 2, &3)]
+    );
+}
+
+#[test]
 fn coo_push_out_of_bounds_entries() {
     {
         // 0x0 matrix
