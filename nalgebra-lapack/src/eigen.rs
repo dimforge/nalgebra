@@ -13,7 +13,7 @@ use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
 
-/// Eigendecomposition of a real square matrix with real eigenvalues.
+/// Eigendecomposition of a real square matrix with real or complex eigenvalues.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
@@ -36,8 +36,10 @@ pub struct Eigen<T: Scalar, D: Dim>
 where
     DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
 {
-    /// The eigenvalues of the decomposed matrix.
-    pub eigenvalues: OVector<T, D>,
+    /// The real parts of eigenvalues of the decomposed matrix.
+    pub eigenvalues_re: OVector<T, D>,
+    /// The imaginary parts of the eigenvalues of the decomposed matrix.
+    pub eigenvalues_im: OVector<T, D>,
     /// The (right) eigenvectors of the decomposed matrix.
     pub eigenvectors: Option<OMatrix<T, D, D>>,
     /// The left eigenvectors of the decomposed matrix.
@@ -104,169 +106,27 @@ where
         lapack_check!(info);
 
         let mut work = vec![T::zero(); lwork as usize];
+        let mut vl = if left_eigenvectors {
+            Some(Matrix::zeros_generic(nrows, ncols))
+        } else {
+            None
+        };
+        let mut vr = if eigenvectors {
+            Some(Matrix::zeros_generic(nrows, ncols))
+        } else {
+            None
+        };
 
-        match (left_eigenvectors, eigenvectors) {
-            (true, true) => {
-                // TODO: avoid the initializations?
-                let mut vl = Matrix::zeros_generic(nrows, ncols);
-                let mut vr = Matrix::zeros_generic(nrows, ncols);
+        let vl_ref = vl
+            .as_mut()
+            .map(|m| m.as_mut_slice())
+            .unwrap_or(&mut placeholder1);
+        let vr_ref = vr
+            .as_mut()
+            .map(|m| m.as_mut_slice())
+            .unwrap_or(&mut placeholder2);
 
-                T::xgeev(
-                    ljob,
-                    rjob,
-                    n as i32,
-                    m.as_mut_slice(),
-                    lda,
-                    wr.as_mut_slice(),
-                    wi.as_mut_slice(),
-                    &mut vl.as_mut_slice(),
-                    n as i32,
-                    &mut vr.as_mut_slice(),
-                    n as i32,
-                    &mut work,
-                    lwork,
-                    &mut info,
-                );
-                lapack_check!(info);
-
-                if wi.iter().all(|e| e.is_zero()) {
-                    return Some(Self {
-                        eigenvalues: wr,
-                        left_eigenvectors: Some(vl),
-                        eigenvectors: Some(vr),
-                    });
-                }
-            }
-            (true, false) => {
-                // TODO: avoid the initialization?
-                let mut vl = Matrix::zeros_generic(nrows, ncols);
-
-                T::xgeev(
-                    ljob,
-                    rjob,
-                    n as i32,
-                    m.as_mut_slice(),
-                    lda,
-                    wr.as_mut_slice(),
-                    wi.as_mut_slice(),
-                    &mut vl.as_mut_slice(),
-                    n as i32,
-                    &mut placeholder2,
-                    1 as i32,
-                    &mut work,
-                    lwork,
-                    &mut info,
-                );
-                lapack_check!(info);
-
-                if wi.iter().all(|e| e.is_zero()) {
-                    return Some(Self {
-                        eigenvalues: wr,
-                        left_eigenvectors: Some(vl),
-                        eigenvectors: None,
-                    });
-                }
-            }
-            (false, true) => {
-                // TODO: avoid the initialization?
-                let mut vr = Matrix::zeros_generic(nrows, ncols);
-
-                T::xgeev(
-                    ljob,
-                    rjob,
-                    n as i32,
-                    m.as_mut_slice(),
-                    lda,
-                    wr.as_mut_slice(),
-                    wi.as_mut_slice(),
-                    &mut placeholder1,
-                    1 as i32,
-                    &mut vr.as_mut_slice(),
-                    n as i32,
-                    &mut work,
-                    lwork,
-                    &mut info,
-                );
-                lapack_check!(info);
-
-                if wi.iter().all(|e| e.is_zero()) {
-                    return Some(Self {
-                        eigenvalues: wr,
-                        left_eigenvectors: None,
-                        eigenvectors: Some(vr),
-                    });
-                }
-            }
-            (false, false) => {
-                T::xgeev(
-                    ljob,
-                    rjob,
-                    n as i32,
-                    m.as_mut_slice(),
-                    lda,
-                    wr.as_mut_slice(),
-                    wi.as_mut_slice(),
-                    &mut placeholder1,
-                    1 as i32,
-                    &mut placeholder2,
-                    1 as i32,
-                    &mut work,
-                    lwork,
-                    &mut info,
-                );
-                lapack_check!(info);
-
-                if wi.iter().all(|e| e.is_zero()) {
-                    return Some(Self {
-                        eigenvalues: wr,
-                        left_eigenvectors: None,
-                        eigenvectors: None,
-                    });
-                }
-            }
-        }
-
-        None
-    }
-
-    /// The complex eigen decomposition of the given matrix.
-    ///
-    /// Panics if the eigenvalue computation does not converge.
-    pub fn complex_eigen_decomposition(
-        mut m: OMatrix<T, D, D>,
-        left_eigenvectors: bool,
-        eigenvectors: bool,
-    ) -> (
-        OVector<Complex<T>, D>,
-        Option<OMatrix<T, D, D>>,
-        Option<OMatrix<T, D, D>>,
-    )
-    where
-        DefaultAllocator: Allocator<Complex<T>, D> + Allocator<Complex<T>, D, D>,
-    {
-        assert!(
-            m.is_square(),
-            "Unable to compute the eigenvalue decomposition of a non-square matrix."
-        );
-
-        let ljob = if left_eigenvectors { b'V' } else { b'N' };
-        let rjob = if eigenvectors { b'V' } else { b'N' };
-
-        let (nrows, ncols) = m.shape_generic();
-        let n = nrows.value();
-
-        let lda = n as i32;
-
-        // TODO: avoid the initialization?
-        let mut wr = Matrix::zeros_generic(nrows, Const::<1>);
-        // TODO: Tap into the workspace.
-        let mut wi = Matrix::zeros_generic(nrows, Const::<1>);
-
-        let mut info = 0;
-        let mut placeholder1 = [T::zero()];
-        let mut placeholder2 = [T::zero()];
-
-        let lwork = T::xgeev_work_size(
+        T::xgeev(
             ljob,
             rjob,
             n as i32,
@@ -274,142 +134,36 @@ where
             lda,
             wr.as_mut_slice(),
             wi.as_mut_slice(),
-            &mut placeholder1,
-            n as i32,
-            &mut placeholder2,
-            n as i32,
+            vl_ref,
+            if left_eigenvectors { n as i32 } else { 1 },
+            vr_ref,
+            if eigenvectors { n as i32 } else { 1 },
+            &mut work,
+            lwork,
             &mut info,
         );
+        lapack_check!(info);
 
-        lapack_panic!(info);
+        Some(Self {
+            eigenvalues_re: wr,
+            eigenvalues_im: wi,
+            left_eigenvectors: vl,
+            eigenvectors: vr,
+        })
+    }
 
-        let mut work = vec![T::zero(); lwork as usize];
-
-        match (left_eigenvectors, eigenvectors) {
-            (true, true) => {
-                // TODO: avoid the initializations?
-                let mut vl = Matrix::zeros_generic(nrows, ncols);
-                let mut vr = Matrix::zeros_generic(nrows, ncols);
-
-                T::xgeev(
-                    ljob,
-                    rjob,
-                    n as i32,
-                    m.as_mut_slice(),
-                    lda,
-                    wr.as_mut_slice(),
-                    wi.as_mut_slice(),
-                    &mut vl.as_mut_slice(),
-                    n as i32,
-                    &mut vr.as_mut_slice(),
-                    n as i32,
-                    &mut work,
-                    lwork,
-                    &mut info,
-                );
-                lapack_panic!(info);
-
-                let mut res = Matrix::zeros_generic(nrows, Const::<1>);
-
-                for i in 0..res.len() {
-                    res[i] = Complex::new(wr[i].clone(), wi[i].clone());
-                }
-                (res, Some(vl), Some(vr))
-            }
-            (true, false) => {
-                // TODO: avoid the initialization?
-                let mut vl = Matrix::zeros_generic(nrows, ncols);
-
-                T::xgeev(
-                    ljob,
-                    rjob,
-                    n as i32,
-                    m.as_mut_slice(),
-                    lda,
-                    wr.as_mut_slice(),
-                    wi.as_mut_slice(),
-                    &mut vl.as_mut_slice(),
-                    n as i32,
-                    &mut placeholder2,
-                    1 as i32,
-                    &mut work,
-                    lwork,
-                    &mut info,
-                );
-                lapack_panic!(info);
-
-                let mut res = Matrix::zeros_generic(nrows, Const::<1>);
-
-                for i in 0..res.len() {
-                    res[i] = Complex::new(wr[i].clone(), wi[i].clone());
-                }
-                (res, Some(vl), None)
-            }
-            (false, true) => {
-                // TODO: avoid the initialization?
-                let mut vr = Matrix::zeros_generic(nrows, ncols);
-
-                T::xgeev(
-                    ljob,
-                    rjob,
-                    n as i32,
-                    m.as_mut_slice(),
-                    lda,
-                    wr.as_mut_slice(),
-                    wi.as_mut_slice(),
-                    &mut placeholder1,
-                    1 as i32,
-                    &mut vr.as_mut_slice(),
-                    n as i32,
-                    &mut work,
-                    lwork,
-                    &mut info,
-                );
-                lapack_panic!(info);
-
-                let mut res = Matrix::zeros_generic(nrows, Const::<1>);
-
-                for i in 0..res.len() {
-                    res[i] = Complex::new(wr[i].clone(), wi[i].clone());
-                }
-                (res, None, Some(vr))
-            }
-            (false, false) => {
-                T::xgeev(
-                    ljob,
-                    rjob,
-                    n as i32,
-                    m.as_mut_slice(),
-                    lda,
-                    wr.as_mut_slice(),
-                    wi.as_mut_slice(),
-                    &mut placeholder1,
-                    1 as i32,
-                    &mut placeholder2,
-                    1 as i32,
-                    &mut work,
-                    lwork,
-                    &mut info,
-                );
-                lapack_panic!(info);
-
-                let mut res = Matrix::zeros_generic(nrows, Const::<1>);
-
-                for i in 0..res.len() {
-                    res[i] = Complex::new(wr[i].clone(), wi[i].clone());
-                }
-                (res, None, None)
-            }
-        }
+    /// Returns `true` if all the eigenvalues are real.
+    pub fn eigenvalues_are_real(&self) -> bool {
+        self.eigenvalues_im.iter().all(|e| e.is_zero())
     }
 
     /// The determinant of the decomposed matrix.
     #[inline]
     #[must_use]
-    pub fn determinant(&self) -> T {
-        let mut det = T::one();
-        for e in self.eigenvalues.iter() {
-            det *= e.clone();
+    pub fn determinant(&self) -> Complex<T> {
+        let mut det: Complex<T> = na::one();
+        for (re, im) in self.eigenvalues_re.iter().zip(self.eigenvalues_im.iter()) {
+            det *= Complex::new(re.clone(), im.clone());
         }
 
         det
