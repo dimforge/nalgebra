@@ -66,6 +66,7 @@ rand        = [ "rand-no-std", "rand-package/std", "rand-package/std_rng", "rand
 arbitrary        = [ "quickcheck" ]
 proptest-support = [ "proptest" ]
 slow-tests       = []
+rkyv-safe-deser  = [ "rkyv-serialize", "rkyv/validation" ]
 
 [dependencies]
 nalgebra-macros = { version = "0.1", path = "nalgebra-macros", optional = true }
