@@ -172,56 +172,56 @@ where
     /// The elements appear as conjugate pairs within each vector, with the positive of the pair always being first.
     pub fn get_complex_elements(&self) -> (Option<Vec<Complex<T>>>, Option<Vec<OVector<Complex<T>, D>>>, Option<Vec<OVector<Complex<T>, D>>>) where DefaultAllocator: Allocator<Complex<T>, D> {
         panic!("TODO");
-        match !self.eigenvalues_are_real() {
-            true => (None, None, None),
-            false => {
-                let number_of_elements = self.eigenvalues_re.nrows();
-                let number_of_complex_entries = self.eigenvalues_im.iter().fold(0, |acc, e| if !e.is_zero() {acc + 1} else {acc});
-                let mut eigenvalues = Vec::<Complex<T>>::with_capacity(2*number_of_complex_entries);
-                let mut eigenvectors = match self.eigenvectors.is_some() {
-                    true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(2*number_of_complex_entries)),
-                    false => None
-                };
-                let mut left_eigenvectors = match self.left_eigenvectors.is_some() {
-                    true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(2*number_of_complex_entries)),
-                    false => None
-                };
+        // match !self.eigenvalues_are_real() {
+        //     true => (None, None, None),
+        //     false => {
+        //         let number_of_elements = self.eigenvalues_re.nrows();
+        //         let number_of_complex_entries = self.eigenvalues_im.iter().fold(0, |acc, e| if !e.is_zero() {acc + 1} else {acc});
+        //         let mut eigenvalues = Vec::<Complex<T>>::with_capacity(2*number_of_complex_entries);
+        //         let mut eigenvectors = match self.eigenvectors.is_some() {
+        //             true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(2*number_of_complex_entries)),
+        //             false => None
+        //         };
+        //         let mut left_eigenvectors = match self.left_eigenvectors.is_some() {
+        //             true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(2*number_of_complex_entries)),
+        //             false => None
+        //         };
 
-                let eigenvectors_raw = self.eigenvectors;
-                let left_eigenvectors_raw = self.left_eigenvectors;
+        //         let eigenvectors_raw = self.eigenvectors;
+        //         let left_eigenvectors_raw = self.left_eigenvectors;
 
-                for mut i in 0..number_of_elements {
-                    if self.eigenvalues_im[i] != T::zero() {
-                        //Complex conjugate pairs of eigenvalues appear consecutively with the eigenvalue having the positive imaginary part first.
-                        eigenvalues.push(Complex::<T>::new(self.eigenvalues_re[i].clone(), self.eigenvalues_im[i].clone()));
-                        eigenvalues.push(Complex::<T>::new(self.eigenvalues_re[i].clone(), -self.eigenvalues_im[i].clone()));
+        //         for mut i in 0..number_of_elements {
+        //             if self.eigenvalues_im[i] != T::zero() {
+        //                 //Complex conjugate pairs of eigenvalues appear consecutively with the eigenvalue having the positive imaginary part first.
+        //                 eigenvalues.push(Complex::<T>::new(self.eigenvalues_re[i].clone(), self.eigenvalues_im[i].clone()));
+        //                 eigenvalues.push(Complex::<T>::new(self.eigenvalues_re[i].clone(), -self.eigenvalues_im[i].clone()));
 
-                        if eigenvectors.is_some() {
-                            let mut r1_vec = OVector::<Complex<T>, D>::zeros(number_of_elements);
-                            let mut r1_vec_conj = OVector::<Complex<T>, D>::zeros(number_of_elements);
+        //                 if eigenvectors.is_some() {
+        //                     let mut r1_vec = OVector::<Complex<T>, D>::zeros(number_of_elements);
+        //                     let mut r1_vec_conj = OVector::<Complex<T>, D>::zeros(number_of_elements);
 
-                            for j in 0..number_of_elements {
-                                r1_vec[j] = Complex::<T>::new(self.eigenvectors.unwrap()[(i,j)].clone(),self.eigenvectors.unwrap()[(i,j+1)].clone());
-                                r1_vec_conj[j] = Complex::<T>::new(self.eigenvectors.unwrap()[(i,j)].clone(),-self.eigenvectors.unwrap()[(i,j+1)].clone());
-                            }
+        //                     for j in 0..number_of_elements {
+        //                         r1_vec[j] = Complex::<T>::new(self.eigenvectors.unwrap()[(i,j)].clone(),self.eigenvectors.unwrap()[(i,j+1)].clone());
+        //                         r1_vec_conj[j] = Complex::<T>::new(self.eigenvectors.unwrap()[(i,j)].clone(),-self.eigenvectors.unwrap()[(i,j+1)].clone());
+        //                     }
     
-                            eigenvectors.unwrap().push(r1_vec);
-                            eigenvectors.unwrap().push(r1_vec_conj);
-                        }
+        //                     eigenvectors.unwrap().push(r1_vec);
+        //                     eigenvectors.unwrap().push(r1_vec_conj);
+        //                 }
 
 
-                        if left_eigenvectors.is_some() {
-                            //TODO: Do the same for left
-                        }
+        //                 if left_eigenvectors.is_some() {
+        //                     //TODO: Do the same for left
+        //                 }
 
 
-                        i += 1;
-                    }
+        //                 i += 1;
+        //             }
                     
-                }
-                (Some(eigenvalues), left_eigenvectors, eigenvectors)
-            }
-        }
+        //         }
+        //         (Some(eigenvalues), left_eigenvectors, eigenvectors)
+        //     }
+        // }
 
 
     }
