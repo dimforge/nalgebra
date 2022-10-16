@@ -177,13 +177,13 @@ where
                 let (number_of_elements, _) = self.eigenvalues_re.shape_generic();
                 let number_of_elements_value = number_of_elements.value();
                 let number_of_complex_entries = self.eigenvalues_im.iter().fold(0, |acc, e| if !e.is_zero() {acc + 1} else {acc});
-                let mut eigenvalues = Vec::<Complex<T>>::with_capacity(2*number_of_complex_entries);
+                let mut eigenvalues = Vec::<Complex<T>>::with_capacity(number_of_complex_entries);
                 let mut eigenvectors = match self.eigenvectors.is_some() {
-                    true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(2*number_of_complex_entries)),
+                    true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(number_of_complex_entries)),
                     false => None
                 };
                 let mut left_eigenvectors = match self.left_eigenvectors.is_some() {
-                    true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(2*number_of_complex_entries)),
+                    true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(number_of_complex_entries)),
                     false => None
                 };
 
@@ -191,7 +191,7 @@ where
                     if self.eigenvalues_im[c] != T::zero() {
                         //Complex conjugate pairs of eigenvalues appear consecutively with the eigenvalue having the positive imaginary part first.
                         eigenvalues.push(Complex::<T>::new(self.eigenvalues_re[c].clone(), self.eigenvalues_im[c].clone()));
-                        eigenvalues.push(Complex::<T>::new(self.eigenvalues_re[c].clone(), -self.eigenvalues_im[c].clone()));
+                        eigenvalues.push(Complex::<T>::new(self.eigenvalues_re[c+1].clone(), self.eigenvalues_im[c+1].clone()));
 
                         if eigenvectors.is_some() {
                             let mut vec = OVector::<Complex<T>, D>::zeros_generic(number_of_elements, Const::<1>);
@@ -199,7 +199,7 @@ where
 
                             for r in 0..number_of_elements_value {
                                 vec[r] = Complex::<T>::new((&self.eigenvectors.as_ref()).unwrap()[(r,c)].clone(),(&self.eigenvectors.as_ref()).unwrap()[(r,c+1)].clone());
-                                vec_conj[r] = Complex::<T>::new((&self.eigenvectors.as_ref()).unwrap()[(r,c)].clone(),-(&self.eigenvectors.as_ref()).unwrap()[(r,c+1)].clone());
+                                vec_conj[r] = Complex::<T>::new((&self.eigenvectors.as_ref()).unwrap()[(r,c)].clone(),(&self.eigenvectors.as_ref()).unwrap()[(r,c+1)].clone());
                             }
     
                             eigenvectors.as_mut().unwrap().push(vec);
@@ -212,7 +212,7 @@ where
 
                             for r in 0..number_of_elements_value {
                                 vec[r] = Complex::<T>::new((&self.left_eigenvectors.as_ref()).unwrap()[(r,c)].clone(),(&self.left_eigenvectors.as_ref()).unwrap()[(r,c+1)].clone());
-                                vec_conj[r] = Complex::<T>::new((&self.left_eigenvectors.as_ref()).unwrap()[(r,c)].clone(),-(&self.left_eigenvectors.as_ref()).unwrap()[(r,c+1)].clone());
+                                vec_conj[r] = Complex::<T>::new((&self.left_eigenvectors.as_ref()).unwrap()[(r,c)].clone(),(&self.left_eigenvectors.as_ref()).unwrap()[(r,c+1)].clone());
                             }
     
                             left_eigenvectors.as_mut().unwrap().push(vec);
@@ -225,8 +225,6 @@ where
                 (Some(eigenvalues), left_eigenvectors, eigenvectors)
             }
         }
-
-
     }
 
 }
