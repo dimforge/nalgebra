@@ -1,12 +1,17 @@
 //! Matrix iterators.
 
+use core::fmt::Debug;
+use core::ops::Range;
 use std::iter::FusedIterator;
 use std::marker::PhantomData;
 use std::mem;
 
+use rayon::iter::plumbing::Producer;
+
 use crate::base::dimension::{Dim, U1};
 use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::base::{Matrix, MatrixView, MatrixViewMut, Scalar};
+use crate::{DMatrix, DimMax};
 
 macro_rules! iterator {
     (struct $Name:ident for $Storage:ident.$ptr: ident -> $Ptr:ty, $Ref:ty, $SRef: ty) => {
@@ -288,7 +293,6 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ExactSizeIte
 }
 
 /*
- *
  * Column iterators.
  *
  */
@@ -296,12 +300,25 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ExactSizeIte
 /// An iterator through the columns of a matrix.
 pub struct ColumnIter<'a, T, R: Dim, C: Dim, S: RawStorage<T, R, C>> {
     mat: &'a Matrix<T, R, C, S>,
-    curr: usize,
+    range: Range<usize>,
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ColumnIter<'a, T, R, C, S> {
+    /// a new column iterator covering all columns of the matrix
     pub(crate) fn new(mat: &'a Matrix<T, R, C, S>) -> Self {
-        ColumnIter { mat, curr: 0 }
+        ColumnIter {
+            mat,
+            range: 0..mat.ncols(),
+        }
+    }
+    /// a new column iterator covering column indices [begin,end)
+    /// where begin is included in the range but index end is not
+    /// begin must lie in [0,ncols] and end must lie in [0,ncols].
+    pub(crate) fn with_range(mat: &'a Matrix<T, R, C, S>, range: Range<usize>) -> Self {
+        debug_assert!(range.end <= mat.ncols());
+        debug_assert!(range.start < mat.ncols());
+        debug_assert!(range.start <= range.end);
+        Self { mat, range }
     }
 }
 
@@ -310,9 +327,10 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> Iterator for ColumnIter
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        if self.curr < self.mat.ncols() {
-            let res = self.mat.column(self.curr);
-            self.curr += 1;
+        debug_assert!(self.range.start <= self.range.end);
+        if self.range.start < self.range.end {
+            let res = self.mat.column(self.range.start);
+            self.range.start += 1;
             Some(res)
         } else {
             None
@@ -321,15 +339,29 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> Iterator for ColumnIter
 
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
-        (
-            self.mat.ncols() - self.curr,
-            Some(self.mat.ncols() - self.curr),
-        )
+        let hint = self.range.len();
+        (hint, Some(hint))
     }
 
     #[inline]
     fn count(self) -> usize {
-        self.mat.ncols() - self.curr
+        self.range.len()
+    }
+}
+
+impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> DoubleEndedIterator
+    for ColumnIter<'a, T, R, C, S>
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        debug_assert!(self.range.start <= self.range.end);
+        if !self.range.is_empty() {
+            self.range.end -= 1;
+            debug_assert!(self.range.end < self.mat.ncols());
+            debug_assert!(self.range.end >= self.range.start);
+            Some(self.mat.column(self.range.end))
+        } else {
+            None
+        }
     }
 }
 
@@ -338,29 +370,53 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ExactSizeIterat
 {
     #[inline]
     fn len(&self) -> usize {
-        self.mat.ncols() - self.curr
+        self.range.end - self.range.start
+    }
+}
+
+impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Producer for ColumnIter<'a, T, R, Cols, S>
+where
+    T: Send + Sync + Debug + PartialEq + Clone + 'static,
+    S: Sync,
+{
+    type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;
+    type IntoIter = ColumnIter<'a, T, R, Cols, S>;
+
+    fn split_at(self, index: usize) -> (Self, Self) {
+        // the index is relative to the size of this current iterator
+        // it will always start at zero
+        let left = Self {
+            mat: self.mat,
+            range: self.range.start..(self.range.start + index),
+        };
+
+        let right = Self {
+            mat: self.mat,
+            range: (self.range.start + index)..self.range.end,
+        };
+        (left, right)
+    }
+
+    fn into_iter(self) -> Self::IntoIter {
+        self
     }
 }
 
 /// An iterator through the mutable columns of a matrix.
 #[derive(Debug)]
 pub struct ColumnIterMut<'a, T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> {
-    mat: *mut Matrix<T, R, C, S>,
-    curr: usize,
-    phantom: PhantomData<&'a mut Matrix<T, R, C, S>>,
+    mat: &'a mut Matrix<T, R, C, S>,
+    range: Range<usize>,
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ColumnIterMut<'a, T, R, C, S> {
     pub(crate) fn new(mat: &'a mut Matrix<T, R, C, S>) -> Self {
-        ColumnIterMut {
-            mat,
-            curr: 0,
-            phantom: PhantomData,
-        }
+        let range = 0..mat.ncols();
+        ColumnIterMut { mat, range }
     }
 
     fn ncols(&self) -> usize {
-        unsafe { (*self.mat).ncols() }
+        self.mat.ncols()
     }
 }
 
@@ -370,10 +426,11 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Iterator
     type Item = MatrixViewMut<'a, T, R, U1, S::RStride, S::CStride>;
 
     #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.curr < self.ncols() {
-            let res = unsafe { (*self.mat).column_mut(self.curr) };
-            self.curr += 1;
+    fn next(&'_ mut self) -> Option<Self::Item> {
+        if self.range.start < self.ncols() {
+            let pmat: *mut _ = self.mat;
+            let res = unsafe { (*pmat).column_mut(self.range.start) };
+            self.range.start += 1;
             Some(res)
         } else {
             None
@@ -382,12 +439,13 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Iterator
 
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
-        (self.ncols() - self.curr, Some(self.ncols() - self.curr))
+        let hint = self.range.len();
+        (hint, Some(hint))
     }
 
     #[inline]
     fn count(self) -> usize {
-        self.ncols() - self.curr
+        self.range.len()
     }
 }
 
@@ -396,6 +454,57 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ExactSizeIte
 {
     #[inline]
     fn len(&self) -> usize {
-        self.ncols() - self.curr
+        self.range.len()
     }
+}
+
+impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> DoubleEndedIterator
+    for ColumnIterMut<'a, T, R, C, S>
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        debug_assert!(self.range.start <= self.range.end);
+        if !self.range.is_empty() {
+            self.range.end -= 1;
+            debug_assert!(self.range.end < unsafe { (*self.mat).ncols() });
+            debug_assert!(self.range.end >= self.range.start);
+            let pmat: *mut _ = self.mat;
+            Some(unsafe { (*pmat).column_mut(self.range.end) })
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Producer for ColumnIterMut<'a,T,R,C,S> 
+where T  : Send + Sync + Debug + PartialEq + Clone,
+      S: Send + Sync {
+    type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
+    type IntoIter = ColumnIterMut<'a,T,R,C,S>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self 
+    }
+
+    fn split_at(self, index: usize) -> (Self, Self) {
+        // the index is relative to the size of this current iterator
+        // it will always start at zero
+        let pmat : * mut _ = self.mat; 
+
+        let left = Self {
+            mat: unsafe {&mut *pmat},
+            range: self.range.start..(self.range.start + index),
+        };
+
+        let right = Self {
+            mat: self.mat,
+            range: (self.range.start + index)..self.range.end,
+        };
+        (left, right)
+    }
+}
+
+fn test_send<T: Send>(_: T) {}
+
+fn something(mut matrix: DMatrix<f32>) {
+    test_send(matrix.column_iter_mut());
 }
