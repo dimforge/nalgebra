@@ -42,6 +42,8 @@ mod min_max;
 /// Mechanisms for working with values that may not be initialized.
 pub mod uninit;
 
+pub mod par_iter;
+
 #[cfg(feature = "rkyv-serialize-no-std")]
 mod rkyv_wrappers;
 

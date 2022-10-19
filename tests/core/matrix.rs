@@ -1136,3 +1136,92 @@ fn omatrix_to_string() {
         (svec.to_string(), smatr.to_string())
     );
 }
+
+#[test]
+fn column_iteration() {
+    // dynamic matrix
+    let dmat = nalgebra::dmatrix![
+        13,14,15;
+        23,24,25;
+        33,34,35;
+        ];
+    // not using enumerate on purpose
+    let mut idx = 0;
+    for col in dmat.column_iter() {
+        assert_eq!(dmat.column(idx),col);
+        idx += 1;
+    }
+    // statically sized matrix
+    let smat: nalgebra::SMatrix<f64, 2, 2> = nalgebra::matrix![1.0, 2.0; 3.0, 4.0];
+    let mut idx = 0;
+    for col in smat.column_iter() {
+        assert_eq!(smat.column(idx),col);
+        idx += 1;
+    }
+}
+
+#[test]
+fn column_iteration_double_ended() {
+    let dmat = nalgebra::dmatrix![
+        13,14,15,16,17;
+        23,24,25,26,27;
+        33,34,35,36,37;
+        ];
+    let mut col_iter = dmat.column_iter();
+    assert_eq!(col_iter.next(),Some(dmat.column(0)));
+    assert_eq!(col_iter.next(),Some(dmat.column(1)));
+    assert_eq!(col_iter.next_back(),Some(dmat.column(4)));
+    assert_eq!(col_iter.next_back(),Some(dmat.column(3)));
+    assert_eq!(col_iter.next(),Some(dmat.column(2)));
+    assert_eq!(col_iter.next_back(),None);
+    assert_eq!(col_iter.next(),None);
+}
+
+#[test]
+fn parallel_column_iteration() {
+    use rayon::prelude::*;
+    use nalgebra::{dmatrix,dvector};
+    let dmat = dmatrix![
+        13.,14.;
+        23.,24.;
+        33.,34.;
+        ];
+    let cloned = dmat.clone();
+    // test that correct columns are iterated over
+    dmat.par_column_iter().enumerate().for_each(|(idx,col)| {
+        assert_eq!(col,cloned.column(idx)); 
+    });
+    // test that a more complex expression produces the same
+    // result as the serial equivalent
+    let par_result :f64 = dmat.par_column_iter().map(|col| col.norm()).sum();
+    let ser_result = dmat.column_iter().map(|col| col.norm()).sum();
+    assert_eq!(par_result,ser_result);
+}
+
+#[test]
+fn column_iteration_mut() {
+    todo!();
+}
+
+#[test]
+fn colum_iteration_mut_double_ended() {
+    let dmat = nalgebra::dmatrix![
+        13,14,15,16,17;
+        23,24,25,26,27;
+        33,34,35,36,37;
+        ];
+    let cloned = dmat.clone();
+    let mut col_iter = dmat.column_iter();
+    assert_eq!(col_iter.next(),Some(cloned.column(0)));
+    assert_eq!(col_iter.next(),Some(cloned.column(1)));
+    assert_eq!(col_iter.next_back(),Some(cloned.column(4)));
+    assert_eq!(col_iter.next_back(),Some(cloned.column(3)));
+    assert_eq!(col_iter.next(),Some(cloned.column(2)));
+    assert_eq!(col_iter.next_back(),None);
+    assert_eq!(col_iter.next(),None);
+}
+
+#[test]
+fn parallel_column_iteration_mut() {
+    todo!()
+}

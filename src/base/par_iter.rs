@@ -80,7 +80,8 @@ where
     T: Send + Sync + Clone + Debug + PartialEq + 'static,
     S: Sync,
 {
-    fn par_column_iter(&self) -> ParColumnIter<'_, T, R, Cols, S> {
+    /// TODO
+    pub fn par_column_iter(&self) -> ParColumnIter<'_, T, R, Cols, S> {
         ParColumnIter::new(self)
     }
 }
@@ -140,18 +141,13 @@ where
     T: Send + Sync + Clone + Debug + PartialEq + 'static,
     S: Sync,
 {
-    fn par_column_iter_mut(&mut self) -> ParColumnIterMut<'_, T, R, Cols, S> {
+    /// TODO
+    pub fn par_column_iter_mut(&mut self) -> ParColumnIterMut<'_, T, R, Cols, S> {
         ParColumnIterMut::new(self)
     }
 }
 
 
-#[test]
-fn parallel_iterator() {
-    let matrix = DMatrix::<f32>::zeros(3, 4);
-    let res: Vec<_> = matrix.par_column_iter().map(|col| col.len()).collect();
-    assert_eq!(res, vec![3, 3, 3, 3]);
-}
 
 #[test]
 fn test_mut_parallel_iter() {
