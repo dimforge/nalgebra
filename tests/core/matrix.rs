@@ -1145,19 +1145,41 @@ fn column_iteration() {
         23,24,25;
         33,34,35;
         ];
-    // not using enumerate on purpose
-    let mut idx = 0;
-    for col in dmat.column_iter() {
-        assert_eq!(dmat.column(idx),col);
-        idx += 1;
-    }
+    let mut col_iter = dmat.column_iter();
+    assert_eq!(col_iter.next(),Some(dmat.column(0)));
+    assert_eq!(col_iter.next(),Some(dmat.column(1)));
+    assert_eq!(col_iter.next(),Some(dmat.column(2)));
+    assert_eq!(col_iter.next(),None);
+
     // statically sized matrix
     let smat: nalgebra::SMatrix<f64, 2, 2> = nalgebra::matrix![1.0, 2.0; 3.0, 4.0];
-    let mut idx = 0;
-    for col in smat.column_iter() {
-        assert_eq!(smat.column(idx),col);
-        idx += 1;
-    }
+    let mut col_iter = smat.column_iter();
+    assert_eq!(col_iter.next(),Some(smat.column(0)));
+    assert_eq!(col_iter.next(),Some(smat.column(1)));
+    assert_eq!(col_iter.next(),None);
+}
+
+#[test]
+fn column_iteration_mut() {
+    let mut dmat = nalgebra::dmatrix![
+        13,14,15;
+        23,24,25;
+        33,34,35;
+        ];
+    let mut cloned = dmat.clone();
+    let mut col_iter = dmat.column_iter_mut();
+    assert_eq!(col_iter.next(),Some(cloned.column_mut(0)));
+    assert_eq!(col_iter.next(),Some(cloned.column_mut(1)));
+    assert_eq!(col_iter.next(),Some(cloned.column_mut(2)));
+    assert_eq!(col_iter.next(),None);
+
+    // statically sized matrix
+    let mut smat: nalgebra::SMatrix<f64, 2, 2> = nalgebra::matrix![1.0, 2.0; 3.0, 4.0];
+    let mut cloned = smat.clone();
+    let mut col_iter = smat.column_iter_mut();
+    assert_eq!(col_iter.next(),Some(cloned.column_mut(0)));
+    assert_eq!(col_iter.next(),Some(cloned.column_mut(1)));
+    assert_eq!(col_iter.next(),None);
 }
 
 #[test]
@@ -1181,7 +1203,7 @@ fn column_iteration_double_ended() {
 fn parallel_column_iteration() {
     use rayon::prelude::*;
     use nalgebra::{dmatrix,dvector};
-    let dmat = dmatrix![
+    let dmat : DMatrix<f64> = dmatrix![
         13.,14.;
         23.,24.;
         33.,34.;
@@ -1193,15 +1215,11 @@ fn parallel_column_iteration() {
     });
     // test that a more complex expression produces the same
     // result as the serial equivalent
-    let par_result :f64 = dmat.par_column_iter().map(|col| col.norm()).sum();
-    let ser_result = dmat.column_iter().map(|col| col.norm()).sum();
+    let par_result : f64 = dmat.par_column_iter().map(|col| col.norm()).sum();
+    let ser_result : f64= dmat.column_iter().map(|col| col.norm()).sum();
     assert_eq!(par_result,ser_result);
 }
 
-#[test]
-fn column_iteration_mut() {
-    todo!();
-}
 
 #[test]
 fn colum_iteration_mut_double_ended() {
@@ -1223,5 +1241,11 @@ fn colum_iteration_mut_double_ended() {
 
 #[test]
 fn parallel_column_iteration_mut() {
-    todo!()
+    use rayon::prelude::*;
+    let mut first = DMatrix::<f32>::zeros(400,300);
+    let mut second = DMatrix::<f32>::zeros(400,300);
+    first.column_iter_mut().enumerate().for_each(|(idx,mut col)|col[idx]=1.);
+    second.par_column_iter_mut().enumerate().for_each(|(idx,mut col)| col[idx]=1.);
+    assert_eq!(first,second);
+    assert_eq!(second,DMatrix::identity(400,300));
 }

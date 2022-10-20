@@ -3,23 +3,17 @@
 
 use core::{
     fmt::Debug,
-    iter::{Skip, Take},
-    marker::PhantomData,
-    ops::Range,
 };
-use std::os::unix::prelude::AsRawFd;
 
 use rayon::{
-    iter::plumbing::{bridge, Producer},
+    iter::plumbing::{bridge},
     prelude::*,
 };
 
 use crate::{
-    iter::{ColumnIter, ColumnIterMut}, Const, DMatrix, Dim, Dynamic, Matrix, MatrixSlice, MatrixSliceMut,
-    RawStorage, RawStorageMut, U1, SliceStorageMut,
+    iter::{ColumnIter, ColumnIterMut},  DMatrix, Dim,  Matrix, MatrixSlice, MatrixSliceMut,
+    RawStorage, RawStorageMut, U1,
 };
-
-use super::conversion;
 
 /// a rayon parallel iterator over the columns of a matrix
 pub struct ParColumnIter<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> {
@@ -145,21 +139,4 @@ where
     pub fn par_column_iter_mut(&mut self) -> ParColumnIterMut<'_, T, R, Cols, S> {
         ParColumnIterMut::new(self)
     }
-}
-
-
-
-#[test]
-fn test_mut_parallel_iter() {
-    let mut matrix = DMatrix::<f32>::zeros(4, 3);
-    matrix.par_column_iter_mut().enumerate().for_each(|(idx,mut col)| col[idx]=1f32);
-    let identity = DMatrix::<f32>::identity(4, 3);
-    assert_eq!(matrix,identity);
-}
-
-
-fn try_some_stuff() {
-    let mut mat = DMatrix::<f32>::zeros(3, 4);
-    let _left = mat.columns_mut(0, 1);
-    let _right = mat.columns_mut(1, 3);
 }

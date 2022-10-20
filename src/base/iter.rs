@@ -475,23 +475,26 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> DoubleEndedI
     }
 }
 
-impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Producer for ColumnIterMut<'a,T,R,C,S> 
-where T  : Send + Sync + Debug + PartialEq + Clone,
-      S: Send + Sync {
+impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Producer
+    for ColumnIterMut<'a, T, R, C, S>
+where
+    T: Send + Sync + Debug + PartialEq + Clone,
+    S: Send + Sync,
+{
     type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
-    type IntoIter = ColumnIterMut<'a,T,R,C,S>;
+    type IntoIter = ColumnIterMut<'a, T, R, C, S>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self 
+        self
     }
 
     fn split_at(self, index: usize) -> (Self, Self) {
         // the index is relative to the size of this current iterator
         // it will always start at zero
-        let pmat : * mut _ = self.mat; 
+        let pmat: *mut _ = self.mat;
 
         let left = Self {
-            mat: unsafe {&mut *pmat},
+            mat: unsafe { &mut *pmat },
             range: self.range.start..(self.range.start + index),
         };
 
@@ -501,10 +504,4 @@ where T  : Send + Sync + Debug + PartialEq + Clone,
         };
         (left, right)
     }
-}
-
-fn test_send<T: Send>(_: T) {}
-
-fn something(mut matrix: DMatrix<f32>) {
-    test_send(matrix.column_iter_mut());
 }
