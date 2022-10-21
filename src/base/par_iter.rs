@@ -1,15 +1,12 @@
 //! this module implements parallelators to make matrices work with
 //! the rayon crate seamlessly
 
-use core::fmt::Debug;
-use rayon::{
-    iter::plumbing::{bridge},
-    prelude::*,
-};
 use crate::{
-    iter::{ColumnIter, ColumnIterMut}, Dim,  Matrix, MatrixSlice, MatrixSliceMut,
-    RawStorage, RawStorageMut, U1,
+    iter::{ColumnIter, ColumnIterMut},
+    Dim, Matrix, MatrixSlice, MatrixSliceMut, RawStorage, RawStorageMut, U1,
 };
+use core::fmt::Debug;
+use rayon::{iter::plumbing::bridge, prelude::*};
 
 /// A rayon parallel iterator over the colums of a matrix
 pub struct ParColumnIter<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> {
@@ -78,29 +75,42 @@ where
 }
 
 /// A rayon parallel iterator through the mutable columns of a matrix
-pub struct ParColumnIterMut<'a,T,R:Dim ,Cols:Dim, S:RawStorage<T,R,Cols>+RawStorageMut<T,R,Cols>> {
-    mat : &'a mut Matrix<T,R,Cols,S>,
+pub struct ParColumnIterMut<
+    'a,
+    T,
+    R: Dim,
+    Cols: Dim,
+    S: RawStorage<T, R, Cols> + RawStorageMut<T, R, Cols>,
+> {
+    mat: &'a mut Matrix<T, R, Cols, S>,
 }
 
-impl<'a,T,R,Cols,S> ParColumnIterMut<'a,T,R,Cols,S> 
-where R: Dim, Cols : Dim, S:RawStorage<T,R,Cols> + RawStorageMut<T,R,Cols> {
+impl<'a, T, R, Cols, S> ParColumnIterMut<'a, T, R, Cols, S>
+where
+    R: Dim,
+    Cols: Dim,
+    S: RawStorage<T, R, Cols> + RawStorageMut<T, R, Cols>,
+{
     /// create a new parallel iterator for the given matrix
-    fn new(mat : &'a mut Matrix<T,R,Cols,S>) -> Self {
-        Self {
-            mat,
-        }
+    fn new(mat: &'a mut Matrix<T, R, Cols, S>) -> Self {
+        Self { mat }
     }
 }
 
-impl<'a,T,R,Cols,S> ParallelIterator for ParColumnIterMut<'a,T,R,Cols,S> 
-where R: Dim, Cols : Dim, S:RawStorage<T,R,Cols> + RawStorageMut<T,R,Cols>, 
-T : Send + Sync + Debug + PartialEq + Clone + 'static, 
-S : Send + Sync {
+impl<'a, T, R, Cols, S> ParallelIterator for ParColumnIterMut<'a, T, R, Cols, S>
+where
+    R: Dim,
+    Cols: Dim,
+    S: RawStorage<T, R, Cols> + RawStorageMut<T, R, Cols>,
+    T: Send + Sync + Debug + PartialEq + Clone + 'static,
+    S: Send + Sync,
+{
     type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
     fn drive_unindexed<C>(self, consumer: C) -> C::Result
-        where
-            C: rayon::iter::plumbing::UnindexedConsumer<Self::Item> {
-                bridge(self,consumer)
+    where
+        C: rayon::iter::plumbing::UnindexedConsumer<Self::Item>,
+    {
+        bridge(self, consumer)
     }
 
     fn opt_len(&self) -> Option<usize> {
@@ -108,26 +118,33 @@ S : Send + Sync {
     }
 }
 
-
-impl<'a,T,R,Cols,S> IndexedParallelIterator for ParColumnIterMut<'a,T,R,Cols,S> 
-where R: Dim, Cols : Dim, S:RawStorage<T,R,Cols> + RawStorageMut<T,R,Cols>, 
-T : Send + Sync + Debug + PartialEq + Clone + 'static, 
-S : Send + Sync {
+impl<'a, T, R, Cols, S> IndexedParallelIterator for ParColumnIterMut<'a, T, R, Cols, S>
+where
+    R: Dim,
+    Cols: Dim,
+    S: RawStorage<T, R, Cols> + RawStorageMut<T, R, Cols>,
+    T: Send + Sync + Debug + PartialEq + Clone + 'static,
+    S: Send + Sync,
+{
     fn drive<C: rayon::iter::plumbing::Consumer<Self::Item>>(self, consumer: C) -> C::Result {
-        bridge(self,consumer)
+        bridge(self, consumer)
     }
 
     fn len(&self) -> usize {
         self.mat.ncols()
     }
 
-    fn with_producer<CB: rayon::iter::plumbing::ProducerCallback<Self::Item>>(self, callback: CB) -> CB::Output {
+    fn with_producer<CB: rayon::iter::plumbing::ProducerCallback<Self::Item>>(
+        self,
+        callback: CB,
+    ) -> CB::Output {
         let producer = ColumnIterMut::new(self.mat);
         callback.callback(producer)
     }
 }
 
-impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols> + RawStorageMut<T,R,Cols>> Matrix<T, R, Cols, S>
+impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols> + RawStorageMut<T, R, Cols>>
+    Matrix<T, R, Cols, S>
 where
     T: Send + Sync + Clone + Debug + PartialEq + 'static,
     S: Sync,
