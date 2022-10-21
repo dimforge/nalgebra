@@ -63,7 +63,7 @@ where
     }
 }
 
-impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Matrix<T, R, Cols, S>
+impl<T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Matrix<T, R, Cols, S>
 where
     T: Send + Sync + Clone + Debug + PartialEq + 'static,
     S: Sync,
@@ -143,7 +143,7 @@ where
     }
 }
 
-impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols> + RawStorageMut<T, R, Cols>>
+impl<T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols> + RawStorageMut<T, R, Cols>>
     Matrix<T, R, Cols, S>
 where
     T: Send + Sync + Clone + Debug + PartialEq + 'static,
