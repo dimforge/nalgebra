@@ -1,26 +1,23 @@
 //! this module implements parallelators to make matrices work with
 //! the rayon crate seamlessly
 
-use core::{
-    fmt::Debug,
-};
-
+use core::fmt::Debug;
 use rayon::{
     iter::plumbing::{bridge},
     prelude::*,
 };
-
 use crate::{
-    iter::{ColumnIter, ColumnIterMut},  DMatrix, Dim,  Matrix, MatrixSlice, MatrixSliceMut,
+    iter::{ColumnIter, ColumnIterMut}, Dim,  Matrix, MatrixSlice, MatrixSliceMut,
     RawStorage, RawStorageMut, U1,
 };
 
-/// a rayon parallel iterator over the columns of a matrix
+/// A rayon parallel iterator over the colums of a matrix
 pub struct ParColumnIter<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> {
     mat: &'a Matrix<T, R, Cols, S>,
 }
 
 impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> ParColumnIter<'a, T, R, Cols, S> {
+    /// create a new parallel iterator for the given matrix
     fn new(matrix: &'a Matrix<T, R, Cols, S>) -> Self {
         Self { mat: matrix }
     }
@@ -74,21 +71,21 @@ where
     T: Send + Sync + Clone + Debug + PartialEq + 'static,
     S: Sync,
 {
-    /// TODO
+    /// Iterate through the columns of the matrix in parallel using rayon.
     pub fn par_column_iter(&self) -> ParColumnIter<'_, T, R, Cols, S> {
         ParColumnIter::new(self)
     }
 }
 
-/// TODO
+/// A rayon parallel iterator through the mutable columns of a matrix
 pub struct ParColumnIterMut<'a,T,R:Dim ,Cols:Dim, S:RawStorage<T,R,Cols>+RawStorageMut<T,R,Cols>> {
     mat : &'a mut Matrix<T,R,Cols,S>,
 }
 
 impl<'a,T,R,Cols,S> ParColumnIterMut<'a,T,R,Cols,S> 
 where R: Dim, Cols : Dim, S:RawStorage<T,R,Cols> + RawStorageMut<T,R,Cols> {
-    /// TODO
-    pub fn new(mat : &'a mut Matrix<T,R,Cols,S>) -> Self {
+    /// create a new parallel iterator for the given matrix
+    fn new(mat : &'a mut Matrix<T,R,Cols,S>) -> Self {
         Self {
             mat,
         }
@@ -135,7 +132,7 @@ where
     T: Send + Sync + Clone + Debug + PartialEq + 'static,
     S: Sync,
 {
-    /// TODO
+    /// Mutably iterate through the columns of this matrix in parallel using rayon
     pub fn par_column_iter_mut(&mut self) -> ParColumnIterMut<'_, T, R, Cols, S> {
         ParColumnIterMut::new(self)
     }

@@ -311,15 +311,6 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ColumnIter<'a, T, R, C,
             range: 0..mat.ncols(),
         }
     }
-    /// a new column iterator covering column indices [begin,end)
-    /// where begin is included in the range but index end is not
-    /// begin must lie in [0,ncols] and end must lie in [0,ncols].
-    pub(crate) fn with_range(mat: &'a Matrix<T, R, C, S>, range: Range<usize>) -> Self {
-        debug_assert!(range.end <= mat.ncols());
-        debug_assert!(range.start < mat.ncols());
-        debug_assert!(range.start <= range.end);
-        Self { mat, range }
-    }
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> Iterator for ColumnIter<'a, T, R, C, S> {
@@ -384,7 +375,7 @@ where
 
     fn split_at(self, index: usize) -> (Self, Self) {
         // the index is relative to the size of this current iterator
-        // it will always start at zero
+        // it will always start at zero so it serves as an offset
         let left = Self {
             mat: self.mat,
             range: self.range.start..(self.range.start + index),
@@ -465,7 +456,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> DoubleEndedI
         debug_assert!(self.range.start <= self.range.end);
         if !self.range.is_empty() {
             self.range.end -= 1;
-            debug_assert!(self.range.end < unsafe { (*self.mat).ncols() });
+            debug_assert!(self.range.end < self.mat.ncols());
             debug_assert!(self.range.end >= self.range.start);
             let pmat: *mut _ = self.mat;
             Some(unsafe { (*pmat).column_mut(self.range.end) })
@@ -490,7 +481,7 @@ where
 
     fn split_at(self, index: usize) -> (Self, Self) {
         // the index is relative to the size of this current iterator
-        // it will always start at zero
+        // it will always start at zero so it serves as an offset
         let pmat: *mut _ = self.mat;
 
         let left = Self {
