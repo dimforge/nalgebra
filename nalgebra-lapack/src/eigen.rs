@@ -186,8 +186,9 @@ where
                     true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(number_of_complex_entries)),
                     false => None
                 };
-
-                for mut c in 0..number_of_elements_value {
+                
+                let mut c = 0;
+                while c < number_of_elements_value {
                     if self.eigenvalues_im[c] != T::zero() {
                         //Complex conjugate pairs of eigenvalues appear consecutively with the eigenvalue having the positive imaginary part first.
                         eigenvalues.push(Complex::<T>::new(self.eigenvalues_re[c].clone(), self.eigenvalues_im[c].clone()));
