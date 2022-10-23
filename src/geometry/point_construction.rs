@@ -1,4 +1,5 @@
 #[cfg(feature = "arbitrary")]
+#[cfg_attr(feature = "nightly", feature(const_fn_trait_bound))]
 use quickcheck::{Arbitrary, Gen};
 
 use num::{Bounded, One, Zero};
