@@ -222,6 +222,7 @@ where
                         //skip next entry
                         c += 1;
                     }
+                    c+=1;
                 }
                 (Some(eigenvalues), left_eigenvectors, eigenvectors)
             }
