@@ -171,7 +171,8 @@ where
     /// Returns a tuple of vectors. The elements of the tuple are the complex eigenvalues, complex left eigenvectors and complex right eigenvectors respectively. 
     /// The elements appear as conjugate pairs within each vector, with the positive of the pair always being first.
     pub fn get_complex_elements(&self) -> (Option<Vec<Complex<T>>>, Option<Vec<OVector<Complex<T>, D>>>, Option<Vec<OVector<Complex<T>, D>>>) where DefaultAllocator: Allocator<Complex<T>, D> {
-        match !self.eigenvalues_are_real() {
+
+        match self.eigenvalues_are_real() {
             true => (None, None, None),
             false => {
                 let (number_of_elements, _) = self.eigenvalues_re.shape_generic();

@@ -7,3 +7,4 @@ mod real_eigensystem;
 mod schur;
 mod svd;
 mod symmetric_eigen;
+mod complex_eigen;
