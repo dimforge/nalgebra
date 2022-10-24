@@ -33,6 +33,7 @@ libm    = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 macros = [ "nalgebra-macros" ]
 cuda   = [ "cust_core", "simba/cuda" ]
+rayon  = [ "dep:rayon" ]
 
 # Conversion
 convert-mint = [ "mint" ]
@@ -101,7 +102,7 @@ glam020        = { package = "glam", version = "0.20", optional = true }
 glam021        = { package = "glam", version = "0.21", optional = true }
 glam022        = { package = "glam", version = "0.22", optional = true }
 cust_core      = { version = "0.1", optional = true }
-rayon = "1.5" # TODO make this feature gated
+rayon          = { version = "1.5", optional = true }
 
 [dev-dependencies]
 serde_json = "1.0"

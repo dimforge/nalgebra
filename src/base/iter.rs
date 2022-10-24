@@ -6,8 +6,6 @@ use std::iter::FusedIterator;
 use std::marker::PhantomData;
 use std::mem;
 
-use rayon::iter::plumbing::Producer;
-
 use crate::base::dimension::{Dim, U1};
 use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::base::{Matrix, MatrixView, MatrixViewMut, Scalar};
@@ -365,34 +363,6 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ExactSizeIterat
     }
 }
 
-impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Producer for ColumnIter<'a, T, R, Cols, S>
-where
-    T: Send + Sync + Debug + PartialEq + Clone + 'static,
-    S: Sync,
-{
-    type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;
-    type IntoIter = ColumnIter<'a, T, R, Cols, S>;
-
-    fn split_at(self, index: usize) -> (Self, Self) {
-        // the index is relative to the size of this current iterator
-        // it will always start at zero so it serves as an offset
-        let left = Self {
-            mat: self.mat,
-            range: self.range.start..(self.range.start + index),
-        };
-
-        let right = Self {
-            mat: self.mat,
-            range: (self.range.start + index)..self.range.end,
-        };
-        (left, right)
-    }
-
-    fn into_iter(self) -> Self::IntoIter {
-        self
-    }
-}
-
 /// An iterator through the mutable columns of a matrix.
 #[derive(Debug)]
 pub struct ColumnIterMut<'a, T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> {
@@ -469,39 +439,76 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> DoubleEndedI
     }
 }
 
-impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Producer
-    for ColumnIterMut<'a, T, R, C, S>
-where
-    T: Send + Sync + Debug + PartialEq + Clone,
-    S: Send + Sync,
-{
-    type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
-    type IntoIter = ColumnIterMut<'a, T, R, C, S>;
+/// implementations for parallel iteration with rayon
+#[cfg(feature = "rayon")]
+mod parallel {
+    use super::*;
+    use rayon::iter::plumbing::Producer;
 
-    fn into_iter(self) -> Self::IntoIter {
-        self
+    impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Producer for ColumnIter<'a, T, R, Cols, S>
+    where
+        T: Send + Sync + Debug + PartialEq + Clone + 'static,
+        S: Sync,
+    {
+        type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;
+        type IntoIter = ColumnIter<'a, T, R, Cols, S>;
+
+        fn split_at(self, index: usize) -> (Self, Self) {
+            // the index is relative to the size of this current iterator
+            // it will always start at zero so it serves as an offset
+            let left = Self {
+                mat: self.mat,
+                range: self.range.start..(self.range.start + index),
+            };
+
+            let right = Self {
+                mat: self.mat,
+                range: (self.range.start + index)..self.range.end,
+            };
+            (left, right)
+        }
+
+        fn into_iter(self) -> Self::IntoIter {
+            self
+        }
     }
 
-    fn split_at(self, index: usize) -> (Self, Self) {
-        // the index is relative to the size of this current iterator
-        // it will always start at zero so it serves as an offset
+    impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Producer
+        for ColumnIterMut<'a, T, R, C, S>
+    where
+        T: Send + Sync + Debug + PartialEq + Clone,
+        S: Send + Sync,
+    {
+        type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
+        type IntoIter = ColumnIterMut<'a, T, R, C, S>;
 
-        let left = Self {
-            mat: self.mat,
-            range: self.range.start..(self.range.start + index),
-            phantom: Default::default(),
-        };
+        fn into_iter(self) -> Self::IntoIter {
+            self
+        }
 
-        let right = Self {
-            mat: self.mat,
-            range: (self.range.start + index)..self.range.end,
-            phantom: Default::default(),
-        };
-        (left, right)
+        fn split_at(self, index: usize) -> (Self, Self) {
+            // the index is relative to the size of this current iterator
+            // it will always start at zero so it serves as an offset
+
+            let left = Self {
+                mat: self.mat,
+                range: self.range.start..(self.range.start + index),
+                phantom: Default::default(),
+            };
+
+            let right = Self {
+                mat: self.mat,
+                range: (self.range.start + index)..self.range.end,
+                phantom: Default::default(),
+            };
+            (left, right)
+        }
     }
-}
 
-unsafe impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Send
-    for ColumnIterMut<'a, T, R, C, S>
-{
+    /// this implementation is safe because we are enforcing exclusive access
+    /// to the columns through the active range of the iterator
+    unsafe impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Send
+        for ColumnIterMut<'a, T, R, C, S>
+    {
+    }
 }
