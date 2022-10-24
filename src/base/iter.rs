@@ -226,7 +226,7 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> Iterator for RowIter<'a
 }
 
 impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ExactSizeIterator
-for RowIter<'a, T, R, C, S>
+    for RowIter<'a, T, R, C, S>
 {
     #[inline]
     fn len(&self) -> usize {
@@ -257,7 +257,7 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> RowIterMut<'a, T, R,
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Iterator
-for RowIterMut<'a, T, R, C, S>
+    for RowIterMut<'a, T, R, C, S>
 {
     type Item = MatrixViewMut<'a, T, U1, C, S::RStride, S::CStride>;
 
@@ -284,7 +284,7 @@ for RowIterMut<'a, T, R, C, S>
 }
 
 impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ExactSizeIterator
-for RowIterMut<'a, T, R, C, S>
+    for RowIterMut<'a, T, R, C, S>
 {
     #[inline]
     fn len(&self) -> usize {
@@ -341,7 +341,7 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> Iterator for ColumnIter
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> DoubleEndedIterator
-for ColumnIter<'a, T, R, C, S>
+    for ColumnIter<'a, T, R, C, S>
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.range.start <= self.range.end);
@@ -357,7 +357,7 @@ for ColumnIter<'a, T, R, C, S>
 }
 
 impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ExactSizeIterator
-for ColumnIter<'a, T, R, C, S>
+    for ColumnIter<'a, T, R, C, S>
 {
     #[inline]
     fn len(&self) -> usize {
@@ -366,9 +366,9 @@ for ColumnIter<'a, T, R, C, S>
 }
 
 impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Producer for ColumnIter<'a, T, R, Cols, S>
-    where
-        T: Send + Sync + Debug + PartialEq + Clone + 'static,
-        S: Sync,
+where
+    T: Send + Sync + Debug + PartialEq + Clone + 'static,
+    S: Sync,
 {
     type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;
     type IntoIter = ColumnIter<'a, T, R, Cols, S>;
@@ -404,7 +404,11 @@ pub struct ColumnIterMut<'a, T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> {
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ColumnIterMut<'a, T, R, C, S> {
     pub(crate) fn new(mat: &'a mut Matrix<T, R, C, S>) -> Self {
         let range = 0..mat.ncols();
-        ColumnIterMut { mat, range, phantom: Default::default() }
+        ColumnIterMut {
+            mat,
+            range,
+            phantom: Default::default(),
+        }
     }
 
     fn ncols(&self) -> usize {
@@ -413,7 +417,7 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ColumnIterMut<'a, T,
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Iterator
-for ColumnIterMut<'a, T, R, C, S>
+    for ColumnIterMut<'a, T, R, C, S>
 {
     type Item = MatrixViewMut<'a, T, R, U1, S::RStride, S::CStride>;
 
@@ -441,7 +445,7 @@ for ColumnIterMut<'a, T, R, C, S>
 }
 
 impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ExactSizeIterator
-for ColumnIterMut<'a, T, R, C, S>
+    for ColumnIterMut<'a, T, R, C, S>
 {
     #[inline]
     fn len(&self) -> usize {
@@ -450,7 +454,7 @@ for ColumnIterMut<'a, T, R, C, S>
 }
 
 impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> DoubleEndedIterator
-for ColumnIterMut<'a, T, R, C, S>
+    for ColumnIterMut<'a, T, R, C, S>
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         debug_assert!(self.range.start <= self.range.end);
@@ -466,10 +470,10 @@ for ColumnIterMut<'a, T, R, C, S>
 }
 
 impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Producer
-for ColumnIterMut<'a, T, R, C, S>
-    where
-        T: Send + Sync + Debug + PartialEq + Clone,
-        S: Send + Sync,
+    for ColumnIterMut<'a, T, R, C, S>
+where
+    T: Send + Sync + Debug + PartialEq + Clone,
+    S: Send + Sync,
 {
     type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
     type IntoIter = ColumnIterMut<'a, T, R, C, S>;
@@ -498,4 +502,6 @@ for ColumnIterMut<'a, T, R, C, S>
 }
 
 unsafe impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Send
-for ColumnIterMut<'a, T, R, C, S> {}
+    for ColumnIterMut<'a, T, R, C, S>
+{
+}
