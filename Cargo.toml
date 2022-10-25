@@ -33,7 +33,7 @@ libm    = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 macros = [ "nalgebra-macros" ]
 cuda   = [ "cust_core", "simba/cuda" ]
-rayon  = [ "std", "dep:rayon" ]
+rayon-par  = [ "std", "rayon" ]
 
 # Conversion
 convert-mint = [ "mint" ]
