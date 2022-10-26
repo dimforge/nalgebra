@@ -25,6 +25,7 @@ use std::slice::{Iter, IterMut};
 /// # Usage
 ///
 /// ```
+/// use nalgebra_sparse::coo::CooMatrix;
 /// use nalgebra_sparse::csr::CsrMatrix;
 /// use nalgebra::{DMatrix, Matrix3x4};
 /// use matrixcompare::assert_matrix_eq;
@@ -33,8 +34,9 @@ use std::slice::{Iter, IterMut};
 /// // change the sparsity pattern of the matrix after it has been constructed. The easiest
 /// // way to construct a CSR matrix is to first incrementally construct a COO matrix,
 /// // and then convert it to CSR.
-/// # use nalgebra_sparse::coo::CooMatrix;
-/// # let coo = CooMatrix::<f64>::new(3, 3);
+///
+/// let mut coo = CooMatrix::<f64>::new(3, 3);
+/// coo.push(2, 0, 1.0);
 /// let csr = CsrMatrix::from(&coo);
 ///
 /// // Alternatively, a CSR matrix can be constructed directly from raw CSR data.

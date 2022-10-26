@@ -4,6 +4,16 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.31.2] (09 Oct. 2022)
+
+### Modified
+- Use `#[inline]` on the `Dim` implementation for `Const` to improve opt-level 1 performance.
+- Make the `Point::new` constructions const-fn.
+
+### Added
+- Add `UnitVector::cast` to change the underlying scalar type.
+
+
 ## [0.31.1] (31 July 2022)
 
 ### Modified

@@ -88,6 +88,40 @@ fn coo_construction_for_valid_data() {
 }
 
 #[test]
+fn coo_triplets_iter_mut() {
+    // Arbitrary matrix, with duplicates
+    let i = vec![0, 1, 0, 0, 0, 0, 2, 1];
+    let j = vec![0, 2, 0, 1, 0, 3, 3, 2];
+    let v = vec![2, 3, 4, 7, 1, 3, 1, 5];
+    let mut coo =
+        CooMatrix::<i32>::try_from_triplets(3, 5, i.clone(), j.clone(), v.clone()).unwrap();
+
+    let actual_triplets: Vec<_> = coo.triplet_iter_mut().map(|(i, j, v)| (i, j, *v)).collect();
+
+    let expected_triplets: Vec<_> = i
+        .iter()
+        .zip(&j)
+        .zip(&v)
+        .map(|((i, j), v)| (*i, *j, *v))
+        .collect();
+    assert_eq!(expected_triplets, actual_triplets);
+
+    for (_i, _j, v) in coo.triplet_iter_mut() {
+        *v += *v;
+    }
+
+    let actual_triplets: Vec<_> = coo.triplet_iter_mut().map(|(i, j, v)| (i, j, *v)).collect();
+    let v = vec![4, 6, 8, 14, 2, 6, 2, 10];
+    let expected_triplets: Vec<_> = i
+        .iter()
+        .zip(&j)
+        .zip(&v)
+        .map(|((i, j), v)| (*i, *j, *v))
+        .collect();
+    assert_eq!(expected_triplets, actual_triplets);
+}
+
+#[test]
 fn coo_try_from_triplets_reports_out_of_bounds_indices() {
     {
         // 0x0 matrix

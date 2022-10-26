@@ -40,7 +40,10 @@ use std::mem::MaybeUninit;
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(
+    feature = "rkyv-serialize",
+    archive_attr(derive(bytecheck::CheckBytes))
+)]
 pub struct OPoint<T: Scalar, D: DimName>
 where
     DefaultAllocator: Allocator<T, D>,

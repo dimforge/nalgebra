@@ -7,6 +7,8 @@ mod matrix;
 mod matrix_slice;
 #[cfg(feature = "mint")]
 mod mint;
+#[cfg(feature = "rkyv-serialize-no-std")]
+mod rkyv;
 mod serde;
 
 #[cfg(feature = "compare")]

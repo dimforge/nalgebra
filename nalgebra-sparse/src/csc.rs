@@ -24,6 +24,7 @@ use std::slice::{Iter, IterMut};
 /// # Usage
 ///
 /// ```
+/// use nalgebra_sparse::coo::CooMatrix;
 /// use nalgebra_sparse::csc::CscMatrix;
 /// use nalgebra::{DMatrix, Matrix3x4};
 /// use matrixcompare::assert_matrix_eq;
@@ -32,8 +33,9 @@ use std::slice::{Iter, IterMut};
 /// // change the sparsity pattern of the matrix after it has been constructed. The easiest
 /// // way to construct a CSC matrix is to first incrementally construct a COO matrix,
 /// // and then convert it to CSC.
-/// # use nalgebra_sparse::coo::CooMatrix;
-/// # let coo = CooMatrix::<f64>::new(3, 3);
+///
+/// let mut coo = CooMatrix::<f64>::new(3, 3);
+/// coo.push(2, 0, 1.0);
 /// let csc = CscMatrix::from(&coo);
 ///
 /// // Alternatively, a CSC matrix can be constructed directly from raw CSC data.

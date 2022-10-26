@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.31.1"
+version = "0.31.2"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "General-purpose linear algebra library with transformations and statically-sized or dynamically-sized matrices."
@@ -66,6 +66,7 @@ rand        = [ "rand-no-std", "rand-package/std", "rand-package/std_rng", "rand
 arbitrary        = [ "quickcheck" ]
 proptest-support = [ "proptest" ]
 slow-tests       = []
+rkyv-safe-deser  = [ "rkyv-serialize", "rkyv/validation" ]
 
 [dependencies]
 nalgebra-macros = { version = "0.1", path = "nalgebra-macros", optional = true }
