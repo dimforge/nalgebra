@@ -27,7 +27,5 @@ fn main() {
     assert_relative_eq!(eigenvectors[0][1].re, -9.0/32.7871926215100059134410999);
     assert_relative_eq!(eigenvectors[0][1].im, 12.0/32.7871926215100059134410999);
     assert_relative_eq!(eigenvectors[0][2].re, 25.0/32.7871926215100059134410999);
-    assert_relative_eq!(eigenvectors[0][2].im, 0.0);
-
-    
+    assert_relative_eq!(eigenvectors[0][2].im, 0.0); 
 }

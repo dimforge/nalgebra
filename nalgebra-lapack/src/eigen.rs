@@ -168,10 +168,45 @@ where
         det
     }
 
+    /// Returns a tuple of vectors. The elements of the tuple are the real parts of the eigenvalues, left eigenvectors and right eigenvectors respectively. 
+    pub fn get_real_elements(&self) -> (Vec<T>, Option<Vec<OVector<T, D>>>, Option<Vec<OVector<T, D>>>) where DefaultAllocator: Allocator<T, D> {
+        let (number_of_elements, _) = self.eigenvalues_re.shape_generic();
+        let number_of_elements_value = number_of_elements.value();
+        let mut eigenvalues = Vec::<T>::with_capacity(number_of_elements_value);
+        let mut eigenvectors = match self.eigenvectors.is_some() {
+            true => Some(Vec::<OVector<T, D>>::with_capacity(number_of_elements_value)),
+            false => None
+        };
+        let mut left_eigenvectors = match self.left_eigenvectors.is_some() {
+            true => Some(Vec::<OVector<T, D>>::with_capacity(number_of_elements_value)),
+            false => None
+        };
+        
+        let mut c = 0;
+        while c < number_of_elements_value {
+            eigenvalues.push(self.eigenvalues_re[c].clone());
+
+            if eigenvectors.is_some() {
+                eigenvectors.as_mut().unwrap().push((&self.eigenvectors.as_ref()).unwrap().column(c).into_owned());
+            }
+
+            if left_eigenvectors.is_some() {
+                left_eigenvectors.as_mut().unwrap().push((&self.left_eigenvectors.as_ref()).unwrap().column(c).into_owned());
+            }
+            if self.eigenvalues_im[c] != T::zero() {
+                //skip next entry
+                c += 1;
+            }
+            c+=1;
+        }
+        (eigenvalues, left_eigenvectors, eigenvectors)
+            
+        
+    }
+
     /// Returns a tuple of vectors. The elements of the tuple are the complex eigenvalues, complex left eigenvectors and complex right eigenvectors respectively. 
     /// The elements appear as conjugate pairs within each vector, with the positive of the pair always being first.
     pub fn get_complex_elements(&self) -> (Option<Vec<Complex<T>>>, Option<Vec<OVector<Complex<T>, D>>>, Option<Vec<OVector<Complex<T>, D>>>) where DefaultAllocator: Allocator<Complex<T>, D> {
-
         match self.eigenvalues_are_real() {
             true => (None, None, None),
             false => {
