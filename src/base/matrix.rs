@@ -739,6 +739,24 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         crate::convert(self)
     }
 
+    /// Attempts to cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let q = Vector3::new(1.0f64, 2.0, 3.0);
+    /// let q2 = q.try_cast::<i32>();
+    /// assert_eq!(q2, Some(Vector3::new(1, 2, 3)));
+    /// ```
+    pub fn try_cast<T2: Scalar>(self) -> Option<OMatrix<T2, R, C>>
+    where
+        T: Scalar,
+        Self: SupersetOf<OMatrix<T2, R, C>>,
+        DefaultAllocator: Allocator<T2, R, C>,
+    {
+        crate::try_convert(self)
+    }
+
     /// Similar to `self.iter().fold(init, f)` except that `init` is replaced by a closure.
     ///
     /// The initialization closure is given the first component of this matrix:
