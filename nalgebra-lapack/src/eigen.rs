@@ -8,7 +8,7 @@ use simba::scalar::RealField;
 
 use crate::ComplexHelper;
 use na::dimension::{Const, Dim};
-use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar, allocator::Allocator};
+use na::{allocator::Allocator, DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
 
@@ -147,7 +147,7 @@ where
             eigenvalues_re: wr,
             eigenvalues_im: wi,
             left_eigenvectors: vl,
-            eigenvectors: vr
+            eigenvectors: vr,
         })
     }
 
@@ -168,103 +168,169 @@ where
         det
     }
 
-    /// Returns a tuple of vectors. The elements of the tuple are the real parts of the eigenvalues, left eigenvectors and right eigenvectors respectively. 
-    pub fn get_real_elements(&self) -> (Vec<T>, Option<Vec<OVector<T, D>>>, Option<Vec<OVector<T, D>>>) where DefaultAllocator: Allocator<T, D> {
+    /// Returns a tuple of vectors. The elements of the tuple are the real parts of the eigenvalues, left eigenvectors and right eigenvectors respectively.
+    pub fn get_real_elements(
+        &self,
+    ) -> (
+        Vec<T>,
+        Option<Vec<OVector<T, D>>>,
+        Option<Vec<OVector<T, D>>>,
+    )
+    where
+        DefaultAllocator: Allocator<T, D>,
+    {
         let (number_of_elements, _) = self.eigenvalues_re.shape_generic();
         let number_of_elements_value = number_of_elements.value();
         let mut eigenvalues = Vec::<T>::with_capacity(number_of_elements_value);
         let mut eigenvectors = match self.eigenvectors.is_some() {
-            true => Some(Vec::<OVector<T, D>>::with_capacity(number_of_elements_value)),
-            false => None
+            true => Some(Vec::<OVector<T, D>>::with_capacity(
+                number_of_elements_value,
+            )),
+            false => None,
         };
         let mut left_eigenvectors = match self.left_eigenvectors.is_some() {
-            true => Some(Vec::<OVector<T, D>>::with_capacity(number_of_elements_value)),
-            false => None
+            true => Some(Vec::<OVector<T, D>>::with_capacity(
+                number_of_elements_value,
+            )),
+            false => None,
         };
-        
+
         let mut c = 0;
         while c < number_of_elements_value {
             eigenvalues.push(self.eigenvalues_re[c].clone());
 
             if eigenvectors.is_some() {
-                eigenvectors.as_mut().unwrap().push((&self.eigenvectors.as_ref()).unwrap().column(c).into_owned());
+                eigenvectors.as_mut().unwrap().push(
+                    (&self.eigenvectors.as_ref())
+                        .unwrap()
+                        .column(c)
+                        .into_owned(),
+                );
             }
 
             if left_eigenvectors.is_some() {
-                left_eigenvectors.as_mut().unwrap().push((&self.left_eigenvectors.as_ref()).unwrap().column(c).into_owned());
+                left_eigenvectors.as_mut().unwrap().push(
+                    (&self.left_eigenvectors.as_ref())
+                        .unwrap()
+                        .column(c)
+                        .into_owned(),
+                );
             }
             if self.eigenvalues_im[c] != T::zero() {
                 //skip next entry
                 c += 1;
             }
-            c+=1;
+            c += 1;
         }
         (eigenvalues, left_eigenvectors, eigenvectors)
-            
-        
     }
 
-    /// Returns a tuple of vectors. The elements of the tuple are the complex eigenvalues, complex left eigenvectors and complex right eigenvectors respectively. 
+    /// Returns a tuple of vectors. The elements of the tuple are the complex eigenvalues, complex left eigenvectors and complex right eigenvectors respectively.
     /// The elements appear as conjugate pairs within each vector, with the positive of the pair always being first.
-    pub fn get_complex_elements(&self) -> (Option<Vec<Complex<T>>>, Option<Vec<OVector<Complex<T>, D>>>, Option<Vec<OVector<Complex<T>, D>>>) where DefaultAllocator: Allocator<Complex<T>, D> {
+    pub fn get_complex_elements(
+        &self,
+    ) -> (
+        Option<Vec<Complex<T>>>,
+        Option<Vec<OVector<Complex<T>, D>>>,
+        Option<Vec<OVector<Complex<T>, D>>>,
+    )
+    where
+        DefaultAllocator: Allocator<Complex<T>, D>,
+    {
         match self.eigenvalues_are_real() {
             true => (None, None, None),
             false => {
                 let (number_of_elements, _) = self.eigenvalues_re.shape_generic();
                 let number_of_elements_value = number_of_elements.value();
-                let number_of_complex_entries = self.eigenvalues_im.iter().fold(0, |acc, e| if !e.is_zero() {acc + 1} else {acc});
+                let number_of_complex_entries =
+                    self.eigenvalues_im
+                        .iter()
+                        .fold(0, |acc, e| if !e.is_zero() { acc + 1 } else { acc });
                 let mut eigenvalues = Vec::<Complex<T>>::with_capacity(number_of_complex_entries);
                 let mut eigenvectors = match self.eigenvectors.is_some() {
-                    true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(number_of_complex_entries)),
-                    false => None
+                    true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(
+                        number_of_complex_entries,
+                    )),
+                    false => None,
                 };
                 let mut left_eigenvectors = match self.left_eigenvectors.is_some() {
-                    true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(number_of_complex_entries)),
-                    false => None
+                    true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(
+                        number_of_complex_entries,
+                    )),
+                    false => None,
                 };
-                
+
                 let mut c = 0;
                 while c < number_of_elements_value {
                     if self.eigenvalues_im[c] != T::zero() {
                         //Complex conjugate pairs of eigenvalues appear consecutively with the eigenvalue having the positive imaginary part first.
-                        eigenvalues.push(Complex::<T>::new(self.eigenvalues_re[c].clone(), self.eigenvalues_im[c].clone()));
-                        eigenvalues.push(Complex::<T>::new(self.eigenvalues_re[c+1].clone(), self.eigenvalues_im[c+1].clone()));
+                        eigenvalues.push(Complex::<T>::new(
+                            self.eigenvalues_re[c].clone(),
+                            self.eigenvalues_im[c].clone(),
+                        ));
+                        eigenvalues.push(Complex::<T>::new(
+                            self.eigenvalues_re[c + 1].clone(),
+                            self.eigenvalues_im[c + 1].clone(),
+                        ));
 
                         if eigenvectors.is_some() {
-                            let mut vec = OVector::<Complex<T>, D>::zeros_generic(number_of_elements, Const::<1>);
-                            let mut vec_conj = OVector::<Complex<T>, D>::zeros_generic(number_of_elements, Const::<1>);
+                            let mut vec = OVector::<Complex<T>, D>::zeros_generic(
+                                number_of_elements,
+                                Const::<1>,
+                            );
+                            let mut vec_conj = OVector::<Complex<T>, D>::zeros_generic(
+                                number_of_elements,
+                                Const::<1>,
+                            );
 
                             for r in 0..number_of_elements_value {
-                                vec[r] = Complex::<T>::new((&self.eigenvectors.as_ref()).unwrap()[(r,c)].clone(),(&self.eigenvectors.as_ref()).unwrap()[(r,c+1)].clone());
-                                vec_conj[r] = Complex::<T>::new((&self.eigenvectors.as_ref()).unwrap()[(r,c)].clone(),(&self.eigenvectors.as_ref()).unwrap()[(r,c+1)].clone());
+                                vec[r] = Complex::<T>::new(
+                                    (&self.eigenvectors.as_ref()).unwrap()[(r, c)].clone(),
+                                    (&self.eigenvectors.as_ref()).unwrap()[(r, c + 1)].clone(),
+                                );
+                                vec_conj[r] = Complex::<T>::new(
+                                    (&self.eigenvectors.as_ref()).unwrap()[(r, c)].clone(),
+                                    (&self.eigenvectors.as_ref()).unwrap()[(r, c + 1)].clone(),
+                                );
                             }
-    
+
                             eigenvectors.as_mut().unwrap().push(vec);
                             eigenvectors.as_mut().unwrap().push(vec_conj);
                         }
 
                         if left_eigenvectors.is_some() {
-                            let mut vec = OVector::<Complex<T>, D>::zeros_generic(number_of_elements, Const::<1>);
-                            let mut vec_conj = OVector::<Complex<T>, D>::zeros_generic(number_of_elements, Const::<1>);
+                            let mut vec = OVector::<Complex<T>, D>::zeros_generic(
+                                number_of_elements,
+                                Const::<1>,
+                            );
+                            let mut vec_conj = OVector::<Complex<T>, D>::zeros_generic(
+                                number_of_elements,
+                                Const::<1>,
+                            );
 
                             for r in 0..number_of_elements_value {
-                                vec[r] = Complex::<T>::new((&self.left_eigenvectors.as_ref()).unwrap()[(r,c)].clone(),(&self.left_eigenvectors.as_ref()).unwrap()[(r,c+1)].clone());
-                                vec_conj[r] = Complex::<T>::new((&self.left_eigenvectors.as_ref()).unwrap()[(r,c)].clone(),(&self.left_eigenvectors.as_ref()).unwrap()[(r,c+1)].clone());
+                                vec[r] = Complex::<T>::new(
+                                    (&self.left_eigenvectors.as_ref()).unwrap()[(r, c)].clone(),
+                                    (&self.left_eigenvectors.as_ref()).unwrap()[(r, c + 1)].clone(),
+                                );
+                                vec_conj[r] = Complex::<T>::new(
+                                    (&self.left_eigenvectors.as_ref()).unwrap()[(r, c)].clone(),
+                                    (&self.left_eigenvectors.as_ref()).unwrap()[(r, c + 1)].clone(),
+                                );
                             }
-    
+
                             left_eigenvectors.as_mut().unwrap().push(vec);
                             left_eigenvectors.as_mut().unwrap().push(vec_conj);
                         }
                         //skip next entry
                         c += 1;
                     }
-                    c+=1;
+                    c += 1;
                 }
                 (Some(eigenvalues), left_eigenvectors, eigenvectors)
             }
         }
     }
-
 }
 
 /*

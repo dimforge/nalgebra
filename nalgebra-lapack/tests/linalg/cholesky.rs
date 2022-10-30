@@ -58,8 +58,8 @@ proptest! {
             let sol1 = chol.solve(&b1).unwrap();
             let sol2 = chol.solve(&b2).unwrap();
 
-            prop_assert!(relative_eq!(m * sol1, b1, epsilon = 1.0e-7));
-            prop_assert!(relative_eq!(m * sol2, b2, epsilon = 1.0e-7));
+            prop_assert!(relative_eq!(m * sol1, b1, epsilon = 1.0e-4));
+            prop_assert!(relative_eq!(m * sol2, b2, epsilon = 1.0e-4));
         }
     }
 
@@ -84,7 +84,7 @@ proptest! {
             let id1 = &m  * &m1;
             let id2 = &m1 * &m;
 
-            prop_assert!(id1.is_identity(1.0e-5) && id2.is_identity(1.0e-5))
+            prop_assert!(id1.is_identity(1.0e-4) && id2.is_identity(1.0e-4))
         }
     }
 }
