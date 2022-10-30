@@ -22,7 +22,7 @@ proptest-support = [ "nalgebra/proptest-support" ]
 arbitrary        = [ "nalgebra/arbitrary" ]
 
 # For BLAS/LAPACK
-default    = ["openblas"]
+default    = ["netlib"]
 openblas   = ["lapack-src/openblas"]
 netlib     = ["lapack-src/netlib"]
 accelerate = ["lapack-src/accelerate"]
@@ -36,7 +36,6 @@ simba         = "0.7"
 serde         = { version = "1.0", features = [ "derive" ], optional = true }
 lapack        = { version = "0.19", default-features = false }
 lapack-src    = { version = "0.8", default-features = false }
-openblas-src = {version = "*", features = ["static"]}
 # clippy = "*"
 
 [dev-dependencies]
