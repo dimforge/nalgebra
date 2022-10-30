@@ -4,6 +4,15 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+
+## [0.31.3] (30 Oct. 2022)
+
+### Added
+- Add `Matrix::try_cast` to attempt casting the inner scalar types when that cast may fail.
+
+### Fixed
+- Fixed the usage of `CheckBytes` with `rkyv`.
+
 ## [0.31.2] (09 Oct. 2022)
 
 ### Modified
