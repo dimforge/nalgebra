@@ -132,7 +132,7 @@ where
         Vector1::new(self.angle())
     }
 
-    /// The rotation axis and angle in ]0, pi] of this complex number.
+    /// The rotation axis and angle in (0, pi] of this complex number.
     ///
     /// This is generally used in the context of generic programming. Using
     /// the `.angle()` method instead is more common.
