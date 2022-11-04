@@ -1323,7 +1323,7 @@ where
         }
     }
 
-    /// The rotation axis and angle in ]0, pi] of this unit quaternion.
+    /// The rotation axis and angle in [0, pi] of this unit quaternion.
     ///
     /// Returns `None` if the angle is zero.
     ///
