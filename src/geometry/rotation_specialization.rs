@@ -877,7 +877,7 @@ impl<T: SimdRealField> Rotation3<T> {
         }
     }
 
-    /// The rotation axis and angle in ]0, pi] of this rotation matrix.
+    /// The rotation axis and angle in (0, pi] of this rotation matrix.
     ///
     /// Returns `None` if the angle is zero.
     ///
