@@ -21,7 +21,7 @@ use crate::base::{
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::{DVector, RowDVector, VecStorage};
-use crate::base::{SliceStorage, SliceStorageMut};
+use crate::base::{ViewStorage, ViewStorageMut};
 use crate::constraint::DimEq;
 use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector, VectorSlice, VectorSliceMut};
 use std::mem::MaybeUninit;
@@ -397,7 +397,7 @@ where
         let cstride_slice = CStride::from_usize(cstride);
 
         unsafe {
-            let data = SliceStorage::from_raw_parts(
+            let data = ViewStorage::from_raw_parts(
                 m.data.ptr(),
                 (row_slice, col_slice),
                 (rstride_slice, cstride_slice),
@@ -434,7 +434,7 @@ where
         let cstride_slice = CStride::from_usize(cstride);
 
         unsafe {
-            let data = SliceStorage::from_raw_parts(
+            let data = ViewStorage::from_raw_parts(
                 m.data.ptr(),
                 (row_slice, col_slice),
                 (rstride_slice, cstride_slice),
@@ -471,7 +471,7 @@ where
         let cstride_slice = CStride::from_usize(cstride);
 
         unsafe {
-            let data = SliceStorageMut::from_raw_parts(
+            let data = ViewStorageMut::from_raw_parts(
                 m.data.ptr_mut(),
                 (row_slice, col_slice),
                 (rstride_slice, cstride_slice),

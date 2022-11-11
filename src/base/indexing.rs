@@ -682,13 +682,13 @@ macro_rules! impl_index_pair {
             #[doc(hidden)]
             #[inline(always)]
             unsafe fn get_unchecked(self, matrix: &'a Matrix<T, $R, $C, S>) -> Self::Output {
-                use crate::base::SliceStorage;
+                use crate::base::ViewStorage;
 
                 let (rows, cols) = self;
                 let (nrows, ncols) = matrix.shape_generic();
 
                 let data =
-                    SliceStorage::new_unchecked(&matrix.data,
+                    ViewStorage::new_unchecked(&matrix.data,
                         (rows.lower(nrows),  cols.lower(ncols)),
                         (rows.length(nrows), cols.length(ncols)));
 
@@ -710,13 +710,13 @@ macro_rules! impl_index_pair {
             #[doc(hidden)]
             #[inline(always)]
             unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T, $R, $C, S>) -> Self::OutputMut {
-                use crate::base::SliceStorageMut;
+                use crate::base::ViewStorageMut;
 
                 let (rows, cols) = self;
                 let (nrows, ncols) = matrix.shape_generic();
 
                 let data =
-                    SliceStorageMut::new_unchecked(&mut matrix.data,
+                    ViewStorageMut::new_unchecked(&mut matrix.data,
                         (rows.lower(nrows),  cols.lower(ncols)),
                         (rows.length(nrows), cols.length(ncols)));
 

@@ -1,5 +1,5 @@
 use crate::base::dimension::{Const, Dim, DimName, Dynamic};
-use crate::base::matrix_slice::{SliceStorage, SliceStorageMut};
+use crate::base::matrix_slice::{ViewStorage, ViewStorageMut};
 use crate::base::{MatrixSlice, MatrixSliceMutMN, Scalar};
 
 use num_rational::Ratio;
@@ -22,7 +22,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         rstride: RStride,
         cstride: CStride,
     ) -> Self {
-        let data = SliceStorage::from_raw_parts(
+        let data = ViewStorage::from_raw_parts(
             data.as_ptr().add(start),
             (nrows, ncols),
             (rstride, cstride),
@@ -160,7 +160,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         rstride: RStride,
         cstride: CStride,
     ) -> Self {
-        let data = SliceStorageMut::from_raw_parts(
+        let data = ViewStorageMut::from_raw_parts(
             data.as_mut_ptr().add(start),
             (nrows, ncols),
             (rstride, cstride),
