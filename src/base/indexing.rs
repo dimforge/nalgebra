@@ -3,7 +3,7 @@
 
 use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::base::{
-    Const, Dim, DimDiff, DimName, DimSub, Dynamic, Matrix, MatrixSlice, MatrixSliceMut, Scalar, U1,
+    Const, Dim, DimDiff, DimName, DimSub, Dynamic, Matrix, MatrixView, MatrixViewMut, Scalar, U1,
 };
 
 use std::ops;
@@ -669,7 +669,7 @@ macro_rules! impl_index_pair {
             $( $RConstraintType: $RConstraintBound $(<$( $RConstraintBoundParams $( = $REqBound )*),*>)* ,)*
             $( $CConstraintType: $CConstraintBound $(<$( $CConstraintBoundParams $( = $CEqBound )*),*>)* ),*
         {
-            type Output = MatrixSlice<'a, T, $ROut, $COut, S::RStride, S::CStride>;
+            type Output = MatrixView<'a, T, $ROut, $COut, S::RStride, S::CStride>;
 
             #[doc(hidden)]
             #[inline(always)]
@@ -705,7 +705,7 @@ macro_rules! impl_index_pair {
             $( $RConstraintType: $RConstraintBound $(<$( $RConstraintBoundParams $( = $REqBound )*),*>)* ,)*
             $( $CConstraintType: $CConstraintBound $(<$( $CConstraintBoundParams $( = $CEqBound )*),*>)* ),*
         {
-            type OutputMut = MatrixSliceMut<'a, T, $ROut, $COut, S::RStride, S::CStride>;
+            type OutputMut = MatrixViewMut<'a, T, $ROut, $COut, S::RStride, S::CStride>;
 
             #[doc(hidden)]
             #[inline(always)]

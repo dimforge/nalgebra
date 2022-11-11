@@ -6,7 +6,7 @@ use std::mem;
 
 use crate::base::dimension::{Dim, U1};
 use crate::base::storage::{RawStorage, RawStorageMut};
-use crate::base::{Matrix, MatrixSlice, MatrixSliceMut, Scalar};
+use crate::base::{Matrix, MatrixView, MatrixViewMut, Scalar};
 
 macro_rules! iterator {
     (struct $Name:ident for $Storage:ident.$ptr: ident -> $Ptr:ty, $Ref:ty, $SRef: ty) => {
@@ -193,7 +193,7 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> RowIter<'a, T, R, C, S>
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> Iterator for RowIter<'a, T, R, C, S> {
-    type Item = MatrixSlice<'a, T, U1, C, S::RStride, S::CStride>;
+    type Item = MatrixView<'a, T, U1, C, S::RStride, S::CStride>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -254,7 +254,7 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> RowIterMut<'a, T, R,
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Iterator
     for RowIterMut<'a, T, R, C, S>
 {
-    type Item = MatrixSliceMut<'a, T, U1, C, S::RStride, S::CStride>;
+    type Item = MatrixViewMut<'a, T, U1, C, S::RStride, S::CStride>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -306,7 +306,7 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ColumnIter<'a, T, R, C,
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> Iterator for ColumnIter<'a, T, R, C, S> {
-    type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;
+    type Item = MatrixView<'a, T, R, U1, S::RStride, S::CStride>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -367,7 +367,7 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ColumnIterMut<'a, T,
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Iterator
     for ColumnIterMut<'a, T, R, C, S>
 {
-    type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
+    type Item = MatrixViewMut<'a, T, R, U1, S::RStride, S::CStride>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
