@@ -1,5 +1,5 @@
 use crate::base::dimension::{Dynamic, U1, U2, U3, U4, U5, U6};
-use crate::base::matrix_slice::{ViewStorage, ViewStorageMut};
+use crate::base::matrix_view::{ViewStorage, ViewStorageMut};
 use crate::base::{Const, Matrix};
 
 /*

@@ -1,5 +1,5 @@
 use crate::base::dimension::{Const, Dim, DimName, Dynamic};
-use crate::base::matrix_slice::{ViewStorage, ViewStorageMut};
+use crate::base::matrix_view::{ViewStorage, ViewStorageMut};
 use crate::base::{MatrixView, MatrixSliceMutMN, Scalar};
 
 use num_rational::Ratio;

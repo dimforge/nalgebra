@@ -23,7 +23,7 @@ mod edition;
 pub mod indexing;
 mod matrix;
 mod matrix_simba;
-mod matrix_slice;
+mod matrix_view;
 mod norm;
 mod properties;
 mod scalar;
@@ -52,7 +52,7 @@ pub use self::dimension::*;
 pub use self::alias::*;
 pub use self::alias_slice::*;
 pub use self::array_storage::*;
-pub use self::matrix_slice::*;
+pub use self::matrix_view::*;
 pub use self::storage::*;
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub use self::vec_storage::*;
