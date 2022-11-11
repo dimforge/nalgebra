@@ -12,6 +12,7 @@ pub mod storage;
 
 mod alias;
 mod alias_slice;
+mod alias_view;
 mod array_storage;
 mod cg;
 mod componentwise;
@@ -51,6 +52,7 @@ pub use self::dimension::*;
 
 pub use self::alias::*;
 pub use self::alias_slice::*;
+pub use self::alias_view::*;
 pub use self::array_storage::*;
 pub use self::matrix_view::*;
 pub use self::storage::*;
