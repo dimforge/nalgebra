@@ -447,7 +447,7 @@ mod parallel {
 
     impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Producer for ColumnIter<'a, T, R, Cols, S>
     where
-        T: Send + Sync + Debug + PartialEq + Clone + 'static,
+        T: Send + Sync +  Scalar,
         S: Sync,
     {
         type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;
@@ -473,10 +473,10 @@ mod parallel {
         }
     }
 
-    impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Producer
+    impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Producer
         for ColumnIterMut<'a, T, R, C, S>
     where
-        T: Send + Sync + Debug + PartialEq + Clone,
+        T: Send + Sync + Scalar,
         S: Send + Sync,
     {
         type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;

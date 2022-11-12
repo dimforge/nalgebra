@@ -3,9 +3,7 @@
 
 use crate::{
     iter::{ColumnIter, ColumnIterMut},
-    Dim, Matrix, MatrixSlice, MatrixSliceMut, RawStorage, RawStorageMut, U1,
-};
-use core::fmt::Debug;
+    Dim, Matrix, MatrixSlice, MatrixSliceMut, RawStorage, RawStorageMut, U1, Scalar,};
 use rayon::{iter::plumbing::bridge, prelude::*};
 
 /// A rayon parallel iterator over the colums of a matrix
@@ -23,7 +21,7 @@ impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> ParColumnIter<'a, T, R
 impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> ParallelIterator
     for ParColumnIter<'a, T, R, Cols, S>
 where
-    T: Sync + Send + Clone + Debug + PartialEq + 'static,
+    T: Sync + Send + Scalar,
     S: Sync,
 {
     type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;
@@ -43,7 +41,7 @@ where
 impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> IndexedParallelIterator
     for ParColumnIter<'a, T, R, Cols, S>
 where
-    T: Send + Sync + Clone + Debug + PartialEq + 'static,
+    T: Send + Sync + Scalar,
     S: Sync,
 {
     fn len(&self) -> usize {
@@ -65,7 +63,7 @@ where
 
 impl<T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Matrix<T, R, Cols, S>
 where
-    T: Send + Sync + Clone + Debug + PartialEq + 'static,
+    T: Send + Sync + Scalar,
     S: Sync,
 {
     /// Iterate through the columns of the matrix in parallel using rayon.
@@ -102,7 +100,7 @@ where
     R: Dim,
     Cols: Dim,
     S: RawStorage<T, R, Cols> + RawStorageMut<T, R, Cols>,
-    T: Send + Sync + Debug + PartialEq + Clone + 'static,
+    T: Send + Sync + Scalar,
     S: Send + Sync,
 {
     type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
@@ -123,7 +121,7 @@ where
     R: Dim,
     Cols: Dim,
     S: RawStorage<T, R, Cols> + RawStorageMut<T, R, Cols>,
-    T: Send + Sync + Debug + PartialEq + Clone + 'static,
+    T: Send + Sync + Scalar,
     S: Send + Sync,
 {
     fn drive<C: rayon::iter::plumbing::Consumer<Self::Item>>(self, consumer: C) -> C::Result {
@@ -146,7 +144,7 @@ where
 impl<T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols> + RawStorageMut<T, R, Cols>>
     Matrix<T, R, Cols, S>
 where
-    T: Send + Sync + Clone + Debug + PartialEq + 'static,
+    T: Send + Sync + Scalar,
     S: Sync,
 {
     /// Mutably iterate through the columns of this matrix in parallel using rayon
