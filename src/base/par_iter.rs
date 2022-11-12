@@ -1,9 +1,9 @@
-//! this module implements parallelators to make matrices work with
-//! the rayon crate seamlessly
+//! Parallel iterators for matrices compatible with rayon.
 
 use crate::{
     iter::{ColumnIter, ColumnIterMut},
-    Dim, Matrix, MatrixSlice, MatrixSliceMut, RawStorage, RawStorageMut, U1, Scalar,};
+    Dim, Matrix, MatrixSlice, MatrixSliceMut, RawStorage, RawStorageMut, Scalar, U1,
+};
 use rayon::{iter::plumbing::bridge, prelude::*};
 
 /// A rayon parallel iterator over the colums of a matrix

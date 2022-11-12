@@ -1223,7 +1223,7 @@ fn parallel_column_iteration() {
 
 #[test]
 #[cfg(feature = "rayon")]
-fn colum_iteration_mut_double_ended() {
+fn column_iteration_mut_double_ended() {
     let dmat = nalgebra::dmatrix![
     13,14,15,16,17;
     23,24,25,26,27;

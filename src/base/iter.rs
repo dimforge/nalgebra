@@ -447,7 +447,7 @@ mod parallel {
 
     impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Producer for ColumnIter<'a, T, R, Cols, S>
     where
-        T: Send + Sync +  Scalar,
+        T: Send + Sync + Scalar,
         S: Sync,
     {
         type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;

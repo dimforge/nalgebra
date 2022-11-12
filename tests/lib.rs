@@ -10,8 +10,8 @@ compile_error!(
 );
 
 // make sure to test the parallel iterators for all builds that do not require no_std
-#[cfg(all(feature = "std", not(feature = "rayon-par")))]
-compile_error!("Please additionally enable the `rayon-par` feature to compile and run the tests");
+#[cfg(all(feature = "std", not(feature = "rayon")))]
+compile_error!("Please additionally enable the `rayon` feature to compile and run the tests");
 
 #[cfg(all(feature = "debug", feature = "compare", feature = "rand"))]
 #[macro_use]
