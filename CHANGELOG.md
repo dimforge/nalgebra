@@ -5,6 +5,12 @@ documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
 
+## [0.31.4] (13 Nov. 2022)
+
+### Added
+- Add a `convert-glam022` feature to enable conversion between `nalgebra` and `glam v0.22`.
+
+
 ## [0.31.3] (30 Oct. 2022)
 
 ### Added
