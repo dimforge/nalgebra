@@ -82,7 +82,7 @@ where
     /// This iterates over *immutable* references ot the columns of the matrix,
     /// if *mutable* access to the columns is required, use [`par_column_iter_mut`]
     /// instead.
-    /// 
+    ///
     /// # Example
     /// Using parallel column iterators to calculate the sum of the maximum
     /// elements in each column:
@@ -90,11 +90,11 @@ where
     /// use nalgebra::{dmatrix,DMatrix};
     /// use rayon::prelude::*;
     ///
-    /// let matrix : DMatrix<f64> = 
+    /// let matrix : DMatrix<f64> =
     ///         nalgebra::dmatrix![1.,0.,5.;
     ///                            2.,4.,1.;
     ///                            3.,2.,2.;];
-    /// let sum_of_max :f64 = 
+    /// let sum_of_max :f64 =
     ///         matrix
     ///         .par_column_iter()
     ///         .map(|col|col.max())
@@ -194,10 +194,10 @@ where
     /// Allows mutable access to the columns in parallel using mutable references.
     /// If mutable access to the columns is not required rather use [`par_column_iter`]
     /// instead.
-    /// 
-    /// # Example 
+    ///
+    /// # Example
     /// Normalize each column of a matrix with respect to its own maximum value.
-    /// 
+    ///
     /// ```
     /// use nalgebra::{dmatrix,DMatrix};
     /// use rayon::prelude::*;
