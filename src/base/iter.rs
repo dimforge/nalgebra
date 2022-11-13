@@ -1,5 +1,9 @@
 //! Matrix iterators.
 
+// only enables the `doc_cfg` feature when
+// the `docsrs` configuration attribute is defined
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 use core::fmt::Debug;
 use core::ops::Range;
 use std::iter::FusedIterator;
@@ -445,6 +449,8 @@ mod parallel {
     use super::*;
     use rayon::iter::plumbing::Producer;
 
+    #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
+    /// *only available if compiled with the feature `par-iter`*
     impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Producer for ColumnIter<'a, T, R, Cols, S>
     where
         T: Send + Sync + Scalar,
@@ -473,6 +479,8 @@ mod parallel {
         }
     }
 
+    #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
+    /// *only available if compiled with the feature `par-iter`*
     impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Producer
         for ColumnIterMut<'a, T, R, C, S>
     where
