@@ -1,5 +1,9 @@
 //! Parallel iterators for matrices compatible with rayon.
 
+//only enables the `doc_cfg` feature when
+// the `docsrs` configuration attribute is defined
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 use crate::{
     iter::{ColumnIter, ColumnIterMut},
     Dim, Matrix, MatrixSlice, MatrixSliceMut, RawStorage, RawStorageMut, Scalar, U1,
@@ -75,6 +79,32 @@ where
     S: Sync,
 {
     /// Iterate through the columns of the matrix in parallel using rayon.
+    /// This iterates over *immutable* references ot the columns of the matrix,
+    /// if *mutable* access to the columns is required, use [`par_column_iter_mut`]
+    /// instead.
+    /// 
+    /// **Example**
+    /// Using parallel column iterators to calculate the sum of the maximum
+    /// elements in each column:
+    /// ```
+    /// use nalgebra::{dmatrix,DMatrix};
+    /// use rayon::prelude::*;
+    ///
+    /// let matrix : DMatrix<f64> = 
+    ///         nalgebra::dmatrix![1.,0.,5.;
+    ///                            2.,4.,1.;
+    ///                            3.,2.,2.;];
+    /// let sum_of_max :f64 = 
+    ///         matrix
+    ///         .par_column_iter()
+    ///         .map(|col|col.max())
+    ///         .sum();
+    ///
+    /// assert_eq!(sum_of_max,3.+4.+5.);
+    ///                             
+    /// ```
+    ///
+    /// [`par_column_iter_mut`]: crate::Matrix::par_column_iter_mut
     pub fn par_column_iter(&self) -> ParColumnIter<'_, T, R, Cols, S> {
         ParColumnIter::new(self)
     }

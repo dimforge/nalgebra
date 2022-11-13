@@ -138,3 +138,5 @@ lto = true
 [package.metadata.docs.rs]
 # Enable all the features when building the docs on docs.rs
 all-features = true
+# define the configuration attribute `docsrs`
+rustdoc-args = ["--cfg", "docsrs"]
