@@ -61,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: test
-        run: cargo test --features arbitrary,rand,serde-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests,rkyv-safe-deser,rayon;
+        run: cargo test --features arbitrary,rand,serde-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests,rkyv-safe-deser,par-iter;
   test-nalgebra-glm:
     runs-on: ubuntu-latest
     steps:
