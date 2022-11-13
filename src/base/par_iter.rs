@@ -1,6 +1,6 @@
 //! Parallel iterators for matrices compatible with rayon.
 
-//only enables the `doc_cfg` feature when
+// only enables the `doc_cfg` feature when
 // the `docsrs` configuration attribute is defined
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
@@ -12,7 +12,8 @@ use rayon::{iter::plumbing::bridge, prelude::*};
 
 /// A rayon parallel iterator over the colums of a matrix. It is created
 /// using the [`par_column_iter`] method of [`Matrix`].
-///
+/// 
+/// *only availabe if compiled with the feature `par-iter`*
 /// [`par_column_iter`]: crate::Matrix::par_column_iter
 /// [`Matrix`]: crate::Matrix
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
@@ -49,6 +50,7 @@ where
 }
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
+/// *only availabe if compiled with the feature `par-iter`*
 impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> IndexedParallelIterator
     for ParColumnIter<'a, T, R, Cols, S>
 where
@@ -74,6 +76,7 @@ where
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 /// A rayon parallel iterator through the mutable columns of a matrix
+/// *only availabe if compiled with the feature `par-iter`*
 pub struct ParColumnIterMut<
     'a,
     T,
@@ -85,6 +88,7 @@ pub struct ParColumnIterMut<
 }
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
+/// *only availabe if compiled with the feature `par-iter`*
 impl<'a, T, R, Cols, S> ParColumnIterMut<'a, T, R, Cols, S>
 where
     R: Dim,
@@ -98,6 +102,7 @@ where
 }
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
+/// *only availabe if compiled with the feature `par-iter`*
 impl<'a, T, R, Cols, S> ParallelIterator for ParColumnIterMut<'a, T, R, Cols, S>
 where
     R: Dim,
@@ -120,6 +125,7 @@ where
 }
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
+/// *only availabe if compiled with the feature `par-iter`*
 impl<'a, T, R, Cols, S> IndexedParallelIterator for ParColumnIterMut<'a, T, R, Cols, S>
 where
     R: Dim,
