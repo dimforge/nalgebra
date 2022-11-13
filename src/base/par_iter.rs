@@ -148,8 +148,7 @@ where
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 /// # Parallel iterators using `rayon`
 /// *Only availabe if compiled with the feature `par-iter`*
-impl<T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>>
-    Matrix<T, R, Cols, S>
+impl<T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Matrix<T, R, Cols, S>
 where
     T: Send + Sync + Scalar,
     S: Sync,
@@ -207,8 +206,10 @@ where
     /// ```
     ///
     /// [`par_column_iter`]: crate::Matrix::par_column_iter
-    pub fn par_column_iter_mut(&mut self) -> ParColumnIterMut<'_, T, R, Cols, S> 
-    where S: RawStorageMut<T, R, Cols>{
+    pub fn par_column_iter_mut(&mut self) -> ParColumnIterMut<'_, T, R, Cols, S>
+    where
+        S: RawStorageMut<T, R, Cols>,
+    {
         ParColumnIterMut::new(self)
     }
 }
