@@ -15,7 +15,7 @@ use rayon::{iter::plumbing::bridge, prelude::*};
 ///
 /// [`par_column_iter`]: crate::Matrix::par_column_iter
 /// [`Matrix`]: crate::Matrix
-#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 pub struct ParColumnIter<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> {
     mat: &'a Matrix<T, R, Cols, S>,
 }
@@ -27,7 +27,7 @@ impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> ParColumnIter<'a, T, R
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> ParallelIterator
     for ParColumnIter<'a, T, R, Cols, S>
 where
@@ -48,7 +48,7 @@ where
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> IndexedParallelIterator
     for ParColumnIter<'a, T, R, Cols, S>
 where
@@ -72,7 +72,7 @@ where
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 impl<T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Matrix<T, R, Cols, S>
 where
     T: Send + Sync + Scalar,
@@ -83,7 +83,7 @@ where
     /// if *mutable* access to the columns is required, use [`par_column_iter_mut`]
     /// instead.
     /// 
-    /// **Example**
+    /// # Example
     /// Using parallel column iterators to calculate the sum of the maximum
     /// elements in each column:
     /// ```
@@ -110,7 +110,7 @@ where
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 /// A rayon parallel iterator through the mutable columns of a matrix
 pub struct ParColumnIterMut<
     'a,
@@ -122,7 +122,7 @@ pub struct ParColumnIterMut<
     mat: &'a mut Matrix<T, R, Cols, S>,
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 impl<'a, T, R, Cols, S> ParColumnIterMut<'a, T, R, Cols, S>
 where
     R: Dim,
@@ -135,7 +135,7 @@ where
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 impl<'a, T, R, Cols, S> ParallelIterator for ParColumnIterMut<'a, T, R, Cols, S>
 where
     R: Dim,
@@ -157,7 +157,7 @@ where
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 impl<'a, T, R, Cols, S> IndexedParallelIterator for ParColumnIterMut<'a, T, R, Cols, S>
 where
     R: Dim,
@@ -183,14 +183,36 @@ where
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 impl<T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols> + RawStorageMut<T, R, Cols>>
     Matrix<T, R, Cols, S>
 where
     T: Send + Sync + Scalar,
     S: Sync,
 {
-    /// Mutably iterate through the columns of this matrix in parallel using rayon
+    /// Mutably iterate through the columns of this matrix in parallel using rayon.
+    /// Allows mutable access to the columns in parallel using mutable references.
+    /// If mutable access to the columns is not required rather use [`par_column_iter`]
+    /// instead.
+    /// 
+    /// # Example 
+    /// Normalize each column of a matrix with respect to its own maximum value.
+    /// 
+    /// ```
+    /// use nalgebra::{dmatrix,DMatrix};
+    /// use rayon::prelude::*;
+    ///
+    /// let mut matrix : DMatrix<f64> =
+    ///                     dmatrix![2.,4.,6.;
+    ///                             1.,2.,3.];
+    /// matrix.par_column_iter_mut().for_each(|mut col| col /= col.max());
+    ///
+    /// assert_eq!(matrix,
+    ///             dmatrix![1. ,1. , 1.;
+    ///                      0.5,0.5,0.5]);
+    /// ```
+    ///
+    /// [`par_column_iter`]: crate::Matrix::par_column_iter
     pub fn par_column_iter_mut(&mut self) -> ParColumnIterMut<'_, T, R, Cols, S> {
         ParColumnIterMut::new(self)
     }

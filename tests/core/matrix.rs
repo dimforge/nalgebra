@@ -1200,7 +1200,7 @@ fn column_iteration_double_ended() {
 }
 
 #[test]
-#[cfg(feature = "rayon")]
+#[cfg(feature = "par-iter")]
 fn parallel_column_iteration() {
     use nalgebra::dmatrix;
     use rayon::prelude::*;
@@ -1222,7 +1222,7 @@ fn parallel_column_iteration() {
 }
 
 #[test]
-#[cfg(feature = "rayon")]
+#[cfg(feature = "par-iter")]
 fn column_iteration_mut_double_ended() {
     let dmat = nalgebra::dmatrix![
     13,14,15,16,17;
@@ -1241,7 +1241,7 @@ fn column_iteration_mut_double_ended() {
 }
 
 #[test]
-#[cfg(feature = "rayon")]
+#[cfg(feature = "par-iter")]
 fn parallel_column_iteration_mut() {
     use rayon::prelude::*;
     let mut first = DMatrix::<f32>::zeros(400, 300);

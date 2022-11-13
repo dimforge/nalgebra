@@ -440,7 +440,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> DoubleEndedI
 }
 
 /// implementations for parallel iteration with rayon
-#[cfg(feature = "rayon")]
+#[cfg(feature = "par-iter")]
 mod parallel {
     use super::*;
     use rayon::iter::plumbing::Producer;
