@@ -371,6 +371,7 @@ pub type VectorSlice6<'a, T, RStride = U1, CStride = U6> =
 /// A column-major matrix slice with `R` rows and `C` columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+#[deprecated = "Use MatrixViewMut instead, which has an identical definition."]
 pub type MatrixSliceMutMN<'a, T, R, C, RStride = U1, CStride = R> =
     Matrix<T, R, C, ViewStorageMut<'a, T, R, C, RStride, CStride>>;
 

@@ -1,6 +1,6 @@
 use crate::base::dimension::{Const, Dim, DimName, Dynamic};
 use crate::base::matrix_view::{ViewStorage, ViewStorageMut};
-use crate::base::{MatrixView, MatrixSliceMutMN, Scalar};
+use crate::base::{MatrixView, MatrixViewMut, Scalar};
 
 use num_rational::Ratio;
 
@@ -144,7 +144,7 @@ impl_constructors!(Dynamic, Dynamic;
 
 /// # Creating mutable matrix slices from `&mut [T]`
 impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
-    MatrixSliceMutMN<'a, T, R, C, RStride, CStride>
+    MatrixViewMut<'a, T, R, C, RStride, CStride>
 {
     /// Creates, without bound-checking, a mutable matrix slice from an array and with dimensions and strides specified by generic types instances.
     ///
@@ -217,7 +217,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     }
 }
 
-impl<'a, T: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, T, R, C> {
+impl<'a, T: Scalar, R: Dim, C: Dim> MatrixViewMut<'a, T, R, C> {
     /// Creates, without bound-checking, a mutable matrix slice from an array and with dimensions specified by generic types instances.
     ///
     /// # Safety
@@ -247,7 +247,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim> MatrixSliceMutMN<'a, T, R, C> {
 
 macro_rules! impl_constructors_mut(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
-        impl<'a, T: Scalar, $($DimIdent: $DimBound),*> MatrixSliceMutMN<'a, T, $($Dims),*> {
+        impl<'a, T: Scalar, $($DimIdent: $DimBound),*> MatrixViewMut<'a, T, $($Dims),*> {
             /// Creates a new mutable matrix slice from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
@@ -263,7 +263,7 @@ macro_rules! impl_constructors_mut(
             }
         }
 
-        impl<'a, T: Scalar, $($DimIdent: $DimBound, )*> MatrixSliceMutMN<'a, T, $($Dims,)* Dynamic, Dynamic> {
+        impl<'a, T: Scalar, $($DimIdent: $DimBound, )*> MatrixViewMut<'a, T, $($Dims,)* Dynamic, Dynamic> {
             /// Creates a new mutable matrix slice with the specified strides from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
