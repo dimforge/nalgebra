@@ -378,7 +378,7 @@ pub trait MatrixIndexMut<'a, T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>>:
     }
 }
 
-/// # Slicing based on ranges
+/// # Views based on ranges
 /// ## Indices to Individual Elements
 /// ### Two-Dimensional Indices
 /// ```

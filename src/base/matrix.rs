@@ -99,13 +99,13 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// - [Elementwise mapping and folding <span style="float:right;">`map`, `fold`, `zip_map`…</span>](#elementwise-mapping-and-folding)
 /// - [Folding or columns and rows <span style="float:right;">`compress_rows`, `compress_columns`…</span>](#folding-on-columns-and-rows)
 ///
-/// #### Vector and matrix slicing
-/// - [Creating matrix slices from `&[T]` <span style="float:right;">`from_slice`, `from_slice_with_strides`…</span>](#creating-matrix-slices-from-t)
-/// - [Creating mutable matrix slices from `&mut [T]` <span style="float:right;">`from_slice_mut`, `from_slice_with_strides_mut`…</span>](#creating-mutable-matrix-slices-from-mut-t)
-/// - [Slicing based on index and length <span style="float:right;">`row`, `columns`, `slice`…</span>](#slicing-based-on-index-and-length)
-/// - [Mutable slicing based on index and length <span style="float:right;">`row_mut`, `columns_mut`, `slice_mut`…</span>](#mutable-slicing-based-on-index-and-length)
-/// - [Slicing based on ranges <span style="float:right;">`rows_range`, `columns_range`…</span>](#slicing-based-on-ranges)
-/// - [Mutable slicing based on ranges <span style="float:right;">`rows_range_mut`, `columns_range_mut`…</span>](#mutable-slicing-based-on-ranges)
+/// #### Vector and matrix views
+/// - [Creating matrix views from `&[T]` <span style="float:right;">`from_slice`, `from_slice_with_strides`…</span>](#creating-matrix-views-from-t)
+/// - [Creating mutable matrix views from `&mut [T]` <span style="float:right;">`from_slice_mut`, `from_slice_with_strides_mut`…</span>](#creating-mutable-matrix-views-from-mut-t)
+/// - [Views based on index and length <span style="float:right;">`row`, `columns`, `view`…</span>](#views-based-on-index-and-length)
+/// - [Mutable views based on index and length <span style="float:right;">`row_mut`, `columns_mut`, `view_mut`…</span>](#mutable-views-based-on-index-and-length)
+/// - [Views based on ranges <span style="float:right;">`rows_range`, `columns_range`…</span>](#views-based-on-ranges)
+/// - [Mutable views based on ranges <span style="float:right;">`rows_range_mut`, `columns_range_mut`…</span>](#mutable-views-based-on-ranges)
 ///
 /// #### In-place modification of a single matrix or vector
 /// - [In-place filling <span style="float:right;">`fill`, `fill_diagonal`, `fill_with_identity`…</span>](#in-place-filling)

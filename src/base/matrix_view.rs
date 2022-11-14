@@ -284,7 +284,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     }
 }
 
-macro_rules! matrix_slice_impl (
+macro_rules! matrix_view_impl (
     ($me: ident: $Me: ty, $MatrixView: ident, $ViewStorage: ident, $Storage: ident.$get_addr: ident (), $data: expr;
      $row: ident,
      $row_part: ident,
@@ -302,12 +302,12 @@ macro_rules! matrix_slice_impl (
      $fixed_columns_with_step: ident,
      $columns_generic: ident,
      $columns_generic_with_step: ident,
-     $slice: ident,
-     $slice_with_steps: ident,
-     $fixed_slice: ident,
-     $fixed_slice_with_steps: ident,
-     $generic_slice: ident,
-     $generic_slice_with_steps: ident,
+     $slice: ident => $view:ident,
+     $slice_with_steps: ident => $view_with_steps:ident,
+     $fixed_slice: ident => $fixed_view:ident,
+     $fixed_slice_with_steps: ident => $fixed_view_with_steps:ident,
+     $generic_slice: ident => $generic_view:ident,
+     $generic_slice_with_steps: ident => $generic_view_with_steps:ident,
      $rows_range_pair: ident,
      $columns_range_pair: ident) => {
         /*
@@ -315,13 +315,13 @@ macro_rules! matrix_slice_impl (
          * Row slicing.
          *
          */
-        /// Returns a slice containing the i-th row of this matrix.
+        /// Returns a view containing the i-th row of this matrix.
         #[inline]
         pub fn $row($me: $Me, i: usize) -> $MatrixView<'_, T, U1, C, S::RStride, S::CStride> {
             $me.$fixed_rows::<1>(i)
         }
 
-        /// Returns a slice containing the `n` first elements of the i-th row of this matrix.
+        /// Returns a view containing the `n` first elements of the i-th row of this matrix.
         #[inline]
         pub fn $row_part($me: $Me, i: usize, n: usize) -> $MatrixView<'_, T, U1, Dynamic, S::RStride, S::CStride> {
             $me.$generic_slice((i, 0), (Const::<1>, Dynamic::new(n)))
@@ -345,26 +345,26 @@ macro_rules! matrix_slice_impl (
 
         /// Extracts a compile-time number of consecutive rows from this matrix.
         #[inline]
-        pub fn $fixed_rows<const RSLICE: usize>($me: $Me, first_row: usize)
-            -> $MatrixView<'_, T, Const<RSLICE>, C, S::RStride, S::CStride> {
+        pub fn $fixed_rows<const RVIEW: usize>($me: $Me, first_row: usize)
+            -> $MatrixView<'_, T, Const<RVIEW>, C, S::RStride, S::CStride> {
 
-            $me.$rows_generic(first_row, Const::<RSLICE>)
+            $me.$rows_generic(first_row, Const::<RVIEW>)
         }
 
         /// Extracts from this matrix a compile-time number of rows regularly skipping `step`
         /// rows.
         #[inline]
-        pub fn $fixed_rows_with_step<const RSLICE: usize>($me: $Me, first_row: usize, step: usize)
-            -> $MatrixView<'_, T, Const<RSLICE>, C, Dynamic, S::CStride> {
+        pub fn $fixed_rows_with_step<const RVIEW: usize>($me: $Me, first_row: usize, step: usize)
+            -> $MatrixView<'_, T, Const<RVIEW>, C, Dynamic, S::CStride> {
 
-            $me.$rows_generic_with_step(first_row, Const::<RSLICE>, step)
+            $me.$rows_generic_with_step(first_row, Const::<RVIEW>, step)
         }
 
         /// Extracts from this matrix `nrows` rows regularly skipping `step` rows. Both
         /// argument may or may not be values known at compile-time.
         #[inline]
-        pub fn $rows_generic<RSlice: Dim>($me: $Me, row_start: usize, nrows: RSlice)
-            -> $MatrixView<'_, T, RSlice, C, S::RStride, S::CStride> {
+        pub fn $rows_generic<RView: Dim>($me: $Me, row_start: usize, nrows: RView)
+            -> $MatrixView<'_, T, RView, C, S::RStride, S::CStride> {
 
             let my_shape   = $me.shape_generic();
             $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (0, 0));
@@ -380,9 +380,9 @@ macro_rules! matrix_slice_impl (
         /// Extracts from this matrix `nrows` rows regularly skipping `step` rows. Both
         /// argument may or may not be values known at compile-time.
         #[inline]
-        pub fn $rows_generic_with_step<RSlice>($me: $Me, row_start: usize, nrows: RSlice, step: usize)
-            -> $MatrixView<'_, T, RSlice, C, Dynamic, S::CStride>
-            where RSlice: Dim {
+        pub fn $rows_generic_with_step<RView>($me: $Me, row_start: usize, nrows: RView, step: usize)
+            -> $MatrixView<'_, T, RView, C, Dynamic, S::CStride>
+            where RView: Dim {
 
             let my_shape   = $me.shape_generic();
             let my_strides = $me.data.strides();
@@ -402,16 +402,16 @@ macro_rules! matrix_slice_impl (
          * Column slicing.
          *
          */
-        /// Returns a slice containing the i-th column of this matrix.
+        /// Returns a view containing the i-th column of this matrix.
         #[inline]
         pub fn $column($me: $Me, i: usize) -> $MatrixView<'_, T, R, U1, S::RStride, S::CStride> {
             $me.$fixed_columns::<1>(i)
         }
 
-        /// Returns a slice containing the `n` first elements of the i-th column of this matrix.
+        /// Returns a view containing the `n` first elements of the i-th column of this matrix.
         #[inline]
         pub fn $column_part($me: $Me, i: usize, n: usize) -> $MatrixView<'_, T, Dynamic, U1, S::RStride, S::CStride> {
-            $me.$generic_slice((0, i), (Dynamic::new(n), Const::<1>))
+            $me.$generic_view((0, i), (Dynamic::new(n), Const::<1>))
         }
 
         /// Extracts from this matrix a set of consecutive columns.
@@ -433,26 +433,26 @@ macro_rules! matrix_slice_impl (
 
         /// Extracts a compile-time number of consecutive columns from this matrix.
         #[inline]
-        pub fn $fixed_columns<const CSLICE: usize>($me: $Me, first_col: usize)
-            -> $MatrixView<'_, T, R, Const<CSLICE>, S::RStride, S::CStride> {
+        pub fn $fixed_columns<const CVIEW: usize>($me: $Me, first_col: usize)
+            -> $MatrixView<'_, T, R, Const<CVIEW>, S::RStride, S::CStride> {
 
-            $me.$columns_generic(first_col, Const::<CSLICE>)
+            $me.$columns_generic(first_col, Const::<CVIEW>)
         }
 
         /// Extracts from this matrix a compile-time number of columns regularly skipping
         /// `step` columns.
         #[inline]
-        pub fn $fixed_columns_with_step<const CSLICE: usize>($me: $Me, first_col: usize, step: usize)
-            -> $MatrixView<'_, T, R, Const<CSLICE>, S::RStride, Dynamic> {
+        pub fn $fixed_columns_with_step<const CVIEW: usize>($me: $Me, first_col: usize, step: usize)
+            -> $MatrixView<'_, T, R, Const<CVIEW>, S::RStride, Dynamic> {
 
-            $me.$columns_generic_with_step(first_col, Const::<CSLICE>, step)
+            $me.$columns_generic_with_step(first_col, Const::<CVIEW>, step)
         }
 
         /// Extracts from this matrix `ncols` columns. The number of columns may or may not be
         /// known at compile-time.
         #[inline]
-        pub fn $columns_generic<CSlice: Dim>($me: $Me, first_col: usize, ncols: CSlice)
-            -> $MatrixView<'_, T, R, CSlice, S::RStride, S::CStride> {
+        pub fn $columns_generic<CView: Dim>($me: $Me, first_col: usize, ncols: CView)
+            -> $MatrixView<'_, T, R, CView, S::RStride, S::CStride> {
 
             let my_shape = $me.shape_generic();
             $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, 0));
@@ -468,8 +468,8 @@ macro_rules! matrix_slice_impl (
         /// Extracts from this matrix `ncols` columns skipping `step` columns. Both argument may
         /// or may not be values known at compile-time.
         #[inline]
-        pub fn $columns_generic_with_step<CSlice: Dim>($me: $Me, first_col: usize, ncols: CSlice, step: usize)
-            -> $MatrixView<'_, T, R, CSlice, S::RStride, Dynamic> {
+        pub fn $columns_generic_with_step<CView: Dim>($me: $Me, first_col: usize, ncols: CView, step: usize)
+            -> $MatrixView<'_, T, R, CView, S::RStride, Dynamic> {
 
             let my_shape   = $me.shape_generic();
             let my_strides = $me.data.strides();
@@ -493,7 +493,16 @@ macro_rules! matrix_slice_impl (
         /// Slices this matrix starting at its component `(irow, icol)` and with `(nrows, ncols)`
         /// consecutive elements.
         #[inline]
+        #[deprecated = slice_deprecation_note!($view)]
         pub fn $slice($me: $Me, start: (usize, usize), shape: (usize, usize))
+            -> $MatrixView<'_, T, Dynamic, Dynamic, S::RStride, S::CStride> {
+            $me.$view(start, shape)
+        }
+
+        /// Return a view of this matrix starting at its component `(irow, icol)` and with `(nrows, ncols)`
+        /// consecutive elements.
+        #[inline]
+        pub fn $view($me: $Me, start: (usize, usize), shape: (usize, usize))
             -> $MatrixView<'_, T, Dynamic, Dynamic, S::RStride, S::CStride> {
 
             $me.assert_slice_index(start, shape, (0, 0));
@@ -505,27 +514,45 @@ macro_rules! matrix_slice_impl (
             }
         }
 
-
         /// Slices this matrix starting at its component `(start.0, start.1)` and with
         /// `(shape.0, shape.1)` components. Each row (resp. column) of the sliced matrix is
         /// separated by `steps.0` (resp. `steps.1`) ignored rows (resp. columns) of the
         /// original matrix.
         #[inline]
+        #[deprecated = slice_deprecation_note!($view_with_steps)]
         pub fn $slice_with_steps($me: $Me, start: (usize, usize), shape: (usize, usize), steps: (usize, usize))
             -> $MatrixView<'_, T, Dynamic, Dynamic, Dynamic, Dynamic> {
-            let shape = (Dynamic::new(shape.0), Dynamic::new(shape.1));
+            $me.$view_with_steps(start, shape, steps)
+        }
 
-            $me.$generic_slice_with_steps(start, shape, steps)
+        /// Return a view of this matrix starting at its component `(start.0, start.1)` and with
+        /// `(shape.0, shape.1)` components. Each row (resp. column) of the matrix view is
+        /// separated by `steps.0` (resp. `steps.1`) ignored rows (resp. columns) of the
+        /// original matrix.
+        #[inline]
+        pub fn $view_with_steps($me: $Me, start: (usize, usize), shape: (usize, usize), steps: (usize, usize))
+            -> $MatrixView<'_, T, Dynamic, Dynamic, Dynamic, Dynamic> {
+            let shape = (Dynamic::new(shape.0), Dynamic::new(shape.1));
+            $me.$generic_view_with_steps(start, shape, steps)
         }
 
         /// Slices this matrix starting at its component `(irow, icol)` and with `(R::dim(),
-        /// CSlice::dim())` consecutive components.
+        /// CView::dim())` consecutive components.
         #[inline]
-        pub fn $fixed_slice<const RSLICE: usize, const CSLICE: usize>($me: $Me, irow: usize, icol: usize)
-            -> $MatrixView<'_, T, Const<RSLICE>, Const<CSLICE>, S::RStride, S::CStride> {
+        #[deprecated = slice_deprecation_note!($fixed_view)]
+        pub fn $fixed_slice<const RVIEW: usize, const CVIEW: usize>($me: $Me, irow: usize, icol: usize)
+            -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, S::RStride, S::CStride> {
+            $me.$fixed_view(irow, icol)
+        }
 
-            $me.assert_slice_index((irow, icol), (RSLICE, CSLICE), (0, 0));
-            let shape = (Const::<RSLICE>, Const::<CSLICE>);
+        /// Return a view of this matrix starting at its component `(irow, icol)` and with `(R::dim(),
+        /// CView::dim())` consecutive components.
+        #[inline]
+        pub fn $fixed_view<const RVIEW: usize, const CVIEW: usize>($me: $Me, irow: usize, icol: usize)
+            -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, S::RStride, S::CStride> {
+
+            $me.assert_slice_index((irow, icol), (RVIEW, CVIEW), (0, 0));
+            let shape = (Const::<RVIEW>, Const::<CVIEW>);
 
             unsafe {
                 let data = $ViewStorage::new_unchecked($data, (irow, icol), shape);
@@ -534,22 +561,43 @@ macro_rules! matrix_slice_impl (
         }
 
         /// Slices this matrix starting at its component `(start.0, start.1)` and with
-        /// `(RSLICE, CSLICE)` components. Each row (resp. column) of the sliced
+        /// `(RVIEW, CVIEW)` components. Each row (resp. column) of the sliced
         /// matrix is separated by `steps.0` (resp. `steps.1`) ignored rows (resp. columns) of
         /// the original matrix.
         #[inline]
-        pub fn $fixed_slice_with_steps<const RSLICE: usize, const CSLICE: usize>($me: $Me, start: (usize, usize), steps: (usize, usize))
-            -> $MatrixView<'_, T, Const<RSLICE>, Const<CSLICE>, Dynamic, Dynamic> {
-            let shape = (Const::<RSLICE>, Const::<CSLICE>);
-            $me.$generic_slice_with_steps(start, shape, steps)
+        #[deprecated = slice_deprecation_note!($fixed_view_with_steps)]
+        pub fn $fixed_slice_with_steps<const RVIEW: usize, const CVIEW: usize>($me: $Me, start: (usize, usize), steps: (usize, usize))
+            -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, Dynamic, Dynamic> {
+            $me.$fixed_view_with_steps(start, steps)
+        }
+
+        /// Returns a view of this matrix starting at its component `(start.0, start.1)` and with
+        /// `(RVIEW, CVIEW)` components. Each row (resp. column) of the matrix view
+        /// is separated by `steps.0` (resp. `steps.1`) ignored rows (resp. columns) of
+        /// the original matrix.
+        #[inline]
+        pub fn $fixed_view_with_steps<const RVIEW: usize, const CVIEW: usize>($me: $Me, start: (usize, usize), steps: (usize, usize))
+            -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, Dynamic, Dynamic> {
+            let shape = (Const::<RVIEW>, Const::<CVIEW>);
+            $me.$generic_view_with_steps(start, shape, steps)
         }
 
         /// Creates a slice that may or may not have a fixed size and stride.
         #[inline]
-        pub fn $generic_slice<RSlice, CSlice>($me: $Me, start: (usize, usize), shape: (RSlice, CSlice))
-            -> $MatrixView<'_, T, RSlice, CSlice, S::RStride, S::CStride>
-            where RSlice: Dim,
-                  CSlice: Dim {
+        #[deprecated = slice_deprecation_note!($generic_view)]
+        pub fn $generic_slice<RView, CView>($me: $Me, start: (usize, usize), shape: (RView, CView))
+            -> $MatrixView<'_, T, RView, CView, S::RStride, S::CStride>
+            where RView: Dim,
+                  CView: Dim {
+            $me.$generic_view(start, shape)
+        }
+
+        /// Creates a matrix view that may or may not have a fixed size and stride.
+        #[inline]
+        pub fn $generic_view<RView, CView>($me: $Me, start: (usize, usize), shape: (RView, CView))
+            -> $MatrixView<'_, T, RView, CView, S::RStride, S::CStride>
+            where RView: Dim,
+                  CView: Dim {
 
             $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), (0, 0));
 
@@ -561,13 +609,26 @@ macro_rules! matrix_slice_impl (
 
         /// Creates a slice that may or may not have a fixed size and stride.
         #[inline]
-        pub fn $generic_slice_with_steps<RSlice, CSlice>($me: $Me,
+        #[deprecated = slice_deprecation_note!($generic_view_with_steps)]
+        pub fn $generic_slice_with_steps<RView, CView>($me: $Me,
                                                          start: (usize, usize),
-                                                         shape: (RSlice, CSlice),
+                                                         shape: (RView, CView),
                                                          steps: (usize, usize))
-            -> $MatrixView<'_, T, RSlice, CSlice, Dynamic, Dynamic>
-            where RSlice: Dim,
-                  CSlice: Dim {
+            -> $MatrixView<'_, T, RView, CView, Dynamic, Dynamic>
+            where RView: Dim,
+                  CView: Dim {
+            $me.$generic_view_with_steps(start, shape, steps)
+        }
+
+        /// Creates a matrix view that may or may not have a fixed size and stride.
+        #[inline]
+        pub fn $generic_view_with_steps<RView, CView>($me: $Me,
+                                                         start: (usize, usize),
+                                                         shape: (RView, CView),
+                                                         steps: (usize, usize))
+            -> $MatrixView<'_, T, RView, CView, Dynamic, Dynamic>
+            where RView: Dim,
+                  CView: Dim {
 
             $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), steps);
 
@@ -615,10 +676,10 @@ macro_rules! matrix_slice_impl (
 
                 let data1  = $ViewStorage::from_raw_parts(ptr1, (nrows1, ncols), strides);
                 let data2  = $ViewStorage::from_raw_parts(ptr2, (nrows2, ncols), strides);
-                let slice1 = Matrix::from_data_statically_unchecked(data1);
-                let slice2 = Matrix::from_data_statically_unchecked(data2);
+                let view1 = Matrix::from_data_statically_unchecked(data1);
+                let view2 = Matrix::from_data_statically_unchecked(data2);
 
-                (slice1, slice2)
+                (view1, view2)
             }
         }
 
@@ -651,10 +712,10 @@ macro_rules! matrix_slice_impl (
 
                 let data1  = $ViewStorage::from_raw_parts(ptr1, (nrows, ncols1), strides);
                 let data2  = $ViewStorage::from_raw_parts(ptr2, (nrows, ncols2), strides);
-                let slice1 = Matrix::from_data_statically_unchecked(data1);
-                let slice2 = Matrix::from_data_statically_unchecked(data2);
+                let view1 = Matrix::from_data_statically_unchecked(data1);
+                let view2 = Matrix::from_data_statically_unchecked(data2);
 
-                (slice1, slice2)
+                (view1, view2)
             }
         }
     }
@@ -688,9 +749,9 @@ pub type MatrixSliceMut<'a, T, R, C, RStride = U1, CStride = R> =
 pub type MatrixViewMut<'a, T, R, C, RStride = U1, CStride = R> =
     Matrix<T, R, C, ViewStorageMut<'a, T, R, C, RStride, CStride>>;
 
-/// # Slicing based on index and length
+/// # Views based on index and length
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
-    matrix_slice_impl!(
+    matrix_view_impl!(
      self: &Self, MatrixView, ViewStorage, RawStorage.get_address_unchecked(), &self.data;
      row,
      row_part,
@@ -708,19 +769,19 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
      fixed_columns_with_step,
      columns_generic,
      columns_generic_with_step,
-     slice,
-     slice_with_steps,
-     fixed_slice,
-     fixed_slice_with_steps,
-     generic_slice,
-     generic_slice_with_steps,
+     slice => view,
+     slice_with_steps => view_with_steps,
+     fixed_slice => fixed_view,
+     fixed_slice_with_steps => fixed_view_with_steps,
+     generic_slice => generic_view,
+     generic_slice_with_steps => generic_view_with_steps,
      rows_range_pair,
      columns_range_pair);
 }
 
-/// # Mutable slicing based on index and length
+/// # Mutable views based on index and length
 impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
-    matrix_slice_impl!(
+    matrix_view_impl!(
      self: &mut Self, MatrixViewMut, ViewStorageMut, RawStorageMut.get_address_unchecked_mut(), &mut self.data;
      row_mut,
      row_part_mut,
@@ -738,12 +799,12 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
      fixed_columns_with_step_mut,
      columns_generic_mut,
      columns_generic_with_step_mut,
-     slice_mut,
-     slice_with_steps_mut,
-     fixed_slice_mut,
-     fixed_slice_with_steps_mut,
-     generic_slice_mut,
-     generic_slice_with_steps_mut,
+     slice_mut => view_mut,
+     slice_with_steps_mut => view_with_steps_mut,
+     fixed_slice_mut => fixed_view_mut,
+     fixed_slice_with_steps_mut => fixed_view_with_steps_mut,
+     generic_slice_mut => generic_view_mut,
+     generic_slice_with_steps_mut => generic_view_with_steps_mut,
      rows_range_pair_mut,
      columns_range_pair_mut);
 }
@@ -889,6 +950,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// by the range `cols`.
     #[inline]
     #[must_use]
+    #[deprecated = slice_deprecation_note!(view_range)]
     pub fn slice_range<RowRange, ColRange>(
         &self,
         rows: RowRange,
@@ -905,24 +967,44 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         )
     }
 
-    /// Slice containing all the rows indexed by the range `rows`.
+    /// Returns a view containing the rows indexed by the range `rows` and the columns indexed
+    /// by the range `cols`.
+    #[inline]
+    #[must_use]
+    pub fn view_range<RowRange, ColRange>(
+        &self,
+        rows: RowRange,
+        cols: ColRange,
+    ) -> MatrixView<'_, T, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
+        where
+            RowRange: SliceRange<R>,
+            ColRange: SliceRange<C>,
+    {
+        let (nrows, ncols) = self.shape_generic();
+        self.generic_view(
+            (rows.begin(nrows), cols.begin(ncols)),
+            (rows.size(nrows), cols.size(ncols)),
+        )
+    }
+
+    /// View containing all the rows indexed by the range `rows`.
     #[inline]
     #[must_use]
     pub fn rows_range<RowRange: SliceRange<R>>(
         &self,
         rows: RowRange,
     ) -> MatrixView<'_, T, RowRange::Size, C, S::RStride, S::CStride> {
-        self.slice_range(rows, ..)
+        self.view_range(rows, ..)
     }
 
-    /// Slice containing all the columns indexed by the range `rows`.
+    /// View containing all the columns indexed by the range `rows`.
     #[inline]
     #[must_use]
     pub fn columns_range<ColRange: SliceRange<C>>(
         &self,
         cols: ColRange,
     ) -> MatrixView<'_, T, R, ColRange::Size, S::RStride, S::CStride> {
-        self.slice_range(.., cols)
+        self.view_range(.., cols)
     }
 }
 
@@ -931,6 +1013,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// Slices a mutable sub-matrix containing the rows indexed by the range `rows` and the columns
     /// indexed by the range `cols`.
+    #[deprecated = slice_deprecation_note!(view_range_mut)]
     pub fn slice_range_mut<RowRange, ColRange>(
         &mut self,
         rows: RowRange,
@@ -940,29 +1023,43 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         RowRange: SliceRange<R>,
         ColRange: SliceRange<C>,
     {
+        self.view_range_mut(rows, cols)
+    }
+
+    /// Return a mutable view containing the rows indexed by the range `rows` and the columns
+    /// indexed by the range `cols`.
+    pub fn view_range_mut<RowRange, ColRange>(
+        &mut self,
+        rows: RowRange,
+        cols: ColRange,
+    ) -> MatrixViewMut<'_, T, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
+        where
+            RowRange: SliceRange<R>,
+            ColRange: SliceRange<C>,
+    {
         let (nrows, ncols) = self.shape_generic();
-        self.generic_slice_mut(
+        self.generic_view_mut(
             (rows.begin(nrows), cols.begin(ncols)),
             (rows.size(nrows), cols.size(ncols)),
         )
     }
 
-    /// Slice containing all the rows indexed by the range `rows`.
+    /// Mutable view containing all the rows indexed by the range `rows`.
     #[inline]
     pub fn rows_range_mut<RowRange: SliceRange<R>>(
         &mut self,
         rows: RowRange,
     ) -> MatrixViewMut<'_, T, RowRange::Size, C, S::RStride, S::CStride> {
-        self.slice_range_mut(rows, ..)
+        self.view_range_mut(rows, ..)
     }
 
-    /// Slice containing all the columns indexed by the range `cols`.
+    /// Mutable view containing all the columns indexed by the range `cols`.
     #[inline]
     pub fn columns_range_mut<ColRange: SliceRange<C>>(
         &mut self,
         cols: ColRange,
     ) -> MatrixViewMut<'_, T, R, ColRange::Size, S::RStride, S::CStride> {
-        self.slice_range_mut(.., cols)
+        self.view_range_mut(.., cols)
     }
 }
 
@@ -974,11 +1071,11 @@ where
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(slice_mut: MatrixViewMut<'a, T, R, C, RStride, CStride>) -> Self {
+    fn from(view_mut: MatrixViewMut<'a, T, R, C, RStride, CStride>) -> Self {
         let data = ViewStorage {
-            ptr: slice_mut.data.ptr,
-            shape: slice_mut.data.shape,
-            strides: slice_mut.data.strides,
+            ptr: view_mut.data.ptr,
+            shape: view_mut.data.shape,
+            strides: view_mut.data.strides,
             _phantoms: PhantomData,
         };
 

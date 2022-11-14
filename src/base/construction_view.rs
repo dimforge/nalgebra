@@ -4,11 +4,11 @@ use crate::base::{MatrixView, MatrixViewMut, Scalar};
 
 use num_rational::Ratio;
 
-/// # Creating matrix slices from `&[T]`
+/// # Creating matrix views from `&[T]`
 impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     MatrixView<'a, T, R, C, RStride, CStride>
 {
-    /// Creates, without bound-checking, a matrix slice from an array and with dimensions and strides specified by generic types instances.
+    /// Creates, without bounds checking, a matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
     /// # Safety
     /// This method is unsafe because the input data array is not checked to contain enough elements.
@@ -30,7 +30,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         Self::from_data(data)
     }
 
-    /// Creates a matrix slice from an array and with dimensions and strides specified by generic types instances.
+    /// Creates a matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
     /// Panics if the input data array dose not contain enough elements.
     /// The generic types `R`, `C`, `RStride`, `CStride` can either be type-level integers or integers wrapped with `Dynamic::new()`.
@@ -58,7 +58,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
 }
 
 impl<'a, T: Scalar, R: Dim, C: Dim> MatrixView<'a, T, R, C> {
-    /// Creates, without bound-checking, a matrix slice from an array and with dimensions specified by generic types instances.
+    /// Creates, without bound-checking, a matrix view from an array and with dimensions specified by generic types instances.
     ///
     /// # Safety
     /// This method is unsafe because the input data array is not checked to contain enough elements.
@@ -75,7 +75,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim> MatrixView<'a, T, R, C> {
         )
     }
 
-    /// Creates a matrix slice from an array and with dimensions and strides specified by generic types instances.
+    /// Creates a matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
     /// Panics if the input data array dose not contain enough elements.
     /// The generic types `R` and `C` can either be type-level integers or integers wrapped with `Dynamic::new()`.
@@ -88,7 +88,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim> MatrixView<'a, T, R, C> {
 macro_rules! impl_constructors(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
         impl<'a, T: Scalar, $($DimIdent: $DimBound),*> MatrixView<'a, T, $($Dims),*> {
-            /// Creates a new matrix slice from the given data array.
+            /// Creates a new matrix view from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
             #[inline]
@@ -96,7 +96,7 @@ macro_rules! impl_constructors(
                 Self::from_slice_generic(data, $($gargs),*)
             }
 
-            /// Creates, without bound checking, a new matrix slice from the given data array.
+            /// Creates, without bound checking, a new matrix view from the given data array.
             #[inline]
             pub unsafe fn from_slice_unchecked(data: &'a [T], start: usize, $($args: usize),*) -> Self {
                 Self::from_slice_generic_unchecked(data, start, $($gargs),*)
@@ -104,7 +104,7 @@ macro_rules! impl_constructors(
         }
 
         impl<'a, T: Scalar, $($DimIdent: $DimBound, )*> MatrixView<'a, T, $($Dims,)* Dynamic, Dynamic> {
-            /// Creates a new matrix slice with the specified strides from the given data array.
+            /// Creates a new matrix view with the specified strides from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
             #[inline]
@@ -112,7 +112,7 @@ macro_rules! impl_constructors(
                 Self::from_slice_with_strides_generic(data, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
             }
 
-            /// Creates, without bound checking, a new matrix slice with the specified strides from the given data array.
+            /// Creates, without bound checking, a new matrix view with the specified strides from the given data array.
             #[inline]
             pub unsafe fn from_slice_with_strides_unchecked(data: &'a [T], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self {
                 Self::from_slice_with_strides_generic_unchecked(data, start, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
@@ -142,11 +142,11 @@ impl_constructors!(Dynamic, Dynamic;
                    Dynamic::new(nrows), Dynamic::new(ncols);
                    nrows, ncols);
 
-/// # Creating mutable matrix slices from `&mut [T]`
+/// # Creating mutable matrix views from `&mut [T]`
 impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     MatrixViewMut<'a, T, R, C, RStride, CStride>
 {
-    /// Creates, without bound-checking, a mutable matrix slice from an array and with dimensions and strides specified by generic types instances.
+    /// Creates, without bound-checking, a mutable matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
     /// # Safety
     /// This method is unsafe because the input data array is not checked to contain enough elements.
@@ -168,7 +168,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         Self::from_data(data)
     }
 
-    /// Creates a mutable matrix slice from an array and with dimensions and strides specified by generic types instances.
+    /// Creates a mutable matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
     /// Panics if the input data array dose not contain enough elements.
     /// The generic types `R`, `C`, `RStride`, `CStride` can either be type-level integers or integers wrapped with `Dynamic::new()`.
@@ -218,7 +218,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
 }
 
 impl<'a, T: Scalar, R: Dim, C: Dim> MatrixViewMut<'a, T, R, C> {
-    /// Creates, without bound-checking, a mutable matrix slice from an array and with dimensions specified by generic types instances.
+    /// Creates, without bound-checking, a mutable matrix view from an array and with dimensions specified by generic types instances.
     ///
     /// # Safety
     /// This method is unsafe because the input data array is not checked to contain enough elements.
@@ -235,7 +235,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim> MatrixViewMut<'a, T, R, C> {
         )
     }
 
-    /// Creates a mutable matrix slice from an array and with dimensions and strides specified by generic types instances.
+    /// Creates a mutable matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
     /// Panics if the input data array dose not contain enough elements.
     /// The generic types `R` and `C` can either be type-level integers or integers wrapped with `Dynamic::new()`.
@@ -248,7 +248,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim> MatrixViewMut<'a, T, R, C> {
 macro_rules! impl_constructors_mut(
     ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
         impl<'a, T: Scalar, $($DimIdent: $DimBound),*> MatrixViewMut<'a, T, $($Dims),*> {
-            /// Creates a new mutable matrix slice from the given data array.
+            /// Creates a new mutable matrix view from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
             #[inline]
@@ -256,7 +256,7 @@ macro_rules! impl_constructors_mut(
                 Self::from_slice_generic(data, $($gargs),*)
             }
 
-            /// Creates, without bound checking, a new mutable matrix slice from the given data array.
+            /// Creates, without bound checking, a new mutable matrix view from the given data array.
             #[inline]
             pub unsafe fn from_slice_unchecked(data: &'a mut [T], start: usize, $($args: usize),*) -> Self {
                 Self::from_slice_generic_unchecked(data, start, $($gargs),*)
@@ -264,7 +264,7 @@ macro_rules! impl_constructors_mut(
         }
 
         impl<'a, T: Scalar, $($DimIdent: $DimBound, )*> MatrixViewMut<'a, T, $($Dims,)* Dynamic, Dynamic> {
-            /// Creates a new mutable matrix slice with the specified strides from the given data array.
+            /// Creates a new mutable matrix view with the specified strides from the given data array.
             ///
             /// Panics if `data` does not contain enough elements.
             #[inline]
@@ -273,7 +273,7 @@ macro_rules! impl_constructors_mut(
                     data, $($gargs,)* Dynamic::new(rstride), Dynamic::new(cstride))
             }
 
-            /// Creates, without bound checking, a new mutable matrix slice with the specified strides from the given data array.
+            /// Creates, without bound checking, a new mutable matrix view with the specified strides from the given data array.
             #[inline]
             pub unsafe fn from_slice_with_strides_unchecked(data: &'a mut [T], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self {
                 Self::from_slice_with_strides_generic_unchecked(
