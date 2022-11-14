@@ -296,8 +296,8 @@ where
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixView<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
-        matrix_slice.into_owned()
+    fn from(matrix_view: MatrixView<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
+        matrix_view.into_owned()
     }
 }
 
@@ -310,8 +310,8 @@ where
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixView<'a, T, Dynamic, C, RStride, CStride>) -> Self {
-        matrix_slice.into_owned()
+    fn from(matrix_view: MatrixView<'a, T, Dynamic, C, RStride, CStride>) -> Self {
+        matrix_view.into_owned()
     }
 }
 
@@ -324,8 +324,8 @@ where
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixView<'a, T, R, Dynamic, RStride, CStride>) -> Self {
-        matrix_slice.into_owned()
+    fn from(matrix_view: MatrixView<'a, T, R, Dynamic, RStride, CStride>) -> Self {
+        matrix_view.into_owned()
     }
 }
 
@@ -337,8 +337,8 @@ where
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixViewMut<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
-        matrix_slice.into_owned()
+    fn from(matrix_view: MatrixViewMut<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
+        matrix_view.into_owned()
     }
 }
 
@@ -351,8 +351,8 @@ where
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixViewMut<'a, T, Dynamic, C, RStride, CStride>) -> Self {
-        matrix_slice.into_owned()
+    fn from(matrix_view: MatrixViewMut<'a, T, Dynamic, C, RStride, CStride>) -> Self {
+        matrix_view.into_owned()
     }
 }
 
@@ -365,116 +365,116 @@ where
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixViewMut<'a, T, R, Dynamic, RStride, CStride>) -> Self {
-        matrix_slice.into_owned()
+    fn from(matrix_view: MatrixViewMut<'a, T, R, Dynamic, RStride, CStride>) -> Self {
+        matrix_view.into_owned()
     }
 }
 
-impl<'a, T, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a Matrix<T, R, C, S>>
-    for MatrixView<'a, T, RSlice, CSlice, RStride, CStride>
+impl<'a, T, R, C, RView, CView, RStride, CStride, S> From<&'a Matrix<T, R, C, S>>
+    for MatrixView<'a, T, RView, CView, RStride, CStride>
 where
     T: Scalar,
     R: Dim,
     C: Dim,
-    RSlice: Dim,
-    CSlice: Dim,
+    RView: Dim,
+    CView: Dim,
     RStride: Dim,
     CStride: Dim,
     S: RawStorage<T, R, C>,
-    ShapeConstraint: DimEq<R, RSlice>
-        + DimEq<C, CSlice>
+    ShapeConstraint: DimEq<R, RView>
+        + DimEq<C, CView>
         + DimEq<RStride, S::RStride>
         + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a Matrix<T, R, C, S>) -> Self {
         let (row, col) = m.shape_generic();
-        let row_slice = RSlice::from_usize(row.value());
-        let col_slice = CSlice::from_usize(col.value());
+        let rows_result = RView::from_usize(row.value());
+        let cols_result = CView::from_usize(col.value());
 
         let (rstride, cstride) = m.strides();
 
-        let rstride_slice = RStride::from_usize(rstride);
-        let cstride_slice = CStride::from_usize(cstride);
+        let rstride_result = RStride::from_usize(rstride);
+        let cstride_result = CStride::from_usize(cstride);
 
         unsafe {
             let data = ViewStorage::from_raw_parts(
                 m.data.ptr(),
-                (row_slice, col_slice),
-                (rstride_slice, cstride_slice),
+                (rows_result, cols_result),
+                (rstride_result, cstride_result),
             );
             Matrix::from_data_statically_unchecked(data)
         }
     }
 }
 
-impl<'a, T, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a mut Matrix<T, R, C, S>>
-    for MatrixView<'a, T, RSlice, CSlice, RStride, CStride>
+impl<'a, T, R, C, RView, CView, RStride, CStride, S> From<&'a mut Matrix<T, R, C, S>>
+    for MatrixView<'a, T, RView, CView, RStride, CStride>
 where
     T: Scalar,
     R: Dim,
     C: Dim,
-    RSlice: Dim,
-    CSlice: Dim,
+    RView: Dim,
+    CView: Dim,
     RStride: Dim,
     CStride: Dim,
     S: RawStorage<T, R, C>,
-    ShapeConstraint: DimEq<R, RSlice>
-        + DimEq<C, CSlice>
+    ShapeConstraint: DimEq<R, RView>
+        + DimEq<C, CView>
         + DimEq<RStride, S::RStride>
         + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a mut Matrix<T, R, C, S>) -> Self {
         let (row, col) = m.shape_generic();
-        let row_slice = RSlice::from_usize(row.value());
-        let col_slice = CSlice::from_usize(col.value());
+        let rows_result = RView::from_usize(row.value());
+        let cols_result = CView::from_usize(col.value());
 
         let (rstride, cstride) = m.strides();
 
-        let rstride_slice = RStride::from_usize(rstride);
-        let cstride_slice = CStride::from_usize(cstride);
+        let rstride_result = RStride::from_usize(rstride);
+        let cstride_result = CStride::from_usize(cstride);
 
         unsafe {
             let data = ViewStorage::from_raw_parts(
                 m.data.ptr(),
-                (row_slice, col_slice),
-                (rstride_slice, cstride_slice),
+                (rows_result, cols_result),
+                (rstride_result, cstride_result),
             );
             Matrix::from_data_statically_unchecked(data)
         }
     }
 }
 
-impl<'a, T, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a mut Matrix<T, R, C, S>>
-    for MatrixViewMut<'a, T, RSlice, CSlice, RStride, CStride>
+impl<'a, T, R, C, RView, CView, RStride, CStride, S> From<&'a mut Matrix<T, R, C, S>>
+    for MatrixViewMut<'a, T, RView, CView, RStride, CStride>
 where
     T: Scalar,
     R: Dim,
     C: Dim,
-    RSlice: Dim,
-    CSlice: Dim,
+    RView: Dim,
+    CView: Dim,
     RStride: Dim,
     CStride: Dim,
     S: RawStorageMut<T, R, C>,
-    ShapeConstraint: DimEq<R, RSlice>
-        + DimEq<C, CSlice>
+    ShapeConstraint: DimEq<R, RView>
+        + DimEq<C, CView>
         + DimEq<RStride, S::RStride>
         + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a mut Matrix<T, R, C, S>) -> Self {
         let (row, col) = m.shape_generic();
-        let row_slice = RSlice::from_usize(row.value());
-        let col_slice = CSlice::from_usize(col.value());
+        let rows_result = RView::from_usize(row.value());
+        let cols_result = CView::from_usize(col.value());
 
         let (rstride, cstride) = m.strides();
 
-        let rstride_slice = RStride::from_usize(rstride);
-        let cstride_slice = CStride::from_usize(cstride);
+        let rstride_result = RStride::from_usize(rstride);
+        let cstride_result = CStride::from_usize(cstride);
 
         unsafe {
             let data = ViewStorageMut::from_raw_parts(
                 m.data.ptr_mut(),
-                (row_slice, col_slice),
-                (rstride_slice, cstride_slice),
+                (rows_result, cols_result),
+                (rstride_result, cstride_result),
             );
             Matrix::from_data_statically_unchecked(data)
         }

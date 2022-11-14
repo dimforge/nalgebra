@@ -667,7 +667,7 @@ macro_rules! matrix_view_impl (
             let nrows1 = r1.size(nrows);
             let nrows2 = r2.size(nrows);
 
-            assert!(start2 >= end1 || start1 >= end2, "Rows range pair: the slice ranges must not overlap.");
+            assert!(start2 >= end1 || start1 >= end2, "Rows range pair: the ranges must not overlap.");
             assert!(end2 <= nrows.value(), "Rows range pair: index out of range.");
 
             unsafe {
@@ -703,7 +703,7 @@ macro_rules! matrix_view_impl (
             let ncols1 = r1.size(ncols);
             let ncols2 = r2.size(ncols);
 
-            assert!(start2 >= end1 || start1 >= end2, "Columns range pair: the slice ranges must not overlap.");
+            assert!(start2 >= end1 || start1 >= end2, "Columns range pair: the ranges must not overlap.");
             assert!(end2 <= ncols.value(), "Columns range pair: index out of range.");
 
             unsafe {

@@ -48,7 +48,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         assert!(
             data.len() + cstride.value() + rstride.value()
                 >= ncols.value() * cstride.value() + nrows.value() * rstride.value() + 1,
-            "Matrix slice: input data buffer to small."
+            "Matrix view: input data buffer too small."
         );
 
         unsafe {
@@ -186,7 +186,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         assert!(
             data.len() + cstride.value() + rstride.value()
                 >= ncols.value() * cstride.value() + nrows.value() * rstride.value() + 1,
-            "Matrix slice: input data buffer to small."
+            "Matrix view: input data buffer too small."
         );
 
         assert!(
@@ -208,7 +208,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
                         }
                     }
             },
-            "Matrix slice: dimensions and strides result in aliased indices."
+            "Matrix view: dimensions and strides result in aliased indices."
         );
 
         unsafe {
