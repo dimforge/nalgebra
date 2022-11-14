@@ -262,7 +262,7 @@ unsafe impl<'a, T, R: DimName, C: Dim + IsNotStaticOne> IsContiguous
 
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[inline]
-    fn assert_slice_index(
+    fn assert_view_index(
         &self,
         start: (usize, usize),
         shape: (usize, usize),
@@ -367,7 +367,7 @@ macro_rules! matrix_view_impl (
             -> $MatrixView<'_, T, RView, C, S::RStride, S::CStride> {
 
             let my_shape   = $me.shape_generic();
-            $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (0, 0));
+            $me.assert_view_index((row_start, 0), (nrows.value(), my_shape.1.value()), (0, 0));
 
             let shape = (nrows, my_shape.1);
 
@@ -386,7 +386,7 @@ macro_rules! matrix_view_impl (
 
             let my_shape   = $me.shape_generic();
             let my_strides = $me.data.strides();
-            $me.assert_slice_index((row_start, 0), (nrows.value(), my_shape.1.value()), (step, 0));
+            $me.assert_view_index((row_start, 0), (nrows.value(), my_shape.1.value()), (step, 0));
 
             let strides = (Dynamic::new((step + 1) * my_strides.0.value()), my_strides.1);
             let shape   = (nrows, my_shape.1);
@@ -455,7 +455,7 @@ macro_rules! matrix_view_impl (
             -> $MatrixView<'_, T, R, CView, S::RStride, S::CStride> {
 
             let my_shape = $me.shape_generic();
-            $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, 0));
+            $me.assert_view_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, 0));
             let shape = (my_shape.0, ncols);
 
             unsafe {
@@ -474,7 +474,7 @@ macro_rules! matrix_view_impl (
             let my_shape   = $me.shape_generic();
             let my_strides = $me.data.strides();
 
-            $me.assert_slice_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, step));
+            $me.assert_view_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, step));
 
             let strides = (my_strides.0, Dynamic::new((step + 1) * my_strides.1.value()));
             let shape   = (my_shape.0, ncols);
@@ -505,7 +505,7 @@ macro_rules! matrix_view_impl (
         pub fn $view($me: $Me, start: (usize, usize), shape: (usize, usize))
             -> $MatrixView<'_, T, Dynamic, Dynamic, S::RStride, S::CStride> {
 
-            $me.assert_slice_index(start, shape, (0, 0));
+            $me.assert_view_index(start, shape, (0, 0));
             let shape = (Dynamic::new(shape.0), Dynamic::new(shape.1));
 
             unsafe {
@@ -551,7 +551,7 @@ macro_rules! matrix_view_impl (
         pub fn $fixed_view<const RVIEW: usize, const CVIEW: usize>($me: $Me, irow: usize, icol: usize)
             -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, S::RStride, S::CStride> {
 
-            $me.assert_slice_index((irow, icol), (RVIEW, CVIEW), (0, 0));
+            $me.assert_view_index((irow, icol), (RVIEW, CVIEW), (0, 0));
             let shape = (Const::<RVIEW>, Const::<CVIEW>);
 
             unsafe {
@@ -599,7 +599,7 @@ macro_rules! matrix_view_impl (
             where RView: Dim,
                   CView: Dim {
 
-            $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), (0, 0));
+            $me.assert_view_index(start, (shape.0.value(), shape.1.value()), (0, 0));
 
             unsafe {
                 let data = $ViewStorage::new_unchecked($data, start, shape);
@@ -630,7 +630,7 @@ macro_rules! matrix_view_impl (
             where RView: Dim,
                   CView: Dim {
 
-            $me.assert_slice_index(start, (shape.0.value(), shape.1.value()), steps);
+            $me.assert_view_index(start, (shape.0.value(), shape.1.value()), steps);
 
             let my_strides = $me.data.strides();
             let strides    = (Dynamic::new((steps.0 + 1) * my_strides.0.value()),
