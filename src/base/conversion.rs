@@ -16,8 +16,8 @@ use crate::base::dimension::{
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::storage::{IsContiguous, RawStorage, RawStorageMut};
 use crate::base::{
-    ArrayStorage, DVectorView, DVectorViewMut, DefaultAllocator, Matrix, MatrixView,
-    MatrixViewMut, OMatrix, Scalar,
+    ArrayStorage, DVectorView, DVectorViewMut, DefaultAllocator, Matrix, MatrixView, MatrixViewMut,
+    OMatrix, Scalar,
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::{DVector, RowDVector, VecStorage};
@@ -380,10 +380,8 @@ where
     RStride: Dim,
     CStride: Dim,
     S: RawStorage<T, R, C>,
-    ShapeConstraint: DimEq<R, RView>
-        + DimEq<C, CView>
-        + DimEq<RStride, S::RStride>
-        + DimEq<CStride, S::CStride>,
+    ShapeConstraint:
+        DimEq<R, RView> + DimEq<C, CView> + DimEq<RStride, S::RStride> + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a Matrix<T, R, C, S>) -> Self {
         let (row, col) = m.shape_generic();
@@ -416,10 +414,8 @@ where
     RStride: Dim,
     CStride: Dim,
     S: RawStorage<T, R, C>,
-    ShapeConstraint: DimEq<R, RView>
-        + DimEq<C, CView>
-        + DimEq<RStride, S::RStride>
-        + DimEq<CStride, S::CStride>,
+    ShapeConstraint:
+        DimEq<R, RView> + DimEq<C, CView> + DimEq<RStride, S::RStride> + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a mut Matrix<T, R, C, S>) -> Self {
         let (row, col) = m.shape_generic();
@@ -452,10 +448,8 @@ where
     RStride: Dim,
     CStride: Dim,
     S: RawStorageMut<T, R, C>,
-    ShapeConstraint: DimEq<R, RView>
-        + DimEq<C, CView>
-        + DimEq<RStride, S::RStride>
-        + DimEq<CStride, S::CStride>,
+    ShapeConstraint:
+        DimEq<R, RView> + DimEq<C, CView> + DimEq<RStride, S::RStride> + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a mut Matrix<T, R, C, S>) -> Self {
         let (row, col) = m.shape_generic();

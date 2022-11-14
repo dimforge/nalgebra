@@ -211,10 +211,12 @@ where
 
                     {
                         let mut work = work.rows_mut(0, end + 1);
-                        refl.reflect(&mut t.generic_view_mut(
-                            (m, m),
-                            (Const::<2>, Dynamic::new(dim.value() - m)),
-                        ));
+                        refl.reflect(
+                            &mut t.generic_view_mut(
+                                (m, m),
+                                (Const::<2>, Dynamic::new(dim.value() - m)),
+                            ),
+                        );
                         refl.reflect_rows(
                             &mut t.generic_view_mut((0, m), (Dynamic::new(end + 1), Const::<2>)),
                             &mut work,
@@ -222,10 +224,7 @@ where
                     }
 
                     if let Some(ref mut q) = q {
-                        refl.reflect_rows(
-                            &mut q.generic_view_mut((0, m), (dim, Const::<2>)),
-                            work,
-                        );
+                        refl.reflect_rows(&mut q.generic_view_mut((0, m), (dim, Const::<2>)), work);
                     }
                 }
             } else {

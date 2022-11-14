@@ -3,8 +3,8 @@
 use na::{
     DMatrix, DMatrixView, DMatrixViewMut, Matrix2, Matrix2x3, Matrix2x4, Matrix2x6, Matrix3,
     Matrix3x2, Matrix3x4, Matrix4x2, Matrix6x2, MatrixView2, MatrixView2x3, MatrixView2xX,
-    MatrixView3, MatrixView3x2, MatrixViewMut2, MatrixViewMut2x3, MatrixViewMut2xX,
-    MatrixViewMut3, MatrixViewMut3x2, MatrixViewMutXx3, MatrixViewXx3, RowVector4, Vector3,
+    MatrixView3, MatrixView3x2, MatrixViewMut2, MatrixViewMut2x3, MatrixViewMut2xX, MatrixViewMut3,
+    MatrixViewMut3x2, MatrixViewMutXx3, MatrixViewXx3, RowVector4, Vector3,
 };
 
 #[test]

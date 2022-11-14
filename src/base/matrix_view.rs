@@ -986,9 +986,9 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         rows: RowRange,
         cols: ColRange,
     ) -> MatrixView<'_, T, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
-        where
-            RowRange: DimRange<R>,
-            ColRange: DimRange<C>,
+    where
+        RowRange: DimRange<R>,
+        ColRange: DimRange<C>,
     {
         let (nrows, ncols) = self.shape_generic();
         self.generic_view(
@@ -1043,9 +1043,9 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         rows: RowRange,
         cols: ColRange,
     ) -> MatrixViewMut<'_, T, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
-        where
-            RowRange: DimRange<R>,
-            ColRange: DimRange<C>,
+    where
+        RowRange: DimRange<R>,
+        ColRange: DimRange<C>,
     {
         let (nrows, ncols) = self.shape_generic();
         self.generic_view_mut(
@@ -1122,13 +1122,18 @@ where
     /// let dynamic_view: DMatrixSlice<f64> = matrix.as_view();
     /// let static_view_from_dyn: SMatrixView<f64, 3, 3> = dynamic_view.as_view();
     /// ```
-    pub fn as_view<RView, CView, RViewStride, CViewStride>(&self) -> MatrixView<'_, T, RView, CView, RViewStride, CViewStride>
+    pub fn as_view<RView, CView, RViewStride, CViewStride>(
+        &self,
+    ) -> MatrixView<'_, T, RView, CView, RViewStride, CViewStride>
     where
         RView: Dim,
         CView: Dim,
         RViewStride: Dim,
         CViewStride: Dim,
-        ShapeConstraint: DimEq<R, RView> + DimEq<C, CView> + DimEq<RViewStride, S::RStride> + DimEq<CViewStride, S::CStride>
+        ShapeConstraint: DimEq<R, RView>
+            + DimEq<C, CView>
+            + DimEq<RViewStride, S::RStride>
+            + DimEq<CViewStride, S::CStride>,
     {
         // Defer to (&matrix).into()
         self.into()
@@ -1164,13 +1169,18 @@ where
     /// let mut dynamic_view: DMatrixViewMut<f64> = matrix.as_view_mut();
     /// let static_view_from_dyn: SMatrixViewMut<f64, 3, 3> = dynamic_view.as_view_mut();
     /// ```
-    pub fn as_view_mut<RView, CView, RViewStride, CViewStride>(&mut self) -> MatrixViewMut<'_, T, RView, CView, RViewStride, CViewStride>
-        where
-            RView: Dim,
-            CView: Dim,
-            RViewStride: Dim,
-            CViewStride: Dim,
-            ShapeConstraint: DimEq<R, RView> + DimEq<C, CView> + DimEq<RViewStride, S::RStride> + DimEq<CViewStride, S::CStride>
+    pub fn as_view_mut<RView, CView, RViewStride, CViewStride>(
+        &mut self,
+    ) -> MatrixViewMut<'_, T, RView, CView, RViewStride, CViewStride>
+    where
+        RView: Dim,
+        CView: Dim,
+        RViewStride: Dim,
+        CViewStride: Dim,
+        ShapeConstraint: DimEq<R, RView>
+            + DimEq<C, CView>
+            + DimEq<RViewStride, S::RStride>
+            + DimEq<CViewStride, S::CStride>,
     {
         // Defer to (&mut matrix).into()
         self.into()
