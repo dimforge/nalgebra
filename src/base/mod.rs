@@ -18,7 +18,7 @@ mod cg;
 mod componentwise;
 #[macro_use]
 mod construction;
-mod construction_slice;
+mod construction_view;
 mod conversion;
 mod edition;
 pub mod indexing;
