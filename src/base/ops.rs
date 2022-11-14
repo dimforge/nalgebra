@@ -14,7 +14,7 @@ use crate::base::constraint::{
 use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::uninit::Uninit;
-use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorSlice};
+use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorView};
 use crate::storage::IsContiguous;
 use crate::uninit::{Init, InitStatus};
 use crate::{RawStorage, RawStorageMut, SimdComplexField};
@@ -703,8 +703,8 @@ where
         rhs: &Matrix<T, R2, C2, SB>,
         out: &mut Matrix<Status::Value, R3, C3, SC>,
         dot: impl Fn(
-            &VectorSlice<'_, T, R1, SA::RStride, SA::CStride>,
-            &VectorSlice<'_, T, R2, SB::RStride, SB::CStride>,
+            &VectorView<'_, T, R1, SA::RStride, SA::CStride>,
+            &VectorView<'_, T, R2, SB::RStride, SB::CStride>,
         ) -> T,
     ) where
         Status: InitStatus<T>,

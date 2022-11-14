@@ -16,14 +16,14 @@ use crate::base::dimension::{
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::storage::{IsContiguous, RawStorage, RawStorageMut};
 use crate::base::{
-    ArrayStorage, DVectorSlice, DVectorSliceMut, DefaultAllocator, Matrix, MatrixView,
+    ArrayStorage, DVectorView, DVectorViewMut, DefaultAllocator, Matrix, MatrixView,
     MatrixViewMut, OMatrix, Scalar,
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::{DVector, RowDVector, VecStorage};
 use crate::base::{ViewStorage, ViewStorageMut};
 use crate::constraint::DimEq;
-use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector, VectorSlice, VectorSliceMut};
+use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector, VectorView, VectorViewMut};
 use std::mem::MaybeUninit;
 
 // TODO: too bad this won't work for slice conversions.
@@ -126,19 +126,19 @@ impl<T: Scalar, const D: usize> From<SVector<T, D>> for [T; D] {
 }
 
 impl<'a, T: Scalar, RStride: Dim, CStride: Dim, const D: usize>
-    From<VectorSlice<'a, T, Const<D>, RStride, CStride>> for [T; D]
+    From<VectorView<'a, T, Const<D>, RStride, CStride>> for [T; D]
 {
     #[inline]
-    fn from(vec: VectorSlice<'a, T, Const<D>, RStride, CStride>) -> Self {
+    fn from(vec: VectorView<'a, T, Const<D>, RStride, CStride>) -> Self {
         vec.into_owned().into()
     }
 }
 
 impl<'a, T: Scalar, RStride: Dim, CStride: Dim, const D: usize>
-    From<VectorSliceMut<'a, T, Const<D>, RStride, CStride>> for [T; D]
+    From<VectorViewMut<'a, T, Const<D>, RStride, CStride>> for [T; D]
 {
     #[inline]
-    fn from(vec: VectorSliceMut<'a, T, Const<D>, RStride, CStride>) -> Self {
+    fn from(vec: VectorViewMut<'a, T, Const<D>, RStride, CStride>) -> Self {
         vec.into_owned().into()
     }
 }
@@ -515,28 +515,28 @@ impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: RawStorageMut<T, R, C> + IsContigu
     }
 }
 
-impl<'a, T: Scalar + Copy> From<&'a [T]> for DVectorSlice<'a, T> {
+impl<'a, T: Scalar + Copy> From<&'a [T]> for DVectorView<'a, T> {
     #[inline]
     fn from(slice: &'a [T]) -> Self {
         Self::from_slice(slice, slice.len())
     }
 }
 
-impl<'a, T: Scalar> From<DVectorSlice<'a, T>> for &'a [T] {
-    fn from(vec: DVectorSlice<'a, T>) -> &'a [T] {
+impl<'a, T: Scalar> From<DVectorView<'a, T>> for &'a [T] {
+    fn from(vec: DVectorView<'a, T>) -> &'a [T] {
         vec.data.into_slice()
     }
 }
 
-impl<'a, T: Scalar + Copy> From<&'a mut [T]> for DVectorSliceMut<'a, T> {
+impl<'a, T: Scalar + Copy> From<&'a mut [T]> for DVectorViewMut<'a, T> {
     #[inline]
     fn from(slice: &'a mut [T]) -> Self {
         Self::from_slice(slice, slice.len())
     }
 }
 
-impl<'a, T: Scalar> From<DVectorSliceMut<'a, T>> for &'a mut [T] {
-    fn from(vec: DVectorSliceMut<'a, T>) -> &'a mut [T] {
+impl<'a, T: Scalar> From<DVectorViewMut<'a, T>> for &'a mut [T] {
+    fn from(vec: DVectorViewMut<'a, T>) -> &'a mut [T] {
         vec.data.into_slice_mut()
     }
 }
