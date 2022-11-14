@@ -373,7 +373,6 @@ where
 impl<'a, T, R, C, RView, CView, RStride, CStride, S> From<&'a Matrix<T, R, C, S>>
     for MatrixView<'a, T, RView, CView, RStride, CStride>
 where
-    T: Scalar,
     R: Dim,
     C: Dim,
     RView: Dim,
@@ -410,7 +409,6 @@ where
 impl<'a, T, R, C, RView, CView, RStride, CStride, S> From<&'a mut Matrix<T, R, C, S>>
     for MatrixView<'a, T, RView, CView, RStride, CStride>
 where
-    T: Scalar,
     R: Dim,
     C: Dim,
     RView: Dim,
@@ -447,7 +445,6 @@ where
 impl<'a, T, R, C, RView, CView, RStride, CStride, S> From<&'a mut Matrix<T, R, C, S>>
     for MatrixViewMut<'a, T, RView, CView, RStride, CStride>
 where
-    T: Scalar,
     R: Dim,
     C: Dim,
     RView: Dim,

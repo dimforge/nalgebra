@@ -8,6 +8,7 @@ use crate::base::dimension::{Const, Dim, DimName, Dynamic, IsNotStaticOne, U1};
 use crate::base::iter::MatrixIter;
 use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, Storage};
 use crate::base::{Matrix, Scalar};
+use crate::constraint::{DimEq, ShapeConstraint};
 
 macro_rules! view_storage_impl (
     ($doc: expr; $Storage: ident as $SRef: ty; $legacy_name:ident => $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {
@@ -1089,5 +1090,89 @@ where
         };
 
         unsafe { Matrix::from_data_statically_unchecked(data) }
+    }
+}
+
+impl<T, R, C, S> Matrix<T, R, C, S>
+where
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T, R, C>,
+{
+    /// Returns this matrix as a view.
+    ///
+    /// The returned view type is generally ambiguous unless specified.
+    /// This is particularly useful when working with functions or methods that take
+    /// matrix views as input.
+    ///
+    /// # Panics
+    /// Panics if the dimensions of the view and the matrix are not compatible and this cannot
+    /// be proven at compile-time. This might happen, for example, when constructing a static
+    /// view of size 3x3 from a dynamically sized matrix of dimension 5x5.
+    ///
+    /// # Examples
+    /// ```
+    /// use nalgebra::{DMatrixSlice, SMatrixView};
+    ///
+    /// fn consume_view(_: DMatrixSlice<f64>) {}
+    ///
+    /// let matrix = nalgebra::Matrix3::zeros();
+    /// consume_view(matrix.as_view());
+    ///
+    /// let dynamic_view: DMatrixSlice<f64> = matrix.as_view();
+    /// let static_view_from_dyn: SMatrixView<f64, 3, 3> = dynamic_view.as_view();
+    /// ```
+    pub fn as_view<RView, CView, RViewStride, CViewStride>(&self) -> MatrixView<'_, T, RView, CView, RViewStride, CViewStride>
+    where
+        RView: Dim,
+        CView: Dim,
+        RViewStride: Dim,
+        CViewStride: Dim,
+        ShapeConstraint: DimEq<R, RView> + DimEq<C, CView> + DimEq<RViewStride, S::RStride> + DimEq<CViewStride, S::CStride>
+    {
+        // Defer to (&matrix).into()
+        self.into()
+    }
+}
+
+impl<T, R, C, S> Matrix<T, R, C, S>
+where
+    R: Dim,
+    C: Dim,
+    S: RawStorageMut<T, R, C>,
+{
+    /// Returns this matrix as a mutable view.
+    ///
+    /// The returned view type is generally ambiguous unless specified.
+    /// This is particularly useful when working with functions or methods that take
+    /// matrix views as input.
+    ///
+    /// # Panics
+    /// Panics if the dimensions of the view and the matrix are not compatible and this cannot
+    /// be proven at compile-time. This might happen, for example, when constructing a static
+    /// view of size 3x3 from a dynamically sized matrix of dimension 5x5.
+    ///
+    /// # Examples
+    /// ```
+    /// use nalgebra::{DMatrixViewMut, SMatrixViewMut};
+    ///
+    /// fn consume_view(_: DMatrixViewMut<f64>) {}
+    ///
+    /// let mut matrix = nalgebra::Matrix3::zeros();
+    /// consume_view(matrix.as_view_mut());
+    ///
+    /// let mut dynamic_view: DMatrixViewMut<f64> = matrix.as_view_mut();
+    /// let static_view_from_dyn: SMatrixViewMut<f64, 3, 3> = dynamic_view.as_view_mut();
+    /// ```
+    pub fn as_view_mut<RView, CView, RViewStride, CViewStride>(&mut self) -> MatrixViewMut<'_, T, RView, CView, RViewStride, CViewStride>
+        where
+            RView: Dim,
+            CView: Dim,
+            RViewStride: Dim,
+            CViewStride: Dim,
+            ShapeConstraint: DimEq<R, RView> + DimEq<C, CView> + DimEq<RViewStride, S::RStride> + DimEq<CViewStride, S::CStride>
+    {
+        // Defer to (&mut matrix).into()
+        self.into()
     }
 }
