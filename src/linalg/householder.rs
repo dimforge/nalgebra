@@ -128,10 +128,10 @@ where
     let mut res = OMatrix::identity_generic(dim, dim);
 
     for i in (0..dim.value() - 1).rev() {
-        let axis = m.slice_range(i + 1.., i);
+        let axis = m.view_range(i + 1.., i);
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
-        let mut res_rows = res.slice_range_mut(i + 1.., i..);
+        let mut res_rows = res.view_range_mut(i + 1.., i..);
         refl.reflect_with_sign(&mut res_rows, signs[i].clone().signum());
     }
 

@@ -324,7 +324,7 @@ macro_rules! matrix_view_impl (
         /// Returns a view containing the `n` first elements of the i-th row of this matrix.
         #[inline]
         pub fn $row_part($me: $Me, i: usize, n: usize) -> $MatrixView<'_, T, U1, Dynamic, S::RStride, S::CStride> {
-            $me.$generic_slice((i, 0), (Const::<1>, Dynamic::new(n)))
+            $me.$generic_view((i, 0), (Const::<1>, Dynamic::new(n)))
         }
 
         /// Extracts from this matrix a set of consecutive rows.
@@ -961,7 +961,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         ColRange: SliceRange<C>,
     {
         let (nrows, ncols) = self.shape_generic();
-        self.generic_slice(
+        self.generic_view(
             (rows.begin(nrows), cols.begin(ncols)),
             (rows.size(nrows), cols.size(ncols)),
         )

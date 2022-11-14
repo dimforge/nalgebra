@@ -938,7 +938,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             }
 
             if new_nrows.value() > nrows {
-                res.slice_range_mut(nrows.., ..cmp::min(ncols, new_ncols.value()))
+                res.view_range_mut(nrows.., ..cmp::min(ncols, new_ncols.value()))
                     .fill_with(|| MaybeUninit::new(val.clone()));
             }
 

@@ -304,7 +304,7 @@ impl<T: SimdRealField, R, const D: usize> Similarity<T, R, D> {
     {
         let mut res = self.isometry.to_homogeneous();
 
-        for e in res.fixed_slice_mut::<D, D>(0, 0).iter_mut() {
+        for e in res.fixed_view_mut::<D, D>(0, 0).iter_mut() {
             *e *= self.scaling.clone()
         }
 

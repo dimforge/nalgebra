@@ -393,7 +393,7 @@ where
         let col2 = a.column(0);
         let val = unsafe { x.vget_unchecked(0).clone() };
         self.axpy(alpha.clone() * val, &col2, beta);
-        self[0] += alpha.clone() * dot(&a.slice_range(1.., 0), &x.rows_range(1..));
+        self[0] += alpha.clone() * dot(&a.view_range(1.., 0), &x.rows_range(1..));
 
         for j in 1..dim2 {
             let col2 = a.column(j);
@@ -892,7 +892,7 @@ where
             let val = unsafe { conjugate(y.vget_unchecked(j).clone()) };
             let subdim = Dynamic::new(dim1 - j);
             // TODO: avoid bound checks.
-            self.generic_slice_mut((j, j), (subdim, Const::<1>)).axpy(
+            self.generic_view_mut((j, j), (subdim, Const::<1>)).axpy(
                 alpha.clone() * val,
                 &x.rows_range(j..),
                 beta.clone(),

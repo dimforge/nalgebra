@@ -113,7 +113,7 @@ where
         DefaultAllocator: Allocator<T, DimNameSum<D, U1>>,
     {
         if !v[D::dim()].is_zero() {
-            let coords = v.generic_slice((0, 0), (D::name(), Const::<1>)) / v[D::dim()].clone();
+            let coords = v.generic_view((0, 0), (D::name(), Const::<1>)) / v[D::dim()].clone();
             Some(Self::from(coords))
         } else {
             None

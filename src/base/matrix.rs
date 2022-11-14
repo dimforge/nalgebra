@@ -446,7 +446,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// ```
     /// # use nalgebra::DMatrix;
     /// let mat = DMatrix::<f32>::zeros(10, 10);
-    /// let slice = mat.slice_with_steps((0, 0), (5, 3), (1, 2));
+    /// let view = mat.view_with_steps((0, 0), (5, 3), (1, 2));
     /// // The column strides is the number of steps (here 2) multiplied by the corresponding dimension.
     /// assert_eq!(mat.strides(), (1, 10));
     /// ```
@@ -1633,7 +1633,7 @@ impl<T: Scalar + Zero + One, D: DimAdd<U1> + IsNotStaticOne, S: RawStorage<T, D,
         );
         let dim = DimSum::<D, U1>::from_usize(self.nrows() + 1);
         let mut res = OMatrix::identity_generic(dim, dim);
-        res.generic_slice_mut::<D, D>((0, 0), self.shape_generic())
+        res.generic_view_mut::<D, D>((0, 0), self.shape_generic())
             .copy_from(self);
         res
     }
@@ -1661,7 +1661,7 @@ impl<T: Scalar + Zero, D: DimAdd<U1>, S: RawStorage<T, D>> Vector<T, D, S> {
     {
         if v[v.len() - 1].is_zero() {
             let nrows = D::from_usize(v.len() - 1);
-            Some(v.generic_slice((0, 0), (nrows, Const::<1>)).into_owned())
+            Some(v.generic_view((0, 0), (nrows, Const::<1>)).into_owned())
         } else {
             None
         }
@@ -1681,7 +1681,7 @@ impl<T: Scalar, D: DimAdd<U1>, S: RawStorage<T, D>> Vector<T, D, S> {
         let mut res = Matrix::uninit(hnrows, Const::<1>);
         // This is basically a copy_from except that we warp the copied
         // values into MaybeUninit.
-        res.generic_slice_mut((0, 0), self.shape_generic())
+        res.generic_view_mut((0, 0), self.shape_generic())
             .zip_apply(self, |out, e| *out = MaybeUninit::new(e));
         res[(len, 0)] = MaybeUninit::new(element);
 
