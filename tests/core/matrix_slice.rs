@@ -1,22 +1,22 @@
 #![allow(non_snake_case)]
 
 use na::{
-    DMatrix, DMatrixSlice, DMatrixSliceMut, Matrix2, Matrix2x3, Matrix2x4, Matrix2x6, Matrix3,
-    Matrix3x2, Matrix3x4, Matrix4x2, Matrix6x2, MatrixSlice2, MatrixSlice2x3, MatrixSlice2xX,
-    MatrixSlice3, MatrixSlice3x2, MatrixSliceMut2, MatrixSliceMut2x3, MatrixSliceMut2xX,
-    MatrixSliceMut3, MatrixSliceMut3x2, MatrixSliceMutXx3, MatrixSliceXx3, RowVector4, Vector3,
+    DMatrix, DMatrixView, DMatrixViewMut, Matrix2, Matrix2x3, Matrix2x4, Matrix2x6, Matrix3,
+    Matrix3x2, Matrix3x4, Matrix4x2, Matrix6x2, MatrixView2, MatrixView2x3, MatrixView2xX,
+    MatrixView3, MatrixView3x2, MatrixViewMut2, MatrixViewMut2x3, MatrixViewMut2xX,
+    MatrixViewMut3, MatrixViewMut3x2, MatrixViewMutXx3, MatrixViewXx3, RowVector4, Vector3,
 };
 
 #[test]
 #[rustfmt::skip]
-fn nested_fixed_slices() {
+fn nested_fixed_views() {
     let a = Matrix3x4::new(11.0, 12.0, 13.0, 14.0,
                            21.0, 22.0, 23.0, 24.0,
                            31.0, 32.0, 33.0, 34.0);
 
-    let s1 = a.fixed_slice::<3, 3>(0, 1);                       // Simple slice.
-    let s2 = s1.fixed_slice::<2, 2>(1, 1);                      // Slice of slice.
-    let s3 = s1.fixed_slice_with_steps::<2, 2>((0, 0), (1, 1)); // Slice of slice with steps.
+    let s1 = a.fixed_view::<3, 3>(0, 1);                       // Simple view.
+    let s2 = s1.fixed_view::<2, 2>(1, 1);                      // View of view.
+    let s3 = s1.fixed_view_with_steps::<2, 2>((0, 0), (1, 1)); // View of view with steps.
 
     let expected_owned_s1 = Matrix3::new(12.0, 13.0, 14.0,
                                          22.0, 23.0, 24.0,
@@ -35,14 +35,14 @@ fn nested_fixed_slices() {
 
 #[test]
 #[rustfmt::skip]
-fn nested_slices() {
+fn nested_views() {
     let a = Matrix3x4::new(11.0, 12.0, 13.0, 14.0,
                            21.0, 22.0, 23.0, 24.0,
                            31.0, 32.0, 33.0, 34.0);
 
-    let s1 = a.slice((0, 1), (3, 3));
-    let s2 = s1.slice((1, 1), (2, 2));
-    let s3 = s1.slice_with_steps((0, 0), (2, 2), (1, 1));
+    let s1 = a.view((0, 1), (3, 3));
+    let s2 = s1.view((1, 1), (2, 2));
+    let s3 = s1.view_with_steps((0, 0), (2, 2), (1, 1));
 
     let expected_owned_s1 = DMatrix::from_row_slice(3, 3, &[ 12.0, 13.0, 14.0,
                                                              22.0, 23.0, 24.0,
@@ -61,14 +61,14 @@ fn nested_slices() {
 
 #[test]
 #[rustfmt::skip]
-fn slice_mut() {
+fn view_mut() {
     let mut a = Matrix3x4::new(11.0, 12.0, 13.0, 14.0,
                                21.0, 22.0, 23.0, 24.0,
                                31.0, 32.0, 33.0, 34.0);
 
     {
-        // We modify `a` through the mutable slice.
-        let mut s1 = a.slice_with_steps_mut((0, 1), (2, 2), (1, 1));
+        // We modify `a` through the mutable view.
+        let mut s1 = a.view_with_steps_mut((0, 1), (2, 2), (1, 1));
         s1.fill(0.0);
     }
 
@@ -81,7 +81,7 @@ fn slice_mut() {
 
 #[test]
 #[rustfmt::skip]
-fn nested_row_slices() {
+fn nested_row_views() {
     let a = Matrix6x2::new(11.0, 12.0,
                            21.0, 22.0,
                            31.0, 32.0,
@@ -105,7 +105,7 @@ fn nested_row_slices() {
 
 #[test]
 #[rustfmt::skip]
-fn row_slice_mut() {
+fn row_view_mut() {
     let mut a = Matrix6x2::new(11.0, 12.0,
                                21.0, 22.0,
                                31.0, 32.0,
@@ -113,7 +113,7 @@ fn row_slice_mut() {
                                51.0, 52.0,
                                61.0, 62.0);
     {
-        // We modify `a` through the mutable slice.
+        // We modify `a` through the mutable view.
         let mut s1 = a.rows_with_step_mut(1, 3, 1);
         s1.fill(0.0);
     }
@@ -130,7 +130,7 @@ fn row_slice_mut() {
 
 #[test]
 #[rustfmt::skip]
-fn nested_col_slices() {
+fn nested_col_views() {
     let a = Matrix2x6::new(11.0, 12.0, 13.0, 14.0, 15.0, 16.0,
                            21.0, 22.0, 23.0, 24.0, 25.0, 26.0);
     let s1 = a.fixed_columns::<4>(1);
@@ -148,12 +148,12 @@ fn nested_col_slices() {
 
 #[test]
 #[rustfmt::skip]
-fn col_slice_mut() {
+fn col_view_mut() {
     let mut a = Matrix2x6::new(11.0, 12.0, 13.0, 14.0, 15.0, 16.0,
                                21.0, 22.0, 23.0, 24.0, 25.0, 26.0);
 
     {
-        // We modify `a` through the mutable slice.
+        // We modify `a` through the mutable view.
         let mut s1 = a.columns_with_step_mut(1, 3, 1);
         s1.fill(0.0);
     }
@@ -203,7 +203,7 @@ fn columns_range_pair() {
 
 #[test]
 #[rustfmt::skip]
-fn new_slice() {
+fn new_from_slice() {
     let data = [ 1.0, 2.0,  3.0,  4.0,
                  5.0, 6.0,  7.0,  8.0,
                  9.0, 10.0, 11.0, 12.0 ];
@@ -214,13 +214,13 @@ fn new_slice() {
     let expected3x2 = Matrix3x2::from_column_slice(&data);
 
     {
-        let m2   = MatrixSlice2::from_slice(&data);
-        let m3   = MatrixSlice3::from_slice(&data);
-        let m2x3 = MatrixSlice2x3::from_slice(&data);
-        let m3x2 = MatrixSlice3x2::from_slice(&data);
-        let m2xX = MatrixSlice2xX::from_slice(&data, 3);
-        let mXx3 = MatrixSliceXx3::from_slice(&data, 2);
-        let mXxX = DMatrixSlice::from_slice(&data, 2, 3);
+        let m2   = MatrixView2::from_slice(&data);
+        let m3   = MatrixView3::from_slice(&data);
+        let m2x3 = MatrixView2x3::from_slice(&data);
+        let m3x2 = MatrixView3x2::from_slice(&data);
+        let m2xX = MatrixView2xX::from_slice(&data, 3);
+        let mXx3 = MatrixViewXx3::from_slice(&data, 2);
+        let mXxX = DMatrixView::from_slice(&data, 2, 3);
 
         assert!(m2.eq(&expected2));
         assert!(m3.eq(&expected3));
@@ -234,7 +234,7 @@ fn new_slice() {
 
 #[test]
 #[rustfmt::skip]
-fn new_slice_mut() {
+fn new_from_slice_mut() {
     let data = [ 1.0, 2.0,  3.0,  4.0,
                  5.0, 6.0,  7.0,  8.0,
                  9.0, 10.0, 11.0, 12.0 ];
@@ -252,31 +252,31 @@ fn new_slice_mut() {
                         9.0, 10.0, 11.0, 12.0 ];
 
     let mut data_mut = data.clone();
-    MatrixSliceMut2::from_slice(&mut data_mut).fill(0.0);
+    MatrixViewMut2::from_slice(&mut data_mut).fill(0.0);
     assert!(data_mut == expected2);
 
     let mut data_mut = data.clone();
-    MatrixSliceMut3::from_slice(&mut data_mut).fill(0.0);
+    MatrixViewMut3::from_slice(&mut data_mut).fill(0.0);
     assert!(data_mut == expected3);
 
     let mut data_mut = data.clone();
-    MatrixSliceMut2x3::from_slice(&mut data_mut).fill(0.0);
+    MatrixViewMut2x3::from_slice(&mut data_mut).fill(0.0);
     assert!(data_mut == expected2x3);
 
     let mut data_mut = data.clone();
-    MatrixSliceMut3x2::from_slice(&mut data_mut).fill(0.0);
+    MatrixViewMut3x2::from_slice(&mut data_mut).fill(0.0);
     assert!(data_mut == expected3x2);
 
     let mut data_mut = data.clone();
-    MatrixSliceMut2xX::from_slice(&mut data_mut, 3).fill(0.0);
+    MatrixViewMut2xX::from_slice(&mut data_mut, 3).fill(0.0);
     assert!(data_mut == expected2x3);
 
     let mut data_mut = data.clone();
-    MatrixSliceMutXx3::from_slice(&mut data_mut, 2).fill(0.0);
+    MatrixViewMutXx3::from_slice(&mut data_mut, 2).fill(0.0);
     assert!(data_mut == expected2x3);
 
     let mut data_mut = data.clone();
-    DMatrixSliceMut::from_slice(&mut data_mut, 2, 3).fill(0.0);
+    DMatrixViewMut::from_slice(&mut data_mut, 2, 3).fill(0.0);
     assert!(data_mut == expected2x3);
 }
 
@@ -324,14 +324,14 @@ fn columns_with_step_out_of_bounds() {
 
 #[test]
 #[should_panic]
-fn slice_out_of_bounds() {
+fn view_out_of_bounds() {
     let a = Matrix3x4::<f32>::zeros();
-    a.slice((1, 2), (3, 1));
+    a.view((1, 2), (3, 1));
 }
 
 #[test]
 #[should_panic]
-fn slice_with_steps_out_of_bounds() {
+fn view_with_steps_out_of_bounds() {
     let a = Matrix3x4::<f32>::zeros();
-    a.slice_with_steps((1, 2), (2, 2), (0, 1));
+    a.view_with_steps((1, 2), (2, 2), (0, 1));
 }
