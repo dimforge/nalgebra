@@ -651,7 +651,7 @@ macro_rules! matrix_view_impl (
         ///
         /// Panics if the ranges overlap or if the first range is empty.
         #[inline]
-        pub fn $rows_range_pair<Range1: SliceRange<R>, Range2: SliceRange<R>>($me: $Me, r1: Range1, r2: Range2)
+        pub fn $rows_range_pair<Range1: DimRange<R>, Range2: DimRange<R>>($me: $Me, r1: Range1, r2: Range2)
             -> ($MatrixView<'_, T, Range1::Size, C, S::RStride, S::CStride>,
                 $MatrixView<'_, T, Range2::Size, C, S::RStride, S::CStride>) {
 
@@ -687,7 +687,7 @@ macro_rules! matrix_view_impl (
         ///
         /// Panics if the ranges overlap or if the first range is empty.
         #[inline]
-        pub fn $columns_range_pair<Range1: SliceRange<C>, Range2: SliceRange<C>>($me: $Me, r1: Range1, r2: Range2)
+        pub fn $columns_range_pair<Range1: DimRange<C>, Range2: DimRange<C>>($me: $Me, r1: Range1, r2: Range2)
             -> ($MatrixView<'_, T, R, Range1::Size, S::RStride, S::CStride>,
                 $MatrixView<'_, T, R, Range2::Size, S::RStride, S::CStride>) {
 
@@ -816,7 +816,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
 /// * A left-open range `std::ops::RangeTo`, e.g., `.. 4`
 /// * A right-open range `std::ops::RangeFrom`, e.g., `4 ..`
 /// * A full range `std::ops::RangeFull`, e.g., `..`
-pub trait SliceRange<D: Dim> {
+pub trait DimRange<D: Dim> {
     /// Type of the range size. May be a type-level integer.
     type Size: Dim;
 
@@ -829,7 +829,16 @@ pub trait SliceRange<D: Dim> {
     fn size(&self, shape: D) -> Self::Size;
 }
 
-impl<D: Dim> SliceRange<D> for usize {
+/// A range with a size that may be known at compile-time.
+///
+/// This is merely a legacy trait alias to minimize breakage. Use the [`DimRange`] trait instead.
+#[deprecated = slice_deprecation_note!(DimRange)]
+pub trait SliceRange<D: Dim>: DimRange<D> {}
+
+#[allow(deprecated)]
+impl<R: DimRange<D>, D: Dim> SliceRange<D> for R {}
+
+impl<D: Dim> DimRange<D> for usize {
     type Size = U1;
 
     #[inline(always)]
@@ -848,7 +857,7 @@ impl<D: Dim> SliceRange<D> for usize {
     }
 }
 
-impl<D: Dim> SliceRange<D> for Range<usize> {
+impl<D: Dim> DimRange<D> for Range<usize> {
     type Size = Dynamic;
 
     #[inline(always)]
@@ -867,7 +876,7 @@ impl<D: Dim> SliceRange<D> for Range<usize> {
     }
 }
 
-impl<D: Dim> SliceRange<D> for RangeFrom<usize> {
+impl<D: Dim> DimRange<D> for RangeFrom<usize> {
     type Size = Dynamic;
 
     #[inline(always)]
@@ -886,7 +895,7 @@ impl<D: Dim> SliceRange<D> for RangeFrom<usize> {
     }
 }
 
-impl<D: Dim> SliceRange<D> for RangeTo<usize> {
+impl<D: Dim> DimRange<D> for RangeTo<usize> {
     type Size = Dynamic;
 
     #[inline(always)]
@@ -905,7 +914,7 @@ impl<D: Dim> SliceRange<D> for RangeTo<usize> {
     }
 }
 
-impl<D: Dim> SliceRange<D> for RangeFull {
+impl<D: Dim> DimRange<D> for RangeFull {
     type Size = D;
 
     #[inline(always)]
@@ -924,7 +933,7 @@ impl<D: Dim> SliceRange<D> for RangeFull {
     }
 }
 
-impl<D: Dim> SliceRange<D> for RangeInclusive<usize> {
+impl<D: Dim> DimRange<D> for RangeInclusive<usize> {
     type Size = Dynamic;
 
     #[inline(always)]
@@ -957,8 +966,8 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         cols: ColRange,
     ) -> MatrixView<'_, T, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
     where
-        RowRange: SliceRange<R>,
-        ColRange: SliceRange<C>,
+        RowRange: DimRange<R>,
+        ColRange: DimRange<C>,
     {
         let (nrows, ncols) = self.shape_generic();
         self.generic_view(
@@ -977,8 +986,8 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         cols: ColRange,
     ) -> MatrixView<'_, T, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
         where
-            RowRange: SliceRange<R>,
-            ColRange: SliceRange<C>,
+            RowRange: DimRange<R>,
+            ColRange: DimRange<C>,
     {
         let (nrows, ncols) = self.shape_generic();
         self.generic_view(
@@ -990,7 +999,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// View containing all the rows indexed by the range `rows`.
     #[inline]
     #[must_use]
-    pub fn rows_range<RowRange: SliceRange<R>>(
+    pub fn rows_range<RowRange: DimRange<R>>(
         &self,
         rows: RowRange,
     ) -> MatrixView<'_, T, RowRange::Size, C, S::RStride, S::CStride> {
@@ -1000,7 +1009,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// View containing all the columns indexed by the range `rows`.
     #[inline]
     #[must_use]
-    pub fn columns_range<ColRange: SliceRange<C>>(
+    pub fn columns_range<ColRange: DimRange<C>>(
         &self,
         cols: ColRange,
     ) -> MatrixView<'_, T, R, ColRange::Size, S::RStride, S::CStride> {
@@ -1020,8 +1029,8 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         cols: ColRange,
     ) -> MatrixViewMut<'_, T, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
     where
-        RowRange: SliceRange<R>,
-        ColRange: SliceRange<C>,
+        RowRange: DimRange<R>,
+        ColRange: DimRange<C>,
     {
         self.view_range_mut(rows, cols)
     }
@@ -1034,8 +1043,8 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         cols: ColRange,
     ) -> MatrixViewMut<'_, T, RowRange::Size, ColRange::Size, S::RStride, S::CStride>
         where
-            RowRange: SliceRange<R>,
-            ColRange: SliceRange<C>,
+            RowRange: DimRange<R>,
+            ColRange: DimRange<C>,
     {
         let (nrows, ncols) = self.shape_generic();
         self.generic_view_mut(
@@ -1046,7 +1055,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
 
     /// Mutable view containing all the rows indexed by the range `rows`.
     #[inline]
-    pub fn rows_range_mut<RowRange: SliceRange<R>>(
+    pub fn rows_range_mut<RowRange: DimRange<R>>(
         &mut self,
         rows: RowRange,
     ) -> MatrixViewMut<'_, T, RowRange::Size, C, S::RStride, S::CStride> {
@@ -1055,7 +1064,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
 
     /// Mutable view containing all the columns indexed by the range `cols`.
     #[inline]
-    pub fn columns_range_mut<ColRange: SliceRange<C>>(
+    pub fn columns_range_mut<ColRange: DimRange<C>>(
         &mut self,
         cols: ColRange,
     ) -> MatrixViewMut<'_, T, R, ColRange::Size, S::RStride, S::CStride> {
