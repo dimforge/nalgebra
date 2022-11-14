@@ -2,7 +2,7 @@ use crate::cs::CsMatrix;
 use crate::ops::serial::{OperationError, OperationErrorKind};
 use crate::ops::Op;
 use crate::SparseEntryMut;
-use nalgebra::{ClosedAdd, ClosedMul, DMatrixSlice, DMatrixSliceMut, Scalar};
+use nalgebra::{ClosedAdd, ClosedMul, DMatrixView, DMatrixViewMut, Scalar};
 use num_traits::{One, Zero};
 
 fn spmm_cs_unexpected_entry() -> OperationError {
@@ -176,10 +176,10 @@ where
 /// the transposed operation must be specified for the CSC matrix.
 pub fn spmm_cs_dense<T>(
     beta: T,
-    mut c: DMatrixSliceMut<'_, T>,
+    mut c: DMatrixViewMut<'_, T>,
     alpha: T,
     a: Op<&CsMatrix<T>>,
-    b: Op<DMatrixSlice<'_, T>>,
+    b: Op<DMatrixView<'_, T>>,
 ) where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {

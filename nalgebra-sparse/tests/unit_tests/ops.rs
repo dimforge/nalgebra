@@ -14,7 +14,7 @@ use nalgebra_sparse::pattern::SparsityPattern;
 use nalgebra_sparse::proptest::{csc, csr, sparsity_pattern};
 
 use nalgebra::proptest::{matrix, vector};
-use nalgebra::{DMatrix, DMatrixSlice, DMatrixSliceMut, Scalar};
+use nalgebra::{DMatrix, DMatrixView, DMatrixViewMut, Scalar};
 
 use proptest::prelude::*;
 
@@ -333,10 +333,10 @@ fn csc_square_with_non_zero_diagonals() -> impl Strategy<Value = CscMatrix<f64>>
 /// Helper function to help us call dense GEMM with our `Op` type
 fn dense_gemm<'a>(
     beta: i32,
-    c: impl Into<DMatrixSliceMut<'a, i32>>,
+    c: impl Into<DMatrixViewMut<'a, i32>>,
     alpha: i32,
-    a: Op<impl Into<DMatrixSlice<'a, i32>>>,
-    b: Op<impl Into<DMatrixSlice<'a, i32>>>,
+    a: Op<impl Into<DMatrixView<'a, i32>>>,
+    b: Op<impl Into<DMatrixView<'a, i32>>>,
 ) {
     let mut c = c.into();
     let a = a.convert();
