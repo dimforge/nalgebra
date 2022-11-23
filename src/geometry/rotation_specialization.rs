@@ -931,8 +931,8 @@ impl<T: SimdRealField> Rotation3<T> {
             let theta_cos = pitch.clone().cos();
             let roll = (self[(2, 1)].clone() / theta_cos.clone())
                 .atan2(self[(2, 2)].clone() / theta_cos.clone());
-            let yaw = (self[(1, 0)].clone() / theta_cos.clone())
-                .atan2(self[(0, 0)].clone() / theta_cos);
+            let yaw =
+                (self[(1, 0)].clone() / theta_cos.clone()).atan2(self[(0, 0)].clone() / theta_cos);
             (roll, pitch, yaw)
         } else if self[(2, 0)].clone() <= -T::one() {
             (
