@@ -12,7 +12,7 @@ use rayon::{iter::plumbing::bridge, prelude::*};
 
 /// A rayon parallel iterator over the colums of a matrix. It is created
 /// using the [`par_column_iter`] method of [`Matrix`].
-/// 
+///
 /// *only availabe if compiled with the feature `par-iter`*
 /// [`par_column_iter`]: crate::Matrix::par_column_iter
 /// [`Matrix`]: crate::Matrix
