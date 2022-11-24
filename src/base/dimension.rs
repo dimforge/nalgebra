@@ -310,6 +310,11 @@ macro_rules! from_to_typenum (
         }
 
         impl IsNotStaticOne for $D { }
+
+        /// The constant dimension
+        #[doc = stringify!($VAL)]
+        /// .
+        pub const $D: $D = Const::<$VAL>;
     )*}
 );
 
@@ -323,3 +328,7 @@ from_to_typenum!(
     U111, 111; U112, 112; U113, 113; U114, 114; U115, 115; U116, 116; U117, 117; U118, 118; U119, 119; U120, 120; U121, 121; U122, 122; U123, 123; U124, 124; U125, 125; U126, 126;
     U127, 127
 );
+
+/// The constant dimension 1.
+// Note: We add U1 separately since it's not covered by the from_to_typenum! macro.
+pub const U1: U1 = Const::<1>;
