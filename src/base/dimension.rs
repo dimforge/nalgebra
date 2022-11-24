@@ -22,15 +22,16 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
     archive_attr(derive(bytecheck::CheckBytes))
 )]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
-pub struct Dynamic {
-    value: usize,
-}
+pub struct Dyn(pub usize);
+
+// TODO: Deprecate?
+pub type Dynamic = Dyn;
 
 impl Dynamic {
     /// A dynamic size equal to `value`.
     #[inline]
     pub const fn new(value: usize) -> Self {
-        Self { value }
+        Self(value)
     }
 }
 
@@ -40,7 +41,7 @@ impl Serialize for Dynamic {
     where
         S: Serializer,
     {
-        self.value.serialize(serializer)
+        self.0.serialize(serializer)
     }
 }
 
@@ -50,7 +51,7 @@ impl<'de> Deserialize<'de> for Dynamic {
     where
         D: Deserializer<'de>,
     {
-        usize::deserialize(deserializer).map(|x| Dynamic { value: x })
+        usize::deserialize(deserializer).map(|x| Dynamic(x))
     }
 }
 
@@ -96,7 +97,7 @@ unsafe impl Dim for Dynamic {
 
     #[inline]
     fn value(&self) -> usize {
-        self.value
+        self.0
     }
 }
 
@@ -105,7 +106,7 @@ impl Add<usize> for Dynamic {
 
     #[inline]
     fn add(self, rhs: usize) -> Self {
-        Self::new(self.value + rhs)
+        Self::new(self.0 + rhs)
     }
 }
 
@@ -114,7 +115,7 @@ impl Sub<usize> for Dynamic {
 
     #[inline]
     fn sub(self, rhs: usize) -> Self {
-        Self::new(self.value - rhs)
+        Self::new(self.0 - rhs)
     }
 }
 
@@ -157,7 +158,7 @@ macro_rules! dim_ops(
 
             #[inline]
             fn $op(self, other: D) -> Dynamic {
-                Dynamic::new($op_path(self.value, other.value()))
+                Dynamic::new($op_path(self.value(), other.value()))
             }
         }
 
@@ -167,7 +168,7 @@ macro_rules! dim_ops(
 
             #[inline]
             fn $op(self, other: Dynamic) -> Dynamic {
-                Dynamic::new($op_path(self.value(), other.value))
+                Dynamic::new($op_path(self.value(), other.value()))
             }
         }
 
