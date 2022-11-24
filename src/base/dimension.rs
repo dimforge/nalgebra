@@ -51,7 +51,7 @@ impl<'de> Deserialize<'de> for Dynamic {
     where
         D: Deserializer<'de>,
     {
-        usize::deserialize(deserializer).map(|x| Dynamic(x))
+        usize::deserialize(deserializer).map(|x| Dynamic::new(x))
     }
 }
 
