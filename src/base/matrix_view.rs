@@ -9,6 +9,7 @@ use crate::base::iter::MatrixIter;
 use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, Storage};
 use crate::base::{Matrix, Scalar};
 use crate::constraint::{DimEq, ShapeConstraint};
+use crate::ReshapableStorage;
 
 macro_rules! view_storage_impl (
     ($doc: expr; $Storage: ident as $SRef: ty; $legacy_name:ident => $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {
@@ -1184,5 +1185,49 @@ where
     {
         // Defer to (&mut matrix).into()
         self.into()
+    }
+}
+
+// TODO: Arbitrary strides?
+impl<'a, T, R1, C1, R2, C2> ReshapableStorage<T, R1, C1, R2, C2>
+    for ViewStorage<'a, T, R1, C1, U1, R1>
+where
+    T: Scalar,
+    R1: Dim,
+    C1: Dim,
+    R2: Dim,
+    C2: Dim,
+{
+    type Output = ViewStorage<'a, T, R2, C2, U1, R2>;
+
+    fn reshape_generic(self, nrows: R2, ncols: C2) -> Self::Output {
+        let (r1, c1) = self.shape();
+        assert_eq!(nrows.value() * ncols.value(), r1.value() * c1.value());
+        let ptr = self.ptr();
+        let new_shape = (nrows, ncols);
+        let strides = (U1::name(), nrows);
+        unsafe { ViewStorage::from_raw_parts(ptr, new_shape, strides) }
+    }
+}
+
+// TODO: Arbitrary strides?
+impl<'a, T, R1, C1, R2, C2> ReshapableStorage<T, R1, C1, R2, C2>
+    for ViewStorageMut<'a, T, R1, C1, U1, R1>
+where
+    T: Scalar,
+    R1: Dim,
+    C1: Dim,
+    R2: Dim,
+    C2: Dim,
+{
+    type Output = ViewStorageMut<'a, T, R2, C2, U1, R2>;
+
+    fn reshape_generic(mut self, nrows: R2, ncols: C2) -> Self::Output {
+        let (r1, c1) = self.shape();
+        assert_eq!(nrows.value() * ncols.value(), r1.value() * c1.value());
+        let ptr = self.ptr_mut();
+        let new_shape = (nrows, ncols);
+        let strides = (U1::name(), nrows);
+        unsafe { ViewStorageMut::from_raw_parts(ptr, new_shape, strides) }
     }
 }
