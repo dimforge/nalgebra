@@ -1200,6 +1200,24 @@ fn column_iteration_double_ended() {
 }
 
 #[test]
+fn column_iterator_double_ended_mut() {
+    let mut dmat = nalgebra::dmatrix![
+    13,14,15,16,17;
+    23,24,25,26,27;
+    33,34,35,36,37;
+    ];
+    let mut cloned = dmat.clone();
+    let mut col_iter_mut = dmat.column_iter_mut();
+    assert_eq!(col_iter_mut.next(), Some(cloned.column_mut(0)));
+    assert_eq!(col_iter_mut.next(), Some(cloned.column_mut(1)));
+    assert_eq!(col_iter_mut.next_back(), Some(cloned.column_mut(4)));
+    assert_eq!(col_iter_mut.next_back(), Some(cloned.column_mut(3)));
+    assert_eq!(col_iter_mut.next(), Some(cloned.column_mut(2)));
+    assert_eq!(col_iter_mut.next_back(), None);
+    assert_eq!(col_iter_mut.next(), None);
+}
+
+#[test]
 #[cfg(feature = "par-iter")]
 fn parallel_column_iteration() {
     use nalgebra::dmatrix;
@@ -1219,6 +1237,15 @@ fn parallel_column_iteration() {
     let par_result: f64 = dmat.par_column_iter().map(|col| col.norm()).sum();
     let ser_result: f64 = dmat.column_iter().map(|col| col.norm()).sum();
     assert_eq!(par_result, ser_result);
+    
+    // repeat this test using mutable iterators
+    let mut dmat = dmat;
+    dmat.par_column_iter_mut().enumerate().for_each(|(idx, col)| {
+        assert_eq!(col, cloned.column(idx));
+    });
+
+    let par_mut_result: f64 = dmat.par_column_iter_mut().map(|col| col.norm()).sum();
+    assert_eq!(par_mut_result,ser_result);
 }
 
 #[test]

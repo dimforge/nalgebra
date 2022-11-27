@@ -397,7 +397,8 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Iterator
 
     #[inline]
     fn next(&'_ mut self) -> Option<Self::Item> {
-        if self.range.start < self.ncols() {
+        debug_assert!(self.range.start <= self.range.end);
+        if self.range.start < self.range.end {
             let res = unsafe { (*self.mat).column_mut(self.range.start) };
             self.range.start += 1;
             Some(res)
