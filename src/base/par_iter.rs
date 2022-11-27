@@ -8,8 +8,8 @@ use crate::{
     iter::{ColumnIter, ColumnIterMut},
     Dim, Matrix, MatrixSlice, MatrixSliceMut, RawStorage, RawStorageMut, Scalar, U1,
 };
-use rayon::{iter::plumbing::bridge, prelude::*};
 use rayon::iter::plumbing::Producer;
+use rayon::{iter::plumbing::bridge, prelude::*};
 
 /// A rayon parallel iterator over the colums of a matrix. It is created
 /// using the [`par_column_iter`] method of [`Matrix`].
@@ -224,18 +224,19 @@ where
 /// a private helper newtype that wraps the `ColumnIter` and implements
 /// the rayon `Producer` trait. It's just here so we don't have to make the
 /// rayon trait part of the public interface of the `ColumnIter`
-struct ColumnProducer<'a,T,R:Dim,C:Dim,S:RawStorage<T,R,C>>(ColumnIter<'a,T,R,C,S>); 
+struct ColumnProducer<'a, T, R: Dim, C: Dim, S: RawStorage<T, R, C>>(ColumnIter<'a, T, R, C, S>);
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 /// *only available if compiled with the feature `par-iter`*
-impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Producer for ColumnProducer<'a, T, R, Cols, S>
+impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Producer
+    for ColumnProducer<'a, T, R, Cols, S>
 where
-T: Send + Sync + Scalar,
-S: Sync,
+    T: Send + Sync + Scalar,
+    S: Sync,
 {
     type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;
     type IntoIter = ColumnIter<'a, T, R, Cols, S>;
-    
+
     #[inline]
     fn split_at(self, index: usize) -> (Self, Self) {
         // the index is relative to the size of this current iterator
@@ -252,7 +253,7 @@ S: Sync,
         (Self(left_iter), Self(right_iter))
     }
 
-    #[inline]   
+    #[inline]
     fn into_iter(self) -> Self::IntoIter {
         self.0
     }
@@ -260,13 +261,15 @@ S: Sync,
 
 /// See `ColumnProducer`. A private wrapper newtype that keeps the Producer
 /// implementation private
-struct ColumnProducerMut<'a, T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>>(ColumnIterMut<'a,T,R,C,S>);
+struct ColumnProducerMut<'a, T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>>(
+    ColumnIterMut<'a, T, R, C, S>,
+);
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Producer
-for ColumnProducerMut<'a, T, R, C, S>
+    for ColumnProducerMut<'a, T, R, C, S>
 where
-T: Send + Sync + Scalar,
-S: Send + Sync,
+    T: Send + Sync + Scalar,
+    S: Send + Sync,
 {
     type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
     type IntoIter = ColumnIterMut<'a, T, R, C, S>;
@@ -294,10 +297,9 @@ S: Send + Sync,
     }
 }
 
-
 /// this implementation is safe because we are enforcing exclusive access
 /// to the columns through the active range of the iterator
 unsafe impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Send
-for ColumnIterMut<'a, T, R, C, S>
+    for ColumnIterMut<'a, T, R, C, S>
 {
 }

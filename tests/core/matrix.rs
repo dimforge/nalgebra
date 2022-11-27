@@ -1237,15 +1237,17 @@ fn parallel_column_iteration() {
     let par_result: f64 = dmat.par_column_iter().map(|col| col.norm()).sum();
     let ser_result: f64 = dmat.column_iter().map(|col| col.norm()).sum();
     assert_eq!(par_result, ser_result);
-    
+
     // repeat this test using mutable iterators
     let mut dmat = dmat;
-    dmat.par_column_iter_mut().enumerate().for_each(|(idx, col)| {
-        assert_eq!(col, cloned.column(idx));
-    });
+    dmat.par_column_iter_mut()
+        .enumerate()
+        .for_each(|(idx, col)| {
+            assert_eq!(col, cloned.column(idx));
+        });
 
     let par_mut_result: f64 = dmat.par_column_iter_mut().map(|col| col.norm()).sum();
-    assert_eq!(par_mut_result,ser_result);
+    assert_eq!(par_mut_result, ser_result);
 }
 
 #[test]
