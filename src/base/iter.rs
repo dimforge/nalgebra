@@ -301,8 +301,8 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ExactSizeIte
 #[derive(Clone, Debug)]
 /// An iterator through the columns of a matrix.
 pub struct ColumnIter<'a, T, R: Dim, C: Dim, S: RawStorage<T, R, C>> {
-    mat: &'a Matrix<T, R, C, S>,
-    range: Range<usize>,
+    pub(crate) mat: &'a Matrix<T, R, C, S>,
+    pub(crate) range: Range<usize>,
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ColumnIter<'a, T, R, C, S> {
@@ -370,9 +370,9 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ExactSizeIterat
 /// An iterator through the mutable columns of a matrix.
 #[derive(Debug)]
 pub struct ColumnIterMut<'a, T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> {
-    mat: *mut Matrix<T, R, C, S>,
-    phantom: PhantomData<&'a mut Matrix<T, R, C, S>>,
-    range: Range<usize>,
+    pub(crate) mat: *mut Matrix<T, R, C, S>,
+    pub(crate) range: Range<usize>,
+    pub(crate) phantom: PhantomData<&'a mut Matrix<T, R, C, S>>,
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ColumnIterMut<'a, T, R, C, S> {
@@ -441,83 +441,5 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> DoubleEndedI
         } else {
             None
         }
-    }
-}
-
-/// implementations for parallel iteration with rayon
-#[cfg(feature = "par-iter")]
-mod parallel {
-    use super::*;
-    use rayon::iter::plumbing::Producer;
-
-    #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
-    /// *only available if compiled with the feature `par-iter`*
-    impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Producer for ColumnIter<'a, T, R, Cols, S>
-    where
-        T: Send + Sync + Scalar,
-        S: Sync,
-    {
-        type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;
-        type IntoIter = ColumnIter<'a, T, R, Cols, S>;
-
-        fn split_at(self, index: usize) -> (Self, Self) {
-            // the index is relative to the size of this current iterator
-            // it will always start at zero so it serves as an offset
-            let left = Self {
-                mat: self.mat,
-                range: self.range.start..(self.range.start + index),
-            };
-
-            let right = Self {
-                mat: self.mat,
-                range: (self.range.start + index)..self.range.end,
-            };
-            (left, right)
-        }
-
-        fn into_iter(self) -> Self::IntoIter {
-            self
-        }
-    }
-
-    #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
-    /// *only available if compiled with the feature `par-iter`*
-    impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Producer
-        for ColumnIterMut<'a, T, R, C, S>
-    where
-        T: Send + Sync + Scalar,
-        S: Send + Sync,
-    {
-        type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
-        type IntoIter = ColumnIterMut<'a, T, R, C, S>;
-
-        fn into_iter(self) -> Self::IntoIter {
-            self
-        }
-
-        fn split_at(self, index: usize) -> (Self, Self) {
-            // the index is relative to the size of this current iterator
-            // it will always start at zero so it serves as an offset
-
-            let left = Self {
-                mat: self.mat,
-                range: self.range.start..(self.range.start + index),
-                phantom: Default::default(),
-            };
-
-            let right = Self {
-                mat: self.mat,
-                range: (self.range.start + index)..self.range.end,
-                phantom: Default::default(),
-            };
-            (left, right)
-        }
-    }
-
-    /// this implementation is safe because we are enforcing exclusive access
-    /// to the columns through the active range of the iterator
-    unsafe impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Send
-        for ColumnIterMut<'a, T, R, C, S>
-    {
     }
 }
