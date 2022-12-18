@@ -113,7 +113,7 @@ where
         let dim = self.hess.nrows();
         self.hess.fill_lower_triangle(T::zero(), 2);
         self.hess
-            .slice_mut((1, 0), (dim - 1, dim - 1))
+            .view_mut((1, 0), (dim - 1, dim - 1))
             .set_partial_diagonal(
                 self.subdiag
                     .iter()
@@ -132,7 +132,7 @@ where
         let dim = self.hess.nrows();
         let mut res = self.hess.clone();
         res.fill_lower_triangle(T::zero(), 2);
-        res.slice_mut((1, 0), (dim - 1, dim - 1))
+        res.view_mut((1, 0), (dim - 1, dim - 1))
             .set_partial_diagonal(
                 self.subdiag
                     .iter()

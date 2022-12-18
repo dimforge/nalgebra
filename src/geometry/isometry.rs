@@ -428,7 +428,7 @@ impl<T: SimdRealField, R, const D: usize> Isometry<T, R, D> {
         DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         let mut res: OMatrix<T, _, _> = crate::convert_ref(&self.rotation);
-        res.fixed_slice_mut::<D, 1>(0, D)
+        res.fixed_view_mut::<D, 1>(0, D)
             .copy_from(&self.translation.vector);
 
         res

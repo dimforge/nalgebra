@@ -14,7 +14,7 @@ use simba::simd::{SimdBool, SimdOption, SimdRealField};
 use crate::base::dimension::{U1, U3, U4};
 use crate::base::storage::{CStride, RStride};
 use crate::base::{
-    Matrix3, Matrix4, MatrixSlice, MatrixSliceMut, Normed, Scalar, Unit, Vector3, Vector4,
+    Matrix3, Matrix4, MatrixView, MatrixViewMut, Normed, Scalar, Unit, Vector3, Vector4,
 };
 
 use crate::geometry::{Point3, Rotation};
@@ -191,7 +191,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn vector(&self) -> MatrixSlice<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
+    pub fn vector(&self) -> MatrixView<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
         self.coords.fixed_rows::<3>(0)
     }
 
@@ -584,7 +584,7 @@ where
     #[inline]
     pub fn vector_mut(
         &mut self,
-    ) -> MatrixSliceMut<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
+    ) -> MatrixViewMut<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
         self.coords.fixed_rows_mut::<3>(0)
     }
 

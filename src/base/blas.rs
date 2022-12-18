@@ -11,7 +11,7 @@ use crate::base::dimension::{Const, Dim, Dynamic, U1, U2, U3, U4};
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::uninit::Init;
 use crate::base::{
-    DVectorSlice, DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, VectorSlice,
+    DVectorView, DefaultAllocator, Matrix, Scalar, SquareMatrix, Vector, VectorView,
 };
 
 /// # Dot/scalar product
@@ -363,8 +363,8 @@ where
         x: &Vector<T, D3, SC>,
         beta: T,
         dot: impl Fn(
-            &DVectorSlice<'_, T, SB::RStride, SB::CStride>,
-            &DVectorSlice<'_, T, SC::RStride, SC::CStride>,
+            &DVectorView<'_, T, SB::RStride, SB::CStride>,
+            &DVectorView<'_, T, SC::RStride, SC::CStride>,
         ) -> T,
     ) where
         T: One,
@@ -393,7 +393,7 @@ where
         let col2 = a.column(0);
         let val = unsafe { x.vget_unchecked(0).clone() };
         self.axpy(alpha.clone() * val, &col2, beta);
-        self[0] += alpha.clone() * dot(&a.slice_range(1.., 0), &x.rows_range(1..));
+        self[0] += alpha.clone() * dot(&a.view_range(1.., 0), &x.rows_range(1..));
 
         for j in 1..dim2 {
             let col2 = a.column(j);
@@ -506,7 +506,7 @@ where
         a: &Matrix<T, R2, C2, SB>,
         x: &Vector<T, D3, SC>,
         beta: T,
-        dot: impl Fn(&VectorSlice<'_, T, R2, SB::RStride, SB::CStride>, &Vector<T, D3, SC>) -> T,
+        dot: impl Fn(&VectorView<'_, T, R2, SB::RStride, SB::CStride>, &Vector<T, D3, SC>) -> T,
     ) where
         T: One,
         SB: Storage<T, R2, C2>,
@@ -892,7 +892,7 @@ where
             let val = unsafe { conjugate(y.vget_unchecked(j).clone()) };
             let subdim = Dynamic::new(dim1 - j);
             // TODO: avoid bound checks.
-            self.generic_slice_mut((j, j), (subdim, Const::<1>)).axpy(
+            self.generic_view_mut((j, j), (subdim, Const::<1>)).axpy(
                 alpha.clone() * val,
                 &x.rows_range(j..),
                 beta.clone(),

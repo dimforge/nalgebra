@@ -150,7 +150,7 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
         DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         let mut res = OMatrix::<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>::identity();
-        res.fixed_slice_mut::<D, 1>(0, D).copy_from(&self.vector);
+        res.fixed_view_mut::<D, 1>(0, D).copy_from(&self.vector);
 
         res
     }

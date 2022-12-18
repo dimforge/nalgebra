@@ -97,6 +97,19 @@ an optimized set of tools for computer graphics and physics. Those features incl
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 
+/// Generates an appropriate deprecation note with a suggestion for replacement.
+///
+/// Used for deprecating slice types in various locations throughout the library.
+/// See #1076 for more information.
+macro_rules! slice_deprecation_note {
+    ($replacement:ident) => {
+        concat!("Use ", stringify!($replacement),
+            r###" instead. See [issue #1076](https://github.com/dimforge/nalgebra/issues/1076) for more information."###)
+    }
+}
+
+pub(crate) use slice_deprecation_note;
+
 #[cfg(feature = "rand-no-std")]
 extern crate rand_package as rand;
 

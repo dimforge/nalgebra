@@ -348,8 +348,8 @@ fn coo_push_matrix_valid_entries() {
     // Works with sliced
     {
         let source = nalgebra::SMatrix::<i32, 2, 2>::new(6, 7, 8, 9);
-        let sliced = source.fixed_slice::<2, 1>(0, 0);
-        coo.push_matrix(1, 0, &sliced);
+        let view = source.fixed_view::<2, 1>(0, 0);
+        coo.push_matrix(1, 0, &view);
 
         assert_eq!(
             coo.triplet_iter().collect::<Vec<_>>(),

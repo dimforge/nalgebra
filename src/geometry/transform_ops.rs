@@ -120,10 +120,10 @@ md_impl_all!(
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
     [ref ref] => {
-        let transform = self.matrix().fixed_slice::<D, D>(0, 0);
+        let transform = self.matrix().fixed_view::<D, D>(0, 0);
 
         if C::has_normalizer() {
-            let normalizer = self.matrix().fixed_slice::<1, D>(D, 0);
+            let normalizer = self.matrix().fixed_view::<1, D>(D, 0);
             let n = normalizer.tr_dot(rhs);
 
             if !n.is_zero() {
@@ -148,11 +148,11 @@ md_impl_all!(
     [ref val] =>  self * &rhs;
     [val ref] => &self *  rhs;
     [ref ref] => {
-        let transform   = self.matrix().fixed_slice::<D, D>(0, 0);
-        let translation = self.matrix().fixed_slice::<D, 1>(0, D);
+        let transform   = self.matrix().fixed_view::<D, D>(0, 0);
+        let translation = self.matrix().fixed_view::<D, 1>(0, D);
 
         if C::has_normalizer() {
-            let normalizer = self.matrix().fixed_slice::<1, D>(D, 0);
+            let normalizer = self.matrix().fixed_view::<1, D>(D, 0);
             #[allow(clippy::suspicious_arithmetic_impl)]
             let n = normalizer.tr_dot(&rhs.coords) + unsafe { self.matrix().get_unchecked((D, D)).clone() };
 

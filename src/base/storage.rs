@@ -122,7 +122,7 @@ pub unsafe trait RawStorage<T, R: Dim, C: Dim = U1>: Sized {
     /// # Safety
     /// The matrix components may not be stored in a contiguous way, depending on the strides.
     /// This method is unsafe because this can yield to invalid aliasing when called on some pairs
-    /// of matrix slices originating from the same matrix with strides.
+    /// of matrix views originating from the same matrix with strides.
     ///
     /// Call the safe alternative `matrix.as_slice()` instead.
     unsafe fn as_slice_unchecked(&self) -> &[T];
@@ -148,7 +148,7 @@ pub unsafe trait Storage<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
 /// contains `MaybeUninit<T>` elements.
 ///
 /// Note that a mutable access does not mean that the matrix owns its data. For example, a mutable
-/// matrix slice can provide mutable access to its elements even if it does not own its data (it
+/// matrix view can provide mutable access to its elements even if it does not own its data (it
 /// contains only an internal reference to them).
 pub unsafe trait RawStorageMut<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     /// The matrix mutable data pointer.

@@ -261,7 +261,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
         // adding the additional traits `DimAdd` and `IsNotStaticOne`. Maybe
         // these things will get nicer once specialization lands in Rust.
         let mut res = OMatrix::<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>::identity();
-        res.fixed_slice_mut::<D, D>(0, 0).copy_from(&self.matrix);
+        res.fixed_view_mut::<D, D>(0, 0).copy_from(&self.matrix);
 
         res
     }
