@@ -21,6 +21,7 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 /// A 2D isometry is composed of:
 /// - A translation part of type [`Translation2`](crate::Translation2)
 /// - A rotation part which can either be a [`UnitComplex`](crate::UnitComplex) or a [`Rotation2`](crate::Rotation2).
+/// 
 /// A 3D isometry is composed of:
 /// - A translation part of type [`Translation3`](crate::Translation3)
 /// - A rotation part which can either be a [`UnitQuaternion`](crate::UnitQuaternion) or a [`Rotation3`](crate::Rotation3).
