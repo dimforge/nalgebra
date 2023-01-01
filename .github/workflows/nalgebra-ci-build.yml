@@ -137,3 +137,9 @@ jobs:
       - run: cargo build --no-default-features --features cuda --target=nvptx64-nvidia-cuda
         env: 
           CUDA_ARCH: "350"
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Generate documentation
+      run: cargo doc
