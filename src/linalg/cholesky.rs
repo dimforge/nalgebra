@@ -2,6 +2,7 @@
 use serde::{Deserialize, Serialize};
 
 use num::One;
+use num::Zero;
 use simba::scalar::ComplexField;
 use simba::simd::SimdComplexField;
 
@@ -41,6 +42,7 @@ where
 impl<T: SimdComplexField, D: Dim> Cholesky<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
+    T::SimdRealField: Zero,
 {
     /// Computes the Cholesky decomposition of `matrix` without checking that the matrix is definite-positive.
     ///
@@ -160,6 +162,27 @@ where
             prod_diag *= unsafe { self.chol.get_unchecked((i, i)).clone() };
         }
         prod_diag.simd_modulus_squared()
+    }
+
+    /// Computes the natural logarithm of determinant of the decomposed matrix.
+    ///
+    /// This method is more robust than `.determinant()` to very small or very
+    /// large determinants since it returns the natural logarithm of the
+    /// determinant rather than the determinant itself.
+    #[must_use]
+    pub fn ln_determinant(&self) -> T::SimdRealField {
+        let dim = self.chol.nrows();
+        let mut sum_diag = T::SimdRealField::zero();
+        for i in 0..dim {
+            sum_diag += unsafe {
+                self.chol
+                    .get_unchecked((i, i))
+                    .clone()
+                    .simd_modulus_squared()
+                    .simd_ln()
+            };
+        }
+        sum_diag
     }
 }
 
