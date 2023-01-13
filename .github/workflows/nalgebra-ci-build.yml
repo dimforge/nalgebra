@@ -125,7 +125,7 @@ jobs:
     steps:
       - uses: Jimver/cuda-toolkit@v0.2.4
         with:
-          cuda: '11.2.2'
+          cuda: '11.5.0'
       - name: Install nightly-2021-12-04
         uses: actions-rs/toolchain@v1
         with:
