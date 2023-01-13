@@ -34,13 +34,18 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
                        DefaultAllocator: Allocator<T, Const<D>>,
                        Owned<T, Const<D>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
-)]
-#[cfg_attr(
-    feature = "rkyv-serialize",
-    archive_attr(derive(bytecheck::CheckBytes))
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Similarity<T::Archived, R::Archived, D>",
+        bound(archive = "
+        T: rkyv::Archive,
+        R: rkyv::Archive,
+        Isometry<T, R, D>: rkyv::Archive<Archived = Isometry<T::Archived, R::Archived, D>>
+    ")
+    )
 )]
 pub struct Similarity<T, R, const D: usize> {
     /// The part of this similarity that does not include the scaling factor.

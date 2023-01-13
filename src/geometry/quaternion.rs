@@ -25,12 +25,16 @@ use crate::geometry::{Point3, Rotation};
 #[derive(Copy, Clone)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Quaternion<T::Archived>",
+        bound(archive = "
+            T: rkyv::Archive,
+            Vector4<T>: rkyv::Archive<Archived = Vector4<T::Archived>>
+        ")
+    )
 )]
-#[cfg_attr(
-    feature = "rkyv-serialize",
-    archive_attr(derive(bytecheck::CheckBytes))
-)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.

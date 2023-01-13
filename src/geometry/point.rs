@@ -36,13 +36,19 @@ use std::mem::MaybeUninit;
 /// of said transformations for details.
 #[repr(C)]
 #[derive(Clone)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
-)]
-#[cfg_attr(
-    feature = "rkyv-serialize",
-    archive_attr(derive(bytecheck::CheckBytes))
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "OPoint<T::Archived, D>",
+        bound(archive = "
+        T: rkyv::Archive,
+        T::Archived: Scalar,
+        OVector<T, D>: rkyv::Archive<Archived = OVector<T::Archived, D>>,
+        DefaultAllocator: Allocator<T::Archived, D>,
+    ")
+    )
 )]
 pub struct OPoint<T: Scalar, D: DimName>
 where

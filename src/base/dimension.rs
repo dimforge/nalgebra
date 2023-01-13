@@ -208,12 +208,10 @@ dim_ops!(
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(as = "Self")
 )]
-#[cfg_attr(
-    feature = "rkyv-serialize",
-    archive_attr(derive(bytecheck::CheckBytes))
-)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Const<const R: usize>;
 

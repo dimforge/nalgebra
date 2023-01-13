@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Needed because the --all-features build which enables cuda support.
-      - uses: Jimver/cuda-toolkit@v0.2.4
+      - uses: Jimver/cuda-toolkit@v0.2.8
       - uses: actions/checkout@v2
       - run: cargo build --all-features;
       - run: cargo build -p nalgebra-glm --all-features;
@@ -123,9 +123,9 @@ jobs:
   build-cuda:
     runs-on: ubuntu-latest
     steps:
-      - uses: Jimver/cuda-toolkit@v0.2.4
+      - uses: Jimver/cuda-toolkit@v0.2.8
         with:
-          cuda: '11.2.2'
+          cuda: '11.5.0'
       - name: Install nightly-2021-12-04
         uses: actions-rs/toolchain@v1
         with:
