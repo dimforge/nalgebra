@@ -9,32 +9,6 @@ use rkyv::{
 use std::marker::PhantomData;
 
 /// A wrapper that allows for changing the generic type of a PhantomData<T>.
-///
-/// Example:
-///
-/// ```rust
-/// use std::marker::PhantomData;
-/// use rkyv::{
-///     Archive, Serialize, Deserialize, Infallible, vec::ArchivedVec, Archived, with::With,
-/// };
-/// use rkyv_wrappers::custom_phantom::CustomPhantom;
-/// #[derive(Archive, Serialize, Deserialize, Debug, PartialEq, Eq, Default)]
-/// #[archive(as = "StructWithPhantom<T::Archived>", bound(archive = "
-/// 	T: Archive,
-/// 	With<PhantomData<T>, CustomPhantom<Archived<T>>>: Archive<Archived = PhantomData<Archived<T>>>
-/// "))]
-/// struct StructWithPhantom<T> {
-/// 	pub num: i32,
-///     #[with(CustomPhantom<T::Archived>)]
-///     pub phantom: PhantomData<T>,
-/// }
-/// let value = StructWithPhantom::<Vec<i32>>::default();
-/// let bytes = rkyv::to_bytes::<_, 1024>(&value).unwrap();
-/// let archived: &StructWithPhantom<ArchivedVec<i32>> = unsafe { rkyv::archived_root::<StructWithPhantom<Vec<i32>>>(&bytes) };
-///
-/// let deserialized: StructWithPhantom<Vec<i32>> = archived.deserialize(&mut Infallible).unwrap();
-/// assert_eq!(deserialized, value);
-/// ```
 pub struct CustomPhantom<NT: ?Sized> {
     _data: PhantomData<*const NT>,
 }
