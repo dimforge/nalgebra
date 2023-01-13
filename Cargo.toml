@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.31.0"
+version = "0.31.4"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "General-purpose linear algebra library with transformations and statically-sized or dynamically-sized matrices."
@@ -44,6 +44,8 @@ convert-glam017 = [ "glam017" ]
 convert-glam018 = [ "glam018" ]
 convert-glam019 = [ "glam019" ]
 convert-glam020 = [ "glam020" ]
+convert-glam021 = [ "glam021" ]
+convert-glam022 = [ "glam022" ]
 
 # Serialization
 ## To use serde in a #[no-std] environment, enable the
@@ -65,6 +67,7 @@ rand        = [ "rand-no-std", "rand-package/std", "rand-package/std_rng", "rand
 arbitrary        = [ "quickcheck" ]
 proptest-support = [ "proptest" ]
 slow-tests       = []
+rkyv-safe-deser  = [ "rkyv-serialize", "rkyv/validation" ]
 
 [dependencies]
 nalgebra-macros = { version = "0.1", path = "nalgebra-macros", optional = true }
@@ -96,6 +99,8 @@ glam017        = { package = "glam", version = "0.17", optional = true }
 glam018        = { package = "glam", version = "0.18", optional = true }
 glam019        = { package = "glam", version = "0.19", optional = true }
 glam020        = { package = "glam", version = "0.20", optional = true }
+glam021        = { package = "glam", version = "0.21", optional = true }
+glam022        = { package = "glam", version = "0.22", optional = true }
 cust_core      = { version = "0.1", optional = true }
 
 
@@ -131,8 +136,8 @@ required-features = ["rand"]
 lto = true
 
 [package.metadata.docs.rs]
-# Enable certain features when building docs for docs.rs
-features = [ "proptest-support", "compare", "macros", "rand" ]
+# Enable all the features when building the docs on docs.rs
+all-features = true
 
 [patch.crates-io]
 num-complex = { git = "https://github.com/zyansheep/num-complex" }

@@ -4,6 +4,46 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+
+## [0.31.4] (13 Nov. 2022)
+
+### Added
+- Add a `convert-glam022` feature to enable conversion between `nalgebra` and `glam v0.22`.
+
+
+## [0.31.3] (30 Oct. 2022)
+
+### Added
+- Add `Matrix::try_cast` to attempt casting the inner scalar types when that cast may fail.
+
+### Fixed
+- Fixed the usage of `CheckBytes` with `rkyv`.
+
+## [0.31.2] (09 Oct. 2022)
+
+### Modified
+- Use `#[inline]` on the `Dim` implementation for `Const` to improve opt-level 1 performance.
+- Make the `Point::new` constructions const-fn.
+
+### Added
+- Add `UnitVector::cast` to change the underlying scalar type.
+
+
+## [0.31.1] (31 July 2022)
+
+### Modified
+- Improve performances of multiplication of two sparse matrices.
+
+### Added
+- Add `Matrix::from_row_iterator` to build a matrix from an iterator yielding components in row-major order.
+- Add support for conversion from/to types of `glam` 0.21.
+- `nalgebra-sparse`: add support for the matrix-market export of sparse matrices.
+- `nalgebra-lapack`: add a `GE` for solving the generalized eigenvalues problem.
+
+### Fixed
+- Fix `Rotation3::from_matrix` and `UnitQuaternion::from_matrix` when the input matrix is already a valid
+  rotation matrix.
+
 ## [0.31.0] (30 Apr. 2022)
 
 ### Breaking changes

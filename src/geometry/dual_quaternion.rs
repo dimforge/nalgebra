@@ -40,7 +40,6 @@ use simba::scalar::{ClosedNeg, RealField};
 ///  See <https://github.com/dimforge/nalgebra/issues/487>
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
@@ -51,6 +50,10 @@ use simba::scalar::{ClosedNeg, RealField};
         Quaternion<T>: rkyv::Archive<Archived = Quaternion<T::Archived>>
     ")
     )
+)]
+#[cfg_attr(
+    feature = "rkyv-serialize",
+    archive_attr(derive(bytecheck::CheckBytes))
 )]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct DualQuaternion<T> {

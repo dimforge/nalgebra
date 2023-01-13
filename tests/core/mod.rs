@@ -4,9 +4,10 @@ mod conversion;
 mod edition;
 mod empty;
 mod matrix;
-mod matrix_slice;
+mod matrix_view;
 #[cfg(feature = "mint")]
 mod mint;
+#[cfg(feature = "rkyv-serialize-no-std")]
 mod rkyv;
 mod serde;
 

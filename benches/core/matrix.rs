@@ -53,7 +53,7 @@ fn mat_div_scalar(b: &mut criterion::Criterion) {
     b.bench_function("mat_div_scalar", move |bh| {
         bh.iter(|| {
             let mut aa = a.clone();
-            let mut b = aa.slice_mut((0, 0), (1000, 1000));
+            let mut b = aa.view_mut((0, 0), (1000, 1000));
             b /= n
         })
     });

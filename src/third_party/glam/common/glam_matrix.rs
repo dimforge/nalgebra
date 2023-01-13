@@ -14,7 +14,7 @@ macro_rules! impl_vec_conversion(
         impl From<$Vec2> for Vector2<$N> {
             #[inline]
             fn from(e: $Vec2) -> Vector2<$N> {
-                (*e.as_ref()).into()
+                <[$N;2]>::from(e).into()
             }
         }
 
@@ -31,7 +31,7 @@ macro_rules! impl_vec_conversion(
         impl From<$Vec3> for Vector3<$N> {
             #[inline]
             fn from(e: $Vec3) -> Vector3<$N> {
-                (*e.as_ref()).into()
+                <[$N;3]>::from(e).into()
             }
         }
 
@@ -48,7 +48,7 @@ macro_rules! impl_vec_conversion(
         impl From<$Vec4> for Vector4<$N> {
             #[inline]
             fn from(e: $Vec4) -> Vector4<$N> {
-                (*e.as_ref()).into()
+                <[$N;4]>::from(e).into()
             }
         }
 

@@ -3,7 +3,7 @@ use crate::ops::serial::spsolve_csc_lower_triangular;
 use crate::ops::Op;
 use crate::pattern::SparsityPattern;
 use core::{iter, mem};
-use nalgebra::{DMatrix, DMatrixSlice, DMatrixSliceMut, RealField};
+use nalgebra::{DMatrix, DMatrixView, DMatrixViewMut, RealField};
 use std::fmt::{Display, Formatter};
 
 /// A symbolic sparse Cholesky factorization of a CSC matrix.
@@ -264,7 +264,7 @@ impl<T: RealField> CscCholesky<T> {
     ///
     /// Panics if `B` is not square.
     #[must_use = "Did you mean to use solve_mut()?"]
-    pub fn solve<'a>(&'a self, b: impl Into<DMatrixSlice<'a, T>>) -> DMatrix<T> {
+    pub fn solve<'a>(&'a self, b: impl Into<DMatrixView<'a, T>>) -> DMatrix<T> {
         let b = b.into();
         let mut output = b.clone_owned();
         self.solve_mut(&mut output);
@@ -278,7 +278,7 @@ impl<T: RealField> CscCholesky<T> {
     /// # Panics
     ///
     /// Panics if `b` is not square.
-    pub fn solve_mut<'a>(&'a self, b: impl Into<DMatrixSliceMut<'a, T>>) {
+    pub fn solve_mut<'a>(&'a self, b: impl Into<DMatrixViewMut<'a, T>>) {
         let expect_msg = "If the Cholesky factorization succeeded,\
             then the triangular solve should never fail";
         // Solve LY = B

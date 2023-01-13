@@ -1,4 +1,7 @@
-use na::{Quaternion, RealField, UnitQuaternion, Vector2, Vector3};
+use na::{
+    Matrix3, Quaternion, RealField, Rotation3, UnitQuaternion, UnitVector3, Vector2, Vector3,
+};
+use std::f64::consts::PI;
 
 #[test]
 fn angle_2() {
@@ -14,6 +17,58 @@ fn angle_3() {
     let b = Vector3::new(8.0, 0.0, 1.0);
 
     assert_eq!(a.angle(&b), 0.0);
+}
+
+#[test]
+fn from_rotation_matrix() {
+    // Test degenerate case when from_matrix gets stuck in Identity rotation
+    let identity =
+        Rotation3::from_matrix(&Matrix3::new(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0));
+    assert_relative_eq!(identity, &Rotation3::identity(), epsilon = 0.001);
+    let rotated_z =
+        Rotation3::from_matrix(&Matrix3::new(1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -1.0));
+    assert_relative_eq!(
+        rotated_z,
+        &Rotation3::from_axis_angle(&UnitVector3::new_unchecked(Vector3::new(1.0, 0.0, 0.0)), PI),
+        epsilon = 0.001
+    );
+    // Test that issue 627 is fixed
+    let m_627 = Matrix3::<f64>::new(-1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0);
+    assert_relative_ne!(identity, Rotation3::from_matrix(&m_627), epsilon = 0.01);
+    assert_relative_eq!(
+        Rotation3::from_matrix_unchecked(m_627.clone()),
+        Rotation3::from_matrix(&m_627),
+        epsilon = 0.001
+    );
+    // Test that issue 1078 is fixed
+    let m_1078 = Matrix3::<f64>::new(0.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0);
+    assert_relative_ne!(identity, Rotation3::from_matrix(&m_1078), epsilon = 0.01);
+    assert_relative_eq!(
+        Rotation3::from_matrix_unchecked(m_1078.clone()),
+        Rotation3::from_matrix(&m_1078),
+        epsilon = 0.001
+    );
+    // Additional test cases for eps >= 1.0
+    assert_relative_ne!(
+        identity,
+        Rotation3::from_matrix_eps(&m_627, 1.2, 0, Rotation3::identity()),
+        epsilon = 0.6
+    );
+    assert_relative_eq!(
+        Rotation3::from_matrix_unchecked(m_627.clone()),
+        Rotation3::from_matrix_eps(&m_627, 1.2, 0, Rotation3::identity()),
+        epsilon = 0.6
+    );
+    assert_relative_ne!(
+        identity,
+        Rotation3::from_matrix_eps(&m_1078, 1.0, 0, Rotation3::identity()),
+        epsilon = 0.1
+    );
+    assert_relative_eq!(
+        Rotation3::from_matrix_unchecked(m_1078.clone()),
+        Rotation3::from_matrix_eps(&m_1078, 1.0, 0, Rotation3::identity()),
+        epsilon = 0.1
+    );
 }
 
 #[test]

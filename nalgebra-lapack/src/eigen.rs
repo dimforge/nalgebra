@@ -7,13 +7,12 @@ use num_complex::Complex;
 use simba::scalar::RealField;
 
 use crate::ComplexHelper;
-use na::allocator::Allocator;
 use na::dimension::{Const, Dim};
-use na::{DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
+use na::{allocator::Allocator, DefaultAllocator, Matrix, OMatrix, OVector, Scalar};
 
 use lapack;
 
-/// Eigendecomposition of a real square matrix with real eigenvalues.
+/// Eigendecomposition of a real square matrix with real or complex eigenvalues.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
@@ -36,8 +35,10 @@ pub struct Eigen<T: Scalar, D: Dim>
 where
     DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
 {
-    /// The eigenvalues of the decomposed matrix.
-    pub eigenvalues: OVector<T, D>,
+    /// The real parts of eigenvalues of the decomposed matrix.
+    pub eigenvalues_re: OVector<T, D>,
+    /// The imaginary parts of the eigenvalues of the decomposed matrix.
+    pub eigenvalues_im: OVector<T, D>,
     /// The (right) eigenvectors of the decomposed matrix.
     pub eigenvectors: Option<OMatrix<T, D, D>>,
     /// The left eigenvectors of the decomposed matrix.
@@ -69,8 +70,8 @@ where
             "Unable to compute the eigenvalue decomposition of a non-square matrix."
         );
 
-        let ljob = if left_eigenvectors { b'V' } else { b'T' };
-        let rjob = if eigenvectors { b'V' } else { b'T' };
+        let ljob = if left_eigenvectors { b'V' } else { b'N' };
+        let rjob = if eigenvectors { b'V' } else { b'N' };
 
         let (nrows, ncols) = m.shape_generic();
         let n = nrows.value();
@@ -104,212 +105,231 @@ where
         lapack_check!(info);
 
         let mut work = vec![T::zero(); lwork as usize];
+        let mut vl = if left_eigenvectors {
+            Some(Matrix::zeros_generic(nrows, ncols))
+        } else {
+            None
+        };
+        let mut vr = if eigenvectors {
+            Some(Matrix::zeros_generic(nrows, ncols))
+        } else {
+            None
+        };
 
-        match (left_eigenvectors, eigenvectors) {
-            (true, true) => {
-                // TODO: avoid the initializations?
-                let mut vl = Matrix::zeros_generic(nrows, ncols);
-                let mut vr = Matrix::zeros_generic(nrows, ncols);
-
-                T::xgeev(
-                    ljob,
-                    rjob,
-                    n as i32,
-                    m.as_mut_slice(),
-                    lda,
-                    wr.as_mut_slice(),
-                    wi.as_mut_slice(),
-                    &mut vl.as_mut_slice(),
-                    n as i32,
-                    &mut vr.as_mut_slice(),
-                    n as i32,
-                    &mut work,
-                    lwork,
-                    &mut info,
-                );
-                lapack_check!(info);
-
-                if wi.iter().all(|e| e.is_zero()) {
-                    return Some(Self {
-                        eigenvalues: wr,
-                        left_eigenvectors: Some(vl),
-                        eigenvectors: Some(vr),
-                    });
-                }
-            }
-            (true, false) => {
-                // TODO: avoid the initialization?
-                let mut vl = Matrix::zeros_generic(nrows, ncols);
-
-                T::xgeev(
-                    ljob,
-                    rjob,
-                    n as i32,
-                    m.as_mut_slice(),
-                    lda,
-                    wr.as_mut_slice(),
-                    wi.as_mut_slice(),
-                    &mut vl.as_mut_slice(),
-                    n as i32,
-                    &mut placeholder2,
-                    1 as i32,
-                    &mut work,
-                    lwork,
-                    &mut info,
-                );
-                lapack_check!(info);
-
-                if wi.iter().all(|e| e.is_zero()) {
-                    return Some(Self {
-                        eigenvalues: wr,
-                        left_eigenvectors: Some(vl),
-                        eigenvectors: None,
-                    });
-                }
-            }
-            (false, true) => {
-                // TODO: avoid the initialization?
-                let mut vr = Matrix::zeros_generic(nrows, ncols);
-
-                T::xgeev(
-                    ljob,
-                    rjob,
-                    n as i32,
-                    m.as_mut_slice(),
-                    lda,
-                    wr.as_mut_slice(),
-                    wi.as_mut_slice(),
-                    &mut placeholder1,
-                    1 as i32,
-                    &mut vr.as_mut_slice(),
-                    n as i32,
-                    &mut work,
-                    lwork,
-                    &mut info,
-                );
-                lapack_check!(info);
-
-                if wi.iter().all(|e| e.is_zero()) {
-                    return Some(Self {
-                        eigenvalues: wr,
-                        left_eigenvectors: None,
-                        eigenvectors: Some(vr),
-                    });
-                }
-            }
-            (false, false) => {
-                T::xgeev(
-                    ljob,
-                    rjob,
-                    n as i32,
-                    m.as_mut_slice(),
-                    lda,
-                    wr.as_mut_slice(),
-                    wi.as_mut_slice(),
-                    &mut placeholder1,
-                    1 as i32,
-                    &mut placeholder2,
-                    1 as i32,
-                    &mut work,
-                    lwork,
-                    &mut info,
-                );
-                lapack_check!(info);
-
-                if wi.iter().all(|e| e.is_zero()) {
-                    return Some(Self {
-                        eigenvalues: wr,
-                        left_eigenvectors: None,
-                        eigenvectors: None,
-                    });
-                }
-            }
-        }
-
-        None
-    }
-
-    /// The complex eigenvalues of the given matrix.
-    ///
-    /// Panics if the eigenvalue computation does not converge.
-    pub fn complex_eigenvalues(mut m: OMatrix<T, D, D>) -> OVector<Complex<T>, D>
-    where
-        DefaultAllocator: Allocator<Complex<T>, D>,
-    {
-        assert!(
-            m.is_square(),
-            "Unable to compute the eigenvalue decomposition of a non-square matrix."
-        );
-
-        let nrows = m.shape_generic().0;
-        let n = nrows.value();
-
-        let lda = n as i32;
-
-        // TODO: avoid the initialization?
-        let mut wr = Matrix::zeros_generic(nrows, Const::<1>);
-        let mut wi = Matrix::zeros_generic(nrows, Const::<1>);
-
-        let mut info = 0;
-        let mut placeholder1 = [T::zero()];
-        let mut placeholder2 = [T::zero()];
-
-        let lwork = T::xgeev_work_size(
-            b'T',
-            b'T',
-            n as i32,
-            m.as_mut_slice(),
-            lda,
-            wr.as_mut_slice(),
-            wi.as_mut_slice(),
-            &mut placeholder1,
-            n as i32,
-            &mut placeholder2,
-            n as i32,
-            &mut info,
-        );
-
-        lapack_panic!(info);
-
-        let mut work = vec![T::zero(); lwork as usize];
+        let vl_ref = vl
+            .as_mut()
+            .map(|m| m.as_mut_slice())
+            .unwrap_or(&mut placeholder1);
+        let vr_ref = vr
+            .as_mut()
+            .map(|m| m.as_mut_slice())
+            .unwrap_or(&mut placeholder2);
 
         T::xgeev(
-            b'T',
-            b'T',
+            ljob,
+            rjob,
             n as i32,
             m.as_mut_slice(),
             lda,
             wr.as_mut_slice(),
             wi.as_mut_slice(),
-            &mut placeholder1,
-            1 as i32,
-            &mut placeholder2,
-            1 as i32,
+            vl_ref,
+            if left_eigenvectors { n as i32 } else { 1 },
+            vr_ref,
+            if eigenvectors { n as i32 } else { 1 },
             &mut work,
             lwork,
             &mut info,
         );
-        lapack_panic!(info);
+        lapack_check!(info);
 
-        let mut res = Matrix::zeros_generic(nrows, Const::<1>);
+        Some(Self {
+            eigenvalues_re: wr,
+            eigenvalues_im: wi,
+            left_eigenvectors: vl,
+            eigenvectors: vr,
+        })
+    }
 
-        for i in 0..res.len() {
-            res[i] = Complex::new(wr[i].clone(), wi[i].clone());
-        }
-
-        res
+    /// Returns `true` if all the eigenvalues are real.
+    pub fn eigenvalues_are_real(&self) -> bool {
+        self.eigenvalues_im.iter().all(|e| e.is_zero())
     }
 
     /// The determinant of the decomposed matrix.
     #[inline]
     #[must_use]
-    pub fn determinant(&self) -> T {
-        let mut det = T::one();
-        for e in self.eigenvalues.iter() {
-            det *= e.clone();
+    pub fn determinant(&self) -> Complex<T> {
+        let mut det: Complex<T> = na::one();
+        for (re, im) in self.eigenvalues_re.iter().zip(self.eigenvalues_im.iter()) {
+            det *= Complex::new(re.clone(), im.clone());
         }
 
         det
+    }
+
+    /// Returns a tuple of vectors. The elements of the tuple are the real parts of the eigenvalues, left eigenvectors and right eigenvectors respectively.
+    pub fn get_real_elements(
+        &self,
+    ) -> (
+        Vec<T>,
+        Option<Vec<OVector<T, D>>>,
+        Option<Vec<OVector<T, D>>>,
+    )
+    where
+        DefaultAllocator: Allocator<T, D>,
+    {
+        let (number_of_elements, _) = self.eigenvalues_re.shape_generic();
+        let number_of_elements_value = number_of_elements.value();
+        let mut eigenvalues = Vec::<T>::with_capacity(number_of_elements_value);
+        let mut eigenvectors = match self.eigenvectors.is_some() {
+            true => Some(Vec::<OVector<T, D>>::with_capacity(
+                number_of_elements_value,
+            )),
+            false => None,
+        };
+        let mut left_eigenvectors = match self.left_eigenvectors.is_some() {
+            true => Some(Vec::<OVector<T, D>>::with_capacity(
+                number_of_elements_value,
+            )),
+            false => None,
+        };
+
+        let mut c = 0;
+        while c < number_of_elements_value {
+            eigenvalues.push(self.eigenvalues_re[c].clone());
+
+            if eigenvectors.is_some() {
+                eigenvectors.as_mut().unwrap().push(
+                    (&self.eigenvectors.as_ref())
+                        .unwrap()
+                        .column(c)
+                        .into_owned(),
+                );
+            }
+
+            if left_eigenvectors.is_some() {
+                left_eigenvectors.as_mut().unwrap().push(
+                    (&self.left_eigenvectors.as_ref())
+                        .unwrap()
+                        .column(c)
+                        .into_owned(),
+                );
+            }
+            if self.eigenvalues_im[c] != T::zero() {
+                //skip next entry
+                c += 1;
+            }
+            c += 1;
+        }
+        (eigenvalues, left_eigenvectors, eigenvectors)
+    }
+
+    /// Returns a tuple of vectors. The elements of the tuple are the complex eigenvalues, complex left eigenvectors and complex right eigenvectors respectively.
+    /// The elements appear as conjugate pairs within each vector, with the positive of the pair always being first.
+    pub fn get_complex_elements(
+        &self,
+    ) -> (
+        Option<Vec<Complex<T>>>,
+        Option<Vec<OVector<Complex<T>, D>>>,
+        Option<Vec<OVector<Complex<T>, D>>>,
+    )
+    where
+        DefaultAllocator: Allocator<Complex<T>, D>,
+    {
+        match self.eigenvalues_are_real() {
+            true => (None, None, None),
+            false => {
+                let (number_of_elements, _) = self.eigenvalues_re.shape_generic();
+                let number_of_elements_value = number_of_elements.value();
+                let number_of_complex_entries =
+                    self.eigenvalues_im
+                        .iter()
+                        .fold(0, |acc, e| if !e.is_zero() { acc + 1 } else { acc });
+                let mut eigenvalues = Vec::<Complex<T>>::with_capacity(number_of_complex_entries);
+                let mut eigenvectors = match self.eigenvectors.is_some() {
+                    true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(
+                        number_of_complex_entries,
+                    )),
+                    false => None,
+                };
+                let mut left_eigenvectors = match self.left_eigenvectors.is_some() {
+                    true => Some(Vec::<OVector<Complex<T>, D>>::with_capacity(
+                        number_of_complex_entries,
+                    )),
+                    false => None,
+                };
+
+                let mut c = 0;
+                while c < number_of_elements_value {
+                    if self.eigenvalues_im[c] != T::zero() {
+                        //Complex conjugate pairs of eigenvalues appear consecutively with the eigenvalue having the positive imaginary part first.
+                        eigenvalues.push(Complex::<T>::new(
+                            self.eigenvalues_re[c].clone(),
+                            self.eigenvalues_im[c].clone(),
+                        ));
+                        eigenvalues.push(Complex::<T>::new(
+                            self.eigenvalues_re[c + 1].clone(),
+                            self.eigenvalues_im[c + 1].clone(),
+                        ));
+
+                        if eigenvectors.is_some() {
+                            let mut vec = OVector::<Complex<T>, D>::zeros_generic(
+                                number_of_elements,
+                                Const::<1>,
+                            );
+                            let mut vec_conj = OVector::<Complex<T>, D>::zeros_generic(
+                                number_of_elements,
+                                Const::<1>,
+                            );
+
+                            for r in 0..number_of_elements_value {
+                                vec[r] = Complex::<T>::new(
+                                    (&self.eigenvectors.as_ref()).unwrap()[(r, c)].clone(),
+                                    (&self.eigenvectors.as_ref()).unwrap()[(r, c + 1)].clone(),
+                                );
+                                vec_conj[r] = Complex::<T>::new(
+                                    (&self.eigenvectors.as_ref()).unwrap()[(r, c)].clone(),
+                                    (&self.eigenvectors.as_ref()).unwrap()[(r, c + 1)].clone(),
+                                );
+                            }
+
+                            eigenvectors.as_mut().unwrap().push(vec);
+                            eigenvectors.as_mut().unwrap().push(vec_conj);
+                        }
+
+                        if left_eigenvectors.is_some() {
+                            let mut vec = OVector::<Complex<T>, D>::zeros_generic(
+                                number_of_elements,
+                                Const::<1>,
+                            );
+                            let mut vec_conj = OVector::<Complex<T>, D>::zeros_generic(
+                                number_of_elements,
+                                Const::<1>,
+                            );
+
+                            for r in 0..number_of_elements_value {
+                                vec[r] = Complex::<T>::new(
+                                    (&self.left_eigenvectors.as_ref()).unwrap()[(r, c)].clone(),
+                                    (&self.left_eigenvectors.as_ref()).unwrap()[(r, c + 1)].clone(),
+                                );
+                                vec_conj[r] = Complex::<T>::new(
+                                    (&self.left_eigenvectors.as_ref()).unwrap()[(r, c)].clone(),
+                                    (&self.left_eigenvectors.as_ref()).unwrap()[(r, c + 1)].clone(),
+                                );
+                            }
+
+                            left_eigenvectors.as_mut().unwrap().push(vec);
+                            left_eigenvectors.as_mut().unwrap().push(vec_conj);
+                        }
+                        //skip next entry
+                        c += 1;
+                    }
+                    c += 1;
+                }
+                (Some(eigenvalues), left_eigenvectors, eigenvectors)
+            }
+        }
     }
 }
 

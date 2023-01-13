@@ -4,17 +4,17 @@ use crate::ops::serial::cs::{
 };
 use crate::ops::serial::OperationError;
 use crate::ops::Op;
-use nalgebra::{ClosedAdd, ClosedMul, DMatrixSlice, DMatrixSliceMut, Scalar};
+use nalgebra::{ClosedAdd, ClosedMul, DMatrixView, DMatrixViewMut, Scalar};
 use num_traits::{One, Zero};
 use std::borrow::Cow;
 
 /// Sparse-dense matrix-matrix multiplication `C <- beta * C + alpha * op(A) * op(B)`.
 pub fn spmm_csr_dense<'a, T>(
     beta: T,
-    c: impl Into<DMatrixSliceMut<'a, T>>,
+    c: impl Into<DMatrixViewMut<'a, T>>,
     alpha: T,
     a: Op<&CsrMatrix<T>>,
-    b: Op<impl Into<DMatrixSlice<'a, T>>>,
+    b: Op<impl Into<DMatrixView<'a, T>>>,
 ) where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {
@@ -24,10 +24,10 @@ pub fn spmm_csr_dense<'a, T>(
 
 fn spmm_csr_dense_<T>(
     beta: T,
-    c: DMatrixSliceMut<'_, T>,
+    c: DMatrixViewMut<'_, T>,
     alpha: T,
     a: Op<&CsrMatrix<T>>,
-    b: Op<DMatrixSlice<'_, T>>,
+    b: Op<DMatrixView<'_, T>>,
 ) where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {

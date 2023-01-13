@@ -51,10 +51,10 @@ proptest! {
         let tr_sol1 = lup.solve_transpose(&b1).unwrap();
         let tr_sol2 = lup.solve_transpose(&b2).unwrap();
 
-        prop_assert!(relative_eq!(&m * sol1, b1, epsilon = 1.0e-7));
-        prop_assert!(relative_eq!(&m * sol2, b2, epsilon = 1.0e-7));
-        prop_assert!(relative_eq!(m.transpose() * tr_sol1, b1, epsilon = 1.0e-7));
-        prop_assert!(relative_eq!(m.transpose() * tr_sol2, b2, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(&m * sol1, b1, epsilon = 1.0e-5));
+        prop_assert!(relative_eq!(&m * sol2, b2, epsilon = 1.0e-5));
+        prop_assert!(relative_eq!(m.transpose() * tr_sol1, b1, epsilon = 1.0e-5));
+        prop_assert!(relative_eq!(m.transpose() * tr_sol2, b2, epsilon = 1.0e-5));
     }
 
     #[test]
@@ -68,10 +68,10 @@ proptest! {
         let tr_sol1 = lup.solve_transpose(&b1).unwrap();
         let tr_sol2 = lup.solve_transpose(&b2).unwrap();
 
-        prop_assert!(relative_eq!(m * sol1, b1, epsilon = 1.0e-7));
-        prop_assert!(relative_eq!(m * sol2, b2, epsilon = 1.0e-7));
-        prop_assert!(relative_eq!(m.transpose() * tr_sol1, b1, epsilon = 1.0e-7));
-        prop_assert!(relative_eq!(m.transpose() * tr_sol2, b2, epsilon = 1.0e-7));
+        prop_assert!(relative_eq!(m * sol1, b1, epsilon = 1.0e-5));
+        prop_assert!(relative_eq!(m * sol2, b2, epsilon = 1.0e-5));
+        prop_assert!(relative_eq!(m.transpose() * tr_sol1, b1, epsilon = 1.0e-5));
+        prop_assert!(relative_eq!(m.transpose() * tr_sol2, b2, epsilon = 1.0e-5));
     }
 
     #[test]

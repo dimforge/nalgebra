@@ -12,18 +12,19 @@ pub mod storage;
 
 mod alias;
 mod alias_slice;
+mod alias_view;
 mod array_storage;
 mod cg;
 mod componentwise;
 #[macro_use]
 mod construction;
-mod construction_slice;
+mod construction_view;
 mod conversion;
 mod edition;
 pub mod indexing;
 mod matrix;
 mod matrix_simba;
-mod matrix_slice;
+mod matrix_view;
 mod norm;
 mod properties;
 mod scalar;
@@ -51,8 +52,9 @@ pub use self::dimension::*;
 
 pub use self::alias::*;
 pub use self::alias_slice::*;
+pub use self::alias_view::*;
 pub use self::array_storage::*;
-pub use self::matrix_slice::*;
+pub use self::matrix_view::*;
 pub use self::storage::*;
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub use self::vec_storage::*;

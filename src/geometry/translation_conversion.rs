@@ -159,7 +159,7 @@ where
 
     #[inline]
     fn is_in_subset(m: &OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>) -> bool {
-        let id = m.generic_slice((0, 0), (DimNameSum::<Const<D>, U1>::name(), Const::<D>));
+        let id = m.generic_view((0, 0), (DimNameSum::<Const<D>, U1>::name(), Const::<D>));
 
         // Scalar types agree.
         m.iter().all(|e| SupersetOf::<T1>::is_in_subset(e)) &&
@@ -173,7 +173,7 @@ where
     fn from_superset_unchecked(
         m: &OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     ) -> Self {
-        let t = m.fixed_slice::<D, 1>(0, D);
+        let t = m.fixed_view::<D, 1>(0, D);
         Self {
             vector: crate::convert_unchecked(t.into_owned()),
         }

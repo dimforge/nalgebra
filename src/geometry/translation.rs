@@ -17,7 +17,6 @@ use crate::geometry::Point;
 
 /// A translation.
 #[repr(C)]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
@@ -28,6 +27,10 @@ use crate::geometry::Point;
         SVector<T, D>: rkyv::Archive<Archived = SVector<T::Archived, D>>
     ")
     )
+)]
+#[cfg_attr(
+    feature = "rkyv-serialize",
+    archive_attr(derive(bytecheck::CheckBytes))
 )]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[derive(Copy, Clone)]
@@ -154,7 +157,7 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
         DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         let mut res = OMatrix::<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>::identity();
-        res.fixed_slice_mut::<D, 1>(0, D).copy_from(&self.vector);
+        res.fixed_view_mut::<D, 1>(0, D).copy_from(&self.vector);
 
         res
     }

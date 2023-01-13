@@ -104,13 +104,13 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// - [Elementwise mapping and folding <span style="float:right;">`map`, `fold`, `zip_map`…</span>](#elementwise-mapping-and-folding)
 /// - [Folding or columns and rows <span style="float:right;">`compress_rows`, `compress_columns`…</span>](#folding-on-columns-and-rows)
 ///
-/// #### Vector and matrix slicing
-/// - [Creating matrix slices from `&[T]` <span style="float:right;">`from_slice`, `from_slice_with_strides`…</span>](#creating-matrix-slices-from-t)
-/// - [Creating mutable matrix slices from `&mut [T]` <span style="float:right;">`from_slice_mut`, `from_slice_with_strides_mut`…</span>](#creating-mutable-matrix-slices-from-mut-t)
-/// - [Slicing based on index and length <span style="float:right;">`row`, `columns`, `slice`…</span>](#slicing-based-on-index-and-length)
-/// - [Mutable slicing based on index and length <span style="float:right;">`row_mut`, `columns_mut`, `slice_mut`…</span>](#mutable-slicing-based-on-index-and-length)
-/// - [Slicing based on ranges <span style="float:right;">`rows_range`, `columns_range`…</span>](#slicing-based-on-ranges)
-/// - [Mutable slicing based on ranges <span style="float:right;">`rows_range_mut`, `columns_range_mut`…</span>](#mutable-slicing-based-on-ranges)
+/// #### Vector and matrix views
+/// - [Creating matrix views from `&[T]` <span style="float:right;">`from_slice`, `from_slice_with_strides`…</span>](#creating-matrix-views-from-t)
+/// - [Creating mutable matrix views from `&mut [T]` <span style="float:right;">`from_slice_mut`, `from_slice_with_strides_mut`…</span>](#creating-mutable-matrix-views-from-mut-t)
+/// - [Views based on index and length <span style="float:right;">`row`, `columns`, `view`…</span>](#views-based-on-index-and-length)
+/// - [Mutable views based on index and length <span style="float:right;">`row_mut`, `columns_mut`, `view_mut`…</span>](#mutable-views-based-on-index-and-length)
+/// - [Views based on ranges <span style="float:right;">`rows_range`, `columns_range`…</span>](#views-based-on-ranges)
+/// - [Mutable views based on ranges <span style="float:right;">`rows_range_mut`, `columns_range_mut`…</span>](#mutable-views-based-on-ranges)
 ///
 /// #### In-place modification of a single matrix or vector
 /// - [In-place filling <span style="float:right;">`fill`, `fill_diagonal`, `fill_with_identity`…</span>](#in-place-filling)
@@ -155,7 +155,6 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// some concrete types for `T` and a compatible data storage type `S`).
 #[repr(C)]
 #[derive(Clone, Copy)]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(Archive, rkyv::Serialize, rkyv::Deserialize),
@@ -167,6 +166,10 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
         With<PhantomData<(T, R, C)>, CustomPhantom<(Archived<T>, R, C)>>: Archive<Archived = PhantomData<(Archived<T>, R, C)>>
     ")
     )
+)]
+#[cfg_attr(
+    feature = "rkyv-serialize",
+    archive_attr(derive(bytecheck::CheckBytes))
 )]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Matrix<T, R, C, S> {
@@ -457,7 +460,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// ```
     /// # use nalgebra::DMatrix;
     /// let mat = DMatrix::<f32>::zeros(10, 10);
-    /// let slice = mat.slice_with_steps((0, 0), (5, 3), (1, 2));
+    /// let view = mat.view_with_steps((0, 0), (5, 3), (1, 2));
     /// // The column strides is the number of steps (here 2) multiplied by the corresponding dimension.
     /// assert_eq!(mat.strides(), (1, 10));
     /// ```
@@ -748,6 +751,24 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Allocator<T2, R, C>,
     {
         crate::convert(self)
+    }
+
+    /// Attempts to cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let q = Vector3::new(1.0f64, 2.0, 3.0);
+    /// let q2 = q.try_cast::<i32>();
+    /// assert_eq!(q2, Some(Vector3::new(1, 2, 3)));
+    /// ```
+    pub fn try_cast<T2: Scalar>(self) -> Option<OMatrix<T2, R, C>>
+    where
+        T: Scalar,
+        Self: SupersetOf<OMatrix<T2, R, C>>,
+        DefaultAllocator: Allocator<T2, R, C>,
+    {
+        crate::try_convert(self)
     }
 
     /// Similar to `self.iter().fold(init, f)` except that `init` is replaced by a closure.
@@ -1626,7 +1647,7 @@ impl<T: Scalar + Zero + One, D: DimAdd<U1> + IsNotStaticOne, S: RawStorage<T, D,
         );
         let dim = DimSum::<D, U1>::from_usize(self.nrows() + 1);
         let mut res = OMatrix::identity_generic(dim, dim);
-        res.generic_slice_mut::<D, D>((0, 0), self.shape_generic())
+        res.generic_view_mut::<D, D>((0, 0), self.shape_generic())
             .copy_from(self);
         res
     }
@@ -1654,7 +1675,7 @@ impl<T: Scalar + Zero, D: DimAdd<U1>, S: RawStorage<T, D>> Vector<T, D, S> {
     {
         if v[v.len() - 1].is_zero() {
             let nrows = D::from_usize(v.len() - 1);
-            Some(v.generic_slice((0, 0), (nrows, Const::<1>)).into_owned())
+            Some(v.generic_view((0, 0), (nrows, Const::<1>)).into_owned())
         } else {
             None
         }
@@ -1674,7 +1695,7 @@ impl<T: Scalar, D: DimAdd<U1>, S: RawStorage<T, D>> Vector<T, D, S> {
         let mut res = Matrix::uninit(hnrows, Const::<1>);
         // This is basically a copy_from except that we warp the copied
         // values into MaybeUninit.
-        res.generic_slice_mut((0, 0), self.shape_generic())
+        res.generic_view_mut((0, 0), self.shape_generic())
             .zip_apply(self, |out, e| *out = MaybeUninit::new(e));
         res[(len, 0)] = MaybeUninit::new(element);
 
@@ -2198,5 +2219,30 @@ where
                 }
             }
         }
+    }
+}
+
+impl<T, D, S> Unit<Vector<T, D, S>>
+where
+    T: Scalar,
+    D: Dim,
+    S: RawStorage<T, D, U1>,
+{
+    /// Cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::<f64>::y_axis();
+    /// let v2 = v.cast::<f32>();
+    /// assert_eq!(v2, Vector3::<f32>::y_axis());
+    /// ```
+    pub fn cast<T2: Scalar>(self) -> Unit<OVector<T2, D>>
+    where
+        T: Scalar,
+        OVector<T2, D>: SupersetOf<Vector<T, D, S>>,
+        DefaultAllocator: Allocator<T2, D, U1>,
+    {
+        Unit::new_unchecked(crate::convert_ref(self.as_ref()))
     }
 }

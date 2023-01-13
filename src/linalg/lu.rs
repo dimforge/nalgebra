@@ -64,7 +64,7 @@ where
     out.fill_with_identity();
 
     for i in 0..dim {
-        let piv = matrix.slice_range(i.., i).icamax() + i;
+        let piv = matrix.view_range(i.., i).icamax() + i;
         let diag = matrix[(piv, i)].clone();
 
         if diag.is_zero() {
@@ -100,7 +100,7 @@ where
         }
 
         for i in 0..min_nrows_ncols.value() {
-            let piv = matrix.slice_range(i.., i).icamax() + i;
+            let piv = matrix.view_range(i.., i).icamax() + i;
             let diag = matrix[(piv, i)].clone();
 
             if diag.is_zero() {
@@ -338,7 +338,7 @@ where
     T: Scalar + Field,
     S: StorageMut<T, R, C>,
 {
-    let mut submat = matrix.slice_range_mut(i.., i..);
+    let mut submat = matrix.view_range_mut(i.., i..);
 
     let inv_diag = T::one() / diag;
 
@@ -368,7 +368,7 @@ pub fn gauss_step_swap<T, R: Dim, C: Dim, S>(
     S: StorageMut<T, R, C>,
 {
     let piv = piv - i;
-    let mut submat = matrix.slice_range_mut(i.., i..);
+    let mut submat = matrix.view_range_mut(i.., i..);
 
     let inv_diag = T::one() / diag;
 

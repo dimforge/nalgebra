@@ -213,7 +213,7 @@ where
         let mut res = crate::Matrix::uninit(DimNameSum::<D, U1>::name(), Const::<1>);
         // This is basically a copy_from except that we warp the copied
         // values into MaybeUninit.
-        res.generic_slice_mut((0, 0), self.coords.shape_generic())
+        res.generic_view_mut((0, 0), self.coords.shape_generic())
             .zip_apply(&self.coords, |out, e| *out = MaybeUninit::new(e));
         res[(len, 0)] = MaybeUninit::new(T::one());
 
