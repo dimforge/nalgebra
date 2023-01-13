@@ -54,8 +54,8 @@ convert-glam022 = [ "glam022" ]
 ## `serde-serialize`.
 serde-serialize-no-std = [ "serde", "num-complex/serde" ]
 serde-serialize        = [ "serde-serialize-no-std", "serde/std" ]
-rkyv-serialize-no-std  = [ "rkyv", "rkyv_wrappers", "num-complex/rkyv" ]
-rkyv-serialize         = [ "rkyv-serialize-no-std", "rkyv/std", "rkyv/validation", "bytecheck", "num-complex/bytecheck" ]
+rkyv-serialize-no-std  = [ "rkyv/size_32" ]
+rkyv-serialize         = [ "rkyv-serialize-no-std", "rkyv/std", "rkyv/validation", "bytecheck" ]
 
 # Randomness
 ## To use rand in a #[no-std] environment, enable the
@@ -83,7 +83,6 @@ rand_distr     = { version = "0.4", default-features = false, optional = true }
 matrixmultiply = { version = "0.3", optional = true }
 serde          = { version = "1.0", default-features = false, features = [ "derive" ], optional = true }
 rkyv           = { version = "0.7", default-features = false, optional = true }
-rkyv_wrappers  = { git = "https://github.com/rkyv/rkyv_contrib", optional = true }
 bytecheck      = { version = "~0.6.1", optional = true }
 mint           = { version = "0.5", optional = true }
 quickcheck     = { version = "1", optional = true }
@@ -138,6 +137,3 @@ lto = true
 [package.metadata.docs.rs]
 # Enable all the features when building the docs on docs.rs
 all-features = true
-
-[patch.crates-io]
-num-complex = { git = "https://github.com/zyansheep/num-complex" }

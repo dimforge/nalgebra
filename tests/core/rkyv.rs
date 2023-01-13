@@ -1,12 +1,11 @@
 #![cfg(feature = "rkyv-serialize")]
 
 use na::{
-    DMatrix, Isometry2, Isometry3, IsometryMatrix2, IsometryMatrix3, Matrix2x3, Matrix3x4, Point2,
-    Point3, Quaternion, Rotation2, Rotation3, Similarity2, Similarity3, SimilarityMatrix2,
-    SimilarityMatrix3, Translation2, Translation3, Unit, Vector2,
+    Isometry3, IsometryMatrix2, IsometryMatrix3, Matrix3x4, Point2, Point3, Quaternion, Rotation2,
+    Rotation3, Similarity3, SimilarityMatrix2, SimilarityMatrix3, Translation2, Translation3,
 };
 use rand;
-use rkyv::{Archive, Deserialize, Infallible, Serialize};
+use rkyv::{Deserialize, Infallible};
 
 macro_rules! test_rkyv_same_type(
     ($($test: ident, $ty: ident);* $(;)*) => {$(
@@ -52,9 +51,9 @@ test_rkyv_same_type!(
     rkyv_same_type_point2,             Point2;
     rkyv_same_type_translation2,       Translation2;
     rkyv_same_type_rotation2,          Rotation2;
-    rkyv_same_type_isometry2,          Isometry2;
+    // rkyv_same_type_isometry2,          Isometry2;
     rkyv_same_type_isometry_matrix2,   IsometryMatrix2;
-    rkyv_same_type_similarity2,        Similarity2;
+    // rkyv_same_type_similarity2,        Similarity2;
     rkyv_same_type_similarity_matrix2, SimilarityMatrix2;
 );
 

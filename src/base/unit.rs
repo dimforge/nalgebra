@@ -31,10 +31,7 @@ use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealF
     ")
     )
 )]
-#[cfg_attr(
-    feature = "rkyv-serialize",
-    archive_attr(derive(bytecheck::CheckBytes))
-)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 // #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Unit<T> {
     pub(crate) value: T,

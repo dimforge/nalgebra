@@ -12,9 +12,9 @@ use std::mem;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "rkyv-serialize-no-std")]
-use rkyv::{with::With, Archive, Archived};
+use super::rkyv_wrappers::CustomPhantom;
 #[cfg(feature = "rkyv-serialize-no-std")]
-use rkyv_wrappers::custom_phantom::CustomPhantom;
+use rkyv::{with::With, Archive, Archived};
 
 use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, Field, SupersetOf};
 use simba::simd::SimdPartialOrd;
@@ -167,10 +167,7 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
     ")
     )
 )]
-#[cfg_attr(
-    feature = "rkyv-serialize",
-    archive_attr(derive(bytecheck::CheckBytes))
-)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Matrix<T, R, C, S> {
     /// The data storage that contains all the matrix components. Disappointed?
