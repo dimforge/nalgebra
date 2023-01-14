@@ -4,6 +4,11 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.32.1] (14 Jan. 2023)
+
+### Modified
+- Updated `nalgebra-macros` to use the new `Dyn`, avoiding macro-generated deprecation warnings.
+
 ## [0.32.0] (14 Jan. 2023)
 
 ### Modified
