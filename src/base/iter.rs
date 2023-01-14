@@ -314,16 +314,17 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ColumnIter<'a, T, R, C,
     }
 
     pub(crate) fn split_at(self, index: usize) -> (Self, Self) {
-        // SAFETY: it’s OK even if index > self.range.len() because
-        //         the iterations will yield None in this case.
+        // SAFETY: this makes sur the generated ranges are valid.
+        let split_pos = (self.range.start + index).min(self.range.end);
+
         let left_iter = ColumnIter {
             mat: self.mat,
-            range: self.range.start..(self.range.start + index),
+            range: self.range.start..split_pos,
         };
 
         let right_iter = ColumnIter {
             mat: self.mat,
-            range: (self.range.start + index)..self.range.end,
+            range: split_pos..self.range.end,
         };
 
         (left_iter, right_iter)
@@ -401,19 +402,18 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ColumnIterMut<'a, T,
     }
 
     pub(crate) fn split_at(self, index: usize) -> (Self, Self) {
-        // SAFETY: it’s OK even if index > self.range.len() because
-        //         the iterations will yield None in this case.
-        assert!(index <= self.range.len());
+        // SAFETY: this makes sur the generated ranges are valid.
+        let split_pos = (self.range.start + index).min(self.range.end);
 
         let left_iter = ColumnIterMut {
             mat: self.mat,
-            range: self.range.start..(self.range.start + index),
+            range: self.range.start..split_pos,
             phantom: Default::default(),
         };
 
         let right_iter = ColumnIterMut {
             mat: self.mat,
-            range: (self.range.start + index)..self.range.end,
+            range: split_pos..self.range.end,
             phantom: Default::default(),
         };
 
