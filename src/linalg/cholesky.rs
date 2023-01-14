@@ -1,8 +1,7 @@
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
-use num::One;
-use num::Zero;
+use num::{One, Zero};
 use simba::scalar::ComplexField;
 use simba::simd::SimdComplexField;
 
