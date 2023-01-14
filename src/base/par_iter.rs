@@ -6,7 +6,7 @@
 
 use crate::{
     iter::{ColumnIter, ColumnIterMut},
-    Dim, Matrix, MatrixSlice, MatrixSliceMut, RawStorage, RawStorageMut, Scalar, U1,
+    Dim, Matrix, MatrixView, MatrixViewMut, RawStorage, RawStorageMut, Scalar, U1,
 };
 use rayon::iter::plumbing::Producer;
 use rayon::{iter::plumbing::bridge, prelude::*};
@@ -36,7 +36,7 @@ where
     T: Sync + Send + Scalar,
     S: Sync,
 {
-    type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;
+    type Item = MatrixView<'a, T, R, U1, S::RStride, S::CStride>;
 
     fn drive_unindexed<Consumer>(self, consumer: Consumer) -> Consumer::Result
     where
@@ -112,7 +112,7 @@ where
     T: Send + Sync + Scalar,
     S: Send + Sync,
 {
-    type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
+    type Item = MatrixViewMut<'a, T, R, U1, S::RStride, S::CStride>;
     fn drive_unindexed<C>(self, consumer: C) -> C::Result
     where
         C: rayon::iter::plumbing::UnindexedConsumer<Self::Item>,
@@ -234,7 +234,7 @@ where
     T: Send + Sync + Scalar,
     S: Sync,
 {
-    type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;
+    type Item = MatrixView<'a, T, R, U1, S::RStride, S::CStride>;
     type IntoIter = ColumnIter<'a, T, R, Cols, S>;
 
     #[inline]
@@ -271,7 +271,7 @@ where
     T: Send + Sync + Scalar,
     S: Send + Sync,
 {
-    type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
+    type Item = MatrixViewMut<'a, T, R, U1, S::RStride, S::CStride>;
     type IntoIter = ColumnIterMut<'a, T, R, C, S>;
 
     fn into_iter(self) -> Self::IntoIter {

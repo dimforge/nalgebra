@@ -13,7 +13,6 @@ use std::mem;
 use crate::base::dimension::{Dim, U1};
 use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::base::{Matrix, MatrixView, MatrixViewMut, Scalar};
-use crate::{DMatrix, DimMax};
 
 macro_rules! iterator {
     (struct $Name:ident for $Storage:ident.$ptr: ident -> $Ptr:ty, $Ref:ty, $SRef: ty) => {
