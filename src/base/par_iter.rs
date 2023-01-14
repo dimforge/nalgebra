@@ -14,7 +14,7 @@ use rayon::{iter::plumbing::bridge, prelude::*};
 /// A rayon parallel iterator over the colums of a matrix. It is created
 /// using the [`par_column_iter`] method of [`Matrix`].
 ///
-/// *only availabe if compiled with the feature `par-iter`*
+/// *Only available if compiled with the feature `par-iter`.*
 /// [`par_column_iter`]: crate::Matrix::par_column_iter
 /// [`Matrix`]: crate::Matrix
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
@@ -23,7 +23,7 @@ pub struct ParColumnIter<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> {
 }
 
 impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> ParColumnIter<'a, T, R, Cols, S> {
-    /// create a new parallel iterator for the given matrix
+    /// Create a new parallel iterator for the given matrix.
     fn new(matrix: &'a Matrix<T, R, Cols, S>) -> Self {
         Self { mat: matrix }
     }
@@ -51,7 +51,7 @@ where
 }
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
-/// *only availabe if compiled with the feature `par-iter`*
+/// *Only available if compiled with the feature `par-iter`.*
 impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> IndexedParallelIterator
     for ParColumnIter<'a, T, R, Cols, S>
 where
@@ -76,8 +76,8 @@ where
 }
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
-/// A rayon parallel iterator through the mutable columns of a matrix
-/// *only availabe if compiled with the feature `par-iter`*
+/// A rayon parallel iterator through the mutable columns of a matrix.
+/// *Only available if compiled with the feature `par-iter`.*
 pub struct ParColumnIterMut<
     'a,
     T,
@@ -96,14 +96,14 @@ where
     Cols: Dim,
     S: RawStorage<T, R, Cols> + RawStorageMut<T, R, Cols>,
 {
-    /// create a new parallel iterator for the given matrix
+    /// create a new parallel iterator for the given matrix.
     fn new(mat: &'a mut Matrix<T, R, Cols, S>) -> Self {
         Self { mat }
     }
 }
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
-/// *only availabe if compiled with the feature `par-iter`*
+/// *Only available if compiled with the feature `par-iter`*
 impl<'a, T, R, Cols, S> ParallelIterator for ParColumnIterMut<'a, T, R, Cols, S>
 where
     R: Dim,
@@ -126,7 +126,7 @@ where
 }
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
-/// *only availabe if compiled with the feature `par-iter`*
+/// *Only available if compiled with the feature `par-iter`*
 impl<'a, T, R, Cols, S> IndexedParallelIterator for ParColumnIterMut<'a, T, R, Cols, S>
 where
     R: Dim,
@@ -154,7 +154,7 @@ where
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
 /// # Parallel iterators using `rayon`
-/// *Only availabe if compiled with the feature `par-iter`*
+/// *Only available if compiled with the feature `par-iter`*
 impl<T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Matrix<T, R, Cols, S>
 where
     T: Send + Sync + Scalar,
@@ -190,6 +190,7 @@ where
     pub fn par_column_iter(&self) -> ParColumnIter<'_, T, R, Cols, S> {
         ParColumnIter::new(self)
     }
+
     /// Mutably iterate through the columns of this matrix in parallel using rayon.
     /// Allows mutable access to the columns in parallel using mutable references.
     /// If mutable access to the columns is not required rather use [`par_column_iter`]
@@ -221,9 +222,9 @@ where
     }
 }
 
-/// a private helper newtype that wraps the `ColumnIter` and implements
+/// A private helper newtype that wraps the `ColumnIter` and implements
 /// the rayon `Producer` trait. It's just here so we don't have to make the
-/// rayon trait part of the public interface of the `ColumnIter`
+/// rayon trait part of the public interface of the `ColumnIter`.
 struct ColumnProducer<'a, T, R: Dim, C: Dim, S: RawStorage<T, R, C>>(ColumnIter<'a, T, R, C, S>);
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
@@ -238,24 +239,16 @@ where
     type IntoIter = ColumnIter<'a, T, R, Cols, S>;
 
     #[inline]
-    fn split_at(self, index: usize) -> (Self, Self) {
-        // the index is relative to the size of this current iterator
-        // it will always start at zero so it serves as an offset
-        let left_iter = ColumnIter {
-            mat: self.0.mat,
-            range: self.0.range.start..(self.0.range.start + index),
-        };
-
-        let right_iter = ColumnIter {
-            mat: self.0.mat,
-            range: (self.0.range.start + index)..self.0.range.end,
-        };
-        (Self(left_iter), Self(right_iter))
+    fn into_iter(self) -> Self::IntoIter {
+        self.0
     }
 
     #[inline]
-    fn into_iter(self) -> Self::IntoIter {
-        self.0
+    fn split_at(self, index: usize) -> (Self, Self) {
+        // The index is relative to the size of this current iterator.
+        // It will always start at zero so it serves as an offset.
+        let (left_iter, right_iter) = self.0.split_at(index);
+        (Self(left_iter), Self(right_iter))
     }
 }
 
@@ -279,20 +272,9 @@ where
     }
 
     fn split_at(self, index: usize) -> (Self, Self) {
-        // the index is relative to the size of this current iterator
-        // it will always start at zero so it serves as an offset
-
-        let left_iter = ColumnIterMut {
-            mat: self.0.mat,
-            range: self.0.range.start..(self.0.range.start + index),
-            phantom: Default::default(),
-        };
-
-        let right_iter = ColumnIterMut {
-            mat: self.0.mat,
-            range: (self.0.range.start + index)..self.0.range.end,
-            phantom: Default::default(),
-        };
+        // The index is relative to the size of this current iterator
+        // it will always start at zero so it serves as an offset.
+        let (left_iter, right_iter) = self.0.split_at(index);
         (Self(left_iter), Self(right_iter))
     }
 }

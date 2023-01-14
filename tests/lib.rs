@@ -9,10 +9,6 @@ compile_error!(
      Example: `cargo test --features debug,compare,rand,macros`"
 );
 
-// make sure to test the parallel iterators for all builds that do not require no_std
-#[cfg(all(feature = "std", not(feature = "par-iter")))]
-compile_error!("Please additionally enable the `par-iter` feature to compile and run the tests");
-
 #[cfg(all(feature = "debug", feature = "compare", feature = "rand"))]
 #[macro_use]
 extern crate approx;

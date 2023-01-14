@@ -300,8 +300,8 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ExactSizeIte
 #[derive(Clone, Debug)]
 /// An iterator through the columns of a matrix.
 pub struct ColumnIter<'a, T, R: Dim, C: Dim, S: RawStorage<T, R, C>> {
-    pub(crate) mat: &'a Matrix<T, R, C, S>,
-    pub(crate) range: Range<usize>,
+    mat: &'a Matrix<T, R, C, S>,
+    range: Range<usize>,
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ColumnIter<'a, T, R, C, S> {
@@ -311,6 +311,22 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ColumnIter<'a, T, R, C,
             mat,
             range: 0..mat.ncols(),
         }
+    }
+
+    pub(crate) fn split_at(self, index: usize) -> (Self, Self) {
+        // SAFETY: it’s OK even if index > self.range.len() because
+        //         the iterations will yield None in this case.
+        let left_iter = ColumnIter {
+            mat: self.mat,
+            range: self.range.start..(self.range.start + index),
+        };
+
+        let right_iter = ColumnIter {
+            mat: self.mat,
+            range: (self.range.start + index)..self.range.end,
+        };
+
+        (left_iter, right_iter)
     }
 }
 
@@ -369,9 +385,9 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ExactSizeIterat
 /// An iterator through the mutable columns of a matrix.
 #[derive(Debug)]
 pub struct ColumnIterMut<'a, T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> {
-    pub(crate) mat: *mut Matrix<T, R, C, S>,
-    pub(crate) range: Range<usize>,
-    pub(crate) phantom: PhantomData<&'a mut Matrix<T, R, C, S>>,
+    mat: *mut Matrix<T, R, C, S>,
+    range: Range<usize>,
+    phantom: PhantomData<&'a mut Matrix<T, R, C, S>>,
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ColumnIterMut<'a, T, R, C, S> {
@@ -382,6 +398,26 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ColumnIterMut<'a, T,
             range,
             phantom: Default::default(),
         }
+    }
+
+    pub(crate) fn split_at(self, index: usize) -> (Self, Self) {
+        // SAFETY: it’s OK even if index > self.range.len() because
+        //         the iterations will yield None in this case.
+        assert!(index <= self.range.len());
+
+        let left_iter = ColumnIterMut {
+            mat: self.mat,
+            range: self.range.start..(self.range.start + index),
+            phantom: Default::default(),
+        };
+
+        let right_iter = ColumnIterMut {
+            mat: self.mat,
+            range: (self.range.start + index)..self.range.end,
+            phantom: Default::default(),
+        };
+
+        (left_iter, right_iter)
     }
 
     fn ncols(&self) -> usize {
