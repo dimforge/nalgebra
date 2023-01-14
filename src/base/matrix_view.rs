@@ -4,7 +4,7 @@ use std::slice;
 
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
-use crate::base::dimension::{Const, Dim, DimName, Dynamic, IsNotStaticOne, U1};
+use crate::base::dimension::{Const, Dim, DimName, Dyn, IsNotStaticOne, U1};
 use crate::base::iter::MatrixIter;
 use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, Storage};
 use crate::base::{Matrix, Scalar};
@@ -60,8 +60,8 @@ macro_rules! view_storage_impl (
             }
         }
 
-        // Dynamic is arbitrary. It's just to be able to call the constructors with `Slice::`
-        impl<'a, T, R: Dim, C: Dim> $T<'a, T, R, C, Dynamic, Dynamic> {
+        // Dyn is arbitrary. It's just to be able to call the constructors with `Slice::`
+        impl<'a, T, R: Dim, C: Dim> $T<'a, T, R, C, Dyn, Dyn> {
             /// Create a new matrix view without bounds checking.
             #[inline]
             pub unsafe fn new_unchecked<RStor, CStor, S>(storage: $SRef, start: (usize, usize), shape: (R, C))
@@ -180,7 +180,7 @@ macro_rules! storage_impl(
             #[inline]
             fn is_contiguous(&self) -> bool {
                 // Common cases that can be deduced at compile-time even if one of the dimensions
-                // is Dynamic.
+                // is Dyn.
                 if (RStride::is::<U1>() && C::is::<U1>()) || // Column vector.
                    (CStride::is::<U1>() && R::is::<U1>()) {  // Row vector.
                     true
@@ -325,24 +325,24 @@ macro_rules! matrix_view_impl (
 
         /// Returns a view containing the `n` first elements of the i-th row of this matrix.
         #[inline]
-        pub fn $row_part($me: $Me, i: usize, n: usize) -> $MatrixView<'_, T, U1, Dynamic, S::RStride, S::CStride> {
-            $me.$generic_view((i, 0), (Const::<1>, Dynamic::new(n)))
+        pub fn $row_part($me: $Me, i: usize, n: usize) -> $MatrixView<'_, T, U1, Dyn, S::RStride, S::CStride> {
+            $me.$generic_view((i, 0), (Const::<1>, Dyn(n)))
         }
 
         /// Extracts from this matrix a set of consecutive rows.
         #[inline]
         pub fn $rows($me: $Me, first_row: usize, nrows: usize)
-            -> $MatrixView<'_, T, Dynamic, C, S::RStride, S::CStride> {
+            -> $MatrixView<'_, T, Dyn, C, S::RStride, S::CStride> {
 
-            $me.$rows_generic(first_row, Dynamic::new(nrows))
+            $me.$rows_generic(first_row, Dyn(nrows))
         }
 
         /// Extracts from this matrix a set of consecutive rows regularly skipping `step` rows.
         #[inline]
         pub fn $rows_with_step($me: $Me, first_row: usize, nrows: usize, step: usize)
-            -> $MatrixView<'_, T, Dynamic, C, Dynamic, S::CStride> {
+            -> $MatrixView<'_, T, Dyn, C, Dyn, S::CStride> {
 
-            $me.$rows_generic_with_step(first_row, Dynamic::new(nrows), step)
+            $me.$rows_generic_with_step(first_row, Dyn(nrows), step)
         }
 
         /// Extracts a compile-time number of consecutive rows from this matrix.
@@ -357,7 +357,7 @@ macro_rules! matrix_view_impl (
         /// rows.
         #[inline]
         pub fn $fixed_rows_with_step<const RVIEW: usize>($me: $Me, first_row: usize, step: usize)
-            -> $MatrixView<'_, T, Const<RVIEW>, C, Dynamic, S::CStride> {
+            -> $MatrixView<'_, T, Const<RVIEW>, C, Dyn, S::CStride> {
 
             $me.$rows_generic_with_step(first_row, Const::<RVIEW>, step)
         }
@@ -383,14 +383,14 @@ macro_rules! matrix_view_impl (
         /// argument may or may not be values known at compile-time.
         #[inline]
         pub fn $rows_generic_with_step<RView>($me: $Me, row_start: usize, nrows: RView, step: usize)
-            -> $MatrixView<'_, T, RView, C, Dynamic, S::CStride>
+            -> $MatrixView<'_, T, RView, C, Dyn, S::CStride>
             where RView: Dim {
 
             let my_shape   = $me.shape_generic();
             let my_strides = $me.data.strides();
             $me.assert_view_index((row_start, 0), (nrows.value(), my_shape.1.value()), (step, 0));
 
-            let strides = (Dynamic::new((step + 1) * my_strides.0.value()), my_strides.1);
+            let strides = (Dyn((step + 1) * my_strides.0.value()), my_strides.1);
             let shape   = (nrows, my_shape.1);
 
             unsafe {
@@ -412,25 +412,25 @@ macro_rules! matrix_view_impl (
 
         /// Returns a view containing the `n` first elements of the i-th column of this matrix.
         #[inline]
-        pub fn $column_part($me: $Me, i: usize, n: usize) -> $MatrixView<'_, T, Dynamic, U1, S::RStride, S::CStride> {
-            $me.$generic_view((0, i), (Dynamic::new(n), Const::<1>))
+        pub fn $column_part($me: $Me, i: usize, n: usize) -> $MatrixView<'_, T, Dyn, U1, S::RStride, S::CStride> {
+            $me.$generic_view((0, i), (Dyn(n), Const::<1>))
         }
 
         /// Extracts from this matrix a set of consecutive columns.
         #[inline]
         pub fn $columns($me: $Me, first_col: usize, ncols: usize)
-            -> $MatrixView<'_, T, R, Dynamic, S::RStride, S::CStride> {
+            -> $MatrixView<'_, T, R, Dyn, S::RStride, S::CStride> {
 
-            $me.$columns_generic(first_col, Dynamic::new(ncols))
+            $me.$columns_generic(first_col, Dyn(ncols))
         }
 
         /// Extracts from this matrix a set of consecutive columns regularly skipping `step`
         /// columns.
         #[inline]
         pub fn $columns_with_step($me: $Me, first_col: usize, ncols: usize, step: usize)
-            -> $MatrixView<'_, T, R, Dynamic, S::RStride, Dynamic> {
+            -> $MatrixView<'_, T, R, Dyn, S::RStride, Dyn> {
 
-            $me.$columns_generic_with_step(first_col, Dynamic::new(ncols), step)
+            $me.$columns_generic_with_step(first_col, Dyn(ncols), step)
         }
 
         /// Extracts a compile-time number of consecutive columns from this matrix.
@@ -445,7 +445,7 @@ macro_rules! matrix_view_impl (
         /// `step` columns.
         #[inline]
         pub fn $fixed_columns_with_step<const CVIEW: usize>($me: $Me, first_col: usize, step: usize)
-            -> $MatrixView<'_, T, R, Const<CVIEW>, S::RStride, Dynamic> {
+            -> $MatrixView<'_, T, R, Const<CVIEW>, S::RStride, Dyn> {
 
             $me.$columns_generic_with_step(first_col, Const::<CVIEW>, step)
         }
@@ -471,14 +471,14 @@ macro_rules! matrix_view_impl (
         /// or may not be values known at compile-time.
         #[inline]
         pub fn $columns_generic_with_step<CView: Dim>($me: $Me, first_col: usize, ncols: CView, step: usize)
-            -> $MatrixView<'_, T, R, CView, S::RStride, Dynamic> {
+            -> $MatrixView<'_, T, R, CView, S::RStride, Dyn> {
 
             let my_shape   = $me.shape_generic();
             let my_strides = $me.data.strides();
 
             $me.assert_view_index((0, first_col), (my_shape.0.value(), ncols.value()), (0, step));
 
-            let strides = (my_strides.0, Dynamic::new((step + 1) * my_strides.1.value()));
+            let strides = (my_strides.0, Dyn((step + 1) * my_strides.1.value()));
             let shape   = (my_shape.0, ncols);
 
             unsafe {
@@ -497,7 +497,7 @@ macro_rules! matrix_view_impl (
         #[inline]
         #[deprecated = slice_deprecation_note!($view)]
         pub fn $slice($me: $Me, start: (usize, usize), shape: (usize, usize))
-            -> $MatrixView<'_, T, Dynamic, Dynamic, S::RStride, S::CStride> {
+            -> $MatrixView<'_, T, Dyn, Dyn, S::RStride, S::CStride> {
             $me.$view(start, shape)
         }
 
@@ -505,10 +505,10 @@ macro_rules! matrix_view_impl (
         /// consecutive elements.
         #[inline]
         pub fn $view($me: $Me, start: (usize, usize), shape: (usize, usize))
-            -> $MatrixView<'_, T, Dynamic, Dynamic, S::RStride, S::CStride> {
+            -> $MatrixView<'_, T, Dyn, Dyn, S::RStride, S::CStride> {
 
             $me.assert_view_index(start, shape, (0, 0));
-            let shape = (Dynamic::new(shape.0), Dynamic::new(shape.1));
+            let shape = (Dyn(shape.0), Dyn(shape.1));
 
             unsafe {
                 let data = $ViewStorage::new_unchecked($data, start, shape);
@@ -523,7 +523,7 @@ macro_rules! matrix_view_impl (
         #[inline]
         #[deprecated = slice_deprecation_note!($view_with_steps)]
         pub fn $slice_with_steps($me: $Me, start: (usize, usize), shape: (usize, usize), steps: (usize, usize))
-            -> $MatrixView<'_, T, Dynamic, Dynamic, Dynamic, Dynamic> {
+            -> $MatrixView<'_, T, Dyn, Dyn, Dyn, Dyn> {
             $me.$view_with_steps(start, shape, steps)
         }
 
@@ -533,8 +533,8 @@ macro_rules! matrix_view_impl (
         /// original matrix.
         #[inline]
         pub fn $view_with_steps($me: $Me, start: (usize, usize), shape: (usize, usize), steps: (usize, usize))
-            -> $MatrixView<'_, T, Dynamic, Dynamic, Dynamic, Dynamic> {
-            let shape = (Dynamic::new(shape.0), Dynamic::new(shape.1));
+            -> $MatrixView<'_, T, Dyn, Dyn, Dyn, Dyn> {
+            let shape = (Dyn(shape.0), Dyn(shape.1));
             $me.$generic_view_with_steps(start, shape, steps)
         }
 
@@ -569,7 +569,7 @@ macro_rules! matrix_view_impl (
         #[inline]
         #[deprecated = slice_deprecation_note!($fixed_view_with_steps)]
         pub fn $fixed_slice_with_steps<const RVIEW: usize, const CVIEW: usize>($me: $Me, start: (usize, usize), steps: (usize, usize))
-            -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, Dynamic, Dynamic> {
+            -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, Dyn, Dyn> {
             $me.$fixed_view_with_steps(start, steps)
         }
 
@@ -579,7 +579,7 @@ macro_rules! matrix_view_impl (
         /// the original matrix.
         #[inline]
         pub fn $fixed_view_with_steps<const RVIEW: usize, const CVIEW: usize>($me: $Me, start: (usize, usize), steps: (usize, usize))
-            -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, Dynamic, Dynamic> {
+            -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, Dyn, Dyn> {
             let shape = (Const::<RVIEW>, Const::<CVIEW>);
             $me.$generic_view_with_steps(start, shape, steps)
         }
@@ -616,7 +616,7 @@ macro_rules! matrix_view_impl (
                                                          start: (usize, usize),
                                                          shape: (RView, CView),
                                                          steps: (usize, usize))
-            -> $MatrixView<'_, T, RView, CView, Dynamic, Dynamic>
+            -> $MatrixView<'_, T, RView, CView, Dyn, Dyn>
             where RView: Dim,
                   CView: Dim {
             $me.$generic_view_with_steps(start, shape, steps)
@@ -628,15 +628,15 @@ macro_rules! matrix_view_impl (
                                                          start: (usize, usize),
                                                          shape: (RView, CView),
                                                          steps: (usize, usize))
-            -> $MatrixView<'_, T, RView, CView, Dynamic, Dynamic>
+            -> $MatrixView<'_, T, RView, CView, Dyn, Dyn>
             where RView: Dim,
                   CView: Dim {
 
             $me.assert_view_index(start, (shape.0.value(), shape.1.value()), steps);
 
             let my_strides = $me.data.strides();
-            let strides    = (Dynamic::new((steps.0 + 1) * my_strides.0.value()),
-                              Dynamic::new((steps.1 + 1) * my_strides.1.value()));
+            let strides    = (Dyn((steps.0 + 1) * my_strides.0.value()),
+                              Dyn((steps.1 + 1) * my_strides.1.value()));
 
             unsafe {
                 let data = $ViewStorage::new_with_strides_unchecked($data, start, shape, strides);
@@ -860,7 +860,7 @@ impl<D: Dim> DimRange<D> for usize {
 }
 
 impl<D: Dim> DimRange<D> for Range<usize> {
-    type Size = Dynamic;
+    type Size = Dyn;
 
     #[inline(always)]
     fn begin(&self, _: D) -> usize {
@@ -874,12 +874,12 @@ impl<D: Dim> DimRange<D> for Range<usize> {
 
     #[inline(always)]
     fn size(&self, _: D) -> Self::Size {
-        Dynamic::new(self.end - self.start)
+        Dyn(self.end - self.start)
     }
 }
 
 impl<D: Dim> DimRange<D> for RangeFrom<usize> {
-    type Size = Dynamic;
+    type Size = Dyn;
 
     #[inline(always)]
     fn begin(&self, _: D) -> usize {
@@ -893,12 +893,12 @@ impl<D: Dim> DimRange<D> for RangeFrom<usize> {
 
     #[inline(always)]
     fn size(&self, dim: D) -> Self::Size {
-        Dynamic::new(dim.value() - self.start)
+        Dyn(dim.value() - self.start)
     }
 }
 
 impl<D: Dim> DimRange<D> for RangeTo<usize> {
-    type Size = Dynamic;
+    type Size = Dyn;
 
     #[inline(always)]
     fn begin(&self, _: D) -> usize {
@@ -912,7 +912,7 @@ impl<D: Dim> DimRange<D> for RangeTo<usize> {
 
     #[inline(always)]
     fn size(&self, _: D) -> Self::Size {
-        Dynamic::new(self.end)
+        Dyn(self.end)
     }
 }
 
@@ -936,7 +936,7 @@ impl<D: Dim> DimRange<D> for RangeFull {
 }
 
 impl<D: Dim> DimRange<D> for RangeInclusive<usize> {
-    type Size = Dynamic;
+    type Size = Dyn;
 
     #[inline(always)]
     fn begin(&self, _: D) -> usize {
@@ -950,7 +950,7 @@ impl<D: Dim> DimRange<D> for RangeInclusive<usize> {
 
     #[inline(always)]
     fn size(&self, _: D) -> Self::Size {
-        Dynamic::new(*self.end() + 1 - *self.start())
+        Dyn(*self.end() + 1 - *self.start())
     }
 }
 

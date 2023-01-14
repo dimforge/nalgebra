@@ -10,7 +10,7 @@ use nalgebra::allocator::Allocator;
 use nalgebra::base::storage::RawStorage;
 use nalgebra::constraint::{DimEq, ShapeConstraint};
 use nalgebra::{
-    ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, DefaultAllocator, Dim, Dynamic, Matrix, OMatrix,
+    ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, DefaultAllocator, Dim, Dyn, Matrix, OMatrix,
     Scalar, U1,
 };
 use num_traits::{One, Zero};
@@ -273,8 +273,8 @@ macro_rules! impl_spmm_cs_dense {
         // Implement ref-ref
         impl_spmm_cs_dense!(&'a $matrix_type_name<T>, &'a Matrix<T, R, C, S>, $spmm_fn, |lhs, rhs| {
             let (_, ncols) = rhs.shape_generic();
-            let nrows = Dynamic::new(lhs.nrows());
-            let mut result = OMatrix::<T, Dynamic, C>::zeros_generic(nrows, ncols);
+            let nrows = Dyn(lhs.nrows());
+            let mut result = OMatrix::<T, Dyn, C>::zeros_generic(nrows, ncols);
             $spmm_fn(T::zero(), &mut result, T::one(), Op::NoOp(lhs), Op::NoOp(rhs));
             result
         });
@@ -302,21 +302,21 @@ macro_rules! impl_spmm_cs_dense {
             R: Dim,
             C: Dim,
             S: RawStorage<T, R, C>,
-            DefaultAllocator: Allocator<T, Dynamic, C>,
+            DefaultAllocator: Allocator<T, Dyn, C>,
             // TODO: Is it possible to simplify these bounds?
             ShapeConstraint:
-                // Bounds so that we can turn OMatrix<T, Dynamic, C> into a DMatrixSliceMut
-                  DimEq<U1, <<DefaultAllocator as Allocator<T, Dynamic, C>>::Buffer as RawStorage<T, Dynamic, C>>::RStride>
-                + DimEq<C, Dynamic>
-                + DimEq<Dynamic, <<DefaultAllocator as Allocator<T, Dynamic, C>>::Buffer as RawStorage<T, Dynamic, C>>::CStride>
+                // Bounds so that we can turn OMatrix<T, Dyn, C> into a DMatrixSliceMut
+                  DimEq<U1, <<DefaultAllocator as Allocator<T, Dyn, C>>::Buffer as RawStorage<T, Dyn, C>>::RStride>
+                + DimEq<C, Dyn>
+                + DimEq<Dyn, <<DefaultAllocator as Allocator<T, Dyn, C>>::Buffer as RawStorage<T, Dyn, C>>::CStride>
                 // Bounds so that we can turn &Matrix<T, R, C, S> into a DMatrixSlice
                 + DimEq<U1, S::RStride>
-                + DimEq<R, Dynamic>
-                + DimEq<Dynamic, S::CStride>
+                + DimEq<R, Dyn>
+                + DimEq<Dyn, S::CStride>
         {
             // We need the column dimension to be generic, so that if RHS is a vector, then
             // we also get a vector (and not a matrix)
-            type Output = OMatrix<T, Dynamic, C>;
+            type Output = OMatrix<T, Dyn, C>;
 
             fn mul(self, rhs: $dense_matrix_type) -> Self::Output {
                 let $lhs = self;

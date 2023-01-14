@@ -19,7 +19,7 @@ use typenum::{self, Cmp, Greater};
 use simba::scalar::{ClosedAdd, ClosedMul};
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{Dim, DimName, Dynamic, ToTypenum};
+use crate::base::dimension::{Dim, DimName, Dyn, ToTypenum};
 use crate::base::storage::RawStorage;
 use crate::base::{
     ArrayStorage, Const, DefaultAllocator, Matrix, OMatrix, OVector, Scalar, Unit, Vector,
@@ -317,12 +317,12 @@ where
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::{Dynamic, DMatrix, Matrix, Const};
+    /// # use nalgebra::{Dyn, DMatrix, Matrix, Const};
     ///
     /// let vec = vec![0, 1, 2, 3, 4, 5];
     /// let vec_ptr = vec.as_ptr();
     ///
-    /// let matrix = Matrix::from_vec_generic(Dynamic::new(vec.len()), Const::<1>, vec);
+    /// let matrix = Matrix::from_vec_generic(Dyn(vec.len()), Const::<1>, vec);
     /// let matrix_storage_ptr = matrix.data.as_vec().as_ptr();
     ///
     /// // `matrix` is backed by exactly the same `Vec` as it was constructed from.
@@ -656,35 +656,35 @@ where
 }
 
 /// # Constructors of matrices with a dynamic number of columns
-impl<T: Scalar, R: DimName> OMatrix<T, R, Dynamic>
+impl<T: Scalar, R: DimName> OMatrix<T, R, Dyn>
 where
-    DefaultAllocator: Allocator<T, R, Dynamic>,
+    DefaultAllocator: Allocator<T, R, Dyn>,
 {
-    impl_constructors!(R, Dynamic;
+    impl_constructors!(R, Dyn;
                    => R: DimName;
-                   R::name(), Dynamic::new(ncols);
+                   R::name(), Dyn(ncols);
                    ncols);
 }
 
 /// # Constructors of dynamic vectors and matrices with a dynamic number of rows
-impl<T: Scalar, C: DimName> OMatrix<T, Dynamic, C>
+impl<T: Scalar, C: DimName> OMatrix<T, Dyn, C>
 where
-    DefaultAllocator: Allocator<T, Dynamic, C>,
+    DefaultAllocator: Allocator<T, Dyn, C>,
 {
-    impl_constructors!(Dynamic, C;
+    impl_constructors!(Dyn, C;
                    => C: DimName;
-                   Dynamic::new(nrows), C::name();
+                   Dyn(nrows), C::name();
                    nrows);
 }
 
 /// # Constructors of fully dynamic matrices
-impl<T: Scalar> OMatrix<T, Dynamic, Dynamic>
+impl<T: Scalar> OMatrix<T, Dyn, Dyn>
 where
-    DefaultAllocator: Allocator<T, Dynamic, Dynamic>,
+    DefaultAllocator: Allocator<T, Dyn, Dyn>,
 {
-    impl_constructors!(Dynamic, Dynamic;
+    impl_constructors!(Dyn, Dyn;
                    ;
-                   Dynamic::new(nrows), Dynamic::new(ncols);
+                   Dyn(nrows), Dyn(ncols);
                    nrows, ncols);
 }
 
@@ -790,19 +790,19 @@ impl_constructors_from_data!(data; R, C;                  // Arguments for Matri
 R::name(), C::name();         // Arguments for `_generic` constructors.
 ); // Arguments for non-generic constructors.
 
-impl_constructors_from_data!(data; R, Dynamic;
+impl_constructors_from_data!(data; R, Dyn;
 => R: DimName;
-R::name(), Dynamic::new(data.len() / R::dim());
+R::name(), Dyn(data.len() / R::dim());
 );
 
-impl_constructors_from_data!(data; Dynamic, C;
+impl_constructors_from_data!(data; Dyn, C;
 => C: DimName;
-Dynamic::new(data.len() / C::dim()), C::name();
+Dyn(data.len() / C::dim()), C::name();
 );
 
-impl_constructors_from_data!(data; Dynamic, Dynamic;
+impl_constructors_from_data!(data; Dyn, Dyn;
                             ;
-                            Dynamic::new(nrows), Dynamic::new(ncols);
+                            Dyn(nrows), Dyn(ncols);
                             nrows, ncols);
 
 /*

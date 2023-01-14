@@ -7,7 +7,7 @@ use crate::base::blas_uninit::{axcpy_uninit, gemm_uninit, gemv_uninit};
 use crate::base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
-use crate::base::dimension::{Const, Dim, Dynamic, U1, U2, U3, U4};
+use crate::base::dimension::{Const, Dim, Dyn, U1, U2, U3, U4};
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::uninit::Init;
 use crate::base::{
@@ -890,7 +890,7 @@ where
 
         for j in 0..dim1 {
             let val = unsafe { conjugate(y.vget_unchecked(j).clone()) };
-            let subdim = Dynamic::new(dim1 - j);
+            let subdim = Dyn(dim1 - j);
             // TODO: avoid bound checks.
             self.generic_view_mut((j, j), (subdim, Const::<1>)).axpy(
                 alpha.clone() * val,

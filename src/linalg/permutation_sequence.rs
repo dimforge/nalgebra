@@ -7,7 +7,7 @@ use simba::scalar::ClosedNeg;
 use crate::allocator::Allocator;
 use crate::base::{DefaultAllocator, Matrix, OVector, Scalar};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::dimension::Dynamic;
+use crate::dimension::Dyn;
 use crate::dimension::{Const, Dim, DimName};
 use crate::storage::StorageMut;
 
@@ -51,14 +51,14 @@ where
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl PermutationSequence<Dynamic>
+impl PermutationSequence<Dyn>
 where
-    DefaultAllocator: Allocator<(usize, usize), Dynamic>,
+    DefaultAllocator: Allocator<(usize, usize), Dyn>,
 {
     /// Creates a new dynamically-allocated sequence of `n` identity permutations.
     #[inline]
     pub fn identity(n: usize) -> Self {
-        Self::identity_generic(Dynamic::new(n))
+        Self::identity_generic(Dyn(n))
     }
 }
 

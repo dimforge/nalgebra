@@ -1,5 +1,5 @@
 use na::{
-    Const, DMatrix, DMatrixView, DMatrixViewMut, Dyn, Dynamic, Matrix, MatrixView, MatrixViewMut,
+    Const, DMatrix, DMatrixView, DMatrixViewMut, Dyn, Dyn, Matrix, MatrixView, MatrixViewMut,
     SMatrix, SMatrixView, SMatrixViewMut, VecStorage, U3, U4,
 };
 use nalgebra_macros::matrix;
@@ -60,21 +60,21 @@ fn reshape_slice() {
 
     // Static "source slice"
     test_reshape!(SMatrixView<_, 4, 3> => SMatrixView<_, 3, 4>, U3, U4);
-    test_reshape!(SMatrixView<_, 4, 3> => DMatrixView<_>, Dynamic::new(3), Dynamic::new(4));
-    test_reshape!(SMatrixView<_, 4, 3> => MatrixView<_, Const<3>, Dynamic>, U3, Dynamic::new(4));
-    test_reshape!(SMatrixView<_, 4, 3> => MatrixView<_, Dynamic, Const<4>>, Dynamic::new(3), U4);
+    test_reshape!(SMatrixView<_, 4, 3> => DMatrixView<_>, Dyn(3), Dyn(4));
+    test_reshape!(SMatrixView<_, 4, 3> => MatrixView<_, Const<3>, Dyn>, U3, Dyn(4));
+    test_reshape!(SMatrixView<_, 4, 3> => MatrixView<_, Dyn, Const<4>>, Dyn(3), U4);
     test_reshape!(SMatrixViewMut<_, 4, 3> => SMatrixViewMut<_, 3, 4>, U3, U4);
-    test_reshape!(SMatrixViewMut<_, 4, 3> => DMatrixViewMut<_>, Dynamic::new(3), Dynamic::new(4));
-    test_reshape!(SMatrixViewMut<_, 4, 3> => MatrixViewMut<_, Const<3>, Dynamic>, U3, Dynamic::new(4));
-    test_reshape!(SMatrixViewMut<_, 4, 3> => MatrixViewMut<_, Dynamic, Const<4>>, Dynamic::new(3), U4);
+    test_reshape!(SMatrixViewMut<_, 4, 3> => DMatrixViewMut<_>, Dyn(3), Dyn(4));
+    test_reshape!(SMatrixViewMut<_, 4, 3> => MatrixViewMut<_, Const<3>, Dyn>, U3, Dyn(4));
+    test_reshape!(SMatrixViewMut<_, 4, 3> => MatrixViewMut<_, Dyn, Const<4>>, Dyn(3), U4);
 
-    // Dynamic "source slice"
+    // Dyn "source slice"
     test_reshape!(DMatrixView<_> => SMatrixView<_, 3, 4>, U3, U4);
-    test_reshape!(DMatrixView<_> => DMatrixView<_>, Dynamic::new(3), Dynamic::new(4));
-    test_reshape!(DMatrixView<_> => MatrixView<_, Const<3>, Dynamic>, U3, Dynamic::new(4));
-    test_reshape!(DMatrixView<_> => MatrixView<_, Dynamic, Const<4>>, Dynamic::new(3), U4);
+    test_reshape!(DMatrixView<_> => DMatrixView<_>, Dyn(3), Dyn(4));
+    test_reshape!(DMatrixView<_> => MatrixView<_, Const<3>, Dyn>, U3, Dyn(4));
+    test_reshape!(DMatrixView<_> => MatrixView<_, Dyn, Const<4>>, Dyn(3), U4);
     test_reshape!(DMatrixViewMut<_> => SMatrixViewMut<_, 3, 4>, U3, U4);
-    test_reshape!(DMatrixViewMut<_> => DMatrixViewMut<_>, Dynamic::new(3), Dynamic::new(4));
-    test_reshape!(DMatrixViewMut<_> => MatrixViewMut<_, Const<3>, Dynamic>, U3, Dynamic::new(4));
-    test_reshape!(DMatrixViewMut<_> => MatrixViewMut<_, Dynamic, Const<4>>, Dynamic::new(3), U4);
+    test_reshape!(DMatrixViewMut<_> => DMatrixViewMut<_>, Dyn(3), Dyn(4));
+    test_reshape!(DMatrixViewMut<_> => MatrixViewMut<_, Const<3>, Dyn>, U3, Dyn(4));
+    test_reshape!(DMatrixViewMut<_> => MatrixViewMut<_, Dyn, Const<4>>, Dyn(3), U4);
 }

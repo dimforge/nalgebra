@@ -5,7 +5,7 @@ use crate::allocator::Allocator;
 use crate::sparse::cs_utils;
 use crate::sparse::{CsMatrix, CsStorage};
 use crate::storage::Storage;
-use crate::{DefaultAllocator, Dim, Dynamic, Matrix, OMatrix, Scalar};
+use crate::{DefaultAllocator, Dim, Dyn, Matrix, OMatrix, Scalar};
 
 impl<'a, T: Scalar + Zero + ClosedAdd> CsMatrix<T> {
     /// Creates a column-compressed sparse matrix from a sparse matrix in triplet form.
@@ -16,7 +16,7 @@ impl<'a, T: Scalar + Zero + ClosedAdd> CsMatrix<T> {
         icols: &[usize],
         vals: &[T],
     ) -> Self {
-        Self::from_triplet_generic(Dynamic::new(nrows), Dynamic::new(ncols), irows, icols, vals)
+        Self::from_triplet_generic(Dyn(nrows), Dyn(ncols), irows, icols, vals)
     }
 }
 

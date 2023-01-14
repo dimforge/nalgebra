@@ -1,4 +1,4 @@
-use crate::base::dimension::{Dynamic, U1, U2, U3, U4, U5, U6};
+use crate::base::dimension::{Dyn, U1, U2, U3, U4, U5, U6};
 use crate::base::matrix_view::{ViewStorage, ViewStorageMut};
 use crate::base::{Const, Matrix};
 use crate::slice_deprecation_note;
@@ -22,8 +22,8 @@ pub type SMatrixSlice<'a, T, const R: usize, const C: usize> =
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 #[deprecated = slice_deprecation_note!(DMatrixView)]
-pub type DMatrixSlice<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, Dynamic, ViewStorage<'a, T, Dynamic, Dynamic, RStride, CStride>>;
+pub type DMatrixSlice<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, Dyn, ViewStorage<'a, T, Dyn, Dyn, RStride, CStride>>;
 
 /// A column-major 1x1 matrix slice.
 ///
@@ -251,52 +251,52 @@ pub type MatrixSlice6x5<'a, T, RStride = U1, CStride = U6> =
 /// A column-major matrix slice with 1 row and a number of columns chosen at runtime.
 #[deprecated = slice_deprecation_note!(MatrixView1xX)]
 pub type MatrixSlice1xX<'a, T, RStride = U1, CStride = U1> =
-    Matrix<T, U1, Dynamic, ViewStorage<'a, T, U1, Dynamic, RStride, CStride>>;
+    Matrix<T, U1, Dyn, ViewStorage<'a, T, U1, Dyn, RStride, CStride>>;
 /// A column-major matrix slice with 2 rows and a number of columns chosen at runtime.
 #[deprecated = slice_deprecation_note!(MatrixView2xX)]
 pub type MatrixSlice2xX<'a, T, RStride = U1, CStride = U2> =
-    Matrix<T, U2, Dynamic, ViewStorage<'a, T, U2, Dynamic, RStride, CStride>>;
+    Matrix<T, U2, Dyn, ViewStorage<'a, T, U2, Dyn, RStride, CStride>>;
 /// A column-major matrix slice with 3 rows and a number of columns chosen at runtime.
 #[deprecated = slice_deprecation_note!(MatrixView3xX)]
 pub type MatrixSlice3xX<'a, T, RStride = U1, CStride = U3> =
-    Matrix<T, U3, Dynamic, ViewStorage<'a, T, U3, Dynamic, RStride, CStride>>;
+    Matrix<T, U3, Dyn, ViewStorage<'a, T, U3, Dyn, RStride, CStride>>;
 /// A column-major matrix slice with 4 rows and a number of columns chosen at runtime.
 #[deprecated = slice_deprecation_note!(MatrixView4xX)]
 pub type MatrixSlice4xX<'a, T, RStride = U1, CStride = U4> =
-    Matrix<T, U4, Dynamic, ViewStorage<'a, T, U4, Dynamic, RStride, CStride>>;
+    Matrix<T, U4, Dyn, ViewStorage<'a, T, U4, Dyn, RStride, CStride>>;
 /// A column-major matrix slice with 5 rows and a number of columns chosen at runtime.
 #[deprecated = slice_deprecation_note!(MatrixView5xX)]
 pub type MatrixSlice5xX<'a, T, RStride = U1, CStride = U5> =
-    Matrix<T, U5, Dynamic, ViewStorage<'a, T, U5, Dynamic, RStride, CStride>>;
+    Matrix<T, U5, Dyn, ViewStorage<'a, T, U5, Dyn, RStride, CStride>>;
 /// A column-major matrix slice with 6 rows and a number of columns chosen at runtime.
 #[deprecated = slice_deprecation_note!(MatrixView6xX)]
 pub type MatrixSlice6xX<'a, T, RStride = U1, CStride = U6> =
-    Matrix<T, U6, Dynamic, ViewStorage<'a, T, U6, Dynamic, RStride, CStride>>;
+    Matrix<T, U6, Dyn, ViewStorage<'a, T, U6, Dyn, RStride, CStride>>;
 
 /// A column-major matrix slice with a number of rows chosen at runtime and 1 column.
 #[deprecated = slice_deprecation_note!(MatrixViewXx1)]
-pub type MatrixSliceXx1<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U1, ViewStorage<'a, T, Dynamic, U1, RStride, CStride>>;
+pub type MatrixSliceXx1<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U1, ViewStorage<'a, T, Dyn, U1, RStride, CStride>>;
 /// A column-major matrix slice with a number of rows chosen at runtime and 2 columns.
 #[deprecated = slice_deprecation_note!(MatrixViewXx2)]
-pub type MatrixSliceXx2<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U2, ViewStorage<'a, T, Dynamic, U2, RStride, CStride>>;
+pub type MatrixSliceXx2<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U2, ViewStorage<'a, T, Dyn, U2, RStride, CStride>>;
 /// A column-major matrix slice with a number of rows chosen at runtime and 3 columns.
 #[deprecated = slice_deprecation_note!(MatrixViewXx3)]
-pub type MatrixSliceXx3<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U3, ViewStorage<'a, T, Dynamic, U3, RStride, CStride>>;
+pub type MatrixSliceXx3<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U3, ViewStorage<'a, T, Dyn, U3, RStride, CStride>>;
 /// A column-major matrix slice with a number of rows chosen at runtime and 4 columns.
 #[deprecated = slice_deprecation_note!(MatrixViewXx4)]
-pub type MatrixSliceXx4<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U4, ViewStorage<'a, T, Dynamic, U4, RStride, CStride>>;
+pub type MatrixSliceXx4<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U4, ViewStorage<'a, T, Dyn, U4, RStride, CStride>>;
 /// A column-major matrix slice with a number of rows chosen at runtime and 5 columns.
 #[deprecated = slice_deprecation_note!(MatrixViewXx5)]
-pub type MatrixSliceXx5<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U5, ViewStorage<'a, T, Dynamic, U5, RStride, CStride>>;
+pub type MatrixSliceXx5<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U5, ViewStorage<'a, T, Dyn, U5, RStride, CStride>>;
 /// A column-major matrix slice with a number of rows chosen at runtime and 6 columns.
 #[deprecated = slice_deprecation_note!(MatrixViewXx6)]
-pub type MatrixSliceXx6<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U6, ViewStorage<'a, T, Dynamic, U6, RStride, CStride>>;
+pub type MatrixSliceXx6<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U6, ViewStorage<'a, T, Dyn, U6, RStride, CStride>>;
 
 /// A column vector slice with dimensions known at compile-time.
 ///
@@ -314,8 +314,8 @@ pub type SVectorSlice<'a, T, const D: usize> =
 
 /// A column vector slice dynamic numbers of rows and columns.
 #[deprecated = slice_deprecation_note!(DVectorView)]
-pub type DVectorSlice<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U1, ViewStorage<'a, T, Dynamic, U1, RStride, CStride>>;
+pub type DVectorSlice<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U1, ViewStorage<'a, T, Dyn, U1, RStride, CStride>>;
 
 /// A 1D column vector slice.
 ///
@@ -386,8 +386,8 @@ pub type SMatrixSliceMut<'a, T, const R: usize, const C: usize> =
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 #[deprecated = slice_deprecation_note!(DMatrixViewMut)]
-pub type DMatrixSliceMut<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, Dynamic, ViewStorageMut<'a, T, Dynamic, Dynamic, RStride, CStride>>;
+pub type DMatrixSliceMut<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, Dyn, ViewStorageMut<'a, T, Dyn, Dyn, RStride, CStride>>;
 
 /// A column-major 1x1 matrix slice.
 ///
@@ -615,52 +615,52 @@ pub type MatrixSliceMut6x5<'a, T, RStride = U1, CStride = U6> =
 /// A column-major matrix slice with 1 row and a number of columns chosen at runtime.
 #[deprecated = slice_deprecation_note!(MatrixViewMut1xX)]
 pub type MatrixSliceMut1xX<'a, T, RStride = U1, CStride = U1> =
-    Matrix<T, U1, Dynamic, ViewStorageMut<'a, T, U1, Dynamic, RStride, CStride>>;
+    Matrix<T, U1, Dyn, ViewStorageMut<'a, T, U1, Dyn, RStride, CStride>>;
 /// A column-major matrix slice with 2 rows and a number of columns chosen at runtime.
 #[deprecated = slice_deprecation_note!(MatrixViewMut2xX)]
 pub type MatrixSliceMut2xX<'a, T, RStride = U1, CStride = U2> =
-    Matrix<T, U2, Dynamic, ViewStorageMut<'a, T, U2, Dynamic, RStride, CStride>>;
+    Matrix<T, U2, Dyn, ViewStorageMut<'a, T, U2, Dyn, RStride, CStride>>;
 /// A column-major matrix slice with 3 rows and a number of columns chosen at runtime.
 #[deprecated = slice_deprecation_note!(MatrixViewMut3xX)]
 pub type MatrixSliceMut3xX<'a, T, RStride = U1, CStride = U3> =
-    Matrix<T, U3, Dynamic, ViewStorageMut<'a, T, U3, Dynamic, RStride, CStride>>;
+    Matrix<T, U3, Dyn, ViewStorageMut<'a, T, U3, Dyn, RStride, CStride>>;
 /// A column-major matrix slice with 4 rows and a number of columns chosen at runtime.
 #[deprecated = slice_deprecation_note!(MatrixViewMut4xX)]
 pub type MatrixSliceMut4xX<'a, T, RStride = U1, CStride = U4> =
-    Matrix<T, U4, Dynamic, ViewStorageMut<'a, T, U4, Dynamic, RStride, CStride>>;
+    Matrix<T, U4, Dyn, ViewStorageMut<'a, T, U4, Dyn, RStride, CStride>>;
 /// A column-major matrix slice with 5 rows and a number of columns chosen at runtime.
 #[deprecated = slice_deprecation_note!(MatrixViewMut5xX)]
 pub type MatrixSliceMut5xX<'a, T, RStride = U1, CStride = U5> =
-    Matrix<T, U5, Dynamic, ViewStorageMut<'a, T, U5, Dynamic, RStride, CStride>>;
+    Matrix<T, U5, Dyn, ViewStorageMut<'a, T, U5, Dyn, RStride, CStride>>;
 /// A column-major matrix slice with 6 rows and a number of columns chosen at runtime.
 #[deprecated = slice_deprecation_note!(MatrixViewMut6xX)]
 pub type MatrixSliceMut6xX<'a, T, RStride = U1, CStride = U6> =
-    Matrix<T, U6, Dynamic, ViewStorageMut<'a, T, U6, Dynamic, RStride, CStride>>;
+    Matrix<T, U6, Dyn, ViewStorageMut<'a, T, U6, Dyn, RStride, CStride>>;
 
 /// A column-major matrix slice with a number of rows chosen at runtime and 1 column.
 #[deprecated = slice_deprecation_note!(MatrixViewMutXx1)]
-pub type MatrixSliceMutXx1<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U1, ViewStorageMut<'a, T, Dynamic, U1, RStride, CStride>>;
+pub type MatrixSliceMutXx1<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U1, ViewStorageMut<'a, T, Dyn, U1, RStride, CStride>>;
 /// A column-major matrix slice with a number of rows chosen at runtime and 2 columns.
 #[deprecated = slice_deprecation_note!(MatrixViewMutXx2)]
-pub type MatrixSliceMutXx2<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U2, ViewStorageMut<'a, T, Dynamic, U2, RStride, CStride>>;
+pub type MatrixSliceMutXx2<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U2, ViewStorageMut<'a, T, Dyn, U2, RStride, CStride>>;
 /// A column-major matrix slice with a number of rows chosen at runtime and 3 columns.
 #[deprecated = slice_deprecation_note!(MatrixViewMutXx3)]
-pub type MatrixSliceMutXx3<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U3, ViewStorageMut<'a, T, Dynamic, U3, RStride, CStride>>;
+pub type MatrixSliceMutXx3<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U3, ViewStorageMut<'a, T, Dyn, U3, RStride, CStride>>;
 /// A column-major matrix slice with a number of rows chosen at runtime and 4 columns.
 #[deprecated = slice_deprecation_note!(MatrixViewMutXx4)]
-pub type MatrixSliceMutXx4<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U4, ViewStorageMut<'a, T, Dynamic, U4, RStride, CStride>>;
+pub type MatrixSliceMutXx4<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U4, ViewStorageMut<'a, T, Dyn, U4, RStride, CStride>>;
 /// A column-major matrix slice with a number of rows chosen at runtime and 5 columns.
 #[deprecated = slice_deprecation_note!(MatrixViewMutXx5)]
-pub type MatrixSliceMutXx5<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U5, ViewStorageMut<'a, T, Dynamic, U5, RStride, CStride>>;
+pub type MatrixSliceMutXx5<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U5, ViewStorageMut<'a, T, Dyn, U5, RStride, CStride>>;
 /// A column-major matrix slice with a number of rows chosen at runtime and 6 columns.
 #[deprecated = slice_deprecation_note!(MatrixViewMutXx6)]
-pub type MatrixSliceMutXx6<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U6, ViewStorageMut<'a, T, Dynamic, U6, RStride, CStride>>;
+pub type MatrixSliceMutXx6<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U6, ViewStorageMut<'a, T, Dyn, U6, RStride, CStride>>;
 
 /// A column vector slice with dimensions known at compile-time.
 ///
@@ -680,8 +680,8 @@ pub type SVectorSliceMut<'a, T, const D: usize> =
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 #[deprecated = slice_deprecation_note!(DVectorViewMut)]
-pub type DVectorSliceMut<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U1, ViewStorageMut<'a, T, Dynamic, U1, RStride, CStride>>;
+pub type DVectorSliceMut<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U1, ViewStorageMut<'a, T, Dyn, U1, RStride, CStride>>;
 
 /// A 1D column vector slice.
 ///

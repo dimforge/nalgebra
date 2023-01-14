@@ -8,7 +8,7 @@ use simba::scalar::{ComplexField, RealField};
 use std::cmp;
 
 use crate::allocator::Allocator;
-use crate::base::dimension::{Const, Dim, DimDiff, DimSub, Dynamic, U1, U2};
+use crate::base::dimension::{Const, Dim, DimDiff, DimSub, Dyn, U1, U2};
 use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, OMatrix, OVector, SquareMatrix, Unit, Vector2, Vector3};
 
@@ -174,12 +174,11 @@ where
                         {
                             let krows = cmp::min(k + 4, end + 1);
                             let mut work = work.rows_mut(0, krows);
-                            refl.reflect(&mut t.generic_view_mut(
-                                (k, k),
-                                (Const::<3>, Dynamic::new(dim.value() - k)),
-                            ));
+                            refl.reflect(
+                                &mut t.generic_view_mut((k, k), (Const::<3>, Dyn(dim.value() - k))),
+                            );
                             refl.reflect_rows(
-                                &mut t.generic_view_mut((0, k), (Dynamic::new(krows), Const::<3>)),
+                                &mut t.generic_view_mut((0, k), (Dyn(krows), Const::<3>)),
                                 &mut work,
                             );
                         }
@@ -212,13 +211,10 @@ where
                     {
                         let mut work = work.rows_mut(0, end + 1);
                         refl.reflect(
-                            &mut t.generic_view_mut(
-                                (m, m),
-                                (Const::<2>, Dynamic::new(dim.value() - m)),
-                            ),
+                            &mut t.generic_view_mut((m, m), (Const::<2>, Dyn(dim.value() - m))),
                         );
                         refl.reflect_rows(
-                            &mut t.generic_view_mut((0, m), (Dynamic::new(end + 1), Const::<2>)),
+                            &mut t.generic_view_mut((0, m), (Dyn(end + 1), Const::<2>)),
                             &mut work,
                         );
                     }
@@ -231,12 +227,14 @@ where
                 // Decouple the 2x2 block if it has real eigenvalues.
                 if let Some(rot) = compute_2x2_basis(&t.fixed_view::<2, 2>(start, start)) {
                     let inv_rot = rot.inverse();
-                    inv_rot.rotate(&mut t.generic_view_mut(
-                        (start, start),
-                        (Const::<2>, Dynamic::new(dim.value() - start)),
-                    ));
+                    inv_rot.rotate(
+                        &mut t.generic_view_mut(
+                            (start, start),
+                            (Const::<2>, Dyn(dim.value() - start)),
+                        ),
+                    );
                     rot.rotate_rows(
-                        &mut t.generic_view_mut((0, start), (Dynamic::new(end + 1), Const::<2>)),
+                        &mut t.generic_view_mut((0, start), (Dyn(end + 1), Const::<2>)),
                     );
                     t[(end, start)] = T::zero();
 

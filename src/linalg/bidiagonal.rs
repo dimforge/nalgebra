@@ -304,7 +304,7 @@ where
     }
 }
 
-// impl<T: ComplexField, D: DimMin<D, Output = D> + DimSub<Dynamic>> Bidiagonal<T, D, D>
+// impl<T: ComplexField, D: DimMin<D, Output = D> + DimSub<Dyn>> Bidiagonal<T, D, D>
 //     where DefaultAllocator: Allocator<T, D, D> +
 //                             Allocator<T, D> {
 //     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
