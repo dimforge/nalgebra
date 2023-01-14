@@ -8,11 +8,11 @@ use crate::base::{DefaultAllocator, OMatrix, SquareMatrix};
 use crate::linalg::lu;
 
 impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
-    /// Attempts to invert this matrix.
-    /// 
+    /// Attempts to invert this square matrix.
+    ///
     /// # Panics
-    /// 
-    /// It's unable to invert a non-square matrix so it panics in such case.
+    ///
+    /// Panics if `self` isn’t a square matrix.
     #[inline]
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(self) -> Option<OMatrix<T, D, D>>
@@ -29,12 +29,12 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 }
 
 impl<T: ComplexField, D: Dim, S: StorageMut<T, D, D>> SquareMatrix<T, D, S> {
-    /// Attempts to invert this matrix in-place. Returns `false` and leaves `self` untouched if
+    /// Attempts to invert this square matrix in-place. Returns `false` and leaves `self` untouched if
     /// inversion fails.
-    /// 
+    ///
     /// # Panics
-    /// 
-    /// It's unable to invert a non-square matrix so it panics in such case.
+    ///
+    /// Panics if `self` isn’t a square matrix.
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool
     where
