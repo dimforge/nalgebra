@@ -169,20 +169,19 @@ where
     /// Using parallel column iterators to calculate the sum of the maximum
     /// elements in each column:
     /// ```
-    /// use nalgebra::{dmatrix,DMatrix};
+    /// use nalgebra::{dmatrix, DMatrix};
     /// use rayon::prelude::*;
     ///
-    /// let matrix : DMatrix<f64> =
-    ///         nalgebra::dmatrix![1.,0.,5.;
-    ///                            2.,4.,1.;
-    ///                            3.,2.,2.;];
-    /// let sum_of_max :f64 =
-    ///         matrix
-    ///         .par_column_iter()
-    ///         .map(|col|col.max())
-    ///         .sum();
+    /// let matrix : DMatrix<f64> = dmatrix![1.0, 0.0, 5.0;
+    ///     2.0, 4.0, 1.0;
+    ///     3.0, 2.0, 2.0;
+    /// ];
+    /// let sum_of_max :f64 = matrix
+    ///     .par_column_iter()
+    ///     .map(|col| col.max())
+    ///     .sum();
     ///
-    /// assert_eq!(sum_of_max,3.+4.+5.);
+    /// assert_eq!(sum_of_max,3.0 + 4.0 + 5.0);
     ///                             
     /// ```
     ///
@@ -200,17 +199,16 @@ where
     /// Normalize each column of a matrix with respect to its own maximum value.
     ///
     /// ```
-    /// use nalgebra::{dmatrix,DMatrix};
+    /// use nalgebra::{dmatrix, DMatrix};
     /// use rayon::prelude::*;
     ///
-    /// let mut matrix : DMatrix<f64> =
-    ///                     dmatrix![2.,4.,6.;
-    ///                             1.,2.,3.];
+    /// let mut matrix : DMatrix<f64> = dmatrix![
+    ///     2.0, 4.0, 6.0;
+    ///     1.0, 2.0, 3.0;
+    /// ];
     /// matrix.par_column_iter_mut().for_each(|mut col| col /= col.max());
     ///
-    /// assert_eq!(matrix,
-    ///             dmatrix![1. ,1. , 1.;
-    ///                      0.5,0.5,0.5]);
+    /// assert_eq!(matrix, dmatrix![1.0, 1.0, 1.0; 0.5, 0.5, 0.5]);
     /// ```
     ///
     /// [`par_column_iter`]: crate::Matrix::par_column_iter
