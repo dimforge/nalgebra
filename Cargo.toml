@@ -1,6 +1,6 @@
 [package]
 name    = "nalgebra"
-version = "0.31.4"
+version = "0.32.0"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 
 description = "General-purpose linear algebra library with transformations and statically-sized or dynamically-sized matrices."
@@ -78,7 +78,7 @@ num-traits     = { version = "0.2", default-features = false }
 num-complex    = { version = "0.4", default-features = false }
 num-rational   = { version = "0.4", default-features = false }
 approx         = { version = "0.5", default-features = false }
-simba          = { version = "0.7", default-features = false }
+simba          = { version = "0.8", default-features = false }
 alga           = { version = "0.9", default-features = false, optional = true }
 rand_distr     = { version = "0.4", default-features = false, optional = true }
 matrixmultiply = { version = "0.3", optional = true }
@@ -108,7 +108,7 @@ rayon          = { version = "1.6", optional = true }
 serde_json = "1.0"
 rand_xorshift = "0.3"
 rand_isaac = "0.3"
-criterion = { version = "0.3", features = ["html_reports"] }
+criterion = { version = "0.4", features = ["html_reports"] }
 
 # For matrix comparison macro
 matrixcompare = "0.3.0"
