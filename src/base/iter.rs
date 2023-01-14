@@ -1,12 +1,18 @@
 //! Matrix iterators.
 
+// only enables the `doc_cfg` feature when
+// the `docsrs` configuration attribute is defined
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
+use core::fmt::Debug;
+use core::ops::Range;
 use std::iter::FusedIterator;
 use std::marker::PhantomData;
 use std::mem;
 
 use crate::base::dimension::{Dim, U1};
 use crate::base::storage::{RawStorage, RawStorageMut};
-use crate::base::{Matrix, MatrixSlice, MatrixSliceMut, Scalar};
+use crate::base::{Matrix, MatrixView, MatrixViewMut, Scalar};
 
 macro_rules! iterator {
     (struct $Name:ident for $Storage:ident.$ptr: ident -> $Ptr:ty, $Ref:ty, $SRef: ty) => {
@@ -193,7 +199,7 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> RowIter<'a, T, R, C, S>
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> Iterator for RowIter<'a, T, R, C, S> {
-    type Item = MatrixSlice<'a, T, U1, C, S::RStride, S::CStride>;
+    type Item = MatrixView<'a, T, U1, C, S::RStride, S::CStride>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -254,7 +260,7 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> RowIterMut<'a, T, R,
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Iterator
     for RowIterMut<'a, T, R, C, S>
 {
-    type Item = MatrixSliceMut<'a, T, U1, C, S::RStride, S::CStride>;
+    type Item = MatrixViewMut<'a, T, U1, C, S::RStride, S::CStride>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -288,7 +294,6 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ExactSizeIte
 }
 
 /*
- *
  * Column iterators.
  *
  */
@@ -296,23 +301,45 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ExactSizeIte
 /// An iterator through the columns of a matrix.
 pub struct ColumnIter<'a, T, R: Dim, C: Dim, S: RawStorage<T, R, C>> {
     mat: &'a Matrix<T, R, C, S>,
-    curr: usize,
+    range: Range<usize>,
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ColumnIter<'a, T, R, C, S> {
+    /// a new column iterator covering all columns of the matrix
     pub(crate) fn new(mat: &'a Matrix<T, R, C, S>) -> Self {
-        ColumnIter { mat, curr: 0 }
+        ColumnIter {
+            mat,
+            range: 0..mat.ncols(),
+        }
+    }
+
+    pub(crate) fn split_at(self, index: usize) -> (Self, Self) {
+        // SAFETY: this makes sur the generated ranges are valid.
+        let split_pos = (self.range.start + index).min(self.range.end);
+
+        let left_iter = ColumnIter {
+            mat: self.mat,
+            range: self.range.start..split_pos,
+        };
+
+        let right_iter = ColumnIter {
+            mat: self.mat,
+            range: split_pos..self.range.end,
+        };
+
+        (left_iter, right_iter)
     }
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> Iterator for ColumnIter<'a, T, R, C, S> {
-    type Item = MatrixSlice<'a, T, R, U1, S::RStride, S::CStride>;
+    type Item = MatrixView<'a, T, R, U1, S::RStride, S::CStride>;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        if self.curr < self.mat.ncols() {
-            let res = self.mat.column(self.curr);
-            self.curr += 1;
+        debug_assert!(self.range.start <= self.range.end);
+        if self.range.start < self.range.end {
+            let res = self.mat.column(self.range.start);
+            self.range.start += 1;
             Some(res)
         } else {
             None
@@ -321,15 +348,29 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> Iterator for ColumnIter
 
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
-        (
-            self.mat.ncols() - self.curr,
-            Some(self.mat.ncols() - self.curr),
-        )
+        let hint = self.range.len();
+        (hint, Some(hint))
     }
 
     #[inline]
     fn count(self) -> usize {
-        self.mat.ncols() - self.curr
+        self.range.len()
+    }
+}
+
+impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> DoubleEndedIterator
+    for ColumnIter<'a, T, R, C, S>
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        debug_assert!(self.range.start <= self.range.end);
+        if !self.range.is_empty() {
+            self.range.end -= 1;
+            debug_assert!(self.range.end < self.mat.ncols());
+            debug_assert!(self.range.end >= self.range.start);
+            Some(self.mat.column(self.range.end))
+        } else {
+            None
+        }
     }
 }
 
@@ -338,7 +379,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ExactSizeIterat
 {
     #[inline]
     fn len(&self) -> usize {
-        self.mat.ncols() - self.curr
+        self.range.end - self.range.start
     }
 }
 
@@ -346,17 +387,37 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ExactSizeIterat
 #[derive(Debug)]
 pub struct ColumnIterMut<'a, T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> {
     mat: *mut Matrix<T, R, C, S>,
-    curr: usize,
+    range: Range<usize>,
     phantom: PhantomData<&'a mut Matrix<T, R, C, S>>,
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ColumnIterMut<'a, T, R, C, S> {
     pub(crate) fn new(mat: &'a mut Matrix<T, R, C, S>) -> Self {
+        let range = 0..mat.ncols();
         ColumnIterMut {
             mat,
-            curr: 0,
-            phantom: PhantomData,
+            range,
+            phantom: Default::default(),
         }
+    }
+
+    pub(crate) fn split_at(self, index: usize) -> (Self, Self) {
+        // SAFETY: this makes sur the generated ranges are valid.
+        let split_pos = (self.range.start + index).min(self.range.end);
+
+        let left_iter = ColumnIterMut {
+            mat: self.mat,
+            range: self.range.start..split_pos,
+            phantom: Default::default(),
+        };
+
+        let right_iter = ColumnIterMut {
+            mat: self.mat,
+            range: split_pos..self.range.end,
+            phantom: Default::default(),
+        };
+
+        (left_iter, right_iter)
     }
 
     fn ncols(&self) -> usize {
@@ -367,13 +428,14 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ColumnIterMut<'a, T,
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Iterator
     for ColumnIterMut<'a, T, R, C, S>
 {
-    type Item = MatrixSliceMut<'a, T, R, U1, S::RStride, S::CStride>;
+    type Item = MatrixViewMut<'a, T, R, U1, S::RStride, S::CStride>;
 
     #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.curr < self.ncols() {
-            let res = unsafe { (*self.mat).column_mut(self.curr) };
-            self.curr += 1;
+    fn next(&'_ mut self) -> Option<Self::Item> {
+        debug_assert!(self.range.start <= self.range.end);
+        if self.range.start < self.range.end {
+            let res = unsafe { (*self.mat).column_mut(self.range.start) };
+            self.range.start += 1;
             Some(res)
         } else {
             None
@@ -382,12 +444,13 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> Iterator
 
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
-        (self.ncols() - self.curr, Some(self.ncols() - self.curr))
+        let hint = self.range.len();
+        (hint, Some(hint))
     }
 
     #[inline]
     fn count(self) -> usize {
-        self.ncols() - self.curr
+        self.range.len()
     }
 }
 
@@ -396,6 +459,22 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ExactSizeIte
 {
     #[inline]
     fn len(&self) -> usize {
-        self.ncols() - self.curr
+        self.range.len()
+    }
+}
+
+impl<'a, T: Scalar, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> DoubleEndedIterator
+    for ColumnIterMut<'a, T, R, C, S>
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        debug_assert!(self.range.start <= self.range.end);
+        if !self.range.is_empty() {
+            self.range.end -= 1;
+            debug_assert!(self.range.end < self.ncols());
+            debug_assert!(self.range.end >= self.range.start);
+            Some(unsafe { (*self.mat).column_mut(self.range.end) })
+        } else {
+            None
+        }
     }
 }

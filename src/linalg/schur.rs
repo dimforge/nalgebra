@@ -8,7 +8,7 @@ use simba::scalar::{ComplexField, RealField};
 use std::cmp;
 
 use crate::allocator::Allocator;
-use crate::base::dimension::{Const, Dim, DimDiff, DimSub, Dynamic, U1, U2};
+use crate::base::dimension::{Const, Dim, DimDiff, DimSub, Dyn, U1, U2};
 use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, OMatrix, OVector, SquareMatrix, Unit, Vector2, Vector3};
 
@@ -174,19 +174,18 @@ where
                         {
                             let krows = cmp::min(k + 4, end + 1);
                             let mut work = work.rows_mut(0, krows);
-                            refl.reflect(&mut t.generic_slice_mut(
-                                (k, k),
-                                (Const::<3>, Dynamic::new(dim.value() - k)),
-                            ));
+                            refl.reflect(
+                                &mut t.generic_view_mut((k, k), (Const::<3>, Dyn(dim.value() - k))),
+                            );
                             refl.reflect_rows(
-                                &mut t.generic_slice_mut((0, k), (Dynamic::new(krows), Const::<3>)),
+                                &mut t.generic_view_mut((0, k), (Dyn(krows), Const::<3>)),
                                 &mut work,
                             );
                         }
 
                         if let Some(ref mut q) = q {
                             refl.reflect_rows(
-                                &mut q.generic_slice_mut((0, k), (dim, Const::<3>)),
+                                &mut q.generic_view_mut((0, k), (dim, Const::<3>)),
                                 work,
                             );
                         }
@@ -211,38 +210,36 @@ where
 
                     {
                         let mut work = work.rows_mut(0, end + 1);
-                        refl.reflect(&mut t.generic_slice_mut(
-                            (m, m),
-                            (Const::<2>, Dynamic::new(dim.value() - m)),
-                        ));
+                        refl.reflect(
+                            &mut t.generic_view_mut((m, m), (Const::<2>, Dyn(dim.value() - m))),
+                        );
                         refl.reflect_rows(
-                            &mut t.generic_slice_mut((0, m), (Dynamic::new(end + 1), Const::<2>)),
+                            &mut t.generic_view_mut((0, m), (Dyn(end + 1), Const::<2>)),
                             &mut work,
                         );
                     }
 
                     if let Some(ref mut q) = q {
-                        refl.reflect_rows(
-                            &mut q.generic_slice_mut((0, m), (dim, Const::<2>)),
-                            work,
-                        );
+                        refl.reflect_rows(&mut q.generic_view_mut((0, m), (dim, Const::<2>)), work);
                     }
                 }
             } else {
                 // Decouple the 2x2 block if it has real eigenvalues.
-                if let Some(rot) = compute_2x2_basis(&t.fixed_slice::<2, 2>(start, start)) {
+                if let Some(rot) = compute_2x2_basis(&t.fixed_view::<2, 2>(start, start)) {
                     let inv_rot = rot.inverse();
-                    inv_rot.rotate(&mut t.generic_slice_mut(
-                        (start, start),
-                        (Const::<2>, Dynamic::new(dim.value() - start)),
-                    ));
+                    inv_rot.rotate(
+                        &mut t.generic_view_mut(
+                            (start, start),
+                            (Const::<2>, Dyn(dim.value() - start)),
+                        ),
+                    );
                     rot.rotate_rows(
-                        &mut t.generic_slice_mut((0, start), (Dynamic::new(end + 1), Const::<2>)),
+                        &mut t.generic_view_mut((0, start), (Dyn(end + 1), Const::<2>)),
                     );
                     t[(end, start)] = T::zero();
 
                     if let Some(ref mut q) = q {
-                        rot.rotate_rows(&mut q.generic_slice_mut((0, start), (dim, Const::<2>)));
+                        rot.rotate_rows(&mut q.generic_view_mut((0, start), (dim, Const::<2>)));
                     }
                 }
 
@@ -427,9 +424,9 @@ where
 {
     let dim = m.shape_generic().0;
     let mut q = None;
-    match compute_2x2_basis(&m.fixed_slice::<2, 2>(0, 0)) {
+    match compute_2x2_basis(&m.fixed_view::<2, 2>(0, 0)) {
         Some(rot) => {
-            let mut m = m.fixed_slice_mut::<2, 2>(0, 0);
+            let mut m = m.fixed_view_mut::<2, 2>(0, 0);
             let inv_rot = rot.inverse();
             inv_rot.rotate(&mut m);
             rot.rotate_rows(&mut m);
@@ -530,7 +527,7 @@ where
         if self.nrows() == 2 {
             // TODO: can we avoid this slicing
             // (which is needed here just to transform D to U2)?
-            let me = self.fixed_slice::<2, 2>(0, 0);
+            let me = self.fixed_view::<2, 2>(0, 0);
             return match compute_2x2_eigvals(&me) {
                 Some((a, b)) => {
                     work[0] = a;

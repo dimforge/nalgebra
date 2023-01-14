@@ -106,7 +106,7 @@ where
 
     #[inline]
     fn is_in_subset(m: &OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>) -> bool {
-        let mut rot = m.fixed_slice::<D, D>(0, 0).clone_owned();
+        let mut rot = m.fixed_view::<D, D>(0, 0).clone_owned();
         if rot
             .fixed_columns_mut::<1>(0)
             .try_normalize_mut(T2::zero())
@@ -128,7 +128,7 @@ where
                 rot.fixed_columns_mut::<1>(2).neg_mut();
             }
 
-            let bottom = m.fixed_slice::<1, D>(D, 0);
+            let bottom = m.fixed_view::<1, D>(D, 0);
             // Scalar types agree.
             m.iter().all(|e| SupersetOf::<T1>::is_in_subset(e)) &&
             // The normalized block part is a rotation.
@@ -145,22 +145,22 @@ where
         m: &OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     ) -> Self {
         let mut mm = m.clone_owned();
-        let na = mm.fixed_slice_mut::<D, 1>(0, 0).normalize_mut();
-        let nb = mm.fixed_slice_mut::<D, 1>(0, 1).normalize_mut();
-        let nc = mm.fixed_slice_mut::<D, 1>(0, 2).normalize_mut();
+        let na = mm.fixed_view_mut::<D, 1>(0, 0).normalize_mut();
+        let nb = mm.fixed_view_mut::<D, 1>(0, 1).normalize_mut();
+        let nc = mm.fixed_view_mut::<D, 1>(0, 2).normalize_mut();
 
         let mut scale = (na + nb + nc) / crate::convert(3.0); // We take the mean, for robustness.
 
         // TODO: could we avoid the explicit computation of the determinant?
         // (its sign is needed to see if the scaling factor is negative).
-        if mm.fixed_slice::<D, D>(0, 0).determinant() < T2::zero() {
-            mm.fixed_slice_mut::<D, 1>(0, 0).neg_mut();
-            mm.fixed_slice_mut::<D, 1>(0, 1).neg_mut();
-            mm.fixed_slice_mut::<D, 1>(0, 2).neg_mut();
+        if mm.fixed_view::<D, D>(0, 0).determinant() < T2::zero() {
+            mm.fixed_view_mut::<D, 1>(0, 0).neg_mut();
+            mm.fixed_view_mut::<D, 1>(0, 1).neg_mut();
+            mm.fixed_view_mut::<D, 1>(0, 2).neg_mut();
             scale = -scale;
         }
 
-        let t = m.fixed_slice::<D, 1>(0, D).into_owned();
+        let t = m.fixed_view::<D, 1>(0, D).into_owned();
         let t = Translation {
             vector: crate::convert_unchecked(t),
         };

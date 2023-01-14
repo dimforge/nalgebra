@@ -34,11 +34,19 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
                        DefaultAllocator: Allocator<T, Const<D>>,
                        Owned<T, Const<D>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Similarity<T::Archived, R::Archived, D>",
+        bound(archive = "
+        T: rkyv::Archive,
+        R: rkyv::Archive,
+        Isometry<T, R, D>: rkyv::Archive<Archived = Isometry<T::Archived, R::Archived, D>>
+    ")
+    )
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Similarity<T, R, const D: usize> {
     /// The part of this similarity that does not include the scaling factor.
     pub isometry: Isometry<T, R, D>,
@@ -301,7 +309,7 @@ impl<T: SimdRealField, R, const D: usize> Similarity<T, R, D> {
     {
         let mut res = self.isometry.to_homogeneous();
 
-        for e in res.fixed_slice_mut::<D, D>(0, 0).iter_mut() {
+        for e in res.fixed_view_mut::<D, D>(0, 0).iter_mut() {
             *e *= self.scaling.clone()
         }
 

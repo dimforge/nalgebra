@@ -1066,43 +1066,43 @@ fn partial_eq_different_types() {
     let static_mat = Matrix2x4::new(1, 2, 3, 4, 5, 6, 7, 8);
 
     let mut typenum_static_mat = OMatrix::<u8, Const<1024>, Const<4>>::zeros();
-    let mut slice = typenum_static_mat.slice_mut((0, 0), (2, 4));
-    slice += static_mat;
+    let mut view = typenum_static_mat.view_mut((0, 0), (2, 4));
+    view += static_mat;
 
-    let fslice_of_dmat = dynamic_mat.fixed_slice::<2, 2>(0, 0);
-    let dslice_of_dmat = dynamic_mat.slice((0, 0), (2, 2));
-    let fslice_of_smat = static_mat.fixed_slice::<2, 2>(0, 0);
-    let dslice_of_smat = static_mat.slice((0, 0), (2, 2));
+    let fview_of_dmat = dynamic_mat.fixed_view::<2, 2>(0, 0);
+    let dview_of_dmat = dynamic_mat.view((0, 0), (2, 2));
+    let fview_of_smat = static_mat.fixed_view::<2, 2>(0, 0);
+    let dview_of_smat = static_mat.view((0, 0), (2, 2));
 
     assert_eq!(dynamic_mat, static_mat);
     assert_eq!(static_mat, dynamic_mat);
 
-    assert_eq!(dynamic_mat, slice);
-    assert_eq!(slice, dynamic_mat);
+    assert_eq!(dynamic_mat, view);
+    assert_eq!(view, dynamic_mat);
 
-    assert_eq!(static_mat, slice);
-    assert_eq!(slice, static_mat);
+    assert_eq!(static_mat, view);
+    assert_eq!(view, static_mat);
 
-    assert_eq!(fslice_of_dmat, dslice_of_dmat);
-    assert_eq!(dslice_of_dmat, fslice_of_dmat);
+    assert_eq!(fview_of_dmat, dview_of_dmat);
+    assert_eq!(dview_of_dmat, fview_of_dmat);
 
-    assert_eq!(fslice_of_dmat, fslice_of_smat);
-    assert_eq!(fslice_of_smat, fslice_of_dmat);
+    assert_eq!(fview_of_dmat, fview_of_smat);
+    assert_eq!(fview_of_smat, fview_of_dmat);
 
-    assert_eq!(fslice_of_dmat, dslice_of_smat);
-    assert_eq!(dslice_of_smat, fslice_of_dmat);
+    assert_eq!(fview_of_dmat, dview_of_smat);
+    assert_eq!(dview_of_smat, fview_of_dmat);
 
-    assert_eq!(dslice_of_dmat, fslice_of_smat);
-    assert_eq!(fslice_of_smat, dslice_of_dmat);
+    assert_eq!(dview_of_dmat, fview_of_smat);
+    assert_eq!(fview_of_smat, dview_of_dmat);
 
-    assert_eq!(dslice_of_dmat, dslice_of_smat);
-    assert_eq!(dslice_of_smat, dslice_of_dmat);
+    assert_eq!(dview_of_dmat, dview_of_smat);
+    assert_eq!(dview_of_smat, dview_of_dmat);
 
-    assert_eq!(fslice_of_smat, dslice_of_smat);
-    assert_eq!(dslice_of_smat, fslice_of_smat);
+    assert_eq!(fview_of_smat, dview_of_smat);
+    assert_eq!(dview_of_smat, fview_of_smat);
 
-    assert_ne!(dynamic_mat, dslice_of_smat);
-    assert_ne!(dslice_of_smat, dynamic_mat);
+    assert_ne!(dynamic_mat, dview_of_smat);
+    assert_ne!(dview_of_smat, dynamic_mat);
 
     // TODO - implement those comparisons
     // assert_ne!(static_mat, typenum_static_mat);
@@ -1135,4 +1135,154 @@ fn omatrix_to_string() {
         generic_omatrix_to_string(&svec, &smatr),
         (svec.to_string(), smatr.to_string())
     );
+}
+
+#[test]
+fn column_iteration() {
+    // dynamic matrix
+    let dmat = nalgebra::dmatrix![
+    13,14,15;
+    23,24,25;
+    33,34,35;
+    ];
+    let mut col_iter = dmat.column_iter();
+    assert_eq!(col_iter.next(), Some(dmat.column(0)));
+    assert_eq!(col_iter.next(), Some(dmat.column(1)));
+    assert_eq!(col_iter.next(), Some(dmat.column(2)));
+    assert_eq!(col_iter.next(), None);
+
+    // statically sized matrix
+    let smat: nalgebra::SMatrix<f64, 2, 2> = nalgebra::matrix![1.0, 2.0; 3.0, 4.0];
+    let mut col_iter = smat.column_iter();
+    assert_eq!(col_iter.next(), Some(smat.column(0)));
+    assert_eq!(col_iter.next(), Some(smat.column(1)));
+    assert_eq!(col_iter.next(), None);
+}
+
+#[test]
+fn column_iteration_mut() {
+    let mut dmat = nalgebra::dmatrix![
+    13,14,15;
+    23,24,25;
+    33,34,35;
+    ];
+    let mut cloned = dmat.clone();
+    let mut col_iter = dmat.column_iter_mut();
+    assert_eq!(col_iter.next(), Some(cloned.column_mut(0)));
+    assert_eq!(col_iter.next(), Some(cloned.column_mut(1)));
+    assert_eq!(col_iter.next(), Some(cloned.column_mut(2)));
+    assert_eq!(col_iter.next(), None);
+
+    // statically sized matrix
+    let mut smat: nalgebra::SMatrix<f64, 2, 2> = nalgebra::matrix![1.0, 2.0; 3.0, 4.0];
+    let mut cloned = smat.clone();
+    let mut col_iter = smat.column_iter_mut();
+    assert_eq!(col_iter.next(), Some(cloned.column_mut(0)));
+    assert_eq!(col_iter.next(), Some(cloned.column_mut(1)));
+    assert_eq!(col_iter.next(), None);
+}
+
+#[test]
+fn column_iteration_double_ended() {
+    let dmat = nalgebra::dmatrix![
+    13,14,15,16,17;
+    23,24,25,26,27;
+    33,34,35,36,37;
+    ];
+    let mut col_iter = dmat.column_iter();
+    assert_eq!(col_iter.next(), Some(dmat.column(0)));
+    assert_eq!(col_iter.next(), Some(dmat.column(1)));
+    assert_eq!(col_iter.next_back(), Some(dmat.column(4)));
+    assert_eq!(col_iter.next_back(), Some(dmat.column(3)));
+    assert_eq!(col_iter.next(), Some(dmat.column(2)));
+    assert_eq!(col_iter.next_back(), None);
+    assert_eq!(col_iter.next(), None);
+}
+
+#[test]
+fn column_iterator_double_ended_mut() {
+    let mut dmat = nalgebra::dmatrix![
+    13,14,15,16,17;
+    23,24,25,26,27;
+    33,34,35,36,37;
+    ];
+    let mut cloned = dmat.clone();
+    let mut col_iter_mut = dmat.column_iter_mut();
+    assert_eq!(col_iter_mut.next(), Some(cloned.column_mut(0)));
+    assert_eq!(col_iter_mut.next(), Some(cloned.column_mut(1)));
+    assert_eq!(col_iter_mut.next_back(), Some(cloned.column_mut(4)));
+    assert_eq!(col_iter_mut.next_back(), Some(cloned.column_mut(3)));
+    assert_eq!(col_iter_mut.next(), Some(cloned.column_mut(2)));
+    assert_eq!(col_iter_mut.next_back(), None);
+    assert_eq!(col_iter_mut.next(), None);
+}
+
+#[test]
+#[cfg(feature = "rayon")]
+fn parallel_column_iteration() {
+    use nalgebra::dmatrix;
+    use rayon::prelude::*;
+    let dmat: DMatrix<f64> = dmatrix![
+    13.,14.;
+    23.,24.;
+    33.,34.;
+    ];
+    let cloned = dmat.clone();
+    // test that correct columns are iterated over
+    dmat.par_column_iter().enumerate().for_each(|(idx, col)| {
+        assert_eq!(col, cloned.column(idx));
+    });
+    // test that a more complex expression produces the same
+    // result as the serial equivalent
+    let par_result: f64 = dmat.par_column_iter().map(|col| col.norm()).sum();
+    let ser_result: f64 = dmat.column_iter().map(|col| col.norm()).sum();
+    assert_eq!(par_result, ser_result);
+
+    // repeat this test using mutable iterators
+    let mut dmat = dmat;
+    dmat.par_column_iter_mut()
+        .enumerate()
+        .for_each(|(idx, col)| {
+            assert_eq!(col, cloned.column(idx));
+        });
+
+    let par_mut_result: f64 = dmat.par_column_iter_mut().map(|col| col.norm()).sum();
+    assert_eq!(par_mut_result, ser_result);
+}
+
+#[test]
+#[cfg(feature = "rayon")]
+fn column_iteration_mut_double_ended() {
+    let dmat = nalgebra::dmatrix![
+    13,14,15,16,17;
+    23,24,25,26,27;
+    33,34,35,36,37;
+    ];
+    let cloned = dmat.clone();
+    let mut col_iter = dmat.column_iter();
+    assert_eq!(col_iter.next(), Some(cloned.column(0)));
+    assert_eq!(col_iter.next(), Some(cloned.column(1)));
+    assert_eq!(col_iter.next_back(), Some(cloned.column(4)));
+    assert_eq!(col_iter.next_back(), Some(cloned.column(3)));
+    assert_eq!(col_iter.next(), Some(cloned.column(2)));
+    assert_eq!(col_iter.next_back(), None);
+    assert_eq!(col_iter.next(), None);
+}
+
+#[test]
+#[cfg(feature = "rayon")]
+fn parallel_column_iteration_mut() {
+    use rayon::prelude::*;
+    let mut first = DMatrix::<f32>::zeros(400, 300);
+    let mut second = DMatrix::<f32>::zeros(400, 300);
+    first
+        .column_iter_mut()
+        .enumerate()
+        .for_each(|(idx, mut col)| col[idx] = 1.);
+    second
+        .par_column_iter_mut()
+        .enumerate()
+        .for_each(|(idx, mut col)| col[idx] = 1.);
+    assert_eq!(first, second);
+    assert_eq!(second, DMatrix::identity(400, 300));
 }

@@ -21,11 +21,17 @@ use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealF
 /// in their documentation, read their dedicated pages directly.
 #[repr(transparent)]
 #[derive(Clone, Hash, Copy)]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Unit<T::Archived>",
+        bound(archive = "
+        T: rkyv::Archive,
+    ")
+    )
 )]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 // #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Unit<T> {
     pub(crate) value: T,

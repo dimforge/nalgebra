@@ -7,7 +7,7 @@ use na::{
     RowVector5, RowVector6, Similarity3, Transform3, UnitQuaternion, Vector1, Vector2, Vector3,
     Vector4, Vector5, Vector6,
 };
-use na::{DMatrix, DMatrixSlice, DMatrixSliceMut, MatrixSlice, MatrixSliceMut};
+use na::{DMatrix, DMatrixView, DMatrixViewMut, MatrixView, MatrixViewMut};
 use na::{U1, U3, U4};
 
 use crate::proptest::*;
@@ -266,24 +266,24 @@ fn matrix_slice_from_matrix_ref() {
     // Note: these have to be macros, and not functions, because the input type is different
     // across the different tests. Moreover, the output type depends on the stride of the input,
     // which is different for static and dynamic matrices.
-    macro_rules! dynamic_slice {
+    macro_rules! dynamic_view {
         ($mref:expr) => {
-            DMatrixSlice::<_>::from($mref)
+            DMatrixView::<_>::from($mref)
         };
     }
-    macro_rules! dynamic_slice_mut {
+    macro_rules! dynamic_view_mut {
         ($mref:expr) => {
-            DMatrixSliceMut::<_>::from($mref)
+            DMatrixViewMut::<_>::from($mref)
         };
     }
-    macro_rules! fixed_slice {
+    macro_rules! fixed_view {
         ($mref:expr) => {
-            MatrixSlice::<_, U3, U4, U1, U3>::from($mref)
+            MatrixView::<_, U3, U4, U1, U3>::from($mref)
         };
     }
-    macro_rules! fixed_slice_mut {
+    macro_rules! fixed_view_mut {
         ($mref:expr) => {
-            MatrixSliceMut::<_, U3, U4, U1, U3>::from($mref)
+            MatrixViewMut::<_, U3, U4, U1, U3>::from($mref)
         };
     }
 
@@ -291,66 +291,66 @@ fn matrix_slice_from_matrix_ref() {
     // Self and RHS. See issue #674. Once this is implemented, we can remove `into_owned`
     // from the below tests.
 
-    // Construct slices from reference to a
+    // Construct views from reference to a
     {
-        assert_eq!(a, fixed_slice!(&a).into_owned());
-        assert_eq!(d, dynamic_slice!(&a).into_owned());
+        assert_eq!(a, fixed_view!(&a).into_owned());
+        assert_eq!(d, dynamic_view!(&a).into_owned());
     }
 
-    // Construct slices from mutable reference to a
+    // Construct views from mutable reference to a
     {
         let mut a_clone = a.clone();
-        assert_eq!(a, fixed_slice!(&mut a_clone).into_owned());
-        assert_eq!(d, dynamic_slice!(&mut a_clone).into_owned());
+        assert_eq!(a, fixed_view!(&mut a_clone).into_owned());
+        assert_eq!(d, dynamic_view!(&mut a_clone).into_owned());
     }
 
     // Construct mutable slices from mutable reference to a
     {
         let mut a_clone = a.clone();
-        assert_eq!(a, fixed_slice_mut!(&mut a_clone).into_owned());
-        assert_eq!(d, dynamic_slice_mut!(&mut a_clone).into_owned());
+        assert_eq!(a, fixed_view_mut!(&mut a_clone).into_owned());
+        assert_eq!(d, dynamic_view_mut!(&mut a_clone).into_owned());
     }
 
     // Construct slices from reference to d
     {
-        assert_eq!(a, fixed_slice!(&d).into_owned());
-        assert_eq!(d, dynamic_slice!(&d).into_owned());
+        assert_eq!(a, fixed_view!(&d).into_owned());
+        assert_eq!(d, dynamic_view!(&d).into_owned());
     }
 
     // Construct slices from mutable reference to d
     {
         let mut d_clone = a.clone();
-        assert_eq!(a, fixed_slice!(&mut d_clone).into_owned());
-        assert_eq!(d, dynamic_slice!(&mut d_clone).into_owned());
+        assert_eq!(a, fixed_view!(&mut d_clone).into_owned());
+        assert_eq!(d, dynamic_view!(&mut d_clone).into_owned());
     }
 
     // Construct mutable slices from mutable reference to d
     {
         let mut d_clone = d.clone();
-        assert_eq!(a, fixed_slice_mut!(&mut d_clone).into_owned());
-        assert_eq!(d, dynamic_slice_mut!(&mut d_clone).into_owned());
+        assert_eq!(a, fixed_view_mut!(&mut d_clone).into_owned());
+        assert_eq!(d, dynamic_view_mut!(&mut d_clone).into_owned());
     }
 
     // Construct slices from a slice of a
     {
-        let mut a_slice = fixed_slice!(&a);
-        assert_eq!(a, fixed_slice!(&a_slice).into_owned());
-        assert_eq!(a, fixed_slice!(&mut a_slice).into_owned());
-        assert_eq!(d, dynamic_slice!(&a_slice).into_owned());
-        assert_eq!(d, dynamic_slice!(&mut a_slice).into_owned());
+        let mut a_slice = fixed_view!(&a);
+        assert_eq!(a, fixed_view!(&a_slice).into_owned());
+        assert_eq!(a, fixed_view!(&mut a_slice).into_owned());
+        assert_eq!(d, dynamic_view!(&a_slice).into_owned());
+        assert_eq!(d, dynamic_view!(&mut a_slice).into_owned());
     }
 
     // Construct slices from a slice mut of a
     {
         // Need a clone of a here, so that we can both have a mutable borrow and compare equality
         let mut a_clone = a.clone();
-        let mut a_slice = fixed_slice_mut!(&mut a_clone);
+        let mut a_slice = fixed_view_mut!(&mut a_clone);
 
-        assert_eq!(a, fixed_slice!(&a_slice).into_owned());
-        assert_eq!(a, fixed_slice!(&mut a_slice).into_owned());
-        assert_eq!(d, dynamic_slice!(&a_slice).into_owned());
-        assert_eq!(d, dynamic_slice!(&mut a_slice).into_owned());
-        assert_eq!(a, fixed_slice_mut!(&mut a_slice).into_owned());
-        assert_eq!(d, dynamic_slice_mut!(&mut a_slice).into_owned());
+        assert_eq!(a, fixed_view!(&a_slice).into_owned());
+        assert_eq!(a, fixed_view!(&mut a_slice).into_owned());
+        assert_eq!(d, dynamic_view!(&a_slice).into_owned());
+        assert_eq!(d, dynamic_view!(&mut a_slice).into_owned());
+        assert_eq!(a, fixed_view_mut!(&mut a_slice).into_owned());
+        assert_eq!(d, dynamic_view_mut!(&mut a_slice).into_owned());
     }
 }

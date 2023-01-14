@@ -14,7 +14,7 @@ use simba::simd::{SimdBool, SimdOption, SimdRealField};
 use crate::base::dimension::{U1, U3, U4};
 use crate::base::storage::{CStride, RStride};
 use crate::base::{
-    Matrix3, Matrix4, MatrixSlice, MatrixSliceMut, Normed, Scalar, Unit, Vector3, Vector4,
+    Matrix3, Matrix4, MatrixView, MatrixViewMut, Normed, Scalar, Unit, Vector3, Vector4,
 };
 
 use crate::geometry::{Point3, Rotation};
@@ -23,11 +23,18 @@ use crate::geometry::{Point3, Rotation};
 /// that may be used as a rotation.
 #[repr(C)]
 #[derive(Copy, Clone)]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Quaternion<T::Archived>",
+        bound(archive = "
+            T: rkyv::Archive,
+            Vector4<T>: rkyv::Archive<Archived = Vector4<T::Archived>>
+        ")
+    )
 )]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
@@ -188,7 +195,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn vector(&self) -> MatrixSlice<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
+    pub fn vector(&self) -> MatrixView<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
         self.coords.fixed_rows::<3>(0)
     }
 
@@ -581,7 +588,7 @@ where
     #[inline]
     pub fn vector_mut(
         &mut self,
-    ) -> MatrixSliceMut<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
+    ) -> MatrixViewMut<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
         self.coords.fixed_rows_mut::<3>(0)
     }
 
@@ -1320,7 +1327,7 @@ where
         }
     }
 
-    /// The rotation axis and angle in ]0, pi] of this unit quaternion.
+    /// The rotation axis and angle in (0, pi] of this unit quaternion.
     ///
     /// Returns `None` if the angle is zero.
     ///

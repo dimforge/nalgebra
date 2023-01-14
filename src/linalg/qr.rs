@@ -116,11 +116,11 @@ where
         let dim = self.diag.len();
 
         for i in (0..dim).rev() {
-            let axis = self.qr.slice_range(i.., i);
+            let axis = self.qr.view_range(i.., i);
             // TODO: sometimes, the axis might have a zero magnitude.
             let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
-            let mut res_rows = res.slice_range_mut(i.., i..);
+            let mut res_rows = res.view_range_mut(i.., i..);
             refl.reflect_with_sign(&mut res_rows, self.diag[i].clone().signum());
         }
 
@@ -161,7 +161,7 @@ where
         let dim = self.diag.len();
 
         for i in 0..dim {
-            let axis = self.qr.slice_range(i.., i);
+            let axis = self.qr.view_range(i.., i);
             let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
             let mut rhs_rows = rhs.rows_range_mut(i..);
@@ -247,7 +247,7 @@ where
                 }
 
                 b.rows_range_mut(..i)
-                    .axpy(-coeff, &self.qr.slice_range(..i, i), T::one());
+                    .axpy(-coeff, &self.qr.view_range(..i, i), T::one());
             }
         }
 

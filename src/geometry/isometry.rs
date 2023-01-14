@@ -21,6 +21,7 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 /// A 2D isometry is composed of:
 /// - A translation part of type [`Translation2`](crate::Translation2)
 /// - A rotation part which can either be a [`UnitComplex`](crate::UnitComplex) or a [`Rotation2`](crate::Rotation2).
+///
 /// A 3D isometry is composed of:
 /// - A translation part of type [`Translation3`](crate::Translation3)
 /// - A rotation part which can either be a [`UnitQuaternion`](crate::UnitQuaternion) or a [`Rotation3`](crate::Rotation3).
@@ -66,11 +67,19 @@ use crate::geometry::{AbstractRotation, Point, Translation};
                        Owned<T, Const<D>>: Deserialize<'de>,
                        T: Scalar"))
 )]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Isometry<T::Archived, R::Archived, D>",
+        bound(archive = "
+        T: rkyv::Archive,
+        R: rkyv::Archive,
+        Translation<T, D>: rkyv::Archive<Archived = Translation<T::Archived, D>>
+    ")
+    )
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Isometry<T, R, const D: usize> {
     /// The pure rotational part of this isometry.
     pub rotation: R,
@@ -425,7 +434,7 @@ impl<T: SimdRealField, R, const D: usize> Isometry<T, R, D> {
         DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         let mut res: OMatrix<T, _, _> = crate::convert_ref(&self.rotation);
-        res.fixed_slice_mut::<D, 1>(0, D)
+        res.fixed_view_mut::<D, 1>(0, D)
             .copy_from(&self.translation.vector);
 
         res

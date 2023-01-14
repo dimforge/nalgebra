@@ -7,7 +7,7 @@ pub fn proj2d<T: Number>(m: &TMat3<T>, normal: &TVec2<T>) -> TMat3<T> {
     let mut res = TMat3::identity();
 
     {
-        let mut part = res.fixed_slice_mut::<2, 2>(0, 0);
+        let mut part = res.fixed_view_mut::<2, 2>(0, 0);
         part -= normal * normal.transpose();
     }
 
@@ -19,7 +19,7 @@ pub fn proj<T: Number>(m: &TMat4<T>, normal: &TVec3<T>) -> TMat4<T> {
     let mut res = TMat4::identity();
 
     {
-        let mut part = res.fixed_slice_mut::<3, 3>(0, 0);
+        let mut part = res.fixed_view_mut::<3, 3>(0, 0);
         part -= normal * normal.transpose();
     }
 
@@ -31,7 +31,7 @@ pub fn reflect2d<T: RealNumber>(m: &TMat3<T>, normal: &TVec2<T>) -> TMat3<T> {
     let mut res = TMat3::identity();
 
     {
-        let mut part = res.fixed_slice_mut::<2, 2>(0, 0);
+        let mut part = res.fixed_view_mut::<2, 2>(0, 0);
         part -= (normal * T::from_subset(&2.0)) * normal.transpose();
     }
 
@@ -43,7 +43,7 @@ pub fn reflect<T: RealNumber>(m: &TMat4<T>, normal: &TVec3<T>) -> TMat4<T> {
     let mut res = TMat4::identity();
 
     {
-        let mut part = res.fixed_slice_mut::<3, 3>(0, 0);
+        let mut part = res.fixed_view_mut::<3, 3>(0, 0);
         part -= (normal * T::from_subset(&2.0)) * normal.transpose();
     }
 

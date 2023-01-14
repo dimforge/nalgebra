@@ -9,21 +9,21 @@ use simba::simd::{PrimitiveSimdValue, SimdValue};
 use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::dimension::Dynamic;
+use crate::base::dimension::Dyn;
 use crate::base::dimension::{
     Const, Dim, DimName, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
 };
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::storage::{IsContiguous, RawStorage, RawStorageMut};
 use crate::base::{
-    ArrayStorage, DVectorSlice, DVectorSliceMut, DefaultAllocator, Matrix, MatrixSlice,
-    MatrixSliceMut, OMatrix, Scalar,
+    ArrayStorage, DVectorView, DVectorViewMut, DefaultAllocator, Matrix, MatrixView, MatrixViewMut,
+    OMatrix, Scalar,
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::{DVector, RowDVector, VecStorage};
-use crate::base::{SliceStorage, SliceStorageMut};
+use crate::base::{ViewStorage, ViewStorageMut};
 use crate::constraint::DimEq;
-use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector, VectorSlice, VectorSliceMut};
+use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector, VectorView, VectorViewMut};
 use std::mem::MaybeUninit;
 
 // TODO: too bad this won't work for slice conversions.
@@ -126,19 +126,19 @@ impl<T: Scalar, const D: usize> From<SVector<T, D>> for [T; D] {
 }
 
 impl<'a, T: Scalar, RStride: Dim, CStride: Dim, const D: usize>
-    From<VectorSlice<'a, T, Const<D>, RStride, CStride>> for [T; D]
+    From<VectorView<'a, T, Const<D>, RStride, CStride>> for [T; D]
 {
     #[inline]
-    fn from(vec: VectorSlice<'a, T, Const<D>, RStride, CStride>) -> Self {
+    fn from(vec: VectorView<'a, T, Const<D>, RStride, CStride>) -> Self {
         vec.into_owned().into()
     }
 }
 
 impl<'a, T: Scalar, RStride: Dim, CStride: Dim, const D: usize>
-    From<VectorSliceMut<'a, T, Const<D>, RStride, CStride>> for [T; D]
+    From<VectorViewMut<'a, T, Const<D>, RStride, CStride>> for [T; D]
 {
     #[inline]
-    fn from(vec: VectorSliceMut<'a, T, Const<D>, RStride, CStride>) -> Self {
+    fn from(vec: VectorViewMut<'a, T, Const<D>, RStride, CStride>) -> Self {
         vec.into_owned().into()
     }
 }
@@ -221,19 +221,19 @@ impl<T: Scalar, const R: usize, const C: usize> From<SMatrix<T, R, C>> for [[T; 
 }
 
 impl<'a, T: Scalar, RStride: Dim, CStride: Dim, const R: usize, const C: usize>
-    From<MatrixSlice<'a, T, Const<R>, Const<C>, RStride, CStride>> for [[T; R]; C]
+    From<MatrixView<'a, T, Const<R>, Const<C>, RStride, CStride>> for [[T; R]; C]
 {
     #[inline]
-    fn from(mat: MatrixSlice<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
+    fn from(mat: MatrixView<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
         mat.into_owned().into()
     }
 }
 
 impl<'a, T: Scalar, RStride: Dim, CStride: Dim, const R: usize, const C: usize>
-    From<MatrixSliceMut<'a, T, Const<R>, Const<C>, RStride, CStride>> for [[T; R]; C]
+    From<MatrixViewMut<'a, T, Const<R>, Const<C>, RStride, CStride>> for [[T; R]; C]
 {
     #[inline]
-    fn from(mat: MatrixSliceMut<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
+    fn from(mat: MatrixViewMut<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
         mat.into_owned().into()
     }
 }
@@ -289,192 +289,183 @@ impl_from_into_asref_borrow_2D!(
 );
 
 impl<'a, T, RStride, CStride, const R: usize, const C: usize>
-    From<MatrixSlice<'a, T, Const<R>, Const<C>, RStride, CStride>>
+    From<MatrixView<'a, T, Const<R>, Const<C>, RStride, CStride>>
     for Matrix<T, Const<R>, Const<C>, ArrayStorage<T, R, C>>
 where
     T: Scalar,
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixSlice<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
-        matrix_slice.into_owned()
+    fn from(matrix_view: MatrixView<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
+        matrix_view.into_owned()
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T, C, RStride, CStride> From<MatrixSlice<'a, T, Dynamic, C, RStride, CStride>>
-    for Matrix<T, Dynamic, C, VecStorage<T, Dynamic, C>>
+impl<'a, T, C, RStride, CStride> From<MatrixView<'a, T, Dyn, C, RStride, CStride>>
+    for Matrix<T, Dyn, C, VecStorage<T, Dyn, C>>
 where
     T: Scalar,
     C: Dim,
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixSlice<'a, T, Dynamic, C, RStride, CStride>) -> Self {
-        matrix_slice.into_owned()
+    fn from(matrix_view: MatrixView<'a, T, Dyn, C, RStride, CStride>) -> Self {
+        matrix_view.into_owned()
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T, R, RStride, CStride> From<MatrixSlice<'a, T, R, Dynamic, RStride, CStride>>
-    for Matrix<T, R, Dynamic, VecStorage<T, R, Dynamic>>
+impl<'a, T, R, RStride, CStride> From<MatrixView<'a, T, R, Dyn, RStride, CStride>>
+    for Matrix<T, R, Dyn, VecStorage<T, R, Dyn>>
 where
     T: Scalar,
     R: DimName,
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixSlice<'a, T, R, Dynamic, RStride, CStride>) -> Self {
-        matrix_slice.into_owned()
+    fn from(matrix_view: MatrixView<'a, T, R, Dyn, RStride, CStride>) -> Self {
+        matrix_view.into_owned()
     }
 }
 
 impl<'a, T, RStride, CStride, const R: usize, const C: usize>
-    From<MatrixSliceMut<'a, T, Const<R>, Const<C>, RStride, CStride>>
+    From<MatrixViewMut<'a, T, Const<R>, Const<C>, RStride, CStride>>
     for Matrix<T, Const<R>, Const<C>, ArrayStorage<T, R, C>>
 where
     T: Scalar,
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixSliceMut<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
-        matrix_slice.into_owned()
+    fn from(matrix_view: MatrixViewMut<'a, T, Const<R>, Const<C>, RStride, CStride>) -> Self {
+        matrix_view.into_owned()
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T, C, RStride, CStride> From<MatrixSliceMut<'a, T, Dynamic, C, RStride, CStride>>
-    for Matrix<T, Dynamic, C, VecStorage<T, Dynamic, C>>
+impl<'a, T, C, RStride, CStride> From<MatrixViewMut<'a, T, Dyn, C, RStride, CStride>>
+    for Matrix<T, Dyn, C, VecStorage<T, Dyn, C>>
 where
     T: Scalar,
     C: Dim,
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixSliceMut<'a, T, Dynamic, C, RStride, CStride>) -> Self {
-        matrix_slice.into_owned()
+    fn from(matrix_view: MatrixViewMut<'a, T, Dyn, C, RStride, CStride>) -> Self {
+        matrix_view.into_owned()
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T, R, RStride, CStride> From<MatrixSliceMut<'a, T, R, Dynamic, RStride, CStride>>
-    for Matrix<T, R, Dynamic, VecStorage<T, R, Dynamic>>
+impl<'a, T, R, RStride, CStride> From<MatrixViewMut<'a, T, R, Dyn, RStride, CStride>>
+    for Matrix<T, R, Dyn, VecStorage<T, R, Dyn>>
 where
     T: Scalar,
     R: DimName,
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_slice: MatrixSliceMut<'a, T, R, Dynamic, RStride, CStride>) -> Self {
-        matrix_slice.into_owned()
+    fn from(matrix_view: MatrixViewMut<'a, T, R, Dyn, RStride, CStride>) -> Self {
+        matrix_view.into_owned()
     }
 }
 
-impl<'a, T, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a Matrix<T, R, C, S>>
-    for MatrixSlice<'a, T, RSlice, CSlice, RStride, CStride>
+impl<'a, T, R, C, RView, CView, RStride, CStride, S> From<&'a Matrix<T, R, C, S>>
+    for MatrixView<'a, T, RView, CView, RStride, CStride>
 where
-    T: Scalar,
     R: Dim,
     C: Dim,
-    RSlice: Dim,
-    CSlice: Dim,
+    RView: Dim,
+    CView: Dim,
     RStride: Dim,
     CStride: Dim,
     S: RawStorage<T, R, C>,
-    ShapeConstraint: DimEq<R, RSlice>
-        + DimEq<C, CSlice>
-        + DimEq<RStride, S::RStride>
-        + DimEq<CStride, S::CStride>,
+    ShapeConstraint:
+        DimEq<R, RView> + DimEq<C, CView> + DimEq<RStride, S::RStride> + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a Matrix<T, R, C, S>) -> Self {
         let (row, col) = m.shape_generic();
-        let row_slice = RSlice::from_usize(row.value());
-        let col_slice = CSlice::from_usize(col.value());
+        let rows_result = RView::from_usize(row.value());
+        let cols_result = CView::from_usize(col.value());
 
         let (rstride, cstride) = m.strides();
 
-        let rstride_slice = RStride::from_usize(rstride);
-        let cstride_slice = CStride::from_usize(cstride);
+        let rstride_result = RStride::from_usize(rstride);
+        let cstride_result = CStride::from_usize(cstride);
 
         unsafe {
-            let data = SliceStorage::from_raw_parts(
+            let data = ViewStorage::from_raw_parts(
                 m.data.ptr(),
-                (row_slice, col_slice),
-                (rstride_slice, cstride_slice),
+                (rows_result, cols_result),
+                (rstride_result, cstride_result),
             );
             Matrix::from_data_statically_unchecked(data)
         }
     }
 }
 
-impl<'a, T, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a mut Matrix<T, R, C, S>>
-    for MatrixSlice<'a, T, RSlice, CSlice, RStride, CStride>
+impl<'a, T, R, C, RView, CView, RStride, CStride, S> From<&'a mut Matrix<T, R, C, S>>
+    for MatrixView<'a, T, RView, CView, RStride, CStride>
 where
-    T: Scalar,
     R: Dim,
     C: Dim,
-    RSlice: Dim,
-    CSlice: Dim,
+    RView: Dim,
+    CView: Dim,
     RStride: Dim,
     CStride: Dim,
     S: RawStorage<T, R, C>,
-    ShapeConstraint: DimEq<R, RSlice>
-        + DimEq<C, CSlice>
-        + DimEq<RStride, S::RStride>
-        + DimEq<CStride, S::CStride>,
+    ShapeConstraint:
+        DimEq<R, RView> + DimEq<C, CView> + DimEq<RStride, S::RStride> + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a mut Matrix<T, R, C, S>) -> Self {
         let (row, col) = m.shape_generic();
-        let row_slice = RSlice::from_usize(row.value());
-        let col_slice = CSlice::from_usize(col.value());
+        let rows_result = RView::from_usize(row.value());
+        let cols_result = CView::from_usize(col.value());
 
         let (rstride, cstride) = m.strides();
 
-        let rstride_slice = RStride::from_usize(rstride);
-        let cstride_slice = CStride::from_usize(cstride);
+        let rstride_result = RStride::from_usize(rstride);
+        let cstride_result = CStride::from_usize(cstride);
 
         unsafe {
-            let data = SliceStorage::from_raw_parts(
+            let data = ViewStorage::from_raw_parts(
                 m.data.ptr(),
-                (row_slice, col_slice),
-                (rstride_slice, cstride_slice),
+                (rows_result, cols_result),
+                (rstride_result, cstride_result),
             );
             Matrix::from_data_statically_unchecked(data)
         }
     }
 }
 
-impl<'a, T, R, C, RSlice, CSlice, RStride, CStride, S> From<&'a mut Matrix<T, R, C, S>>
-    for MatrixSliceMut<'a, T, RSlice, CSlice, RStride, CStride>
+impl<'a, T, R, C, RView, CView, RStride, CStride, S> From<&'a mut Matrix<T, R, C, S>>
+    for MatrixViewMut<'a, T, RView, CView, RStride, CStride>
 where
-    T: Scalar,
     R: Dim,
     C: Dim,
-    RSlice: Dim,
-    CSlice: Dim,
+    RView: Dim,
+    CView: Dim,
     RStride: Dim,
     CStride: Dim,
     S: RawStorageMut<T, R, C>,
-    ShapeConstraint: DimEq<R, RSlice>
-        + DimEq<C, CSlice>
-        + DimEq<RStride, S::RStride>
-        + DimEq<CStride, S::CStride>,
+    ShapeConstraint:
+        DimEq<R, RView> + DimEq<C, CView> + DimEq<RStride, S::RStride> + DimEq<CStride, S::CStride>,
 {
     fn from(m: &'a mut Matrix<T, R, C, S>) -> Self {
         let (row, col) = m.shape_generic();
-        let row_slice = RSlice::from_usize(row.value());
-        let col_slice = CSlice::from_usize(col.value());
+        let rows_result = RView::from_usize(row.value());
+        let cols_result = CView::from_usize(col.value());
 
         let (rstride, cstride) = m.strides();
 
-        let rstride_slice = RStride::from_usize(rstride);
-        let cstride_slice = CStride::from_usize(cstride);
+        let rstride_result = RStride::from_usize(rstride);
+        let cstride_result = CStride::from_usize(cstride);
 
         unsafe {
-            let data = SliceStorageMut::from_raw_parts(
+            let data = ViewStorageMut::from_raw_parts(
                 m.data.ptr_mut(),
-                (row_slice, col_slice),
-                (rstride_slice, cstride_slice),
+                (rows_result, cols_result),
+                (rstride_result, cstride_result),
             );
             Matrix::from_data_statically_unchecked(data)
         }
@@ -515,28 +506,28 @@ impl<'a, T: Scalar + Copy, R: Dim, C: Dim, S: RawStorageMut<T, R, C> + IsContigu
     }
 }
 
-impl<'a, T: Scalar + Copy> From<&'a [T]> for DVectorSlice<'a, T> {
+impl<'a, T: Scalar + Copy> From<&'a [T]> for DVectorView<'a, T> {
     #[inline]
     fn from(slice: &'a [T]) -> Self {
         Self::from_slice(slice, slice.len())
     }
 }
 
-impl<'a, T: Scalar> From<DVectorSlice<'a, T>> for &'a [T] {
-    fn from(vec: DVectorSlice<'a, T>) -> &'a [T] {
+impl<'a, T: Scalar> From<DVectorView<'a, T>> for &'a [T] {
+    fn from(vec: DVectorView<'a, T>) -> &'a [T] {
         vec.data.into_slice()
     }
 }
 
-impl<'a, T: Scalar + Copy> From<&'a mut [T]> for DVectorSliceMut<'a, T> {
+impl<'a, T: Scalar + Copy> From<&'a mut [T]> for DVectorViewMut<'a, T> {
     #[inline]
     fn from(slice: &'a mut [T]) -> Self {
         Self::from_slice(slice, slice.len())
     }
 }
 
-impl<'a, T: Scalar> From<DVectorSliceMut<'a, T>> for &'a mut [T] {
-    fn from(vec: DVectorSliceMut<'a, T>) -> &'a mut [T] {
+impl<'a, T: Scalar> From<DVectorViewMut<'a, T>> for &'a mut [T] {
+    fn from(vec: DVectorViewMut<'a, T>) -> &'a mut [T] {
         vec.data.into_slice_mut()
     }
 }

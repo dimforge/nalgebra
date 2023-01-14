@@ -170,6 +170,16 @@ impl<T> CooMatrix<T> {
             .map(|((i, j), v)| (*i, *j, v))
     }
 
+    /// A mutable iterator over triplets (i, j, v).
+    // TODO: Consider giving the iterator a concrete type instead of impl trait...?
+    pub fn triplet_iter_mut(&mut self) -> impl Iterator<Item = (usize, usize, &mut T)> {
+        self.row_indices
+            .iter()
+            .zip(&self.col_indices)
+            .zip(self.values.iter_mut())
+            .map(|((i, j), v)| (*i, *j, v))
+    }
+
     /// Reserves capacity for COO matrix by at least `additional` elements.
     ///
     /// This increase the capacities of triplet holding arrays by reserving more space to avoid

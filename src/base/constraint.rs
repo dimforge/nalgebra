@@ -1,6 +1,6 @@
 //! Compatibility constraints between matrix shapes, e.g., for addition or multiplication.
 
-use crate::base::dimension::{Dim, DimName, Dynamic};
+use crate::base::dimension::{Dim, DimName, Dyn};
 
 /// A type used in `where` clauses for enforcing constraints.
 #[derive(Copy, Clone, Debug)]
@@ -25,11 +25,11 @@ impl<D: Dim> DimEq<D, D> for ShapeConstraint {
     type Representative = D;
 }
 
-impl<D: DimName> DimEq<D, Dynamic> for ShapeConstraint {
+impl<D: DimName> DimEq<D, Dyn> for ShapeConstraint {
     type Representative = D;
 }
 
-impl<D: DimName> DimEq<Dynamic, D> for ShapeConstraint {
+impl<D: DimName> DimEq<Dyn, D> for ShapeConstraint {
     type Representative = D;
 }
 
@@ -47,11 +47,11 @@ macro_rules! equality_trait_decl(
             type Representative = D;
         }
 
-        impl<D: DimName> $Trait<D, Dynamic> for ShapeConstraint {
+        impl<D: DimName> $Trait<D, Dyn> for ShapeConstraint {
             type Representative = D;
         }
 
-        impl<D: DimName> $Trait<Dynamic, D> for ShapeConstraint {
+        impl<D: DimName> $Trait<Dyn, D> for ShapeConstraint {
             type Representative = D;
         }
     )*}
@@ -82,10 +82,10 @@ impl<D: Dim> SameDimension<D, D> for ShapeConstraint {
     type Representative = D;
 }
 
-impl<D: DimName> SameDimension<D, Dynamic> for ShapeConstraint {
+impl<D: DimName> SameDimension<D, Dyn> for ShapeConstraint {
     type Representative = D;
 }
 
-impl<D: DimName> SameDimension<Dynamic, D> for ShapeConstraint {
+impl<D: DimName> SameDimension<Dyn, D> for ShapeConstraint {
     type Representative = D;
 }

@@ -7,7 +7,7 @@ use std::ptr;
 use crate::base::allocator::{Allocator, Reallocator};
 use crate::base::constraint::{DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::dimension::Dynamic;
+use crate::base::dimension::Dyn;
 use crate::base::dimension::{Const, Dim, DimAdd, DimDiff, DimMin, DimMinimum, DimSub, DimSum, U1};
 use crate::base::storage::{RawStorage, RawStorageMut, ReshapableStorage};
 use crate::base::{DefaultAllocator, Matrix, OMatrix, RowVector, Scalar, Vector};
@@ -48,15 +48,15 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Creates a new matrix by extracting the given set of rows from `self`.
     #[cfg(any(feature = "std", feature = "alloc"))]
     #[must_use]
-    pub fn select_rows<'a, I>(&self, irows: I) -> OMatrix<T, Dynamic, C>
+    pub fn select_rows<'a, I>(&self, irows: I) -> OMatrix<T, Dyn, C>
     where
         I: IntoIterator<Item = &'a usize>,
         I::IntoIter: ExactSizeIterator + Clone,
-        DefaultAllocator: Allocator<T, Dynamic, C>,
+        DefaultAllocator: Allocator<T, Dyn, C>,
     {
         let irows = irows.into_iter();
         let ncols = self.shape_generic().1;
-        let mut res = Matrix::uninit(Dynamic::new(irows.len()), ncols);
+        let mut res = Matrix::uninit(Dyn(irows.len()), ncols);
 
         // First, check that all the indices from irows are valid.
         // This will allow us to use unchecked access in the inner loop.
@@ -85,15 +85,15 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Creates a new matrix by extracting the given set of columns from `self`.
     #[cfg(any(feature = "std", feature = "alloc"))]
     #[must_use]
-    pub fn select_columns<'a, I>(&self, icols: I) -> OMatrix<T, R, Dynamic>
+    pub fn select_columns<'a, I>(&self, icols: I) -> OMatrix<T, R, Dyn>
     where
         I: IntoIterator<Item = &'a usize>,
         I::IntoIter: ExactSizeIterator,
-        DefaultAllocator: Allocator<T, R, Dynamic>,
+        DefaultAllocator: Allocator<T, R, Dyn>,
     {
         let icols = icols.into_iter();
         let nrows = self.shape_generic().0;
-        let mut res = Matrix::uninit(nrows, Dynamic::new(icols.len()));
+        let mut res = Matrix::uninit(nrows, Dyn(icols.len()));
 
         for (destination, source) in icols.enumerate() {
             // NOTE: this is basically a copy_frow but wrapping the values insnide of MaybeUninit.
@@ -359,10 +359,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Removes all columns in `indices`   
     #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn remove_columns_at(self, indices: &[usize]) -> OMatrix<T, R, Dynamic>
+    pub fn remove_columns_at(self, indices: &[usize]) -> OMatrix<T, R, Dyn>
     where
-        C: DimSub<Dynamic, Output = Dynamic>,
-        DefaultAllocator: Reallocator<T, R, C, R, Dynamic>,
+        C: DimSub<Dyn, Output = Dyn>,
+        DefaultAllocator: Reallocator<T, R, C, R, Dyn>,
     {
         let mut m = self.into_owned();
         let (nrows, ncols) = m.shape_generic();
@@ -400,7 +400,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         unsafe {
             let new_data = DefaultAllocator::reallocate_copy(
                 nrows,
-                ncols.sub(Dynamic::from_usize(offset)),
+                ncols.sub(Dyn::from_usize(offset)),
                 m.data,
             );
 
@@ -410,10 +410,10 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Removes all rows in `indices`   
     #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn remove_rows_at(self, indices: &[usize]) -> OMatrix<T, Dynamic, C>
+    pub fn remove_rows_at(self, indices: &[usize]) -> OMatrix<T, Dyn, C>
     where
-        R: DimSub<Dynamic, Output = Dynamic>,
-        DefaultAllocator: Reallocator<T, R, C, Dynamic, C>,
+        R: DimSub<Dyn, Output = Dyn>,
+        DefaultAllocator: Reallocator<T, R, C, Dyn, C>,
     {
         let mut m = self.into_owned();
         let (nrows, ncols) = m.shape_generic();
@@ -448,7 +448,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         //         be assumed to be initialized.
         unsafe {
             let new_data = DefaultAllocator::reallocate_copy(
-                nrows.sub(Dynamic::from_usize(offset / ncols.value())),
+                nrows.sub(Dyn::from_usize(offset / ncols.value())),
                 ncols,
                 m.data,
             );
@@ -474,12 +474,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Removes `n` consecutive columns from this matrix, starting with the `i`-th (included).
     #[inline]
     #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn remove_columns(self, i: usize, n: usize) -> OMatrix<T, R, Dynamic>
+    pub fn remove_columns(self, i: usize, n: usize) -> OMatrix<T, R, Dyn>
     where
-        C: DimSub<Dynamic, Output = Dynamic>,
-        DefaultAllocator: Reallocator<T, R, C, R, Dynamic>,
+        C: DimSub<Dyn, Output = Dyn>,
+        DefaultAllocator: Reallocator<T, R, C, R, Dyn>,
     {
-        self.remove_columns_generic(i, Dynamic::new(n))
+        self.remove_columns_generic(i, Dyn(n))
     }
 
     /// Removes `nremove.value()` columns from this matrix, starting with the `i`-th (included).
@@ -569,12 +569,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Removes `n` consecutive rows from this matrix, starting with the `i`-th (included).
     #[inline]
     #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn remove_rows(self, i: usize, n: usize) -> OMatrix<T, Dynamic, C>
+    pub fn remove_rows(self, i: usize, n: usize) -> OMatrix<T, Dyn, C>
     where
-        R: DimSub<Dynamic, Output = Dynamic>,
-        DefaultAllocator: Reallocator<T, R, C, Dynamic, C>,
+        R: DimSub<Dyn, Output = Dyn>,
+        DefaultAllocator: Reallocator<T, R, C, Dyn, C>,
     {
-        self.remove_rows_generic(i, Dynamic::new(n))
+        self.remove_rows_generic(i, Dyn(n))
     }
 
     /// Removes `nremove.value()` rows from this matrix, starting with the `i`-th (included).
@@ -659,12 +659,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Inserts `n` columns filled with `val` starting at the `i-th` position.
     #[inline]
     #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn insert_columns(self, i: usize, n: usize, val: T) -> OMatrix<T, R, Dynamic>
+    pub fn insert_columns(self, i: usize, n: usize, val: T) -> OMatrix<T, R, Dyn>
     where
-        C: DimAdd<Dynamic, Output = Dynamic>,
-        DefaultAllocator: Reallocator<T, R, C, R, Dynamic>,
+        C: DimAdd<Dyn, Output = Dyn>,
+        DefaultAllocator: Reallocator<T, R, C, R, Dyn>,
     {
-        let mut res = unsafe { self.insert_columns_generic_uninitialized(i, Dynamic::new(n)) };
+        let mut res = unsafe { self.insert_columns_generic_uninitialized(i, Dyn(n)) };
         res.columns_mut(i, n)
             .fill_with(|| MaybeUninit::new(val.clone()));
 
@@ -752,12 +752,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Inserts `n` rows filled with `val` starting at the `i-th` position.
     #[inline]
     #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn insert_rows(self, i: usize, n: usize, val: T) -> OMatrix<T, Dynamic, C>
+    pub fn insert_rows(self, i: usize, n: usize, val: T) -> OMatrix<T, Dyn, C>
     where
-        R: DimAdd<Dynamic, Output = Dynamic>,
-        DefaultAllocator: Reallocator<T, R, C, Dynamic, C>,
+        R: DimAdd<Dyn, Output = Dyn>,
+        DefaultAllocator: Reallocator<T, R, C, Dyn, C>,
     {
-        let mut res = unsafe { self.insert_rows_generic_uninitialized(i, Dynamic::new(n)) };
+        let mut res = unsafe { self.insert_rows_generic_uninitialized(i, Dyn(n)) };
         res.rows_mut(i, n)
             .fill_with(|| MaybeUninit::new(val.clone()));
 
@@ -815,11 +815,11 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
     /// rows and/or columns than `self`, then the extra rows or columns are filled with `val`.
     #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn resize(self, new_nrows: usize, new_ncols: usize, val: T) -> OMatrix<T, Dynamic, Dynamic>
+    pub fn resize(self, new_nrows: usize, new_ncols: usize, val: T) -> OMatrix<T, Dyn, Dyn>
     where
-        DefaultAllocator: Reallocator<T, R, C, Dynamic, Dynamic>,
+        DefaultAllocator: Reallocator<T, R, C, Dyn, Dyn>,
     {
-        self.resize_generic(Dynamic::new(new_nrows), Dynamic::new(new_ncols), val)
+        self.resize_generic(Dyn(new_nrows), Dyn(new_ncols), val)
     }
 
     /// Resizes this matrix vertically, i.e., so that it contains `new_nrows` rows while keeping the same number of columns.
@@ -827,12 +827,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
     /// rows than `self`, then the extra rows are filled with `val`.
     #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn resize_vertically(self, new_nrows: usize, val: T) -> OMatrix<T, Dynamic, C>
+    pub fn resize_vertically(self, new_nrows: usize, val: T) -> OMatrix<T, Dyn, C>
     where
-        DefaultAllocator: Reallocator<T, R, C, Dynamic, C>,
+        DefaultAllocator: Reallocator<T, R, C, Dyn, C>,
     {
         let ncols = self.shape_generic().1;
-        self.resize_generic(Dynamic::new(new_nrows), ncols, val)
+        self.resize_generic(Dyn(new_nrows), ncols, val)
     }
 
     /// Resizes this matrix horizontally, i.e., so that it contains `new_ncolumns` columns while keeping the same number of columns.
@@ -840,12 +840,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
     /// columns than `self`, then the extra columns are filled with `val`.
     #[cfg(any(feature = "std", feature = "alloc"))]
-    pub fn resize_horizontally(self, new_ncols: usize, val: T) -> OMatrix<T, R, Dynamic>
+    pub fn resize_horizontally(self, new_ncols: usize, val: T) -> OMatrix<T, R, Dyn>
     where
-        DefaultAllocator: Reallocator<T, R, C, R, Dynamic>,
+        DefaultAllocator: Reallocator<T, R, C, R, Dyn>,
     {
         let nrows = self.shape_generic().0;
-        self.resize_generic(nrows, Dynamic::new(new_ncols), val)
+        self.resize_generic(nrows, Dyn(new_ncols), val)
     }
 
     /// Resizes this matrix so that it contains `R2::value()` rows and `C2::value()` columns.
@@ -938,7 +938,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             }
 
             if new_nrows.value() > nrows {
-                res.slice_range_mut(nrows.., ..cmp::min(ncols, new_ncols.value()))
+                res.view_range_mut(nrows.., ..cmp::min(ncols, new_ncols.value()))
                     .fill_with(|| MaybeUninit::new(val.clone()));
             }
 
@@ -962,7 +962,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// # Examples
     ///
     /// ```
-    /// # use nalgebra::{Matrix3x2, Matrix2x3, DMatrix, Const, Dynamic};
+    /// # use nalgebra::{Matrix3x2, Matrix2x3, DMatrix, Const, Dyn};
     ///
     /// let m1 = Matrix2x3::new(
     ///     1.1, 1.2, 1.3,
@@ -998,7 +998,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     ///         0.0, 0.0,
     ///     ],
     /// );
-    /// let reshaped = dm1.reshape_generic(Dynamic::new(6), Dynamic::new(2));
+    /// let reshaped = dm1.reshape_generic(Dyn(6), Dyn(2));
     /// assert_eq!(reshaped, dm2);
     /// ```
     pub fn reshape_generic<R2, C2>(
@@ -1018,7 +1018,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
 /// # In-place resizing
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar> OMatrix<T, Dynamic, Dynamic> {
+impl<T: Scalar> OMatrix<T, Dyn, Dyn> {
     /// Resizes this matrix in-place.
     ///
     /// The values are copied such that `self[(i, j)] == result[(i, j)]`. If the result has more
@@ -1027,7 +1027,7 @@ impl<T: Scalar> OMatrix<T, Dynamic, Dynamic> {
     /// Defined only for owned fully-dynamic matrices, i.e., `DMatrix`.
     pub fn resize_mut(&mut self, new_nrows: usize, new_ncols: usize, val: T)
     where
-        DefaultAllocator: Reallocator<T, Dynamic, Dynamic, Dynamic, Dynamic>,
+        DefaultAllocator: Reallocator<T, Dyn, Dyn, Dyn, Dyn>,
     {
         // TODO: avoid the clone.
         *self = self.clone().resize(new_nrows, new_ncols, val);
@@ -1035,9 +1035,9 @@ impl<T: Scalar> OMatrix<T, Dynamic, Dynamic> {
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar, C: Dim> OMatrix<T, Dynamic, C>
+impl<T: Scalar, C: Dim> OMatrix<T, Dyn, C>
 where
-    DefaultAllocator: Allocator<T, Dynamic, C>,
+    DefaultAllocator: Allocator<T, Dyn, C>,
 {
     /// Changes the number of rows of this matrix in-place.
     ///
@@ -1048,7 +1048,7 @@ where
     #[cfg(any(feature = "std", feature = "alloc"))]
     pub fn resize_vertically_mut(&mut self, new_nrows: usize, val: T)
     where
-        DefaultAllocator: Reallocator<T, Dynamic, C, Dynamic, C>,
+        DefaultAllocator: Reallocator<T, Dyn, C, Dyn, C>,
     {
         // TODO: avoid the clone.
         *self = self.clone().resize_vertically(new_nrows, val);
@@ -1056,9 +1056,9 @@ where
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar, R: Dim> OMatrix<T, R, Dynamic>
+impl<T: Scalar, R: Dim> OMatrix<T, R, Dyn>
 where
-    DefaultAllocator: Allocator<T, R, Dynamic>,
+    DefaultAllocator: Allocator<T, R, Dyn>,
 {
     /// Changes the number of column of this matrix in-place.
     ///
@@ -1069,7 +1069,7 @@ where
     #[cfg(any(feature = "std", feature = "alloc"))]
     pub fn resize_horizontally_mut(&mut self, new_ncols: usize, val: T)
     where
-        DefaultAllocator: Reallocator<T, R, Dynamic, R, Dynamic>,
+        DefaultAllocator: Reallocator<T, R, Dyn, R, Dyn>,
     {
         // TODO: avoid the clone.
         *self = self.clone().resize_horizontally(new_ncols, val);
@@ -1167,7 +1167,7 @@ unsafe fn extend_rows<T>(data: &mut [T], nrows: usize, ncols: usize, i: usize, n
 /// Extend the number of columns of the `Matrix` with elements from
 /// a given iterator.
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, R, S> Extend<T> for Matrix<T, R, Dynamic, S>
+impl<T, R, S> Extend<T> for Matrix<T, R, Dyn, S>
 where
     T: Scalar,
     R: Dim,
@@ -1178,7 +1178,7 @@ where
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::{DMatrix, Dynamic, Matrix, OMatrix, Matrix3};
+    /// # use nalgebra::{DMatrix, Dyn, Matrix, OMatrix, Matrix3};
     ///
     /// let data = vec![0, 1, 2,      // column 1
     ///                 3, 4, 5];     // column 2
@@ -1198,7 +1198,7 @@ where
     /// `Matrix`.
     ///
     /// ```should_panic
-    /// # use nalgebra::{DMatrix, Dynamic, OMatrix};
+    /// # use nalgebra::{DMatrix, Dyn, OMatrix};
     /// let data = vec![0, 1, 2,  // column 1
     ///                 3, 4, 5]; // column 2
     ///
@@ -1215,7 +1215,7 @@ where
 /// Extend the number of rows of the `Vector` with elements from
 /// a given iterator.
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, S> Extend<T> for Matrix<T, Dynamic, U1, S>
+impl<T, S> Extend<T> for Matrix<T, Dyn, U1, S>
 where
     T: Scalar,
     S: Extend<T>,
@@ -1236,7 +1236,7 @@ where
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T, R, S, RV, SV> Extend<Vector<T, RV, SV>> for Matrix<T, R, Dynamic, S>
+impl<T, R, S, RV, SV> Extend<Vector<T, RV, SV>> for Matrix<T, R, Dyn, S>
 where
     T: Scalar,
     R: Dim,

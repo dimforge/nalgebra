@@ -49,11 +49,18 @@ use crate::geometry::Point;
 /// * [Conversion to a matrix <span style="float:right;">`matrix`, `to_homogeneous`…</span>](#conversion-to-a-matrix)
 ///
 #[repr(C)]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Rotation<T::Archived, D>",
+        bound(archive = "
+        T: rkyv::Archive,
+        SMatrix<T, D, D>: rkyv::Archive<Archived = SMatrix<T::Archived, D, D>>
+    ")
+    )
 )]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[derive(Copy, Clone)]
 pub struct Rotation<T, const D: usize> {
@@ -258,7 +265,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
         // adding the additional traits `DimAdd` and `IsNotStaticOne`. Maybe
         // these things will get nicer once specialization lands in Rust.
         let mut res = OMatrix::<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>::identity();
-        res.fixed_slice_mut::<D, D>(0, 0).copy_from(&self.matrix);
+        res.fixed_view_mut::<D, D>(0, 0).copy_from(&self.matrix);
 
         res
     }

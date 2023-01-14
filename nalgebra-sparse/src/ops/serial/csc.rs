@@ -4,7 +4,7 @@ use crate::ops::serial::cs::{
 };
 use crate::ops::serial::{OperationError, OperationErrorKind};
 use crate::ops::Op;
-use nalgebra::{ClosedAdd, ClosedMul, DMatrixSlice, DMatrixSliceMut, RealField, Scalar};
+use nalgebra::{ClosedAdd, ClosedMul, DMatrixView, DMatrixViewMut, RealField, Scalar};
 use num_traits::{One, Zero};
 
 use std::borrow::Cow;
@@ -16,10 +16,10 @@ use std::borrow::Cow;
 /// Panics if the dimensions of the matrices involved are not compatible with the expression.
 pub fn spmm_csc_dense<'a, T>(
     beta: T,
-    c: impl Into<DMatrixSliceMut<'a, T>>,
+    c: impl Into<DMatrixViewMut<'a, T>>,
     alpha: T,
     a: Op<&CscMatrix<T>>,
-    b: Op<impl Into<DMatrixSlice<'a, T>>>,
+    b: Op<impl Into<DMatrixView<'a, T>>>,
 ) where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {
@@ -29,10 +29,10 @@ pub fn spmm_csc_dense<'a, T>(
 
 fn spmm_csc_dense_<T>(
     beta: T,
-    c: DMatrixSliceMut<'_, T>,
+    c: DMatrixViewMut<'_, T>,
     alpha: T,
     a: Op<&CscMatrix<T>>,
-    b: Op<DMatrixSlice<'_, T>>,
+    b: Op<DMatrixView<'_, T>>,
 ) where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {
@@ -173,7 +173,7 @@ where
 /// Panics if `L` is not square, or if `L` and `B` are not dimensionally compatible.
 pub fn spsolve_csc_lower_triangular<'a, T: RealField>(
     l: Op<&CscMatrix<T>>,
-    b: impl Into<DMatrixSliceMut<'a, T>>,
+    b: impl Into<DMatrixViewMut<'a, T>>,
 ) -> Result<(), OperationError> {
     let b = b.into();
     let l_matrix = l.into_inner();
@@ -195,7 +195,7 @@ pub fn spsolve_csc_lower_triangular<'a, T: RealField>(
 
 fn spsolve_csc_lower_triangular_no_transpose<T: RealField>(
     l: &CscMatrix<T>,
-    b: DMatrixSliceMut<'_, T>,
+    b: DMatrixViewMut<'_, T>,
 ) -> Result<(), OperationError> {
     let mut x = b;
 
@@ -253,7 +253,7 @@ fn spsolve_encountered_zero_diagonal() -> Result<(), OperationError> {
 
 fn spsolve_csc_lower_triangular_transpose<T: RealField>(
     l: &CscMatrix<T>,
-    b: DMatrixSliceMut<'_, T>,
+    b: DMatrixViewMut<'_, T>,
 ) -> Result<(), OperationError> {
     let mut x = b;
 

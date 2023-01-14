@@ -83,19 +83,30 @@ an optimized set of tools for computer graphics and physics. Those features incl
     unused_variables,
     unused_mut,
     unused_parens,
-    unused_qualifications,
     rust_2018_idioms,
     rust_2018_compatibility,
     future_incompatible,
     missing_copy_implementations
 )]
-#![cfg_attr(feature = "rkyv-serialize-no-std", warn(unused_results))] // TODO: deny this once bytecheck stops generating warnings.
-#![cfg_attr(not(feature = "rkyv-serialize-no-std"), deny(unused_results))]
+#![cfg_attr(not(feature = "rkyv-serialize-no-std"), deny(unused_results))] // TODO: deny this globally once bytecheck stops generating unused results.
 #![doc(
     html_favicon_url = "https://nalgebra.org/img/favicon.ico",
     html_root_url = "https://docs.rs/nalgebra/0.25.0"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
+
+/// Generates an appropriate deprecation note with a suggestion for replacement.
+///
+/// Used for deprecating slice types in various locations throughout the library.
+/// See #1076 for more information.
+macro_rules! slice_deprecation_note {
+    ($replacement:ident) => {
+        concat!("Use ", stringify!($replacement),
+            r###" instead. See [issue #1076](https://github.com/dimforge/nalgebra/issues/1076) for more information."###)
+    }
+}
+
+pub(crate) use slice_deprecation_note;
 
 #[cfg(feature = "rand-no-std")]
 extern crate rand_package as rand;

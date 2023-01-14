@@ -11,6 +11,11 @@ use std::mem;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+#[cfg(feature = "rkyv-serialize-no-std")]
+use super::rkyv_wrappers::CustomPhantom;
+#[cfg(feature = "rkyv-serialize-no-std")]
+use rkyv::{with::With, Archive, Archived};
+
 use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, Field, SupersetOf};
 use simba::simd::SimdPartialOrd;
 
@@ -27,7 +32,7 @@ use crate::{ArrayStorage, SMatrix, SimdComplexField, Storage, UninitMatrix};
 use crate::storage::IsContiguous;
 use crate::uninit::{Init, InitStatus, Uninit};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::{DMatrix, DVector, Dynamic, RowDVector, VecStorage};
+use crate::{DMatrix, DVector, Dyn, RowDVector, VecStorage};
 use std::mem::MaybeUninit;
 
 /// A square matrix.
@@ -96,16 +101,17 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 ///
 /// #### Iteration, map, and fold
 /// - [Iteration on components, rows, and columns <span style="float:right;">`iter`, `column_iter`…</span>](#iteration-on-components-rows-and-columns)
+/// - [Parallel iterators using rayon <span style="float:right;">`par_column_iter`, `par_column_iter_mut`…</span>](#parallel-iterators-using-rayon)
 /// - [Elementwise mapping and folding <span style="float:right;">`map`, `fold`, `zip_map`…</span>](#elementwise-mapping-and-folding)
 /// - [Folding or columns and rows <span style="float:right;">`compress_rows`, `compress_columns`…</span>](#folding-on-columns-and-rows)
 ///
-/// #### Vector and matrix slicing
-/// - [Creating matrix slices from `&[T]` <span style="float:right;">`from_slice`, `from_slice_with_strides`…</span>](#creating-matrix-slices-from-t)
-/// - [Creating mutable matrix slices from `&mut [T]` <span style="float:right;">`from_slice_mut`, `from_slice_with_strides_mut`…</span>](#creating-mutable-matrix-slices-from-mut-t)
-/// - [Slicing based on index and length <span style="float:right;">`row`, `columns`, `slice`…</span>](#slicing-based-on-index-and-length)
-/// - [Mutable slicing based on index and length <span style="float:right;">`row_mut`, `columns_mut`, `slice_mut`…</span>](#mutable-slicing-based-on-index-and-length)
-/// - [Slicing based on ranges <span style="float:right;">`rows_range`, `columns_range`…</span>](#slicing-based-on-ranges)
-/// - [Mutable slicing based on ranges <span style="float:right;">`rows_range_mut`, `columns_range_mut`…</span>](#mutable-slicing-based-on-ranges)
+/// #### Vector and matrix views
+/// - [Creating matrix views from `&[T]` <span style="float:right;">`from_slice`, `from_slice_with_strides`…</span>](#creating-matrix-views-from-t)
+/// - [Creating mutable matrix views from `&mut [T]` <span style="float:right;">`from_slice_mut`, `from_slice_with_strides_mut`…</span>](#creating-mutable-matrix-views-from-mut-t)
+/// - [Views based on index and length <span style="float:right;">`row`, `columns`, `view`…</span>](#views-based-on-index-and-length)
+/// - [Mutable views based on index and length <span style="float:right;">`row_mut`, `columns_mut`, `view_mut`…</span>](#mutable-views-based-on-index-and-length)
+/// - [Views based on ranges <span style="float:right;">`rows_range`, `columns_range`…</span>](#views-based-on-ranges)
+/// - [Mutable views based on ranges <span style="float:right;">`rows_range_mut`, `columns_range_mut`…</span>](#mutable-views-based-on-ranges)
 ///
 /// #### In-place modification of a single matrix or vector
 /// - [In-place filling <span style="float:right;">`fill`, `fill_diagonal`, `fill_with_identity`…</span>](#in-place-filling)
@@ -140,21 +146,29 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// - type-level unsigned integer constants (e.g. `U1024`, `U10000`) from the `typenum::` crate.
 /// Using those, you will not get error messages as nice as for numbers smaller than 128 defined on
 /// the `nalgebra::` module.
-/// - the special value `Dynamic` from the `nalgebra::` root module. This indicates that the
+/// - the special value `Dyn` from the `nalgebra::` root module. This indicates that the
 /// specified dimension is not known at compile-time. Note that this will generally imply that the
 /// matrix data storage `S` performs a dynamic allocation and contains extra metadata for the
 /// matrix shape.
 ///
-/// Note that mixing `Dynamic` with type-level unsigned integers is allowed. Actually, a
-/// dynamically-sized column vector should be represented as a `Matrix<T, Dynamic, U1, S>` (given
+/// Note that mixing `Dyn` with type-level unsigned integers is allowed. Actually, a
+/// dynamically-sized column vector should be represented as a `Matrix<T, Dyn, U1, S>` (given
 /// some concrete types for `T` and a compatible data storage type `S`).
 #[repr(C)]
 #[derive(Clone, Copy)]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+    derive(Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Matrix<T::Archived, R, C, S::Archived>",
+        bound(archive = "
+        T: Archive,
+        S: Archive,
+        With<PhantomData<(T, R, C)>, CustomPhantom<(Archived<T>, R, C)>>: Archive<Archived = PhantomData<(Archived<T>, R, C)>>
+    ")
+    )
 )]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Matrix<T, R, C, S> {
     /// The data storage that contains all the matrix components. Disappointed?
@@ -192,6 +206,7 @@ pub struct Matrix<T, R, C, S> {
     //       of the `RawStorage` trait. However, because we don't have
     //       specialization, this is not possible because these `T, R, C`
     //       allows us to desambiguate a lot of configurations.
+    #[cfg_attr(feature = "rkyv-serialize-no-std", with(CustomPhantom<(T::Archived, R, C)>))]
     _phantoms: PhantomData<(T, R, C)>,
 }
 
@@ -326,7 +341,7 @@ impl<T> DMatrix<T> {
     ///
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
-    pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, Dynamic>) -> Self {
+    pub const fn from_vec_storage(storage: VecStorage<T, Dyn, Dyn>) -> Self {
         // This is sound because the dimensions of the matrix and the storage are guaranteed
         // to be the same
         unsafe { Self::from_data_statically_unchecked(storage) }
@@ -341,7 +356,7 @@ impl<T> DVector<T> {
     ///
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
-    pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, U1>) -> Self {
+    pub const fn from_vec_storage(storage: VecStorage<T, Dyn, U1>) -> Self {
         // This is sound because the dimensions of the matrix and the storage are guaranteed
         // to be the same
         unsafe { Self::from_data_statically_unchecked(storage) }
@@ -356,7 +371,7 @@ impl<T> RowDVector<T> {
     ///
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
-    pub const fn from_vec_storage(storage: VecStorage<T, U1, Dynamic>) -> Self {
+    pub const fn from_vec_storage(storage: VecStorage<T, U1, Dyn>) -> Self {
         // This is sound because the dimensions of the matrix and the storage are guaranteed
         // to be the same
         unsafe { Self::from_data_statically_unchecked(storage) }
@@ -402,7 +417,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         (nrows.value(), ncols.value())
     }
 
-    /// The shape of this matrix wrapped into their representative types (`Const` or `Dynamic`).
+    /// The shape of this matrix wrapped into their representative types (`Const` or `Dyn`).
     #[inline]
     #[must_use]
     pub fn shape_generic(&self) -> (R, C) {
@@ -443,7 +458,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// ```
     /// # use nalgebra::DMatrix;
     /// let mat = DMatrix::<f32>::zeros(10, 10);
-    /// let slice = mat.slice_with_steps((0, 0), (5, 3), (1, 2));
+    /// let view = mat.view_with_steps((0, 0), (5, 3), (1, 2));
     /// // The column strides is the number of steps (here 2) multiplied by the corresponding dimension.
     /// assert_eq!(mat.strides(), (1, 10));
     /// ```
@@ -734,6 +749,24 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         DefaultAllocator: Allocator<T2, R, C>,
     {
         crate::convert(self)
+    }
+
+    /// Attempts to cast the components of `self` to another type.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let q = Vector3::new(1.0f64, 2.0, 3.0);
+    /// let q2 = q.try_cast::<i32>();
+    /// assert_eq!(q2, Some(Vector3::new(1, 2, 3)));
+    /// ```
+    pub fn try_cast<T2: Scalar>(self) -> Option<OMatrix<T2, R, C>>
+    where
+        T: Scalar,
+        Self: SupersetOf<OMatrix<T2, R, C>>,
+        DefaultAllocator: Allocator<T2, R, C>,
+    {
+        crate::try_convert(self)
     }
 
     /// Similar to `self.iter().fold(init, f)` except that `init` is replaced by a closure.
@@ -1612,7 +1645,7 @@ impl<T: Scalar + Zero + One, D: DimAdd<U1> + IsNotStaticOne, S: RawStorage<T, D,
         );
         let dim = DimSum::<D, U1>::from_usize(self.nrows() + 1);
         let mut res = OMatrix::identity_generic(dim, dim);
-        res.generic_slice_mut::<D, D>((0, 0), self.shape_generic())
+        res.generic_view_mut::<D, D>((0, 0), self.shape_generic())
             .copy_from(self);
         res
     }
@@ -1640,7 +1673,7 @@ impl<T: Scalar + Zero, D: DimAdd<U1>, S: RawStorage<T, D>> Vector<T, D, S> {
     {
         if v[v.len() - 1].is_zero() {
             let nrows = D::from_usize(v.len() - 1);
-            Some(v.generic_slice((0, 0), (nrows, Const::<1>)).into_owned())
+            Some(v.generic_view((0, 0), (nrows, Const::<1>)).into_owned())
         } else {
             None
         }
@@ -1660,7 +1693,7 @@ impl<T: Scalar, D: DimAdd<U1>, S: RawStorage<T, D>> Vector<T, D, S> {
         let mut res = Matrix::uninit(hnrows, Const::<1>);
         // This is basically a copy_from except that we warp the copied
         // values into MaybeUninit.
-        res.generic_slice_mut((0, 0), self.shape_generic())
+        res.generic_view_mut((0, 0), self.shape_generic())
             .zip_apply(self, |out, e| *out = MaybeUninit::new(e));
         res[(len, 0)] = MaybeUninit::new(element);
 

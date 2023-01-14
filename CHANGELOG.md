@@ -4,6 +4,43 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.32.0] (14 Jan. 2023)
+
+### Modified
+- Renamed all `MatrixSlice` types to `MatrixView`. In general all occurrences of the world `Slice` or `slice` have been
+  replaced by `View` or `view`.
+- Deprecated all the types involving `Slice` in its name, in favor of the word `View`.
+- Make it so that most `nalgebra` objects archive as themselves (when using `rkyv` for serialization).
+- Renamed `Dynamic` to `Dyn` and make `Dyn` a tuple struct.
+
+### Added
+- Add `Cholesky::ln_determinant` to compute the natural logarithm of the determinant of a matrix decomposed 
+  with Cholesky. This can be more numerically stable than computing the determinant itself when very small and/or
+  large values are involved.
+- Added new methods `Matrix::as_view` and `Matrix::as_view_mut`, which are very useful when working with view-based APIs.
+- Added parallel column iterator using `rayon`: `Matrix::par_column_iter` and `Matrix::par_column_iter_mut`. The `rayon`
+  feature must be enabled to access these methods.
+- Implement `ReshapableStorage` for matrix slices (only for unit strides at the moment).
+- Add `U0, U1, …` constants alongside the `U0, U1, …` types. This lets us write `U4` instead of `U4::name()` or
+  `Const::<4>` when we need const dimensions.
+
+### Fixed
+- Fixed the implementation of `Rotation3::euler_angles` to return the angles in the documented order (roll, pitch, yaw).
+
+## [0.31.4] (13 Nov. 2022)
+
+### Added
+- Add a `convert-glam022` feature to enable conversion between `nalgebra` and `glam v0.22`.
+
+
+## [0.31.3] (30 Oct. 2022)
+
+### Added
+- Add `Matrix::try_cast` to attempt casting the inner scalar types when that cast may fail.
+
+### Fixed
+- Fixed the usage of `CheckBytes` with `rkyv`.
+
 ## [0.31.2] (09 Oct. 2022)
 
 ### Modified

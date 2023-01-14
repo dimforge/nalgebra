@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Needed because the --all-features build which enables cuda support.
-      - uses: Jimver/cuda-toolkit@v0.2.4
+      - uses: Jimver/cuda-toolkit@v0.2.8
       - uses: actions/checkout@v2
       - run: cargo build --all-features;
       - run: cargo build -p nalgebra-glm --all-features;
@@ -61,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: test
-        run: cargo test --features arbitrary,rand,serde-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests;
+        run: cargo test --features arbitrary,rand,serde-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests,rkyv-safe-deser,rayon;
   test-nalgebra-glm:
     runs-on: ubuntu-latest
     steps:
@@ -123,9 +123,9 @@ jobs:
   build-cuda:
     runs-on: ubuntu-latest
     steps:
-      - uses: Jimver/cuda-toolkit@v0.2.4
+      - uses: Jimver/cuda-toolkit@v0.2.8
         with:
-          cuda: '11.2.2'
+          cuda: '11.5.0'
       - name: Install nightly-2021-12-04
         uses: actions-rs/toolchain@v1
         with:
@@ -137,3 +137,9 @@ jobs:
       - run: cargo build --no-default-features --features cuda --target=nvptx64-nvidia-cuda
         env: 
           CUDA_ARCH: "350"
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Generate documentation
+      run: cargo doc

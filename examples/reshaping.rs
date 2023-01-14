@@ -2,7 +2,7 @@
 
 extern crate nalgebra as na;
 
-use na::{DMatrix, Dynamic, Matrix2x3, Matrix3x2, Const};
+use na::{DMatrix, Dyn, Matrix2x3, Matrix3x2, Const};
 
 fn main() {
     // Matrices can be reshaped in-place without moving or copying values.
@@ -46,9 +46,9 @@ fn main() {
         ],
     );
 
-    let dm3 = dm1.reshape_generic(Dynamic::new(6), Dynamic::new(2));
+    let dm3 = dm1.reshape_generic(Dyn(6), Dyn(2));
     assert_eq!(dm3, dm2);
 
     // Invalid reshapings of dynamic matrices will panic at run-time.
-    //let dm4 = dm3.reshape_generic(Dynamic::new(6), Dynamic::new(6));
+    //let dm4 = dm3.reshape_generic(Dyn(6), Dyn(6));
 }

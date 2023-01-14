@@ -11,10 +11,10 @@ use crate::base::blas_uninit::gemm_uninit;
 use crate::base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
-use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dynamic};
+use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dyn};
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::uninit::Uninit;
-use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorSlice};
+use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorView};
 use crate::storage::IsContiguous;
 use crate::uninit::{Init, InitStatus};
 use crate::{RawStorage, RawStorageMut, SimdComplexField};
@@ -374,10 +374,10 @@ where
     }
 }
 
-impl<T, C: Dim> iter::Sum for OMatrix<T, Dynamic, C>
+impl<T, C: Dim> iter::Sum for OMatrix<T, Dyn, C>
 where
     T: Scalar + ClosedAdd + Zero,
-    DefaultAllocator: Allocator<T, Dynamic, C>,
+    DefaultAllocator: Allocator<T, Dyn, C>,
 {
     /// # Example
     /// ```
@@ -395,7 +395,7 @@ where
     /// # use nalgebra::DMatrix;
     /// iter::empty::<DMatrix<f64>>().sum::<DMatrix<f64>>(); // panics!
     /// ```
-    fn sum<I: Iterator<Item = OMatrix<T, Dynamic, C>>>(mut iter: I) -> OMatrix<T, Dynamic, C> {
+    fn sum<I: Iterator<Item = OMatrix<T, Dyn, C>>>(mut iter: I) -> OMatrix<T, Dyn, C> {
         if let Some(first) = iter.next() {
             iter.fold(first, |acc, x| acc + x)
         } else {
@@ -414,10 +414,10 @@ where
     }
 }
 
-impl<'a, T, C: Dim> iter::Sum<&'a OMatrix<T, Dynamic, C>> for OMatrix<T, Dynamic, C>
+impl<'a, T, C: Dim> iter::Sum<&'a OMatrix<T, Dyn, C>> for OMatrix<T, Dyn, C>
 where
     T: Scalar + ClosedAdd + Zero,
-    DefaultAllocator: Allocator<T, Dynamic, C>,
+    DefaultAllocator: Allocator<T, Dyn, C>,
 {
     /// # Example
     /// ```
@@ -435,7 +435,7 @@ where
     /// # use nalgebra::DMatrix;
     /// iter::empty::<&DMatrix<f64>>().sum::<DMatrix<f64>>(); // panics!
     /// ```
-    fn sum<I: Iterator<Item = &'a OMatrix<T, Dynamic, C>>>(mut iter: I) -> OMatrix<T, Dynamic, C> {
+    fn sum<I: Iterator<Item = &'a OMatrix<T, Dyn, C>>>(mut iter: I) -> OMatrix<T, Dyn, C> {
         if let Some(first) = iter.next() {
             iter.fold(first.clone(), |acc, x| acc + x)
         } else {
@@ -703,8 +703,8 @@ where
         rhs: &Matrix<T, R2, C2, SB>,
         out: &mut Matrix<Status::Value, R3, C3, SC>,
         dot: impl Fn(
-            &VectorSlice<'_, T, R1, SA::RStride, SA::CStride>,
-            &VectorSlice<'_, T, R2, SB::RStride, SB::CStride>,
+            &VectorView<'_, T, R1, SA::RStride, SA::CStride>,
+            &VectorView<'_, T, R2, SB::RStride, SB::CStride>,
         ) -> T,
     ) where
         Status: InitStatus<T>,
