@@ -191,8 +191,8 @@ pub fn dmatrix(stream: TokenStream) -> TokenStream {
     let output = quote! {
         nalgebra::DMatrix::<_>
             ::from_vec_storage(nalgebra::VecStorage::new(
-                nalgebra::Dynamic::new(#row_dim),
-                nalgebra::Dynamic::new(#col_dim),
+                nalgebra::Dyn(#row_dim),
+                nalgebra::Dyn(#col_dim),
                 vec!#array_tokens))
     };
 
@@ -285,7 +285,7 @@ pub fn dvector(stream: TokenStream) -> TokenStream {
     let output = quote! {
         nalgebra::DVector::<_>
             ::from_vec_storage(nalgebra::VecStorage::new(
-                nalgebra::Dynamic::new(#len),
+                nalgebra::Dyn(#len),
                 nalgebra::Const::<1>,
                 vec!#array_tokens))
     };

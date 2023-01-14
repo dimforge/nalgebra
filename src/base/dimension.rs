@@ -22,48 +22,50 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
     archive_attr(derive(bytecheck::CheckBytes))
 )]
 #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
-pub struct Dynamic {
-    value: usize,
-}
+pub struct Dyn(pub usize);
 
-impl Dynamic {
+#[deprecated(note = "use Dyn instead.")]
+pub type Dynamic = Dyn;
+
+impl Dyn {
     /// A dynamic size equal to `value`.
     #[inline]
+    #[deprecated(note = "use Dyn(value) instead.")]
     pub const fn new(value: usize) -> Self {
-        Self { value }
+        Self(value)
     }
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl Serialize for Dynamic {
+impl Serialize for Dyn {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        self.value.serialize(serializer)
+        self.0.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde-serialize-no-std")]
-impl<'de> Deserialize<'de> for Dynamic {
+impl<'de> Deserialize<'de> for Dyn {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        usize::deserialize(deserializer).map(|x| Dynamic { value: x })
+        usize::deserialize(deserializer).map(|x| Dyn(x))
     }
 }
 
-/// Trait implemented by `Dynamic`.
+/// Trait implemented by `Dyn`.
 pub trait IsDynamic {}
-/// Trait implemented by `Dynamic` and type-level integers different from `U1`.
+/// Trait implemented by `Dyn` and type-level integers different from `U1`.
 pub trait IsNotStaticOne {}
 
-impl IsDynamic for Dynamic {}
-impl IsNotStaticOne for Dynamic {}
+impl IsDynamic for Dyn {}
+impl IsNotStaticOne for Dyn {}
 
 /// Trait implemented by any type that can be used as a dimension. This includes type-level
-/// integers and `Dynamic` (for dimensions not known at compile-time).
+/// integers and `Dyn` (for dimensions not known at compile-time).
 pub unsafe trait Dim: Any + Debug + Copy + PartialEq + Send + Sync {
     #[inline(always)]
     fn is<D: Dim>() -> bool {
@@ -71,7 +73,7 @@ pub unsafe trait Dim: Any + Debug + Copy + PartialEq + Send + Sync {
     }
 
     /// Gets the compile-time value of `Self`. Returns `None` if it is not known, i.e., if `Self =
-    /// Dynamic`.
+    /// Dyn`.
     fn try_to_usize() -> Option<usize>;
 
     /// Gets the run-time value of `self`. For type-level integers, this is the same as
@@ -83,7 +85,7 @@ pub unsafe trait Dim: Any + Debug + Copy + PartialEq + Send + Sync {
     fn from_usize(dim: usize) -> Self;
 }
 
-unsafe impl Dim for Dynamic {
+unsafe impl Dim for Dyn {
     #[inline]
     fn try_to_usize() -> Option<usize> {
         None
@@ -91,30 +93,30 @@ unsafe impl Dim for Dynamic {
 
     #[inline]
     fn from_usize(dim: usize) -> Self {
-        Self::new(dim)
+        Self(dim)
     }
 
     #[inline]
     fn value(&self) -> usize {
-        self.value
+        self.0
     }
 }
 
-impl Add<usize> for Dynamic {
-    type Output = Dynamic;
+impl Add<usize> for Dyn {
+    type Output = Dyn;
 
     #[inline]
     fn add(self, rhs: usize) -> Self {
-        Self::new(self.value + rhs)
+        Self(self.0 + rhs)
     }
 }
 
-impl Sub<usize> for Dynamic {
-    type Output = Dynamic;
+impl Sub<usize> for Dyn {
+    type Output = Dyn;
 
     #[inline]
     fn sub(self, rhs: usize) -> Self {
-        Self::new(self.value - rhs)
+        Self(self.0 - rhs)
     }
 }
 
@@ -152,22 +154,22 @@ macro_rules! dim_ops(
             }
         }
 
-        impl<D: Dim> $DimOp<D> for Dynamic {
-            type Output = Dynamic;
+        impl<D: Dim> $DimOp<D> for Dyn {
+            type Output = Dyn;
 
             #[inline]
-            fn $op(self, other: D) -> Dynamic {
-                Dynamic::new($op_path(self.value, other.value()))
+            fn $op(self, other: D) -> Dyn {
+                Dyn($op_path(self.value(), other.value()))
             }
         }
 
         // TODO: use Const<T> instead of D: DimName?
-        impl<D: DimName> $DimOp<Dynamic> for D {
-            type Output = Dynamic;
+        impl<D: DimName> $DimOp<Dyn> for D {
+            type Output = Dyn;
 
             #[inline]
-            fn $op(self, other: Dynamic) -> Dynamic {
-                Dynamic::new($op_path(self.value(), other.value))
+            fn $op(self, other: Dyn) -> Dyn {
+                Dyn($op_path(self.value(), other.value()))
             }
         }
 
@@ -310,6 +312,11 @@ macro_rules! from_to_typenum (
         }
 
         impl IsNotStaticOne for $D { }
+
+        /// The constant dimension
+        #[doc = stringify!($VAL)]
+        /// .
+        pub const $D: $D = Const::<$VAL>;
     )*}
 );
 
@@ -323,3 +330,7 @@ from_to_typenum!(
     U111, 111; U112, 112; U113, 113; U114, 114; U115, 115; U116, 116; U117, 117; U118, 118; U119, 119; U120, 120; U121, 121; U122, 122; U123, 123; U124, 124; U125, 125; U126, 126;
     U127, 127
 );
+
+/// The constant dimension 1.
+// Note: We add U1 separately since it's not covered by the from_to_typenum! macro.
+pub const U1: U1 = Const::<1>;

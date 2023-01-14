@@ -9,7 +9,7 @@ use simba::simd::{PrimitiveSimdValue, SimdValue};
 use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::dimension::Dynamic;
+use crate::base::dimension::Dyn;
 use crate::base::dimension::{
     Const, Dim, DimName, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
 };
@@ -302,29 +302,29 @@ where
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T, C, RStride, CStride> From<MatrixView<'a, T, Dynamic, C, RStride, CStride>>
-    for Matrix<T, Dynamic, C, VecStorage<T, Dynamic, C>>
+impl<'a, T, C, RStride, CStride> From<MatrixView<'a, T, Dyn, C, RStride, CStride>>
+    for Matrix<T, Dyn, C, VecStorage<T, Dyn, C>>
 where
     T: Scalar,
     C: Dim,
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_view: MatrixView<'a, T, Dynamic, C, RStride, CStride>) -> Self {
+    fn from(matrix_view: MatrixView<'a, T, Dyn, C, RStride, CStride>) -> Self {
         matrix_view.into_owned()
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T, R, RStride, CStride> From<MatrixView<'a, T, R, Dynamic, RStride, CStride>>
-    for Matrix<T, R, Dynamic, VecStorage<T, R, Dynamic>>
+impl<'a, T, R, RStride, CStride> From<MatrixView<'a, T, R, Dyn, RStride, CStride>>
+    for Matrix<T, R, Dyn, VecStorage<T, R, Dyn>>
 where
     T: Scalar,
     R: DimName,
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_view: MatrixView<'a, T, R, Dynamic, RStride, CStride>) -> Self {
+    fn from(matrix_view: MatrixView<'a, T, R, Dyn, RStride, CStride>) -> Self {
         matrix_view.into_owned()
     }
 }
@@ -343,29 +343,29 @@ where
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T, C, RStride, CStride> From<MatrixViewMut<'a, T, Dynamic, C, RStride, CStride>>
-    for Matrix<T, Dynamic, C, VecStorage<T, Dynamic, C>>
+impl<'a, T, C, RStride, CStride> From<MatrixViewMut<'a, T, Dyn, C, RStride, CStride>>
+    for Matrix<T, Dyn, C, VecStorage<T, Dyn, C>>
 where
     T: Scalar,
     C: Dim,
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_view: MatrixViewMut<'a, T, Dynamic, C, RStride, CStride>) -> Self {
+    fn from(matrix_view: MatrixViewMut<'a, T, Dyn, C, RStride, CStride>) -> Self {
         matrix_view.into_owned()
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T, R, RStride, CStride> From<MatrixViewMut<'a, T, R, Dynamic, RStride, CStride>>
-    for Matrix<T, R, Dynamic, VecStorage<T, R, Dynamic>>
+impl<'a, T, R, RStride, CStride> From<MatrixViewMut<'a, T, R, Dyn, RStride, CStride>>
+    for Matrix<T, R, Dyn, VecStorage<T, R, Dyn>>
 where
     T: Scalar,
     R: DimName,
     RStride: Dim,
     CStride: Dim,
 {
-    fn from(matrix_view: MatrixViewMut<'a, T, R, Dynamic, RStride, CStride>) -> Self {
+    fn from(matrix_view: MatrixViewMut<'a, T, R, Dyn, RStride, CStride>) -> Self {
         matrix_view.into_owned()
     }
 }

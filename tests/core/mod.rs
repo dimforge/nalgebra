@@ -7,6 +7,7 @@ mod matrix;
 mod matrix_view;
 #[cfg(feature = "mint")]
 mod mint;
+mod reshape;
 #[cfg(feature = "rkyv-serialize-no-std")]
 mod rkyv;
 mod serde;

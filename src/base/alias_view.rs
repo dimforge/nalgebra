@@ -1,4 +1,4 @@
-use crate::base::dimension::{Dynamic, U1, U2, U3, U4, U5, U6};
+use crate::base::dimension::{Dyn, U1, U2, U3, U4, U5, U6};
 use crate::base::matrix_view::{ViewStorage, ViewStorageMut};
 use crate::base::{Const, Matrix};
 
@@ -19,8 +19,8 @@ pub type SMatrixView<'a, T, const R: usize, const C: usize> =
 /// A column-major matrix view dynamic numbers of rows and columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
-pub type DMatrixView<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, Dynamic, ViewStorage<'a, T, Dynamic, Dynamic, RStride, CStride>>;
+pub type DMatrixView<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, Dyn, ViewStorage<'a, T, Dyn, Dyn, RStride, CStride>>;
 
 /// A column-major 1x1 matrix view.
 ///
@@ -211,41 +211,41 @@ pub type MatrixView6x5<'a, T, RStride = U1, CStride = U6> =
 
 /// A column-major matrix view with 1 row and a number of columns chosen at runtime.
 pub type MatrixView1xX<'a, T, RStride = U1, CStride = U1> =
-    Matrix<T, U1, Dynamic, ViewStorage<'a, T, U1, Dynamic, RStride, CStride>>;
+    Matrix<T, U1, Dyn, ViewStorage<'a, T, U1, Dyn, RStride, CStride>>;
 /// A column-major matrix view with 2 rows and a number of columns chosen at runtime.
 pub type MatrixView2xX<'a, T, RStride = U1, CStride = U2> =
-    Matrix<T, U2, Dynamic, ViewStorage<'a, T, U2, Dynamic, RStride, CStride>>;
+    Matrix<T, U2, Dyn, ViewStorage<'a, T, U2, Dyn, RStride, CStride>>;
 /// A column-major matrix view with 3 rows and a number of columns chosen at runtime.
 pub type MatrixView3xX<'a, T, RStride = U1, CStride = U3> =
-    Matrix<T, U3, Dynamic, ViewStorage<'a, T, U3, Dynamic, RStride, CStride>>;
+    Matrix<T, U3, Dyn, ViewStorage<'a, T, U3, Dyn, RStride, CStride>>;
 /// A column-major matrix view with 4 rows and a number of columns chosen at runtime.
 pub type MatrixView4xX<'a, T, RStride = U1, CStride = U4> =
-    Matrix<T, U4, Dynamic, ViewStorage<'a, T, U4, Dynamic, RStride, CStride>>;
+    Matrix<T, U4, Dyn, ViewStorage<'a, T, U4, Dyn, RStride, CStride>>;
 /// A column-major matrix view with 5 rows and a number of columns chosen at runtime.
 pub type MatrixView5xX<'a, T, RStride = U1, CStride = U5> =
-    Matrix<T, U5, Dynamic, ViewStorage<'a, T, U5, Dynamic, RStride, CStride>>;
+    Matrix<T, U5, Dyn, ViewStorage<'a, T, U5, Dyn, RStride, CStride>>;
 /// A column-major matrix view with 6 rows and a number of columns chosen at runtime.
 pub type MatrixView6xX<'a, T, RStride = U1, CStride = U6> =
-    Matrix<T, U6, Dynamic, ViewStorage<'a, T, U6, Dynamic, RStride, CStride>>;
+    Matrix<T, U6, Dyn, ViewStorage<'a, T, U6, Dyn, RStride, CStride>>;
 
 /// A column-major matrix view with a number of rows chosen at runtime and 1 column.
-pub type MatrixViewXx1<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U1, ViewStorage<'a, T, Dynamic, U1, RStride, CStride>>;
+pub type MatrixViewXx1<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U1, ViewStorage<'a, T, Dyn, U1, RStride, CStride>>;
 /// A column-major matrix view with a number of rows chosen at runtime and 2 columns.
-pub type MatrixViewXx2<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U2, ViewStorage<'a, T, Dynamic, U2, RStride, CStride>>;
+pub type MatrixViewXx2<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U2, ViewStorage<'a, T, Dyn, U2, RStride, CStride>>;
 /// A column-major matrix view with a number of rows chosen at runtime and 3 columns.
-pub type MatrixViewXx3<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U3, ViewStorage<'a, T, Dynamic, U3, RStride, CStride>>;
+pub type MatrixViewXx3<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U3, ViewStorage<'a, T, Dyn, U3, RStride, CStride>>;
 /// A column-major matrix view with a number of rows chosen at runtime and 4 columns.
-pub type MatrixViewXx4<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U4, ViewStorage<'a, T, Dynamic, U4, RStride, CStride>>;
+pub type MatrixViewXx4<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U4, ViewStorage<'a, T, Dyn, U4, RStride, CStride>>;
 /// A column-major matrix view with a number of rows chosen at runtime and 5 columns.
-pub type MatrixViewXx5<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U5, ViewStorage<'a, T, Dynamic, U5, RStride, CStride>>;
+pub type MatrixViewXx5<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U5, ViewStorage<'a, T, Dyn, U5, RStride, CStride>>;
 /// A column-major matrix view with a number of rows chosen at runtime and 6 columns.
-pub type MatrixViewXx6<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U6, ViewStorage<'a, T, Dynamic, U6, RStride, CStride>>;
+pub type MatrixViewXx6<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U6, ViewStorage<'a, T, Dyn, U6, RStride, CStride>>;
 
 /// A column vector view with dimensions known at compile-time.
 ///
@@ -260,8 +260,8 @@ pub type SVectorView<'a, T, const D: usize> =
     Matrix<T, Const<D>, Const<1>, ViewStorage<'a, T, Const<D>, Const<1>, Const<1>, Const<D>>>;
 
 /// A column vector view dynamic numbers of rows and columns.
-pub type DVectorView<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U1, ViewStorage<'a, T, Dynamic, U1, RStride, CStride>>;
+pub type DVectorView<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U1, ViewStorage<'a, T, Dyn, U1, RStride, CStride>>;
 
 /// A 1D column vector view.
 ///
@@ -311,8 +311,8 @@ pub type SMatrixViewMut<'a, T, const R: usize, const C: usize> =
 /// A column-major matrix view dynamic numbers of rows and columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
-pub type DMatrixViewMut<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, Dynamic, ViewStorageMut<'a, T, Dynamic, Dynamic, RStride, CStride>>;
+pub type DMatrixViewMut<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, Dyn, ViewStorageMut<'a, T, Dyn, Dyn, RStride, CStride>>;
 
 /// A column-major 1x1 matrix view.
 ///
@@ -503,41 +503,41 @@ pub type MatrixViewMut6x5<'a, T, RStride = U1, CStride = U6> =
 
 /// A column-major matrix view with 1 row and a number of columns chosen at runtime.
 pub type MatrixViewMut1xX<'a, T, RStride = U1, CStride = U1> =
-    Matrix<T, U1, Dynamic, ViewStorageMut<'a, T, U1, Dynamic, RStride, CStride>>;
+    Matrix<T, U1, Dyn, ViewStorageMut<'a, T, U1, Dyn, RStride, CStride>>;
 /// A column-major matrix view with 2 rows and a number of columns chosen at runtime.
 pub type MatrixViewMut2xX<'a, T, RStride = U1, CStride = U2> =
-    Matrix<T, U2, Dynamic, ViewStorageMut<'a, T, U2, Dynamic, RStride, CStride>>;
+    Matrix<T, U2, Dyn, ViewStorageMut<'a, T, U2, Dyn, RStride, CStride>>;
 /// A column-major matrix view with 3 rows and a number of columns chosen at runtime.
 pub type MatrixViewMut3xX<'a, T, RStride = U1, CStride = U3> =
-    Matrix<T, U3, Dynamic, ViewStorageMut<'a, T, U3, Dynamic, RStride, CStride>>;
+    Matrix<T, U3, Dyn, ViewStorageMut<'a, T, U3, Dyn, RStride, CStride>>;
 /// A column-major matrix view with 4 rows and a number of columns chosen at runtime.
 pub type MatrixViewMut4xX<'a, T, RStride = U1, CStride = U4> =
-    Matrix<T, U4, Dynamic, ViewStorageMut<'a, T, U4, Dynamic, RStride, CStride>>;
+    Matrix<T, U4, Dyn, ViewStorageMut<'a, T, U4, Dyn, RStride, CStride>>;
 /// A column-major matrix view with 5 rows and a number of columns chosen at runtime.
 pub type MatrixViewMut5xX<'a, T, RStride = U1, CStride = U5> =
-    Matrix<T, U5, Dynamic, ViewStorageMut<'a, T, U5, Dynamic, RStride, CStride>>;
+    Matrix<T, U5, Dyn, ViewStorageMut<'a, T, U5, Dyn, RStride, CStride>>;
 /// A column-major matrix view with 6 rows and a number of columns chosen at runtime.
 pub type MatrixViewMut6xX<'a, T, RStride = U1, CStride = U6> =
-    Matrix<T, U6, Dynamic, ViewStorageMut<'a, T, U6, Dynamic, RStride, CStride>>;
+    Matrix<T, U6, Dyn, ViewStorageMut<'a, T, U6, Dyn, RStride, CStride>>;
 
 /// A column-major matrix view with a number of rows chosen at runtime and 1 column.
-pub type MatrixViewMutXx1<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U1, ViewStorageMut<'a, T, Dynamic, U1, RStride, CStride>>;
+pub type MatrixViewMutXx1<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U1, ViewStorageMut<'a, T, Dyn, U1, RStride, CStride>>;
 /// A column-major matrix view with a number of rows chosen at runtime and 2 columns.
-pub type MatrixViewMutXx2<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U2, ViewStorageMut<'a, T, Dynamic, U2, RStride, CStride>>;
+pub type MatrixViewMutXx2<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U2, ViewStorageMut<'a, T, Dyn, U2, RStride, CStride>>;
 /// A column-major matrix view with a number of rows chosen at runtime and 3 columns.
-pub type MatrixViewMutXx3<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U3, ViewStorageMut<'a, T, Dynamic, U3, RStride, CStride>>;
+pub type MatrixViewMutXx3<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U3, ViewStorageMut<'a, T, Dyn, U3, RStride, CStride>>;
 /// A column-major matrix view with a number of rows chosen at runtime and 4 columns.
-pub type MatrixViewMutXx4<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U4, ViewStorageMut<'a, T, Dynamic, U4, RStride, CStride>>;
+pub type MatrixViewMutXx4<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U4, ViewStorageMut<'a, T, Dyn, U4, RStride, CStride>>;
 /// A column-major matrix view with a number of rows chosen at runtime and 5 columns.
-pub type MatrixViewMutXx5<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U5, ViewStorageMut<'a, T, Dynamic, U5, RStride, CStride>>;
+pub type MatrixViewMutXx5<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U5, ViewStorageMut<'a, T, Dyn, U5, RStride, CStride>>;
 /// A column-major matrix view with a number of rows chosen at runtime and 6 columns.
-pub type MatrixViewMutXx6<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U6, ViewStorageMut<'a, T, Dynamic, U6, RStride, CStride>>;
+pub type MatrixViewMutXx6<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U6, ViewStorageMut<'a, T, Dyn, U6, RStride, CStride>>;
 
 /// A column vector view with dimensions known at compile-time.
 ///
@@ -554,8 +554,8 @@ pub type SVectorViewMut<'a, T, const D: usize> =
 /// A column vector view dynamic numbers of rows and columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
-pub type DVectorViewMut<'a, T, RStride = U1, CStride = Dynamic> =
-    Matrix<T, Dynamic, U1, ViewStorageMut<'a, T, Dynamic, U1, RStride, CStride>>;
+pub type DVectorViewMut<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, Dyn, U1, ViewStorageMut<'a, T, Dyn, U1, RStride, CStride>>;
 
 /// A 1D column vector view.
 ///

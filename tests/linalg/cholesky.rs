@@ -15,7 +15,7 @@ macro_rules! gen_tests(
     ($module: ident, $scalar: ty) => {
         mod $module {
             use na::debug::RandomSDP;
-            use na::dimension::{Const, Dynamic};
+            use na::dimension::{Const, Dyn};
             use na::{DMatrix, DVector, Matrix4x3, Vector4};
             use rand::random;
             use simba::scalar::ComplexField;
@@ -28,7 +28,7 @@ macro_rules! gen_tests(
             proptest! {
                 #[test]
                 fn cholesky(n in PROPTEST_MATRIX_DIM) {
-                    let m = RandomSDP::new(Dynamic::new(n), || random::<$scalar>().0).unwrap();
+                    let m = RandomSDP::new(Dyn(n), || random::<$scalar>().0).unwrap();
                     let l = m.clone().cholesky().unwrap().unpack();
                     prop_assert!(relative_eq!(m, &l * l.adjoint(), epsilon = 1.0e-7));
                 }
@@ -44,7 +44,7 @@ macro_rules! gen_tests(
 
                 #[test]
                 fn cholesky_solve(n in PROPTEST_MATRIX_DIM, nb in PROPTEST_MATRIX_DIM) {
-                    let m = RandomSDP::new(Dynamic::new(n), || random::<$scalar>().0).unwrap();
+                    let m = RandomSDP::new(Dyn(n), || random::<$scalar>().0).unwrap();
 
                     let chol = m.clone().cholesky().unwrap();
                     let b1 = DVector::<$scalar>::new_random(n).map(|e| e.0);
@@ -73,7 +73,7 @@ macro_rules! gen_tests(
 
                 #[test]
                 fn cholesky_inverse(n in PROPTEST_MATRIX_DIM) {
-                    let m = RandomSDP::new(Dynamic::new(n), || random::<$scalar>().0).unwrap();
+                    let m = RandomSDP::new(Dyn(n), || random::<$scalar>().0).unwrap();
                     let m1 = m.clone().cholesky().unwrap().inverse();
                     let id1 = &m  * &m1;
                     let id2 = &m1 * &m;
@@ -93,7 +93,7 @@ macro_rules! gen_tests(
 
                 #[test]
                 fn cholesky_determinant(n in PROPTEST_MATRIX_DIM) {
-                    let m = RandomSDP::new(Dynamic::new(n), || random::<$scalar>().0).unwrap();
+                    let m = RandomSDP::new(Dyn(n), || random::<$scalar>().0).unwrap();
                     let lu_det = m.clone().lu().determinant();
                     assert_relative_eq!(lu_det.imaginary(), 0., epsilon = 1.0e-7);
                     let chol_det = m.cholesky().unwrap().determinant();
@@ -137,7 +137,7 @@ macro_rules! gen_tests(
                 fn cholesky_insert_column(n in PROPTEST_MATRIX_DIM) {
                     let n = n.max(1).min(10);
                     let j = random::<usize>() % n;
-                    let m_updated = RandomSDP::new(Dynamic::new(n), || random::<$scalar>().0).unwrap();
+                    let m_updated = RandomSDP::new(Dyn(n), || random::<$scalar>().0).unwrap();
 
                     // build m and col from m_updated
                     let col = m_updated.column(j);
@@ -154,7 +154,7 @@ macro_rules! gen_tests(
                 fn cholesky_remove_column(n in PROPTEST_MATRIX_DIM) {
                     let n = n.max(1).min(10);
                     let j = random::<usize>() % n;
-                    let m = RandomSDP::new(Dynamic::new(n), || random::<$scalar>().0).unwrap();
+                    let m = RandomSDP::new(Dyn(n), || random::<$scalar>().0).unwrap();
 
                     // remove column from cholesky decomposition and rebuild m
                     let chol = m.clone().cholesky().unwrap().remove_column(j);

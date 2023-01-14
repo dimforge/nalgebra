@@ -15,7 +15,7 @@ use std::mem::MaybeUninit;
 ///
 /// An allocator is said to be:
 ///   − static:  if `R` and `C` both implement `DimName`.
-///   − dynamic: if either one (or both) of `R` or `C` is equal to `Dynamic`.
+///   − dynamic: if either one (or both) of `R` or `C` is equal to `Dyn`.
 ///
 /// Every allocator must be both static and dynamic. Though not all implementations may share the
 /// same `Buffer` type.

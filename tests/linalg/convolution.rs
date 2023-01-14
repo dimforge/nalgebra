@@ -16,7 +16,7 @@ fn convolve_same_check() {
 
     assert!(relative_eq!(actual_s, expected_s, epsilon = 1.0e-7));
 
-    // Dynamic Tests
+    // Dyn Tests
     let actual_d = DVector::from_vec(vec![1.0, 4.0, 7.0, 10.0]);
     let expected_d = DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0])
         .convolve_same(DVector::from_vec(vec![1.0, 2.0]));
@@ -54,7 +54,7 @@ fn convolve_full_check() {
 
     assert!(relative_eq!(actual_s, expected_s, epsilon = 1.0e-7));
 
-    // Dynamic Tests
+    // Dyn Tests
     let actual_d = DVector::from_vec(vec![1.0, 4.0, 7.0, 10.0, 8.0]);
     let expected_d = DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0])
         .convolve_full(DVector::from_vec(vec![1.0, 2.0]));
@@ -90,7 +90,7 @@ fn convolve_valid_check() {
 
     assert!(relative_eq!(actual_s, expected_s, epsilon = 1.0e-7));
 
-    // Dynamic Tests
+    // Dyn Tests
     let actual_d = DVector::from_vec(vec![4.0, 7.0, 10.0]);
     let expected_d = DVector::from_vec(vec![1.0, 2.0, 3.0, 4.0])
         .convolve_valid(DVector::from_vec(vec![1.0, 2.0]));

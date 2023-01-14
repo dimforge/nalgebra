@@ -32,7 +32,7 @@ use crate::{ArrayStorage, SMatrix, SimdComplexField, Storage, UninitMatrix};
 use crate::storage::IsContiguous;
 use crate::uninit::{Init, InitStatus, Uninit};
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::{DMatrix, DVector, Dynamic, RowDVector, VecStorage};
+use crate::{DMatrix, DVector, Dyn, RowDVector, VecStorage};
 use std::mem::MaybeUninit;
 
 /// A square matrix.
@@ -146,13 +146,13 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// - type-level unsigned integer constants (e.g. `U1024`, `U10000`) from the `typenum::` crate.
 /// Using those, you will not get error messages as nice as for numbers smaller than 128 defined on
 /// the `nalgebra::` module.
-/// - the special value `Dynamic` from the `nalgebra::` root module. This indicates that the
+/// - the special value `Dyn` from the `nalgebra::` root module. This indicates that the
 /// specified dimension is not known at compile-time. Note that this will generally imply that the
 /// matrix data storage `S` performs a dynamic allocation and contains extra metadata for the
 /// matrix shape.
 ///
-/// Note that mixing `Dynamic` with type-level unsigned integers is allowed. Actually, a
-/// dynamically-sized column vector should be represented as a `Matrix<T, Dynamic, U1, S>` (given
+/// Note that mixing `Dyn` with type-level unsigned integers is allowed. Actually, a
+/// dynamically-sized column vector should be represented as a `Matrix<T, Dyn, U1, S>` (given
 /// some concrete types for `T` and a compatible data storage type `S`).
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -341,7 +341,7 @@ impl<T> DMatrix<T> {
     ///
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
-    pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, Dynamic>) -> Self {
+    pub const fn from_vec_storage(storage: VecStorage<T, Dyn, Dyn>) -> Self {
         // This is sound because the dimensions of the matrix and the storage are guaranteed
         // to be the same
         unsafe { Self::from_data_statically_unchecked(storage) }
@@ -356,7 +356,7 @@ impl<T> DVector<T> {
     ///
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
-    pub const fn from_vec_storage(storage: VecStorage<T, Dynamic, U1>) -> Self {
+    pub const fn from_vec_storage(storage: VecStorage<T, Dyn, U1>) -> Self {
         // This is sound because the dimensions of the matrix and the storage are guaranteed
         // to be the same
         unsafe { Self::from_data_statically_unchecked(storage) }
@@ -371,7 +371,7 @@ impl<T> RowDVector<T> {
     ///
     /// This method exists primarily as a workaround for the fact that `from_data` can not
     /// work in `const fn` contexts.
-    pub const fn from_vec_storage(storage: VecStorage<T, U1, Dynamic>) -> Self {
+    pub const fn from_vec_storage(storage: VecStorage<T, U1, Dyn>) -> Self {
         // This is sound because the dimensions of the matrix and the storage are guaranteed
         // to be the same
         unsafe { Self::from_data_statically_unchecked(storage) }
@@ -417,7 +417,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         (nrows.value(), ncols.value())
     }
 
-    /// The shape of this matrix wrapped into their representative types (`Const` or `Dynamic`).
+    /// The shape of this matrix wrapped into their representative types (`Const` or `Dyn`).
     #[inline]
     #[must_use]
     pub fn shape_generic(&self) -> (R, C) {

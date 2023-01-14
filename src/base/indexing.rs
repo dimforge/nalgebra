@@ -3,7 +3,7 @@
 
 use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::base::{
-    Const, Dim, DimDiff, DimName, DimSub, Dynamic, Matrix, MatrixView, MatrixViewMut, Scalar, U1,
+    Const, Dim, DimDiff, DimName, DimSub, Dyn, Matrix, MatrixView, MatrixViewMut, Scalar, U1,
 };
 
 use std::ops;
@@ -49,7 +49,7 @@ fn dimrange_usize() {
 }
 
 impl<D: Dim> DimRange<D> for ops::Range<usize> {
-    type Length = Dynamic;
+    type Length = Dyn;
 
     #[inline(always)]
     fn lower(&self, _: D) -> usize {
@@ -58,7 +58,7 @@ impl<D: Dim> DimRange<D> for ops::Range<usize> {
 
     #[inline(always)]
     fn length(&self, _: D) -> Self::Length {
-        Dynamic::new(self.end.saturating_sub(self.start))
+        Dyn(self.end.saturating_sub(self.start))
     }
 
     #[inline(always)]
@@ -74,24 +74,24 @@ fn dimrange_range_usize() {
     assert!(DimRange::contained_by(&(0..1), Const::<1>));
     assert!(DimRange::contained_by(
         &((usize::MAX - 1)..usize::MAX),
-        Dynamic::new(usize::MAX)
+        Dyn(usize::MAX)
     ));
     assert_eq!(
-        DimRange::length(&((usize::MAX - 1)..usize::MAX), Dynamic::new(usize::MAX)),
-        Dynamic::new(1)
+        DimRange::length(&((usize::MAX - 1)..usize::MAX), Dyn(usize::MAX)),
+        Dyn(1)
     );
     assert_eq!(
-        DimRange::length(&(usize::MAX..(usize::MAX - 1)), Dynamic::new(usize::MAX)),
-        Dynamic::new(0)
+        DimRange::length(&(usize::MAX..(usize::MAX - 1)), Dyn(usize::MAX)),
+        Dyn(0)
     );
     assert_eq!(
-        DimRange::length(&(usize::MAX..usize::MAX), Dynamic::new(usize::MAX)),
-        Dynamic::new(0)
+        DimRange::length(&(usize::MAX..usize::MAX), Dyn(usize::MAX)),
+        Dyn(0)
     );
 }
 
 impl<D: Dim> DimRange<D> for ops::RangeFrom<usize> {
-    type Length = Dynamic;
+    type Length = Dyn;
 
     #[inline(always)]
     fn lower(&self, _: D) -> usize {
@@ -116,16 +116,13 @@ fn dimrange_rangefrom_usize() {
     assert!(DimRange::contained_by(&(0..), Const::<1>));
     assert!(DimRange::contained_by(
         &((usize::MAX - 1)..),
-        Dynamic::new(usize::MAX)
+        Dyn(usize::MAX)
     ));
     assert_eq!(
-        DimRange::length(&((usize::MAX - 1)..), Dynamic::new(usize::MAX)),
-        Dynamic::new(1)
+        DimRange::length(&((usize::MAX - 1)..), Dyn(usize::MAX)),
+        Dyn(1)
     );
-    assert_eq!(
-        DimRange::length(&(usize::MAX..), Dynamic::new(usize::MAX)),
-        Dynamic::new(0)
-    );
+    assert_eq!(DimRange::length(&(usize::MAX..), Dyn(usize::MAX)), Dyn(0));
 }
 
 impl<D: Dim, T: Dim> DimRange<D> for ops::RangeFrom<T>
@@ -181,7 +178,7 @@ fn dimrange_rangefull() {
 }
 
 impl<D: Dim> DimRange<D> for ops::RangeInclusive<usize> {
-    type Length = Dynamic;
+    type Length = Dyn;
 
     #[inline(always)]
     fn lower(&self, _: D) -> usize {
@@ -190,7 +187,7 @@ impl<D: Dim> DimRange<D> for ops::RangeInclusive<usize> {
 
     #[inline(always)]
     fn length(&self, _: D) -> Self::Length {
-        Dynamic::new(if self.end() < self.start() {
+        Dyn(if self.end() < self.start() {
             0
         } else {
             self.end().wrapping_sub(self.start().wrapping_sub(1))
@@ -209,33 +206,33 @@ fn dimrange_rangeinclusive_usize() {
     assert!(DimRange::contained_by(&(0..=0), Const::<1>));
     assert!(!DimRange::contained_by(
         &(usize::MAX..=usize::MAX),
-        Dynamic::new(usize::MAX)
+        Dyn(usize::MAX)
     ));
     assert!(!DimRange::contained_by(
         &((usize::MAX - 1)..=usize::MAX),
-        Dynamic::new(usize::MAX)
+        Dyn(usize::MAX)
     ));
     assert!(DimRange::contained_by(
         &((usize::MAX - 1)..=(usize::MAX - 1)),
-        Dynamic::new(usize::MAX)
+        Dyn(usize::MAX)
     ));
-    assert_eq!(DimRange::length(&(0..=0), Const::<1>), Dynamic::new(1));
+    assert_eq!(DimRange::length(&(0..=0), Const::<1>), Dyn(1));
     assert_eq!(
-        DimRange::length(&((usize::MAX - 1)..=usize::MAX), Dynamic::new(usize::MAX)),
-        Dynamic::new(2)
+        DimRange::length(&((usize::MAX - 1)..=usize::MAX), Dyn(usize::MAX)),
+        Dyn(2)
     );
     assert_eq!(
-        DimRange::length(&(usize::MAX..=(usize::MAX - 1)), Dynamic::new(usize::MAX)),
-        Dynamic::new(0)
+        DimRange::length(&(usize::MAX..=(usize::MAX - 1)), Dyn(usize::MAX)),
+        Dyn(0)
     );
     assert_eq!(
-        DimRange::length(&(usize::MAX..=usize::MAX), Dynamic::new(usize::MAX)),
-        Dynamic::new(1)
+        DimRange::length(&(usize::MAX..=usize::MAX), Dyn(usize::MAX)),
+        Dyn(1)
     );
 }
 
 impl<D: Dim> DimRange<D> for ops::RangeTo<usize> {
-    type Length = Dynamic;
+    type Length = Dyn;
 
     #[inline(always)]
     fn lower(&self, _: D) -> usize {
@@ -244,7 +241,7 @@ impl<D: Dim> DimRange<D> for ops::RangeTo<usize> {
 
     #[inline(always)]
     fn length(&self, _: D) -> Self::Length {
-        Dynamic::new(self.end)
+        Dyn(self.end)
     }
 
     #[inline(always)]
@@ -260,20 +257,20 @@ fn dimrange_rangeto_usize() {
     assert!(DimRange::contained_by(&(..0), Const::<1>));
     assert!(DimRange::contained_by(
         &(..(usize::MAX - 1)),
-        Dynamic::new(usize::MAX)
+        Dyn(usize::MAX)
     ));
     assert_eq!(
-        DimRange::length(&(..(usize::MAX - 1)), Dynamic::new(usize::MAX)),
-        Dynamic::new(usize::MAX - 1)
+        DimRange::length(&(..(usize::MAX - 1)), Dyn(usize::MAX)),
+        Dyn(usize::MAX - 1)
     );
     assert_eq!(
-        DimRange::length(&(..usize::MAX), Dynamic::new(usize::MAX)),
-        Dynamic::new(usize::MAX)
+        DimRange::length(&(..usize::MAX), Dyn(usize::MAX)),
+        Dyn(usize::MAX)
     );
 }
 
 impl<D: Dim> DimRange<D> for ops::RangeToInclusive<usize> {
-    type Length = Dynamic;
+    type Length = Dyn;
 
     #[inline(always)]
     fn lower(&self, _: D) -> usize {
@@ -282,7 +279,7 @@ impl<D: Dim> DimRange<D> for ops::RangeToInclusive<usize> {
 
     #[inline(always)]
     fn length(&self, _: D) -> Self::Length {
-        Dynamic::new(self.end + 1)
+        Dyn(self.end + 1)
     }
 
     #[inline(always)]
@@ -296,17 +293,14 @@ fn dimrange_rangetoinclusive_usize() {
     assert!(!DimRange::contained_by(&(..=0), Const::<0>));
     assert!(!DimRange::contained_by(&(..=1), Const::<0>));
     assert!(DimRange::contained_by(&(..=0), Const::<1>));
-    assert!(!DimRange::contained_by(
-        &(..=(usize::MAX)),
-        Dynamic::new(usize::MAX)
-    ));
+    assert!(!DimRange::contained_by(&(..=(usize::MAX)), Dyn(usize::MAX)));
     assert!(DimRange::contained_by(
         &(..=(usize::MAX - 1)),
-        Dynamic::new(usize::MAX)
+        Dyn(usize::MAX)
     ));
     assert_eq!(
-        DimRange::length(&(..=(usize::MAX - 1)), Dynamic::new(usize::MAX)),
-        Dynamic::new(usize::MAX)
+        DimRange::length(&(..=(usize::MAX - 1)), Dyn(usize::MAX)),
+        Dyn(usize::MAX)
     );
 }
 
@@ -742,12 +736,12 @@ macro_rules! impl_index_pairs {
 impl_index_pairs! {
     index R with {
         [<> usize                         =>  U1],
-        [<> ops::Range<usize>             =>  Dynamic],
-        [<> ops::RangeFrom<usize>         =>  Dynamic],
+        [<> ops::Range<usize>             =>  Dyn],
+        [<> ops::RangeFrom<usize>         =>  Dyn],
         [<> ops::RangeFull                =>  R],
-        [<> ops::RangeInclusive<usize>    =>  Dynamic],
-        [<> ops::RangeTo<usize>           =>  Dynamic],
-        [<> ops::RangeToInclusive<usize>  =>  Dynamic],
+        [<> ops::RangeInclusive<usize>    =>  Dyn],
+        [<> ops::RangeTo<usize>           =>  Dyn],
+        [<> ops::RangeToInclusive<usize>  =>  Dyn],
 
         [<I: Dim> ops::RangeFrom<I>
           =>  DimDiff<R, I>
@@ -755,12 +749,12 @@ impl_index_pairs! {
     }
     index C with {
         [<> usize                         =>  U1],
-        [<> ops::Range<usize>             =>  Dynamic],
-        [<> ops::RangeFrom<usize>         =>  Dynamic],
+        [<> ops::Range<usize>             =>  Dyn],
+        [<> ops::RangeFrom<usize>         =>  Dyn],
         [<> ops::RangeFull                =>  C],
-        [<> ops::RangeInclusive<usize>    =>  Dynamic],
-        [<> ops::RangeTo<usize>           =>  Dynamic],
-        [<> ops::RangeToInclusive<usize>  =>  Dynamic],
+        [<> ops::RangeInclusive<usize>    =>  Dyn],
+        [<> ops::RangeTo<usize>           =>  Dyn],
+        [<> ops::RangeToInclusive<usize>  =>  Dyn],
 
         [<J: DimName> ops::RangeFrom<J>
           =>  DimDiff<C, J>
