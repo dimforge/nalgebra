@@ -14,10 +14,10 @@ use rayon::{iter::plumbing::bridge, prelude::*};
 /// A rayon parallel iterator over the colums of a matrix. It is created
 /// using the [`par_column_iter`] method of [`Matrix`].
 ///
-/// *Only available if compiled with the feature `par-iter`.*
+/// *Only available if compiled with the feature `rayon`.*
 /// [`par_column_iter`]: crate::Matrix::par_column_iter
 /// [`Matrix`]: crate::Matrix
-#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
 pub struct ParColumnIter<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> {
     mat: &'a Matrix<T, R, Cols, S>,
 }
@@ -29,7 +29,7 @@ impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> ParColumnIter<'a, T, R
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
 impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> ParallelIterator
     for ParColumnIter<'a, T, R, Cols, S>
 where
@@ -50,8 +50,8 @@ where
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
-/// *Only available if compiled with the feature `par-iter`.*
+#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+/// *Only available if compiled with the feature `rayon`.*
 impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> IndexedParallelIterator
     for ParColumnIter<'a, T, R, Cols, S>
 where
@@ -75,9 +75,9 @@ where
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
 /// A rayon parallel iterator through the mutable columns of a matrix.
-/// *Only available if compiled with the feature `par-iter`.*
+/// *Only available if compiled with the feature `rayon`.*
 pub struct ParColumnIterMut<
     'a,
     T,
@@ -88,8 +88,8 @@ pub struct ParColumnIterMut<
     mat: &'a mut Matrix<T, R, Cols, S>,
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
-/// *only availabe if compiled with the feature `par-iter`*
+#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+/// *only availabe if compiled with the feature `rayon`*
 impl<'a, T, R, Cols, S> ParColumnIterMut<'a, T, R, Cols, S>
 where
     R: Dim,
@@ -102,8 +102,8 @@ where
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
-/// *Only available if compiled with the feature `par-iter`*
+#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+/// *Only available if compiled with the feature `rayon`*
 impl<'a, T, R, Cols, S> ParallelIterator for ParColumnIterMut<'a, T, R, Cols, S>
 where
     R: Dim,
@@ -125,8 +125,8 @@ where
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
-/// *Only available if compiled with the feature `par-iter`*
+#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+/// *Only available if compiled with the feature `rayon`*
 impl<'a, T, R, Cols, S> IndexedParallelIterator for ParColumnIterMut<'a, T, R, Cols, S>
 where
     R: Dim,
@@ -152,9 +152,9 @@ where
     }
 }
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
 /// # Parallel iterators using `rayon`
-/// *Only available if compiled with the feature `par-iter`*
+/// *Only available if compiled with the feature `rayon`*
 impl<T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Matrix<T, R, Cols, S>
 where
     T: Send + Sync + Scalar,
@@ -225,8 +225,8 @@ where
 /// rayon trait part of the public interface of the `ColumnIter`.
 struct ColumnProducer<'a, T, R: Dim, C: Dim, S: RawStorage<T, R, C>>(ColumnIter<'a, T, R, C, S>);
 
-#[cfg_attr(doc_cfg, doc(cfg(feature = "par-iter")))]
-/// *only available if compiled with the feature `par-iter`*
+#[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
+/// *only available if compiled with the feature `rayon`*
 impl<'a, T, R: Dim, Cols: Dim, S: RawStorage<T, R, Cols>> Producer
     for ColumnProducer<'a, T, R, Cols, S>
 where
