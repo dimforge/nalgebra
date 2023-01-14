@@ -41,7 +41,6 @@ where
 impl<T: SimdComplexField, D: Dim> Cholesky<T, D>
 where
     DefaultAllocator: Allocator<T, D, D>,
-    T::SimdRealField: Zero,
 {
     /// Computes the Cholesky decomposition of `matrix` without checking that the matrix is definite-positive.
     ///
