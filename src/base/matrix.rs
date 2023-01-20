@@ -4,6 +4,7 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::any::TypeId;
 use std::cmp::Ordering;
 use std::fmt;
+use std::fmt::Write;
 use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
 use std::mem;
@@ -1880,6 +1881,17 @@ where
     }
 }
 
+struct CharCounter {
+    pub count: usize,
+}
+
+impl Write for CharCounter {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.count += s.chars().count();
+        Ok(())
+    }
+}
+
 macro_rules! impl_fmt {
     ($trait: path, $fmt_str_without_precision: expr, $fmt_str_with_precision: expr) => {
         impl<T, R: Dim, C: Dim, S> $trait for Matrix<T, R, C, S>
@@ -1888,19 +1900,18 @@ macro_rules! impl_fmt {
             S: RawStorage<T, R, C>,
         {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                #[cfg(feature = "std")]
                 fn val_width<T: Scalar + $trait>(val: &T, f: &mut fmt::Formatter<'_>) -> usize {
+                    let mut char_counter = CharCounter { count: 0 };
                     match f.precision() {
-                        Some(precision) => format!($fmt_str_with_precision, val, precision)
-                            .chars()
-                            .count(),
-                        None => format!($fmt_str_without_precision, val).chars().count(),
+                        Some(precision) => {
+                            write!(char_counter, $fmt_str_with_precision, val, precision).unwrap();
+                            char_counter.count
+                        }
+                        None => {
+                            write!(char_counter, $fmt_str_without_precision, val).unwrap();
+                            char_counter.count
+                        }
                     }
-                }
-
-                #[cfg(not(feature = "std"))]
-                fn val_width<T: Scalar + $trait>(_: &T, _: &mut fmt::Formatter<'_>) -> usize {
-                    4
                 }
 
                 let (nrows, ncols) = self.shape();
