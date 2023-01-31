@@ -37,6 +37,7 @@ macro_rules! impl_visit_tuple {
         impl<$i, Func: Visitor<$i>> VisitTuple<Func> for ($i,) {
             type Output = <Func as Visitor<$i>>::Output;
             #[allow(non_snake_case)]
+            #[inline(always)]
             fn visit(visitor: Func, ($i,): Self) -> Self::Output {
                 visitor.visit($i)
             }
@@ -48,6 +49,7 @@ macro_rules! impl_visit_tuple {
         {
             type Output = <($($is,)*) as VisitTuple<<Func as Visitor<$i>>::Output>>::Output;
             #[allow(non_snake_case)]
+            #[inline(always)]
             fn visit(visitor: Func, ($i, $($is),*): Self) -> Self::Output {
                 VisitTuple::visit(visitor.visit($i), ($($is,)*))
             }
@@ -103,10 +105,10 @@ mod vstack_impl {
             R1: Dim + DimAdd<Const<R2>>,
             C1: Dim,
             S1: RawStorageMut<T, R1, C1>,
-            const R2: usize,
             C2: Dim,
             S2: RawStorage<T, Const<R2>, C2>,
             R3: Dim + DimAdd<Const<R2>>,
+            const R2: usize,
         > Visitor<&Matrix<T, Const<R2>, C2, S2>> for VStack<T, R1, C1, S1, R3>
     where
         ShapeConstraint: SameNumberOfColumns<C1, C2>,
@@ -152,6 +154,7 @@ mod vstack_impl {
 
     /// Stack a tuple of references to matrices with equal column counts vertically, yielding a
     /// matrix with every row of the input matrices.
+    #[inline]
     pub fn vstack<
         T: Scalar + Zero,
         R: Dim,
@@ -227,9 +230,9 @@ mod hstack_impl {
             C1: Dim + DimAdd<Const<C2>>,
             S1: RawStorageMut<T, R1, C1>,
             R2: Dim,
-            const C2: usize,
             S2: RawStorage<T, R2, Const<C2>>,
             C3: Dim + DimAdd<Const<C2>>,
+            const C2: usize,
         > Visitor<&Matrix<T, R2, Const<C2>, S2>> for HStack<T, R1, C1, S1, C3>
     where
         ShapeConstraint: SameNumberOfRows<R1, R2>,
@@ -275,6 +278,7 @@ mod hstack_impl {
 
     /// Stack a tuple of references to matrices with equal row counts horizontally, yielding a
     /// matrix with every column of the input matrices.
+    #[inline]
     pub fn hstack<
         T: Scalar + Zero,
         R: Dim,
