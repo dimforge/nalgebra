@@ -305,3 +305,46 @@ fn dvector_arbitrary_expressions() {
     let a_expected = DVector::from_column_slice(&[1 + 2, 2 * 3, 4 * f(5 + 6), 7 - 8 * 9]);
     assert_eq_and_type!(a, a_expected);
 }
+
+#[test]
+fn test_stacking() {
+    use nalgebra::{hstack, vstack, RowVector3, RowVector4};
+    assert_eq_and_type!(
+        vstack((&RowVector3::new(1, 2, 3), &RowVector3::new(4, 5, 6))),
+        Matrix2x3::new(1, 2, 3, 4, 5, 6)
+    );
+    assert_eq_and_type!(
+        vstack((
+            &RowVector3::new(1, 2, 3),
+            &RowVector3::new(4, 5, 6),
+            &RowVector3::new(7, 8, 9)
+        )),
+        Matrix3::new(1, 2, 3, 4, 5, 6, 7, 8, 9)
+    );
+    assert_eq_and_type!(
+        hstack((&Vector3::new(1, 2, 3), &Vector3::new(4, 5, 6))),
+        Matrix3x2::new(1, 4, 2, 5, 3, 6)
+    );
+    assert_eq_and_type!(
+        hstack((
+            &Vector3::new(1, 2, 3),
+            &Vector3::new(4, 5, 6),
+            &Vector3::new(7, 8, 9)
+        )),
+        Matrix3::new(1, 4, 7, 2, 5, 8, 3, 6, 9)
+    );
+    assert_eq_and_type!(
+        vstack((
+            &hstack((&DMatrix::identity(3, 3), &Vector3::new(2, 2, 2))),
+            &RowVector4::new(3, 3, 3, 3)
+        )),
+        matrix![1, 0, 0, 2; 0, 1, 0, 2; 0, 0, 1, 2; 3, 3, 3, 3]
+    );
+    assert_eq_and_type!(
+        vstack((
+            &hstack((&DMatrix::identity(3, 3), &dvector![2, 2, 2],)),
+            &dvector![3, 3, 3, 3].transpose(),
+        )),
+        dmatrix![1, 0, 0, 2; 0, 1, 0, 2; 0, 0, 1, 2; 3, 3, 3, 3]
+    );
+}
