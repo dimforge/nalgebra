@@ -347,7 +347,7 @@ where
     #[inline]
     #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point2<T>) -> Point2<T> {
-        // TODO: would it be useful performancewise not to call inverse explicitly (i-e. implement
+        // TODO: would it be useful performance-wise not to call inverse explicitly (i-e. implement
         // the inverse transformation explicitly here) ?
         self.inverse() * pt
     }

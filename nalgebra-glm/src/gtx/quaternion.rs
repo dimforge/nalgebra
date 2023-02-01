@@ -80,7 +80,7 @@ pub fn quat_to_mat3<T: RealNumber>(x: &Qua<T>) -> TMat3<T> {
         .into_inner()
 }
 
-/// Converts a quaternion to a rotation matrix in homogenous coordinates.
+/// Converts a quaternion to a rotation matrix in homogeneous coordinates.
 pub fn quat_to_mat4<T: RealNumber>(x: &Qua<T>) -> TMat4<T> {
     UnitQuaternion::new_unchecked(*x).to_homogeneous()
 }
