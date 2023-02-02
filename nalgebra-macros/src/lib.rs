@@ -354,43 +354,41 @@ impl ConcatElem {
 ///
 /// **Note: Requires the `macros` feature to be enabled (enabled by default)**.
 ///
-/// The syntax is similar to the [`matrix!`](./macro.matrix.html) and
-/// [`dmatrix`](./macro.dmatrix.html) macros. However the elements should
-/// be of type [`&Matrix`](./base/struct.Matrix.html) or be one of the litterals
-/// `0` or `1`. The elements of type `&Matrix` are concatenated as expected. The
-/// litteral `0` is expanded to the zero. The litteral `1` is expanded to the
-/// identity matrix. Note that at least one element in each row and column must
-/// be an expression of type `Matrix`.
+/// The syntax is similar to the [`matrix!`] and [`dmatrix!`]) macros. However the elements should
+/// be of type `&Matrix` or be one of the litterals `0` or `1`. The elements of type `&Matrix` are
+/// concatenated as expected. The litteral `0` is expanded to the zero. The litteral `1` is
+/// expanded to the identity matrix. Note that at least one element in each row and column must be
+/// an expression of type `&Matrix`.
 ///
-/// All elements in the same row needs to have the same number of rows and simillary
-/// for the elements in the same column. This is checked at compile time as long as
-/// all elements have dimensions of type `Const<N>`. If one or more elements have
-/// dimensions of type `Dynamic` then it is checked at runtime that all dimensions
-/// match.
+/// All elements in the same row need to have the same number of rows and simillary for the
+/// elements in the same column. This is checked at compile time as long as all elements have
+/// dimensions of type `Const<N>`. If one or more elements have dimensions of type `Dynamic` then
+/// it is checked at runtime that all dimensions match.
 ///
-/// If at least one element of a row has `Const<N>` number of rows then that row has
-/// a whole will have `Const<N>` number of rows. However if at least one row has
-/// has `Dynamic` number of rows then the entire matrix will have `Dynamic` number of
-/// rows. Same for columns.
+/// If at least one element of a row has `Const<N>` number of rows then that row has a whole will
+/// have `Const<N>` number of rows. However if at least one row has has `Dynamic` number of rows
+/// then the entire matrix will have `Dynamic` number of rows. Same for columns.
 ///
 /// # Examples
 ///
 /// ```
 /// use nalgebra::{cat, matrix};
 ///
-/// let a = cat![
-///     &matrix![1,2;3,4;], 0;
-///     0, &matrix![5,6;7,8;]
+/// let a = matrix![1,2;3,4;];
+///
+/// let m1 = cat![
+///     &a, 0;
+///     0, &matrix![5,6;7,8;];
 /// ];
 ///
-/// let b = matrix![
+/// let m2 = matrix![
 ///     1,2,0,0;
 ///     3,4,0,0;
 ///     0,0,5,6;
 ///     0,0,7,8;
 /// ];
 ///
-/// assert_eq!(a, b);
+/// assert_eq!(m1, m2);
 /// ```
 ///
 /// ```
