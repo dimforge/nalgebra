@@ -17,10 +17,11 @@
 )]
 
 use proc_macro::TokenStream;
-use quote::{format_ident, quote, ToTokens, TokenStreamExt};
+use quote::{format_ident, quote, quote_spanned, ToTokens, TokenStreamExt};
 use syn::parse::{Error, Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
 use syn::{parse_macro_input, Token};
+use syn::spanned::Spanned;
 use syn::{Expr, Lit};
 
 use proc_macro2::{Delimiter, Spacing, TokenStream as TokenStream2, TokenTree};
@@ -480,7 +481,7 @@ fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
             if let ConcatElem::Expr(expr) = cell {
                 let ident = format_ident!("{}_cat_{}_{}", prefix, i, j);
                 let ident_shape = format_ident!("{}_cat_{}_{}_shape", prefix, i, j);
-                output.extend(std::iter::once(quote! {
+                output.extend(std::iter::once(quote_spanned! {expr.span()=>
                     let #ident = #expr;
                     let #ident_shape = #ident.shape_generic();
                 }));
