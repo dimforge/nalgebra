@@ -20,8 +20,8 @@ use proc_macro::TokenStream;
 use quote::{format_ident, quote, quote_spanned, ToTokens, TokenStreamExt};
 use syn::parse::{Error, Parse, ParseStream, Result};
 use syn::punctuated::Punctuated;
-use syn::{parse_macro_input, Token};
 use syn::spanned::Spanned;
+use syn::{parse_macro_input, Token};
 use syn::{Expr, Lit};
 
 use proc_macro2::{Delimiter, Spacing, TokenStream as TokenStream2, TokenTree};
@@ -331,28 +331,22 @@ enum ConcatElem {
 
 impl ConcatElem {
     fn from_expr(expr: Expr) -> Self {
-        match &expr {
-            Expr::Lit(syn::ExprLit {
-                lit: Lit::Int(ilit),
-                ..
-            }) => {
-                if ilit.base10_digits() == "0" {
-                    return ConcatElem::Zero;
-                } else if ilit.base10_digits() == "1" {
-                    return ConcatElem::One;
-                }
+        if let Expr::Lit(syn::ExprLit {
+            lit: Lit::Int(ilit),
+            ..
+        }) = &expr
+        {
+            if ilit.base10_digits() == "0" {
+                return ConcatElem::Zero;
+            } else if ilit.base10_digits() == "1" {
+                return ConcatElem::One;
             }
-            _ => (),
-        };
+        }
         ConcatElem::Expr(expr)
     }
 
     fn is_expr(&self) -> bool {
-        match self {
-            ConcatElem::Zero => false,
-            ConcatElem::One => false,
-            ConcatElem::Expr(_) => true,
-        }
+        matches!(self, ConcatElem::Expr(_))
     }
 }
 
@@ -460,6 +454,7 @@ pub fn cat(stream: TokenStream) -> TokenStream {
     proc_macro::TokenStream::from(cat_impl("__11f075cdd4a86538", matrix))
 }
 
+#[allow(clippy::too_many_lines)]
 fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
     let n_macro_rows = matrix.nrows();
     let n_macro_cols = matrix.ncols();
@@ -469,7 +464,7 @@ fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
         .into_iter()
         .map(|row| {
             row.into_iter()
-                .map(|c| ConcatElem::from_expr(c))
+                .map(ConcatElem::from_expr)
                 .collect::<Vec<_>>()
         })
         .collect::<Vec<_>>();
@@ -489,8 +484,8 @@ fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
         }
     }
 
-    for i in 0..n_macro_rows {
-        let size = (0..n_macro_cols).filter(|j| rows[i][*j].is_expr()).map(|j| {
+    for (i, row) in rows.iter().enumerate() {
+        let size = row.iter().enumerate().filter(|(_, c)| c.is_expr()).map(|(j, _)| {
             let ident_shape = format_ident!("{}_cat_{}_{}_shape", prefix, i, j);
             quote!{ #ident_shape.0 }
         }).reduce(|a, b| quote!{
@@ -541,7 +536,7 @@ fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
         }));
     }
 
-    let nrows = (0..n_macro_rows)
+    let num_rows = (0..n_macro_rows)
         .map(|i| {
             let ident = format_ident!("{}_cat_row_{}_size", prefix, i);
             quote! { #ident }
@@ -553,7 +548,7 @@ fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
         })
         .expect("More than zero rows in concatenation");
 
-    let ncols = (0..n_macro_cols)
+    let num_cols = (0..n_macro_cols)
         .map(|j| {
             let ident = format_ident!("{}_cat_col_{}_size", prefix, j);
             quote! { #ident }
@@ -569,7 +564,7 @@ fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
     // however that would mean that the macro needs to generate unsafe code
     // which does not seem like a great idea.
     output.extend(std::iter::once(quote! {
-        let mut matrix = nalgebra::Matrix::zeros_generic(#nrows, #ncols);
+        let mut matrix = nalgebra::Matrix::zeros_generic(#num_rows, #num_cols);
     }));
 
     for (i, row) in rows.into_iter().enumerate() {
