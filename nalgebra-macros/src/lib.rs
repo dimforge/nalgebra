@@ -456,10 +456,10 @@ impl ConcatElem {
 #[proc_macro]
 pub fn cat(stream: TokenStream) -> TokenStream {
     let matrix = parse_macro_input!(stream as Matrix);
-    proc_macro::TokenStream::from(cat_impl(matrix))
+    proc_macro::TokenStream::from(cat_impl("__11f075cdd4a86538", matrix))
 }
 
-fn cat_impl(matrix: Matrix) -> TokenStream2 {
+fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
     let n_macro_rows = matrix.nrows();
     let n_macro_cols = matrix.ncols();
 
@@ -478,8 +478,8 @@ fn cat_impl(matrix: Matrix) -> TokenStream2 {
     for (i, row) in rows.iter().enumerate() {
         for (j, cell) in row.iter().enumerate() {
             if let ConcatElem::Expr(expr) = cell {
-                let ident = format_ident!("cat_{}_{}", i, j);
-                let ident_shape = format_ident!("cat_{}_{}_shape", i, j);
+                let ident = format_ident!("{}_cat_{}_{}", prefix, i, j);
+                let ident_shape = format_ident!("{}_cat_{}_{}_shape", prefix, i, j);
                 output.extend(std::iter::once(quote! {
                     let #ident = #expr;
                     let #ident_shape = #ident.shape_generic();
@@ -490,21 +490,21 @@ fn cat_impl(matrix: Matrix) -> TokenStream2 {
 
     for i in 0..n_macro_rows {
         let size = (0..n_macro_cols).filter(|j| rows[i][*j].is_expr()).map(|j| {
-            let ident_shape = format_ident!("cat_{}_{}_shape", i, j);
+            let ident_shape = format_ident!("{}_cat_{}_{}_shape", prefix, i, j);
             quote!{ #ident_shape.0 }
         }).reduce(|a, b| quote!{
             <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::DimEq<_, _>>::representative(#a, #b)
                 .expect("The concatenated matrices do not have the same number of columns")
         }).expect("At least one element in each row must be an expression of type `Matrix`");
 
-        let size_ident = format_ident!("cat_row_{}_size", i);
-        let offset_ident = format_ident!("cat_row_{}_offset", i);
+        let size_ident = format_ident!("{}_cat_row_{}_size", prefix, i);
+        let offset_ident = format_ident!("{}_cat_row_{}_offset", prefix, i);
 
         let offset = if i == 0 {
             quote! { 0 }
         } else {
-            let last_offset_ident = format_ident!("cat_row_{}_offset", i - 1);
-            let last_size_ident = format_ident!("cat_row_{}_size", i - 1);
+            let last_offset_ident = format_ident!("{}_cat_row_{}_offset", prefix, i - 1);
+            let last_size_ident = format_ident!("{}_cat_row_{}_size", prefix, i - 1);
             quote! { #last_offset_ident + <_ as nalgebra::Dim>::value(&#last_size_ident) }
         };
 
@@ -516,21 +516,21 @@ fn cat_impl(matrix: Matrix) -> TokenStream2 {
 
     for j in 0..n_macro_cols {
         let size = (0..n_macro_rows).filter(|i| rows[*i][j].is_expr()).map(|i| {
-            let ident_shape = format_ident!("cat_{}_{}_shape", i, j);
+            let ident_shape = format_ident!("{}_cat_{}_{}_shape", prefix, i, j);
             quote!{ #ident_shape.1 }
         }).reduce(|a, b| quote!{
             <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::DimEq<_, _>>::representative(#a, #b)
                 .expect("The concatenated matrices do not have the same number of rows")
         }).expect("At least one element in each column must be an expression of type `Matrix`");
 
-        let size_ident = format_ident!("cat_col_{}_size", j);
-        let offset_ident = format_ident!("cat_col_{}_offset", j);
+        let size_ident = format_ident!("{}_cat_col_{}_size", prefix, j);
+        let offset_ident = format_ident!("{}_cat_col_{}_offset", prefix, j);
 
         let offset = if j == 0 {
             quote! { 0 }
         } else {
-            let last_offset_ident = format_ident!("cat_col_{}_offset", j - 1);
-            let last_size_ident = format_ident!("cat_col_{}_size", j - 1);
+            let last_offset_ident = format_ident!("{}_cat_col_{}_offset", prefix, j - 1);
+            let last_size_ident = format_ident!("{}_cat_col_{}_size", prefix, j - 1);
             quote! { #last_offset_ident + <_ as nalgebra::Dim>::value(&#last_size_ident) }
         };
 
@@ -542,7 +542,7 @@ fn cat_impl(matrix: Matrix) -> TokenStream2 {
 
     let nrows = (0..n_macro_rows)
         .map(|i| {
-            let ident = format_ident!("cat_row_{}_size", i);
+            let ident = format_ident!("{}_cat_row_{}_size", prefix, i);
             quote! { #ident }
         })
         .reduce(|a, b| {
@@ -554,7 +554,7 @@ fn cat_impl(matrix: Matrix) -> TokenStream2 {
 
     let ncols = (0..n_macro_cols)
         .map(|j| {
-            let ident = format_ident!("cat_col_{}_size", j);
+            let ident = format_ident!("{}_cat_col_{}_size", prefix, j);
             quote! { #ident }
         })
         .reduce(|a, b| {
@@ -573,10 +573,10 @@ fn cat_impl(matrix: Matrix) -> TokenStream2 {
 
     for (i, row) in rows.into_iter().enumerate() {
         for (j, cell) in row.into_iter().enumerate() {
-            let row_size = format_ident!("cat_row_{}_size", i);
-            let col_size = format_ident!("cat_col_{}_size", j);
-            let row_offset = format_ident!("cat_row_{}_offset", i);
-            let col_offset = format_ident!("cat_col_{}_offset", j);
+            let row_size = format_ident!("{}_cat_row_{}_size", prefix, i);
+            let col_size = format_ident!("{}_cat_col_{}_size", prefix, j);
+            let row_offset = format_ident!("{}_cat_row_{}_offset", prefix, i);
+            let col_offset = format_ident!("{}_cat_col_{}_offset", prefix, j);
             match cell {
                 ConcatElem::Zero => (),
                 ConcatElem::One => {
@@ -590,7 +590,7 @@ fn cat_impl(matrix: Matrix) -> TokenStream2 {
                     }));
                 }
                 ConcatElem::Expr(_) => {
-                    let expr_ident = format_ident!("cat_{}_{}", i, j);
+                    let expr_ident = format_ident!("{}_cat_{}_{}", prefix, i, j);
                     output.extend(std::iter::once(quote! {
                         let start = (#row_offset, #col_offset);
                         let shape = (#row_size, #col_size);
@@ -621,33 +621,33 @@ mod tests {
             0, b;
         ];
 
-        let result = cat_impl(input);
+        let result = cat_impl("", input);
 
         let expected = quote! {{
-            let cat_0_0 = a;
-            let cat_0_0_shape = cat_0_0.shape_generic();
-            let cat_1_1 = b;
-            let cat_1_1_shape = cat_1_1.shape_generic();
-            let cat_row_0_size = cat_0_0_shape.0;
-            let cat_row_0_offset = 0;
-            let cat_row_1_size = cat_1_1_shape.0;
-            let cat_row_1_offset = cat_row_0_offset + <_ as nalgebra::Dim>::value(&cat_row_0_size);
-            let cat_col_0_size = cat_0_0_shape.1;
-            let cat_col_0_offset = 0;
-            let cat_col_1_size = cat_1_1_shape.1;
-            let cat_col_1_offset = cat_col_0_offset + <_ as nalgebra::Dim>::value(&cat_col_0_size);
+            let _cat_0_0 = a;
+            let _cat_0_0_shape = _cat_0_0.shape_generic();
+            let _cat_1_1 = b;
+            let _cat_1_1_shape = _cat_1_1.shape_generic();
+            let _cat_row_0_size = _cat_0_0_shape.0;
+            let _cat_row_0_offset = 0;
+            let _cat_row_1_size = _cat_1_1_shape.0;
+            let _cat_row_1_offset = _cat_row_0_offset + <_ as nalgebra::Dim>::value(&_cat_row_0_size);
+            let _cat_col_0_size = _cat_0_0_shape.1;
+            let _cat_col_0_offset = 0;
+            let _cat_col_1_size = _cat_1_1_shape.1;
+            let _cat_col_1_offset = _cat_col_0_offset + <_ as nalgebra::Dim>::value(&_cat_col_0_size);
             let mut matrix = nalgebra::Matrix::zeros_generic(
-                <_ as nalgebra::DimAdd<_>>::add(cat_row_0_size, cat_row_1_size),
-                <_ as nalgebra::DimAdd<_>>::add(cat_col_0_size, cat_col_1_size)
+                <_ as nalgebra::DimAdd<_>>::add(_cat_row_0_size, _cat_row_1_size),
+                <_ as nalgebra::DimAdd<_>>::add(_cat_col_0_size, _cat_col_1_size)
             );
-            let start = (cat_row_0_offset, cat_col_0_offset);
-            let shape = (cat_row_0_size, cat_col_0_size);
+            let start = (_cat_row_0_offset, _cat_col_0_offset);
+            let shape = (_cat_row_0_size, _cat_col_0_size);
             let mut slice = matrix.generic_slice_mut(start, shape);
-            slice.copy_from(cat_0_0);
-            let start = (cat_row_1_offset, cat_col_1_offset);
-            let shape = (cat_row_1_size, cat_col_1_size);
+            slice.copy_from(_cat_0_0);
+            let start = (_cat_row_1_offset, _cat_col_1_offset);
+            let shape = (_cat_row_1_size, _cat_col_1_size);
             let mut slice = matrix.generic_slice_mut(start, shape);
-            slice.copy_from(cat_1_1);
+            slice.copy_from(_cat_1_1);
             matrix
         }};
 
@@ -662,61 +662,61 @@ mod tests {
             e, 0, 0;
         ];
 
-        let result = cat_impl(input);
+        let result = cat_impl("", input);
 
         let expected = quote! {{
-            let cat_0_0 = a;
-            let cat_0_0_shape = cat_0_0.shape_generic();
-            let cat_0_2 = b;
-            let cat_0_2_shape = cat_0_2.shape_generic();
-            let cat_1_1 = c;
-            let cat_1_1_shape = cat_1_1.shape_generic();
-            let cat_1_2 = d;
-            let cat_1_2_shape = cat_1_2.shape_generic();
-            let cat_2_0 = e;
-            let cat_2_0_shape = cat_2_0.shape_generic();
-            let cat_row_0_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (cat_0_0_shape . 0 , cat_0_2_shape . 0) . expect ("The concatenated matrices do not have the same number of columns") ;
-            let cat_row_0_offset = 0;
-            let cat_row_1_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (cat_1_1_shape . 0 , cat_1_2_shape . 0) . expect ("The concatenated matrices do not have the same number of columns") ;
-            let cat_row_1_offset = cat_row_0_offset + <_ as nalgebra::Dim>::value(&cat_row_0_size);
-            let cat_row_2_size = cat_2_0_shape.0;
-            let cat_row_2_offset = cat_row_1_offset + <_ as nalgebra::Dim>::value(&cat_row_1_size);
-            let cat_col_0_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (cat_0_0_shape . 1 , cat_2_0_shape . 1) . expect ("The concatenated matrices do not have the same number of rows") ;
-            let cat_col_0_offset = 0;
-            let cat_col_1_size = cat_1_1_shape.1;
-            let cat_col_1_offset = cat_col_0_offset + <_ as nalgebra::Dim>::value(&cat_col_0_size);
-            let cat_col_2_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (cat_0_2_shape . 1 , cat_1_2_shape . 1) . expect ("The concatenated matrices do not have the same number of rows") ;
-            let cat_col_2_offset = cat_col_1_offset + <_ as nalgebra::Dim>::value(&cat_col_1_size);
+            let _cat_0_0 = a;
+            let _cat_0_0_shape = _cat_0_0.shape_generic();
+            let _cat_0_2 = b;
+            let _cat_0_2_shape = _cat_0_2.shape_generic();
+            let _cat_1_1 = c;
+            let _cat_1_1_shape = _cat_1_1.shape_generic();
+            let _cat_1_2 = d;
+            let _cat_1_2_shape = _cat_1_2.shape_generic();
+            let _cat_2_0 = e;
+            let _cat_2_0_shape = _cat_2_0.shape_generic();
+            let _cat_row_0_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_cat_0_0_shape . 0 , _cat_0_2_shape . 0) . expect ("The concatenated matrices do not have the same number of columns") ;
+            let _cat_row_0_offset = 0;
+            let _cat_row_1_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_cat_1_1_shape . 0 , _cat_1_2_shape . 0) . expect ("The concatenated matrices do not have the same number of columns") ;
+            let _cat_row_1_offset = _cat_row_0_offset + <_ as nalgebra::Dim>::value(&_cat_row_0_size);
+            let _cat_row_2_size = _cat_2_0_shape.0;
+            let _cat_row_2_offset = _cat_row_1_offset + <_ as nalgebra::Dim>::value(&_cat_row_1_size);
+            let _cat_col_0_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_cat_0_0_shape . 1 , _cat_2_0_shape . 1) . expect ("The concatenated matrices do not have the same number of rows") ;
+            let _cat_col_0_offset = 0;
+            let _cat_col_1_size = _cat_1_1_shape.1;
+            let _cat_col_1_offset = _cat_col_0_offset + <_ as nalgebra::Dim>::value(&_cat_col_0_size);
+            let _cat_col_2_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_cat_0_2_shape . 1 , _cat_1_2_shape . 1) . expect ("The concatenated matrices do not have the same number of rows") ;
+            let _cat_col_2_offset = _cat_col_1_offset + <_ as nalgebra::Dim>::value(&_cat_col_1_size);
             let mut matrix = nalgebra::Matrix::zeros_generic(
                 <_ as nalgebra::DimAdd<_>>::add(
-                    <_ as nalgebra::DimAdd<_>>::add(cat_row_0_size, cat_row_1_size),
-                    cat_row_2_size
+                    <_ as nalgebra::DimAdd<_>>::add(_cat_row_0_size, _cat_row_1_size),
+                    _cat_row_2_size
                 ),
                 <_ as nalgebra::DimAdd<_>>::add(
-                    <_ as nalgebra::DimAdd<_>>::add(cat_col_0_size, cat_col_1_size),
-                    cat_col_2_size
+                    <_ as nalgebra::DimAdd<_>>::add(_cat_col_0_size, _cat_col_1_size),
+                    _cat_col_2_size
                 )
             );
-            let start = (cat_row_0_offset, cat_col_0_offset);
-            let shape = (cat_row_0_size, cat_col_0_size);
+            let start = (_cat_row_0_offset, _cat_col_0_offset);
+            let shape = (_cat_row_0_size, _cat_col_0_size);
             let mut slice = matrix.generic_slice_mut(start, shape);
-            slice.copy_from(cat_0_0);
-            let start = (cat_row_0_offset, cat_col_2_offset);
-            let shape = (cat_row_0_size, cat_col_2_size);
+            slice.copy_from(_cat_0_0);
+            let start = (_cat_row_0_offset, _cat_col_2_offset);
+            let shape = (_cat_row_0_size, _cat_col_2_size);
             let mut slice = matrix.generic_slice_mut(start, shape);
-            slice.copy_from(cat_0_2);
-            let start = (cat_row_1_offset, cat_col_1_offset);
-            let shape = (cat_row_1_size, cat_col_1_size);
+            slice.copy_from(_cat_0_2);
+            let start = (_cat_row_1_offset, _cat_col_1_offset);
+            let shape = (_cat_row_1_size, _cat_col_1_size);
             let mut slice = matrix.generic_slice_mut(start, shape);
-            slice.copy_from(cat_1_1);
-            let start = (cat_row_1_offset, cat_col_2_offset);
-            let shape = (cat_row_1_size, cat_col_2_size);
+            slice.copy_from(_cat_1_1);
+            let start = (_cat_row_1_offset, _cat_col_2_offset);
+            let shape = (_cat_row_1_size, _cat_col_2_size);
             let mut slice = matrix.generic_slice_mut(start, shape);
-            slice.copy_from(cat_1_2);
-            let start = (cat_row_2_offset, cat_col_0_offset);
-            let shape = (cat_row_2_size, cat_col_0_size);
+            slice.copy_from(_cat_1_2);
+            let start = (_cat_row_2_offset, _cat_col_0_offset);
+            let shape = (_cat_row_2_size, _cat_col_0_size);
             let mut slice = matrix.generic_slice_mut(start, shape);
-            slice.copy_from(cat_2_0);
+            slice.copy_from(_cat_2_0);
             matrix
         }};
 
