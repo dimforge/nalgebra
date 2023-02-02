@@ -4,7 +4,7 @@ use nalgebra::{
     Point1, Point2, Point3, Point4, Point5, Point6, SMatrix, SVector, Vector1, Vector2, Vector3,
     Vector4, Vector5, Vector6,
 };
-use nalgebra_macros::{dmatrix, dvector, matrix, point, vector, cat};
+use nalgebra_macros::{cat, dmatrix, dvector, matrix, point, vector};
 
 fn check_statically_same_type<T>(_: &T, _: &T) {}
 

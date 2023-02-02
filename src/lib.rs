@@ -155,7 +155,7 @@ pub use crate::sparse::*;
 pub use base as core;
 
 #[cfg(feature = "macros")]
-pub use nalgebra_macros::{dmatrix, dvector, matrix, point, vector, cat};
+pub use nalgebra_macros::{cat, dmatrix, dvector, matrix, point, vector};
 
 use simba::scalar::SupersetOf;
 use std::cmp::{self, Ordering, PartialOrd};
