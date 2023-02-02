@@ -586,7 +586,7 @@ fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
                     output.extend(std::iter::once(quote! {
                         let start = (#row_offset, #col_offset);
                         let shape = (#row_size, #col_size);
-                        let mut slice = matrix.generic_slice_mut(start, shape);
+                        let mut slice = matrix.generic_view_mut(start, shape);
                         slice.copy_from(&nalgebra::Matrix::identity_generic(shape.0, shape.1));
                     }));
                 }
@@ -595,7 +595,7 @@ fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
                     output.extend(std::iter::once(quote! {
                         let start = (#row_offset, #col_offset);
                         let shape = (#row_size, #col_size);
-                        let mut slice = matrix.generic_slice_mut(start, shape);
+                        let mut slice = matrix.generic_view_mut(start, shape);
                         slice.copy_from(#expr_ident);
                     }));
                 }
@@ -643,11 +643,11 @@ mod tests {
             );
             let start = (_cat_row_0_offset, _cat_col_0_offset);
             let shape = (_cat_row_0_size, _cat_col_0_size);
-            let mut slice = matrix.generic_slice_mut(start, shape);
+            let mut slice = matrix.generic_view_mut(start, shape);
             slice.copy_from(_cat_0_0);
             let start = (_cat_row_1_offset, _cat_col_1_offset);
             let shape = (_cat_row_1_size, _cat_col_1_size);
-            let mut slice = matrix.generic_slice_mut(start, shape);
+            let mut slice = matrix.generic_view_mut(start, shape);
             slice.copy_from(_cat_1_1);
             matrix
         }};
@@ -700,23 +700,23 @@ mod tests {
             );
             let start = (_cat_row_0_offset, _cat_col_0_offset);
             let shape = (_cat_row_0_size, _cat_col_0_size);
-            let mut slice = matrix.generic_slice_mut(start, shape);
+            let mut slice = matrix.generic_view_mut(start, shape);
             slice.copy_from(_cat_0_0);
             let start = (_cat_row_0_offset, _cat_col_2_offset);
             let shape = (_cat_row_0_size, _cat_col_2_size);
-            let mut slice = matrix.generic_slice_mut(start, shape);
+            let mut slice = matrix.generic_view_mut(start, shape);
             slice.copy_from(_cat_0_2);
             let start = (_cat_row_1_offset, _cat_col_1_offset);
             let shape = (_cat_row_1_size, _cat_col_1_size);
-            let mut slice = matrix.generic_slice_mut(start, shape);
+            let mut slice = matrix.generic_view_mut(start, shape);
             slice.copy_from(_cat_1_1);
             let start = (_cat_row_1_offset, _cat_col_2_offset);
             let shape = (_cat_row_1_size, _cat_col_2_size);
-            let mut slice = matrix.generic_slice_mut(start, shape);
+            let mut slice = matrix.generic_view_mut(start, shape);
             slice.copy_from(_cat_1_2);
             let start = (_cat_row_2_offset, _cat_col_0_offset);
             let shape = (_cat_row_2_size, _cat_col_0_size);
-            let mut slice = matrix.generic_slice_mut(start, shape);
+            let mut slice = matrix.generic_view_mut(start, shape);
             slice.copy_from(_cat_2_0);
             matrix
         }};
