@@ -62,7 +62,7 @@ pub use self::alias_slice::*;
 pub use self::alias_view::*;
 pub use self::array_storage::*;
 pub use self::matrix_view::*;
-pub use self::stacking::{hstack, vstack};
+pub use self::stacking::*;
 pub use self::storage::*;
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub use self::vec_storage::*;

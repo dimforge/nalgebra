@@ -308,7 +308,7 @@ fn dvector_arbitrary_expressions() {
 
 #[test]
 fn test_stacking() {
-    use nalgebra::{hstack, vstack, RowVector3, RowVector4};
+    use nalgebra::{hstack, vstack, Const, HStackLazy, RowVector3, RowVector4, VStackLazy};
     assert_eq_and_type!(
         vstack((&RowVector3::new(1, 2, 3), &RowVector3::new(4, 5, 6))),
         Matrix2x3::new(1, 2, 3, 4, 5, 6)
@@ -346,5 +346,23 @@ fn test_stacking() {
             &dvector![3, 3, 3, 3].transpose(),
         )),
         dmatrix![1, 0, 0, 2; 0, 1, 0, 2; 0, 0, 1, 2; 3, 3, 3, 3]
+    );
+    assert_eq_and_type!(
+        hstack::<_, _, Const<4>, _>((&Matrix2::<usize>::identity(), &nalgebra::SMatrix::zeros())),
+        matrix![1, 0, 0, 0; 0, 1, 0, 0]
+    );
+    assert_eq_and_type!(
+        vstack((
+            HStackLazy((&Matrix2::<usize>::identity(), &Matrix2::zeros())),
+            HStackLazy((&Matrix2::identity(), &Matrix2::identity()))
+        )),
+        matrix![1, 0, 0, 0; 0, 1, 0, 0; 1, 0, 1, 0; 0, 1, 0, 1]
+    );
+    assert_eq_and_type!(
+        hstack((
+            VStackLazy((&Matrix2::<usize>::identity(), &Matrix2::identity())),
+            VStackLazy((&Matrix2::zeros(), &Matrix2::identity()))
+        )),
+        matrix![1, 0, 0, 0; 0, 1, 0, 0; 1, 0, 1, 0; 0, 1, 0, 1]
     );
 }
