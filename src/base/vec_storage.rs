@@ -31,6 +31,20 @@ pub struct VecStorage<T, R: Dim, C: Dim> {
     ncols: C,
 }
 
+/// The default implementation for the VecStorage struct.
+/// Requires R and C to implement the default trait.
+impl<T, R: Dim + std::default::Default, C: Dim + std::default::Default> Default
+    for VecStorage<T, R, C>
+{
+    fn default() -> Self {
+        Self {
+            data: Default::default(),
+            nrows: Default::default(),
+            ncols: Default::default(),
+        }
+    }
+}
+
 #[cfg(feature = "serde-serialize")]
 impl<T, R: Dim, C: Dim> Serialize for VecStorage<T, R, C>
 where

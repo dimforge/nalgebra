@@ -52,6 +52,17 @@ pub struct SparsityPattern {
     minor_dim: usize,
 }
 
+///The default implementation for the SparsityPattern
+impl Default for SparsityPattern {
+    fn default() -> Self {
+        Self {
+            major_offsets: Default::default(),
+            minor_indices: Default::default(),
+            minor_dim: Default::default(),
+        }
+    }
+}
+
 impl SparsityPattern {
     /// Create a sparsity pattern of the given dimensions without explicitly stored entries.
     pub fn zeros(major_dim: usize, minor_dim: usize) -> Self {

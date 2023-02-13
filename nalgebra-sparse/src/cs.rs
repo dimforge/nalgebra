@@ -22,6 +22,16 @@ pub struct CsMatrix<T> {
     values: Vec<T>,
 }
 
+///The default implementation for the CsMatrix
+impl<T> Default for CsMatrix<T> {
+    fn default() -> Self {
+        Self {
+            sparsity_pattern: Default::default(),
+            values: Default::default(),
+        }
+    }
+}
+
 impl<T> CsMatrix<T> {
     /// Create a zero matrix with no explicitly stored entries.
     #[inline]

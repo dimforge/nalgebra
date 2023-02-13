@@ -132,6 +132,15 @@ pub struct CscMatrix<T> {
     pub(crate) cs: CsMatrix<T>,
 }
 
+///The default implementation for the CscMatrix
+impl<T> Default for CscMatrix<T> {
+    fn default() -> Self {
+        Self {
+            cs: Default::default(),
+        }
+    }
+}
+
 impl<T> CscMatrix<T> {
     /// Constructs a CSC representation of the (square) `n x n` identity matrix.
     #[inline]
