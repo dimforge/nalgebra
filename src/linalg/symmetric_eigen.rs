@@ -199,10 +199,21 @@ where
                     diag[start + 1].clone(),
                 );
                 let eigvals = m.eigenvalues().unwrap();
-                let basis = Vector2::new(
-                    eigvals.x.clone() - diag[start + 1].clone(),
-                    off_diag[start].clone(),
-                );
+
+                // Choose the basis least likely to experience cancellation
+                let basis = if (eigvals.x.clone() - diag[start + 1].clone()).abs()
+                    > (eigvals.x.clone() - diag[start].clone()).abs()
+                {
+                    Vector2::new(
+                        eigvals.x.clone() - diag[start + 1].clone(),
+                        off_diag[start].clone(),
+                    )
+                } else {
+                    Vector2::new(
+                        off_diag[start].clone(),
+                        eigvals.x.clone() - diag[start].clone(),
+                    )
+                };
 
                 diag[start] = eigvals[0].clone();
                 diag[start + 1] = eigvals[1].clone();
