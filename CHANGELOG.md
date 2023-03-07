@@ -4,6 +4,12 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+
+## [0.32.2] (07 March 2023)
+
+### Added
+- Add the `glam-0.23` to enable conversion from/to type from `glam` v0.23. 
+
 ## [0.32.1] (14 Jan. 2023)
 
 ### Modified
