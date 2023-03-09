@@ -223,7 +223,7 @@ impl Parse for Vector {
                 elements: Vec::new(),
             })
         } else {
-            let elements = MatrixRowSyntax::parse_separated_nonempty(input)?
+            let elements = MatrixRowSyntax::parse_terminated(input)?
                 .into_iter()
                 .collect();
             Ok(Self { elements })
