@@ -5,7 +5,7 @@ use std::ops::Mul;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::de::{Error, SeqAccess, Visitor};
 #[cfg(feature = "serde-serialize-no-std")]
-use serde::ser::SerializeSeq;
+use serde::ser::SerializeTuple;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "serde-serialize-no-std")]
@@ -189,7 +189,7 @@ where
     where
         S: Serializer,
     {
-        let mut serializer = serializer.serialize_seq(Some(R * C))?;
+        let mut serializer = serializer.serialize_tuple(R * C)?;
 
         for e in self.as_slice().iter() {
             serializer.serialize_element(e)?;
@@ -208,7 +208,7 @@ where
     where
         D: Deserializer<'a>,
     {
-        deserializer.deserialize_seq(ArrayStorageVisitor::new())
+        deserializer.deserialize_tuple(R * C, ArrayStorageVisitor::new())
     }
 }
 
