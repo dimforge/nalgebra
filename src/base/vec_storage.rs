@@ -10,11 +10,13 @@ use crate::base::{Scalar, Vector};
 
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{
-    de::{Deserialize, Deserializer, Error},
-    ser::{Serialize, Serializer},
+    de::{Deserialize, DeserializeSeed, Deserializer, Error, SeqAccess, Unexpected, Visitor},
+    ser::{Serialize, SerializeTuple, Serializer},
 };
 
 use crate::Storage;
+#[cfg(feature = "serde-serialize")]
+use core::{fmt, marker::PhantomData};
 use std::mem::MaybeUninit;
 
 /*
@@ -42,7 +44,31 @@ where
     where
         Ser: Serializer,
     {
-        (&self.data, &self.nrows, &self.ncols).serialize(serializer)
+        let mut serializer = serializer.serialize_tuple(3)?;
+        serializer.serialize_element(&self.nrows)?;
+        serializer.serialize_element(&self.ncols)?;
+        serializer.serialize_element(&DynamicTuple(&self.data))?;
+        serializer.end()
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+struct DynamicTuple<'a, T>(&'a [T]);
+
+#[cfg(feature = "serde-serialize")]
+impl<T> Serialize for DynamicTuple<'_, T>
+where
+    T: Serialize,
+{
+    fn serialize<Ser>(&self, serializer: Ser) -> Result<Ser::Ok, Ser::Error>
+    where
+        Ser: Serializer,
+    {
+        let mut serializer = serializer.serialize_tuple(self.0.len())?;
+        for elt in self.0 {
+            serializer.serialize_element(elt)?;
+        }
+        serializer.end()
     }
 }
 
@@ -57,19 +83,95 @@ where
     where
         Des: Deserializer<'a>,
     {
-        let (data, nrows, ncols): (Vec<T>, R, C) = Deserialize::deserialize(deserializer)?;
+        deserializer.deserialize_tuple(3, VecStorageVisitor(PhantomData))
+    }
+}
 
-        // SAFETY: make sure the data we deserialize have the
-        //         correct number of elements.
-        if nrows.value() * ncols.value() != data.len() {
-            return Err(Des::Error::custom(format!(
-                "Expected {} components, found {}",
-                nrows.value() * ncols.value(),
-                data.len()
-            )));
+#[cfg(feature = "serde-serialize")]
+struct VecStorageVisitor<T, R, C>(PhantomData<fn() -> (T, R, C)>);
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, T, R: Dim, C: Dim> Visitor<'de> for VecStorageVisitor<T, R, C>
+where
+    T: Deserialize<'de>,
+    R: Deserialize<'de>,
+    C: Deserialize<'de>,
+{
+    type Value = VecStorage<T, R, C>;
+
+    fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "a matrix")
+    }
+
+    fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+    where
+        A: SeqAccess<'de>,
+    {
+        let nrows = seq
+            .next_element::<R>()?
+            .ok_or_else(|| Error::invalid_length(0, &"a matrix"))?;
+        let ncols = seq
+            .next_element::<C>()?
+            .ok_or_else(|| Error::invalid_length(1, &"a matrix"))?;
+
+        let size = nrows.value().checked_mul(ncols.value()).ok_or_else(|| {
+            Error::invalid_value(
+                Unexpected::Unsigned(ncols.value() as u64),
+                &"in-bounds dimensions",
+            )
+        })?;
+        let data = seq
+            .next_element_seed(DeserializeDynamicTuple(size, PhantomData))?
+            .ok_or_else(|| Error::invalid_length(2, &"a matrix"))?;
+
+        Ok(VecStorage { data, nrows, ncols })
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+struct DeserializeDynamicTuple<T>(usize, PhantomData<fn() -> T>);
+
+#[cfg(feature = "serde-serialize")]
+impl<'a, T> DeserializeSeed<'a> for DeserializeDynamicTuple<T>
+where
+    T: Deserialize<'a>,
+{
+    type Value = Vec<T>;
+
+    fn deserialize<Des>(self, deserializer: Des) -> Result<Vec<T>, Des::Error>
+    where
+        Des: Deserializer<'a>,
+    {
+        deserializer.deserialize_tuple(self.0, DynamicTupleVisitor(self.0, PhantomData))
+    }
+}
+
+#[cfg(feature = "serde-serialize")]
+struct DynamicTupleVisitor<T>(usize, PhantomData<fn() -> T>);
+
+#[cfg(feature = "serde-serialize")]
+impl<'de, T> Visitor<'de> for DynamicTupleVisitor<T>
+where
+    T: Deserialize<'de>,
+{
+    type Value = Vec<T>;
+
+    fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "matrix elements")
+    }
+
+    fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+    where
+        A: SeqAccess<'de>,
+    {
+        let mut v = Vec::with_capacity(self.0);
+        for n in 0..self.0 {
+            let elt = seq
+                .next_element()?
+                .ok_or_else(|| Error::invalid_length(n, &"a complete matrix"))?;
+            v.push(elt);
         }
-
-        Ok(Self { data, nrows, ncols })
+        Ok(v)
     }
 }
 

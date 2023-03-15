@@ -29,7 +29,7 @@ fn serde_dmatrix() {
     assert_eq!(v, deserialized);
 
     let m = DMatrix::from_column_slice(2, 3, &[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
-    let mat_str = "[[1.0, 2.0, 3.0, 4.0, 5.0, 6.0],2,3]";
+    let mat_str = "[2,3,[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]]";
     let deserialized: DMatrix<f32> = serde_json::from_str(&mat_str).unwrap();
     assert_eq!(m, deserialized);
 
@@ -43,7 +43,7 @@ fn serde_dmatrix() {
 #[should_panic]
 fn serde_dmatrix_invalid_len() {
     // This must fail: we attempt to deserialize a 2x3 with only 5 elements.
-    let mat_str = "[[1.0, 2.0, 3.0, 4.0, 5.0],2,3]";
+    let mat_str = "[2,3,[1.0, 2.0, 3.0, 4.0, 5.0]]";
     let _: DMatrix<f32> = serde_json::from_str(&mat_str).unwrap();
 }
 
