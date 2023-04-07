@@ -39,7 +39,7 @@ macro_rules! iterator {
                 let ptr = storage.$ptr();
 
                 // If we have a size of 0, 'ptr' must be
-                // dangling. Howver, 'inner_offset' might
+                // dangling. However, 'inner_offset' might
                 // not be zero if only one dimension is zero, so
                 // we don't want to call 'offset'.
                 // This pointer will never actually get used

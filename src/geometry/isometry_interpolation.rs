@@ -42,7 +42,7 @@ impl<T: SimdRealField> Isometry3<T> {
     /// Attempts to interpolate between two isometries using a linear interpolation for the translation part,
     /// and a spherical interpolation for the rotation part.
     ///
-    /// Retuns `None` if the angle between both rotations is 180 degrees (in which case the interpolation
+    /// Returns `None` if the angle between both rotations is 180 degrees (in which case the interpolation
     /// is not well-defined).
     ///
     /// # Examples:
@@ -118,7 +118,7 @@ impl<T: SimdRealField> IsometryMatrix3<T> {
     /// Attempts to interpolate between two isometries using a linear interpolation for the translation part,
     /// and a spherical interpolation for the rotation part.
     ///
-    /// Retuns `None` if the angle between both rotations is 180 degrees (in which case the interpolation
+    /// Returns `None` if the angle between both rotations is 180 degrees (in which case the interpolation
     /// is not well-defined).
     ///
     /// # Examples:

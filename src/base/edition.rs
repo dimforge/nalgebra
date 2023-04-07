@@ -1077,7 +1077,7 @@ where
 }
 
 // Move the elements of `data` in such a way that the matrix with
-// the rows `[i, i + nremove[` deleted is represented in a contigous
+// the rows `[i, i + nremove[` deleted is represented in a contiguous
 // way in `data` after this method completes.
 // Every deleted element are manually dropped by this method.
 unsafe fn compress_rows<T: Scalar>(

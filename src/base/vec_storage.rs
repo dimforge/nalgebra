@@ -148,7 +148,7 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
         };
 
         // Avoid double-free by forgetting `self` because its data buffer has
-        // been transfered to `new_data`.
+        // been transferred to `new_data`.
         std::mem::forget(self);
         new_data
     }

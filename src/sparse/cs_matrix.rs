@@ -498,7 +498,7 @@ where
         }
     }
 
-    // Remove dupliate entries on a sorted CsMatrix.
+    // Remove duplicate entries on a sorted CsMatrix.
     pub(crate) fn dedup(&mut self)
     where
         T: Zero + ClosedAdd,
