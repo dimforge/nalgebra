@@ -16,7 +16,7 @@ use crate::base::dimension::{DimName, Dyn};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::storage::{IsContiguous, RawStorage, RawStorageMut};
 use crate::base::{
-    ArrayStorage, DVectorView, DVectorViewMut, DefaultAllocator, Matrix, MatrixView, MatrixViewMut,
+    ArrayStorage, DVectorView, DVectorViewMut, RowDVectorView, RowDVectorViewMut, DefaultAllocator, Matrix, MatrixView, MatrixViewMut,
     OMatrix, Scalar,
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
@@ -528,6 +528,32 @@ impl<'a, T: Scalar + Copy> From<&'a mut [T]> for DVectorViewMut<'a, T> {
 
 impl<'a, T: Scalar> From<DVectorViewMut<'a, T>> for &'a mut [T] {
     fn from(vec: DVectorViewMut<'a, T>) -> &'a mut [T] {
+        vec.data.into_slice_mut()
+    }
+}
+
+impl<'a, T: Scalar + Copy> From<&'a [T]> for RowDVectorView<'a, T, Dyn, U1>{
+    #[inline]
+    fn from(slice: &'a [T]) -> Self {
+        Self::from_slice_with_strides_generic(slice, U1::name(), Dyn(slice.len()), Dyn(slice.len()), U1::name())
+    }
+}
+
+impl<'a, T: Scalar> From<RowDVectorView<'a, T, Dyn, U1>> for &'a [T] {
+    fn from(vec: RowDVectorView<'a, T, Dyn, U1>) -> &'a [T] {
+        vec.data.into_slice()
+    }
+}
+
+impl<'a, T: Scalar + Copy> From<&'a mut [T]> for RowDVectorViewMut<'a, T, Dyn, U1> {
+    #[inline]
+    fn from(slice: &'a mut [T]) -> Self {
+        Self::from_slice_with_strides_generic(slice, U1::name(), Dyn(slice.len()), Dyn(slice.len()), U1::name())
+    }
+}
+
+impl<'a, T: Scalar> From<RowDVectorViewMut<'a, T, Dyn, U1>> for &'a mut [T] {
+    fn from(vec: RowDVectorViewMut<'a, T, Dyn, U1>) -> &'a mut [T] {
         vec.data.into_slice_mut()
     }
 }
