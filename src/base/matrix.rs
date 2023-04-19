@@ -1860,14 +1860,14 @@ where
 
 impl<T, R: Dim, C: Dim, S> Eq for Matrix<T, R, C, S>
 where
-    T: Scalar + Eq,
+    T: Eq,
     S: RawStorage<T, R, C>,
 {
 }
 
 impl<T, R, R2, C, C2, S, S2> PartialEq<Matrix<T, R2, C2, S2>> for Matrix<T, R, C, S>
 where
-    T: Scalar + PartialEq,
+    T: PartialEq,
     C: Dim,
     C2: Dim,
     R: Dim,

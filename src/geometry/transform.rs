@@ -122,7 +122,7 @@ macro_rules! category_mul_impl(
     )*}
 );
 
-// We require stability uppon multiplication.
+// We require stability upon multiplication.
 impl<T: TCategory> TCategoryMul<T> for T {
     type Representative = T;
 }

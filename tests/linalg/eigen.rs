@@ -123,7 +123,7 @@ fn symmetric_eigen_singular_24x24() {
 //
 //    /*
 //     * NOTE: for the following tests, we use only upper-triangular matrices.
-//     * Thes ensures the schur decomposition will work, and allows use to test the eigenvector
+//     * This ensures the schur decomposition will work, and allows use to test the eigenvector
 //     * computation.
 //     */
 //    fn eigen(n: usize) -> bool {
@@ -134,11 +134,11 @@ fn symmetric_eigen_singular_24x24() {
 //        verify_eigenvectors(m, eig)
 //    }
 //
-//    fn eigen_with_adjascent_duplicate_diagonals(n: usize) -> bool {
+//    fn eigen_with_adjacent_duplicate_diagonals(n: usize) -> bool {
 //        let n = cmp::max(1, cmp::min(n, 10));
 //        let mut m = DMatrix::<f64>::new_random(n, n).upper_triangle();
 //
-//        // Suplicate some adjascent diagonal elements.
+//        // Suplicate some adjacent diagonal elements.
 //        for i in 0 .. n / 2 {
 //            m[(i * 2 + 1, i * 2 + 1)] = m[(i * 2, i * 2)];
 //        }
@@ -147,7 +147,7 @@ fn symmetric_eigen_singular_24x24() {
 //        verify_eigenvectors(m, eig)
 //    }
 //
-//    fn eigen_with_nonadjascent_duplicate_diagonals(n: usize) -> bool {
+//    fn eigen_with_nonadjacent_duplicate_diagonals(n: usize) -> bool {
 //        let n = cmp::max(3, cmp::min(n, 10));
 //        let mut m = DMatrix::<f64>::new_random(n, n).upper_triangle();
 //

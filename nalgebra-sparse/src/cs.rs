@@ -494,7 +494,7 @@ where
     assert_eq!(source_minor_indices.len(), values.len());
     let nnz = values.len();
 
-    // Count the number of occurences of each minor index
+    // Count the number of occurrences of each minor index
     let mut minor_counts = vec![0; minor_dim];
     for minor_idx in source_minor_indices {
         minor_counts[*minor_idx] += 1;
