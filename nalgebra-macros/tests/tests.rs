@@ -4,7 +4,7 @@ use nalgebra::{
     Point1, Point2, Point3, Point4, Point5, Point6, SMatrix, SVector, Vector1, Vector2, Vector3,
     Vector4, Vector5, Vector6,
 };
-use nalgebra_macros::{cat, dmatrix, dvector, matrix, point, vector};
+use nalgebra_macros::{stack, dmatrix, dvector, matrix, point, vector};
 
 fn check_statically_same_type<T>(_: &T, _: &T) {}
 
@@ -307,8 +307,8 @@ fn dvector_arbitrary_expressions() {
 }
 
 #[test]
-fn cat_simple() {
-    let m = cat![
+fn stack_simple() {
+    let m = stack![
         Matrix2::<usize>::identity(), 0;
         0, &Matrix2::identity();
     ];
@@ -317,8 +317,8 @@ fn cat_simple() {
 }
 
 #[test]
-fn cat_diag() {
-    let m = cat![
+fn stack_diag() {
+    let m = stack![
         0, matrix![1, 2; 3, 4;];
         matrix![5, 6; 7, 8;], 0;
     ];
@@ -334,8 +334,8 @@ fn cat_diag() {
 }
 
 #[test]
-fn cat_dynamic() {
-    let m = cat![
+fn stack_dynamic() {
+    let m = stack![
         matrix![ 1, 2; 3, 4; ], 0;
         0, dmatrix![7, 8, 9; 10, 11, 12; ];
     ];
@@ -351,10 +351,10 @@ fn cat_dynamic() {
 }
 
 #[test]
-fn cat_nested() {
-    let m = cat![
-        cat![ matrix![1, 2; 3, 4;]; matrix![5, 6;]],
-        cat![ matrix![7;9;10;], matrix![11; 12; 13;] ];
+fn stack_nested() {
+    let m = stack![
+        stack![ matrix![1, 2; 3, 4;]; matrix![5, 6;]],
+        stack![ matrix![7;9;10;], matrix![11; 12; 13;] ];
     ];
 
     let res = matrix![
