@@ -979,6 +979,113 @@ impl<T: SimdRealField> Rotation3<T> {
             )
         }
     }
+
+    /// Represent this rotation as Euler angles.
+    ///
+    /// Returns the angles produced in the order provided by seq parameter, along with the
+    /// observability flag. If the rotation is gimbal locked, then the observability flag is false.
+    ///
+    /// Algorithm based on:
+    /// Malcolm D. Shuster, F. Landis Markley, “General formula for extraction the Euler
+    /// angles”, Journal of guidance, control, and dynamics, vol. 29.1, pp. 215-221. 2006,
+    /// and modified to be able to produce extrinsic rotations.
+    #[must_use]
+    pub fn euler_angles_ordered(
+        &self,
+        mut seq: [Unit<Vector3<T>>; 3],
+        extrinsic: bool,
+    ) -> (Vector3<T>, bool)
+    where
+        T: RealField + Copy,
+    {
+        let mut angles = Vector3::zeros();
+        let eps = T::from_subset(&1e-7);
+        let _2 = T::from_subset(&2.0);
+
+        if extrinsic {
+            seq.reverse();
+        }
+
+        let [n1, n2, n3] = &seq;
+
+        let n1_c_n2 = n1.cross(n2);
+        let s1 = n1_c_n2.dot(n3);
+        let c1 = n1.dot(n3);
+        let lambda = s1.atan2(c1);
+
+        let mut c = Matrix3::zeros();
+        c.column_mut(0).copy_from(n2);
+        c.column_mut(1).copy_from(&n1_c_n2);
+        c.column_mut(2).copy_from(n1);
+        c.transpose_mut();
+
+        let r1l = Matrix3::new(
+            T::one(), T::zero(), T::zero(),
+            T::zero(), c1, s1,
+            T::zero(), -s1, c1,
+        );
+        let o_t = &c * self.matrix() * (c.transpose() * r1l);
+        angles.y = o_t.m33.acos();
+
+        let safe1 = angles.y.abs() >= eps;
+        let safe2 = (angles.y - T::pi()).abs() >= eps;
+        let observable = safe1 && safe2;
+        angles.y += lambda;
+
+        if observable {
+            angles.x = o_t.m13.atan2(-o_t.m23);
+            angles.z = o_t.m31.atan2(o_t.m32);
+        } else {
+            // gimbal lock detected
+            if extrinsic {
+                // angle1 is initialized to zero
+                if !safe1 {
+                    angles.z = (o_t.m12 - o_t.m21).atan2(o_t.m11 + o_t.m22);
+                } else {
+                    angles.z = -(o_t.m12 + o_t.m21).atan2(o_t.m11 - o_t.m22);
+                };
+            } else {
+                // angle3 is initialized to zero
+                if !safe1 {
+                    angles.x = (o_t.m12 - o_t.m21).atan2(o_t.m11 + o_t.m22);
+                } else {
+                    angles.x = (o_t.m12 + o_t.m21).atan2(o_t.m11 - o_t.m22);
+                };
+            };
+        };
+
+        let adjust = if seq[0] == seq[2] {
+            // lambda = 0, so ensure angle2 -> [0, pi]
+            angles.y < T::zero() || angles.y > T::pi()
+        } else {
+            // lamda = + or - pi/2, so ensure angle2 -> [-pi/2, pi/2]
+            angles.y < -T::frac_pi_2() || angles.y > T::frac_pi_2()
+        };
+
+        // dont adjust gimbal locked rotation
+        if adjust && observable {
+            angles.x += T::pi();
+            angles.y = _2 * lambda - angles.y;
+            angles.z -= T::pi();
+        }
+
+        // ensure all angles are within [-pi, pi]
+        for angle in angles.as_mut_slice().iter_mut() {
+            if *angle < -T::pi() {
+                *angle += T::two_pi();
+            } else if *angle > T::pi() {
+                *angle -= T::two_pi();
+            }
+        }
+
+        if extrinsic {
+            let tmp = angles.x;
+            angles.x = angles.z;
+            angles.z = tmp;
+        }
+
+        (angles, observable)
+    }
 }
 
 #[cfg(feature = "rand-no-std")]
