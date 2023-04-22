@@ -332,15 +332,15 @@ fn cat_simple() {
 #[test]
 fn cat_diag() {
     let m = cat![
-        1, &matrix![1, 2; 3, 4;];
-        &matrix![5, 6; 7, 8;], 1;
+        0, &matrix![1, 2; 3, 4;];
+        &matrix![5, 6; 7, 8;], 0;
     ];
 
     let res = matrix![
-        1, 0, 1, 2;
-        0, 1, 3, 4;
-        5, 6, 1, 0;
-        7, 8, 0, 1;
+        0, 0, 1, 2;
+        0, 0, 3, 4;
+        5, 6, 0, 0;
+        7, 8, 0, 0;
     ];
 
     assert_eq_and_type!(m, res);

@@ -325,7 +325,6 @@ pub fn point(stream: TokenStream) -> TokenStream {
 
 enum ConcatElem {
     Zero,
-    One,
     Expr(Expr),
 }
 
@@ -338,8 +337,6 @@ impl ConcatElem {
         {
             if ilit.base10_digits() == "0" {
                 return ConcatElem::Zero;
-            } else if ilit.base10_digits() == "1" {
-                return ConcatElem::One;
             }
         }
         ConcatElem::Expr(expr)
@@ -356,9 +353,8 @@ impl ConcatElem {
 ///
 /// The syntax is similar to the [`matrix!`] and [`dmatrix!`]) macros. However the elements should
 /// be of type `&Matrix` or be one of the litterals `0` or `1`. The elements of type `&Matrix` are
-/// concatenated as expected. The litteral `0` is expanded to the zero. The litteral `1` is
-/// expanded to the identity matrix. Note that at least one element in each row and column must be
-/// an expression of type `&Matrix`.
+/// concatenated as expected. The litteral `0` is expanded to the zero.Note that at least one element
+/// in each row and column must be an expression of type `&Matrix`.
 ///
 /// All elements in the same row need to have the same number of rows and simillary for the
 /// elements in the same column. This is checked at compile time as long as all elements have
@@ -395,15 +391,15 @@ impl ConcatElem {
 /// use nalgebra::{cat, matrix, Matrix5x6};
 ///
 /// let a: Matrix5x6<_> = cat![
-///     1, &matrix![1;2], 0;
-///     0, 1, &matrix![3,4;5,6;];
+///     0, &matrix![1;2], 0;
+///     0, 0, &matrix![3,4;5,6;];
 ///     &matrix![7,8,9;], 0, 0;
 /// ];
 ///
 /// let b = matrix![
-///     1, 0, 0, 1, 0, 0;
-///     0, 1, 0, 2, 0, 0;
-///     0, 0, 0, 1, 3, 4;
+///     0, 0, 0, 1, 0, 0;
+///     0, 0, 0, 2, 0, 0;
+///     0, 0, 0, 0, 3, 4;
 ///     0, 0, 0, 0, 5, 6;
 ///     7, 8, 9, 0, 0, 0;
 /// ];
@@ -573,16 +569,6 @@ fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
             let col_offset = format_ident!("{}_cat_col_{}_offset", prefix, j);
             match cell {
                 ConcatElem::Zero => (),
-                ConcatElem::One => {
-                    // FIXME: should be possible to use Matrix::fill_diagonal here,
-                    // but how to access `One::one()` hygienically?
-                    output.extend(std::iter::once(quote! {
-                        let start = (#row_offset, #col_offset);
-                        let shape = (#row_size, #col_size);
-                        let mut slice = matrix.generic_view_mut(start, shape);
-                        slice.copy_from(&nalgebra::Matrix::identity_generic(shape.0, shape.1));
-                    }));
-                }
                 ConcatElem::Expr(_) => {
                     let expr_ident = format_ident!("{}_cat_{}_{}", prefix, i, j);
                     output.extend(std::iter::once(quote! {
