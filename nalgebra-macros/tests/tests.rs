@@ -322,7 +322,7 @@ fn dvector_arbitrary_expressions() {
 #[test]
 fn cat_simple() {
     let m = cat![
-        &Matrix2::<usize>::identity(), 0;
+        Matrix2::<usize>::identity(), 0;
         0, &Matrix2::identity();
     ];
 
@@ -332,8 +332,8 @@ fn cat_simple() {
 #[test]
 fn cat_diag() {
     let m = cat![
-        0, &matrix![1, 2; 3, 4;];
-        &matrix![5, 6; 7, 8;], 0;
+        0, matrix![1, 2; 3, 4;];
+        matrix![5, 6; 7, 8;], 0;
     ];
 
     let res = matrix![
@@ -349,8 +349,8 @@ fn cat_diag() {
 #[test]
 fn cat_dynamic() {
     let m = cat![
-        &matrix![ 1, 2; 3, 4; ], 0;
-        0, &dmatrix![7, 8, 9; 10, 11, 12; ];
+        matrix![ 1, 2; 3, 4; ], 0;
+        0, dmatrix![7, 8, 9; 10, 11, 12; ];
     ];
 
     let res = dmatrix![
@@ -366,8 +366,8 @@ fn cat_dynamic() {
 #[test]
 fn cat_nested() {
     let m = cat![
-        &cat![ &matrix![1, 2; 3, 4;]; &matrix![5, 6;]],
-        &cat![ &matrix![7;9;10;], &matrix![11; 12; 13;] ];
+        cat![ matrix![1, 2; 3, 4;]; matrix![5, 6;]],
+        cat![ matrix![7;9;10;], matrix![11; 12; 13;] ];
     ];
 
     let res = matrix![

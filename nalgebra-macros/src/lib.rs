@@ -352,9 +352,9 @@ impl ConcatElem {
 /// **Note: Requires the `macros` feature to be enabled (enabled by default)**.
 ///
 /// The syntax is similar to the [`matrix!`] and [`dmatrix!`]) macros. However the elements should
-/// be of type `&Matrix` or be one of the litterals `0` or `1`. The elements of type `&Matrix` are
+/// be of type `Matrix`, `&Matrix` or be one of the litterals `0` or `1`. The elements of type `Matrix` and `&Matrix` are
 /// concatenated as expected. The litteral `0` is expanded to the zero.Note that at least one element
-/// in each row and column must be an expression of type `&Matrix`.
+/// in each row and column must be an expression of type `Matrix` or `&Matrix`.
 ///
 /// All elements in the same row need to have the same number of rows and simillary for the
 /// elements in the same column. This is checked at compile time as long as all elements have
@@ -373,7 +373,7 @@ impl ConcatElem {
 /// let a = matrix![1,2;3,4;];
 ///
 /// let m1 = cat![
-///     &a, 0;
+///     a, 0;
 ///     0, &matrix![5,6;7,8;];
 /// ];
 ///
@@ -391,9 +391,9 @@ impl ConcatElem {
 /// use nalgebra::{cat, matrix, Matrix5x6};
 ///
 /// let a: Matrix5x6<_> = cat![
-///     0, &matrix![1;2], 0;
-///     0, 0, &matrix![3,4;5,6;];
-///     &matrix![7,8,9;], 0, 0;
+///     0, matrix![1;2], 0;
+///     0, 0, matrix![3,4;5,6;];
+///     matrix![7,8,9;], 0, 0;
 /// ];
 ///
 /// let b = matrix![
@@ -411,8 +411,8 @@ impl ConcatElem {
 /// use nalgebra::{cat, matrix, dmatrix, DMatrix};
 ///
 /// let a: DMatrix<_> = cat![
-///     &dmatrix![1,2;3,4;], 0;
-///     0, &matrix![5,6;7,8;];
+///     dmatrix![1,2;3,4;], 0;
+///     0, matrix![5,6;7,8;];
 /// ];
 ///
 /// let b = dmatrix![
@@ -574,8 +574,9 @@ fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
                     output.extend(std::iter::once(quote! {
                         let start = (#row_offset, #col_offset);
                         let shape = (#row_size, #col_size);
-                        let mut slice = matrix.generic_view_mut(start, shape);
-                        slice.copy_from(#expr_ident);
+                        let input_view = #expr_ident.generic_view((0, 0), shape);
+                        let mut output_view = matrix.generic_view_mut(start, shape);
+                        output_view.copy_from(&input_view);
                     }));
                 }
             }
@@ -622,12 +623,14 @@ mod tests {
             );
             let start = (_cat_row_0_offset, _cat_col_0_offset);
             let shape = (_cat_row_0_size, _cat_col_0_size);
-            let mut slice = matrix.generic_view_mut(start, shape);
-            slice.copy_from(_cat_0_0);
+            let input_view = _cat_0_0.generic_view((0,0), shape);
+            let mut output_view = matrix.generic_view_mut(start, shape);
+            output_view.copy_from(&input_view);
             let start = (_cat_row_1_offset, _cat_col_1_offset);
             let shape = (_cat_row_1_size, _cat_col_1_size);
-            let mut slice = matrix.generic_view_mut(start, shape);
-            slice.copy_from(_cat_1_1);
+            let input_view = _cat_1_1.generic_view((0,0), shape);
+            let mut output_view = matrix.generic_view_mut(start, shape);
+            output_view.copy_from(&input_view);
             matrix
         }};
 
@@ -679,24 +682,29 @@ mod tests {
             );
             let start = (_cat_row_0_offset, _cat_col_0_offset);
             let shape = (_cat_row_0_size, _cat_col_0_size);
-            let mut slice = matrix.generic_view_mut(start, shape);
-            slice.copy_from(_cat_0_0);
+            let input_view = _cat_0_0.generic_view((0,0), shape);
+            let mut output_view = matrix.generic_view_mut(start, shape);
+            output_view.copy_from(&input_view);
             let start = (_cat_row_0_offset, _cat_col_2_offset);
             let shape = (_cat_row_0_size, _cat_col_2_size);
-            let mut slice = matrix.generic_view_mut(start, shape);
-            slice.copy_from(_cat_0_2);
+            let input_view = _cat_0_2.generic_view((0,0), shape);
+            let mut output_view = matrix.generic_view_mut(start, shape);
+            output_view.copy_from(&input_view);
             let start = (_cat_row_1_offset, _cat_col_1_offset);
             let shape = (_cat_row_1_size, _cat_col_1_size);
-            let mut slice = matrix.generic_view_mut(start, shape);
-            slice.copy_from(_cat_1_1);
+            let input_view = _cat_1_1.generic_view((0,0), shape);
+            let mut output_view = matrix.generic_view_mut(start, shape);
+            output_view.copy_from(&input_view);
             let start = (_cat_row_1_offset, _cat_col_2_offset);
             let shape = (_cat_row_1_size, _cat_col_2_size);
-            let mut slice = matrix.generic_view_mut(start, shape);
-            slice.copy_from(_cat_1_2);
+            let input_view = _cat_1_2.generic_view((0,0), shape);
+            let mut output_view = matrix.generic_view_mut(start, shape);
+            output_view.copy_from(&input_view);
             let start = (_cat_row_2_offset, _cat_col_0_offset);
             let shape = (_cat_row_2_size, _cat_col_0_size);
-            let mut slice = matrix.generic_view_mut(start, shape);
-            slice.copy_from(_cat_2_0);
+            let input_view = _cat_2_0.generic_view((0,0), shape);
+            let mut output_view = matrix.generic_view_mut(start, shape);
+            output_view.copy_from(&input_view);
             matrix
         }};
 
