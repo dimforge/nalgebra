@@ -4,7 +4,7 @@ use nalgebra::{
     Point1, Point2, Point3, Point4, Point5, Point6, SMatrix, SVector, Vector1, Vector2, Vector3,
     Vector4, Vector5, Vector6,
 };
-use nalgebra_macros::{stack, dmatrix, dvector, matrix, point, vector};
+use nalgebra_macros::{dmatrix, dvector, matrix, point, stack, vector};
 
 fn check_statically_same_type<T>(_: &T, _: &T) {}
 
@@ -364,4 +364,66 @@ fn stack_nested() {
     ];
 
     assert_eq_and_type!(m, res);
+}
+
+#[test]
+fn stack_single() {
+    let a = matrix![1, 2; 3, 4];
+    let b = stack![a];
+
+    assert_eq_and_type!(a, b);
+}
+
+#[test]
+fn stack_single_row() {
+    let a = matrix![1, 2; 3, 4];
+    let m = stack![a, a];
+
+    let res = matrix![
+        1, 2, 1, 2;
+        3, 4, 3, 4;
+    ];
+
+    assert_eq_and_type!(m, res);
+}
+
+#[test]
+fn stack_single_col() {
+    let a = matrix![1, 2; 3, 4];
+    let m = stack![a; a];
+
+    let res = matrix![
+        1, 2;
+        3, 4;
+        1, 2;
+        3, 4;
+    ];
+
+    assert_eq_and_type!(m, res);
+}
+
+#[test]
+fn stack_expr() {
+    let a = matrix![1, 2; 3, 4];
+    let b = matrix![5, 6; 7, 8];
+    let m = stack![a + b; b - a];
+
+    let res = matrix![
+        6, 8;
+        10, 12;
+        4, 4;
+        4, 4;
+    ];
+
+    assert_eq_and_type!(m, res);
+}
+
+#[test]
+fn stack_trybuild_tests() {
+    let t = trybuild::TestCases::new();
+
+    // Verify error message when try to conactenate no matrices
+    t.compile_fail("tests/trybuild/stack_empty.rs");
+    t.compile_fail("tests/trybuild/stack_empty_row.rs");
+    t.compile_fail("tests/trybuild/stack_empty_col.rs");
 }
