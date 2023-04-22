@@ -24,7 +24,7 @@ use syn::spanned::Spanned;
 use syn::{parse_macro_input, Token};
 use syn::{Expr, Lit};
 
-use proc_macro2::{Delimiter, Spacing, TokenStream as TokenStream2, TokenTree};
+use proc_macro2::{Delimiter, Spacing, Span, TokenStream as TokenStream2, TokenTree};
 use proc_macro2::{Group, Punct};
 
 struct Matrix {
@@ -445,11 +445,14 @@ impl ConcatElem {
 #[proc_macro]
 pub fn stack(stream: TokenStream) -> TokenStream {
     let matrix = parse_macro_input!(stream as Matrix);
-    proc_macro::TokenStream::from(stack_impl("__11f075cdd4a86538", matrix))
+    proc_macro::TokenStream::from(match stack_impl("__11f075cdd4a86538", matrix) {
+        Ok(res) => res,
+        Err(err) => err.into_compile_error(),
+    })
 }
 
 #[allow(clippy::too_many_lines)]
-fn stack_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
+fn stack_impl(prefix: &str, matrix: Matrix) -> Result<TokenStream2> {
     let n_macro_rows = matrix.nrows();
     let n_macro_cols = matrix.ncols();
 
@@ -485,7 +488,7 @@ fn stack_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
         }).reduce(|a, b| quote!{
             <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::DimEq<_, _>>::representative(#a, #b)
                 .expect("The concatenated matrices do not have the same number of columns")
-        }).expect("At least one element in each row must be an expression of type `Matrix`");
+        }).ok_or(Error::new(Span::call_site(), "At least one element in each row must be an expression of type `Matrix`"))?;
 
         let size_ident = format_ident!("{}_cat_row_{}_size", prefix, i);
         let offset_ident = format_ident!("{}_cat_row_{}_offset", prefix, i);
@@ -511,7 +514,7 @@ fn stack_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
         }).reduce(|a, b| quote!{
             <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::DimEq<_, _>>::representative(#a, #b)
                 .expect("The concatenated matrices do not have the same number of rows")
-        }).expect("At least one element in each column must be an expression of type `Matrix`");
+        }).ok_or(Error::new(Span::call_site(), "At least one element in each column must be an expression of type `Matrix`"))?;
 
         let size_ident = format_ident!("{}_cat_col_{}_size", prefix, j);
         let offset_ident = format_ident!("{}_cat_col_{}_offset", prefix, j);
@@ -540,7 +543,10 @@ fn stack_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
                 <_ as nalgebra::DimAdd<_>>::add(#a, #b)
             }
         })
-        .expect("More than zero rows in concatenation");
+        .ok_or(Error::new(
+            Span::call_site(),
+            "`stack` macro cannot be used without any arguments",
+        ))?;
 
     let num_cols = (0..n_macro_cols)
         .map(|j| {
@@ -552,7 +558,10 @@ fn stack_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
                 <_ as nalgebra::DimAdd<_>>::add(#a, #b)
             }
         })
-        .unwrap();
+        .ok_or(Error::new(
+            Span::call_site(),
+            "`stack` macro cannot be used without any arguments",
+        ))?;
 
     // It should be possible to use `uninitialized_generic` here instead
     // however that would mean that the macro needs to generate unsafe code
@@ -583,12 +592,12 @@ fn stack_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
         }
     }
 
-    quote! {
+    Ok(quote! {
         {
             #output
             matrix
         }
-    }
+    })
 }
 
 #[cfg(test)]
@@ -602,7 +611,7 @@ mod tests {
             0, b;
         ];
 
-        let result = stack_impl("", input);
+        let result = stack_impl("", input).unwrap();
 
         let expected = quote! {{
             let _cat_0_0 = a;
@@ -645,7 +654,7 @@ mod tests {
             e, 0, 0;
         ];
 
-        let result = stack_impl("", input);
+        let result = stack_impl("", input).unwrap();
 
         let expected = quote! {{
             let _cat_0_0 = a;
