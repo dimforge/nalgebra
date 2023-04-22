@@ -368,11 +368,11 @@ impl ConcatElem {
 /// # Examples
 ///
 /// ```
-/// use nalgebra::{cat, matrix};
+/// use nalgebra::{stack, matrix};
 ///
 /// let a = matrix![1,2;3,4;];
 ///
-/// let m1 = cat![
+/// let m1 = stack![
 ///     a, 0;
 ///     0, &matrix![5,6;7,8;];
 /// ];
@@ -388,9 +388,9 @@ impl ConcatElem {
 /// ```
 ///
 /// ```
-/// use nalgebra::{cat, matrix, Matrix5x6};
+/// use nalgebra::{stack, matrix, Matrix5x6};
 ///
-/// let a: Matrix5x6<_> = cat![
+/// let a: Matrix5x6<_> = stack![
 ///     0, matrix![1;2], 0;
 ///     0, 0, matrix![3,4;5,6;];
 ///     matrix![7,8,9;], 0, 0;
@@ -408,9 +408,9 @@ impl ConcatElem {
 /// ```
 ///
 /// ```
-/// use nalgebra::{cat, matrix, dmatrix, DMatrix};
+/// use nalgebra::{stack, matrix, dmatrix, DMatrix};
 ///
-/// let a: DMatrix<_> = cat![
+/// let a: DMatrix<_> = stack![
 ///     dmatrix![1,2;3,4;], 0;
 ///     0, matrix![5,6;7,8;];
 /// ];
@@ -426,9 +426,9 @@ impl ConcatElem {
 /// ```
 ///
 /// ```
-/// use nalgebra::{cat, matrix, dmatrix, Matrix4};
+/// use nalgebra::{stack, matrix, dmatrix, Matrix4};
 ///
-/// let a: Matrix4<_> = cat![
+/// let a: Matrix4<_> = stack![
 ///     &dmatrix![1,2;3,4;], &matrix![5,6;7,8;];
 ///     &matrix![9,10;11,12;], 0;
 /// ];
@@ -443,13 +443,13 @@ impl ConcatElem {
 /// assert_eq!(a, b);
 /// ```
 #[proc_macro]
-pub fn cat(stream: TokenStream) -> TokenStream {
+pub fn stack(stream: TokenStream) -> TokenStream {
     let matrix = parse_macro_input!(stream as Matrix);
-    proc_macro::TokenStream::from(cat_impl("__11f075cdd4a86538", matrix))
+    proc_macro::TokenStream::from(stack_impl("__11f075cdd4a86538", matrix))
 }
 
 #[allow(clippy::too_many_lines)]
-fn cat_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
+fn stack_impl(prefix: &str, matrix: Matrix) -> TokenStream2 {
     let n_macro_rows = matrix.nrows();
     let n_macro_cols = matrix.ncols();
 
@@ -596,13 +596,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn cat_simple_generation() {
+    fn stack_simple_generation() {
         let input: Matrix = syn::parse_quote![
             a, 0;
             0, b;
         ];
 
-        let result = cat_impl("", input);
+        let result = stack_impl("", input);
 
         let expected = quote! {{
             let _cat_0_0 = a;
@@ -638,14 +638,14 @@ mod tests {
     }
 
     #[test]
-    fn cat_complex_generation() {
+    fn stack_complex_generation() {
         let input: Matrix = syn::parse_quote![
             a, 0, b;
             0, c, d;
             e, 0, 0;
         ];
 
-        let result = cat_impl("", input);
+        let result = stack_impl("", input);
 
         let expected = quote! {{
             let _cat_0_0 = a;
