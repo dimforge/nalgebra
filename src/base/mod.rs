@@ -64,3 +64,5 @@ pub use self::matrix_view::*;
 pub use self::storage::*;
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub use self::vec_storage::*;
+
+mod variance_test;
