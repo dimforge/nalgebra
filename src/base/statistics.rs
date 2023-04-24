@@ -335,16 +335,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         if self.is_empty() {
             T::zero()
         } else {
-            // cannot use sum since `T` is not `Sum` by trait bounds
-            let sum_of_elements = self.iter().cloned().fold(T::zero(), |a, b| a + b);
-            let n_elements = crate::convert::<_, T>(self.len() as f64);
-            let mean = sum_of_elements / n_elements.clone();
+            let n_elements: T = crate::convert(self.len() as f64);
+            let mean = self.mean();
 
-            let variance = self.iter().cloned().fold(T::zero(), |acc, x| {
+            self.iter().cloned().fold(T::zero(), |acc, x| {
                 acc + (x.clone() - mean.clone()) * (x.clone() - mean.clone())
-            }) / n_elements;
-
-            variance
+            }) / n_elements
         }
     }
 
