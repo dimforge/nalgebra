@@ -11,6 +11,7 @@ mod reshape;
 #[cfg(feature = "rkyv-serialize-no-std")]
 mod rkyv;
 mod serde;
+mod variance;
 
 #[cfg(feature = "compare")]
 mod matrixcompare;
