@@ -2244,3 +2244,102 @@ where
         Unit::new_unchecked(crate::convert_ref(self.as_ref()))
     }
 }
+
+impl<T, S> Matrix<T, U1, U1, S>
+where
+    S: RawStorage<T, U1, U1>,
+{
+    /// Returns a reference to the single element in this matrix.
+    ///
+    /// As opposed to indexing, using this provides type-safety
+    /// when flattening dimensions.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(0., 0., 1.);
+    /// let inner_product: f32 = *(v.transpose() * v).as_scalar();
+    /// ```
+    ///
+    ///```compile_fail
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(0., 0., 1.);
+    /// let inner_product = (v * v.transpose()).item(); // Typo, does not compile.
+    ///```
+    pub fn as_scalar(&self) -> &T {
+        &self[(0, 0)]
+    }
+    /// Get a mutable reference to the single element in this matrix
+    ///
+    /// As opposed to indexing, using this provides type-safety
+    /// when flattening dimensions.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(0., 0., 1.);
+    /// let mut inner_product = (v.transpose() * v);
+    /// *inner_product.as_scalar_mut() = 3.;
+    /// ```
+    ///
+    ///```compile_fail
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(0., 0., 1.);
+    /// let mut inner_product = (v * v.transpose());
+    /// *inner_product.as_scalar_mut() = 3.;
+    ///```
+    pub fn as_scalar_mut(&mut self) -> &mut T
+    where
+        S: RawStorageMut<T, U1>,
+    {
+        &mut self[(0, 0)]
+    }
+    /// Convert this 1x1 matrix by reference into a scalar.
+    ///
+    /// As opposed to indexing, using this provides type-safety
+    /// when flattening dimensions.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(0., 0., 1.);
+    /// let mut inner_product: f32 = (v.transpose() * v).to_scalar();
+    /// ```
+    ///
+    ///```compile_fail
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(0., 0., 1.);
+    /// let mut inner_product: f32 = (v * v.transpose()).to_scalar();
+    ///```
+    pub fn to_scalar(&self) -> T
+    where
+        T: Clone,
+    {
+        self.as_scalar().clone()
+    }
+}
+
+impl<T> super::alias::Matrix1<T> {
+    /// Convert this 1x1 matrix into a scalar.
+    ///
+    /// As opposed to indexing, using this provides type-safety
+    /// when flattening dimensions.
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::{Vector3, Matrix2, U1};
+    /// let v = Vector3::new(0., 0., 1.);
+    /// let inner_product: f32 = (v.transpose() * v).into_scalar();
+    /// assert_eq!(inner_product, 1.);
+    /// ```
+    ///
+    ///```compile_fail
+    /// # use nalgebra::Vector3;
+    /// let v = Vector3::new(0., 0., 1.);
+    /// let mut inner_product: f32 = (v * v.transpose()).into_scalar();
+    ///```
+    pub fn into_scalar(self) -> T {
+        let [[scalar]] = self.data.0;
+        scalar
+    }
+}
