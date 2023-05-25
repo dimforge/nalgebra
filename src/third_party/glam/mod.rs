@@ -18,3 +18,5 @@ mod v021;
 mod v022;
 #[cfg(feature = "glam023")]
 mod v023;
+#[cfg(feature = "glam024")]
+mod v024;
