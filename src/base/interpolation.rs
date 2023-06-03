@@ -59,6 +59,7 @@ impl<T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     }
 }
 
+/// # Interpolation
 impl<T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: DimName> OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
