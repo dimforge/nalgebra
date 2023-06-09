@@ -335,12 +335,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         if self.is_empty() {
             T::zero()
         } else {
-            let val = self.iter().cloned().fold((T::zero(), T::zero()), |a, b| {
-                (a.0 + b.clone() * b.clone(), a.1 + b)
-            });
-            let denom = T::one() / crate::convert::<_, T>(self.len() as f64);
-            let vd = val.1 * denom.clone();
-            val.0 * denom - vd.clone() * vd
+            let n_elements: T = crate::convert(self.len() as f64);
+            let mean = self.mean();
+
+            self.iter().cloned().fold(T::zero(), |acc, x| {
+                acc + (x.clone() - mean.clone()) * (x.clone() - mean.clone())
+            }) / n_elements
         }
     }
 

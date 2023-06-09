@@ -4,6 +4,10 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+- Fixed severe catastrophic cancellation issue in variance calculation.
 
 ## [0.32.2] (07 March 2023)
 
