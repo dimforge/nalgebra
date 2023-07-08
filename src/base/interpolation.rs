@@ -1,7 +1,6 @@
 use crate::storage::Storage;
 use crate::{
-    Allocator, DefaultAllocator, Dim, DimName, OPoint, OVector, One, RealField, Scalar, Unit,
-    Vector, Zero,
+    Allocator, DefaultAllocator, Dim, OVector, One, RealField, Scalar, Unit, Vector, Zero,
 };
 use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub};
 
@@ -56,31 +55,6 @@ impl<T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
         let me = Unit::new_normalize(self.clone_owned());
         let rhs = Unit::new_normalize(rhs.clone_owned());
         me.slerp(&rhs, t).into_inner()
-    }
-}
-
-/// # Interpolation
-impl<T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: DimName> OPoint<T, D>
-where
-    DefaultAllocator: Allocator<T, D>,
-{
-    /// Returns `self * (1.0 - t) + rhs.coords * t`, i.e., the linear blend of the points x and y using the scalar value a.
-    ///
-    /// The value for a is not restricted to the range `[0, 1]`.
-    ///
-    /// # Examples:
-    ///
-    /// ```
-    /// # use nalgebra::Point3;
-    /// let x = Point3::new(1.0, 2.0, 3.0);
-    /// let y = Point3::new(10.0, 20.0, 30.0);
-    /// assert_eq!(x.lerp(&y, 0.1), Point3::new(1.9, 3.8, 5.7));
-    /// ```
-    #[must_use]
-    pub fn lerp(&self, rhs: &OPoint<T, D>, t: T) -> OPoint<T, D> {
-        OPoint {
-            coords: self.coords.lerp(&rhs.coords, t),
-        }
     }
 }
 
