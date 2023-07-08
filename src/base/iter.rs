@@ -15,9 +15,9 @@ use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::base::{Matrix, MatrixView, MatrixViewMut, Scalar};
 
 macro_rules! iterator {
-    (struct $Name:ident for $Storage:ident.$ptr: ident -> $Ptr:ty, $Ref:ty, $SRef: ty) => {
+    (struct $Name:ident for $Storage:ident.$ptr: ident -> $Ptr:ty, $Ref:ty, $SRef: ty, $($derives:ident),* $(,)?) => {
         /// An iterator through a dense matrix with arbitrary strides matrix.
-        #[derive(Clone, Debug)]
+        #[derive($($derives),*)]
         pub struct $Name<'a, T, R: Dim, C: Dim, S: 'a + $Storage<T, R, C>> {
             ptr: $Ptr,
             inner_ptr: $Ptr,
@@ -177,8 +177,8 @@ macro_rules! iterator {
     };
 }
 
-iterator!(struct MatrixIter for RawStorage.ptr -> *const T, &'a T, &'a S);
-iterator!(struct MatrixIterMut for RawStorageMut.ptr_mut -> *mut T, &'a mut T, &'a mut S);
+iterator!(struct MatrixIter for RawStorage.ptr -> *const T, &'a T, &'a S, Clone, Debug);
+iterator!(struct MatrixIterMut for RawStorageMut.ptr_mut -> *mut T, &'a mut T, &'a mut S, Debug);
 
 /*
  *
