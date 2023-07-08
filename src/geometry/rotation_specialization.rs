@@ -478,9 +478,10 @@ where
         SB: Storage<T, U3>,
         SC: Storage<T, U3>,
     {
+        // Gram–Schmidt process
         let zaxis = dir.normalize();
         let xaxis = up.cross(&zaxis).normalize();
-        let yaxis = zaxis.cross(&xaxis).normalize();
+        let yaxis = zaxis.cross(&xaxis);
 
         Self::from_matrix_unchecked(SMatrix::<T, 3, 3>::new(
             xaxis.x.clone(),
