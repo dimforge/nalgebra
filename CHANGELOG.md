@@ -4,7 +4,7 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [0.32.3] (09 July 2023)
 
 ### Modified
 - Statically sized matrices are now serialized as tuples to match how serde
