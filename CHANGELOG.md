@@ -6,6 +6,19 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Modified
+- Statically sized matrices are now serialized as tuples to match how serde
+  serialized plain arrays.
+- Don’t require `Scalar` for matrix `PartialEq` and `Eq`.
+
+### Added
+- Allow trailing punctuation in macros `vector!`, `matrix!`, `point!`, etc.
+- Add the methods `Matrix1::as_scalar`, `::as_scalar_mut`, `::to_scalar`, `::into_scalar`.
+- Add `Rotation3::euler_angles_ordered`, a generalized euler angles calculation.
+- Add the `glam-0.24` feature to enable conversion from/to types from `glam` v0.24.
+- Add the `lerp` method to points.
+- Implement `Clone` for `MatrixIter`.
+
 ### Fixed
 - Fixed severe catastrophic cancellation issue in variance calculation.
 
