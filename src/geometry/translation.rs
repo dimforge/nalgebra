@@ -15,6 +15,9 @@ use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
 
 use crate::geometry::Point;
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
+
 /// A translation.
 #[repr(C)]
 #[cfg_attr(
