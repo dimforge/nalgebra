@@ -11,6 +11,9 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(feature = "serde-serialize-no-std")]
 use std::marker::PhantomData;
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
+
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, ToTypenum};

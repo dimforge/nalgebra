@@ -13,6 +13,8 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "rkyv-serialize-no-std")]
 use super::rkyv_wrappers::CustomPhantom;
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
 #[cfg(feature = "rkyv-serialize-no-std")]
 use rkyv::{with::With, Archive, Archived};
 

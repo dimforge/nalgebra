@@ -15,6 +15,9 @@ use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
 use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
+
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]

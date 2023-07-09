@@ -8,6 +8,8 @@ use std::fmt::Debug;
 use std::ops::{Add, Div, Mul, Sub};
 use typenum::{self, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, Unsigned};
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
