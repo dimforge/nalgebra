@@ -159,7 +159,7 @@ impl<T> CsrMatrix<T> {
     /// an error is returned to indicate the failure.
     ///
     /// An error is returned if the data given does not conform to the CSR storage format.
-    /// See the documentation for [CsrMatrix](struct.CsrMatrix.html) for more information.
+    /// See the documentation for [`CsrMatrix`] for more information.
     pub fn try_from_csr_data(
         num_rows: usize,
         num_cols: usize,
@@ -185,7 +185,7 @@ impl<T> CsrMatrix<T> {
     ///
     /// An error is returned if the data given does not conform to the CSR storage format
     /// with the exception of having unsorted column indices and values.
-    /// See the documentation for [CsrMatrix](struct.CsrMatrix.html) for more information.
+    /// See the documentation for [`CsrMatrix`] for more information.
     pub fn try_from_unsorted_csr_data(
         num_rows: usize,
         num_cols: usize,
@@ -753,7 +753,7 @@ impl<'a, T> CsrRowMut<'a, T> {
     }
 }
 
-/// Row iterator for [CsrMatrix](struct.CsrMatrix.html).
+/// Row iterator for [`CsrMatrix`].
 pub struct CsrRowIter<'a, T> {
     lane_iter: CsLaneIter<'a, T>,
 }
@@ -766,7 +766,7 @@ impl<'a, T> Iterator for CsrRowIter<'a, T> {
     }
 }
 
-/// Mutable row iterator for [CsrMatrix](struct.CsrMatrix.html).
+/// Mutable row iterator for [`CsrMatrix`].
 pub struct CsrRowIterMut<'a, T> {
     lane_iter: CsLaneIterMut<'a, T>,
 }

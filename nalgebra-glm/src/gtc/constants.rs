@@ -3,7 +3,7 @@ use na;
 
 /// The Euler constant.
 ///
-/// This is a shorthand alias for [`euler`](fn.euler.html).
+/// This is a shorthand alias for [`euler()`].
 pub fn e<T: RealNumber>() -> T {
     T::e()
 }
@@ -17,18 +17,18 @@ pub fn euler<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`half_pi`](fn.half_pi.html)
-/// * [`one_over_pi`](fn.one_over_pi.html)
-/// * [`one_over_two_pi`](fn.one_over_two_pi.html)
-/// * [`pi`](fn.pi.html)
-/// * [`quarter_pi`](fn.quarter_pi.html)
-/// * [`root_half_pi`](fn.root_half_pi.html)
-/// * [`root_pi`](fn.root_pi.html)
-/// * [`root_two_pi`](fn.root_two_pi.html)
-/// * [`three_over_two_pi`](fn.three_over_two_pi.html)
-/// * [`two_over_pi`](fn.two_over_pi.html)
-/// * [`two_over_root_pi`](fn.two_over_root_pi.html)
-/// * [`two_pi`](fn.two_pi.html)
+/// * [`half_pi()`]
+/// * [`one_over_pi()`]
+/// * [`one_over_two_pi()`]
+/// * [`pi()`](crate::pi)
+/// * [`quarter_pi()`]
+/// * [`root_half_pi()`]
+/// * [`root_pi()`]
+/// * [`root_two_pi()`]
+/// * [`three_over_two_pi()`]
+/// * [`two_over_pi()`]
+/// * [`two_over_root_pi()`]
+/// * [`two_pi()`]
 pub fn four_over_pi<T: RealNumber>() -> T {
     na::convert::<_, T>(4.0) / T::pi()
 }
@@ -42,18 +42,18 @@ pub fn golden_ratio<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`four_over_pi`](fn.four_over_pi.html)
-/// * [`one_over_pi`](fn.one_over_pi.html)
-/// * [`one_over_two_pi`](fn.one_over_two_pi.html)
-/// * [`pi`](fn.pi.html)
-/// * [`quarter_pi`](fn.quarter_pi.html)
-/// * [`root_half_pi`](fn.root_half_pi.html)
-/// * [`root_pi`](fn.root_pi.html)
-/// * [`root_two_pi`](fn.root_two_pi.html)
-/// * [`three_over_two_pi`](fn.three_over_two_pi.html)
-/// * [`two_over_pi`](fn.two_over_pi.html)
-/// * [`two_over_root_pi`](fn.two_over_root_pi.html)
-/// * [`two_pi`](fn.two_pi.html)
+/// * [`four_over_pi()`]
+/// * [`one_over_pi()`]
+/// * [`one_over_two_pi()`]
+/// * [`pi()`](crate::pi)
+/// * [`quarter_pi()`]
+/// * [`root_half_pi()`]
+/// * [`root_pi()`]
+/// * [`root_two_pi()`]
+/// * [`three_over_two_pi()`]
+/// * [`two_over_pi()`]
+/// * [`two_over_root_pi()`]
+/// * [`two_pi()`]
 pub fn half_pi<T: RealNumber>() -> T {
     T::frac_pi_2()
 }
@@ -62,8 +62,8 @@ pub fn half_pi<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`ln_ten`](fn.ln_ten.html)
-/// * [`ln_two`](fn.ln_two.html)
+/// * [`ln_ten()`]
+/// * [`ln_two()`]
 pub fn ln_ln_two<T: RealNumber>() -> T {
     T::ln_2().ln()
 }
@@ -72,8 +72,8 @@ pub fn ln_ln_two<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`ln_ln_two`](fn.ln_ln_two.html)
-/// * [`ln_two`](fn.ln_two.html)
+/// * [`ln_ln_two()`]
+/// * [`ln_two()`]
 pub fn ln_ten<T: RealNumber>() -> T {
     T::ln_10()
 }
@@ -82,8 +82,8 @@ pub fn ln_ten<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`ln_ln_two`](fn.ln_ln_two.html)
-/// * [`ln_ten`](fn.ln_ten.html)
+/// * [`ln_ln_two()`]
+/// * [`ln_ten()`]
 pub fn ln_two<T: RealNumber>() -> T {
     T::ln_2()
 }
@@ -95,18 +95,18 @@ pub use na::one;
 ///
 /// # See also:
 ///
-/// * [`four_over_pi`](fn.four_over_pi.html)
-/// * [`half_pi`](fn.half_pi.html)
-/// * [`one_over_two_pi`](fn.one_over_two_pi.html)
-/// * [`pi`](fn.pi.html)
-/// * [`quarter_pi`](fn.quarter_pi.html)
-/// * [`root_half_pi`](fn.root_half_pi.html)
-/// * [`root_pi`](fn.root_pi.html)
-/// * [`root_two_pi`](fn.root_two_pi.html)
-/// * [`three_over_two_pi`](fn.three_over_two_pi.html)
-/// * [`two_over_pi`](fn.two_over_pi.html)
-/// * [`two_over_root_pi`](fn.two_over_root_pi.html)
-/// * [`two_pi`](fn.two_pi.html)
+/// * [`four_over_pi()`]
+/// * [`half_pi()`]
+/// * [`one_over_two_pi()`]
+/// * [`pi()`](crate::pi)
+/// * [`quarter_pi()`]
+/// * [`root_half_pi()`]
+/// * [`root_pi()`]
+/// * [`root_two_pi()`]
+/// * [`three_over_two_pi()`]
+/// * [`two_over_pi()`]
+/// * [`two_over_root_pi()`]
+/// * [`two_pi()`]
 pub fn one_over_pi<T: RealNumber>() -> T {
     T::frac_1_pi()
 }
@@ -120,18 +120,18 @@ pub fn one_over_root_two<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`four_over_pi`](fn.four_over_pi.html)
-/// * [`half_pi`](fn.half_pi.html)
-/// * [`one_over_pi`](fn.one_over_pi.html)
-/// * [`pi`](fn.pi.html)
-/// * [`quarter_pi`](fn.quarter_pi.html)
-/// * [`root_half_pi`](fn.root_half_pi.html)
-/// * [`root_pi`](fn.root_pi.html)
-/// * [`root_two_pi`](fn.root_two_pi.html)
-/// * [`three_over_two_pi`](fn.three_over_two_pi.html)
-/// * [`two_over_pi`](fn.two_over_pi.html)
-/// * [`two_over_root_pi`](fn.two_over_root_pi.html)
-/// * [`two_pi`](fn.two_pi.html)
+/// * [`four_over_pi()`]
+/// * [`half_pi()`]
+/// * [`one_over_pi()`]
+/// * [`pi()`](crate::pi)
+/// * [`quarter_pi()`]
+/// * [`root_half_pi()`]
+/// * [`root_pi()`]
+/// * [`root_two_pi()`]
+/// * [`three_over_two_pi()`]
+/// * [`two_over_pi()`]
+/// * [`two_over_root_pi()`]
+/// * [`two_pi()`]
 pub fn one_over_two_pi<T: RealNumber>() -> T {
     T::frac_1_pi() * na::convert(0.5)
 }
@@ -140,18 +140,18 @@ pub fn one_over_two_pi<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`four_over_pi`](fn.four_over_pi.html)
-/// * [`half_pi`](fn.half_pi.html)
-/// * [`one_over_pi`](fn.one_over_pi.html)
-/// * [`one_over_two_pi`](fn.one_over_two_pi.html)
-/// * [`pi`](fn.pi.html)
-/// * [`root_half_pi`](fn.root_half_pi.html)
-/// * [`root_pi`](fn.root_pi.html)
-/// * [`root_two_pi`](fn.root_two_pi.html)
-/// * [`three_over_two_pi`](fn.three_over_two_pi.html)
-/// * [`two_over_pi`](fn.two_over_pi.html)
-/// * [`two_over_root_pi`](fn.two_over_root_pi.html)
-/// * [`two_pi`](fn.two_pi.html)
+/// * [`four_over_pi()`]
+/// * [`half_pi()`]
+/// * [`one_over_pi()`]
+/// * [`one_over_two_pi()`]
+/// * [`pi()`](crate::pi)
+/// * [`root_half_pi()`]
+/// * [`root_pi()`]
+/// * [`root_two_pi()`]
+/// * [`three_over_two_pi()`]
+/// * [`two_over_pi()`]
+/// * [`two_over_root_pi()`]
+/// * [`two_pi()`]
 pub fn quarter_pi<T: RealNumber>() -> T {
     T::frac_pi_4()
 }
@@ -160,8 +160,8 @@ pub fn quarter_pi<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`root_three`](fn.root_three.html)
-/// * [`root_two`](fn.root_two.html)
+/// * [`root_three()`]
+/// * [`root_two()`]
 pub fn root_five<T: RealNumber>() -> T {
     na::convert::<_, T>(5.0).sqrt()
 }
@@ -170,18 +170,18 @@ pub fn root_five<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`four_over_pi`](fn.four_over_pi.html)
-/// * [`half_pi`](fn.half_pi.html)
-/// * [`one_over_pi`](fn.one_over_pi.html)
-/// * [`one_over_two_pi`](fn.one_over_two_pi.html)
-/// * [`pi`](fn.pi.html)
-/// * [`quarter_pi`](fn.quarter_pi.html)
-/// * [`root_pi`](fn.root_pi.html)
-/// * [`root_two_pi`](fn.root_two_pi.html)
-/// * [`three_over_two_pi`](fn.three_over_two_pi.html)
-/// * [`two_over_pi`](fn.two_over_pi.html)
-/// * [`two_over_root_pi`](fn.two_over_root_pi.html)
-/// * [`two_pi`](fn.two_pi.html)
+/// * [`four_over_pi()`]
+/// * [`half_pi()`]
+/// * [`one_over_pi()`]
+/// * [`one_over_two_pi()`]
+/// * [`pi()`](crate::pi)
+/// * [`quarter_pi()`]
+/// * [`root_pi()`]
+/// * [`root_two_pi()`]
+/// * [`three_over_two_pi()`]
+/// * [`two_over_pi()`]
+/// * [`two_over_root_pi()`]
+/// * [`two_pi()`]
 pub fn root_half_pi<T: RealNumber>() -> T {
     (T::pi() / na::convert(2.0)).sqrt()
 }
@@ -195,18 +195,18 @@ pub fn root_ln_four<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`four_over_pi`](fn.four_over_pi.html)
-/// * [`half_pi`](fn.half_pi.html)
-/// * [`one_over_pi`](fn.one_over_pi.html)
-/// * [`one_over_two_pi`](fn.one_over_two_pi.html)
-/// * [`pi`](fn.pi.html)
-/// * [`quarter_pi`](fn.quarter_pi.html)
-/// * [`root_half_pi`](fn.root_half_pi.html)
-/// * [`root_two_pi`](fn.root_two_pi.html)
-/// * [`three_over_two_pi`](fn.three_over_two_pi.html)
-/// * [`two_over_pi`](fn.two_over_pi.html)
-/// * [`two_over_root_pi`](fn.two_over_root_pi.html)
-/// * [`two_pi`](fn.two_pi.html)
+/// * [`four_over_pi()`]
+/// * [`half_pi()`]
+/// * [`one_over_pi()`]
+/// * [`one_over_two_pi()`]
+/// * [`pi()`](crate::pi)
+/// * [`quarter_pi()`]
+/// * [`root_half_pi()`]
+/// * [`root_two_pi()`]
+/// * [`three_over_two_pi()`]
+/// * [`two_over_pi()`]
+/// * [`two_over_root_pi()`]
+/// * [`two_pi()`]
 pub fn root_pi<T: RealNumber>() -> T {
     T::pi().sqrt()
 }
@@ -215,8 +215,8 @@ pub fn root_pi<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`root_five`](fn.root_five.html)
-/// * [`root_two`](fn.root_two.html)
+/// * [`root_five()`]
+/// * [`root_two()`]
 pub fn root_three<T: RealNumber>() -> T {
     na::convert::<_, T>(3.0).sqrt()
 }
@@ -225,8 +225,8 @@ pub fn root_three<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`root_five`](fn.root_five.html)
-/// * [`root_three`](fn.root_three.html)
+/// * [`root_five()`]
+/// * [`root_three()`]
 pub fn root_two<T: RealNumber>() -> T {
     // TODO: there should be a crate::sqrt_2() on the RealNumber trait.
     na::convert::<_, T>(2.0).sqrt()
@@ -236,18 +236,18 @@ pub fn root_two<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`four_over_pi`](fn.four_over_pi.html)
-/// * [`half_pi`](fn.half_pi.html)
-/// * [`one_over_pi`](fn.one_over_pi.html)
-/// * [`one_over_two_pi`](fn.one_over_two_pi.html)
-/// * [`pi`](fn.pi.html)
-/// * [`quarter_pi`](fn.quarter_pi.html)
-/// * [`root_half_pi`](fn.root_half_pi.html)
-/// * [`root_pi`](fn.root_pi.html)
-/// * [`three_over_two_pi`](fn.three_over_two_pi.html)
-/// * [`two_over_pi`](fn.two_over_pi.html)
-/// * [`two_over_root_pi`](fn.two_over_root_pi.html)
-/// * [`two_pi`](fn.two_pi.html)
+/// * [`four_over_pi()`]
+/// * [`half_pi()`]
+/// * [`one_over_pi()`]
+/// * [`one_over_two_pi()`]
+/// * [`pi()`](crate::pi)
+/// * [`quarter_pi()`]
+/// * [`root_half_pi()`]
+/// * [`root_pi()`]
+/// * [`three_over_two_pi()`]
+/// * [`two_over_pi()`]
+/// * [`two_over_root_pi()`]
+/// * [`two_pi()`]
 pub fn root_two_pi<T: RealNumber>() -> T {
     T::two_pi().sqrt()
 }
@@ -256,7 +256,7 @@ pub fn root_two_pi<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`two_thirds`](fn.two_thirds.html)
+/// * [`two_thirds()`]
 pub fn third<T: RealNumber>() -> T {
     na::convert(1.0 / 3.0)
 }
@@ -265,18 +265,18 @@ pub fn third<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`four_over_pi`](fn.four_over_pi.html)
-/// * [`half_pi`](fn.half_pi.html)
-/// * [`one_over_pi`](fn.one_over_pi.html)
-/// * [`one_over_two_pi`](fn.one_over_two_pi.html)
-/// * [`pi`](fn.pi.html)
-/// * [`quarter_pi`](fn.quarter_pi.html)
-/// * [`root_half_pi`](fn.root_half_pi.html)
-/// * [`root_pi`](fn.root_pi.html)
-/// * [`root_two_pi`](fn.root_two_pi.html)
-/// * [`two_over_pi`](fn.two_over_pi.html)
-/// * [`two_over_root_pi`](fn.two_over_root_pi.html)
-/// * [`two_pi`](fn.two_pi.html)
+/// * [`four_over_pi()`]
+/// * [`half_pi()`]
+/// * [`one_over_pi()`]
+/// * [`one_over_two_pi()`]
+/// * [`pi()`](crate::pi)
+/// * [`quarter_pi()`]
+/// * [`root_half_pi()`]
+/// * [`root_pi()`]
+/// * [`root_two_pi()`]
+/// * [`two_over_pi()`]
+/// * [`two_over_root_pi()`]
+/// * [`two_pi()`]
 pub fn three_over_two_pi<T: RealNumber>() -> T {
     na::convert::<_, T>(3.0) / T::two_pi()
 }
@@ -285,17 +285,18 @@ pub fn three_over_two_pi<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`four_over_pi`](fn.four_over_pi.html)
-/// * [`half_pi`](fn.half_pi.html)
-/// * [`one_over_pi`](fn.one_over_pi.html)
-/// * [`one_over_two_pi`](fn.one_over_two_pi.html)
-/// * [`quarter_pi`](fn.quarter_pi.html)
-/// * [`root_half_pi`](fn.root_half_pi.html)
-/// * [`root_pi`](fn.root_pi.html)
-/// * [`root_two_pi`](fn.root_two_pi.html)
-/// * [`three_over_two_pi`](fn.three_over_two_pi.html)
-/// * [`two_over_root_pi`](fn.two_over_root_pi.html)
-/// * [`two_pi`](fn.two_pi.html)
+/// * [`four_over_pi()`]
+/// * [`half_pi()`]
+/// * [`one_over_pi()`]
+/// * [`one_over_two_pi()`]
+/// * [`pi()`](crate::pi)
+/// * [`quarter_pi()`]
+/// * [`root_half_pi()`]
+/// * [`root_pi()`]
+/// * [`root_two_pi()`]
+/// * [`three_over_two_pi()`]
+/// * [`two_over_root_pi()`]
+/// * [`two_pi()`]
 pub fn two_over_pi<T: RealNumber>() -> T {
     T::frac_2_pi()
 }
@@ -304,18 +305,18 @@ pub fn two_over_pi<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`four_over_pi`](fn.four_over_pi.html)
-/// * [`half_pi`](fn.half_pi.html)
-/// * [`one_over_pi`](fn.one_over_pi.html)
-/// * [`one_over_two_pi`](fn.one_over_two_pi.html)
-/// * [`pi`](fn.pi.html)
-/// * [`quarter_pi`](fn.quarter_pi.html)
-/// * [`root_half_pi`](fn.root_half_pi.html)
-/// * [`root_pi`](fn.root_pi.html)
-/// * [`root_two_pi`](fn.root_two_pi.html)
-/// * [`three_over_two_pi`](fn.three_over_two_pi.html)
-/// * [`two_over_pi`](fn.two_over_pi.html)
-/// * [`two_pi`](fn.two_pi.html)
+/// * [`four_over_pi()`]
+/// * [`half_pi()`]
+/// * [`one_over_pi()`]
+/// * [`one_over_two_pi()`]
+/// * [`pi()`](crate::pi)
+/// * [`quarter_pi()`]
+/// * [`root_half_pi()`]
+/// * [`root_pi()`]
+/// * [`root_two_pi()`]
+/// * [`three_over_two_pi()`]
+/// * [`two_over_pi()`]
+/// * [`two_pi()`]
 pub fn two_over_root_pi<T: RealNumber>() -> T {
     T::frac_2_sqrt_pi()
 }
@@ -324,18 +325,18 @@ pub fn two_over_root_pi<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`four_over_pi`](fn.four_over_pi.html)
-/// * [`half_pi`](fn.half_pi.html)
-/// * [`one_over_pi`](fn.one_over_pi.html)
-/// * [`one_over_two_pi`](fn.one_over_two_pi.html)
-/// * [`pi`](fn.pi.html)
-/// * [`quarter_pi`](fn.quarter_pi.html)
-/// * [`root_half_pi`](fn.root_half_pi.html)
-/// * [`root_pi`](fn.root_pi.html)
-/// * [`root_two_pi`](fn.root_two_pi.html)
-/// * [`three_over_two_pi`](fn.three_over_two_pi.html)
-/// * [`two_over_pi`](fn.two_over_pi.html)
-/// * [`two_over_root_pi`](fn.two_over_root_pi.html)
+/// * [`four_over_pi()`]
+/// * [`half_pi()`]
+/// * [`one_over_pi()`]
+/// * [`one_over_two_pi()`]
+/// * [`pi()`](crate::pi)
+/// * [`quarter_pi()`]
+/// * [`root_half_pi()`]
+/// * [`root_pi()`]
+/// * [`root_two_pi()`]
+/// * [`three_over_two_pi()`]
+/// * [`two_over_pi()`]
+/// * [`two_over_root_pi()`]
 pub fn two_pi<T: RealNumber>() -> T {
     T::two_pi()
 }
@@ -344,7 +345,7 @@ pub fn two_pi<T: RealNumber>() -> T {
 ///
 /// # See also:
 ///
-/// * [`third`](fn.third.html)
+/// * [`third()`]
 pub fn two_thirds<T: RealNumber>() -> T {
     na::convert(2.0 / 3.0)
 }

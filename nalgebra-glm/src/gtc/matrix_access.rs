@@ -6,9 +6,9 @@ use crate::aliases::{TMat, TVec};
 ///
 /// # See also:
 ///
-/// * [`row`](fn.row.html)
-/// * [`set_column`](fn.set_column.html)
-/// * [`set_row`](fn.set_row.html)
+/// * [`row()`]
+/// * [`set_column()`]
+/// * [`set_row()`]
 pub fn column<T: Scalar, const R: usize, const C: usize>(
     m: &TMat<T, R, C>,
     index: usize,
@@ -20,9 +20,9 @@ pub fn column<T: Scalar, const R: usize, const C: usize>(
 ///
 /// # See also:
 ///
-/// * [`column`](fn.column.html)
-/// * [`row`](fn.row.html)
-/// * [`set_row`](fn.set_row.html)
+/// * [`column()`]
+/// * [`row()`]
+/// * [`set_row()`]
 pub fn set_column<T: Scalar, const R: usize, const C: usize>(
     m: &TMat<T, R, C>,
     index: usize,
@@ -37,9 +37,9 @@ pub fn set_column<T: Scalar, const R: usize, const C: usize>(
 ///
 /// # See also:
 ///
-/// * [`column`](fn.column.html)
-/// * [`set_column`](fn.set_column.html)
-/// * [`set_row`](fn.set_row.html)
+/// * [`column()`]
+/// * [`set_column()`]
+/// * [`set_row()`]
 pub fn row<T: Scalar, const R: usize, const C: usize>(
     m: &TMat<T, R, C>,
     index: usize,
@@ -51,9 +51,9 @@ pub fn row<T: Scalar, const R: usize, const C: usize>(
 ///
 /// # See also:
 ///
-/// * [`column`](fn.column.html)
-/// * [`row`](fn.row.html)
-/// * [`set_column`](fn.set_column.html)
+/// * [`column()`]
+/// * [`row()`]
+/// * [`set_column()`]
 pub fn set_row<T: Scalar, const R: usize, const C: usize>(
     m: &TMat<T, R, C>,
     index: usize,

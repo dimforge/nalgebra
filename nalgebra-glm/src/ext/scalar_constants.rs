@@ -10,18 +10,18 @@ pub fn epsilon<T: AbsDiffEq<Epsilon = T>>() -> T {
 ///
 /// # See also:
 ///
-/// * [`four_over_pi`](fn.four_over_pi.html)
-/// * [`half_pi`](fn.half_pi.html)
-/// * [`one_over_pi`](fn.one_over_pi.html)
-/// * [`one_over_two_pi`](fn.one_over_two_pi.html)
-/// * [`quarter_pi`](fn.quarter_pi.html)
-/// * [`root_half_pi`](fn.root_half_pi.html)
-/// * [`root_pi`](fn.root_pi.html)
-/// * [`root_two_pi`](fn.root_two_pi.html)
-/// * [`three_over_two_pi`](fn.three_over_two_pi.html)
-/// * [`two_over_pi`](fn.two_over_pi.html)
-/// * [`two_over_root_pi`](fn.two_over_root_pi.html)
-/// * [`two_pi`](fn.two_pi.html)
+/// * [`four_over_pi()`](crate::four_over_pi)
+/// * [`half_pi()`](crate::half_pi)
+/// * [`one_over_pi()`](crate::one_over_pi)
+/// * [`one_over_two_pi()`](crate::one_over_two_pi)
+/// * [`quarter_pi()`](crate::quarter_pi)
+/// * [`root_half_pi()`](crate::root_half_pi)
+/// * [`root_pi()`](crate::root_pi)
+/// * [`root_two_pi()`](crate::root_two_pi)
+/// * [`three_over_two_pi()`](crate::three_over_two_pi)
+/// * [`two_over_pi()`](crate::two_over_pi)
+/// * [`two_over_root_pi()`](crate::two_over_root_pi)
+/// * [`two_pi()`](crate::two_pi)
 pub fn pi<T: RealNumber>() -> T {
     T::pi()
 }

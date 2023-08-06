@@ -5,7 +5,7 @@ use crate::traits::Number;
 ///
 /// # See also:
 ///
-/// * [`right_handed`](fn.right_handed.html)
+/// * [`right_handed()`]
 pub fn left_handed<T: Number>(a: &TVec3<T>, b: &TVec3<T>, c: &TVec3<T>) -> bool {
     a.cross(b).dot(c) < T::zero()
 }
@@ -14,7 +14,7 @@ pub fn left_handed<T: Number>(a: &TVec3<T>, b: &TVec3<T>, c: &TVec3<T>) -> bool 
 ///
 /// # See also:
 ///
-/// * [`left_handed`](fn.left_handed.html)
+/// * [`left_handed()`]
 pub fn right_handed<T: Number>(a: &TVec3<T>, b: &TVec3<T>, c: &TVec3<T>) -> bool {
     a.cross(b).dot(c) > T::zero()
 }

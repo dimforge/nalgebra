@@ -16,17 +16,17 @@
 //! provides tools for generating matrices and vectors, and not any of the geometry types.
 //! There are essentially two ways of using this functionality:
 //!
-//! - Using the [matrix](fn.matrix.html) function to generate matrices with constraints
+//! - Using the [`matrix()`] function to generate matrices with constraints
 //!   on dimensions and elements.
-//! - Relying on the `Arbitrary` implementation of `OMatrix`.
+//! - Relying on the [`Arbitrary`] implementation of [`OMatrix`].
 //!
 //! The first variant is almost always preferred in practice. Read on to discover why.
 //!
 //! ### Using free function strategies
 //!
 //! In `proptest`, it is usually preferable to have free functions that generate *strategies*.
-//! Currently, the [matrix](fn.matrix.html) function fills this role. The analogous function for
-//! column vectors is [vector](fn.vector.html). Let's take a quick look at how it may be used:
+//! Currently, the [`matrix()`] function fills this role. The analogous function for
+//! column vectors is [`vector()`]. Let's take a quick look at how it may be used:
 //! ```
 //! use nalgebra::proptest::matrix;
 //! use proptest::prelude::*;
@@ -50,7 +50,7 @@
 //! For example, let's consider a toy example where we need to generate pairs of matrices
 //! with exactly 3 rows fixed at compile-time and the same number of columns, but we want the
 //! number of columns to vary. One way to do this is to use `proptest` combinators in combination
-//! with [matrix](fn.matrix.html) as follows:
+//! with [`matrix()`] as follows:
 //!
 //! ```
 //! use nalgebra::{Dyn, OMatrix, Const};
@@ -316,7 +316,7 @@ where
 /// with length in the provided range.
 ///
 /// This is a convenience function for calling
-/// [`matrix(value_strategy, length, U1)`](fn.matrix.html) and should
+/// [`matrix(value_strategy, length, U1)`](crate::matrix) and should
 /// be used when you only want to generate column vectors, as it's simpler and makes the intent
 /// clear.
 pub fn vector<D, ScalarStrategy>(

@@ -158,7 +158,7 @@ impl<T> CscMatrix<T> {
     /// an error is returned to indicate the failure.
     ///
     /// An error is returned if the data given does not conform to the CSC storage format.
-    /// See the documentation for [CscMatrix](struct.CscMatrix.html) for more information.
+    /// See the documentation for [`CscMatrix`] for more information.
     pub fn try_from_csc_data(
         num_rows: usize,
         num_cols: usize,
@@ -184,7 +184,7 @@ impl<T> CscMatrix<T> {
     ///
     /// An error is returned if the data given does not conform to the CSC storage format
     /// with the exception of having unsorted row indices and values.
-    /// See the documentation for [CscMatrix](struct.CscMatrix.html) for more information.
+    /// See the documentation for [`CscMatrix`] for more information.
     pub fn try_from_unsorted_csc_data(
         num_rows: usize,
         num_cols: usize,
@@ -748,7 +748,7 @@ impl<'a, T> CscColMut<'a, T> {
     }
 }
 
-/// Column iterator for [CscMatrix](struct.CscMatrix.html).
+/// Column iterator for [`CscMatrix`].
 pub struct CscColIter<'a, T> {
     lane_iter: CsLaneIter<'a, T>,
 }
@@ -761,7 +761,7 @@ impl<'a, T> Iterator for CscColIter<'a, T> {
     }
 }
 
-/// Mutable column iterator for [CscMatrix](struct.CscMatrix.html).
+/// Mutable column iterator for [`CscMatrix`].
 pub struct CscColIterMut<'a, T> {
     lane_iter: CsLaneIterMut<'a, T>,
 }
