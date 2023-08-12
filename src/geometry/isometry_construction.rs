@@ -372,7 +372,7 @@ macro_rules! look_at_isometry_construction_impl(
         /// Builds a left-handed look-at view matrix.
         ///
         /// It maps the view direction `target - eye` to the **positive** `z` axis and the `eye` to the origin.
-        /// This conforms to the common notion of right handed camera look-at **view matrix** from
+        /// This conforms to the common notion of left handed camera look-at **view matrix** from
         /// the computer graphics community, i.e. the camera is assumed to look toward its local `z` axis.
         ///
         /// # Arguments
