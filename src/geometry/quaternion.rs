@@ -138,7 +138,7 @@ where
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// let q_normalized = q.normalize();
-    /// relative_eq!(q_normalized.norm(), 1.0);
+    /// assert_relative_eq!(q_normalized.norm(), 1.0);
     /// ```
     #[inline]
     #[must_use = "Did you mean to use normalize_mut()?"]
