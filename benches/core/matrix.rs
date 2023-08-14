@@ -142,7 +142,7 @@ fn iter(bench: &mut criterion::Criterion) {
     bench.bench_function("iter", move |bh| {
         bh.iter(|| {
             for value in a.iter() {
-                criterion::black_box(value);
+                std::hint::black_box(value);
             }
         })
     });
@@ -154,7 +154,7 @@ fn iter_rev(bench: &mut criterion::Criterion) {
     bench.bench_function("iter_rev", move |bh| {
         bh.iter(|| {
             for value in a.iter().rev() {
-                criterion::black_box(value);
+                std::hint::black_box(value);
             }
         })
     });
