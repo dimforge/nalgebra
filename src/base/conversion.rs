@@ -473,7 +473,7 @@ where
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T: Scalar> From<Vec<T>> for DVector<T> {
+impl<T: Scalar> From<Vec<T>> for DVector<T> {
     #[inline]
     fn from(vec: Vec<T>) -> Self {
         Self::from_vec(vec)
@@ -481,7 +481,7 @@ impl<'a, T: Scalar> From<Vec<T>> for DVector<T> {
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T: Scalar> From<Vec<T>> for RowDVector<T> {
+impl<T: Scalar> From<Vec<T>> for RowDVector<T> {
     #[inline]
     fn from(vec: Vec<T>) -> Self {
         Self::from_vec(vec)
