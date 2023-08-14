@@ -27,7 +27,7 @@ explicitly, and call free-functions using the `na::` prefix:
 
 ```
 #[macro_use]
-extern crate approx; // For the macro relative_eq!
+extern crate approx; // For the macro assert_relative_eq!
 extern crate nalgebra as na;
 use na::{Vector3, Rotation3};
 
