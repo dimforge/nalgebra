@@ -97,7 +97,7 @@ where
     ///
     /// let dq_normalized = dq.normalize();
     ///
-    /// relative_eq!(dq_normalized.real.norm(), 1.0);
+    /// assert_relative_eq!(dq_normalized.real.norm(), 1.0);
     /// ```
     #[inline]
     #[must_use = "Did you mean to use normalize_mut()?"]
@@ -122,7 +122,7 @@ where
     ///
     /// dq.normalize_mut();
     ///
-    /// relative_eq!(dq.real.norm(), 1.0);
+    /// assert_relative_eq!(dq.real.norm(), 1.0);
     /// ```
     #[inline]
     pub fn normalize_mut(&mut self) -> T {
