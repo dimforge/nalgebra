@@ -13,16 +13,17 @@ use matrixmultiply;
 use num::{One, Zero};
 use simba::scalar::{ClosedAdd, ClosedMul};
 #[cfg(feature = "std")]
-use std::mem;
+use std::{any::TypeId, mem};
 
 use crate::base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
-use crate::base::dimension::{Dim, Dyn, U1};
+#[cfg(feature = "std")]
+use crate::base::dimension::Dyn;
+use crate::base::dimension::{Dim, U1};
 use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::base::uninit::InitStatus;
 use crate::base::{Matrix, Scalar, Vector};
-use std::any::TypeId;
 
 // # Safety
 // The content of `y` must only contain values for which

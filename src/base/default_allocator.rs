@@ -12,14 +12,16 @@ use alloc::vec::Vec;
 use super::Const;
 use crate::base::allocator::{Allocator, Reallocator};
 use crate::base::array_storage::ArrayStorage;
+use crate::base::dimension::Dim;
 #[cfg(any(feature = "alloc", feature = "std"))]
-use crate::base::dimension::Dyn;
-use crate::base::dimension::{Dim, DimName};
+use crate::base::dimension::{DimName, Dyn};
 use crate::base::storage::{RawStorage, RawStorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::vec_storage::VecStorage;
 use crate::base::Scalar;
-use std::mem::{ManuallyDrop, MaybeUninit};
+#[cfg(any(feature = "std", feature = "alloc"))]
+use std::mem::ManuallyDrop;
+use std::mem::MaybeUninit;
 
 /*
  *

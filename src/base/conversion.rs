@@ -8,11 +8,11 @@ use simba::simd::{PrimitiveSimdValue, SimdValue};
 
 use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
-#[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::dimension::Dyn;
 use crate::base::dimension::{
-    Const, Dim, DimName, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
+    Const, Dim, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
 };
+#[cfg(any(feature = "std", feature = "alloc"))]
+use crate::base::dimension::{DimName, Dyn};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::storage::{IsContiguous, RawStorage, RawStorageMut};
 use crate::base::{
