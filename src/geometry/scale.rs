@@ -129,7 +129,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
                 return None;
             }
         }
-        return Some(self.vector.map(|e| T::one() / e).into());
+        Some(self.vector.map(|e| T::one() / e).into())
     }
 
     /// Inverts `self`.
@@ -155,7 +155,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     where
         T: ClosedDiv + One,
     {
-        return self.vector.map(|e| T::one() / e).into();
+        self.vector.map(|e| T::one() / e).into()
     }
 
     /// Inverts `self`.
@@ -183,8 +183,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     where
         T: ClosedDiv + One + Zero,
     {
-        return self
-            .vector
+        self.vector
             .map(|e| {
                 if e != T::zero() {
                     T::one() / e
@@ -192,7 +191,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
                     T::zero()
                 }
             })
-            .into();
+            .into()
     }
 
     /// Converts this Scale into its equivalent homogeneous transformation matrix.
@@ -230,7 +229,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
         for i in 0..D {
             v[i] = self.vector[i].clone();
         }
-        return OMatrix::from_diagonal(&v);
+        OMatrix::from_diagonal(&v)
     }
 
     /// Inverts `self` in-place.
