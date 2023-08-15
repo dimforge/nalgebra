@@ -226,7 +226,7 @@ where
         SB: RawStorage<T, Const<1>, C>,
     {
         assert!(!rows.is_empty(), "At least one row must be given.");
-        let nrows = R::try_to_usize().unwrap_or_else(|| rows.len());
+        let nrows = R::try_to_usize().unwrap_or(rows.len());
         let ncols = rows[0].len();
         assert!(
             rows.len() == nrows,
@@ -268,7 +268,7 @@ where
         SB: RawStorage<T, R>,
     {
         assert!(!columns.is_empty(), "At least one column must be given.");
-        let ncols = C::try_to_usize().unwrap_or_else(|| columns.len());
+        let ncols = C::try_to_usize().unwrap_or(columns.len());
         let nrows = columns[0].len();
         assert!(
             columns.len() == ncols,
