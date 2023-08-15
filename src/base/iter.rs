@@ -313,8 +313,9 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> ColumnIter<'a, T, R, C,
         }
     }
 
+    #[cfg(feature = "rayon")]
     pub(crate) fn split_at(self, index: usize) -> (Self, Self) {
-        // SAFETY: this makes sur the generated ranges are valid.
+        // SAFETY: this makes sure the generated ranges are valid.
         let split_pos = (self.range.start + index).min(self.range.end);
 
         let left_iter = ColumnIter {
@@ -401,8 +402,9 @@ impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> ColumnIterMut<'a, T,
         }
     }
 
+    #[cfg(feature = "rayon")]
     pub(crate) fn split_at(self, index: usize) -> (Self, Self) {
-        // SAFETY: this makes sur the generated ranges are valid.
+        // SAFETY: this makes sure the generated ranges are valid.
         let split_pos = (self.range.start + index).min(self.range.end);
 
         let left_iter = ColumnIterMut {
