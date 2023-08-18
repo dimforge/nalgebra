@@ -1,5 +1,4 @@
 use crate::RealNumber;
-use na;
 
 /// The Euler constant.
 ///
