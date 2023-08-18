@@ -306,7 +306,7 @@ where
             |val| sorted_vals.push(val),
             &idx_workspace[..count],
             &values_workspace[..count],
-            &Add::add,
+            Add::add,
         );
 
         let new_col_count = sorted_minor_idx.len() - sorted_ja_current_len;

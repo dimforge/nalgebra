@@ -653,9 +653,9 @@ where
             if !monotonic && sort {
                 let range_size = range_end - range_start;
                 minor_index_permutation.resize(range_size, 0);
-                compute_sort_permutation(&mut minor_index_permutation, &minor_idx_in_lane);
+                compute_sort_permutation(&mut minor_index_permutation, minor_idx_in_lane);
                 minor_idx_buffer.clear();
-                minor_idx_buffer.extend_from_slice(&minor_idx_in_lane);
+                minor_idx_buffer.extend_from_slice(minor_idx_in_lane);
                 apply_permutation(
                     &mut minor_indices[range_start..range_end],
                     &minor_idx_buffer,

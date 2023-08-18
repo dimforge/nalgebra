@@ -598,7 +598,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         if nremove.value() != 0 {
             unsafe {
                 compress_rows(
-                    &mut m.as_mut_slice(),
+                    m.as_mut_slice(),
                     nrows.value(),
                     ncols.value(),
                     i,
@@ -796,7 +796,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
         if ninsert.value() != 0 {
             extend_rows(
-                &mut res.as_mut_slice(),
+                res.as_mut_slice(),
                 nrows.value(),
                 ncols.value(),
                 i,
@@ -909,7 +909,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
             unsafe {
                 if new_nrows.value() < nrows {
                     compress_rows(
-                        &mut data.as_mut_slice(),
+                        data.as_mut_slice(),
                         nrows,
                         ncols,
                         new_nrows.value(),
@@ -923,7 +923,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
                         new_nrows, new_ncols, data.data,
                     ));
                     extend_rows(
-                        &mut res.as_mut_slice(),
+                        res.as_mut_slice(),
                         nrows,
                         new_ncols.value(),
                         nrows,

@@ -64,8 +64,8 @@ where
     if not_zero {
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
         let sign = reflection_norm.clone().signum();
-        if let Some(mut work) = bilateral {
-            refl.reflect_rows_with_sign(&mut right, &mut work, sign.clone());
+        if let Some(work) = bilateral {
+            refl.reflect_rows_with_sign(&mut right, work, sign.clone());
         }
         refl.reflect_with_sign(&mut right.rows_range_mut(icol + shift..), sign.conjugate());
     }

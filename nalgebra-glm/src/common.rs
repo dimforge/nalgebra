@@ -366,7 +366,7 @@ pub fn mix_vec<T: Number, const D: usize>(
     y: &TVec<T, D>,
     a: &TVec<T, D>,
 ) -> TVec<T, D> {
-    x.component_mul(&(TVec::<T, D>::repeat(T::one()) - a)) + y.component_mul(&a)
+    x.component_mul(&(TVec::<T, D>::repeat(T::one()) - a)) + y.component_mul(a)
 }
 
 /// Returns `x * (1.0 - a) + y * a`, i.e., the linear blend of the scalars x and y using the scalar value a.

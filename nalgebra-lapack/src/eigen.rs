@@ -200,17 +200,16 @@ where
             eigenvalues.push(self.eigenvalues_re[c].clone());
 
             if eigenvectors.is_some() {
-                eigenvectors.as_mut().unwrap().push(
-                    (&self.eigenvectors.as_ref())
-                        .unwrap()
-                        .column(c)
-                        .into_owned(),
-                );
+                eigenvectors
+                    .as_mut()
+                    .unwrap()
+                    .push(self.eigenvectors.as_ref().unwrap().column(c).into_owned());
             }
 
             if left_eigenvectors.is_some() {
                 left_eigenvectors.as_mut().unwrap().push(
-                    (&self.left_eigenvectors.as_ref())
+                    self.left_eigenvectors
+                        .as_ref()
                         .unwrap()
                         .column(c)
                         .into_owned(),
@@ -285,12 +284,12 @@ where
 
                             for r in 0..number_of_elements_value {
                                 vec[r] = Complex::<T>::new(
-                                    (&self.eigenvectors.as_ref()).unwrap()[(r, c)].clone(),
-                                    (&self.eigenvectors.as_ref()).unwrap()[(r, c + 1)].clone(),
+                                    self.eigenvectors.as_ref().unwrap()[(r, c)].clone(),
+                                    self.eigenvectors.as_ref().unwrap()[(r, c + 1)].clone(),
                                 );
                                 vec_conj[r] = Complex::<T>::new(
-                                    (&self.eigenvectors.as_ref()).unwrap()[(r, c)].clone(),
-                                    (&self.eigenvectors.as_ref()).unwrap()[(r, c + 1)].clone(),
+                                    self.eigenvectors.as_ref().unwrap()[(r, c)].clone(),
+                                    self.eigenvectors.as_ref().unwrap()[(r, c + 1)].clone(),
                                 );
                             }
 
@@ -310,12 +309,12 @@ where
 
                             for r in 0..number_of_elements_value {
                                 vec[r] = Complex::<T>::new(
-                                    (&self.left_eigenvectors.as_ref()).unwrap()[(r, c)].clone(),
-                                    (&self.left_eigenvectors.as_ref()).unwrap()[(r, c + 1)].clone(),
+                                    self.left_eigenvectors.as_ref().unwrap()[(r, c)].clone(),
+                                    self.left_eigenvectors.as_ref().unwrap()[(r, c + 1)].clone(),
                                 );
                                 vec_conj[r] = Complex::<T>::new(
-                                    (&self.left_eigenvectors.as_ref()).unwrap()[(r, c)].clone(),
-                                    (&self.left_eigenvectors.as_ref()).unwrap()[(r, c + 1)].clone(),
+                                    self.left_eigenvectors.as_ref().unwrap()[(r, c)].clone(),
+                                    self.left_eigenvectors.as_ref().unwrap()[(r, c + 1)].clone(),
                                 );
                             }
 
