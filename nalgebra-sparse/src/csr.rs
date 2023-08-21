@@ -626,6 +626,15 @@ pub struct CsrTripletIter<'a, T> {
     values_iter: Iter<'a, T>,
 }
 
+impl<'a, T> Clone for CsrTripletIter<'a, T> {
+    fn clone(&self) -> Self {
+        CsrTripletIter {
+            pattern_iter: self.pattern_iter.clone(),
+            values_iter: self.values_iter.clone(),
+        }
+    }
+}
+
 impl<'a, T: Clone> CsrTripletIter<'a, T> {
     /// Adapts the triplet iterator to return owned values.
     ///
