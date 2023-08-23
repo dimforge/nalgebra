@@ -7,12 +7,14 @@
 mod csc_serde;
 
 use crate::cs;
-use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
+use crate::cs::{CsBuilder, CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
 use crate::csr::CsrMatrix;
-use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
+use crate::pattern::{
+    BuilderInsertError, SparsityPattern, SparsityPatternFormatError, SparsityPatternIter,
+};
 use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
 
-use nalgebra::Scalar;
+use nalgebra::{RealField, Scalar};
 use num_traits::One;
 use std::slice::{Iter, IterMut};
 
@@ -553,6 +555,269 @@ impl<T> CscMatrix<T> {
         self.filter(|i, j, _| i >= j)
     }
 
+    /// Solves a lower triangular system, `self` is a matrix of NxN, and `b` is a column vector of size N
+    /// Assuming that b is dense.
+    pub fn dense_lower_triangular_solve(&self, b: &[T], out: &mut [T], unit_diagonal: bool)
+    where
+        T: RealField + Copy,
+    {
+        assert_eq!(self.nrows(), self.ncols());
+        assert_eq!(self.ncols(), b.len());
+        assert_eq!(out.len(), b.len());
+        out.copy_from_slice(b);
+        let n = b.len();
+
+        for i in 0..n {
+            let col = self.col(i);
+            let mut iter = col.row_indices().iter().zip(col.values().iter()).peekable();
+            while iter.next_if(|n| *n.0 < i).is_some() {}
+            if let Some(n) = iter.peek() {
+                if *n.0 == i && !unit_diagonal {
+                    assert!(*n.0 <= i);
+                    out[i] /= *n.1;
+                    iter.next();
+                }
+            }
+            let mul = out[i];
+            for (&ri, &v) in col.row_indices().iter().zip(col.values().iter()) {
+                use std::cmp::Ordering::*;
+                // ensure that only using the lower part
+                match ri.cmp(&i) {
+                    Greater => out[ri] -= v * mul,
+                    Equal | Less => {}
+                }
+            }
+        }
+    }
+
+    /// Solves an upper triangular system, `self` is a matrix of NxN, and `b` is a column vector of size N
+    /// Assuming that b is dense.
+    pub fn dense_upper_triangular_solve(&self, b: &[T], out: &mut [T])
+    where
+        T: RealField + Copy,
+    {
+        assert_eq!(self.nrows(), self.ncols());
+        assert_eq!(self.ncols(), b.len());
+        assert_eq!(out.len(), b.len());
+        out.copy_from_slice(b);
+        let n = b.len();
+
+        for i in (0..n).rev() {
+            let col = self.col(i);
+            let mut iter = col
+                .row_indices()
+                .iter()
+                .zip(col.values().iter())
+                .rev()
+                .peekable();
+            while iter.next_if(|n| *n.0 > i).is_some() {}
+            if let Some(n) = iter.peek() {
+                if *n.0 == i {
+                    out[i] /= *n.1;
+                    iter.next();
+                }
+            }
+            // introduce a NaN, intentionally, if the diagonal doesn't have a value.
+            let mul = out[i];
+            for (&row, &v) in iter {
+                use std::cmp::Ordering::*;
+                match row.cmp(&i) {
+                    Less => out[row] -= v * mul,
+                    Equal | Greater => {}
+                }
+            }
+        }
+    }
+
+    /// Solves a sparse lower triangular system `Ax = b`, with both the matrix and vector
+    /// sparse.
+    /// sparsity_idxs should be precomputed using the sparse_lower_triangle.
+    pub fn sparse_upper_triangular_solve_sorted(
+        &self,
+        b_idxs: &[usize],
+        b: &[T],
+
+        out_sparsity_pattern: &[usize],
+        out: &mut [T],
+    ) where
+        T: RealField + Copy,
+    {
+        assert_eq!(self.nrows(), self.ncols());
+        assert_eq!(b_idxs.len(), b.len());
+        assert!(b_idxs.iter().all(|&bi| bi < self.ncols()));
+
+        assert_eq!(out_sparsity_pattern.len(), out.len());
+        assert!(out_sparsity_pattern.iter().all(|&bi| bi < self.ncols()));
+
+        // initialize out with b
+        out.fill(T::zero());
+        for (&bv, &bi) in b.iter().zip(b_idxs.iter()) {
+            let out_pos = out_sparsity_pattern.iter().position(|&p| p == bi).unwrap();
+            out[out_pos] = bv;
+        }
+
+        for (i, &row) in out_sparsity_pattern.iter().enumerate().rev() {
+            let col = self.col(row);
+            let mut iter = col
+                .row_indices()
+                .iter()
+                .zip(col.values().iter())
+                .rev()
+                .peekable();
+
+            while iter.next_if(|n| *n.0 > row).is_some() {}
+            match iter.peek() {
+                Some((&r, &l_val)) if r == row => out[i] /= l_val,
+                // here it now becomes implicitly 0,
+                // likely this should introduce NaN or some other behavior.
+                _ => {}
+            }
+            let mul = out[i];
+            for (ni, &nrow) in out_sparsity_pattern[i + 1..].iter().enumerate().rev() {
+                assert!(nrow > row);
+                while iter.next_if(|n| *n.0 > nrow).is_some() {}
+                let l_val = match iter.peek() {
+                    Some((&r, &l_val)) if r == nrow => l_val,
+                    _ => continue,
+                };
+                out[ni] -= l_val * mul;
+            }
+        }
+    }
+
+    /// Solves a sparse lower triangular system `Ax = b`, with both the matrix and vector
+    /// sparse.
+    /// sparsity_idxs should be precomputed using the sparse_lower_triangle.
+    /// Assumes that the diagonal of the sparse matrix is all 1 if `assume_unit` is true.
+    pub fn sparse_lower_triangular_solve(
+        &self,
+        b_idxs: &[usize],
+        b: &[T],
+        // idx -> row
+        // for now, is permitted to be unsorted
+        // TODO maybe would be better to enforce sorted, but would have to sort internally.
+        out_sparsity_pattern: &[usize],
+        out: &mut [T],
+        assume_unit: bool,
+    ) where
+        T: RealField + Copy,
+    {
+        assert_eq!(self.nrows(), self.ncols());
+        assert_eq!(b.len(), b_idxs.len());
+        assert!(b_idxs.iter().all(|&bi| bi < self.ncols()));
+
+        assert_eq!(out_sparsity_pattern.len(), out.len());
+        assert!(out_sparsity_pattern.iter().all(|&i| i < self.ncols()));
+
+        let is_sorted = (0..out_sparsity_pattern.len() - 1)
+            .all(|i| out_sparsity_pattern[i] < out_sparsity_pattern[i + 1]);
+        if is_sorted {
+            return self.sparse_lower_triangular_solve_sorted(
+                b_idxs,
+                b,
+                out_sparsity_pattern,
+                out,
+                assume_unit,
+            );
+        }
+
+        // initialize out with b
+        out.fill(T::zero());
+        for (&bv, &bi) in b.iter().zip(b_idxs.iter()) {
+            let out_pos = out_sparsity_pattern.iter().position(|&p| p == bi).unwrap();
+            out[out_pos] = bv;
+        }
+
+        for (i, &row) in out_sparsity_pattern.iter().enumerate() {
+            let col = self.col(row);
+            if !assume_unit {
+                if let Some(l_val) = col.get_entry(row) {
+                    out[i] /= l_val.into_value();
+                } else {
+                    // diagonal is 0, non-invertible
+                    out[i] /= T::zero();
+                }
+            }
+            let mul = out[i];
+            for (ni, &nrow) in out_sparsity_pattern.iter().enumerate() {
+                if nrow <= row {
+                    continue;
+                }
+                // TODO in a sorted version may be able to iterate without
+                // having the cost of binary search at each iteration
+                let l_val = if let Some(l_val) = col.get_entry(nrow) {
+                    l_val.into_value()
+                } else {
+                    continue;
+                };
+                out[ni] -= l_val * mul;
+            }
+        }
+    }
+    /// Solves a sparse lower triangular system `Ax = b`, with both the matrix and vector
+    /// sparse.
+    /// sparsity_idxs should be precomputed using the sparse_lower_triangle pattern.
+    ///
+    /// `out_sparsity_pattern` must also be pre-sorted.
+    ///
+    /// Assumes that the diagonal of the sparse matrix is all 1 if `assume_unit` is true.
+    pub fn sparse_lower_triangular_solve_sorted(
+        &self,
+        // input vector idxs & values
+        b_idxs: &[usize],
+        b: &[T],
+        // idx -> row
+        // for now, is permitted to be unsorted
+        // TODO maybe would be better to enforce sorted, but would have to sort internally.
+        out_sparsity_pattern: &[usize],
+        out: &mut [T],
+        assume_unit: bool,
+    ) where
+        T: RealField + Copy,
+    {
+        assert_eq!(self.nrows(), self.ncols());
+        assert_eq!(b.len(), b_idxs.len());
+        assert!(b_idxs.iter().all(|&bi| bi < self.ncols()));
+
+        assert_eq!(out_sparsity_pattern.len(), out.len());
+        assert!(out_sparsity_pattern.iter().all(|&i| i < self.ncols()));
+
+        // initialize out with b
+        // TODO can make this more efficient by keeping two iterators in sorted order
+        out.fill(T::zero());
+        for (&bv, &bi) in b.iter().zip(b_idxs.iter()) {
+            let out_pos = out_sparsity_pattern.iter().position(|&p| p == bi).unwrap();
+            out[out_pos] = bv;
+        }
+        // end init
+
+        // assuming that the output sparsity pattern is sorted
+        // iterate thru
+        for (i, &row) in out_sparsity_pattern.iter().enumerate() {
+            let col = self.col(row);
+            let mut iter = col.row_indices().iter().zip(col.values().iter()).peekable();
+            if !assume_unit {
+                while iter.next_if(|n| *n.0 < row).is_some() {}
+                match iter.peek() {
+                    Some((&r, &l_val)) if r == row => out[i] /= l_val,
+                    // here it now becomes implicitly 0,
+                    // likely this should introduce NaN or some other behavior.
+                    _ => {}
+                }
+            }
+            let mul = out[i];
+            for (ni, &nrow) in out_sparsity_pattern.iter().enumerate().skip(i + 1) {
+                assert!(nrow > row);
+                while iter.next_if(|n| *n.0 < nrow).is_some() {}
+                let l_val = match iter.peek() {
+                    Some((&r, &l_val)) if r == nrow => l_val,
+                    _ => continue,
+                };
+                out[ni] -= l_val * mul;
+            }
+        }
+    }
+
     /// Returns the diagonal of the matrix as a sparse matrix.
     #[must_use]
     pub fn diagonal_as_csc(&self) -> Self
@@ -782,5 +1047,32 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         self.lane_iter.next().map(|lane| CscColMut { lane })
+    }
+}
+
+/// An incremental builder for a Csc matrix.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CscBuilder<T>(CsBuilder<T>);
+
+impl<T> CscBuilder<T> {
+    /// Constructs a new instance of a Csc Builder.
+    pub fn new(rows: usize, cols: usize) -> Self {
+        Self(CsBuilder::new(cols, rows))
+    }
+    /// Convert back from a matrix to a CscBuilder.
+    pub fn from_mat(mat: CscMatrix<T>) -> Self {
+        Self(CsBuilder::from_mat(mat.cs))
+    }
+    /// Backtracks back to column `col`, deleting all entries ahead of it.
+    pub fn revert_to_col(&mut self, col: usize) -> bool {
+        self.0.revert_to_major(col)
+    }
+    /// Inserts a value into the builder. Must be called in ascending col, row order.
+    pub fn insert(&mut self, row: usize, col: usize, val: T) -> Result<(), BuilderInsertError> {
+        self.0.insert(col, row, val)
+    }
+    /// Converts this builder into a valid CscMatrix.
+    pub fn build(self) -> CscMatrix<T> {
+        CscMatrix { cs: self.0.build() }
     }
 }

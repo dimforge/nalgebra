@@ -12,7 +12,7 @@ use crate::csc::CscMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
 use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
 
-use nalgebra::Scalar;
+use nalgebra::{DMatrix, DMatrixView, RealField, Scalar};
 use num_traits::One;
 
 use std::slice::{Iter, IterMut};
@@ -572,6 +572,55 @@ impl<T> CsrMatrix<T> {
         T: Scalar,
     {
         CscMatrix::from(self).transpose_as_csr()
+    }
+
+    /// Solves the equation `Ax = b`, treating `self` as an upper triangular matrix.
+    /// If `A` is not upper triangular, elements in the lower triangle below the diagonal
+    /// will be ignored.
+    ///
+    /// If `m` has zeros along the diagonal, returns `None`.
+    /// Panics:
+    /// Panics if `A` and `b` have incompatible shapes, specifically if `b`
+    /// has a different number of rows and than `a`.
+    pub fn solve_upper_triangular<'a>(&self, b: impl Into<DMatrixView<'a, T>>) -> Option<DMatrix<T>>
+    where
+        T: RealField + Scalar,
+    {
+        // https://www.nicolasboumal.net/papers/MAT321_Lecture_notes_Boumal_2019.pdf
+        // page 48
+        let b: DMatrixView<'a, T> = b.into();
+        assert_eq!(b.nrows(), self.nrows());
+
+        let out_cols = b.ncols();
+        let out_rows = self.nrows();
+
+        let mut out = DMatrix::zeros(out_rows, out_cols);
+        for r in (0..out_rows).rev() {
+            let row = self.row(r);
+            // only take upper triangle elements
+            let mut row_iter = row
+                .col_indices()
+                .iter()
+                .copied()
+                .zip(row.values().iter())
+                .filter(|&(c, _)| c >= r);
+
+            let (c, div) = row_iter.next()?;
+            // This implies there is a 0 on the diagonal
+            if c != r || div.is_zero() {
+                return None;
+            }
+            for c in 0..out_cols {
+                let numer = b.index((r, c)).clone();
+                let numer = numer
+                    - row_iter
+                        .clone()
+                        .map(|(a_col, val)| val.clone() * b.index((a_col, c)).clone())
+                        .fold(T::zero(), |acc, n| acc + n);
+                *out.index_mut((r, c)) = numer / div.clone();
+            }
+        }
+        Some(out)
     }
 }
 
