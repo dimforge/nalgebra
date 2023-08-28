@@ -2,7 +2,6 @@ use crate::csc::CscMatrix;
 use crate::ops::serial::spsolve_csc_lower_triangular;
 use crate::ops::Op;
 use crate::pattern::SparsityPattern;
-use core::{iter, mem};
 use nalgebra::{DMatrix, DMatrixView, DMatrixViewMut, RealField};
 use std::fmt::{Display, Formatter};
 
@@ -291,56 +290,50 @@ impl<T: RealField> CscCholesky<T> {
     }
 }
 
+/// For a given sparsity pattern, a specified row, and a precomputed elimination tree
+/// marks is a buffer which indicates which nodes have been traversed, and is reset before each
+/// use. `out` stores the row indices of the nonzero elements.
 fn reach(
     pattern: &SparsityPattern,
-    j: usize,
-    max_j: usize,
-    tree: &[usize],
-    marks: &mut Vec<bool>,
+    row: usize,
+    etree: &[usize],
+    marks: &mut [bool],
     out: &mut Vec<usize>,
 ) {
-    marks.clear();
-    marks.resize(tree.len(), false);
+    assert_eq!(marks.len(), etree.len());
+    marks.fill(false);
 
-    // TODO: avoid all those allocations.
-    let mut tmp = Vec::new();
-    let mut res = Vec::new();
+    let start_len = out.len();
 
-    for &irow in pattern.lane(j) {
-        let mut curr = irow;
-        while curr != usize::max_value() && curr <= max_j && !marks[curr] {
+    for mut curr in pattern.lane(row).iter().copied() {
+        while curr != usize::MAX && curr <= row && !marks[curr] {
             marks[curr] = true;
-            tmp.push(curr);
-            curr = tree[curr];
+            out.push(curr);
+            curr = etree[curr];
         }
-
-        tmp.append(&mut res);
-        mem::swap(&mut tmp, &mut res);
     }
-
-    res.sort_unstable();
-
-    out.append(&mut res);
+    out[start_len..].sort_unstable();
 }
 
 fn nonzero_pattern(m: &SparsityPattern) -> (SparsityPattern, SparsityPattern) {
     let etree = elimination_tree(m);
-    // Note: We assume CSC, therefore rows == minor and cols == major
-    let (nrows, ncols) = (m.minor_dim(), m.major_dim());
+
+    // note that m must be square.
+    let n = m.minor_dim();
     let mut rows = Vec::with_capacity(m.nnz());
-    let mut col_offsets = Vec::with_capacity(ncols + 1);
-    let mut marks = Vec::new();
+    let mut col_offsets = Vec::with_capacity(n + 1);
+    col_offsets.push(0);
+
+    let mut marks = vec![false; etree.len()];
 
     // NOTE: the following will actually compute the non-zero pattern of
     // the transpose of l.
-    col_offsets.push(0);
-    for i in 0..nrows {
-        reach(m, i, i, &etree, &mut marks, &mut rows);
+    for i in 0..n {
+        reach(m, i, &etree, &mut marks, &mut rows);
         col_offsets.push(rows.len());
     }
 
-    let u_pattern =
-        SparsityPattern::try_from_offsets_and_indices(nrows, ncols, col_offsets, rows).unwrap();
+    let u_pattern = SparsityPattern::try_from_offsets_and_indices(n, n, col_offsets, rows).unwrap();
 
     // TODO: Avoid this transpose?
     let l_pattern = u_pattern.transpose();
@@ -348,30 +341,22 @@ fn nonzero_pattern(m: &SparsityPattern) -> (SparsityPattern, SparsityPattern) {
     (l_pattern, u_pattern)
 }
 
+/// Constructs the elimination tree for a given sparsity pattern.
+/// The elimination tree is characterized as:
+/// `parent[i] = min{ j > i | U[j,i] != 0 }`, where `U = L^T` is the transpose of the cholesky
+/// matrix `L`.
 fn elimination_tree(pattern: &SparsityPattern) -> Vec<usize> {
-    // Note: The pattern is assumed to of a CSC matrix, so the number of rows is
-    // given by the minor dimension
-    let nrows = pattern.minor_dim();
-    let mut forest: Vec<_> = iter::repeat(usize::max_value()).take(nrows).collect();
-    let mut ancestor: Vec<_> = iter::repeat(usize::max_value()).take(nrows).collect();
+    // note that the tree is square so it doesn't matter if this is the major or minor dim
+    let n = pattern.minor_dim();
+    let mut ancestor: Vec<_> = vec![usize::MAX; n];
 
-    for k in 0..nrows {
-        for &irow in pattern.lane(k) {
-            let mut i = irow;
-
-            while i < k {
-                let i_ancestor = ancestor[i];
-                ancestor[i] = k;
-
-                if i_ancestor == usize::max_value() {
-                    forest[i] = k;
-                    break;
-                }
-
-                i = i_ancestor;
-            }
+    for (col, mut row) in pattern.entries() {
+        while col > row {
+            let parent = ancestor[row];
+            ancestor[row] = ancestor[row].min(col);
+            row = parent;
         }
     }
 
-    forest
+    ancestor
 }
