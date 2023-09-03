@@ -291,17 +291,4 @@ where
 
         true
     }
-
-    // /// Computes the determinant of the decomposed matrix.
-    // pub fn determinant(&self) -> T {
-    //     let dim = self.qr.nrows();
-    //     assert!(self.qr.is_square(), "QR determinant: unable to compute the determinant of a non-square matrix.");
-
-    //     let mut res = T::one();
-    //     for i in 0 .. dim {
-    //         res *= unsafe { *self.diag.vget_unchecked(i) };
-    //     }
-
-    //     res self.q_determinant()
-    // }
 }
