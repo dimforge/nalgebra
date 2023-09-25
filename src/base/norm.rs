@@ -525,7 +525,7 @@ where
                 let (elt, basis) = vs[..i + 1].split_last_mut().unwrap();
 
                 for basis_element in &basis[..nbasis_elements] {
-                    *elt -= &*basis_element * elt.dot(basis_element)
+                    *elt -= basis_element * elt.dot(basis_element)
                 }
             }
 

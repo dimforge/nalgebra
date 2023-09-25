@@ -97,6 +97,8 @@ macro_rules! impl_constructors(
             }
 
             /// Creates, without bound checking, a new matrix view from the given data array.
+            /// # Safety
+            /// `data[start..start+rstride * cstride]` must be within bounds.
             #[inline]
             pub unsafe fn from_slice_unchecked(data: &'a [T], start: usize, $($args: usize),*) -> Self {
                 Self::from_slice_generic_unchecked(data, start, $($gargs),*)
@@ -113,6 +115,11 @@ macro_rules! impl_constructors(
             }
 
             /// Creates, without bound checking, a new matrix view with the specified strides from the given data array.
+            ///
+            /// # Safety
+            ///
+            /// `start`, `rstride`, and `cstride`, with the given matrix size will not index
+            /// outside of `data`.
             #[inline]
             pub unsafe fn from_slice_with_strides_unchecked(data: &'a [T], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self {
                 Self::from_slice_with_strides_generic_unchecked(data, start, $($gargs,)* Dyn(rstride), Dyn(cstride))
@@ -257,6 +264,10 @@ macro_rules! impl_constructors_mut(
             }
 
             /// Creates, without bound checking, a new mutable matrix view from the given data array.
+            ///
+            /// # Safety
+            ///
+            /// `data[start..start+(R * C)]` must be within bounds.
             #[inline]
             pub unsafe fn from_slice_unchecked(data: &'a mut [T], start: usize, $($args: usize),*) -> Self {
                 Self::from_slice_generic_unchecked(data, start, $($gargs),*)
@@ -274,6 +285,8 @@ macro_rules! impl_constructors_mut(
             }
 
             /// Creates, without bound checking, a new mutable matrix view with the specified strides from the given data array.
+            /// # Safety
+            /// `data[start..start+rstride * cstride]` must be within bounds.
             #[inline]
             pub unsafe fn from_slice_with_strides_unchecked(data: &'a mut [T], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self {
                 Self::from_slice_with_strides_generic_unchecked(

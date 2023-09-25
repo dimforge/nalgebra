@@ -21,7 +21,7 @@ pub fn svd_ordered2<T: RealField>(
     // because q >= 0 and r >= 0.
     let sx = q.clone() + r.clone();
     let sy = q - r;
-    let sy_sign = if sy < T::zero() { -one.clone() } else { one };
+    let sy_sign = if sy < T::zero() { -one } else { one };
     let singular_values = Vector2::new(sx, sy * sy_sign.clone());
 
     if compute_u || compute_v {

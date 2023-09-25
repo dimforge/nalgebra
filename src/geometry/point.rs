@@ -317,6 +317,10 @@ where
     }
 
     /// Gets a reference to i-th element of this point without bound-checking.
+    ///
+    /// # Safety
+    ///
+    /// `i` must be less than `self.len()`.
     #[inline]
     #[must_use]
     pub unsafe fn get_unchecked(&self, i: usize) -> &T {
@@ -344,6 +348,10 @@ where
     }
 
     /// Gets a mutable reference to i-th element of this point without bound-checking.
+    ///
+    /// # Safety
+    ///
+    /// `i` must be less than `self.len()`.
     #[inline]
     #[must_use]
     pub unsafe fn get_unchecked_mut(&mut self, i: usize) -> &mut T {
@@ -351,6 +359,10 @@ where
     }
 
     /// Swaps two entries without bound-checking.
+    ///
+    /// # Safety
+    ///
+    /// `i1` and `i2` must be less than `self.len()`.
     #[inline]
     pub unsafe fn swap_unchecked(&mut self, i1: usize, i2: usize) {
         self.coords.swap_unchecked((i1, 0), (i2, 0))
