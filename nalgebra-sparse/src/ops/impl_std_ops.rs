@@ -59,7 +59,7 @@ macro_rules! impl_sp_plus_minus {
             let mut result = $matrix_type::try_from_pattern_and_values(pattern, values)
                 .unwrap();
             $spadd_fn(T::zero(), &mut result, T::one(), Op::NoOp(&a)).unwrap();
-            $spadd_fn(T::one(), &mut result, $factor * T::one(), Op::NoOp(&b)).unwrap();
+            $spadd_fn(T::one(), &mut result, $factor, Op::NoOp(&b)).unwrap();
             result
         });
 
