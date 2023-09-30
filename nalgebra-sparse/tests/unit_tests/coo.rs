@@ -185,8 +185,8 @@ fn coo_try_from_triplets_reports_out_of_bounds_indices() {
 }
 
 #[test]
-fn coo_try_from_triplets_panics_on_mismatched_vectors() {
-    // Check that try_from_triplets panics when the triplet vectors have different lengths
+fn coo_try_from_triplets_iter() {
+    // Check that try_from_triplets_iter panics when the triplet vectors have different lengths
     macro_rules! assert_errs {
         ($result:expr) => {
             assert!(matches!(
@@ -210,7 +210,7 @@ fn coo_try_from_triplets_panics_on_mismatched_vectors() {
 }
 
 #[test]
-fn coo_try_from_triplets_iter() {
+fn coo_try_from_triplets_panics_on_mismatched_vectors() {
     // Check that try_from_triplets panics when the triplet vectors have different lengths
     macro_rules! assert_errs {
         ($result:expr) => {
