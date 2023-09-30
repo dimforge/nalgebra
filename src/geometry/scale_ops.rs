@@ -83,7 +83,7 @@ add_sub_impl!(Mul, mul, ClosedMul;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>, U1)
     const D; for; where;
     self: &'a Scale<T, D>, right: &'b SVector<T, D>, Output = SVector<T, D>;
-    SVector::from(self.vector.component_mul(&right));
+    SVector::from(self.vector.component_mul(right));
     'a, 'b);
 
 add_sub_impl!(Mul, mul, ClosedMul;
@@ -97,7 +97,7 @@ add_sub_impl!(Mul, mul, ClosedMul;
     (Const<D>, U1), (Const<D>, U1) -> (Const<D>, U1)
     const D; for; where;
     self: Scale<T, D>, right: &'b SVector<T, D>, Output = SVector<T, D>;
-    SVector::from(self.vector.component_mul(&right));
+    SVector::from(self.vector.component_mul(right));
     'b);
 
 add_sub_impl!(Mul, mul, ClosedMul;

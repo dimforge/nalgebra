@@ -82,7 +82,7 @@ where
     use Op::NoOp;
 
     match (&a, &b) {
-        (NoOp(ref a), NoOp(ref b)) => spmm_cs_prealloc(beta, &mut c.cs, alpha, &a.cs, &b.cs),
+        (NoOp(a), NoOp(b)) => spmm_cs_prealloc(beta, &mut c.cs, alpha, &a.cs, &b.cs),
         _ => spmm_csr_transposed(beta, c, alpha, a, b, spmm_csr_prealloc),
     }
 }
@@ -107,9 +107,7 @@ where
     use Op::NoOp;
 
     match (&a, &b) {
-        (NoOp(ref a), NoOp(ref b)) => {
-            spmm_cs_prealloc_unchecked(beta, &mut c.cs, alpha, &a.cs, &b.cs)
-        }
+        (NoOp(a), NoOp(b)) => spmm_cs_prealloc_unchecked(beta, &mut c.cs, alpha, &a.cs, &b.cs),
         _ => spmm_csr_transposed(beta, c, alpha, a, b, spmm_csr_prealloc_unchecked),
     }
 }
@@ -142,9 +140,9 @@ where
         use Cow::*;
         match (&a, &b) {
             (NoOp(_), NoOp(_)) => unreachable!(),
-            (Transpose(ref a), NoOp(_)) => (Owned(a.transpose()), Borrowed(b_ref)),
-            (NoOp(_), Transpose(ref b)) => (Borrowed(a_ref), Owned(b.transpose())),
-            (Transpose(ref a), Transpose(ref b)) => (Owned(a.transpose()), Owned(b.transpose())),
+            (Transpose(a), NoOp(_)) => (Owned(a.transpose()), Borrowed(b_ref)),
+            (NoOp(_), Transpose(b)) => (Borrowed(a_ref), Owned(b.transpose())),
+            (Transpose(a), Transpose(b)) => (Owned(a.transpose()), Owned(b.transpose())),
         }
     };
     spmm_kernel(beta, c, alpha, NoOp(a.as_ref()), NoOp(b.as_ref()))

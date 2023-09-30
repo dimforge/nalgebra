@@ -13,7 +13,7 @@ pub fn svd_ordered3<T: RealField>(
     eps: T,
     niter: usize,
 ) -> Option<SVD<T, U3, U3>> {
-    let s = m.tr_mul(&m);
+    let s = m.tr_mul(m);
     let mut v = s.try_symmetric_eigen(eps, niter)?.eigenvectors;
     let mut b = m * &v;
 
