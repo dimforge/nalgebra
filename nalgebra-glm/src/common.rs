@@ -1,5 +1,4 @@
 use core::mem;
-use na;
 
 use crate::aliases::{TMat, TVec};
 use crate::traits::Number;

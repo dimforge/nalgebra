@@ -1,5 +1,3 @@
-use na;
-
 use crate::aliases::TVec;
 use crate::RealNumber;
 
