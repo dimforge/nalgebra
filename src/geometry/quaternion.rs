@@ -271,7 +271,7 @@ where
     /// ```
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
-    /// assert_eq!(q.magnitude_squared(), 30.0);
+    /// assert_eq!(q.norm_squared(), 30.0);
     /// ```
     #[inline]
     #[must_use]
