@@ -320,7 +320,7 @@ where
 }
 
 impl<T: RealField> DualQuaternion<T> {
-    fn to_vector(self) -> OVector<T, U8> {
+    fn to_vector(&self) -> OVector<T, U8> {
         self.as_ref().clone().into()
     }
 }
@@ -335,9 +335,9 @@ impl<T: RealField + AbsDiffEq<Epsilon = T>> AbsDiffEq for DualQuaternion<T> {
 
     #[inline]
     fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
-        self.clone().to_vector().abs_diff_eq(&other.clone().to_vector(), epsilon.clone()) ||
+        self.to_vector().abs_diff_eq(&other.to_vector(), epsilon.clone()) ||
         // Account for the double-covering of S², i.e. q = -q
-        self.clone().to_vector().iter().zip(other.clone().to_vector().iter()).all(|(a, b)| a.abs_diff_eq(&-b.clone(), epsilon.clone()))
+        self.to_vector().iter().zip(other.to_vector().iter()).all(|(a, b)| a.abs_diff_eq(&-b.clone(), epsilon.clone()))
     }
 }
 
@@ -354,9 +354,9 @@ impl<T: RealField + RelativeEq<Epsilon = T>> RelativeEq for DualQuaternion<T> {
         epsilon: Self::Epsilon,
         max_relative: Self::Epsilon,
     ) -> bool {
-        self.clone().to_vector().relative_eq(&other.clone().to_vector(), epsilon.clone(), max_relative.clone()) ||
+        self.to_vector().relative_eq(&other.to_vector(), epsilon.clone(), max_relative.clone()) ||
         // Account for the double-covering of S², i.e. q = -q
-        self.clone().to_vector().iter().zip(other.clone().to_vector().iter()).all(|(a, b)| a.relative_eq(&-b.clone(), epsilon.clone(), max_relative.clone()))
+        self.to_vector().iter().zip(other.to_vector().iter()).all(|(a, b)| a.relative_eq(&-b.clone(), epsilon.clone(), max_relative.clone()))
     }
 }
 
@@ -368,9 +368,9 @@ impl<T: RealField + UlpsEq<Epsilon = T>> UlpsEq for DualQuaternion<T> {
 
     #[inline]
     fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {
-        self.clone().to_vector().ulps_eq(&other.clone().to_vector(), epsilon.clone(), max_ulps) ||
+        self.to_vector().ulps_eq(&other.to_vector(), epsilon.clone(), max_ulps) ||
         // Account for the double-covering of S², i.e. q = -q.
-        self.clone().to_vector().iter().zip(other.clone().to_vector().iter()).all(|(a, b)| a.ulps_eq(&-b.clone(), epsilon.clone(), max_ulps))
+        self.to_vector().iter().zip(other.to_vector().iter()).all(|(a, b)| a.ulps_eq(&-b.clone(), epsilon.clone(), max_ulps))
     }
 }
 
