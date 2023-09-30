@@ -185,6 +185,31 @@ fn coo_try_from_triplets_reports_out_of_bounds_indices() {
 }
 
 #[test]
+fn coo_try_from_triplets_iter() {
+    // Check that try_from_triplets_iter panics when the triplet vectors have different lengths
+    macro_rules! assert_errs {
+        ($result:expr) => {
+            assert!(matches!(
+                $result.unwrap_err().kind(),
+                SparseFormatErrorKind::IndexOutOfBounds
+            ))
+        };
+    }
+
+    assert_errs!(CooMatrix::<f32>::try_from_triplets_iter(
+        3,
+        5,
+        vec![(0, 6, 3.0)].into_iter(),
+    ));
+    assert!(CooMatrix::<f32>::try_from_triplets_iter(
+        3,
+        5,
+        vec![(0, 3, 3.0), (1, 2, 2.0), (0, 3, 1.0),].into_iter(),
+    )
+    .is_ok());
+}
+
+#[test]
 fn coo_try_from_triplets_panics_on_mismatched_vectors() {
     // Check that try_from_triplets panics when the triplet vectors have different lengths
     macro_rules! assert_errs {
