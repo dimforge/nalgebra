@@ -5,38 +5,38 @@ use na::{
 
 /// A matrix with components of type `T`. It has `R` rows, and `C` columns.
 ///
-/// In this library, vectors, represented as [`TVec`](type.TVec.html) and
+/// In this library, vectors, represented as [`TVec`] and
 /// friends, are also matrices. Operations that operate on a matrix will
 /// also work on a vector.
 ///
 /// # See also:
 ///
-/// * [`TMat2`](type.TMat2.html)
-/// * [`TMat2x2`](type.TMat2x2.html)
-/// * [`TMat2x3`](type.TMat2x3.html)
-/// * [`TMat2x4`](type.TMat2x4.html)
-/// * [`TMat3`](type.TMat3.html)
-/// * [`TMat3x2`](type.TMat3x2.html)
-/// * [`TMat3x3`](type.TMat3x3.html)
-/// * [`TMat3x4`](type.TMat3x4.html)
-/// * [`TMat4`](type.TMat4.html)
-/// * [`TMat4x2`](type.TMat4x2.html)
-/// * [`TMat4x3`](type.TMat4x3.html)
-/// * [`TMat4x4`](type.TMat4x4.html)
-/// * [`TVec`](type.TVec.html)
+/// * [`TMat2`]
+/// * [`TMat2x2`]
+/// * [`TMat2x3`]
+/// * [`TMat2x4`]
+/// * [`TMat3`]
+/// * [`TMat3x2`]
+/// * [`TMat3x3`]
+/// * [`TMat3x4`]
+/// * [`TMat4`]
+/// * [`TMat4x2`]
+/// * [`TMat4x3`]
+/// * [`TMat4x4`]
+/// * [`TVec`]
 pub type TMat<T, const R: usize, const C: usize> = SMatrix<T, R, C>;
 /// A column vector with components of type `T`. It has `D` rows (and one column).
 ///
 /// In this library, vectors are represented as a single column matrix, so
-/// operations on [`TMat`](type.TMat.html) are also valid on vectors.
+/// operations on [`TMat`] are also valid on vectors.
 ///
 /// # See also:
 ///
-/// * [`TMat`](type.TMat.html)
-/// * [`TVec1`](type.TVec1.html)
-/// * [`TVec2`](type.TVec2.html)
-/// * [`TVec3`](type.TVec3.html)
-/// * [`TVec4`](type.TVec4.html)
+/// * [`TMat`]
+/// * [`TVec1`]
+/// * [`TVec2`]
+/// * [`TVec3`]
+/// * [`TVec4`]
 pub type TVec<T, const R: usize> = SVector<T, R>;
 /// A quaternion with components of type `T`.
 pub type Qua<T> = Quaternion<T>;
@@ -47,28 +47,28 @@ pub type Qua<T> = Quaternion<T>;
 ///
 /// ## Constructors:
 ///
-/// * [`make_vec1`](fn.make_vec1.html)
-/// * [`vec1`](fn.vec1.html)
-/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
-/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
-/// * [`vec4_to_vec1`](fn.vec4_to_vec1.html)
+/// * [`make_vec1()`](crate::make_vec1)
+/// * [`vec1()`](crate::vec1)
+/// * [`vec2_to_vec1()`](crate::vec2_to_vec1)
+/// * [`vec3_to_vec1()`](crate::vec3_to_vec1)
+/// * [`vec4_to_vec1()`](crate::vec4_to_vec1)
 ///
 /// ## Related types:
 ///
-/// * [`BVec1`](type.BVec1.html)
-/// * [`DVec1`](type.DVec1.html)
-/// * [`IVec1`](type.IVec1.html)
-/// * [`I16Vec1`](type.I16Vec1.html)
-/// * [`I32Vec1`](type.I32Vec1.html)
-/// * [`I64Vec1`](type.I64Vec1.html)
-/// * [`I8Vec1`](type.I8Vec1.html)
-/// * [`TVec`](type.TVec.html)
-/// * [`UVec1`](type.UVec1.html)
-/// * [`U16Vec1`](type.U16Vec1.html)
-/// * [`U32Vec1`](type.U32Vec1.html)
-/// * [`U64Vec1`](type.U64Vec1.html)
-/// * [`U8Vec1`](type.U8Vec1.html)
-/// * [`Vec1`](type.Vec1.html)
+/// * [`BVec1`]
+/// * [`DVec1`]
+/// * [`IVec1`]
+/// * [`I16Vec1`]
+/// * [`I32Vec1`]
+/// * [`I64Vec1`]
+/// * [`I8Vec1`]
+/// * [`TVec`]
+/// * [`UVec1`]
+/// * [`U16Vec1`]
+/// * [`U32Vec1`]
+/// * [`U64Vec1`]
+/// * [`U8Vec1`]
+/// * [`Vec1`]
 pub type TVec1<T> = TVec<T, 1>;
 /// A 2D vector with components of type `T`.
 ///
@@ -76,29 +76,28 @@ pub type TVec1<T> = TVec<T, 1>;
 ///
 /// ## Constructors:
 ///
-/// * [`make_vec2`](fn.make_vec2.html)
-/// * [`vec2`](fn.vec2.html)
-/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
-/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
-/// * [`vec4_to_vec2`](fn.vec4_to_vec2.html)
+/// * [`make_vec2()`](crate::make_vec2)
+/// * [`vec2()`](crate::vec2)
+/// * [`vec1_to_vec2()`](crate::vec1_to_vec2)
+/// * [`vec3_to_vec2()`](crate::vec3_to_vec2)
+/// * [`vec4_to_vec2()`](crate::vec4_to_vec2)
 ///
 /// ## Related types:
 ///
-/// * [`vec2`](fn.vec2.html)
-/// * [`BVec2`](type.BVec2.html)
-/// * [`DVec2`](type.DVec2.html)
-/// * [`IVec2`](type.IVec2.html)
-/// * [`I16Vec2`](type.I16Vec2.html)
-/// * [`I32Vec2`](type.I32Vec2.html)
-/// * [`I64Vec2`](type.I64Vec2.html)
-/// * [`I8Vec2`](type.I8Vec2.html)
-/// * [`TVec`](type.TVec.html)
-/// * [`UVec2`](type.UVec2.html)
-/// * [`U16Vec2`](type.U16Vec2.html)
-/// * [`U32Vec2`](type.U32Vec2.html)
-/// * [`U64Vec2`](type.U64Vec2.html)
-/// * [`U8Vec2`](type.U8Vec2.html)
-/// * [`Vec2`](type.Vec2.html)
+/// * [`BVec2`]
+/// * [`DVec2`]
+/// * [`IVec2`]
+/// * [`I16Vec2`]
+/// * [`I32Vec2`]
+/// * [`I64Vec2`]
+/// * [`I8Vec2`]
+/// * [`TVec`]
+/// * [`UVec2`]
+/// * [`U16Vec2`]
+/// * [`U32Vec2`]
+/// * [`U64Vec2`]
+/// * [`U8Vec2`]
+/// * [`Vec2`]
 pub type TVec2<T> = TVec<T, 2>;
 /// A 3D vector with components of type `T`.
 ///
@@ -106,29 +105,28 @@ pub type TVec2<T> = TVec<T, 2>;
 ///
 /// ## Constructors:
 ///
-/// * [`make_vec3`](fn.make_vec3.html)
-/// * [`vec3`](fn.vec3.html)
-/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
-/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
-/// * [`vec4_to_vec3`](fn.vec4_to_vec3.html)
+/// * [`make_vec3()`](crate::make_vec3)
+/// * [`vec3()`](crate::vec3)
+/// * [`vec1_to_vec3()`](crate::vec1_to_vec3)
+/// * [`vec2_to_vec3()`](crate::vec2_to_vec3)
+/// * [`vec4_to_vec3()`](crate::vec4_to_vec3)
 ///
 /// ## Related types:
 ///
-/// * [`vec3`](fn.vec3.html)
-/// * [`BVec3`](type.BVec3.html)
-/// * [`DVec3`](type.DVec3.html)
-/// * [`IVec3`](type.IVec3.html)
-/// * [`I16Vec3`](type.I16Vec3.html)
-/// * [`I32Vec3`](type.I32Vec3.html)
-/// * [`I64Vec3`](type.I64Vec3.html)
-/// * [`I8Vec3`](type.I8Vec3.html)
-/// * [`TVec`](type.TVec.html)
-/// * [`UVec3`](type.UVec3.html)
-/// * [`U16Vec3`](type.U16Vec3.html)
-/// * [`U32Vec3`](type.U32Vec3.html)
-/// * [`U64Vec3`](type.U64Vec3.html)
-/// * [`U8Vec3`](type.U8Vec3.html)
-/// * [`Vec3`](type.Vec3.html)
+/// * [`BVec3`]
+/// * [`DVec3`]
+/// * [`IVec3`]
+/// * [`I16Vec3`]
+/// * [`I32Vec3`]
+/// * [`I64Vec3`]
+/// * [`I8Vec3`]
+/// * [`TVec`]
+/// * [`UVec3`]
+/// * [`U16Vec3`]
+/// * [`U32Vec3`]
+/// * [`U64Vec3`]
+/// * [`U8Vec3`]
+/// * [`Vec3`]
 pub type TVec3<T> = TVec<T, 3>;
 /// A 4D vector with components of type `T`.
 ///
@@ -136,28 +134,27 @@ pub type TVec3<T> = TVec<T, 3>;
 ///
 /// ## Constructors:
 ///
-/// * [`make_vec4`](fn.make_vec4.html)
-/// * [`vec4`](fn.vec4.html)
-/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
-/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
-/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
+/// * [`make_vec4()`](crate::make_vec4)
+/// * [`vec4()`](crate::vec4)
+/// * [`vec1_to_vec4()`](crate::vec1_to_vec4)
+/// * [`vec2_to_vec4()`](crate::vec2_to_vec4)
+/// * [`vec3_to_vec4()`](crate::vec3_to_vec4)
 ///
 /// ## Related types:
 ///
-/// * [`vec4`](fn.vec4.html)
-/// * [`BVec4`](type.BVec4.html)
-/// * [`DVec4`](type.DVec4.html)
-/// * [`IVec4`](type.IVec4.html)
-/// * [`I16Vec4`](type.I16Vec4.html)
-/// * [`I32Vec4`](type.I32Vec4.html)
-/// * [`I64Vec4`](type.I64Vec4.html)
-/// * [`I8Vec4`](type.I8Vec4.html)
-/// * [`UVec4`](type.UVec4.html)
-/// * [`U16Vec4`](type.U16Vec4.html)
-/// * [`U32Vec4`](type.U32Vec4.html)
-/// * [`U64Vec4`](type.U64Vec4.html)
-/// * [`U8Vec4`](type.U8Vec4.html)
-/// * [`Vec4`](type.Vec4.html)
+/// * [`BVec4`]
+/// * [`DVec4`]
+/// * [`IVec4`]
+/// * [`I16Vec4`]
+/// * [`I32Vec4`]
+/// * [`I64Vec4`]
+/// * [`I8Vec4`]
+/// * [`UVec4`]
+/// * [`U16Vec4`]
+/// * [`U32Vec4`]
+/// * [`U64Vec4`]
+/// * [`U8Vec4`]
+/// * [`Vec4`]
 pub type TVec4<T> = TVec<T, 4>;
 /// A 1D vector with boolean components.
 pub type BVec1 = TVec1<bool>;

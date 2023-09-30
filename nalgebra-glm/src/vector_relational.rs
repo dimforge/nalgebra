@@ -16,8 +16,8 @@ use crate::traits::Number;
 ///
 /// # See also:
 ///
-/// * [`any`](fn.any.html)
-/// * [`not`](fn.not.html)
+/// * [`any()`]
+/// * [`not()`]
 pub fn all<const D: usize>(v: &TVec<bool, D>) -> bool {
     v.iter().all(|x| *x)
 }
@@ -40,8 +40,8 @@ pub fn all<const D: usize>(v: &TVec<bool, D>) -> bool {
 ///
 /// # See also:
 ///
-/// * [`all`](fn.all.html)
-/// * [`not`](fn.not.html)
+/// * [`all()`]
+/// * [`not()`]
 pub fn any<const D: usize>(v: &TVec<bool, D>) -> bool {
     v.iter().any(|x| *x)
 }
@@ -59,12 +59,12 @@ pub fn any<const D: usize>(v: &TVec<bool, D>) -> bool {
 ///
 /// # See also:
 ///
-/// * [`greater_than`](fn.greater_than.html)
-/// * [`greater_than_equal`](fn.greater_than_equal.html)
-/// * [`less_than`](fn.less_than.html)
-/// * [`less_than_equal`](fn.less_than_equal.html)
-/// * [`not`](fn.not.html)
-/// * [`not_equal`](fn.not_equal.html)
+/// * [`greater_than()`]
+/// * [`greater_than_equal()`]
+/// * [`less_than()`]
+/// * [`less_than_equal()`]
+/// * [`not()`]
+/// * [`not_equal()`]
 pub fn equal<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> TVec<bool, D> {
     x.zip_map(y, |x, y| x == y)
 }
@@ -82,12 +82,12 @@ pub fn equal<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> TVec<
 ///
 /// # See also:
 ///
-/// * [`equal`](fn.equal.html)
-/// * [`greater_than_equal`](fn.greater_than_equal.html)
-/// * [`less_than`](fn.less_than.html)
-/// * [`less_than_equal`](fn.less_than_equal.html)
-/// * [`not`](fn.not.html)
-/// * [`not_equal`](fn.not_equal.html)
+/// * [`equal()`]
+/// * [`greater_than_equal()`]
+/// * [`less_than()`]
+/// * [`less_than_equal()`]
+/// * [`not()`]
+/// * [`not_equal()`]
 pub fn greater_than<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> TVec<bool, D> {
     x.zip_map(y, |x, y| x > y)
 }
@@ -105,12 +105,12 @@ pub fn greater_than<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -
 ///
 /// # See also:
 ///
-/// * [`equal`](fn.equal.html)
-/// * [`greater_than`](fn.greater_than.html)
-/// * [`less_than`](fn.less_than.html)
-/// * [`less_than_equal`](fn.less_than_equal.html)
-/// * [`not`](fn.not.html)
-/// * [`not_equal`](fn.not_equal.html)
+/// * [`equal()`]
+/// * [`greater_than()`]
+/// * [`less_than()`]
+/// * [`less_than_equal()`]
+/// * [`not()`]
+/// * [`not_equal()`]
 pub fn greater_than_equal<T: Number, const D: usize>(
     x: &TVec<T, D>,
     y: &TVec<T, D>,
@@ -131,12 +131,12 @@ pub fn greater_than_equal<T: Number, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [`equal`](fn.equal.html)
-/// * [`greater_than`](fn.greater_than.html)
-/// * [`greater_than_equal`](fn.greater_than_equal.html)
-/// * [`less_than_equal`](fn.less_than_equal.html)
-/// * [`not`](fn.not.html)
-/// * [`not_equal`](fn.not_equal.html)
+/// * [`equal()`]
+/// * [`greater_than()`]
+/// * [`greater_than_equal()`]
+/// * [`less_than_equal()`]
+/// * [`not()`]
+/// * [`not_equal()`]
 pub fn less_than<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> TVec<bool, D> {
     x.zip_map(y, |x, y| x < y)
 }
@@ -154,12 +154,12 @@ pub fn less_than<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T
 ///
 /// # See also:
 ///
-/// * [`equal`](fn.equal.html)
-/// * [`greater_than`](fn.greater_than.html)
-/// * [`greater_than_equal`](fn.greater_than_equal.html)
-/// * [`less_than`](fn.less_than.html)
-/// * [`not`](fn.not.html)
-/// * [`not_equal`](fn.not_equal.html)
+/// * [`equal()`]
+/// * [`greater_than()`]
+/// * [`greater_than_equal()`]
+/// * [`less_than()`]
+/// * [`not()`]
+/// * [`not_equal()`]
 pub fn less_than_equal<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> TVec<bool, D> {
     x.zip_map(y, |x, y| x <= y)
 }
@@ -176,14 +176,14 @@ pub fn less_than_equal<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>
 ///
 /// # See also:
 ///
-/// * [`all`](fn.all.html)
-/// * [`any`](fn.any.html)
-/// * [`equal`](fn.equal.html)
-/// * [`greater_than`](fn.greater_than.html)
-/// * [`greater_than_equal`](fn.greater_than_equal.html)
-/// * [`less_than`](fn.less_than.html)
-/// * [`less_than_equal`](fn.less_than_equal.html)
-/// * [`not_equal`](fn.not_equal.html)
+/// * [`all()`]
+/// * [`any()`]
+/// * [`equal()`]
+/// * [`greater_than()`]
+/// * [`greater_than_equal()`]
+/// * [`less_than()`]
+/// * [`less_than_equal()`]
+/// * [`not_equal()`]
 pub fn not<const D: usize>(v: &TVec<bool, D>) -> TVec<bool, D> {
     v.map(|x| !x)
 }
@@ -201,12 +201,12 @@ pub fn not<const D: usize>(v: &TVec<bool, D>) -> TVec<bool, D> {
 ///
 /// # See also:
 ///
-/// * [`equal`](fn.equal.html)
-/// * [`greater_than`](fn.greater_than.html)
-/// * [`greater_than_equal`](fn.greater_than_equal.html)
-/// * [`less_than`](fn.less_than.html)
-/// * [`less_than_equal`](fn.less_than_equal.html)
-/// * [`not`](fn.not.html)
+/// * [`equal()`]
+/// * [`greater_than()`]
+/// * [`greater_than_equal()`]
+/// * [`less_than()`]
+/// * [`less_than_equal()`]
+/// * [`not()`]
 pub fn not_equal<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> TVec<bool, D> {
     x.zip_map(y, |x, y| x != y)
 }

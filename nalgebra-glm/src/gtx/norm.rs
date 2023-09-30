@@ -5,7 +5,7 @@ use crate::RealNumber;
 ///
 /// # See also:
 ///
-/// * [`distance`](fn.distance.html)
+/// * [`distance()`](crate::distance)
 pub fn distance2<T: RealNumber, const D: usize>(p0: &TVec<T, D>, p1: &TVec<T, D>) -> T {
     (p1 - p0).norm_squared()
 }
@@ -14,9 +14,9 @@ pub fn distance2<T: RealNumber, const D: usize>(p0: &TVec<T, D>, p1: &TVec<T, D>
 ///
 /// # See also:
 ///
-/// * [`l1_norm`](fn.l1_norm.html)
-/// * [`l2_distance`](fn.l2_distance.html)
-/// * [`l2_norm`](fn.l2_norm.html)
+/// * [`l1_norm()`]
+/// * [`l2_distance()`]
+/// * [`l2_norm()`]
 pub fn l1_distance<T: RealNumber, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T {
     l1_norm(&(y - x))
 }
@@ -28,27 +28,27 @@ pub fn l1_distance<T: RealNumber, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>
 ///
 /// # See also:
 ///
-/// * [`l1_distance`](fn.l1_distance.html)
-/// * [`l2_distance`](fn.l2_distance.html)
-/// * [`l2_norm`](fn.l2_norm.html)
+/// * [`l1_distance()`]
+/// * [`l2_distance()`]
+/// * [`l2_norm()`]
 pub fn l1_norm<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> T {
     crate::comp_add(&v.abs())
 }
 
 /// The l2-norm of `x - y`.
 ///
-/// This is the same value as returned by [`length2`](fn.length2.html) and
-/// [`magnitude2`](fn.magnitude2.html).
+/// This is the same value as returned by [`length2()`] and
+/// [`magnitude2()`].
 ///
 /// # See also:
 ///
-/// * [`l1_distance`](fn.l1_distance.html)
-/// * [`l1_norm`](fn.l1_norm.html)
-/// * [`l2_norm`](fn.l2_norm.html)
-/// * [`length`](fn.length.html)
-/// * [`length2`](fn.length2.html)
-/// * [`magnitude`](fn.magnitude.html)
-/// * [`magnitude2`](fn.magnitude2.html)
+/// * [`l1_distance()`]
+/// * [`l1_norm()`]
+/// * [`l2_norm()`]
+/// * [`length()`](crate::length)
+/// * [`length2()`]
+/// * [`magnitude()`](crate::magnitude)
+/// * [`magnitude2()`]
 pub fn l2_distance<T: RealNumber, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T {
     l2_norm(&(y - x))
 }
@@ -57,33 +57,33 @@ pub fn l2_distance<T: RealNumber, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>
 ///
 /// This is also known as the Euclidean norm.
 ///
-/// This is the same value as returned by [`length`](fn.length.html) and
-/// [`magnitude`](fn.magnitude.html).
+/// This is the same value as returned by [`length()`](crate::length) and
+/// [`magnitude()`](crate::magnitude).
 ///
 /// # See also:
 ///
-/// * [`l1_distance`](fn.l1_distance.html)
-/// * [`l1_norm`](fn.l1_norm.html)
-/// * [`l2_distance`](fn.l2_distance.html)
-/// * [`length`](fn.length.html)
-/// * [`length2`](fn.length2.html)
-/// * [`magnitude`](fn.magnitude.html)
-/// * [`magnitude2`](fn.magnitude2.html)
+/// * [`l1_distance()`]
+/// * [`l1_norm()`]
+/// * [`l2_distance()`]
+/// * [`length()`](crate::length)
+/// * [`length2()`]
+/// * [`magnitude()`](crate::magnitude)
+/// * [`magnitude2()`]
 pub fn l2_norm<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm()
 }
 
 /// The squared magnitude of `x`.
 ///
-/// A synonym for [`magnitude2`](fn.magnitude2.html).
+/// A synonym for [`magnitude2()`].
 ///
 /// # See also:
 ///
-/// * [`distance`](fn.distance.html)
-/// * [`distance2`](fn.distance2.html)
-/// * [`length`](fn.length.html)
-/// * [`magnitude`](fn.magnitude.html)
-/// * [`magnitude2`](fn.magnitude2.html)
+/// * [`distance()`](crate::distance)
+/// * [`distance2()`]
+/// * [`length()`](crate::length)
+/// * [`magnitude()`](crate::magnitude)
+/// * [`magnitude2()`]
 pub fn length2<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm_squared()
 }
@@ -94,10 +94,10 @@ pub fn length2<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> T {
 ///
 /// # See also:
 ///
-/// * [`distance`](fn.distance.html)
-/// * [`distance2`](fn.distance2.html)
-/// * [`length2`](fn.length2.html)
-/// * [`magnitude`](fn.magnitude.html)
+/// * [`distance()`](crate::distance)
+/// * [`distance2()`]
+/// * [`length2()`]
+/// * [`magnitude()`](crate::magnitude)
 /// * [`nalgebra::norm_squared`](../nalgebra/fn.norm_squared.html)
 pub fn magnitude2<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm_squared()

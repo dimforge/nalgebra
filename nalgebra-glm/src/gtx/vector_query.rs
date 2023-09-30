@@ -7,7 +7,7 @@ use crate::traits::Number;
 ///
 /// # See also:
 ///
-/// * [`are_collinear2d`](fn.are_collinear2d.html)
+/// * [`are_collinear2d()`]
 pub fn are_collinear<T: Number>(v0: &TVec3<T>, v1: &TVec3<T>, epsilon: T) -> bool {
     is_null(&v0.cross(v1), epsilon)
 }
@@ -16,7 +16,7 @@ pub fn are_collinear<T: Number>(v0: &TVec3<T>, v1: &TVec3<T>, epsilon: T) -> boo
 ///
 /// # See also:
 ///
-/// * [`are_collinear`](fn.are_collinear.html)
+/// * [`are_collinear()`]
 pub fn are_collinear2d<T: Number>(v0: &TVec2<T>, v1: &TVec2<T>, epsilon: T) -> bool {
     abs_diff_eq!(v0.perp(v1), T::zero(), epsilon = epsilon)
 }

@@ -7,11 +7,11 @@ use crate::traits::{Number, RealNumber};
 ///
 /// # See also:
 ///
-/// * [`scaling`](fn.scaling.html)
-/// * [`translation`](fn.translation.html)
-/// * [`rotation2d`](fn.rotation2d.html)
-/// * [`scaling2d`](fn.scaling2d.html)
-/// * [`translation2d`](fn.translation2d.html)
+/// * [`scaling()`]
+/// * [`translation()`]
+/// * [`rotation2d()`]
+/// * [`scaling2d()`]
+/// * [`translation2d()`]
 pub fn rotation<T: RealNumber>(angle: T, v: &TVec3<T>) -> TMat4<T> {
     Rotation3::from_axis_angle(&Unit::new_normalize(*v), angle).to_homogeneous()
 }
@@ -20,11 +20,11 @@ pub fn rotation<T: RealNumber>(angle: T, v: &TVec3<T>) -> TMat4<T> {
 ///
 /// # See also:
 ///
-/// * [`rotation`](fn.rotation.html)
-/// * [`translation`](fn.translation.html)
-/// * [`rotation2d`](fn.rotation2d.html)
-/// * [`scaling2d`](fn.scaling2d.html)
-/// * [`translation2d`](fn.translation2d.html)
+/// * [`rotation()`]
+/// * [`translation()`]
+/// * [`rotation2d()`]
+/// * [`scaling2d()`]
+/// * [`translation2d()`]
 pub fn scaling<T: Number>(v: &TVec3<T>) -> TMat4<T> {
     TMat4::new_nonuniform_scaling(v)
 }
@@ -33,11 +33,11 @@ pub fn scaling<T: Number>(v: &TVec3<T>) -> TMat4<T> {
 ///
 /// # See also:
 ///
-/// * [`rotation`](fn.rotation.html)
-/// * [`scaling`](fn.scaling.html)
-/// * [`rotation2d`](fn.rotation2d.html)
-/// * [`scaling2d`](fn.scaling2d.html)
-/// * [`translation2d`](fn.translation2d.html)
+/// * [`rotation()`]
+/// * [`scaling()`]
+/// * [`rotation2d()`]
+/// * [`scaling2d()`]
+/// * [`translation2d()`]
 pub fn translation<T: Number>(v: &TVec3<T>) -> TMat4<T> {
     TMat4::new_translation(v)
 }
@@ -46,11 +46,11 @@ pub fn translation<T: Number>(v: &TVec3<T>) -> TMat4<T> {
 ///
 /// # See also:
 ///
-/// * [`rotation`](fn.rotation.html)
-/// * [`scaling`](fn.scaling.html)
-/// * [`translation`](fn.translation.html)
-/// * [`scaling2d`](fn.scaling2d.html)
-/// * [`translation2d`](fn.translation2d.html)
+/// * [`rotation()`]
+/// * [`scaling()`]
+/// * [`translation()`]
+/// * [`scaling2d()`]
+/// * [`translation2d()`]
 pub fn rotation2d<T: RealNumber>(angle: T) -> TMat3<T> {
     Rotation2::new(angle).to_homogeneous()
 }
@@ -59,11 +59,11 @@ pub fn rotation2d<T: RealNumber>(angle: T) -> TMat3<T> {
 ///
 /// # See also:
 ///
-/// * [`rotation`](fn.rotation.html)
-/// * [`scaling`](fn.scaling.html)
-/// * [`translation`](fn.translation.html)
-/// * [`rotation2d`](fn.rotation2d.html)
-/// * [`translation2d`](fn.translation2d.html)
+/// * [`rotation()`]
+/// * [`scaling()`]
+/// * [`translation()`]
+/// * [`rotation2d()`]
+/// * [`translation2d()`]
 pub fn scaling2d<T: Number>(v: &TVec2<T>) -> TMat3<T> {
     TMat3::new_nonuniform_scaling(v)
 }
@@ -72,11 +72,11 @@ pub fn scaling2d<T: Number>(v: &TVec2<T>) -> TMat3<T> {
 ///
 /// # See also:
 ///
-/// * [`rotation`](fn.rotation.html)
-/// * [`scaling`](fn.scaling.html)
-/// * [`translation`](fn.translation.html)
-/// * [`rotation2d`](fn.rotation2d.html)
-/// * [`scaling2d`](fn.scaling2d.html)
+/// * [`rotation()`]
+/// * [`scaling()`]
+/// * [`translation()`]
+/// * [`rotation2d()`]
+/// * [`scaling2d()`]
 pub fn translation2d<T: Number>(v: &TVec2<T>) -> TMat3<T> {
     TMat3::new_translation(v)
 }

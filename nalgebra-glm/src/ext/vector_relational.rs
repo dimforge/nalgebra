@@ -5,9 +5,9 @@ use crate::traits::Number;
 ///
 /// # See also:
 ///
-/// * [`equal_eps_vec`](fn.equal_eps_vec.html)
-/// * [`not_equal_eps`](fn.not_equal_eps.html)
-/// * [`not_equal_eps_vec`](fn.not_equal_eps_vec.html)
+/// * [`equal_eps_vec()`]
+/// * [`not_equal_eps()`]
+/// * [`not_equal_eps_vec()`]
 pub fn equal_eps<T: Number, const D: usize>(
     x: &TVec<T, D>,
     y: &TVec<T, D>,
@@ -20,9 +20,9 @@ pub fn equal_eps<T: Number, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [`equal_eps`](fn.equal_eps.html)
-/// * [`not_equal_eps`](fn.not_equal_eps.html)
-/// * [`not_equal_eps_vec`](fn.not_equal_eps_vec.html)
+/// * [`equal_eps()`]
+/// * [`not_equal_eps()`]
+/// * [`not_equal_eps_vec()`]
 pub fn equal_eps_vec<T: Number, const D: usize>(
     x: &TVec<T, D>,
     y: &TVec<T, D>,
@@ -35,9 +35,9 @@ pub fn equal_eps_vec<T: Number, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [`equal_eps`](fn.equal_eps.html)
-/// * [`equal_eps_vec`](fn.equal_eps_vec.html)
-/// * [`not_equal_eps_vec`](fn.not_equal_eps_vec.html)
+/// * [`equal_eps()`]
+/// * [`equal_eps_vec()`]
+/// * [`not_equal_eps_vec()`]
 pub fn not_equal_eps<T: Number, const D: usize>(
     x: &TVec<T, D>,
     y: &TVec<T, D>,
@@ -50,9 +50,9 @@ pub fn not_equal_eps<T: Number, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [`equal_eps`](fn.equal_eps.html)
-/// * [`equal_eps_vec`](fn.equal_eps_vec.html)
-/// * [`not_equal_eps`](fn.not_equal_eps.html)
+/// * [`equal_eps()`]
+/// * [`equal_eps_vec()`]
+/// * [`not_equal_eps()`]
 pub fn not_equal_eps_vec<T: Number, const D: usize>(
     x: &TVec<T, D>,
     y: &TVec<T, D>,

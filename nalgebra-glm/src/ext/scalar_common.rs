@@ -12,9 +12,9 @@ use crate::traits::Number;
 ///
 /// # See also:
 ///
-/// * [`max4_scalar`](fn.max4_scalar.html)
-/// * [`min3_scalar`](fn.min3_scalar.html)
-/// * [`min4_scalar`](fn.min4_scalar.html)
+/// * [`max4_scalar()`]
+/// * [`min3_scalar()`]
+/// * [`min4_scalar()`]
 pub fn max2_scalar<T: Number>(a: T, b: T) -> T {
     if a >= b {
         a
@@ -35,9 +35,9 @@ pub fn max2_scalar<T: Number>(a: T, b: T) -> T {
 ///
 /// # See also:
 ///
-/// * [`max4_scalar`](fn.max4_scalar.html)
-/// * [`min3_scalar`](fn.min3_scalar.html)
-/// * [`min4_scalar`](fn.min4_scalar.html)
+/// * [`max4_scalar()`]
+/// * [`min3_scalar()`]
+/// * [`min4_scalar()`]
 pub fn min2_scalar<T: Number>(a: T, b: T) -> T {
     if a <= b {
         a
@@ -58,9 +58,9 @@ pub fn min2_scalar<T: Number>(a: T, b: T) -> T {
 ///
 /// # See also:
 ///
-/// * [`max4_scalar`](fn.max4_scalar.html)
-/// * [`min3_scalar`](fn.min3_scalar.html)
-/// * [`min4_scalar`](fn.min4_scalar.html)
+/// * [`max4_scalar()`]
+/// * [`min3_scalar()`]
+/// * [`min4_scalar()`]
 pub fn max3_scalar<T: Number>(a: T, b: T, c: T) -> T {
     max2_scalar(max2_scalar(a, b), c)
 }
@@ -77,9 +77,9 @@ pub fn max3_scalar<T: Number>(a: T, b: T, c: T) -> T {
 ///
 /// # See also:
 ///
-/// * [`max3_scalar`](fn.max3_scalar.html)
-/// * [`min3_scalar`](fn.min3_scalar.html)
-/// * [`min4_scalar`](fn.min4_scalar.html)
+/// * [`max3_scalar()`]
+/// * [`min3_scalar()`]
+/// * [`min4_scalar()`]
 pub fn max4_scalar<T: Number>(a: T, b: T, c: T, d: T) -> T {
     max2_scalar(max2_scalar(a, b), max2_scalar(c, d))
 }
@@ -96,9 +96,9 @@ pub fn max4_scalar<T: Number>(a: T, b: T, c: T, d: T) -> T {
 ///
 /// # See also:
 ///
-/// * [`max3_scalar`](fn.max3_scalar.html)
-/// * [`max4_scalar`](fn.max4_scalar.html)
-/// * [`min4_scalar`](fn.min4_scalar.html)
+/// * [`max3_scalar()`]
+/// * [`max4_scalar()`]
+/// * [`min4_scalar()`]
 pub fn min3_scalar<T: Number>(a: T, b: T, c: T) -> T {
     min2_scalar(min2_scalar(a, b), c)
 }
@@ -115,9 +115,9 @@ pub fn min3_scalar<T: Number>(a: T, b: T, c: T) -> T {
 ///
 /// # See also:
 ///
-/// * [`max3_scalar`](fn.max3_scalar.html)
-/// * [`max4_scalar`](fn.max4_scalar.html)
-/// * [`min3_scalar`](fn.min3_scalar.html)
+/// * [`max3_scalar()`]
+/// * [`max4_scalar()`]
+/// * [`min3_scalar()`]
 pub fn min4_scalar<T: Number>(a: T, b: T, c: T, d: T) -> T {
     min2_scalar(min2_scalar(a, b), min2_scalar(c, d))
 }

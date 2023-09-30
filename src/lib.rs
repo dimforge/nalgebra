@@ -173,8 +173,8 @@ pub use simba::simd::{SimdBool, SimdComplexField, SimdPartialOrd, SimdRealField,
 ///
 /// # See also:
 ///
-/// * [`origin`](../nalgebra/fn.origin.html)
-/// * [`zero`](fn.zero.html)
+/// * [`origin()`](crate::OPoint::origin)
+/// * [`zero()`]
 #[inline]
 pub fn one<T: One>() -> T {
     T::one()
@@ -184,8 +184,8 @@ pub fn one<T: One>() -> T {
 ///
 /// # See also:
 ///
-/// * [`one`](fn.one.html)
-/// * [`origin`](../nalgebra/fn.origin.html)
+/// * [`one()`]
+/// * [`origin()`](crate::OPoint::origin)
 #[inline]
 pub fn zero<T: Zero>() -> T {
     T::zero()
@@ -262,7 +262,7 @@ pub fn min<T: Ord>(a: T, b: T) -> T {
 
 /// The absolute value of `a`.
 ///
-/// Deprecated: Use [`Matrix::abs`] or [`ComplexField::abs`] instead.
+/// Deprecated: Use [`Matrix::abs()`] or [`ComplexField::abs()`] instead.
 #[deprecated(note = "use the inherent method `Matrix::abs` or `ComplexField::abs` instead")]
 #[inline]
 pub fn abs<T: Signed>(a: &T) -> T {
@@ -400,8 +400,8 @@ pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'
 ///
 /// # See also:
 ///
-/// * [distance](fn.distance.html)
-/// * [`distance_squared`](fn.distance_squared.html)
+/// * [`distance()`]
+/// * [`distance_squared()`]
 #[inline]
 pub fn center<T: SimdComplexField, const D: usize>(
     p1: &Point<T, D>,
@@ -414,8 +414,8 @@ pub fn center<T: SimdComplexField, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [center](fn.center.html)
-/// * [`distance_squared`](fn.distance_squared.html)
+/// * [`center()`]
+/// * [`distance_squared()`]
 #[inline]
 pub fn distance<T: SimdComplexField, const D: usize>(
     p1: &Point<T, D>,
@@ -428,8 +428,8 @@ pub fn distance<T: SimdComplexField, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [center](fn.center.html)
-/// * [distance](fn.distance.html)
+/// * [`center()`]
+/// * [`distance()`]
 #[inline]
 pub fn distance_squared<T: SimdComplexField, const D: usize>(
     p1: &Point<T, D>,
@@ -443,15 +443,15 @@ pub fn distance_squared<T: SimdComplexField, const D: usize>(
  */
 /// Converts an object from one type to an equivalent or more general one.
 ///
-/// See also [`try_convert`](fn.try_convert.html) for conversion to more specific types.
+/// See also [`try_convert()`] for conversion to more specific types.
 ///
 /// # See also:
 ///
-/// * [`convert_ref`](fn.convert_ref.html)
-/// * [`convert_ref_unchecked`](fn.convert_ref_unchecked.html)
-/// * [`is_convertible`](../nalgebra/fn.is_convertible.html)
-/// * [`try_convert`](fn.try_convert.html)
-/// * [`try_convert_ref`](fn.try_convert_ref.html)
+/// * [`convert_ref()`]
+/// * [`convert_ref_unchecked()`]
+/// * [`is_convertible()`]
+/// * [`try_convert()`]
+/// * [`try_convert_ref()`]
 #[inline]
 pub fn convert<From, To: SupersetOf<From>>(t: From) -> To {
     To::from_subset(&t)
@@ -459,46 +459,46 @@ pub fn convert<From, To: SupersetOf<From>>(t: From) -> To {
 
 /// Attempts to convert an object to a more specific one.
 ///
-/// See also [`convert`](fn.convert.html) for conversion to more general types.
+/// See also [`convert()`] for conversion to more general types.
 ///
 /// # See also:
 ///
-/// * [convert](fn.convert.html)
-/// * [`convert_ref`](fn.convert_ref.html)
-/// * [`convert_ref_unchecked`](fn.convert_ref_unchecked.html)
-/// * [`is_convertible`](../nalgebra/fn.is_convertible.html)
-/// * [`try_convert_ref`](fn.try_convert_ref.html)
+/// * [`convert()`]
+/// * [`convert_ref()`]
+/// * [`convert_ref_unchecked()`]
+/// * [`is_convertible()`]
+/// * [`try_convert_ref()`]
 #[inline]
 pub fn try_convert<From: SupersetOf<To>, To>(t: From) -> Option<To> {
     t.to_subset()
 }
 
-/// Indicates if [`try_convert`](fn.try_convert.html) will succeed without
+/// Indicates if [`try_convert()`] will succeed without
 /// actually performing the conversion.
 ///
 /// # See also:
 ///
-/// * [convert](fn.convert.html)
-/// * [`convert_ref`](fn.convert_ref.html)
-/// * [`convert_ref_unchecked`](fn.convert_ref_unchecked.html)
-/// * [`try_convert`](fn.try_convert.html)
-/// * [`try_convert_ref`](fn.try_convert_ref.html)
+/// * [`convert()`]
+/// * [`convert_ref()`]
+/// * [`convert_ref_unchecked()`]
+/// * [`try_convert()`]
+/// * [`try_convert_ref()`]
 #[inline]
 pub fn is_convertible<From: SupersetOf<To>, To>(t: &From) -> bool {
     t.is_in_subset()
 }
 
-/// Use with care! Same as [`try_convert`](fn.try_convert.html) but
+/// Use with care! Same as [`try_convert()`] but
 /// without any property checks.
 ///
 /// # See also:
 ///
-/// * [convert](fn.convert.html)
-/// * [`convert_ref`](fn.convert_ref.html)
-/// * [`convert_ref_unchecked`](fn.convert_ref_unchecked.html)
-/// * [`is_convertible`](../nalgebra/fn.is_convertible.html)
-/// * [`try_convert`](fn.try_convert.html)
-/// * [`try_convert_ref`](fn.try_convert_ref.html)
+/// * [`convert()`]
+/// * [`convert_ref()`]
+/// * [`convert_ref_unchecked()`]
+/// * [`is_convertible()`]
+/// * [`try_convert()`]
+/// * [`try_convert_ref()`]
 #[inline]
 pub fn convert_unchecked<From: SupersetOf<To>, To>(t: From) -> To {
     t.to_subset_unchecked()
@@ -508,11 +508,11 @@ pub fn convert_unchecked<From: SupersetOf<To>, To>(t: From) -> To {
 ///
 /// # See also:
 ///
-/// * [convert](fn.convert.html)
-/// * [`convert_ref_unchecked`](fn.convert_ref_unchecked.html)
-/// * [`is_convertible`](../nalgebra/fn.is_convertible.html)
-/// * [`try_convert`](fn.try_convert.html)
-/// * [`try_convert_ref`](fn.try_convert_ref.html)
+/// * [`convert()`]
+/// * [`convert_ref_unchecked()`]
+/// * [`is_convertible()`]
+/// * [`try_convert()`]
+/// * [`try_convert_ref()`]
 #[inline]
 pub fn convert_ref<From, To: SupersetOf<From>>(t: &From) -> To {
     To::from_subset(t)
@@ -522,26 +522,26 @@ pub fn convert_ref<From, To: SupersetOf<From>>(t: &From) -> To {
 ///
 /// # See also:
 ///
-/// * [convert](fn.convert.html)
-/// * [`convert_ref`](fn.convert_ref.html)
-/// * [`convert_ref_unchecked`](fn.convert_ref_unchecked.html)
-/// * [`is_convertible`](../nalgebra/fn.is_convertible.html)
-/// * [`try_convert`](fn.try_convert.html)
+/// * [`convert()`]
+/// * [`convert_ref()`]
+/// * [`convert_ref_unchecked()`]
+/// * [`is_convertible()`]
+/// * [`try_convert()`]
 #[inline]
 pub fn try_convert_ref<From: SupersetOf<To>, To>(t: &From) -> Option<To> {
     t.to_subset()
 }
 
-/// Use with care! Same as [`try_convert`](fn.try_convert.html) but
+/// Use with care! Same as [`try_convert()`] but
 /// without any property checks.
 ///
 /// # See also:
 ///
-/// * [convert](fn.convert.html)
-/// * [`convert_ref`](fn.convert_ref.html)
-/// * [`is_convertible`](../nalgebra/fn.is_convertible.html)
-/// * [`try_convert`](fn.try_convert.html)
-/// * [`try_convert_ref`](fn.try_convert_ref.html)
+/// * [`convert()`]
+/// * [`convert_ref()`]
+/// * [`is_convertible()`]
+/// * [`try_convert()`]
+/// * [`try_convert_ref()`]
 #[inline]
 pub fn convert_ref_unchecked<From: SupersetOf<To>, To>(t: &From) -> To {
     t.to_subset_unchecked()

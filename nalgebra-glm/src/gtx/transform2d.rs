@@ -7,11 +7,11 @@ use crate::traits::{Number, RealNumber};
 ///
 /// # See also:
 ///
-/// * [`rotation2d`](fn.rotation2d.html)
-/// * [`scale2d`](fn.scale2d.html)
-/// * [`scaling2d`](fn.scaling2d.html)
-/// * [`translate2d`](fn.translate2d.html)
-/// * [`translation2d`](fn.translation2d.html)
+/// * [`rotation2d()`](crate::rotation2d)
+/// * [`scale2d()`]
+/// * [`scaling2d()`](crate::scaling2d)
+/// * [`translate2d()`]
+/// * [`translation2d()`](crate::translation2d)
 pub fn rotate2d<T: RealNumber>(m: &TMat3<T>, angle: T) -> TMat3<T> {
     m * UnitComplex::new(angle).to_homogeneous()
 }
@@ -20,11 +20,11 @@ pub fn rotate2d<T: RealNumber>(m: &TMat3<T>, angle: T) -> TMat3<T> {
 ///
 /// # See also:
 ///
-/// * [`rotate2d`](fn.rotate2d.html)
-/// * [`rotation2d`](fn.rotation2d.html)
-/// * [`scaling2d`](fn.scaling2d.html)
-/// * [`translate2d`](fn.translate2d.html)
-/// * [`translation2d`](fn.translation2d.html)
+/// * [`rotate2d()`]
+/// * [`rotation2d()`](crate::rotation2d)
+/// * [`scaling2d()`](crate::scaling2d)
+/// * [`translate2d()`]
+/// * [`translation2d()`](crate::translation2d)
 pub fn scale2d<T: Number>(m: &TMat3<T>, v: &TVec2<T>) -> TMat3<T> {
     m.prepend_nonuniform_scaling(v)
 }
@@ -33,11 +33,11 @@ pub fn scale2d<T: Number>(m: &TMat3<T>, v: &TVec2<T>) -> TMat3<T> {
 ///
 /// # See also:
 ///
-/// * [`rotate2d`](fn.rotate2d.html)
-/// * [`rotation2d`](fn.rotation2d.html)
-/// * [`scale2d`](fn.scale2d.html)
-/// * [`scaling2d`](fn.scaling2d.html)
-/// * [`translation2d`](fn.translation2d.html)
+/// * [`rotate2d()`]
+/// * [`rotation2d()`](crate::rotation2d)
+/// * [`scale2d()`]
+/// * [`scaling2d()`](crate::scaling2d)
+/// * [`translation2d()`](crate::translation2d)
 pub fn translate2d<T: Number>(m: &TMat3<T>, v: &TVec2<T>) -> TMat3<T> {
     m.prepend_translation(v)
 }

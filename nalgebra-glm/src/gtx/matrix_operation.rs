@@ -7,14 +7,14 @@ use crate::traits::Number;
 ///
 /// # See also:
 ///
-/// * [`diagonal2x3`](fn.diagonal2x3.html)
-/// * [`diagonal2x4`](fn.diagonal2x4.html)
-/// * [`diagonal3x2`](fn.diagonal3x2.html)
-/// * [`diagonal3x3`](fn.diagonal3x3.html)
-/// * [`diagonal3x4`](fn.diagonal3x4.html)
-/// * [`diagonal4x2`](fn.diagonal4x2.html)
-/// * [`diagonal4x3`](fn.diagonal4x3.html)
-/// * [`diagonal4x4`](fn.diagonal4x4.html)
+/// * [`diagonal2x3()`]
+/// * [`diagonal2x4()`]
+/// * [`diagonal3x2()`]
+/// * [`diagonal3x3()`]
+/// * [`diagonal3x4()`]
+/// * [`diagonal4x2()`]
+/// * [`diagonal4x3()`]
+/// * [`diagonal4x4()`]
 pub fn diagonal2x2<T: Number>(v: &TVec2<T>) -> TMat2<T> {
     TMat2::from_diagonal(v)
 }
@@ -23,14 +23,14 @@ pub fn diagonal2x2<T: Number>(v: &TVec2<T>) -> TMat2<T> {
 ///
 /// # See also:
 ///
-/// * [`diagonal2x2`](fn.diagonal2x2.html)
-/// * [`diagonal2x4`](fn.diagonal2x4.html)
-/// * [`diagonal3x2`](fn.diagonal3x2.html)
-/// * [`diagonal3x3`](fn.diagonal3x3.html)
-/// * [`diagonal3x4`](fn.diagonal3x4.html)
-/// * [`diagonal4x2`](fn.diagonal4x2.html)
-/// * [`diagonal4x3`](fn.diagonal4x3.html)
-/// * [`diagonal4x4`](fn.diagonal4x4.html)
+/// * [`diagonal2x2()`]
+/// * [`diagonal2x4()`]
+/// * [`diagonal3x2()`]
+/// * [`diagonal3x3()`]
+/// * [`diagonal3x4()`]
+/// * [`diagonal4x2()`]
+/// * [`diagonal4x3()`]
+/// * [`diagonal4x4()`]
 pub fn diagonal2x3<T: Number>(v: &TVec2<T>) -> TMat2x3<T> {
     TMat2x3::from_partial_diagonal(v.as_slice())
 }
@@ -39,14 +39,14 @@ pub fn diagonal2x3<T: Number>(v: &TVec2<T>) -> TMat2x3<T> {
 ///
 /// # See also:
 ///
-/// * [`diagonal2x2`](fn.diagonal2x2.html)
-/// * [`diagonal2x3`](fn.diagonal2x3.html)
-/// * [`diagonal3x2`](fn.diagonal3x2.html)
-/// * [`diagonal3x3`](fn.diagonal3x3.html)
-/// * [`diagonal3x4`](fn.diagonal3x4.html)
-/// * [`diagonal4x2`](fn.diagonal4x2.html)
-/// * [`diagonal4x3`](fn.diagonal4x3.html)
-/// * [`diagonal4x4`](fn.diagonal4x4.html)
+/// * [`diagonal2x2()`]
+/// * [`diagonal2x3()`]
+/// * [`diagonal3x2()`]
+/// * [`diagonal3x3()`]
+/// * [`diagonal3x4()`]
+/// * [`diagonal4x2()`]
+/// * [`diagonal4x3()`]
+/// * [`diagonal4x4()`]
 pub fn diagonal2x4<T: Number>(v: &TVec2<T>) -> TMat2x4<T> {
     TMat2x4::from_partial_diagonal(v.as_slice())
 }
@@ -55,14 +55,14 @@ pub fn diagonal2x4<T: Number>(v: &TVec2<T>) -> TMat2x4<T> {
 ///
 /// # See also:
 ///
-/// * [`diagonal2x2`](fn.diagonal2x2.html)
-/// * [`diagonal2x3`](fn.diagonal2x3.html)
-/// * [`diagonal2x4`](fn.diagonal2x4.html)
-/// * [`diagonal3x3`](fn.diagonal3x3.html)
-/// * [`diagonal3x4`](fn.diagonal3x4.html)
-/// * [`diagonal4x2`](fn.diagonal4x2.html)
-/// * [`diagonal4x3`](fn.diagonal4x3.html)
-/// * [`diagonal4x4`](fn.diagonal4x4.html)
+/// * [`diagonal2x2()`]
+/// * [`diagonal2x3()`]
+/// * [`diagonal2x4()`]
+/// * [`diagonal3x3()`]
+/// * [`diagonal3x4()`]
+/// * [`diagonal4x2()`]
+/// * [`diagonal4x3()`]
+/// * [`diagonal4x4()`]
 pub fn diagonal3x2<T: Number>(v: &TVec2<T>) -> TMat3x2<T> {
     TMat3x2::from_partial_diagonal(v.as_slice())
 }
@@ -71,14 +71,14 @@ pub fn diagonal3x2<T: Number>(v: &TVec2<T>) -> TMat3x2<T> {
 ///
 /// # See also:
 ///
-/// * [`diagonal2x2`](fn.diagonal2x2.html)
-/// * [`diagonal2x3`](fn.diagonal2x3.html)
-/// * [`diagonal2x4`](fn.diagonal2x4.html)
-/// * [`diagonal3x2`](fn.diagonal3x2.html)
-/// * [`diagonal3x4`](fn.diagonal3x4.html)
-/// * [`diagonal4x2`](fn.diagonal4x2.html)
-/// * [`diagonal4x3`](fn.diagonal4x3.html)
-/// * [`diagonal4x4`](fn.diagonal4x4.html)
+/// * [`diagonal2x2()`]
+/// * [`diagonal2x3()`]
+/// * [`diagonal2x4()`]
+/// * [`diagonal3x2()`]
+/// * [`diagonal3x4()`]
+/// * [`diagonal4x2()`]
+/// * [`diagonal4x3()`]
+/// * [`diagonal4x4()`]
 pub fn diagonal3x3<T: Number>(v: &TVec3<T>) -> TMat3<T> {
     TMat3::from_diagonal(v)
 }
@@ -87,14 +87,14 @@ pub fn diagonal3x3<T: Number>(v: &TVec3<T>) -> TMat3<T> {
 ///
 /// # See also:
 ///
-/// * [`diagonal2x2`](fn.diagonal2x2.html)
-/// * [`diagonal2x3`](fn.diagonal2x3.html)
-/// * [`diagonal2x4`](fn.diagonal2x4.html)
-/// * [`diagonal3x2`](fn.diagonal3x2.html)
-/// * [`diagonal3x3`](fn.diagonal3x3.html)
-/// * [`diagonal4x2`](fn.diagonal4x2.html)
-/// * [`diagonal4x3`](fn.diagonal4x3.html)
-/// * [`diagonal4x4`](fn.diagonal4x4.html)
+/// * [`diagonal2x2()`]
+/// * [`diagonal2x3()`]
+/// * [`diagonal2x4()`]
+/// * [`diagonal3x2()`]
+/// * [`diagonal3x3()`]
+/// * [`diagonal4x2()`]
+/// * [`diagonal4x3()`]
+/// * [`diagonal4x4()`]
 pub fn diagonal3x4<T: Number>(v: &TVec3<T>) -> TMat3x4<T> {
     TMat3x4::from_partial_diagonal(v.as_slice())
 }
@@ -103,14 +103,14 @@ pub fn diagonal3x4<T: Number>(v: &TVec3<T>) -> TMat3x4<T> {
 ///
 /// # See also:
 ///
-/// * [`diagonal2x2`](fn.diagonal2x2.html)
-/// * [`diagonal2x3`](fn.diagonal2x3.html)
-/// * [`diagonal2x4`](fn.diagonal2x4.html)
-/// * [`diagonal3x2`](fn.diagonal3x2.html)
-/// * [`diagonal3x3`](fn.diagonal3x3.html)
-/// * [`diagonal3x4`](fn.diagonal3x4.html)
-/// * [`diagonal4x3`](fn.diagonal4x3.html)
-/// * [`diagonal4x4`](fn.diagonal4x4.html)
+/// * [`diagonal2x2()`]
+/// * [`diagonal2x3()`]
+/// * [`diagonal2x4()`]
+/// * [`diagonal3x2()`]
+/// * [`diagonal3x3()`]
+/// * [`diagonal3x4()`]
+/// * [`diagonal4x3()`]
+/// * [`diagonal4x4()`]
 pub fn diagonal4x2<T: Number>(v: &TVec2<T>) -> TMat4x2<T> {
     TMat4x2::from_partial_diagonal(v.as_slice())
 }
@@ -119,14 +119,14 @@ pub fn diagonal4x2<T: Number>(v: &TVec2<T>) -> TMat4x2<T> {
 ///
 /// # See also:
 ///
-/// * [`diagonal2x2`](fn.diagonal2x2.html)
-/// * [`diagonal2x3`](fn.diagonal2x3.html)
-/// * [`diagonal2x4`](fn.diagonal2x4.html)
-/// * [`diagonal3x2`](fn.diagonal3x2.html)
-/// * [`diagonal3x3`](fn.diagonal3x3.html)
-/// * [`diagonal3x4`](fn.diagonal3x4.html)
-/// * [`diagonal4x2`](fn.diagonal4x2.html)
-/// * [`diagonal4x4`](fn.diagonal4x4.html)
+/// * [`diagonal2x2()`]
+/// * [`diagonal2x3()`]
+/// * [`diagonal2x4()`]
+/// * [`diagonal3x2()`]
+/// * [`diagonal3x3()`]
+/// * [`diagonal3x4()`]
+/// * [`diagonal4x2()`]
+/// * [`diagonal4x4()`]
 pub fn diagonal4x3<T: Number>(v: &TVec3<T>) -> TMat4x3<T> {
     TMat4x3::from_partial_diagonal(v.as_slice())
 }
@@ -135,14 +135,14 @@ pub fn diagonal4x3<T: Number>(v: &TVec3<T>) -> TMat4x3<T> {
 ///
 /// # See also:
 ///
-/// * [`diagonal2x2`](fn.diagonal2x2.html)
-/// * [`diagonal2x3`](fn.diagonal2x3.html)
-/// * [`diagonal2x4`](fn.diagonal2x4.html)
-/// * [`diagonal3x2`](fn.diagonal3x2.html)
-/// * [`diagonal3x3`](fn.diagonal3x3.html)
-/// * [`diagonal3x4`](fn.diagonal3x4.html)
-/// * [`diagonal4x2`](fn.diagonal4x2.html)
-/// * [`diagonal4x3`](fn.diagonal4x3.html)
+/// * [`diagonal2x2()`]
+/// * [`diagonal2x3()`]
+/// * [`diagonal2x4()`]
+/// * [`diagonal3x2()`]
+/// * [`diagonal3x3()`]
+/// * [`diagonal3x4()`]
+/// * [`diagonal4x2()`]
+/// * [`diagonal4x3()`]
 pub fn diagonal4x4<T: Number>(v: &TVec4<T>) -> TMat4<T> {
     TMat4::from_diagonal(v)
 }

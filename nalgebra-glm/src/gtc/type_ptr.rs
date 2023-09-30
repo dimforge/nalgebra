@@ -128,9 +128,9 @@ pub fn make_quat<T: RealNumber>(ptr: &[T]) -> Qua<T> {
 ///
 /// # See also:
 ///
-/// * [`make_vec2`](fn.make_vec2.html)
-/// * [`make_vec3`](fn.make_vec3.html)
-/// * [`make_vec4`](fn.make_vec4.html)
+/// * [`make_vec2()`]
+/// * [`make_vec3()`]
+/// * [`make_vec4()`]
 pub fn make_vec1<T: Scalar>(v: &TVec1<T>) -> TVec1<T> {
     v.clone()
 }
@@ -139,12 +139,11 @@ pub fn make_vec1<T: Scalar>(v: &TVec1<T>) -> TVec1<T> {
 ///
 /// # See also:
 ///
-/// * [`vec1_to_vec1`](fn.vec1_to_vec1.html)
-/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
-/// * [`vec4_to_vec1`](fn.vec4_to_vec1.html)
-/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
-/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
-/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
+/// * [`vec3_to_vec1()`]
+/// * [`vec4_to_vec1()`]
+/// * [`vec1_to_vec2()`]
+/// * [`vec1_to_vec3()`]
+/// * [`vec1_to_vec4()`]
 pub fn vec2_to_vec1<T: Scalar>(v: &TVec2<T>) -> TVec1<T> {
     TVec1::new(v.x.clone())
 }
@@ -153,12 +152,11 @@ pub fn vec2_to_vec1<T: Scalar>(v: &TVec2<T>) -> TVec1<T> {
 ///
 /// # See also:
 ///
-/// * [`vec1_to_vec1`](fn.vec1_to_vec1.html)
-/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
-/// * [`vec4_to_vec1`](fn.vec4_to_vec1.html)
-/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
-/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
-/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
+/// * [`vec2_to_vec1()`]
+/// * [`vec4_to_vec1()`]
+/// * [`vec1_to_vec2()`]
+/// * [`vec1_to_vec3()`]
+/// * [`vec1_to_vec4()`]
 pub fn vec3_to_vec1<T: Scalar>(v: &TVec3<T>) -> TVec1<T> {
     TVec1::new(v.x.clone())
 }
@@ -167,12 +165,11 @@ pub fn vec3_to_vec1<T: Scalar>(v: &TVec3<T>) -> TVec1<T> {
 ///
 /// # See also:
 ///
-/// * [`vec1_to_vec1`](fn.vec1_to_vec1.html)
-/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
-/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
-/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
-/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
-/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
+/// * [`vec2_to_vec1()`]
+/// * [`vec3_to_vec1()`]
+/// * [`vec1_to_vec2()`]
+/// * [`vec1_to_vec3()`]
+/// * [`vec1_to_vec4()`]
 pub fn vec4_to_vec1<T: Scalar>(v: &TVec4<T>) -> TVec1<T> {
     TVec1::new(v.x.clone())
 }
@@ -183,12 +180,12 @@ pub fn vec4_to_vec1<T: Scalar>(v: &TVec4<T>) -> TVec1<T> {
 ///
 /// # See also:
 ///
-/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
-/// * [`vec4_to_vec2`](fn.vec4_to_vec2.html)
-/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
-/// * [`vec2_to_vec2`](fn.vec2_to_vec2.html)
-/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
-/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
+/// * [`vec3_to_vec2()`]
+/// * [`vec4_to_vec2()`]
+/// * [`vec2_to_vec1()`]
+/// * [`vec2_to_vec2()`]
+/// * [`vec2_to_vec3()`]
+/// * [`vec2_to_vec4()`]
 pub fn vec1_to_vec2<T: Number>(v: &TVec1<T>) -> TVec2<T> {
     TVec2::new(v.x.clone(), T::zero())
 }
@@ -197,13 +194,13 @@ pub fn vec1_to_vec2<T: Number>(v: &TVec1<T>) -> TVec2<T> {
 ///
 /// # See also:
 ///
-/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
-/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
-/// * [`vec4_to_vec2`](fn.vec4_to_vec2.html)
-/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
-/// * [`vec2_to_vec2`](fn.vec2_to_vec2.html)
-/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
-/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
+/// * [`vec1_to_vec2()`]
+/// * [`vec3_to_vec2()`]
+/// * [`vec4_to_vec2()`]
+/// * [`vec2_to_vec1()`]
+/// * [`vec2_to_vec2()`]
+/// * [`vec2_to_vec3()`]
+/// * [`vec2_to_vec4()`]
 pub fn vec2_to_vec2<T: Scalar>(v: &TVec2<T>) -> TVec2<T> {
     v.clone()
 }
@@ -212,12 +209,12 @@ pub fn vec2_to_vec2<T: Scalar>(v: &TVec2<T>) -> TVec2<T> {
 ///
 /// # See also:
 ///
-/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
-/// * [`vec4_to_vec2`](fn.vec4_to_vec2.html)
-/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
-/// * [`vec2_to_vec2`](fn.vec2_to_vec2.html)
-/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
-/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
+/// * [`vec1_to_vec2()`]
+/// * [`vec4_to_vec2()`]
+/// * [`vec2_to_vec1()`]
+/// * [`vec2_to_vec2()`]
+/// * [`vec2_to_vec3()`]
+/// * [`vec2_to_vec4()`]
 pub fn vec3_to_vec2<T: Scalar>(v: &TVec3<T>) -> TVec2<T> {
     TVec2::new(v.x.clone(), v.y.clone())
 }
@@ -226,12 +223,12 @@ pub fn vec3_to_vec2<T: Scalar>(v: &TVec3<T>) -> TVec2<T> {
 ///
 /// # See also:
 ///
-/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
-/// * [`vec3_to_vec2`](fn.vec4_to_vec2.html)
-/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
-/// * [`vec2_to_vec2`](fn.vec2_to_vec2.html)
-/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
-/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
+/// * [`vec1_to_vec2()`]
+/// * [`vec3_to_vec2()`]
+/// * [`vec2_to_vec1()`]
+/// * [`vec2_to_vec2()`]
+/// * [`vec2_to_vec3()`]
+/// * [`vec2_to_vec4()`]
 pub fn vec4_to_vec2<T: Scalar>(v: &TVec4<T>) -> TVec2<T> {
     TVec2::new(v.x.clone(), v.y.clone())
 }
@@ -240,9 +237,9 @@ pub fn vec4_to_vec2<T: Scalar>(v: &TVec4<T>) -> TVec2<T> {
 ///
 /// # See also:
 ///
-/// * [`make_vec1`](fn.make_vec1.html)
-/// * [`make_vec3`](fn.make_vec3.html)
-/// * [`make_vec4`](fn.make_vec4.html)
+/// * [`make_vec1()`]
+/// * [`make_vec3()`]
+/// * [`make_vec4()`]
 pub fn make_vec2<T: Scalar>(ptr: &[T]) -> TVec2<T> {
     TVec2::from_column_slice(ptr)
 }
@@ -253,11 +250,11 @@ pub fn make_vec2<T: Scalar>(ptr: &[T]) -> TVec2<T> {
 ///
 /// # See also:
 ///
-/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
-/// * [`vec3_to_vec3`](fn.vec3_to_vec3.html)
-/// * [`vec4_to_vec3`](fn.vec4_to_vec3.html)
-/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
-/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
+/// * [`vec2_to_vec3()`]
+/// * [`vec3_to_vec3()`]
+/// * [`vec4_to_vec3()`]
+/// * [`vec1_to_vec2()`]
+/// * [`vec1_to_vec4()`]
 pub fn vec1_to_vec3<T: Number>(v: &TVec1<T>) -> TVec3<T> {
     TVec3::new(v.x.clone(), T::zero(), T::zero())
 }
@@ -268,12 +265,12 @@ pub fn vec1_to_vec3<T: Number>(v: &TVec1<T>) -> TVec3<T> {
 ///
 /// # See also:
 ///
-/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
-/// * [`vec3_to_vec3`](fn.vec3_to_vec3.html)
-/// * [`vec4_to_vec3`](fn.vec4_to_vec3.html)
-/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
-/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
-/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
+/// * [`vec1_to_vec3()`]
+/// * [`vec3_to_vec3()`]
+/// * [`vec4_to_vec3()`]
+/// * [`vec3_to_vec1()`]
+/// * [`vec3_to_vec2()`]
+/// * [`vec3_to_vec4()`]
 pub fn vec2_to_vec3<T: Number>(v: &TVec2<T>) -> TVec3<T> {
     TVec3::new(v.x.clone(), v.y.clone(), T::zero())
 }
@@ -282,12 +279,12 @@ pub fn vec2_to_vec3<T: Number>(v: &TVec2<T>) -> TVec3<T> {
 ///
 /// # See also:
 ///
-/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
-/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
-/// * [`vec4_to_vec3`](fn.vec4_to_vec3.html)
-/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
-/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
-/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
+/// * [`vec1_to_vec3()`]
+/// * [`vec2_to_vec3()`]
+/// * [`vec4_to_vec3()`]
+/// * [`vec3_to_vec1()`]
+/// * [`vec3_to_vec2()`]
+/// * [`vec3_to_vec4()`]
 pub fn vec3_to_vec3<T: Scalar>(v: &TVec3<T>) -> TVec3<T> {
     v.clone()
 }
@@ -296,12 +293,12 @@ pub fn vec3_to_vec3<T: Scalar>(v: &TVec3<T>) -> TVec3<T> {
 ///
 /// # See also:
 ///
-/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
-/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
-/// * [`vec3_to_vec3`](fn.vec3_to_vec3.html)
-/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
-/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
-/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
+/// * [`vec1_to_vec3()`]
+/// * [`vec2_to_vec3()`]
+/// * [`vec3_to_vec3()`]
+/// * [`vec3_to_vec1()`]
+/// * [`vec3_to_vec2()`]
+/// * [`vec3_to_vec4()`]
 pub fn vec4_to_vec3<T: Scalar>(v: &TVec4<T>) -> TVec3<T> {
     TVec3::new(v.x.clone(), v.y.clone(), v.z.clone())
 }
@@ -310,9 +307,9 @@ pub fn vec4_to_vec3<T: Scalar>(v: &TVec4<T>) -> TVec3<T> {
 ///
 /// # See also:
 ///
-/// * [`make_vec1`](fn.make_vec1.html)
-/// * [`make_vec2`](fn.make_vec2.html)
-/// * [`make_vec4`](fn.make_vec4.html)
+/// * [`make_vec1()`]
+/// * [`make_vec2()`]
+/// * [`make_vec4()`]
 pub fn make_vec3<T: Scalar>(ptr: &[T]) -> TVec3<T> {
     TVec3::from_column_slice(ptr)
 }
@@ -323,12 +320,12 @@ pub fn make_vec3<T: Scalar>(ptr: &[T]) -> TVec3<T> {
 ///
 /// # See also:
 ///
-/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
-/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
-/// * [`vec4_to_vec4`](fn.vec4_to_vec4.html)
-/// * [`vec1_to_vec2`](fn.vec1_to_vec2.html)
-/// * [`vec1_to_vec3`](fn.vec1_to_vec3.html)
-/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
+/// * [`vec2_to_vec4()`]
+/// * [`vec3_to_vec4()`]
+/// * [`vec4_to_vec4()`]
+/// * [`vec1_to_vec2()`]
+/// * [`vec1_to_vec3()`]
+/// * [`vec1_to_vec4()`]
 pub fn vec1_to_vec4<T: Number>(v: &TVec1<T>) -> TVec4<T> {
     TVec4::new(v.x, T::zero(), T::zero(), T::zero())
 }
@@ -339,12 +336,12 @@ pub fn vec1_to_vec4<T: Number>(v: &TVec1<T>) -> TVec4<T> {
 ///
 /// # See also:
 ///
-/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
-/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
-/// * [`vec4_to_vec4`](fn.vec4_to_vec4.html)
-/// * [`vec2_to_vec1`](fn.vec2_to_vec1.html)
-/// * [`vec2_to_vec2`](fn.vec2_to_vec2.html)
-/// * [`vec2_to_vec3`](fn.vec2_to_vec3.html)
+/// * [`vec1_to_vec4()`]
+/// * [`vec3_to_vec4()`]
+/// * [`vec4_to_vec4()`]
+/// * [`vec2_to_vec1()`]
+/// * [`vec2_to_vec2()`]
+/// * [`vec2_to_vec3()`]
 pub fn vec2_to_vec4<T: Number>(v: &TVec2<T>) -> TVec4<T> {
     TVec4::new(v.x, v.y, T::zero(), T::zero())
 }
@@ -355,12 +352,12 @@ pub fn vec2_to_vec4<T: Number>(v: &TVec2<T>) -> TVec4<T> {
 ///
 /// # See also:
 ///
-/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
-/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
-/// * [`vec4_to_vec4`](fn.vec4_to_vec4.html)
-/// * [`vec3_to_vec1`](fn.vec3_to_vec1.html)
-/// * [`vec3_to_vec2`](fn.vec3_to_vec2.html)
-/// * [`vec3_to_vec3`](fn.vec3_to_vec3.html)
+/// * [`vec1_to_vec4()`]
+/// * [`vec2_to_vec4()`]
+/// * [`vec4_to_vec4()`]
+/// * [`vec3_to_vec1()`]
+/// * [`vec3_to_vec2()`]
+/// * [`vec3_to_vec3()`]
 pub fn vec3_to_vec4<T: Number>(v: &TVec3<T>) -> TVec4<T> {
     TVec4::new(v.x, v.y, v.z, T::zero())
 }
@@ -369,12 +366,12 @@ pub fn vec3_to_vec4<T: Number>(v: &TVec3<T>) -> TVec4<T> {
 ///
 /// # See also:
 ///
-/// * [`vec1_to_vec4`](fn.vec1_to_vec4.html)
-/// * [`vec2_to_vec4`](fn.vec2_to_vec4.html)
-/// * [`vec3_to_vec4`](fn.vec3_to_vec4.html)
-/// * [`vec4_to_vec1`](fn.vec4_to_vec1.html)
-/// * [`vec4_to_vec2`](fn.vec4_to_vec2.html)
-/// * [`vec4_to_vec3`](fn.vec4_to_vec3.html)
+/// * [`vec1_to_vec4()`]
+/// * [`vec2_to_vec4()`]
+/// * [`vec3_to_vec4()`]
+/// * [`vec4_to_vec1()`]
+/// * [`vec4_to_vec2()`]
+/// * [`vec4_to_vec3()`]
 pub fn vec4_to_vec4<T: Scalar>(v: &TVec4<T>) -> TVec4<T> {
     v.clone()
 }
@@ -383,9 +380,9 @@ pub fn vec4_to_vec4<T: Scalar>(v: &TVec4<T>) -> TVec4<T> {
 ///
 /// # See also:
 ///
-/// * [`make_vec1`](fn.make_vec1.html)
-/// * [`make_vec2`](fn.make_vec2.html)
-/// * [`make_vec3`](fn.make_vec3.html)
+/// * [`make_vec1()`]
+/// * [`make_vec2()`]
+/// * [`make_vec3()`]
 pub fn make_vec4<T: Scalar>(ptr: &[T]) -> TVec4<T> {
     TVec4::from_column_slice(ptr)
 }

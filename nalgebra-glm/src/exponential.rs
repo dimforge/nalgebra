@@ -5,7 +5,7 @@ use crate::RealNumber;
 ///
 /// # See also:
 ///
-/// * [`exp2`](fn.exp2.html)
+/// * [`exp2()`]
 pub fn exp<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.exp())
 }
@@ -14,7 +14,7 @@ pub fn exp<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
 ///
 /// # See also:
 ///
-/// * [`exp`](fn.exp.html)
+/// * [`exp()`]
 pub fn exp2<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.exp2())
 }
@@ -23,7 +23,7 @@ pub fn exp2<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
 ///
 /// # See also:
 ///
-/// * [`sqrt`](fn.sqrt.html)
+/// * [`sqrt()`]
 pub fn inversesqrt<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| T::one() / x.sqrt())
 }
@@ -32,7 +32,7 @@ pub fn inversesqrt<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> 
 ///
 /// # See also:
 ///
-/// * [`log2`](fn.log2.html)
+/// * [`log2()`]
 pub fn log<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.ln())
 }
@@ -41,7 +41,7 @@ pub fn log<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
 ///
 /// # See also:
 ///
-/// * [`log`](fn.log.html)
+/// * [`log()`]
 pub fn log2<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.log2())
 }
@@ -55,10 +55,10 @@ pub fn pow<T: RealNumber, const D: usize>(base: &TVec<T, D>, exponent: &TVec<T, 
 ///
 /// # See also:
 ///
-/// * [`exp`](fn.exp.html)
-/// * [`exp2`](fn.exp2.html)
-/// * [`inversesqrt`](fn.inversesqrt.html)
-/// * [`pow`](fn.pow.html)
+/// * [`exp()`]
+/// * [`exp2()`]
+/// * [`inversesqrt()`]
+/// * [`pow`]
 pub fn sqrt<T: RealNumber, const D: usize>(v: &TVec<T, D>) -> TVec<T, D> {
     v.map(|x| x.sqrt())
 }
