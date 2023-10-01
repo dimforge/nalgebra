@@ -537,6 +537,11 @@ fn csc_matrix_col_iter() {
             assert_eq!(col.get_entry(2), Some(SparseEntry::NonZero(&2)));
             assert_eq!(col.get_entry(3), Some(SparseEntry::Zero));
             assert_eq!(col.get_entry(4), None);
+
+            let mut inner = col.iter();
+            assert_eq!(Some((1, &1)), inner.next());
+            assert_eq!(Some((2, &2)), inner.next());
+            assert!(inner.next().is_none());
         }
 
         {
@@ -550,6 +555,10 @@ fn csc_matrix_col_iter() {
             assert_eq!(col.get_entry(2), Some(SparseEntry::Zero));
             assert_eq!(col.get_entry(3), Some(SparseEntry::Zero));
             assert_eq!(col.get_entry(4), None);
+
+            let mut inner = col.iter();
+            assert_eq!(Some((0, &3)), inner.next());
+            assert!(inner.next().is_none());
         }
 
         {
@@ -563,6 +572,11 @@ fn csc_matrix_col_iter() {
             assert_eq!(col.get_entry(2), Some(SparseEntry::Zero));
             assert_eq!(col.get_entry(3), Some(SparseEntry::NonZero(&5)));
             assert_eq!(col.get_entry(4), None);
+
+            let mut inner = col.iter();
+            assert_eq!(Some((1, &4)), inner.next());
+            assert_eq!(Some((3, &5)), inner.next());
+            assert!(inner.next().is_none());
         }
 
         assert!(col_iter.next().is_none());
@@ -595,6 +609,11 @@ fn csc_matrix_col_iter() {
             assert_eq!(col.get_entry_mut(2), Some(SparseEntryMut::NonZero(&mut 2)));
             assert_eq!(col.get_entry_mut(3), Some(SparseEntryMut::Zero));
             assert_eq!(col.get_entry_mut(4), None);
+
+            let mut inner = col.iter_mut();
+            assert_eq!(Some((1, &mut 1)), inner.next());
+            assert_eq!(Some((2, &mut 2)), inner.next());
+            assert!(inner.next().is_none());
         }
 
         {
@@ -616,6 +635,10 @@ fn csc_matrix_col_iter() {
             assert_eq!(col.get_entry_mut(2), Some(SparseEntryMut::Zero));
             assert_eq!(col.get_entry_mut(3), Some(SparseEntryMut::Zero));
             assert_eq!(col.get_entry_mut(4), None);
+
+            let mut inner = col.iter_mut();
+            assert_eq!(Some((0, &mut 3)), inner.next());
+            assert!(inner.next().is_none());
         }
 
         {
@@ -640,6 +663,11 @@ fn csc_matrix_col_iter() {
             assert_eq!(col.get_entry_mut(2), Some(SparseEntryMut::Zero));
             assert_eq!(col.get_entry_mut(3), Some(SparseEntryMut::NonZero(&mut 5)));
             assert_eq!(col.get_entry_mut(4), None);
+
+            let mut inner = col.iter_mut();
+            assert_eq!(Some((1, &mut 4)), inner.next());
+            assert_eq!(Some((3, &mut 5)), inner.next());
+            assert!(inner.next().is_none());
         }
 
         assert!(col_iter.next().is_none());

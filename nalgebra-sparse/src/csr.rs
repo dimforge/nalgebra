@@ -7,7 +7,9 @@
 mod csr_serde;
 
 use crate::cs;
-use crate::cs::{CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix};
+use crate::cs::{
+    CsInnerIter, CsInnerIterMut, CsLane, CsLaneIter, CsLaneIterMut, CsLaneMut, CsMatrix,
+};
 use crate::csc::CscMatrix;
 use crate::pattern::{SparsityPattern, SparsityPatternFormatError, SparsityPatternIter};
 use crate::{SparseEntry, SparseEntryMut, SparseFormatError, SparseFormatErrorKind};
@@ -721,6 +723,16 @@ macro_rules! impl_csr_row_common_methods {
             pub fn get_entry(&self, global_col_index: usize) -> Option<SparseEntry<'_, T>> {
                 self.lane.get_entry(global_col_index)
             }
+
+            /// Iterator over `(col_idx, value)`, the column indices and elements of a row of a CSR matrix.
+            /// Equivalent to `row.col_indices().iter().zip(row.values().iter())`.
+            #[inline]
+            #[must_use]
+            pub fn iter(&self) -> CsrInnerIter<'_, T> {
+                CsrInnerIter {
+                    inner_iter: self.lane.iter(),
+                }
+            }
         }
     };
 }
@@ -751,6 +763,16 @@ impl<'a, T> CsrRowMut<'a, T> {
     pub fn get_entry_mut(&mut self, global_col_index: usize) -> Option<SparseEntryMut<'_, T>> {
         self.lane.get_entry_mut(global_col_index)
     }
+
+    /// Iterator over `(col_idx, mut_value)`, the column indices and mutable elements of a row of a CSR matrix.
+    /// Equivalent to `row.col_indices().iter().zip(row.values_mut().iter_mut())`.
+    #[inline]
+    #[must_use]
+    pub fn iter_mut(&mut self) -> CsrInnerIterMut<'_, T> {
+        CsrInnerIterMut {
+            inner_iter: self.lane.iter_mut(),
+        }
+    }
 }
 
 /// Row iterator for [`CsrMatrix`].
@@ -779,5 +801,37 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         self.lane_iter.next().map(|lane| CsrRowMut { lane })
+    }
+}
+
+/// Iterator for [CsrRow](struct.CsrRow.html).
+pub struct CsrInnerIter<'a, T> {
+    inner_iter: CsInnerIter<'a, T>,
+}
+
+impl<'a, T> Iterator for CsrInnerIter<'a, T>
+where
+    T: 'a,
+{
+    type Item = (usize, &'a T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner_iter.next()
+    }
+}
+
+/// Mutable iterator for [CsrRowMut](struct.CsrRowMut.html).
+pub struct CsrInnerIterMut<'a, T> {
+    inner_iter: CsInnerIterMut<'a, T>,
+}
+
+impl<'a, T> Iterator for CsrInnerIterMut<'a, T>
+where
+    T: 'a,
+{
+    type Item = (usize, &'a mut T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner_iter.next()
     }
 }
