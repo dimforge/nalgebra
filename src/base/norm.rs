@@ -336,7 +336,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// Sets the magnitude of this vector unless it is smaller than `min_magnitude`.
     ///
     /// If `self.magnitude()` is smaller than `min_magnitude`, it will be left unchanged.
-    /// Otherwise this is equivalent to: `*self = self.normalize() * magnitude.
+    /// Otherwise this is equivalent to: `*self = self.normalize() * magnitude`.
     #[inline]
     pub fn try_set_magnitude(&mut self, magnitude: T::RealField, min_magnitude: T::RealField)
     where
