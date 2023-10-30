@@ -575,6 +575,14 @@ impl<T> CsrMatrix<T> {
     }
 }
 
+impl<T> Default for CsrMatrix<T> {
+    fn default() -> Self {
+        Self {
+            cs: Default::default(),
+        }
+    }
+}
+
 /// Convert pattern format errors into more meaningful CSR-specific errors.
 ///
 /// This ensures that the terminology is consistent: we are talking about rows and columns,

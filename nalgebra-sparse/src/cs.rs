@@ -226,6 +226,15 @@ impl<T> CsMatrix<T> {
     }
 }
 
+impl<T> Default for CsMatrix<T> {
+    fn default() -> Self {
+        Self {
+            sparsity_pattern: Default::default(),
+            values: vec![],
+        }
+    }
+}
+
 impl<T: Scalar + One> CsMatrix<T> {
     #[inline]
     pub fn identity(n: usize) -> Self {
