@@ -17,7 +17,7 @@ pub struct GivensRotation<T: ComplexField> {
 
 // Matrix = UnitComplex * Matrix
 impl<T: ComplexField> GivensRotation<T> {
-    /// The Givents rotation that does nothing.
+    /// The Givens rotation that does nothing.
     pub fn identity() -> Self {
         Self {
             c: T::RealField::one(),
@@ -88,13 +88,13 @@ impl<T: ComplexField> GivensRotation<T> {
         }
     }
 
-    /// The cos part of this roration.
+    /// The cos part of this rotation.
     #[must_use]
     pub fn c(&self) -> T::RealField {
         self.c.clone()
     }
 
-    /// The sin part of this roration.
+    /// The sin part of this rotation.
     #[must_use]
     pub fn s(&self) -> T {
         self.s.clone()
