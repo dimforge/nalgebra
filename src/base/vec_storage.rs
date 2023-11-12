@@ -34,7 +34,7 @@ pub struct VecStorage<T, R: Dim, C: Dim> {
 impl<T> Default for VecStorage<T, Dyn, Dyn> {
     fn default() -> Self {
         Self {
-            data: vec![],
+            data: Vec::new(),
             nrows: Dyn::from_usize(0),
             ncols: Dyn::from_usize(0),
         }
@@ -44,7 +44,7 @@ impl<T> Default for VecStorage<T, Dyn, Dyn> {
 impl<T, R: DimName> Default for VecStorage<T, R, Dyn> {
     fn default() -> Self {
         Self {
-            data: vec![],
+            data: Vec::new(),
             nrows: R::name(),
             ncols: Dyn::from_usize(0),
         }
@@ -54,7 +54,7 @@ impl<T, R: DimName> Default for VecStorage<T, R, Dyn> {
 impl<T, C: DimName> Default for VecStorage<T, Dyn, C> {
     fn default() -> Self {
         Self {
-            data: vec![],
+            data: Vec::new(),
             nrows: Dyn::from_usize(0),
             ncols: C::name(),
         }
