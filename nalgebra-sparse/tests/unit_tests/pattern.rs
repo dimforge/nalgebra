@@ -5,7 +5,7 @@ fn sparsity_pattern_default() {
     // Check that the pattern created with `Default::default()` is equivalent to a zero-sized pattern.
     let pattern = SparsityPattern::default();
     let zero = SparsityPattern::zeros(0, 0);
-    
+
     assert_eq!(pattern.major_dim(), zero.major_dim());
     assert_eq!(pattern.minor_dim(), zero.minor_dim());
     assert_eq!(pattern.major_offsets(), zero.major_offsets());
