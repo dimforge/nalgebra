@@ -8,6 +8,7 @@ use simba::scalar::ComplexField;
 
 use crate::geometry::Reflection;
 use crate::linalg::householder;
+use crate::num::Zero;
 use std::mem::MaybeUninit;
 
 /// The bidiagonalization of a general matrix.
@@ -227,7 +228,11 @@ where
 
         for i in (0..dim - shift).rev() {
             let axis = self.uv.view_range(i + shift.., i);
-            // TODO: sometimes, the axis might have a zero magnitude.
+
+            // Sometimes, the axis might have a zero magnitude.
+            if axis.norm_squared().is_zero() {
+                continue;
+            }
             let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
             let mut res_rows = res.view_range_mut(i + shift.., i..);
@@ -263,7 +268,11 @@ where
             let axis = self.uv.view_range(i, i + shift..);
             let mut axis_packed = axis_packed.rows_range_mut(i + shift..);
             axis_packed.tr_copy_from(&axis);
-            // TODO: sometimes, the axis might have a zero magnitude.
+
+            // Sometimes, the axis might have a zero magnitude.
+            if axis_packed.norm_squared().is_zero() {
+                continue;
+            }
             let refl = Reflection::new(Unit::new_unchecked(axis_packed), T::zero());
 
             let mut res_rows = res.view_range_mut(i.., i + shift..);
