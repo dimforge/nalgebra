@@ -11,13 +11,13 @@ use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstr
 use crate::base::dimension::{
     Const, Dim, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
 };
-#[cfg(any(feature = "std", feature = "alloc"))]
+
 use crate::base::dimension::{DimName, Dyn};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::storage::{IsContiguous, RawStorage, RawStorageMut};
 use crate::base::{
-    ArrayStorage, DVectorView, DVectorViewMut, RowDVectorView, RowDVectorViewMut, DefaultAllocator, Matrix, MatrixView, MatrixViewMut,
-    OMatrix, Scalar,
+    ArrayStorage, DVectorView, DVectorViewMut, DefaultAllocator, Matrix, MatrixView, MatrixViewMut,
+    OMatrix, RowDVectorView, RowDVectorViewMut, Scalar,
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::{DVector, RowDVector, VecStorage};
@@ -532,10 +532,16 @@ impl<'a, T: Scalar> From<DVectorViewMut<'a, T>> for &'a mut [T] {
     }
 }
 
-impl<'a, T: Scalar + Copy> From<&'a [T]> for RowDVectorView<'a, T, Dyn, U1>{
+impl<'a, T: Scalar + Copy> From<&'a [T]> for RowDVectorView<'a, T, Dyn, U1> {
     #[inline]
     fn from(slice: &'a [T]) -> Self {
-        Self::from_slice_with_strides_generic(slice, U1::name(), Dyn(slice.len()), Dyn(slice.len()), U1::name())
+        Self::from_slice_with_strides_generic(
+            slice,
+            U1::name(),
+            Dyn(slice.len()),
+            Dyn(slice.len()),
+            U1::name(),
+        )
     }
 }
 
@@ -548,7 +554,13 @@ impl<'a, T: Scalar> From<RowDVectorView<'a, T, Dyn, U1>> for &'a [T] {
 impl<'a, T: Scalar + Copy> From<&'a mut [T]> for RowDVectorViewMut<'a, T, Dyn, U1> {
     #[inline]
     fn from(slice: &'a mut [T]) -> Self {
-        Self::from_slice_with_strides_generic(slice, U1::name(), Dyn(slice.len()), Dyn(slice.len()), U1::name())
+        Self::from_slice_with_strides_generic(
+            slice,
+            U1::name(),
+            Dyn(slice.len()),
+            Dyn(slice.len()),
+            U1::name(),
+        )
     }
 }
 
