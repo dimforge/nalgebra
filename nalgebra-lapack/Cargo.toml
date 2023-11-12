@@ -10,7 +10,7 @@ repository = "https://github.com/dimforge/nalgebra"
 readme = "../README.md"
 categories = [ "science", "mathematics" ]
 keywords = [ "linear", "algebra", "matrix", "vector", "lapack" ]
-license = "BSD-3-Clause"
+license = "MIT"
 edition = "2018"
 
 [badges]
