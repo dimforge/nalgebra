@@ -31,6 +31,46 @@ pub struct VecStorage<T, R: Dim, C: Dim> {
     ncols: C,
 }
 
+impl<T> Default for VecStorage<T, Dyn, Dyn> {
+    fn default() -> Self {
+        Self {
+            data: Vec::new(),
+            nrows: Dyn::from_usize(0),
+            ncols: Dyn::from_usize(0),
+        }
+    }
+}
+
+impl<T, R: DimName> Default for VecStorage<T, R, Dyn> {
+    fn default() -> Self {
+        Self {
+            data: Vec::new(),
+            nrows: R::name(),
+            ncols: Dyn::from_usize(0),
+        }
+    }
+}
+
+impl<T, C: DimName> Default for VecStorage<T, Dyn, C> {
+    fn default() -> Self {
+        Self {
+            data: Vec::new(),
+            nrows: Dyn::from_usize(0),
+            ncols: C::name(),
+        }
+    }
+}
+
+impl<T: Default, R: DimName, C: DimName> Default for VecStorage<T, R, C> {
+    fn default() -> Self {
+        let nrows = R::name();
+        let ncols = C::name();
+        let mut data = Vec::new();
+        data.resize_with(nrows.value() * ncols.value(), Default::default);
+        Self { data, nrows, ncols }
+    }
+}
+
 #[cfg(feature = "serde-serialize")]
 impl<T, R: Dim, C: Dim> Serialize for VecStorage<T, R, C>
 where

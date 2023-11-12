@@ -291,6 +291,16 @@ impl SparsityPattern {
     }
 }
 
+impl Default for SparsityPattern {
+    fn default() -> Self {
+        Self {
+            major_offsets: vec![0],
+            minor_indices: vec![],
+            minor_dim: 0,
+        }
+    }
+}
+
 /// Error type for `SparsityPattern` format errors.
 #[non_exhaustive]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]

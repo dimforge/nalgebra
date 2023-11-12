@@ -13,6 +13,18 @@ use crate::common::csc_strategy;
 use std::collections::HashSet;
 
 #[test]
+fn csc_matrix_default() {
+    let matrix: CscMatrix<f32> = CscMatrix::default();
+
+    assert_eq!(matrix.nrows(), 0);
+    assert_eq!(matrix.ncols(), 0);
+    assert_eq!(matrix.nnz(), 0);
+
+    assert_eq!(matrix.values(), &[]);
+    assert!(matrix.get_entry(0, 0).is_none());
+}
+
+#[test]
 fn csc_matrix_valid_data() {
     // Construct matrix from valid data and check that selected methods return results
     // that agree with expectations.
