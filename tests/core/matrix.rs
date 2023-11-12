@@ -1,80 +1,126 @@
+use na::iter::MatrixIter;
 use num::{One, Zero};
 use std::cmp::Ordering;
 
 use na::dimension::{U15, U8};
 use na::{
     self, Const, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4,
-    Matrix4, Matrix4x3, Matrix4x5, Matrix5, Matrix6, OMatrix, RowVector3, RowVector4, RowVector5,
-    Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
+    Matrix4, Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixView2x3, MatrixViewMut2x3, OMatrix,
+    RowVector3, RowVector4, RowVector5, Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
 };
 
 #[test]
 fn iter() {
     let a = Matrix2x3::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+    let view: MatrixView2x3<_> = (&a).into();
 
-    let mut it = a.iter();
-    assert_eq!(*it.next().unwrap(), 1.0);
-    assert_eq!(*it.next().unwrap(), 4.0);
-    assert_eq!(*it.next().unwrap(), 2.0);
-    assert_eq!(*it.next().unwrap(), 5.0);
-    assert_eq!(*it.next().unwrap(), 3.0);
-    assert_eq!(*it.next().unwrap(), 6.0);
-    assert!(it.next().is_none());
+    fn test<'a, F: Fn() -> I, I: Iterator<Item = &'a f64> + DoubleEndedIterator>(it: F) {
+        {
+            let mut it = it();
+            assert_eq!(*it.next().unwrap(), 1.0);
+            assert_eq!(*it.next().unwrap(), 4.0);
+            assert_eq!(*it.next().unwrap(), 2.0);
+            assert_eq!(*it.next().unwrap(), 5.0);
+            assert_eq!(*it.next().unwrap(), 3.0);
+            assert_eq!(*it.next().unwrap(), 6.0);
+            assert!(it.next().is_none());
+        }
 
-    let mut it = a.iter();
-    assert_eq!(*it.next().unwrap(), 1.0);
-    assert_eq!(*it.next_back().unwrap(), 6.0);
-    assert_eq!(*it.next_back().unwrap(), 3.0);
-    assert_eq!(*it.next_back().unwrap(), 5.0);
-    assert_eq!(*it.next().unwrap(), 4.0);
-    assert_eq!(*it.next().unwrap(), 2.0);
-    assert!(it.next().is_none());
+        {
+            let mut it = it();
+            assert_eq!(*it.next().unwrap(), 1.0);
+            assert_eq!(*it.next_back().unwrap(), 6.0);
+            assert_eq!(*it.next_back().unwrap(), 3.0);
+            assert_eq!(*it.next_back().unwrap(), 5.0);
+            assert_eq!(*it.next().unwrap(), 4.0);
+            assert_eq!(*it.next().unwrap(), 2.0);
+            assert!(it.next().is_none());
+        }
+        {
+            let mut it = it().rev();
+            assert_eq!(*it.next().unwrap(), 6.0);
+            assert_eq!(*it.next().unwrap(), 3.0);
+            assert_eq!(*it.next().unwrap(), 5.0);
+            assert_eq!(*it.next().unwrap(), 2.0);
+            assert_eq!(*it.next().unwrap(), 4.0);
+            assert_eq!(*it.next().unwrap(), 1.0);
+            assert!(it.next().is_none());
+        }
+    }
 
-    let mut it = a.iter().rev();
-    assert_eq!(*it.next().unwrap(), 6.0);
-    assert_eq!(*it.next().unwrap(), 3.0);
-    assert_eq!(*it.next().unwrap(), 5.0);
-    assert_eq!(*it.next().unwrap(), 2.0);
-    assert_eq!(*it.next().unwrap(), 4.0);
-    assert_eq!(*it.next().unwrap(), 1.0);
-    assert!(it.next().is_none());
+    test(|| a.iter());
+    test(|| view.into_iter());
 
     let row = a.row(0);
-    let mut it = row.iter();
-    assert_eq!(*it.next().unwrap(), 1.0);
-    assert_eq!(*it.next().unwrap(), 2.0);
-    assert_eq!(*it.next().unwrap(), 3.0);
-    assert!(it.next().is_none());
+    let row_test = |mut it: MatrixIter<_, _, _, _>| {
+        assert_eq!(*it.next().unwrap(), 1.0);
+        assert_eq!(*it.next().unwrap(), 2.0);
+        assert_eq!(*it.next().unwrap(), 3.0);
+        assert!(it.next().is_none());
+    };
+    row_test(row.iter());
+    row_test(row.into_iter());
 
     let row = a.row(1);
-    let mut it = row.iter();
-    assert_eq!(*it.next().unwrap(), 4.0);
-    assert_eq!(*it.next().unwrap(), 5.0);
-    assert_eq!(*it.next().unwrap(), 6.0);
-    assert!(it.next().is_none());
+    let row_test = |mut it: MatrixIter<_, _, _, _>| {
+        assert_eq!(*it.next().unwrap(), 4.0);
+        assert_eq!(*it.next().unwrap(), 5.0);
+        assert_eq!(*it.next().unwrap(), 6.0);
+        assert!(it.next().is_none());
+    };
+    row_test(row.iter());
+    row_test(row.into_iter());
 
     let m22 = row.column(1);
-    let mut it = m22.iter();
-    assert_eq!(*it.next().unwrap(), 5.0);
-    assert!(it.next().is_none());
+    let m22_test = |mut it: MatrixIter<_, _, _, _>| {
+        assert_eq!(*it.next().unwrap(), 5.0);
+        assert!(it.next().is_none());
+    };
+    m22_test(m22.iter());
+    m22_test(m22.into_iter());
 
     let col = a.column(0);
-    let mut it = col.iter();
-    assert_eq!(*it.next().unwrap(), 1.0);
-    assert_eq!(*it.next().unwrap(), 4.0);
-    assert!(it.next().is_none());
+    let col_test = |mut it: MatrixIter<_, _, _, _>| {
+        assert_eq!(*it.next().unwrap(), 1.0);
+        assert_eq!(*it.next().unwrap(), 4.0);
+        assert!(it.next().is_none());
+    };
+    col_test(col.iter());
+    col_test(col.into_iter());
 
     let col = a.column(1);
-    let mut it = col.iter();
-    assert_eq!(*it.next().unwrap(), 2.0);
-    assert_eq!(*it.next().unwrap(), 5.0);
-    assert!(it.next().is_none());
+    let col_test = |mut it: MatrixIter<_, _, _, _>| {
+        assert_eq!(*it.next().unwrap(), 2.0);
+        assert_eq!(*it.next().unwrap(), 5.0);
+        assert!(it.next().is_none());
+    };
+    col_test(col.iter());
+    col_test(col.into_iter());
 
     let col = a.column(2);
-    let mut it = col.iter();
-    assert_eq!(*it.next().unwrap(), 3.0);
-    assert_eq!(*it.next().unwrap(), 6.0);
-    assert!(it.next().is_none());
+    let col_test = |mut it: MatrixIter<_, _, _, _>| {
+        assert_eq!(*it.next().unwrap(), 3.0);
+        assert_eq!(*it.next().unwrap(), 6.0);
+        assert!(it.next().is_none());
+    };
+    col_test(col.iter());
+    col_test(col.into_iter());
+}
+
+#[test]
+fn iter_mut() {
+    let mut a = Matrix2x3::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+
+    for v in a.iter_mut() {
+        *v *= 2.0;
+    }
+    assert_eq!(a, Matrix2x3::new(2.0, 4.0, 6.0, 8.0, 10.0, 12.0));
+
+    let view: MatrixViewMut2x3<_> = MatrixViewMut2x3::from(&mut a);
+    for v in view.into_iter() {
+        *v *= 2.0;
+    }
+    assert_eq!(a, Matrix2x3::new(4.0, 8.0, 12.0, 16.0, 20.0, 24.0));
 }
 
 #[test]

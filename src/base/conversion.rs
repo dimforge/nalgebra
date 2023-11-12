@@ -98,6 +98,18 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> IntoIterator
     }
 }
 
+impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> IntoIterator
+    for Matrix<T, R, C, ViewStorage<'a, T, R, C, RStride, CStride>>
+{
+    type Item = &'a T;
+    type IntoIter = MatrixIter<'a, T, R, C, ViewStorage<'a, T, R, C, RStride, CStride>>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        MatrixIter::new_owned(self.data)
+    }
+}
+
 impl<'a, T: Scalar, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> IntoIterator
     for &'a mut Matrix<T, R, C, S>
 {
@@ -107,6 +119,18 @@ impl<'a, T: Scalar, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> IntoIterator
     #[inline]
     fn into_iter(self) -> Self::IntoIter {
         self.iter_mut()
+    }
+}
+
+impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> IntoIterator
+    for Matrix<T, R, C, ViewStorageMut<'a, T, R, C, RStride, CStride>>
+{
+    type Item = &'a mut T;
+    type IntoIter = MatrixIterMut<'a, T, R, C, ViewStorageMut<'a, T, R, C, RStride, CStride>>;
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        MatrixIterMut::new_owned_mut(self.data)
     }
 }
 
