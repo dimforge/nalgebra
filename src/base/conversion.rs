@@ -19,14 +19,15 @@ use crate::base::{
     ArrayStorage, DVectorView, DVectorViewMut, DefaultAllocator, Matrix, MatrixView, MatrixViewMut,
     OMatrix, Scalar,
 };
+//TODO: move near From implementation?
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::{DVector, RowDVector, VecStorage};
+use crate::base::{DMatrixView, SMatrixView, SVectorView};
+
+#[cfg(any(feature = "std", feature = "alloc"))]
+use crate::base::{DMatrix, DVector, RowDVector, VecStorage};
 use crate::base::{ViewStorage, ViewStorageMut};
 use crate::constraint::DimEq;
-use crate::{
-    DMatrix, DMatrixView, IsNotStaticOne, RowSVector, SMatrix, SMatrixView, SVector, SVectorView,
-    VectorView, VectorViewMut,
-};
+use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector, VectorView, VectorViewMut};
 use std::mem::MaybeUninit;
 
 // TODO: too bad this won't work for slice conversions.
@@ -431,18 +432,23 @@ where
     }
 }
 
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, T: Scalar, const R: usize, const C: usize> From<&'a DMatrix<T>> for SMatrix<T, R, C> {
     fn from(m: &'a DMatrix<T>) -> Self {
         let v: DMatrixView<'a, T> = m.as_view();
         SMatrixView::<T, R, C>::from(&v).clone_owned()
     }
 }
+
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, T: Scalar, const R: usize, const C: usize> From<&'a SMatrix<T, R, C>> for DMatrix<T> {
     fn from(m: &'a SMatrix<T, R, C>) -> Self {
         let v: SMatrixView<'a, T, R, C> = m.as_view();
         DMatrixView::<T>::from(&v).clone_owned()
     }
 }
+
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, T: Scalar, const R: usize> From<&'a DVector<T>> for SVector<T, R> {
     fn from(m: &'a DVector<T>) -> Self {
         let v: DVectorView<'a, T> = m.as_view();
@@ -450,6 +456,7 @@ impl<'a, T: Scalar, const R: usize> From<&'a DVector<T>> for SVector<T, R> {
     }
 }
 
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<'a, T: Scalar, const R: usize> From<&'a SVector<T, R>> for DVector<T> {
     fn from(m: &'a SVector<T, R>) -> Self {
         let v: SVectorView<'a, T, R> = m.as_view();
