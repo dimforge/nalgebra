@@ -6,7 +6,8 @@ use na::dimension::{U15, U8};
 use na::{
     self, Const, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4,
     Matrix4, Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixView2x3, MatrixViewMut2x3, OMatrix,
-    RowVector3, RowVector4, RowVector5, Vector1, Vector2, Vector3, Vector4, Vector5, Vector6,
+    RowVector3, RowVector4, RowVector5, SMatrix, SVector, Vector1, Vector2, Vector3, Vector4,
+    Vector5, Vector6,
 };
 
 #[test]
@@ -1331,4 +1332,69 @@ fn parallel_column_iteration_mut() {
         .for_each(|(idx, mut col)| col[idx] = 1.);
     assert_eq!(first, second);
     assert_eq!(second, DMatrix::identity(400, 300));
+}
+
+#[test]
+fn dmatrix_from_smatrix() {
+    type T = f64;
+    let s = SMatrix::<T, 3, 3>::from_fn(|i, j| (i * 3) as T + j as T);
+    let d = DMatrix::<T>::from(&s);
+    assert_eq!(d, s);
+}
+
+#[test]
+fn smatrix_from_dmatrix() {
+    type T = f64;
+    let d = DMatrix::<T>::from_fn(3, 3, |i, j| (i * 3) as T + j as T);
+    let s = SMatrix::<T, 3, 3>::from(&d);
+    assert_eq!(d, s);
+}
+
+#[test]
+fn svector_from_dvector() {
+    type T = f64;
+    let d = DVector::<T>::from_fn(3, |i, j| (i * 3) as T + j as T);
+    let s = SVector::<T, 3>::from(&d);
+    assert_eq!(d, s);
+}
+
+#[test]
+fn dvector_from_svector() {
+    type T = f64;
+    let s = SVector::<T, 3>::from_fn(|i, j| (i * 3) as T + j as T);
+    let d = DVector::<T>::from(&s);
+    assert_eq!(d, s);
+}
+
+#[test]
+fn svector3_from_dvector() {
+    type T = f64;
+    let d = DVector::<T>::from_fn(3, |i, j| (i * 3) as T + j as T);
+    let s = Vector3::<T>::from(&d);
+    assert_eq!(d, s);
+}
+
+#[test]
+fn dvector_from_svector3() {
+    type T = f64;
+    let s = Vector3::<T>::from_fn(|i, j| (i * 3) as T + j as T);
+    let d = DVector::<T>::from(&s);
+    assert_eq!(d, s);
+}
+
+#[test]
+fn svector3_from_dmatrix3x1() {
+    type T = f64;
+    let d = DMatrix::<T>::from_fn(3, 1, |i, j| (i * 3) as T + j as T);
+    let s = Vector3::<T>::from(&d);
+    assert_eq!(d, s);
+}
+
+#[test]
+#[should_panic]
+fn svector3_from_dmatrix3x3() {
+    type T = f64;
+    let d = DMatrix::<T>::from_fn(3, 3, |i, j| (i * 3) as T + j as T);
+    let s = Vector3::<T>::from(&d);
+    assert_eq!(d, s);
 }
