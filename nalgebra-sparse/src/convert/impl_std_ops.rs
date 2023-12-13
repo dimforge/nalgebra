@@ -29,7 +29,7 @@ where
 
 impl<'a, T> From<&'a CooMatrix<T>> for CsrMatrix<T>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Scalar + Zero,
 {
     fn from(matrix: &'a CooMatrix<T>) -> Self {
         convert_coo_csr(matrix)
@@ -38,7 +38,7 @@ where
 
 impl<'a, T> From<&'a CsrMatrix<T>> for CooMatrix<T>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Scalar,
 {
     fn from(matrix: &'a CsrMatrix<T>) -> Self {
         convert_csr_coo(matrix)
@@ -68,7 +68,7 @@ where
 
 impl<'a, T> From<&'a CooMatrix<T>> for CscMatrix<T>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Scalar + Zero,
 {
     fn from(matrix: &'a CooMatrix<T>) -> Self {
         convert_coo_csc(matrix)
@@ -77,7 +77,7 @@ where
 
 impl<'a, T> From<&'a CscMatrix<T>> for CooMatrix<T>
 where
-    T: Scalar + Zero,
+    T: Scalar,
 {
     fn from(matrix: &'a CscMatrix<T>) -> Self {
         convert_csc_coo(matrix)
