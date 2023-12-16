@@ -23,7 +23,6 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
     feature = "rkyv-serialize",
     archive_attr(derive(bytecheck::CheckBytes))
 )]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Dyn(pub usize);
 
 #[deprecated(note = "use Dyn instead.")]
@@ -220,7 +219,6 @@ dim_ops!(
     archive(as = "Self")
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Const<const R: usize>;
 
 /// Trait implemented exclusively by type-level integers.

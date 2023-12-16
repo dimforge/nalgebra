@@ -35,7 +35,6 @@ use rkyv::bytecheck;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
-// #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Unit<T> {
     pub(crate) value: T,
 }
@@ -70,16 +69,6 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for Unit<T> {
     {
         T::deserialize(deserializer).map(|x| Unit { value: x })
     }
-}
-
-#[cfg(feature = "cuda")]
-unsafe impl<T: cust_core::DeviceCopy, R, C, S> cust_core::DeviceCopy for Unit<Matrix<T, R, C, S>>
-where
-    T: Scalar,
-    R: Dim,
-    C: Dim,
-    S: RawStorage<T, R, C> + Copy,
-{
 }
 
 impl<T, R, C, S> PartialEq for Unit<Matrix<T, R, C, S>>
