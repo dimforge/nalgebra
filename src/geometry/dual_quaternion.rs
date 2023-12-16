@@ -320,6 +320,7 @@ where
 }
 
 impl<T: RealField> DualQuaternion<T> {
+    #[allow(clippy::wrong_self_convention)]
     fn to_vector(&self) -> OVector<T, U8> {
         self.as_ref().clone().into()
     }

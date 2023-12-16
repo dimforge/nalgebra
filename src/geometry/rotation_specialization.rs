@@ -1058,7 +1058,7 @@ impl<T: SimdRealField> Rotation3<T> {
     {
         let mut angles = [T::zero(); 3];
         let eps = T::from_subset(&1e-7);
-        let _2 = T::from_subset(&2.0);
+        let two = T::from_subset(&2.0);
 
         if extrinsic {
             seq.reverse();
@@ -1090,7 +1090,7 @@ impl<T: SimdRealField> Rotation3<T> {
             -s1,
             c1,
         );
-        let o_t = &c * self.matrix() * (c.transpose() * r1l);
+        let o_t = c * self.matrix() * (c.transpose() * r1l);
         angles[1] = o_t.m33.acos();
 
         let safe1 = angles[1].abs() >= eps;
@@ -1131,7 +1131,7 @@ impl<T: SimdRealField> Rotation3<T> {
         // dont adjust gimbal locked rotation
         if adjust && observable {
             angles[0] += T::pi();
-            angles[1] = _2 * lambda - angles[1];
+            angles[1] = two * lambda - angles[1];
             angles[2] -= T::pi();
         }
 

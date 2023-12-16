@@ -339,7 +339,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
             let mean = self.mean();
 
             self.iter().cloned().fold(T::zero(), |acc, x| {
-                acc + (x.clone() - mean.clone()) * (x.clone() - mean.clone())
+                acc + (x.clone() - mean.clone()) * (x - mean.clone())
             }) / n_elements
         }
     }

@@ -149,6 +149,10 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     ///     assert_eq!(t.inverse_unchecked() * t, Scale2::identity());
     /// }
     /// ```
+    ///
+    /// # Safety
+    ///
+    /// Should only be used if all scaling is known to be non-zero.
     #[inline]
     #[must_use]
     pub unsafe fn inverse_unchecked(&self) -> Scale<T, D>

@@ -519,6 +519,10 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Produces a view of the data at the given index, without doing
     /// any bounds checking.
+    ///
+    /// # Safety
+    ///
+    /// `index` must within bounds of the array.
     #[inline]
     #[must_use]
     pub unsafe fn get_unchecked<'a, I>(&'a self, index: I) -> I::Output
@@ -530,6 +534,9 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 
     /// Returns a mutable view of the data at the given index, without doing
     /// any bounds checking.
+    /// # Safety
+    ///
+    /// `index` must within bounds of the array.
     #[inline]
     #[must_use]
     pub unsafe fn get_unchecked_mut<'a, I>(&'a mut self, index: I) -> I::OutputMut

@@ -68,6 +68,10 @@ impl IsNotStaticOne for Dyn {}
 
 /// Trait implemented by any type that can be used as a dimension. This includes type-level
 /// integers and `Dyn` (for dimensions not known at compile-time).
+///
+/// # Safety
+///
+/// Hoists integers to the type level, including binary operations.
 pub unsafe trait Dim: Any + Debug + Copy + PartialEq + Send + Sync {
     #[inline(always)]
     fn is<D: Dim>() -> bool {
