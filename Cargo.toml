@@ -32,7 +32,6 @@ compare = [ "matrixcompare-core" ]
 libm    = [ "simba/libm" ]
 libm-force = [ "simba/libm_force" ]
 macros = [ "nalgebra-macros" ]
-cuda   = [ "cust_core", "simba/cuda" ]
 
 
 # Conversion
@@ -104,7 +103,6 @@ glam021        = { package = "glam", version = "0.21", optional = true }
 glam022        = { package = "glam", version = "0.22", optional = true }
 glam023        = { package = "glam", version = "0.23", optional = true }
 glam024        = { package = "glam", version = "0.24", optional = true }
-cust_core      = { version = "0.1", optional = true }
 rayon          = { version = "1.6", optional = true }
 
 [dev-dependencies]

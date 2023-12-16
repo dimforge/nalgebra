@@ -86,14 +86,6 @@ where
 {
 }
 
-#[cfg(feature = "cuda")]
-unsafe impl<T: Scalar + cust_core::DeviceCopy, D: DimName> cust_core::DeviceCopy for OPoint<T, D>
-where
-    DefaultAllocator: Allocator<T, D>,
-    OVector<T, D>: cust_core::DeviceCopy,
-{
-}
-
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Scalar, D: DimName> bytemuck::Zeroable for OPoint<T, D>
 where

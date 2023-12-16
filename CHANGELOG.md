@@ -4,6 +4,12 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Removed
+- The `cuda` feature has been removed, as the toolchain it depends on
+  is long abandoned.
+
 ## [0.32.3] (09 July 2023)
 
 ### Modified

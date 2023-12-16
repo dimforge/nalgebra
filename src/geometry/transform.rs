@@ -60,17 +60,14 @@ where
 
 /// Tag representing the most general (not necessarily inversible) `Transform` type.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub enum TGeneral {}
 
 /// Tag representing the most general inversible `Transform` type.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub enum TProjective {}
 
 /// Tag representing an affine `Transform`. Its bottom-row is equal to `(0, 0 ... 0, 1)`.
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub enum TAffine {}
 
 impl TCategory for TGeneral {
@@ -195,16 +192,6 @@ where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: Copy,
-{
-}
-
-#[cfg(feature = "cuda")]
-unsafe impl<T: RealField + cust_core::DeviceCopy, C: TCategory, const D: usize>
-    cust_core::DeviceCopy for Transform<T, C, D>
-where
-    Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    Owned<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>: cust_core::DeviceCopy,
 {
 }
 
