@@ -511,10 +511,11 @@ where
 
         let mut it = self.coords.iter();
 
-        write!(f, "{}", *it.next().unwrap())?;
+        <T as fmt::Display>::fmt(it.next().unwrap(), f)?;
 
         for comp in it {
-            write!(f, ", {}", *comp)?;
+            write!(f, ", ")?;
+            <T as fmt::Display>::fmt(comp, f)?;
         }
 
         write!(f, "}}")
