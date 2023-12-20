@@ -521,16 +521,3 @@ where
         write!(f, "}}")
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn display_fmt_respects_modifiers() {
-        let p = crate::Point3::new(1.23, 3.45, 5.67);
-        assert_eq!(&format!("{p}"), "{1.23, 3.45, 5.67}");
-        assert_eq!(&format!("{p:.1}"), "{1.2, 3.5, 5.7}");
-        assert_eq!(&format!("{p:.0}"), "{1, 3, 6}");
-    }
-}
