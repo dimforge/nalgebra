@@ -411,7 +411,7 @@ where
     ///                      3.0, 4.0, 0.0,
     ///                      0.0, 0.0, 1.0);
     /// let t = Transform2::from_matrix_unchecked(m);
-    /// assert_eq!(t.into_inner(), m);
+    /// assert_eq!(t.to_homogeneous(), m);
     /// ```
     #[inline]
     #[must_use]
