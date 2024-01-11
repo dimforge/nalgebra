@@ -2357,3 +2357,24 @@ impl<T> super::alias::Matrix1<T> {
         scalar
     }
 }
+
+/// Provides a method for transforming a matrix into a vector
+impl<T, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> 
+where
+    T: Clone,
+{
+    pub fn into_vec(&self) -> Vec<T> {
+        let (num_rows, num_columns) = self.shape();
+        let mut resulted_vector = Vec::with_capacity(num_rows * num_columns);
+
+        for row in 0..num_rows {
+            for column in 0..num_columns {
+                unsafe {
+                    resulted_vector.push(self.get_unchecked((row, column)).clone());
+                }
+            }
+        }
+
+        return resulted_vector;
+    }
+}
