@@ -41,7 +41,10 @@ pub fn is_comp_null<T: Number, const D: usize>(v: &TVec<T, D>, epsilon: T) -> TV
 
 /// Returns `true` if `v` has a magnitude of 1 (up to an epsilon).
 pub fn is_normalized<T: RealNumber, const D: usize>(v: &TVec<T, D>, epsilon: T) -> bool {
-    abs_diff_eq!(v.norm_squared(), T::one(), epsilon = epsilon * epsilon)
+    // sqrt(1 + epsilon_{norm²} = 1 + epsilon_{norm}
+    // ==> epsilon_{norm²} = epsilon_{norm}² + 2*epsilon_{norm}
+    // For small epsilon, epsilon² is basically zero, so use 2*epsilon.
+    abs_diff_eq!(v.norm_squared(), T::one(), epsilon = epsilon + epsilon)
 }
 
 /// Returns `true` if `v` is zero (up to an epsilon).
