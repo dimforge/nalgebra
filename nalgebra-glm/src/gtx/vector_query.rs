@@ -9,7 +9,7 @@ use crate::traits::Number;
 ///
 /// * [`are_collinear2d()`]
 pub fn are_collinear<T: Number>(v0: &TVec3<T>, v1: &TVec3<T>, epsilon: T) -> bool {
-    is_null(&v0.cross(v1), epsilon)
+    abs_diff_eq!(v0.cross(v1), TVec3::<T>::zeros(), epsilon = epsilon)
 }
 
 /// Returns `true` if two 2D vectors are collinear (up to an epsilon).
@@ -45,6 +45,6 @@ pub fn is_normalized<T: RealNumber, const D: usize>(v: &TVec<T, D>, epsilon: T) 
 }
 
 /// Returns `true` if `v` is zero (up to an epsilon).
-pub fn is_null<T: Number, const D: usize>(v: &TVec<T, D>, epsilon: T) -> bool {
-    abs_diff_eq!(*v, TVec::<T, D>::zeros(), epsilon = epsilon)
+pub fn is_null<T: RealNumber, const D: usize>(v: &TVec<T, D>, epsilon: T) -> bool {
+    abs_diff_eq!(v.norm_squared(), T::zero(), epsilon = epsilon * epsilon)
 }
