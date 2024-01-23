@@ -2370,10 +2370,11 @@ where
 
         for i in 0..num_rows {
             for j in 0..num_columns {
-                // SAFETY: by design, self is in valid state to call self.get_unchecked.
-                // Since (num_rows, num_columns) is the size of the matrix, loops
-                // assure that i and j are in bounds, so the use of get_unchecked will
-                // optimize the program, without creating memory issues.
+                // SAFETY: by design, self is in valid state to call self.get_unchecked. Since
+                // (num_rows, num_columns) is the size of the matrix, loops assure that i and j
+                // are in bounds, so the use of get_unchecked will optimize the program, without
+                // creating memory issues. Operations clone and push are safe by default, exceeding
+                // the vector capacity determining automatic realloc.
                 resulted_vector.push(unsafe { self.get_unchecked((i, j)) }.clone());
             }
         }
