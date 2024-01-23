@@ -2374,7 +2374,7 @@ where
             }
         }
 
-        return resulted_vector;
+        resulted_vector
     }
 }
 
