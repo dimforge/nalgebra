@@ -2370,7 +2370,7 @@ where
 
         for i in 0..num_rows {
             for j in 0..num_columns {
-                // loop counters vary in the matrix size intervals
+                // Loop counters vary in the matrix size intervals
                 // get_unchecked is generally unsafe, but optimizes the code by not performing bound tests
                 resulted_vector.push(unsafe { self.get_unchecked((i, j)) }.clone());
             }
