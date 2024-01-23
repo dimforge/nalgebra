@@ -2370,9 +2370,7 @@ where
 
         for i in 0..num_rows {
             for j in 0..num_columns {
-                unsafe {
-                    resulted_vector.push(self.get_unchecked((i, j)).clone());
-                }
+                resulted_vector.push(unsafe { self.get_unchecked((i, j)) }.clone());
             }
         }
 
