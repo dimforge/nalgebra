@@ -22,6 +22,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Add the methods `Matrix1::as_scalar`, `::as_scalar_mut`, `::to_scalar`, `::into_scalar`.
 - Add `Rotation3::euler_angles_ordered`, a generalized euler angles calculation.
 - Add the `glam-0.24` feature to enable conversion from/to types from `glam` v0.24.
+- Add the `glam-0.25` feature to enable conversion from/to types from `glam` v0.25.
 - Add the `lerp` method to points.
 - Implement `Clone` for `MatrixIter`.
 
