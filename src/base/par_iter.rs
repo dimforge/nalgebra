@@ -11,7 +11,7 @@ use crate::{
 use rayon::iter::plumbing::Producer;
 use rayon::{iter::plumbing::bridge, prelude::*};
 
-/// A rayon parallel iterator over the colums of a matrix. It is created
+/// A rayon parallel iterator over the columns of a matrix. It is created
 /// using the [`par_column_iter`] method of [`Matrix`].
 ///
 /// *Only available if compiled with the feature `rayon`.*
@@ -89,7 +89,7 @@ pub struct ParColumnIterMut<
 }
 
 #[cfg_attr(doc_cfg, doc(cfg(feature = "rayon")))]
-/// *only availabe if compiled with the feature `rayon`*
+/// *only available if compiled with the feature `rayon`*
 impl<'a, T, R, Cols, S> ParColumnIterMut<'a, T, R, Cols, S>
 where
     R: Dim,
@@ -161,7 +161,7 @@ where
     S: Sync,
 {
     /// Iterate through the columns of the matrix in parallel using rayon.
-    /// This iterates over *immutable* references ot the columns of the matrix,
+    /// This iterates over *immutable* references to the columns of the matrix,
     /// if *mutable* access to the columns is required, use [`par_column_iter_mut`]
     /// instead.
     ///

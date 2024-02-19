@@ -1,6 +1,9 @@
 // The macros break if the references are taken out, for some reason.
 #![allow(clippy::op_ref)]
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
+
 use crate::{
     Isometry3, Matrix4, Normed, OVector, Point3, Quaternion, Scalar, SimdRealField, Translation3,
     Unit, UnitQuaternion, Vector3, Zero, U8,

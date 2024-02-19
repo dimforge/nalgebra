@@ -14,6 +14,9 @@ use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar, Unit};
 use crate::geometry::{AbstractRotation, Point, Translation};
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
+
 /// A direct isometry, i.e., a rotation followed by a translation (aka. a rigid-body motion).
 ///
 /// This is also known as an element of a Special Euclidean (SE) group.

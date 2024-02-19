@@ -478,9 +478,10 @@ where
         SB: Storage<T, U3>,
         SC: Storage<T, U3>,
     {
+        // Gram–Schmidt process
         let zaxis = dir.normalize();
         let xaxis = up.cross(&zaxis).normalize();
-        let yaxis = zaxis.cross(&xaxis).normalize();
+        let yaxis = zaxis.cross(&xaxis);
 
         Self::from_matrix_unchecked(SMatrix::<T, 3, 3>::new(
             xaxis.x.clone(),
@@ -978,6 +979,176 @@ impl<T: SimdRealField> Rotation3<T> {
                 T::zero(),
             )
         }
+    }
+
+    /// Represent this rotation as Euler angles.
+    ///
+    /// Returns the angles produced in the order provided by seq parameter, along with the
+    /// observability flag. The Euler axes passed to seq must form an orthonormal basis. If the
+    /// rotation is gimbal locked, then the observability flag is false.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the Euler axes in `seq` are not orthonormal.
+    ///
+    /// # Example 1:
+    /// ```
+    /// use std::f64::consts::PI;
+    /// use approx::assert_relative_eq;
+    /// use nalgebra::{Matrix3, Rotation3, Unit, Vector3};
+    ///
+    /// // 3-1-2
+    /// let n = [
+    ///     Unit::new_unchecked(Vector3::new(0.0, 0.0, 1.0)),
+    ///     Unit::new_unchecked(Vector3::new(1.0, 0.0, 0.0)),
+    ///     Unit::new_unchecked(Vector3::new(0.0, 1.0, 0.0)),
+    /// ];
+    ///
+    /// let r1 = Rotation3::from_axis_angle(&n[2], 20.0 * PI / 180.0);
+    /// let r2 = Rotation3::from_axis_angle(&n[1], 30.0 * PI / 180.0);
+    /// let r3 = Rotation3::from_axis_angle(&n[0], 45.0 * PI / 180.0);
+    ///
+    /// let d = r3 * r2 * r1;
+    ///
+    /// let (angles, observable) = d.euler_angles_ordered(n, false);
+    /// assert!(observable);
+    /// assert_relative_eq!(angles[0] * 180.0 / PI, 45.0, epsilon = 1e-12);
+    /// assert_relative_eq!(angles[1] * 180.0 / PI, 30.0, epsilon = 1e-12);
+    /// assert_relative_eq!(angles[2] * 180.0 / PI, 20.0, epsilon = 1e-12);
+    /// ```
+    ///
+    /// # Example 2:
+    /// ```
+    /// use std::f64::consts::PI;
+    /// use approx::assert_relative_eq;
+    /// use nalgebra::{Matrix3, Rotation3, Unit, Vector3};
+    ///
+    /// let sqrt_2 = 2.0_f64.sqrt();
+    /// let n = [
+    ///     Unit::new_unchecked(Vector3::new(1.0 / sqrt_2, 1.0 / sqrt_2, 0.0)),
+    ///     Unit::new_unchecked(Vector3::new(1.0 / sqrt_2, -1.0 / sqrt_2, 0.0)),
+    ///     Unit::new_unchecked(Vector3::new(0.0, 0.0, 1.0)),
+    /// ];
+    ///
+    /// let r1 = Rotation3::from_axis_angle(&n[2], 20.0 * PI / 180.0);
+    /// let r2 = Rotation3::from_axis_angle(&n[1], 30.0 * PI / 180.0);
+    /// let r3 = Rotation3::from_axis_angle(&n[0], 45.0 * PI / 180.0);
+    ///
+    /// let d = r3 * r2 * r1;
+    ///
+    /// let (angles, observable) = d.euler_angles_ordered(n, false);
+    /// assert!(observable);
+    /// assert_relative_eq!(angles[0] * 180.0 / PI, 45.0, epsilon = 1e-12);
+    /// assert_relative_eq!(angles[1] * 180.0 / PI, 30.0, epsilon = 1e-12);
+    /// assert_relative_eq!(angles[2] * 180.0 / PI, 20.0, epsilon = 1e-12);
+    /// ```
+    ///
+    /// Algorithm based on:
+    /// Malcolm D. Shuster, F. Landis Markley, “General formula for extraction the Euler
+    /// angles”, Journal of guidance, control, and dynamics, vol. 29.1, pp. 215-221. 2006,
+    /// and modified to be able to produce extrinsic rotations.
+    #[must_use]
+    pub fn euler_angles_ordered(
+        &self,
+        mut seq: [Unit<Vector3<T>>; 3],
+        extrinsic: bool,
+    ) -> ([T; 3], bool)
+    where
+        T: RealField + Copy,
+    {
+        let mut angles = [T::zero(); 3];
+        let eps = T::from_subset(&1e-7);
+        let _2 = T::from_subset(&2.0);
+
+        if extrinsic {
+            seq.reverse();
+        }
+
+        let [n1, n2, n3] = &seq;
+        assert_relative_eq!(n1.dot(n2), T::zero(), epsilon = eps);
+        assert_relative_eq!(n3.dot(n1), T::zero(), epsilon = eps);
+
+        let n1_c_n2 = n1.cross(n2);
+        let s1 = n1_c_n2.dot(n3);
+        let c1 = n1.dot(n3);
+        let lambda = s1.atan2(c1);
+
+        let mut c = Matrix3::zeros();
+        c.column_mut(0).copy_from(n2);
+        c.column_mut(1).copy_from(&n1_c_n2);
+        c.column_mut(2).copy_from(n1);
+        c.transpose_mut();
+
+        let r1l = Matrix3::new(
+            T::one(),
+            T::zero(),
+            T::zero(),
+            T::zero(),
+            c1,
+            s1,
+            T::zero(),
+            -s1,
+            c1,
+        );
+        let o_t = &c * self.matrix() * (c.transpose() * r1l);
+        angles[1] = o_t.m33.acos();
+
+        let safe1 = angles[1].abs() >= eps;
+        let safe2 = (angles[1] - T::pi()).abs() >= eps;
+        let observable = safe1 && safe2;
+        angles[1] += lambda;
+
+        if observable {
+            angles[0] = o_t.m13.atan2(-o_t.m23);
+            angles[2] = o_t.m31.atan2(o_t.m32);
+        } else {
+            // gimbal lock detected
+            if extrinsic {
+                // angle1 is initialized to zero
+                if !safe1 {
+                    angles[2] = (o_t.m12 - o_t.m21).atan2(o_t.m11 + o_t.m22);
+                } else {
+                    angles[2] = -(o_t.m12 + o_t.m21).atan2(o_t.m11 - o_t.m22);
+                };
+            } else {
+                // angle3 is initialized to zero
+                if !safe1 {
+                    angles[0] = (o_t.m12 - o_t.m21).atan2(o_t.m11 + o_t.m22);
+                } else {
+                    angles[0] = (o_t.m12 + o_t.m21).atan2(o_t.m11 - o_t.m22);
+                };
+            };
+        };
+
+        let adjust = if seq[0] == seq[2] {
+            // lambda = 0, so ensure angle2 -> [0, pi]
+            angles[1] < T::zero() || angles[1] > T::pi()
+        } else {
+            // lamda = + or - pi/2, so ensure angle2 -> [-pi/2, pi/2]
+            angles[1] < -T::frac_pi_2() || angles[1] > T::frac_pi_2()
+        };
+
+        // dont adjust gimbal locked rotation
+        if adjust && observable {
+            angles[0] += T::pi();
+            angles[1] = _2 * lambda - angles[1];
+            angles[2] -= T::pi();
+        }
+
+        // ensure all angles are within [-pi, pi]
+        for angle in angles.as_mut_slice().iter_mut() {
+            if *angle < -T::pi() {
+                *angle += T::two_pi();
+            } else if *angle > T::pi() {
+                *angle -= T::two_pi();
+            }
+        }
+
+        if extrinsic {
+            angles.reverse();
+        }
+
+        (angles, observable)
     }
 }
 

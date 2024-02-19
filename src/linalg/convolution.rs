@@ -47,11 +47,11 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
             let u_f = cmp::min(i, vec - 1);
 
             if u_i == u_f {
-                conv[i] += self[u_i].clone() * kernel[(i - u_i)].clone();
+                conv[i] += self[u_i].clone() * kernel[i - u_i].clone();
             } else {
                 for u in u_i..(u_f + 1) {
                     if i - u < ker {
-                        conv[i] += self[u].clone() * kernel[(i - u)].clone();
+                        conv[i] += self[u].clone() * kernel[i - u].clone();
                     }
                 }
             }

@@ -81,32 +81,32 @@ pub type MatrixXx5<T> = Matrix<T, Dyn, U5, VecStorage<T, Dyn, U5>>;
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub type MatrixXx6<T> = Matrix<T, Dyn, U6, VecStorage<T, Dyn, U6>>;
 
-/// A heap-allocated, row-major, matrix with 1 rows and a dynamic number of columns.
+/// A heap-allocated, column-major, matrix with 1 rows and a dynamic number of columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub type Matrix1xX<T> = Matrix<T, U1, Dyn, VecStorage<T, U1, Dyn>>;
-/// A heap-allocated, row-major, matrix with 2 rows and a dynamic number of columns.
+/// A heap-allocated, column-major, matrix with 2 rows and a dynamic number of columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub type Matrix2xX<T> = Matrix<T, U2, Dyn, VecStorage<T, U2, Dyn>>;
-/// A heap-allocated, row-major, matrix with 3 rows and a dynamic number of columns.
+/// A heap-allocated, column-major, matrix with 3 rows and a dynamic number of columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub type Matrix3xX<T> = Matrix<T, U3, Dyn, VecStorage<T, U3, Dyn>>;
-/// A heap-allocated, row-major, matrix with 4 rows and a dynamic number of columns.
+/// A heap-allocated, column-major, matrix with 4 rows and a dynamic number of columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub type Matrix4xX<T> = Matrix<T, U4, Dyn, VecStorage<T, U4, Dyn>>;
-/// A heap-allocated, row-major, matrix with 5 rows and a dynamic number of columns.
+/// A heap-allocated, column-major, matrix with 5 rows and a dynamic number of columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub type Matrix5xX<T> = Matrix<T, U5, Dyn, VecStorage<T, U5, Dyn>>;
-/// A heap-allocated, row-major, matrix with 6 rows and a dynamic number of columns.
+/// A heap-allocated, column-major, matrix with 6 rows and a dynamic number of columns.
 ///
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 #[cfg(any(feature = "std", feature = "alloc"))]

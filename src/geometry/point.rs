@@ -1,9 +1,11 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use num::One;
+use num::{One, Zero};
 use std::cmp::Ordering;
 use std::fmt;
 use std::hash;
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -13,6 +15,7 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::{Const, DefaultAllocator, OVector, Scalar};
+use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub};
 use std::mem::MaybeUninit;
 
 /// A point in an euclidean space.
@@ -219,6 +222,31 @@ where
 
         // Safety: res has been fully initialized.
         unsafe { res.assume_init() }
+    }
+
+    /// Linear interpolation between two points.
+    ///
+    /// Returns `self * (1.0 - t) + rhs.coords * t`, i.e., the linear blend of the points
+    /// `self` and `rhs` using the scalar value `t`.
+    ///
+    /// The value for a is not restricted to the range `[0, 1]`.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let a = Point3::new(1.0, 2.0, 3.0);
+    /// let b = Point3::new(10.0, 20.0, 30.0);
+    /// assert_eq!(a.lerp(&b, 0.1), Point3::new(1.9, 3.8, 5.7));
+    /// ```
+    #[must_use]
+    pub fn lerp(&self, rhs: &OPoint<T, D>, t: T) -> OPoint<T, D>
+    where
+        T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul,
+    {
+        OPoint {
+            coords: self.coords.lerp(&rhs.coords, t),
+        }
     }
 
     /// Creates a new point with the given coordinates.

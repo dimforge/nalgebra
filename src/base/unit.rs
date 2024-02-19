@@ -9,6 +9,9 @@ use crate::base::DefaultAllocator;
 use crate::storage::RawStorage;
 use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealField};
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
+
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///
 /// **It is likely that the only piece of documentation that you need in this page are:**

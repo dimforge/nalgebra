@@ -4,6 +4,37 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.32.4] (19 Feb 2023)
+- Add the `glam-0.25` feature to enable conversion from/to types from `glam` v0.25.
+
+## [0.32.3] (09 July 2023)
+
+### Modified
+- Statically sized matrices are now serialized as tuples to match how serde
+  serialized plain arrays.
+- Don’t require `Scalar` for matrix `PartialEq` and `Eq`.
+
+### Added
+- Allow trailing punctuation in macros `vector!`, `matrix!`, `point!`, etc.
+- Add the methods `Matrix1::as_scalar`, `::as_scalar_mut`, `::to_scalar`, `::into_scalar`.
+- Add `Rotation3::euler_angles_ordered`, a generalized euler angles calculation.
+- Add the `glam-0.24` feature to enable conversion from/to types from `glam` v0.24.
+- Add the `lerp` method to points.
+- Implement `Clone` for `MatrixIter`.
+
+### Fixed
+- Fixed severe catastrophic cancellation issue in variance calculation.
+
+## [0.32.2] (07 March 2023)
+
+### Added
+- Add the `glam-0.23` to enable conversion from/to type from `glam` v0.23. 
+
+## [0.32.1] (14 Jan. 2023)
+
+### Modified
+- Updated `nalgebra-macros` to use the new `Dyn`, avoiding macro-generated deprecation warnings.
+
 ## [0.32.0] (14 Jan. 2023)
 
 ### Modified

@@ -1,6 +1,6 @@
 [package]
 name = "nalgebra-macros"
-version = "0.1.0"
+version = "0.2.1"
 authors = [ "Andreas Longva", "Sébastien Crozet <developer@crozet.re>" ]
 edition = "2018"
 description = "Procedural macros for nalgebra"

@@ -89,7 +89,7 @@ where
 
 /// Faster sparse-sparse matrix multiplication, `C <- beta * C + alpha * op(A) * op(B)`.
 /// This will not return an error even if the patterns don't match.
-/// Should be used for situations where pattern creation immediately preceeds multiplication.
+/// Should be used for situations where pattern creation immediately precedes multiplication.
 ///
 /// Panics if the dimensions of the matrices involved are not compatible with the expression.
 pub fn spmm_csr_prealloc_unchecked<T>(

@@ -724,7 +724,7 @@ where
 
     /// Sort the estimated components of the SVD by its singular values in descending order.
     /// Such an ordering is often implicitly required when the decompositions are used for estimation or fitting purposes.
-    /// Using this function is only required if `new_unordered` or `try_new_unorderd` were used and the specific sorting is required afterward.
+    /// Using this function is only required if `new_unordered` or `try_new_unordered` were used and the specific sorting is required afterward.
     pub fn sort_by_singular_values(&mut self) {
         const VALUE_PROCESSED: usize = usize::MAX;
 

@@ -20,9 +20,9 @@ use std::mem::MaybeUninit;
 /// Every allocator must be both static and dynamic. Though not all implementations may share the
 /// same `Buffer` type.
 pub trait Allocator<T, R: Dim, C: Dim = U1>: Any + Sized {
-    /// The type of buffer this allocator can instanciate.
+    /// The type of buffer this allocator can instantiate.
     type Buffer: StorageMut<T, R, C> + IsContiguous + Clone + Debug;
-    /// The type of buffer with uninitialized components this allocator can instanciate.
+    /// The type of buffer with uninitialized components this allocator can instantiate.
     type BufferUninit: RawStorageMut<MaybeUninit<T>, R, C> + IsContiguous;
 
     /// Allocates a buffer with the given number of rows and columns without initializing its content.
