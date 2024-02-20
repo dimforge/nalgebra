@@ -9,7 +9,7 @@ use nalgebra::proptest::matrix;
 use proptest::prelude::*;
 use matrixcompare::{assert_matrix_eq, prop_assert_matrix_eq};
 
-fn positive_definite() -> impl Strategy<Value=CscMatrix<f64>> {
+pub fn positive_definite() -> impl Strategy<Value=CscMatrix<f64>> {
     let csc_f64 = csc(value_strategy::<f64>(),
                       PROPTEST_MATRIX_DIM,
                       PROPTEST_MATRIX_DIM,
