@@ -34,6 +34,7 @@ pub fn reflection_axis_mut<T: ComplexField, D: Dim, S: StorageMut<T, D>>(
 
     if !factor.is_zero() {
         column.unscale_mut(factor.sqrt());
+        let _ = column.normalize_mut();
         (-signed_norm, true)
     } else {
         // TODO: not sure why we don't have a - sign here.
