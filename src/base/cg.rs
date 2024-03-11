@@ -89,16 +89,14 @@ where
         SC: Storage<T, D> + Clone,
     {
         let (a, b, ab) = (from.as_ref(), to.as_ref(), from.dot(to));
-        let d = T::one() + ab;
+        let d = T::one() + ab.clone();
         (d > T::default_epsilon().sqrt()).then(|| {
-            let k = &(b * a.transpose() - a * b.transpose());
+            let [at, bt] = &[a.transpose(), b.transpose()];
+            let [b_at, a_bt, a_at, b_bt] = &[b * at, a * bt, a * at, b * bt];
+            let [k1, k2] = [b_at - a_bt, (b_at + a_bt) * ab - (a_at + b_bt)];
             // Codesido's Rotation Formula
             // <https://doi.org/10.14232/ejqtde.2018.1.13>
-            //
-            // Equals `Self::identity() + k + k * k / d`:
-            let mut r = Self::identity() + k;
-            r.gemm(d.recip(), k, k, T::one());
-            r
+            Self::identity() + k1 + k2 / d
         })
     }
     /// The n-dimensional rotation matrix described by an oriented minor arc and a signed angle.
@@ -120,7 +118,7 @@ where
             .try_normalize(T::default_epsilon().sqrt())
             .map(|ref b| {
                 let (sin, cos) = angle.sin_cos();
-                let [at, bt] = [&a.transpose(), &b.transpose()];
+                let [at, bt] = &[a.transpose(), b.transpose()];
                 let [k1, k2] = [b * at - a * bt, -(a * at + b * bt)];
                 // Simple rotations / Rotation in a two–plane
                 // <https://doi.org/10.48550/arXiv.1103.5263>
