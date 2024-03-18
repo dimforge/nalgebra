@@ -451,6 +451,9 @@ pub fn stack(stream: TokenStream) -> TokenStream {
     })
 }
 
+// The implementation of the stack macro. The prefix is used to construct variable names
+// that are extremely unlikely to collide with variable names used in e.g. expressions
+// by the user.
 #[allow(clippy::too_many_lines)]
 fn stack_impl(prefix: &str, matrix: Matrix) -> Result<TokenStream2> {
     let n_macro_rows = matrix.nrows();
