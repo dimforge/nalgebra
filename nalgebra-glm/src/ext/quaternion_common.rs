@@ -1,4 +1,4 @@
-use na::{self, Unit};
+use na::Unit;
 
 use crate::aliases::Qua;
 use crate::RealNumber;
