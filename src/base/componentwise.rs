@@ -351,3 +351,91 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
         }
     }
 }
+
+// Calculus
+impl<T: Into<f64> + Copy, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA>
+where
+    DefaultAllocator: Allocator<f64, R1, C1>,
+{
+    /// Computes the gradient of self and returns a pair specifying the y (row) component and x
+    /// (col) component of this gradient respectively.
+    ///
+    /// The gradient is calculated using the second order finite differences
+    /// (<https://en.wikipedia.org/wiki/Finite_difference_coefficient>) with the central difference
+    /// being used for central elements and either the forward or backward difference being used
+    /// around the edges.
+    ///
+    /// A value of `None` is returned if the matrix is too small to compute these differences
+    /// (currently size must be >=3 in all dimensions). If it is known at compile time that this
+    /// will never be the case, consider using [`gradient_unchecked`](Self::gradient_unchecked).
+    pub fn gradient(&self) -> Option<(OMatrix<f64, R1, C1>, OMatrix<f64, R1, C1>)> {
+        let height = self.nrows();
+        let width = self.ncols();
+
+        if height < 3 || width < 3 {
+            None
+        } else {
+            // Values around the edge of the matrix will use either forward or backward 2nd order
+            // approximation for gradient. Other values in the middle will use the central 2nd order
+            // approximation. See citation in doc comment for details.
+            let to_f64 = |x| <T as Into<f64>>::into(x);
+            // Gives gradient at x1
+            let forward_approx =
+                |x1, x2, x3| (-3.0 * to_f64(x1) + 4.0 * to_f64(x2) - to_f64(x3)) / 2.0;
+            // Gives gradient at x2
+            let central_approx = |x1, x3| (to_f64(x3) - to_f64(x1)) / 2.0;
+            // Gives gradient at x3
+            let backward_approx =
+                |x1, x2, x3| (to_f64(x1) - 4.0 * to_f64(x2) + 3.0 * to_f64(x3)) / 2.0;
+
+            let mut grad_y = OMatrix::zeros_generic(R1::from_usize(height), C1::from_usize(width));
+            let mut grad_x = OMatrix::zeros_generic(R1::from_usize(height), C1::from_usize(width));
+            for x in 0..width {
+                // Top and bottom row of grad_y
+                grad_y[(0, x)] = forward_approx(self[(0, x)], self[(1, x)], self[(2, x)]);
+                grad_y[(height - 1, x)] = backward_approx(
+                    self[(height - 3, x)],
+                    self[(height - 2, x)],
+                    self[(height - 1, x)],
+                );
+            }
+            for y in 0..height {
+                // Left and right column of grad_x
+                grad_x[(y, 0)] = forward_approx(self[(y, 0)], self[(y, 1)], self[(y, 2)]);
+                grad_x[(y, width - 1)] = backward_approx(
+                    self[(y, width - 3)],
+                    self[(y, width - 2)],
+                    self[(y, width - 1)],
+                );
+            }
+            for x in 1..(width - 1) {
+                // Remaining elements in top and bottom row of grad_x
+                grad_x[(0, x)] = central_approx(self[(0, x - 1)], self[(0, x + 1)]);
+                grad_x[(height - 1, x)] =
+                    central_approx(self[(height - 1, x - 1)], self[(height - 1, x + 1)]);
+            }
+            for y in 1..(height - 1) {
+                // Remaining elements in left and right column of grad_y
+                grad_y[(y, 0)] = central_approx(self[(y - 1, 0)], self[(y + 1, 0)]);
+                grad_y[(y, width - 1)] =
+                    central_approx(self[(y - 1, width - 1)], self[(y + 1, width - 1)]);
+            }
+            for x in 1..(width - 1) {
+                for y in 1..(width - 1) {
+                    // All elements not on an edge
+                    grad_x[(y, x)] = central_approx(self[(y, x - 1)], self[(y, x + 1)]);
+                    grad_y[(y, x)] = central_approx(self[(y - 1, x)], self[(y + 1, x)]);
+                }
+            }
+            Some((grad_y, grad_x))
+        }
+    }
+
+    /// The same as [`gradient`](Self::gradient) but panics if the matrix is too small instead of
+    /// returning an option.
+    pub fn gradient_unchecked(&self) -> (OMatrix<f64, R1, C1>, OMatrix<f64, R1, C1>) {
+        self.gradient().expect(
+            "Error calculating gradient of matrix: one of the dimensions has size of less than 3.",
+        )
+    }
+}
