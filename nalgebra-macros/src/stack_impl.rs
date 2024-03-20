@@ -99,10 +99,7 @@ pub fn stack_impl(prefix: &str, matrix: Matrix) -> syn::Result<TokenStream2> {
                 <_ as nalgebra::DimAdd<_>>::add(#a, #b)
             }
         })
-        .ok_or(Error::new(
-            Span::call_site(),
-            "`stack` macro cannot be used without any arguments",
-        ))?;
+        .unwrap_or(quote! { nalgebra::dimension::U0 });
 
     let num_cols = (0..n_macro_cols)
         .map(|j| {
@@ -114,10 +111,7 @@ pub fn stack_impl(prefix: &str, matrix: Matrix) -> syn::Result<TokenStream2> {
                 <_ as nalgebra::DimAdd<_>>::add(#a, #b)
             }
         })
-        .ok_or(Error::new(
-            Span::call_site(),
-            "`stack` macro cannot be used without any arguments",
-        ))?;
+        .unwrap_or(quote! { nalgebra::dimension::U0 });
 
     // It should be possible to use `uninitialized_generic` here instead
     // however that would mean that the macro needs to generate unsafe code

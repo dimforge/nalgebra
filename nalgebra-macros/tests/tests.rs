@@ -432,11 +432,19 @@ fn stack_expr() {
 }
 
 #[test]
+fn stack_edge_cases() {
+    {
+        // Empty stack should return zero matrix with specified type
+        let _: SMatrix<i32, 0, 0> = stack![];
+        let _: SMatrix<f64, 0, 0> = stack![];
+    }
+}
+
+#[test]
 fn stack_trybuild_tests() {
     let t = trybuild::TestCases::new();
 
-    // Verify error message when try to conactenate no matrices
-    t.compile_fail("tests/trybuild/stack_empty.rs");
+    // Verify error message when a row or column only contains a zero entry
     t.compile_fail("tests/trybuild/stack_empty_row.rs");
     t.compile_fail("tests/trybuild/stack_empty_col.rs");
 }

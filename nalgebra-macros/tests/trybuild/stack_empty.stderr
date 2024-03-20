@@ -1,7 +1,0 @@
-error: `stack` macro cannot be used without any arguments
- --> tests/trybuild/stack_empty.rs:4:5
-  |
-4 |     stack![];
-  |     ^^^^^^^^
-  |
-  = note: this error originates in the macro `stack` (in Nightly builds, run with -Z macro-backtrace for more info)
