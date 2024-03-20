@@ -1,7 +1,6 @@
 use approx::AbsDiffEq;
 use num::{Bounded, Signed};
 
-use core::cmp::PartialOrd;
 use na::Scalar;
 use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, RealField};
 
