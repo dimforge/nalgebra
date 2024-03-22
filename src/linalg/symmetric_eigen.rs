@@ -360,7 +360,7 @@ mod test {
     #[test]
     fn wilkinson_shift_random() {
         for _ in 0..1000 {
-            let m = Matrix2::new_random();
+            let m = Matrix2::<f64>::new_random();
             let m = m * m.transpose();
 
             let expected = expected_shift(m);
