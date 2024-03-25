@@ -30,7 +30,7 @@ pub fn stack_impl(prefix: &str, matrix: Matrix) -> syn::Result<TokenStream2> {
                 let ident = format_ident!("{}_cat_{}_{}", prefix, i, j);
                 let ident_shape = format_ident!("{}_cat_{}_{}_shape", prefix, i, j);
                 output.extend(std::iter::once(quote_spanned! {expr.span()=>
-                    let #ident = &#expr;
+                    let ref #ident = #expr;
                     let #ident_shape = #ident.shape_generic();
                 }));
             }

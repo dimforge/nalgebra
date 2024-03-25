@@ -419,7 +419,7 @@ fn stack_single_col() {
 fn stack_expr() {
     let a = matrix![1, 2; 3, 4];
     let b = matrix![5, 6; 7, 8];
-    let m = stack![a + b; b - a];
+    let m = stack![a + b; 2i32 * b - a];
 
     let res = matrix![
         6, 8;
