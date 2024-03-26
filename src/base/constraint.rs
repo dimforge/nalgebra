@@ -19,6 +19,16 @@ pub trait DimEq<D1: Dim, D2: Dim> {
     /// This is either equal to `D1` or `D2`, always choosing the one (if any) which is a type-level
     /// constant.
     type Representative: Dim;
+
+    /// This constructs a value of type `Representative` with the
+    /// correct value
+    fn representative(d1: D1, d2: D2) -> Option<Self::Representative> {
+        if d1.value() != d2.value() {
+            None
+        } else {
+            Some(Self::Representative::from_usize(d1.value()))
+        }
+    }
 }
 
 impl<D: Dim> DimEq<D, D> for ShapeConstraint {
