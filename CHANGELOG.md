@@ -4,7 +4,16 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.32.5] (28 March 2024)
+
+## Fixed
+
+- Fix numerical issue on SVD with near-identity matrix.
+
 ## [0.32.4] (19 Feb 2023)
+
+### Added
+
 - Add the `glam-0.25` feature to enable conversion from/to types from `glam` v0.25.
 
 ## [0.32.3] (09 July 2023)
