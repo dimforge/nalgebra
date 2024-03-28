@@ -206,10 +206,28 @@ pub unsafe trait RawStorageMut<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     ///
     /// # Safety
     /// If the indices are out of bounds, the method will cause undefined behavior.
+    ///
+    /// # Validity
+    /// The default implementation of this trait function is only guaranteed to be
+    /// sound if invocations of `self.ptr_mut()` and `self.get_address_unchecked_linear_mut()`
+    /// result in stable references. If any of the data pointed to by these trait methods
+    /// moves as a consequence of invoking either of these methods then this default
+    /// trait implementation may be invalid or unsound and should be overridden.
     #[inline]
     unsafe fn swap_unchecked_linear(&mut self, i1: usize, i2: usize) {
-        let a = self.get_address_unchecked_linear_mut(i1);
-        let b = self.get_address_unchecked_linear_mut(i2);
+        // we can't just use the pointers returned from `get_address_unchecked_linear_mut` because calling a
+        // method taking self mutably invalidates any existing (mutable) pointers. since `get_address_unchecked_linear_mut` can
+        // also be overriden by a custom implementation, we can't just use `wrapping_add` assuming that's what the method does.
+        // instead, we use `offset_from` to compute the re-calculate the pointers from the base pointer.
+        // this is sound as long as this trait matches the Validity preconditions
+        // (and it's the caller's responsibility to ensure the indices are in-bounds).
+        let base = self.ptr_mut();
+        let offset1 = self.get_address_unchecked_linear_mut(i1).offset_from(base);
+        let offset2 = self.get_address_unchecked_linear_mut(i2).offset_from(base);
+
+        let base = self.ptr_mut();
+        let a = base.offset(offset1);
+        let b = base.offset(offset2);
 
         ptr::swap(a, b);
     }
