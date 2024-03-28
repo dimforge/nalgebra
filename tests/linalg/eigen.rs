@@ -116,9 +116,9 @@ fn symmetric_eigen_singular_24x24() {
     );
 }
 
-// Test for #1368
+// Regression test for #1368
 #[test]
-fn very_small_deviation_from_identity() {
+fn very_small_deviation_from_identity_issue_1368() {
     let m = Matrix3::<f32>::new(
         1.0,
         3.1575704e-23,
