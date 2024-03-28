@@ -8,6 +8,7 @@ pub mod default_allocator;
 pub mod dimension;
 pub mod iter;
 mod ops;
+mod stacking;
 pub mod storage;
 
 mod alias;
@@ -61,6 +62,7 @@ pub use self::alias_slice::*;
 pub use self::alias_view::*;
 pub use self::array_storage::*;
 pub use self::matrix_view::*;
+pub use self::stacking::*;
 pub use self::storage::*;
 #[cfg(any(feature = "std", feature = "alloc"))]
 pub use self::vec_storage::*;
