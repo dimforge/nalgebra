@@ -190,9 +190,9 @@ mod tests {
         let result = stack_impl("", input).unwrap();
 
         let expected = quote! {{
-            let _cat_0_0 = &a;
+            let ref _cat_0_0 = a;
             let _cat_0_0_shape = _cat_0_0.shape_generic();
-            let _cat_1_1 = &b;
+            let ref _cat_1_1 = b;
             let _cat_1_1_shape = _cat_1_1.shape_generic();
             let _cat_row_0_size = _cat_0_0_shape.0;
             let _cat_row_0_offset = 0;
@@ -233,15 +233,15 @@ mod tests {
         let result = stack_impl("", input).unwrap();
 
         let expected = quote! {{
-            let _cat_0_0 = &a;
+            let ref _cat_0_0 = a;
             let _cat_0_0_shape = _cat_0_0.shape_generic();
-            let _cat_0_2 = &b;
+            let ref _cat_0_2 = b;
             let _cat_0_2_shape = _cat_0_2.shape_generic();
-            let _cat_1_1 = &c;
+            let ref _cat_1_1 = c;
             let _cat_1_1_shape = _cat_1_1.shape_generic();
-            let _cat_1_2 = &d;
+            let ref _cat_1_2 = d;
             let _cat_1_2_shape = _cat_1_2.shape_generic();
-            let _cat_2_0 = &e;
+            let ref _cat_2_0 = e;
             let _cat_2_0_shape = _cat_2_0.shape_generic();
             let _cat_row_0_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_cat_0_0_shape . 0 , _cat_0_2_shape . 0) . expect ("The concatenated matrices do not have the same number of columns") ;
             let _cat_row_0_offset = 0;
