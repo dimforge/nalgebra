@@ -19,8 +19,3 @@ proc-macro = true
 syn = { version = "2.0", features = ["full"] }
 quote = "1.0"
 proc-macro2 = "1.0"
-
-[dev-dependencies]
-nalgebra = { version = "0.32.0", path = ".." }
-num-traits = "0.2.18"
-trybuild = "1.0.42"

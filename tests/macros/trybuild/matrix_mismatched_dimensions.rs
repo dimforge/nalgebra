@@ -1,4 +1,4 @@
-use nalgebra_macros::matrix;
+use nalgebra::matrix;
 
 fn main() {
     matrix![1, 2, 3;

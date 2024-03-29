@@ -1,4 +1,4 @@
-use nalgebra_macros::{matrix, stack};
+use nalgebra::{matrix, stack};
 
 fn main() {
     let m = matrix![1, 2; 3, 4];
