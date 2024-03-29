@@ -113,7 +113,6 @@ where
     #[inline]
     #[must_use]
     pub fn slerp(&self, other: &Self, t: T) -> Self {
-        use std::mem::transmute;
 
         //The best option here would be to use #[feature(specialization)], but until
         //that's stabilized, this is the best we can do. Theoretically, the compiler should
@@ -124,21 +123,30 @@ where
             //FIXME: this doesn't really work in 1D since we can't interp between -1 and 1
             1 => self.clone(),
 
-            //NOTE: Not pretty, but without refactoring the API, this is the best we can do
-            //NOTE: This is safe because we directly check the dimension first
-            2 => unsafe {
-                let (self2d, other2d) = (
-                    transmute::<&Self, &Rotation2<T>>(self),
-                    transmute::<&Self, &Rotation2<T>>(other),
+            2 => {
+                let self2d = Rotation2::from_matrix_unchecked(
+                    self.clone().into_inner().fixed_resize(T::zero())
                 );
-                transmute::<&Rotation2<T>, &Self>(&self2d.slerp_2d(other2d, t)).clone()
+                let other2d = Rotation2::from_matrix_unchecked(
+                    other.clone().into_inner().fixed_resize(T::zero())
+                );
+
+                Self::from_matrix_unchecked(
+                    self2d.slerp_2d(&other2d, t).into_inner().fixed_resize(T::zero())
+                )
             },
-            3 => unsafe {
-                let (self3d, other3d) = (
-                    transmute::<&Self, &Rotation3<T>>(self),
-                    transmute::<&Self, &Rotation3<T>>(other),
+
+            3 => {
+                let self3d = Rotation3::from_matrix_unchecked(
+                    self.clone().into_inner().fixed_resize(T::zero())
                 );
-                transmute::<&Rotation3<T>, &Self>(&self3d.slerp_3d(other3d, t)).clone()
+                let other3d = Rotation3::from_matrix_unchecked(
+                    other.clone().into_inner().fixed_resize(T::zero())
+                );
+
+                Self::from_matrix_unchecked(
+                    self3d.slerp_3d(&other3d, t).into_inner().fixed_resize(T::zero())
+                )
             },
 
             //the multiplication order matters here
