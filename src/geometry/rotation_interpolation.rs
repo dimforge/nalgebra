@@ -113,7 +113,6 @@ where
     #[inline]
     #[must_use]
     pub fn slerp(&self, other: &Self, t: T) -> Self {
-
         //The best option here would be to use #[feature(specialization)], but until
         //that's stabilized, this is the best we can do. Theoretically, the compiler should
         //pretty thoroughly optimize away all the excess checks and conversions
@@ -125,29 +124,35 @@ where
 
             2 => {
                 let self2d = Rotation2::from_matrix_unchecked(
-                    self.clone().into_inner().fixed_resize(T::zero())
+                    self.clone().into_inner().fixed_resize(T::zero()),
                 );
                 let other2d = Rotation2::from_matrix_unchecked(
-                    other.clone().into_inner().fixed_resize(T::zero())
+                    other.clone().into_inner().fixed_resize(T::zero()),
                 );
 
                 Self::from_matrix_unchecked(
-                    self2d.slerp_2d(&other2d, t).into_inner().fixed_resize(T::zero())
+                    self2d
+                        .slerp_2d(&other2d, t)
+                        .into_inner()
+                        .fixed_resize(T::zero()),
                 )
-            },
+            }
 
             3 => {
                 let self3d = Rotation3::from_matrix_unchecked(
-                    self.clone().into_inner().fixed_resize(T::zero())
+                    self.clone().into_inner().fixed_resize(T::zero()),
                 );
                 let other3d = Rotation3::from_matrix_unchecked(
-                    other.clone().into_inner().fixed_resize(T::zero())
+                    other.clone().into_inner().fixed_resize(T::zero()),
                 );
 
                 Self::from_matrix_unchecked(
-                    self3d.slerp_3d(&other3d, t).into_inner().fixed_resize(T::zero())
+                    self3d
+                        .slerp_3d(&other3d, t)
+                        .into_inner()
+                        .fixed_resize(T::zero()),
                 )
-            },
+            }
 
             //the multiplication order matters here
             _ => (other / self).powf(t) * self,

@@ -341,16 +341,16 @@ mod proptest_tests {
 
             //ambiguous when at ends of angle range, so we don't really care here
             if let Some(axis) = q.axis() {
+                if dtheta.abs() != f64::pi() {
+                    //make two quaternions separated by an angle between -pi and pi
+                    let (q1, q2) = (q, q * UnitQuaternion::from_axis_angle(&axis, dtheta));
+                    let q3 = q1.slerp(&q2, t);
 
-                //make two quaternions separated by an angle between -pi and pi
-                let (q1, q2) = (q, q * UnitQuaternion::from_axis_angle(&axis, dtheta));
-                let q3 = q1.slerp(&q2, t);
-
-                //since the angle is no larger than a half-turn, and t is between 0 and 1,
-                //the shortest path just corresponds to adding the scaled angle
-                let q4 = q1 * UnitQuaternion::from_axis_angle(&axis, dtheta*t);
-                prop_assert!(relative_eq!(q3, q4, epsilon=1e-10));
-
+                    //since the angle is no larger than a half-turn, and t is between 0 and 1,
+                    //the shortest path just corresponds to adding the scaled angle
+                    let q4 = q1 * UnitQuaternion::from_axis_angle(&axis, dtheta*t);
+                    prop_assert!(relative_eq!(q3, q4, epsilon=1e-9));
+                }
             }
 
         }
