@@ -1,6 +1,6 @@
 use crate::allocator::Allocator;
 use crate::storage::RawStorage;
-use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, RowOVector, Scalar, VectorSlice, U1};
+use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, RowOVector, Scalar, VectorView, U1};
 use num::{One, Zero};
 use simba::scalar::{ClosedAdd, ClosedMul, Field, SupersetOf};
 use std::mem::MaybeUninit;
@@ -13,7 +13,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn compress_rows(
         &self,
-        f: impl Fn(VectorSlice<'_, T, R, S::RStride, S::CStride>) -> T,
+        f: impl Fn(VectorView<'_, T, R, S::RStride, S::CStride>) -> T,
     ) -> RowOVector<T, C>
     where
         DefaultAllocator: Allocator<T, U1, C>,
@@ -41,7 +41,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn compress_rows_tr(
         &self,
-        f: impl Fn(VectorSlice<'_, T, R, S::RStride, S::CStride>) -> T,
+        f: impl Fn(VectorView<'_, T, R, S::RStride, S::CStride>) -> T,
     ) -> OVector<T, C>
     where
         DefaultAllocator: Allocator<T, C>,
@@ -67,7 +67,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn compress_columns(
         &self,
         init: OVector<T, R>,
-        f: impl Fn(&mut OVector<T, R>, VectorSlice<'_, T, R, S::RStride, S::CStride>),
+        f: impl Fn(&mut OVector<T, R>, VectorView<'_, T, R, S::RStride, S::CStride>),
     ) -> OVector<T, R>
     where
         DefaultAllocator: Allocator<T, R>,
@@ -335,12 +335,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         if self.is_empty() {
             T::zero()
         } else {
-            let val = self.iter().cloned().fold((T::zero(), T::zero()), |a, b| {
-                (a.0 + b.clone() * b.clone(), a.1 + b)
-            });
-            let denom = T::one() / crate::convert::<_, T>(self.len() as f64);
-            let vd = val.1 * denom.clone();
-            val.0 * denom - vd.clone() * vd
+            let n_elements: T = crate::convert(self.len() as f64);
+            let mean = self.mean();
+
+            self.iter().cloned().fold(T::zero(), |acc, x| {
+                acc + (x.clone() - mean.clone()) * (x - mean.clone())
+            }) / n_elements
         }
     }
 

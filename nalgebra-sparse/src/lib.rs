@@ -143,8 +143,6 @@
 )]
 
 pub extern crate nalgebra as na;
-#[cfg(feature = "io")]
-extern crate pest;
 #[macro_use]
 #[cfg(feature = "io")]
 extern crate pest_derive;
@@ -201,7 +199,7 @@ impl SparseFormatError {
     }
 }
 
-/// The type of format error described by a [SparseFormatError](struct.SparseFormatError.html).
+/// The type of format error described by a [`SparseFormatError`].
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum SparseFormatErrorKind {

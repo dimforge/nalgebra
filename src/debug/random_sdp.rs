@@ -4,7 +4,7 @@ use crate::base::storage::Owned;
 use quickcheck::{Arbitrary, Gen};
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{Dim, Dynamic};
+use crate::base::dimension::{Dim, Dyn};
 use crate::base::Scalar;
 use crate::base::{DefaultAllocator, OMatrix};
 use simba::scalar::ComplexField;
@@ -13,7 +13,7 @@ use crate::debug::RandomOrthogonal;
 
 /// A random, well-conditioned, symmetric definite-positive matrix.
 #[derive(Clone, Debug)]
-pub struct RandomSDP<T: Scalar, D: Dim = Dynamic>
+pub struct RandomSDP<T: Scalar, D: Dim = Dyn>
 where
     DefaultAllocator: Allocator<T, D, D>,
 {

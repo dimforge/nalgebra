@@ -1,6 +1,6 @@
 [package]
 name = "nalgebra-macros"
-version = "0.1.0"
+version = "0.2.1"
 authors = [ "Andreas Longva", "Sébastien Crozet <developer@crozet.re>" ]
 edition = "2018"
 description = "Procedural macros for nalgebra"
@@ -21,5 +21,5 @@ quote = "1.0"
 proc-macro2 = "1.0"
 
 [dev-dependencies]
-nalgebra = { version = "0.30.0", path = ".." }
+nalgebra = { version = "0.32.0", path = ".." }
 trybuild = "1.0.42"

@@ -5,15 +5,15 @@ use crate::traits::Number;
 ///
 /// # See also:
 ///
-/// * [`comp_max`](fn.comp_max.html)
-/// * [`comp_min`](fn.comp_min.html)
-/// * [`max2`](fn.max2.html)
-/// * [`max3`](fn.max3.html)
-/// * [`max4`](fn.max4.html)
-/// * [`min`](fn.min.html)
-/// * [`min2`](fn.min2.html)
-/// * [`min3`](fn.min3.html)
-/// * [`min4`](fn.min4.html)
+/// * [`comp_max()`](crate::comp_max)
+/// * [`comp_min()`](crate::comp_min)
+/// * [`max2()`]
+/// * [`max3()`]
+/// * [`max4()`]
+/// * [`min()`]
+/// * [`min2()`]
+/// * [`min3()`]
+/// * [`min4()`]
 pub fn max<T: Number, const D: usize>(a: &TVec<T, D>, b: T) -> TVec<T, D> {
     a.map(|a| crate::max2_scalar(a, b))
 }
@@ -22,15 +22,15 @@ pub fn max<T: Number, const D: usize>(a: &TVec<T, D>, b: T) -> TVec<T, D> {
 ///
 /// # See also:
 ///
-/// * [`comp_max`](fn.comp_max.html)
-/// * [`comp_min`](fn.comp_min.html)
-/// * [`max`](fn.max.html)
-/// * [`max3`](fn.max3.html)
-/// * [`max4`](fn.max4.html)
-/// * [`min`](fn.min.html)
-/// * [`min2`](fn.min2.html)
-/// * [`min3`](fn.min3.html)
-/// * [`min4`](fn.min4.html)
+/// * [`comp_max()`](crate::comp_max)
+/// * [`comp_min()`](crate::comp_min)
+/// * [`max()`]
+/// * [`max3()`]
+/// * [`max4()`]
+/// * [`min()`]
+/// * [`min2()`]
+/// * [`min3()`]
+/// * [`min4()`]
 pub fn max2<T: Number, const D: usize>(a: &TVec<T, D>, b: &TVec<T, D>) -> TVec<T, D> {
     a.zip_map(b, |a, b| crate::max2_scalar(a, b))
 }
@@ -39,15 +39,15 @@ pub fn max2<T: Number, const D: usize>(a: &TVec<T, D>, b: &TVec<T, D>) -> TVec<T
 ///
 /// # See also:
 ///
-/// * [`comp_max`](fn.comp_max.html)
-/// * [`comp_min`](fn.comp_min.html)
-/// * [`max`](fn.max.html)
-/// * [`max2`](fn.max2.html)
-/// * [`max4`](fn.max4.html)
-/// * [`min`](fn.min.html)
-/// * [`min2`](fn.min2.html)
-/// * [`min3`](fn.min3.html)
-/// * [`min4`](fn.min4.html)
+/// * [`comp_max()`](crate::comp_max)
+/// * [`comp_min()`](crate::comp_min)
+/// * [`max()`]
+/// * [`max2()`]
+/// * [`max4()`]
+/// * [`min()`]
+/// * [`min2()`]
+/// * [`min3()`]
+/// * [`min4()`]
 pub fn max3<T: Number, const D: usize>(
     a: &TVec<T, D>,
     b: &TVec<T, D>,
@@ -60,15 +60,15 @@ pub fn max3<T: Number, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [`comp_max`](fn.comp_max.html)
-/// * [`comp_min`](fn.comp_min.html)
-/// * [`max`](fn.max.html)
-/// * [`max2`](fn.max2.html)
-/// * [`max3`](fn.max3.html)
-/// * [`min`](fn.min.html)
-/// * [`min2`](fn.min2.html)
-/// * [`min3`](fn.min3.html)
-/// * [`min4`](fn.min4.html)
+/// * [`comp_max()`](crate::comp_max)
+/// * [`comp_min()`](crate::comp_min)
+/// * [`max()`]
+/// * [`max2()`]
+/// * [`max3()`]
+/// * [`min()`]
+/// * [`min2()`]
+/// * [`min3()`]
+/// * [`min4()`]
 pub fn max4<T: Number, const D: usize>(
     a: &TVec<T, D>,
     b: &TVec<T, D>,
@@ -82,15 +82,15 @@ pub fn max4<T: Number, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [`comp_max`](fn.comp_max.html)
-/// * [`comp_min`](fn.comp_min.html)
-/// * [`max`](fn.max.html)
-/// * [`max2`](fn.max2.html)
-/// * [`max3`](fn.max3.html)
-/// * [`max4`](fn.max4.html)
-/// * [`min2`](fn.min2.html)
-/// * [`min3`](fn.min3.html)
-/// * [`min4`](fn.min4.html)
+/// * [`comp_max()`](crate::comp_max)
+/// * [`comp_min()`](crate::comp_min)
+/// * [`max()`]
+/// * [`max2()`]
+/// * [`max3()`]
+/// * [`max4()`]
+/// * [`min2()`]
+/// * [`min3()`]
+/// * [`min4()`]
 pub fn min<T: Number, const D: usize>(x: &TVec<T, D>, y: T) -> TVec<T, D> {
     x.map(|x| crate::min2_scalar(x, y))
 }
@@ -99,15 +99,15 @@ pub fn min<T: Number, const D: usize>(x: &TVec<T, D>, y: T) -> TVec<T, D> {
 ///
 /// # See also:
 ///
-/// * [`comp_max`](fn.comp_max.html)
-/// * [`comp_min`](fn.comp_min.html)
-/// * [`max`](fn.max.html)
-/// * [`max2`](fn.max2.html)
-/// * [`max3`](fn.max3.html)
-/// * [`max4`](fn.max4.html)
-/// * [`min`](fn.min.html)
-/// * [`min3`](fn.min3.html)
-/// * [`min4`](fn.min4.html)
+/// * [`comp_max()`](crate::comp_max)
+/// * [`comp_min()`](crate::comp_min)
+/// * [`max()`]
+/// * [`max2()`]
+/// * [`max3()`]
+/// * [`max4()`]
+/// * [`min()`]
+/// * [`min3()`]
+/// * [`min4()`]
 pub fn min2<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> TVec<T, D> {
     x.zip_map(y, |a, b| crate::min2_scalar(a, b))
 }
@@ -116,15 +116,15 @@ pub fn min2<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> TVec<T
 ///
 /// # See also:
 ///
-/// * [`comp_max`](fn.comp_max.html)
-/// * [`comp_min`](fn.comp_min.html)
-/// * [`max`](fn.max.html)
-/// * [`max2`](fn.max2.html)
-/// * [`max3`](fn.max3.html)
-/// * [`max4`](fn.max4.html)
-/// * [`min`](fn.min.html)
-/// * [`min2`](fn.min2.html)
-/// * [`min4`](fn.min4.html)
+/// * [`comp_max()`](crate::comp_max)
+/// * [`comp_min()`](crate::comp_min)
+/// * [`max()`]
+/// * [`max2()`]
+/// * [`max3()`]
+/// * [`max4()`]
+/// * [`min()`]
+/// * [`min2()`]
+/// * [`min4()`]
 pub fn min3<T: Number, const D: usize>(
     a: &TVec<T, D>,
     b: &TVec<T, D>,
@@ -137,15 +137,15 @@ pub fn min3<T: Number, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [`comp_max`](fn.comp_max.html)
-/// * [`comp_min`](fn.comp_min.html)
-/// * [`max`](fn.max.html)
-/// * [`max2`](fn.max2.html)
-/// * [`max3`](fn.max3.html)
-/// * [`max4`](fn.max4.html)
-/// * [`min`](fn.min.html)
-/// * [`min2`](fn.min2.html)
-/// * [`min3`](fn.min3.html)
+/// * [`comp_max()`](crate::comp_max)
+/// * [`comp_min()`](crate::comp_min)
+/// * [`max()`]
+/// * [`max2()`]
+/// * [`max3()`]
+/// * [`max4()`]
+/// * [`min()`]
+/// * [`min2()`]
+/// * [`min3()`]
 pub fn min4<T: Number, const D: usize>(
     a: &TVec<T, D>,
     b: &TVec<T, D>,

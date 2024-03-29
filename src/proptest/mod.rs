@@ -16,17 +16,17 @@
 //! provides tools for generating matrices and vectors, and not any of the geometry types.
 //! There are essentially two ways of using this functionality:
 //!
-//! - Using the [matrix](fn.matrix.html) function to generate matrices with constraints
+//! - Using the [`matrix()`] function to generate matrices with constraints
 //!   on dimensions and elements.
-//! - Relying on the `Arbitrary` implementation of `OMatrix`.
+//! - Relying on the [`Arbitrary`] implementation of [`OMatrix`].
 //!
 //! The first variant is almost always preferred in practice. Read on to discover why.
 //!
 //! ### Using free function strategies
 //!
 //! In `proptest`, it is usually preferable to have free functions that generate *strategies*.
-//! Currently, the [matrix](fn.matrix.html) function fills this role. The analogous function for
-//! column vectors is [vector](fn.vector.html). Let's take a quick look at how it may be used:
+//! Currently, the [`matrix()`] function fills this role. The analogous function for
+//! column vectors is [`vector()`]. Let's take a quick look at how it may be used:
 //! ```
 //! use nalgebra::proptest::matrix;
 //! use proptest::prelude::*;
@@ -50,14 +50,14 @@
 //! For example, let's consider a toy example where we need to generate pairs of matrices
 //! with exactly 3 rows fixed at compile-time and the same number of columns, but we want the
 //! number of columns to vary. One way to do this is to use `proptest` combinators in combination
-//! with [matrix](fn.matrix.html) as follows:
+//! with [`matrix()`] as follows:
 //!
 //! ```
-//! use nalgebra::{Dynamic, OMatrix, Const};
+//! use nalgebra::{Dyn, OMatrix, Const};
 //! use nalgebra::proptest::matrix;
 //! use proptest::prelude::*;
 //!
-//! type MyMatrix = OMatrix<i32, Const::<3>, Dynamic>;
+//! type MyMatrix = OMatrix<i32, Const::<3>, Dyn>;
 //!
 //! /// Returns a strategy for pairs of matrices with `U3` rows and the same number of
 //! /// columns.
@@ -93,7 +93,7 @@
 //! If you don't care about the dimensions of matrices, you can write tests like these:
 //!
 //! ```
-//! use nalgebra::{DMatrix, DVector, Dynamic, Matrix3, OMatrix, Vector3, U3};
+//! use nalgebra::{DMatrix, DVector, Dyn, Matrix3, OMatrix, Vector3, U3};
 //! use proptest::prelude::*;
 //!
 //! proptest! {
@@ -108,7 +108,7 @@
 //!     # /*
 //!     #[test]
 //!     # */
-//!     fn test_static_and_mixed(matrix: Matrix3<i32>, matrix2: OMatrix<i32, U3, Dynamic>) {
+//!     fn test_static_and_mixed(matrix: Matrix3<i32>, matrix2: OMatrix<i32, U3, Dyn>) {
 //!         // Test some property involving these matrices
 //!     }
 //!
@@ -141,7 +141,7 @@
 //! PROPTEST_MAX_SHRINK_ITERS=100000 cargo test my_failing_test
 //! ```
 use crate::allocator::Allocator;
-use crate::{Const, DefaultAllocator, Dim, DimName, Dynamic, OMatrix, Scalar, U1};
+use crate::{Const, DefaultAllocator, Dim, DimName, Dyn, OMatrix, Scalar, U1};
 use proptest::arbitrary::Arbitrary;
 use proptest::collection::vec;
 use proptest::strategy::{BoxedStrategy, Just, NewTree, Strategy, ValueTree};
@@ -167,9 +167,9 @@ pub struct MatrixParameters<NParameters, R, C> {
 /// of matrices with `proptest`. In most cases, you do not need to concern yourself with
 /// `DimRange` directly, as it supports conversion from other types such as `U3` or inclusive
 /// ranges such as `5 ..= 6`. The latter example corresponds to dimensions from (inclusive)
-/// `Dynamic::new(5)` to `Dynamic::new(6)` (inclusive).
+/// `Dyn(5)` to `Dyn(6)` (inclusive).
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DimRange<D = Dynamic>(RangeInclusive<D>);
+pub struct DimRange<D = Dyn>(RangeInclusive<D>);
 
 impl<D: Dim> DimRange<D> {
     /// The lower bound for dimensions generated.
@@ -195,9 +195,9 @@ impl<D: Dim> From<RangeInclusive<D>> for DimRange<D> {
     }
 }
 
-impl From<RangeInclusive<usize>> for DimRange<Dynamic> {
+impl From<RangeInclusive<usize>> for DimRange<Dyn> {
     fn from(range: RangeInclusive<usize>) -> Self {
-        DimRange::from(Dynamic::new(*range.start())..=Dynamic::new(*range.end()))
+        DimRange::from(Dyn(*range.start())..=Dyn(*range.end()))
     }
 }
 
@@ -208,14 +208,14 @@ impl<D: Dim> DimRange<D> {
     }
 }
 
-impl From<usize> for DimRange<Dynamic> {
+impl From<usize> for DimRange<Dyn> {
     fn from(dim: usize) -> Self {
-        DimRange::from(Dynamic::new(dim))
+        DimRange::from(Dyn(dim))
     }
 }
 
-/// The default range used for Dynamic dimensions when generating arbitrary matrices.
-fn dynamic_dim_range() -> DimRange<Dynamic> {
+/// The default range used for Dyn dimensions when generating arbitrary matrices.
+fn dynamic_dim_range() -> DimRange<Dyn> {
     DimRange::from(0..=6)
 }
 
@@ -225,7 +225,7 @@ fn dynamic_dim_range() -> DimRange<Dynamic> {
 /// ## Examples
 /// ```
 /// use nalgebra::proptest::matrix;
-/// use nalgebra::{OMatrix, Const, Dynamic};
+/// use nalgebra::{OMatrix, Const, Dyn};
 /// use proptest::prelude::*;
 ///
 /// proptest! {
@@ -234,7 +234,7 @@ fn dynamic_dim_range() -> DimRange<Dynamic> {
 ///     # */
 ///     fn my_test(a in matrix(0 .. 5i32, Const::<3>, 0 ..= 5)) {
 ///         // Let's make sure we've got the correct type first
-///         let a: OMatrix<_, Const::<3>, Dynamic> = a;
+///         let a: OMatrix<_, Const::<3>, Dyn> = a;
 ///         prop_assert!(a.nrows() == 3);
 ///         prop_assert!(a.ncols() <= 5);
 ///         prop_assert!(a.iter().all(|x_ij| *x_ij >= 0 && *x_ij < 5));
@@ -316,7 +316,7 @@ where
 /// with length in the provided range.
 ///
 /// This is a convenience function for calling
-/// [`matrix(value_strategy, length, U1)`](fn.matrix.html) and should
+/// [`matrix(value_strategy, length, U1)`](crate::matrix) and should
 /// be used when you only want to generate column vectors, as it's simpler and makes the intent
 /// clear.
 pub fn vector<D, ScalarStrategy>(
@@ -347,7 +347,7 @@ where
     }
 }
 
-impl<NParameters, R> Default for MatrixParameters<NParameters, R, Dynamic>
+impl<NParameters, R> Default for MatrixParameters<NParameters, R, Dyn>
 where
     NParameters: Default,
     R: DimName,
@@ -361,7 +361,7 @@ where
     }
 }
 
-impl<NParameters, C> Default for MatrixParameters<NParameters, Dynamic, C>
+impl<NParameters, C> Default for MatrixParameters<NParameters, Dyn, C>
 where
     NParameters: Default,
     C: DimName,
@@ -375,7 +375,7 @@ where
     }
 }
 
-impl<NParameters> Default for MatrixParameters<NParameters, Dynamic, Dynamic>
+impl<NParameters> Default for MatrixParameters<NParameters, Dyn, Dyn>
 where
     NParameters: Default,
 {

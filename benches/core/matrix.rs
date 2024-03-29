@@ -53,7 +53,7 @@ fn mat_div_scalar(b: &mut criterion::Criterion) {
     b.bench_function("mat_div_scalar", move |bh| {
         bh.iter(|| {
             let mut aa = a.clone();
-            let mut b = aa.slice_mut((0, 0), (1000, 1000));
+            let mut b = aa.view_mut((0, 0), (1000, 1000));
             b /= n
         })
     });
@@ -142,7 +142,7 @@ fn iter(bench: &mut criterion::Criterion) {
     bench.bench_function("iter", move |bh| {
         bh.iter(|| {
             for value in a.iter() {
-                criterion::black_box(value);
+                std::hint::black_box(value);
             }
         })
     });
@@ -154,7 +154,7 @@ fn iter_rev(bench: &mut criterion::Criterion) {
     bench.bench_function("iter_rev", move |bh| {
         bh.iter(|| {
             for value in a.iter().rev() {
-                criterion::black_box(value);
+                std::hint::black_box(value);
             }
         })
     });

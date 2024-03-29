@@ -8,7 +8,7 @@ use std::fmt::Display;
 use std::ops::MulAssign;
 
 use crate::allocator::Allocator;
-use crate::base::dimension::{Dim, DimDiff, DimSub, Dynamic, U1, U2, U3};
+use crate::base::dimension::{Dim, DimDiff, DimSub, Dyn, U1, U2, U3};
 use crate::base::storage::Storage;
 use crate::base::{
     DefaultAllocator, Hessenberg, OMatrix, OVector, SquareMatrix, Unit, Vector2, Vector3,
@@ -52,8 +52,8 @@ where
 
 impl<T: ComplexField, D: Dim> Eigen<T, D>
 where
-    D: DimSub<U1>,                                   // For Hessenberg.
-    ShapeConstraint: DimEq<Dynamic, DimDiff<D, U1>>, // For Hessenberg.
+    D: DimSub<U1>,                               // For Hessenberg.
+    ShapeConstraint: DimEq<Dyn, DimDiff<D, U1>>, // For Hessenberg.
     DefaultAllocator: Allocator<T, D, DimDiff<D, U1>>
         + Allocator<T, DimDiff<D, U1>>
         + Allocator<T, D, D>

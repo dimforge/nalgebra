@@ -4,11 +4,11 @@ use crate::aliases::TVec;
 
 /// The dot product of the normalized version of `x` and `y`.
 ///
-/// This is currently the same as [`normalize_dot`](fn.normalize_dot.html).
+/// This is currently the same as [`normalize_dot()`]
 ///
 /// # See also:
 ///
-/// * [`normalize_dot`](fn.normalize_dot.html`)
+/// * [`normalize_dot()`]
 pub fn fast_normalize_dot<T: RealNumber, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T {
     // XXX: improve those.
     x.normalize().dot(&y.normalize())
@@ -18,7 +18,7 @@ pub fn fast_normalize_dot<T: RealNumber, const D: usize>(x: &TVec<T, D>, y: &TVe
 ///
 /// # See also:
 ///
-/// * [`fast_normalize_dot`](fn.fast_normalize_dot.html`)
+/// * [`fast_normalize_dot()`]
 pub fn normalize_dot<T: RealNumber, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T {
     // XXX: improve those.
     x.normalize().dot(&y.normalize())

@@ -1,12 +1,21 @@
 use matrixcompare::assert_matrix_eq;
-use nalgebra::dmatrix;
+use nalgebra::matrix;
 use nalgebra::Complex;
-use nalgebra_sparse::io::load_coo_from_matrix_market_str;
+use nalgebra_sparse::io::{
+    load_coo_from_matrix_market_file, load_coo_from_matrix_market_str, save_to_matrix_market_file,
+    save_to_matrix_market_str,
+};
+use nalgebra_sparse::proptest::coo_no_duplicates;
 use nalgebra_sparse::CooMatrix;
+use proptest::prelude::*;
+use tempfile::tempdir;
+
+type C64 = Complex<f64>;
+type C32 = Complex<f32>;
 
 #[test]
 #[rustfmt::skip]
-fn test_matrixmarket_sparse_real_general_empty() {
+fn test_matrixmarket_load_sparse_real_general_empty() {
     // Test several valid zero-shapes of a sparse matrix
     let shapes = vec![ (0, 0), (1, 0), (0, 1) ];
     let strings: Vec<String> = shapes
@@ -24,7 +33,7 @@ fn test_matrixmarket_sparse_real_general_empty() {
 
 #[test]
 #[rustfmt::skip]
-fn test_matrixmarket_dense_real_general_empty() {
+fn test_matrixmarket_load_dense_real_general_empty() {
     // Test several valid zero-shapes of a dense matrix
     let shapes = vec![ (0, 0), (1, 0), (0, 1) ];
     let strings: Vec<String> = shapes
@@ -42,7 +51,7 @@ fn test_matrixmarket_dense_real_general_empty() {
 
 #[test]
 #[rustfmt::skip]
-fn test_matrixmarket_sparse_real_general() {
+fn test_matrixmarket_load_sparse_real_general() {
     let file_str = r#"
 %%MatrixMarket matrix CoOrdinate real general
 % This is also an example of free-format features.
@@ -89,7 +98,7 @@ fn test_matrixmarket_sparse_real_general() {
     5     5   1.200e+01
 "#;
     let sparse_mat = load_coo_from_matrix_market_str::<f32>(file_str).unwrap();
-    let expected = dmatrix![
+    let expected = matrix![
         1.0,   0.0,    0.0,    6.0,    0.0;
         0.0,  10.5,    0.0,    0.0,    0.0;
         0.0,   0.0,  0.015,    0.0,    0.0;
@@ -101,7 +110,7 @@ fn test_matrixmarket_sparse_real_general() {
 
 #[test]
 #[rustfmt::skip]
-fn test_matrixmarket_sparse_int_symmetric() {
+fn test_matrixmarket_load_sparse_int_symmetric() {
     let file_str = r#"
 %%MatrixMarket matrix coordinate integer symmetric
 %
@@ -117,7 +126,7 @@ fn test_matrixmarket_sparse_int_symmetric() {
     5  5  55
 "#;
     let sparse_mat = load_coo_from_matrix_market_str::<i128>(file_str).unwrap();
-    let expected = dmatrix![
+    let expected = matrix![
          11,  0,  0,   0, -15;
           0, 22, 23,  24,   0;
           0, 23, 33,   0,  35;
@@ -129,7 +138,7 @@ fn test_matrixmarket_sparse_int_symmetric() {
 
 #[test]
 #[rustfmt::skip]
-fn test_matrixmarket_sparse_complex_hermitian() {
+fn test_matrixmarket_load_sparse_complex_hermitian() {
     let file_str = r#"
 %%MatrixMarket matrix coordinate complex hermitian
 %
@@ -144,19 +153,19 @@ fn test_matrixmarket_sparse_complex_hermitian() {
 
 "#;
     let sparse_mat = load_coo_from_matrix_market_str::<Complex<f64>>(file_str).unwrap();
-    let expected = dmatrix![
-        Complex::<f64>{re:1.0,im:0.0}, Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:0.0,im:0.0},Complex::<f64>{re:0.0,im:0.0};
-        Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:10.5,im:0.0}, Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:250.5,im:-22.22},Complex::<f64>{re:0.0,im:0.0};
-        Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:0.015,im:0.0}, Complex::<f64>{re:0.0,im:0.0},Complex::<f64>{re:0.0,im:0.0};
-        Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:250.5,im:22.22}, Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:-280.0,im:0.0},Complex::<f64>{re:0.0,im:-33.32};
-        Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:0.0,im:0.0}, Complex::<f64>{re:0.0,im:33.32},Complex::<f64>{re:12.0,im:0.0};
+    let expected = matrix![
+        C64{re:1.0,im:0.0}, C64{re:0.0,im:0.0}, C64{re:0.0,im:0.0}, C64{re:0.0,im:0.0},C64{re:0.0,im:0.0};
+        C64{re:0.0,im:0.0}, C64{re:10.5,im:0.0}, C64{re:0.0,im:0.0}, C64{re:250.5,im:-22.22},C64{re:0.0,im:0.0};
+        C64{re:0.0,im:0.0}, C64{re:0.0,im:0.0}, C64{re:0.015,im:0.0}, C64{re:0.0,im:0.0},C64{re:0.0,im:0.0};
+        C64{re:0.0,im:0.0}, C64{re:250.5,im:22.22}, C64{re:0.0,im:0.0}, C64{re:-280.0,im:0.0},C64{re:0.0,im:-33.32};
+        C64{re:0.0,im:0.0}, C64{re:0.0,im:0.0}, C64{re:0.0,im:0.0}, C64{re:0.0,im:33.32},C64{re:12.0,im:0.0};
     ];
     assert_matrix_eq!(sparse_mat, expected);
 }
 
 #[test]
 #[rustfmt::skip]
-fn test_matrixmarket_sparse_real_skew() {
+fn test_matrixmarket_load_sparse_real_skew() {
     let file_str = r#"
 %%MatrixMarket matrix coordinate real skew-symmetric
 %
@@ -167,7 +176,7 @@ fn test_matrixmarket_sparse_real_skew() {
     5  3  -35.0
 "#;
     let sparse_mat = load_coo_from_matrix_market_str::<f64>(file_str).unwrap();
-    let expected = dmatrix![
+    let expected = matrix![
       0.0,    0.0,   0.0,   0.0,  15.0;
       0.0,    0.0,  23.0,  24.0,   0.0;
       0.0,  -23.0,   0.0,   0.0,  35.0;
@@ -179,7 +188,7 @@ fn test_matrixmarket_sparse_real_skew() {
 
 #[test]
 #[rustfmt::skip]
-fn test_matrixmarket_sparse_pattern_general() {
+fn test_matrixmarket_load_sparse_pattern_general() {
     let file_str = r#"
 %%MatrixMarket matrix coordinate pattern general
 %
@@ -198,10 +207,10 @@ fn test_matrixmarket_sparse_pattern_general() {
     let pattern_matrix = load_coo_from_matrix_market_str::<()>(file_str).unwrap();
     let nrows = pattern_matrix.nrows();
     let ncols = pattern_matrix.ncols();
-    let (row_idx, col_idx, val) = pattern_matrix.disassemble();
+    let (row_idx, col_idx, val) = pattern_matrix.clone().disassemble();
     let values = vec![1; val.len()];
     let sparse_mat = CooMatrix::try_from_triplets(nrows, ncols, row_idx, col_idx, values).unwrap();
-    let expected = dmatrix![
+    let expected = matrix![
         1, 0, 0, 0, 1;
         0, 0, 1, 1, 0;
         0, 1, 0, 0, 1;
@@ -213,7 +222,7 @@ fn test_matrixmarket_sparse_pattern_general() {
 
 #[test]
 #[rustfmt::skip]
-fn test_matrixmarket_dense_real_general() {
+fn test_matrixmarket_load_dense_real_general() {
     let file_str = r#"
 %%MatrixMarket matrix array real general
 %
@@ -233,7 +242,7 @@ fn test_matrixmarket_dense_real_general() {
 
 "#;
     let sparse_mat = load_coo_from_matrix_market_str::<f32>(file_str).unwrap();
-    let expected = dmatrix![
+    let expected = matrix![
         1.0, 5.0,  9.0;
         2.0, 6.0, 10.0;
         3.0, 7.0, 11.0;
@@ -244,7 +253,7 @@ fn test_matrixmarket_dense_real_general() {
 
 #[test]
 #[rustfmt::skip]
-fn test_matrixmarket_dense_real_symmetric() {
+fn test_matrixmarket_load_dense_real_symmetric() {
     let file_str = r#"
 %%MatrixMarket matrix array real symmetric
 %
@@ -262,7 +271,7 @@ fn test_matrixmarket_dense_real_symmetric() {
 
 "#;
     let sparse_mat = load_coo_from_matrix_market_str::<f32>(file_str).unwrap();
-    let expected = dmatrix![
+    let expected = matrix![
         1.0, 2.0, 3.0,  4.0;
         2.0, 5.0, 6.0,  7.0;
         3.0, 6.0, 8.0,  9.0;
@@ -273,7 +282,7 @@ fn test_matrixmarket_dense_real_symmetric() {
 
 #[test]
 #[rustfmt::skip]
-fn test_matrixmarket_dense_complex_hermitian() {
+fn test_matrixmarket_load_dense_complex_hermitian() {
     let file_str = r#"
 %%MatrixMarket matrix array complex hermitian
 %
@@ -290,19 +299,19 @@ fn test_matrixmarket_dense_complex_hermitian() {
 10.0 0.0
 
 "#;
-    let sparse_mat = load_coo_from_matrix_market_str::<Complex<f64>>(file_str).unwrap();
-    let expected = dmatrix![
-        Complex::<f64>{re:1.0,im:0.0}, Complex::<f64>{re:2.0,im:-2.0} ,Complex::<f64>{re:3.0,im:-3.0} ,Complex::<f64>{re:4.0,im:-4.0};
-        Complex::<f64>{re:2.0,im:2.0}, Complex::<f64>{re:5.0,im:0.0} ,Complex::<f64>{re:6.0,im:-6.0} ,Complex::<f64>{re:7.0,im:-7.0};
-        Complex::<f64>{re:3.0,im:3.0}, Complex::<f64>{re:6.0,im:6.0} ,Complex::<f64>{re:8.0,im:0.0} ,Complex::<f64>{re:9.0,im:-9.0};
-        Complex::<f64>{re:4.0,im:4.0}, Complex::<f64>{re:7.0,im:7.0} ,Complex::<f64>{re:9.0,im:9.0} ,Complex::<f64>{re:10.0,im:0.0};
+    let sparse_mat = load_coo_from_matrix_market_str::<C64>(file_str).unwrap();
+    let expected = matrix![
+        C64{re:1.0,im:0.0}, C64{re:2.0,im:-2.0} ,C64{re:3.0,im:-3.0} ,C64{re:4.0,im:-4.0};
+        C64{re:2.0,im:2.0}, C64{re:5.0,im:0.0} ,C64{re:6.0,im:-6.0} ,C64{re:7.0,im:-7.0};
+        C64{re:3.0,im:3.0}, C64{re:6.0,im:6.0} ,C64{re:8.0,im:0.0} ,C64{re:9.0,im:-9.0};
+        C64{re:4.0,im:4.0}, C64{re:7.0,im:7.0} ,C64{re:9.0,im:9.0} ,C64{re:10.0,im:0.0};
     ];
     assert_matrix_eq!(sparse_mat, expected);
 }
 
 #[test]
 #[rustfmt::skip]
-fn test_matrixmarket_dense_int_skew() {
+fn test_matrixmarket_load_dense_int_skew() {
     let file_str = r#"
 %%MatrixMarket matrix array integer skew-symmetric
 %
@@ -315,7 +324,7 @@ fn test_matrixmarket_dense_int_skew() {
 6
 "#;
     let sparse_mat = load_coo_from_matrix_market_str::<i32>(file_str).unwrap();
-    let expected = dmatrix![
+    let expected = matrix![
         0,-1,-2,-3;
         1, 0,-4,-5;
         2, 4, 0,-6;
@@ -326,7 +335,7 @@ fn test_matrixmarket_dense_int_skew() {
 
 #[test]
 #[rustfmt::skip]
-fn test_matrixmarket_dense_complex_general() {
+fn test_matrixmarket_load_dense_complex_general() {
     let file_str = r#"
 %%MatrixMarket matrix array complex general
 %
@@ -336,10 +345,124 @@ fn test_matrixmarket_dense_complex_general() {
 1 0
 1 0
 "#;
-    let sparse_mat = load_coo_from_matrix_market_str::<Complex<f32>>(file_str).unwrap();
-    let expected = dmatrix![
-        Complex::<f32>{re:1.0,im:0.0},Complex::<f32>{re:1.0,im:0.0};
-        Complex::<f32>{re:1.0,im:0.0},Complex::<f32>{re:1.0,im:0.0};
+    let sparse_mat = load_coo_from_matrix_market_str::<C32>(file_str).unwrap();
+    let expected = matrix![
+        C32{re:1.0,im:0.0},C32{re:1.0,im:0.0};
+        C32{re:1.0,im:0.0},C32{re:1.0,im:0.0};
     ];
     assert_matrix_eq!(sparse_mat, expected);
+}
+
+#[test]
+#[rustfmt::skip]
+fn test_matrixmarket_write_real(){
+    let dense_matrix = matrix![
+        1.0, 2.0, 3.0;
+        2.0, 0.0, 3.0;
+        ];
+    let row_indices = vec![0,1,0,0,1];
+    let col_indices = vec![0,0,1,2,2];
+    let values = vec![1.0,2.0,2.0,3.0,3.0];
+    let coo_matrix = CooMatrix::try_from_triplets(2, 3, row_indices, col_indices, values).unwrap();
+    assert_matrix_eq!(dense_matrix,coo_matrix);
+    let expected = r#"%%matrixmarket matrix coordinate real general
+% matrixmarket file generated by nalgebra-sparse.
+2 3 5
+1 1 1
+2 1 2
+1 2 2
+1 3 3
+2 3 3
+"#;
+    let matrixmarket_str = save_to_matrix_market_str(&coo_matrix);
+    assert_eq!(matrixmarket_str,expected);
+}
+
+#[test]
+fn test_matrixmarket_write_int() {
+    let dense_matrix = matrix![
+    1,2,3;
+    2,0,3;
+    ];
+    let row_indices = vec![0, 1, 0, 0, 1];
+    let col_indices = vec![0, 0, 1, 2, 2];
+    let values = vec![1, 2, 2, 3, 3];
+    let coo_matrix = CooMatrix::try_from_triplets(2, 3, row_indices, col_indices, values).unwrap();
+    assert_matrix_eq!(dense_matrix, coo_matrix);
+    let expected = r#"%%matrixmarket matrix coordinate integer general
+% matrixmarket file generated by nalgebra-sparse.
+2 3 5
+1 1 1
+2 1 2
+1 2 2
+1 3 3
+2 3 3
+"#;
+    let matrixmarket_str = save_to_matrix_market_str(&coo_matrix);
+    assert_eq!(matrixmarket_str, expected);
+}
+
+#[test]
+fn test_matrixmarket_write_pattern() {
+    let row_indices = vec![0, 1, 0, 0, 1];
+    let col_indices = vec![0, 0, 1, 2, 2];
+    let values = vec![(), (), (), (), ()];
+    let coo_matrix = CooMatrix::try_from_triplets(2, 3, row_indices, col_indices, values).unwrap();
+    let expected = r#"%%matrixmarket matrix coordinate pattern general
+% matrixmarket file generated by nalgebra-sparse.
+2 3 5
+1 1 
+2 1 
+1 2 
+1 3 
+2 3 
+"#;
+    let matrixmarket_str = save_to_matrix_market_str(&coo_matrix);
+    assert_eq!(matrixmarket_str, expected);
+}
+
+#[test]
+fn test_matrixmarket_write_complex() {
+    let row_indices = vec![0, 1, 0, 0, 1];
+    let col_indices = vec![0, 0, 1, 2, 2];
+    let values = vec![
+        C64 { re: 1.0, im: 2.0 },
+        C64 { re: 2.0, im: 3.0 },
+        C64 { re: 3.0, im: 4.0 },
+        C64 { re: 4.0, im: 5.0 },
+        C64 { re: 5.0, im: 6.0 },
+    ];
+    let coo_matrix = CooMatrix::try_from_triplets(2, 3, row_indices, col_indices, values).unwrap();
+    let expected = r#"%%matrixmarket matrix coordinate complex general
+% matrixmarket file generated by nalgebra-sparse.
+2 3 5
+1 1 1 2
+2 1 2 3
+1 2 3 4
+1 3 4 5
+2 3 5 6
+"#;
+    let matrixmarket_str = save_to_matrix_market_str(&coo_matrix);
+    assert_eq!(matrixmarket_str, expected);
+}
+
+proptest! {
+    #[test]
+    fn coo_matrix_market_roundtrip_str(coo in coo_no_duplicates(-10 ..= 10, 0 ..= 10, 0..= 10, 100)) {
+        let generated_matrixmarket_string = save_to_matrix_market_str(&coo);
+        let generated_matrix = load_coo_from_matrix_market_str(&generated_matrixmarket_string).unwrap();
+        assert_matrix_eq!(generated_matrix, coo);
+    }
+}
+
+proptest! {
+    #[test]
+    fn coo_matrix_market_roundtrip_file(coo in coo_no_duplicates(-10 ..= 10, 0 ..= 10, 0..= 10, 100)) {
+        let temp_dir = tempdir().expect("Unable to create temporary directory");
+        let file_path = temp_dir.path().join("temp.mtx");
+        save_to_matrix_market_file(&coo,&file_path).unwrap();
+        let generated_matrix = load_coo_from_matrix_market_file(file_path).unwrap();
+        assert_matrix_eq!(generated_matrix, coo);
+        temp_dir.close().expect("Unable to delete temporary directory");
+    }
 }

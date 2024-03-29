@@ -12,7 +12,7 @@ pub fn cross<T: Number>(x: &TVec3<T>, y: &TVec3<T>) -> TVec3<T> {
 ///
 /// # See also:
 ///
-/// * [`distance2`](fn.distance2.html)
+/// * [`distance2()`](crate::distance2)
 pub fn distance<T: RealNumber, const D: usize>(p0: &TVec<T, D>, p1: &TVec<T, D>) -> T {
     (p1 - p0).norm()
 }
@@ -37,13 +37,13 @@ pub fn faceforward<T: Number, const D: usize>(
 
 /// The magnitude of a vector.
 ///
-/// A synonym for [`magnitude`](fn.magnitude.html).
+/// A synonym for [`magnitude()`].
 ///
 /// # See also:
 ///
-/// * [`length2`](fn.length2.html)
-/// * [`magnitude`](fn.magnitude.html)
-/// * [`magnitude2`](fn.magnitude2.html)
+/// * [`length2()`](crate::length2)
+/// * [`magnitude()`]
+/// * [`magnitude2()`](crate::magnitude2)
 pub fn length<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm()
 }
@@ -54,8 +54,8 @@ pub fn length<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> T {
 ///
 /// # See also:
 ///
-/// * [`length`](fn.length.html)
-/// * [`magnitude2`](fn.magnitude2.html)
+/// * [`length()`]
+/// * [`magnitude2()`](crate::magnitude2)
 /// * [`nalgebra::norm`](../nalgebra/fn.norm.html)
 pub fn magnitude<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> T {
     x.norm()

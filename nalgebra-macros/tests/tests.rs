@@ -94,6 +94,12 @@ fn dmatrix_small_dims_exhaustive() {
                DMatrix::from_row_slice(4, 4,  &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]));
 }
 
+#[test]
+fn matrix_trailing_semi() {
+    matrix![1, 2;];
+    dmatrix![1, 2;];
+}
+
 // Skip rustfmt because it just makes the test bloated without making it more readable
 #[rustfmt::skip]
 #[test]
@@ -149,6 +155,13 @@ fn dvector_small_dims_exhaustive() {
     assert_eq_and_type!(dvector![1, 2, 3, 4], DVector::from_column_slice(&[1, 2, 3, 4]));
     assert_eq_and_type!(dvector![1, 2, 3, 4, 5], DVector::from_column_slice(&[1, 2, 3, 4, 5]));
     assert_eq_and_type!(dvector![1, 2, 3, 4, 5, 6], DVector::from_column_slice(&[1, 2, 3, 4, 5, 6]));
+}
+
+#[test]
+fn vector_trailing_comma() {
+    vector![1, 2,];
+    point![1, 2,];
+    dvector![1, 2,];
 }
 
 #[test]

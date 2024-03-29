@@ -24,6 +24,7 @@ use std::slice::{Iter, IterMut};
 /// # Usage
 ///
 /// ```
+/// use nalgebra_sparse::coo::CooMatrix;
 /// use nalgebra_sparse::csc::CscMatrix;
 /// use nalgebra::{DMatrix, Matrix3x4};
 /// use matrixcompare::assert_matrix_eq;
@@ -32,8 +33,9 @@ use std::slice::{Iter, IterMut};
 /// // change the sparsity pattern of the matrix after it has been constructed. The easiest
 /// // way to construct a CSC matrix is to first incrementally construct a COO matrix,
 /// // and then convert it to CSC.
-/// # use nalgebra_sparse::coo::CooMatrix;
-/// # let coo = CooMatrix::<f64>::new(3, 3);
+///
+/// let mut coo = CooMatrix::<f64>::new(3, 3);
+/// coo.push(2, 0, 1.0);
 /// let csc = CscMatrix::from(&coo);
 ///
 /// // Alternatively, a CSC matrix can be constructed directly from raw CSC data.
@@ -156,7 +158,7 @@ impl<T> CscMatrix<T> {
     /// an error is returned to indicate the failure.
     ///
     /// An error is returned if the data given does not conform to the CSC storage format.
-    /// See the documentation for [CscMatrix](struct.CscMatrix.html) for more information.
+    /// See the documentation for [`CscMatrix`] for more information.
     pub fn try_from_csc_data(
         num_rows: usize,
         num_cols: usize,
@@ -182,7 +184,7 @@ impl<T> CscMatrix<T> {
     ///
     /// An error is returned if the data given does not conform to the CSC storage format
     /// with the exception of having unsorted row indices and values.
-    /// See the documentation for [CscMatrix](struct.CscMatrix.html) for more information.
+    /// See the documentation for [`CscMatrix`] for more information.
     pub fn try_from_unsorted_csc_data(
         num_rows: usize,
         num_cols: usize,
@@ -572,6 +574,14 @@ impl<T> CscMatrix<T> {
     }
 }
 
+impl<T> Default for CscMatrix<T> {
+    fn default() -> Self {
+        Self {
+            cs: Default::default(),
+        }
+    }
+}
+
 /// Convert pattern format errors into more meaningful CSC-specific errors.
 ///
 /// This ensures that the terminology is consistent: we are talking about rows and columns,
@@ -613,6 +623,15 @@ fn pattern_format_error_to_csc_error(err: SparsityPatternFormatError) -> SparseF
 pub struct CscTripletIter<'a, T> {
     pattern_iter: SparsityPatternIter<'a>,
     values_iter: Iter<'a, T>,
+}
+
+impl<'a, T> Clone for CscTripletIter<'a, T> {
+    fn clone(&self) -> Self {
+        CscTripletIter {
+            pattern_iter: self.pattern_iter.clone(),
+            values_iter: self.values_iter.clone(),
+        }
+    }
 }
 
 impl<'a, T: Clone> CscTripletIter<'a, T> {
@@ -746,7 +765,7 @@ impl<'a, T> CscColMut<'a, T> {
     }
 }
 
-/// Column iterator for [CscMatrix](struct.CscMatrix.html).
+/// Column iterator for [`CscMatrix`].
 pub struct CscColIter<'a, T> {
     lane_iter: CsLaneIter<'a, T>,
 }
@@ -759,7 +778,7 @@ impl<'a, T> Iterator for CscColIter<'a, T> {
     }
 }
 
-/// Mutable column iterator for [CscMatrix](struct.CscMatrix.html).
+/// Mutable column iterator for [`CscMatrix`].
 pub struct CscColIterMut<'a, T> {
     lane_iter: CsLaneIterMut<'a, T>,
 }

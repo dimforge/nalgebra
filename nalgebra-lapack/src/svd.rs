@@ -157,7 +157,7 @@ macro_rules! svd_impl(
                 let mut res: OMatrix<_, R, C> = Matrix::zeros_generic(nrows, ncols);
 
                 {
-                    let mut sres = res.generic_slice_mut((0, 0), (min_nrows_ncols, ncols));
+                    let mut sres = res.generic_view_mut((0, 0), (min_nrows_ncols, ncols));
                     sres.copy_from(&self.vt.rows_generic(0, min_nrows_ncols));
 
                     for i in 0 .. min_nrows_ncols.value() {
@@ -183,7 +183,7 @@ macro_rules! svd_impl(
                 let mut res: OMatrix<_, C, R> = Matrix::zeros_generic(ncols, nrows);
 
                 {
-                    let mut sres = res.generic_slice_mut((0, 0), (min_nrows_ncols, nrows));
+                    let mut sres = res.generic_view_mut((0, 0), (min_nrows_ncols, nrows));
                     self.u.columns_generic(0, min_nrows_ncols).transpose_to(&mut sres);
 
                     for i in 0 .. min_nrows_ncols.value() {

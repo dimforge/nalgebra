@@ -14,6 +14,9 @@ use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar, Unit};
 use crate::geometry::{AbstractRotation, Point, Translation};
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
+
 /// A direct isometry, i.e., a rotation followed by a translation (aka. a rigid-body motion).
 ///
 /// This is also known as an element of a Special Euclidean (SE) group.
@@ -21,6 +24,7 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 /// A 2D isometry is composed of:
 /// - A translation part of type [`Translation2`](crate::Translation2)
 /// - A rotation part which can either be a [`UnitComplex`](crate::UnitComplex) or a [`Rotation2`](crate::Rotation2).
+///
 /// A 3D isometry is composed of:
 /// - A translation part of type [`Translation3`](crate::Translation3)
 /// - A rotation part which can either be a [`UnitQuaternion`](crate::UnitQuaternion) or a [`Rotation3`](crate::Rotation3).
@@ -50,7 +54,6 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 ///
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
@@ -66,71 +69,24 @@ use crate::geometry::{AbstractRotation, Point, Translation};
                        Owned<T, Const<D>>: Deserialize<'de>,
                        T: Scalar"))
 )]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Isometry<T::Archived, R::Archived, D>",
+        bound(archive = "
+        T: rkyv::Archive,
+        R: rkyv::Archive,
+        Translation<T, D>: rkyv::Archive<Archived = Translation<T::Archived, D>>
+    ")
+    )
+)]
 pub struct Isometry<T, R, const D: usize> {
     /// The pure rotational part of this isometry.
     pub rotation: R,
     /// The pure translational part of this isometry.
     pub translation: Translation<T, D>,
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Isometry;
-    use crate::{base::Scalar, geometry::Translation};
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Scalar + Archive, R: Archive, const D: usize> Archive for Isometry<T, R, D>
-    where
-        T::Archived: Scalar,
-    {
-        type Archived = Isometry<T::Archived, R::Archived, D>;
-        type Resolver = (R::Resolver, <Translation<T, D> as Archive>::Resolver);
-
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.rotation.resolve(
-                pos + offset_of!(Self::Archived, rotation),
-                resolver.0,
-                project_struct!(out: Self::Archived => rotation),
-            );
-            self.translation.resolve(
-                pos + offset_of!(Self::Archived, translation),
-                resolver.1,
-                project_struct!(out: Self::Archived => translation),
-            );
-        }
-    }
-
-    impl<T: Scalar + Serialize<S>, R: Serialize<S>, S: Fallible + ?Sized, const D: usize>
-        Serialize<S> for Isometry<T, R, D>
-    where
-        T::Archived: Scalar,
-    {
-        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            Ok((
-                self.rotation.serialize(serializer)?,
-                self.translation.serialize(serializer)?,
-            ))
-        }
-    }
-
-    impl<T: Scalar + Archive, R: Archive, _D: Fallible + ?Sized, const D: usize>
-        Deserialize<Isometry<T, R, D>, _D> for Isometry<T::Archived, R::Archived, D>
-    where
-        T::Archived: Scalar + Deserialize<T, _D>,
-        R::Archived: Scalar + Deserialize<R, _D>,
-    {
-        fn deserialize(&self, deserializer: &mut _D) -> Result<Isometry<T, R, D>, _D::Error> {
-            Ok(Isometry {
-                rotation: self.rotation.deserialize(deserializer)?,
-                translation: self.translation.deserialize(deserializer)?,
-            })
-        }
-    }
 }
 
 impl<T: Scalar + hash::Hash, R: hash::Hash, const D: usize> hash::Hash for Isometry<T, R, D>
@@ -480,7 +436,7 @@ impl<T: SimdRealField, R, const D: usize> Isometry<T, R, D> {
         DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         let mut res: OMatrix<T, _, _> = crate::convert_ref(&self.rotation);
-        res.fixed_slice_mut::<D, 1>(0, D)
+        res.fixed_view_mut::<D, 1>(0, D)
             .copy_from(&self.translation.vector);
 
         res

@@ -80,7 +80,7 @@ impl SparsityPattern {
     #[inline]
     #[must_use]
     pub fn major_dim(&self) -> usize {
-        assert!(self.major_offsets.len() > 0);
+        assert!(!self.major_offsets.is_empty());
         self.major_offsets.len() - 1
     }
 
@@ -162,7 +162,7 @@ impl SparsityPattern {
                 // We test for in-bounds, uniqueness and monotonicity at the same time
                 // to ensure that we only visit each minor index once
                 let mut iter = minor_indices.iter();
-                let mut prev = None;
+                let mut prev: Option<usize> = None;
 
                 while let Some(next) = iter.next().copied() {
                     if next >= minor_dim {
@@ -170,10 +170,10 @@ impl SparsityPattern {
                     }
 
                     if let Some(prev) = prev {
-                        if prev > next {
-                            return Err(NonmonotonicMinorIndices);
-                        } else if prev == next {
-                            return Err(DuplicateEntry);
+                        match prev.cmp(&next) {
+                            std::cmp::Ordering::Greater => return Err(NonmonotonicMinorIndices),
+                            std::cmp::Ordering::Equal => return Err(DuplicateEntry),
+                            std::cmp::Ordering::Less => {}
                         }
                     }
                     prev = Some(next);
@@ -195,6 +195,14 @@ impl SparsityPattern {
     ///
     /// Panics if the number of major offsets is not exactly one greater than the major dimension
     /// or if major offsets do not start with 0 and end with the number of minor indices.
+    ///
+    /// # Safety
+    ///
+    /// Assumes that the major offsets and indices adhere to the requirements of being a valid
+    /// sparsity pattern.
+    /// Specifically, that major offsets is monotonically increasing, and
+    /// `major_offsets[i]..major_offsets[i+1]` refers to a major lane in the sparsity pattern,
+    /// and `minor_indices[major_offsets[i]..major_offsets[i+1]]` is monotonically increasing.
     pub unsafe fn from_offset_and_indices_unchecked(
         major_dim: usize,
         minor_dim: usize,
@@ -288,6 +296,16 @@ impl SparsityPattern {
             new_indices,
         )
         .expect("Internal error: Transpose should never fail.")
+    }
+}
+
+impl Default for SparsityPattern {
+    fn default() -> Self {
+        Self {
+            major_offsets: vec![0],
+            minor_indices: vec![],
+            minor_dim: 0,
+        }
     }
 }
 

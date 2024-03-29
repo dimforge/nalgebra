@@ -5,7 +5,7 @@ use crate::base::allocator::Allocator;
 use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::{Dim, U1};
 use crate::base::storage::{Storage, StorageMut};
-use crate::base::{DVectorSlice, DefaultAllocator, Matrix, OMatrix, SquareMatrix, Vector};
+use crate::base::{DVectorView, DefaultAllocator, Matrix, OMatrix, SquareMatrix, Vector};
 
 impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     /// Computes the solution of the linear system `self . x = b` where `x` is the unknown and only
@@ -93,7 +93,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             }
 
             b.rows_range_mut(i + 1..)
-                .axpy(-coeff, &self.slice_range(i + 1.., i), T::one());
+                .axpy(-coeff, &self.view_range(i + 1.., i), T::one());
         }
 
         true
@@ -125,7 +125,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             for i in 0..dim - 1 {
                 let coeff = unsafe { bcol.vget_unchecked(i).clone() } / diag.clone();
                 bcol.rows_range_mut(i + 1..)
-                    .axpy(-coeff, &self.slice_range(i + 1.., i), T::one());
+                    .axpy(-coeff, &self.view_range(i + 1.., i), T::one());
             }
         }
 
@@ -175,7 +175,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             }
 
             b.rows_range_mut(..i)
-                .axpy(-coeff, &self.slice_range(..i, i), T::one());
+                .axpy(-coeff, &self.view_range(..i, i), T::one());
         }
 
         true
@@ -376,8 +376,8 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         b: &mut Vector<T, R2, S2>,
         conjugate: impl Fn(T) -> T,
         dot: impl Fn(
-            &DVectorSlice<'_, T, S::RStride, S::CStride>,
-            &DVectorSlice<'_, T, S2::RStride, S2::CStride>,
+            &DVectorView<'_, T, S::RStride, S::CStride>,
+            &DVectorView<'_, T, S2::RStride, S2::CStride>,
         ) -> T,
     ) -> bool
     where
@@ -387,7 +387,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         let dim = self.nrows();
 
         for i in (0..dim).rev() {
-            let dot = dot(&self.slice_range(i + 1.., i), &b.slice_range(i + 1.., 0));
+            let dot = dot(&self.view_range(i + 1.., i), &b.view_range(i + 1.., 0));
 
             unsafe {
                 let b_i = b.vget_unchecked_mut(i);
@@ -411,8 +411,8 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         b: &mut Vector<T, R2, S2>,
         conjugate: impl Fn(T) -> T,
         dot: impl Fn(
-            &DVectorSlice<'_, T, S::RStride, S::CStride>,
-            &DVectorSlice<'_, T, S2::RStride, S2::CStride>,
+            &DVectorView<'_, T, S::RStride, S::CStride>,
+            &DVectorView<'_, T, S2::RStride, S2::CStride>,
         ) -> T,
     ) -> bool
     where
@@ -422,7 +422,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         let dim = self.nrows();
 
         for i in 0..dim {
-            let dot = dot(&self.slice_range(..i, i), &b.slice_range(..i, 0));
+            let dot = dot(&self.view_range(..i, i), &b.view_range(..i, 0));
 
             unsafe {
                 let b_i = b.vget_unchecked_mut(i);
@@ -514,7 +514,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             }
 
             b.rows_range_mut(i + 1..)
-                .axpy(-coeff.clone(), &self.slice_range(i + 1.., i), T::one());
+                .axpy(-coeff.clone(), &self.view_range(i + 1.., i), T::one());
         }
     }
 
@@ -539,7 +539,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             for i in 0..dim - 1 {
                 let coeff = unsafe { bcol.vget_unchecked(i).clone() } / diag.clone();
                 bcol.rows_range_mut(i + 1..)
-                    .axpy(-coeff, &self.slice_range(i + 1.., i), T::one());
+                    .axpy(-coeff, &self.view_range(i + 1.., i), T::one());
             }
         }
     }
@@ -575,7 +575,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
             }
 
             b.rows_range_mut(..i)
-                .axpy(-coeff, &self.slice_range(..i, i), T::one());
+                .axpy(-coeff, &self.view_range(..i, i), T::one());
         }
     }
 
@@ -734,8 +734,8 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         b: &mut Vector<T, R2, S2>,
         conjugate: impl Fn(T) -> T,
         dot: impl Fn(
-            &DVectorSlice<'_, T, S::RStride, S::CStride>,
-            &DVectorSlice<'_, T, S2::RStride, S2::CStride>,
+            &DVectorView<'_, T, S::RStride, S::CStride>,
+            &DVectorView<'_, T, S2::RStride, S2::CStride>,
         ) -> T,
     ) where
         S2: StorageMut<T, R2, U1>,
@@ -744,7 +744,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         let dim = self.nrows();
 
         for i in (0..dim).rev() {
-            let dot = dot(&self.slice_range(i + 1.., i), &b.slice_range(i + 1.., 0));
+            let dot = dot(&self.view_range(i + 1.., i), &b.view_range(i + 1.., 0));
 
             unsafe {
                 let b_i = b.vget_unchecked_mut(i);
@@ -760,15 +760,15 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         b: &mut Vector<T, R2, S2>,
         conjugate: impl Fn(T) -> T,
         dot: impl Fn(
-            &DVectorSlice<'_, T, S::RStride, S::CStride>,
-            &DVectorSlice<'_, T, S2::RStride, S2::CStride>,
+            &DVectorView<'_, T, S::RStride, S::CStride>,
+            &DVectorView<'_, T, S2::RStride, S2::CStride>,
         ) -> T,
     ) where
         S2: StorageMut<T, R2, U1>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         for i in 0..self.nrows() {
-            let dot = dot(&self.slice_range(..i, i), &b.slice_range(..i, 0));
+            let dot = dot(&self.view_range(..i, i), &b.view_range(..i, 0));
 
             unsafe {
                 let b_i = b.vget_unchecked_mut(i);

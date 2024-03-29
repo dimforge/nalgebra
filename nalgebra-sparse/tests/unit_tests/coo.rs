@@ -88,6 +88,40 @@ fn coo_construction_for_valid_data() {
 }
 
 #[test]
+fn coo_triplets_iter_mut() {
+    // Arbitrary matrix, with duplicates
+    let i = vec![0, 1, 0, 0, 0, 0, 2, 1];
+    let j = vec![0, 2, 0, 1, 0, 3, 3, 2];
+    let v = vec![2, 3, 4, 7, 1, 3, 1, 5];
+    let mut coo =
+        CooMatrix::<i32>::try_from_triplets(3, 5, i.clone(), j.clone(), v.clone()).unwrap();
+
+    let actual_triplets: Vec<_> = coo.triplet_iter_mut().map(|(i, j, v)| (i, j, *v)).collect();
+
+    let expected_triplets: Vec<_> = i
+        .iter()
+        .zip(&j)
+        .zip(&v)
+        .map(|((i, j), v)| (*i, *j, *v))
+        .collect();
+    assert_eq!(expected_triplets, actual_triplets);
+
+    for (_i, _j, v) in coo.triplet_iter_mut() {
+        *v += *v;
+    }
+
+    let actual_triplets: Vec<_> = coo.triplet_iter_mut().map(|(i, j, v)| (i, j, *v)).collect();
+    let v = vec![4, 6, 8, 14, 2, 6, 2, 10];
+    let expected_triplets: Vec<_> = i
+        .iter()
+        .zip(&j)
+        .zip(&v)
+        .map(|((i, j), v)| (*i, *j, *v))
+        .collect();
+    assert_eq!(expected_triplets, actual_triplets);
+}
+
+#[test]
 fn coo_try_from_triplets_reports_out_of_bounds_indices() {
     {
         // 0x0 matrix
@@ -148,6 +182,31 @@ fn coo_try_from_triplets_reports_out_of_bounds_indices() {
             SparseFormatErrorKind::IndexOutOfBounds
         ));
     }
+}
+
+#[test]
+fn coo_try_from_triplets_iter() {
+    // Check that try_from_triplets_iter panics when the triplet vectors have different lengths
+    macro_rules! assert_errs {
+        ($result:expr) => {
+            assert!(matches!(
+                $result.unwrap_err().kind(),
+                SparseFormatErrorKind::IndexOutOfBounds
+            ))
+        };
+    }
+
+    assert_errs!(CooMatrix::<f32>::try_from_triplets_iter(
+        3,
+        5,
+        vec![(0, 6, 3.0)].into_iter(),
+    ));
+    assert!(CooMatrix::<f32>::try_from_triplets_iter(
+        3,
+        5,
+        vec![(0, 3, 3.0), (1, 2, 2.0), (0, 3, 1.0),].into_iter(),
+    )
+    .is_ok());
 }
 
 #[test]
@@ -227,6 +286,29 @@ fn coo_push_valid_entries() {
 }
 
 #[test]
+fn coo_clear_triplets_valid_entries() {
+    let mut coo = CooMatrix::new(3, 3);
+
+    coo.push(0, 0, 1);
+    coo.push(0, 0, 2);
+    coo.push(2, 2, 3);
+    assert_eq!(
+        coo.triplet_iter().collect::<Vec<_>>(),
+        vec![(0, 0, &1), (0, 0, &2), (2, 2, &3)]
+    );
+    coo.clear_triplets();
+    assert_eq!(coo.triplet_iter().collect::<Vec<_>>(), vec![]);
+    // making sure everyhting works after clearing
+    coo.push(0, 0, 1);
+    coo.push(0, 0, 2);
+    coo.push(2, 2, 3);
+    assert_eq!(
+        coo.triplet_iter().collect::<Vec<_>>(),
+        vec![(0, 0, &1), (0, 0, &2), (2, 2, &3)]
+    );
+}
+
+#[test]
 fn coo_push_out_of_bounds_entries() {
     {
         // 0x0 matrix
@@ -291,8 +373,8 @@ fn coo_push_matrix_valid_entries() {
     // Works with sliced
     {
         let source = nalgebra::SMatrix::<i32, 2, 2>::new(6, 7, 8, 9);
-        let sliced = source.fixed_slice::<2, 1>(0, 0);
-        coo.push_matrix(1, 0, &sliced);
+        let view = source.fixed_view::<2, 1>(0, 0);
+        coo.push_matrix(1, 0, &view);
 
         assert_eq!(
             coo.triplet_iter().collect::<Vec<_>>(),

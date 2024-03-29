@@ -1,6 +1,6 @@
-#![cfg(feature = "proptest-support")]
-
-macro_rules! gen_tests(
+#[cfg(feature = "proptest-support")]
+mod proptest_tests {
+    macro_rules! gen_tests(
     ($module: ident, $scalar: expr) => {
         mod $module {
             #[allow(unused_imports)]
@@ -54,8 +54,9 @@ macro_rules! gen_tests(
     }
 );
 
-gen_tests!(complex, complex_f64());
-gen_tests!(f64, PROPTEST_F64);
+    gen_tests!(complex, complex_f64());
+    gen_tests!(f64, PROPTEST_F64);
+}
 
 #[test]
 fn bidiagonal_identity() {
@@ -73,4 +74,32 @@ fn bidiagonal_identity() {
     let bidiagonal = m.clone().bidiagonalize();
     let (u, d, v_t) = bidiagonal.unpack();
     assert_eq!(m, &u * d * &v_t);
+}
+
+#[test]
+fn bidiagonal_regression_issue_1313() {
+    let s = 6.123234e-16_f32;
+    let mut m = nalgebra::dmatrix![
+        10.0,   0.0, 0.0,  0.0, -10.0, 0.0, 0.0, 0.0;
+        s,     10.0, 0.0, 10.0,     s, 0.0, 0.0, 0.0;
+        20.0, -20.0, 0.0, 20.0,  20.0, 0.0, 0.0, 0.0;
+    ];
+    m.unscale_mut(m.camax());
+    let bidiagonal = m.clone().bidiagonalize();
+    let (u, d, v_t) = bidiagonal.unpack();
+    let m2 = &u * d * &v_t;
+    assert_relative_eq!(m, m2, epsilon = 1e-6);
+}
+
+#[test]
+fn bidiagonal_regression_issue_1313_minimal() {
+    let s = 6.123234e-17_f32;
+    let m = nalgebra::dmatrix![
+        1.0,   0.0, -1.0;
+        s,     1.0,     s;
+    ];
+    let bidiagonal = m.clone().bidiagonalize();
+    let (u, d, v_t) = bidiagonal.unpack();
+    let m2 = &u * &d * &v_t;
+    assert_relative_eq!(m, m2, epsilon = 1e-6);
 }

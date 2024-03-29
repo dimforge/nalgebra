@@ -15,10 +15,12 @@ use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
 use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
+
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
@@ -33,6 +35,19 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
                        R: Deserialize<'de>,
                        DefaultAllocator: Allocator<T, Const<D>>,
                        Owned<T, Const<D>>: Deserialize<'de>"))
+)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Similarity<T::Archived, R::Archived, D>",
+        bound(archive = "
+        T: rkyv::Archive,
+        R: rkyv::Archive,
+        Isometry<T, R, D>: rkyv::Archive<Archived = Isometry<T::Archived, R::Archived, D>>
+    ")
+    )
 )]
 pub struct Similarity<T, R, const D: usize> {
     /// The part of this similarity that does not include the scaling factor.
@@ -296,7 +311,7 @@ impl<T: SimdRealField, R, const D: usize> Similarity<T, R, D> {
     {
         let mut res = self.isometry.to_homogeneous();
 
-        for e in res.fixed_slice_mut::<D, D>(0, 0).iter_mut() {
+        for e in res.fixed_view_mut::<D, D>(0, 0).iter_mut() {
             *e *= self.scaling.clone()
         }
 

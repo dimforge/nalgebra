@@ -1,4 +1,7 @@
-use na::{Quaternion, RealField, UnitQuaternion, Vector2, Vector3};
+use na::{
+    Matrix3, Quaternion, RealField, Rotation3, UnitQuaternion, UnitVector3, Vector2, Vector3,
+};
+use std::f64::consts::PI;
 
 #[test]
 fn angle_2() {
@@ -17,6 +20,58 @@ fn angle_3() {
 }
 
 #[test]
+fn from_rotation_matrix() {
+    // Test degenerate case when from_matrix gets stuck in Identity rotation
+    let identity =
+        Rotation3::from_matrix(&Matrix3::new(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0));
+    assert_relative_eq!(identity, &Rotation3::identity(), epsilon = 0.001);
+    let rotated_z =
+        Rotation3::from_matrix(&Matrix3::new(1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, -1.0));
+    assert_relative_eq!(
+        rotated_z,
+        &Rotation3::from_axis_angle(&UnitVector3::new_unchecked(Vector3::new(1.0, 0.0, 0.0)), PI),
+        epsilon = 0.001
+    );
+    // Test that issue 627 is fixed
+    let m_627 = Matrix3::<f64>::new(-1.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 1.0);
+    assert_relative_ne!(identity, Rotation3::from_matrix(&m_627), epsilon = 0.01);
+    assert_relative_eq!(
+        Rotation3::from_matrix_unchecked(m_627.clone()),
+        Rotation3::from_matrix(&m_627),
+        epsilon = 0.001
+    );
+    // Test that issue 1078 is fixed
+    let m_1078 = Matrix3::<f64>::new(0.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0);
+    assert_relative_ne!(identity, Rotation3::from_matrix(&m_1078), epsilon = 0.01);
+    assert_relative_eq!(
+        Rotation3::from_matrix_unchecked(m_1078.clone()),
+        Rotation3::from_matrix(&m_1078),
+        epsilon = 0.001
+    );
+    // Additional test cases for eps >= 1.0
+    assert_relative_ne!(
+        identity,
+        Rotation3::from_matrix_eps(&m_627, 1.2, 0, Rotation3::identity()),
+        epsilon = 0.6
+    );
+    assert_relative_eq!(
+        Rotation3::from_matrix_unchecked(m_627.clone()),
+        Rotation3::from_matrix_eps(&m_627, 1.2, 0, Rotation3::identity()),
+        epsilon = 0.6
+    );
+    assert_relative_ne!(
+        identity,
+        Rotation3::from_matrix_eps(&m_1078, 1.0, 0, Rotation3::identity()),
+        epsilon = 0.1
+    );
+    assert_relative_eq!(
+        Rotation3::from_matrix_unchecked(m_1078.clone()),
+        Rotation3::from_matrix_eps(&m_1078, 1.0, 0, Rotation3::identity()),
+        epsilon = 0.1
+    );
+}
+
+#[test]
 fn quaternion_euler_angles_issue_494() {
     let quat = UnitQuaternion::from_quaternion(Quaternion::new(
         -0.10405792,
@@ -32,7 +87,9 @@ fn quaternion_euler_angles_issue_494() {
 
 #[cfg(feature = "proptest-support")]
 mod proptest_tests {
+    use approx::AbsDiffEq;
     use na::{self, Matrix, Rotation, Rotation2, Rotation3, SMatrix, Unit, Vector};
+    use na::{UnitComplex, UnitQuaternion};
     use num_traits::Zero;
     use simba::scalar::RealField;
     use std::f64;
@@ -230,6 +287,75 @@ mod proptest_tests {
                 prop_assert_eq!(r, Rotation3::identity())
             }
         }
+
+        //
+        //In general, `slerp(a,b,t)` should equal `(b/a)^t * a` even though in practice,
+        //we may not use that formula directly for complex numbers or quaternions
+        //
+
+        #[test]
+        fn slerp_powf_agree_2(a in unit_complex(), b in unit_complex(), t in PROPTEST_F64) {
+            let z1 = a.slerp(&b, t);
+            let z2 = (b/a).powf(t) * a;
+            prop_assert!(relative_eq!(z1,z2,epsilon=1e-10));
+        }
+
+        #[test]
+        fn slerp_powf_agree_3(a in unit_quaternion(), b in unit_quaternion(), t in PROPTEST_F64) {
+            if let Some(z1) = a.try_slerp(&b, t, f64::default_epsilon()) {
+                let z2 = (b/a).powf(t) * a;
+                prop_assert!(relative_eq!(z1,z2,epsilon=1e-10));
+            }
+        }
+
+        //
+        //when not antipodal, slerp should always take the shortest path between two orientations
+        //
+
+        #[test]
+        fn slerp_takes_shortest_path_2(
+            z in unit_complex(), dtheta in -f64::pi()..f64::pi(), t in 0.0..1.0f64
+        ) {
+
+            //ambiguous when at ends of angle range, so we don't really care here
+            if dtheta.abs() != f64::pi() {
+
+                //make two complex numbers separated by an angle between -pi and pi
+                let (z1, z2) = (z, z * UnitComplex::new(dtheta));
+                let z3 = z1.slerp(&z2, t);
+
+                //since the angle is no larger than a half-turn, and t is between 0 and 1,
+                //the shortest path just corresponds to adding the scaled angle
+                let a1 = z3.angle();
+                let a2 = na::wrap(z1.angle() + dtheta*t, -f64::pi(), f64::pi());
+
+                prop_assert!(relative_eq!(a1, a2, epsilon=1e-10));
+            }
+
+        }
+
+        #[test]
+        fn slerp_takes_shortest_path_3(
+            q in unit_quaternion(), dtheta in -f64::pi()..f64::pi(), t in 0.0..1.0f64
+        ) {
+
+            //ambiguous when at ends of angle range, so we don't really care here
+            if let Some(axis) = q.axis() {
+
+                //make two quaternions separated by an angle between -pi and pi
+                let (q1, q2) = (q, q * UnitQuaternion::from_axis_angle(&axis, dtheta));
+                let q3 = q1.slerp(&q2, t);
+
+                //since the angle is no larger than a half-turn, and t is between 0 and 1,
+                //the shortest path just corresponds to adding the scaled angle
+                let q4 = q1 * UnitQuaternion::from_axis_angle(&axis, dtheta*t);
+                prop_assert!(relative_eq!(q3, q4, epsilon=1e-10));
+
+            }
+
+        }
+
+
 
     }
 

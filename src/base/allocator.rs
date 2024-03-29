@@ -15,14 +15,14 @@ use std::mem::MaybeUninit;
 ///
 /// An allocator is said to be:
 ///   − static:  if `R` and `C` both implement `DimName`.
-///   − dynamic: if either one (or both) of `R` or `C` is equal to `Dynamic`.
+///   − dynamic: if either one (or both) of `R` or `C` is equal to `Dyn`.
 ///
 /// Every allocator must be both static and dynamic. Though not all implementations may share the
 /// same `Buffer` type.
 pub trait Allocator<T, R: Dim, C: Dim = U1>: Any + Sized {
-    /// The type of buffer this allocator can instanciate.
+    /// The type of buffer this allocator can instantiate.
     type Buffer: StorageMut<T, R, C> + IsContiguous + Clone + Debug;
-    /// The type of buffer with uninitialized components this allocator can instanciate.
+    /// The type of buffer with uninitialized components this allocator can instantiate.
     type BufferUninit: RawStorageMut<MaybeUninit<T>, R, C> + IsContiguous;
 
     /// Allocates a buffer with the given number of rows and columns without initializing its content.
@@ -41,6 +41,41 @@ pub trait Allocator<T, R: Dim, C: Dim = U1>: Any + Sized {
         ncols: C,
         iter: I,
     ) -> Self::Buffer;
+
+    #[inline]
+    /// Allocates a buffer initialized with the content of the given row-major order iterator.
+    fn allocate_from_row_iterator<I: IntoIterator<Item = T>>(
+        nrows: R,
+        ncols: C,
+        iter: I,
+    ) -> Self::Buffer {
+        let mut res = Self::allocate_uninit(nrows, ncols);
+        let mut count = 0;
+
+        unsafe {
+            // OK because the allocated buffer is guaranteed to be contiguous.
+            let res_ptr = res.as_mut_slice_unchecked();
+
+            for (k, e) in iter
+                .into_iter()
+                .take(ncols.value() * nrows.value())
+                .enumerate()
+            {
+                let i = k / ncols.value();
+                let j = k % ncols.value();
+                // result[(i, j)] = e;
+                *res_ptr.get_unchecked_mut(i + j * nrows.value()) = MaybeUninit::new(e);
+                count += 1;
+            }
+
+            assert!(
+                count == nrows.value() * ncols.value(),
+                "Matrix init. from row iterator: iterator not long enough."
+            );
+
+            <Self as Allocator<T, R, C>>::assume_init(res)
+        }
+    }
 }
 
 /// A matrix reallocator. Changes the size of the memory buffer that initially contains (`RFrom` ×

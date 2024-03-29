@@ -34,6 +34,17 @@ pub fn reflection_axis_mut<T: ComplexField, D: Dim, S: StorageMut<T, D>>(
 
     if !factor.is_zero() {
         column.unscale_mut(factor.sqrt());
+
+        // Normalize again, making sure the vector is unit-sized.
+        // If `factor` had a very small value, the first normalization
+        // (dividing by `factor.sqrt()`) might end up with a slightly
+        // non-unit vector (especially when using 32-bits float).
+        // Decompositions strongly rely on that unit-vector property,
+        // so we run a second normalization (that is much more numerically
+        // stable since the norm is close to 1) to ensure it has a unit
+        // size.
+        let _ = column.normalize_mut();
+
         (-signed_norm, true)
     } else {
         // TODO: not sure why we don't have a - sign here.
@@ -64,8 +75,8 @@ where
     if not_zero {
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
         let sign = reflection_norm.clone().signum();
-        if let Some(mut work) = bilateral {
-            refl.reflect_rows_with_sign(&mut right, &mut work, sign.clone());
+        if let Some(work) = bilateral {
+            refl.reflect_rows_with_sign(&mut right, work, sign.clone());
         }
         refl.reflect_with_sign(&mut right.rows_range_mut(icol + shift..), sign.conjugate());
     }
@@ -128,10 +139,10 @@ where
     let mut res = OMatrix::identity_generic(dim, dim);
 
     for i in (0..dim.value() - 1).rev() {
-        let axis = m.slice_range(i + 1.., i);
+        let axis = m.view_range(i + 1.., i);
         let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
-        let mut res_rows = res.slice_range_mut(i + 1.., i..);
+        let mut res_rows = res.view_range_mut(i + 1.., i..);
         refl.reflect_with_sign(&mut res_rows, signs[i].clone().signum());
     }
 

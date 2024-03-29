@@ -149,8 +149,8 @@ impl<T> Op<T> {
     #[must_use]
     pub fn as_ref(&self) -> Op<&T> {
         match self {
-            Op::NoOp(obj) => Op::NoOp(&obj),
-            Op::Transpose(obj) => Op::Transpose(&obj),
+            Op::NoOp(obj) => Op::NoOp(obj),
+            Op::Transpose(obj) => Op::Transpose(obj),
         }
     }
 

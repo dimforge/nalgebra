@@ -131,10 +131,11 @@ where
     ///
     /// # Example
     /// ```
+    /// #[macro_use] extern crate approx;
     /// # use nalgebra::UnitComplex;
     /// let c = UnitComplex::new(1.0f64);
     /// let c2 = c.cast::<f32>();
-    /// assert_eq!(c2, UnitComplex::new(1.0f32));
+    /// assert_relative_eq!(c2, UnitComplex::new(1.0f32));
     /// ```
     pub fn cast<To: Scalar>(self) -> UnitComplex<To>
     where

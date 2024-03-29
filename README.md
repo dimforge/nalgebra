@@ -29,19 +29,3 @@
 </p>
 
 -----
-
-## Acknowledgements
-nalgebra is supported by our **platinum** sponsors:
-<p>
-  <a href="https://embark-studios.com">
-    <img src="https://www.embark.dev/img/logo_black.png" width="301px">
-  </a>
-</p>
-
-And our gold sponsors:
-
-<p>
-  <a href="https://fragcolor.com">
-    <img src="https://dimforge.com/img/fragcolor_logo1_color_black.svg" width="151px">
-  </a>
-</p>

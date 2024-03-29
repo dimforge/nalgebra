@@ -18,8 +18,8 @@ pub fn identity<T: Number, const D: usize>() -> TMat<T, D, D> {
 ///
 /// # See also:
 ///
-/// * [`look_at_lh`](fn.look_at_lh.html)
-/// * [`look_at_rh`](fn.look_at_rh.html)
+/// * [`look_at_lh()`]
+/// * [`look_at_rh()`]
 pub fn look_at<T: RealNumber>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
     look_at_rh(eye, center, up)
 }
@@ -34,8 +34,8 @@ pub fn look_at<T: RealNumber>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) 
 ///
 /// # See also:
 ///
-/// * [`look_at`](fn.look_at.html)
-/// * [`look_at_rh`](fn.look_at_rh.html)
+/// * [`look_at()`]
+/// * [`look_at_rh()`]
 pub fn look_at_lh<T: RealNumber>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
     TMat::look_at_lh(&Point3::from(*eye), &Point3::from(*center), up)
 }
@@ -50,8 +50,8 @@ pub fn look_at_lh<T: RealNumber>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T
 ///
 /// # See also:
 ///
-/// * [`look_at`](fn.look_at.html)
-/// * [`look_at_lh`](fn.look_at_lh.html)
+/// * [`look_at()`]
+/// * [`look_at_lh()`]
 pub fn look_at_rh<T: RealNumber>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
     TMat::look_at_rh(&Point3::from(*eye), &Point3::from(*center), up)
 }
@@ -66,11 +66,11 @@ pub fn look_at_rh<T: RealNumber>(eye: &TVec3<T>, center: &TVec3<T>, up: &TVec3<T
 ///
 /// # See also:
 ///
-/// * [`rotate_x`](fn.rotate_x.html)
-/// * [`rotate_y`](fn.rotate_y.html)
-/// * [`rotate_z`](fn.rotate_z.html)
-/// * [`scale`](fn.scale.html)
-/// * [`translate`](fn.translate.html)
+/// * [`rotate_x()`]
+/// * [`rotate_y()`]
+/// * [`rotate_z()`]
+/// * [`scale()`]
+/// * [`translate()`]
 pub fn rotate<T: RealNumber>(m: &TMat4<T>, angle: T, axis: &TVec3<T>) -> TMat4<T> {
     m * Rotation3::from_axis_angle(&Unit::new_normalize(*axis), angle).to_homogeneous()
 }
@@ -84,11 +84,11 @@ pub fn rotate<T: RealNumber>(m: &TMat4<T>, angle: T, axis: &TVec3<T>) -> TMat4<T
 ///
 /// # See also:
 ///
-/// * [`rotate`](fn.rotate.html)
-/// * [`rotate_y`](fn.rotate_y.html)
-/// * [`rotate_z`](fn.rotate_z.html)
-/// * [`scale`](fn.scale.html)
-/// * [`translate`](fn.translate.html)
+/// * [`rotate()`]
+/// * [`rotate_y()`]
+/// * [`rotate_z()`]
+/// * [`scale()`]
+/// * [`translate()`]
 pub fn rotate_x<T: RealNumber>(m: &TMat4<T>, angle: T) -> TMat4<T> {
     rotate(m, angle, &TVec::x())
 }
@@ -102,11 +102,11 @@ pub fn rotate_x<T: RealNumber>(m: &TMat4<T>, angle: T) -> TMat4<T> {
 ///
 /// # See also:
 ///
-/// * [`rotate`](fn.rotate.html)
-/// * [`rotate_x`](fn.rotate_x.html)
-/// * [`rotate_z`](fn.rotate_z.html)
-/// * [`scale`](fn.scale.html)
-/// * [`translate`](fn.translate.html)
+/// * [`rotate()`]
+/// * [`rotate_x()`]
+/// * [`rotate_z()`]
+/// * [`scale()`]
+/// * [`translate()`]
 pub fn rotate_y<T: RealNumber>(m: &TMat4<T>, angle: T) -> TMat4<T> {
     rotate(m, angle, &TVec::y())
 }
@@ -120,11 +120,11 @@ pub fn rotate_y<T: RealNumber>(m: &TMat4<T>, angle: T) -> TMat4<T> {
 ///
 /// # See also:
 ///
-/// * [`rotate`](fn.rotate.html)
-/// * [`rotate_x`](fn.rotate_x.html)
-/// * [`rotate_y`](fn.rotate_y.html)
-/// * [`scale`](fn.scale.html)
-/// * [`translate`](fn.translate.html)
+/// * [`rotate()`]
+/// * [`rotate_x()`]
+/// * [`rotate_y()`]
+/// * [`scale()`]
+/// * [`translate()`]
 pub fn rotate_z<T: RealNumber>(m: &TMat4<T>, angle: T) -> TMat4<T> {
     rotate(m, angle, &TVec::z())
 }
@@ -138,11 +138,11 @@ pub fn rotate_z<T: RealNumber>(m: &TMat4<T>, angle: T) -> TMat4<T> {
 ///
 /// # See also:
 ///
-/// * [`rotate`](fn.rotate.html)
-/// * [`rotate_x`](fn.rotate_x.html)
-/// * [`rotate_y`](fn.rotate_y.html)
-/// * [`rotate_z`](fn.rotate_z.html)
-/// * [`translate`](fn.translate.html)
+/// * [`rotate()`]
+/// * [`rotate_x()`]
+/// * [`rotate_y()`]
+/// * [`rotate_z()`]
+/// * [`translate()`]
 pub fn scale<T: Number>(m: &TMat4<T>, v: &TVec3<T>) -> TMat4<T> {
     m.prepend_nonuniform_scaling(v)
 }
@@ -156,11 +156,11 @@ pub fn scale<T: Number>(m: &TMat4<T>, v: &TVec3<T>) -> TMat4<T> {
 ///
 /// # See also:
 ///
-/// * [`rotate`](fn.rotate.html)
-/// * [`rotate_x`](fn.rotate_x.html)
-/// * [`rotate_y`](fn.rotate_y.html)
-/// * [`rotate_z`](fn.rotate_z.html)
-/// * [`scale`](fn.scale.html)
+/// * [`rotate()`]
+/// * [`rotate_x()`]
+/// * [`rotate_y()`]
+/// * [`rotate_z()`]
+/// * [`scale()`]
 pub fn translate<T: Number>(m: &TMat4<T>, v: &TVec3<T>) -> TMat4<T> {
     m.prepend_translation(v)
 }

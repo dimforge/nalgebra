@@ -19,7 +19,7 @@ use typenum::{self, Cmp, Greater};
 use simba::scalar::{ClosedAdd, ClosedMul};
 
 use crate::base::allocator::Allocator;
-use crate::base::dimension::{Dim, DimName, Dynamic, ToTypenum};
+use crate::base::dimension::{Dim, DimName, Dyn, ToTypenum};
 use crate::base::storage::RawStorage;
 use crate::base::{
     ArrayStorage, Const, DefaultAllocator, Matrix, OMatrix, OVector, Scalar, Unit, Vector,
@@ -84,6 +84,17 @@ where
         I: IntoIterator<Item = T>,
     {
         Self::from_data(DefaultAllocator::allocate_from_iterator(nrows, ncols, iter))
+    }
+
+    /// Creates a matrix with all its elements filled by an row-major order iterator.
+    #[inline]
+    pub fn from_row_iterator_generic<I>(nrows: R, ncols: C, iter: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+    {
+        Self::from_data(DefaultAllocator::allocate_from_row_iterator(
+            nrows, ncols, iter,
+        ))
     }
 
     /// Creates a matrix with its elements filled with the components provided by a slice in
@@ -215,7 +226,7 @@ where
         SB: RawStorage<T, Const<1>, C>,
     {
         assert!(!rows.is_empty(), "At least one row must be given.");
-        let nrows = R::try_to_usize().unwrap_or_else(|| rows.len());
+        let nrows = R::try_to_usize().unwrap_or(rows.len());
         let ncols = rows[0].len();
         assert!(
             rows.len() == nrows,
@@ -257,7 +268,7 @@ where
         SB: RawStorage<T, R>,
     {
         assert!(!columns.is_empty(), "At least one column must be given.");
-        let ncols = C::try_to_usize().unwrap_or_else(|| columns.len());
+        let ncols = C::try_to_usize().unwrap_or(columns.len());
         let nrows = columns[0].len();
         assert!(
             columns.len() == ncols,
@@ -306,12 +317,12 @@ where
     ///
     /// # Example
     /// ```
-    /// # use nalgebra::{Dynamic, DMatrix, Matrix, Const};
+    /// # use nalgebra::{Dyn, DMatrix, Matrix, Const};
     ///
     /// let vec = vec![0, 1, 2, 3, 4, 5];
     /// let vec_ptr = vec.as_ptr();
     ///
-    /// let matrix = Matrix::from_vec_generic(Dynamic::new(vec.len()), Const::<1>, vec);
+    /// let matrix = Matrix::from_vec_generic(Dyn(vec.len()), Const::<1>, vec);
     /// let matrix_storage_ptr = matrix.data.as_vec().as_ptr();
     ///
     /// // `matrix` is backed by exactly the same `Vec` as it was constructed from.
@@ -479,6 +490,36 @@ macro_rules! impl_constructors(
             Self::from_iterator_generic($($gargs, )* iter)
         }
 
+        /// Creates a matrix or vector with all its elements filled by a row-major iterator.
+        ///
+        /// The output matrix is filled row-by-row.
+        ///
+        /// ## Example
+        /// ```
+        /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
+        /// # use std::iter;
+        ///
+        /// let v = Vector3::from_row_iterator((0..3).into_iter());
+        /// // The additional argument represents the vector dimension.
+        /// let dv = DVector::from_row_iterator(3, (0..3).into_iter());
+        /// let m = Matrix2x3::from_row_iterator((0..6).into_iter());
+        /// // The two additional arguments represent the matrix dimensions.
+        /// let dm = DMatrix::from_row_iterator(2, 3, (0..6).into_iter());
+        ///
+        /// // For Vectors from_row_iterator is identical to from_iterator
+        /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
+        /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
+        /// assert!(m.m11 == 0 && m.m12 == 1 && m.m13 == 2 &&
+        ///         m.m21 == 3 && m.m22 == 4 && m.m23 == 5);
+        /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 1 && dm[(0, 2)] == 2 &&
+        ///         dm[(1, 0)] == 3 && dm[(1, 1)] == 4 && dm[(1, 2)] == 5);
+        /// ```
+        #[inline]
+        pub fn from_row_iterator<I>($($args: usize,)* iter: I) -> Self
+            where I: IntoIterator<Item = T> {
+            Self::from_row_iterator_generic($($gargs, )* iter)
+        }
+
         /// Creates a matrix or vector filled with the results of a function applied to each of its
         /// component coordinates.
         ///
@@ -615,35 +656,35 @@ where
 }
 
 /// # Constructors of matrices with a dynamic number of columns
-impl<T: Scalar, R: DimName> OMatrix<T, R, Dynamic>
+impl<T: Scalar, R: DimName> OMatrix<T, R, Dyn>
 where
-    DefaultAllocator: Allocator<T, R, Dynamic>,
+    DefaultAllocator: Allocator<T, R, Dyn>,
 {
-    impl_constructors!(R, Dynamic;
+    impl_constructors!(R, Dyn;
                    => R: DimName;
-                   R::name(), Dynamic::new(ncols);
+                   R::name(), Dyn(ncols);
                    ncols);
 }
 
 /// # Constructors of dynamic vectors and matrices with a dynamic number of rows
-impl<T: Scalar, C: DimName> OMatrix<T, Dynamic, C>
+impl<T: Scalar, C: DimName> OMatrix<T, Dyn, C>
 where
-    DefaultAllocator: Allocator<T, Dynamic, C>,
+    DefaultAllocator: Allocator<T, Dyn, C>,
 {
-    impl_constructors!(Dynamic, C;
+    impl_constructors!(Dyn, C;
                    => C: DimName;
-                   Dynamic::new(nrows), C::name();
+                   Dyn(nrows), C::name();
                    nrows);
 }
 
 /// # Constructors of fully dynamic matrices
-impl<T: Scalar> OMatrix<T, Dynamic, Dynamic>
+impl<T: Scalar> OMatrix<T, Dyn, Dyn>
 where
-    DefaultAllocator: Allocator<T, Dynamic, Dynamic>,
+    DefaultAllocator: Allocator<T, Dyn, Dyn>,
 {
-    impl_constructors!(Dynamic, Dynamic;
+    impl_constructors!(Dyn, Dyn;
                    ;
-                   Dynamic::new(nrows), Dynamic::new(ncols);
+                   Dyn(nrows), Dyn(ncols);
                    nrows, ncols);
 }
 
@@ -749,19 +790,19 @@ impl_constructors_from_data!(data; R, C;                  // Arguments for Matri
 R::name(), C::name();         // Arguments for `_generic` constructors.
 ); // Arguments for non-generic constructors.
 
-impl_constructors_from_data!(data; R, Dynamic;
+impl_constructors_from_data!(data; R, Dyn;
 => R: DimName;
-R::name(), Dynamic::new(data.len() / R::dim());
+R::name(), Dyn(data.len() / R::dim());
 );
 
-impl_constructors_from_data!(data; Dynamic, C;
+impl_constructors_from_data!(data; Dyn, C;
 => C: DimName;
-Dynamic::new(data.len() / C::dim()), C::name();
+Dyn(data.len() / C::dim()), C::name();
 );
 
-impl_constructors_from_data!(data; Dynamic, Dynamic;
+impl_constructors_from_data!(data; Dyn, Dyn;
                             ;
-                            Dynamic::new(nrows), Dynamic::new(ncols);
+                            Dyn(nrows), Dyn(ncols);
                             nrows, ncols);
 
 /*

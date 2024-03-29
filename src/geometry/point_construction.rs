@@ -113,7 +113,7 @@ where
         DefaultAllocator: Allocator<T, DimNameSum<D, U1>>,
     {
         if !v[D::dim()].is_zero() {
-            let coords = v.generic_slice((0, 0), (D::name(), Const::<1>)) / v[D::dim()].clone();
+            let coords = v.generic_view((0, 0), (D::name(), Const::<1>)) / v[D::dim()].clone();
             Some(Self::from(coords))
         } else {
             None
@@ -202,7 +202,7 @@ impl<T: Scalar> Point1<T> {
     /// assert_eq!(p.x, 1.0);
     /// ```
     #[inline]
-    pub fn new(x: T) -> Self {
+    pub const fn new(x: T) -> Self {
         Point {
             coords: Vector1::new(x),
         }
@@ -216,7 +216,7 @@ macro_rules! componentwise_constructors_impl(
             #[doc = $doc]
             #[doc = "```"]
             #[inline]
-            pub fn new($($args: T),*) -> Self {
+            pub const fn new($($args: T),*) -> Self {
                 Point { coords: $Vector::new($($args),*) }
             }
         }

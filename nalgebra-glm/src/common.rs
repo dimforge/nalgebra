@@ -1,5 +1,4 @@
 use core::mem;
-use na;
 
 use crate::aliases::{TMat, TVec};
 use crate::traits::Number;
@@ -20,7 +19,7 @@ use crate::RealNumber;
 ///
 /// # See also:
 ///
-/// * [`sign`](fn.sign.html)
+/// * [`sign()`]
 pub fn abs<T: Number, const R: usize, const C: usize>(x: &TMat<T, R, C>) -> TMat<T, R, C> {
     x.abs()
 }
@@ -37,11 +36,11 @@ pub fn abs<T: Number, const R: usize, const C: usize>(x: &TMat<T, R, C>) -> TMat
 ///
 /// # See also:
 ///
-/// * [`ceil`](fn.ceil.html)
-/// * [`floor`](fn.floor.html)
-/// * [`fract`](fn.fract.html)
-/// * [`round`](fn.round.html)
-/// * [`trunc`](fn.trunc.html)
+/// * [`ceil()`]
+/// * [`floor()`]
+/// * [`fract()`]
+/// * [`round()`]
+/// * [`trunc()`]
 pub fn ceil<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.map(|x| x.ceil())
 }
@@ -65,8 +64,8 @@ pub fn ceil<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
 ///
 /// # See also:
 ///
-/// * [`clamp`](fn.clamp.html)
-/// * [`clamp_vec`](fn.clamp_vec.html)
+/// * [`clamp()`]
+/// * [`clamp_vec()`]
 pub fn clamp_scalar<T: Number>(x: T, min_val: T, max_val: T) -> T {
     na::clamp(x, min_val, max_val)
 }
@@ -89,8 +88,8 @@ pub fn clamp_scalar<T: Number>(x: T, min_val: T, max_val: T) -> T {
 ///
 /// # See also:
 ///
-/// * [`clamp_scalar`](fn.clamp_scalar.html)
-/// * [`clamp_vec`](fn.clamp_vec.html)
+/// * [`clamp_scalar()`]
+/// * [`clamp_vec()`]
 pub fn clamp<T: Number, const D: usize>(x: &TVec<T, D>, min_val: T, max_val: T) -> TVec<T, D> {
     x.map(|x| na::clamp(x, min_val, max_val))
 }
@@ -120,8 +119,8 @@ pub fn clamp<T: Number, const D: usize>(x: &TVec<T, D>, min_val: T, max_val: T) 
 ///
 /// # See also:
 ///
-/// * [`clamp_scalar`](fn.clamp_scalar.html)
-/// * [`clamp`](fn.clamp.html)
+/// * [`clamp_scalar()`]
+/// * [`clamp()`]
 pub fn clamp_vec<T: Number, const D: usize>(
     x: &TVec<T, D>,
     min_val: &TVec<T, D>,
@@ -136,13 +135,13 @@ pub fn clamp_vec<T: Number, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [`float_bits_to_int_vec`](fn.float_bits_to_int_vec.html)
-/// * [`float_bits_to_uint`](fn.float_bits_to_uint.html)
-/// * [`float_bits_to_uint_vec`](fn.float_bits_to_uint_vec.html)
-/// * [`int_bits_to_float`](fn.int_bits_to_float.html)
-/// * [`int_bits_to_float_vec`](fn.int_bits_to_float_vec.html)
-/// * [`uint_bits_to_float`](fn.uint_bits_to_float.html)
-/// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
+/// * [`float_bits_to_int_vec()`]
+/// * [`float_bits_to_uint()`]
+/// * [`float_bits_to_uint_vec()`]
+/// * [`int_bits_to_float()`]
+/// * [`int_bits_to_float_vec()`]
+/// * [`uint_bits_to_float()`]
+/// * [`uint_bits_to_float_scalar()`]
 pub fn float_bits_to_int(v: f32) -> i32 {
     unsafe { mem::transmute(v) }
 }
@@ -153,13 +152,13 @@ pub fn float_bits_to_int(v: f32) -> i32 {
 ///
 /// # See also:
 ///
-/// * [`float_bits_to_int`](fn.float_bits_to_int.html)
-/// * [`float_bits_to_uint`](fn.float_bits_to_uint.html)
-/// * [`float_bits_to_uint_vec`](fn.float_bits_to_uint_vec.html)
-/// * [`int_bits_to_float`](fn.int_bits_to_float.html)
-/// * [`int_bits_to_float_vec`](fn.int_bits_to_float_vec.html)
-/// * [`uint_bits_to_float`](fn.uint_bits_to_float.html)
-/// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
+/// * [`float_bits_to_int()`]
+/// * [`float_bits_to_uint()`]
+/// * [`float_bits_to_uint_vec()`]
+/// * [`int_bits_to_float()`]
+/// * [`int_bits_to_float_vec()`]
+/// * [`uint_bits_to_float()`]
+/// * [`uint_bits_to_float_scalar()`]
 pub fn float_bits_to_int_vec<const D: usize>(v: &TVec<f32, D>) -> TVec<i32, D> {
     v.map(float_bits_to_int)
 }
@@ -170,13 +169,13 @@ pub fn float_bits_to_int_vec<const D: usize>(v: &TVec<f32, D>) -> TVec<i32, D> {
 ///
 /// # See also:
 ///
-/// * [`float_bits_to_int`](fn.float_bits_to_int.html)
-/// * [`float_bits_to_int_vec`](fn.float_bits_to_int_vec.html)
-/// * [`float_bits_to_uint_vec`](fn.float_bits_to_uint_vec.html)
-/// * [`int_bits_to_float`](fn.int_bits_to_float.html)
-/// * [`int_bits_to_float_vec`](fn.int_bits_to_float_vec.html)
-/// * [`uint_bits_to_float`](fn.uint_bits_to_float.html)
-/// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
+/// * [`float_bits_to_int()`]
+/// * [`float_bits_to_int_vec()`]
+/// * [`float_bits_to_uint_vec()`]
+/// * [`int_bits_to_float()`]
+/// * [`int_bits_to_float_vec()`]
+/// * [`uint_bits_to_float()`]
+/// * [`uint_bits_to_float_scalar()`]
 pub fn float_bits_to_uint(v: f32) -> u32 {
     unsafe { mem::transmute(v) }
 }
@@ -187,13 +186,13 @@ pub fn float_bits_to_uint(v: f32) -> u32 {
 ///
 /// # See also:
 ///
-/// * [`float_bits_to_int`](fn.float_bits_to_int.html)
-/// * [`float_bits_to_int_vec`](fn.float_bits_to_int_vec.html)
-/// * [`float_bits_to_uint`](fn.float_bits_to_uint.html)
-/// * [`int_bits_to_float`](fn.int_bits_to_float.html)
-/// * [`int_bits_to_float_vec`](fn.int_bits_to_float_vec.html)
-/// * [`uint_bits_to_float`](fn.uint_bits_to_float.html)
-/// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
+/// * [`float_bits_to_int()`]
+/// * [`float_bits_to_int_vec()`]
+/// * [`float_bits_to_uint()`]
+/// * [`int_bits_to_float()`]
+/// * [`int_bits_to_float_vec()`]
+/// * [`uint_bits_to_float()`]
+/// * [`uint_bits_to_float_scalar()`]
 pub fn float_bits_to_uint_vec<const D: usize>(v: &TVec<f32, D>) -> TVec<u32, D> {
     v.map(float_bits_to_uint)
 }
@@ -210,10 +209,10 @@ pub fn float_bits_to_uint_vec<const D: usize>(v: &TVec<f32, D>) -> TVec<u32, D> 
 ///
 /// # See also:
 ///
-/// * [`ceil`](fn.ceil.html)
-/// * [`fract`](fn.fract.html)
-/// * [`round`](fn.round.html)
-/// * [`trunc`](fn.trunc.html)
+/// * [`ceil()`]
+/// * [`fract()`]
+/// * [`round()`]
+/// * [`trunc()`]
 pub fn floor<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.map(|x| x.floor())
 }
@@ -236,10 +235,10 @@ pub fn floor<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
 ///
 /// # See also:
 ///
-/// * [`ceil`](fn.ceil.html)
-/// * [`floor`](fn.floor.html)
-/// * [`round`](fn.round.html)
-/// * [`trunc`](fn.trunc.html)
+/// * [`ceil()`]
+/// * [`floor()`]
+/// * [`round()`]
+/// * [`trunc()`]
 pub fn fract<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.map(|x| x.fract())
 }
@@ -258,13 +257,13 @@ pub fn fract<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
 ///
 /// # See also:
 ///
-/// * [`float_bits_to_int`](fn.float_bits_to_int.html)
-/// * [`float_bits_to_int_vec`](fn.float_bits_to_int_vec.html)
-/// * [`float_bits_to_uint`](fn.float_bits_to_uint.html)
-/// * [`float_bits_to_uint_vec`](fn.float_bits_to_uint_vec.html)
-/// * [`int_bits_to_float_vec`](fn.int_bits_to_float_vec.html)
-/// * [`uint_bits_to_float`](fn.uint_bits_to_float.html)
-/// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
+/// * [`float_bits_to_int()`]
+/// * [`float_bits_to_int_vec()`]
+/// * [`float_bits_to_uint()`]
+/// * [`float_bits_to_uint_vec()`]
+/// * [`int_bits_to_float_vec()`]
+/// * [`uint_bits_to_float()`]
+/// * [`uint_bits_to_float_scalar()`]
 pub fn int_bits_to_float(v: i32) -> f32 {
     f32::from_bits(v as u32)
 }
@@ -275,13 +274,13 @@ pub fn int_bits_to_float(v: i32) -> f32 {
 ///
 /// # See also:
 ///
-/// * [`float_bits_to_int`](fn.float_bits_to_int.html)
-/// * [`float_bits_to_int_vec`](fn.float_bits_to_int_vec.html)
-/// * [`float_bits_to_uint`](fn.float_bits_to_uint.html)
-/// * [`float_bits_to_uint_vec`](fn.float_bits_to_uint_vec.html)
-/// * [`int_bits_to_float`](fn.int_bits_to_float.html)
-/// * [`uint_bits_to_float`](fn.uint_bits_to_float.html)
-/// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
+/// * [`float_bits_to_int()`]
+/// * [`float_bits_to_int_vec()`]
+/// * [`float_bits_to_uint()`]
+/// * [`float_bits_to_uint_vec()`]
+/// * [`int_bits_to_float()`]
+/// * [`uint_bits_to_float()`]
+/// * [`uint_bits_to_float_scalar()`]
 pub fn int_bits_to_float_vec<const D: usize>(v: &TVec<i32, D>) -> TVec<f32, D> {
     v.map(int_bits_to_float)
 }
@@ -315,8 +314,8 @@ pub fn int_bits_to_float_vec<const D: usize>(v: &TVec<i32, D>) -> TVec<f32, D> {
 ///
 /// # See also:
 ///
-/// * [`mix`](fn.mix.html)
-/// * [`mix_vec`](fn.mix_vec.html)
+/// * [`mix()`]
+/// * [`mix_vec()`]
 pub fn mix_scalar<T: Number>(x: T, y: T, a: T) -> T {
     x * (T::one() - a) + y * a
 }
@@ -336,8 +335,8 @@ pub fn mix_scalar<T: Number>(x: T, y: T, a: T) -> T {
 ///
 /// # See also:
 ///
-/// * [`mix_scalar`](fn.mix_scalar.html)
-/// * [`mix_vec`](fn.mix_vec.html)
+/// * [`mix_scalar()`]
+/// * [`mix_vec()`]
 pub fn mix<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>, a: T) -> TVec<T, D> {
     x * (T::one() - a) + y * a
 }
@@ -359,14 +358,14 @@ pub fn mix<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>, a: T) -> T
 ///
 /// # See also:
 ///
-/// * [`mix_scalar`](fn.mix_scalar.html)
-/// * [`mix`](fn.mix.html)
+/// * [`mix_scalar()`]
+/// * [`mix()`]
 pub fn mix_vec<T: Number, const D: usize>(
     x: &TVec<T, D>,
     y: &TVec<T, D>,
     a: &TVec<T, D>,
 ) -> TVec<T, D> {
-    x.component_mul(&(TVec::<T, D>::repeat(T::one()) - a)) + y.component_mul(&a)
+    x.component_mul(&(TVec::<T, D>::repeat(T::one()) - a)) + y.component_mul(a)
 }
 
 /// Returns `x * (1.0 - a) + y * a`, i.e., the linear blend of the scalars x and y using the scalar value a.
@@ -383,8 +382,8 @@ pub fn mix_vec<T: Number, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [`lerp`](fn.lerp.html)
-/// * [`lerp_vec`](fn.lerp_vec.html)
+/// * [`lerp()`]
+/// * [`lerp_vec()`]
 pub fn lerp_scalar<T: Number>(x: T, y: T, a: T) -> T {
     mix_scalar(x, y, a)
 }
@@ -405,8 +404,8 @@ pub fn lerp_scalar<T: Number>(x: T, y: T, a: T) -> T {
 ///
 /// # See also:
 ///
-/// * [`lerp_scalar`](fn.lerp_scalar.html)
-/// * [`lerp_vec`](fn.lerp_vec.html)
+/// * [`lerp_scalar()`]
+/// * [`lerp_vec()`]
 pub fn lerp<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>, a: T) -> TVec<T, D> {
     mix(x, y, a)
 }
@@ -429,8 +428,8 @@ pub fn lerp<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>, a: T) -> 
 ///
 /// # See also:
 ///
-/// * [`lerp_scalar`](fn.lerp_scalar.html)
-/// * [`lerp`](fn.lerp.html)
+/// * [`lerp_scalar()`]
+/// * [`lerp()`]
 pub fn lerp_vec<T: Number, const D: usize>(
     x: &TVec<T, D>,
     y: &TVec<T, D>,
@@ -445,7 +444,7 @@ pub fn lerp_vec<T: Number, const D: usize>(
 ///
 /// # See also:
 ///
-/// * [`modf`](fn.modf.html)
+/// * [`modf()`]
 pub fn modf_vec<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> TVec<T, D> {
     x.zip_map(y, |x, y| x % y)
 }
@@ -454,7 +453,7 @@ pub fn modf_vec<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> TV
 ///
 /// # See also:
 ///
-/// * [`modf_vec`](fn.modf_vec.html)
+/// * [`modf_vec()`]
 pub fn modf<T: Number>(x: T, i: T) -> T {
     x % i
 }
@@ -473,10 +472,10 @@ pub fn modf<T: Number>(x: T, i: T) -> T {
 ///
 /// # See also:
 ///
-/// * [`ceil`](fn.ceil.html)
-/// * [`floor`](fn.floor.html)
-/// * [`fract`](fn.fract.html)
-/// * [`trunc`](fn.trunc.html)
+/// * [`ceil()`]
+/// * [`floor()`]
+/// * [`fract()`]
+/// * [`trunc()`]
 pub fn round<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.map(|x| x.round())
 }
@@ -497,7 +496,7 @@ pub fn round<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
 ///
 /// # See also:
 ///
-/// * [`abs`](fn.abs.html)
+/// * [`abs()`]
 ///
 pub fn sign<T: Number, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.map(|x| if x.is_zero() { T::zero() } else { x.signum() })
@@ -545,10 +544,10 @@ pub fn step_vec<T: Number, const D: usize>(edge: &TVec<T, D>, x: &TVec<T, D>) ->
 ///
 /// # See also:
 ///
-/// * [`ceil`](fn.ceil.html)
-/// * [`floor`](fn.floor.html)
-/// * [`fract`](fn.fract.html)
-/// * [`round`](fn.round.html)
+/// * [`ceil()`]
+/// * [`floor()`]
+/// * [`fract()`]
+/// * [`round()`]
 pub fn trunc<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
     x.map(|x| x.trunc())
 }
@@ -559,13 +558,13 @@ pub fn trunc<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {
 ///
 /// # See also:
 ///
-/// * [`float_bits_to_int`](fn.float_bits_to_int.html)
-/// * [`float_bits_to_int_vec`](fn.float_bits_to_int_vec.html)
-/// * [`float_bits_to_uint`](fn.float_bits_to_uint.html)
-/// * [`float_bits_to_uint_vec`](fn.float_bits_to_uint_vec.html)
-/// * [`int_bits_to_float`](fn.int_bits_to_float.html)
-/// * [`int_bits_to_float_vec`](fn.int_bits_to_float_vec.html)
-/// * [`uint_bits_to_float`](fn.uint_bits_to_float.html)
+/// * [`float_bits_to_int()`]
+/// * [`float_bits_to_int_vec()`]
+/// * [`float_bits_to_uint()`]
+/// * [`float_bits_to_uint_vec()`]
+/// * [`int_bits_to_float()`]
+/// * [`int_bits_to_float_vec()`]
+/// * [`uint_bits_to_float()`]
 pub fn uint_bits_to_float_scalar(v: u32) -> f32 {
     f32::from_bits(v)
 }
@@ -576,13 +575,13 @@ pub fn uint_bits_to_float_scalar(v: u32) -> f32 {
 ///
 /// # See also:
 ///
-/// * [`float_bits_to_int`](fn.float_bits_to_int.html)
-/// * [`float_bits_to_int_vec`](fn.float_bits_to_int_vec.html)
-/// * [`float_bits_to_uint`](fn.float_bits_to_uint.html)
-/// * [`float_bits_to_uint_vec`](fn.float_bits_to_uint_vec.html)
-/// * [`int_bits_to_float`](fn.int_bits_to_float.html)
-/// * [`int_bits_to_float_vec`](fn.int_bits_to_float_vec.html)
-/// * [`uint_bits_to_float_scalar`](fn.uint_bits_to_float_scalar.html)
+/// * [`float_bits_to_int()`]
+/// * [`float_bits_to_int_vec()`]
+/// * [`float_bits_to_uint()`]
+/// * [`float_bits_to_uint_vec()`]
+/// * [`int_bits_to_float()`]
+/// * [`int_bits_to_float_vec()`]
+/// * [`uint_bits_to_float_scalar()`]
 pub fn uint_bits_to_float<const D: usize>(v: &TVec<u32, D>) -> TVec<f32, D> {
     v.map(uint_bits_to_float_scalar)
 }

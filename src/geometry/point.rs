@@ -1,9 +1,11 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-use num::One;
+use num::{One, Zero};
 use std::cmp::Ordering;
 use std::fmt;
 use std::hash;
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -13,6 +15,7 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::{Const, DefaultAllocator, OVector, Scalar};
+use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub};
 use std::mem::MaybeUninit;
 
 /// A point in an euclidean space.
@@ -36,6 +39,20 @@ use std::mem::MaybeUninit;
 /// of said transformations for details.
 #[repr(C)]
 #[derive(Clone)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "OPoint<T::Archived, D>",
+        bound(archive = "
+        T: rkyv::Archive,
+        T::Archived: Scalar,
+        OVector<T, D>: rkyv::Archive<Archived = OVector<T::Archived, D>>,
+        DefaultAllocator: Allocator<T::Archived, D>,
+    ")
+    )
+)]
 pub struct OPoint<T: Scalar, D: DimName>
 where
     DefaultAllocator: Allocator<T, D>,
@@ -66,14 +83,6 @@ impl<T: Scalar + Copy, D: DimName> Copy for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
     OVector<T, D>: Copy,
-{
-}
-
-#[cfg(feature = "cuda")]
-unsafe impl<T: Scalar + cust_core::DeviceCopy, D: DimName> cust_core::DeviceCopy for OPoint<T, D>
-where
-    DefaultAllocator: Allocator<T, D>,
-    OVector<T, D>: cust_core::DeviceCopy,
 {
 }
 
@@ -199,12 +208,37 @@ where
         let mut res = crate::Matrix::uninit(DimNameSum::<D, U1>::name(), Const::<1>);
         // This is basically a copy_from except that we warp the copied
         // values into MaybeUninit.
-        res.generic_slice_mut((0, 0), self.coords.shape_generic())
+        res.generic_view_mut((0, 0), self.coords.shape_generic())
             .zip_apply(&self.coords, |out, e| *out = MaybeUninit::new(e));
         res[(len, 0)] = MaybeUninit::new(T::one());
 
         // Safety: res has been fully initialized.
         unsafe { res.assume_init() }
+    }
+
+    /// Linear interpolation between two points.
+    ///
+    /// Returns `self * (1.0 - t) + rhs.coords * t`, i.e., the linear blend of the points
+    /// `self` and `rhs` using the scalar value `t`.
+    ///
+    /// The value for a is not restricted to the range `[0, 1]`.
+    ///
+    /// # Examples:
+    ///
+    /// ```
+    /// # use nalgebra::Point3;
+    /// let a = Point3::new(1.0, 2.0, 3.0);
+    /// let b = Point3::new(10.0, 20.0, 30.0);
+    /// assert_eq!(a.lerp(&b, 0.1), Point3::new(1.9, 3.8, 5.7));
+    /// ```
+    #[must_use]
+    pub fn lerp(&self, rhs: &OPoint<T, D>, t: T) -> OPoint<T, D>
+    where
+        T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul,
+    {
+        OPoint {
+            coords: self.coords.lerp(&rhs.coords, t),
+        }
     }
 
     /// Creates a new point with the given coordinates.
@@ -275,6 +309,10 @@ where
     }
 
     /// Gets a reference to i-th element of this point without bound-checking.
+    ///
+    /// # Safety
+    ///
+    /// `i` must be less than `self.len()`.
     #[inline]
     #[must_use]
     pub unsafe fn get_unchecked(&self, i: usize) -> &T {
@@ -302,6 +340,10 @@ where
     }
 
     /// Gets a mutable reference to i-th element of this point without bound-checking.
+    ///
+    /// # Safety
+    ///
+    /// `i` must be less than `self.len()`.
     #[inline]
     #[must_use]
     pub unsafe fn get_unchecked_mut(&mut self, i: usize) -> &mut T {
@@ -309,6 +351,10 @@ where
     }
 
     /// Swaps two entries without bound-checking.
+    ///
+    /// # Safety
+    ///
+    /// `i1` and `i2` must be less than `self.len()`.
     #[inline]
     pub unsafe fn swap_unchecked(&mut self, i1: usize, i2: usize) {
         self.coords.swap_unchecked((i1, 0), (i2, 0))
@@ -457,10 +503,11 @@ where
 
         let mut it = self.coords.iter();
 
-        write!(f, "{}", *it.next().unwrap())?;
+        <T as fmt::Display>::fmt(it.next().unwrap(), f)?;
 
         for comp in it {
-            write!(f, ", {}", *comp)?;
+            write!(f, ", ")?;
+            <T as fmt::Display>::fmt(comp, f)?;
         }
 
         write!(f, "}}")

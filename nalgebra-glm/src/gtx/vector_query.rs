@@ -7,7 +7,7 @@ use crate::traits::Number;
 ///
 /// # See also:
 ///
-/// * [`are_collinear2d`](fn.are_collinear2d.html)
+/// * [`are_collinear2d()`]
 pub fn are_collinear<T: Number>(v0: &TVec3<T>, v1: &TVec3<T>, epsilon: T) -> bool {
     is_null(&v0.cross(v1), epsilon)
 }
@@ -16,7 +16,7 @@ pub fn are_collinear<T: Number>(v0: &TVec3<T>, v1: &TVec3<T>, epsilon: T) -> boo
 ///
 /// # See also:
 ///
-/// * [`are_collinear`](fn.are_collinear.html)
+/// * [`are_collinear()`]
 pub fn are_collinear2d<T: Number>(v0: &TVec2<T>, v1: &TVec2<T>, epsilon: T) -> bool {
     abs_diff_eq!(v0.perp(v1), T::zero(), epsilon = epsilon)
 }
@@ -41,7 +41,10 @@ pub fn is_comp_null<T: Number, const D: usize>(v: &TVec<T, D>, epsilon: T) -> TV
 
 /// Returns `true` if `v` has a magnitude of 1 (up to an epsilon).
 pub fn is_normalized<T: RealNumber, const D: usize>(v: &TVec<T, D>, epsilon: T) -> bool {
-    abs_diff_eq!(v.norm_squared(), T::one(), epsilon = epsilon * epsilon)
+    // sqrt(1 + epsilon_{norm²} = 1 + epsilon_{norm}
+    // ==> epsilon_{norm²} = epsilon_{norm}² + 2*epsilon_{norm}
+    // For small epsilon, epsilon² is basically zero, so use 2*epsilon.
+    abs_diff_eq!(v.norm_squared(), T::one(), epsilon = epsilon + epsilon)
 }
 
 /// Returns `true` if `v` is zero (up to an epsilon).

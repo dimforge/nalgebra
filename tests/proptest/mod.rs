@@ -101,11 +101,11 @@ pub fn dvector() -> impl Strategy<Value = DVector<f64>> {
 
 pub fn dmatrix_<ScalarStrategy>(
     scalar_strategy: ScalarStrategy,
-) -> impl Strategy<Value = OMatrix<ScalarStrategy::Value, Dynamic, Dynamic>>
+) -> impl Strategy<Value = OMatrix<ScalarStrategy::Value, Dyn, Dyn>>
 where
     ScalarStrategy: Strategy + Clone + 'static,
     ScalarStrategy::Value: Scalar,
-    DefaultAllocator: Allocator<ScalarStrategy::Value, Dynamic, Dynamic>,
+    DefaultAllocator: Allocator<ScalarStrategy::Value, Dyn, Dyn>,
 {
     matrix(scalar_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM)
 }
@@ -114,7 +114,7 @@ where
 // where
 //     RangeInclusive<T>: Strategy<Value = T>,
 //     T: Scalar + PartialEq + Copy,
-//     DefaultAllocator: Allocator<T, Dynamic>,
+//     DefaultAllocator: Allocator<T, Dyn>,
 // {
 //     vector(range, PROPTEST_MATRIX_DIM)
 // }
@@ -213,9 +213,9 @@ fn test_matrix_output_types() {
     // Test that the dimension types are correct for the given inputs
     let _: MatrixStrategy<_, U3, U4> = matrix(-5..5, Const::<3>, Const::<4>);
     let _: MatrixStrategy<_, U3, U3> = matrix(-5..5, Const::<3>, Const::<3>);
-    let _: MatrixStrategy<_, U3, Dynamic> = matrix(-5..5, Const::<3>, 1..=5);
-    let _: MatrixStrategy<_, Dynamic, U3> = matrix(-5..5, 1..=5, Const::<3>);
-    let _: MatrixStrategy<_, Dynamic, Dynamic> = matrix(-5..5, 1..=5, 1..=5);
+    let _: MatrixStrategy<_, U3, Dyn> = matrix(-5..5, Const::<3>, 1..=5);
+    let _: MatrixStrategy<_, Dyn, U3> = matrix(-5..5, 1..=5, Const::<3>);
+    let _: MatrixStrategy<_, Dyn, Dyn> = matrix(-5..5, 1..=5, 1..=5);
 }
 
 // Below we have some tests to ensure that specific instances of OMatrix are usable
@@ -225,10 +225,10 @@ proptest! {
     fn ensure_arbitrary_test_compiles_matrix3(_: Matrix3<i32>) {}
 
     #[test]
-    fn ensure_arbitrary_test_compiles_matrixmn_u3_dynamic(_: OMatrix<i32, U3, Dynamic>) {}
+    fn ensure_arbitrary_test_compiles_matrixmn_u3_dynamic(_: OMatrix<i32, U3, Dyn>) {}
 
     #[test]
-    fn ensure_arbitrary_test_compiles_matrixmn_dynamic_u3(_: OMatrix<i32, Dynamic, U3>) {}
+    fn ensure_arbitrary_test_compiles_matrixmn_dynamic_u3(_: OMatrix<i32, Dyn, U3>) {}
 
     #[test]
     fn ensure_arbitrary_test_compiles_dmatrix(_: DMatrix<i32>) {}

@@ -25,6 +25,7 @@ use std::slice::{Iter, IterMut};
 /// # Usage
 ///
 /// ```
+/// use nalgebra_sparse::coo::CooMatrix;
 /// use nalgebra_sparse::csr::CsrMatrix;
 /// use nalgebra::{DMatrix, Matrix3x4};
 /// use matrixcompare::assert_matrix_eq;
@@ -33,8 +34,9 @@ use std::slice::{Iter, IterMut};
 /// // change the sparsity pattern of the matrix after it has been constructed. The easiest
 /// // way to construct a CSR matrix is to first incrementally construct a COO matrix,
 /// // and then convert it to CSR.
-/// # use nalgebra_sparse::coo::CooMatrix;
-/// # let coo = CooMatrix::<f64>::new(3, 3);
+///
+/// let mut coo = CooMatrix::<f64>::new(3, 3);
+/// coo.push(2, 0, 1.0);
 /// let csr = CsrMatrix::from(&coo);
 ///
 /// // Alternatively, a CSR matrix can be constructed directly from raw CSR data.
@@ -157,7 +159,7 @@ impl<T> CsrMatrix<T> {
     /// an error is returned to indicate the failure.
     ///
     /// An error is returned if the data given does not conform to the CSR storage format.
-    /// See the documentation for [CsrMatrix](struct.CsrMatrix.html) for more information.
+    /// See the documentation for [`CsrMatrix`] for more information.
     pub fn try_from_csr_data(
         num_rows: usize,
         num_cols: usize,
@@ -183,7 +185,7 @@ impl<T> CsrMatrix<T> {
     ///
     /// An error is returned if the data given does not conform to the CSR storage format
     /// with the exception of having unsorted column indices and values.
-    /// See the documentation for [CsrMatrix](struct.CsrMatrix.html) for more information.
+    /// See the documentation for [`CsrMatrix`] for more information.
     pub fn try_from_unsorted_csr_data(
         num_rows: usize,
         num_cols: usize,
@@ -573,6 +575,14 @@ impl<T> CsrMatrix<T> {
     }
 }
 
+impl<T> Default for CsrMatrix<T> {
+    fn default() -> Self {
+        Self {
+            cs: Default::default(),
+        }
+    }
+}
+
 /// Convert pattern format errors into more meaningful CSR-specific errors.
 ///
 /// This ensures that the terminology is consistent: we are talking about rows and columns,
@@ -614,6 +624,15 @@ fn pattern_format_error_to_csr_error(err: SparsityPatternFormatError) -> SparseF
 pub struct CsrTripletIter<'a, T> {
     pattern_iter: SparsityPatternIter<'a>,
     values_iter: Iter<'a, T>,
+}
+
+impl<'a, T> Clone for CsrTripletIter<'a, T> {
+    fn clone(&self) -> Self {
+        CsrTripletIter {
+            pattern_iter: self.pattern_iter.clone(),
+            values_iter: self.values_iter.clone(),
+        }
+    }
 }
 
 impl<'a, T: Clone> CsrTripletIter<'a, T> {
@@ -751,7 +770,7 @@ impl<'a, T> CsrRowMut<'a, T> {
     }
 }
 
-/// Row iterator for [CsrMatrix](struct.CsrMatrix.html).
+/// Row iterator for [`CsrMatrix`].
 pub struct CsrRowIter<'a, T> {
     lane_iter: CsLaneIter<'a, T>,
 }
@@ -764,7 +783,7 @@ impl<'a, T> Iterator for CsrRowIter<'a, T> {
     }
 }
 
-/// Mutable row iterator for [CsrMatrix](struct.CsrMatrix.html).
+/// Mutable row iterator for [`CsrMatrix`].
 pub struct CsrRowIterMut<'a, T> {
     lane_iter: CsLaneIterMut<'a, T>,
 }

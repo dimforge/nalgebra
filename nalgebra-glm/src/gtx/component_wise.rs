@@ -16,9 +16,9 @@ use crate::traits::Number;
 ///
 /// # See also:
 ///
-/// * [`comp_max`](fn.comp_max.html)
-/// * [`comp_min`](fn.comp_min.html)
-/// * [`comp_mul`](fn.comp_mul.html)
+/// * [`comp_max()`]
+/// * [`comp_min()`]
+/// * [`comp_mul()`]
 pub fn comp_add<T: Number, const R: usize, const C: usize>(m: &TMat<T, R, C>) -> T {
     m.iter().fold(T::zero(), |x, y| x + *y)
 }
@@ -38,13 +38,13 @@ pub fn comp_add<T: Number, const R: usize, const C: usize>(m: &TMat<T, R, C>) ->
 ///
 /// # See also:
 ///
-/// * [`comp_add`](fn.comp_add.html)
-/// * [`comp_max`](fn.comp_max.html)
-/// * [`comp_min`](fn.comp_min.html)
-/// * [`max`](fn.max.html)
-/// * [`max2`](fn.max2.html)
-/// * [`max3`](fn.max3.html)
-/// * [`max4`](fn.max4.html)
+/// * [`comp_add()`]
+/// * [`comp_max()`]
+/// * [`comp_min()`]
+/// * [`max()`](crate::max)
+/// * [`max2()`](crate::max2)
+/// * [`max3()`](crate::max3)
+/// * [`max4()`](crate::max4)
 pub fn comp_max<T: Number, const R: usize, const C: usize>(m: &TMat<T, R, C>) -> T {
     m.iter()
         .fold(T::min_value(), |x, y| crate::max2_scalar(x, *y))
@@ -65,13 +65,13 @@ pub fn comp_max<T: Number, const R: usize, const C: usize>(m: &TMat<T, R, C>) ->
 ///
 /// # See also:
 ///
-/// * [`comp_add`](fn.comp_add.html)
-/// * [`comp_max`](fn.comp_max.html)
-/// * [`comp_mul`](fn.comp_mul.html)
-/// * [`min`](fn.min.html)
-/// * [`min2`](fn.min2.html)
-/// * [`min3`](fn.min3.html)
-/// * [`min4`](fn.min4.html)
+/// * [`comp_add()`]
+/// * [`comp_max()`]
+/// * [`comp_mul()`]
+/// * [`min()`](crate::min)
+/// * [`min2()`](crate::min2)
+/// * [`min3()`](crate::min3)
+/// * [`min4()`](crate::min4)
 pub fn comp_min<T: Number, const R: usize, const C: usize>(m: &TMat<T, R, C>) -> T {
     m.iter()
         .fold(T::max_value(), |x, y| crate::min2_scalar(x, *y))
@@ -92,9 +92,9 @@ pub fn comp_min<T: Number, const R: usize, const C: usize>(m: &TMat<T, R, C>) ->
 ///
 /// # See also:
 ///
-/// * [`comp_add`](fn.comp_add.html)
-/// * [`comp_max`](fn.comp_max.html)
-/// * [`comp_min`](fn.comp_min.html)
+/// * [`comp_add()`]
+/// * [`comp_max()`]
+/// * [`comp_min()`]
 pub fn comp_mul<T: Number, const R: usize, const C: usize>(m: &TMat<T, R, C>) -> T {
     m.iter().fold(T::one(), |x, y| x * *y)
 }

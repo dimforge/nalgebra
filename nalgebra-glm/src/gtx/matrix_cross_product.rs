@@ -5,7 +5,7 @@ use crate::RealNumber;
 ///
 /// # See also:
 ///
-/// * [`matrix_cross`](fn.matrix_cross.html)
+/// * [`matrix_cross()`]
 pub fn matrix_cross3<T: RealNumber>(x: &TVec3<T>) -> TMat3<T> {
     x.cross_matrix()
 }
@@ -14,7 +14,7 @@ pub fn matrix_cross3<T: RealNumber>(x: &TVec3<T>) -> TMat3<T> {
 ///
 /// # See also:
 ///
-/// * [`matrix_cross3`](fn.matrix_cross3.html)
+/// * [`matrix_cross3()`]
 pub fn matrix_cross<T: RealNumber>(x: &TVec3<T>) -> TMat4<T> {
     crate::mat3_to_mat4(&x.cross_matrix())
 }

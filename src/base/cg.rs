@@ -59,7 +59,7 @@ where
         SB: Storage<T, DimNameDiff<D, U1>>,
     {
         let mut res = Self::identity();
-        res.generic_slice_mut(
+        res.generic_view_mut(
             (0, D::dim() - 1),
             (DimNameDiff::<D, U1>::name(), Const::<1>),
         )
@@ -382,19 +382,19 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
         DefaultAllocator: Allocator<T, DimNameDiff<D, U1>>,
     {
         let scale = self
-            .generic_slice(
+            .generic_view(
                 (D::dim() - 1, 0),
                 (Const::<1>, DimNameDiff::<D, U1>::name()),
             )
             .tr_dot(shift);
-        let post_translation = self.generic_slice(
+        let post_translation = self.generic_view(
             (0, 0),
             (DimNameDiff::<D, U1>::name(), DimNameDiff::<D, U1>::name()),
         ) * shift;
 
         self[(D::dim() - 1, D::dim() - 1)] += scale;
 
-        let mut translation = self.generic_slice_mut(
+        let mut translation = self.generic_view_mut(
             (0, D::dim() - 1),
             (DimNameDiff::<D, U1>::name(), Const::<1>),
         );
@@ -415,11 +415,11 @@ where
         &self,
         v: &OVector<T, DimNameDiff<D, U1>>,
     ) -> OVector<T, DimNameDiff<D, U1>> {
-        let transform = self.generic_slice(
+        let transform = self.generic_view(
             (0, 0),
             (DimNameDiff::<D, U1>::name(), DimNameDiff::<D, U1>::name()),
         );
-        let normalizer = self.generic_slice(
+        let normalizer = self.generic_view(
             (D::dim() - 1, 0),
             (Const::<1>, DimNameDiff::<D, U1>::name()),
         );
@@ -437,9 +437,9 @@ impl<T: RealField, S: Storage<T, Const<3>, Const<3>>> SquareMatrix<T, Const<3>, 
     /// Transforms the given point, assuming the matrix `self` uses homogeneous coordinates.
     #[inline]
     pub fn transform_point(&self, pt: &Point<T, 2>) -> Point<T, 2> {
-        let transform = self.fixed_slice::<2, 2>(0, 0);
-        let translation = self.fixed_slice::<2, 1>(0, 2);
-        let normalizer = self.fixed_slice::<1, 2>(2, 0);
+        let transform = self.fixed_view::<2, 2>(0, 0);
+        let translation = self.fixed_view::<2, 1>(0, 2);
+        let normalizer = self.fixed_view::<1, 2>(2, 0);
         let n = normalizer.tr_dot(&pt.coords) + unsafe { self.get_unchecked((2, 2)).clone() };
 
         if !n.is_zero() {
@@ -454,9 +454,9 @@ impl<T: RealField, S: Storage<T, Const<4>, Const<4>>> SquareMatrix<T, Const<4>, 
     /// Transforms the given point, assuming the matrix `self` uses homogeneous coordinates.
     #[inline]
     pub fn transform_point(&self, pt: &Point<T, 3>) -> Point<T, 3> {
-        let transform = self.fixed_slice::<3, 3>(0, 0);
-        let translation = self.fixed_slice::<3, 1>(0, 3);
-        let normalizer = self.fixed_slice::<1, 3>(3, 0);
+        let transform = self.fixed_view::<3, 3>(0, 0);
+        let translation = self.fixed_view::<3, 1>(0, 3);
+        let normalizer = self.fixed_view::<1, 3>(3, 0);
         let n = normalizer.tr_dot(&pt.coords) + unsafe { self.get_unchecked((3, 3)).clone() };
 
         if !n.is_zero() {

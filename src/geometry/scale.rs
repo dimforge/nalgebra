@@ -15,9 +15,23 @@ use crate::ClosedMul;
 
 use crate::geometry::Point;
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
+
 /// A scale which supports non-uniform scaling.
 #[repr(C)]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Scale<T::Archived, D>",
+        bound(archive = "
+        T: rkyv::Archive,
+        SVector<T, D>: rkyv::Archive<Archived = SVector<T::Archived, D>>
+    ")
+    )
+)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[derive(Copy, Clone)]
 pub struct Scale<T, const D: usize> {
     /// The scale coordinates, i.e., how much is multiplied to a point's coordinates when it is
@@ -84,49 +98,6 @@ where
     }
 }
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Scale;
-    use crate::base::SVector;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Archive, const D: usize> Archive for Scale<T, D> {
-        type Archived = Scale<T::Archived, D>;
-        type Resolver = <SVector<T, D> as Archive>::Resolver;
-
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.vector.resolve(
-                pos + offset_of!(Self::Archived, vector),
-                resolver,
-                project_struct!(out: Self::Archived => vector),
-            );
-        }
-    }
-
-    impl<T: Serialize<S>, S: Fallible + ?Sized, const D: usize> Serialize<S> for Scale<T, D> {
-        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            self.vector.serialize(serializer)
-        }
-    }
-
-    impl<T: Archive, _D: Fallible + ?Sized, const D: usize> Deserialize<Scale<T, D>, _D>
-        for Scale<T::Archived, D>
-    where
-        T::Archived: Deserialize<T, _D>,
-    {
-        fn deserialize(&self, deserializer: &mut _D) -> Result<Scale<T, D>, _D::Error> {
-            Ok(Scale {
-                vector: self.vector.deserialize(deserializer)?,
-            })
-        }
-    }
-}
-
 impl<T: Scalar, const D: usize> Scale<T, D> {
     /// Inverts `self`.
     ///
@@ -157,7 +128,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
                 return None;
             }
         }
-        return Some(self.vector.map(|e| T::one() / e).into());
+        Some(self.vector.map(|e| T::one() / e).into())
     }
 
     /// Inverts `self`.
@@ -177,13 +148,17 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     ///     assert_eq!(t.inverse_unchecked() * t, Scale2::identity());
     /// }
     /// ```
+    ///
+    /// # Safety
+    ///
+    /// Should only be used if all scaling is known to be non-zero.
     #[inline]
     #[must_use]
     pub unsafe fn inverse_unchecked(&self) -> Scale<T, D>
     where
         T: ClosedDiv + One,
     {
-        return self.vector.map(|e| T::one() / e).into();
+        self.vector.map(|e| T::one() / e).into()
     }
 
     /// Inverts `self`.
@@ -211,8 +186,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     where
         T: ClosedDiv + One + Zero,
     {
-        return self
-            .vector
+        self.vector
             .map(|e| {
                 if e != T::zero() {
                     T::one() / e
@@ -220,7 +194,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
                     T::zero()
                 }
             })
-            .into();
+            .into()
     }
 
     /// Converts this Scale into its equivalent homogeneous transformation matrix.
@@ -258,7 +232,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
         for i in 0..D {
             v[i] = self.vector[i].clone();
         }
-        return OMatrix::from_diagonal(&v);
+        OMatrix::from_diagonal(&v)
     }
 
     /// Inverts `self` in-place.

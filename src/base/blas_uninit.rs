@@ -13,16 +13,17 @@ use matrixmultiply;
 use num::{One, Zero};
 use simba::scalar::{ClosedAdd, ClosedMul};
 #[cfg(feature = "std")]
-use std::mem;
+use std::{any::TypeId, mem};
 
 use crate::base::constraint::{
     AreMultipliable, DimEq, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
 };
-use crate::base::dimension::{Dim, Dynamic, U1};
+#[cfg(feature = "std")]
+use crate::base::dimension::Dyn;
+use crate::base::dimension::{Dim, U1};
 use crate::base::storage::{RawStorage, RawStorageMut};
 use crate::base::uninit::InitStatus;
 use crate::base::{Matrix, Scalar, Vector};
-use std::any::TypeId;
 
 // # Safety
 // The content of `y` must only contain values for which
@@ -209,16 +210,16 @@ pub unsafe fn gemm_uninit<
 
     #[cfg(feature = "std")]
     {
-        // We assume large matrices will be Dynamic but small matrices static.
+        // We assume large matrices will be Dyn but small matrices static.
         // We could use matrixmultiply for large statically-sized matrices but the performance
         // threshold to activate it would be different from SMALL_DIM because our code optimizes
         // better for statically-sized matrices.
-        if R1::is::<Dynamic>()
-            || C1::is::<Dynamic>()
-            || R2::is::<Dynamic>()
-            || C2::is::<Dynamic>()
-            || R3::is::<Dynamic>()
-            || C3::is::<Dynamic>()
+        if R1::is::<Dyn>()
+            || C1::is::<Dyn>()
+            || R2::is::<Dyn>()
+            || C2::is::<Dyn>()
+            || R3::is::<Dyn>()
+            || C3::is::<Dyn>()
         {
             // matrixmultiply can be used only if the std feature is available.
             let nrows1 = y.nrows();

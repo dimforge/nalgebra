@@ -91,6 +91,7 @@ pub fn mat2x4<T: Scalar>(m11: T, m12: T, m13: T, m14: T,
 /// );
 /// ```
 #[rustfmt::skip]
+#[allow(clippy::too_many_arguments)]
 pub fn mat3<T: Scalar>(m11: T, m12: T, m13: T,
                        m21: T, m22: T, m23: T,
                        m31: T, m32: T, m33: T) -> TMat3<T> {
@@ -115,6 +116,7 @@ pub fn mat3x2<T: Scalar>(m11: T, m12: T,
 
 /// Create a new 3x3 matrix.
 #[rustfmt::skip]
+#[allow(clippy::too_many_arguments)]
 pub fn mat3x3<T: Scalar>(m11: T, m12: T, m13: T,
                          m21: T, m22: T, m23: T,
                          m31: T, m32: T, m33: T) -> TMat3<T> {
@@ -127,6 +129,7 @@ pub fn mat3x3<T: Scalar>(m11: T, m12: T, m13: T,
 
 /// Create a new 3x4 matrix.
 #[rustfmt::skip]
+#[allow(clippy::too_many_arguments)]
 pub fn mat3x4<T: Scalar>(m11: T, m12: T, m13: T, m14: T,
                          m21: T, m22: T, m23: T, m24: T,
                          m31: T, m32: T, m33: T, m34: T) -> TMat3x4<T> {
@@ -153,6 +156,7 @@ pub fn mat4x2<T: Scalar>(m11: T, m12: T,
 
 /// Create a new 4x3 matrix.
 #[rustfmt::skip]
+#[allow(clippy::too_many_arguments)]
 pub fn mat4x3<T: Scalar>(m11: T, m12: T, m13: T,
                          m21: T, m22: T, m23: T,
                          m31: T, m32: T, m33: T,
@@ -167,6 +171,7 @@ pub fn mat4x3<T: Scalar>(m11: T, m12: T, m13: T,
 
 /// Create a new 4x4 matrix.
 #[rustfmt::skip]
+#[allow(clippy::too_many_arguments)]
 pub fn mat4x4<T: Scalar>(m11: T, m12: T, m13: T, m14: T,
                          m21: T, m22: T, m23: T, m24: T,
                          m31: T, m32: T, m33: T, m34: T,
@@ -181,6 +186,7 @@ pub fn mat4x4<T: Scalar>(m11: T, m12: T, m13: T, m14: T,
 
 /// Create a new 4x4 matrix.
 #[rustfmt::skip]
+#[allow(clippy::too_many_arguments)]
 pub fn mat4<T: Scalar>(m11: T, m12: T, m13: T, m14: T,
                        m21: T, m22: T, m23: T, m24: T,
                        m31: T, m32: T, m33: T, m34: T,

@@ -126,7 +126,7 @@ where
 
         let mut q = self
             .qr
-            .generic_slice((0, 0), (nrows, min_nrows_ncols))
+            .generic_view((0, 0), (nrows, min_nrows_ncols))
             .into_owned();
 
         let mut info = 0;

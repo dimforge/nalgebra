@@ -1,4 +1,4 @@
-use na::DMatrix;
+use na::{DMatrix, Matrix3};
 
 #[cfg(feature = "proptest-support")]
 mod proptest_tests {
@@ -116,6 +116,31 @@ fn symmetric_eigen_singular_24x24() {
     );
 }
 
+// Regression test for #1368
+#[test]
+fn very_small_deviation_from_identity_issue_1368() {
+    let m = Matrix3::<f32>::new(
+        1.0,
+        3.1575704e-23,
+        8.1146196e-23,
+        3.1575704e-23,
+        1.0,
+        1.7471054e-22,
+        8.1146196e-23,
+        1.7471054e-22,
+        1.0,
+    );
+
+    for v in m
+        .try_symmetric_eigen(f32::EPSILON, 0)
+        .unwrap()
+        .eigenvalues
+        .into_iter()
+    {
+        assert_relative_eq!(*v, 1.);
+    }
+}
+
 //  #[cfg(feature = "arbitrary")]
 //  quickcheck! {
 // TODO: full eigendecomposition is not implemented yet because of its complexity when some
@@ -123,7 +148,7 @@ fn symmetric_eigen_singular_24x24() {
 //
 //    /*
 //     * NOTE: for the following tests, we use only upper-triangular matrices.
-//     * Thes ensures the schur decomposition will work, and allows use to test the eigenvector
+//     * This ensures the schur decomposition will work, and allows use to test the eigenvector
 //     * computation.
 //     */
 //    fn eigen(n: usize) -> bool {
@@ -134,11 +159,11 @@ fn symmetric_eigen_singular_24x24() {
 //        verify_eigenvectors(m, eig)
 //    }
 //
-//    fn eigen_with_adjascent_duplicate_diagonals(n: usize) -> bool {
+//    fn eigen_with_adjacent_duplicate_diagonals(n: usize) -> bool {
 //        let n = cmp::max(1, cmp::min(n, 10));
 //        let mut m = DMatrix::<f64>::new_random(n, n).upper_triangle();
 //
-//        // Suplicate some adjascent diagonal elements.
+//        // Suplicate some adjacent diagonal elements.
 //        for i in 0 .. n / 2 {
 //            m[(i * 2 + 1, i * 2 + 1)] = m[(i * 2, i * 2)];
 //        }
@@ -147,7 +172,7 @@ fn symmetric_eigen_singular_24x24() {
 //        verify_eigenvectors(m, eig)
 //    }
 //
-//    fn eigen_with_nonadjascent_duplicate_diagonals(n: usize) -> bool {
+//    fn eigen_with_nonadjacent_duplicate_diagonals(n: usize) -> bool {
 //        let n = cmp::max(3, cmp::min(n, 10));
 //        let mut m = DMatrix::<f64>::new_random(n, n).upper_triangle();
 //

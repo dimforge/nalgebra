@@ -14,16 +14,30 @@ use simba::simd::{SimdBool, SimdOption, SimdRealField};
 use crate::base::dimension::{U1, U3, U4};
 use crate::base::storage::{CStride, RStride};
 use crate::base::{
-    Matrix3, Matrix4, MatrixSlice, MatrixSliceMut, Normed, Scalar, Unit, Vector3, Vector4,
+    Matrix3, Matrix4, MatrixView, MatrixViewMut, Normed, Scalar, Unit, Vector3, Vector4,
 };
 
 use crate::geometry::{Point3, Rotation};
+
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
 
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
 #[derive(Copy, Clone)]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Quaternion<T::Archived>",
+        bound(archive = "
+            T: rkyv::Archive,
+            Vector4<T>: rkyv::Archive<Archived = Vector4<T::Archived>>
+        ")
+    )
+)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<T>,
@@ -97,48 +111,6 @@ where
     }
 }
 
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Quaternion;
-    use crate::base::Vector4;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Archive> Archive for Quaternion<T> {
-        type Archived = Quaternion<T::Archived>;
-        type Resolver = <Vector4<T> as Archive>::Resolver;
-
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.coords.resolve(
-                pos + offset_of!(Self::Archived, coords),
-                resolver,
-                project_struct!(out: Self::Archived => coords),
-            );
-        }
-    }
-
-    impl<T: Serialize<S>, S: Fallible + ?Sized> Serialize<S> for Quaternion<T> {
-        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            self.coords.serialize(serializer)
-        }
-    }
-
-    impl<T: Archive, D: Fallible + ?Sized> Deserialize<Quaternion<T>, D> for Quaternion<T::Archived>
-    where
-        T::Archived: Deserialize<T, D>,
-    {
-        fn deserialize(&self, deserializer: &mut D) -> Result<Quaternion<T>, D::Error> {
-            Ok(Quaternion {
-                coords: self.coords.deserialize(deserializer)?,
-            })
-        }
-    }
-}
-
 impl<T: SimdRealField> Quaternion<T>
 where
     T::Element: SimdRealField,
@@ -165,7 +137,7 @@ where
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
     /// let q_normalized = q.normalize();
-    /// relative_eq!(q_normalized.norm(), 1.0);
+    /// assert_relative_eq!(q_normalized.norm(), 1.0);
     /// ```
     #[inline]
     #[must_use = "Did you mean to use normalize_mut()?"]
@@ -225,7 +197,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn vector(&self) -> MatrixSlice<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
+    pub fn vector(&self) -> MatrixView<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
         self.coords.fixed_rows::<3>(0)
     }
 
@@ -298,7 +270,7 @@ where
     /// ```
     /// # use nalgebra::Quaternion;
     /// let q = Quaternion::new(1.0, 2.0, 3.0, 4.0);
-    /// assert_eq!(q.magnitude_squared(), 30.0);
+    /// assert_eq!(q.norm_squared(), 30.0);
     /// ```
     #[inline]
     #[must_use]
@@ -618,7 +590,7 @@ where
     #[inline]
     pub fn vector_mut(
         &mut self,
-    ) -> MatrixSliceMut<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
+    ) -> MatrixViewMut<'_, T, U3, U1, RStride<T, U4, U1>, CStride<T, U4, U1>> {
         self.coords.fixed_rows_mut::<3>(0)
     }
 
@@ -1043,9 +1015,6 @@ impl<T: RealField + fmt::Display> fmt::Display for Quaternion<T> {
 /// A unit quaternions. May be used to represent a rotation.
 pub type UnitQuaternion<T> = Unit<Quaternion<T>>;
 
-#[cfg(feature = "cuda")]
-unsafe impl<T: cust_core::DeviceCopy> cust_core::DeviceCopy for UnitQuaternion<T> {}
-
 impl<T: Scalar + ClosedNeg + PartialEq> PartialEq for UnitQuaternion<T> {
     #[inline]
     fn eq(&self, rhs: &Self) -> bool {
@@ -1357,7 +1326,7 @@ where
         }
     }
 
-    /// The rotation axis and angle in ]0, pi] of this unit quaternion.
+    /// The rotation axis and angle in (0, pi] of this unit quaternion.
     ///
     /// Returns `None` if the angle is zero.
     ///
@@ -1607,7 +1576,7 @@ where
     #[inline]
     #[must_use]
     pub fn inverse_transform_point(&self, pt: &Point3<T>) -> Point3<T> {
-        // TODO: would it be useful performancewise not to call inverse explicitly (i-e. implement
+        // TODO: would it be useful performance-wise not to call inverse explicitly (i-e. implement
         // the inverse transformation explicitly here) ?
         self.inverse() * pt
     }

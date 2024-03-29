@@ -1,8 +1,10 @@
 use crate::csc::CscMatrix;
-use crate::ops::serial::cs::{spadd_cs_prealloc, spmm_cs_dense, spmm_cs_prealloc};
+use crate::ops::serial::cs::{
+    spadd_cs_prealloc, spmm_cs_dense, spmm_cs_prealloc, spmm_cs_prealloc_unchecked,
+};
 use crate::ops::serial::{OperationError, OperationErrorKind};
 use crate::ops::Op;
-use nalgebra::{ClosedAdd, ClosedMul, DMatrixSlice, DMatrixSliceMut, RealField, Scalar};
+use nalgebra::{ClosedAdd, ClosedMul, DMatrixView, DMatrixViewMut, RealField, Scalar};
 use num_traits::{One, Zero};
 
 use std::borrow::Cow;
@@ -14,10 +16,10 @@ use std::borrow::Cow;
 /// Panics if the dimensions of the matrices involved are not compatible with the expression.
 pub fn spmm_csc_dense<'a, T>(
     beta: T,
-    c: impl Into<DMatrixSliceMut<'a, T>>,
+    c: impl Into<DMatrixViewMut<'a, T>>,
     alpha: T,
     a: Op<&CscMatrix<T>>,
-    b: Op<impl Into<DMatrixSlice<'a, T>>>,
+    b: Op<impl Into<DMatrixView<'a, T>>>,
 ) where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {
@@ -27,10 +29,10 @@ pub fn spmm_csc_dense<'a, T>(
 
 fn spmm_csc_dense_<T>(
     beta: T,
-    c: DMatrixSliceMut<'_, T>,
+    c: DMatrixViewMut<'_, T>,
     alpha: T,
     a: Op<&CscMatrix<T>>,
-    b: Op<DMatrixSlice<'_, T>>,
+    b: Op<DMatrixView<'_, T>>,
 ) where
     T: Scalar + ClosedAdd + ClosedMul + Zero + One,
 {
@@ -83,33 +85,79 @@ where
 {
     assert_compatible_spmm_dims!(c, a, b);
 
-    use Op::{NoOp, Transpose};
+    use Op::NoOp;
 
     match (&a, &b) {
-        (NoOp(ref a), NoOp(ref b)) => {
+        (NoOp(a), NoOp(b)) => {
             // Note: We have to reverse the order for CSC matrices
             spmm_cs_prealloc(beta, &mut c.cs, alpha, &b.cs, &a.cs)
         }
-        _ => {
-            // Currently we handle transposition by explicitly precomputing transposed matrices
-            // and calling the operation again without transposition
-            let a_ref: &CscMatrix<T> = a.inner_ref();
-            let b_ref: &CscMatrix<T> = b.inner_ref();
-            let (a, b) = {
-                use Cow::*;
-                match (&a, &b) {
-                    (NoOp(_), NoOp(_)) => unreachable!(),
-                    (Transpose(ref a), NoOp(_)) => (Owned(a.transpose()), Borrowed(b_ref)),
-                    (NoOp(_), Transpose(ref b)) => (Borrowed(a_ref), Owned(b.transpose())),
-                    (Transpose(ref a), Transpose(ref b)) => {
-                        (Owned(a.transpose()), Owned(b.transpose()))
-                    }
-                }
-            };
-
-            spmm_csc_prealloc(beta, c, alpha, NoOp(a.as_ref()), NoOp(b.as_ref()))
-        }
+        _ => spmm_csc_transposed(beta, c, alpha, a, b, spmm_csc_prealloc),
     }
+}
+
+/// Faster sparse-sparse matrix multiplication, `C <- beta * C + alpha * op(A) * op(B)`.
+/// This will not return an error even if the patterns don't match.
+/// Should be used for situations where pattern creation immediately precedes multiplication.
+///
+/// Panics if the dimensions of the matrices involved are not compatible with the expression.
+pub fn spmm_csc_prealloc_unchecked<T>(
+    beta: T,
+    c: &mut CscMatrix<T>,
+    alpha: T,
+    a: Op<&CscMatrix<T>>,
+    b: Op<&CscMatrix<T>>,
+) -> Result<(), OperationError>
+where
+    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+{
+    assert_compatible_spmm_dims!(c, a, b);
+
+    use Op::NoOp;
+
+    match (&a, &b) {
+        (NoOp(a), NoOp(b)) => {
+            // Note: We have to reverse the order for CSC matrices
+            spmm_cs_prealloc_unchecked(beta, &mut c.cs, alpha, &b.cs, &a.cs)
+        }
+        _ => spmm_csc_transposed(beta, c, alpha, a, b, spmm_csc_prealloc_unchecked),
+    }
+}
+
+fn spmm_csc_transposed<T, F>(
+    beta: T,
+    c: &mut CscMatrix<T>,
+    alpha: T,
+    a: Op<&CscMatrix<T>>,
+    b: Op<&CscMatrix<T>>,
+    spmm_kernel: F,
+) -> Result<(), OperationError>
+where
+    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    F: Fn(
+        T,
+        &mut CscMatrix<T>,
+        T,
+        Op<&CscMatrix<T>>,
+        Op<&CscMatrix<T>>,
+    ) -> Result<(), OperationError>,
+{
+    use Op::{NoOp, Transpose};
+
+    // Currently we handle transposition by explicitly precomputing transposed matrices
+    // and calling the operation again without transposition
+    let a_ref: &CscMatrix<T> = a.inner_ref();
+    let b_ref: &CscMatrix<T> = b.inner_ref();
+    let (a, b) = {
+        use Cow::*;
+        match (&a, &b) {
+            (NoOp(_), NoOp(_)) => unreachable!(),
+            (Transpose(a), NoOp(_)) => (Owned(a.transpose()), Borrowed(b_ref)),
+            (NoOp(_), Transpose(b)) => (Borrowed(a_ref), Owned(b.transpose())),
+            (Transpose(a), Transpose(b)) => (Owned(a.transpose()), Owned(b.transpose())),
+        }
+    };
+    spmm_kernel(beta, c, alpha, NoOp(a.as_ref()), NoOp(b.as_ref()))
 }
 
 /// Solve the lower triangular system `op(L) X = B`.
@@ -125,7 +173,7 @@ where
 /// Panics if `L` is not square, or if `L` and `B` are not dimensionally compatible.
 pub fn spsolve_csc_lower_triangular<'a, T: RealField>(
     l: Op<&CscMatrix<T>>,
-    b: impl Into<DMatrixSliceMut<'a, T>>,
+    b: impl Into<DMatrixViewMut<'a, T>>,
 ) -> Result<(), OperationError> {
     let b = b.into();
     let l_matrix = l.into_inner();
@@ -147,7 +195,7 @@ pub fn spsolve_csc_lower_triangular<'a, T: RealField>(
 
 fn spsolve_csc_lower_triangular_no_transpose<T: RealField>(
     l: &CscMatrix<T>,
-    b: DMatrixSliceMut<'_, T>,
+    b: DMatrixViewMut<'_, T>,
 ) -> Result<(), OperationError> {
     let mut x = b;
 
@@ -205,7 +253,7 @@ fn spsolve_encountered_zero_diagonal() -> Result<(), OperationError> {
 
 fn spsolve_csc_lower_triangular_transpose<T: RealField>(
     l: &CscMatrix<T>,
-    b: DMatrixSliceMut<'_, T>,
+    b: DMatrixViewMut<'_, T>,
 ) -> Result<(), OperationError> {
     let mut x = b;
 

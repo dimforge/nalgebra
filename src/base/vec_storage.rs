@@ -4,7 +4,7 @@ use alloc::vec::Vec;
 use crate::base::allocator::Allocator;
 use crate::base::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::base::default_allocator::DefaultAllocator;
-use crate::base::dimension::{Dim, DimName, Dynamic, U1};
+use crate::base::dimension::{Dim, DimName, Dyn, U1};
 use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, ReshapableStorage};
 use crate::base::{Scalar, Vector};
 
@@ -29,6 +29,46 @@ pub struct VecStorage<T, R: Dim, C: Dim> {
     data: Vec<T>,
     nrows: R,
     ncols: C,
+}
+
+impl<T> Default for VecStorage<T, Dyn, Dyn> {
+    fn default() -> Self {
+        Self {
+            data: Vec::new(),
+            nrows: Dyn::from_usize(0),
+            ncols: Dyn::from_usize(0),
+        }
+    }
+}
+
+impl<T, R: DimName> Default for VecStorage<T, R, Dyn> {
+    fn default() -> Self {
+        Self {
+            data: Vec::new(),
+            nrows: R::name(),
+            ncols: Dyn::from_usize(0),
+        }
+    }
+}
+
+impl<T, C: DimName> Default for VecStorage<T, Dyn, C> {
+    fn default() -> Self {
+        Self {
+            data: Vec::new(),
+            nrows: Dyn::from_usize(0),
+            ncols: C::name(),
+        }
+    }
+}
+
+impl<T: Default, R: DimName, C: DimName> Default for VecStorage<T, R, C> {
+    fn default() -> Self {
+        let nrows = R::name();
+        let ncols = C::name();
+        let mut data = Vec::new();
+        data.resize_with(nrows.value() * ncols.value(), Default::default);
+        Self { data, nrows, ncols }
+    }
 }
 
 #[cfg(feature = "serde-serialize")]
@@ -148,7 +188,7 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
         };
 
         // Avoid double-free by forgetting `self` because its data buffer has
-        // been transfered to `new_data`.
+        // been transferred to `new_data`.
         std::mem::forget(self);
         new_data
     }
@@ -188,13 +228,13 @@ impl<T, R: Dim, C: Dim> From<VecStorage<T, R, C>> for Vec<T> {
 
 /*
  *
- * Dynamic − Static
- * Dynamic − Dynamic
+ * Dyn − Static
+ * Dyn − Dyn
  *
  */
-unsafe impl<T, C: Dim> RawStorage<T, Dynamic, C> for VecStorage<T, Dynamic, C> {
+unsafe impl<T, C: Dim> RawStorage<T, Dyn, C> for VecStorage<T, Dyn, C> {
     type RStride = U1;
-    type CStride = Dynamic;
+    type CStride = Dyn;
 
     #[inline]
     fn ptr(&self) -> *const T {
@@ -202,7 +242,7 @@ unsafe impl<T, C: Dim> RawStorage<T, Dynamic, C> for VecStorage<T, Dynamic, C> {
     }
 
     #[inline]
-    fn shape(&self) -> (Dynamic, C) {
+    fn shape(&self) -> (Dyn, C) {
         (self.nrows, self.ncols)
     }
 
@@ -222,28 +262,28 @@ unsafe impl<T, C: Dim> RawStorage<T, Dynamic, C> for VecStorage<T, Dynamic, C> {
     }
 }
 
-unsafe impl<T: Scalar, C: Dim> Storage<T, Dynamic, C> for VecStorage<T, Dynamic, C>
+unsafe impl<T: Scalar, C: Dim> Storage<T, Dyn, C> for VecStorage<T, Dyn, C>
 where
-    DefaultAllocator: Allocator<T, Dynamic, C, Buffer = Self>,
+    DefaultAllocator: Allocator<T, Dyn, C, Buffer = Self>,
 {
     #[inline]
-    fn into_owned(self) -> Owned<T, Dynamic, C>
+    fn into_owned(self) -> Owned<T, Dyn, C>
     where
-        DefaultAllocator: Allocator<T, Dynamic, C>,
+        DefaultAllocator: Allocator<T, Dyn, C>,
     {
         self
     }
 
     #[inline]
-    fn clone_owned(&self) -> Owned<T, Dynamic, C>
+    fn clone_owned(&self) -> Owned<T, Dyn, C>
     where
-        DefaultAllocator: Allocator<T, Dynamic, C>,
+        DefaultAllocator: Allocator<T, Dyn, C>,
     {
         self.clone()
     }
 }
 
-unsafe impl<T, R: DimName> RawStorage<T, R, Dynamic> for VecStorage<T, R, Dynamic> {
+unsafe impl<T, R: DimName> RawStorage<T, R, Dyn> for VecStorage<T, R, Dyn> {
     type RStride = U1;
     type CStride = R;
 
@@ -253,7 +293,7 @@ unsafe impl<T, R: DimName> RawStorage<T, R, Dynamic> for VecStorage<T, R, Dynami
     }
 
     #[inline]
-    fn shape(&self) -> (R, Dynamic) {
+    fn shape(&self) -> (R, Dyn) {
         (self.nrows, self.ncols)
     }
 
@@ -273,22 +313,22 @@ unsafe impl<T, R: DimName> RawStorage<T, R, Dynamic> for VecStorage<T, R, Dynami
     }
 }
 
-unsafe impl<T: Scalar, R: DimName> Storage<T, R, Dynamic> for VecStorage<T, R, Dynamic>
+unsafe impl<T: Scalar, R: DimName> Storage<T, R, Dyn> for VecStorage<T, R, Dyn>
 where
-    DefaultAllocator: Allocator<T, R, Dynamic, Buffer = Self>,
+    DefaultAllocator: Allocator<T, R, Dyn, Buffer = Self>,
 {
     #[inline]
-    fn into_owned(self) -> Owned<T, R, Dynamic>
+    fn into_owned(self) -> Owned<T, R, Dyn>
     where
-        DefaultAllocator: Allocator<T, R, Dynamic>,
+        DefaultAllocator: Allocator<T, R, Dyn>,
     {
         self
     }
 
     #[inline]
-    fn clone_owned(&self) -> Owned<T, R, Dynamic>
+    fn clone_owned(&self) -> Owned<T, R, Dyn>
     where
-        DefaultAllocator: Allocator<T, R, Dynamic>,
+        DefaultAllocator: Allocator<T, R, Dyn>,
     {
         self.clone()
     }
@@ -299,7 +339,7 @@ where
  * RawStorageMut, ContiguousStorage.
  *
  */
-unsafe impl<T, C: Dim> RawStorageMut<T, Dynamic, C> for VecStorage<T, Dynamic, C> {
+unsafe impl<T, C: Dim> RawStorageMut<T, Dyn, C> for VecStorage<T, Dyn, C> {
     #[inline]
     fn ptr_mut(&mut self) -> *mut T {
         self.data.as_mut_ptr()
@@ -313,15 +353,15 @@ unsafe impl<T, C: Dim> RawStorageMut<T, Dynamic, C> for VecStorage<T, Dynamic, C
 
 unsafe impl<T, R: Dim, C: Dim> IsContiguous for VecStorage<T, R, C> {}
 
-impl<T, C1, C2> ReshapableStorage<T, Dynamic, C1, Dynamic, C2> for VecStorage<T, Dynamic, C1>
+impl<T, C1, C2> ReshapableStorage<T, Dyn, C1, Dyn, C2> for VecStorage<T, Dyn, C1>
 where
     T: Scalar,
     C1: Dim,
     C2: Dim,
 {
-    type Output = VecStorage<T, Dynamic, C2>;
+    type Output = VecStorage<T, Dyn, C2>;
 
-    fn reshape_generic(self, nrows: Dynamic, ncols: C2) -> Self::Output {
+    fn reshape_generic(self, nrows: Dyn, ncols: C2) -> Self::Output {
         assert_eq!(nrows.value() * ncols.value(), self.data.len());
         VecStorage {
             data: self.data,
@@ -331,15 +371,15 @@ where
     }
 }
 
-impl<T, C1, R2> ReshapableStorage<T, Dynamic, C1, R2, Dynamic> for VecStorage<T, Dynamic, C1>
+impl<T, C1, R2> ReshapableStorage<T, Dyn, C1, R2, Dyn> for VecStorage<T, Dyn, C1>
 where
     T: Scalar,
     C1: Dim,
     R2: DimName,
 {
-    type Output = VecStorage<T, R2, Dynamic>;
+    type Output = VecStorage<T, R2, Dyn>;
 
-    fn reshape_generic(self, nrows: R2, ncols: Dynamic) -> Self::Output {
+    fn reshape_generic(self, nrows: R2, ncols: Dyn) -> Self::Output {
         assert_eq!(nrows.value() * ncols.value(), self.data.len());
         VecStorage {
             data: self.data,
@@ -349,7 +389,7 @@ where
     }
 }
 
-unsafe impl<T, R: DimName> RawStorageMut<T, R, Dynamic> for VecStorage<T, R, Dynamic> {
+unsafe impl<T, R: DimName> RawStorageMut<T, R, Dyn> for VecStorage<T, R, Dyn> {
     #[inline]
     fn ptr_mut(&mut self) -> *mut T {
         self.data.as_mut_ptr()
@@ -361,15 +401,15 @@ unsafe impl<T, R: DimName> RawStorageMut<T, R, Dynamic> for VecStorage<T, R, Dyn
     }
 }
 
-impl<T, R1, C2> ReshapableStorage<T, R1, Dynamic, Dynamic, C2> for VecStorage<T, R1, Dynamic>
+impl<T, R1, C2> ReshapableStorage<T, R1, Dyn, Dyn, C2> for VecStorage<T, R1, Dyn>
 where
     T: Scalar,
     R1: DimName,
     C2: Dim,
 {
-    type Output = VecStorage<T, Dynamic, C2>;
+    type Output = VecStorage<T, Dyn, C2>;
 
-    fn reshape_generic(self, nrows: Dynamic, ncols: C2) -> Self::Output {
+    fn reshape_generic(self, nrows: Dyn, ncols: C2) -> Self::Output {
         assert_eq!(nrows.value() * ncols.value(), self.data.len());
         VecStorage {
             data: self.data,
@@ -379,15 +419,15 @@ where
     }
 }
 
-impl<T, R1, R2> ReshapableStorage<T, R1, Dynamic, R2, Dynamic> for VecStorage<T, R1, Dynamic>
+impl<T, R1, R2> ReshapableStorage<T, R1, Dyn, R2, Dyn> for VecStorage<T, R1, Dyn>
 where
     T: Scalar,
     R1: DimName,
     R2: DimName,
 {
-    type Output = VecStorage<T, R2, Dynamic>;
+    type Output = VecStorage<T, R2, Dyn>;
 
-    fn reshape_generic(self, nrows: R2, ncols: Dynamic) -> Self::Output {
+    fn reshape_generic(self, nrows: R2, ncols: Dyn) -> Self::Output {
         assert_eq!(nrows.value() * ncols.value(), self.data.len());
         VecStorage {
             data: self.data,
@@ -397,7 +437,7 @@ where
     }
 }
 
-impl<T, R: Dim> Extend<T> for VecStorage<T, R, Dynamic> {
+impl<T, R: Dim> Extend<T> for VecStorage<T, R, Dyn> {
     /// Extends the number of columns of the `VecStorage` with elements
     /// from the given iterator.
     ///
@@ -407,13 +447,13 @@ impl<T, R: Dim> Extend<T> for VecStorage<T, R, Dynamic> {
     /// `VecStorage`.
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
         self.data.extend(iter);
-        self.ncols = Dynamic::new(self.data.len() / self.nrows.value());
+        self.ncols = Dyn(self.data.len() / self.nrows.value());
         assert!(self.data.len() % self.nrows.value() == 0,
           "The number of elements produced by the given iterator was not a multiple of the number of rows.");
     }
 }
 
-impl<'a, T: 'a + Copy, R: Dim> Extend<&'a T> for VecStorage<T, R, Dynamic> {
+impl<'a, T: 'a + Copy, R: Dim> Extend<&'a T> for VecStorage<T, R, Dyn> {
     /// Extends the number of columns of the `VecStorage` with elements
     /// from the given iterator.
     ///
@@ -426,7 +466,7 @@ impl<'a, T: 'a + Copy, R: Dim> Extend<&'a T> for VecStorage<T, R, Dynamic> {
     }
 }
 
-impl<T, R, RV, SV> Extend<Vector<T, RV, SV>> for VecStorage<T, R, Dynamic>
+impl<T, R, RV, SV> Extend<Vector<T, RV, SV>> for VecStorage<T, R, Dyn>
 where
     T: Scalar,
     R: Dim,
@@ -450,15 +490,15 @@ where
             assert_eq!(nrows, vector.shape().0);
             self.data.extend(vector.iter().cloned());
         }
-        self.ncols = Dynamic::new(self.data.len() / nrows);
+        self.ncols = Dyn(self.data.len() / nrows);
     }
 }
 
-impl<T> Extend<T> for VecStorage<T, Dynamic, U1> {
+impl<T> Extend<T> for VecStorage<T, Dyn, U1> {
     /// Extends the number of rows of the `VecStorage` with elements
     /// from the given iterator.
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
         self.data.extend(iter);
-        self.nrows = Dynamic::new(self.data.len());
+        self.nrows = Dyn(self.data.len());
     }
 }

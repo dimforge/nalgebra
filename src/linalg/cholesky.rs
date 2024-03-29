@@ -1,7 +1,7 @@
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
-use num::One;
+use num::{One, Zero};
 use simba::scalar::ComplexField;
 use simba::simd::SimdComplexField;
 
@@ -67,7 +67,7 @@ where
                 *matrix.get_unchecked_mut((j, j)) = denom.clone();
             }
 
-            let mut col = matrix.slice_range_mut(j + 1.., j);
+            let mut col = matrix.view_range_mut(j + 1.., j);
             col /= denom;
         }
 
@@ -161,6 +161,27 @@ where
         }
         prod_diag.simd_modulus_squared()
     }
+
+    /// Computes the natural logarithm of determinant of the decomposed matrix.
+    ///
+    /// This method is more robust than `.determinant()` to very small or very
+    /// large determinants since it returns the natural logarithm of the
+    /// determinant rather than the determinant itself.
+    #[must_use]
+    pub fn ln_determinant(&self) -> T::SimdRealField {
+        let dim = self.chol.nrows();
+        let mut sum_diag = T::SimdRealField::zero();
+        for i in 0..dim {
+            sum_diag += unsafe {
+                self.chol
+                    .get_unchecked((i, i))
+                    .clone()
+                    .simd_modulus_squared()
+                    .simd_ln()
+            };
+        }
+        sum_diag
+    }
 }
 
 impl<T: ComplexField, D: Dim> Cholesky<T, D>
@@ -228,7 +249,7 @@ where
                     *matrix.get_unchecked_mut((j, j)) = denom.clone();
                 }
 
-                let mut col = matrix.slice_range_mut(j + 1.., j);
+                let mut col = matrix.view_range_mut(j + 1.., j);
                 col /= denom;
                 continue;
             }
@@ -283,17 +304,17 @@ where
             self.chol.shape_generic().0.add(Const::<1>),
             self.chol.shape_generic().1.add(Const::<1>),
         );
-        chol.slice_range_mut(..j, ..j)
-            .copy_from(&self.chol.slice_range(..j, ..j));
-        chol.slice_range_mut(..j, j + 1..)
-            .copy_from(&self.chol.slice_range(..j, j..));
-        chol.slice_range_mut(j + 1.., ..j)
-            .copy_from(&self.chol.slice_range(j.., ..j));
-        chol.slice_range_mut(j + 1.., j + 1..)
-            .copy_from(&self.chol.slice_range(j.., j..));
+        chol.view_range_mut(..j, ..j)
+            .copy_from(&self.chol.view_range(..j, ..j));
+        chol.view_range_mut(..j, j + 1..)
+            .copy_from(&self.chol.view_range(..j, j..));
+        chol.view_range_mut(j + 1.., ..j)
+            .copy_from(&self.chol.view_range(j.., ..j));
+        chol.view_range_mut(j + 1.., j + 1..)
+            .copy_from(&self.chol.view_range(j.., j..));
 
         // update the jth row
-        let top_left_corner = self.chol.slice_range(..j, ..j);
+        let top_left_corner = self.chol.view_range(..j, ..j);
 
         let col_j = col[j].clone();
         let (mut new_rowj_adjoint, mut new_colj) = col.rows_range_pair_mut(..j, j + 1..);
@@ -302,14 +323,14 @@ where
             "Cholesky::insert_column : Unable to solve lower triangular system!"
         );
 
-        new_rowj_adjoint.adjoint_to(&mut chol.slice_range_mut(j, ..j));
+        new_rowj_adjoint.adjoint_to(&mut chol.view_range_mut(j, ..j));
 
         // update the center element
         let center_element = T::sqrt(col_j - T::from_real(new_rowj_adjoint.norm_squared()));
         chol[(j, j)] = center_element.clone();
 
         // update the jth column
-        let bottom_left_corner = self.chol.slice_range(j.., ..j);
+        let bottom_left_corner = self.chol.view_range(j.., ..j);
         // new_colj = (col_jplus - bottom_left_corner * new_rowj.adjoint()) / center_element;
         new_colj.gemm(
             -T::one() / center_element.clone(),
@@ -317,10 +338,10 @@ where
             &new_rowj_adjoint,
             T::one() / center_element,
         );
-        chol.slice_range_mut(j + 1.., j).copy_from(&new_colj);
+        chol.view_range_mut(j + 1.., j).copy_from(&new_colj);
 
         // update the bottom right corner
-        let mut bottom_right_corner = chol.slice_range_mut(j + 1.., j + 1..);
+        let mut bottom_right_corner = chol.view_range_mut(j + 1.., j + 1..);
         Self::xx_rank_one_update(
             &mut bottom_right_corner,
             &mut new_colj,
@@ -348,17 +369,17 @@ where
             self.chol.shape_generic().0.sub(Const::<1>),
             self.chol.shape_generic().1.sub(Const::<1>),
         );
-        chol.slice_range_mut(..j, ..j)
-            .copy_from(&self.chol.slice_range(..j, ..j));
-        chol.slice_range_mut(..j, j..)
-            .copy_from(&self.chol.slice_range(..j, j + 1..));
-        chol.slice_range_mut(j.., ..j)
-            .copy_from(&self.chol.slice_range(j + 1.., ..j));
-        chol.slice_range_mut(j.., j..)
-            .copy_from(&self.chol.slice_range(j + 1.., j + 1..));
+        chol.view_range_mut(..j, ..j)
+            .copy_from(&self.chol.view_range(..j, ..j));
+        chol.view_range_mut(..j, j..)
+            .copy_from(&self.chol.view_range(..j, j + 1..));
+        chol.view_range_mut(j.., ..j)
+            .copy_from(&self.chol.view_range(j + 1.., ..j));
+        chol.view_range_mut(j.., j..)
+            .copy_from(&self.chol.view_range(j + 1.., j + 1..));
 
         // updates the bottom right corner
-        let mut bottom_right_corner = chol.slice_range_mut(j.., j..);
+        let mut bottom_right_corner = chol.view_range_mut(j.., j..);
         let mut workspace = self.chol.column(j).clone_owned();
         let mut old_colj = workspace.rows_range_mut(j + 1..);
         Self::xx_rank_one_update(&mut bottom_right_corner, &mut old_colj, T::RealField::one());
@@ -370,7 +391,7 @@ where
     /// performs a rank one update such that we end up with the decomposition of `M + sigma * (x * x.adjoint())`.
     ///
     /// This helper method is called by `rank_one_update` but also `insert_column` and `remove_column`
-    /// where it is used on a square slice of the decomposition
+    /// where it is used on a square view of the decomposition
     fn xx_rank_one_update<Dm, Sm, Rx, Sx>(
         chol: &mut Matrix<T, Dm, Dm, Sm>,
         x: &mut Vector<T, Rx, Sx>,
@@ -404,7 +425,7 @@ where
             beta += sigma_xj2 / diag2;
             // updates the terms of L
             let mut xjplus = x.rows_range_mut(j + 1..);
-            let mut col_j = chol.slice_range_mut(j + 1.., j);
+            let mut col_j = chol.view_range_mut(j + 1.., j);
             // temp_jplus -= (wj / T::from_real(diag)) * col_j;
             xjplus.axpy(-xj.clone() / T::from_real(diag.clone()), &col_j, T::one());
             if gamma != crate::zero::<T::RealField>() {

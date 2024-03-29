@@ -9,7 +9,7 @@ macro_rules! impl_point_conversion(
         impl From<$Vec2> for Point2<$N> {
             #[inline]
             fn from(e: $Vec2) -> Point2<$N> {
-                (*e.as_ref()).into()
+                <[$N;2]>::from(e).into()
             }
         }
 
@@ -23,7 +23,7 @@ macro_rules! impl_point_conversion(
         impl From<$Vec3> for Point3<$N> {
             #[inline]
             fn from(e: $Vec3) -> Point3<$N> {
-                (*e.as_ref()).into()
+                <[$N;3]>::from(e).into()
             }
         }
 
@@ -37,7 +37,7 @@ macro_rules! impl_point_conversion(
         impl From<$Vec4> for Point4<$N> {
             #[inline]
             fn from(e: $Vec4) -> Point4<$N> {
-                (*e.as_ref()).into()
+                <[$N;4]>::from(e).into()
             }
         }
 

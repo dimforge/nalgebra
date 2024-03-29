@@ -64,7 +64,7 @@ where
         }
 
         for i in 0..min_nrows_ncols.value() {
-            let piv = matrix.slice_range(i.., i..).icamax_full();
+            let piv = matrix.view_range(i.., i..).icamax_full();
             let row_piv = piv.0 + i;
             let col_piv = piv.1 + i;
             let diag = matrix[(row_piv, col_piv)].clone();

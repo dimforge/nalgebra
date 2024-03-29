@@ -9,6 +9,9 @@ use crate::base::DefaultAllocator;
 use crate::storage::RawStorage;
 use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealField};
 
+#[cfg(feature = "rkyv-serialize")]
+use rkyv::bytecheck;
+
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///
 /// **It is likely that the only piece of documentation that you need in this page are:**
@@ -21,7 +24,17 @@ use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealF
 /// in their documentation, read their dedicated pages directly.
 #[repr(transparent)]
 #[derive(Clone, Hash, Copy)]
-// #[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
+#[cfg_attr(
+    feature = "rkyv-serialize-no-std",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    archive(
+        as = "Unit<T::Archived>",
+        bound(archive = "
+        T: rkyv::Archive,
+    ")
+    )
+)]
+#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Unit<T> {
     pub(crate) value: T,
 }
@@ -56,57 +69,6 @@ impl<'de, T: Deserialize<'de>> Deserialize<'de> for Unit<T> {
     {
         T::deserialize(deserializer).map(|x| Unit { value: x })
     }
-}
-
-#[cfg(feature = "rkyv-serialize-no-std")]
-mod rkyv_impl {
-    use super::Unit;
-    use rkyv::{offset_of, project_struct, Archive, Deserialize, Fallible, Serialize};
-
-    impl<T: Archive> Archive for Unit<T> {
-        type Archived = Unit<T::Archived>;
-        type Resolver = T::Resolver;
-
-        fn resolve(
-            &self,
-            pos: usize,
-            resolver: Self::Resolver,
-            out: &mut ::core::mem::MaybeUninit<Self::Archived>,
-        ) {
-            self.value.resolve(
-                pos + offset_of!(Self::Archived, value),
-                resolver,
-                project_struct!(out: Self::Archived => value),
-            );
-        }
-    }
-
-    impl<T: Serialize<S>, S: Fallible + ?Sized> Serialize<S> for Unit<T> {
-        fn serialize(&self, serializer: &mut S) -> Result<Self::Resolver, S::Error> {
-            self.value.serialize(serializer)
-        }
-    }
-
-    impl<T: Archive, D: Fallible + ?Sized> Deserialize<Unit<T>, D> for Unit<T::Archived>
-    where
-        T::Archived: Deserialize<T, D>,
-    {
-        fn deserialize(&self, deserializer: &mut D) -> Result<Unit<T>, D::Error> {
-            Ok(Unit {
-                value: self.value.deserialize(deserializer)?,
-            })
-        }
-    }
-}
-
-#[cfg(feature = "cuda")]
-unsafe impl<T: cust_core::DeviceCopy, R, C, S> cust_core::DeviceCopy for Unit<Matrix<T, R, C, S>>
-where
-    T: Scalar,
-    R: Dim,
-    C: Dim,
-    S: RawStorage<T, R, C> + Copy,
-{
 }
 
 impl<T, R, C, S> PartialEq for Unit<Matrix<T, R, C, S>>

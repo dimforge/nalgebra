@@ -1,4 +1,3 @@
-#![feature(bench_black_box)]
 #![allow(unused_macros)]
 
 extern crate nalgebra as na;

@@ -160,6 +160,25 @@ impl<T> CooMatrix<T> {
         }
     }
 
+    /// Try to construct a COO matrix from the given dimensions and a finite iterator of
+    /// (i, j, v) triplets.
+    ///
+    /// Returns an error if either row or column indices contain indices out of bounds.
+    /// Note that the COO format inherently supports duplicate entries, but they are not
+    /// eagerly summed.
+    ///
+    /// Implementation note:
+    /// Calls try_from_triplets so each value is scanned twice.
+    pub fn try_from_triplets_iter(
+        nrows: usize,
+        ncols: usize,
+        triplets: impl IntoIterator<Item = (usize, usize, T)>,
+    ) -> Result<Self, SparseFormatError> {
+        let (row_indices, (col_indices, values)) =
+            triplets.into_iter().map(|(r, c, v)| (r, (c, v))).unzip();
+        Self::try_from_triplets(nrows, ncols, row_indices, col_indices, values)
+    }
+
     /// An iterator over triplets (i, j, v).
     // TODO: Consider giving the iterator a concrete type instead of impl trait...?
     pub fn triplet_iter(&self) -> impl Iterator<Item = (usize, usize, &T)> {
@@ -167,6 +186,16 @@ impl<T> CooMatrix<T> {
             .iter()
             .zip(&self.col_indices)
             .zip(&self.values)
+            .map(|((i, j), v)| (*i, *j, v))
+    }
+
+    /// A mutable iterator over triplets (i, j, v).
+    // TODO: Consider giving the iterator a concrete type instead of impl trait...?
+    pub fn triplet_iter_mut(&mut self) -> impl Iterator<Item = (usize, usize, &mut T)> {
+        self.row_indices
+            .iter()
+            .zip(&self.col_indices)
+            .zip(self.values.iter_mut())
             .map(|((i, j), v)| (*i, *j, v))
     }
 
@@ -209,6 +238,13 @@ impl<T> CooMatrix<T> {
         self.row_indices.push(i);
         self.col_indices.push(j);
         self.values.push(v);
+    }
+
+    /// Clear all triplets from the matrix.
+    pub fn clear_triplets(&mut self) {
+        self.col_indices.clear();
+        self.row_indices.clear();
+        self.values.clear();
     }
 
     /// The number of rows in the matrix.

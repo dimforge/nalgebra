@@ -1,5 +1,3 @@
-use na;
-
 use crate::aliases::{TMat4, TVec2, TVec3, TVec4};
 use crate::RealNumber;
 
@@ -41,11 +39,11 @@ pub fn pick_matrix<T: RealNumber>(
 ///
 /// # See also:
 ///
-/// * [`project_no`](fn.project_no.html)
-/// * [`project_zo`](fn.project_zo.html)
-/// * [`unproject`](fn.unproject.html)
-/// * [`unproject_no`](fn.unproject_no.html)
-/// * [`unproject_zo`](fn.unproject_zo.html)
+/// * [`project_no()`]
+/// * [`project_zo()`]
+/// * [`unproject()`]
+/// * [`unproject_no()`]
+/// * [`unproject_zo()`]
 pub fn project<T: RealNumber>(
     obj: &TVec3<T>,
     model: &TMat4<T>,
@@ -68,11 +66,11 @@ pub fn project<T: RealNumber>(
 ///
 /// # See also:
 ///
-/// * [`project`](fn.project.html)
-/// * [`project_zo`](fn.project_zo.html)
-/// * [`unproject`](fn.unproject.html)
-/// * [`unproject_no`](fn.unproject_no.html)
-/// * [`unproject_zo`](fn.unproject_zo.html)
+/// * [`project()`]
+/// * [`project_zo()`]
+/// * [`unproject()`]
+/// * [`unproject_no()`]
+/// * [`unproject_zo()`]
 pub fn project_no<T: RealNumber>(
     obj: &TVec3<T>,
     model: &TMat4<T>,
@@ -96,11 +94,11 @@ pub fn project_no<T: RealNumber>(
 ///
 /// # See also:
 ///
-/// * [`project`](fn.project.html)
-/// * [`project_no`](fn.project_no.html)
-/// * [`unproject`](fn.unproject.html)
-/// * [`unproject_no`](fn.unproject_no.html)
-/// * [`unproject_zo`](fn.unproject_zo.html)
+/// * [`project()`]
+/// * [`project_no()`]
+/// * [`unproject()`]
+/// * [`unproject_no()`]
+/// * [`unproject_zo()`]
 pub fn project_zo<T: RealNumber>(
     obj: &TVec3<T>,
     model: &TMat4<T>,
@@ -129,11 +127,11 @@ pub fn project_zo<T: RealNumber>(
 ///
 /// # See also:
 ///
-/// * [`project`](fn.project.html)
-/// * [`project_no`](fn.project_no.html)
-/// * [`project_zo`](fn.project_zo.html)
-/// * [`unproject_no`](fn.unproject_no.html)
-/// * [`unproject_zo`](fn.unproject_zo.html)
+/// * [`project()`]
+/// * [`project_no()`]
+/// * [`project_zo()`]
+/// * [`unproject_no()`]
+/// * [`unproject_zo()`]
 pub fn unproject<T: RealNumber>(
     win: &TVec3<T>,
     model: &TMat4<T>,
@@ -156,11 +154,11 @@ pub fn unproject<T: RealNumber>(
 ///
 /// # See also:
 ///
-/// * [`project`](fn.project.html)
-/// * [`project_no`](fn.project_no.html)
-/// * [`project_zo`](fn.project_zo.html)
-/// * [`unproject`](fn.unproject.html)
-/// * [`unproject_zo`](fn.unproject_zo.html)
+/// * [`project()`]
+/// * [`project_no()`]
+/// * [`project_zo()`]
+/// * [`unproject()`]
+/// * [`unproject_zo()`]
 pub fn unproject_no<T: RealNumber>(
     win: &TVec3<T>,
     model: &TMat4<T>,
@@ -193,11 +191,11 @@ pub fn unproject_no<T: RealNumber>(
 ///
 /// # See also:
 ///
-/// * [`project`](fn.project.html)
-/// * [`project_no`](fn.project_no.html)
-/// * [`project_zo`](fn.project_zo.html)
-/// * [`unproject`](fn.unproject.html)
-/// * [`unproject_no`](fn.unproject_no.html)
+/// * [`project()`]
+/// * [`project_no()`]
+/// * [`project_zo()`]
+/// * [`unproject()`]
+/// * [`unproject_no()`]
 pub fn unproject_zo<T: RealNumber>(
     win: &TVec3<T>,
     model: &TMat4<T>,

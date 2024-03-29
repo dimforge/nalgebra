@@ -7,7 +7,7 @@ use std::slice;
 
 use crate::allocator::Allocator;
 use crate::sparse::cs_utils;
-use crate::{Const, DefaultAllocator, Dim, Dynamic, Matrix, OVector, Scalar, Vector, U1};
+use crate::{Const, DefaultAllocator, Dim, Dyn, Matrix, OVector, Scalar, Vector, U1};
 
 pub struct ColumnEntries<'a, T> {
     curr: usize,
@@ -236,16 +236,16 @@ impl<T: Scalar, R: Dim, C: Dim> CsStorageMut<T, R, C> for CsVecStorage<T, R, C> 
 pub struct CsSliceStorage<'a, T: Scalar, R: Dim, C: DimAdd<U1>> {
     shape: (R, C),
     p: VectorSlice<usize, DimSum<C, U1>>,
-    i: VectorSlice<usize, Dynamic>,
-    vals: VectorSlice<T, Dynamic>,
+    i: VectorSlice<usize, Dyn>,
+    vals: VectorSlice<T, Dyn>,
 }*/
 
 /// A compressed sparse column matrix.
 #[derive(Clone, Debug, PartialEq)]
 pub struct CsMatrix<
     T: Scalar,
-    R: Dim = Dynamic,
-    C: Dim = Dynamic,
+    R: Dim = Dyn,
+    C: Dim = Dyn,
     S: CsStorage<T, R, C> = CsVecStorage<T, R, C>,
 > {
     pub(crate) data: S,
@@ -253,7 +253,7 @@ pub struct CsMatrix<
 }
 
 /// A column compressed sparse vector.
-pub type CsVector<T, R = Dynamic, S = CsVecStorage<T, R, U1>> = CsMatrix<T, R, U1, S>;
+pub type CsVector<T, R = Dyn, S = CsVecStorage<T, R, U1>> = CsMatrix<T, R, U1, S>;
 
 impl<T: Scalar, R: Dim, C: Dim> CsMatrix<T, R, C>
 where
@@ -342,8 +342,8 @@ impl<T: Scalar + Zero + ClosedAdd> CsMatrix<T> {
         vals: Vec<T>,
     ) -> Self
     {
-        let nrows = Dynamic::new(nrows);
-        let ncols = Dynamic::new(ncols);
+        let nrows = Dyn(nrows);
+        let ncols = Dyn(ncols);
         let p = DVector::from_data(VecStorage::new(ncols, U1, p));
         Self::from_parts_generic(nrows, ncols, p, i, vals)
     }
@@ -498,7 +498,7 @@ where
         }
     }
 
-    // Remove dupliate entries on a sorted CsMatrix.
+    // Remove duplicate entries on a sorted CsMatrix.
     pub(crate) fn dedup(&mut self)
     where
         T: Zero + ClosedAdd,

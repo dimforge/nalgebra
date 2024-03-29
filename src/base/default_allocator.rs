@@ -12,21 +12,23 @@ use alloc::vec::Vec;
 use super::Const;
 use crate::base::allocator::{Allocator, Reallocator};
 use crate::base::array_storage::ArrayStorage;
+use crate::base::dimension::Dim;
 #[cfg(any(feature = "alloc", feature = "std"))]
-use crate::base::dimension::Dynamic;
-use crate::base::dimension::{Dim, DimName};
+use crate::base::dimension::{DimName, Dyn};
 use crate::base::storage::{RawStorage, RawStorageMut};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::vec_storage::VecStorage;
 use crate::base::Scalar;
-use std::mem::{ManuallyDrop, MaybeUninit};
+#[cfg(any(feature = "std", feature = "alloc"))]
+use std::mem::ManuallyDrop;
+use std::mem::MaybeUninit;
 
 /*
  *
  * Allocator.
  *
  */
-/// An allocator based on `GenericArray` and `VecStorage` for statically-sized and dynamically-sized
+/// An allocator based on [`ArrayStorage`] and [`VecStorage`] for statically-sized and dynamically-sized
 /// matrices respectively.
 #[derive(Copy, Clone, Debug)]
 pub struct DefaultAllocator;
@@ -82,15 +84,15 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
     }
 }
 
-// Dynamic - Static
-// Dynamic - Dynamic
+// Dyn - Static
+// Dyn - Dyn
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
-    type Buffer = VecStorage<T, Dynamic, C>;
-    type BufferUninit = VecStorage<MaybeUninit<T>, Dynamic, C>;
+impl<T: Scalar, C: Dim> Allocator<T, Dyn, C> for DefaultAllocator {
+    type Buffer = VecStorage<T, Dyn, C>;
+    type BufferUninit = VecStorage<MaybeUninit<T>, Dyn, C>;
 
     #[inline]
-    fn allocate_uninit(nrows: Dynamic, ncols: C) -> VecStorage<MaybeUninit<T>, Dynamic, C> {
+    fn allocate_uninit(nrows: Dyn, ncols: C) -> VecStorage<MaybeUninit<T>, Dyn, C> {
         let mut data = Vec::new();
         let length = nrows.value() * ncols.value();
         data.reserve_exact(length);
@@ -99,9 +101,7 @@ impl<T: Scalar, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
     }
 
     #[inline]
-    unsafe fn assume_init(
-        uninit: VecStorage<MaybeUninit<T>, Dynamic, C>,
-    ) -> VecStorage<T, Dynamic, C> {
+    unsafe fn assume_init(uninit: VecStorage<MaybeUninit<T>, Dyn, C>) -> VecStorage<T, Dyn, C> {
         // Avoids a double-drop.
         let (nrows, ncols) = uninit.shape();
         let vec: Vec<_> = uninit.into();
@@ -117,7 +117,7 @@ impl<T: Scalar, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
 
     #[inline]
     fn allocate_from_iterator<I: IntoIterator<Item = T>>(
-        nrows: Dynamic,
+        nrows: Dyn,
         ncols: C,
         iter: I,
     ) -> Self::Buffer {
@@ -130,14 +130,14 @@ impl<T: Scalar, C: Dim> Allocator<T, Dynamic, C> for DefaultAllocator {
     }
 }
 
-// Static - Dynamic
+// Static - Dyn
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
-    type Buffer = VecStorage<T, R, Dynamic>;
-    type BufferUninit = VecStorage<MaybeUninit<T>, R, Dynamic>;
+impl<T: Scalar, R: DimName> Allocator<T, R, Dyn> for DefaultAllocator {
+    type Buffer = VecStorage<T, R, Dyn>;
+    type BufferUninit = VecStorage<MaybeUninit<T>, R, Dyn>;
 
     #[inline]
-    fn allocate_uninit(nrows: R, ncols: Dynamic) -> VecStorage<MaybeUninit<T>, R, Dynamic> {
+    fn allocate_uninit(nrows: R, ncols: Dyn) -> VecStorage<MaybeUninit<T>, R, Dyn> {
         let mut data = Vec::new();
         let length = nrows.value() * ncols.value();
         data.reserve_exact(length);
@@ -147,9 +147,7 @@ impl<T: Scalar, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
     }
 
     #[inline]
-    unsafe fn assume_init(
-        uninit: VecStorage<MaybeUninit<T>, R, Dynamic>,
-    ) -> VecStorage<T, R, Dynamic> {
+    unsafe fn assume_init(uninit: VecStorage<MaybeUninit<T>, R, Dyn>) -> VecStorage<T, R, Dyn> {
         // Avoids a double-drop.
         let (nrows, ncols) = uninit.shape();
         let vec: Vec<_> = uninit.into();
@@ -166,7 +164,7 @@ impl<T: Scalar, R: DimName> Allocator<T, R, Dynamic> for DefaultAllocator {
     #[inline]
     fn allocate_from_iterator<I: IntoIterator<Item = T>>(
         nrows: R,
-        ncols: Dynamic,
+        ncols: Dyn,
         iter: I,
     ) -> Self::Buffer {
         let it = iter.into_iter();
@@ -215,20 +213,20 @@ where
     }
 }
 
-// Static × Static -> Dynamic × Any
+// Static × Static -> Dyn × Any
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<T: Scalar, CTo, const RFROM: usize, const CFROM: usize>
-    Reallocator<T, Const<RFROM>, Const<CFROM>, Dynamic, CTo> for DefaultAllocator
+    Reallocator<T, Const<RFROM>, Const<CFROM>, Dyn, CTo> for DefaultAllocator
 where
     CTo: Dim,
 {
     #[inline]
     unsafe fn reallocate_copy(
-        rto: Dynamic,
+        rto: Dyn,
         cto: CTo,
         buf: ArrayStorage<T, RFROM, CFROM>,
-    ) -> VecStorage<MaybeUninit<T>, Dynamic, CTo> {
-        let mut res = <Self as Allocator<T, Dynamic, CTo>>::allocate_uninit(rto, cto);
+    ) -> VecStorage<MaybeUninit<T>, Dyn, CTo> {
+        let mut res = <Self as Allocator<T, Dyn, CTo>>::allocate_uninit(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
 
@@ -246,20 +244,20 @@ where
     }
 }
 
-// Static × Static -> Static × Dynamic
+// Static × Static -> Static × Dyn
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl<T: Scalar, RTo, const RFROM: usize, const CFROM: usize>
-    Reallocator<T, Const<RFROM>, Const<CFROM>, RTo, Dynamic> for DefaultAllocator
+    Reallocator<T, Const<RFROM>, Const<CFROM>, RTo, Dyn> for DefaultAllocator
 where
     RTo: DimName,
 {
     #[inline]
     unsafe fn reallocate_copy(
         rto: RTo,
-        cto: Dynamic,
+        cto: Dyn,
         buf: ArrayStorage<T, RFROM, CFROM>,
-    ) -> VecStorage<MaybeUninit<T>, RTo, Dynamic> {
-        let mut res = <Self as Allocator<T, RTo, Dynamic>>::allocate_uninit(rto, cto);
+    ) -> VecStorage<MaybeUninit<T>, RTo, Dyn> {
+        let mut res = <Self as Allocator<T, RTo, Dyn>>::allocate_uninit(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
 
@@ -279,60 +277,58 @@ where
 
 // All conversion from a dynamic buffer to a dynamic buffer.
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar, CFrom: Dim, CTo: Dim> Reallocator<T, Dynamic, CFrom, Dynamic, CTo>
-    for DefaultAllocator
-{
+impl<T: Scalar, CFrom: Dim, CTo: Dim> Reallocator<T, Dyn, CFrom, Dyn, CTo> for DefaultAllocator {
     #[inline]
     unsafe fn reallocate_copy(
-        rto: Dynamic,
+        rto: Dyn,
         cto: CTo,
-        buf: VecStorage<T, Dynamic, CFrom>,
-    ) -> VecStorage<MaybeUninit<T>, Dynamic, CTo> {
+        buf: VecStorage<T, Dyn, CFrom>,
+    ) -> VecStorage<MaybeUninit<T>, Dyn, CTo> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar, CFrom: Dim, RTo: DimName> Reallocator<T, Dynamic, CFrom, RTo, Dynamic>
+impl<T: Scalar, CFrom: Dim, RTo: DimName> Reallocator<T, Dyn, CFrom, RTo, Dyn>
     for DefaultAllocator
 {
     #[inline]
     unsafe fn reallocate_copy(
         rto: RTo,
-        cto: Dynamic,
-        buf: VecStorage<T, Dynamic, CFrom>,
-    ) -> VecStorage<MaybeUninit<T>, RTo, Dynamic> {
+        cto: Dyn,
+        buf: VecStorage<T, Dyn, CFrom>,
+    ) -> VecStorage<MaybeUninit<T>, RTo, Dyn> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar, RFrom: DimName, CTo: Dim> Reallocator<T, RFrom, Dynamic, Dynamic, CTo>
+impl<T: Scalar, RFrom: DimName, CTo: Dim> Reallocator<T, RFrom, Dyn, Dyn, CTo>
     for DefaultAllocator
 {
     #[inline]
     unsafe fn reallocate_copy(
-        rto: Dynamic,
+        rto: Dyn,
         cto: CTo,
-        buf: VecStorage<T, RFrom, Dynamic>,
-    ) -> VecStorage<MaybeUninit<T>, Dynamic, CTo> {
+        buf: VecStorage<T, RFrom, Dyn>,
+    ) -> VecStorage<MaybeUninit<T>, Dyn, CTo> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar, RFrom: DimName, RTo: DimName> Reallocator<T, RFrom, Dynamic, RTo, Dynamic>
+impl<T: Scalar, RFrom: DimName, RTo: DimName> Reallocator<T, RFrom, Dyn, RTo, Dyn>
     for DefaultAllocator
 {
     #[inline]
     unsafe fn reallocate_copy(
         rto: RTo,
-        cto: Dynamic,
-        buf: VecStorage<T, RFrom, Dynamic>,
-    ) -> VecStorage<MaybeUninit<T>, RTo, Dynamic> {
+        cto: Dyn,
+        buf: VecStorage<T, RFrom, Dyn>,
+    ) -> VecStorage<MaybeUninit<T>, RTo, Dyn> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
     }

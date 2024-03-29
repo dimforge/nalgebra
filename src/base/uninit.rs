@@ -34,7 +34,7 @@ pub unsafe trait InitStatus<T>: Copy {
 /// A type implementing `InitStatus` indicating that the value is completely initialized.
 pub struct Init;
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-/// A type implementing `InitStatus` indicating that the value is completely unitialized.
+/// A type implementing `InitStatus` indicating that the value is completely uninitialized.
 pub struct Uninit;
 
 unsafe impl<T> InitStatus<T> for Init {

@@ -8,6 +8,7 @@ use simba::scalar::ComplexField;
 
 use crate::geometry::Reflection;
 use crate::linalg::householder;
+use crate::num::Zero;
 use std::mem::MaybeUninit;
 
 /// The bidiagonalization of a general matrix.
@@ -202,7 +203,7 @@ where
         );
 
         let start = self.axis_shift();
-        res.slice_mut(start, (d.value() - 1, d.value() - 1))
+        res.view_mut(start, (d.value() - 1, d.value() - 1))
             .set_partial_diagonal(
                 self.off_diagonal
                     .iter()
@@ -226,11 +227,15 @@ where
         let shift = self.axis_shift().0;
 
         for i in (0..dim - shift).rev() {
-            let axis = self.uv.slice_range(i + shift.., i);
-            // TODO: sometimes, the axis might have a zero magnitude.
+            let axis = self.uv.view_range(i + shift.., i);
+
+            // Sometimes, the axis might have a zero magnitude.
+            if axis.norm_squared().is_zero() {
+                continue;
+            }
             let refl = Reflection::new(Unit::new_unchecked(axis), T::zero());
 
-            let mut res_rows = res.slice_range_mut(i + shift.., i..);
+            let mut res_rows = res.view_range_mut(i + shift.., i..);
 
             let sign = if self.upper_diagonal {
                 self.diagonal[i].clone().signum()
@@ -260,13 +265,17 @@ where
         let shift = self.axis_shift().1;
 
         for i in (0..min_nrows_ncols.value() - shift).rev() {
-            let axis = self.uv.slice_range(i, i + shift..);
+            let axis = self.uv.view_range(i, i + shift..);
             let mut axis_packed = axis_packed.rows_range_mut(i + shift..);
             axis_packed.tr_copy_from(&axis);
-            // TODO: sometimes, the axis might have a zero magnitude.
+
+            // Sometimes, the axis might have a zero magnitude.
+            if axis_packed.norm_squared().is_zero() {
+                continue;
+            }
             let refl = Reflection::new(Unit::new_unchecked(axis_packed), T::zero());
 
-            let mut res_rows = res.slice_range_mut(i.., i + shift..);
+            let mut res_rows = res.view_range_mut(i.., i + shift..);
 
             let sign = if self.upper_diagonal {
                 self.off_diagonal[i].clone().signum()
@@ -304,7 +313,7 @@ where
     }
 }
 
-// impl<T: ComplexField, D: DimMin<D, Output = D> + DimSub<Dynamic>> Bidiagonal<T, D, D>
+// impl<T: ComplexField, D: DimMin<D, Output = D> + DimSub<Dyn>> Bidiagonal<T, D, D>
 //     where DefaultAllocator: Allocator<T, D, D> +
 //                             Allocator<T, D> {
 //     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
@@ -346,7 +355,7 @@ where
 //                     *b.vget_unchecked_mut(i) = coeff;
 //                 }
 //
-//                 b.rows_range_mut(.. i).axpy(-coeff, &self.uv.slice_range(.. i, i), T::one());
+//                 b.rows_range_mut(.. i).axpy(-coeff, &self.uv.view_range(.. i, i), T::one());
 //             }
 //         }
 //     }

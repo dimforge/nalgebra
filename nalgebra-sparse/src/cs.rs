@@ -1,4 +1,3 @@
-use std::mem::replace;
 use std::ops::Range;
 
 use num_traits::One;
@@ -226,6 +225,15 @@ impl<T> CsMatrix<T> {
     }
 }
 
+impl<T> Default for CsMatrix<T> {
+    fn default() -> Self {
+        Self {
+            sparsity_pattern: Default::default(),
+            values: vec![],
+        }
+    }
+}
+
 impl<T: Scalar + One> CsMatrix<T> {
     #[inline]
     pub fn identity(n: usize) -> Self {
@@ -360,7 +368,7 @@ where
         if let Some(minor_indices) = lane {
             let count = minor_indices.len();
 
-            let remaining = replace(&mut self.remaining_values, &mut []);
+            let remaining = std::mem::take(&mut self.remaining_values);
             let (values_in_lane, remaining) = remaining.split_at_mut(count);
             self.remaining_values = remaining;
             self.current_lane_idx += 1;
@@ -494,7 +502,7 @@ where
     assert_eq!(source_minor_indices.len(), values.len());
     let nnz = values.len();
 
-    // Count the number of occurences of each minor index
+    // Count the number of occurrences of each minor index
     let mut minor_counts = vec![0; minor_dim];
     for minor_idx in source_minor_indices {
         minor_counts[*minor_idx] += 1;
@@ -569,7 +577,7 @@ where
     } else if sort {
         unreachable!("Internal error: Sorting currently not supported if no values are present.");
     }
-    if major_offsets.len() == 0 {
+    if major_offsets.is_empty() {
         return Err(SparseFormatError::from_kind_and_msg(
             SparseFormatErrorKind::InvalidStructure,
             "Number of offsets should be greater than 0.",
@@ -615,12 +623,12 @@ where
                 ));
             }
 
-            let minor_idx_in_lane = minor_indices.get(range_start..range_end).ok_or(
+            let minor_idx_in_lane = minor_indices.get(range_start..range_end).ok_or_else(|| {
                 SparseFormatError::from_kind_and_msg(
                     SparseFormatErrorKind::IndexOutOfBounds,
                     "A major offset is out of bounds.",
-                ),
-            )?;
+                )
+            })?;
 
             // We test for in-bounds, uniqueness and monotonicity at the same time
             // to ensure that we only visit each minor index once
@@ -653,9 +661,9 @@ where
             if !monotonic && sort {
                 let range_size = range_end - range_start;
                 minor_index_permutation.resize(range_size, 0);
-                compute_sort_permutation(&mut minor_index_permutation, &minor_idx_in_lane);
+                compute_sort_permutation(&mut minor_index_permutation, minor_idx_in_lane);
                 minor_idx_buffer.clear();
-                minor_idx_buffer.extend_from_slice(&minor_idx_in_lane);
+                minor_idx_buffer.extend_from_slice(minor_idx_in_lane);
                 apply_permutation(
                     &mut minor_indices[range_start..range_end],
                     &minor_idx_buffer,
