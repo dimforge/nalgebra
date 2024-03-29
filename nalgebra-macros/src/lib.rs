@@ -69,7 +69,7 @@ pub fn matrix(stream: TokenStream) -> TokenStream {
 ///
 /// **Note: Requires the `macros` feature to be enabled (enabled by default)**.
 ///
-/// The syntax is exactly the same as for [`matrix_vector_macros!`], but instead of producing instances of
+/// The syntax is exactly the same as for [`matrix!`], but instead of producing instances of
 /// `SMatrix`, it produces instances of `DMatrix`. At the moment it is not usable
 /// in `const fn` contexts.
 ///
@@ -91,8 +91,8 @@ pub fn dmatrix(stream: TokenStream) -> TokenStream {
 ///
 /// **Note: Requires the `macros` feature to be enabled (enabled by default)**.
 ///
-/// Similarly to [`matrix_vector_macros!`], this macro facilitates easy construction of fixed-size vectors.
-/// However, whereas the [`matrix_vector_macros!`] macro expects each row to be separated by a semi-colon,
+/// Similarly to [`matrix!`], this macro facilitates easy construction of fixed-size vectors.
+/// However, whereas the [`matrix!`] macro expects each row to be separated by a semi-colon,
 /// the syntax of this macro is instead similar to `vec!`, in that the elements of the vector
 /// are simply listed consecutively.
 ///
