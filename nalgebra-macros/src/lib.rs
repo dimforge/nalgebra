@@ -161,101 +161,97 @@ pub fn point(stream: TokenStream) -> TokenStream {
     proc_macro::TokenStream::from(output)
 }
 
-/// Constructs a new matrix by concatenating the given matrices.
+/// Construct a new matrix by stacking matrices in a block matrix.
 ///
 /// **Note: Requires the `macros` feature to be enabled (enabled by default)**.
 ///
-/// The syntax is similar to the [`matrix_vector_macros!`] and [`dmatrix!`]) macros. However the elements should
-/// be of type `Matrix`, `&Matrix` or be one of the litterals `0` or `1`. The elements of type `Matrix` and `&Matrix` are
-/// concatenated as expected. The litteral `0` is expanded to the zero.Note that at least one element
-/// in each row and column must be an expression of type `Matrix` or `&Matrix`.
+/// This macro facilitates the construction of
+/// [block matrices](https://en.wikipedia.org/wiki/Block_matrix)
+/// by stacking blocks (matrices) using the same MATLAB-like syntax as the [`matrix!`] and
+/// [`dmatrix!`] macros:
 ///
-/// All elements in the same row need to have the same number of rows and simillary for the
-/// elements in the same column. This is checked at compile time as long as all elements have
-/// dimensions of type `Const<N>`. If one or more elements have dimensions of type `Dynamic` then
-/// it is checked at runtime that all dimensions match.
+/// ```rust
+/// # use nalgebra::stack;
+/// #
+/// # fn main() {
+/// # let [a, b, c, d] = std::array::from_fn(|_| nalgebra::Matrix1::new(0));
+/// // a, b, c and d are matrices
+/// let block_matrix = stack![ a, b;
+///                            c, d ];
+/// # }
+/// ```
 ///
-/// If at least one element of a row has `Const<N>` number of rows then that row has a whole will
-/// have `Const<N>` number of rows. However if at least one row has has `Dynamic` number of rows
-/// then the entire matrix will have `Dynamic` number of rows. Same for columns.
+/// The resulting matrix is stack-allocated if the dimension of each block row and column
+/// can be determined at compile-time, otherwise it is heap-allocated.
+/// This is the case if, for every row, there is at least one matrix with a fixed number of rows,
+/// and, for every column, there is at least one matrix with a fixed number of columns.
+///
+/// [`stack!`] also supports special syntax to indicate zero blocks in a matrix:
+///
+/// ```rust
+/// # use nalgebra::stack;
+/// #
+/// # fn main() {
+/// # let [a, b, c, d] = std::array::from_fn(|_| nalgebra::Matrix1::new(0));
+/// // a and d are matrices
+/// let block_matrix = stack![ a, 0;
+///                            0, d ];
+/// # }
+/// ```
+/// Here, the `0` literal indicates a zero matrix of implicitly defined size.
+/// In order to infer the size of the zero blocks, there must be at least one matrix
+/// in every row and column of the matrix.
+/// In other words, no row or column can consist entirely of implicit zero blocks.
+///
+/// # Panics
+///
+/// Panics if dimensions are inconsistent and it cannot be determined at compile-time.
 ///
 /// # Examples
 ///
 /// ```
-/// use nalgebra::{stack, matrix};
+/// use nalgebra::{matrix, SMatrix, stack};
 ///
-/// let a = matrix![1,2;3,4;];
+/// let a = matrix![1, 2;
+///                 3, 4];
+/// let b = matrix![5, 6;
+///                 7, 8];
+/// let c = matrix![9, 10];
 ///
-/// let m1 = stack![
-///     a, 0;
-///     0, &matrix![5,6;7,8;];
-/// ];
+/// let block_matrix = stack![ a, b;
+///                            c, 0 ];
 ///
-/// let m2 = matrix![
-///     1,2,0,0;
-///     3,4,0,0;
-///     0,0,5,6;
-///     0,0,7,8;
-/// ];
+/// assert_eq!(block_matrix, matrix![1,  2,  5,  6;
+///                                  3,  4,  7,  8;
+///                                  9, 10,  0,  0]);
 ///
-/// assert_eq!(m1, m2);
+/// // Verify that the resulting block matrix is stack-allocated
+/// let _: SMatrix<_, 3, 4> = block_matrix;
 /// ```
 ///
-/// ```
-/// use nalgebra::{stack, matrix, Matrix5x6};
-///
-/// let a: Matrix5x6<_> = stack![
-///     0, matrix![1;2], 0;
-///     0, 0, matrix![3,4;5,6;];
-///     matrix![7,8,9;], 0, 0;
-/// ];
-///
-/// let b = matrix![
-///     0, 0, 0, 1, 0, 0;
-///     0, 0, 0, 2, 0, 0;
-///     0, 0, 0, 0, 3, 4;
-///     0, 0, 0, 0, 5, 6;
-///     7, 8, 9, 0, 0, 0;
-/// ];
-///
-/// assert_eq!(a, b);
-/// ```
+/// The example above shows how stacking stack-allocated matrices results in a stack-allocated
+/// block matrix. If all row and column dimensions can not be determined at compile-time,
+/// the result is instead a dynamically allocated matrix:
 ///
 /// ```
-/// use nalgebra::{stack, matrix, dmatrix, DMatrix};
+/// use nalgebra::{dmatrix, DMatrix, Dyn, matrix, OMatrix, SMatrix, stack, U3};
 ///
-/// let a: DMatrix<_> = stack![
-///     dmatrix![1,2;3,4;], 0;
-///     0, matrix![5,6;7,8;];
-/// ];
+/// # let a = matrix![1, 2; 3, 4]; let c = matrix![9, 10];
+/// // a and c as before, but b is a dynamic matrix this time
+/// let b = dmatrix![5, 6;
+///                  7, 8];
 ///
-/// let b = dmatrix![
-///     1,2,0,0;
-///     3,4,0,0;
-///     0,0,5,6;
-///     0,0,7,8;
-/// ];
+/// // In this case, the number of rows can be statically inferred to be 3 (U3),
+/// // but the number of columns cannot, hence it is dynamic
+/// let block_matrix: OMatrix<_, U3, Dyn> = stack![ a, b;
+///                                                 c, 0 ];
 ///
-/// assert_eq!(a, b);
+/// // If necessary, a fully dynamic matrix (DMatrix) can be obtained by reshaping
+/// let dyn_block_matrix: DMatrix<_> = block_matrix.reshape_generic(Dyn(3), Dyn(4));
 /// ```
+/// Note that explicitly annotating the types of `block_matrix` and `dyn_block_matrix` is
+/// only made for illustrative purposes, and is not generally necessary.
 ///
-/// ```
-/// use nalgebra::{stack, matrix, dmatrix, Matrix4};
-///
-/// let a: Matrix4<_> = stack![
-///     &dmatrix![1,2;3,4;], &matrix![5,6;7,8;];
-///     &matrix![9,10;11,12;], 0;
-/// ];
-///
-/// let b = matrix![
-///     1,2,5,6;
-///     3,4,7,8;
-///     9,10,0,0;
-///     11,12,0,0;
-/// ];
-///
-/// assert_eq!(a, b);
-/// ```
 #[proc_macro]
 pub fn stack(stream: TokenStream) -> TokenStream {
     let matrix = parse_macro_input!(stream as Matrix);
