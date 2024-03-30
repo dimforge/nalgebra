@@ -1,13 +1,11 @@
-use nalgebra::dimension::U1;
-use nalgebra::{
-    DMatrix, DMatrixView, Dyn, Matrix, Matrix2,
-    Matrix4, OMatrix,SMatrix,
-    SMatrixView, SMatrixViewMut, Scalar,
-    U2,
-};
-use nalgebra::{dmatrix, matrix, stack};
-use num_traits::Zero;
 use crate::macros::assert_eq_and_type;
+use nalgebra::dimension::U1;
+use nalgebra::{dmatrix, matrix, stack};
+use nalgebra::{
+    DMatrix, DMatrixView, Dyn, Matrix, Matrix2, Matrix4, OMatrix, SMatrix, SMatrixView,
+    SMatrixViewMut, Scalar, U2,
+};
+use num_traits::Zero;
 
 /// Simple implementation that stacks dynamic matrices.
 ///

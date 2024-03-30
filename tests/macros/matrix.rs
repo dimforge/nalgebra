@@ -1,12 +1,11 @@
+use crate::macros::assert_eq_and_type;
 use nalgebra::{
-    DMatrix, DVector, Matrix1x2, Matrix1x3, Matrix1x4, Matrix2,
-    Matrix2x1, Matrix2x3, Matrix2x4, Matrix3, Matrix3x1, Matrix3x2, Matrix3x4, Matrix4, Matrix4x1,
-    Matrix4x2, Matrix4x3, Point, Point1, Point2, Point3, Point4, Point5, Point6, SMatrix,
-    SVector, Vector1, Vector2, Vector3, Vector4, Vector5,
-    Vector6,
+    DMatrix, DVector, Matrix1x2, Matrix1x3, Matrix1x4, Matrix2, Matrix2x1, Matrix2x3, Matrix2x4,
+    Matrix3, Matrix3x1, Matrix3x2, Matrix3x4, Matrix4, Matrix4x1, Matrix4x2, Matrix4x3, Point,
+    Point1, Point2, Point3, Point4, Point5, Point6, SMatrix, SVector, Vector1, Vector2, Vector3,
+    Vector4, Vector5, Vector6,
 };
 use nalgebra_macros::{dmatrix, dvector, matrix, point, vector};
-use crate::macros::assert_eq_and_type;
 
 // Skip rustfmt because it just makes the test bloated without making it more readable
 #[rustfmt::skip]
