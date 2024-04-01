@@ -12,8 +12,7 @@
     future_incompatible,
     missing_copy_implementations,
     missing_debug_implementations,
-    clippy::all,
-    clippy::pedantic
+    clippy::all
 )]
 
 mod matrix_vector_impl;
@@ -256,5 +255,5 @@ pub fn point(stream: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn stack(stream: TokenStream) -> TokenStream {
     let matrix = parse_macro_input!(stream as Matrix);
-    proc_macro::TokenStream::from(stack_impl(matrix).unwrap_or_else(|err| err.into_compile_error()))
+    proc_macro::TokenStream::from(stack_impl(matrix).unwrap_or_else(syn::Error::into_compile_error))
 }

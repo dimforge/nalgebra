@@ -42,7 +42,7 @@ pub fn stack_impl(matrix: Matrix) -> syn::Result<TokenStream2> {
         let dim = (0 ..n_block_cols)
             .filter_map(|j| {
                 let expr = &matrix[(i, j)];
-                if !is_literal_zero(&expr) {
+                if !is_literal_zero(expr) {
                     let mut ident_shape = format_ident!("{}_stack_{}_{}_shape", prefix, i, j);
                     ident_shape.set_span(ident_shape.span().located_at(expr.span()));
                     Some(quote_spanned!{expr.span()=> #ident_shape.0 })
@@ -79,7 +79,7 @@ pub fn stack_impl(matrix: Matrix) -> syn::Result<TokenStream2> {
         let dim = (0 ..n_block_rows)
             .filter_map(|i| {
                 let expr = &matrix[(i, j)];
-                if !is_literal_zero(&expr) {
+                if !is_literal_zero(expr) {
                     let mut ident_shape = format_ident!("{}_stack_{}_{}_shape", prefix, i, j);
                     ident_shape.set_span(ident_shape.span().located_at(expr.span()));
                     Some(quote_spanned!{expr.span()=> #ident_shape.1 })
@@ -223,7 +223,7 @@ mod tests {
             matrix
         }};
 
-        assert_eq!(format!("{}", result), format!("{}", expected));
+        assert_eq!(format!("{result}"), format!("{}", expected));
     }
 
     #[test]
@@ -297,6 +297,6 @@ mod tests {
             matrix
         }};
 
-        assert_eq!(format!("{}", result), format!("{}", expected));
+        assert_eq!(format!("{result}"), format!("{}", expected));
     }
 }
