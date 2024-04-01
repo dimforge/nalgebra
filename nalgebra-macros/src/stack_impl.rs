@@ -49,7 +49,7 @@ pub fn stack_impl(prefix: &str, matrix: Matrix) -> syn::Result<TokenStream2> {
             }).reduce(|a, b| {
                 let expect_msg = format!("All blocks in block row {i} must have the same number of rows");
                 quote_spanned!{b.span()=>
-                    <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::DimEq<_, _>>::representative(#a, #b)
+                    <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::SameNumberOfRows<_, _>>::representative(#a, #b)
                         .expect(#expect_msg)
                 }
             }).ok_or(Error::new(Span::call_site(), format!("Block row {i} cannot consist entirely of implicit zero blocks.")))?;
@@ -86,7 +86,7 @@ pub fn stack_impl(prefix: &str, matrix: Matrix) -> syn::Result<TokenStream2> {
             }).reduce(|a, b| {
                 let expect_msg = format!("All blocks in block column {j} must have the same number of columns");
                 quote_spanned!{b.span()=>
-                        <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::DimEq<_, _>>::representative(#a, #b)
+                        <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::SameNumberOfColumns<_, _>>::representative(#a, #b)
                             .expect(#expect_msg)
                 }
             }).ok_or(Error::new(Span::call_site(), format!("Block column {j} cannot consist entirely of implicit zero blocks.")))?;
@@ -244,17 +244,17 @@ mod tests {
             let _stack_1_2_shape = _stack_1_2_block.shape_generic();
             let ref _stack_2_0_block = e;
             let _stack_2_0_shape = _stack_2_0_block.shape_generic();
-            let _stack_row_0_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_stack_0_0_shape . 0 , _stack_0_2_shape . 0) . expect ("All blocks in block row 0 must have the same number of rows") ;
+            let _stack_row_0_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfRows < _ , _ >> :: representative (_stack_0_0_shape . 0 , _stack_0_2_shape . 0) . expect ("All blocks in block row 0 must have the same number of rows") ;
             let _stack_row_0_offset = 0;
-            let _stack_row_1_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_stack_1_1_shape . 0 , _stack_1_2_shape . 0) . expect ("All blocks in block row 1 must have the same number of rows") ;
+            let _stack_row_1_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfRows < _ , _ >> :: representative (_stack_1_1_shape . 0 , _stack_1_2_shape . 0) . expect ("All blocks in block row 1 must have the same number of rows") ;
             let _stack_row_1_offset = _stack_row_0_offset + <_ as nalgebra::Dim>::value(&_stack_row_0_dim);
             let _stack_row_2_dim = _stack_2_0_shape.0;
             let _stack_row_2_offset = _stack_row_1_offset + <_ as nalgebra::Dim>::value(&_stack_row_1_dim);
-            let _stack_col_0_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_stack_0_0_shape . 1 , _stack_2_0_shape . 1) . expect ("All blocks in block column 0 must have the same number of columns") ;
+            let _stack_col_0_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfColumns < _ , _ >> :: representative (_stack_0_0_shape . 1 , _stack_2_0_shape . 1) . expect ("All blocks in block column 0 must have the same number of columns") ;
             let _stack_col_0_offset = 0;
             let _stack_col_1_dim = _stack_1_1_shape.1;
             let _stack_col_1_offset = _stack_col_0_offset + <_ as nalgebra::Dim>::value(&_stack_col_0_dim);
-            let _stack_col_2_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_stack_0_2_shape . 1 , _stack_1_2_shape . 1) . expect ("All blocks in block column 2 must have the same number of columns") ;
+            let _stack_col_2_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfColumns < _ , _ >> :: representative (_stack_0_2_shape . 1 , _stack_1_2_shape . 1) . expect ("All blocks in block column 2 must have the same number of columns") ;
             let _stack_col_2_offset = _stack_col_1_offset + <_ as nalgebra::Dim>::value(&_stack_col_1_dim);
             let mut matrix = nalgebra::Matrix::zeros_generic(
                 <_ as nalgebra::DimAdd<_>>::add(

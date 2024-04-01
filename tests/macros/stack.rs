@@ -312,4 +312,5 @@ fn stack_trybuild_tests() {
     t.compile_fail("tests/macros/trybuild/stack_empty_row.rs");
     t.compile_fail("tests/macros/trybuild/stack_empty_col.rs");
     t.compile_fail("tests/macros/trybuild/stack_incompatible_block_dimensions.rs");
+    t.compile_fail("tests/macros/trybuild/stack_incompatible_block_dimensions2.rs");
 }

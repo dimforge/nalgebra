@@ -51,6 +51,13 @@ macro_rules! equality_trait_decl(
             /// This is either equal to `D1` or `D2`, always choosing the one (if any) which is a type-level
             /// constant.
             type Representative: Dim;
+
+            /// Returns a representative dimension instance if the two are equal,
+            /// otherwise `None`.
+            fn representative(d1: D1, d2: D2) -> Option<<Self as $Trait<D1, D2>>::Representative> {
+                <Self as DimEq<D1, D2>>::representative(d1, d2)
+                    .map(|common_dim| <Self as $Trait<D1, D2>>::Representative::from_usize(common_dim.value()))
+            }
         }
 
         impl<D: Dim> $Trait<D, D> for ShapeConstraint {
