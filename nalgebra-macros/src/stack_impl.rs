@@ -9,89 +9,110 @@ use syn::{Error, Expr, Lit};
 // by the user.
 #[allow(clippy::too_many_lines)]
 pub fn stack_impl(prefix: &str, matrix: Matrix) -> syn::Result<TokenStream2> {
-    let n_macro_rows = matrix.nrows();
-    let n_macro_cols = matrix.ncols();
-
-    let rows = matrix
-        .rows
-        .into_iter()
-        .map(|row| {
-            row.into_iter()
-                .map(ConcatElem::from_expr)
-                .collect::<Vec<_>>()
-        })
-        .collect::<Vec<_>>();
+    let n_block_rows = matrix.nrows();
+    let n_block_cols = matrix.ncols();
 
     let mut output = quote! {};
 
-    for (i, row) in rows.iter().enumerate() {
-        for (j, cell) in row.iter().enumerate() {
-            if let ConcatElem::Expr(expr) = cell {
-                let ident = format_ident!("{}_cat_{}_{}", prefix, i, j);
-                let ident_shape = format_ident!("{}_cat_{}_{}_shape", prefix, i, j);
+    // First assign data and shape for each matrix entry to variables
+    // (this is important so that we, for example, don't evaluate an expression more than once)
+    for i in 0..n_block_rows {
+        for j in 0..n_block_cols {
+            let expr = &matrix[(i, j)];
+            if !is_literal_zero(expr) {
+                let ident_block = format_ident!("{}_stack_{}_{}_block", prefix, i, j);
+                let ident_shape = format_ident!("{}_stack_{}_{}_shape", prefix, i, j);
                 output.extend(std::iter::once(quote_spanned! {expr.span()=>
-                    let ref #ident = #expr;
-                    let #ident_shape = #ident.shape_generic();
+                    let ref #ident_block = #expr;
+                    let #ident_shape = #ident_block.shape_generic();
                 }));
             }
         }
     }
 
-    for (i, row) in rows.iter().enumerate() {
-        let size = row.iter().enumerate().filter(|(_, c)| c.is_expr()).map(|(j, _)| {
-            let ident_shape = format_ident!("{}_cat_{}_{}_shape", prefix, i, j);
-            quote!{ #ident_shape.0 }
-        }).reduce(|a, b| quote!{
-            <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::DimEq<_, _>>::representative(#a, #b)
-                .expect("The concatenated matrices do not have the same number of columns")
-        }).ok_or(Error::new(Span::call_site(), "At least one element in each row must be an expression of type `Matrix`"))?;
+    // Determine the number of rows (dimension) in each block row,
+    // and write out variables that define block row dimensions and offsets into the
+    // output matrix
+    for i in 0..n_block_rows {
+        // The dimension of the block row is the result of trying to unify the row shape of
+        // all blocks in the block row
+        let dim = (0 ..n_block_cols)
+            .filter_map(|j| {
+                let expr = &matrix[(i, j)];
+                if !is_literal_zero(&expr) {
+                    let mut ident_shape = format_ident!("{}_stack_{}_{}_shape", prefix, i, j);
+                    ident_shape.set_span(ident_shape.span().located_at(expr.span()));
+                    Some(quote_spanned!{expr.span()=> #ident_shape.0 })
+                } else {
+                    None
+                }
+            }).reduce(|a, b| {
+                let expect_msg = format!("All blocks in block row {i} must have the same number of rows");
+                quote_spanned!{b.span()=>
+                    <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::DimEq<_, _>>::representative(#a, #b)
+                        .expect(#expect_msg)
+                }
+            }).ok_or(Error::new(Span::call_site(), format!("Block row {i} cannot consist entirely of implicit zero blocks.")))?;
 
-        let size_ident = format_ident!("{}_cat_row_{}_size", prefix, i);
-        let offset_ident = format_ident!("{}_cat_row_{}_offset", prefix, i);
+        let dim_ident = format_ident!("{}_stack_row_{}_dim", prefix, i);
+        let offset_ident = format_ident!("{}_stack_row_{}_offset", prefix, i);
 
         let offset = if i == 0 {
             quote! { 0 }
         } else {
-            let last_offset_ident = format_ident!("{}_cat_row_{}_offset", prefix, i - 1);
-            let last_size_ident = format_ident!("{}_cat_row_{}_size", prefix, i - 1);
-            quote! { #last_offset_ident + <_ as nalgebra::Dim>::value(&#last_size_ident) }
+            let prev_offset_ident = format_ident!("{}_stack_row_{}_offset", prefix, i - 1);
+            let prev_dim_ident = format_ident!("{}_stack_row_{}_dim", prefix, i - 1);
+            quote! { #prev_offset_ident + <_ as nalgebra::Dim>::value(&#prev_dim_ident) }
         };
 
         output.extend(std::iter::once(quote! {
-            let #size_ident = #size;
+            let #dim_ident = #dim;
             let #offset_ident = #offset;
         }));
     }
 
-    for j in 0..n_macro_cols {
-        let size = (0..n_macro_rows).filter(|i| rows[*i][j].is_expr()).map(|i| {
-            let ident_shape = format_ident!("{}_cat_{}_{}_shape", prefix, i, j);
-            quote!{ #ident_shape.1 }
-        }).reduce(|a, b| quote!{
-            <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::DimEq<_, _>>::representative(#a, #b)
-                .expect("The concatenated matrices do not have the same number of rows")
-        }).ok_or(Error::new(Span::call_site(), "At least one element in each column must be an expression of type `Matrix`"))?;
+    // Do the same thing for the block columns
+    for j in 0..n_block_cols {
+        let dim = (0 ..n_block_rows)
+            .filter_map(|i| {
+                let expr = &matrix[(i, j)];
+                if !is_literal_zero(&expr) {
+                    let mut ident_shape = format_ident!("{}_stack_{}_{}_shape", prefix, i, j);
+                    ident_shape.set_span(ident_shape.span().located_at(expr.span()));
+                    Some(quote_spanned!{expr.span()=> #ident_shape.1 })
+                } else {
+                    None
+                }
+            }).reduce(|a, b| {
+                let expect_msg = format!("All blocks in block column {j} must have the same number of columns");
+                quote_spanned!{b.span()=>
+                        <nalgebra::constraint::ShapeConstraint as nalgebra::constraint::DimEq<_, _>>::representative(#a, #b)
+                            .expect(#expect_msg)
+                }
+            }).ok_or(Error::new(Span::call_site(), format!("Block column {j} cannot consist entirely of implicit zero blocks.")))?;
 
-        let size_ident = format_ident!("{}_cat_col_{}_size", prefix, j);
-        let offset_ident = format_ident!("{}_cat_col_{}_offset", prefix, j);
+        let dim_ident = format_ident!("{}_stack_col_{}_dim", prefix, j);
+        let offset_ident = format_ident!("{}_stack_col_{}_offset", prefix, j);
 
         let offset = if j == 0 {
             quote! { 0 }
         } else {
-            let last_offset_ident = format_ident!("{}_cat_col_{}_offset", prefix, j - 1);
-            let last_size_ident = format_ident!("{}_cat_col_{}_size", prefix, j - 1);
-            quote! { #last_offset_ident + <_ as nalgebra::Dim>::value(&#last_size_ident) }
+            let prev_offset_ident = format_ident!("{}_stack_col_{}_offset", prefix, j - 1);
+            let prev_dim_ident = format_ident!("{}_stack_col_{}_dim", prefix, j - 1);
+            quote! { #prev_offset_ident + <_ as nalgebra::Dim>::value(&#prev_dim_ident) }
         };
 
         output.extend(std::iter::once(quote! {
-            let #size_ident = #size;
+            let #dim_ident = #dim;
             let #offset_ident = #offset;
         }));
     }
 
-    let num_rows = (0..n_macro_rows)
+    // Determine number of rows and cols in output matrix,
+    // by adding together dimensions of all block rows/cols
+    let num_rows = (0..n_block_rows)
         .map(|i| {
-            let ident = format_ident!("{}_cat_row_{}_size", prefix, i);
+            let ident = format_ident!("{}_stack_row_{}_dim", prefix, i);
             quote! { #ident }
         })
         .reduce(|a, b| {
@@ -101,9 +122,9 @@ pub fn stack_impl(prefix: &str, matrix: Matrix) -> syn::Result<TokenStream2> {
         })
         .unwrap_or(quote! { nalgebra::dimension::U0 });
 
-    let num_cols = (0..n_macro_cols)
+    let num_cols = (0..n_block_cols)
         .map(|j| {
-            let ident = format_ident!("{}_cat_col_{}_size", prefix, j);
+            let ident = format_ident!("{}_stack_col_{}_dim", prefix, j);
             quote! { #ident }
         })
         .reduce(|a, b| {
@@ -120,24 +141,22 @@ pub fn stack_impl(prefix: &str, matrix: Matrix) -> syn::Result<TokenStream2> {
         let mut matrix = nalgebra::Matrix::zeros_generic(#num_rows, #num_cols);
     }));
 
-    for (i, row) in rows.into_iter().enumerate() {
-        for (j, cell) in row.into_iter().enumerate() {
-            let row_size = format_ident!("{}_cat_row_{}_size", prefix, i);
-            let col_size = format_ident!("{}_cat_col_{}_size", prefix, j);
-            let row_offset = format_ident!("{}_cat_row_{}_offset", prefix, i);
-            let col_offset = format_ident!("{}_cat_col_{}_offset", prefix, j);
-            match cell {
-                ConcatElem::Zero => (),
-                ConcatElem::Expr(_) => {
-                    let expr_ident = format_ident!("{}_cat_{}_{}", prefix, i, j);
-                    output.extend(std::iter::once(quote! {
-                        let start = (#row_offset, #col_offset);
-                        let shape = (#row_size, #col_size);
-                        let input_view = #expr_ident.generic_view((0, 0), shape);
-                        let mut output_view = matrix.generic_view_mut(start, shape);
-                        output_view.copy_from(&input_view);
-                    }));
-                }
+    for i in 0..n_block_rows {
+        for j in 0..n_block_cols {
+            let row_dim = format_ident!("{}_stack_row_{}_dim", prefix, i);
+            let col_dim = format_ident!("{}_stack_col_{}_dim", prefix, j);
+            let row_offset = format_ident!("{}_stack_row_{}_offset", prefix, i);
+            let col_offset = format_ident!("{}_stack_col_{}_offset", prefix, j);
+            let expr = &matrix[(i, j)];
+            if !is_literal_zero(expr) {
+                let expr_ident = format_ident!("{}_stack_{}_{}_block", prefix, i, j);
+                output.extend(std::iter::once(quote! {
+                    let start = (#row_offset, #col_offset);
+                    let shape = (#row_dim, #col_dim);
+                    let input_view = #expr_ident.generic_view((0, 0), shape);
+                    let mut output_view = matrix.generic_view_mut(start, shape);
+                    output_view.copy_from(&input_view);
+                }));
             }
         }
     }
@@ -150,28 +169,10 @@ pub fn stack_impl(prefix: &str, matrix: Matrix) -> syn::Result<TokenStream2> {
     })
 }
 
-enum ConcatElem {
-    Zero,
-    Expr(Expr),
-}
-
-impl ConcatElem {
-    fn from_expr(expr: Expr) -> Self {
-        if let Expr::Lit(syn::ExprLit {
-            lit: Lit::Int(ilit),
-            ..
-        }) = &expr
-        {
-            if ilit.base10_digits() == "0" {
-                return ConcatElem::Zero;
-            }
-        }
-        ConcatElem::Expr(expr)
-    }
-
-    fn is_expr(&self) -> bool {
-        matches!(self, ConcatElem::Expr(_))
-    }
+fn is_literal_zero(expr: &Expr) -> bool {
+    matches!(expr,
+        Expr::Lit(syn::ExprLit { lit: Lit::Int(integer_literal), .. })
+        if integer_literal.base10_digits() == "0")
 }
 
 #[cfg(test)]
@@ -190,30 +191,30 @@ mod tests {
         let result = stack_impl("", input).unwrap();
 
         let expected = quote! {{
-            let ref _cat_0_0 = a;
-            let _cat_0_0_shape = _cat_0_0.shape_generic();
-            let ref _cat_1_1 = b;
-            let _cat_1_1_shape = _cat_1_1.shape_generic();
-            let _cat_row_0_size = _cat_0_0_shape.0;
-            let _cat_row_0_offset = 0;
-            let _cat_row_1_size = _cat_1_1_shape.0;
-            let _cat_row_1_offset = _cat_row_0_offset + <_ as nalgebra::Dim>::value(&_cat_row_0_size);
-            let _cat_col_0_size = _cat_0_0_shape.1;
-            let _cat_col_0_offset = 0;
-            let _cat_col_1_size = _cat_1_1_shape.1;
-            let _cat_col_1_offset = _cat_col_0_offset + <_ as nalgebra::Dim>::value(&_cat_col_0_size);
+            let ref _stack_0_0_block = a;
+            let _stack_0_0_shape = _stack_0_0_block.shape_generic();
+            let ref _stack_1_1_block = b;
+            let _stack_1_1_shape = _stack_1_1_block.shape_generic();
+            let _stack_row_0_dim = _stack_0_0_shape.0;
+            let _stack_row_0_offset = 0;
+            let _stack_row_1_dim = _stack_1_1_shape.0;
+            let _stack_row_1_offset = _stack_row_0_offset + <_ as nalgebra::Dim>::value(&_stack_row_0_dim);
+            let _stack_col_0_dim = _stack_0_0_shape.1;
+            let _stack_col_0_offset = 0;
+            let _stack_col_1_dim = _stack_1_1_shape.1;
+            let _stack_col_1_offset = _stack_col_0_offset + <_ as nalgebra::Dim>::value(&_stack_col_0_dim);
             let mut matrix = nalgebra::Matrix::zeros_generic(
-                <_ as nalgebra::DimAdd<_>>::add(_cat_row_0_size, _cat_row_1_size),
-                <_ as nalgebra::DimAdd<_>>::add(_cat_col_0_size, _cat_col_1_size)
+                <_ as nalgebra::DimAdd<_>>::add(_stack_row_0_dim, _stack_row_1_dim),
+                <_ as nalgebra::DimAdd<_>>::add(_stack_col_0_dim, _stack_col_1_dim)
             );
-            let start = (_cat_row_0_offset, _cat_col_0_offset);
-            let shape = (_cat_row_0_size, _cat_col_0_size);
-            let input_view = _cat_0_0.generic_view((0,0), shape);
+            let start = (_stack_row_0_offset, _stack_col_0_offset);
+            let shape = (_stack_row_0_dim, _stack_col_0_dim);
+            let input_view = _stack_0_0_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
-            let start = (_cat_row_1_offset, _cat_col_1_offset);
-            let shape = (_cat_row_1_size, _cat_col_1_size);
-            let input_view = _cat_1_1.generic_view((0,0), shape);
+            let start = (_stack_row_1_offset, _stack_col_1_offset);
+            let shape = (_stack_row_1_dim, _stack_col_1_dim);
+            let input_view = _stack_1_1_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
             matrix
@@ -233,61 +234,61 @@ mod tests {
         let result = stack_impl("", input).unwrap();
 
         let expected = quote! {{
-            let ref _cat_0_0 = a;
-            let _cat_0_0_shape = _cat_0_0.shape_generic();
-            let ref _cat_0_2 = b;
-            let _cat_0_2_shape = _cat_0_2.shape_generic();
-            let ref _cat_1_1 = c;
-            let _cat_1_1_shape = _cat_1_1.shape_generic();
-            let ref _cat_1_2 = d;
-            let _cat_1_2_shape = _cat_1_2.shape_generic();
-            let ref _cat_2_0 = e;
-            let _cat_2_0_shape = _cat_2_0.shape_generic();
-            let _cat_row_0_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_cat_0_0_shape . 0 , _cat_0_2_shape . 0) . expect ("The concatenated matrices do not have the same number of columns") ;
-            let _cat_row_0_offset = 0;
-            let _cat_row_1_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_cat_1_1_shape . 0 , _cat_1_2_shape . 0) . expect ("The concatenated matrices do not have the same number of columns") ;
-            let _cat_row_1_offset = _cat_row_0_offset + <_ as nalgebra::Dim>::value(&_cat_row_0_size);
-            let _cat_row_2_size = _cat_2_0_shape.0;
-            let _cat_row_2_offset = _cat_row_1_offset + <_ as nalgebra::Dim>::value(&_cat_row_1_size);
-            let _cat_col_0_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_cat_0_0_shape . 1 , _cat_2_0_shape . 1) . expect ("The concatenated matrices do not have the same number of rows") ;
-            let _cat_col_0_offset = 0;
-            let _cat_col_1_size = _cat_1_1_shape.1;
-            let _cat_col_1_offset = _cat_col_0_offset + <_ as nalgebra::Dim>::value(&_cat_col_0_size);
-            let _cat_col_2_size = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_cat_0_2_shape . 1 , _cat_1_2_shape . 1) . expect ("The concatenated matrices do not have the same number of rows") ;
-            let _cat_col_2_offset = _cat_col_1_offset + <_ as nalgebra::Dim>::value(&_cat_col_1_size);
+            let ref _stack_0_0_block = a;
+            let _stack_0_0_shape = _stack_0_0_block.shape_generic();
+            let ref _stack_0_2_block = b;
+            let _stack_0_2_shape = _stack_0_2_block.shape_generic();
+            let ref _stack_1_1_block = c;
+            let _stack_1_1_shape = _stack_1_1_block.shape_generic();
+            let ref _stack_1_2_block = d;
+            let _stack_1_2_shape = _stack_1_2_block.shape_generic();
+            let ref _stack_2_0_block = e;
+            let _stack_2_0_shape = _stack_2_0_block.shape_generic();
+            let _stack_row_0_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_stack_0_0_shape . 0 , _stack_0_2_shape . 0) . expect ("All blocks in block row 0 must have the same number of rows") ;
+            let _stack_row_0_offset = 0;
+            let _stack_row_1_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_stack_1_1_shape . 0 , _stack_1_2_shape . 0) . expect ("All blocks in block row 1 must have the same number of rows") ;
+            let _stack_row_1_offset = _stack_row_0_offset + <_ as nalgebra::Dim>::value(&_stack_row_0_dim);
+            let _stack_row_2_dim = _stack_2_0_shape.0;
+            let _stack_row_2_offset = _stack_row_1_offset + <_ as nalgebra::Dim>::value(&_stack_row_1_dim);
+            let _stack_col_0_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_stack_0_0_shape . 1 , _stack_2_0_shape . 1) . expect ("All blocks in block column 0 must have the same number of columns") ;
+            let _stack_col_0_offset = 0;
+            let _stack_col_1_dim = _stack_1_1_shape.1;
+            let _stack_col_1_offset = _stack_col_0_offset + <_ as nalgebra::Dim>::value(&_stack_col_0_dim);
+            let _stack_col_2_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: DimEq < _ , _ >> :: representative (_stack_0_2_shape . 1 , _stack_1_2_shape . 1) . expect ("All blocks in block column 2 must have the same number of columns") ;
+            let _stack_col_2_offset = _stack_col_1_offset + <_ as nalgebra::Dim>::value(&_stack_col_1_dim);
             let mut matrix = nalgebra::Matrix::zeros_generic(
                 <_ as nalgebra::DimAdd<_>>::add(
-                    <_ as nalgebra::DimAdd<_>>::add(_cat_row_0_size, _cat_row_1_size),
-                    _cat_row_2_size
+                    <_ as nalgebra::DimAdd<_>>::add(_stack_row_0_dim, _stack_row_1_dim),
+                    _stack_row_2_dim
                 ),
                 <_ as nalgebra::DimAdd<_>>::add(
-                    <_ as nalgebra::DimAdd<_>>::add(_cat_col_0_size, _cat_col_1_size),
-                    _cat_col_2_size
+                    <_ as nalgebra::DimAdd<_>>::add(_stack_col_0_dim, _stack_col_1_dim),
+                    _stack_col_2_dim
                 )
             );
-            let start = (_cat_row_0_offset, _cat_col_0_offset);
-            let shape = (_cat_row_0_size, _cat_col_0_size);
-            let input_view = _cat_0_0.generic_view((0,0), shape);
+            let start = (_stack_row_0_offset, _stack_col_0_offset);
+            let shape = (_stack_row_0_dim, _stack_col_0_dim);
+            let input_view = _stack_0_0_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
-            let start = (_cat_row_0_offset, _cat_col_2_offset);
-            let shape = (_cat_row_0_size, _cat_col_2_size);
-            let input_view = _cat_0_2.generic_view((0,0), shape);
+            let start = (_stack_row_0_offset, _stack_col_2_offset);
+            let shape = (_stack_row_0_dim, _stack_col_2_dim);
+            let input_view = _stack_0_2_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
-            let start = (_cat_row_1_offset, _cat_col_1_offset);
-            let shape = (_cat_row_1_size, _cat_col_1_size);
-            let input_view = _cat_1_1.generic_view((0,0), shape);
+            let start = (_stack_row_1_offset, _stack_col_1_offset);
+            let shape = (_stack_row_1_dim, _stack_col_1_dim);
+            let input_view = _stack_1_1_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
-            let start = (_cat_row_1_offset, _cat_col_2_offset);
-            let shape = (_cat_row_1_size, _cat_col_2_size);
-            let input_view = _cat_1_2.generic_view((0,0), shape);
+            let start = (_stack_row_1_offset, _stack_col_2_offset);
+            let shape = (_stack_row_1_dim, _stack_col_2_dim);
+            let input_view = _stack_1_2_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
-            let start = (_cat_row_2_offset, _cat_col_0_offset);
-            let shape = (_cat_row_2_size, _cat_col_0_size);
-            let input_view = _cat_2_0.generic_view((0,0), shape);
+            let start = (_stack_row_2_offset, _stack_col_0_offset);
+            let shape = (_stack_row_2_dim, _stack_col_0_dim);
+            let input_view = _stack_2_0_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
             matrix

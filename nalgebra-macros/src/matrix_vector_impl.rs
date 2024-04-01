@@ -1,7 +1,9 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
+use std::ops::Index;
 use syn::parse::{Error, Parse, ParseStream};
 use syn::punctuated::Punctuated;
+use syn::spanned::Spanned;
 use syn::Expr;
 use syn::{parse_macro_input, Token};
 
@@ -10,14 +12,24 @@ use proc_macro2::{Group, Punct};
 
 /// A matrix of expressions
 pub struct Matrix {
-    // Represent the matrix as a row-major vector of vectors of expressions
-    pub rows: Vec<Vec<Expr>>,
-    pub ncols: usize,
+    // Represent the matrix data in row-major format
+    data: Vec<Expr>,
+    nrows: usize,
+    ncols: usize,
+}
+
+impl Index<(usize, usize)> for Matrix {
+    type Output = Expr;
+
+    fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
+        let linear_idx = self.ncols * row + col;
+        &self.data[linear_idx]
+    }
 }
 
 impl Matrix {
     pub fn nrows(&self) -> usize {
-        self.rows.len()
+        self.nrows
     }
 
     pub fn ncols(&self) -> usize {
@@ -29,7 +41,7 @@ impl Matrix {
         let mut result = TokenStream2::new();
         for j in 0..self.ncols() {
             let mut col = TokenStream2::new();
-            let col_iter = (0..self.nrows()).map(move |i| &self.rows[i][j]);
+            let col_iter = (0..self.nrows()).map(|i| &self[(i, j)]);
             col.append_separated(col_iter, Punct::new(',', Spacing::Alone));
             result.append(Group::new(Delimiter::Bracket, col));
             result.append(Punct::new(',', Spacing::Alone));
@@ -43,7 +55,7 @@ impl Matrix {
         let mut data = TokenStream2::new();
         for j in 0..self.ncols() {
             for i in 0..self.nrows() {
-                self.rows[i][j].to_tokens(&mut data);
+                self[(i, j)].to_tokens(&mut data);
                 data.append(Punct::new(',', Spacing::Alone));
             }
         }
@@ -55,19 +67,19 @@ type MatrixRowSyntax = Punctuated<Expr, Token![,]>;
 
 impl Parse for Matrix {
     fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
-        let mut rows = Vec::new();
+        let mut data = Vec::new();
         let mut ncols = None;
+        let mut nrows = 0;
 
         while !input.is_empty() {
-            let row_span = input.span();
             let row = MatrixRowSyntax::parse_separated_nonempty(input)?;
+            let row_span = row.span();
 
             if let Some(ncols) = ncols {
                 if row.len() != ncols {
-                    let row_idx = rows.len();
                     let error_msg = format!(
                         "Unexpected number of entries in row {}. Expected {}, found {} entries.",
-                        row_idx,
+                        nrows,
                         ncols,
                         row.len()
                     );
@@ -76,7 +88,8 @@ impl Parse for Matrix {
             } else {
                 ncols = Some(row.len());
             }
-            rows.push(row.into_iter().collect());
+            data.extend(row.into_iter());
+            nrows += 1;
 
             // We've just read a row, so if there are more tokens, there must be a semi-colon,
             // otherwise the input is malformed
@@ -86,7 +99,8 @@ impl Parse for Matrix {
         }
 
         Ok(Self {
-            rows,
+            data,
+            nrows,
             ncols: ncols.unwrap_or(0),
         })
     }

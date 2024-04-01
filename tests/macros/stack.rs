@@ -311,4 +311,5 @@ fn stack_trybuild_tests() {
     // Verify error message when a row or column only contains a zero entry
     t.compile_fail("tests/macros/trybuild/stack_empty_row.rs");
     t.compile_fail("tests/macros/trybuild/stack_empty_col.rs");
+    t.compile_fail("tests/macros/trybuild/stack_incompatible_block_dimensions.rs");
 }
