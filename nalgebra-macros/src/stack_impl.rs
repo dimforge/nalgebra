@@ -4,11 +4,14 @@ use quote::{format_ident, quote, quote_spanned};
 use syn::spanned::Spanned;
 use syn::{Error, Expr, Lit};
 
-// The implementation of the stack macro. The prefix is used to construct variable names
-// that are extremely unlikely to collide with variable names used in e.g. expressions
-// by the user.
 #[allow(clippy::too_many_lines)]
-pub fn stack_impl(prefix: &str, matrix: Matrix) -> syn::Result<TokenStream2> {
+pub fn stack_impl(matrix: Matrix) -> syn::Result<TokenStream2> {
+    // The prefix is used to construct variable names
+    // that are extremely unlikely to collide with variable names used in e.g. expressions
+    // by the user. Although we could use a long, pseudo-random string, this makes the generated
+    // code very painful to parse, so we settle for something more semantic that is still
+    // very unlikely to collide
+    let prefix = "___na";
     let n_block_rows = matrix.nrows();
     let n_block_cols = matrix.ncols();
 
@@ -188,33 +191,33 @@ mod tests {
             0, b;
         ];
 
-        let result = stack_impl("", input).unwrap();
+        let result = stack_impl(input).unwrap();
 
         let expected = quote! {{
-            let ref _stack_0_0_block = a;
-            let _stack_0_0_shape = _stack_0_0_block.shape_generic();
-            let ref _stack_1_1_block = b;
-            let _stack_1_1_shape = _stack_1_1_block.shape_generic();
-            let _stack_row_0_dim = _stack_0_0_shape.0;
-            let _stack_row_0_offset = 0;
-            let _stack_row_1_dim = _stack_1_1_shape.0;
-            let _stack_row_1_offset = _stack_row_0_offset + <_ as nalgebra::Dim>::value(&_stack_row_0_dim);
-            let _stack_col_0_dim = _stack_0_0_shape.1;
-            let _stack_col_0_offset = 0;
-            let _stack_col_1_dim = _stack_1_1_shape.1;
-            let _stack_col_1_offset = _stack_col_0_offset + <_ as nalgebra::Dim>::value(&_stack_col_0_dim);
+            let ref ___na_stack_0_0_block = a;
+            let ___na_stack_0_0_shape = ___na_stack_0_0_block.shape_generic();
+            let ref ___na_stack_1_1_block = b;
+            let ___na_stack_1_1_shape = ___na_stack_1_1_block.shape_generic();
+            let ___na_stack_row_0_dim = ___na_stack_0_0_shape.0;
+            let ___na_stack_row_0_offset = 0;
+            let ___na_stack_row_1_dim = ___na_stack_1_1_shape.0;
+            let ___na_stack_row_1_offset = ___na_stack_row_0_offset + <_ as nalgebra::Dim>::value(&___na_stack_row_0_dim);
+            let ___na_stack_col_0_dim = ___na_stack_0_0_shape.1;
+            let ___na_stack_col_0_offset = 0;
+            let ___na_stack_col_1_dim = ___na_stack_1_1_shape.1;
+            let ___na_stack_col_1_offset = ___na_stack_col_0_offset + <_ as nalgebra::Dim>::value(&___na_stack_col_0_dim);
             let mut matrix = nalgebra::Matrix::zeros_generic(
-                <_ as nalgebra::DimAdd<_>>::add(_stack_row_0_dim, _stack_row_1_dim),
-                <_ as nalgebra::DimAdd<_>>::add(_stack_col_0_dim, _stack_col_1_dim)
+                <_ as nalgebra::DimAdd<_>>::add(___na_stack_row_0_dim, ___na_stack_row_1_dim),
+                <_ as nalgebra::DimAdd<_>>::add(___na_stack_col_0_dim, ___na_stack_col_1_dim)
             );
-            let start = (_stack_row_0_offset, _stack_col_0_offset);
-            let shape = (_stack_row_0_dim, _stack_col_0_dim);
-            let input_view = _stack_0_0_block.generic_view((0,0), shape);
+            let start = (___na_stack_row_0_offset, ___na_stack_col_0_offset);
+            let shape = (___na_stack_row_0_dim, ___na_stack_col_0_dim);
+            let input_view = ___na_stack_0_0_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
-            let start = (_stack_row_1_offset, _stack_col_1_offset);
-            let shape = (_stack_row_1_dim, _stack_col_1_dim);
-            let input_view = _stack_1_1_block.generic_view((0,0), shape);
+            let start = (___na_stack_row_1_offset, ___na_stack_col_1_offset);
+            let shape = (___na_stack_row_1_dim, ___na_stack_col_1_dim);
+            let input_view = ___na_stack_1_1_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
             matrix
@@ -231,64 +234,64 @@ mod tests {
             e, 0, 0;
         ];
 
-        let result = stack_impl("", input).unwrap();
+        let result = stack_impl(input).unwrap();
 
         let expected = quote! {{
-            let ref _stack_0_0_block = a;
-            let _stack_0_0_shape = _stack_0_0_block.shape_generic();
-            let ref _stack_0_2_block = b;
-            let _stack_0_2_shape = _stack_0_2_block.shape_generic();
-            let ref _stack_1_1_block = c;
-            let _stack_1_1_shape = _stack_1_1_block.shape_generic();
-            let ref _stack_1_2_block = d;
-            let _stack_1_2_shape = _stack_1_2_block.shape_generic();
-            let ref _stack_2_0_block = e;
-            let _stack_2_0_shape = _stack_2_0_block.shape_generic();
-            let _stack_row_0_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfRows < _ , _ >> :: representative (_stack_0_0_shape . 0 , _stack_0_2_shape . 0) . expect ("All blocks in block row 0 must have the same number of rows") ;
-            let _stack_row_0_offset = 0;
-            let _stack_row_1_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfRows < _ , _ >> :: representative (_stack_1_1_shape . 0 , _stack_1_2_shape . 0) . expect ("All blocks in block row 1 must have the same number of rows") ;
-            let _stack_row_1_offset = _stack_row_0_offset + <_ as nalgebra::Dim>::value(&_stack_row_0_dim);
-            let _stack_row_2_dim = _stack_2_0_shape.0;
-            let _stack_row_2_offset = _stack_row_1_offset + <_ as nalgebra::Dim>::value(&_stack_row_1_dim);
-            let _stack_col_0_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfColumns < _ , _ >> :: representative (_stack_0_0_shape . 1 , _stack_2_0_shape . 1) . expect ("All blocks in block column 0 must have the same number of columns") ;
-            let _stack_col_0_offset = 0;
-            let _stack_col_1_dim = _stack_1_1_shape.1;
-            let _stack_col_1_offset = _stack_col_0_offset + <_ as nalgebra::Dim>::value(&_stack_col_0_dim);
-            let _stack_col_2_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfColumns < _ , _ >> :: representative (_stack_0_2_shape . 1 , _stack_1_2_shape . 1) . expect ("All blocks in block column 2 must have the same number of columns") ;
-            let _stack_col_2_offset = _stack_col_1_offset + <_ as nalgebra::Dim>::value(&_stack_col_1_dim);
+            let ref ___na_stack_0_0_block = a;
+            let ___na_stack_0_0_shape = ___na_stack_0_0_block.shape_generic();
+            let ref ___na_stack_0_2_block = b;
+            let ___na_stack_0_2_shape = ___na_stack_0_2_block.shape_generic();
+            let ref ___na_stack_1_1_block = c;
+            let ___na_stack_1_1_shape = ___na_stack_1_1_block.shape_generic();
+            let ref ___na_stack_1_2_block = d;
+            let ___na_stack_1_2_shape = ___na_stack_1_2_block.shape_generic();
+            let ref ___na_stack_2_0_block = e;
+            let ___na_stack_2_0_shape = ___na_stack_2_0_block.shape_generic();
+            let ___na_stack_row_0_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfRows < _ , _ >> :: representative (___na_stack_0_0_shape . 0 , ___na_stack_0_2_shape . 0) . expect ("All blocks in block row 0 must have the same number of rows") ;
+            let ___na_stack_row_0_offset = 0;
+            let ___na_stack_row_1_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfRows < _ , _ >> :: representative (___na_stack_1_1_shape . 0 , ___na_stack_1_2_shape . 0) . expect ("All blocks in block row 1 must have the same number of rows") ;
+            let ___na_stack_row_1_offset = ___na_stack_row_0_offset + <_ as nalgebra::Dim>::value(&___na_stack_row_0_dim);
+            let ___na_stack_row_2_dim = ___na_stack_2_0_shape.0;
+            let ___na_stack_row_2_offset = ___na_stack_row_1_offset + <_ as nalgebra::Dim>::value(&___na_stack_row_1_dim);
+            let ___na_stack_col_0_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfColumns < _ , _ >> :: representative (___na_stack_0_0_shape . 1 , ___na_stack_2_0_shape . 1) . expect ("All blocks in block column 0 must have the same number of columns") ;
+            let ___na_stack_col_0_offset = 0;
+            let ___na_stack_col_1_dim = ___na_stack_1_1_shape.1;
+            let ___na_stack_col_1_offset = ___na_stack_col_0_offset + <_ as nalgebra::Dim>::value(&___na_stack_col_0_dim);
+            let ___na_stack_col_2_dim = < nalgebra :: constraint :: ShapeConstraint as nalgebra :: constraint :: SameNumberOfColumns < _ , _ >> :: representative (___na_stack_0_2_shape . 1 , ___na_stack_1_2_shape . 1) . expect ("All blocks in block column 2 must have the same number of columns") ;
+            let ___na_stack_col_2_offset = ___na_stack_col_1_offset + <_ as nalgebra::Dim>::value(&___na_stack_col_1_dim);
             let mut matrix = nalgebra::Matrix::zeros_generic(
                 <_ as nalgebra::DimAdd<_>>::add(
-                    <_ as nalgebra::DimAdd<_>>::add(_stack_row_0_dim, _stack_row_1_dim),
-                    _stack_row_2_dim
+                    <_ as nalgebra::DimAdd<_>>::add(___na_stack_row_0_dim, ___na_stack_row_1_dim),
+                    ___na_stack_row_2_dim
                 ),
                 <_ as nalgebra::DimAdd<_>>::add(
-                    <_ as nalgebra::DimAdd<_>>::add(_stack_col_0_dim, _stack_col_1_dim),
-                    _stack_col_2_dim
+                    <_ as nalgebra::DimAdd<_>>::add(___na_stack_col_0_dim, ___na_stack_col_1_dim),
+                    ___na_stack_col_2_dim
                 )
             );
-            let start = (_stack_row_0_offset, _stack_col_0_offset);
-            let shape = (_stack_row_0_dim, _stack_col_0_dim);
-            let input_view = _stack_0_0_block.generic_view((0,0), shape);
+            let start = (___na_stack_row_0_offset, ___na_stack_col_0_offset);
+            let shape = (___na_stack_row_0_dim, ___na_stack_col_0_dim);
+            let input_view = ___na_stack_0_0_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
-            let start = (_stack_row_0_offset, _stack_col_2_offset);
-            let shape = (_stack_row_0_dim, _stack_col_2_dim);
-            let input_view = _stack_0_2_block.generic_view((0,0), shape);
+            let start = (___na_stack_row_0_offset, ___na_stack_col_2_offset);
+            let shape = (___na_stack_row_0_dim, ___na_stack_col_2_dim);
+            let input_view = ___na_stack_0_2_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
-            let start = (_stack_row_1_offset, _stack_col_1_offset);
-            let shape = (_stack_row_1_dim, _stack_col_1_dim);
-            let input_view = _stack_1_1_block.generic_view((0,0), shape);
+            let start = (___na_stack_row_1_offset, ___na_stack_col_1_offset);
+            let shape = (___na_stack_row_1_dim, ___na_stack_col_1_dim);
+            let input_view = ___na_stack_1_1_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
-            let start = (_stack_row_1_offset, _stack_col_2_offset);
-            let shape = (_stack_row_1_dim, _stack_col_2_dim);
-            let input_view = _stack_1_2_block.generic_view((0,0), shape);
+            let start = (___na_stack_row_1_offset, ___na_stack_col_2_offset);
+            let shape = (___na_stack_row_1_dim, ___na_stack_col_2_dim);
+            let input_view = ___na_stack_1_2_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
-            let start = (_stack_row_2_offset, _stack_col_0_offset);
-            let shape = (_stack_row_2_dim, _stack_col_0_dim);
-            let input_view = _stack_2_0_block.generic_view((0,0), shape);
+            let start = (___na_stack_row_2_offset, ___na_stack_col_0_offset);
+            let shape = (___na_stack_row_2_dim, ___na_stack_col_0_dim);
+            let input_view = ___na_stack_2_0_block.generic_view((0,0), shape);
             let mut output_view = matrix.generic_view_mut(start, shape);
             output_view.copy_from(&input_view);
             matrix

@@ -24,6 +24,7 @@ use matrix_vector_impl::{Matrix, Vector};
 use crate::matrix_vector_impl::{dmatrix_impl, dvector_impl, matrix_impl, vector_impl};
 use proc_macro::TokenStream;
 use quote::quote;
+use stack_impl::stack_impl;
 use syn::parse_macro_input;
 
 /// Construct a fixed-size matrix directly from data.
@@ -255,8 +256,5 @@ pub fn point(stream: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn stack(stream: TokenStream) -> TokenStream {
     let matrix = parse_macro_input!(stream as Matrix);
-    proc_macro::TokenStream::from(match stack_impl::stack_impl("__11f075cdd4a86538", matrix) {
-        Ok(res) => res,
-        Err(err) => err.into_compile_error(),
-    })
+    proc_macro::TokenStream::from(stack_impl(matrix).unwrap_or_else(|err| err.into_compile_error()))
 }
