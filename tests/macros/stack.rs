@@ -1,5 +1,6 @@
-use cool_asserts::assert_panics;
 use crate::macros::assert_eq_and_type;
+use cool_asserts::assert_panics;
+use na::VecStorage;
 use nalgebra::dimension::U1;
 use nalgebra::{dmatrix, matrix, stack};
 use nalgebra::{
@@ -226,6 +227,21 @@ fn stack_edge_cases() {
         let _: SMatrix<i32, 0, 0> = stack![];
         let _: SMatrix<f64, 0, 0> = stack![];
     }
+
+    {
+        // Case suggested by @tpdickso: https://github.com/dimforge/nalgebra/pull/1080#discussion_r1435871752
+        let a = matrix![1, 2;
+                        3, 4];
+        let b = DMatrix::from_data(VecStorage::new(Dyn(2), Dyn(0), vec![]));
+        assert_eq!(
+            stack![a, 0;
+                          0, b],
+            matrix![1, 2;
+                           3, 4;
+                           0, 0;
+                           0, 0]
+        );
+    }
 }
 
 #[rustfmt::skip]
@@ -342,5 +358,14 @@ fn stack_mismatched_dimensions_runtime_panics() {
     assert_panics!(
         stack![s_2x2, s_2x2; d_1x2, d_1x3],
         includes("All blocks in block column 1 must have the same number of columns")
+    );
+
+    assert_panics!(
+        {
+            // Edge case suggested by @tpdickso: https://github.com/dimforge/nalgebra/pull/1080#discussion_r1435871752
+            let d_3x0 = DMatrix::from_data(VecStorage::new(Dyn(3), Dyn(0), Vec::<i32>::new()));
+            stack![s_2x2, d_3x0]
+        },
+        includes("All blocks in block row 0 must have the same number of rows")
     );
 }
