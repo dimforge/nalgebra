@@ -1,3 +1,4 @@
+use cool_asserts::assert_panics;
 use crate::macros::assert_eq_and_type;
 use nalgebra::dimension::U1;
 use nalgebra::{dmatrix, matrix, stack};
@@ -313,4 +314,33 @@ fn stack_trybuild_tests() {
     t.compile_fail("tests/macros/trybuild/stack_empty_col.rs");
     t.compile_fail("tests/macros/trybuild/stack_incompatible_block_dimensions.rs");
     t.compile_fail("tests/macros/trybuild/stack_incompatible_block_dimensions2.rs");
+}
+
+#[test]
+fn stack_mismatched_dimensions_runtime_panics() {
+    // s prefix denotes static, d dynamic
+    let s_2x2 = matrix![1, 2; 3, 4];
+    let d_2x3 = dmatrix![5, 6, 7; 8, 9, 10];
+    let d_1x2 = dmatrix![11, 12];
+    let d_1x3 = dmatrix![13, 14, 15];
+
+    assert_panics!(
+        stack![s_2x2, d_1x2],
+        includes("All blocks in block row 0 must have the same number of rows")
+    );
+
+    assert_panics!(
+        stack![s_2x2; d_2x3],
+        includes("All blocks in block column 0 must have the same number of columns")
+    );
+
+    assert_panics!(
+        stack![s_2x2, s_2x2; d_1x2, d_2x3],
+        includes("All blocks in block row 1 must have the same number of rows")
+    );
+
+    assert_panics!(
+        stack![s_2x2, s_2x2; d_1x2, d_1x3],
+        includes("All blocks in block column 1 must have the same number of columns")
+    );
 }
