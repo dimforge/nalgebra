@@ -7,6 +7,8 @@ use nalgebra::{
     DMatrix, DMatrixView, Dyn, Matrix, Matrix2, Matrix4, OMatrix, SMatrix, SMatrixView,
     SMatrixViewMut, Scalar, U2,
 };
+use nalgebra_macros::vector;
+use num_complex::Complex;
 use num_traits::Zero;
 
 /// Simple implementation that stacks dynamic matrices.
@@ -367,5 +369,60 @@ fn stack_mismatched_dimensions_runtime_panics() {
             stack![s_2x2, d_3x0]
         },
         includes("All blocks in block row 0 must have the same number of rows")
+    );
+}
+
+#[test]
+fn stack_test_builtin_types() {
+    // Other than T: Zero, there's nothing type-specific in the logic for stack!
+    // These tests are just sanity tests, to make sure it works with the common built-in types
+    let a = matrix![1, 2; 3, 4];
+    let b = vector![5, 6];
+    let c = matrix![7, 8];
+
+    let expected = matrix![ 1, 2, 5;
+                            3, 4, 6;
+                            7, 8, 0 ];
+
+    macro_rules! check_builtin {
+        ($T:ty) => {{
+            // Cannot use .cast::<$T> because we cannot convert between unsigned and signed
+            let stacked = stack![a.map(|a_ij| a_ij as $T), b.map(|b_ij| b_ij as $T);
+                                 c.map(|c_ij| c_ij as $T),                        0];
+            assert_eq!(stacked, expected.map(|e_ij| e_ij as $T));
+        }}
+    }
+
+    check_builtin!(i8);
+    check_builtin!(i16);
+    check_builtin!(i32);
+    check_builtin!(i64);
+    check_builtin!(i128);
+    check_builtin!(u8);
+    check_builtin!(u16);
+    check_builtin!(u32);
+    check_builtin!(u64);
+    check_builtin!(u128);
+    check_builtin!(f32);
+    check_builtin!(f64);
+}
+
+#[test]
+fn stack_test_complex() {
+    use num_complex::Complex as C;
+    type C32 = C<f32>;
+    let a = matrix![C::new(1.0, 1.0), C::new(2.0, 2.0); C::new(3.0, 3.0), C::new(4.0, 4.0)];
+    let b = vector![C::new(5.0, 5.0), C::new(6.0, 6.0)];
+    let c = matrix![C::new(7.0, 7.0), C::new(8.0, 8.0)];
+
+    let expected = matrix![ 1, 2, 5;
+                            3, 4, 6;
+                            7, 8, 0 ]
+    .map(|x| C::new(x as f64, x as f64));
+
+    assert_eq!(stack![a, b; c, 0], expected);
+    assert_eq!(
+        stack![a.cast::<C32>(), b.cast::<C32>(); c.cast::<C32>(), 0],
+        expected.cast::<C32>()
     );
 }
