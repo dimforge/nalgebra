@@ -149,6 +149,9 @@ pub unsafe trait Storage<T: Scalar, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     fn clone_owned(&self) -> Owned<T, R, C>
     where
         DefaultAllocator: Allocator<R, C>;
+
+    /// Cleans up the storage without calling the destructors on the contained elements.
+    fn forget(self);
 }
 
 /// Trait implemented by matrix data storage that can provide a mutable access to its elements.

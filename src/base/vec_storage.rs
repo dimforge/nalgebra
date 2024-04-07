@@ -281,6 +281,12 @@ where
     {
         self.clone()
     }
+    
+    #[inline]
+    fn forget(mut self) {
+        // Set length to 0 so element destructors are not called.
+        unsafe { self.data.set_len(0) };
+    }
 }
 
 unsafe impl<T, R: DimName> RawStorage<T, R, Dyn> for VecStorage<T, R, Dyn> {
@@ -331,6 +337,12 @@ where
         DefaultAllocator: Allocator<R, Dyn>,
     {
         self.clone()
+    }
+    
+    #[inline]
+    fn forget(mut self) {
+        // Set length to 0 so element destructors are not called.
+        unsafe { self.data.set_len(0) };
     }
 }
 
