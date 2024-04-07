@@ -229,6 +229,11 @@ macro_rules! storage_impl(
                 let it = MatrixIter::new(self).cloned();
                 DefaultAllocator::allocate_from_iterator(nrows, ncols, it)
             }
+    
+            #[inline]
+            fn forget(self) {
+                // No cleanup required.
+            }
         }
     )*}
 );
