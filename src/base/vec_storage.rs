@@ -281,7 +281,7 @@ where
     {
         self.clone()
     }
-    
+
     #[inline]
     fn forget(mut self) {
         // Set length to 0 so element destructors are not called.
@@ -338,7 +338,7 @@ where
     {
         self.clone()
     }
-    
+
     #[inline]
     fn forget(mut self) {
         // Set length to 0 so element destructors are not called.
