@@ -59,7 +59,7 @@ pub unsafe trait RawStorage<T, R: Dim, C: Dim = U1>: Sized {
 
     /// The spacing between consecutive row elements and consecutive column elements.
     ///
-    /// For example this returns `(1, 5)` for a row-major matrix with 5 columns.
+    /// For example this returns `(1, 5)` for a column-major matrix with 5 columns.
     fn strides(&self) -> (Self::RStride, Self::CStride);
 
     /// Compute the index corresponding to the irow-th row and icol-th column of this matrix. The
