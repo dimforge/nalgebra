@@ -546,8 +546,8 @@ macro_rules! matrix_view_impl (
             $me.$generic_view_with_steps(start, shape, steps)
         }
 
-        /// Slices this matrix starting at its component `(irow, icol)` and with `(RView::dim(),
-        /// CView::dim())` consecutive components.
+        /// Slices this matrix starting at its component `(irow, icol)` and with `(RVIEW,CVIEW)`
+        /// consecutive components.
         #[inline]
         #[deprecated = slice_deprecation_note!($fixed_view)]
         pub fn $fixed_slice<const RVIEW: usize, const CVIEW: usize>($me: $Me, irow: usize, icol: usize)
@@ -555,8 +555,8 @@ macro_rules! matrix_view_impl (
             $me.$fixed_view(irow, icol)
         }
 
-        /// Return a view of this matrix starting at its component `(irow, icol)` and with `(RView::dim(),
-        /// CView::dim())` consecutive components.
+        /// Return a view of this matrix starting at its component `(irow, icol)` and with
+        /// `(RVIEW,CVIEW)` consecutive components.
         #[inline]
         pub fn $fixed_view<const RVIEW: usize, const CVIEW: usize>($me: $Me, irow: usize, icol: usize)
             -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, S::RStride, S::CStride> {
