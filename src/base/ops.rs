@@ -14,7 +14,9 @@ use crate::base::constraint::{
 use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dyn};
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::uninit::Uninit;
-use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorView, RowVectorView};
+use crate::base::{
+    DefaultAllocator, Matrix, MatrixSum, OMatrix, RowVectorView, Scalar, VectorView,
+};
 use crate::storage::IsContiguous;
 use crate::uninit::{Init, InitStatus};
 use crate::{RawStorage, RawStorageMut, SimdComplexField};
