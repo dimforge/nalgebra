@@ -14,7 +14,7 @@ use crate::base::constraint::{
 use crate::base::dimension::{Dim, DimMul, DimName, DimProd, Dyn};
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::uninit::Uninit;
-use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorView};
+use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar, VectorView, RowVectorView};
 use crate::storage::IsContiguous;
 use crate::uninit::{Init, InitStatus};
 use crate::{RawStorage, RawStorageMut, SimdComplexField};
@@ -679,7 +679,7 @@ where
         // SAFETY: this is OK because the result is now initialized.
         unsafe { res.assume_init() }
     }
-    
+
     #[inline]
     #[must_use]
     /// Equivalent to `self * rhs.transpose()`.
@@ -690,7 +690,7 @@ where
         ShapeConstraint: SameNumberOfColumns<C1, C2>,
     {
         let mut res = Matrix::uninit(self.shape_generic().0, rhs.shape_generic().0);
-        self.yy_mul_to_uninit(Uninit, rhs, &mut res, |a, b| a.dot(b)); //note: this was changed
+        self.yy_mul_to_uninit(Uninit, rhs, &mut res, |a, b| a.dot(b));
         // SAFETY: this is OK because the result is now initialized.
         unsafe { res.assume_init() }
     }
@@ -759,15 +759,15 @@ where
         }
     }
 
-     #[inline(always)]
+    #[inline(always)]
     fn yy_mul_to_uninit<Status, R2: Dim, C2: Dim, SB, R3: Dim, C3: Dim, SC>(
         &self,
         _status: Status,
         rhs: &Matrix<T, R2, C2, SB>,
         out: &mut Matrix<Status::Value, R3, C3, SC>,
         dot: impl Fn(
-            &VectorView<'_, T, R1, SA::RStride, SA::CStride>,
-            &VectorView<'_, T, R2, SB::RStride, SB::CStride>,
+            &RowVectorView<'_, T, C1, SA::RStride, SA::CStride>,
+            &RowVectorView<'_, T, C2, SB::RStride, SB::CStride>,
         ) -> T,
     ) where
         Status: InitStatus<T>,
@@ -781,26 +781,26 @@ where
 
         assert!(
             ncols1 == ncols2,
-            "Matrix multiplication dimensions mismatch {:?} and {:?}: left rows != right rows.",
+            "Matrix multiplication dimensions mismatch {:?} and {:?}: left cols != right cols.",
             self.shape(),
             rhs.shape()
         );
         assert!(
             nrows1 == nrows3,
-            "Matrix multiplication output dimensions mismatch {:?} and {:?}: left cols != right rows.",
+            "Matrix multiplication output dimensions mismatch {:?} and {:?}: left rows != right rows.",
             self.shape(),
             out.shape()
         );
         assert!(
             nrows2 == ncols3,
-            "Matrix multiplication output dimensions mismatch {:?} and {:?}: left cols != right cols",
+            "Matrix multiplication output dimensions mismatch {:?} and {:?}: left rows != right cols",
             rhs.shape(),
             out.shape()
         );
 
         for i in 0..nrows1 {
             for j in 0..nrows2 {
-                let dot = dot(&self.row(i), &rhs.row(j)); 
+                let dot = dot(&self.row(i), &rhs.row(j));
                 let elt = unsafe { out.get_unchecked_mut((i, j)) };
                 Status::init(elt, dot)
             }
