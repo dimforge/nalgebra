@@ -923,10 +923,11 @@ mod transposition_tests {
         fn tr_mul_is_transpose_then_mul(m in matrix(PROPTEST_F64, Const::<4>, Const::<6>), v in vector4()) {
             prop_assert!(relative_eq!(m.transpose() * v, m.tr_mul(&v), epsilon = 1.0e-7))
         }
-        //#[test]
-        //fn mul_tr_is_transpose_rhs_then_mul(m in matrix(PROPTEST_F64, Const::<4>, Const::<6>), v in vector4()) {
-        //    prop_assert!(relative_eq!(m * v.transpose(), m.mul_tr(&v), epsilon = 1.0e-7))
-        //}
+
+        #[test] //this one gives an error
+        fn mul_tr_is_transpose_rhs_then_mul(m in matrix(PROPTEST_F64, Const::<6>, Const::<4>), v in vector4()) {
+            prop_assert!(relative_eq!(m * v, m.mul_tr(&v.transpose()), epsilon = 1.0e-7))
+        }
     }
 }
 
