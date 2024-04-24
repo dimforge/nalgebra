@@ -682,7 +682,8 @@ where
     
     #[inline]
     #[must_use]
-    pub fn mul_tr<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> OMatrix<T, C1, C2>
+    /// Equivalent to `self * rhs.transpose()`.
+    pub fn mul_tr<R2: Dim, C2: Dim, SB>(&self, rhs: &Matrix<T, R2, C2, SB>) -> OMatrix<T, R1, R2>
     where
         SB: Storage<T, R2, C2>,
         DefaultAllocator: Allocator<T, R1, R2>,
