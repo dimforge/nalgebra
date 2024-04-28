@@ -183,6 +183,13 @@ where
     }
     out[(0, 0)] = cofactor00;
 
+    out[(1, 0)] = -m[1].clone() * m[10].clone() * m[15].clone()
+        + m[1].clone() * m[11].clone() * m[14].clone()
+        + m[9].clone() * m[2].clone() * m[15].clone()
+        - m[9].clone() * m[3].clone() * m[14].clone()
+        - m[13].clone() * m[2].clone() * m[11].clone()
+        + m[13].clone() * m[3].clone() * m[10].clone();
+
     out[(2, 0)] = m[1].clone() * m[6].clone() * m[15].clone()
         - m[1].clone() * m[7].clone() * m[14].clone()
         - m[5].clone() * m[2].clone() * m[15].clone()
