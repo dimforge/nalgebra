@@ -23,8 +23,8 @@ pub fn stack_impl(matrix: Matrix) -> syn::Result<TokenStream2> {
         for j in 0..n_block_cols {
             let expr = &matrix[(i, j)];
             if !is_literal_zero(expr) {
-                let ident_block = format_ident!("{}_stack_{}_{}_block", prefix, i, j);
-                let ident_shape = format_ident!("{}_stack_{}_{}_shape", prefix, i, j);
+                let ident_block = format_ident!("{prefix}_stack_{i}_{j}_block");
+                let ident_shape = format_ident!("{prefix}_stack_{i}_{j}_shape");
                 output.extend(std::iter::once(quote_spanned! {expr.span()=>
                     let ref #ident_block = #expr;
                     let #ident_shape = #ident_block.shape_generic();
@@ -43,7 +43,7 @@ pub fn stack_impl(matrix: Matrix) -> syn::Result<TokenStream2> {
             .filter_map(|j| {
                 let expr = &matrix[(i, j)];
                 if !is_literal_zero(expr) {
-                    let mut ident_shape = format_ident!("{}_stack_{}_{}_shape", prefix, i, j);
+                    let mut ident_shape = format_ident!("{prefix}_stack_{i}_{j}_shape");
                     ident_shape.set_span(ident_shape.span().located_at(expr.span()));
                     Some(quote_spanned!{expr.span()=> #ident_shape.0 })
                 } else {
@@ -57,14 +57,14 @@ pub fn stack_impl(matrix: Matrix) -> syn::Result<TokenStream2> {
                 }
             }).ok_or(Error::new(Span::call_site(), format!("Block row {i} cannot consist entirely of implicit zero blocks.")))?;
 
-        let dim_ident = format_ident!("{}_stack_row_{}_dim", prefix, i);
-        let offset_ident = format_ident!("{}_stack_row_{}_offset", prefix, i);
+        let dim_ident = format_ident!("{prefix}_stack_row_{i}_dim");
+        let offset_ident = format_ident!("{prefix}_stack_row_{i}_offset");
 
         let offset = if i == 0 {
             quote! { 0 }
         } else {
-            let prev_offset_ident = format_ident!("{}_stack_row_{}_offset", prefix, i - 1);
-            let prev_dim_ident = format_ident!("{}_stack_row_{}_dim", prefix, i - 1);
+            let prev_offset_ident = format_ident!("{prefix}_stack_row_{}_offset", i - 1);
+            let prev_dim_ident = format_ident!("{prefix}_stack_row_{}_dim", i - 1);
             quote! { #prev_offset_ident + <_ as nalgebra::Dim>::value(&#prev_dim_ident) }
         };
 
@@ -80,7 +80,7 @@ pub fn stack_impl(matrix: Matrix) -> syn::Result<TokenStream2> {
             .filter_map(|i| {
                 let expr = &matrix[(i, j)];
                 if !is_literal_zero(expr) {
-                    let mut ident_shape = format_ident!("{}_stack_{}_{}_shape", prefix, i, j);
+                    let mut ident_shape = format_ident!("{prefix}_stack_{i}_{j}_shape");
                     ident_shape.set_span(ident_shape.span().located_at(expr.span()));
                     Some(quote_spanned!{expr.span()=> #ident_shape.1 })
                 } else {
@@ -94,14 +94,14 @@ pub fn stack_impl(matrix: Matrix) -> syn::Result<TokenStream2> {
                 }
             }).ok_or(Error::new(Span::call_site(), format!("Block column {j} cannot consist entirely of implicit zero blocks.")))?;
 
-        let dim_ident = format_ident!("{}_stack_col_{}_dim", prefix, j);
-        let offset_ident = format_ident!("{}_stack_col_{}_offset", prefix, j);
+        let dim_ident = format_ident!("{prefix}_stack_col_{j}_dim");
+        let offset_ident = format_ident!("{prefix}_stack_col_{j}_offset");
 
         let offset = if j == 0 {
             quote! { 0 }
         } else {
-            let prev_offset_ident = format_ident!("{}_stack_col_{}_offset", prefix, j - 1);
-            let prev_dim_ident = format_ident!("{}_stack_col_{}_dim", prefix, j - 1);
+            let prev_offset_ident = format_ident!("{prefix}_stack_col_{}_offset", j - 1);
+            let prev_dim_ident = format_ident!("{prefix}_stack_col_{}_dim", j - 1);
             quote! { #prev_offset_ident + <_ as nalgebra::Dim>::value(&#prev_dim_ident) }
         };
 
@@ -115,7 +115,7 @@ pub fn stack_impl(matrix: Matrix) -> syn::Result<TokenStream2> {
     // by adding together dimensions of all block rows/cols
     let num_rows = (0..n_block_rows)
         .map(|i| {
-            let ident = format_ident!("{}_stack_row_{}_dim", prefix, i);
+            let ident = format_ident!("{prefix}_stack_row_{i}_dim");
             quote! { #ident }
         })
         .reduce(|a, b| {
@@ -127,7 +127,7 @@ pub fn stack_impl(matrix: Matrix) -> syn::Result<TokenStream2> {
 
     let num_cols = (0..n_block_cols)
         .map(|j| {
-            let ident = format_ident!("{}_stack_col_{}_dim", prefix, j);
+            let ident = format_ident!("{prefix}_stack_col_{j}_dim");
             quote! { #ident }
         })
         .reduce(|a, b| {
@@ -146,13 +146,13 @@ pub fn stack_impl(matrix: Matrix) -> syn::Result<TokenStream2> {
 
     for i in 0..n_block_rows {
         for j in 0..n_block_cols {
-            let row_dim = format_ident!("{}_stack_row_{}_dim", prefix, i);
-            let col_dim = format_ident!("{}_stack_col_{}_dim", prefix, j);
-            let row_offset = format_ident!("{}_stack_row_{}_offset", prefix, i);
-            let col_offset = format_ident!("{}_stack_col_{}_offset", prefix, j);
+            let row_dim = format_ident!("{prefix}_stack_row_{i}_dim");
+            let col_dim = format_ident!("{prefix}_stack_col_{j}_dim");
+            let row_offset = format_ident!("{prefix}_stack_row_{i}_offset");
+            let col_offset = format_ident!("{prefix}_stack_col_{j}_offset");
             let expr = &matrix[(i, j)];
             if !is_literal_zero(expr) {
-                let expr_ident = format_ident!("{}_stack_{}_{}_block", prefix, i, j);
+                let expr_ident = format_ident!("{prefix}_stack_{i}_{j}_block");
                 output.extend(std::iter::once(quote! {
                     let start = (#row_offset, #col_offset);
                     let shape = (#row_dim, #col_dim);
