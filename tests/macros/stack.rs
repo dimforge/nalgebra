@@ -237,11 +237,11 @@ fn stack_edge_cases() {
         let b = DMatrix::from_data(VecStorage::new(Dyn(2), Dyn(0), vec![]));
         assert_eq!(
             stack![a, 0;
-                          0, b],
+                   0, b],
             matrix![1, 2;
-                           3, 4;
-                           0, 0;
-                           0, 0]
+                    3, 4;
+                    0, 0;
+                    0, 0]
         );
     }
 }
