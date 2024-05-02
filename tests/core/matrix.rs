@@ -931,7 +931,7 @@ mod inversion_tests {
     use super::*;
     use crate::proptest::*;
     use na::Matrix1;
-    use proptest::{prop_assert, proptest, prop_assert_eq};
+    use proptest::{prop_assert, proptest};
 
     proptest! {
         #[test]
@@ -968,14 +968,6 @@ mod inversion_tests {
                 prop_assert!(relative_eq!(im * m, id, epsilon = 1.0e-7));
                 prop_assert!(relative_eq!(m * im, id, epsilon = 1.0e-7));
             }
-        }
-
-        #[test]
-        fn test_inversion_failure_leaves_matrix_unchanged(m in matrix4()) {
-                let original_matrix = m.clone();
-                if m.try_inverse().is_none() {
-                    prop_assert_eq!(m, original_matrix);
-                }
         }
 
         #[test]
@@ -1269,6 +1261,20 @@ fn column_iterator_double_ended_mut() {
     assert_eq!(col_iter_mut.next(), Some(cloned.column_mut(2)));
     assert_eq!(col_iter_mut.next_back(), None);
     assert_eq!(col_iter_mut.next(), None);
+}
+
+#[test]
+fn test_inversion_failure_leaves_matrix_unchanged() {
+    let mut mat = na::Matrix4::new(
+        1.0, 2.0, 3.0, 4.0,
+        2.0, 4.0, 6.0, 8.0,
+        3.0, 6.0, 9.0, 12.0,
+        4.0, 8.0, 12.0, 16.0
+    );
+    let expected = mat.clone();
+    if !mat.try_inverse_mut() {
+        assert_eq!(mat, expected);
+    }
 }
 
 #[test]
