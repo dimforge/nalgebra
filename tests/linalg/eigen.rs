@@ -62,6 +62,23 @@ mod proptest_tests {
 
                         prop_assert!(relative_eq!(m.lower_triangle(), recomp.lower_triangle(), epsilon = 1.0e-5))
                     }
+
+                    #[test]
+                    fn symmetric_eigen_pseudo_inverse(m in dmatrix_($scalar)) {
+                        let eig = m.clone().symmetric_eigen();
+                        let pinv = eig.pseudo_inverse(None, None);
+                        prop_assert!(relative_eq!(
+                            m,
+                            &m*&pinv*&m,
+                            epsilon = 1.0e-5
+                        ));
+                        prop_assert!(relative_eq!(
+                            pinv,
+                            &pinv*m*&pinv,
+                            epsilon = 1.0e-5
+                        ));
+                    }
+
                 }
             }
         }
