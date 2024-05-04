@@ -1367,22 +1367,6 @@ fn dvector_from_svector() {
 }
 
 #[test]
-fn svector3_from_dvector() {
-    type T = f64;
-    let d = DVector::<T>::from_fn(3, |i, j| (i * 3) as T + j as T);
-    let s = Vector3::<T>::from(&d);
-    assert_eq!(d, s);
-}
-
-#[test]
-fn dvector_from_svector3() {
-    type T = f64;
-    let s = Vector3::<T>::from_fn(|i, j| (i * 3) as T + j as T);
-    let d = DVector::<T>::from(&s);
-    assert_eq!(d, s);
-}
-
-#[test]
 fn svector3_from_dmatrix3x1() {
     type T = f64;
     let d = DMatrix::<T>::from_fn(3, 1, |i, j| (i * 3) as T + j as T);
@@ -1396,5 +1380,12 @@ fn svector3_from_dmatrix3x3() {
     type T = f64;
     let d = DMatrix::<T>::from_fn(3, 3, |i, j| (i * 3) as T + j as T);
     let s = Vector3::<T>::from(&d);
+    assert_eq!(d, s);
+}
+#[test]
+fn dmatrix_from_svector3() {
+    type T = f64;
+    let s = SVector::<T, 3>::from_fn(|i, j| (i * 3) as T + j as T);
+    let d = DMatrix::<T>::from(&s);
     assert_eq!(d, s);
 }

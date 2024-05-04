@@ -1,5 +1,7 @@
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::vec::Vec;
+use core::convert::TryFrom;
+use core::panic;
 use simba::scalar::{SubsetOf, SupersetOf};
 use std::borrow::{Borrow, BorrowMut};
 use std::convert::{AsMut, AsRef, From, Into};
@@ -19,12 +21,8 @@ use crate::base::{
     ArrayStorage, DVectorView, DVectorViewMut, DefaultAllocator, Matrix, MatrixView, MatrixViewMut,
     OMatrix, Scalar,
 };
-//TODO: move near From implementation?
 #[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::{DMatrixView, SMatrixView, SVectorView};
-
-#[cfg(any(feature = "std", feature = "alloc"))]
-use crate::base::{DMatrix, DVector, RowDVector, VecStorage};
+use crate::base::{DVector, RowDVector, VecStorage};
 use crate::base::{ViewStorage, ViewStorageMut};
 use crate::constraint::DimEq;
 use crate::{IsNotStaticOne, RowSVector, SMatrix, SVector, VectorView, VectorViewMut};
@@ -433,34 +431,65 @@ where
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T: Scalar, const R: usize, const C: usize> From<&'a DMatrix<T>> for SMatrix<T, R, C> {
-    fn from(m: &'a DMatrix<T>) -> Self {
-        let v: DMatrixView<'a, T> = m.as_view();
-        SMatrixView::<T, R, C>::from(&v).clone_owned()
+impl<'a, T: Scalar, const R0: usize, const C0: usize, R1: Dim, C1: Dim>
+    TryFrom<&VecStorage<T, R1, C1>> for ArrayStorage<T, R0, C0>
+{
+    // TODO: where to put Error enum ?
+    type Error = ();
+
+    fn try_from(vstorage: &VecStorage<T, R1, C1>) -> Result<Self, Self::Error> {
+        if R0 * C0 != vstorage.len() {
+            Err(())
+        } else {
+            let mut data = MaybeUninit::<[[T; R0]; C0]>::uninit();
+            unsafe { core::slice::from_raw_parts_mut(data.as_mut_ptr() as *mut T, R0 * C0) }
+                .clone_from_slice(vstorage.as_slice());
+            Ok(Self(unsafe { data.assume_init() }))
+        }
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T: Scalar, const R: usize, const C: usize> From<&'a SMatrix<T, R, C>> for DMatrix<T> {
-    fn from(m: &'a SMatrix<T, R, C>) -> Self {
-        let v: SMatrixView<'a, T, R, C> = m.as_view();
-        DMatrixView::<T>::from(&v).clone_owned()
+impl<'a, T: Scalar, const R0: usize, const C0: usize, R1: Dim, C1: Dim>
+    From<&ArrayStorage<T, R0, C0>> for VecStorage<T, R1, C1>
+{
+    fn from(astorage: &ArrayStorage<T, R0, C0>) -> Self {
+        VecStorage::new(
+            R1::from_usize(R0),
+            C1::from_usize(C0),
+            Vec::from(astorage.as_slice()),
+        )
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T: Scalar, const R: usize> From<&'a DVector<T>> for SVector<T, R> {
-    fn from(m: &'a DVector<T>) -> Self {
-        let v: DVectorView<'a, T> = m.as_view();
-        SVectorView::<T, R>::from(&v).clone_owned()
+impl<'a, T: Scalar, const R0: usize, const C0: usize, R1: Dim, C1: Dim>
+    From<&'a Matrix<T, R1, C1, VecStorage<T, R1, C1>>>
+    for Matrix<T, Const<R0>, Const<C0>, ArrayStorage<T, R0, C0>>
+where
+    VecStorage<T, R1, C1>: RawStorage<T, R1, C1>,
+{
+    fn from(m: &'a Matrix<T, R1, C1, VecStorage<T, R1, C1>>) -> Self {
+        match ArrayStorage::<T, R0, C0>::try_from(&m.data) {
+            Ok(s) => {
+                assert_eq!(R0, m.nrows());
+                assert_eq!(C0, m.ncols());
+                Self::from_array_storage(s)
+            }
+            Err(_) => panic!("storage dimensions mismatch"),
+        }
     }
 }
 
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<'a, T: Scalar, const R: usize> From<&'a SVector<T, R>> for DVector<T> {
-    fn from(m: &'a SVector<T, R>) -> Self {
-        let v: SVectorView<'a, T, R> = m.as_view();
-        DVectorView::<T>::from(&v).clone_owned()
+impl<'a, T: Scalar, const R0: usize, const C0: usize, R1: Dim, C1: Dim>
+    From<&'a Matrix<T, Const<R0>, Const<C0>, ArrayStorage<T, R0, C0>>>
+    for Matrix<T, R1, C1, VecStorage<T, R1, C1>>
+where
+    VecStorage<T, R1, C1>: RawStorage<T, R1, C1>,
+{
+    fn from(m: &'a Matrix<T, Const<R0>, Const<C0>, ArrayStorage<T, R0, C0>>) -> Self {
+        Self::from_data(VecStorage::from(&m.data))
     }
 }
 
