@@ -32,6 +32,8 @@ pub type CStride<T, R, C = U1> =
 /// The trait shared by all matrix data storage.
 ///
 /// TODO: doc
+/// # Safety
+///
 /// In generic code, it is recommended use the `Storage` trait bound instead. The `RawStorage`
 /// trait bound is generally used by code that needs to work with storages that contains
 /// `MaybeUninit<T>` elements.
@@ -57,7 +59,7 @@ pub unsafe trait RawStorage<T, R: Dim, C: Dim = U1>: Sized {
 
     /// The spacing between consecutive row elements and consecutive column elements.
     ///
-    /// For example this returns `(1, 5)` for a row-major matrix with 5 columns.
+    /// For example this returns `(1, 5)` for a column-major matrix with 5 columns.
     fn strides(&self) -> (Self::RStride, Self::CStride);
 
     /// Compute the index corresponding to the irow-th row and icol-th column of this matrix. The
@@ -129,6 +131,14 @@ pub unsafe trait RawStorage<T, R: Dim, C: Dim = U1>: Sized {
 }
 
 /// Trait shared by all matrix data storage that don’t contain any uninitialized elements.
+///
+/// # Safety
+///
+/// Note that `Self` must always have a number of elements compatible with the matrix length (given
+/// by `R` and `C` if they are known at compile-time). For example, implementors of this trait
+/// should **not** allow the user to modify the size of the underlying buffer with safe methods
+/// (for example the `VecStorage::data_mut` method is unsafe because the user could change the
+/// vector's size so that it no longer contains enough elements: this will lead to UB.
 pub unsafe trait Storage<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     /// Builds a matrix data storage that does not contain any reference.
     fn into_owned(self) -> Owned<T, R, C>
@@ -142,6 +152,8 @@ pub unsafe trait Storage<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
 }
 
 /// Trait implemented by matrix data storage that can provide a mutable access to its elements.
+///
+/// # Safety
 ///
 /// In generic code, it is recommended use the `StorageMut` trait bound instead. The
 /// `RawStorageMut` trait bound is generally used by code that needs to work with storages that
@@ -194,10 +206,28 @@ pub unsafe trait RawStorageMut<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     ///
     /// # Safety
     /// If the indices are out of bounds, the method will cause undefined behavior.
+    ///
+    /// # Validity
+    /// The default implementation of this trait function is only guaranteed to be
+    /// sound if invocations of `self.ptr_mut()` and `self.get_address_unchecked_linear_mut()`
+    /// result in stable references. If any of the data pointed to by these trait methods
+    /// moves as a consequence of invoking either of these methods then this default
+    /// trait implementation may be invalid or unsound and should be overridden.
     #[inline]
     unsafe fn swap_unchecked_linear(&mut self, i1: usize, i2: usize) {
-        let a = self.get_address_unchecked_linear_mut(i1);
-        let b = self.get_address_unchecked_linear_mut(i2);
+        // we can't just use the pointers returned from `get_address_unchecked_linear_mut` because calling a
+        // method taking self mutably invalidates any existing (mutable) pointers. since `get_address_unchecked_linear_mut` can
+        // also be overriden by a custom implementation, we can't just use `wrapping_add` assuming that's what the method does.
+        // instead, we use `offset_from` to compute the re-calculate the pointers from the base pointer.
+        // this is sound as long as this trait matches the Validity preconditions
+        // (and it's the caller's responsibility to ensure the indices are in-bounds).
+        let base = self.ptr_mut();
+        let offset1 = self.get_address_unchecked_linear_mut(i1).offset_from(base);
+        let offset2 = self.get_address_unchecked_linear_mut(i2).offset_from(base);
+
+        let base = self.ptr_mut();
+        let a = base.offset(offset1);
+        let b = base.offset(offset2);
 
         ptr::swap(a, b);
     }
@@ -226,6 +256,10 @@ pub unsafe trait RawStorageMut<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
 }
 
 /// Trait shared by all mutable matrix data storage that don’t contain any uninitialized elements.
+///
+/// # Safety
+///
+/// See safety note for `Storage`, `RawStorageMut`.
 pub unsafe trait StorageMut<T, R: Dim, C: Dim = U1>:
     Storage<T, R, C> + RawStorageMut<T, R, C>
 {
@@ -240,6 +274,8 @@ where
 }
 
 /// Marker trait indicating that a storage is stored contiguously in memory.
+///
+/// # Safety
 ///
 /// The storage requirement means that for any value of `i` in `[0, nrows * ncols - 1]`, the value
 /// `.get_unchecked_linear` returns one of the matrix component. This trait is unsafe because

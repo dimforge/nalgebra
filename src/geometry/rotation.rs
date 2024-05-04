@@ -64,7 +64,6 @@ use rkyv::bytecheck;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 #[derive(Copy, Clone)]
 pub struct Rotation<T, const D: usize> {
     matrix: SMatrix<T, D, D>,
@@ -185,6 +184,10 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     }
 
     /// A mutable reference to the underlying matrix representation of this rotation.
+    ///
+    /// # Safety
+    ///
+    /// Invariants of the rotation matrix should not be violated.
     #[inline]
     #[deprecated(note = "Use `.matrix_mut_unchecked()` instead.")]
     pub unsafe fn matrix_mut(&mut self) -> &mut SMatrix<T, D, D> {

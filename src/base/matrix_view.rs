@@ -43,6 +43,10 @@ macro_rules! view_storage_impl (
 
         impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> $T<'a, T, R, C, RStride, CStride> {
             /// Create a new matrix view without bounds checking and from a raw pointer.
+            ///
+            /// # Safety
+            ///
+            /// `*ptr` must point to memory that is valid `[T; R * C]`.
             #[inline]
             pub unsafe fn from_raw_parts(ptr:     $Ptr,
                                          shape:   (R, C),
@@ -63,6 +67,11 @@ macro_rules! view_storage_impl (
         // Dyn is arbitrary. It's just to be able to call the constructors with `Slice::`
         impl<'a, T, R: Dim, C: Dim> $T<'a, T, R, C, Dyn, Dyn> {
             /// Create a new matrix view without bounds checking.
+            ///
+            /// # Safety
+            ///
+            /// `storage` contains sufficient elements beyond `start + R * C` such that all
+            /// accesses are within bounds.
             #[inline]
             pub unsafe fn new_unchecked<RStor, CStor, S>(storage: $SRef, start: (usize, usize), shape: (R, C))
                 -> $T<'a, T, R, C, S::RStride, S::CStride>
@@ -75,6 +84,10 @@ macro_rules! view_storage_impl (
             }
 
             /// Create a new matrix view without bounds checking.
+            ///
+            /// # Safety
+            ///
+            /// `strides` must be a valid stride indexing.
             #[inline]
             pub unsafe fn new_with_strides_unchecked<S, RStor, CStor, RStride, CStride>(storage: $SRef,
                                                                                         start:   (usize, usize),
@@ -128,12 +141,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
 {
     #[inline]
     fn clone(&self) -> Self {
-        Self {
-            ptr: self.ptr,
-            shape: self.shape,
-            strides: self.strides,
-            _phantoms: PhantomData,
-        }
+        *self
     }
 }
 
@@ -538,8 +546,8 @@ macro_rules! matrix_view_impl (
             $me.$generic_view_with_steps(start, shape, steps)
         }
 
-        /// Slices this matrix starting at its component `(irow, icol)` and with `(R::dim(),
-        /// CView::dim())` consecutive components.
+        /// Slices this matrix starting at its component `(irow, icol)` and with `(RVIEW, CVIEW)`
+        /// consecutive components.
         #[inline]
         #[deprecated = slice_deprecation_note!($fixed_view)]
         pub fn $fixed_slice<const RVIEW: usize, const CVIEW: usize>($me: $Me, irow: usize, icol: usize)
@@ -547,8 +555,8 @@ macro_rules! matrix_view_impl (
             $me.$fixed_view(irow, icol)
         }
 
-        /// Return a view of this matrix starting at its component `(irow, icol)` and with `(R::dim(),
-        /// CView::dim())` consecutive components.
+        /// Return a view of this matrix starting at its component `(irow, icol)` and with
+        /// `(RVIEW, CVIEW)` consecutive components.
         #[inline]
         pub fn $fixed_view<const RVIEW: usize, const CVIEW: usize>($me: $Me, irow: usize, icol: usize)
             -> $MatrixView<'_, T, Const<RVIEW>, Const<CVIEW>, S::RStride, S::CStride> {

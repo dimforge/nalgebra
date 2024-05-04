@@ -28,7 +28,7 @@ where
 }
 
 /// Reflects a 3D vector wrt. the 3D plane with normal `plane_normal`.
-/// /!\ This is an exact replicate of `reflect_wrt_hyperplane2, but for 3D.
+/// /!\ This is an exact replicate of `reflect_wrt_hyperplane2`, but for 3D.
 fn reflect_wrt_hyperplane3<T>(plane_normal: &Unit<Vector3<T>>, vector: &Vector3<T>) -> Vector3<T>
 where
     T: RealField,

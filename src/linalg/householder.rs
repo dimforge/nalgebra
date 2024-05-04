@@ -34,6 +34,17 @@ pub fn reflection_axis_mut<T: ComplexField, D: Dim, S: StorageMut<T, D>>(
 
     if !factor.is_zero() {
         column.unscale_mut(factor.sqrt());
+
+        // Normalize again, making sure the vector is unit-sized.
+        // If `factor` had a very small value, the first normalization
+        // (dividing by `factor.sqrt()`) might end up with a slightly
+        // non-unit vector (especially when using 32-bits float).
+        // Decompositions strongly rely on that unit-vector property,
+        // so we run a second normalization (that is much more numerically
+        // stable since the norm is close to 1) to ensure it has a unit
+        // size.
+        let _ = column.normalize_mut();
+
         (-signed_norm, true)
     } else {
         // TODO: not sure why we don't have a - sign here.

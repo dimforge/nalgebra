@@ -86,14 +86,6 @@ where
 {
 }
 
-#[cfg(feature = "cuda")]
-unsafe impl<T: Scalar + cust_core::DeviceCopy, D: DimName> cust_core::DeviceCopy for OPoint<T, D>
-where
-    DefaultAllocator: Allocator<T, D>,
-    OVector<T, D>: cust_core::DeviceCopy,
-{
-}
-
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: Scalar, D: DimName> bytemuck::Zeroable for OPoint<T, D>
 where
@@ -317,6 +309,10 @@ where
     }
 
     /// Gets a reference to i-th element of this point without bound-checking.
+    ///
+    /// # Safety
+    ///
+    /// `i` must be less than `self.len()`.
     #[inline]
     #[must_use]
     pub unsafe fn get_unchecked(&self, i: usize) -> &T {
@@ -344,6 +340,10 @@ where
     }
 
     /// Gets a mutable reference to i-th element of this point without bound-checking.
+    ///
+    /// # Safety
+    ///
+    /// `i` must be less than `self.len()`.
     #[inline]
     #[must_use]
     pub unsafe fn get_unchecked_mut(&mut self, i: usize) -> &mut T {
@@ -351,6 +351,10 @@ where
     }
 
     /// Swaps two entries without bound-checking.
+    ///
+    /// # Safety
+    ///
+    /// `i1` and `i2` must be less than `self.len()`.
     #[inline]
     pub unsafe fn swap_unchecked(&mut self, i1: usize, i2: usize) {
         self.coords.swap_unchecked((i1, 0), (i2, 0))
@@ -499,10 +503,11 @@ where
 
         let mut it = self.coords.iter();
 
-        write!(f, "{}", *it.next().unwrap())?;
+        <T as fmt::Display>::fmt(it.next().unwrap(), f)?;
 
         for comp in it {
-            write!(f, ", {}", *comp)?;
+            write!(f, ", ")?;
+            <T as fmt::Display>::fmt(comp, f)?;
         }
 
         write!(f, "}}")

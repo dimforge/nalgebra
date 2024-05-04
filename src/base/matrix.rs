@@ -171,7 +171,6 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Matrix<T, R, C, S> {
     /// The data storage that contains all the matrix components. Disappointed?
     ///
@@ -313,6 +312,10 @@ where
 impl<T, R, C, S> Matrix<T, R, C, S> {
     /// Creates a new matrix with the given data without statically checking that the matrix
     /// dimension matches the storage dimension.
+    ///
+    /// # Safety
+    ///
+    /// The storage dimension must match the given dimensions.
     #[inline(always)]
     pub const unsafe fn from_data_statically_unchecked(data: S) -> Matrix<T, R, C, S> {
         Matrix {
@@ -1194,6 +1197,10 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     }
 
     /// Swaps two entries without bound-checking.
+    ///
+    /// # Safety
+    ///
+    /// Both `(r, c)` must have `r < nrows(), c < ncols()`.
     #[inline]
     pub unsafe fn swap_unchecked(&mut self, row_cols1: (usize, usize), row_cols2: (usize, usize)) {
         debug_assert!(row_cols1.0 < self.nrows() && row_cols1.1 < self.ncols());
@@ -1300,6 +1307,8 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
 
 impl<T, D: Dim, S: RawStorage<T, D>> Vector<T, D, S> {
     /// Gets a reference to the i-th element of this column vector without bound checking.
+    /// # Safety
+    /// `i` must be less than `D`.
     #[inline]
     #[must_use]
     pub unsafe fn vget_unchecked(&self, i: usize) -> &T {
@@ -1311,6 +1320,8 @@ impl<T, D: Dim, S: RawStorage<T, D>> Vector<T, D, S> {
 
 impl<T, D: Dim, S: RawStorageMut<T, D>> Vector<T, D, S> {
     /// Gets a mutable reference to the i-th element of this column vector without bound checking.
+    /// # Safety
+    /// `i` must be less than `D`.
     #[inline]
     #[must_use]
     pub unsafe fn vget_unchecked_mut(&mut self, i: usize) -> &mut T {

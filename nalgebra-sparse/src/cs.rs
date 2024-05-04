@@ -1,4 +1,3 @@
-use std::mem::replace;
 use std::ops::Range;
 
 use num_traits::One;
@@ -369,7 +368,7 @@ where
         if let Some(minor_indices) = lane {
             let count = minor_indices.len();
 
-            let remaining = replace(&mut self.remaining_values, &mut []);
+            let remaining = std::mem::take(&mut self.remaining_values);
             let (values_in_lane, remaining) = remaining.split_at_mut(count);
             self.remaining_values = remaining;
             self.current_lane_idx += 1;
@@ -578,7 +577,7 @@ where
     } else if sort {
         unreachable!("Internal error: Sorting currently not supported if no values are present.");
     }
-    if major_offsets.len() == 0 {
+    if major_offsets.is_empty() {
         return Err(SparseFormatError::from_kind_and_msg(
             SparseFormatErrorKind::InvalidStructure,
             "Number of offsets should be greater than 0.",
@@ -624,12 +623,12 @@ where
                 ));
             }
 
-            let minor_idx_in_lane = minor_indices.get(range_start..range_end).ok_or(
+            let minor_idx_in_lane = minor_indices.get(range_start..range_end).ok_or_else(|| {
                 SparseFormatError::from_kind_and_msg(
                     SparseFormatErrorKind::IndexOutOfBounds,
                     "A major offset is out of bounds.",
-                ),
-            )?;
+                )
+            })?;
 
             // We test for in-bounds, uniqueness and monotonicity at the same time
             // to ensure that we only visit each minor index once

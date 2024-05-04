@@ -1,4 +1,4 @@
-use na::DMatrix;
+use na::{DMatrix, Matrix3};
 
 #[cfg(feature = "proptest-support")]
 mod proptest_tests {
@@ -114,6 +114,31 @@ fn symmetric_eigen_singular_24x24() {
         recomp.lower_triangle(),
         epsilon = 1.0e-5
     );
+}
+
+// Regression test for #1368
+#[test]
+fn very_small_deviation_from_identity_issue_1368() {
+    let m = Matrix3::<f32>::new(
+        1.0,
+        3.1575704e-23,
+        8.1146196e-23,
+        3.1575704e-23,
+        1.0,
+        1.7471054e-22,
+        8.1146196e-23,
+        1.7471054e-22,
+        1.0,
+    );
+
+    for v in m
+        .try_symmetric_eigen(f32::EPSILON, 0)
+        .unwrap()
+        .eigenvalues
+        .into_iter()
+    {
+        assert_relative_eq!(*v, 1.);
+    }
 }
 
 //  #[cfg(feature = "arbitrary")]

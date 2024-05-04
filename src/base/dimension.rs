@@ -23,7 +23,6 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
     feature = "rkyv-serialize",
     archive_attr(derive(bytecheck::CheckBytes))
 )]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Dyn(pub usize);
 
 #[deprecated(note = "use Dyn instead.")]
@@ -68,6 +67,10 @@ impl IsNotStaticOne for Dyn {}
 
 /// Trait implemented by any type that can be used as a dimension. This includes type-level
 /// integers and `Dyn` (for dimensions not known at compile-time).
+///
+/// # Safety
+///
+/// Hoists integers to the type level, including binary operations.
 pub unsafe trait Dim: Any + Debug + Copy + PartialEq + Send + Sync {
     #[inline(always)]
     fn is<D: Dim>() -> bool {
@@ -216,7 +219,6 @@ dim_ops!(
     archive(as = "Self")
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Const<const R: usize>;
 
 /// Trait implemented exclusively by type-level integers.

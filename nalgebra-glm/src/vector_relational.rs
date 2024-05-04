@@ -141,7 +141,7 @@ pub fn less_than<T: Number, const D: usize>(x: &TVec<T, D>, y: &TVec<T, D>) -> T
     x.zip_map(y, |x, y| x < y)
 }
 
-/// Component-wise `>=` comparison.
+/// Component-wise `<=` comparison.
 ///
 /// # Examples:
 ///

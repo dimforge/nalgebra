@@ -125,18 +125,22 @@ fn iterate_union<'a>(
 ) -> impl Iterator<Item = usize> + 'a {
     iter::from_fn(move || {
         if let (Some(a_item), Some(b_item)) = (sorted_a.first(), sorted_b.first()) {
-            let item = if a_item < b_item {
-                sorted_a = &sorted_a[1..];
-                a_item
-            } else if b_item < a_item {
-                sorted_b = &sorted_b[1..];
-                b_item
-            } else {
-                // Both lists contain the same element, advance both slices to avoid
-                // duplicate entries in the result
-                sorted_a = &sorted_a[1..];
-                sorted_b = &sorted_b[1..];
-                a_item
+            let item = match a_item.cmp(b_item) {
+                std::cmp::Ordering::Less => {
+                    sorted_a = &sorted_a[1..];
+                    a_item
+                }
+                std::cmp::Ordering::Greater => {
+                    sorted_b = &sorted_b[1..];
+                    b_item
+                }
+                std::cmp::Ordering::Equal => {
+                    // Both lists contain the same element, advance both slices to avoid
+                    // duplicate entries in the result
+                    sorted_a = &sorted_a[1..];
+                    sorted_b = &sorted_b[1..];
+                    a_item
+                }
             };
             Some(*item)
         } else if let Some(a_item) = sorted_a.first() {

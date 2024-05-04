@@ -38,7 +38,6 @@ use rkyv::bytecheck;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
-#[cfg_attr(feature = "cuda", derive(cust_core::DeviceCopy))]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<T>,
@@ -1015,9 +1014,6 @@ impl<T: RealField + fmt::Display> fmt::Display for Quaternion<T> {
 
 /// A unit quaternions. May be used to represent a rotation.
 pub type UnitQuaternion<T> = Unit<Quaternion<T>>;
-
-#[cfg(feature = "cuda")]
-unsafe impl<T: cust_core::DeviceCopy> cust_core::DeviceCopy for UnitQuaternion<T> {}
 
 impl<T: Scalar + ClosedNeg + PartialEq> PartialEq for UnitQuaternion<T> {
     #[inline]
