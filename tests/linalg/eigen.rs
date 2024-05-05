@@ -64,7 +64,9 @@ mod proptest_tests {
                     }
 
                     #[test]
-                    fn symmetric_eigen_pseudo_inverse(m in dmatrix_($scalar)) {
+                    fn symmetric_eigen_pseudo_inverse(n in PROPTEST_MATRIX_DIM) {
+                        let n      = cmp::max(1, cmp::min(n, 10));
+                        let m      = DMatrix::<$scalar_type>::new_random(n, n).map(|e| e.0).hermitian_part();
                         let eig = m.clone().symmetric_eigen();
                         let pinv = eig.pseudo_inverse(None, None);
                         prop_assert!(relative_eq!(
@@ -79,6 +81,42 @@ mod proptest_tests {
                         ));
                     }
 
+                    #[test]
+                    fn symmetric_eigen_pseudo_inverse_singular(n in PROPTEST_MATRIX_DIM) {
+                        let n      = cmp::max(1, cmp::min(n, 10));
+                        let mut m  = DMatrix::<$scalar_type>::new_random(n, n).map(|e| e.0).hermitian_part();
+                        m.row_mut(n / 2).fill(na::zero());
+                        m.column_mut(n / 2).fill(na::zero());
+                        let eig = m.clone().symmetric_eigen();
+                        let pinv = eig.pseudo_inverse(None, None);
+                        prop_assert!(relative_eq!(
+                            m,
+                            &m*&pinv*&m,
+                            epsilon = 1.0e-5
+                        ));
+                        prop_assert!(relative_eq!(
+                            pinv,
+                            &pinv*m*&pinv,
+                            epsilon = 1.0e-5
+                        ));
+                    }
+
+                    #[test]
+                    fn symmetric_eigen_static_square_4x4_pseudo_inverse_singular(m in matrix4_($scalar)) {
+                        let m      = m.hermitian_part();
+                        let eig    = m.symmetric_eigen();
+                        let pinv = eig.pseudo_inverse(None, None);
+                        prop_assert!(relative_eq!(
+                            m,
+                            &m*&pinv*&m,
+                            epsilon = 1.0e-5
+                        ));
+                        prop_assert!(relative_eq!(
+                            pinv,
+                            &pinv*m*&pinv,
+                            epsilon = 1.0e-5
+                        ));
+                    }
                 }
             }
         }
