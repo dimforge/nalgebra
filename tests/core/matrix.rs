@@ -1264,6 +1264,16 @@ fn column_iterator_double_ended_mut() {
 }
 
 #[test]
+fn test_inversion_failure_leaves_matrix4_unchanged() {
+    let mut mat = na::Matrix4::new(
+        1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 6.0, 8.0, 3.0, 6.0, 9.0, 12.0, 4.0, 8.0, 12.0, 16.0,
+    );
+    let expected = mat.clone();
+    assert!(!mat.try_inverse_mut());
+    assert_eq!(mat, expected);
+}
+
+#[test]
 #[cfg(feature = "rayon")]
 fn parallel_column_iteration() {
     use nalgebra::dmatrix;

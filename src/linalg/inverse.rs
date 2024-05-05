@@ -145,12 +145,43 @@ where
 {
     let m = m.as_slice();
 
-    out[(0, 0)] = m[5].clone() * m[10].clone() * m[15].clone()
+    let cofactor00 = m[5].clone() * m[10].clone() * m[15].clone()
         - m[5].clone() * m[11].clone() * m[14].clone()
         - m[9].clone() * m[6].clone() * m[15].clone()
         + m[9].clone() * m[7].clone() * m[14].clone()
         + m[13].clone() * m[6].clone() * m[11].clone()
         - m[13].clone() * m[7].clone() * m[10].clone();
+
+    let cofactor01 = -m[4].clone() * m[10].clone() * m[15].clone()
+        + m[4].clone() * m[11].clone() * m[14].clone()
+        + m[8].clone() * m[6].clone() * m[15].clone()
+        - m[8].clone() * m[7].clone() * m[14].clone()
+        - m[12].clone() * m[6].clone() * m[11].clone()
+        + m[12].clone() * m[7].clone() * m[10].clone();
+
+    let cofactor02 = m[4].clone() * m[9].clone() * m[15].clone()
+        - m[4].clone() * m[11].clone() * m[13].clone()
+        - m[8].clone() * m[5].clone() * m[15].clone()
+        + m[8].clone() * m[7].clone() * m[13].clone()
+        + m[12].clone() * m[5].clone() * m[11].clone()
+        - m[12].clone() * m[7].clone() * m[9].clone();
+
+    let cofactor03 = -m[4].clone() * m[9].clone() * m[14].clone()
+        + m[4].clone() * m[10].clone() * m[13].clone()
+        + m[8].clone() * m[5].clone() * m[14].clone()
+        - m[8].clone() * m[6].clone() * m[13].clone()
+        - m[12].clone() * m[5].clone() * m[10].clone()
+        + m[12].clone() * m[6].clone() * m[9].clone();
+
+    let det = m[0].clone() * cofactor00.clone()
+        + m[1].clone() * cofactor01.clone()
+        + m[2].clone() * cofactor02.clone()
+        + m[3].clone() * cofactor03.clone();
+
+    if det.is_zero() {
+        return false;
+    }
+    out[(0, 0)] = cofactor00;
 
     out[(1, 0)] = -m[1].clone() * m[10].clone() * m[15].clone()
         + m[1].clone() * m[11].clone() * m[14].clone()
@@ -173,12 +204,7 @@ where
         - m[9].clone() * m[2].clone() * m[7].clone()
         + m[9].clone() * m[3].clone() * m[6].clone();
 
-    out[(0, 1)] = -m[4].clone() * m[10].clone() * m[15].clone()
-        + m[4].clone() * m[11].clone() * m[14].clone()
-        + m[8].clone() * m[6].clone() * m[15].clone()
-        - m[8].clone() * m[7].clone() * m[14].clone()
-        - m[12].clone() * m[6].clone() * m[11].clone()
-        + m[12].clone() * m[7].clone() * m[10].clone();
+    out[(0, 1)] = cofactor01;
 
     out[(1, 1)] = m[0].clone() * m[10].clone() * m[15].clone()
         - m[0].clone() * m[11].clone() * m[14].clone()
@@ -201,12 +227,7 @@ where
         + m[8].clone() * m[2].clone() * m[7].clone()
         - m[8].clone() * m[3].clone() * m[6].clone();
 
-    out[(0, 2)] = m[4].clone() * m[9].clone() * m[15].clone()
-        - m[4].clone() * m[11].clone() * m[13].clone()
-        - m[8].clone() * m[5].clone() * m[15].clone()
-        + m[8].clone() * m[7].clone() * m[13].clone()
-        + m[12].clone() * m[5].clone() * m[11].clone()
-        - m[12].clone() * m[7].clone() * m[9].clone();
+    out[(0, 2)] = cofactor02;
 
     out[(1, 2)] = -m[0].clone() * m[9].clone() * m[15].clone()
         + m[0].clone() * m[11].clone() * m[13].clone()
@@ -222,12 +243,7 @@ where
         + m[12].clone() * m[1].clone() * m[7].clone()
         - m[12].clone() * m[3].clone() * m[5].clone();
 
-    out[(0, 3)] = -m[4].clone() * m[9].clone() * m[14].clone()
-        + m[4].clone() * m[10].clone() * m[13].clone()
-        + m[8].clone() * m[5].clone() * m[14].clone()
-        - m[8].clone() * m[6].clone() * m[13].clone()
-        - m[12].clone() * m[5].clone() * m[10].clone()
-        + m[12].clone() * m[6].clone() * m[9].clone();
+    out[(0, 3)] = cofactor03;
 
     out[(3, 2)] = -m[0].clone() * m[5].clone() * m[11].clone()
         + m[0].clone() * m[7].clone() * m[9].clone()
@@ -257,21 +273,12 @@ where
         + m[8].clone() * m[1].clone() * m[6].clone()
         - m[8].clone() * m[2].clone() * m[5].clone();
 
-    let det = m[0].clone() * out[(0, 0)].clone()
-        + m[1].clone() * out[(0, 1)].clone()
-        + m[2].clone() * out[(0, 2)].clone()
-        + m[3].clone() * out[(0, 3)].clone();
+    let inv_det = T::one() / det;
 
-    if !det.is_zero() {
-        let inv_det = T::one() / det;
-
-        for j in 0..4 {
-            for i in 0..4 {
-                out[(i, j)] *= inv_det.clone();
-            }
+    for j in 0..4 {
+        for i in 0..4 {
+            out[(i, j)] *= inv_det.clone();
         }
-        true
-    } else {
-        false
     }
+    true
 }
