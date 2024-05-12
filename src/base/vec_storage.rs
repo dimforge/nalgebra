@@ -283,8 +283,13 @@ where
     }
 
     #[inline]
-    fn forget(mut self) {
-        // Set length to 0 so element destructors are not called.
+    fn forget_elements(mut self) {
+        // SAFETY: setting the length to zero is always sound, as it does not
+        // cause any memory to be deemed initialized. If the previous length was
+        // non-zero, it is equivalent to using mem::forget to leak each element.
+        // Then, when this function returns, self.data is dropped, freeing the
+        // allocated memory, but the elements are not dropped because they are
+        // now considered uninitialized.
         unsafe { self.data.set_len(0) };
     }
 }
@@ -340,8 +345,13 @@ where
     }
 
     #[inline]
-    fn forget(mut self) {
-        // Set length to 0 so element destructors are not called.
+    fn forget_elements(mut self) {
+        // SAFETY: setting the length to zero is always sound, as it does not
+        // cause any memory to be deemed initialized. If the previous length was
+        // non-zero, it is equivalent to using mem::forget to leak each element.
+        // Then, when this function returns, self.data is dropped, freeing the
+        // allocated memory, but the elements are not dropped because they are
+        // now considered uninitialized.
         unsafe { self.data.set_len(0) };
     }
 }

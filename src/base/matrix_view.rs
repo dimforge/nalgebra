@@ -231,7 +231,7 @@ macro_rules! storage_impl(
             }
 
             #[inline]
-            fn forget(self) {
+            fn forget_elements(self) {
                 // No cleanup required.
             }
         }
