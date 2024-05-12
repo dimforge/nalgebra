@@ -132,7 +132,7 @@ where
     }
 
     #[inline]
-    fn forget(self) {
+    fn forget_elements(self) {
         // No additional cleanup required.
         std::mem::forget(self);
     }
