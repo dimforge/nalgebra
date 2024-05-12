@@ -241,7 +241,7 @@ where
 
         // Safety:
         // - We don’t care about dropping elements because the caller is responsible for dropping things.
-        // - We forget `buf` so that we don’t drop the other elements.
+        // - We forget `buf` so that we don’t drop the other elements, but ensure the buffer itself is cleaned up.
         buf.forget_elements();
 
         res
@@ -272,7 +272,7 @@ where
 
         // Safety:
         // - We don’t care about dropping elements because the caller is responsible for dropping things.
-        // - We forget `buf` so that we don’t drop the other elements.
+        // - We forget `buf` so that we don’t drop the other elements, but ensure the buffer itself is cleaned up.
         buf.forget_elements();
 
         res
