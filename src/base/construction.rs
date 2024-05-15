@@ -331,7 +331,7 @@ where
     #[inline]
     #[cfg(any(feature = "std", feature = "alloc"))]
     pub fn from_vec_generic(nrows: R, ncols: C, data: Vec<T>) -> Self {
-        Self::from_iterator_generic(nrows, ncols, data)
+        Self::from_data(DefaultAllocator::allocate_from_vec(nrows, ncols, data))
     }
 }
 
