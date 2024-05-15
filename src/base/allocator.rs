@@ -36,11 +36,26 @@ pub trait Allocator<T, R: Dim, C: Dim = U1>: Any + Sized {
     unsafe fn assume_init(uninit: Self::BufferUninit) -> Self::Buffer;
 
     /// Allocates a buffer initialized with the content of the given iterator.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if the iterator yields too few or too many
+    /// elements.
     fn allocate_from_iterator<I: IntoIterator<Item = T>>(
         nrows: R,
         ncols: C,
         iter: I,
     ) -> Self::Buffer;
+
+    /// Allocates a buffer from a `Vec<T>`.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if the `Vec` contains too few or too many
+    /// elements.
+    fn allocate_from_vec(nrows: R, ncols: C, vec: Vec<T>) -> Self::Buffer {
+        Self::allocate_from_iterator(nrows, ncols, vec)
+    }
 
     #[inline]
     /// Allocates a buffer initialized with the content of the given row-major order iterator.

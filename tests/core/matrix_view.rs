@@ -208,19 +208,19 @@ fn new_from_slice() {
                  5.0, 6.0,  7.0,  8.0,
                  9.0, 10.0, 11.0, 12.0 ];
 
-    let expected2   = Matrix2::from_column_slice(&data);
-    let expected3   = Matrix3::from_column_slice(&data);
-    let expected2x3 = Matrix2x3::from_column_slice(&data);
-    let expected3x2 = Matrix3x2::from_column_slice(&data);
+    let expected2   = Matrix2::from_column_slice(&data[0..4]);
+    let expected3   = Matrix3::from_column_slice(&data[0..9]);
+    let expected2x3 = Matrix2x3::from_column_slice(&data[0..6]);
+    let expected3x2 = Matrix3x2::from_column_slice(&data[0..6]);
 
     {
-        let m2   = MatrixView2::from_slice(&data);
-        let m3   = MatrixView3::from_slice(&data);
-        let m2x3 = MatrixView2x3::from_slice(&data);
-        let m3x2 = MatrixView3x2::from_slice(&data);
-        let m2xX = MatrixView2xX::from_slice(&data, 3);
-        let mXx3 = MatrixViewXx3::from_slice(&data, 2);
-        let mXxX = DMatrixView::from_slice(&data, 2, 3);
+        let m2   = MatrixView2::from_slice(&data[0..4]);
+        let m3   = MatrixView3::from_slice(&data[0..9]);
+        let m2x3 = MatrixView2x3::from_slice(&data[0..6]);
+        let m3x2 = MatrixView3x2::from_slice(&data[0..6]);
+        let m2xX = MatrixView2xX::from_slice(&data[0..6], 3);
+        let mXx3 = MatrixViewXx3::from_slice(&data[0..6], 2);
+        let mXxX = DMatrixView::from_slice(&data[0..6], 2, 3);
 
         assert!(m2.eq(&expected2));
         assert!(m3.eq(&expected3));

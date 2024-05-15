@@ -68,14 +68,16 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
 
         // Safety: conversion to a slice is OK because the Buffer is known to be contiguous.
         let res_slice = unsafe { res.as_mut_slice_unchecked() };
-        for (res, e) in res_slice.iter_mut().zip(iter.into_iter()) {
+        let mut it = iter.into_iter();
+        for (res, e) in res_slice.iter_mut().zip(&mut it) {
             *res = MaybeUninit::new(e);
             count += 1;
         }
 
         assert!(
+            it.next().is_none() &&
             count == nrows.value() * ncols.value(),
-            "Matrix init. from iterator: iterator not long enough."
+            "Matrix init. from iterator: the iterator did not yield the correct number of elements."
         );
 
         // Safety: the assertion above made sure that the iterator
@@ -121,12 +123,22 @@ impl<T: Scalar, C: Dim> Allocator<T, Dyn, C> for DefaultAllocator {
         ncols: C,
         iter: I,
     ) -> Self::Buffer {
-        let it = iter.into_iter();
-        let res: Vec<T> = it.collect();
-        assert!(res.len() == nrows.value() * ncols.value(),
-                "Allocation from iterator error: the iterator did not yield the correct number of elements.");
+        let size = nrows.value() * ncols.value();
+        let mut it = iter.into_iter();
+        let res: Vec<T> = (&mut it).take(size).collect();
+        assert!(it.next().is_none() && res.len() == size,
+                "Matrix init. from iterator: the iterator did not yield the correct number of elements.");
 
         VecStorage::new(nrows, ncols, res)
+    }
+
+    #[inline]
+    fn allocate_from_vec(nrows: Dyn, ncols: C, vec: Vec<T>) -> Self::Buffer {
+        assert!(
+            vec.len() == nrows.value() * ncols.value(),
+            "Matrix init. from vec: the vec does not have the right size."
+        );
+        VecStorage::new(nrows, ncols, vec)
     }
 }
 
@@ -167,12 +179,23 @@ impl<T: Scalar, R: DimName> Allocator<T, R, Dyn> for DefaultAllocator {
         ncols: Dyn,
         iter: I,
     ) -> Self::Buffer {
-        let it = iter.into_iter();
-        let res: Vec<T> = it.collect();
-        assert!(res.len() == nrows.value() * ncols.value(),
-                "Allocation from iterator error: the iterator did not yield the correct number of elements.");
+        let size = nrows.value() * ncols.value();
+        let mut it = iter.into_iter();
+        let res: Vec<T> = (&mut it).take(size).collect();
+        assert!(it.next().is_none() && res.len() == size,
+                "Matrix init. from iterator: the iterator did not yield the correct number of elements.");
 
         VecStorage::new(nrows, ncols, res)
+    }
+
+    #[inline]
+    fn allocate_from_vec(nrows: R, ncols: Dyn, vec: Vec<T>) -> Self::Buffer {
+        assert_eq!(
+            vec.len(),
+            nrows.value() * ncols.value(),
+            "Matrix init. from vec: the vec does not have the right size."
+        );
+        VecStorage::new(nrows, ncols, vec)
     }
 }
 
@@ -331,5 +354,121 @@ impl<T: Scalar, RFrom: DimName, RTo: DimName> Reallocator<T, RFrom, Dyn, RTo, Dy
     ) -> VecStorage<MaybeUninit<T>, RTo, Dyn> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    /// Tests for `DefaultAllocator` with constant dimensions.
+    mod static_static {
+        use crate::{allocator::Allocator, Const, DefaultAllocator};
+
+        #[test]
+        #[should_panic(
+            expected = "Matrix init. from iterator: the iterator did not yield the correct number of elements."
+        )]
+        fn allocate_from_iter_too_small() {
+            let iter = &[1i32];
+            let _ = DefaultAllocator::allocate_from_iterator(Const::<10>, Const::<5>, iter);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "Matrix init. from iterator: the iterator did not yield the correct number of elements."
+        )]
+        fn allocate_iter_too_big() {
+            let iter = &[1u32, 2, 3, 4, 5, 6, 7];
+            let _ = DefaultAllocator::allocate_from_iterator(Const::<2>, Const::<3>, iter);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "Matrix init. from iterator: the iterator did not yield the correct number of elements."
+        )]
+        fn allocate_from_vec_too_small() {
+            let vec = vec![1u8];
+            let _ = DefaultAllocator::allocate_from_vec(Const::<4>, Const::<2>, vec);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "Matrix init. from iterator: the iterator did not yield the correct number of elements."
+        )]
+        fn allocate_from_vec_too_big() {
+            let vec = vec![1usize, 2, 3, 4, 5, 6];
+            let _ = DefaultAllocator::allocate_from_vec(Const::<5>, Const::<1>, vec);
+        }
+    }
+
+    mod dyn_static {
+        use crate::{allocator::Allocator, Const, DefaultAllocator, Dyn};
+
+        #[test]
+        #[should_panic(
+            expected = "Matrix init. from iterator: the iterator did not yield the correct number of elements."
+        )]
+        fn allocate_from_iter_too_small() {
+            let iter = &[1i32];
+            let _ = DefaultAllocator::allocate_from_iterator(Dyn(4), Const::<5>, iter);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "Matrix init. from iterator: the iterator did not yield the correct number of elements."
+        )]
+        fn allocate_iter_too_big() {
+            let iter = &[1u32, 2, 3, 4];
+            let _ = DefaultAllocator::allocate_from_iterator(Dyn(1), Const::<3>, iter);
+        }
+
+        #[test]
+        #[should_panic(expected = "Matrix init. from vec: the vec does not have the right size.")]
+        fn allocate_from_vec_too_small() {
+            let vec = vec![1u8];
+            let _ = DefaultAllocator::allocate_from_vec(Dyn(4), Const::<2>, vec);
+        }
+
+        #[test]
+        #[should_panic(expected = "Matrix init. from vec: the vec does not have the right size.")]
+        fn allocate_from_vec_too_big() {
+            let vec = vec![1usize, 2, 3, 4, 5, 6];
+            let _ = DefaultAllocator::allocate_from_vec(Dyn(5), Const::<1>, vec);
+        }
+    }
+
+    mod static_dyn {
+        use crate::{allocator::Allocator, Const, DefaultAllocator, Dyn};
+
+        #[test]
+        #[should_panic(
+            expected = "Matrix init. from iterator: the iterator did not yield the correct number of elements."
+        )]
+        fn allocate_from_iter_too_small() {
+            let iter = &[1i32];
+            let _ = DefaultAllocator::allocate_from_iterator(Const::<5>, Dyn(4), iter);
+        }
+
+        #[test]
+        #[should_panic(
+            expected = "Matrix init. from iterator: the iterator did not yield the correct number of elements."
+        )]
+        fn allocate_iter_too_big() {
+            let iter = &[1u32, 2, 3, 4];
+            let _ = DefaultAllocator::allocate_from_iterator(Const::<3>, Dyn(1), iter);
+        }
+
+        #[test]
+        #[should_panic(expected = "Matrix init. from vec: the vec does not have the right size.")]
+        fn allocate_from_vec_too_small() {
+            let vec = vec![1u8];
+            let _ = DefaultAllocator::allocate_from_vec(Const::<2>, Dyn(4), vec);
+        }
+
+        #[test]
+        #[should_panic(expected = "Matrix init. from vec: the vec does not have the right size.")]
+        fn allocate_from_vec_too_big() {
+            let vec = vec![1usize, 2, 3, 4, 5, 6];
+            let _ = DefaultAllocator::allocate_from_vec(Const::<1>, Dyn(5), vec);
+        }
     }
 }
