@@ -121,9 +121,13 @@ impl<T: Scalar, C: Dim> Allocator<T, Dyn, C> for DefaultAllocator {
         ncols: C,
         iter: I,
     ) -> Self::Buffer {
-        let it = iter.into_iter();
+        let size = nrows.value() * ncols.value();
+        // This solution is not too elegant and meant to prevent an infinite
+        // loop for infinite iterators and trigger the assertion instead. See
+        // the tests below for more details.
+        let it = iter.into_iter().take(size + 1);
         let res: Vec<T> = it.collect();
-        assert!(res.len() == nrows.value() * ncols.value(),
+        assert!(res.len() == size,
                 "Allocation from iterator error: the iterator did not yield the correct number of elements.");
 
         VecStorage::new(nrows, ncols, res)
@@ -167,9 +171,13 @@ impl<T: Scalar, R: DimName> Allocator<T, R, Dyn> for DefaultAllocator {
         ncols: Dyn,
         iter: I,
     ) -> Self::Buffer {
-        let it = iter.into_iter();
+        let size = nrows.value() * ncols.value();
+        // This solution is not too elegant and meant to prevent an infinite
+        // loop for infinite iterators and trigger the assertion instead. See
+        // the tests below for more details.
+        let it = iter.into_iter().take(size + 1);
         let res: Vec<T> = it.collect();
-        assert!(res.len() == nrows.value() * ncols.value(),
+        assert!(res.len() == size,
                 "Allocation from iterator error: the iterator did not yield the correct number of elements.");
 
         VecStorage::new(nrows, ncols, res)
@@ -331,5 +339,67 @@ impl<T: Scalar, RFrom: DimName, RTo: DimName> Reallocator<T, RFrom, Dyn, RTo, Dy
     ) -> VecStorage<MaybeUninit<T>, RTo, Dyn> {
         let new_buf = buf.resize(rto.value() * cto.value());
         VecStorage::new(rto, cto, new_buf)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    /// There was a bug where infinite iterators would be collected and
+    /// therefore cause infinite loops for dynamic storage. This tests that
+    /// this issue is solved and that this will panic instead as for the finite
+    /// case. This is kind of the minimal solution, which doesn't break
+    /// backwards compatibility.
+    ///
+    /// The current situation is:
+    ///
+    /// - Vec, Iterator or slice to Const storage:
+    ///   - If too small, panic
+    ///   - If too large, ignore remaining entries
+    /// - Vec, Iterator or slice to Dyn storage:
+    ///   - If too small, panic
+    ///   - If too large, panic
+    ///
+    // TODO: Decide on consistent and predictable behaviour for these cases.
+    mod panic_cases {
+        use core::iter;
+
+        use crate::{allocator::Allocator, Const, DefaultAllocator, Dyn};
+
+        #[test]
+        #[should_panic(
+            message = "Allocation from iterator error: the iterator did not yield the correct number of elements."
+        )]
+        fn test_allocation_const_dyn() {
+            let _ = DefaultAllocator::allocate_from_iterator(
+                Const::<100>,
+                Dyn(100),
+                iter::from_fn(|| Some(0)),
+            );
+        }
+
+        #[test]
+        #[should_panic(
+            message = "Allocation from iterator error: the iterator did not yield the correct number of elements."
+        )]
+        fn test_allocation_dyn_const() {
+            let _ = DefaultAllocator::allocate_from_iterator(
+                Dyn(50),
+                Const::<50>,
+                iter::from_fn(|| Some(0)),
+            );
+        }
+
+        #[test]
+        #[should_panic(
+            message = "Allocation from iterator error: the iterator did not yield the correct number of elements."
+        )]
+        fn test_allocation_dyn_dyn() {
+            let _ = DefaultAllocator::allocate_from_iterator(
+                Dyn(10),
+                Dyn(10),
+                iter::from_fn(|| Some(0)),
+            );
+        }
     }
 }
