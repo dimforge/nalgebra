@@ -107,7 +107,7 @@ where
 impl<T: Scalar, D: DimName> Serialize for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    <DefaultAllocator as Allocator<T, D>>::Buffer: Serialize,
+    <DefaultAllocator as Allocator<T, D>>::Buffer<T>: Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -121,7 +121,7 @@ where
 impl<'a, T: Scalar, D: DimName> Deserialize<'a> for OPoint<T, D>
 where
     DefaultAllocator: Allocator<T, D>,
-    <DefaultAllocator as Allocator<T, D>>::Buffer: Deserialize<'a>,
+    <DefaultAllocator as Allocator<T, D>>::Buffer<T>: Deserialize<'a>,
 {
     fn deserialize<Des>(deserializer: Des) -> Result<Self, Des::Error>
     where
@@ -304,7 +304,7 @@ where
     #[inline]
     pub fn iter(
         &self,
-    ) -> MatrixIter<'_, T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
+    ) -> MatrixIter<'_, T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer<T>> {
         self.coords.iter()
     }
 
@@ -335,7 +335,7 @@ where
     #[inline]
     pub fn iter_mut(
         &mut self,
-    ) -> MatrixIterMut<'_, T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer> {
+    ) -> MatrixIterMut<'_, T, D, Const<1>, <DefaultAllocator as Allocator<T, D>>::Buffer<T>> {
         self.coords.iter_mut()
     }
 

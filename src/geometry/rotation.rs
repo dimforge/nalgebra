@@ -77,7 +77,7 @@ impl<T: fmt::Debug, const D: usize> fmt::Debug for Rotation<T, D> {
 
 impl<T: Scalar + hash::Hash, const D: usize> hash::Hash for Rotation<T, D>
 where
-    <DefaultAllocator as Allocator<T, Const<D>, Const<D>>>::Buffer: hash::Hash,
+    <DefaultAllocator as Allocator<T, Const<D>, Const<D>>>::Buffer<T>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.matrix.hash(state)

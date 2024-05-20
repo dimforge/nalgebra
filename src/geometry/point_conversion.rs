@@ -115,7 +115,7 @@ impl<T: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Eleme
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 2]>,
     T::Element: Scalar + Copy,
-    <DefaultAllocator as Allocator<T::Element, Const<D>>>::Buffer: Copy,
+    <DefaultAllocator as Allocator<T::Element, Const<D>>>::Buffer<T::Element>: Copy,
 {
     #[inline]
     fn from(arr: [Point<T::Element, D>; 2]) -> Self {
@@ -128,7 +128,7 @@ impl<T: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Eleme
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 4]>,
     T::Element: Scalar + Copy,
-    <DefaultAllocator as Allocator<T::Element, Const<D>>>::Buffer: Copy,
+    <DefaultAllocator as Allocator<T::Element, Const<D>>>::Buffer<T::Element>: Copy,
 {
     #[inline]
     fn from(arr: [Point<T::Element, D>; 4]) -> Self {
@@ -146,7 +146,7 @@ impl<T: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Eleme
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 8]>,
     T::Element: Scalar + Copy,
-    <DefaultAllocator as Allocator<T::Element, Const<D>>>::Buffer: Copy,
+    <DefaultAllocator as Allocator<T::Element, Const<D>>>::Buffer<T::Element>: Copy,
 {
     #[inline]
     fn from(arr: [Point<T::Element, D>; 8]) -> Self {
@@ -168,7 +168,7 @@ impl<T: Scalar + Copy + PrimitiveSimdValue, const D: usize> From<[Point<T::Eleme
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 16]>,
     T::Element: Scalar + Copy,
-    <DefaultAllocator as Allocator<T::Element, Const<D>>>::Buffer: Copy,
+    <DefaultAllocator as Allocator<T::Element, Const<D>>>::Buffer<T::Element>: Copy,
 {
     #[inline]
     fn from(arr: [Point<T::Element, D>; 16]) -> Self {

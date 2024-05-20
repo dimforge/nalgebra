@@ -633,7 +633,7 @@ where
     SB: Storage<T, R2, C1>,
     SA: StorageMut<T, R1, C1> + IsContiguous + Clone, // TODO: get rid of the IsContiguous
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
-    DefaultAllocator: Allocator<T, R1, C1, Buffer = SA>,
+    DefaultAllocator: Allocator<T, R1, C1, Buffer<T> = SA>,
 {
     #[inline]
     fn mul_assign(&mut self, rhs: Matrix<T, R2, C1, SB>) {
@@ -651,7 +651,7 @@ where
     SA: StorageMut<T, R1, C1> + IsContiguous + Clone, // TODO: get rid of the IsContiguous
     ShapeConstraint: AreMultipliable<R1, C1, R2, C1>,
     // TODO: this is too restrictive. See comments for the non-ref version.
-    DefaultAllocator: Allocator<T, R1, C1, Buffer = SA>,
+    DefaultAllocator: Allocator<T, R1, C1, Buffer<T> = SA>,
 {
     #[inline]
     fn mul_assign(&mut self, rhs: &'b Matrix<T, R2, C1, SB>) {

@@ -34,21 +34,23 @@ use std::mem::MaybeUninit;
 pub struct DefaultAllocator;
 
 // Static - Static
-impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
+impl<Dummy, const R: usize, const C: usize> Allocator<Dummy, Const<R>, Const<C>>
     for DefaultAllocator
 {
-    type Buffer = ArrayStorage<T, R, C>;
-    type BufferUninit = ArrayStorage<MaybeUninit<T>, R, C>;
+    type Buffer<T: Scalar> = ArrayStorage<T, R, C>;
+    type BufferUninit<T: Scalar> = ArrayStorage<MaybeUninit<T>, R, C>;
 
     #[inline(always)]
-    fn allocate_uninit(_: Const<R>, _: Const<C>) -> ArrayStorage<MaybeUninit<T>, R, C> {
+    fn allocate_uninit<T: Scalar>(_: Const<R>, _: Const<C>) -> ArrayStorage<MaybeUninit<T>, R, C> {
         // SAFETY: An uninitialized `[MaybeUninit<_>; _]` is valid.
         let array: [[MaybeUninit<T>; R]; C] = unsafe { MaybeUninit::uninit().assume_init() };
         ArrayStorage(array)
     }
 
     #[inline(always)]
-    unsafe fn assume_init(uninit: ArrayStorage<MaybeUninit<T>, R, C>) -> ArrayStorage<T, R, C> {
+    unsafe fn assume_init<T: Scalar>(
+        uninit: ArrayStorage<MaybeUninit<T>, R, C>,
+    ) -> ArrayStorage<T, R, C> {
         // Safety:
         // * The caller guarantees that all elements of the array are initialized
         // * `MaybeUninit<T>` and T are guaranteed to have the same layout
@@ -58,12 +60,12 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
     }
 
     #[inline]
-    fn allocate_from_iterator<I: IntoIterator<Item = T>>(
+    fn allocate_from_iterator<T: Scalar, I: IntoIterator<Item = T>>(
         nrows: Const<R>,
         ncols: Const<C>,
         iter: I,
-    ) -> Self::Buffer {
-        let mut res = Self::allocate_uninit(nrows, ncols);
+    ) -> Self::Buffer<T> {
+        let mut res = <Self as Allocator<T, _, _>>::allocate_uninit(nrows, ncols);
         let mut count = 0;
 
         // Safety: conversion to a slice is OK because the Buffer is known to be contiguous.
@@ -87,12 +89,12 @@ impl<T: Scalar, const R: usize, const C: usize> Allocator<T, Const<R>, Const<C>>
 // Dyn - Static
 // Dyn - Dyn
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar, C: Dim> Allocator<T, Dyn, C> for DefaultAllocator {
-    type Buffer = VecStorage<T, Dyn, C>;
-    type BufferUninit = VecStorage<MaybeUninit<T>, Dyn, C>;
+impl<Dummy, C: Dim> Allocator<Dummy, Dyn, C> for DefaultAllocator {
+    type Buffer<T: Scalar> = VecStorage<T, Dyn, C>;
+    type BufferUninit<T: Scalar> = VecStorage<MaybeUninit<T>, Dyn, C>;
 
     #[inline]
-    fn allocate_uninit(nrows: Dyn, ncols: C) -> VecStorage<MaybeUninit<T>, Dyn, C> {
+    fn allocate_uninit<T: Scalar>(nrows: Dyn, ncols: C) -> VecStorage<MaybeUninit<T>, Dyn, C> {
         let mut data = Vec::new();
         let length = nrows.value() * ncols.value();
         data.reserve_exact(length);
@@ -101,7 +103,9 @@ impl<T: Scalar, C: Dim> Allocator<T, Dyn, C> for DefaultAllocator {
     }
 
     #[inline]
-    unsafe fn assume_init(uninit: VecStorage<MaybeUninit<T>, Dyn, C>) -> VecStorage<T, Dyn, C> {
+    unsafe fn assume_init<T: Scalar>(
+        uninit: VecStorage<MaybeUninit<T>, Dyn, C>,
+    ) -> VecStorage<T, Dyn, C> {
         // Avoids a double-drop.
         let (nrows, ncols) = uninit.shape();
         let vec: Vec<_> = uninit.into();
@@ -116,11 +120,11 @@ impl<T: Scalar, C: Dim> Allocator<T, Dyn, C> for DefaultAllocator {
     }
 
     #[inline]
-    fn allocate_from_iterator<I: IntoIterator<Item = T>>(
+    fn allocate_from_iterator<T: Scalar, I: IntoIterator<Item = T>>(
         nrows: Dyn,
         ncols: C,
         iter: I,
-    ) -> Self::Buffer {
+    ) -> Self::Buffer<T> {
         let it = iter.into_iter();
         let res: Vec<T> = it.collect();
         assert!(res.len() == nrows.value() * ncols.value(),
@@ -132,12 +136,12 @@ impl<T: Scalar, C: Dim> Allocator<T, Dyn, C> for DefaultAllocator {
 
 // Static - Dyn
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<T: Scalar, R: DimName> Allocator<T, R, Dyn> for DefaultAllocator {
-    type Buffer = VecStorage<T, R, Dyn>;
-    type BufferUninit = VecStorage<MaybeUninit<T>, R, Dyn>;
+impl<Dummy, R: DimName> Allocator<Dummy, R, Dyn> for DefaultAllocator {
+    type Buffer<T: Scalar> = VecStorage<T, R, Dyn>;
+    type BufferUninit<T: Scalar> = VecStorage<MaybeUninit<T>, R, Dyn>;
 
     #[inline]
-    fn allocate_uninit(nrows: R, ncols: Dyn) -> VecStorage<MaybeUninit<T>, R, Dyn> {
+    fn allocate_uninit<T: Scalar>(nrows: R, ncols: Dyn) -> VecStorage<MaybeUninit<T>, R, Dyn> {
         let mut data = Vec::new();
         let length = nrows.value() * ncols.value();
         data.reserve_exact(length);
@@ -147,7 +151,9 @@ impl<T: Scalar, R: DimName> Allocator<T, R, Dyn> for DefaultAllocator {
     }
 
     #[inline]
-    unsafe fn assume_init(uninit: VecStorage<MaybeUninit<T>, R, Dyn>) -> VecStorage<T, R, Dyn> {
+    unsafe fn assume_init<T: Scalar>(
+        uninit: VecStorage<MaybeUninit<T>, R, Dyn>,
+    ) -> VecStorage<T, R, Dyn> {
         // Avoids a double-drop.
         let (nrows, ncols) = uninit.shape();
         let vec: Vec<_> = uninit.into();
@@ -162,11 +168,11 @@ impl<T: Scalar, R: DimName> Allocator<T, R, Dyn> for DefaultAllocator {
     }
 
     #[inline]
-    fn allocate_from_iterator<I: IntoIterator<Item = T>>(
+    fn allocate_from_iterator<T: Scalar, I: IntoIterator<Item = T>>(
         nrows: R,
         ncols: Dyn,
         iter: I,
-    ) -> Self::Buffer {
+    ) -> Self::Buffer<T> {
         let it = iter.into_iter();
         let res: Vec<T> = it.collect();
         assert!(res.len() == nrows.value() * ncols.value(),
@@ -193,7 +199,7 @@ where
     unsafe fn reallocate_copy(
         rto: Const<RTO>,
         cto: Const<CTO>,
-        buf: <Self as Allocator<T, RFrom, CFrom>>::Buffer,
+        buf: <Self as Allocator<T, RFrom, CFrom>>::Buffer<T>,
     ) -> ArrayStorage<MaybeUninit<T>, RTO, CTO> {
         let mut res = <Self as Allocator<T, Const<RTO>, Const<CTO>>>::allocate_uninit(rto, cto);
 

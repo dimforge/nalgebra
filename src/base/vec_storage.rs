@@ -264,7 +264,7 @@ unsafe impl<T, C: Dim> RawStorage<T, Dyn, C> for VecStorage<T, Dyn, C> {
 
 unsafe impl<T: Scalar, C: Dim> Storage<T, Dyn, C> for VecStorage<T, Dyn, C>
 where
-    DefaultAllocator: Allocator<T, Dyn, C, Buffer = Self>,
+    DefaultAllocator: Allocator<T, Dyn, C, Buffer<T> = Self>,
 {
     #[inline]
     fn into_owned(self) -> Owned<T, Dyn, C>
@@ -315,7 +315,7 @@ unsafe impl<T, R: DimName> RawStorage<T, R, Dyn> for VecStorage<T, R, Dyn> {
 
 unsafe impl<T: Scalar, R: DimName> Storage<T, R, Dyn> for VecStorage<T, R, Dyn>
 where
-    DefaultAllocator: Allocator<T, R, Dyn, Buffer = Self>,
+    DefaultAllocator: Allocator<T, R, Dyn, Buffer<T> = Self>,
 {
     #[inline]
     fn into_owned(self) -> Owned<T, R, Dyn>

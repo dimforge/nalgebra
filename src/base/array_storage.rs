@@ -113,7 +113,7 @@ unsafe impl<T, const R: usize, const C: usize> RawStorage<T, Const<R>, Const<C>>
 unsafe impl<T: Scalar, const R: usize, const C: usize> Storage<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 where
-    DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer = Self>,
+    DefaultAllocator: Allocator<T, Const<R>, Const<C>, Buffer<T> = Self>,
 {
     #[inline]
     fn into_owned(self) -> Owned<T, Const<R>, Const<C>>
@@ -250,7 +250,7 @@ where
         V: SeqAccess<'a>,
     {
         let mut out: ArrayStorage<core::mem::MaybeUninit<T>, R, C> =
-            DefaultAllocator::allocate_uninit(Const::<R>, Const::<C>);
+            <DefaultAllocator as Allocator<T, _, _>>::allocate_uninit(Const::<R>, Const::<C>);
         let mut curr = 0;
 
         while let Some(value) = visitor.next_element()? {

@@ -174,7 +174,7 @@ where
 #[cfg(feature = "arbitrary")]
 impl<T: Scalar + Arbitrary + Send, D: DimName> Arbitrary for OPoint<T, D>
 where
-    <DefaultAllocator as Allocator<T, D>>::Buffer: Send,
+    <DefaultAllocator as Allocator<T, D>>::Buffer<T>: Send,
     DefaultAllocator: Allocator<T, D>,
 {
     #[inline]

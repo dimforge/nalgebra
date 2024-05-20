@@ -383,7 +383,7 @@ impl<T> RowDVector<T> {
     }
 }
 
-impl<T, R: Dim, C: Dim> UninitMatrix<T, R, C>
+impl<T: Scalar, R: Dim, C: Dim> UninitMatrix<T, R, C>
 where
     DefaultAllocator: Allocator<T, R, C>,
 {
@@ -533,7 +533,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         max_relative: T::Epsilon,
     ) -> bool
     where
-        T: RelativeEq,
+        T: RelativeEq + Scalar,
         R2: Dim,
         C2: Dim,
         SB: Storage<T, R2, C2>,
