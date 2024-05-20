@@ -17,22 +17,22 @@ use crate::linalg::SymmetricTridiagonal;
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D> +
-                           Allocator<T::RealField, D>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D, D> +
+                           Allocator<D>,
          OVector<T::RealField, D>: Serialize,
          OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D> +
-                           Allocator<T::RealField, D>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D, D> +
+                           Allocator<D>,
          OVector<T::RealField, D>: Deserialize<'de>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<T: ComplexField, D: Dim>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T::RealField, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// The eigenvectors of the decomposed matrix.
     pub eigenvectors: OMatrix<T, D, D>,
@@ -43,7 +43,7 @@ where
 
 impl<T: ComplexField, D: Dim> Copy for SymmetricEigen<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T::RealField, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
     OMatrix<T, D, D>: Copy,
     OVector<T::RealField, D>: Copy,
 {
@@ -51,7 +51,7 @@ where
 
 impl<T: ComplexField, D: Dim> SymmetricEigen<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T::RealField, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Computes the eigendecomposition of the given symmetric matrix.
     ///
@@ -59,7 +59,7 @@ where
     pub fn new(m: OMatrix<T, D, D>) -> Self
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<T, DimDiff<D, U1>> + Allocator<T::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<DimDiff<D, U1>> + Allocator<DimDiff<D, U1>>,
     {
         Self::try_new(m, T::RealField::default_epsilon(), 0).unwrap()
     }
@@ -78,7 +78,7 @@ where
     pub fn try_new(m: OMatrix<T, D, D>, eps: T::RealField, max_niter: usize) -> Option<Self>
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<T, DimDiff<D, U1>> + Allocator<T::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<DimDiff<D, U1>> + Allocator<DimDiff<D, U1>>,
     {
         Self::do_decompose(m, true, eps, max_niter).map(|(vals, vecs)| SymmetricEigen {
             eigenvectors: vecs.unwrap(),
@@ -94,7 +94,7 @@ where
     ) -> Option<(OVector<T::RealField, D>, Option<OMatrix<T, D, D>>)>
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<T, DimDiff<D, U1>> + Allocator<T::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<DimDiff<D, U1>> + Allocator<DimDiff<D, U1>>,
     {
         assert!(
             matrix.is_square(),
@@ -244,7 +244,7 @@ where
     ) -> (usize, usize)
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<T::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<DimDiff<D, U1>>,
     {
         let mut n = end;
 
@@ -321,10 +321,8 @@ pub fn wilkinson_shift<T: ComplexField>(tmm: T, tnn: T, tmn: T) -> T {
  */
 impl<T: ComplexField, D: DimSub<U1>, S: Storage<T, D, D>> SquareMatrix<T, D, S>
 where
-    DefaultAllocator: Allocator<T, D, D>
-        + Allocator<T, DimDiff<D, U1>>
-        + Allocator<T::RealField, D>
-        + Allocator<T::RealField, DimDiff<D, U1>>,
+    DefaultAllocator:
+        Allocator<D, D> + Allocator<DimDiff<D, U1>> + Allocator<D> + Allocator<DimDiff<D, U1>>,
 {
     /// Computes the eigenvalues of this symmetric matrix.
     ///

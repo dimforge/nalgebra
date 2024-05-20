@@ -8,7 +8,7 @@ use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, RealField};
 /// The cholesky decomposition of a column compressed sparse matrix.
 pub struct CsCholesky<T: RealField, D: Dim>
 where
-    DefaultAllocator: Allocator<usize, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
 {
     // Non-zero pattern of the original matrix upper-triangular part.
     // Unlike the original matrix, the `original_p` array does contain the last sentinel value
@@ -28,7 +28,7 @@ where
 
 impl<T: RealField, D: Dim> CsCholesky<T, D>
 where
-    DefaultAllocator: Allocator<usize, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D> + Allocator<D>,
 {
     /// Computes the cholesky decomposition of the sparse matrix `m`.
     pub fn new(m: &CsMatrix<T, D, D>) -> Self {

@@ -17,22 +17,22 @@ use std::mem::MaybeUninit;
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, R, C> +
-                           Allocator<T, DimMinimum<R, C>>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<R, C> +
+                           Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Serialize,
          OVector<T, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, R, C> +
-                           Allocator<T, DimMinimum<R, C>>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<R, C> +
+                           Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Deserialize<'de>,
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct QR<T: ComplexField, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
 {
     qr: OMatrix<T, R, C>,
     diag: OVector<T, DimMinimum<R, C>>,
@@ -40,7 +40,7 @@ where
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for QR<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
     OMatrix<T, R, C>: Copy,
     OVector<T, DimMinimum<R, C>>: Copy,
 {
@@ -48,7 +48,7 @@ where
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> QR<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T, R> + Allocator<T, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<R> + Allocator<DimMinimum<R, C>>,
 {
     /// Computes the QR decomposition using householder reflections.
     pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
@@ -79,7 +79,7 @@ where
     #[must_use]
     pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
-        DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
+        DefaultAllocator: Allocator<DimMinimum<R, C>, C>,
     {
         let (nrows, ncols) = self.qr.shape_generic();
         let mut res = self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle();
@@ -106,7 +106,7 @@ where
     #[must_use]
     pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
-        DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
+        DefaultAllocator: Allocator<R, DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.qr.shape_generic();
 
@@ -137,7 +137,7 @@ where
     where
         DimMinimum<R, C>: DimMin<C, Output = DimMinimum<R, C>>,
         DefaultAllocator:
-            Allocator<T, R, DimMinimum<R, C>> + Reallocator<T, R, C, DimMinimum<R, C>, C>,
+            Allocator<R, DimMinimum<R, C>> + Reallocator<T, R, C, DimMinimum<R, C>, C>,
     {
         (self.q(), self.unpack_r())
     }
@@ -172,7 +172,7 @@ where
 
 impl<T: ComplexField, D: DimMin<D, Output = D>> QR<T, D, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
@@ -185,7 +185,7 @@ where
     where
         S2: Storage<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
     {
         let mut res = b.clone_owned();
 

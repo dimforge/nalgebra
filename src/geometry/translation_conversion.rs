@@ -11,7 +11,7 @@ use crate::geometry::{
     AbstractRotation, Isometry, Similarity, SuperTCategoryOf, TAffine, Transform, Translation,
     Translation3, UnitDualQuaternion, UnitQuaternion,
 };
-use crate::Point;
+use crate::{ArrayStorage, Point};
 
 /*
  * This file provides the following conversions:
@@ -122,8 +122,7 @@ where
     T2: RealField + SupersetOf<T1>,
     C: SuperTCategoryOf<TAffine>,
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn to_superset(&self) -> Transform<T2, C, D> {
@@ -147,10 +146,8 @@ where
     T1: RealField,
     T2: RealField + SupersetOf<T1>,
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    // + Allocator<T1, D>
-    // + Allocator<T2, D>
+    DefaultAllocator: Allocator<Const<D>, Buffer<T1> = ArrayStorage<T1, D, 1>>
+        + Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn to_superset(&self) -> OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
@@ -173,9 +170,9 @@ where
     fn from_superset_unchecked(
         m: &OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     ) -> Self {
-        let t = m.fixed_view::<D, 1>(0, D);
+        let t: OVector<T2, Const<D>> = m.fixed_view::<D, 1>(0, D).into_owned();
         Self {
-            vector: crate::convert_unchecked(t.into_owned()),
+            vector: crate::convert_unchecked(t),
         }
     }
 }
@@ -185,7 +182,7 @@ impl<T: Scalar + Zero + One, const D: usize> From<Translation<T, D>>
 where
     Const<D>: DimNameAdd<U1>,
     DefaultAllocator:
-        Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> + Allocator<T, Const<D>>,
+        Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> + Allocator<Const<D>>,
 {
     #[inline]
     fn from(t: Translation<T, D>) -> Self {

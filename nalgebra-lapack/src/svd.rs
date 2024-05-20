@@ -14,18 +14,18 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, DimMinimum<R, C>> +
-                           Allocator<T, R, R> +
-                           Allocator<T, C, C>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<DimMinimum<R, C>> +
+                           Allocator<R, R> +
+                           Allocator<C, C>,
          OMatrix<T, R>: Serialize,
          OMatrix<T, C>: Serialize,
          OVector<T, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, DimMinimum<R, C>> +
-                           Allocator<T, R, R> +
-                           Allocator<T, C, C>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<DimMinimum<R, C>> +
+                           Allocator<R, R> +
+                           Allocator<C, C>,
          OMatrix<T, R>: Deserialize<'de>,
          OMatrix<T, C>: Deserialize<'de>,
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>"))
@@ -33,7 +33,7 @@ use lapack;
 #[derive(Clone, Debug)]
 pub struct SVD<T: Scalar, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<T, R, R> + Allocator<T, DimMinimum<R, C>> + Allocator<T, C, C>,
+    DefaultAllocator: Allocator<R, R> + Allocator<DimMinimum<R, C>> + Allocator<C, C>,
 {
     /// The left-singular vectors `U` of this SVD.
     pub u: OMatrix<T, R, R>, // TODO: should be OMatrix<T, R, DimMinimum<R, C>>
@@ -45,7 +45,7 @@ where
 
 impl<T: Scalar + Copy, R: DimMin<C>, C: Dim> Copy for SVD<T, R, C>
 where
-    DefaultAllocator: Allocator<T, C, C> + Allocator<T, R, R> + Allocator<T, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<C, C> + Allocator<R, R> + Allocator<DimMinimum<R, C>>,
     OMatrix<T, R, R>: Copy,
     OMatrix<T, C, C>: Copy,
     OVector<T, DimMinimum<R, C>>: Copy,
@@ -56,10 +56,8 @@ where
 /// supported by the Singular Value Decompotition.
 pub trait SVDScalar<R: DimMin<C>, C: Dim>: Scalar
 where
-    DefaultAllocator: Allocator<Self, R, R>
-        + Allocator<Self, R, C>
-        + Allocator<Self, DimMinimum<R, C>>
-        + Allocator<Self, C, C>,
+    DefaultAllocator:
+        Allocator<R, R> + Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C, C>,
 {
     /// Computes the SVD decomposition of `m`.
     fn compute(m: OMatrix<Self, R, C>) -> Option<SVD<Self, R, C>>;
@@ -67,10 +65,8 @@ where
 
 impl<T: SVDScalar<R, C>, R: DimMin<C>, C: Dim> SVD<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, R>
-        + Allocator<T, R, C>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T, C, C>,
+    DefaultAllocator:
+        Allocator<R, R> + Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C, C>,
 {
     /// Computes the Singular Value Decomposition of `matrix`.
     pub fn new(m: OMatrix<T, R, C>) -> Option<Self> {
@@ -82,10 +78,10 @@ macro_rules! svd_impl(
     ($t: ty, $lapack_func: path) => (
         impl<R: Dim, C: Dim> SVDScalar<R, C> for $t
                 where R: DimMin<C>,
-                      DefaultAllocator: Allocator<$t, R, C> +
-                                        Allocator<$t, R, R> +
-                                        Allocator<$t, C, C> +
-                                        Allocator<$t, DimMinimum<R, C>> {
+                      DefaultAllocator: Allocator<R, C> +
+                                        Allocator<R, R> +
+                                        Allocator<C, C> +
+                                        Allocator<DimMinimum<R, C>> {
 
             fn compute(mut m: OMatrix<$t, R, C>) -> Option<SVD<$t, R, C>> {
                 let (nrows, ncols) = m.shape_generic();
@@ -134,16 +130,16 @@ macro_rules! svd_impl(
 
         impl<R: DimMin<C>, C: Dim> SVD<$t, R, C>
             // TODO: All those bounds…
-            where DefaultAllocator: Allocator<$t, R, C>                 +
-                                    Allocator<$t, C, R>                 +
-                                    Allocator<$t, U1, R>                +
-                                    Allocator<$t, U1, C>                +
-                                    Allocator<$t, R, R>                 +
-                                    Allocator<$t, DimMinimum<R, C>> +
-                                    Allocator<$t, DimMinimum<R, C>, R>  +
-                                    Allocator<$t, DimMinimum<R, C>, C>  +
-                                    Allocator<$t, R, DimMinimum<R, C>>  +
-                                    Allocator<$t, C, C> {
+            where DefaultAllocator: Allocator<R, C>                 +
+                                    Allocator<C, R>                 +
+                                    Allocator<U1, R>                +
+                                    Allocator<U1, C>                +
+                                    Allocator<R, R>                 +
+                                    Allocator<DimMinimum<R, C>> +
+                                    Allocator<DimMinimum<R, C>, R>  +
+                                    Allocator<DimMinimum<R, C>, C>  +
+                                    Allocator<R, DimMinimum<R, C>>  +
+                                    Allocator<C, C> {
             /// Reconstructs the matrix from its decomposition.
             ///
             /// Useful if some components (e.g. some singular values) of this decomposition have
@@ -237,9 +233,9 @@ macro_rules! svd_complex_impl(
             where R: DimMin<C>,
                   S: ContiguousStorage<Complex<$t>, R, C>,
                   S::Alloc: OwnedAllocator<Complex<$t>, R, C, S> +
-                            Allocator<Complex<$t>, R, R>         +
-                            Allocator<Complex<$t>, C, C>         +
-                            Allocator<$t, DimMinimum<R, C>> {
+                            Allocator<R, R>         +
+                            Allocator<C, C>         +
+                            Allocator<DimMinimum<R, C>> {
             let (nrows, ncols) = m.shape_generic();
 
             if nrows.value() == 0 || ncols.value() == 0 {

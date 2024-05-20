@@ -105,7 +105,7 @@ pub fn dmatrix_<ScalarStrategy>(
 where
     ScalarStrategy: Strategy + Clone + 'static,
     ScalarStrategy::Value: Scalar,
-    DefaultAllocator: Allocator<ScalarStrategy::Value, Dyn, Dyn>,
+    DefaultAllocator: Allocator<Dyn, Dyn>,
 {
     matrix(scalar_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM)
 }
@@ -114,7 +114,7 @@ where
 // where
 //     RangeInclusive<T>: Strategy<Value = T>,
 //     T: Scalar + PartialEq + Copy,
-//     DefaultAllocator: Allocator<T, Dyn>,
+//     DefaultAllocator: Allocator<Dyn>,
 // {
 //     vector(range, PROPTEST_MATRIX_DIM)
 // }

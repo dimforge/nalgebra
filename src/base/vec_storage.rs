@@ -264,12 +264,12 @@ unsafe impl<T, C: Dim> RawStorage<T, Dyn, C> for VecStorage<T, Dyn, C> {
 
 unsafe impl<T: Scalar, C: Dim> Storage<T, Dyn, C> for VecStorage<T, Dyn, C>
 where
-    DefaultAllocator: Allocator<T, Dyn, C, Buffer<T> = Self>,
+    DefaultAllocator: Allocator<Dyn, C, Buffer<T> = Self>,
 {
     #[inline]
     fn into_owned(self) -> Owned<T, Dyn, C>
     where
-        DefaultAllocator: Allocator<T, Dyn, C>,
+        DefaultAllocator: Allocator<Dyn, C>,
     {
         self
     }
@@ -277,7 +277,7 @@ where
     #[inline]
     fn clone_owned(&self) -> Owned<T, Dyn, C>
     where
-        DefaultAllocator: Allocator<T, Dyn, C>,
+        DefaultAllocator: Allocator<Dyn, C>,
     {
         self.clone()
     }
@@ -315,12 +315,12 @@ unsafe impl<T, R: DimName> RawStorage<T, R, Dyn> for VecStorage<T, R, Dyn> {
 
 unsafe impl<T: Scalar, R: DimName> Storage<T, R, Dyn> for VecStorage<T, R, Dyn>
 where
-    DefaultAllocator: Allocator<T, R, Dyn, Buffer<T> = Self>,
+    DefaultAllocator: Allocator<R, Dyn, Buffer<T> = Self>,
 {
     #[inline]
     fn into_owned(self) -> Owned<T, R, Dyn>
     where
-        DefaultAllocator: Allocator<T, R, Dyn>,
+        DefaultAllocator: Allocator<R, Dyn>,
     {
         self
     }
@@ -328,7 +328,7 @@ where
     #[inline]
     fn clone_owned(&self) -> Owned<T, R, Dyn>
     where
-        DefaultAllocator: Allocator<T, R, Dyn>,
+        DefaultAllocator: Allocator<R, Dyn>,
     {
         self.clone()
     }

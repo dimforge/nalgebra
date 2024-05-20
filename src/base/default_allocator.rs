@@ -34,9 +34,7 @@ use std::mem::MaybeUninit;
 pub struct DefaultAllocator;
 
 // Static - Static
-impl<Dummy, const R: usize, const C: usize> Allocator<Dummy, Const<R>, Const<C>>
-    for DefaultAllocator
-{
+impl<const R: usize, const C: usize> Allocator<Const<R>, Const<C>> for DefaultAllocator {
     type Buffer<T: Scalar> = ArrayStorage<T, R, C>;
     type BufferUninit<T: Scalar> = ArrayStorage<MaybeUninit<T>, R, C>;
 
@@ -65,7 +63,7 @@ impl<Dummy, const R: usize, const C: usize> Allocator<Dummy, Const<R>, Const<C>>
         ncols: Const<C>,
         iter: I,
     ) -> Self::Buffer<T> {
-        let mut res = <Self as Allocator<T, _, _>>::allocate_uninit(nrows, ncols);
+        let mut res = Self::allocate_uninit(nrows, ncols);
         let mut count = 0;
 
         // Safety: conversion to a slice is OK because the Buffer is known to be contiguous.
@@ -82,14 +80,14 @@ impl<Dummy, const R: usize, const C: usize> Allocator<Dummy, Const<R>, Const<C>>
 
         // Safety: the assertion above made sure that the iterator
         //         yielded enough elements to initialize our matrix.
-        unsafe { <Self as Allocator<T, Const<R>, Const<C>>>::assume_init(res) }
+        unsafe { <Self as Allocator<Const<R>, Const<C>>>::assume_init(res) }
     }
 }
 
 // Dyn - Static
 // Dyn - Dyn
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<Dummy, C: Dim> Allocator<Dummy, Dyn, C> for DefaultAllocator {
+impl<C: Dim> Allocator<Dyn, C> for DefaultAllocator {
     type Buffer<T: Scalar> = VecStorage<T, Dyn, C>;
     type BufferUninit<T: Scalar> = VecStorage<MaybeUninit<T>, Dyn, C>;
 
@@ -136,7 +134,7 @@ impl<Dummy, C: Dim> Allocator<Dummy, Dyn, C> for DefaultAllocator {
 
 // Static - Dyn
 #[cfg(any(feature = "std", feature = "alloc"))]
-impl<Dummy, R: DimName> Allocator<Dummy, R, Dyn> for DefaultAllocator {
+impl<R: DimName> Allocator<R, Dyn> for DefaultAllocator {
     type Buffer<T: Scalar> = VecStorage<T, R, Dyn>;
     type BufferUninit<T: Scalar> = VecStorage<MaybeUninit<T>, R, Dyn>;
 
@@ -193,15 +191,15 @@ impl<T: Scalar, RFrom, CFrom, const RTO: usize, const CTO: usize>
 where
     RFrom: Dim,
     CFrom: Dim,
-    Self: Allocator<T, RFrom, CFrom>,
+    Self: Allocator<RFrom, CFrom>,
 {
     #[inline]
     unsafe fn reallocate_copy(
         rto: Const<RTO>,
         cto: Const<CTO>,
-        buf: <Self as Allocator<T, RFrom, CFrom>>::Buffer<T>,
+        buf: <Self as Allocator<RFrom, CFrom>>::Buffer<T>,
     ) -> ArrayStorage<MaybeUninit<T>, RTO, CTO> {
-        let mut res = <Self as Allocator<T, Const<RTO>, Const<CTO>>>::allocate_uninit(rto, cto);
+        let mut res = <Self as Allocator<Const<RTO>, Const<CTO>>>::allocate_uninit(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
 
@@ -232,7 +230,7 @@ where
         cto: CTo,
         buf: ArrayStorage<T, RFROM, CFROM>,
     ) -> VecStorage<MaybeUninit<T>, Dyn, CTo> {
-        let mut res = <Self as Allocator<T, Dyn, CTo>>::allocate_uninit(rto, cto);
+        let mut res = <Self as Allocator<Dyn, CTo>>::allocate_uninit(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
 
@@ -263,7 +261,7 @@ where
         cto: Dyn,
         buf: ArrayStorage<T, RFROM, CFROM>,
     ) -> VecStorage<MaybeUninit<T>, RTo, Dyn> {
-        let mut res = <Self as Allocator<T, RTo, Dyn>>::allocate_uninit(rto, cto);
+        let mut res = <Self as Allocator<RTo, Dyn>>::allocate_uninit(rto, cto);
 
         let (rfrom, cfrom) = buf.shape();
 

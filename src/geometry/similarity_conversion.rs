@@ -1,5 +1,6 @@
 use num::Zero;
 
+use crate::ArrayStorage;
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
 use simba::simd::{PrimitiveSimdValue, SimdRealField, SimdValue};
 
@@ -56,14 +57,12 @@ where
         + SubsetOf<OMatrix<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>
         + SubsetOf<OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>,
     Const<D>: DimNameAdd<U1> + DimMin<Const<D>, Output = Const<D>>, // needed by .determinant()
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    // + Allocator<(usize, usize), D>
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    // + Allocator<D>
     // + Allocator<T1, D>
     // + Allocator<T1, D, D>
-    // + Allocator<T2, D, D>
-    // + Allocator<T2, D>,
+    // + Allocator<D, D>
+    // + Allocator<D>,
 {
     #[inline]
     fn to_superset(&self) -> Transform<T2, C, D> {
@@ -91,13 +90,8 @@ where
         + SubsetOf<OMatrix<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>
         + SubsetOf<OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>,
     Const<D>: DimNameAdd<U1> + DimMin<Const<D>, Output = Const<D>>, // needed by .determinant()
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>, // + Allocator<(usize, usize), D>
-                                                                             // + Allocator<T1, D>
-                                                                             // + Allocator<T1, D, D>
-                                                                             // + Allocator<T2, D, D>
-                                                                             // + Allocator<T2, D>
+    DefaultAllocator: Allocator<Const<D>, Const<1>, Buffer<T1> = ArrayStorage<T1, D, 1>>
+        + Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn to_superset(&self) -> OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
@@ -178,7 +172,7 @@ impl<T: SimdRealField, R, const D: usize> From<Similarity<T, R, D>>
 where
     Const<D>: DimNameAdd<U1>,
     R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>, // + Allocator<T, D>
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>, // + Allocator<D>
 {
     #[inline]
     fn from(sim: Similarity<T, R, D>) -> Self {

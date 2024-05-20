@@ -13,8 +13,7 @@ where
     C1: TCategory,
     C2: SuperTCategoryOf<C1>,
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     T1::Epsilon: Copy,
     T2::Epsilon: Copy,
 {
@@ -42,8 +41,7 @@ where
     T2: RealField,
     C: TCategory,
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     T1::Epsilon: Copy,
     T2::Epsilon: Copy,
 {
@@ -70,7 +68,7 @@ impl<T: RealField, C, const D: usize> From<Transform<T, C, D>>
 where
     Const<D>: DimNameAdd<U1>,
     C: TCategory,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn from(t: Transform<T, C, D>) -> Self {

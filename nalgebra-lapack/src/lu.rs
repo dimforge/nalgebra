@@ -20,22 +20,22 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, R, C> +
-                           Allocator<i32, DimMinimum<R, C>>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<R, C> +
+                           Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Serialize,
          PermutationSequence<DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, R, C> +
-                           Allocator<i32, DimMinimum<R, C>>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<R, C> +
+                           Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Deserialize<'de>,
          PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct LU<T: Scalar, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<i32, DimMinimum<R, C>> + Allocator<T, R, C>,
+    DefaultAllocator: Allocator<DimMinimum<R, C>> + Allocator<R, C>,
 {
     lu: OMatrix<T, R, C>,
     p: OVector<i32, DimMinimum<R, C>>,
@@ -43,7 +43,7 @@ where
 
 impl<T: Scalar + Copy, R: DimMin<C>, C: Dim> Copy for LU<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<i32, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
     OMatrix<T, R, C>: Copy,
     OVector<i32, DimMinimum<R, C>>: Copy,
 {
@@ -53,11 +53,11 @@ impl<T: LUScalar, R: Dim, C: Dim> LU<T, R, C>
 where
     T: Zero + One,
     R: DimMin<C>,
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, R, R>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<i32, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<R, R>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<DimMinimum<R, C>>,
 {
     /// Computes the LU decomposition with partial (row) pivoting of `matrix`.
     pub fn new(mut m: OMatrix<T, R, C>) -> Self {
@@ -136,7 +136,7 @@ where
     #[inline]
     pub fn permute<C2: Dim>(&self, rhs: &mut OMatrix<T, R, C2>)
     where
-        DefaultAllocator: Allocator<T, R, C2>,
+        DefaultAllocator: Allocator<R, C2>,
     {
         let (nrows, ncols) = rhs.shape();
 
@@ -153,7 +153,7 @@ where
 
     fn generic_solve_mut<R2: Dim, C2: Dim>(&self, trans: u8, b: &mut OMatrix<T, R2, C2>) -> bool
     where
-        DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
+        DefaultAllocator: Allocator<R2, C2> + Allocator<R2>,
     {
         let dim = self.lu.nrows();
 
@@ -192,7 +192,7 @@ where
     ) -> Option<OMatrix<T, R2, C2>>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
+        DefaultAllocator: Allocator<R2, C2> + Allocator<R2>,
     {
         let mut res = b.clone_owned();
         if self.generic_solve_mut(b'T', &mut res) {
@@ -210,7 +210,7 @@ where
     ) -> Option<OMatrix<T, R2, C2>>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
+        DefaultAllocator: Allocator<R2, C2> + Allocator<R2>,
     {
         let mut res = b.clone_owned();
         if self.generic_solve_mut(b'T', &mut res) {
@@ -228,7 +228,7 @@ where
     ) -> Option<OMatrix<T, R2, C2>>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
+        DefaultAllocator: Allocator<R2, C2> + Allocator<R2>,
     {
         let mut res = b.clone_owned();
         if self.generic_solve_mut(b'T', &mut res) {
@@ -243,7 +243,7 @@ where
     /// Returns `false` if no solution was found (the decomposed matrix is singular).
     pub fn solve_mut<R2: Dim, C2: Dim>(&self, b: &mut OMatrix<T, R2, C2>) -> bool
     where
-        DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
+        DefaultAllocator: Allocator<R2, C2> + Allocator<R2>,
     {
         self.generic_solve_mut(b'T', b)
     }
@@ -254,7 +254,7 @@ where
     /// Returns `false` if no solution was found (the decomposed matrix is singular).
     pub fn solve_transpose_mut<R2: Dim, C2: Dim>(&self, b: &mut OMatrix<T, R2, C2>) -> bool
     where
-        DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
+        DefaultAllocator: Allocator<R2, C2> + Allocator<R2>,
     {
         self.generic_solve_mut(b'T', b)
     }
@@ -265,7 +265,7 @@ where
     /// Returns `false` if no solution was found (the decomposed matrix is singular).
     pub fn solve_adjoint_mut<R2: Dim, C2: Dim>(&self, b: &mut OMatrix<T, R2, C2>) -> bool
     where
-        DefaultAllocator: Allocator<T, R2, C2> + Allocator<i32, R2>,
+        DefaultAllocator: Allocator<R2, C2> + Allocator<R2>,
     {
         self.generic_solve_mut(b'T', b)
     }
@@ -275,7 +275,7 @@ impl<T: LUScalar, D: Dim> LU<T, D, D>
 where
     T: Zero + One,
     D: DimMin<D, Output = D>,
-    DefaultAllocator: Allocator<T, D, D> + Allocator<i32, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Computes the inverse of the decomposed matrix.
     pub fn inverse(mut self) -> Option<OMatrix<T, D, D>> {

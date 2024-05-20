@@ -22,7 +22,7 @@ impl<'a, T: Scalar + Zero + ClosedAdd> CsMatrix<T> {
 
 impl<'a, T: Scalar + Zero + ClosedAdd, R: Dim, C: Dim> CsMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<usize, C> + Allocator<T, R>,
+    DefaultAllocator: Allocator<C> + Allocator<R>,
 {
     /// Creates a column-compressed sparse matrix from a sparse matrix in triplet form.
     pub fn from_triplet_generic(
@@ -68,7 +68,7 @@ where
 impl<'a, T: Scalar + Zero, R: Dim, C: Dim, S> From<CsMatrix<T, R, C, S>> for OMatrix<T, R, C>
 where
     S: CsStorage<T, R, C>,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     fn from(m: CsMatrix<T, R, C, S>) -> Self {
         let (nrows, ncols) = m.data.shape();
@@ -87,7 +87,7 @@ where
 impl<'a, T: Scalar + Zero, R: Dim, C: Dim, S> From<Matrix<T, R, C, S>> for CsMatrix<T, R, C>
 where
     S: Storage<T, R, C>,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<usize, C>,
+    DefaultAllocator: Allocator<R, C> + Allocator<C>,
 {
     fn from(m: Matrix<T, R, C, S>) -> Self {
         let (nrows, ncols) = m.data.shape();

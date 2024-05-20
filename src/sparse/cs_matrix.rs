@@ -106,7 +106,7 @@ pub trait CsStorageMut<T, R, C = U1>:
 #[derive(Clone, Debug, PartialEq)]
 pub struct CsVecStorage<T: Scalar, R: Dim, C: Dim>
 where
-    DefaultAllocator: Allocator<usize, C>,
+    DefaultAllocator: Allocator<C>,
 {
     pub(crate) shape: (R, C),
     pub(crate) p: OVector<usize, C>,
@@ -116,7 +116,7 @@ where
 
 impl<T: Scalar, R: Dim, C: Dim> CsVecStorage<T, R, C>
 where
-    DefaultAllocator: Allocator<usize, C>,
+    DefaultAllocator: Allocator<C>,
 {
     /// The value buffer of this storage.
     #[must_use]
@@ -137,11 +137,11 @@ where
     }
 }
 
-impl<T: Scalar, R: Dim, C: Dim> CsVecStorage<T, R, C> where DefaultAllocator: Allocator<usize, C> {}
+impl<T: Scalar, R: Dim, C: Dim> CsVecStorage<T, R, C> where DefaultAllocator: Allocator<C> {}
 
 impl<'a, T: Scalar, R: Dim, C: Dim> CsStorageIter<'a, T, R, C> for CsVecStorage<T, R, C>
 where
-    DefaultAllocator: Allocator<usize, C>,
+    DefaultAllocator: Allocator<C>,
 {
     type ColumnEntries = ColumnEntries<'a, T>;
     type ColumnRowIndices = iter::Cloned<slice::Iter<'a, usize>>;
@@ -161,7 +161,7 @@ where
 
 impl<T: Scalar, R: Dim, C: Dim> CsStorage<T, R, C> for CsVecStorage<T, R, C>
 where
-    DefaultAllocator: Allocator<usize, C>,
+    DefaultAllocator: Allocator<C>,
 {
     #[inline]
     fn shape(&self) -> (R, C) {
@@ -207,7 +207,7 @@ where
 
 impl<'a, T: Scalar, R: Dim, C: Dim> CsStorageIterMut<'a, T, R, C> for CsVecStorage<T, R, C>
 where
-    DefaultAllocator: Allocator<usize, C>,
+    DefaultAllocator: Allocator<C>,
 {
     type ValuesMut = slice::IterMut<'a, T>;
     type ColumnEntriesMut = iter::Zip<iter::Cloned<slice::Iter<'a, usize>>, slice::IterMut<'a, T>>;
@@ -228,7 +228,7 @@ where
 }
 
 impl<T: Scalar, R: Dim, C: Dim> CsStorageMut<T, R, C> for CsVecStorage<T, R, C> where
-    DefaultAllocator: Allocator<usize, C>
+    DefaultAllocator: Allocator<C>
 {
 }
 
@@ -257,7 +257,7 @@ pub type CsVector<T, R = Dyn, S = CsVecStorage<T, R, U1>> = CsMatrix<T, R, U1, S
 
 impl<T: Scalar, R: Dim, C: Dim> CsMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<usize, C>,
+    DefaultAllocator: Allocator<C>,
 {
     /// Creates a new compressed sparse column matrix with the specified dimension and
     /// `nvals` possible non-zero values.
@@ -295,7 +295,7 @@ where
     ) -> Self
     where
         T: Zero + ClosedAdd,
-        DefaultAllocator: Allocator<T, R>,
+        DefaultAllocator: Allocator<R>,
     {
         assert_eq!(ncols.value(), p.len(), "Invalid inptr size.");
         assert_eq!(i.len(), vals.len(), "Invalid value size.");
@@ -421,7 +421,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
     #[must_use = "This function does not mutate the matrix. Consider using the return value or removing the function call. There's also transpose_mut() for square matrices."]
     pub fn transpose(&self) -> CsMatrix<T, C, R>
     where
-        DefaultAllocator: Allocator<usize, R>,
+        DefaultAllocator: Allocator<R>,
     {
         let (nrows, ncols) = self.data.shape();
 
@@ -462,12 +462,12 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorageMut<T, R, C>> CsMatrix<T, R, C, S> {
 
 impl<T: Scalar, R: Dim, C: Dim> CsMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<usize, C>,
+    DefaultAllocator: Allocator<C>,
 {
     pub(crate) fn sort(&mut self)
     where
         T: Zero,
-        DefaultAllocator: Allocator<T, R>,
+        DefaultAllocator: Allocator<R>,
     {
         // Size = R
         let nrows = self.data.shape().0;

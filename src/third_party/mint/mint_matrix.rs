@@ -11,7 +11,7 @@ macro_rules! impl_from_into_mint_1D(
     ($($NRows: ident => $VT:ident [$SZ: expr]);* $(;)*) => {$(
         impl<T> From<mint::$VT<T>> for OMatrix<T, $NRows, U1>
         where T: Scalar,
-              DefaultAllocator: Allocator<T, $NRows, U1> {
+              DefaultAllocator: Allocator<$NRows, U1> {
             #[inline]
             fn from(v: mint::$VT<T>) -> Self {
                 unsafe {
@@ -81,7 +81,7 @@ macro_rules! impl_from_into_mint_2D(
     ($(($NRows: ty, $NCols: ty) => $MV:ident{ $($component:ident),* }[$SZRows: expr]);* $(;)*) => {$(
         impl<T> From<mint::$MV<T>> for OMatrix<T, $NRows, $NCols>
         where T: Scalar,
-              DefaultAllocator: Allocator<T, $NRows, $NCols> {
+              DefaultAllocator: Allocator<$NRows, $NCols> {
             #[inline]
             fn from(m: mint::$MV<T>) -> Self {
                 unsafe {
@@ -101,7 +101,7 @@ macro_rules! impl_from_into_mint_2D(
 
         impl<T> Into<mint::$MV<T>> for OMatrix<T, $NRows, $NCols>
         where T: Scalar,
-              DefaultAllocator: Allocator<T, $NRows, $NCols> {
+              DefaultAllocator: Allocator<$NRows, $NCols> {
             #[inline]
             fn into(self) -> mint::$MV<T> {
                 unsafe {

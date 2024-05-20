@@ -32,7 +32,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     pub fn abs(&self) -> OMatrix<T, R, C>
     where
         T: Signed,
-        DefaultAllocator: Allocator<T, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         let mut res = self.clone_owned();
 
@@ -55,7 +55,7 @@ macro_rules! component_binop_impl(
             where T: $Trait,
                   R2: Dim, C2: Dim,
                   SB: Storage<T, R2, C2>,
-                  DefaultAllocator: SameShapeAllocator<T, R1, C1, R2, C2>,
+                  DefaultAllocator: SameShapeAllocator<R1, C1, R2, C2>,
                   ShapeConstraint:  SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2> {
 
             assert_eq!(self.shape(), rhs.shape(), "Componentwise mul/div: mismatched matrix dimensions.");
@@ -257,7 +257,7 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     pub fn inf(&self, other: &Self) -> OMatrix<T, R1, C1>
     where
         T: SimdPartialOrd,
-        DefaultAllocator: Allocator<T, R1, C1>,
+        DefaultAllocator: Allocator<R1, C1>,
     {
         self.zip_map(other, |a, b| a.simd_min(b))
     }
@@ -278,7 +278,7 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     pub fn sup(&self, other: &Self) -> OMatrix<T, R1, C1>
     where
         T: SimdPartialOrd,
-        DefaultAllocator: Allocator<T, R1, C1>,
+        DefaultAllocator: Allocator<R1, C1>,
     {
         self.zip_map(other, |a, b| a.simd_max(b))
     }
@@ -299,7 +299,7 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     pub fn inf_sup(&self, other: &Self) -> (OMatrix<T, R1, C1>, OMatrix<T, R1, C1>)
     where
         T: SimdPartialOrd,
-        DefaultAllocator: Allocator<T, R1, C1>,
+        DefaultAllocator: Allocator<R1, C1>,
     {
         // TODO: can this be optimized?
         (self.inf(other), self.sup(other))
@@ -321,7 +321,7 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     pub fn add_scalar(&self, rhs: T) -> OMatrix<T, R1, C1>
     where
         T: ClosedAdd,
-        DefaultAllocator: Allocator<T, R1, C1>,
+        DefaultAllocator: Allocator<R1, C1>,
     {
         let mut res = self.clone_owned();
         res.add_scalar_mut(rhs);

@@ -9,7 +9,7 @@ use crate::geometry::{
     AbstractRotation, Isometry, Isometry3, Similarity, SuperTCategoryOf, TAffine, Transform,
     Translation, UnitDualQuaternion, UnitQuaternion,
 };
-use crate::{Point, SVector};
+use crate::{ArrayStorage, Point, SVector};
 
 /*
  * This file provides the following conversions:
@@ -105,13 +105,11 @@ where
         + SubsetOf<OMatrix<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>
         + SubsetOf<OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>,
     Const<D>: DimNameAdd<U1> + DimMin<Const<D>, Output = Const<D>>, // needed by .is_special_orthogonal()
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     // + Allocator<T1, D>
-    // + Allocator<(usize, usize), D>
-    // + Allocator<T2, D, D>
-    // + Allocator<T2, D>
+    // + Allocator<D>
+    // + Allocator<D, D>
+    // + Allocator<D>
 {
     #[inline]
     fn to_superset(&self) -> Transform<T2, C, D> {
@@ -138,13 +136,8 @@ where
         + SubsetOf<OMatrix<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>
         + SubsetOf<OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>,
     Const<D>: DimNameAdd<U1> + DimMin<Const<D>, Output = Const<D>>, // needed by .is_special_orthogonal()
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>, // + Allocator<(usize, usize), D>
-                                                                             // + Allocator<T2, D, D>
-                                                                             // + Allocator<T2, D>
-                                                                             // + Allocator<T1, D>
-                                                                             // + Allocator<T1, D, D>
+    DefaultAllocator: Allocator<Const<D>, Const<1>, Buffer<T1> = ArrayStorage<T1, D, 1>>
+        + Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn to_superset(&self) -> OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
@@ -191,7 +184,7 @@ impl<T: SimdRealField, R, const D: usize> From<Isometry<T, R, D>>
 where
     Const<D>: DimNameAdd<U1>,
     R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>, // + Allocator<T, D>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>, // + Allocator<D>,
 {
     #[inline]
     fn from(iso: Isometry<T, R, D>) -> Self {

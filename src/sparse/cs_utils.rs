@@ -3,7 +3,7 @@ use crate::{DefaultAllocator, Dim, OVector};
 
 pub fn cumsum<D: Dim>(a: &mut OVector<usize, D>, b: &mut OVector<usize, D>) -> usize
 where
-    DefaultAllocator: Allocator<usize, D>,
+    DefaultAllocator: Allocator<D>,
 {
     assert!(a.len() == b.len());
     let mut sum = 0;

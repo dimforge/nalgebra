@@ -275,7 +275,7 @@ pub fn abs<T: Signed>(a: &T) -> T {
 pub fn inf<T, R: Dim, C: Dim>(a: &OMatrix<T, R, C>, b: &OMatrix<T, R, C>) -> OMatrix<T, R, C>
 where
     T: Scalar + SimdPartialOrd,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     a.inf(b)
 }
@@ -286,7 +286,7 @@ where
 pub fn sup<T, R: Dim, C: Dim>(a: &OMatrix<T, R, C>, b: &OMatrix<T, R, C>) -> OMatrix<T, R, C>
 where
     T: Scalar + SimdPartialOrd,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     a.sup(b)
 }
@@ -300,7 +300,7 @@ pub fn inf_sup<T, R: Dim, C: Dim>(
 ) -> (OMatrix<T, R, C>, OMatrix<T, R, C>)
 where
     T: Scalar + SimdPartialOrd,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     a.inf_sup(b)
 }

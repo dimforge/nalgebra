@@ -16,7 +16,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         f: impl Fn(VectorView<'_, T, R, S::RStride, S::CStride>) -> T,
     ) -> RowOVector<T, C>
     where
-        DefaultAllocator: Allocator<T, U1, C>,
+        DefaultAllocator: Allocator<U1, C>,
     {
         let ncols = self.shape_generic().1;
         let mut res = Matrix::uninit(Const::<1>, ncols);
@@ -44,7 +44,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         f: impl Fn(VectorView<'_, T, R, S::RStride, S::CStride>) -> T,
     ) -> OVector<T, C>
     where
-        DefaultAllocator: Allocator<T, C>,
+        DefaultAllocator: Allocator<C>,
     {
         let ncols = self.shape_generic().1;
         let mut res = Matrix::uninit(ncols, Const::<1>);
@@ -70,7 +70,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         f: impl Fn(&mut OVector<T, R>, VectorView<'_, T, R, S::RStride, S::CStride>),
     ) -> OVector<T, R>
     where
-        DefaultAllocator: Allocator<T, R>,
+        DefaultAllocator: Allocator<R>,
     {
         let mut res = init;
 
@@ -133,7 +133,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn row_sum(&self) -> RowOVector<T, C>
     where
         T: ClosedAdd + Zero,
-        DefaultAllocator: Allocator<T, U1, C>,
+        DefaultAllocator: Allocator<U1, C>,
     {
         self.compress_rows(|col| col.sum())
     }
@@ -160,7 +160,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn row_sum_tr(&self) -> OVector<T, C>
     where
         T: ClosedAdd + Zero,
-        DefaultAllocator: Allocator<T, C>,
+        DefaultAllocator: Allocator<C>,
     {
         self.compress_rows_tr(|col| col.sum())
     }
@@ -187,7 +187,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn column_sum(&self) -> OVector<T, R>
     where
         T: ClosedAdd + Zero,
-        DefaultAllocator: Allocator<T, R>,
+        DefaultAllocator: Allocator<R>,
     {
         let nrows = self.shape_generic().0;
         self.compress_columns(OVector::zeros_generic(nrows, Const::<1>), |out, col| {
@@ -244,7 +244,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn row_product(&self) -> RowOVector<T, C>
     where
         T: ClosedMul + One,
-        DefaultAllocator: Allocator<T, U1, C>,
+        DefaultAllocator: Allocator<U1, C>,
     {
         self.compress_rows(|col| col.product())
     }
@@ -271,7 +271,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn row_product_tr(&self) -> OVector<T, C>
     where
         T: ClosedMul + One,
-        DefaultAllocator: Allocator<T, C>,
+        DefaultAllocator: Allocator<C>,
     {
         self.compress_rows_tr(|col| col.product())
     }
@@ -298,7 +298,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn column_product(&self) -> OVector<T, R>
     where
         T: ClosedMul + One,
-        DefaultAllocator: Allocator<T, R>,
+        DefaultAllocator: Allocator<R>,
     {
         let nrows = self.shape_generic().0;
         self.compress_columns(
@@ -361,7 +361,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn row_variance(&self) -> RowOVector<T, C>
     where
         T: Field + SupersetOf<f64>,
-        DefaultAllocator: Allocator<T, U1, C>,
+        DefaultAllocator: Allocator<U1, C>,
     {
         self.compress_rows(|col| col.variance())
     }
@@ -382,7 +382,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn row_variance_tr(&self) -> OVector<T, C>
     where
         T: Field + SupersetOf<f64>,
-        DefaultAllocator: Allocator<T, C>,
+        DefaultAllocator: Allocator<C>,
     {
         self.compress_rows_tr(|col| col.variance())
     }
@@ -404,7 +404,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn column_variance(&self) -> OVector<T, R>
     where
         T: Field + SupersetOf<f64>,
-        DefaultAllocator: Allocator<T, R>,
+        DefaultAllocator: Allocator<R>,
     {
         let (nrows, ncols) = self.shape_generic();
 
@@ -469,7 +469,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn row_mean(&self) -> RowOVector<T, C>
     where
         T: Field + SupersetOf<f64>,
-        DefaultAllocator: Allocator<T, U1, C>,
+        DefaultAllocator: Allocator<U1, C>,
     {
         self.compress_rows(|col| col.mean())
     }
@@ -490,7 +490,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn row_mean_tr(&self) -> OVector<T, C>
     where
         T: Field + SupersetOf<f64>,
-        DefaultAllocator: Allocator<T, C>,
+        DefaultAllocator: Allocator<C>,
     {
         self.compress_rows_tr(|col| col.mean())
     }
@@ -511,7 +511,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub fn column_mean(&self) -> OVector<T, R>
     where
         T: Field + SupersetOf<f64>,
-        DefaultAllocator: Allocator<T, R>,
+        DefaultAllocator: Allocator<R>,
     {
         let (nrows, ncols) = self.shape_generic();
         let denom = T::one() / crate::convert::<_, T>(ncols.value() as f64);

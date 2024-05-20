@@ -35,8 +35,7 @@ where
     C2: Dim,
     T1: Scalar,
     T2: Scalar + SupersetOf<T1>,
-    DefaultAllocator:
-        Allocator<T2, R2, C2> + Allocator<T1, R1, C1> + SameShapeAllocator<T1, R1, C1, R2, C2>,
+    DefaultAllocator: Allocator<R2, C2> + Allocator<R1, C1> + SameShapeAllocator<R1, C1, R2, C2>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
 {
     #[inline]
@@ -561,7 +560,7 @@ impl<T: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[OMatrix<T::Element, R
 where
     T: From<[<T as SimdValue>::Element; 2]>,
     T::Element: Scalar + SimdValue,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [OMatrix<T::Element, R, C>; 2]) -> Self {
@@ -578,7 +577,7 @@ impl<T: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[OMatrix<T::Element, R
 where
     T: From<[<T as SimdValue>::Element; 4]>,
     T::Element: Scalar + SimdValue,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [OMatrix<T::Element, R, C>; 4]) -> Self {
@@ -601,7 +600,7 @@ impl<T: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[OMatrix<T::Element, R
 where
     T: From<[<T as SimdValue>::Element; 8]>,
     T::Element: Scalar + SimdValue,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [OMatrix<T::Element, R, C>; 8]) -> Self {
@@ -628,7 +627,7 @@ impl<T: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[OMatrix<T::Element, R
 where
     T: From<[<T as SimdValue>::Element; 16]>,
     T::Element: Scalar + SimdValue,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     fn from(arr: [OMatrix<T::Element, R, C>; 16]) -> Self {
         let (nrows, ncols) = arr[0].shape_generic();

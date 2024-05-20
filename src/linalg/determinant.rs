@@ -15,7 +15,7 @@ impl<T: ComplexField, D: DimMin<D, Output = D>, S: Storage<T, D, D>> SquareMatri
     #[must_use]
     pub fn determinant(&self) -> T
     where
-        DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), D>,
+        DefaultAllocator: Allocator<D, D> + Allocator<D>,
     {
         assert!(
             self.is_square(),

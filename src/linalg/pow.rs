@@ -13,7 +13,7 @@ where
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     D: DimMin<D, Output = D>,
     S: StorageMut<T, D, D>,
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Raises this matrix to an integral power `exp` in-place.
     pub fn pow_mut(&mut self, mut exp: u32) {
@@ -59,7 +59,7 @@ where
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
     D: DimMin<D, Output = D>,
     S: StorageMut<T, D, D>,
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Raise this matrix to an integral power `exp`.
     #[must_use]

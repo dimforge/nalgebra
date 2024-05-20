@@ -16,9 +16,9 @@ use std::mem::MaybeUninit;
 #[cfg_attr(
     feature = "serde-serialize-no-std",
     serde(bound(serialize = "DimMinimum<R, C>: DimSub<U1>,
-         DefaultAllocator: Allocator<T, R, C>             +
-                           Allocator<T, DimMinimum<R, C>> +
-                           Allocator<T, DimDiff<DimMinimum<R, C>, U1>>,
+         DefaultAllocator: Allocator<R, C>             +
+                           Allocator<DimMinimum<R, C>> +
+                           Allocator<DimDiff<DimMinimum<R, C>, U1>>,
          OMatrix<T, R, C>: Serialize,
          OVector<T, DimMinimum<R, C>>: Serialize,
          OVector<T, DimDiff<DimMinimum<R, C>, U1>>: Serialize"))
@@ -26,9 +26,9 @@ use std::mem::MaybeUninit;
 #[cfg_attr(
     feature = "serde-serialize-no-std",
     serde(bound(deserialize = "DimMinimum<R, C>: DimSub<U1>,
-         DefaultAllocator: Allocator<T, R, C>             +
-                           Allocator<T, DimMinimum<R, C>> +
-                           Allocator<T, DimDiff<DimMinimum<R, C>, U1>>,
+         DefaultAllocator: Allocator<R, C>             +
+                           Allocator<DimMinimum<R, C>> +
+                           Allocator<DimDiff<DimMinimum<R, C>, U1>>,
          OMatrix<T, R, C>: Deserialize<'de>,
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>,
          OVector<T, DimDiff<DimMinimum<R, C>, U1>>: Deserialize<'de>"))
@@ -37,9 +37,8 @@ use std::mem::MaybeUninit;
 pub struct Bidiagonal<T: ComplexField, R: DimMin<C>, C: Dim>
 where
     DimMinimum<R, C>: DimSub<U1>,
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>,
+    DefaultAllocator:
+        Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<DimDiff<DimMinimum<R, C>, U1>>,
 {
     // TODO: perhaps we should pack the axes into different vectors so that axes for `v_t` are
     // contiguous. This prevents some useless copies.
@@ -54,9 +53,8 @@ where
 impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for Bidiagonal<T, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>,
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>,
+    DefaultAllocator:
+        Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<DimDiff<DimMinimum<R, C>, U1>>,
     OMatrix<T, R, C>: Copy,
     OVector<T, DimMinimum<R, C>>: Copy,
     OVector<T, DimDiff<DimMinimum<R, C>, U1>>: Copy,
@@ -66,11 +64,11 @@ where
 impl<T: ComplexField, R: DimMin<C>, C: Dim> Bidiagonal<T, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>,
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>,
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<C>
+        + Allocator<R>
+        + Allocator<DimMinimum<R, C>>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>,
 {
     /// Computes the Bidiagonal decomposition using householder reflections.
     pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
@@ -177,9 +175,9 @@ where
         OMatrix<T, DimMinimum<R, C>, C>,
     )
     where
-        DefaultAllocator: Allocator<T, DimMinimum<R, C>, DimMinimum<R, C>>
-            + Allocator<T, R, DimMinimum<R, C>>
-            + Allocator<T, DimMinimum<R, C>, C>,
+        DefaultAllocator: Allocator<DimMinimum<R, C>, DimMinimum<R, C>>
+            + Allocator<R, DimMinimum<R, C>>
+            + Allocator<DimMinimum<R, C>, C>,
     {
         // TODO: optimize by calling a reallocator.
         (self.u(), self.d(), self.v_t())
@@ -190,7 +188,7 @@ where
     #[must_use]
     pub fn d(&self) -> OMatrix<T, DimMinimum<R, C>, DimMinimum<R, C>>
     where
-        DefaultAllocator: Allocator<T, DimMinimum<R, C>, DimMinimum<R, C>>,
+        DefaultAllocator: Allocator<DimMinimum<R, C>, DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.uv.shape_generic();
 
@@ -218,7 +216,7 @@ where
     #[must_use]
     pub fn u(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
-        DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
+        DefaultAllocator: Allocator<R, DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.uv.shape_generic();
 
@@ -253,7 +251,7 @@ where
     #[must_use]
     pub fn v_t(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
-        DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
+        DefaultAllocator: Allocator<DimMinimum<R, C>, C>,
     {
         let (nrows, ncols) = self.uv.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
@@ -293,7 +291,7 @@ where
     #[must_use]
     pub fn diagonal(&self) -> OVector<T::RealField, DimMinimum<R, C>>
     where
-        DefaultAllocator: Allocator<T::RealField, DimMinimum<R, C>>,
+        DefaultAllocator: Allocator<DimMinimum<R, C>>,
     {
         self.diagonal.map(|e| e.modulus())
     }
@@ -302,7 +300,7 @@ where
     #[must_use]
     pub fn off_diagonal(&self) -> OVector<T::RealField, DimDiff<DimMinimum<R, C>, U1>>
     where
-        DefaultAllocator: Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
+        DefaultAllocator: Allocator<DimDiff<DimMinimum<R, C>, U1>>,
     {
         self.off_diagonal.map(|e| e.modulus())
     }
@@ -314,8 +312,8 @@ where
 }
 
 // impl<T: ComplexField, D: DimMin<D, Output = D> + DimSub<Dyn>> Bidiagonal<T, D, D>
-//     where DefaultAllocator: Allocator<T, D, D> +
-//                             Allocator<T, D> {
+//     where DefaultAllocator: Allocator<D, D> +
+//                             Allocator<D> {
 //     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
 //     pub fn solve<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<T, R2, C2, S2>) -> OMatrix<T, R2, C2>
 //         where S2: StorageMut<T, R2, C2>,

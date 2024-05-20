@@ -29,7 +29,7 @@ use std::mem::MaybeUninit;
 
 impl<T: Scalar, R: Dim, C: Dim> UninitMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     /// Builds a matrix with uninitialized elements of type `MaybeUninit<T>`.
     #[inline(always)]
@@ -50,7 +50,7 @@ where
 /// These functions should only be used when working on dimension-generic code.
 impl<T: Scalar, R: Dim, C: Dim> OMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     /// Creates a matrix with all its elements set to `elem`.
     #[inline]
@@ -338,7 +338,7 @@ where
 impl<T, D: Dim> OMatrix<T, D, D>
 where
     T: Scalar,
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
     ///
@@ -646,7 +646,7 @@ macro_rules! impl_constructors(
 /// # Constructors of statically-sized vectors or statically-sized matrices
 impl<T: Scalar, R: DimName, C: DimName> OMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     // TODO: this is not very pretty. We could find a better call syntax.
     impl_constructors!(R, C;                         // Arguments for Matrix<T, ..., S>
@@ -658,7 +658,7 @@ where
 /// # Constructors of matrices with a dynamic number of columns
 impl<T: Scalar, R: DimName> OMatrix<T, R, Dyn>
 where
-    DefaultAllocator: Allocator<T, R, Dyn>,
+    DefaultAllocator: Allocator<R, Dyn>,
 {
     impl_constructors!(R, Dyn;
                    => R: DimName;
@@ -669,7 +669,7 @@ where
 /// # Constructors of dynamic vectors and matrices with a dynamic number of rows
 impl<T: Scalar, C: DimName> OMatrix<T, Dyn, C>
 where
-    DefaultAllocator: Allocator<T, Dyn, C>,
+    DefaultAllocator: Allocator<Dyn, C>,
 {
     impl_constructors!(Dyn, C;
                    => C: DimName;
@@ -678,9 +678,10 @@ where
 }
 
 /// # Constructors of fully dynamic matrices
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<T: Scalar> OMatrix<T, Dyn, Dyn>
 where
-    DefaultAllocator: Allocator<T, Dyn, Dyn>,
+    DefaultAllocator: Allocator<Dyn, Dyn>,
 {
     impl_constructors!(Dyn, Dyn;
                    ;
@@ -697,7 +698,7 @@ where
 macro_rules! impl_constructors_from_data(
     ($data: ident; $($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
         impl<T: Scalar, $($DimIdent: $DimBound, )*> OMatrix<T $(, $Dims)*>
-        where DefaultAllocator: Allocator<T $(, $Dims)*> {
+        where DefaultAllocator: Allocator<$($Dims),*> {
             /// Creates a matrix with its elements filled with the components provided by a slice
             /// in row-major order.
             ///
@@ -800,6 +801,7 @@ impl_constructors_from_data!(data; Dyn, C;
 Dyn(data.len() / C::dim()), C::name();
 );
 
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl_constructors_from_data!(data; Dyn, Dyn;
                             ;
                             Dyn(nrows), Dyn(ncols);
@@ -813,7 +815,7 @@ impl_constructors_from_data!(data; Dyn, Dyn;
 impl<T, R: DimName, C: DimName> Zero for OMatrix<T, R, C>
 where
     T: Scalar + Zero + ClosedAdd,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn zero() -> Self {
@@ -829,7 +831,7 @@ where
 impl<T, D: DimName> One for OMatrix<T, D, D>
 where
     T: Scalar + Zero + One + ClosedMul + ClosedAdd,
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     #[inline]
     fn one() -> Self {
@@ -840,7 +842,7 @@ where
 impl<T, R: DimName, C: DimName> Bounded for OMatrix<T, R, C>
 where
     T: Scalar + Bounded,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn max_value() -> Self {
@@ -856,7 +858,7 @@ where
 #[cfg(feature = "rand-no-std")]
 impl<T: Scalar, R: Dim, C: Dim> Distribution<OMatrix<T, R, C>> for Standard
 where
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
     Standard: Distribution<T>,
 {
     #[inline]
@@ -874,7 +876,7 @@ where
     R: Dim,
     C: Dim,
     T: Scalar + Arbitrary + Send,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
     Owned<T, R, C>: Clone + Send,
 {
     #[inline]
@@ -892,7 +894,7 @@ where
 #[cfg(feature = "rand")]
 impl<T: crate::RealField, D: DimName> Distribution<Unit<OVector<T, D>>> for Standard
 where
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
     rand_distr::StandardNormal: Distribution<T>,
 {
     /// Generate a uniformly distributed random unit vector.
@@ -1111,7 +1113,7 @@ impl<T, R: DimName> OVector<T, R>
 where
     R: ToTypenum,
     T: Scalar + Zero + One,
-    DefaultAllocator: Allocator<T, R>,
+    DefaultAllocator: Allocator<R>,
 {
     /// The column vector with `val` as its i-th component.
     #[inline]
