@@ -29,8 +29,8 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 }
 
 impl<T: ComplexField, D: Dim, S: StorageMut<T, D, D>> SquareMatrix<T, D, S> {
-    /// Attempts to invert this square matrix in-place. Returns `false` and leaves `self` untouched if
-    /// inversion fails.
+    /// Attempts to invert this square matrix in-place. Returns `false` if the
+    /// inversion fails. Note that `self` may be modified even if the inversion fails.
     ///
     /// # Panics
     ///
