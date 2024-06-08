@@ -3,7 +3,7 @@
 use num::{Signed, Zero};
 use std::ops::{Add, Mul};
 
-use simba::scalar::{ClosedDiv, ClosedMul};
+use simba::scalar::{ClosedDiv, ClosedMul, ClosedSub};
 use simba::simd::SimdPartialOrd;
 
 use crate::base::allocator::{Allocator, SameShapeAllocator};
@@ -347,7 +347,53 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
         SA: StorageMut<T, R1, C1>,
     {
         for e in self.iter_mut() {
-            *e += rhs.clone()
+            *e += rhs.clone();
+        }
+    }
+
+    /// Subtracts a scalar to `self`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut u = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+    /// let s = 10.0;
+    /// let expected = Matrix2::new(-9.0, -8.0, -7.0, -6.0);
+    /// assert_eq!(u.sub_scalar(s), expected)
+    /// ```
+    #[inline]
+    #[must_use = "Did you mean to use sub_scalar_mut()?"]
+    pub fn sub_scalar(&self, rhs: T) -> OMatrix<T, R1, C1>
+    where
+        T: ClosedSub,
+        DefaultAllocator: Allocator<T, R1, C1>,
+    {
+        let mut res = self.clone_owned();
+        res.sub_scalar_mut(rhs);
+        res
+    }
+
+    /// Subtracts a scalar to `self` in-place.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use nalgebra::Matrix2;
+    /// let mut u = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+    /// let s = 10.0;
+    /// u.sub_scalar_mut(s);
+    /// let expected = Matrix2::new(-9.0, -8.0, -7.0, -6.0);
+    /// assert_eq!(u, expected)
+    /// ```
+    #[inline]
+    pub fn sub_scalar_mut(&mut self, rhs: T)
+    where
+        T: ClosedSub,
+        SA: StorageMut<T, R1, C1>,
+    {
+        for e in self.iter_mut() {
+            *e -= rhs.clone();
         }
     }
 }
