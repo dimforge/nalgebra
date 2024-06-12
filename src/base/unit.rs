@@ -303,7 +303,7 @@ impl<T: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 2]>,
     T::Element: Scalar,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 2]) -> Self {
@@ -319,7 +319,7 @@ impl<T: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 4]>,
     T::Element: Scalar,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 4]) -> Self {
@@ -337,7 +337,7 @@ impl<T: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 8]>,
     T::Element: Scalar,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 8]) -> Self {
@@ -359,7 +359,7 @@ impl<T: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 16]>,
     T::Element: Scalar,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 16]) -> Self {

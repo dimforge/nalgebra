@@ -13,7 +13,7 @@ use crate::base::{Const, DefaultAllocator, OMatrix, OVector};
 /// See <https://arxiv.org/pdf/1401.5766.pdf>
 pub fn balance_parlett_reinsch<T: RealField, D: Dim>(matrix: &mut OMatrix<T, D, D>) -> OVector<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     assert!(matrix.is_square(), "Unable to balance a non-square matrix.");
 
@@ -68,7 +68,7 @@ where
 /// Computes in-place `D * m * D.inverse()`, where `D` is the matrix with diagonal `d`.
 pub fn unbalance<T: RealField, D: Dim>(m: &mut OMatrix<T, D, D>, d: &OVector<T, D>)
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     assert!(m.is_square(), "Unable to unbalance a non-square matrix.");
     assert_eq!(m.nrows(), d.len(), "Unbalancing: mismatched dimensions.");

@@ -13,7 +13,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
     ) -> Option<OMatrix<T, R2, C2>>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<D, R2>,
     {
         let mut b = b.clone_owned();
@@ -32,7 +32,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
     ) -> Option<OMatrix<T, R2, C2>>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<D, R2>,
     {
         let mut b = b.clone_owned();
@@ -144,7 +144,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
     ) -> Option<CsVector<T, D2>>
     where
         S2: CsStorage<T, D2>,
-        DefaultAllocator: Allocator<bool, D> + Allocator<T, D2> + Allocator<usize, D2>,
+        DefaultAllocator: Allocator<D> + Allocator<D2>,
         ShapeConstraint: SameNumberOfRows<D, D2>,
     {
         let mut reach = Vec::new();
@@ -208,7 +208,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
         xi: &mut Vec<usize>,
     ) where
         S2: CsStorage<T, D2>,
-        DefaultAllocator: Allocator<bool, D>,
+        DefaultAllocator: Allocator<D>,
     {
         let mut visited = OVector::repeat_generic(self.data.shape().1, U1, false);
         let mut stack = Vec::new();
@@ -252,7 +252,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
     fn lower_triangular_reach<D2: Dim, S2>(&self, b: &CsVector<T, D2, S2>, xi: &mut Vec<usize>)
     where
         S2: CsStorage<T, D2>,
-        DefaultAllocator: Allocator<bool, D>,
+        DefaultAllocator: Allocator<D>,
     {
         let mut visited = OVector::repeat_generic(self.data.shape().1, Const::<1>, false);
         let mut stack = Vec::new();

@@ -1,15 +1,15 @@
 [package]
-name    = "nalgebra-lapack"
+name = "nalgebra-lapack"
 version = "0.24.0"
-authors = [ "Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>" ]
+authors = ["Sébastien Crozet <developer@crozet.re>", "Andrew Straw <strawman@astraw.com>"]
 
-description   = "Matrix decompositions using nalgebra matrices and Lapack bindings."
+description = "Matrix decompositions using nalgebra matrices and Lapack bindings."
 documentation = "https://www.nalgebra.org/docs"
 homepage = "https://nalgebra.org"
 repository = "https://github.com/dimforge/nalgebra"
 readme = "../README.md"
-categories = [ "science", "mathematics" ]
-keywords = [ "linear", "algebra", "matrix", "vector", "lapack" ]
+categories = ["science", "mathematics"]
+keywords = ["linear", "algebra", "matrix", "vector", "lapack"]
 license = "MIT"
 edition = "2018"
 
@@ -17,31 +17,31 @@ edition = "2018"
 maintenance = { status = "actively-developed" }
 
 [features]
-serde-serialize  = [ "serde", "nalgebra/serde-serialize" ]
-proptest-support = [ "nalgebra/proptest-support" ]
-arbitrary        = [ "nalgebra/arbitrary" ]
+serde-serialize = ["serde", "nalgebra/serde-serialize"]
+proptest-support = ["nalgebra/proptest-support"]
+arbitrary = ["nalgebra/arbitrary"]
 
 # For BLAS/LAPACK
-default    = ["netlib"]
-openblas   = ["lapack-src/openblas"]
-netlib     = ["lapack-src/netlib"]
+default = ["netlib"]
+openblas = ["lapack-src/openblas"]
+netlib = ["lapack-src/netlib"]
 accelerate = ["lapack-src/accelerate"]
-intel-mkl  = ["lapack-src/intel-mkl"]
+intel-mkl = ["lapack-src/intel-mkl"]
 
 [dependencies]
-nalgebra      = { version = "0.32", path = ".." }
-num-traits    = "0.2"
-num-complex   = { version = "0.4", default-features = false }
-simba         = "0.8"
-serde         = { version = "1.0", features = [ "derive" ], optional = true }
-lapack        = { version = "0.19", default-features = false }
-lapack-src    = { version = "0.8", default-features = false }
+nalgebra = { version = "0.32", path = ".." }
+num-traits = "0.2"
+num-complex = { version = "0.4", default-features = false }
+simba = "0.8"
+serde = { version = "1.0", features = ["derive"], optional = true }
+lapack = { version = "0.19", default-features = false }
+lapack-src = { version = "0.8", default-features = false }
 # clippy = "*"
 
 [dev-dependencies]
-nalgebra   = { version = "0.32", features = [ "arbitrary", "rand" ], path = ".." }
-proptest   = { version = "1", default-features = false, features = ["std"] }
+nalgebra = { version = "0.32", features = ["arbitrary", "rand"], path = ".." }
+proptest = { version = "1", default-features = false, features = ["std"] }
 quickcheck = "1"
-approx     = "0.5"
-rand       = "0.8"
+approx = "0.5"
+rand = "0.8"
 

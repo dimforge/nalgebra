@@ -57,7 +57,7 @@ struct ExpmPadeHelper<T, D>
 where
     T: ComplexField,
     D: DimMin<D>,
-    DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<DimMinimum<D, D>>,
 {
     use_exact_norm: bool,
     ident: OMatrix<T, D, D>,
@@ -84,7 +84,7 @@ impl<T, D> ExpmPadeHelper<T, D>
 where
     T: ComplexField,
     D: DimMin<D>,
-    DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<DimMinimum<D, D>>,
 {
     fn new(a: OMatrix<T, D, D>, use_exact_norm: bool) -> Self {
         let (nrows, ncols) = a.shape_generic();
@@ -397,7 +397,7 @@ fn onenorm_matrix_power_nonm<T, D>(a: &OMatrix<T, D, D>, p: usize) -> T
 where
     T: RealField,
     D: Dim,
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     let nrows = a.shape_generic().0;
     let mut v = crate::OVector::<T, D>::repeat_generic(nrows, Const::<1>, convert(1.0));
@@ -414,10 +414,7 @@ fn ell<T, D>(a: &OMatrix<T, D, D>, m: usize) -> u64
 where
     T: ComplexField,
     D: Dim,
-    DefaultAllocator: Allocator<T, D, D>
-        + Allocator<T, D>
-        + Allocator<T::RealField, D>
-        + Allocator<T::RealField, D, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D> + Allocator<D> + Allocator<D, D>,
 {
     let a_abs = a.map(|x| x.abs());
 
@@ -449,7 +446,7 @@ fn solve_p_q<T, D>(u: OMatrix<T, D, D>, v: OMatrix<T, D, D>) -> OMatrix<T, D, D>
 where
     T: ComplexField,
     D: DimMin<D, Output = D>,
-    DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<DimMinimum<D, D>>,
 {
     let p = &u + &v;
     let q = &v - &u;
@@ -461,7 +458,7 @@ fn one_norm<T, D>(m: &OMatrix<T, D, D>) -> T::RealField
 where
     T: ComplexField,
     D: Dim,
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     let mut max = <T as ComplexField>::RealField::zero();
 
@@ -481,11 +478,11 @@ where
 impl<T: ComplexField, D> OMatrix<T, D, D>
 where
     D: DimMin<D, Output = D>,
-    DefaultAllocator: Allocator<T, D, D>
-        + Allocator<(usize, usize), DimMinimum<D, D>>
-        + Allocator<T, D>
-        + Allocator<T::RealField, D>
-        + Allocator<T::RealField, D, D>,
+    DefaultAllocator: Allocator<D, D>
+        + Allocator<DimMinimum<D, D>>
+        + Allocator<D>
+        + Allocator<D>
+        + Allocator<D, D>,
 {
     /// Computes exponential of this matrix
     #[must_use]

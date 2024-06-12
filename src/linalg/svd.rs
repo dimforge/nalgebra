@@ -21,32 +21,28 @@ use crate::linalg::Bidiagonal;
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<T::RealField, DimMinimum<R, C>>    +
-                           Allocator<T, DimMinimum<R, C>, C> +
-                           Allocator<T, R, DimMinimum<R, C>>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<DimMinimum<R, C>>    +
+                           Allocator<DimMinimum<R, C>, C> +
+                           Allocator<R, DimMinimum<R, C>>,
          OMatrix<T, R, DimMinimum<R, C>>: Serialize,
          OMatrix<T, DimMinimum<R, C>, C>: Serialize,
-         OVector<T::RealField, DimMinimum<R, C>>: Serialize"
-    ))
+         OVector<T::RealField, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<T::RealField, DimMinimum<R, C>>    +
-                           Allocator<T, DimMinimum<R, C>, C> +
-                           Allocator<T, R, DimMinimum<R, C>>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<DimMinimum<R, C>> +
+                           Allocator<DimMinimum<R, C>, C> +
+                           Allocator<R, DimMinimum<R, C>>,
          OMatrix<T, R, DimMinimum<R, C>>: Deserialize<'de>,
          OMatrix<T, DimMinimum<R, C>, C>: Deserialize<'de>,
-         OVector<T::RealField, DimMinimum<R, C>>: Deserialize<'de>"
-    ))
+         OVector<T::RealField, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct SVD<T: ComplexField, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<DimMinimum<R, C>, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>,
 {
     /// The left-singular vectors `U` of this SVD.
     pub u: Option<OMatrix<T, R, DimMinimum<R, C>>>,
@@ -58,9 +54,9 @@ where
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for SVD<T, R, C>
 where
-    DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<DimMinimum<R, C>, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>,
     OMatrix<T, R, DimMinimum<R, C>>: Copy,
     OMatrix<T, DimMinimum<R, C>, C>: Copy,
     OVector<T::RealField, DimMinimum<R, C>>: Copy,
@@ -70,15 +66,15 @@ where
 impl<T: ComplexField, R: DimMin<C>, C: Dim> SVD<T, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
-        + Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<C>
+        + Allocator<R>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>,
 {
     fn use_special_always_ordered_svd2() -> bool {
         TypeId::of::<OMatrix<T, R, C>>() == TypeId::of::<Matrix2<T::RealField>>()
@@ -579,7 +575,7 @@ where
     /// been computed at construction-time.
     pub fn pseudo_inverse(mut self, eps: T::RealField) -> Result<OMatrix<T, C, R>, &'static str>
     where
-        DefaultAllocator: Allocator<T, C, R>,
+        DefaultAllocator: Allocator<C, R>,
     {
         if eps < T::RealField::zero() {
             Err("SVD pseudo inverse: the epsilon must be non-negative.")
@@ -610,7 +606,7 @@ where
     ) -> Result<OMatrix<T, C, C2>, &'static str>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, C, C2> + Allocator<T, DimMinimum<R, C>, C2>,
+        DefaultAllocator: Allocator<C, C2> + Allocator<DimMinimum<R, C>, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2>,
     {
         if eps < T::RealField::zero() {
@@ -648,11 +644,11 @@ where
     /// Returns None if the singular vectors of the SVD haven't been calculated
     pub fn to_polar(&self) -> Option<(OMatrix<T, R, R>, OMatrix<T, R, C>)>
     where
-        DefaultAllocator: Allocator<T, R, C> //result
-            + Allocator<T, DimMinimum<R, C>, R> // adjoint
-            + Allocator<T, DimMinimum<R, C>> // mapped vals
-            + Allocator<T, R, R> // result
-            + Allocator<T, DimMinimum<R, C>, DimMinimum<R, C>>, // square matrix
+        DefaultAllocator: Allocator<R, C> //result
+            + Allocator<DimMinimum<R, C>, R> // adjoint
+            + Allocator<DimMinimum<R, C>> // mapped vals
+            + Allocator<R, R> // result
+            + Allocator<DimMinimum<R, C>, DimMinimum<R, C>>, // square matrix
     {
         match (&self.u, &self.v_t) {
             (Some(u), Some(v_t)) => Some((
@@ -668,17 +664,13 @@ where
 impl<T: ComplexField, R: DimMin<C>, C: Dim> SVD<T, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
-        + Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>
-        + Allocator<(usize, usize), DimMinimum<R, C>> // for sorted singular values
-        + Allocator<(T::RealField, usize), DimMinimum<R, C>>, // for sorted singular values
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<C>
+        + Allocator<R>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>, // for sorted singular values
 {
     /// Computes the Singular Value Decomposition of `matrix` using implicit shift.
     /// The singular values are guaranteed to be sorted in descending order.
@@ -784,15 +776,15 @@ where
 impl<T: ComplexField, R: DimMin<C>, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S>
 where
     DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
-        + Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<C>
+        + Allocator<R>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>,
 {
     /// Computes the singular values of this matrix.
     /// The singular values are not guaranteed to be sorted in any particular order.
@@ -816,7 +808,7 @@ where
     /// All singular values below `eps` are considered equal to 0.
     pub fn pseudo_inverse(self, eps: T::RealField) -> Result<OMatrix<T, C, R>, &'static str>
     where
-        DefaultAllocator: Allocator<T, C, R>,
+        DefaultAllocator: Allocator<C, R>,
     {
         SVD::new_unordered(self.clone_owned(), true, true).pseudo_inverse(eps)
     }
@@ -825,17 +817,13 @@ where
 impl<T: ComplexField, R: DimMin<C>, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S>
 where
     DimMinimum<R, C>: DimSub<U1>,
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
-        + Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>
-        + Allocator<(usize, usize), DimMinimum<R, C>>
-        + Allocator<(T::RealField, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<C>
+        + Allocator<R>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>,
 {
     /// Computes the singular values of this matrix.
     /// The singular values are guaranteed to be sorted in descending order.

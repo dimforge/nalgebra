@@ -77,7 +77,7 @@ impl<T: fmt::Debug, const D: usize> fmt::Debug for Rotation<T, D> {
 
 impl<T: Scalar + hash::Hash, const D: usize> hash::Hash for Rotation<T, D>
 where
-    <DefaultAllocator as Allocator<T, Const<D>, Const<D>>>::Buffer: hash::Hash,
+    <DefaultAllocator as Allocator<Const<D>, Const<D>>>::Buffer<T>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.matrix.hash(state)
@@ -265,7 +265,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     where
         T: Zero + One,
         Const<D>: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+        DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         // We could use `SMatrix::to_homogeneous()` here, but that would imply
         // adding the additional traits `DimAdd` and `IsNotStaticOne`. Maybe

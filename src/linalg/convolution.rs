@@ -25,7 +25,7 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
         D2: DimAdd<D1, Output = DimSum<D1, D2>>,
         DimSum<D1, D2>: DimSub<U1>,
         S2: Storage<T, D2>,
-        DefaultAllocator: Allocator<T, DimDiff<DimSum<D1, D2>, U1>>,
+        DefaultAllocator: Allocator<DimDiff<DimSum<D1, D2>, U1>>,
     {
         let vec = self.len();
         let ker = kernel.len();
@@ -78,7 +78,7 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
         D2: Dim,
         DimSum<D1, U1>: DimSub<D2>,
         S2: Storage<T, D2>,
-        DefaultAllocator: Allocator<T, DimDiff<DimSum<D1, U1>, D2>>,
+        DefaultAllocator: Allocator<DimDiff<DimSum<D1, U1>, D2>>,
     {
         let vec = self.len();
         let ker = kernel.len();
@@ -117,7 +117,7 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
     where
         D2: Dim,
         S2: Storage<T, D2>,
-        DefaultAllocator: Allocator<T, D1>,
+        DefaultAllocator: Allocator<D1>,
     {
         let vec = self.len();
         let ker = kernel.len();

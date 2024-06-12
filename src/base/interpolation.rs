@@ -23,7 +23,7 @@ impl<T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     #[must_use]
     pub fn lerp<S2: Storage<T, D>>(&self, rhs: &Vector<T, D, S2>, t: T) -> OVector<T, D>
     where
-        DefaultAllocator: Allocator<T, D>,
+        DefaultAllocator: Allocator<D>,
     {
         let mut res = self.clone_owned();
         res.axpy(t.clone(), rhs, T::one() - t);
@@ -50,7 +50,7 @@ impl<T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Stor
     pub fn slerp<S2: Storage<T, D>>(&self, rhs: &Vector<T, D, S2>, t: T) -> OVector<T, D>
     where
         T: RealField,
-        DefaultAllocator: Allocator<T, D>,
+        DefaultAllocator: Allocator<D>,
     {
         let me = Unit::new_normalize(self.clone_owned());
         let rhs = Unit::new_normalize(rhs.clone_owned());
@@ -81,7 +81,7 @@ impl<T: RealField, D: Dim, S: Storage<T, D>> Unit<Vector<T, D, S>> {
         t: T,
     ) -> Unit<OVector<T, D>>
     where
-        DefaultAllocator: Allocator<T, D>,
+        DefaultAllocator: Allocator<D>,
     {
         // TODO: the result is wrong when self and rhs are collinear with opposite direction.
         self.try_slerp(rhs, t, T::default_epsilon())
@@ -100,7 +100,7 @@ impl<T: RealField, D: Dim, S: Storage<T, D>> Unit<Vector<T, D, S>> {
         epsilon: T,
     ) -> Option<Unit<OVector<T, D>>>
     where
-        DefaultAllocator: Allocator<T, D>,
+        DefaultAllocator: Allocator<D>,
     {
         let c_hang = self.dot(rhs);
 

@@ -14,22 +14,22 @@ use std::mem::MaybeUninit;
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D> +
-                           Allocator<T, DimDiff<D, U1>>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D, D> +
+                           Allocator<DimDiff<D, U1>>,
          OMatrix<T, D, D>: Serialize,
          OVector<T, DimDiff<D, U1>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D> +
-                           Allocator<T, DimDiff<D, U1>>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D, D> +
+                           Allocator<DimDiff<D, U1>>,
          OMatrix<T, D, D>: Deserialize<'de>,
          OVector<T, DimDiff<D, U1>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricTridiagonal<T: ComplexField, D: DimSub<U1>>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<DimDiff<D, U1>>,
 {
     tri: OMatrix<T, D, D>,
     off_diagonal: OVector<T, DimDiff<D, U1>>,
@@ -37,7 +37,7 @@ where
 
 impl<T: ComplexField, D: DimSub<U1>> Copy for SymmetricTridiagonal<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<DimDiff<D, U1>>,
     OMatrix<T, D, D>: Copy,
     OVector<T, DimDiff<D, U1>>: Copy,
 {
@@ -45,7 +45,7 @@ where
 
 impl<T: ComplexField, D: DimSub<U1>> SymmetricTridiagonal<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<DimDiff<D, U1>>,
 {
     /// Computes the tridiagonalization of the symmetric matrix `m`.
     ///
@@ -108,7 +108,7 @@ where
         OVector<T::RealField, DimDiff<D, U1>>,
     )
     where
-        DefaultAllocator: Allocator<T::RealField, D> + Allocator<T::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<D> + Allocator<DimDiff<D, U1>>,
     {
         let diag = self.diagonal();
         let q = self.q();
@@ -124,7 +124,7 @@ where
         OVector<T::RealField, DimDiff<D, U1>>,
     )
     where
-        DefaultAllocator: Allocator<T::RealField, D> + Allocator<T::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<D> + Allocator<DimDiff<D, U1>>,
     {
         (self.diagonal(), self.off_diagonal.map(T::modulus))
     }
@@ -133,7 +133,7 @@ where
     #[must_use]
     pub fn diagonal(&self) -> OVector<T::RealField, D>
     where
-        DefaultAllocator: Allocator<T::RealField, D>,
+        DefaultAllocator: Allocator<D>,
     {
         self.tri.map_diagonal(|e| e.real())
     }
@@ -142,7 +142,7 @@ where
     #[must_use]
     pub fn off_diagonal(&self) -> OVector<T::RealField, DimDiff<D, U1>>
     where
-        DefaultAllocator: Allocator<T::RealField, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<DimDiff<D, U1>>,
     {
         self.off_diagonal.map(T::modulus)
     }

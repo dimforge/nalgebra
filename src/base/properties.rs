@@ -91,7 +91,7 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         T: Zero + One + ClosedAdd + ClosedMul + RelativeEq,
         S: Storage<T, R, C>,
         T::Epsilon: Clone,
-        DefaultAllocator: Allocator<T, R, C> + Allocator<T, C, C>,
+        DefaultAllocator: Allocator<R, C> + Allocator<C, C>,
     {
         (self.ad_mul(self)).is_identity(eps)
     }
@@ -99,7 +99,7 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
 impl<T: RealField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     /// Checks that this matrix is orthogonal and has a determinant equal to 1.
     #[inline]
@@ -107,7 +107,7 @@ where
     pub fn is_special_orthogonal(&self, eps: T) -> bool
     where
         D: DimMin<D, Output = D>,
-        DefaultAllocator: Allocator<(usize, usize), D>,
+        DefaultAllocator: Allocator<D>,
     {
         self.is_square() && self.is_orthogonal(eps) && self.determinant() > T::zero()
     }

@@ -301,7 +301,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     pub fn normalize(&self) -> OMatrix<T, R, C>
     where
         T: SimdComplexField,
-        DefaultAllocator: Allocator<T, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         self.unscale(self.norm())
     }
@@ -325,7 +325,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     where
         T: SimdComplexField,
         T::Element: Scalar,
-        DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         let n = self.norm();
         let le = n.clone().simd_le(min_norm);
@@ -356,7 +356,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     pub fn cap_magnitude(&self, max: T::RealField) -> OMatrix<T, R, C>
     where
         T: ComplexField,
-        DefaultAllocator: Allocator<T, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         let n = self.norm();
 
@@ -374,7 +374,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     where
         T: SimdComplexField,
         T::Element: Scalar,
-        DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         let n = self.norm();
         let scaled = self.scale(max.clone() / n.clone());
@@ -390,7 +390,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     pub fn try_normalize(&self, min_norm: T::RealField) -> Option<OMatrix<T, R, C>>
     where
         T: ComplexField,
-        DefaultAllocator: Allocator<T, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         let n = self.norm();
 
@@ -430,7 +430,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     where
         T: SimdComplexField,
         T::Element: Scalar,
-        DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         let n = self.norm();
         let le = n.clone().simd_le(min_norm);
@@ -459,7 +459,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 
 impl<T: SimdComplexField, R: Dim, C: Dim> Normed for OMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     type Norm = T::SimdRealField;
 
@@ -486,7 +486,7 @@ where
 
 impl<T: Scalar + ClosedNeg, R: Dim, C: Dim> Neg for Unit<OMatrix<T, R, C>>
 where
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     type Output = Unit<OMatrix<T, R, C>>;
 
@@ -503,7 +503,7 @@ where
 /// # Basis and orthogonalization
 impl<T: ComplexField, D: DimName> OVector<T, D>
 where
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
 {
     /// The i-the canonical basis element.
     #[inline]

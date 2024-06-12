@@ -21,7 +21,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
     ) -> usize
     where
         T: ClosedAdd + ClosedMul,
-        DefaultAllocator: Allocator<usize, C2>,
+        DefaultAllocator: Allocator<C2>,
     {
         for (i, val) in self.data.column_entries(j) {
             if timestamps[i] < timestamp {
@@ -134,7 +134,7 @@ where
     S1: CsStorage<T, R1, C1>,
     S2: CsStorage<T, R2, C2>,
     ShapeConstraint: AreMultipliable<R1, C1, R2, C2>,
-    DefaultAllocator: Allocator<usize, C2> + Allocator<usize, R1> + Allocator<T, R1>,
+    DefaultAllocator: Allocator<C2> + Allocator<R1> + Allocator<R1>,
 {
     type Output = CsMatrix<T, R1, C2>;
 
@@ -227,7 +227,7 @@ where
     S1: CsStorage<T, R1, C1>,
     S2: CsStorage<T, R2, C2>,
     ShapeConstraint: DimEq<R1, R2> + DimEq<C1, C2>,
-    DefaultAllocator: Allocator<usize, C2> + Allocator<usize, R1> + Allocator<T, R1>,
+    DefaultAllocator: Allocator<C2> + Allocator<R1> + Allocator<R1>,
 {
     type Output = CsMatrix<T, R1, C2>;
 

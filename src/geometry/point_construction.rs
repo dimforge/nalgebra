@@ -21,7 +21,7 @@ use crate::geometry::Point;
 
 impl<T: Scalar + Zero, D: DimName> Default for OPoint<T, D>
 where
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
 {
     fn default() -> Self {
         Self::origin()
@@ -31,7 +31,7 @@ where
 /// # Other construction methods
 impl<T: Scalar, D: DimName> OPoint<T, D>
 where
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
 {
     /// Creates a new point with all coordinates equal to zero.
     ///
@@ -110,7 +110,7 @@ where
     where
         T: Scalar + Zero + One + ClosedDiv,
         D: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<T, DimNameSum<D, U1>>,
+        DefaultAllocator: Allocator<DimNameSum<D, U1>>,
     {
         if !v[D::dim()].is_zero() {
             let coords = v.generic_view((0, 0), (D::name(), Const::<1>)) / v[D::dim()].clone();
@@ -132,7 +132,7 @@ where
     pub fn cast<To: Scalar>(self) -> OPoint<To, D>
     where
         OPoint<To, D>: SupersetOf<Self>,
-        DefaultAllocator: Allocator<To, D>,
+        DefaultAllocator: Allocator<D>,
     {
         crate::convert(self)
     }
@@ -145,7 +145,7 @@ where
  */
 impl<T: Scalar + Bounded, D: DimName> Bounded for OPoint<T, D>
 where
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
 {
     #[inline]
     fn max_value() -> Self {
@@ -162,7 +162,7 @@ where
 impl<T: Scalar, D: DimName> Distribution<OPoint<T, D>> for Standard
 where
     Standard: Distribution<T>,
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
 {
     /// Generate a `Point` where each coordinate is an independent variate from `[0, 1)`.
     #[inline]
@@ -174,8 +174,8 @@ where
 #[cfg(feature = "arbitrary")]
 impl<T: Scalar + Arbitrary + Send, D: DimName> Arbitrary for OPoint<T, D>
 where
-    <DefaultAllocator as Allocator<T, D>>::Buffer: Send,
-    DefaultAllocator: Allocator<T, D>,
+    <DefaultAllocator as Allocator<D>>::Buffer<T>: Send,
+    DefaultAllocator: Allocator<D>,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {

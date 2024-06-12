@@ -221,8 +221,8 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     where
         T: Zero + One + Clone,
         Const<D>: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-            + Allocator<T, DimNameSum<Const<D>, U1>, U1>,
+        DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+            + Allocator<DimNameSum<Const<D>, U1>, U1>,
     {
         // TODO: use self.vector.push() instead. We can’t right now because
         //       that would require the DimAdd bound (but here we use DimNameAdd).

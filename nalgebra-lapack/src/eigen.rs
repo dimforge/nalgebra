@@ -16,24 +16,20 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(serialize = "DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D, D> + Allocator<D>,
          OVector<T, D>: Serialize,
-         OMatrix<T, D, D>: Serialize")
-    )
+         OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(deserialize = "DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D, D> + Allocator<D>,
          OVector<T, D>: Serialize,
-         OMatrix<T, D, D>: Deserialize<'de>")
-    )
+         OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct Eigen<T: Scalar, D: Dim>
 where
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D> + Allocator<D, D>,
 {
     /// The real parts of eigenvalues of the decomposed matrix.
     pub eigenvalues_re: OVector<T, D>,
@@ -47,7 +43,7 @@ where
 
 impl<T: Scalar + Copy, D: Dim> Copy for Eigen<T, D>
 where
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D> + Allocator<D, D>,
     OVector<T, D>: Copy,
     OMatrix<T, D, D>: Copy,
 {
@@ -55,7 +51,7 @@ where
 
 impl<T: EigenScalar + RealField, D: Dim> Eigen<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Computes the eigenvalues and eigenvectors of the square matrix `m`.
     ///
@@ -177,7 +173,7 @@ where
         Option<Vec<OVector<T, D>>>,
     )
     where
-        DefaultAllocator: Allocator<T, D>,
+        DefaultAllocator: Allocator<D>,
     {
         let (number_of_elements, _) = self.eigenvalues_re.shape_generic();
         let number_of_elements_value = number_of_elements.value();
@@ -234,7 +230,7 @@ where
         Option<Vec<OVector<Complex<T>, D>>>,
     )
     where
-        DefaultAllocator: Allocator<Complex<T>, D>,
+        DefaultAllocator: Allocator<D>,
     {
         match self.eigenvalues_are_real() {
             true => (None, None, None),

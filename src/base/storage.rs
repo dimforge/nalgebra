@@ -12,22 +12,22 @@ use crate::base::Scalar;
  */
 /// The data storage for the sum of two matrices with dimensions `(R1, C1)` and `(R2, C2)`.
 pub type SameShapeStorage<T, R1, C1, R2, C2> =
-    <DefaultAllocator as Allocator<T, SameShapeR<R1, R2>, SameShapeC<C1, C2>>>::Buffer;
+    <DefaultAllocator as Allocator<SameShapeR<R1, R2>, SameShapeC<C1, C2>>>::Buffer<T>;
 
 // TODO: better name than Owned ?
 /// The owned data storage that can be allocated from `S`.
-pub type Owned<T, R, C = U1> = <DefaultAllocator as Allocator<T, R, C>>::Buffer;
+pub type Owned<T, R, C = U1> = <DefaultAllocator as Allocator<R, C>>::Buffer<T>;
 
 /// The owned data storage that can be allocated from `S`.
-pub type OwnedUninit<T, R, C = U1> = <DefaultAllocator as Allocator<T, R, C>>::BufferUninit;
+pub type OwnedUninit<T, R, C = U1> = <DefaultAllocator as Allocator<R, C>>::BufferUninit<T>;
 
 /// The row-stride of the owned data storage for a buffer of dimension `(R, C)`.
 pub type RStride<T, R, C = U1> =
-    <<DefaultAllocator as Allocator<T, R, C>>::Buffer as RawStorage<T, R, C>>::RStride;
+    <<DefaultAllocator as Allocator<R, C>>::Buffer<T> as RawStorage<T, R, C>>::RStride;
 
 /// The column-stride of the owned data storage for a buffer of dimension `(R, C)`.
 pub type CStride<T, R, C = U1> =
-    <<DefaultAllocator as Allocator<T, R, C>>::Buffer as RawStorage<T, R, C>>::CStride;
+    <<DefaultAllocator as Allocator<R, C>>::Buffer<T> as RawStorage<T, R, C>>::CStride;
 
 /// The trait shared by all matrix data storage.
 ///
@@ -139,16 +139,16 @@ pub unsafe trait RawStorage<T, R: Dim, C: Dim = U1>: Sized {
 /// should **not** allow the user to modify the size of the underlying buffer with safe methods
 /// (for example the `VecStorage::data_mut` method is unsafe because the user could change the
 /// vector's size so that it no longer contains enough elements: this will lead to UB.
-pub unsafe trait Storage<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
+pub unsafe trait Storage<T: Scalar, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     /// Builds a matrix data storage that does not contain any reference.
     fn into_owned(self) -> Owned<T, R, C>
     where
-        DefaultAllocator: Allocator<T, R, C>;
+        DefaultAllocator: Allocator<R, C>;
 
     /// Clones this data storage to one that does not contain any reference.
     fn clone_owned(&self) -> Owned<T, R, C>
     where
-        DefaultAllocator: Allocator<T, R, C>;
+        DefaultAllocator: Allocator<R, C>;
 }
 
 /// Trait implemented by matrix data storage that can provide a mutable access to its elements.
@@ -260,12 +260,12 @@ pub unsafe trait RawStorageMut<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
 /// # Safety
 ///
 /// See safety note for `Storage`, `RawStorageMut`.
-pub unsafe trait StorageMut<T, R: Dim, C: Dim = U1>:
+pub unsafe trait StorageMut<T: Scalar, R: Dim, C: Dim = U1>:
     Storage<T, R, C> + RawStorageMut<T, R, C>
 {
 }
 
-unsafe impl<S, T, R, C> StorageMut<T, R, C> for S
+unsafe impl<S, T: Scalar, R, C> StorageMut<T, R, C> for S
 where
     R: Dim,
     C: Dim,

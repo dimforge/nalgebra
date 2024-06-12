@@ -11,7 +11,7 @@ use crate::geometry::{TCategory, Transform};
 impl<T: RealField, C: TCategory, const D: usize> Default for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     fn default() -> Self {
         Self::identity()
@@ -21,7 +21,7 @@ where
 impl<T: RealField, C: TCategory, const D: usize> Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     /// Creates a new identity transform.
     ///
@@ -64,7 +64,7 @@ where
 impl<T: RealField, C: TCategory, const D: usize> One for Transform<T, C, D>
 where
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     /// Creates a new identity transform.
     #[inline]

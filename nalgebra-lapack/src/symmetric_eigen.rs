@@ -17,22 +17,22 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D> +
-                           Allocator<T, D>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D, D> +
+                           Allocator<D>,
          OVector<T, D>: Serialize,
          OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D> +
-                           Allocator<T, D>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D, D> +
+                           Allocator<D>,
          OVector<T, D>: Deserialize<'de>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<T: Scalar, D: Dim>
 where
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D> + Allocator<D, D>,
 {
     /// The eigenvectors of the decomposed matrix.
     pub eigenvectors: OMatrix<T, D, D>,
@@ -43,7 +43,7 @@ where
 
 impl<T: Scalar + Copy, D: Dim> Copy for SymmetricEigen<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
     OMatrix<T, D, D>: Copy,
     OVector<T, D>: Copy,
 {
@@ -51,7 +51,7 @@ where
 
 impl<T: SymmetricEigenScalar + RealField, D: Dim> SymmetricEigen<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Computes the eigenvalues and eigenvectors of the symmetric matrix `m`.
     ///

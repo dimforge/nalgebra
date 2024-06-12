@@ -17,7 +17,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(self) -> Option<OMatrix<T, D, D>>
     where
-        DefaultAllocator: Allocator<T, D, D>,
+        DefaultAllocator: Allocator<D, D>,
     {
         let mut me = self.into_owned();
         if me.try_inverse_mut() {
@@ -38,7 +38,7 @@ impl<T: ComplexField, D: Dim, S: StorageMut<T, D, D>> SquareMatrix<T, D, S> {
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool
     where
-        DefaultAllocator: Allocator<T, D, D>,
+        DefaultAllocator: Allocator<D, D>,
     {
         assert!(self.is_square(), "Unable to invert a non-square matrix.");
 
@@ -141,7 +141,7 @@ fn do_inverse4<T: ComplexField, D: Dim, S: StorageMut<T, D, D>>(
     out: &mut SquareMatrix<T, D, S>,
 ) -> bool
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     let m = m.as_slice();
 

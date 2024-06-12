@@ -1098,7 +1098,7 @@ where
         S3: Storage<T, R3, C3>,
         S4: Storage<T, D4, D4>,
         ShapeConstraint: DimEq<D1, D1> + DimEq<D1, R3> + DimEq<C3, D4>,
-        DefaultAllocator: Allocator<T, D1>,
+        DefaultAllocator: Allocator<D1>,
     {
         // TODO: would it be useful to avoid the zero-initialization of the workspace data?
         let mut work = Matrix::zeros_generic(self.shape_generic().0, Const::<1>);
@@ -1196,7 +1196,7 @@ where
         S2: Storage<T, D2, D2>,
         S3: Storage<T, R3, C3>,
         ShapeConstraint: DimEq<D2, R3> + DimEq<D1, C3> + AreMultipliable<C3, R3, D2, U1>,
-        DefaultAllocator: Allocator<T, D2>,
+        DefaultAllocator: Allocator<D2>,
     {
         // TODO: would it be useful to avoid the zero-initialization of the workspace data?
         let mut work = Vector::zeros_generic(mid.shape_generic().0, Const::<1>);

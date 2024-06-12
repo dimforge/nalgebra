@@ -15,22 +15,22 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, R, C> +
-                           Allocator<T, DimMinimum<R, C>>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<R, C> +
+                           Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Serialize,
          OVector<T, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, R, C> +
-                           Allocator<T, DimMinimum<R, C>>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<R, C> +
+                           Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Deserialize<'de>,
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct QR<T: Scalar, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
 {
     qr: OMatrix<T, R, C>,
     tau: OVector<T, DimMinimum<R, C>>,
@@ -38,7 +38,7 @@ where
 
 impl<T: Scalar + Copy, R: DimMin<C>, C: Dim> Copy for QR<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
     OMatrix<T, R, C>: Copy,
     OVector<T, DimMinimum<R, C>>: Copy,
 {
@@ -46,10 +46,10 @@ where
 
 impl<T: QRScalar + Zero, R: DimMin<C>, C: Dim> QR<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<DimMinimum<R, C>>,
 {
     /// Computes the QR decomposition of the matrix `m`.
     pub fn new(mut m: OMatrix<T, R, C>) -> Self {
@@ -98,10 +98,10 @@ where
 
 impl<T: QRReal + Zero, R: DimMin<C>, C: Dim> QR<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<DimMinimum<R, C>>,
 {
     /// Retrieves the matrices `(Q, R)` of this decompositions.
     pub fn unpack(

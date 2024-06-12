@@ -1161,8 +1161,8 @@ fn generic_omatrix_to_string<D>(
 ) -> (String, String)
 where
     D: nalgebra::Dim,
-    nalgebra::DefaultAllocator: nalgebra::base::allocator::Allocator<f64, D>,
-    nalgebra::DefaultAllocator: nalgebra::base::allocator::Allocator<f64, D, D>,
+    nalgebra::DefaultAllocator: nalgebra::base::allocator::Allocator<D>,
+    nalgebra::DefaultAllocator: nalgebra::base::allocator::Allocator<D, D>,
 {
     (vector.to_string(), matrix.to_string())
 }

@@ -15,7 +15,7 @@ where
     R: Dim,
     C: Dim,
     T::Element: Scalar,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     type Element = OMatrix<T::Element, R, C>;
     type SimdBool = T::SimdBool;

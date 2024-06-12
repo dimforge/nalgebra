@@ -22,24 +22,20 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(serialize = "DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D, D> + Allocator<D>,
          OVector<T, D>: Serialize,
-         OMatrix<T, D, D>: Serialize")
-    )
+         OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(deserialize = "DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D, D> + Allocator<D>,
          OVector<T, D>: Deserialize<'de>,
-         OMatrix<T, D, D>: Deserialize<'de>")
-    )
+         OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct QZ<T: Scalar, D: Dim>
 where
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D> + Allocator<D, D>,
 {
     alphar: OVector<T, D>,
     alphai: OVector<T, D>,
@@ -52,7 +48,7 @@ where
 
 impl<T: Scalar + Copy, D: Dim> Copy for QZ<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
     OMatrix<T, D, D>: Copy,
     OVector<T, D>: Copy,
 {
@@ -60,7 +56,7 @@ where
 
 impl<T: QZScalar + RealField, D: Dim> QZ<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Attempts to compute the QZ decomposition of input real square matrices `a` and `b`.
     ///
@@ -182,7 +178,7 @@ where
     #[must_use]
     pub fn raw_eigenvalues(&self) -> OVector<(Complex<T>, T), D>
     where
-        DefaultAllocator: Allocator<(Complex<T>, T), D>,
+        DefaultAllocator: Allocator<D>,
     {
         let mut out = Matrix::from_element_generic(
             self.vsl.shape_generic().0,

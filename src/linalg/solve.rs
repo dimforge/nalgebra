@@ -18,7 +18,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     ) -> Option<OMatrix<T, R2, C2>>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -39,7 +39,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     ) -> Option<OMatrix<T, R2, C2>>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -196,7 +196,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     ) -> Option<OMatrix<T, R2, C2>>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -217,7 +217,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     ) -> Option<OMatrix<T, R2, C2>>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -288,7 +288,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     ) -> Option<OMatrix<T, R2, C2>>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -309,7 +309,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     ) -> Option<OMatrix<T, R2, C2>>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -457,7 +457,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     ) -> OMatrix<T, R2, C2>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -475,7 +475,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     ) -> OMatrix<T, R2, C2>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -594,7 +594,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     ) -> OMatrix<T, R2, C2>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -612,7 +612,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     ) -> OMatrix<T, R2, C2>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -666,7 +666,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     ) -> OMatrix<T, R2, C2>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -684,7 +684,7 @@ impl<T: SimdComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     ) -> OMatrix<T, R2, C2>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();

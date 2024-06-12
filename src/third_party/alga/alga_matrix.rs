@@ -27,7 +27,7 @@ use std::mem::MaybeUninit;
 impl<T, R: DimName, C: DimName> Identity<Additive> for OMatrix<T, R, C>
 where
     T: Scalar + Zero,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn identity() -> Self {
@@ -38,7 +38,7 @@ where
 impl<T, R: DimName, C: DimName> AbstractMagma<Additive> for OMatrix<T, R, C>
 where
     T: Scalar + ClosedAdd,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn operate(&self, other: &Self) -> Self {
@@ -49,7 +49,7 @@ where
 impl<T, R: DimName, C: DimName> TwoSidedInverse<Additive> for OMatrix<T, R, C>
 where
     T: Scalar + ClosedNeg,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     #[must_use = "Did you mean to use two_sided_inverse_mut()?"]
@@ -67,7 +67,7 @@ macro_rules! inherit_additive_structure(
     ($($marker: ident<$operator: ident> $(+ $bounds: ident)*),* $(,)*) => {$(
         impl<T, R: DimName, C: DimName> $marker<$operator> for OMatrix<T, R, C>
             where T: Scalar + $marker<$operator> $(+ $bounds)*,
-                  DefaultAllocator: Allocator<T, R, C> { }
+                  DefaultAllocator: Allocator<R, C> { }
     )*}
 );
 
@@ -83,7 +83,7 @@ inherit_additive_structure!(
 impl<T, R: DimName, C: DimName> AbstractModule for OMatrix<T, R, C>
 where
     T: Scalar + RingCommutative,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     type AbstractRing = T;
 
@@ -96,7 +96,7 @@ where
 impl<T, R: DimName, C: DimName> Module for OMatrix<T, R, C>
 where
     T: Scalar + RingCommutative,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     type Ring = T;
 }
@@ -104,7 +104,7 @@ where
 impl<T, R: DimName, C: DimName> VectorSpace for OMatrix<T, R, C>
 where
     T: Scalar + Field,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     type Field = T;
 }
@@ -112,7 +112,7 @@ where
 impl<T, R: DimName, C: DimName> FiniteDimVectorSpace for OMatrix<T, R, C>
 where
     T: Scalar + Field,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn dimension() -> usize {
@@ -154,7 +154,7 @@ impl<
     > NormedSpace for OMatrix<T, R, C>
 where
     <T as ComplexField>::RealField: simba::scalar::RealField,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     type RealField = <T as ComplexField>::RealField;
     type ComplexField = T;
@@ -202,7 +202,7 @@ impl<
     > InnerSpace for OMatrix<T, R, C>
 where
     <T as ComplexField>::RealField: simba::scalar::RealField,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn angle(&self, other: &Self) -> <T as ComplexField>::RealField {
@@ -226,7 +226,7 @@ impl<
     > FiniteDimInnerSpace for OMatrix<T, R, C>
 where
     <T as ComplexField>::RealField: simba::scalar::RealField,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn orthonormalize(vs: &mut [Self]) -> usize {
@@ -362,7 +362,7 @@ where
 impl<T, D: DimName> Identity<Multiplicative> for OMatrix<T, D, D>
 where
     T: Scalar + Zero + One,
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     #[inline]
     fn identity() -> Self {
@@ -373,7 +373,7 @@ where
 impl<T, D: DimName> AbstractMagma<Multiplicative> for OMatrix<T, D, D>
 where
     T: Scalar + Zero + One + ClosedAdd + ClosedMul,
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     #[inline]
     fn operate(&self, other: &Self) -> Self {
@@ -385,7 +385,7 @@ macro_rules! impl_multiplicative_structure(
     ($($marker: ident<$operator: ident> $(+ $bounds: ident)*),* $(,)*) => {$(
         impl<T, D: DimName> $marker<$operator> for OMatrix<T, D, D>
             where T: Scalar + Zero + One + ClosedAdd + ClosedMul + $marker<$operator> $(+ $bounds)*,
-                  DefaultAllocator: Allocator<T, D, D> { }
+                  DefaultAllocator: Allocator<D, D> { }
     )*}
 );
 
@@ -402,7 +402,7 @@ impl_multiplicative_structure!(
 impl<T, R: Dim, C: Dim> MeetSemilattice for OMatrix<T, R, C>
 where
     T: Scalar + MeetSemilattice,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn meet(&self, other: &Self) -> Self {
@@ -413,7 +413,7 @@ where
 impl<T, R: Dim, C: Dim> JoinSemilattice for OMatrix<T, R, C>
 where
     T: Scalar + JoinSemilattice,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn join(&self, other: &Self) -> Self {
@@ -424,7 +424,7 @@ where
 impl<T, R: Dim, C: Dim> Lattice for OMatrix<T, R, C>
 where
     T: Scalar + Lattice,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn meet_join(&self, other: &Self) -> (Self, Self) {

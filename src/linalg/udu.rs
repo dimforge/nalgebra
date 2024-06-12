@@ -21,7 +21,7 @@ use simba::scalar::RealField;
 #[derive(Clone, Debug)]
 pub struct UDU<T: RealField, D: Dim>
 where
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D> + Allocator<D, D>,
 {
     /// The upper triangular matrix resulting from the factorization
     pub u: OMatrix<T, D, D>,
@@ -31,7 +31,7 @@ where
 
 impl<T: RealField, D: Dim> Copy for UDU<T, D>
 where
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D> + Allocator<D, D>,
     OVector<T, D>: Copy,
     OMatrix<T, D, D>: Copy,
 {
@@ -39,7 +39,7 @@ where
 
 impl<T: RealField, D: Dim> UDU<T, D>
 where
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D> + Allocator<D, D>,
 {
     /// Computes the UDU^T factorization.
     ///

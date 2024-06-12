@@ -14,14 +14,14 @@ use simba::scalar::ComplexField;
 #[derive(Clone, Debug)]
 pub struct RandomOrthogonal<T: Scalar, D: Dim = Dyn>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     m: OMatrix<T, D, D>,
 }
 
 impl<T: ComplexField, D: Dim> RandomOrthogonal<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     /// Retrieve the generated matrix.
     pub fn unwrap(self) -> OMatrix<T, D, D> {
@@ -45,7 +45,7 @@ where
 #[cfg(feature = "arbitrary")]
 impl<T: ComplexField + Arbitrary + Send, D: Dim> Arbitrary for RandomOrthogonal<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
     Owned<T, D, D>: Clone + Send,
 {
     fn arbitrary(g: &mut Gen) -> Self {

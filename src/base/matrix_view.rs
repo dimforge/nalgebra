@@ -218,13 +218,13 @@ macro_rules! storage_impl(
             for $T<'a, T, R, C, RStride, CStride> {
             #[inline]
             fn into_owned(self) -> Owned<T, R, C>
-                where DefaultAllocator: Allocator<T, R, C> {
+                where DefaultAllocator: Allocator<R, C> {
                 self.clone_owned()
             }
 
             #[inline]
             fn clone_owned(&self) -> Owned<T, R, C>
-                where DefaultAllocator: Allocator<T, R, C> {
+                where DefaultAllocator: Allocator<R, C> {
                 let (nrows, ncols) = self.shape();
                 let it = MatrixIter::new(self).cloned();
                 DefaultAllocator::allocate_from_iterator(nrows, ncols, it)
