@@ -2134,8 +2134,8 @@ impl<T: crate::SimdRealField + SimdPartialOrd + ClosedMul, R: Dim, C: Dim, S: Ra
     /// total of `2.0*PI`.
     /// ```
     /// # use nalgebra::Vector2;
-    /// let p = Vector2::from([1.0, 0.0]);
-    /// let q = Vector2::from([0.0, -1.0]);
+    /// let p = Vector2::from([0.0, 1.0]);
+    /// let q = Vector2::from([1.0, 0.0]);
     ///
     /// let abs_diff1 = (p.angle_right_handed(&q) - std::f64::consts::FRAC_PI_2).abs();
     /// let abs_diff2 = (q.angle_right_handed(&p) - 3.0 * std::f64::consts::FRAC_PI_2).abs();
@@ -2168,7 +2168,7 @@ impl<T: crate::SimdRealField + SimdPartialOrd + ClosedMul, R: Dim, C: Dim, S: Ra
 
         let two_pi =
             (T::SimdRealField::one() + T::SimdRealField::one()) * T::SimdRealField::simd_pi();
-        let perp = -self.perp(other);
+        let perp = other.perp(self);
         let dot = self.dot(other);
         let res: T::SimdRealField = T::SimdRealField::simd_atan2(perp, dot) % two_pi.clone();
         use crate::SimdBool;
