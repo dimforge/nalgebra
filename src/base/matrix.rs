@@ -2111,7 +2111,7 @@ impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: RawStorag
     }
 }
 
-impl<T: crate::SimdRealField + PartialOrd + ClosedMul, R: Dim, C: Dim, S: RawStorage<T, R, C>>
+impl<T: crate::SimdRealField + SimdPartialOrd + ClosedMul, R: Dim, C: Dim, S: RawStorage<T, R, C>>
     Matrix<T, R, C, S>
 {
     /// Calculate the right-handed angle between two vectors in radians.
@@ -2159,11 +2159,11 @@ impl<T: crate::SimdRealField + PartialOrd + ClosedMul, R: Dim, C: Dim, S: RawSto
         let perp = -self.perp(other);
         let dot = self.dot(other);
         let res: T::SimdRealField = T::SimdRealField::simd_atan2(perp, dot) % two_pi.clone();
-        if res < T::SimdRealField::zero() {
-            res + two_pi
-        } else {
-            res
-        }
+        use crate::SimdBool;
+        res.clone().simd_lt(T::SimdRealField::zero()).if_else(
+            || res.clone() + two_pi,
+            || res.clone()
+        )
     }
 }
 
