@@ -2116,14 +2116,24 @@ impl<T: crate::SimdRealField + SimdPartialOrd + ClosedMul, R: Dim, C: Dim, S: Ra
 {
     /// Calculate the right-handed angle between two vectors in radians.
     ///
-    /// This function always yields a positive result `x` between `0.0` and `2.0*PI`.
+    /// This function is very different to the [angle] function.
+    /// It always yields a positive result `x` between `0.0` and `2.0*PI` and is only applicable
+    /// for 2D vectors.
+    /// In the following example, we calculate the right-handed angle between the following two
+    /// vectors.
+    /// ```ignore
+    ///       p
+    ///      │
+    ///      │
+    ///      └─────── q
+    /// ```
     /// Note that the order in which the arguments are executed plays an important role.
     /// Furthermore, we can see that the sum of both results `PI/2.0` and `3.0*PI/2.0` add up to a
     /// total of `2.0*PI`.
     /// ```
     /// # use nalgebra::Vector2;
     /// let p = Vector2::from([0.0, 1.0]);
-    /// let q = Vector2::from([1.0, 0.0]);
+    /// let q = Vector2::from([2.0, 0.0]);
     ///
     /// let abs_diff1 = (p.angle_right_handed(&q) - std::f64::consts::FRAC_PI_2).abs();
     /// let abs_diff2 = (q.angle_right_handed(&p) - 3.0 * std::f64::consts::FRAC_PI_2).abs();
