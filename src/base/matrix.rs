@@ -2123,7 +2123,7 @@ impl<
     }
 }
 
-impl<T: crate::SimdRealField + num::Euclid + ClosedMul, R: Dim, C: Dim, S: RawStorage<T, R, C>>
+impl<T: crate::SimdRealField + PartialOrd + ClosedMul, R: Dim, C: Dim, S: RawStorage<T, R, C>>
     Matrix<T, R, C, S>
 {
     /// Calculate the right-handed angle between two vectors in radians.
@@ -2166,11 +2166,16 @@ impl<T: crate::SimdRealField + num::Euclid + ClosedMul, R: Dim, C: Dim, S: RawSt
             shape
         );
 
+        let two_pi =
+            (T::SimdRealField::one() + T::SimdRealField::one()) * T::SimdRealField::simd_pi();
         let perp = -self.perp(other);
         let dot = self.dot(other);
-        T::SimdRealField::simd_atan2(perp, dot).rem_euclid(
-            &((T::SimdRealField::one() + T::SimdRealField::one()) * T::SimdRealField::simd_pi()),
-        )
+        let res: T::SimdRealField = T::SimdRealField::simd_atan2(perp, dot) % two_pi.clone();
+        if res < T::SimdRealField::zero() {
+            res + two_pi
+        } else {
+            res
+        }
     }
 }
 
