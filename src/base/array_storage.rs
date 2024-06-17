@@ -27,7 +27,7 @@ use std::mem;
  * Static RawStorage.
  *
  */
-/// A array-based statically sized matrix data storage.
+/// An array-based statically sized matrix data storage.
 #[repr(transparent)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(
