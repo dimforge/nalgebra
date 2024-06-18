@@ -281,7 +281,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
 impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// Transposes `self`.
     ///
-    /// Same as `.inverse()` because the inverse of a rotation matrix is its transform.
+    /// Same as `.inverse()` because the inverse of a rotation matrix is its transpose.
     ///
     /// # Example
     /// ```
@@ -305,7 +305,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
 
     /// Inverts `self`.
     ///
-    /// Same as `.transpose()` because the inverse of a rotation matrix is its transform.
+    /// Same as `.transpose()` because the inverse of a rotation matrix is its transpose.
     ///
     /// # Example
     /// ```
@@ -329,7 +329,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
 
     /// Transposes `self` in-place.
     ///
-    /// Same as `.inverse_mut()` because the inverse of a rotation matrix is its transform.
+    /// Same as `.inverse_mut()` because the inverse of a rotation matrix is its transpose.
     ///
     /// # Example
     /// ```
@@ -356,7 +356,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
 
     /// Inverts `self` in-place.
     ///
-    /// Same as `.transpose_mut()` because the inverse of a rotation matrix is its transform.
+    /// Same as `.transpose_mut()` because the inverse of a rotation matrix is its transpose.
     ///
     /// # Example
     /// ```
