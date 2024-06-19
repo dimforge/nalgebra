@@ -9,12 +9,18 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- Add the `glam-0.27` feature to enable conversion from/to types from `glam` v0.27.
+- Add the `glam-0.28` feature to enable conversion from/to types from `glam` v0.28.
 
 ### Removed
 
 - The `cuda` feature has been removed, as the toolchain it depends on
   is long abandoned.
+
+## [0.32.6] (12 June 2024)
+
+### Added
+
+- Add the `glam-0.27` feature to enable conversion from/to types from `glam` v0.27.
 
 ## [0.32.5] (28 March 2024)
 
