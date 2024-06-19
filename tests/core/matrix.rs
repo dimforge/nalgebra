@@ -202,6 +202,24 @@ fn identity() {
 }
 
 #[test]
+fn is_hermitian() {
+    let a = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+    let b = Matrix2::new(1.0, 2.0, 2.0, 1.0);
+
+    assert!(!a.is_hermitian());
+    assert!(b.is_hermitian());
+}
+
+#[test]
+fn is_unitary() {
+    let a = Matrix2::new(1.0, 2.0, 3.0, 4.0);
+    let b = Matrix2::new(0.0, 1.0, 1.0, 0.0);
+
+    assert!(!a.is_unitary(1.0e-7));
+    assert!(b.is_unitary(1.0e-7));
+}
+
+#[test]
 fn coordinates() {
     let a = Matrix3x4::new(11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34);
 
