@@ -78,6 +78,20 @@ impl<T: Debug, const R: usize, const C: usize> Debug for ArrayStorage<T, R, C> {
     }
 }
 
+impl<T, const R: usize, const C: usize> AsRef<[T]> for ArrayStorage<T, R, C> {
+    #[inline]
+    fn as_ref(&self) -> &[T] {
+        self.as_slice()
+    }
+}
+
+impl<T, const R: usize, const C: usize> AsMut<[T]> for ArrayStorage<T, R, C> {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [T] {
+        self.as_mut_slice()
+    }
+}
+
 unsafe impl<T, const R: usize, const C: usize> RawStorage<T, Const<R>, Const<C>>
     for ArrayStorage<T, R, C>
 {

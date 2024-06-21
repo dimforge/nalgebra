@@ -1351,6 +1351,20 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C> + IsContiguous> Matrix<T, R, C
     }
 }
 
+impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C> + IsContiguous> Matrix<T, R, C, S> {
+    #[inline]
+    fn as_ref(&self) -> &[T] {
+        self.as_slice()
+    }
+}
+
+impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C> + IsContiguous> Matrix<T, R, C, S> {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [T] {
+        self.as_mut_slice()
+    }
+}
+
 impl<T: Scalar, D: Dim, S: RawStorageMut<T, D, D>> Matrix<T, D, D, S> {
     /// Transposes the square matrix `self` in-place.
     pub fn transpose_mut(&mut self) {

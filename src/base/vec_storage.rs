@@ -226,6 +226,20 @@ impl<T, R: Dim, C: Dim> From<VecStorage<T, R, C>> for Vec<T> {
     }
 }
 
+impl<T, R: Dim, C: Dim> AsRef<[T]> for VecStorage<T, R, C> {
+    #[inline]
+    fn as_ref(&self) -> &[T] {
+        self.as_slice()
+    }
+}
+
+impl<T, R: Dim, C: Dim> AsMut<[T]> for VecStorage<T, R, C> {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [T] {
+        self.as_mut_slice()
+    }
+}
+
 /*
  *
  * Dyn − Static
