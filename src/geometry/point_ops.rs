@@ -3,7 +3,9 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
-use simba::scalar::{ClosedAdd, ClosedDiv, ClosedMul, ClosedNeg, ClosedSub};
+use simba::scalar::{
+    ClosedAddAssign, ClosedDivAssign, ClosedMulAssign, ClosedNeg, ClosedSubAssign,
+};
 
 use crate::base::constraint::{
     AreMultipliable, SameNumberOfColumns, SameNumberOfRows, ShapeConstraint,
@@ -79,32 +81,32 @@ where
  */
 
 // Point - Point
-add_sub_impl!(Sub, sub, ClosedSub;
+add_sub_impl!(Sub, sub, ClosedSubAssign;
     (D, U1), (D, U1) -> (D, U1)
     const; for D; where D: DimName, DefaultAllocator: Allocator<D>;
     self: &'a OPoint<T, D>, right: &'b OPoint<T, D>, Output = OVector<T, D>;
     &self.coords - &right.coords; 'a, 'b);
 
-add_sub_impl!(Sub, sub, ClosedSub;
+add_sub_impl!(Sub, sub, ClosedSubAssign;
     (D, U1), (D, U1) -> (D, U1)
     const; for D; where D: DimName, DefaultAllocator: Allocator<D>;
     self: &'a OPoint<T, D>, right: OPoint<T, D>, Output = OVector<T, D>;
     &self.coords - right.coords; 'a);
 
-add_sub_impl!(Sub, sub, ClosedSub;
+add_sub_impl!(Sub, sub, ClosedSubAssign;
     (D, U1), (D, U1) -> (D, U1)
     const; for D; where D: DimName, DefaultAllocator: Allocator<D>;
     self: OPoint<T, D>, right: &'b OPoint<T, D>, Output = OVector<T, D>;
     self.coords - &right.coords; 'b);
 
-add_sub_impl!(Sub, sub, ClosedSub;
+add_sub_impl!(Sub, sub, ClosedSubAssign;
     (D, U1), (D, U1) -> (D, U1)
     const; for D; where D: DimName, DefaultAllocator: Allocator<D>;
     self: OPoint<T, D>, right: OPoint<T, D>, Output = OVector<T, D>;
     self.coords - right.coords; );
 
 // Point - Vector
-add_sub_impl!(Sub, sub, ClosedSub;
+add_sub_impl!(Sub, sub, ClosedSubAssign;
     (D1, U1), (D2, U1) -> (D1, U1)
     const;
     for D1, D2, SB;
@@ -112,7 +114,7 @@ add_sub_impl!(Sub, sub, ClosedSub;
     self: &'a OPoint<T, D1>, right: &'b Vector<T, D2, SB>, Output = OPoint<T, D1>;
     Self::Output::from(&self.coords - right); 'a, 'b);
 
-add_sub_impl!(Sub, sub, ClosedSub;
+add_sub_impl!(Sub, sub, ClosedSubAssign;
     (D1, U1), (D2, U1) -> (D1, U1)
     const;
     for D1, D2, SB;
@@ -120,7 +122,7 @@ add_sub_impl!(Sub, sub, ClosedSub;
     self: &'a OPoint<T, D1>, right: Vector<T, D2, SB>, Output = OPoint<T, D1>;
     Self::Output::from(&self.coords - &right); 'a); // TODO: should not be a ref to `right`.
 
-add_sub_impl!(Sub, sub, ClosedSub;
+add_sub_impl!(Sub, sub, ClosedSubAssign;
     (D1, U1), (D2, U1) -> (D1, U1)
     const;
     for D1, D2, SB;
@@ -128,7 +130,7 @@ add_sub_impl!(Sub, sub, ClosedSub;
     self: OPoint<T, D1>, right: &'b Vector<T, D2, SB>, Output = OPoint<T, D1>;
     Self::Output::from(self.coords - right); 'b);
 
-add_sub_impl!(Sub, sub, ClosedSub;
+add_sub_impl!(Sub, sub, ClosedSubAssign;
     (D1, U1), (D2, U1) -> (D1, U1)
     const;
     for D1, D2, SB;
@@ -137,7 +139,7 @@ add_sub_impl!(Sub, sub, ClosedSub;
     Self::Output::from(self.coords - right); );
 
 // Point + Vector
-add_sub_impl!(Add, add, ClosedAdd;
+add_sub_impl!(Add, add, ClosedAddAssign;
     (D1, U1), (D2, U1) -> (D1, U1)
     const;
     for D1, D2, SB;
@@ -145,7 +147,7 @@ add_sub_impl!(Add, add, ClosedAdd;
     self: &'a OPoint<T, D1>, right: &'b Vector<T, D2, SB>, Output = OPoint<T, D1>;
     Self::Output::from(&self.coords + right); 'a, 'b);
 
-add_sub_impl!(Add, add, ClosedAdd;
+add_sub_impl!(Add, add, ClosedAddAssign;
     (D1, U1), (D2, U1) -> (D1, U1)
     const;
     for D1, D2, SB;
@@ -153,7 +155,7 @@ add_sub_impl!(Add, add, ClosedAdd;
     self: &'a OPoint<T, D1>, right: Vector<T, D2, SB>, Output = OPoint<T, D1>;
     Self::Output::from(&self.coords + &right); 'a); // TODO: should not be a ref to `right`.
 
-add_sub_impl!(Add, add, ClosedAdd;
+add_sub_impl!(Add, add, ClosedAddAssign;
     (D1, U1), (D2, U1) -> (D1, U1)
     const;
     for D1, D2, SB;
@@ -161,7 +163,7 @@ add_sub_impl!(Add, add, ClosedAdd;
     self: OPoint<T, D1>, right: &'b Vector<T, D2, SB>, Output = OPoint<T, D1>;
     Self::Output::from(self.coords + right); 'b);
 
-add_sub_impl!(Add, add, ClosedAdd;
+add_sub_impl!(Add, add, ClosedAddAssign;
     (D1, U1), (D2, U1) -> (D1, U1)
     const;
     for D1, D2, SB;
@@ -199,8 +201,8 @@ macro_rules! op_assign_impl(
 );
 
 op_assign_impl!(
-    AddAssign, add_assign, ClosedAdd;
-    SubAssign, sub_assign, ClosedSub;
+    AddAssign, add_assign, ClosedAddAssign;
+    SubAssign, sub_assign, ClosedSubAssign;
 );
 
 /*
@@ -263,8 +265,8 @@ macro_rules! componentwise_scalarop_impl(
     }
 );
 
-componentwise_scalarop_impl!(Mul, mul, ClosedMul; MulAssign, mul_assign);
-componentwise_scalarop_impl!(Div, div, ClosedDiv; DivAssign, div_assign);
+componentwise_scalarop_impl!(Mul, mul, ClosedMulAssign; MulAssign, mul_assign);
+componentwise_scalarop_impl!(Div, div, ClosedDivAssign; DivAssign, div_assign);
 
 macro_rules! left_scalar_mul_impl(
     ($($T: ty),* $(,)*) => {$(

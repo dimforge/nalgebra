@@ -15,7 +15,7 @@ use crate::{
     Const, DimName, OPoint, OVector, Point1, Point2, Point3, Point4, Point5, Point6, Vector1,
     Vector2, Vector3, Vector4, Vector5, Vector6,
 };
-use simba::scalar::{ClosedDiv, SupersetOf};
+use simba::scalar::{ClosedDivAssign, SupersetOf};
 
 use crate::geometry::Point;
 
@@ -108,7 +108,7 @@ where
     #[inline]
     pub fn from_homogeneous(v: OVector<T, DimNameSum<D, U1>>) -> Option<Self>
     where
-        T: Scalar + Zero + One + ClosedDiv,
+        T: Scalar + Zero + One + ClosedDivAssign,
         D: DimNameAdd<U1>,
         DefaultAllocator: Allocator<DimNameSum<D, U1>>,
     {

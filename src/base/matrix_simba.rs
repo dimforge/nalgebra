@@ -17,13 +17,9 @@ where
     T::Element: Scalar,
     DefaultAllocator: Allocator<R, C>,
 {
+    const LANES: usize = T::LANES;
     type Element = OMatrix<T::Element, R, C>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {

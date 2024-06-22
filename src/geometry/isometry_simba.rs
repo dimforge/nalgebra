@@ -10,13 +10,9 @@ where
     R: SimdValue<SimdBool = T::SimdBool> + AbstractRotation<T, D>,
     R::Element: AbstractRotation<T::Element, D>,
 {
+    const LANES: usize = T::LANES;
     type Element = Isometry<T::Element, R::Element, D>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {

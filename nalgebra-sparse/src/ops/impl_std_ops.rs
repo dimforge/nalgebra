@@ -10,8 +10,8 @@ use nalgebra::allocator::Allocator;
 use nalgebra::base::storage::RawStorage;
 use nalgebra::constraint::{DimEq, ShapeConstraint};
 use nalgebra::{
-    ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, DefaultAllocator, Dim, Dyn, Matrix, OMatrix,
-    Scalar, U1,
+    ClosedAddAssign, ClosedDivAssign, ClosedMulAssign, ClosedSubAssign, DefaultAllocator, Dim, Dyn,
+    Matrix, OMatrix, Scalar, U1,
 };
 use num_traits::{One, Zero};
 use std::ops::{Add, Div, DivAssign, Mul, MulAssign, Neg, Sub};
@@ -28,7 +28,7 @@ macro_rules! impl_bin_op {
             // Note: The Neg bound is currently required because we delegate e.g.
             // Sub to SpAdd with negative coefficients. This is not well-defined for
             // unsigned data types.
-            $($scalar_type: $($bounds + )? Scalar + ClosedAdd + ClosedSub + ClosedMul + Zero + One + Neg<Output=T>)?
+            $($scalar_type: $($bounds + )? Scalar + ClosedAddAssign + ClosedSubAssign + ClosedMulAssign + Zero + One + Neg<Output=T>)?
         {
             type Output = $ret;
             fn $method(self, $b: $b_type) -> Self::Output {
@@ -164,7 +164,7 @@ macro_rules! impl_scalar_mul {
 
         impl<T> MulAssign<T> for $matrix_type<T>
         where
-            T: Scalar + ClosedAdd + ClosedMul + Zero + One
+            T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One
         {
             fn mul_assign(&mut self, scalar: T) {
                 for val in self.values_mut() {
@@ -175,7 +175,7 @@ macro_rules! impl_scalar_mul {
 
         impl<'a, T> MulAssign<&'a T> for $matrix_type<T>
         where
-            T: Scalar + ClosedAdd + ClosedMul + Zero + One
+            T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One
         {
             fn mul_assign(&mut self, scalar: &'a T) {
                 for val in self.values_mut() {
@@ -227,15 +227,15 @@ impl_neg!(CscMatrix);
 
 macro_rules! impl_div {
     ($matrix_type:ident) => {
-        impl_bin_op!(Div, div, <T: ClosedDiv>(matrix: $matrix_type<T>, scalar: T) -> $matrix_type<T> {
+        impl_bin_op!(Div, div, <T: ClosedDivAssign>(matrix: $matrix_type<T>, scalar: T) -> $matrix_type<T> {
             let mut matrix = matrix;
             matrix /= scalar;
             matrix
         });
-        impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: $matrix_type<T>, scalar: &T) -> $matrix_type<T> {
+        impl_bin_op!(Div, div, <'a, T: ClosedDivAssign>(matrix: $matrix_type<T>, scalar: &T) -> $matrix_type<T> {
             matrix / scalar.clone()
         });
-        impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: &'a $matrix_type<T>, scalar: T) -> $matrix_type<T> {
+        impl_bin_op!(Div, div, <'a, T: ClosedDivAssign>(matrix: &'a $matrix_type<T>, scalar: T) -> $matrix_type<T> {
             let new_values = matrix.values()
                 .iter()
                 .map(|v_i| v_i.clone() / scalar.clone())
@@ -243,12 +243,12 @@ macro_rules! impl_div {
             $matrix_type::try_from_pattern_and_values(matrix.pattern().clone(), new_values)
                 .unwrap()
         });
-        impl_bin_op!(Div, div, <'a, T: ClosedDiv>(matrix: &'a $matrix_type<T>, scalar: &'a T) -> $matrix_type<T> {
+        impl_bin_op!(Div, div, <'a, T: ClosedDivAssign>(matrix: &'a $matrix_type<T>, scalar: &'a T) -> $matrix_type<T> {
             matrix / scalar.clone()
         });
 
         impl<T> DivAssign<T> for $matrix_type<T>
-            where T : Scalar + ClosedAdd + ClosedMul + ClosedDiv + Zero + One
+            where T : Scalar + ClosedAddAssign + ClosedMulAssign + ClosedDivAssign + Zero + One
         {
             fn div_assign(&mut self, scalar: T) {
                 self.values_mut().iter_mut().for_each(|v_i| *v_i /= scalar.clone());
@@ -256,7 +256,7 @@ macro_rules! impl_div {
         }
 
         impl<'a, T> DivAssign<&'a T> for $matrix_type<T>
-            where T : Scalar + ClosedAdd + ClosedMul + ClosedDiv + Zero + One
+            where T : Scalar + ClosedAddAssign + ClosedMulAssign + ClosedDivAssign + Zero + One
         {
             fn div_assign(&mut self, scalar: &'a T) {
                 *self /= scalar.clone();
@@ -298,7 +298,7 @@ macro_rules! impl_spmm_cs_dense {
     {
         impl<'a, T, R, C, S> Mul<$dense_matrix_type> for $sparse_matrix_type
         where
-            T: Scalar + ClosedMul + ClosedAdd + ClosedSub + ClosedDiv + Neg + Zero + One,
+            T: Scalar + ClosedMulAssign + ClosedAddAssign + ClosedSubAssign + ClosedDivAssign + Neg + Zero + One,
             R: Dim,
             C: Dim,
             S: RawStorage<T, R, C>,

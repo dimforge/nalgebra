@@ -19,7 +19,7 @@ use crate::geometry::{
     Rotation3,
 };
 
-use simba::scalar::{ClosedAdd, ClosedMul, RealField};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign, RealField};
 
 /// # Translation and scaling in any dimension
 impl<T, D: DimName> OMatrix<T, D, D>
@@ -207,8 +207,11 @@ impl<T: RealField> Matrix4<T> {
 }
 
 /// # Append/prepend translation and scaling
-impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D, D>>
-    SquareMatrix<T, D, S>
+impl<
+        T: Scalar + Zero + One + ClosedMulAssign + ClosedAddAssign,
+        D: DimName,
+        S: Storage<T, D, D>,
+    > SquareMatrix<T, D, S>
 {
     /// Computes the transformation equal to `self` followed by an uniform scaling factor.
     #[inline]

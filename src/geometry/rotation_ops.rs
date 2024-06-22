@@ -20,7 +20,7 @@
 use num::{One, Zero};
 use std::ops::{Div, DivAssign, Index, Mul, MulAssign};
 
-use simba::scalar::{ClosedAdd, ClosedMul};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 
 use crate::base::allocator::Allocator;
 use crate::base::constraint::{AreMultipliable, ShapeConstraint};

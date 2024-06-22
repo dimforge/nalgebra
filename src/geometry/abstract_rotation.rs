@@ -1,10 +1,10 @@
 use crate::geometry::{Rotation, UnitComplex, UnitQuaternion};
 use crate::{Const, OVector, Point, SVector, Scalar, SimdRealField, Unit};
 
-use simba::scalar::ClosedMul;
+use simba::scalar::ClosedMulAssign;
 
 /// Trait implemented by rotations that can be used inside of an `Isometry` or `Similarity`.
-pub trait AbstractRotation<T: Scalar, const D: usize>: PartialEq + ClosedMul + Clone {
+pub trait AbstractRotation<T: Scalar, const D: usize>: PartialEq + ClosedMulAssign + Clone {
     /// The rotation identity.
     fn identity() -> Self;
     /// The rotation inverse.

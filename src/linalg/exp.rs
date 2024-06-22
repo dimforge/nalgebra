@@ -430,7 +430,7 @@ where
 
     let abs_c_recip = choose_2m_m * factorial(2 * m + 1);
     let alpha = a_abs_onenorm / one_norm(a);
-    let alpha: f64 = try_convert(alpha).unwrap() / abs_c_recip as f64;
+    let alpha: f64 = try_convert::<_, f64>(alpha).unwrap() / abs_c_recip as f64;
 
     let u = 2_f64.powf(-53.0);
     let log2_alpha_div_u = (alpha / u).log2();
@@ -523,7 +523,7 @@ where
         let mut s = if eta_5 == T::RealField::zero() {
             0
         } else {
-            let l2 = try_convert((eta_5 / theta_13).log2().ceil()).unwrap();
+            let l2 = try_convert::<_, f64>((eta_5 / theta_13).log2().ceil()).unwrap();
 
             if l2 < 0.0 {
                 0

@@ -10,7 +10,7 @@ use rand::{
     Rng,
 };
 
-use simba::scalar::{ClosedAdd, SupersetOf};
+use simba::scalar::{ClosedAddAssign, SupersetOf};
 
 use crate::base::{SVector, Scalar};
 use crate::geometry::Translation;
@@ -61,7 +61,7 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
     }
 }
 
-impl<T: Scalar + Zero + ClosedAdd, const D: usize> One for Translation<T, D> {
+impl<T: Scalar + Zero + ClosedAddAssign, const D: usize> One for Translation<T, D> {
     #[inline]
     fn one() -> Self {
         Self::identity()

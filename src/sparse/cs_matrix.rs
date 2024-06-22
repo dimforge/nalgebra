@@ -1,5 +1,5 @@
 use num::Zero;
-use simba::scalar::ClosedAdd;
+use simba::scalar::ClosedAddAssign;
 use std::iter;
 use std::marker::PhantomData;
 use std::ops::Range;
@@ -294,7 +294,7 @@ where
         vals: Vec<T>,
     ) -> Self
     where
-        T: Zero + ClosedAdd,
+        T: Zero + ClosedAddAssign,
         DefaultAllocator: Allocator<R>,
     {
         assert_eq!(ncols.value(), p.len(), "Invalid inptr size.");
@@ -333,7 +333,7 @@ where
 }
 
 /*
-impl<T: Scalar + Zero + ClosedAdd> CsMatrix<T> {
+impl<T: Scalar + Zero + ClosedAddAssign> CsMatrix<T> {
     pub(crate) fn from_parts(
         nrows: usize,
         ncols: usize,
@@ -501,7 +501,7 @@ where
     // Remove duplicate entries on a sorted CsMatrix.
     pub(crate) fn dedup(&mut self)
     where
-        T: Zero + ClosedAdd,
+        T: Zero + ClosedAddAssign,
     {
         let mut curr_i = 0;
 

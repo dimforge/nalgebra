@@ -10,13 +10,9 @@ impl<T: SimdRealField> SimdValue for UnitComplex<T>
 where
     T::Element: SimdRealField,
 {
+    const LANES: usize = T::LANES;
     type Element = UnitComplex<T::Element>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {

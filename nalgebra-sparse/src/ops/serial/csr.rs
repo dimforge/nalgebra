@@ -4,7 +4,7 @@ use crate::ops::serial::cs::{
 };
 use crate::ops::serial::OperationError;
 use crate::ops::Op;
-use nalgebra::{ClosedAdd, ClosedMul, DMatrixView, DMatrixViewMut, Scalar};
+use nalgebra::{ClosedAddAssign, ClosedMulAssign, DMatrixView, DMatrixViewMut, Scalar};
 use num_traits::{One, Zero};
 use std::borrow::Cow;
 
@@ -16,7 +16,7 @@ pub fn spmm_csr_dense<'a, T>(
     a: Op<&CsrMatrix<T>>,
     b: Op<impl Into<DMatrixView<'a, T>>>,
 ) where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     let b = b.convert();
     spmm_csr_dense_(beta, c.into(), alpha, a, b)
@@ -29,7 +29,7 @@ fn spmm_csr_dense_<T>(
     a: Op<&CsrMatrix<T>>,
     b: Op<DMatrixView<'_, T>>,
 ) where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     assert_compatible_spmm_dims!(c, a, b);
     spmm_cs_dense(beta, c, alpha, a.map_same_op(|a| &a.cs), b)
@@ -52,7 +52,7 @@ pub fn spadd_csr_prealloc<T>(
     a: Op<&CsrMatrix<T>>,
 ) -> Result<(), OperationError>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     assert_compatible_spadd_dims!(c, a);
     spadd_cs_prealloc(beta, &mut c.cs, alpha, a.map_same_op(|a| &a.cs))
@@ -75,7 +75,7 @@ pub fn spmm_csr_prealloc<T>(
     b: Op<&CsrMatrix<T>>,
 ) -> Result<(), OperationError>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     assert_compatible_spmm_dims!(c, a, b);
 
@@ -100,7 +100,7 @@ pub fn spmm_csr_prealloc_unchecked<T>(
     b: Op<&CsrMatrix<T>>,
 ) -> Result<(), OperationError>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     assert_compatible_spmm_dims!(c, a, b);
 
@@ -121,7 +121,7 @@ fn spmm_csr_transposed<T, F>(
     spmm_kernel: F,
 ) -> Result<(), OperationError>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
     F: Fn(
         T,
         &mut CsrMatrix<T>,

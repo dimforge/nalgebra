@@ -10,8 +10,8 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector, SVector, Scalar};
-use crate::ClosedDiv;
-use crate::ClosedMul;
+use crate::ClosedDivAssign;
+use crate::ClosedMulAssign;
 
 use crate::geometry::Point;
 
@@ -121,7 +121,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(&self) -> Option<Scale<T, D>>
     where
-        T: ClosedDiv + One + Zero,
+        T: ClosedDivAssign + One + Zero,
     {
         for i in 0..D {
             if self.vector[i] == T::zero() {
@@ -156,7 +156,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[must_use]
     pub unsafe fn inverse_unchecked(&self) -> Scale<T, D>
     where
-        T: ClosedDiv + One,
+        T: ClosedDivAssign + One,
     {
         self.vector.map(|e| T::one() / e).into()
     }
@@ -184,7 +184,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[must_use]
     pub fn pseudo_inverse(&self) -> Scale<T, D>
     where
-        T: ClosedDiv + One + Zero,
+        T: ClosedDivAssign + One + Zero,
     {
         self.vector
             .map(|e| {
@@ -260,7 +260,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool
     where
-        T: ClosedDiv + One + Zero,
+        T: ClosedDivAssign + One + Zero,
     {
         if let Some(v) = self.try_inverse() {
             self.vector = v.vector;
@@ -271,7 +271,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     }
 }
 
-impl<T: Scalar + ClosedMul, const D: usize> Scale<T, D> {
+impl<T: Scalar + ClosedMulAssign, const D: usize> Scale<T, D> {
     /// Translate the given point.
     ///
     /// This is the same as the multiplication `self * pt`.
@@ -290,7 +290,7 @@ impl<T: Scalar + ClosedMul, const D: usize> Scale<T, D> {
     }
 }
 
-impl<T: Scalar + ClosedDiv + ClosedMul + One + Zero, const D: usize> Scale<T, D> {
+impl<T: Scalar + ClosedDivAssign + ClosedMulAssign + One + Zero, const D: usize> Scale<T, D> {
     /// Translate the given point by the inverse of this Scale.
     ///
     /// # Example

@@ -6,7 +6,7 @@ use std::hash;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use simba::scalar::{ClosedAdd, ClosedNeg, ClosedSub};
+use simba::scalar::{ClosedAddAssign, ClosedNeg, ClosedSubAssign};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
@@ -188,7 +188,7 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
     }
 }
 
-impl<T: Scalar + ClosedAdd, const D: usize> Translation<T, D> {
+impl<T: Scalar + ClosedAddAssign, const D: usize> Translation<T, D> {
     /// Translate the given point.
     ///
     /// This is the same as the multiplication `self * pt`.
@@ -207,7 +207,7 @@ impl<T: Scalar + ClosedAdd, const D: usize> Translation<T, D> {
     }
 }
 
-impl<T: Scalar + ClosedSub, const D: usize> Translation<T, D> {
+impl<T: Scalar + ClosedSubAssign, const D: usize> Translation<T, D> {
     /// Translate the given point by the inverse of this translation.
     ///
     /// # Example

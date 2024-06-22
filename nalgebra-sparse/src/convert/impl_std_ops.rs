@@ -3,7 +3,7 @@ use crate::coo::CooMatrix;
 use crate::csc::CscMatrix;
 use crate::csr::CsrMatrix;
 use nalgebra::storage::RawStorage;
-use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
+use nalgebra::{ClosedAddAssign, DMatrix, Dim, Matrix, Scalar};
 use num_traits::Zero;
 
 impl<'a, T, R, C, S> From<&'a Matrix<T, R, C, S>> for CooMatrix<T>
@@ -20,7 +20,7 @@ where
 
 impl<'a, T> From<&'a CooMatrix<T>> for DMatrix<T>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Scalar + Zero + ClosedAddAssign,
 {
     fn from(coo: &'a CooMatrix<T>) -> Self {
         convert_coo_dense(coo)
@@ -29,7 +29,7 @@ where
 
 impl<'a, T> From<&'a CooMatrix<T>> for CsrMatrix<T>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Scalar + Zero + ClosedAddAssign,
 {
     fn from(matrix: &'a CooMatrix<T>) -> Self {
         convert_coo_csr(matrix)
@@ -38,7 +38,7 @@ where
 
 impl<'a, T> From<&'a CsrMatrix<T>> for CooMatrix<T>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Scalar + Zero + ClosedAddAssign,
 {
     fn from(matrix: &'a CsrMatrix<T>) -> Self {
         convert_csr_coo(matrix)
@@ -59,7 +59,7 @@ where
 
 impl<'a, T> From<&'a CsrMatrix<T>> for DMatrix<T>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Scalar + Zero + ClosedAddAssign,
 {
     fn from(matrix: &'a CsrMatrix<T>) -> Self {
         convert_csr_dense(matrix)
@@ -68,7 +68,7 @@ where
 
 impl<'a, T> From<&'a CooMatrix<T>> for CscMatrix<T>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Scalar + Zero + ClosedAddAssign,
 {
     fn from(matrix: &'a CooMatrix<T>) -> Self {
         convert_coo_csc(matrix)
@@ -98,7 +98,7 @@ where
 
 impl<'a, T> From<&'a CscMatrix<T>> for DMatrix<T>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Scalar + Zero + ClosedAddAssign,
 {
     fn from(matrix: &'a CscMatrix<T>) -> Self {
         convert_csc_dense(matrix)

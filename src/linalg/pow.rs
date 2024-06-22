@@ -6,11 +6,11 @@ use crate::{
     DefaultAllocator, DimMin, Matrix, OMatrix, Scalar,
 };
 use num::{One, Zero};
-use simba::scalar::{ClosedAdd, ClosedMul};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 
 impl<T, D, S> Matrix<T, D, D, S>
 where
-    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + One + ClosedAddAssign + ClosedMulAssign,
     D: DimMin<D, Output = D>,
     S: StorageMut<T, D, D>,
     DefaultAllocator: Allocator<D, D> + Allocator<D>,
@@ -56,7 +56,7 @@ where
 
 impl<T, D, S: Storage<T, D, D>> Matrix<T, D, D, S>
 where
-    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + One + ClosedAddAssign + ClosedMulAssign,
     D: DimMin<D, Output = D>,
     S: StorageMut<T, D, D>,
     DefaultAllocator: Allocator<D, D> + Allocator<D>,

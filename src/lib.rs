@@ -165,7 +165,8 @@ use num::{One, Signed, Zero};
 use base::allocator::Allocator;
 pub use num_complex::Complex;
 pub use simba::scalar::{
-    ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, ComplexField, Field, RealField,
+    ClosedAddAssign, ClosedDivAssign, ClosedMulAssign, ClosedSubAssign, ComplexField, Field,
+    RealField,
 };
 pub use simba::simd::{SimdBool, SimdComplexField, SimdPartialOrd, SimdRealField, SimdValue};
 
@@ -206,7 +207,7 @@ pub fn zero<T: Zero>() -> T {
 #[inline]
 pub fn wrap<T>(mut val: T, min: T, max: T) -> T
 where
-    T: Copy + PartialOrd + ClosedAdd + ClosedSub,
+    T: Copy + PartialOrd + ClosedAddAssign + ClosedSubAssign,
 {
     assert!(min < max, "Invalid wrapping bounds.");
     let width = max - min;

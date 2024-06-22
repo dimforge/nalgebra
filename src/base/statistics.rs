@@ -2,7 +2,7 @@ use crate::allocator::Allocator;
 use crate::storage::RawStorage;
 use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, RowOVector, Scalar, VectorView, U1};
 use num::{One, Zero};
-use simba::scalar::{ClosedAdd, ClosedMul, Field, SupersetOf};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign, Field, SupersetOf};
 use std::mem::MaybeUninit;
 
 /// # Folding on columns and rows
@@ -104,7 +104,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn sum(&self) -> T
     where
-        T: ClosedAdd + Zero,
+        T: ClosedAddAssign + Zero,
     {
         self.iter().cloned().fold(T::zero(), |a, b| a + b)
     }
@@ -132,7 +132,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn row_sum(&self) -> RowOVector<T, C>
     where
-        T: ClosedAdd + Zero,
+        T: ClosedAddAssign + Zero,
         DefaultAllocator: Allocator<U1, C>,
     {
         self.compress_rows(|col| col.sum())
@@ -159,7 +159,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn row_sum_tr(&self) -> OVector<T, C>
     where
-        T: ClosedAdd + Zero,
+        T: ClosedAddAssign + Zero,
         DefaultAllocator: Allocator<C>,
     {
         self.compress_rows_tr(|col| col.sum())
@@ -186,7 +186,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn column_sum(&self) -> OVector<T, R>
     where
-        T: ClosedAdd + Zero,
+        T: ClosedAddAssign + Zero,
         DefaultAllocator: Allocator<R>,
     {
         let nrows = self.shape_generic().0;
@@ -215,7 +215,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn product(&self) -> T
     where
-        T: ClosedMul + One,
+        T: ClosedMulAssign + One,
     {
         self.iter().cloned().fold(T::one(), |a, b| a * b)
     }
@@ -243,7 +243,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn row_product(&self) -> RowOVector<T, C>
     where
-        T: ClosedMul + One,
+        T: ClosedMulAssign + One,
         DefaultAllocator: Allocator<U1, C>,
     {
         self.compress_rows(|col| col.product())
@@ -270,7 +270,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn row_product_tr(&self) -> OVector<T, C>
     where
-        T: ClosedMul + One,
+        T: ClosedMulAssign + One,
         DefaultAllocator: Allocator<C>,
     {
         self.compress_rows_tr(|col| col.product())
@@ -297,7 +297,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn column_product(&self) -> OVector<T, R>
     where
-        T: ClosedMul + One,
+        T: ClosedMulAssign + One,
         DefaultAllocator: Allocator<R>,
     {
         let nrows = self.shape_generic().0;

@@ -4,7 +4,7 @@
 use num::{One, Zero};
 use std::ops::{Div, DivAssign, Mul, MulAssign};
 
-use simba::scalar::{ClosedAdd, ClosedMul};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 use simba::simd::SimdRealField;
 
 use crate::base::{SVector, Unit};

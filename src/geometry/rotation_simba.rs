@@ -9,13 +9,9 @@ where
     T: Scalar + SimdValue,
     T::Element: Scalar,
 {
+    const LANES: usize = T::LANES;
     type Element = Rotation<T::Element, D>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {

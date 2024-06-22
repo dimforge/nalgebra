@@ -9,13 +9,9 @@ impl<T: Scalar + SimdValue, const D: usize> SimdValue for Scale<T, D>
 where
     T::Element: Scalar,
 {
+    const LANES: usize = T::LANES;
     type Element = Scale<T::Element, D>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
