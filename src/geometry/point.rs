@@ -15,7 +15,7 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimName, DimNameAdd, DimNameSum, U1};
 use crate::base::iter::{MatrixIter, MatrixIterMut};
 use crate::base::{Const, DefaultAllocator, OVector, Scalar};
-use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign, ClosedSubAssign};
 use std::mem::MaybeUninit;
 
 /// A point in an euclidean space.
@@ -234,7 +234,7 @@ where
     #[must_use]
     pub fn lerp(&self, rhs: &OPoint<T, D>, t: T) -> OPoint<T, D>
     where
-        T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul,
+        T: Scalar + Zero + One + ClosedAddAssign + ClosedSubAssign + ClosedMulAssign,
     {
         OPoint {
             coords: self.coords.lerp(&rhs.coords, t),

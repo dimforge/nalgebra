@@ -2,11 +2,14 @@ use crate::storage::Storage;
 use crate::{
     Allocator, DefaultAllocator, Dim, OVector, One, RealField, Scalar, Unit, Vector, Zero,
 };
-use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign, ClosedSubAssign};
 
 /// # Interpolation
-impl<T: Scalar + Zero + One + ClosedAdd + ClosedSub + ClosedMul, D: Dim, S: Storage<T, D>>
-    Vector<T, D, S>
+impl<
+        T: Scalar + Zero + One + ClosedAddAssign + ClosedSubAssign + ClosedMulAssign,
+        D: Dim,
+        S: Storage<T, D>,
+    > Vector<T, D, S>
 {
     /// Returns `self * (1.0 - t) + rhs * t`, i.e., the linear blend of the vectors x and y using the scalar value a.
     ///

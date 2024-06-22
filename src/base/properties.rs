@@ -2,7 +2,7 @@
 use approx::RelativeEq;
 use num::{One, Zero};
 
-use simba::scalar::{ClosedAdd, ClosedMul, ComplexField, RealField};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign, ComplexField, RealField};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimMin};
@@ -88,7 +88,7 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn is_orthogonal(&self, eps: T::Epsilon) -> bool
     where
-        T: Zero + One + ClosedAdd + ClosedMul + RelativeEq,
+        T: Zero + One + ClosedAddAssign + ClosedMulAssign + RelativeEq,
         S: Storage<T, R, C>,
         T::Epsilon: Clone,
         DefaultAllocator: Allocator<R, C> + Allocator<C, C>,

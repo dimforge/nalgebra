@@ -2,7 +2,7 @@ use crate::cs::CsMatrix;
 use crate::ops::serial::{OperationError, OperationErrorKind};
 use crate::ops::Op;
 use crate::SparseEntryMut;
-use nalgebra::{ClosedAdd, ClosedMul, DMatrixView, DMatrixViewMut, Scalar};
+use nalgebra::{ClosedAddAssign, ClosedMulAssign, DMatrixView, DMatrixViewMut, Scalar};
 use num_traits::{One, Zero};
 
 fn spmm_cs_unexpected_entry() -> OperationError {
@@ -28,7 +28,7 @@ pub fn spmm_cs_prealloc_unchecked<T>(
     b: &CsMatrix<T>,
 ) -> Result<(), OperationError>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     assert_eq!(c.pattern().major_dim(), a.pattern().major_dim());
     assert_eq!(c.pattern().minor_dim(), b.pattern().minor_dim());
@@ -73,7 +73,7 @@ pub fn spmm_cs_prealloc<T>(
     b: &CsMatrix<T>,
 ) -> Result<(), OperationError>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     for i in 0..c.pattern().major_dim() {
         let a_lane_i = a.get_lane(i).unwrap();
@@ -119,7 +119,7 @@ pub fn spadd_cs_prealloc<T>(
     a: Op<&CsMatrix<T>>,
 ) -> Result<(), OperationError>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     match a {
         Op::NoOp(a) => {
@@ -181,7 +181,7 @@ pub fn spmm_cs_dense<T>(
     a: Op<&CsMatrix<T>>,
     b: Op<DMatrixView<'_, T>>,
 ) where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     match a {
         Op::NoOp(a) => {

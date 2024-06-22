@@ -21,7 +21,7 @@ macro_rules! md_impl(
      // Lifetime.
      $($lives: tt),*) => {
         impl<$($lives ,)* T $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
-            where T: Scalar + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
+            where T: Scalar + Zero + One + ClosedAddAssign + ClosedMulAssign $($(+ $ScalarBounds)*)*,
                   $( $ConstraintType: $ConstraintBound$(<$( $ConstraintBoundParams $( = $EqBound )*),*>)* ),*
                    {
             type Output = $Result;
@@ -112,7 +112,7 @@ macro_rules! md_assign_impl(
      // Actual implementation and lifetimes.
      $action: expr; $($lives: tt),*) => {
         impl<$($lives ,)* T $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
-            where T: Scalar + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
+            where T: Scalar + Zero + One + ClosedAddAssign + ClosedMulAssign $($(+ $ScalarBounds)*)*,
                   $($(T::Element: $ElementBounds,)*)*
                   $( $ConstraintType: $ConstraintBound $(<$( $ConstraintBoundParams $( = $EqBound )*),*>)* ),*
         {

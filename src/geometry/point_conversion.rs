@@ -1,5 +1,5 @@
 use num::{One, Zero};
-use simba::scalar::{ClosedDiv, SubsetOf, SupersetOf};
+use simba::scalar::{ClosedDivAssign, SubsetOf, SupersetOf};
 use simba::simd::PrimitiveSimdValue;
 
 use crate::base::allocator::Allocator;
@@ -45,7 +45,7 @@ impl<T1, T2, D> SubsetOf<OVector<T2, DimNameSum<D, U1>>> for OPoint<T1, D>
 where
     D: DimNameAdd<U1>,
     T1: Scalar,
-    T2: Scalar + Zero + One + ClosedDiv + SupersetOf<T1>,
+    T2: Scalar + Zero + One + ClosedDivAssign + SupersetOf<T1>,
     DefaultAllocator: Allocator<D> + Allocator<DimNameSum<D, U1>>,
     // + Allocator<T1, D>
     // + Allocator<D>,

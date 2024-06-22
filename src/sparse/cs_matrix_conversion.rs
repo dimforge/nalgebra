@@ -1,5 +1,5 @@
 use num::Zero;
-use simba::scalar::ClosedAdd;
+use simba::scalar::ClosedAddAssign;
 
 use crate::allocator::Allocator;
 use crate::sparse::cs_utils;
@@ -7,7 +7,7 @@ use crate::sparse::{CsMatrix, CsStorage};
 use crate::storage::Storage;
 use crate::{DefaultAllocator, Dim, Dyn, Matrix, OMatrix, Scalar};
 
-impl<'a, T: Scalar + Zero + ClosedAdd> CsMatrix<T> {
+impl<'a, T: Scalar + Zero + ClosedAddAssign> CsMatrix<T> {
     /// Creates a column-compressed sparse matrix from a sparse matrix in triplet form.
     pub fn from_triplet(
         nrows: usize,
@@ -20,7 +20,7 @@ impl<'a, T: Scalar + Zero + ClosedAdd> CsMatrix<T> {
     }
 }
 
-impl<'a, T: Scalar + Zero + ClosedAdd, R: Dim, C: Dim> CsMatrix<T, R, C>
+impl<'a, T: Scalar + Zero + ClosedAddAssign, R: Dim, C: Dim> CsMatrix<T, R, C>
 where
     DefaultAllocator: Allocator<C> + Allocator<R>,
 {

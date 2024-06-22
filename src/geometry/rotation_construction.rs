@@ -1,6 +1,6 @@
 use num::{One, Zero};
 
-use simba::scalar::{ClosedAdd, ClosedMul, SupersetOf};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign, SupersetOf};
 
 use crate::base::{SMatrix, Scalar};
 
@@ -64,7 +64,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
 
 impl<T, const D: usize> One for Rotation<T, D>
 where
-    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + One + ClosedAddAssign + ClosedMulAssign,
 {
     #[inline]
     fn one() -> Self {

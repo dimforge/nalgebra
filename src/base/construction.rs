@@ -16,7 +16,7 @@ use rand::{
 use std::iter;
 use typenum::{self, Cmp, Greater};
 
-use simba::scalar::{ClosedAdd, ClosedMul};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimName, Dyn, ToTypenum};
@@ -814,7 +814,7 @@ impl_constructors_from_data!(data; Dyn, Dyn;
  */
 impl<T, R: DimName, C: DimName> Zero for OMatrix<T, R, C>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Scalar + Zero + ClosedAddAssign,
     DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
@@ -830,7 +830,7 @@ where
 
 impl<T, D: DimName> One for OMatrix<T, D, D>
 where
-    T: Scalar + Zero + One + ClosedMul + ClosedAdd,
+    T: Scalar + Zero + One + ClosedMulAssign + ClosedAddAssign,
     DefaultAllocator: Allocator<D, D>,
 {
     #[inline]

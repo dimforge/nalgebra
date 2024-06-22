@@ -18,7 +18,7 @@ use rkyv::bytecheck;
 #[cfg(feature = "rkyv-serialize-no-std")]
 use rkyv::{with::With, Archive, Archived};
 
-use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, Field, SupersetOf};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign, ClosedSubAssign, Field, SupersetOf};
 use simba::simd::SimdPartialOrd;
 
 use crate::base::allocator::{Allocator, SameShapeAllocator, SameShapeC, SameShapeR};
@@ -1586,7 +1586,7 @@ impl<T: Scalar, D: Dim, S: RawStorage<T, D, D>> SquareMatrix<T, D, S> {
     #[must_use]
     pub fn trace(&self) -> T
     where
-        T: Scalar + Zero + ClosedAdd,
+        T: Scalar + Zero + ClosedAddAssign,
     {
         assert!(
             self.is_square(),
@@ -2002,8 +2002,12 @@ mod tests {
 }
 
 /// # Cross product
-impl<T: Scalar + ClosedAdd + ClosedSub + ClosedMul, R: Dim, C: Dim, S: RawStorage<T, R, C>>
-    Matrix<T, R, C, S>
+impl<
+        T: Scalar + ClosedAddAssign + ClosedSubAssign + ClosedMulAssign,
+        R: Dim,
+        C: Dim,
+        S: RawStorage<T, R, C>,
+    > Matrix<T, R, C, S>
 {
     /// The perpendicular product between two 2D column vectors, i.e. `a.x * b.y - a.y * b.x`.
     #[inline]

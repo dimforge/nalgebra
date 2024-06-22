@@ -1,5 +1,5 @@
 use num::{One, Zero};
-use simba::scalar::{ClosedAdd, ClosedMul};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 use std::ops::{Add, Mul};
 
 use crate::allocator::Allocator;
@@ -20,7 +20,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: CsStorage<T, R, C>> CsMatrix<T, R, C, S> {
         res: &mut CsMatrix<T, R2, C2>,
     ) -> usize
     where
-        T: ClosedAdd + ClosedMul,
+        T: ClosedAddAssign + ClosedMulAssign,
         DefaultAllocator: Allocator<C2>,
     {
         for (i, val) in self.data.column_entries(j) {
@@ -76,7 +76,9 @@ impl<T: Scalar, R, S> CsVector<T, R, S> {
 }
 */
 
-impl<T: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<T, D>> Vector<T, D, S> {
+impl<T: Scalar + Zero + ClosedAddAssign + ClosedMulAssign, D: Dim, S: StorageMut<T, D>>
+    Vector<T, D, S>
+{
     /// Perform a sparse axpy operation: `self = alpha * x + beta * self` operation.
     pub fn axpy_cs<D2: Dim, S2>(&mut self, alpha: T, x: &CsVector<T, D2, S2>, beta: T)
     where
@@ -126,7 +128,7 @@ impl<T: Scalar + Zero + ClosedAdd + ClosedMul, D: Dim, S: StorageMut<T, D>> Vect
 impl<'a, 'b, T, R1, R2, C1, C2, S1, S2> Mul<&'b CsMatrix<T, R2, C2, S2>>
     for &'a CsMatrix<T, R1, C1, S1>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero,
     R1: Dim,
     C1: Dim,
     R2: Dim,
@@ -219,7 +221,7 @@ where
 impl<'a, 'b, T, R1, R2, C1, C2, S1, S2> Add<&'b CsMatrix<T, R2, C2, S2>>
     for &'a CsMatrix<T, R1, C1, S1>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
     R1: Dim,
     C1: Dim,
     R2: Dim,
@@ -287,7 +289,7 @@ where
 
 impl<'a, 'b, T, R, C, S> Mul<T> for CsMatrix<T, R, C, S>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero,
     R: Dim,
     C: Dim,
     S: CsStorageMut<T, R, C>,

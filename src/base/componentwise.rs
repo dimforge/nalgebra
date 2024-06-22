@@ -3,7 +3,7 @@
 use num::{Signed, Zero};
 use std::ops::{Add, Mul};
 
-use simba::scalar::{ClosedDiv, ClosedMul};
+use simba::scalar::{ClosedDivAssign, ClosedMulAssign};
 use simba::simd::SimdPartialOrd;
 
 use crate::base::allocator::{Allocator, SameShapeAllocator};
@@ -11,7 +11,7 @@ use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstr
 use crate::base::dimension::Dim;
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar};
-use crate::ClosedAdd;
+use crate::ClosedAddAssign;
 
 /// The type of the result of a matrix component-wise operation.
 pub type MatrixComponentOp<T, R1, C1, R2, C2> = MatrixSum<T, R1, C1, R2, C2>;
@@ -148,7 +148,7 @@ macro_rules! component_binop_impl(
 /// # Componentwise operations
 impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> {
     component_binop_impl!(
-        component_mul, component_mul_mut, component_mul_assign, cmpy, ClosedMul.mul.mul_assign,
+        component_mul, component_mul_mut, component_mul_assign, cmpy, ClosedMulAssign.mul.mul_assign,
         r"
         Componentwise matrix or vector multiplication.
 
@@ -193,7 +193,7 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
         assert_eq!(a, expected);
         ```
         ";
-        component_div, component_div_mut, component_div_assign, cdpy, ClosedDiv.div.div_assign,
+        component_div, component_div_mut, component_div_assign, cdpy, ClosedDivAssign.div.div_assign,
         r"
         Componentwise matrix or vector division.
 
@@ -320,7 +320,7 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     #[must_use = "Did you mean to use add_scalar_mut()?"]
     pub fn add_scalar(&self, rhs: T) -> OMatrix<T, R1, C1>
     where
-        T: ClosedAdd,
+        T: ClosedAddAssign,
         DefaultAllocator: Allocator<R1, C1>,
     {
         let mut res = self.clone_owned();
@@ -343,7 +343,7 @@ impl<T: Scalar, R1: Dim, C1: Dim, SA: Storage<T, R1, C1>> Matrix<T, R1, C1, SA> 
     #[inline]
     pub fn add_scalar_mut(&mut self, rhs: T)
     where
-        T: ClosedAdd,
+        T: ClosedAddAssign,
         SA: StorageMut<T, R1, C1>,
     {
         for e in self.iter_mut() {

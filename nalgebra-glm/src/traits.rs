@@ -2,16 +2,16 @@ use approx::AbsDiffEq;
 use num::{Bounded, Signed};
 
 use na::Scalar;
-use simba::scalar::{ClosedAdd, ClosedMul, ClosedSub, RealField};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign, ClosedSubAssign, RealField};
 
 /// A number that can either be an integer or a float.
 pub trait Number:
     Scalar
     + Copy
     + PartialOrd
-    + ClosedAdd
-    + ClosedSub
-    + ClosedMul
+    + ClosedAddAssign
+    + ClosedSubAssign
+    + ClosedMulAssign
     + AbsDiffEq<Epsilon = Self>
     + Signed
     + Bounded
@@ -22,9 +22,9 @@ impl<
         T: Scalar
             + Copy
             + PartialOrd
-            + ClosedAdd
-            + ClosedSub
-            + ClosedMul
+            + ClosedAddAssign
+            + ClosedSubAssign
+            + ClosedMulAssign
             + AbsDiffEq<Epsilon = Self>
             + Signed
             + Bounded,

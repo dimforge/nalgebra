@@ -8,13 +8,9 @@ impl<T: Scalar + SimdValue> SimdValue for Quaternion<T>
 where
     T::Element: Scalar,
 {
+    const LANES: usize = T::LANES;
     type Element = Quaternion<T::Element>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
@@ -51,13 +47,9 @@ impl<T: Scalar + SimdValue> SimdValue for UnitQuaternion<T>
 where
     T::Element: Scalar,
 {
+    const LANES: usize = T::LANES;
     type Element = UnitQuaternion<T::Element>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
