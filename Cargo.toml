@@ -120,7 +120,7 @@ nalgebra = { path = ".", features = ["debug", "compare", "rand", "macros"]}
 
 # For matrix comparison macro
 matrixcompare = "0.3.0"
-itertools = "0.10"
+itertools = "0.13"
 
 [workspace]
 members = [ "nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse", "nalgebra-macros" ]

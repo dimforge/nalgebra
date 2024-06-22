@@ -33,7 +33,7 @@ pest_derive    = { version = "2", optional = true }
 serde = { version = "1.0", default-features = false, features = [ "derive" ], optional = true }
 
 [dev-dependencies]
-itertools = "0.10"
+itertools = "0.13"
 matrixcompare = { version = "0.3.0", features = [ "proptest-support" ] }
 nalgebra = { version="0.32", path = "../", features = ["compare"] }
 tempfile = "3.3"
