@@ -1,15 +1,15 @@
 [package]
 name = "nalgebra-macros"
-version = "0.2.1"
-authors = [ "Andreas Longva", "Sébastien Crozet <developer@crozet.re>" ]
+version = "0.2.2"
+authors = ["Andreas Longva", "Sébastien Crozet <developer@crozet.re>"]
 edition = "2018"
 description = "Procedural macros for nalgebra"
 documentation = "https://www.nalgebra.org/docs"
 homepage = "https://nalgebra.org"
 repository = "https://github.com/dimforge/nalgebra"
 readme = "../README.md"
-categories = [ "science", "mathematics" ]
-keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
+categories = ["science", "mathematics"]
+keywords = ["linear", "algebra", "matrix", "vector", "math"]
 license = "Apache-2.0"
 
 [lib]
@@ -21,4 +21,4 @@ quote = "1.0"
 proc-macro2 = "1.0"
 
 [dev-dependencies]
-nalgebra = { version = "0.32.1", path = ".." }
+nalgebra = { version = "0.33", path = ".." }

@@ -1,10 +1,10 @@
 [package]
-name    = "example-using-nalgebra"
+name = "example-using-nalgebra"
 version = "0.0.0"
-authors = [ "You" ]
+authors = ["You"]
 
 [dependencies]
-nalgebra = "0.32.0"
+nalgebra = "0.33.0"
 
 [[bin]]
 name = "example"

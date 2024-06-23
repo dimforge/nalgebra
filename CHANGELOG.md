@@ -5,16 +5,27 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [0.33.0] (23 June 2024)
+
+### Fixed
+
+- Fix a memory leak in `Matrix::generic_resize`.
+- Fix `glm::is_null` to check the vector magnitude instead of individual components.
+- Ensure that inverting a 4x4 matrix leaves it unchanged if the inversion fails.
 
 ### Added
 
 - Add the `glam-0.28` feature to enable conversion from/to types from `glam` v0.28.
+- Add a `stack!` macro for concatenating matrices. See [#1375](https://github.com/dimforge/nalgebra/pull/1375).
 
-### Removed
+### Modified
 
-- The `cuda` feature has been removed, as the toolchain it depends on
-  is long abandoned.
+- The `cuda` feature has been removed, as the toolchain it depends on is long abandoned.
+- Update to `simba` 0.9. See the [changelog](https://github.com/dimforge/simba/blob/master/CHANGELOG) of `simba` for
+  details.
+- Update the `nalgebra-macros` crate to `syn` 2.0.
+- Remove the scalar type `T` from the `Allocator` trait parameters. Instead of `Allocator<T, R, C>`, use the simpler
+  `Allocator<R, C>`.
 
 ## [0.32.6] (12 June 2024)
 
