@@ -8,7 +8,6 @@ use nalgebra::{
     SMatrixViewMut, Scalar, U2,
 };
 use nalgebra_macros::vector;
-use num_complex::Complex;
 use num_traits::Zero;
 
 /// Simple implementation that stacks dynamic matrices.
