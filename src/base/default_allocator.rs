@@ -15,7 +15,7 @@ use crate::base::array_storage::ArrayStorage;
 use crate::base::dimension::Dim;
 #[cfg(any(feature = "alloc", feature = "std"))]
 use crate::base::dimension::{DimName, Dyn};
-use crate::base::storage::{RawStorage, RawStorageMut};
+use crate::base::storage::{RawStorage, RawStorageMut, Storage};
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::vec_storage::VecStorage;
 use crate::base::Scalar;
@@ -210,8 +210,8 @@ where
 
         // Safety:
         // - We don’t care about dropping elements because the caller is responsible for dropping things.
-        // - We forget `buf` so that we don’t drop the other elements.
-        std::mem::forget(buf);
+        // - We forget `buf` so that we don’t drop the other elements, but ensure the buffer itself is cleaned up.
+        buf.forget_elements();
 
         res
     }
@@ -241,8 +241,8 @@ where
 
         // Safety:
         // - We don’t care about dropping elements because the caller is responsible for dropping things.
-        // - We forget `buf` so that we don’t drop the other elements.
-        std::mem::forget(buf);
+        // - We forget `buf` so that we don’t drop the other elements, but ensure the buffer itself is cleaned up.
+        buf.forget_elements();
 
         res
     }
@@ -272,8 +272,8 @@ where
 
         // Safety:
         // - We don’t care about dropping elements because the caller is responsible for dropping things.
-        // - We forget `buf` so that we don’t drop the other elements.
-        std::mem::forget(buf);
+        // - We forget `buf` so that we don’t drop the other elements, but ensure the buffer itself is cleaned up.
+        buf.forget_elements();
 
         res
     }
