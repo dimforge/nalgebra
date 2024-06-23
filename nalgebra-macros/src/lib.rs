@@ -12,102 +12,19 @@
     future_incompatible,
     missing_copy_implementations,
     missing_debug_implementations,
-    clippy::all,
-    clippy::pedantic
+    clippy::all
 )]
 
+mod matrix_vector_impl;
+mod stack_impl;
+
+use matrix_vector_impl::{Matrix, Vector};
+
+use crate::matrix_vector_impl::{dmatrix_impl, dvector_impl, matrix_impl, vector_impl};
 use proc_macro::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
-use syn::parse::{Error, Parse, ParseStream, Result};
-use syn::punctuated::Punctuated;
-use syn::Expr;
-use syn::{parse_macro_input, Token};
-
-use proc_macro2::{Delimiter, Spacing, TokenStream as TokenStream2, TokenTree};
-use proc_macro2::{Group, Punct};
-
-struct Matrix {
-    // Represent the matrix as a row-major vector of vectors of expressions
-    rows: Vec<Vec<Expr>>,
-    ncols: usize,
-}
-
-impl Matrix {
-    fn nrows(&self) -> usize {
-        self.rows.len()
-    }
-
-    fn ncols(&self) -> usize {
-        self.ncols
-    }
-
-    /// Produces a stream of tokens representing this matrix as a column-major nested array.
-    fn to_col_major_nested_array_tokens(&self) -> TokenStream2 {
-        let mut result = TokenStream2::new();
-        for j in 0..self.ncols() {
-            let mut col = TokenStream2::new();
-            let col_iter = (0..self.nrows()).map(move |i| &self.rows[i][j]);
-            col.append_separated(col_iter, Punct::new(',', Spacing::Alone));
-            result.append(Group::new(Delimiter::Bracket, col));
-            result.append(Punct::new(',', Spacing::Alone));
-        }
-        TokenStream2::from(TokenTree::Group(Group::new(Delimiter::Bracket, result)))
-    }
-
-    /// Produces a stream of tokens representing this matrix as a column-major flat array
-    /// (suitable for representing e.g. a `DMatrix`).
-    fn to_col_major_flat_array_tokens(&self) -> TokenStream2 {
-        let mut data = TokenStream2::new();
-        for j in 0..self.ncols() {
-            for i in 0..self.nrows() {
-                self.rows[i][j].to_tokens(&mut data);
-                data.append(Punct::new(',', Spacing::Alone));
-            }
-        }
-        TokenStream2::from(TokenTree::Group(Group::new(Delimiter::Bracket, data)))
-    }
-}
-
-type MatrixRowSyntax = Punctuated<Expr, Token![,]>;
-
-impl Parse for Matrix {
-    fn parse(input: ParseStream<'_>) -> Result<Self> {
-        let mut rows = Vec::new();
-        let mut ncols = None;
-
-        while !input.is_empty() {
-            let row_span = input.span();
-            let row = MatrixRowSyntax::parse_separated_nonempty(input)?;
-
-            if let Some(ncols) = ncols {
-                if row.len() != ncols {
-                    let row_idx = rows.len();
-                    let error_msg = format!(
-                        "Unexpected number of entries in row {}. Expected {}, found {} entries.",
-                        row_idx,
-                        ncols,
-                        row.len()
-                    );
-                    return Err(Error::new(row_span, error_msg));
-                }
-            } else {
-                ncols = Some(row.len());
-            }
-            rows.push(row.into_iter().collect());
-
-            // We've just read a row, so if there are more tokens, there must be a semi-colon,
-            // otherwise the input is malformed
-            if !input.is_empty() {
-                input.parse::<Token![;]>()?;
-            }
-        }
-
-        Ok(Self {
-            rows,
-            ncols: ncols.unwrap_or(0),
-        })
-    }
-}
+use quote::quote;
+use stack_impl::stack_impl;
+use syn::parse_macro_input;
 
 /// Construct a fixed-size matrix directly from data.
 ///
@@ -145,20 +62,7 @@ impl Parse for Matrix {
 /// ```
 #[proc_macro]
 pub fn matrix(stream: TokenStream) -> TokenStream {
-    let matrix = parse_macro_input!(stream as Matrix);
-
-    let row_dim = matrix.nrows();
-    let col_dim = matrix.ncols();
-
-    let array_tokens = matrix.to_col_major_nested_array_tokens();
-
-    //  TODO: Use quote_spanned instead??
-    let output = quote! {
-        nalgebra::SMatrix::<_, #row_dim, #col_dim>
-            ::from_array_storage(nalgebra::ArrayStorage(#array_tokens))
-    };
-
-    proc_macro::TokenStream::from(output)
+    matrix_impl(stream)
 }
 
 /// Construct a dynamic matrix directly from data.
@@ -180,55 +84,7 @@ pub fn matrix(stream: TokenStream) -> TokenStream {
 /// ```
 #[proc_macro]
 pub fn dmatrix(stream: TokenStream) -> TokenStream {
-    let matrix = parse_macro_input!(stream as Matrix);
-
-    let row_dim = matrix.nrows();
-    let col_dim = matrix.ncols();
-
-    let array_tokens = matrix.to_col_major_flat_array_tokens();
-
-    //  TODO: Use quote_spanned instead??
-    let output = quote! {
-        nalgebra::DMatrix::<_>
-            ::from_vec_storage(nalgebra::VecStorage::new(
-                nalgebra::Dyn(#row_dim),
-                nalgebra::Dyn(#col_dim),
-                vec!#array_tokens))
-    };
-
-    proc_macro::TokenStream::from(output)
-}
-
-struct Vector {
-    elements: Vec<Expr>,
-}
-
-impl Vector {
-    fn to_array_tokens(&self) -> TokenStream2 {
-        let mut data = TokenStream2::new();
-        data.append_separated(&self.elements, Punct::new(',', Spacing::Alone));
-        TokenStream2::from(TokenTree::Group(Group::new(Delimiter::Bracket, data)))
-    }
-
-    fn len(&self) -> usize {
-        self.elements.len()
-    }
-}
-
-impl Parse for Vector {
-    fn parse(input: ParseStream<'_>) -> Result<Self> {
-        // The syntax of a vector is just the syntax of a single matrix row
-        if input.is_empty() {
-            Ok(Self {
-                elements: Vec::new(),
-            })
-        } else {
-            let elements = MatrixRowSyntax::parse_terminated(input)?
-                .into_iter()
-                .collect();
-            Ok(Self { elements })
-        }
-    }
+    dmatrix_impl(stream)
 }
 
 /// Construct a fixed-size column vector directly from data.
@@ -252,14 +108,7 @@ impl Parse for Vector {
 /// ```
 #[proc_macro]
 pub fn vector(stream: TokenStream) -> TokenStream {
-    let vector = parse_macro_input!(stream as Vector);
-    let len = vector.len();
-    let array_tokens = vector.to_array_tokens();
-    let output = quote! {
-        nalgebra::SVector::<_, #len>
-            ::from_array_storage(nalgebra::ArrayStorage([#array_tokens]))
-    };
-    proc_macro::TokenStream::from(output)
+    vector_impl(stream)
 }
 
 /// Construct a dynamic column vector directly from data.
@@ -279,17 +128,7 @@ pub fn vector(stream: TokenStream) -> TokenStream {
 /// ```
 #[proc_macro]
 pub fn dvector(stream: TokenStream) -> TokenStream {
-    let vector = parse_macro_input!(stream as Vector);
-    let len = vector.len();
-    let array_tokens = vector.to_array_tokens();
-    let output = quote! {
-        nalgebra::DVector::<_>
-            ::from_vec_storage(nalgebra::VecStorage::new(
-                nalgebra::Dyn(#len),
-                nalgebra::Const::<1>,
-                vec!#array_tokens))
-    };
-    proc_macro::TokenStream::from(output)
+    dvector_impl(stream)
 }
 
 /// Construct a fixed-size point directly from data.
@@ -320,4 +159,101 @@ pub fn point(stream: TokenStream) -> TokenStream {
         }
     };
     proc_macro::TokenStream::from(output)
+}
+
+/// Construct a new matrix by stacking matrices in a block matrix.
+///
+/// **Note: Requires the `macros` feature to be enabled (enabled by default)**.
+///
+/// This macro facilitates the construction of
+/// [block matrices](https://en.wikipedia.org/wiki/Block_matrix)
+/// by stacking blocks (matrices) using the same MATLAB-like syntax as the [`matrix!`] and
+/// [`dmatrix!`] macros:
+///
+/// ```rust
+/// # use nalgebra::stack;
+/// #
+/// # fn main() {
+/// # let [a, b, c, d] = std::array::from_fn(|_| nalgebra::Matrix1::new(0));
+/// // a, b, c and d are matrices
+/// let block_matrix = stack![ a, b;
+///                            c, d ];
+/// # }
+/// ```
+///
+/// The resulting matrix is stack-allocated if the dimension of each block row and column
+/// can be determined at compile-time, otherwise it is heap-allocated.
+/// This is the case if, for every row, there is at least one matrix with a fixed number of rows,
+/// and, for every column, there is at least one matrix with a fixed number of columns.
+///
+/// [`stack!`] also supports special syntax to indicate zero blocks in a matrix:
+///
+/// ```rust
+/// # use nalgebra::stack;
+/// #
+/// # fn main() {
+/// # let [a, b, c, d] = std::array::from_fn(|_| nalgebra::Matrix1::new(0));
+/// // a and d are matrices
+/// let block_matrix = stack![ a, 0;
+///                            0, d ];
+/// # }
+/// ```
+/// Here, the `0` literal indicates a zero matrix of implicitly defined size.
+/// In order to infer the size of the zero blocks, there must be at least one matrix
+/// in every row and column of the matrix.
+/// In other words, no row or column can consist entirely of implicit zero blocks.
+///
+/// # Panics
+///
+/// Panics if dimensions are inconsistent and it cannot be determined at compile-time.
+///
+/// # Examples
+///
+/// ```
+/// use nalgebra::{matrix, SMatrix, stack};
+///
+/// let a = matrix![1, 2;
+///                 3, 4];
+/// let b = matrix![5, 6;
+///                 7, 8];
+/// let c = matrix![9, 10];
+///
+/// let block_matrix = stack![ a, b;
+///                            c, 0 ];
+///
+/// assert_eq!(block_matrix, matrix![1,  2,  5,  6;
+///                                  3,  4,  7,  8;
+///                                  9, 10,  0,  0]);
+///
+/// // Verify that the resulting block matrix is stack-allocated
+/// let _: SMatrix<_, 3, 4> = block_matrix;
+/// ```
+///
+/// The example above shows how stacking stack-allocated matrices results in a stack-allocated
+/// block matrix. If all row and column dimensions can not be determined at compile-time,
+/// the result is instead a dynamically allocated matrix:
+///
+/// ```
+/// use nalgebra::{dmatrix, DMatrix, Dyn, matrix, OMatrix, SMatrix, stack, U3};
+///
+/// # let a = matrix![1, 2; 3, 4]; let c = matrix![9, 10];
+/// // a and c as before, but b is a dynamic matrix this time
+/// let b = dmatrix![5, 6;
+///                  7, 8];
+///
+/// // In this case, the number of rows can be statically inferred to be 3 (U3),
+/// // but the number of columns cannot, hence it is dynamic
+/// let block_matrix: OMatrix<_, U3, Dyn> = stack![ a, b;
+///                                                 c, 0 ];
+///
+/// // If necessary, a fully dynamic matrix (DMatrix) can be obtained by reshaping
+/// let dyn_block_matrix: DMatrix<_> = block_matrix.reshape_generic(Dyn(3), Dyn(4));
+/// ```
+/// Note that explicitly annotating the types of `block_matrix` and `dyn_block_matrix` is
+/// only made for illustrative purposes, and is not generally necessary.
+///
+#[proc_macro]
+pub fn stack(stream: TokenStream) -> TokenStream {
+    let matrix = parse_macro_input!(stream as Matrix);
+    proc_macro::TokenStream::from(stack_impl(matrix).unwrap_or_else(syn::Error::into_compile_error))
 }

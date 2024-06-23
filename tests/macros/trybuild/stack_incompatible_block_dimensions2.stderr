@@ -1,0 +1,37 @@
+error[E0277]: the trait bound `ShapeConstraint: SameNumberOfRows<Const<1>, Const<2>>` is not satisfied
+  --> tests/macros/trybuild/stack_incompatible_block_dimensions2.rs:13:17
+   |
+13 |            a21, a22];
+   |                 ^^^ the trait `SameNumberOfRows<Const<1>, Const<2>>` is not implemented for `ShapeConstraint`
+   |
+   = help: the following other types implement trait `SameNumberOfRows<D1, D2>`:
+             <ShapeConstraint as SameNumberOfRows<D, D>>
+             <ShapeConstraint as SameNumberOfRows<D, Dyn>>
+             <ShapeConstraint as SameNumberOfRows<Dyn, D>>
+   = note: this error originates in the macro `stack` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0282]: type annotations needed
+  --> tests/macros/trybuild/stack_incompatible_block_dimensions2.rs:12:5
+   |
+12 | /     stack![a11, a12;
+13 | |            a21, a22];
+   | |____________________^ cannot infer type
+   |
+   = note: this error originates in the macro `stack` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: no method named `generic_view_mut` found for struct `Matrix<_, _, Const<4>, _>` in the current scope
+  --> tests/macros/trybuild/stack_incompatible_block_dimensions2.rs:12:5
+   |
+12 |       stack![a11, a12;
+   |  _____^
+13 | |            a21, a22];
+   | |____________________^ method not found in `Matrix<_, _, Const<4>, _>`
+   |
+  ::: src/base/matrix_view.rs
+   |
+   |        generic_slice_mut => generic_view_mut,
+   |                             ---------------- the method is available for `Matrix<_, _, Const<4>, _>` here
+   |
+   = note: the method was found for
+           - `Matrix<T, R, C, S>`
+   = note: this error originates in the macro `stack` (in Nightly builds, run with -Z macro-backtrace for more info)

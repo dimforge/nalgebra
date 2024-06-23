@@ -33,7 +33,6 @@ libm = ["simba/libm"]
 libm-force = ["simba/libm_force"]
 macros = ["nalgebra-macros"]
 
-
 # Conversion
 convert-mint = ["mint"]
 convert-bytemuck = ["bytemuck"]
@@ -121,6 +120,11 @@ nalgebra = { path = ".", features = ["debug", "compare", "rand", "macros"] }
 # For matrix comparison macro
 matrixcompare = "0.3.0"
 itertools = "0.13"
+
+# For macro testing
+trybuild = "1.0.90"
+
+cool_asserts = "2.0.3"
 
 [workspace]
 members = ["nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse", "nalgebra-macros"]
