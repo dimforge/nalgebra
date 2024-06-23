@@ -1,44 +1,44 @@
 [package]
 name = "nalgebra-sparse"
-version = "0.9.0"
-authors = [ "Andreas Longva", "Sébastien Crozet <developer@crozet.re>" ]
+version = "0.10.0"
+authors = ["Andreas Longva", "Sébastien Crozet <developer@crozet.re>"]
 edition = "2018"
 description = "Sparse matrix computation based on nalgebra."
 documentation = "https://www.nalgebra.org/docs"
 homepage = "https://nalgebra.org"
 repository = "https://github.com/dimforge/nalgebra"
 readme = "../README.md"
-categories = [ "science", "mathematics", "wasm", "no-std" ]
-keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
+categories = ["science", "mathematics", "wasm", "no-std"]
+keywords = ["linear", "algebra", "matrix", "vector", "math"]
 license = "Apache-2.0"
 
 [features]
 proptest-support = ["proptest", "nalgebra/proptest-support"]
-compare = [ "matrixcompare-core" ]
-serde-serialize = [ "serde/std" ]
+compare = ["matrixcompare-core"]
+serde-serialize = ["serde/std"]
 
 # Enable matrix market I/O
-io      = [ "pest", "pest_derive" ]
+io = ["pest", "pest_derive"]
 
 # Enable to enable running some tests that take a lot of time to run
 slow-tests = []
 
 [dependencies]
-nalgebra = { version="0.32", path = "../" }
+nalgebra = { version = "0.33", path = "../" }
 num-traits = { version = "0.2", default-features = false }
 proptest = { version = "1.0", optional = true }
 matrixcompare-core = { version = "0.1.0", optional = true }
-pest           = { version = "2", optional = true }
-pest_derive    = { version = "2", optional = true }
-serde = { version = "1.0", default-features = false, features = [ "derive" ], optional = true }
+pest = { version = "2", optional = true }
+pest_derive = { version = "2", optional = true }
+serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
 
 [dev-dependencies]
 itertools = "0.13"
-matrixcompare = { version = "0.3.0", features = [ "proptest-support" ] }
-nalgebra = { version="0.32", path = "../", features = ["compare"] }
+matrixcompare = { version = "0.3.0", features = ["proptest-support"] }
+nalgebra = { version = "0.33", path = "../", features = ["compare"] }
 tempfile = "3.3"
 serde_json = "1.0"
 
 [package.metadata.docs.rs]
 # Enable certain features when building docs for docs.rs
-features = [ "proptest-support", "compare", "io"]
+features = ["proptest-support", "compare", "io"]

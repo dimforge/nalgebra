@@ -5,9 +5,6 @@
     <a href="https://discord.gg/vt9DJSW">
         <img src="https://img.shields.io/discord/507548572338880513.svg?logo=discord&colorB=7289DA">
     </a>
-    <a href="https://circleci.com/gh/dimforge/nalgebra">
-        <img src="https://circleci.com/gh/dimforge/nalgebra.svg?style=svg" alt="Build status">
-    </a>
     <a href="https://crates.io/crates/nalgebra">
          <img src="https://img.shields.io/crates/v/nalgebra.svg?style=flat-square" alt="crates.io">
     </a>
@@ -17,7 +14,7 @@
 </p>
 <p align = "center">
     <strong>
-        <a href="https://nalgebra.org">Users guide</a> | <a href="https://docs.rs/nalgebra/latest/nalgebra/">Documentation</a> | <a href="https://discourse.nphysics.org/c/nalgebra">Forum</a>
+        <a href="https://nalgebra.org">Users guide</a> | <a href="https://docs.rs/nalgebra/latest/nalgebra/">Documentation</a>
     </strong>
 </p>
 
