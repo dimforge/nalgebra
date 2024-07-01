@@ -120,13 +120,6 @@ where
         self.clone_owned().try_inverse().is_some()
     }
 
-    /// Returns `true` if this matrix is hermitian.
-    #[inline]
-    #[must_use]
-    pub fn is_hermitian(&self) -> bool {
-        self.is_square() && self.transpose().conjugate().eq(self)
-    }
-
     /// Returns `true` if this matrix is unitary.
     #[inline]
     #[must_use]

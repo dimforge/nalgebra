@@ -202,15 +202,6 @@ fn identity() {
 }
 
 #[test]
-fn is_hermitian() {
-    let a = Matrix2::new(1.0, 2.0, 3.0, 4.0);
-    let b = Matrix2::new(1.0, 2.0, 2.0, 1.0);
-
-    assert!(!a.is_hermitian());
-    assert!(b.is_hermitian());
-}
-
-#[test]
 fn is_unitary() {
     let a = Matrix2::new(1.0, 2.0, 3.0, 4.0);
     let b = Matrix2::new(0.0, 1.0, 1.0, 0.0);
