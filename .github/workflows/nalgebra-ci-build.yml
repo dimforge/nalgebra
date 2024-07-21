@@ -2,9 +2,9 @@ name: nalgebra CI build
 
 on:
   push:
-    branches: [ dev, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ dev, master ]
+    branches: [ main ]
 
 env:
   CARGO_TERM_COLOR: always
