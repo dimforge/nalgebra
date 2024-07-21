@@ -310,7 +310,7 @@ where
     ///
     /// # Arguments
     ///   * `axisangle` - A vector representing the rotation. Its magnitude is the amount of rotation
-    ///   in radian. Its direction is the axis of rotation.
+    ///     in radian. Its direction is the axis of rotation.
     ///
     /// # Example
     /// ```
@@ -459,7 +459,7 @@ where
     /// # Arguments
     ///   * dir - The look direction, that is, direction the matrix `z` axis will be aligned with.
     ///   * up - The vertical direction. The only requirement of this parameter is to not be
-    ///   collinear to `dir`. Non-collinearity is not checked.
+    ///     collinear to `dir`. Non-collinearity is not checked.
     ///
     /// # Example
     /// ```
@@ -515,7 +515,7 @@ where
     /// # Arguments
     ///   * dir - The direction toward which the camera looks.
     ///   * up - A vector approximately aligned with required the vertical axis. The only
-    ///   requirement of this parameter is to not be collinear to `dir`.
+    ///     requirement of this parameter is to not be collinear to `dir`.
     ///
     /// # Example
     /// ```
@@ -546,7 +546,7 @@ where
     /// # Arguments
     ///   * dir - The direction toward which the camera looks.
     ///   * up - A vector approximately aligned with required the vertical axis. The only
-    ///   requirement of this parameter is to not be collinear to `dir`.
+    ///     requirement of this parameter is to not be collinear to `dir`.
     ///
     /// # Example
     /// ```
