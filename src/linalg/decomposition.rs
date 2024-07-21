@@ -120,8 +120,8 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// * `compute_v` − set this to `true` to enable the computation of right-singular vectors.
     /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
+    ///   number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    ///   continues indefinitely until convergence.
     pub fn try_svd(
         self,
         compute_u: bool,
@@ -153,8 +153,8 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     /// * `compute_v` − set this to `true` to enable the computation of right-singular vectors.
     /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
+    ///   number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    ///   continues indefinitely until convergence.
     pub fn try_svd_unordered(
         self,
         compute_u: bool,
@@ -302,8 +302,8 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> Matrix<T, D, D, S> {
     ///
     /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
+    ///   number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    ///   continues indefinitely until convergence.
     pub fn try_schur(self, eps: T::RealField, max_niter: usize) -> Option<Schur<T, D>>
     where
         D: DimSub<U1>, // For Hessenberg.
@@ -336,8 +336,8 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> Matrix<T, D, D, S> {
     ///
     /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
+    ///   number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    ///   continues indefinitely until convergence.
     pub fn try_symmetric_eigen(
         self,
         eps: T::RealField,

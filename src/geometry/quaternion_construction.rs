@@ -582,8 +582,8 @@ where
     /// # Arguments
     ///   * dir - The look direction. It does not need to be normalized.
     ///   * up - The vertical direction. It does not need to be normalized.
-    ///   The only requirement of this parameter is to not be collinear to `dir`. Non-collinearity
-    ///   is not checked.
+    ///     The only requirement of this parameter is to not be collinear to `dir`. Non-collinearity
+    ///     is not checked.
     ///
     /// # Example
     /// ```
@@ -624,7 +624,7 @@ where
     /// # Arguments
     ///   * dir − The view direction. It does not need to be normalized.
     ///   * up - A vector approximately aligned with required the vertical axis. It does not need
-    ///   to be normalized. The only requirement of this parameter is to not be collinear to `dir`.
+    ///     to be normalized. The only requirement of this parameter is to not be collinear to `dir`.
     ///
     /// # Example
     /// ```
@@ -655,7 +655,7 @@ where
     /// # Arguments
     ///   * dir − The view direction. It does not need to be normalized.
     ///   * up - A vector approximately aligned with required the vertical axis. The only
-    ///   requirement of this parameter is to not be collinear to `dir`.
+    ///     requirement of this parameter is to not be collinear to `dir`.
     ///
     /// # Example
     /// ```

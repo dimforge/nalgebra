@@ -67,7 +67,7 @@ impl<T: SimdRealField> Rotation3<T> {
     /// * `other`: the second rotation to interpolate toward.
     /// * `t`: the interpolation parameter. Should be between 0 and 1.
     /// * `epsilon`: the value below which the sinus of the angle separating both rotations
-    /// must be to return `None`.
+    ///   must be to return `None`.
     #[inline]
     #[must_use]
     pub fn try_slerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>

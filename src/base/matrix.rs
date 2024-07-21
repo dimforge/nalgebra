@@ -140,18 +140,18 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 /// - `R`: for the matrix number of rows.
 /// - `C`: for the matrix number of columns.
 /// - `S`: for the matrix data storage, i.e., the buffer that actually contains the matrix
-/// components.
+///   components.
 ///
 /// The matrix dimensions parameters `R` and `C` can either be:
 /// - type-level unsigned integer constants (e.g. `U1`, `U124`) from the `nalgebra::` root module.
-/// All numbers from 0 to 127 are defined that way.
+///   All numbers from 0 to 127 are defined that way.
 /// - type-level unsigned integer constants (e.g. `U1024`, `U10000`) from the `typenum::` crate.
-/// Using those, you will not get error messages as nice as for numbers smaller than 128 defined on
-/// the `nalgebra::` module.
+///   Using those, you will not get error messages as nice as for numbers smaller than 128 defined on
+///   the `nalgebra::` module.
 /// - the special value `Dyn` from the `nalgebra::` root module. This indicates that the
-/// specified dimension is not known at compile-time. Note that this will generally imply that the
-/// matrix data storage `S` performs a dynamic allocation and contains extra metadata for the
-/// matrix shape.
+///   specified dimension is not known at compile-time. Note that this will generally imply that the
+///   matrix data storage `S` performs a dynamic allocation and contains extra metadata for the
+///   matrix shape.
 ///
 /// Note that mixing `Dyn` with type-level unsigned integers is allowed. Actually, a
 /// dynamically-sized column vector should be represented as a `Matrix<T, Dyn, U1, S>` (given
@@ -778,9 +778,9 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     ///
     /// The initialization closure is given the first component of this matrix:
     /// - If the matrix has no component (0 rows or 0 columns) then `init_f` is called with `None`
-    /// and its return value is the value returned by this method.
+    ///   and its return value is the value returned by this method.
     /// - If the matrix has has least one component, then `init_f` is called with the first component
-    /// to compute the initial value. Folding then continues on all the remaining components of the matrix.
+    ///   to compute the initial value. Folding then continues on all the remaining components of the matrix.
     #[inline]
     #[must_use]
     pub fn fold_with<T2>(
