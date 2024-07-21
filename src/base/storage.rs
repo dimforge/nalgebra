@@ -220,7 +220,7 @@ pub unsafe trait RawStorageMut<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     unsafe fn swap_unchecked_linear(&mut self, i1: usize, i2: usize) {
         // we can't just use the pointers returned from `get_address_unchecked_linear_mut` because calling a
         // method taking self mutably invalidates any existing (mutable) pointers. since `get_address_unchecked_linear_mut` can
-        // also be overriden by a custom implementation, we can't just use `wrapping_add` assuming that's what the method does.
+        // also be overridden by a custom implementation, we can't just use `wrapping_add` assuming that's what the method does.
         // instead, we use `offset_from` to compute the re-calculate the pointers from the base pointer.
         // this is sound as long as this trait matches the Validity preconditions
         // (and it's the caller's responsibility to ensure the indices are in-bounds).

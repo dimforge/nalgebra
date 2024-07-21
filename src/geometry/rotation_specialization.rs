@@ -1124,7 +1124,7 @@ impl<T: SimdRealField> Rotation3<T> {
             // lambda = 0, so ensure angle2 -> [0, pi]
             angles[1] < T::zero() || angles[1] > T::pi()
         } else {
-            // lamda = + or - pi/2, so ensure angle2 -> [-pi/2, pi/2]
+            // lambda = + or - pi/2, so ensure angle2 -> [-pi/2, pi/2]
             angles[1] < -T::frac_pi_2() || angles[1] > T::frac_pi_2()
         };
 
