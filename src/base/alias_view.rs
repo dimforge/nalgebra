@@ -438,6 +438,73 @@ pub type VectorView5<'a, T, RStride = U1, CStride = U5> =
 pub type VectorView6<'a, T, RStride = U1, CStride = U6> =
     Matrix<T, U6, U1, ViewStorage<'a, T, U6, U1, RStride, CStride>>;
 
+/// An immutable row vector view with dimensions known at compile-time.
+///
+/// See [`RowVectorViewMut`] for a mutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorView<'a, T, D, RStride = U1, CStride = D> =
+    Matrix<T, U1, D, ViewStorage<'a, T, U1, D, RStride, CStride>>;
+
+/// An immutable row vector view with dimensions known at compile-time.
+///
+/// See [`RowSVectorViewMut`] for a mutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowSVectorView<'a, T, const D: usize> =
+    Matrix<T, Const<1>, Const<D>, ViewStorage<'a, T, Const<1>, Const<D>, Const<1>, Const<D>>>;
+
+/// An immutable row vector view dynamic numbers of rows and columns.
+///
+/// See [`RowDVectorViewMut`] for a mutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowDVectorView<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, U1, Dyn, ViewStorage<'a, T, U1, Dyn, RStride, CStride>>;
+
+/// An immutable 1D row vector view.
+///
+/// See [`RowVectorViewMut1`] for a mutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorView1<'a, T, RStride = U1, CStride = U1> =
+    Matrix<T, U1, U1, ViewStorage<'a, T, U1, U1, RStride, CStride>>;
+/// An immutable 2D row vector view.
+///
+/// See [`RowVectorViewMut2`] for a mutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorView2<'a, T, RStride = U1, CStride = U2> =
+    Matrix<T, U1, U2, ViewStorage<'a, T, U1, U2, RStride, CStride>>;
+/// An immutable 3D row vector view.
+///
+/// See [`RowVectorViewMut3`] for a mutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorView3<'a, T, RStride = U1, CStride = U2> =
+    Matrix<T, U1, U3, ViewStorage<'a, T, U1, U3, RStride, CStride>>;
+/// An immutable 4D row vector view.
+///
+/// See [`RowVectorViewMut4`] for a mutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorView4<'a, T, RStride = U1, CStride = U4> =
+    Matrix<T, U1, U4, ViewStorage<'a, T, U1, U4, RStride, CStride>>;
+/// An immutable 5D row vector view.
+///
+/// See [`RowVectorViewMut5`] for a mutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorView5<'a, T, RStride = U1, CStride = U5> =
+    Matrix<T, U1, U5, ViewStorage<'a, T, U1, U5, RStride, CStride>>;
+/// An immutable 6D row vector view.
+///
+/// See [`RowVectorViewMut6`] for a mutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorView6<'a, T, RStride = U1, CStride = U6> =
+    Matrix<T, U1, U6, ViewStorage<'a, T, U1, U6, RStride, CStride>>;
+
 /*
  *
  *
@@ -873,3 +940,70 @@ pub type VectorViewMut5<'a, T, RStride = U1, CStride = U5> =
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 pub type VectorViewMut6<'a, T, RStride = U1, CStride = U6> =
     Matrix<T, U6, U1, ViewStorageMut<'a, T, U6, U1, RStride, CStride>>;
+
+/// A mutable row vector view with dimensions known at compile-time.
+///
+/// See [`RowVectorView`] for an immutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorViewMut<'a, T, D, RStride = U1, CStride = Dyn> =
+    Matrix<T, D, U1, ViewStorageMut<'a, T, D, U1, RStride, CStride>>;
+
+/// A mutable row vector view with dimensions known at compile-time.
+///
+/// See [`RowSVectorView`] for an immutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowSVectorViewMut<'a, T, const D: usize> =
+    Matrix<T, Const<1>, Const<D>, ViewStorageMut<'a, T, Const<1>, Const<D>, Const<1>, Const<D>>>;
+
+/// A mutable row vector view dynamic numbers of rows and columns.
+///
+/// See [`RowDVectorView`] for an immutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowDVectorViewMut<'a, T, RStride = U1, CStride = Dyn> =
+    Matrix<T, U1, Dyn, ViewStorageMut<'a, T, U1, Dyn, RStride, CStride>>;
+
+/// A mutable 1D row vector view.
+///
+/// See [`RowVectorView1`] for an immutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorViewMut1<'a, T, RStride = U1, CStride = U1> =
+    Matrix<T, U1, U1, ViewStorageMut<'a, T, U1, U1, RStride, CStride>>;
+/// A mutable 2D row vector view.
+///
+/// See [`RowVectorView2`] for an immutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorViewMut2<'a, T, RStride = U1, CStride = U2> =
+    Matrix<T, U1, U2, ViewStorageMut<'a, T, U1, U2, RStride, CStride>>;
+/// A mutable 3D row vector view.
+///
+/// See [`RowVectorView3`] for an immutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorViewMut3<'a, T, RStride = U1, CStride = U3> =
+    Matrix<T, U1, U3, ViewStorageMut<'a, T, U1, U3, RStride, CStride>>;
+/// A mutable 4D row vector view.
+///
+/// See [`RowVectorView4`] for an immutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorViewMut4<'a, T, RStride = U1, CStride = U4> =
+    Matrix<T, U1, U4, ViewStorageMut<'a, T, U1, U4, RStride, CStride>>;
+/// A mutable 5D row vector view.
+///
+/// See [`RowVectorView5`] for an immutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorViewMut5<'a, T, RStride = U1, CStride = U5> =
+    Matrix<T, U1, U5, ViewStorageMut<'a, T, U1, U5, RStride, CStride>>;
+/// A mutable 6D row vector view.
+///
+/// See [`RowVectorView6`] for an immutable version of this type.
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorViewMut6<'a, T, RStride = U1, CStride = U6> =
+    Matrix<T, U1, U6, ViewStorageMut<'a, T, U1, U6, RStride, CStride>>;
