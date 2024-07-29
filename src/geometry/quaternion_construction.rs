@@ -849,10 +849,10 @@ where
 
         let max_eigenvector = eigen_matrix.eigenvectors.column(max_eigenvalue_index);
         UnitQuaternion::from_quaternion(Quaternion::new(
+            max_eigenvector[3].clone(),
             max_eigenvector[0].clone(),
             max_eigenvector[1].clone(),
             max_eigenvector[2].clone(),
-            max_eigenvector[3].clone(),
         ))
     }
 }
