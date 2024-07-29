@@ -814,14 +814,16 @@ where
     /// # use std::f32;
     /// # use nalgebra::{UnitQuaternion};
     /// let q1 = UnitQuaternion::from_euler_angles(0.0, 0.0, 0.0);
-    /// let q2 = UnitQuaternion::from_euler_angles(-0.1, 0.0, 0.0);
-    /// let q3 = UnitQuaternion::from_euler_angles(0.1, 0.0, 0.0);
+    /// let q2 = UnitQuaternion::from_euler_angles(0.1, 0.0, 0.0);
+    /// let q3 = UnitQuaternion::from_euler_angles(0.2, 0.0, 0.0);
     ///
     /// let quat_vec = vec![q1, q2, q3];
     /// let q_mean = UnitQuaternion::mean_of(quat_vec);
     ///
     /// let euler_angles_mean = q_mean.euler_angles();
-    /// assert_relative_eq!(euler_angles_mean.0, 0.0, epsilon = 1.0e-7)
+    /// assert_relative_eq!(euler_angles_mean.0, 0.1, epsilon = 1.0e-7);
+    /// assert_relative_eq!(euler_angles_mean.1, 0.0, epsilon = 1.0e-7);
+    /// assert_relative_eq!(euler_angles_mean.2, 0.0, epsilon = 1.0e-7);
     /// ```
     #[inline]
     pub fn mean_of(unit_quaternions: impl IntoIterator<Item = Self>) -> Self
@@ -925,4 +927,31 @@ mod tests {
             assert!(relative_eq!(x.into_inner().norm(), 1.0))
         }
     }
+
+
+
+
+
+
+
+    #[test]
+    fn mean_of_simple() {
+        // assert!(false);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
