@@ -1341,6 +1341,14 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C> + IsContiguous> Matrix<T, R, C, S
     }
 }
 
+impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C> + IsContiguous> AsRef<[T]> for Matrix<T, R, C, S> {
+    /// Extracts a slice containing the entire matrix entries ordered column-by-columns.
+    #[inline]
+    fn as_ref(&self) -> &[T] {
+        self.as_slice()
+    }
+}
+
 impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C> + IsContiguous> Matrix<T, R, C, S> {
     /// Extracts a mutable slice containing the entire matrix entries ordered column-by-columns.
     #[inline]
