@@ -14,6 +14,8 @@ use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar, Unit};
 use crate::geometry::{AbstractRotation, Point, Translation};
 
+use crate::{Isometry3, Quaternion, Vector3, Vector4};
+
 #[cfg(feature = "rkyv-serialize")]
 use rkyv::bytecheck;
 
@@ -97,6 +99,23 @@ where
         self.translation.hash(state);
         self.rotation.hash(state);
     }
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: Scalar, R, const D: usize> bytemuck::Zeroable for Isometry<T, R, D>
+where
+    SVector<T, D>: bytemuck::Zeroable,
+    R: bytemuck::Zeroable,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: Scalar, R, const D: usize> bytemuck::Pod for Isometry<T, R, D>
+where
+    SVector<T, D>: bytemuck::Pod,
+    R: bytemuck::Pod,
+    T: Copy,
+{
 }
 
 /// # From the translation and rotation parts

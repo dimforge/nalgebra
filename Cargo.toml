@@ -35,7 +35,7 @@ macros = ["nalgebra-macros"]
 
 # Conversion
 convert-mint = ["mint"]
-convert-bytemuck = ["bytemuck"]
+convert-bytemuck = ["bytemuck", "num-complex/bytemuck"]
 convert-glam014 = ["glam014"]
 convert-glam015 = ["glam015"]
 convert-glam016 = ["glam016"]
