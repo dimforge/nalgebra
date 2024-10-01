@@ -65,6 +65,21 @@ where
     }
 }
 
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: Scalar, R, const D: usize> bytemuck::Zeroable for Similarity<T, R, D> where
+    Isometry<T, R, D>: bytemuck::Zeroable
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: Scalar, R, const D: usize> bytemuck::Pod for Similarity<T, R, D>
+where
+    Isometry<T, R, D>: bytemuck::Pod,
+    R: Copy,
+    T: Copy,
+{
+}
+
 impl<T: Scalar + Zero, R, const D: usize> Similarity<T, R, D>
 where
     R: AbstractRotation<T, D>,
