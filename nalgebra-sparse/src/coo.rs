@@ -312,3 +312,15 @@ impl<T> CooMatrix<T> {
         (self.row_indices, self.col_indices, self.values)
     }
 }
+
+impl<T> Default for CooMatrix<T> {
+    fn default() -> Self {
+        Self {
+            nrows: 0,
+            ncols: 0,
+            row_indices: Default::default(),
+            col_indices: Default::default(),
+            values: Default::default(),
+        }
+    }
+}
