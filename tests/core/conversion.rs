@@ -177,9 +177,9 @@ macro_rules! array_row_vector_conversion(
     ($($array_vector_conversion_i: ident, $Vector: ident, $SZ: expr);* $(;)*) => {$(
         #[test]
         fn $array_vector_conversion_i() {
-            let v       = $Vector::from_fn(|_, i| i);
+            let v: $Vector<_>       = $Vector::from_fn(|_, i| i);
             let arr: [usize; $SZ] = v.into();
-            let arr_ref = v.as_ref();
+            let arr_ref: &[_] = v.as_ref();
             let v2      = $Vector::from(arr);
 
             for i in 0 .. $SZ {
@@ -207,13 +207,13 @@ macro_rules! array_matrix_conversion(
         fn $array_matrix_conversion_i_j() {
             let m       = $Matrix::from_fn(|i, j| i * 10 + j);
             let arr: [[usize; $NRows]; $NCols] = m.into();
-            let arr_ref = m.as_ref();
+            let arr_ref: &[_] = m.as_ref();
             let m2      = $Matrix::from(arr);
 
             for i in 0 .. $NRows {
                 for j in 0 .. $NCols {
                     assert_eq!(arr[j][i], i * 10 + j);
-                    assert_eq!(arr_ref[j][i], i * 10 + j);
+                    assert_eq!(arr_ref[j * $NRows + i], i * 10 + j);
                 }
             }
 
