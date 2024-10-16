@@ -5,6 +5,14 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.33.1] (16 October 2024)
+
+### Added
+
+- Add implementations of `bytemuck` traits for isometries and similarities.
+- Implement `AsRef<[T]>` for matrices with contiguous storage.
+- Enable the `num-complex/bytemuck` feature when the `convert-bytemuck` feature is enabled.
+
 ## [0.33.0] (23 June 2024)
 
 ### Fixed
