@@ -8,21 +8,21 @@ fn symmetric_eigen_decompose_4x4(bh: &mut criterion::Criterion) {
 }
 
 fn symmetric_eigen_decompose_10x10(bh: &mut criterion::Criterion) {
-    let m = crate::reproductible_dmatrix(10, 10);
+    let m = crate::reproducible_dmatrix(10, 10);
     bh.bench_function("symmetric_eigen_decompose_10x10", move |bh| {
         bh.iter(|| std::hint::black_box(SymmetricEigen::new(m.clone())))
     });
 }
 
 fn symmetric_eigen_decompose_100x100(bh: &mut criterion::Criterion) {
-    let m = crate::reproductible_dmatrix(100, 100);
+    let m = crate::reproducible_dmatrix(100, 100);
     bh.bench_function("symmetric_eigen_decompose_100x100", move |bh| {
         bh.iter(|| std::hint::black_box(SymmetricEigen::new(m.clone())))
     });
 }
 
 fn symmetric_eigen_decompose_200x200(bh: &mut criterion::Criterion) {
-    let m = crate::reproductible_dmatrix(200, 200);
+    let m = crate::reproducible_dmatrix(200, 200);
     bh.bench_function("symmetric_eigen_decompose_200x200", move |bh| {
         bh.iter(|| std::hint::black_box(SymmetricEigen::new(m.clone())))
     });
