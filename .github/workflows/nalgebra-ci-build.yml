@@ -106,27 +106,24 @@ jobs:
   build-no-std:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - name: Install latest stable
+        uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly
-          override: true
-          components: rustfmt
-      - name: install xargo
-        run: cp .github/Xargo.toml .; rustup component add rust-src; cargo install -f xargo;
-      - name: build x86_64-unknown-linux-gnu
-        run: xargo build --verbose --no-default-features --target=x86_64-unknown-linux-gnu;
-      - name: build x86_64-unknown-linux-gnu --features rand-no-std
-        run: xargo build --verbose --no-default-features --target=x86_64-unknown-linux-gnu;
-      - name: build x86_64-unknown-linux-gnu --features alloc
-        run: xargo build --verbose --no-default-features --features alloc --target=x86_64-unknown-linux-gnu;
+          toolchain: stable
+          targets: "x86_64-unknown-none,thumbv7em-none-eabihf"
+      - name: build x86_64-unknown-none
+        run: cargo build --verbose --no-default-features --target=x86_64-unknown-none
+      - name: build x86_64-unknown-none --features rand-no-std
+        run: cargo build --verbose --no-default-features --features rand-no-std --target=x86_64-unknown-none
+      - name: build x86_64-unknown-none --features alloc
+        run: cargo build --verbose --no-default-features --features alloc --target=x86_64-unknown-none
       - name: build thumbv7em-none-eabihf
-        run: xargo build --verbose --no-default-features --target=thumbv7em-none-eabihf;
-      - name: build x86_64-unknown-linux-gnu nalgebra-glm
-        run: xargo build --verbose --no-default-features -p nalgebra-glm --target=x86_64-unknown-linux-gnu;
+        run: cargo build --verbose --no-default-features --target=thumbv7em-none-eabihf
+      - name: build x86_64-unknown-none nalgebra-glm
+        run: cargo build --verbose --no-default-features -p nalgebra-glm --target=x86_64-unknown-none
       - name: build thumbv7em-none-eabihf nalgebra-glm
-        run: xargo build --verbose --no-default-features -p nalgebra-glm --target=thumbv7em-none-eabihf;
+        run: cargo build --verbose --no-default-features -p nalgebra-glm --target=thumbv7em-none-eabihf
   docs:
     runs-on: ubuntu-latest
     steps:
