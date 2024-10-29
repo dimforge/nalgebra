@@ -110,8 +110,8 @@ where
     /// * `compute_v` − set this to `true` to enable the computation of right-singular vectors.
     /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
+    ///   number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    ///   continues indefinitely until convergence.
     pub fn try_new_unordered(
         mut matrix: OMatrix<T, R, C>,
         compute_u: bool,
@@ -695,8 +695,8 @@ where
     /// * `compute_v` − set this to `true` to enable the computation of right-singular vectors.
     /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
+    ///   number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    ///   continues indefinitely until convergence.
     pub fn try_new(
         matrix: OMatrix<T, R, C>,
         compute_u: bool,
