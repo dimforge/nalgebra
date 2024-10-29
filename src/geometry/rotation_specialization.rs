@@ -100,7 +100,7 @@ impl<T: SimdRealField> Rotation2<T> {
         T: RealField,
     {
         if max_iter == 0 {
-            max_iter = usize::max_value();
+            max_iter = usize::MAX;
         }
 
         let mut rot = guess.into_inner();
