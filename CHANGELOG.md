@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- Add the `glam-0.29` feature to enable conversion from/to types from `glam` v0.29.
+- Add the `convert-glam029` feature to enable conversion from/to types from `glam` v0.29.
 
 ## [0.33.1] (16 October 2024)
 
