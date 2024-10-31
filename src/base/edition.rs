@@ -249,7 +249,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         }
     }
 
-    /// Sets all the elements of the lower-triangular part of this matrix to `val`.
+    /// Sets all the elements of the upper-triangular part of this matrix to `val`.
     ///
     /// The parameter `shift` allows some superdiagonals to be left untouched:
     /// * If `shift = 0` then the diagonal is overwritten as well.
