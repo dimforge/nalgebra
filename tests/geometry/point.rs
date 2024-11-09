@@ -1,4 +1,4 @@
-use na::{Point3, Vector3, Vector4};
+use na::{Point2, Point3, Point4, Vector2, Vector3, Vector4};
 use num::Zero;
 
 #[test]
@@ -99,4 +99,40 @@ fn display_fmt_respects_modifiers() {
     assert_eq!(&format!("{p}"), "{1.23, 3.45, 5.67}");
     assert_eq!(&format!("{p:.1}"), "{1.2, 3.5, 5.7}");
     assert_eq!(&format!("{p:.0}"), "{1, 3, 6}");
+}
+
+#[test]
+fn homogeneous_conversions() {
+    // 2D -> 3D homogeneous conversion
+    let p = Point2::new(1.0, 2.0);
+    let expected = Vector3::new(1.0, 2.0, 1.0);
+    let v1: Vector3<f64> = p.into();
+    assert_eq!(v1, expected);
+
+    // 3D -> 4D homogeneous conversion
+    let p = Point3::new(1.0, 2.0, 3.0);
+    let expected = Vector4::new(1.0, 2.0, 3.0, 1.0);
+    let v1: Vector4<f64> = p.into();
+    assert_eq!(v1, expected);
+}
+
+#[test]
+fn dimension_preserving_conversions() {
+    // 2D point -> 2D vector
+    let p = Point2::new(1.0, 2.0);
+    let expected = Vector2::new(1.0, 2.0);
+    let v1: Vector2<f64> = p.into();
+    assert_eq!(v1, expected);
+
+    // 3D point -> 3D vector
+    let p = Point3::new(1.0, 2.0, 3.0);
+    let expected = Vector3::new(1.0, 2.0, 3.0);
+    let v1: Vector3<f64> = p.into();
+    assert_eq!(v1, expected);
+
+    // 4D point -> 4D vector
+    let p = Point4::new(1.0, 2.0, 3.0, 4.0);
+    let expected = Vector4::new(1.0, 2.0, 3.0, 4.0);
+    let v1: Vector4<f64> = p.into();
+    assert_eq!(v1, expected);
 }
