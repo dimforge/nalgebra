@@ -13,6 +13,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "rkyv-serialize-no-std")]
 use super::rkyv_wrappers::CustomPhantom;
+use super::Dynamic;
 #[cfg(feature = "rkyv-serialize")]
 use rkyv::bytecheck;
 #[cfg(feature = "rkyv-serialize-no-std")]
@@ -2366,5 +2367,56 @@ impl<T> super::alias::Matrix1<T> {
     pub fn into_scalar(self) -> T {
         let [[scalar]] = self.data.0;
         scalar
+    }
+}
+
+impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
+    /// Takes variant number of bands
+    /// The central band becomes the main diagonal
+    pub fn from_bands(args: &[&Vec<T>]) -> Self
+    where
+        T: Zero + Clone,
+        DefaultAllocator: Allocator<R, C>,
+    {
+
+        // Consider the central band as the main diagonal
+        assert!(
+            args.len() % 2 == 1,
+            "Number of bands should be odd"
+        );
+
+        // Retrieves the index and the length of the longest band to calculate the size of the matrix
+        let (n, ind) = args.iter()
+                    .enumerate()
+                    .map(|(index, v)| (index, v.len()))
+                    .max_by_key(|(_, len)| *len)
+                    .unwrap_or((0, 0));
+
+        // The size is considered as the length of the longest band and the distance from the main diagonal
+        n = n + ind - args.len()/2;
+
+        // Create a zeroed matrix with the specified generic size.
+        let mut mat = Matrix::<T, R, C, _>::zeros_generic(R::from_usize(n), C::from_usize(n));
+
+        // Set the main diagonal band
+        for i in 0..args[args.len()/2].len()-1 {
+            unsafe {*mat.get_unchecked_mut((i, i)) = args[args.len()/2][i].clone(); }
+        }
+
+        // set lower diagonal bands
+        for band in 0..args.len()/2 - 1 {
+            for i in 0..args[band].len() - 1 {
+                unsafe {*mat.get_unchecked_mut((i, 0)) = args[band][i].clone(); }  
+            }
+        }
+
+        // set upper diagonal bands
+        for band in args.len()/2 + 1..args.len()-1 {
+            for j in 0..args[band].len() - 1 {
+                unsafe {*mat.get_unchecked_mut((0, j)) = args[band][j].clone(); }  
+            }
+        }
+
+        mat
     }
 }
