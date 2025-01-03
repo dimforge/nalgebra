@@ -10,6 +10,11 @@ use crate::linalg::lu;
 impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
     /// Attempts to invert this square matrix.
     ///
+    /// # Returns
+    ///
+    /// - `Some<SquareMatrix>`: The inverted matrix, if the inversion succeeds and all entries are finite.
+    /// - `None`: If the inversion fails or produces `Inf` or `NaN` values.
+    ///
     /// # Panics
     ///
     /// Panics if `self` isn’t a square matrix.
@@ -20,7 +25,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         DefaultAllocator: Allocator<D, D>,
     {
         let mut me = self.into_owned();
-        if me.try_inverse_mut() {
+        if me.try_inverse_mut() && me.iter().all(|x| x.is_finite()) {
             Some(me)
         } else {
             None
@@ -31,6 +36,8 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 impl<T: ComplexField, D: Dim, S: StorageMut<T, D, D>> SquareMatrix<T, D, S> {
     /// Attempts to invert this square matrix in-place. Returns `false` and leaves `self` untouched if
     /// inversion fails.
+    /// 
+    /// Calling this function on near singular matrices may lead to`Inf` or `NaN` values!
     ///
     /// # Panics
     ///
@@ -278,9 +285,6 @@ where
     for j in 0..4 {
         for i in 0..4 {
             out[(i, j)] *= inv_det.clone();
-            if !out[(i, j)].is_finite() {
-                return false;
-            }
         }
     }
     true

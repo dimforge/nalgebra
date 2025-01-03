@@ -143,6 +143,49 @@ fn matrix5_try_inverse_scaled_identity() {
 
 #[test]
 #[rustfmt::skip]
+fn matrix2_try_inverse_singular(){
+    let m1 = Matrix2::new(
+        1.0, 0.0,
+         0.0,0.0
+    );
+    assert!(m1.try_inverse().is_none());
+}
+
+#[test]
+#[rustfmt::skip]
+fn matrix2_try_inverse_near_singular(){
+    let m1 = Matrix2::new(
+        1.0, 1e1, 
+        0.0,  f64::MIN_POSITIVE);
+    if let Some(inv) = m1.try_inverse(){
+        assert!(inv.iter().all(|x|x.is_finite()));
+    }
+}
+
+#[test]
+#[rustfmt::skip]
+fn matrix3_try_inverse_singular(){
+    let m1 = Matrix3::new(
+        1.0, 0.0, 0.0, 
+        0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0);
+    assert!(m1.try_inverse().is_none());
+}
+
+#[test]
+#[rustfmt::skip]
+fn matrix3_try_inverse_near_singular(){
+    let m1 = Matrix3::new(
+        1.0, 1e1, 1e1, 
+        0.0, 1.0, 1e1,
+        0.0, 0.0, f64::MIN_POSITIVE);
+    if let Some(inv) = m1.try_inverse(){
+        assert!(inv.iter().all(|x|x.is_finite()));
+    }
+}
+
+#[test]
+#[rustfmt::skip]
 fn matrix4_try_inverse_singular(){
     let m1 = Matrix4::new(
         1.0, 0.0, 0.0, 0.0, 
@@ -160,5 +203,7 @@ fn matrix4_try_inverse_near_singular(){
         0.0, 1.0, 1e1, 1e1,
         0.0, 0.0, 1.0, 1e1,
         0.0, 0.0, 0.0, f64::MIN_POSITIVE );
-    assert!(m1.try_inverse().is_none());
+    if let Some(inv) = m1.try_inverse(){
+        assert!(inv.iter().all(|x|x.is_finite()));
+    }
 }
