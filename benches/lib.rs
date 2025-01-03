@@ -24,7 +24,7 @@ fn reproducible_dmatrix(nrows: usize, ncols: usize) -> DMatrix<f64> {
 fn reproducible_matrix<T: Scalar + Default, const R: usize, const C: usize>(
 ) -> Matrix<T, na::Const<R>, na::Const<C>, na::ArrayStorage<T, R, C>>
 where
-    [[T; R]; C]: Default,
+    na::ArrayStorage<T, R, C>: Default,
     Standard: Distribution<T>,
 {
     use rand::SeedableRng;
