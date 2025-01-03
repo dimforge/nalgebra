@@ -140,3 +140,25 @@ fn matrix5_try_inverse_scaled_identity() {
 
     assert_relative_eq!(a_inv, expected_inverse);
 }
+
+#[test]
+#[rustfmt::skip]
+fn matrix4_try_inverse_singular(){
+    let m1 = Matrix4::new(
+        1.0, 0.0, 0.0, 0.0, 
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 0.0 );
+    assert!(m1.try_inverse().is_none());
+}
+
+#[test]
+#[rustfmt::skip]
+fn matrix4_try_inverse_near_singular(){
+    let m1 = Matrix4::new(
+        1.0, 1e1, 1e1, 1e1, 
+        0.0, 1.0, 1e1, 1e1,
+        0.0, 0.0, 1.0, 1e1,
+        0.0, 0.0, 0.0, f64::MIN_POSITIVE );
+    assert!(m1.try_inverse().is_none());
+}
