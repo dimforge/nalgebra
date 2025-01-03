@@ -278,6 +278,9 @@ where
     for j in 0..4 {
         for i in 0..4 {
             out[(i, j)] *= inv_det.clone();
+            if !out[(i, j)].is_finite() {
+                return false;
+            }
         }
     }
     true
