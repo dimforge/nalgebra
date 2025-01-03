@@ -9,6 +9,7 @@ pub use self::schur::schur;
 pub use self::solve::solve;
 pub use self::svd::svd;
 pub use self::symmetric_eigen::symmetric_eigen;
+
 mod bidiagonal;
 mod cholesky;
 mod full_piv_lu;
