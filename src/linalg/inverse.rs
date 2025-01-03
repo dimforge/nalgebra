@@ -36,7 +36,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 impl<T: ComplexField, D: Dim, S: StorageMut<T, D, D>> SquareMatrix<T, D, S> {
     /// Attempts to invert this square matrix in-place. Returns `false` and leaves `self` untouched if
     /// inversion fails.
-    /// 
+    ///
     /// Calling this function on near singular matrices may lead to`Inf` or `NaN` values!
     ///
     /// # Panics
