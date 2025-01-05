@@ -1797,7 +1797,7 @@ where
             return None;
         }
 
-        if self.nrows() == 0 || self.ncols() == 0 {
+        if self.nrows().is_zero() || self.ncols().is_zero() {
             return Some(Ordering::Equal);
         }
 
@@ -1812,24 +1812,24 @@ where
             let _ = it.next(); // Drop the first elements (we already tested it).
 
             for (left, right) in it {
-                if let Some(ord) = left.partial_cmp(right) {
-                    match ord {
-                        Ordering::Equal => { /* Does not change anything. */ }
-                        Ordering::Less => {
-                            if *first_ord == Ordering::Greater {
-                                return None;
-                            }
-                            *first_ord = ord
-                        }
-                        Ordering::Greater => {
-                            if *first_ord == Ordering::Less {
-                                return None;
-                            }
-                            *first_ord = ord
-                        }
-                    }
-                } else {
+                let Some(ord) = left.partial_cmp(right) else {
                     return None;
+                };
+
+                match ord {
+                    Ordering::Equal => { /* Does not change anything. */ }
+                    Ordering::Less => {
+                        if first_ord.is_gt() {
+                            return None;
+                        }
+                        *first_ord = ord
+                    }
+                    Ordering::Greater => {
+                        if first_ord.is_lt() {
+                            return None;
+                        }
+                        *first_ord = ord
+                    }
                 }
             }
         }

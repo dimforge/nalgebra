@@ -237,9 +237,9 @@ pub enum MatrixMarketErrorKind {
 }
 
 impl MatrixMarketError {
-    fn from_kind_and_message(error_type: MatrixMarketErrorKind, message: String) -> Self {
+    fn from_kind_and_message(error_kind: MatrixMarketErrorKind, message: String) -> Self {
         Self {
-            error_kind: error_type,
+            error_kind,
             message,
         }
     }
@@ -260,38 +260,21 @@ impl MatrixMarketError {
 impl fmt::Display for MatrixMarketError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "Matrix Market error: ")?;
-        match self.kind() {
-            MatrixMarketErrorKind::ParsingError => {
-                write!(f, "ParsingError,")?;
+        write!(
+            f,
+            match self.kind() {
+                MatrixMarketErrorKind::ParsingError => "ParsingError,",
+                MatrixMarketErrorKind::InvalidHeader => "InvalidHeader,",
+                MatrixMarketErrorKind::EntryMismatch => "EntryMismatch,",
+                MatrixMarketErrorKind::TypeMismatch => "TypeMismatch,",
+                MatrixMarketErrorKind::SparseFormatError(_) => "SparseFormatError,",
+                MatrixMarketErrorKind::ZeroError => "ZeroError,",
+                MatrixMarketErrorKind::IOError(_) => "IOError,",
+                MatrixMarketErrorKind::DiagonalError => "DiagonalError,",
+                MatrixMarketErrorKind::NotLowerTriangle => "NotLowerTriangle,",
+                MatrixMarketErrorKind::NonSquare => "NonSquare,",
             }
-            MatrixMarketErrorKind::InvalidHeader => {
-                write!(f, "InvalidHeader,")?;
-            }
-            MatrixMarketErrorKind::EntryMismatch => {
-                write!(f, "EntryMismatch,")?;
-            }
-            MatrixMarketErrorKind::TypeMismatch => {
-                write!(f, "TypeMismatch,")?;
-            }
-            MatrixMarketErrorKind::SparseFormatError(_) => {
-                write!(f, "SparseFormatError,")?;
-            }
-            MatrixMarketErrorKind::ZeroError => {
-                write!(f, "ZeroError,")?;
-            }
-            MatrixMarketErrorKind::IOError(_) => {
-                write!(f, "IOError,")?;
-            }
-            MatrixMarketErrorKind::DiagonalError => {
-                write!(f, "DiagonalError,")?;
-            }
-            MatrixMarketErrorKind::NotLowerTriangle => {
-                write!(f, "NotLowerTriangle,")?;
-            }
-            MatrixMarketErrorKind::NonSquare => {
-                write!(f, "NonSquare,")?;
-            }
-        }
+        )?;
         write!(f, " message: {}", self.message)
     }
 }
