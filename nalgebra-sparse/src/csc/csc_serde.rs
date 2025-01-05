@@ -48,12 +48,12 @@ impl<'de, T> Deserialize<'de> for CscMatrix<T>
 where
     T: Deserialize<'de> + Clone,
 {
-    fn deserialize<D>(deserializer: D) -> Result<CscMatrix<T>, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
         let de = CscMatrixSerializationData::<Vec<usize>, Vec<T>>::deserialize(deserializer)?;
-        CscMatrix::try_from_csc_data(
+        Self::try_from_csc_data(
             de.nrows,
             de.ncols,
             de.col_offsets,
