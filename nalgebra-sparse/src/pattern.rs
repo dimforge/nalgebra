@@ -346,14 +346,12 @@ impl From<SparsityPatternFormatError> for SparseFormatError {
             InvalidOffsetArrayLength
             | InvalidOffsetFirstLast
             | NonmonotonicOffsets
-            | NonmonotonicMinorIndices => {
-                Self::from_kind_and_error(InvalidStructure, Box::from(err))
-            }
-            MinorIndexOutOfBounds => Self::from_kind_and_error(IndexOutOfBounds, Box::from(err)),
+            | NonmonotonicMinorIndices => Self::from_kind_and_error(InvalidStructure, err.into()),
+            MinorIndexOutOfBounds => Self::from_kind_and_error(IndexOutOfBounds, err.into()),
             PatternDuplicateEntry => Self::from_kind_and_error(
                 #[allow(unused_qualifications)]
                 SparseFormatErrorKind::DuplicateEntry,
-                Box::from(err),
+                err.into(),
             ),
         }
     }

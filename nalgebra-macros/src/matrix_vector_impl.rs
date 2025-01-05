@@ -126,9 +126,7 @@ impl Parse for Vector {
     fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
         // The syntax of a vector is just the syntax of a single matrix row
         if input.is_empty() {
-            Ok(Self {
-                elements: vec![],
-            })
+            Ok(Self { elements: vec![] })
         } else {
             let elements = MatrixRowSyntax::parse_terminated(input)?
                 .into_iter()
