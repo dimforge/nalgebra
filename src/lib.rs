@@ -339,27 +339,13 @@ pub fn partial_ge<T: PartialOrd>(a: &T, b: &T) -> bool {
 /// Return the minimum of `a` and `b` if they are comparable.
 #[inline]
 pub fn partial_min<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
-    if let Some(ord) = a.partial_cmp(b) {
-        match ord {
-            Ordering::Greater => Some(b),
-            _ => Some(a),
-        }
-    } else {
-        None
-    }
+    a.partial_cmp(b).map(|ord| if ord.is_ge() { b } else { a })
 }
 
 /// Return the maximum of `a` and `b` if they are comparable.
 #[inline]
 pub fn partial_max<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<&'a T> {
-    if let Some(ord) = a.partial_cmp(b) {
-        match ord {
-            Ordering::Less => Some(b),
-            _ => Some(a),
-        }
-    } else {
-        None
-    }
+    a.partial_cmp(b).map(|ord| if ord.is_le() { b } else { a })
 }
 
 /// Clamp `value` between `min` and `max`. Returns `None` if `value` is not comparable to
@@ -382,14 +368,8 @@ pub fn partial_clamp<'a, T: PartialOrd>(value: &'a T, min: &'a T, max: &'a T) ->
 /// Sorts two values in increasing order using a partial ordering.
 #[inline]
 pub fn partial_sort2<'a, T: PartialOrd>(a: &'a T, b: &'a T) -> Option<(&'a T, &'a T)> {
-    if let Some(ord) = a.partial_cmp(b) {
-        match ord {
-            Ordering::Less => Some((a, b)),
-            _ => Some((b, a)),
-        }
-    } else {
-        None
-    }
+    a.partial_cmp(b)
+        .map(|ord| if ord.is_le() { (a, b) } else { (b, a) })
 }
 
 /*

@@ -1,7 +1,6 @@
 use na::{Unit, UnitQuaternion};
 
 use crate::aliases::{Qua, TVec3};
-use crate::RealNumber;
 
 /// The rotation angle of this quaternion assumed to be normalized.
 pub fn quat_angle<T: RealNumber>(x: &Qua<T>) -> T {
@@ -15,9 +14,8 @@ pub fn quat_angle_axis<T: RealNumber>(angle: T, axis: &TVec3<T>) -> Qua<T> {
 
 /// The rotation axis of a quaternion assumed to be normalized.
 pub fn quat_axis<T: RealNumber>(x: &Qua<T>) -> TVec3<T> {
-    if let Some(a) = UnitQuaternion::from_quaternion(*x).axis() {
-        a.into_inner()
-    } else {
-        TVec3::zeros()
-    }
+    UnitQuaternion::from_quaternion(*x)
+        .axis()
+        .map(|a| a.into_inner())
+        .unwrap_or_else(|| TVec3::zeros())
 }

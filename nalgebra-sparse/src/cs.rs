@@ -321,20 +321,19 @@ where
         let lane = self.pattern.get_lane(self.current_lane_idx);
         let minor_dim = self.pattern.minor_dim();
 
-        if let Some(minor_indices) = lane {
-            let count = minor_indices.len();
-            let values_in_lane = &self.remaining_values[..count];
-            self.remaining_values = &self.remaining_values[count..];
-            self.current_lane_idx += 1;
+        let Some(minor_indices) = lane else {
+            return None;
+        };
+        let count = minor_indices.len();
+        let values_in_lane = &self.remaining_values[..count];
+        self.remaining_values = &self.remaining_values[count..];
+        self.current_lane_idx += 1;
 
-            Some(CsLane {
-                minor_dim,
-                minor_indices,
-                values: values_in_lane,
-            })
-        } else {
-            None
-        }
+        Some(CsLane {
+            minor_dim,
+            minor_indices,
+            values: values_in_lane,
+        })
     }
 }
 
@@ -365,22 +364,21 @@ where
         let lane = self.pattern.get_lane(self.current_lane_idx);
         let minor_dim = self.pattern.minor_dim();
 
-        if let Some(minor_indices) = lane {
-            let count = minor_indices.len();
+        let Some(minor_indices) = lane else {
+            return None;
+        };
+        let count = minor_indices.len();
 
-            let remaining = std::mem::take(&mut self.remaining_values);
-            let (values_in_lane, remaining) = remaining.split_at_mut(count);
-            self.remaining_values = remaining;
-            self.current_lane_idx += 1;
+        let remaining = std::mem::take(&mut self.remaining_values);
+        let (values_in_lane, remaining) = remaining.split_at_mut(count);
+        self.remaining_values = remaining;
+        self.current_lane_idx += 1;
 
-            Some(CsLaneMut {
-                minor_dim,
-                minor_indices,
-                values: values_in_lane,
-            })
-        } else {
-            None
-        }
+        Some(CsLaneMut {
+            minor_dim,
+            minor_indices,
+            values: values_in_lane,
+        })
     }
 }
 
