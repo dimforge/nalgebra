@@ -260,21 +260,19 @@ impl MatrixMarketError {
 impl fmt::Display for MatrixMarketError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "Matrix Market error: ")?;
-        write!(
-            f,
-            match self.kind() {
-                MatrixMarketErrorKind::ParsingError => "ParsingError,",
-                MatrixMarketErrorKind::InvalidHeader => "InvalidHeader,",
-                MatrixMarketErrorKind::EntryMismatch => "EntryMismatch,",
-                MatrixMarketErrorKind::TypeMismatch => "TypeMismatch,",
-                MatrixMarketErrorKind::SparseFormatError(_) => "SparseFormatError,",
-                MatrixMarketErrorKind::ZeroError => "ZeroError,",
-                MatrixMarketErrorKind::IOError(_) => "IOError,",
-                MatrixMarketErrorKind::DiagonalError => "DiagonalError,",
-                MatrixMarketErrorKind::NotLowerTriangle => "NotLowerTriangle,",
-                MatrixMarketErrorKind::NonSquare => "NonSquare,",
-            }
-        )?;
+        let msg = match self.kind() {
+            MatrixMarketErrorKind::ParsingError => "ParsingError,",
+            MatrixMarketErrorKind::InvalidHeader => "InvalidHeader,",
+            MatrixMarketErrorKind::EntryMismatch => "EntryMismatch,",
+            MatrixMarketErrorKind::TypeMismatch => "TypeMismatch,",
+            MatrixMarketErrorKind::SparseFormatError(_) => "SparseFormatError,",
+            MatrixMarketErrorKind::ZeroError => "ZeroError,",
+            MatrixMarketErrorKind::IOError(_) => "IOError,",
+            MatrixMarketErrorKind::DiagonalError => "DiagonalError,",
+            MatrixMarketErrorKind::NotLowerTriangle => "NotLowerTriangle,",
+            MatrixMarketErrorKind::NonSquare => "NonSquare,",
+        };
+        write!(f, {}, msg)?;
         write!(f, " message: {}", self.message)
     }
 }

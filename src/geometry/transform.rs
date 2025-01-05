@@ -202,7 +202,7 @@ where
 {
     #[inline]
     fn clone(&self) -> Self {
-        Transform::from_matrix_unchecked(self.matrix.clone())
+        Self::from_matrix_unchecked(self.matrix.clone())
     }
 }
 
