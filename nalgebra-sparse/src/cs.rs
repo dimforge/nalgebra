@@ -187,8 +187,8 @@ impl<T> CsMatrix<T> {
     {
         let (major_dim, minor_dim) = (self.pattern().major_dim(), self.pattern().minor_dim());
         let mut new_offsets = Vec::with_capacity(self.pattern().major_dim() + 1);
-        let mut new_indices = Vec::new();
-        let mut new_values = Vec::new();
+        let mut new_indices = vec![];
+        let mut new_values = vec![];
 
         new_offsets.push(0);
         for (i, lane) in self.lane_iter().enumerate() {
@@ -601,9 +601,9 @@ where
     }
 
     // Set up required buffers up front
-    let mut minor_idx_buffer: Vec<usize> = Vec::new();
-    let mut values_buffer: Vec<T> = Vec::new();
-    let mut minor_index_permutation: Vec<usize> = Vec::new();
+    let mut minor_idx_buffer: Vec<usize> = vec![];
+    let mut values_buffer: Vec<T> = vec![];
+    let mut minor_index_permutation: Vec<usize> = vec![];
 
     // Test that each lane has strictly monotonically increasing minor indices, i.e.
     // minor indices within a lane are sorted, unique. Sort minor indices within a lane if needed.

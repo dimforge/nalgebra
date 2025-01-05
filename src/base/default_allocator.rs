@@ -93,7 +93,7 @@ impl<C: Dim> Allocator<Dyn, C> for DefaultAllocator {
 
     #[inline]
     fn allocate_uninit<T: Scalar>(nrows: Dyn, ncols: C) -> VecStorage<MaybeUninit<T>, Dyn, C> {
-        let mut data = Vec::new();
+        let mut data = vec![];
         let length = nrows.value() * ncols.value();
         data.reserve_exact(length);
         data.resize_with(length, MaybeUninit::uninit);
@@ -140,7 +140,7 @@ impl<R: DimName> Allocator<R, Dyn> for DefaultAllocator {
 
     #[inline]
     fn allocate_uninit<T: Scalar>(nrows: R, ncols: Dyn) -> VecStorage<MaybeUninit<T>, R, Dyn> {
-        let mut data = Vec::new();
+        let mut data = vec![];
         let length = nrows.value() * ncols.value();
         data.reserve_exact(length);
         data.resize_with(length, MaybeUninit::uninit);

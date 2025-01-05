@@ -22,7 +22,7 @@ fn sparsity_pattern_valid_data() {
     {
         // A pattern with zero explicitly stored entries
         let pattern =
-            SparsityPattern::try_from_offsets_and_indices(3, 2, vec![0, 0, 0, 0], Vec::new())
+            SparsityPattern::try_from_offsets_and_indices(3, 2, vec![0, 0, 0, 0], vec![])
                 .unwrap();
 
         assert_eq!(pattern.major_dim(), 3);
@@ -73,7 +73,7 @@ fn sparsity_pattern_valid_data() {
 fn sparsity_pattern_try_from_invalid_data() {
     {
         // Empty offset array (invalid length)
-        let pattern = SparsityPattern::try_from_offsets_and_indices(0, 0, Vec::new(), Vec::new());
+        let pattern = SparsityPattern::try_from_offsets_and_indices(0, 0, vec![], vec![]);
         assert_eq!(
             pattern,
             Err(SparsityPatternFormatError::InvalidOffsetArrayLength)

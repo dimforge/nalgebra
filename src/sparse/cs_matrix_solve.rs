@@ -147,7 +147,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
         DefaultAllocator: Allocator<D> + Allocator<D2>,
         ShapeConstraint: SameNumberOfRows<D, D2>,
     {
-        let mut reach = Vec::new();
+        let mut reach = vec![];
         // We don't compute a postordered reach here because it will be sorted after anyway.
         self.lower_triangular_reach(b, &mut reach);
         // We sort the reach so the result matrix has sorted indices.
@@ -211,7 +211,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
         DefaultAllocator: Allocator<D>,
     {
         let mut visited = OVector::repeat_generic(self.data.shape().1, U1, false);
-        let mut stack = Vec::new();
+        let mut stack = vec![];
 
         for i in b.data.column_range(0) {
             let row_index = b.data.row_index(i);
@@ -255,7 +255,7 @@ impl<T: RealField, D: Dim, S: CsStorage<T, D, D>> CsMatrix<T, D, D, S> {
         DefaultAllocator: Allocator<D>,
     {
         let mut visited = OVector::repeat_generic(self.data.shape().1, Const::<1>, false);
-        let mut stack = Vec::new();
+        let mut stack = vec![];
 
         for irow in b.data.column_row_indices(0) {
             self.lower_triangular_bfs(irow, visited.as_mut_slice(), &mut stack, xi);

@@ -1988,7 +1988,7 @@ impl_fmt!(fmt::Pointer, "{:p}", "{:.1$p}");
 mod tests {
     #[test]
     fn empty_display() {
-        let vec: Vec<f64> = Vec::new();
+        let vec: Vec<f64> = vec![];
         let dvector = crate::DVector::from_vec(vec);
         assert_eq!(format!("{}", dvector), "[ ]")
     }

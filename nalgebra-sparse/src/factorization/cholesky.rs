@@ -303,8 +303,8 @@ fn reach(
     marks.resize(tree.len(), false);
 
     // TODO: avoid all those allocations.
-    let mut tmp = Vec::new();
-    let mut res = Vec::new();
+    let mut tmp = vec![];
+    let mut res = vec![];
 
     for &irow in pattern.lane(j) {
         let mut curr = irow;
@@ -329,7 +329,7 @@ fn nonzero_pattern(m: &SparsityPattern) -> (SparsityPattern, SparsityPattern) {
     let (nrows, ncols) = (m.minor_dim(), m.major_dim());
     let mut rows = Vec::with_capacity(m.nnz());
     let mut col_offsets = Vec::with_capacity(ncols + 1);
-    let mut marks = Vec::new();
+    let mut marks = vec![];
 
     // NOTE: the following will actually compute the non-zero pattern of
     // the transpose of l.

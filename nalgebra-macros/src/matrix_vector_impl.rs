@@ -67,7 +67,7 @@ type MatrixRowSyntax = Punctuated<Expr, Token![,]>;
 
 impl Parse for Matrix {
     fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
-        let mut data = Vec::new();
+        let mut data = vec![];
         let mut ncols = None;
         let mut nrows = 0;
 
@@ -127,7 +127,7 @@ impl Parse for Vector {
         // The syntax of a vector is just the syntax of a single matrix row
         if input.is_empty() {
             Ok(Self {
-                elements: Vec::new(),
+                elements: vec![],
             })
         } else {
             let elements = MatrixRowSyntax::parse_terminated(input)?

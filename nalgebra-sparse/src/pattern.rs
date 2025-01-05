@@ -349,9 +349,7 @@ impl From<SparsityPatternFormatError> for SparseFormatError {
             | NonmonotonicMinorIndices => {
                 Self::from_kind_and_error(InvalidStructure, Box::from(err))
             }
-            MinorIndexOutOfBounds => {
-                Self::from_kind_and_error(IndexOutOfBounds, Box::from(err))
-            }
+            MinorIndexOutOfBounds => Self::from_kind_and_error(IndexOutOfBounds, Box::from(err)),
             PatternDuplicateEntry => Self::from_kind_and_error(
                 #[allow(unused_qualifications)]
                 SparseFormatErrorKind::DuplicateEntry,

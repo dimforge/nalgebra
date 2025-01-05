@@ -865,9 +865,9 @@ where
         .next()
         .unwrap();
 
-    let mut rows: Vec<usize> = Vec::new();
-    let mut cols: Vec<usize> = Vec::new();
-    let mut data: Vec<T> = Vec::new();
+    let mut rows: Vec<usize> = vec![];
+    let mut cols: Vec<usize> = vec![];
+    let mut data: Vec<T> = vec![];
     let mut lines = file.into_inner();
 
     let header_line = lines.next().unwrap();
