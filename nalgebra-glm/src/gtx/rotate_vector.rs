@@ -6,8 +6,8 @@ use crate::RealNumber;
 /// Build the rotation matrix needed to align `normal` and `up`.
 pub fn orientation<T: RealNumber>(normal: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
     Rotation3::rotation_between(normal, up)
-        .map(|r| r.homogenous())
-        .unwrap_or(|| TMat4::identity())
+        .map(|r| r.to_homogeneous())
+        .unwrap_or_else(|| TMat4::identity())
 }
 
 /// Rotate a two dimensional vector.
