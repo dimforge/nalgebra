@@ -347,18 +347,18 @@ impl From<SparsityPatternFormatError> for SparseFormatError {
             | InvalidOffsetFirstLast
             | NonmonotonicOffsets
             | NonmonotonicMinorIndices => {
-                SparseFormatError::from_kind_and_error(InvalidStructure, Box::from(err))
+                Self::from_kind_and_error(InvalidStructure, Box::from(err))
             }
             MinorIndexOutOfBounds => {
-                SparseFormatError::from_kind_and_error(IndexOutOfBounds, Box::from(err))
+                Self::from_kind_and_error(IndexOutOfBounds, Box::from(err))
             }
-            PatternDuplicateEntry => SparseFormatError::from_kind_and_error(
+            PatternDuplicateEntry => Self::from_kind_and_error(
                 #[allow(unused_qualifications)]
                 SparseFormatErrorKind::DuplicateEntry,
                 Box::from(err),
             ),
         }
-    }
+    }q
 }
 impl fmt::Display for SparsityPatternFormatError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

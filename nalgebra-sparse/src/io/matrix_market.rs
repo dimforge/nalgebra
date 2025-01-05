@@ -272,7 +272,7 @@ impl fmt::Display for MatrixMarketError {
             MatrixMarketErrorKind::NotLowerTriangle => "NotLowerTriangle,",
             MatrixMarketErrorKind::NonSquare => "NonSquare,",
         };
-        write!(f, {}, msg)?;
+        write!(f, "{}", msg)?;
         write!(f, " message: {}", self.message)
     }
 }
