@@ -31,11 +31,11 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     /// assert_eq!(t * p, p);
     /// ```
     #[inline]
-    pub fn identity() -> Scale<T, D>
+    pub fn identity() -> Self
     where
         T: One,
     {
-        Scale::from(SVector::from_element(T::one()))
+        Self::from(SVector::from_element(T::one()))
     }
 
     /// Cast the components of `self` to another type.

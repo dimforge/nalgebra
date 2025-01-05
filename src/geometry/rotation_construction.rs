@@ -39,7 +39,7 @@ where
     /// assert_eq!(rot2 * rot1, rot2);
     /// ```
     #[inline]
-    pub fn identity() -> Rotation<T, D> {
+    pub fn identity() -> Self {
         Self::from_matrix_unchecked(SMatrix::<T, D, D>::identity())
     }
 }

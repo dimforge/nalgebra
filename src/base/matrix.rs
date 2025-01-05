@@ -559,7 +559,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
         assert!(self.shape() == other.shape());
-        self.iter().zip(other.iter()).all(|(a, b)| *a == *b)
+        self.iter().eq(other.iter())
     }
 
     /// Moves this matrix into one that owns its data.
@@ -1897,7 +1897,7 @@ where
 {
     #[inline]
     fn eq(&self, right: &Matrix<T, R2, C2, S2>) -> bool {
-        self.shape() == right.shape() && self.iter().zip(right.iter()).all(|(l, r)| l == r)
+        self.shape() == right.shape() && self.iter().eq(right.iter())
     }
 }
 
