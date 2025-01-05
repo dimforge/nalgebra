@@ -607,7 +607,7 @@ where
                 #[cfg(any(feature = "std", feature = "alloc"))]
                 {
                     // XXX: use a GenericArray instead.
-                    let mut known_basis = vec![];
+                    let mut known_basis = Vec::new();
 
                     for v in vs.iter() {
                         known_basis.push(v.normalize())
