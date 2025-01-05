@@ -358,7 +358,7 @@ impl From<SparsityPatternFormatError> for SparseFormatError {
                 Box::from(err),
             ),
         }
-    }q
+    }
 }
 impl fmt::Display for SparsityPatternFormatError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

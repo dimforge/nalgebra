@@ -372,8 +372,8 @@ impl FromStr for Sparsity {
     /// Assumes that `word` is already lower case.
     fn from_str(word: &str) -> Result<Self, Self::Err> {
         match word {
-            "coordinate" => Ok(Sparsity::Sparse),
-            "array" => Ok(Sparsity::Dense),
+            "coordinate" => Ok(Self::Sparse),
+            "array" => Ok(Self::Dense),
             _ => Err(MatrixMarketError::from_kind_and_message(
                 MatrixMarketErrorKind::ParsingError,
                 format!("keyword {} is unknown", word),
@@ -387,10 +387,10 @@ impl FromStr for DataType {
     /// Assumes that `word` is already lower case.
     fn from_str(word: &str) -> Result<Self, Self::Err> {
         match word {
-            "real" => Ok(DataType::Real),
-            "complex" => Ok(DataType::Complex),
-            "integer" => Ok(DataType::Integer),
-            "pattern" => Ok(DataType::Pattern),
+            "real" => Ok(Self::Real),
+            "complex" => Ok(Self::Complex),
+            "integer" => Ok(Self::Integer),
+            "pattern" => Ok(Self::Pattern),
             _ => Err(MatrixMarketError::from_kind_and_message(
                 MatrixMarketErrorKind::ParsingError,
                 format!("keyword {} is unknown", word),
@@ -404,10 +404,10 @@ impl FromStr for StorageScheme {
     /// Assumes that `word` is already lower case.
     fn from_str(word: &str) -> Result<Self, Self::Err> {
         match word {
-            "skew-symmetric" => Ok(StorageScheme::Skew),
-            "general" => Ok(StorageScheme::General),
-            "symmetric" => Ok(StorageScheme::Symmetric),
-            "hermitian" => Ok(StorageScheme::Hermitian),
+            "skew-symmetric" => Ok(Self::Skew),
+            "general" => Ok(Self::General),
+            "symmetric" => Ok(Self::Symmetric),
+            "hermitian" => Ok(Self::Hermitian),
             _ => Err(MatrixMarketError::from_kind_and_message(
                 MatrixMarketErrorKind::ParsingError,
                 format!("keyword {} is unknown", word),
