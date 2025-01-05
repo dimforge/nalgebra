@@ -360,32 +360,22 @@ impl From<SparsityPatternFormatError> for SparseFormatError {
         }
     }
 }
-
 impl fmt::Display for SparsityPatternFormatError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            SparsityPatternFormatError::InvalidOffsetArrayLength => {
-                write!(f, "Length of offset array is not equal to (major_dim + 1).")
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::InvalidOffsetArrayLength =>
+                    "Length of offset array is not equal to (major_dim + 1).",
+                Self::InvalidOffsetFirstLast => "First or last offset is incompatible with format.",
+                Self::NonmonotonicOffsets => "Offsets are not monotonically increasing.",
+                Self::MinorIndexOutOfBounds => "A minor index is out of bounds.",
+                Self::DuplicateEntry => "Input data contains duplicate entries.",
+                Self::NonmonotonicMinorIndices =>
+                    "Minor indices are not monotonically increasing within each lane.",
             }
-            SparsityPatternFormatError::InvalidOffsetFirstLast => {
-                write!(f, "First or last offset is incompatible with format.")
-            }
-            SparsityPatternFormatError::NonmonotonicOffsets => {
-                write!(f, "Offsets are not monotonically increasing.")
-            }
-            SparsityPatternFormatError::MinorIndexOutOfBounds => {
-                write!(f, "A minor index is out of bounds.")
-            }
-            SparsityPatternFormatError::DuplicateEntry => {
-                write!(f, "Input data contains duplicate entries.")
-            }
-            SparsityPatternFormatError::NonmonotonicMinorIndices => {
-                write!(
-                    f,
-                    "Minor indices are not monotonically increasing within each lane."
-                )
-            }
-        }
+        )
     }
 }
 
