@@ -27,8 +27,7 @@ fn pattern_roundtrip() {
     {
         // A pattern with zero explicitly stored entries
         let pattern =
-            SparsityPattern::try_from_offsets_and_indices(3, 2, vec![0, 0, 0, 0], vec![])
-                .unwrap();
+            SparsityPattern::try_from_offsets_and_indices(3, 2, vec![0, 0, 0, 0], vec![]).unwrap();
 
         assert_eq!(json_roundtrip(&pattern), pattern);
     }
@@ -64,8 +63,7 @@ fn pattern_deserialize_invalid() {
 fn coo_roundtrip() {
     {
         // A COO matrix without entries
-        let matrix =
-            CooMatrix::<i32>::try_from_triplets(3, 2, vec![], vec![], vec![]).unwrap();
+        let matrix = CooMatrix::<i32>::try_from_triplets(3, 2, vec![], vec![], vec![]).unwrap();
 
         assert_eq!(json_roundtrip(&matrix), matrix);
     }

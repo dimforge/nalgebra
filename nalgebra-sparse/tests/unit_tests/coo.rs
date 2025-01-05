@@ -10,8 +10,7 @@ fn coo_construction_for_valid_data() {
 
     {
         // Zero matrix
-        let coo =
-            CooMatrix::<i32>::try_from_triplets(3, 2, vec![], vec![], vec![]).unwrap();
+        let coo = CooMatrix::<i32>::try_from_triplets(3, 2, vec![], vec![], vec![]).unwrap();
         assert_eq!(coo.nrows(), 3);
         assert_eq!(coo.ncols(), 2);
         assert!(coo.triplet_iter().next().is_none());
