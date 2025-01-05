@@ -6,7 +6,7 @@ use crate::RealNumber;
 /// Build the rotation matrix needed to align `normal` and `up`.
 pub fn orientation<T: RealNumber>(normal: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
     Rotation3::rotation_between(normal, up)
-        .map(|x| r.homogenous())
+        .map(|r| r.homogenous())
         .unwrap_or(|| TMat4::identity())
 }
 
