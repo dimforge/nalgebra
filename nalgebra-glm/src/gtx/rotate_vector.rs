@@ -5,11 +5,9 @@ use crate::RealNumber;
 
 /// Build the rotation matrix needed to align `normal` and `up`.
 pub fn orientation<T: RealNumber>(normal: &TVec3<T>, up: &TVec3<T>) -> TMat4<T> {
-    if let Some(r) = Rotation3::rotation_between(normal, up) {
-        r.to_homogeneous()
-    } else {
-        TMat4::identity()
-    }
+    Rotation3::rotation_between(normal, up)
+        .map(|x| r.homogenous())
+        .unwrap_or(|| TMat4::identity())
 }
 
 /// Rotate a two dimensional vector.

@@ -212,31 +212,29 @@ fn spsolve_csc_lower_triangular_no_transpose<T: RealField>(
             // and the matrix might actually *be* lower triangular, which would induce
             // a severe penalty)
             let diag_csc_index = l_col_k.row_indices().iter().position(|&i| i == k);
-            if let Some(diag_csc_index) = diag_csc_index {
-                let l_kk = l_col_k.values()[diag_csc_index].clone();
+            let Some(diag_csc_index) = diag_csc_index else {
+                return spsolve_encountered_zero_diagonal();
+            };
+            let l_kk = l_col_k.values()[diag_csc_index].clone();
 
-                if l_kk != T::zero() {
-                    // Update entry associated with diagonal
-                    x_col_j[k] /= l_kk;
-                    // Copy value after updating (so we don't run into the borrow checker)
-                    let x_kj = x_col_j[k].clone();
-
-                    let row_indices = &l_col_k.row_indices()[(diag_csc_index + 1)..];
-                    let l_values = &l_col_k.values()[(diag_csc_index + 1)..];
-
-                    // Note: The remaining entries are below the diagonal
-                    for (&i, l_ik) in row_indices.iter().zip(l_values) {
-                        let x_ij = &mut x_col_j[i];
-                        *x_ij -= l_ik.clone() * x_kj.clone();
-                    }
-
-                    x_col_j[k] = x_kj;
-                } else {
-                    return spsolve_encountered_zero_diagonal();
-                }
-            } else {
+            if l_kk.is_zero() {
                 return spsolve_encountered_zero_diagonal();
             }
+            // Update entry associated with diagonal
+            x_col_j[k] /= l_kk;
+            // Copy value after updating (so we don't run into the borrow checker)
+            let x_kj = x_col_j[k].clone();
+
+            let row_indices = &l_col_k.row_indices()[(diag_csc_index + 1)..];
+            let l_values = &l_col_k.values()[(diag_csc_index + 1)..];
+
+            // Note: The remaining entries are below the diagonal
+            for (&i, l_ik) in row_indices.iter().zip(l_values) {
+                let x_ij = &mut x_col_j[i];
+                *x_ij -= l_ik.clone() * x_kj.clone();
+            }
+
+            x_col_j[k] = x_kj;
         }
     }
 

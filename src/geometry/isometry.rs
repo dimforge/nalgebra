@@ -14,8 +14,6 @@ use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar, Unit};
 use crate::geometry::{AbstractRotation, Point, Translation};
 
-use crate::{Isometry3, Quaternion, Vector3, Vector4};
-
 #[cfg(feature = "rkyv-serialize")]
 use rkyv::bytecheck;
 

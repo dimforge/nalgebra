@@ -66,7 +66,7 @@ impl<T: Scalar> PartialEq for Quaternion<T> {
 
 impl<T: Scalar + Zero> Default for Quaternion<T> {
     fn default() -> Self {
-        Quaternion {
+        Self {
             coords: Vector4::zeros(),
         }
     }
@@ -468,17 +468,14 @@ where
     where
         T: RealField,
     {
-        if let Some((q, n)) = Unit::try_new_and_get(self.clone(), T::zero()) {
-            if let Some(axis) = Unit::try_new(self.vector().clone_owned(), T::zero()) {
-                let angle = q.angle() / crate::convert(2.0f64);
-
-                (n, angle, Some(axis))
-            } else {
-                (n, T::zero(), None)
-            }
-        } else {
-            (T::zero(), T::zero(), None)
-        }
+        let Some((q, n)) = Unit::try_new_and_get(self.clone(), T::zero()) else {
+            return (T::zero(), T::zero(), None);
+        };
+        let Some(axis) = Unit::try_new(self.vector().clone_owned(), T::zero()) else {
+            return (n, T::zero(), None);
+        };
+        let angle = q.angle() / crate::convert(2.0f64);
+        (n, angle, Some(axis))
     }
 
     /// Compute the natural logarithm of a quaternion.
@@ -1319,11 +1316,9 @@ where
     where
         T: RealField,
     {
-        if let Some(axis) = self.axis() {
-            axis.into_inner() * self.angle()
-        } else {
-            Vector3::zero()
-        }
+        self.axis()
+            .map(|axis| axis.into_inner() * self.angle())
+            .unwrap_or_else(|| <_>::zero())
     }
 
     /// The rotation axis and angle in (0, pi] of this unit quaternion.
@@ -1380,11 +1375,7 @@ where
     where
         T: RealField,
     {
-        if let Some(v) = self.axis() {
-            Quaternion::from_imag(v.into_inner() * self.angle())
-        } else {
-            Quaternion::zero()
-        }
+        Quaternion::from_imag(self.scaled_axis())
     }
 
     /// Raise the quaternion to a given floating power.
@@ -1409,11 +1400,9 @@ where
     where
         T: RealField,
     {
-        if let Some(v) = self.axis() {
-            Self::from_axis_angle(&v, self.angle() * n)
-        } else {
-            Self::identity()
-        }
+        self.axis()
+            .map(|v| Self::from_axis_angle(&v, self.angle() * n))
+            .unwrap_or_else(|| Self::identity())
     }
 
     /// Builds a rotation matrix from this unit quaternion.
