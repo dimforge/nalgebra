@@ -236,7 +236,7 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     /// * If `shift = 0` then the diagonal is overwritten as well.
     /// * If `shift = 1` then the diagonal is left untouched.
     /// * If `shift > 1`, then the diagonal and the first `shift - 1` subdiagonals are left
-    /// untouched.
+    ///   untouched.
     #[inline]
     pub fn fill_lower_triangle(&mut self, val: T, shift: usize)
     where
@@ -249,13 +249,13 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
         }
     }
 
-    /// Sets all the elements of the lower-triangular part of this matrix to `val`.
+    /// Sets all the elements of the upper-triangular part of this matrix to `val`.
     ///
     /// The parameter `shift` allows some superdiagonals to be left untouched:
     /// * If `shift = 0` then the diagonal is overwritten as well.
     /// * If `shift = 1` then the diagonal is left untouched.
     /// * If `shift > 1`, then the diagonal and the first `shift - 1` superdiagonals are left
-    /// untouched.
+    ///   untouched.
     #[inline]
     pub fn fill_upper_triangle(&mut self, val: T, shift: usize)
     where

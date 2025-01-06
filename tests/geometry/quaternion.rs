@@ -102,7 +102,7 @@ proptest!(
 
     /*
      *
-     * Quaterion * Vector == Rotation * Vector
+     * Quaternion * Vector == Rotation * Vector
      *
      */
     #[test]

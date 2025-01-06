@@ -13,13 +13,13 @@ jobs:
   check-fmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Check formatting
         run: cargo fmt -- --check
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install clippy
         run: rustup component add clippy
       - name: Run clippy
@@ -29,7 +29,7 @@ jobs:
     #    env:
     #      RUSTFLAGS: -D warnings
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Build --no-default-feature
         run: cargo build --no-default-features;
       - name: Build (default features)
@@ -49,7 +49,7 @@ jobs:
   build-nalgebra-all-features:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: cargo build --all-features;
       - run: cargo build -p nalgebra-glm --all-features;
   test-nalgebra:
@@ -66,19 +66,19 @@ jobs:
         with:
           toolchain: 1.79.0
           override: true
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: test
         run: cargo test --features arbitrary,rand,serde-serialize,sparse,debug,io,compare,libm,proptest-support,slow-tests,rkyv-safe-deser,rayon;
   test-nalgebra-glm:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: test nalgebra-glm
         run: cargo test -p nalgebra-glm --features arbitrary,serde-serialize;
   test-nalgebra-sparse:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: test nalgebra-sparse
         # Manifest-path is necessary because cargo otherwise won't correctly forward features
         # We increase number of proptest cases to hopefully catch more potential bugs
@@ -89,7 +89,7 @@ jobs:
   test-nalgebra-macros:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: test nalgebra-macros
         run: cargo test -p nalgebra-macros
   build-wasm:
@@ -97,7 +97,7 @@ jobs:
     #    env:
     #      RUSTFLAGS: -D warnings
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: rustup target add wasm32-unknown-unknown
       - name: build nalgebra
         run: cargo build --verbose --target wasm32-unknown-unknown;
@@ -106,30 +106,27 @@ jobs:
   build-no-std:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - name: Install latest stable
+        uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: nightly
-          override: true
-          components: rustfmt
-      - name: install xargo
-        run: cp .github/Xargo.toml .; rustup component add rust-src; cargo install -f xargo;
-      - name: build x86_64-unknown-linux-gnu
-        run: xargo build --verbose --no-default-features --target=x86_64-unknown-linux-gnu;
-      - name: build x86_64-unknown-linux-gnu --features rand-no-std
-        run: xargo build --verbose --no-default-features --target=x86_64-unknown-linux-gnu;
-      - name: build x86_64-unknown-linux-gnu --features alloc
-        run: xargo build --verbose --no-default-features --features alloc --target=x86_64-unknown-linux-gnu;
+          toolchain: stable
+          targets: "x86_64-unknown-none,thumbv7em-none-eabihf"
+      - name: build x86_64-unknown-none
+        run: cargo build --verbose --no-default-features --target=x86_64-unknown-none
+      - name: build x86_64-unknown-none --features rand-no-std
+        run: cargo build --verbose --no-default-features --features rand-no-std --target=x86_64-unknown-none
+      - name: build x86_64-unknown-none --features alloc
+        run: cargo build --verbose --no-default-features --features alloc --target=x86_64-unknown-none
       - name: build thumbv7em-none-eabihf
-        run: xargo build --verbose --no-default-features --target=thumbv7em-none-eabihf;
-      - name: build x86_64-unknown-linux-gnu nalgebra-glm
-        run: xargo build --verbose --no-default-features -p nalgebra-glm --target=x86_64-unknown-linux-gnu;
+        run: cargo build --verbose --no-default-features --target=thumbv7em-none-eabihf
+      - name: build x86_64-unknown-none nalgebra-glm
+        run: cargo build --verbose --no-default-features -p nalgebra-glm --target=x86_64-unknown-none
       - name: build thumbv7em-none-eabihf nalgebra-glm
-        run: xargo build --verbose --no-default-features -p nalgebra-glm --target=thumbv7em-none-eabihf;
+        run: cargo build --verbose --no-default-features -p nalgebra-glm --target=thumbv7em-none-eabihf
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Generate documentation
         run: cargo doc

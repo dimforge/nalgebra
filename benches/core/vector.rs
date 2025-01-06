@@ -96,7 +96,7 @@ fn vec10000_axpy_f64_static(bh: &mut criterion::Criterion) {
     let b = SVector::<f64, 10000>::new_random();
     let n = rng.gen::<f64>();
 
-    // NOTE: for some reasons, it is much faster if the arument are boxed (Box::new(OVector...)).
+    // NOTE: for some reasons, it is much faster if the argument are boxed (Box::new(OVector...)).
     bh.bench_function("vec10000_axpy_f64_static", move |bh| {
         bh.iter(|| a.axpy(n, &b, 1.0))
     });

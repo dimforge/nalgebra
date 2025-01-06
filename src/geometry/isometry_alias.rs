@@ -5,7 +5,6 @@ use crate::geometry::{Isometry, Rotation2, Rotation3, UnitComplex, UnitQuaternio
 /// **Because this is an alias, not all its methods are listed here. See the [`Isometry`](crate::Isometry) type too.**
 ///
 /// Also known as a 2D rigid-body motion, or as an element of SE(2).
-
 pub type Isometry2<T> = Isometry<T, UnitComplex<T>, 2>;
 
 /// A 3-dimensional direct isometry using a unit quaternion for its rotational part.
