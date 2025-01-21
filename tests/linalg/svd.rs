@@ -501,7 +501,7 @@ fn svd_regression_issue_1072() {
 }
 
 #[test]
-// Exercises bug reported in issue #1313 of nalgebra (https://github.com/dimforge/nalgebra/issues/1313)
+// Exercises bug reported in issue #1313 of nalgebra (https://github.   com/dimforge/nalgebra/issues/1313)
 fn svd_regression_issue_1313() {
     let s = 6.123234e-16_f32;
     let m = nalgebra::dmatrix![
