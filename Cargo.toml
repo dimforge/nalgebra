@@ -110,7 +110,7 @@ glam025 = { package = "glam", version = "0.25", optional = true }
 glam027 = { package = "glam", version = "0.27", optional = true }
 glam028 = { package = "glam", version = "0.28", optional = true }
 glam029 = { package = "glam", version = "0.29", optional = true }
-rayon = { version = "1.6", optional = true }
+rayon = { version = "1.10.0", optional = true }
 
 [dev-dependencies]
 serde_json = "1.0"
