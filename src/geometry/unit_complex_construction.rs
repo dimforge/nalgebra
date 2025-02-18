@@ -3,7 +3,7 @@ use quickcheck::{Arbitrary, Gen};
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
+    distr::{Distribution, StandardUniform},
     Rng,
 };
 
@@ -411,7 +411,7 @@ where
 }
 
 #[cfg(feature = "rand")]
-impl<T: SimdRealField> Distribution<UnitComplex<T>> for Standard
+impl<T: SimdRealField> Distribution<UnitComplex<T>> for StandardUniform
 where
     T::Element: SimdRealField,
     rand_distr::UnitCircle: Distribution<[T; 2]>,

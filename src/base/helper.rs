@@ -3,7 +3,7 @@ use quickcheck::{Arbitrary, Gen};
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
+    distr::{Distribution, StandardUniform},
     Rng,
 };
 
@@ -24,8 +24,8 @@ pub fn reject<F: FnMut(&T) -> bool, T: Arbitrary>(g: &mut Gen, f: F) -> T {
 #[cfg(feature = "rand-no-std")]
 pub fn reject_rand<G: Rng + ?Sized, F: FnMut(&T) -> bool, T>(g: &mut G, f: F) -> T
 where
-    Standard: Distribution<T>,
+    StandardUniform: Distribution<T>,
 {
     use std::iter;
-    iter::repeat(()).map(|_| g.gen()).find(f).unwrap()
+    iter::repeat(()).map(|_| g.random()).find(f).unwrap()
 }

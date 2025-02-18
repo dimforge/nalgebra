@@ -45,11 +45,12 @@ mod tests {
         {
             // https://mathworld.wolfram.com/MatrixExponential.html
             use rand::{
-                distributions::{Distribution, Uniform},
-                thread_rng,
+                distr::{Distribution, Uniform},
+                rng,
             };
-            let mut rng = thread_rng();
-            let dist = Uniform::new(-10.0, 10.0);
+            let mut rng = rng();
+            let dist = Uniform::new(-10.0, 10.0)
+                .expect("Failed to costruct `Uniform`, should be unreachable");
             loop {
                 let a: f64 = dist.sample(&mut rng);
                 let b: f64 = dist.sample(&mut rng);

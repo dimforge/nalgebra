@@ -4,7 +4,7 @@ use quickcheck::{Arbitrary, Gen};
 use num::{Bounded, One, Zero};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
+    distr::{Distribution, StandardUniform},
     Rng,
 };
 
@@ -159,15 +159,15 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: Scalar, D: DimName> Distribution<OPoint<T, D>> for Standard
+impl<T: Scalar, D: DimName> Distribution<OPoint<T, D>> for StandardUniform
 where
-    Standard: Distribution<T>,
+    StandardUniform: Distribution<T>,
     DefaultAllocator: Allocator<D>,
 {
     /// Generate a `Point` where each coordinate is an independent variate from `[0, 1)`.
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> OPoint<T, D> {
-        OPoint::from(rng.gen::<OVector<T, D>>())
+        OPoint::from(rng.random::<OVector<T, D>>())
     }
 }
 

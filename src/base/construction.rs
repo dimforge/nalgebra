@@ -9,7 +9,7 @@ use quickcheck::{Arbitrary, Gen};
 use num::{Bounded, One, Zero};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
+    distr::{Distribution, StandardUniform},
     Rng,
 };
 
@@ -293,10 +293,10 @@ where
     #[cfg(feature = "rand")]
     pub fn new_random_generic(nrows: R, ncols: C) -> Self
     where
-        Standard: Distribution<T>,
+        StandardUniform: Distribution<T>,
     {
-        let mut rng = rand::thread_rng();
-        Self::from_fn_generic(nrows, ncols, |_, _| rng.gen())
+        let mut rng = rand::rng();
+        Self::from_fn_generic(nrows, ncols, |_, _| rng.random())
     }
 
     /// Creates a matrix filled with random values from the given distribution.
@@ -637,7 +637,7 @@ macro_rules! impl_constructors(
         #[inline]
         #[cfg(feature = "rand")]
         pub fn new_random($($args: usize),*) -> Self
-            where Standard: Distribution<T> {
+            where StandardUniform: Distribution<T> {
             Self::new_random_generic($($gargs),*)
         }
     }
@@ -856,17 +856,19 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: Scalar, R: Dim, C: Dim> Distribution<OMatrix<T, R, C>> for Standard
+impl<T: Scalar, R: Dim, C: Dim> Distribution<OMatrix<T, R, C>> for StandardUniform
 where
     DefaultAllocator: Allocator<R, C>,
-    Standard: Distribution<T>,
+    StandardUniform: Distribution<T>,
 {
     #[inline]
     fn sample<G: Rng + ?Sized>(&self, rng: &mut G) -> OMatrix<T, R, C> {
-        let nrows = R::try_to_usize().unwrap_or_else(|| rng.gen_range(0..10));
-        let ncols = C::try_to_usize().unwrap_or_else(|| rng.gen_range(0..10));
+        let nrows = R::try_to_usize().unwrap_or_else(|| rng.random_range(0..10));
+        let ncols = C::try_to_usize().unwrap_or_else(|| rng.random_range(0..10));
 
-        OMatrix::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| rng.gen())
+        OMatrix::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| {
+            rng.random()
+        })
     }
 }
 
@@ -892,7 +894,7 @@ where
 
 // TODO(specialization): faster impls possible for D≤4 (see rand_distr::{UnitCircle, UnitSphere})
 #[cfg(feature = "rand")]
-impl<T: crate::RealField, D: DimName> Distribution<Unit<OVector<T, D>>> for Standard
+impl<T: crate::RealField, D: DimName> Distribution<Unit<OVector<T, D>>> for StandardUniform
 where
     DefaultAllocator: Allocator<D>,
     rand_distr::StandardNormal: Distribution<T>,
