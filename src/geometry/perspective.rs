@@ -2,7 +2,7 @@
 use quickcheck::{Arbitrary, Gen};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
+    distr::{Distribution, StandardUniform},
     Rng,
 };
 
@@ -313,18 +313,18 @@ impl<T: RealField> Perspective3<T> {
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: RealField> Distribution<Perspective3<T>> for Standard
+impl<T: RealField> Distribution<Perspective3<T>> for StandardUniform
 where
-    Standard: Distribution<T>,
+    StandardUniform: Distribution<T>,
 {
     /// Generate an arbitrary random variate for testing purposes.
     fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Perspective3<T> {
         use crate::base::helper;
-        let znear = r.gen();
+        let znear = r.random();
         let zfar = helper::reject_rand(r, |x: &T| !(x.clone() - znear.clone()).is_zero());
         let aspect = helper::reject_rand(r, |x: &T| !x.is_zero());
 
-        Perspective3::new(aspect, r.gen(), znear, zfar)
+        Perspective3::new(aspect, r.random(), znear, zfar)
     }
 }
 

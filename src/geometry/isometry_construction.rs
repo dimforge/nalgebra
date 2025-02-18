@@ -6,7 +6,7 @@ use quickcheck::{Arbitrary, Gen};
 use num::One;
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
+    distr::{Distribution, StandardUniform},
     Rng,
 };
 
@@ -89,14 +89,14 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: crate::RealField, R, const D: usize> Distribution<Isometry<T, R, D>> for Standard
+impl<T: crate::RealField, R, const D: usize> Distribution<Isometry<T, R, D>> for StandardUniform
 where
     R: AbstractRotation<T, D>,
-    Standard: Distribution<T> + Distribution<R>,
+    StandardUniform: Distribution<T> + Distribution<R>,
 {
     #[inline]
     fn sample<G: Rng + ?Sized>(&self, rng: &mut G) -> Isometry<T, R, D> {
-        Isometry::from_parts(rng.gen(), rng.gen())
+        Isometry::from_parts(rng.random(), rng.random())
     }
 }
 

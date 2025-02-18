@@ -4,7 +4,7 @@
 use na::RealField;
 use num_complex::Complex;
 use quickcheck::{Arbitrary, Gen};
-use rand::distributions::{Distribution, Standard};
+use rand::distr::{Distribution, StandardUniform};
 use rand::Rng;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -19,14 +19,14 @@ impl<T: Arbitrary + RealField> Arbitrary for RandComplex<T> {
     }
 }
 
-impl<T: RealField> Distribution<RandComplex<T>> for Standard
+impl<T: RealField> Distribution<RandComplex<T>> for StandardUniform
 where
-    Standard: Distribution<T>,
+    StandardUniform: Distribution<T>,
 {
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> RandComplex<T> {
-        let re = rng.gen();
-        let im = rng.gen();
+        let re = rng.random();
+        let im = rng.random();
         RandComplex(Complex::new(re, im))
     }
 }
@@ -45,9 +45,9 @@ impl<T: Arbitrary> Arbitrary for RandScalar<T> {
     }
 }
 
-impl<T: RealField> Distribution<RandScalar<T>> for Standard
+impl<T: RealField> Distribution<RandScalar<T>> for StandardUniform
 where
-    Standard: Distribution<T>,
+    StandardUniform: Distribution<T>,
 {
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &'a mut G) -> RandScalar<T> {

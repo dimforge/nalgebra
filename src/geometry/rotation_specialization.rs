@@ -7,7 +7,7 @@ use num::Zero;
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{uniform::SampleUniform, Distribution, OpenClosed01, Standard, Uniform},
+    distr::{uniform::SampleUniform, Distribution, OpenClosed01, StandardUniform, Uniform},
     Rng,
 };
 
@@ -271,7 +271,7 @@ impl<T: SimdRealField> Rotation2<T> {
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: SimdRealField> Distribution<Rotation2<T>> for Standard
+impl<T: SimdRealField> Distribution<Rotation2<T>> for StandardUniform
 where
     T::Element: SimdRealField,
     T: SampleUniform,
@@ -279,7 +279,9 @@ where
     /// Generate a uniformly distributed random rotation.
     #[inline]
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Rotation2<T> {
-        let twopi = Uniform::new(T::zero(), T::simd_two_pi());
+        let twopi = Uniform::new(T::zero(), T::simd_two_pi())
+            .expect("Failed to costruct `Uniform`, should be unreachable");
+
         Rotation2::new(rng.sample(twopi))
     }
 }
@@ -1153,7 +1155,7 @@ impl<T: SimdRealField> Rotation3<T> {
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: SimdRealField> Distribution<Rotation3<T>> for Standard
+impl<T: SimdRealField> Distribution<Rotation3<T>> for StandardUniform
 where
     T::Element: SimdRealField,
     OpenClosed01: Distribution<T>,
@@ -1167,7 +1169,8 @@ where
         // In D. Kirk, editor, Graphics Gems III, pages 117-120. Academic, New York, 1992.
 
         // Compute a random rotation around Z
-        let twopi = Uniform::new(T::zero(), T::simd_two_pi());
+        let twopi = Uniform::new(T::zero(), T::simd_two_pi())
+            .expect("Failed to costruct `Uniform`, should be unreachable");
         let theta = rng.sample(&twopi);
         let (ts, tc) = theta.simd_sin_cos();
         let a = SMatrix::<T, 3, 3>::new(

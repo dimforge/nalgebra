@@ -66,7 +66,7 @@ rkyv-serialize = ["rkyv-serialize-no-std", "rkyv/std", "rkyv/validation"]
 ## To use rand in a #[no-std] environment, enable the
 ## `rand-no-std` feature instead of `rand`.
 rand-no-std = ["rand-package"]
-rand = ["rand-no-std", "rand-package/std", "rand-package/std_rng", "rand_distr"]
+rand = ["rand-no-std", "rand-package/std", "rand-package/std_rng", "rand-package/thread_rng", "rand_distr"]
 
 # Tests
 arbitrary = ["quickcheck"]
@@ -77,14 +77,14 @@ rkyv-safe-deser = ["rkyv-serialize", "rkyv/validation"]
 [dependencies]
 nalgebra-macros = { version = "0.2.2", path = "nalgebra-macros", optional = true }
 typenum = "1.12"
-rand-package = { package = "rand", version = "0.8", optional = true, default-features = false }
+rand-package = { package = "rand", version = "0.9", optional = true, default-features = false }
 num-traits = { version = "0.2", default-features = false }
 num-complex = { version = "0.4", default-features = false }
 num-rational = { version = "0.4", default-features = false }
 approx = { version = "0.5", default-features = false }
 simba = { version = "0.9", default-features = false }
 alga = { version = "0.9", default-features = false, optional = true }
-rand_distr = { version = "0.4", default-features = false, optional = true }
+rand_distr = { version = "0.5", default-features = false, optional = true }
 matrixmultiply = { version = "0.3", optional = true }
 serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
 rkyv = { version = "0.7.41", default-features = false, optional = true }
@@ -114,7 +114,7 @@ rayon = { version = "1.6", optional = true }
 
 [dev-dependencies]
 serde_json = "1.0"
-rand_xorshift = "0.3"
+rand_xorshift = "0.4"
 rand_isaac = "0.3"
 criterion = { version = "0.4", features = ["html_reports"] }
 nalgebra = { path = ".", features = ["debug", "compare", "rand", "macros"] }

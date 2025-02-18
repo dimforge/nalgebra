@@ -6,7 +6,7 @@ use quickcheck::{Arbitrary, Gen};
 use num::{One, Zero};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
+    distr::{Distribution, StandardUniform},
     Rng,
 };
 
@@ -69,14 +69,14 @@ impl<T: Scalar + Zero + ClosedAddAssign, const D: usize> One for Translation<T, 
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: Scalar, const D: usize> Distribution<Translation<T, D>> for Standard
+impl<T: Scalar, const D: usize> Distribution<Translation<T, D>> for StandardUniform
 where
-    Standard: Distribution<T>,
+    StandardUniform: Distribution<T>,
 {
     /// Generate an arbitrary random variate for testing purposes.
     #[inline]
     fn sample<G: Rng + ?Sized>(&self, rng: &mut G) -> Translation<T, D> {
-        Translation::from(rng.gen::<SVector<T, D>>())
+        Translation::from(rng.random::<SVector<T, D>>())
     }
 }
 

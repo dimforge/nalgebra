@@ -2,7 +2,7 @@
 use quickcheck::{Arbitrary, Gen};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
+    distr::{Distribution, StandardUniform},
     Rng,
 };
 #[cfg(feature = "serde-serialize-no-std")]
@@ -741,18 +741,18 @@ impl<T: RealField> Orthographic3<T> {
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: RealField> Distribution<Orthographic3<T>> for Standard
+impl<T: RealField> Distribution<Orthographic3<T>> for StandardUniform
 where
-    Standard: Distribution<T>,
+    StandardUniform: Distribution<T>,
 {
     /// Generate an arbitrary random variate for testing purposes.
     fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Orthographic3<T> {
         use crate::base::helper;
-        let left = r.gen();
+        let left = r.random();
         let right = helper::reject_rand(r, |x: &T| *x > left);
-        let bottom = r.gen();
+        let bottom = r.random();
         let top = helper::reject_rand(r, |x: &T| *x > bottom);
-        let znear = r.gen();
+        let znear = r.random();
         let zfar = helper::reject_rand(r, |x: &T| *x > znear);
 
         Orthographic3::new(left, right, bottom, top, znear, zfar)
