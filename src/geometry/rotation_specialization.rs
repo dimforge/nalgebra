@@ -280,7 +280,7 @@ where
     #[inline]
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Rotation2<T> {
         let twopi = Uniform::new(T::zero(), T::simd_two_pi())
-            .expect("Failed to costruct `Uniform`, should be unreachable");
+            .expect("Failed to construct `Uniform`, should be unreachable");
 
         Rotation2::new(rng.sample(twopi))
     }
@@ -1170,7 +1170,7 @@ where
 
         // Compute a random rotation around Z
         let twopi = Uniform::new(T::zero(), T::simd_two_pi())
-            .expect("Failed to costruct `Uniform`, should be unreachable");
+            .expect("Failed to construct `Uniform`, should be unreachable");
         let theta = rng.sample(&twopi);
         let (ts, tc) = theta.simd_sin_cos();
         let a = SMatrix::<T, 3, 3>::new(

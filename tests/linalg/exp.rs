@@ -50,7 +50,7 @@ mod tests {
             };
             let mut rng = rng();
             let dist = Uniform::new(-10.0, 10.0)
-                .expect("Failed to costruct `Uniform`, should be unreachable");
+                .expect("Failed to construct `Uniform`, should be unreachable");
             loop {
                 let a: f64 = dist.sample(&mut rng);
                 let b: f64 = dist.sample(&mut rng);

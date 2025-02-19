@@ -880,7 +880,7 @@ where
         // In D. Kirk, editor, Graphics Gems III, pages 124-132. Academic, New York, 1992.
         let x0 = rng.sample(OpenClosed01);
         let twopi = Uniform::new(T::zero(), T::simd_two_pi())
-            .expect("Failed to costruct `Uniform`, should be unreachable");
+            .expect("Failed to construct `Uniform`, should be unreachable");
         let theta1 = rng.sample(&twopi);
         let theta2 = rng.sample(&twopi);
         let s1 = theta1.clone().simd_sin();
