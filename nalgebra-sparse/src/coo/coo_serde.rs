@@ -48,12 +48,12 @@ impl<'de, T> Deserialize<'de> for CooMatrix<T>
 where
     T: Deserialize<'de> + Clone,
 {
-    fn deserialize<D>(deserializer: D) -> Result<CooMatrix<T>, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
         let de = CooMatrixSerializationData::<Vec<usize>, Vec<T>>::deserialize(deserializer)?;
-        CooMatrix::try_from_triplets(
+        Self::try_from_triplets(
             de.nrows,
             de.ncols,
             de.row_indices,

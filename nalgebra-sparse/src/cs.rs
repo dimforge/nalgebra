@@ -187,8 +187,8 @@ impl<T> CsMatrix<T> {
     {
         let (major_dim, minor_dim) = (self.pattern().major_dim(), self.pattern().minor_dim());
         let mut new_offsets = Vec::with_capacity(self.pattern().major_dim() + 1);
-        let mut new_indices = Vec::new();
-        let mut new_values = Vec::new();
+        let mut new_indices = vec![];
+        let mut new_values = vec![];
 
         new_offsets.push(0);
         for (i, lane) in self.lane_iter().enumerate() {
@@ -321,20 +321,19 @@ where
         let lane = self.pattern.get_lane(self.current_lane_idx);
         let minor_dim = self.pattern.minor_dim();
 
-        if let Some(minor_indices) = lane {
-            let count = minor_indices.len();
-            let values_in_lane = &self.remaining_values[..count];
-            self.remaining_values = &self.remaining_values[count..];
-            self.current_lane_idx += 1;
+        let Some(minor_indices) = lane else {
+            return None;
+        };
+        let count = minor_indices.len();
+        let values_in_lane = &self.remaining_values[..count];
+        self.remaining_values = &self.remaining_values[count..];
+        self.current_lane_idx += 1;
 
-            Some(CsLane {
-                minor_dim,
-                minor_indices,
-                values: values_in_lane,
-            })
-        } else {
-            None
-        }
+        Some(CsLane {
+            minor_dim,
+            minor_indices,
+            values: values_in_lane,
+        })
     }
 }
 
@@ -365,22 +364,21 @@ where
         let lane = self.pattern.get_lane(self.current_lane_idx);
         let minor_dim = self.pattern.minor_dim();
 
-        if let Some(minor_indices) = lane {
-            let count = minor_indices.len();
+        let Some(minor_indices) = lane else {
+            return None;
+        };
+        let count = minor_indices.len();
 
-            let remaining = std::mem::take(&mut self.remaining_values);
-            let (values_in_lane, remaining) = remaining.split_at_mut(count);
-            self.remaining_values = remaining;
-            self.current_lane_idx += 1;
+        let remaining = std::mem::take(&mut self.remaining_values);
+        let (values_in_lane, remaining) = remaining.split_at_mut(count);
+        self.remaining_values = remaining;
+        self.current_lane_idx += 1;
 
-            Some(CsLaneMut {
-                minor_dim,
-                minor_indices,
-                values: values_in_lane,
-            })
-        } else {
-            None
-        }
+        Some(CsLaneMut {
+            minor_dim,
+            minor_indices,
+            values: values_in_lane,
+        })
     }
 }
 
@@ -603,9 +601,9 @@ where
     }
 
     // Set up required buffers up front
-    let mut minor_idx_buffer: Vec<usize> = Vec::new();
-    let mut values_buffer: Vec<T> = Vec::new();
-    let mut minor_index_permutation: Vec<usize> = Vec::new();
+    let mut minor_idx_buffer: Vec<usize> = vec![];
+    let mut values_buffer: Vec<T> = vec![];
+    let mut minor_index_permutation: Vec<usize> = vec![];
 
     // Test that each lane has strictly monotonically increasing minor indices, i.e.
     // minor indices within a lane are sorted, unique. Sort minor indices within a lane if needed.

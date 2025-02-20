@@ -23,9 +23,9 @@ pub fn cs_matrix_from_matrix_market_str<T: RealField>(data: &str) -> Option<CsMa
         .unwrap()
         .next()?;
     let mut shape = (0, 0, 0);
-    let mut rows: Vec<usize> = Vec::new();
-    let mut cols: Vec<usize> = Vec::new();
-    let mut data: Vec<T> = Vec::new();
+    let mut rows: Vec<usize> = vec![];
+    let mut cols: Vec<usize> = vec![];
+    let mut data: Vec<T> = vec![];
 
     for line in file.into_inner() {
         match line.as_rule() {

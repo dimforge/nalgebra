@@ -559,7 +559,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
         ShapeConstraint: SameNumberOfRows<R, R2> + SameNumberOfColumns<C, C2>,
     {
         assert!(self.shape() == other.shape());
-        self.iter().zip(other.iter()).all(|(a, b)| *a == *b)
+        self.iter().eq(other.iter())
     }
 
     /// Moves this matrix into one that owns its data.
@@ -1797,7 +1797,7 @@ where
             return None;
         }
 
-        if self.nrows() == 0 || self.ncols() == 0 {
+        if self.nrows().is_zero() || self.ncols().is_zero() {
             return Some(Ordering::Equal);
         }
 
@@ -1812,24 +1812,24 @@ where
             let _ = it.next(); // Drop the first elements (we already tested it).
 
             for (left, right) in it {
-                if let Some(ord) = left.partial_cmp(right) {
-                    match ord {
-                        Ordering::Equal => { /* Does not change anything. */ }
-                        Ordering::Less => {
-                            if *first_ord == Ordering::Greater {
-                                return None;
-                            }
-                            *first_ord = ord
-                        }
-                        Ordering::Greater => {
-                            if *first_ord == Ordering::Less {
-                                return None;
-                            }
-                            *first_ord = ord
-                        }
-                    }
-                } else {
+                let Some(ord) = left.partial_cmp(right) else {
                     return None;
+                };
+
+                match ord {
+                    Ordering::Equal => { /* Does not change anything. */ }
+                    Ordering::Less => {
+                        if first_ord.is_gt() {
+                            return None;
+                        }
+                        *first_ord = ord
+                    }
+                    Ordering::Greater => {
+                        if first_ord.is_lt() {
+                            return None;
+                        }
+                        *first_ord = ord
+                    }
                 }
             }
         }
@@ -1897,7 +1897,7 @@ where
 {
     #[inline]
     fn eq(&self, right: &Matrix<T, R2, C2, S2>) -> bool {
-        self.shape() == right.shape() && self.iter().zip(right.iter()).all(|(l, r)| l == r)
+        self.shape() == right.shape() && self.iter().eq(right.iter())
     }
 }
 
@@ -1988,7 +1988,7 @@ impl_fmt!(fmt::Pointer, "{:p}", "{:.1$p}");
 mod tests {
     #[test]
     fn empty_display() {
-        let vec: Vec<f64> = Vec::new();
+        let vec: Vec<f64> = vec![];
         let dvector = crate::DVector::from_vec(vec);
         assert_eq!(format!("{}", dvector), "[ ]")
     }

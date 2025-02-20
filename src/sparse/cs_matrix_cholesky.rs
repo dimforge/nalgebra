@@ -270,8 +270,8 @@ where
         marks.resize(tree.len(), false);
 
         // TODO: avoid all those allocations.
-        let mut tmp = Vec::new();
-        let mut res = Vec::new();
+        let mut tmp = vec![];
+        let mut res = vec![];
 
         for irow in m.data.column_row_indices(j) {
             let mut curr = irow;
@@ -295,7 +295,7 @@ where
         let (nrows, ncols) = m.data.shape();
         let mut rows = Vec::with_capacity(m.len());
         let mut cols = Matrix::zeros_generic(m.data.shape().0, Const::<1>);
-        let mut marks = Vec::new();
+        let mut marks = vec![];
 
         // NOTE: the following will actually compute the non-zero pattern of
         // the transpose of l.
@@ -335,8 +335,8 @@ where
     ) -> Vec<usize> {
         let len = m.data.shape().0.value();
         let mut counts: Vec<_> = iter::repeat(0).take(len).collect();
-        let mut reach = Vec::new();
-        let mut marks = Vec::new();
+        let mut reach = vec![];
+        let mut marks = vec![];
 
         for i in 0..len {
             Self::reach(m, i, i, tree, &mut marks, &mut reach);

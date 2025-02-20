@@ -95,9 +95,9 @@ impl<T> CooMatrix<T> {
         Self {
             nrows,
             ncols,
-            row_indices: Vec::new(),
-            col_indices: Vec::new(),
-            values: Vec::new(),
+            row_indices: vec![],
+            col_indices: vec![],
+            values: vec![],
         }
     }
 
