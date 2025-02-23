@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc b8e49f3fa66a3568e1c29a47de5f3d2f67866d59b39329e2a0da1537a9c6d584 # shrinks to matrix = CscMatrix { cs: CsMatrix { sparsity_pattern: SparsityPattern { major_offsets: [0, 4, 8, 11, 16, 21], minor_indices: [0, 1, 3, 4, 0, 1, 3, 4, 2, 3, 4, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4], minor_dim: 5 }, values: [1.0, 0.0, 0.0, 0.0, 0.0, 8.445226477445164, 0.0, 5.072108001361104, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 5.072108001361104, 0.0, 0.0, 4.455405910808415] } }
