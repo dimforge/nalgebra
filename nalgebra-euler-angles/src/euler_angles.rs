@@ -69,7 +69,7 @@ pub fn rotation_x(degrees_angle: &f64) -> Vec<Vec<f64>> {
     return vec![
         vec![1.0, 0.0, 0.0],
         vec![0.0, cos, -sin],
-        vec![-sin, 0.0, cos]
+        vec![0.0, sin, cos]
     ];
 }
 
