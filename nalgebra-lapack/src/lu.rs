@@ -344,6 +344,8 @@ pub trait LUScalar: Scalar + Copy {
     fn xgetri_work_size(n: i32, a: &mut [Self], lda: i32, ipiv: &[i32], info: &mut i32) -> i32;
 }
 
+/// This macro uses unsafe to manually ensure memory safety for external functions
+/// For incorrectly sized and initialized matrices and arrays, undefined behavior will occur
 macro_rules! lup_scalar_impl(
     ($N: ty, $xgetrf: path, $xlaswp: path, $xgetrs: path, $xgetri: path) => (
         impl LUScalar for $N {

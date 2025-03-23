@@ -133,6 +133,8 @@ pub fn clamp_vec<T: Number, const D: usize>(
 ///
 /// The floating-point value's bit-level representation is preserved.
 ///
+/// Using unsafe is sound because the bitwise representation of f32 fits in i32
+///
 /// # See also:
 ///
 /// * [`float_bits_to_int_vec()`]
@@ -166,6 +168,8 @@ pub fn float_bits_to_int_vec<const D: usize>(v: &TVec<f32, D>) -> TVec<i32, D> {
 /// Returns an unsigned integer value representing the encoding of a floating-point value.
 ///
 /// The floating-point value's bit-level representation is preserved.
+///
+/// Using unsafe is sound because the bitwise representation of f32 fits in i32
 ///
 /// # See also:
 ///

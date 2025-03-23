@@ -105,7 +105,9 @@ macro_rules! svd_impl(
                 let mut lwork = -1 as i32;
                 let mut info  = 0;
                 let mut iwork = vec![0; 8 * cmp::min(nrows.value(), ncols.value())];
-
+                
+                // Using unsafe to manually ensure memory safety for external function lapack_func
+                // Rust cannot check the slices' or raw poinnters' safety
                 unsafe {
                     $lapack_func(job, nrows.value() as i32, ncols.value() as i32, m.as_mut_slice(),
                     lda, &mut s.as_mut_slice(), u.as_mut_slice(), ldu as i32, vt.as_mut_slice(),

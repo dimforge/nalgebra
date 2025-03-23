@@ -202,6 +202,8 @@ pub trait SchurScalar: Scalar {
     ) -> i32;
 }
 
+/// This macro uses unsafe to manually ensure memory safety for external function xgees
+/// For incorrectly sized and initialized matrices and arrays, undefined behavior will occur
 macro_rules! real_eigensystem_scalar_impl (
     ($N: ty, $xgees: path) => (
         impl SchurScalar for $N {

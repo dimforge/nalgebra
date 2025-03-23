@@ -161,6 +161,7 @@ where
         lapack_check!(info);
 
         // Copy lower triangle to upper triangle.
+        // Using unsafe to ensure the bounds i and j are always valid indices,
         for i in 0..dim {
             for j in i + 1..dim {
                 unsafe { *self.l.get_unchecked_mut((i, j)) = *self.l.get_unchecked((j, i)) };
@@ -196,6 +197,9 @@ pub trait CholeskyScalar: Scalar + Copy {
     fn xpotri(uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32);
 }
 
+/// This macro uses unsafe to manually ensure memory safety for external functions
+/// For incorrectly sized and initialized matrices and arrays, undefined behavior will occur
+/// Also, it helps with pointer dereferencing
 macro_rules! cholesky_scalar_impl(
     ($N: ty, $xpotrf: path, $xpotrs: path, $xpotri: path) => (
         impl CholeskyScalar for $N {
