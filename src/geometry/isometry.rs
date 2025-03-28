@@ -71,17 +71,15 @@ use rkyv::bytecheck;
                        Owned<T, Const<D>>: Deserialize<'de>,
                        T: Scalar"))
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "Isometry<T::Archived, R::Archived, D>",
-        bound(archive = "
-        T: rkyv::Archive,
-        R: rkyv::Archive,
-        Translation<T, D>: rkyv::Archive<Archived = Translation<T::Archived, D>>
-    ")
+    rkyv(as = Isometry<T::Archived, R::Archived, D>,
+        archive_bounds(
+            T: rkyv::Archive,
+            R: rkyv::Archive,
+            Translation<T, D>: rkyv::Archive<Archived = Translation<T::Archived, D>>
+        )
     )
 )]
 pub struct Isometry<T, R, const D: usize> {

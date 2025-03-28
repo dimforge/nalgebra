@@ -36,17 +36,15 @@ use rkyv::bytecheck;
                        DefaultAllocator: Allocator<Const<D>>,
                        Owned<T, Const<D>>: Deserialize<'de>"))
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "Similarity<T::Archived, R::Archived, D>",
-        bound(archive = "
-        T: rkyv::Archive,
-        R: rkyv::Archive,
-        Isometry<T, R, D>: rkyv::Archive<Archived = Isometry<T::Archived, R::Archived, D>>
-    ")
+    rkyv(as = Similarity<T::Archived, R::Archived, D>,
+        archive_bounds(
+            T: rkyv::Archive,
+            R: rkyv::Archive,
+            Isometry<T, R, D>: rkyv::Archive<Archived = Isometry<T::Archived, R::Archived, D>>
+        )
     )
 )]
 pub struct Similarity<T, R, const D: usize> {

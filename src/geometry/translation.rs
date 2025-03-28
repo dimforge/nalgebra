@@ -23,15 +23,13 @@ use rkyv::bytecheck;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "Translation<T::Archived, D>",
-        bound(archive = "
-        T: rkyv::Archive,
-        SVector<T, D>: rkyv::Archive<Archived = SVector<T::Archived, D>>
-    ")
+    rkyv(as = Translation<T::Archived, D>,
+        archive_bounds(
+            T: rkyv::Archive,
+            SVector<T, D>: rkyv::Archive<Archived = SVector<T::Archived, D>>
+        )
     )
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[derive(Copy, Clone)]
 pub struct Translation<T, const D: usize> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is

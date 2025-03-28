@@ -55,15 +55,13 @@ use rkyv::bytecheck;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "Rotation<T::Archived, D>",
-        bound(archive = "
-        T: rkyv::Archive,
-        SMatrix<T, D, D>: rkyv::Archive<Archived = SMatrix<T::Archived, D, D>>
-    ")
+    rkyv(as = Rotation<T::Archived, D>,
+        archive_bounds(
+            T: rkyv::Archive,
+            SMatrix<T, D, D>: rkyv::Archive<Archived = SMatrix<T::Archived, D, D>>
+        )
     )
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[derive(Copy, Clone)]
 pub struct Rotation<T, const D: usize> {
     matrix: SMatrix<T, D, D>,
