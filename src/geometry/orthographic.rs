@@ -25,15 +25,13 @@ use rkyv::bytecheck;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "Orthographic3<T::Archived>",
-        bound(archive = "
-        T: rkyv::Archive,
-        Matrix4<T>: rkyv::Archive<Archived = Matrix4<T::Archived>>
-    ")
+    rkyv(as = Orthographic3<T::Archived>,
+        archive_bounds(
+            T: rkyv::Archive,
+            Matrix4<T>: rkyv::Archive<Archived = Matrix4<T::Archived>>
+        )
     )
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[derive(Copy, Clone)]
 pub struct Orthographic3<T> {
     matrix: Matrix4<T>,

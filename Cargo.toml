@@ -23,7 +23,14 @@ path = "src/lib.rs"
 
 [features]
 default = ["std", "macros"]
-std = ["matrixmultiply", "num-traits/std", "num-complex/std", "num-rational/std", "approx/std", "simba/std"]
+std = [
+    "matrixmultiply",
+    "num-traits/std",
+    "num-complex/std",
+    "num-rational/std",
+    "approx/std",
+    "simba/std",
+]
 sparse = []
 debug = ["approx/num-complex", "rand"]
 alloc = []
@@ -60,20 +67,26 @@ convert-glam030 = ["glam030"]
 ## `serde-serialize`.
 serde-serialize-no-std = ["serde", "num-complex/serde"]
 serde-serialize = ["serde-serialize-no-std", "serde/std"]
-rkyv-serialize-no-std = ["rkyv/size_32"]
-rkyv-serialize = ["rkyv-serialize-no-std", "rkyv/std", "rkyv/validation"]
+rkyv-serialize-no-std = ["rkyv/pointer_width_32"]
+rkyv-serialize = ["rkyv-serialize-no-std", "rkyv/std", "rkyv/bytecheck"]
 
 # Randomness
 ## To use rand in a #[no-std] environment, enable the
 ## `rand-no-std` feature instead of `rand`.
 rand-no-std = ["rand-package"]
-rand = ["rand-no-std", "rand-package/std", "rand-package/std_rng", "rand-package/thread_rng", "rand_distr"]
+rand = [
+    "rand-no-std",
+    "rand-package/std",
+    "rand-package/std_rng",
+    "rand-package/thread_rng",
+    "rand_distr",
+]
 
 # Tests
 arbitrary = ["quickcheck"]
 proptest-support = ["proptest"]
 slow-tests = []
-rkyv-safe-deser = ["rkyv-serialize", "rkyv/validation"]
+rkyv-safe-deser = ["rkyv-serialize", "rkyv/bytecheck"]
 
 [dependencies]
 nalgebra-macros = { version = "0.2.2", path = "nalgebra-macros", optional = true }
@@ -87,15 +100,19 @@ simba = { version = "0.9", default-features = false }
 alga = { version = "0.9", default-features = false, optional = true }
 rand_distr = { version = "0.5", default-features = false, optional = true }
 matrixmultiply = { version = "0.3", optional = true }
-serde = { version = "1.0", default-features = false, features = ["derive"], optional = true }
-rkyv = { version = "0.7.41", default-features = false, optional = true }
+serde = { version = "1.0", default-features = false, features = [
+    "derive",
+], optional = true }
+rkyv = { version = "0.8", default-features = false, optional = true }
 mint = { version = "0.5", optional = true }
 quickcheck = { version = "1", optional = true }
 pest = { version = "2", optional = true }
 pest_derive = { version = "2", optional = true }
 bytemuck = { version = "1.5", optional = true }
 matrixcompare-core = { version = "0.1", optional = true }
-proptest = { version = "1", optional = true, default-features = false, features = ["std"] }
+proptest = { version = "1", optional = true, default-features = false, features = [
+    "std",
+] }
 glam014 = { package = "glam", version = "0.14", optional = true }
 glam015 = { package = "glam", version = "0.15", optional = true }
 glam016 = { package = "glam", version = "0.16", optional = true }
@@ -131,7 +148,12 @@ trybuild = "1.0.90"
 cool_asserts = "2.0.3"
 
 [workspace]
-members = ["nalgebra-lapack", "nalgebra-glm", "nalgebra-sparse", "nalgebra-macros"]
+members = [
+    "nalgebra-lapack",
+    "nalgebra-glm",
+    "nalgebra-sparse",
+    "nalgebra-macros",
+]
 resolver = "2"
 
 [[example]]

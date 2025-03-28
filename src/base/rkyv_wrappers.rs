@@ -3,8 +3,9 @@
 //! Copied from <https://github.com/rkyv/rkyv_contrib> (MIT-Apache2 licences) which isn’t published yet.
 
 use rkyv::{
+    rancor::Fallible,
     with::{ArchiveWith, DeserializeWith, SerializeWith},
-    Fallible,
+    Place,
 };
 use std::marker::PhantomData;
 
@@ -18,13 +19,7 @@ impl<OT: ?Sized, NT: ?Sized> ArchiveWith<PhantomData<OT>> for CustomPhantom<NT> 
     type Resolver = ();
 
     #[inline]
-    unsafe fn resolve_with(
-        _: &PhantomData<OT>,
-        _: usize,
-        _: Self::Resolver,
-        _: *mut Self::Archived,
-    ) {
-    }
+    fn resolve_with(_: &PhantomData<OT>, _: Self::Resolver, _: Place<Self::Archived>) {}
 }
 
 impl<OT: ?Sized, NT: ?Sized, S: Fallible + ?Sized> SerializeWith<PhantomData<OT>, S>
