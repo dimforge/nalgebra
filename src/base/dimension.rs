@@ -8,8 +8,6 @@ use std::fmt::Debug;
 use std::ops::{Add, Div, Mul, Sub};
 use typenum::{self, Diff, Max, Maximum, Min, Minimum, Prod, Quot, Sum, Unsigned};
 
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -18,10 +16,6 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
-)]
-#[cfg_attr(
-    feature = "rkyv-serialize",
-    archive_attr(derive(bytecheck::CheckBytes))
 )]
 pub struct Dyn(pub usize);
 
@@ -216,9 +210,8 @@ dim_ops!(
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(as = "Self")
+    rkyv(derive(Debug), compare(PartialEq))
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Const<const R: usize>;
 
 /// Trait implemented exclusively by type-level integers.

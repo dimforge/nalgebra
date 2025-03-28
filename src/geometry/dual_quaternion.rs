@@ -46,15 +46,13 @@ use simba::scalar::{ClosedNeg, RealField};
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "DualQuaternion<T::Archived>",
-        bound(archive = "
-        T: rkyv::Archive,
-        Quaternion<T>: rkyv::Archive<Archived = Quaternion<T::Archived>>
-    ")
+    rkyv(as = DualQuaternion<T::Archived>,
+        archive_bounds(
+            T: rkyv::Archive,
+            Quaternion<T>: rkyv::Archive<Archived = Quaternion<T::Archived>>
+        )
     )
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct DualQuaternion<T> {
     /// The real component of the quaternion
     pub real: Quaternion<T>,
