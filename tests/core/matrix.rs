@@ -1020,7 +1020,7 @@ mod finite_dim_inner_space_tests {
                 fn $orthonormal_subspace(vs in vec($vstrategy(), 0..10)) {
                     let mut given_basis = vs.clone();
                     let given_basis_dim = $Vector::orthonormalize(&mut given_basis[..]);
-                    let mut ortho_basis = Vec::new();
+                    let mut ortho_basis = vec![];
                     $Vector::orthonormal_subspace_basis(
                         &given_basis[.. given_basis_dim],
                         |e| { ortho_basis.push(*e); true }

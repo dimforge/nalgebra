@@ -100,8 +100,8 @@ where
     S: RawStorage<T, R, C>,
 {
     let mut row_offsets = Vec::with_capacity(dense.nrows() + 1);
-    let mut col_idx = Vec::new();
-    let mut values = Vec::new();
+    let mut col_idx = vec![];
+    let mut values = vec![];
 
     // We have to iterate row-by-row to build the CSR matrix, which is at odds with
     // nalgebra's column-major storage. The alternative would be to perform an initial sweep
@@ -177,8 +177,8 @@ where
     S: RawStorage<T, R, C>,
 {
     let mut col_offsets = Vec::with_capacity(dense.ncols() + 1);
-    let mut row_idx = Vec::new();
-    let mut values = Vec::new();
+    let mut row_idx = vec![];
+    let mut values = vec![];
 
     col_offsets.push(0);
     for j in 0..dense.ncols() {
@@ -268,18 +268,18 @@ where
 
     // At this point, assembly is essentially complete. However, we must ensure
     // that minor indices are sorted within each lane and without duplicates.
-    let mut sorted_major_offsets = Vec::new();
-    let mut sorted_minor_idx = Vec::new();
-    let mut sorted_vals = Vec::new();
+    let mut sorted_major_offsets = vec![];
+    let mut sorted_minor_idx = vec![];
+    let mut sorted_vals = vec![];
 
     sorted_major_offsets.push(0);
 
     // We need some temporary storage when working with each lane. Since lanes often have a
     // very small number of non-zero entries, we try to amortize allocations across
     // lanes by reusing workspace vectors
-    let mut idx_workspace = Vec::new();
-    let mut perm_workspace = Vec::new();
-    let mut values_workspace = Vec::new();
+    let mut idx_workspace = vec![];
+    let mut perm_workspace = vec![];
+    let mut values_workspace = vec![];
 
     for lane in 0..major_dim {
         let begin = unsorted_major_offsets[lane];

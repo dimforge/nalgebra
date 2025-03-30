@@ -24,8 +24,8 @@ pub fn spadd_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPatter
         "Patterns must have identical minor dimensions."
     );
 
-    let mut offsets = Vec::new();
-    let mut indices = Vec::new();
+    let mut offsets = vec![];
+    let mut indices = vec![];
     offsets.reserve(a.major_dim() + 1);
     indices.clear();
 
@@ -77,8 +77,8 @@ pub fn spmm_csr_pattern(a: &SparsityPattern, b: &SparsityPattern) -> SparsityPat
         "a and b must have compatible dimensions"
     );
 
-    let mut offsets = Vec::new();
-    let mut indices = Vec::new();
+    let mut offsets = vec![];
+    let mut indices = vec![];
     offsets.push(0);
 
     // Keep a vector of whether we have visited a particular minor index when working

@@ -237,9 +237,9 @@ pub enum MatrixMarketErrorKind {
 }
 
 impl MatrixMarketError {
-    fn from_kind_and_message(error_type: MatrixMarketErrorKind, message: String) -> Self {
+    fn from_kind_and_message(error_kind: MatrixMarketErrorKind, message: String) -> Self {
         Self {
-            error_kind: error_type,
+            error_kind,
             message,
         }
     }
@@ -260,38 +260,19 @@ impl MatrixMarketError {
 impl fmt::Display for MatrixMarketError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "Matrix Market error: ")?;
-        match self.kind() {
-            MatrixMarketErrorKind::ParsingError => {
-                write!(f, "ParsingError,")?;
-            }
-            MatrixMarketErrorKind::InvalidHeader => {
-                write!(f, "InvalidHeader,")?;
-            }
-            MatrixMarketErrorKind::EntryMismatch => {
-                write!(f, "EntryMismatch,")?;
-            }
-            MatrixMarketErrorKind::TypeMismatch => {
-                write!(f, "TypeMismatch,")?;
-            }
-            MatrixMarketErrorKind::SparseFormatError(_) => {
-                write!(f, "SparseFormatError,")?;
-            }
-            MatrixMarketErrorKind::ZeroError => {
-                write!(f, "ZeroError,")?;
-            }
-            MatrixMarketErrorKind::IOError(_) => {
-                write!(f, "IOError,")?;
-            }
-            MatrixMarketErrorKind::DiagonalError => {
-                write!(f, "DiagonalError,")?;
-            }
-            MatrixMarketErrorKind::NotLowerTriangle => {
-                write!(f, "NotLowerTriangle,")?;
-            }
-            MatrixMarketErrorKind::NonSquare => {
-                write!(f, "NonSquare,")?;
-            }
-        }
+        let msg = match self.kind() {
+            MatrixMarketErrorKind::ParsingError => "ParsingError,",
+            MatrixMarketErrorKind::InvalidHeader => "InvalidHeader,",
+            MatrixMarketErrorKind::EntryMismatch => "EntryMismatch,",
+            MatrixMarketErrorKind::TypeMismatch => "TypeMismatch,",
+            MatrixMarketErrorKind::SparseFormatError(_) => "SparseFormatError,",
+            MatrixMarketErrorKind::ZeroError => "ZeroError,",
+            MatrixMarketErrorKind::IOError(_) => "IOError,",
+            MatrixMarketErrorKind::DiagonalError => "DiagonalError,",
+            MatrixMarketErrorKind::NotLowerTriangle => "NotLowerTriangle,",
+            MatrixMarketErrorKind::NonSquare => "NonSquare,",
+        };
+        write!(f, "{}", msg)?;
         write!(f, " message: {}", self.message)
     }
 }
@@ -391,8 +372,8 @@ impl FromStr for Sparsity {
     /// Assumes that `word` is already lower case.
     fn from_str(word: &str) -> Result<Self, Self::Err> {
         match word {
-            "coordinate" => Ok(Sparsity::Sparse),
-            "array" => Ok(Sparsity::Dense),
+            "coordinate" => Ok(Self::Sparse),
+            "array" => Ok(Self::Dense),
             _ => Err(MatrixMarketError::from_kind_and_message(
                 MatrixMarketErrorKind::ParsingError,
                 format!("keyword {} is unknown", word),
@@ -406,10 +387,10 @@ impl FromStr for DataType {
     /// Assumes that `word` is already lower case.
     fn from_str(word: &str) -> Result<Self, Self::Err> {
         match word {
-            "real" => Ok(DataType::Real),
-            "complex" => Ok(DataType::Complex),
-            "integer" => Ok(DataType::Integer),
-            "pattern" => Ok(DataType::Pattern),
+            "real" => Ok(Self::Real),
+            "complex" => Ok(Self::Complex),
+            "integer" => Ok(Self::Integer),
+            "pattern" => Ok(Self::Pattern),
             _ => Err(MatrixMarketError::from_kind_and_message(
                 MatrixMarketErrorKind::ParsingError,
                 format!("keyword {} is unknown", word),
@@ -423,10 +404,10 @@ impl FromStr for StorageScheme {
     /// Assumes that `word` is already lower case.
     fn from_str(word: &str) -> Result<Self, Self::Err> {
         match word {
-            "skew-symmetric" => Ok(StorageScheme::Skew),
-            "general" => Ok(StorageScheme::General),
-            "symmetric" => Ok(StorageScheme::Symmetric),
-            "hermitian" => Ok(StorageScheme::Hermitian),
+            "skew-symmetric" => Ok(Self::Skew),
+            "general" => Ok(Self::General),
+            "symmetric" => Ok(Self::Symmetric),
+            "hermitian" => Ok(Self::Hermitian),
             _ => Err(MatrixMarketError::from_kind_and_message(
                 MatrixMarketErrorKind::ParsingError,
                 format!("keyword {} is unknown", word),
@@ -884,9 +865,9 @@ where
         .next()
         .unwrap();
 
-    let mut rows: Vec<usize> = Vec::new();
-    let mut cols: Vec<usize> = Vec::new();
-    let mut data: Vec<T> = Vec::new();
+    let mut rows: Vec<usize> = vec![];
+    let mut cols: Vec<usize> = vec![];
+    let mut data: Vec<T> = vec![];
     let mut lines = file.into_inner();
 
     let header_line = lines.next().unwrap();

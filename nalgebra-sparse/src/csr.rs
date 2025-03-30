@@ -628,7 +628,7 @@ pub struct CsrTripletIter<'a, T> {
 
 impl<'a, T> Clone for CsrTripletIter<'a, T> {
     fn clone(&self) -> Self {
-        CsrTripletIter {
+        Self {
             pattern_iter: self.pattern_iter.clone(),
             values_iter: self.values_iter.clone(),
         }
@@ -650,13 +650,10 @@ impl<'a, T> Iterator for CsrTripletIter<'a, T> {
     type Item = (usize, usize, &'a T);
 
     fn next(&mut self) -> Option<Self::Item> {
-        let next_entry = self.pattern_iter.next();
-        let next_value = self.values_iter.next();
-
-        match (next_entry, next_value) {
-            (Some((i, j)), Some(v)) => Some((i, j, v)),
-            _ => None,
-        }
+        self.pattern_iter
+            .next()
+            .zip(self.values_iter.next())
+            .map(|((i, j), v)| (i, j, v))
     }
 }
 
@@ -672,13 +669,10 @@ impl<'a, T> Iterator for CsrTripletIterMut<'a, T> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        let next_entry = self.pattern_iter.next();
-        let next_value = self.values_mut_iter.next();
-
-        match (next_entry, next_value) {
-            (Some((i, j)), Some(v)) => Some((i, j, v)),
-            _ => None,
-        }
+        self.pattern_iter
+            .next()
+            .zip(self.values_mut_iter.next())
+            .map(|((i, j), v)| (i, j, v))
     }
 }
 

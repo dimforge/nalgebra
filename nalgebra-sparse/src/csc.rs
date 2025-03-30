@@ -592,30 +592,27 @@ fn pattern_format_error_to_csc_error(err: SparsityPatternFormatError) -> SparseF
     use SparsityPatternFormatError::DuplicateEntry as PatternDuplicateEntry;
     use SparsityPatternFormatError::*;
 
-    match err {
-        InvalidOffsetArrayLength => E::from_kind_and_msg(
+    let (kind, msg) = match err {
+        InvalidOffsetArrayLength => (
             K::InvalidStructure,
             "Length of col offset array is not equal to ncols + 1.",
         ),
-        InvalidOffsetFirstLast => E::from_kind_and_msg(
+        InvalidOffsetFirstLast => (
             K::InvalidStructure,
             "First or last col offset is inconsistent with format specification.",
         ),
-        NonmonotonicOffsets => E::from_kind_and_msg(
+        NonmonotonicOffsets => (
             K::InvalidStructure,
             "Col offsets are not monotonically increasing.",
         ),
-        NonmonotonicMinorIndices => E::from_kind_and_msg(
+        NonmonotonicMinorIndices => (
             K::InvalidStructure,
             "Row indices are not monotonically increasing (sorted) within each column.",
         ),
-        MinorIndexOutOfBounds => {
-            E::from_kind_and_msg(K::IndexOutOfBounds, "Row indices are out of bounds.")
-        }
-        PatternDuplicateEntry => {
-            E::from_kind_and_msg(K::DuplicateEntry, "Matrix data contains duplicate entries.")
-        }
-    }
+        MinorIndexOutOfBounds => (K::IndexOutOfBounds, "Row indices are out of bounds."),
+        PatternDuplicateEntry => (K::DuplicateEntry, "Matrix data contains duplicate entries."),
+    };
+    E::from_kind_and_msg(kind, msg)
 }
 
 /// Iterator type for iterating over triplets in a CSC matrix.
@@ -627,7 +624,7 @@ pub struct CscTripletIter<'a, T> {
 
 impl<'a, T> Clone for CscTripletIter<'a, T> {
     fn clone(&self) -> Self {
-        CscTripletIter {
+        Self {
             pattern_iter: self.pattern_iter.clone(),
             values_iter: self.values_iter.clone(),
         }
@@ -649,13 +646,10 @@ impl<'a, T> Iterator for CscTripletIter<'a, T> {
     type Item = (usize, usize, &'a T);
 
     fn next(&mut self) -> Option<Self::Item> {
-        let next_entry = self.pattern_iter.next();
-        let next_value = self.values_iter.next();
-
-        match (next_entry, next_value) {
-            (Some((i, j)), Some(v)) => Some((j, i, v)),
-            _ => None,
-        }
+        self.pattern_iter
+            .next()
+            .zip(self.values_iter.next())
+            .map(|((i, j), v)| (j, i, v))
     }
 }
 
@@ -671,13 +665,10 @@ impl<'a, T> Iterator for CscTripletIterMut<'a, T> {
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        let next_entry = self.pattern_iter.next();
-        let next_value = self.values_mut_iter.next();
-
-        match (next_entry, next_value) {
-            (Some((i, j)), Some(v)) => Some((j, i, v)),
-            _ => None,
-        }
+        self.pattern_iter
+            .next()
+            .zip(self.values_mut_iter.next())
+            .map(|((i, j), v)| (j, i, v))
     }
 }
 
