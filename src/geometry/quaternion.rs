@@ -29,11 +29,11 @@ use rkyv::bytecheck;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(as = Quaternion<T::Archived>,
-        archive_bounds(
-            T: rkyv::Archive,
-            Vector4<T>: rkyv::Archive<Archived = Vector4<T::Archived>>
-        )
+
+    rkyv(
+        // This will generate a PartialEq impl between our unarchived
+        // and archived types
+        compare(PartialEq),
     )
 )]
 pub struct Quaternion<T> {

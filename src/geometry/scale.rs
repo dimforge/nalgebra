@@ -22,13 +22,7 @@ use rkyv::bytecheck;
 #[repr(C)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(as = Scale<T::Archived, D>,
-        archive_bounds(
-            T: rkyv::Archive,
-            SVector<T, D>: rkyv::Archive<Archived = SVector<T::Archived, D>>
-        )
-    )
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
 #[derive(Copy, Clone)]
 pub struct Scale<T, const D: usize> {

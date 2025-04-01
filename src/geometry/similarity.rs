@@ -39,12 +39,10 @@ use rkyv::bytecheck;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(as = Similarity<T::Archived, R::Archived, D>,
-        archive_bounds(
-            T: rkyv::Archive,
-            R: rkyv::Archive,
-            Isometry<T, R, D>: rkyv::Archive<Archived = Isometry<T::Archived, R::Archived, D>>
-        )
+    rkyv(
+        // This will generate a PartialEq impl between our unarchived
+        // and archived types
+        compare(PartialEq),
     )
 )]
 pub struct Similarity<T, R, const D: usize> {

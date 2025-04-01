@@ -30,11 +30,9 @@ use std::mem;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(
-        as = ArrayStorage<T::Archived, R, C>,
+    rkyv(compare(PartialEq),
         archive_bounds(
             T: rkyv::Archive,
-            [[T; R]; C]: rkyv::Archive<Archived = [[T::Archived; R]; C]>
         )
     )
 )]

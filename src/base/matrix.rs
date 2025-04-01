@@ -159,11 +159,15 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(as = Matrix<T::Archived, R, C, S::Archived>,
+    rkyv(
+        compare(PartialEq, PartialOrd),
+        derive(Debug),
         archive_bounds(
-            T: Archive,
+            <S as Archive>::Archived: core::fmt::Debug,
+            <PhantomData<(T, R, C)> as Archive>::Archived: core::fmt::Debug,
+            T: PartialEq,
             S: Archive,
-            With<PhantomData<(T, R, C)>, CustomPhantom<(Archived<T>, R, C)>>: Archive<Archived = PhantomData<(Archived<T>, R, C)>>
+            S: core::fmt::Debug,
         )
     )
 )]
@@ -203,7 +207,6 @@ pub struct Matrix<T, R, C, S> {
     //       of the `RawStorage` trait. However, because we don't have
     //       specialization, this is not possible because these `T, R, C`
     //       allows us to desambiguate a lot of configurations.
-    #[cfg_attr(feature = "rkyv-serialize-no-std", rkyv(with = CustomPhantom<(T::Archived, R, C)>))]
     _phantoms: PhantomData<(T, R, C)>,
 }
 

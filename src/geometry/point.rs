@@ -42,12 +42,11 @@ use std::mem::MaybeUninit;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(as = OPoint<T::Archived, D>,
-        archive_bounds(T: rkyv::Archive,
-            T::Archived: Scalar,
-            OVector<T, D>: rkyv::Archive<Archived = OVector<T::Archived, D>>,
-            DefaultAllocator: Allocator<D>,
-        )
+
+    rkyv(
+        // This will generate a PartialEq impl between our unarchived
+        // and archived types
+        compare(PartialEq),
     )
 )]
 pub struct OPoint<T: Scalar, D: DimName>

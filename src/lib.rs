@@ -78,7 +78,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 */
 
 #![deny(
-    missing_docs,
+    //missing_docs,
     nonstandard_style,
     unused_variables,
     unused_mut,

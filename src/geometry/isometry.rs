@@ -74,13 +74,9 @@ use rkyv::bytecheck;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(as = Isometry<T::Archived, R::Archived, D>,
-        archive_bounds(
-            T: rkyv::Archive,
-            R: rkyv::Archive,
-            Translation<T, D>: rkyv::Archive<Archived = Translation<T::Archived, D>>
-        )
-    )
+    // This will generate a PartialEq impl between our unarchived
+    // and archived types
+    rkyv(compare(PartialEq),)
 )]
 pub struct Isometry<T, R, const D: usize> {
     /// The pure rotational part of this isometry.

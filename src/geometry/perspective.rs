@@ -25,13 +25,7 @@ use rkyv::{bytecheck, rancor};
 #[repr(C)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(as = Perspective3<T::Archived>,
-        archive_bounds(
-            T: rkyv::Archive,
-            Matrix4<T>: rkyv::Archive<Archived = Matrix4<T::Archived>>
-        )
-    )
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
 #[derive(Copy, Clone)]
 pub struct Perspective3<T> {

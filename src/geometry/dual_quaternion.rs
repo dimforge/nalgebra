@@ -45,13 +45,7 @@ use simba::scalar::{ClosedNeg, RealField};
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(as = DualQuaternion<T::Archived>,
-        archive_bounds(
-            T: rkyv::Archive,
-            Quaternion<T>: rkyv::Archive<Archived = Quaternion<T::Archived>>
-        )
-    )
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
 pub struct DualQuaternion<T> {
     /// The real component of the quaternion

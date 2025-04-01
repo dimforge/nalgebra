@@ -25,11 +25,10 @@ use rkyv::bytecheck;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(as = Orthographic3<T::Archived>,
-        archive_bounds(
-            T: rkyv::Archive,
-            Matrix4<T>: rkyv::Archive<Archived = Matrix4<T::Archived>>
-        )
+    rkyv(
+        // This will generate a PartialEq impl between our unarchived
+        // and archived types
+        compare(PartialEq),
     )
 )]
 #[derive(Copy, Clone)]
