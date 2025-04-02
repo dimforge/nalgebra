@@ -17,9 +17,6 @@ use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, OMatrix, SMatrix, SVector, Scalar, Unit};
 use crate::geometry::Point;
 
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
-
 /// A rotation matrix.
 ///
 /// This is also known as an element of a Special Orthogonal (SO) group.
@@ -54,16 +51,8 @@ use rkyv::bytecheck;
 #[repr(C)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "Rotation<T::Archived, D>",
-        bound(archive = "
-        T: rkyv::Archive,
-        SMatrix<T, D, D>: rkyv::Archive<Archived = SMatrix<T::Archived, D, D>>
-    ")
-    )
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[derive(Copy, Clone)]
 pub struct Rotation<T, const D: usize> {
     matrix: SMatrix<T, D, D>,

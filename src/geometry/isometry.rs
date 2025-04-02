@@ -14,11 +14,6 @@ use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar, Unit};
 use crate::geometry::{AbstractRotation, Point, Translation};
 
-use crate::{Isometry3, Quaternion, Vector3, Vector4};
-
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
-
 /// A direct isometry, i.e., a rotation followed by a translation (aka. a rigid-body motion).
 ///
 /// This is also known as an element of a Special Euclidean (SE) group.
@@ -71,18 +66,12 @@ use rkyv::bytecheck;
                        Owned<T, Const<D>>: Deserialize<'de>,
                        T: Scalar"))
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "Isometry<T::Archived, R::Archived, D>",
-        bound(archive = "
-        T: rkyv::Archive,
-        R: rkyv::Archive,
-        Translation<T, D>: rkyv::Archive<Archived = Translation<T::Archived, D>>
-    ")
-    )
+    // This will generate a PartialEq impl between our unarchived
+    // and archived types
+    rkyv(compare(PartialEq),)
 )]
 pub struct Isometry<T, R, const D: usize> {
     /// The pure rotational part of this isometry.

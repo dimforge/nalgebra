@@ -9,9 +9,6 @@ use crate::base::DefaultAllocator;
 use crate::storage::RawStorage;
 use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealField};
 
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
-
 /// A wrapper that ensures the underlying algebraic entity has a unit norm.
 ///
 /// **It is likely that the only piece of documentation that you need in this page are:**
@@ -27,14 +24,11 @@ use rkyv::bytecheck;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "Unit<T::Archived>",
-        bound(archive = "
-        T: rkyv::Archive,
-    ")
-    )
+    rkyv(
+        // This will generate a PartialEq impl between our unarchived
+        // and archived types
+        compare(PartialEq),)
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Unit<T> {
     pub(crate) value: T,
 }

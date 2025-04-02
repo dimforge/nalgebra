@@ -18,23 +18,12 @@ use crate::base::{Matrix4, Vector, Vector3};
 
 use crate::geometry::{Point3, Projective3};
 
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
-
 /// A 3D perspective projection stored as a homogeneous 4x4 matrix.
 #[repr(C)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "Perspective3<T::Archived>",
-        bound(archive = "
-        T: rkyv::Archive,
-        Matrix4<T>: rkyv::Archive<Archived = Matrix4<T::Archived>>
-    ")
-    )
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[derive(Copy, Clone)]
 pub struct Perspective3<T> {
     matrix: Matrix4<T>,

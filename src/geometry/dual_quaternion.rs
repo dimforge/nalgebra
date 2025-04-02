@@ -1,9 +1,6 @@
 // The macros break if the references are taken out, for some reason.
 #![allow(clippy::op_ref)]
 
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
-
 use crate::{
     Isometry3, Matrix4, Normed, OVector, Point3, Quaternion, Scalar, SimdRealField, Translation3,
     Unit, UnitQuaternion, Vector3, Zero, U8,
@@ -45,16 +42,8 @@ use simba::scalar::{ClosedNeg, RealField};
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "DualQuaternion<T::Archived>",
-        bound(archive = "
-        T: rkyv::Archive,
-        Quaternion<T>: rkyv::Archive<Archived = Quaternion<T::Archived>>
-    ")
-    )
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct DualQuaternion<T> {
     /// The real component of the quaternion
     pub real: Quaternion<T>,

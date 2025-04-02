@@ -397,12 +397,12 @@ fn simple_sum() {
     let b = M::new(10.0, 20.0, 30.0, 40.0, 50.0, 60.0);
     let c = M::new(100.0, 200.0, 300.0, 400.0, 500.0, 600.0);
 
-    assert_eq!(M::zero(), Vec::<M>::new().iter().sum());
-    assert_eq!(M::zero(), Vec::<M>::new().into_iter().sum());
-    assert_eq!(a + b, vec![a, b].iter().sum());
-    assert_eq!(a + b, vec![a, b].into_iter().sum());
-    assert_eq!(a + b + c, vec![a, b, c].iter().sum());
-    assert_eq!(a + b + c, vec![a, b, c].into_iter().sum());
+    assert_eq!(M::zero(), Vec::<M>::new().iter().sum::<M>());
+    assert_eq!(M::zero(), Vec::<M>::new().into_iter().sum::<M>());
+    assert_eq!(a + b, vec![a, b].iter().sum::<M>());
+    assert_eq!(a + b, vec![a, b].into_iter().sum::<M>());
+    assert_eq!(a + b + c, vec![a, b, c].iter().sum::<M>());
+    assert_eq!(a + b + c, vec![a, b, c].into_iter().sum::<M>());
 }
 
 #[test]
@@ -443,12 +443,12 @@ fn simple_product() {
         100.0, 200.0, 300.0, 400.0, 500.0, 600.0, 700.0, 800.0, 900.0,
     );
 
-    assert_eq!(M::one(), Vec::<M>::new().iter().product());
-    assert_eq!(M::one(), Vec::<M>::new().into_iter().product());
-    assert_eq!(a * b, vec![a, b].iter().product());
-    assert_eq!(a * b, vec![a, b].into_iter().product());
-    assert_eq!(a * b * c, vec![a, b, c].iter().product());
-    assert_eq!(a * b * c, vec![a, b, c].into_iter().product());
+    assert_eq!(M::one(), Vec::<M>::new().iter().product::<M>());
+    assert_eq!(M::one(), Vec::<M>::new().into_iter().product::<M>());
+    assert_eq!(a * b, vec![a, b].iter().product::<M>());
+    assert_eq!(a * b, vec![a, b].into_iter().product::<M>());
+    assert_eq!(a * b * c, vec![a, b, c].iter().product::<M>());
+    assert_eq!(a * b * c, vec![a, b, c].into_iter().product::<M>());
 }
 
 #[test]

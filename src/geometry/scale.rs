@@ -15,23 +15,12 @@ use crate::ClosedMulAssign;
 
 use crate::geometry::Point;
 
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
-
 /// A scale which supports non-uniform scaling.
 #[repr(C)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "Scale<T::Archived, D>",
-        bound(archive = "
-        T: rkyv::Archive,
-        SVector<T, D>: rkyv::Archive<Archived = SVector<T::Archived, D>>
-    ")
-    )
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[derive(Copy, Clone)]
 pub struct Scale<T, const D: usize> {
     /// The scale coordinates, i.e., how much is multiplied to a point's coordinates when it is

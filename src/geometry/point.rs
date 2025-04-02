@@ -4,8 +4,6 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::hash;
 
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -39,18 +37,14 @@ use std::mem::MaybeUninit;
 /// of said transformations for details.
 #[repr(C)]
 #[derive(Clone)]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "OPoint<T::Archived, D>",
-        bound(archive = "
-        T: rkyv::Archive,
-        T::Archived: Scalar,
-        OVector<T, D>: rkyv::Archive<Archived = OVector<T::Archived, D>>,
-        DefaultAllocator: Allocator<D>,
-    ")
+
+    rkyv(
+        // This will generate a PartialEq impl between our unarchived
+        // and archived types
+        compare(PartialEq),
     )
 )]
 pub struct OPoint<T: Scalar, D: DimName>

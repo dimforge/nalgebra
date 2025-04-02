@@ -19,9 +19,6 @@ use crate::base::{
 
 use crate::geometry::{Point3, Rotation};
 
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
-
 /// A quaternion. See the type alias `UnitQuaternion = Unit<Quaternion>` for a quaternion
 /// that may be used as a rotation.
 #[repr(C)]
@@ -29,15 +26,13 @@ use rkyv::bytecheck;
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "Quaternion<T::Archived>",
-        bound(archive = "
-            T: rkyv::Archive,
-            Vector4<T>: rkyv::Archive<Archived = Vector4<T::Archived>>
-        ")
+
+    rkyv(
+        // This will generate a PartialEq impl between our unarchived
+        // and archived types
+        compare(PartialEq),
     )
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<T>,

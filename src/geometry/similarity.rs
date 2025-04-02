@@ -15,9 +15,6 @@ use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar};
 use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
-
 /// A similarity, i.e., an uniform scaling, followed by a rotation, followed by a translation.
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -36,17 +33,13 @@ use rkyv::bytecheck;
                        DefaultAllocator: Allocator<Const<D>>,
                        Owned<T, Const<D>>: Deserialize<'de>"))
 )]
-#[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    archive(
-        as = "Similarity<T::Archived, R::Archived, D>",
-        bound(archive = "
-        T: rkyv::Archive,
-        R: rkyv::Archive,
-        Isometry<T, R, D>: rkyv::Archive<Archived = Isometry<T::Archived, R::Archived, D>>
-    ")
+    rkyv(
+        // This will generate a PartialEq impl between our unarchived
+        // and archived types
+        compare(PartialEq),
     )
 )]
 pub struct Similarity<T, R, const D: usize> {
