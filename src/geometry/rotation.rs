@@ -54,15 +54,7 @@ use rkyv::bytecheck;
 #[repr(C)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    // This will generate a PartialEq impl between our unarchived
-    // and archived types
-    //rkyv(archive_bounds(
-        //T: rkyv::Archive,
-        //<T as rkyv::Archive>::Archived: core::fmt::Debug,
-    //),
-//    compare(PartialEq)
-//)
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
 #[derive(Copy, Clone)]
 pub struct Rotation<T, const D: usize> {

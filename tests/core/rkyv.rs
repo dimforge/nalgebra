@@ -12,7 +12,7 @@ macro_rules! test_rkyv_same_type(
         #[test]
         fn $test() {
             let value: $ty<f32> = rand::random();
-			let bytes = rkyv::to_bytes::<_>(&value).unwrap();
+			let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(&value).unwrap();
 
             let archived = rkyv::access::<<$ty<f32> as rkyv::Archive>::Archived, rkyv::rancor::Error>(&bytes)
         .unwrap();
