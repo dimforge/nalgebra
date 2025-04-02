@@ -4,8 +4,6 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::hash;
 
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 

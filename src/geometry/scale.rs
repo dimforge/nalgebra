@@ -15,9 +15,6 @@ use crate::ClosedMulAssign;
 
 use crate::geometry::Point;
 
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
-
 /// A scale which supports non-uniform scaling.
 #[repr(C)]
 #[cfg_attr(

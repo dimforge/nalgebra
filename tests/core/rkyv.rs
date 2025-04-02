@@ -5,7 +5,6 @@ use na::{
     Rotation3, Similarity3, SimilarityMatrix2, SimilarityMatrix3, Translation2, Translation3,
 };
 use rand;
-use rkyv::Deserialize;
 
 macro_rules! test_rkyv_same_type(
     ($($test: ident, $ty: ident);* $(;)*) => {$(

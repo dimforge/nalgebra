@@ -17,9 +17,6 @@ use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, OMatrix, SMatrix, SVector, Scalar, Unit};
 use crate::geometry::Point;
 
-#[cfg(feature = "rkyv-serialize")]
-use rkyv::bytecheck;
-
 /// A rotation matrix.
 ///
 /// This is also known as an element of a Special Orthogonal (SO) group.

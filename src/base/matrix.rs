@@ -12,9 +12,7 @@ use std::mem;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "rkyv-serialize-no-std")]
-use super::rkyv_wrappers::CustomPhantom;
-#[cfg(feature = "rkyv-serialize-no-std")]
-use rkyv::{with::With, Archive, Archived};
+use rkyv::Archive;
 
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign, ClosedSubAssign, Field, SupersetOf};
 use simba::simd::SimdPartialOrd;
