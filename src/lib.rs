@@ -46,34 +46,34 @@ fn main() {
 **nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, with
 an optimized set of tools for computer graphics and physics. Those features include:
 
-* A single parametrizable type [`Matrix`](Matrix) for vectors, (square or rectangular) matrices, and
+* A single parametrizable type [`Matrix`] for vectors, (square or rectangular) matrices, and
   slices with dimensions known either at compile-time (using type-level integers) or at runtime.
 * Matrices and vectors with compile-time sizes are statically allocated while dynamic ones are
   allocated on the heap.
-* Convenient aliases for low-dimensional matrices and vectors: [`Vector1`](Vector1) to
-  [`Vector6`](Vector6) and [`Matrix1x1`](Matrix1) to [`Matrix6x6`](Matrix6), including rectangular
-  matrices like [`Matrix2x5`](Matrix2x5).
-* Points sizes known at compile time, and convenience aliases: [`Point1`](Point1) to
-  [`Point6`](Point6).
+* Convenient aliases for low-dimensional matrices and vectors: [`Vector1`] to
+  [`Vector6`] and [`Matrix1x1`](Matrix1) to [`Matrix6x6`](Matrix6), including rectangular
+  matrices like [`Matrix2x5`].
+* Points sizes known at compile time, and convenience aliases: [`Point1`] to
+  [`Point6`].
 * Translation (seen as a transformation that composes by multiplication):
-  [`Translation2`](Translation2), [`Translation3`](Translation3).
-* Rotation matrices: [`Rotation2`](Rotation2), [`Rotation3`](Rotation3).
-* Quaternions: [`Quaternion`](Quaternion), [`UnitQuaternion`](UnitQuaternion) (for 3D rotation).
-* Unit complex numbers can be used for 2D rotation: [`UnitComplex`](UnitComplex).
+  [`Translation2`], [`Translation3`].
+* Rotation matrices: [`Rotation2`], [`Rotation3`].
+* Quaternions: [`Quaternion`], [`UnitQuaternion`] (for 3D rotation).
+* Unit complex numbers can be used for 2D rotation: [`UnitComplex`].
 * Algebraic entities with a norm equal to one: [`Unit<T>`](Unit), e.g., `Unit<Vector3<f32>>`.
-* Isometries (translation ⨯ rotation): [`Isometry2`](Isometry2), [`Isometry3`](Isometry3)
+* Isometries (translation ⨯ rotation): [`Isometry2`], [`Isometry3`]
 * Similarity transformations (translation ⨯ rotation ⨯ uniform scale):
-  [`Similarity2`](Similarity2), [`Similarity3`](Similarity3).
+  [`Similarity2`], [`Similarity3`].
 * Affine transformations stored as a homogeneous matrix:
-  [`Affine2`](Affine2), [`Affine3`](Affine3).
+  [`Affine2`], [`Affine3`].
 * Projective (i.e. invertible) transformations stored as a homogeneous matrix:
-  [`Projective2`](Projective2), [`Projective3`](Projective3).
+  [`Projective2`], [`Projective3`].
 * General transformations that does not have to be invertible, stored as a homogeneous matrix:
-  [`Transform2`](Transform2), [`Transform3`](Transform3).
-* 3D projections for computer graphics: [`Perspective3`](Perspective3),
-  [`Orthographic3`](Orthographic3).
-* Matrix factorizations: [`Cholesky`](Cholesky), [`QR`](QR), [`LU`](LU), [`FullPivLU`](FullPivLU),
-  [`SVD`](SVD), [`Schur`](Schur), [`Hessenberg`](Hessenberg), [`SymmetricEigen`](SymmetricEigen).
+  [`Transform2`], [`Transform3`].
+* 3D projections for computer graphics: [`Perspective3`],
+  [`Orthographic3`].
+* Matrix factorizations: [`Cholesky`], [`QR`], [`LU`], [`FullPivLU`],
+  [`SVD`], [`Schur`], [`Hessenberg`], [`SymmetricEigen`].
 * Insertion and removal of rows of columns of a matrix.
 */
 
