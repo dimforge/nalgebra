@@ -30,8 +30,8 @@ mod symmetric_eigen;
 mod symmetric_tridiagonal;
 mod udu;
 
-//// TODO: Not complete enough for publishing.
-//// This handles only cases where each eigenvalue has multiplicity one.
+// TODO: Not complete enough for publishing.
+// This handles only cases where each eigenvalue has multiplicity one.
 // mod eigen;
 
 pub use self::bidiagonal::*;

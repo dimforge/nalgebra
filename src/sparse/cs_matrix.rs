@@ -23,7 +23,7 @@ impl<'a, T> ColumnEntries<'a, T> {
     }
 }
 
-impl<'a, T: Clone> Iterator for ColumnEntries<'a, T> {
+impl<T: Clone> Iterator for ColumnEntries<'_, T> {
     type Item = (usize, T);
 
     #[inline]

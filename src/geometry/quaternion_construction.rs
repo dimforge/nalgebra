@@ -59,10 +59,10 @@ impl<T> Quaternion<T> {
     /// let q2 = q.cast::<f32>();
     /// assert_eq!(q2, Quaternion::new(1.0f32, 2.0, 3.0, 4.0));
     /// ```
-    pub fn cast<To: Scalar>(self) -> Quaternion<To>
+    pub fn cast<To>(self) -> Quaternion<To>
     where
         T: Scalar,
-        To: SupersetOf<T>,
+        To: Scalar + SupersetOf<T>,
     {
         crate::convert(self)
     }
@@ -231,9 +231,9 @@ where
     /// let q2 = q.cast::<f32>();
     /// assert_relative_eq!(q2, UnitQuaternion::from_euler_angles(1.0f32, 2.0, 3.0), epsilon = 1.0e-6);
     /// ```
-    pub fn cast<To: Scalar>(self) -> UnitQuaternion<To>
+    pub fn cast<To>(self) -> UnitQuaternion<To>
     where
-        To: SupersetOf<T>,
+        To: Scalar + SupersetOf<T>,
     {
         crate::convert(self)
     }

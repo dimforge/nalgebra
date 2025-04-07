@@ -1,9 +1,5 @@
 //! Matrix iterators.
 
-// only enables the `doc_cfg` feature when
-// the `docsrs` configuration attribute is defined
-#![cfg_attr(docsrs, feature(doc_cfg))]
-
 use core::fmt::Debug;
 use core::ops::Range;
 use std::iter::FusedIterator;

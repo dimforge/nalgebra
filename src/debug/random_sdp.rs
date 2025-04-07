@@ -32,7 +32,7 @@ where
     /// Creates a new well conditioned symmetric definite-positive matrix from its dimension and a
     /// random reals generators.
     pub fn new<Rand: FnMut() -> T>(dim: D, mut rand: Rand) -> Self {
-        let mut m = RandomOrthogonal::new(dim, || rand()).unwrap();
+        let mut m = RandomOrthogonal::new(dim, &mut rand).unwrap();
         let mt = m.adjoint();
 
         for i in 0..dim.value() {
