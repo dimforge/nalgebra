@@ -7,7 +7,7 @@ use crate::sparse::{CsMatrix, CsStorage};
 use crate::storage::Storage;
 use crate::{DefaultAllocator, Dim, Dyn, Matrix, OMatrix, Scalar};
 
-impl<'a, T: Scalar + Zero + ClosedAddAssign> CsMatrix<T> {
+impl<T: Scalar + Zero + ClosedAddAssign> CsMatrix<T> {
     /// Creates a column-compressed sparse matrix from a sparse matrix in triplet form.
     pub fn from_triplet(
         nrows: usize,
@@ -20,7 +20,7 @@ impl<'a, T: Scalar + Zero + ClosedAddAssign> CsMatrix<T> {
     }
 }
 
-impl<'a, T: Scalar + Zero + ClosedAddAssign, R: Dim, C: Dim> CsMatrix<T, R, C>
+impl<T: Scalar + Zero + ClosedAddAssign, R: Dim, C: Dim> CsMatrix<T, R, C>
 where
     DefaultAllocator: Allocator<C> + Allocator<R>,
 {
@@ -65,7 +65,7 @@ where
     }
 }
 
-impl<'a, T: Scalar + Zero, R: Dim, C: Dim, S> From<CsMatrix<T, R, C, S>> for OMatrix<T, R, C>
+impl<T: Scalar + Zero, R: Dim, C: Dim, S> From<CsMatrix<T, R, C, S>> for OMatrix<T, R, C>
 where
     S: CsStorage<T, R, C>,
     DefaultAllocator: Allocator<R, C>,
@@ -84,7 +84,7 @@ where
     }
 }
 
-impl<'a, T: Scalar + Zero, R: Dim, C: Dim, S> From<Matrix<T, R, C, S>> for CsMatrix<T, R, C>
+impl<T: Scalar + Zero, R: Dim, C: Dim, S> From<Matrix<T, R, C, S>> for CsMatrix<T, R, C>
 where
     S: Storage<T, R, C>,
     DefaultAllocator: Allocator<R, C> + Allocator<C>,

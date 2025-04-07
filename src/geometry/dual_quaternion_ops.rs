@@ -98,7 +98,7 @@ where
     }
 }
 
-impl<'a, T: SimdRealField> Neg for &'a DualQuaternion<T>
+impl<T: SimdRealField> Neg for &DualQuaternion<T>
 where
     T::Element: SimdRealField,
 {
@@ -122,7 +122,7 @@ where
     }
 }
 
-impl<'a, T: SimdRealField> Neg for &'a UnitDualQuaternion<T>
+impl<T: SimdRealField> Neg for &UnitDualQuaternion<T>
 where
     T::Element: SimdRealField,
 {
