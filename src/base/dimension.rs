@@ -53,7 +53,7 @@ impl<'de> Deserialize<'de> for Dyn {
     where
         D: Deserializer<'de>,
     {
-        usize::deserialize(deserializer).map(|x| Dyn(x))
+        usize::deserialize(deserializer).map(Dyn)
     }
 }
 

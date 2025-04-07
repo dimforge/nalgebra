@@ -95,7 +95,7 @@ where
     }
 }
 
-impl<'a, T, R: Dim, C: Dim, S> Neg for &'a Matrix<T, R, C, S>
+impl<T, R: Dim, C: Dim, S> Neg for &Matrix<T, R, C, S>
 where
     T: Scalar + ClosedNeg,
     S: Storage<T, R, C>,
@@ -550,8 +550,8 @@ macro_rules! left_scalar_mul_impl(
 left_scalar_mul_impl!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f32, f64);
 
 // Matrix × Matrix
-impl<'a, 'b, T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<&'b Matrix<T, R2, C2, SB>>
-    for &'a Matrix<T, R1, C1, SA>
+impl<'b, T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<&'b Matrix<T, R2, C2, SB>>
+    for &Matrix<T, R1, C1, SA>
 where
     T: Scalar + Zero + One + ClosedAddAssign + ClosedMulAssign,
     SA: Storage<T, R1, C1>,
@@ -572,8 +572,8 @@ where
     }
 }
 
-impl<'a, T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<Matrix<T, R2, C2, SB>>
-    for &'a Matrix<T, R1, C1, SA>
+impl<T, R1: Dim, C1: Dim, R2: Dim, C2: Dim, SA, SB> Mul<Matrix<T, R2, C2, SB>>
+    for &Matrix<T, R1, C1, SA>
 where
     T: Scalar + Zero + One + ClosedAddAssign + ClosedMulAssign,
     SB: Storage<T, R2, C2>,

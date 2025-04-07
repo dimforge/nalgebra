@@ -62,7 +62,7 @@ where
     }
 }
 
-impl<'a, T: Scalar + ClosedNeg, D: DimName> Neg for &'a OPoint<T, D>
+impl<T: Scalar + ClosedNeg, D: DimName> Neg for &OPoint<T, D>
 where
     DefaultAllocator: Allocator<D>,
 {

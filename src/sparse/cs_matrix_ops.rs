@@ -125,8 +125,7 @@ impl<T: Scalar + Zero + ClosedAddAssign + ClosedMulAssign, D: Dim, S: StorageMut
     */
 }
 
-impl<'a, 'b, T, R1, R2, C1, C2, S1, S2> Mul<&'b CsMatrix<T, R2, C2, S2>>
-    for &'a CsMatrix<T, R1, C1, S1>
+impl<'b, T, R1, R2, C1, C2, S1, S2> Mul<&'b CsMatrix<T, R2, C2, S2>> for &'_ CsMatrix<T, R1, C1, S1>
 where
     T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero,
     R1: Dim,
@@ -218,8 +217,7 @@ where
     }
 }
 
-impl<'a, 'b, T, R1, R2, C1, C2, S1, S2> Add<&'b CsMatrix<T, R2, C2, S2>>
-    for &'a CsMatrix<T, R1, C1, S1>
+impl<'b, T, R1, R2, C1, C2, S1, S2> Add<&'b CsMatrix<T, R2, C2, S2>> for &'_ CsMatrix<T, R1, C1, S1>
 where
     T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
     R1: Dim,
@@ -287,7 +285,7 @@ where
     }
 }
 
-impl<'a, 'b, T, R, C, S> Mul<T> for CsMatrix<T, R, C, S>
+impl<T, R, C, S> Mul<T> for CsMatrix<T, R, C, S>
 where
     T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero,
     R: Dim,

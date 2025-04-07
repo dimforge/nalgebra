@@ -549,7 +549,7 @@ where
     }
 }
 
-impl<'a, T: SimdRealField> Neg for &'a Quaternion<T>
+impl<T: SimdRealField> Neg for &Quaternion<T>
 where
     T::Element: SimdRealField,
 {

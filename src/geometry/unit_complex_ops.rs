@@ -52,7 +52,7 @@ impl<T: SimdRealField> Mul<Self> for UnitComplex<T> {
     }
 }
 
-impl<'a, T: SimdRealField> Mul<UnitComplex<T>> for &'a UnitComplex<T>
+impl<T: SimdRealField> Mul<UnitComplex<T>> for &UnitComplex<T>
 where
     T::Element: SimdRealField,
 {
@@ -76,7 +76,7 @@ where
     }
 }
 
-impl<'a, 'b, T: SimdRealField> Mul<&'b UnitComplex<T>> for &'a UnitComplex<T>
+impl<'b, T: SimdRealField> Mul<&'b UnitComplex<T>> for &UnitComplex<T>
 where
     T::Element: SimdRealField,
 {
@@ -102,7 +102,7 @@ where
     }
 }
 
-impl<'a, T: SimdRealField> Div<UnitComplex<T>> for &'a UnitComplex<T>
+impl<T: SimdRealField> Div<UnitComplex<T>> for &UnitComplex<T>
 where
     T::Element: SimdRealField,
 {
@@ -128,7 +128,7 @@ where
     }
 }
 
-impl<'a, 'b, T: SimdRealField> Div<&'b UnitComplex<T>> for &'a UnitComplex<T>
+impl<'b, T: SimdRealField> Div<&'b UnitComplex<T>> for &UnitComplex<T>
 where
     T::Element: SimdRealField,
 {
