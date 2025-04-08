@@ -29,12 +29,12 @@ use std::mem;
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(compare(PartialEq),
-    derive(Debug),
+    derive(rkyv::Archive, rkyv::Portable, rkyv::Serialize, rkyv::Deserialize, bytecheck::CheckBytes),
+    rkyv(
+        as = ArrayStorage<T::Archived, R, C>,
         archive_bounds(
             T: rkyv::Archive,
-            <[[T; R]; C] as rkyv::Archive>::Archived: Debug,
+            [[T; R]; C]: rkyv::Archive<Archived = [[T::Archived; R]; C]>
         )
     )
 )]
@@ -175,6 +175,24 @@ where
             mem::forget(self.0);
             ArrayStorage(data)
         }
+    }
+}
+
+#[cfg(feature = "rkyv-serialize")]
+impl<const R: usize, const C: usize> PartialEq<ArrayStorage<f32, R, C>>
+    for ArrayStorage<rkyv::rend::f32_le, R, C>
+{
+    fn eq(&self, other: &ArrayStorage<f32, R, C>) -> bool {
+        self.as_slice() == other.as_slice()
+    }
+}
+
+#[cfg(feature = "rkyv-serialize")]
+impl<const R: usize, const C: usize> PartialEq<ArrayStorage<rkyv::rend::f32_le, R, C>>
+    for ArrayStorage<f32, R, C>
+{
+    fn eq(&self, other: &ArrayStorage<rkyv::rend::f32_le, R, C>) -> bool {
+        self.as_slice() == other.as_slice()
     }
 }
 

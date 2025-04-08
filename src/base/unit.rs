@@ -24,10 +24,12 @@ use crate::{Dim, Matrix, OMatrix, RealField, Scalar, SimdComplexField, SimdRealF
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(
-        // This will generate a PartialEq impl between our unarchived
-        // and archived types
-        compare(PartialEq),)
+    rkyv(derive(Debug)),
+    rkyv(compare(PartialEq)),
+    rkyv(archive_bounds(
+        T: rkyv::Archive,
+        <T as rkyv::Archive>::Archived: fmt::Debug,
+    )),
 )]
 pub struct Unit<T> {
     pub(crate) value: T,

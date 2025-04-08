@@ -51,7 +51,13 @@ use crate::geometry::Point;
 #[repr(C)]
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
-    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
+    rkyv(derive(Debug)),
+    rkyv(compare(PartialEq)),
+    rkyv(archive_bounds(
+        T: rkyv::Archive,
+        <SMatrix<T, D, D> as rkyv::Archive>::Archived: fmt::Debug,
+    )),
 )]
 #[derive(Copy, Clone)]
 pub struct Rotation<T, const D: usize> {

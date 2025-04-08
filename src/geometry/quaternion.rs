@@ -26,12 +26,12 @@ use crate::geometry::{Point3, Rotation};
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-
-    rkyv(
-        // This will generate a PartialEq impl between our unarchived
-        // and archived types
-        compare(PartialEq),
-    )
+    rkyv(derive(Debug)),
+    rkyv(compare(PartialEq)),
+    rkyv(archive_bounds(
+        T: rkyv::Archive,
+        <Vector4<T> as rkyv::Archive>::Archived: fmt::Debug,
+    )),
 )]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.

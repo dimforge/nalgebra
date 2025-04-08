@@ -42,7 +42,7 @@ macro_rules! test_rkyv_diff_type(
 test_rkyv_same_type!(
     rkyv_same_type_matrix3x4,          Matrix3x4;
     rkyv_same_type_point3,             Point3;
-    /*rkyv_same_type_translation3,       Translation3;
+    rkyv_same_type_translation3,       Translation3;
     rkyv_same_type_rotation3,          Rotation3;
     rkyv_same_type_isometry3,          Isometry3;
     rkyv_same_type_isometry_matrix3,   IsometryMatrix3;
@@ -52,11 +52,10 @@ test_rkyv_same_type!(
     rkyv_same_type_point2,             Point2;
     rkyv_same_type_translation2,       Translation2;
     rkyv_same_type_rotation2,          Rotation2;
-    // rkyv_same_type_isometry2,          Isometry2;
+    //  // rkyv_same_type_isometry2,          Isometry2;
     rkyv_same_type_isometry_matrix2,   IsometryMatrix2;
-    // rkyv_same_type_similarity2,        Similarity2;
-    rkyv_same_type_similarity_matrix2, SimilarityMatrix2;
-    */
+    //  // rkyv_same_type_similarity2,        Similarity2;
+     rkyv_same_type_similarity_matrix2, SimilarityMatrix2;
 );
 
 /*

@@ -68,7 +68,12 @@ convert-glam030 = ["glam030"]
 serde-serialize-no-std = ["serde", "num-complex/serde"]
 serde-serialize = ["serde-serialize-no-std", "serde/std"]
 rkyv-serialize-no-std = ["rkyv/pointer_width_32"]
-rkyv-serialize = ["rkyv-serialize-no-std", "rkyv/std", "rkyv/bytecheck"]
+rkyv-serialize = [
+    "rkyv-serialize-no-std",
+    "rkyv/std",
+    "rkyv/bytecheck",
+    "dep:bytecheck",
+]
 
 # Randomness
 ## To use rand in a #[no-std] environment, enable the
@@ -86,7 +91,7 @@ rand = [
 arbitrary = ["quickcheck"]
 proptest-support = ["proptest"]
 slow-tests = []
-rkyv-safe-deser = ["rkyv-serialize", "rkyv/bytecheck"]
+rkyv-safe-deser = ["rkyv-serialize"]
 
 [dependencies]
 nalgebra-macros = { version = "0.2.2", path = "nalgebra-macros", optional = true }
@@ -109,6 +114,7 @@ quickcheck = { version = "1", optional = true }
 pest = { version = "2", optional = true }
 pest_derive = { version = "2", optional = true }
 bytemuck = { version = "1.5", optional = true }
+bytecheck = { version = "0.8", optional = true }
 matrixcompare-core = { version = "0.1", optional = true }
 proptest = { version = "1", optional = true, default-features = false, features = [
     "std",
