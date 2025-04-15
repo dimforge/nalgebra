@@ -22,14 +22,14 @@ use rkyv::bytecheck;
 
 /// A rotation matrix.
 ///
-/// This is also known as an element of a Special Orthogonal (SO) group.
-/// The `Rotation` type can either represent a 2D or 3D rotation, represented as a matrix.
-/// For a rotation based on quaternions, see [`UnitQuaternion`](crate::UnitQuaternion) instead.
+/// This is also known as an element of a Special Orthogonal (SO) group. The [`Rotation`] type can
+/// represent an n-dimensional rotation as a matrix. For a rotation based on quaternions, see
+/// [`UnitQuaternion`](crate::UnitQuaternion) instead.
 ///
-/// Note that instead of using the [`Rotation`](crate::Rotation) type in your code directly, you should use one
-/// of its aliases: [`Rotation2`](crate::Rotation2), or [`Rotation3`](crate::Rotation3). Though
-/// keep in mind that all the documentation of all the methods of these aliases will also appears on
-/// this page.
+/// For fixed dimensions, you should use its aliases (e.g., [`Rotation2`](crate::Rotation2) or
+/// [`Rotation3`](crate::Rotation3)) instead of the dimension-generic [`Rotation`](crate::Rotation)
+/// type. Though keep in mind that all the documentation of all the methods of these aliases will
+/// also appears on this page.
 ///
 /// # Construction
 /// * [Identity <span style="float:right;">`identity`</span>](#identity)
@@ -38,6 +38,7 @@ use rkyv::bytecheck;
 /// * [From a 3D axis and/or angles <span style="float:right;">`new`, `from_euler_angles`, `from_axis_angle`…</span>](#construction-from-a-3d-axis-andor-angles)
 /// * [From a 3D eye position and target point <span style="float:right;">`look_at`, `look_at_lh`, `rotation_between`…</span>](#construction-from-a-3d-eye-position-and-target-point)
 /// * [From an existing 3D matrix or rotations <span style="float:right;">`from_matrix`, `rotation_between`, `powf`…</span>](#construction-from-an-existing-3d-matrix-or-rotations)
+/// * [From an arc in any dimension <span style="float:right;">`from_arc`, `from_arc_angle`…</span>](#construction-in-any-dimension)
 ///
 /// # Transformation and composition
 /// Note that transforming vectors and points can be done by multiplication, e.g., `rotation * point`.
