@@ -24,7 +24,30 @@ path = "src/lib.rs"
 
 [features]
 default = ["std", "macros"]
-std = ["matrixmultiply", "num-traits/std", "num-complex/std", "num-rational/std", "approx/std", "simba/std"]
+std = [
+    "matrixmultiply",
+    "num-traits/std",
+    "num-complex/std",
+    "num-rational/std",
+    "approx/std",
+    "simba/std",
+    "glam014?/std",
+    "glam015?/std",
+    "glam016?/std",
+    "glam017?/std",
+    "glam018?/std",
+    "glam019?/std",
+    "glam020?/std",
+    "glam021?/std",
+    "glam022?/std",
+    "glam023?/std",
+    "glam024?/std",
+    "glam025?/std",
+    "glam027?/std",
+    "glam028?/std",
+    "glam029?/std",
+    "glam030?/std",
+]
 sparse = []
 debug = ["approx/num-complex", "rand"]
 alloc = []
