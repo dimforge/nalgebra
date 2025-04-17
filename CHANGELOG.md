@@ -19,6 +19,11 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Moved to Rust 2024 edition.
 - Several methods are now `const` whenever possible. See details in [#1522](https://github.com/dimforge/nalgebra/pull/1522).
 
+### Modified
+
+- Features for conversion from/to types from `glam` (such as `convert-glam029`)
+  no longer enable default features for `glam`, allowing use in `no_std` environments.
+
 ## [0.33.2] (29 October 2024)
 
 ### Added
