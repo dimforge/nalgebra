@@ -9,6 +9,7 @@ use rkyv::{
 };
 use std::marker::PhantomData;
 
+#[derive(Debug)]
 /// A wrapper that allows for changing the generic type of a `PhantomData<T>`.
 pub struct CustomPhantom<NT: ?Sized> {
     _data: PhantomData<*const NT>,
@@ -37,5 +38,14 @@ impl<OT: ?Sized, NT: ?Sized, D: Fallible + ?Sized>
     #[inline]
     fn deserialize_with(_: &PhantomData<NT>, _: &mut D) -> Result<PhantomData<OT>, D::Error> {
         Ok(PhantomData)
+    }
+}
+
+// TODO: implement PartialEq with generics.
+
+#[cfg(feature = "rkyv-serialize")]
+impl<NT: ?Sized> PartialEq<CustomPhantom<NT>> for CustomPhantom<NT> {
+    fn eq(&self, _other: &CustomPhantom<NT>) -> bool {
+        true
     }
 }

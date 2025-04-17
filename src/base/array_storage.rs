@@ -178,6 +178,8 @@ where
     }
 }
 
+// TODO: implement PartialEq with generics.
+
 #[cfg(feature = "rkyv-serialize")]
 impl<const R: usize, const C: usize> PartialEq<ArrayStorage<f32, R, C>>
     for ArrayStorage<rkyv::rend::f32_le, R, C>

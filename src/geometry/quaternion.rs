@@ -26,11 +26,9 @@ use crate::geometry::{Point3, Rotation};
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(derive(Debug)),
     rkyv(compare(PartialEq)),
     rkyv(archive_bounds(
         T: rkyv::Archive,
-        <Vector4<T> as rkyv::Archive>::Archived: fmt::Debug,
     )),
 )]
 pub struct Quaternion<T> {
@@ -41,6 +39,17 @@ pub struct Quaternion<T> {
 impl<T: fmt::Debug> fmt::Debug for Quaternion<T> {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         self.coords.as_slice().fmt(formatter)
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T> fmt::Debug for ArchivedQuaternion<T>
+where
+    T: rkyv::Archive + fmt::Debug,
+    <T as rkyv::Archive>::Archived: fmt::Debug,
+{
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        self.coords.data.as_slice().fmt(formatter)
     }
 }
 

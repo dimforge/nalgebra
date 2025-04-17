@@ -12,6 +12,9 @@ use std::mem;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "rkyv-serialize-no-std")]
+use super::rkyv_wrappers::CustomPhantom;
+
+#[cfg(feature = "rkyv-serialize-no-std")]
 use rkyv::Archive;
 
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign, ClosedSubAssign, Field, SupersetOf};
@@ -162,9 +165,20 @@ pub type MatrixCross<T, R1, C1, R2, C2> =
         derive(Debug),
         archive_bounds(
             <S as Archive>::Archived: core::fmt::Debug,
-            <PhantomData<(T, R, C)> as Archive>::Archived: core::fmt::Debug,
-            T: PartialEq,
-            S: Archive,
+            <CustomPhantom<(<T as Archive>::Archived, R, C)> as rkyv::with::ArchiveWith<PhantomData<(T, R, C)>>>::Archived: Archive,
+            <CustomPhantom<(<T as Archive>::Archived, R, C)> as rkyv::with::ArchiveWith<PhantomData<(T, R, C)>>>::Archived: core::fmt::Debug,
+            //T: PartialEq,
+            T: Archive,
+            //S: Archive,
+            S: core::fmt::Debug,
+        ),
+        deserialize_bounds(
+            <S as Archive>::Archived: core::fmt::Debug,
+            <CustomPhantom<(<T as Archive>::Archived, R, C)> as rkyv::with::ArchiveWith<PhantomData<(T, R, C)>>>::Archived: Archive,
+            <CustomPhantom<(<T as Archive>::Archived, R, C)> as rkyv::with::ArchiveWith<PhantomData<(T, R, C)>>>::Archived: core::fmt::Debug,
+            //T: PartialEq,
+            T: Archive,
+            //S: Archive,
             S: core::fmt::Debug,
         )
     )
@@ -205,6 +219,7 @@ pub struct Matrix<T, R, C, S> {
     //       of the `RawStorage` trait. However, because we don't have
     //       specialization, this is not possible because these `T, R, C`
     //       allows us to desambiguate a lot of configurations.
+    #[cfg_attr(feature = "rkyv-serialize-no-std", rkyv(with =CustomPhantom<(T::Archived, R, C)>))]
     _phantoms: PhantomData<(T, R, C)>,
 }
 
@@ -1897,6 +1912,61 @@ where
         self.shape() == right.shape() && self.iter().zip(right.iter()).all(|(l, r)| l == r)
     }
 }
+/*
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T, R, R2, C, C2, S, S2: rkyv::Archive> PartialEq<ArchivedMatrix<T, R2, C2, S2>>
+    for Matrix<T, R, C, S>
+where
+    T: PartialEq,
+    C: Dim,
+    C2: Dim,
+    R: Dim,
+    R2: Dim + rkyv::Archive,
+    S: RawStorage<T, R, C>,
+    S2: core::fmt::Debug,
+    T: Archive,
+    <S2 as Archive>::Archived: core::fmt::Debug + RawStorage<T, R2, C2>,
+    //<R2 as Archive>::Archived: Dim,
+{
+    #[inline]
+    fn eq(&self, right: &ArchivedMatrix<T, R2, C2, S2>) -> bool {
+        let shape = self.data.shape();
+        let shape = (shape.0.value(), shape.1.value());
+        let shape_right = right.data.shape();
+        let shape_right = (shape_right.0.value(), shape_right.1.value());
+        shape == shape_right
+            && self
+                .iter()
+                .zip(MatrixIter::new(&right.data))
+                .all(|(l, r)| l == r)
+    }
+}
+
+#[cfg(feature = "rkyv-serialize-no-std")]
+impl<T, R, C, S, S2> PartialEq<Matrix<T, R, C, S>> for ArchivedMatrix<T, R, C, S2>
+where
+    T: PartialEq,
+    C: Dim,
+    R: Dim + rkyv::Archive,
+    S: RawStorage<T, R, C>,
+    S2: core::fmt::Debug + rkyv::Archive,
+    T: Archive,
+    <S2 as Archive>::Archived: core::fmt::Debug + RawStorage<T::Archived, R, C>,
+    //<R as Archive>::Archived: Dim,
+{
+    #[inline]
+    fn eq(&self, right: &Matrix<T, R, C, S>) -> bool {
+        let shape = right.data.shape();
+        let shape = (shape.0.value(), shape.1.value());
+        let shape_right = self.data.shape();
+        let shape_right = (shape_right.0.value(), shape_right.1.value());
+        shape == shape_right
+            && right
+                .iter()
+                .zip(MatrixIter::new(&self.data))
+                .all(|(l, r)| l == r)
+    }
+}*/
 
 macro_rules! impl_fmt {
     ($trait: path, $fmt_str_without_precision: expr, $fmt_str_with_precision: expr) => {

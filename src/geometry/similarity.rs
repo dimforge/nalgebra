@@ -36,13 +36,9 @@ use crate::geometry::{AbstractRotation, Isometry, Point, Translation};
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(derive(Debug)),
     rkyv(compare(PartialEq)),
     rkyv(archive_bounds(
         T: rkyv::Archive,
-        <T as rkyv::Archive>::Archived: fmt::Debug,
-        Isometry<T, R, D>: rkyv::Archive,
-        <Isometry<T, R, D> as rkyv::Archive>::Archived: fmt::Debug,
     )),
 )]
 pub struct Similarity<T, R, const D: usize> {

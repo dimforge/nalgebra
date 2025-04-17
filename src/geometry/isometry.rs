@@ -69,13 +69,10 @@ use crate::geometry::{AbstractRotation, Point, Translation};
 #[cfg_attr(
     feature = "rkyv-serialize-no-std",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize),
-    rkyv(derive(Debug)),
     rkyv(compare(PartialEq)),
     rkyv(archive_bounds(
         T: rkyv::Archive,
         R: rkyv::Archive,
-        <R as rkyv::Archive>::Archived: fmt::Debug,
-        <Translation<T, D> as rkyv::Archive>::Archived: fmt::Debug,
     )),
 )]
 pub struct Isometry<T, R, const D: usize> {

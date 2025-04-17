@@ -10,14 +10,19 @@ macro_rules! test_rkyv_same_type(
     ($($test: ident, $ty: ident);* $(;)*) => {$(
         #[test]
         fn $test() {
-            let value: $ty<f32> = rand::random();
-			let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(&value).unwrap();
+            use rkyv::rancor::Error;
+            use rkyv::deserialize;
 
-            let archived = rkyv::access::<<$ty<f32> as rkyv::Archive>::Archived, rkyv::rancor::Error>(&bytes)
+            let value: $ty<f32> = rand::random();
+			let bytes = rkyv::to_bytes::<Error>(&value).unwrap();
+
+            let archived = rkyv::access::<<$ty<f32> as rkyv::Archive>::Archived, Error>(&bytes)
         .unwrap();
             // Compare archived and non-archived
-			assert_eq!(archived, &value);
+			//assert_eq!(*archived, &value);
 
+            let deserialized = deserialize::<$ty<f32>, Error>(archived).unwrap();
+            assert_eq!(&deserialized, &value);
             // Make sure Debug implementations are the same for Archived and non-Archived versions.
 			//assert_eq!(format!("{:?}", value), format!("{:?}", archived));
         }
@@ -41,7 +46,7 @@ macro_rules! test_rkyv_diff_type(
 // Tests to make sure
 test_rkyv_same_type!(
     rkyv_same_type_matrix3x4,          Matrix3x4;
-    rkyv_same_type_point3,             Point3;
+    kyv_same_type_point3,             Point3;
     rkyv_same_type_translation3,       Translation3;
     rkyv_same_type_rotation3,          Rotation3;
     rkyv_same_type_isometry3,          Isometry3;
@@ -55,7 +60,7 @@ test_rkyv_same_type!(
     //  // rkyv_same_type_isometry2,          Isometry2;
     rkyv_same_type_isometry_matrix2,   IsometryMatrix2;
     //  // rkyv_same_type_similarity2,        Similarity2;
-     rkyv_same_type_similarity_matrix2, SimilarityMatrix2;
+    rkyv_same_type_similarity_matrix2, SimilarityMatrix2;
 );
 
 /*

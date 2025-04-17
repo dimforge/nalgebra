@@ -43,11 +43,10 @@ use std::mem::MaybeUninit;
 
     rkyv(
         archive_bounds(
-            OVector<T, D>: core::fmt::Debug,
-            <OVector<T, D> as rkyv::Archive>::Archived: core::fmt::Debug,
             T: rkyv::Archive,
+            D: rkyv::Archive,
+            OVector<T, D>: rkyv::Archive,
         ),
-        derive(Debug),
         // This will generate a PartialEq impl between our unarchived
         // and archived types
         compare(PartialEq),
