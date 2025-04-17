@@ -9,8 +9,6 @@ use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, Resha
 use crate::base::{Scalar, Vector};
 
 #[cfg(feature = "serde-serialize-no-std")]
-use alloc::format;
-#[cfg(feature = "serde-serialize-no-std")]
 use serde::{
     de::{Deserialize, Deserializer, Error},
     ser::{Serialize, Serializer},
