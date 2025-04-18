@@ -77,7 +77,7 @@
    * Using function with the form `type1_to_type2` in order to convert an instance of `type1` into an instance of `type2`.
    For example [`glm::mat3_to_mat4(m)`](crate::mat3_to_mat4) will convert the 3x3 matrix `m` to a 4x4 matrix by appending one column on the right
    and one row on the left. Those now row and columns are filled with 0 except for the diagonal element which is set to 1.
-   * Using one of the [`convert`](crate::convert), [`try_convert`](crate::try_convert), or [`convert_unchecked`](crate::convert_unchecked) functions.
+   * Using one of the [`convert`], [`try_convert`], or [`convert_unchecked`] functions.
    These functions are directly re-exported from nalgebra and are extremely versatile:
        1. The `convert` function can convert any type (especially geometric types from nalgebra like `Isometry3`) into another algebraic type which is equivalent but more general. For example,
    `let sim: Similarity3<_> = na::convert(isometry)` will convert an `Isometry3` into a `Similarity3`.

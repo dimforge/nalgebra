@@ -754,7 +754,7 @@ pub fn infinite_perspective_rh_no<T: RealNumber>(aspect: T, fovy: T, near: T) ->
     mat
 }
 
-/// Build infinite right-handed perspective projection matrix with [0,1] depth range.
+/// Build infinite right-handed perspective projection matrix with \[0,1\] depth range.
 ///
 /// # Parameters
 ///
