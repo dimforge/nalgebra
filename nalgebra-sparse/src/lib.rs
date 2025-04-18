@@ -19,12 +19,15 @@
 //! - Sparsity patterns in CSR and CSC matrices are explicitly represented by the
 //!   [SparsityPattern](pattern::SparsityPattern) type, which encodes the invariants of the
 //!   associated index data structures.
-//! - [Matrix market format support](`io`) when the `io` feature is enabled.
-//! - [proptest strategies](`proptest`) for sparse matrices when the feature
+//! - [Matrix market format support] when the `io` feature is enabled.
+//! - [proptest strategies] for sparse matrices when the feature
 //!   `proptest-support` is enabled.
 //! - [matrixcompare support](https://crates.io/crates/matrixcompare) for effortless
 //!   (approximate) comparison of matrices in test code (requires the `compare` feature).
 //!
+//! [Matrix market format support]: io/
+//! [proptest strategies]: proptest/
+//! 
 //! ## Current state
 //!
 //! The library is in an early, but usable state. The API has been designed to be extensible,
