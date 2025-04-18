@@ -27,7 +27,7 @@
 //!
 //! [Matrix market format support]: io/
 //! [proptest strategies]: proptest/
-//! 
+//!
 //! ## Current state
 //!
 //! The library is in an early, but usable state. The API has been designed to be extensible,

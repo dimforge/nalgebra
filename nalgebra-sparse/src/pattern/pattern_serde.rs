@@ -4,7 +4,7 @@ use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 /// This is an intermediate type for (de)serializing `SparsityPattern`.
 ///
 /// Deserialization requires using a `try_from_*` function for validation. We could have used
-/// the `remote = "Self"` trick (https://github.com/serde-rs/serde/issues/1220) which allows
+/// the `remote = "Self"` trick (<https://github.com/serde-rs/serde/issues/1220>) which allows
 /// to directly serialize/deserialize the original fields and combine it with validation.
 /// However, this would lead to nested serialization of the `CsMatrix` and `SparsityPattern`
 /// types. Instead, we decided that we want a more human-readable serialization format using

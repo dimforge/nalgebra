@@ -1,4 +1,4 @@
-//! Wrapper that allows changing the generic type of a PhantomData<T>
+//! Wrapper that allows changing the generic type of a `PhantomData<T>`
 //!
 //! Copied from <https://github.com/rkyv/rkyv_contrib> (MIT-Apache2 licences) which isn’t published yet.
 
