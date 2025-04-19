@@ -64,7 +64,7 @@ jobs:
       - name: Select rustc  version
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.79.0
+          toolchain: 1.81
           override: true
       - uses: actions/checkout@v4
       - name: test
