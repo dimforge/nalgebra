@@ -29,8 +29,18 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
 }
 
 impl<T: ComplexField, D: Dim, S: StorageMut<T, D, D>> SquareMatrix<T, D, S> {
-    /// Attempts to invert this square matrix in-place. Returns `false` and leaves `self` untouched if
-    /// inversion fails.
+    /// Attempts to invert this square matrix in-place.
+    ///
+    /// Returns `true` if the inversion succeeded, `false` otherwise.
+    ///
+    /// # Behavior
+    ///
+    /// - For small dimensions (`n < 5`), the matrix is left unchanged if the inversion fails.
+    /// - For dimensions `n >= 5`, the matrix may be **partially modified** even if the inversion fails,
+    ///   because LU decomposition is used and it modifies the matrix in-place.
+    ///
+    /// If you need to preserve the original matrix regardless of success or failure,
+    /// consider using [`Self::try_inverse`] instead.
     ///
     /// # Panics
     ///
