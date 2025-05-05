@@ -23,7 +23,30 @@ path = "src/lib.rs"
 
 [features]
 default = ["std", "macros"]
-std = ["matrixmultiply", "num-traits/std", "num-complex/std", "num-rational/std", "approx/std", "simba/std"]
+std = [
+    "matrixmultiply",
+    "num-traits/std",
+    "num-complex/std",
+    "num-rational/std",
+    "approx/std",
+    "simba/std",
+    "glam014?/std",
+    "glam015?/std",
+    "glam016?/std",
+    "glam017?/std",
+    "glam018?/std",
+    "glam019?/std",
+    "glam020?/std",
+    "glam021?/std",
+    "glam022?/std",
+    "glam023?/std",
+    "glam024?/std",
+    "glam025?/std",
+    "glam027?/std",
+    "glam028?/std",
+    "glam029?/std",
+    "glam030?/std",
+]
 sparse = []
 debug = ["approx/num-complex", "rand"]
 alloc = []
@@ -96,22 +119,22 @@ pest_derive = { version = "2", optional = true }
 bytemuck = { version = "1.5", optional = true }
 matrixcompare-core = { version = "0.1", optional = true }
 proptest = { version = "1", optional = true, default-features = false, features = ["std"] }
-glam014 = { package = "glam", version = "0.14", optional = true }
-glam015 = { package = "glam", version = "0.15", optional = true }
-glam016 = { package = "glam", version = "0.16", optional = true }
-glam017 = { package = "glam", version = "0.17", optional = true }
-glam018 = { package = "glam", version = "0.18", optional = true }
-glam019 = { package = "glam", version = "0.19", optional = true }
-glam020 = { package = "glam", version = "0.20", optional = true }
-glam021 = { package = "glam", version = "0.21", optional = true }
-glam022 = { package = "glam", version = "0.22", optional = true }
-glam023 = { package = "glam", version = "0.23", optional = true }
-glam024 = { package = "glam", version = "0.24", optional = true }
-glam025 = { package = "glam", version = "0.25", optional = true }
-glam027 = { package = "glam", version = "0.27", optional = true }
-glam028 = { package = "glam", version = "0.28", optional = true }
-glam029 = { package = "glam", version = "0.29", optional = true }
-glam030 = { package = "glam", version = "0.30", optional = true }
+glam014 = { package = "glam", version = "0.14", optional = true, default-features = false }
+glam015 = { package = "glam", version = "0.15", optional = true, default-features = false }
+glam016 = { package = "glam", version = "0.16", optional = true, default-features = false }
+glam017 = { package = "glam", version = "0.17", optional = true, default-features = false }
+glam018 = { package = "glam", version = "0.18", optional = true, default-features = false }
+glam019 = { package = "glam", version = "0.19", optional = true, default-features = false }
+glam020 = { package = "glam", version = "0.20", optional = true, default-features = false }
+glam021 = { package = "glam", version = "0.21", optional = true, default-features = false }
+glam022 = { package = "glam", version = "0.22", optional = true, default-features = false }
+glam023 = { package = "glam", version = "0.23", optional = true, default-features = false }
+glam024 = { package = "glam", version = "0.24", optional = true, default-features = false }
+glam025 = { package = "glam", version = "0.25", optional = true, default-features = false }
+glam027 = { package = "glam", version = "0.27", optional = true, default-features = false }
+glam028 = { package = "glam", version = "0.28", optional = true, default-features = false }
+glam029 = { package = "glam", version = "0.29", optional = true, default-features = false }
+glam030 = { package = "glam", version = "0.30", optional = true, default-features = false }
 rayon = { version = "1.6", optional = true }
 
 [dev-dependencies]
