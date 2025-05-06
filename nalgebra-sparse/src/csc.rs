@@ -204,6 +204,8 @@ impl<T> CscMatrix<T> {
             true,
         );
 
+        // Using unsafe for efficiency and performance reasons in a custom memory layout
+        // SparsityPattern assumes offset and indices are valid; may lead to undefined behavior
         match result {
             Ok(()) => {
                 let pattern = unsafe {
