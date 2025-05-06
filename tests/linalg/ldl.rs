@@ -17,6 +17,20 @@ fn ldl_simple() {
 }
 
 #[test]
+#[rustfmt::skip]
+fn ldl_cholesky() {
+    let m = Matrix3::new(
+        2.0, -1.0,  0.0,
+       -1.0,  2.0, -1.0,
+        0.0, -1.0,  2.0);
+
+    let chol= m.cholesky().unwrap();
+    let ldl = m.ldl().unwrap();
+    
+    assert!(relative_eq!(ldl.cholesky_l(), chol.l(), epsilon = 3.0e-16));
+}
+
+#[test]
 #[should_panic]
 #[rustfmt::skip]
 fn ldl_non_sym_panic() {
@@ -26,6 +40,7 @@ fn ldl_non_sym_panic() {
        -2.0,  1.0,  0.3);
 
     let ldl = m.ldl().unwrap();
+    
     // Rebuild
     let p = ldl.l * ldl.d_matrix() * ldl.l.transpose();
 
