@@ -8,6 +8,7 @@ mod exp;
 mod full_piv_lu;
 mod hessenberg;
 mod inverse;
+mod ldl;
 mod lu;
 mod pow;
 mod qr;

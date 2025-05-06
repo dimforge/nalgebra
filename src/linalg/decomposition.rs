@@ -2,7 +2,7 @@ use crate::storage::Storage;
 use crate::{
     Allocator, Bidiagonal, Cholesky, ColPivQR, ComplexField, DefaultAllocator, Dim, DimDiff,
     DimMin, DimMinimum, DimSub, FullPivLU, Hessenberg, Matrix, OMatrix, RealField, Schur,
-    SymmetricEigen, SymmetricTridiagonal, LU, QR, SVD, U1, UDU,
+    SymmetricEigen, SymmetricTridiagonal, LU, QR, SVD, U1, UDU, LDL
 };
 
 /// # Rectangular matrix decomposition
@@ -279,6 +279,18 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> Matrix<T, D, D, S> {
         DefaultAllocator: Allocator<D, D> + Allocator<D> + Allocator<DimDiff<D, U1>>,
     {
         Hessenberg::new(self.into_owned())
+    }
+
+    /// Attempts to compute the LDL decomposition of this matrix.
+    ///
+    /// The input matrix `self` is assumed to be symmetric and this decomposition will only read
+    /// the lower-triangular part of `self`.
+    pub fn ldl(self) -> Option<LDL<T, D>>
+    where
+        T: RealField,
+        DefaultAllocator: Allocator<D> + Allocator<D, D>,
+    {
+        LDL::new(self.into_owned())
     }
 
     /// Computes the Schur decomposition of a square matrix.
