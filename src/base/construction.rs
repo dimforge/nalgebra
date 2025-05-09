@@ -520,19 +520,31 @@ macro_rules! impl_constructors(
         }
 
         /// Creates a matrix or vector filled with the results of a function applied to each of its
-        /// component coordinates.
+-       /// element's indices.
         ///
-        /// # Example
+        /// The function receives the row and column indices. For vectors, the column index can be ignored.
+        ///
+        /// For statically sized matrices and vectors (e.g. `Vector3`), the dimensions are inferred from the type.
+        /// For dynamically sized types (e.g., `DVector`, `DMatrix`), the dimensions `nrows`, `ncols` must be passed
+        /// explicitly before the function.
+        ///
+        /// # Arguments
+        ///
+        /// - `nrows`: The number of rows. Optional for statically sized objects.
+        ///
+        /// - `ncols`: The number of columns. Optional for statically sized objects.
+        ///
+        /// - `f`: A function of two `usize` arguments `(row, col)` as zero-based indices. Returning the value of the matrix element.
+        ///
+        /// # Examples
+        ///
         /// ```
         /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
-        /// # use std::iter;
         ///
-        /// let v = Vector3::from_fn(|i, _| i);
-        /// // The additional argument represents the vector dimension.
-        /// let dv = DVector::from_fn(3, |i, _| i);
-        /// let m = Matrix2x3::from_fn(|i, j| i * 3 + j);
-        /// // The two additional arguments represent the matrix dimensions.
-        /// let dm = DMatrix::from_fn(2, 3, |i, j| i * 3 + j);
+        /// let v = Vector3::from_fn(|i, _| i); // Implicit size: 3
+        /// let dv = DVector::from_fn(3, |i, _| i); // Explicit size: 3
+        /// let m = Matrix2x3::from_fn(|i, j| i * 3 + j); // Implicit size: (nrows=2, ncols=3)
+        /// let dm = DMatrix::from_fn(2, 3, |i, j| i * 3 + j); // Explicit size: (nrows=2, ncols=3)
         ///
         /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
         /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
