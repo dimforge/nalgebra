@@ -520,7 +520,7 @@ macro_rules! impl_constructors(
         }
 
         /// Creates a matrix or vector filled with the results of a function applied to each of its
--       /// element's indices.
+        /// element's indices.
         ///
         /// The function receives the row and column indices. For vectors, the column index can be ignored.
         ///
