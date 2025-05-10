@@ -260,17 +260,28 @@ unsafe impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> RawStorageMut<T, 
     }
 }
 
-unsafe impl<'a, T, R: Dim, CStride: Dim> IsContiguous for ViewStorage<'a, T, R, U1, U1, CStride> {}
-unsafe impl<'a, T, R: Dim, CStride: Dim> IsContiguous
+unsafe impl<'a, T, R: Dim + IsNotStaticOne, CStride: Dim> IsContiguous for ViewStorage<'a, T, R, U1, U1, CStride> {}
+unsafe impl<'a, T, R: Dim + IsNotStaticOne, CStride: Dim> IsContiguous
     for ViewStorageMut<'a, T, R, U1, U1, CStride>
 {
 }
 
-unsafe impl<'a, T, R: DimName, C: Dim + IsNotStaticOne> IsContiguous
+unsafe impl<'a, T, C: Dim + IsNotStaticOne, RStride: Dim> IsContiguous for ViewStorage<'a, T, U1, C, RStride, U1> {}
+unsafe impl<'a, T, C: Dim + IsNotStaticOne, RStride: Dim> IsContiguous
+    for ViewStorageMut<'a, T, U1, C, RStride, U1>
+{
+}
+
+unsafe impl<'a, T> IsContiguous
+    for ViewStorage<'a, T, U1, U1, U1, U1>
+{
+}
+
+unsafe impl<'a, T, R: DimName + IsNotStaticOne, C: Dim + IsNotStaticOne> IsContiguous
     for ViewStorage<'a, T, R, C, U1, R>
 {
 }
-unsafe impl<'a, T, R: DimName, C: Dim + IsNotStaticOne> IsContiguous
+unsafe impl<'a, T, R: DimName + IsNotStaticOne, C: Dim + IsNotStaticOne> IsContiguous
     for ViewStorageMut<'a, T, R, C, U1, R>
 {
 }
