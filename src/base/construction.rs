@@ -522,7 +522,7 @@ macro_rules! impl_constructors(
         /// Creates a matrix or vector filled with the results of a function applied to each of its
         /// element's indices.
         ///
-        /// The function receives the row and column indices. For vectors, the column index can be ignored.
+        /// The function receives the row and column indices. For vectors, the column index is always zero.
         ///
         /// For statically sized matrices and vectors (e.g. `Vector3`), the dimensions are inferred from the type.
         /// For dynamically sized types (e.g., `DVector`, `DMatrix`), the dimensions `nrows`, `ncols` must be passed
