@@ -522,36 +522,47 @@ macro_rules! impl_constructors(
         /// Creates a matrix or vector filled with the results of a function applied to each of its
         /// element's indices.
         ///
-        /// The function receives the row and column indices. For vectors, the column index is always zero.
+        /// The `from_fn` syntax changes depending if the type's rows or columns are dynamically or statically sized.
+        /// The dimension must only be supplied iff it is dynamically sized, e.g.
+        /// - `from_fn(f)` when both dimensions are statically sized
+        /// - `from_fn(nrows, f)` when only row dimension is dynamically sized
+        /// - `from_fn(ncols, f)` when only column dimension is dynamically sized
+        /// - `from_fn(nrows, ncols, f)` when both dimension are dynamically sized
         ///
-        /// For statically sized matrices and vectors (e.g. `Vector3`), the dimensions are inferred from the type.
-        /// For dynamically sized types (e.g., `DVector`, `DMatrix`), the dimensions `nrows`, `ncols` must be passed
-        /// explicitly before the function.
+        /// The function object `f` (i.e. the last argument to `from_fn`) receives the row and column indices as arguments (e.g. `f(row, col)`).
+        /// For vectors, the column index is always zero (e.g. `f(row, 0)`).
         ///
         /// # Arguments
         ///
-        /// - `nrows`: The number of rows. Optional for statically sized objects.
+        /// - `nrows`: The number of rows. Must only be supplied for types with dynamic number of rows.
         ///
-        /// - `ncols`: The number of columns. Optional for statically sized objects.
+        /// - `ncols`: The number of columns. Must only be supplied for types with dynamic number of columns.
         ///
-        /// - `f`: A function of two `usize` arguments `(row, col)` as zero-based indices. Returning the value of the matrix element.
+        /// - `f`: A function accepting the zero-based indices `(row, col)`.
         ///
         /// # Examples
         ///
         /// ```
-        /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
+        /// use nalgebra::{DMatrix, DVector, Matrix2x3, Matrix2xX, MatrixXx3, Vector3};
+        /// use nalgebra_macros::{matrix, vector};
         ///
-        /// let v = Vector3::from_fn(|i, _| i); // Implicit size: 3
-        /// let dv = DVector::from_fn(3, |i, _| i); // Explicit size: 3
-        /// let m = Matrix2x3::from_fn(|i, j| i * 3 + j); // Implicit size: (nrows=2, ncols=3)
-        /// let dm = DMatrix::from_fn(2, 3, |i, j| i * 3 + j); // Explicit size: (nrows=2, ncols=3)
+        /// // statically sized dimensions -> both inferred
+        /// let v_3 = Vector3::from_fn(|i, _| i);
+        /// let m_2_3 = Matrix2x3::from_fn(|i, j| i * 3 + j);
+        /// assert_eq!(v_3, vector![0, 1, 2]);
+        /// assert_eq!(m_2_3, matrix![0, 1, 2; 3, 4, 5]);
         ///
-        /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
-        /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
-        /// assert!(m.m11 == 0 && m.m12 == 1 && m.m13 == 2 &&
-        ///         m.m21 == 3 && m.m22 == 4 && m.m23 == 5);
-        /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 1 && dm[(0, 2)] == 2 &&
-        ///         dm[(1, 0)] == 3 && dm[(1, 1)] == 4 && dm[(1, 2)] == 5);
+        /// // mixed sized dimensions -> static dimensions inferred, dynamic dimension must be given explicitly
+        /// let m_2_d = Matrix2xX::from_fn(3, |i, j| i * 3 + j); // explicit: ncols=3
+        /// let m_d_3 = MatrixXx3::from_fn(2, |i, j| i * 3 + j); // explicit: nrows=2
+        /// assert_eq!(m_2_d, matrix![0, 1, 2; 3, 4, 5]);
+        /// assert_eq!(m_d_3, matrix![0, 1, 2; 3, 4, 5]);
+        ///
+        /// // dynamically sized dimensions -> both must be given explicitly
+        /// let v_d = DVector::from_fn(3, |i, _| i);
+        /// let m_d_d = DMatrix::from_fn(2, 3, |i, j| i * 3 + j); // explicit: nrows=2, ncols=3
+        /// assert_eq!(v_d, vector![0, 1, 2]);
+        /// assert_eq!(m_d_d, matrix![0, 1, 2; 3, 4, 5]);
         /// ```
         #[inline]
         pub fn from_fn<F>($($args: usize,)* f: F) -> Self
