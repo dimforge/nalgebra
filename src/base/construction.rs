@@ -527,7 +527,7 @@ macro_rules! impl_constructors(
         /// - `from_fn(f)` when both dimensions are statically sized
         /// - `from_fn(nrows, f)` when only row dimension is dynamically sized
         /// - `from_fn(ncols, f)` when only column dimension is dynamically sized
-        /// - `from_fn(nrows, ncols, f)` when both dimension are dynamically sized
+        /// - `from_fn(nrows, ncols, f)` when both dimensions are dynamically sized
         ///
         /// The function object `f` (i.e. the last argument to `from_fn`) receives the row and column indices as arguments (e.g. `f(row, col)`).
         /// For vectors, the column index is always zero (e.g. `f(row, 0)`).
