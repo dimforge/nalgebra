@@ -131,13 +131,13 @@ view_storage_impl!("A mutable matrix data storage for mutable matrix view. Only 
     RawStorageMut as &'a mut S; SliceStorageMut => ViewStorageMut.get_address_unchecked_mut(*mut T as &'a mut T)
 );
 
-impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Copy
-    for ViewStorage<'a, T, R, C, RStride, CStride>
+impl<T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Copy
+    for ViewStorage<'_, T, R, C, RStride, CStride>
 {
 }
 
-impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
-    for ViewStorage<'a, T, R, C, RStride, CStride>
+impl<T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Clone
+    for ViewStorage<'_, T, R, C, RStride, CStride>
 {
     #[inline]
     fn clone(&self) -> Self {
@@ -240,8 +240,8 @@ macro_rules! storage_impl(
 
 storage_impl!(ViewStorage, ViewStorageMut);
 
-unsafe impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> RawStorageMut<T, R, C>
-    for ViewStorageMut<'a, T, R, C, RStride, CStride>
+unsafe impl<T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> RawStorageMut<T, R, C>
+    for ViewStorageMut<'_, T, R, C, RStride, CStride>
 {
     #[inline]
     fn ptr_mut(&mut self) -> *mut T {
@@ -260,18 +260,15 @@ unsafe impl<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> RawStorageMut<T, 
     }
 }
 
-unsafe impl<'a, T, R: Dim, CStride: Dim> IsContiguous for ViewStorage<'a, T, R, U1, U1, CStride> {}
-unsafe impl<'a, T, R: Dim, CStride: Dim> IsContiguous
-    for ViewStorageMut<'a, T, R, U1, U1, CStride>
-{
-}
+unsafe impl<T, R: Dim, CStride: Dim> IsContiguous for ViewStorage<'_, T, R, U1, U1, CStride> {}
+unsafe impl<T, R: Dim, CStride: Dim> IsContiguous for ViewStorageMut<'_, T, R, U1, U1, CStride> {}
 
-unsafe impl<'a, T, R: DimName, C: Dim + IsNotStaticOne> IsContiguous
-    for ViewStorage<'a, T, R, C, U1, R>
+unsafe impl<T, R: DimName, C: Dim + IsNotStaticOne> IsContiguous
+    for ViewStorage<'_, T, R, C, U1, R>
 {
 }
-unsafe impl<'a, T, R: DimName, C: Dim + IsNotStaticOne> IsContiguous
-    for ViewStorageMut<'a, T, R, C, U1, R>
+unsafe impl<T, R: DimName, C: Dim + IsNotStaticOne> IsContiguous
+    for ViewStorageMut<'_, T, R, C, U1, R>
 {
 }
 
