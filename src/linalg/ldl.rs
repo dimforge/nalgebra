@@ -4,8 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::allocator::Allocator;
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector};
 use crate::dimension::Dim;
-use simba::scalar::RealField;
-use std::cmp::Ordering;
+use simba::scalar::ComplexField;
 
 /// LDL factorization.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -20,7 +19,7 @@ use std::cmp::Ordering;
     ))
 )]
 #[derive(Clone, Debug)]
-pub struct LDL<T: RealField, D: Dim>
+pub struct LDL<T: ComplexField, D: Dim>
 where
     DefaultAllocator: Allocator<D> + Allocator<D, D>,
 {
@@ -30,7 +29,7 @@ where
     pub d: OVector<T, D>,
 }
 
-impl<T: RealField, D: Dim> Copy for LDL<T, D>
+impl<T: ComplexField, D: Dim> Copy for LDL<T, D>
 where
     DefaultAllocator: Allocator<D> + Allocator<D, D>,
     OVector<T, D>: Copy,
@@ -38,13 +37,13 @@ where
 {
 }
 
-impl<T: RealField, D: Dim> LDL<T, D>
+impl<T: ComplexField, D: Dim> LDL<T, D>
 where
     DefaultAllocator: Allocator<D> + Allocator<D, D>,
 {
     /// Computes the LDL^T factorization.
     ///
-    /// The input matrix `p` is assumed to be symmetric and this decomposition will only read
+    /// The input matrix `p` is assumed to be hermitian c and this decomposition will only read
     /// the lower-triangular part of `p`.
     pub fn new(p: OMatrix<T, D, D>) -> Option<Self> {
         let n = p.ncols();
@@ -59,20 +58,20 @@ where
 
             if j > 0 {
                 for k in 0..j {
-                    d_j -= d[k].clone() * l[(j, k)].clone().powi(2);
+                    d_j -= l[(j, k)].clone() * l[(j, k)].clone().conjugate() * d[k].clone();
                 }
             }
 
             d[j] = d_j;
 
             for i in j..n {
-                let mut l_ij = p[(j, i)].clone();
+                let mut l_ij = p[(i, j)].clone();
 
                 for k in 0..j {
-                    l_ij -= d[k].clone() * l[(j, k)].clone() * l[(i, k)].clone();
+                    l_ij -= l[(j, k)].clone().conjugate() * l[(i, k)].clone() * d[k].clone();
                 }
 
-                if matches!(d[j].partial_cmp(&T::zero())?, Ordering::Equal) {
+                if d[j] == T::zero() {
                     l[(i, j)] = T::zero();
                 } else {
                     l[(i, j)] = l_ij / d[j].clone();

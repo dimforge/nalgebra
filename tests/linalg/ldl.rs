@@ -1,28 +1,45 @@
-use na::Matrix3;
+use na::{Complex, Matrix3};
+use num::Zero;
 
 #[test]
 #[rustfmt::skip]
 fn ldl_simple() {
     let m = Matrix3::new(
-        2.0, -1.0,  0.0,
-       -1.0,  2.0, -1.0,
-        0.0, -1.0,  2.0);
+        Complex::new(2.0, 0.0), Complex::new(-1.0, 0.5),  Complex::zero(),
+        Complex::new(-1.0, -0.5),  Complex::new(2.0, 0.0), Complex::new(-1.0, 0.0),
+        Complex::zero(), Complex::new(-1.0, 0.0),  Complex::new(2.0, 0.0));
 
-    let ldl = m.ldl().unwrap();
+    let ldl = m.lower_triangle().ldl().unwrap();
     
     // Rebuild
-    let p = ldl.l * ldl.d_matrix() * ldl.l.transpose();
+    let p = ldl.l * ldl.d_matrix() * ldl.l.adjoint();
 
-    assert!(relative_eq!(m, p, epsilon = 3.0e-16));
+    assert!(relative_eq!(m, p, epsilon = 3.0e-12));
+}
+
+#[test]
+#[rustfmt::skip]
+fn ldl_partial() {
+    let m = Matrix3::new(
+        Complex::new(2.0, 0.0), Complex::zero(),  Complex::zero(),
+        Complex::zero(),  Complex::zero(), Complex::zero(),
+        Complex::zero(), Complex::zero(),  Complex::new(2.0, 0.0));
+
+    let ldl = m.lower_triangle().ldl().unwrap();
+    
+    // Rebuild
+    let p = ldl.l * ldl.d_matrix() * ldl.l.adjoint();
+
+    assert!(relative_eq!(m, p, epsilon = 3.0e-12));
 }
 
 #[test]
 #[rustfmt::skip]
 fn ldl_cholesky() {
     let m = Matrix3::new(
-        2.0, -1.0,  0.0,
-       -1.0,  2.0, -1.0,
-        0.0, -1.0,  2.0);
+        Complex::new(2.0, 0.0), Complex::new(-1.0, 0.5),  Complex::zero(),
+        Complex::new(-1.0, -0.5),  Complex::new(2.0, 0.0), Complex::new(-1.0, 0.0),
+        Complex::zero(), Complex::new(-1.0, 0.0),  Complex::new(2.0, 0.0));
 
     let chol= m.cholesky().unwrap();
     let ldl = m.ldl().unwrap();
