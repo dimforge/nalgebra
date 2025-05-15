@@ -23,6 +23,7 @@ use crate::storage::StorageMut;
     serde(bound(deserialize = "DefaultAllocator: Allocator<D>,
          OVector<(usize, usize), D>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct PermutationSequence<D: Dim>
 where

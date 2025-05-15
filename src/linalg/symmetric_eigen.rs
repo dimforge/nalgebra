@@ -29,6 +29,7 @@ use crate::linalg::givens::GivensRotation;
          OVector<T::RealField, D>: Deserialize<'de>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct SymmetricEigen<T: ComplexField, D: Dim>
 where

@@ -37,6 +37,7 @@ use crate::linalg::symmetric_eigen;
          OMatrix<T, DimMinimum<R, C>, C>: Deserialize<'de>,
          OVector<T::RealField, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct SVD<T: ComplexField, R: DimMin<C>, C: Dim>
 where

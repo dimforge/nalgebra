@@ -29,6 +29,7 @@ use std::mem::MaybeUninit;
          OMatrix<T, R, C>: Deserialize<'de>,
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct QR<T: ComplexField, R: DimMin<C>, C: Dim>
 where

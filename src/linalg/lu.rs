@@ -27,6 +27,7 @@ use crate::linalg::PermutationSequence;
          OMatrix<T, R, C>: Deserialize<'de>,
          PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct LU<T: ComplexField, R: DimMin<C>, C: Dim>
 where
