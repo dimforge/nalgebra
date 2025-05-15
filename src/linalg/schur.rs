@@ -33,6 +33,7 @@ use std::mem::MaybeUninit;
     serde(bound(deserialize = "DefaultAllocator: Allocator<D, D>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct Schur<T: ComplexField, D: Dim>
 where

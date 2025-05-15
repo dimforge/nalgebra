@@ -23,6 +23,7 @@ use crate::storage::{Storage, StorageMut};
     serde(bound(deserialize = "DefaultAllocator: Allocator<D>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct Cholesky<T: SimdComplexField, D: Dim>
 where

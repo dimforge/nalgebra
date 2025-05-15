@@ -53,6 +53,7 @@ use std::mem::MaybeUninit;
     ")
     )
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct OPoint<T: Scalar, D: DimName>
 where
     DefaultAllocator: Allocator<D>,
