@@ -33,6 +33,7 @@ use crate::linalg::Schur;
          OVector<T, D>: Serialize,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct Eigen<T: ComplexField, D: Dim>
 where

@@ -35,6 +35,7 @@ use rkyv::bytecheck;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Unit<T> {
     pub(crate) value: T,
 }
