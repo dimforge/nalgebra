@@ -197,6 +197,8 @@ impl<T: RealField> CscCholesky<T> {
         self.work_c.clear();
         self.work_c.extend_from_slice(self.l_factor.col_offsets());
 
+        // Using unsafe to ensure validity of raw pointers and slices obtained with get_unchecked
+        // Also, data integrity is enforced in case the matrix is not positive definite
         unsafe {
             for k in 0..n {
                 // Scatter the k-th column of the original matrix with the values provided.
