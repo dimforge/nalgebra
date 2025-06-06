@@ -57,7 +57,7 @@ pub unsafe trait RawStorage<T, R: Dim, C: Dim = U1>: Sized {
     /// element of any dimension. Must be equal to `Self::dimension()` if it is not `None`.
     fn shape(&self) -> (R, C);
 
-    /// The spacing between consecutive elements across rows and across columns.
+    /// The relative offset in the underlying storage corresponding to a change in position by one row or column respectively
     ///
     /// For example this returns `(1, 5)` for a column-major matrix with 5 columns.
     fn strides(&self) -> (Self::RStride, Self::CStride);
