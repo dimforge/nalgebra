@@ -733,3 +733,110 @@ proptest! {
         prop_assert_eq!(DMatrix::from(&csc), DMatrix::identity(n, n));
     }
 }
+
+#[test]
+fn test_dense_lower_triangular_solve() {
+    let mut a = CscMatrix::identity(3);
+    let v = [1., 2., 3.];
+    let mut out = [0.; 3];
+    a.dense_lower_triangular_solve(&v, &mut out, true);
+    assert_eq!(out, v);
+    a.dense_lower_triangular_solve(&v, &mut out, false);
+    assert_eq!(out, v);
+    if let SparseEntryMut::NonZero(e) = a.index_entry_mut(0, 0) {
+        *e = 2.;
+    };
+    a.dense_lower_triangular_solve(&v, &mut out, false);
+    assert_eq!(out, [0.5, 2., 3.]);
+    a.dense_lower_triangular_solve(&v, &mut out, true);
+    assert_eq!(out, v);
+}
+
+#[test]
+fn test_sparse_lower_triangular_solve() {
+    let a = CscMatrix::identity(3);
+    let vi = [0, 1, 2];
+    let v = [1., 2., 3.];
+    let mut out = [0.; 3];
+    a.sparse_lower_triangular_solve(&vi, &v, &vi, &mut out, true);
+    assert_eq!(out, v);
+    a.sparse_lower_triangular_solve(&vi, &v, &vi, &mut out, false);
+    assert_eq!(out, v);
+
+    let vi = [0, 999];
+    let v = [3., 2.];
+    let mut out = [0.; 2];
+
+    // test with large identity matrix
+    let mut a = CscMatrix::identity(1000);
+    a.sparse_lower_triangular_solve(&vi, &v, &vi, &mut out, true);
+    assert_eq!(out, v);
+    a.sparse_lower_triangular_solve(&vi, &v, &vi, &mut out, false);
+    assert_eq!(out, v);
+
+    if let SparseEntryMut::NonZero(e) = a.index_entry_mut(0, 0) {
+        *e = 2.;
+    };
+    a.sparse_lower_triangular_solve(&vi, &v, &vi, &mut out, false);
+    assert_eq!(out, [1.5, 2.]);
+    a.sparse_lower_triangular_solve(&vi, &v, &vi, &mut out, true);
+    assert_eq!(out, v);
+
+    use nalgebra_sparse::coo::CooMatrix;
+    let a: CscMatrix<f32> = (&CooMatrix::<f32>::try_from_triplets(
+        1000,
+        1000,
+        vec![0, 999, 999],
+        vec![0, 0, 999],
+        vec![2., 1., 4.],
+    )
+    .unwrap())
+        .into();
+    assert_eq!(a.col(0).nnz(), 2);
+
+    a.sparse_lower_triangular_solve(&vi, &v, &vi, &mut out, false);
+    assert_eq!(out, [1.5, 0.125]);
+    a.sparse_lower_triangular_solve(&vi, &v, &vi, &mut out, true);
+    assert_eq!(out, [3., -1.]);
+}
+
+#[test]
+fn test_sparse_upper_triangular_solve() {
+    let a = CscMatrix::identity(3);
+    let vi = [0, 1, 2];
+    let v = [1., 2., 3.];
+    let mut out = [0.; 3];
+    a.sparse_upper_triangular_solve_sorted(&vi, &v, &vi, &mut out);
+    assert_eq!(out, v);
+
+    let vi = [0, 999];
+    let v = [3., 2.];
+    let mut out = [0.; 2];
+
+    // test with large identity matrix
+    let mut a = CscMatrix::identity(1000);
+    a.sparse_upper_triangular_solve_sorted(&vi, &v, &vi, &mut out);
+    assert_eq!(out, v);
+
+    if let SparseEntryMut::NonZero(e) = a.index_entry_mut(0, 0) {
+        *e = 2.;
+    };
+    a.sparse_upper_triangular_solve_sorted(&vi, &v, &vi, &mut out);
+    assert_eq!(out, [1.5, 2.]);
+
+    use nalgebra_sparse::coo::CooMatrix;
+    let a: CscMatrix<f32> = (&CooMatrix::<f32>::try_from_triplets(
+        5,
+        5,
+        vec![0, 0, 4],
+        vec![0, 4, 4],
+        vec![2., 1., 4.],
+    )
+    .unwrap())
+        .into();
+    assert_eq!(a.col(0).nnz(), 1);
+    assert_eq!(a.col(4).nnz(), 2);
+
+    a.sparse_upper_triangular_solve_sorted(&[0, 4], &v, &[0, 4], &mut out);
+    assert_eq!(out, [1.5, 0.5]);
+}
