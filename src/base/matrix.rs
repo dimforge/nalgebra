@@ -32,7 +32,7 @@ use crate::base::iter::{
 };
 use crate::base::storage::{Owned, RawStorage, RawStorageMut, SameShapeStorage};
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector, Scalar, Unit};
-use crate::{ArrayStorage, SMatrix, SimdComplexField, Storage, UninitMatrix};
+use crate::{ArrayStorage, DimName, SMatrix, SimdComplexField, Storage, UninitMatrix};
 
 use crate::storage::IsContiguous;
 use crate::uninit::{Init, InitStatus, Uninit};
@@ -405,10 +405,31 @@ where
     }
 }
 
+impl<T, const R: usize, const C: usize, MR: DimName, MC: DimName> Matrix<T, MR, MC, ArrayStorage<T, R, C>> {
+    /// The shape of this matrix returned as the tuple (number of rows, number of columns).
+    ///
+    /// # Example
+    /// ```
+    /// # use nalgebra::Matrix3x4;
+    /// const MAT: Matrix3x4<f32> = Matrix3x4::<f32>::new(
+    ///     0.0, 0.0, 0.0,
+    ///     0.0, 0.0, 0.0,
+    ///     0.0, 0.0, 0.0,
+    ///     0.0, 0.0, 0.0,
+    ///  );
+    /// assert_eq!(const { MAT.shape_const() }, (3, 4));
+    /// ```
+    #[inline]
+    #[must_use]
+    pub const fn shape_const(&self) -> (usize, usize) {
+        (R, C)
+    }
+}
+
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// Creates a new matrix with the given data.
     #[inline(always)]
-    pub fn from_data(data: S) -> Self {
+    pub const fn from_data(data: S) -> Self {
         unsafe { Self::from_data_statically_unchecked(data) }
     }
 
