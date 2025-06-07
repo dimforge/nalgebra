@@ -14,7 +14,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     /// This method is unsafe because the input data array is not checked to contain enough elements.
     /// The generic types `R`, `C`, `RStride`, `CStride` can either be type-level integers or integers wrapped with `Dyn()`.
     #[inline]
-    pub unsafe fn from_slice_with_strides_generic_unchecked(
+    pub const unsafe fn from_slice_with_strides_generic_unchecked(
         data: &'a [T],
         start: usize,
         nrows: R,
@@ -163,7 +163,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
     /// This method is unsafe because the input data array is not checked to contain enough elements.
     /// The generic types `R`, `C`, `RStride`, `CStride` can either be type-level integers or integers wrapped with `Dyn()`.
     #[inline]
-    pub unsafe fn from_slice_with_strides_generic_unchecked(
+    pub const unsafe fn from_slice_with_strides_generic_unchecked(
         data: &'a mut [T],
         start: usize,
         nrows: R,

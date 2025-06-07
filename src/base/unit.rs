@@ -190,7 +190,7 @@ impl<T> Unit<T> {
 
     /// Wraps the given reference, assuming it is already normalized.
     #[inline]
-    pub fn from_ref_unchecked(value: &T) -> &Self {
+    pub const fn from_ref_unchecked(value: &T) -> &Self {
         unsafe { &*(value as *const T as *const Self) }
     }
 
@@ -212,7 +212,7 @@ impl<T> Unit<T> {
     /// the underlying value in such a way that it no longer has unit length may lead to unexpected
     /// results.
     #[inline]
-    pub fn as_mut_unchecked(&mut self) -> &mut T {
+    pub const fn as_mut_unchecked(&mut self) -> &mut T {
         &mut self.value
     }
 }

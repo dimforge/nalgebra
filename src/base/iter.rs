@@ -279,7 +279,7 @@ pub struct RowIter<'a, T, R: Dim, C: Dim, S: RawStorage<T, R, C>> {
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorage<T, R, C>> RowIter<'a, T, R, C, S> {
-    pub(crate) fn new(mat: &'a Matrix<T, R, C, S>) -> Self {
+    pub(crate) const fn new(mat: &'a Matrix<T, R, C, S>) -> Self {
         RowIter { mat, curr: 0 }
     }
 }
@@ -330,7 +330,7 @@ pub struct RowIterMut<'a, T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> {
 }
 
 impl<'a, T, R: Dim, C: Dim, S: 'a + RawStorageMut<T, R, C>> RowIterMut<'a, T, R, C, S> {
-    pub(crate) fn new(mat: &'a mut Matrix<T, R, C, S>) -> Self {
+    pub(crate) const fn new(mat: &'a mut Matrix<T, R, C, S>) -> Self {
         RowIterMut {
             mat,
             curr: 0,

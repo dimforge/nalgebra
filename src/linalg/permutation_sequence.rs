@@ -141,13 +141,13 @@ where
 
     /// The number of non-identity permutations applied by this sequence.
     #[must_use]
-    pub fn len(&self) -> usize {
+    pub const fn len(&self) -> usize {
         self.len
     }
 
     /// Returns true if the permutation sequence contains no elements.
     #[must_use]
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.len() == 0
     }
 

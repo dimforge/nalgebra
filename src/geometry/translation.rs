@@ -105,7 +105,7 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
     /// Creates a new translation from the given vector.
     #[inline]
     #[deprecated(note = "Use `::from` instead.")]
-    pub fn from_vector(vector: SVector<T, D>) -> Translation<T, D> {
+    pub const fn from_vector(vector: SVector<T, D>) -> Translation<T, D> {
         Translation { vector }
     }
 

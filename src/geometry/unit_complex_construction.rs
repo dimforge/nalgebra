@@ -108,7 +108,7 @@ where
     /// assert_relative_eq!(rot * Point2::new(3.0, 4.0), Point2::new(-4.0, 3.0));
     /// ```
     #[inline]
-    pub fn from_cos_sin_unchecked(cos: T, sin: T) -> Self {
+    pub const fn from_cos_sin_unchecked(cos: T, sin: T) -> Self {
         Self::new_unchecked(Complex::new(cos, sin))
     }
 

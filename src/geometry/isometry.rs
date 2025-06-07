@@ -139,7 +139,7 @@ impl<T: Scalar, R: AbstractRotation<T, D>, const D: usize> Isometry<T, R, D> {
     /// assert_relative_eq!(iso * Point3::new(1.0, 2.0, 3.0), Point3::new(-1.0, 2.0, 0.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn from_parts(translation: Translation<T, D>, rotation: R) -> Self {
+    pub const fn from_parts(translation: Translation<T, D>, rotation: R) -> Self {
         Self {
             rotation,
             translation,

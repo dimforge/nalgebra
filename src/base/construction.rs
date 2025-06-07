@@ -792,12 +792,12 @@ R::name(), C::name();         // Arguments for `_generic` constructors.
 
 impl_constructors_from_data!(data; R, Dyn;
 => R: DimName;
-R::name(), Dyn(data.len() / R::dim());
+R::name(), Dyn(data.len() / R::DIM);
 );
 
 impl_constructors_from_data!(data; Dyn, C;
 => C: DimName;
-Dyn(data.len() / C::dim()), C::name();
+Dyn(data.len() / C::DIM), C::name();
 );
 
 #[cfg(any(feature = "std", feature = "alloc"))]

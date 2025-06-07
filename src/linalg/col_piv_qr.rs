@@ -150,7 +150,7 @@ where
     /// Retrieves the column permutation of this decomposition.
     #[inline]
     #[must_use]
-    pub fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
+    pub const fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.p
     }
 
@@ -172,7 +172,7 @@ where
     }
 
     #[doc(hidden)]
-    pub fn col_piv_qr_internal(&self) -> &OMatrix<T, R, C> {
+    pub const fn col_piv_qr_internal(&self) -> &OMatrix<T, R, C> {
         &self.col_piv_qr
     }
 
