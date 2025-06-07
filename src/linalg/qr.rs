@@ -143,12 +143,12 @@ where
     }
 
     #[doc(hidden)]
-    pub fn qr_internal(&self) -> &OMatrix<T, R, C> {
+    pub const fn qr_internal(&self) -> &OMatrix<T, R, C> {
         &self.qr
     }
 
     #[must_use]
-    pub(crate) fn diag_internal(&self) -> &OVector<T, DimMinimum<R, C>> {
+    pub(crate) const fn diag_internal(&self) -> &OVector<T, DimMinimum<R, C>> {
         &self.diag
     }
 

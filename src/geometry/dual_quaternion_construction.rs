@@ -20,7 +20,7 @@ impl<T: Scalar> DualQuaternion<T> {
     /// assert_eq!(dq.real.w, 1.0);
     /// ```
     #[inline]
-    pub fn from_real_and_dual(real: Quaternion<T>, dual: Quaternion<T>) -> Self {
+    pub const fn from_real_and_dual(real: Quaternion<T>, dual: Quaternion<T>) -> Self {
         Self { real, dual }
     }
 

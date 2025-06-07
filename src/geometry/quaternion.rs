@@ -118,7 +118,7 @@ where
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
     #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
-    pub fn into_owned(self) -> Self {
+    pub const fn into_owned(self) -> Self {
         self
     }
 
@@ -227,7 +227,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn as_vector(&self) -> &Vector4<T> {
+    pub const fn as_vector(&self) -> &Vector4<T> {
         &self.coords
     }
 
@@ -569,7 +569,7 @@ where
     /// assert!(q.i == 1.0 && q.j == 2.0 && q.k == 3.0 && q.w == 4.0);
     /// ```
     #[inline]
-    pub fn as_vector_mut(&mut self) -> &mut Vector4<T> {
+    pub const fn as_vector_mut(&mut self) -> &mut Vector4<T> {
         &mut self.coords
     }
 
