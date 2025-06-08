@@ -334,14 +334,14 @@ where
         SC: Storage<T, U2>,
     {
         // TODO: code duplication with Rotation.
-        if let (Some(na), Some(nb)) = (
+        match (
             Unit::try_new(a.clone_owned(), T::zero()),
             Unit::try_new(b.clone_owned(), T::zero()),
-        ) {
+        ) { (Some(na), Some(nb)) => {
             Self::scaled_rotation_between_axis(&na, &nb, s)
-        } else {
+        } _ => {
             Self::identity()
-        }
+        }}
     }
 
     /// The unit complex needed to make `a` and `b` be collinear and point toward the same

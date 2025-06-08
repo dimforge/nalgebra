@@ -84,7 +84,7 @@ macro_rules! quaternion_op_impl(
     ($Op: ident, $op: ident;
      $($Storage: ident: $StoragesBound: ident $(<$($BoundParam: ty),*>)*),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty;
-     $action: expr; $($lives: tt),*) => {
+     $action: expr_2021; $($lives: tt),*) => {
         impl<$($lives ,)* T: SimdRealField $(, $Storage: $StoragesBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
             where T::Element: SimdRealField {
             type Output = $Result;
@@ -564,7 +564,7 @@ where
 macro_rules! quaternion_op_impl(
     ($OpAssign: ident, $op_assign: ident;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty $(=> $VDimA: ty, $VDimB: ty)*;
-     $action: expr; $($lives: tt),*) => {
+     $action: expr_2021; $($lives: tt),*) => {
         impl<$($lives ,)* T: SimdRealField> $OpAssign<$Rhs> for $Lhs
             where T::Element: SimdRealField {
 

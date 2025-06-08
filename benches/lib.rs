@@ -17,7 +17,7 @@ pub mod linalg;
 fn reproducible_dmatrix(nrows: usize, ncols: usize) -> DMatrix<f64> {
     use rand::SeedableRng;
     let mut rng = IsaacRng::seed_from_u64(0);
-    DMatrix::<f64>::from_fn(nrows, ncols, |_, _| rng.gen())
+    DMatrix::<f64>::from_fn(nrows, ncols, |_, _| rng.random())
 }
 
 criterion_main!(

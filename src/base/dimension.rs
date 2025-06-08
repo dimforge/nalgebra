@@ -304,7 +304,7 @@ impl ToConst for typenum::U1 {
 }
 
 macro_rules! from_to_typenum (
-    ($($D: ident, $VAL: expr);* $(;)*) => {$(
+    ($($D: ident, $VAL: expr_2021);* $(;)*) => {$(
         pub type $D = Const<$VAL>;
 
         impl ToTypenum for Const<$VAL> {

@@ -151,7 +151,7 @@ where
                 for i in start..n {
                     let j = i + 1;
 
-                    if let Some((rot, norm)) = GivensRotation::cancel_y(&vec) {
+                    match GivensRotation::cancel_y(&vec) { Some((rot, norm)) => {
                         if i > start {
                             // Not the first iteration.
                             off_diag[i - 1] = norm;
@@ -181,9 +181,9 @@ where
                             let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
                             rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<2>(i));
                         }
-                    } else {
+                    } _ => {
                         break;
-                    }
+                    }}
                 }
 
                 if off_diag[m].clone().norm1()

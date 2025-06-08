@@ -52,7 +52,7 @@ fn vec10000_axpy_f64(bh: &mut criterion::Criterion) {
     let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
-    let n = rng.gen::<f64>();
+    let n = rng.random::<f64>();
 
     bh.bench_function("vec10000_axpy_f64", move |bh| {
         bh.iter(|| a.axpy(n, &b, 1.0))
@@ -64,8 +64,8 @@ fn vec10000_axpy_beta_f64(bh: &mut criterion::Criterion) {
     let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
-    let n = rng.gen::<f64>();
-    let beta = rng.gen::<f64>();
+    let n = rng.random::<f64>();
+    let beta = rng.random::<f64>();
 
     bh.bench_function("vec10000_axpy_beta_f64", move |bh| {
         bh.iter(|| a.axpy(n, &b, beta))
@@ -77,7 +77,7 @@ fn vec10000_axpy_f64_slice(bh: &mut criterion::Criterion) {
     let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
-    let n = rng.gen::<f64>();
+    let n = rng.random::<f64>();
 
     bh.bench_function("vec10000_axpy_f64_slice", move |bh| {
         bh.iter(|| {
@@ -94,7 +94,7 @@ fn vec10000_axpy_f64_static(bh: &mut criterion::Criterion) {
     let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = SVector::<f64, 10000>::new_random();
     let b = SVector::<f64, 10000>::new_random();
-    let n = rng.gen::<f64>();
+    let n = rng.random::<f64>();
 
     // NOTE: for some reasons, it is much faster if the argument are boxed (Box::new(OVector...)).
     bh.bench_function("vec10000_axpy_f64_static", move |bh| {
@@ -107,7 +107,7 @@ fn vec10000_axpy_f32(bh: &mut criterion::Criterion) {
     let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
-    let n = rng.gen::<f32>();
+    let n = rng.random::<f32>();
 
     bh.bench_function("vec10000_axpy_f32", move |bh| {
         bh.iter(|| a.axpy(n, &b, 1.0))
@@ -119,8 +119,8 @@ fn vec10000_axpy_beta_f32(bh: &mut criterion::Criterion) {
     let mut rng = IsaacRng::seed_from_u64(0);
     let mut a = DVector::new_random(10000);
     let b = DVector::new_random(10000);
-    let n = rng.gen::<f32>();
-    let beta = rng.gen::<f32>();
+    let n = rng.random::<f32>();
+    let beta = rng.random::<f32>();
 
     bh.bench_function("vec10000_axpy_beta_f32", move |bh| {
         bh.iter(|| a.axpy(n, &b, beta))

@@ -262,12 +262,12 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     where
         T: ClosedDivAssign + One + Zero,
     {
-        if let Some(v) = self.try_inverse() {
+        match self.try_inverse() { Some(v) => {
             self.vector = v.vector;
             true
-        } else {
+        } _ => {
             false
-        }
+        }}
     }
 }
 

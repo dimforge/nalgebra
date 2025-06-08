@@ -21,14 +21,14 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         ncols: C,
         rstride: RStride,
         cstride: CStride,
-    ) -> Self {
+    ) -> Self { unsafe {
         let data = ViewStorage::from_raw_parts(
             data.as_ptr().add(start),
             (nrows, ncols),
             (rstride, cstride),
         );
         Self::from_data(data)
-    }
+    }}
 
     /// Creates a matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
@@ -69,11 +69,11 @@ impl<'a, T: Scalar, R: Dim, C: Dim> MatrixView<'a, T, R, C> {
         start: usize,
         nrows: R,
         ncols: C,
-    ) -> Self {
+    ) -> Self { unsafe {
         Self::from_slice_with_strides_generic_unchecked(
             data, start, nrows, ncols, Const::<1>, nrows,
         )
-    }
+    }}
 
     /// Creates a matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
@@ -86,7 +86,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim> MatrixView<'a, T, R, C> {
 }
 
 macro_rules! impl_constructors(
-    ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
+    ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr_2021),*; $($args: ident),*) => {
         impl<'a, T: Scalar, $($DimIdent: $DimBound),*> MatrixView<'a, T, $($Dims),*> {
             /// Creates a new matrix view from the given data array.
             ///
@@ -100,9 +100,9 @@ macro_rules! impl_constructors(
             /// # Safety
             /// `data[start..start+rstride * cstride]` must be within bounds.
             #[inline]
-            pub unsafe fn from_slice_unchecked(data: &'a [T], start: usize, $($args: usize),*) -> Self {
+            pub unsafe fn from_slice_unchecked(data: &'a [T], start: usize, $($args: usize),*) -> Self { unsafe {
                 Self::from_slice_generic_unchecked(data, start, $($gargs),*)
-            }
+            }}
         }
 
         impl<'a, T: Scalar, $($DimIdent: $DimBound, )*> MatrixView<'a, T, $($Dims,)* Dyn, Dyn> {
@@ -121,9 +121,9 @@ macro_rules! impl_constructors(
             /// `start`, `rstride`, and `cstride`, with the given matrix size will not index
             /// outside of `data`.
             #[inline]
-            pub unsafe fn from_slice_with_strides_unchecked(data: &'a [T], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self {
+            pub unsafe fn from_slice_with_strides_unchecked(data: &'a [T], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self { unsafe {
                 Self::from_slice_with_strides_generic_unchecked(data, start, $($gargs,)* Dyn(rstride), Dyn(cstride))
-            }
+            }}
         }
     }
 );
@@ -166,14 +166,14 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         ncols: C,
         rstride: RStride,
         cstride: CStride,
-    ) -> Self {
+    ) -> Self { unsafe {
         let data = ViewStorageMut::from_raw_parts(
             data.as_mut_ptr().add(start),
             (nrows, ncols),
             (rstride, cstride),
         );
         Self::from_data(data)
-    }
+    }}
 
     /// Creates a mutable matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
@@ -236,11 +236,11 @@ impl<'a, T: Scalar, R: Dim, C: Dim> MatrixViewMut<'a, T, R, C> {
         start: usize,
         nrows: R,
         ncols: C,
-    ) -> Self {
+    ) -> Self { unsafe {
         Self::from_slice_with_strides_generic_unchecked(
             data, start, nrows, ncols, Const::<1>, nrows,
         )
-    }
+    }}
 
     /// Creates a mutable matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
@@ -253,7 +253,7 @@ impl<'a, T: Scalar, R: Dim, C: Dim> MatrixViewMut<'a, T, R, C> {
 }
 
 macro_rules! impl_constructors_mut(
-    ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
+    ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr_2021),*; $($args: ident),*) => {
         impl<'a, T: Scalar, $($DimIdent: $DimBound),*> MatrixViewMut<'a, T, $($Dims),*> {
             /// Creates a new mutable matrix view from the given data array.
             ///
@@ -269,9 +269,9 @@ macro_rules! impl_constructors_mut(
             ///
             /// `data[start..start+(R * C)]` must be within bounds.
             #[inline]
-            pub unsafe fn from_slice_unchecked(data: &'a mut [T], start: usize, $($args: usize),*) -> Self {
+            pub unsafe fn from_slice_unchecked(data: &'a mut [T], start: usize, $($args: usize),*) -> Self { unsafe {
                 Self::from_slice_generic_unchecked(data, start, $($gargs),*)
-            }
+            }}
         }
 
         impl<'a, T: Scalar, $($DimIdent: $DimBound, )*> MatrixViewMut<'a, T, $($Dims,)* Dyn, Dyn> {
@@ -288,10 +288,10 @@ macro_rules! impl_constructors_mut(
             /// # Safety
             /// `data[start..start+rstride * cstride]` must be within bounds.
             #[inline]
-            pub unsafe fn from_slice_with_strides_unchecked(data: &'a mut [T], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self {
+            pub unsafe fn from_slice_with_strides_unchecked(data: &'a mut [T], start: usize, $($args: usize,)* rstride: usize, cstride: usize) -> Self { unsafe {
                 Self::from_slice_with_strides_generic_unchecked(
                     data, start, $($gargs,)* Dyn(rstride), Dyn(cstride))
-            }
+            }}
         }
     }
 );

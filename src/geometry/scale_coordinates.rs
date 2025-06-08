@@ -12,7 +12,7 @@ use crate::geometry::Scale;
  */
 
 macro_rules! deref_impl(
-    ($D: expr, $Target: ident $(, $comps: ident)*) => {
+    ($D: expr_2021, $Target: ident $(, $comps: ident)*) => {
         impl<T: Scalar> Deref for Scale<T, $D> {
             type Target = $Target<T>;
 

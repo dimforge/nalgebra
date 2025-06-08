@@ -5,8 +5,8 @@ macro_rules! bench_binop(
         fn $name(bh: &mut criterion::Criterion) {
             use rand::SeedableRng;
             let mut rng = IsaacRng::seed_from_u64(0);
-            let a = rng.gen::<$t1>();
-            let b = rng.gen::<$t2>();
+            let a = rng.random::<$t1>();
+            let b = rng.random::<$t2>();
 
             bh.bench_function(stringify!($name), move |bh| bh.iter(|| {
                 a.$binop(b)
@@ -20,8 +20,8 @@ macro_rules! bench_binop_ref(
         fn $name(bh: &mut criterion::Criterion) {
             use rand::SeedableRng;
             let mut rng = IsaacRng::seed_from_u64(0);
-            let a = rng.gen::<$t1>();
-            let b = rng.gen::<$t2>();
+            let a = rng.random::<$t1>();
+            let b = rng.random::<$t2>();
 
             bh.bench_function(stringify!($name), move |bh| bh.iter(|| {
                 a.$binop(&b)
@@ -35,8 +35,8 @@ macro_rules! bench_binop_fn(
         fn $name(bh: &mut criterion::Criterion) {
             use rand::SeedableRng;
             let mut rng = IsaacRng::seed_from_u64(0);
-            let a = rng.gen::<$t1>();
-            let b = rng.gen::<$t2>();
+            let a = rng.random::<$t1>();
+            let b = rng.random::<$t2>();
 
             bh.bench_function(stringify!($name), move |bh| bh.iter(|| {
                 $binop(&a, &b)
@@ -53,7 +53,7 @@ macro_rules! bench_unop_na(
             use rand::SeedableRng;
             let mut rng = IsaacRng::seed_from_u64(0);
 
-            let elems: Vec<$t> =  (0usize .. LEN).map(|_| rng.gen::<$t>()).collect();
+            let elems: Vec<$t> =  (0usize .. LEN).map(|_| rng.random::<$t>()).collect();
             let mut i = 0;
 
             bh.bench_function(stringify!($name), move |bh| bh.iter(|| {
@@ -75,7 +75,7 @@ macro_rules! bench_unop(
             use rand::SeedableRng;
             let mut rng = IsaacRng::seed_from_u64(0);
 
-            let mut elems: Vec<$t> =  (0usize .. LEN).map(|_| rng.gen::<$t>()).collect();
+            let mut elems: Vec<$t> =  (0usize .. LEN).map(|_| rng.random::<$t>()).collect();
             let mut i = 0;
 
             bh.bench_function(stringify!($name), move |bh| bh.iter(|| {
@@ -97,7 +97,7 @@ macro_rules! bench_construction(
             use rand::SeedableRng;
             let mut rng = IsaacRng::seed_from_u64(0);
 
-            $(let $args: Vec<$types> = (0usize .. LEN).map(|_| rng.gen::<$types>()).collect();)*
+            $(let $args: Vec<$types> = (0usize .. LEN).map(|_| rng.random::<$types>()).collect();)*
             let mut i = 0;
 
             bh.bench_function(stringify!($name), move |bh| bh.iter(|| {

@@ -98,7 +98,7 @@ where
  *
  */
 macro_rules! componentwise_constructors_impl(
-    ($($doc: expr; $D: expr, $($args: ident:$irow: expr),*);* $(;)*) => {$(
+    ($($doc: expr_2021; $D: expr_2021, $($args: ident:$irow: expr_2021),*);* $(;)*) => {$(
         impl<T> Translation<T, $D>
              {
             #[doc = "Initializes this translation from its components."]
