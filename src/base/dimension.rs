@@ -219,6 +219,7 @@ dim_ops!(
     archive(as = "Self")
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Const<const R: usize>;
 
 /// Trait implemented exclusively by type-level integers.

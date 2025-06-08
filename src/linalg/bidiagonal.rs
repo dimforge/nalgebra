@@ -33,6 +33,7 @@ use std::mem::MaybeUninit;
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>,
          OVector<T, DimDiff<DimMinimum<R, C>, U1>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct Bidiagonal<T: ComplexField, R: DimMin<C>, C: Dim>
 where
