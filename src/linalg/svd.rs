@@ -213,7 +213,7 @@ where
                         m12,
                     );
 
-                    if let Some((rot1, norm1)) = GivensRotation::cancel_y(&vec) {
+                    match GivensRotation::cancel_y(&vec) { Some((rot1, norm1)) => {
                         rot1.inverse()
                             .rotate_rows(&mut subm.fixed_columns_mut::<2>(0));
                         let rot1 = GivensRotation::new_unchecked(rot1.c(), T::from_real(rot1.s()));
@@ -259,9 +259,9 @@ where
 
                         vec.x = subm[(0, 1)].clone();
                         vec.y = subm[(0, 2)].clone();
-                    } else {
+                    } _ => {
                         break;
-                    }
+                    }}
                 }
             } else if subdim == 2 {
                 // Solve the remaining 2x2 subproblem.
@@ -476,7 +476,7 @@ where
         off_diagonal[i] = T::RealField::zero();
 
         for k in i..end {
-            if let Some((rot, norm)) = GivensRotation::cancel_x(&v) {
+            match GivensRotation::cancel_x(&v) { Some((rot, norm)) => {
                 let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
                 diagonal[k + 1] = norm;
 
@@ -494,9 +494,9 @@ where
                     v.y = diagonal[k + 2].clone();
                     off_diagonal[k + 1] *= rot.c();
                 }
-            } else {
+            } _ => {
                 break;
-            }
+            }}
         }
     }
 
@@ -513,7 +513,7 @@ where
         off_diagonal[i] = T::RealField::zero();
 
         for k in (0..i + 1).rev() {
-            if let Some((rot, norm)) = GivensRotation::cancel_y(&v) {
+            match GivensRotation::cancel_y(&v) { Some((rot, norm)) => {
                 let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
                 diagonal[k] = norm;
 
@@ -531,9 +531,9 @@ where
                     v.y = rot.s().real() * off_diagonal[k - 1].clone();
                     off_diagonal[k - 1] *= rot.c();
                 }
-            } else {
+            } _ => {
                 break;
-            }
+            }}
         }
     }
 

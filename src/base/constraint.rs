@@ -44,7 +44,7 @@ impl<D: DimName> DimEq<Dyn, D> for ShapeConstraint {
 }
 
 macro_rules! equality_trait_decl(
-    ($($doc: expr, $Trait: ident),* $(,)*) => {$(
+    ($($doc: expr_2021, $Trait: ident),* $(,)*) => {$(
         // XXX: we can't do something like `DimEq<D1> for D2` because we would require a blanket impl…
         #[doc = $doc]
         pub trait $Trait<D1: Dim, D2: Dim>: DimEq<D1, D2> + DimEq<D2, D1> {

@@ -105,9 +105,9 @@ unsafe impl<T, const R: usize, const C: usize> RawStorage<T, Const<R>, Const<C>>
     }
 
     #[inline]
-    unsafe fn as_slice_unchecked(&self) -> &[T] {
+    unsafe fn as_slice_unchecked(&self) -> &[T] { unsafe {
         std::slice::from_raw_parts(self.ptr(), R * C)
-    }
+    }}
 }
 
 unsafe impl<T: Scalar, const R: usize, const C: usize> Storage<T, Const<R>, Const<C>>
@@ -147,9 +147,9 @@ unsafe impl<T, const R: usize, const C: usize> RawStorageMut<T, Const<R>, Const<
     }
 
     #[inline]
-    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] { unsafe {
         std::slice::from_raw_parts_mut(self.ptr_mut(), R * C)
-    }
+    }}
 }
 
 unsafe impl<T, const R: usize, const C: usize> IsContiguous for ArrayStorage<T, R, C> {}

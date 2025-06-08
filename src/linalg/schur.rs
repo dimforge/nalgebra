@@ -486,7 +486,7 @@ fn compute_2x2_basis<T: ComplexField, S: Storage<T, U2, U2>>(
         return None;
     }
 
-    if let Some((eigval1, eigval2)) = compute_2x2_eigvals(m) {
+    match compute_2x2_eigvals(m) { Some((eigval1, eigval2)) => {
         let x1 = eigval1 - m[(1, 1)].clone();
         let x2 = eigval2 - m[(1, 1)].clone();
 
@@ -498,9 +498,9 @@ fn compute_2x2_basis<T: ComplexField, S: Storage<T, U2, U2>>(
         } else {
             Some(GivensRotation::new(x2, h10).0)
         }
-    } else {
+    } _ => {
         None
-    }
+    }}
 }
 
 impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S>

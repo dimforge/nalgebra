@@ -12,7 +12,7 @@ use crate::constraint::{DimEq, ShapeConstraint};
 use crate::ReshapableStorage;
 
 macro_rules! view_storage_impl (
-    ($doc: expr; $Storage: ident as $SRef: ty; $legacy_name:ident => $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {
+    ($doc: expr_2021; $Storage: ident as $SRef: ty; $legacy_name:ident => $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {
         #[doc = $doc]
         #[derive(Debug)]
         pub struct $T<'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>  {
@@ -77,11 +77,11 @@ macro_rules! view_storage_impl (
                 -> $T<'a, T, R, C, S::RStride, S::CStride>
                 where RStor: Dim,
                       CStor: Dim,
-                      S:     $Storage<T, RStor, CStor> {
+                      S:     $Storage<T, RStor, CStor> { unsafe {
 
                 let strides = storage.strides();
                 $T::new_with_strides_unchecked(storage, start, shape, strides)
-            }
+            }}
 
             /// Create a new matrix view without bounds checking.
             ///
@@ -98,9 +98,9 @@ macro_rules! view_storage_impl (
                       CStor: Dim,
                       S: $Storage<T, RStor, CStor>,
                       RStride: Dim,
-                      CStride: Dim {
+                      CStride: Dim { unsafe {
                 $T::from_raw_parts(storage.$get_addr(start.0, start.1), shape, strides)
-            }
+            }}
         }
 
         impl <'a, T, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
@@ -202,7 +202,7 @@ macro_rules! storage_impl(
             }
 
             #[inline]
-            unsafe fn as_slice_unchecked(&self) -> &[T] {
+            unsafe fn as_slice_unchecked(&self) -> &[T] { unsafe {
                 let (nrows, ncols) = self.shape();
                 if nrows.value() != 0 && ncols.value() != 0 {
                     let sz = self.linear_index(nrows.value() - 1, ncols.value() - 1);
@@ -211,7 +211,7 @@ macro_rules! storage_impl(
                 else {
                     slice::from_raw_parts(self.ptr, 0)
                 }
-            }
+            }}
         }
 
         unsafe impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim> Storage<T, R, C>
@@ -249,7 +249,7 @@ unsafe impl<T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> RawStorageMut<T, R, C
     }
 
     #[inline]
-    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] { unsafe {
         let (nrows, ncols) = self.shape();
         if nrows.value() != 0 && ncols.value() != 0 {
             let sz = self.linear_index(nrows.value() - 1, ncols.value() - 1);
@@ -257,7 +257,7 @@ unsafe impl<T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> RawStorageMut<T, R, C
         } else {
             slice::from_raw_parts_mut(self.ptr, 0)
         }
-    }
+    }}
 }
 
 unsafe impl<T, R: Dim, CStride: Dim> IsContiguous for ViewStorage<'_, T, R, U1, U1, CStride> {}
@@ -297,7 +297,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
 }
 
 macro_rules! matrix_view_impl (
-    ($me: ident: $Me: ty, $MatrixView: ident, $ViewStorage: ident, $Storage: ident.$get_addr: ident (), $data: expr;
+    ($me: ident: $Me: ty, $MatrixView: ident, $ViewStorage: ident, $Storage: ident.$get_addr: ident (), $data: expr_2021;
      $row: ident,
      $row_part: ident,
      $rows: ident,

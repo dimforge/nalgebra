@@ -2,7 +2,7 @@
 name = "nalgebra-sparse"
 version = "0.10.0"
 authors = ["Andreas Longva", "Sébastien Crozet <developer@crozet.re>"]
-edition = "2018"
+edition = "2024"
 description = "Sparse matrix computation based on nalgebra."
 documentation = "https://www.nalgebra.rs/docs"
 homepage = "https://nalgebra.rs"

@@ -42,13 +42,13 @@ unsafe fn array_axcpy<Status, T>(
 ) where
     Status: InitStatus<T>,
     T: Scalar + Zero + ClosedAddAssign + ClosedMulAssign,
-{
+{ unsafe {
     for i in 0..len {
         let y = Status::assume_init_mut(y.get_unchecked_mut(i * stride1));
         *y =
             a.clone() * x.get_unchecked(i * stride2).clone() * c.clone() + beta.clone() * y.clone();
     }
-}
+}}
 
 fn array_axc<Status, T>(
     _: Status,
@@ -94,7 +94,7 @@ pub unsafe fn axcpy_uninit<Status, T, D1: Dim, D2: Dim, SA, SB>(
     SB: RawStorage<T, D2>,
     ShapeConstraint: DimEq<D1, D2>,
     Status: InitStatus<T>,
-{
+{ unsafe {
     assert_eq!(y.nrows(), x.nrows(), "Axcpy: mismatched vector shapes.");
 
     let rstride1 = y.strides().0;
@@ -110,7 +110,7 @@ pub unsafe fn axcpy_uninit<Status, T, D1: Dim, D2: Dim, SA, SB>(
     } else {
         array_axc(status, y, a, x, c, rstride1, rstride2, x.len());
     }
-}
+}}
 
 /// Computes `y = alpha * a * x + beta * y`, where `a` is a matrix, `x` a vector, and
 /// `alpha, beta` two scalars.
@@ -134,7 +134,7 @@ pub unsafe fn gemv_uninit<Status, T, D1: Dim, R2: Dim, C2: Dim, D3: Dim, SA, SB,
     SB: RawStorage<T, R2, C2>,
     SC: RawStorage<T, D3>,
     ShapeConstraint: DimEq<D1, R2> + AreMultipliable<R2, C2, D3, U1>,
-{
+{ unsafe {
     let dim1 = y.nrows();
     let (nrows2, ncols2) = a.shape();
     let dim3 = x.nrows();
@@ -168,7 +168,7 @@ pub unsafe fn gemv_uninit<Status, T, D1: Dim, R2: Dim, C2: Dim, D3: Dim, SA, SB,
         // SAFETY: safe because y was initialized above.
         axcpy_uninit(status, y, alpha.clone(), &col2, val, T::one());
     }
-}
+}}
 
 /// Computes `y = alpha * a * b + beta * y`, where `a, b, y` are matrices.
 /// `alpha` and `beta` are scalar.
@@ -205,7 +205,7 @@ pub unsafe fn gemm_uninit<
     SC: RawStorage<T, R3, C3>,
     ShapeConstraint:
         SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C3> + AreMultipliable<R2, C2, R3, C3>,
-{
+{ unsafe {
     let ncols1 = y.ncols();
 
     #[cfg(feature = "std")]
@@ -319,4 +319,4 @@ pub unsafe fn gemm_uninit<
             beta.clone(),
         );
     }
-}
+}}

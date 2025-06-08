@@ -487,14 +487,14 @@ where
         SC: Storage<T, U3>,
     {
         // TODO: code duplication with Rotation.
-        if let (Some(na), Some(nb)) = (
+        match (
             Unit::try_new(a.clone_owned(), T::zero()),
             Unit::try_new(b.clone_owned(), T::zero()),
-        ) {
+        ) { (Some(na), Some(nb)) => {
             Self::scaled_rotation_between_axis(&na, &nb, s)
-        } else {
+        } _ => {
             Some(Self::identity())
-        }
+        }}
     }
 
     /// The unit quaternion needed to make `a` and `b` be collinear and point toward the same
@@ -551,7 +551,7 @@ where
         // TODO: code duplication with Rotation.
         let c = na.cross(nb);
 
-        if let Some(axis) = Unit::try_new(c, T::default_epsilon()) {
+        match Unit::try_new(c, T::default_epsilon()) { Some(axis) => {
             let cos = na.dot(nb);
 
             // The cosinus may be out of [-1, 1] because of inaccuracies.
@@ -562,7 +562,7 @@ where
             } else {
                 Some(Self::from_axis_angle(&axis, cos.acos() * s))
             }
-        } else if na.dot(nb) < T::zero() {
+        } _ => if na.dot(nb) < T::zero() {
             // PI
             //
             // The rotation axis is undefined but the angle not zero. This is not a
@@ -571,7 +571,7 @@ where
         } else {
             // Zero
             Some(Self::identity())
-        }
+        }}
     }
 
     /// Creates an unit quaternion that corresponds to the local frame of an observer standing at the

@@ -152,7 +152,7 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
     /// - If `sz` is smaller than the current size, additional elements are truncated but **not** dropped.
     ///   It is the responsibility of the caller of this method to drop these elements.
     #[inline]
-    pub unsafe fn resize(mut self, sz: usize) -> Vec<MaybeUninit<T>> {
+    pub unsafe fn resize(mut self, sz: usize) -> Vec<MaybeUninit<T>> { unsafe {
         let len = self.len();
 
         let new_data = if sz < len {
@@ -191,7 +191,7 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
         // been transferred to `new_data`.
         std::mem::forget(self);
         new_data
-    }
+    }}
 
     /// The number of elements on the underlying vector.
     #[inline]

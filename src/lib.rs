@@ -84,7 +84,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
     unused_mut,
     unused_parens,
     rust_2018_idioms,
-    rust_2018_compatibility,
+    rust_2024_compatibility,
     future_incompatible,
     missing_copy_implementations
 )]

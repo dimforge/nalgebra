@@ -115,7 +115,7 @@
     unused,
     missing_docs,
     rust_2018_idioms,
-    rust_2018_compatibility,
+    rust_2024_compatibility,
     future_incompatible,
     missing_copy_implementations,
     missing_debug_implementations

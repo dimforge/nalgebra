@@ -960,7 +960,7 @@ impl<T: RealField> Default for UnitDualQuaternion<T> {
 
 impl<T: RealField + fmt::Display> fmt::Display for UnitDualQuaternion<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let Some(axis) = self.rotation().axis() {
+        match self.rotation().axis() { Some(axis) => {
             let axis = axis.into_inner();
             write!(
                 f,
@@ -971,14 +971,14 @@ impl<T: RealField + fmt::Display> fmt::Display for UnitDualQuaternion<T> {
                 axis[1],
                 axis[2]
             )
-        } else {
+        } _ => {
             write!(
                 f,
                 "UnitDualQuaternion translation: {} − angle: {} − axis: (undefined)",
                 self.translation().vector,
                 self.rotation().angle()
             )
-        }
+        }}
     }
 }
 

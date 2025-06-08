@@ -11,7 +11,7 @@ readme = "README.md"
 categories = ["science", "mathematics", "wasm", "no-std"]
 keywords = ["linear", "algebra", "matrix", "vector", "math"]
 license = "Apache-2.0"
-edition = "2018"
+edition = "2024"
 exclude = ["/ci/*", "/.travis.yml", "/Makefile"]
 
 [badges]
@@ -134,7 +134,7 @@ rayon = { version = "1.6", optional = true }
 [dev-dependencies]
 serde_json = "1.0"
 rand_xorshift = "0.4"
-rand_isaac = "0.3"
+rand_isaac = "0.4"
 criterion = { version = "0.4", features = ["html_reports"] }
 nalgebra = { path = ".", features = ["debug", "compare", "rand", "macros"] }
 

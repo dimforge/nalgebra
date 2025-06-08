@@ -23,9 +23,9 @@ where
     }
 
     #[inline]
-    unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
+    unsafe fn extract_unchecked(&self, i: usize) -> Self::Element { unsafe {
         self.coords.extract_unchecked(i).into()
-    }
+    }}
 
     #[inline]
     fn replace(&mut self, i: usize, val: Self::Element) {
@@ -33,9 +33,9 @@ where
     }
 
     #[inline]
-    unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
+    unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) { unsafe {
         self.coords.replace_unchecked(i, val.coords)
-    }
+    }}
 
     #[inline]
     fn select(self, cond: Self::SimdBool, other: Self) -> Self {

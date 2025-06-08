@@ -689,7 +689,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         D: Dim,
         C: DimAdd<D>,
         DefaultAllocator: Reallocator<T, R, C, R, DimSum<C, D>>,
-    {
+    { unsafe {
         let m = self.into_owned();
         let (nrows, ncols) = m.shape_generic();
         let mut res = Matrix::from_data(DefaultAllocator::reallocate_copy(
@@ -711,7 +711,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         }
 
         res
-    }
+    }}
 
     /*
      *
@@ -783,7 +783,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         D: Dim,
         R: DimAdd<D>,
         DefaultAllocator: Reallocator<T, R, C, DimSum<R, D>, C>,
-    {
+    { unsafe {
         let m = self.into_owned();
         let (nrows, ncols) = m.shape_generic();
         let mut res = Matrix::from_data(DefaultAllocator::reallocate_copy(
@@ -805,7 +805,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
         }
 
         res
-    }
+    }}
 }
 
 /// # Resizing and reshaping
@@ -1086,7 +1086,7 @@ unsafe fn compress_rows<T: Scalar>(
     ncols: usize,
     i: usize,
     nremove: usize,
-) {
+) { unsafe {
     let new_nrows = nrows - nremove;
 
     if nremove == 0 {
@@ -1133,11 +1133,11 @@ unsafe fn compress_rows<T: Scalar>(
         ptr_out.add(curr_i),
         remaining_len,
     );
-}
+}}
 
 // Moves entries of a matrix buffer to make place for `ninsert` empty rows starting at the `i-th` row index.
 // The `data` buffer is assumed to contained at least `(nrows + ninsert) * ncols` elements.
-unsafe fn extend_rows<T>(data: &mut [T], nrows: usize, ncols: usize, i: usize, ninsert: usize) {
+unsafe fn extend_rows<T>(data: &mut [T], nrows: usize, ncols: usize, i: usize, ninsert: usize) { unsafe {
     let new_nrows = nrows + ninsert;
 
     if new_nrows == 0 || ncols == 0 {
@@ -1162,7 +1162,7 @@ unsafe fn extend_rows<T>(data: &mut [T], nrows: usize, ncols: usize, i: usize, n
 
         ptr::copy(ptr_in.add(k * nrows + i), ptr_out.add(curr_i), nrows);
     }
-}
+}}
 
 /// Extend the number of columns of the `Matrix` with elements from
 /// a given iterator.
