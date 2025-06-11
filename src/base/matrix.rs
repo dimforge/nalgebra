@@ -405,27 +405,6 @@ where
     }
 }
 
-impl<T, const R: usize, const C: usize, MR: DimName, MC: DimName> Matrix<T, MR, MC, ArrayStorage<T, R, C>> {
-    /// The shape of this matrix returned as the tuple (number of rows, number of columns).
-    ///
-    /// # Example
-    /// ```
-    /// # use nalgebra::Matrix3x4;
-    /// const MAT: Matrix3x4<f32> = Matrix3x4::<f32>::new(
-    ///     0.0, 0.0, 0.0,
-    ///     0.0, 0.0, 0.0,
-    ///     0.0, 0.0, 0.0,
-    ///     0.0, 0.0, 0.0,
-    ///  );
-    /// assert_eq!(const { MAT.shape_const() }, (3, 4));
-    /// ```
-    #[inline]
-    #[must_use]
-    pub const fn shape_const(&self) -> (usize, usize) {
-        (R, C)
-    }
-}
-
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// Creates a new matrix with the given data.
     #[inline(always)]
