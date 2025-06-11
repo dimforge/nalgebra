@@ -104,7 +104,7 @@ impl TCategory for TAffine {
         T::Epsilon: Clone,
         DefaultAllocator: Allocator<D, D>,
     {
-        let last = D::dim() - 1;
+        let last = D::DIM - 1;
         mat.is_invertible()
             && mat[(last, last)] == T::one()
             && (0..last).all(|i| mat[(last, i)].is_zero())
@@ -287,7 +287,7 @@ where
     /// Creates a new transformation from the given homogeneous matrix. The transformation category
     /// of `Self` is not checked to be verified by the given matrix.
     #[inline]
-    pub fn from_matrix_unchecked(
+    pub const fn from_matrix_unchecked(
         matrix: OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     ) -> Self {
         Transform {
@@ -335,7 +335,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn matrix(&self) -> &OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
+    pub const fn matrix(&self) -> &OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         &self.matrix
     }
 
@@ -362,7 +362,7 @@ where
     /// assert_eq!(*t.matrix(), expected);
     /// ```
     #[inline]
-    pub fn matrix_mut_unchecked(
+    pub const fn matrix_mut_unchecked(
         &mut self,
     ) -> &mut OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         &mut self.matrix
@@ -582,7 +582,7 @@ where
     /// A mutable reference to underlying matrix. Use `.matrix_mut_unchecked` instead if this
     /// transformation category is not `TGeneral`.
     #[inline]
-    pub fn matrix_mut(
+    pub const fn matrix_mut(
         &mut self,
     ) -> &mut OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
         self.matrix_mut_unchecked()

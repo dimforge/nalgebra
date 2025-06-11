@@ -35,7 +35,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D>> Reflection<T, D, S> {
 
     /// The reflection axis.
     #[must_use]
-    pub fn axis(&self) -> &Vector<T, D, S> {
+    pub const fn axis(&self) -> &Vector<T, D, S> {
         &self.axis
     }
 

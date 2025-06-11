@@ -116,7 +116,7 @@ where
 {
     #[inline]
     fn dimension() -> usize {
-        R::dim() * C::dim()
+        R::DIM * C::DIM
     }
 
     #[inline]

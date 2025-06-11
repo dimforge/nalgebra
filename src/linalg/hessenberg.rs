@@ -148,7 +148,7 @@ where
     }
 
     #[doc(hidden)]
-    pub fn hess_internal(&self) -> &OMatrix<T, D, D> {
+    pub const fn hess_internal(&self) -> &OMatrix<T, D, D> {
         &self.hess
     }
 }

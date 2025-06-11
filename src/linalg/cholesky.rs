@@ -78,7 +78,7 @@ where
     /// Cholesky decomposition.
     ///
     /// It is up to the user to ensure all invariants hold.
-    pub fn pack_dirty(matrix: OMatrix<T, D, D>) -> Self {
+    pub const fn pack_dirty(matrix: OMatrix<T, D, D>) -> Self {
         Cholesky { chol: matrix }
     }
 
@@ -111,7 +111,7 @@ where
     /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
     /// part are garbage and should be ignored by further computations.
     #[must_use]
-    pub fn l_dirty(&self) -> &OMatrix<T, D, D> {
+    pub const fn l_dirty(&self) -> &OMatrix<T, D, D> {
         &self.chol
     }
 

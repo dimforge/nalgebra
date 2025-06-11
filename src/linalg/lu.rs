@@ -121,7 +121,7 @@ where
     }
 
     #[doc(hidden)]
-    pub fn lu_internal(&self) -> &OMatrix<T, R, C> {
+    pub const fn lu_internal(&self) -> &OMatrix<T, R, C> {
         &self.lu
     }
 
@@ -183,7 +183,7 @@ where
     /// The row permutations of this decomposition.
     #[inline]
     #[must_use]
-    pub fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
+    pub const fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.p
     }
 
