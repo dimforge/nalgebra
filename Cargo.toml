@@ -4,8 +4,8 @@ version = "0.33.2"
 authors = ["Sébastien Crozet <developer@crozet.re>"]
 
 description = "General-purpose linear algebra library with transformations and statically-sized or dynamically-sized matrices."
-documentation = "https://www.nalgebra.org/docs"
-homepage = "https://nalgebra.org"
+documentation = "https://www.nalgebra.rs/docs"
+homepage = "https://nalgebra.rs"
 repository = "https://github.com/dimforge/nalgebra"
 readme = "README.md"
 categories = ["science", "mathematics", "wasm", "no-std"]

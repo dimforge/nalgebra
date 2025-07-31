@@ -1,4 +1,4 @@
-//! Sparse matrices and algorithms for [nalgebra](https://www.nalgebra.org).
+//! Sparse matrices and algorithms for [nalgebra](https://www.nalgebra.rs).
 //!
 //! This crate extends `nalgebra` with sparse matrix formats and operations on sparse matrices.
 //!

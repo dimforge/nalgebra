@@ -30,7 +30,7 @@
    speaking, it supports all the common transformations like rotations, translations, scaling, shearing,
    and projections but operating in homogeneous coordinates. This means all the 2D transformations are
    expressed as 3x3 matrices, and all the 3D transformations as 4x4 matrices. This is less computationally-efficient
-   and memory-efficient than nalgebra's [transformation types](https://www.nalgebra.org/points_and_transformations/#transformations),
+   and memory-efficient than nalgebra's [transformation types](https://www.nalgebra.rs/points_and_transformations/#transformations),
    but this has the benefit of being simpler to use.
    ### Main differences compared to GLM
    While **nalgebra-glm** follows the feature line of the C++ GLM library, quite a few differences
@@ -120,7 +120,7 @@
     missing_copy_implementations,
     missing_debug_implementations
 )]
-#![doc(html_favicon_url = "https://nalgebra.org/img/favicon.ico")]
+#![doc(html_favicon_url = "https://nalgebra.rs/img/favicon.ico")]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 extern crate num_traits as num;
