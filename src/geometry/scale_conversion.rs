@@ -7,8 +7,8 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector, SVector, Scalar};
 
-use crate::geometry::{Scale, SuperTCategoryOf, TAffine, Transform};
 use crate::Point;
+use crate::geometry::{Scale, SuperTCategoryOf, TAffine, Transform};
 
 /*
  * This file provides the following conversions:

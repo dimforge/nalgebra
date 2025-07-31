@@ -10,8 +10,8 @@ use crate::dimension::{Dim, DimDiff, DimSub, U1};
 use crate::storage::Storage;
 use simba::scalar::ComplexField;
 
-use crate::linalg::givens::GivensRotation;
 use crate::linalg::SymmetricTridiagonal;
+use crate::linalg::givens::GivensRotation;
 
 /// Eigendecomposition of a symmetric matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -151,38 +151,43 @@ where
                 for i in start..n {
                     let j = i + 1;
 
-                    if let Some((rot, norm)) = GivensRotation::cancel_y(&vec) {
-                        if i > start {
-                            // Not the first iteration.
-                            off_diag[i - 1] = norm;
+                    match GivensRotation::cancel_y(&vec) {
+                        Some((rot, norm)) => {
+                            if i > start {
+                                // Not the first iteration.
+                                off_diag[i - 1] = norm;
+                            }
+
+                            let mii = diag[i].clone();
+                            let mjj = diag[j].clone();
+                            let mij = off_diag[i].clone();
+
+                            let cc = rot.c() * rot.c();
+                            let ss = rot.s() * rot.s();
+                            let cs = rot.c() * rot.s();
+
+                            let b = cs.clone() * crate::convert(2.0) * mij.clone();
+
+                            diag[i] =
+                                (cc.clone() * mii.clone() + ss.clone() * mjj.clone()) - b.clone();
+                            diag[j] = (ss.clone() * mii.clone() + cc.clone() * mjj.clone()) + b;
+                            off_diag[i] = cs * (mii - mjj) + mij * (cc - ss);
+
+                            if i != n - 1 {
+                                vec.x = off_diag[i].clone();
+                                vec.y = -rot.s() * off_diag[i + 1].clone();
+                                off_diag[i + 1] *= rot.c();
+                            }
+
+                            if let Some(ref mut q) = q_mat {
+                                let rot =
+                                    GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
+                                rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<2>(i));
+                            }
                         }
-
-                        let mii = diag[i].clone();
-                        let mjj = diag[j].clone();
-                        let mij = off_diag[i].clone();
-
-                        let cc = rot.c() * rot.c();
-                        let ss = rot.s() * rot.s();
-                        let cs = rot.c() * rot.s();
-
-                        let b = cs.clone() * crate::convert(2.0) * mij.clone();
-
-                        diag[i] = (cc.clone() * mii.clone() + ss.clone() * mjj.clone()) - b.clone();
-                        diag[j] = (ss.clone() * mii.clone() + cc.clone() * mjj.clone()) + b;
-                        off_diag[i] = cs * (mii - mjj) + mij * (cc - ss);
-
-                        if i != n - 1 {
-                            vec.x = off_diag[i].clone();
-                            vec.y = -rot.s() * off_diag[i + 1].clone();
-                            off_diag[i + 1] *= rot.c();
+                        None => {
+                            break;
                         }
-
-                        if let Some(ref mut q) = q_mat {
-                            let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
-                            rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<2>(i));
-                        }
-                    } else {
-                        break;
                     }
                 }
 

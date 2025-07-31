@@ -52,7 +52,6 @@ where
     DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
-    #[must_use = "Did you mean to use two_sided_inverse_mut()?"]
     fn two_sided_inverse(&self) -> Self {
         -self
     }
@@ -138,20 +137,20 @@ where
 
     #[inline]
     unsafe fn component_unchecked(&self, i: usize) -> &T {
-        self.data.get_unchecked_linear(i)
+        unsafe { self.data.get_unchecked_linear(i) }
     }
 
     #[inline]
     unsafe fn component_unchecked_mut(&mut self, i: usize) -> &mut T {
-        self.data.get_unchecked_linear_mut(i)
+        unsafe { self.data.get_unchecked_linear_mut(i) }
     }
 }
 
 impl<
-        T: ComplexField + simba::scalar::ComplexField<RealField = <T as ComplexField>::RealField>,
-        R: DimName,
-        C: DimName,
-    > NormedSpace for OMatrix<T, R, C>
+    T: ComplexField + simba::scalar::ComplexField<RealField = <T as ComplexField>::RealField>,
+    R: DimName,
+    C: DimName,
+> NormedSpace for OMatrix<T, R, C>
 where
     <T as ComplexField>::RealField: simba::scalar::RealField,
     DefaultAllocator: Allocator<R, C>,
@@ -170,7 +169,6 @@ where
     }
 
     #[inline]
-    #[must_use = "Did you mean to use normalize_mut()?"]
     fn normalize(&self) -> Self {
         self.normalize()
     }
@@ -181,7 +179,6 @@ where
     }
 
     #[inline]
-    #[must_use = "Did you mean to use try_normalize_mut()?"]
     fn try_normalize(&self, min_norm: <T as ComplexField>::RealField) -> Option<Self> {
         self.try_normalize(min_norm)
     }
@@ -196,10 +193,10 @@ where
 }
 
 impl<
-        T: ComplexField + simba::scalar::ComplexField<RealField = <T as ComplexField>::RealField>,
-        R: DimName,
-        C: DimName,
-    > InnerSpace for OMatrix<T, R, C>
+    T: ComplexField + simba::scalar::ComplexField<RealField = <T as ComplexField>::RealField>,
+    R: DimName,
+    C: DimName,
+> InnerSpace for OMatrix<T, R, C>
 where
     <T as ComplexField>::RealField: simba::scalar::RealField,
     DefaultAllocator: Allocator<R, C>,
@@ -220,10 +217,10 @@ where
 //   − use `x()` instead of `::canonical_basis_element`
 //   − use `::new(x, y, z)` instead of `::from_slice`
 impl<
-        T: ComplexField + simba::scalar::ComplexField<RealField = <T as ComplexField>::RealField>,
-        R: DimName,
-        C: DimName,
-    > FiniteDimInnerSpace for OMatrix<T, R, C>
+    T: ComplexField + simba::scalar::ComplexField<RealField = <T as ComplexField>::RealField>,
+    R: DimName,
+    C: DimName,
+> FiniteDimInnerSpace for OMatrix<T, R, C>
 where
     <T as ComplexField>::RealField: simba::scalar::RealField,
     DefaultAllocator: Allocator<R, C>,
@@ -344,8 +341,10 @@ where
                 }
                 #[cfg(all(not(feature = "std"), not(feature = "alloc")))]
                 {
-                    panic!("Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
-                            if #![no_std] is enabled and the 'alloc' feature is not enabled.")
+                    panic!(
+                        "Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
+                            if #![no_std] is enabled and the 'alloc' feature is not enabled."
+                    )
                 }
             }
         }

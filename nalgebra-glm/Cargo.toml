@@ -11,7 +11,7 @@ readme = "../README.md"
 categories = ["science", "mathematics", "wasm", "no standard library"]
 keywords = ["linear", "algebra", "matrix", "vector", "math"]
 license = "Apache-2.0"
-edition = "2018"
+edition = "2024"
 
 [badges]
 maintenance = { status = "actively-developed" }

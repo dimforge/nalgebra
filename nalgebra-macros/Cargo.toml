@@ -2,7 +2,7 @@
 name = "nalgebra-macros"
 version = "0.2.2"
 authors = ["Andreas Longva", "Sébastien Crozet <developer@crozet.re>"]
-edition = "2018"
+edition = "2024"
 description = "Procedural macros for nalgebra"
 documentation = "https://www.nalgebra.rs/docs"
 homepage = "https://nalgebra.rs"

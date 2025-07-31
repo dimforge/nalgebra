@@ -1,6 +1,6 @@
 use crate::allocator::Allocator;
 use crate::storage::RawStorage;
-use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, RowOVector, Scalar, VectorView, U1};
+use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, RowOVector, Scalar, U1, VectorView};
 use num::{One, Zero};
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign, Field, SupersetOf};
 use std::mem::MaybeUninit;

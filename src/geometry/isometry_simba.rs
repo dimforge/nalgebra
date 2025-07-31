@@ -26,10 +26,12 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        Isometry::from_parts(
-            self.translation.extract_unchecked(i),
-            self.rotation.extract_unchecked(i),
-        )
+        unsafe {
+            Isometry::from_parts(
+                self.translation.extract_unchecked(i),
+                self.rotation.extract_unchecked(i),
+            )
+        }
     }
 
     #[inline]
@@ -40,8 +42,10 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.translation.replace_unchecked(i, val.translation);
-        self.rotation.replace_unchecked(i, val.rotation);
+        unsafe {
+            self.translation.replace_unchecked(i, val.translation);
+            self.rotation.replace_unchecked(i, val.rotation);
+        }
     }
 
     #[inline]

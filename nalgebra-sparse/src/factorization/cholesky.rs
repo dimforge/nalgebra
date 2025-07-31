@@ -1,6 +1,6 @@
 use crate::csc::CscMatrix;
-use crate::ops::serial::spsolve_csc_lower_triangular;
 use crate::ops::Op;
+use crate::ops::serial::spsolve_csc_lower_triangular;
 use crate::pattern::SparsityPattern;
 use core::{iter, mem};
 use nalgebra::{DMatrix, DMatrixView, DMatrixViewMut, RealField};

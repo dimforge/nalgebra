@@ -156,11 +156,7 @@ where
 
     #[inline]
     fn axis_shift(&self) -> (usize, usize) {
-        if self.upper_diagonal {
-            (0, 1)
-        } else {
-            (1, 0)
-        }
+        if self.upper_diagonal { (0, 1) } else { (1, 0) }
     }
 
     /// Unpacks this decomposition into its three matrix factors `(U, D, V^t)`.

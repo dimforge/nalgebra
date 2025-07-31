@@ -4,8 +4,8 @@ use quickcheck::{Arbitrary, Gen};
 use num::{Bounded, One, Zero};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{Distribution, StandardUniform},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 use crate::base::allocator::Allocator;
@@ -209,7 +209,7 @@ impl<T: Scalar> Point1<T> {
     }
 }
 macro_rules! componentwise_constructors_impl(
-    ($($doc: expr; $Point: ident, $Vector: ident, $($args: ident:$irow: expr),*);* $(;)*) => {$(
+    ($($doc: expr_2021; $Point: ident, $Vector: ident, $($args: ident:$irow: expr_2021),*);* $(;)*) => {$(
         impl<T: Scalar> $Point<T> {
             #[doc = "Initializes this point from its components."]
             #[doc = "# Example\n```"]

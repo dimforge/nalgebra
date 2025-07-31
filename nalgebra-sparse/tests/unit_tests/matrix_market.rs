@@ -1,12 +1,12 @@
 use matrixcompare::assert_matrix_eq;
-use nalgebra::matrix;
 use nalgebra::Complex;
+use nalgebra::matrix;
+use nalgebra_sparse::CooMatrix;
 use nalgebra_sparse::io::{
     load_coo_from_matrix_market_file, load_coo_from_matrix_market_str, save_to_matrix_market_file,
     save_to_matrix_market_str,
 };
 use nalgebra_sparse::proptest::coo_no_duplicates;
-use nalgebra_sparse::CooMatrix;
 use proptest::prelude::*;
 use tempfile::tempdir;
 

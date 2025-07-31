@@ -7,8 +7,8 @@ use num::Zero;
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{uniform::SampleUniform, Distribution, OpenClosed01, StandardUniform, Uniform},
     Rng,
+    distr::{Distribution, OpenClosed01, StandardUniform, Uniform, uniform::SampleUniform},
 };
 
 use simba::scalar::RealField;
@@ -93,8 +93,8 @@ impl<T: SimdRealField> Rotation2<T> {
     /// * `eps`: the angular errors tolerated between the current rotation and the optimal one.
     /// * `max_iter`: the maximum number of iterations. Loops indefinitely until convergence if set to `0`.
     /// * `guess`: an estimate of the solution. Convergence will be significantly faster if an initial solution close
-    ///           to the actual solution is provided. Can be set to `Rotation2::identity()` if no other
-    ///           guesses come to mind.
+    ///   to the actual solution is provided. Can be set to `Rotation2::identity()` if no other
+    ///   guesses come to mind.
     pub fn from_matrix_eps(m: &Matrix2<T>, eps: T, mut max_iter: usize, guess: Self) -> Self
     where
         T: RealField,
@@ -685,13 +685,16 @@ where
     where
         T: RealField,
     {
-        if let Some(axis) = self.axis() {
-            Self::from_axis_angle(&axis, self.angle() * n)
-        } else if self.matrix()[(0, 0)] < T::zero() {
-            let minus_id = SMatrix::<T, 3, 3>::from_diagonal_element(-T::one());
-            Self::from_matrix_unchecked(minus_id)
-        } else {
-            Self::identity()
+        match self.axis() {
+            Some(axis) => Self::from_axis_angle(&axis, self.angle() * n),
+            None => {
+                if self.matrix()[(0, 0)] < T::zero() {
+                    let minus_id = SMatrix::<T, 3, 3>::from_diagonal_element(-T::one());
+                    Self::from_matrix_unchecked(minus_id)
+                } else {
+                    Self::identity()
+                }
+            }
         }
     }
 
@@ -728,8 +731,8 @@ where
     /// * `eps`: the angular errors tolerated between the current rotation and the optimal one.
     /// * `max_iter`: the maximum number of iterations. Loops indefinitely until convergence if set to `0`.
     /// * `guess`: a guess of the solution. Convergence will be significantly faster if an initial solution close
-    ///           to the actual solution is provided. Can be set to `Rotation3::identity()` if no other
-    ///           guesses come to mind.
+    ///   to the actual solution is provided. Can be set to `Rotation3::identity()` if no other
+    ///   guesses come to mind.
     pub fn from_matrix_eps(m: &Matrix3<T>, eps: T, mut max_iter: usize, guess: Self) -> Self
     where
         T: RealField,
@@ -753,36 +756,39 @@ where
 
             let axisangle = axis / (denom.abs() + T::default_epsilon());
 
-            if let Some((axis, angle)) = Unit::try_new_and_get(axisangle, eps.clone()) {
-                rot = Rotation3::from_axis_angle(&axis, angle) * rot;
-            } else {
-                // Check if stuck in a maximum w.r.t. the norm (m - rot).norm()
-                let mut perturbed = rot.clone();
-                let norm_squared = (m - &rot).norm_squared();
-                let mut new_norm_squared: T;
+            match Unit::try_new_and_get(axisangle, eps.clone()) {
+                Some((axis, angle)) => {
+                    rot = Rotation3::from_axis_angle(&axis, angle) * rot;
+                }
+                None => {
+                    // Check if stuck in a maximum w.r.t. the norm (m - rot).norm()
+                    let mut perturbed = rot.clone();
+                    let norm_squared = (m - &rot).norm_squared();
+                    let mut new_norm_squared: T;
 
-                // Perturb until the new norm is significantly different
-                loop {
-                    perturbed *=
-                        Rotation3::from_axis_angle(&perturbation_axes, eps_disturbance.clone());
-                    new_norm_squared = (m - &perturbed).norm_squared();
-                    if abs_diff_ne!(
-                        norm_squared,
-                        new_norm_squared,
-                        epsilon = T::default_epsilon()
-                    ) {
+                    // Perturb until the new norm is significantly different
+                    loop {
+                        perturbed *=
+                            Rotation3::from_axis_angle(&perturbation_axes, eps_disturbance.clone());
+                        new_norm_squared = (m - &perturbed).norm_squared();
+                        if abs_diff_ne!(
+                            norm_squared,
+                            new_norm_squared,
+                            epsilon = T::default_epsilon()
+                        ) {
+                            break;
+                        }
+                    }
+
+                    // If new norm is larger, it's a minimum
+                    if norm_squared < new_norm_squared {
                         break;
                     }
-                }
 
-                // If new norm is larger, it's a minimum
-                if norm_squared < new_norm_squared {
-                    break;
+                    // If not, continue from perturbed rotation, but use a different axes for the next perturbation
+                    perturbation_axes = UnitVector3::new_unchecked(perturbation_axes.yzx());
+                    rot = perturbed;
                 }
-
-                // If not, continue from perturbed rotation, but use a different axes for the next perturbation
-                perturbation_axes = UnitVector3::new_unchecked(perturbation_axes.yzx());
-                rot = perturbed;
             }
         }
 
@@ -873,10 +879,9 @@ impl<T: SimdRealField> Rotation3<T> {
     where
         T: RealField,
     {
-        if let Some(axis) = self.axis() {
-            axis.into_inner() * self.angle()
-        } else {
-            Vector::zero()
+        match self.axis() {
+            Some(axis) => axis.into_inner() * self.angle(),
+            None => Vector::zero(),
         }
     }
 

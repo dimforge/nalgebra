@@ -1,5 +1,5 @@
 use crate::pattern::SparsityPattern;
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 
 /// This is an intermediate type for (de)serializing `SparsityPattern`.
 ///

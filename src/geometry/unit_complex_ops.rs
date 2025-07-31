@@ -145,7 +145,7 @@ macro_rules! complex_op_impl(
     ($Op: ident, $op: ident;
      $($Storage: ident: $StoragesBound: ident $(<$($BoundParam: ty),*>)*),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty;
-     $action: expr; $($lives: tt),*) => {
+     $action: expr_2021; $($lives: tt),*) => {
         impl<$($lives ,)* T: SimdRealField $(, $Storage: $StoragesBound $(<$($BoundParam),*>)*)*> $Op<$Rhs> for $Lhs
             where T::Element: SimdRealField {
             type Output = $Result;
@@ -162,10 +162,10 @@ macro_rules! complex_op_impl_all(
     ($Op: ident, $op: ident;
      $($Storage: ident: $StoragesBound: ident $(<$($BoundParam: ty),*>)*),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty;
-     [val val] => $action_val_val: expr;
-     [ref val] => $action_ref_val: expr;
-     [val ref] => $action_val_ref: expr;
-     [ref ref] => $action_ref_ref: expr;) => {
+     [val val] => $action_val_val: expr_2021;
+     [ref val] => $action_ref_val: expr_2021;
+     [val ref] => $action_val_ref: expr_2021;
+     [ref ref] => $action_ref_ref: expr_2021;) => {
 
     complex_op_impl!($Op, $op;
                      $($Storage: $StoragesBound $(<$($BoundParam),*>)*),*;

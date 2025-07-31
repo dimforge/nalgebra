@@ -2,9 +2,9 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num_complex::Complex;
 use std::fmt;
 
+use crate::Scalar;
 use crate::base::{Matrix2, Matrix3, Normed, Unit, Vector1, Vector2};
 use crate::geometry::{Point2, Rotation2};
-use crate::Scalar;
 use simba::scalar::RealField;
 use simba::simd::SimdRealField;
 use std::cmp::{Eq, PartialEq};

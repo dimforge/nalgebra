@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use std::fmt::{self, Debug, Formatter};
 // use std::hash::{Hash, Hasher};
 use std::ops::Mul;
@@ -14,12 +17,12 @@ use std::marker::PhantomData;
 #[cfg(feature = "rkyv-serialize")]
 use rkyv::bytecheck;
 
+use crate::Storage;
+use crate::base::Scalar;
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, ToTypenum};
 use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, ReshapableStorage};
-use crate::base::Scalar;
-use crate::Storage;
 use std::mem;
 
 /*
@@ -106,7 +109,7 @@ unsafe impl<T, const R: usize, const C: usize> RawStorage<T, Const<R>, Const<C>>
 
     #[inline]
     unsafe fn as_slice_unchecked(&self) -> &[T] {
-        std::slice::from_raw_parts(self.ptr(), R * C)
+        unsafe { std::slice::from_raw_parts(self.ptr(), R * C) }
     }
 }
 
@@ -148,7 +151,7 @@ unsafe impl<T, const R: usize, const C: usize> RawStorageMut<T, Const<R>, Const<
 
     #[inline]
     unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
-        std::slice::from_raw_parts_mut(self.ptr_mut(), R * C)
+        unsafe { std::slice::from_raw_parts_mut(self.ptr_mut(), R * C) }
     }
 }
 
@@ -164,12 +167,12 @@ where
     Const<C2>: ToTypenum,
     <Const<R1> as ToTypenum>::Typenum: Mul<<Const<C1> as ToTypenum>::Typenum>,
     <Const<R2> as ToTypenum>::Typenum: Mul<
-        <Const<C2> as ToTypenum>::Typenum,
-        Output = typenum::Prod<
-            <Const<R1> as ToTypenum>::Typenum,
-            <Const<C1> as ToTypenum>::Typenum,
+            <Const<C2> as ToTypenum>::Typenum,
+            Output = typenum::Prod<
+                <Const<R1> as ToTypenum>::Typenum,
+                <Const<C1> as ToTypenum>::Typenum,
+            >,
         >,
-    >,
 {
     type Output = ArrayStorage<T, R2, C2>;
 

@@ -471,7 +471,7 @@ impl<T> UninitVec<T> {
     ///
     /// Must be called exactly once per index, otherwise results in undefined behavior.
     pub unsafe fn set(&mut self, index: usize, value: T) {
-        self.vec.as_mut_ptr().add(index).write(value)
+        unsafe { self.vec.as_mut_ptr().add(index).write(value) }
     }
 
     /// Marks the vector data as initialized by returning a full vector.
@@ -479,7 +479,9 @@ impl<T> UninitVec<T> {
     /// It is undefined behavior to call this function unless *all* elements have been written to
     /// exactly once.
     pub unsafe fn assume_init(mut self) -> Vec<T> {
-        self.vec.set_len(self.len);
+        unsafe {
+            self.vec.set_len(self.len);
+        }
         self.vec
     }
 }

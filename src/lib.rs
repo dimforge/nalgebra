@@ -84,7 +84,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
     unused_mut,
     unused_parens,
     rust_2018_idioms,
-    rust_2018_compatibility,
+    rust_2024_compatibility,
     future_incompatible,
     missing_copy_implementations
 )]
@@ -242,11 +242,7 @@ where
 #[inline]
 pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
     if val > min {
-        if val < max {
-            val
-        } else {
-            max
-        }
+        if val < max { val } else { max }
     } else {
         min
     }

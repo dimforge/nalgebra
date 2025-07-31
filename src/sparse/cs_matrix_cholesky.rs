@@ -67,20 +67,12 @@ where
     /// The lower-triangular matrix of the cholesky decomposition.
     #[must_use]
     pub fn l(&self) -> Option<&CsMatrix<T, D, D>> {
-        if self.ok {
-            Some(&self.l)
-        } else {
-            None
-        }
+        if self.ok { Some(&self.l) } else { None }
     }
 
     /// Extracts the lower-triangular matrix of the cholesky decomposition.
     pub fn unwrap_l(self) -> Option<CsMatrix<T, D, D>> {
-        if self.ok {
-            Some(self.l)
-        } else {
-            None
-        }
+        if self.ok { Some(self.l) } else { None }
     }
 
     /// Perform a numerical left-looking cholesky decomposition of a matrix with the same structure as the

@@ -9,22 +9,21 @@ use quickcheck::{Arbitrary, Gen};
 use num::{Bounded, One, Zero};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{Distribution, StandardUniform},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
-use std::iter;
 use typenum::{self, Cmp, Greater};
 
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 
+use crate::UninitMatrix;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimName, Dyn, ToTypenum};
 use crate::base::storage::RawStorage;
 use crate::base::{
     ArrayStorage, Const, DefaultAllocator, Matrix, OMatrix, OVector, Scalar, Unit, Vector,
 };
-use crate::UninitMatrix;
 use std::mem::MaybeUninit;
 
 impl<T: Scalar, R: Dim, C: Dim> UninitMatrix<T, R, C>
@@ -56,7 +55,7 @@ where
     #[inline]
     pub fn from_element_generic(nrows: R, ncols: C, elem: T) -> Self {
         let len = nrows.value() * ncols.value();
-        Self::from_iterator_generic(nrows, ncols, iter::repeat(elem).take(len))
+        Self::from_iterator_generic(nrows, ncols, std::iter::repeat_n(elem, len))
     }
 
     /// Creates a matrix with all its elements set to `elem`.
@@ -65,7 +64,7 @@ where
     #[inline]
     pub fn repeat_generic(nrows: R, ncols: C, elem: T) -> Self {
         let len = nrows.value() * ncols.value();
-        Self::from_iterator_generic(nrows, ncols, iter::repeat(elem).take(len))
+        Self::from_iterator_generic(nrows, ncols, std::iter::repeat_n(elem, len))
     }
 
     /// Creates a matrix with all its elements set to 0.
@@ -382,7 +381,7 @@ where
  *
  */
 macro_rules! impl_constructors(
-    ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
+    ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr_2021),*; $($args: ident),*) => {
         /// Creates a matrix or vector with all its elements set to `elem`.
         ///
         /// # Example
@@ -696,7 +695,7 @@ where
  *
  */
 macro_rules! impl_constructors_from_data(
-    ($data: ident; $($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
+    ($data: ident; $($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr_2021),*; $($args: ident),*) => {
         impl<T: Scalar, $($DimIdent: $DimBound, )*> OMatrix<T $(, $Dims)*>
         where DefaultAllocator: Allocator<$($Dims),*> {
             /// Creates a matrix with its elements filled with the components provided by a slice
@@ -939,7 +938,7 @@ macro_rules! transpose_array(
 );
 
 macro_rules! componentwise_constructors_impl(
-    ($($R: expr, $C: expr, [$($($args: ident),*);*] $(;)*)*) => {$(
+    ($($R: expr_2021, $C: expr_2021, [$($($args: ident),*);*] $(;)*)*) => {$(
         impl<T> Matrix<T, Const<$R>, Const<$C>, ArrayStorage<T, $R, $C>> {
             /// Initializes this matrix from its components.
             #[inline]

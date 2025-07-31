@@ -2,15 +2,15 @@ use num::Zero;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
+use crate::ComplexField;
 use crate::allocator::{Allocator, Reallocator};
 use crate::base::{Const, DefaultAllocator, Matrix, OMatrix, OVector, Unit};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimMin, DimMinimum};
 use crate::storage::StorageMut;
-use crate::ComplexField;
 
 use crate::geometry::Reflection;
-use crate::linalg::{householder, PermutationSequence};
+use crate::linalg::{PermutationSequence, householder};
 use std::mem::MaybeUninit;
 
 /// The QR decomposition (with column pivoting) of a general matrix.

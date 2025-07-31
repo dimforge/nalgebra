@@ -6,8 +6,8 @@ use crate::base::{DefaultAllocator, OMatrix, OVector};
 use crate::dimension::{Const, DimDiff, DimSub, U1};
 use simba::scalar::ComplexField;
 
-use crate::linalg::householder;
 use crate::Matrix;
+use crate::linalg::householder;
 use std::mem::MaybeUninit;
 
 /// Tridiagonalization of a symmetric matrix.

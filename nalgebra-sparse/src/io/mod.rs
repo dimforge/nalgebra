@@ -34,8 +34,8 @@
 //! > "*The Matrix Market Exchange Formats: Initial Design.*" (1996).
 
 pub use self::matrix_market::{
+    MatrixMarketError, MatrixMarketErrorKind, MatrixMarketExport, MatrixMarketScalar,
     load_coo_from_matrix_market_file, load_coo_from_matrix_market_str, save_to_matrix_market,
-    save_to_matrix_market_file, save_to_matrix_market_str, MatrixMarketError,
-    MatrixMarketErrorKind, MatrixMarketExport, MatrixMarketScalar,
+    save_to_matrix_market_file, save_to_matrix_market_str,
 };
 mod matrix_market;

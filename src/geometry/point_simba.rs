@@ -24,7 +24,7 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        self.coords.extract_unchecked(i).into()
+        unsafe { self.coords.extract_unchecked(i).into() }
     }
 
     #[inline]
@@ -34,7 +34,7 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.coords.replace_unchecked(i, val.coords)
+        unsafe { self.coords.replace_unchecked(i, val.coords) }
     }
 
     #[inline]

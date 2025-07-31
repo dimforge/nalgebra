@@ -11,7 +11,7 @@ readme = "../README.md"
 categories = ["science", "mathematics"]
 keywords = ["linear", "algebra", "matrix", "vector", "lapack"]
 license = "MIT"
-edition = "2018"
+edition = "2024"
 
 [badges]
 maintenance = { status = "actively-developed" }

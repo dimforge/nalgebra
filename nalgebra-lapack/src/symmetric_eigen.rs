@@ -183,7 +183,7 @@ pub trait SymmetricEigenScalar: Scalar {
     );
     #[allow(missing_docs)]
     fn xsyev_work_size(jobz: u8, uplo: u8, n: i32, a: &mut [Self], lda: i32, info: &mut i32)
-        -> i32;
+    -> i32;
 }
 
 macro_rules! real_eigensystem_scalar_impl (

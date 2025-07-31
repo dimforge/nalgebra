@@ -3,7 +3,7 @@ use crate::storage::RawStorage;
 use typenum::{self, Cmp, Greater};
 
 macro_rules! impl_swizzle {
-    ($( where $BaseDim: ident: $( $name: ident() -> $Result: ident[$($i: expr),+] ),+ ;)* ) => {
+    ($( where $BaseDim: ident: $( $name: ident() -> $Result: ident[$($i: expr_2021),+] ),+ ;)* ) => {
         $(
             $(
                 /// Builds a new vector from components of `self`.

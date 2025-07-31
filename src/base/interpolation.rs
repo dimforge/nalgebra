@@ -6,10 +6,10 @@ use simba::scalar::{ClosedAddAssign, ClosedMulAssign, ClosedSubAssign};
 
 /// # Interpolation
 impl<
-        T: Scalar + Zero + One + ClosedAddAssign + ClosedSubAssign + ClosedMulAssign,
-        D: Dim,
-        S: Storage<T, D>,
-    > Vector<T, D, S>
+    T: Scalar + Zero + One + ClosedAddAssign + ClosedSubAssign + ClosedMulAssign,
+    D: Dim,
+    S: Storage<T, D>,
+> Vector<T, D, S>
 {
     /// Returns `self * (1.0 - t) + rhs * t`, i.e., the linear blend of the vectors x and y using the scalar value a.
     ///

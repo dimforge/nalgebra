@@ -108,12 +108,12 @@ impl<T: RealField + simba::scalar::RealField> FiniteDimVectorSpace for Quaternio
 
     #[inline]
     unsafe fn component_unchecked(&self, i: usize) -> &T {
-        self.coords.component_unchecked(i)
+        unsafe { self.coords.component_unchecked(i) }
     }
 
     #[inline]
     unsafe fn component_unchecked_mut(&mut self, i: usize) -> &mut T {
-        self.coords.component_unchecked_mut(i)
+        unsafe { self.coords.component_unchecked_mut(i) }
     }
 }
 

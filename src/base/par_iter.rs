@@ -1,8 +1,8 @@
 //! Parallel iterators for matrices compatible with rayon.
 
 use crate::{
-    iter::{ColumnIter, ColumnIterMut},
     Dim, Matrix, MatrixView, MatrixViewMut, RawStorage, RawStorageMut, Scalar, U1,
+    iter::{ColumnIter, ColumnIterMut},
 };
 use rayon::iter::plumbing::Producer;
 use rayon::{iter::plumbing::bridge, prelude::*};
