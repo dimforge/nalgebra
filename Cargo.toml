@@ -12,6 +12,7 @@ categories = ["science", "mathematics", "wasm", "no-std"]
 keywords = ["linear", "algebra", "matrix", "vector", "math"]
 license = "Apache-2.0"
 edition = "2024"
+rust-version = "1.85.0"
 exclude = ["/ci/*", "/.travis.yml", "/Makefile"]
 
 [badges]
