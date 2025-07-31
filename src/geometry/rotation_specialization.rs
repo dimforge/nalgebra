@@ -1064,7 +1064,7 @@ impl<T: SimdRealField> Rotation3<T> {
         T: RealField + Copy,
     {
         let mut angles = [T::zero(); 3];
-        let eps = T::from_subset(&1e-7);
+        let eps = T::from_subset(&1e-6);
         let two = T::from_subset(&2.0);
 
         if extrinsic {
