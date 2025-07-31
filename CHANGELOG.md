@@ -19,6 +19,10 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Moved to Rust 2024 edition.
 - Several methods are now `const` whenever possible. See details in [#1522](https://github.com/dimforge/nalgebra/pull/1522).
 
+### Fixed
+
+- Fix infinite loop when attempting to take the Schur decomposition of a 0 matrix.
+
 ## [0.33.2] (29 October 2024)
 
 ### Added
