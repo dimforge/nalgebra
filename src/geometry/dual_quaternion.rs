@@ -1,3 +1,5 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
 // The macros break if the references are taken out, for some reason.
 #![allow(clippy::op_ref)]
 

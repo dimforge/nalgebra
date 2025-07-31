@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use std::fmt::{self, Debug, Formatter};
 // use std::hash::{Hash, Hasher};
 use std::ops::Mul;

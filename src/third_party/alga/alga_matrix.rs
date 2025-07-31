@@ -52,7 +52,6 @@ where
     DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
-    #[must_use = "Did you mean to use two_sided_inverse_mut()?"]
     fn two_sided_inverse(&self) -> Self {
         -self
     }
@@ -138,12 +137,12 @@ where
 
     #[inline]
     unsafe fn component_unchecked(&self, i: usize) -> &T {
-        self.data.get_unchecked_linear(i)
+        unsafe { self.data.get_unchecked_linear(i) }
     }
 
     #[inline]
     unsafe fn component_unchecked_mut(&mut self, i: usize) -> &mut T {
-        self.data.get_unchecked_linear_mut(i)
+        unsafe { self.data.get_unchecked_linear_mut(i) }
     }
 }
 
@@ -170,7 +169,6 @@ where
     }
 
     #[inline]
-    #[must_use = "Did you mean to use normalize_mut()?"]
     fn normalize(&self) -> Self {
         self.normalize()
     }
@@ -181,7 +179,6 @@ where
     }
 
     #[inline]
-    #[must_use = "Did you mean to use try_normalize_mut()?"]
     fn try_normalize(&self, min_norm: <T as ComplexField>::RealField) -> Option<Self> {
         self.try_normalize(min_norm)
     }

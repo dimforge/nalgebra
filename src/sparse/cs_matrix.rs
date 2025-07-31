@@ -180,12 +180,12 @@ where
 
     #[inline]
     unsafe fn row_index_unchecked(&self, i: usize) -> usize {
-        *self.i.get_unchecked(i)
+        unsafe { *self.i.get_unchecked(i) }
     }
 
     #[inline]
     unsafe fn get_value_unchecked(&self, i: usize) -> &T {
-        self.vals.get_unchecked(i)
+        unsafe { self.vals.get_unchecked(i) }
     }
 
     #[inline]
