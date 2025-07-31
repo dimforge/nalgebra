@@ -32,7 +32,7 @@ use crate::base::iter::{
 };
 use crate::base::storage::{Owned, RawStorage, RawStorageMut, SameShapeStorage};
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector, Scalar, Unit};
-use crate::{ArrayStorage, DimName, SMatrix, SimdComplexField, Storage, UninitMatrix};
+use crate::{ArrayStorage, SMatrix, SimdComplexField, Storage, UninitMatrix};
 
 use crate::storage::IsContiguous;
 use crate::uninit::{Init, InitStatus, Uninit};

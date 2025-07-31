@@ -59,11 +59,8 @@ where
         SB: Storage<T, DimNameDiff<D, U1>>,
     {
         let mut res = Self::identity();
-        res.generic_view_mut(
-            (0, D::DIM - 1),
-            (DimNameDiff::<D, U1>::name(), Const::<1>),
-        )
-        .copy_from(translation);
+        res.generic_view_mut((0, D::DIM - 1), (DimNameDiff::<D, U1>::name(), Const::<1>))
+            .copy_from(translation);
 
         res
     }
@@ -382,10 +379,7 @@ impl<T: Scalar + Zero + One + ClosedMulAssign + ClosedAddAssign, D: DimName, S: 
         DefaultAllocator: Allocator<DimNameDiff<D, U1>>,
     {
         let scale = self
-            .generic_view(
-                (D::DIM - 1, 0),
-                (Const::<1>, DimNameDiff::<D, U1>::name()),
-            )
+            .generic_view((D::DIM - 1, 0), (Const::<1>, DimNameDiff::<D, U1>::name()))
             .tr_dot(shift);
         let post_translation = self.generic_view(
             (0, 0),
@@ -394,10 +388,8 @@ impl<T: Scalar + Zero + One + ClosedMulAssign + ClosedAddAssign, D: DimName, S: 
 
         self[(D::DIM - 1, D::DIM - 1)] += scale;
 
-        let mut translation = self.generic_view_mut(
-            (0, D::DIM - 1),
-            (DimNameDiff::<D, U1>::name(), Const::<1>),
-        );
+        let mut translation =
+            self.generic_view_mut((0, D::DIM - 1), (DimNameDiff::<D, U1>::name(), Const::<1>));
         translation += post_translation;
     }
 }
@@ -419,10 +411,8 @@ where
             (0, 0),
             (DimNameDiff::<D, U1>::name(), DimNameDiff::<D, U1>::name()),
         );
-        let normalizer = self.generic_view(
-            (D::DIM - 1, 0),
-            (Const::<1>, DimNameDiff::<D, U1>::name()),
-        );
+        let normalizer =
+            self.generic_view((D::DIM - 1, 0), (Const::<1>, DimNameDiff::<D, U1>::name()));
         let n = normalizer.tr_dot(v);
 
         if !n.is_zero() {
