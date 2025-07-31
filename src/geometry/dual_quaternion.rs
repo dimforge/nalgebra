@@ -973,7 +973,7 @@ impl<T: RealField + fmt::Display> fmt::Display for UnitDualQuaternion<T> {
                     axis[2]
                 )
             }
-            _ => {
+            None => {
                 write!(
                     f,
                     "UnitDualQuaternion translation: {} − angle: {} − axis: (undefined)",

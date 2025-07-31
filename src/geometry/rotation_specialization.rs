@@ -687,7 +687,7 @@ where
     {
         match self.axis() {
             Some(axis) => Self::from_axis_angle(&axis, self.angle() * n),
-            _ => {
+            None => {
                 if self.matrix()[(0, 0)] < T::zero() {
                     let minus_id = SMatrix::<T, 3, 3>::from_diagonal_element(-T::one());
                     Self::from_matrix_unchecked(minus_id)
@@ -760,7 +760,7 @@ where
                 Some((axis, angle)) => {
                     rot = Rotation3::from_axis_angle(&axis, angle) * rot;
                 }
-                _ => {
+                None => {
                     // Check if stuck in a maximum w.r.t. the norm (m - rot).norm()
                     let mut perturbed = rot.clone();
                     let norm_squared = (m - &rot).norm_squared();
@@ -881,7 +881,7 @@ impl<T: SimdRealField> Rotation3<T> {
     {
         match self.axis() {
             Some(axis) => axis.into_inner() * self.angle(),
-            _ => Vector::zero(),
+            None => Vector::zero(),
         }
     }
 

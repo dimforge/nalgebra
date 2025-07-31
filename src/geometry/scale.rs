@@ -267,7 +267,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
                 self.vector = v.vector;
                 true
             }
-            _ => false,
+            None => false,
         }
     }
 }

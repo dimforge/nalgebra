@@ -400,7 +400,7 @@ where
     fn sum<I: Iterator<Item = OMatrix<T, Dyn, C>>>(mut iter: I) -> OMatrix<T, Dyn, C> {
         match iter.next() {
             Some(first) => iter.fold(first, |acc, x| acc + x),
-            _ => {
+            None => {
                 panic!("Cannot compute `sum` of empty iterator.")
             }
         }

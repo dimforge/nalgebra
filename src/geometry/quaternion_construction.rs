@@ -563,7 +563,7 @@ where
                     Some(Self::from_axis_angle(&axis, cos.acos() * s))
                 }
             }
-            _ => {
+            None => {
                 if na.dot(nb) < T::zero() {
                     // PI
                     //

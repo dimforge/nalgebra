@@ -185,7 +185,7 @@ where
                                 rot.inverse().rotate_rows(&mut q.fixed_columns_mut::<2>(i));
                             }
                         }
-                        _ => {
+                        None => {
                             break;
                         }
                     }

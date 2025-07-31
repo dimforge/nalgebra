@@ -263,7 +263,7 @@ where
                             vec.x = subm[(0, 1)].clone();
                             vec.y = subm[(0, 2)].clone();
                         }
-                        _ => {
+                        None => {
                             break;
                         }
                     }
@@ -501,7 +501,7 @@ where
                         off_diagonal[k + 1] *= rot.c();
                     }
                 }
-                _ => {
+                None => {
                     break;
                 }
             }
@@ -541,7 +541,7 @@ where
                         off_diagonal[k - 1] *= rot.c();
                     }
                 }
-                _ => {
+                None => {
                     break;
                 }
             }

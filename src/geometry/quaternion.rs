@@ -475,9 +475,9 @@ where
 
                     (n, angle, Some(axis))
                 }
-                _ => (n, T::zero(), None),
+                None => (n, T::zero(), None),
             },
-            _ => (T::zero(), T::zero(), None),
+            None => (T::zero(), T::zero(), None),
         }
     }
 
@@ -1321,7 +1321,7 @@ where
     {
         match self.axis() {
             Some(axis) => axis.into_inner() * self.angle(),
-            _ => Vector3::zero(),
+            None => Vector3::zero(),
         }
     }
 
@@ -1381,7 +1381,7 @@ where
     {
         match self.axis() {
             Some(v) => Quaternion::from_imag(v.into_inner() * self.angle()),
-            _ => Quaternion::zero(),
+            None => Quaternion::zero(),
         }
     }
 
@@ -1409,7 +1409,7 @@ where
     {
         match self.axis() {
             Some(v) => Self::from_axis_angle(&v, self.angle() * n),
-            _ => Self::identity(),
+            None => Self::identity(),
         }
     }
 
@@ -1651,7 +1651,7 @@ impl<T: RealField + fmt::Display> fmt::Display for UnitQuaternion<T> {
                     axis[2]
                 )
             }
-            _ => {
+            None => {
                 write!(
                     f,
                     "UnitQuaternion angle: {} − axis: (undefined)",
