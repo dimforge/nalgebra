@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use approx::AbsDiffEq;
 use num_complex::Complex as NumComplex;
+use num_traits::identities::Zero;
 use simba::scalar::{ComplexField, RealField};
 use std::cmp;
 
@@ -110,7 +111,12 @@ where
         }
 
         let amax_m = m.camax();
-        m.unscale_mut(amax_m.clone());
+        // if amax_m == 0 (i.e. the matrix is the zero matrix),
+        // then the unscale_mut call will turn the entire matrix into NaNs
+        // see https://github.com/dimforge/nalgebra/issues/1291
+        if !amax_m.is_zero() {
+            m.unscale_mut(amax_m.clone());
+        }
 
         let hess = Hessenberg::new_with_workspace(m, work);
         let mut q;
