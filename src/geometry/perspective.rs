@@ -40,6 +40,7 @@ use rkyv::bytecheck;
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[derive(Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Perspective3<T> {
     matrix: Matrix4<T>,
 }

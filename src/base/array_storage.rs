@@ -45,6 +45,7 @@ use std::mem;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct ArrayStorage<T, const R: usize, const C: usize>(pub [[T; R]; C]);
 
 impl<T, const R: usize, const C: usize> ArrayStorage<T, R, C> {

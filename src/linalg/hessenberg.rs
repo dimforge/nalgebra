@@ -26,6 +26,7 @@ use std::mem::MaybeUninit;
          OMatrix<T, D, D>: Deserialize<'de>,
          OVector<T, DimDiff<D, U1>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct Hessenberg<T: ComplexField, D: DimSub<U1>>
 where
