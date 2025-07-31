@@ -389,7 +389,7 @@ where
 fn factorial(n: usize) -> u128 {
     match FACTORIAL.get(n) {
         Some(f) => *f,
-        None => panic!("{}! is greater than u128::MAX", n),
+        None => panic!("{n}! is greater than u128::MAX"),
     }
 }
 

@@ -32,8 +32,7 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
 
         if ker == 0 || ker > vec {
             panic!(
-                "convolve_full expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",
-                vec, ker
+                "convolve_full expects `self.len() >= kernel.len() > 0`, received {vec} and {ker} respectively."
             );
         }
 
@@ -88,8 +87,7 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
 
         if ker == 0 || ker > vec {
             panic!(
-                "convolve_valid expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",
-                vec, ker
+                "convolve_valid expects `self.len() >= kernel.len() > 0`, received {vec} and {ker} respectively."
             );
         }
 
@@ -130,8 +128,7 @@ impl<T: RealField, D1: Dim, S1: Storage<T, D1>> Vector<T, D1, S1> {
 
         if ker == 0 || ker > vec {
             panic!(
-                "convolve_same expects `self.len() >= kernel.len() > 0`, received {} and {} respectively.",
-                vec, ker
+                "convolve_same expects `self.len() >= kernel.len() > 0`, received {vec} and {ker} respectively."
             );
         }
 

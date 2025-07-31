@@ -2047,8 +2047,7 @@ impl<
         assert_eq!(
             shape,
             (2, 1),
-            "2D perpendicular product requires (2, 1) vectors {:?}",
-            shape
+            "2D perpendicular product requires (2, 1) vectors {shape:?}",
         );
 
         // SAFETY: assertion above ensures correct shape
@@ -2079,8 +2078,7 @@ impl<
         assert_eq!(shape, b.shape(), "Vector cross product dimension mismatch.");
         assert!(
             shape == (3, 1) || shape == (1, 3),
-            "Vector cross product dimension mismatch: must be (3, 1) or (1, 3) but found {:?}.",
-            shape
+            "Vector cross product dimension mismatch: must be (3, 1) or (1, 3) but found {shape:?}.",
         );
 
         if shape.0 == 3 {

@@ -229,8 +229,8 @@ where
     /// * `eps`: the angular errors tolerated between the current rotation and the optimal one.
     /// * `max_iter`: the maximum number of iterations. Loops indefinitely until convergence if set to `0`.
     /// * `guess`: an estimate of the solution. Convergence will be significantly faster if an initial solution close
-    ///           to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
-    ///           guesses come to mind.
+    ///   to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
+    ///   guesses come to mind.
     pub fn from_matrix_eps(m: &Matrix2<T>, eps: T, max_iter: usize, guess: Self) -> Self
     where
         T: RealField,
