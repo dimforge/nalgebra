@@ -171,7 +171,7 @@ use std::error::Error;
 use std::fmt;
 
 pub use self::coo::CooMatrix;
-pub use self::csc::CscMatrix;
+pub use self::csc::{CscBuilder, CscMatrix};
 pub use self::csr::CsrMatrix;
 
 /// Errors produced by functions that expect well-formed sparse format data.
@@ -277,6 +277,13 @@ impl<'a, T: Clone + Zero> SparseEntryMut<'a, T> {
         match self {
             SparseEntryMut::NonZero(value) => value.clone(),
             SparseEntryMut::Zero => T::zero(),
+        }
+    }
+    /// If the entry is nonzero, returns `Some(&mut value)`, otherwise returns `None`.
+    pub fn nonzero(self) -> Option<&'a mut T> {
+        match self {
+            SparseEntryMut::NonZero(v) => Some(v),
+            SparseEntryMut::Zero => None,
         }
     }
 }
