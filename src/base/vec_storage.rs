@@ -131,7 +131,7 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
     /// The underlying data storage.
     #[inline]
     #[must_use]
-    pub fn as_vec(&self) -> &Vec<T> {
+    pub const fn as_vec(&self) -> &Vec<T> {
         &self.data
     }
 
@@ -141,7 +141,7 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
     /// This is unsafe because this may cause UB if the size of the vector is changed
     /// by the user.
     #[inline]
-    pub unsafe fn as_vec_mut(&mut self) -> &mut Vec<T> {
+    pub const unsafe fn as_vec_mut(&mut self) -> &mut Vec<T> {
         &mut self.data
     }
 
@@ -198,14 +198,14 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
     /// The number of elements on the underlying vector.
     #[inline]
     #[must_use]
-    pub fn len(&self) -> usize {
+    pub const fn len(&self) -> usize {
         self.data.len()
     }
 
     /// Returns true if the underlying vector contains no elements.
     #[inline]
     #[must_use]
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.len() == 0
     }
 

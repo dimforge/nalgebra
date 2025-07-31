@@ -48,7 +48,7 @@ macro_rules! view_storage_impl (
             ///
             /// `*ptr` must point to memory that is valid `[T; R * C]`.
             #[inline]
-            pub unsafe fn from_raw_parts(ptr:     $Ptr,
+            pub const unsafe fn from_raw_parts(ptr:     $Ptr,
                                          shape:   (R, C),
                                          strides: (RStride, CStride))
                                         -> Self

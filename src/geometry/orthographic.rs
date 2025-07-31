@@ -271,7 +271,7 @@ impl<T: RealField> Orthographic3<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn as_matrix(&self) -> &Matrix4<T> {
+    pub const fn as_matrix(&self) -> &Matrix4<T> {
         &self.matrix
     }
 
@@ -285,7 +285,7 @@ impl<T: RealField> Orthographic3<T> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn as_projective(&self) -> &Projective3<T> {
+    pub const fn as_projective(&self) -> &Projective3<T> {
         unsafe { &*(self as *const Orthographic3<T> as *const Projective3<T>) }
     }
 

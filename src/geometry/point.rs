@@ -247,7 +247,7 @@ where
     /// Creates a new point with the given coordinates.
     #[deprecated(note = "Use Point::from(vector) instead.")]
     #[inline]
-    pub fn from_coordinates(coords: OVector<T, D>) -> Self {
+    pub const fn from_coordinates(coords: OVector<T, D>) -> Self {
         Self { coords }
     }
 

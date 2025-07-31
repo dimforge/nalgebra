@@ -94,7 +94,7 @@ where
 
     #[doc(hidden)]
     // For debugging.
-    pub fn internal_tri(&self) -> &OMatrix<T, D, D> {
+    pub const fn internal_tri(&self) -> &OMatrix<T, D, D> {
         &self.tri
     }
 

@@ -408,7 +408,7 @@ where
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// Creates a new matrix with the given data.
     #[inline(always)]
-    pub fn from_data(data: S) -> Self {
+    pub const fn from_data(data: S) -> Self {
         unsafe { Self::from_data_statically_unchecked(data) }
     }
 
@@ -1115,7 +1115,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// }
     /// ```
     #[inline]
-    pub fn row_iter(&self) -> RowIter<'_, T, R, C, S> {
+    pub const fn row_iter(&self) -> RowIter<'_, T, R, C, S> {
         RowIter::new(self)
     }
 
@@ -1160,7 +1160,7 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// assert_eq!(a, expected);
     /// ```
     #[inline]
-    pub fn row_iter_mut(&mut self) -> RowIterMut<'_, T, R, C, S>
+    pub const fn row_iter_mut(&mut self) -> RowIterMut<'_, T, R, C, S>
     where
         S: RawStorageMut<T, R, C>,
     {

@@ -161,14 +161,14 @@ impl<T: RealField> Perspective3<T> {
     /// A reference to the underlying homogeneous transformation matrix.
     #[inline]
     #[must_use]
-    pub fn as_matrix(&self) -> &Matrix4<T> {
+    pub const fn as_matrix(&self) -> &Matrix4<T> {
         &self.matrix
     }
 
     /// A reference to this transformation seen as a `Projective3`.
     #[inline]
     #[must_use]
-    pub fn as_projective(&self) -> &Projective3<T> {
+    pub const fn as_projective(&self) -> &Projective3<T> {
         unsafe { &*(self as *const Perspective3<T> as *const Projective3<T>) }
     }
 

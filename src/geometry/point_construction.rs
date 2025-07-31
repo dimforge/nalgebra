@@ -112,8 +112,8 @@ where
         D: DimNameAdd<U1>,
         DefaultAllocator: Allocator<DimNameSum<D, U1>>,
     {
-        if !v[D::dim()].is_zero() {
-            let coords = v.generic_view((0, 0), (D::name(), Const::<1>)) / v[D::dim()].clone();
+        if !v[D::DIM].is_zero() {
+            let coords = v.generic_view((0, 0), (D::name(), Const::<1>)) / v[D::DIM].clone();
             Some(Self::from(coords))
         } else {
             None

@@ -31,7 +31,7 @@ where
     #[inline]
     pub fn new_scaling(scaling: T) -> Self {
         let mut res = Self::from_diagonal_element(scaling);
-        res[(D::dim() - 1, D::dim() - 1)] = T::one();
+        res[(D::DIM - 1, D::DIM - 1)] = T::one();
 
         res
     }
@@ -59,11 +59,8 @@ where
         SB: Storage<T, DimNameDiff<D, U1>>,
     {
         let mut res = Self::identity();
-        res.generic_view_mut(
-            (0, D::dim() - 1),
-            (DimNameDiff::<D, U1>::name(), Const::<1>),
-        )
-        .copy_from(translation);
+        res.generic_view_mut((0, D::DIM - 1), (DimNameDiff::<D, U1>::name(), Const::<1>))
+            .copy_from(translation);
 
         res
     }
@@ -364,9 +361,9 @@ impl<T: Scalar + Zero + One + ClosedMulAssign + ClosedAddAssign, D: DimName, S: 
         D: DimNameSub<U1>,
         SB: Storage<T, DimNameDiff<D, U1>>,
     {
-        for i in 0..D::dim() {
-            for j in 0..D::dim() - 1 {
-                let add = shift[j].clone() * self[(D::dim() - 1, i)].clone();
+        for i in 0..D::DIM {
+            for j in 0..D::DIM - 1 {
+                let add = shift[j].clone() * self[(D::DIM - 1, i)].clone();
                 self[(j, i)] += add;
             }
         }
@@ -382,22 +379,17 @@ impl<T: Scalar + Zero + One + ClosedMulAssign + ClosedAddAssign, D: DimName, S: 
         DefaultAllocator: Allocator<DimNameDiff<D, U1>>,
     {
         let scale = self
-            .generic_view(
-                (D::dim() - 1, 0),
-                (Const::<1>, DimNameDiff::<D, U1>::name()),
-            )
+            .generic_view((D::DIM - 1, 0), (Const::<1>, DimNameDiff::<D, U1>::name()))
             .tr_dot(shift);
         let post_translation = self.generic_view(
             (0, 0),
             (DimNameDiff::<D, U1>::name(), DimNameDiff::<D, U1>::name()),
         ) * shift;
 
-        self[(D::dim() - 1, D::dim() - 1)] += scale;
+        self[(D::DIM - 1, D::DIM - 1)] += scale;
 
-        let mut translation = self.generic_view_mut(
-            (0, D::dim() - 1),
-            (DimNameDiff::<D, U1>::name(), Const::<1>),
-        );
+        let mut translation =
+            self.generic_view_mut((0, D::DIM - 1), (DimNameDiff::<D, U1>::name(), Const::<1>));
         translation += post_translation;
     }
 }
@@ -419,10 +411,8 @@ where
             (0, 0),
             (DimNameDiff::<D, U1>::name(), DimNameDiff::<D, U1>::name()),
         );
-        let normalizer = self.generic_view(
-            (D::dim() - 1, 0),
-            (Const::<1>, DimNameDiff::<D, U1>::name()),
-        );
+        let normalizer =
+            self.generic_view((D::DIM - 1, 0), (Const::<1>, DimNameDiff::<D, U1>::name()));
         let n = normalizer.tr_dot(v);
 
         if !n.is_zero() {
