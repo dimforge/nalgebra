@@ -378,22 +378,22 @@ proptest! {
     ) {
         // We refer to `A * B` as the "product"
         let product_rows = match &a {
-            Op::NoOp(ref a) => a.nrows(),
-            Op::Transpose(ref a) => a.ncols(),
+            Op::NoOp(a) => a.nrows(),
+            Op::Transpose(a) => a.ncols(),
         };
         let product_cols = match &b {
-            Op::NoOp(ref b) => b.ncols(),
-            Op::Transpose(ref b) => b.nrows(),
+            Op::NoOp(b) => b.ncols(),
+            Op::Transpose(b) => b.nrows(),
         };
         // Determine the common dimension in the product
         // from the perspective of a and b, respectively
         let product_a_common = match &a {
-            Op::NoOp(ref a) => a.ncols(),
-            Op::Transpose(ref a) => a.nrows(),
+            Op::NoOp(a) => a.ncols(),
+            Op::Transpose(a) => a.nrows(),
         };
         let product_b_common = match &b {
-            Op::NoOp(ref b) => b.nrows(),
-            Op::Transpose(ref b) => b.ncols()
+            Op::NoOp(b) => b.nrows(),
+            Op::Transpose(b) => b.ncols()
         };
 
         let dims_are_compatible = product_rows == c.nrows()
@@ -601,22 +601,22 @@ proptest! {
     ) {
         // We refer to `A * B` as the "product"
         let product_rows = match &a {
-            Op::NoOp(ref a) => a.nrows(),
-            Op::Transpose(ref a) => a.ncols(),
+            Op::NoOp(a) => a.nrows(),
+            Op::Transpose(a) => a.ncols(),
         };
         let product_cols = match &b {
-            Op::NoOp(ref b) => b.ncols(),
-            Op::Transpose(ref b) => b.nrows(),
+            Op::NoOp(b) => b.ncols(),
+            Op::Transpose(b) => b.nrows(),
         };
         // Determine the common dimension in the product
         // from the perspective of a and b, respectively
         let product_a_common = match &a {
-            Op::NoOp(ref a) => a.ncols(),
-            Op::Transpose(ref a) => a.nrows(),
+            Op::NoOp(a) => a.ncols(),
+            Op::Transpose(a) => a.nrows(),
         };
         let product_b_common = match &b {
-            Op::NoOp(ref b) => b.nrows(),
-            Op::Transpose(ref b) => b.ncols(),
+            Op::NoOp(b) => b.nrows(),
+            Op::Transpose(b) => b.ncols(),
         };
 
         let dims_are_compatible = product_rows == c.nrows()
@@ -763,22 +763,22 @@ proptest! {
     ) {
         // We refer to `A * B` as the "product"
         let product_rows = match &a {
-            Op::NoOp(ref a) => a.nrows(),
-            Op::Transpose(ref a) => a.ncols(),
+            Op::NoOp(a) => a.nrows(),
+            Op::Transpose(a) => a.ncols(),
         };
         let product_cols = match &b {
-            Op::NoOp(ref b) => b.ncols(),
-            Op::Transpose(ref b) => b.nrows(),
+            Op::NoOp(b) => b.ncols(),
+            Op::Transpose(b) => b.nrows(),
         };
         // Determine the common dimension in the product
         // from the perspective of a and b, respectively
         let product_a_common = match &a {
-            Op::NoOp(ref a) => a.ncols(),
-            Op::Transpose(ref a) => a.nrows(),
+            Op::NoOp(a) => a.ncols(),
+            Op::Transpose(a) => a.nrows(),
         };
         let product_b_common = match &b {
-            Op::NoOp(ref b) => b.nrows(),
-            Op::Transpose(ref b) => b.ncols(),
+            Op::NoOp(b) => b.nrows(),
+            Op::Transpose(b) => b.ncols(),
         };
 
         let dims_are_compatible = product_rows == c.nrows()
@@ -867,22 +867,22 @@ proptest! {
     ) {
         // We refer to `A * B` as the "product"
         let product_rows = match &a {
-            Op::NoOp(ref a) => a.nrows(),
-            Op::Transpose(ref a) => a.ncols(),
+            Op::NoOp(a) => a.nrows(),
+            Op::Transpose(a) => a.ncols(),
         };
         let product_cols = match &b {
-            Op::NoOp(ref b) => b.ncols(),
-            Op::Transpose(ref b) => b.nrows(),
+            Op::NoOp(b) => b.ncols(),
+            Op::Transpose(b) => b.nrows(),
         };
         // Determine the common dimension in the product
         // from the perspective of a and b, respectively
         let product_a_common = match &a {
-            Op::NoOp(ref a) => a.ncols(),
-            Op::Transpose(ref a) => a.nrows(),
+            Op::NoOp(a) => a.ncols(),
+            Op::Transpose(a) => a.nrows(),
         };
         let product_b_common = match &b {
-            Op::NoOp(ref b) => b.nrows(),
-            Op::Transpose(ref b) => b.ncols()
+            Op::NoOp(b) => b.nrows(),
+            Op::Transpose(b) => b.ncols()
         };
 
         let dims_are_compatible = product_rows == c.nrows()
