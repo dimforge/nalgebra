@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - Add the `convert-glam030` feature to enable conversion from/to types from `glam` v0.30.
+- Add the `defmt` cargo feature that enables derives of `defmt::Format` for all no-std types.
 
 ### Changed
 
