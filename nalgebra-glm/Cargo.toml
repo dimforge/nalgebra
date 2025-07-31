@@ -4,8 +4,8 @@ version = "0.19.0"
 authors = ["sebcrozet <developer@crozet.re>"]
 
 description = "A computer-graphics oriented API for nalgebra, inspired by the C++ GLM library."
-documentation = "https://www.nalgebra.org/docs"
-homepage = "https://nalgebra.org"
+documentation = "https://www.nalgebra.rs/docs"
+homepage = "https://nalgebra.rs"
 repository = "https://github.com/dimforge/nalgebra"
 readme = "../README.md"
 categories = ["science", "mathematics", "wasm", "no standard library"]

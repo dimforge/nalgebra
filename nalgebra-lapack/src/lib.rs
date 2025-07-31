@@ -69,8 +69,8 @@
 #![deny(unused_results)]
 #![deny(missing_docs)]
 #![doc(
-    html_favicon_url = "https://nalgebra.org/img/favicon.ico",
-    html_root_url = "https://nalgebra.org/rustdoc"
+    html_favicon_url = "https://nalgebra.rs/img/favicon.ico",
+    html_root_url = "https://nalgebra.rs/rustdoc"
 )]
 
 extern crate lapack;

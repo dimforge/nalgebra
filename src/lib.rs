@@ -90,7 +90,7 @@ an optimized set of tools for computer graphics and physics. Those features incl
 )]
 #![cfg_attr(not(feature = "rkyv-serialize-no-std"), deny(unused_results))] // TODO: deny this globally once bytecheck stops generating unused results.
 #![doc(
-    html_favicon_url = "https://nalgebra.org/img/favicon.ico",
+    html_favicon_url = "https://nalgebra.rs/img/favicon.ico",
     html_root_url = "https://docs.rs/nalgebra/0.25.0"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
