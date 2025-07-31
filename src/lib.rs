@@ -242,11 +242,7 @@ where
 #[inline]
 pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
     if val > min {
-        if val < max {
-            val
-        } else {
-            max
-        }
+        if val < max { val } else { max }
     } else {
         min
     }

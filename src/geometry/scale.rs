@@ -6,12 +6,12 @@ use std::hash;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use crate::ClosedDivAssign;
+use crate::ClosedMulAssign;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector, SVector, Scalar};
-use crate::ClosedDivAssign;
-use crate::ClosedMulAssign;
 
 use crate::geometry::Point;
 
@@ -262,12 +262,13 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     where
         T: ClosedDivAssign + One + Zero,
     {
-        match self.try_inverse() { Some(v) => {
-            self.vector = v.vector;
-            true
-        } _ => {
-            false
-        }}
+        match self.try_inverse() {
+            Some(v) => {
+                self.vector = v.vector;
+                true
+            }
+            _ => false,
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 use std::ops::{Deref, DerefMut};
 
-use crate::base::coordinates::{X, XY, XYZ, XYZW, XYZWA, XYZWAB};
 use crate::base::Scalar;
+use crate::base::coordinates::{X, XY, XYZ, XYZW, XYZWA, XYZWAB};
 
 use crate::geometry::Scale;
 

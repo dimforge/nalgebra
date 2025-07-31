@@ -6,8 +6,8 @@ use quickcheck::{Arbitrary, Gen};
 use num::{One, Zero};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{Distribution, StandardUniform},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 use simba::scalar::{ClosedAddAssign, SupersetOf};

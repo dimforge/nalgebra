@@ -1,15 +1,15 @@
 use crate::common::{
-    csc_strategy, csr_strategy, non_zero_i32_value_strategy, value_strategy,
-    PROPTEST_I32_VALUE_STRATEGY, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ,
+    PROPTEST_I32_VALUE_STRATEGY, PROPTEST_MATRIX_DIM, PROPTEST_MAX_NNZ, csc_strategy, csr_strategy,
+    non_zero_i32_value_strategy, value_strategy,
 };
 use nalgebra_sparse::csc::CscMatrix;
 use nalgebra_sparse::csr::CsrMatrix;
+use nalgebra_sparse::ops::Op;
 use nalgebra_sparse::ops::serial::{
     spadd_csc_prealloc, spadd_csr_prealloc, spadd_pattern, spmm_csc_dense, spmm_csc_prealloc,
     spmm_csc_prealloc_unchecked, spmm_csr_dense, spmm_csr_pattern, spmm_csr_prealloc,
     spmm_csr_prealloc_unchecked, spsolve_csc_lower_triangular,
 };
-use nalgebra_sparse::ops::Op;
 use nalgebra_sparse::pattern::SparsityPattern;
 use nalgebra_sparse::proptest::{csc, csr, sparsity_pattern};
 

@@ -57,10 +57,10 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
 };
 
+use crate::SimdRealField;
 use crate::base::dimension::U3;
 use crate::base::storage::Storage;
 use crate::base::{Const, Scalar, Unit, Vector, Vector3};
-use crate::SimdRealField;
 
 use crate::geometry::{Point3, Quaternion, Rotation, UnitQuaternion};
 

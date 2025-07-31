@@ -83,7 +83,7 @@ where
         );
 
         assert!(
-            a.shape_generic() ==  b.shape_generic(),
+            a.shape_generic() == b.shape_generic(),
             "Unable to compute the generalized eigenvalues of two square matrices of different dimensions."
         );
 

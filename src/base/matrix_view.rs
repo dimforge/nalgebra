@@ -2,6 +2,7 @@ use std::marker::PhantomData;
 use std::ops::{Range, RangeFrom, RangeFull, RangeInclusive, RangeTo};
 use std::slice;
 
+use crate::ReshapableStorage;
 use crate::base::allocator::Allocator;
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Const, Dim, DimName, Dyn, IsNotStaticOne, U1};
@@ -9,7 +10,6 @@ use crate::base::iter::MatrixIter;
 use crate::base::storage::{IsContiguous, Owned, RawStorage, RawStorageMut, Storage};
 use crate::base::{Matrix, Scalar};
 use crate::constraint::{DimEq, ShapeConstraint};
-use crate::ReshapableStorage;
 
 macro_rules! view_storage_impl (
     ($doc: expr_2021; $Storage: ident as $SRef: ty; $legacy_name:ident => $T: ident.$get_addr: ident ($Ptr: ty as $Ref: ty)) => {
@@ -249,15 +249,17 @@ unsafe impl<T, R: Dim, C: Dim, RStride: Dim, CStride: Dim> RawStorageMut<T, R, C
     }
 
     #[inline]
-    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] { unsafe {
-        let (nrows, ncols) = self.shape();
-        if nrows.value() != 0 && ncols.value() != 0 {
-            let sz = self.linear_index(nrows.value() - 1, ncols.value() - 1);
-            slice::from_raw_parts_mut(self.ptr, sz + 1)
-        } else {
-            slice::from_raw_parts_mut(self.ptr, 0)
+    unsafe fn as_mut_slice_unchecked(&mut self) -> &mut [T] {
+        unsafe {
+            let (nrows, ncols) = self.shape();
+            if nrows.value() != 0 && ncols.value() != 0 {
+                let sz = self.linear_index(nrows.value() - 1, ncols.value() - 1);
+                slice::from_raw_parts_mut(self.ptr, sz + 1)
+            } else {
+                slice::from_raw_parts_mut(self.ptr, 0)
+            }
         }
-    }}
+    }
 }
 
 unsafe impl<T, R: Dim, CStride: Dim> IsContiguous for ViewStorage<'_, T, R, U1, U1, CStride> {}

@@ -398,11 +398,12 @@ where
     /// iter::empty::<DMatrix<f64>>().sum::<DMatrix<f64>>(); // panics!
     /// ```
     fn sum<I: Iterator<Item = OMatrix<T, Dyn, C>>>(mut iter: I) -> OMatrix<T, Dyn, C> {
-        match iter.next() { Some(first) => {
-            iter.fold(first, |acc, x| acc + x)
-        } _ => {
-            panic!("Cannot compute `sum` of empty iterator.")
-        }}
+        match iter.next() {
+            Some(first) => iter.fold(first, |acc, x| acc + x),
+            _ => {
+                panic!("Cannot compute `sum` of empty iterator.")
+            }
+        }
     }
 }
 

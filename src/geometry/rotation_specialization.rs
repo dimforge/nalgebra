@@ -7,8 +7,8 @@ use num::Zero;
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{uniform::SampleUniform, Distribution, OpenClosed01, StandardUniform, Uniform},
     Rng,
+    distr::{Distribution, OpenClosed01, StandardUniform, Uniform, uniform::SampleUniform},
 };
 
 use simba::scalar::RealField;
@@ -685,14 +685,17 @@ where
     where
         T: RealField,
     {
-        match self.axis() { Some(axis) => {
-            Self::from_axis_angle(&axis, self.angle() * n)
-        } _ => if self.matrix()[(0, 0)] < T::zero() {
-            let minus_id = SMatrix::<T, 3, 3>::from_diagonal_element(-T::one());
-            Self::from_matrix_unchecked(minus_id)
-        } else {
-            Self::identity()
-        }}
+        match self.axis() {
+            Some(axis) => Self::from_axis_angle(&axis, self.angle() * n),
+            _ => {
+                if self.matrix()[(0, 0)] < T::zero() {
+                    let minus_id = SMatrix::<T, 3, 3>::from_diagonal_element(-T::one());
+                    Self::from_matrix_unchecked(minus_id)
+                } else {
+                    Self::identity()
+                }
+            }
+        }
     }
 
     /// Builds a rotation from a basis assumed to be orthonormal.
@@ -753,37 +756,40 @@ where
 
             let axisangle = axis / (denom.abs() + T::default_epsilon());
 
-            match Unit::try_new_and_get(axisangle, eps.clone()) { Some((axis, angle)) => {
-                rot = Rotation3::from_axis_angle(&axis, angle) * rot;
-            } _ => {
-                // Check if stuck in a maximum w.r.t. the norm (m - rot).norm()
-                let mut perturbed = rot.clone();
-                let norm_squared = (m - &rot).norm_squared();
-                let mut new_norm_squared: T;
+            match Unit::try_new_and_get(axisangle, eps.clone()) {
+                Some((axis, angle)) => {
+                    rot = Rotation3::from_axis_angle(&axis, angle) * rot;
+                }
+                _ => {
+                    // Check if stuck in a maximum w.r.t. the norm (m - rot).norm()
+                    let mut perturbed = rot.clone();
+                    let norm_squared = (m - &rot).norm_squared();
+                    let mut new_norm_squared: T;
 
-                // Perturb until the new norm is significantly different
-                loop {
-                    perturbed *=
-                        Rotation3::from_axis_angle(&perturbation_axes, eps_disturbance.clone());
-                    new_norm_squared = (m - &perturbed).norm_squared();
-                    if abs_diff_ne!(
-                        norm_squared,
-                        new_norm_squared,
-                        epsilon = T::default_epsilon()
-                    ) {
+                    // Perturb until the new norm is significantly different
+                    loop {
+                        perturbed *=
+                            Rotation3::from_axis_angle(&perturbation_axes, eps_disturbance.clone());
+                        new_norm_squared = (m - &perturbed).norm_squared();
+                        if abs_diff_ne!(
+                            norm_squared,
+                            new_norm_squared,
+                            epsilon = T::default_epsilon()
+                        ) {
+                            break;
+                        }
+                    }
+
+                    // If new norm is larger, it's a minimum
+                    if norm_squared < new_norm_squared {
                         break;
                     }
-                }
 
-                // If new norm is larger, it's a minimum
-                if norm_squared < new_norm_squared {
-                    break;
+                    // If not, continue from perturbed rotation, but use a different axes for the next perturbation
+                    perturbation_axes = UnitVector3::new_unchecked(perturbation_axes.yzx());
+                    rot = perturbed;
                 }
-
-                // If not, continue from perturbed rotation, but use a different axes for the next perturbation
-                perturbation_axes = UnitVector3::new_unchecked(perturbation_axes.yzx());
-                rot = perturbed;
-            }}
+            }
         }
 
         Self::from_matrix_unchecked(rot)
@@ -873,11 +879,10 @@ impl<T: SimdRealField> Rotation3<T> {
     where
         T: RealField,
     {
-        match self.axis() { Some(axis) => {
-            axis.into_inner() * self.angle()
-        } _ => {
-            Vector::zero()
-        }}
+        match self.axis() {
+            Some(axis) => axis.into_inner() * self.angle(),
+            _ => Vector::zero(),
+        }
     }
 
     /// The rotation axis and angle in (0, pi] of this rotation matrix.

@@ -468,17 +468,17 @@ where
     where
         T: RealField,
     {
-        match Unit::try_new_and_get(self.clone(), T::zero()) { Some((q, n)) => {
-            match Unit::try_new(self.vector().clone_owned(), T::zero()) { Some(axis) => {
-                let angle = q.angle() / crate::convert(2.0f64);
+        match Unit::try_new_and_get(self.clone(), T::zero()) {
+            Some((q, n)) => match Unit::try_new(self.vector().clone_owned(), T::zero()) {
+                Some(axis) => {
+                    let angle = q.angle() / crate::convert(2.0f64);
 
-                (n, angle, Some(axis))
-            } _ => {
-                (n, T::zero(), None)
-            }}
-        } _ => {
-            (T::zero(), T::zero(), None)
-        }}
+                    (n, angle, Some(axis))
+                }
+                _ => (n, T::zero(), None),
+            },
+            _ => (T::zero(), T::zero(), None),
+        }
     }
 
     /// Compute the natural logarithm of a quaternion.
@@ -1319,11 +1319,10 @@ where
     where
         T: RealField,
     {
-        match self.axis() { Some(axis) => {
-            axis.into_inner() * self.angle()
-        } _ => {
-            Vector3::zero()
-        }}
+        match self.axis() {
+            Some(axis) => axis.into_inner() * self.angle(),
+            _ => Vector3::zero(),
+        }
     }
 
     /// The rotation axis and angle in (0, pi] of this unit quaternion.
@@ -1380,11 +1379,10 @@ where
     where
         T: RealField,
     {
-        match self.axis() { Some(v) => {
-            Quaternion::from_imag(v.into_inner() * self.angle())
-        } _ => {
-            Quaternion::zero()
-        }}
+        match self.axis() {
+            Some(v) => Quaternion::from_imag(v.into_inner() * self.angle()),
+            _ => Quaternion::zero(),
+        }
     }
 
     /// Raise the quaternion to a given floating power.
@@ -1409,11 +1407,10 @@ where
     where
         T: RealField,
     {
-        match self.axis() { Some(v) => {
-            Self::from_axis_angle(&v, self.angle() * n)
-        } _ => {
-            Self::identity()
-        }}
+        match self.axis() {
+            Some(v) => Self::from_axis_angle(&v, self.angle() * n),
+            _ => Self::identity(),
+        }
     }
 
     /// Builds a rotation matrix from this unit quaternion.
@@ -1642,23 +1639,26 @@ impl<T: RealField> Default for UnitQuaternion<T> {
 
 impl<T: RealField + fmt::Display> fmt::Display for UnitQuaternion<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self.axis() { Some(axis) => {
-            let axis = axis.into_inner();
-            write!(
-                f,
-                "UnitQuaternion angle: {} − axis: ({}, {}, {})",
-                self.angle(),
-                axis[0],
-                axis[1],
-                axis[2]
-            )
-        } _ => {
-            write!(
-                f,
-                "UnitQuaternion angle: {} − axis: (undefined)",
-                self.angle()
-            )
-        }}
+        match self.axis() {
+            Some(axis) => {
+                let axis = axis.into_inner();
+                write!(
+                    f,
+                    "UnitQuaternion angle: {} − axis: ({}, {}, {})",
+                    self.angle(),
+                    axis[0],
+                    axis[1],
+                    axis[2]
+                )
+            }
+            _ => {
+                write!(
+                    f,
+                    "UnitQuaternion angle: {} − axis: (undefined)",
+                    self.angle()
+                )
+            }
+        }
     }
 }
 

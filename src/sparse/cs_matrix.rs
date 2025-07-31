@@ -7,7 +7,7 @@ use std::slice;
 
 use crate::allocator::Allocator;
 use crate::sparse::cs_utils;
-use crate::{Const, DefaultAllocator, Dim, Dyn, Matrix, OVector, Scalar, Vector, U1};
+use crate::{Const, DefaultAllocator, Dim, Dyn, Matrix, OVector, Scalar, U1, Vector};
 
 pub struct ColumnEntries<'a, T> {
     curr: usize,

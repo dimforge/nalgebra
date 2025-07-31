@@ -528,9 +528,9 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     pub unsafe fn get_unchecked<'a, I>(&'a self, index: I) -> I::Output
     where
         I: MatrixIndex<'a, T, R, C, S>,
-    { unsafe {
-        index.get_unchecked(self)
-    }}
+    {
+        unsafe { index.get_unchecked(self) }
+    }
 
     /// Returns a mutable view of the data at the given index, without doing
     /// any bounds checking.
@@ -543,9 +543,9 @@ impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     where
         S: RawStorageMut<T, R, C>,
         I: MatrixIndexMut<'a, T, R, C, S>,
-    { unsafe {
-        index.get_unchecked_mut(self)
-    }}
+    {
+        unsafe { index.get_unchecked_mut(self) }
+    }
 }
 
 // EXTRACT A SINGLE ELEMENT BY 1D LINEAR ADDRESS
@@ -567,12 +567,14 @@ where
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn get_unchecked(self, matrix: &'a Matrix<T, R, C, S>) -> Self::Output { unsafe {
-        let nrows = matrix.shape().0;
-        let row = self % nrows;
-        let col = self / nrows;
-        matrix.data.get_unchecked(row, col)
-    }}
+    unsafe fn get_unchecked(self, matrix: &'a Matrix<T, R, C, S>) -> Self::Output {
+        unsafe {
+            let nrows = matrix.shape().0;
+            let row = self % nrows;
+            let col = self / nrows;
+            matrix.data.get_unchecked(row, col)
+        }
+    }
 }
 
 impl<'a, T, R, C, S> MatrixIndexMut<'a, T, R, C, S> for usize
@@ -589,12 +591,14 @@ where
     unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T, R, C, S>) -> Self::OutputMut
     where
         S: RawStorageMut<T, R, C>,
-    { unsafe {
-        let nrows = matrix.shape().0;
-        let row = self % nrows;
-        let col = self / nrows;
-        matrix.data.get_unchecked_mut(row, col)
-    }}
+    {
+        unsafe {
+            let nrows = matrix.shape().0;
+            let row = self % nrows;
+            let col = self / nrows;
+            matrix.data.get_unchecked_mut(row, col)
+        }
+    }
 }
 
 // EXTRACT A SINGLE ELEMENT BY 2D COORDINATES
@@ -617,10 +621,12 @@ where
 
     #[doc(hidden)]
     #[inline(always)]
-    unsafe fn get_unchecked(self, matrix: &'a Matrix<T, R, C, S>) -> Self::Output { unsafe {
-        let (row, col) = self;
-        matrix.data.get_unchecked(row, col)
-    }}
+    unsafe fn get_unchecked(self, matrix: &'a Matrix<T, R, C, S>) -> Self::Output {
+        unsafe {
+            let (row, col) = self;
+            matrix.data.get_unchecked(row, col)
+        }
+    }
 }
 
 impl<'a, T: 'a, R, C, S> MatrixIndexMut<'a, T, R, C, S> for (usize, usize)
@@ -636,10 +642,12 @@ where
     unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T, R, C, S>) -> Self::OutputMut
     where
         S: RawStorageMut<T, R, C>,
-    { unsafe {
-        let (row, col) = self;
-        matrix.data.get_unchecked_mut(row, col)
-    }}
+    {
+        unsafe {
+            let (row, col) = self;
+            matrix.data.get_unchecked_mut(row, col)
+        }
+    }
 }
 
 macro_rules! impl_index_pair {

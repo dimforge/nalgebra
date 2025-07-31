@@ -6,7 +6,7 @@ use rkyv::bytecheck;
 
 use crate::{
     Isometry3, Matrix4, Normed, OVector, Point3, Quaternion, Scalar, SimdRealField, Translation3,
-    Unit, UnitQuaternion, Vector3, Zero, U8,
+    U8, Unit, UnitQuaternion, Vector3, Zero,
 };
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 #[cfg(feature = "serde-serialize-no-std")]
@@ -960,25 +960,28 @@ impl<T: RealField> Default for UnitDualQuaternion<T> {
 
 impl<T: RealField + fmt::Display> fmt::Display for UnitDualQuaternion<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self.rotation().axis() { Some(axis) => {
-            let axis = axis.into_inner();
-            write!(
-                f,
-                "UnitDualQuaternion translation: {} − angle: {} − axis: ({}, {}, {})",
-                self.translation().vector,
-                self.rotation().angle(),
-                axis[0],
-                axis[1],
-                axis[2]
-            )
-        } _ => {
-            write!(
-                f,
-                "UnitDualQuaternion translation: {} − angle: {} − axis: (undefined)",
-                self.translation().vector,
-                self.rotation().angle()
-            )
-        }}
+        match self.rotation().axis() {
+            Some(axis) => {
+                let axis = axis.into_inner();
+                write!(
+                    f,
+                    "UnitDualQuaternion translation: {} − angle: {} − axis: ({}, {}, {})",
+                    self.translation().vector,
+                    self.rotation().angle(),
+                    axis[0],
+                    axis[1],
+                    axis[2]
+                )
+            }
+            _ => {
+                write!(
+                    f,
+                    "UnitDualQuaternion translation: {} − angle: {} − axis: (undefined)",
+                    self.translation().vector,
+                    self.rotation().angle()
+                )
+            }
+        }
     }
 }
 

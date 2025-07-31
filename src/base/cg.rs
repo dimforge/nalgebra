@@ -207,11 +207,8 @@ impl<T: RealField> Matrix4<T> {
 }
 
 /// # Append/prepend translation and scaling
-impl<
-        T: Scalar + Zero + One + ClosedMulAssign + ClosedAddAssign,
-        D: DimName,
-        S: Storage<T, D, D>,
-    > SquareMatrix<T, D, S>
+impl<T: Scalar + Zero + One + ClosedMulAssign + ClosedAddAssign, D: DimName, S: Storage<T, D, D>>
+    SquareMatrix<T, D, S>
 {
     /// Computes the transformation equal to `self` followed by an uniform scaling factor.
     #[inline]

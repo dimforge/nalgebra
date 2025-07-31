@@ -49,8 +49,8 @@
 
 use crate::base::storage::Storage;
 use crate::{
-    DualQuaternion, Isometry3, Point, Point3, Quaternion, SimdRealField, Translation3, Unit,
-    UnitDualQuaternion, UnitQuaternion, Vector, Vector3, U3,
+    DualQuaternion, Isometry3, Point, Point3, Quaternion, SimdRealField, Translation3, U3, Unit,
+    UnitDualQuaternion, UnitQuaternion, Vector, Vector3,
 };
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,

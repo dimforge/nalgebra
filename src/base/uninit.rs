@@ -65,12 +65,16 @@ unsafe impl<T> InitStatus<T> for Uninit {
     }
 
     #[inline(always)]
-    unsafe fn assume_init_ref(t: &MaybeUninit<T>) -> &T { unsafe {
-        &*t.as_ptr() // TODO: use t.assume_init_ref()
-    }}
+    unsafe fn assume_init_ref(t: &MaybeUninit<T>) -> &T {
+        unsafe {
+            &*t.as_ptr() // TODO: use t.assume_init_ref()
+        }
+    }
 
     #[inline(always)]
-    unsafe fn assume_init_mut(t: &mut MaybeUninit<T>) -> &mut T { unsafe {
-        &mut *t.as_mut_ptr() // TODO: use t.assume_init_mut()
-    }}
+    unsafe fn assume_init_mut(t: &mut MaybeUninit<T>) -> &mut T {
+        unsafe {
+            &mut *t.as_mut_ptr() // TODO: use t.assume_init_mut()
+        }
+    }
 }

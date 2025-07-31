@@ -1,4 +1,4 @@
-use crate::{Matrix2, RealField, Vector2, SVD, U2};
+use crate::{Matrix2, RealField, SVD, U2, Vector2};
 
 // Implementation of the 2D SVD from https://ieeexplore.ieee.org/document/486688
 // See also https://scicomp.stackexchange.com/questions/8899/robust-algorithm-for-2-times-2-svd

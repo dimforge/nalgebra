@@ -2,11 +2,11 @@ use crate::macros::assert_eq_and_type;
 use cool_asserts::assert_panics;
 use na::VecStorage;
 use nalgebra::dimension::U1;
-use nalgebra::{dmatrix, matrix, stack};
 use nalgebra::{
     DMatrix, DMatrixView, Dyn, Matrix, Matrix2, Matrix4, OMatrix, SMatrix, SMatrixView,
     SMatrixViewMut, Scalar, U2,
 };
+use nalgebra::{dmatrix, matrix, stack};
 use nalgebra_macros::vector;
 use num_traits::Zero;
 

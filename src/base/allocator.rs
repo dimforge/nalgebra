@@ -2,11 +2,11 @@
 
 use std::any::Any;
 
+use crate::StorageMut;
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::{Dim, U1};
 use crate::base::{DefaultAllocator, Scalar};
 use crate::storage::{IsContiguous, RawStorageMut};
-use crate::StorageMut;
 use std::fmt::Debug;
 use std::mem::MaybeUninit;
 

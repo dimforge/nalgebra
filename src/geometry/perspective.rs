@@ -2,8 +2,8 @@
 use quickcheck::{Arbitrary, Gen};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{Distribution, StandardUniform},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 #[cfg(feature = "serde-serialize-no-std")]

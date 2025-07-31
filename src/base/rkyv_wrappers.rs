@@ -3,8 +3,8 @@
 //! Copied from <https://github.com/rkyv/rkyv_contrib> (MIT-Apache2 licences) which isn’t published yet.
 
 use rkyv::{
-    with::{ArchiveWith, DeserializeWith, SerializeWith},
     Fallible,
+    with::{ArchiveWith, DeserializeWith, SerializeWith},
 };
 use std::marker::PhantomData;
 

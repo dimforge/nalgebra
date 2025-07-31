@@ -6,12 +6,12 @@ use std::ops::{Add, Mul};
 use simba::scalar::{ClosedDivAssign, ClosedMulAssign};
 use simba::simd::SimdPartialOrd;
 
+use crate::ClosedAddAssign;
 use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::Dim;
 use crate::base::storage::{Storage, StorageMut};
 use crate::base::{DefaultAllocator, Matrix, MatrixSum, OMatrix, Scalar};
-use crate::ClosedAddAssign;
 
 /// The type of the result of a matrix component-wise operation.
 pub type MatrixComponentOp<T, R1, C1, R2, C2> = MatrixSum<T, R1, C1, R2, C2>;

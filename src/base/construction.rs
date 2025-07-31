@@ -9,21 +9,21 @@ use quickcheck::{Arbitrary, Gen};
 use num::{Bounded, One, Zero};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{Distribution, StandardUniform},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 use typenum::{self, Cmp, Greater};
 
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 
+use crate::UninitMatrix;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimName, Dyn, ToTypenum};
 use crate::base::storage::RawStorage;
 use crate::base::{
     ArrayStorage, Const, DefaultAllocator, Matrix, OMatrix, OVector, Scalar, Unit, Vector,
 };
-use crate::UninitMatrix;
 use std::mem::MaybeUninit;
 
 impl<T: Scalar, R: Dim, C: Dim> UninitMatrix<T, R, C>

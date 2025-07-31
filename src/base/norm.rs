@@ -631,8 +631,10 @@ where
                 }
                 #[cfg(all(not(feature = "std"), not(feature = "alloc")))]
                 {
-                    panic!("Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
-                            if #![no_std] is enabled and the 'alloc' feature is not enabled.")
+                    panic!(
+                        "Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
+                            if #![no_std] is enabled and the 'alloc' feature is not enabled."
+                    )
                 }
             }
         }

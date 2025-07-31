@@ -152,46 +152,48 @@ impl<T, R: Dim, C: Dim> VecStorage<T, R, C> {
     /// - If `sz` is smaller than the current size, additional elements are truncated but **not** dropped.
     ///   It is the responsibility of the caller of this method to drop these elements.
     #[inline]
-    pub unsafe fn resize(mut self, sz: usize) -> Vec<MaybeUninit<T>> { unsafe {
-        let len = self.len();
+    pub unsafe fn resize(mut self, sz: usize) -> Vec<MaybeUninit<T>> {
+        unsafe {
+            let len = self.len();
 
-        let new_data = if sz < len {
-            // Use `set_len` instead of `truncate` because we don’t want to
-            // drop the removed elements (it’s the caller’s responsibility).
-            self.data.set_len(sz);
-            self.data.shrink_to_fit();
+            let new_data = if sz < len {
+                // Use `set_len` instead of `truncate` because we don’t want to
+                // drop the removed elements (it’s the caller’s responsibility).
+                self.data.set_len(sz);
+                self.data.shrink_to_fit();
 
-            // Safety:
-            // - MaybeUninit<T> has the same alignment and layout as T.
-            // - The length and capacity come from a valid vector.
-            Vec::from_raw_parts(
-                self.data.as_mut_ptr() as *mut MaybeUninit<T>,
-                self.data.len(),
-                self.data.capacity(),
-            )
-        } else {
-            self.data.reserve_exact(sz - len);
+                // Safety:
+                // - MaybeUninit<T> has the same alignment and layout as T.
+                // - The length and capacity come from a valid vector.
+                Vec::from_raw_parts(
+                    self.data.as_mut_ptr() as *mut MaybeUninit<T>,
+                    self.data.len(),
+                    self.data.capacity(),
+                )
+            } else {
+                self.data.reserve_exact(sz - len);
 
-            // Safety:
-            // - MaybeUninit<T> has the same alignment and layout as T.
-            // - The length and capacity come from a valid vector.
-            let mut new_data = Vec::from_raw_parts(
-                self.data.as_mut_ptr() as *mut MaybeUninit<T>,
-                self.data.len(),
-                self.data.capacity(),
-            );
+                // Safety:
+                // - MaybeUninit<T> has the same alignment and layout as T.
+                // - The length and capacity come from a valid vector.
+                let mut new_data = Vec::from_raw_parts(
+                    self.data.as_mut_ptr() as *mut MaybeUninit<T>,
+                    self.data.len(),
+                    self.data.capacity(),
+                );
 
-            // Safety: we can set the length here because MaybeUninit is always assumed
-            //         to be initialized.
-            new_data.set_len(sz);
+                // Safety: we can set the length here because MaybeUninit is always assumed
+                //         to be initialized.
+                new_data.set_len(sz);
+                new_data
+            };
+
+            // Avoid double-free by forgetting `self` because its data buffer has
+            // been transferred to `new_data`.
+            std::mem::forget(self);
             new_data
-        };
-
-        // Avoid double-free by forgetting `self` because its data buffer has
-        // been transferred to `new_data`.
-        std::mem::forget(self);
-        new_data
-    }}
+        }
+    }
 
     /// The number of elements on the underlying vector.
     #[inline]
@@ -470,8 +472,10 @@ impl<T, R: Dim> Extend<T> for VecStorage<T, R, Dyn> {
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
         self.data.extend(iter);
         self.ncols = Dyn(self.data.len() / self.nrows.value());
-        assert!(self.data.len() % self.nrows.value() == 0,
-          "The number of elements produced by the given iterator was not a multiple of the number of rows.");
+        assert!(
+            self.data.len() % self.nrows.value() == 0,
+            "The number of elements produced by the given iterator was not a multiple of the number of rows."
+        );
     }
 }
 

@@ -7,8 +7,8 @@ use quickcheck::{Arbitrary, Gen};
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{uniform::SampleUniform, Distribution, OpenClosed01, StandardUniform, Uniform},
     Rng,
+    distr::{Distribution, OpenClosed01, StandardUniform, Uniform, uniform::SampleUniform},
 };
 
 use num::{One, Zero};
@@ -490,11 +490,10 @@ where
         match (
             Unit::try_new(a.clone_owned(), T::zero()),
             Unit::try_new(b.clone_owned(), T::zero()),
-        ) { (Some(na), Some(nb)) => {
-            Self::scaled_rotation_between_axis(&na, &nb, s)
-        } _ => {
-            Some(Self::identity())
-        }}
+        ) {
+            (Some(na), Some(nb)) => Self::scaled_rotation_between_axis(&na, &nb, s),
+            _ => Some(Self::identity()),
+        }
     }
 
     /// The unit quaternion needed to make `a` and `b` be collinear and point toward the same
@@ -551,27 +550,32 @@ where
         // TODO: code duplication with Rotation.
         let c = na.cross(nb);
 
-        match Unit::try_new(c, T::default_epsilon()) { Some(axis) => {
-            let cos = na.dot(nb);
+        match Unit::try_new(c, T::default_epsilon()) {
+            Some(axis) => {
+                let cos = na.dot(nb);
 
-            // The cosinus may be out of [-1, 1] because of inaccuracies.
-            if cos <= -T::one() {
-                None
-            } else if cos >= T::one() {
-                Some(Self::identity())
-            } else {
-                Some(Self::from_axis_angle(&axis, cos.acos() * s))
+                // The cosinus may be out of [-1, 1] because of inaccuracies.
+                if cos <= -T::one() {
+                    None
+                } else if cos >= T::one() {
+                    Some(Self::identity())
+                } else {
+                    Some(Self::from_axis_angle(&axis, cos.acos() * s))
+                }
             }
-        } _ => if na.dot(nb) < T::zero() {
-            // PI
-            //
-            // The rotation axis is undefined but the angle not zero. This is not a
-            // simple rotation.
-            None
-        } else {
-            // Zero
-            Some(Self::identity())
-        }}
+            _ => {
+                if na.dot(nb) < T::zero() {
+                    // PI
+                    //
+                    // The rotation axis is undefined but the angle not zero. This is not a
+                    // simple rotation.
+                    None
+                } else {
+                    // Zero
+                    Some(Self::identity())
+                }
+            }
+        }
     }
 
     /// Creates an unit quaternion that corresponds to the local frame of an observer standing at the

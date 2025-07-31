@@ -4,8 +4,8 @@ use quickcheck::{Arbitrary, Gen};
 use num::{Bounded, One, Zero};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{Distribution, StandardUniform},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 use crate::base::allocator::Allocator;

@@ -4,8 +4,8 @@ use super::glam::{
 };
 use crate::storage::RawStorage;
 use crate::{
-    Matrix, Matrix2, Matrix3, Matrix4, Unit, UnitVector2, UnitVector3, UnitVector4, Vector,
-    Vector2, Vector3, Vector4, U2, U3, U4,
+    Matrix, Matrix2, Matrix3, Matrix4, U2, U3, U4, Unit, UnitVector2, UnitVector3, UnitVector4,
+    Vector, Vector2, Vector3, Vector4,
 };
 use std::convert::TryFrom;
 

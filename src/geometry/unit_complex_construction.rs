@@ -3,8 +3,8 @@ use quickcheck::{Arbitrary, Gen};
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distr::{Distribution, StandardUniform},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 use num::One;
@@ -337,11 +337,10 @@ where
         match (
             Unit::try_new(a.clone_owned(), T::zero()),
             Unit::try_new(b.clone_owned(), T::zero()),
-        ) { (Some(na), Some(nb)) => {
-            Self::scaled_rotation_between_axis(&na, &nb, s)
-        } _ => {
-            Self::identity()
-        }}
+        ) {
+            (Some(na), Some(nb)) => Self::scaled_rotation_between_axis(&na, &nb, s),
+            _ => Self::identity(),
+        }
     }
 
     /// The unit complex needed to make `a` and `b` be collinear and point toward the same

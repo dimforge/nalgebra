@@ -2,10 +2,10 @@
 
 use std::ptr;
 
+use crate::base::Scalar;
 use crate::base::allocator::{Allocator, SameShapeC, SameShapeR};
 use crate::base::default_allocator::DefaultAllocator;
 use crate::base::dimension::{Dim, U1};
-use crate::base::Scalar;
 
 /*
  * Aliases for allocation results.
@@ -99,18 +99,18 @@ pub unsafe trait RawStorage<T, R: Dim, C: Dim = U1>: Sized {
     /// # Safety
     /// If the index is out of bounds, the method will cause undefined behavior.
     #[inline]
-    unsafe fn get_unchecked_linear(&self, i: usize) -> &T { unsafe {
-        &*self.get_address_unchecked_linear(i)
-    }}
+    unsafe fn get_unchecked_linear(&self, i: usize) -> &T {
+        unsafe { &*self.get_address_unchecked_linear(i) }
+    }
 
     /// Retrieves a reference to the i-th element without bound-checking.
     ///
     /// # Safety
     /// If the index is out of bounds, the method will cause undefined behavior.
     #[inline]
-    unsafe fn get_unchecked(&self, irow: usize, icol: usize) -> &T { unsafe {
-        self.get_unchecked_linear(self.linear_index(irow, icol))
-    }}
+    unsafe fn get_unchecked(&self, irow: usize, icol: usize) -> &T {
+        unsafe { self.get_unchecked_linear(self.linear_index(irow, icol)) }
+    }
 
     /// Indicates whether this data buffer stores its elements contiguously.
     ///
@@ -192,18 +192,18 @@ pub unsafe trait RawStorageMut<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     ///
     /// # Safety
     /// If the index is out of bounds, the method will cause undefined behavior.
-    unsafe fn get_unchecked_linear_mut(&mut self, i: usize) -> &mut T { unsafe {
-        &mut *self.get_address_unchecked_linear_mut(i)
-    }}
+    unsafe fn get_unchecked_linear_mut(&mut self, i: usize) -> &mut T {
+        unsafe { &mut *self.get_address_unchecked_linear_mut(i) }
+    }
 
     /// Retrieves a mutable reference to the element at `(irow, icol)` without bound-checking.
     ///
     /// # Safety
     /// If the index is out of bounds, the method will cause undefined behavior.
     #[inline]
-    unsafe fn get_unchecked_mut(&mut self, irow: usize, icol: usize) -> &mut T { unsafe {
-        &mut *self.get_address_unchecked_mut(irow, icol)
-    }}
+    unsafe fn get_unchecked_mut(&mut self, irow: usize, icol: usize) -> &mut T {
+        unsafe { &mut *self.get_address_unchecked_mut(irow, icol) }
+    }
 
     /// Swaps two elements using their linear index without bound-checking.
     ///
@@ -217,35 +217,39 @@ pub unsafe trait RawStorageMut<T, R: Dim, C: Dim = U1>: RawStorage<T, R, C> {
     /// moves as a consequence of invoking either of these methods then this default
     /// trait implementation may be invalid or unsound and should be overridden.
     #[inline]
-    unsafe fn swap_unchecked_linear(&mut self, i1: usize, i2: usize) { unsafe {
-        // we can't just use the pointers returned from `get_address_unchecked_linear_mut` because calling a
-        // method taking self mutably invalidates any existing (mutable) pointers. since `get_address_unchecked_linear_mut` can
-        // also be overridden by a custom implementation, we can't just use `wrapping_add` assuming that's what the method does.
-        // instead, we use `offset_from` to compute the re-calculate the pointers from the base pointer.
-        // this is sound as long as this trait matches the Validity preconditions
-        // (and it's the caller's responsibility to ensure the indices are in-bounds).
-        let base = self.ptr_mut();
-        let offset1 = self.get_address_unchecked_linear_mut(i1).offset_from(base);
-        let offset2 = self.get_address_unchecked_linear_mut(i2).offset_from(base);
+    unsafe fn swap_unchecked_linear(&mut self, i1: usize, i2: usize) {
+        unsafe {
+            // we can't just use the pointers returned from `get_address_unchecked_linear_mut` because calling a
+            // method taking self mutably invalidates any existing (mutable) pointers. since `get_address_unchecked_linear_mut` can
+            // also be overridden by a custom implementation, we can't just use `wrapping_add` assuming that's what the method does.
+            // instead, we use `offset_from` to compute the re-calculate the pointers from the base pointer.
+            // this is sound as long as this trait matches the Validity preconditions
+            // (and it's the caller's responsibility to ensure the indices are in-bounds).
+            let base = self.ptr_mut();
+            let offset1 = self.get_address_unchecked_linear_mut(i1).offset_from(base);
+            let offset2 = self.get_address_unchecked_linear_mut(i2).offset_from(base);
 
-        let base = self.ptr_mut();
-        let a = base.offset(offset1);
-        let b = base.offset(offset2);
+            let base = self.ptr_mut();
+            let a = base.offset(offset1);
+            let b = base.offset(offset2);
 
-        ptr::swap(a, b);
-    }}
+            ptr::swap(a, b);
+        }
+    }
 
     /// Swaps two elements without bound-checking.
     ///
     /// # Safety
     /// If the indices are out of bounds, the method will cause undefined behavior.
     #[inline]
-    unsafe fn swap_unchecked(&mut self, row_col1: (usize, usize), row_col2: (usize, usize)) { unsafe {
-        let lid1 = self.linear_index(row_col1.0, row_col1.1);
-        let lid2 = self.linear_index(row_col2.0, row_col2.1);
+    unsafe fn swap_unchecked(&mut self, row_col1: (usize, usize), row_col2: (usize, usize)) {
+        unsafe {
+            let lid1 = self.linear_index(row_col1.0, row_col1.1);
+            let lid2 = self.linear_index(row_col2.0, row_col2.1);
 
-        self.swap_unchecked_linear(lid1, lid2)
-    }}
+            self.swap_unchecked_linear(lid1, lid2)
+        }
+    }
 
     /// Retrieves the mutable data buffer as a contiguous slice.
     ///

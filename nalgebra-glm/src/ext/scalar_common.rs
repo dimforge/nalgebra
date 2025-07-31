@@ -16,11 +16,7 @@ use crate::traits::Number;
 /// * [`min3_scalar()`]
 /// * [`min4_scalar()`]
 pub fn max2_scalar<T: Number>(a: T, b: T) -> T {
-    if a >= b {
-        a
-    } else {
-        b
-    }
+    if a >= b { a } else { b }
 }
 
 /// Returns the maximum among two values.
@@ -39,11 +35,7 @@ pub fn max2_scalar<T: Number>(a: T, b: T) -> T {
 /// * [`min3_scalar()`]
 /// * [`min4_scalar()`]
 pub fn min2_scalar<T: Number>(a: T, b: T) -> T {
-    if a <= b {
-        a
-    } else {
-        b
-    }
+    if a <= b { a } else { b }
 }
 
 /// Returns the maximum among three values.

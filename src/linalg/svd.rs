@@ -13,9 +13,9 @@ use crate::storage::Storage;
 use crate::{Matrix2, Matrix3, RawStorage, U2, U3};
 use simba::scalar::{ComplexField, RealField};
 
+use crate::linalg::Bidiagonal;
 use crate::linalg::givens::GivensRotation;
 use crate::linalg::symmetric_eigen;
-use crate::linalg::Bidiagonal;
 
 /// Singular Value Decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
@@ -213,55 +213,60 @@ where
                         m12,
                     );
 
-                    match GivensRotation::cancel_y(&vec) { Some((rot1, norm1)) => {
-                        rot1.inverse()
-                            .rotate_rows(&mut subm.fixed_columns_mut::<2>(0));
-                        let rot1 = GivensRotation::new_unchecked(rot1.c(), T::from_real(rot1.s()));
+                    match GivensRotation::cancel_y(&vec) {
+                        Some((rot1, norm1)) => {
+                            rot1.inverse()
+                                .rotate_rows(&mut subm.fixed_columns_mut::<2>(0));
+                            let rot1 =
+                                GivensRotation::new_unchecked(rot1.c(), T::from_real(rot1.s()));
 
-                        if k > start {
-                            // This is not the first iteration.
-                            off_diagonal[k - 1] = norm1;
-                        }
-
-                        let v = Vector2::new(subm[(0, 0)].clone(), subm[(1, 0)].clone());
-                        // TODO: does the case `v.y == 0` ever happen?
-                        let (rot2, norm2) = GivensRotation::cancel_y(&v)
-                            .unwrap_or((GivensRotation::identity(), subm[(0, 0)].clone()));
-
-                        rot2.rotate(&mut subm.fixed_columns_mut::<2>(1));
-                        let rot2 = GivensRotation::new_unchecked(rot2.c(), T::from_real(rot2.s()));
-
-                        subm[(0, 0)] = norm2;
-
-                        if let Some(ref mut v_t) = v_t {
-                            if bi_matrix.is_upper_diagonal() {
-                                rot1.rotate(&mut v_t.fixed_rows_mut::<2>(k));
-                            } else {
-                                rot2.rotate(&mut v_t.fixed_rows_mut::<2>(k));
+                            if k > start {
+                                // This is not the first iteration.
+                                off_diagonal[k - 1] = norm1;
                             }
-                        }
 
-                        if let Some(ref mut u) = u {
-                            if bi_matrix.is_upper_diagonal() {
-                                rot2.inverse().rotate_rows(&mut u.fixed_columns_mut::<2>(k));
-                            } else {
-                                rot1.inverse().rotate_rows(&mut u.fixed_columns_mut::<2>(k));
+                            let v = Vector2::new(subm[(0, 0)].clone(), subm[(1, 0)].clone());
+                            // TODO: does the case `v.y == 0` ever happen?
+                            let (rot2, norm2) = GivensRotation::cancel_y(&v)
+                                .unwrap_or((GivensRotation::identity(), subm[(0, 0)].clone()));
+
+                            rot2.rotate(&mut subm.fixed_columns_mut::<2>(1));
+                            let rot2 =
+                                GivensRotation::new_unchecked(rot2.c(), T::from_real(rot2.s()));
+
+                            subm[(0, 0)] = norm2;
+
+                            if let Some(ref mut v_t) = v_t {
+                                if bi_matrix.is_upper_diagonal() {
+                                    rot1.rotate(&mut v_t.fixed_rows_mut::<2>(k));
+                                } else {
+                                    rot2.rotate(&mut v_t.fixed_rows_mut::<2>(k));
+                                }
                             }
+
+                            if let Some(ref mut u) = u {
+                                if bi_matrix.is_upper_diagonal() {
+                                    rot2.inverse().rotate_rows(&mut u.fixed_columns_mut::<2>(k));
+                                } else {
+                                    rot1.inverse().rotate_rows(&mut u.fixed_columns_mut::<2>(k));
+                                }
+                            }
+
+                            diagonal[k] = subm[(0, 0)].clone();
+                            diagonal[k + 1] = subm[(1, 1)].clone();
+                            off_diagonal[k] = subm[(0, 1)].clone();
+
+                            if k != n - 1 {
+                                off_diagonal[k + 1] = subm[(1, 2)].clone();
+                            }
+
+                            vec.x = subm[(0, 1)].clone();
+                            vec.y = subm[(0, 2)].clone();
                         }
-
-                        diagonal[k] = subm[(0, 0)].clone();
-                        diagonal[k + 1] = subm[(1, 1)].clone();
-                        off_diagonal[k] = subm[(0, 1)].clone();
-
-                        if k != n - 1 {
-                            off_diagonal[k + 1] = subm[(1, 2)].clone();
+                        _ => {
+                            break;
                         }
-
-                        vec.x = subm[(0, 1)].clone();
-                        vec.y = subm[(0, 2)].clone();
-                    } _ => {
-                        break;
-                    }}
+                    }
                 }
             } else if subdim == 2 {
                 // Solve the remaining 2x2 subproblem.
@@ -476,27 +481,30 @@ where
         off_diagonal[i] = T::RealField::zero();
 
         for k in i..end {
-            match GivensRotation::cancel_x(&v) { Some((rot, norm)) => {
-                let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
-                diagonal[k + 1] = norm;
+            match GivensRotation::cancel_x(&v) {
+                Some((rot, norm)) => {
+                    let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
+                    diagonal[k + 1] = norm;
 
-                if is_upper_diagonal {
-                    if let Some(ref mut u) = *u {
-                        rot.inverse()
-                            .rotate_rows(&mut u.fixed_columns_with_step_mut::<2>(i, k - i));
+                    if is_upper_diagonal {
+                        if let Some(ref mut u) = *u {
+                            rot.inverse()
+                                .rotate_rows(&mut u.fixed_columns_with_step_mut::<2>(i, k - i));
+                        }
+                    } else if let Some(ref mut v_t) = *v_t {
+                        rot.rotate(&mut v_t.fixed_rows_with_step_mut::<2>(i, k - i));
                     }
-                } else if let Some(ref mut v_t) = *v_t {
-                    rot.rotate(&mut v_t.fixed_rows_with_step_mut::<2>(i, k - i));
-                }
 
-                if k + 1 != end {
-                    v.x = -rot.s().real() * off_diagonal[k + 1].clone();
-                    v.y = diagonal[k + 2].clone();
-                    off_diagonal[k + 1] *= rot.c();
+                    if k + 1 != end {
+                        v.x = -rot.s().real() * off_diagonal[k + 1].clone();
+                        v.y = diagonal[k + 2].clone();
+                        off_diagonal[k + 1] *= rot.c();
+                    }
                 }
-            } _ => {
-                break;
-            }}
+                _ => {
+                    break;
+                }
+            }
         }
     }
 
@@ -513,27 +521,30 @@ where
         off_diagonal[i] = T::RealField::zero();
 
         for k in (0..i + 1).rev() {
-            match GivensRotation::cancel_y(&v) { Some((rot, norm)) => {
-                let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
-                diagonal[k] = norm;
+            match GivensRotation::cancel_y(&v) {
+                Some((rot, norm)) => {
+                    let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
+                    diagonal[k] = norm;
 
-                if is_upper_diagonal {
-                    if let Some(ref mut v_t) = *v_t {
-                        rot.rotate(&mut v_t.fixed_rows_with_step_mut::<2>(k, i - k));
+                    if is_upper_diagonal {
+                        if let Some(ref mut v_t) = *v_t {
+                            rot.rotate(&mut v_t.fixed_rows_with_step_mut::<2>(k, i - k));
+                        }
+                    } else if let Some(ref mut u) = *u {
+                        rot.inverse()
+                            .rotate_rows(&mut u.fixed_columns_with_step_mut::<2>(k, i - k));
                     }
-                } else if let Some(ref mut u) = *u {
-                    rot.inverse()
-                        .rotate_rows(&mut u.fixed_columns_with_step_mut::<2>(k, i - k));
-                }
 
-                if k > 0 {
-                    v.x = diagonal[k - 1].clone();
-                    v.y = rot.s().real() * off_diagonal[k - 1].clone();
-                    off_diagonal[k - 1] *= rot.c();
+                    if k > 0 {
+                        v.x = diagonal[k - 1].clone();
+                        v.y = rot.s().real() * off_diagonal[k - 1].clone();
+                        off_diagonal[k - 1] *= rot.c();
+                    }
                 }
-            } _ => {
-                break;
-            }}
+                _ => {
+                    break;
+                }
+            }
         }
     }
 

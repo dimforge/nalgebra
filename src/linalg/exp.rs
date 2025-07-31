@@ -1,12 +1,13 @@
 //! This module provides the matrix exponent (exp) function to square matrices.
 //!
 use crate::{
+    ComplexField, OMatrix, RealField,
     base::{
+        DefaultAllocator,
         allocator::Allocator,
         dimension::{Const, Dim, DimMin, DimMinimum},
-        DefaultAllocator,
     },
-    convert, try_convert, ComplexField, OMatrix, RealField,
+    convert, try_convert,
 };
 
 use crate::num::Zero;
@@ -435,11 +436,7 @@ where
     let u = 2_f64.powf(-53.0);
     let log2_alpha_div_u = (alpha / u).log2();
     let value = (log2_alpha_div_u / (2.0 * m as f64)).ceil();
-    if value > 0.0 {
-        value as u64
-    } else {
-        0
-    }
+    if value > 0.0 { value as u64 } else { 0 }
 }
 
 fn solve_p_q<T, D>(u: OMatrix<T, D, D>, v: OMatrix<T, D, D>) -> OMatrix<T, D, D>
@@ -525,11 +522,7 @@ where
         } else {
             let l2 = try_convert::<_, f64>((eta_5 / theta_13).log2().ceil()).unwrap();
 
-            if l2 < 0.0 {
-                0
-            } else {
-                l2 as u64
-            }
+            if l2 < 0.0 { 0 } else { l2 as u64 }
         };
 
         s += ell(

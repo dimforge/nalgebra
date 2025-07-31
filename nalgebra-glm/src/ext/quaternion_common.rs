@@ -1,7 +1,7 @@
 use na::Unit;
 
-use crate::aliases::Qua;
 use crate::RealNumber;
+use crate::aliases::Qua;
 
 /// The conjugate of `q`.
 pub fn quat_conjugate<T: RealNumber>(q: &Qua<T>) -> Qua<T> {

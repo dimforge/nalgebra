@@ -1,9 +1,9 @@
 use simba::simd::SimdValue;
 
+use crate::RealField;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, OMatrix, Scalar};
-use crate::RealField;
 
 use crate::geometry::{TCategory, Transform};
 
@@ -29,9 +29,9 @@ where
     }
 
     #[inline]
-    unsafe fn extract_unchecked(&self, i: usize) -> Self::Element { unsafe {
-        Transform::from_matrix_unchecked(self.matrix().extract_unchecked(i))
-    }}
+    unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
+        unsafe { Transform::from_matrix_unchecked(self.matrix().extract_unchecked(i)) }
+    }
 
     #[inline]
     fn replace(&mut self, i: usize, val: Self::Element) {
@@ -39,10 +39,12 @@ where
     }
 
     #[inline]
-    unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) { unsafe {
-        self.matrix_mut_unchecked()
-            .replace_unchecked(i, val.into_inner())
-    }}
+    unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
+        unsafe {
+            self.matrix_mut_unchecked()
+                .replace_unchecked(i, val.into_inner())
+        }
+    }
 
     #[inline]
     fn select(self, cond: Self::SimdBool, other: Self) -> Self {

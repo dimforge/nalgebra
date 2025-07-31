@@ -4,11 +4,11 @@ use num::{One, Zero};
 
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign, ComplexField, RealField};
 
+use crate::RawStorage;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimMin};
 use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, Matrix, SquareMatrix};
-use crate::RawStorage;
 
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// The total number of elements of this matrix.

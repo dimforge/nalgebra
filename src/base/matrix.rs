@@ -16,7 +16,7 @@ use super::rkyv_wrappers::CustomPhantom;
 #[cfg(feature = "rkyv-serialize")]
 use rkyv::bytecheck;
 #[cfg(feature = "rkyv-serialize-no-std")]
-use rkyv::{with::With, Archive, Archived};
+use rkyv::{Archive, Archived, with::With};
 
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign, ClosedSubAssign, Field, SupersetOf};
 use simba::simd::SimdPartialOrd;
@@ -393,11 +393,13 @@ where
     /// The user must make sure that every single entry of the buffer has been initialized,
     /// or Undefined Behavior will immediately occur.
     #[inline(always)]
-    pub unsafe fn assume_init(self) -> OMatrix<T, R, C> { unsafe {
-        OMatrix::from_data(<DefaultAllocator as Allocator<R, C>>::assume_init(
-            self.data,
-        ))
-    }}
+    pub unsafe fn assume_init(self) -> OMatrix<T, R, C> {
+        unsafe {
+            OMatrix::from_data(<DefaultAllocator as Allocator<R, C>>::assume_init(
+                self.data,
+            ))
+        }
+    }
 }
 
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
@@ -1202,11 +1204,13 @@ impl<T, R: Dim, C: Dim, S: RawStorageMut<T, R, C>> Matrix<T, R, C, S> {
     ///
     /// Both `(r, c)` must have `r < nrows(), c < ncols()`.
     #[inline]
-    pub unsafe fn swap_unchecked(&mut self, row_cols1: (usize, usize), row_cols2: (usize, usize)) { unsafe {
-        debug_assert!(row_cols1.0 < self.nrows() && row_cols1.1 < self.ncols());
-        debug_assert!(row_cols2.0 < self.nrows() && row_cols2.1 < self.ncols());
-        self.data.swap_unchecked(row_cols1, row_cols2)
-    }}
+    pub unsafe fn swap_unchecked(&mut self, row_cols1: (usize, usize), row_cols2: (usize, usize)) {
+        unsafe {
+            debug_assert!(row_cols1.0 < self.nrows() && row_cols1.1 < self.ncols());
+            debug_assert!(row_cols2.0 < self.nrows() && row_cols2.1 < self.ncols());
+            self.data.swap_unchecked(row_cols1, row_cols2)
+        }
+    }
 
     /// Swaps two entries.
     #[inline]
@@ -1311,11 +1315,13 @@ impl<T, D: Dim, S: RawStorage<T, D>> Vector<T, D, S> {
     /// `i` must be less than `D`.
     #[inline]
     #[must_use]
-    pub unsafe fn vget_unchecked(&self, i: usize) -> &T { unsafe {
-        debug_assert!(i < self.nrows(), "Vector index out of bounds.");
-        let i = i * self.strides().0;
-        self.data.get_unchecked_linear(i)
-    }}
+    pub unsafe fn vget_unchecked(&self, i: usize) -> &T {
+        unsafe {
+            debug_assert!(i < self.nrows(), "Vector index out of bounds.");
+            let i = i * self.strides().0;
+            self.data.get_unchecked_linear(i)
+        }
+    }
 }
 
 impl<T, D: Dim, S: RawStorageMut<T, D>> Vector<T, D, S> {
@@ -1324,11 +1330,13 @@ impl<T, D: Dim, S: RawStorageMut<T, D>> Vector<T, D, S> {
     /// `i` must be less than `D`.
     #[inline]
     #[must_use]
-    pub unsafe fn vget_unchecked_mut(&mut self, i: usize) -> &mut T { unsafe {
-        debug_assert!(i < self.nrows(), "Vector index out of bounds.");
-        let i = i * self.strides().0;
-        self.data.get_unchecked_linear_mut(i)
-    }}
+    pub unsafe fn vget_unchecked_mut(&mut self, i: usize) -> &mut T {
+        unsafe {
+            debug_assert!(i < self.nrows(), "Vector index out of bounds.");
+            let i = i * self.strides().0;
+            self.data.get_unchecked_linear_mut(i)
+        }
+    }
 }
 
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C> + IsContiguous> Matrix<T, R, C, S> {
@@ -2011,11 +2019,11 @@ mod tests {
 
 /// # Cross product
 impl<
-        T: Scalar + ClosedAddAssign + ClosedSubAssign + ClosedMulAssign,
-        R: Dim,
-        C: Dim,
-        S: RawStorage<T, R, C>,
-    > Matrix<T, R, C, S>
+    T: Scalar + ClosedAddAssign + ClosedSubAssign + ClosedMulAssign,
+    R: Dim,
+    C: Dim,
+    S: RawStorage<T, R, C>,
+> Matrix<T, R, C, S>
 {
     /// The perpendicular product between two 2D column vectors, i.e. `a.x * b.y - a.y * b.x`.
     #[inline]

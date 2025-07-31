@@ -7,8 +7,8 @@ use std::ops::{Div, DivAssign, Mul, MulAssign};
 use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 use simba::simd::SimdRealField;
 
-use crate::base::{SVector, Unit};
 use crate::Scalar;
+use crate::base::{SVector, Unit};
 
 use crate::geometry::{
     AbstractRotation, Isometry, Point, Rotation, Translation, UnitComplex, UnitQuaternion,

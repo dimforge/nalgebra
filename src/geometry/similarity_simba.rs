@@ -24,12 +24,14 @@ where
     }
 
     #[inline]
-    unsafe fn extract_unchecked(&self, i: usize) -> Self::Element { unsafe {
-        Similarity::from_isometry(
-            self.isometry.extract_unchecked(i),
-            self.scaling().extract_unchecked(i),
-        )
-    }}
+    unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
+        unsafe {
+            Similarity::from_isometry(
+                self.isometry.extract_unchecked(i),
+                self.scaling().extract_unchecked(i),
+            )
+        }
+    }
 
     #[inline]
     fn replace(&mut self, i: usize, val: Self::Element) {
@@ -40,12 +42,14 @@ where
     }
 
     #[inline]
-    unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) { unsafe {
-        let mut s = self.scaling();
-        s.replace_unchecked(i, val.scaling());
-        self.set_scaling(s);
-        self.isometry.replace_unchecked(i, val.isometry);
-    }}
+    unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
+        unsafe {
+            let mut s = self.scaling();
+            s.replace_unchecked(i, val.scaling());
+            self.set_scaling(s);
+            self.isometry.replace_unchecked(i, val.isometry);
+        }
+    }
 
     #[inline]
     fn select(self, cond: Self::SimdBool, other: Self) -> Self {

@@ -20,11 +20,7 @@ impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S> {
         DefaultAllocator: Allocator<D, D>,
     {
         let mut me = self.into_owned();
-        if me.try_inverse_mut() {
-            Some(me)
-        } else {
-            None
-        }
+        if me.try_inverse_mut() { Some(me) } else { None }
     }
 }
 

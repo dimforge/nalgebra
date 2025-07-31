@@ -1,4 +1,4 @@
-use na::{DMatrix, DVector, Matrix2, Matrix3, Matrix4, OMatrix, Vector2, Vector3, Vector4, U10};
+use na::{DMatrix, DVector, Matrix2, Matrix3, Matrix4, OMatrix, U10, Vector2, Vector3, Vector4};
 use rand::Rng;
 use rand_isaac::IsaacRng;
 use std::ops::{Add, Div, Mul, Sub};

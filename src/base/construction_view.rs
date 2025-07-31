@@ -21,14 +21,16 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         ncols: C,
         rstride: RStride,
         cstride: CStride,
-    ) -> Self { unsafe {
-        let data = ViewStorage::from_raw_parts(
-            data.as_ptr().add(start),
-            (nrows, ncols),
-            (rstride, cstride),
-        );
-        Self::from_data(data)
-    }}
+    ) -> Self {
+        unsafe {
+            let data = ViewStorage::from_raw_parts(
+                data.as_ptr().add(start),
+                (nrows, ncols),
+                (rstride, cstride),
+            );
+            Self::from_data(data)
+        }
+    }
 
     /// Creates a matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
@@ -69,11 +71,13 @@ impl<'a, T: Scalar, R: Dim, C: Dim> MatrixView<'a, T, R, C> {
         start: usize,
         nrows: R,
         ncols: C,
-    ) -> Self { unsafe {
-        Self::from_slice_with_strides_generic_unchecked(
-            data, start, nrows, ncols, Const::<1>, nrows,
-        )
-    }}
+    ) -> Self {
+        unsafe {
+            Self::from_slice_with_strides_generic_unchecked(
+                data, start, nrows, ncols, Const::<1>, nrows,
+            )
+        }
+    }
 
     /// Creates a matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
@@ -166,14 +170,16 @@ impl<'a, T: Scalar, R: Dim, C: Dim, RStride: Dim, CStride: Dim>
         ncols: C,
         rstride: RStride,
         cstride: CStride,
-    ) -> Self { unsafe {
-        let data = ViewStorageMut::from_raw_parts(
-            data.as_mut_ptr().add(start),
-            (nrows, ncols),
-            (rstride, cstride),
-        );
-        Self::from_data(data)
-    }}
+    ) -> Self {
+        unsafe {
+            let data = ViewStorageMut::from_raw_parts(
+                data.as_mut_ptr().add(start),
+                (nrows, ncols),
+                (rstride, cstride),
+            );
+            Self::from_data(data)
+        }
+    }
 
     /// Creates a mutable matrix view from an array and with dimensions and strides specified by generic types instances.
     ///
@@ -236,11 +242,13 @@ impl<'a, T: Scalar, R: Dim, C: Dim> MatrixViewMut<'a, T, R, C> {
         start: usize,
         nrows: R,
         ncols: C,
-    ) -> Self { unsafe {
-        Self::from_slice_with_strides_generic_unchecked(
-            data, start, nrows, ncols, Const::<1>, nrows,
-        )
-    }}
+    ) -> Self {
+        unsafe {
+            Self::from_slice_with_strides_generic_unchecked(
+                data, start, nrows, ncols, Const::<1>, nrows,
+            )
+        }
+    }
 
     /// Creates a mutable matrix view from an array and with dimensions and strides specified by generic types instances.
     ///

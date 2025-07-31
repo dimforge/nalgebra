@@ -1,9 +1,9 @@
 use crate::csc::CscMatrix;
+use crate::ops::Op;
 use crate::ops::serial::cs::{
     spadd_cs_prealloc, spmm_cs_dense, spmm_cs_prealloc, spmm_cs_prealloc_unchecked,
 };
 use crate::ops::serial::{OperationError, OperationErrorKind};
-use crate::ops::Op;
 use nalgebra::{ClosedAddAssign, ClosedMulAssign, DMatrixView, DMatrixViewMut, RealField, Scalar};
 use num_traits::{One, Zero};
 
