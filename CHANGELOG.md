@@ -5,7 +5,7 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased] (?)
+## [0.34.0] (31 July 2025)
 
 ### Added
 
@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ### Changed
 
 - Bumped MSRV to 1.87.0.
+- Updated rand dependency to 0.9.0.
 - Renamed associated const `DimName::USIZE` to `DimName::DIM`.
 - Moved to Rust 2024 edition.
 - Several methods are now `const` whenever possible. See details in [#1522](https://github.com/dimforge/nalgebra/pull/1522).
