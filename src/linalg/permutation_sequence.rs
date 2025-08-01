@@ -162,4 +162,10 @@ where
             -T::one()
         }
     }
+
+    /// Returns the permutation indices as a vector of tuples to the user.
+    #[inline]
+    pub fn permutation_indices(&self) -> Vec<(usize, usize)> {
+        self.ipiv.rows_range(..self.len).iter().cloned().collect()
+    }
 }
