@@ -379,6 +379,14 @@ pub type MatrixViewXx6<'a, T, RStride = U1, CStride = Dyn> =
 pub type VectorView<'a, T, D, RStride = U1, CStride = D> =
     Matrix<T, D, U1, ViewStorage<'a, T, D, U1, RStride, CStride>>;
 
+/// An immutable row vector view with dimensions known at compile-time.
+///
+///
+///
+/// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
+pub type RowVectorView<'a, T, D, RStride = D, CStride = U1> =
+    Matrix<T, U1, D, ViewStorage<'a, T, U1, D, RStride, CStride>>;
+
 /// An immutable column vector view with dimensions known at compile-time.
 ///
 /// See [`SVectorViewMut`] for a mutable version of this type.
@@ -806,7 +814,6 @@ pub type MatrixViewMutXx5<'a, T, RStride = U1, CStride = Dyn> =
 /// **Because this is an alias, not all its methods are listed here. See the [`Matrix`](crate::base::Matrix) type too.**
 pub type MatrixViewMutXx6<'a, T, RStride = U1, CStride = Dyn> =
     Matrix<T, Dyn, U6, ViewStorageMut<'a, T, Dyn, U6, RStride, CStride>>;
-
 /// A mutable column vector view with dimensions known at compile-time.
 ///
 /// See [`VectorView`] for an immutable version of this type.
