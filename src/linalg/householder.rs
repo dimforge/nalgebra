@@ -65,7 +65,7 @@ pub fn clear_column_unchecked<T: ComplexField, R: Dim, C: Dim>(
     bilateral: Option<&mut OVector<T, R>>,
 ) -> T
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T, R>,
+    DefaultAllocator: Allocator<R, C> + Allocator<R>,
 {
     let (mut left, mut right) = matrix.columns_range_pair_mut(icol, icol + 1..);
     let mut axis = left.rows_range_mut(icol + shift..);
@@ -98,7 +98,7 @@ pub fn clear_row_unchecked<T: ComplexField, R: Dim, C: Dim>(
     shift: usize,
 ) -> T
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T, R> + Allocator<T, C>,
+    DefaultAllocator: Allocator<R, C> + Allocator<R> + Allocator<C>,
 {
     let (mut top, mut bottom) = matrix.rows_range_pair_mut(irow, irow + 1..);
     let mut axis = axis_packed.rows_range_mut(irow + shift..);
@@ -129,7 +129,7 @@ where
 #[doc(hidden)]
 pub fn assemble_q<T: ComplexField, D: Dim>(m: &OMatrix<T, D, D>, signs: &[T]) -> OMatrix<T, D, D>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     assert!(m.is_square());
     let dim = m.shape_generic().0;

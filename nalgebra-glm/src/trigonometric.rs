@@ -1,5 +1,5 @@
-use crate::aliases::TVec;
 use crate::RealNumber;
+use crate::aliases::TVec;
 
 /// Component-wise arc-cosinus.
 pub fn acos<T: RealNumber, const D: usize>(x: &TVec<T, D>) -> TVec<T, D> {

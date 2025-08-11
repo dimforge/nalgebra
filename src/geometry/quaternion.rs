@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::Zero;
 use std::fmt;
@@ -38,6 +41,7 @@ use rkyv::bytecheck;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Quaternion<T> {
     /// This quaternion as a 4D vector of coordinates in the `[ x, y, z, w ]` storage order.
     pub coords: Vector4<T>,
@@ -118,7 +122,7 @@ where
     /// Moves this unit quaternion into one that owns its data.
     #[inline]
     #[deprecated(note = "This method is a no-op and will be removed in a future release.")]
-    pub fn into_owned(self) -> Self {
+    pub const fn into_owned(self) -> Self {
         self
     }
 
@@ -227,7 +231,7 @@ where
     /// ```
     #[inline]
     #[must_use]
-    pub fn as_vector(&self) -> &Vector4<T> {
+    pub const fn as_vector(&self) -> &Vector4<T> {
         &self.coords
     }
 
@@ -468,16 +472,16 @@ where
     where
         T: RealField,
     {
-        if let Some((q, n)) = Unit::try_new_and_get(self.clone(), T::zero()) {
-            if let Some(axis) = Unit::try_new(self.vector().clone_owned(), T::zero()) {
-                let angle = q.angle() / crate::convert(2.0f64);
+        match Unit::try_new_and_get(self.clone(), T::zero()) {
+            Some((q, n)) => match Unit::try_new(self.vector().clone_owned(), T::zero()) {
+                Some(axis) => {
+                    let angle = q.angle() / crate::convert(2.0f64);
 
-                (n, angle, Some(axis))
-            } else {
-                (n, T::zero(), None)
-            }
-        } else {
-            (T::zero(), T::zero(), None)
+                    (n, angle, Some(axis))
+                }
+                None => (n, T::zero(), None),
+            },
+            None => (T::zero(), T::zero(), None),
         }
     }
 
@@ -569,7 +573,7 @@ where
     /// assert!(q.i == 1.0 && q.j == 2.0 && q.k == 3.0 && q.w == 4.0);
     /// ```
     #[inline]
-    pub fn as_vector_mut(&mut self) -> &mut Vector4<T> {
+    pub const fn as_vector_mut(&mut self) -> &mut Vector4<T> {
         &mut self.coords
     }
 
@@ -1227,7 +1231,7 @@ where
     /// * `other`: the second quaternion to interpolate toward.
     /// * `t`: the interpolation parameter. Should be between 0 and 1.
     /// * `epsilon`: the value below which the sinus of the angle separating both quaternion
-    /// must be to return `None`.
+    ///   must be to return `None`.
     #[inline]
     #[must_use]
     pub fn try_slerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
@@ -1319,10 +1323,9 @@ where
     where
         T: RealField,
     {
-        if let Some(axis) = self.axis() {
-            axis.into_inner() * self.angle()
-        } else {
-            Vector3::zero()
+        match self.axis() {
+            Some(axis) => axis.into_inner() * self.angle(),
+            None => Vector3::zero(),
         }
     }
 
@@ -1380,10 +1383,9 @@ where
     where
         T: RealField,
     {
-        if let Some(v) = self.axis() {
-            Quaternion::from_imag(v.into_inner() * self.angle())
-        } else {
-            Quaternion::zero()
+        match self.axis() {
+            Some(v) => Quaternion::from_imag(v.into_inner() * self.angle()),
+            None => Quaternion::zero(),
         }
     }
 
@@ -1409,10 +1411,9 @@ where
     where
         T: RealField,
     {
-        if let Some(v) = self.axis() {
-            Self::from_axis_angle(&v, self.angle() * n)
-        } else {
-            Self::identity()
+        match self.axis() {
+            Some(v) => Self::from_axis_angle(&v, self.angle() * n),
+            None => Self::identity(),
         }
     }
 
@@ -1642,22 +1643,25 @@ impl<T: RealField> Default for UnitQuaternion<T> {
 
 impl<T: RealField + fmt::Display> fmt::Display for UnitQuaternion<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let Some(axis) = self.axis() {
-            let axis = axis.into_inner();
-            write!(
-                f,
-                "UnitQuaternion angle: {} − axis: ({}, {}, {})",
-                self.angle(),
-                axis[0],
-                axis[1],
-                axis[2]
-            )
-        } else {
-            write!(
-                f,
-                "UnitQuaternion angle: {} − axis: (undefined)",
-                self.angle()
-            )
+        match self.axis() {
+            Some(axis) => {
+                let axis = axis.into_inner();
+                write!(
+                    f,
+                    "UnitQuaternion angle: {} − axis: ({}, {}, {})",
+                    self.angle(),
+                    axis[0],
+                    axis[1],
+                    axis[2]
+                )
+            }
+            None => {
+                write!(
+                    f,
+                    "UnitQuaternion angle: {} − axis: (undefined)",
+                    self.angle()
+                )
+            }
         }
     }
 }

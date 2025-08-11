@@ -3,8 +3,8 @@ use quickcheck::{Arbitrary, Gen};
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 use num::One;
@@ -108,7 +108,7 @@ where
     /// assert_relative_eq!(rot * Point2::new(3.0, 4.0), Point2::new(-4.0, 3.0));
     /// ```
     #[inline]
-    pub fn from_cos_sin_unchecked(cos: T, sin: T) -> Self {
+    pub const fn from_cos_sin_unchecked(cos: T, sin: T) -> Self {
         Self::new_unchecked(Complex::new(cos, sin))
     }
 
@@ -229,8 +229,8 @@ where
     /// * `eps`: the angular errors tolerated between the current rotation and the optimal one.
     /// * `max_iter`: the maximum number of iterations. Loops indefinitely until convergence if set to `0`.
     /// * `guess`: an estimate of the solution. Convergence will be significantly faster if an initial solution close
-    ///           to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
-    ///           guesses come to mind.
+    ///   to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
+    ///   guesses come to mind.
     pub fn from_matrix_eps(m: &Matrix2<T>, eps: T, max_iter: usize, guess: Self) -> Self
     where
         T: RealField,
@@ -334,13 +334,12 @@ where
         SC: Storage<T, U2>,
     {
         // TODO: code duplication with Rotation.
-        if let (Some(na), Some(nb)) = (
+        match (
             Unit::try_new(a.clone_owned(), T::zero()),
             Unit::try_new(b.clone_owned(), T::zero()),
         ) {
-            Self::scaled_rotation_between_axis(&na, &nb, s)
-        } else {
-            Self::identity()
+            (Some(na), Some(nb)) => Self::scaled_rotation_between_axis(&na, &nb, s),
+            _ => Self::identity(),
         }
     }
 
@@ -411,7 +410,7 @@ where
 }
 
 #[cfg(feature = "rand")]
-impl<T: SimdRealField> Distribution<UnitComplex<T>> for Standard
+impl<T: SimdRealField> Distribution<UnitComplex<T>> for StandardUniform
 where
     T::Element: SimdRealField,
     rand_distr::UnitCircle: Distribution<[T; 2]>,

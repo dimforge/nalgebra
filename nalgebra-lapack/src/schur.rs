@@ -17,24 +17,20 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(serialize = "DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D, D> + Allocator<D>,
          OVector<T, D>: Serialize,
-         OMatrix<T, D, D>: Serialize")
-    )
+         OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(
-        bound(deserialize = "DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D, D> + Allocator<D>,
          OVector<T, D>: Serialize,
-         OMatrix<T, D, D>: Deserialize<'de>")
-    )
+         OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct Schur<T: Scalar, D: Dim>
 where
-    DefaultAllocator: Allocator<T, D> + Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D> + Allocator<D, D>,
 {
     re: OVector<T, D>,
     im: OVector<T, D>,
@@ -44,7 +40,7 @@ where
 
 impl<T: Scalar + Copy, D: Dim> Copy for Schur<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
     OMatrix<T, D, D>: Copy,
     OVector<T, D>: Copy,
 {
@@ -52,7 +48,7 @@ where
 
 impl<T: SchurScalar + RealField, D: Dim> Schur<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Computes the eigenvalues and real Schur form of the matrix `m`.
     ///
@@ -150,7 +146,7 @@ where
     #[must_use]
     pub fn complex_eigenvalues(&self) -> OVector<Complex<T>, D>
     where
-        DefaultAllocator: Allocator<Complex<T>, D>,
+        DefaultAllocator: Allocator<D>,
     {
         let mut out = Matrix::zeros_generic(self.t.shape_generic().0, Const::<1>);
 

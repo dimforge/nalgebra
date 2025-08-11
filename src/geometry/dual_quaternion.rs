@@ -1,3 +1,5 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
 // The macros break if the references are taken out, for some reason.
 #![allow(clippy::op_ref)]
 
@@ -6,7 +8,7 @@ use rkyv::bytecheck;
 
 use crate::{
     Isometry3, Matrix4, Normed, OVector, Point3, Quaternion, Scalar, SimdRealField, Translation3,
-    Unit, UnitQuaternion, Vector3, Zero, U8,
+    U8, Unit, UnitQuaternion, Vector3, Zero,
 };
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 #[cfg(feature = "serde-serialize-no-std")]
@@ -55,6 +57,7 @@ use simba::scalar::{ClosedNeg, RealField};
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct DualQuaternion<T> {
     /// The real component of the quaternion
     pub real: Quaternion<T>,
@@ -656,8 +659,7 @@ where
     /// * `other`: the second quaternion to interpolate toward.
     /// * `t`: the interpolation parameter. Should be between 0 and 1.
     /// * `epsilon`: the value below which the sinus of the angle separating
-    ///   both quaternion
-    /// must be to return `None`.
+    ///   both quaternion must be to return `None`.
     #[inline]
     #[must_use]
     pub fn try_sclerp(&self, other: &Self, t: T, epsilon: T) -> Option<Self>
@@ -961,24 +963,27 @@ impl<T: RealField> Default for UnitDualQuaternion<T> {
 
 impl<T: RealField + fmt::Display> fmt::Display for UnitDualQuaternion<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let Some(axis) = self.rotation().axis() {
-            let axis = axis.into_inner();
-            write!(
-                f,
-                "UnitDualQuaternion translation: {} − angle: {} − axis: ({}, {}, {})",
-                self.translation().vector,
-                self.rotation().angle(),
-                axis[0],
-                axis[1],
-                axis[2]
-            )
-        } else {
-            write!(
-                f,
-                "UnitDualQuaternion translation: {} − angle: {} − axis: (undefined)",
-                self.translation().vector,
-                self.rotation().angle()
-            )
+        match self.rotation().axis() {
+            Some(axis) => {
+                let axis = axis.into_inner();
+                write!(
+                    f,
+                    "UnitDualQuaternion translation: {} − angle: {} − axis: ({}, {}, {})",
+                    self.translation().vector,
+                    self.rotation().angle(),
+                    axis[0],
+                    axis[1],
+                    axis[2]
+                )
+            }
+            None => {
+                write!(
+                    f,
+                    "UnitDualQuaternion translation: {} − angle: {} − axis: (undefined)",
+                    self.translation().vector,
+                    self.rotation().angle()
+                )
+            }
         }
     }
 }

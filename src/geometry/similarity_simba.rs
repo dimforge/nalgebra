@@ -8,13 +8,9 @@ where
     R: SimdValue<SimdBool = T::SimdBool> + AbstractRotation<T, D>,
     R::Element: AbstractRotation<T::Element, D>,
 {
+    const LANES: usize = T::LANES;
     type Element = Similarity<T::Element, R::Element, D>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
@@ -29,10 +25,12 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        Similarity::from_isometry(
-            self.isometry.extract_unchecked(i),
-            self.scaling().extract_unchecked(i),
-        )
+        unsafe {
+            Similarity::from_isometry(
+                self.isometry.extract_unchecked(i),
+                self.scaling().extract_unchecked(i),
+            )
+        }
     }
 
     #[inline]
@@ -45,10 +43,12 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        let mut s = self.scaling();
-        s.replace_unchecked(i, val.scaling());
-        self.set_scaling(s);
-        self.isometry.replace_unchecked(i, val.isometry);
+        unsafe {
+            let mut s = self.scaling();
+            s.replace_unchecked(i, val.scaling());
+            self.set_scaling(s);
+            self.isometry.replace_unchecked(i, val.isometry);
+        }
     }
 
     #[inline]

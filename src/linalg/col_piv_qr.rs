@@ -2,41 +2,40 @@ use num::Zero;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Serialize};
 
+use crate::ComplexField;
 use crate::allocator::{Allocator, Reallocator};
 use crate::base::{Const, DefaultAllocator, Matrix, OMatrix, OVector, Unit};
 use crate::constraint::{SameNumberOfRows, ShapeConstraint};
 use crate::dimension::{Dim, DimMin, DimMinimum};
 use crate::storage::StorageMut;
-use crate::ComplexField;
 
 use crate::geometry::Reflection;
-use crate::linalg::{householder, PermutationSequence};
+use crate::linalg::{PermutationSequence, householder};
 use std::mem::MaybeUninit;
 
 /// The QR decomposition (with column pivoting) of a general matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, R, C> +
-                           Allocator<T, DimMinimum<R, C>>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<R, C> +
+                           Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Serialize,
          PermutationSequence<DimMinimum<R, C>>: Serialize,
          OVector<T, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, R, C> +
-                           Allocator<T, DimMinimum<R, C>>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<R, C> +
+                           Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Deserialize<'de>,
          PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>,
          OVector<T, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct ColPivQR<T: ComplexField, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<(usize, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
 {
     col_piv_qr: OMatrix<T, R, C>,
     p: PermutationSequence<DimMinimum<R, C>>,
@@ -45,9 +44,7 @@ where
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for ColPivQR<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<(usize, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
     OMatrix<T, R, C>: Copy,
     PermutationSequence<DimMinimum<R, C>>: Copy,
     OVector<T, DimMinimum<R, C>>: Copy,
@@ -56,10 +53,7 @@ where
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> ColPivQR<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, R>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<(usize, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<R> + Allocator<DimMinimum<R, C>>,
 {
     /// Computes the `ColPivQR` decomposition using householder reflections.
     pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
@@ -102,7 +96,7 @@ where
     #[must_use]
     pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
-        DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
+        DefaultAllocator: Allocator<DimMinimum<R, C>, C>,
     {
         let (nrows, ncols) = self.col_piv_qr.shape_generic();
         let mut res = self
@@ -134,7 +128,7 @@ where
     #[must_use]
     pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
-        DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
+        DefaultAllocator: Allocator<R, DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.col_piv_qr.shape_generic();
 
@@ -157,7 +151,7 @@ where
     /// Retrieves the column permutation of this decomposition.
     #[inline]
     #[must_use]
-    pub fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
+    pub const fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.p
     }
 
@@ -171,15 +165,15 @@ where
     )
     where
         DimMinimum<R, C>: DimMin<C, Output = DimMinimum<R, C>>,
-        DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>
+        DefaultAllocator: Allocator<R, DimMinimum<R, C>>
             + Reallocator<T, R, C, DimMinimum<R, C>, C>
-            + Allocator<(usize, usize), DimMinimum<R, C>>,
+            + Allocator<DimMinimum<R, C>>,
     {
         (self.q(), self.r(), self.p)
     }
 
     #[doc(hidden)]
-    pub fn col_piv_qr_internal(&self) -> &OMatrix<T, R, C> {
+    pub const fn col_piv_qr_internal(&self) -> &OMatrix<T, R, C> {
         &self.col_piv_qr
     }
 
@@ -202,8 +196,7 @@ where
 
 impl<T: ComplexField, D: DimMin<D, Output = D>> ColPivQR<T, D, D>
 where
-    DefaultAllocator:
-        Allocator<T, D, D> + Allocator<T, D> + Allocator<(usize, usize), DimMinimum<D, D>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D> + Allocator<DimMinimum<D, D>>,
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
@@ -216,7 +209,7 @@ where
     where
         S2: StorageMut<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
     {
         let mut res = b.clone_owned();
 

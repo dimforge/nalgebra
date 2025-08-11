@@ -1,7 +1,7 @@
 use na::UnitQuaternion;
 
-use crate::aliases::{Qua, TMat4, TVec, TVec3};
 use crate::RealNumber;
+use crate::aliases::{Qua, TMat4, TVec, TVec3};
 
 /// Euler angles of the quaternion `q` as (pitch, yaw, roll).
 pub fn quat_euler_angles<T: RealNumber>(x: &Qua<T>) -> TVec3<T> {

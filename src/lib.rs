@@ -46,34 +46,34 @@ fn main() {
 **nalgebra** is meant to be a general-purpose, low-dimensional, linear algebra library, with
 an optimized set of tools for computer graphics and physics. Those features include:
 
-* A single parametrizable type [`Matrix`](Matrix) for vectors, (square or rectangular) matrices, and
+* A single parametrizable type [`Matrix`] for vectors, (square or rectangular) matrices, and
   slices with dimensions known either at compile-time (using type-level integers) or at runtime.
 * Matrices and vectors with compile-time sizes are statically allocated while dynamic ones are
   allocated on the heap.
-* Convenient aliases for low-dimensional matrices and vectors: [`Vector1`](Vector1) to
-  [`Vector6`](Vector6) and [`Matrix1x1`](Matrix1) to [`Matrix6x6`](Matrix6), including rectangular
-  matrices like [`Matrix2x5`](Matrix2x5).
-* Points sizes known at compile time, and convenience aliases: [`Point1`](Point1) to
-  [`Point6`](Point6).
+* Convenient aliases for low-dimensional matrices and vectors: [`Vector1`] to
+  [`Vector6`] and [`Matrix1x1`](Matrix1) to [`Matrix6x6`](Matrix6), including rectangular
+  matrices like [`Matrix2x5`].
+* Points sizes known at compile time, and convenience aliases: [`Point1`] to
+  [`Point6`].
 * Translation (seen as a transformation that composes by multiplication):
-  [`Translation2`](Translation2), [`Translation3`](Translation3).
-* Rotation matrices: [`Rotation2`](Rotation2), [`Rotation3`](Rotation3).
-* Quaternions: [`Quaternion`](Quaternion), [`UnitQuaternion`](UnitQuaternion) (for 3D rotation).
-* Unit complex numbers can be used for 2D rotation: [`UnitComplex`](UnitComplex).
+  [`Translation2`], [`Translation3`].
+* Rotation matrices: [`Rotation2`], [`Rotation3`].
+* Quaternions: [`Quaternion`], [`UnitQuaternion`] (for 3D rotation).
+* Unit complex numbers can be used for 2D rotation: [`UnitComplex`].
 * Algebraic entities with a norm equal to one: [`Unit<T>`](Unit), e.g., `Unit<Vector3<f32>>`.
-* Isometries (translation ⨯ rotation): [`Isometry2`](Isometry2), [`Isometry3`](Isometry3)
+* Isometries (translation ⨯ rotation): [`Isometry2`], [`Isometry3`]
 * Similarity transformations (translation ⨯ rotation ⨯ uniform scale):
-  [`Similarity2`](Similarity2), [`Similarity3`](Similarity3).
+  [`Similarity2`], [`Similarity3`].
 * Affine transformations stored as a homogeneous matrix:
-  [`Affine2`](Affine2), [`Affine3`](Affine3).
+  [`Affine2`], [`Affine3`].
 * Projective (i.e. invertible) transformations stored as a homogeneous matrix:
-  [`Projective2`](Projective2), [`Projective3`](Projective3).
+  [`Projective2`], [`Projective3`].
 * General transformations that does not have to be invertible, stored as a homogeneous matrix:
-  [`Transform2`](Transform2), [`Transform3`](Transform3).
-* 3D projections for computer graphics: [`Perspective3`](Perspective3),
-  [`Orthographic3`](Orthographic3).
-* Matrix factorizations: [`Cholesky`](Cholesky), [`QR`](QR), [`LU`](LU), [`FullPivLU`](FullPivLU),
-  [`SVD`](SVD), [`Schur`](Schur), [`Hessenberg`](Hessenberg), [`SymmetricEigen`](SymmetricEigen).
+  [`Transform2`], [`Transform3`].
+* 3D projections for computer graphics: [`Perspective3`],
+  [`Orthographic3`].
+* Matrix factorizations: [`Cholesky`], [`QR`], [`LU`], [`FullPivLU`],
+  [`SVD`], [`Schur`], [`Hessenberg`], [`SymmetricEigen`].
 * Insertion and removal of rows of columns of a matrix.
 */
 
@@ -84,16 +84,19 @@ an optimized set of tools for computer graphics and physics. Those features incl
     unused_mut,
     unused_parens,
     rust_2018_idioms,
-    rust_2018_compatibility,
+    rust_2024_compatibility,
     future_incompatible,
     missing_copy_implementations
 )]
 #![cfg_attr(not(feature = "rkyv-serialize-no-std"), deny(unused_results))] // TODO: deny this globally once bytecheck stops generating unused results.
 #![doc(
-    html_favicon_url = "https://nalgebra.org/img/favicon.ico",
+    html_favicon_url = "https://nalgebra.rs/img/favicon.ico",
     html_root_url = "https://docs.rs/nalgebra/0.25.0"
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
+// only enables the `doc_cfg` feature when
+// the `docsrs` configuration attribute is defined
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 /// Generates an appropriate deprecation note with a suggestion for replacement.
 ///
@@ -155,7 +158,7 @@ pub use crate::sparse::*;
 pub use base as core;
 
 #[cfg(feature = "macros")]
-pub use nalgebra_macros::{dmatrix, dvector, matrix, point, vector};
+pub use nalgebra_macros::{dmatrix, dvector, matrix, point, stack, vector};
 
 use simba::scalar::SupersetOf;
 use std::cmp::{self, Ordering, PartialOrd};
@@ -165,7 +168,8 @@ use num::{One, Signed, Zero};
 use base::allocator::Allocator;
 pub use num_complex::Complex;
 pub use simba::scalar::{
-    ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, ComplexField, Field, RealField,
+    ClosedAddAssign, ClosedDivAssign, ClosedMulAssign, ClosedSubAssign, ComplexField, Field,
+    RealField,
 };
 pub use simba::simd::{SimdBool, SimdComplexField, SimdPartialOrd, SimdRealField, SimdValue};
 
@@ -206,7 +210,7 @@ pub fn zero<T: Zero>() -> T {
 #[inline]
 pub fn wrap<T>(mut val: T, min: T, max: T) -> T
 where
-    T: Copy + PartialOrd + ClosedAdd + ClosedSub,
+    T: Copy + PartialOrd + ClosedAddAssign + ClosedSubAssign,
 {
     assert!(min < max, "Invalid wrapping bounds.");
     let width = max - min;
@@ -238,11 +242,7 @@ where
 #[inline]
 pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
     if val > min {
-        if val < max {
-            val
-        } else {
-            max
-        }
+        if val < max { val } else { max }
     } else {
         min
     }
@@ -275,7 +275,7 @@ pub fn abs<T: Signed>(a: &T) -> T {
 pub fn inf<T, R: Dim, C: Dim>(a: &OMatrix<T, R, C>, b: &OMatrix<T, R, C>) -> OMatrix<T, R, C>
 where
     T: Scalar + SimdPartialOrd,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     a.inf(b)
 }
@@ -286,7 +286,7 @@ where
 pub fn sup<T, R: Dim, C: Dim>(a: &OMatrix<T, R, C>, b: &OMatrix<T, R, C>) -> OMatrix<T, R, C>
 where
     T: Scalar + SimdPartialOrd,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     a.sup(b)
 }
@@ -300,7 +300,7 @@ pub fn inf_sup<T, R: Dim, C: Dim>(
 ) -> (OMatrix<T, R, C>, OMatrix<T, R, C>)
 where
     T: Scalar + SimdPartialOrd,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     a.inf_sup(b)
 }

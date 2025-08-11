@@ -4,8 +4,8 @@ use quickcheck::{Arbitrary, Gen};
 use num::{Bounded, One, Zero};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 use crate::base::allocator::Allocator;
@@ -15,13 +15,13 @@ use crate::{
     Const, DimName, OPoint, OVector, Point1, Point2, Point3, Point4, Point5, Point6, Vector1,
     Vector2, Vector3, Vector4, Vector5, Vector6,
 };
-use simba::scalar::{ClosedDiv, SupersetOf};
+use simba::scalar::{ClosedDivAssign, SupersetOf};
 
 use crate::geometry::Point;
 
 impl<T: Scalar + Zero, D: DimName> Default for OPoint<T, D>
 where
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
 {
     fn default() -> Self {
         Self::origin()
@@ -31,7 +31,7 @@ where
 /// # Other construction methods
 impl<T: Scalar, D: DimName> OPoint<T, D>
 where
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
 {
     /// Creates a new point with all coordinates equal to zero.
     ///
@@ -108,12 +108,12 @@ where
     #[inline]
     pub fn from_homogeneous(v: OVector<T, DimNameSum<D, U1>>) -> Option<Self>
     where
-        T: Scalar + Zero + One + ClosedDiv,
+        T: Scalar + Zero + One + ClosedDivAssign,
         D: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<T, DimNameSum<D, U1>>,
+        DefaultAllocator: Allocator<DimNameSum<D, U1>>,
     {
-        if !v[D::dim()].is_zero() {
-            let coords = v.generic_view((0, 0), (D::name(), Const::<1>)) / v[D::dim()].clone();
+        if !v[D::DIM].is_zero() {
+            let coords = v.generic_view((0, 0), (D::name(), Const::<1>)) / v[D::DIM].clone();
             Some(Self::from(coords))
         } else {
             None
@@ -132,7 +132,7 @@ where
     pub fn cast<To: Scalar>(self) -> OPoint<To, D>
     where
         OPoint<To, D>: SupersetOf<Self>,
-        DefaultAllocator: Allocator<To, D>,
+        DefaultAllocator: Allocator<D>,
     {
         crate::convert(self)
     }
@@ -145,7 +145,7 @@ where
  */
 impl<T: Scalar + Bounded, D: DimName> Bounded for OPoint<T, D>
 where
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
 {
     #[inline]
     fn max_value() -> Self {
@@ -159,23 +159,23 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: Scalar, D: DimName> Distribution<OPoint<T, D>> for Standard
+impl<T: Scalar, D: DimName> Distribution<OPoint<T, D>> for StandardUniform
 where
-    Standard: Distribution<T>,
-    DefaultAllocator: Allocator<T, D>,
+    StandardUniform: Distribution<T>,
+    DefaultAllocator: Allocator<D>,
 {
     /// Generate a `Point` where each coordinate is an independent variate from `[0, 1)`.
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> OPoint<T, D> {
-        OPoint::from(rng.gen::<OVector<T, D>>())
+        OPoint::from(rng.random::<OVector<T, D>>())
     }
 }
 
 #[cfg(feature = "arbitrary")]
 impl<T: Scalar + Arbitrary + Send, D: DimName> Arbitrary for OPoint<T, D>
 where
-    <DefaultAllocator as Allocator<T, D>>::Buffer: Send,
-    DefaultAllocator: Allocator<T, D>,
+    <DefaultAllocator as Allocator<D>>::Buffer<T>: Send,
+    DefaultAllocator: Allocator<D>,
 {
     #[inline]
     fn arbitrary(g: &mut Gen) -> Self {
@@ -209,7 +209,7 @@ impl<T: Scalar> Point1<T> {
     }
 }
 macro_rules! componentwise_constructors_impl(
-    ($($doc: expr; $Point: ident, $Vector: ident, $($args: ident:$irow: expr),*);* $(;)*) => {$(
+    ($($doc: expr_2021; $Point: ident, $Vector: ident, $($args: ident:$irow: expr_2021),*);* $(;)*) => {$(
         impl<T: Scalar> $Point<T> {
             #[doc = "Initializes this point from its components."]
             #[doc = "# Example\n```"]

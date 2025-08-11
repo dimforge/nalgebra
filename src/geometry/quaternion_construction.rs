@@ -7,8 +7,8 @@ use quickcheck::{Arbitrary, Gen};
 
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{uniform::SampleUniform, Distribution, OpenClosed01, Standard, Uniform},
     Rng,
+    distr::{Distribution, OpenClosed01, StandardUniform, Uniform, uniform::SampleUniform},
 };
 
 use num::{One, Zero};
@@ -59,10 +59,10 @@ impl<T> Quaternion<T> {
     /// let q2 = q.cast::<f32>();
     /// assert_eq!(q2, Quaternion::new(1.0f32, 2.0, 3.0, 4.0));
     /// ```
-    pub fn cast<To: Scalar>(self) -> Quaternion<To>
+    pub fn cast<To>(self) -> Quaternion<To>
     where
         T: Scalar,
-        To: SupersetOf<T>,
+        To: Scalar + SupersetOf<T>,
     {
         crate::convert(self)
     }
@@ -171,13 +171,13 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: SimdRealField> Distribution<Quaternion<T>> for Standard
+impl<T: SimdRealField> Distribution<Quaternion<T>> for StandardUniform
 where
-    Standard: Distribution<T>,
+    StandardUniform: Distribution<T>,
 {
     #[inline]
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Quaternion<T> {
-        Quaternion::new(rng.gen(), rng.gen(), rng.gen(), rng.gen())
+        Quaternion::new(rng.random(), rng.random(), rng.random(), rng.random())
     }
 }
 
@@ -231,9 +231,9 @@ where
     /// let q2 = q.cast::<f32>();
     /// assert_relative_eq!(q2, UnitQuaternion::from_euler_angles(1.0f32, 2.0, 3.0), epsilon = 1.0e-6);
     /// ```
-    pub fn cast<To: Scalar>(self) -> UnitQuaternion<To>
+    pub fn cast<To>(self) -> UnitQuaternion<To>
     where
-        To: SupersetOf<T>,
+        To: Scalar + SupersetOf<T>,
     {
         crate::convert(self)
     }
@@ -427,8 +427,8 @@ where
     /// * `eps`: the angular errors tolerated between the current rotation and the optimal one.
     /// * `max_iter`: the maximum number of iterations. Loops indefinitely until convergence if set to `0`.
     /// * `guess`: an estimate of the solution. Convergence will be significantly faster if an initial solution close
-    ///           to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
-    ///           guesses come to mind.
+    ///   to the actual solution is provided. Can be set to `UnitQuaternion::identity()` if no other
+    ///   guesses come to mind.
     pub fn from_matrix_eps(m: &Matrix3<T>, eps: T, max_iter: usize, guess: Self) -> Self
     where
         T: RealField,
@@ -487,13 +487,12 @@ where
         SC: Storage<T, U3>,
     {
         // TODO: code duplication with Rotation.
-        if let (Some(na), Some(nb)) = (
+        match (
             Unit::try_new(a.clone_owned(), T::zero()),
             Unit::try_new(b.clone_owned(), T::zero()),
         ) {
-            Self::scaled_rotation_between_axis(&na, &nb, s)
-        } else {
-            Some(Self::identity())
+            (Some(na), Some(nb)) => Self::scaled_rotation_between_axis(&na, &nb, s),
+            _ => Some(Self::identity()),
         }
     }
 
@@ -551,26 +550,31 @@ where
         // TODO: code duplication with Rotation.
         let c = na.cross(nb);
 
-        if let Some(axis) = Unit::try_new(c, T::default_epsilon()) {
-            let cos = na.dot(nb);
+        match Unit::try_new(c, T::default_epsilon()) {
+            Some(axis) => {
+                let cos = na.dot(nb);
 
-            // The cosinus may be out of [-1, 1] because of inaccuracies.
-            if cos <= -T::one() {
-                None
-            } else if cos >= T::one() {
-                Some(Self::identity())
-            } else {
-                Some(Self::from_axis_angle(&axis, cos.acos() * s))
+                // The cosinus may be out of [-1, 1] because of inaccuracies.
+                if cos <= -T::one() {
+                    None
+                } else if cos >= T::one() {
+                    Some(Self::identity())
+                } else {
+                    Some(Self::from_axis_angle(&axis, cos.acos() * s))
+                }
             }
-        } else if na.dot(nb) < T::zero() {
-            // PI
-            //
-            // The rotation axis is undefined but the angle not zero. This is not a
-            // simple rotation.
-            None
-        } else {
-            // Zero
-            Some(Self::identity())
+            None => {
+                if na.dot(nb) < T::zero() {
+                    // PI
+                    //
+                    // The rotation axis is undefined but the angle not zero. This is not a
+                    // simple rotation.
+                    None
+                } else {
+                    // Zero
+                    Some(Self::identity())
+                }
+            }
         }
     }
 
@@ -582,8 +586,8 @@ where
     /// # Arguments
     ///   * dir - The look direction. It does not need to be normalized.
     ///   * up - The vertical direction. It does not need to be normalized.
-    ///   The only requirement of this parameter is to not be collinear to `dir`. Non-collinearity
-    ///   is not checked.
+    ///     The only requirement of this parameter is to not be collinear to `dir`. Non-collinearity
+    ///     is not checked.
     ///
     /// # Example
     /// ```
@@ -624,7 +628,7 @@ where
     /// # Arguments
     ///   * dir − The view direction. It does not need to be normalized.
     ///   * up - A vector approximately aligned with required the vertical axis. It does not need
-    ///   to be normalized. The only requirement of this parameter is to not be collinear to `dir`.
+    ///     to be normalized. The only requirement of this parameter is to not be collinear to `dir`.
     ///
     /// # Example
     /// ```
@@ -655,7 +659,7 @@ where
     /// # Arguments
     ///   * dir − The view direction. It does not need to be normalized.
     ///   * up - A vector approximately aligned with required the vertical axis. The only
-    ///   requirement of this parameter is to not be collinear to `dir`.
+    ///     requirement of this parameter is to not be collinear to `dir`.
     ///
     /// # Example
     /// ```
@@ -866,7 +870,7 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: SimdRealField> Distribution<UnitQuaternion<T>> for Standard
+impl<T: SimdRealField> Distribution<UnitQuaternion<T>> for StandardUniform
 where
     T::Element: SimdRealField,
     OpenClosed01: Distribution<T>,
@@ -879,7 +883,8 @@ where
         // Uniform random rotations.
         // In D. Kirk, editor, Graphics Gems III, pages 124-132. Academic, New York, 1992.
         let x0 = rng.sample(OpenClosed01);
-        let twopi = Uniform::new(T::zero(), T::simd_two_pi());
+        let twopi = Uniform::new(T::zero(), T::simd_two_pi())
+            .expect("Failed to construct `Uniform`, should be unreachable");
         let theta1 = rng.sample(&twopi);
         let theta2 = rng.sample(&twopi);
         let s1 = theta1.clone().simd_sin();
@@ -921,7 +926,7 @@ mod tests {
     fn random_unit_quats_are_unit() {
         let mut rng = rand_xorshift::XorShiftRng::from_seed([0xAB; 16]);
         for _ in 0..1000 {
-            let x = rng.gen::<UnitQuaternion<f32>>();
+            let x = rng.random::<UnitQuaternion<f32>>();
             assert!(relative_eq!(x.into_inner().norm(), 1.0))
         }
     }

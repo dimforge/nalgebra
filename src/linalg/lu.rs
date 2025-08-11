@@ -15,22 +15,23 @@ use crate::linalg::PermutationSequence;
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, R, C> +
-                           Allocator<(usize, usize), DimMinimum<R, C>>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<R, C> +
+                           Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Serialize,
          PermutationSequence<DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, R, C> +
-                           Allocator<(usize, usize), DimMinimum<R, C>>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<R, C> +
+                           Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Deserialize<'de>,
          PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct LU<T: ComplexField, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
 {
     lu: OMatrix<T, R, C>,
     p: PermutationSequence<DimMinimum<R, C>>,
@@ -38,7 +39,7 @@ where
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for LU<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
     OMatrix<T, R, C>: Copy,
     PermutationSequence<DimMinimum<R, C>>: Copy,
 {
@@ -53,7 +54,7 @@ pub fn try_invert_to<T: ComplexField, D: Dim, S>(
 ) -> bool
 where
     S: StorageMut<T, D, D>,
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     assert!(
         matrix.is_square(),
@@ -86,7 +87,7 @@ where
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> LU<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
 {
     /// Computes the LU decomposition with partial (row) pivoting of `matrix`.
     pub fn new(mut matrix: OMatrix<T, R, C>) -> Self {
@@ -121,7 +122,7 @@ where
     }
 
     #[doc(hidden)]
-    pub fn lu_internal(&self) -> &OMatrix<T, R, C> {
+    pub const fn lu_internal(&self) -> &OMatrix<T, R, C> {
         &self.lu
     }
 
@@ -130,7 +131,7 @@ where
     #[must_use]
     pub fn l(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
-        DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
+        DefaultAllocator: Allocator<R, DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.lu.shape_generic();
         let mut m = self.lu.columns_generic(0, nrows.min(ncols)).into_owned();
@@ -174,7 +175,7 @@ where
     #[must_use]
     pub fn u(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
-        DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
+        DefaultAllocator: Allocator<DimMinimum<R, C>, C>,
     {
         let (nrows, ncols) = self.lu.shape_generic();
         self.lu.rows_generic(0, nrows.min(ncols)).upper_triangle()
@@ -183,7 +184,7 @@ where
     /// The row permutations of this decomposition.
     #[inline]
     #[must_use]
-    pub fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
+    pub const fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.p
     }
 
@@ -197,8 +198,8 @@ where
         OMatrix<T, DimMinimum<R, C>, C>,
     )
     where
-        DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>
-            + Allocator<T, DimMinimum<R, C>, C>
+        DefaultAllocator: Allocator<R, DimMinimum<R, C>>
+            + Allocator<DimMinimum<R, C>, C>
             + Reallocator<T, R, C, R, DimMinimum<R, C>>,
     {
         // Use reallocation for either l or u.
@@ -211,7 +212,7 @@ where
 
 impl<T: ComplexField, D: DimMin<D, Output = D>> LU<T, D, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
@@ -224,7 +225,7 @@ where
     where
         S2: Storage<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
     {
         let mut res = b.clone_owned();
         if self.solve_mut(&mut res) {

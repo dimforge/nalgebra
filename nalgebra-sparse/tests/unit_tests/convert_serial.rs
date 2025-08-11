@@ -1,6 +1,6 @@
 use crate::common::csc_strategy;
-use nalgebra::proptest::matrix;
 use nalgebra::DMatrix;
+use nalgebra::proptest::matrix;
 use nalgebra_sparse::convert::serial::{
     convert_coo_csc, convert_coo_csr, convert_coo_dense, convert_csc_coo, convert_csc_csr,
     convert_csc_dense, convert_csr_coo, convert_csr_csc, convert_csr_dense, convert_dense_coo,

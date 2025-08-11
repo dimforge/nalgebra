@@ -119,12 +119,12 @@ impl<T: RealField + simba::scalar::RealField> FiniteDimVectorSpace for DualQuate
 
     #[inline]
     unsafe fn component_unchecked(&self, i: usize) -> &T {
-        self.as_ref().get_unchecked(i)
+        unsafe { self.as_ref().get_unchecked(i) }
     }
 
     #[inline]
     unsafe fn component_unchecked_mut(&mut self, i: usize) -> &mut T {
-        self.as_mut().get_unchecked_mut(i)
+        unsafe { self.as_mut().get_unchecked_mut(i) }
     }
 }
 

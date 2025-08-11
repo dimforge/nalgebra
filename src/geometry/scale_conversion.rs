@@ -7,8 +7,8 @@ use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector, SVector, Scalar};
 
-use crate::geometry::{Scale, SuperTCategoryOf, TAffine, Transform};
 use crate::Point;
+use crate::geometry::{Scale, SuperTCategoryOf, TAffine, Transform};
 
 /*
  * This file provides the following conversions:
@@ -48,9 +48,8 @@ where
     T2: RealField + SupersetOf<T1>,
     C: SuperTCategoryOf<TAffine>,
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T1, DimNameSum<Const<D>, U1>, U1>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<DimNameSum<Const<D>, U1>, U1>,
 {
     #[inline]
     fn to_superset(&self) -> Transform<T2, C, D> {
@@ -74,9 +73,8 @@ where
     T1: RealField,
     T2: RealField + SupersetOf<T1>,
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T1, DimNameSum<Const<D>, U1>, U1>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<DimNameSum<Const<D>, U1>, U1>,
 {
     #[inline]
     fn to_superset(&self) -> OMatrix<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
@@ -113,9 +111,9 @@ impl<T: Scalar + Zero + One, const D: usize> From<Scale<T, D>>
     for OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
 where
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T, DimNameSum<Const<D>, U1>, U1>
-        + Allocator<T, Const<D>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<DimNameSum<Const<D>, U1>, U1>
+        + Allocator<Const<D>>,
 {
     #[inline]
     fn from(t: Scale<T, D>) -> Self {

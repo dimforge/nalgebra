@@ -1,9 +1,13 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
+
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 #[cfg(feature = "serde-serialize-no-std")]
@@ -36,6 +40,7 @@ use rkyv::bytecheck;
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
 #[derive(Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Perspective3<T> {
     matrix: Matrix4<T>,
 }
@@ -157,14 +162,14 @@ impl<T: RealField> Perspective3<T> {
     /// A reference to the underlying homogeneous transformation matrix.
     #[inline]
     #[must_use]
-    pub fn as_matrix(&self) -> &Matrix4<T> {
+    pub const fn as_matrix(&self) -> &Matrix4<T> {
         &self.matrix
     }
 
     /// A reference to this transformation seen as a `Projective3`.
     #[inline]
     #[must_use]
-    pub fn as_projective(&self) -> &Projective3<T> {
+    pub const fn as_projective(&self) -> &Projective3<T> {
         unsafe { &*(self as *const Perspective3<T> as *const Projective3<T>) }
     }
 
@@ -313,18 +318,18 @@ impl<T: RealField> Perspective3<T> {
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: RealField> Distribution<Perspective3<T>> for Standard
+impl<T: RealField> Distribution<Perspective3<T>> for StandardUniform
 where
-    Standard: Distribution<T>,
+    StandardUniform: Distribution<T>,
 {
     /// Generate an arbitrary random variate for testing purposes.
     fn sample<R: Rng + ?Sized>(&self, r: &mut R) -> Perspective3<T> {
         use crate::base::helper;
-        let znear = r.gen();
+        let znear = r.random();
         let zfar = helper::reject_rand(r, |x: &T| !(x.clone() - znear.clone()).is_zero());
         let aspect = helper::reject_rand(r, |x: &T| !x.is_zero());
 
-        Perspective3::new(aspect, r.gen(), znear, zfar)
+        Perspective3::new(aspect, r.random(), znear, zfar)
     }
 }
 

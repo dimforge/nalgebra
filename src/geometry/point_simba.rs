@@ -8,13 +8,9 @@ impl<T: Scalar + SimdValue, const D: usize> SimdValue for Point<T, D>
 where
     T::Element: Scalar,
 {
+    const LANES: usize = T::LANES;
     type Element = Point<T::Element, D>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
@@ -28,7 +24,7 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        self.coords.extract_unchecked(i).into()
+        unsafe { self.coords.extract_unchecked(i).into() }
     }
 
     #[inline]
@@ -38,7 +34,7 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.coords.replace_unchecked(i, val.coords)
+        unsafe { self.coords.replace_unchecked(i, val.coords) }
     }
 
     #[inline]

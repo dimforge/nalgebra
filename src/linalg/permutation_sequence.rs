@@ -15,18 +15,19 @@ use crate::storage::StorageMut;
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(serialize = "DefaultAllocator: Allocator<(usize, usize), D>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D>,
          OVector<(usize, usize), D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<(usize, usize), D>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D>,
          OVector<(usize, usize), D>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct PermutationSequence<D: Dim>
 where
-    DefaultAllocator: Allocator<(usize, usize), D>,
+    DefaultAllocator: Allocator<D>,
 {
     len: usize,
     ipiv: OVector<(usize, usize), D>,
@@ -34,14 +35,14 @@ where
 
 impl<D: Dim> Copy for PermutationSequence<D>
 where
-    DefaultAllocator: Allocator<(usize, usize), D>,
+    DefaultAllocator: Allocator<D>,
     OVector<(usize, usize), D>: Copy,
 {
 }
 
 impl<D: DimName> PermutationSequence<D>
 where
-    DefaultAllocator: Allocator<(usize, usize), D>,
+    DefaultAllocator: Allocator<D>,
 {
     /// Creates a new statically-allocated sequence of `D` identity permutations.
     #[inline]
@@ -53,7 +54,7 @@ where
 #[cfg(any(feature = "std", feature = "alloc"))]
 impl PermutationSequence<Dyn>
 where
-    DefaultAllocator: Allocator<(usize, usize), Dyn>,
+    DefaultAllocator: Allocator<Dyn>,
 {
     /// Creates a new dynamically-allocated sequence of `n` identity permutations.
     #[inline]
@@ -64,7 +65,7 @@ where
 
 impl<D: Dim> PermutationSequence<D>
 where
-    DefaultAllocator: Allocator<(usize, usize), D>,
+    DefaultAllocator: Allocator<D>,
 {
     /// Creates a new sequence of D identity permutations.
     #[inline]
@@ -141,13 +142,13 @@ where
 
     /// The number of non-identity permutations applied by this sequence.
     #[must_use]
-    pub fn len(&self) -> usize {
+    pub const fn len(&self) -> usize {
         self.len
     }
 
     /// Returns true if the permutation sequence contains no elements.
     #[must_use]
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.len() == 0
     }
 

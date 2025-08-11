@@ -13,40 +13,37 @@ use crate::storage::Storage;
 use crate::{Matrix2, Matrix3, RawStorage, U2, U3};
 use simba::scalar::{ComplexField, RealField};
 
+use crate::linalg::Bidiagonal;
 use crate::linalg::givens::GivensRotation;
 use crate::linalg::symmetric_eigen;
-use crate::linalg::Bidiagonal;
 
 /// Singular Value Decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(
-        serialize = "DefaultAllocator: Allocator<T::RealField, DimMinimum<R, C>>    +
-                           Allocator<T, DimMinimum<R, C>, C> +
-                           Allocator<T, R, DimMinimum<R, C>>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<DimMinimum<R, C>>    +
+                           Allocator<DimMinimum<R, C>, C> +
+                           Allocator<R, DimMinimum<R, C>>,
          OMatrix<T, R, DimMinimum<R, C>>: Serialize,
          OMatrix<T, DimMinimum<R, C>, C>: Serialize,
-         OVector<T::RealField, DimMinimum<R, C>>: Serialize"
-    ))
+         OVector<T::RealField, DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(
-        deserialize = "DefaultAllocator: Allocator<T::RealField, DimMinimum<R, C>>    +
-                           Allocator<T, DimMinimum<R, C>, C> +
-                           Allocator<T, R, DimMinimum<R, C>>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<DimMinimum<R, C>> +
+                           Allocator<DimMinimum<R, C>, C> +
+                           Allocator<R, DimMinimum<R, C>>,
          OMatrix<T, R, DimMinimum<R, C>>: Deserialize<'de>,
          OMatrix<T, DimMinimum<R, C>, C>: Deserialize<'de>,
-         OVector<T::RealField, DimMinimum<R, C>>: Deserialize<'de>"
-    ))
+         OVector<T::RealField, DimMinimum<R, C>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct SVD<T: ComplexField, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<DimMinimum<R, C>, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>,
 {
     /// The left-singular vectors `U` of this SVD.
     pub u: Option<OMatrix<T, R, DimMinimum<R, C>>>,
@@ -58,9 +55,9 @@ where
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for SVD<T, R, C>
 where
-    DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<DimMinimum<R, C>, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>,
     OMatrix<T, R, DimMinimum<R, C>>: Copy,
     OMatrix<T, DimMinimum<R, C>, C>: Copy,
     OVector<T::RealField, DimMinimum<R, C>>: Copy,
@@ -70,15 +67,15 @@ where
 impl<T: ComplexField, R: DimMin<C>, C: Dim> SVD<T, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
-        + Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<C>
+        + Allocator<R>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>,
 {
     fn use_special_always_ordered_svd2() -> bool {
         TypeId::of::<OMatrix<T, R, C>>() == TypeId::of::<Matrix2<T::RealField>>()
@@ -114,8 +111,8 @@ where
     /// * `compute_v` − set this to `true` to enable the computation of right-singular vectors.
     /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
+    ///   number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    ///   continues indefinitely until convergence.
     pub fn try_new_unordered(
         mut matrix: OMatrix<T, R, C>,
         compute_u: bool,
@@ -217,54 +214,59 @@ where
                         m12,
                     );
 
-                    if let Some((rot1, norm1)) = GivensRotation::cancel_y(&vec) {
-                        rot1.inverse()
-                            .rotate_rows(&mut subm.fixed_columns_mut::<2>(0));
-                        let rot1 = GivensRotation::new_unchecked(rot1.c(), T::from_real(rot1.s()));
+                    match GivensRotation::cancel_y(&vec) {
+                        Some((rot1, norm1)) => {
+                            rot1.inverse()
+                                .rotate_rows(&mut subm.fixed_columns_mut::<2>(0));
+                            let rot1 =
+                                GivensRotation::new_unchecked(rot1.c(), T::from_real(rot1.s()));
 
-                        if k > start {
-                            // This is not the first iteration.
-                            off_diagonal[k - 1] = norm1;
-                        }
-
-                        let v = Vector2::new(subm[(0, 0)].clone(), subm[(1, 0)].clone());
-                        // TODO: does the case `v.y == 0` ever happen?
-                        let (rot2, norm2) = GivensRotation::cancel_y(&v)
-                            .unwrap_or((GivensRotation::identity(), subm[(0, 0)].clone()));
-
-                        rot2.rotate(&mut subm.fixed_columns_mut::<2>(1));
-                        let rot2 = GivensRotation::new_unchecked(rot2.c(), T::from_real(rot2.s()));
-
-                        subm[(0, 0)] = norm2;
-
-                        if let Some(ref mut v_t) = v_t {
-                            if bi_matrix.is_upper_diagonal() {
-                                rot1.rotate(&mut v_t.fixed_rows_mut::<2>(k));
-                            } else {
-                                rot2.rotate(&mut v_t.fixed_rows_mut::<2>(k));
+                            if k > start {
+                                // This is not the first iteration.
+                                off_diagonal[k - 1] = norm1;
                             }
-                        }
 
-                        if let Some(ref mut u) = u {
-                            if bi_matrix.is_upper_diagonal() {
-                                rot2.inverse().rotate_rows(&mut u.fixed_columns_mut::<2>(k));
-                            } else {
-                                rot1.inverse().rotate_rows(&mut u.fixed_columns_mut::<2>(k));
+                            let v = Vector2::new(subm[(0, 0)].clone(), subm[(1, 0)].clone());
+                            // TODO: does the case `v.y == 0` ever happen?
+                            let (rot2, norm2) = GivensRotation::cancel_y(&v)
+                                .unwrap_or((GivensRotation::identity(), subm[(0, 0)].clone()));
+
+                            rot2.rotate(&mut subm.fixed_columns_mut::<2>(1));
+                            let rot2 =
+                                GivensRotation::new_unchecked(rot2.c(), T::from_real(rot2.s()));
+
+                            subm[(0, 0)] = norm2;
+
+                            if let Some(ref mut v_t) = v_t {
+                                if bi_matrix.is_upper_diagonal() {
+                                    rot1.rotate(&mut v_t.fixed_rows_mut::<2>(k));
+                                } else {
+                                    rot2.rotate(&mut v_t.fixed_rows_mut::<2>(k));
+                                }
                             }
+
+                            if let Some(ref mut u) = u {
+                                if bi_matrix.is_upper_diagonal() {
+                                    rot2.inverse().rotate_rows(&mut u.fixed_columns_mut::<2>(k));
+                                } else {
+                                    rot1.inverse().rotate_rows(&mut u.fixed_columns_mut::<2>(k));
+                                }
+                            }
+
+                            diagonal[k] = subm[(0, 0)].clone();
+                            diagonal[k + 1] = subm[(1, 1)].clone();
+                            off_diagonal[k] = subm[(0, 1)].clone();
+
+                            if k != n - 1 {
+                                off_diagonal[k + 1] = subm[(1, 2)].clone();
+                            }
+
+                            vec.x = subm[(0, 1)].clone();
+                            vec.y = subm[(0, 2)].clone();
                         }
-
-                        diagonal[k] = subm[(0, 0)].clone();
-                        diagonal[k + 1] = subm[(1, 1)].clone();
-                        off_diagonal[k] = subm[(0, 1)].clone();
-
-                        if k != n - 1 {
-                            off_diagonal[k + 1] = subm[(1, 2)].clone();
+                        None => {
+                            break;
                         }
-
-                        vec.x = subm[(0, 1)].clone();
-                        vec.y = subm[(0, 2)].clone();
-                    } else {
-                        break;
                     }
                 }
             } else if subdim == 2 {
@@ -480,26 +482,29 @@ where
         off_diagonal[i] = T::RealField::zero();
 
         for k in i..end {
-            if let Some((rot, norm)) = GivensRotation::cancel_x(&v) {
-                let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
-                diagonal[k + 1] = norm;
+            match GivensRotation::cancel_x(&v) {
+                Some((rot, norm)) => {
+                    let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
+                    diagonal[k + 1] = norm;
 
-                if is_upper_diagonal {
-                    if let Some(ref mut u) = *u {
-                        rot.inverse()
-                            .rotate_rows(&mut u.fixed_columns_with_step_mut::<2>(i, k - i));
+                    if is_upper_diagonal {
+                        if let Some(ref mut u) = *u {
+                            rot.inverse()
+                                .rotate_rows(&mut u.fixed_columns_with_step_mut::<2>(i, k - i));
+                        }
+                    } else if let Some(ref mut v_t) = *v_t {
+                        rot.rotate(&mut v_t.fixed_rows_with_step_mut::<2>(i, k - i));
                     }
-                } else if let Some(ref mut v_t) = *v_t {
-                    rot.rotate(&mut v_t.fixed_rows_with_step_mut::<2>(i, k - i));
-                }
 
-                if k + 1 != end {
-                    v.x = -rot.s().real() * off_diagonal[k + 1].clone();
-                    v.y = diagonal[k + 2].clone();
-                    off_diagonal[k + 1] *= rot.c();
+                    if k + 1 != end {
+                        v.x = -rot.s().real() * off_diagonal[k + 1].clone();
+                        v.y = diagonal[k + 2].clone();
+                        off_diagonal[k + 1] *= rot.c();
+                    }
                 }
-            } else {
-                break;
+                None => {
+                    break;
+                }
             }
         }
     }
@@ -517,26 +522,29 @@ where
         off_diagonal[i] = T::RealField::zero();
 
         for k in (0..i + 1).rev() {
-            if let Some((rot, norm)) = GivensRotation::cancel_y(&v) {
-                let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
-                diagonal[k] = norm;
+            match GivensRotation::cancel_y(&v) {
+                Some((rot, norm)) => {
+                    let rot = GivensRotation::new_unchecked(rot.c(), T::from_real(rot.s()));
+                    diagonal[k] = norm;
 
-                if is_upper_diagonal {
-                    if let Some(ref mut v_t) = *v_t {
-                        rot.rotate(&mut v_t.fixed_rows_with_step_mut::<2>(k, i - k));
+                    if is_upper_diagonal {
+                        if let Some(ref mut v_t) = *v_t {
+                            rot.rotate(&mut v_t.fixed_rows_with_step_mut::<2>(k, i - k));
+                        }
+                    } else if let Some(ref mut u) = *u {
+                        rot.inverse()
+                            .rotate_rows(&mut u.fixed_columns_with_step_mut::<2>(k, i - k));
                     }
-                } else if let Some(ref mut u) = *u {
-                    rot.inverse()
-                        .rotate_rows(&mut u.fixed_columns_with_step_mut::<2>(k, i - k));
-                }
 
-                if k > 0 {
-                    v.x = diagonal[k - 1].clone();
-                    v.y = rot.s().real() * off_diagonal[k - 1].clone();
-                    off_diagonal[k - 1] *= rot.c();
+                    if k > 0 {
+                        v.x = diagonal[k - 1].clone();
+                        v.y = rot.s().real() * off_diagonal[k - 1].clone();
+                        off_diagonal[k - 1] *= rot.c();
+                    }
                 }
-            } else {
-                break;
+                None => {
+                    break;
+                }
             }
         }
     }
@@ -579,7 +587,7 @@ where
     /// been computed at construction-time.
     pub fn pseudo_inverse(mut self, eps: T::RealField) -> Result<OMatrix<T, C, R>, &'static str>
     where
-        DefaultAllocator: Allocator<T, C, R>,
+        DefaultAllocator: Allocator<C, R>,
     {
         if eps < T::RealField::zero() {
             Err("SVD pseudo inverse: the epsilon must be non-negative.")
@@ -610,7 +618,7 @@ where
     ) -> Result<OMatrix<T, C, C2>, &'static str>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, C, C2> + Allocator<T, DimMinimum<R, C>, C2>,
+        DefaultAllocator: Allocator<C, C2> + Allocator<DimMinimum<R, C>, C2>,
         ShapeConstraint: SameNumberOfRows<R, R2>,
     {
         if eps < T::RealField::zero() {
@@ -648,11 +656,11 @@ where
     /// Returns None if the singular vectors of the SVD haven't been calculated
     pub fn to_polar(&self) -> Option<(OMatrix<T, R, R>, OMatrix<T, R, C>)>
     where
-        DefaultAllocator: Allocator<T, R, C> //result
-            + Allocator<T, DimMinimum<R, C>, R> // adjoint
-            + Allocator<T, DimMinimum<R, C>> // mapped vals
-            + Allocator<T, R, R> // result
-            + Allocator<T, DimMinimum<R, C>, DimMinimum<R, C>>, // square matrix
+        DefaultAllocator: Allocator<R, C> //result
+            + Allocator<DimMinimum<R, C>, R> // adjoint
+            + Allocator<DimMinimum<R, C>> // mapped vals
+            + Allocator<R, R> // result
+            + Allocator<DimMinimum<R, C>, DimMinimum<R, C>>, // square matrix
     {
         match (&self.u, &self.v_t) {
             (Some(u), Some(v_t)) => Some((
@@ -668,17 +676,13 @@ where
 impl<T: ComplexField, R: DimMin<C>, C: Dim> SVD<T, R, C>
 where
     DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
-        + Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>
-        + Allocator<(usize, usize), DimMinimum<R, C>> // for sorted singular values
-        + Allocator<(T::RealField, usize), DimMinimum<R, C>>, // for sorted singular values
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<C>
+        + Allocator<R>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>, // for sorted singular values
 {
     /// Computes the Singular Value Decomposition of `matrix` using implicit shift.
     /// The singular values are guaranteed to be sorted in descending order.
@@ -703,8 +707,8 @@ where
     /// * `compute_v` − set this to `true` to enable the computation of right-singular vectors.
     /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
+    ///   number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    ///   continues indefinitely until convergence.
     pub fn try_new(
         matrix: OMatrix<T, R, C>,
         compute_u: bool,
@@ -784,15 +788,15 @@ where
 impl<T: ComplexField, R: DimMin<C>, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S>
 where
     DimMinimum<R, C>: DimSub<U1>, // for Bidiagonal.
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
-        + Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>,
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<C>
+        + Allocator<R>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>,
 {
     /// Computes the singular values of this matrix.
     /// The singular values are not guaranteed to be sorted in any particular order.
@@ -816,7 +820,7 @@ where
     /// All singular values below `eps` are considered equal to 0.
     pub fn pseudo_inverse(self, eps: T::RealField) -> Result<OMatrix<T, C, R>, &'static str>
     where
-        DefaultAllocator: Allocator<T, C, R>,
+        DefaultAllocator: Allocator<C, R>,
     {
         SVD::new_unordered(self.clone_owned(), true, true).pseudo_inverse(eps)
     }
@@ -825,17 +829,13 @@ where
 impl<T: ComplexField, R: DimMin<C>, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S>
 where
     DimMinimum<R, C>: DimSub<U1>,
-    DefaultAllocator: Allocator<T, R, C>
-        + Allocator<T, C>
-        + Allocator<T, R>
-        + Allocator<T, DimDiff<DimMinimum<R, C>, U1>>
-        + Allocator<T, DimMinimum<R, C>, C>
-        + Allocator<T, R, DimMinimum<R, C>>
-        + Allocator<T, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimMinimum<R, C>>
-        + Allocator<T::RealField, DimDiff<DimMinimum<R, C>, U1>>
-        + Allocator<(usize, usize), DimMinimum<R, C>>
-        + Allocator<(T::RealField, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<C>
+        + Allocator<R>
+        + Allocator<DimDiff<DimMinimum<R, C>, U1>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>>,
 {
     /// Computes the singular values of this matrix.
     /// The singular values are guaranteed to be sorted in descending order.

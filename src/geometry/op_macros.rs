@@ -17,11 +17,11 @@ macro_rules! md_impl(
      // Argument identifiers and types + output.
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty;
      // Operator actual implementation.
-     $action: expr;
+     $action: expr_2021;
      // Lifetime.
      $($lives: tt),*) => {
         impl<$($lives ,)* T $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
-            where T: Scalar + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
+            where T: Scalar + Zero + One + ClosedAddAssign + ClosedMulAssign $($(+ $ScalarBounds)*)*,
                   $( $ConstraintType: $ConstraintBound$(<$( $ConstraintBoundParams $( = $EqBound )*),*>)* ),*
                    {
             type Output = $Result;
@@ -51,10 +51,10 @@ macro_rules! md_impl_all(
      // Argument identifiers and types + output.
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty;
      // Operators actual implementations.
-     [val val] => $action_val_val: expr;
-     [ref val] => $action_ref_val: expr;
-     [val ref] => $action_val_ref: expr;
-     [ref ref] => $action_ref_ref: expr;) => {
+     [val val] => $action_val_val: expr_2021;
+     [ref val] => $action_ref_val: expr_2021;
+     [val ref] => $action_val_ref: expr_2021;
+     [ref ref] => $action_ref_ref: expr_2021;) => {
 
         md_impl!(
             $Op, $op $(where T: $($ScalarBounds),*)*;
@@ -110,9 +110,9 @@ macro_rules! md_assign_impl(
      // Argument identifiers and types.
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty;
      // Actual implementation and lifetimes.
-     $action: expr; $($lives: tt),*) => {
+     $action: expr_2021; $($lives: tt),*) => {
         impl<$($lives ,)* T $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
-            where T: Scalar + Zero + One + ClosedAdd + ClosedMul $($(+ $ScalarBounds)*)*,
+            where T: Scalar + Zero + One + ClosedAddAssign + ClosedMulAssign $($(+ $ScalarBounds)*)*,
                   $($(T::Element: $ElementBounds,)*)*
                   $( $ConstraintType: $ConstraintBound $(<$( $ConstraintBoundParams $( = $EqBound )*),*>)* ),*
         {
@@ -141,8 +141,8 @@ macro_rules! md_assign_impl_all(
      // Argument identifiers and types.
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty;
      // Actual implementation and lifetimes.
-     [val] => $action_val: expr;
-     [ref] => $action_ref: expr;) => {
+     [val] => $action_val: expr_2021;
+     [ref] => $action_ref: expr_2021;) => {
         md_assign_impl!(
             $Op, $op $(where T: $($ScalarBounds),*)* $(for T::Element: $($ElementBounds),*)*;
             ($R1, $C1),($R2, $C2)
@@ -175,7 +175,7 @@ macro_rules! add_sub_impl(
      // Where clause.
      where $($ConstraintType: ty: $ConstraintBound: ident$(<$($ConstraintBoundParams: ty $( = $EqBound: ty )*),*>)*),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty, Output = $Result: ty;
-     $action: expr; $($lives: tt),*) => {
+     $action: expr_2021; $($lives: tt),*) => {
         impl<$($lives ,)* T $(, $DimsDecl)* $(, const $D: usize)*> $Op<$Rhs> for $Lhs
             where T: Scalar + $bound,
                   ShapeConstraint: SameNumberOfRows<$R1, $R2 $(, Representative = $RRes)*> +
@@ -197,7 +197,7 @@ macro_rules! add_sub_assign_impl(
     ($Op: ident, $op: ident, $bound: ident;
     $(const $D: ident),*;
      $lhs: ident: $Lhs: ty, $rhs: ident: $Rhs: ty;
-     $action: expr; $($lives: tt),*) => {
+     $action: expr_2021; $($lives: tt),*) => {
         impl<$($lives ,)* T $(, const $D: usize),*> $Op<$Rhs> for $Lhs
             where T: Scalar + $bound {
             #[inline]

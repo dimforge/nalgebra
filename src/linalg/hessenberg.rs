@@ -6,30 +6,31 @@ use crate::base::{DefaultAllocator, OMatrix, OVector};
 use crate::dimension::{Const, DimDiff, DimSub, U1};
 use simba::scalar::ComplexField;
 
-use crate::linalg::householder;
 use crate::Matrix;
+use crate::linalg::householder;
 use std::mem::MaybeUninit;
 
 /// Hessenberg decomposition of a general matrix.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D> +
-                           Allocator<T, DimDiff<D, U1>>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D, D> +
+                           Allocator<DimDiff<D, U1>>,
          OMatrix<T, D, D>: Serialize,
          OVector<T, DimDiff<D, U1>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D> +
-                           Allocator<T, DimDiff<D, U1>>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D, D> +
+                           Allocator<DimDiff<D, U1>>,
          OMatrix<T, D, D>: Deserialize<'de>,
          OVector<T, DimDiff<D, U1>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct Hessenberg<T: ComplexField, D: DimSub<U1>>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<DimDiff<D, U1>>,
 {
     hess: OMatrix<T, D, D>,
     subdiag: OVector<T, DimDiff<D, U1>>,
@@ -37,7 +38,7 @@ where
 
 impl<T: ComplexField, D: DimSub<U1>> Copy for Hessenberg<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<DimDiff<D, U1>>,
     OMatrix<T, D, D>: Copy,
     OVector<T, DimDiff<D, U1>>: Copy,
 {
@@ -45,7 +46,7 @@ where
 
 impl<T: ComplexField, D: DimSub<U1>> Hessenberg<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D> + Allocator<T, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D> + Allocator<DimDiff<D, U1>>,
 {
     /// Computes the Hessenberg decomposition using householder reflections.
     pub fn new(hess: OMatrix<T, D, D>) -> Self {
@@ -148,7 +149,7 @@ where
     }
 
     #[doc(hidden)]
-    pub fn hess_internal(&self) -> &OMatrix<T, D, D> {
+    pub const fn hess_internal(&self) -> &OMatrix<T, D, D> {
         &self.hess
     }
 }

@@ -301,7 +301,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     pub fn normalize(&self) -> OMatrix<T, R, C>
     where
         T: SimdComplexField,
-        DefaultAllocator: Allocator<T, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         self.unscale(self.norm())
     }
@@ -325,7 +325,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     where
         T: SimdComplexField,
         T::Element: Scalar,
-        DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         let n = self.norm();
         let le = n.clone().simd_le(min_norm);
@@ -356,7 +356,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     pub fn cap_magnitude(&self, max: T::RealField) -> OMatrix<T, R, C>
     where
         T: ComplexField,
-        DefaultAllocator: Allocator<T, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         let n = self.norm();
 
@@ -374,7 +374,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     where
         T: SimdComplexField,
         T::Element: Scalar,
-        DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         let n = self.norm();
         let scaled = self.scale(max.clone() / n.clone());
@@ -390,7 +390,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     pub fn try_normalize(&self, min_norm: T::RealField) -> Option<OMatrix<T, R, C>>
     where
         T: ComplexField,
-        DefaultAllocator: Allocator<T, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         let n = self.norm();
 
@@ -430,7 +430,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
     where
         T: SimdComplexField,
         T::Element: Scalar,
-        DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+        DefaultAllocator: Allocator<R, C>,
     {
         let n = self.norm();
         let le = n.clone().simd_le(min_norm);
@@ -459,7 +459,7 @@ impl<T: Scalar, R: Dim, C: Dim, S: StorageMut<T, R, C>> Matrix<T, R, C, S> {
 
 impl<T: SimdComplexField, R: Dim, C: Dim> Normed for OMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     type Norm = T::SimdRealField;
 
@@ -486,7 +486,7 @@ where
 
 impl<T: Scalar + ClosedNeg, R: Dim, C: Dim> Neg for Unit<OMatrix<T, R, C>>
 where
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     type Output = Unit<OMatrix<T, R, C>>;
 
@@ -503,7 +503,7 @@ where
 /// # Basis and orthogonalization
 impl<T: ComplexField, D: DimName> OVector<T, D>
 where
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
 {
     /// The i-the canonical basis element.
     #[inline]
@@ -536,7 +536,7 @@ where
                 nbasis_elements += 1;
 
                 // All the other vectors will be dependent.
-                if nbasis_elements == D::dim() {
+                if nbasis_elements == D::DIM {
                     break;
                 }
             }
@@ -556,11 +556,11 @@ where
     {
         // TODO: is this necessary?
         assert!(
-            vs.len() <= D::dim(),
+            vs.len() <= D::DIM,
             "The given set of vectors has no chance of being a free family."
         );
 
-        match D::dim() {
+        match D::DIM {
             1 => {
                 if vs.is_empty() {
                     let _ = f(&Self::canonical_basis_element(0));
@@ -613,7 +613,7 @@ where
                         known_basis.push(v.normalize())
                     }
 
-                    for i in 0..D::dim() - vs.len() {
+                    for i in 0..D::DIM - vs.len() {
                         let mut elt = Self::canonical_basis_element(i);
 
                         for v in &known_basis {
@@ -631,8 +631,10 @@ where
                 }
                 #[cfg(all(not(feature = "std"), not(feature = "alloc")))]
                 {
-                    panic!("Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
-                            if #![no_std] is enabled and the 'alloc' feature is not enabled.")
+                    panic!(
+                        "Cannot compute the orthogonal subspace basis of a vector with a dimension greater than 3 \
+                            if #![no_std] is enabled and the 'alloc' feature is not enabled."
+                    )
                 }
             }
         }

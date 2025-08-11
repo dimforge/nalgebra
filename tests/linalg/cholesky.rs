@@ -17,13 +17,18 @@ macro_rules! gen_tests(
             use na::debug::RandomSDP;
             use na::dimension::{Const, Dyn};
             use na::{DMatrix, DVector, Matrix4x3, Vector4};
-            use rand::random;
+            use rand::{random, distr::uniform::{UniformUsize, UniformSampler}};
             use simba::scalar::ComplexField;
             #[allow(unused_imports)]
             use crate::core::helper::{RandScalar, RandComplex};
 
             use crate::proptest::*;
             use proptest::{prop_assert, proptest};
+
+            fn random_usize() -> usize {
+                let sampler = UniformUsize::new(usize::MIN, usize::MAX).unwrap();
+                sampler.sample(&mut rand::rng())
+            }
 
             proptest! {
                 #[test]
@@ -136,7 +141,8 @@ macro_rules! gen_tests(
                 #[test]
                 fn cholesky_insert_column(n in PROPTEST_MATRIX_DIM) {
                     let n = n.max(1).min(10);
-                    let j = random::<usize>() % n;
+
+                    let j = random_usize() % n;
                     let m_updated = RandomSDP::new(Dyn(n), || random::<$scalar>().0).unwrap();
 
                     // build m and col from m_updated
@@ -153,7 +159,7 @@ macro_rules! gen_tests(
                 #[test]
                 fn cholesky_remove_column(n in PROPTEST_MATRIX_DIM) {
                     let n = n.max(1).min(10);
-                    let j = random::<usize>() % n;
+                    let j = random_usize() % n;
                     let m = RandomSDP::new(Dyn(n), || random::<$scalar>().0).unwrap();
 
                     // remove column from cholesky decomposition and rebuild m

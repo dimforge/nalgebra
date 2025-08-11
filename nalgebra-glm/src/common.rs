@@ -1,8 +1,8 @@
 use core::mem;
 
+use crate::RealNumber;
 use crate::aliases::{TMat, TVec};
 use crate::traits::Number;
-use crate::RealNumber;
 
 /// For each matrix or vector component `x` if `x >= 0`; otherwise, it returns `-x`.
 ///
@@ -515,11 +515,7 @@ pub fn smoothstep<T: RealNumber>(edge0: T, edge1: T, x: T) -> T {
 
 /// Returns 0.0 if `x < edge`, otherwise it returns 1.0.
 pub fn step_scalar<T: Number>(edge: T, x: T) -> T {
-    if edge > x {
-        T::zero()
-    } else {
-        T::one()
-    }
+    if edge > x { T::zero() } else { T::one() }
 }
 
 /// Returns 0.0 if `x[i] < edge`, otherwise it returns 1.0.

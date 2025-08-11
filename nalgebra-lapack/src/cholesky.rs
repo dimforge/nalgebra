@@ -15,32 +15,32 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, D>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D>,
          OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct Cholesky<T: Scalar, D: Dim>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     l: OMatrix<T, D, D>,
 }
 
 impl<T: Scalar + Copy, D: Dim> Copy for Cholesky<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
     OMatrix<T, D, D>: Copy,
 {
 }
 
 impl<T: CholeskyScalar + Zero, D: Dim> Cholesky<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     /// Computes the cholesky decomposition of the given symmetric-definite-positive square
     /// matrix.
@@ -105,7 +105,7 @@ where
     ) -> Option<OMatrix<T, R2, C2>>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
     {
         let mut res = b.clone_owned();
         if self.solve_mut(&mut res) {
@@ -119,7 +119,7 @@ where
     /// the unknown to be determined.
     pub fn solve_mut<R2: Dim, C2: Dim>(&self, b: &mut OMatrix<T, R2, C2>) -> bool
     where
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
     {
         let dim = self.l.nrows();
 

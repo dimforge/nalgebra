@@ -8,7 +8,7 @@ use std::ops::Add;
 use num_traits::Zero;
 
 use nalgebra::storage::RawStorage;
-use nalgebra::{ClosedAdd, DMatrix, Dim, Matrix, Scalar};
+use nalgebra::{ClosedAddAssign, DMatrix, Dim, Matrix, Scalar};
 
 use crate::coo::CooMatrix;
 use crate::cs;
@@ -41,7 +41,7 @@ where
 /// Converts a [`CooMatrix`] to a dense matrix.
 pub fn convert_coo_dense<T>(coo: &CooMatrix<T>) -> DMatrix<T>
 where
-    T: Scalar + Zero + ClosedAdd,
+    T: Scalar + Zero + ClosedAddAssign,
 {
     let mut output = DMatrix::repeat(coo.nrows(), coo.ncols(), T::zero());
     for (i, j, v) in coo.triplet_iter() {
@@ -80,7 +80,7 @@ pub fn convert_csr_coo<T: Scalar>(csr: &CsrMatrix<T>) -> CooMatrix<T> {
 /// Converts a [`CsrMatrix`] to a dense matrix.
 pub fn convert_csr_dense<T>(csr: &CsrMatrix<T>) -> DMatrix<T>
 where
-    T: Scalar + ClosedAdd + Zero,
+    T: Scalar + ClosedAddAssign + Zero,
 {
     let mut output = DMatrix::zeros(csr.nrows(), csr.ncols());
 
@@ -157,7 +157,7 @@ where
 /// Converts a [`CscMatrix`] to a dense matrix.
 pub fn convert_csc_dense<T>(csc: &CscMatrix<T>) -> DMatrix<T>
 where
-    T: Scalar + ClosedAdd + Zero,
+    T: Scalar + ClosedAddAssign + Zero,
 {
     let mut output = DMatrix::zeros(csc.nrows(), csc.ncols());
 

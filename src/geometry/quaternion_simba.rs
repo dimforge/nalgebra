@@ -1,20 +1,16 @@
 use simba::simd::SimdValue;
 
+use crate::Scalar;
 use crate::base::Vector4;
 use crate::geometry::{Quaternion, UnitQuaternion};
-use crate::Scalar;
 
 impl<T: Scalar + SimdValue> SimdValue for Quaternion<T>
 where
     T::Element: Scalar,
 {
+    const LANES: usize = T::LANES;
     type Element = Quaternion<T::Element>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
@@ -28,7 +24,7 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        self.coords.extract_unchecked(i).into()
+        unsafe { self.coords.extract_unchecked(i).into() }
     }
 
     #[inline]
@@ -38,7 +34,7 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.coords.replace_unchecked(i, val.coords)
+        unsafe { self.coords.replace_unchecked(i, val.coords) }
     }
 
     #[inline]
@@ -51,13 +47,9 @@ impl<T: Scalar + SimdValue> SimdValue for UnitQuaternion<T>
 where
     T::Element: Scalar,
 {
+    const LANES: usize = T::LANES;
     type Element = UnitQuaternion<T::Element>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
@@ -71,7 +63,7 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        UnitQuaternion::new_unchecked(self.as_ref().extract_unchecked(i))
+        unsafe { UnitQuaternion::new_unchecked(self.as_ref().extract_unchecked(i)) }
     }
 
     #[inline]
@@ -81,8 +73,10 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.as_mut_unchecked()
-            .replace_unchecked(i, val.into_inner())
+        unsafe {
+            self.as_mut_unchecked()
+                .replace_unchecked(i, val.into_inner())
+        }
     }
 
     #[inline]

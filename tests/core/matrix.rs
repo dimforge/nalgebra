@@ -2,7 +2,7 @@ use na::iter::MatrixIter;
 use num::{One, Zero};
 use std::cmp::Ordering;
 
-use na::dimension::{U15, U8};
+use na::dimension::{U8, U15};
 use na::{
     self, Const, DMatrix, DVector, Matrix2, Matrix2x3, Matrix2x4, Matrix3, Matrix3x2, Matrix3x4,
     Matrix4, Matrix4x3, Matrix4x5, Matrix5, Matrix6, MatrixView2x3, MatrixViewMut2x3, OMatrix,
@@ -883,7 +883,7 @@ fn swizzle() {
 #[cfg(feature = "proptest-support")]
 mod transposition_tests {
     use super::*;
-    use crate::proptest::{dmatrix, matrix, vector4, PROPTEST_F64};
+    use crate::proptest::{PROPTEST_F64, dmatrix, matrix, vector4};
     use proptest::{prop_assert, prop_assert_eq, proptest};
 
     proptest! {
@@ -1166,8 +1166,8 @@ fn generic_omatrix_to_string<D>(
 ) -> (String, String)
 where
     D: nalgebra::Dim,
-    nalgebra::DefaultAllocator: nalgebra::base::allocator::Allocator<f64, D>,
-    nalgebra::DefaultAllocator: nalgebra::base::allocator::Allocator<f64, D, D>,
+    nalgebra::DefaultAllocator: nalgebra::base::allocator::Allocator<D>,
+    nalgebra::DefaultAllocator: nalgebra::base::allocator::Allocator<D, D>,
 {
     (vector.to_string(), matrix.to_string())
 }
@@ -1266,6 +1266,16 @@ fn column_iterator_double_ended_mut() {
     assert_eq!(col_iter_mut.next(), Some(cloned.column_mut(2)));
     assert_eq!(col_iter_mut.next_back(), None);
     assert_eq!(col_iter_mut.next(), None);
+}
+
+#[test]
+fn test_inversion_failure_leaves_matrix4_unchanged() {
+    let mut mat = na::Matrix4::new(
+        1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 6.0, 8.0, 3.0, 6.0, 9.0, 12.0, 4.0, 8.0, 12.0, 16.0,
+    );
+    let expected = mat.clone();
+    assert!(!mat.try_inverse_mut());
+    assert_eq!(mat, expected);
 }
 
 #[test]

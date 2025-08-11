@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
 use std::fmt;
@@ -64,6 +67,7 @@ use rkyv::bytecheck;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Copy, Clone)]
 pub struct Rotation<T, const D: usize> {
     matrix: SMatrix<T, D, D>,
@@ -77,7 +81,7 @@ impl<T: fmt::Debug, const D: usize> fmt::Debug for Rotation<T, D> {
 
 impl<T: Scalar + hash::Hash, const D: usize> hash::Hash for Rotation<T, D>
 where
-    <DefaultAllocator as Allocator<T, Const<D>, Const<D>>>::Buffer: hash::Hash,
+    <DefaultAllocator as Allocator<Const<D>, Const<D>>>::Buffer<T>: hash::Hash,
 {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.matrix.hash(state)
@@ -179,7 +183,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// ```
     #[inline]
     #[must_use]
-    pub fn matrix(&self) -> &SMatrix<T, D, D> {
+    pub const fn matrix(&self) -> &SMatrix<T, D, D> {
         &self.matrix
     }
 
@@ -190,7 +194,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// Invariants of the rotation matrix should not be violated.
     #[inline]
     #[deprecated(note = "Use `.matrix_mut_unchecked()` instead.")]
-    pub unsafe fn matrix_mut(&mut self) -> &mut SMatrix<T, D, D> {
+    pub const unsafe fn matrix_mut(&mut self) -> &mut SMatrix<T, D, D> {
         &mut self.matrix
     }
 
@@ -200,7 +204,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// matrix by another one that is non-inversible or non-orthonormal. If one of
     /// those properties is broken, subsequent method calls may return bogus results.
     #[inline]
-    pub fn matrix_mut_unchecked(&mut self) -> &mut SMatrix<T, D, D> {
+    pub const fn matrix_mut_unchecked(&mut self) -> &mut SMatrix<T, D, D> {
         &mut self.matrix
     }
 
@@ -265,7 +269,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
     where
         T: Zero + One,
         Const<D>: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+        DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         // We could use `SMatrix::to_homogeneous()` here, but that would imply
         // adding the additional traits `DimAdd` and `IsNotStaticOne`. Maybe
@@ -281,7 +285,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
 impl<T: Scalar, const D: usize> Rotation<T, D> {
     /// Transposes `self`.
     ///
-    /// Same as `.inverse()` because the inverse of a rotation matrix is its transform.
+    /// Same as `.inverse()` because the inverse of a rotation matrix is its transpose.
     ///
     /// # Example
     /// ```
@@ -305,7 +309,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
 
     /// Inverts `self`.
     ///
-    /// Same as `.transpose()` because the inverse of a rotation matrix is its transform.
+    /// Same as `.transpose()` because the inverse of a rotation matrix is its transpose.
     ///
     /// # Example
     /// ```
@@ -329,7 +333,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
 
     /// Transposes `self` in-place.
     ///
-    /// Same as `.inverse_mut()` because the inverse of a rotation matrix is its transform.
+    /// Same as `.inverse_mut()` because the inverse of a rotation matrix is its transpose.
     ///
     /// # Example
     /// ```
@@ -356,7 +360,7 @@ impl<T: Scalar, const D: usize> Rotation<T, D> {
 
     /// Inverts `self` in-place.
     ///
-    /// Same as `.transpose_mut()` because the inverse of a rotation matrix is its transform.
+    /// Same as `.transpose_mut()` because the inverse of a rotation matrix is its transpose.
     ///
     /// # Example
     /// ```

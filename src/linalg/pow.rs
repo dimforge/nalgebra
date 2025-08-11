@@ -1,19 +1,19 @@
 //! This module provides the matrix exponential (pow) function to square matrices.
 
 use crate::{
+    DefaultAllocator, DimMin, Matrix, OMatrix, Scalar,
     allocator::Allocator,
     storage::{Storage, StorageMut},
-    DefaultAllocator, DimMin, Matrix, OMatrix, Scalar,
 };
 use num::{One, Zero};
-use simba::scalar::{ClosedAdd, ClosedMul};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 
 impl<T, D, S> Matrix<T, D, D, S>
 where
-    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + One + ClosedAddAssign + ClosedMulAssign,
     D: DimMin<D, Output = D>,
     S: StorageMut<T, D, D>,
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Raises this matrix to an integral power `exp` in-place.
     pub fn pow_mut(&mut self, mut exp: u32) {
@@ -56,10 +56,10 @@ where
 
 impl<T, D, S: Storage<T, D, D>> Matrix<T, D, D, S>
 where
-    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + One + ClosedAddAssign + ClosedMulAssign,
     D: DimMin<D, Output = D>,
     S: StorageMut<T, D, D>,
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Raise this matrix to an integral power `exp`.
     #[must_use]

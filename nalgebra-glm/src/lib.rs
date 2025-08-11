@@ -30,7 +30,7 @@
    speaking, it supports all the common transformations like rotations, translations, scaling, shearing,
    and projections but operating in homogeneous coordinates. This means all the 2D transformations are
    expressed as 3x3 matrices, and all the 3D transformations as 4x4 matrices. This is less computationally-efficient
-   and memory-efficient than nalgebra's [transformation types](https://www.nalgebra.org/points_and_transformations/#transformations),
+   and memory-efficient than nalgebra's [transformation types](https://www.nalgebra.rs/points_and_transformations/#transformations),
    but this has the benefit of being simpler to use.
    ### Main differences compared to GLM
    While **nalgebra-glm** follows the feature line of the C++ GLM library, quite a few differences
@@ -115,12 +115,12 @@
     unused,
     missing_docs,
     rust_2018_idioms,
-    rust_2018_compatibility,
+    rust_2024_compatibility,
     future_incompatible,
     missing_copy_implementations,
     missing_debug_implementations
 )]
-#![doc(html_favicon_url = "https://nalgebra.org/img/favicon.ico")]
+#![doc(html_favicon_url = "https://nalgebra.rs/img/favicon.ico")]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 extern crate num_traits as num;
@@ -191,17 +191,17 @@ pub use gtx::{
     proj2d, quat_cross_vec, quat_extract_real_component, quat_fast_mix, quat_identity,
     quat_inv_cross_vec, quat_length2, quat_magnitude2, quat_rotate_normalized_axis,
     quat_rotate_vec, quat_rotate_vec3, quat_rotation, quat_short_mix, quat_to_mat3, quat_to_mat4,
-    reflect, reflect2d, right_handed, rotate2d, rotate_normalized_axis, rotate_vec2, rotate_vec3,
+    reflect, reflect2d, right_handed, rotate_normalized_axis, rotate_vec2, rotate_vec3,
     rotate_vec4, rotate_x_vec3, rotate_x_vec4, rotate_y_vec3, rotate_y_vec4, rotate_z_vec3,
-    rotate_z_vec4, rotation, rotation2d, scale2d, scale_bias, scale_bias_matrix, scaling,
-    scaling2d, shear2d_x, shear2d_y, shear_x, shear_y, shear_z, slerp, to_quat, translate2d,
+    rotate_z_vec4, rotate2d, rotation, rotation2d, scale_bias, scale_bias_matrix, scale2d, scaling,
+    scaling2d, shear_x, shear_y, shear_z, shear2d_x, shear2d_y, slerp, to_quat, translate2d,
     translation, translation2d, triangle_normal,
 };
 
+pub use na::{DefaultAllocator, Scalar, U1, U2, U3, U4};
 pub use na::{
     convert, convert_ref, convert_ref_unchecked, convert_unchecked, try_convert, try_convert_ref,
 };
-pub use na::{DefaultAllocator, Scalar, U1, U2, U3, U4};
 
 mod aliases;
 mod common;

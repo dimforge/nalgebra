@@ -8,7 +8,7 @@ use crate::{Const, DefaultAllocator, Dim, Matrix, OVector, RealField};
 /// The cholesky decomposition of a column compressed sparse matrix.
 pub struct CsCholesky<T: RealField, D: Dim>
 where
-    DefaultAllocator: Allocator<usize, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
 {
     // Non-zero pattern of the original matrix upper-triangular part.
     // Unlike the original matrix, the `original_p` array does contain the last sentinel value
@@ -28,7 +28,7 @@ where
 
 impl<T: RealField, D: Dim> CsCholesky<T, D>
 where
-    DefaultAllocator: Allocator<usize, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D> + Allocator<D>,
 {
     /// Computes the cholesky decomposition of the sparse matrix `m`.
     pub fn new(m: &CsMatrix<T, D, D>) -> Self {
@@ -67,20 +67,12 @@ where
     /// The lower-triangular matrix of the cholesky decomposition.
     #[must_use]
     pub fn l(&self) -> Option<&CsMatrix<T, D, D>> {
-        if self.ok {
-            Some(&self.l)
-        } else {
-            None
-        }
+        if self.ok { Some(&self.l) } else { None }
     }
 
     /// Extracts the lower-triangular matrix of the cholesky decomposition.
     pub fn unwrap_l(self) -> Option<CsMatrix<T, D, D>> {
-        if self.ok {
-            Some(self.l)
-        } else {
-            None
-        }
+        if self.ok { Some(self.l) } else { None }
     }
 
     /// Perform a numerical left-looking cholesky decomposition of a matrix with the same structure as the
@@ -234,8 +226,8 @@ where
 
     fn elimination_tree<S: CsStorage<T, D, D>>(m: &CsMatrix<T, D, D, S>) -> Vec<usize> {
         let nrows = m.nrows();
-        let mut forest: Vec<_> = iter::repeat(usize::max_value()).take(nrows).collect();
-        let mut ancestor: Vec<_> = iter::repeat(usize::max_value()).take(nrows).collect();
+        let mut forest: Vec<_> = iter::repeat(usize::MAX).take(nrows).collect();
+        let mut ancestor: Vec<_> = iter::repeat(usize::MAX).take(nrows).collect();
 
         for k in 0..nrows {
             for irow in m.data.column_row_indices(k) {
@@ -245,7 +237,7 @@ where
                     let i_ancestor = ancestor[i];
                     ancestor[i] = k;
 
-                    if i_ancestor == usize::max_value() {
+                    if i_ancestor == usize::MAX {
                         forest[i] = k;
                         break;
                     }
@@ -275,7 +267,7 @@ where
 
         for irow in m.data.column_row_indices(j) {
             let mut curr = irow;
-            while curr != usize::max_value() && curr <= max_j && !marks[curr] {
+            while curr != usize::MAX && curr <= max_j && !marks[curr] {
                 marks[curr] = true;
                 tmp.push(curr);
                 curr = tree[curr];
@@ -351,16 +343,16 @@ where
 
     fn tree_postorder(tree: &[usize]) -> Vec<usize> {
         // TODO: avoid all those allocations?
-        let mut first_child: Vec<_> = iter::repeat(usize::max_value()).take(tree.len()).collect();
+        let mut first_child: Vec<_> = iter::repeat(usize::MAX).take(tree.len()).collect();
         let mut other_children: Vec<_> =
-            iter::repeat(usize::max_value()).take(tree.len()).collect();
+            iter::repeat(usize::MAX).take(tree.len()).collect();
 
         // Build the children list from the parent list.
         // The set of children of the node `i` is given by the linked list
         // starting at `first_child[i]`. The nodes of this list are then:
         // { first_child[i], other_children[first_child[i]], other_children[other_children[first_child[i]], ... }
         for (i, parent) in tree.iter().enumerate() {
-            if *parent != usize::max_value() {
+            if *parent != usize::MAX {
                 let brother = first_child[*parent];
                 first_child[*parent] = i;
                 other_children[i] = brother;
@@ -371,7 +363,7 @@ where
         let mut postorder = Vec::with_capacity(tree.len());
 
         for (i, node) in tree.iter().enumerate() {
-            if *node == usize::max_value() {
+            if *node == usize::MAX {
                 Self::dfs(
                     i,
                     &mut first_child,
@@ -398,7 +390,7 @@ where
         while let Some(n) = stack.pop() {
             let child = first_child[n];
 
-            if child == usize::max_value() {
+            if child == usize::MAX {
                 // No children left.
                 result.push(n);
             } else {

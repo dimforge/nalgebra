@@ -1,6 +1,6 @@
 use crate::{RawStorage, SimdComplexField};
 use num::{One, Zero};
-use simba::scalar::{ClosedAdd, ClosedMul};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 
 use crate::base::allocator::Allocator;
 use crate::base::blas_uninit::{axcpy_uninit, gemm_uninit, gemv_uninit};
@@ -17,7 +17,7 @@ use crate::base::{
 /// # Dot/scalar product
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S>
 where
-    T: Scalar + Zero + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + ClosedAddAssign + ClosedMulAssign,
 {
     #[inline(always)]
     fn dotx<R2: Dim, C2: Dim, SB>(
@@ -275,7 +275,7 @@ where
 /// # BLAS functions
 impl<T, D: Dim, S> Vector<T, D, S>
 where
-    T: Scalar + Zero + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + ClosedAddAssign + ClosedMulAssign,
     S: StorageMut<T, D>,
 {
     /// Computes `self = a * x * c + b * self`.
@@ -609,7 +609,7 @@ where
 
 impl<T, R1: Dim, C1: Dim, S: StorageMut<T, R1, C1>> Matrix<T, R1, C1, S>
 where
-    T: Scalar + Zero + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + ClosedAddAssign + ClosedMulAssign,
 {
     #[inline(always)]
     fn gerx<D2: Dim, D3: Dim, SB, SC>(
@@ -862,7 +862,7 @@ where
 
 impl<T, R1: Dim, C1: Dim, S: StorageMut<T, R1, C1>> Matrix<T, R1, C1, S>
 where
-    T: Scalar + Zero + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + ClosedAddAssign + ClosedMulAssign,
 {
     #[inline(always)]
     fn xxgerx<D2: Dim, D3: Dim, SB, SC>(
@@ -1010,7 +1010,7 @@ where
 
 impl<T, D1: Dim, S: StorageMut<T, D1, D1>> SquareMatrix<T, D1, S>
 where
-    T: Scalar + Zero + One + ClosedAdd + ClosedMul,
+    T: Scalar + Zero + One + ClosedAddAssign + ClosedMulAssign,
 {
     /// Computes the quadratic form `self = alpha * lhs * mid * lhs.transpose() + beta * self`.
     ///
@@ -1098,7 +1098,7 @@ where
         S3: Storage<T, R3, C3>,
         S4: Storage<T, D4, D4>,
         ShapeConstraint: DimEq<D1, D1> + DimEq<D1, R3> + DimEq<C3, D4>,
-        DefaultAllocator: Allocator<T, D1>,
+        DefaultAllocator: Allocator<D1>,
     {
         // TODO: would it be useful to avoid the zero-initialization of the workspace data?
         let mut work = Matrix::zeros_generic(self.shape_generic().0, Const::<1>);
@@ -1196,7 +1196,7 @@ where
         S2: Storage<T, D2, D2>,
         S3: Storage<T, R3, C3>,
         ShapeConstraint: DimEq<D2, R3> + DimEq<D1, C3> + AreMultipliable<C3, R3, D2, U1>,
-        DefaultAllocator: Allocator<T, D2>,
+        DefaultAllocator: Allocator<D2>,
     {
         // TODO: would it be useful to avoid the zero-initialization of the workspace data?
         let mut work = Vector::zeros_generic(mid.shape_generic().0, Const::<1>);

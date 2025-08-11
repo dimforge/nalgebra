@@ -3,9 +3,9 @@ use crate::base::storage::Owned;
 #[cfg(feature = "arbitrary")]
 use quickcheck::{Arbitrary, Gen};
 
+use crate::base::Scalar;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, Dyn};
-use crate::base::Scalar;
 use crate::base::{DefaultAllocator, OMatrix};
 use simba::scalar::ComplexField;
 
@@ -15,14 +15,14 @@ use crate::debug::RandomOrthogonal;
 #[derive(Clone, Debug)]
 pub struct RandomSDP<T: Scalar, D: Dim = Dyn>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     m: OMatrix<T, D, D>,
 }
 
 impl<T: ComplexField, D: Dim> RandomSDP<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     /// Retrieve the generated matrix.
     pub fn unwrap(self) -> OMatrix<T, D, D> {
@@ -32,7 +32,7 @@ where
     /// Creates a new well conditioned symmetric definite-positive matrix from its dimension and a
     /// random reals generators.
     pub fn new<Rand: FnMut() -> T>(dim: D, mut rand: Rand) -> Self {
-        let mut m = RandomOrthogonal::new(dim, || rand()).unwrap();
+        let mut m = RandomOrthogonal::new(dim, &mut rand).unwrap();
         let mt = m.adjoint();
 
         for i in 0..dim.value() {
@@ -48,7 +48,7 @@ where
 #[cfg(feature = "arbitrary")]
 impl<T: ComplexField + Arbitrary + Send, D: Dim> Arbitrary for RandomSDP<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
     Owned<T, D, D>: Clone + Send,
 {
     fn arbitrary(g: &mut Gen) -> Self {

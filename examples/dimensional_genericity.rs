@@ -12,7 +12,7 @@ fn reflect_wrt_hyperplane_with_dimensional_genericity<T: RealField, D: Dim>(
 where
     T: RealField,
     D: Dim,
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
 {
     let n = plane_normal.as_ref(); // Get the underlying V.
     vector - n * (n.dot(vector) * na::convert(2.0))

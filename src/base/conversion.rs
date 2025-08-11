@@ -9,7 +9,7 @@ use simba::simd::{PrimitiveSimdValue, SimdValue};
 use crate::base::allocator::{Allocator, SameShapeAllocator};
 use crate::base::constraint::{SameNumberOfColumns, SameNumberOfRows, ShapeConstraint};
 use crate::base::dimension::{
-    Const, Dim, U1, U10, U11, U12, U13, U14, U15, U16, U2, U3, U4, U5, U6, U7, U8, U9,
+    Const, Dim, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16,
 };
 #[cfg(any(feature = "std", feature = "alloc"))]
 use crate::base::dimension::{DimName, Dyn};
@@ -35,8 +35,7 @@ where
     C2: Dim,
     T1: Scalar,
     T2: Scalar + SupersetOf<T1>,
-    DefaultAllocator:
-        Allocator<T2, R2, C2> + Allocator<T1, R1, C1> + SameShapeAllocator<T1, R1, C1, R2, C2>,
+    DefaultAllocator: Allocator<R2, C2> + Allocator<R1, C1> + SameShapeAllocator<R1, C1, R2, C2>,
     ShapeConstraint: SameNumberOfRows<R1, R2> + SameNumberOfColumns<C1, C2>,
 {
     #[inline]
@@ -188,7 +187,7 @@ where
 }
 
 macro_rules! impl_from_into_asref_1D(
-    ($(($NRows: ident, $NCols: ident) => $SZ: expr);* $(;)*) => {$(
+    ($(($NRows: ident, $NCols: ident) => $SZ: expr_2021);* $(;)*) => {$(
         impl<T, S> AsRef<[T; $SZ]> for Matrix<T, $NRows, $NCols, S>
         where T: Scalar,
               S: RawStorage<T, $NRows, $NCols> + IsContiguous {
@@ -266,7 +265,7 @@ macro_rules! impl_from_into_asref_borrow_2D(
 
     //does the impls on one case for either AsRef/AsMut and Borrow/BorrowMut
     (
-        ($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr);
+        ($NRows: ty, $NCols: ty) => ($SZRows: expr_2021, $SZCols: expr_2021);
         $Ref:ident.$ref:ident(), $Mut:ident.$mut:ident()
     ) => {
         impl<T: Scalar, S> $Ref<[[T; $SZRows]; $SZCols]> for Matrix<T, $NRows, $NCols, S>
@@ -293,7 +292,7 @@ macro_rules! impl_from_into_asref_borrow_2D(
     };
 
     //collects the mappings from typenum pairs to consts
-    ($(($NRows: ty, $NCols: ty) => ($SZRows: expr, $SZCols: expr));* $(;)*) => {$(
+    ($(($NRows: ty, $NCols: ty) => ($SZRows: expr_2021, $SZCols: expr_2021));* $(;)*) => {$(
         impl_from_into_asref_borrow_2D!(
             ($NRows, $NCols) => ($SZRows, $SZCols); AsRef.as_ref(), AsMut.as_mut()
         );
@@ -561,7 +560,7 @@ impl<T: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[OMatrix<T::Element, R
 where
     T: From<[<T as SimdValue>::Element; 2]>,
     T::Element: Scalar + SimdValue,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [OMatrix<T::Element, R, C>; 2]) -> Self {
@@ -578,7 +577,7 @@ impl<T: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[OMatrix<T::Element, R
 where
     T: From<[<T as SimdValue>::Element; 4]>,
     T::Element: Scalar + SimdValue,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [OMatrix<T::Element, R, C>; 4]) -> Self {
@@ -601,7 +600,7 @@ impl<T: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[OMatrix<T::Element, R
 where
     T: From<[<T as SimdValue>::Element; 8]>,
     T::Element: Scalar + SimdValue,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [OMatrix<T::Element, R, C>; 8]) -> Self {
@@ -628,7 +627,7 @@ impl<T: Scalar + PrimitiveSimdValue, R: Dim, C: Dim> From<[OMatrix<T::Element, R
 where
     T: From<[<T as SimdValue>::Element; 16]>,
     T::Element: Scalar + SimdValue,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     fn from(arr: [OMatrix<T::Element, R, C>; 16]) -> Self {
         let (nrows, ncols) = arr[0].shape_generic();

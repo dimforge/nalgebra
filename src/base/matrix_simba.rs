@@ -15,15 +15,11 @@ where
     R: Dim,
     C: Dim,
     T::Element: Scalar,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
+    const LANES: usize = T::LANES;
     type Element = OMatrix<T::Element, R, C>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
@@ -37,7 +33,7 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        self.map(|e| e.extract_unchecked(i))
+        unsafe { self.map(|e| e.extract_unchecked(i)) }
     }
 
     #[inline]
@@ -49,9 +45,11 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.zip_apply(&val, |a, b| {
-            a.replace_unchecked(i, b);
-        })
+        unsafe {
+            self.zip_apply(&val, |a, b| {
+                a.replace_unchecked(i, b);
+            })
+        }
     }
 
     fn select(self, cond: Self::SimdBool, other: Self) -> Self {

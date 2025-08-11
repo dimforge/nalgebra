@@ -6,8 +6,8 @@ use quickcheck::{Arbitrary, Gen};
 use num::One;
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 use simba::scalar::SupersetOf;
@@ -68,20 +68,20 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: crate::RealField, R, const D: usize> Distribution<Similarity<T, R, D>> for Standard
+impl<T: crate::RealField, R, const D: usize> Distribution<Similarity<T, R, D>> for StandardUniform
 where
     R: AbstractRotation<T, D>,
-    Standard: Distribution<T> + Distribution<R>,
+    StandardUniform: Distribution<T> + Distribution<R>,
 {
     /// Generate an arbitrary random variate for testing purposes.
     #[inline]
     fn sample<'a, G: Rng + ?Sized>(&self, rng: &mut G) -> Similarity<T, R, D> {
-        let mut s = rng.gen();
+        let mut s = rng.random();
         while relative_eq!(s, T::zero()) {
-            s = rng.gen()
+            s = rng.random()
         }
 
-        Similarity::from_isometry(rng.gen(), s)
+        Similarity::from_isometry(rng.random(), s)
     }
 }
 
@@ -280,7 +280,7 @@ macro_rules! similarity_construction_impl(
             ///   * eye - The observer position.
             ///   * target - The target position.
             ///   * up - Vertical direction. The only requirement of this parameter is to not be collinear
-            ///   to `eye - at`. Non-collinearity is not checked.
+            ///     to `eye - at`. Non-collinearity is not checked.
             ///
             /// # Example
             /// ```
@@ -329,7 +329,7 @@ macro_rules! similarity_construction_impl(
             ///   * eye - The eye position.
             ///   * target - The target position.
             ///   * up - A vector approximately aligned with required the vertical axis. The only
-            ///   requirement of this parameter is to not be collinear to `target - eye`.
+            ///     requirement of this parameter is to not be collinear to `target - eye`.
             ///
             /// # Example
             /// ```
@@ -366,7 +366,7 @@ macro_rules! similarity_construction_impl(
             ///   * eye - The eye position.
             ///   * target - The target position.
             ///   * up - A vector approximately aligned with required the vertical axis. The only
-            ///   requirement of this parameter is to not be collinear to `target - eye`.
+            ///     requirement of this parameter is to not be collinear to `target - eye`.
             ///
             /// # Example
             /// ```

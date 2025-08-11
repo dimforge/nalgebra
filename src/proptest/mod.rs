@@ -257,7 +257,7 @@ where
     ScalarStrategy::Value: Scalar,
     R: Dim,
     C: Dim,
-    DefaultAllocator: Allocator<ScalarStrategy::Value, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     matrix_(value_strategy, rows.into(), cols.into())
 }
@@ -273,7 +273,7 @@ where
     ScalarStrategy::Value: Scalar,
     R: Dim,
     C: Dim,
-    DefaultAllocator: Allocator<ScalarStrategy::Value, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     let nrows = rows.lower_bound().value()..=rows.upper_bound().value();
     let ncols = cols.lower_bound().value()..=cols.upper_bound().value();
@@ -327,7 +327,7 @@ where
     ScalarStrategy: Strategy + Clone + 'static,
     ScalarStrategy::Value: Scalar,
     D: Dim,
-    DefaultAllocator: Allocator<ScalarStrategy::Value, D>,
+    DefaultAllocator: Allocator<D>,
 {
     matrix_(value_strategy, length.into(), Const::<1>.into())
 }
@@ -395,7 +395,7 @@ where
     R: Dim,
     C: Dim,
     MatrixParameters<T::Parameters, R, C>: Default,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     type Parameters = MatrixParameters<T::Parameters, R, C>;
 
@@ -413,7 +413,7 @@ pub struct MatrixStrategy<NStrategy, R: Dim, C: Dim>
 where
     NStrategy: Strategy,
     NStrategy::Value: Scalar,
-    DefaultAllocator: Allocator<NStrategy::Value, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     // For now we only internally hold a boxed strategy. The reason for introducing this
     // separate wrapper struct is so that we can replace the strategy logic with custom logic
@@ -427,7 +427,7 @@ where
     NStrategy::Value: Scalar,
     R: Dim,
     C: Dim,
-    DefaultAllocator: Allocator<NStrategy::Value, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     type Tree = MatrixValueTree<NStrategy::Value, R, C>;
     type Value = OMatrix<NStrategy::Value, R, C>;
@@ -446,7 +446,7 @@ where
     T: Scalar,
     R: Dim,
     C: Dim,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     // For now we only wrap a boxed value tree. The reason for wrapping is that this allows us
     // to swap out the value tree logic down the road without significant breaking changes.
@@ -458,7 +458,7 @@ where
     T: Scalar,
     R: Dim,
     C: Dim,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     type Value = OMatrix<T, R, C>;
 

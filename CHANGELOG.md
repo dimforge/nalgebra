@@ -5,12 +5,68 @@ documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## [0.34.0] (31 July 2025)
 
-### Removed
+### Added
 
-- The `cuda` feature has been removed, as the toolchain it depends on
-  is long abandoned.
+- Add the `convert-glam030` feature to enable conversion from/to types from `glam` v0.30.
+- Add the `defmt` cargo feature that enables derives of `defmt::Format` for all no-std types.
+
+### Changed
+
+- Bumped MSRV to 1.87.0.
+- Updated rand dependency to 0.9.0.
+- Renamed associated const `DimName::USIZE` to `DimName::DIM`.
+- Moved to Rust 2024 edition.
+- Several methods are now `const` whenever possible. See details in [#1522](https://github.com/dimforge/nalgebra/pull/1522).
+- Features for conversion from/to types from `glam` (such as `convert-glam029`) no longer enable default features for
+  `glam`, allowing use in `no_std` environments.
+
+### Fixed
+
+- Fix infinite loop when attempting to take the Schur decomposition of a 0 matrix.
+
+## [0.33.2] (29 October 2024)
+
+### Added
+
+- Add the `convert-glam029` feature to enable conversion from/to types from `glam` v0.29.
+
+## [0.33.1] (16 October 2024)
+
+### Added
+
+- Add implementations of `bytemuck` traits for isometries and similarities.
+- Implement `AsRef<[T]>` for matrices with contiguous storage.
+- Enable the `num-complex/bytemuck` feature when the `convert-bytemuck` feature is enabled.
+
+## [0.33.0] (23 June 2024)
+
+### Fixed
+
+- Fix a memory leak in `Matrix::generic_resize`.
+- Fix `glm::is_null` to check the vector magnitude instead of individual components.
+- Ensure that inverting a 4x4 matrix leaves it unchanged if the inversion fails.
+
+### Added
+
+- Add the `glam-0.28` feature to enable conversion from/to types from `glam` v0.28.
+- Add a `stack!` macro for concatenating matrices. See [#1375](https://github.com/dimforge/nalgebra/pull/1375).
+
+### Modified
+
+- The `cuda` feature has been removed, as the toolchain it depends on is long abandoned.
+- Update to `simba` 0.9. See the [changelog](https://github.com/dimforge/simba/blob/master/CHANGELOG) of `simba` for
+  details.
+- Update the `nalgebra-macros` crate to `syn` 2.0.
+- Remove the scalar type `T` from the `Allocator` trait parameters. Instead of `Allocator<T, R, C>`, use the simpler
+  `Allocator<R, C>`.
+
+## [0.32.6] (12 June 2024)
+
+### Added
+
+- Add the `glam-0.27` feature to enable conversion from/to types from `glam` v0.27.
 
 ## [0.32.5] (28 March 2024)
 
@@ -679,7 +735,7 @@ All dependencies have been updated to their latest versions.
 
 The most notable change of this release is the support for using part of the library without the rust standard
 library (i.e. it supports `#![no_std]`). See the
-corresponding [documentation](https://nalgebra.org/wasm_and_embedded_programming/).
+corresponding [documentation](https://nalgebra.rs/wasm_and_embedded_programming/).
 
 ### Modified
 
@@ -863,7 +919,7 @@ The main change of this release is the update of the dependency serde to 1.0.
 
 ## [0.11.0]
 
-The [website](https://nalgebra.org) has been fully rewritten and gives a good
+The [website](https://nalgebra.rs) has been fully rewritten and gives a good
 overview of all the added/modified features.
 
 This version is a major rewrite of the library. Major changes are:
@@ -887,10 +943,10 @@ This version is a major rewrite of the library. Major changes are:
 ### Added
 
 Lots of features including rectangular matrices, slices, and Serde
-serialization. Refer to the brand new [website](https://nalgebra.org) for more
+serialization. Refer to the brand new [website](https://nalgebra.rs) for more
 details. The following free-functions have been added as well:
 
-* `::id()` that returns the universal [identity element](https://nalgebra.org/performance_tricks/#the-id-type)
+* `::id()` that returns the universal [identity element](https://nalgebra.rs/performance_tricks/#the-id-type)
   of type `Id`.
 * `::inf_sup()` that returns both the infimum and supremum of a value at the
   same time.

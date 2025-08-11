@@ -12,22 +12,22 @@ use lapack;
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D> +
-                           Allocator<T, DimDiff<D, U1>>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D, D> +
+                           Allocator<DimDiff<D, U1>>,
          OMatrix<T, D, D>: Serialize,
          OVector<T, DimDiff<D, U1>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D> +
-                           Allocator<T, DimDiff<D, U1>>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D, D> +
+                           Allocator<DimDiff<D, U1>>,
          OMatrix<T, D, D>: Deserialize<'de>,
          OVector<T, DimDiff<D, U1>>: Deserialize<'de>"))
 )]
 #[derive(Clone, Debug)]
 pub struct Hessenberg<T: Scalar, D: DimSub<U1>>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<DimDiff<D, U1>>,
 {
     h: OMatrix<T, D, D>,
     tau: OVector<T, DimDiff<D, U1>>,
@@ -35,7 +35,7 @@ where
 
 impl<T: Scalar + Copy, D: DimSub<U1>> Copy for Hessenberg<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<DimDiff<D, U1>>,
     OMatrix<T, D, D>: Copy,
     OVector<T, DimDiff<D, U1>>: Copy,
 {
@@ -43,7 +43,7 @@ where
 
 impl<T: HessenbergScalar + Zero, D: DimSub<U1>> Hessenberg<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<DimDiff<D, U1>>,
 {
     /// Computes the hessenberg decomposition of the matrix `m`.
     pub fn new(mut m: OMatrix<T, D, D>) -> Self {
@@ -97,7 +97,7 @@ where
 
 impl<T: HessenbergReal + Zero, D: DimSub<U1>> Hessenberg<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimDiff<D, U1>>,
+    DefaultAllocator: Allocator<D, D> + Allocator<DimDiff<D, U1>>,
 {
     /// Computes the matrices `(Q, H)` of this decomposition.
     #[inline]

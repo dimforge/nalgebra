@@ -20,7 +20,7 @@
 use num::{One, Zero};
 use std::ops::{Div, DivAssign, Index, Mul, MulAssign};
 
-use simba::scalar::{ClosedAdd, ClosedMul};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 
 use crate::base::allocator::Allocator;
 use crate::base::constraint::{AreMultipliable, ShapeConstraint};
@@ -77,7 +77,7 @@ md_impl_all!(
     const D1;
     for R2, C2, SB;
     where R2: Dim, C2: Dim, SB: Storage<T, R2, C2>,
-          DefaultAllocator: Allocator<T, Const<D1>, C2>,
+          DefaultAllocator: Allocator<Const<D1>, C2>,
           ShapeConstraint: AreMultipliable<Const<D1>, Const<D1>, R2, C2>;
     self: Rotation<T, D1>, right: Matrix<T, R2, C2, SB>, Output = OMatrix<T, Const<D1>, C2>;
     [val val] => self.into_inner() * right;
@@ -93,7 +93,7 @@ md_impl_all!(
     const D2;
     for R1, C1, SA;
     where R1: Dim, C1: Dim, SA: Storage<T, R1, C1>,
-          DefaultAllocator: Allocator<T, R1, Const<D2>>,
+          DefaultAllocator: Allocator<R1, Const<D2>>,
           ShapeConstraint:  AreMultipliable<R1, C1, Const<D2>, Const<D2>>;
     self: Matrix<T, R1, C1, SA>, right: Rotation<T, D2>, Output = OMatrix<T, R1, Const<D2>>;
     [val val] => self * right.into_inner();
@@ -109,7 +109,7 @@ md_impl_all!(
     const D2;
     for R1, C1, SA;
     where R1: Dim, C1: Dim, SA: Storage<T, R1, C1>,
-          DefaultAllocator: Allocator<T, R1, Const<D2>>,
+          DefaultAllocator: Allocator<R1, Const<D2>>,
           ShapeConstraint: AreMultipliable<R1, C1, Const<D2>, Const<D2>>;
     self: Matrix<T, R1, C1, SA>, right: Rotation<T, D2>, Output = OMatrix<T, R1, Const<D2>>;
     [val val] => #[allow(clippy::suspicious_arithmetic_impl)] { self * right.inverse() };

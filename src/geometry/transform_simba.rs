@@ -1,9 +1,9 @@
 use simba::simd::SimdValue;
 
+use crate::RealField;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::{Const, DefaultAllocator, OMatrix, Scalar};
-use crate::RealField;
 
 use crate::geometry::{TCategory, Transform};
 
@@ -12,16 +12,11 @@ where
     T::Element: Scalar,
     C: TCategory,
     Const<D>: DimNameAdd<U1>,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T::Element, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
+    const LANES: usize = T::LANES;
     type Element = Transform<T::Element, C, D>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
@@ -35,7 +30,7 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        Transform::from_matrix_unchecked(self.matrix().extract_unchecked(i))
+        unsafe { Transform::from_matrix_unchecked(self.matrix().extract_unchecked(i)) }
     }
 
     #[inline]
@@ -45,8 +40,10 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.matrix_mut_unchecked()
-            .replace_unchecked(i, val.into_inner())
+        unsafe {
+            self.matrix_mut_unchecked()
+                .replace_unchecked(i, val.into_inner())
+        }
     }
 
     #[inline]

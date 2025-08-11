@@ -20,7 +20,7 @@ impl<T: RealField + simba::scalar::RealField, C, const D: usize> Identity<Multip
 where
     Const<D>: DimNameAdd<U1>,
     C: TCategory,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn identity() -> Self {
@@ -33,10 +33,9 @@ impl<T: RealField + simba::scalar::RealField, C, const D: usize> TwoSidedInverse
 where
     Const<D>: DimNameAdd<U1>,
     C: SubTCategoryOf<TProjective>,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
-    #[must_use = "Did you mean to use two_sided_inverse_mut()?"]
     fn two_sided_inverse(&self) -> Self {
         self.clone().inverse()
     }
@@ -52,7 +51,7 @@ impl<T: RealField + simba::scalar::RealField, C, const D: usize> AbstractMagma<M
 where
     Const<D>: DimNameAdd<U1>,
     C: TCategory,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn operate(&self, rhs: &Self) -> Self {
@@ -66,7 +65,7 @@ macro_rules! impl_multiplicative_structures(
             where
                   Const<D>: DimNameAdd<U1>,
                   C: TCategory,
-                  DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> { }
+                  DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> { }
     )*}
 );
 
@@ -76,7 +75,7 @@ macro_rules! impl_inversible_multiplicative_structures(
             where
                   Const<D>: DimNameAdd<U1>,
                   C: SubTCategoryOf<TProjective>,
-                  DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> { }
+                  DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> { }
     )*}
 );
 
@@ -101,8 +100,8 @@ where
     Const<D>: DimNameAdd<U1>,
     T: RealField + simba::scalar::RealField,
     C: TCategory,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
@@ -120,8 +119,8 @@ where
     Const<D>: DimNameAdd<U1>,
     T: RealField + simba::scalar::RealField,
     C: SubTCategoryOf<TProjective>,
-    DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T, DimNameSum<Const<D>, U1>>,
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+        + Allocator<DimNameSum<Const<D>, U1>>,
 {
     #[inline]
     fn inverse_transform_point(&self, pt: &Point<T, D>) -> Point<T, D> {
@@ -139,7 +138,7 @@ where
 // impl<T, C, const D: usize> AffineTransformation<Point<T, D>> for Transform<T, C, D>
 //     where T:  RealField,
 //           C: SubTCategoryOf<TAffine>,
-//           DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
+//           DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>> {
 //     type PreRotation       = Rotation<T, D>;
 //     type NonUniformScaling = OVector<T, D>;
 //     type PostRotation      = Rotation<T, D>;

@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use std::fmt;
 use std::hash;
@@ -13,6 +16,9 @@ use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, SVector, Scalar, Unit};
 use crate::geometry::{AbstractRotation, Point, Translation};
+
+#[cfg(doc)]
+use crate::{Isometry3, Quaternion, Vector3, Vector4};
 
 #[cfg(feature = "rkyv-serialize")]
 use rkyv::bytecheck;
@@ -58,14 +64,14 @@ use rkyv::bytecheck;
 #[cfg_attr(
     feature = "serde-serialize-no-std",
     serde(bound(serialize = "R: Serialize,
-                     DefaultAllocator: Allocator<T, Const<D>>,
+                     DefaultAllocator: Allocator<Const<D>>,
                      Owned<T, Const<D>>: Serialize,
                      T: Scalar"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
     serde(bound(deserialize = "R: Deserialize<'de>,
-                       DefaultAllocator: Allocator<T, Const<D>>,
+                       DefaultAllocator: Allocator<Const<D>>,
                        Owned<T, Const<D>>: Deserialize<'de>,
                        T: Scalar"))
 )]
@@ -82,6 +88,7 @@ use rkyv::bytecheck;
     ")
     )
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Isometry<T, R, const D: usize> {
     /// The pure rotational part of this isometry.
     pub rotation: R,
@@ -97,6 +104,23 @@ where
         self.translation.hash(state);
         self.rotation.hash(state);
     }
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: Scalar, R, const D: usize> bytemuck::Zeroable for Isometry<T, R, D>
+where
+    SVector<T, D>: bytemuck::Zeroable,
+    R: bytemuck::Zeroable,
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: Scalar, R, const D: usize> bytemuck::Pod for Isometry<T, R, D>
+where
+    SVector<T, D>: bytemuck::Pod,
+    R: bytemuck::Pod,
+    T: Copy,
+{
 }
 
 /// # From the translation and rotation parts
@@ -116,7 +140,7 @@ impl<T: Scalar, R: AbstractRotation<T, D>, const D: usize> Isometry<T, R, D> {
     /// assert_relative_eq!(iso * Point3::new(1.0, 2.0, 3.0), Point3::new(-1.0, 2.0, 0.0), epsilon = 1.0e-6);
     /// ```
     #[inline]
-    pub fn from_parts(translation: Translation<T, D>, rotation: R) -> Self {
+    pub const fn from_parts(translation: Translation<T, D>, rotation: R) -> Self {
         Self {
             rotation,
             translation,
@@ -433,7 +457,7 @@ impl<T: SimdRealField, R, const D: usize> Isometry<T, R, D> {
     where
         Const<D>: DimNameAdd<U1>,
         R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>,
-        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+        DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         let mut res: OMatrix<T, _, _> = crate::convert_ref(&self.rotation);
         res.fixed_view_mut::<D, 1>(0, D)
@@ -465,7 +489,7 @@ impl<T: SimdRealField, R, const D: usize> Isometry<T, R, D> {
     where
         Const<D>: DimNameAdd<U1>,
         R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>,
-        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+        DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         self.to_homogeneous()
     }

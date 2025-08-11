@@ -1,5 +1,6 @@
 use num::Zero;
 
+use crate::ArrayStorage;
 use simba::scalar::{RealField, SubsetOf, SupersetOf};
 use simba::simd::{PrimitiveSimdValue, SimdValue};
 
@@ -169,11 +170,9 @@ where
     T2: RealField + SupersetOf<T1>,
     C: SuperTCategoryOf<TAffine>,
     Const<D>: DimNameAdd<U1> + DimMin<Const<D>, Output = Const<D>>, // needed by .is_special_orthogonal()
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
-    // + Allocator<(usize, usize), D>,
-    // Allocator<T1, D, D>
-    //     + Allocator<T2, D, D>
+    DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+    // + Allocator<D>,
+    //     + Allocator<D, D>
 {
     // needed by .is_special_orthogonal()
     #[inline]
@@ -198,10 +197,9 @@ where
     T1: RealField,
     T2: RealField + SupersetOf<T1>,
     Const<D>: DimNameAdd<U1> + DimMin<Const<D>, Output = Const<D>>, // needed by .is_special_orthogonal()
-    DefaultAllocator: Allocator<T1, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-        + Allocator<T2, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>, // + Allocator<(usize, usize), D>,
-                                                                             // + Allocator<T1, D, D>
-                                                                             // + Allocator<T2, D, D>
+    DefaultAllocator: Allocator<Const<D>, Const<D>, Buffer<T1> = ArrayStorage<T1, D, D>>
+        + Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>, // + Allocator<D>,
+                                                                    // + Allocator<D, D>
 {
     // needed by .is_special_orthogonal()
     #[inline]

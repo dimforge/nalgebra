@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
 use std::fmt;
@@ -6,12 +9,12 @@ use std::hash;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
+use crate::ClosedDivAssign;
+use crate::ClosedMulAssign;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
 use crate::base::storage::Owned;
 use crate::base::{Const, DefaultAllocator, OMatrix, OVector, SVector, Scalar};
-use crate::ClosedDiv;
-use crate::ClosedMul;
 
 use crate::geometry::Point;
 
@@ -32,6 +35,7 @@ use rkyv::bytecheck;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Copy, Clone)]
 pub struct Scale<T, const D: usize> {
     /// The scale coordinates, i.e., how much is multiplied to a point's coordinates when it is
@@ -121,7 +125,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[must_use = "Did you mean to use try_inverse_mut()?"]
     pub fn try_inverse(&self) -> Option<Scale<T, D>>
     where
-        T: ClosedDiv + One + Zero,
+        T: ClosedDivAssign + One + Zero,
     {
         for i in 0..D {
             if self.vector[i] == T::zero() {
@@ -156,7 +160,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[must_use]
     pub unsafe fn inverse_unchecked(&self) -> Scale<T, D>
     where
-        T: ClosedDiv + One,
+        T: ClosedDivAssign + One,
     {
         self.vector.map(|e| T::one() / e).into()
     }
@@ -184,7 +188,7 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[must_use]
     pub fn pseudo_inverse(&self) -> Scale<T, D>
     where
-        T: ClosedDiv + One + Zero,
+        T: ClosedDivAssign + One + Zero,
     {
         self.vector
             .map(|e| {
@@ -221,8 +225,8 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     where
         T: Zero + One + Clone,
         Const<D>: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
-            + Allocator<T, DimNameSum<Const<D>, U1>, U1>,
+        DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>
+            + Allocator<DimNameSum<Const<D>, U1>, U1>,
     {
         // TODO: use self.vector.push() instead. We can’t right now because
         //       that would require the DimAdd bound (but here we use DimNameAdd).
@@ -260,18 +264,19 @@ impl<T: Scalar, const D: usize> Scale<T, D> {
     #[inline]
     pub fn try_inverse_mut(&mut self) -> bool
     where
-        T: ClosedDiv + One + Zero,
+        T: ClosedDivAssign + One + Zero,
     {
-        if let Some(v) = self.try_inverse() {
-            self.vector = v.vector;
-            true
-        } else {
-            false
+        match self.try_inverse() {
+            Some(v) => {
+                self.vector = v.vector;
+                true
+            }
+            None => false,
         }
     }
 }
 
-impl<T: Scalar + ClosedMul, const D: usize> Scale<T, D> {
+impl<T: Scalar + ClosedMulAssign, const D: usize> Scale<T, D> {
     /// Translate the given point.
     ///
     /// This is the same as the multiplication `self * pt`.
@@ -290,7 +295,7 @@ impl<T: Scalar + ClosedMul, const D: usize> Scale<T, D> {
     }
 }
 
-impl<T: Scalar + ClosedDiv + ClosedMul + One + Zero, const D: usize> Scale<T, D> {
+impl<T: Scalar + ClosedDivAssign + ClosedMulAssign + One + Zero, const D: usize> Scale<T, D> {
     /// Translate the given point by the inverse of this Scale.
     ///
     /// # Example

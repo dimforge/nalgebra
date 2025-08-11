@@ -1,38 +1,38 @@
 [package]
 name = "nalgebra-glm"
-version = "0.18.0"
+version = "0.20.0"
 authors = ["sebcrozet <developer@crozet.re>"]
 
 description = "A computer-graphics oriented API for nalgebra, inspired by the C++ GLM library."
-documentation = "https://www.nalgebra.org/docs"
-homepage = "https://nalgebra.org"
+documentation = "https://www.nalgebra.rs/docs"
+homepage = "https://nalgebra.rs"
 repository = "https://github.com/dimforge/nalgebra"
 readme = "../README.md"
-categories = [ "science", "mathematics", "wasm", "no standard library" ]
-keywords = [ "linear", "algebra", "matrix", "vector", "math" ]
+categories = ["science", "mathematics", "wasm", "no-std"]
+keywords = ["linear", "algebra", "matrix", "vector", "math"]
 license = "Apache-2.0"
-edition = "2018"
+edition = "2024"
 
 [badges]
 maintenance = { status = "actively-developed" }
 
 [features]
-default               = [ "std" ]
-std                   = [ "nalgebra/std", "simba/std" ]
-arbitrary             = [ "nalgebra/arbitrary" ]
-serde-serialize       = [ "nalgebra/serde-serialize-no-std" ]
+default = ["std"]
+std = ["nalgebra/std", "simba/std"]
+arbitrary = ["nalgebra/arbitrary"]
+serde-serialize = ["nalgebra/serde-serialize-no-std"]
 
 # Conversion
-convert-mint = [ "nalgebra/mint" ]
-convert-bytemuck = [ "nalgebra/bytemuck" ]
-convert-glam014 = [ "nalgebra/glam014" ]
-convert-glam015 = [ "nalgebra/glam015" ]
-convert-glam016 = [ "nalgebra/glam016" ]
-convert-glam017 = [ "nalgebra/glam017" ]
-convert-glam018 = [ "nalgebra/glam018" ]
+convert-mint = ["nalgebra/mint"]
+convert-bytemuck = ["nalgebra/bytemuck"]
+convert-glam014 = ["nalgebra/glam014"]
+convert-glam015 = ["nalgebra/glam015"]
+convert-glam016 = ["nalgebra/glam016"]
+convert-glam017 = ["nalgebra/glam017"]
+convert-glam018 = ["nalgebra/glam018"]
 
 [dependencies]
 num-traits = { version = "0.2", default-features = false }
 approx = { version = "0.5", default-features = false }
-simba = { version = "0.8", default-features = false }
-nalgebra = { path =  "..", version = "0.32", default-features = false }
+simba = { version = "0.9", default-features = false }
+nalgebra = { path = "..", version = "0.34", default-features = false }

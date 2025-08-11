@@ -30,21 +30,17 @@ mod symmetric_eigen;
 mod symmetric_tridiagonal;
 mod udu;
 
-//// TODO: Not complete enough for publishing.
-//// This handles only cases where each eigenvalue has multiplicity one.
+// TODO: Not complete enough for publishing.
+// This handles only cases where each eigenvalue has multiplicity one.
 // mod eigen;
 
 pub use self::bidiagonal::*;
 pub use self::cholesky::*;
 pub use self::col_piv_qr::*;
-pub use self::convolution::*;
-#[cfg(feature = "std")]
-pub use self::exp::*;
 pub use self::full_piv_lu::*;
 pub use self::hessenberg::*;
 pub use self::lu::*;
 pub use self::permutation_sequence::*;
-pub use self::pow::*;
 pub use self::qr::*;
 pub use self::schur::*;
 pub use self::svd::*;

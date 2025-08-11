@@ -9,27 +9,26 @@ use quickcheck::{Arbitrary, Gen};
 use num::{Bounded, One, Zero};
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
-use std::iter;
 use typenum::{self, Cmp, Greater};
 
-use simba::scalar::{ClosedAdd, ClosedMul};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign};
 
+use crate::UninitMatrix;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimName, Dyn, ToTypenum};
 use crate::base::storage::RawStorage;
 use crate::base::{
     ArrayStorage, Const, DefaultAllocator, Matrix, OMatrix, OVector, Scalar, Unit, Vector,
 };
-use crate::UninitMatrix;
 use std::mem::MaybeUninit;
 
 impl<T: Scalar, R: Dim, C: Dim> UninitMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     /// Builds a matrix with uninitialized elements of type `MaybeUninit<T>`.
     #[inline(always)]
@@ -50,13 +49,13 @@ where
 /// These functions should only be used when working on dimension-generic code.
 impl<T: Scalar, R: Dim, C: Dim> OMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     /// Creates a matrix with all its elements set to `elem`.
     #[inline]
     pub fn from_element_generic(nrows: R, ncols: C, elem: T) -> Self {
         let len = nrows.value() * ncols.value();
-        Self::from_iterator_generic(nrows, ncols, iter::repeat(elem).take(len))
+        Self::from_iterator_generic(nrows, ncols, std::iter::repeat_n(elem, len))
     }
 
     /// Creates a matrix with all its elements set to `elem`.
@@ -65,7 +64,7 @@ where
     #[inline]
     pub fn repeat_generic(nrows: R, ncols: C, elem: T) -> Self {
         let len = nrows.value() * ncols.value();
-        Self::from_iterator_generic(nrows, ncols, iter::repeat(elem).take(len))
+        Self::from_iterator_generic(nrows, ncols, std::iter::repeat_n(elem, len))
     }
 
     /// Creates a matrix with all its elements set to 0.
@@ -293,10 +292,10 @@ where
     #[cfg(feature = "rand")]
     pub fn new_random_generic(nrows: R, ncols: C) -> Self
     where
-        Standard: Distribution<T>,
+        StandardUniform: Distribution<T>,
     {
-        let mut rng = rand::thread_rng();
-        Self::from_fn_generic(nrows, ncols, |_, _| rng.gen())
+        let mut rng = rand::rng();
+        Self::from_fn_generic(nrows, ncols, |_, _| rng.random())
     }
 
     /// Creates a matrix filled with random values from the given distribution.
@@ -338,7 +337,7 @@ where
 impl<T, D: Dim> OMatrix<T, D, D>
 where
     T: Scalar,
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     /// Creates a square matrix with its diagonal set to `diag` and all other entries set to 0.
     ///
@@ -382,7 +381,7 @@ where
  *
  */
 macro_rules! impl_constructors(
-    ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
+    ($($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr_2021),*; $($args: ident),*) => {
         /// Creates a matrix or vector with all its elements set to `elem`.
         ///
         /// # Example
@@ -521,26 +520,49 @@ macro_rules! impl_constructors(
         }
 
         /// Creates a matrix or vector filled with the results of a function applied to each of its
-        /// component coordinates.
+        /// element's indices.
         ///
-        /// # Example
+        /// The `from_fn` syntax changes depending if the type's rows or columns are dynamically or statically sized.
+        /// The dimension must only be supplied iff it is dynamically sized, e.g.
+        /// - `from_fn(f)` when both dimensions are statically sized
+        /// - `from_fn(nrows, f)` when only row dimension is dynamically sized
+        /// - `from_fn(ncols, f)` when only column dimension is dynamically sized
+        /// - `from_fn(nrows, ncols, f)` when both dimensions are dynamically sized
+        ///
+        /// The function object `f` (i.e. the last argument to `from_fn`) receives the row and column indices as arguments (e.g. `f(row, col)`).
+        /// For vectors, the column index is always zero (e.g. `f(row, 0)`).
+        ///
+        /// # Arguments
+        ///
+        /// - `nrows`: The number of rows. Must only be supplied for types with dynamic number of rows.
+        ///
+        /// - `ncols`: The number of columns. Must only be supplied for types with dynamic number of columns.
+        ///
+        /// - `f`: A function accepting the zero-based indices `(row, col)`.
+        ///
+        /// # Examples
+        ///
         /// ```
-        /// # use nalgebra::{Matrix2x3, Vector3, DVector, DMatrix};
-        /// # use std::iter;
+        /// use nalgebra::{DMatrix, DVector, Matrix2x3, Matrix2xX, MatrixXx3, Vector3};
+        /// use nalgebra_macros::{matrix, vector};
         ///
-        /// let v = Vector3::from_fn(|i, _| i);
-        /// // The additional argument represents the vector dimension.
-        /// let dv = DVector::from_fn(3, |i, _| i);
-        /// let m = Matrix2x3::from_fn(|i, j| i * 3 + j);
-        /// // The two additional arguments represent the matrix dimensions.
-        /// let dm = DMatrix::from_fn(2, 3, |i, j| i * 3 + j);
+        /// // statically sized dimensions -> both inferred
+        /// let v_3 = Vector3::from_fn(|i, _| i);
+        /// let m_2_3 = Matrix2x3::from_fn(|i, j| i * 3 + j);
+        /// assert_eq!(v_3, vector![0, 1, 2]);
+        /// assert_eq!(m_2_3, matrix![0, 1, 2; 3, 4, 5]);
         ///
-        /// assert!(v.x == 0 && v.y == 1 && v.z == 2);
-        /// assert!(dv[0] == 0 && dv[1] == 1 && dv[2] == 2);
-        /// assert!(m.m11 == 0 && m.m12 == 1 && m.m13 == 2 &&
-        ///         m.m21 == 3 && m.m22 == 4 && m.m23 == 5);
-        /// assert!(dm[(0, 0)] == 0 && dm[(0, 1)] == 1 && dm[(0, 2)] == 2 &&
-        ///         dm[(1, 0)] == 3 && dm[(1, 1)] == 4 && dm[(1, 2)] == 5);
+        /// // mixed sized dimensions -> static dimensions inferred, dynamic dimension must be given explicitly
+        /// let m_2_d = Matrix2xX::from_fn(3, |i, j| i * 3 + j); // explicit: ncols=3
+        /// let m_d_3 = MatrixXx3::from_fn(2, |i, j| i * 3 + j); // explicit: nrows=2
+        /// assert_eq!(m_2_d, matrix![0, 1, 2; 3, 4, 5]);
+        /// assert_eq!(m_d_3, matrix![0, 1, 2; 3, 4, 5]);
+        ///
+        /// // dynamically sized dimensions -> both must be given explicitly
+        /// let v_d = DVector::from_fn(3, |i, _| i);
+        /// let m_d_d = DMatrix::from_fn(2, 3, |i, j| i * 3 + j); // explicit: nrows=2, ncols=3
+        /// assert_eq!(v_d, vector![0, 1, 2]);
+        /// assert_eq!(m_d_d, matrix![0, 1, 2; 3, 4, 5]);
         /// ```
         #[inline]
         pub fn from_fn<F>($($args: usize,)* f: F) -> Self
@@ -637,7 +659,7 @@ macro_rules! impl_constructors(
         #[inline]
         #[cfg(feature = "rand")]
         pub fn new_random($($args: usize),*) -> Self
-            where Standard: Distribution<T> {
+            where StandardUniform: Distribution<T> {
             Self::new_random_generic($($gargs),*)
         }
     }
@@ -646,7 +668,7 @@ macro_rules! impl_constructors(
 /// # Constructors of statically-sized vectors or statically-sized matrices
 impl<T: Scalar, R: DimName, C: DimName> OMatrix<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     // TODO: this is not very pretty. We could find a better call syntax.
     impl_constructors!(R, C;                         // Arguments for Matrix<T, ..., S>
@@ -658,7 +680,7 @@ where
 /// # Constructors of matrices with a dynamic number of columns
 impl<T: Scalar, R: DimName> OMatrix<T, R, Dyn>
 where
-    DefaultAllocator: Allocator<T, R, Dyn>,
+    DefaultAllocator: Allocator<R, Dyn>,
 {
     impl_constructors!(R, Dyn;
                    => R: DimName;
@@ -669,7 +691,7 @@ where
 /// # Constructors of dynamic vectors and matrices with a dynamic number of rows
 impl<T: Scalar, C: DimName> OMatrix<T, Dyn, C>
 where
-    DefaultAllocator: Allocator<T, Dyn, C>,
+    DefaultAllocator: Allocator<Dyn, C>,
 {
     impl_constructors!(Dyn, C;
                    => C: DimName;
@@ -678,9 +700,10 @@ where
 }
 
 /// # Constructors of fully dynamic matrices
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl<T: Scalar> OMatrix<T, Dyn, Dyn>
 where
-    DefaultAllocator: Allocator<T, Dyn, Dyn>,
+    DefaultAllocator: Allocator<Dyn, Dyn>,
 {
     impl_constructors!(Dyn, Dyn;
                    ;
@@ -695,9 +718,9 @@ where
  *
  */
 macro_rules! impl_constructors_from_data(
-    ($data: ident; $($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr),*; $($args: ident),*) => {
+    ($data: ident; $($Dims: ty),*; $(=> $DimIdent: ident: $DimBound: ident),*; $($gargs: expr_2021),*; $($args: ident),*) => {
         impl<T: Scalar, $($DimIdent: $DimBound, )*> OMatrix<T $(, $Dims)*>
-        where DefaultAllocator: Allocator<T $(, $Dims)*> {
+        where DefaultAllocator: Allocator<$($Dims),*> {
             /// Creates a matrix with its elements filled with the components provided by a slice
             /// in row-major order.
             ///
@@ -792,14 +815,15 @@ R::name(), C::name();         // Arguments for `_generic` constructors.
 
 impl_constructors_from_data!(data; R, Dyn;
 => R: DimName;
-R::name(), Dyn(data.len() / R::dim());
+R::name(), Dyn(data.len() / R::DIM);
 );
 
 impl_constructors_from_data!(data; Dyn, C;
 => C: DimName;
-Dyn(data.len() / C::dim()), C::name();
+Dyn(data.len() / C::DIM), C::name();
 );
 
+#[cfg(any(feature = "std", feature = "alloc"))]
 impl_constructors_from_data!(data; Dyn, Dyn;
                             ;
                             Dyn(nrows), Dyn(ncols);
@@ -812,8 +836,8 @@ impl_constructors_from_data!(data; Dyn, Dyn;
  */
 impl<T, R: DimName, C: DimName> Zero for OMatrix<T, R, C>
 where
-    T: Scalar + Zero + ClosedAdd,
-    DefaultAllocator: Allocator<T, R, C>,
+    T: Scalar + Zero + ClosedAddAssign,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn zero() -> Self {
@@ -828,8 +852,8 @@ where
 
 impl<T, D: DimName> One for OMatrix<T, D, D>
 where
-    T: Scalar + Zero + One + ClosedMul + ClosedAdd,
-    DefaultAllocator: Allocator<T, D, D>,
+    T: Scalar + Zero + One + ClosedMulAssign + ClosedAddAssign,
+    DefaultAllocator: Allocator<D, D>,
 {
     #[inline]
     fn one() -> Self {
@@ -840,7 +864,7 @@ where
 impl<T, R: DimName, C: DimName> Bounded for OMatrix<T, R, C>
 where
     T: Scalar + Bounded,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn max_value() -> Self {
@@ -854,17 +878,19 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: Scalar, R: Dim, C: Dim> Distribution<OMatrix<T, R, C>> for Standard
+impl<T: Scalar, R: Dim, C: Dim> Distribution<OMatrix<T, R, C>> for StandardUniform
 where
-    DefaultAllocator: Allocator<T, R, C>,
-    Standard: Distribution<T>,
+    DefaultAllocator: Allocator<R, C>,
+    StandardUniform: Distribution<T>,
 {
     #[inline]
     fn sample<G: Rng + ?Sized>(&self, rng: &mut G) -> OMatrix<T, R, C> {
-        let nrows = R::try_to_usize().unwrap_or_else(|| rng.gen_range(0..10));
-        let ncols = C::try_to_usize().unwrap_or_else(|| rng.gen_range(0..10));
+        let nrows = R::try_to_usize().unwrap_or_else(|| rng.random_range(0..10));
+        let ncols = C::try_to_usize().unwrap_or_else(|| rng.random_range(0..10));
 
-        OMatrix::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| rng.gen())
+        OMatrix::from_fn_generic(R::from_usize(nrows), C::from_usize(ncols), |_, _| {
+            rng.random()
+        })
     }
 }
 
@@ -874,7 +900,7 @@ where
     R: Dim,
     C: Dim,
     T: Scalar + Arbitrary + Send,
-    DefaultAllocator: Allocator<T, R, C>,
+    DefaultAllocator: Allocator<R, C>,
     Owned<T, R, C>: Clone + Send,
 {
     #[inline]
@@ -890,9 +916,9 @@ where
 
 // TODO(specialization): faster impls possible for D≤4 (see rand_distr::{UnitCircle, UnitSphere})
 #[cfg(feature = "rand")]
-impl<T: crate::RealField, D: DimName> Distribution<Unit<OVector<T, D>>> for Standard
+impl<T: crate::RealField, D: DimName> Distribution<Unit<OVector<T, D>>> for StandardUniform
 where
-    DefaultAllocator: Allocator<T, D>,
+    DefaultAllocator: Allocator<D>,
     rand_distr::StandardNormal: Distribution<T>,
 {
     /// Generate a uniformly distributed random unit vector.
@@ -935,7 +961,7 @@ macro_rules! transpose_array(
 );
 
 macro_rules! componentwise_constructors_impl(
-    ($($R: expr, $C: expr, [$($($args: ident),*);*] $(;)*)*) => {$(
+    ($($R: expr_2021, $C: expr_2021, [$($($args: ident),*);*] $(;)*)*) => {$(
         impl<T> Matrix<T, Const<$R>, Const<$C>, ArrayStorage<T, $R, $C>> {
             /// Initializes this matrix from its components.
             #[inline]
@@ -1111,7 +1137,7 @@ impl<T, R: DimName> OVector<T, R>
 where
     R: ToTypenum,
     T: Scalar + Zero + One,
-    DefaultAllocator: Allocator<T, R>,
+    DefaultAllocator: Allocator<R>,
 {
     /// The column vector with `val` as its i-th component.
     #[inline]

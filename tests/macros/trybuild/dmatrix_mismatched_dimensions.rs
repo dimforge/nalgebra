@@ -1,4 +1,4 @@
-use nalgebra_macros::dmatrix;
+use nalgebra::dmatrix;
 
 fn main() {
     dmatrix![1, 2, 3;

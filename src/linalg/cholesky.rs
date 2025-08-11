@@ -15,32 +15,33 @@ use crate::storage::{Storage, StorageMut};
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, D>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D>,
          OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct Cholesky<T: SimdComplexField, D: Dim>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     chol: OMatrix<T, D, D>,
 }
 
 impl<T: SimdComplexField, D: Dim> Copy for Cholesky<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
     OMatrix<T, D, D>: Copy,
 {
 }
 
 impl<T: SimdComplexField, D: Dim> Cholesky<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     /// Computes the Cholesky decomposition of `matrix` without checking that the matrix is definite-positive.
     ///
@@ -78,7 +79,7 @@ where
     /// Cholesky decomposition.
     ///
     /// It is up to the user to ensure all invariants hold.
-    pub fn pack_dirty(matrix: OMatrix<T, D, D>) -> Self {
+    pub const fn pack_dirty(matrix: OMatrix<T, D, D>) -> Self {
         Cholesky { chol: matrix }
     }
 
@@ -111,7 +112,7 @@ where
     /// This is an allocation-less version of `self.l()`. The values of the strict upper-triangular
     /// part are garbage and should be ignored by further computations.
     #[must_use]
-    pub fn l_dirty(&self) -> &OMatrix<T, D, D> {
+    pub const fn l_dirty(&self) -> &OMatrix<T, D, D> {
         &self.chol
     }
 
@@ -133,7 +134,7 @@ where
     pub fn solve<R2: Dim, C2: Dim, S2>(&self, b: &Matrix<T, R2, C2, S2>) -> OMatrix<T, R2, C2>
     where
         S2: Storage<T, R2, C2>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         let mut res = b.clone_owned();
@@ -186,7 +187,7 @@ where
 
 impl<T: ComplexField, D: Dim> Cholesky<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     /// Attempts to compute the Cholesky decomposition of `matrix`.
     ///
@@ -268,7 +269,7 @@ where
     pub fn rank_one_update<R2: Dim, S2>(&mut self, x: &Vector<T, R2, S2>, sigma: T::RealField)
     where
         S2: Storage<T, R2, U1>,
-        DefaultAllocator: Allocator<T, R2, U1>,
+        DefaultAllocator: Allocator<R2, U1>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
     {
         Self::xx_rank_one_update(&mut self.chol, &mut x.clone_owned(), sigma)
@@ -285,7 +286,7 @@ where
         D: DimAdd<U1>,
         R2: Dim,
         S2: Storage<T, R2, U1>,
-        DefaultAllocator: Allocator<T, DimSum<D, U1>, DimSum<D, U1>> + Allocator<T, R2>,
+        DefaultAllocator: Allocator<DimSum<D, U1>, DimSum<D, U1>> + Allocator<R2>,
         ShapeConstraint: SameNumberOfRows<R2, DimSum<D, U1>>,
     {
         let mut col = col.into_owned();
@@ -357,7 +358,7 @@ where
     pub fn remove_column(&self, j: usize) -> Cholesky<T, DimDiff<D, U1>>
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<T, DimDiff<D, U1>, DimDiff<D, U1>> + Allocator<T, D>,
+        DefaultAllocator: Allocator<DimDiff<D, U1>, DimDiff<D, U1>> + Allocator<D>,
     {
         let n = self.chol.nrows();
         assert!(n > 0, "The matrix needs at least one column.");

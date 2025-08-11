@@ -12,22 +12,22 @@ macro_rules! assert_compatible_spmm_dims {
     ($c:expr, $a:expr, $b:expr) => {{
         use crate::ops::Op::{NoOp, Transpose};
         match (&$a, &$b) {
-            (NoOp(ref a), NoOp(ref b)) => {
+            (&NoOp(ref a), &NoOp(ref b)) => {
                 assert_eq!($c.nrows(), a.nrows(), "C.nrows() != A.nrows()");
                 assert_eq!($c.ncols(), b.ncols(), "C.ncols() != B.ncols()");
                 assert_eq!(a.ncols(), b.nrows(), "A.ncols() != B.nrows()");
             }
-            (Transpose(ref a), NoOp(ref b)) => {
+            (&Transpose(ref a), &NoOp(ref b)) => {
                 assert_eq!($c.nrows(), a.ncols(), "C.nrows() != A.ncols()");
                 assert_eq!($c.ncols(), b.ncols(), "C.ncols() != B.ncols()");
                 assert_eq!(a.nrows(), b.nrows(), "A.nrows() != B.nrows()");
             }
-            (NoOp(ref a), Transpose(ref b)) => {
+            (&NoOp(ref a), &Transpose(ref b)) => {
                 assert_eq!($c.nrows(), a.nrows(), "C.nrows() != A.nrows()");
                 assert_eq!($c.ncols(), b.nrows(), "C.ncols() != B.nrows()");
                 assert_eq!(a.ncols(), b.ncols(), "A.ncols() != B.ncols()");
             }
-            (Transpose(ref a), Transpose(ref b)) => {
+            (&Transpose(ref a), &Transpose(ref b)) => {
                 assert_eq!($c.nrows(), a.ncols(), "C.nrows() != A.ncols()");
                 assert_eq!($c.ncols(), b.nrows(), "C.ncols() != B.nrows()");
                 assert_eq!(a.nrows(), b.ncols(), "A.nrows() != B.ncols()");

@@ -3,8 +3,8 @@
 #[cfg(feature = "serde-serialize")]
 mod pattern_serde;
 
-use crate::cs::transpose_cs;
 use crate::SparseFormatError;
+use crate::cs::transpose_cs;
 use std::error::Error;
 use std::fmt;
 

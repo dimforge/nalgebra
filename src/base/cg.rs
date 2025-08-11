@@ -19,19 +19,19 @@ use crate::geometry::{
     Rotation3,
 };
 
-use simba::scalar::{ClosedAdd, ClosedMul, RealField};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign, RealField};
 
 /// # Translation and scaling in any dimension
 impl<T, D: DimName> OMatrix<T, D, D>
 where
     T: Scalar + Zero + One,
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     /// Creates a new homogeneous matrix that applies the same scaling factor on each dimension.
     #[inline]
     pub fn new_scaling(scaling: T) -> Self {
         let mut res = Self::from_diagonal_element(scaling);
-        res[(D::dim() - 1, D::dim() - 1)] = T::one();
+        res[(D::DIM - 1, D::DIM - 1)] = T::one();
 
         res
     }
@@ -59,11 +59,8 @@ where
         SB: Storage<T, DimNameDiff<D, U1>>,
     {
         let mut res = Self::identity();
-        res.generic_view_mut(
-            (0, D::dim() - 1),
-            (DimNameDiff::<D, U1>::name(), Const::<1>),
-        )
-        .copy_from(translation);
+        res.generic_view_mut((0, D::DIM - 1), (DimNameDiff::<D, U1>::name(), Const::<1>))
+            .copy_from(translation);
 
         res
     }
@@ -207,7 +204,7 @@ impl<T: RealField> Matrix4<T> {
 }
 
 /// # Append/prepend translation and scaling
-impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D, D>>
+impl<T: Scalar + Zero + One + ClosedMulAssign + ClosedAddAssign, D: DimName, S: Storage<T, D, D>>
     SquareMatrix<T, D, S>
 {
     /// Computes the transformation equal to `self` followed by an uniform scaling factor.
@@ -216,7 +213,7 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
     pub fn append_scaling(&self, scaling: T) -> OMatrix<T, D, D>
     where
         D: DimNameSub<U1>,
-        DefaultAllocator: Allocator<T, D, D>,
+        DefaultAllocator: Allocator<D, D>,
     {
         let mut res = self.clone_owned();
         res.append_scaling_mut(scaling);
@@ -229,7 +226,7 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
     pub fn prepend_scaling(&self, scaling: T) -> OMatrix<T, D, D>
     where
         D: DimNameSub<U1>,
-        DefaultAllocator: Allocator<T, D, D>,
+        DefaultAllocator: Allocator<D, D>,
     {
         let mut res = self.clone_owned();
         res.prepend_scaling_mut(scaling);
@@ -246,7 +243,7 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
     where
         D: DimNameSub<U1>,
         SB: Storage<T, DimNameDiff<D, U1>>,
-        DefaultAllocator: Allocator<T, D, D>,
+        DefaultAllocator: Allocator<D, D>,
     {
         let mut res = self.clone_owned();
         res.append_nonuniform_scaling_mut(scaling);
@@ -263,7 +260,7 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
     where
         D: DimNameSub<U1>,
         SB: Storage<T, DimNameDiff<D, U1>>,
-        DefaultAllocator: Allocator<T, D, D>,
+        DefaultAllocator: Allocator<D, D>,
     {
         let mut res = self.clone_owned();
         res.prepend_nonuniform_scaling_mut(scaling);
@@ -280,7 +277,7 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
     where
         D: DimNameSub<U1>,
         SB: Storage<T, DimNameDiff<D, U1>>,
-        DefaultAllocator: Allocator<T, D, D>,
+        DefaultAllocator: Allocator<D, D>,
     {
         let mut res = self.clone_owned();
         res.append_translation_mut(shift);
@@ -297,7 +294,7 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
     where
         D: DimNameSub<U1>,
         SB: Storage<T, DimNameDiff<D, U1>>,
-        DefaultAllocator: Allocator<T, D, D> + Allocator<T, DimNameDiff<D, U1>>,
+        DefaultAllocator: Allocator<D, D> + Allocator<DimNameDiff<D, U1>>,
     {
         let mut res = self.clone_owned();
         res.prepend_translation_mut(shift);
@@ -364,9 +361,9 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
         D: DimNameSub<U1>,
         SB: Storage<T, DimNameDiff<D, U1>>,
     {
-        for i in 0..D::dim() {
-            for j in 0..D::dim() - 1 {
-                let add = shift[j].clone() * self[(D::dim() - 1, i)].clone();
+        for i in 0..D::DIM {
+            for j in 0..D::DIM - 1 {
+                let add = shift[j].clone() * self[(D::DIM - 1, i)].clone();
                 self[(j, i)] += add;
             }
         }
@@ -379,25 +376,20 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
         D: DimNameSub<U1>,
         S: StorageMut<T, D, D>,
         SB: Storage<T, DimNameDiff<D, U1>>,
-        DefaultAllocator: Allocator<T, DimNameDiff<D, U1>>,
+        DefaultAllocator: Allocator<DimNameDiff<D, U1>>,
     {
         let scale = self
-            .generic_view(
-                (D::dim() - 1, 0),
-                (Const::<1>, DimNameDiff::<D, U1>::name()),
-            )
+            .generic_view((D::DIM - 1, 0), (Const::<1>, DimNameDiff::<D, U1>::name()))
             .tr_dot(shift);
         let post_translation = self.generic_view(
             (0, 0),
             (DimNameDiff::<D, U1>::name(), DimNameDiff::<D, U1>::name()),
         ) * shift;
 
-        self[(D::dim() - 1, D::dim() - 1)] += scale;
+        self[(D::DIM - 1, D::DIM - 1)] += scale;
 
-        let mut translation = self.generic_view_mut(
-            (0, D::dim() - 1),
-            (DimNameDiff::<D, U1>::name(), Const::<1>),
-        );
+        let mut translation =
+            self.generic_view_mut((0, D::DIM - 1), (DimNameDiff::<D, U1>::name(), Const::<1>));
         translation += post_translation;
     }
 }
@@ -405,9 +397,9 @@ impl<T: Scalar + Zero + One + ClosedMul + ClosedAdd, D: DimName, S: Storage<T, D
 /// # Transformation of vectors and points
 impl<T: RealField, D: DimNameSub<U1>, S: Storage<T, D, D>> SquareMatrix<T, D, S>
 where
-    DefaultAllocator: Allocator<T, D, D>
-        + Allocator<T, DimNameDiff<D, U1>>
-        + Allocator<T, DimNameDiff<D, U1>, DimNameDiff<D, U1>>,
+    DefaultAllocator: Allocator<D, D>
+        + Allocator<DimNameDiff<D, U1>>
+        + Allocator<DimNameDiff<D, U1>, DimNameDiff<D, U1>>,
 {
     /// Transforms the given vector, assuming the matrix `self` uses homogeneous coordinates.
     #[inline]
@@ -419,10 +411,8 @@ where
             (0, 0),
             (DimNameDiff::<D, U1>::name(), DimNameDiff::<D, U1>::name()),
         );
-        let normalizer = self.generic_view(
-            (D::dim() - 1, 0),
-            (Const::<1>, DimNameDiff::<D, U1>::name()),
-        );
+        let normalizer =
+            self.generic_view((D::DIM - 1, 0), (Const::<1>, DimNameDiff::<D, U1>::name()));
         let n = normalizer.tr_dot(v);
 
         if !n.is_zero() {

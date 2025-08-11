@@ -23,20 +23,21 @@ use crate::linalg::Schur;
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, D>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D>,
          OVector<T, D>: Serialize,
          OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D>,
          OVector<T, D>: Serialize,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct Eigen<T: ComplexField, D: Dim>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     pub eigenvectors: OMatrix<T, D, D>,
     pub eigenvalues: OVector<T, D>,
@@ -44,7 +45,7 @@ where
 
 impl<T: ComplexField, D: Dim> Copy for Eigen<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<T, D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
     OMatrix<T, D, D>: Copy,
     OVector<T, D>: Copy,
 {
@@ -54,12 +55,10 @@ impl<T: ComplexField, D: Dim> Eigen<T, D>
 where
     D: DimSub<U1>,                               // For Hessenberg.
     ShapeConstraint: DimEq<Dyn, DimDiff<D, U1>>, // For Hessenberg.
-    DefaultAllocator: Allocator<T, D, DimDiff<D, U1>>
-        + Allocator<T, DimDiff<D, U1>>
-        + Allocator<T, D, D>
-        + Allocator<T, D>,
+    DefaultAllocator:
+        Allocator<D, DimDiff<D, U1>> + Allocator<DimDiff<D, U1>> + Allocator<D, D> + Allocator<D>,
     // XXX: for debug
-    DefaultAllocator: Allocator<usize, D, D>,
+    DefaultAllocator: Allocator<D, D>,
     OMatrix<T, D, D>: Display,
 {
     /// Computes the eigendecomposition of a diagonalizable matrix with Complex eigenvalues.

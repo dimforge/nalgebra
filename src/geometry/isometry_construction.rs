@@ -6,8 +6,8 @@ use quickcheck::{Arbitrary, Gen};
 use num::One;
 #[cfg(feature = "rand-no-std")]
 use rand::{
-    distributions::{Distribution, Standard},
     Rng,
+    distr::{Distribution, StandardUniform},
 };
 
 use simba::scalar::SupersetOf;
@@ -89,14 +89,14 @@ where
 }
 
 #[cfg(feature = "rand-no-std")]
-impl<T: crate::RealField, R, const D: usize> Distribution<Isometry<T, R, D>> for Standard
+impl<T: crate::RealField, R, const D: usize> Distribution<Isometry<T, R, D>> for StandardUniform
 where
     R: AbstractRotation<T, D>,
-    Standard: Distribution<T> + Distribution<R>,
+    StandardUniform: Distribution<T> + Distribution<R>,
 {
     #[inline]
     fn sample<G: Rng + ?Sized>(&self, rng: &mut G) -> Isometry<T, R, D> {
-        Isometry::from_parts(rng.gen(), rng.gen())
+        Isometry::from_parts(rng.random(), rng.random())
     }
 }
 
@@ -285,7 +285,7 @@ macro_rules! look_at_isometry_construction_impl(
         ///   * eye - The observer position.
         ///   * target - The target position.
         ///   * up - Vertical direction. The only requirement of this parameter is to not be collinear
-        ///   to `eye - at`. Non-collinearity is not checked.
+        ///     to `eye - at`. Non-collinearity is not checked.
         ///
         /// # Example
         ///
@@ -336,7 +336,7 @@ macro_rules! look_at_isometry_construction_impl(
         ///   * eye - The eye position.
         ///   * target - The target position.
         ///   * up - A vector approximately aligned with required the vertical axis. The only
-        ///   requirement of this parameter is to not be collinear to `target - eye`.
+        ///     requirement of this parameter is to not be collinear to `target - eye`.
         ///
         /// # Example
         ///
@@ -379,7 +379,7 @@ macro_rules! look_at_isometry_construction_impl(
         ///   * eye - The eye position.
         ///   * target - The target position.
         ///   * up - A vector approximately aligned with required the vertical axis. The only
-        ///   requirement of this parameter is to not be collinear to `target - eye`.
+        ///     requirement of this parameter is to not be collinear to `target - eye`.
         ///
         /// # Example
         ///

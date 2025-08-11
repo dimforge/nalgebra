@@ -208,8 +208,8 @@ fn very_small_deviation_from_identity_issue_1368() {
 // fn verify_eigenvectors<D: Dim>(m: OMatrix<f64, D>, mut eig: RealEigen<f64, D>) -> bool
 //     where DefaultAllocator: Allocator<f64, D, D>   +
 //                             Allocator<f64, D>      +
-//                             Allocator<usize, D, D> +
-//                             Allocator<usize, D>,
+//                             Allocator<D, D> +
+//                             Allocator<D>,
 //           OMatrix<f64, D>: Display,
 //           OVector<f64, D>: Display {
 //     let mv = &m * &eig.eigenvectors;

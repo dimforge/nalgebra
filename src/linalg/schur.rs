@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use approx::AbsDiffEq;
 use num_complex::Complex as NumComplex;
+use num_traits::identities::Zero;
 use simba::scalar::{ComplexField, RealField};
 use std::cmp;
 
@@ -13,9 +14,9 @@ use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, OMatrix, OVector, SquareMatrix, Unit, Vector2, Vector3};
 
 use crate::geometry::Reflection;
+use crate::linalg::Hessenberg;
 use crate::linalg::givens::GivensRotation;
 use crate::linalg::householder;
-use crate::linalg::Hessenberg;
 use crate::{Matrix, UninitVector};
 use std::mem::MaybeUninit;
 
@@ -25,18 +26,19 @@ use std::mem::MaybeUninit;
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, D, D>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<D, D>,
          OMatrix<T, D, D>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, D, D>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<D, D>,
          OMatrix<T, D, D>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct Schur<T: ComplexField, D: Dim>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     q: OMatrix<T, D, D>,
     t: OMatrix<T, D, D>,
@@ -44,7 +46,7 @@ where
 
 impl<T: ComplexField, D: Dim> Copy for Schur<T, D>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
     OMatrix<T, D, D>: Copy,
 {
 }
@@ -52,10 +54,8 @@ where
 impl<T: ComplexField, D: Dim> Schur<T, D>
 where
     D: DimSub<U1>, // For Hessenberg.
-    DefaultAllocator: Allocator<T, D, DimDiff<D, U1>>
-        + Allocator<T, DimDiff<D, U1>>
-        + Allocator<T, D, D>
-        + Allocator<T, D>,
+    DefaultAllocator:
+        Allocator<D, DimDiff<D, U1>> + Allocator<DimDiff<D, U1>> + Allocator<D, D> + Allocator<D>,
 {
     /// Computes the Schur decomposition of a square matrix.
     pub fn new(m: OMatrix<T, D, D>) -> Self {
@@ -71,8 +71,8 @@ where
     ///
     /// * `eps`       − tolerance used to determine when a value converged to 0.
     /// * `max_niter` − maximum total number of iterations performed by the algorithm. If this
-    /// number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
-    /// continues indefinitely until convergence.
+    ///   number of iteration is exceeded, `None` is returned. If `niter == 0`, then the algorithm
+    ///   continues indefinitely until convergence.
     pub fn try_new(m: OMatrix<T, D, D>, eps: T::RealField, max_niter: usize) -> Option<Self> {
         let mut work = Matrix::zeros_generic(m.shape_generic().0, Const::<1>);
 
@@ -111,7 +111,12 @@ where
         }
 
         let amax_m = m.camax();
-        m.unscale_mut(amax_m.clone());
+        // if amax_m == 0 (i.e. the matrix is the zero matrix),
+        // then the unscale_mut call will turn the entire matrix into NaNs
+        // see https://github.com/dimforge/nalgebra/issues/1291
+        if !amax_m.is_zero() {
+            m.unscale_mut(amax_m.clone());
+        }
 
         let hess = Hessenberg::new_with_workspace(m, work);
         let mut q;
@@ -295,7 +300,7 @@ where
     fn do_complex_eigenvalues(t: &OMatrix<T, D, D>, out: &mut UninitVector<NumComplex<T>, D>)
     where
         T: RealField,
-        DefaultAllocator: Allocator<NumComplex<T>, D>,
+        DefaultAllocator: Allocator<D>,
     {
         let dim = t.nrows();
         let mut m = 0;
@@ -340,7 +345,7 @@ where
     fn delimit_subproblem(t: &mut OMatrix<T, D, D>, eps: T::RealField, end: usize) -> (usize, usize)
     where
         D: DimSub<U1>,
-        DefaultAllocator: Allocator<T, DimDiff<D, U1>>,
+        DefaultAllocator: Allocator<DimDiff<D, U1>>,
     {
         let mut n = end;
 
@@ -406,7 +411,7 @@ where
     pub fn complex_eigenvalues(&self) -> OVector<NumComplex<T>, D>
     where
         T: RealField,
-        DefaultAllocator: Allocator<NumComplex<T>, D>,
+        DefaultAllocator: Allocator<D>,
     {
         let mut out = Matrix::uninit(self.t.shape_generic().0, Const::<1>);
         Self::do_complex_eigenvalues(&self.t, &mut out);
@@ -420,7 +425,7 @@ fn decompose_2x2<T: ComplexField, D: Dim>(
     compute_q: bool,
 ) -> Option<(Option<OMatrix<T, D, D>>, OMatrix<T, D, D>)>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     let dim = m.shape_generic().0;
     let mut q = None;
@@ -488,30 +493,25 @@ fn compute_2x2_basis<T: ComplexField, S: Storage<T, U2, U2>>(
         return None;
     }
 
-    if let Some((eigval1, eigval2)) = compute_2x2_eigvals(m) {
-        let x1 = eigval1 - m[(1, 1)].clone();
-        let x2 = eigval2 - m[(1, 1)].clone();
+    let (eigval1, eigval2) = compute_2x2_eigvals(m)?;
+    let x1 = eigval1 - m[(1, 1)].clone();
+    let x2 = eigval2 - m[(1, 1)].clone();
 
-        // NOTE: Choose the one that yields a larger x component.
-        // This is necessary for numerical stability of the normalization of the complex
-        // number.
-        if x1.clone().norm1() > x2.clone().norm1() {
-            Some(GivensRotation::new(x1, h10).0)
-        } else {
-            Some(GivensRotation::new(x2, h10).0)
-        }
+    // NOTE: Choose the one that yields a larger x component.
+    // This is necessary for numerical stability of the normalization of the complex
+    // number.
+    if x1.clone().norm1() > x2.clone().norm1() {
+        Some(GivensRotation::new(x1, h10).0)
     } else {
-        None
+        Some(GivensRotation::new(x2, h10).0)
     }
 }
 
 impl<T: ComplexField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S>
 where
     D: DimSub<U1>, // For Hessenberg.
-    DefaultAllocator: Allocator<T, D, DimDiff<D, U1>>
-        + Allocator<T, DimDiff<D, U1>>
-        + Allocator<T, D, D>
-        + Allocator<T, D>,
+    DefaultAllocator:
+        Allocator<D, DimDiff<D, U1>> + Allocator<DimDiff<D, U1>> + Allocator<D, D> + Allocator<D>,
 {
     /// Computes the eigenvalues of this matrix.
     #[must_use]
@@ -561,7 +561,7 @@ where
     // TODO: add balancing?
     where
         T: RealField,
-        DefaultAllocator: Allocator<NumComplex<T>, D>,
+        DefaultAllocator: Allocator<D>,
     {
         let dim = self.shape_generic().0;
         let mut work = Matrix::zeros_generic(dim, Const::<1>);

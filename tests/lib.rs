@@ -28,6 +28,9 @@ mod linalg;
 #[cfg(feature = "proptest-support")]
 mod proptest;
 
+#[cfg(feature = "macros")]
+mod macros;
+
 //#[cfg(all(feature = "debug", feature = "compare", feature = "rand"))]
 //#[cfg(feature = "sparse")]
 //mod sparse;

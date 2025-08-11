@@ -2,13 +2,13 @@
 use approx::RelativeEq;
 use num::{One, Zero};
 
-use simba::scalar::{ClosedAdd, ClosedMul, ComplexField, RealField};
+use simba::scalar::{ClosedAddAssign, ClosedMulAssign, ComplexField, RealField};
 
+use crate::RawStorage;
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{Dim, DimMin};
 use crate::base::storage::Storage;
 use crate::base::{DefaultAllocator, Matrix, SquareMatrix};
-use crate::RawStorage;
 
 impl<T, R: Dim, C: Dim, S: RawStorage<T, R, C>> Matrix<T, R, C, S> {
     /// The total number of elements of this matrix.
@@ -88,10 +88,10 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
     #[must_use]
     pub fn is_orthogonal(&self, eps: T::Epsilon) -> bool
     where
-        T: Zero + One + ClosedAdd + ClosedMul + RelativeEq,
+        T: Zero + One + ClosedAddAssign + ClosedMulAssign + RelativeEq,
         S: Storage<T, R, C>,
         T::Epsilon: Clone,
-        DefaultAllocator: Allocator<T, R, C> + Allocator<T, C, C>,
+        DefaultAllocator: Allocator<R, C> + Allocator<C, C>,
     {
         (self.ad_mul(self)).is_identity(eps)
     }
@@ -99,7 +99,7 @@ impl<T: ComplexField, R: Dim, C: Dim, S: Storage<T, R, C>> Matrix<T, R, C, S> {
 
 impl<T: RealField, D: Dim, S: Storage<T, D, D>> SquareMatrix<T, D, S>
 where
-    DefaultAllocator: Allocator<T, D, D>,
+    DefaultAllocator: Allocator<D, D>,
 {
     /// Checks that this matrix is orthogonal and has a determinant equal to 1.
     #[inline]
@@ -107,7 +107,7 @@ where
     pub fn is_special_orthogonal(&self, eps: T) -> bool
     where
         D: DimMin<D, Output = D>,
-        DefaultAllocator: Allocator<(usize, usize), D>,
+        DefaultAllocator: Allocator<D>,
     {
         self.is_square() && self.is_orthogonal(eps) && self.determinant() > T::zero()
     }

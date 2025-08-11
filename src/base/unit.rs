@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use std::fmt;
 use std::ops::Deref;
 
@@ -35,6 +38,7 @@ use rkyv::bytecheck;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Unit<T> {
     pub(crate) value: T,
 }
@@ -187,7 +191,7 @@ impl<T> Unit<T> {
 
     /// Wraps the given reference, assuming it is already normalized.
     #[inline]
-    pub fn from_ref_unchecked(value: &T) -> &Self {
+    pub const fn from_ref_unchecked(value: &T) -> &Self {
         unsafe { &*(value as *const T as *const Self) }
     }
 
@@ -209,7 +213,7 @@ impl<T> Unit<T> {
     /// the underlying value in such a way that it no longer has unit length may lead to unexpected
     /// results.
     #[inline]
-    pub fn as_mut_unchecked(&mut self) -> &mut T {
+    pub const fn as_mut_unchecked(&mut self) -> &mut T {
         &mut self.value
     }
 }
@@ -303,7 +307,7 @@ impl<T: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 2]>,
     T::Element: Scalar,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 2]) -> Self {
@@ -319,7 +323,7 @@ impl<T: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 4]>,
     T::Element: Scalar,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 4]) -> Self {
@@ -337,7 +341,7 @@ impl<T: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 8]>,
     T::Element: Scalar,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 8]) -> Self {
@@ -359,7 +363,7 @@ impl<T: Scalar + simba::simd::PrimitiveSimdValue, R: Dim, C: Dim>
 where
     T: From<[<T as simba::simd::SimdValue>::Element; 16]>,
     T::Element: Scalar,
-    DefaultAllocator: Allocator<T, R, C> + Allocator<T::Element, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     #[inline]
     fn from(arr: [Unit<OMatrix<T::Element, R, C>>; 16]) -> Self {

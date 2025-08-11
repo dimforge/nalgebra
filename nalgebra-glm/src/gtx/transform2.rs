@@ -1,6 +1,6 @@
+use crate::RealNumber;
 use crate::aliases::{TMat3, TMat4, TVec2, TVec3};
 use crate::traits::Number;
-use crate::RealNumber;
 
 /// Build planar projection matrix along normal axis and right-multiply it to `m`.
 pub fn proj2d<T: Number>(m: &TMat3<T>, normal: &TVec2<T>) -> TMat3<T> {

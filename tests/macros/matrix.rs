@@ -1,3 +1,4 @@
+use crate::macros::assert_eq_and_type;
 use nalgebra::{
     DMatrix, DVector, Matrix1x2, Matrix1x3, Matrix1x4, Matrix2, Matrix2x1, Matrix2x3, Matrix2x4,
     Matrix3, Matrix3x1, Matrix3x2, Matrix3x4, Matrix4, Matrix4x1, Matrix4x2, Matrix4x3, Point,
@@ -5,16 +6,6 @@ use nalgebra::{
     Vector4, Vector5, Vector6,
 };
 use nalgebra_macros::{dmatrix, dvector, matrix, point, vector};
-
-fn check_statically_same_type<T>(_: &T, _: &T) {}
-
-/// Wrapper for `assert_eq` that also asserts that the types are the same
-macro_rules! assert_eq_and_type {
-    ($left:expr, $right:expr $(,)?) => {
-        check_statically_same_type(&$left, &$right);
-        assert_eq!($left, $right);
-    };
-}
 
 // Skip rustfmt because it just makes the test bloated without making it more readable
 #[rustfmt::skip]
@@ -169,7 +160,7 @@ fn matrix_trybuild_tests() {
     let t = trybuild::TestCases::new();
 
     // Verify error message when we give a matrix with mismatched dimensions
-    t.compile_fail("tests/trybuild/matrix_mismatched_dimensions.rs");
+    t.compile_fail("tests/macros/trybuild/matrix_mismatched_dimensions.rs");
 }
 
 #[test]
@@ -177,7 +168,7 @@ fn dmatrix_trybuild_tests() {
     let t = trybuild::TestCases::new();
 
     // Verify error message when we give a matrix with mismatched dimensions
-    t.compile_fail("tests/trybuild/dmatrix_mismatched_dimensions.rs");
+    t.compile_fail("tests/macros/trybuild/dmatrix_mismatched_dimensions.rs");
 }
 
 #[test]
@@ -288,7 +279,7 @@ fn dmatrix_arbitrary_expressions() {
     let a = dmatrix![1 + 2       ,     2 * 3;
                      4 * f(5 + 6), 7 - 8 * 9];
     let a_expected = DMatrix::from_row_slice(2, 2, &[1 + 2       ,     2 * 3,
-                                                     4 * f(5 + 6), 7 - 8 * 9]);
+        4 * f(5 + 6), 7 - 8 * 9]);
     assert_eq_and_type!(a, a_expected);
 }
 

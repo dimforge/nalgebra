@@ -19,6 +19,16 @@ pub trait DimEq<D1: Dim, D2: Dim> {
     /// This is either equal to `D1` or `D2`, always choosing the one (if any) which is a type-level
     /// constant.
     type Representative: Dim;
+
+    /// This constructs a value of type `Representative` with the
+    /// correct value
+    fn representative(d1: D1, d2: D2) -> Option<Self::Representative> {
+        if d1.value() != d2.value() {
+            None
+        } else {
+            Some(Self::Representative::from_usize(d1.value()))
+        }
+    }
 }
 
 impl<D: Dim> DimEq<D, D> for ShapeConstraint {
@@ -34,13 +44,20 @@ impl<D: DimName> DimEq<Dyn, D> for ShapeConstraint {
 }
 
 macro_rules! equality_trait_decl(
-    ($($doc: expr, $Trait: ident),* $(,)*) => {$(
+    ($($doc: expr_2021, $Trait: ident),* $(,)*) => {$(
         // XXX: we can't do something like `DimEq<D1> for D2` because we would require a blanket impl…
         #[doc = $doc]
         pub trait $Trait<D1: Dim, D2: Dim>: DimEq<D1, D2> + DimEq<D2, D1> {
             /// This is either equal to `D1` or `D2`, always choosing the one (if any) which is a type-level
             /// constant.
             type Representative: Dim;
+
+            /// Returns a representative dimension instance if the two are equal,
+            /// otherwise `None`.
+            fn representative(d1: D1, d2: D2) -> Option<<Self as $Trait<D1, D2>>::Representative> {
+                <Self as DimEq<D1, D2>>::representative(d1, d2)
+                    .map(|common_dim| <Self as $Trait<D1, D2>>::Representative::from_usize(common_dim.value()))
+            }
         }
 
         impl<D: Dim> $Trait<D, D> for ShapeConstraint {

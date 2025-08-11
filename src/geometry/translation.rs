@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::{One, Zero};
 use std::fmt;
@@ -6,7 +9,7 @@ use std::hash;
 #[cfg(feature = "serde-serialize-no-std")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use simba::scalar::{ClosedAdd, ClosedNeg, ClosedSub};
+use simba::scalar::{ClosedAddAssign, ClosedNeg, ClosedSubAssign};
 
 use crate::base::allocator::Allocator;
 use crate::base::dimension::{DimNameAdd, DimNameSum, U1};
@@ -32,6 +35,7 @@ use rkyv::bytecheck;
     )
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Copy, Clone)]
 pub struct Translation<T, const D: usize> {
     /// The translation coordinates, i.e., how much is added to a point's coordinates when it is
@@ -102,7 +106,7 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
     /// Creates a new translation from the given vector.
     #[inline]
     #[deprecated(note = "Use `::from` instead.")]
-    pub fn from_vector(vector: SVector<T, D>) -> Translation<T, D> {
+    pub const fn from_vector(vector: SVector<T, D>) -> Translation<T, D> {
         Translation { vector }
     }
 
@@ -153,7 +157,7 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
     where
         T: Zero + One,
         Const<D>: DimNameAdd<U1>,
-        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+        DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         let mut res = OMatrix::<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>::identity();
         res.fixed_view_mut::<D, 1>(0, D).copy_from(&self.vector);
@@ -188,7 +192,7 @@ impl<T: Scalar, const D: usize> Translation<T, D> {
     }
 }
 
-impl<T: Scalar + ClosedAdd, const D: usize> Translation<T, D> {
+impl<T: Scalar + ClosedAddAssign, const D: usize> Translation<T, D> {
     /// Translate the given point.
     ///
     /// This is the same as the multiplication `self * pt`.
@@ -207,7 +211,7 @@ impl<T: Scalar + ClosedAdd, const D: usize> Translation<T, D> {
     }
 }
 
-impl<T: Scalar + ClosedSub, const D: usize> Translation<T, D> {
+impl<T: Scalar + ClosedSubAssign, const D: usize> Translation<T, D> {
     /// Translate the given point by the inverse of this translation.
     ///
     /// # Example

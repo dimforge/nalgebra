@@ -1,7 +1,7 @@
 use simba::simd::SimdValue;
 
-use crate::base::OVector;
 use crate::Scalar;
+use crate::base::OVector;
 
 use crate::geometry::Scale;
 
@@ -9,13 +9,9 @@ impl<T: Scalar + SimdValue, const D: usize> SimdValue for Scale<T, D>
 where
     T::Element: Scalar,
 {
+    const LANES: usize = T::LANES;
     type Element = Scale<T::Element, D>;
     type SimdBool = T::SimdBool;
-
-    #[inline]
-    fn lanes() -> usize {
-        T::lanes()
-    }
 
     #[inline]
     fn splat(val: Self::Element) -> Self {
@@ -29,7 +25,7 @@ where
 
     #[inline]
     unsafe fn extract_unchecked(&self, i: usize) -> Self::Element {
-        self.vector.extract_unchecked(i).into()
+        unsafe { self.vector.extract_unchecked(i).into() }
     }
 
     #[inline]
@@ -39,7 +35,7 @@ where
 
     #[inline]
     unsafe fn replace_unchecked(&mut self, i: usize, val: Self::Element) {
-        self.vector.replace_unchecked(i, val.vector)
+        unsafe { self.vector.replace_unchecked(i, val.vector) }
     }
 
     #[inline]

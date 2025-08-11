@@ -8,29 +8,30 @@ use crate::dimension::{Dim, DimMin, DimMinimum};
 use crate::storage::{Storage, StorageMut};
 use simba::scalar::ComplexField;
 
-use crate::linalg::lu;
 use crate::linalg::PermutationSequence;
+use crate::linalg::lu;
 
 /// LU decomposition with full row and column pivoting.
 #[cfg_attr(feature = "serde-serialize-no-std", derive(Serialize, Deserialize))]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(serialize = "DefaultAllocator: Allocator<T, R, C> +
-                           Allocator<(usize, usize), DimMinimum<R, C>>,
+    serde(bound(serialize = "DefaultAllocator: Allocator<R, C> +
+                           Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Serialize,
          PermutationSequence<DimMinimum<R, C>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
-    serde(bound(deserialize = "DefaultAllocator: Allocator<T, R, C> +
-                           Allocator<(usize, usize), DimMinimum<R, C>>,
+    serde(bound(deserialize = "DefaultAllocator: Allocator<R, C> +
+                           Allocator<DimMinimum<R, C>>,
          OMatrix<T, R, C>: Deserialize<'de>,
          PermutationSequence<DimMinimum<R, C>>: Deserialize<'de>"))
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Clone, Debug)]
 pub struct FullPivLU<T: ComplexField, R: DimMin<C>, C: Dim>
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
 {
     lu: OMatrix<T, R, C>,
     p: PermutationSequence<DimMinimum<R, C>>,
@@ -39,7 +40,7 @@ where
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> Copy for FullPivLU<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
     OMatrix<T, R, C>: Copy,
     PermutationSequence<DimMinimum<R, C>>: Copy,
 {
@@ -47,7 +48,7 @@ where
 
 impl<T: ComplexField, R: DimMin<C>, C: Dim> FullPivLU<T, R, C>
 where
-    DefaultAllocator: Allocator<T, R, C> + Allocator<(usize, usize), DimMinimum<R, C>>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
 {
     /// Computes the LU decomposition with full pivoting of `matrix`.
     ///
@@ -90,7 +91,7 @@ where
     }
 
     #[doc(hidden)]
-    pub fn lu_internal(&self) -> &OMatrix<T, R, C> {
+    pub const fn lu_internal(&self) -> &OMatrix<T, R, C> {
         &self.lu
     }
 
@@ -99,7 +100,7 @@ where
     #[must_use]
     pub fn l(&self) -> OMatrix<T, R, DimMinimum<R, C>>
     where
-        DefaultAllocator: Allocator<T, R, DimMinimum<R, C>>,
+        DefaultAllocator: Allocator<R, DimMinimum<R, C>>,
     {
         let (nrows, ncols) = self.lu.shape_generic();
         let mut m = self.lu.columns_generic(0, nrows.min(ncols)).into_owned();
@@ -113,7 +114,7 @@ where
     #[must_use]
     pub fn u(&self) -> OMatrix<T, DimMinimum<R, C>, C>
     where
-        DefaultAllocator: Allocator<T, DimMinimum<R, C>, C>,
+        DefaultAllocator: Allocator<DimMinimum<R, C>, C>,
     {
         let (nrows, ncols) = self.lu.shape_generic();
         self.lu.rows_generic(0, nrows.min(ncols)).upper_triangle()
@@ -122,14 +123,14 @@ where
     /// The row permutations of this decomposition.
     #[inline]
     #[must_use]
-    pub fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
+    pub const fn p(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.p
     }
 
     /// The column permutations of this decomposition.
     #[inline]
     #[must_use]
-    pub fn q(&self) -> &PermutationSequence<DimMinimum<R, C>> {
+    pub const fn q(&self) -> &PermutationSequence<DimMinimum<R, C>> {
         &self.q
     }
 
@@ -144,7 +145,7 @@ where
         PermutationSequence<DimMinimum<R, C>>,
     )
     where
-        DefaultAllocator: Allocator<T, R, DimMinimum<R, C>> + Allocator<T, DimMinimum<R, C>, C>,
+        DefaultAllocator: Allocator<R, DimMinimum<R, C>> + Allocator<DimMinimum<R, C>, C>,
     {
         // Use reallocation for either l or u.
         let l = self.l();
@@ -158,7 +159,7 @@ where
 
 impl<T: ComplexField, D: DimMin<D, Output = D>> FullPivLU<T, D, D>
 where
-    DefaultAllocator: Allocator<T, D, D> + Allocator<(usize, usize), D>,
+    DefaultAllocator: Allocator<D, D> + Allocator<D>,
 {
     /// Solves the linear system `self * x = b`, where `x` is the unknown to be determined.
     ///
@@ -171,7 +172,7 @@ where
     where
         S2: Storage<T, R2, C2>,
         ShapeConstraint: SameNumberOfRows<R2, D>,
-        DefaultAllocator: Allocator<T, R2, C2>,
+        DefaultAllocator: Allocator<R2, C2>,
     {
         let mut res = b.clone_owned();
         if self.solve_mut(&mut res) {

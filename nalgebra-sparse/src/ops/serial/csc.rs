@@ -1,10 +1,10 @@
 use crate::csc::CscMatrix;
+use crate::ops::Op;
 use crate::ops::serial::cs::{
     spadd_cs_prealloc, spmm_cs_dense, spmm_cs_prealloc, spmm_cs_prealloc_unchecked,
 };
 use crate::ops::serial::{OperationError, OperationErrorKind};
-use crate::ops::Op;
-use nalgebra::{ClosedAdd, ClosedMul, DMatrixView, DMatrixViewMut, RealField, Scalar};
+use nalgebra::{ClosedAddAssign, ClosedMulAssign, DMatrixView, DMatrixViewMut, RealField, Scalar};
 use num_traits::{One, Zero};
 
 use std::borrow::Cow;
@@ -21,7 +21,7 @@ pub fn spmm_csc_dense<'a, T>(
     a: Op<&CscMatrix<T>>,
     b: Op<impl Into<DMatrixView<'a, T>>>,
 ) where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     let b = b.convert();
     spmm_csc_dense_(beta, c.into(), alpha, a, b)
@@ -34,7 +34,7 @@ fn spmm_csc_dense_<T>(
     a: Op<&CscMatrix<T>>,
     b: Op<DMatrixView<'_, T>>,
 ) where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     assert_compatible_spmm_dims!(c, a, b);
     // Need to interpret matrix as transposed since the spmm_cs_dense function assumes CSR layout
@@ -57,7 +57,7 @@ pub fn spadd_csc_prealloc<T>(
     a: Op<&CscMatrix<T>>,
 ) -> Result<(), OperationError>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     assert_compatible_spadd_dims!(c, a);
     spadd_cs_prealloc(beta, &mut c.cs, alpha, a.map_same_op(|a| &a.cs))
@@ -81,7 +81,7 @@ pub fn spmm_csc_prealloc<T>(
     b: Op<&CscMatrix<T>>,
 ) -> Result<(), OperationError>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     assert_compatible_spmm_dims!(c, a, b);
 
@@ -109,7 +109,7 @@ pub fn spmm_csc_prealloc_unchecked<T>(
     b: Op<&CscMatrix<T>>,
 ) -> Result<(), OperationError>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
 {
     assert_compatible_spmm_dims!(c, a, b);
 
@@ -133,7 +133,7 @@ fn spmm_csc_transposed<T, F>(
     spmm_kernel: F,
 ) -> Result<(), OperationError>
 where
-    T: Scalar + ClosedAdd + ClosedMul + Zero + One,
+    T: Scalar + ClosedAddAssign + ClosedMulAssign + Zero + One,
     F: Fn(
         T,
         &mut CscMatrix<T>,

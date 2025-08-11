@@ -1,11 +1,11 @@
-use na::{DMatrix, Matrix3, Matrix4};
+use na::{DMatrix, Matrix3, Matrix4, Schur};
 
 #[test]
 #[rustfmt::skip]
 fn schur_simpl_mat3() {
     let m = Matrix3::new(-2.0, -4.0, 2.0,
-                                   -2.0,  1.0, 2.0,
-                                   4.0,  2.0, 5.0);
+                         -2.0,  1.0, 2.0,
+                         4.0,  2.0, 5.0);
 
     let schur = m.schur();
     let (vecs, vals) = schur.unpack();
@@ -128,4 +128,16 @@ fn schur_singular() {
 
     let (vecs, vals) = m.clone().schur().unpack();
     assert!(relative_eq!(&vecs * vals * vecs.transpose(), m, epsilon = 1.0e-7))
+}
+
+// Regression test for issue #1291
+// where Schur hangs on a zero matrix due to a bad 0/0
+#[test]
+fn schur_zero() {
+    // use max_niter as this hangs if the workaround isn't triggered
+    let (q, t) = Schur::try_new(Matrix3::<f64>::zeros(), f64::EPSILON, 128)
+        .unwrap()
+        .unpack();
+    assert!(q == Matrix3::<f64>::identity());
+    assert!(t == Matrix3::<f64>::zeros())
 }

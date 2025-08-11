@@ -1,3 +1,6 @@
+// Needed otherwise the rkyv macros generate code incompatible with rust-2024
+#![cfg_attr(feature = "rkyv-serialize", allow(unsafe_op_in_unsafe_fn))]
+
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use num::Zero;
 use std::fmt;
@@ -26,14 +29,14 @@ use rkyv::bytecheck;
     feature = "serde-serialize-no-std",
     serde(bound(serialize = "T: Scalar + Serialize,
                      R: Serialize,
-                     DefaultAllocator: Allocator<T, Const<D>>,
+                     DefaultAllocator: Allocator<Const<D>>,
                      Owned<T, Const<D>>: Serialize"))
 )]
 #[cfg_attr(
     feature = "serde-serialize-no-std",
     serde(bound(deserialize = "T: Scalar + Deserialize<'de>,
                        R: Deserialize<'de>,
-                       DefaultAllocator: Allocator<T, Const<D>>,
+                       DefaultAllocator: Allocator<Const<D>>,
                        Owned<T, Const<D>>: Deserialize<'de>"))
 )]
 #[cfg_attr(feature = "rkyv-serialize", derive(bytecheck::CheckBytes))]
@@ -49,6 +52,7 @@ use rkyv::bytecheck;
     ")
     )
 )]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Similarity<T, R, const D: usize> {
     /// The part of this similarity that does not include the scaling factor.
     pub isometry: Isometry<T, R, D>,
@@ -63,6 +67,21 @@ where
         self.isometry.hash(state);
         self.scaling.hash(state);
     }
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: Scalar, R, const D: usize> bytemuck::Zeroable for Similarity<T, R, D> where
+    Isometry<T, R, D>: bytemuck::Zeroable
+{
+}
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: Scalar, R, const D: usize> bytemuck::Pod for Similarity<T, R, D>
+where
+    Isometry<T, R, D>: bytemuck::Pod,
+    R: Copy,
+    T: Copy,
+{
 }
 
 impl<T: Scalar + Zero, R, const D: usize> Similarity<T, R, D>
@@ -307,7 +326,7 @@ impl<T: SimdRealField, R, const D: usize> Similarity<T, R, D> {
     where
         Const<D>: DimNameAdd<U1>,
         R: SubsetOf<OMatrix<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>>,
-        DefaultAllocator: Allocator<T, DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
+        DefaultAllocator: Allocator<DimNameSum<Const<D>, U1>, DimNameSum<Const<D>, U1>>,
     {
         let mut res = self.isometry.to_homogeneous();
 
