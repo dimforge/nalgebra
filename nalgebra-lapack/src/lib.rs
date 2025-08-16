@@ -82,6 +82,7 @@ extern crate num_traits as num;
 mod lapack_check;
 
 mod cholesky;
+mod colpiv_qr;
 mod eigen;
 mod generalized_eigenvalues;
 mod hessenberg;
