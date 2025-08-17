@@ -1,39 +1,72 @@
 use error::{ErrorCode, check_lapack_info};
-use na::{Const, Matrix};
+use na::{ComplexField, Const, Matrix, OVector, Vector};
 use nalgebra::{DefaultAllocator, Dim, DimMin, DimMinimum, OMatrix, Scalar, allocator::Allocator};
-use num::Zero;
+use num::{ConstOne, Zero};
 
 pub mod error;
 
 use super::qr::{QRReal, QRScalar};
 
+mod test;
+
 pub struct ColPivQR<T, R, C>
 where
-    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>>,
-    T: Scalar,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
+    T: Scalar + ComplexField,
     R: DimMin<C>,
     C: Dim,
 {
     qr: OMatrix<T, R, C>,
+    tau: OVector<T, DimMinimum<R, C>>,
+    jpvt: OVector<i32, C>,
+    eps: T::RealField,
 }
 
 impl<T, R, C> ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
-    T: ColPivQrScalar,
+    T: ColPivQrScalar + Zero + ComplexField,
     R: DimMin<C>,
     C: Dim,
 {
-    pub fn new(mut m: OMatrix<T, R, C>) -> Option<Self> {
+    //@todo(geo-ant) maybe add another constructor that allows giving a workspace array,
+    // so we don't have to allocate in here
+    pub fn new(mut m: OMatrix<T, R, C>, eps: T::RealField) -> Option<Self> {
         let (nrows, ncols) = m.shape_generic();
-        let mut info = 0;
-        let mut tau = Matrix::zeros_generic(nrows.min(ncols), Const::<1>);
-        let mut jpvt= Matrix::zeros_generic(ncols, Const::<1>);
+        let mut tau: OVector<T, DimMinimum<R, C>> =
+            Vector::zeros_generic(nrows.min(ncols), Const::<1>);
+        let mut jpvt: OVector<i32, C> = Vector::zeros_generic(ncols, Const::<1>);
 
-        let lwork = T::xgeqp3_work_size(nrows.value(), ncols.value(), m.as_mut_slice(), nrows.value(), jpvt, tau)
+        let lwork = T::xgeqp3_work_size(
+            nrows.value().try_into().expect("matrix dims out of bounds"),
+            ncols.value().try_into().expect("matrix dims out of bounds"),
+            m.as_mut_slice(),
+            nrows.value().try_into().expect("matrix dims out of bounds"),
+            jpvt.as_mut_slice(),
+            tau.as_mut_slice(),
+        )
+        .ok()?;
 
-        
-        todo!()
+        let mut work = vec![T::zero(); lwork as usize];
+
+        T::xgeqp3(
+            nrows.value() as i32,
+            ncols.value() as i32,
+            m.as_mut_slice(),
+            nrows.value() as i32,
+            jpvt.as_mut_slice(),
+            tau.as_mut_slice(),
+            &mut work,
+            lwork,
+        )
+        .ok()?;
+
+        Some(Self {
+            qr: m,
+            tau,
+            jpvt,
+            eps,
+        })
     }
 }
 
