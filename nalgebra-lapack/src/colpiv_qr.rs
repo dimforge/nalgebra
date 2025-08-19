@@ -1,6 +1,6 @@
 use error::{LapackErrorCode, check_lapack_info};
 use na::{ComplexField, Const, IsContiguous, Matrix, OVector, RawStorage, Storage, Vector};
-use nalgebra::storage::{RawStorageMut, StorageMut};
+use nalgebra::storage::RawStorageMut;
 use nalgebra::{DefaultAllocator, Dim, DimMin, DimMinimum, OMatrix, Scalar, allocator::Allocator};
 use num::Zero;
 
@@ -35,6 +35,24 @@ pub enum Transposition {
     No,
     /// transpose the matrix.
     Transpose,
+}
+
+/// describes the type of a triangular matrix
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum TriangularStructure {
+    /// upper triangular
+    Upper,
+    /// lower triangular
+    Lower,
+}
+
+/// property of the diagonal of a triangular matrix
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum DiagonalKind {
+    /// diagonal entries all have value of 1
+    Unit,
+    /// diagonal elements are arbitrary
+    NonUnit,
 }
 
 /// todo
@@ -265,6 +283,18 @@ pub trait ColPivQrScalar: QRScalar {
         jpvt: &mut [i32],
         tau: &mut [Self],
     ) -> Result<i32, LapackErrorCode>;
+
+    fn xtrtrs(
+        uplo: TriangularStructure,
+        trans: Transposition,
+        diag: DiagonalKind,
+        n: i32,
+        nrhs: i32,
+        a: &[Self],
+        lda: i32,
+        b: &mut [Self],
+        ldb: i32,
+    ) -> Result<(), LapackErrorCode>;
 }
 
 impl ColPivQrScalar for f32 {
@@ -297,6 +327,41 @@ impl ColPivQrScalar for f32 {
         unsafe { lapack::sgeqp3(m, n, a, lda, jpvt, tau, &mut work, lwork, &mut info) };
         check_lapack_info(info)?;
         Ok(work[0] as i32)
+    }
+
+    fn xtrtrs(
+        uplo: TriangularStructure,
+        trans: Transposition,
+        diag: DiagonalKind,
+        n: i32,
+        nrhs: i32,
+        a: &[Self],
+        lda: i32,
+        b: &mut [Self],
+        ldb: i32,
+    ) -> Result<(), LapackErrorCode> {
+        let mut info = 0;
+        let trans = match trans {
+            Transposition::No => b'N',
+            Transposition::Transpose => b'T',
+        };
+
+        unsafe {
+            lapack::strtrs(
+                uplo.into_lapack_uplo_character(),
+                trans,
+                diag.into_lapack_diag_character(),
+                n,
+                nrhs,
+                a,
+                lda,
+                b,
+                ldb,
+                &mut info,
+            );
+        }
+
+        check_lapack_info(info)
     }
 }
 
