@@ -1,11 +1,19 @@
 /// newtype for a lapack error code
-pub struct ErrorCode(i32);
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct LapackErrorCode(i32);
+
+impl PartialEq<i32> for LapackErrorCode {
+    #[inline]
+    fn eq(&self, other: &i32) -> bool {
+        self == &LapackErrorCode(*other)
+    }
+}
 
 /// utility function to check the info return value of a lapack function
-pub fn check_lapack_info(info: i32) -> Result<(), ErrorCode> {
+pub fn check_lapack_info(info: i32) -> Result<(), LapackErrorCode> {
     if info == 0 {
         Ok(())
     } else {
-        Err(ErrorCode(info))
+        Err(LapackErrorCode(info))
     }
 }

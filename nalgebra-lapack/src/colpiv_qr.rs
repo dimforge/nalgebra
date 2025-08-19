@@ -1,14 +1,43 @@
-use error::{ErrorCode, check_lapack_info};
-use na::{ComplexField, Const, Matrix, OVector, Vector};
+use error::{LapackErrorCode, check_lapack_info};
+use na::{ComplexField, Const, IsContiguous, Matrix, OVector, RawStorage, Storage, Vector};
+use nalgebra::storage::{RawStorageMut, StorageMut};
 use nalgebra::{DefaultAllocator, Dim, DimMin, DimMinimum, OMatrix, Scalar, allocator::Allocator};
-use num::{ConstOne, Zero};
+use num::Zero;
 
 pub mod error;
+use crate::ComplexHelper;
 
 use super::qr::{QRReal, QRScalar};
-
 mod test;
+mod utility;
 
+pub enum Error {
+    Backend(LapackErrorCode),
+    Dimension,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+/// Indicates the side from which a matrix multiplication is to be performed.
+pub enum Side {
+    /// perform multiplication from the left
+    Left,
+    /// perform multiplication from the right
+    Right,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+/// Indicates whether or not to transpose a matrix during a matrix
+/// operation.
+// @note(geo-ant) once we add complex, we can refactor this
+// to conjugate transpose (or hermitian transpose).
+pub enum Transposition {
+    /// don't transpose, i.e. leave the matrix as is
+    No,
+    /// transpose the matrix.
+    Transpose,
+}
+
+/// todo
 pub struct ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
@@ -29,7 +58,7 @@ where
     R: DimMin<C>,
     C: Dim,
 {
-    //@todo(geo-ant) maybe add another constructor that allows giving a workspace array,
+    ///@todo(geo-ant) maybe add another constructor that allows giving a workspace array,
     // so we don't have to allocate in here
     pub fn new(mut m: OMatrix<T, R, C>, eps: T::RealField) -> Option<Self> {
         let (nrows, ncols) = m.shape_generic();
@@ -70,6 +99,149 @@ where
     }
 }
 
+impl<T, R, C> ColPivQR<T, R, C>
+where
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<DimMinimum<R, C>>
+        + Allocator<C>,
+    T: ColPivQrReal + Zero + ComplexField,
+    R: DimMin<C>,
+    C: Dim,
+{
+    ///@todo
+    pub fn mul_q<R2: Dim, C2: Dim, S>(
+        &self,
+        mat: &Matrix<T, R2, C2, S>,
+        side: Side,
+        transpose: Transposition,
+    ) -> Result<OMatrix<T, R2, C2>, Error>
+    where
+        S: Storage<T, R2, C2> + RawStorage<T, R2, C2> + IsContiguous,
+        DefaultAllocator: Allocator<R2, C2>,
+    {
+        let mut mat = mat.clone_owned();
+        self.mul_q_mut(&mut mat, side, transpose)?;
+        Ok(mat)
+    }
+
+    /// Multiplies the provided matrix by Q, requiring contiguous column-major storage
+    //@todo(gantonopoulos) comment
+    pub fn mul_q_mut<R2: Dim, C2: Dim, S>(
+        &self,
+        mat: &mut Matrix<T, R2, C2, S>,
+        side: Side,
+        transpose: Transposition,
+    ) -> Result<(), Error>
+    where
+        S: RawStorageMut<T, R2, C2> + IsContiguous,
+    {
+        //@todo test matrix dimensions
+        let a = self.qr.as_slice();
+        let lda = self
+            .qr
+            .nrows()
+            .try_into()
+            .expect("integer dimension out of range");
+        let m = mat
+            .nrows()
+            .try_into()
+            .expect("integer dimension out of range");
+        let n = mat
+            .ncols()
+            .try_into()
+            .expect("integer dimension out of range");
+        let k = self
+            .tau
+            .len()
+            .try_into()
+            .expect("integer dimension out of range");
+        let ldc = mat
+            .nrows()
+            .try_into()
+            .expect("integer dimension out of range");
+        let c = mat.as_mut_slice();
+        let trans = transpose;
+        let tau = self.tau.as_slice();
+
+        let lwork = T::xormqr_work_size(side, transpose, m, n, k, a, lda, tau, c, ldc).unwrap();
+        let mut work = vec![T::zero(); lwork as usize];
+        T::xormqr(side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork).unwrap();
+        Ok(())
+    }
+}
+
+impl<T, R, C> ColPivQR<T, R, C>
+where
+    DefaultAllocator: Allocator<R, C>
+        + Allocator<R, DimMinimum<R, C>>
+        + Allocator<DimMinimum<R, C>, C>
+        + Allocator<DimMinimum<R, C>>
+        + Allocator<C>,
+    T: ColPivQrReal + Zero + ComplexField,
+    R: DimMin<C>,
+    C: Dim,
+    DefaultAllocator:,
+{
+    /// Computes the orthogonal matrix `Q` of this decomposition.
+    #[inline]
+    #[must_use]
+    pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>> {
+        let (nrows, ncols) = self.qr.shape_generic();
+        let min_nrows_ncols = nrows.min(ncols);
+
+        if min_nrows_ncols.value() == 0 {
+            return OMatrix::from_element_generic(nrows, min_nrows_ncols, T::zero());
+        }
+
+        let mut q = self
+            .qr
+            .generic_view((0, 0), (nrows, min_nrows_ncols))
+            .into_owned();
+
+        let mut info = 0;
+        let nrows = nrows.value() as i32;
+
+        let lwork = T::xorgqr_work_size(
+            nrows,
+            min_nrows_ncols.value() as i32,
+            self.tau.len() as i32,
+            q.as_mut_slice(),
+            nrows,
+            self.tau.as_slice(),
+            &mut info,
+        );
+
+        debug_assert!(check_lapack_info(info).is_ok(), "error in lapack backend");
+
+        let mut work = vec![T::zero(); lwork as usize];
+
+        T::xorgqr(
+            nrows,
+            min_nrows_ncols.value() as i32,
+            self.tau.len() as i32,
+            q.as_mut_slice(),
+            nrows,
+            self.tau.as_slice(),
+            &mut work,
+            lwork,
+            &mut info,
+        );
+
+        debug_assert!(check_lapack_info(info).is_ok(), "error in lapack backend");
+
+        q
+    }
+
+    /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
+    #[inline]
+    #[must_use]
+    pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C> {
+        let (nrows, ncols) = self.qr.shape_generic();
+        self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle()
+    }
+}
 pub trait ColPivQrScalar: QRScalar {
     /// routine for column pivoting QR decomposition using level 3 BLAS,
     /// see https://www.netlib.org/lapack/lug/node42.html
@@ -83,7 +255,7 @@ pub trait ColPivQrScalar: QRScalar {
         tau: &mut [Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), ErrorCode>;
+    ) -> Result<(), LapackErrorCode>;
 
     fn xgeqp3_work_size(
         m: i32,
@@ -92,7 +264,7 @@ pub trait ColPivQrScalar: QRScalar {
         lda: i32,
         jpvt: &mut [i32],
         tau: &mut [Self],
-    ) -> Result<i32, ErrorCode>;
+    ) -> Result<i32, LapackErrorCode>;
 }
 
 impl ColPivQrScalar for f32 {
@@ -105,7 +277,7 @@ impl ColPivQrScalar for f32 {
         tau: &mut [Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), ErrorCode> {
+    ) -> Result<(), LapackErrorCode> {
         let mut info = 0;
         unsafe { lapack::sgeqp3(m, n, a, lda, jpvt, tau, work, lwork, &mut info) };
         check_lapack_info(info)
@@ -118,12 +290,113 @@ impl ColPivQrScalar for f32 {
         lda: i32,
         jpvt: &mut [i32],
         tau: &mut [Self],
-    ) -> Result<i32, ErrorCode> {
+    ) -> Result<i32, LapackErrorCode> {
         let mut work = [Zero::zero()];
         let lwork = -1 as i32;
         let mut info = 0;
         unsafe { lapack::sgeqp3(m, n, a, lda, jpvt, tau, &mut work, lwork, &mut info) };
         check_lapack_info(info)?;
         Ok(work[0] as i32)
+    }
+}
+
+/// Trait implemented by reals for which Lapack function exist to compute the
+/// column-pivoted QR decomposition.
+// @note(geo-ant) This mirrors the behavior in the existing QR implementation
+// without pivoting. I'm not 100% sure that we can't abstract over real and
+// complex behavior in the scalar trait, but I'll keep it like this for now.
+pub trait ColPivQrReal: QRReal {
+    fn xormqr(
+        side: Side,
+        trans: Transposition,
+        m: i32,
+        n: i32,
+        k: i32,
+        a: &[Self],
+        lda: i32,
+        tau: &[Self],
+        c: &mut [Self],
+        ldc: i32,
+        work: &mut [Self],
+        lwork: i32,
+    ) -> Result<(), LapackErrorCode>;
+
+    fn xormqr_work_size(
+        side: Side,
+        trans: Transposition,
+        m: i32,
+        n: i32,
+        k: i32,
+        a: &[Self],
+        lda: i32,
+        tau: &[Self],
+        c: &mut [Self],
+        ldc: i32,
+    ) -> Result<i32, LapackErrorCode>;
+}
+
+impl ColPivQrReal for f32 {
+    fn xormqr(
+        side: Side,
+        trans: Transposition,
+        m: i32,
+        n: i32,
+        k: i32,
+        a: &[Self],
+        lda: i32,
+        tau: &[Self],
+        c: &mut [Self],
+        ldc: i32,
+        work: &mut [Self],
+        lwork: i32,
+    ) -> Result<(), LapackErrorCode> {
+        let mut info = 0;
+        let side = side.into_lapack_side_character();
+
+        // this would be different for complex numbers!
+        let trans = match trans {
+            Transposition::No => b'N',
+            Transposition::Transpose => b'T',
+        };
+
+        unsafe {
+            lapack::sormqr(
+                side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, &mut info,
+            );
+        }
+        check_lapack_info(info)
+    }
+
+    fn xormqr_work_size(
+        side: Side,
+        trans: Transposition,
+        m: i32,
+        n: i32,
+        k: i32,
+        a: &[Self],
+        lda: i32,
+        tau: &[Self],
+        c: &mut [Self],
+        ldc: i32,
+    ) -> Result<i32, LapackErrorCode> {
+        let mut info = 0;
+        let side = side.into_lapack_side_character();
+
+        // this would be different for complex numbers!
+        let trans = match trans {
+            Transposition::No => b'N',
+            Transposition::Transpose => b'T',
+        };
+
+        let mut work = [Zero::zero()];
+        let lwork = -1 as i32;
+        unsafe {
+            lapack::sormqr(
+                side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork, &mut info,
+            );
+        }
+        check_lapack_info(info)?;
+        // for complex numbers: real part
+        Ok(ComplexHelper::real_part(work[0]) as i32)
     }
 }
