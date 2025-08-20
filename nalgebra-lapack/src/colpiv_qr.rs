@@ -11,9 +11,15 @@ use super::qr::{QRReal, QRScalar};
 mod test;
 mod utility;
 
+mod permutation;
+pub use permutation::PermutationRef;
+
+#[derive(Debug)]
 pub enum Error {
     Backend(LapackErrorCode),
     Dimension,
+    Underdetermined,
+    ZeroRank,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -66,6 +72,7 @@ where
     qr: OMatrix<T, R, C>,
     tau: OVector<T, DimMinimum<R, C>>,
     jpvt: OVector<i32, C>,
+    //@todo(geo-ant) make the rank calculation configurable.
     eps: T::RealField,
 }
 
@@ -114,6 +121,29 @@ where
             jpvt,
             eps,
         })
+    }
+
+    /// get the effective rank of the matrix
+    #[inline]
+    pub fn rank(&self) -> u16 {
+        todo!()
+    }
+
+    #[inline]
+    /// the number of rows of the original matrix
+    pub fn nrows(&self) -> usize {
+        self.qr.nrows()
+    }
+
+    #[inline]
+    /// the number of columns of the original matrix
+    pub fn ncols(&self) -> usize {
+        self.qr.ncols()
+    }
+
+    /// get the column permutation
+    pub fn p(&self) -> PermutationRef<'_, C> {
+        PermutationRef::new(&self.jpvt)
     }
 }
 
@@ -188,6 +218,79 @@ where
         T::xormqr(side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork).unwrap();
         Ok(())
     }
+
+    ///
+    //@todo(geo-ant) document!
+    pub fn solve_mut<C2: Dim, S, S2>(
+        &self,
+        rhs: &mut Matrix<T, R, C2, S>,
+        x: &mut Matrix<T, C, C2, S2>,
+    ) -> Result<(), Error>
+    where
+        S: RawStorageMut<T, R, C2> + IsContiguous,
+        S2: RawStorageMut<T, C, C2> + IsContiguous,
+        T: Zero,
+    {
+        //@todo(geo-ant) validate matrix dimensions!! Must be overdetermined (or square) here
+        if rhs.nrows() != self.nrows() {
+            return Err(Error::Dimension);
+        }
+
+        if self.nrows() < self.ncols() || self.nrows() == 0 || self.ncols() == 0 {
+            return Err(Error::Dimension);
+        }
+
+        if x.ncols() != rhs.ncols() || x.nrows() != self.ncols() {
+            return Err(Error::Dimension);
+        }
+
+        // 1. Calculate Q^T * RHS
+        self.mul_q_mut(rhs, Side::Left, Transposition::Transpose)?;
+
+        // 2.
+        let rank = self.rank();
+
+        if rank == 0 {
+            return Err(Error::ZeroRank);
+        }
+
+        if (rank as usize) < self.ncols() {
+            x.view_mut((rank as usize, 0), (x.nrows() - rank as usize, x.ncols()))
+                .iter_mut()
+                .for_each(|val| val.set_zero());
+        }
+
+        let x_cols = x.ncols();
+        x.view_mut((0, 0), (rank as usize, x_cols))
+            .copy_from(&rhs.view((0, 0), (rank as usize, x_cols)));
+
+        let ldb: i32 = x
+            .nrows()
+            .try_into()
+            .expect("integer dimensions out of bounds");
+
+        T::xtrtrs(
+            TriangularStructure::Upper,
+            Transposition::No,
+            DiagonalKind::NonUnit,
+            rank.try_into().expect("rank out of bounds"),
+            x.ncols()
+                .try_into()
+                .expect("integer dimensions out of bounds"),
+            self.qr.as_slice(),
+            self.qr
+                .nrows()
+                .try_into()
+                .expect("integer dimensions out of bounds"),
+            x.as_mut_slice(),
+            ldb,
+        )
+            //@todo
+        .unwrap();
+
+        // self.p().inv_permute_cols_mut(&mut x);
+        todo!()
+    }
 }
 
 impl<T, R, C> ColPivQR<T, R, C>
@@ -260,7 +363,8 @@ where
         self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle()
     }
 }
-pub trait ColPivQrScalar: QRScalar {
+
+pub trait ColPivQrScalar: ComplexField + QRScalar {
     /// routine for column pivoting QR decomposition using level 3 BLAS,
     /// see https://www.netlib.org/lapack/lug/node42.html
     /// or https://www.intel.com/content/www/us/en/docs/onemkl/developer-reference-c/2023-0/geqp3.html
@@ -294,6 +398,24 @@ pub trait ColPivQrScalar: QRScalar {
         lda: i32,
         b: &mut [Self],
         ldb: i32,
+    ) -> Result<(), LapackErrorCode>;
+
+    fn xlapmt(
+        forwrd: bool,
+        m: i32,
+        n: i32,
+        x: &mut [Self],
+        ldx: i32,
+        k: &mut [i32],
+    ) -> Result<(), LapackErrorCode>;
+
+    fn xlapmr(
+        forwrd: bool,
+        m: i32,
+        n: i32,
+        x: &mut [Self],
+        ldx: i32,
+        k: &mut [i32],
     ) -> Result<(), LapackErrorCode>;
 }
 
@@ -363,6 +485,36 @@ impl ColPivQrScalar for f32 {
 
         check_lapack_info(info)
     }
+
+    fn xlapmt(
+        forwrd: bool,
+        m: i32,
+        n: i32,
+        x: &mut [Self],
+        ldx: i32,
+        k: &mut [i32],
+    ) -> Result<(), LapackErrorCode> {
+        debug_assert_eq!(k.len(), n as usize);
+
+        let forward: [i32; 1] = [forwrd.then_some(1).unwrap_or(0)];
+        unsafe { lapack::slapmt(forward.as_slice(), m, n, x, ldx, k) }
+        Ok(())
+    }
+
+    fn xlapmr(
+        forwrd: bool,
+        m: i32,
+        n: i32,
+        x: &mut [Self],
+        ldx: i32,
+        k: &mut [i32],
+    ) -> Result<(), LapackErrorCode> {
+        debug_assert_eq!(k.len(), m as usize);
+
+        let forward: [i32; 1] = [forwrd.then_some(1).unwrap_or(0)];
+        unsafe { lapack::slapmr(forward.as_slice(), m, n, x, ldx, k) }
+        Ok(())
+    }
 }
 
 /// Trait implemented by reals for which Lapack function exist to compute the
@@ -370,7 +522,7 @@ impl ColPivQrScalar for f32 {
 // @note(geo-ant) This mirrors the behavior in the existing QR implementation
 // without pivoting. I'm not 100% sure that we can't abstract over real and
 // complex behavior in the scalar trait, but I'll keep it like this for now.
-pub trait ColPivQrReal: QRReal {
+pub trait ColPivQrReal: ColPivQrScalar + QRReal {
     fn xormqr(
         side: Side,
         trans: Transposition,

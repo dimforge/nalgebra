@@ -1,6 +1,6 @@
 /// newtype for a lapack error code
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct LapackErrorCode(i32);
+pub struct LapackErrorCode(pub(crate) i32);
 
 impl PartialEq<i32> for LapackErrorCode {
     #[inline]
