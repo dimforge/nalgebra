@@ -22,6 +22,7 @@ where
 {
     ///
     //@todo(geo-ant) comment
+    #[inline]
     pub fn permute_cols_mut<T, R, S>(&self, mat: &mut Matrix<T, R, D, S>) -> Result<(), Error>
     where
         R: Dim,
@@ -33,6 +34,7 @@ where
 
     ///
     //@todo(geo-ant) comment
+    #[inline]
     pub fn inv_permute_cols_mut<T, R, S>(&self, mat: &mut Matrix<T, R, D, S>) -> Result<(), Error>
     where
         R: Dim,
@@ -43,6 +45,7 @@ where
     }
     ///
     //@todo(geo-ant) comment
+    #[inline]
     pub fn permute_rows_mut<T, C, S>(&self, mat: &mut Matrix<T, D, C, S>) -> Result<(), Error>
     where
         C: Dim,
@@ -54,6 +57,7 @@ where
 
     ///
     //@todo(geo-ant) comment
+    #[inline]
     pub fn inv_permute_rows_mut<T, C, S>(&self, mat: &mut Matrix<T, D, C, S>) -> Result<(), Error>
     where
         C: Dim,
@@ -63,6 +67,7 @@ where
         self.apply_rows_mut(false, mat)
     }
 
+    #[inline]
     fn apply_rows_mut<T, C, S>(
         &self,
         forward: bool,
@@ -91,6 +96,7 @@ where
         Ok(())
     }
 
+    #[inline]
     fn apply_cols_mut<T, R, S>(
         &self,
         forward: bool,

@@ -14,6 +14,9 @@ mod utility;
 mod permutation;
 pub use permutation::PermutationRef;
 
+/// utility functionality to calculate the rank of matrices
+mod rank;
+
 #[derive(Debug)]
 pub enum Error {
     Backend(LapackErrorCode),
@@ -244,10 +247,8 @@ where
             return Err(Error::Dimension);
         }
 
-        // 1. Calculate Q^T * RHS
         self.mul_q_mut(rhs, Side::Left, Transposition::Transpose)?;
 
-        // 2.
         let rank = self.rank();
 
         if rank == 0 {
@@ -288,8 +289,8 @@ where
             //@todo
         .unwrap();
 
-        // self.p().inv_permute_cols_mut(&mut x);
-        todo!()
+        self.p().inv_permute_rows_mut(x)?;
+        Ok(())
     }
 }
 
