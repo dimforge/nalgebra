@@ -1,13 +1,18 @@
 use error::{LapackErrorCode, check_lapack_info};
-use na::{ComplexField, Const, IsContiguous, Matrix, OVector, RawStorage, Storage, Vector};
+use na::{
+    ComplexField, Const, IsContiguous, Matrix, OVector, RawStorage, RealField, Storage, Vector,
+};
 use nalgebra::storage::RawStorageMut;
 use nalgebra::{DefaultAllocator, Dim, DimMin, DimMinimum, OMatrix, Scalar, allocator::Allocator};
-use num::Zero;
+use num::float::TotalOrder;
+use num::{Float, Zero};
+use rank::{RankEstimationAlgo, calculate_rank};
 
 pub mod error;
 use crate::ComplexHelper;
 
 use super::qr::{QRReal, QRScalar};
+#[cfg(test)]
 mod test;
 mod utility;
 
@@ -17,11 +22,15 @@ pub use permutation::PermutationRef;
 /// utility functionality to calculate the rank of matrices
 mod rank;
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    Backend(LapackErrorCode),
+    #[error("Error in lapack backend (code: {0})")]
+    Backend(#[from] LapackErrorCode),
+    #[error("Wrong matrix dimensions")]
     Dimension,
+    #[error("Solving underdetermined systems not supported")]
     Underdetermined,
+    #[error("Matrix has rank zero")]
     ZeroRank,
 }
 
@@ -72,23 +81,27 @@ where
     R: DimMin<C>,
     C: Dim,
 {
+    // qr decomposition, see https://www.netlib.org/lapack/explore-html/d0/dea/group__geqp3.html
     qr: OMatrix<T, R, C>,
+    // householder coefficients, see https://www.netlib.org/lapack/explore-html/d0/dea/group__geqp3.html
     tau: OVector<T, DimMinimum<R, C>>,
+    // permutation vector, see https://www.netlib.org/lapack/explore-html/d0/dea/group__geqp3.html
+    // note that permutation indices are 1-based in LAPACK
     jpvt: OVector<i32, C>,
-    //@todo(geo-ant) make the rank calculation configurable.
-    eps: T::RealField,
+    // rank of the matrix
+    rank: i32,
 }
 
 impl<T, R, C> ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
-    T: ColPivQrScalar + Zero + ComplexField,
+    T: ColPivQrScalar + Zero + RealField + TotalOrder + Float,
     R: DimMin<C>,
     C: Dim,
 {
     ///@todo(geo-ant) maybe add another constructor that allows giving a workspace array,
     // so we don't have to allocate in here
-    pub fn new(mut m: OMatrix<T, R, C>, eps: T::RealField) -> Option<Self> {
+    pub fn new(mut m: OMatrix<T, R, C>, rank_algo: RankEstimationAlgo<T>) -> Result<Self, Error> {
         let (nrows, ncols) = m.shape_generic();
         let mut tau: OVector<T, DimMinimum<R, C>> =
             Vector::zeros_generic(nrows.min(ncols), Const::<1>);
@@ -101,8 +114,7 @@ where
             nrows.value().try_into().expect("matrix dims out of bounds"),
             jpvt.as_mut_slice(),
             tau.as_mut_slice(),
-        )
-        .ok()?;
+        )?;
 
         let mut work = vec![T::zero(); lwork as usize];
 
@@ -115,21 +127,32 @@ where
             tau.as_mut_slice(),
             &mut work,
             lwork,
-        )
-        .ok()?;
+        )?;
 
-        Some(Self {
+        let rank: i32 = calculate_rank(&m, rank_algo)
+            .try_into()
+            .map_err(|_| Error::Dimension)?;
+
+        Ok(Self {
             qr: m,
+            rank,
             tau,
             jpvt,
-            eps,
         })
     }
+}
 
+impl<T, R, C> ColPivQR<T, R, C>
+where
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
+    T: ColPivQrScalar + Zero + RealField,
+    R: DimMin<C>,
+    C: Dim,
+{
     /// get the effective rank of the matrix
     #[inline]
     pub fn rank(&self) -> u16 {
-        todo!()
+        self.rank as u16
     }
 
     #[inline]
@@ -157,7 +180,7 @@ where
         + Allocator<DimMinimum<R, C>, C>
         + Allocator<DimMinimum<R, C>>
         + Allocator<C>,
-    T: ColPivQrReal + Zero + ComplexField,
+    T: ColPivQrReal + Zero + RealField,
     R: DimMin<C>,
     C: Dim,
 {

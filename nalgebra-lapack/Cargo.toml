@@ -36,6 +36,7 @@ simba = "0.9"
 serde = { version = "1.0", features = ["derive"], optional = true }
 lapack = { version = "0.19", default-features = false }
 lapack-src = { version = "0.8", default-features = false }
+thiserror = "1.0"
 # clippy = "*"
 
 [dev-dependencies]

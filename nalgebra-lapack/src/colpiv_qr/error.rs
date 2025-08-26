@@ -1,5 +1,8 @@
+use std::fmt::Display;
+
 /// newtype for a lapack error code
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
+#[error("{0}")]
 pub struct LapackErrorCode(pub(crate) i32);
 
 impl PartialEq<i32> for LapackErrorCode {
