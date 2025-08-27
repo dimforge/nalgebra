@@ -177,7 +177,7 @@ fn test_rank_determination_for_different_matrices() {
 }
 
 #[test]
-fn solve_overdetermined_system_with_exact_solution() {
+fn solve_full_rank_overdetermined_system_with() {
     let a = nalgebra::matrix![
        0f32,   2.,   1.;
        6.,   4.,   3.;
@@ -188,6 +188,24 @@ fn solve_overdetermined_system_with_exact_solution() {
 
     let b = &a * &x;
     let qr = ColPivQR::new(a, Default::default()).expect("qr decomposition must not fail");
+    assert_eq!(qr.rank(), 3);
     let x_calc = qr.solve(&b).unwrap();
     assert_abs_diff_eq!(x_calc, x, epsilon = 1e-6);
+}
+
+#[test]
+fn solve_rank_deficient_overdetermined_system_with() {
+    let a = nalgebra::matrix![
+     8.,    2.,    1.;
+    14.,    4.,    3.;
+     5.,    3.,    5.;
+    29.,    9.,    8.;
+    ];
+    let x = nalgebra::vector![8., 6., 2.];
+
+    let b = &a * &x;
+    let qr = ColPivQR::new(a, Default::default()).expect("qr decomposition must not fail");
+    assert_eq!(qr.rank(), 2);
+    let x_calc = qr.solve(&b).unwrap();
+    assert_abs_diff_eq!(a * x_calc, a * x, epsilon = 1e-4);
 }
