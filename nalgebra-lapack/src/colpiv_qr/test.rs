@@ -1,5 +1,5 @@
 use super::ColPivQR;
-use approx::{assert_abs_diff_eq, assert_relative_eq};
+use approx::assert_abs_diff_eq;
 use na::OMatrix;
 
 #[test]
@@ -12,6 +12,40 @@ fn smoketest_qr_decomposition_for_f32_matrix() {
 
     let _ =
         ColPivQR::new(mat, Default::default()).expect("creating qr decomposition must not fail");
+}
+
+#[test]
+fn qr_decomposition_is_logically_correct() {
+    let a: OMatrix<f32, _, _> = nalgebra::matrix!
+    [  65.,   15.,   69.;
+       99.,   44.,   63.;
+       28.,   50.,   76.;
+       99.,   45.,   39.;
+        1.,   51.,   93.;
+    ];
+
+    let qr = ColPivQR::new(a, Default::default()).unwrap();
+    assert_eq!(qr.rank(), 3);
+    let q = qr.q();
+    let r = qr.r();
+    let a_calc = {
+        let mut tmp = q * r;
+        qr.p().permute_cols_mut(&mut tmp).unwrap();
+        tmp
+    };
+
+    assert_abs_diff_eq!(a_calc, a, epsilon = 1e-6);
+
+    // let a_calc = qr.q().transpose() * qr.r();
+    // assert_eq!(qr.q(), 2. * qr.q());
+    panic!("r = {:?}", qr.r());
+
+    todo!("waaaah")
+}
+
+#[test]
+fn test_q_multiplication() {
+    todo!()
 }
 
 #[test]
@@ -162,7 +196,7 @@ fn test_rank_determination_for_different_matrices() {
 }
 
 #[test]
-fn solve_full_rank_overdetermined_system_with() {
+fn solve_full_rank_overdetermined_system_with_single_rhs() {
     let a = nalgebra::matrix![
        0f32,   2.,   1.;
        6.,   4.,   3.;
@@ -179,7 +213,7 @@ fn solve_full_rank_overdetermined_system_with() {
 }
 
 #[test]
-fn solve_rank_deficient_overdetermined_system_with() {
+fn solve_rank_deficient_overdetermined_system_with_single_rhs() {
     let a = nalgebra::matrix![
      8.,    2.,    1.;
     14.,    4.,    3.;

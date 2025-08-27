@@ -398,9 +398,14 @@ where
     /// Retrieves the upper trapezoidal submatrix `R` of this decomposition.
     #[inline]
     #[must_use]
-    pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, C> {
+    pub fn r(&self) -> OMatrix<T, DimMinimum<R, C>, DimMinimum<R, C>>
+    where
+        DefaultAllocator: Allocator<DimMinimum<R, C>, DimMinimum<R, C>>,
+    {
         let (nrows, ncols) = self.qr.shape_generic();
-        self.qr.rows_generic(0, nrows.min(ncols)).upper_triangle()
+        let d = nrows.min(ncols);
+        let m = self.qr.generic_view((0, 0), (d, d));
+        m.upper_triangle()
     }
 }
 
