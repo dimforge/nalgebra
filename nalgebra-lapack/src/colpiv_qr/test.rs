@@ -1,3 +1,4 @@
+use super::ColPivQR;
 use na::OMatrix;
 
 #[test]
@@ -8,8 +9,8 @@ fn smoketest_qr_decomposition_for_f32_matrix() {
      9.,   3.,   1.;
      8.,   4.,   9.];
 
-    let _ = super::ColPivQR::new(mat, Default::default())
-        .expect("creating qr decomposition must not fail");
+    let _ =
+        ColPivQR::new(mat, Default::default()).expect("creating qr decomposition must not fail");
 }
 
 #[test]
@@ -172,4 +173,20 @@ fn test_rank_determination_for_different_matrices() {
     // zero diagonal elements become very small non-zero values (around 1e-6 to 1e-7).
     // This is expected behavior in numerical linear algebra - "rank deficient" means
     // "approximately rank deficient within tolerance" rather than exactly zero.
+}
+
+#[test]
+fn solve_overdetermined_system_with_exact_solution() {
+    let a = nalgebra::matrix![
+       0f32,   2.,   1.;
+       6.,   4.,   3.;
+       6.,   3.,   5.;
+       5.,   9.,   8.;
+    ];
+    let x = nalgebra::vector![5., 3., 7.];
+
+    let b = &a * &x;
+    let qr = ColPivQR::new(a, Default::default()).expect("qr decomposition must not fail");
+    let x_calc = qr.solve(&b).unwrap();
+    assert_eq!(x_calc, x);
 }
