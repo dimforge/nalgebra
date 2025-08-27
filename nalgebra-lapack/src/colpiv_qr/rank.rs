@@ -4,6 +4,7 @@ use na::{Dim, IsContiguous, Matrix, RawStorage, RealField, Scalar, Storage};
 use num::{ConstOne, ToPrimitive};
 use num::{Float, float::TotalOrder};
 
+#[cfg(test)]
 mod test;
 
 /// describes different algorithms of calculating a matrix rank from the upper

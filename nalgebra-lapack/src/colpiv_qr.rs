@@ -246,6 +246,26 @@ where
     }
 
     ///
+    //@todo
+    pub fn solve<C2: Dim, S, S2>(
+        &self,
+        rhs: &Matrix<T, R, C2, S>,
+    ) -> Result<OMatrix<T, C, C2>, Error>
+    where
+        S: RawStorageMut<T, R, C2> + IsContiguous + Storage<T, R, C2>,
+        S2: RawStorageMut<T, C, C2> + IsContiguous,
+        T: Zero,
+        DefaultAllocator: Allocator<C, C2> + Allocator<R, C2>,
+    {
+        let (_, c2) = rhs.shape_generic();
+        let (_, c) = self.qr.shape_generic();
+        let mut rhs = rhs.clone_owned();
+        let mut x = OMatrix::zeros_generic(c, c2);
+        self.solve_mut(&mut rhs, &mut x)?;
+        Ok(x)
+    }
+
+    ///
     //@todo(geo-ant) document!
     pub fn solve_mut<C2: Dim, S, S2>(
         &self,
