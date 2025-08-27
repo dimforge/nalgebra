@@ -62,7 +62,6 @@ where
             let tol = eps(r_max)
                 * T::RealField::from_usize(qr.nrows().max(qr.ncols()))
                     .expect("matrix dimensions out of floating point bounds");
-            println!("rmax = {r_max} tol = {tol}");
             calculate_rank_with_fixed_minimum(qr, tol)
         }
     }

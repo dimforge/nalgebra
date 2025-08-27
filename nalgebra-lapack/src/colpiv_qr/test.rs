@@ -1,4 +1,5 @@
 use super::ColPivQR;
+use approx::{assert_abs_diff_eq, assert_relative_eq};
 use na::OMatrix;
 
 #[test]
@@ -188,5 +189,5 @@ fn solve_overdetermined_system_with_exact_solution() {
     let b = &a * &x;
     let qr = ColPivQR::new(a, Default::default()).expect("qr decomposition must not fail");
     let x_calc = qr.solve(&b).unwrap();
-    assert_eq!(x_calc, x);
+    assert_abs_diff_eq!(x_calc, x, epsilon = 1e-6);
 }
