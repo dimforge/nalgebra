@@ -23,8 +23,8 @@ impl TriangularStructure {
 impl DiagonalKind {
     pub(crate) fn into_lapack_diag_character(self) -> u8 {
         match self {
-            DiagonalKind::Unit => b'N',
-            DiagonalKind::NonUnit => b'U',
+            DiagonalKind::Unit => b'U',
+            DiagonalKind::NonUnit => b'N',
         }
     }
 }

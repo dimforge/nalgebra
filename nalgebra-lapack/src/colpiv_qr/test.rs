@@ -183,7 +183,7 @@ fn solve_overdetermined_system_with_exact_solution() {
        6.,   3.,   5.;
        5.,   9.,   8.;
     ];
-    let x = nalgebra::vector![5., 3., 7.];
+    let x = nalgebra::vector![8., 6., 2.];
 
     let b = &a * &x;
     let qr = ColPivQR::new(a, Default::default()).expect("qr decomposition must not fail");
