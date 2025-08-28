@@ -7,6 +7,10 @@ use na::{
 mod test;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+/// describes an orthogonal permutation matrix that can be used to permute
+/// the rows or columns of an appropriately shaped matrix. Due to LAPACK
+/// internals, an instance must be mutably borrowed when applying the
+/// permutation, but the permutation itself will remain unchanged on success.
 pub struct Permutation<D>
 where
     D: Dim,

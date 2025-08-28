@@ -167,7 +167,8 @@ where
         self.qr.ncols()
     }
 
-    /// obtain the permutation matrix.
+    /// obtain the permutation matrix $\boldsymbol{P}$,
+    /// such that $\boldsymbol{A P}= \boldsymbol{Q R}$.
     pub fn p(&self) -> Permutation<C> {
         Permutation::new(self.jpvt.clone())
     }
