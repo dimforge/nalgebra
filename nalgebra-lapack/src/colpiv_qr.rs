@@ -17,7 +17,7 @@ mod test;
 mod utility;
 
 mod permutation;
-pub use permutation::PermutationRef;
+pub use permutation::Permutation;
 
 /// utility functionality to calculate the rank of matrices
 mod rank;
@@ -167,9 +167,9 @@ where
         self.qr.ncols()
     }
 
-    /// get the column permutation
-    pub fn p(&self) -> PermutationRef<'_, C> {
-        PermutationRef::new(&self.jpvt)
+    /// obtain the permutation matrix.
+    pub fn p(&self) -> Permutation<C> {
+        Permutation::new(self.jpvt.clone())
     }
 }
 

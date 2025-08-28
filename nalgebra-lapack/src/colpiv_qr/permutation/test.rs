@@ -1,4 +1,4 @@
-use super::PermutationRef;
+use super::Permutation;
 
 #[test]
 fn test_permutation_4x3() {
@@ -11,7 +11,7 @@ fn test_permutation_4x3() {
                            10.,11.,12.]; // 4
 
     let jpvt = nalgebra::vector![3, 1, 2];
-    let perm = PermutationRef::new(&jpvt);
+    let mut perm = Permutation::new(jpvt);
     let mut mat2 = mat.clone();
     perm.permute_cols_mut(&mut mat2).unwrap();
 
@@ -25,7 +25,7 @@ fn test_permutation_4x3() {
 
     // now test column permutation
     let jpvt = nalgebra::vector![4, 2, 1, 3];
-    let perm = PermutationRef::new(&jpvt);
+    let mut perm = Permutation::new(jpvt);
 
     perm.permute_rows_mut(&mut mat2).unwrap();
     assert_eq!(mat2.row(0), mat.row(3));
@@ -52,7 +52,7 @@ fn test_permutation_dynamic_3x5() {
 
     // Test column permutation: [5, 2, 1, 4, 3] - rearrange columns
     let jpvt_cols = DVector::from_vec(vec![5, 2, 1, 4, 3]);
-    let perm = PermutationRef::new(&jpvt_cols);
+    let mut perm = Permutation::new(jpvt_cols);
     let mut mat2 = mat.clone();
 
     perm.permute_cols_mut(&mut mat2).unwrap();
@@ -67,7 +67,7 @@ fn test_permutation_dynamic_3x5() {
     assert_eq!(mat2, mat);
 
     let jpvt_rows = DVector::from_vec(vec![2, 3, 1]);
-    let perm = PermutationRef::new(&jpvt_rows);
+    let mut perm = Permutation::new(jpvt_rows);
 
     perm.permute_rows_mut(&mut mat2).unwrap();
 

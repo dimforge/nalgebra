@@ -6,16 +6,16 @@ use na::{
 #[cfg(test)]
 mod test;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct PermutationRef<'a, D>
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Permutation<D>
 where
     D: Dim,
     DefaultAllocator: Allocator<D>,
 {
-    jpvt: &'a OVector<i32, D>,
+    jpvt: OVector<i32, D>,
 }
 
-impl<'a, D> PermutationRef<'a, D>
+impl<'a, D> Permutation<D>
 where
     D: Dim,
     DefaultAllocator: Allocator<D>,
@@ -23,7 +23,7 @@ where
     ///
     //@todo(geo-ant) comment
     #[inline]
-    pub fn permute_cols_mut<T, R, S>(&self, mat: &mut Matrix<T, R, D, S>) -> Result<(), Error>
+    pub fn permute_cols_mut<T, R, S>(&mut self, mat: &mut Matrix<T, R, D, S>) -> Result<(), Error>
     where
         R: Dim,
         S: RawStorageMut<T, R, D> + IsContiguous,
@@ -35,7 +35,10 @@ where
     ///
     //@todo(geo-ant) comment
     #[inline]
-    pub fn inv_permute_cols_mut<T, R, S>(&self, mat: &mut Matrix<T, R, D, S>) -> Result<(), Error>
+    pub fn inv_permute_cols_mut<T, R, S>(
+        &mut self,
+        mat: &mut Matrix<T, R, D, S>,
+    ) -> Result<(), Error>
     where
         R: Dim,
         S: RawStorageMut<T, R, D> + IsContiguous,
@@ -46,7 +49,7 @@ where
     ///
     //@todo(geo-ant) comment
     #[inline]
-    pub fn permute_rows_mut<T, C, S>(&self, mat: &mut Matrix<T, D, C, S>) -> Result<(), Error>
+    pub fn permute_rows_mut<T, C, S>(&mut self, mat: &mut Matrix<T, D, C, S>) -> Result<(), Error>
     where
         C: Dim,
         S: RawStorageMut<T, D, C> + IsContiguous,
@@ -58,7 +61,10 @@ where
     ///
     //@todo(geo-ant) comment
     #[inline]
-    pub fn inv_permute_rows_mut<T, C, S>(&self, mat: &mut Matrix<T, D, C, S>) -> Result<(), Error>
+    pub fn inv_permute_rows_mut<T, C, S>(
+        &mut self,
+        mat: &mut Matrix<T, D, C, S>,
+    ) -> Result<(), Error>
     where
         C: Dim,
         S: RawStorageMut<T, D, C> + IsContiguous,
@@ -69,7 +75,7 @@ where
 
     #[inline]
     fn apply_rows_mut<T, C, S>(
-        &self,
+        &mut self,
         forward: bool,
         mat: &mut Matrix<T, D, C, S>,
     ) -> Result<(), Error>
@@ -91,14 +97,21 @@ where
             .try_into()
             .expect("matrix dimensions out of bounds");
 
-        let mut jpvt = self.jpvt.clone_owned();
-        T::xlapmr(forward, m, n, mat.as_mut_slice(), m, jpvt.as_mut_slice()).unwrap();
+        T::xlapmr(
+            forward,
+            m,
+            n,
+            mat.as_mut_slice(),
+            m,
+            self.jpvt.as_mut_slice(),
+        )
+        .unwrap();
         Ok(())
     }
 
     #[inline]
     fn apply_cols_mut<T, R, S>(
-        &self,
+        &mut self,
         forward: bool,
         mat: &mut Matrix<T, R, D, S>,
     ) -> Result<(), Error>
@@ -119,12 +132,19 @@ where
             .try_into()
             .expect("matrix dimensions out of bounds");
 
-        let mut jpvt = self.jpvt.clone_owned();
-        T::xlapmt(forward, m, n, mat.as_mut_slice(), m, jpvt.as_mut_slice()).unwrap();
+        T::xlapmt(
+            forward,
+            m,
+            n,
+            mat.as_mut_slice(),
+            m,
+            self.jpvt.as_mut_slice(),
+        )
+        .unwrap();
         Ok(())
     }
 
-    pub(crate) fn new(jpvt: &'a OVector<i32, D>) -> Self {
+    pub(crate) fn new(jpvt: OVector<i32, D>) -> Self {
         Self { jpvt }
     }
 }
