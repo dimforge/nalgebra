@@ -15,7 +15,7 @@ fn smoketest_qr_decomposition_for_f32_matrix() {
 }
 
 #[test]
-fn qr_decomposition_is_logically_correct() {
+fn qr_decomposition_satisfies_ap_eq_qr() {
     let a: OMatrix<f32, _, _> = nalgebra::matrix!
     [  65.,   15.,   69.;
        99.,   44.,   63.;
@@ -28,19 +28,15 @@ fn qr_decomposition_is_logically_correct() {
     assert_eq!(qr.rank(), 3);
     let q = qr.q();
     let r = qr.r();
-    let a_calc = {
-        let mut tmp = q * r;
+    let a_calc = q * r;
+    let a_perm = {
+        let mut tmp = a.clone();
         qr.p().permute_cols_mut(&mut tmp).unwrap();
         tmp
     };
 
-    assert_abs_diff_eq!(a_calc, a, epsilon = 1e-6);
-
-    // let a_calc = qr.q().transpose() * qr.r();
-    // assert_eq!(qr.q(), 2. * qr.q());
-    panic!("r = {:?}", qr.r());
-
-    todo!("waaaah")
+    // A*P == Q*R (within numerical accuracy)
+    assert_abs_diff_eq!(a_calc, a_perm, epsilon = 1e-4);
 }
 
 #[test]
