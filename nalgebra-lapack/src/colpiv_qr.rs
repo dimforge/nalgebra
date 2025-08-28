@@ -168,7 +168,8 @@ where
     }
 
     /// obtain the permutation matrix $\boldsymbol{P}$,
-    /// such that $\boldsymbol{A P}= \boldsymbol{Q R}$.
+    /// such that $\boldsymbol{A P}= \boldsymbol{Q R}$. This function
+    /// allocates a copy of the stored permutation vector.
     pub fn p(&self) -> Permutation<C> {
         Permutation::new(self.jpvt.clone())
     }
