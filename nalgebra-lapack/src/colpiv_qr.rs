@@ -1,7 +1,5 @@
 use error::{LapackErrorCode, check_lapack_info};
-use na::{
-    ComplexField, Const, IsContiguous, Matrix, OVector, RawStorage, RealField, Storage, Vector,
-};
+use na::{ComplexField, Const, IsContiguous, Matrix, OVector, RealField, Storage, Vector};
 use nalgebra::storage::RawStorageMut;
 use nalgebra::{DefaultAllocator, Dim, DimMin, DimMinimum, OMatrix, Scalar, allocator::Allocator};
 use num::float::TotalOrder;
@@ -186,32 +184,66 @@ where
     R: DimMin<C>,
     C: Dim,
 {
-    ///@todo
-    pub fn mul_q<R2: Dim, C2: Dim, S>(
-        &self,
-        mat: &Matrix<T, R2, C2, S>,
-        side: Side,
-        transpose: Transposition,
-    ) -> Result<OMatrix<T, R2, C2>, Error>
+    ///
+    //@todo(geo-ant): this is Q*B
+    pub fn q_mul_mut<C2, S2>(&self, b: &mut Matrix<T, C, C2, S2>) -> Result<(), Error>
     where
-        S: Storage<T, R2, C2> + RawStorage<T, R2, C2> + IsContiguous,
-        DefaultAllocator: Allocator<R2, C2>,
+        C2: Dim,
+        S2: RawStorageMut<T, C, C2> + IsContiguous,
     {
-        let mut mat = mat.clone_owned();
-        self.mul_q_mut(&mut mat, side, transpose)?;
-        Ok(mat)
+        assert_eq!(b.nrows(), self.ncols());
+        // SAFETY: matrix has the correct dimensions for operation Q*B
+        unsafe { self.multiply_q_mut(b, Side::Left, Transposition::No) }
+    }
+
+    ///
+    //@todo(geo-ant): this is Q^T*B
+    pub fn q_tr_mul_mut<C2, S2>(&self, b: &mut Matrix<T, R, C2, S2>) -> Result<(), Error>
+    where
+        C2: Dim,
+        S2: RawStorageMut<T, R, C2> + IsContiguous,
+    {
+        assert_eq!(b.nrows(), self.nrows());
+        // SAFETY: matrix has the correct dimensions for operation Q*B
+        unsafe { self.multiply_q_mut(b, Side::Left, Transposition::Transpose) }
+    }
+
+    ///
+    //@todo(geo-ant): this is Q*B
+    pub fn mul_q_mut<R2, S2>(&self, b: &mut Matrix<T, R2, R, S2>) -> Result<(), Error>
+    where
+        R2: Dim,
+        S2: RawStorageMut<T, R2, R> + IsContiguous,
+    {
+        assert_eq!(b.ncols(), self.nrows());
+        // SAFETY: matrix has the correct dimensions for operation B*Q
+        unsafe { self.multiply_q_mut(b, Side::Right, Transposition::No) }
+    }
+
+    ///
+    //@todo(geo-ant): this is B*Q^T
+    pub fn mul_q_tr_mut<R2, S2>(&self, b: &mut Matrix<T, R2, C, S2>) -> Result<(), Error>
+    where
+        R2: Dim,
+        S2: RawStorageMut<T, R2, C> + IsContiguous,
+    {
+        assert_eq!(b.ncols(), self.nrows());
+        // SAFETY: matrix has the correct dimensions for operation Q*B
+        unsafe { self.multiply_q_mut(b, Side::Right, Transposition::Transpose) }
     }
 
     /// Multiplies the provided matrix by Q, requiring contiguous column-major storage
-    //@todo(gantonopoulos) comment
-    pub fn mul_q_mut<R2: Dim, C2: Dim, S>(
+    //@todo(geo-ant) comment
+    unsafe fn multiply_q_mut<R2, C2, S2>(
         &self,
-        mat: &mut Matrix<T, R2, C2, S>,
+        mat: &mut Matrix<T, R2, C2, S2>,
         side: Side,
         transpose: Transposition,
     ) -> Result<(), Error>
     where
-        S: RawStorageMut<T, R2, C2> + IsContiguous,
+        S2: RawStorageMut<T, R2, C2> + IsContiguous,
+        R2: Dim,
+        C2: Dim,
     {
         //@todo test matrix dimensions
         let a = self.qr.as_slice();
@@ -288,7 +320,7 @@ where
             return Err(Error::Dimension);
         }
 
-        self.mul_q_mut(rhs, Side::Left, Transposition::Transpose)?;
+        self.q_tr_mul_mut(rhs)?;
 
         let rank = self.rank();
 
