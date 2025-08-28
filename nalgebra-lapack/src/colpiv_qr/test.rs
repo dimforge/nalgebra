@@ -1,6 +1,6 @@
-use super::ColPivQR;
-use approx::assert_abs_diff_eq;
-use na::OMatrix;
+use super::ColPivQr;
+use approx::{assert_abs_diff_eq, assert_relative_eq};
+use na::{ColPivQR, DMatrix, Matrix, OMatrix};
 
 #[test]
 fn smoketest_qr_decomposition_for_f32_matrix() {
@@ -11,11 +11,11 @@ fn smoketest_qr_decomposition_for_f32_matrix() {
      8.,   4.,   9.];
 
     let _ =
-        ColPivQR::new(mat, Default::default()).expect("creating qr decomposition must not fail");
+        ColPivQr::new(mat, Default::default()).expect("creating qr decomposition must not fail");
 }
 
 #[test]
-fn qr_decomposition_satisfies_ap_eq_qr() {
+fn qr_decomposition_satisfies_ap_eq_qr_for_full_rank() {
     let a: OMatrix<f32, _, _> = nalgebra::matrix!
     [  65.,   15.,   69.;
        99.,   44.,   63.;
@@ -24,11 +24,11 @@ fn qr_decomposition_satisfies_ap_eq_qr() {
         1.,   51.,   93.;
     ];
 
-    let qr = ColPivQR::new(a, Default::default()).unwrap();
+    let qr = ColPivQr::new(a, Default::default()).unwrap();
     assert_eq!(qr.rank(), 3);
     let q = qr.q();
     let r = qr.r();
-    let a_calc = q * r;
+    let a_calc = &q * &r;
     let a_perm = {
         let mut tmp = a.clone();
         qr.p().permute_cols_mut(&mut tmp).unwrap();
@@ -37,6 +37,60 @@ fn qr_decomposition_satisfies_ap_eq_qr() {
 
     // A*P == Q*R (within numerical accuracy)
     assert_abs_diff_eq!(a_calc, a_perm, epsilon = 1e-4);
+
+    let expected_r: Matrix<f32, _, _, _> = nalgebra::matrix!
+    [
+          -157.0860, -106.9733,  -89.7916;
+          0.       , -114.7550,  -14.2190;
+          0.       ,  0.      ,  -31.9733;
+    ];
+
+    assert_relative_eq!(expected_r, r, epsilon = 1e-4);
+
+    // MATLAB gives full Q, we just need the first 3 columns
+    let expected_q = nalgebra::matrix!
+    [
+      -0.439250, -0.156960,  0.834221;//  0.241441, -0.167942;
+      -0.401054, -0.488849, -0.032457;// -0.686265,  0.358007;
+      -0.483812,  0.207005, -0.297161;// -0.245988, -0.757800;
+      -0.248272, -0.631271, -0.429461;//  0.594918, -0.038643;
+      -0.592033,  0.543171, -0.174014;//  0.237296,  0.517564;
+    ];
+
+    assert_relative_eq!(expected_q, q, epsilon = 1e-4);
+}
+
+#[test]
+fn qr_decomposition_satisfies_ap_eq_qr_for_for_rank_deficient() {
+    let a: Matrix<f32, _, _, _> = nalgebra::dmatrix!
+    [
+       -105.,  79.,   92.;
+        25.,   43.,   9.;
+       -19.,   81.,   50.;
+       -130.,  58.,   94.;
+
+    ];
+    let qr = ColPivQr::new(a.clone(), Default::default()).unwrap();
+    assert_eq!(qr.rank(), 2);
+    let r = qr.r();
+    let q = qr.q();
+
+    // we can compare R with the results from MATLAB, but we can't do that for
+    // Q since it's not unique
+    let expected_r = nalgebra::dmatrix![
+          170.0323,   -95.8582, -132.9453;
+          0.      ,   -93.9479, -46.9739;
+          0.      ,    0.     , 0.;
+    ];
+    assert_abs_diff_eq!(r, expected_r, epsilon = 1e-4);
+
+    let a_perm = {
+        let mut tmp = a.clone();
+        qr.p().permute_cols_mut(&mut tmp).unwrap();
+        tmp
+    };
+    // check AP == QR
+    assert_abs_diff_eq!(a_perm, &q * r, epsilon = 1e-4);
 }
 
 #[test]
@@ -46,7 +100,7 @@ fn test_q_multiplication() {
 
 #[test]
 fn test_rank_determination_for_different_matrices() {
-    use super::{ColPivQR, rank::RankEstimationAlgo};
+    use super::{ColPivQr, rank::RankEstimationAlgo};
     use nalgebra::{DMatrix, matrix};
 
     // Full rank square matrix (3x3)
@@ -55,7 +109,7 @@ fn test_rank_determination_for_different_matrices() {
         4.0, 5.0, 6.0;
         7.0, 8.0, 10.0
     ];
-    let qr = ColPivQR::new(full_rank_square, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(full_rank_square, RankEstimationAlgo::default())
         .expect("QR decomposition should succeed");
     assert_eq!(qr.rank(), 3, "Full rank 3x3 matrix should have rank 3");
 
@@ -65,7 +119,7 @@ fn test_rank_determination_for_different_matrices() {
         0.0, 1.0, 0.0;
         1.0, 1.0, 0.0
     ];
-    let qr = ColPivQR::new(rank_deficient_square, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(rank_deficient_square, RankEstimationAlgo::default())
         .expect("QR decomposition should succeed");
     assert_eq!(qr.rank(), 2, "Rank deficient 3x3 matrix should have rank 2");
 
@@ -76,7 +130,7 @@ fn test_rank_determination_for_different_matrices() {
         1.0, 1.0, 0.0;
         2.0, 1.0, 1.0
     ];
-    let qr = ColPivQR::new(overdetermined_full_rank, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(overdetermined_full_rank, RankEstimationAlgo::default())
         .expect("QR decomposition should succeed");
     assert_eq!(
         qr.rank(),
@@ -91,7 +145,7 @@ fn test_rank_determination_for_different_matrices() {
         1.0, 0.0, 0.0;  // This row is same as row1
         2.0, 2.0, 0.0   // This row is 2*row1 + 2*row2 = 2*row3 + 2*row2
     ];
-    let qr = ColPivQR::new(overdetermined_rank_deficient, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(overdetermined_rank_deficient, RankEstimationAlgo::default())
         .expect("QR decomposition should succeed");
     assert_eq!(qr.rank(), 2, "Rank deficient 4x3 matrix should have rank 2");
 
@@ -101,7 +155,7 @@ fn test_rank_determination_for_different_matrices() {
         0.0, 1.0, 1.0, 3.0;
         1.0, 1.0, 0.0, 1.0
     ];
-    let qr = ColPivQR::new(underdetermined_full_rank, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(underdetermined_full_rank, RankEstimationAlgo::default())
         .expect("QR decomposition should succeed");
     assert_eq!(
         qr.rank(),
@@ -115,7 +169,7 @@ fn test_rank_determination_for_different_matrices() {
         0.0, 1.0, 0.0, 0.0;
         1.0, 1.0, 0.0, 0.0  // This row is row1 + row2
     ];
-    let qr = ColPivQR::new(
+    let qr = ColPivQr::new(
         underdetermined_rank_deficient,
         RankEstimationAlgo::default(),
     )
@@ -128,7 +182,7 @@ fn test_rank_determination_for_different_matrices() {
         2.0, 4.0, 6.0;  // 2*row1
         3.0, 6.0, 9.0   // 3*row1
     ];
-    let qr = ColPivQR::new(rank_one, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(rank_one, RankEstimationAlgo::default())
         .expect("QR decomposition should succeed");
     print!("qr = {:?}", qr.qr);
     assert_eq!(qr.rank(), 1, "Rank 1 matrix should have rank 1");
@@ -139,7 +193,7 @@ fn test_rank_determination_for_different_matrices() {
         0., 0., 0.;
         0., 0., 0.
     ];
-    let qr = ColPivQR::new(zero, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(zero, RankEstimationAlgo::default())
         .expect("QR decomposition should succeed");
     assert_eq!(
         qr.rank(),
@@ -158,7 +212,7 @@ fn test_rank_determination_for_different_matrices() {
         ],
     );
 
-    let qr = ColPivQR::new(dynamic_mat.clone(), RankEstimationAlgo::default())
+    let qr = ColPivQr::new(dynamic_mat.clone(), RankEstimationAlgo::default())
         .expect("QR decomposition should succeed");
     assert_eq!(
         qr.rank(),
@@ -172,7 +226,7 @@ fn test_rank_determination_for_different_matrices() {
         0.0, 1.0, 0.0;
         0.0, 0.0, 1.0
     ];
-    let qr = ColPivQR::new(identity_3x3, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(identity_3x3, RankEstimationAlgo::default())
         .expect("QR decomposition should succeed");
     assert_eq!(qr.rank(), 3, "Identity matrix should have full rank");
 
@@ -182,7 +236,7 @@ fn test_rank_determination_for_different_matrices() {
         0.0, 1e-5, 0.0;
         0.0, 0.0, 1.0
     ];
-    let qr = ColPivQR::new(small_eigenvalue, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(small_eigenvalue, RankEstimationAlgo::default())
         .expect("QR decomposition should succeed");
     assert_eq!(
         qr.rank(),
@@ -202,7 +256,7 @@ fn solve_full_rank_overdetermined_system_with_single_rhs() {
     let x = nalgebra::vector![8., 6., 2.];
 
     let b = &a * &x;
-    let qr = ColPivQR::new(a, Default::default()).expect("qr decomposition must not fail");
+    let qr = ColPivQr::new(a, Default::default()).expect("qr decomposition must not fail");
     assert_eq!(qr.rank(), 3);
     let x_calc = qr.solve(&b).unwrap();
     assert_abs_diff_eq!(x_calc, x, epsilon = 1e-6);
@@ -219,7 +273,7 @@ fn solve_rank_deficient_overdetermined_system_with_single_rhs() {
     let x = nalgebra::vector![8., 6., 2.];
 
     let b = &a * &x;
-    let qr = ColPivQR::new(a, Default::default()).expect("qr decomposition must not fail");
+    let qr = ColPivQr::new(a, Default::default()).expect("qr decomposition must not fail");
     assert_eq!(qr.rank(), 2);
     let x_calc = qr.solve(&b).unwrap();
     //@note(geo-ant) for rank deficient problems we cannot expect the
