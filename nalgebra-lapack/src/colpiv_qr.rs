@@ -4,7 +4,7 @@ use nalgebra::storage::RawStorageMut;
 use nalgebra::{DefaultAllocator, Dim, DimMin, DimMinimum, OMatrix, Scalar, allocator::Allocator};
 use num::float::TotalOrder;
 use num::{Float, Zero};
-use rank::{RankEstimationAlgo, calculate_rank};
+use rank::{RankDeterminationAlgorithm, calculate_rank};
 
 pub mod error;
 use crate::ComplexHelper;
@@ -26,7 +26,7 @@ pub enum Error {
     Backend(#[from] LapackErrorCode),
     #[error("Wrong matrix dimensions")]
     Dimension,
-    #[error("Solving underdetermined systems not supported")]
+    #[error("QR decomposition for underdetermined systems not supported")]
     Underdetermined,
     #[error("Matrix has rank zero")]
     ZeroRank,
@@ -99,8 +99,16 @@ where
 {
     ///@todo(geo-ant) maybe add another constructor that allows giving a workspace array,
     // so we don't have to allocate in here
-    pub fn new(mut m: OMatrix<T, R, C>, rank_algo: RankEstimationAlgo<T>) -> Result<Self, Error> {
+    pub fn new(
+        mut m: OMatrix<T, R, C>,
+        rank_algo: RankDeterminationAlgorithm<T>,
+    ) -> Result<Self, Error> {
         let (nrows, ncols) = m.shape_generic();
+
+        if nrows.value() < ncols.value() {
+            return Err(Error::Underdetermined);
+        }
+
         let mut tau: OVector<T, DimMinimum<R, C>> =
             Vector::zeros_generic(nrows.min(ncols), Const::<1>);
         let mut jpvt: OVector<i32, C> = Vector::zeros_generic(ncols, Const::<1>);
@@ -186,10 +194,10 @@ where
 {
     ///
     //@todo(geo-ant): this is Q*B
-    pub fn q_mul_mut<C2, S2>(&self, b: &mut Matrix<T, C, C2, S2>) -> Result<(), Error>
+    pub fn q_mul_mut<C2, S>(&self, b: &mut Matrix<T, C, C2, S>) -> Result<(), Error>
     where
         C2: Dim,
-        S2: RawStorageMut<T, C, C2> + IsContiguous,
+        S: RawStorageMut<T, C, C2> + IsContiguous,
     {
         assert_eq!(b.nrows(), self.ncols());
         // SAFETY: matrix has the correct dimensions for operation Q*B
@@ -198,10 +206,10 @@ where
 
     ///
     //@todo(geo-ant): this is Q^T*B
-    pub fn q_tr_mul_mut<C2, S2>(&self, b: &mut Matrix<T, R, C2, S2>) -> Result<(), Error>
+    pub fn q_tr_mul_mut<C2, S>(&self, b: &mut Matrix<T, R, C2, S>) -> Result<(), Error>
     where
         C2: Dim,
-        S2: RawStorageMut<T, R, C2> + IsContiguous,
+        S: RawStorageMut<T, R, C2> + IsContiguous,
     {
         assert_eq!(b.nrows(), self.nrows());
         // SAFETY: matrix has the correct dimensions for operation Q*B
@@ -210,10 +218,10 @@ where
 
     ///
     //@todo(geo-ant): this is Q*B
-    pub fn mul_q_mut<R2, S2>(&self, b: &mut Matrix<T, R2, R, S2>) -> Result<(), Error>
+    pub fn mul_q_mut<R2, S>(&self, b: &mut Matrix<T, R2, R, S>) -> Result<(), Error>
     where
         R2: Dim,
-        S2: RawStorageMut<T, R2, R> + IsContiguous,
+        S: RawStorageMut<T, R2, R> + IsContiguous,
     {
         assert_eq!(b.ncols(), self.nrows());
         // SAFETY: matrix has the correct dimensions for operation B*Q
@@ -222,18 +230,26 @@ where
 
     ///
     //@todo(geo-ant): this is B*Q^T
-    pub fn mul_q_tr_mut<R2, S2>(&self, b: &mut Matrix<T, R2, C, S2>) -> Result<(), Error>
+    pub fn mul_q_tr_mut<R2, S>(&self, b: &mut Matrix<T, R2, C, S>) -> Result<(), Error>
     where
         R2: Dim,
-        S2: RawStorageMut<T, R2, C> + IsContiguous,
+        S: RawStorageMut<T, R2, C> + IsContiguous,
     {
         assert_eq!(b.ncols(), self.nrows());
         // SAFETY: matrix has the correct dimensions for operation Q*B
         unsafe { self.multiply_q_mut(b, Side::Right, Transposition::Transpose) }
     }
 
-    /// Multiplies the provided matrix by Q, requiring contiguous column-major storage
-    //@todo(geo-ant) comment
+    /// Thin-ish wrapper around the LAPACK function
+    /// [?ormqr](https://www.netlib.org/lapack/explore-html/d7/d50/group__unmqr.html),
+    /// which allows us to calculate either Q*B, Q^T*B, B*Q, B*Q^T for appropriately
+    /// shaped matrices B, without having to explicitly form Q. In this calculation
+    /// Q is constructed as if it were a square matrix of appropriate dimension.
+    ///
+    /// # Safety
+    ///
+    /// The dimensions of the matrices must be correct such that the multiplication
+    /// can be performed.
     unsafe fn multiply_q_mut<R2, C2, S2>(
         &self,
         mat: &mut Matrix<T, R2, C2, S2>,

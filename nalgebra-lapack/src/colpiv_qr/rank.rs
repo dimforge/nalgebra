@@ -7,9 +7,9 @@ use num::{Float, float::TotalOrder};
 #[cfg(test)]
 mod test;
 
-/// describes different algorithms of calculating a matrix rank from the upper
+/// describes different algorithms of estimating a matrix rank from the upper
 /// diagonal R matrix of a column-pivoted QR decomposition.
-pub enum RankEstimationAlgo<T: RealField> {
+pub enum RankDeterminationAlgorithm<T: RealField> {
     /// this simplest (and cheapest) strategy is to estimate the rank of the
     /// matrix $$AP = QR$$ as the number of diagonal elements $$R_{ii}$$ greater
     /// than this fixed lower bound.
@@ -24,7 +24,7 @@ pub enum RankEstimationAlgo<T: RealField> {
     ScaledEps2,
 }
 
-impl<T> Default for RankEstimationAlgo<T>
+impl<T> Default for RankDeterminationAlgorithm<T>
 where
     T: RealField + Float,
 {
@@ -37,7 +37,7 @@ where
 // part stores the matrix R
 pub(crate) fn calculate_rank<T, R, C, S>(
     qr: &Matrix<T, R, C, S>,
-    method: RankEstimationAlgo<T>,
+    method: RankDeterminationAlgorithm<T>,
 ) -> usize
 where
     T: Scalar + RealField + Copy + Float + TotalOrder,
@@ -46,8 +46,10 @@ where
     S: Storage<T, R, C> + RawStorage<T, R, C> + IsContiguous,
 {
     match method {
-        RankEstimationAlgo::FixedLowerBound(eps) => calculate_rank_with_fixed_minimum(qr, eps),
-        RankEstimationAlgo::ScaledEps1 => {
+        RankDeterminationAlgorithm::FixedLowerBound(eps) => {
+            calculate_rank_with_fixed_minimum(qr, eps)
+        }
+        RankDeterminationAlgorithm::ScaledEps1 => {
             let r_max = calculate_max_abs_diag(qr);
 
             let tol = r_max
@@ -56,7 +58,7 @@ where
                     .expect("matrix dimensions out of floating point bounds");
             calculate_rank_with_fixed_minimum(qr, tol)
         }
-        RankEstimationAlgo::ScaledEps2 => {
+        RankDeterminationAlgorithm::ScaledEps2 => {
             let r_max = calculate_max_abs_diag(qr);
 
             let tol = eps(r_max)

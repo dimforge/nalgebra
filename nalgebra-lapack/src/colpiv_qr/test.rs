@@ -95,12 +95,35 @@ fn qr_decomposition_satisfies_ap_eq_qr_for_for_rank_deficient() {
 
 #[test]
 fn test_q_multiplication() {
+    let a: Matrix<f32, _, _, _> = nalgebra::matrix!
+    [
+       71.,   37.,   61.,   50.;
+       60.,   78.,   42.,   33.;
+       50.,   31.,   80.,   23.;
+       76.,   85.,   62.,   39.;
+       77.,   57.,   26.,   47.;
+    ];
+
+    let qr = ColPivQr::new(a, Default::default()).unwrap();
+
+    let mut b1 = nalgebra::matrix!
+    [
+       32.,   93.;
+       40.,   92.;
+       42.,   65.;
+       68.,   32.;
+       73.,   30.;
+    ];
+
+    qr.q_tr_mul_mut(&mut b1).unwrap();
+    panic!("b = {:?}", b1);
+
     todo!()
 }
 
 #[test]
 fn test_rank_determination_for_different_matrices() {
-    use super::{ColPivQr, rank::RankEstimationAlgo};
+    use super::{ColPivQr, rank::RankDeterminationAlgorithm};
     use nalgebra::{DMatrix, matrix};
 
     // Full rank square matrix (3x3)
@@ -109,7 +132,8 @@ fn test_rank_determination_for_different_matrices() {
         4.0, 5.0, 6.0;
         7.0, 8.0, 10.0
     ];
-    let qr = ColPivQr::new(full_rank_square, RankEstimationAlgo::default())
+
+    let qr = ColPivQr::new(full_rank_square, RankDeterminationAlgorithm::default())
         .expect("QR decomposition should succeed");
     assert_eq!(qr.rank(), 3, "Full rank 3x3 matrix should have rank 3");
 
@@ -119,7 +143,7 @@ fn test_rank_determination_for_different_matrices() {
         0.0, 1.0, 0.0;
         1.0, 1.0, 0.0
     ];
-    let qr = ColPivQr::new(rank_deficient_square, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(rank_deficient_square, RankDeterminationAlgorithm::default())
         .expect("QR decomposition should succeed");
     assert_eq!(qr.rank(), 2, "Rank deficient 3x3 matrix should have rank 2");
 
@@ -130,8 +154,11 @@ fn test_rank_determination_for_different_matrices() {
         1.0, 1.0, 0.0;
         2.0, 1.0, 1.0
     ];
-    let qr = ColPivQr::new(overdetermined_full_rank, RankEstimationAlgo::default())
-        .expect("QR decomposition should succeed");
+    let qr = ColPivQr::new(
+        overdetermined_full_rank,
+        RankDeterminationAlgorithm::default(),
+    )
+    .expect("QR decomposition should succeed");
     assert_eq!(
         qr.rank(),
         3,
@@ -145,8 +172,11 @@ fn test_rank_determination_for_different_matrices() {
         1.0, 0.0, 0.0;  // This row is same as row1
         2.0, 2.0, 0.0   // This row is 2*row1 + 2*row2 = 2*row3 + 2*row2
     ];
-    let qr = ColPivQr::new(overdetermined_rank_deficient, RankEstimationAlgo::default())
-        .expect("QR decomposition should succeed");
+    let qr = ColPivQr::new(
+        overdetermined_rank_deficient,
+        RankDeterminationAlgorithm::default(),
+    )
+    .expect("QR decomposition should succeed");
     assert_eq!(qr.rank(), 2, "Rank deficient 4x3 matrix should have rank 2");
 
     // Underdetermined system (3x4, full row rank)
@@ -155,8 +185,11 @@ fn test_rank_determination_for_different_matrices() {
         0.0, 1.0, 1.0, 3.0;
         1.0, 1.0, 0.0, 1.0
     ];
-    let qr = ColPivQr::new(underdetermined_full_rank, RankEstimationAlgo::default())
-        .expect("QR decomposition should succeed");
+    let qr = ColPivQr::new(
+        underdetermined_full_rank,
+        RankDeterminationAlgorithm::default(),
+    )
+    .expect("QR decomposition should succeed");
     assert_eq!(
         qr.rank(),
         3,
@@ -171,7 +204,7 @@ fn test_rank_determination_for_different_matrices() {
     ];
     let qr = ColPivQr::new(
         underdetermined_rank_deficient,
-        RankEstimationAlgo::default(),
+        RankDeterminationAlgorithm::default(),
     )
     .expect("QR decomposition should succeed");
     assert_eq!(qr.rank(), 2, "Rank deficient 3x4 matrix should have rank 2");
@@ -182,7 +215,7 @@ fn test_rank_determination_for_different_matrices() {
         2.0, 4.0, 6.0;  // 2*row1
         3.0, 6.0, 9.0   // 3*row1
     ];
-    let qr = ColPivQr::new(rank_one, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(rank_one, RankDeterminationAlgorithm::default())
         .expect("QR decomposition should succeed");
     print!("qr = {:?}", qr.qr);
     assert_eq!(qr.rank(), 1, "Rank 1 matrix should have rank 1");
@@ -193,7 +226,7 @@ fn test_rank_determination_for_different_matrices() {
         0., 0., 0.;
         0., 0., 0.
     ];
-    let qr = ColPivQr::new(zero, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(zero, RankDeterminationAlgorithm::default())
         .expect("QR decomposition should succeed");
     assert_eq!(
         qr.rank(),
@@ -212,7 +245,7 @@ fn test_rank_determination_for_different_matrices() {
         ],
     );
 
-    let qr = ColPivQr::new(dynamic_mat.clone(), RankEstimationAlgo::default())
+    let qr = ColPivQr::new(dynamic_mat.clone(), RankDeterminationAlgorithm::default())
         .expect("QR decomposition should succeed");
     assert_eq!(
         qr.rank(),
@@ -226,7 +259,7 @@ fn test_rank_determination_for_different_matrices() {
         0.0, 1.0, 0.0;
         0.0, 0.0, 1.0
     ];
-    let qr = ColPivQr::new(identity_3x3, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(identity_3x3, RankDeterminationAlgorithm::default())
         .expect("QR decomposition should succeed");
     assert_eq!(qr.rank(), 3, "Identity matrix should have full rank");
 
@@ -236,7 +269,7 @@ fn test_rank_determination_for_different_matrices() {
         0.0, 1e-5, 0.0;
         0.0, 0.0, 1.0
     ];
-    let qr = ColPivQr::new(small_eigenvalue, RankEstimationAlgo::default())
+    let qr = ColPivQr::new(small_eigenvalue, RankDeterminationAlgorithm::default())
         .expect("QR decomposition should succeed");
     assert_eq!(
         qr.rank(),
