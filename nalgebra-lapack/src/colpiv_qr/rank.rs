@@ -1,7 +1,5 @@
-use crate::num::FromPrimitive;
-use na::ComplexField;
 use na::{Dim, IsContiguous, Matrix, RawStorage, RealField, Scalar, Storage};
-use num::{ConstOne, ToPrimitive};
+use num::ToPrimitive;
 use num::{Float, float::TotalOrder};
 
 #[cfg(test)]

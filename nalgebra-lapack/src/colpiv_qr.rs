@@ -428,7 +428,7 @@ where
             &mut info,
         );
 
-        debug_assert!(check_lapack_info(info).is_ok(), "error in lapack backend");
+        assert_eq!(check_lapack_info(info), Ok(()), "error in lapack backend");
 
         let mut work = vec![T::zero(); lwork as usize];
 
@@ -444,7 +444,7 @@ where
             &mut info,
         );
 
-        debug_assert!(check_lapack_info(info).is_ok(), "error in lapack backend");
+        assert_eq!(check_lapack_info(info), Ok(()), "error in lapack backend");
 
         q
     }
