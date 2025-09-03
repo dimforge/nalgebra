@@ -1,6 +1,6 @@
 use super::ColPivQr;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
-use na::{ColPivQR, DMatrix, Matrix, OMatrix};
+use na::{Matrix, OMatrix};
 
 #[test]
 fn smoketest_qr_decomposition_for_f32_matrix() {

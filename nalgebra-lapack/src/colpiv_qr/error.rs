@@ -1,4 +1,14 @@
-use std::fmt::Display;
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("Error in lapack backend (code: {0})")]
+    Backend(#[from] LapackErrorCode),
+    #[error("Wrong matrix dimensions")]
+    Dimensions,
+    #[error("QR decomposition for underdetermined systems not supported")]
+    Underdetermined,
+    #[error("Matrix has rank zero")]
+    ZeroRank,
+}
 
 /// newtype for a lapack error code
 #[derive(Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]

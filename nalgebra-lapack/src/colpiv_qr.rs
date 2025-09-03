@@ -1,3 +1,6 @@
+use super::qr::{QRReal, QRScalar};
+use crate::ComplexHelper;
+use error::Error;
 use error::{LapackErrorCode, check_lapack_info};
 use na::{ComplexField, Const, IsContiguous, Matrix, OVector, RealField, Storage, Vector};
 use nalgebra::storage::RawStorageMut;
@@ -7,30 +10,13 @@ use num::{Float, Zero};
 use rank::{RankDeterminationAlgorithm, calculate_rank};
 
 pub mod error;
-use crate::ComplexHelper;
-
-use super::qr::{QRReal, QRScalar};
+mod permutation;
 #[cfg(test)]
 mod test;
 mod utility;
-
-mod permutation;
 pub use permutation::Permutation;
-
 /// utility functionality to calculate the rank of matrices
 mod rank;
-
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    #[error("Error in lapack backend (code: {0})")]
-    Backend(#[from] LapackErrorCode),
-    #[error("Wrong matrix dimensions")]
-    Dimensions,
-    #[error("QR decomposition for underdetermined systems not supported")]
-    Underdetermined,
-    #[error("Matrix has rank zero")]
-    ZeroRank,
-}
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 /// Indicates the side from which a matrix multiplication is to be performed.
