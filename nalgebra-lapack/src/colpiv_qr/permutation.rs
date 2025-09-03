@@ -89,7 +89,7 @@ where
         T: ColPivQrScalar,
     {
         if mat.nrows() != self.jpvt.len() {
-            return Err(Error::Dimension);
+            return Err(Error::Dimensions);
         }
 
         let m = mat
@@ -125,7 +125,7 @@ where
         T: ColPivQrScalar,
     {
         if mat.ncols() != self.jpvt.len() {
-            return Err(Error::Dimension);
+            return Err(Error::Dimensions);
         }
         let m = mat
             .nrows()

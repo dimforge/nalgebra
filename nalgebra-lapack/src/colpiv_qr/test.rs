@@ -97,16 +97,25 @@ fn qr_decomposition_satisfies_ap_eq_qr_for_for_rank_deficient() {
 fn test_q_multiplication() {
     let a: Matrix<f32, _, _, _> = nalgebra::matrix!
     [
-       71.,   37.,   61.,   50.;
-       60.,   78.,   42.,   33.;
-       50.,   31.,   80.,   23.;
-       76.,   85.,   62.,   39.;
-       77.,   57.,   26.,   47.;
+       29.,    0.,   80.,   10.;
+       43.,   95.,   99.,   20.;
+       49.,   44.,   65.,   51.;
+       45.,   21.,   18.,   90.;
+       99.,   20.,   46.,   76.;
     ];
 
     let qr = ColPivQr::new(a, Default::default()).unwrap();
 
-    let mut b1 = nalgebra::matrix!
+    // from Octave
+    let q_full: Matrix<f32, _, _, _> = nalgebra::matrix![
+        -0.52904777,  -0.27274187,  0.74369079, -0.23345502,  0.19530256;
+        -0.65469661,  -0.26635373, -0.63457098,  0.03340311,  0.31085678;
+        -0.42985131,   0.17855078, -0.06487111, -0.16634077, -0.86687367;
+        -0.11903575,   0.75760623, -0.06473310, -0.54939070,  0.32533487;
+        -0.30420247,   0.49881860,  0.18932786,  0.78414513,  0.08895075;
+    ];
+
+    let b = nalgebra::matrix!
     [
        32.,   93.;
        40.,   92.;
@@ -115,10 +124,40 @@ fn test_q_multiplication() {
        73.,   30.;
     ];
 
-    qr.q_tr_mul_mut(&mut b1).unwrap();
-    panic!("b = {:?}", b1);
+    let q_mul_b = {
+        let mut tmp = b.clone();
+        qr.q_mul_mut(&mut tmp).unwrap();
+        tmp
+    };
 
-    todo!()
+    assert_abs_diff_eq!(q_mul_b, q_full * b, epsilon = 1e-4);
+
+    let q_tr_mul_b = {
+        let mut tmp = b.clone();
+        qr.q_tr_mul_mut(&mut tmp).unwrap();
+        tmp
+    };
+
+    assert_abs_diff_eq!(q_tr_mul_b, q_full.transpose() * b, epsilon = 1e-4);
+
+    let b = b.transpose();
+
+    let q_mul_b = {
+        let mut tmp = b.clone();
+        qr.mul_q_mut(&mut tmp).unwrap();
+        tmp
+    };
+
+    assert_abs_diff_eq!(q_mul_b, b * q_full, epsilon = 1e-4);
+
+    let q_tr_mul_b = {
+        let mut tmp = b.clone();
+        qr.mul_q_tr_mut(&mut tmp).unwrap();
+        tmp
+    };
+
+    assert_abs_diff_eq!(q_tr_mul_b, b * q_full.transpose(), epsilon = 1e-4);
+    todo!("waaaaah")
 }
 
 #[test]

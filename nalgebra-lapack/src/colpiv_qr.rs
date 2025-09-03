@@ -25,7 +25,7 @@ pub enum Error {
     #[error("Error in lapack backend (code: {0})")]
     Backend(#[from] LapackErrorCode),
     #[error("Wrong matrix dimensions")]
-    Dimension,
+    Dimensions,
     #[error("QR decomposition for underdetermined systems not supported")]
     Underdetermined,
     #[error("Matrix has rank zero")]
@@ -137,7 +137,7 @@ where
 
         let rank: i32 = calculate_rank(&m, rank_algo)
             .try_into()
-            .map_err(|_| Error::Dimension)?;
+            .map_err(|_| Error::Dimensions)?;
 
         Ok(Self {
             qr: m,
@@ -194,12 +194,14 @@ where
 {
     ///
     //@todo(geo-ant): this is Q*B
-    pub fn q_mul_mut<C2, S>(&self, b: &mut Matrix<T, C, C2, S>) -> Result<(), Error>
+    pub fn q_mul_mut<C2, S>(&self, b: &mut Matrix<T, R, C2, S>) -> Result<(), Error>
     where
         C2: Dim,
-        S: RawStorageMut<T, C, C2> + IsContiguous,
+        S: RawStorageMut<T, R, C2> + IsContiguous,
     {
-        assert_eq!(b.nrows(), self.ncols());
+        if b.nrows() != self.nrows() {
+            return Err(Error::Dimensions);
+        }
         // SAFETY: matrix has the correct dimensions for operation Q*B
         unsafe { self.multiply_q_mut(b, Side::Left, Transposition::No) }
     }
@@ -211,7 +213,9 @@ where
         C2: Dim,
         S: RawStorageMut<T, R, C2> + IsContiguous,
     {
-        assert_eq!(b.nrows(), self.nrows());
+        if b.nrows() != self.nrows() {
+            return Err(Error::Dimensions);
+        }
         // SAFETY: matrix has the correct dimensions for operation Q*B
         unsafe { self.multiply_q_mut(b, Side::Left, Transposition::Transpose) }
     }
@@ -223,19 +227,23 @@ where
         R2: Dim,
         S: RawStorageMut<T, R2, R> + IsContiguous,
     {
-        assert_eq!(b.ncols(), self.nrows());
+        if b.ncols() != self.nrows() {
+            return Err(Error::Dimensions);
+        }
         // SAFETY: matrix has the correct dimensions for operation B*Q
         unsafe { self.multiply_q_mut(b, Side::Right, Transposition::No) }
     }
 
     ///
     //@todo(geo-ant): this is B*Q^T
-    pub fn mul_q_tr_mut<R2, S>(&self, b: &mut Matrix<T, R2, C, S>) -> Result<(), Error>
+    pub fn mul_q_tr_mut<R2, S>(&self, b: &mut Matrix<T, R2, R, S>) -> Result<(), Error>
     where
         R2: Dim,
-        S: RawStorageMut<T, R2, C> + IsContiguous,
+        S: RawStorageMut<T, R2, R> + IsContiguous,
     {
-        assert_eq!(b.ncols(), self.nrows());
+        if b.ncols() != self.nrows() {
+            return Err(Error::Dimensions);
+        }
         // SAFETY: matrix has the correct dimensions for operation Q*B
         unsafe { self.multiply_q_mut(b, Side::Right, Transposition::Transpose) }
     }
@@ -325,15 +333,15 @@ where
     {
         //@todo(geo-ant) validate matrix dimensions!! Must be overdetermined (or square) here
         if rhs.nrows() != self.nrows() {
-            return Err(Error::Dimension);
+            return Err(Error::Dimensions);
         }
 
         if self.nrows() < self.ncols() || self.nrows() == 0 || self.ncols() == 0 {
-            return Err(Error::Dimension);
+            return Err(Error::Dimensions);
         }
 
         if x.ncols() != rhs.ncols() || x.nrows() != self.ncols() {
-            return Err(Error::Dimension);
+            return Err(Error::Dimensions);
         }
 
         self.q_tr_mul_mut(rhs)?;
@@ -385,25 +393,25 @@ where
 
 impl<T, R, C> ColPivQr<T, R, C>
 where
-    DefaultAllocator: Allocator<R, C>
-        + Allocator<R, DimMinimum<R, C>>
-        + Allocator<DimMinimum<R, C>, C>
-        + Allocator<DimMinimum<R, C>>
-        + Allocator<C>,
-    T: ColPivQrReal + Zero + ComplexField,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
+    T: Scalar + ComplexField,
     R: DimMin<C>,
     C: Dim,
-    DefaultAllocator:,
 {
-    /// Computes the orthogonal matrix `Q` of this decomposition.
+    /// Computes the orthonormal matrix $Q \in \mathbb{R}^{m \times n}$
+    /// of this decomposition.
     #[inline]
     #[must_use]
-    pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>> {
+    pub fn q(&self) -> OMatrix<T, R, DimMinimum<R, C>>
+    where
+        DefaultAllocator: Allocator<R, <R as DimMin<C>>::Output>,
+        T: ColPivQrReal + Zero + ComplexField,
+    {
         let (nrows, ncols) = self.qr.shape_generic();
         let min_nrows_ncols = nrows.min(ncols);
 
         if min_nrows_ncols.value() == 0 {
-            return OMatrix::from_element_generic(nrows, min_nrows_ncols, T::zero());
+            return OMatrix::zeros_generic(nrows, min_nrows_ncols);
         }
 
         let mut q = self
