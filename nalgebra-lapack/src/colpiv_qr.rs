@@ -183,11 +183,7 @@ where
 
 impl<T, R, C> ColPivQr<T, R, C>
 where
-    DefaultAllocator: Allocator<R, C>
-        + Allocator<R, DimMinimum<R, C>>
-        + Allocator<DimMinimum<R, C>, C>
-        + Allocator<DimMinimum<R, C>>
-        + Allocator<C>,
+    DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
     T: ColPivQrReal + Zero + RealField,
     R: DimMin<C>,
     C: Dim,
