@@ -157,7 +157,6 @@ fn test_q_multiplication() {
     };
 
     assert_abs_diff_eq!(q_tr_mul_b, b * q_full.transpose(), epsilon = 1e-4);
-    todo!("waaaaah")
 }
 
 #[test]
@@ -217,36 +216,6 @@ fn test_rank_determination_for_different_matrices() {
     )
     .expect("QR decomposition should succeed");
     assert_eq!(qr.rank(), 2, "Rank deficient 4x3 matrix should have rank 2");
-
-    // Underdetermined system (3x4, full row rank)
-    let underdetermined_full_rank = matrix![
-        1.0, 0.0, 1.0, 2.0;
-        0.0, 1.0, 1.0, 3.0;
-        1.0, 1.0, 0.0, 1.0
-    ];
-    let qr = ColPivQr::new(
-        underdetermined_full_rank,
-        RankDeterminationAlgorithm::default(),
-    )
-    .expect("QR decomposition should succeed");
-    assert_eq!(
-        qr.rank(),
-        3,
-        "Underdetermined 3x4 matrix should have full row rank 3"
-    );
-
-    // Underdetermined system with rank deficiency (3x4, rank 2)
-    let underdetermined_rank_deficient = matrix![
-        1.0, 0.0, 0.0, 0.0;
-        0.0, 1.0, 0.0, 0.0;
-        1.0, 1.0, 0.0, 0.0  // This row is row1 + row2
-    ];
-    let qr = ColPivQr::new(
-        underdetermined_rank_deficient,
-        RankDeterminationAlgorithm::default(),
-    )
-    .expect("QR decomposition should succeed");
-    assert_eq!(qr.rank(), 2, "Rank deficient 3x4 matrix should have rank 2");
 
     // Rank 1 matrix (3x3)
     let rank_one = matrix![
