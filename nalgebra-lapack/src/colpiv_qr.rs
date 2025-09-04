@@ -58,7 +58,7 @@ pub enum DiagonalKind {
 }
 
 /// todo
-pub struct ColPivQr<T, R, C>
+pub struct ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
     T: Scalar + ComplexField,
@@ -76,7 +76,7 @@ where
     rank: i32,
 }
 
-impl<T, R, C> ColPivQr<T, R, C>
+impl<T, R, C> ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
     T: ColPivQrScalar + Zero + RealField + TotalOrder + Float,
@@ -134,7 +134,7 @@ where
     }
 }
 
-impl<T, R, C> ColPivQr<T, R, C>
+impl<T, R, C> ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
     T: ColPivQrScalar + Zero + RealField,
@@ -167,7 +167,7 @@ where
     }
 }
 
-impl<T, R, C> ColPivQr<T, R, C>
+impl<T, R, C> ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
     T: ColPivQrReal + Zero + RealField,
@@ -373,7 +373,7 @@ where
     }
 }
 
-impl<T, R, C> ColPivQr<T, R, C>
+impl<T, R, C> ColPivQR<T, R, C>
 where
     DefaultAllocator: Allocator<R, C> + Allocator<DimMinimum<R, C>> + Allocator<C>,
     T: Scalar + ComplexField,

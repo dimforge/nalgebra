@@ -96,7 +96,7 @@ mod symmetric_eigen;
 use num_complex::Complex;
 
 pub use self::cholesky::{Cholesky, CholeskyScalar};
-pub use self::colpiv_qr::{ColPivQr, Side, Transposition};
+pub use self::colpiv_qr::{ColPivQR, Side, Transposition};
 pub use self::eigen::Eigen;
 pub use self::generalized_eigenvalues::GeneralizedEigen;
 pub use self::hessenberg::Hessenberg;
