@@ -83,9 +83,15 @@ where
     R: DimMin<C>,
     C: Dim,
 {
+    ///
+    //@todo(geo) comment
+    pub fn new(m: OMatrix<T, R, C>) -> Result<Self, Error> {
+        Self::with_rank_algo(m, Default::default())
+    }
+
     ///@todo(geo-ant) maybe add another constructor that allows giving a workspace array,
     // so we don't have to allocate in here
-    pub fn new(
+    pub fn with_rank_algo(
         mut m: OMatrix<T, R, C>,
         rank_algo: RankDeterminationAlgorithm<T>,
     ) -> Result<Self, Error> {
@@ -504,103 +510,129 @@ pub trait ColPivQrScalar: ComplexField + QRScalar {
     ) -> Result<(), LapackErrorCode>;
 }
 
-impl ColPivQrScalar for f32 {
-    fn xgeqp3(
-        m: i32,
-        n: i32,
-        a: &mut [Self],
-        lda: i32,
-        jpvt: &mut [i32],
-        tau: &mut [Self],
-        work: &mut [Self],
-        lwork: i32,
-    ) -> Result<(), LapackErrorCode> {
-        let mut info = 0;
-        unsafe { lapack::sgeqp3(m, n, a, lda, jpvt, tau, work, lwork, &mut info) };
-        check_lapack_info(info)
-    }
+macro_rules! colpiv_qr_scalar_impl {
+    (
+        $type:ty,
+        xgeqp3=$xgeqp3:path,
+        xtrtrs=$xtrtrs:path,
+        xlapmt=$xlapmt:path,
+        xlapmr=$xlapmr:path $(,)?
+    ) => {
+        impl ColPivQrScalar for $type {
+            fn xgeqp3(
+                m: i32,
+                n: i32,
+                a: &mut [Self],
+                lda: i32,
+                jpvt: &mut [i32],
+                tau: &mut [Self],
+                work: &mut [Self],
+                lwork: i32,
+            ) -> Result<(), LapackErrorCode> {
+                let mut info = 0;
+                unsafe { $xgeqp3(m, n, a, lda, jpvt, tau, work, lwork, &mut info) };
+                check_lapack_info(info)
+            }
 
-    fn xgeqp3_work_size(
-        m: i32,
-        n: i32,
-        a: &mut [Self],
-        lda: i32,
-        jpvt: &mut [i32],
-        tau: &mut [Self],
-    ) -> Result<i32, LapackErrorCode> {
-        let mut work = [Zero::zero()];
-        let lwork = -1 as i32;
-        let mut info = 0;
-        unsafe { lapack::sgeqp3(m, n, a, lda, jpvt, tau, &mut work, lwork, &mut info) };
-        check_lapack_info(info)?;
-        Ok(work[0] as i32)
-    }
+            fn xgeqp3_work_size(
+                m: i32,
+                n: i32,
+                a: &mut [Self],
+                lda: i32,
+                jpvt: &mut [i32],
+                tau: &mut [Self],
+            ) -> Result<i32, LapackErrorCode> {
+                let mut work = [Zero::zero()];
+                let lwork = -1 as i32;
+                let mut info = 0;
+                unsafe { $xgeqp3(m, n, a, lda, jpvt, tau, &mut work, lwork, &mut info) };
+                check_lapack_info(info)?;
+                Ok(work[0] as i32)
+            }
 
-    fn xtrtrs(
-        uplo: TriangularStructure,
-        trans: Transposition,
-        diag: DiagonalKind,
-        n: i32,
-        nrhs: i32,
-        a: &[Self],
-        lda: i32,
-        b: &mut [Self],
-        ldb: i32,
-    ) -> Result<(), LapackErrorCode> {
-        let mut info = 0;
-        let trans = match trans {
-            Transposition::No => b'N',
-            Transposition::Transpose => b'T',
-        };
+            fn xtrtrs(
+                uplo: TriangularStructure,
+                trans: Transposition,
+                diag: DiagonalKind,
+                n: i32,
+                nrhs: i32,
+                a: &[Self],
+                lda: i32,
+                b: &mut [Self],
+                ldb: i32,
+            ) -> Result<(), LapackErrorCode> {
+                let mut info = 0;
+                let trans = match trans {
+                    Transposition::No => b'N',
+                    Transposition::Transpose => b'T',
+                };
 
-        unsafe {
-            lapack::strtrs(
-                uplo.into_lapack_uplo_character(),
-                trans,
-                diag.into_lapack_diag_character(),
-                n,
-                nrhs,
-                a,
-                lda,
-                b,
-                ldb,
-                &mut info,
-            );
+                unsafe {
+                    $xtrtrs(
+                        uplo.into_lapack_uplo_character(),
+                        trans,
+                        diag.into_lapack_diag_character(),
+                        n,
+                        nrhs,
+                        a,
+                        lda,
+                        b,
+                        ldb,
+                        &mut info,
+                    );
+                }
+
+                check_lapack_info(info)
+            }
+
+            fn xlapmt(
+                forwrd: bool,
+                m: i32,
+                n: i32,
+                x: &mut [Self],
+                ldx: i32,
+                k: &mut [i32],
+            ) -> Result<(), LapackErrorCode> {
+                debug_assert_eq!(k.len(), n as usize);
+
+                let forward: [i32; 1] = [forwrd.then_some(1).unwrap_or(0)];
+                unsafe { $xlapmt(forward.as_slice(), m, n, x, ldx, k) }
+                Ok(())
+            }
+
+            fn xlapmr(
+                forwrd: bool,
+                m: i32,
+                n: i32,
+                x: &mut [Self],
+                ldx: i32,
+                k: &mut [i32],
+            ) -> Result<(), LapackErrorCode> {
+                debug_assert_eq!(k.len(), m as usize);
+
+                let forward: [i32; 1] = [forwrd.then_some(1).unwrap_or(0)];
+                unsafe { $xlapmr(forward.as_slice(), m, n, x, ldx, k) }
+                Ok(())
+            }
         }
-
-        check_lapack_info(info)
-    }
-
-    fn xlapmt(
-        forwrd: bool,
-        m: i32,
-        n: i32,
-        x: &mut [Self],
-        ldx: i32,
-        k: &mut [i32],
-    ) -> Result<(), LapackErrorCode> {
-        debug_assert_eq!(k.len(), n as usize);
-
-        let forward: [i32; 1] = [forwrd.then_some(1).unwrap_or(0)];
-        unsafe { lapack::slapmt(forward.as_slice(), m, n, x, ldx, k) }
-        Ok(())
-    }
-
-    fn xlapmr(
-        forwrd: bool,
-        m: i32,
-        n: i32,
-        x: &mut [Self],
-        ldx: i32,
-        k: &mut [i32],
-    ) -> Result<(), LapackErrorCode> {
-        debug_assert_eq!(k.len(), m as usize);
-
-        let forward: [i32; 1] = [forwrd.then_some(1).unwrap_or(0)];
-        unsafe { lapack::slapmr(forward.as_slice(), m, n, x, ldx, k) }
-        Ok(())
-    }
+    };
 }
+
+colpiv_qr_scalar_impl!(
+    f32,
+    xgeqp3 = lapack::sgeqp3,
+    xtrtrs = lapack::strtrs,
+    xlapmt = lapack::slapmt,
+    xlapmr = lapack::slapmr
+);
+
+colpiv_qr_scalar_impl!(
+    f64,
+    xgeqp3 = lapack::dgeqp3,
+    xtrtrs = lapack::dtrtrs,
+    xlapmt = lapack::dlapmt,
+    xlapmr = lapack::dlapmr
+);
 
 /// Trait implemented by reals for which Lapack function exist to compute the
 /// column-pivoted QR decomposition.
@@ -637,68 +669,144 @@ pub trait ColPivQrReal: ColPivQrScalar + QRReal {
     ) -> Result<i32, LapackErrorCode>;
 }
 
-impl ColPivQrReal for f32 {
-    fn xormqr(
-        side: Side,
-        trans: Transposition,
-        m: i32,
-        n: i32,
-        k: i32,
-        a: &[Self],
-        lda: i32,
-        tau: &[Self],
-        c: &mut [Self],
-        ldc: i32,
-        work: &mut [Self],
-        lwork: i32,
-    ) -> Result<(), LapackErrorCode> {
-        let mut info = 0;
-        let side = side.into_lapack_side_character();
+macro_rules! colpiv_qr_real_impl {
+    (
+        $type:ty,
+        xormqr = $xormqr:path $(,)?
+    ) => {
+        impl ColPivQrReal for $type {
+            fn xormqr(
+                side: Side,
+                trans: Transposition,
+                m: i32,
+                n: i32,
+                k: i32,
+                a: &[Self],
+                lda: i32,
+                tau: &[Self],
+                c: &mut [Self],
+                ldc: i32,
+                work: &mut [Self],
+                lwork: i32,
+            ) -> Result<(), LapackErrorCode> {
+                let mut info = 0;
+                let side = side.into_lapack_side_character();
 
-        // this would be different for complex numbers!
-        let trans = match trans {
-            Transposition::No => b'N',
-            Transposition::Transpose => b'T',
-        };
+                // this would be different for complex numbers!
+                let trans = match trans {
+                    Transposition::No => b'N',
+                    Transposition::Transpose => b'T',
+                };
 
-        unsafe {
-            lapack::sormqr(
-                side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, &mut info,
-            );
+                unsafe {
+                    $xormqr(
+                        side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, &mut info,
+                    );
+                }
+                check_lapack_info(info)
+            }
+
+            fn xormqr_work_size(
+                side: Side,
+                trans: Transposition,
+                m: i32,
+                n: i32,
+                k: i32,
+                a: &[Self],
+                lda: i32,
+                tau: &[Self],
+                c: &mut [Self],
+                ldc: i32,
+            ) -> Result<i32, LapackErrorCode> {
+                let mut info = 0;
+                let side = side.into_lapack_side_character();
+
+                // this would be different for complex numbers!
+                let trans = match trans {
+                    Transposition::No => b'N',
+                    Transposition::Transpose => b'T',
+                };
+
+                let mut work = [Zero::zero()];
+                let lwork = -1 as i32;
+                unsafe {
+                    $xormqr(
+                        side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork, &mut info,
+                    );
+                }
+                check_lapack_info(info)?;
+                // for complex numbers: real part
+                Ok(ComplexHelper::real_part(work[0]) as i32)
+            }
         }
-        check_lapack_info(info)
-    }
-
-    fn xormqr_work_size(
-        side: Side,
-        trans: Transposition,
-        m: i32,
-        n: i32,
-        k: i32,
-        a: &[Self],
-        lda: i32,
-        tau: &[Self],
-        c: &mut [Self],
-        ldc: i32,
-    ) -> Result<i32, LapackErrorCode> {
-        let mut info = 0;
-        let side = side.into_lapack_side_character();
-
-        // this would be different for complex numbers!
-        let trans = match trans {
-            Transposition::No => b'N',
-            Transposition::Transpose => b'T',
-        };
-
-        let mut work = [Zero::zero()];
-        let lwork = -1 as i32;
-        unsafe {
-            lapack::sormqr(
-                side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork, &mut info,
-            );
-        }
-        check_lapack_info(info)?;
-        // for complex numbers: real part
-        Ok(ComplexHelper::real_part(work[0]) as i32)
-    }
+    };
 }
+
+colpiv_qr_real_impl!(f32, xormqr = lapack::sormqr);
+colpiv_qr_real_impl!(f64, xormqr = lapack::dormqr);
+
+// impl ColPivQrReal for f32 {
+//     fn xormqr(
+//         side: Side,
+//         trans: Transposition,
+//         m: i32,
+//         n: i32,
+//         k: i32,
+//         a: &[Self],
+//         lda: i32,
+//         tau: &[Self],
+//         c: &mut [Self],
+//         ldc: i32,
+//         work: &mut [Self],
+//         lwork: i32,
+//     ) -> Result<(), LapackErrorCode> {
+//         let mut info = 0;
+//         let side = side.into_lapack_side_character();
+
+//         // this would be different for complex numbers!
+//         let trans = match trans {
+//             Transposition::No => b'N',
+//             Transposition::Transpose => b'T',
+//         };
+
+//         unsafe {
+//             lapack::sormqr(
+//                 side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, &mut info,
+//             );
+//         }
+//         check_lapack_info(info)
+//     }
+
+//     fn xormqr_work_size(
+//         side: Side,
+//         trans: Transposition,
+//         m: i32,
+//         n: i32,
+//         k: i32,
+//         a: &[Self],
+//         lda: i32,
+//         tau: &[Self],
+//         c: &mut [Self],
+//         ldc: i32,
+//     ) -> Result<i32, LapackErrorCode> {
+//         let mut info = 0;
+//         let side = side.into_lapack_side_character();
+
+//         // this would be different for complex numbers!
+//         let trans = match trans {
+//             Transposition::No => b'N',
+//             Transposition::Transpose => b'T',
+//         };
+
+//         let mut work = [Zero::zero()];
+//         let lwork = -1 as i32;
+//         unsafe {
+//             lapack::sormqr(
+//                 side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork, &mut info,
+//             );
+//         }
+//         check_lapack_info(info)?;
+//         // for complex numbers: real part
+//         Ok(ComplexHelper::real_part(work[0]) as i32)
+//     }
+// }
