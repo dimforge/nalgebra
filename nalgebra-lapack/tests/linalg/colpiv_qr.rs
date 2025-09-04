@@ -23,5 +23,5 @@ proptest! {
         qr.p().permute_cols_mut(&mut a).unwrap();
 
         prop_assert!(relative_eq!(a, q * r, epsilon = 1.0e-7))
-        }
+    }
 }
