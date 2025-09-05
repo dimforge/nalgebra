@@ -4,6 +4,7 @@ use nl::ColPivQR;
 use proptest::{prop_assert, proptest};
 
 proptest! {
+
     #[test]
     fn colpiv_qr_decomposition(mut a  in square_or_overdetermined_dmatrix()) {
         let qr = ColPivQR::new(a.clone()).unwrap();
@@ -39,13 +40,4 @@ proptest! {
         qr.p().permute_cols_mut(&mut a).unwrap();
         prop_assert!(relative_eq!(a, q * r, epsilon = 1.0e-7));
     }
-
-    //@todo(geo-ant)
-    // test solve both static and dynamic
-    #[test]
-    fn colpiv_qr_solve() {
-        todo!()
-
-    }
-
 }
