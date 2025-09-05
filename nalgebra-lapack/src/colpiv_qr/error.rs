@@ -1,12 +1,17 @@
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, PartialEq, thiserror::Error)]
+/// error cases during QR decomposition and linear system solving
 pub enum Error {
     #[error("Error in lapack backend (code: {0})")]
+    /// error in the lapack backend
     Backend(#[from] LapackErrorCode),
     #[error("Wrong matrix dimensions")]
+    /// wrong dimensions for a matrix operation
     Dimensions,
     #[error("QR decomposition for underdetermined systems not supported")]
+    /// underdetermined system
     Underdetermined,
     #[error("Matrix has rank zero")]
+    /// matrix has zero rank
     ZeroRank,
 }
 

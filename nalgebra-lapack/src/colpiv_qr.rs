@@ -374,7 +374,7 @@ where
             //@todo
         .unwrap();
 
-        self.p().permute_rows_mut(x)?;
+        self.p().inv_permute_rows_mut(x)?;
         Ok(())
     }
 }
@@ -744,69 +744,3 @@ macro_rules! colpiv_qr_real_impl {
 
 colpiv_qr_real_impl!(f32, xormqr = lapack::sormqr);
 colpiv_qr_real_impl!(f64, xormqr = lapack::dormqr);
-
-// impl ColPivQrReal for f32 {
-//     fn xormqr(
-//         side: Side,
-//         trans: Transposition,
-//         m: i32,
-//         n: i32,
-//         k: i32,
-//         a: &[Self],
-//         lda: i32,
-//         tau: &[Self],
-//         c: &mut [Self],
-//         ldc: i32,
-//         work: &mut [Self],
-//         lwork: i32,
-//     ) -> Result<(), LapackErrorCode> {
-//         let mut info = 0;
-//         let side = side.into_lapack_side_character();
-
-//         // this would be different for complex numbers!
-//         let trans = match trans {
-//             Transposition::No => b'N',
-//             Transposition::Transpose => b'T',
-//         };
-
-//         unsafe {
-//             lapack::sormqr(
-//                 side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, &mut info,
-//             );
-//         }
-//         check_lapack_info(info)
-//     }
-
-//     fn xormqr_work_size(
-//         side: Side,
-//         trans: Transposition,
-//         m: i32,
-//         n: i32,
-//         k: i32,
-//         a: &[Self],
-//         lda: i32,
-//         tau: &[Self],
-//         c: &mut [Self],
-//         ldc: i32,
-//     ) -> Result<i32, LapackErrorCode> {
-//         let mut info = 0;
-//         let side = side.into_lapack_side_character();
-
-//         // this would be different for complex numbers!
-//         let trans = match trans {
-//             Transposition::No => b'N',
-//             Transposition::Transpose => b'T',
-//         };
-
-//         let mut work = [Zero::zero()];
-//         let lwork = -1 as i32;
-//         unsafe {
-//             lapack::sormqr(
-//                 side, trans, m, n, k, a, lda, tau, c, ldc, &mut work, lwork, &mut info,
-//             );
-//         }
-//         check_lapack_info(info)?;
-//         // for complex numbers: real part
-//         Ok(ComplexHelper::real_part(work[0]) as i32)
-//     }
-// }
