@@ -1,4 +1,4 @@
-use na::{Matrix3, Matrix4, Point2, Point3, Vector2, Vector3};
+use na::{Matrix3, Matrix4, Orthographic3, Perspective3, Point2, Point3, Vector2, Vector3};
 
 /// See Example 3.4 of "Graphics and Visualization: Principles & Algorithms"
 /// by Theoharis, Papaioannou, Platis, Patrikalakis.
@@ -56,4 +56,59 @@ fn test_scaling_wrt_point_3() {
     let result = scale_about.transform_point(&pt);
 
     assert!(result == expected);
+}
+
+#[test]
+fn test_perspective_transform_vector() {
+    let vector = Vector3::new(1.0, 2.0, 3.0);
+    let perspective = Perspective3::new(2.0, 45.0, 1.0, 1000.0);
+
+    let transformed = perspective.as_matrix().transform_vector(&vector);
+
+    let multiplied = perspective.as_matrix() * vector.to_homogeneous();
+    let multiplied = multiplied / multiplied.w;
+
+    assert_relative_eq!(transformed, perspective.project_vector(&vector));
+    assert_relative_eq!(transformed.push(1.0), multiplied);
+}
+
+#[test]
+fn test_perspective_transform_point3() {
+    let point = Point3::new(1.0, 2.0, 3.0);
+    let perspective = Perspective3::new(2.0, 45.0, 1.0, 1000.0);
+
+    let transformed = perspective.as_matrix().transform_point(&point);
+
+    let multiplied = perspective.as_matrix() * point.to_homogeneous();
+    let multiplied = multiplied / multiplied.w;
+
+    assert_relative_eq!(transformed, perspective.project_point(&point));
+    assert_relative_eq!(transformed.coords.push(1.0), multiplied);
+}
+
+#[test]
+fn test_orthographic_transform_vector() {
+    let vector = Vector3::new(1.0, 2.0, 3.0);
+    let orthographic = Orthographic3::from_fov(2.0, 45.0, 1.0, 1000.0);
+
+    let transformed = orthographic.as_matrix().transform_vector(&vector);
+
+    let multiplied = orthographic.as_matrix() * vector.to_homogeneous();
+
+    assert_relative_eq!(transformed, orthographic.project_vector(&vector));
+    assert_relative_eq!(transformed.push(0.0), multiplied);
+}
+
+#[test]
+fn test_orthographic_transform_point3() {
+    let point = Point3::new(1.0, 2.0, 3.0);
+    let orthographic = Orthographic3::from_fov(2.0, 45.0, 1.0, 1000.0);
+
+    let transformed = orthographic.as_matrix().transform_point(&point);
+
+    let multiplied = orthographic.as_matrix() * point.to_homogeneous();
+    let multiplied = multiplied / multiplied.w;
+
+    assert_relative_eq!(transformed, orthographic.project_point(&point));
+    assert_relative_eq!(transformed.coords.push(1.0), multiplied);
 }
