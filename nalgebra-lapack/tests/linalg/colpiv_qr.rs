@@ -1,5 +1,5 @@
 use crate::proptest::*;
-use na::{DMatrix, Dim, Dyn, Matrix, Matrix3x2, OMatrix, RawStorage};
+use na::{DMatrix, Dim, Matrix, OMatrix, RawStorage};
 use nl::ColPivQR;
 use num_traits::Zero;
 use proptest::prelude::*;
