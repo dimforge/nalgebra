@@ -110,12 +110,6 @@ where
     matrix(scalar_strategy, PROPTEST_MATRIX_DIM, PROPTEST_MATRIX_DIM)
 }
 
-pub fn square_or_overdetermined_dmatrix() -> impl Strategy<Value = DMatrix<f64>> {
-    PROPTEST_MATRIX_DIM.prop_flat_map(|rows| {
-        (1..=rows).prop_flat_map(move |cols| matrix(PROPTEST_F64, rows..=rows, cols..=cols))
-    })
-}
-
 // pub fn dvector_<T>(range: RangeInclusive<T>) -> impl Strategy<Value = DVector<T>>
 // where
 //     RangeInclusive<T>: Strategy<Value = T>,
