@@ -15,9 +15,9 @@ fn test_permutation_4x3() {
     let mut mat2 = mat.clone();
     perm.permute_cols_mut(&mut mat2).unwrap();
 
-    assert_eq!(mat2.column(0), mat.column(2));
-    assert_eq!(mat2.column(1), mat.column(0));
-    assert_eq!(mat2.column(2), mat.column(1));
+    assert_eq!(mat2.column(2), mat.column(0));
+    assert_eq!(mat2.column(0), mat.column(1));
+    assert_eq!(mat2.column(1), mat.column(2));
 
     // now inverse permute, which means we expect same as original matrix again
     perm.inv_permute_cols_mut(&mut mat2).unwrap();
@@ -28,10 +28,10 @@ fn test_permutation_4x3() {
     let mut perm = Permutation::new(jpvt);
 
     perm.permute_rows_mut(&mut mat2).unwrap();
-    assert_eq!(mat2.row(0), mat.row(3));
+    assert_eq!(mat2.row(3), mat.row(0));
     assert_eq!(mat2.row(1), mat.row(1));
-    assert_eq!(mat2.row(2), mat.row(0));
-    assert_eq!(mat2.row(3), mat.row(2));
+    assert_eq!(mat2.row(0), mat.row(2));
+    assert_eq!(mat2.row(2), mat.row(3));
 
     perm.inv_permute_rows_mut(&mut mat2).unwrap();
     assert_eq!(mat2, mat);
@@ -57,11 +57,11 @@ fn test_permutation_dynamic_3x5() {
 
     perm.permute_cols_mut(&mut mat2).unwrap();
 
-    assert_eq!(mat2.column(0), mat.column(4));
+    assert_eq!(mat2.column(4), mat.column(0));
     assert_eq!(mat2.column(1), mat.column(1));
-    assert_eq!(mat2.column(2), mat.column(0));
+    assert_eq!(mat2.column(0), mat.column(2));
     assert_eq!(mat2.column(3), mat.column(3));
-    assert_eq!(mat2.column(4), mat.column(2));
+    assert_eq!(mat2.column(2), mat.column(4));
 
     perm.inv_permute_cols_mut(&mut mat2).unwrap();
     assert_eq!(mat2, mat);
@@ -71,9 +71,9 @@ fn test_permutation_dynamic_3x5() {
 
     perm.permute_rows_mut(&mut mat2).unwrap();
 
-    assert_eq!(mat2.row(0), mat.row(1));
-    assert_eq!(mat2.row(1), mat.row(2));
-    assert_eq!(mat2.row(2), mat.row(0));
+    assert_eq!(mat2.row(1), mat.row(0));
+    assert_eq!(mat2.row(2), mat.row(1));
+    assert_eq!(mat2.row(0), mat.row(2));
 
     // Inverse permute should restore original matrix
     perm.inv_permute_rows_mut(&mut mat2).unwrap();

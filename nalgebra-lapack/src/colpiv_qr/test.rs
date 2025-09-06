@@ -31,7 +31,7 @@ fn qr_decomposition_satisfies_ap_eq_qr_for_full_rank() {
     let a_calc = &q * &r;
     let a_perm = {
         let mut tmp = a.clone();
-        qr.p().permute_cols_mut(&mut tmp).unwrap();
+        qr.p().inv_permute_cols_mut(&mut tmp).unwrap();
         tmp
     };
 
@@ -86,7 +86,7 @@ fn qr_decomposition_satisfies_ap_eq_qr_for_for_rank_deficient() {
 
     let a_perm = {
         let mut tmp = a.clone();
-        qr.p().permute_cols_mut(&mut tmp).unwrap();
+        qr.p().inv_permute_cols_mut(&mut tmp).unwrap();
         tmp
     };
     // check AP == QR

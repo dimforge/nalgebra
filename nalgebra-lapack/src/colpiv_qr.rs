@@ -374,7 +374,7 @@ where
             //@todo
         .unwrap();
 
-        self.p().inv_permute_rows_mut(x)?;
+        self.p().permute_rows_mut(x)?;
         Ok(())
     }
 }

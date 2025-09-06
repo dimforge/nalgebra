@@ -33,7 +33,9 @@ where
         S: RawStorageMut<T, R, D> + IsContiguous,
         T: ColPivQrScalar,
     {
-        self.apply_cols_mut(true, mat)
+        //@note(geo-ant) due to the logic in the jpvt vector, we have
+        // to invert the forward/backward argument here
+        self.apply_cols_mut(false, mat)
     }
 
     ///
@@ -48,7 +50,7 @@ where
         S: RawStorageMut<T, R, D> + IsContiguous,
         T: ColPivQrScalar,
     {
-        self.apply_cols_mut(false, mat)
+        self.apply_cols_mut(true, mat)
     }
     ///
     //@todo(geo-ant) comment
@@ -59,7 +61,7 @@ where
         S: RawStorageMut<T, D, C> + IsContiguous,
         T: ColPivQrScalar,
     {
-        self.apply_rows_mut(true, mat)
+        self.apply_rows_mut(false, mat)
     }
 
     ///
@@ -74,10 +76,11 @@ where
         S: RawStorageMut<T, D, C> + IsContiguous,
         T: ColPivQrScalar,
     {
-        self.apply_rows_mut(false, mat)
+        self.apply_rows_mut(true, mat)
     }
 
     #[inline]
+    /// a thin wrapper around lapacks xLAPMR
     fn apply_rows_mut<T, C, S>(
         &mut self,
         forward: bool,
@@ -114,6 +117,7 @@ where
     }
 
     #[inline]
+    /// a thin wrapper around LAPACKS xLAMPT
     fn apply_cols_mut<T, R, S>(
         &mut self,
         forward: bool,
