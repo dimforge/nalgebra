@@ -21,6 +21,7 @@ fn reproducible_dmatrix(nrows: usize, ncols: usize) -> DMatrix<f64> {
 }
 
 criterion_main!(
+    core::cg,
     core::matrix,
     core::vector,
     geometry::quaternion,
